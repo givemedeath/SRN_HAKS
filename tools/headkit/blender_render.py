@@ -47,6 +47,9 @@ def main():
             texture.image.colorspace_settings.name='sRGB';links.new(texture.outputs['Color'],shader.inputs['Color'])
         else:
             for key,socket in [('basecolor','Color' if mode=='color-only' else 'Base Color')]+([] if mode=='color-only' else [('roughness','Roughness'),('metallic','Metallic'),('opacity','Alpha')]):
+                if key in cfg.get('materialConstants',{}):
+                    shader.inputs[socket].default_value=cfg['materialConstants'][key]
+                    continue
                 texture=nodes.new('ShaderNodeTexImage');texture.image=bpy.data.images.load(maps[key]);texture.image.colorspace_settings.name='sRGB' if key=='basecolor' else 'Non-Color'
                 links.new(texture.outputs['Color'],shader.inputs[socket])
         links.new(shader.outputs[0],output.inputs['Surface']);return mat

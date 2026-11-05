@@ -34,7 +34,9 @@ def head_entry(workspace, name, slot):
     rows = guards.read(palette/'receipt.json')['result']['rows']
     # metalRow 0: the game shows stock metal row 0 on heads without armour; palette metal pins only steer previews.
     return {'id': name, 'model': slot, 'native': (native/'native').as_posix(), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
-            'hairRows': rows_with_alternates(rows['1'], ALTERNATE_HAIR_ROWS), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}
+            'hairRows': rows_with_alternates(rows['1'], ALTERNATE_HAIR_ROWS),
+            'tattoo1Rows': rows_with_alternates(rows.get('8',0),(0,26)),
+            'tattoo2Rows': rows_with_alternates(rows.get('9',0),(0,26)), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}
 
 
 def write_spec(workspace, race, version):
@@ -49,7 +51,7 @@ def write_spec(workspace, race, version):
     name = f'srn_rh_{race[:3]}{version}'
     spec = {'kind': 'srn-head-trial-spec', 'trial': f'race-heads-{race}-v{version}', 'hak': name, 'module': name,
             'prefix': [prefix(race, 'male'), prefix(race, 'female')], 'identity': {'appearanceRow': race_row['appearanceRow'], 'raceId': race_row['raceId'], 'visualScale': 1.0},
-            'motion': True, 'lighting': 'ambient', 'gameRoot': workspace.path(game['root']).as_posix(), 'client': workspace.path(game['client']).as_posix(),
+            'captureCoverageRequired': True, 'motion': True, 'lighting': 'ambient', 'gameRoot': workspace.path(game['root']).as_posix(), 'client': workspace.path(game['client']).as_posix(),
             'base': {'haks': [pin(workspace.path(hak)) for hak in base['haks']], 'module': pin(workspace.path(base['module'])), 'actorIdentity': base['actorIdentity']},
             'heads': heads}
     out = workspace.root/'specs'/f'trial-{race}-v{version}.json'

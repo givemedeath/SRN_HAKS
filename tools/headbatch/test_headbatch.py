@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -41,11 +42,14 @@ class Base(unittest.TestCase):
         packages = self.root/'packages'
         packages.mkdir()
         write(self.root/'head-bindings.json', {'pythonPackages': {'directory': str(packages), 'files': []}, 'libraries': {'igl': {'directory': 'lib'}}})
+        write(self.root/'design-bindings.json', {})
         write(self.root/'workspace.json', {
             'kind': 'srn-head-workspace', 'schemaVersion': 1, 'toolchain': 'runtime/toolchain.json', 'migrationReceipt': 'runtime/migration.json',
-            'headBindings': 'head-bindings.json', 'mdlCompiler': 'compiler.json', 'palettes': 'palettes', 'fitReferences': 'fit', 'bodyNecks': 'necks',
+            'headBindings': 'head-bindings.json', 'toolsRoot':str(self.root/'shared-tools'), 'mdlCompiler': 'compiler.json', 'palettes': 'palettes', 'fitReferences': 'fit', 'bodyNecks': 'necks',
             'fitReferenceOverrides': {'pmg0': 'troll/pmg0_head014.mdl'}, 'slots': {'elf-male': [20, 21], 'troll-male': [31]}})
         self.workspace = Workspace.load(self.root)
+        memory=unittest.mock.patch.object(launcher,'free_memory_gb',return_value=128)
+        memory.start();self.addCleanup(memory.stop)
 
     def head(self, name='elf-male-a', manifest=None):
         head = self.workspace.head(name)
@@ -62,6 +66,75 @@ class Portable(unittest.TestCase):
             if path.suffix in ('.py', '.json') and path.name != 'test_headbatch.py':
                 with self.subTest(path.name):
                     self.assertIsNone(DRIVE_PATH.search(path.read_text(encoding='utf-8')))
+
+
+@unittest.skipUnless(importlib.util.find_spec('numpy') and importlib.util.find_spec('scipy'),
+                     'Fresh-master geometry test requires the bound headkit packages')
+class CutDryTests(Base):
+    def test_fresh_head_stops_before_cut_without_creating_a_repair_attempt(self):
+        import numpy as np
+        mock = unittest.mock
+        with mock.patch.object(sys, 'path', [str(HERE/'review'), str(HERE.parent), *sys.path]):
+            import cutdry
+            from headkit.common import pin
+            from headkit.gltf import write_mesh
+            from headkit.runner import Runner
+
+        head = self.root/'head'
+        write(head/'manifest.json', {})
+        source = head/'oriented.glb'
+        vertices = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 0., 1.]])
+        faces = np.array([[0, 2, 1], [0, 1, 3], [0, 3, 2], [1, 2, 3]])
+        write_mesh(source, vertices, faces)
+        fit = {'matrix': np.eye(4).tolist(), 'reviewed': True}
+        mesh = {'neck': {'cut': {'height': 0.}}, 'shellInspection': {'visualReviewed': True}}
+        runner = mock.Mock(data={'inputs': {'raw': {}}, 'mesh': mesh}, bindings={}, state={'stages': {}})
+        runner.result.return_value = {'output': pin(source)}
+        runner._fit.return_value = fit
+        runner._body_neck.return_value = 'bound-body-neck'
+        runner._execute.side_effect = lambda stage, folder: Runner._execute(runner, stage, folder)
+        policy = cutdry.N.neck_policy(mesh['neck'], fit)
+        with mock.patch.object(cutdry, 'Runner', return_value=runner), mock.patch.object(cutdry.N, 'body_neck'):
+            positions = cutdry.dry_positions(head, policy, None)
+            self.assertEqual(positions.shape, (4, 3))
+            self.assertFalse((head/'run'/'repair').exists())
+            runner.result.side_effect = ValueError('Stale stage')
+            with self.assertRaisesRegex(ValueError, 'Stale stage'):
+                cutdry.dry_positions(head, policy, None)
+        with self.assertRaisesRegex(ValueError, 'No saved uncut master'):
+            cutdry.dry_positions(head, policy, 'attempt-05')
+
+
+class BoundedDesignOverrideTests(Base):
+    def test_one_additional_design_stops_at_its_authorized_count(self):
+        head = 'elf-male-a'
+        folder = self.root/'design'
+        for seed in range(3):
+            (folder/'launches'/f'launch-1-{head}-s{seed}').mkdir(parents=True)
+        override = folder/f'design-cap-override-{head}'
+        write(override, 'unbounded text')
+        with self.assertRaisesRegex(guards.Refused, 'bounded JSON'):
+            guards.design_cap(folder, head)
+        write(override, {'head': head, 'maximumDesigns': 4, 'approval': 'one extra fixture design'})
+        guards.design_cap(folder, head)
+        (folder/'launches'/f'launch-1-{head}-s3').mkdir()
+        with self.assertRaisesRegex(guards.Refused, 'authorized cap of 4'):
+            guards.design_cap(folder, head)
+
+
+class VramPromptOwnershipTests(Base):
+    def test_only_exact_candidate_in_its_workspace_can_be_interrupted(self):
+        sys.path.insert(0, str(HERE/'compat'))
+        from run_design_with_vram_limit import design_prompts
+        token = 'a'*32
+        root = self.root/'comfy/input'
+        (root/'headkit-design'/token).mkdir(parents=True)
+        def row(prompt, prefix):
+            return [1, prompt, {'9': {'inputs': {'filename_prefix': prefix}}}]
+        good = row('owned', f'headkit-design/{token}/elf-male-a-s44')
+        other = row('other', f'headkit-design/{token}/elf-male-b-s44')
+        missing = row('foreign', f'headkit-design/{"b"*32}/elf-male-a-s44')
+        self.assertEqual(design_prompts([good, other, missing], 'elf-male-a-s44', root), ['owned'])
 
 
 class WorkspaceTests(Base):
@@ -274,7 +347,9 @@ class GpuJob(Base):
             return gpu_job.geometry(self.Comfy(failures), head, head/'gpu', ledger, 'prefix', 0)
 
     def ledger(self, submissions=0):
-        return {'geometrySubmissions': submissions, 'stages': {'calibrate': {'fov': {'detail': 30.0}}, 'appearance': {'files': {}}}}
+        from headkit.common import pin
+        conditioning=pin(write(self.root/'normalized.png','fixture conditioning'))
+        return {'geometrySubmissions': submissions, 'stages': {'calibrate': {'fov': {'detail': 30.0},'sharedFov':30.0,'prepared':{'fixture':'verified'},'conditioning':{'geometry':conditioning,'detail':conditioning}}, 'appearance': {'files': {}}}}
 
     def test_every_submission_counts_and_is_saved(self):
         head = self.head()
@@ -312,8 +387,9 @@ class GpuJob(Base):
             self.polls = list(polls)
             self.calls = []
 
-        def send(self, route, data=None):
+        def send(self, route, data=None, **kwargs):
             self.calls.append(route)
+            if route == '/queue':return b'{"queue_running":[],"queue_pending":[]}'
             if route == '/free':
                 return b''
             if route == '/prompt':
@@ -336,7 +412,7 @@ class GpuJob(Base):
         calls = []
         server = self.server(polls=[self.DONE])
         server.run({}, self.root/'gpu/geometry', lambda: calls.append(list(server.calls)))
-        self.assertEqual(calls, [['/free']])
+        self.assertEqual(calls, [['/queue','/free']])
 
     def test_a_stopped_server_spends_nothing(self):
         server = self.server()
@@ -395,17 +471,28 @@ class GpuJob(Base):
         workspace = Workspace.load(self.root)
         return workspace, launcher.reused_gpu_inputs(workspace, workspace.head('elf-male-a'), 'label', stages)
 
+    def approved_gpu_fixture(self,head):
+        from headkit.common import pin
+        import gpu_contract
+        ledger=self.ledger();raw=pin(write(head/'gpu/raw.glb','geometry'));shape=pin(write(head/'gpu/shape.pt','shape'))
+        row={'files':{'961:raw.glb':raw,'963:shape.pt':shape},'fov':30.,'submission':1,'occiput':{'open':False},
+             'conditioningDigest':gpu_contract.calibration_id(ledger['stages']['calibrate'])}
+        ledger['stages']['geometry']=row
+        write(head/'gpu/gpu.json',ledger)
+        evidence=gpu_contract.evidence_path(head,row);sheet=pin(write(evidence.parent/'sheet.png','fixture sheet'))
+        write(evidence,{'geometryDigest':gpu_contract.geometry_id(row),'inputs':[raw,shape],'sheet':sheet})
+        gpu_contract.review_geometry(head,'geometry-0001','synthetic fixture review')
+        return guards.read(head/'gpu/gpu.json')
+
     def test_partial_runs_declare_a_frozen_ledger_and_what_they_reuse(self):
-        head = self.head()
-        write(head/'gpu/gpu.json', {'stages': {'calibrate': {}, 'geometry': {'files': self.GEOMETRY}}})
-        _, (files, extra) = self.reused(['appearance'])
-        self.assertEqual(extra, ['--upstream', head/'launches/gpu-label.json'])
-        self.assertEqual(Path(files[0]), head/'launches/gpu-label.json')
-        self.assertEqual(json.loads(Path(files[0]).read_text())['stages']['geometry']['files'], self.GEOMETRY)
-        self.assertTrue(files[1].endswith('normalized.png'))
-        self.assertEqual(files[2], 'shape.pt')
-        self.assertEqual(len(self.reused(['geometry'])[1][0]), 2)
-        self.assertEqual(len(self.reused(['calibrate', 'appearance'])[1][0]), 2)
+        head=self.head();ledger=self.approved_gpu_fixture(head)
+        _,(files,extra)=self.reused(['appearance'])
+        self.assertEqual(extra,['--upstream',head/'launches/gpu-label.json'])
+        self.assertEqual(Path(files[0]),head/'launches/gpu-label.json')
+        self.assertIn(ledger['geometryReview']['path'],files)
+        self.assertIn(ledger['stages']['geometry']['files']['963:shape.pt']['path'],files)
+        with self.assertRaisesRegex(ValueError,'Recalibration'):
+            self.reused(['calibrate','appearance'])
 
     def test_full_runs_reuse_nothing(self):
         self.head()
@@ -421,32 +508,45 @@ class GpuJob(Base):
             launcher.run_gpu(self.workspace, head.name, ['--stages', 'appearance'])
 
     def launched_gpu(self, head, stages):
-        data = json.loads((self.root/'workspace.json').read_text())
-        data['comfy'] = {'url': 'http://127.0.0.1:1', 'root': 'comfy'}
-        write(self.root/'workspace.json', data)
-        write(head/'gpu/gpu.json', {'stages': {'calibrate': {}, 'geometry': {'files': self.GEOMETRY}}})
-        with unittest.mock.patch.object(launcher, 'launch', return_value={'exitCode': 0}) as launch:
-            launcher.run_gpu(Workspace.load(self.root), head.name, ['--stages', stages])
+        data=guards.read(self.root/'workspace.json')
+        data['comfy']={'url':'http://127.0.0.1:1','root':'comfy'}
+        write(self.root/'workspace.json',data)
+        self.approved_gpu_fixture(head)
+        from headkit.common import pin
+        write(head/'bindings.json',{'embree':pin(write(self.root/'embree.dll','fixture'))})
+        ledger=guards.read(head/'gpu/gpu.json')
+        preparation={'receipt':{'fixture':'prepare'},'images':{},'pins':[]}
+        ledger['stages']['calibrate']['prepared']={'receipt':preparation['receipt'],'images':preparation['images']}
+        import gpu_contract
+        ledger['stages']['geometry']['conditioningDigest']=gpu_contract.calibration_id(ledger['stages']['calibrate'])
+        row=ledger['stages']['geometry'];evidence=gpu_contract.evidence_path(head,row)
+        record=guards.read(evidence);record['geometryDigest']=gpu_contract.geometry_id(row);write(evidence,record)
+        approval_path=Path(ledger['geometryReview']['path']);approval=guards.read(approval_path)
+        approval['geometryDigest']=gpu_contract.geometry_id(row);approval['evidence']=pin(evidence);write(approval_path,approval)
+        ledger['geometryReview']=pin(approval_path);write(head/'gpu/gpu.json',ledger)
+        def frozen(workspace,head,output):
+            write(output,preparation);return preparation
+        with unittest.mock.patch.object(launcher,'launch',return_value={'exitCode':0}) as launch:
+            if stages=='appearance':
+                with unittest.mock.patch.object(launcher,'freeze_prepared',side_effect=frozen):
+                    launcher.run_gpu(Workspace.load(self.root),head.name,['--stages',stages])
+            else:launcher.run_gpu(Workspace.load(self.root),head.name,['--stages',stages])
         return launch.call_args.args
 
-    def test_calibrate_takes_the_newest_complete_matte(self):
-        head = self.head()
-        self.receipt(head, 'prepare', 1, {'state': 'complete'})
-        self.receipt(head, 'prepare', 2, {'state': 'failed'})
-        _, _, inputs, job = self.launched_gpu(head, 'calibrate')[:4]
-        matte = head/'run/prepare/attempt-01/images/design-rgba.png'
-        self.assertIn(str(matte), json.loads(Path(inputs).read_text()))
-        self.assertEqual(job[job.index('--matte')+1], matte)
+    def test_calibrate_refuses_unreviewed_complete_prepare(self):
+        head=self.head();self.receipt(head,'prepare',1,{'state':'complete'})
+        with self.assertRaisesRegex(guards.Refused,'Prepared dependency verification failed'):
+            self.launched_gpu(head,'calibrate')
 
     def test_calibrate_refuses_without_a_complete_prepare(self):
-        head = self.head()
-        self.receipt(head, 'prepare', 1, {'state': 'failed'})
-        with self.assertRaisesRegex(guards.Refused, 'complete prepare'):
-            self.launched_gpu(head, 'calibrate')
+        head=self.head();self.receipt(head,'prepare',1,{'state':'failed'})
+        with self.assertRaisesRegex(guards.Refused,'Prepared dependency verification failed'):
+            self.launched_gpu(head,'calibrate')
 
     def test_stages_that_never_read_the_matte_do_not_declare_it(self):
-        head = self.head()
-        self.assertNotIn('--matte', self.launched_gpu(head, 'appearance')[3])
+        head=self.head()
+        job=self.launched_gpu(head,'appearance')[3]
+        self.assertNotIn('--matte',job);self.assertIn('--prepared',job)
 
     def test_a_partial_run_needs_its_earlier_stages(self):
         head = self.head()
@@ -481,8 +581,10 @@ class Locks(Base):
         self.assertEqual(names(10), ['cpu-1', 'cpu-2', 'cpu-3'])
         self.assertEqual(names(16), ['cpu-1', 'cpu-2', 'cpu-3', 'cpu-4', 'cpu-5'])
 
-    def test_ungated_slots_never_read_memory(self):
-        launcher.open_slots(self.workspace, unittest.mock.Mock(side_effect=AssertionError))
+    def test_every_slot_reads_memory_and_blocks_under_pressure(self):
+        free=unittest.mock.Mock(return_value=1)
+        self.assertEqual(launcher.open_slots(self.workspace,free),[])
+        free.assert_called_once()
 
     def test_free_memory_reads_on_this_machine(self):
         self.assertGreater(launcher.free_memory_gb(), 0)
@@ -512,6 +614,10 @@ class Locks(Base):
 
 
 class Launches(Base):
+    def setUp(self):
+        super().setUp()
+        idle=unittest.mock.patch.object(launcher.Comfy,'ensure_idle')
+        idle.start();self.addCleanup(idle.stop)
     def test_a_launch_record_is_never_reused(self):
         output = self.root/'launch'
         output.mkdir()
@@ -547,6 +653,29 @@ class Launches(Base):
             rows = launcher.run_design(workspace, 'elf', ['elf-male-a:1', 'elf-male-b:2', 'elf-male-c:3'])
         return rows, launch, free
 
+    def test_design_profile_controls_reference_arguments_and_input_pins(self):
+        folder=self.root/'design';(folder/'launches').mkdir(parents=True)
+        reference=write(self.root/'species.png','species reference')
+        model=write(self.root/'model.safetensors','model weights')
+        bindings=write(self.root/'design-bindings.json',{'models':{'model.safetensors':{'path':str(model)}}})
+        self.workspace.data['designReferences']={'elf':{'male':str(reference)}}
+        for profile in (None,'flux2-turbo-v1','qwen21-int8-v1'):
+            with self.subTest(profile=profile):
+                spec={'designs':{}}
+                if profile is not None:spec['profile']=profile
+                write(folder/'designs-elf.json',spec)
+                with unittest.mock.patch.object(launcher,'launch',return_value={'exitCode':0,'elapsedSeconds':0}) as launch:
+                    result=launcher.run_one_design(self.workspace,'elf',folder,bindings,'elf-male-a','1','1')
+                self.assertEqual(result['exitCode'],0)
+                inputs=guards.read(launch.call_args.args[2]);command=launch.call_args.args[3]
+                if profile=='qwen21-int8-v1':
+                    self.assertNotIn('--reference',command);self.assertNotIn(str(reference),inputs)
+                    self.assertIn(str(model),inputs)
+                else:
+                    self.assertEqual(command[command.index('--reference')+1],reference)
+                    self.assertIn(str(reference),inputs)
+                    self.assertNotIn(str(model),inputs)
+
     def test_one_bad_design_keeps_the_rest_and_frees_the_card(self):
         good = {'exitCode': 0, 'elapsedSeconds': 1}
         rows, launch, free = self.designs([launcher.LaunchFailed('input changed'), good, good])
@@ -571,7 +700,7 @@ class Launches(Base):
         rows, launch, _ = self.designs([{'exitCode': 0, 'elapsedSeconds': 1}]*2)
         self.assertEqual(launch.call_count, 2)
         self.assertIn('stop and ask', rows[0]['error'])
-        write(self.root/'design/design-cap-override-elf-male-a', '')
+        write(self.root/'design/design-cap-override-elf-male-a', {'head': 'elf-male-a', 'maximumDesigns': 4, 'approval': 'one extra fixture design'})
         self.assertEqual(self.designs([{'exitCode': 0, 'elapsedSeconds': 1}]*3)[1].call_count, 3)
 
     def test_the_cap_is_counted_under_the_gpu_lock(self):
@@ -636,20 +765,123 @@ class Launches(Base):
 
 
 class Setup(Base):
+    def test_feature_remapped_bones_keep_auto_row_and_bone_tone(self):
+        for ownership in ({'default':0,'rules':[{'channel':8}]},{'default':8,'rules':[]}):
+            for sex in ('male','female'):
+                with self.subTest(ownership=ownership,sex=sex):
+                    data={'ownership':dict(ownership,mode='rules',featureChannels=True),
+                          'palette':{'rows':{'0':'auto','1':'auto','8':'auto','9':'auto'}}}
+                    head_setup.tone_every_channel(data,'troll',sex,'fixture')
+                    self.assertEqual(data['palette']['rows']['9'],'auto')
+                    self.assertEqual(data['palette']['toneMatch']['9'],{'reference':'head-metal-v1'})
+
+    def test_remapped_bone_defaults_preserve_reviewed_overrides_and_opt_out(self):
+        for opt_out in (False,True):
+            data={'ownership':{'mode':'rules','default':0,'rules':[{'channel':8}],'featureChannels':True},
+                  'palette':{'rows':{'9':'auto' if opt_out else 7},
+                             'toneMatch':{'9':{'reference':'head-tattoo2-v1'}}}}
+            if opt_out:data['palette']['toneMatchOff']=['9']
+            head_setup.tone_every_channel(data,'troll','male','fixture')
+            self.assertEqual(data['palette']['rows']['9'],'auto' if opt_out else 7)
+            if opt_out:self.assertNotIn('9',data['palette']['toneMatch'])
+            else:self.assertEqual(data['palette']['toneMatch']['9'],{'reference':'head-tattoo2-v1'})
+
+    def test_feature_channels_without_legacy_bones_keep_tattoo2_unused(self):
+        data={'ownership':{'mode':'rules','default':0,'rules':[{'channel':1}],'featureChannels':True},
+              'palette':{'rows':{'8':'auto','9':'auto'}}}
+        head_setup.tone_every_channel(data,'troll','male','fixture')
+        self.assertEqual(data['palette']['rows'],{'8':'auto','9':0})
+        self.assertNotIn('9',data['palette']['toneMatch'])
+
+    def test_bone_channels_use_accessory_tones_and_preserve_reviewed_overrides(self):
+        for race in ('troll', 'orc', 'elf', 'human', 'dwarf'):
+            for sex in ('male', 'female'):
+                with self.subTest(race=race, sex=sex):
+                    data = {'ownership': {'default': 0, 'rules': [{'channel': 9}]},
+                            'palette': {'toneMatch': {}}}
+                    head_setup.tone_every_channel(data, race, sex, 'fixture')
+                    expected = 'head-metal-v1' if race in ('troll', 'orc') else 'head-tattoo1-v1'
+                    self.assertEqual(data['palette']['toneMatch']['9']['reference'], expected)
+                    self.assertEqual(data['palette']['toneMatch']['0']['reference'], f'{race}-{sex}-skin-v1')
+        data = {'ownership': {'default': 0, 'rules': [{'channel': 9}]},
+                'palette': {'toneMatch': {'9': {'reference': 'head-tattoo2-v1'}}}}
+        head_setup.tone_every_channel(data, 'troll', 'male', 'fixture')
+        self.assertEqual(data['palette']['toneMatch']['9']['reference'], 'head-tattoo2-v1')
+
+    def test_generated_design_keeps_its_frozen_prompt_and_requires_unchanged_pins(self):
+        self.prepare()
+        name = 'elf-male-a'
+        image = write(self.root/'design/raw'/f'{name}-s42-b0.png', 'selected bytes')
+        spec = write(self.root/'design/launches/spec-original.json', {'designs': {name: 'Hair: long silver locks.'}})
+        receipt = write(image.with_name(f'{name}-s42.json'), {
+            'kind': 'design', 'state': 'complete', 'head': name,
+            'spec': {'path': str(spec), 'sha256': head_setup.sha(spec)},
+            'outputs': [{'path': str(image), 'sha256': head_setup.sha(image)}]})
+        self.assertEqual(head_setup.selected_prompt(self.workspace, name, 'elf', image)[0], 'Hair: long silver locks.')
+        head_setup.set_up(self.workspace, name, image, approval='fixture selection', check=lambda *_: None)
+        record = guards.read(self.workspace.head(name)/'design/design-receipt.json')
+        self.assertEqual(record['featureInventory']['hair'], 'long silver locks.')
+        self.assertEqual(record['proposalReceipt']['sha256'], head_setup.sha(receipt))
+        write(spec, {'designs': {name: 'Hair: cropped.'}})
+        with self.assertRaisesRegex(guards.Refused, 'frozen proposal spec changed'):
+            head_setup.selected_prompt(self.workspace, name, 'elf', image)
+        write(image, 'different bytes')
+        with self.assertRaisesRegex(guards.Refused, 'image differs'):
+            head_setup.selected_prompt(self.workspace, name, 'elf', image)
+
     def prepare(self):
-        for file in ('pal-skin01.tga', 'pal-hair01.tga', 'pal-armor01.tga', 'pal-tattoo01.tga'):
+        for file in ('pal-skin01.tga', 'pal-hair01.tga', 'pal-armor01.tga', 'pal-armor02.tga', 'pal-tattoo01.tga'):
             write(self.root/'palettes'/file, file)
         write(self.root/'compiler.json', {})
         write(self.root/'necks/pme0-neck001-ref.json', {})
         write(self.root/'fit/pme0_head001.mdl', 'model')
         write(self.root/'design/designs-elf.json', {'designs': {'elf-male-a': 'Hair: long\nEars: pointed\nOther: ignored'}})
-        return write(self.root/'pick.png', 'image')
+        image = write(self.root/'design/raw/elf-male-a-s1-b0.png', 'image')
+        spec = write(self.root/'design/launches/spec-fixture.json', guards.read(self.root/'design/designs-elf.json'))
+        write(image.with_name('elf-male-a-s1.json'), {'kind':'design','state':'complete','head':'elf-male-a',
+              'spec':{'path':str(spec),'sha256':head_setup.sha(spec)},
+              'outputs':[{'path':str(image),'sha256':head_setup.sha(image)}]})
+        return image
+
+    def test_face_profile_setup_replaces_diagnostics_and_survives_rewrite(self):
+        from headkit.cameras import review_cameras
+        from headkit.review_images import render_plan, resolutions
+
+        design = self.prepare()
+        body = write(self.root/'body-skin.plt', 'body fixture')
+        self.workspace.data['headQualityProfile'] = 'face-v1'
+        self.workspace.data['bodySkinReferences'] = {'elf-male': body.name}
+        path = head_setup.set_up(self.workspace, 'elf-male-a', design, approval='fixture selection', check=lambda *_: None)
+        data = guards.read(path)
+        config = data['render']
+        self.assertTrue(config['runtimePalette'])
+        self.assertEqual(resolutions(config), [2048, 1024])
+        for key in ('$replace', 'diagnostic', 'size', 'ownershipView', 'views'):
+            self.assertNotIn(key, config)
+        self.assertEqual(data['mesh']['uv']['faceDensity'], 3)
+        self.assertIn('cut', data['mesh']['neck'])
+        self.assertNotIn('taper', data['mesh']['neck'])
+        self.assertEqual(data['inputs']['bodySkin']['sha256'], head_setup.sha(body))
+        overrides = guards.read(path.parent/'overrides.json')
+        self.assertTrue(overrides['render']['$replace'])
+        self.assertTrue(overrides['mesh']['neck']['$replace'])
+        head_setup.write_manifest(self.workspace, 'elf-male-a', check=lambda *_: None)
+        self.assertEqual(guards.read(path), data)
+
+        config = dict(config, cameras=review_cameras([[0, 0, 0], [1, 1, 1]], config['frontAngleDegrees']))
+        plan = render_plan(config)
+        self.assertEqual(len(plan), 84)
+        self.assertTrue({'left-three-quarter', 'right-three-quarter', 'left-back-three-quarter',
+                         'right-back-three-quarter'} <= {view for _, _, view in plan})
 
     def test_set_up_writes_a_complete_head(self):
         design = self.prepare()
         path = head_setup.set_up(self.workspace, 'elf-male-a', design, approval='picked by test', check=lambda *_: None)
         data = json.loads(path.read_text())
         self.assertEqual(data['fit']['model'], 'pme0_head020')
+        self.assertTrue(data['render']['diagnostic'])
+        self.assertEqual(data['render']['size'], 1024)
+        self.assertNotIn('sizes', data['render'])
         self.assertEqual({row['name'] for row in data['features']}, {'hair', 'ears', 'neck'})
         self.assertEqual(data['mesh']['neck']['cut']['slope'], -.2)
         self.assertNotIn('taper', data['mesh']['neck'])
@@ -982,7 +1214,7 @@ class Review(Base):
         review = {'path': 'S:\\elsewhere\\run\\reviews\\render-1.json'}
         write(head/'run/reviews/render-1.json', {'stageReceipt': row, 'decision': 'approved'})
         write(head/'run/state.json', {'stages': {'render': row}, 'reviews': {'render': review}})
-        self.assertIn('| finished', launcher.status(self.workspace)[0])
+        self.assertIn('DELIVERY RENDER REQUIRED', launcher.status(self.workspace)[0])
         write(head/'run/reviews/render-1.json', {'stageReceipt': row, 'decision': 'rejected'})
         self.assertIn('WAITING ON REVIEW', launcher.status(self.workspace)[0])
         write(head/'run/reviews/render-1.json', {'stageReceipt': dict(row, sha256='older'), 'decision': 'approved'})  # a rerender after approval
@@ -1148,7 +1380,7 @@ class SpoolTests(Base):
         self.receipt(head, 'palette', 1, {'result': {'rows': {'0': 7}}})
         self.tool_result = (1, ['no attempt'])
         self.finish(stage='palette')
-        self.assertEqual(self.started, [('export', 'elf-male-a', 'palette')])
+        self.assertEqual(self.started, [])
         self.assertIn('ROWRAMPS FAILED', self.spool.state['attention']['elf-male-a/palette']['text'])
 
     def test_a_repair_approved_as_next_gets_its_presets(self):
@@ -1454,6 +1686,183 @@ class SpoolTests(Base):
         worker.start()
         worker.join(5)
         self.assertFalse(worker.is_alive())
+
+class ConditioningContracts(Base):
+    def record(self):
+        import reference_record
+        image=write(self.root/'external.png','beauty')
+        record=write(self.root/'reference.json',{'kind':'headbatch-reference-v1','head':'elf-male-a',
+            'generator':'external fixture','prompt':'preserved original prompt',
+            'design':{'path':image.name,'sha256':head_setup.sha(image)},
+            'features':{key:'explicitly absent' for key in reference_record.FEATURES}})
+        return image,record
+
+    def test_external_intake_rejects_stale_prompt_fallback_and_changed_images(self):
+        import reference_record
+        image,record=self.record()
+        with self.assertRaisesRegex(guards.Refused,'reference-record'):
+            head_setup.selected_prompt(self.workspace,'elf-male-a','elf',image)
+        prompt,lineage,expected=head_setup.selected_prompt(self.workspace,'elf-male-a','elf',image,record)
+        self.assertEqual(prompt,'preserved original prompt')
+        self.assertEqual(lineage['generator'],'external fixture')
+        write(image,'modified')
+        with self.assertRaisesRegex(guards.Refused,'missing or changed'):
+            reference_record.load(record,'elf-male-a',image)
+
+    def test_record_requires_complete_features_and_distinct_pair(self):
+        import reference_record
+        image,record=self.record();data=guards.read(record)
+        del data['features']['horns'];write(record,data)
+        with self.assertRaisesRegex(guards.Refused,'feature inventory'):reference_record.load(record,'elf-male-a')
+        data['features']['horns']='two; one on each side'
+        data['conditioning']={'clay':data['design'],'detail':data['design'],'alignment':{'landmarks':[{}, {}, {}]}}
+        write(record,data)
+        with self.assertRaisesRegex(guards.Refused,'collapse'):reference_record.load(record,'elf-male-a')
+
+    def test_external_setup_uses_inventory_and_copies_record(self):
+        fixture=Setup(methodName='test_set_up_writes_a_complete_head')
+        fixture.root=self.root;fixture.workspace=self.workspace;fixture.prepare()
+        image,record=self.record()
+        manifest=head_setup.set_up(self.workspace,'elf-male-a',image,approval='user selected fixture',reference=record,check=lambda *_:None)
+        receipt=guards.read(manifest.parent/'design/design-receipt.json')
+        self.assertEqual(receipt['featureInventory']['hair'],'explicitly absent')
+        self.assertEqual(receipt['approval'],'user selected fixture')
+        self.assertEqual(head_setup.sha(manifest.parent/'design/reference-record.json'),head_setup.sha(record))
+        self.assertNotIn('faceMasks',guards.read(manifest))
+
+    def test_face_profile_is_complete_and_feature_channels_get_tones(self):
+        profile=head_setup.face_quality_profile()
+        self.assertEqual(profile['mesh']['uv']['faceDensity'],3)
+        self.assertEqual(set(('faceMasks','quality'))-set(profile),set())
+        data={'ownership':profile['ownership'],'palette':{'rows':{'1':'auto','8':'auto'}}}
+        head_setup.tone_every_channel(data,'troll','female','fixture')
+        self.assertEqual(set(data['palette']['toneMatch']),{'0','1','8'})
+        self.assertEqual(data['palette']['rows'],{'1':'auto','8':'auto'})
+        self.assertTrue(profile['render']['runtimePalette'])
+
+    def test_paired_calibration_preserves_geometry_and_detail_outputs(self):
+        from PIL import Image
+        from headkit.common import pin
+        head=self.root/'head';stage=self.root/'input';stage.mkdir()
+        images={}
+        for role,color in (('geometry','grey'),('detail','red'),('mask','white')):
+            path=self.root/(role+'.png');Image.new('RGBA',(8,8),color).save(path);images[role]=pin(path)
+        receipt=write(self.root/'receipt.json',{})
+        prepared=write(self.root/'prepared.json',{'attempt':'attempt-03','pins':[pin(receipt)],'receipt':pin(receipt),'images':images})
+        outputs={role:write(self.root/(role+'.bin'),role) for role in ('geometry','detail')}
+        class Comfy:
+            def run(inner,graph,out):
+                self.assertNotEqual(graph['1']['inputs']['image'],graph['2']['inputs']['image'])
+                return {'outputs':{'10':{'text':['40']},'16':{'text':['42']}}}, {
+                    '12:g':pin(outputs['geometry']),'13:d':pin(outputs['detail'])},1
+        ledger={}
+        row=gpu_job.calibrate(Comfy(),head,self.root/'gpu',ledger,stage,'headkit/fixture/calibrate',prepared=prepared)
+        self.assertEqual(Path(row['conditioning']['geometry']['path']).read_text(),'geometry')
+        self.assertEqual(Path(row['conditioning']['detail']['path']).read_text(),'detail')
+        self.assertEqual(ledger['matteAttempt'],'attempt-03')
+        self.assertEqual(row['sharedFov'],40)
+        ledger['stages']={'calibrate':row}
+        write(stage/'normalized-geometry.png','changed')
+        with self.assertRaisesRegex(ValueError,'Stale'):
+            gpu_job.conditioning_image(ledger,head,'geometry')
+
+    def test_resource_samples_fail_closed_and_keep_breach(self):
+        from resource_budget import Budget,BudgetExceeded
+        values=iter([(11_000_000_000,8),(12_000_000_001,8),(1,8)])
+        budget=Budget({'memoryLimitBytes':12_000_000_000,'minimumFreeRAMGiB':2},self.root/'budget.json',lambda _:next(values))
+        budget.sample();budget.check();budget.sample();budget.sample()
+        with self.assertRaisesRegex(BudgetExceeded,'VRAM'):budget.check()
+        budget.close();self.assertEqual(guards.read(self.root/'budget.json')['samples'],3)
+        bad=Budget({'memoryLimitBytes':12_000_000_000},self.root/'bad.json',lambda _:(_ for _ in ()).throw(OSError('offline')))
+        bad.sample()
+        with self.assertRaisesRegex(BudgetExceeded,'failed'):bad.check()
+
+    def test_memory_stop_interrupts_only_owned_prompt_without_retry(self):
+        from resource_budget import BudgetExceeded
+        comfy=gpu_job.Comfy('unused',self.root)
+        comfy.budget=unittest.mock.Mock()
+        comfy.budget.check.side_effect=BudgetExceeded('budget')
+        interrupted=threading.Event()
+        def call(route,**kwargs):
+            if route=='/queue':return {'queue_running':[[0,'owned']],'queue_pending':[]}
+            self.assertTrue(interrupted.wait(2))
+            return {'owned':{'status':{'completed':True,'status_str':'error'}}}
+        comfy.call=call
+        comfy.send=unittest.mock.Mock(side_effect=lambda *a,**k:interrupted.set())
+        comfy.unresolved=write(self.root/'unreconciled',{})
+        with self.assertRaisesRegex(SystemExit,'Resource supervision stopped'):
+            comfy.wait('owned')
+        comfy.send.assert_called_once_with('/interrupt',{'prompt_id':'owned'},timeout=2)
+        self.assertFalse(comfy.unresolved.exists())
+
+    def test_ram_floor_and_sampler_staleness(self):
+        from resource_budget import Budget,BudgetExceeded
+        budget=Budget({'memoryLimitBytes':12_000_000_000,'minimumFreeRAMGiB':2},self.root/'budget.json',lambda _:(1,1.9))
+        budget.sample()
+        with self.assertRaisesRegex(BudgetExceeded,'RAM'):budget.check()
+        budget.reason=None;budget.last=0
+        with self.assertRaisesRegex(BudgetExceeded,'unavailable'):budget.check()
+
+class DeliveryAndRetryContracts(Base):
+    def test_oom_attempt_keeps_its_own_history_and_charges_both_submissions(self):
+        server=GpuJob.Server(self.root,polls=[
+            {'p1':{'status':{'completed':False,'status_str':'error','messages':['out of memory']},'outputs':{}}},
+            GpuJob.DONE])
+        write(self.root/'output/raw_00001.glb','geometry')
+        charged=[]
+        with unittest.mock.patch.object(gpu_job.time,'sleep'):
+            server.run({},self.root/'gpu/geometry',lambda:charged.append(True))
+        self.assertEqual(len(charged),2)
+        self.assertEqual(guards.read(self.root/'gpu/geometry/history.json')['status']['status_str'],'error')
+        self.assertTrue((self.root/'gpu/geometry-02/history.json').is_file())
+
+    def test_face_palette_sheet_takes_ram_slot_and_waits_for_user(self):
+        head=self.head();data=guards.read(head/'manifest.json');data['quality']={};write(head/'manifest.json',data)
+        worker=spool.Spool(self.workspace,starter=unittest.mock.Mock())
+        self.receipt(head,'palette',1,{'state':'complete','result':{'rows':{'0':7}}})
+        with unittest.mock.patch.object(worker,'tool',return_value=(0,['exact-sheet.png'])) as tool, unittest.mock.patch.object(worker,'launch') as launch:
+            worker.on_success(head.name,'palette',{})
+            self.assertIn(unittest.mock.call('review','--slot','gamesize',head.name,'attempt-01'),tool.call_args_list)
+            launch.assert_not_called()
+            self.assertIn('exact-sheet.png',worker.state['review'][head.name+'/palette']['text'])
+            tool.side_effect=[(0,['ramp.png']),(1,['failed'])]
+            worker.on_success(head.name,'palette',{})
+            launch.assert_not_called()
+            self.assertIn('incomplete',worker.state['review'][head.name+'/palette']['text'])
+
+    def test_quality_routes_to_export_only_on_numeric_pass(self):
+        head=self.head();data=guards.read(head/'manifest.json');data['quality']={};write(head/'manifest.json',data)
+        worker=spool.Spool(self.workspace,starter=unittest.mock.Mock())
+        with unittest.mock.patch.object(worker,'launch') as launch:
+            self.receipt(head,'quality',1,{'state':'complete','result':{'passed':True,'failed':[]}})
+            worker.on_success(head.name,'quality',{})
+            self.assertEqual(launch.call_args.args[:3],('export',head.name,'quality'))
+            self.receipt(head,'quality',2,{'state':'complete','result':{'passed':False,'failed':['blotch']}})
+            worker.on_success(head.name,'quality',{})
+            self.assertEqual(launch.call_count,1)
+
+    def test_full_reviewed_render_waits_for_client(self):
+        from head_files import sha
+        head=self.head();delivery={'diagnostic':False,'sizes':[2048,1024],'runtimePalette':True,
+             'modes':['clay','color-only','material-lit'],
+             'views':['left-three-quarter','right-three-quarter','left-back-three-quarter','right-back-three-quarter']}
+        self.receipt(head,'render',1,{'state':'complete','result':{'delivery':delivery}})
+        receipt=head/'run/render/attempt-01/receipt.json';bound={'path':str(receipt),'sha256':sha(receipt)}
+        review=write(head/'run/reviews/render.json',{'stageReceipt':bound,'decision':'approved'})
+        write(head/'run/state.json',{'stages':{'render':bound},'reviews':{'render':{'path':str(review),'sha256':sha(review)}}})
+        self.assertIn('WAITING ON CLIENT TRIAL',launcher.status(self.workspace)[0])
+
+class TextureSheetContract(Base):
+    def test_sheet_binds_exact_attempt_and_refuses_drift(self):
+        from PIL import Image
+        from review.texturesheet import draw
+        head=self.head();folder=head/'run/tone/attempt-01';folder.mkdir(parents=True)
+        image=folder/'tone-1024.png';Image.new('RGB',(16,16),'red').save(image)
+        write(folder/'receipt.json',{'state':'complete','outputs':[{'path':str(image),'sha256':head_setup.sha(image)}]})
+        output=self.root/'review.png';draw(head,'tone','attempt-01',output)
+        self.assertTrue(output.is_file())
+        Image.new('RGB',(16,16),'blue').save(image)
+        with self.assertRaisesRegex(ValueError,'changed'):draw(head,'tone','attempt-01',self.root/'changed.png')
 
 
 if __name__ == '__main__':

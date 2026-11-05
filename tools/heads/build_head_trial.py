@@ -88,6 +88,7 @@ def validate_spec(spec):
     _identity(spec['identity'],'identity')
     require(spec.get('lighting') in ('ambient','directional'),'Explicit lighting (ambient or directional) required')
     require(type(spec.get('motion',False)) is bool,'motion must be true or false')
+    require(type(spec.get('captureCoverageRequired',False)) is bool,'captureCoverageRequired must be true or false')
     inspect=spec.get('inspect',{})
     require(isinstance(inspect,dict) and set(inspect)<={'height','distance'},'inspect may give height (per prefix) and distance only')
     heights=inspect.get('height',{})
@@ -129,6 +130,8 @@ def validate_spec(spec):
         else:require(isinstance(head['native'],str),head['id']+': native must be the native stage folder')
         _rows(head.get('skinRows'),head['id']+': skinRows');_rows(head.get('hairRows'),head['id']+': hairRows')
         _rows(head.get('tattoo1Row'),head['id']+': tattoo1Row',single=True);_rows(head.get('tattoo2Row'),head['id']+': tattoo2Row',single=True)
+        for key in ('tattoo1Rows','tattoo2Rows'):
+            if key in head:_rows(head[key],head['id']+': '+key)
         require(head.get('metalRow',0)==0,head['id']+': metal shows stock row 0 without armour; metalRow must be 0')
         helmets=head.get('helmets',[1,2])
         require(isinstance(helmets,list) and len(set(helmets))==len(helmets) and set(helmets)<={1,2},head['id']+': helmets must be drawn from 1 and 2')
@@ -152,10 +155,17 @@ def plan_actors(spec):
         cases=[(skin,hair,0,None) for skin in head['skinRows'] for hair in head['hairRows']]
         cases+=[(head['skinRows'][0],head['hairRows'][0],helmet,None) for helmet in head['helmets']]
         cases+=[(head['skinRows'][0],head['hairRows'][0],0,row) for row in head.get('armour',[])]
-        for column,(skin,hair,helmet,armour) in enumerate(cases):
+        cases=[(*case,head['tattoo1Row'],head['tattoo2Row']) for case in cases]
+        for channel in ('tattoo1','tattoo2'):
+            for choice in head.get(channel+'Rows',[]):
+                if choice==head[channel+'Row']:continue
+                cases.append((head['skinRows'][0],head['hairRows'][0],0,None,
+                              choice if channel=='tattoo1' else head['tattoo1Row'],
+                              choice if channel=='tattoo2' else head['tattoo2Row']))
+        for column,(skin,hair,helmet,armour,tattoo1,tattoo2) in enumerate(cases):
             index=len(actors)
             actors.append({'tag':f'sr_h_actor{index}','headId':head['id'],'model':head['model'],'slot':head['slot'],'gender':head['gender'],
-                           'skin':skin,'hair':hair,'tattoo1':head['tattoo1Row'],'tattoo2':head['tattoo2Row'],'metal':0,'helmet':helmet,'armour':armour,
+                           'skin':skin,'hair':hair,'tattoo1':tattoo1,'tattoo2':tattoo2,'metal':0,'helmet':helmet,'armour':armour,
                            'name':f"{head['id']} "+(f'helmet{helmet}' if helmet else f'armour leather1 {armour}' if armour is not None else f'skin{skin} hair{hair}'),
                            'row':row,'column':column,'x':ACTOR_X,'y':ACTOR_Y})
     return actors
@@ -325,6 +335,7 @@ void HeadAnimate(int row){
   object area=GetObjectByTag("sr_h_floor");object o=GetFirstObjectInArea(area);
   while(GetIsObjectValid(o)){
     if(GetLocalInt(o,"HEAD_ROW")==row+1){
+      WriteTimestampedLogEntry("HEAD_MOTION actor="+GetTag(o)+" sequence=talk-look");
       AssignCommand(o,ClearAllActions());AssignCommand(o,ActionPlayAnimation(ANIMATION_LOOPING_TALK_FORCEFUL,1.0,3.0));
       AssignCommand(o,ActionPlayAnimation(ANIMATION_LOOPING_LOOK_FAR,1.0,2.0));AssignCommand(o,ActionDoCommand(SetFacing(90.0)));}
     o=GetNextObjectInArea(area);}}
@@ -522,6 +533,7 @@ def build(spec_path,output):
         'rowSweepSeconds':SWEEP_SECONDS,'motion':spec.get('motion',False),
         'inspect':{'height':{p:spec.get('inspect',{}).get('height',{}).get(p,INSPECT_HEIGHT) for p in prefixes(spec)},
                    'distance':spec.get('inspect',{}).get('distance',INSPECT_DISTANCE),'pitch':INSPECT_PITCH},
+        'captureCoverageRequired':spec.get('captureCoverageRequired',False),
         'ignoredActors':['head_target'],'colorsLogged':True,'clientObserved':False,'productionAccepted':False,
         'limitation':'Packaging and logged slots are not client or anatomy acceptance; review the heads in the client.'})
     return output/'runtime-manifest.json'

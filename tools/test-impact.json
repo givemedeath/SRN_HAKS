@@ -18,7 +18,23 @@
       "hakbuilder.json"
     ],
     "tools/headbatch/__init__.py": [],
+    "tools/headbatch/compat/check_comfy_loader.py": [],
+    "tools/headbatch/compat/run_design_with_vram_limit.py": [
+      "tools/headbatch/run_headbatch.py"
+    ],
+    "tools/headbatch/gpu_contract.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py"
+    ],
+    "tools/headbatch/gpu_inputs.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/runner.py"
+    ],
     "tools/headbatch/gpu_job.py": [
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/resource_budget.py",
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/headkit/occiput.py"
@@ -34,22 +50,36 @@
       "tools/headbatch/gpu_job.py",
       "tools/headbatch/guards.py",
       "tools/headbatch/head_files.py",
+      "tools/headbatch/reference_record.py",
       "tools/headbatch/workspace.py"
     ],
     "tools/headbatch/launcher.py": [
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/gpu_inputs.py",
       "tools/headbatch/gpu_job.py",
       "tools/headbatch/guards.py",
       "tools/headbatch/head_files.py",
+      "tools/headbatch/resource_budget.py",
+      "tools/headbatch/review/gpuclay.py",
       "tools/headbatch/workspace.py",
       "tools/headkit/comfy.py",
       "tools/headkit/run_headkit.py",
-      "tools/phenotypes/launch_shared_tool.py"
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/shared_tools.py"
     ],
     "tools/headbatch/presets.py": [
       "tools/headbatch/guards.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/review/slopescan.py",
       "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/reference_record.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headkit/images.py"
+    ],
+    "tools/headbatch/resource_budget.py": [
+      "tools/headbatch/head_files.py"
     ],
     "tools/headbatch/review/__init__.py": [],
     "tools/headbatch/review/_frame.py": [
@@ -79,7 +109,9 @@
     ],
     "tools/headbatch/review/cutdry.py": [
       "tools/headbatch/review/_frame.py",
-      "tools/headkit/neck.py"
+      "tools/headkit/common.py",
+      "tools/headkit/neck.py",
+      "tools/headkit/runner.py"
     ],
     "tools/headbatch/review/cutreplay.py": [
       "tools/headbatch/head_files.py",
@@ -104,6 +136,12 @@
       "tools/headkit/fit.py",
       "tools/headkit/gltf.py"
     ],
+    "tools/headbatch/review/gamesize.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/review/gpuclay.py": [],
     "tools/headbatch/review/grid.py": [
       "tools/headbatch/review/_frame.py",
       "tools/headkit/gltf.py"
@@ -154,7 +192,11 @@
       "tools/headkit/gltf.py",
       "tools/headkit/neck.py"
     ],
+    "tools/headbatch/review/texturesheet.py": [
+      "tools/headbatch/head_files.py"
+    ],
     "tools/headbatch/run_headbatch.py": [
+      "tools/headbatch/gpu_contract.py",
       "tools/headbatch/guards.py",
       "tools/headbatch/head_files.py",
       "tools/headbatch/head_setup.py",
@@ -172,16 +214,36 @@
       "tools/headbatch/workspace.py"
     ],
     "tools/headbatch/test_headbatch.py": [
+      "tools/headbatch/compat/run_design_with_vram_limit.py",
+      "tools/headbatch/gpu_contract.py",
       "tools/headbatch/gpu_job.py",
       "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
       "tools/headbatch/head_setup.py",
       "tools/headbatch/launcher.py",
       "tools/headbatch/presets.py",
+      "tools/headbatch/reference_record.py",
+      "tools/headbatch/resource_budget.py",
       "tools/headbatch/review/bakeviews.py",
       "tools/headbatch/review/rowramps.py",
+      "tools/headbatch/review/texturesheet.py",
       "tools/headbatch/run_headbatch.py",
       "tools/headbatch/spool.py",
       "tools/headbatch/trials.py",
+      "tools/headbatch/workspace.py",
+      "tools/headkit/cameras.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/test_process_contracts.py": [
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/gpu_job.py",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/resource_budget.py",
+      "tools/headbatch/test_headbatch.py",
       "tools/headbatch/workspace.py"
     ],
     "tools/headbatch/trials.py": [
@@ -308,7 +370,13 @@
       "tools/headkit/common.py",
       "tools/headkit/images.py",
       "tools/headkit/templates/flux2-design.json",
-      "tools/headkit/templates/flux2-inpaint.json"
+      "tools/headkit/templates/flux2-inpaint.json",
+      "tools/headkit/templates/qwen21-design.json"
+    ],
+    "tools/headkit/diagnostics.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/rays.py"
     ],
     "tools/headkit/face_encode.py": [
       "tools/headkit/colour.py",
@@ -342,6 +410,7 @@
       "tools/headkit/common.py"
     ],
     "tools/headkit/intersections.py": [],
+    "tools/headkit/measure.py": [],
     "tools/headkit/mesh.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
@@ -448,6 +517,7 @@
       "tools/headkit/fit.py",
       "tools/headkit/gltf.py",
       "tools/headkit/images.py",
+      "tools/headkit/measure.py",
       "tools/headkit/mesh.py",
       "tools/headkit/native.py",
       "tools/headkit/neck.py",
@@ -475,6 +545,13 @@
     ],
     "tools/headkit/test_comfy_transport.py": [
       "tools/headkit/comfy.py"
+    ],
+    "tools/headkit/test_conditioning.py": [
+      "tools/headkit/cameras.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/runner.py"
     ],
     "tools/headkit/test_face_masks.py": [
       "tools/headkit/common.py",
@@ -572,6 +649,14 @@
     "tools/headkit/test_native_reader.py": [
       "tools/headkit/native_reader.py"
     ],
+    "tools/headkit/test_process_quality.py": [
+      "tools/headkit/cameras.py",
+      "tools/headkit/common.py",
+      "tools/headkit/images.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/test_headkit.py"
+    ],
     "tools/headkit/test_reference_background.py": [
       "tools/headkit/comfy.py",
       "tools/headkit/comfy_nodes/model_resolution.py",
@@ -654,6 +739,10 @@
       "tools/heads/correct_neck_rim.py",
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/client_capture_review.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_trial.py"
     ],
     "tools/heads/collect_fixture_inputs.py": [
       "tools/heads/head_workflow.py",
@@ -784,6 +873,13 @@
       "tools/heads/head_workflow.py",
       "tools/heads/roster.json"
     ],
+    "tools/heads/test_client_capture_review.py": [
+      "tools/heads/build_head_trial.py",
+      "tools/heads/client_capture_review.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/test_head_trial.py",
+      "tools/heads/verify_head_trial.py"
+    ],
     "tools/heads/test_derived_assembly.py": [
       "tools/heads/head_workflow.py",
       "tools/heads/prepare_assembly.py"
@@ -859,6 +955,7 @@
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/verify_head_trial.py": [
+      "tools/heads/client_capture_review.py",
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/verify_retexture.py": [
@@ -4398,19 +4495,23 @@
   },
   "tests": [
     "tools/headbatch/test_headbatch.py",
+    "tools/headbatch/test_process_contracts.py",
     "tools/headkit/test_comfy_runtime_snapshot.py",
     "tools/headkit/test_comfy_transport.py",
+    "tools/headkit/test_conditioning.py",
     "tools/headkit/test_face_masks.py",
     "tools/headkit/test_generation_export.py",
     "tools/headkit/test_headkit.py",
     "tools/headkit/test_managed_startup.py",
     "tools/headkit/test_model_contract.py",
     "tools/headkit/test_native_reader.py",
+    "tools/headkit/test_process_quality.py",
     "tools/headkit/test_reference_background.py",
     "tools/headkit/test_verification_performance.py",
     "tools/headkit/test_verified_startup.py",
     "tools/heads/test_atlas_allowance.py",
     "tools/heads/test_budget_extension.py",
+    "tools/heads/test_client_capture_review.py",
     "tools/heads/test_derived_assembly.py",
     "tools/heads/test_derived_body_import.py",
     "tools/heads/test_fixture_identity.py",

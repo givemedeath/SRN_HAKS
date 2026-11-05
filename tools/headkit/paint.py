@@ -206,9 +206,15 @@ def paint(source, color, config, output, *, seal_start=None, embree=None):
     output=Path(output);output.mkdir(parents=True,exist_ok=False);texels=texel_source(value,rgb);regions=config.get('regions',{})
     masks={};reports=[]
     for op in operations:
-        require(op.get('op') in ('crest','fill','protrusion') and isinstance(op.get('name'),str) and op['name'].replace('-','').isalnum(),'Named crest/fill/protrusion operation required')
+        require(op.get('op') in ('crest','fill','protrusion','mask') and isinstance(op.get('name'),str) and op['name'].replace('-','').isalnum(),'Named crest/fill/protrusion/mask operation required')
         report={'op':op['op'],'name':op['name']}
-        if op['op']=='protrusion':
+        if op['op']=='mask':
+            require(set(op)=={'op','name','faces'}, 'Mask operation needs only name and spatial face conditions')
+            selected=when(op['faces'],face_values(value,rgb,seal_start),regions)
+            require(selected.any(), 'Mask selects no faces: '+op['name'])
+            created={op['name']:face_mask(np.asarray(value['uv']),selected,len(rgb))}
+            report.update(faces=int(selected.sum()),paintedTexels=0)
+        elif op['op']=='protrusion':
             selected,found=protrusion_faces(value,rgb,op,regions,embree,seal_start);report.update(found)
             created={op['name']:face_mask(np.asarray(value['uv']),selected,len(rgb))}
         else:created=crest(value,rgb,op,report) if op['op']=='crest' else fill(value,rgb,op,report,texels,regions,seal_start)

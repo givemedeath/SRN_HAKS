@@ -421,7 +421,7 @@ def stage_entries(directory):
 def stage_code_files(stage, directory=None, root=None):
     directory=Path(directory or Path(__file__).parent);root=Path(root or ROOT)
     entries=stage_entries(directory);require(stage in entries,'No runner branch for stage: '+stage)
-    modules=module_closure(entries[stage]|{'common'},directory)
+    modules=module_closure(entries[stage]|{'common','measure'},directory)
     files={module_path(name,directory) for name in modules}|{directory/name for name in ('__init__.py','runner.py','manifest.schema.json')}
     files|={directory/name for name in STAGE_SCRIPTS.get(stage,())+STAGE_DATA.get(stage,())}
     files|={root/path for path in SHARED_TOOLING+(NATIVE_HELPERS if 'native' in modules else ())}

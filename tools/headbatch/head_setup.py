@@ -1,4 +1,6 @@
 """Create a head folder from a picked design and write its manifest from the design receipt, GPU outputs and overrides.json."""
+import hashlib
+import json
 import math
 import os
 from pathlib import Path
@@ -10,10 +12,11 @@ from gpu_job import FIELD_NODE, GEOMETRY_NODE, file_from, link_or_copy
 import guards
 from head_files import sha, write_json
 from workspace import PYTHON, RACE_DATA
+import reference_record
 
 FEATURE = re.compile(r'^(Face|Ears|Brows|Horns|Tusks|Beard|Hair|Cyberware|Piercings|Tattoo|Scars): (.*)$', re.M)
 SETUP_MARKER = '.setup-incomplete'
-PALETTE_ROLES = (('paletteSkin', 'pal-skin01.tga'), ('paletteHair', 'pal-hair01.tga'), ('paletteArmor', 'pal-armor01.tga'), ('paletteTattoo', 'pal-tattoo01.tga'))
+PALETTE_ROLES = (('paletteSkin', 'pal-skin01.tga'), ('paletteHair', 'pal-hair01.tga'), ('paletteArmor', 'pal-armor01.tga'), ('paletteArmor2', 'pal-armor02.tga'), ('paletteTattoo', 'pal-tattoo01.tga'))
 
 
 def tone_reference(race, sex):
@@ -28,7 +31,8 @@ def channel_reference(race, sex, channel):
     if channel == '1':
         return {'reference': f'{race}-{sex}-hair-v1'}
     if channel == '9':
-        return {'reference': 'head-tattoo1-v1'}
+        # Troll/orc tattoo2 is bone; design ink stays on skin (RUNBOOK 219).
+        return {'reference': 'head-metal-v1' if race in ('troll', 'orc') else 'head-tattoo1-v1'}
     return {'reference': 'head-metal-v1'}
 
 
@@ -85,8 +89,8 @@ def defaults(name, receipt, inputs, reference):
         },
         'ownership': {'mode': 'rules', 'reviewed': True, 'default': 0, 'regions': {}, 'rules': []},
         'tone': {'mode': 'adjust', 'operations': []},
-        'palette': {'inputs': {'0': 'paletteSkin', '1': 'paletteHair', '2': 'paletteArmor', '8': 'paletteTattoo', '9': 'paletteTattoo'},
-                    'rows': {'0': 'auto', '1': 'auto', '2': 0, '8': 'auto', '9': 'auto'}, 'shadeOffsets': {},
+        'palette': {'inputs': {'0': 'paletteSkin', '1': 'paletteHair', '2': 'paletteArmor', '3': 'paletteArmor2', '8': 'paletteTattoo', '9': 'paletteTattoo'},
+                    'rows': {'0': 'auto', '1': 'auto', '2': 0, '3': 0, '8': 'auto', '9': 'auto'}, 'shadeOffsets': {},
                     'toneMatch': {'0': {'reference': tone_reference(race, sex), 'rowFrom': 'design'}}},
         'render': {'frontAngleDegrees': -90, 'views': ['front', 'left-profile', 'back', 'right-profile'], 'modes': ['clay', 'color-only', 'ownership'],
                    'mapStages': {'basecolor': 'palette'}, 'ownershipView': True, 'size': 1024, 'diagnostic': True},
@@ -101,6 +105,11 @@ def defaults(name, receipt, inputs, reference):
 def tone_every_channel(data, race, sex, name):
     """Hair and accents left on nearest-colour shades read flat in other rows (RUNBOOK 83). palette.toneMatchOff is the reviewed opt-out."""
     used = {str(data['ownership'].get('default', 0))} | {str(rule['channel']) for rule in data['ownership'].get('rules', [])}
+    if data['ownership'].get('featureChannels'):
+        # Non-iris legacy tattoo1 rules become tattoo2; generated iris texels alone do not (RUNBOOK 243).
+        if '8' in used:
+            used.add('9')
+        used.update(('1', '8'))
     tone = data['palette'].setdefault('toneMatch', {})
     off = set(data['palette'].pop('toneMatchOff', []))
     for channel in sorted(used, key=int):
@@ -151,6 +160,8 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
     race, sex = receipt['race'], receipt['sex']
     inputs = {'design': link(head, head/'design'/receipt['selectedDesign']['file'], 'design.png', replaced)}
     for role, file in PALETTE_ROLES:
+        if not (head/'inputs'/file).is_file():
+            raise guards.Refused('Missing palette '+file+'; bind the actual separate palette before regenerating this manifest')
         inputs[role] = {'path': f'inputs/{file}', 'sha256': sha(head/'inputs'/file)}
     gpu = head/'gpu'/'gpu.json'
     if gpu.exists():
@@ -195,11 +206,49 @@ def set_components(workspace, name, notes, check=validate):
 def set_ownership(workspace, name, rules, check=validate):
     """A reviewed rule set (regions, rules, notes), replacing any earlier one. Coordinates are bbox-relative GLB frame; `review grid` draws the iso-lines."""
     overrides = guards.read(workspace.head(name)/'overrides.json')
-    overrides['ownership'] = {'$replace': True, 'mode': 'rules', 'reviewed': True, 'default': 0, **guards.read(rules)}
+    features = {'featureChannels': True} if overrides.get('ownership', {}).get('featureChannels') else {}
+    overrides['ownership'] = {'$replace': True, 'mode': 'rules', 'reviewed': True, 'default': 0, **features, **guards.read(rules)}
     return write_manifest(workspace, name, check, overrides)
 
 
-def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approval='', check=validate):
+def selected_prompt(workspace, name, race, design, record=None):
+    """Resolve generated images against their frozen proposal; external designs retain the manual setup route."""
+    folder = workspace.root/'design'
+    spec = folder/f'designs-{race}.json'
+    if record is not None:
+        data, _ = reference_record.load(record, name, design)
+        return data['prompt'], {'generator': data['generator'], 'referenceRecord': {'path': str(Path(record).resolve()), 'sha256': sha(record)}}, sha(design)
+    if design.parent != (folder/'raw').resolve():
+        raise guards.Refused(f'{name}: external designs require --reference-record; the current race prompt is not provenance')
+
+    match = re.fullmatch(r'(.+)-b[0-9]+\.png', design.name)
+    if not match:
+        raise guards.Refused(f'{name}: expected a generated proposal PNG with its receipt')
+    receipt = design.with_name(match[1]+'.json')
+    if not receipt.is_file():
+        raise guards.Refused(f'{name}: missing proposal receipt {receipt.name}')
+    receipt_bytes = receipt.read_bytes()
+    data = json.loads(receipt_bytes)
+    if data.get('kind') != 'design' or data.get('state') != 'complete' or data.get('head') != name:
+        raise guards.Refused(f'{name}: the selected proposal must have a complete design receipt for this head')
+    matches = [row for row in data.get('outputs', []) if Path(row['path']).resolve() == design]
+    if len(matches) != 1 or sha(design) != matches[0]['sha256']:
+        raise guards.Refused(f'{name}: selected image differs from the proposal output')
+    spec = Path(data['spec']['path']).resolve()
+    if spec.parent != (folder/'launches').resolve() or not spec.is_file():
+        raise guards.Refused(f'{name}: the frozen proposal spec is missing from this workspace')
+    spec_bytes = spec.read_bytes()
+    if hashlib.sha256(spec_bytes).hexdigest() != data['spec']['sha256']:
+        raise guards.Refused(f'{name}: frozen proposal spec changed')
+    lineage = {'prompt': spec.relative_to(workspace.root).as_posix(), 'promptSha256': data['spec']['sha256'],
+               'proposalReceipt': {'path': receipt.relative_to(workspace.root).as_posix(),
+                                   'sha256': hashlib.sha256(receipt_bytes).hexdigest()}}
+    lineage['designProfile'] = data.get('profile', 'flux2-turbo-v1')
+    lineage['generator'] = data.get('settings', {}).get('model', 'Flux.2') + ' via headkit design'
+    return json.loads(spec_bytes)['designs'][name], lineage, matches[0]['sha256']
+
+
+def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approval='', check=validate, reference=None, quality_profile=None):
     """A new head folder: design receipt, stock palettes, bindings, compiler binding, body neck, neck-cut overrides, then the manifest.
     A marker stands until the manifest passes, so a failed setup can be run again once its cause is fixed."""
     known = workspace.head_ids()
@@ -212,14 +261,30 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
         raise guards.Refused(f'{head} already exists and is not empty')
     if not approval.strip():
         raise guards.Refused(f'{name}: --approval must say who picked the design and on what basis')
-    prompt = guards.read(workspace.root/'design'/f'designs-{race}.json')['designs'][name]
+    design = Path(design).resolve()
+    prompt, lineage, expected_image = selected_prompt(workspace, name, race, design, reference)
+    record, pair = reference_record.load(reference, name, design) if reference else (None, {})
+    if workspace.data.get('requirePairedReferences') is True and not pair:
+        raise guards.Refused('This workspace requires a reviewed clay/detail reference pair before setup')
+    quality_profile = quality_profile or workspace.data.get('headQualityProfile')
+    if quality_profile not in (None, 'face-v1'):
+        raise guards.Refused('Unknown head quality profile: '+str(quality_profile))
+    if quality_profile=='face-v1' and race=='troll':
+        checks=(record or {}).get('conditioning',{}).get('alignment',{}).get('featureChecks')
+        if checks!={'horns':2,'tusks':2,'neck':'none','hairBelowJaw':True}:
+            raise guards.Refused('Troll face-v1 requires measured horn/tusk roots and tips, jaw landmarks and explicit no-neck featureChecks')
+        # Validation remains in the bound prepare child; no anatomy is approved here.
     features = {key.lower(): value.strip() for key, value in FEATURE.findall(prompt)}
+    if record:
+        features = dict(record['features'])
     features['neck'] = 'removed by mesh.neck.cut; the body neck part forms the neck'
     for folder in ('design', 'inputs', 'review-evidence'):
         (head/folder).mkdir(parents=True, exist_ok=True)
     marker.touch()
-    design = Path(design)
-    shutil.copy2(design, head/'design'/design.name)
+    saved = Path(shutil.copy2(design, head/'design'/design.name))
+    image_sha = sha(saved)
+    if expected_image is not None and image_sha != expected_image:
+        raise guards.Refused(f'{name}: proposal image changed during setup')
     for file in RACE_DATA['designPalettes']:
         shutil.copy2(workspace.require('palettes')/file, head/'inputs'/file)
     shutil.copy2(workspace.path(workspace.data['headBindings']), head/'bindings.json')
@@ -227,20 +292,55 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
     shutil.copy2(workspace.body_neck(race, sex), head/'inputs'/'body-neck.json')
     species = workspace.design_reference(race, sex)
     receipt = {'headId': name, 'race': race, 'sex': sex, 'slot': slot,
-               'route': 'bootstrap: one front Flux.2 design -> headkit matte -> Pixal single-view geometry + appearance -> headkit CPU chain with neck cut -> native (Blender + NeverBlender)',
+               'route': 'bootstrap: one front design -> headkit matte -> Pixal single-view geometry + appearance -> headkit CPU chain with neck cut -> native (Blender + NeverBlender)',
                'generator': 'Flux.2 via headkit design'+(f'; species reference {species.name}' if species else '; no reference image'),
-               'prompt': f'design/designs-{race}.json',
+               **lineage,
                'viewConvention': 'front image left = character RIGHT; image right = character LEFT. NWN fit yaws 180 degrees; sides are anatomical and unchanged.',
                'designApproved': True, 'approval': approval,
-               'selectedDesign': {'file': design.name, 'sha256': sha(design)}, 'featureInventory': features, 'observedDeviations': list(deviations),
+               'selectedDesign': {'file': design.name, 'sha256': image_sha}, 'featureInventory': features, 'observedDeviations': list(deviations),
                'slotSource': 'docs/heads/slot-catalog.json blocks; workspace slots'}
     write_json(head/'design'/'design-receipt.json', receipt)
-    overrides = {'inputs': {'bodyNeck': {'path': 'inputs/body-neck.json', 'sha256': sha(head/'inputs'/'body-neck.json')}},
-                 'mesh': {'neck': {'$replace': True, 'cut': {'height': 'measured', 'slope': slope, 'band': 0.03, 'reach': reach,
-                          'notes': f'Heads have no neck: plane under the lowest front feature beyond the reach, slope {slope}; stub drawn 3 mm inside the smoothed body neck over 3 cm.'}}}}
+    # Keep replacement directives until write_manifest merges this layer into defaults (RUNBOOK 245).
+    overrides = face_quality_profile() if quality_profile else {}
+    overrides['inputs'] = {'bodyNeck': {'path': 'inputs/body-neck.json', 'sha256': sha(head/'inputs'/'body-neck.json')}}
+    overrides.setdefault('mesh', {})['neck'] = {'$replace': True, 'cut': {
+        'height': 'measured', 'slope': slope, 'band': 0.03, 'reach': reach,
+        'notes': f'Heads have no neck: plane under the lowest front feature beyond the reach, slope {slope}; stub drawn 3 mm inside the smoothed body neck over 3 cm.'}}
+    if record:
+        shutil.copy2(reference, head/'design'/'reference-record.json')
+        receipt['sourceReferenceRecord'] = receipt['referenceRecord']
+        receipt['referenceRecord'] = {'path': 'design/reference-record.json', 'sha256': sha(head/'design'/'reference-record.json')}
+        if pair:
+            receipt['route'] = 'paired: clay geometry + diffuse detail; shared crop and FOV; saved-shape appearance'
+            for role, source in pair.items():
+                target = head/'inputs'/f'{role}.png'
+                shutil.copy2(source, target)
+                overrides['inputs'][role] = {'path': f'inputs/{role}.png', 'sha256': sha(target)}
+            overrides['alignment'] = record['conditioning']['alignment']
+        write_json(head/'design'/'design-receipt.json', receipt)
+    if quality_profile:
+        body = workspace.data.get('bodySkinReferences', {}).get(f'{race}-{sex}')
+        if not body or not workspace.path(body).is_file():
+            raise guards.Refused('face-v1 needs workspace bodySkinReferences for '+race+'-'+sex)
+        target = head/'inputs'/'body-skin.plt'
+        shutil.copy2(workspace.path(body), target)
+        overrides['inputs']['bodySkin'] = {'path': 'inputs/body-skin.plt', 'sha256': sha(target)}
     if race == 'troll':  # horn curls enclose backdrop that the border flood fill keeps (RUNBOOK 57); review the matte check
         overrides['matte'] = {'enclosedBackgroundMinimumPixels': 400}
     write_json(head/'overrides.json', overrides)
     manifest = write_manifest(workspace, name, check)
     marker.unlink()
     return manifest
+
+
+def face_quality_profile():
+    """Explicit opt-in for new heads; no existing manifest is silently migrated."""
+    return {'mesh': {'uv': {'faceDensity': 3}}, 'faceMasks': {},
+            'ownership': {'featureChannels': True},
+            'tone': {'faceTreatment': {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3,
+                     'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0}},
+            'quality': {}, 'palette': {'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True},
+            'render': {'$replace': True, 'frontAngleDegrees': -90,
+                       'sizes': [2048, 1024], 'modes': ['clay','color-only','material-lit'],
+                       'mapStages': {'basecolor': 'tone'}, 'runtimePalette': True,
+                       'materialConstants': {'roughness': .8, 'metallic': 0, 'opacity': 1}}}

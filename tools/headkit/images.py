@@ -38,8 +38,49 @@ def _minimum_silhouette_iou(config):
     return value
 
 
+def feature_landmarks(config):
+    """Explicit observations to check visually, not anatomical approval."""
+    spec=config.get('featureChecks')
+    if spec is None:return {}
+    require(isinstance(spec,dict) and set(spec)=={'horns','tusks','neck','hairBelowJaw'}
+            and spec['neck']=='none' and spec['hairBelowJaw'] is True,
+            'Feature checks need horn/tusk counts, neck: none and hairBelowJaw: true')
+    groups={'jaw':['jaw-left','jaw-chin','jaw-right']}
+    for feature in ('horns','tusks'):
+        count=spec[feature]
+        require(type(count) is int and count in (0,2),'Feature checks support absent features or a left/right pair')
+        if count:
+            for side in ('left','right'):
+                name=feature[:-1]+'-'+side
+                groups[name]=[name+'-root',name+'-tip']
+    names={row['name'] for row in config.get('landmarks',[])}
+    require(set(sum(groups.values(),[]))<=names,'Missing horn/tusk roots or tips, or jaw boundary landmarks')
+    return groups
+
+
+def feature_evidence(aligned,detail,points,config,output):
+    groups=feature_landmarks(config)
+    if not groups:return {}
+    width,height=detail.size;lookup={p['name']:np.array(p['detail'])*[width,height] for p in points}
+    a=np.asarray(aligned.getchannel('A'))>127;b=np.asarray(detail.getchannel('A'))>127
+    report={}
+    for name,names in groups.items():
+        selected=np.array([lookup[key] for key in names]);low=selected.min(0)-[.05*width,.05*height];high=selected.max(0)+[.05*width,.05*height]
+        if name=='jaw':high[1]+=.10*height  # include below the chin; hair may legitimately occupy it
+        x0,y0=np.maximum(np.floor(low),0).astype(int);x1,y1=np.minimum(np.ceil(high),[width,height]).astype(int)
+        aa,bb=a[y0:y1,x0:x1],b[y0:y1,x0:x1]
+        union=np.count_nonzero(aa|bb);require(union>0,'Feature crop contains no subject: '+name)
+        crop=Image.new('RGBA',((x1-x0)*3,y1-y0))
+        for index,image in enumerate((aligned,detail,Image.blend(aligned,detail,.5))):crop.paste(image.crop((x0,y0,x1,y1)),(index*(x1-x0),0))
+        target=output/(name+'-comparison.png');crop.save(target)
+        report[name]={'box':[int(x0),int(y0),int(x1),int(y1)],'silhouetteIoU':float(np.count_nonzero(aa&bb)/union),
+                      'comparison':pin(target),'visualReviewRequired':True}
+    return report
+
+
 def prepare(clay_path, detail_path, config, output):
     minimum_iou=_minimum_silhouette_iou(config)
+    feature_landmarks(config)
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     clay, detail = (Image.open(p).convert('RGBA') for p in (clay_path, detail_path))
     require(clay.size == detail.size, 'Pair must have matching canvases before alignment')
@@ -70,7 +111,8 @@ def prepare(clay_path, detail_path, config, output):
         x, y = point; draw.ellipse((x-5, y-5, x+5, y+5), outline='yellow', width=2)
         draw.text((x+7, y), f'{i}: {value["name"]}', fill='yellow')
     overlay.save(output / 'alignment-overlay.png')
-    result = {'silhouetteIoU': iou, 'residualPixels': errors.tolist(), 'scale': scale,
+    regions=feature_evidence(aligned,detail,points,config,output)
+    result = {'featureChecks':regions,'silhouetteIoU': iou, 'residualPixels': errors.tolist(), 'scale': scale,
               'rotation': rotation.tolist(), 'translation': translation.tolist(), 'manualReviewRequired': True,
               'landmarksAreOperatorMeasurements': True,
               'images': {name: pin(output / name) for name in ('geometry-pair.png', 'detail-pair.png', 'common-mask.png', 'alignment-overlay.png')}}

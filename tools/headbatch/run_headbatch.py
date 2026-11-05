@@ -50,10 +50,16 @@ def parser():
     p = commands.add_parser('setup', help='create a head folder from a picked design')
     p.add_argument('head')
     p.add_argument('design')
+    p.add_argument('--reference-record', type=Path)
+    p.add_argument('--quality-profile', choices=['face-v1'])
     p.add_argument('--approval', required=True, help='who picked the design and on what basis')
     p.add_argument('--reach', type=float, default=.04)
     p.add_argument('--slope', type=float, default=-.2, help='-0.3 when hair reaches the nape (RUNBOOK 76)')
     p.add_argument('--deviation', action='append', default=[], help='observed departure of the design from its prompt')
+    p = commands.add_parser('reference-check', help='validate a hash-bound external reference and optional measured pair; no approval')
+    p.add_argument('head')
+    p.add_argument('record', type=Path)
+    p.add_argument('--output', type=Path, required=True)
     commands.add_parser('manifest', help='rewrite a head manifest').add_argument('head')
     p = commands.add_parser('components', help="record the reviewed shell selection from review-evidence/shells.json")
     p.add_argument('head')
@@ -73,6 +79,10 @@ def parser():
     p.add_argument('head')
     p.add_argument('--stages')
     p.add_argument('--seed-offset')
+    p = commands.add_parser('gpu-review', help='record user review of an exact raw geometry submission')
+    p.add_argument('head')
+    p.add_argument('--attempt', required=True)
+    p.add_argument('--approval', required=True)
     p = commands.add_parser('design', help='design proposals, one launch per HEAD:SEED[:BATCH]')
     p.add_argument('race')
     p.add_argument('requests', nargs='+')
@@ -128,7 +138,13 @@ def main(argv=None):
     try:
         workspace = Workspace.load(args.workspace)
         if args.command == 'setup':
-            print('ready', head_setup.set_up(workspace, args.head, args.design, args.reach, args.slope, args.deviation, args.approval))
+            print('ready', head_setup.set_up(workspace, args.head, args.design, args.reach, args.slope, args.deviation, args.approval, reference=args.reference_record, quality_profile=args.quality_profile))
+        elif args.command == 'reference-check':
+            # The bound packages are loaded only in the env child, like other CPU tools.
+            return subprocess.run([PYTHON, '-B', '-c',
+                'import sys; sys.path.insert(0,sys.argv.pop(1)); import reference_record; reference_record.check(sys.argv[1],sys.argv[2],sys.argv[3])',
+                str(Path(__file__).parent), str(args.record), args.head, str(args.output)],
+                env=workspace.python_environment(packages=True, tools=True)).returncode
         elif args.command == 'manifest':
             print('manifest', head_setup.write_manifest(workspace, args.head))
         elif args.command == 'components':
@@ -146,6 +162,10 @@ def main(argv=None):
             else:
                 print('reason:', data['errors'])  # a cap or an open occiput stops the job with only its message there
             return data['exitCode']
+        elif args.command == 'gpu-review':
+            import gpu_contract
+            with guards.head_locks(workspace,[args.head]):
+                print(gpu_contract.review_geometry(workspace.head(args.head),args.attempt,args.approval))
         elif args.command == 'design':
             rows = launcher.run_design(workspace, args.race, args.requests)
             for row in rows:
