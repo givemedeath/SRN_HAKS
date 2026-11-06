@@ -110,9 +110,50 @@ Before use:
 - Remove baked weapon nodes from the male clips: `Object01` to `Object05`, `WBwSl_m_121`, `world_mp5` and `ak-47-2-mesh`.
 - Replace position keys. `custom11` to `custom15` key limb positions as well as `rootdummy`, and these would impose the
   source body's joints and hip height on other races. Keep rotations and retarget the root per slot.
-- `custom13lp`, `custom14lp` and `custom15lp` have no `hit` event, unlike `custom11lp`, `custom12lp` and `custom19lp`.
-- `custom16`, `custom17` and `custom18` have a `start` clip only. Test how they play. The probe only tested an `lp` clip.
 - Check the clips against the firearm grip standard. They predate it.
+
+## Import pilot
+
+Client run on 2026-11-06 with `tools/itemkit/combat_clip_pilot.py`, using the January 2011 male and female clips.
+Rifle, pistol, SMG, reload, grenade and shotgun clips went into `a_ba_custom`, with limb positions and baked weapons
+removed and the root rescaled per slot. This is not an approval of any animation.
+
+Firing will use native attacks, with `ReplaceObjectAnimation` swapping `xbowshot` or `throwr` per weapon. The SR_NWN
+engine project owns that framework. This repo supplies the clips.
+
+| Test | Result |
+|---|---|
+| Per-slot clip on `xbowshot`, native attack, Troll male and female | Plays, tracers fire |
+| Rifle, SMG and shotgun clips on `xbowshot`, Troll | Attacks run, 2 rounds per 10 s |
+| Pistol clip on `throwr`, Troll | Attacks run, 2 rounds per 10 s |
+| SMG clip with no `hit` event | Same ammo use as the others |
+| Rifle clip on `custom11lp`, Human, Orc, Troll | Plays on bare bodies, robe 005 and coat 020 |
+| Reload or grenade mapped to `custom16start` or `custom18start` | No visible change |
+| Same clips mapped to `custom16lp` or `custom18lp` | Plays |
+
+- Native attacks were only run on Trolls. Orcs and Humans were tested with the looped clip.
+- Ammo shows a missing `hit` event doesn't stop the attack. Damage and tracer timing without it weren't checked.
+- `ANIMATION_LOOPING_CUSTOM16` and `CUSTOM18` appear to play the `lp` name, so one-shot clips need an `lp` name or mapping.
+- The source limb position keys equal the stock bind, and the source root rotation keys are zero, so dropping them
+  lost nothing. The bladed stance is authored.
+- `a_ba_custom` grew from 97 KB to 596 KB for 36 clips, about 14 KB per clip. Load time wasn't measured.
+
+The grip is not good enough yet. The rifle clip only moves arms by rotation, so the distance between the hands grows
+with the body while the rifle does not:
+
+| Slot | Fit | Large |
+|---|---:|---:|
+| Human male | 0.357 m | 0.357 m |
+| Human female | 0.328 m | 0.367 m |
+| Orc male | 0.460 m | 0.460 m |
+| Orc female | 0.423 m | 0.476 m |
+| Troll male | 0.595 m | 0.600 m |
+| Troll female | 0.561 m | 0.634 m |
+
+Two-handed clips need the support arm solved per slot and against the firearm grip standard.
+
+The first male grenade build had no keys, because that clip stores keys in a counted form the parser skipped. `read_keys`
+now reads both forms and refuses any key table it did not read.
 
 ## TODO
 

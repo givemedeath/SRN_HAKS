@@ -1014,6 +1014,12 @@
       "tools/phenotypes/target_fixture.py",
       "tools/phenotypes/tool_runtime.py"
     ],
+    "tools/itemkit/combat_clip_pilot.py": [
+      "tools/heads/build_head_trial.py",
+      "tools/itemkit/anim_chain_probe.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
     "tools/itemkit/conditioning.py": [
       "tools/headkit/common.py",
       "tools/headkit/reference_background.py"
@@ -1234,6 +1240,10 @@
       "tools/itemkit/generation.py",
       "tools/itemkit/parts.py",
       "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_combat_clip_pilot.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/combat_clip_pilot.py"
     ],
     "tools/itemkit/test_conditioning.py": [
       "tools/headkit/__init__.py",
@@ -4440,6 +4450,13 @@
       "srn_body",
       "srn_body_tex"
     ],
+    "tools/itemkit/combat_clip_pilot.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_body_tex",
+      "srn_weapon"
+    ],
     "tools/itemkit/native_stack.py": [
       "srn_body"
     ],
@@ -4543,6 +4560,7 @@
     "tools/itemkit/test_anim_chain_probe.py",
     "tools/itemkit/test_atlas.py",
     "tools/itemkit/test_catalog_object.py",
+    "tools/itemkit/test_combat_clip_pilot.py",
     "tools/itemkit/test_conditioning.py",
     "tools/itemkit/test_curved_caps.py",
     "tools/itemkit/test_donor.py",

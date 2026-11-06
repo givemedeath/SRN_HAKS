@@ -248,7 +248,8 @@ def stage_animation(hak, stock_dir, body):
     return records
 
 
-def stage_module(stage, tools, source, game_userdir, hak_order):
+def stage_module(stage, tools, source, game_userdir, hak_order, scripts=None):
+    scripts = scripts or SCRIPTS
     shutil.copy2(source / 'repute.fac', stage / 'repute.fac')
 
     def actor(resref, data):
@@ -285,9 +286,9 @@ def stage_module(stage, tools, source, game_userdir, hak_order):
         data['Mod_Entry_X']['value'], data['Mod_Entry_Y']['value'] = 15.7, 20.0
 
     tools.gff(source / 'module.ifo', stage / 'module.ifo', info)
-    for name, text in SCRIPTS.items():
+    for name, text in scripts.items():
         (stage / (name + '.nss')).write_text(text, encoding='ascii')
-    for name in SCRIPTS:
+    for name in scripts:
         if name != 'srp_inc':
             tools.run('nwn_script_comp', '--root', tools.game_root, '--userdirectory', game_userdir, '--no-ovr',
                       stage / (name + '.nss'))
