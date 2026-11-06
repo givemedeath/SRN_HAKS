@@ -10,7 +10,7 @@
     "projectileTarget": "sling (SR_NWN decisions D376-D378)"
   },
   "authorities": {
-    "docs/items/approved-weapons-v1.json": "13d34f86c63be1a6cec6a9013b3e84e9c6a421c3d263038312af7fc6057f376a",
+    "docs/items/approved-weapons-v1.json": "baa604486f594dd1fe85be7c6197765357603761c1ce443e5b61273e47bfb489",
     "docs/items/approved-weapon-waves-release-validation.json": "d0669a316d6d3230c8ae039e932ca7baedf29474a21079d54c7e964a783317f9",
     "docs/items/firearm-grip-standard-v1.json": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2",
     "docs/items/weapon-grip-standard-v1.json": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988",

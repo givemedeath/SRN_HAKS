@@ -70,6 +70,12 @@ class RepositoryManifestTests(unittest.TestCase):
         self.assertTrue(all(r['publicationSha256Match'] for r in self.manifest['resources']))
         self.assertEqual(self.manifest['tables'][0]['matchesPublicationOverride'], True)
 
+    def test_table_resource_pin_matches_override_and_file(self):
+        publication = json.loads((crm.ROOT / crm.PUBLICATION).read_text(encoding='utf-8'))
+        pins = [r['sha256'] for r in publication['resources'] if r['path'] == crm.rel(crm.BASEITEMS)]
+        self.assertEqual(pins, [publication['displayTable']['overrideSha256']])
+        self.assertEqual(pins[0], crm.sha256(crm.read(crm.BASEITEMS)))
+
     def test_item_closures_are_complete_and_owned(self):
         for item in self.manifest['items']:
             self.assertEqual(item['closureMissing'], [], item['id'])
