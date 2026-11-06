@@ -542,3 +542,20 @@ and are not changed. Per-head hashes are in `docs/heads/troll-build-allowance-r3
 ## Race heads v1: first 12 heads (`srn_head`, 2026-11-03)
 
 Twelve generated heads join `srn_head`: five Human, four Orc, two Dwarf and one Troll. Each started from a local Flux.2 front design, then Pixal geometry and appearance, then the headkit chain with face masks, and native compile through Blender 5.2 and Neverblender. The content is contributed by the SRN project operator with Claude-assisted generation, fitting, texturing and validation. Stock palettes and body necks were local validation inputs and are not redistributed. The slots and client evidence are in `docs/heads/race-heads-v1-checkpoint.md`. This publishes no stock head, table or body change.
+
+## Vibro Blades — Sword and Ares Predator IV (srn_weapon, srn_2da; 2026-11-05)
+
+Same origin and pipeline as the approved weapon waves above: source-accurate SR4
+catalog references (clay and detail pairs), Pixal3D single-view geometry and
+saved-shape appearance generated through the shared itemkit trial ledger, then
+fitted to the Cougar melee and Colt firearm grip standards, reduced, UV-mapped,
+baked and compiled to NWN:EE native models. The Predator's engineering shell was
+rebuilt from its textured donor surface and bakes with a reviewed four-face
+sampling patch (22 of 687,404 texels) recorded in the private run. The
+exact payload bytes are published in `srn_weapon`; hashes and approval statements
+are in `docs/items/approved-weapons-v1.json`. `srn_2da/baseitems.2da` only
+extends the F2 and Sling appearance-picker `MaxRange` values (to 121 and 65).
+Generation intermediates, local bindings, HAK archives, ledger entries and client
+captures stay outside the repository. The Ares and Shadowrun names, branding and
+designs are third-party marks; this record asserts no ownership of them and adds
+no new rights claim.

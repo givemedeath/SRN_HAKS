@@ -3,12 +3,12 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
-  "weaponDesigns": 14,
-  "blueprints": 16,
-  "weaponResources": 130,
-  "publicationPins": 131,
-  "modelsDecoded": 50,
-  "imagesChecked": 64,
+  "weaponDesigns": 16,
+  "blueprints": 18,
+  "weaponResources": 148,
+  "publicationPins": 149,
+  "modelsDecoded": 57,
+  "imagesChecked": 73,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -17,14 +17,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 130,
-      "sha256": "ac779e1809b77e64cf53516f510c64e1cc734012a50b2dfb18c8d8a8491a5c86",
+      "resources": 148,
+      "sha256": "aee1706033e608d0ccb16acec78471e3f303796f618332a6e30310c8a82f963c",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
       "resources": 22,
-      "sha256": "c16f6ba219dee83224d53051d8efcfedb54c92db41a04cc3598917ca3a52341f",
+      "sha256": "0971e4050d4c238bed83f8e550e2a358e5c6c769e1c0030eb3cce4ba8334b028",
       "exactPayload": true
     },
     {
@@ -41,8 +41,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 63,
-      "sha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1",
+      "resources": 67,
+      "sha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
       "exactPayload": true
     }
   ],
@@ -86,7 +86,13 @@
     "1": {
       "MaxRange": [
         "100",
-        "111"
+        "121"
+      ]
+    },
+    "61": {
+      "MaxRange": [
+        "52",
+        "65"
       ]
     }
   },
@@ -199,5 +205,15 @@
     "statement": "looks good",
     "scope": "Updated grouping and all fifteen male/female NPC weapon-finish pairs",
     "moduleSha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1"
+  },
+  "addedItems": {
+    "date": "2026-11-05",
+    "items": [
+      "sr4-vibro-blades-sword-421b34c61a",
+      "sr4-ares-predator-iv-3ab64906ed"
+    ],
+    "payloadsByteIdenticalToNativePackages": true,
+    "rebuiltArchivesPayloadExact": true,
+    "archiveHashNote": "srn_weapon.hak, srn_2da.hak and sw_weapon_w2.mod were rebuilt for this update; the sw_f7motion and sw_reviewenv entries above are unchanged historical records."
   }
 }

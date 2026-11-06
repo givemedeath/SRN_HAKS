@@ -7,7 +7,7 @@ Build the normal release through the existing pack builder:
 ```
 
 `srn_weapon` contains the approved models, runtime diffuse maps, inventory icons
-and sixteen builder blueprints for fourteen weapon designs. `srn_2da` supplies
+and eighteen builder blueprints for sixteen weapon designs. `srn_2da` supplies
 the native carrier table. No custom TLK is required. The inventory and resource
 hashes are in `approved-weapons-v1.json`; the generated combat release manifest
 describes the complete resource closure.
@@ -15,11 +15,11 @@ describes the complete resource closure.
 | Family | BaseItem / ItemClass | Released designs |
 |---|---|---|
 | F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade |
-| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton |
+| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword |
 | F4 | 13 / WSwGs | Katana |
 | F5 | 50 / WDbQs | Staff |
 | F6 | 111 / WWhip | Whip |
-| F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X |
+| F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV |
 | F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow |
 | F9 | 8 / WBwLn | Bow |
 | F11 | 63 / WThAx | Throwing Knife |
@@ -44,7 +44,8 @@ The smaller Knife remains F1 / row 22. The full-sized Cougar Longsword remains
 F2 / row 1. Both Colt finishes already use F7 / row 61; their native blueprints,
 models, textures, appearance addresses and fit remain unchanged. F2's MaxRange
 display field is extended from 100 to 111 so its already-approved 101 and 111
-addresses are selectable. All other table bytes remain unchanged.
+addresses are selectable (later 121 for the Vibro sword, see below). All other
+table bytes remain unchanged.
 
 The Crossbow diffuse is published under the name its approved compiled model
 actually references (`sr6abe18c_06`); the pixels and model bytes are unchanged.
@@ -72,6 +73,34 @@ flight, impact and emitter data stay byte-identical. It remains the projectile f
 every Base 63 throw. Length is now 0.252 and midpoint grip depth about half the
 melee reference, a deliberate departure from it. No client validation record or
 production acceptance is created here.
+
+## Vibro Blades — Sword and Ares Predator IV (2026-11-05)
+
+Both designs come from the SR4 catalog through the itemkit pipeline (clay and detail
+references, saved-shape appearance, donor export, fit, reduce, unwrap, bake, native
+package). Models, diffuse maps, icons and blueprints are the exact bytes of the
+accepted native packages (`sr421b34c6h.hak`, `sr3ab64906h.hak`); hashes are in
+`approved-weapons-v1.json`. The user approved each after seeing it in the NWN:EE
+client on both shipped Human bodies ("predator looks good", "sword looks good too").
+
+| Item | Family | Blueprint | Appearance |
+|---|---|---|---|
+| Vibro Blades — Sword | F2 / row 1 (Cougar melee grip standard) | `sr421b34c6` | `wswls_*_121`, diffuse `sr421b34c6_12` |
+| Ares Predator IV | F7 / row 61 (Colt firearm grip standard) | `sr3ab64906_5` | bottom `065`, top/middle `015` (hidden), diffuse `sr3ab64906_065` |
+
+The Predator uses colour address 5 because 1–4 collide with the published Colt and
+Ingram placeholders. Its depth/width/usable-length fit and the Cougar-standard
+sword fit are recorded with the private itemkit run, not in this repository.
+
+Table changes are appearance-picker extensions only: F2 `MaxRange` 111 to 121 and
+Sling row 61 `MaxRange` 52 to 65 (the earlier 50 to 52 and `ModelType` 0 to 2
+changes stand). No gameplay, price or item-property field changes. The Predator
+keeps Sling rules, animations and ammunition; no firearm reload or ammunition
+system is published. The itemkit client checks used per-item private fixtures
+(screenshots and logs retained locally); they are not the production animation
+or exhaustive equipment acceptance. The comparison module below gained a
+reviewer pair for each, with the Predator included in the test-only F7 motion
+mapping. Those two added pairs have not been run in this module's client.
 
 ## Separate comparison module
 

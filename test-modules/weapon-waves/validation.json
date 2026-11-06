@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 63,
-      "sha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1",
+      "resources": 67,
+      "sha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 15,
-    "NPCs": 30,
+    "pairs": 17,
+    "NPCs": 34,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -43,6 +43,17 @@
     "date": "2026-11-03",
     "statement": "looks good",
     "scope": "Updated grouping and all fifteen male/female NPC weapon-finish pairs",
-    "moduleSha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1"
+    "moduleSha256": "05bfaef5cc99c1aac9d28e66e366037c56becf6cdfe330409bbac609e83642b1",
+    "extension": {
+      "date": "2026-11-05",
+      "addedPairs": 2,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "predator looks good",
+        "sword looks good too"
+      ],
+      "moduleSha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
+      "note": "The Vibro sword and Predator IV pairs were added to this module without a client run of this module; both items were viewed in the client on both Human bodies in their own itemkit fixtures. The 15-pair approval above refers to the earlier module bytes."
+    }
   }
 }
