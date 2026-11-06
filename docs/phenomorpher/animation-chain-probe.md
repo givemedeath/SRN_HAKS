@@ -11,16 +11,21 @@ Build it with `tools/itemkit/anim_chain_probe.py`. It writes a private module to
 | `srpcust` | Hak override of stock `a_ba_custom` | Right arm up |
 | `srplib` | Thin layer directly under the body root, as in `srn_an_*` | Left arm up |
 
-Actors: Human male Fit and Large, Human female Fit and Dwarf male Fit, each bare, in robe 005 and in coat 020.
-Human Fit actors also wore rigid robe 002.
+The module shows one playable race at a time: Human, Dwarf, Elf, Orc or Troll. Each has male and female actors in Fit
+and Large, each bare, in robe 005 and in coat 020, using the shipped body and clothing packs. Commands `human`,
+`dwarf`, `elf`, `orc` and `troll` switch race. `at <col> <row>` moves in close and `wide` moves back.
+
+The first run used Human male Fit and Large, Human female Fit and Dwarf male Fit, and also covered the `custom4lp`
+route and rigid robe 002 on Humans. The second run covered every race with the `cust` clip. `lib` was rerun on Trolls
+and Orcs only.
 
 ## Results
 
 | Case | `a_ba_custom` clip | Library clip |
 |---|---|---|
-| Bare body, all four | Plays | Plays |
+| Bare body, all 20 | Plays | Plays on Humans, Dwarves, Orcs and Trolls; Elves not rerun |
 | Robe 005 | Plays | Plays |
-| Coat 020 | Plays, coat sleeve follows | Coat stays down, the body's hand floats where the arm should be |
+| Coat 020 | Plays, coat sleeve follows | Coat stays down, the body's hand floats where the arm should be (Human, Dwarf, Orc and Troll) |
 | Played through `custom4lp` | Plays | Same as above |
 
 - `a_ba_custom` is reached through `srn_an_dm`, `srn_fa_h0 > a_fa` and every coat chain tested (`a_ba_coat`,
@@ -30,6 +35,23 @@ Human Fit actors also wore rigid robe 002.
 - `ReplaceObjectAnimation(o, "custom4lp", clip)` plus `ANIMATION_LOOPING_CUSTOM4` plays a clip on demand. That is a
   usable reload trigger.
 - Robe 005 leaves the arms to the body, and robe 002 is rigid, so neither shows a robe arm following.
+
+## Robe fit by race
+
+No robe has been refit to these bodies. Every robe here is the stock model.
+
+- **Troll, male and female, both phenotypes: broken.** They wear Gnome-sized stock robes. Robes 005 and 020 sit far
+  below the body, the head and arms float above them, and the feet are left on the floor. This blocks robes on Trolls
+  whatever the animation placement.
+- **Orc:** robes 005 and 020 held together in the views taken, including a Large male coat close-up.
+- **Elf, Dwarf, Human:** nothing obviously broken from the wide view. No close-up was taken. On Elf coats the hand may
+  sit past the raised sleeve, which needs a close look.
+
+## Why not `a_ba_coat_cus`
+
+Bodies never pass through it. Their chain is `root > a_ba`, and only coats use `a_ba_coat > a_ba_coat_cus > a_ba`.
+Large coats use `a_ba2_coat_cus` instead. A clip there would reach Fit coats and nothing else. `a_ba_custom` sits below
+`a_ba`, so both chains reach it.
 
 ## Corrections to earlier assumptions
 

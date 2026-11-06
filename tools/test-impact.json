@@ -4436,6 +4436,7 @@
     ],
     "tools/itemkit/anim_chain_probe.py": [
       "srn_2da",
+      "srn_armor",
       "srn_body",
       "srn_body_tex"
     ],

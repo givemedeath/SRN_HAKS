@@ -1,7 +1,8 @@
 """Client probe: which animation layer reaches bodies and every robe family.
 
-Adds one visible clip at each candidate layer and builds an isolated module with a
-grid of bodies and robes:
+Adds one visible clip at each candidate layer and builds an isolated module showing
+one playable race at a time: male and female, Fit and Large, each bare, in robe 005
+and in coat 020.
 
 * `srpcust` (right arm raised) in a hak override of the stock `a_ba_custom`.
 * `srplib` (left arm raised) in a thin layer directly under the body roots, which
@@ -27,8 +28,10 @@ from tools.phenomorpher.phenomorpher.engine.native_motion import sample
 
 CUSTOM_CLIP, LIBRARY_CLIP = 'srpcust', 'srplib'
 HAK, MODULE = 'srn_pb_anim', 'srp_anim'
-LIBRARIES = {'srn_pb_hm': ('a_ba', ['pmh0', 'pmh2']), 'srn_pb_hf': ('srn_fa_h0', ['pfh0', 'pfh2']),
-             'srn_pb_dm': ('srn_an_dm', ['pmd0', 'pmd2'])}
+PARENTS = {'hm': 'a_ba', 'hf': 'srn_fa_h0', 'dm': 'srn_an_dm', 'df': 'srn_an_df', 'em': 'srn_an_em', 'ef': 'srn_an_ef',
+           'om': 'srn_an_om', 'of': 'srn_an_of', 'gm': 'srn_an_gm', 'gf': 'srn_an_gf'}
+LIBRARIES = {f'srn_pb_{slot}': (parent, [f'p{slot[1]}{slot[0]}0', f'p{slot[1]}{slot[0]}2'])
+             for slot, parent in PARENTS.items()}
 ARM_ANGLE = 2.6  # radians from hanging, so a raised arm clears the head and any robe
 
 
@@ -111,14 +114,26 @@ void Spawn(string res,int appearance,int pheno,string label,float x,float y,int 
  if(appearance!=15100)SetCreatureAppearanceType(a,appearance);
  SetPhenoType(pheno,a);SetName(a,label);
  int part;for(part=0;part<18;part++)SetCreatureBodyPart(part,1,a);
+ SetCreatureBodyPart(CREATURE_PART_HEAD,1,a);
  ApplyEffectToObject(DURATION_TYPE_PERMANENT,SupernaturalEffect(EffectCutsceneGhost()),a);
  if(robe>=0)DelayCommand(1.0,Dress(a,robe));
- SrpLog("spawn "+label+" appearance="+IntToString(GetAppearanceType(a))+" pheno="+IntToString(GetPhenoType(a)));}
-void Column(string res,int appearance,int pheno,string name,float x,int firstRobe){
- Spawn(res,appearance,pheno,name+" bare",x,17.0,-1);
- Spawn(res,appearance,pheno,name+" r005",x,20.0,5);
- Spawn(res,appearance,pheno,name+" r020",x,23.0,20);
- if(firstRobe)Spawn(res,appearance,pheno,name+" r002",x,26.0,2);}
+ SrpLog("spawn "+label+" appearance="+IntToString(GetAppearanceType(a))+" gender="+IntToString(GetGender(a))+" pheno="+IntToString(GetPhenoType(a)));}
+void Group(string res,int appearance,int pheno,string name,float x){
+ Spawn(res,appearance,pheno,name+" bare",x,16.0,-1);
+ Spawn(res,appearance,pheno,name+" r005",x+1.2,20.5,5);
+ Spawn(res,appearance,pheno,name+" r020",x+2.4,25.0,20);}
+void Block(int appearance,string race){
+ Group("srp_male",appearance,0,race+" M Fit",5.0);
+ Group("srp_male",appearance,2,race+" M Large",11.0);
+ Group("srp_female",appearance,0,race+" F Fit",17.0);
+ Group("srp_female",appearance,2,race+" F Large",23.0);
+ SrpLog("race "+race);}
+void Clear(){
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){DestroyObject(a);a=GetObjectByTag("SRP_A",++n);}}
+void ShowRace(int appearance,string race){Clear();DelayCommand(0.6,Block(appearance,race));}
+void Camera(object pc,float facing,float distance,float pitch){
+ AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));}
 void Say(string text){
  int n=0;object a=GetObjectByTag("SRP_A",n);
  while(GetIsObjectValid(a)){AssignCommand(a,SpeakString(GetName(a)+": "+text));a=GetObjectByTag("SRP_A",++n);}}
@@ -143,21 +158,35 @@ void Slot(string clip,string text){
 void main(){
  object pc=GetEnteringObject();if(!GetIsPC(pc))return;
  object module=GetModule();if(GetLocalInt(module,"SRP_READY"))return;SetLocalInt(module,"SRP_READY",1);
- Column("srp_male",15100,0,"HM Fit",7.0,1);
- Column("srp_male",15100,2,"HM Large",11.0,0);
- Column("srp_female",15100,0,"HF Fit",15.0,1);
- Column("srp_male",15101,0,"DM Fit",19.0,0);
- DelayCommand(3.0,AssignCommand(pc,SetCameraFacing(90.0,16.0,55.0,CAMERA_TRANSITION_TYPE_SNAP)));
+ ApplyEffectToObject(DURATION_TYPE_PERMANENT,SupernaturalEffect(EffectLinkEffects(EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),EffectCutsceneGhost())),pc);
+ ShowRace(15104,"Troll");
+ DelayCommand(3.0,Camera(pc,90.0,22.0,58.0));
  SrpLog("ready");}
 ''',
     'srp_chat': r'''#include "srp_inc"
+void Move(object pc,float x,float y,float distance,float pitch){
+ AssignCommand(pc,ClearAllActions(TRUE));
+ AssignCommand(pc,JumpToLocation(Location(GetArea(pc),Vector(x,y,0.0),90.0)));
+ DelayCommand(0.5,Camera(pc,90.0,distance,pitch));}
 void main(){
+ object pc=GetPCChatSpeaker();
  string text=GetStringLowerCase(GetPCChatMessage());
  if(text=="cust")Idle("srpcust","custom right arm");
  else if(text=="lib")Idle("srplib","library left arm");
  else if(text=="off")Idle("","stock idle");
  else if(text=="slotc")Slot("srpcust","custom4 slot custom clip");
  else if(text=="slotl")Slot("srplib","custom4 slot library clip");
+ else if(text=="human")ShowRace(15100,"Human");
+ else if(text=="dwarf")ShowRace(15101,"Dwarf");
+ else if(text=="elf")ShowRace(15102,"Elf");
+ else if(text=="orc")ShowRace(15103,"Orc");
+ else if(text=="troll")ShowRace(15104,"Troll");
+ else if(text=="wide")Move(pc,15.7,20.0,22.0,58.0);
+ else if(GetStringLeft(text,3)=="at "){
+  int col=StringToInt(GetSubString(text,3,1));int row=StringToInt(GetSubString(text,5,1));
+  Move(pc,5.0+6.0*IntToFloat(col)+1.2*IntToFloat(row),15.0+4.5*IntToFloat(row),7.0,72.0);}
+ else if(GetStringLeft(text,4)=="cam "){
+  Camera(pc,StringToFloat(GetSubString(text,4,4)),7.0,72.0);}
  else return;
  SetPCChatMessage("");}
 ''',
@@ -253,7 +282,7 @@ def stage_module(stage, tools, source, game_userdir, hak_order):
         data['Mod_OnClientEntr']['value'] = 'srp_enter'
         data['Mod_OnPlrChat'] = {'type': 'resref', 'value': 'srp_chat'}
         data['Mod_OnPlrEqItm']['value'] = data['Mod_OnPlrUnEqItm']['value'] = ''
-        data['Mod_Entry_X']['value'], data['Mod_Entry_Y']['value'] = 13.0, 10.0
+        data['Mod_Entry_X']['value'], data['Mod_Entry_Y']['value'] = 15.7, 20.0
 
     tools.gff(source / 'module.ifo', stage / 'module.ifo', info)
     for name, text in SCRIPTS.items():
@@ -277,11 +306,12 @@ def build(output, game_root, tool_dir, game_userdir, client):
     for name in ('a_ba.mdl', 'a_ba_custom.mdl'):
         (stock_dir / name).write_bytes(tools.stock(name, game_userdir))
     roots = stage_animation(hak, stock_dir, REPO / 'srn_body')
-    hak_order = [HAK, 'sw_reviewenv', 'srn_body_tex', 'srn_body', 'srn_2da']
+    hak_order = [HAK, 'sw_reviewenv', 'srn_armor', 'srn_body_tex', 'srn_body', 'srn_2da']
     stage_module(stage, tools, REPO / 'test-modules/weapon-waves/module', game_userdir, hak_order)
     tools.run('nwn_erf', '-c', '-e', 'HAK', '-f', user / 'hak' / (HAK + '.hak'), hak)
     for name, folder in (('sw_reviewenv', REPO / 'test-modules/weapon-waves/haks/sw_reviewenv'),
-                         ('srn_body_tex', REPO / 'srn_body_tex'), ('srn_body', REPO / 'srn_body'),
+                         ('srn_armor', REPO / 'srn_armor'), ('srn_body_tex', REPO / 'srn_body_tex'),
+                         ('srn_body', REPO / 'srn_body'),
                          ('srn_2da', REPO / 'srn_2da')):
         tools.run('nwn_erf', '-c', '-e', 'HAK', '-f', user / 'hak' / (name + '.hak'), folder)
     module = user / 'modules' / (MODULE + '.mod')
