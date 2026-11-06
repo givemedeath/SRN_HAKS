@@ -100,7 +100,8 @@ system is published. The itemkit client checks used per-item private fixtures
 (screenshots and logs retained locally); they are not the production animation
 or exhaustive equipment acceptance. The comparison module below gained a
 reviewer pair for each, with the Predator included in the test-only F7 motion
-mapping. Those two added pairs have not been run in this module's client.
+mapping. In this module's client the selector stages both new pairs and both
+bodies hold the weapon (static inspection); their 60-second attack tests were not run.
 
 ## Separate comparison module
 

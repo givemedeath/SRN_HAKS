@@ -53,7 +53,7 @@
         "sword looks good too"
       ],
       "moduleSha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
-      "note": "The Vibro sword and Predator IV pairs were added to this module without a client run of this module; both items were viewed in the client on both Human bodies in their own itemkit fixtures. The 15-pair approval above refers to the earlier module bytes."
+      "note": "The Vibro sword and Predator IV pairs were added to this module. In this module's client the selector staged both pairs (static inspection) and both Human bodies held the weapon; the 60-second attack tests were not run. Both items were also viewed in the client on both Human bodies in their own itemkit fixtures. The 15-pair approval above refers to the earlier module bytes."
     }
   }
 }

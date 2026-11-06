@@ -34,7 +34,9 @@ for a 60-second action test. There are seventeen distinct male/female NPC pairs:
 the ten Wave 1/2 designs, all three Cougar blades, both Colt finishes, the Vibro
 Blades Sword and the Ares Predator IV. The Cougar/Colt/Vibro/Predator pairs occupy
 the southern row and are included in the full selector cycle. The last two pairs
-were added 2026-11-05 and have not been run in this module's client. Both shipped Human bodies are represented for every weapon/finish.
+were added 2026-11-05. In this module's client the selector stages both pairs and
+both bodies hold the weapon (static inspection); their 60-second attack tests
+were not run. Both shipped Human bodies are represented for every weapon/finish.
 Launching and client controls remain manual.
 
 `sw_f7motion` and `sr_f7_*` are itemkit experiments only. They retain the approved
