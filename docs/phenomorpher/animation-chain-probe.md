@@ -98,7 +98,7 @@ clips, so the names are free. `ANIMATION_LOOPING_CUSTOM10` to `CUSTOM20` are con
 | Reload | `custom16start` |
 | Dual reload | `custom17start` |
 | Throw grenade | `custom18start` |
-| Shotgun | `custom19start`, `custom19lp`, `custom19end` |
+| Shotgun | `custom19lp` (`custom19start` and `custom19end` are not used) |
 
 The most complete set is under `SR_NWN/OLD_SR_MOD_ASSETS/!Combat Override System/WIP/combat_ovr_v1.hak/models/animations`,
 dated January 2011. It has `a_ba_non_combat` (male), `a_fa` (female), `a_da` (Dwarf male) and `a_dfa` (Dwarf female),
