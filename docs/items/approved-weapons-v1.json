@@ -255,6 +255,26 @@
       "sourceArchive": "srf7ac8ech.hak",
       "status": "user-approved",
       "family": "F4"
+    },
+    {
+      "id": "sr4-vibro-blades-sword-421b34c61a",
+      "name": "Vibro Blades — Sword",
+      "blueprints": [
+        "sr421b34c6"
+      ],
+      "sourceArchive": "sr421b34c6h.hak",
+      "status": "user-approved",
+      "family": "F2"
+    },
+    {
+      "id": "sr4-ares-predator-iv-3ab64906ed",
+      "name": "Ares Predator IV",
+      "blueprints": [
+        "sr3ab64906_5"
+      ],
+      "sourceArchive": "sr3ab64906h.hak",
+      "status": "user-approved",
+      "family": "F7"
     }
   ],
   "resources": [
@@ -1511,12 +1531,192 @@
     },
     {
       "path": "srn_2da/baseitems.2da",
-      "sha256": "6eb66129cb38d22697c82fac2909ae26ae2a5e08f3933950f6330ad2a0456266",
+      "sha256": "f3521148abeac8fa9d882152534f8ba294987173f72a2aaf293984a0d9352477",
       "bytes": 133484,
       "resourceType": 2017,
       "item": "colt-l36-pistol",
       "sourceArchive": "srn_cl36_test.hak",
       "sourceResource": "baseitems.2da"
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6h.hak",
+      "sourceResource": "iwswls_b_121.tga",
+      "approvedSourceSha256": "5a03b000d8b2d7d564c823e7657858744bd046cb6d3b58d74846a18920b9f0d8",
+      "path": "srn_weapon/iwswls_b_121.tga",
+      "sha256": "5a03b000d8b2d7d564c823e7657858744bd046cb6d3b58d74846a18920b9f0d8",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6h.hak",
+      "sourceResource": "iwswls_m_121.tga",
+      "approvedSourceSha256": "9e29f8cc0690d116a18290ad6fd76953323d61327f36792b30579984fd98790a",
+      "path": "srn_weapon/iwswls_m_121.tga",
+      "sha256": "9e29f8cc0690d116a18290ad6fd76953323d61327f36792b30579984fd98790a",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6h.hak",
+      "sourceResource": "iwswls_t_121.tga",
+      "approvedSourceSha256": "0f46ca82b8f702cb2c7ec87108660985eac0b67e31274b695f3a5cfb6dd47309",
+      "path": "srn_weapon/iwswls_t_121.tga",
+      "sha256": "0f46ca82b8f702cb2c7ec87108660985eac0b67e31274b695f3a5cfb6dd47309",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6h.hak",
+      "sourceResource": "sr421b34c6_12.tga",
+      "approvedSourceSha256": "eb79f6bf00eb4ab0e53c226851ffaba0e930b14a92981409ccdc3c3412d3464f",
+      "path": "srn_weapon/sr421b34c6_12.tga",
+      "sha256": "eb79f6bf00eb4ab0e53c226851ffaba0e930b14a92981409ccdc3c3412d3464f",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6h.hak",
+      "sourceResource": "wswls_b_121.mdl",
+      "approvedSourceSha256": "47141bc2a7236e34e9e2c9eefc867ea8ec132e6111bb7569f3b40c599f88b585",
+      "path": "srn_weapon/wswls_b_121.mdl",
+      "sha256": "47141bc2a7236e34e9e2c9eefc867ea8ec132e6111bb7569f3b40c599f88b585",
+      "bytes": 104732,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6h.hak",
+      "sourceResource": "wswls_m_121.mdl",
+      "approvedSourceSha256": "87b2fc3aa3933191893591e9fc41405aca0280e115d0611c3edb40e971323b5d",
+      "path": "srn_weapon/wswls_m_121.mdl",
+      "sha256": "87b2fc3aa3933191893591e9fc41405aca0280e115d0611c3edb40e971323b5d",
+      "bytes": 183908,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6h.hak",
+      "sourceResource": "wswls_t_121.mdl",
+      "approvedSourceSha256": "5fb8a021a5fa9cb86ca97791efc5781c2c953886859f9d5c684cb78ddad282e5",
+      "path": "srn_weapon/wswls_t_121.mdl",
+      "sha256": "5fb8a021a5fa9cb86ca97791efc5781c2c953886859f9d5c684cb78ddad282e5",
+      "bytes": 610916,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "sourceArchive": "sr421b34c6m.mod",
+      "sourceResource": "sr421b34c6.uti",
+      "approvedSourceSha256": "77c8b39ae3ddb79cf645c9fb622ff48cff6a4e01dd1c1224596d8e9688900c6f",
+      "path": "srn_weapon/sr421b34c6.uti",
+      "sha256": "77c8b39ae3ddb79cf645c9fb622ff48cff6a4e01dd1c1224596d8e9688900c6f",
+      "bytes": 746,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "iwbwsl_b_015.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_b_015.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "iwbwsl_b_065.tga",
+      "approvedSourceSha256": "197f95c6539a57bbb531a9df689417f09b2ed6c429b88c17bd33f6af5c9b93ea",
+      "path": "srn_weapon/iwbwsl_b_065.tga",
+      "sha256": "197f95c6539a57bbb531a9df689417f09b2ed6c429b88c17bd33f6af5c9b93ea",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "iwbwsl_m_015.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_m_015.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "iwbwsl_t_015.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_t_015.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "sr3ab64906_065.tga",
+      "approvedSourceSha256": "cbb2bed03441cc8b4d692964303a318297fa2d79045c9feaaaa5135daf76771c",
+      "path": "srn_weapon/sr3ab64906_065.tga",
+      "sha256": "cbb2bed03441cc8b4d692964303a318297fa2d79045c9feaaaa5135daf76771c",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "wbwsl_b_015.mdl",
+      "approvedSourceSha256": "8bc3d32864ddd147a6080779f3c021e345c32eee6d2ef2bb82c4583b93464672",
+      "path": "srn_weapon/wbwsl_b_015.mdl",
+      "sha256": "8bc3d32864ddd147a6080779f3c021e345c32eee6d2ef2bb82c4583b93464672",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "wbwsl_b_065.mdl",
+      "approvedSourceSha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
+      "path": "srn_weapon/wbwsl_b_065.mdl",
+      "sha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
+      "bytes": 646316,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "wbwsl_m_015.mdl",
+      "approvedSourceSha256": "5a2aae6bad7629d6d4385e3e283c50557e70ee5d89c51f889de1ff1b70020d2f",
+      "path": "srn_weapon/wbwsl_m_015.mdl",
+      "sha256": "5a2aae6bad7629d6d4385e3e283c50557e70ee5d89c51f889de1ff1b70020d2f",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "wbwsl_t_015.mdl",
+      "approvedSourceSha256": "2748c08327a4366894b1712ce44e8336dbd9a5c262436738665f50dbe890cb1a",
+      "path": "srn_weapon/wbwsl_t_015.mdl",
+      "sha256": "2748c08327a4366894b1712ce44e8336dbd9a5c262436738665f50dbe890cb1a",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "sourceArchive": "sr3ab64906h.hak",
+      "sourceResource": "sr3ab64906_5.uti",
+      "approvedSourceSha256": "3edc37a64750b95f017650aaef8fd8d699a4cb686e5dfca9e4aba92f058adc3f",
+      "path": "srn_weapon/sr3ab64906_5.uti",
+      "sha256": "3edc37a64750b95f017650aaef8fd8d699a4cb686e5dfca9e4aba92f058adc3f",
+      "bytes": 746,
+      "resourceType": 2025
     }
   ],
   "sources": {
@@ -1540,7 +1740,10 @@
     "sw_f7motion.hak": "b077dd8f0fd959fd023f81d2906a055e291763edad99a91595259660eef8cff2",
     "sw_reviewenv.hak": "6ffcccf88e89c7f8c076ae017f98384bcbc65696ee8d5bd2aa6d5962fea9c7a2",
     "sw1_humans.hak": "19fdde42c11b9db5ccd2d593356a6c02350ec9bb927cc87733eb68b3f300145a",
-    "sw_weapon_w2.mod": "1f671a67958a90a86d096bf7ddf8fbf4165edd15dbdd4346aa42e88c5a91db80"
+    "sw_weapon_w2.mod": "1f671a67958a90a86d096bf7ddf8fbf4165edd15dbdd4346aa42e88c5a91db80",
+    "sr421b34c6h.hak": "e47cd19f864757de1ceed0ad8660b67e5da2d5db69c2e71abddb41f7fe0c8571",
+    "sr421b34c6m.mod": "b234aaa712336d8a85e08bc26e07a5814998be52277ede8e94c6a67c1620fd7d",
+    "sr3ab64906h.hak": "de1fb4522a50beab78f2ab0cfb280b5481b10a634723f56e444ccee78d81700b"
   },
   "approvalEvidence": {
     "completedWeaponsSha256": "28da1b6dbcde332078ec2468f5a292d2c89f13735c7a1a2ff7ef1b0d803d8e38",
@@ -1553,14 +1756,17 @@
       "Include the display-table change in the PR for review",
       "looks good, get these into a PR",
       "Restructure PR 73 to integrate the approved weapons into the normal release packs. Keep the test module separate, preserve the approved assets and body changes, and run required CI.",
-      "make sure the cougar blades and the colt are altered to match out new item grouping (baseitems.2da) plan"
+      "make sure the cougar blades and the colt are altered to match out new item grouping (baseitems.2da) plan",
+      "predator looks good",
+      "sword looks good too",
+      "do it"
     ]
   },
   "displayTable": {
     "baseItem": 61,
     "changes": {
       "MaxRange": {
-        "after": "52",
+        "after": "65",
         "before": "50"
       },
       "ModelType": {
@@ -1570,22 +1776,22 @@
     },
     "intentionalOverride": true,
     "originalSha256": "3fbdcd012b55f0b869c6324cc7d4ece44ed63a78f00e7889e7acefac28c8fdf4",
-    "overrideSha256": "6eb66129cb38d22697c82fac2909ae26ae2a5e08f3933950f6330ad2a0456266",
+    "overrideSha256": "f3521148abeac8fa9d882152534f8ba294987173f72a2aaf293984a0d9352477",
     "resource": "baseitems.2da",
     "unrelatedBytesPreserved": true,
     "ordinarySlingCompatibility": "Not newly client-qualified; changes the whole Sling family"
   },
-  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded.",
+  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance.",
   "smgOnHold": false,
   "productionDeploymentPerformed": false,
-  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32.",
+  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker.",
   "additionalDisplayRows": [
     {
       "baseItem": 1,
       "changes": {
         "MaxRange": {
           "before": "100",
-          "after": "111"
+          "after": "121"
         }
       }
     }

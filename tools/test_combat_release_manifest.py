@@ -70,6 +70,12 @@ class RepositoryManifestTests(unittest.TestCase):
         self.assertTrue(all(r['publicationSha256Match'] for r in self.manifest['resources']))
         self.assertEqual(self.manifest['tables'][0]['matchesPublicationOverride'], True)
 
+    def test_table_resource_pin_matches_override_and_file(self):
+        publication = json.loads((crm.ROOT / crm.PUBLICATION).read_text(encoding='utf-8'))
+        pins = [r['sha256'] for r in publication['resources'] if r['path'] == crm.rel(crm.BASEITEMS)]
+        self.assertEqual(pins, [publication['displayTable']['overrideSha256']])
+        self.assertEqual(pins[0], crm.sha256(crm.read(crm.BASEITEMS)))
+
     def test_item_closures_are_complete_and_owned(self):
         for item in self.manifest['items']:
             self.assertEqual(item['closureMissing'], [], item['id'])
@@ -99,9 +105,9 @@ class RepositoryManifestTests(unittest.TestCase):
         module=crm.ROOT/'test-modules/weapon-waves/module'
         placed=crm.parse_gff((module/'sr_it_floor.git').read_bytes())['Creature List']
         actors={actor['Tag']:actor for actor in placed}
-        self.assertEqual(len(actors),30)
+        self.assertEqual(len(actors),34)
         self.assertEqual(len(placed),len(actors))
-        bindings=re.findall(r'Equip\("(sw[123]_[mf][0-4])","([^"]+)"',
+        bindings=re.findall(r'Equip\("(sw[1234]_[mf][0-4])","([^"]+)"',
                             (module/'sw2_enter.nss').read_text())
         self.assertEqual(len(bindings),len(actors))
         self.assertEqual({tag for tag,_ in bindings},set(actors))
@@ -112,7 +118,7 @@ class RepositoryManifestTests(unittest.TestCase):
         for tag,resref in bindings:
             by_item.setdefault(resref,[]).append(actors[tag]['Gender'])
             self.assertEqual(actors[tag]['ScriptDialogue'],'sw_review')
-            if tag.startswith('sw3_'):
+            if tag.startswith(('sw3_','sw4_')):
                 self.assertEqual(crm.parse_gff((module/(tag+'.utc')).read_bytes()),actors[tag])
                 reference=crm.parse_gff((module/('sw2_'+tag[4]+'0.utc')).read_bytes())
                 for field in ('Appearance_Type','Phenotype','Appearance_Head','BodyPart_Torso'):
@@ -129,7 +135,7 @@ class RepositoryManifestTests(unittest.TestCase):
 
     def test_sling_is_flagged_and_loads_table_pack(self):
         sling = [i for i in self.manifest['items'] if i['slingRelevant']]
-        self.assertEqual({i['id'] for i in sling}, {'colt-l36-pistol','ingram-smartgun-x'})
+        self.assertEqual({i['id'] for i in sling}, {'colt-l36-pistol','ingram-smartgun-x','sr4-ares-predator-iv-3ab64906ed'})
         self.assertIn('srn_2da', sling[0]['packs'])
         roles = {r['row']: r['role'] for r in self.manifest['tables'][0]['rows']}
         self.assertIn('sling ammunition', roles[27])

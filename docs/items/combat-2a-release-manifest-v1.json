@@ -10,8 +10,8 @@
     "projectileTarget": "sling (SR_NWN decisions D376-D378)"
   },
   "authorities": {
-    "docs/items/approved-weapons-v1.json": "fe28ee5d3b6058426e4261b45f743354bff5ac53666f4c89c4c41cd340665ce4",
-    "docs/items/approved-weapon-waves-release-validation.json": "598857819901447c9d7d35ed5b3f0dda60aca92177ebebc375d255cf7a71d757",
+    "docs/items/approved-weapons-v1.json": "baa604486f594dd1fe85be7c6197765357603761c1ce443e5b61273e47bfb489",
+    "docs/items/approved-weapon-waves-release-validation.json": "d0669a316d6d3230c8ae039e932ca7baedf29474a21079d54c7e964a783317f9",
     "docs/items/firearm-grip-standard-v1.json": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2",
     "docs/items/weapon-grip-standard-v1.json": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988",
     "PROVENANCE.md#approved-cougar-blades-and-colt-l36": "section record (srn_weapon, 2026-10-24)"
@@ -139,7 +139,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             10,
-            111
+            121
           ],
           "localizedName": {
             "strRef": null,
@@ -304,7 +304,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             0,
-            52
+            65
           ],
           "localizedName": {
             "strRef": null,
@@ -343,7 +343,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             0,
-            52
+            65
           ],
           "localizedName": {
             "strRef": null,
@@ -676,7 +676,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             10,
-            111
+            121
           ],
           "localizedName": {
             "strRef": null,
@@ -1043,7 +1043,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             0,
-            52
+            65
           ],
           "localizedName": {
             "strRef": null,
@@ -1259,6 +1259,173 @@
         "srn_weapon"
       ],
       "stockTableDependency": "Uses the shipped baseitems.2da row; srn_2da carries it unchanged"
+    },
+    {
+      "id": "sr4-vibro-blades-sword-421b34c61a",
+      "name": "Vibro Blades — Sword",
+      "status": "user-approved",
+      "family": "F2",
+      "sourceArchive": "sr421b34c6h.hak",
+      "slingRelevant": false,
+      "baseItemRows": [
+        1
+      ],
+      "blueprints": [
+        {
+          "path": "srn_weapon/sr421b34c6.uti",
+          "resRef": "sr421b34c6",
+          "sha256": "77c8b39ae3ddb79cf645c9fb622ff48cff6a4e01dd1c1224596d8e9688900c6f",
+          "bytes": 746,
+          "pack": "srn_weapon",
+          "tag": "sr421b34c6",
+          "templateResRef": "sr421b34c6",
+          "baseItem": 1,
+          "baseItemLabel": "longsword",
+          "modelType": "2",
+          "modelParts": {
+            "ModelPart1": 121,
+            "ModelPart2": 121,
+            "ModelPart3": 121
+          },
+          "modelNumbersInRange": true,
+          "baseItemRange": [
+            10,
+            121
+          ],
+          "localizedName": {
+            "strRef": null,
+            "embedded": {
+              "0": "Vibro Blades — Sword"
+            }
+          },
+          "description": {
+            "strRef": null,
+            "embedded": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "tlkDependency": "none (embedded locstrings)",
+          "cost": 0,
+          "stackSize": 1,
+          "propertyCount": 0,
+          "plot": 0,
+          "cursed": null,
+          "itemClass": "WSwLs"
+        }
+      ],
+      "resourceClosure": [
+        "iwswls_b_121.tga",
+        "iwswls_m_121.tga",
+        "iwswls_t_121.tga",
+        "sr421b34c6.uti",
+        "sr421b34c6_12.tga",
+        "wswls_b_121.mdl",
+        "wswls_m_121.mdl",
+        "wswls_t_121.mdl"
+      ],
+      "closureMissing": [],
+      "contractPlaceholders": [],
+      "closureMatchesPublicationOwnership": true,
+      "tlkStrings": "none required; names are embedded CExoLocStrings",
+      "tables": [
+        {
+          "resource": "srn_2da/baseitems.2da",
+          "pack": "srn_2da",
+          "rows": [
+            1
+          ]
+        }
+      ],
+      "packs": [
+        "srn_2da",
+        "srn_weapon"
+      ],
+      "stockTableDependency": null
+    },
+    {
+      "id": "sr4-ares-predator-iv-3ab64906ed",
+      "name": "Ares Predator IV",
+      "status": "user-approved",
+      "family": "F7",
+      "sourceArchive": "sr3ab64906h.hak",
+      "slingRelevant": true,
+      "baseItemRows": [
+        61
+      ],
+      "blueprints": [
+        {
+          "path": "srn_weapon/sr3ab64906_5.uti",
+          "resRef": "sr3ab64906_5",
+          "sha256": "3edc37a64750b95f017650aaef8fd8d699a4cb686e5dfca9e4aba92f058adc3f",
+          "bytes": 746,
+          "pack": "srn_weapon",
+          "tag": "sr3ab64906_5",
+          "templateResRef": "sr3ab64906_5",
+          "baseItem": 61,
+          "baseItemLabel": "sling",
+          "modelType": "2",
+          "modelParts": {
+            "ModelPart1": 65,
+            "ModelPart2": 15,
+            "ModelPart3": 15
+          },
+          "modelNumbersInRange": true,
+          "baseItemRange": [
+            0,
+            65
+          ],
+          "localizedName": {
+            "strRef": null,
+            "embedded": {
+              "0": "Ares Predator IV"
+            }
+          },
+          "description": {
+            "strRef": null,
+            "embedded": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "tlkDependency": "none (embedded locstrings)",
+          "cost": 0,
+          "stackSize": 1,
+          "propertyCount": 0,
+          "plot": 0,
+          "cursed": null,
+          "itemClass": "WBwSl"
+        }
+      ],
+      "resourceClosure": [
+        "iwbwsl_b_065.tga",
+        "iwbwsl_m_015.tga",
+        "iwbwsl_t_015.tga",
+        "sr3ab64906_065.tga",
+        "sr3ab64906_5.uti",
+        "wbwsl_b_065.mdl",
+        "wbwsl_m_015.mdl",
+        "wbwsl_t_015.mdl"
+      ],
+      "closureMissing": [],
+      "contractPlaceholders": [
+        "iwbwsl_b_015.tga",
+        "wbwsl_b_015.mdl"
+      ],
+      "closureMatchesPublicationOwnership": true,
+      "tlkStrings": "none required; names are embedded CExoLocStrings",
+      "tables": [
+        {
+          "resource": "srn_2da/baseitems.2da",
+          "pack": "srn_2da",
+          "rows": [
+            61
+          ]
+        }
+      ],
+      "packs": [
+        "srn_2da",
+        "srn_weapon"
+      ],
+      "stockTableDependency": null
     }
   ],
   "resources": [
@@ -1363,6 +1530,18 @@
       "sourceArchive": "sre9a211beh.hak"
     },
     {
+      "path": "srn_weapon/iwbwsl_b_015.tga",
+      "resRef": "iwbwsl_b_015",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak"
+    },
+    {
       "path": "srn_weapon/iwbwsl_b_051.tga",
       "resRef": "iwbwsl_b_051",
       "type": "tga",
@@ -1385,6 +1564,18 @@
       "item": "colt-l36-pistol",
       "publicationSha256Match": true,
       "sourceArchive": "srn_cl36_test.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_065.tga",
+      "resRef": "iwbwsl_b_065",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "197f95c6539a57bbb531a9df689417f09b2ed6c429b88c17bd33f6af5c9b93ea",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak"
     },
     {
       "path": "srn_weapon/iwbwsl_m_011.tga",
@@ -1421,6 +1612,18 @@
       "item": "ingram-smartgun-x",
       "publicationSha256Match": true,
       "sourceArchive": "sre9a211beh.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_m_015.tga",
+      "resRef": "iwbwsl_m_015",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak"
     },
     {
       "path": "srn_weapon/iwbwsl_m_023.tga",
@@ -1469,6 +1672,18 @@
       "item": "ingram-smartgun-x",
       "publicationSha256Match": true,
       "sourceArchive": "sre9a211beh.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_t_015.tga",
+      "resRef": "iwbwsl_t_015",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak"
     },
     {
       "path": "srn_weapon/iwbwxh_b_015.tga",
@@ -1711,6 +1926,18 @@
       "sourceArchive": "sr_stbaton.hak"
     },
     {
+      "path": "srn_weapon/iwswls_b_121.tga",
+      "resRef": "iwswls_b_121",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 16428,
+      "sha256": "5a03b000d8b2d7d564c823e7657858744bd046cb6d3b58d74846a18920b9f0d8",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6h.hak"
+    },
+    {
       "path": "srn_weapon/iwswls_m_101.tga",
       "resRef": "iwswls_m_101",
       "type": "tga",
@@ -1735,6 +1962,18 @@
       "sourceArchive": "sr_stbaton.hak"
     },
     {
+      "path": "srn_weapon/iwswls_m_121.tga",
+      "resRef": "iwswls_m_121",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 16428,
+      "sha256": "9e29f8cc0690d116a18290ad6fd76953323d61327f36792b30579984fd98790a",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6h.hak"
+    },
+    {
       "path": "srn_weapon/iwswls_t_101.tga",
       "resRef": "iwswls_t_101",
       "type": "tga",
@@ -1757,6 +1996,18 @@
       "item": "sr4-stun-baton-7f6ac2799c",
       "publicationSha256Match": true,
       "sourceArchive": "sr_stbaton.hak"
+    },
+    {
+      "path": "srn_weapon/iwswls_t_121.tga",
+      "resRef": "iwswls_t_121",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 16428,
+      "sha256": "0f46ca82b8f702cb2c7ec87108660985eac0b67e31274b695f3a5cfb6dd47309",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6h.hak"
     },
     {
       "path": "srn_weapon/iwswss_b_071.tga",
@@ -1889,6 +2140,54 @@
       "item": "sr4-throwing-knife-2273b8c3cf",
       "publicationSha256Match": true,
       "sourceArchive": "sr2273b8ch.hak"
+    },
+    {
+      "path": "srn_weapon/sr3ab64906_065.tga",
+      "resRef": "sr3ab64906_065",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 3145772,
+      "sha256": "cbb2bed03441cc8b4d692964303a318297fa2d79045c9feaaaa5135daf76771c",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak"
+    },
+    {
+      "path": "srn_weapon/sr3ab64906_5.uti",
+      "resRef": "sr3ab64906_5",
+      "type": "uti",
+      "resourceType": 2025,
+      "bytes": 746,
+      "sha256": "3edc37a64750b95f017650aaef8fd8d699a4cb686e5dfca9e4aba92f058adc3f",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak"
+    },
+    {
+      "path": "srn_weapon/sr421b34c6.uti",
+      "resRef": "sr421b34c6",
+      "type": "uti",
+      "resourceType": 2025,
+      "bytes": 746,
+      "sha256": "77c8b39ae3ddb79cf645c9fb622ff48cff6a4e01dd1c1224596d8e9688900c6f",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6m.mod"
+    },
+    {
+      "path": "srn_weapon/sr421b34c6_12.tga",
+      "resRef": "sr421b34c6_12",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 3145772,
+      "sha256": "eb79f6bf00eb4ab0e53c226851ffaba0e930b14a92981409ccdc3c3412d3464f",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6h.hak"
     },
     {
       "path": "srn_weapon/sr6abe18c_06.tga",
@@ -2325,6 +2624,20 @@
       "invisiblePart": true
     },
     {
+      "path": "srn_weapon/wbwsl_b_015.mdl",
+      "resRef": "wbwsl_b_015",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "8bc3d32864ddd147a6080779f3c021e345c32eee6d2ef2bb82c4583b93464672",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
       "path": "srn_weapon/wbwsl_b_051.mdl",
       "resRef": "wbwsl_b_051",
       "type": "mdl",
@@ -2353,6 +2666,22 @@
       "sourceArchive": "srn_cl36_test.hak",
       "textureRefs": [
         "sr_cl36_052"
+      ],
+      "invisiblePart": false
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_065.mdl",
+      "resRef": "wbwsl_b_065",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 646316,
+      "sha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak",
+      "textureRefs": [
+        "sr3ab64906_065"
       ],
       "invisiblePart": false
     },
@@ -2395,6 +2724,20 @@
       "item": "ingram-smartgun-x",
       "publicationSha256Match": true,
       "sourceArchive": "sre9a211beh.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_m_015.mdl",
+      "resRef": "wbwsl_m_015",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "5a2aae6bad7629d6d4385e3e283c50557e70ee5d89c51f889de1ff1b70020d2f",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak",
       "textureRefs": [],
       "invisiblePart": true
     },
@@ -2453,6 +2796,20 @@
       "item": "ingram-smartgun-x",
       "publicationSha256Match": true,
       "sourceArchive": "sre9a211beh.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_t_015.mdl",
+      "resRef": "wbwsl_t_015",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "2748c08327a4366894b1712ce44e8336dbd9a5c262436738665f50dbe890cb1a",
+      "pack": "srn_weapon",
+      "item": "sr4-ares-predator-iv-3ab64906ed",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr3ab64906h.hak",
       "textureRefs": [],
       "invisiblePart": true
     },
@@ -2769,6 +3126,22 @@
       "invisiblePart": false
     },
     {
+      "path": "srn_weapon/wswls_b_121.mdl",
+      "resRef": "wswls_b_121",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 104732,
+      "sha256": "47141bc2a7236e34e9e2c9eefc867ea8ec132e6111bb7569f3b40c599f88b585",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6h.hak",
+      "textureRefs": [
+        "sr421b34c6_12"
+      ],
+      "invisiblePart": false
+    },
+    {
       "path": "srn_weapon/wswls_m_101.mdl",
       "resRef": "wswls_m_101",
       "type": "mdl",
@@ -2801,6 +3174,22 @@
       "invisiblePart": false
     },
     {
+      "path": "srn_weapon/wswls_m_121.mdl",
+      "resRef": "wswls_m_121",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 183908,
+      "sha256": "87b2fc3aa3933191893591e9fc41405aca0280e115d0611c3edb40e971323b5d",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6h.hak",
+      "textureRefs": [
+        "sr421b34c6_12"
+      ],
+      "invisiblePart": false
+    },
+    {
       "path": "srn_weapon/wswls_t_101.mdl",
       "resRef": "wswls_t_101",
       "type": "mdl",
@@ -2829,6 +3218,22 @@
       "sourceArchive": "sr_stbaton.hak",
       "textureRefs": [
         "sr_stbaton_11"
+      ],
+      "invisiblePart": false
+    },
+    {
+      "path": "srn_weapon/wswls_t_121.mdl",
+      "resRef": "wswls_t_121",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 610916,
+      "sha256": "5fb8a021a5fa9cb86ca97791efc5781c2c953886859f9d5c684cb78ddad282e5",
+      "pack": "srn_weapon",
+      "item": "sr4-vibro-blades-sword-421b34c61a",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr421b34c6h.hak",
+      "textureRefs": [
+        "sr421b34c6_12"
       ],
       "invisiblePart": false
     },
@@ -2993,7 +3398,7 @@
     {
       "resource": "srn_2da/baseitems.2da",
       "pack": "srn_2da",
-      "sha256": "6eb66129cb38d22697c82fac2909ae26ae2a5e08f3933950f6330ad2a0456266",
+      "sha256": "f3521148abeac8fa9d882152534f8ba294987173f72a2aaf293984a0d9352477",
       "matchesPublicationOverride": true,
       "installedGameOriginalSha256": "3fbdcd012b55f0b869c6324cc7d4ece44ed63a78f00e7889e7acefac28c8fdf4",
       "rows": [
@@ -3003,7 +3408,7 @@
           "ModelType": "2",
           "ItemClass": "WSwLs",
           "MinRange": "10",
-          "MaxRange": "111",
+          "MaxRange": "121",
           "DefaultModel": "it_bag",
           "DefaultIcon": "iwswls",
           "WeaponWield": "****",
@@ -3045,7 +3450,7 @@
           "changes": {
             "MaxRange": {
               "before": "100",
-              "after": "111"
+              "after": "121"
             }
           },
           "role": "weapon family host row"
@@ -3385,7 +3790,7 @@
           "ModelType": "2",
           "ItemClass": "WBwSl",
           "MinRange": "0",
-          "MaxRange": "52",
+          "MaxRange": "65",
           "DefaultModel": "it_bag",
           "DefaultIcon": "iwbwsl",
           "WeaponWield": "10",
@@ -3426,7 +3831,7 @@
           "modifiedFromInstalledGame": true,
           "changes": {
             "MaxRange": {
-              "after": "52",
+              "after": "65",
               "before": "50"
             },
             "ModelType": {
@@ -3565,7 +3970,10 @@
         "Include the display-table change in the PR for review",
         "looks good, get these into a PR",
         "Restructure PR 73 to integrate the approved weapons into the normal release packs. Keep the test module separate, preserve the approved assets and body changes, and run required CI.",
-        "make sure the cougar blades and the colt are altered to match out new item grouping (baseitems.2da) plan"
+        "make sure the cougar blades and the colt are altered to match out new item grouping (baseitems.2da) plan",
+        "predator looks good",
+        "sword looks good too",
+        "do it"
       ]
     },
     "productionDeploymentPerformed": false,
@@ -3818,15 +4226,19 @@
       "srn_weapon/iwbwsl_b_011.tga",
       "srn_weapon/iwbwsl_b_012.tga",
       "srn_weapon/iwbwsl_b_013.tga",
+      "srn_weapon/iwbwsl_b_015.tga",
       "srn_weapon/iwbwsl_b_051.tga",
       "srn_weapon/iwbwsl_b_052.tga",
+      "srn_weapon/iwbwsl_b_065.tga",
       "srn_weapon/iwbwsl_m_011.tga",
       "srn_weapon/iwbwsl_m_012.tga",
       "srn_weapon/iwbwsl_m_013.tga",
+      "srn_weapon/iwbwsl_m_015.tga",
       "srn_weapon/iwbwsl_m_023.tga",
       "srn_weapon/iwbwsl_t_011.tga",
       "srn_weapon/iwbwsl_t_012.tga",
       "srn_weapon/iwbwsl_t_013.tga",
+      "srn_weapon/iwbwsl_t_015.tga",
       "srn_weapon/iwbwxh_b_015.tga",
       "srn_weapon/iwbwxh_b_016.tga",
       "srn_weapon/iwbwxh_m_015.tga",
@@ -3847,10 +4259,13 @@
       "srn_weapon/iwswgs_t_061.tga",
       "srn_weapon/iwswls_b_101.tga",
       "srn_weapon/iwswls_b_111.tga",
+      "srn_weapon/iwswls_b_121.tga",
       "srn_weapon/iwswls_m_101.tga",
       "srn_weapon/iwswls_m_111.tga",
+      "srn_weapon/iwswls_m_121.tga",
       "srn_weapon/iwswls_t_101.tga",
       "srn_weapon/iwswls_t_111.tga",
+      "srn_weapon/iwswls_t_121.tga",
       "srn_weapon/iwswss_b_071.tga",
       "srn_weapon/iwswss_m_071.tga",
       "srn_weapon/iwswss_t_071.tga",
@@ -3862,6 +4277,10 @@
       "srn_weapon/iwwhip_t_021.tga",
       "srn_weapon/sr2273b8c.uti",
       "srn_weapon/sr2273b8c_06.tga",
+      "srn_weapon/sr3ab64906_065.tga",
+      "srn_weapon/sr3ab64906_5.uti",
+      "srn_weapon/sr421b34c6.uti",
+      "srn_weapon/sr421b34c6_12.tga",
       "srn_weapon/sr6abe18c_06.tga",
       "srn_weapon/sr6abe18c_6.uti",
       "srn_weapon/sr800e341.tga",
@@ -3897,15 +4316,19 @@
       "srn_weapon/wbwsl_b_011.mdl",
       "srn_weapon/wbwsl_b_012.mdl",
       "srn_weapon/wbwsl_b_013.mdl",
+      "srn_weapon/wbwsl_b_015.mdl",
       "srn_weapon/wbwsl_b_051.mdl",
       "srn_weapon/wbwsl_b_052.mdl",
+      "srn_weapon/wbwsl_b_065.mdl",
       "srn_weapon/wbwsl_m_011.mdl",
       "srn_weapon/wbwsl_m_012.mdl",
       "srn_weapon/wbwsl_m_013.mdl",
+      "srn_weapon/wbwsl_m_015.mdl",
       "srn_weapon/wbwsl_m_023.mdl",
       "srn_weapon/wbwsl_t_011.mdl",
       "srn_weapon/wbwsl_t_012.mdl",
       "srn_weapon/wbwsl_t_013.mdl",
+      "srn_weapon/wbwsl_t_015.mdl",
       "srn_weapon/wbwxh_b_015.mdl",
       "srn_weapon/wbwxh_b_016.mdl",
       "srn_weapon/wbwxh_m_015.mdl",
@@ -3926,10 +4349,13 @@
       "srn_weapon/wswgs_t_061.mdl",
       "srn_weapon/wswls_b_101.mdl",
       "srn_weapon/wswls_b_111.mdl",
+      "srn_weapon/wswls_b_121.mdl",
       "srn_weapon/wswls_m_101.mdl",
       "srn_weapon/wswls_m_111.mdl",
+      "srn_weapon/wswls_m_121.mdl",
       "srn_weapon/wswls_t_101.mdl",
       "srn_weapon/wswls_t_111.mdl",
+      "srn_weapon/wswls_t_121.mdl",
       "srn_weapon/wswss_b_071.mdl",
       "srn_weapon/wswss_m_071.mdl",
       "srn_weapon/wswss_t_071.mdl",
@@ -3952,7 +4378,7 @@
     {
       "id": "sling-row61-global-display-change",
       "severity": "integration-decision",
-      "text": "srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->52 for the whole Sling family. Ordinary/stock simple-model slings are not client-qualified under this table."
+      "text": "srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->65 for the whole Sling family. Ordinary/stock simple-model slings are not client-qualified under this table."
     },
     {
       "id": "baseitems-full-table-override",

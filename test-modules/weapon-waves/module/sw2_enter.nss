@@ -2,7 +2,7 @@
 void Equip(string tag,string name,int slot,int bow) {
  object actor=GetObjectByTag(tag);if(!GetIsObjectValid(actor)||GetLocalInt(actor,"SW2_EQUIPPED"))return;
  if(bow) {object ammo=CreateItemOnObject("sw2_arrow",actor,99);AssignCommand(actor,ActionEquipItem(ammo,INVENTORY_SLOT_ARROWS));}
- int count=1;if(name=="sr2273b8c")count=20;if(name=="sre9a211be_3"||name=="sr_cl36_1"||name=="sr_cl36_2") {object bullets=CreateItemOnObject("nw_wambu001",actor,99);AssignCommand(actor,ActionEquipItem(bullets,INVENTORY_SLOT_BULLETS));}
+ int count=1;if(name=="sr2273b8c")count=20;if(name=="sre9a211be_3"||name=="sr_cl36_1"||name=="sr_cl36_2"||name=="sr3ab64906_5") {object bullets=CreateItemOnObject("nw_wambu001",actor,99);AssignCommand(actor,ActionEquipItem(bullets,INVENTORY_SLOT_BULLETS));}
  if(name=="sra84e4660_5"||name=="sr6abe18c_6") {object bolts=CreateItemOnObject("nw_wambo001",actor,99);AssignCommand(actor,ActionEquipItem(bolts,INVENTORY_SLOT_BOLTS));}
  object item=CreateItemOnObject(name,actor,count);AssignCommand(actor,ActionEquipItem(item,slot));SetLocalInt(actor,"SW2_EQUIPPED",1);DelayCommand(0.5,SyncFirearm(actor));
 }
@@ -40,6 +40,8 @@ CreateItemOnObject("sr2273b8c",pc,20);
 CreateItemOnObject("srdd7dc09",pc);
 CreateItemOnObject("sreab35fc",pc);
 CreateItemOnObject("sw2_arrow",pc,99);
+CreateItemOnObject("sr421b34c6",pc);
+CreateItemOnObject("sr3ab64906_5",pc);
 CreateItemOnObject("sr_cl36_1",pc);SetLocalInt(pc,"SW2_ITEMS",1);}
 Equip("sw1_m0","sre9a211be_3",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw1_f0","sre9a211be_3",INVENTORY_SLOT_RIGHTHAND,0);
@@ -71,5 +73,9 @@ Equip("sw3_m3","sr_cl36_1",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw3_f3","sr_cl36_1",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw3_m4","sr_cl36_2",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw3_f4","sr_cl36_2",INVENTORY_SLOT_RIGHTHAND,0);
-SendMessageToPC(pc,"Fifteen weapon/finish NPC pairs and inventory controls supplied. Cougar/Colt reviewers stand in the southern row; all pairs are in the selector. Bow arrows use native consumption only. Client/gameplay acceptance remains pending.");if(!GetLocalInt(GetModule(),"SW_REVIEW_STARTED")){SetLocalInt(GetModule(),"SW_REVIEW_STARTED",1);DelayCommand(3.0,ExecuteScript("c",GetModule()));}
+Equip("sw4_m0","sr421b34c6",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw4_f0","sr421b34c6",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw4_m1","sr3ab64906_5",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw4_f1","sr3ab64906_5",INVENTORY_SLOT_RIGHTHAND,0);
+SendMessageToPC(pc,"Seventeen weapon/finish NPC pairs and inventory controls supplied. Cougar/Colt reviewers stand in the southern row; all pairs are in the selector. Bow arrows use native consumption only. Client/gameplay acceptance remains pending.");if(!GetLocalInt(GetModule(),"SW_REVIEW_STARTED")){SetLocalInt(GetModule(),"SW_REVIEW_STARTED",1);DelayCommand(3.0,ExecuteScript("c",GetModule()));}
 }

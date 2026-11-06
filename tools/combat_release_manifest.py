@@ -408,7 +408,8 @@ def build(check_git: bool = True) -> dict:
          'text': 'None of the srn_weapon resources, srn_2da/baseitems.2da or the publication manifest exist at '
                  'the SR_NWN-pinned commit; SR_NWN must advance its SRN_HAKS submodule to consume this slice.'},
         {'id': 'sling-row61-global-display-change', 'severity': 'integration-decision',
-         'text': 'srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->52 for the whole '
+         'text': 'srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->'
+                 f"{publication['displayTable']['changes']['MaxRange']['after']} for the whole "
                  'Sling family. Ordinary/stock simple-model slings are not client-qualified under this table.'},
         {'id': 'baseitems-full-table-override', 'severity': 'integration-decision',
          'text': 'srn_2da ships a complete baseitems.2da. Any SR_NWN or other HAK baseitems change requires an '
@@ -551,7 +552,7 @@ def render_md(m: dict) -> str:
           + ('yes' if all(it['closureMatchesPublicationOwnership'] for it in m['items']) else '**no**') + '. '
           + ' '.join(f"{it['name']} also ships unreferenced hidden-slot placeholders "
                      f"({', '.join('`' + p + '`' for p in it['contractPlaceholders'])}) so every multipart "
-                     'slot resolves; colors 1/2 use bottom 051/052.' for it in m['items'] if it['contractPlaceholders']),
+                     'slot resolves; each blueprint names its own bottom-part address.' for it in m['items'] if it['contractPlaceholders']),
           '',
           '## Resources', '', '| Path | Item | Bytes | SHA-256 | Textures | Pub. match |', '|---|---|---:|---|---|---|']
     for r in m['resources']:
