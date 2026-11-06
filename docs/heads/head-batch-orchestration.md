@@ -268,7 +268,13 @@ For new Troll `face-v1` references, `alignment.featureChecks` must be
 `{"horns":2,"tusks":2,"neck":"none","hairBelowJaw":true}`. Provide measured
 `horn-left-root`, `horn-left-tip`, `horn-right-root`, `horn-right-tip`,
 the equivalent four `tusk-*` marks, and `jaw-left`, `jaw-chin`, `jaw-right`.
-Left/right means the character's anatomical side. Preparation writes separate
+Left/right means the character's anatomical side. For curved horns or tusks, also
+measure named points along the outer arc (for example horn-left-curve-outer and
+horn-left-curve-crown). Local comparison crops include every matching
+FEATURE-SIDE-curve-* point as well as the root and tip; endpoints alone can hide
+the middle of a curved feature. These points participate in the same bounded
+global alignment and must be measured independently on both images.
+Preparation writes separate
 clay/detail/overlay crops and silhouette overlap for each feature, including below
 the chin. These are review aids, not automated neck or horn acceptance. Old raw
 references and earlier alignment receipts remain immutable; revised measurements

@@ -55,6 +55,10 @@ def feature_landmarks(config):
                 groups[name]=[name+'-root',name+'-tip']
     names={row['name'] for row in config.get('landmarks',[])}
     require(set(sum(groups.values(),[]))<=names,'Missing horn/tusk roots or tips, or jaw boundary landmarks')
+    # Endpoints alone can crop off the outer arc of a curved horn/tusk (RUNBOOK 246).
+    for name,required in groups.items():
+        if name!='jaw':
+            required.extend(sorted(point for point in names if point.startswith(name+'-curve-')))
     return groups
 
 

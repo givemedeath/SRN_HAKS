@@ -72,6 +72,25 @@ class ProcessQuality(Temporary):
         self.assertTrue(result['manualReviewRequired'])
         self.assertTrue(Path(result['featureChecks']['jaw']['comparison']['path']).is_file())
 
+    def test_curved_horn_evidence_includes_measured_outer_arc(self):
+        cfg={'featureChecks':{'horns':2,'tusks':0,'neck':'none','hairBelowJaw':True}}
+        marks={'jaw-left':[.7,.6],'jaw-chin':[.5,.8],'jaw-right':[.3,.6],
+               'horn-left-root':[.55,.4],'horn-left-tip':[.6,.45],
+               'horn-right-root':[.45,.4],'horn-right-tip':[.4,.45],
+               'horn-left-curve-outer':[.8,.2],'horn-right-curve-outer':[.2,.2]}
+        cfg['landmarks']=[{'name':name,'clay':p,'detail':p} for name,p in marks.items()]
+        clay,detail=self.pair()
+        result=prepare(clay,detail,cfg,self.root/'curved-horns')
+        left=result['featureChecks']['horn-left']['box']
+        right=result['featureChecks']['horn-right']['box']
+        self.assertGreaterEqual(left[2],109)
+        self.assertLessEqual(right[0],19)
+        self.assertLessEqual(left[1],19)
+        self.assertLessEqual(right[1],19)
+        self.assertGreater(left[0],60)
+        self.assertLess(right[2],68)
+        self.assertTrue(result['manualReviewRequired'])
+
     def test_profile_reports_process_peak_without_claiming_stage_allocation(self):
         runner=self.runner();receipt=read(runner.state['stages']['prepare']['path'])
         for key in ('packageVerifySeconds','preflightSeconds','processingSeconds','postVerifySeconds','totalSeconds'):
