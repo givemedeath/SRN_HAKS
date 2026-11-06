@@ -113,7 +113,7 @@ for the Fit chest. Skin uses the selected no-grain detail and tone correction;
 garment and material-map resolutions retain their reviewed payloads. Original
 stock head001 geometry supplies context. Finished race-specific heads, a complete
 armor wardrobe, weighted robes/cloaks and exhaustive palette/frame testing are
-separate work. Bind stature is measured; client height was calibrated for 1.3.0 (idle stance, see above).
+separate work; the robe refit for all races is a [TODO](animation-chain-probe.md#todo). Bind stature is measured; client height was calibrated for 1.3.0 (idle stance, see above).
 The previously observed client exit crash remains unsymbolicated and was also
 present before this package; the final checks had no in-session crash.
 

@@ -61,10 +61,10 @@ Large coats use `a_ba2_coat_cus` instead. A clip there would reach Fit coats and
 - A clip whose node tree is not closed crashes the client on load. The first build keyed `rbicep_g` with its parent
   `torso_g` missing from the clip. `add_custom_clip` now copies the stock clip's tree and its test checks closure.
 
-## What this means for placement
+## Decision
 
-`a_ba_custom` is the only tested layer that reaches coats without touching robe models. It holds one clip per name,
-so slots that need their own solve use their own names and scripts pick by race, gender and phenotype.
+New body animations go in the `a_ba_custom` chain (user, 2026-11-06). Slots that need their own solve use their own
+clip names, and scripts pick by race, gender and phenotype.
 
 Costs of overriding it:
 
@@ -72,3 +72,17 @@ Costs of overriding it:
 - A game patch to `a_ba_custom` would be shadowed.
 - The file is ASCII and grows with every clip, so load time must be measured and it may need a binary compile.
 - The clips don't key coat skirt bones.
+
+If the file gets too large, split it with new links between `a_ba_custom` and `a_ba_casts`:
+
+```
+a_ba_custom > a_ba_custom1 > a_ba_custom2 > a_ba_casts
+```
+
+Only the `setsupermodel` line of `a_ba_custom` changes, and the last new link points at `a_ba_casts`. The longest chain seen
+working in the client had eight links. A split adds to that, so test it on the longest chains before relying on it.
+
+## TODO
+
+- [ ] Refit and test all robes for all races, male and female, Fit and Large. Trolls are the known failure. Include
+  close-ups, standing and raised-arm views, and every robe row, not just 005 and 020. Scheduled for a later stage.
