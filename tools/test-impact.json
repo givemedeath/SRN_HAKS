@@ -984,6 +984,11 @@
       "tools/itemkit/runner.py",
       "tools/itemkit/shield_native.py"
     ],
+    "tools/itemkit/anim_chain_probe.py": [
+      "tools/heads/build_head_trial.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
     "tools/itemkit/atlas.py": [
       "tools/headkit/common.py",
       "tools/headkit/uv.py",
@@ -1213,6 +1218,10 @@
       "tools/headkit/common.py",
       "tools/headkit/uv.py",
       "tools/itemkit/atlas.py"
+    ],
+    "tools/itemkit/test_anim_chain_probe.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/anim_chain_probe.py"
     ],
     "tools/itemkit/test_atlas.py": [
       "tools/itemkit/atlas.py",
@@ -4425,6 +4434,11 @@
     "tools/heads/test_target_and_publication.py": [
       "srn_head"
     ],
+    "tools/itemkit/anim_chain_probe.py": [
+      "srn_2da",
+      "srn_body",
+      "srn_body_tex"
+    ],
     "tools/itemkit/native_stack.py": [
       "srn_body"
     ],
@@ -4525,6 +4539,7 @@
     "tools/heads/test_palette_sampling.py",
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
+    "tools/itemkit/test_anim_chain_probe.py",
     "tools/itemkit/test_atlas.py",
     "tools/itemkit/test_catalog_object.py",
     "tools/itemkit/test_conditioning.py",
