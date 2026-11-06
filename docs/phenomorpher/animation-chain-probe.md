@@ -82,6 +82,38 @@ a_ba_custom > a_ba_custom1 > a_ba_custom2 > a_ba_casts
 Only the `setsupermodel` line of `a_ba_custom` changes, and the last new link points at `a_ba_casts`. The longest chain seen
 working in the client had eight links. A split adds to that, so test it on the longest chains before relying on it.
 
+## Existing combat clips
+
+The old Combat Override System has these clips. None are in a shipped pack. Stock has no `custom10` to `custom20`
+clips, so the names are free. `ANIMATION_LOOPING_CUSTOM10` to `CUSTOM20` are constants 30 to 40.
+
+| Use | Clip |
+|---|---|
+| Chainsaw | `custom10lp` |
+| Assault rifle | `custom11lp` |
+| Pistol | `custom12lp` |
+| Dual pistol | `custom13lp` |
+| SMG | `custom14lp` |
+| Dual SMG | `custom15lp` |
+| Reload | `custom16start` |
+| Dual reload | `custom17start` |
+| Throw grenade | `custom18start` |
+| Shotgun | `custom19start`, `custom19lp`, `custom19end` |
+
+The most complete set is under `SR_NWN/OLD_SR_MOD_ASSETS/!Combat Override System/WIP/combat_ovr_v1.hak/models/animations`,
+dated January 2011. It has `a_ba_non_combat` (male), `a_fa` (female), `a_da` (Dwarf male) and `a_dfa` (Dwarf female),
+each with `custom11` to `custom19`. Only the male file has `custom10`. The `Combat Override Alpha` copy has no `custom19`.
+
+Before use:
+
+- Extract only these clips. Each file is a whole stock model and would replace every stock clip in it.
+- Remove baked weapon nodes from the male clips: `Object01` to `Object05`, `WBwSl_m_121`, `world_mp5` and `ak-47-2-mesh`.
+- Replace position keys. `custom11` to `custom15` key limb positions as well as `rootdummy`, and these would impose the
+  source body's joints and hip height on other races. Keep rotations and retarget the root per slot.
+- `custom13lp`, `custom14lp` and `custom15lp` have no `hit` event, unlike `custom11lp`, `custom12lp` and `custom19lp`.
+- `custom16`, `custom17` and `custom18` have a `start` clip only. Test how they play. The probe only tested an `lp` clip.
+- Check the clips against the firearm grip standard. They predate it.
+
 ## TODO
 
 - [ ] Refit and test all robes for all races, male and female, Fit and Large. Trolls are the known failure. Include
