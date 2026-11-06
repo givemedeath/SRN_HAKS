@@ -150,10 +150,53 @@ with the body while the rifle does not:
 | Troll male | 0.595 m | 0.600 m |
 | Troll female | 0.561 m | 0.634 m |
 
-Two-handed clips need the support arm solved per slot and against the firearm grip standard.
-
 The first male grenade build had no keys, because that clip stores keys in a counted form the parser skipped. `read_keys`
 now reads both forms and refuses any key table it did not read.
+
+## Support arm solve
+
+Client run on 2026-11-06, build `output/combat-clip-pilot-v7`. The pilot now solves `custom11lp` and `custom19lp` per slot
+against the AK-98 (`wbwxh_t_015`). This is a pilot result, not an approval of the pose or the rifle fit. The firearm grip
+standard was not re-measured: it sizes weapons, and these clips don't change the rifle or its hand attachment.
+
+- The AK-98 sits about 14° muzzle-up in its model frame, so the old clip would aim high. `rhand_g` gets a fixed correction
+  that puts the barrel on the old clip's aim.
+- The left arm is solved by two-bone IK at every key, using the source elbow as the pole. The left palm sits under the
+  fore-end, and the hand keeps its source orientation relative to the rifle.
+- The palm starts 0.25 m ahead of the grip. If the arm would need more than 97% of its length, the palm slides back along
+  the fore-end, as far as 0.19 m. The build fails if it still can't reach.
+- All five races are in the pilot. Rows 15101 (Dwarf) and 15102 (Elf) were added.
+- Female Large shoulders are wider, so those slots get their own clips with an `l` suffix, such as `c11lp_hfl`. Male Large
+  shares the Fit clip.
+
+| Slot | Palm distance from grip | Contact error, Fit | Contact error, Large |
+|---|---:|---:|---:|
+| Human male | 0.25 m | 1.2 mm | 1.2 mm |
+| Human female | 0.25 m | 1.4 mm | 1.3 mm |
+| Dwarf male | 0.22 m | 2.0 mm | 2.1 mm |
+| Dwarf female | 0.23 m | 1.8 mm | 2.3 mm |
+| Elf male | 0.25 m | 1.2 mm | 2.3 mm |
+| Elf female | 0.25 m | 1.4 mm | 1.2 mm |
+| Orc male | 0.25 m | 1.2 mm | 1.2 mm |
+| Orc female | 0.25 m | 1.2 mm | 1.3 mm |
+| Troll male | 0.25 m | 1.2 mm | 7.1 mm |
+| Troll female | 0.25 m | 1.0 mm | 1.1 mm |
+
+These are `custom11lp` figures. The worst across both clips is 7.1 mm. The barrel error against the old aim is 0° on every
+slot.
+
+Client results:
+
+- Human, Dwarf, Elf, Orc and Troll all show both hands on the rifle, with the muzzle forward and level, on bare bodies,
+  robe 005 and coat 020. The non-Troll views are group shots, and the only close-up is Troll male.
+- Weapons only appear in combat stance. The `hold` command maps the clip onto `xbowrdy` and `xbowr`, so the pose stays up
+  between shots. The stock crossbow stance otherwise shows between shots, because only `xbowshot` is replaced.
+- The Trolls' rifle is unscaled, so it looks small on them. Their arms reach it with bent elbows.
+- The butt doesn't reach the shoulder. The clip is a chest-height hold.
+- The clips were solved against the rifle, so `custom19lp` still needs its own check against a shotgun, as does the SMG clip
+  (`custom14lp`), which isn't solved.
+- Native attacks ran on all races, but the ammo log didn't show rounds used, so firing on the new races is unconfirmed.
+- `a_ba_custom` grew to 1.1 MB for 70 clips. Load time still wasn't measured.
 
 ## TODO
 
