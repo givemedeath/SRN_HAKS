@@ -650,7 +650,8 @@ def stage_standins(hak):
             (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
 
 
-def build(output, source_dir, game_root, tool_dir, game_userdir, client):
+def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=None):
+    """extend(hak, stock_dir, scripts), if given, adds to the staged hak and the module scripts."""
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     tools = probe.Tools(tool_dir, game_root)
@@ -677,6 +678,8 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client):
     stage_standins(hak)
     hak_order = [probe.HAK, 'sw_reviewenv', 'srn_weapon', 'srn_armor', 'srn_body_tex', 'srn_body', 'srn_2da']
     scripts = {'srp_inc': probe.SCRIPTS['srp_inc'] + PHASES, 'srp_enter': ENTER, 'srp_chat': CHAT}
+    if extend:
+        extend(hak, stock_dir, scripts)
     probe.stage_module(stage, tools, REPO / 'test-modules/weapon-waves/module', game_userdir, hak_order, scripts)
 
     def target(data):

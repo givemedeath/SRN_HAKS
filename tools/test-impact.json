@@ -1173,6 +1173,10 @@
       "tools/itemkit/source_atlas.py",
       "tools/itemkit/transfer.py"
     ],
+    "tools/itemkit/firearm_fx_pilot.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/combat_clip_pilot.py"
+    ],
     "tools/itemkit/firearm_grip.py": [
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py",
@@ -1397,6 +1401,10 @@
       "tools/headkit/gltf.py",
       "tools/itemkit/donor.py",
       "tools/itemkit/preflight.py"
+    ],
+    "tools/itemkit/test_firearm_fx_pilot.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/firearm_fx_pilot.py"
     ],
     "tools/itemkit/test_firearm_package.py": [
       "tools/headkit/common.py",
@@ -4587,6 +4595,9 @@
       "srn_body_tex",
       "srn_weapon"
     ],
+    "tools/itemkit/firearm_fx_pilot.py": [
+      "srn_weapon"
+    ],
     "tools/itemkit/native_stack.py": [
       "srn_body"
     ],
@@ -4702,6 +4713,7 @@
     "tools/itemkit/test_curved_caps.py",
     "tools/itemkit/test_donor.py",
     "tools/itemkit/test_donor_caps.py",
+    "tools/itemkit/test_firearm_fx_pilot.py",
     "tools/itemkit/test_firearm_package.py",
     "tools/itemkit/test_firearm_processing.py",
     "tools/itemkit/test_firearms.py",
