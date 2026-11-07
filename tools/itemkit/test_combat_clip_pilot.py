@@ -63,6 +63,11 @@ class Retarget(unittest.TestCase):
             self.assertIn(' ' + name + '\n', text)
         self.assertIn('animroot torso_g', text)
 
+    def test_hand_nodes_are_held_flat_for_the_whole_clip(self):
+        fitted, _ = pilot.retarget(pilot.read_clip(SOURCE, 'custom11lp'), {'rootdummy', 'rhand'},
+                                   np.array([0., 0., 1.]), np.array([.1, 0., 2.]))
+        self.assertEqual(fitted['nodes']['rhand']['orientation'].tolist(), [[0., 1., 0., 0., 0.], [1., 1., 0., 0., 0.]])
+
     def test_quaternion_matches_axis_angle(self):
         value = pilot.quaternions(np.array([[0., 0., 1., 0., np.pi]]))[0]
         self.assertTrue(np.allclose(value, [0., 1., 0., 0.]))

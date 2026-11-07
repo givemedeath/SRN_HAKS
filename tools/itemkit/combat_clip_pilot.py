@@ -31,6 +31,7 @@ WEAPONS = {'rifle': {'parts': ('wbwxh_t_015.mdl',), 'barrel': (-.33, -.03), 'fro
            'shotgun': {'parts': ('wbwxh_t_015.mdl',), 'barrel': (-.33, -.03), 'front': -.30, 'rear': -.24, 'pump': -.18}}
 TWO_HANDED = {'custom11lp': 'rifle', 'custom14lp': 'smg', 'custom19lp': 'shotgun'}
 ARM = ('lbicep_g', 'lforearm_g', 'lhand_g')
+HANDS = {'rhand', 'lhand'}
 RIGHT_ARM = ('rbicep_g', 'rforearm_g', 'rhand_g')
 CHAIN = ('rootdummy', 'torso_g', *RIGHT_ARM, *ARM)
 PALM_CLEARANCE, REACH, MAX_PULL = .015, .97, .16
@@ -81,7 +82,10 @@ def quaternions(rows):
 
 
 def retarget(clip, tree_names, stock_bind, target_bind):
-    """Keep rotations on rig nodes and fit the root key to the target. Limb positions are dropped."""
+    """Keep rotations on rig nodes and fit the root key to the target. Limb positions are dropped.
+
+    Weapon attachment nodes are held flat from start to end, so no stock clip's hand rotation carries over.
+    """
     scale = target_bind[2] / stock_bind[2]
     delta = target_bind - stock_bind * scale
     keys, dropped = {}, sorted(set(clip['nodes']) - tree_names)
@@ -97,6 +101,8 @@ def retarget(clip, tree_names, stock_bind, target_bind):
             kept['position'] = moved
         if kept:
             keys[node] = kept
+    for node in HANDS & tree_names:
+        keys[node] = {'orientation': np.array([[0., 1., 0., 0., 0.], [clip['length'], 1., 0., 0., 0.]])}
     return {**clip, 'nodes': keys}, dropped
 
 

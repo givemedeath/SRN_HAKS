@@ -197,7 +197,7 @@ Client results:
 
 ## SMG and shotgun solve
 
-Client run on 2026-11-06, builds `output/combat-clip-pilot-v8` and `v9`. `WEAPONS` in the pilot now holds one entry per
+Client run on 2026-11-06, builds `output/combat-clip-pilot-v8` to `v10`. `WEAPONS` in the pilot now holds one entry per
 weapon, and `TWO_HANDED` maps each clip to its weapon. This is a pilot result, not an approval.
 
 | Clip | Weapon | Hold | Solve |
@@ -218,19 +218,28 @@ weapon, and `TWO_HANDED` maps each clip to its weapon. This is a pilot result, n
 
 Client results:
 
-- **Ingram:** the two-handed hip hold shows on Human, Dwarf, Orc and Troll, on bare bodies, robe 005 and coat 020 where they
-  were in view. On Trolls it looks small.
-- **Shotgun:** the left hand was seen moving along the barrel on a bare Human male. Other races were not checked.
-- **Firing:** rounds were counted for rifle clips on Humans (99 to 97 over 10 s, shotgun clip on `xbowshot`) and for the
-  Ingram on Human, Orc and Troll (99 to 97 on `throwr`). Dwarf and Elf rounds were not counted.
-- **Not checked:** Elf with the Ingram, and any Dwarf shotgun clip. A second client from another session took the foreground,
-  so the run stopped there.
+- **Ingram:** the two-handed hip hold shows on all five races, on bare bodies, robe 005 and coat 020 where they were in view.
+  On Trolls it looks small.
+- **Shotgun:** the left hand was seen moving along the barrel on a bare Human male, and the clip fires correctly on Dwarf
+  male in live combat. The other races and Dwarf female were not checked close up.
+- **Firing, Ingram on `throwr`:** all five races used 2 rounds in 10 s.
+- **Firing, shotgun clip on `xbowshot`:** Human and Dwarf used 2 rounds in 10 s. Rifle clip rounds were counted on Trolls
+  only.
+- **Live rifle and shotgun fire with no `hold` mapping:** the weapon points forward and the left arm supports it, on Human
+  rifle and Dwarf shotgun, with the shot clip showing in bursts and the low stock ready stance between shots.
 
 Review notes:
 
+- **`hold` is unreliable for crossbow-class weapons.** With `xbowrdy` and `xbowr` mapped to a clip during live combat, the
+  rifle turns round, with the muzzle back over the shoulder and the butt forward, on Human and Dwarf with both the rifle and
+  shotgun clips. It looked right once combat ended, and with `xbowshot` alone it never happens. The cause isn't known. The
+  Ingram showed no such problem with its own mapping. The planned swap replaces only `xbowshot` or `throwr`, so this doesn't
+  affect that design, but the engine framework must not map those stances to these clips without testing it.
+- Judge rifle grip from live shots with no `hold`. Several frames I first read as fine or as a transitional stance came from
+  this state.
+- Every clip now keys `rhand` and `lhand` flat from start to end. The old clips key `rhand` once or not at all. This was
+  tried as a fix for the reversal and didn't change it, but it is kept because clips must key every node they own.
 - The stock target dies after about 16 rounds, and actors then leave combat stance. It is now immortal in the pilot.
-- Between shots some frames show a stock stance with the weapon raised, which the `hold` mapping doesn't replace. Judge the
-  grip only from frames in the solved pose.
 - Ranged stances found so far: `xbowrdy` and `xbowr` for crossbows, `bowrdy` and `bow` for the sling class.
 
 ## TODO
