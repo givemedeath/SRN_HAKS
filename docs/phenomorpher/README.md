@@ -5,6 +5,7 @@ female and male, Fit and Large. Version 1.1.0 keeps those shapes, UVs and rigs a
 optimizes their runtime resources (see [Runtime optimization](#runtime-optimization-110)).
 Version 1.3.0 reshapes the race bodies to canon lore and publishes the c7 Human lock
 (see [Release 1.3.0](#release-130-race-lore-sizing-and-the-c7-human-lock)).
+Version 1.4.0 adds firearm animation clips (see [Release 1.4.0](#release-140-firearm-clips)).
 Use [game-ready-assets.json](game-ready-assets.json) as the current resource and
 target contract. Previous Human delivery manifests remain historical records.
 
@@ -12,6 +13,21 @@ The user approved these shapes and requested publication on 2026-10-13 after
 the final client and clothing checks. That release changed resource routing and
 skin/material defaults; it did not reshape any approved body or change its rig.
 The selected female posture is **hips level + original upper lean/breathing**.
+
+## Release 1.4.0: firearm clips
+
+The user asked to ship these on 2026-11-07. `srn_body/a_ba_custom.mdl` overrides the installed `a_ba_custom` with its stock clips
+unchanged and 175 added firearm clips: fire, ready, reload and grenade throw for all five races, both genders, Fit and Large.
+Clip names are `<action>_<weapon>_<slot>`, listed in [Clip names](animation-chain-probe.md#clip-names).
+
+* Nothing plays these clips until a script maps them with `ReplaceObjectAnimation`. SR_NWN builds that framework.
+* Bodies, rigs, the `srn_an_*` libraries and the 2DA tables are unchanged.
+* `srn-armor-assets.json` still names contract 1.3.0, which is the body build its armour was fitted to.
+* A game patch to `a_ba_custom` would be shadowed by this file.
+* Open items are in [Client results](animation-chain-probe.md#client-results): native dual fire, the upright rifle during a
+  reload out of combat, and the robe refit.
+
+Rollback is contract 1.3.0: remove `srn_body/a_ba_custom.mdl` and restore this contract and `ASSETS.md`.
 
 ## Release 1.3.0: race lore sizing and the c7 Human lock
 
@@ -113,7 +129,7 @@ for the Fit chest. Skin uses the selected no-grain detail and tone correction;
 garment and material-map resolutions retain their reviewed payloads. Original
 stock head001 geometry supplies context. Finished race-specific heads, a complete
 armor wardrobe, weighted robes/cloaks and exhaustive palette/frame testing are
-separate work. Bind stature is measured; client height was calibrated for 1.3.0 (idle stance, see above).
+separate work; the robe refit for all races is a [TODO](animation-chain-probe.md#todo). Bind stature is measured; client height was calibrated for 1.3.0 (idle stance, see above).
 The previously observed client exit crash remains unsymbolicated and was also
 present before this package; the final checks had no in-session crash.
 

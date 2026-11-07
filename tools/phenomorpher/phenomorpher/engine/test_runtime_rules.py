@@ -8,7 +8,7 @@ import unittest
 
 from . import anim_library as lib
 from .runtime_release import adopt
-from .runtime_rules import check
+from .runtime_rules import DECLARED_STOCK_OVERRIDES, check
 from . import test_runtime_release as fixtures
 from .test_anim_library import GEOMETRY, clip, native
 
@@ -77,6 +77,39 @@ class RuntimeRuleTests(unittest.TestCase):
             report = check(root, shadow, overlay={**overlay, 'srn_body/' + Path(stock_name).name: blob})
             self.assertEqual(rules(report), ['stock-shadow'])
             self.assertEqual(report['violations'][0]['subject'], 'srn_body/' + Path(stock_name).name)
+
+    def test_only_the_pinned_stock_override_may_shadow_the_chain(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); _, contract, overlay = staged(root)
+            row = contract['installedAnimationChain'][0]; name = Path(row['resource']).stem.lower()
+            path = 'srn_body/' + Path(row['resource']).name
+            blob = f'setsupermodel {name} {row["parent"]}\n'.encode()
+            sha = hashlib.sha256(blob).hexdigest()
+            shadow = json.loads(json.dumps(contract))
+            shadow['resources'].append({'path': path, 'sha256': sha, 'role': 'combat-animation'})
+            files = {**overlay, path: blob}
+            approved = {name: {'sha256': sha, 'role': 'combat-animation'}}
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides=approved)), [])
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides={})), ['stock-shadow'])
+            wrong_role = {name: {'sha256': sha, 'role': 'body-part'}}
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides=wrong_role)), ['stock-shadow'])
+            wrong_pin = {name: {'sha256': '0' * 64, 'role': 'combat-animation'}}
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides=wrong_pin)), ['stock-shadow'])
+            moved = f'setsupermodel {name} elsewhere\n'.encode()
+            moved_sha = hashlib.sha256(moved).hexdigest(); shadow['resources'][-1]['sha256'] = moved_sha
+            moved_pin = {name: {'sha256': moved_sha, 'role': 'combat-animation'}}
+            report = check(root, shadow, overlay={**overlay, path: moved}, stock_overrides=moved_pin)
+            self.assertEqual(rules(report), ['stock-shadow'])
+            with self.assertRaisesRegex(ValueError, 'differs from the contract'):
+                check(root, shadow, overlay={**overlay, path: blob}, stock_overrides=moved_pin)
+
+    def test_declared_stock_override_pins_the_shipped_model(self):
+        repo = Path(__file__).resolve().parents[4]
+        if not (repo/'srn_body').is_dir():
+            self.skipTest('Installed wheel has no repository packs')
+        for name, entry in DECLARED_STOCK_OVERRIDES.items():
+            blob = (repo/'srn_body'/(name + '.mdl')).read_bytes()
+            self.assertEqual(hashlib.sha256(blob).hexdigest(), entry['sha256'])
 
     def test_target_roots_may_not_store_clips(self):
         with tempfile.TemporaryDirectory() as tmp:

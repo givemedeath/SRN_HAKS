@@ -1105,6 +1105,11 @@
       "tools/itemkit/runner.py",
       "tools/itemkit/shield_native.py"
     ],
+    "tools/itemkit/anim_chain_probe.py": [
+      "tools/heads/build_head_trial.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
     "tools/itemkit/atlas.py": [
       "tools/headkit/common.py",
       "tools/headkit/uv.py",
@@ -1129,6 +1134,13 @@
       "tools/headkit/common.py",
       "tools/phenotypes/target_fixture.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/itemkit/combat_clip_pilot.py": [
+      "tools/heads/build_head_trial.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/anim_chain_probe.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
     ],
     "tools/itemkit/conditioning.py": [
       "tools/headkit/common.py",
@@ -1335,6 +1347,10 @@
       "tools/headkit/uv.py",
       "tools/itemkit/atlas.py"
     ],
+    "tools/itemkit/test_anim_chain_probe.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/anim_chain_probe.py"
+    ],
     "tools/itemkit/test_atlas.py": [
       "tools/itemkit/atlas.py",
       "tools/itemkit/test_itemkit.py"
@@ -1346,6 +1362,10 @@
       "tools/itemkit/generation.py",
       "tools/itemkit/parts.py",
       "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_combat_clip_pilot.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/combat_clip_pilot.py"
     ],
     "tools/itemkit/test_conditioning.py": [
       "tools/headkit/__init__.py",
@@ -4546,7 +4566,23 @@
     "tools/heads/test_target_and_publication.py": [
       "srn_head"
     ],
+    "tools/itemkit/anim_chain_probe.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_body_tex"
+    ],
+    "tools/itemkit/combat_clip_pilot.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_body_tex",
+      "srn_weapon"
+    ],
     "tools/itemkit/native_stack.py": [
+      "srn_body"
+    ],
+    "tools/itemkit/test_combat_clip_pilot.py": [
       "srn_body"
     ],
     "tools/itemkit/test_native_stack.py": [
@@ -4649,8 +4685,10 @@
     "tools/heads/test_reindex_head.py",
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
+    "tools/itemkit/test_anim_chain_probe.py",
     "tools/itemkit/test_atlas.py",
     "tools/itemkit/test_catalog_object.py",
+    "tools/itemkit/test_combat_clip_pilot.py",
     "tools/itemkit/test_conditioning.py",
     "tools/itemkit/test_curved_caps.py",
     "tools/itemkit/test_donor.py",

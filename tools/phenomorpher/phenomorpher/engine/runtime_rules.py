@@ -25,6 +25,12 @@ DECLARED_POSTURE_LAYERS = {
                   'evidence': 'docs/phenotype-human-female-source-adoption-checkpoint.md (Human female shared posture, '
                               'user approval 2026-10-08, shipped in #42)'},
 }
+# Approved overrides of installed-chain models, by name, role and pinned bytes. A clip change updates this pin.
+DECLARED_STOCK_OVERRIDES = {
+    'a_ba_custom': {'sha256': 'f9e7d11e897dd57121ba28c6ebcd40c33b020d66f9e4dfbe84d7ef39edcf6fd3', 'role': 'combat-animation',
+                    'evidence': 'docs/phenomorpher/README.md (Release 1.4.0, user request 2026-11-07)'},
+}
+SUPERMODEL_LINE = re.compile(rb'(?m)^setsupermodel\s+(\S+)\s+(\S+)')
 
 
 def stock_graph(manifest):
@@ -36,11 +42,13 @@ def stock_graph(manifest):
     return {n: None for n in names}
 
 
-def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, posture_layers=None):
+def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, posture_layers=None, stock_overrides=None):
     """manifest: contract path or parsed contract. overlay: {resource path: bytes} staged over root.
-    posture_layers: {name: {'sha256': ...}} declared posture layers (default DECLARED_POSTURE_LAYERS)."""
+    posture_layers: {name: {'sha256': ...}} declared posture layers (default DECLARED_POSTURE_LAYERS).
+    stock_overrides: {name: {'sha256': ..., 'role': ...}} approved stock overrides (default DECLARED_STOCK_OVERRIDES)."""
     root = Path(root).resolve(); overlay = overlay or {}
     declared = DECLARED_POSTURE_LAYERS if posture_layers is None else posture_layers
+    overrides = DECLARED_STOCK_OVERRIDES if stock_overrides is None else stock_overrides
     if not isinstance(manifest, dict):
         manifest = json.loads(Path(manifest).read_text(encoding='utf-8-sig'))
     def read(rel):
@@ -60,10 +68,21 @@ def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, p
             recorded = next((r for r in manifest.get('installedAnimationChain', []) if Path(r['resource']).stem.lower() == name), None)
             if recorded and recorded['sha256'] != row['sha256']:
                 fail('installed-chain', name, 'installed bytes differ from the contract')
+    def approved_override(row, name):
+        """A declared override (name, role and bytes) that still sits at its stock place in the chain."""
+        entry = overrides.get(name)
+        if entry is None or (row['role'], row['sha256']) != (entry['role'], entry['sha256']):
+            return False
+        blob = read(row['path'])
+        if digest(blob) != row['sha256']:
+            raise ValueError('Published model differs from the contract: ' + row['path'])
+        link = SUPERMODEL_LINE.search(blob)
+        return link is not None and (link[1].decode().lower(), link[2].decode().lower()) == (name, stock[name])
     # A pack model named after an installed-chain model replaces it at runtime, whatever its role.
     for row in manifest['resources']:
-        if Path(row['path']).suffix.lower() == '.mdl' and Path(row['path']).stem.lower() in stock:
-            fail('stock-shadow', row['path'], 'pack model shadows the installed ' + Path(row['path']).stem.lower())
+        name = Path(row['path']).stem.lower()
+        if Path(row['path']).suffix.lower() == '.mdl' and name in stock and not approved_override(row, name):
+            fail('stock-shadow', row['path'], 'pack model shadows the installed ' + name)
     # Published rigs, libraries and carriers, decoded from the pack bytes the contract pins.
     models, roles, rows = {}, {}, {}
     for row in manifest['resources']:
