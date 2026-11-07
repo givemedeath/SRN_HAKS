@@ -562,10 +562,13 @@ no new rights claim.
 
 ## Firearm sounds (`srn_sound`; 2026-11-07)
 
-Sixteen WAVs were copied byte for byte from the user's `SRN_CC` staging folder, `content/staging/sounds/`, into `srn_sound`. No 2DA
-row references them yet. Eight (`dryfire_*`, `ric_*`, `rocket`, `reload_rocket`) match the old Shadowrun mod's `gun sounds`
-folder under `SR_NWN/OLD_SR_MOD_ASSETS`. The eight `fire_*` files, including `fire_shotgun`, have no copy in those assets, so their origin is unrecorded. The
+Eighteen WAVs were copied byte for byte from the user's `SRN_CC` staging folder, `content/staging/sounds/`, into `srn_sound`. No 2DA
+row references them yet. Nine (`dryfire_*`, `ric_*`, `rocket`, `reload_rocket`, `firearm_reload`) match the old Shadowrun mod's `gun sounds`
+folder under `SR_NWN/OLD_SR_MOD_ASSETS`. The nine `fire_*` files have no copy in those assets, so their origin is unrecorded. The
 user supplied them, but that isn't a record of their licence or recording source.
+
+`fire_sup_pst_smg` is the staged `fire_sup_pistol_smg.wav`, shortened because 19 characters exceed the 16-character resref limit. `firearm_reload` is
+the old `firearm_reload1` under a new name, with identical bytes.
 
 No resref collides with a stock `.wav` key or another WAV in this repository. The hyphenated names keep the spelling the old
 `visualeffects.2da` rows used.
@@ -574,13 +577,15 @@ No resref collides with a stock `.wav` key or another WAV in this repository. Th
 |---|---|
 | `dryfire_pistol.wav` | `343E14613D63` |
 | `dryfire_rifle.wav` | `C80E1AE22325` |
+| `fire_smg.wav` | `0733F3B1E84B` |
+| `firearm_reload.wav` | `BFA926FB39CE` |
 | `fire_shotgun.wav` | `9E3464A25450` |
 | `fire_aslt_rifle.wav` | `A979225F38D9` |
 | `fire_hvy_pistol.wav` | `F31A56417940` |
 | `fire_lt_pistol.wav` | `8475D9A03B61` |
 | `fire_snp_rifle.wav` | `549454453AE2` |
 | `fire_spt_rifle.wav` | `6552910F3C17` |
-| `fire_sup_pistol.wav` | `20FAE7D8F921` |
+| `fire_sup_pst_smg.wav` | `20FAE7D8F921` |
 | `fire_sup_rifle.wav` | `B55D51DB4ADC` |
 | `reload_rocket.wav` | `80218182147D` |
 | `ric_conc-1.wav` | `43A8EC357F9F` |
