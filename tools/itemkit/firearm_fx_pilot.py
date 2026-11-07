@@ -45,6 +45,9 @@ FLASH_FIELDS = {'sizeStart': .12, 'sizeEnd': .02, 'sizeStart_y': .12, 'sizeEnd_y
 CASING_SIZE = .06
 # The stock attack's `hit`, where the engine launches the shot.
 SHOT_TIME = .5
+# The SMG clip kicks six times. Each kick gets a flash and a casing, so the native shot lands on the third.
+# Times are where the hand moves back fastest, the same on every slot.
+KICK_TIMES = {'fire_smg': (.1, .3, .47, .63, .8, .93)}
 # Ejection ports on each gun's right side (+x), placed by hand from its cross-sections.
 PORTS = {'colt': (.025, .10, -.05), 'ingram': (.015, .10, -.06), 'ak98': (.031, .165, -.06)}
 EMITTER = '''node emitter {name}
@@ -265,11 +268,12 @@ def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=No
     """Add emitters to one decompiled gun, with clips for the `stock` or `replaced` names that fire them.
 
     Without `effects` it gets the test burst and the white marker. With `effects` ({node name: emitter block}) it gets
-    those instead, fired at SHOT_TIME."""
+    those instead, fired at SHOT_TIME, or at each of the stem's KICK_TIMES."""
     root = re.search(r'(?m)^newmodel (\S+)', text)[1]
     tip = muzzle(text)
+    times = (burst_time,)
     if effects:
-        nodes, listed, burst_time = ''.join(effects.values()), list(effects), SHOT_TIME
+        nodes, listed, times = ''.join(effects.values()), list(effects), KICK_TIMES.get(stem, (SHOT_TIME,))
     else:
         emitter, color = ('srp_red', '1 0 0') if names == 'stock' else ('srp_green', '0 1 0')
         nodes = EMITTER.format(name=emitter, root=root, x=tip[0], y=tip[1], z=tip[2], update='Explosion', color=color,
@@ -282,7 +286,7 @@ def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=No
         raise ValueError('Unexpected gun shape: ' + root)
 
     clip_names = STOCK_CLIPS if names == 'stock' else [f'{stem}_{slot}' for slot in slots()]
-    event = f'  event {burst_time} detonate\n'
+    event = ''.join(f'  event {time} detonate\n' for time in times)
     listing = ''.join(EMITTER_CLIP_NODE.format(name=name, root=root) for name in listed)
     clips = ''.join(CLIP.format(clip=name, root=root, event=event, nodes=listing) for name in clip_names)
     if quiet:

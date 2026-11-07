@@ -94,6 +94,9 @@ class TaggedGun(unittest.TestCase):
         text = fx.tagged_gun(GUN, 'fire_pst', 'replaced', effects=nodes)
         self.assertNotIn('srp_', text)
         self.assertIn(f'event {fx.SHOT_TIME} detonate', text)
+        smg = fx.tagged_gun(GUN, 'fire_smg', 'replaced', effects=nodes)
+        body = re.search(r'(?ms)^newanim fire_smg_hm wbwsl_b_051\n(.*?)^doneanim', smg)[1]
+        self.assertEqual(re.findall(r'event (\S+) detonate', body), [str(t) for t in fx.KICK_TIMES['fire_smg']])
 
     def test_tumbling_sheet_has_sixteen_turning_frames(self):
         import tempfile

@@ -9,7 +9,7 @@ from this pilot. The builder is `tools/itemkit/firearm_fx_pilot.py`, and output 
 | 2. Hit timing | Do the `hit` events match the recoil in the fire clips? | Answered 2026-11-07: the event is ignored |
 | 3. Muzzle flash | Does a flash sit on the muzzle and match the shot? | Passed on the AK-98 2026-11-07, old flash tuned |
 | 4. Shell casings | Do casings arc out, drop and read at game distance? | Ejection passed 2026-11-07; default camera not checked |
-| 5. SMG burst | Does each recoil get a flash and a casing? | Not started |
+| 5. SMG burst | Does each recoil get a flash and a casing? | Passed on the Ingram 2026-11-07 |
 | 6. Coverage and cost | Do the effects line up on all bodies without a frame drop? | Not started |
 
 ## Gate 1: clip matching
@@ -184,3 +184,32 @@ Both fire on one `detonate` at 0.5 s.
 
 Evidence is in `output/firearm-fx-pilot-v10-evidence/` (ignored). The v9 front views are in
 `output/firearm-fx-pilot-v9-evidence/`.
+
+## Gate 5: SMG burst
+
+**Each kick of the SMG clip now gets its own flash and casing.** One native attack still fires one projectile and
+deals damage once. The burst is only visual.
+
+### Method
+
+The `fire_smg` clips were sampled at 120 frames a second on every slot. The right hand moves back fastest at 0.108,
+0.308, 0.475, 0.642, 0.808 and 0.942 s, and the muzzle pitches up at the same times. All ten slots match. The gun's
+`fire_smg_<slot>` clips send `detonate` at 0.1, 0.3, 0.47, 0.63, 0.8 and 0.93 s (`KICK_TIMES`), and every other
+stem keeps a single event at 0.5 s. A `detonate` fires both the flash and the casing.
+
+Build `output/firearm-fx-pilot-v11-burst`. One Human Female Large actor in robe 020 attacked with the Ingram on
+`throwr`. It was recorded from behind at about 20 frames a second.
+
+### Findings
+
+- **Six separate flashes, each followed by its own casing out to the right.** In one attack they came at 1.80, 2.05,
+  2.25, 2.46, 2.67 and 2.82 s on the recording. Each flash was gone before the next one.
+- **The bursts are spaced a little wider than the clip keys.** The spacing is 0.15 to 0.25 s against 0.13 to 0.2 s in
+  the clip. The whole burst took about 1 s instead of 0.83 s. The frame timing is too coarse to say whether the attack
+  plays the clip slower or the capture is uneven.
+- **The tracer appeared between the third and fourth flashes,** about 0.1 s after the third. The third kick is the one
+  meant to match the native 0.5 s shot, so the shot lands inside the burst.
+- Dual SMGs (`fire_dsmg`) aren't covered. Their kicks come at different times for each hand, and they wait on dual
+  fire.
+
+Evidence is in `output/firearm-fx-pilot-v11-evidence/` (ignored).
