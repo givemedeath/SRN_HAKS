@@ -9,7 +9,9 @@ from .rays import EmbreeScene
 
 VIEWS={'front':(0,0),'left-three-quarter':(45,0),'right-three-quarter':(-45,0),
        'left-back-three-quarter':(135,0),'right-back-three-quarter':(-135,0),
-       'back':(180,0),'jaw-underside':(0,-75),'crown':(0,75)}
+       'back':(180,0),'jaw-underside':(0,-75),'crown':(0,75),
+       'left temple 50 degrees':(50,0),'left temple profile':(90,0),
+       'right temple 50 degrees':(-50,0),'right temple profile':(-90,0)}
 
 def views(value,dll,size,names):
     positions=value['positions'].astype(float);faces=value['faces']
@@ -23,7 +25,8 @@ def views(value,dll,size,names):
             toward=np.array([math.sin(yaw)*math.cos(tilt),math.sin(tilt),math.cos(yaw)*math.cos(tilt)])
             right=np.array([math.cos(yaw),0,-math.sin(yaw)]);up=np.cross(toward,right)
             ys,xs=np.mgrid[0:size,0:size]
-            org=center+toward*span*2+((xs.ravel()+.5)/size-.5)[:,None]*span*right+(.5-(ys.ravel()+.5)/size)[:,None]*span*up
+            frame = (high-low).max()*1.08 if 'temple' in name else span
+            org=center+toward*span*2+((xs.ravel()+.5)/size-.5)[:,None]*frame*right+(.5-(ys.ravel()+.5)/size)[:,None]*frame*up
             depth,ids,_=scene.query(org,-toward);hit=ids>=0;indices=np.where(hit,ids,0)
             point=org-np.where(hit,depth,0)[:,None]*toward
             a,b,c=(positions[faces[indices,i]] for i in range(3));v0,v1,v2=b-a,c-a,point-a
@@ -56,7 +59,10 @@ def sheet(tiles,path,size,columns=4):
 
 def geometry_sheet(source,dll,path,size=256):
     value=mesh(source)
-    return sheet([(name,pixels(view)) for name,view in views(value,dll,size,VIEWS)],path,size)
+    tiles = []
+    for name, view in views(value,dll,size,VIEWS):
+        tiles.append((name,pixels(view)))
+    return sheet(tiles,path,size)
 
 def palette_sheet(source,shades_path,layers_path,palettes,rows,dll,output,size=128):
     output=Path(output);output.mkdir(parents=True,exist_ok=False)

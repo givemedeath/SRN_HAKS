@@ -6,6 +6,13 @@ from scipy import ndimage
 from headkit.fit import *
 from headkit.gltf import mesh
 from headbatch.head_files import read
+
+if sys.argv[1:2] in (['--poses'], ['--reference'], ['--body-neck']):
+    from _fit_views import compare
+    compare(sys.argv[2], sys.argv[3:-1], sys.argv[-1], reference=sys.argv[1] != '--poses', with_neck=sys.argv[1] == '--body-neck')
+    raise SystemExit(0)
+
+
 H, out, mout = sys.argv[1:4]
 value = mesh(sorted(glob.glob(H+'/run/precluster/attempt-*/oriented.glb'))[-1]); local = head_local(surface_samples(value['positions'][value['faces']], 1000000))
 target = ascii_surface(H+'/'+read(H+'/manifest.json')['inputs']['fitReference']['path'])  # a head can hold older references beside the bound one

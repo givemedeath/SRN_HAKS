@@ -4,6 +4,7 @@ The orthographic front render (glTF +z) of the UV mesh with its 4K colour shares
 landmarks and BiSeNet labels on it need no design-to-mesh registration. Texels the render sees read the masks by depth match;
 texels it cannot see take the nearest seen texel's value within a short 3D distance, never UV neighbours (steps 1-2 of
 docs/heads/head-texture-quality-plan.md; RUNBOOK 124-129, 133)."""
+import hashlib
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
@@ -127,6 +128,32 @@ def polygon(shape, pts, index):
     return np.asarray(image) > 0
 
 
+def eye_contours(rgb, correction, centres, hit):
+    """Rasterize two eye corrections traced on the exact baked front view (pixel coordinates)."""
+    require(isinstance(correction, dict) and set(correction) == {'rgbSha256', 'R', 'L'}
+            and correction['rgbSha256'] == hashlib.sha256(rgb.tobytes()).hexdigest(),
+            'Eye contours require the exact front-render RGB pixels')
+    shape = rgb.shape[:2]
+    regions = {name: np.zeros(shape, bool) for name in ('opening', 'iris', 'excludeBrow')}
+    radius = np.linalg.norm(centres['L'] - centres['R']) * .48
+    for side in ('R', 'L'):
+        spec = correction[side]
+        require(isinstance(spec, dict) and spec.keys() == regions.keys(), 'Each eye needs opening, iris and excludeBrow polygons')
+        local = {}
+        for name, vertices in spec.items():
+            points = np.asarray(vertices, dtype=float)
+            require(points.ndim == 2 and points.shape[1] == 2 and len(points) >= 3 and np.isfinite(points).all()
+                    and (points >= 0).all() and (points < shape[::-1]).all()
+                    and (np.linalg.norm(points - centres[side], axis=1) < radius).all(), 'Eye polygon outside its landmark region')
+            local[name] = polygon(shape, points, range(len(points)))
+            require(local[name].sum() > 2 and not (local[name] & ~hit).any(), 'Eye polygon must cover the rendered surface')
+        require(not (local['iris'] & ~local['opening']).any() and (local['opening'] & ~local['iris']).any(),
+                'Trace the visible iris inside its eye opening')
+        for name in regions:
+            regions[name] |= local[name]
+    return regions
+
+
 def brow_seed(labels, pts, eyes, hit):
     """Brows anchored to the landmark brows (RUNBOOK 143): per side, the parser brow parts overlapping the landmark brow polygon, or
     the polygon itself when the parser covers under BROW_SEED of it (the parser takes dark forehead marks for brows and misses
@@ -174,18 +201,25 @@ def hair_locks(rgb, labels, hit, face, plainskin):
     return np.isin(parts, np.unique(parts[edge & lock])) & lock
 
 
-def render_masks(rgb, labels, pts, circles, hit):
+def render_masks(rgb, labels, pts, circles, hit, contours=None):
     """Soft render-space masks of every feature."""
     S = labels.shape[0]; ys, xs = np.mgrid[0:S, 0:S]
     eyes = binary_dilation(polygon(labels.shape, pts, EYE_RING['R']) | polygon(labels.shape, pts, EYE_RING['L']), iterations=1)
     opening = np.isin(labels, EYES) & eyes
     iris = np.zeros((S, S), np.float32)
     for c, r in circles.values(): iris = np.maximum(iris, np.clip(r+.75-np.hypot(xs+.5-c[0], ys+.5-c[1]), 0, 1.5)/1.5)   # 1.5 px soft rim
-    seed = brow_seed(labels, pts, eyes, hit); face = face_hull(labels.shape, pts); locks = hair_locks(rgb, labels, hit, face, plain_skin(labels, face, eyes, seed))
+    if contours is not None:
+        opening = contours['opening']
+        iris = gaussian_filter(contours['iris'].astype(np.float32), .55)
+        eyes = opening
+    brow_guard = eyes if contours is None else eyes | contours['excludeBrow']
+    seed = brow_seed(labels, pts, brow_guard, hit); face = face_hull(labels.shape, pts); locks = hair_locks(rgb, labels, hit, face, plain_skin(labels, face, eyes, seed))
     locks = np.zeros((S, S), bool) if locks is None else locks
-    hard = {'brow': brow_mask(rgb, labels, seed, eyes, hit), 'eye': opening, 'lips': np.isin(labels, (MOUTH,)+LIPS), 'nose': labels == NOSE,
+    hard = {'brow': brow_mask(rgb, labels, seed, brow_guard, hit), 'eye': opening, 'lips': np.isin(labels, (MOUTH,)+LIPS), 'nose': labels == NOSE,
             'hair': (labels == HAIR) | locks, 'ear': np.isin(labels, EARS), 'skin': (labels == SKIN) & ~locks, 'hairlock': locks,
             'beard': hit & (ys > pts[NOSE_BASE, 1])}   # the parser has no beard class: below the nose, colour decides (face_encode)
+    if contours is not None:
+        hard['brow'] &= ~brow_guard
     soft = {k: gaussian_filter(v.astype(np.float32), SOFT) for k, v in hard.items()}
     soft['iris'] = iris*gaussian_filter(opening.astype(np.float32), .7); soft['eye'] = np.maximum(soft['eye'], soft['iris'])
     # Darks from landmarks: the lip line and an eye-socket shadow, full strength above the eye and 40% below (step 3).
@@ -232,7 +266,7 @@ def overlay(rgb, labels, pts, circles):
     return Image.fromarray(np.concatenate([np.asarray(marked), parsed], 1))
 
 
-def face_masks(source, colour, bindings, output, size=RENDER):
+def face_masks(source, colour, bindings, output, size=RENDER, eye_correction=None):
     """The masks stage: front render, landmarks, parse, iris, brows, hair locks, darks, projection; review sheets."""
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     mediapipe = library(bindings, 'mediapipe'); onnxruntime = library(bindings, 'onnxruntime')
@@ -244,7 +278,10 @@ def face_masks(source, colour, bindings, output, size=RENDER):
     pts = landmarks(rgb, mediapipe, models/'face_landmarker.task'); require(pts is not None, 'No face found on the front render')
     labels = parse(rgb, crop_box(rgb.shape, pts), onnxruntime, models/'resnet18.onnx')
     circles, refined = iris_circles(np.asarray(Image.fromarray(rgb).convert('L'), np.float32), pts)
-    soft, hard = render_masks(rgb, labels, pts, circles, view['hit'])
+    contours = None
+    if eye_correction is not None:
+        contours = eye_contours(rgb, eye_correction, {s: pts[c] for s, (c, _) in IRIS.items()}, view['hit'])
+    soft, hard = render_masks(rgb, labels, pts, circles, view['hit'], contours)
     masks, coverage = project(value, view, soft)
     Image.fromarray(rgb).save(output/'front-render.png'); Image.fromarray(labels).save(output/'front-labels.png')
     np.save(output/'front-landmarks.npy', pts)
@@ -264,4 +301,6 @@ def face_masks(source, colour, bindings, output, size=RENDER):
               'renderPixels': {k: int(v.sum()) for k, v in hard.items()}, 'coverage': coverage,
               'maskTexels': {k: int((v > 127).sum()) for k, v in masks.items()},
               'review': {'labels': pin(output/'review-labels.png'), 'masks': pin(output/'review-masks.png')}, 'visualReviewRequired': True}
+    if contours is not None:
+        result['eyeContours'] = eye_correction
     write(output/'masks.json', result, fresh=True); return result

@@ -139,17 +139,21 @@ def write_manifest(workspace, name, check=validate, overrides=None):
     """overrides, when given, replace overrides.json once the manifest built from them passes: a refused edit leaves the head as it was.
     The manifest and inputs are pinned by a launch, so the head lock is held from the first read to the replace (RUNBOOK 49, 111)."""
     with guards.head_locks(workspace, [name]):
-        replaced = []
-        try:
-            return rewrite_manifest(workspace, name, check, overrides, replaced)
-        except Exception:
-            for held, target in replaced:
-                target.unlink(missing_ok=True)
-                held.replace(target)
-            raise
-        finally:
-            for held, _ in replaced:
-                held.unlink(missing_ok=True)
+        return write_locked_manifest(workspace, name, check, overrides)
+
+
+def write_locked_manifest(workspace, name, check, overrides):
+    replaced = []
+    try:
+        return rewrite_manifest(workspace, name, check, overrides, replaced)
+    except Exception:
+        for held, target in replaced:
+            target.unlink(missing_ok=True)
+            held.replace(target)
+        raise
+    finally:
+        for held, _ in replaced:
+            held.unlink(missing_ok=True)
 
 
 def rewrite_manifest(workspace, name, check, overrides, replaced):
@@ -172,8 +176,13 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
             inputs['field'] = link(head, file_from(stages['appearance']['files'], FIELD_NODE)['path'], 'field.npz', replaced)
     reference = workspace.fit_reference(race, sex)
     inputs['fitReference'] = link(head, reference, 'fit-reference-'+reference.name, replaced)
+    if race == 'troll' and chosen.get('fit', {}).get('align', 'nose') in ('nose', 'profile'):
+        policy = Path(__file__).resolve().parents[2]/'docs/heads/troll-build-allowance-r3.json'
+        inputs['nativeSizingPolicy'] = link(head, policy, policy.name, replaced)
     data = defaults(name, receipt, inputs, reference)
     merge(data, chosen)
+    if 'nativeSizingPolicy' in inputs:
+        data['nativeSizing'] = 'troll-build-allowance-r3'
     tone_every_channel(data, race, sex, name)
     candidate = head/'manifest.check.json'
     write_json(candidate, data)
@@ -195,10 +204,13 @@ def set_components(workspace, name, notes, check=validate):
     extra, area = len(table['extra']), table['deletedAreaFraction']
     if table['count'] != extra+1:
         raise guards.Refused(f"{name}: the shell table counts {table['count']} with {extra} extra: rerun review shells")
-    bound = math.ceil(area*1.1*1e4)/1e4
+    # Headkit requires a positive area bound. expectedDeleted=0 separately forbids any deletion.
+    bound = max(1, math.ceil(area*1.1*1e4))/1e4
     overrides = guards.read(head/'overrides.json')
     overrides.setdefault('mesh', {})['components'] = {'keep': 'largest', 'reviewed': True, 'maximumDeletedAreaFraction': bound, 'expectedDeleted': extra,
-                                                      'notes': f'review shells --interior + shells.png: {extra} extra shells, {area*100:.4f}% of area. {notes}'}
+                                                      'notes': f'review shells: {extra} extra shells, {area*100:.4f}% of area. {notes}'}
+    if extra and all(row.get('insideFraction') == 1.0 for row in table['extra']):
+        overrides['mesh']['components']['interiorOnly'] = True
     write_manifest(workspace, name, check, overrides)
     return extra, bound
 
@@ -206,9 +218,65 @@ def set_components(workspace, name, notes, check=validate):
 def set_ownership(workspace, name, rules, check=validate):
     """A reviewed rule set (regions, rules, notes), replacing any earlier one. Coordinates are bbox-relative GLB frame; `review grid` draws the iso-lines."""
     overrides = guards.read(workspace.head(name)/'overrides.json')
-    features = {'featureChannels': True} if overrides.get('ownership', {}).get('featureChannels') else {}
+    profile = overrides.get('ownership', {})
+    features = {key: profile[key] for key in ('featureChannels', 'boneEarGuard', 'hairMaskRequiresRule') if key in profile}
     overrides['ownership'] = {'$replace': True, 'mode': 'rules', 'reviewed': True, 'default': 0, **features, **guards.read(rules)}
     return write_manifest(workspace, name, check, overrides)
+
+
+def revise_clay(workspace, name, design, reference, checked, approval, check=validate):
+    """Select a checked clay for an existing head. Its original conditioning, reviews and GPU ledger stay addressable."""
+    from headkit.common import pin, verify, write
+    if name not in workspace.head_ids() or reference is None or not approval.strip():
+        raise guards.Refused('Revised clay needs the existing slot, reference record and explicit selection')
+    head = workspace.head(name)
+    with guards.head_locks(workspace, [name]):
+        if (head/'gpu/UNRECONCILED').exists():
+            raise guards.Refused('Reconcile the pending GPU submission before revising its conditioning')
+        ledger = head/'gpu/gpu.json'
+        if ledger.exists() and 'geometry' in guards.read(ledger)['stages']:
+            raise guards.Refused('A current accepted geometry already exists for the slot')
+        selection = guards.read(head/'design/design-receipt.json')
+        record_pin = pin(reference)
+        checked_pin = pin(checked)
+        record, pair = reference_record.load(reference, name, design)
+        measured = guards.read(checked)
+        if (not pair or measured.get('head') != name or measured.get('referenceRecord') != record_pin
+                or set(measured.get('pair', {}).get('images', {})) != {
+                    'geometry-pair.png', 'detail-pair.png', 'common-mask.png', 'alignment-overlay.png'}):
+            raise guards.Refused('Run reference-check on this exact revised pair first')
+        verify([checked_pin, record_pin, *measured['pair']['images'].values()], fresh=True)
+        manifest = guards.read(head/'manifest.json')
+        inputs = manifest['inputs']
+        if (selection['selectedDesign']['sha256'] != record['design']['sha256'] or 'clay' not in inputs
+                or 'detail' not in inputs or inputs['detail']['sha256'] != record['conditioning']['detail']['sha256']):
+            raise guards.Refused('A clay-only revision must retain the selected design and diffuse input')
+        # Content-addressed targets make retries safe and preserve the old prepare and its inputs.
+        folder = head/'inputs'/'conditioning'/record_pin['sha256']
+        folder.mkdir(parents=True, exist_ok=True)
+        target = folder/'clay.png'
+        if not target.exists():
+            from tempfile import TemporaryDirectory
+            with TemporaryDirectory(dir=folder) as scratch:
+                copied = Path(scratch)/'clay.png'
+                shutil.copyfile(pair['clay'], copied)
+                if sha(copied) != record['conditioning']['clay']['sha256']:
+                    raise guards.Refused('Revised clay changed during selection')
+                copied.replace(target)
+        if sha(target) != record['conditioning']['clay']['sha256']:
+            raise guards.Refused('Saved revised clay differs from the checked input')
+        receipt = {'head': name, 'referenceRecord': record_pin, 'pairCheck': checked_pin,
+                   'clay': pin(target), 'detail': inputs['detail'], 'approval': approval}
+        selection_path = folder/'selection.json'
+        if selection_path.exists():
+            if guards.read(selection_path) != receipt:
+                raise guards.Refused('Existing selection differs for this reference')
+        else:
+            write(selection_path, receipt, fresh=True)
+        overrides = guards.read(head/'overrides.json')
+        overrides['inputs']['clay'] = {'path': target.relative_to(head).as_posix(), 'sha256': receipt['clay']['sha256']}
+        overrides['alignment'] = record['conditioning']['alignment']
+        return write_locked_manifest(workspace, name, check, overrides)
 
 
 def selected_prompt(workspace, name, race, design, record=None):
@@ -248,7 +316,7 @@ def selected_prompt(workspace, name, race, design, record=None):
     return json.loads(spec_bytes)['designs'][name], lineage, matches[0]['sha256']
 
 
-def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approval='', check=validate, reference=None, quality_profile=None):
+def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approval='', check=validate, reference=None, quality_profile=None, no_neck_cut=False):
     """A new head folder: design receipt, stock palettes, bindings, compiler binding, body neck, neck-cut overrides, then the manifest.
     A marker stands until the manifest passes, so a failed setup can be run again once its cause is fixed."""
     known = workspace.head_ids()
@@ -266,7 +334,7 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
     record, pair = reference_record.load(reference, name, design) if reference else (None, {})
     if workspace.data.get('requirePairedReferences') is True and not pair:
         raise guards.Refused('This workspace requires a reviewed clay/detail reference pair before setup')
-    quality_profile = quality_profile or workspace.data.get('headQualityProfile')
+    quality_profile = quality_profile or workspace.data.get('headQualityProfile', 'face-v1' if race == 'troll' else None)
     if quality_profile not in (None, 'face-v1'):
         raise guards.Refused('Unknown head quality profile: '+str(quality_profile))
     if quality_profile=='face-v1' and race=='troll':
@@ -277,7 +345,8 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
     features = {key.lower(): value.strip() for key, value in FEATURE.findall(prompt)}
     if record:
         features = dict(record['features'])
-    features['neck'] = 'removed by mesh.neck.cut; the body neck part forms the neck'
+    features['neck'] = ('preserve the jaw-terminated head; the body part forms the neck' if no_neck_cut else
+                        'removed by mesh.neck.cut; the body neck part forms the neck')
     for folder in ('design', 'inputs', 'review-evidence'):
         (head/folder).mkdir(parents=True, exist_ok=True)
     marker.touch()
@@ -302,8 +371,10 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
     write_json(head/'design'/'design-receipt.json', receipt)
     # Keep replacement directives until write_manifest merges this layer into defaults (RUNBOOK 245).
     overrides = face_quality_profile() if quality_profile else {}
+    if race == 'troll' and quality_profile:
+        overrides['ownership']['boneEarGuard'] = True
     overrides['inputs'] = {'bodyNeck': {'path': 'inputs/body-neck.json', 'sha256': sha(head/'inputs'/'body-neck.json')}}
-    overrides.setdefault('mesh', {})['neck'] = {'$replace': True, 'cut': {
+    overrides.setdefault('mesh', {})['neck'] = None if no_neck_cut else {'$replace': True, 'cut': {
         'height': 'measured', 'slope': slope, 'band': 0.03, 'reach': reach,
         'notes': f'Heads have no neck: plane under the lowest front feature beyond the reach, slope {slope}; stub drawn 3 mm inside the smoothed body neck over 3 cm.'}}
     if record:
@@ -335,11 +406,11 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
 
 def face_quality_profile():
     """Explicit opt-in for new heads; no existing manifest is silently migrated."""
-    return {'mesh': {'uv': {'faceDensity': 3}}, 'faceMasks': {},
+    return {'mesh': {'uv': {'faceDensity': 3, 'refinePacking': True}}, 'faceMasks': {},
             'ownership': {'featureChannels': True},
             'tone': {'faceTreatment': {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3,
                      'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0}},
-            'quality': {}, 'palette': {'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True},
+            'quality': {}, 'palette': {'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True, 'skinShadeContrast': 'auto', 'repairSkinSeams': True},
             'render': {'$replace': True, 'frontAngleDegrees': -90,
                        'sizes': [2048, 1024], 'modes': ['clay','color-only','material-lit'],
                        'mapStages': {'basecolor': 'tone'}, 'runtimePalette': True,

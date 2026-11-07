@@ -1,6 +1,6 @@
 """design_landmarks.py OUT_DIR HEAD... [--override JSON] [--no-refine]: OUT_DIR must be absolute: per-head face landmarks for the landmark fit (user 2026-10-28: per-head
 landmarks, a pupil/lip detector on the design images with reviewed overlays).
-1. Detect on the matted design (run/prepare/*/images/design-rgba.png): pupils = the best left/right pair of dark blobs
+1. Detect on the prepared diffuse pair or matted single design: pupils = the best left/right pair of dark blobs
    (difference of Gaussians on luminance) at one height in the upper face; lip seam = the darkest row on the face midline between
    0.6 and 1.6 inter-pupil distances below the eyes. --override {"HEAD": {"eyeLeft": [px, py], "eyeRight": ..., "lips": ...}}
    replaces detections (design pixels) after review.
@@ -9,21 +9,35 @@ landmarks, a pupil/lip detector on the design images with reviewed overlays).
    toolkit head-local frame (unscaled source units, the frame fit.landmarks uses). The nose tip is the most forward point
    within the midline band between the eye line and the lip seam.
 3. Review sheet per head: design with the detected marks, and the mesh front view (depth-shaded) with the mapped marks."""
-import glob, json, sys
+import json, sys
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage
 from headkit.palette import register
-from headkit.gltf import load, accessor
+from headkit.gltf import positions as indexed_positions
+from headkit.common import read, verify
 from headkit.fit import head_local
 
 HEADS = Path.cwd(); SIZE = 1536  # `run_headbatch.py review` runs in the workspace heads folder
 
 
+def stage_result(head, stage):
+    receipt = read(HEADS/head/'run/state.json')['stages'][stage]
+    verify([receipt], fresh=True)
+    data = read(receipt['path'])
+    if data.get('state') != 'complete':
+        raise ValueError(f'{head}: incomplete {stage} attempt')
+    return data['result']
+
+
 def design(head):
-    path = sorted(glob.glob(str(HEADS/head/'run/prepare/attempt-*/images/design-rgba.png')))[-1]
-    rgba = np.asarray(Image.open(path).convert('RGBA')).astype(float); return rgba[..., :3], rgba[..., 3] > 127, path
+    images = stage_result(head, 'prepare')['images']
+    image = images['detail-pair.png'] if 'detail-pair.png' in images else images['design-rgba.png']
+    verify([image], fresh=True)
+    with Image.open(image['path']) as source:
+        rgba = np.asarray(source.convert('RGBA'), dtype=np.float32)
+    return rgba[..., :3], rgba[..., 3] > 127, image['path']
 
 
 def detect(rgb, mask):
@@ -47,11 +61,18 @@ def detect(rgb, mask):
 
 
 def positions(head):
-    """Triangle centroids and unit normals of the precluster (written as explicit corners, so corners come in face order)."""
-    document, binary, primitive = load(sorted((HEADS/head/'run/precluster').glob('attempt-*/oriented.glb'))[-1].read_bytes())
-    p = accessor(document, binary, primitive['attributes']['POSITION']).astype(np.float32); del binary
-    t = p[:len(p)//3*3].reshape(-1, 3, 3); n = np.cross(t[:, 1]-t[:, 0], t[:, 2]-t[:, 0]); n /= np.linalg.norm(n, axis=1, keepdims=True)+1e-12
-    return np.c_[t.mean(1), n].astype(float)
+    """Centroids and normals in indexed face order, with bounded intermediate arrays."""
+    source = stage_result(head, 'precluster')['output']
+    verify([source], fresh=True)
+    vertices, faces = indexed_positions(source['path'])
+    result = np.empty((len(faces), 6), dtype=np.float32)
+    for start in range(0, len(faces), 131072):
+        block = slice(start, start+131072)
+        tri = vertices[faces[block]]
+        normal = np.cross(tri[:,1]-tri[:,0], tri[:,2]-tri[:,0])
+        result[block,:3] = tri.mean(axis=1)
+        result[block,3:] = normal/np.maximum(np.linalg.norm(normal,axis=1,keepdims=True),1e-12)
+    return result
 
 
 def front(p, size=SIZE):
@@ -60,7 +81,7 @@ def front(p, size=SIZE):
     x = np.clip(((xyz[:, 0]-c[0])/span*size+size/2).astype(int), 0, size-1); y = np.clip(((c[1]-xyz[:, 1])/span*size+size/2).astype(int), 0, size-1)
     pix = y*size+x; order = np.lexsort((-xyz[:, 2], pix)); first = np.r_[True, np.diff(pix[order]) != 0]; win = order[first]
     depth = np.full(size*size, -np.inf); depth[pix[win]] = xyz[win, 2]; light = np.array([-.35, .45, .82]); light /= np.linalg.norm(light)
-    shade = np.zeros(size*size); shade[pix[win]] = np.clip(np.abs(nrm[win]) @ np.abs(light)*0+np.clip(nrm[win] @ light, 0, 1), 0, 1)
+    shade = np.zeros(size*size); shade[pix[win]] = np.clip(nrm[win] @ light, 0, 1)
     m = np.isfinite(depth).reshape(size, size); m = ndimage.binary_fill_holes(ndimage.binary_closing(m, iterations=2))
     img = ((shade.reshape(size, size)*235+20)*np.isfinite(depth).reshape(size, size)).astype(np.uint8); holes = (img == 0) & m
     global LAST_SHADE; LAST_SHADE = np.where(holes, ndimage.grey_dilation(img, size=3), img).astype(np.uint8)
@@ -97,7 +118,8 @@ def refine(front_marks, depth, r=25):
 def sheet(rgb, marks, depth, fmarks, out, title):
     d = Image.fromarray(rgb.astype(np.uint8)); dd = ImageDraw.Draw(d)
     f = Image.fromarray(shaded(depth)).convert('RGB'); fd = ImageDraw.Draw(f)
-    for (name, (x, y)), (_, (u, v)) in zip(marks.items(), fmarks.items()):
+    for name, (x, y) in marks.items():
+        u, v = fmarks[name]
         col = (255, 60, 60) if name != 'lips' else (60, 200, 255)
         for draw, a, b in ((dd, x, y), (fd, u, v)): draw.ellipse((a-6, b-6, a+6, b+6), outline=col, width=2); draw.line((a-14, b, a+14, b), fill=col); draw.line((a, b-14, a, b+14), fill=col)
     out_img = Image.new('RGB', (2048, 1024+24), (0, 0, 0)); out_img.paste(d.resize((1024, 1024)), (0, 24)); out_img.paste(f.resize((1024, 1024)), (1024, 24))
@@ -117,15 +139,17 @@ if __name__ == '__main__':
         if marks is None:  # on disk at once: the old marks must not stand in for a failed refresh
             result[head] = {'error': 'no pupil pair detected'}; print(head, 'no pupil pair'); (out/'landmarks.json').write_text(json.dumps(result, indent=1)); continue
         p = positions(head); fm, depth, span, c = front(p); scale, ox, oy = register(mask, fm)
-        if 'front' in marks:  # reviewed on the mesh view: coarse marks refined on the surface, then expressed as design pixels
+        design_pixels = marks.get('design') if 'front' in marks else None
+        if 'front' in marks:  # measured on the mesh, then expressed in registered pixel coordinates for to_mesh
             refined = marks['front'] if '--no-refine' in args else refine(marks['front'], depth); marks = {k: [v[0]*scale+ox, v[1]*scale+oy] for k, v in refined.items()}
         mesh_pts, fmarks = {}, {}
         for name, pt in marks.items(): mesh_pts[name], fmarks[name] = to_mesh(pt, scale, ox, oy, p, span, c)
         local = {k: head_local(v[None])[0] for k, v in mesh_pts.items()}; P = head_local(p[:, :3])
         ez, lz = (local['eyeLeft'][2]+local['eyeRight'][2])/2, local['lips'][2]; band = (np.abs(P[:, 0]) < .02*span) & (P[:, 2] < ez) & (P[:, 2] > lz)
         local['noseTip'] = P[band][np.argmax(P[band][:, 1])]
-        result[head] = {'design': path, 'designPixels': marks, 'registration': [round(float(scale), 4), round(float(ox), 1), round(float(oy), 1)],
+        design_pixels = design_pixels or marks
+        result[head] = {'design': path, 'designPixels': design_pixels, 'meshFrontPixels': fmarks, 'registration': [round(float(scale), 4), round(float(ox), 1), round(float(oy), 1)],
                         'source': {k: [round(float(x), 5) for x in v] for k, v in local.items()}, 'overridden': head in override}
-        sheet(rgb, marks, depth, fmarks, out/f'lm-{head}.png', f'{head}: design (left) and mesh front view (right); red pupils, blue lip seam' + (' [override]' if head in override else ''))
+        sheet(rgb, design_pixels, depth, fmarks, out/f'lm-{head}.png', f'{head}: design (left) and mesh front view (right); red pupils, blue lip seam' + (' [override]' if head in override else ''))
         print(head, 'ok', {k: [round(v[0]), round(v[1])] for k, v in marks.items()}, flush=True)
         (out/'landmarks.json').write_text(json.dumps(result, indent=1))

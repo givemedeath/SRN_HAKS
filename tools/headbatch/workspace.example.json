@@ -9,10 +9,11 @@
   "palettes": "references/palettes",
   "fitReferences": "references/heads",
   "fitReferenceOverrides": {"pmg0": "references/troll/pmg0_head014.mdl", "pfg0": "references/troll/pfg0_head092.mdl"},
+  "bodySkinReferences": {"troll-male": "references/body-skin/pmg0_neck001.plt", "troll-female": "references/body-skin/pfg0_neck001.plt"},
   "bodyNecks": "references/body-necks",
   "landmarks": "references/landmarks.json",
   "designReferences": {"troll": {"male": "references/troll/troll_male_large.png", "female": "references/troll/troll_female_large.png"}},
-  "comfy": {"url": "http://127.0.0.1:8190", "root": "comfy"},
+  "comfy": {"url": "http://127.0.0.1:8190", "root": "comfy", "memoryLimitBytes": 12000000000, "minimumFreeRAMGiB": 2, "minimumStartRAMGiB": 14, "multiviewGeometryStartRAMGiB": 22},
   "game": {"root": "<NWN:EE install folder>", "client": "<NWN:EE install folder>/bin/win32/nwmain.exe"},
   "clientSettings": "references/settings.tml",
   "trialBase": {

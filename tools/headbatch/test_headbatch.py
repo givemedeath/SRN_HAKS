@@ -60,6 +60,66 @@ class Base(unittest.TestCase):
         write(head/'run'/stage/f'attempt-{number:02d}'/'receipt.json', data)
 
 
+class MultiviewAdmissionTests(Base):
+    def test_profile_horns(self):
+        from PIL import Image
+        from headkit.common import pin
+        head = self.head()
+        path = head/'review-evidence'/'cardinal-horns.json'
+        roles = ('detail','geometry')
+        images = {}
+        for role in roles:
+            for view in ('Front','Left','Right'):
+                img = head/(role+view+'.png')
+                Image.new('RGB',(704,704)).save(img)
+                images[role+view] = pin(img)
+        measurements = {'frontTips':[[171,100],[538,101]],'left':{'nearTip':[306,97],'farTip':None},
+                        'right':{'nearTip':[396,94],'farTip':[402,94]}}
+        review = {'images':images, **{role:measurements for role in roles}}
+        write(path,review)
+        contract = launcher.gpu_contract
+        self.assertEqual(contract.cardinal_horn_pins(head,{'images':images}),[pin(path)])
+        measurements['left']['farTip'] = [223,97]
+        write(path,review)
+        with self.assertRaisesRegex(Exception,'separated profile horns'):
+            contract.cardinal_horn_pins(head,{'images':images})
+        measurements['left']['farTip'] = None
+        measurements['right']['farTip'] = [469,94]
+        write(path,review)
+        with self.assertRaisesRegex(Exception,'separated profile horns'):
+            contract.cardinal_horn_pins(head,{'images':images})
+
+    def test_saved_shape_prepare_replay(self):
+        from headkit.common import pin
+        head = self.head()
+        def snapshot(attempt, changed=False):
+            folder = head/'run'/'prepare'/attempt
+            views = {}
+            images = {}
+            for view in ('Front','Left','Back','Right'):
+                rows = {}
+                for role in ('geometry','detail'):
+                    name = role+'-pair.png'
+                    key = role+view
+                    img = pin(write(folder/'images'/view.lower()/name, key+str(changed and key=='detailLeft')))
+                    rows[name] = images[key] = img
+                views[view.lower()] = {'images':rows}
+            receipt = {'stage':'prepare','state':'complete','manifestHash':'m','bindingsHash':'b',
+                       'runtimeIdentity':'r','outputs':list(images.values()),'result':{'views':views,
+                       'rigFovDegrees':20,'independentCropping':False}}
+            return {'receipt':pin(write(folder/'receipt.json',receipt)), 'images':images}
+        contract = launcher.gpu_contract
+        original = snapshot('attempt-01')
+        old = {'mode':'multiview','sharedFov':20,'fov':{'geometry':20,'detail':20},'prepared':original}
+        current = snapshot('attempt-02')
+        self.assertEqual(len(contract.identical_multiview_prepares(head,old,current)),18)
+        with self.assertRaisesRegex(Exception,'byte-identical'):
+            contract.identical_multiview_prepares(head,old,snapshot('attempt-03',True))
+        with self.assertRaisesRegex(Exception,'another head'):
+            contract.identical_multiview_prepares(head.parent/'other',old,current)
+
+
+
 class Portable(unittest.TestCase):
     def test_no_machine_paths_in_the_package(self):
         for path in HERE.rglob('*'):
@@ -71,6 +131,54 @@ class Portable(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec('numpy') and importlib.util.find_spec('scipy'),
                      'Fresh-master geometry test requires the bound headkit packages')
 class CutDryTests(Base):
+    def test_uncut_jaw_uses_lowest_triangle_at_neck_centre(self):
+        import numpy as np
+        from unittest import mock
+        with mock.patch.object(sys, 'path', [str(HERE/'review'), str(HERE.parent), *sys.path]):
+            from _frame import jaw_underside_at
+        tri = np.array([[0.,0.,0.], [2.,0.,.2], [0.,2.,.4]])
+        vertices = np.vstack([tri, tri + [0,0,1], tri + [4,0,-2]])
+        faces = np.array([[2,1,0],[3,4,5],[6,7,8],[0,0,0]])
+        self.assertAlmostEqual(jaw_underside_at(vertices, faces, [.5,.5]), .15)
+        with self.assertRaisesRegex(ValueError,'misses the fitted head'):
+            jaw_underside_at(vertices, faces, [2.,2.])
+
+    def test_cut_proof_is_bound_to_master_audit_and_stops_before_reduction(self):
+        import numpy as np
+        mock = unittest.mock
+        with mock.patch.object(sys, 'path', [str(HERE/'review'), str(HERE.parent), *sys.path]):
+            import cutdry
+            from headkit.common import pin, read, verify
+            from headkit.gltf import write_mesh
+        head = self.head()
+        write(head/'bindings.json', {})
+        body = write(head/'body.json', {})
+        vertices = np.array([[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [0.,0.,1.]])
+        faces = np.array([[0,2,1], [0,1,3], [0,3,2], [1,2,3]])
+        self.receipt(head, 'fit', 1, {})
+        self.receipt(head, 'precluster', 1, {})
+        stages = {s:pin(head/'run'/s/'attempt-01/receipt.json') for s in ('fit','precluster')}
+        runner = mock.Mock(state={'stages':stages})
+        runner.input.return_value = body
+
+        def run_to_master(stage, folder):
+            write_mesh(folder/'master-uncut.glb', vertices, faces)
+            v, f, _ = cutdry.N.neck_cut(vertices,faces,None,None)
+            write_mesh(folder/'master.glb', v, f)
+            cutdry.N.audit(folder/'master.glb')
+            self.fail('The diagnostic continued past the master audit')
+
+        runner._execute.side_effect = run_to_master
+        cut_result = (vertices, faces, {'closure':'fan','loops':1})
+        neck = {'frame':np.eye(4)}
+        with mock.patch.object(cutdry,'Runner',return_value=runner), mock.patch.object(cutdry.N,'neck_cut',return_value=cut_result):
+            cutdry.verified_cut_positions(head, neck, 'proof')
+        evidence = read(head/'review-evidence/proof/cut-evidence.json')
+        self.assertTrue(read(evidence['audit']['path'])['passed'])
+        self.assertEqual(evidence['fit'], stages['fit'])
+        verify([evidence['uncut'],evidence['master'],*evidence['inputs']],fresh=True)
+        self.assertFalse((head/'run/repair').exists())
+
     def test_fresh_head_stops_before_cut_without_creating_a_repair_attempt(self):
         import numpy as np
         mock = unittest.mock
@@ -106,6 +214,17 @@ class CutDryTests(Base):
 
 
 class BoundedDesignOverrideTests(Base):
+    def test_external_conditioning_and_local_design_share_the_cap(self):
+        folder = self.root/'design'
+        head = 'troll-male-a'
+        for number in (1, 2):
+            write(folder/'external-attempts'/head/f'{number:03}.json', {'attempt': number})
+        write(folder/'external-attempts'/'troll-male-b'/'001.json', {'attempt': 1})
+        guards.design_cap(folder, head)
+        (folder/'launches'/f'launch-fixture-{head}-s7').mkdir(parents=True)
+        with self.assertRaisesRegex(guards.Refused, '3 designs reached'):
+            guards.design_cap(folder, head)
+
     def test_one_additional_design_stops_at_its_authorized_count(self):
         head = 'elf-male-a'
         folder = self.root/'design'
@@ -123,6 +242,28 @@ class BoundedDesignOverrideTests(Base):
 
 
 class VramPromptOwnershipTests(Base):
+    def test_host_supervised_gpu_reserves_all_local_cpu_lanes(self):
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from launcher import gpu_host_lease, locked
+        ws = SimpleNamespace(data={'comfy': {'minimumFreeRAMGiB': 2}}, locks=self.root,
+                             ram_gates=Mock(return_value={1:6,2:8,3:10,4:13,5:16,6:16}))
+        with gpu_host_lease(ws):
+            for lane in range(1, 7):
+                with self.assertRaises(FileExistsError), locked(self.root/f'cpu-{lane}'):
+                    pass
+        with locked(self.root/'cpu-6'):
+            pass
+        ws.data['comfy'] = {}
+        with gpu_host_lease(ws), locked(self.root/'cpu-1'):
+            pass
+
+    def test_face_quality_profile_uses_refined_unwrap(self):
+        from head_setup import face_quality_profile
+        uv = face_quality_profile()['mesh']['uv']
+        self.assertEqual(uv['faceDensity'], 3)
+        self.assertIs(uv['refinePacking'], True)
+
     def test_only_exact_candidate_in_its_workspace_can_be_interrupted(self):
         sys.path.insert(0, str(HERE/'compat'))
         from run_design_with_vram_limit import design_prompts
@@ -231,8 +372,12 @@ class Guards(Base):
         with self.assertRaisesRegex(guards.Refused, 'limit 2'):
             guards.loop_budget(head, ['ownership'])
         guards.loop_budget(head, ['ownership'], {'ownership': 3})
-        write(head/'budget-override-ownership')
+        write(head/'budget-override-ownership', {'head':head.name,'stage':'ownership',
+              'maximumAttempts':3,'approval':'one additional correction'})
         guards.loop_budget(head, ['ownership'])
+        (head/'run/ownership/attempt-03').mkdir()
+        with self.assertRaises(guards.Refused):
+            guards.loop_budget(head, ['ownership'])
 
     def test_geometry_cap(self):
         head = self.head()
@@ -240,6 +385,18 @@ class Guards(Base):
         write(head/'gpu/gpu.json', {'geometrySubmissions': 5})
         with self.assertRaisesRegex(guards.Refused, 'stop and ask'):
             guards.geometry_cap(head)
+
+    def test_geometry_extension_stops_at_exactly_one_extra(self):
+        head = self.head()
+        write(head/'gpu/gpu.json', {'geometrySubmissions':5})
+        write(head/'geometry-cap-override', {'head':head.name, 'maximumSubmissions':6, 'approval':'one more'})
+        guards.geometry_cap(head)
+        ledger = {'geometrySubmissions':5}
+        gpu_job.spend_geometry_submission(head, head/'gpu', ledger)
+        with self.assertRaisesRegex(guards.Refused, '6 geometry submissions'):
+            guards.geometry_cap(head)
+        with self.assertRaisesRegex(SystemExit, '6 geometry submissions'):
+            gpu_job.spend_geometry_submission(head, head/'gpu', ledger)
 
     def test_a_ledger_older_than_its_counter_still_meets_the_cap(self):
         head = self.head()
@@ -306,6 +463,14 @@ class Guards(Base):
             launcher.run_stages(self.workspace, 'n', 'export', ['elf-male-a'])
         slot.assert_not_called()
 
+    def test_jaw_guard_uses_yawed_source_landmarks_with_a_pitched_fit(self):
+        head = self.head()
+        manifest = guards.read(head/'manifest.json')
+        manifest['fit']['matrix'][2] = [0., .2, .9, .01]
+        write(head/'manifest.json', manifest)
+        marks = {head.name: {'source': {'eyeLeft': [-.03,.2,.1], 'eyeRight': [.03,.2,.1], 'lips': [0,.3,.06]}}}
+        self.assertAlmostEqual(guards.jaw_limit(head, marks), .004 - .5*(.06-.004))
+
     def test_jaw_guard(self):
         head = self.head()
         marks = {head.name: {'source': {'eyeLeft': [0, 0, .1], 'eyeRight': [0, 0, .1], 'lips': [0, 0, .06]}}}
@@ -334,11 +499,12 @@ class GpuJob(Base):
         def __init__(self, failures):
             self.failures = failures
 
-        def run(self, graph, out, before_submit):
+        def run(self, graph, out, before_submit, *, retry_oom=True):
             before_submit()
             if self.failures:
                 self.failures -= 1
-                before_submit()
+                if retry_oom:
+                    before_submit()
                 raise SystemExit(f'{out.name} failed: out of memory')
             return {}, GpuJob.GEOMETRY, 1
 
@@ -350,6 +516,26 @@ class GpuJob(Base):
         from headkit.common import pin
         conditioning=pin(write(self.root/'normalized.png','fixture conditioning'))
         return {'geometrySubmissions': submissions, 'stages': {'calibrate': {'fov': {'detail': 30.0},'sharedFov':30.0,'prepared':{'fixture':'verified'},'conditioning':{'geometry':conditioning,'detail':conditioning}}, 'appearance': {'files': {}}}}
+
+    def test_shape_grid_changes_only_the_upsample_resolution(self):
+        head, ledger = self.head(), self.ledger()
+        baseline = gpu_job.geometry_graph(head, ledger, 'headkit/test/geometry', 0)
+        compact = gpu_job.geometry_graph(head, ledger, 'headkit/test/geometry', 0, 1024)
+        self.assertEqual(baseline['94']['inputs']['target_resolution'], 1536)
+        self.assertEqual(compact['94']['inputs']['target_resolution'], 1024)
+        baseline['94']['inputs']['target_resolution'] = 1024
+        self.assertEqual(compact, baseline)
+
+    def test_single_submission_retains_an_oom_without_retry_or_reseed(self):
+        head, ledger = self.head(), self.ledger(3)
+        status = {'completed': False, 'status_str': 'error', 'messages': ['out of memory']}
+        server = self.Server(self.root, polls=[{'p1': {'status': status, 'outputs': {}}}])
+        with self.assertRaisesRegex(SystemExit, 'out of memory'):
+            gpu_job.geometry(server, head, head/'gpu', ledger, 'headkit/test/geometry', 0,
+                             shape_grid=1024, single_submission=True)
+        self.assertEqual(server.calls.count('/prompt'), 1)
+        self.assertEqual(ledger['geometrySubmissions'], 4)
+        self.assertTrue((head/'gpu/geometry/history.json').is_file())
 
     def test_every_submission_counts_and_is_saved(self):
         head = self.head()
@@ -908,6 +1094,17 @@ class Setup(Base):
         path = head_setup.set_up(Workspace.load(self.root), 'elf-male-a', design, approval='t', check=lambda *_: None)
         self.assertFalse((path.parent/head_setup.SETUP_MARKER).exists())
 
+    def test_no_neck_cut_preserves_body_reference_and_survives_presets(self):
+        design = self.prepare()
+        head = self.workspace.head('elf-male-a')
+        head_setup.set_up(self.workspace, head.name, design, approval='test', no_neck_cut=True, check=lambda *_: None)
+        manifest = guards.read(head/'manifest.json')
+        self.assertNotIn('neck', manifest['mesh'])
+        self.assertIn('bodyNeck', manifest['inputs'])
+        planned, _, hold, _ = presets.plan(self.workspace, head.name)
+        self.assertIsNone(planned['mesh']['neck'])
+        self.assertFalse(hold)
+
     def test_components_count_the_extra_shells_not_the_table(self):
         design = self.prepare()
         head_setup.set_up(self.workspace, 'elf-male-a', design, approval='t', check=lambda *_: None)
@@ -916,6 +1113,12 @@ class Setup(Base):
         self.assertEqual(head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None), (7, .0011))
         components = guards.read(head/'manifest.json')['mesh']['components']
         self.assertEqual(components['expectedDeleted'], 7)
+        self.assertNotIn('interiorOnly', components)
+        write(head/'review-evidence/shells.json', {'count': 2, 'extra': [{'insideFraction': 1.0}], 'deletedAreaFraction': .00008})
+        head_setup.set_components(self.workspace, head.name, 'inside', lambda *_: None)
+        self.assertTrue(guards.read(head/'manifest.json')['mesh']['components']['interiorOnly'])
+        write(head/'review-evidence/shells.json', {'count': 1, 'extra': [], 'deletedAreaFraction': 0})
+        self.assertEqual(head_setup.set_components(self.workspace, head.name, 'one shell', lambda *_: None), (0, .0001))
         write(head/'review-evidence/shells.json', {'count': 7, 'extra': [{}]*7, 'deletedAreaFraction': .001})
         with self.assertRaisesRegex(guards.Refused, 'counts 7'):
             head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None)
@@ -923,10 +1126,15 @@ class Setup(Base):
     def test_ownership_replaces_the_rule_set(self):
         design = self.prepare()
         head_setup.set_up(self.workspace, 'elf-male-a', design, approval='t', check=lambda *_: None)
+        settings = self.workspace.head('elf-male-a')/'overrides.json'
+        overrides = guards.read(settings)
+        overrides['ownership'] = {'featureChannels':True, 'boneEarGuard':True, 'hairMaskRequiresRule':True}
+        write(settings, overrides)
         rules = write(self.root/'rules.json', {'regions': {'hair': {}}, 'rules': [{'channel': 1}], 'notes': 'n'})
         path = head_setup.set_ownership(self.workspace, 'elf-male-a', rules, lambda *_: None)
         data = guards.read(path)['ownership']
         self.assertEqual((data['mode'], data['rules']), ('rules', [{'channel': 1}]))
+        self.assertTrue(data['featureChannels'] and data['boneEarGuard'] and data['hairMaskRequiresRule'])
         self.assertNotIn('$replace', data)
 
     def test_route_declarations_name_their_gate(self):
@@ -1200,6 +1408,17 @@ class Review(Base):
     def test_status_lists_a_head_that_has_never_launched(self):
         self.head()
         self.assertEqual(launcher.status(self.workspace), ['elf-male-a | no stage yet'])
+
+    def test_rejected_geometry_sheet_and_status_name_the_failed_submission(self):
+        import gpu_contract
+        head = self.head()
+        row = {'submission': 2, 'occiput': {'open': True}}
+        ledger = {'geometrySubmissions': 2, 'stages': {}, 'rejectedGeometry': [row]}
+        write(head/'gpu/gpu.json', ledger)
+        self.assertEqual(gpu_contract.evidence_geometry(ledger, 'geometry-0002'), row)
+        with self.assertRaisesRegex(ValueError, 'rejected'):
+            gpu_contract.evidence_geometry(ledger, 'geometry-0001')
+        self.assertIn('geometry-0002 | REJECTED', launcher.status(self.workspace)[0])
 
     def test_status_names_a_head_waiting_on_review(self):
         head = self.head()
@@ -1500,6 +1719,59 @@ class SpoolTests(Base):
         self.finish(stage='ownership')
         self.assertEqual(self.queued[-1][:3], ('ownsheet', 'elf-male-a', 'attempt-01'))
 
+    def test_fit_compares_named_attempt_to_bound_reference_before_repair(self):
+        head = self.head()
+        self.receipt(head, 'fit', 1, {'result': {}})
+        self.finish(stage='fit')
+        self.assertEqual(self.queued[-1], ('fitcheck', '--reference', head.name, 'attempt-01',
+                         self.workspace.spool/'sheets'/f'{head.name}-fit-attempt-01-reference.png'))
+        self.assertFalse(self.started)
+
+    def test_repair_without_a_cut_compares_master_to_final(self):
+        head=self.head()
+        self.receipt(head, 'repair', 1, {'result': {}})
+        self.finish(stage='repair')
+        self.assertTrue(any('before reduction=' in str(arg) and 'master.glb' in str(arg) for arg in self.queued[-1]))
+        self.assertFalse(any('master-uncut' in str(arg) for arg in self.queued[-1]))
+
+    def test_staged_repair_compares_saved_normals_for_the_named_attempt(self):
+        head = self.head()
+        self.receipt(head, 'repair', 2, {'dependencies': {'fit': {'path': 'pinned'}}, 'result': {}})
+        self.finish(stage='repair')
+        sheet = self.workspace.spool/'sheets'/f'{head.name}-repair-attempt-02-normals.png'
+        self.assertEqual(self.queued, [('repairclay', head.name, 'attempt-02', sheet)])
+        self.assertFalse(self.started)
+
+    def test_direct_fit_approval_retires_only_its_own_verified_notice(self):
+        from head_files import sha
+        head = self.head()
+        receipt = write(head/'run/fit/attempt-01/receipt.json', {'state': 'complete'})
+        bound = {'path': str(receipt), 'sha256': sha(receipt)}
+        review = write(head/'run/reviews/fit-selected.json', {'stageReceipt': bound, 'decision': 'approved'})
+        write(head/'run/state.json', {'stages': {'fit': bound},
+              'reviews': {'fit': {'path': str(review), 'sha256': sha(review)}}})
+        self.spool.review(head.name, 'fit', 'attempt-02: ran')
+        self.spool.reconcile_direct_reviews()
+        self.assertIn(head.name+'/fit', self.spool.state['review'])
+        self.spool.review(head.name, 'fit', 'attempt-01: ran')
+        self.spool.review(head.name, 'palette', 'attempt-01: review rows')
+        self.spool.reconcile_direct_reviews()
+        self.assertNotIn(head.name+'/fit', self.spool.state['review'])
+        self.assertIn(head.name+'/palette', self.spool.state['review'])
+        review.write_bytes(review.read_bytes()+b' ')
+        self.spool.review(head.name, 'fit', 'attempt-01: ran')
+        self.spool.reconcile_direct_reviews()
+        self.assertIn(head.name+'/fit', self.spool.state['review'])
+        self.assertEqual(self.started, [])
+
+    def test_precluster_queues_the_sheet_for_the_completed_attempt(self):
+        head = self.head()
+        self.receipt(head, 'precluster', 1, {'result': {}})
+        self.finish(stage='precluster')
+        self.assertEqual(self.queued[-1], ('gpuclay', head.name, '--precluster', 'attempt-01',
+                         self.workspace.spool/'sheets'/f'{head.name}-precluster-attempt-01.png'))
+        self.assertFalse(self.started)
+
     def test_palette_draws_the_row_ramps(self):
         head = self.head()
         self.receipt(head, 'palette', 1, {'result': {'rows': {'0': 7}}})
@@ -1730,15 +2002,91 @@ class ConditioningContracts(Base):
         self.assertEqual(head_setup.sha(manifest.parent/'design/reference-record.json'),head_setup.sha(record))
         self.assertNotIn('faceMasks',guards.read(manifest))
 
+    def test_revised_clay_preserves_source_and_ledger_and_needs_exact_check(self):
+        from PIL import Image, ImageDraw
+        import reference_record
+        from headkit.common import pin
+        fixture = Setup(methodName='test_set_up_writes_a_complete_head')
+        fixture.root, fixture.workspace = self.root, self.workspace
+        fixture.prepare()
+        name = 'elf-male-a'
+        image, original = self.record()
+        record = guards.read(original)
+        def clay(label, color):
+            path = self.root/(label+'.png')
+            canvas = Image.new('RGBA', (64, 64))
+            ImageDraw.Draw(canvas).ellipse((12, 10, 51, 55), fill=color)
+            canvas.save(path)
+            return pin(path)
+        alignment = {'landmarks': [{'name': str(i), 'clay': xy, 'detail': xy}
+                      for i, xy in enumerate([[.3,.3], [.6,.3], [.4,.6]])]}
+        old = clay('original-clay', 'gray')
+        record['conditioning'] = {'clay': old, 'detail': clay('detail', 'brown'), 'alignment': alignment}
+        write(original, record)
+        head = head_setup.set_up(self.workspace, name, image, approval='original', reference=original, check=lambda *_:None).parent
+        ledger = write(head/'gpu/gpu.json', {'stages': {}, 'geometrySubmissions': 2})
+        before = pin(ledger)
+        record['conditioning']['clay'] = clay('revised-clay', 'silver')
+        new = write(self.root/'revised.json', record)
+        reference_record.check(new, name, self.root/'measured')
+        checked = self.root/'measured/reference-check.json'
+        def select():
+            head_setup.revise_clay(self.workspace, name, image, new, checked, 'select this revision', check=lambda *_:None)
+        select()
+        select()
+        active = guards.read(head/'manifest.json')['inputs']
+        self.assertEqual(head_setup.sha(head/active['clay']['path']), record['conditioning']['clay']['sha256'])
+        self.assertEqual(head_setup.sha(head/'inputs/clay.png'), old['sha256'])
+        self.assertEqual(pin(ledger), before)
+        candidate = pin(head/'manifest.json')
+        with new.open('a',encoding='utf-8') as output:
+            output.write(' ')
+        with self.assertRaisesRegex(guards.Refused, 'exact revised pair'):
+            select()
+        self.assertEqual(pin(head/'manifest.json'), candidate)
+
     def test_face_profile_is_complete_and_feature_channels_get_tones(self):
         profile=head_setup.face_quality_profile()
         self.assertEqual(profile['mesh']['uv']['faceDensity'],3)
+        self.assertEqual(profile['palette']['skinShadeContrast'],'auto')
         self.assertEqual(set(('faceMasks','quality'))-set(profile),set())
         data={'ownership':profile['ownership'],'palette':{'rows':{'1':'auto','8':'auto'}}}
         head_setup.tone_every_channel(data,'troll','female','fixture')
         self.assertEqual(set(data['palette']['toneMatch']),{'0','1','8'})
         self.assertEqual(data['palette']['rows'],{'1':'auto','8':'auto'})
         self.assertTrue(profile['render']['runtimePalette'])
+
+    def test_multiview_stages_exact_roles_without_a_camera_job_and_reuses_saved_shape(self):
+        from headkit.common import pin
+        from PIL import Image
+        head = self.head()
+        stage_input = self.root/'staging'
+        stage_input.mkdir()
+        source = self.root/'view.png'
+        im = Image.new('RGBA', (8,8), (240,4,180,0))
+        im.putpixel((3,3), (50,60,70,255))
+        im.save(source)
+        keys = [role+v for role in ('geometry','detail') for v in gpu_job.MULTIVIEW_VIEWS]
+        prepared = write(self.root/'prepared.json', {'profile':'pixal-multiview-v1', 'pins':[], 'attempt':'attempt-02',
+                         'receipt':pin(source), 'images':{key:pin(source) for key in keys}})
+        server = unittest.mock.Mock()
+        calibrated = gpu_job.calibrate(server, head, head/'gpu', {}, stage_input, 'unused', prepared=prepared)
+        server.run.assert_not_called()
+        ledger = {'stages':{'calibrate':calibrated}}
+        with Image.open(calibrated['conditioning']['geometryBack']['path']) as staged:
+            self.assertEqual(staged.mode, 'RGB')
+            self.assertEqual(staged.getpixel((0,0)), (0,0,0))
+            self.assertEqual(staged.getpixel((3,3)), (50,60,70))
+        for stage, nodes, role in [('geometry', ('364','377','378','379'), 'geometry'),
+                                   ('appearance', ('1001','1002','1003','1004'), 'detail')]:
+            graph = gpu_job.conditioned_graph(head, ledger, stage, 'headkit/fixture/run', pin(source) if stage=='appearance' else None)
+            for node, view in zip(nodes, gpu_job.MULTIVIEW_VIEWS):
+                self.assertEqual(Path(graph[node]['inputs']['image']).name, Path(calibrated['conditioning'][role+view]['path']).name)
+            self.assertIn('Pixal3DMultiViewConditioning', {v['class_type'] for v in graph.values()})
+        self.assertEqual(gpu_job.geometry_graph(head, ledger, 'headkit/fixture/run', 0, 1024)['94']['inputs']['target_resolution'], 1024)
+        write(Path(calibrated['conditioning']['geometryBack']['path']), 'changed')
+        with self.assertRaisesRegex(ValueError, 'Stale'):
+            gpu_job.geometry_graph(head, ledger, 'headkit/fixture/run', 0)
 
     def test_paired_calibration_preserves_geometry_and_detail_outputs(self):
         from PIL import Image
@@ -1766,13 +2114,28 @@ class ConditioningContracts(Base):
         with self.assertRaisesRegex(ValueError,'Stale'):
             gpu_job.conditioning_image(ledger,head,'geometry')
 
+    def test_multiview_start_floor_applies_to_geometry_only(self):
+        config = dict(memoryLimitBytes=100, minimumFreeRAMGiB=2, minimumStartRAMGiB=14,
+                      multiviewGeometryStartRAMGiB=22)
+        for profile, stages, floor in [('pixal-multiview-v1', ['geometry'], 22),
+                                        ('pixal-multiview-v1', ['appearance'], 14),
+                                        ('pixal-single-v1', ['geometry'], 14)]:
+            result = launcher.gpu_memory_limits(config, profile, stages)
+            self.assertEqual(result['minimumStartRAMGiB'], floor)
+            self.assertEqual(result['minimumFreeRAMGiB'], 2)
+            self.assertEqual(result['memoryLimitBytes'], 100)
+
     def test_resource_samples_fail_closed_and_keep_breach(self):
         from resource_budget import Budget,BudgetExceeded
-        values=iter([(11_000_000_000,8),(12_000_000_001,8),(1,8)])
+        values=iter([(11_000_000_000,16),(12_000_000_001,8),(1,8)])
         budget=Budget({'memoryLimitBytes':12_000_000_000,'minimumFreeRAMGiB':2},self.root/'budget.json',lambda _:next(values))
         budget.sample();budget.check();budget.sample();budget.sample()
         with self.assertRaisesRegex(BudgetExceeded,'VRAM'):budget.check()
-        budget.close();self.assertEqual(guards.read(self.root/'budget.json')['samples'],3)
+        budget.close()
+        receipt = guards.read(self.root/'budget.json')
+        self.assertEqual(receipt['samples'], 3)
+        self.assertEqual(receipt['initialSample'], {'deviceBytes': 11_000_000_000, 'availableRAMGiB': 16})
+        self.assertEqual(receipt['minimumAvailableRAMGiB'], 8)
         bad=Budget({'memoryLimitBytes':12_000_000_000},self.root/'bad.json',lambda _:(_ for _ in ()).throw(OSError('offline')))
         bad.sample()
         with self.assertRaisesRegex(BudgetExceeded,'failed'):bad.check()
@@ -1794,6 +2157,16 @@ class ConditioningContracts(Base):
             comfy.wait('owned')
         comfy.send.assert_called_once_with('/interrupt',{'prompt_id':'owned'},timeout=2)
         self.assertFalse(comfy.unresolved.exists())
+
+    def test_dispatch_headroom_is_separate_from_running_floor(self):
+        from resource_budget import Budget,BudgetExceeded
+        values=iter([(10,9),(10,15),(10,4)])
+        budget=Budget({'memoryLimitBytes':100,'minimumStartRAMGiB':14,'minimumFreeRAMGiB':2},
+                      self.root/'admission.json',lambda _:next(values))
+        budget.sample()
+        with self.assertRaisesRegex(BudgetExceeded,'dispatch needs'):budget.admit_prompt()
+        budget.sample();budget.admit_prompt()
+        budget.sample();budget.check()
 
     def test_ram_floor_and_sampler_staleness(self):
         from resource_budget import Budget,BudgetExceeded
@@ -1852,7 +2225,69 @@ class DeliveryAndRetryContracts(Base):
         write(head/'run/state.json',{'stages':{'render':bound},'reviews':{'render':{'path':str(review),'sha256':sha(review)}}})
         self.assertIn('WAITING ON CLIENT TRIAL',launcher.status(self.workspace)[0])
 
+class FitLandmarkEvidence(Base):
+    def test_paired_prepare_and_indexed_triangles_are_read_from_the_bound_attempts(self):
+        import numpy as np
+        from PIL import Image
+        from headkit.common import pin
+        from headkit.gltf import encode, load, write_mesh
+        from review import design_landmarks as diagnostic
+
+        head = self.head()
+        prepare = head/'run/prepare/attempt-01'
+        cluster = head/'run/precluster/attempt-01'
+        prepare.mkdir(parents=True)
+        cluster.mkdir(parents=True)
+        diffuse = prepare/'detail-pair.png'
+        Image.new('RGBA', (2,2), (15,40,80,255)).save(diffuse)
+        source = cluster/'oriented.glb'
+        vertices = np.array([[0,0,0], [1,0,0], [0,1,0]], dtype=np.float32)
+        write_mesh(source, vertices, np.array([[0,1,2]]))
+        # Store the opposite winding in the GLB index buffer without reordering POSITION.
+        doc, blob, primitive = load(source.read_bytes())
+        view = doc['bufferViews'][doc['accessors'][primitive['indices']]['bufferView']]
+        offset = view['byteOffset']
+        packed = bytearray(blob)
+        packed[offset:offset+12] = np.array([0,2,1], dtype='<u4').tobytes()
+        source.write_bytes(encode(doc, packed))
+        self.receipt(head, 'prepare', 1, {'state':'complete','result':{'images':{'detail-pair.png':pin(diffuse)}}})
+        self.receipt(head, 'precluster', 1, {'state':'complete','result':{'output':pin(source)}})
+        self.receipt(head, 'precluster', 2, {'state':'failed'})
+        write(head/'run/state.json', {'stages':{'prepare':pin(prepare/'receipt.json'), 'precluster':pin(cluster/'receipt.json')}})
+        with unittest.mock.patch.object(diagnostic, 'HEADS', head.parent):
+            rgb, mask, path = diagnostic.design(head.name)
+            self.assertEqual(Path(path), diffuse)
+            self.assertTrue(mask.all())
+            np.testing.assert_array_equal(rgb[0,0], [15,40,80])
+            np.testing.assert_allclose(diagnostic.positions(head.name), [[1/3,1/3,0,0,0,-1]], atol=1e-6)
+
+
 class TextureSheetContract(Base):
+    def test_eye_pair_keeps_both_halves_in_the_same_camera(self):
+        from PIL import Image
+        import numpy as np
+        from review.texturesheet import eye_pair
+        im = Image.new('RGB', (200, 100), 'black')
+        im.putpixel((38, 40), (255, 0, 0))
+        im.putpixel((138, 40), (0, 255, 0))
+        overlay = self.root/'mask-pair.png'
+        im.save(overlay)
+        pts = np.zeros((478, 2))
+        pts[[33, 263]] = [[30, 40], [70, 40]]
+        landmarks = self.root/'landmarks.npy'
+        np.save(landmarks, pts)
+        pair = np.asarray(eye_pair(overlay, landmarks))
+        half = pair.shape[1]//2
+        np.testing.assert_array_equal(pair[:, :half, 0], pair[:, half:, 1])
+        self.assertEqual(int(pair[:, :half, 0].sum()), 255)
+
+    def test_projected_iris_count_reports_a_missing_eye(self):
+        import numpy as np
+        from review.texturesheet import projected_iris_pixels
+        coverage = np.array([[.0,.8,.01,.1],[.0,.7,.0,.1]])
+        circles = {'R': ([3,1], 1), 'L': ([1,1], 1)}
+        self.assertEqual(projected_iris_pixels(coverage, circles), {'R': 0, 'L': 2})
+
     def test_sheet_binds_exact_attempt_and_refuses_drift(self):
         from PIL import Image
         from review.texturesheet import draw

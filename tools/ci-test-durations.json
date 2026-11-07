@@ -1,8 +1,9 @@
 {
- "source": "Local Windows serial run of the full helper suite (tools/test_impact.py --run --jobs 1, 2026-10-25, main 769673e7); seconds per test module, summed from unittest --durations 0. New wave modules: focused Windows serial run, 2026-11-03, summed unittest durations; existing module measurements retained. tools/headbatch/test_headbatch.py: focused Windows run, 2026-11-04. Four head conditioning/process/capture modules: focused Windows serial run, 2026-11-05, summed unittest durations.",
+ "source": "Local Windows serial run of the full helper suite (tools/test_impact.py --run --jobs 1, 2026-10-25, main 769673e7); seconds per test module, summed from unittest --durations 0. New wave modules: focused Windows serial run, 2026-11-03, summed unittest durations; existing module measurements retained. tools/headbatch/test_headbatch.py: focused Windows run, 2026-11-04. Four head conditioning/process/capture modules: focused Windows serial run, 2026-11-05, summed unittest durations. Skin seam and isolated trial settings modules measured on Windows, 2026-11-06.",
  "seconds": {
   "tools/headbatch/test_headbatch.py": 0.9,
   "tools/headbatch/test_process_contracts.py": 0.471,
+  "tools/headbatch/test_trial_settings.py": 0.022,
   "tools/headkit/test_comfy_runtime_snapshot.py": 129.03,
   "tools/headkit/test_comfy_transport.py": 0.002,
   "tools/headkit/test_conditioning.py": 1.479,
@@ -14,6 +15,7 @@
   "tools/headkit/test_native_reader.py": 0.005,
   "tools/headkit/test_process_quality.py": 1.768,
   "tools/headkit/test_reference_background.py": 0.18,
+  "tools/headkit/test_skin_seams.py": 0.001,
   "tools/headkit/test_verification_performance.py": 0.51,
   "tools/headkit/test_verified_startup.py": 16.83,
   "tools/heads/test_atlas_allowance.py": 0.16,

@@ -117,7 +117,7 @@ def asset(manifest_path, item):
 def manifest(path):
     data = read(path)
     allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'matte', 'camera', 'mesh',
-               'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile', 'faceMasks', 'quality'}
+               'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile', 'faceMasks', 'quality', 'nativeSizing'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1, 'Unsupported manifest keys/version')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')) is not None, 'Safe asset ID required')
     require(data.get('profile', 'pixal-single-v1') in ('pixal-single-v1', 'pixal-multiview-v1'), 'Unsupported generation profile')
@@ -341,7 +341,7 @@ SHARED_TOOLING=('tools/shared-tools.lock.json','tools/phenotypes/bootstrap_share
     'tools/phenotypes/launch_hash_cache.py','tools/phenotypes/shared_toolchain.py','tools/phenotypes/tool_runtime.py','tools/shared_tools.py')
 NATIVE_HELPERS=tuple(path for path in HELPER_PINS if path not in SHARED_TOOLING)
 STAGE_SCRIPTS={'render':('blender_render.py',)}  # run in a subprocess, not imported
-STAGE_DATA={'palette':('stock-shades.json',),'quality':('quality-thresholds.json',)}  # committed measured references the stage reads
+STAGE_DATA={'palette':('stock-shades.json','quality-thresholds.json'),'quality':('quality-thresholds.json',)}  # committed measured references the stage reads
 
 
 def module_path(name, directory):

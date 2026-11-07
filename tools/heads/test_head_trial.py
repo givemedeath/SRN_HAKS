@@ -82,6 +82,16 @@ class TrialSpecTests(unittest.TestCase):
                 validate_spec(spec(prefix=prefix,heads=heads))
         with self.assertRaisesRegex(ValueError,'repeats'):validate_spec(spec(prefix=['pmh0','pfh0'],heads=heads+[heads[1]|{'id':'again'}]))
 
+    def test_tour_shows_each_head_at_gameplay_and_motion_distances(self):
+        from build_head_trial import row_scripts
+        sample=validate_spec(spec(inspectionTour=True))
+        script=row_scripts(sample,plan_actors(sample))['sr_h_enter'].split('void HeadTour(){',1)[1]
+        for index in range(len(sample['heads'])):
+            row=script.split(f'HeadShow({index}));',1)[1].split(f'HeadPut({index},1));',1)[0]
+            order=[row.index(call) for call in ('HeadTourDistance(INSPECT_DISTANCE*4.0)',
+                   'HeadTourDistance(INSPECT_DISTANCE*1.75)',f'HeadAnimate({index})','HeadTourDistance(INSPECT_DISTANCE)')]
+            self.assertEqual(order,sorted(order))
+
     def test_actors_cover_rows_and_helmets_per_head(self):
         actors=plan_actors(validate_spec(spec()))
         self.assertEqual(len(actors),22)

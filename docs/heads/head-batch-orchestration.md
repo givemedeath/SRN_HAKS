@@ -62,16 +62,42 @@ To use the installed smaller text-only stack, set `"profile": "qwen21-int8-v1"` 
 
 | Check | Tools |
 |---|---|
-| Geometry | `clay` (uncut/final pair; `--two-sided` tells inverted precluster normals from a real shell), `chinprofile`, `backcount`, `hot`, `boundary`, `jaw` |
-| Fit | `fitcheck` (profile and nose placements side by side) |
+| Geometry | `repairclay HEAD ATTEMPT OUT.png` compares the before and final meshes with their saved normals in matched front, side, rear and under-jaw views. The spooler queues it for repairs with a staged fit. Use `clay` (uncut/final pair; `--two-sided` tells inverted precluster normals from a real shell), `chinprofile`, `backcount`, `hot`, `boundary`, `jaw` |
+| Fit | `fitcheck` compares base profile and nose placements. For an explicit chin-down correction, set `fit.chinDownDegrees` on the head and rerun fit. Positive degrees rotate the fitted head about the head_g attachment in its local frame. An optional positive `fit.scaleMultiplier` scales uniformly. With nose alignment, `fit.realignAfterPose: true` translates the transformed nose back to the reference tip. Compare the exact receipts with `review --slot fitcheck --poses HEAD OLD_ATTEMPT NEW_ATTEMPT OUT.png`. The spooler also queues `review --slot fitcheck --reference HEAD ATTEMPT OUT.png` with matched front and side views of the bound reference and the posed head. Check the mouth seam, chin and eye heights on its millimetre rulers before neck work. If the whole head needs a vertical correction, `fit.heightOffset` shifts the finished pose in head-local metres. A negative value lowers it. To enlarge or shrink the fitted head uniformly while preserving its final XYZ placement and rotation, set `fit.localScaleMultiplier`. This multiplies all three local axes after positioning. Rerun fit and inspect the new sheet. |
 | Neck cut, before a repair | `slopescan` (seconds), `cutdry`, `cutreplay` (prints unverified for a skirt or several rings, which need the rewrap), `skirtzone` |
 | Shells | `shells`, `cutshells` |
 | Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `ownsheet` (a finished attempt's saved atlas), `rowramps` |
-| Face marks | `design_landmarks OUT_DIR HEAD...` writes the `landmarks.json` the jaw guard reads; `OUT_DIR` must be absolute |
+| Face marks | `design_landmarks OUT_DIR HEAD...` writes the `landmarks.json` the jaw guard reads; `OUT_DIR` must be absolute. Check both halves of the sheet. When silhouette registration misses the actual mesh eyes or mouth, supply separate `design` and `front` pixel maps in `--override` and inspect the new sheet. `front` is in the 1536-pixel mesh view. |
+
+After a rejected geometry, a selected replacement clay can use the original slot and diffuse image. Run `reference-check` on the new record and show the pair. Pass that exact check to `setup HEAD ORIGINAL_DESIGN --reference-record NEW_RECORD --revised-clay-check CHECK_JSON --approval WORDS`. This versions the clay under the head's inputs and preserves earlier submissions and conditioning. Run prepare and calibrate again before geometry. Review the new raw mesh before appearance.
 
 Quality-gate prototypes that headkit adopted are not here; nor are one-off audits from past batches.
 
-Before the first repair, compare slopes, inspect shells, record any required component selection, then run `review --slot cutdry HEAD`. It rebuilds the uncut master in temporary storage using the current fit, smoothing and shell selection. Use `--attempt attempt-NN` to replay a saved master with current cut settings.
+For a head that already ends at the jaw, compare `review --slot fitcheck --body-neck HEAD ATTEMPT OUT.png` in front, side, rear and under-jaw views. The blue surface is the actual body neck in the head attachment frame. If the uncut assembly is selected, use `setup --no-neck-cut` for a new head, or set the existing head’s `mesh.neck` override to `null` and rebuild its manifest. Keep the body-neck binding for assembly review. The shell selection and the repair visual gate still apply.
+
+For a head that needs a neck cut, before the first repair, compare slopes, inspect shells, record any required component selection, then run `review --slot cutdry HEAD`. It rebuilds the uncut master in temporary storage using the current fit, smoothing and shell selection. Use `--attempt attempt-NN` to replay a saved master with current cut settings. Use `--verify-cut NEW_FOLDER` for a first dry run that needs closure proof. It runs the real cut including any required rewrap and master audit, retains the before and after meshes under `review-evidence`, and stops before reduction. A band measurement or an unverified replay cannot establish closure.
+
+For an unwrap stopped on coverage before face priority, `review --slot uvfinal HEAD ATTEMPT NEW_EVIDENCE_FOLDER` measures the final pack once against that attempt’s policy and reviewed repair. Compare the two atlas sheets, achieved facial density and the final checks. This diagnostic does not change a floor or launch bake.
+
+For a confirmed near miss, `mesh.uv.refinePacking: true` narrows the pack-density interval to 0.05% and checks for up to 1.5% spare scale when a changed layout fits on the first try. Use this for an explicitly selected retry. The coverage floor applies both before and after face priority.
+
+For a four-view head, bind `profile: pixal-multiview-v1`, the eight measured cardinal inputs and the reviewed 20-degree rig using the toolkit multiview manifest example. Run prepare and review its exact result. Headbatch's calibrate step stages the eight prepared images at their common framing and fixed camera; it submits no MoGe prompt. Geometry requires explicit VRAM and free-RAM limits and `--single-submission`. The occiput and raw review gates apply before saved-shape appearance. A turnaround sheet alone does not establish calibrated camera measurements.
+
+For a multiview Troll with paired horns, inspect the prepared front, left and right geometry and detail canvases before submitting. Mark landmarks in pixels on each prepared image, with origin at the upper left. In `HEAD/review-evidence/cardinal-horns.json`, set `images` to the six exact prepared pins named `geometryFront`, `detailFront`, `geometryLeft`, `detailLeft`, `geometryRight` and `detailRight`. Each of the two role keys (`geometry`, `detail`) has this structure:
+
+```json
+{"frontTips":[[165,100],[535,100]],"left":{"nearTip":[305,98],"farTip":null},"right":{"nearTip":[399,98],"farTip":null}}
+```
+
+Use measured coordinates for the actual head. Null records a fully occluded opposite tip. If any part of the far tip is visible, mark its coordinates. Headbatch compares the displacements along each image axis with the perspective allowance on the fixed 20-degree camera before spending a geometry submission. Check the ear, eye and jaw silhouettes too.
+
+When a duplicate survives reconstruction, inspect the actual precluster from both enlarged temple profiles and both three-quarter angles. For a reviewed repair, bind the scalp outline to the exact original mesh SHA. A secondary temple restoration additionally binds the horn-corrected mesh SHA and the yaw offset to intact hair. Keep the real jaw and facially attached ears. Preview the bound generated color field with `review --slot gpuclay HEAD --field --precluster attempt-NN OUT.png` before unwrapping. The bake uses the same spatial donor as that preview for locally restored hair. Inspect the later PLT and client colors separately.
+
+For a square chart of the normalized surface coordinates, run `review --slot materialchart HEAD attempt-NN xy OUT.png` for the front or use `zy` for the profile. For materials that overlap in colour, set `ownership.surfaceOutlines.NAME` to an object with `axes` (two of x, y and z, for example `xy`) and `points` (a closed contour expressed as normalized bounding-box pairs, with the closing edge implicit). Reference it as `{"mask":"NAME"}` in the rule. Combine the outline with a depth condition to protect hair behind a horn. Inspect both profiles in `own_draft`.
+
+For a small duplicate material mark on intact geometry, a `paint.operations` entry with `op: heal` takes `target` and `donor` texture predicates and a normalized XYZ `offset` from target to donor. It samples four nearby surface texels, preserves other mapped texels and regenerates padding. On a head with clearly separable hair pigment, `ownership.hairMaskRequiresRule: true` limits brow and hair-lock assignments to already measured channel-1 rules. A conflicting profile needs correction.
+
+A byte-identical, reviewed four-view prepare replay may reuse its original calibration for saved-shape appearance only. The launcher records both sets of pins and verifies all eight images and runtime identities.
 
 ## Presets
 
@@ -89,13 +115,13 @@ Before the first repair, compare slopes, inspect shells, record any required com
 
 - CRLF in pinned headkit code;
 - unpinned files in the bound package tree, after removing stray bytecode;
-- a head over its stage loop budget, unless `HEAD/budget-override-STAGE` exists;
+- a head over its stage loop budget, unless `HEAD/budget-override-STAGE` contains the exact `head`, `stage`, a bounded integer `maximumAttempts`, and the reviewer’s explicit `approval`;
 - a repair on a head too close to its UV floor;
 - export or a later stage on palette rows missing from `spool/reviewed-rows.json`;
 - an ownership stage with no rules;
 - a repair approval whose neck cut can reach the mouth, unless `HEAD/jaw-reviewed` exists.
 
-`gpu` stops at 5 geometry submissions per slot, counted in `gpu/gpu.json` and, for older ledgers, from ComfyUI's numbering of the head's geometry files; at the cap, stop and ask the user. A `HEAD/geometry-cap-override` file records the user's exception. `design` stops the same way at 3 designs per slot, counting launches, and `design/design-cap-override-HEAD` records the exception. A design exception must be JSON such as `{"head": "troll-male-a", "maximumDesigns": 4, "approval": "the user's exact authorization"}`. Legacy blank/text design exceptions are refused. A refused or invalid design is reported and the rest still run. Every GPU run keeps its own folder under `gpu`, and a shape that fails the occiput check goes to `rejectedGeometry`, so the ledger keeps its shape and appearance pair. `manifest` holds the head lock from its first read to the replace, because the manifest and inputs are pinned, and refuses while a launch of that head is queued or running.
+`gpu` stops at 5 geometry submissions per slot, counted in `gpu/gpu.json` and, for older ledgers, from ComfyUI's numbering of the head's geometry files; at the cap, stop and ask the user. A `HEAD/geometry-cap-override` file records the user's exception as JSON with `head`, an integer `maximumSubmissions` and the exact `approval` words. `design` stops the same way at 3 designs per slot, counting launches, and `design/design-cap-override-HEAD` records the exception. A design exception must be JSON such as `{"head": "troll-male-a", "maximumDesigns": 4, "approval": "the user's exact authorization"}`. Legacy blank/text design exceptions are refused. A refused or invalid design is reported and the rest still run. Every GPU run keeps its own folder under `gpu`, and a shape that fails the occiput check goes to `rejectedGeometry`, so the ledger keeps its shape and appearance pair. `manifest` holds the head lock from its first read to the replace, because the manifest and inputs are pinned, and refuses while a launch of that head is queued or running.
 
 A `run` or `gpu` launch holds a lock on its head from queueing to its end, so a second launch of that head is refused. Head, CPU and GPU locks are held by the system for the process, so a killed launch leaves nothing to clear. Killing `run_headbatch.py` alone frees them while its launcher child and stage keep running: stop the child too, because headkit's own runner lock then refuses a relaunch until the stage ends.
 
@@ -110,6 +136,7 @@ Each finished stage gets its evidence before it reaches the review list:
 | Event | What the spooler does |
 |---|---|
 | Repair queued or approved as next | `presets --apply`; a HOLD goes to attention and no launch starts |
+| Precluster ran | Queues the eight-view clay sheet of the exact oriented mesh under `spool/sheets` before fit review. |
 | Repair ran | Jaw result, stating when nothing could be checked; queues the clay pair in `spool/sheets`, and the skirt zone at its gap and at 3 cm when the head has a skirt |
 | Neck cut left several shells | Queues `cutshells` from the uncut master |
 | Unwrap failed on coverage | Attention, with the floor `presets --uv-only` proposes |
@@ -121,9 +148,9 @@ Queued sheets wait for a CPU slot in their own process, so a review line can arr
 
 ## Design VRAM supervision
 
-For a whole-device budget, set workspace `comfy.memoryLimitBytes` in bytes and optionally `comfy.gpuIndex` (default 0). Set `comfy.minimumFreeRAMGiB` for a physical-RAM floor. The supervisor reuses the CPU slot gate's free-memory measurement. Run `run_headbatch.py --workspace DIR env tools/headbatch/compat/run_design_with_vram_limit.py DIR HEAD SEED`. It uses the bound controlled-startup identity, refuses a busy GPU queue, starts the normal headbatch design command, and saves 250 ms NVIDIA samples and a summary under `runtime/vram/HEAD-sSEED`. A measured breach interrupts only the matching prompt belonging to that workspace. It fails the supervised run even if an output was produced. Preserve that spent design attempt.
+For a whole-device budget, set workspace `comfy.memoryLimitBytes` in bytes and optionally `comfy.gpuIndex` (default 0). Set `comfy.minimumFreeRAMGiB` for the live physical-RAM floor. For geometry with a measured cold-load peak, set `comfy.minimumStartRAMGiB` for headroom before each counted submission. Schedule the run outside competing texture jobs. The supervisor reuses the CPU slot gate's free-memory measurement. Run `run_headbatch.py --workspace DIR env tools/headbatch/compat/run_design_with_vram_limit.py DIR HEAD SEED`. It uses the bound controlled-startup identity, refuses a busy GPU queue, starts the normal headbatch design command, and saves 250 ms NVIDIA samples and a summary under `runtime/vram/HEAD-sSEED`. A measured breach interrupts only the matching prompt belonging to that workspace. It fails the supervised run even if an output was produced. Preserve that spent design attempt.
 
-For the measured 12 GiB RTX 3060 deployment, the lower-memory profile uses upstream `--reserve-vram 3 --disable-async-offload --cpu-vae` alongside static VRAM and the checked native loader. Validate the complete run against the user's budget. Reserved headroom and sampled peaks do not prove an instantaneous allocator-level cap.
+For design-image generation on the measured 12 GiB RTX 3060 deployment, the lower-memory profile uses upstream `--reserve-vram 3 --disable-async-offload --cpu-vae` alongside static VRAM and the checked native loader. Validate the complete run against the user's budget. Reserved headroom and sampled peaks do not prove an instantaneous allocator-level cap.
 
 ## Before publishing
 
@@ -185,7 +212,7 @@ reviewed prepare attempt, one shared mask/crop, separate geometry/detail images,
 detail. Their hashes survive partial resumes. FOV estimates outside 25-70 degrees
 or differing by more than 8 degrees stop for investigation; geometry and
 appearance share the detail estimate after that check. This numeric check does
-not approve a camera or silhouette.
+not approve a camera or silhouette. At a calibration stop, run `gpu-camera HEAD --attempt calibrate` (or the exact retry directory, such as `calibrate-02`) for both normalized crops with their measured angles. The sheet and source hashes remain with that attempt. If the user chooses its in-range diffuse angle, pass `--detail-camera-attempt ATTEMPT --camera-approval "USER WORDS"` to a GPU run including calibration. Headbatch replays calibration to verify the current prepared inputs yield the same normalized pixels, graph and estimates before geometry. Both geometry and appearance then consume the exact reviewed diffuse angle. This spends no additional geometry submission for the camera check.
 
 'setup --quality-profile face-v1' (or workspace headQualityProfile: "face-v1")
 opts new heads into face UV density 3, face masks, feature-channel ownership,
@@ -197,6 +224,14 @@ quality and visual gates remain; no automatic threshold reduction.
 Hair, brows and beards use channel 1; iris only uses 8; Troll/orc horns and tusks
 use 9 with the accessory shade distribution. Skin ink, dermal pigment, lips,
 lids and eye whites stay on 0. Cyberware uses 2/3; both bind the armor palette.
+Inspect both irises and upper lids at native resolution on the projected mask sheet.
+If the parser clips an iris or extends a brow onto a lid, set `faceMasks.eyeContours`
+in the local overrides. Bind `rgbSha256` to the raw RGB bytes of the exact masks
+front render. For each anatomical side (`R` is image left, `L` image right), trace
+`opening`, `iris` and `excludeBrow` as polygons of [x,y] pixel coordinates from
+the top left. Trace only the visible iris inside the opening. Replay masks and
+inspect the projected sheet before ownership. The quality check uses the same
+traces against the decoded PLT.
 Choose horn/tusk masks with seeded paint.protrusion and constrain cyberware
 with spatial rules. Global colour thresholds alone are poor ownership evidence.
 
@@ -205,6 +240,8 @@ This emits a face mask without recolouring. tone.preserveSkinMasks: ["skin-ink"]
 protects mapped skin in that named mask from smoothing and eyebrow-fringe refill.
 It does not disable de-light, change channels, exempt quality metrics or preserve
 a fixed ink hue across skin palette rows. Review those masks on the actual bake.
+
+For body-pinned skin with excessive cheek contrast, `palette.skinShadeContrast` scales runtime shades around the body-neck median. Compare the decoded face at game size and retain the span, feature-focus, darkness and seam checks.
 
 With the face profile, render produces 2K source-appearance and actual decoded
 1K PLT atlases, clearly distinguished in its receipt, in clay, color-only and
@@ -226,11 +263,19 @@ submission still counts, including failed and reseeded work.
 
 ## Quality and efficiency safeguards (2026-11-05)
 
+Geometry and appearance require a controlled server started without `--cpu-vae`. Trellis sends decoder inputs to the GPU. Headbatch checks the live server arguments before a chain reaches calibration or spends a submission. Keep the workspace memory guards enabled when switching from a design server. If model loading exhausts host RAM, a fresh controlled profile can disable host pinning with `--disable-pinned-memory`. Compare the first sample, the minimum available RAM and the peak device bytes in the launch resource receipt. Available RAM while idle does not include model-loading peaks.
+
 New GPU launches verify the current **reviewed prepare** through headkit's Runner,
 including manifest/dependency hashes, source version, bindings, outputs and review
 bytes. This happens for partial geometry and appearance resumes too. A legacy
 calibration without that lineage must be recalibrated; no historical receipt is
 rewritten. Recalibration archives and invalidates the old geometry/appearance.
+For a user-selected lower geometry grid after a memory stop, use
+`run_headbatch.py gpu HEAD --stages geometry --shape-grid 1024 --single-submission`.
+This reuses the verified calibration and changes only the Trellis shape upsample resolution.
+The saved prompt records the grid even on failure. Single-submission mode suppresses both
+the geometry OOM retry and reseed. Review the exact raw sheet before appearance. An open-occiput rejection keeps its own diagnostic sheet. Recover it, if missing, with `review --slot gpuclay HEAD --rejected-geometry geometry-NNNN`. Rejected submissions cannot authorize appearance.
+
 Stage lists must be unique and ordered; `calibrate,appearance` is refused.
 
 The usual `gpu HEAD` now stops with exit 3 after successful geometry/occiput
@@ -268,7 +313,13 @@ For new Troll `face-v1` references, `alignment.featureChecks` must be
 `{"horns":2,"tusks":2,"neck":"none","hairBelowJaw":true}`. Provide measured
 `horn-left-root`, `horn-left-tip`, `horn-right-root`, `horn-right-tip`,
 the equivalent four `tusk-*` marks, and `jaw-left`, `jaw-chin`, `jaw-right`.
-Left/right means the character's anatomical side. Preparation writes separate
+Left/right means the character's anatomical side. For curved horns or tusks, also
+measure named points along the outer arc (for example horn-left-curve-outer and
+horn-left-curve-crown). Local comparison crops include every matching
+FEATURE-SIDE-curve-* point as well as the root and tip; endpoints alone can hide
+the middle of a curved feature. These points participate in the same bounded
+global alignment and must be measured independently on both images.
+Preparation writes separate
 clay/detail/overlay crops and silhouette overlap for each feature, including below
 the chin. These are review aids, not automated neck or horn acceptance. Old raw
 references and earlier alignment receipts remain immutable; revised measurements
@@ -319,3 +370,15 @@ New headbatch trial specs set `captureCoverageRequired: true`, carried into the
 runtime manifest. Their verifier fails when `--captures` is omitted even if
 slots and colours pass. Legacy manifests retain the separate log-only check.
 Every report still requires human visual approval.
+
+### New Troll defaults
+
+Setup selects face-v1 for a new Troll. Supply the paired reference, body skin and parser bindings required by that profile. The palette stage measures candidate skin contrasts in the game-size face projection and records its decision in `skinFocusSearch`. A numeric reviewed contrast takes precedence. The independent quality gate still measures the exported palette.
+
+Profile and nose fits bind the published r3 Troll build allowance at manifest generation. Export records the reference hash, factor and pivot. The compact references use the sex-specific allowance, while a recognized already enlarged donor uses 1.0. A custom reference requires verification of its scale frame. Landmark-calibrated routes retain their reviewed scale.
+
+The workspace can set `comfy.multiviewGeometryStartRAMGiB` to reserve more host RAM specifically for four-view geometry. The normal admission and live limits still apply. The example reserves 22 GiB after a 17.49 GiB start failed during model loading. It is a measured lower-bound estimate, so the live guard remains necessary.
+
+External proposals and clay/diffuse edits share the same design cap. Record every submission once in design/external-attempts/HEAD/NNN.json, preserving the input, disposition and any resulting image pin. The local design launcher includes these records automatically.
+
+A GPU launch with a live host RAM cutoff waits for this workspace’s CPU workers to finish and reserves their lanes until dispatch returns. The CPU review sheet runs after releasing those lanes. The face-v1 setup profile uses refined UV packing at the normal thresholds.

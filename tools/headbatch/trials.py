@@ -1,6 +1,7 @@
 """Client trial specs and builds: both sexes of one race in one module, on the workspace's base HAKs."""
 from pathlib import Path
-import shutil
+import re
+import tomllib
 import subprocess
 
 import guards
@@ -39,6 +40,35 @@ def head_entry(workspace, name, slot):
             'tattoo2Rows': rows_with_alternates(rows.get('9',0),(0,26)), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}
 
 
+def sized_trial_native(workspace, entry, version):
+    """An existing reviewed head may predate the allowance. Derive a fresh trial variant."""
+    head = workspace.head(entry['id'])
+    manifest = guards.read(head/'manifest.json')
+    if manifest.get('nativeSizing') != 'troll-build-allowance-r3':
+        return
+    native = Path(entry['native']).parent
+    export = consumed(head, native, 'export')
+    if guards.read(export/'receipt.json')['result'].get('nativeSizing'):
+        return
+    if not str(version).isdigit():
+        raise guards.Refused('Use a numeric version for a sized trial')
+    folder = workspace.root/'trials'/'sizing'/str(version)/entry['model']
+    folder.mkdir(parents=True, exist_ok=False)
+    policy = head/manifest['inputs']['nativeSizingPolicy']['path']
+    if sha(policy) != manifest['inputs']['nativeSizingPolicy']['sha256']:
+        raise guards.Refused('Trial sizing policy differs from the manifest')
+    helper = Path(__file__).with_name('trial_sizing.py')
+    args = [helper, native/'receipt.json', policy, head/'mdl-compiler.json', head/'bindings.json', folder]
+    frozen = folder/'inputs.json'
+    env = workspace.python_environment(packages=True, tools=True)
+    with launcher.cpu_slot(workspace):
+        subprocess.run([PYTHON,'-B',*args,frozen], env=env, check=True)
+        launch = launcher.launch(workspace, folder/'launch', frozen, args, environment=env)
+    if launch['exitCode']:
+        raise guards.Refused('Trial sizing failed: '+str(folder/'launch'/'stderr.log'))
+    entry['native'] = (folder/'native').as_posix()
+
+
 def write_spec(workspace, race, version):
     """specs/trial-RACE-vN.json with each exported head's latest native folder and its chosen palette rows first."""
     base = workspace.data.get('trialBase')
@@ -47,16 +77,50 @@ def write_spec(workspace, race, version):
         raise guards.Refused('Trials need "trialBase" and "game" in workspace.json')
     heads = [entry for name, (head_race, _, slot) in sorted(workspace.head_ids().items()) if head_race == race
              for entry in [head_entry(workspace, name, slot)] if entry]
+    if race == 'troll':
+        for entry in heads:
+            sized_trial_native(workspace, entry, version)
     race_row = RACE_DATA['races'][race]
     name = f'srn_rh_{race[:3]}{version}'
     spec = {'kind': 'srn-head-trial-spec', 'trial': f'race-heads-{race}-v{version}', 'hak': name, 'module': name,
             'prefix': [prefix(race, 'male'), prefix(race, 'female')], 'identity': {'appearanceRow': race_row['appearanceRow'], 'raceId': race_row['raceId'], 'visualScale': 1.0},
-            'captureCoverageRequired': True, 'motion': True, 'lighting': 'ambient', 'gameRoot': workspace.path(game['root']).as_posix(), 'client': workspace.path(game['client']).as_posix(),
+            'captureCoverageRequired': True, 'inspectionTour': True, 'motion': True, 'lighting': 'ambient', 'gameRoot': workspace.path(game['root']).as_posix(), 'client': workspace.path(game['client']).as_posix(),
             'base': {'haks': [pin(workspace.path(hak)) for hak in base['haks']], 'module': pin(workspace.path(base['module'])), 'actorIdentity': base['actorIdentity']},
             'heads': heads}
+    if race == 'troll':
+        spec['inspect']={'height':{'pmg0':2.52,'pfg0':2.31},'distance':1.05}
     out = workspace.root/'specs'/f'trial-{race}-v{version}.json'
     write_json(out, spec)
     return out, len(heads)
+
+
+def inspection_settings(source, output):
+    """Configure neutral hover and targeting feedback in the isolated client only."""
+    data = Path(source).read_text(encoding='utf-8-sig') if source else ''
+    before = tomllib.loads(data)
+    # Leave all other tables intact, including the client's embedded settings schema.
+    sections = re.split(r'(?m)^(?=[ \t]*\[)', data)
+    index = next((i for i, text in enumerate(sections) if text.partition('\n')[0].strip() == '[ui]'), None)
+    if index is None:
+        sections.extend(['\n', '[ui]\n'])
+        index = len(sections) - 1
+    lines = sections[index].splitlines(keepends=True)
+    if not lines[0].endswith('\n'):
+        lines[0] += '\n'
+    values = {'mouseover-feedback': False, 'targeting-feedback-mode': 0}
+    for key, value in values.items():
+        line = f'\t{key} = {str(value).lower()}\n'
+        old = next((i for i, text in enumerate(lines[1:], 1) if re.match(r'^\s*'+key+r'\s*=', text)), None)
+        if old is None:
+            lines.insert(1, line)
+        else:
+            lines[old] = line
+    sections[index] = ''.join(lines)
+    result = ''.join(sections)
+    before.setdefault('ui', {}).update(values)
+    if tomllib.loads(result) != before:
+        raise ValueError('Inspection settings changed outside the two feedback controls')
+    Path(output).write_text(result, encoding='utf8')
 
 
 def build(workspace, name, version):
@@ -71,6 +135,5 @@ def build(workspace, name, version):
     if data['exitCode']:
         raise launcher.LaunchFailed(f"Trial build failed (exit {data['exitCode']}): see {folder/f'launch-{name}-v{version}'/'stderr.log'} (RUNBOOK 119)")
     settings = workspace.setting('clientSettings')
-    if settings:
-        shutil.copy2(settings, output/'userdir'/'settings.tml')  # a windowed client lets screen capture work (RUNBOOK 67)
+    inspection_settings(settings, output/'userdir'/'settings.tml')
     return output

@@ -36,7 +36,7 @@ def pad(values, mapped):
 
 
 def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096, max_subtexel_fraction=.005,
-         derived_surface='gated'):
+         derived_surface='gated', scalp_source=None, embree=None):
     require(size==4096,'Production source bake is 4K; derive 2K/1K afterward')
     begun=time.perf_counter();value=mesh(source)
     field=load_generated_field(field_path,allow_decoder_overshoot)
@@ -48,6 +48,15 @@ def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096
     low,ids,low_report=surface(value,1024,max_subtexel_fraction,enforce=derived_surface=='gated')
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     sampled,fallback=field.sample(positions[mapped],chunk=65536)
+    transferred = 0
+    if scalp_source is not None:
+        from .scalp_appearance import ScalpDonor
+        donor = ScalpDonor(scalp_source,embree)
+        try:
+            donor.transfer(field,positions[mapped],sampled,fallback)
+            transferred = donor.transferred
+        finally:
+            donor.close()
     values=np.zeros((size,size,6),np.float32);values[mapped]=sampled;values=pad(values,mapped)
     files={}
     channels={'basecolor':values[...,:3],'metallic':values[...,3],'roughness':values[...,4],'opacity':values[...,5]}
@@ -68,6 +77,8 @@ def bake(source, field_path, output, *, allow_decoder_overshoot=False, size=4096
     if derived_surface=='diagnostic':
         result['derivedSurface']={'policy':'diagnostic','passed':bool(not low_report['overlapFaces']
             and not low_report['degenerateUvFaces'] and low_report['subtexel']['passed'])}
+    if scalp_source is not None:
+        result['scalpDonor']={'geometry':scalp_source['output'],'sampleVisits':transferred}
     write(output/'bake.json',result,fresh=True);return result
 
 
