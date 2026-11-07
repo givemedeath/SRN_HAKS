@@ -18,7 +18,7 @@ PREVIEW=np.array([[150,120,100],[30,30,30],[80,160,255],[60,90,140],[120,60,160]
 def colour_values(rgb, extra=None):
     c=lambda i:rgb[...,i].astype(np.int16)
     factories={'r':lambda:c(0),'g':lambda:c(1),'b':lambda:c(2),'lum':lambda:rgb.sum(-1,dtype=np.int32)/3,
-               'sat':lambda:rgb.max(-1).astype(np.int16)-rgb.min(-1),'red':lambda:c(0)-np.maximum(c(1),c(2)),'rb':lambda:c(0)-c(2)}
+               'sat':lambda:rgb.max(-1).astype(np.int16)-rgb.min(-1),'red':lambda:c(0)-np.maximum(c(1),c(2)),'rb':lambda:c(0)-c(2),'gb':lambda:c(1)-c(2)}
     factories.update(extra or {});return Values(factories)
 
 
@@ -195,6 +195,42 @@ def texel_source(value, rgb):
     return texels
 
 
+def heal(value, rgb, op, report, texels, regions):
+    """Replace a measured pigment artifact with colors from a nearby intact surface."""
+    from scipy.spatial import cKDTree
+    values = texels()
+    mapped = values['mapped']
+    target = mapped & when(op['target'],values,regions)
+    donors = mapped & ~target & when(op['donor'],values,regions)
+    count = int(target.sum())
+    require(0 < count <= mapped.sum()*.03 and 4 <= donors.sum() <= mapped.sum()*.05,
+            'A local heal needs small measured target and donor regions')
+    offset = np.asarray(op['offset'],float)
+    require(offset.shape==(3,) and np.isfinite(offset).all() and np.linalg.norm(offset)<=.15,
+            'Heal offset must be a local normalized XYZ displacement')
+    lo = value['positions'].min(0)
+    span = np.ptp(value['positions'],axis=0)
+    def points(mask):
+        y,x = np.nonzero(mask)
+        faces = values['face'][y,x]
+        triangles = value['uv'][faces]*len(rgb)
+        ab,ac = triangles[:,1]-triangles[:,0],triangles[:,2]-triangles[:,0]
+        delta = np.c_[x+.5,y+.5]-triangles[:,0]
+        det = ab[:,0]*ac[:,1]-ab[:,1]*ac[:,0]
+        require(np.all(np.abs(det)>1e-12),'Degenerate mapped donor triangle')
+        u = (delta[:,0]*ac[:,1]-delta[:,1]*ac[:,0])/det
+        v = (ab[:,0]*delta[:,1]-ab[:,1]*delta[:,0])/det
+        corners = value['positions'][value['faces'][faces]]
+        return (np.einsum('ij,ijk->ik',np.c_[1-u-v,u,v],corners)-lo)/span
+    distance,indices = cKDTree(points(donors)).query(points(target)+offset,k=4)
+    require(distance[:,0].max()<=.10,'Local paint donor lies too far from its target')
+    weights = 1/np.maximum(distance,.0005)
+    colors = (rgb[donors][indices]*weights[:,:,None]).sum(axis=1)/weights.sum(axis=1)[:,None]
+    rgb[target] = np.rint(colors).astype(np.uint8)
+    report.update(paintedTexels=count,donorSamples=int(donors.sum()),maximumDistance=float(distance[:,0].max()))
+    return {op['name']:target}
+
+
 def paint(source, color, config, output, *, seal_start=None, embree=None):
     """Apply configured recolor/fill operations in order; each emits a 4K face mask for review and ownership rules.
     seal_start is the first face of repair's neck seal (it appends the cap after the reduced shell), so a fill can
@@ -206,7 +242,7 @@ def paint(source, color, config, output, *, seal_start=None, embree=None):
     output=Path(output);output.mkdir(parents=True,exist_ok=False);texels=texel_source(value,rgb);regions=config.get('regions',{})
     masks={};reports=[]
     for op in operations:
-        require(op.get('op') in ('crest','fill','protrusion','mask') and isinstance(op.get('name'),str) and op['name'].replace('-','').isalnum(),'Named crest/fill/protrusion/mask operation required')
+        require(op.get('op') in ('crest','fill','protrusion','mask','heal') and isinstance(op.get('name'),str) and op['name'].replace('-','').isalnum(),'Named crest/fill/protrusion/mask operation required')
         report={'op':op['op'],'name':op['name']}
         if op['op']=='mask':
             require(set(op)=={'op','name','faces'}, 'Mask operation needs only name and spatial face conditions')
@@ -214,11 +250,16 @@ def paint(source, color, config, output, *, seal_start=None, embree=None):
             require(selected.any(), 'Mask selects no faces: '+op['name'])
             created={op['name']:face_mask(np.asarray(value['uv']),selected,len(rgb))}
             report.update(faces=int(selected.sum()),paintedTexels=0)
+        elif op['op']=='heal':
+            created=heal(value,rgb,op,report,texels,regions)
         elif op['op']=='protrusion':
             selected,found=protrusion_faces(value,rgb,op,regions,embree,seal_start);report.update(found)
             created={op['name']:face_mask(np.asarray(value['uv']),selected,len(rgb))}
         else:created=crest(value,rgb,op,report) if op['op']=='crest' else fill(value,rgb,op,report,texels,regions,seal_start)
         require(not set(created)&set(masks),'Duplicate paint mask name');masks.update(created);reports.append(report)
+    if any(op['op']=='heal' for op in operations):
+        from .textures import pad
+        rgb=pad(rgb,texels()['mapped'])
     image=Image.fromarray(rgb);files={}
     for size in (4096,2048,1024):
         path=output/f'basecolor-{size}.png';(image if size==4096 else image.resize((size,size),Image.Resampling.BOX)).save(path);files[path.name]=pin(path)
@@ -229,6 +270,26 @@ def paint(source, color, config, output, *, seal_start=None, embree=None):
     write(output/'paint.json',result,fresh=True);return result
 
 
+def surface_outline(centres, spec):
+    """Select face centres within a measured orthographic outline in the head's unit bounding box."""
+    axes = spec.get('axes') if isinstance(spec, dict) else None
+    require(isinstance(axes, str) and len(axes) == 2 and len(set(axes)) == 2
+            and all(axis in 'xyz' for axis in axes), 'Surface outline needs two distinct axes')
+    points = np.asarray(spec.get('points'), dtype=float)
+    require(points.ndim == 2 and points.shape[1] == 2 and 3 <= len(points) <= 512
+            and np.isfinite(points).all() and ((points >= 0) & (points <= 1)).all(),
+            'Surface outline needs 3..512 normalized points')
+    area = np.dot(points[:, 0], np.roll(points[:, 1], 1)) - np.dot(points[:, 1], np.roll(points[:, 0], 1))
+    require(abs(area) > 1e-9, 'Surface outline has no area')
+    # Even-odd crossing, evaluated on the much smaller face list before atlas padding.
+    x, y = (centres[:, 'xyz'.index(axis)] for axis in axes)
+    inside = np.zeros(len(centres), dtype=bool)
+    for (ax, ay), (bx, by) in zip(points, np.roll(points, -1, axis=0)):
+        if ay != by:
+            inside ^= ((ay > y) != (by > y)) & (x < ax + (y-ay)*(bx-ax)/(by-ay))
+    return inside
+
+
 def rule_ownership(source, color, config, *, metallic=None, masks=None, protected=False):
     """First matching rule wins (list order is priority); padding takes the label of the nearest mapped texel. With protected,
     also returns the mapped texels of hair rules marked overFaceMasks, or None when no rule marks any (face_encode keeps them hair
@@ -237,7 +298,18 @@ def rule_ownership(source, color, config, *, metallic=None, masks=None, protecte
     require(rgb.shape[0]==rgb.shape[1],'Rule ownership needs a square colour atlas')
     extra={'mask:'+name:(lambda path=path:np.asarray(Image.open(path).convert('L'))>0) for name,path in (masks or {}).items()}
     if metallic is not None:extra['metallic']=lambda:np.asarray(Image.open(metallic).convert('L'))
-    values=texel_values(value,rgb,raster_audit(value['uv'],len(rgb))[1],extra);mapped=values['mapped']
+    owners = raster_audit(value['uv'], len(rgb))[1]
+    outlines = config.get('surfaceOutlines', {})
+    if outlines:
+        require(isinstance(outlines, dict), 'surfaceOutlines must map names to measured outlines')
+        centres, low, high = frame(value)
+        relative = (centres-low)/np.maximum(high-low, 1e-12)
+        for name, spec in outlines.items():
+            key = 'mask:'+name
+            require(key not in extra, 'Surface outline conflicts with a painted mask: '+name)
+            selected = surface_outline(relative, spec)
+            extra[key] = lambda selected=selected: (owners>=0) & selected[owners]
+    values=texel_values(value,rgb,owners,extra);mapped=values['mapped']
     default=config.get('default',0);require(type(default) is int and 0<=default<=9,'Default channel 0..9 required')
     labels=np.full(mapped.shape,default,np.uint8);free=np.ones(mapped.shape,bool);keep=np.zeros(mapped.shape,bool);counts=[]
     for rule in config['rules']:

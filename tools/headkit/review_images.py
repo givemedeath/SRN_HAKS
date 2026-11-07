@@ -6,6 +6,12 @@ import re
 from .common import require, pin, verify
 
 
+def render_mode_folder(output, size, mode):
+    directory = Path(output)/str(size)/mode
+    directory.mkdir(parents=True, exist_ok=False)
+    return directory
+
+
 def _validate_map_names(maps):
     require(isinstance(maps,dict) and set(maps)<={'basecolor','roughness','metallic','opacity','ownership'},
             'Review atlases require supported map names: basecolor, roughness, metallic, opacity, ownership')

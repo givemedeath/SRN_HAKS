@@ -167,12 +167,25 @@ def landmark_fit(source, target, maximum_residual):
     return scale,translation,errors
 
 
-def propose(source, reference, output, *, exclude_lower=.25, align='profile', landmarks=None):
+def propose(source, reference, output, *, exclude_lower=.25, align='profile', landmarks=None, chin_down_degrees=0,
+            scale_multiplier=1, realign_after_pose=False, height_offset=0, local_scale_multiplier=1):
     """align='nose' keeps the profile-matched scale but places the head by aligning nose tips (troll-male-01's
     reviewed rule against pmg0_head014), so hair, crests or a neckless reference cannot shift the placement.
     align='landmarks' scales and places the head by its reviewed face landmarks on the base head's (BASE_HEADS)."""
     require(align in ('profile','nose','landmarks'),'Fit alignment is profile, nose or landmarks')
     require((align=='landmarks')==(landmarks is not None),'fit.landmarks is read only by the landmark alignment')
+    require(type(chin_down_degrees) in (int, float) and 0 <= chin_down_degrees <= 45,
+            'Chin-down pitch must be a finite angle from 0 to 45 degrees')
+    require(type(scale_multiplier) in (int,float) and np.isfinite(scale_multiplier) and scale_multiplier > 0,
+            'Uniform fit scale multiplier must be positive and finite')
+    require(type(realign_after_pose) is bool and (not realign_after_pose or align == 'nose'),
+            'Realigning a posed head requires a measured nose alignment')
+    require(type(height_offset) in (int, float) and np.isfinite(height_offset),
+            'Fit height offset must be a finite number in head-local metres')
+    require(type(local_scale_multiplier) in (int, float) and np.isfinite(local_scale_multiplier) and local_scale_multiplier > 0,
+            'Local uniform scale must be positive and finite')
+    require(align != 'landmarks' or (chin_down_degrees == 0 and scale_multiplier == 1 and height_offset == 0 and local_scale_multiplier == 1),
+            'Pose adjustments would move reviewed fit landmarks')
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     value=mesh(source);local=head_local(surface_samples(value['positions'][value['faces']],1000000));target=ascii_surface(reference)
     if align=='landmarks':
@@ -194,6 +207,38 @@ def propose(source, reference, output, *, exclude_lower=.25, align='profile', la
                       sourceNose=source_nose.tolist(),referenceNose=target_nose.tolist())
     matrix=np.eye(4);matrix[:3,:3]=np.diag([-s,-s,s]);matrix[:3,3]=result['translation']
     fitted=local*s+np.array(result['translation'])
+    if chin_down_degrees or scale_multiplier != 1:
+        # In the NWN head_g frame +y faces forward and +z is up. Rotate about the
+        # existing head attachment origin, including the base fit's translation.
+        rotation = _axis_angle((1, 0, 0, -np.deg2rad(chin_down_degrees)))
+        result['pitch'] = {'chinDownDegrees': chin_down_degrees, 'pivot': 'head_g origin',
+                           'baseMatrix': matrix.tolist()}
+        adjustment = scale_multiplier * rotation
+        matrix[:3, :] = adjustment @ matrix[:3, :]
+        fitted = fitted @ adjustment.T
+        result['pitch']['scaleMultiplier'] = scale_multiplier
+        if realign_after_pose:
+            # The source nose was measured once in the yawed head-local source frame.
+            # Track that exact point through the pose; a new search can pick a tusk.
+            base_nose = s*np.asarray(result['sourceNose']) + result['translation']
+            shift = np.asarray(result['referenceNose']) - adjustment @ base_nose
+            matrix[:3,3] += shift
+            fitted += shift
+            result['pitch']['noseRealignment'] = shift.tolist()
+        result['scale'] = scale_multiplier*s
+        result['translation'] = matrix[:3, 3].tolist()
+    if height_offset:
+        # Height placement follows the full pose and nose refinement in the body frame.
+        matrix[2,3] += height_offset
+        fitted[:,2] += height_offset
+        result.update(heightOffset=height_offset, translation=matrix[:3,3].tolist())
+    if local_scale_multiplier != 1:
+        # Local uniform scaling changes only the linear part of the finished fit.
+        # Keep the origin at its exact posed position in the head_g frame.
+        origin = matrix[:3,3]
+        matrix[:3,:3] *= local_scale_multiplier
+        fitted = (fitted-origin)*local_scale_multiplier+origin
+        result.update(localScaleMultiplier=local_scale_multiplier, scale=result['scale']*local_scale_multiplier)
     size,pad=700,max(.32,float(np.abs(target).max())*1.15);canvas=np.zeros((size,size*2,3),np.uint8)
     from scipy import ndimage
     for axes,offset in (((0,2),0),((1,2),size)):

@@ -69,6 +69,27 @@ def joined(candidates, anchors, positions, pitch):
     good = np.isin(part, part[touch]); out[cy[good], cx[good]] = True; return out
 
 
+def ear_skin(labels, masks, mapped, colour):
+    """Recover ear interiors from tattoo2 only where the baked colour identifies skin."""
+    ear = masks['ear'] > .8
+    candidates = mapped & (labels == 9) & ear
+    result = np.zeros_like(mapped)
+    if not candidates.any():
+        return result
+    references = [mapped & (labels == 0) & (masks['skin'] > .8),
+                  mapped & (labels == 9) & (masks['ear'] < .1)]
+    if any(np.count_nonzero(region) < 32 for region in references):
+        return result
+    def median(region):
+        samples = colour[region]
+        return np.median(lab(samples[::max(1, len(samples)//10000)]), axis=0)
+    skin, bone = map(median, references)
+    if np.linalg.norm(skin-bone) >= 15:
+        values = lab(colour[candidates])
+        result[candidates] = np.linalg.norm(values-skin, axis=1) < .65*np.linalg.norm(values-bone, axis=1)
+    return result
+
+
 def apply_channels(labels, masks, mapped, colour=None, protected=None, positions=None):
     """Channel moves from the masks on a 4K ownership atlas; gutters re-padded so chart-border 1K blocks follow the edits.
     colour (the 4K bake) keeps hair-coloured beards hair (beard_hair). protected (hair rules marked overFaceMasks, with the 4K
@@ -92,6 +113,10 @@ def apply_channels(labels, masks, mapped, colour=None, protected=None, positions
     # tattoo1 is the iris only; whatever else the rules owned there (troll horns and tusks, old ink) takes tattoo2 (user 2026-10-30)
     off_iris = (o == 8) & ~iris & mapped; report['tattoo1ToTattoo2'] = int(off_iris.sum()); o[off_iris] = 9
     lock = (masks['hairlock'] > .5) & mapped & (o == 0) & ~near_eye; report['hairLockToHair'] = int(lock.sum()); o[lock] = 1
+    if 'ear' in masks and colour is not None:
+        restore = ear_skin(o, masks, mapped, colour)
+        o[restore] = 0
+        report['earBoneToSkin'] = int(restore.sum())
     o = pad(o[..., None], mapped)[..., 0]
     moved = np.bincount(before[mapped].astype(np.int64)*10+o[mapped], minlength=100)
     report['moved'] = {f'{a}->{b}': int(moved[a*10+b]) for a in range(10) for b in range(10) if a != b and moved[a*10+b]}

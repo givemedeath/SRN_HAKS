@@ -5,7 +5,7 @@ import os
 import re
 import time
 
-from gpu_job import GEOMETRY_CAP, submissions
+from gpu_job import geometry_limit, submissions
 from head_files import attempts, current, fit_matrix, read
 from headkit.comfy import locked
 from workspace import TOOLS
@@ -96,21 +96,42 @@ def loop_budget(head, stages, limits=None):
     budget = {**LOOP_BUDGET, **(limits or {})}
     for stage in stages:
         count = len(attempts(head, stage))
-        if stage in budget and count >= budget[stage] and not (head/f'budget-override-{stage}').exists():
-            raise Refused(f'{head.name}: {stage} already has {count} attempts (limit {budget[stage]}): report it, or add budget-override-{stage}')
+        if stage not in budget or count < budget[stage]:
+            continue
+        limit = budget[stage]
+        override = head/f'budget-override-{stage}'
+        if override.exists():
+            try:
+                record = read(override)
+            except (ValueError,OSError) as exc:
+                raise Refused(f'{head.name}: {stage} needs a bounded JSON budget exception') from exc
+            maximum = record.get('maximumAttempts') if isinstance(record,dict) else None
+            if (type(maximum) is not int or maximum <= limit or record.get('head') != head.name
+                    or record.get('stage') != stage or not isinstance(record.get('approval'),str)
+                    or not record['approval'].strip()):
+                raise Refused(f'{head.name}: invalid head/stage/maximumAttempts/approval in {override.name}')
+            limit = maximum
+        if count >= limit:
+            raise Refused(f'{head.name}: {stage} already has {count} attempts (limit {limit}): report it, or add budget-override-{stage}')
 
 
 def geometry_cap(head):
     """User rule: at most 5 geometry submissions per head slot, reseeds and out-of-memory failures included."""
     ledger = head/'gpu'/'gpu.json'
     count = submissions(head/'gpu', read(ledger) if ledger.exists() else {})
-    if count >= GEOMETRY_CAP and not (head/'geometry-cap-override').exists():
-        raise Refused(f'{head.name}: {count} geometry submissions reached the cap of {GEOMETRY_CAP}: stop and ask the user')
+    try:
+        limit = geometry_limit(head)
+    except ValueError as exc:
+        raise Refused(str(exc)) from exc
+    if count >= limit:
+        raise Refused(f'{head.name}: {count} geometry submissions reached the cap of {limit}: stop and ask the user')
 
 
 def design_cap(folder, head):
     """User rule: at most 3 designs per head slot, each launch counted, refused ones included. design/design-cap-override-HEAD records the user's exception."""
     count = len(list((folder/'launches').glob(f'launch-*-{head}-s*')))
+    # External proposals and conditioning edits spend the same slot budget as local launches.
+    count += sum(1 for entry in (folder/'external-attempts'/head).glob('*.json') if entry.is_file())
     if count < DESIGN_CAP:
         return
     exception = folder/f'design-cap-override-{head}'
@@ -152,7 +173,10 @@ def jaw_limit(head, landmarks):
     matrix = fit_matrix(head) if marks else None
     if not matrix:
         return None
-    height = {key: sum(a*b for a, b in zip(matrix[2], [*value, 1.0])) for key, value in marks.items()}
+    # design_landmarks gives yawed head-local xyz. The fit matrix consumes NWN
+    # basis coordinates before that yaw; a tilted fit makes the depth sign matter.
+    height = {key: -matrix[2][0]*x - matrix[2][1]*y + matrix[2][2]*z + matrix[2][3]
+              for key, (x,y,z) in marks.items()}
     eye = (height['eyeLeft']+height['eyeRight'])/2
     return height['lips']-.5*(eye-height['lips'])
 

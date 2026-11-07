@@ -23,7 +23,7 @@ labels, report = rule_ownership(source, colour, config, metallic=metallic)
 rgb = np.asarray(Image.open(colour).convert('RGB')); value = mesh(source)
 sheet(splat(value, [rgb, PREVIEW[labels]], size=400, samples=2500000), 2, f'{name}: colour / ownership ' + json.dumps(report['channels']), 400).save(out)
 NAMES = ['skin', 'hair', 'metal1', 'metal2', 'cloth1', 'cloth2', 'leather1', 'leather2', 'tattoo1', 'tattoo2']  # NWN PLT layers (RUNBOOK 97)
-print('batch convention: 0 skin, 1 hair, 2 metal, 8 eyes/bone/tusks/lens, 9 ink tattoos (RUNBOOK 97)')
+print('Face-profile convention: 0 skin including design ink, 1 hair/brows/beard, 2/3 cyberware, 8 iris only, 9 horns/tusks.')
 print(name, {f'{k} {NAMES[int(k)]}': v for k, v in report['channels'].items()})
 for row in report['rules']: print(f"  {row['channel']} {NAMES[row['channel']]} {row['name']}: {row['texels']}")
 if len(sys.argv) > 4:

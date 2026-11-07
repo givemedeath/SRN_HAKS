@@ -6,7 +6,7 @@ import tempfile
 import unittest
 import numpy as np
 from headkit.common import manifest, write, read
-from headkit.face_masks import bilinear, hair_locks, brow_seed, brow_mask, iris_circles, project, FILL, IRIS, BROW_RING, HAIR, SKIN, SEEN_DEPTH, SEEN_FACING
+from headkit.face_masks import eye_contours, render_masks, bilinear, hair_locks, brow_seed, brow_mask, iris_circles, project, FILL, IRIS, BROW_RING, HAIR, SKIN, SEEN_DEPTH, SEEN_FACING
 from scipy.spatial import cKDTree
 from headkit.textures import pad, surface
 from headkit.face_encode import apply_channels, beard_hair, majority, consistent_blocks, treat, TREATMENT
@@ -74,6 +74,36 @@ class Brows(unittest.TestCase):
         self.assertTrue(seed[48:62, 15:105].all() and seed[48:62, 115:205].all()); self.assertFalse(seed[20:30].any())
 
 
+class TracedEyes(unittest.TestCase):
+    def test_clipped_parser_and_brow_spill_on_pinned_front(self):
+        rgb = np.zeros((220, 220, 3), np.uint8)
+        hit = np.ones(rgb.shape[:2], bool)
+        centres = {'R': np.array([60, 60]), 'L': np.array([160, 60])}
+        trace = {'rgbSha256': hashlib.sha256(rgb.tobytes()).hexdigest()}
+        for side, (x, y) in centres.items():
+            def box(a, b, c, d):
+                return [[x+a, y+b], [x+c, y+b], [x+c, y+d], [x+a, y+d]]
+            trace[side] = dict(opening=box(-14, 0, 14, 8), iris=box(-5, 0, 5, 7),
+                               excludeBrow=box(-12, -3, 12, 0))
+        labels = np.full(hit.shape, SKIN, np.uint8)
+        labels[50:61, 20:101] = labels[50:61, 120:201] = 2
+        contours = eye_contours(rgb, trace, centres, hit)
+        soft, _ = render_masks(rgb, labels, Brows.landmarks(), {s: (c, 6) for s, c in centres.items()}, hit, contours)
+        for x, y in centres.values():
+            self.assertGreater(soft['iris'][y+3, x], .95)
+            self.assertLess(soft['iris'][y+3, x+10], .05)
+            self.assertGreater(soft['eye'][y+3, x+10], .95)
+            self.assertLess(soft['brow'][y, x], .05)
+            self.assertGreater(soft['brow'][y-6, x], .95)
+        rgb[0, 0] = 1
+        with self.assertRaisesRegex(ValueError, 'exact front-render'):
+            eye_contours(rgb, trace, centres, hit)
+        rgb[0, 0] = 0
+        trace['L']['iris'] = trace['R']['iris']
+        with self.assertRaisesRegex(ValueError, 'landmark region'):
+            eye_contours(rgb, trace, centres, hit)
+
+
 class Project(unittest.TestCase):
     def test_shared_gutter_lookup_and_seen_only_sampling_match_each_mask_alone(self):
         rng = np.random.default_rng(3); S = 32; size = 64
@@ -122,6 +152,20 @@ class Iris(unittest.TestCase):
 
 
 class Channels(unittest.TestCase):
+    def test_troll_ear_correction_keeps_bone_and_metal(self):
+        from headkit.face_encode import ear_skin
+        labels = np.zeros((16, 16), np.uint8)
+        labels[8:] = 9
+        ear = np.zeros((16,16), np.float32)
+        ear[8:12] = 1
+        rgb = np.full((16,16,3), [118, 95, 162], np.uint8)
+        rgb[12:] = [195, 152, 71]
+        rgb[9,0] = rgb[12,0]
+        labels[9,1] = 2
+        found = ear_skin(labels, {'ear':ear,'skin':labels == 0}, np.ones_like(ear,bool), rgb)
+        self.assertEqual(int(found.sum()), 62)
+        self.assertFalse(found[9,0] or found[9,1])
+
     def test_moves(self):
         labels = np.zeros((4096, 4096), np.uint8); labels[100:110, 100:200] = 1   # hair-owned brow region partly
         masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock'); mapped = np.ones((4096, 4096), bool)

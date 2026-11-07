@@ -401,7 +401,37 @@ def row_scripts(spec,actors,sweep=SWEEP_SECONDS):
     height=['float HeadHeight(int row){']+[f'  if(row=={i}) return {heights.get(h["model"][:4],INSPECT_HEIGHT):.3f};' for i,h in enumerate(spec['heads'])]+[f'  return {INSPECT_HEIGHT:.3f};}}']
     library=(f'const int HEAD_ROWS={rows};\nconst float SWEEP={sweep:.1f};\nconst float INSPECT_DISTANCE={inspect.get("distance",INSPECT_DISTANCE):.2f};\n'
              f'const float INSPECT_PITCH={INSPECT_PITCH:.1f};\nconst float ACTOR_X={ACTOR_X:.2f};\nconst float ACTOR_Y={ACTOR_Y:.2f};\n'+ROW_LIBRARY+'\n'.join(names+columns+height+spawn)+'\n'+ROW_INSPECT+ROW_SHOW)
-    return {'sr_h_enter':library+ROW_ENTER,'sr_h_chat':library+ROW_CHAT}
+    enter=ROW_ENTER
+    if spec.get('inspectionTour') is True:
+        # Reuse the same camera, spawn and animation paths as manual inspection.
+        tour=['void HeadInspectView(string v){SetLocalString(GetModule(),"HEAD_VIEW",v);HeadCamera(GetFirstPC());}',
+              'void HeadTourDistance(float d){SetLocalFloat(GetModule(),"HEAD_DISTANCE",d);HeadCamera(GetFirstPC());}',
+              'void HeadTour(){']
+        delay=rows*sweep+8
+        for row in range(rows):
+            tour.append(f'  DelayCommand({delay:.1f},HeadShow({row}));')
+            delay+=4
+            for view in ('front','three','threeleft','backright','backleft','front'):
+                tour.append(f'  DelayCommand({delay:.1f},HeadInspectView("{view}"));')
+                delay+=8
+            # Show the silhouette on the body at play distance before the closer motion check.
+            tour.append(f'  DelayCommand({delay:.1f},HeadTourDistance(INSPECT_DISTANCE*4.0));')
+            delay+=8
+            # A talk/look lean can bring the chin below the close portrait frame.
+            tour.append(f'  DelayCommand({delay:.1f},HeadTourDistance(INSPECT_DISTANCE*1.75));')
+            delay+=3
+            tour.append(f'  DelayCommand({delay:.1f},HeadAnimate({row}));')
+            delay+=6
+            tour.append(f'  DelayCommand({delay:.1f},HeadTourDistance(INSPECT_DISTANCE));')
+            delay+=3
+            if any(actor['row']==row and actor['column']==1 for actor in actors):
+                tour.append(f'  DelayCommand({delay:.1f},HeadPut({row},1));')
+                delay+=8
+            tour.append(f'  DelayCommand({delay:.1f},HeadPut({row},0));')
+            delay+=8
+        library+='\n'.join(tour+['}'])+'\n'
+        enter=enter.replace('AssignCommand(GetModule(),HeadSweep());','AssignCommand(GetModule(),HeadSweep());AssignCommand(GetModule(),HeadTour());')
+    return {'sr_h_enter':library+enter,'sr_h_chat':library+ROW_CHAT}
 
 
 def blueprint(creature, motion=False):
@@ -428,8 +458,10 @@ def readme(spec,actors,hak_order):
            '| Head row | Look | Actor | Head | Slot | Skin | Hair | Tattoo1 | Tattoo2 | Helmet |','|---|---|---|---|---|---|---|---|---|---|']
     lines+=[f"| {a['row']+1} | {a['column']+1} | {a['tag']} | {a['headId']} | {a['model']} | {a['skin']} | {a['hair']} | {a['tattoo1']} | {a['tattoo2']} | {a['helmet'] or (f"armour (leather1 {a['armour']})" if a['armour'] is not None else '-')} |" for a in actors]
     lines+=['','PLT channels: 0 skin, 1 hair, 2 metal, 8 tattoo1, 9 tattoo2. Metal shows stock row 0 when no armour is worn. '
-            +('Actors run the fixture walk/cast/attack/death cycle and revive 10 s after death (spec motion).' if spec.get('motion')
+            +('The inspection tour shows each actor at gameplay distance, moves in for the talk/look animation, then restores the close portrait camera.' if spec.get('inspectionTour')
+              else 'Actors run the fixture walk/cast/attack/death cycle and revive 10 s after death (spec motion).' if spec.get('motion')
               else 'Actors stand still in idle for inspection (no heartbeat animation cycle) and are plot, so they cannot be attacked.'),'',
+            "Before recording the tour, bring the game to the foreground and park the pointer clear of the actor. Inspect the first saved portrait for an unobstructed face, neutral lighting and both horns when present. Check the saved gallery again before signing the client review. A matching camera log can accompany an obscured frame.",'',
             "After a run, check spawns with `verify_head_trial.py --manifest runtime-manifest.json`; it requires each head's first look. Not client-validated or production-accepted.",'']
     return '\n'.join(lines)
 
@@ -505,10 +537,10 @@ def build(spec_path,output):
         return fixture.make_creature(creatures[0],actor['tag'],actor['name'],actor['x'],actor['y'],actor['slot'],actor['skin'],actor['hair'],
             identity['appearanceRow'],identity['raceId'],identity['visualScale'],actor['helmet'],tattoo=(actor['tattoo1'],actor['tattoo2']),gender=actor['gender'],armour=actor['armour'])
     hak_order=[spec['hak']]+[Path(item['path']).stem for item in base_haks]
-    for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor),spec.get('motion',False)))
+    for actor in actors:gff(actor['tag']+'.utc',blueprint(creature(actor),spec.get('motion',False) and not spec.get('inspectionTour')))
     # Only the motion cycle casts at and attacks head_target; a still trial keeps the floor to its one NPC.
     target=[fixture.target_creature(creatures[0],identity['appearanceRow'],identity['raceId'],identity['visualScale'],40,MOTION_TARGET_Y,gender=sex)]
-    documents=fixture.module_documents(target if spec.get('motion') else [],hak_order,spec['lighting'],
+    documents=fixture.module_documents(target if spec.get('motion') and not spec.get('inspectionTour') else [],hak_order,spec['lighting'],
         name='SRN head trial '+spec['trial'],description='Trial heads: '+', '.join(h['model'] for h in spec['heads'])+'. Client acceptance pending.',
         events={'Mod_OnPlrChat':'sr_h_chat'})
     for name,document in documents.items():gff(name,document)

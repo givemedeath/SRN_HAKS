@@ -11,7 +11,7 @@ from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
 from scipy.spatial import cKDTree
 from .common import require, pin, write, read, positive
 from .gltf import mesh
-from .face_masks import EYE_RING, EYES, IRIS, LIPS, NOSE_BASE, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
+from .face_masks import EYE_RING, EYES, IRIS, LIPS, NOSE_BASE, eye_contours, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
 
 THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
@@ -79,30 +79,13 @@ def seam_limit(limit, approved):
     return float(approved['ratioMax'])
 
 
-def quality(source, masks, palette, palettes, output, thresholds=None, settings=None, embree=None):
-    """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}; embree: the
-    bound Embree DLL path (seam steps count outer faces only, RUNBOOK 164).
-    settings (the manifest quality section): `cybereyeImageSide` 'left' or 'right' leaves that eye and brow out of the role
-    checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find. `seamStepApproved`
-    {ratioMax, approval} is one head's user approval of its seamStep ratio after a client view (RUNBOOK 178)."""
-    settings = settings or {}; side = settings.get('cybereyeImageSide')
-    require(set(settings) <= {'cybereyeImageSide', 'seamStepApproved'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
-    approved = settings.get('seamStepApproved')
-    require(embree is not None, 'Quality needs the bound Embree runtime')
-    limits = thresholds if thresholds is not None else read(THRESHOLDS)['limits']; require(set(limits) == CHECKS, 'Incomplete quality thresholds')
-    seam_max = seam_limit(limits['seamStepRatioMax'], approved)
-    output = Path(output); output.mkdir(parents=True, exist_ok=False)
-    require(masks['source']['sha256'] == pin(source)['sha256'], 'Quality must read the masks of this UV mesh')
+def focus_view(source, masks, layers):
+    """Prepare the exact game-size projection once for palette search and quality review."""
     files = masks['files']; value = mesh(source); uv = value['uv'].astype(float)
     with np.load(files['frontView']['path']) as data: view = {k: data[k] for k in ('hit', 'face', 'bary')}
     pts = np.load(files['frontLandmarks']['path'])
     with Image.open(files['frontLabels']['path']) as image: labels = np.asarray(image)
     with Image.open(files['frontRender']['path']) as image: render = np.asarray(image.convert('RGB'))
-    with Image.open(palette['shades']['path']) as image: shades = np.asarray(image)
-    with Image.open(palette['ownership']['path']) as image: layers = np.asarray(image)
-    rows = {str(k): v for k, v in palette['rows'].items()}; tables = {}
-    for layer, path in palettes.items():
-        with Image.open(path) as image: tables[str(layer)] = np.asarray(image.convert('RGBA'))
     S = labels.shape[0]; ys, xs = np.mgrid[0:S, 0:S]; width = np.ptp(pts[:, 0]); scale = FACE_PX/width
     x0, x1 = int(pts[:, 0].min()-.05*width), int(pts[:, 0].max()+.05*width); y0, y1 = int(pts[:, 1].min()-.12*width), int(pts[:, 1].max()+.03*width)
 
@@ -117,25 +100,68 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
     # The landmark iris circle runs under the lids on narrow eyes: like the iris mask, count only the parser's eye opening
     # (RUNBOOK 146). Whites stay measured outside the full circle.
     iris &= eyes; whites = eyes & ~binary_dilation(iris, iterations=4); iris &= np.isin(labels, EYES); brows = brow_seed(labels, pts, eyes, view['hit'])
+    if 'eyeContours' in masks:
+        contours = eye_contours(render, masks['eyeContours'], {s: pts[c] for s, (c, _) in IRIS.items()}, view['hit'])
+        eyes = contours['opening']
+        iris = binary_erosion(contours['iris'])
+        whites = eyes & ~binary_dilation(contours['iris'], iterations=4)
+        brows = brow_seed(labels, pts, eyes, view['hit']) & ~(eyes | contours['excludeBrow'])
     # Plain skin also excludes the colour-grown brow edges, which ownership rightly puts on hair (RUNBOOK 147).
     plain = plain_skin(labels, face, eyes, brows | brow_mask(render, labels, brows, eyes, view['hit']))
     cheeks = np.zeros((S, S), bool)
     for i in (50, 280): cheeks |= np.hypot(xs-pts[i, 0], ys-pts[i, 1]) < .07*width
     features = eyes | polygon(labels.shape, pts, LIP_POLYGON) | brows
+    # Cheek pixels whose 4 neighbours are skin too, so design lines on a cheek do not count as skin noise.
+    cheek = binary_erosion(mask((np.rint(sample(view, layers.astype(np.float32)[..., None], uv)[..., 0]) == 0) & view['hit']), CROSS) & mask(cheeks)
+    feature = mask(features)
+    require(cheek.any() and feature.any(), 'No cheek or feature pixels at game size')
+    return dict(value=value, uv=uv, view=view, pts=pts, render=render, labels=labels, xs=xs, ys=ys,
+                plain=plain, face=face, brows=brows, whites=whites, iris=iris, small=small, mask=mask,
+                cheek=cheek, feature=feature)
+
+
+def focus_metrics(region, decoded):
+    rgb = sample(region['view'], decoded, region['uv'])
+    luma = region['small']((rgb@np.array([.299, .587, .114], np.float32)).astype(np.float32))
+    high = np.zeros_like(luma); high[1:-1, 1:-1] = luma[1:-1, 1:-1]-(luma[:-2, 1:-1]+luma[2:, 1:-1]+luma[1:-1, :-2]+luma[1:-1, 2:])/4
+    cheek, feature = region['cheek'], region['feature']
+    r = {}
+    r['cheekNoise'] = round(float(high[cheek].std()), 2); r['featureFocus'] = round(float(high[feature].std()/max(high[cheek].std(), 1e-6)), 2)
+    return luma, r
+
+
+def quality(source, masks, palette, palettes, output, thresholds=None, settings=None, embree=None):
+    """masks: the masks stage result; palette: the palette stage result; palettes: {layer: palette image path}; embree: the
+    bound Embree DLL path (seam steps count outer faces only, RUNBOOK 164).
+    settings (the manifest quality section): `cybereyeImageSide` 'left' or 'right' leaves that eye and brow out of the role
+    checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find. `seamStepApproved`
+    {ratioMax, approval} is one head's user approval of its seamStep ratio after a client view (RUNBOOK 178)."""
+    settings = settings or {}; side = settings.get('cybereyeImageSide')
+    require(set(settings) <= {'cybereyeImageSide', 'seamStepApproved', 'sourceHairRoles'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
+    approved = settings.get('seamStepApproved')
+    require(embree is not None, 'Quality needs the bound Embree runtime')
+    limits = thresholds if thresholds is not None else read(THRESHOLDS)['limits']; require(set(limits) == CHECKS, 'Incomplete quality thresholds')
+    seam_max = seam_limit(limits['seamStepRatioMax'], approved)
+    output = Path(output); output.mkdir(parents=True, exist_ok=False)
+    require(masks['source']['sha256'] == pin(source)['sha256'], 'Quality must read the masks of this UV mesh')
+    with Image.open(palette['shades']['path']) as image: shades = np.asarray(image)
+    with Image.open(palette['ownership']['path']) as image: layers = np.asarray(image)
+    rows = {str(k): v for k, v in palette['rows'].items()}; tables = {}
+    for layer, path in palettes.items():
+        with Image.open(path) as image: tables[str(layer)] = np.asarray(image.convert('RGBA'))
+    region = focus_view(source, masks, layers)
+    value, uv, view, pts, render, labels, xs, ys = (region[k] for k in
+        ('value', 'uv', 'view', 'pts', 'render', 'labels', 'xs', 'ys'))
+    plain, face, brows, whites, iris, small, mask = (region[k] for k in
+        ('plain', 'face', 'brows', 'whites', 'iris', 'small', 'mask'))
     locks = hair_locks(render, labels, view['hit'], face, plain)
     # Decoded colour and exact channels at every rendered pixel.
     decoded = np.zeros(shades.shape+(3,), np.float32)
     for k in np.unique(layers):
         table = tables.get(str(k), tables['0']); row = DECODE_ROWS.get(str(k), rows.get(str(k), 0)); row = 0 if row == 'auto' else int(row)
         selected = layers == k; decoded[selected] = table[row, shades[selected], :3]
-    rgb = sample(view, decoded, uv); channel = nearest(view, layers, uv); shade = nearest(view, shades, uv)
-    luma = small((rgb@np.array([.299, .587, .114], np.float32)).astype(np.float32))
-    high = np.zeros_like(luma); high[1:-1, 1:-1] = luma[1:-1, 1:-1]-(luma[:-2, 1:-1]+luma[2:, 1:-1]+luma[1:-1, :-2]+luma[1:-1, 2:])/4
-    # Cheek pixels whose 4 neighbours are skin too, so design lines on a cheek do not count as skin noise.
-    cheek = binary_erosion(mask((np.rint(sample(view, layers.astype(np.float32)[..., None], uv)[..., 0]) == 0) & view['hit']), CROSS) & mask(cheeks)
-    feature = mask(features); r = {}
-    require(cheek.any() and feature.any(), 'No cheek or feature pixels at game size')
-    r['cheekNoise'] = round(float(high[cheek].std()), 2); r['featureFocus'] = round(float(high[feature].std()/max(high[cheek].std(), 1e-6)), 2)
+    channel = nearest(view, layers, uv); shade = nearest(view, shades, uv)
+    luma, r = focus_metrics(region, decoded)
     # Blotch: largest patch of top skin shades on plain skin, opened 2x2 so 1 px highlight rims are not blotches.
     top = eligible(tables['0'][0 if rows.get('0', 0) == 'auto' else int(rows.get('0', 0))])[1]-TOP
     parts, n = label(binary_opening(small((plain & (channel == 0) & (shade >= top)).astype(np.uint8)*255) > 127, np.ones((2, 2))))
@@ -145,11 +171,26 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
         r['cybereyeImageSide'] = side
     share = lambda region, layer: round(float(np.isin(channel[region], layer).mean()), 3) if region.any() else None
     r['browsOnHair'] = share(brows, (1,)); r['irisOnTattoo1'] = share(iris, (8,)); r['whitesOnSkin'] = share(whites, (0,))
+    eyes_to_check = {'left': xs < pts[168, 0], 'right': xs >= pts[168, 0]}
+    r['irisOnTattoo1ByEye'] = {name: share(iris & half, (8,)) for name, half in eyes_to_check.items() if name != side}
     # Above the nose only: below it the parser has no beard class and ownership keeps hair-coloured beards hair (RUNBOOK 145).
     upper = plain & (ys < pts[NOSE_BASE, 1]); r['hairOnFaceSkin'] = share(upper & ~locks if locks is not None else upper, (1,))
     r['hairLockOnSkinPx'] = None
     if locks is not None:
         parts, n = label(small((locks & (channel == 0)).astype(np.uint8)*255) > 127, np.ones((3, 3))); r['hairLockOnSkinPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0
+    if 'sourceHairRoles' in settings:
+        from .quality_reference import source_regions
+        require(side is None,'Source hair-role audit requires two visible eyebrows')
+        r['parserRoleMetrics'] = {key:r[key] for key in ('hairLockOnSkinPx','browsOnHair','hairOnFaceSkin')}
+        traced_brows,traced_locks,evidence = source_regions(render,face,view['hit'],settings['sourceHairRoles'],output)
+        r['sourceRoleOverlay'] = evidence
+        by_eye = {name:share(traced_brows & half,(1,)) for name,half in
+                  [('left',xs<labels.shape[1]/2),('right',xs>=labels.shape[1]/2)]}
+        r['browsOnHairByEye'] = by_eye
+        r['browsOnHair'] = min(by_eye.values())
+        parts,n = label(small((traced_locks & (channel==0)).astype(np.uint8)*255)>127,np.ones((3,3)))
+        r['hairLockOnSkinPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0
+        r['hairOnFaceSkin'] = max(r['hairOnFaceSkin'] or 0,share(upper & ~traced_locks & ~traced_brows,(1,)) or 0)
     # Specks: 1-2 px channel islands inside the face at game size. Skin/hair/iris islands are ownership speckle; tattoo2/metal
     # islands are thin design marks breaking up (a design matter, warning only). Islands touching the face outline are the hull
     # clipping a hair/skin edge (face-edge locks, RUNBOOK 138), not speckle, and do not count.
@@ -188,6 +229,9 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
              ('seamStep', r['seamStepRatio'] is None or r['seamStepRatio'] <= seam_max),
              ('bodySkin', r['skinMedianOffset'] is not None and r['skinMedianOffset'] <= limits['skinMedianOffsetMax']),
              ('faceDark', r['faceDarkRatio'] is None or r['faceDarkRatio'] >= limits['faceDarkRatioMin'])) if not ok]
+    for eye, fraction in r['irisOnTattoo1ByEye'].items():
+        if fraction is None or fraction < limits['irisOnTattoo1Min']:
+            fails.append('irisOnTattoo1-'+eye)
     span_fails, r['shadeSpanExempt'] = shade_span_failures(r['shadeSpan'], palette, limits['shadeSpanMin'], limits['bodySkinSpanMin'], limits['hairEndTieExempt']); fails += span_fails
     warnings = [f"{r['designSpecks']} design-channel specks: thin marks break up at game size"] if r['designSpecks'] > limits['designSpecksWarn'] else []
     preview = np.repeat(np.clip(luma, 0, 255).astype(np.uint8)[..., None], 3, 2)

@@ -27,7 +27,10 @@ with tempfile.TemporaryDirectory() as tmp:
     try:
         neck.repair(source['path'], Path(tmp)/'final.glb', b, policy, inspection, fit=fit, body=body)
     except Selected:
-        print('single shell: no components review needed')
+        (head/'review-evidence').mkdir(exist_ok=True)
+        table = {'count': 1, 'deletedAreaFraction': 0.0, 'extra': []}
+        (head/'review-evidence'/'shells.json').write_text(json.dumps(table, indent=1))
+        print('single shell: keep it, no extras to delete')
     except meshmod.ShellReview as error:
         import numpy as np
         table = error.attempts['shells']; print('shells', table['count'], 'including the kept one; extra area %.4f%%' % (100*table['deletedAreaFraction']))
@@ -36,9 +39,10 @@ with tempfile.TemporaryDirectory() as tmp:
         keep = int(np.argmax(np.bincount(label, area))); main = F[label == keep]
         from headkit.common import library; igl = library(b, "igl")
         for k, row in zip([k for k in np.argsort(-np.bincount(label, area)) if k != keep], table['extra']):
-            points = V[np.unique(F[label == k])]
-            winding = igl.fast_winding_number_for_meshes(V, main, points) if hasattr(igl, 'fast_winding_number_for_meshes') else igl.winding_number(V, main, points)
-            row['insideFraction'] = float(np.mean(np.abs(winding) > .5))
+            if 'insideFraction' not in row:
+                points = V[np.unique(F[label == k])]
+                winding = igl.fast_winding_number(V, main.astype(np.int64, copy=False), points)
+                row['insideFraction'] = float(np.mean(np.abs(winding) > .5))
             print(' ', row['triangles'], 'tri', '%.4f%%' % (100*row['areaFraction']), 'inside %.0f%%' % (100*row['insideFraction']), 'centroid', row['centroid'])
         (head/'review-evidence').mkdir(exist_ok=True); (head/'review-evidence'/'shells.json').write_text(json.dumps(table, indent=1))
         # shells.png: face centroids projected on the three axis planes of the repair frame, kept shell grey (nearer = lighter),

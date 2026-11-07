@@ -1,6 +1,9 @@
 """Calibrate, geometry and appearance for one head on a local ComfyUI, with graphs from headkit.comfy.compile_graph (pixal-single-v1).
 Launched by `run_headbatch.py gpu`, which names the prepare attempt's matte for calibrate. Every run keeps its own folder under HEAD/gpu."""
 import argparse
+import hashlib
+import io
+from tempfile import NamedTemporaryFile
 import json
 import os
 from pathlib import Path
@@ -13,7 +16,7 @@ import urllib.error
 import urllib.request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from headkit.comfy import compile_graph  # noqa: E402
+from headkit.comfy import MULTIVIEW_VIEWS, compile_graph  # noqa: E402
 from headkit.common import sha, write, pin, verify  # noqa: E402
 from resource_budget import Budget, Watchdog
 import gpu_contract
@@ -88,6 +91,17 @@ class Comfy:
                 time.sleep(POLL_SECONDS)
         raise SystemExit(f'prompt {prompt} did not finish in {self.deadline} s; reconcile before the next GPU job')
 
+    def check_trellis_devices(self, stages):
+        if not {'geometry', 'appearance'}.intersection(stages):
+            return
+        stats = self.call('/system_stats')
+        system = stats.get('system') if isinstance(stats, dict) else None
+        argv = system.get('argv') if isinstance(system, dict) else None
+        if not isinstance(argv, list) or not argv or not all(isinstance(arg, str) for arg in argv):
+            raise ComfyError('Cannot verify live ComfyUI arguments for Trellis decoding')
+        if '--cpu-vae' in argv:
+            raise ComfyError('Trellis GPU decode requires the VAE on the GPU. Restart the controlled server without --cpu-vae before submitting.')
+
     def ensure_idle(self):
         queue=self.queue()
         if queue['queue_running'] or queue['queue_pending']:
@@ -100,6 +114,7 @@ class Comfy:
         # Free cached models first (applied between prompts): the card is shared with the desktop, so a decode can run out on cache alone.
         if self.budget:self.budget.check()
         self.free()
+        if self.budget:self.budget.admit_prompt()
         before_prompt()  # after /free: a server that cannot be reached has received no submission
         token=uuid.uuid4().hex
         if self.unresolved:write(self.unresolved,{'state':'submitting; reconcile by clientId','clientId':token,'graph':graph})
@@ -113,7 +128,7 @@ class Comfy:
         print('prompt', reply['prompt_id'], flush=True)
         return self.wait(reply['prompt_id'])
 
-    def run(self, graph, out, before_submit=lambda: None):
+    def run(self, graph, out, before_submit=lambda: None, *, retry_oom=True):
         started = time.time()
         requested = out
         for retry in range(2):
@@ -126,7 +141,7 @@ class Comfy:
                 write(out/'failure.json', {'type':type(error).__name__,'error':str(error),'elapsedSeconds':time.time()-started})
                 raise
             write(out/'history.json', entry)
-            if retry == 0 and failed(entry) and 'out of memory' in json.dumps(entry['status']):
+            if retry_oom and retry == 0 and failed(entry) and 'out of memory' in json.dumps(entry['status']):
                 print(out.name, 'CUDA OOM: evidence saved; freeing VRAM and retrying once', flush=True)
                 time.sleep(10)
             else:
@@ -177,12 +192,40 @@ def file_from(files, node):
     return next(value for key, value in files.items() if key.startswith(node))
 
 
-def calibrate(comfy, head, gpu, ledger, stage_input, prefix, matte=None, prepared=None):
+def calibrate(comfy, head, gpu, ledger, stage_input, prefix, matte=None, prepared=None, camera_attempt=None, camera_approval=None):
     from PIL import Image
     sources = json.loads(Path(prepared).read_text()) if prepared else None
     if sources:
         verify(sources['pins']+[sources['receipt'], *sources['images'].values()], fresh=True)
         ledger['matteAttempt'] = sources['attempt']
+        if sources.get('profile') == 'pixal-multiview-v1':
+            if camera_attempt or camera_approval:
+                raise ValueError('Multiview uses the reviewed fixed 20-degree rig')
+            expected = {role+view for view in MULTIVIEW_VIEWS for role in ('geometry','detail')}
+            if set(sources['images']) != expected:
+                raise ValueError('Multiview needs exactly four matched prepared pairs')
+            staged = {}
+            for role, item in sources['images'].items():
+                # Match headkit's LoadImage conditioning: composite onto black on the shared canvas.
+                with Image.open(item['path']) as source:
+                    rgba = source.convert('RGBA')
+                canvas = Image.new('RGBA', rgba.size, (0, 0, 0, 255))
+                canvas.alpha_composite(rgba)
+                encoded = io.BytesIO()
+                canvas.convert('RGB').save(encoded, format='PNG')
+                data = encoded.getvalue()
+                digest = hashlib.sha256(data).hexdigest()
+                target = stage_input/f'{role}-{digest}.png'
+                if not target.exists():
+                    with NamedTemporaryFile(dir=stage_input, delete=False) as temporary:
+                        temporary.write(data)
+                    Path(temporary.name).replace(target)
+                staged[role] = pin(target)
+                if staged[role]['sha256'] != digest:
+                    raise ValueError('Changed staged multiview image: '+role)
+            verify(list(sources['images'].values()), fresh=True)
+            return {'mode':'multiview','seconds':0.,'sharedFov':20,'fov':{'geometry':20,'detail':20},
+                    'conditioning':staged,'prepared':{'receipt':sources['receipt'],'images':sources['images']}}
         images = {role:Path(row['path']) for role,row in sources['images'].items()}
     else:
         ledger['matteAttempt'] = matte.parents[1].name
@@ -199,14 +242,18 @@ def calibrate(comfy, head, gpu, ledger, stage_input, prefix, matte=None, prepare
     entry,files,seconds=comfy.run(graph,gpu/'calibrate')
     fov={'detail':float(entry['outputs']['10']['text'][0]),'geometry':float(entry['outputs']['16']['text'][0])}
     # Divergent estimates indicate inconsistent conditioning, not permission to pick an arbitrary camera.
-    if not all(25<=v<=70 for v in fov.values()) or abs(fov['detail']-fov['geometry'])>8:
+    camera_review = None
+    if camera_attempt:
+        camera_review = gpu_contract.checked_detail_camera(head, camera_attempt, camera_approval, graph, files, fov)
+    elif not all(25<=v<=70 for v in fov.values()) or abs(fov['detail']-fov['geometry'])>8:
         raise SystemExit(f'Calibration FOV requires review before geometry: {fov}')
     normalized={}
     for role,node in (('geometry','12:'),('detail','13:')):
         target=stage_input/f'normalized-{role}.png'
         shutil.copy2(file_from(files,node)['path'],target)
         normalized[role]=pin(target)
-    return {'seconds':seconds,'fov':fov,'sharedFov':fov['detail'],'files':files,
+    return {'seconds':seconds,'fov':fov,'sharedFov':camera_review['value'] if camera_review else fov['detail'],'files':files,
+            **({'cameraReview': camera_review} if camera_review else {}),
             'conditioning':normalized,'mode':'paired' if sources and sources.get('paired') else 'bootstrap',
             'prepared':{'receipt':sources['receipt'],'images':sources['images']} if sources else None}
 
@@ -230,30 +277,72 @@ def submissions(gpu, ledger):
     return max([ledger.get('geometrySubmissions', 0), *numbers])
 
 
+def geometry_limit(head):
+    exception = head/'geometry-cap-override'
+    if not exception.exists():
+        return GEOMETRY_CAP
+    try:
+        approval = json.loads(exception.read_text(encoding='utf-8-sig'))
+    except (ValueError, OSError) as exc:
+        raise ValueError('Geometry exception needs a bounded JSON authorization') from exc
+    limit = approval.get('maximumSubmissions') if isinstance(approval, dict) else None
+    if (type(limit) is not int or limit <= GEOMETRY_CAP or approval.get('head') != head.name
+            or not isinstance(approval.get('approval'), str) or not approval['approval'].strip()):
+        raise ValueError('Invalid bounded geometry authorization for '+head.name)
+    return limit
+
+
 def spend_geometry_submission(head, gpu, ledger):
     """User rule: every submission counts towards the cap, retries and reseeds included, and is on disk before it runs."""
     count = submissions(gpu, ledger)
-    if count >= GEOMETRY_CAP and not (head/'geometry-cap-override').exists():
-        raise SystemExit(f'{head.name}: {count} geometry submissions reached the cap of {GEOMETRY_CAP}: stop and ask the user')
+    limit = geometry_limit(head)
+    if count >= limit:
+        raise SystemExit(f'{head.name}: {count} geometry submissions reached the cap of {limit}: stop and ask the user')
     ledger['geometrySubmissions'] = count+1
     save_ledger(gpu, ledger)
 
 
-def geometry(comfy, head, gpu, ledger, prefix, offset):
-    fov = ledger['stages']['calibrate']['fov']['detail']
-    graph = compile_graph('geometry', 'pixal-single-v1', {'geometry': conditioning_image(ledger, head, 'geometry')}, prefix, fov=fov)
+def shared_camera(ledger):
+    camera = ledger['stages']['calibrate']
+    return camera.get('sharedFov', camera['fov']['detail'])
+
+
+def conditioned_graph(head, ledger, stage, prefix, shape=None):
+    role = 'geometry' if stage == 'geometry' else 'detail'
+    multi = ledger['stages']['calibrate'].get('mode') == 'multiview'
+    roles = [role+view for view in MULTIVIEW_VIEWS] if multi else [role]
+    inputs = {key: conditioning_image(ledger, head, key) for key in roles}
+    profile = 'pixal-multiview-v1' if multi else 'pixal-single-v1'
+    return compile_graph(stage, profile, inputs, prefix, fov=shared_camera(ledger), shape=shape)
+
+
+def geometry_graph(head, ledger, prefix, offset, shape_grid=None):
+    graph = conditioned_graph(head, ledger, 'geometry', prefix)
+    if shape_grid is not None:
+        upsample = graph['94']
+        if (upsample['class_type'] != 'Trellis2UpsampleStage'
+                or 'target_resolution' not in upsample['inputs']
+                or type(shape_grid) is not int or shape_grid not in range(1024, 2049, 128)):
+            raise ValueError('Unsupported Trellis shape grid or upsample node')
+        upsample['inputs']['target_resolution'] = shape_grid
     shift_seeds(graph, offset)
+    return graph
+
+
+def geometry(comfy, head, gpu, ledger, prefix, offset, *, shape_grid=None, single_submission=False):
+    graph = geometry_graph(head, ledger, prefix, offset, shape_grid)
     spend = lambda: spend_geometry_submission(head, gpu, ledger)
     try:
-        entry, files, seconds = comfy.run(graph, gpu/'geometry', spend)
+        entry, files, seconds = comfy.run(graph, gpu/'geometry', spend, retry_oom=not single_submission)
     except SystemExit as error:
-        if 'out of memory' not in str(error):
+        if single_submission or 'out of memory' not in str(error):
             raise
         print(head.name, 'geometry OOM after a freed retry: reseeding', flush=True)
         offset += OOM_RESEED
         shift_seeds(graph, OOM_RESEED)
         entry, files, seconds = comfy.run(graph, gpu/f'geometry-oom-r{offset}', spend)
-    return {'seconds': seconds, 'fov': fov, 'files': files, 'seedOffset': offset,
+    return {'seconds': seconds, 'fov': shared_camera(ledger), 'files': files, 'seedOffset': offset,
+            **({'shapeGrid': shape_grid} if shape_grid is not None else {}),
             'submission':ledger['geometrySubmissions'],
             'conditioningDigest':gpu_contract.calibration_id(ledger['stages']['calibrate'])}
 
@@ -274,10 +363,10 @@ def appearance(comfy, head, gpu, ledger, prefix, offset):
     if ledger['stages']['geometry'].get('occiput', {}).get('open'):
         raise SystemExit(f'{head.name}: the saved geometry has an open occiput: reseed before appearance')
     gpu_contract.require_geometry_review(head,ledger)
-    fov = ledger['stages']['calibrate']['fov']['detail']
+    fov = shared_camera(ledger)
     shape = file_from(ledger['stages']['geometry']['files'], SHAPE_NODE)
     suffix = f'-r{offset}' if offset else ''
-    graph = compile_graph('appearance', 'pixal-single-v1', {'detail': conditioning_image(ledger, head, 'detail')}, prefix+suffix, fov=fov, shape=shape)
+    graph = conditioned_graph(head, ledger, 'appearance', prefix+suffix, shape)
     shift_seeds(graph, offset)
     if offset and 'appearance' in ledger['stages']:
         earlier = ledger['stages']['appearance']
@@ -293,12 +382,15 @@ def main():
     parser.add_argument('--comfy-root', required=True, type=Path)
     parser.add_argument('--stages', default='calibrate,geometry,appearance')
     parser.add_argument('--seed-offset', type=int, default=0)
+    gpu_contract.geometry_options(parser)
     parser.add_argument('--upstream', type=Path, help='frozen ledger holding the earlier stages this run reuses')
     parser.add_argument('--prepared', type=Path, help='frozen reviewed paired prepare inputs')
     parser.add_argument('--resources', type=Path, help='frozen workspace memory budget')
     parser.add_argument('--matte', type=Path, help="the prepare attempt's design-rgba.png, for calibrate")
     args = parser.parse_args()
     selected = gpu_contract.stages(args.stages)
+    if (args.shape_grid is not None or args.single_submission) and 'geometry' not in selected:
+        parser.error('--shape-grid and --single-submission require a geometry stage')
     head = args.head.resolve()
     gpu = head/'gpu'
     comfy = Comfy(args.comfy_url, args.comfy_root)
@@ -320,16 +412,19 @@ def main():
 
     try:
         if comfy.budget:comfy.budget.start()
+        comfy.check_trellis_devices(selected)
         for stage in selected:
             prefix = f'headkit/{head.name}/{stage}'
             if stage == 'calibrate':
-                calibrated = calibrate(comfy, head, gpu, ledger, stage_input, prefix, args.matte, args.prepared)
+                calibrated = calibrate(comfy, head, gpu, ledger, stage_input, prefix, args.matte, args.prepared,
+                                       args.detail_camera_attempt, args.camera_approval)
                 # Recalibration replaces mutable normalized files; retain history but invalidate all dependent state.
                 ledger.setdefault('superseded',[]).append({'stages':dict(ledger['stages']),'geometryReview':ledger.pop('geometryReview',None)})
                 ledger['stages'] = {'calibrate':calibrated}
             elif stage == 'geometry':
                 try:
-                    row = geometry(comfy, head, gpu, ledger, prefix, args.seed_offset)
+                    row = geometry(comfy, head, gpu, ledger, prefix, args.seed_offset,
+                                   shape_grid=args.shape_grid, single_submission=args.single_submission)
                 finally:
                     save()  # a failed submission still counts towards the cap
                 # An open back of skull found only after a long CPU chain wastes the whole head, so check the raw shape now.

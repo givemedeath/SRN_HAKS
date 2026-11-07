@@ -9,6 +9,7 @@ import guards  # noqa: E402
 from head_files import write_json  # noqa: E402
 import head_setup  # noqa: E402
 import launcher  # noqa: E402
+import gpu_contract  # noqa: E402
 import presets  # noqa: E402
 import spool  # noqa: E402
 import trials  # noqa: E402
@@ -51,7 +52,9 @@ def parser():
     p.add_argument('head')
     p.add_argument('design')
     p.add_argument('--reference-record', type=Path)
+    p.add_argument('--revised-clay-check', type=Path, help='select a checked replacement clay on the existing slot and preserve the GPU ledger')
     p.add_argument('--quality-profile', choices=['face-v1'])
+    p.add_argument('--no-neck-cut', action='store_true', help='preserve a jaw-terminated head for review against the bound body neck')
     p.add_argument('--approval', required=True, help='who picked the design and on what basis')
     p.add_argument('--reach', type=float, default=.04)
     p.add_argument('--slope', type=float, default=-.2, help='-0.3 when hair reaches the nape (RUNBOOK 76)')
@@ -79,6 +82,10 @@ def parser():
     p.add_argument('head')
     p.add_argument('--stages')
     p.add_argument('--seed-offset')
+    gpu_contract.geometry_options(p)
+    p = commands.add_parser('gpu-camera', help='show the two camera estimates for an exact calibration attempt')
+    p.add_argument('head')
+    p.add_argument('--attempt', required=True)
     p = commands.add_parser('gpu-review', help='record user review of an exact raw geometry submission')
     p.add_argument('head')
     p.add_argument('--attempt', required=True)
@@ -137,8 +144,11 @@ def main(argv=None):
     args = parser().parse_args(argv)
     try:
         workspace = Workspace.load(args.workspace)
-        if args.command == 'setup':
-            print('ready', head_setup.set_up(workspace, args.head, args.design, args.reach, args.slope, args.deviation, args.approval, reference=args.reference_record, quality_profile=args.quality_profile))
+        if args.command == 'setup' and args.revised_clay_check:
+            print('revised clay', head_setup.revise_clay(workspace, args.head, args.design, args.reference_record,
+                                                        args.revised_clay_check, args.approval))
+        elif args.command == 'setup':
+            print('ready', head_setup.set_up(workspace, args.head, args.design, args.reach, args.slope, args.deviation, args.approval, reference=args.reference_record, quality_profile=args.quality_profile, no_neck_cut=args.no_neck_cut))
         elif args.command == 'reference-check':
             # The bound packages are loaded only in the env child, like other CPU tools.
             return subprocess.run([PYTHON, '-B', '-c',
@@ -155,6 +165,14 @@ def main(argv=None):
             return run_stages(workspace, args)
         elif args.command == 'gpu':
             extra = [*(['--stages', args.stages] if args.stages else []), *(['--seed-offset', args.seed_offset] if args.seed_offset else [])]
+            if args.detail_camera_attempt is not None:
+                extra.extend(['--detail-camera-attempt', args.detail_camera_attempt])
+            if args.camera_approval is not None:
+                extra.extend(['--camera-approval', args.camera_approval])
+            if args.shape_grid is not None:
+                extra.extend(['--shape-grid', str(args.shape_grid)])
+            if args.single_submission:
+                extra.append('--single-submission')
             data = launcher.run_gpu(workspace, args.head, extra)
             print('gpu launch', round(data['elapsedSeconds'], 1), 's exit', data['exitCode'])
             if data['exitCode'] == 0:
@@ -162,8 +180,12 @@ def main(argv=None):
             else:
                 print('reason:', data['errors'])  # a cap or an open occiput stops the job with only its message there
             return data['exitCode']
+        elif args.command == 'gpu-camera':
+            with guards.head_locks(workspace, [args.head]), launcher.cpu_slot(workspace):
+                args_list = ['--camera', str(workspace.head(args.head)), args.attempt]
+                return subprocess.run([PYTHON, '-B', str(REVIEW/'gpuclay.py'), *args_list],
+                                      env=workspace.python_environment(packages=True, tools=True)).returncode
         elif args.command == 'gpu-review':
-            import gpu_contract
             with guards.head_locks(workspace,[args.head]):
                 print(gpu_contract.review_geometry(workspace.head(args.head),args.attempt,args.approval))
         elif args.command == 'design':

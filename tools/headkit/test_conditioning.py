@@ -11,6 +11,96 @@ from headkit.face_encode import skin_preservation,treat,TREATMENT
 from headkit.review_images import atlas_sets
 from headkit.cameras import review_cameras
 
+class LocalPaintTests(unittest.TestCase):
+    def test_registered_eyes_sample_expected_reference_and_preserve_neighbors(self):
+        from headkit.common import pin
+        from headkit.reference_eyes import restore
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = np.full((64,64,3), 190, np.uint8)
+            source[32,18] = [12,17,24]
+            source[32,46] = [24,17,12]
+            Image.fromarray(source).save(root/'ref.png')
+            yy,xx = np.indices((64,64))
+            np.savez(root/'view.npz', hit=np.ones((64,64),bool), face=(xx<yy).astype(int),
+                     centre=np.zeros(3), span=1.)
+            uv = np.array([[[0,0],[1,0],[1,1]],[[0,0],[1,1],[0,1]]])
+            value = dict(uv=uv, faces=np.array([[0,1,2],[0,2,3]]),
+                         positions=np.array([[-.5,.5,0],[.5,.5,0],[.5,-.5,0],[-.5,-.5,0]]))
+            masks = dict(frontView=pin(root/'view.npz'),frontRender={'sha256':'frame'})
+            spec = dict(frontSha256='frame', referenceSha256=pin(root/'ref.png')['sha256'])
+            for side,centre in [('R',18),('L',46)]:
+                spec[side] = dict(reference=[centre,32,3,3],target=[centre,32,3,3])
+            opening = np.zeros((64,64),float)
+            opening[30:35,16:21] = opening[30:35,44:49] = 1
+            labels = np.zeros((64,64),int)
+            labels[32,17] = 1
+            colour = np.zeros((64,64,3),np.float32)
+            counts = restore(colour, labels, opening, value, masks, root/'ref.png', spec)
+            self.assertEqual(counts, {'R':24,'L':25})
+            np.testing.assert_array_equal(colour[32,[18,46]], source[32,[18,46]])
+            self.assertFalse(colour[32,17].any())
+            self.assertFalse(colour[opening==0].any())
+            with self.assertRaisesRegex(ValueError,'reference bytes'):
+                restore(colour, labels, opening, value, masks, root/'ref.png', dict(spec,frontSha256='stale'))
+
+    def test_material_outline_uses_declared_axes_and_rejects_degenerate_contours(self):
+        from headkit.paint import surface_outline
+        points = np.array([[.2,.9,.2], [.8,.1,.8], [.2,.1,.8]])
+        spec = dict(axes='xz', points=[[0,0],[.8,0],[0,.8]])
+        np.testing.assert_array_equal(surface_outline(points, spec), [True,False,False])
+        with self.assertRaises(ValueError):
+            surface_outline(points, dict(axes='xx', points=spec['points']))
+        with self.assertRaises(ValueError):
+            surface_outline(points, dict(axes='xy', points=[[0,0],[.1,.1],[.2,.2]]))
+
+    def test_heal_samples_same_surface_and_preserves_neighbor_pixels(self):
+        import numpy as np
+        from headkit.paint import heal
+        n = 64
+        ys,xs = np.mgrid[:n,:n]
+        coords = np.array([[0.,0.],[1.,0.],[0.,1.],[1.,1.]])
+        faces = np.array([[0,1,2],[1,3,2]])
+        mesh = {'uv':coords[faces], 'positions':np.column_stack((coords,coords[:,1])), 'faces':faces}
+        rgb = np.full((n,n,3),50,np.uint8)
+        rgb[20:23,20:23] = [200,0,0]
+        rgb[20:23,24:27] = [0,200,0]
+        initial = rgb.copy()
+        mapped = np.ones((n,n),bool)
+        def values():
+            return {'mapped':mapped,'face':(xs+ys>=n).astype(int),'r':rgb[...,0],'g':rgb[...,1]}
+        op = {'name':'small-mark','target':{'of':'r','gt':190},'donor':{'of':'g','gt':190},
+              'offset':[4/n,0.,0.]}
+        mask = heal(mesh,rgb,op,{},values,{})['small-mark']
+        np.testing.assert_array_equal(rgb[~mask],initial[~mask])
+        self.assertTrue(np.all(rgb[mask]==[0,200,0]))
+        self.assertEqual(int(mask.sum()),9)
+
+
+class SourceRoleTests(unittest.TestCase):
+    def test_source_regions_reject_changed_pixels_and_unreviewed_masks(self):
+        import hashlib
+        from headkit.quality_reference import source_regions
+
+        rgb = np.zeros((32, 64, 3), dtype=np.uint8)
+        hit = np.ones(rgb.shape[:2], dtype=bool)
+        digest = hashlib.sha256(rgb.tobytes()).hexdigest()
+        spec = {
+            'rgbSha256': digest,
+            'brows': {'of': 'y', 'lt': 8},
+            'locks': {'of': 'y', 'gt': 12},
+            'maskSha256': {'brows': 'unreviewed', 'locks': 'unreviewed'},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            with self.assertRaisesRegex(ValueError, 'visually reviewed'):
+                source_regions(rgb, hit, hit, spec, output)
+            rgb[0, 0, 0] = 1
+            with self.assertRaisesRegex(ValueError, 'another front render'):
+                source_regions(rgb, hit, hit, spec, output)
+            self.assertFalse((output/'source-roles.png').exists())
+
+
 class Conditioning(unittest.TestCase):
     def test_prepare_prefers_pair_even_with_design_for_palette(self):
         data={'profile':'pixal-single-v1','inputs':{'design':{},'clay':{},'detail':{}},'alignment':{},
