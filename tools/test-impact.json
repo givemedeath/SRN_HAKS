@@ -1130,6 +1130,7 @@
     ],
     "tools/itemkit/combat_clip_pilot.py": [
       "tools/heads/build_head_trial.py",
+      "tools/itemkit/__init__.py",
       "tools/itemkit/anim_chain_probe.py",
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/native_motion.py"

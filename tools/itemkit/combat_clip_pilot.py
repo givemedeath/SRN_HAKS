@@ -17,8 +17,10 @@ import sys
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(REPO), str(REPO / 'tools/itemkit')]
-import anim_chain_probe as probe
+# Appended, so these modules can share a test process with tools that have a same-named module.
+if str(REPO) not in sys.path:
+    sys.path.append(str(REPO))
+from tools.itemkit import anim_chain_probe as probe
 from tools.phenomorpher.phenomorpher.engine.anim_library import load_model
 from tools.phenomorpher.phenomorpher.engine.native_motion import quaternion_matrix, sample
 
@@ -700,6 +702,7 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client):
         tools.run('nwn_erf', '-c', '-e', 'HAK', '-f', user / 'hak' / (name + '.hak'), folder)
     module = user / 'modules' / (probe.MODULE + '.mod')
     tools.run('nwn_erf', '-c', '-e', 'MOD', '-f', module, stage)
+    sys.path[:0] = [str(REPO / 'tools/heads'), str(REPO / 'tools/phenotypes')]
     from build_head_trial import launch_scripts
     cmd, ps1 = launch_scripts(probe.MODULE, client)
     (output / 'Launch.cmd').write_bytes(cmd.encode('ascii'))

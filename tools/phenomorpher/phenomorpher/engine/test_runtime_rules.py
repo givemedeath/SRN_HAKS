@@ -105,6 +105,8 @@ class RuntimeRuleTests(unittest.TestCase):
 
     def test_declared_stock_override_pins_the_shipped_model(self):
         repo = Path(__file__).resolve().parents[4]
+        if not (repo/'srn_body').is_dir():
+            self.skipTest('Installed wheel has no repository packs')
         for name, entry in DECLARED_STOCK_OVERRIDES.items():
             blob = (repo/'srn_body'/(name + '.mdl')).read_bytes()
             self.assertEqual(hashlib.sha256(blob).hexdigest(), entry['sha256'])

@@ -22,7 +22,9 @@ import sys
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(REPO), str(REPO / 'tools/heads'), str(REPO / 'tools/phenotypes')]
+# Appended, so these modules can share a test process with tools that have a same-named module.
+if str(REPO) not in sys.path:
+    sys.path.append(str(REPO))
 from tools.phenomorpher.phenomorpher.engine.anim_library import PARENT_FIELD, library_text, load_model, rename
 from tools.phenomorpher.phenomorpher.engine.native_motion import sample
 
@@ -317,6 +319,7 @@ def build(output, game_root, tool_dir, game_userdir, client):
         tools.run('nwn_erf', '-c', '-e', 'HAK', '-f', user / 'hak' / (name + '.hak'), folder)
     module = user / 'modules' / (MODULE + '.mod')
     tools.run('nwn_erf', '-c', '-e', 'MOD', '-f', module, stage)
+    sys.path[:0] = [str(REPO / 'tools/heads'), str(REPO / 'tools/phenotypes')]
     from build_head_trial import launch_scripts
     cmd, ps1 = launch_scripts(MODULE, client)
     (output / 'Launch.cmd').write_bytes(cmd.encode('ascii'))
