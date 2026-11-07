@@ -162,7 +162,7 @@ Both come from `F:\repos\SR_NWN\OLD_SR_MOD_ASSETS\!Combat Override System` (`--o
 | Effect | Source | What changed |
 |---|---|---|
 | Flash | `muzzle_flash01..09` in `WIP/combat_ovr_v1.hak/models/wbwxh_m_154.mdl`: nine `fxpa_flare` sprites, 10 cm apart down the barrel | Moved onto each gun's muzzle. The old sprites grow from nothing and peak 0.2 s after the shot, so the bullet left before the flash showed. They now start full (0.12) and shrink and fade over 0.1 s (`FLASH_FIELDS`) |
-| Casing | `Casings39` in `OLD/!DONE/gun models/wbwar_t_101.mdl`: one `Explosion` particle, 2 m/s to the right and slightly up, with mass, bounce and a 5 s life | Put on a hand-placed ejection port per gun (`PORTS`). Size 0.15 drew a casing about 12 cm long, so it's now 0.06 (`CASING_SIZE`), about 4 to 5 cm |
+| Casing | `Casings39` in `OLD/!DONE/gun models/wbwar_t_101.mdl`: one `Explosion` particle, 2 m/s to the right and slightly up, with mass, bounce and a 5 s life | Put on a hand-placed ejection port per gun (`PORTS`). Size 0.15 drew a casing about 12 cm long, so it's now 0.085 (`CASING_SIZE`): about 68 by 22 mm, 1.75 times a 39 mm rifle casing (user choice, 2026-11-07). Builds up to v13 used 0.06 |
 | Casing sheet | `fxpa_smoke02.tga` beside the gun models: 16 identical casings | It overwrote the stock smoke texture of that name. It's now `srnfx_casing`, redrawn as 16 frames that turn the casing side-on to end-on, played at 24 frames a second |
 
 Both fire on one `detonate` at 0.5 s.
@@ -282,7 +282,7 @@ actors: male and female, Fit and Large, bare and in robes 005 and 020. They were
   with 12 Humans standing still, 67 ms with all 12 firing full auto, and 66 ms with 12 Trolls firing full auto.
 - **Render frame rate wasn't measured.** The probe times the script scheduler, not drawn frames, and the screen
   capture runs too slowly to judge. Nothing visibly stuttered.
-- **Casings are only specks at the wide camera.** At about 5 cm they read at close range but barely from overhead.
+- **Casings were only specks at the wide camera** at 0.06, about 5 cm. They read at close range but barely from overhead. They are now 0.085, about 68 mm, 1.75 times a real rifle casing, as a compromise. That size is not yet checked in the client.
   A larger casing would trade realism for visibility.
 - **Robed Trolls render with missing body parts.** That's the all-race robe refit deferred in the animation chain
   probe, not this pilot.

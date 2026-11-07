@@ -41,8 +41,9 @@ OLD_CASING_SHEET = 'OLD/!DONE/gun models/fxpa_smoke02.tga'
 CASING_SHEET = 'srnfx_casing'
 # The old flash grows from nothing and peaks 0.2 s after the shot. Start it full and fade it out instead.
 FLASH_FIELDS = {'sizeStart': .12, 'sizeEnd': .02, 'sizeStart_y': .12, 'sizeEnd_y': .02, 'alphaEnd': 0, 'lifeExp': .1}
-# The old casing reads about 12 cm long. This is about 5 cm.
-CASING_SIZE = .06
+# The casing fills 80% of its sprite (`tumbling_sheet`). The old size, 0.15, drew it about 12 cm long. This draws
+# 1.75 times a 39 mm rifle casing, about 68 mm, so it still reads from the overhead camera.
+CASING_SIZE = .085
 # The stock attack's `hit`, where the engine launches the shot.
 SHOT_TIME = .5
 # The SMG clip kicks six times. Each kick gets a flash and a casing, so the native shot lands on the third.
