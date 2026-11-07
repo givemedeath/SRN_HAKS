@@ -223,8 +223,7 @@ Client results:
 - **Shotgun:** the left hand was seen moving along the barrel on a bare Human male, and the clip fires correctly on Dwarf
   male in live combat. The other races and Dwarf female were not checked close up.
 - **Firing, Ingram on `throwr`:** all five races used 2 rounds in 10 s.
-- **Firing, shotgun clip on `xbowshot`:** Human and Dwarf used 2 rounds in 10 s. Rifle clip rounds were counted on Trolls
-  only.
+- **Firing, shotgun clip on `xbowshot`:** Human and Dwarf used 2 rounds in 10 s. So did the rifle clip on Human and Dwarf.
 - **Live rifle and shotgun fire with no `hold` mapping:** the weapon points forward and the left arm supports it, on Human
   rifle and Dwarf shotgun, with the shot clip showing in bursts and the low stock ready stance between shots.
 
