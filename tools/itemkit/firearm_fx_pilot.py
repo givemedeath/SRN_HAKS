@@ -47,7 +47,9 @@ CASING_SIZE = .06
 SHOT_TIME = .5
 # The SMG clip kicks six times. Each kick gets a flash and a casing, so the native shot lands on the third.
 # Times are where the hand moves back fastest, the same on every slot.
-KICK_TIMES = {'fire_smg': (.1, .3, .47, .63, .8, .93)}
+KICK_TIMES = {'fire_smg': (.1, .3, .47, .63, .8, .93), **{code: spec['kicks'] for code, spec in pilot.AUTO.items()}}
+# The automatic rifle clips play on the same gun as `fire_rfl`.
+AUTO_STEMS = {'fire_rfl': tuple(pilot.AUTO)}
 # Ejection ports on each gun's right side (+x), placed by hand from its cross-sections.
 PORTS = {'colt': (.025, .10, -.05), 'ingram': (.015, .10, -.06), 'ak98': (.031, .165, -.06)}
 EMITTER = '''node emitter {name}
@@ -180,6 +182,10 @@ CHAT = '''if(text=="fstock")StockAttack();
  else if(text=="fast")Speed(1.0);
  else if(text=="solo")Solo();
  else if(text=="behind")Behind();
+ else if(text=="lauto")Clips("custom11lp","fire_rfla",ANIMATION_LOOPING_CUSTOM11,"rifle auto loop");
+ else if(text=="lburst")Clips("custom11lp","fire_rflb",ANIMATION_LOOPING_CUSTOM11,"rifle burst loop");
+ else if(text=="fauto")Attack("xbowshot","fire_rfla","attack xbowshot rifle auto");
+ else if(text=="fburst")Attack("xbowshot","fire_rflb","attack xbowshot rifle burst");
  else '''
 
 
@@ -273,7 +279,7 @@ def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=No
     tip = muzzle(text)
     times = (burst_time,)
     if effects:
-        nodes, listed, times = ''.join(effects.values()), list(effects), KICK_TIMES.get(stem, (SHOT_TIME,))
+        nodes, listed, times = ''.join(effects.values()), list(effects), (SHOT_TIME,)
     else:
         emitter, color = ('srp_red', '1 0 0') if names == 'stock' else ('srp_green', '0 1 0')
         nodes = EMITTER.format(name=emitter, root=root, x=tip[0], y=tip[1], z=tip[2], update='Explosion', color=color,
@@ -285,10 +291,14 @@ def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=No
     if text.count(close) != 1 or re.search(r'(?m)^newanim ', text):
         raise ValueError('Unexpected gun shape: ' + root)
 
-    clip_names = STOCK_CLIPS if names == 'stock' else [f'{stem}_{slot}' for slot in slots()]
-    event = ''.join(f'  event {time} detonate\n' for time in times)
+    if names == 'stock':
+        timed = [(name, times) for name in STOCK_CLIPS]
+    else:
+        stems = (stem, *AUTO_STEMS.get(stem, ())) if effects else (stem,)
+        timed = [(f'{each}_{slot}', KICK_TIMES.get(each, times) if effects else times) for each in stems for slot in slots()]
     listing = ''.join(EMITTER_CLIP_NODE.format(name=name, root=root) for name in listed)
-    clips = ''.join(CLIP.format(clip=name, root=root, event=event, nodes=listing) for name in clip_names)
+    clips = ''.join(CLIP.format(clip=name, root=root, event=''.join(f'  event {t} detonate\n' for t in at), nodes=listing)
+                    for name, at in timed)
     if quiet:
         clips += ''.join(CLIP.format(clip=name, root=root, event='', nodes='') for name in QUIET_CLIPS)
     head = f'setsupermodel {root} NULL\n'

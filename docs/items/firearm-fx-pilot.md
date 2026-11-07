@@ -232,3 +232,36 @@ for full-auto or burst fire. One Human Female Large actor in robe 020 played the
   running alongside it. That's untested.
 
 Evidence: `rifle-loop*` in `output/firearm-fx-pilot-v11-evidence/` (ignored).
+
+## Automatic rifle clips
+
+Build `output/firearm-fx-pilot-v12-auto`, 2026-11-07. Two new body clips for every slot, plus Female Large, built in
+`combat_clip_pilot.py` from the solved, unshifted `fire_rfl` (`kicked`, `AUTO`):
+
+| Clip | Rounds | Kicks at | Kick strength |
+|---|---|---|---|
+| `fire_rfla` | Full auto, 10 a second | 0.0 to 0.9 s, every 0.1 s | 35% |
+| `fire_rflb` | Three-round burst, then a pause | 0.4, 0.5, 0.6 s | 50% |
+
+- **How they're built:** the rifle's single kick goes back from 0.125 s and recovers by 0.5 s (`RIFLE_KICK`). It's
+  squeezed into 0.1 s and replayed at each kick time, weakened toward the rest pose. Between kicks the clip holds the
+  pose from 0.125 s. Both clips loop without a jump, and each has a kick at 0.5 s for the engine's shot.
+- **Gun events:** the AK-98 gets `fire_rfla_<slot>` and `fire_rflb_<slot>` clips, with one `detonate` per kick
+  (`AUTO_STEMS`, `KICK_TIMES`).
+- **Size:** nodes the kick doesn't move keep only their end keys. That still leaves about 69 KB per clip, so the 30 new
+  clips grow `a_ba_custom` from 2.5 MB to 3.9 MB. Fewer keys per kick would cut this.
+- **New chat commands:** `lauto` and `lburst` loop the clips through `custom11lp`. `fauto` and `fburst` map them onto
+  `xbowshot` for a native attack.
+
+### What was seen
+
+One Human Female Large actor in robe 020 with the AK-98, recorded from behind at about 23 frames a second.
+
+- **Full auto as an attack:** a steady stream of flashes and casings for about 1.2 s, about 10 flashes, with the tracer
+  mid-burst. The first round fires while the gun is still blending up from ready, since there's a kick at 0 s.
+- **Burst as a loop:** three rounds about 0.1 s apart, then a pause, every cycle. Each round had a flash and a casing.
+- **Back to idle:** after `lauto` then `off`, nothing showed for 6 s.
+- **Not shown:** the weakened kick is hard to see at this frame rate and distance. Its strength needs a closer
+  look. Damage is still one native shot per attack. Other bodies weren't checked.
+
+Evidence is in `output/firearm-fx-pilot-v12-evidence/` (ignored).

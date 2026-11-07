@@ -47,6 +47,12 @@ READY = {'custom11lp': 'ready_rfl', 'custom19lp': 'ready_sg'}
 # The engine fires on the stock clip's `hit` (0.5 s in `throwr` and `xbowshot`), not on ours. These clips kick at
 # 0.13 s, so their loop is turned later to kick at 0.5 s. Ready stances still come from the unshifted first pose.
 RECOIL_DELAY = {'custom11lp': .37, 'custom19lp': .37}
+# Automatic rifle fire, built from the single `fire_rfl` kick: back from 0.125 s, recovered by 0.5 s. Each round's kick
+# is squeezed into `span` and played at `scale`, and one kick sits at 0.5 s for the engine's shot. `fire_rfla` is full
+# auto at 10 rounds a second and `fire_rflb` a three-round burst. Both loop.
+RIFLE_KICK = (.125, .5)
+AUTO = {'fire_rfla': {'kicks': tuple(round(.1 * i, 2) for i in range(10)), 'span': .1, 'scale': .35},
+        'fire_rflb': {'kicks': (.4, .5, .6), 'span': .1, 'scale': .5}}
 # Stock `xbowrdy` breathing and weight shift is laid over the hold on these nodes. The arms ride on the torso.
 SWAY = ('pelvis_g', 'torso_g', 'neck_g', 'head_g')
 LEGS = (('lthigh_g', 'lshin_g', 'lfoot_g'), ('rthigh_g', 'rshin_g', 'rfoot_g'))
@@ -342,6 +348,40 @@ def delayed(clip, delay):
     return {**clip, 'nodes': nodes}
 
 
+def kicked(clip, window, kicks, span, scale):
+    """The clip held at the start of `window`, with that window's kick replayed at each of `kicks`.
+
+    Each replay is squeezed into `span` seconds and played at `scale` of its strength. Events stay where they are."""
+    start, end = window
+    length, nodes = clip['length'], {}
+    steps = np.linspace(0, 1, 9)
+    times = sorted({0., length, *(round(k + span * f, 6) for k in kicks for f in steps if k + span * f <= length)})
+    for node, keys in clip['nodes'].items():
+        moved = {}
+        for kind, rows in keys.items():
+            rotation = kind == 'orientation'
+            source = {'times': rows[:, 0], 'values': quaternions(rows) if rotation else rows[:, 1:4]}
+            rest = np.asarray(value(source, start, rotation), float)
+            out = []
+            for time in times:
+                active = [k for k in kicks if k <= time <= k + span + 1e-9]
+                pose = rest
+                if active:
+                    kick = value(source, start + (time - active[-1]) / span * (end - start), rotation)
+                    kick = np.asarray(kick, float)
+                    if rotation and kick @ rest < 0:
+                        kick = -kick
+                    pose = rest + scale * (kick - rest)
+                    if rotation:
+                        pose = pose / np.linalg.norm(pose)
+                out.append(axis_row(time, quaternion_matrix(pose)) if rotation else [time, *pose])
+            out = np.array(out)
+            # A node the kick doesn't move needs only its two end keys.
+            moved[kind] = out[[0, -1]] if np.allclose(out[:, 1:], out[0, 1:], atol=1e-5) else out
+        nodes[node] = moved
+    return {**clip, 'nodes': nodes}
+
+
 def rest_clip(clip):
     """One-second hold of a clip's first pose, with no events."""
     held = {node: {kind: np.array([[0., *rows[0, 1:]], [1., *rows[0, 1:]]]) for kind, rows in keys.items()}
@@ -487,12 +527,18 @@ def stage_animation(hak, stock_dir, source_dir, body, weapons, stance):
             solved = solve_support(raw, roots[0], marks)
             delay = RECOIL_DELAY.get(name)
             blocks.append(clip_text(label, 'a_ba_custom', delayed(solved, delay) if delay else solved, tree))
+            if code == 'fire_rfl':
+                blocks += [clip_text(f'{auto}_{slot}', 'a_ba_custom', kicked(solved, RIFLE_KICK, **spec), tree)
+                           for auto, spec in AUTO.items()]
             blocks += ready_blocks(name, slot, '', solved, tree, stance, binds[0][2] / stock_bind[2], drifts, roots[0])
             row['fit'] = fit_errors(solved, raw, roots[0], marks)
             if sex == 'f':
                 wide, _ = retarget(read_clip(sources[sex], name), names, stock_bind, binds[1])
                 large = solve_support(wide, roots[1], marks)
                 blocks.append(clip_text(label + 'l', 'a_ba_custom', delayed(large, delay) if delay else large, tree))
+                if code == 'fire_rfl':
+                    blocks += [clip_text(f'{auto}_{slot}l', 'a_ba_custom', kicked(large, RIFLE_KICK, **spec), tree)
+                               for auto, spec in AUTO.items()]
                 blocks += ready_blocks(name, slot, 'l', large, tree, stance, binds[1][2] / stock_bind[2], drifts, roots[1])
                 row['large'] = fit_errors(large, wide, roots[1], marks)
             else:
