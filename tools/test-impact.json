@@ -4604,6 +4604,9 @@
     "tools/itemkit/test_combat_clip_pilot.py": [
       "srn_body"
     ],
+    "tools/itemkit/test_firearm_fx_pilot.py": [
+      "srn_body"
+    ],
     "tools/itemkit/test_native_stack.py": [
       "srn_body"
     ],
