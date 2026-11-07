@@ -95,8 +95,8 @@ clips, so the names are free. `ANIMATION_LOOPING_CUSTOM10` to `CUSTOM20` are con
 | Dual pistol | `custom13lp` |
 | SMG | `custom14lp` |
 | Dual SMG | `custom15lp` |
-| Reload | `custom16start` |
-| Dual reload | `custom17start` |
+| Reload | `custom16start`, played as `custom16lp` |
+| Dual reload | `custom17start`, played as `custom17lp` |
 | Throw grenade | `custom18start` |
 | Shotgun | `custom19lp` (`custom19start` and `custom19end` are not used) |
 
@@ -229,17 +229,179 @@ Client results:
 
 Review notes:
 
-- **`hold` is unreliable for crossbow-class weapons.** With `xbowrdy` and `xbowr` mapped to a clip during live combat, the
-  rifle turns round, with the muzzle back over the shoulder and the butt forward, on Human and Dwarf with both the rifle and
-  shotgun clips. It looked right once combat ended, and with `xbowshot` alone it never happens. The cause isn't known. The
-  Ingram showed no such problem with its own mapping. The planned swap replaces only `xbowshot` or `throwr`, so this doesn't
-  affect that design, but the engine framework must not map those stances to these clips without testing it.
+- **`hold` reversed the rifle in live combat** on Human and Dwarf. The cause was found later: see Crossbow ready stance.
 - Judge rifle grip from live shots with no `hold`. Several frames I first read as fine or as a transitional stance came from
   this state.
 - Every clip now keys `rhand` and `lhand` flat from start to end. The old clips key `rhand` once or not at all. This was
   tried as a fix for the reversal and didn't change it, but it is kept because clips must key every node they own.
 - The stock target dies after about 16 rounds, and actors then leave combat stance. It is now immortal in the pilot.
 - Ranged stances found so far: `xbowrdy` and `xbowr` for crossbows, `bowrdy` and `bow` for the sling class.
+
+## Reload, dual weapons and load time
+
+Client run on 2026-11-06, builds `output/combat-clip-pilot-v11` to `v19`. This is a pilot result, not an approval.
+
+### Clip names
+
+Every clip is `<action>_<weapon>_<slot>`, including Human male (user, 2026-11-06). No clip keeps a `customN` name, and the
+old names are only source references.
+
+| Use | Clip | Clips | Length | `hit` event | Played by |
+|---|---|---:|---:|---|---|
+| Rifle fire | `fire_rfl_<slot>` | 15 | 1 s | 0 s | `xbowshot` |
+| Rifle ready | `ready_rfl_<slot>` | 15 | 1 s | None | `xbowrdy` |
+| Shotgun fire | `fire_sg_<slot>` | 15 | 1 s | 0 s | `xbowshot` |
+| Shotgun ready | `ready_sg_<slot>` | 15 | 1 s | None | `xbowrdy` |
+| Pistol fire | `fire_pst_<slot>` | 15 | 1 s | 0 s | `throwr` |
+| SMG fire | `fire_smg_<slot>` | 15 | 1 s | None | `throwr` |
+| Dual pistol fire | `fire_dpst_<slot>` | 10 | 1 s | None | `throwr` |
+| Dual SMG fire | `fire_dsmg_<slot>` | 10 | 1 s | None | `throwr` |
+| Rifle reload | `reload_rfl_<slot>` | 15 | 2 s | None | `custom16lp` |
+| SMG reload | `reload_smg_<slot>` | 15 | 2 s | None | `custom16lp` |
+| Pistol reload | `reload_pst_<slot>` | 15 | 2 s | None | `custom16lp` |
+| Dual reload | `reload_dual_<slot>` | 10 | 4 s | None | `custom17lp` |
+| Grenade throw | `throw_gren_<slot>` | 10 | 1 s | 0.5 s | `custom18lp` |
+
+- Slots are race then gender: `hm`, `hf`, `dm`, `df`, `em`, `ef`, `om`, `of`, `tm`, `tf`. Troll bodies keep their Gnome part
+  prefix, but the slot says Troll.
+- The 15-clip rows add an `l` slot for each female Large body, such as `fire_rfl_tfl`. Male Large shares the Fit clip.
+- `ReplaceObjectAnimation` works on a name no clip has. Reload, dual reload, the grenade and the looped rifle clip all played on
+  every Human actor in build v19 with no `custom11lp`, `custom16lp`, `custom17lp` or `custom18lp` in the chain, so no placeholder
+  clips are needed.
+- Older sections of this document use the names of their time, and `custom11lp` there means the rifle clip.
+
+### Reload
+
+The old reload starts and ends with the arms at bind, so a reload from a stance dropped the arms first. The left hand also
+never touched the weapon. Now:
+
+- The first and last keys hold the raised pose, with a 0.25 s blend in.
+- The left palm is solved per body onto the magazine, leaves for the belt from 0.7 to 1.1 s of the 2 s clip, and comes back
+  by 1.47 s. The rifle is pulled toward the left shoulder when the arm can't reach, as far as 0.21 m on Dwarf male.
+- There is one reload per magazine position. Pick by weapon:
+
+| Weapon | Clip | Magazine point in the weapon frame |
+|---|---|---|
+| Rifle, and the shotgun until one exists | `reload_rfl_<slot>` | (0, -0.05, -0.12) |
+| SMG | `reload_smg_<slot>` | (0, -0.165, -0.015) |
+| Pistol | `reload_pst_<slot>` | (0, -0.07, 0.01) |
+
+Palm contact is under 1 mm on Fit and under 8 mm on male Large.
+
+### Crossbow ready stance
+
+What the stock clips do, measured with the AK-98 in the hand:
+
+- `xbowrdy` is the stance between shots. It points the rifle forward about 10 degrees up, but it was authored for a crossbow:
+  the left palm is 0.08 to 0.19 m from the fore-end on male slots, and the hold is lower than the shot clip, so the rifle bobbed
+  between them each round.
+- `xbowr` is not a stance. It is a 1 s overlay on `rforearm_g`, `rhand_g` and `rhand` only (`animroot rforearm_g`).
+
+The cause of the rifle reversal is mapping `xbowr`. With only `xbowrdy` mapped the arm is correct. With `xbowr` mapped as well,
+even to an overlay that holds the same pose, the right forearm folds back over the shoulder for the whole of combat, shots
+included. How the engine combines it isn't known. **Never map `xbowr`.** Earlier builds mapped it through `hold`, and the pilot
+no longer does.
+
+The stance is now `ready_rfl_<slot>` for the rifle and `ready_sg_<slot>` for the shotgun, mapped onto `xbowrdy` only:
+
+```
+ReplaceObjectAnimation(oActor, "xbowrdy", "ready_rfl_" + sSlot);
+```
+
+- Each clip holds the solved shot clip's first pose, so the left palm stays on the fore-end and the rifle doesn't bob.
+- The first build was a plain hold and froze the body between shots. The clips now carry stock `xbowrdy` motion: root,
+  pelvis, torso, neck and head move as stock does, measured as the change from the first key and scaled by body height.
+- The arms ride on the torso. The legs are solved each key so the feet stay planted. Without that, feet slid up to 0.07 m on
+  Trolls. Foot drift is now under 1 mm on all 30 stance clips.
+- `xbowrdy` was copied from `a_ba` for both genders. Female stock motion wasn't used.
+
+Client results, build v18:
+
+- Bare Human male, close up, 22 s of live fire: the rifle stayed forward with the body moving, and a reload at speed 1 ran and
+  returned to the stance.
+- `hold` and `frifle` on all five races, and `holdshot` and `fshot` on Human, in group shots: no reversal on any actor.
+- Barrel aim over the clips, measured offline on all 10 slots: 1.4 to 3.6 degrees up while firing, -2.2 to 1.4 degrees in the
+  stance, and within 0.5 degrees of straight ahead.
+
+### Variable reload speed
+
+The engine plays a reload for any speed with these three lines:
+
+```
+ReplaceObjectAnimation(oActor, "custom16lp", sClip);
+AssignCommand(oActor, ActionPlayAnimation(ANIMATION_LOOPING_CUSTOM16, fSpeed, 2.0 / fSpeed));
+AssignCommand(oActor, ActionAttack(oTarget));
+```
+
+`2.0` is the clip length. The dual reload uses `custom17lp`, `ANIMATION_LOOPING_CUSTOM17` and `4.0`. The duration must be
+the clip length over the speed, or the clip is cut short or holds its last frame. Without the `ActionAttack`, the actor drops
+to its stock idle when the clip ends.
+
+| Speed | Expected | Measured in timed frames |
+|---:|---:|---:|
+| 0.25 | 8.0 s | 8.0 s |
+| 0.5 | 4.0 s | about 3.7 s |
+| 2.0 | 1.0 s | about 1.1 s |
+
+Timed on bare Human male rifle in combat. Frame gaps are about 0.05 s, but the ends of the clip blend, so treat the measures
+as about 0.2 s either way. The 2.0 result came from the motion trace, and only the reload's end was checked in frames.
+
+### Dual weapons
+
+- **Ranged weapons can't take the left hand.** With a sling-class weapon in the right hand, a left-hand item is refused, even
+  a melee item. This matches `design/0b/packages/0B2B-02-firearms.md` in SR_NWN, which rejects dual firearms so far.
+- To see the poses, the pilot copies the Colt and Ingram onto short sword parts 201 and 202 and equips one in each hand
+  (`spistol`, `ssmg`). Both guns then show, with `custom13lp` and `custom15lp` looping.
+- Native dual firing has not been tested, because both stand-ins are melee weapons. `fdpistol` fires with one gun only.
+- `custom17lp` plays both reload passes in 4 s on every race. The left gun stays in the left hand while it travels to the belt.
+
+### Client results
+
+Sweep of all five races, 12 actors each: bare, robe 005 and coat 020, male and female, Fit and Large. The views were group
+shots, with close-ups on Human male only.
+
+| Clip | Human | Dwarf | Elf | Orc | Troll |
+|---|---|---|---|---|---|
+| Rifle, shotgun on `xbowshot` | Plays | Plays | Not viewed | Not viewed | Plays |
+| Pistol, SMG on `throwr` | Plays, pistol on male only | Plays | Plays | Plays | Plays |
+| Reload, rifle | Plays | Plays | Plays | Plays | Plays |
+| Reload, SMG and pistol | Plays, pistol on male only | Plays | Not checked | Not checked | Plays |
+| Dual pistol, dual SMG, on stand-ins | Pistol on male only | Plays | Plays | Plays | Plays |
+| Dual reload | Plays on stand-ins | Plays | Not checked | Not checked | Plays |
+| Grenade | Plays | Plays | Plays | Plays | Plays |
+
+Review notes:
+
+- **The rifle stays forward during a reload in combat.** Out of combat it stands upright in the hand, muzzle up, through the
+  same clip. The cause isn't known. Reloads out of combat need a look before the engine relies on them.
+- A reload sent during an attack waits for the attack clip to finish, up to about 1.5 s.
+- Between pistol shots with no `hold`, the stock `throwr` ready stance hides the pistol behind the body. `holdp` maps the
+  sling stances to `custom12lp` and fixes this, like `holdsmg` for the Ingram. No reversal showed in the group shots.
+- Trolls in robes still break as listed under Robe fit by race.
+- The sweep table predates the stance change and the rename. Builds v18 and v19 changed the stance clips, removed the `xbowr`
+  mapping and renamed clips. After the rename only Human was rechecked.
+- Contact figures only prove the palm reaches the point. The rifle and Colt reloads were judged close up on Human male only,
+  and the Ingram reload only in group shots.
+
+### Load time
+
+Three client runs each on build v19, swapping only `a_ba_custom`. Ready is process start to the module's enter script. Worst
+gap is the longest script tick gap over the first 15 s, which covers spawning and dressing 12 actors.
+
+| `a_ba_custom` | Size | Ready, median | Worst gap, median |
+|---|---:|---:|---:|
+| Stock | 97 KB | 3.33 s | 559 ms |
+| ASCII with 175 clips | 2.44 MB | 3.24 s | 558 ms |
+| Compiled with 175 clips | 2.63 MB | 3.24 s | 560 ms |
+
+- **The clips add no measurable load time.** All three match within run-to-run noise, so splitting into `a_ba_custom1` and
+  `a_ba_custom2` isn't needed for load time.
+- **Compiling doesn't help.** The binary is larger and no faster. Compile with `## compileloadedasciimodels` in the client, as
+  `nwnmdlcomp -c` can't find the game and `nwmain compilemodel` crashed on this file.
+- The stock worst gap comes from one good run. The other two gave no result and a 49.9 s gap, which looks like a stalled
+  client rather than the model, because stock has the smallest file. The stock figure is the least reliable of the three.
+- This is one machine with a warm disk, on a test module of 12 actors. It doesn't cover a full module or a cold start.
+
 
 ## TODO
 

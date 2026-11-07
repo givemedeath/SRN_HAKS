@@ -58,7 +58,7 @@ class Retarget(unittest.TestCase):
     def test_text_keeps_the_whole_tree_and_the_torso_root(self):
         fitted, _ = self.fitted()
         tree = [('dummy', 'owner', 'NULL'), ('dummy', 'rootdummy', 'owner'), ('trimesh', 'rbicep_g', 'rootdummy')]
-        text = pilot.clip_text('c11lp_gm', 'owner', {**fitted, 'animroot': 'torso_g'}, tree)
+        text = pilot.clip_text('fire_rfl_tm', 'owner', {**fitted, 'animroot': 'torso_g'}, tree)
         for name in ('owner', 'rootdummy', 'rbicep_g'):
             self.assertIn(' ' + name + '\n', text)
         self.assertIn('animroot torso_g', text)
@@ -67,6 +67,50 @@ class Retarget(unittest.TestCase):
         fitted, _ = pilot.retarget(pilot.read_clip(SOURCE, 'custom11lp'), {'rootdummy', 'rhand'},
                                    np.array([0., 0., 1.]), np.array([.1, 0., 2.]))
         self.assertEqual(fitted['nodes']['rhand']['orientation'].tolist(), [[0., 1., 0., 0., 0.], [1., 1., 0., 0., 0.]])
+
+    def test_reload_starts_and_ends_raised(self):
+        rows = np.array([[0., 0., 0., 0., 0.], [.3, 1., 0., 0., 1.], [1.7, 1., 0., 0., .8], [2., 0., 0., 0., 0.]])
+        held = pilot.hold_ends({'transition': .15, 'nodes': {'lbicep_g': {'orientation': rows}}})
+        self.assertEqual(held['nodes']['lbicep_g']['orientation'][:, 4].tolist(), [1., 1., .8, .8])
+        self.assertEqual(held['nodes']['lbicep_g']['orientation'][:, 0].tolist(), [0., .3, 1.7, 2.])
+        self.assertEqual(held['transition'], pilot.RELOAD_BLEND)
+
+    def test_fixed_contact_is_used_as_given(self):
+        self.assertEqual(pilot.support_point({'fixed': (-.03, 0., .03)}, 0.).tolist(), [-.03, 0., .03])
+
+    def test_palm_leaves_the_magazine_only_for_the_belt(self):
+        weights = pilot.contact_weight(np.array([0., .3, .9, 1.47, 2.]))
+        self.assertEqual(weights.tolist(), [1., 1., 0., 1., 1.])
+
+    def test_rest_clip_holds_the_first_pose_without_events(self):
+        rows = np.array([[0., 1., 0., 0., .5], [.4, 1., 0., 0., .9]])
+        clip = {'length': .8, 'transition': .1, 'events': [(.2, 'hit')],
+                'nodes': {'rhand_g': {'orientation': rows}, 'torso_g': {'orientation': rows}}}
+        held = pilot.rest_clip(clip)
+        self.assertEqual(held['nodes']['rhand_g']['orientation'].tolist(), [[0., 1., 0., 0., .5], [1., 1., 0., 0., .5]])
+        self.assertEqual((held['length'], held['events']), (1., []))
+
+    def test_ready_clip_keeps_the_hold_and_adds_the_stock_motion(self):
+        hold = np.array([[0., 1., 0., 0., .5], [.4, 1., 0., 0., .9]])
+        clip = {'length': .8, 'transition': .1, 'events': [],
+                'nodes': {'torso_g': {'orientation': hold}, 'rbicep_g': {'orientation': hold},
+                          'rootdummy': {'position': np.array([[0., 0., 0., 1.], [.4, 0., 0., 2.]])}}}
+        sway = np.array([[0., 1., 0., 0., .2], [.5, 1., 0., 0., .3], [1., 1., 0., 0., .2]])
+        stock = {'nodes': {'torso_g': {'orientation': sway},
+                           'rootdummy': {'position': np.array([[0., 0., 0., 3.], [.5, 0., 0., 3.1], [1., 0., 0., 3.]])}}}
+        ready = pilot.ready_clip(clip, stock, 2.)
+        self.assertEqual(ready['nodes']['rbicep_g']['orientation'][:, 4].tolist(), [.5, .5])
+        self.assertAlmostEqual(ready['nodes']['torso_g']['orientation'][1, 4], .6)
+        self.assertAlmostEqual(ready['nodes']['torso_g']['orientation'][2, 4], .5)
+        self.assertAlmostEqual(ready['nodes']['rootdummy']['position'][1, 3], 1.2)
+
+    def test_every_clip_name_is_action_weapon_slot(self):
+        names = [*pilot.CLIPS.values(), *pilot.READY.values(), *pilot.RELOAD_VARIANTS]
+        self.assertEqual(len(names), len(set(names)))
+        for name in names:
+            self.assertRegex(name, r'^(fire|ready|reload|throw)_(rfl|sg|pst|smg|dpst|dsmg|dual|gren)$')
+        self.assertTrue(all(len(slot) == 2 for slot in pilot.SLOTS))
+        self.assertNotIn('gm', pilot.SLOTS)
 
     def test_quaternion_matches_axis_angle(self):
         value = pilot.quaternions(np.array([[0., 0., 1., 0., np.pi]]))[0]
