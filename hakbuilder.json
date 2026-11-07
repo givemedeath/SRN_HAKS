@@ -861,6 +861,34 @@
         "srn_placeable",
         "srn_t_shp02"
       ]
+    },
+    {
+      "Resource": "pfg0_head001.mdl",
+      "Packs": [
+        "srn_body",
+        "srn_head"
+      ]
+    },
+    {
+      "Resource": "pfg0_head001.plt",
+      "Packs": [
+        "srn_body",
+        "srn_head"
+      ]
+    },
+    {
+      "Resource": "pmg0_head001.mdl",
+      "Packs": [
+        "srn_body",
+        "srn_head"
+      ]
+    },
+    {
+      "Resource": "pmg0_head001.plt",
+      "Packs": [
+        "srn_body",
+        "srn_head"
+      ]
     }
   ]
 }

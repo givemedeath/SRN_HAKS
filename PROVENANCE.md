@@ -591,3 +591,9 @@ No resref collides with a stock `.wav` key or another WAV in this repository. Th
 | `ric_metal-1.wav` | `E1FB440E88FA` |
 | `ric_metal-2.wav` | `6F9D545AE480` |
 | `rocket.wav` | `40FE512E95EB` |
+
+## Troll heads: five approved designs and gnome-slot replacement (2026-11-07)
+
+Five new heads (four male, one female) were generated from operator-selected ImageGen designs, with clay/detail conditioning, Pixal geometry and saved-shape appearance, and headkit fitting, masks, PLT palette mapping and native compilation. The SRN project operator approved their publication after client review. The male trio designs are Breakwater, Ballast and Vesper; the earlier pair retains its approved proportions and palette textures.
+
+All 40 Troll heads are renamed into male/female slots 001–020 to replace base-game gnome heads. The 35 existing designs have no new geometry or texture source: only bounded native name fields and resource filenames change. PLT bytes are unchanged. See docs/heads/troll-head-reindex-v1.md and its hash manifest for the complete mapping, evidence, load order and saved-character migration implications. Historical provenance entries retain their original slots.
