@@ -283,7 +283,6 @@ actors: male and female, Fit and Large, bare and in robes 005 and 020. They were
 - **Render frame rate wasn't measured.** The probe times the script scheduler, not drawn frames, and the screen
   capture runs too slowly to judge. Nothing visibly stuttered.
 - **Casings were only specks at the wide camera** at 0.06, about 5 cm. They read at close range but barely from overhead. They are now 0.085, about 68 mm, 1.75 times a real rifle casing, as a compromise. That size is not yet checked in the client.
-  A larger casing would trade realism for visibility.
 - **Robed Trolls render with missing body parts.** That's the all-race robe refit deferred in the animation chain
   probe, not this pilot.
 
