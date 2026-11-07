@@ -465,6 +465,9 @@
       "tools/headkit/rays.py",
       "tools/headkit/textures.py"
     ],
+    "tools/headkit/feature_highlights.py": [
+      "tools/headkit/common.py"
+    ],
     "tools/headkit/field.py": [],
     "tools/headkit/fit.py": [
       "tools/headkit/common.py",
@@ -532,6 +535,7 @@
     "tools/headkit/palette.py": [
       "tools/headkit/colour.py",
       "tools/headkit/common.py",
+      "tools/headkit/feature_highlights.py",
       "tools/headkit/paint.py",
       "tools/headkit/quality.py",
       "tools/headkit/skin_seams.py",
@@ -670,6 +674,10 @@
       "tools/headkit/test_headkit.py",
       "tools/headkit/textures.py",
       "tools/headkit/uv.py"
+    ],
+    "tools/headkit/test_feature_highlights.py": [
+      "tools/headbatch/head_setup.py",
+      "tools/headkit/feature_highlights.py"
     ],
     "tools/headkit/test_generation_export.py": [
       "tools/headkit/comfy.py",
@@ -4658,6 +4666,7 @@
     "tools/headkit/test_comfy_transport.py",
     "tools/headkit/test_conditioning.py",
     "tools/headkit/test_face_masks.py",
+    "tools/headkit/test_feature_highlights.py",
     "tools/headkit/test_generation_export.py",
     "tools/headkit/test_headkit.py",
     "tools/headkit/test_managed_startup.py",

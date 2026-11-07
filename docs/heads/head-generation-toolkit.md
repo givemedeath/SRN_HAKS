@@ -192,12 +192,20 @@ brow fringes using nearby brow-interior samples in 3D. Ear highlights whose
 upper tail exceeds plain face skin by more than 32 shades receive a continuous
 highlight shoulder referenced to that skin. Ownership, other materials and
 `tone.preserveSkinMasks` stay protected; corrected samples also update their
-same-channel chart gutters. `featureHighlightRepair` records changes and missing
+same-channel chart gutters. Mask expansion requires nearby same-channel feature
+anchors in 3D, so UV proximity alone cannot transfer a feature mask.
+`featureHighlightRepair` records changes, rejected mask growth and missing
 local evidence in the palette receipt. Shade-span statistics and quality checks
 measure the corrected output. Existing manifests opt in explicitly; this does
 not rewrite approved assets or replace the client visual check.
 
 ## Resume, limits and delivery
+
+When adding a headkit helper or test module, regenerate `tools/test-impact.json`
+with `tools/test_impact.py --write-catalog tools/test-impact.json`. Add the new
+test module's measured, summed `unittest --durations 0` seconds to
+`tools/ci-test-durations.json`, then run the catalog and CI-scope regression tests.
+These registries determine CI coverage and shard balance.
 
 Each CPU attempt has an intent, immutable receipt, input/output hashes, code version, elapsed time and preserved diagnostics. Every CPU stage requires an explicit `review --stage STAGE --decision approved --notes TEXT` before its output can feed downstream processing. Inspect the stage's emitted evidence/files first; numerical completion is not approval. The current decision is stored in runner state as a hash-pinned immutable review bound to that exact stage receipt. Missing/rejected/stale approval blocks consumers, including cached downstream outputs and native packaging. A rejected stage can be inspected and reviewed again without recomputing it; old decisions remain preserved. `status` reports numerical completion separately from pending/approved/rejected review. Imported pinned checkpoints remain an explicit operator-selected entry point, not an approval of earlier stages.
 

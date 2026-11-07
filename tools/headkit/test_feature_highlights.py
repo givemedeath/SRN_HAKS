@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from headkit.feature_highlights import repair_channel
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'headbatch'))
-from head_setup import face_quality_profile
+from headbatch.head_setup import face_quality_profile
 
 
 class FeatureHighlights(unittest.TestCase):
@@ -94,6 +94,28 @@ class FeatureHighlights(unittest.TestCase):
         out, report = self.fix(field,1)
         np.testing.assert_array_equal(out,field)
         self.assertGreater(report['unsupportedTexels'],0)
+
+    def test_ear_mask_growth_cannot_cross_to_a_distant_uv_neighbour(self):
+        self.features['ear'][16:48,16:48] = 1
+        self.features['skin'][16:48,16:48] = 0
+        field = np.full((128,128),100,dtype=np.uint8)
+        field[16:48,16:48] = 240
+        # Atlas neighbours on a separate surface, outside the actual ear mask.
+        field[14:16,16:48] = 240
+        self.points[14:16,16:48,2] = 10
+        out, report = self.fix(field,0)
+        self.assertGreater(report['changedTexels'],0)
+        np.testing.assert_array_equal(out[14:16,16:48],field[14:16,16:48])
+
+    def test_mask_growth_needs_a_same_channel_feature_anchor(self):
+        self.features['ear'][16:48,16:48] = 1
+        self.features['skin'][16:48,16:48] = 0
+        self.selected[16:48,16:48] = False
+        field = np.full((128,128),100,dtype=np.uint8)
+        field[14:16,16:48] = 240
+        out, report = self.fix(field,0)
+        np.testing.assert_array_equal(out,field)
+        self.assertEqual(report['changedTexels'],0)
 
     def test_invalid_masks_fail_and_face_profile_enables_repair(self):
         self.assertTrue(face_quality_profile()['palette']['repairFeatureHighlights'])

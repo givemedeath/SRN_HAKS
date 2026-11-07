@@ -71,7 +71,7 @@
     "path": "srn_head/pmg0_head019.mdl",
     "sha256": "dbe67176dfc125b5f479839df9addadc68f297b983ccf634d65437bb19c82abf"
   },
-  "publication": "Local candidate; not pushed or deployed",
+  "publication": "Pull request candidate; not deployed",
   "quality": {
     "limits": {
       "blotchPxMax": 20,
@@ -136,5 +136,41 @@
     "broadPassed": 953,
     "finalFeatureRegressionsPassed": 7,
     "focusedFinalPassed": 48
+  },
+  "review": {
+    "surfaceMaskGrowthGuard": true,
+    "sameChannelAnchorsRequired": true,
+    "replayedTextureByteIdentical": true,
+    "helperSha256": "7384cb6f1dbac46333dd3137e75155d473250d7076fcc386789a0a4399b75014",
+    "featureReport": {
+      "0": {
+        "changedTexels": 4671,
+        "feature": "ear",
+        "featureTexels": 15195,
+        "gutterTexels": 2804,
+        "maskExpansionRejectedTexels": 0,
+        "maximumReduction": 52,
+        "referenceP90": 167.0,
+        "referenceP95": 181.0,
+        "referenceTexels": 130258,
+        "shoulder": 24
+      },
+      "1": {
+        "changedTexels": 624,
+        "contrast": 32,
+        "donorTexels": 3963,
+        "edgeTexels": 2564,
+        "feature": "brow",
+        "gutterTexels": 224,
+        "headroom": 12,
+        "maskExpansionRejectedTexels": 0,
+        "maximumReduction": 184,
+        "radiusHeadWidths": 0.035,
+        "unsupportedTexels": 0
+      }
+    },
+    "headkitTestsPassed": 647,
+    "ciCatalogAndScopeTestsPassed": 45,
+    "featureRegressionsPassed": 9
   }
 }

@@ -16,6 +16,27 @@ NEIGHBOURS = 32
 MIN_DONORS = 6
 
 
+def _feature_region(mask, selected, mapped, positions):
+    """Grow the soft feature only from same-material samples close in 3D.
+
+    Adjacent UV islands need not be adjacent on the head. A parser feature on
+    another material is not an anchor for a newly included skin/hair texel.
+    """
+    seed = mapped & selected & (mask > .02)
+    extra = mapped & selected & binary_dilation(mask > .5, iterations=2) & ~seed
+    if not extra.any():
+        return seed, 0
+    if not seed.any():
+        return seed, int(extra.sum())
+    width = float(np.ptp(positions[mapped, 0]))
+    require(width > 0, 'Feature highlights need a nonzero head width')
+    distance = cKDTree(positions[seed]).query(positions[extra], distance_upper_bound=RADIUS*width)[0]
+    supported = np.isfinite(distance)
+    region = seed.copy()
+    region[extra] = supported
+    return region, int((~supported).sum())
+
+
 def repair_channel(picked, selected, features, positions, mapped, allowed, channel, preserve=None):
     """Return eligible shades and measurements for one channel's final 1K atlas.
 
@@ -39,7 +60,8 @@ def repair_channel(picked, selected, features, positions, mapped, allowed, chann
             'Feature highlights need channel shades and sorted eligible shades')
     protected = np.zeros_like(mapped) if preserve is None else np.asarray(preserve, bool)
     require(protected.shape == mapped.shape, 'Feature highlight preservation must match the atlas')
-    region = mapped & selected & ((mask > .02) | binary_dilation(mask > .5, iterations=2))
+    region, rejected = _feature_region(mask, selected, mapped, positions)
+    report['maskExpansionRejectedTexels'] = rejected
     field = np.zeros(mapped.shape, float)
     field[selected] = picked
     if name == 'ear':
