@@ -213,3 +213,22 @@ Build `output/firearm-fx-pilot-v11-burst`. One Human Female Large actor in robe 
   fire.
 
 Evidence is in `output/firearm-fx-pilot-v11-evidence/` (ignored).
+
+## Looping rifle fire
+
+Build `output/firearm-fx-pilot-v11-burst`, 2026-11-07. The question was whether a looping fire clip could stand in
+for full-auto or burst fire. One Human Female Large actor in robe 020 played the shifted `fire_rfl` as a looping clip
+(the `rifle` chat command: `custom11lp` with `ActionPlayAnimation`). No attack was running.
+
+- **Every cycle fires once, on the kick.** Flashes came at 0.45, 1.46 and 2.50 s on the recording, about 1 s apart,
+  the clip length. In each cycle the gun kicked back on the same frame as the flash, and a casing ejected right and
+  fell. The 0.37 s shift has no visible seam at the loop point.
+- **It stops at idle.** After the `off` command no flash or casing showed for 8 s, as the empty clips from the
+  looping test intended.
+- **One shot a second isn't full auto.** `fire_rfl` has one kick per 1 s cycle. Full auto or bursts need a rifle clip
+  with several kicks per cycle and one `detonate` per kick, as `fire_smg` now does (`KICK_TIMES`). A shorter cycle
+  would also work. Either is a new clip in `a_ba_custom`.
+- **A loop deals no damage.** It's only an animation, so damage would have to come from a script or a native attack
+  running alongside it. That's untested.
+
+Evidence: `rifle-loop*` in `output/firearm-fx-pilot-v11-evidence/` (ignored).
