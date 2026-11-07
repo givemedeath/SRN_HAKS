@@ -10,7 +10,7 @@ from this pilot. The builder is `tools/itemkit/firearm_fx_pilot.py`, and output 
 | 3. Muzzle flash | Does a flash sit on the muzzle and match the shot? | Passed on the AK-98 2026-11-07, old flash tuned |
 | 4. Shell casings | Do casings arc out, drop and read at game distance? | Ejection passed 2026-11-07; default camera not checked |
 | 5. SMG burst | Does each recoil get a flash and a casing? | Passed on the Ingram 2026-11-07 |
-| 6. Coverage and cost | Do the effects line up on all bodies without a frame drop? | Not started |
+| 6. Coverage and cost | Do the effects line up on all bodies without a frame drop? | Placement and server cost passed 2026-11-07; render frame rate not measured |
 
 ## Gate 1: clip matching
 
@@ -265,3 +265,26 @@ One Human Female Large actor in robe 020 with the AK-98, recorded from behind at
   look. Damage is still one native shot per attack. Other bodies weren't checked.
 
 Evidence is in `output/firearm-fx-pilot-v12-evidence/` (ignored).
+
+## Gate 6: coverage and cost
+
+Build `output/firearm-fx-pilot-v13-coverage`, 2026-11-07, the v12 build plus a `probe` chat command. Each race set has 12
+actors: male and female, Fit and Large, bare and in robes 005 and 020. They were recorded with the wide camera.
+
+| Set | Gun and clip | Result |
+|---|---|---|
+| Human | AK-98 `fire_rfla`, Colt `fire_pst`, Ingram `fire_smg` | Flashes on the gun for every actor and gun |
+| Dwarf, Elf, Orc, Troll | AK-98 `fire_rfla` | Flashes on the gun for every actor |
+
+- **Placement doesn't depend on the body.** The emitters ride on the gun, so they follow every slot's hand, including
+  Female Large (`l` clips) and both robes.
+- **No server stall.** The `probe` command logs the longest gap between 50 ms script ticks over 10 s. It read 66 ms
+  with 12 Humans standing still, 67 ms with all 12 firing full auto, and 66 ms with 12 Trolls firing full auto.
+- **Render frame rate wasn't measured.** The probe times the script scheduler, not drawn frames, and the screen
+  capture runs too slowly to judge. Nothing visibly stuttered.
+- **Casings are only specks at the wide camera.** At about 5 cm they read at close range but barely from overhead.
+  A larger casing would trade realism for visibility.
+- **Robed Trolls render with missing body parts.** That's the all-race robe refit deferred in the animation chain
+  probe, not this pilot.
+
+Evidence is in `output/firearm-fx-pilot-v13-evidence/` (ignored).

@@ -182,6 +182,7 @@ CHAT = '''if(text=="fstock")StockAttack();
  else if(text=="fast")Speed(1.0);
  else if(text=="solo")Solo();
  else if(text=="behind")Behind();
+ else if(text=="probe"){SetLocalInt(GetModule(),"P_L",0);SetLocalInt(GetModule(),"P_M",0);Probe(200);Say("probe 10 s");}
  else if(text=="lauto")Clips("custom11lp","fire_rfla",ANIMATION_LOOPING_CUSTOM11,"rifle auto loop");
  else if(text=="lburst")Clips("custom11lp","fire_rflb",ANIMATION_LOOPING_CUSTOM11,"rifle burst loop");
  else if(text=="fauto")Attack("xbowshot","fire_rfla","attack xbowshot rifle auto");
