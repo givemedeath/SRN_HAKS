@@ -362,7 +362,7 @@ shots, with close-ups on Human male only.
 
 | Clip | Human | Dwarf | Elf | Orc | Troll |
 |---|---|---|---|---|---|
-| Rifle, shotgun on `xbowshot` | Plays | Plays | Plays | Plays | Plays |
+| Rifle, shotgun on `xbowshot` | Plays | Plays | Rifle plays, shotgun not viewed | Rifle plays, shotgun not viewed | Plays |
 | Pistol, SMG on `throwr` | Plays, pistol on male only | Plays | Plays | Plays | Plays |
 | Reload, rifle | Plays | Plays | Plays | Plays | Plays |
 | Reload, SMG and pistol | Plays, pistol on male only | Plays | Plays | Plays | Plays |
