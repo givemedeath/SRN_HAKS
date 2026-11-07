@@ -1,3 +1,4 @@
+import re
 import unittest
 
 import numpy as np
@@ -111,6 +112,16 @@ class Retarget(unittest.TestCase):
             self.assertRegex(name, r'^(fire|ready|reload|throw)_(rfl|sg|pst|smg|dpst|dsmg|dual|gren)$')
         self.assertTrue(all(len(slot) == 2 for slot in pilot.SLOTS))
         self.assertNotIn('gm', pilot.SLOTS)
+
+    def test_shipped_model_has_every_clip_name(self):
+        text = (pilot.REPO / 'srn_body' / 'a_ba_custom.mdl').read_text(encoding='cp1252')
+        clips = set(re.findall(r'(?m)^newanim (\S+) a_ba_custom$', text))
+        shared = {'fire_dpst', 'fire_dsmg', 'reload_dual', 'throw_gren'}
+        codes = {*pilot.CLIPS.values(), *pilot.READY.values(), *pilot.RELOAD_VARIANTS}
+        wanted = {f'{code}_{slot}' for code in codes for slot in pilot.SLOTS}
+        wanted |= {f'{code}_{slot}l' for code in codes - shared for slot in pilot.SLOTS if slot.endswith('f')}
+        self.assertEqual(wanted - clips, set())
+        self.assertEqual(len(wanted), 175)
 
     def test_quaternion_matches_axis_angle(self):
         value = pilot.quaternions(np.array([[0., 0., 1., 0., np.pi]]))[0]

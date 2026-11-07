@@ -1,6 +1,6 @@
 # PhenoMorpher runtime file inventory
 
-This index lists all 935 selected runtime resources. The [full hash manifest](game-ready-assets.json) and [appearance table](../../srn_2da/appearance.2da) remain available as files; their large generated line diffs are suppressed so GitHub can display this PR. Contract 1.3.0 publishes the race bodies sized to canon lore and the c7 Human lock; the [release receipt](race-sizing/release-1.3.0.json) lists every changed resource with its 1.2.0 hash.
+This index lists all 936 selected runtime resources. The [full hash manifest](game-ready-assets.json) and [appearance table](../../srn_2da/appearance.2da) remain available as files; their large generated line diffs are suppressed so GitHub can display this PR. Contract 1.3.0 publishes the race bodies sized to canon lore and the c7 Human lock; the [release receipt](race-sizing/release-1.3.0.json) lists every changed resource with its 1.2.0 hash.
 
 Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](../../srn_2da/phenotype.2da), [table validation](table-validation.json) and [publication validation](publication-validation.json) separately.
 
@@ -12,10 +12,11 @@ Review the [race routing](../../srn_2da/racialtypes.2da), [phenotype routing](..
 | [phenotype.2da](../../srn_2da/phenotype.2da) |
 | [racialtypes.2da](../../srn_2da/racialtypes.2da) |
 
-## srn_body (665 files)
+## srn_body (666 files)
 
 | Resource |
 |---|
+| [a_ba_custom.mdl](../../srn_body/a_ba_custom.mdl) |
 | [pfd0.mdl](../../srn_body/pfd0.mdl) |
 | [pfd0_bicepl001.mdl](../../srn_body/pfd0_bicepl001.mdl) |
 | [pfd0_bicepl001.plt](../../srn_body/pfd0_bicepl001.plt) |

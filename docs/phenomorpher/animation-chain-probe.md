@@ -382,6 +382,7 @@ Review notes:
   mapping and renamed clips. After the rename, on v19, Human was rechecked, then rifle fire and reload on all 12 actors of
   Dwarf, Elf, Orc and Troll, SMG reload on Elf, Orc and Troll, and pistol and dual pistol reload on Elf and Orc. An offline
   check found all 175 names the script builds in the model, none missing.
+- Shipped from `srn_body` on build v21, with the pilot's own `a_ba_custom` removed: rifle fire and reload on all 12 Troll actors and rifle reload on all 12 Human actors. The pack holds the same bytes as v19, and rebuilding from the merged branch gave the same hash.
 - Contact figures only prove the palm reaches the point. The rifle and Colt reloads were judged close up on Human male only,
   and the Ingram reload only in group shots.
 
