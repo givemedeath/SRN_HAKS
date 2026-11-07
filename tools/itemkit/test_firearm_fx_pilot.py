@@ -52,7 +52,7 @@ class TaggedGun(unittest.TestCase):
 
     def test_a_gun_with_clips_is_refused(self):
         with self.assertRaisesRegex(ValueError, 'Unexpected gun shape'):
-            fx.tagged_gun(GUN.replace('donemodel', 'newanim old wbwsl_b_051\ndoneanim old wbwsl_b_051\ndonemodel'), 'fire_pst')
+            fx.tagged_gun(GUN.replace('donemodel', 'newanim old wbwsl_b_051\ndoneanim old wbwsl_b_051\ndonemodel'), 'fire_pst', 'stock')
 
 
 if __name__ == '__main__':

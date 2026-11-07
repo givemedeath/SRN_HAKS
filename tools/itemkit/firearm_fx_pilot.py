@@ -119,6 +119,8 @@ void StockAttack(){
 '''
 CHAT = '''if(text=="fstock")StockAttack();
  else if(text=="ak")Arm();
+ else if(text=="lpistol")Clips("custom12lp","fire_pst",ANIMATION_LOOPING_CUSTOM12,"pistol loop");
+ else if(text=="lsmg")Clips("custom14lp","fire_smg",ANIMATION_LOOPING_CUSTOM14,"smg loop");
  else '''
 
 

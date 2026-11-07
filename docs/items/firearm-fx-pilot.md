@@ -62,6 +62,24 @@ Screenshots are in `output/firearm-fx-pilot-gate1-evidence/`, which is ignored a
 The builds were `output/firearm-fx-pilot-v2-stock` and `output/firearm-fx-pilot-v2-replaced`, using the shipped
 `a_ba_custom` clips. This is one machine and one client.
 
+### Looping clips
+
+Build `output/firearm-fx-pilot-v3-replaced`, 2026-11-07. Human actors played `fire_pst`, `fire_smg` and `fire_rfl`
+as looping clips through `custom12lp`, `custom14lp` and `custom11lp` with `ActionPlayAnimation`, as reload and loop
+tests do. No attack was running.
+
+- **Loops fire on every cycle.** All three guns showed bursts in every frame sampled over about 4 s per loop. A burst
+  lasts 1.5 s and the clip 1 s, so a single burst would have faded. Frames weren't timed closely enough to prove
+  exactly one burst per cycle.
+- **The gun keeps firing after the body leaves the clip.** After the actors returned to stock idle (`pause1`), the
+  Colts still burst at the hip 3 s and 3.5 s later. The gun has no `pause1` clip, so it seems to keep looping the
+  last clip it had. Mapped attacks didn't show this in gate 1, where a stock attack after mapped fire showed no burst.
+- **Consequence:** each gun needs a clip with no `detonate` for every other name the body plays, at least the idle,
+  ready, walk and run names. Otherwise a flash and casing keep coming after the shot. This is unconfirmed past 3.5 s,
+  and the check was cut short when another session's client took the screen.
+
+Evidence is in `output/firearm-fx-pilot-loop-evidence/`.
+
 ## Hit timing found offline
 
 The fire clips' `hit` events were measured against hand motion from the clip keys, on the Human male arm chain.
