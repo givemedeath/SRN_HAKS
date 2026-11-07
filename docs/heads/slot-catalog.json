@@ -182,19 +182,69 @@
       "race": "troll",
       "sex": "male",
       "prefix": "pmg0",
-      "first": 14,
-      "last": 33,
+      "first": 21,
+      "last": 40,
       "count": 20
     },
     {
       "race": "troll",
       "sex": "female",
       "prefix": "pfg0",
-      "first": 10,
-      "last": 29,
+      "first": 21,
+      "last": 40,
       "count": 20
     }
   ],
   "installedInventorySha256": "334ed5671a435461c841d912bf825fe02e2962f35d34f716f2cf61b788ad5db5",
-  "actualClientSelectabilityVerified": false
+  "actualClientSelectabilityVerified": false,
+  "currentTrollPublication": {
+    "manifest": "docs/heads/troll-head-reindex-v1.json",
+    "occupied": {
+      "pmg0": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "pfg0": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    "note": "The original audit hashes above remain historical. Troll blocks below now start after the reindexed published collection. Check current pack and in-progress reservations before allocation."
+  }
 }

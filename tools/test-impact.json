@@ -964,6 +964,10 @@
       "hakbuilder.json",
       "tools/heads/head_workflow.py"
     ],
+    "tools/heads/reindex_head.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/native_reader.py"
+    ],
     "tools/heads/render_assembly.py": [
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py"
@@ -1051,6 +1055,9 @@
       "tools/heads/head_workflow.py",
       "tools/heads/prepare_palette_assembly.py",
       "tools/heads/propose_material_masks.py"
+    ],
+    "tools/heads/test_reindex_head.py": [
+      "tools/heads/reindex_head.py"
     ],
     "tools/heads/test_submission_reconciliation.py": [
       "tools/heads/head_workflow.py",
@@ -4639,6 +4646,7 @@
     "tools/heads/test_meshy_dispatch.py",
     "tools/heads/test_microface_materials.py",
     "tools/heads/test_palette_sampling.py",
+    "tools/heads/test_reindex_head.py",
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
     "tools/itemkit/test_atlas.py",

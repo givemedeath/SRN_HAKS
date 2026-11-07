@@ -154,6 +154,8 @@ For design-image generation on the measured 12 GiB RTX 3060 deployment, the lowe
 
 ## Before publishing
 
+Check current shipped resources and in-progress reservations before using slot-catalog blocks. The Troll collection now occupies slots 001–020 for both sexes; see docs/heads/troll-head-reindex-v1.md. For authorized renumbering, use the bounded native renamer and whole-pack validation described there; filename-only changes leave internal model and PLT references behind.
+
 Run a client trial, then check the four three-quarter views, one motion frame and a second look. See the client trial section of `docs/heads/head-generation-toolkit.md`.
 
 Every confirmed mistake gets a guard and a row in `docs/heads/race-heads-v1-runbook.md`. Runbook rows name the original batch scripts; the table below gives their replacements.
