@@ -70,7 +70,7 @@ Costs of overriding it:
 
 - The installed chain pin in the contract must change, as must any check that treats the stock chain as untouched.
 - A game patch to `a_ba_custom` would be shadowed.
-- The file is ASCII and grows with every clip, so load time must be measured and it may need a binary compile.
+- The file is ASCII and grows with every clip. At 175 clips that added no measurable load time, as measured under Load time.
 - The clips don't key coat skirt bones.
 
 If the file gets too large, split it with new links between `a_ba_custom` and `a_ba_casts`:
@@ -362,12 +362,12 @@ shots, with close-ups on Human male only.
 
 | Clip | Human | Dwarf | Elf | Orc | Troll |
 |---|---|---|---|---|---|
-| Rifle, shotgun on `xbowshot` | Plays | Plays | Not viewed | Not viewed | Plays |
+| Rifle, shotgun on `xbowshot` | Plays | Plays | Plays | Plays | Plays |
 | Pistol, SMG on `throwr` | Plays, pistol on male only | Plays | Plays | Plays | Plays |
 | Reload, rifle | Plays | Plays | Plays | Plays | Plays |
-| Reload, SMG and pistol | Plays, pistol on male only | Plays | Not checked | Not checked | Plays |
+| Reload, SMG and pistol | Plays, pistol on male only | Plays | Plays | Plays | Plays |
 | Dual pistol, dual SMG, on stand-ins | Pistol on male only | Plays | Plays | Plays | Plays |
-| Dual reload | Plays on stand-ins | Plays | Not checked | Not checked | Plays |
+| Dual reload | Plays on stand-ins | Plays | Plays | Plays | Plays |
 | Grenade | Plays | Plays | Plays | Plays | Plays |
 
 Review notes:
@@ -379,7 +379,9 @@ Review notes:
   sling stances to `custom12lp` and fixes this, like `holdsmg` for the Ingram. No reversal showed in the group shots.
 - Trolls in robes still break as listed under Robe fit by race.
 - The sweep table predates the stance change and the rename. Builds v18 and v19 changed the stance clips, removed the `xbowr`
-  mapping and renamed clips. After the rename only Human was rechecked.
+  mapping and renamed clips. After the rename, on v19, Human was rechecked, then rifle fire and reload on all 12 actors of
+  Dwarf, Elf, Orc and Troll, SMG reload on Elf, Orc and Troll, and pistol and dual pistol reload on Elf and Orc. An offline
+  check found all 175 names the script builds in the model, none missing.
 - Contact figures only prove the palm reaches the point. The rifle and Colt reloads were judged close up on Human male only,
   and the Ingram reload only in group shots.
 
@@ -392,14 +394,14 @@ gap is the longest script tick gap over the first 15 s, which covers spawning an
 |---|---:|---:|---:|
 | Stock | 97 KB | 3.33 s | 559 ms |
 | ASCII with 175 clips | 2.44 MB | 3.24 s | 558 ms |
-| Compiled with 175 clips | 2.63 MB | 3.24 s | 560 ms |
+| Compiled with 175 clips | 2.75 MB | 3.24 s | 560 ms |
 
 - **The clips add no measurable load time.** All three match within run-to-run noise, so splitting into `a_ba_custom1` and
   `a_ba_custom2` isn't needed for load time.
 - **Compiling doesn't help.** The binary is larger and no faster. Compile with `## compileloadedasciimodels` in the client, as
   `nwnmdlcomp -c` can't find the game and `nwmain compilemodel` crashed on this file.
-- The stock worst gap comes from one good run. The other two gave no result and a 49.9 s gap, which looks like a stalled
-  client rather than the model, because stock has the smallest file. The stock figure is the least reliable of the three.
+- The stock worst gap comes from one good run. One other gave no result, and the 49.9 s gap was the game being paused by
+  hand during the run. The stock figure is the least reliable of the three.
 - This is one machine with a warm disk, on a test module of 12 actors. It doesn't cover a full module or a cold start.
 
 
