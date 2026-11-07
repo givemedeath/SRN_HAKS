@@ -212,6 +212,8 @@ class Runner:
         if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
         if stage=='palette' and self.data.get('palette', {}).get('skinShadeContrast') == 'auto':
             dependencies.append('masks')
+        if stage=='palette' and self.data.get('palette', {}).get('repairFeatureHighlights'):
+            dependencies.append('masks')
         # Face masks (opt-in): channel moves read the masks, the colour treatment reads them too, and export waits for the quality gate.
         if (stage=='ownership' and self.data.get('ownership',{}).get('featureChannels')) or (stage=='tone' and self.data.get('tone',{}).get('faceTreatment') is not None):
             dependencies.append('masks')
@@ -602,7 +604,8 @@ class Runner:
             full_range=m['palette'].get('fullShadeRange') is True;shading_only=m['palette'].get('stretchShadingOnly') is True
             body=m['palette'].get('matchBodySkin') is True;positions=skin_median=anchor=None
             if body:require('bodySkin' in m['inputs'],'palette.matchBodySkin needs a bodySkin input (the body neck PLT)')
-            if shading_only or body:
+            highlights=m['palette'].get('repairFeatureHighlights') is True
+            if shading_only or body or highlights:
                 # Each 1K texel's surface point (gutters take the nearest), so the shading is smoothed by 3D distance across chart seams.
                 from .gltf import mesh
                 from .textures import pad,surface
@@ -620,10 +623,26 @@ class Runner:
                 seam_surface = (value, owners, points, b['embree']['path'])
             contrast = m['palette'].get('skinShadeContrast', 1.0)
             focus_source = (self.source('uvMesh','unwrap','mesh'), self.result('masks')) if contrast == 'auto' else None
+            feature_surface = None
+            if highlights:
+                files = self.result('masks')['files']
+                features = {}
+                for name in ('brow','ear','skin'):
+                    self._verify([files[name]])
+                    with Image.open(files[name]['path']) as image:
+                        require(image.mode=='L' and image.size==(4096,4096), 'Feature highlights need 4K L masks')
+                        features[name]=np.asarray(image.convert('F').resize((1024,1024),Image.Resampling.BOX))/255
+                preserve=np.zeros((1024,1024),bool)
+                for item in self.result('tone').get('preserveSkinMasks',{}).values():
+                    self._verify([item])
+                    with Image.open(item['path']) as image:
+                        require(image.mode=='L' and image.size==(4096,4096), 'Feature preservation needs 4K L masks')
+                        preserve |= np.asarray(image.resize((1024,1024),Image.Resampling.BOX))>0
+                feature_surface=(features,points,owners>=0,preserve)
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
                             tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,
                             positions=positions,skin_median=skin_median,skin_anchor=anchor,skin_contrast=1.0 if focus_source else contrast,
-                            focus_source=focus_source, seam_surface=seam_surface)
+                            focus_source=focus_source, seam_surface=seam_surface, feature_surface=feature_surface)
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result

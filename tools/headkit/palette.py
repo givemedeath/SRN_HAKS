@@ -227,7 +227,8 @@ def shading_shades(luma, smooth, unstretched, allowed, quantiles):
 
 
 def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False, shading_only=False,
-             positions=None, skin_median=None, skin_anchor=None, skin_contrast=1.0, focus_source=None, seam_surface=None):
+             positions=None, skin_median=None, skin_anchor=None, skin_contrast=1.0, focus_source=None, seam_surface=None,
+             feature_surface=None):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
     by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
     A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
@@ -257,6 +258,7 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
     require(type(tone_match) is dict and set(tone_match)<={str(v) for v in np.unique(layers)},'Tone matching names a channel without mapped texels')
     references=read(REFERENCES)['references'] if tone_match else {}
     seam_report = None
+    feature_report = {}
     focus_search = []
     if focus_source is not None:
         from .quality import DECODE_ROWS, THRESHOLDS, focus_metrics, focus_view
@@ -336,6 +338,10 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
             for power in SKIN_DARK_POWERS+(None,):
                 picked=pinned(power)
                 if np.percentile(picked,99)-np.percentile(picked,1)>=FULL_RANGE_SPAN*(hi-lo):break
+        if feature_surface is not None and key == '1':
+            from .feature_highlights import repair_channel
+            features, points, mapped, preserve = feature_surface
+            picked, feature_report[key] = repair_channel(picked, selected, features, points, mapped, allowed, 1)
         if focus_source is not None and rows[key] == 'auto' and spec is not None and len(picked):
             # Preserve shade-range and alpha contracts while ranking the actual exported tones.
             opacity = (palette[:, :, 3] > 0) & (np.arange(256) < 255)
@@ -368,6 +374,11 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         if key == '0' and seam_surface is not None:
             from .skin_seams import reconcile_atlas
             picked, seam_report = reconcile_atlas(*seam_surface, selected, picked, allowed)
+        if feature_surface is not None and key == '0':
+            from .feature_highlights import repair_channel
+            features, points, mapped, preserve = feature_surface
+            picked, feature_report[key] = repair_channel(picked, selected, features, points, mapped, allowed, 0,
+                                                         preserve=preserve)
         if spec is not None:
             matched={'reference':spec['reference'],'referenceFile':pin(REFERENCES),'before':shade_stats(nearest),'after':shade_stats(picked),
                      'referencePercentiles':{f'p{round(q*100)}':float(np.interp(q,np.linspace(0,1,len(quantiles)),quantiles)) for q in GRID},
@@ -405,6 +416,8 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
             'decoded':pin(output/'decoded.png'),'visualReviewRequired':True,'rows':resolved}
     if seam_report is not None:
         result['skinSeamRepair'] = seam_report
+    if feature_surface is not None:
+        result['featureHighlightRepair'] = feature_report
     if focus_source is not None:
         result['skinFocusSearch'] = {'candidates': focus_search, 'selectedFactor': skin_contrast}
     write(output/'palette.json',result,fresh=True);return result
