@@ -412,7 +412,7 @@ gap is the longest script tick gap over the first 15 s, which covers spawning an
 
 ## Firearm sounds
 
-The 18 WAVs are in `srn_sound`. Nothing plays them yet. SR_NWN owns the wiring, and its full weapon-to-sound mapping is deferred
+The 17 WAVs are in `srn_sound`. Nothing plays them yet. SR_NWN owns the wiring, and its full weapon-to-sound mapping is deferred
 (`design/combat/PROJECTILE-SOUND-INTEGRATION-PLAN.md`, D377).
 
 | Sound | Intended trigger, from the file names and old rows |
@@ -422,7 +422,7 @@ The 18 WAVs are in `srn_sound`. Nothing plays them yet. SR_NWN owns the wiring, 
 | `dryfire_pistol`, `dryfire_rifle` | Old rows `p_ammo_empty` and `r_ammo_empty` |
 | `rocket` | Old rows `rocket_launcher` and `missile_launcher`, or `ShotSound` |
 | `reload_rocket` | No old row found, and no rocket reload clip exists yet |
-| `firearm_reload` | Old row `reload1` played the same sound. It runs 2.94 s against the 2 s reload clip at speed 1, and it would not follow reload speed |
+| Firearm reloads | None. The user dropped the reload sound on 2026-11-07, so `firearm_reload` is not shipped |
 
 - Fire sounds don't go on clip events. The plan plays them through `ShotSound`, so a clip event would double them.
 - D377 mutes only the sling sound row, but the rifle and shotgun clips here play on a crossbow-class weapon through `xbowshot`.
