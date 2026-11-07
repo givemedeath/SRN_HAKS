@@ -193,10 +193,45 @@ Client results:
   between shots. The stock crossbow stance otherwise shows between shots, because only `xbowshot` is replaced.
 - The Trolls' rifle is unscaled, so it looks small on them. Their arms reach it with bent elbows.
 - The butt doesn't reach the shoulder. The clip is a chest-height hold.
-- The clips were solved against the rifle, so `custom19lp` still needs its own check against a shotgun, as does the SMG clip
-  (`custom14lp`), which isn't solved.
-- Native attacks ran on all races, but the ammo log didn't show rounds used, so firing on the new races is unconfirmed.
-- `a_ba_custom` grew to 1.1 MB for 70 clips. Load time still wasn't measured.
+- `a_ba_custom` grew to 1.1 MB for 70 clips in this build. Load time still wasn't measured.
+
+## SMG and shotgun solve
+
+Client run on 2026-11-06, builds `output/combat-clip-pilot-v8` and `v9`. `WEAPONS` in the pilot now holds one entry per
+weapon, and `TWO_HANDED` maps each clip to its weapon. This is a pilot result, not an approval.
+
+| Clip | Weapon | Hold | Solve |
+|---|---|---|---|
+| `custom11lp` | AK-98 | Shoulder height | Palm fixed under the fore-end |
+| `custom14lp` | Ingram Smartgun X (`wbwsl_m_023`) | Hip height | Palm fixed 0.10 m ahead of the grip, 8.1° tilt corrected |
+| `custom19lp` | AK-98 standing in for a shotgun | Shoulder height | Palm follows the pump |
+
+- **No shotgun model exists.** `srn_weapon` holds only the AK-98 and the crossbow in the two-handed class, so `custom19lp` is
+  solved against the AK-98 until a shotgun is built. Replace its `WEAPONS` entry and rebuild then.
+- **`custom19lp` is a pump clip.** The source left hand travels about 0.16 m along the barrel. The first solve pinned the
+  palm and removed that, so the palm now follows the source hand's phase from its front point back to 0.18 m.
+- **Pull:** if sliding the palm isn't enough, the weapon moves toward the left shoulder and the right arm is solved too.
+  Only Dwarves need it: 0.04 m for male `custom14lp` and 0.01 m for some `custom19lp` slots. Aim stays within 0.002°.
+- The worst contact error is 9.9 mm, on `custom19lp`, where the palm moves between keys. `custom14lp` is under 2 mm except
+  Troll male Large at 7.7 mm, which shares the Fit clip.
+- `a_ba_custom` is now 1.2 MB for 75 clips.
+
+Client results:
+
+- **Ingram:** the two-handed hip hold shows on Human, Dwarf, Orc and Troll, on bare bodies, robe 005 and coat 020 where they
+  were in view. On Trolls it looks small.
+- **Shotgun:** the left hand was seen moving along the barrel on Human male Large. Other races were not checked.
+- **Firing:** rounds were counted for rifle clips on Humans (99 to 97 over 10 s, shotgun clip on `xbowshot`) and for the
+  Ingram on Human, Orc and Troll (99 to 97 on `throwr`). Dwarf and Elf rounds were not counted.
+- **Not checked:** Elf with the Ingram, and any Dwarf shotgun clip. A second client from another session took the foreground,
+  so the run stopped there.
+
+Review notes:
+
+- The stock target dies after about 16 rounds, and actors then leave combat stance. It is now immortal in the pilot.
+- Between shots some frames show a stock stance with the weapon raised, which the `hold` mapping doesn't replace. Judge the
+  grip only from frames in the solved pose.
+- Ranged stances found so far: `xbowrdy` and `xbowr` for crossbows, `bowrdy` and `bow` for the sling class.
 
 ## TODO
 

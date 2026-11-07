@@ -105,7 +105,8 @@ class Support(unittest.TestCase):
         barrel = np.array([0., np.sin(tilt), -np.cos(tilt)])
         up = np.array([0., -barrel[2], barrel[1]])
         verts = np.array([[0., y, z] for z in np.arange(-.34, -.1, .005) for y in (.04, .1)])
-        return {'barrel': barrel, 'up': up, 'verts': verts, 'correction': np.array([[1., 0., 0.], up, -barrel])}
+        return {'barrel': barrel, 'up': up, 'verts': verts, 'front': -.25, 'rear': -.19, 'pump': None,
+                'correction': np.array([[1., 0., 0.], up, -barrel])}
 
     def test_axis_row_round_trips(self):
         matrix = pilot.rotation_between(np.array([1., 2., 3.]), np.array([-2., 1., .5]))
@@ -119,7 +120,7 @@ class Support(unittest.TestCase):
     def test_rifle_marks_read_the_tilt_of_the_top_line(self):
         rows = [f'{0.:.3f} {.2 - z * .25:.4f} {z:.3f}' for z in np.arange(-.34, 0., .01)]
         text = f'node trimesh gun\n  verts {len(rows)}\n' + '\n'.join(rows) + '\n  faces 0\n'
-        marks = pilot.rifle_marks(text)
+        marks = pilot.weapon_marks([text], {'barrel': (-.33, -.03), 'front': -.25, 'rear': -.19, 'pump': None})
         self.assertAlmostEqual(marks['tiltDegrees'], np.degrees(np.arctan(.25)), places=2)
         self.assertTrue(np.allclose(marks['correction'] @ marks['barrel'], [0., 0., -1.]))
 
@@ -132,15 +133,34 @@ class Support(unittest.TestCase):
 
     def test_short_arms_slide_back_along_the_fore_end(self):
         root, clip, marks = self.rig(), self.clip(), self.marks()
-        far = pilot.solve_support(clip, root, marks)['support'][2]
+        far = pilot.solve_support(clip, root, marks)['support'][1][0, 2]
         root['nodes']['lforearm_g']['controls'][8]['values'] = np.array([[0., 0., -.35]])
         root['nodes']['lhand_g']['controls'][8]['values'] = np.array([[0., 0., -.35]])
-        self.assertGreater(pilot.solve_support(clip, root, marks)['support'][2], far)
+        self.assertGreater(pilot.solve_support(clip, root, marks)['support'][1][0, 2], far)
+
+    def test_pump_follows_the_source_hand_along_the_fore_end(self):
+        root, clip, marks = self.rig(), self.clip(), self.marks()
+        clip['nodes']['lbicep_g']['orientation'] = np.array([[0., 1., 0., 0., 1.], [.5, 1., 0., 0., 1.4], [1., 1., 0., 0., 1.]])
+        solved = pilot.solve_support(clip, root, {**marks, 'pump': -.2})
+        travel = solved['support'][1][:, 2]
+        self.assertAlmostEqual(travel.min(), -.25)
+        self.assertAlmostEqual(travel.max(), -.2)
+        self.assertLess(pilot.fit_errors(solved, clip, root, marks)['contactMetres'], .02)
+
+    def test_weapon_is_pulled_in_when_sliding_is_not_enough(self):
+        root, clip, marks = self.rig(), self.clip(), self.marks()
+        root['nodes']['lforearm_g']['controls'][8]['values'] = np.array([[0., 0., -.31]])
+        root['nodes']['lhand_g']['controls'][8]['values'] = np.array([[0., 0., -.31]])
+        solved = pilot.solve_support(clip, root, marks)
+        fit = pilot.fit_errors(solved, clip, root, marks)
+        self.assertGreater(solved['pull'], 0.)
+        self.assertLess(fit['contactMetres'], .005)
+        self.assertLess(fit['aimDegrees'], .01)
 
     def test_unreachable_fore_end_is_refused(self):
         root, clip, marks = self.rig(), self.clip(), self.marks()
-        root['nodes']['lforearm_g']['controls'][8]['values'] = np.array([[0., 0., -.1]])
-        root['nodes']['lhand_g']['controls'][8]['values'] = np.array([[0., 0., -.1]])
+        root['nodes']['lforearm_g']['controls'][8]['values'] = np.array([[0., 0., -.05]])
+        root['nodes']['lhand_g']['controls'][8]['values'] = np.array([[0., 0., -.05]])
         with self.assertRaises(ValueError):
             pilot.solve_support(clip, root, marks)
 

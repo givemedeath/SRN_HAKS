@@ -25,11 +25,15 @@ CLIPS = {'custom11lp': '11lp', 'custom12lp': '12lp', 'custom14lp': '14lp', 'cust
          'custom18start': '18st', 'custom19lp': '19lp'}
 SLOTS = {'hm': 'pmh', 'hf': 'pfh', 'dm': 'pmd', 'df': 'pfd', 'em': 'pme', 'ef': 'pfe', 'om': 'pmo', 'of': 'pfo',
          'gm': 'pmg', 'gf': 'pfg'}
-TWO_HANDED = ('custom11lp', 'custom19lp')
+WEAPONS = {'rifle': {'parts': ('wbwxh_t_015.mdl',), 'barrel': (-.33, -.03), 'front': -.25, 'rear': -.19, 'pump': None},
+           'smg': {'parts': ('wbwsl_m_023.mdl',), 'barrel': (-.32, -.14), 'front': -.10, 'rear': -.07, 'pump': None},
+           # No shotgun is built yet. The AK-98 stands in for the barrel line and fore-end until one is.
+           'shotgun': {'parts': ('wbwxh_t_015.mdl',), 'barrel': (-.33, -.03), 'front': -.30, 'rear': -.24, 'pump': -.18}}
+TWO_HANDED = {'custom11lp': 'rifle', 'custom14lp': 'smg', 'custom19lp': 'shotgun'}
 ARM = ('lbicep_g', 'lforearm_g', 'lhand_g')
-CHAIN = ('rootdummy', 'torso_g', 'rbicep_g', 'rforearm_g', 'rhand_g', *ARM)
-SUPPORT_Z, SUPPORT_REAR, PALM_CLEARANCE, REACH = -.25, -.19, .015, .97
-RIFLE_MODEL = 'wbwxh_t_015.mdl'
+RIGHT_ARM = ('rbicep_g', 'rforearm_g', 'rhand_g')
+CHAIN = ('rootdummy', 'torso_g', *RIGHT_ARM, *ARM)
+PALM_CLEARANCE, REACH, MAX_PULL = .015, .97, .16
 SOURCES = {'m': ('a_ba_non_combat', 'a_ba'), 'f': ('a_fa', 'a_fa')}
 RIFLE = 'sra84e4660_5'
 BLOCK = re.compile(r'(?ms)^\s*node (\w+) (\S+)(.*?)^\s*endnode')
@@ -125,22 +129,25 @@ def axis_row(time, matrix):
     return [time, *axis, 2 * np.arctan2(sine, w)]
 
 
-def rifle_marks(ascii_model):
-    """Barrel line, hand correction and support point of a rifle, in its own (rhand) frame."""
-    match = re.search(r'(?m)^\s*verts\s+(\d+)\s*\n', ascii_model)
-    rows = ascii_model[match.end():].splitlines()[:int(match[1])]
-    verts = np.array([[float(v) for v in row.split()[:3]] for row in rows])
-    bands = np.arange(-.33, -.03, .03)
+def weapon_marks(models, spec):
+    """Barrel line, hand correction and support range of a weapon, in its own (rhand) frame."""
+    parts = []
+    for text in models:
+        match = re.search(r'(?m)^\s*verts\s+(\d+)\s*\n', text)
+        rows = text[match.end():].splitlines()[:int(match[1])]
+        parts.append(np.array([[float(v) for v in row.split()[:3]] for row in rows]))
+    verts = np.vstack([part for part in parts if len(part) > 8])
+    bands = np.arange(*spec['barrel'], .03)
     top = [(z + .015, verts[(verts[:, 2] >= z) & (verts[:, 2] < z + .03), 1].max()) for z in bands]
     slope = np.polyfit(*zip(*top), 1)[0]
     barrel = np.array([0., -slope, -1.]) / np.linalg.norm([0., -slope, -1.])
     up = np.array([0., -barrel[2], barrel[1]])
-    return {'barrel': barrel, 'up': up, 'verts': verts,
+    return {'barrel': barrel, 'up': up, 'verts': verts, 'front': spec['front'], 'rear': spec['rear'], 'pump': spec['pump'],
             'correction': np.array([[1., 0., 0.], up, -barrel]), 'tiltDegrees': float(np.degrees(np.arctan(-slope)))}
 
 
 def support_point(marks, z):
-    """Palm contact under the fore-end at one distance along the rifle."""
+    """Palm contact under the fore-end at one distance along the weapon."""
     fore = marks['verts'][np.abs(marks['verts'][:, 2] - z) < .03]
     return np.array([0., np.percentile(fore[:, 1], 3) - PALM_CLEARANCE, z])
 
@@ -152,51 +159,78 @@ def level_rifle(clip, correction):
     return {**clip, 'nodes': {**clip['nodes'], 'rhand_g': {**node, 'orientation': np.array(rows)}}}
 
 
+def limb_rotations(rig, names, before, after, wrist, hand):
+    """Local rotations that put an arm's wrist and hand in place, with the source elbow as pole and its twist kept."""
+    bicep, forearm, palm = names
+    upper_offset, lower_offset = (rig[node]['controls'][8]['values'][0] for node in (forearm, palm))
+    upper_length, lower_length = np.linalg.norm(upper_offset), np.linalg.norm(lower_offset)
+    shoulder = after[bicep][:3, 3]
+    distance = np.linalg.norm(wrist - shoulder)
+    axis = (wrist - shoulder) / distance
+    pole = before[forearm][:3, 3] - before[bicep][:3, 3]
+    pole -= (pole @ axis) * axis
+    pole /= np.linalg.norm(pole)
+    along = (upper_length ** 2 - lower_length ** 2 + distance ** 2) / (2 * distance)
+    elbow = shoulder + along * axis + np.sqrt(upper_length ** 2 - along ** 2) * pole
+    upper = rotation_between(before[bicep][:3, :3] @ upper_offset, elbow - shoulder) @ before[bicep][:3, :3]
+    lower = rotation_between(before[forearm][:3, :3] @ lower_offset, wrist - elbow) @ before[forearm][:3, :3]
+    return after['torso_g'][:3, :3].T @ upper, upper.T @ lower, lower.T @ hand
+
+
+def arm_length(rig, names):
+    return sum(np.linalg.norm(rig[node]['controls'][8]['values'][0]) for node in names[1:])
+
+
 def solve_support(clip, root, marks):
-    """Key the left arm for one body so the left palm stays on the rifle's fore-end."""
+    """Key the arms for one body so the left palm stays on the fore-end, and follows the pump if there is one.
+
+    The palm first slides back along its range. If that isn't enough the weapon is pulled toward the left shoulder.
+    """
     rig = root['nodes']
     parents = {name: row['parent'] for name, row in rig.items()}
-    upper_offset = rig['lforearm_g']['controls'][8]['values'][0]
-    lower_offset = rig['lhand_g']['controls'][8]['values'][0]
     palm_offset = rig['lhand']['controls'][8]['values'][0]
-    upper_length, lower_length = np.linalg.norm(upper_offset), np.linalg.norm(lower_offset)
     source = sampled_nodes(clip, parents)
     level = level_rifle(clip, marks['correction'])
     posed = sampled_nodes(level, parents)
     times = sorted({float(t) for node in CHAIN for rows in level['nodes'].get(node, {}).values() for t in rows[:, 0]}
                    | {0., clip['length']})
     poses = [(time, sample(rig, source, time), sample(rig, posed, time)) for time in times]
-    reach = REACH * (upper_length + lower_length)
-    for z in np.arange(SUPPORT_Z, SUPPORT_REAR + .001, .01):
-        support = support_point(marks, z)
+    reach = REACH * arm_length(rig, ARM)
+    right_reach = REACH * arm_length(rig, RIGHT_ARM)
+    gaps = np.array([(np.linalg.inv(before['rhand']) @ before['lhand'])[2, 3] for _, before, _ in poses])
+    phases = (gaps - gaps.min()) / (gaps.max() - gaps.min()) if marks['pump'] is not None else np.zeros(len(poses))
+    towards = [after['lbicep_g'][:3, 3] - after['rhand'][:3, 3] for _, _, after in poses]
+    trials = ((pull, z) for pull in np.arange(0., MAX_PULL + .001, .01)
+              for z in np.arange(marks['front'], marks['rear'] + .001, .01))
+    for pull, z in trials:
+        start = support_point(marks, z)
+        end = support_point(marks, marks['pump']) if marks['pump'] is not None else start
+        path = start + phases[:, None] * (end - start)
+        shifts = [pull * v / np.linalg.norm(v) for v in towards]
         wrists = []
-        for _, before, after in poses:
+        for (_, before, after), support, shift in zip(poses, path, shifts):
             rifle = after['rhand']
             hand = rifle[:3, :3] @ before['rhand'][:3, :3].T @ before['lhand_g'][:3, :3]
-            wrists.append(((rifle @ np.r_[support, 1.])[:3] - hand @ palm_offset, hand))
-        if all(np.linalg.norm(w - after['lbicep_g'][:3, 3]) <= reach for (w, _), (_, _, after) in zip(wrists, poses)):
+            wrists.append(((rifle @ np.r_[support, 1.])[:3] + shift - hand @ palm_offset, hand))
+        if (all(np.linalg.norm(w - after['lbicep_g'][:3, 3]) <= reach for (w, _), (_, _, after) in zip(wrists, poses))
+                and all(np.linalg.norm(after['rhand_g'][:3, 3] + shift - after['rbicep_g'][:3, 3]) <= right_reach
+                        for (_, _, after), shift in zip(poses, shifts))):
             break
     else:
         raise ValueError(f'{root["name"]}: fore-end out of reach')
-    keys = {node: [] for node in ARM}
-    for (time, before, after), (wrist, hand) in zip(poses, wrists):
-        shoulder = after['lbicep_g'][:3, 3]
-        distance = np.linalg.norm(wrist - shoulder)
-        axis = (wrist - shoulder) / distance
-        pole = before['lforearm_g'][:3, 3] - before['lbicep_g'][:3, 3]
-        pole -= (pole @ axis) * axis
-        pole /= np.linalg.norm(pole)
-        along = (upper_length ** 2 - lower_length ** 2 + distance ** 2) / (2 * distance)
-        elbow = shoulder + along * axis + np.sqrt(upper_length ** 2 - along ** 2) * pole
-        upper = rotation_between(before['lbicep_g'][:3, :3] @ upper_offset, elbow - shoulder) @ before['lbicep_g'][:3, :3]
-        lower = rotation_between(before['lforearm_g'][:3, :3] @ lower_offset, wrist - elbow) @ before['lforearm_g'][:3, :3]
-        keys['lbicep_g'].append(axis_row(time, after['torso_g'][:3, :3].T @ upper))
-        keys['lforearm_g'].append(axis_row(time, upper.T @ lower))
-        keys['lhand_g'].append(axis_row(time, lower.T @ hand))
+    keys = {node: [] for node in (*ARM, *RIGHT_ARM)}
+    for (time, before, after), (wrist, hand), shift in zip(poses, wrists, shifts):
+        for node, local in zip(ARM, limb_rotations(rig, ARM, before, after, wrist, hand)):
+            keys[node].append(axis_row(time, local))
+        if pull:
+            held = after['rhand_g']
+            for node, local in zip(RIGHT_ARM, limb_rotations(rig, RIGHT_ARM, before, after, held[:3, 3] + shift, held[:3, :3])):
+                keys[node].append(axis_row(time, local))
     nodes = dict(level['nodes'])
     for node, rows in keys.items():
-        nodes[node] = {**nodes.get(node, {}), 'orientation': np.array(rows)}
-    return {**level, 'nodes': nodes, 'support': support}
+        if rows:
+            nodes[node] = {**nodes.get(node, {}), 'orientation': np.array(rows)}
+    return {**level, 'nodes': nodes, 'support': (np.array(times), path), 'pull': float(pull)}
 
 
 def fit_errors(clip, source, root, marks):
@@ -206,11 +240,13 @@ def fit_errors(clip, source, root, marks):
     for time in np.linspace(0., clip['length'], 21):
         pose = sample(root['nodes'], sampled_nodes(clip, parents), time)
         wanted = -sample(root['nodes'], sampled_nodes(source, parents), time)['rhand'][:3, 2]
-        target = (pose['rhand'] @ np.r_[clip['support'], 1.])[:3]
+        times, path = clip['support']
+        point = [np.interp(time, times, path[:, axis]) for axis in range(3)]
+        target = (pose['rhand'] @ np.r_[point, 1.])[:3]
         gaps.append(float(np.linalg.norm(pose['lhand'][:3, 3] - target)))
         barrel = pose['rhand'][:3, :3] @ marks['barrel']
         aims.append(float(np.degrees(np.arccos(np.clip(barrel @ wanted, -1, 1)))))
-    return {'supportZ': round(float(clip['support'][2]), 2), 'contactMetres': round(max(gaps), 4),
+    return {'supportZ': round(float(clip['support'][1][:, 2].min()), 2), 'pullMetres': round(clip['pull'], 2), 'contactMetres': round(max(gaps), 4),
             'aimDegrees': round(max(aims), 3)}
 
 
@@ -248,7 +284,7 @@ def hand_gap(root, clip):
     return round(float(np.linalg.norm(pose['rhand'][:3, 3] - pose['lhand'][:3, 3])), 3)
 
 
-def stage_animation(hak, stock_dir, source_dir, body, marks):
+def stage_animation(hak, stock_dir, source_dir, body, weapons):
     custom = (stock_dir / 'a_ba_custom.mdl').read_text(encoding='cp1252')
     tree = probe.stock_clip_tree(custom, 'a_ba_custom')
     names = {name.lower() for _, name, _ in tree}
@@ -268,6 +304,7 @@ def stage_animation(hak, stock_dir, source_dir, body, marks):
                 row['handGapMetres'] = {'fit': hand_gap(roots[0], raw), 'large': hand_gap(roots[1], raw)}
                 records.append(row)
                 continue
+            marks = weapons[TWO_HANDED[name]]
             solved = solve_support(raw, roots[0], marks)
             blocks.append(clip_text(label, 'a_ba_custom', solved, tree))
             row['fit'] = fit_errors(solved, raw, roots[0], marks)
@@ -291,7 +328,7 @@ string SlotOf(object a){
  int t=GetAppearanceType(a);string race="h";if(t==15101)race="d";if(t==15102)race="e";if(t==15103)race="o";if(t==15104)race="g";
  return race+(GetGender(a)==GENDER_FEMALE?"f":"m");}
 string ClipSlot(object a,string code){
- string large=(code=="11lp"||code=="19lp")&&GetGender(a)==GENDER_FEMALE&&GetPhenoType(a)==2?"l":"";
+ string large=(code=="11lp"||code=="14lp"||code=="19lp")&&GetGender(a)==GENDER_FEMALE&&GetPhenoType(a)==2?"l":"";
  return SlotOf(a)+large;}
 void Map(object a,string stock,string code){
  string slot=ClipSlot(a,code);ReplaceObjectAnimation(a,stock,slot=="hm"?"":"c"+code+"_"+slot);}
@@ -324,6 +361,9 @@ void Hold(string code,string native){
  while(GetIsObjectValid(a)){
   string slot=ClipSlot(a,code);string clip=slot=="hm"?native:"c"+code+"_"+slot;
   ReplaceObjectAnimation(a,"xbowrdy",clip);ReplaceObjectAnimation(a,"xbowr",clip);
+  ReplaceObjectAnimation(a,"bowrdy",clip);ReplaceObjectAnimation(a,"bow",clip);
+  ReplaceObjectAnimation(a,"1hreadyr",clip);ReplaceObjectAnimation(a,"1hreadyl",clip);
+  ReplaceObjectAnimation(a,"nwreadyr",clip);ReplaceObjectAnimation(a,"nwreadyl",clip);
   a=GetObjectByTag("SRP_A",++n);}}
 void ArmWith(string resref,string ammo,int ammoSlot){
  int n=0;object a=GetObjectByTag("SRP_A",n);
@@ -343,7 +383,7 @@ void main(){
  object pc=GetEnteringObject();if(!GetIsPC(pc))return;
  object module=GetModule();if(GetLocalInt(module,"SRP_READY"))return;SetLocalInt(module,"SRP_READY",1);
  ApplyEffectToObject(DURATION_TYPE_PERMANENT,SupernaturalEffect(EffectLinkEffects(EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),EffectCutsceneGhost())),pc);
- CreateObject(OBJECT_TYPE_CREATURE,"srp_tgt",Location(GetObjectByTag("sr_it_floor"),Vector(15.7,8.0,0.0),90.0),FALSE,"SRP_T");
+ SetImmortal(CreateObject(OBJECT_TYPE_CREATURE,"srp_tgt",Location(GetObjectByTag("sr_it_floor"),Vector(15.7,8.0,0.0),90.0),FALSE,"SRP_T"),TRUE);
  Show(15104,"Troll");
  DelayCommand(5.0,Camera(pc,90.0,22.0,58.0));
  SrpLog("ready");}
@@ -357,6 +397,10 @@ void main(){
  object pc=GetPCChatSpeaker();
  string text=GetStringLowerCase(GetPCChatMessage());
  if(text=="hold")Hold("11lp","custom11lp");
+ else if(text=="holdsmg")Hold("14lp","custom14lp");
+ else if(text=="holdshot")Hold("19lp","custom19lp");
+ else if(text=="ingram")ArmWith("sre9a211be_3","nw_wambu001",INVENTORY_SLOT_BULLETS);
+ else if(text=="fingram")Attack("throwr","14lp","custom14lp","attack throwr ingram");
  else if(text=="side")Camera(pc,0.0,5.0,80.0);
  else if(text=="frifle")Attack("xbowshot","11lp","custom11lp","attack xbowshot rifle");
  else if(text=="fproof")Attack("xbowshot","18st","custom18start","attack proof grenade on xbowshot");
@@ -394,11 +438,17 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client):
     for path in (stock_dir, hak, stage, user / 'hak', user / 'modules'):
         path.mkdir(parents=True)
     (stock_dir / 'a_ba_custom.mdl').write_bytes(tools.stock('a_ba_custom.mdl', game_userdir))
-    (stock_dir / 'rifle.mdl').write_bytes((REPO / 'srn_weapon' / RIFLE_MODEL).read_bytes())
-    subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(stock_dir / 'rifle.mdl'),
-                    str(stock_dir / 'rifle-ascii.mdl')], check=True, capture_output=True, timeout=120)
-    marks = rifle_marks((stock_dir / 'rifle-ascii.mdl').read_text(encoding='cp1252'))
-    records = stage_animation(hak, stock_dir, Path(source_dir), REPO / 'srn_body', marks)
+    weapons = {}
+    for label, spec in WEAPONS.items():
+        models = []
+        for part in spec['parts']:
+            binary, text = stock_dir / (part + '.bin'), stock_dir / part
+            binary.write_bytes((REPO / 'srn_weapon' / part).read_bytes())
+            subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(binary), str(text)],
+                           check=True, capture_output=True, timeout=120)
+            models.append(text.read_text(encoding='cp1252'))
+        weapons[label] = weapon_marks(models, spec)
+    records = stage_animation(hak, stock_dir, Path(source_dir), REPO / 'srn_body', weapons)
     hak_order = [probe.HAK, 'sw_reviewenv', 'srn_weapon', 'srn_armor', 'srn_body_tex', 'srn_body', 'srn_2da']
     scripts = {'srp_inc': probe.SCRIPTS['srp_inc'] + PHASES, 'srp_enter': ENTER, 'srp_chat': CHAT}
     probe.stage_module(stage, tools, REPO / 'test-modules/weapon-waves/module', game_userdir, hak_order, scripts)
@@ -424,7 +474,7 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client):
     files = [{'relativePath': f'userdir/hak/{n}.hak', 'sha256': probe.sha(user / 'hak' / (n + '.hak'))} for n in hak_order]
     files.append({'relativePath': f'userdir/modules/{probe.MODULE}.mod', 'sha256': probe.sha(module)})
     manifest = {'kind': 'combat-clip-pilot', 'files': files, 'clips': records,
-                'rifle': {'tiltDegrees': marks['tiltDegrees']},
+                'weaponTiltDegrees': {label: marks['tiltDegrees'] for label, marks in weapons.items()},
                 'customBytes': (hak / 'a_ba_custom.mdl').stat().st_size,
                 'clientObserved': False, 'productionAccepted': False}
     (output / 'runtime-manifest.json').write_text(json.dumps(manifest, indent=2))
