@@ -22,7 +22,7 @@ if str(REPO) not in sys.path:
     sys.path.append(str(REPO))
 from tools.itemkit import anim_chain_probe as probe
 from tools.phenomorpher.phenomorpher.engine.anim_library import load_model
-from tools.phenomorpher.phenomorpher.engine.native_motion import quaternion_matrix, sample
+from tools.phenomorpher.phenomorpher.engine.native_motion import quaternion_matrix, sample, value
 
 # Clips are named <action>_<weapon>_<slot>, as in fire_rfl_dm. Female Large slots add `l`, as in fire_rfl_dfl.
 CLIPS = {'custom11lp': 'fire_rfl', 'custom12lp': 'fire_pst', 'custom13lp': 'fire_dpst', 'custom14lp': 'fire_smg',
@@ -44,6 +44,9 @@ RELOADS = ('custom17start',)
 # Crossbow-class weapons get their own ready stance, built from the shot clip's rest pose. Leave `xbowr` alone: mapping
 # it folds the right forearm back over the shoulder for as long as the weapon is in combat.
 READY = {'custom11lp': 'ready_rfl', 'custom19lp': 'ready_sg'}
+# The engine fires on the stock clip's `hit` (0.5 s in `throwr` and `xbowshot`), not on ours. These clips kick at
+# 0.13 s, so their loop is turned later to kick at 0.5 s. Ready stances still come from the unshifted first pose.
+RECOIL_DELAY = {'custom11lp': .37, 'custom19lp': .37}
 # Stock `xbowrdy` breathing and weight shift is laid over the hold on these nodes. The arms ride on the torso.
 SWAY = ('pelvis_g', 'torso_g', 'neck_g', 'head_g')
 LEGS = (('lthigh_g', 'lshin_g', 'lfoot_g'), ('rthigh_g', 'rshin_g', 'rfoot_g'))
@@ -321,6 +324,24 @@ def fit_errors(clip, source, root, marks):
             'aimDegrees': round(max(aims), 3)}
 
 
+def delayed(clip, delay):
+    """A looping clip turned `delay` seconds later around its loop. Events stay where they are."""
+    length, nodes = clip['length'], {}
+    for node, keys in clip['nodes'].items():
+        moved = {}
+        for kind, rows in keys.items():
+            rotation = kind == 'orientation'
+            source = {'times': rows[:, 0], 'values': quaternions(rows) if rotation else rows[:, 1:4]}
+            times = sorted({0., length, *np.round((rows[:, 0] + delay) % length, 6)})
+            out = []
+            for time in times:
+                pose = value(source, (time - delay) % length, rotation)
+                out.append(axis_row(time, quaternion_matrix(pose)) if rotation else [time, *pose])
+            moved[kind] = np.array(out)
+        nodes[node] = moved
+    return {**clip, 'nodes': nodes}
+
+
 def rest_clip(clip):
     """One-second hold of a clip's first pose, with no events."""
     held = {node: {kind: np.array([[0., *rows[0, 1:]], [1., *rows[0, 1:]]]) for kind, rows in keys.items()}
@@ -464,13 +485,14 @@ def stage_animation(hak, stock_dir, source_dir, body, weapons, stance):
                 continue
             marks = weapons[TWO_HANDED[name]]
             solved = solve_support(raw, roots[0], marks)
-            blocks.append(clip_text(label, 'a_ba_custom', solved, tree))
+            delay = RECOIL_DELAY.get(name)
+            blocks.append(clip_text(label, 'a_ba_custom', delayed(solved, delay) if delay else solved, tree))
             blocks += ready_blocks(name, slot, '', solved, tree, stance, binds[0][2] / stock_bind[2], drifts, roots[0])
             row['fit'] = fit_errors(solved, raw, roots[0], marks)
             if sex == 'f':
                 wide, _ = retarget(read_clip(sources[sex], name), names, stock_bind, binds[1])
                 large = solve_support(wide, roots[1], marks)
-                blocks.append(clip_text(label + 'l', 'a_ba_custom', large, tree))
+                blocks.append(clip_text(label + 'l', 'a_ba_custom', delayed(large, delay) if delay else large, tree))
                 blocks += ready_blocks(name, slot, 'l', large, tree, stance, binds[1][2] / stock_bind[2], drifts, roots[1])
                 row['large'] = fit_errors(large, wide, roots[1], marks)
             else:

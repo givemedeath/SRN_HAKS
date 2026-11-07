@@ -70,6 +70,49 @@ class TaggedGun(unittest.TestCase):
         self.assertEqual(re.findall(r'(?m)^\s*event (\S+) hit$', events['throw_gren_hm']), ['0.5'])
         self.assertEqual(retimed.count('\n'), text.count('\n') + 15)
 
+    def test_old_effects_move_onto_the_muzzle_and_port(self):
+        def block(name, position, extra=''):
+            fields = ''.join(f'  {field} 0\r\n' for field in ('sizeStart', 'sizeEnd', 'sizeStart_y', 'sizeEnd_y',
+                                                                  'alphaEnd', 'lifeExp'))
+            return (f'node emitter {name}\r\n  parent old\r\n  position {position}\r\n  texture fxpa_smoke02\r\n'
+                    f'  fps 0\r\n  framestart 0\r\n  frameend 16\r\n{fields}{extra}endnode\r\n')
+        old = block('muzzle_flash01', '0 0.1 -0.28') + block('muzzle_flash02', '0 0.1 -0.38')
+        old += 'newanim x old\r\n' + block('muzzle_flash03', '0 0 0') + 'doneanim x old\r\n'
+        flashes = fx.emitter_blocks(old, 'muzzle_flash')
+        self.assertEqual(sorted(flashes), ['muzzle_flash01', 'muzzle_flash02'])
+        casing = fx.emitter_blocks(block('Casings39', '1 2 3'), 'Casings')
+        nodes = fx.old_effects('wbwsl_b_051', GUN, flashes, casing, (.025, .1, -.05))
+        self.assertEqual(list(nodes), ['srn_flash01', 'srn_flash02', 'srn_casing'])
+        self.assertIn('position 0.00000 0.15000 -0.30000', nodes['srn_flash01'])
+        self.assertIn('position 0.00000 0.15000 -0.40000', nodes['srn_flash02'])
+        self.assertIn('parent wbwsl_b_051', nodes['srn_casing'])
+        self.assertIn('position 0.02500 0.10000 -0.05000', nodes['srn_casing'])
+        self.assertIn(f'texture {fx.CASING_SHEET}', nodes['srn_casing'])
+        self.assertIn('frameend 15', nodes['srn_casing'])
+        self.assertIn(f'sizeStart {fx.CASING_SIZE}', nodes['srn_casing'])
+        self.assertIn('alphaEnd 0', nodes['srn_flash01'])
+        text = fx.tagged_gun(GUN, 'fire_pst', 'replaced', effects=nodes)
+        self.assertNotIn('srp_', text)
+        self.assertIn(f'event {fx.SHOT_TIME} detonate', text)
+
+    def test_tumbling_sheet_has_sixteen_turning_frames(self):
+        import tempfile
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as folder:
+            source = Image.new('RGBA', (128, 128), (0, 0, 0, 0))
+            for x in range(4):
+                for y in range(4):
+                    source.paste((200, 150, 50, 255), (x * 32 + 2, y * 32 + 12, x * 32 + 30, y * 32 + 20))
+            source.save(folder + '/old.tga')
+            fx.tumbling_sheet(folder + '/old.tga', folder + '/new.tga')
+            sheet = Image.open(folder + '/new.tga')
+            widths = [sheet.crop(((f % 4) * 64, (f // 4) * 64, (f % 4 + 1) * 64, (f // 4 + 1) * 64)).getbbox()
+                      for f in range(16)]
+            spans = [box[2] - box[0] for box in widths]
+            self.assertEqual(sheet.size, (256, 256))
+            self.assertGreater(spans[0], 2 * spans[4])
+            self.assertEqual(spans[0], spans[8])
+
     def test_a_gun_with_clips_is_refused(self):
         with self.assertRaisesRegex(ValueError, 'Unexpected gun shape'):
             fx.tagged_gun(GUN.replace('donemodel', 'newanim old wbwsl_b_051\ndoneanim old wbwsl_b_051\ndonemodel'), 'fire_pst', 'stock')

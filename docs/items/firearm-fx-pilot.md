@@ -7,8 +7,8 @@ from this pilot. The builder is `tools/itemkit/firearm_fx_pilot.py`, and output 
 |---|---|---|
 | 1. Clip matching | Which clip name does the gun play under `ReplaceObjectAnimation`? | Passed 2026-11-07 |
 | 2. Hit timing | Do the `hit` events match the recoil in the fire clips? | Answered 2026-11-07: the event is ignored |
-| 3. Muzzle flash | Does a flash sit on the muzzle and match the shot? | Not started |
-| 4. Shell casings | Do casings arc out, drop and read at game distance? | Not started |
+| 3. Muzzle flash | Does a flash sit on the muzzle and match the shot? | Passed on the AK-98 2026-11-07, old flash tuned |
+| 4. Shell casings | Do casings arc out, drop and read at game distance? | Ejection passed 2026-11-07; default camera not checked |
 | 5. SMG burst | Does each recoil get a flash and a casing? | Not started |
 | 6. Coverage and cost | Do the effects line up on all bodies without a frame drop? | Not started |
 
@@ -140,3 +140,47 @@ All ten slots share the same timing. Gate 2 showed the `hit` event isn't used, s
 | `fire_smg` | None | About six small jolts, the first near 0.15 s | Missing |
 | `fire_dpst`, `fire_dsmg` | None | Right and left kicks at different times | Missing, waits on dual fire |
 | `throw_gren` | 0.5 s | Hand fastest at 0.47 s, furthest forward at 0.5 s | Correct |
+
+## Recoil shift and the old mod's effects
+
+Build `output/firearm-fx-pilot-v10-oldfx`, 2026-11-07. Nothing here ships yet.
+
+### Recoil shift
+
+`combat_clip_pilot.py` now turns `fire_rfl` and `fire_sg` (`custom11lp`, `custom19lp`) 0.37 s later around their loop
+(`RECOIL_DELAY`), so the kick starts at 0.5 s with the engine's shot. Every node of both clips starts and ends on the
+same pose, so the turn has no seam. Events stay where they were, and the ready stances come from the unshifted clips.
+This changes the shipped `a_ba_custom`, so it needs its own release before it reaches `srn_body`.
+
+On the AK-98, seen from behind the actor, the flash filled the muzzle one frame before the tracer appeared, and the gun
+kicked back within the next frame. That's within the 50 ms frame spacing.
+
+### Old effects
+
+Both come from `F:\repos\SR_NWN\OLD_SR_MOD_ASSETS\!Combat Override System` (`--old-fx`):
+
+| Effect | Source | What changed |
+|---|---|---|
+| Flash | `muzzle_flash01..09` in `WIP/combat_ovr_v1.hak/models/wbwxh_m_154.mdl`: nine `fxpa_flare` sprites, 10 cm apart down the barrel | Moved onto each gun's muzzle. The old sprites grow from nothing and peak 0.2 s after the shot, so the bullet left before the flash showed. They now start full (0.12) and shrink and fade over 0.1 s (`FLASH_FIELDS`) |
+| Casing | `Casings39` in `OLD/!DONE/gun models/wbwar_t_101.mdl`: one `Explosion` particle, 2 m/s to the right and slightly up, with mass, bounce and a 5 s life | Put on a hand-placed ejection port per gun (`PORTS`). Size 0.15 drew a casing about 12 cm long, so it's now 0.06 (`CASING_SIZE`), about 4 to 5 cm |
+| Casing sheet | `fxpa_smoke02.tga` beside the gun models: 16 identical casings | It overwrote the stock smoke texture of that name. It's now `srnfx_casing`, redrawn as 16 frames that turn the casing side-on to end-on, played at 24 frames a second |
+
+Both fire on one `detonate` at 0.5 s.
+
+### What was seen
+
+| Gun | Flash | Casing |
+|---|---|---|
+| AK-98, `fire_rfl` | On the muzzle, one frame before the tracer | Out to the right, falls clear of the body |
+| Colt, `fire_pst` | On the muzzle in a front view (v9). Hidden by the body from behind | Out to the right, arcs and falls, visibly tumbling |
+| Ingram, `fire_smg` | Hidden by the body from behind | Out to the right, one per attack |
+
+- One Human Female Large actor in robe 020 was recorded from 1.5 m behind with the new `behind` chat command, at about
+  20 frames a second. Other bodies and the default camera height weren't checked.
+- The Ingram gives one flash and one casing per attack. Mapping a burst to a native attack is still gate 5.
+- **Provenance:** `gun credits.txt` beside the old gun models credits the d20mm team (Demigog for models and emitters,
+  Dforce and Psionic for models) and the Urban Terror team. So the casing emitter is probably Demigog's. The flash in
+  the WIP hak has no credit. Check reuse terms before anything ships.
+
+Evidence is in `output/firearm-fx-pilot-v10-evidence/` (ignored). The v9 front views are in
+`output/firearm-fx-pilot-v9-evidence/`.

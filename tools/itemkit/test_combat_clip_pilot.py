@@ -123,6 +123,20 @@ class Retarget(unittest.TestCase):
         self.assertEqual(wanted - clips, set())
         self.assertEqual(len(wanted), 175)
 
+    def test_delayed_turns_a_loop_later(self):
+        clip = {'length': 1., 'events': [('0.0', 'hit')], 'nodes': {
+            'torso_g': {'orientation': np.array([[0., 1., 0., 0., 0.], [.2, 1., 0., 0., .4], [1., 1., 0., 0., 0.]]),
+                        'position': np.array([[0., 0., 0., 0.], [.2, 0., 0., .1], [1., 0., 0., 0.]])}}}
+        late = pilot.delayed(clip, .3)
+        keys = late['nodes']['torso_g']
+        position = {'times': keys['position'][:, 0], 'values': keys['position'][:, 1:4]}
+        self.assertAlmostEqual(pilot.value(position, .5)[2], .1)
+        self.assertAlmostEqual(pilot.value(position, 0.)[2], .1 * .3 / .8)
+        rotation = {'times': keys['orientation'][:, 0], 'values': pilot.quaternions(keys['orientation'])}
+        self.assertAlmostEqual(abs(pilot.value(rotation, .5, True)[0]), np.sin(.2), places=6)
+        self.assertEqual(late['events'], clip['events'])
+        self.assertEqual(keys['position'][[0, -1], 0].tolist(), [0., 1.])
+
     def test_quaternion_matches_axis_angle(self):
         value = pilot.quaternions(np.array([[0., 0., 1., 0., np.pi]]))[0]
         self.assertTrue(np.allclose(value, [0., 1., 0., 0.]))
