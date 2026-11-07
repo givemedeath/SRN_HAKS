@@ -410,7 +410,7 @@ def face_quality_profile():
             'ownership': {'featureChannels': True},
             'tone': {'faceTreatment': {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3,
                      'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0}},
-            'quality': {}, 'palette': {'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True, 'skinShadeContrast': 'auto', 'repairSkinSeams': True},
+            'quality': {}, 'palette': {'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True, 'skinShadeContrast': 'auto', 'repairSkinSeams': True, 'repairFeatureHighlights': True},
             'render': {'$replace': True, 'frontAngleDegrees': -90,
                        'sizes': [2048, 1024], 'modes': ['clay','color-only','material-lit'],
                        'mapStages': {'basecolor': 'tone'}, 'runtimePalette': True,

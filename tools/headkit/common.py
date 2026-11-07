@@ -135,6 +135,9 @@ def manifest(path):
     # The quality gate's shadeSpan check (and the calibrated prototypes) assume every channel uses its full shade range.
     require(not all(face) or (data.get('palette') or {}).get('fullShadeRange') is True,
             'Face masks need palette.fullShadeRange: true (the quality gate measures each channel\'s shade span)')
+    highlights = (data.get('palette') or {}).get('repairFeatureHighlights', False)
+    require(type(highlights) is bool and (not highlights or all(face)),
+            'repairFeatureHighlights needs the complete face-mask pipeline and a boolean setting')
     # Imported runtime atlases bypass the gated path: palette would skip the channel moves and treatment, and export would
     # ship shades the quality gate never measured.
     bypass = sorted({'runtimeColor', 'runtimeShades', 'ownership1k'} & set(data['inputs']))
