@@ -25,6 +25,10 @@ from tools.itemkit import combat_clip_pilot as pilot
 GUNS = {'colt': ('wbwsl_b_051.mdl', 'fire_pst'), 'ingram': ('wbwsl_m_023.mdl', 'fire_smg'), 'ak98': ('wbwxh_t_015.mdl', 'fire_rfl')}
 STOCK_CLIPS = ('throwr', 'xbowshot')
 BURST_TIME = .1
+# Gate 2: recoil onsets from hand speed in the clip keys, shared by every slot. Moving `hit` to these doesn't move
+# the shot: the engine launches on the stock clip's own `hit` (0.5 s in `throwr` and `xbowshot`). Diagnostic only.
+HIT_TIMES = {'fire_pst': .5, 'fire_rfl': .13, 'fire_sg': .13, 'fire_smg': .1}
+FIRE_CLIP = re.compile(r'(?ms)^(newanim (fire_(?:pst|rfl|sg|smg))_\S+ a_ba_custom\n)(.*?)(^doneanim )')
 # Names the body plays outside the shot. A gun with no clip of the name keeps looping its last one, detonate and all.
 QUIET_CLIPS = ('pause1', 'pause2', 'walk', 'run', 'xbowrdy', 'bowrdy', 'bow', '1hreadyr', '1hreadyl', 'nwreadyr', 'nwreadyl')
 BURST_LIFE = 1.5
@@ -117,11 +121,42 @@ void StockAttack(){
   AssignCommand(a,ClearAllActions(TRUE));AssignCommand(a,ActionAttack(target));
   a=GetObjectByTag("SRP_A",++n);}
  Say("attack stock");SrpLog("phase attack stock");}
+void TimedAttack(string shot,string code,string text){
+ object target=GetObjectByTag("SRP_T");
+ SetEventScript(target,EVENT_SCRIPT_CREATURE_ON_MELEE_ATTACKED,"srp_dmg");
+ SetEventScript(target,EVENT_SCRIPT_CREATURE_ON_DAMAGED,"srp_dmg");
+ SetLocalInt(GetModule(),"SRP_T0",GetMicrosecondCounter());
+ Attack(shot,code,"timed "+text);}
+void Speed(float speed){
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){
+  SetObjectVisualTransform(a,OBJECT_VISUAL_TRANSFORM_ANIMATION_SPEED,speed);
+  a=GetObjectByTag("SRP_A",++n);}
+ Say("speed "+FloatToString(speed,3,2));}
+void Solo(){
+ int n=1;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){DestroyObject(a);a=GetObjectByTag("SRP_A",++n);}
+ Say("solo "+GetName(GetObjectByTag("SRP_A",0)));}
+'''
+# Logs each attack landing on the target, in milliseconds since the timed attack began.
+DAMAGE = '''#include "srp_inc"
+void main(){
+ int damaged=GetCurrentlyRunningEvent()==EVENT_SCRIPT_CREATURE_ON_DAMAGED;
+ object a=damaged?GetLastDamager():GetLastAttacker();
+ int ms=(GetMicrosecondCounter()-GetLocalInt(GetModule(),"SRP_T0"))/1000;
+ SrpLog("land "+(damaged?"damaged":"attacked")+" | "+GetName(a)+" | ms="+IntToString(ms));}
 '''
 CHAT = '''if(text=="fstock")StockAttack();
  else if(text=="ak")Arm();
  else if(text=="lpistol")Clips("custom12lp","fire_pst",ANIMATION_LOOPING_CUSTOM12,"pistol loop");
  else if(text=="lsmg")Clips("custom14lp","fire_smg",ANIMATION_LOOPING_CUSTOM14,"smg loop");
+ else if(text=="tpistol")TimedAttack("throwr","fire_pst","pistol");
+ else if(text=="tsmg")TimedAttack("throwr","fire_smg","smg");
+ else if(text=="trifle")TimedAttack("xbowshot","fire_rfl","rifle");
+ else if(text=="tshot")TimedAttack("xbowshot","fire_sg","shotgun");
+ else if(text=="slow")Speed(0.2);
+ else if(text=="fast")Speed(1.0);
+ else if(text=="solo")Solo();
  else '''
 
 
@@ -138,7 +173,20 @@ def slots():
     return [*pilot.SLOTS, *(slot + 'l' for slot in pilot.SLOTS if slot.endswith('f'))]
 
 
-def tagged_gun(text, stem, names, quiet=False):
+def retimed_hits(text, times=HIT_TIMES):
+    """Move or add the `hit` event of every rifle, shotgun, pistol and SMG fire clip to its `times` entry."""
+    def retime(match):
+        body = re.sub(r'(?m)^\s*event \S+ hit\n', '', match[3])
+        header = re.search(r'(?m)^\s*animroot \S+\n', body)
+        body = body[:header.end()] + f'  event {times[match[2]]} hit\n' + body[header.end():]
+        return match[1] + body + match[4]
+    text, count = FIRE_CLIP.subn(retime, text)
+    if count != 15 * len(HIT_TIMES):
+        raise ValueError(f'Expected {15 * len(HIT_TIMES)} fire clips, found {count}')
+    return text
+
+
+def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME):
     """Add the marker and a burst to one decompiled gun, with clips for the `stock` or `replaced` names."""
     root = re.search(r'(?m)^newmodel (\S+)', text)[1]
     tip = muzzle(text)
@@ -152,7 +200,7 @@ def tagged_gun(text, stem, names, quiet=False):
         raise ValueError('Unexpected gun shape: ' + root)
 
     clip_names = STOCK_CLIPS if names == 'stock' else [f'{stem}_{slot}' for slot in slots()]
-    event = f'  event {BURST_TIME} detonate\n'
+    event = f'  event {burst_time} detonate\n'
     clips = ''.join(CLIP.format(clip=name, root=root, event=event, nodes=EMITTER_CLIP_NODE.format(name=emitter, root=root))
                     for name in clip_names)
     if quiet:
@@ -164,11 +212,19 @@ def tagged_gun(text, stem, names, quiet=False):
     return text.replace(close, nodes + close + '\n\n' + clips.rstrip('\n'))
 
 
-def extend(names, quiet, hak, stock_dir, scripts):
+def extend(names, quiet, corrected, hit_at, hak, stock_dir, scripts):
+    """corrected: move fire clip `hit` events to HIT_TIMES and burst the gun at the same time.
+    hit_at: move every fire clip `hit` to this time instead, keeping the burst at clip start as a marker."""
+    times = {stem: hit_at for stem in HIT_TIMES} if hit_at is not None else HIT_TIMES if corrected else None
     for part, stem in GUNS.values():
         text = (stock_dir / part).read_text(encoding='cp1252')
-        (hak / part).write_text(tagged_gun(text, stem, names, quiet), encoding='cp1252', newline='\n')
+        burst = HIT_TIMES[stem] if corrected and hit_at is None else BURST_TIME
+        (hak / part).write_text(tagged_gun(text, stem, names, quiet, burst), encoding='cp1252', newline='\n')
+    if times:
+        custom = hak / 'a_ba_custom.mdl'
+        custom.write_text(retimed_hits(custom.read_text(encoding='cp1252'), times), encoding='cp1252', newline='\n')
     scripts['srp_inc'] += INC
+    scripts['srp_dmg'] = DAMAGE
     marker = 'if(text=="hold")'
     if scripts['srp_chat'].count(marker) != 1:
         raise ValueError('Unexpected chat script')
@@ -182,6 +238,9 @@ if __name__ == '__main__':
     parser.add_argument('--client')
     parser.add_argument('--names', choices=('stock', 'replaced'), required=True)
     parser.add_argument('--quiet', action='store_true', help='Add empty clips for the names in QUIET_CLIPS')
+    parser.add_argument('--corrected-hits', action='store_true', help='Move fire clip hit events to HIT_TIMES')
+    parser.add_argument('--hit-at', type=float, help='Diagnostic: put every fire clip hit event at this time')
     options = vars(parser.parse_args())
-    result = pilot.build(extend=partial(extend, options.pop('names'), options.pop('quiet')), **options)
+    hooks = partial(extend, options.pop('names'), options.pop('quiet'), options.pop('corrected_hits'), options.pop('hit_at'))
+    result = pilot.build(extend=hooks, **options)
     print('built', result['customBytes'])

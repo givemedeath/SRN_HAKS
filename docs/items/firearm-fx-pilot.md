@@ -6,7 +6,7 @@ from this pilot. The builder is `tools/itemkit/firearm_fx_pilot.py`, and output 
 | Gate | Question | Status |
 |---|---|---|
 | 1. Clip matching | Which clip name does the gun play under `ReplaceObjectAnimation`? | Passed 2026-11-07 |
-| 2. Hit timing | Do the `hit` events match the recoil in the fire clips? | Not started |
+| 2. Hit timing | Do the `hit` events match the recoil in the fire clips? | Answered 2026-11-07: the event is ignored |
 | 3. Muzzle flash | Does a flash sit on the muzzle and match the shot? | Not started |
 | 4. Shell casings | Do casings arc out, drop and read at game distance? | Not started |
 | 5. SMG burst | Does each recoil get a flash and a casing? | Not started |
@@ -85,10 +85,52 @@ tests do. No attack was running.
 
 Evidence is in `output/firearm-fx-pilot-loop-evidence/`. The `v3-` and `v4-` files are from the retest.
 
+## Gate 2: hit timing
+
+**The `hit` event in a replaced clip doesn't time the shot.** The engine launches the projectile at the stock clip's
+own `hit`, which is 0.5 s in both `throwr` and `xbowshot`, whatever our clip says. Moving our events changes nothing,
+so none should ship. To line the shot up with the recoil, the recoil itself has to sit at 0.5 s.
+
+### Method
+
+One Human Female Large actor in robe 020 fired the Colt and the AK-98 at an immortal target. The game window was
+recorded at 30 frames a second with ffmpeg, and frames were read by eye. The gun's burst marks a known clip time.
+
+| Build | `hit` in the fire clips | Burst on the gun | Tracer first seen |
+|---|---|---|---|
+| `v8-shipped`, Colt | 0 s | 0.1 s | About 0.6 s into the clip, on both shots recorded |
+| `v8-corrected`, Colt | 0.5 s | 0.5 s | One frame after the burst, about 0.53 s |
+| `v8-hit09`, Colt | 0.9 s | 0.1 s | About 0.63 s into the clip |
+| `v8-hit09`, AK-98 on `xbowshot` | 0.9 s | 0.1 s | About 0.65 s into the clip |
+
+Shot times are within a frame or two: the burst and the first visible tracer each lag their event slightly.
+
+The server agrees. With 12 actors, a logger on the target's `OnPhysicalAttacked` and `OnDamaged` events gave
+634 ms from attack to damage with the shipped pistol and 649 ms with `hit` moved 0.5 s later (builds `v5-shipped`
+and `v5-corrected`). Damage is applied on the engine's own schedule. A first try at slowing the actors to 20%
+with `OBJECT_VISUAL_TRANSFORM_ANIMATION_SPEED` showed no visible slow-down and was dropped.
+
+### What this means
+
+| Clip | Recoil onset in the clip | Against the 0.5 s shot | What to do |
+|---|---|---|---|
+| `fire_pst` | About 0.5 s | Lines up | Nothing |
+| `fire_rfl`, `fire_sg` | About 0.13 s | Kick comes 0.37 s before the shot | Shift the motion later by about 0.37 s |
+| `fire_smg` | First jolt about 0.1 s, about six jolts | The shot lands mid-burst | Decide how a burst maps to one native attack |
+
+- Shifting the rifle and shotgun clips is a change to the shipped `a_ba_custom`, so it needs its own release.
+  Shifting keys around the loop needs the clips to start and end on the same pose. That hasn't been checked.
+- **Gun effects belong at 0.5 s.** Flash and casing `detonate` events should match the stock `hit`, not the fire clip's
+  `hit`.
+- The grenade's `hit` (0.5 s) is played through `custom18lp`, not an attack, so this test doesn't cover it.
+- `throw_gren` and the dual clips weren't tested. Other stock attack names may have different `hit` times.
+
+Recordings are in `output/firearm-fx-pilot-gate2/` (ignored), with the contact sheets used for timing.
+
 ## Hit timing found offline
 
 The fire clips' `hit` events were measured against hand motion from the clip keys, on the Human male arm chain.
-All ten slots share the same timing. Gate 2 corrects these and checks the result in the client.
+All ten slots share the same timing. Gate 2 showed the `hit` event isn't used, so the motion matters, not the event.
 
 | Clip | `hit` | Motion | Result |
 |---|---|---|---|

@@ -58,6 +58,18 @@ class TaggedGun(unittest.TestCase):
             self.assertNotIn('event', clips[name])
         self.assertIn('event 0.1 detonate', clips['fire_pst_hm'])
 
+    def test_retimed_hits_move_every_fire_clip_and_leave_the_rest(self):
+        text = (fx.REPO / 'srn_body' / 'a_ba_custom.mdl').read_text(encoding='cp1252')
+        retimed = fx.retimed_hits(text)
+        events = dict(re.findall(r'(?ms)^newanim (\S+) a_ba_custom\n(.*?)^doneanim', retimed))
+        for name, body in events.items():
+            stem = name.rsplit('_', 1)[0]
+            hits = re.findall(r'(?m)^\s*event (\S+) hit$', body)
+            if stem in fx.HIT_TIMES:
+                self.assertEqual(hits, [str(fx.HIT_TIMES[stem])], name)
+        self.assertEqual(re.findall(r'(?m)^\s*event (\S+) hit$', events['throw_gren_hm']), ['0.5'])
+        self.assertEqual(retimed.count('\n'), text.count('\n') + 15)
+
     def test_a_gun_with_clips_is_refused(self):
         with self.assertRaisesRegex(ValueError, 'Unexpected gun shape'):
             fx.tagged_gun(GUN.replace('donemodel', 'newanim old wbwsl_b_051\ndoneanim old wbwsl_b_051\ndonemodel'), 'fire_pst', 'stock')
