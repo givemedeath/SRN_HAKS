@@ -5,7 +5,7 @@ models, keeps their rotations, rescales the root and drops everything else. Two-
 clips then level the rifle and solve the left arm onto its fore-end per body. Every slot
 gets `<action>_<weapon>_<slot>` names, and scripts map them with `ReplaceObjectAnimation`.
 Output goes to ignored `output/`. Its `a_ba_custom.mdl` is what `srn_body` ships, so a change to a clip means copying the new build there
-and updating the contract. The test module, chat commands and stand-ins stay private to this pilot.
+and updating the contract and the hash pin in `runtime_rules.py`. The test module, chat commands and stand-ins stay private to this pilot.
 """
 import argparse
 import json
