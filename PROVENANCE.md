@@ -562,9 +562,9 @@ no new rights claim.
 
 ## Firearm sounds (`srn_sound`; 2026-11-07)
 
-Fifteen WAVs were copied byte for byte from the user's `SRN_CC` staging folder, `content/staging/sounds/`, into `srn_sound`. No 2DA
+Sixteen WAVs were copied byte for byte from the user's `SRN_CC` staging folder, `content/staging/sounds/`, into `srn_sound`. No 2DA
 row references them yet. Eight (`dryfire_*`, `ric_*`, `rocket`, `reload_rocket`) match the old Shadowrun mod's `gun sounds`
-folder under `SR_NWN/OLD_SR_MOD_ASSETS`. The seven `fire_*` files have no copy in those assets, so their origin is unrecorded. The
+folder under `SR_NWN/OLD_SR_MOD_ASSETS`. The eight `fire_*` files, including `fire_shotgun`, have no copy in those assets, so their origin is unrecorded. The
 user supplied them, but that isn't a record of their licence or recording source.
 
 No resref collides with a stock `.wav` key or another WAV in this repository. The hyphenated names keep the spelling the old
@@ -574,6 +574,7 @@ No resref collides with a stock `.wav` key or another WAV in this repository. Th
 |---|---|
 | `dryfire_pistol.wav` | `343E14613D63` |
 | `dryfire_rifle.wav` | `C80E1AE22325` |
+| `fire_shotgun.wav` | `9E3464A25450` |
 | `fire_aslt_rifle.wav` | `A979225F38D9` |
 | `fire_hvy_pistol.wav` | `F31A56417940` |
 | `fire_lt_pistol.wav` | `8475D9A03B61` |
