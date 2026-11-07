@@ -28,12 +28,17 @@ class Budget:
     def __init__(self,config,output,sampler=sample_device):
         self.limit=config.get('memoryLimitBytes')
         self.floor=config.get('minimumFreeRAMGiB',0)
+        self.start_floor=config.get('minimumStartRAMGiB',self.floor)
+        self.latest_available=None
         self.index=config.get('gpuIndex',0)
         if (type(self.limit) is not int or self.limit<=0 or type(self.floor) not in (int,float)
                 or not math.isfinite(self.floor) or self.floor<0 or type(self.index) is not int or self.index<0):
             raise ValueError('Positive memoryLimitBytes and nonnegative RAM floor/GPU index required')
+        if type(self.start_floor) not in (int,float) or not math.isfinite(self.start_floor) or self.start_floor < self.floor:
+            raise ValueError('minimumStartRAMGiB must be finite and at least the runtime floor')
         self.output=output;self.sampler=sampler;self.stop=threading.Event();self.thread=None
         self.reason=None;self.last=0;self.peak=0;self.minimum=None;self.samples=0
+        self.first_sample = None
         self.maximumSampleGap=0;self.samplingSeconds=0
     def sample(self):
         begun=time.monotonic()
@@ -41,6 +46,9 @@ class Budget:
             used,available=self.sampler(self.index)
             if type(used) is not int or used<0 or not math.isfinite(available) or available<0:
                 raise ValueError('Invalid memory sample')
+            self.latest_available=available
+            if self.first_sample is None:
+                self.first_sample = {'deviceBytes': used, 'availableRAMGiB': available}
             now=time.monotonic()
             if self.last:self.maximumSampleGap=max(self.maximumSampleGap,now-self.last)
             self.last=now;self.peak=max(self.peak,used)
@@ -53,6 +61,10 @@ class Budget:
     def check(self):
         if self.reason or not self.last or time.monotonic()-self.last>5:
             raise BudgetExceeded(self.reason or 'Memory sampling unavailable or stale')
+    def admit_prompt(self):
+        self.check()
+        if self.latest_available < self.start_floor:
+            raise BudgetExceeded(f'GPU dispatch needs {self.start_floor:g} GiB free RAM; {self.latest_available:.2f} available')
     def start(self):
         self.sample();self.check()
         def watch():
@@ -61,8 +73,8 @@ class Budget:
     def close(self):
         self.stop.set()
         if self.thread:self.thread.join(timeout=5)
-        write_json(self.output,{'limitBytes':self.limit,'sampledPeakDeviceBytes':self.peak,
-                    'minimumFreeRAMGiB':self.floor,'minimumAvailableRAMGiB':self.minimum,
+        write_json(self.output,{'limitBytes':self.limit,'initialSample':self.first_sample,'sampledPeakDeviceBytes':self.peak,
+                    'minimumFreeRAMGiB':self.floor,'minimumStartRAMGiB':self.start_floor,'minimumAvailableRAMGiB':self.minimum,
                     'samples':self.samples,'reason':self.reason,'allocatorHardLimit':False,
                     'samplingSeconds':self.samplingSeconds,'maximumSampleGapSeconds':self.maximumSampleGap})
 

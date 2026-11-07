@@ -1320,6 +1320,36 @@ class MeshTests(Temporary):
             chart.assert_called_once()
             self.assertEqual(repack.call_args.args[5],[0])
 
+    def test_final_uv_probe_observes_both_layouts_without_relaxing_the_final_floor(self):
+        from contextlib import ExitStack
+        from unittest.mock import Mock
+        from headkit.uv import unwrap
+        points = np.eye(3)
+        faces = np.array([[0, 1, 2]])
+        uv = np.array([[[.1, .1], [.7, .1], [.1, .7]]])
+        value = {'positions': points, 'faces': faces, 'uv': uv}
+        raster = {'coverageFraction': .296, 'overlapFaces': [], 'degenerateUvFaces': [], 'unmappedUvFaces': []}
+        with ExitStack() as stack:
+            for func, result in {'library': None, 'physical_fans': (points, faces),
+                    '_chart': (uv, (2048, 2048), 1., 1), 'raster_audit': (raster, np.array([[0]])),
+                    'subtexel_audit': {'failingFaces': []}, 'gutter_audit': {'nearbyChartPixelsByRadius': {'1': 0}}}.items():
+                stack.enter_context(patch('headkit.uv.'+func, return_value=result))
+            repack = stack.enter_context(patch('headkit.uv.face_priority', return_value=(uv, {'charts': 1})))
+            with self.assertRaisesRegex(ValueError, r'Insufficient useful UV coverage \('):
+                unwrap(value, {}, {'faceDensity': 3})
+            repack.assert_not_called()
+            see = Mock()
+            with self.assertRaisesRegex(ValueError, 'coverage after face priority') as failure:
+                unwrap(value, {}, {'faceDensity': 3}, inspect_layout=see)
+            self.assertEqual([args.args[0] for args in see.call_args_list], ['Before face priority', 'Face priority'])
+            self.assertEqual(failure.exception.attempts[-1]['facePriority']['coverage2K'], .296)
+            repack.assert_called_once()
+            # Even a passing final layout cannot redeem a failed intermediate production floor.
+            final = dict(raster, coverageFraction=.31)
+            with patch('headkit.uv.raster_audit', side_effect=[(r, np.array([[0]])) for r in [raster]*3+[final]*3]):
+                with self.assertRaisesRegex(ValueError, 'final face pack 0.31000'):
+                    unwrap(value, {}, {'faceDensity': 3, 'refinePacking': True})
+
     def test_entry_script_puts_bound_packages_first(self):
         source=(Path(__file__).parent/'run_headkit.py').read_text().split('root=package_root')[0];namespace={}
         exec(source,namespace);root=namespace['package_root']
@@ -1417,7 +1447,11 @@ class MeshTests(Temporary):
         self.assertEqual(scale,max(c['texels_per_unit'] for c in packer.calls if c['texels_per_unit']<=densest))
         legs=np.abs(uv[:,[1,2]]-uv[:,:1]).max(2);np.testing.assert_allclose(legs[:,0],legs[:,1],rtol=1e-5)  # square texels, no stretch
         packer.calls.clear();_,_,_,again=_repack(packer,value['uv'],(2048,2048),307.2,corners,[35],9,scale)
-        self.assertEqual((again,len(packer.calls)),(scale,1))  # a scale that fits is kept, never raised
+        self.assertEqual((again,len(packer.calls)),(scale,1))  # a scale that fits is kept, never raised by default
+        packer.calls.clear()
+        _, _, _, refined = _repack(packer, value['uv'], (2048,2048), 307.2, corners, [35], 9, scale, refine=True)
+        self.assertTrue(densest/1.0005 < refined <= densest)
+        self.assertLessEqual(max(call['texels_per_unit'] for call in packer.calls), scale*1.015)
         with self.assertRaisesRegex(ValueError,'spilled onto more than one atlas page'):
             _repack(FakePacker(),value['uv'],(2048,2048),307.2,corners,[35],PAGE,1.0)
 
@@ -1962,6 +1996,22 @@ class ToneMatchTests(Temporary):
                 self.assertGreater(abs(np.median(shades[labels==0])-median),10)
                 report=r['layers']['0']['shadeRange']['skinMedian'];self.assertEqual(report['target'],median);self.assertGreater(report['rank'],.6)
                 self.assertIn(report['darkPower'],(2.,3.,4.5,None))
+        # Contrast may compress around a measured neck median but must still pass the same span check.
+        base=np.asarray(Image.open(r['shades']['path'])).astype(float)
+        adjusted=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mcontrast',
+                          full_range=True,skin_median=median,skin_anchor=face,skin_contrast=.95)
+        result=np.asarray(Image.open(adjusted['shades']['path'])).astype(float)
+        self.assertTrue(np.array_equal(result[labels!=0],base[labels!=0]))
+        self.assertTrue(np.all(np.abs(result[labels==0]-median)<=np.abs(base[labels==0]-median)+1))
+        self.assertEqual(adjusted['layers']['0']['shadeRange']['skinMedian']['skinShadeContrast'],.95)
+        with patch.dict('headkit.quality.DECODE_ROWS', {}, clear=True), patch('headkit.quality.focus_view',return_value={}), patch('headkit.quality.focus_metrics',
+                return_value=(None,{'cheekNoise':2.4,'featureFocus':5.3})) as score:
+            automatic=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'auto-contrast',
+                               full_range=True,skin_median=median,skin_anchor=face,focus_source=('mesh',{}))
+        self.assertEqual(score.call_count,1)
+        self.assertEqual(automatic['skinFocusSearch']['selectedFactor'],1.0)
+        self.assertEqual(automatic['shades']['sha256'],r['shades']['sha256'])
+
         for kw in ({'skin_median':60},{'skin_median':60,'full_range':True}):
             with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'skin median'):quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mbad',**kw)
     def test_pinned_skin_darkens_no_texel_past_its_source_contrast(self):
@@ -2721,6 +2771,19 @@ class ReleaseTests(Temporary):
 
 
 class NativeShadeTests(Temporary):
+    def test_published_troll_allowance_is_sex_specific_and_applied_once(self):
+        from headkit.native import COMPACT_TROLL_FIT_SHA256, troll_build_allowance
+        policy = Path(__file__).resolve().parents[2]/'docs/heads/troll-build-allowance-r3.json'
+        data = json.loads(policy.read_text())
+        for prefix, expected in [('pmg0', 1.5), ('pfg0', 1.0729)]:
+            released = next(row for row in data['heads'] if Path(row['path']).stem.startswith(prefix))
+            for digest, factor in [(COMPACT_TROLL_FIT_SHA256[prefix], expected),
+                                   (released['fromSHA256'], expected), (released['sha256'], 1.0)]:
+                with patch('headkit.native.pin', return_value={'sha256': digest}):
+                    self.assertEqual(troll_build_allowance(policy, 'reference', prefix+'_head099')['scale'], factor)
+        with patch('headkit.native.pin', return_value={'sha256': '0'*64}), self.assertRaisesRegex(ValueError, 'Unknown fit reference'):
+            troll_build_allowance(policy, 'reference', 'pmg0_head033')
+
     def test_reserved_shade_255_is_rejected_before_export_work(self):
         from headkit.native import prepare
         shades=np.zeros((1024,1024),np.uint8);shades[400,500]=255;Image.fromarray(shades).save(self.root/'shades.png')
@@ -3432,6 +3495,37 @@ class FitProposalTests(Temporary):
         nosed=propose(source,reference,self.root/'fit-nose',align='nose')
         self.assertEqual(nosed['align'],'nose');np.testing.assert_allclose(nosed['translation'],offset,atol=.004)
         np.testing.assert_allclose(np.asarray(nosed['sourceNose'])*nosed['scale']+nosed['translation'],nosed['referenceNose'],atol=1e-9)
+        pitched = propose(source, reference, self.root/'fit-pitch', align='nose', chin_down_degrees=10)
+        base = np.array(nosed['matrix'])
+        adjusted = np.array(pitched['matrix'])
+        np.testing.assert_allclose(pitched['pitch']['baseMatrix'], base)
+        relative = adjusted @ np.linalg.inv(base)
+        np.testing.assert_allclose(relative[:3, 3], 0, atol=1e-10)
+        np.testing.assert_allclose(relative[:3, :3].T @ relative[:3, :3], np.eye(3), atol=1e-10)
+        self.assertLess((relative @ [0, .12, 0, 1])[2], -.02)
+        np.testing.assert_allclose(pitched['translation'], adjusted[:3, 3])
+        realigned = propose(source, reference, self.root/'fit-larger-pitched', align='nose', chin_down_degrees=15,
+                            scale_multiplier=1.1, realign_after_pose=True)
+        enlarged = np.array(realigned['matrix'])
+        np.testing.assert_allclose(np.linalg.svd(enlarged[:3,:3], compute_uv=False), 1.1*nosed['scale'])
+        source_nose = np.array([*realigned['sourceNose'],1]) * [-1,-1,1,1]
+        np.testing.assert_allclose((enlarged @ source_nose)[:3], realigned['referenceNose'], atol=1e-9)
+        self.assertAlmostEqual(realigned['scale'], 1.1*nosed['scale'])
+        lowered = propose(source, reference, self.root/'fit-lowered', align='nose', chin_down_degrees=15,
+                          scale_multiplier=1.1, realign_after_pose=True, height_offset=-.051)
+        difference = np.zeros((4,4))
+        difference[2,3] = -.051
+        np.testing.assert_allclose(np.asarray(lowered['matrix']) - enlarged, difference, atol=1e-12)
+        np.testing.assert_allclose(lowered['translation'], np.array(lowered['matrix'])[:3,3])
+        self.assertEqual(lowered['heightOffset'], -.051)
+        larger = propose(source, reference, self.root/'fit-locally-scaled', align='nose', chin_down_degrees=15,
+                         scale_multiplier=1.1, realign_after_pose=True, height_offset=-.051, local_scale_multiplier=1.1)
+        before, after = np.asarray(lowered['matrix']), np.asarray(larger['matrix'])
+        np.testing.assert_array_equal(after[:,3], before[:,3])
+        np.testing.assert_allclose(after[:3,:3], 1.1*before[:3,:3], atol=1e-12)
+        self.assertAlmostEqual(larger['scale'], 1.1*lowered['scale'])
+        with self.assertRaisesRegex(ValueError, 'pitch'):
+            propose(source, reference, self.root/'fit-invalid-pitch', chin_down_degrees=float('nan'))
         with self.assertRaisesRegex(ValueError,'profile, nose or landmarks'):propose(source,reference,self.root/'fit-bad',align='ears')
         with self.assertRaisesRegex(ValueError,'landmark alignment'):propose(source,reference,self.root/'fit-bad2',landmarks={'base':'pfd0'})
     def test_landmark_fit_maps_reviewed_face_landmarks_onto_the_base_head_whatever_the_eye_labels(self):
@@ -3918,6 +4012,14 @@ class NeverblenderNativeTests(Temporary):
 
 
 class ReviewImageTests(Temporary):
+    def test_retained_atlases_allow_fresh_output_but_existing_frames_are_protected(self):
+        from headkit.review_images import render_mode_folder
+        output = self.root/'fresh'
+        self.assertTrue(render_mode_folder(output,1024,'clay').is_dir())
+        self.assertTrue(render_mode_folder(output,1024,'color-only').is_dir())
+        with self.assertRaises(FileExistsError):
+            render_mode_folder(output,1024,'clay')
+
     def test_default_and_example_deliver_both_native_resolutions(self):
         from headkit.review_images import resolutions
         self.assertEqual(resolutions({}),[2048,1024])
@@ -4148,6 +4250,11 @@ class TextureStageTests(Temporary):
         self.assertEqual(rows[0],('0',2,True));self.assertEqual(len({(c,r) for c,r,_ in rows}),len(rows))  # the manifest row once, first
         self.assertEqual({r for c,r,_ in rows if c=='1'},{0,1,2});self.assertNotIn(3,{r for _,r,_ in rows})  # transparent row never offered
         self.assertTrue(Path(result['preview']).is_file())
+    def test_green_blue_separates_ochre_keratin_from_pink_skin(self):
+        from headkit.paint import colour_values
+        rgb = np.array([[[116, 90, 43], [93, 69, 73]]], np.uint8)
+        np.testing.assert_array_equal(colour_values(rgb)['gb'], [[47, -4]])
+
     def test_rule_ownership_first_match_wins_and_padding_takes_nearest_label(self):
         from headkit.paint import rule_ownership
         from headkit.uv import raster_audit

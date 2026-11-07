@@ -72,6 +72,60 @@ class ProcessQuality(Temporary):
         self.assertTrue(result['manualReviewRequired'])
         self.assertTrue(Path(result['featureChecks']['jaw']['comparison']['path']).is_file())
 
+    def test_eye_review_binds_each_image_and_compares_the_apertures(self):
+        clay, detail = self.pair()
+        cfg = self.alignment()
+        eye = {'state': 'open', 'observation': 'Both lid rims visible', 'clay': [45, 40, 49], 'detail': [45, 40, 50]}
+        cfg['eyeReview'] = {'claySha256': pin(clay)['sha256'], 'detailSha256': pin(detail)['sha256'],
+                            'eyes': {'left': eye, 'right': dict(eye, clay=[82,40,51], detail=[82,40,50])}}
+        good = prepare(clay, detail, cfg, self.root/'valid')
+        self.assertEqual(good['eyeReview']['right']['openingPixels'], [11,10])
+        self.assertTrue(Path(good['eyeReview']['left']['comparison']['path']).is_file())
+        for height, message in [(0,'no measured lid separation'),(3,'differs')]:
+            eye['clay'][2] = 40 + height
+            with self.assertRaisesRegex(ValueError, message):
+                prepare(clay, detail, cfg, self.root/str(height))
+        cfg['eyeReview']['claySha256'] = 'old'
+        with self.assertRaisesRegex(ValueError,'stale'):
+            prepare(clay, detail, cfg, self.root/'stale')
+
+    def test_paired_batch_cannot_freeze_unreviewed_eyes(self):
+        runner = self.runner()
+        (self.root/'design').mkdir()
+        write(self.root/'design/design-receipt.json', {})
+        with self.assertRaisesRegex(ValueError, 'eye review'):
+            freeze(self.root,self.root/'blocked.json')
+
+    def test_small_chin_matte_loss_fails_despite_whole_image_alignment(self):
+        clay, detail = self.pair()
+        with Image.open(detail) as im:
+            ImageDraw.Draw(im).rectangle((56,98,72,109), fill=(0,0,0,0))
+            im.save(detail)
+        cfg = {'featureChecks': {'horns':0,'tusks':0,'neck':'none','hairBelowJaw':True},
+               'landmarks': [{'name':n,'clay':xy,'detail':xy} for n,xy in
+                             [('jaw-left',[.2,.5]),('jaw-chin',[.5,.83]),('jaw-right',[.8,.5])]]}
+        with self.assertRaisesRegex(ValueError,'detail matte misses measured jaw-chin'):
+            prepare(clay, detail, cfg, self.root/'clipped')
+
+    def test_curved_horn_evidence_includes_measured_outer_arc(self):
+        cfg={'featureChecks':{'horns':2,'tusks':0,'neck':'none','hairBelowJaw':True}}
+        marks={'jaw-left':[.7,.6],'jaw-chin':[.5,.8],'jaw-right':[.3,.6],
+               'horn-left-root':[.55,.4],'horn-left-tip':[.6,.45],
+               'horn-right-root':[.45,.4],'horn-right-tip':[.4,.45],
+               'horn-left-curve-outer':[.8,.2],'horn-right-curve-outer':[.2,.2]}
+        cfg['landmarks']=[{'name':name,'clay':p,'detail':p} for name,p in marks.items()]
+        clay,detail=self.pair()
+        result=prepare(clay,detail,cfg,self.root/'curved-horns')
+        left=result['featureChecks']['horn-left']['box']
+        right=result['featureChecks']['horn-right']['box']
+        self.assertGreaterEqual(left[2],109)
+        self.assertLessEqual(right[0],19)
+        self.assertLessEqual(left[1],19)
+        self.assertLessEqual(right[1],19)
+        self.assertGreater(left[0],60)
+        self.assertLess(right[2],68)
+        self.assertTrue(result['manualReviewRequired'])
+
     def test_profile_reports_process_peak_without_claiming_stage_allocation(self):
         runner=self.runner();receipt=read(runner.state['stages']['prepare']['path'])
         for key in ('packageVerifySeconds','preflightSeconds','processingSeconds','postVerifySeconds','totalSeconds'):
@@ -79,5 +133,33 @@ class ProcessQuality(Temporary):
         self.assertGreater(receipt['profile']['workerPeakRssBytes'],0)
         profile=receipt['profile']
         self.assertLessEqual(sum(profile[k] for k in ('packageVerifySeconds','preflightSeconds','processingSeconds','postVerifySeconds')),profile['totalSeconds'])
+
+
+class ScalpAppearanceFrame(Temporary):
+    def test_donor_uses_the_measured_source_frame_after_bounds_change(self):
+        import numpy as np
+        from unittest.mock import Mock, patch
+        from headkit.scalp_appearance import ScalpDonor
+        original = np.array([[0.,0.,0.],[1.,1.,1.]])
+        final = original*2
+        recipe = {'center':[.5,.5,.5], 'outline':[[80,25],[100,25],[100,50],[80,50]]}
+        corrected = {'output':{'path':'final'}, 'scalpPatch':{'source':{'path':'original'}, 'recipe':recipe}}
+        scene = Mock()
+        scene.query.return_value = (np.array([1.]), np.array([0]), None)
+        field = Mock()
+        field.sample.return_value = (np.ones((1,6)), np.array([False]))
+        sampled = np.zeros((1,6))
+        with patch('headkit.scalp_appearance.verify') as verify, \
+             patch('headkit.scalp_appearance.positions',side_effect=[(final,np.array([[0,1,0]])),(original,[])]), \
+             patch('headkit.scalp_appearance.EmbreeScene',return_value=scene):
+            donor = ScalpDonor(corrected,'bound-runtime')
+            donor.transfer(field,np.array([[1.,.9,.5]]),sampled,np.array([False]))
+            donor.close()
+        self.assertEqual(donor.transferred,1)
+        np.testing.assert_array_equal(sampled,np.ones((1,6)))
+        origins,directions=scene.query.call_args.args
+        np.testing.assert_allclose(origins+2*directions,[[.5,.5,.5]])
+        verify.assert_any_call([corrected['scalpPatch']['source']],fresh=True)
+        scene.close.assert_called_once()
 
 if __name__=='__main__':unittest.main()

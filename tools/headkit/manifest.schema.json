@@ -45,6 +45,7 @@
     },
     "features": {},
     "fit": {},
+    "nativeSizing": {"const": "troll-build-allowance-r3"},
     "schemaVersion": {
       "const": 1
     },

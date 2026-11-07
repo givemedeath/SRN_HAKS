@@ -29,7 +29,7 @@ def stage_roles(stage,data):
         'tone':{'uvMesh','basecolor4k','metallic4k','detail','frontDetail'}|palettes
                |(set() if data.get('tone',{}).get('faceTreatment') is not None else {'ownership4k','ownership1k'}),
         'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set())
-                  |({'bodySkin'} if (data.get('palette') or {}).get('matchBodySkin') is True else set()),'export':{'uvMesh','runtimeShades','ownership1k'},'native':set(),
+                  |({'bodySkin'} if (data.get('palette') or {}).get('matchBodySkin') is True else set()),'export':{'uvMesh','runtimeShades','ownership1k'}|({'fitReference','nativeSizingPolicy'} if data.get('nativeSizing') else set()),'native':set(),
         'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
     return roles&inputs
 
@@ -40,10 +40,10 @@ def stage_roles(stage,data):
 # texture maps) added to the same manifest do not stale the matte. 'section!key,...' binds a section without keys only later
 # stages read: repair skips the UV and bake keys, so a reviewed UV coverage floor does not stale an approved repair.
 MESH_AFTER_REPAIR='uv','reuseReviewedUvs','maximumSubtexelFraction','allowDecoderOvershoot'
-STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':set(),'fit':{'fit'},
+STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':{'mesh.scalpPatch'},'fit':{'fit'},
     'repair':{'mesh!'+','.join(MESH_AFTER_REPAIR),'fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
-    'tone':{'tone','profile','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval'},
+    'tone':{'tone','profile','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval','nativeSizing'},
     'native':{'fit'},'render':{'render','approval'},'masks':{'faceMasks'},'quality':{'quality','palette.inputs'}}
 
 
@@ -210,6 +210,8 @@ class Runner:
         if stage=='tone' and (not any(role in inputs for role in ('ownership1k','ownership4k'))
                               or self.data.get('tone',{}).get('faceTreatment') is not None):dependencies.append('ownership')
         if stage=='palette' and 'ownership1k' not in inputs:dependencies.append('ownership')
+        if stage=='palette' and self.data.get('palette', {}).get('skinShadeContrast') == 'auto':
+            dependencies.append('masks')
         # Face masks (opt-in): channel moves read the masks, the colour treatment reads them too, and export waits for the quality gate.
         if (stage=='ownership' and self.data.get('ownership',{}).get('featureChannels')) or (stage=='tone' and self.data.get('tone',{}).get('faceTreatment') is not None):
             dependencies.append('masks')
@@ -378,13 +380,28 @@ class Runner:
             return prepare_multiview(pairs,m['alignment'],folder/'images')
         if stage=='precluster':
             from .mesh import precluster
-            return precluster(self.input('raw'),folder/'oriented.glb',b)
+            recipe = m.get('mesh', {}).get('scalpPatch')
+            if recipe is None:
+                return precluster(self.input('raw'),folder/'oriented.glb',b)
+            from .scalp_patch import restore
+            require(m['mesh'].get('alphaWrap') is True,'A local scalp patch requires the exterior repair stage')
+            original = folder/'before-scalp-patch.glb'
+            result = precluster(self.input('raw'),original,b)
+            temple = recipe.get('templeHair')
+            target = folder/('before-temple-patch.glb' if temple else 'oriented.glb')
+            correction = restore(original,target,b,recipe)
+            if temple:
+                corrected = restore(target,folder/'oriented.glb',b,temple)
+                return dict(result, output=corrected['output'], scalpPatch=correction, templeHair=corrected)
+            return dict(result, output=correction['output'], scalpPatch=correction)
         if stage=='fit':
             from .fit import propose
             require(self._staged_fit(),'The fit stage needs fit.matrixFrom: fit')
             source=self.input('comfyExport') if 'comfyExport' in m['inputs'] else self.result('precluster')['output']['path']
             return propose(source,self.input('fitReference'),folder/'fit',exclude_lower=m['fit'].get('excludeLower',.25),align=m['fit'].get('align','profile'),
-                           landmarks=m['fit'].get('landmarks'))
+                           landmarks=m['fit'].get('landmarks'),chin_down_degrees=m['fit'].get('chinDownDegrees',0),
+                           scale_multiplier=m['fit'].get('scaleMultiplier',1),realign_after_pose=m['fit'].get('realignAfterPose',False),
+                           height_offset=m['fit'].get('heightOffset',0),local_scale_multiplier=m['fit'].get('localScaleMultiplier',1))
         if stage=='repair':
             from .neck import repair
             if 'raw' not in m['inputs'] or 'comfyExport' in m['inputs']:
@@ -415,7 +432,9 @@ class Runner:
             from .textures import bake
             source=self.source('uvMesh','unwrap','mesh')
             return bake(source,self.input('field'),folder/'maps',allow_decoder_overshoot=m['mesh'].get('allowDecoderOvershoot',False),
-                        max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005))
+                        max_subtexel_fraction=m['mesh'].get('maximumSubtexelFraction',.005),
+                        scalp_source=self.result('precluster') if m['mesh'].get('scalpPatch') else None,
+                        embree=b.get('embree',{}).get('path'))
         if stage=='paint':
             require('paint' in m,'Stage not configured: the manifest has no paint section')
             from .paint import paint
@@ -426,7 +445,7 @@ class Runner:
         if stage=='masks':
             from .face_masks import face_masks
             require(isinstance(m.get('faceMasks'),dict),'Stage not configured: the manifest has no faceMasks section')
-            return face_masks(self.source('uvMesh','unwrap','mesh'),self._color4k(),b,folder/'masks')
+            return face_masks(self.source('uvMesh','unwrap','mesh'),self._color4k(),b,folder/'masks', eye_correction=m['faceMasks'].get('eyeContours'))
         if stage=='ownership':
             from .projection import project_ownership
             source=self.source('uvMesh','unwrap','mesh');config=m['ownership'];report={};protected=None
@@ -461,7 +480,17 @@ class Runner:
                 positions,owners=(surface(value,4096,enforce=False)[:2] if protected is not None else (None,raster_audit(value['uv'],4096)[1]))
                 with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
                 # protected is None without an overFaceMasks rule: unchanged moves
-                labels,report['featureChannels']=apply_channels(np.asarray(image),masks_at(self.result('masks')['files'],CHANNEL_MASKS),owners>=0,colour,
+                names = CHANNEL_MASKS + (('ear',) if config.get('boneEarGuard') else ())
+                features = masks_at(self.result('masks')['files'],names)
+                if config.get('hairMaskRequiresRule') is True:
+                    require(config.get('mode') == 'rules' and any(r['channel']==1 for r in config['rules']),
+                            'Measured hair-mask restriction needs a hair ownership rule')
+                    hair = np.asarray(image) == 1
+                    report['hairMaskExcluded'] = {}
+                    for region in ('brow','hairlock'):
+                        report['hairMaskExcluded'][region] = int(np.sum((features[region]>.5) & ~hair & (owners>=0)))
+                        features[region] = features[region]*hair
+                labels,report['featureChannels']=apply_channels(np.asarray(image),features,owners>=0,colour,
                                                                 protected=protected,positions=positions)
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
@@ -497,7 +526,7 @@ class Runner:
                 keys={op['palette'] for op in m['tone'].get('operations',[]) if 'palette' in op}
                 result=adjust(color,ownership,m['tone'],{key:self.input(m['palette']['inputs'][key]) for key in keys},output)
             else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),
-                                   {k:v for k,v in m['tone'].items() if k not in ('faceTreatment','preserveSkinMasks')},output)
+                                   {k:v for k,v in m['tone'].items() if k not in ('faceTreatment','preserveSkinMasks','referenceEyes')},output)
             preserve_names=m['tone'].get('preserveSkinMasks',[])
             require(isinstance(preserve_names,list) and all(isinstance(k,str) for k in preserve_names)
                     and len(set(preserve_names))==len(preserve_names), 'preserveSkinMasks must list unique paint mask names')
@@ -527,7 +556,15 @@ class Runner:
                             require(np.isin(values,[0,255]).all(), 'Preservation masks must be discrete')
                             preserve|=values>0
                     result['preserveSkinMasks']={name:pins[name] for name in preserve_names}
-                treated,result['faceTreatment']=treat(rgb,labels,masks_at(self.result('masks')['files'],TREATMENT_MASKS),value,face_treatment,outer=outer,preserve_skin=preserve)
+                mask_files = self.result('masks')['files']
+                features = masks_at(mask_files,TREATMENT_MASKS)
+                if 'referenceEyes' in m['tone']:
+                    from .reference_eyes import restore
+                    require(m['faceMasks'].get('eyeContours'), 'Reference-eye repair requires reviewed eye contours')
+                    role = 'detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'
+                    result['referenceEyeTexels'] = restore(rgb,labels,features['eye'],value,mask_files,
+                                                           self.input(role),m['tone']['referenceEyes'])
+                treated,result['faceTreatment']=treat(rgb,labels,features,value,face_treatment,outer=outer,preserve_skin=preserve)
                 Image.fromarray(np.rint(treated).clip(0,255).astype(np.uint8)).save(output);result['output']=pin(output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
                           ownershipForTone=pin(ownership),ownershipUpsampling=upsampling)
@@ -577,9 +614,16 @@ class Runner:
                 from .uv import face_region
                 skin_median=body_skin_median(self.input('bodySkin'));front=face_region(value['positions'],value['faces'])[0]
                 anchor=(owners>=0)&front[np.maximum(owners,0)]
+            seam_surface = None
+            if m['palette'].get('repairSkinSeams'):
+                require(shading_only and body and 'embree' in b, 'Skin seam repair requires body-pinned surface shading and Embree')
+                seam_surface = (value, owners, points, b['embree']['path'])
+            contrast = m['palette'].get('skinShadeContrast', 1.0)
+            focus_source = (self.source('uvMesh','unwrap','mesh'), self.result('masks')) if contrast == 'auto' else None
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
                             tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,
-                            positions=positions,skin_median=skin_median,skin_anchor=anchor)
+                            positions=positions,skin_median=skin_median,skin_anchor=anchor,skin_contrast=1.0 if focus_source else contrast,
+                            focus_source=focus_source, seam_surface=seam_surface)
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result
@@ -617,7 +661,10 @@ class Runner:
                 # imported mesh; the manifest cannot carry that hash without invalidating every earlier receipt.
                 require('uvMesh' not in m['inputs'] and 'sourceSha256' not in fit,"sourceStage binding is only for this run's own unwrap")
                 fit=dict(fit,sourceSha256=pin(source)['sha256']);bound=True
-            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted')
+            policy=m.get('nativeSizing')
+            require(policy in (None,'troll-build-allowance-r3'), 'Unknown native sizing policy')
+            refs=(self.input('nativeSizingPolicy'), self.input('fitReference')) if policy else None
+            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted',sizing_inputs=refs)
             if bound:result['fitBinding']={'sourceStage':'unwrap','unwrapReceipt':self.state['stages']['unwrap']}
             if self._staged_fit():result['fitStage']={'receipt':self.state['stages']['fit'],'matrix':fit['matrix']}
             if uv_audit is not None:result['uvAudit']=uv_audit

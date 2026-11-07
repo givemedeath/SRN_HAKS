@@ -1,8 +1,9 @@
 """Stage, GPU and design launches through the shared-tool launcher, with their locks, guards and timing log."""
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import ctypes
 from datetime import datetime
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -79,6 +80,19 @@ def open_slots(workspace, free=None):
 def cpu_slot(workspace):
     """The first free slot that is open now: the limit and free memory can both change while this waits."""
     return lock(lambda: open_slots(workspace))
+
+
+@contextmanager
+def gpu_host_lease(workspace):
+    """Drain this batch's CPU jobs before a host-RAM-supervised GPU launch."""
+    with ExitStack() as held:
+        if workspace.data.get('comfy', {}).get('minimumFreeRAMGiB', 0) > 0:
+            # cpu-slots can be raised live. Reserve every supported lane in the
+            # same order, without starting any CPU work or relaxing its gate.
+            for number in sorted(workspace.ram_gates()):
+                lane = workspace.locks/f'cpu-{number}'
+                held.enter_context(lock(lambda lane=lane: [lane]))
+        yield
 
 
 def gpu_lock(workspace):
@@ -177,6 +191,11 @@ def status(workspace):
         ledger_path=head/'gpu'/'gpu.json'
         if ledger_path.exists():
             ledger=guards.read(ledger_path)
+            last_rejected = (ledger.get('rejectedGeometry') or [{}])[-1]
+            if (last_rejected.get('occiput', {}).get('open') and last_rejected.get('submission') == ledger.get('geometrySubmissions')
+                    and 'geometry' not in ledger.get('stages', {}) and not guards.head_busy(workspace, head.name)):
+                lines.append(f"{head.name} | geometry-{last_rejected['submission']:04d} | REJECTED: open occiput; review raw sheet before reseeding")
+                continue
             if 'geometry' in ledger.get('stages',{}) and 'appearance' not in ledger['stages']:
                 lines.append(f"{head.name} | geometry-{ledger['stages']['geometry'].get('submission',0):04d} | WAITING ON REVIEW/APPEARANCE")
                 continue
@@ -217,6 +236,11 @@ def reused_gpu_inputs(workspace, head, label, stages):
     write_json(frozen, data)
     files = [str(frozen)]
     if 'calibrate' not in stages:
+        review = data['stages']['calibrate'].get('cameraReview')
+        if review:
+            from headkit.common import verify
+            verify(review['pins'], fresh=True)
+            files.extend(item['path'] for item in review['pins'])
         conditioning = data['stages']['calibrate'].get('conditioning')
         if conditioning:
             for row in conditioning.values():
@@ -244,53 +268,97 @@ def freeze_prepared(workspace,head,output):
     return guards.read(output)
 
 
+def gpu_memory_limits(comfy, profile, stages):
+    limits = {key:comfy[key] for key in ('memoryLimitBytes','minimumFreeRAMGiB','minimumStartRAMGiB','gpuIndex') if key in comfy}
+    if profile == 'pixal-multiview-v1' and 'geometry' in stages:
+        multi_floor = comfy.get('multiviewGeometryStartRAMGiB')
+        if multi_floor is not None:
+            if type(multi_floor) not in (int,float) or not math.isfinite(multi_floor) or multi_floor <= 0:
+                raise guards.Refused('multiviewGeometryStartRAMGiB must be positive and finite')
+            limits['minimumStartRAMGiB'] = max(multi_floor, limits.get('minimumStartRAMGiB', 0), limits.get('minimumFreeRAMGiB', 0))
+    return limits
+
+
 def run_gpu(workspace, name, arguments):
     """Calibrate, geometry with its occiput check, and appearance for one head on the workspace's ComfyUI."""
     head = workspace.head(name)
     stages = gpu_contract.stages(arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES)
     comfy = workspace.data.get('comfy')
     with guards.head_locks(workspace, [name]):
+        ledger_file = head/'gpu'/'gpu.json'
         if 'geometry' in stages:  # appearance reuses the saved shape and spends no submission
             guards.geometry_cap(head)
+            submitted_before = guards.submissions(head/'gpu', guards.read(ledger_file) if ledger_file.exists() else {})
         if not comfy:
             raise guards.Refused('This step needs "comfy" in workspace.json')
         if (head/'gpu'/'UNRECONCILED').exists():
             raise guards.Refused('Previous GPU prompt is unresolved; reconcile its recorded prompt ID before resuming')
         prepared=[head/'launches'/f'prepared-{stamp()}.json']
         preparation=freeze_prepared(workspace,head,prepared[0])
+        admission = []
+        if preparation.get('profile') == 'pixal-multiview-v1':
+            if not comfy.get('memoryLimitBytes') or 'minimumFreeRAMGiB' not in comfy:
+                raise guards.Refused('Set explicit multiview VRAM and free-RAM limits')
+            if 'geometry' in stages and '--single-submission' not in arguments:
+                raise guards.Refused('Multiview geometry requires --single-submission')
+            if 'geometry' in stages and workspace.head_ids()[name][0] == 'troll':
+                admission.extend(p['path'] for p in gpu_contract.cardinal_horn_pins(head, preparation))
+            if '--detail-camera-attempt' in arguments or '--camera-approval' in arguments:
+                raise guards.Refused('Multiview uses its reviewed fixed 20-degree rig')
         if 'calibrate' not in stages:
             ledger=guards.read(head/'gpu'/'gpu.json')
             expected={'receipt':preparation['receipt'],'images':preparation['images']}
-            if ledger.get('stages',{}).get('calibrate',{}).get('prepared')!=expected:
-                raise guards.Refused('Calibrated inputs differ from the current reviewed prepare; recalibrate')
+            calibrated = ledger.get('stages',{}).get('calibrate',{})
+            if calibrated.get('prepared') != expected:
+                if stages != ['appearance'] or preparation.get('profile') != 'pixal-multiview-v1':
+                    raise guards.Refused('Calibrated inputs differ from the current reviewed prepare; recalibrate')
+                pins = gpu_contract.identical_multiview_prepares(head, calibrated, expected)
+                replay = head/'launches'/f'calibration-replay-{stamp()}.json'
+                write_json(replay, {'original':calibrated['prepared'], 'current':expected,
+                                    'purpose':'saved-shape appearance with identical conditioning'})
+                admission.extend([str(replay), *[p['path'] for p in pins]])
             if 'appearance' in stages and 'geometry' not in stages:
                 gpu_contract.require_geometry_review(head,ledger)
-        with gpu_lock(workspace):
+        reviewed_camera = []
+        if '--detail-camera-attempt' in arguments or '--camera-approval' in arguments:
+            if ('calibrate' not in stages or '--detail-camera-attempt' not in arguments or
+                    '--camera-approval' not in arguments or not arguments[arguments.index('--camera-approval')+1].strip()):
+                raise guards.Refused('Replaying a reviewed camera requires calibrate, an exact attempt and user approval')
+            reviewed_camera = gpu_contract.camera_review_pins(head, arguments[arguments.index('--detail-camera-attempt')+1])
+        with gpu_host_lease(workspace), gpu_lock(workspace):
             started = time.time()
             label = f'{stamp()}-gpu'
             templates = sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))
             input_list = head/'launches'/f'inputs-{label}.json'
             reused, upstream = reused_gpu_inputs(workspace, head, label, stages)
             resources = []
+            reused.extend(admission)
+            reused.extend(item['path'] for item in reviewed_camera)
             reused += [str(head/'bindings.json'),str(GPU_JOB.with_name('gpu_contract.py')),guards.read(head/'bindings.json')['embree']['path']]
             if 'memoryLimitBytes' in comfy:
                 resource_file = head/'launches'/f'resources-{label}.json'
-                write_json(resource_file, {key:comfy[key] for key in ('memoryLimitBytes','minimumFreeRAMGiB','gpuIndex') if key in comfy})
+                limits = gpu_memory_limits(comfy, preparation.get('profile'), stages)
+                write_json(resource_file, limits)
                 resources = ['--resources', resource_file]
                 reused += [str(resource_file), str(GPU_JOB.with_name('resource_budget.py')), str(GPU_JOB.with_name('head_files.py'))]
             write_json(input_list, [str(REPO/module) for module in GPU_MODULES]+templates+[str(GPU_JOB), str(GPU_JOB.with_name('resource_budget.py')), str(GPU_JOB.with_name('head_files.py')), *map(str, prepared), *[p['path'] for p in preparation.get('pins',[])]]+reused)
             job = [GPU_JOB, head, '--comfy-url', comfy['url'], '--comfy-root', workspace.path(comfy['root']), *arguments, *upstream, *resources, *(['--prepared', *prepared] if prepared else [])]
             data = launch(workspace, head/'launches'/f'launch-{label}', input_list, job, workspace.python_environment(packages=True))
             timing(workspace, f'gpu {name} {" ".join(arguments)} exit {data["exitCode"]}', started)
-        if 'geometry' in stages and data['exitCode'] in (0,3):
+        sheet_args = []
+        if 'geometry' in stages and data['exitCode'] not in (0,3) and ledger_file.exists():
+            rejected = guards.read(ledger_file).get('rejectedGeometry', [])
+            if rejected and rejected[-1].get('submission', 0) > submitted_before and rejected[-1].get('occiput', {}).get('open'):
+                sheet_args = ['--rejected-geometry', f"geometry-{rejected[-1]['submission']:04d}"]
+        if 'geometry' in stages and (data['exitCode'] in (0,3) or sheet_args):
             # Release the GPU lease before waiting on RAM for the CPU-only evidence.
             with cpu_slot(workspace):
-                sheet=subprocess.run([PYTHON,'-B',str(GPU_JOB.parent/'review'/'gpuclay.py'),str(head)],
+                sheet=subprocess.run([PYTHON,'-B',str(GPU_JOB.parent/'review'/'gpuclay.py'),str(head),*sheet_args],
                                      env=workspace.python_environment(packages=True,tools=True),capture_output=True,text=True)
             (head/'launches'/f'launch-{label}'/'geometry-sheet.log').write_text(sheet.stdout+sheet.stderr,encoding='utf-8')
             if sheet.returncode:
                 data['exitCode']=1
-                print('Raw geometry evidence failed; retry with review --slot gpuclay '+name)
+                print('Raw geometry evidence failed; retry with review --slot gpuclay', name, *sheet_args)
             else:print(sheet.stdout.strip())
     return {**data, 'errors': head/'launches'/f'launch-{label}'/'stderr.log'}
 

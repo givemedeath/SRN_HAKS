@@ -13,14 +13,15 @@ A launch whose own record never arrives goes to attention, never silently past (
 Each finished stage gets its review evidence: repair the clay pair and skirt zone, bake the textured views and grid, ownership its
 saved atlas, palette the row ramps, and a refused shell selection the shell sheet. A queued repair gets the repair presets first."""
 from datetime import datetime
+import hashlib
 import itertools
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import subprocess
 import time
 
 import guards
-from head_files import current, write_json
+from head_files import consumed, current, sha, state, write_json
 from workspace import PYTHON
 
 RUNNER = Path(__file__).with_name('run_headbatch.py')
@@ -158,11 +159,27 @@ class Spool:
         result = receipt.get('result', {})
         manifest = guards.read(self.workspace.head(head)/'manifest.json')
         approved = f'spool {clock()[:5]}:'
-        if stage == 'repair':
-            self.review(head, stage, f'{attempt}: {self.repair_evidence(head, attempt, manifest)}')
+        if stage == 'precluster':
+            sheet = self.sheets/f'{head}-precluster-{attempt}.png'
+            self.draw(sheet, 'gpuclay', head, '--precluster', attempt, sheet)
+            self.review(head, stage, f'{attempt}: clustered clay queued: {sheet}')
+        elif stage == 'fit':
+            sheet = self.sheets/f'{head}-fit-{attempt}-reference.png'
+            self.draw(sheet, 'fitcheck', '--reference', head, attempt, sheet)
+            self.review(head, stage, f'{attempt}: front and side against the fit reference: {sheet}')
+        elif stage == 'repair':
+            self.review(head, stage, f'{attempt}: {self.repair_evidence(head, attempt, manifest, receipt)}')
         elif stage == 'bake':
             self.later('bakeviews', head, attempt)  # named, because the head can move on while the sheet waits for a slot
-            self.review(head, stage, f'{attempt}: bakeviews queued: {head}/review-evidence/bake-tex-{attempt}.png, bake-grid-{attempt}.png')
+            note = f'{attempt}: bakeviews queued: {head}/review-evidence/bake-tex-{attempt}.png, bake-grid-{attempt}.png'
+            root = self.workspace.head(head)
+            unwrap = consumed(root, root/'run/bake'/attempt, 'unwrap')
+            repair = consumed(root, unwrap, 'repair') if unwrap else None
+            if repair and consumed(root, repair, 'fit'):
+                sheet = root/'review-evidence'/f'bake-ray-{attempt}'/'sheet.png'
+                self.draw(sheet, 'bakelook', head, attempt)
+                note += f' | sampled base color: {sheet}'
+            self.review(head, stage, note)
         elif stage == 'ownership':
             sheet = self.sheets/f'{head}-ownership-{attempt}.png'
             self.draw(sheet, 'ownsheet', head, attempt, sheet)  # the saved atlas: a rules preview would miss the face-mask channels
@@ -209,8 +226,14 @@ class Spool:
         elif stage == 'export':
             matrix = guards.fit_matrix(self.workspace.head(head))
             budget = manifest['mesh'].get('triangleBudget', 20000)
-            text = f"{result.get('model')} {result.get('triangles')} tri, matrix {'= reviewed fit' if result.get('matrix') == matrix else 'DIFFERS from the reviewed fit'}"
-            if result.get('matrix') == matrix and 0 < result.get('triangles', 0) <= budget and result.get('plt', {}).get('sha256'):
+            matches_fit = matrix is not None and result.get('matrix') == matrix
+            if manifest.get('nativeSizing') or result.get('nativeSizing'):
+                code, detail = self.tool('review', 'exportfit', head, attempt)
+                matches_fit = code == 0
+                if not matches_fit:
+                    self.attention(head, stage, f'{attempt}: native sizing check failed: {detail}')
+            text = f"{result.get('model')} {result.get('triangles')} tri, reviewed fit {'verified' if matches_fit else 'DIFFERS'}"
+            if matches_fit and 0 < result.get('triangles', 0) <= budget and result.get('plt', {}).get('sha256'):
                 self.launch('native', head, 'export', f'{approved} export {text}, PLT bound', attempt)
             else:
                 self.review(head, stage, f'{attempt}: {text}')
@@ -224,18 +247,26 @@ class Spool:
         else:
             self.review(head, stage, f'{attempt}: ran')
 
-    def repair_evidence(self, head, attempt, manifest):
+    def repair_evidence(self, head, attempt, manifest, receipt):
         folder = self.workspace.head(head)/'run'/'repair'/attempt
         try:
             jaw = guards.jaw(self.workspace.head(head), self.workspace.landmarks(), attempt)
         except guards.Refused as refusal:
             jaw = f'JAW FAIL - {refusal}'
-        sheet = self.sheets/f'{head}-repair-{attempt}.png'
-        matrix = self.sheets/f'{head}-fit-matrix-{attempt}.json'
-        matrix.write_text(json.dumps(guards.fit_matrix(self.workspace.head(head))), encoding='utf-8')
-        self.draw(sheet, 'clay', sheet, f"uncut={folder/'master-uncut.glb'}", f"final={folder/'final.glb'}", '--matrix', matrix, '--views', 'back,left,bottom', '--size', '360')  # without the matrix "back" shows the face
+        cut = (manifest['mesh'].get('neck') or {}).get('cut')
+        if 'fit' in receipt.get('dependencies', {}):
+            sheet = self.sheets/f'{head}-repair-{attempt}-normals.png'
+            self.draw(sheet, 'repairclay', head, attempt, sheet)
+        else:  # Historical repairs can have a fixed manifest fit and no fit-stage dependency.
+            sheet = self.sheets/f'{head}-repair-{attempt}.png'
+            matrix = self.sheets/f'{head}-fit-matrix-{attempt}.json'
+            matrix.write_text(json.dumps(guards.fit_matrix(self.workspace.head(head))), encoding='utf-8')
+            comparison = f"uncut={folder/'master-uncut.glb'}" if cut else f"before reduction={folder/'master.glb'}"
+            self.draw(sheet, 'clay', sheet, comparison, f"final={folder/'final.glb'}", '--matrix', matrix, '--views', 'back,left,bottom', '--size', '360')
+        if not cut:
+            jaw += ' | uncut jaw and hair: compare the master and final mesh'
         text = f'{jaw} | sheet queued: {sheet}'
-        skirt = manifest['mesh'].get('neck', {}).get('cut', {}).get('skirt')
+        skirt = (cut or {}).get('skirt')
         if skirt is not None:  # the skirt's hair zone at its gap beside 3 cm, so a kept generated neck shows (RUNBOOK 113)
             zone = self.sheets/f'{head}-skirtzone-{attempt}.png'
             self.draw(zone, 'skirtzone', head, attempt, zone, *sorted({skirt.get('gap', SKIRT_GAP), SKIRT_GAP}))
@@ -382,6 +413,31 @@ class Spool:
         self.launch(stages, head, request.get('approve'), request.get('notes'))
         return False
 
+    def reconcile_direct_reviews(self):
+        # Fit and precluster can precede dry runs. A final render can be reviewed after a client trial.
+        for key, notice in list(self.state['review'].items()):
+            name, _, stage = key.partition('/')
+            if stage not in ('fit', 'precluster', 'render'):
+                continue
+            head = self.workspace.head(name)
+            seen = notice['text'].partition(':')[0]
+            progress = state(head)
+            stage_pin = progress.get('stages', {}).get(stage)
+            review_pin = progress.get('reviews', {}).get(stage)
+            if not stage_pin or not review_pin or PureWindowsPath(stage_pin['path']).parent.name != seen:
+                continue
+            review = head/'run/reviews'/PureWindowsPath(review_pin['path']).name
+            receipt = head/'run'/stage/seen/'receipt.json'
+            if not review.is_file() or not receipt.is_file():
+                continue
+            raw = review.read_bytes()
+            if hashlib.sha256(raw).hexdigest() != review_pin['sha256']:
+                continue
+            recorded = json.loads(raw)
+            if recorded.get('decision') == 'approved' and recorded.get('stageReceipt') == stage_pin and sha(receipt) == stage_pin['sha256']:
+                del self.state['review'][key]
+                self.log(f'{name} {stage}: {seen} already has a matching approval')
+
     def report(self):
         def rows(entries):
             return '\n'.join(f"- {key}: {value['text']} ({value['at']})" for key, value in sorted(entries.items())) or '- none'
@@ -390,7 +446,7 @@ class Spool:
         self.save()
 
     def step(self):
-        for scan in (self.scan_launches, self.scan_sheets, self.scan_requests):
+        for scan in (self.scan_launches, self.scan_sheets, self.scan_requests, self.reconcile_direct_reviews):
             self.guarded('spool', scan.__name__, scan)
         self.guarded('spool', 'report', self.report)  # a reader holding one of its files must not end the loop; the next pass writes it again
 

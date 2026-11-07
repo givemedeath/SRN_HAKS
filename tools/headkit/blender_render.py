@@ -11,7 +11,7 @@ def main():
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);cfg=json.loads(args.config.read_text())
     sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
     from tools.headkit.gltf import mesh,require_textured_uvs
-    from tools.headkit.review_images import resolutions,render_plan,validate_frames
+    from tools.headkit.review_images import resolutions,render_plan,validate_frames,render_mode_folder
     from tools.headkit.common import verify,pin,write,require
     render_plan(cfg)
     if set(cfg.get('modes',['clay','color-only','material-lit']))-{'clay'}:require_textured_uvs(cfg['mesh'])
@@ -57,7 +57,8 @@ def main():
     for size in sizes:
         scene.render.resolution_x=scene.render.resolution_y=size
         for mode in cfg.get('modes',['clay','color-only','material-lit']):
-            require(mode in ('clay','color-only','material-lit','ownership'),'Unknown render material');data.materials.clear();data.materials.append(material(mode,texture_sets[str(size)]));(out/str(size)/mode).mkdir()
+            require(mode in ('clay','color-only','material-lit','ownership'),'Unknown render material');data.materials.clear();data.materials.append(material(mode,texture_sets[str(size)]))
+            render_mode_folder(out, size, mode)
             for view in cfg['cameras']:
                 require('/' not in view['name'] and '\\' not in view['name'] and view['name'] not in ('.','..'),'Safe view name required')
                 eye=np.array(view['eye'])@transform.T;target=np.array(view['target'])@transform.T;camera.location=eye

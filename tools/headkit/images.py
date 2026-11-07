@@ -55,6 +55,10 @@ def feature_landmarks(config):
                 groups[name]=[name+'-root',name+'-tip']
     names={row['name'] for row in config.get('landmarks',[])}
     require(set(sum(groups.values(),[]))<=names,'Missing horn/tusk roots or tips, or jaw boundary landmarks')
+    # Endpoints alone can crop off the outer arc of a curved horn/tusk (RUNBOOK 246).
+    for name,required in groups.items():
+        if name!='jaw':
+            required.extend(sorted(point for point in names if point.startswith(name+'-curve-')))
     return groups
 
 
@@ -63,6 +67,11 @@ def feature_evidence(aligned,detail,points,config,output):
     if not groups:return {}
     width,height=detail.size;lookup={p['name']:np.array(p['detail'])*[width,height] for p in points}
     a=np.asarray(aligned.getchannel('A'))>127;b=np.asarray(detail.getchannel('A'))>127
+    cx, cy = np.rint(lookup['jaw-chin']).astype(int)
+    radius = max(2, round(min(width, height) * .01))
+    for role, mask in [('clay', a), ('detail', b)]:
+        require(mask[max(0,cy-radius):cy+radius+1, max(0,cx-radius):cx+radius+1].any(),
+                role + ' matte misses measured jaw-chin')
     report={}
     for name,names in groups.items():
         selected=np.array([lookup[key] for key in names]);low=selected.min(0)-[.05*width,.05*height];high=selected.max(0)+[.05*width,.05*height]
@@ -76,6 +85,48 @@ def feature_evidence(aligned,detail,points,config,output):
         report[name]={'box':[int(x0),int(y0),int(x1),int(y1)],'silhouetteIoU':float(np.count_nonzero(aa&bb)/union),
                       'comparison':pin(target),'visualReviewRequired':True}
     return report
+
+
+def eye_evidence(clay_path, detail_path, config, output):
+    """Compare independently marked eye openings on the original pinned rasters."""
+    spec = config.get('eyeReview')
+    if spec is None:
+        return None
+    require(isinstance(spec, dict) and spec.get('claySha256') == pin(clay_path)['sha256']
+            and spec.get('detailSha256') == pin(detail_path)['sha256'], 'Eye review missing or stale for this pair')
+    sides = spec.get('eyes')
+    require(isinstance(sides, dict) and set(sides) == {'left', 'right'}, 'Review both eyes in viewer coordinates')
+    rows = {}
+    for side, eye in sides.items():
+        require(isinstance(eye, dict) and eye.get('state') in ('open', 'closed', 'mechanical', 'occluded')
+                and isinstance(eye.get('observation'), str) and eye['observation'].strip(), 'Record the observed eye state')
+        crops = []
+        heights = []
+        for role, path in [('clay', clay_path), ('detail', detail_path)]:
+            with Image.open(path) as img:
+                width, height = img.size
+                coords = np.asarray(eye.get(role), dtype=float)
+                require(coords.shape == (3,) and np.isfinite(coords).all(), 'Eye observation needs x, top and bottom pixels')
+                x, top, bottom = coords
+                require(0 <= x < width and 0 <= top <= bottom < height, 'Eye observation outside the source canvas')
+                opening = bottom - top
+                if eye['state'] == 'open':
+                    require(opening >= 2, 'Open eye has no measured lid separation: ' + side + ' ' + role)
+                heights.append(float(opening))
+                dx, dy = max(8, round(width * .075)), max(5, round(height * .045))
+                cy = round((top + bottom) / 2)
+                crops.append(img.convert('RGBA').crop((round(x)-dx, cy-dy, round(x)+dx, cy+dy)))
+        if eye['state'] == 'open':
+            require(abs(heights[0] - heights[1]) <= max(2, heights[1] * .30),
+                    'Clay eye opening differs from the detailed reference: ' + side)
+        # Equal source canvases and matching pixel scales, clay on the left.
+        sheet = Image.new('RGBA', (sum(c.width for c in crops), crops[0].height))
+        sheet.paste(crops[0]); sheet.paste(crops[1], (crops[0].width, 0))
+        target = output / ('eye-' + side + '-comparison.png')
+        sheet.save(target)
+        rows[side] = {'comparison': pin(target), 'openingPixels': heights, 'state': eye['state'],
+                      'observation': eye['observation']}
+    return rows
 
 
 def prepare(clay_path, detail_path, config, output):
@@ -116,6 +167,9 @@ def prepare(clay_path, detail_path, config, output):
               'rotation': rotation.tolist(), 'translation': translation.tolist(), 'manualReviewRequired': True,
               'landmarksAreOperatorMeasurements': True,
               'images': {name: pin(output / name) for name in ('geometry-pair.png', 'detail-pair.png', 'common-mask.png', 'alignment-overlay.png')}}
+    eyes = eye_evidence(clay_path, detail_path, config, output)
+    if eyes is not None:
+        result['eyeReview'] = eyes
     write(output / 'alignment.json', result, fresh=True)
     return result
 

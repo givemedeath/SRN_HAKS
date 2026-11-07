@@ -227,7 +227,7 @@ def shading_shades(luma, smooth, unstretched, allowed, quantiles):
 
 
 def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False, shading_only=False,
-             positions=None, skin_median=None, skin_anchor=None):
+             positions=None, skin_median=None, skin_anchor=None, skin_contrast=1.0, focus_source=None, seam_surface=None):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
     by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
     A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
@@ -239,6 +239,9 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
     `skin_anchor` (1K mask: the face) there, the body skin's level, so the face reads as the neck's skin (RUNBOOK 154). The whole channel's
     median does not: hidden texels and gutters left the visible faces 20-77 shades above the neck."""
     require(set(rows)==set(palette_files),'Every selected layer needs its own stock palette image')
+    require(type(skin_contrast) in (int,float) and FULL_RANGE_SPAN <= skin_contrast <= 1
+            and (skin_contrast == 1 or (full_range and skin_median is not None)),
+            'skinShadeContrast requires a body-pinned full range and a factor from 0.5 to 1')
     require(not shading_only or (full_range and positions is not None and np.shape(positions)==(1024,1024,3)),
             'Stretching only the shading needs the full shade range and the 1K texel surface points')
     require(skin_median is None or (full_range and type(skin_median) is int and 0<=skin_median<=254 and np.shape(skin_anchor)==(1024,1024)),
@@ -253,7 +256,17 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
     shade_offsets=shade_offsets or {};tone_match=tone_match or {}
     require(type(tone_match) is dict and set(tone_match)<={str(v) for v in np.unique(layers)},'Tone matching names a channel without mapped texels')
     references=read(REFERENCES)['references'] if tone_match else {}
-    for layer in np.unique(layers):
+    seam_report = None
+    focus_search = []
+    if focus_source is not None:
+        from .quality import DECODE_ROWS, THRESHOLDS, focus_metrics, focus_view
+        require(full_range and skin_median is not None and skin_contrast == 1.0,
+                'Automatic contrast requires body-pinned full-range skin')
+        region = focus_view(*focus_source, layers)
+        limits = read(THRESHOLDS)['limits']
+        projected_colors = np.zeros_like(rgb, dtype=np.float32)
+    # Score the skin with every other channel in its final game-size QA row.
+    for layer in sorted(np.unique(layers), key=lambda layer: layer == 0):
         key=str(layer);require(key in rows and key in palette_files,'No palette binding for mapped channel')
         palette=np.asarray(Image.open(palette_files[key]).convert('RGBA'));row=rows[key];spec=tone_match.get(key)
         selected=layers==layer;target=rgb[selected].astype(float)
@@ -323,6 +336,38 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
             for power in SKIN_DARK_POWERS+(None,):
                 picked=pinned(power)
                 if np.percentile(picked,99)-np.percentile(picked,1)>=FULL_RANGE_SPAN*(hi-lo):break
+        if focus_source is not None and rows[key] == 'auto' and spec is not None and len(picked):
+            # Preserve shade-range and alpha contracts while ranking the actual exported tones.
+            opacity = (palette[:, :, 3] > 0) & (np.arange(256) < 255)
+            eligible_rows = opacity & np.roll(opacity, -1, axis=1)
+            cohort = np.flatnonzero(np.all(eligible_rows == eligible_rows[row], axis=1))
+            if spec.get('rowFrom') == 'design' and 'designLab' in chosen:
+                final_rows = design_rows(chosen['designLab'], picked, palette[cohort], keep=1)
+            else:
+                final_rows = rows_for_shades(target, picked, palette[cohort], keep=1)
+            if final_rows:
+                row = resolved[key] = int(cohort[final_rows[0]['row']])
+                table = palette[row, :, :3]
+        if focus_source is not None and median is not None:
+            for factor in (1.0, .9, .8, .72, .66, .6):
+                indices = np.clip(np.rint(median + (picked.astype(float)-median)*factor), 0, 255).astype(int)
+                candidate = allowed[snap[indices]]
+                span = float(np.ptp(np.percentile(candidate, [1, 99])))/max(hi-lo, 1)
+                if span < max(FULL_RANGE_SPAN, limits['bodySkinSpanMin']):
+                    break
+                projected_colors[selected] = table[candidate]
+                _, metrics = focus_metrics(region, projected_colors)
+                focus_search.append({'factor': factor, 'span': round(span, 3), **metrics})
+                if metrics['featureFocus'] >= limits['featureFocusMin']:
+                    skin_contrast = factor
+                    break
+        if median is not None and skin_contrast != 1:
+            # Scale around the neck shade, then snap back to eligible row entries.
+            adjusted = np.clip(np.rint(median + (picked.astype(float)-median)*skin_contrast),0,255).astype(int)
+            picked = allowed[snap[adjusted]]
+        if key == '0' and seam_surface is not None:
+            from .skin_seams import reconcile_atlas
+            picked, seam_report = reconcile_atlas(*seam_surface, selected, picked, allowed)
         if spec is not None:
             matched={'reference':spec['reference'],'referenceFile':pin(REFERENCES),'before':shade_stats(nearest),'after':shade_stats(picked),
                      'referencePercentiles':{f'p{round(q*100)}':float(np.interp(q,np.linspace(0,1,len(quantiles)),quantiles)) for q in GRID},
@@ -339,8 +384,10 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
                           'p99':float(np.percentile(picked,99)) if len(picked) else None,'spanFraction':round(fraction,3),'checked':checked,
                           **({'shadingSigma':SHADING_SIGMA} if smooth is not None else {}),
                           'endTie':end_tie,
-                          **({'skinMedian':{'target':median,'achieved':float(np.median(picked[inside])),'faceTexels':int(inside.sum()),'rank':round(rank,3),
+                          **({'skinMedian':{'target':median,'skinShadeContrast':skin_contrast,'achieved':float(np.median(picked[inside])),'faceTexels':int(inside.sum()),'rank':round(rank,3),
                                                   'darkPower':power}} if median is not None else {})}
+        if focus_source is not None:
+            projected_colors[selected] = palette[DECODE_ROWS.get(key, row), picked, :3]
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched
@@ -356,4 +403,8 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         path=output/f'isolate-{key}.png';Image.fromarray(isolated).save(path);isolation.append(pin(path))
     result={'layers':report,'isolation':isolation,'shades':pin(output/'shades.png'),'ownership':pin(output/'layers.png'),
             'decoded':pin(output/'decoded.png'),'visualReviewRequired':True,'rows':resolved}
+    if seam_report is not None:
+        result['skinSeamRepair'] = seam_report
+    if focus_source is not None:
+        result['skinFocusSearch'] = {'candidates': focus_search, 'selectedFactor': skin_contrast}
     write(output/'palette.json',result,fresh=True);return result

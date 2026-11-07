@@ -90,7 +90,7 @@ def plan(workspace, name, uv_only=False, scan=slopescan, floor_review=None):
         mesh['fineRelief'] = dict(defaults['fineRelief'])
         notes.append(f"fineRelief {mesh['fineRelief']}")
     uv_floor(head, mesh, uv_only, floor_review, notes, hold)
-    cut = None if uv_only else mesh.get('neck', {}).get('cut')
+    cut = None if uv_only else (mesh.get('neck') or {}).get('cut')
     landmarks = workspace.landmarks()
     limit = guards.jaw_limit(head, landmarks) if cut else None
     if cut and limit is not None:

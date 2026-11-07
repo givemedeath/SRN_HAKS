@@ -11,6 +11,11 @@ from .images import similarity
 from .native_reader import decode
 
 MDL_COMPILER = 'mdl-compiler.json'
+# Pre-allowance ASCII proportion references distributed for headbatch profile fitting.
+COMPACT_TROLL_FIT_SHA256 = {
+    'pmg0': '24b10f373b99da97a371c1cf0e62fc602c09cc8f549f979d6e69c2697d3c8099',
+    'pfg0': 'd02d44972652b153d3733f6cc561bfa4f824cc4b041bd20cb1bd2fd18237b323',
+}
 
 
 def helpers():
@@ -35,7 +40,27 @@ def fit_matrix(config, source_sha):
     return checked_fit(matrix),None if errors is None else errors.tolist()
 
 
-def prepare(source, shades_path, layers_path, fit, model, output):
+def troll_build_allowance(policy, reference, model):
+    """Apply the published allowance once, in the local frame of the mesh node."""
+    from .common import read
+    rule = read(policy)
+    prefix = model[:4]
+    require(rule.get('kind') == 'SRN-troll-head-build-allowance' and
+            re.fullmatch(r'p[fm]g0_head[0-9]{3}', model), 'Invalid Troll sizing policy or slot')
+    reference_pin = pin(reference)
+    digest = reference_pin['sha256']
+    factor = rule['factors'][prefix]['scale']
+    rows = [r for r in rule['heads'] if Path(r['path']).stem.startswith(prefix+'_head')]
+    if digest in {r['sha256'] for r in rows}:
+        factor = 1.0
+    elif digest not in {r['fromSHA256'] for r in rows}:
+        require(digest == COMPACT_TROLL_FIT_SHA256[prefix],
+                'Unknown fit reference frame: verify its Troll build allowance before export')
+    return {'policy': pin(policy), 'reference': reference_pin, 'scale': factor,
+            'pivot': 'identity mesh node frame', 'publishedScale': rule['factors'][prefix]['scale']}
+
+
+def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inputs=None):
     require(re.fullmatch(r'[a-z][a-z0-9_]{0,13}',model) is not None,'Safe NWN model resref required')
     with Image.open(shades_path) as image:
         require(image.mode=='L' and image.size==(1024,1024),'Runtime shades must be 1K eight-bit grayscale')
@@ -47,6 +72,11 @@ def prepare(source, shades_path, layers_path, fit, model, output):
     require(layers.shape==(1024,1024) and np.all(layers<=9),'Runtime ownership must be 1K channel IDs 0..9')
     source_pin=pin(source);matrix,errors=fit_matrix(fit,source_pin['sha256'])
     head_export,*_=helpers();points,normals,uv=head_export.triangles(source,matrix,maximum=20000)
+    sizing=None
+    if sizing_inputs is not None:
+        sizing=troll_build_allowance(*sizing_inputs, model)
+        points=np.asarray(points)*sizing['scale']
+        matrix=matrix.copy();matrix[:3,:]*=sizing['scale']
     # One PLT covers all surfaces, including independently reviewed accessory channels.
     payload=head_export.plt_bytes(shades,layers)
     ascii_text=head_export.ascii_model(model,points,normals,uv,[{'kind':'palette','triangles':list(range(len(points)))}])
@@ -57,6 +87,7 @@ def prepare(source, shades_path, layers_path, fit, model, output):
     result={'source':source_pin,'matrix':matrix.tolist(),'landmarkErrors':errors,'model':model,'triangles':len(points),
             'ascii':pin(output/'ascii'/f'{model}.mdl'),'plt':pin(output/'resources'/f'{model}.plt'),
             'expected':pin(output/'expected-native.npz'),'fitReviewRequired':True,'clientValidated':False}
+    if sizing is not None:result['nativeSizing']=sizing
     write(output/'prepared.json',result,fresh=True);return result
 
 
