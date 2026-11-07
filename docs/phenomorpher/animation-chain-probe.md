@@ -220,7 +220,7 @@ Client results:
 
 - **Ingram:** the two-handed hip hold shows on Human, Dwarf, Orc and Troll, on bare bodies, robe 005 and coat 020 where they
   were in view. On Trolls it looks small.
-- **Shotgun:** the left hand was seen moving along the barrel on Human male Large. Other races were not checked.
+- **Shotgun:** the left hand was seen moving along the barrel on a bare Human male. Other races were not checked.
 - **Firing:** rounds were counted for rifle clips on Humans (99 to 97 over 10 s, shotgun clip on `xbowshot`) and for the
   Ingram on Human, Orc and Troll (99 to 97 on `throwr`). Dwarf and Elf rounds were not counted.
 - **Not checked:** Elf with the Ingram, and any Dwarf shotgun clip. A second client from another session took the foreground,
