@@ -74,11 +74,16 @@ tests do. No attack was running.
 - **The gun keeps firing after the body leaves the clip.** After the actors returned to stock idle (`pause1`), the
   Colts still burst at the hip 3 s and 3.5 s later. The gun has no `pause1` clip, so it seems to keep looping the
   last clip it had. Mapped attacks didn't show this in gate 1, where a stock attack after mapped fire showed no burst.
-- **Consequence:** each gun needs a clip with no `detonate` for every other name the body plays, at least the idle,
-  ready, walk and run names. Otherwise a flash and casing keep coming after the shot. This is unconfirmed past 3.5 s,
-  and the check was cut short when another session's client took the screen.
+- **It doesn't stop on its own.** A retest on the same build showed bursts in every frame for 24 s of idle.
+- **Empty clips fix it.** Build `output/firearm-fx-pilot-v4-quiet` adds clips with no event to each gun for
+  `pause1`, `pause2`, `walk`, `run`, `xbowrdy`, `bowrdy`, `bow`, `1hreadyr`, `1hreadyl`, `nwreadyr` and `nwreadyl`
+  (`QUIET_CLIPS`). The pistol loop still burst, and the bursts stopped within 2 s of idle and stayed off for 13 s.
+  Mapped Colt attacks still burst and also stopped at idle.
+- **Consequence:** every gun needs an empty clip for each name the body plays outside a shot. The list above covered
+  idle in this test. Walk, run, ready and the other stock names weren't exercised, and names like `hturnl`, `cwalk`
+  or `talk` may need adding. Building these from a list is cheap.
 
-Evidence is in `output/firearm-fx-pilot-loop-evidence/`.
+Evidence is in `output/firearm-fx-pilot-loop-evidence/`. The `v3-` and `v4-` files are from the retest.
 
 ## Hit timing found offline
 

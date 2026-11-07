@@ -50,6 +50,14 @@ class TaggedGun(unittest.TestCase):
         self.assertLess(text.index('node emitter srp_marker'), text.index('endmodelgeom'))
         self.assertIn('classification Character', text)
 
+    def test_quiet_clips_send_no_event(self):
+        text = fx.tagged_gun(GUN, 'fire_pst', 'replaced', quiet=True)
+        clips = dict(re.findall(r'(?ms)^newanim (\S+) wbwsl_b_051\n(.*?)^doneanim', text))
+        self.assertEqual(len(clips), 15 + len(fx.QUIET_CLIPS))
+        for name in fx.QUIET_CLIPS:
+            self.assertNotIn('event', clips[name])
+        self.assertIn('event 0.1 detonate', clips['fire_pst_hm'])
+
     def test_a_gun_with_clips_is_refused(self):
         with self.assertRaisesRegex(ValueError, 'Unexpected gun shape'):
             fx.tagged_gun(GUN.replace('donemodel', 'newanim old wbwsl_b_051\ndoneanim old wbwsl_b_051\ndonemodel'), 'fire_pst', 'stock')

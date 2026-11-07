@@ -25,6 +25,8 @@ from tools.itemkit import combat_clip_pilot as pilot
 GUNS = {'colt': ('wbwsl_b_051.mdl', 'fire_pst'), 'ingram': ('wbwsl_m_023.mdl', 'fire_smg'), 'ak98': ('wbwxh_t_015.mdl', 'fire_rfl')}
 STOCK_CLIPS = ('throwr', 'xbowshot')
 BURST_TIME = .1
+# Names the body plays outside the shot. A gun with no clip of the name keeps looping its last one, detonate and all.
+QUIET_CLIPS = ('pause1', 'pause2', 'walk', 'run', 'xbowrdy', 'bowrdy', 'bow', '1hreadyr', '1hreadyl', 'nwreadyr', 'nwreadyl')
 BURST_LIFE = 1.5
 BURST_SIZE = .5
 EMITTER = '''node emitter {name}
@@ -95,8 +97,7 @@ CLIP = '''newanim {clip} {root}
   length 1
   transtime 0.25
   animroot {root}
-  event {time} detonate
-  node dummy {root}
+{event}  node dummy {root}
     parent NULL
   endnode
 {nodes}doneanim {clip} {root}
@@ -137,7 +138,7 @@ def slots():
     return [*pilot.SLOTS, *(slot + 'l' for slot in pilot.SLOTS if slot.endswith('f'))]
 
 
-def tagged_gun(text, stem, names):
+def tagged_gun(text, stem, names, quiet=False):
     """Add the marker and a burst to one decompiled gun, with clips for the `stock` or `replaced` names."""
     root = re.search(r'(?m)^newmodel (\S+)', text)[1]
     tip = muzzle(text)
@@ -151,8 +152,11 @@ def tagged_gun(text, stem, names):
         raise ValueError('Unexpected gun shape: ' + root)
 
     clip_names = STOCK_CLIPS if names == 'stock' else [f'{stem}_{slot}' for slot in slots()]
-    clips = ''.join(CLIP.format(clip=name, root=root, time=BURST_TIME, nodes=EMITTER_CLIP_NODE.format(name=emitter, root=root))
+    event = f'  event {BURST_TIME} detonate\n'
+    clips = ''.join(CLIP.format(clip=name, root=root, event=event, nodes=EMITTER_CLIP_NODE.format(name=emitter, root=root))
                     for name in clip_names)
+    if quiet:
+        clips += ''.join(CLIP.format(clip=name, root=root, event='', nodes='') for name in QUIET_CLIPS)
     head = f'setsupermodel {root} NULL\n'
     if text.count(head) != 1:
         raise ValueError('Unexpected gun header: ' + root)
@@ -160,10 +164,10 @@ def tagged_gun(text, stem, names):
     return text.replace(close, nodes + close + '\n\n' + clips.rstrip('\n'))
 
 
-def extend(names, hak, stock_dir, scripts):
+def extend(names, quiet, hak, stock_dir, scripts):
     for part, stem in GUNS.values():
         text = (stock_dir / part).read_text(encoding='cp1252')
-        (hak / part).write_text(tagged_gun(text, stem, names), encoding='cp1252', newline='\n')
+        (hak / part).write_text(tagged_gun(text, stem, names, quiet), encoding='cp1252', newline='\n')
     scripts['srp_inc'] += INC
     marker = 'if(text=="hold")'
     if scripts['srp_chat'].count(marker) != 1:
@@ -177,6 +181,7 @@ if __name__ == '__main__':
         parser.add_argument('--' + option, required=True)
     parser.add_argument('--client')
     parser.add_argument('--names', choices=('stock', 'replaced'), required=True)
+    parser.add_argument('--quiet', action='store_true', help='Add empty clips for the names in QUIET_CLIPS')
     options = vars(parser.parse_args())
-    result = pilot.build(extend=partial(extend, options.pop('names')), **options)
+    result = pilot.build(extend=partial(extend, options.pop('names'), options.pop('quiet')), **options)
     print('built', result['customBytes'])
