@@ -59,13 +59,20 @@ LEGS = (('lthigh_g', 'lshin_g', 'lfoot_g'), ('rthigh_g', 'rshin_g', 'rfoot_g'))
 # One reload per magazine position, chosen by weapon. The rifle clip also serves the shotgun until one is built.
 RELOAD_VARIANTS = {'reload_rfl': 'rifle', 'reload_smg': 'smg', 'reload_pst': 'pistol'}
 # Ranged weapons can't take the off hand, so the pilot copies these guns onto short sword parts for the left hand.
-STANDINS = {'srp_dcolt': ('sr_cl36_1', 201, (51, 11, 11)), 'srp_dingr': ('sre9a211be_3', 202, (13, 23, 13))}
+# Left-hand copies, and right-hand copies for dual fire on stand-ins: each hand's gun needs its own clip events.
+STANDINS = {'srp_dcolt': ('sr_cl36_1', 201, (51, 11, 11)), 'srp_dingr': ('sre9a211be_3', 202, (13, 23, 13)),
+            'srp_rcolt': ('sr_cl36_1', 204, (51, 11, 11)), 'srp_ringr': ('sre9a211be_3', 205, (13, 23, 13))}
+# Out of combat the engine turns a crossbow-class weapon upright in the hand, whatever the clip keys. This copies the
+# AK-98 onto sling part 203, as `srp_srifle`, to see whether the rifle clips hold it forward on a sling-class weapon.
+SLING_RIFLE = ('srp_srifle', 'sr_cl36_1', 203, 15)
 ARM = ('lbicep_g', 'lforearm_g', 'lhand_g')
 HANDS = {'rhand', 'lhand'}
 RIGHT_ARM = ('rbicep_g', 'rforearm_g', 'rhand_g')
 CHAIN = ('rootdummy', 'torso_g', *RIGHT_ARM, *ARM)
 PALM_CLEARANCE, REACH, MAX_PULL, RELOAD_BLEND = .015, .97, .16, .25
 RELOAD_PULL = .30
+# Where the left elbow bends in a two-handed pistol grip, in the torso frame (x right, y forward, z up): down and out.
+GRIP_ELBOW = np.array([-.5, 0., -1.]) / np.linalg.norm([-.5, 0., -1.])
 # When the left palm is on the magazine during the reload: on it, away to the belt from .7 to 1.1, then back on it.
 RELOAD_CONTACT = np.array([[0., 1.], [.3, 1.], [.7, 0.], [1.1, 0.], [1.47, 1.], [2., 1.]])
 SOURCES = {'m': ('a_ba_non_combat', 'a_ba'), 'f': ('a_fa', 'a_fa')}
@@ -214,15 +221,17 @@ def hold_ends(clip):
     return {**clip, 'nodes': nodes, 'transition': RELOAD_BLEND}
 
 
-def limb_rotations(rig, names, before, after, wrist, hand, parent='torso_g'):
-    """Local rotations that put an arm's wrist and hand in place, with the source elbow as pole and its twist kept."""
+def limb_rotations(rig, names, before, after, wrist, hand, parent='torso_g', pole=None):
+    """Local rotations that put an arm's wrist and hand in place, with its twist kept.
+
+    The elbow bends toward `pole`, a direction in the parent's frame, or else toward the source elbow."""
     bicep, forearm, palm = names
     upper_offset, lower_offset = (rig[node]['controls'][8]['values'][0] for node in (forearm, palm))
     upper_length, lower_length = np.linalg.norm(upper_offset), np.linalg.norm(lower_offset)
     shoulder = after[bicep][:3, 3]
     distance = np.linalg.norm(wrist - shoulder)
     axis = (wrist - shoulder) / distance
-    pole = before[forearm][:3, 3] - before[bicep][:3, 3]
+    pole = after[parent][:3, :3] @ pole if pole is not None else before[forearm][:3, 3] - before[bicep][:3, 3]
     pole -= (pole @ axis) * axis
     pole /= np.linalg.norm(pole)
     along = (upper_length ** 2 - lower_length ** 2 + distance ** 2) / (2 * distance)
@@ -285,9 +294,11 @@ def solve_support(clip, root, marks, magazine=None):
             break
     else:
         raise ValueError(f'{root["name"]}: fore-end out of reach')
+    # A two-handed pistol grip has no source elbow to follow: the old clip's left arm hangs free.
+    pole = GRIP_ELBOW if marks.get('fixed') is not None and magazine is None else None
     keys = {node: [] for node in (*ARM, *RIGHT_ARM)}
     for (time, before, after), (wrist, hand), shift in zip(poses, wrists, shifts):
-        for node, local in zip(ARM, limb_rotations(rig, ARM, before, after, wrist, hand)):
+        for node, local in zip(ARM, limb_rotations(rig, ARM, before, after, wrist, hand, pole=pole)):
             keys[node].append(axis_row(time, local))
         if pull:
             held = after['rhand_g']
@@ -675,8 +686,9 @@ void main(){
  else if(text=="side")Camera(pc,0.0,5.0,80.0);
  else if(text=="dpistol")ArmDual("sr_cl36_1","srp_dcolt","nw_wambu001");
  else if(text=="dsmg")ArmDual("sre9a211be_3","srp_dingr","nw_wambu001");
- else if(text=="spistol")ArmDual("srp_dcolt","srp_dcolt","nw_wambu001");
- else if(text=="ssmg")ArmDual("srp_dingr","srp_dingr","nw_wambu001");
+ else if(text=="srifle")ArmWith("srp_srifle","nw_wambu001",INVENTORY_SLOT_BULLETS);
+ else if(text=="spistol")ArmDual("srp_rcolt","srp_dcolt","nw_wambu001");
+ else if(text=="ssmg")ArmDual("srp_ringr","srp_dingr","nw_wambu001");
  else if(text=="lpdual")Clips("custom13lp","fire_dpst",ANIMATION_LOOPING_CUSTOM13,"dual pistol loop");
  else if(text=="lsdual")Clips("custom15lp","fire_dsmg",ANIMATION_LOOPING_CUSTOM15,"dual smg loop");
  else if(text=="fdpistol")Attack("throwr","fire_dpst","attack throwr dual pistol");
@@ -716,6 +728,10 @@ def stage_standins(hak):
         for letter, part in zip('bmt', parts):
             old, new = f'wbwsl_{letter}_{part:03}', f'wswss_{letter}_{number:03}'
             (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
+    _, _, number, part = SLING_RIFLE
+    for letter in 'bmt':
+        old, new = f'wbwxh_{letter}_{part:03}', f'wbwsl_{letter}_{number:03}'
+        (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
 
 
 def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=None):
@@ -767,6 +783,14 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=
             for part in (1, 2, 3):
                 data[f'ModelPart{part}']['value'] = number
         tools.gff(REPO / 'srn_weapon' / (gun + '.uti'), stage / (resref + '.uti'), left_hand)
+    resref, gun, number, _ = SLING_RIFLE
+
+    def sling(data):
+        data['TemplateResRef']['value'] = resref
+        data['Tag']['value'] = resref
+        for part in (1, 2, 3):
+            data[f'ModelPart{part}']['value'] = number
+    tools.gff(REPO / 'srn_weapon' / (gun + '.uti'), stage / (resref + '.uti'), sling)
     tools.run('nwn_erf', '-c', '-e', 'HAK', '-f', user / 'hak' / (probe.HAK + '.hak'), hak)
     for name, folder in (('sw_reviewenv', REPO / 'test-modules/weapon-waves/haks/sw_reviewenv'),
                          *((n, REPO / n) for n in hak_order[2:])):

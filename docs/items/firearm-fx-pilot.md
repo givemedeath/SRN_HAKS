@@ -287,3 +287,50 @@ actors: male and female, Fit and Large, bare and in robes 005 and 020. They were
   probe, not this pilot.
 
 Evidence is in `output/firearm-fx-pilot-v13-evidence/` (ignored).
+
+## Pistol elbow, dual fire and the upright rifle
+
+Builds `output/firearm-fx-pilot-v14-dual` and `output/firearm-fx-pilot-v15-sling`, 2026-11-07.
+
+### Pistol support elbow
+
+- **Problem:** in `fire_pst` the left elbow sat high and turned in, then snapped at the kick. The source clip's left
+  arm hangs free, so the support-arm solve took its bend direction from that arm, which is arbitrary.
+- **Fix:** for a fixed support grip with no magazine (`solve_support`), the left elbow now bends toward a fixed
+  direction, down and out in the torso frame (`GRIP_ELBOW` in `tools/itemkit/combat_clip_pilot.py`). Other support
+  solves keep the source arm's bend direction.
+- **Result:** the elbow stays low and outside through the clip and the kick, offline and in the client
+  (`output/firearm-fx-pilot-v14-evidence/pistol-elbow-zoom.jpg`).
+
+### Dual fire
+
+- **Engine limit:** the engine refuses a left-hand item when the right hand holds a ranged weapon. Dual guns therefore
+  only show as short sword stand-ins in both hands.
+- **Per-hand stand-ins:** each dual gun now has a left part (`wswss_b_201` Colt, `wswss_m_202` Ingram) and a right part
+  (`wswss_b_204`, `wswss_m_205`), blueprints `srp_dcolt`/`srp_dingr` and `srp_rcolt`/`srp_ringr`. Each plays only the
+  dual clip, with its own hand's kicks (`DUAL` in `tools/itemkit/firearm_fx_pilot.py`). Before this, both hands used
+  the left part and flashed together at the left hand's time.
+- **The real guns** also carry the dual clip with the right hand's kicks, for the day a real gun can sit in the right
+  hand beside a left-hand gun.
+- **Dual pistols (`spistol`, `lpdual`):** the right gun flashes, then the left 0.23 s later, once each per cycle, each
+  with its own casing.
+- **Dual SMGs (`ssmg`, `lsdual`):** both guns flash together on every kick.
+- **Equip order matters:** arming the stand-ins straight after the sling rifle left the left hand empty, since the
+  rifle was still in the right hand when the left item went on. A second `spistol` equipped both.
+- **Casing size:** at close range the 0.085 casings read as a rifle-sized brass case, not a speck.
+
+### Rifle pointing through the head
+
+- **Cause:** out of combat, the engine shows crossbow-class weapons upright, overriding the hand keys in our clips. The
+  AK-98 then stands with its muzzle up behind the head, during idle and during the fire clips. In combat the same clips
+  hold it forward. Shotguns are crossbow-class too, so they show the same thing.
+- **Sling test:** a sling-class copy of the AK-98 (`srp_srifle`, part `wbwsl_*_203`, chat command `srifle`) stays
+  forward during the rifle loop out of combat.
+- **But in combat** the engine plays its one-handed `throwr` attack for a sling-class weapon, which is the clip the
+  pistols use. Clips are replaced by name per creature, not per weapon, so a sling rifle and a pistol can't have
+  different attacks.
+- **Open:** this is the "sling or crossbow" decision in `docs/phenomorpher/firearm-clips-handoff.md`. Options are to
+  keep rifles crossbow-class and only play rifle clips in combat, or to make rifles sling-class and swap the `throwr`
+  replacement by script on equip. Neither is chosen here.
+
+Evidence is in `output/firearm-fx-pilot-v14-evidence/` and `output/firearm-fx-pilot-v15-evidence/` (ignored).

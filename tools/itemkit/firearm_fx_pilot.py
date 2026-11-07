@@ -51,6 +51,13 @@ SHOT_TIME = .5
 KICK_TIMES = {'fire_smg': (.1, .3, .47, .63, .8, .93), **{code: spec['kicks'] for code, spec in pilot.AUTO.items()}}
 # The automatic rifle clips play on the same gun as `fire_rfl`.
 AUTO_STEMS = {'fire_rfl': tuple(pilot.AUTO)}
+# Dual fire: (clip stem, right-hand kicks, left-hand kicks). Each gun is its own model, so each fires on its own hand's
+# kicks. Dual clips are shared by Fit and Large, so they have no `l` slots.
+DUAL = {'fire_pst': ('fire_dpst', (.5,), (.73,)), 'fire_smg': ('fire_dsmg', (.14, .34, .5, .68, .85), (.14, .34, .5, .68, .85))}
+# The stand-in parts that carry each gun's mesh (`pilot.STANDINS`), by hand. Dual fire shows only on stand-ins: the
+# engine refuses a left-hand item beside a ranged weapon.
+STANDIN_PARTS = {'colt': {'left': 'wswss_b_201', 'right': 'wswss_b_204'},
+                 'ingram': {'left': 'wswss_m_202', 'right': 'wswss_m_205'}}
 # Ejection ports on each gun's right side (+x), placed by hand from its cross-sections.
 PORTS = {'colt': (.025, .10, -.05), 'ingram': (.015, .10, -.06), 'ak98': (.031, .165, -.06)}
 EMITTER = '''node emitter {name}
@@ -272,11 +279,25 @@ def tumbling_sheet(source, target):
     out.save(target)
 
 
-def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=None):
+def effect_clips(stem, left=False):
+    """(clip stem, detonate times, slots) for each clip a gun with effects plays.
+
+    `left` is 'left' or 'right' for a dual stand-in, which plays only the dual clip on that hand's kicks."""
+    if left:
+        code, right, kicks = DUAL[stem]
+        return [(code, kicks if left == 'left' else right, list(pilot.SLOTS))]
+    clips = [(each, KICK_TIMES.get(each, (SHOT_TIME,)), slots()) for each in (stem, *AUTO_STEMS.get(stem, ()))]
+    if stem in DUAL:
+        code, kicks, _ = DUAL[stem]
+        clips.append((code, kicks, list(pilot.SLOTS)))
+    return clips
+
+
+def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=None, left=False):
     """Add emitters to one decompiled gun, with clips for the `stock` or `replaced` names that fire them.
 
     Without `effects` it gets the test burst and the white marker. With `effects` ({node name: emitter block}) it gets
-    those instead, fired at SHOT_TIME, or at each of the stem's KICK_TIMES."""
+    those instead, fired on the clips from `effect_clips`."""
     root = re.search(r'(?m)^newmodel (\S+)', text)[1]
     tip = muzzle(text)
     times = (burst_time,)
@@ -296,8 +317,8 @@ def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=No
     if names == 'stock':
         timed = [(name, times) for name in STOCK_CLIPS]
     else:
-        stems = (stem, *AUTO_STEMS.get(stem, ())) if effects else (stem,)
-        timed = [(f'{each}_{slot}', KICK_TIMES.get(each, times) if effects else times) for each in stems for slot in slots()]
+        plan = effect_clips(stem, left) if effects else [(stem, times, slots())]
+        timed = [(f'{each}_{slot}', at) for each, at, where in plan for slot in where]
     listing = ''.join(EMITTER_CLIP_NODE.format(name=name, root=root) for name in listed)
     clips = ''.join(CLIP.format(clip=name, root=root, event=''.join(f'  event {t} detonate\n' for t in at), nodes=listing)
                     for name, at in timed)
@@ -328,6 +349,11 @@ def extend(names, quiet, corrected, hit_at, old_fx, hak, stock_dir, scripts):
         root = re.search(r'(?m)^newmodel (\S+)', text)[1]
         effects = old_effects(root, text, flashes, casing, PORTS[label]) if old_fx else None
         (hak / part).write_text(tagged_gun(text, stem, names, quiet, burst, effects), encoding='cp1252', newline='\n')
+        for hand, standin in STANDIN_PARTS.get(label, {}).items() if effects else ():
+            # Each stand-in is the same gun under a short sword part name, firing on its own hand's kicks.
+            moved = {name: block.replace(root, standin) for name, block in effects.items()}
+            (hak / (standin + '.mdl')).write_text(tagged_gun(text.replace(root, standin), stem, names, quiet, burst, moved,
+                                                             left=hand), encoding='cp1252', newline='\n')
     if times:
         custom = hak / 'a_ba_custom.mdl'
         custom.write_text(retimed_hits(custom.read_text(encoding='cp1252'), times), encoding='cp1252', newline='\n')

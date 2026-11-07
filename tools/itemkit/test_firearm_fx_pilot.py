@@ -97,6 +97,16 @@ class TaggedGun(unittest.TestCase):
         smg = fx.tagged_gun(GUN, 'fire_smg', 'replaced', effects=nodes)
         body = re.search(r'(?ms)^newanim fire_smg_hm wbwsl_b_051\n(.*?)^doneanim', smg)[1]
         self.assertEqual(re.findall(r'event (\S+) detonate', body), [str(t) for t in fx.KICK_TIMES['fire_smg']])
+        pistol = dict(re.findall(r'(?ms)^newanim (\S+) wbwsl_b_051\n(.*?)^doneanim', text))
+        self.assertEqual(re.findall(r'event (\S+) detonate', pistol['fire_dpst_hm']), ['0.5'])
+        self.assertNotIn('fire_dpst_hfl', pistol)
+        left = dict(re.findall(r'(?ms)^newanim (\S+) wbwsl_b_051\n(.*?)^doneanim',
+                               fx.tagged_gun(GUN, 'fire_pst', 'replaced', effects=nodes, left='left')))
+        self.assertEqual(sorted(left), sorted(f'fire_dpst_{slot}' for slot in fx.pilot.SLOTS))
+        self.assertEqual(re.findall(r'event (\S+) detonate', left['fire_dpst_tf']), ['0.73'])
+        right = fx.tagged_gun(GUN, 'fire_pst', 'replaced', effects=nodes, left='right')
+        self.assertIn('event 0.5 detonate', right)
+        self.assertNotIn('newanim fire_pst_', right)
         rifle = dict(re.findall(r'(?ms)^newanim (\S+) wbwsl_b_051\n(.*?)^doneanim', fx.tagged_gun(GUN, 'fire_rfl', 'replaced', effects=nodes)))
         self.assertEqual(len(rifle), 15 * 3)
         self.assertEqual(re.findall(r'event (\S+) detonate', rifle['fire_rfl_hm']), [str(fx.SHOT_TIME)])
