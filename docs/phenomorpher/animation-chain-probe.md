@@ -409,3 +409,22 @@ gap is the longest script tick gap over the first 15 s, which covers spawning an
 
 - [ ] Refit and test all robes for all races, male and female, Fit and Large. Trolls are the known failure. Include
   close-ups, standing and raised-arm views, and every robe row, not just 005 and 020. Scheduled for a later stage.
+
+## Firearm sounds
+
+The 15 WAVs are in `srn_sound`. Nothing plays them yet. SR_NWN owns the wiring, and its full weapon-to-sound mapping is deferred
+(`design/combat/PROJECTILE-SOUND-INTEGRATION-PLAN.md`, D377).
+
+| Sound | Intended trigger, from the file names and old rows |
+|---|---|
+| `fire_lt_pistol`, `fire_hvy_pistol`, `fire_sup_pistol`, `fire_aslt_rifle`, `fire_spt_rifle`, `fire_snp_rifle`, `fire_sup_rifle` | `ShotSound` in `ammunitiontypes.2da`, picked per weapon by the engine |
+| `ric_conc-1`, `ric_conc-2`, `ric_metal-1`, `ric_metal-2` | Old `visualeffects.2da` rows `richochette1` to `4`, or `ImpactSound` |
+| `dryfire_pistol`, `dryfire_rifle` | Old rows `p_ammo_empty` and `r_ammo_empty` |
+| `rocket` | Old rows `rocket_launcher` and `missile_launcher`, or `ShotSound` |
+| `reload_rocket` | No old row found, and no rocket reload clip exists yet |
+
+- Fire sounds don't go on clip events. The plan plays them through `ShotSound`, so a clip event would double them.
+- D377 mutes only the sling sound row, but the rifle and shotgun clips here play on a crossbow-class weapon through `xbowshot`.
+  The two need reconciling before rifles can use this path.
+- The set has no firearm reload sound. The old `firearm_reload1` isn't among these files.
+- No shotgun or SMG fire sound is named. A mapping must pick from the seven above or get new sounds.
