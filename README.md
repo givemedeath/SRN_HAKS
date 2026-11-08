@@ -151,6 +151,7 @@ For production workflows, pipelines, and manifests, see:
 - [Race Heads Runbook](docs/heads/race-heads-v1-runbook.md)
 - [Troll Head Reindex Manifest](docs/heads/troll-head-reindex-v1.md)
 - [Dwarf Male Pair Documentation](docs/heads/dwarf-male-pair-v1.md)
+- [Dwarf & Elf Head Trio Documentation](docs/heads/dwarf-elf-head-trio-v1.md)
 
 ## Subdirectories & System Boundaries
 
