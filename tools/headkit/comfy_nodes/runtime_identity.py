@@ -83,7 +83,7 @@ def same_runtime_environment(current, baseline):
 
 
 def capture_runtime_identity(folder_paths,comfy_source_inventory=None,*,session=None):
-    """Hash runtime bytes and bind the controlled session; loaded code is checked by the caller."""
+    """Hash runtime bytes and bind the controlled session; deployment is checked by the caller."""
     import torch
     core=Path(folder_paths.base_path).resolve(strict=True)
     covered=[str(core)]
@@ -133,7 +133,7 @@ def capture_runtime_identity(folder_paths,comfy_source_inventory=None,*,session=
             files.add(sibling.resolve(strict=True))
     files.update(archives)
     files.add(torch_path)
-    # One explicit pass shares hashes with source/loaded-code verification.
+    # One explicit pass shares hashes with deployment-file verification.
     # ContextVars do not propagate into executor workers. Keep the four-reader
     # implementation for standalone callers, and bind each worker explicitly.
     verification=CURRENT_PASS.get()

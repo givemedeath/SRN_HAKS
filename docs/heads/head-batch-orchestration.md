@@ -66,20 +66,24 @@ To use the installed smaller text-only stack, set `"profile": "qwen21-int8-v1"` 
 | Fit | `fitcheck` compares base profile and nose placements. For an explicit chin-down correction, set `fit.chinDownDegrees` on the head and rerun fit. Positive degrees rotate the fitted head about the head_g attachment in its local frame. An optional positive `fit.scaleMultiplier` scales uniformly. With nose alignment, `fit.realignAfterPose: true` translates the transformed nose back to the reference tip. Compare the exact receipts with `review --slot fitcheck --poses HEAD OLD_ATTEMPT NEW_ATTEMPT OUT.png`. The spooler also queues `review --slot fitcheck --reference HEAD ATTEMPT OUT.png` with matched front and side views of the bound reference and the posed head. Check the mouth seam, chin and eye heights on its millimetre rulers before neck work. If the whole head needs a vertical correction, `fit.heightOffset` shifts the finished pose in head-local metres. A negative value lowers it. To enlarge or shrink the fitted head uniformly while preserving its final XYZ placement and rotation, set `fit.localScaleMultiplier`. This multiplies all three local axes after positioning. Rerun fit and inspect the new sheet. |
 | Neck cut, before a repair | `slopescan` (seconds), `cutdry`, `cutreplay` (prints unverified for a skirt or several rings, which need the rewrap), `skirtzone` |
 | Shells | `shells`, `cutshells` |
-| Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `ownsheet` (a finished attempt's saved atlas), `rowramps` |
+| Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `ownsheet` (a finished attempt's saved atlas), `rowramps`; `irisrows HEAD ATTEMPT --rows N ...` previews explicit iris candidates before another palette pass |
 | Face marks | `design_landmarks OUT_DIR HEAD...` writes the `landmarks.json` the jaw guard reads; `OUT_DIR` must be absolute. Check both halves of the sheet. When silhouette registration misses the actual mesh eyes or mouth, supply separate `design` and `front` pixel maps in `--override` and inspect the new sheet. `front` is in the 1536-pixel mesh view. |
 
 After a rejected geometry, a selected replacement clay can use the original slot and diffuse image. Run `reference-check` on the new record and show the pair. Pass that exact check to `setup HEAD ORIGINAL_DESIGN --reference-record NEW_RECORD --revised-clay-check CHECK_JSON --approval WORDS`. This versions the clay under the head's inputs and preserves earlier submissions and conditioning. Run prepare and calibrate again before geometry. Review the new raw mesh before appearance.
 
+When both appearance and clay require correction, use `setup HEAD NEW_DESIGN --reference-record NEW_RECORD --revised-pair-check CHECK_JSON --approval WORDS` after selection and a fresh reference-check. This explicit paired revision versions all three image roles and the feature inventory on the same slot. It preserves original inputs, reviews, rejected GPU submissions and submission counts. A current accepted geometry or unresolved GPU dispatch blocks revision. The clay-only route still refuses a changed design or diffuse image. Run and review prepare, recalibrate, and review the next raw mesh before appearance.
+
+External ImageGen proposals and conditioning edits must write `design/submissions/HEAD/design-NNNN-submitted.json` before dispatch, including failures. Completion receipts do not spend another attempt. These records and legacy external-attempts/HEAD records share the same design cap as local launches; record an attempt in one submission ledger, not both.
+
 Quality-gate prototypes that headkit adopted are not here; nor are one-off audits from past batches.
 
-For a head that already ends at the jaw, compare `review --slot fitcheck --body-neck HEAD ATTEMPT OUT.png` in front, side, rear and under-jaw views. The blue surface is the actual body neck in the head attachment frame. If the uncut assembly is selected, use `setup --no-neck-cut` for a new head, or set the existing head’s `mesh.neck` override to `null` and rebuild its manifest. Keep the body-neck binding for assembly review. The shell selection and the repair visual gate still apply.
+For a head that already ends at the jaw, compare `review --slot fitcheck --body-neck HEAD ATTEMPT OUT.png` in front, side, rear and under-jaw views. The blue surface is the actual body neck in the head attachment frame. If the uncut assembly is selected, use `setup --no-neck-cut` for a new head, or set the existing headÃ¢â‚¬â„¢s `mesh.neck` override to `null` and rebuild its manifest. Keep the body-neck binding for assembly review. The shell selection and the repair visual gate still apply.
 
 For an uncut head, record the exact fit review before `slopescan` or `cutdry`. Both report the fitted jaw against the body neck and require a current fit approval. The dispatcher refuses a missing, pending, rejected or stale fit review before waiting for a CPU slot. Fit comparison and shell inspection remain available before that review.
 
 For a head that needs a neck cut, before the first repair, compare slopes, inspect shells, record any required component selection, then run `review --slot cutdry HEAD`. It rebuilds the uncut master in temporary storage using the current fit, smoothing and shell selection. Use `--attempt attempt-NN` to replay a saved master with current cut settings. Use `--verify-cut NEW_FOLDER` for a first dry run that needs closure proof. It runs the real cut including any required rewrap and master audit, retains the before and after meshes under `review-evidence`, and stops before reduction. A band measurement or an unverified replay cannot establish closure.
 
-For an unwrap stopped on coverage before face priority, `review --slot uvfinal HEAD ATTEMPT NEW_EVIDENCE_FOLDER` measures the final pack once against that attempt’s policy and reviewed repair. Compare the two atlas sheets, achieved facial density and the final checks. This diagnostic does not change a floor or launch bake.
+For an unwrap stopped on coverage before face priority, `review --slot uvfinal HEAD ATTEMPT NEW_EVIDENCE_FOLDER` measures the final pack once against that attemptÃ¢â‚¬â„¢s policy and reviewed repair. Compare the two atlas sheets, achieved facial density and the final checks. This diagnostic does not change a floor or launch bake.
 
 For a confirmed near miss, `mesh.uv.refinePacking: true` narrows the pack-density interval to 0.05% and checks for up to 1.5% spare scale when a changed layout fits on the first try. Use this for an explicitly selected retry. The coverage floor applies both before and after face priority.
 
@@ -117,7 +121,7 @@ A byte-identical, reviewed four-view prepare replay may reuse its original calib
 
 - CRLF in pinned headkit code;
 - unpinned files in the bound package tree, after removing stray bytecode;
-- a head over its stage loop budget, unless `HEAD/budget-override-STAGE` contains the exact `head`, `stage`, a bounded integer `maximumAttempts`, and the reviewer’s explicit `approval`;
+- a head over its stage loop budget, unless `HEAD/budget-override-STAGE` contains the exact `head`, `stage`, a bounded integer `maximumAttempts`, and the reviewerÃ¢â‚¬â„¢s explicit `approval`;
 - a repair on a head too close to its UV floor;
 - export or a later stage on palette rows missing from `spool/reviewed-rows.json`;
 - an ownership stage with no rules;
@@ -158,9 +162,9 @@ When refreshing `tools/test-impact.json` in a sparse worktree, include the compl
 
 ## Before publishing
 
-Check current shipped resources and in-progress reservations before using slot-catalog blocks. The Troll collection now occupies slots 001–020 for both sexes; see docs/heads/troll-head-reindex-v1.md. For authorized renumbering, use the bounded native renamer and whole-pack validation described there; filename-only changes leave internal model and PLT references behind.
+Check current shipped resources and in-progress reservations before using slot-catalog blocks. The Troll collection now occupies slots 001Ã¢â‚¬â€œ020 for both sexes; see docs/heads/troll-head-reindex-v1.md. For authorized renumbering, use the bounded native renamer and whole-pack validation described there; filename-only changes leave internal model and PLT references behind.
 
-Run a client trial, then check the four three-quarter views, one motion frame and a second look. See the client trial section of `docs/heads/head-generation-toolkit.md`.
+Run the built private trial with `run_headbatch.py client RACE --version N`. This reserves every workspace CPU lane and the shared GPU until the owned client exits; do not run tests, generation or other heavy work alongside it. The private profile automatically enables a 30 FPS foreground / 10 FPS background limiter and a decorated window no larger than 1920x1080. Admission requires 6 GiB free RAM and an idle Comfy queue; the client is supervised at a 4 GiB live RAM floor and the 12 GB sampled device budget. It stops only its own process on unsafe memory, a session STOP file or the 180-second deadline. Session settings, ownership and memory receipts are under trials/client-sessions; runtime/current-client.json identifies the current session. Review four three-quarter views, one motion frame and a second look, move the pointer outside the scene before neutral captures, then close normally before the deadline and verify closure. See the client trial section of `docs/heads/head-generation-toolkit.md`.
 
 Every confirmed mistake gets a guard and a row in `docs/heads/race-heads-v1-runbook.md`. Runbook rows name the original batch scripts; the table below gives their replacements.
 
@@ -241,7 +245,7 @@ traces against the decoded PLT.
 The spooler also queues `review --slot eyereference HEAD ATTEMPT OUT.png` for
 face-profile masks. This compares native reference and baked eye crops and saves
 a hash-bound registration proposal; it never approves or applies it. Inspect each
-opening, lid and iris before selecting the proposed `tone.referenceEyes` recipe.
+opening, lid and iris before selecting the proposed `tone.referenceEyes` recipe and its matching `faceMasks.eyeContours`. The proposal includes source-RGB-bound opening, visible iris and skin-lid polygons and a third native overlay; it never approves them. Select both, then rerun/review masks and ownership before tone. Missing contours refuse before a CPU lane or tone attempt.
 If a bake also blackens the lids, `includeLids: true` restores the reviewed
 `eyeContours.excludeBrow` skin region with a soft edge and front-depth matching.
 Only skin and iris texels change; hair, cyberware and hidden surfaces stay intact.
@@ -412,7 +416,7 @@ The workspace can set `comfy.multiviewGeometryStartRAMGiB` to reserve more host 
 
 External proposals and clay/diffuse edits share the same design cap. Record every submission once in design/external-attempts/HEAD/NNN.json, preserving the input, disposition and any resulting image pin. The local design launcher includes these records automatically.
 
-A GPU launch with a live host RAM cutoff waits for this workspace’s CPU workers to finish and reserves their lanes until dispatch returns. The CPU review sheet runs after releasing those lanes. The face-v1 setup profile uses refined UV packing at the normal thresholds.
+A GPU launch with a live host RAM cutoff waits for this workspaceÃ¢â‚¬â„¢s CPU workers to finish and reserves their lanes until dispatch returns. The CPU review sheet runs after releasing those lanes. The face-v1 setup profile uses refined UV packing at the normal thresholds.
 
 For measured client framing, set workspace `trialInspection.RACE` to an `inspect`
 object with per-prefix `height` and camera `distance` in meters. Derive eye height
@@ -445,3 +449,9 @@ The spooler also queues `review --slot hairgaps HEAD ATTEMPT OUTPUT` on ownershi
 If color rules leave scalp curls on skin, `review --slot hairgaps HEAD ATTEMPT OUTPUT --repair-skin-hair` makes a diagnostic 4K atlas and matching source-hash-bound atlas configuration. It restores only skin-owned hair supported by the current masks, protecting eye/lip masks and other channels. Inspect the candidate sheet, baldness, ears and roles before selecting it. Add the pinned candidate as local input `ownership4k` and select its atlas configuration with `ownership`; normal attempt budgets, saved-ownership review and all downstream checks still apply (RUNBOOK 318). Candidate evidence never approves or spends a production stage attempt.
 
 For GPU studio rendering, set workspace `renderDevice` to `{ "device": "GPU", "backend": "OPTIX", "gpuIndex": 0, "memoryLimitBytes": 12000000000 }` (the new workspace default). `manifest`/`setup` bind the same shared GPU lock and idle ComfyUI endpoint used by generation. An optional exact `deviceId` further restricts selection; PCI identity must match the sampled NVIDIA device. Per-head `render.compute` can explicitly select CPU. GPU jobs retain the normal CPU-slot/RAM admission and four host threads, serialize on the shared lane, and save sampled whole-device VRAM evidence. Failure never falls back to a long CPU render. All cameras, 2K/1K atlases, materials, samples and visual/client gates remain unchanged.
+
+A connected molding rim at the very bottom of long hair can use an explicitly selected `mesh.lowerHairTrim` policy: `{"sourceSha256":"<exact precluster SHA>","heightFraction":0.08,"hairOnlyReviewed":true,"notes":"Describe the measured hair-only band below the complete jaw"}`. It runs automatically in precluster, requires alphaWrap exterior repair, and keeps the original mesh. It refuses more than 10% of height or faces, upper triangles, stale sources, and simultaneous scalp patches. The open trimmed rim is a working result: inspect the repaired closure and long-hair silhouette before accepting it. It does not cut the body neck or approve appearance.
+
+For shoulder context, configure `bodyTorsoReferences` in workspace.json as a prefix-to-native-torso map (for example, pfe0 to your local pfe0_chest001.mdl). Setup stages that exact model as `inputs.bodyTorso`. The spooler automatically queues an upper-body sheet for each fit attempt; `review --slot fitassembly HEAD ATTEMPT NEW_SHEET.png` draws it directly. Its evidence freezes the actual skeleton, neck and torso, rejects inconsistent attachment frames, and leaves visual approval pending. The isolated neck part includes an internal cap, so use shoulder context to judge exposed throat length. `fit.depthOffset` is a body-frame translation in metres (negative moves back, within 5cm); `heightOffset` moves vertically. Both apply after pose/nose placement; `localScaleMultiplier` changes uniform size while retaining that origin. These are per-head measured settings, not race-wide replacement proportions.
+
+For a front-only or rear-only local `paint.operations` heal, declare `headSide: "front"` or `"rear"`. This uses the unposed head GLB frame: +z is front, normalized z0 is rear. The heal checks both actual target and donor surface points before changing color and records their depth range. It retains the 3% target, 5% donor and distance limits. Review the operation on the mesh from front and rear; an atlas alone does not establish which side was selected.

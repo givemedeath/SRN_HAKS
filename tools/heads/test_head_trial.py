@@ -192,6 +192,11 @@ class TrialHakTests(unittest.TestCase):
             found,ascii_model,pins=head_resources(item)
             self.assertEqual(found,self.own(16));self.assertEqual(ascii_model.name,'pmg0_head016.mdl');self.assertEqual(pins,[pin(hak)])
             with self.assertRaisesRegex(ValueError,'native stage builds'):head_resources({**item,'model':'pmg0_head017'})
+            policy={'policy':'stock-organic-head-v1','applied':True,'material':'oldm_head'}
+            (stage/'native.json').unlink();write_fresh(stage/'native.json',{**record,'nativeMaterial':policy})
+            with self.assertRaisesRegex(ValueError,'native material policy'):head_resources(item)
+            head_resources({**item,'nativeMaterial':policy})
+            (stage/'native.json').unlink();write_fresh(stage/'native.json',record)
             (stage/'native.json').unlink();write_fresh(stage/'native.json',{**record,'plt':{'path':'x','sha256':'0'*64}})
             with self.assertRaisesRegex(ValueError,'plt pin differs'):head_resources(item)
             write_hak(hak,self.own(16)[:1])

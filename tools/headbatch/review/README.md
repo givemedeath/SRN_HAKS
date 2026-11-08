@@ -44,7 +44,10 @@ A comprehensive suite of read-only diagnostic tools, visual contact sheet render
 - [`own_draft.py`](./own_draft.py#L1-L38): Previews vertex assignment for draft ownership rules offline.
 - [`ownsheet.py`](./ownsheet.py#L1-L53): Visualizes finished ownership atlas partitions on consumed UV meshes.
 
+- [eyereference.py](./eyereference.py): Retains native reference/front eye crops if registration or contour proposal fails; failed proposals remain unapproved and do not supply usable eye contours.
+
 ### Fit & Landmarks
+- [fitassembly.py](./fitassembly.py): Compares the exact fit attempt and stock reference against the pinned torso/neck in the head attachment frame.
 - [`design_landmarks.py:detect(image, refine)`](./design_landmarks.py#L32-L78): Detects 2D/3D facial landmarks from source imagery for landmark-based fitting.
 - [`fitcheck.py`](./fitcheck.py#L1-L38): Verifies nose-tip positioning and profile scaling in the fit matrix.
 - [`exportfit.py:check(head, export_mdl)`](./exportfit.py#L10-L28): Validates native MDL export dimensions against reviewed fit matrices and Troll sizing policies.

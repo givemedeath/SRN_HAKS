@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'phenotypes'))
 from build_test_module import field
 from tool_runtime import tool
-from head_workflow import model_name,pin,read,require,sha,write_fresh
+from head_workflow import model_name,pin,read,require,sha,write_fresh,verify_pins
 from verify_head_hak import TYPES,payload,write_hak
 import build_head_fixture as fixture
 
@@ -194,6 +194,7 @@ def head_resources(head):
     if 'native' in head:
         stage=Path(head['native']);record=read(stage/'native.json')
         require(record.get('model')==head['model'],head['id']+': native stage builds '+str(record.get('model')))
+        require(head.get('nativeMaterial')==record.get('nativeMaterial'),head['id']+': native material policy differs from the trial spec')
         hak=stage/(head['model']+'.hak')
         require(hak.is_file() and sha(hak)==record['hak']['sha256'],head['id']+': native HAK differs from native.json')
         found=entries(hak);hashes=payload(hak)
@@ -471,10 +472,30 @@ def readme(spec,actors,hak_order):
     return '\n'.join(lines)
 
 
+
+def stock_material_inputs(spec):
+    wanted = {head['nativeMaterial']['material']:head['nativeMaterial']['expectedStockSha256']
+              for head in spec['heads'] if head.get('nativeMaterial',{}).get('applied')}
+    proof_pin = spec.get('stockMaterialCheck')
+    require(not wanted or proof_pin is not None, 'Stock head materials need a current trial check')
+    if proof_pin is None:
+        return []
+    verify_pins([proof_pin]);proof=read(proof_pin['path'])
+    require(proof.get('kind')=='headbatch-stock-material-check-v1' and proof.get('passed') is True
+            and proof.get('expected')==wanted and proof.get('baseHaks')==spec['base']['haks']
+            and Path(proof.get('gameRoot','')).resolve()==Path(spec['gameRoot']).resolve(),
+            'Stock material check belongs to different trial inputs')
+    payloads = [row['payload'] for row in proof['materials'].values()]
+    require(set(proof['materials'])==set(wanted) and all(
+        row['payload']['sha256']==wanted[name] for name,row in proof['materials'].items()),
+        'Stock material check omitted or changed a material')
+    pins = [proof_pin,*proof['inputs'],*payloads];verify_pins(pins)
+    return [Path(row['path']) for row in pins]
+
 def input_paths(spec_path):
     """Every file build() reads, for the guarded launcher's frozen input list: the spec, base HAKs and module, each head's
     native.json, HAK and ASCII model (or its declared resources and ASCII), and shared resources."""
-    spec=validate_spec(read(spec_path));paths=[Path(spec_path)]
+    spec=validate_spec(read(spec_path));paths=[Path(spec_path),*stock_material_inputs(spec)]
     paths+=[Path(item['path']) for item in spec['base']['haks']+[spec['base']['module']]]
     for head in spec['heads']:
         if 'native' in head:
@@ -485,11 +506,12 @@ def input_paths(spec_path):
             paths+=[Path(item) for item in head['resources']]
             if head.get('ascii'):paths.append(Path(head['ascii']))
     paths+=[Path(item) for item in spec['shared']]
-    return [str(path.resolve()) for path in paths]
+    return list(dict.fromkeys(str(path.resolve()) for path in paths))
 
 
 def build(spec_path,output):
     spec=validate_spec(read(spec_path));output=Path(output)
+    stock_material_inputs(spec)
     require(not output.exists(),'Fresh trial output folder required')
     base_haks=spec['base']['haks'];base_module=spec['base']['module']
     for item in base_haks+[base_module]:

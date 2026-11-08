@@ -249,12 +249,12 @@ class ControlledStartupTests(unittest.TestCase):
         self.assertEqual(dict(os.environ),old_environment);self.assertEqual(sys.path,old_path);self.assertIs(sys.argv,old_argv)
         self.assertNotIn(startup.SESSION_MODULE,sys.modules)
 
-    def test_default_launch_composes_controlled_and_import_time_verification(self):
+    def test_default_launch_uses_verified_deployment_without_retired_census(self):
         with patch.object(sys,'executable',str(self.python)),patch.object(sys,'flags',types.SimpleNamespace(isolated=1)), \
              patch.object(sys,'dont_write_bytecode',True),patch.object(startup,'_STARTED',[]), \
              patch.object(startup.runpy,'run_path') as execute:
             startup.start(self.path,self.root/'verified-receipt.json')
-        execute.assert_called_once_with(str(self.adapter/'verified_startup.py'),run_name='__main__')
+        execute.assert_called_once_with(str(self.core/'main.py'),run_name='__main__')
 
     def test_second_start_requires_a_fresh_interpreter(self):
         with patch.object(sys,'executable',str(self.python)),patch.object(sys,'flags',types.SimpleNamespace(isolated=1)), \
@@ -406,9 +406,11 @@ class ControlledStartupTests(unittest.TestCase):
         exec(compile(ast.Module(body=[handler],type_ignores=[]),str(source),'exec'),namespace)
         run=lambda:asyncio.run(namespace['verify_headkit_runtime_identity'](None))
         self.assertEqual(run(),(200,baseline))
-        namespace['loaded_source_code'].side_effect=ValueError('stale callback')
-        self.assertEqual(run(),(409,{'verified':False}))
-        namespace['loaded_source_code'].side_effect=None
+        # The documented deployment contract does not census mutable objects.
+        # A sentinel proves this retired path is never consulted during dispatch.
+        namespace['loaded_source_code'].side_effect=AssertionError('retired census invoked')
+        self.assertEqual(run(),(200,baseline))
+        namespace['loaded_source_code'].assert_not_called()
         namespace['capture_runtime_identity'].return_value={**baseline,'files':['changed']}
         self.assertEqual(run(),(409,{'verified':False}))
         namespace['capture_runtime_identity'].return_value=baseline
@@ -428,7 +430,9 @@ class ControlledStartupTests(unittest.TestCase):
                    'HEAVY_VERIFICATION_LOCK':HEAVY_VERIFICATION_LOCK,'verification_pass':verification_pass,
                    'logging':Mock(),'json':json,'__name__':'adapter_fixture','loaded_source_code':Mock(return_value=[])}
         exec(compile(ast.Module(body=[helper],type_ignores=[]),str(source),'exec'),namespace)
+        namespace['loaded_source_code'].side_effect=AssertionError('retired census invoked')
         self.assertEqual(namespace['_capture_startup'](),(self.inventory,session,{'files':[]}))
+        namespace['loaded_source_code'].assert_not_called()
         namespace['session_context'].side_effect=ValueError('unmanaged')
         self.assertEqual(namespace['_capture_startup'](),(None,None,None))
 

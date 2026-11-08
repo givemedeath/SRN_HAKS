@@ -16,14 +16,23 @@ NEIGHBOURS = 32
 MIN_DONORS = 6
 
 
-def _feature_region(mask, selected, mapped, positions):
+def _feature_region(mask, selected, mapped, positions, *, surface_growth=False):
     """Grow the soft feature only from same-material samples close in 3D.
 
     Adjacent UV islands need not be adjacent on the head. A parser feature on
     another material is not an anchor for a newly included skin/hair texel.
     """
     seed = mapped & selected & (mask > .02)
-    extra = mapped & selected & binary_dilation(mask > .5, iterations=2) & ~seed
+    if surface_growth and seed.any():
+        width = float(np.ptp(positions[mapped, 0]))
+        require(width > 0, 'Feature highlights need a nonzero head width')
+        # Ownership can restore source-supported brow hairs across a UV seam.
+        # Bound the candidate set in 3D before the exact same-material query.
+        anchors = positions[seed]; radius = RADIUS*width
+        near = np.all((positions >= anchors.min(0)-radius) & (positions <= anchors.max(0)+radius), axis=2)
+        extra = mapped & selected & near & ~seed
+    else:
+        extra = mapped & selected & binary_dilation(mask > .5, iterations=2) & ~seed
     if not extra.any():
         return seed, 0
     if not seed.any():
@@ -60,7 +69,7 @@ def repair_channel(picked, selected, features, positions, mapped, allowed, chann
             'Feature highlights need channel shades and sorted eligible shades')
     protected = np.zeros_like(mapped) if preserve is None else np.asarray(preserve, bool)
     require(protected.shape == mapped.shape, 'Feature highlight preservation must match the atlas')
-    region, rejected = _feature_region(mask, selected, mapped, positions)
+    region, rejected = _feature_region(mask, selected, mapped, positions, surface_growth=name == 'brow')
     report['maskExpansionRejectedTexels'] = rejected
     field = np.zeros(mapped.shape, float)
     field[selected] = picked
@@ -87,7 +96,7 @@ def repair_channel(picked, selected, features, positions, mapped, allowed, chann
         report.update(referenceP90=float(face90), referenceP95=float(face95), shoulder=24)
         return _finish(field, picked, selected, mapped, protected, allowed, report)
     core = binary_erosion(region) & (mask > .75) & ~protected
-    edge = region & ~binary_erosion(region, iterations=3) & ~protected
+    edge = region & (~binary_erosion(region, iterations=3) | (mask <= .75)) & ~protected
     report.update(edgeTexels=int(edge.sum()), donorTexels=int(core.sum()), unsupportedTexels=int(edge.sum()))
     if core.sum() < MIN_DONORS or not edge.any():
         return picked, report

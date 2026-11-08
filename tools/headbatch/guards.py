@@ -27,7 +27,9 @@ class Refused(Exception):
 def coverage(receipt):
     """2K UV coverage from an unwrap receipt, passed or refused for coverage; None for any other failure."""
     if receipt.get('result'):
-        return receipt['result']['pixelAudits']['2048']['coverageFraction']
+        result=receipt['result']
+        if result.get('imported'):return result.get('audits',{}).get('2048',{}).get('raster',{}).get('coverageFraction')
+        return result['pixelAudits']['2048']['coverageFraction']
     found = COVERAGE.search(str(receipt.get('error', '')))
     return float(found[1]) if found else None
 
@@ -95,6 +97,13 @@ def ownership_rules(head):
     ownership = read(head/'manifest.json')['ownership']
     if ownership.get('mode') == 'rules' and not ownership.get('rules'):
         raise Refused(f'{head.name}: ownership has no rules (RUNBOOK 98)')
+
+
+def reference_eye_prerequisites(head):
+    data = read(head/'manifest.json')
+    if 'referenceEyes' in data.get('tone', {}) and not data.get('faceMasks', {}).get('eyeContours'):
+        raise Refused(f'{head.name}: reference-eye repair needs reviewed faceMasks.eyeContours before tone; '
+                      'select both recipes from the exact eye-reference proposal, then rerun masks and ownership')
 
 
 def ownership_roles(head):
@@ -176,6 +185,9 @@ def design_cap(folder, head):
     count = len(list((folder/'launches').glob(f'launch-*-{head}-s*')))
     # External proposals and conditioning edits spend the same slot budget as local launches.
     count += sum(1 for entry in (folder/'external-attempts'/head).glob('*.json') if entry.is_file())
+    # Imagegen proposals and edits record submission before dispatch, including failures.
+    # Completion receipts are separate and must not count a second time.
+    count += sum(1 for entry in (folder/'submissions'/head).glob('design-*-submitted.json') if entry.is_file())
     if count < DESIGN_CAP:
         return
     exception = folder/f'design-cap-override-{head}'
@@ -248,6 +260,18 @@ def jaw(head, landmarks, attempt=None):
 
 def unwrap_gates(receipt):
     """(passed, summary) from one unwrap receipt's result: no bad faces, no gutter bleed, subtexel pass, geometry unchanged."""
+    if receipt.get('imported'):
+        audits=receipt.get('audits',{})
+        floor=receipt.get('coverageFloor',UV_DEFAULT_FLOOR)
+        passed=set(audits)=={'4096','2048','1024'}
+        for size,row in audits.items():
+            raster=row.get('raster',{})
+            passed=passed and not raster.get('overlapFaces',[1]) and not raster.get('degenerateUvFaces',[1])
+            passed=passed and raster.get('subtexel',{}).get('passed') is True and raster.get('coverageFraction',0)>=floor
+        # Match audit_imported_uvs: original charts remain fixed; reject immediate 1K neighbours.
+        neighbours=audits.get('1024',{}).get('gutters',{}).get('nearbyChartPixelsByRadius',{})
+        passed=passed and neighbours.get('1',1)==0
+        return bool(passed), f'imported UV audits passed {bool(passed)} at floor {floor}; 1K neighbours {neighbours}'
     last = receipt['attempts'][-1]
     gutters = {size: sum(row['nearbyChartPixelsByRadius'].values()) for size, row in receipt['gutters'].items()}
     subtexel = all(row['passed'] for row in last['subtexel'].values())

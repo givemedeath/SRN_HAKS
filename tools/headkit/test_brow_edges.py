@@ -35,6 +35,28 @@ class UpperLids(unittest.TestCase):
         self.assertFalse(upper_lids(hit.shape,pts,hit,'right')[:,90:].any())
         with self.assertRaises(ValueError):upper_lids(hit.shape,pts,hit,'top')
 
+
+    def test_full_gap_guards_false_brow_tails_but_preserves_real_hair_locks(self):
+        pts=landmarks();hit=np.ones((100,180),bool);hair=np.zeros_like(hit)
+        old=upper_lids(hit.shape,pts,hit)
+        full=upper_lids(hit.shape,pts,hit,source_hair=hair)
+        self.assertFalse(old[38,40]);self.assertTrue(full[38,40])
+        self.assertTrue(full[38,68])  # an inner brow tail beyond the old horizontal limit
+        self.assertFalse(full[30,40] or full[57,40])
+        hair[36:42,35:45]=True
+        protected=upper_lids(hit.shape,pts,hit,source_hair=hair)
+        self.assertFalse(protected[38,40]);self.assertTrue(protected[45,40])
+        region={'labels':np.zeros(hit.shape,np.uint8),'pts':pts,'view':{'hit':hit}}
+        channel=np.zeros(hit.shape,np.uint8);channel[38,40]=1
+        self.assertEqual(upper_lid_hair_pixels(region,channel),1)
+        region['labels'][hair]=17
+        self.assertEqual(upper_lid_hair_pixels(region,channel),0)
+        self.assertFalse(upper_lids(hit.shape,pts,hit,'left',source_hair=hair)[:,:90].any())
+        with self.assertRaisesRegex(ValueError,'matching boolean'):
+            upper_lids(hit.shape,pts,hit,source_hair=np.zeros((2,2),bool))
+        with self.assertRaisesRegex(ValueError,'matching boolean'):
+            upper_lids(hit.shape,pts,hit,source_hair=np.zeros(hit.shape,np.uint8))
+
     def test_skin_precedes_recovery_and_protects_other_materials(self):
         labels=np.array([[1,0,8,3,9,1,0]],np.uint8)
         mapped=np.array([[1,1,1,1,1,0,1]],bool)
@@ -64,7 +86,8 @@ class UpperLids(unittest.TestCase):
             path=root/'view.npz';np.savez(path,hit=np.ones(shape,bool));files['frontView']={'path':str(path)}
             labels=np.ones((4,4),np.uint8);labels[1,1]=8;mapped=np.ones_like(labels,bool)
             lid=np.zeros_like(labels);lid[0,0]=lid[1,1]=255
-            def project(value,view,regions,size):
+            def project(value,view,regions,size,*,visible_only=()):
+                self.assertEqual(visible_only,('upperLid',))
                 self.assertTrue(regions['upperLid'].any());self.assertFalse(regions['browEdge'].any())
                 return {'upperLid':lid,'browEdge':np.zeros_like(labels)},{}
             with patch('headkit.brow_edges.project',side_effect=project):

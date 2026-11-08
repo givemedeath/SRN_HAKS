@@ -53,7 +53,9 @@ def parser():
     p.add_argument('head')
     p.add_argument('design')
     p.add_argument('--reference-record', type=Path)
-    p.add_argument('--revised-clay-check', type=Path, help='select a checked replacement clay on the existing slot and preserve the GPU ledger')
+    revisions = p.add_mutually_exclusive_group()
+    revisions.add_argument('--revised-clay-check', type=Path, help='select a checked replacement clay on the existing slot and preserve the GPU ledger')
+    revisions.add_argument('--revised-pair-check', type=Path, help='select a checked replacement clay/detail/design pair on the same slot without resetting its history')
     p.add_argument('--quality-profile', choices=['face-v1'])
     p.add_argument('--no-neck-cut', action='store_true', help='preserve a jaw-terminated head for review against the bound body neck')
     p.add_argument('--approval', required=True, help='who picked the design and on what basis')
@@ -98,6 +100,9 @@ def parser():
     p.add_argument('race')
     p.add_argument('--version', default='1')
     p = commands.add_parser('trial', help='build trials/NAME-vN from its spec')
+    p.add_argument('name')
+    p.add_argument('--version', default='1')
+    p = commands.add_parser('client', help='supervised private client; reserve batch CPU lanes and shared GPU until exit')
     p.add_argument('name')
     p.add_argument('--version', default='1')
     p = commands.add_parser('spool', help='auto-advance queued heads')
@@ -145,7 +150,10 @@ def main(argv=None):
     args = parser().parse_args(argv)
     try:
         workspace = Workspace.load(args.workspace)
-        if args.command == 'setup' and args.revised_clay_check:
+        if args.command == 'setup' and args.revised_pair_check:
+            print('revised pair', head_setup.revise_pair(workspace, args.head, args.design, args.reference_record,
+                                                        args.revised_pair_check, args.approval))
+        elif args.command == 'setup' and args.revised_clay_check:
             print('revised clay', head_setup.revise_clay(workspace, args.head, args.design, args.reference_record,
                                                         args.revised_clay_check, args.approval))
         elif args.command == 'setup':
@@ -199,6 +207,9 @@ def main(argv=None):
             print(out, count, 'heads')
         elif args.command == 'trial':
             print(trials.build(workspace, args.name, args.version))
+        elif args.command == 'client':
+            import client_trial
+            print(client_trial.launch(workspace, args.name, args.version))
         elif args.command == 'spool':
             spool.Spool(workspace).loop(args.once)
         elif args.command == 'presets':

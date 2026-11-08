@@ -33,8 +33,9 @@ def head_entry(workspace, name, slot):
     if palette is None:
         raise guards.Refused(f'{name}: {native.name} of native has no palette lineage, so its rows are unknown')
     rows = guards.read(palette/'receipt.json')['result']['rows']
+    material = guards.read(native/'receipt.json').get('result',{}).get('nativeMaterial')
     # metalRow 0: the game shows stock metal row 0 on heads without armour; palette metal pins only steer previews.
-    return {'id': name, 'model': slot, 'native': (native/'native').as_posix(), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
+    return {'id': name, 'model': slot, 'native': (native/'native').as_posix(), **({'nativeMaterial':material} if material is not None else {}), 'skinRows': rows_with_alternates(rows['0'], ALTERNATE_SKIN_ROWS),
             'hairRows': rows_with_alternates(rows['1'], ALTERNATE_HAIR_ROWS),
             'tattoo1Rows': rows_with_alternates(rows.get('8',0),(0,26)),
             'tattoo2Rows': rows_with_alternates(rows.get('9',0),(0,26)), 'tattoo1Row': rows.get('8', 0), 'tattoo2Row': rows.get('9', 0), 'metalRow': 0, 'helmets': []}
@@ -109,37 +110,62 @@ def write_spec(workspace, race, version):
     framing=inspection_view(workspace,race)
     if framing:
         spec['inspect']=framing
+    from stock_materials import check
+    with launcher.cpu_slot(workspace):
+        material_check = check(workspace,spec,workspace.root/'specs'/f'materials-{race}-v{version}')
+    if material_check is not None:
+        spec['stockMaterialCheck'] = material_check
     out = workspace.root/'specs'/f'trial-{race}-v{version}.json'
     write_json(out, spec)
     return out, len(heads)
 
 
 def inspection_settings(source, output):
-    """Configure neutral hover and targeting feedback in the isolated client only."""
+    """Bound private QA rendering and neutralize selection feedback; preserve personal settings."""
     data = Path(source).read_text(encoding='utf-8-sig') if source else ''
     before = tomllib.loads(data)
-    # Leave all other tables intact, including the client's embedded settings schema.
+    window = before.get('graphics', {}).get('window', {}).get('windowed', {})
+    controls = {
+        'ui': {'mouseover-feedback': False, 'targeting-feedback-mode': 0},
+        'graphics.framelimiter': {'enabled': True},
+        'graphics.framelimiter.foreground': {'target-fps': 30},
+        'graphics.framelimiter.background': {'target-fps': 10},
+        'graphics.framelimiter.non-interactive': {'target-fps': 10},
+        'graphics.window': {'mode': 'windowed'},
+        'graphics.window.windowed': {
+            'borderless': False,
+            'width': min(1920, max(640, int(window.get('width', 1920)))),
+            'height': min(1080, max(480, int(window.get('height', 1080))))},
+    }
+    # Keep the embedded ~~schema byte-for-byte: it is not a live settings table.
     sections = re.split(r'(?m)^(?=[ \t]*\[)', data)
-    index = next((i for i, text in enumerate(sections) if text.partition('\n')[0].strip() == '[ui]'), None)
-    if index is None:
-        sections.extend(['\n', '[ui]\n'])
-        index = len(sections) - 1
-    lines = sections[index].splitlines(keepends=True)
-    if not lines[0].endswith('\n'):
-        lines[0] += '\n'
-    values = {'mouseover-feedback': False, 'targeting-feedback-mode': 0}
-    for key, value in values.items():
-        line = f'\t{key} = {str(value).lower()}\n'
-        old = next((i for i, text in enumerate(lines[1:], 1) if re.match(r'^\s*'+key+r'\s*=', text)), None)
-        if old is None:
-            lines.insert(1, line)
-        else:
-            lines[old] = line
-    sections[index] = ''.join(lines)
+    for table, values in controls.items():
+        index = next((i for i, text in enumerate(sections)
+                      if text.partition('\n')[0].strip() == f'[{table}]'), None)
+        if index is None:
+            sections.extend(['\n', f'[{table}]\n'])
+            index = len(sections)-1
+        lines = sections[index].splitlines(keepends=True)
+        if not lines[0].endswith('\n'):
+            lines[0] += '\n'
+        for key, value in values.items():
+            literal = ('true' if value else 'false') if isinstance(value, bool) else (
+                '"'+value+'"' if isinstance(value, str) else str(value))
+            line = f'\t{key} = {literal}\n'
+            old = next((i for i, text in enumerate(lines[1:], 1)
+                        if re.match(r'^\s*'+re.escape(key)+r'\s*=', text)), None)
+            if old is None:
+                lines.insert(1, line)
+            else:
+                lines[old] = line
+        sections[index] = ''.join(lines)
+        expected = before
+        for part in table.split('.'):
+            expected = expected.setdefault(part, {})
+        expected.update(values)
     result = ''.join(sections)
-    before.setdefault('ui', {}).update(values)
     if tomllib.loads(result) != before:
-        raise ValueError('Inspection settings changed outside the two feedback controls')
+        raise ValueError('Inspection settings changed outside private QA controls')
     Path(output).write_text(result, encoding='utf8')
 
 

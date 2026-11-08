@@ -184,8 +184,10 @@ def start(path,receipt,*,execute=None):
             sys.pycache_prefix=cache;sys.modules[SESSION_MODULE]=holder
             try:
                 if execute is None:
-                    # Controlled deployment and import-time source proof are complementary.
-                    runpy.run_path(str(Path(__file__).with_name('verified_startup.py')),run_name='__main__')
+                    # The frozen deployment is verified above and again on exit/requests.
+                    # A fresh bytecode cache prevents stale imports; trusted plugins are
+                    # the documented boundary, without the retired object/AST census.
+                    runpy.run_path(args[0],run_name='__main__')
                 else:
                     execute(args[0],run_name='__main__')
                 evidence['state']='complete'

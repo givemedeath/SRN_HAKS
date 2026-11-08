@@ -118,6 +118,30 @@ class LocalPaintTests(unittest.TestCase):
         self.assertEqual(int(mask.sum()),9)
 
 
+    def test_declared_head_heal_side_checks_actual_target_and_donor_before_painting(self):
+        from headkit.paint import heal
+        n=64;ys,xs=np.mgrid[:n,:n]
+        coords=np.array([[0.,0.],[1.,0.],[0.,1.],[1.,1.]])
+        faces=np.array([[0,1,2],[1,3,2]])
+        mesh={'uv':coords[faces],'positions':np.column_stack((coords,coords[:,1])),'faces':faces}
+        for side,target_y,donor_y,valid in [('rear',20,20,True),('rear',44,44,False),
+                                            ('rear',20,44,False),('front',44,44,True),('sideways',20,20,False)]:
+            with self.subTest(side=side,target=target_y,donor=donor_y):
+                rgb=np.full((n,n,3),50,np.uint8)
+                rgb[target_y:target_y+3,20:23]=[200,0,0]
+                rgb[donor_y:donor_y+3,24:27]=[0,200,0]
+                initial=rgb.copy()
+                def values():return {'mapped':np.ones((n,n),bool),'face':(xs+ys>=n).astype(int),'r':rgb[...,0],'g':rgb[...,1]}
+                op={'name':'side-bound','headSide':side,'target':{'of':'r','gt':190},'donor':{'of':'g','gt':190},'offset':[4/n,0,0]}
+                if valid:
+                    report={};mask=heal(mesh,rgb,op,report,values,{})['side-bound']
+                    self.assertEqual(report['headSide'],side)
+                    np.testing.assert_array_equal(rgb[~mask],initial[~mask])
+                else:
+                    with self.assertRaisesRegex(ValueError,'Head heal'):heal(mesh,rgb,op,{},values,{})
+                    np.testing.assert_array_equal(rgb,initial)
+
+
 class BrowEdgeTests(unittest.TestCase):
     def test_seed_edges_stay_near_core_and_outside_lids_and_exclusions(self):
         from headkit.brow_edges import fringe
@@ -248,3 +272,108 @@ class SemanticMask(unittest.TestCase):
                 mask=np.asarray(image);self.assertTrue((mask==255).any());self.assertTrue((mask==0).any())
 
 if __name__=='__main__':unittest.main()
+
+
+class MaterialHealContract(unittest.TestCase):
+    def test_material_declaration_is_opt_in_hair_only_and_source_bound(self):
+        from headkit.paint import material_hint
+        source={'sha256':'exact'}
+        op={'op':'heal','name':'repair','materialChannel':1,'sourceSha256':'exact','notes':'Measured hair pigment defect'}
+        self.assertEqual(material_hint(op,source)['channel'],1)
+        self.assertIsNone(material_hint({'op':'heal'},source))
+        for change in ({'sourceSha256':'stale'},{'materialChannel':0},{'materialChannel':True},
+                       {'notes':''},{'op':'fill'}):
+            with self.subTest(change=change),self.assertRaises(ValueError):
+                material_hint(dict(op,**change),source)
+
+    def test_material_selection_keeps_priority_and_never_mutates_authored_rules(self):
+        from copy import deepcopy
+        from headkit.common import pin
+        from headkit.paint import material_ownership
+        with tempfile.TemporaryDirectory() as tmp:
+            source=Path(tmp)/'uv.glb';source.write_bytes(b'geometry')
+            digest=pin(source)['sha256'];mask={'path':'local-mask.png','sha256':'mask'}
+            hint={'name':'local','channel':1,'sourceSha256':digest,'mask':mask}
+            painted={'source':pin(source),'masks':{'local':mask},'ownershipHints':[hint]}
+            original={'mode':'rules','rules':[{'name':'skin','channel':0,'when':{'mapped':True}}]}
+            before=deepcopy(original)
+            selected=material_ownership(original,painted,source)
+            self.assertEqual(original,before)
+            self.assertEqual(selected['rules'][0]['when'],{'mask':'local'})
+            self.assertNotIn('overFaceMasks',selected['rules'][0])
+            self.assertEqual(selected['rules'][1],before['rules'][0])
+            for invalid in (dict(painted,source={'sha256':'other'}),dict(painted,masks={'local':{'sha256':'other'}})):
+                with self.assertRaises(ValueError):material_ownership(original,invalid,source)
+            with self.assertRaises(ValueError):material_ownership({'mode':'atlas'},painted,source)
+            self.assertIs(material_ownership(original,{},source),original)
+
+    def test_semantic_protection_and_runtime_ownership_are_independent_refusal_gates(self):
+        from headkit.common import pin
+        from headkit.paint import audit_material_hints
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'mask.png';mask=np.zeros((4096,4096),np.uint8);mask[100:108,100:108]=255
+            Image.fromarray(mask).save(path)
+            painted={'ownershipHints':[{'name':'local','channel':1,'mask':pin(path)}]}
+            labels=np.zeros(mask.shape,np.uint8);labels[mask>0]=1
+            onek=np.zeros((1024,1024),np.uint8);onek[25:27,25:27]=1
+            mapped=np.ones(mask.shape,bool)
+            report=audit_material_hints(labels,onek,painted,mapped)
+            self.assertEqual(report[0]['wrong4k'],0);self.assertEqual(report[0]['wrong1k'],0)
+            self.assertEqual(report[0]['runtimeTexels'],4)
+            for scale in (4096,1024):
+                wrong4k=labels.copy();wrong1k=onek.copy()
+                if scale==4096:wrong4k[102,102]=0
+                else:wrong1k[25,25]=0
+                before4k=wrong4k.copy();before1k=wrong1k.copy()
+                with self.subTest(scale=scale),self.assertRaisesRegex(ValueError,'conflicts'):
+                    audit_material_hints(wrong4k,wrong1k,painted,mapped)
+                np.testing.assert_array_equal(wrong4k,before4k);np.testing.assert_array_equal(wrong1k,before1k)
+
+    def test_unknown_uv_or_material_fields_cannot_authorize_production_hints(self):
+        from headkit.paint import material_ownership
+        from headkit.common import pin
+        with tempfile.TemporaryDirectory() as tmp:
+            source=Path(tmp)/'uv.glb';source.write_bytes(b'geometry')
+            mask={'path':'mask','sha256':'x'};digest=pin(source)['sha256']
+            for field in ({'channel':0},{'sourceSha256':'stale'},{'mask':{}}):
+                hint=dict({'name':'local','channel':1,'sourceSha256':digest,'mask':mask},**field)
+                painted={'source':pin(source),'masks':{'local':mask},'ownershipHints':[hint]}
+                with self.assertRaises(ValueError):material_ownership({'mode':'rules','rules':[]},painted,source)
+
+
+    def test_explicit_local_heal_overrides_soft_skin_but_refuses_anatomical_materials(self):
+        from headkit.paint import apply_material_hints
+        from headkit.common import pin
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'mask.png';mask=np.zeros((4096,4096),np.uint8);mask[100:108,100:108]=255
+            Image.fromarray(mask).save(path)
+            painted={'ownershipHints':[{'name':'local','channel':1,'mask':pin(path)}]}
+            labels=np.zeros(mask.shape,np.uint8);mapped=np.ones(mask.shape,bool)
+            zero=np.zeros(mask.shape,np.float32)
+            features={name:zero for name in ('eye','iris','ear','lips','nose')}
+            result=apply_material_hints(labels,painted,features,mapped)
+            self.assertTrue(np.all(result[mask>0]==1))
+            self.assertTrue(np.all(result[mask==0]==0))
+            self.assertTrue(np.all(labels==0))
+            for name in features:
+                blocked=zero.copy();blocked[102,102]=1
+                with self.subTest(feature=name),self.assertRaisesRegex(ValueError,'protected'):
+                    apply_material_hints(labels,painted,dict(features,**{name:blocked}),mapped)
+            other=labels.copy();other[102,102]=9
+            with self.assertRaisesRegex(ValueError,'another material'):apply_material_hints(other,painted,features,mapped)
+
+    def test_half_block_ties_are_not_reported_as_strict_runtime_interiors(self):
+        from headkit.common import pin
+        from headkit.paint import audit_material_hints
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'mask.png';mask=np.zeros((4096,4096),np.uint8)
+            mask[100:104,100:104]=255
+            mask[104:106,104:108]=255
+            Image.fromarray(mask).save(path)
+            labels=np.zeros_like(mask);labels[mask>0]=1
+            onek=np.zeros((1024,1024),np.uint8);onek[25,25]=1
+            painted={'ownershipHints':[{'name':'local','channel':1,'mask':pin(path)}]}
+            report=audit_material_hints(labels,onek,painted,np.ones_like(mask,bool))
+            self.assertEqual(report[0]['runtimeTexels'],1)
+            self.assertEqual(report[0]['boundaryTies'],1)
+            self.assertEqual(report[0]['wrong1k'],0)

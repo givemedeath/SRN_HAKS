@@ -12,7 +12,7 @@ import time
 from gpu_job import SHAPE_NODE, Comfy, file_from
 import gpu_contract
 import guards
-from head_files import complete, decision, write_json, sha
+from head_files import complete, current, decision, write_json, sha
 from headkit.comfy import locked
 from workspace import PYTHON, REPO, TOOLS
 
@@ -142,6 +142,8 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None, attempt
                 guards.uv_margin(head)
             if 'ownership' in stage_list:
                 guards.ownership_rules(head)
+            if 'tone' in stage_list:
+                guards.reference_eye_prerequisites(head)
             if attempt:
                 guards.approved_attempt(head, approve, attempt)
             if approve == 'repair':
@@ -209,13 +211,15 @@ def status(workspace):
         receipt = guards.read(newest)
         state = 'failed' if receipt.get('error') else 'ran'
         stage = newest.parts[-3]
-        reviewed = stage == 'render' and decision(head, stage) == 'approved'
+        reviewed = (state != 'failed' and current(head, stage) == newest.parent.name
+                    and decision(head, stage) == 'approved')
         delivery = receipt.get('result', {}).get('delivery', {})
         full = (delivery.get('diagnostic') is False and delivery.get('sizes') == [2048, 1024]
                 and delivery.get('runtimePalette') is True
                 and set(delivery.get('modes', [])) == {'clay', 'color-only', 'material-lit'}
                 and {'left-three-quarter', 'right-three-quarter', 'left-back-three-quarter', 'right-back-three-quarter'} <= set(delivery.get('views', [])))
         note = ('launch queued or running' if guards.head_busy(workspace, head.name) else
+                f'{stage.upper()} REVIEWED; READY FOR NEXT STAGE' if reviewed and stage != 'render' else
                 'RENDER REVIEWED; WAITING ON CLIENT TRIAL' if reviewed and full else
                 'DIAGNOSTIC REVIEWED; DELIVERY RENDER REQUIRED' if reviewed else 'WAITING ON REVIEW')
         lines.append(f'{head.name} | {stage} {newest.parts[-2]} {state} | {note}')

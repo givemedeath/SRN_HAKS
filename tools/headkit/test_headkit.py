@@ -436,7 +436,9 @@ class ComfyServerRuntimeTests(Temporary):
         self.assertEqual(len(decorators),1)
         self.assertEqual(decorators[0].func.attr,'get')
         self.assertEqual(ast.literal_eval(decorators[0].args[0]),'/headkit/runtime-identity')
-        self.assertTrue(any(isinstance(node,ast.Name) and node.id=='loaded_source_code' for node in ast.walk(handlers[0])))
+        self.assertFalse(any(isinstance(node,ast.Name) and node.id=='loaded_source_code' for node in ast.walk(tree)))
+        called={node.func.id for node in ast.walk(handlers[0]) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name)}
+        self.assertTrue({'session_context','capture_runtime_identity','same_runtime_environment'}<=called)
 
     def test_session_restart_changes_the_runtime_fingerprint(self):
         from headkit.comfy_nodes.runtime_identity import seal_runtime_identity,same_runtime_environment
@@ -645,6 +647,64 @@ class ImageTests(Temporary):
     def test_paired_preparation_keeps_identical_silhouette(self):
         result=prepare(self.root/'clay.png',self.root/'detail.png',self.pair(),self.root/'prepared')
         self.assertEqual(result['silhouetteIoU'],1);self.assertTrue(result['manualReviewRequired'])
+    def test_alignment_retains_margin_overflow_without_changing_sources(self):
+        for index, delta in enumerate(([0.,.025],[-.025,0.])):
+            with self.subTest(delta=delta):
+                config=self.pair()
+                image=Image.new('RGBA',(128,128))
+                ImageDraw.Draw(image).rectangle((2,2,125,125),fill=(90,120,150,255))
+                image.save(self.root/'clay.png');image.save(self.root/'detail.png')
+                sources=[pin(self.root/name) for name in ('clay.png','detail.png')]
+                for point in config['landmarks']:
+                    point['detail']=(np.asarray(point['clay'])+delta).tolist()
+                result=prepare(self.root/'clay.png',self.root/'detail.png',config,self.root/f'margin-{index}')
+                self.assertGreater(sum(result['canvasPadding']),0)
+                self.assertGreaterEqual(result['silhouetteIoU'],.94)
+                left,top,_,_=result['canvasPadding']
+                with Image.open(self.root/f'margin-{index}'/'detail-pair.png') as padded:
+                    self.assertEqual(padded.crop((left,top,left+128,top+128)).tobytes(),image.tobytes())
+                for role in ('geometry','detail'):
+                    mask=np.asarray(Image.open(self.root/f'margin-{index}'/(role+'-pair.png')).getchannel('A'))>127
+                    self.assertFalse(mask[0].any() or mask[-1].any() or mask[:,0].any() or mask[:,-1].any())
+                self.assertEqual([pin(Path(row['path'])) for row in sources],sources)
+                with self.assertRaisesRegex(ValueError,'shared source canvas'):
+                    prepare(self.root/'clay.png',self.root/'detail.png',config,self.root/f'fixed-{index}',preserve_canvas=True)
+
+    def test_already_registered_pair_is_not_rescaled_for_bounded_detector_noise(self):
+        config=self.pair();config['maximumRelativeResidual']=.02
+        for point in config['landmarks']:
+            point['detail']=(np.asarray(point['clay'])*1.02-.01).tolist()
+        result=prepare(self.root/'clay.png',self.root/'detail.png',config,self.root/'native-frame')
+        self.assertEqual(result['registrationMode'],'native-within-declared-residual')
+        self.assertEqual(result['scale'],1.)
+        self.assertEqual(result['canvasPadding'],[0,0,0,0])
+        self.assertEqual(result['silhouetteIoU'],1.)
+        with Image.open(self.root/'native-frame/geometry-pair.png') as aligned, Image.open(self.root/'clay.png') as source:
+            self.assertEqual(aligned.tobytes(),source.tobytes())
+        bound=np.linalg.norm(np.ptp(np.asarray([p['detail'] for p in config['landmarks']])*128,axis=0))*.02
+        self.assertLessEqual(max(result['residualPixels']),bound)
+
+    def test_native_registration_cannot_waive_scale_or_rotation_limits(self):
+        for index,kind in enumerate(('scale','rotation')):
+            config=self.pair();config['maximumRelativeResidual']=.04
+            for point in config['landmarks']:
+                value=np.asarray(point['clay'])-.5
+                if kind=='scale':value=value*1.04
+                else:
+                    angle=np.radians(4)
+                    value=value@np.array([[np.cos(angle),-np.sin(angle)],[np.sin(angle),np.cos(angle)]])
+                point['detail']=(value+.5).tolist()
+            message='larger design' if kind=='scale' else 'rotation exceeds'
+            with self.assertRaisesRegex(ValueError,message):
+                prepare(self.root/'clay.png',self.root/'detail.png',config,self.root/f'proposal-limit-{index}')
+
+    def test_alignment_padding_cannot_rescue_a_clipped_original(self):
+        config=self.pair()
+        with Image.open(self.root/'clay.png') as image:
+            image.putpixel((0,50),(100,100,100,255));image.save(self.root/'clay.png')
+        with self.assertRaisesRegex(ValueError,'clipped at canvas edge'):
+            prepare(self.root/'clay.png',self.root/'detail.png',config,self.root/'clipped')
+
     def test_silhouette_iou_floor_rejects_lower_nonfinite_and_invalid_values(self):
         values=(.939,0,-1,float('nan'),float('inf'),-float('inf'),1.01,True,'0.94',10**400)
         for index,value in enumerate(values):
@@ -3524,6 +3584,15 @@ class FitProposalTests(Temporary):
         np.testing.assert_array_equal(after[:,3], before[:,3])
         np.testing.assert_allclose(after[:3,:3], 1.1*before[:3,:3], atol=1e-12)
         self.assertAlmostEqual(larger['scale'], 1.1*lowered['scale'])
+        backed = propose(source, reference, self.root/'fit-back-and-scale', align='nose', chin_down_degrees=15,
+                         scale_multiplier=1.1, realign_after_pose=True, height_offset=-.051,
+                         local_scale_multiplier=1.1, depth_offset=-.008)
+        expected = after.copy();expected[1,3] -= .008
+        np.testing.assert_allclose(backed['matrix'],expected,atol=1e-12)
+        np.testing.assert_allclose(backed['translation'],expected[:3,3],atol=1e-12)
+        for invalid in (float('nan'),float('inf'),True,.051,-.051):
+            with self.subTest(depth=invalid),self.assertRaisesRegex(ValueError,'depth offset'):
+                propose(source,reference,self.root/'fit-invalid-depth',depth_offset=invalid)
         with self.assertRaisesRegex(ValueError, 'pitch'):
             propose(source, reference, self.root/'fit-invalid-pitch', chin_down_degrees=float('nan'))
         with self.assertRaisesRegex(ValueError,'profile, nose or landmarks'):propose(source,reference,self.root/'fit-bad',align='ears')
@@ -3834,7 +3903,7 @@ class StageCodeVersionTests(Temporary):
                 self.assertFalse([path for path in stage_code_files(stage) if 'comfy_nodes' in path.parts])
         fit={path.name for path in stage_code_files('fit')};repair={path.name for path in stage_code_files('repair')}
         self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)
-        self.assertTrue({'mesh.py','intersections.py'}<=repair);self.assertNotIn('uv.py',repair)
+        self.assertTrue({'mesh.py','intersections.py','local_seal.py','uv.py'}<=repair)  # local closure preserves and audits original UVs
         self.assertIn('blender_render.py',{path.name for path in stage_code_files('render')})
         native={path.name for path in stage_code_files('native')}
         self.assertTrue({'native_compile.py','neverblender_mdl.py','neverblender_worker.py','rig_native.py'}<=native)
@@ -3873,6 +3942,18 @@ class OcciputTests(Temporary):
                                                                     +[np.c_[r*segments+j,(r+1)*segments+k,(r+1)*segments+j] for r in range(rows-1)])
         write_mesh(self.root/'closed.glb',sphere,faces);closed=back_coverage(self.root/'closed.glb')
         self.assertFalse(closed['open']);self.assertEqual(closed['lowBands'],[])
+        # A low, connected swept-back hair flare must not move the skull's
+        # posterior sampling region behind the entire real head.
+        tail=np.array([[-.02,-.09,-.09],[.02,-.09,-.09],[0.,-.09,-.4]])
+        extended=np.vstack([sphere,tail])
+        anchor=int(np.argmin(np.linalg.norm(sphere-np.array([0.,-.09,-.04]),axis=1)))
+        self.assertLess(sphere[anchor,1],-.07)
+        tail_faces=np.vstack([faces,[anchor,len(sphere),len(sphere)+1],
+                              [len(sphere),len(sphere)+1,len(sphere)+2]])
+        write_mesh(self.root/'low-hair.glb',extended,tail_faces)
+        hair=back_coverage(self.root/'low-hair.glb')
+        self.assertFalse(hair['open'])
+        self.assertLess(hair['globalDepthBounds'][0],hair['checkedDepthBounds'][0])
         centroid=sphere[faces].mean(1);height=(centroid[:,1]+.1)/.2
         hole=(centroid[:,2]<-.04)&(height>.45)&(height<.7)  # the occiput missing behind the face shell
         kept=faces[~hole];used,remap=np.unique(kept,return_inverse=True)  # drop the vertices only the hole used
@@ -3925,6 +4006,46 @@ class BatchTests(Temporary):
         heads=self.heads()
         with self.assertRaisesRegex(ValueError,'distinct head runs'):cli.batch([heads[0],heads[0]],['native'])
 
+
+
+class StockOrganicMaterialTests(Temporary):
+    def test_policy_selects_stock_sex_material_and_preserves_mixed_accessories(self):
+        from headkit.native import material_binding
+        policy='stock-organic-head-v1'
+        self.assertIsNone(material_binding(None,'head',[0,1]))
+        self.assertEqual(material_binding(policy,'pmd0_head021',[0,1,8])['material'],'oldm_head')
+        self.assertEqual(material_binding(policy,'pfe0_head021',[0,1,8,9])['material'],'oldf_head')
+        mixed=material_binding(policy,'pmg0_head021',[0,1,2,8])
+        self.assertFalse(mixed['applied']);self.assertEqual(mixed['material'],'pmg0_head021')
+        with self.assertRaisesRegex(ValueError,'Unknown native'):material_binding('arbitrary','pmd0_head021',[0])
+        with self.assertRaisesRegex(ValueError,'explicit male/female'):material_binding(policy,'head',[0])
+
+    def test_stock_material_changes_only_the_palette_binding_and_keeps_bitmap(self):
+        from headkit.native import helpers
+        exporter=helpers()[0]
+        points=np.array([[[0.,0.,0.],[.1,0.,0.],[0.,.1,0.]]])
+        normals=np.tile([0.,0.,1.],(1,3,1));uv=np.zeros((1,3,2))
+        groups=[{'kind':'palette','triangles':[0]}]
+        legacy=exporter.ascii_model('pmd0_head021',points,normals,uv,groups)
+        stock=exporter.ascii_model('pmd0_head021',points,normals,uv,groups,palette_material='oldm_head')
+        self.assertEqual(stock,legacy.replace('materialname pmd0_head021','materialname oldm_head'))
+        self.assertIn('bitmap pmd0_head021',stock)
+        with self.assertRaisesRegex(ValueError,'Unsupported stock'):exporter.ascii_model('pmd0_head021',points,normals,uv,groups,palette_material='unreviewed')
+
+    def test_binary_material_readback_still_rejects_extra_maps_and_wrong_material(self):
+        from headkit.native import audit_native
+        expected=self.root/'expected.npz'
+        points=np.zeros((1,3,3));uv=np.zeros((1,3,2));np.savez(expected,positions=points,normals=points,uv=uv)
+        binary=self.root/'head.mdl';binary.write_bytes(b'binary')
+        decoded={'textures':['pmd0_head021','','','oldm_head'],'position':points[0],
+                 'normal':points[0],'uv':uv[0],'faces':np.array([[0,1,2]])}
+        helpers=(None,None,lambda x:x,lambda x:[],lambda x:False)
+        with patch('headkit.native.helpers',return_value=helpers),patch('headkit.native.decode',return_value=[decoded]):
+            _,proof=audit_native(binary,'pmd0_head021',expected,expected_material='oldm_head')
+            self.assertEqual(proof['positionsMaximumError'],0)
+            with self.assertRaisesRegex(ValueError,'material read-back'):audit_native(binary,'pmd0_head021',expected)
+            decoded['textures'][1]='extra_normal'
+            with self.assertRaisesRegex(ValueError,'texture dependency'):audit_native(binary,'pmd0_head021',expected,expected_material='oldm_head')
 
 class NeverblenderNativeTests(Temporary):
     def binding(self, addon=None):

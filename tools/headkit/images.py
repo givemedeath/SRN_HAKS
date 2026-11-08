@@ -129,7 +129,7 @@ def eye_evidence(clay_path, detail_path, config, output):
     return rows
 
 
-def prepare(clay_path, detail_path, config, output):
+def prepare(clay_path, detail_path, config, output, *, preserve_canvas=False):
     minimum_iou=_minimum_silhouette_iou(config)
     feature_landmarks(config)
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
@@ -138,16 +138,54 @@ def prepare(clay_path, detail_path, config, output):
     points = config.get('landmarks', [])
     require(len(points) >= 3 and len({p['name'] for p in points}) == len(points), 'Named, distinct paired landmarks required')
     width, height = clay.size
+    # Validate original rasters first. Padding may retain registration overflow,
+    # never make genuinely clipped source anatomy appear to pass.
+    for image in (clay, detail):
+        mask = np.asarray(image.getchannel('A')) > 127
+        require(mask.any() and not mask.all(), 'Nonempty transparent-background inputs required')
+        require(not (mask[0].any() or mask[-1].any() or mask[:,0].any() or mask[:,-1].any()),
+                'Input silhouette is clipped at canvas edge')
     a = np.asarray([p['clay'] for p in points], float) * [width, height]
     b = np.asarray([p['detail'] for p in points], float) * [width, height]
     require(np.all((a >= 0) & (a <= [width, height])) and np.all((b >= 0) & (b <= [width, height])),
             'Landmarks must be normalized image coordinates')
-    scale, rotation, translation, errors = similarity(a, b, config.get('maximumRelativeResidual', .01))
+    relative_bound = config.get('maximumRelativeResidual', .01)
+    scale, rotation, translation, errors = similarity(a, b, relative_bound)
+    # Retaining native framing never waives the original proposal limits.
     require(.97 <= scale <= 1.03, 'Pair needs a larger design/alignment correction')
     require(abs(math.degrees(math.atan2(rotation[0, 1], rotation[0, 0]))) <= 3, 'Pair rotation exceeds bounded correction')
-    matrix = np.linalg.inv(scale * rotation.T); offset = -matrix @ translation
-    aligned = clay.transform(detail.size, Image.Transform.AFFINE,
+    native_errors = np.linalg.norm(a-b, axis=1)
+    native_bound = float(np.linalg.norm(np.ptp(b,axis=0))) * relative_bound
+    registration_mode = 'similarity'
+    if native_errors.max() <= native_bound:
+        # Keep an already registered native pair intact. Gray-clay landmark
+        # detector noise must not introduce an unnecessary rescale or crop.
+        scale, rotation, translation, errors = 1., np.eye(2), np.zeros(2), native_errors
+        registration_mode = 'native-within-declared-residual'
+    require(.97 <= scale <= 1.03, 'Pair needs a larger design/alignment correction')
+    require(abs(math.degrees(math.atan2(rotation[0, 1], rotation[0, 0]))) <= 3, 'Pair rotation exceeds bounded correction')
+    matrix = np.linalg.inv(scale * rotation.T)
+    yy, xx = np.nonzero(np.asarray(clay.getchannel('A')) > 127)
+    corners = np.array([[xx.min(), yy.min()], [xx.max()+1, yy.min()],
+                        [xx.min(), yy.max()+1], [xx.max()+1, yy.max()+1]], float)
+    mapped = corners @ rotation * scale + translation
+    # A common integer translation adds transparent margin only. The source
+    # rasters, anatomical proportions and measured similarity stay unchanged.
+    low = np.minimum(0, np.floor(mapped.min(0))-1).astype(int)
+    high = np.maximum([width,height], np.ceil(mapped.max(0))+1).astype(int)
+    padding = np.r_[-low, high-[width,height]]
+    require(not preserve_canvas or not padding.any(),
+            'Multiview alignment needs a larger shared source canvas')
+    size = tuple(map(int, high-low))
+    shift = -low
+    offset = -matrix @ (translation+shift)
+    aligned = clay.transform(size, Image.Transform.AFFINE,
                              (*matrix[0], offset[0], *matrix[1], offset[1]), Image.Resampling.BICUBIC)
+    if padding.any():
+        padded = Image.new('RGBA', size)
+        padded.paste(detail, tuple(map(int, shift)))
+        detail = padded
+    b = b + shift
     a_mask, b_mask = np.asarray(aligned.getchannel('A')) > 127, np.asarray(detail.getchannel('A')) > 127
     require(a_mask.any() and b_mask.any() and not a_mask.all() and not b_mask.all(), 'Nonempty transparent-background inputs required')
     for mask in (a_mask,b_mask):
@@ -162,8 +200,11 @@ def prepare(clay_path, detail_path, config, output):
         x, y = point; draw.ellipse((x-5, y-5, x+5, y+5), outline='yellow', width=2)
         draw.text((x+7, y), f'{i}: {value["name"]}', fill='yellow')
     overlay.save(output / 'alignment-overlay.png')
-    regions=feature_evidence(aligned,detail,points,config,output)
-    result = {'featureChecks':regions,'silhouetteIoU': iou, 'residualPixels': errors.tolist(), 'scale': scale,
+    evidence_points = [dict(point, detail=(value/size).tolist()) for point,value in zip(points,b)]
+    regions=feature_evidence(aligned,detail,evidence_points,config,output)
+    result = {'registrationMode':registration_mode,
+              'canvasPadding':padding.tolist(), 'sourceCanvas':[width,height], 'outputCanvas':list(size),
+              'featureChecks':regions,'silhouetteIoU': iou, 'residualPixels': errors.tolist(), 'scale': scale,
               'rotation': rotation.tolist(), 'translation': translation.tolist(), 'manualReviewRequired': True,
               'landmarksAreOperatorMeasurements': True,
               'images': {name: pin(output / name) for name in ('geometry-pair.png', 'detail-pair.png', 'common-mask.png', 'alignment-overlay.png')}}
@@ -186,7 +227,7 @@ def prepare_multiview(pairs, config, output):
         row=config['views'][view]
         require(row.get('azimuthDegrees')==expected[view] and row.get('orientationReviewed') is True,
                 'View orientation needs explicit cardinal review: '+view)
-        result=prepare(paths[0],paths[1],row['alignment'],output/view)
+        result=prepare(paths[0],paths[1],row['alignment'],output/view,preserve_canvas=True)
         with Image.open(output/view/'geometry-pair.png') as image:
             require(canvas in (None,image.size),'All views must share the same canvas');canvas=image.size
             mask=np.asarray(image.getchannel('A'))>127

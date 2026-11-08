@@ -21,7 +21,7 @@ CHANNEL_MASKS = ('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'bea
 BEARD_RATIO = .8   # below the nose, hair-owned texels nearer the hair median than this x the skin median stay hair (RUNBOOK 145)
 BEARD_LIGHTNESS = .5   # Lab L weight in that test: shading moves a beard's lightness, not its chroma
 TREATMENT_MASKS = ('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket')
-TREATMENT = {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3, 'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0}
+TREATMENT = {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3, 'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0, 'browSkinRefill': 0}
 BROW_FRINGE = .02   # head widths around the brow searched for leftover brow colour on skin
 
 
@@ -205,14 +205,17 @@ def treat(colour, labels, masks, value, settings=None, outer=None, preserve_skin
         by, bx = np.nonzero(bm); oy, ox = np.nonzero(binary_dilation(bm, iterations=8) & ~bm & mapped)
         if len(oy):
             edge = cKDTree(positions[oy, ox]).query(positions[by, bx], k=1)[0] < .006*width; c[by[edge], bx[edge]] *= s['browEdge']
-        sy, sx = np.nonzero(mapped & (o == 0) & onface); distance, _ = cKDTree(positions[bm][::4]).query(positions[sy, sx], k=1)
-        plain = ~preserve[sy, sx] & (distance > BROW_FRINGE*width) & (distance < 3*BROW_FRINGE*width); ref = luma(c[sy, sx])
-        if plain.any():
-            fringe = ~preserve[sy, sx] & (distance < BROW_FRINGE*width) & (ref < np.median(ref[plain])-12)   # darker than nearby plain skin: leftover brow colour
-            if fringe.any():
-                _, nn = cKDTree(positions[sy[plain], sx[plain]]).query(positions[sy[fringe], sx[fringe]], k=min(24, int(plain.sum())))
-                c[sy[fringe], sx[fringe]] = c[sy[plain], sx[plain]][nn.reshape(int(fringe.sum()), -1)].mean(1)
-            report['browFringeRefilled'] = int(fringe.sum())
+        # Preserve authored orbital shadows; they can resemble leftover brow pigment.
+        if s['browSkinRefill']:
+            sy, sx = np.nonzero(mapped & (o == 0) & onface); distance, _ = cKDTree(positions[bm][::4]).query(positions[sy, sx], k=1)
+            plain = ~preserve[sy, sx] & (distance > BROW_FRINGE*width) & (distance < 3*BROW_FRINGE*width); ref = luma(c[sy, sx])
+            if plain.any():
+                fringe = ~preserve[sy, sx] & (distance < BROW_FRINGE*width) & (ref < np.median(ref[plain])-12)   # darker than nearby plain skin: leftover brow colour
+                if fringe.any():
+                    _, nn = cKDTree(positions[sy[plain], sx[plain]]).query(positions[sy[fringe], sx[fringe]], k=min(24, int(plain.sum())))
+                    current=c[sy[fringe], sx[fringe]]; donor=c[sy[plain], sx[plain]][nn.reshape(int(fringe.sum()), -1)].mean(1)
+                    c[sy[fringe], sx[fringe]] = current+s['browSkinRefill']*(donor-current)
+                report['browFringeRefilled'] = int(fringe.sum())
     c, report['mixedBlocksFixed'] = consistent_blocks(np.clip(c, 0, 255), o)
     return pad(c, mapped), dict(report, settings=s)
 

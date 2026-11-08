@@ -230,9 +230,12 @@ def render_masks(rgb, labels, pts, circles, hit, contours=None):
     return soft, hard
 
 
-def project(value, view, soft, size=4096):
+def project(value, view, soft, size=4096, *, visible_only=()):
     """4K texel masks: seen texels (depth match, facing the camera) read the render; unseen texels take the nearest seen texel's
     value within FILL head widths in 3D, fading to zero; everything is padded into the chart gutters like the bake."""
+    require(isinstance(visible_only,(tuple,list,set,frozenset)) and set(visible_only)<=set(soft),
+            'Visible-only projection must name masks in this request')
+    visible_only=set(visible_only)
     P = value['positions'].astype(float); F = value['faces']; width = np.ptp(P[:, 0]); S = view['hit'].shape[0]
     positions, owners, _ = surface(value, size, enforce=False); mapped = owners >= 0; points = positions[mapped].astype(float); faces = owners[mapped]
     normals = np.cross(P[F[:, 1]]-P[F[:, 0]], P[F[:, 2]]-P[F[:, 0]]); normals /= np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12)
@@ -240,16 +243,23 @@ def project(value, view, soft, size=4096):
     inside = (u >= 0) & (u < S-1) & (v >= 0) & (v < S-1); ui = np.clip(u.astype(int), 0, S-1); vi = np.clip(v.astype(int), 0, S-1)
     seen = inside & (np.abs(view['zbuf'][vi, ui]-points[:, 2]) < SEEN_DEPTH*width) & (normals[faces, 2] > SEEN_FACING)
     require(seen.any(), 'The front render sees no texel of this layout')
-    distance, index = cKDTree(points[seen]).query(points[~seen], k=1, distance_upper_bound=FILL*width)
-    found = np.isfinite(distance); weight = np.where(found, 1-np.where(found, distance, 0)/(FILL*width), 0); index = np.where(found, index, 0)
+    # Hard anatomy guards cannot infer labels on an occluded or back-facing wall.
+    # Avoid building the nearest-neighbour tree when every requested mask is strict.
+    found=np.zeros(int((~seen).sum()),bool)
+    if set(soft)-visible_only:
+        distance, index = cKDTree(points[seen]).query(points[~seen], k=1, distance_upper_bound=FILL*width)
+        found = np.isfinite(distance); weight = np.where(found, 1-np.where(found, distance, 0)/(FILL*width), 0); index = np.where(found, index, 0)
     uv = np.clip(np.c_[u, v]/S, 0, 1)[seen]; out = {}
     # textures.pad, with its one nearest-texel lookup shared by every mask.
     gutter = ~mapped; source = tuple(distance_transform_edt(gutter, return_distances=False, return_indices=True)[:, gutter])
     for name, mask in soft.items():
-        sampled = bilinear(mask, uv); values = np.zeros(len(seen), sampled.dtype); values[seen] = sampled; values[~seen] = sampled[index]*weight
+        sampled = bilinear(mask, uv); values = np.zeros(len(seen), sampled.dtype); values[seen] = sampled
+        if name not in visible_only:
+            values[~seen] = sampled[index]*weight
         atlas = np.zeros((size, size), np.float32); atlas[mapped] = np.clip(values, 0, 1)*255; atlas[gutter] = atlas[source]
         out[name] = np.rint(atlas).astype(np.uint8)
-    return out, {'texels': int(mapped.sum()), 'seenFromFront': int(seen.sum()), 'filled': int(found.sum())}
+    return out, {'texels': int(mapped.sum()), 'seenFromFront': int(seen.sum()), 'filled': int(found.sum()),
+                 **({'visibleOnly':sorted(visible_only)} if visible_only else {})}
 
 
 def overlay(rgb, labels, pts, circles):

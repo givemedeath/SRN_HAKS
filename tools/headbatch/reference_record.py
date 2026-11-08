@@ -47,7 +47,13 @@ def check(path, head, output):
         raise guards.Refused('Reference check output must be fresh')
     output.mkdir(parents=True)
     result = {'referenceRecord':{'path':str(Path(path).resolve()),'sha256':sha(path)},
-              'head':head,'visualReviewRequired':True,'approved':False}
+              'head':head,'visualReviewRequired':True,'approved':False,
+              'visualChecks': [
+                  'Open eyes and matching clay/detail identity, framing and anatomy.',
+                  'No anatomical neck; preserve the complete chin and jaw.',
+                  'Long hair: coherent rear volume behind the jaw and side locks, covering the rear skull. '
+                  'Do not require empty background between side curtains when rear hair belongs there. '
+                  'Inspect native alpha; silhouette IoU alone cannot approve rear volume.']}
     if paths:
         result['pair'] = prepare(paths['clay'], paths['detail'], data['conditioning']['alignment'], output/'pair')
     else:
