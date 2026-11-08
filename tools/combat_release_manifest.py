@@ -267,6 +267,7 @@ def build(check_git: bool = True) -> dict:
     weapon_files = list_weapon_files()
     pub_by_path = {r['path']: r for r in publication['resources']}
     item_by_blueprint = {bp: item for item in publication['items'] for bp in item['blueprints']}
+    shared_items = set(publication.get('sharedResourceItems', []))
     published_weapon = {r['path'].split('/', 1)[1]: r for r in publication['resources']
                         if r['path'].startswith(WEAPON_PACK + '/')}
     # Published maps count as candidates even when absent, so a deleted texture stays a missing dependency.
@@ -316,6 +317,8 @@ def build(check_git: bool = True) -> dict:
                 else:
                     missing.append(name)
         owned = {n for n, r in published_weapon.items() if r['item'] == item['id']}
+        # A resource published under a shared id (the firearm casing sheet) belongs to every item that references it.
+        owned |= {n for n, r in published_weapon.items() if r['item'] in shared_items} & closure
         closure_missing = sorted(set(missing) | {n for n in closure | owned if n.lower() not in by_name})
         # Hidden placeholder parts (and their icons) fill unused multipart slots; see pistol-trial-checkpoint.md.
         placeholders = sorted(n for n in owned - closure

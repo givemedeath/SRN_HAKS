@@ -10,7 +10,7 @@
     "projectileTarget": "sling (SR_NWN decisions D376-D378)"
   },
   "authorities": {
-    "docs/items/approved-weapons-v1.json": "baa604486f594dd1fe85be7c6197765357603761c1ce443e5b61273e47bfb489",
+    "docs/items/approved-weapons-v1.json": "80355a1443dc8ec5881a5a2cf85030004326e7d7764e3d6eabdae889cd59062c",
     "docs/items/approved-weapon-waves-release-validation.json": "d0669a316d6d3230c8ae039e932ca7baedf29474a21079d54c7e964a783317f9",
     "docs/items/firearm-grip-standard-v1.json": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2",
     "docs/items/weapon-grip-standard-v1.json": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988",
@@ -375,6 +375,7 @@
         "sr_cl36_052.tga",
         "sr_cl36_1.uti",
         "sr_cl36_2.uti",
+        "srnfx_casing.tga",
         "wbwsl_b_051.mdl",
         "wbwsl_b_052.mdl",
         "wbwsl_m_011.mdl",
@@ -829,6 +830,7 @@
         "sra84e4660_015.tga",
         "sra84e4660_5.uti",
         "sra84e4660gl.uti",
+        "srnfx_casing.tga",
         "wbwxh_b_015.mdl",
         "wbwxh_m_015.mdl",
         "wbwxh_t_015.mdl"
@@ -1072,6 +1074,7 @@
         "iwbwsl_t_013.tga",
         "sre9a211be_023.tga",
         "sre9a211be_3.uti",
+        "srnfx_casing.tga",
         "wbwsl_b_013.mdl",
         "wbwsl_m_023.mdl",
         "wbwsl_t_013.mdl"
@@ -1401,6 +1404,7 @@
         "iwbwsl_t_015.tga",
         "sr3ab64906_065.tga",
         "sr3ab64906_5.uti",
+        "srnfx_casing.tga",
         "wbwsl_b_065.mdl",
         "wbwsl_m_015.mdl",
         "wbwsl_t_015.mdl"
@@ -2538,6 +2542,18 @@
       "sourceArchive": "srf7ac8ech.hak"
     },
     {
+      "path": "srn_weapon/srnfx_casing.tga",
+      "resRef": "srnfx_casing",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 262188,
+      "sha256": "e8aa922ab82acf7e0d471deaa85c6410eb6de7611ce5ece16440a984625f3185",
+      "pack": "srn_weapon",
+      "item": "firearm-effects",
+      "publicationSha256Match": true,
+      "sourceArchive": null
+    },
+    {
       "path": "srn_weapon/wbwln_b_091.mdl",
       "resRef": "wbwln_b_091",
       "type": "mdl",
@@ -2642,14 +2658,15 @@
       "resRef": "wbwsl_b_051",
       "type": "mdl",
       "resourceType": 2002,
-      "bytes": 839204,
-      "sha256": "8d4b57302a6494375b170cda0914f9a4485648d77cbd0c9ccea3362dc8e2622e",
+      "bytes": 1154648,
+      "sha256": "99bc6299157a8362395a3e5f855f99586215f32cf184effdc0a95a3e45eccf71",
       "pack": "srn_weapon",
       "item": "colt-l36-pistol",
       "publicationSha256Match": true,
       "sourceArchive": "srn_cl36_test.hak",
       "textureRefs": [
-        "sr_cl36_051"
+        "sr_cl36_051",
+        "srnfx_casing"
       ],
       "invisiblePart": false
     },
@@ -2658,14 +2675,15 @@
       "resRef": "wbwsl_b_052",
       "type": "mdl",
       "resourceType": 2002,
-      "bytes": 839204,
-      "sha256": "f290809216aa379e361e97024ed91f1ed22c06f5922a57fef0d9ece754c63df4",
+      "bytes": 1154648,
+      "sha256": "9ece48aa714b7db9b4d06d73f7579d4a5479123cf29efc8c06bc7037870d9898",
       "pack": "srn_weapon",
       "item": "colt-l36-pistol",
       "publicationSha256Match": true,
       "sourceArchive": "srn_cl36_test.hak",
       "textureRefs": [
-        "sr_cl36_052"
+        "sr_cl36_052",
+        "srnfx_casing"
       ],
       "invisiblePart": false
     },
@@ -2674,14 +2692,15 @@
       "resRef": "wbwsl_b_065",
       "type": "mdl",
       "resourceType": 2002,
-      "bytes": 646316,
-      "sha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
+      "bytes": 1030360,
+      "sha256": "69eded3eedd1ed24b13cb51846214770416b548e0d4f79e2b75a5feb0fb85b17",
       "pack": "srn_weapon",
       "item": "sr4-ares-predator-iv-3ab64906ed",
       "publicationSha256Match": true,
       "sourceArchive": "sr3ab64906h.hak",
       "textureRefs": [
-        "sr3ab64906_065"
+        "sr3ab64906_065",
+        "srnfx_casing"
       ],
       "invisiblePart": false
     },
@@ -2746,14 +2765,15 @@
       "resRef": "wbwsl_m_023",
       "type": "mdl",
       "resourceType": 2002,
-      "bytes": 702028,
-      "sha256": "0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251",
+      "bytes": 1182532,
+      "sha256": "688f616d009cf470a6f8d309438541ded8d0aabe93ac3c8b46e906669bcdaab7",
       "pack": "srn_weapon",
       "item": "ingram-smartgun-x",
       "publicationSha256Match": true,
       "sourceArchive": "sre9a211beh.hak",
       "textureRefs": [
-        "sre9a211be_023"
+        "sre9a211be_023",
+        "srnfx_casing"
       ],
       "invisiblePart": false
     },
@@ -2874,14 +2894,15 @@
       "resRef": "wbwxh_t_015",
       "type": "mdl",
       "resourceType": 2002,
-      "bytes": 716060,
-      "sha256": "e063d37959ee12d7a6ec20314f4c8f28a079835b0e8a3e12ea0eddd6bfa2bbdb",
+      "bytes": 1134412,
+      "sha256": "621ca4693f9e0ab888be31c7e11e06ca09792f4e1f44ddf8accc724984513e50",
       "pack": "srn_weapon",
       "item": "sr4-ak-98-84e46602ea",
       "publicationSha256Match": true,
       "sourceArchive": "sra84e4660h.hak",
       "textureRefs": [
-        "sra84e4660_015"
+        "sra84e4660_015",
+        "srnfx_casing"
       ],
       "invisiblePart": false
     },
@@ -4310,6 +4331,7 @@
       "srn_weapon/sreab35fc_02.tga",
       "srn_weapon/srf7ac8ec.uti",
       "srn_weapon/srf7ac8ec_06.tga",
+      "srn_weapon/srnfx_casing.tga",
       "srn_weapon/wbwln_b_091.mdl",
       "srn_weapon/wbwln_m_091.mdl",
       "srn_weapon/wbwln_t_091.mdl",
