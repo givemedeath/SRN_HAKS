@@ -65,6 +65,8 @@ STANDINS = {'srp_dcolt': ('sr_cl36_1', 201, (51, 11, 11)), 'srp_dingr': ('sre9a2
 # Out of combat the engine turns a crossbow-class weapon upright in the hand, whatever the clip keys. This copies the
 # AK-98 onto sling part 203, as `srp_srifle`, to see whether the rifle clips hold it forward on a sling-class weapon.
 SLING_RIFLE = ('srp_srifle', 'sr_cl36_1', 203, 15)
+# The same AK-98 as a longbow (base item 8) on bow part 203, as `srp_brifle`: bows attack with `bowshot`, which no pistol uses.
+BOW_RIFLE = ('srp_brifle', 8, 203, 15)
 ARM = ('lbicep_g', 'lforearm_g', 'lhand_g')
 HANDS = {'rhand', 'lhand'}
 RIGHT_ARM = ('rbicep_g', 'rforearm_g', 'rhand_g')
@@ -687,6 +689,8 @@ void main(){
  else if(text=="dpistol")ArmDual("sr_cl36_1","srp_dcolt","nw_wambu001");
  else if(text=="dsmg")ArmDual("sre9a211be_3","srp_dingr","nw_wambu001");
  else if(text=="srifle")ArmWith("srp_srifle","nw_wambu001",INVENTORY_SLOT_BULLETS);
+ else if(text=="brifle")ArmWith("srp_brifle","nw_wamar001",INVENTORY_SLOT_ARROWS);
+ else if(text=="fbrifle"){Hold("ready_rfl");Attack("bowshot","fire_rfl","attack bowshot bow rifle");}
  else if(text=="fsrifle"){Hold("ready_rfl");Attack("throwr","fire_rfl","attack throwr sling rifle");}
  else if(text=="spistol")ArmDual("srp_rcolt","srp_dcolt","nw_wambu001");
  else if(text=="ssmg")ArmDual("srp_ringr","srp_dingr","nw_wambu001");
@@ -729,10 +733,10 @@ def stage_standins(hak):
         for letter, part in zip('bmt', parts):
             old, new = f'wbwsl_{letter}_{part:03}', f'wswss_{letter}_{number:03}'
             (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
-    _, _, number, part = SLING_RIFLE
-    for letter in 'bmt':
-        old, new = f'wbwxh_{letter}_{part:03}', f'wbwsl_{letter}_{number:03}'
-        (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
+    for prefix, (_, _, number, part) in (('wbwsl', SLING_RIFLE), ('wbwln', BOW_RIFLE)):
+        for letter in 'bmt':
+            old, new = f'wbwxh_{letter}_{part:03}', f'{prefix}_{letter}_{number:03}'
+            (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
 
 
 def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=None):
@@ -792,6 +796,15 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=
         for part in (1, 2, 3):
             data[f'ModelPart{part}']['value'] = number
     tools.gff(REPO / 'srn_weapon' / (gun + '.uti'), stage / (resref + '.uti'), sling)
+    bow_resref, base, number, _ = BOW_RIFLE
+
+    def bow(data):
+        data['TemplateResRef']['value'] = bow_resref
+        data['Tag']['value'] = bow_resref
+        data['BaseItem']['value'] = base
+        for part in (1, 2, 3):
+            data[f'ModelPart{part}']['value'] = number
+    tools.gff(REPO / 'srn_weapon' / (RIFLE + '.uti'), stage / (bow_resref + '.uti'), bow)
     tools.run('nwn_erf', '-c', '-e', 'HAK', '-f', user / 'hak' / (probe.HAK + '.hak'), hak)
     for name, folder in (('sw_reviewenv', REPO / 'test-modules/weapon-waves/haks/sw_reviewenv'),
                          *((n, REPO / n) for n in hak_order[2:])):

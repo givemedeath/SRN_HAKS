@@ -337,6 +337,14 @@ How it was pinned down (builds v15 and v16):
   flash behind the head. So it shows "sometimes": whenever a rifle or shotgun clip plays outside combat mode, or while
   combat mode ends.
 - **Script can't hold combat mode:** nwscript has no call that sets it.
+- **Not the hook keys:** the rifle clips key `rhand` at identity on every frame. Giving it a changing tilt of 0.1° and
+  then 3° (builds v18 and v19) left the crossbow just as upright out of combat.
+- **Bow-class (build v17):** a longbow-class AK-98 (`srp_brifle`, part `wbwln_*_203`, chat `brifle`, `fbrifle` maps
+  `bowshot` and the ready names) plays the rifle clip, but the engine hangs bows from `lhand`, so the gun sits in the
+  support hand. In the ready stance the gun's pose in the left hand is the same on every body in rotation and within
+  4 cm in position. In the fire clips the left hand turns up to 30° on the gun, because the support solve copies the
+  source clip's left-hand angle frame by frame. A bow-part rifle would need the left hand locked to the gun and that
+  offset baked into its model.
 
 **Fix, proven in the pilot:** make firearms sling-class and choose each creature's clips by the gun it holds. The game
 plays `throwr` for every sling-class attack, so on equip map `throwr` to that gun's fire clip and the ready names
