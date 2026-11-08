@@ -8,6 +8,21 @@ system. The [shipped Human bodies](https://github.com/givemedeath/SRN_HAKS/pull/
 provide the donor assets. The [full phenotype body release](https://github.com/givemedeath/SRN_HAKS/pull/45)
 is packaged separately; its manifest and assets are not included in this toolkit.
 
+## Subdirectories & Boundaries
+- [phenomorpher](./phenomorpher/README.md): Core Python package providing the stable numerical API (`phenomorpher.api`), CLI command dispatcher (`phenomorpher.cli`), and input declaration framework.
+
+## Local Interface & Invariants
+- `run.py`: `consumed(arguments)`, `main(argv=None)` - Managed repository launcher that freezes input hashes and dispatches through `launch_shared_tool.py`.
+- `finalize_runtime.py`: `pin(path)`, `verify_doctor(launch, result)`, `finalize(toolchain, smoke, output)` - Finalizes Python-only shared tool migrations from registered doctor smokes.
+- **Invariants**:
+  - `[run.py:main]` Managed execution gate: PhenoMorpher data commands must run via `run.py` with valid migration receipts; direct module invocation is blocked.
+  - `[run.py:main]` Input hash freeze: Helper and input hashes are frozen prior to execution and verified afterward.
+  - `[run.py:main]` Destination isolation: Output directories must be fresh and cannot overwrite existing artifacts.
+  - `[finalize_runtime.py:verify_doctor]` Tool migration scope: Finalizer confirms doctor smoke executed with exact command and byte-matched sources; CPU-only migration cannot authorize Blender, native export, or client acceptance.
+- **Side Effects**:
+  - `[run.py:main]` Writes temporary input declaration JSON files and invokes subprocesses via `launch_shared_tool.py`.
+  - `[finalize_runtime.py:finalize]` Writes migration receipts to disk.
+
 ## Setup and entry point
 
 Use bundled workspace Python on desktop, never the Windows Store shim. CI uses
@@ -202,3 +217,7 @@ unchanged controls. Preserve historical evidence. Run focused affected tests and
 the complete helper suite when shared helpers change. Offline tests create no
 reference approval, anatomy approval, native/client validation or production
 acceptance. Keep those statuses separate in every handoff.
+
+## Verification
+- Run: `pytest tools/phenomorpher`
+
