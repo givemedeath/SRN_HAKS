@@ -19,7 +19,7 @@ Pass `--workspace DIR` or set `SRN_HEAD_WORKSPACE`.
 | `fitReferences`, `fitReferenceOverrides` | Decompiled stock heads, plus explicit models for prefixes with none (Trolls) |
 | `landmarks` | Optional coarse face marks for the jaw guard; until the file exists the jaw needs a visual review |
 | `designReferences` | Optional species reference by race and sex |
-| `game`, `trialBase`, `clientSettings` | Client trials: install paths, base HAKs and module, and an optional `settings.tml` |
+| `game`, `trialBase`, `clientSettings`, `trialInspection` | Client trials: install paths, base HAKs/module, optional settings and measured per-race framing |
 | `slots` | Slot numbers this batch fills, from `docs/heads/slot-catalog.json`: `"elf-male": [20, 21]` gives `elf-male-a`, `elf-male-b` |
 | `headsDirectory`, `hashCache`, `cpuSlots`, `loopBudget` | Optional. A `cpu-slots` file in the workspace changes the limit while launches wait |
 | `ramGates` | Optional `{slot: free GB}` a slot needs to start a job; replaces the defaults of 10, 13, 16 and 16 GB for slots 3 to 6 |
@@ -74,6 +74,8 @@ After a rejected geometry, a selected replacement clay can use the original slot
 Quality-gate prototypes that headkit adopted are not here; nor are one-off audits from past batches.
 
 For a head that already ends at the jaw, compare `review --slot fitcheck --body-neck HEAD ATTEMPT OUT.png` in front, side, rear and under-jaw views. The blue surface is the actual body neck in the head attachment frame. If the uncut assembly is selected, use `setup --no-neck-cut` for a new head, or set the existing head’s `mesh.neck` override to `null` and rebuild its manifest. Keep the body-neck binding for assembly review. The shell selection and the repair visual gate still apply.
+
+For an uncut head, record the exact fit review before `slopescan` or `cutdry`. Both report the fitted jaw against the body neck and require a current fit approval. The dispatcher refuses a missing, pending, rejected or stale fit review before waiting for a CPU slot. Fit comparison and shell inspection remain available before that review.
 
 For a head that needs a neck cut, before the first repair, compare slopes, inspect shells, record any required component selection, then run `review --slot cutdry HEAD`. It rebuilds the uncut master in temporary storage using the current fit, smoothing and shell selection. Use `--attempt attempt-NN` to replay a saved master with current cut settings. Use `--verify-cut NEW_FOLDER` for a first dry run that needs closure proof. It runs the real cut including any required rewrap and master audit, retains the before and after meshes under `review-evidence`, and stops before reduction. A band measurement or an unverified replay cannot establish closure.
 
@@ -151,6 +153,8 @@ Queued sheets wait for a CPU slot in their own process, so a review line can arr
 For a whole-device budget, set workspace `comfy.memoryLimitBytes` in bytes and optionally `comfy.gpuIndex` (default 0). Set `comfy.minimumFreeRAMGiB` for the live physical-RAM floor. For geometry with a measured cold-load peak, set `comfy.minimumStartRAMGiB` for headroom before each counted submission. Schedule the run outside competing texture jobs. The supervisor reuses the CPU slot gate's free-memory measurement. Run `run_headbatch.py --workspace DIR env tools/headbatch/compat/run_design_with_vram_limit.py DIR HEAD SEED`. It uses the bound controlled-startup identity, refuses a busy GPU queue, starts the normal headbatch design command, and saves 250 ms NVIDIA samples and a summary under `runtime/vram/HEAD-sSEED`. A measured breach interrupts only the matching prompt belonging to that workspace. It fails the supervised run even if an output was produced. Preserve that spent design attempt.
 
 For design-image generation on the measured 12 GiB RTX 3060 deployment, the lower-memory profile uses upstream `--reserve-vram 3 --disable-async-offload --cpu-vae` alongside static VRAM and the checked native loader. Validate the complete run against the user's budget. Reserved headroom and sampled peaks do not prove an instantaneous allocator-level cap.
+
+When refreshing `tools/test-impact.json` in a sparse worktree, include the complete tracked `docs/` and `.github/` trees before running the catalog builder and CI wiring checks. Missing documentation can otherwise appear as unrelated deleted dependencies. Wait for checkout hydration to finish, regenerate the catalog, and inspect its diff before committing it.
 
 ## Before publishing
 
@@ -234,6 +238,21 @@ front render. For each anatomical side (`R` is image left, `L` image right), tra
 the top left. Trace only the visible iris inside the opening. Replay masks and
 inspect the projected sheet before ownership. The quality check uses the same
 traces against the decoded PLT.
+The spooler also queues `review --slot eyereference HEAD ATTEMPT OUT.png` for
+face-profile masks. This compares native reference and baked eye crops and saves
+a hash-bound registration proposal; it never approves or applies it. Inspect each
+opening, lid and iris before selecting the proposed `tone.referenceEyes` recipe.
+If a bake also blackens the lids, `includeLids: true` restores the reviewed
+`eyeContours.excludeBrow` skin region with a soft edge and front-depth matching.
+Only skin and iris texels change; hair, cyberware and hidden surfaces stay intact.
+A changed front render or reference invalidates that recipe.
+
+New face-profile heads enable `ownership.hairEarGuard`. Within confident ear
+masks it restores hair-owned texels only when their color is clearly nearer the
+skin reference than the hair reference. It preserves hair-colored strands and
+cyberware. Inspect the actual ownership sheet; this guard does not approve ears
+or replace measured hair and plate boundaries. Existing heads are not migrated.
+
 Choose horn/tusk masks with seeded paint.protrusion and constrain cyberware
 with spatial rules. Global colour thresholds alone are poor ownership evidence.
 
@@ -242,6 +261,16 @@ This emits a face mask without recolouring. tone.preserveSkinMasks: ["skin-ink"]
 protects mapped skin in that named mask from smoothing and eyebrow-fringe refill.
 It does not disable de-light, change channels, exempt quality metrics or preserve
 a fixed ink hue across skin palette rows. Review those masks on the actual bake.
+
+When one inferred material region carries excessive baked light, an opt-in
+`tone.materialLight` recipe can darken broad lighting toward an intact measured
+region of the same channel. Set `channel`, a `reference` predicate in normalized
+mesh x/y/z or baked color, and optional `target`, `strength` (greater than 0, at most 1),
+`minimumGain` (greater than 0, at most 1) and `neighbours` (32..512). It uses 3D surface neighbors
+across chart seams, preserves fine texture, never brightens, and leaves other
+mapped channels unchanged. Require at least 32 reference/target texels and inspect
+the exact tone and decoded palette sheets. It is deliberately opt-in to preserve
+intentional material color variations. No quality thresholds are reduced.
 
 For body-pinned skin with excessive cheek contrast, `palette.skinShadeContrast` scales runtime shades around the body-neck median. Compare the decoded face at game size and retain the span, feature-focus, darkness and seam checks.
 
@@ -384,3 +413,35 @@ The workspace can set `comfy.multiviewGeometryStartRAMGiB` to reserve more host 
 External proposals and clay/diffuse edits share the same design cap. Record every submission once in design/external-attempts/HEAD/NNN.json, preserving the input, disposition and any resulting image pin. The local design launcher includes these records automatically.
 
 A GPU launch with a live host RAM cutoff waits for this workspace’s CPU workers to finish and reserves their lanes until dispatch returns. The CPU review sheet runs after releasing those lanes. The face-v1 setup profile uses refined UV packing at the normal thresholds.
+
+For measured client framing, set workspace `trialInspection.RACE` to an `inspect`
+object with per-prefix `height` and camera `distance` in meters. Derive eye height
+from the current body skeleton attachment and exact fitted head; retain those
+pins and measurements in workspace evidence. `trial-spec` includes the selected
+framing automatically. Existing Troll defaults remain when no override is set.
+
+For ordinary face-profile heads, ownership now queues `review --slot roles`
+against its exact saved 1K atlas before tone. The preflight checks both iris
+channels, whites, brow coverage, facial hair spill, missed locks and the existing game-size speck limit; its
+hash-bound report blocks ownership approval/tone when missing, stale or failing.
+Read-only `--candidate RULES.json` previews cannot satisfy that guard. Heads with
+an existing `sourceHairRoles` audit retain their full-quality source audit.
+
+New face profiles enable `ownership.browSeedGuard`: only semantic brow hairs
+within eight front-render pixels of the refined core are restored to hair.
+Existing manifests without an explicit reach retain three pixels. Every
+feature-channel ownership pass separately protects upper-lid skin after channel
+assignment, including when brow recovery is disabled. Early roles and final
+quality reject hair on the confident upper-lid core independently of brow recall.
+Reviewed eye exclusions, iris and metal ownership remain protected. For beards
+whose highlights parsing changes to skin, the existing `overFaceMasks` hair rule
+can preserve only hair connected in 3D to intact hair. Inspect candidate roles
+and the exact saved ownership before tone; retain the final full quality gate.
+
+New face profiles enable `ownership.lipSkinGuard`: connected beard protection cannot keep the detected mouth/lip interior on hair. Inspect the lip mask against the reference before selecting a correction. The saved ownership roles preflight and final quality check reject hair on its eroded semantic core, independently of upper-face hair spill (RUNBOOK 316).
+
+The spooler also queues `review --slot hairgaps HEAD ATTEMPT OUTPUT` on ownership and `review --slot irisrows HEAD ATTEMPT` on palette. Hair-gap sheets mark source-semantic scalp hair left on skin; `--candidate RULES.json` saves a diagnostic atlas without spending a stage attempt. Preserve intended baldness and ear skin. Iris sheets compare the exact decoded runtime row to source appearance and ranked alternatives, so a saturated tattoo row cannot pass unnoticed in a small full-face sheet. These are evidence, never approval (RUNBOOK 317).
+
+If color rules leave scalp curls on skin, `review --slot hairgaps HEAD ATTEMPT OUTPUT --repair-skin-hair` makes a diagnostic 4K atlas and matching source-hash-bound atlas configuration. It restores only skin-owned hair supported by the current masks, protecting eye/lip masks and other channels. Inspect the candidate sheet, baldness, ears and roles before selecting it. Add the pinned candidate as local input `ownership4k` and select its atlas configuration with `ownership`; normal attempt budgets, saved-ownership review and all downstream checks still apply (RUNBOOK 318). Candidate evidence never approves or spends a production stage attempt.
+
+For GPU studio rendering, set workspace `renderDevice` to `{ "device": "GPU", "backend": "OPTIX", "gpuIndex": 0, "memoryLimitBytes": 12000000000 }` (the new workspace default). `manifest`/`setup` bind the same shared GPU lock and idle ComfyUI endpoint used by generation. An optional exact `deviceId` further restricts selection; PCI identity must match the sampled NVIDIA device. Per-head `render.compute` can explicitly select CPU. GPU jobs retain the normal CPU-slot/RAM admission and four host threads, serialize on the shared lane, and save sampled whole-device VRAM evidence. Failure never falls back to a long CPU render. All cameras, 2K/1K atlases, materials, samples and visual/client gates remain unchanged.

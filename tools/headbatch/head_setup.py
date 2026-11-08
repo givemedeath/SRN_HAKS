@@ -156,6 +156,24 @@ def write_locked_manifest(workspace, name, check, overrides):
             held.unlink(missing_ok=True)
 
 
+
+def bind_render_device(workspace,data):
+    """Bind optional workspace GPU defaults to the same shared GPU lane as generation."""
+    configured=workspace.data.get('renderDevice')
+    if configured is None or 'render' not in data or 'compute' in data['render']:return
+    if not isinstance(configured,dict):raise guards.Refused('renderDevice must be a configuration object')
+    from headkit.render_device import settings
+    value=dict(configured)
+    if value.get('device')=='GPU':
+        from shared_tools import tools_root
+        from workspace import REPO
+        index=value.get('gpuIndex',workspace.data.get('comfy',{}).get('gpuIndex',0))
+        if index!=workspace.data.get('comfy',{}).get('gpuIndex',0):raise guards.Refused('Render and ComfyUI must use the same shared GPU index')
+        root,_=tools_root(REPO,workspace.data.get('toolsRoot'))
+        value.update(gpuIndex=index,gpuLock=str(root/'locks'/f'gpu-{index}'),comfyUrl=workspace.data.get('comfy',{}).get('url'))
+    data['render']['compute']=settings({'compute':value})
+
+
 def rewrite_manifest(workspace, name, check, overrides, replaced):
     head = workspace.head(name)
     receipt = guards.read(head/'design'/'design-receipt.json')
@@ -181,6 +199,7 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
         inputs['nativeSizingPolicy'] = link(head, policy, policy.name, replaced)
     data = defaults(name, receipt, inputs, reference)
     merge(data, chosen)
+    bind_render_device(workspace,data)
     if 'nativeSizingPolicy' in inputs:
         data['nativeSizing'] = 'troll-build-allowance-r3'
     tone_every_channel(data, race, sex, name)
@@ -219,7 +238,7 @@ def set_ownership(workspace, name, rules, check=validate):
     """A reviewed rule set (regions, rules, notes), replacing any earlier one. Coordinates are bbox-relative GLB frame; `review grid` draws the iso-lines."""
     overrides = guards.read(workspace.head(name)/'overrides.json')
     profile = overrides.get('ownership', {})
-    features = {key: profile[key] for key in ('featureChannels', 'boneEarGuard', 'hairMaskRequiresRule') if key in profile}
+    features = {key: profile[key] for key in ('featureChannels', 'boneEarGuard', 'hairEarGuard', 'browSeedGuard', 'browSeedGuardPixels', 'lipSkinGuard', 'hairMaskRequiresRule') if key in profile}
     overrides['ownership'] = {'$replace': True, 'mode': 'rules', 'reviewed': True, 'default': 0, **features, **guards.read(rules)}
     return write_manifest(workspace, name, check, overrides)
 
@@ -407,7 +426,7 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
 def face_quality_profile():
     """Explicit opt-in for new heads; no existing manifest is silently migrated."""
     return {'mesh': {'uv': {'faceDensity': 3, 'refinePacking': True}}, 'faceMasks': {},
-            'ownership': {'featureChannels': True},
+            'ownership': {'featureChannels': True, 'hairEarGuard': True, 'browSeedGuard': True, 'browSeedGuardPixels': 8, 'lipSkinGuard': True},
             'tone': {'faceTreatment': {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3,
                      'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0}},
             'quality': {}, 'palette': {'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True, 'skinShadeContrast': 'auto', 'repairSkinSeams': True, 'repairFeatureHighlights': True},

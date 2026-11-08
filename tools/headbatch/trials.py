@@ -69,6 +69,25 @@ def sized_trial_native(workspace, entry, version):
     entry['native'] = (folder/'native').as_posix()
 
 
+def inspection_view(workspace, race):
+    """Optional measured per-race framing; preserve established defaults when absent."""
+    defaults = {'height':{'pmg0':2.52,'pfg0':2.31},'distance':1.05} if race=='troll' else {}
+    choices=workspace.data.get('trialInspection',{})
+    if not isinstance(choices,dict):
+        raise guards.Refused('trialInspection must map race names to framing')
+    view=choices.get(race,defaults)
+    if not isinstance(view,dict) or set(view)-{'height','distance'}:
+        raise guards.Refused('Trial inspection allows height and distance only')
+    heights=view.get('height',{}); families={prefix(race,'male'),prefix(race,'female')}
+    if (not isinstance(heights,dict) or set(heights)-families or
+            any(type(v) not in (int,float) or not .3<=v<=6 for v in heights.values())):
+        raise guards.Refused('Trial inspection heights need this race prefixes and 0.3-6 m')
+    distance=view.get('distance',1.5)
+    if type(distance) not in (int,float) or not .5<=distance<=25:
+        raise guards.Refused('Trial inspection distance needs 0.5-25 m')
+    return {**view,**({'height':dict(heights)} if 'height' in view else {})}
+
+
 def write_spec(workspace, race, version):
     """specs/trial-RACE-vN.json with each exported head's latest native folder and its chosen palette rows first."""
     base = workspace.data.get('trialBase')
@@ -87,8 +106,9 @@ def write_spec(workspace, race, version):
             'captureCoverageRequired': True, 'inspectionTour': True, 'motion': True, 'lighting': 'ambient', 'gameRoot': workspace.path(game['root']).as_posix(), 'client': workspace.path(game['client']).as_posix(),
             'base': {'haks': [pin(workspace.path(hak)) for hak in base['haks']], 'module': pin(workspace.path(base['module'])), 'actorIdentity': base['actorIdentity']},
             'heads': heads}
-    if race == 'troll':
-        spec['inspect']={'height':{'pmg0':2.52,'pfg0':2.31},'distance':1.05}
+    framing=inspection_view(workspace,race)
+    if framing:
+        spec['inspect']=framing
     out = workspace.root/'specs'/f'trial-{race}-v{version}.json'
     write_json(out, spec)
     return out, len(heads)
@@ -124,6 +144,12 @@ def inspection_settings(source, output):
 
 
 def build(workspace, name, version):
+    """Keep trial freezing/compilation inside the same free-RAM CPU gate as head stages."""
+    with launcher.cpu_slot(workspace):
+        return _build(workspace,name,version)
+
+
+def _build(workspace, name, version):
     """Build trials/NAME-vN from specs/trial-NAME-vN.json through the launcher, with its exact consumed inputs."""
     spec = workspace.root/'specs'/f'trial-{name}-v{version}.json'
     output = workspace.root/'trials'/f'{name}-v{version}'

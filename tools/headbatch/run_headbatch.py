@@ -20,6 +20,7 @@ REVIEW = Path(__file__).resolve().with_name('review')
 
 
 def review(workspace, tool, arguments, slot):
+    guards.uncut_review_ready(workspace, tool, arguments)
     command = [PYTHON, '-B', str(REVIEW/f'{tool}.py'), *arguments]
     environment = workspace.python_environment(packages=True, tools=True)
 

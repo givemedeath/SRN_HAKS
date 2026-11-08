@@ -69,15 +69,15 @@ def joined(candidates, anchors, positions, pitch):
     good = np.isin(part, part[touch]); out[cy[good], cx[good]] = True; return out
 
 
-def ear_skin(labels, masks, mapped, colour):
-    """Recover ear interiors from tattoo2 only where the baked colour identifies skin."""
+def ear_skin(labels, masks, mapped, colour, channel=9):
+    """Recover confident ear interiors only where color separates skin from the competing material."""
     ear = masks['ear'] > .8
-    candidates = mapped & (labels == 9) & ear
+    candidates = mapped & (labels == channel) & ear
     result = np.zeros_like(mapped)
     if not candidates.any():
         return result
     references = [mapped & (labels == 0) & (masks['skin'] > .8),
-                  mapped & (labels == 9) & (masks['ear'] < .1)]
+                  mapped & (labels == channel) & (masks['ear'] < .1)]
     if any(np.count_nonzero(region) < 32 for region in references):
         return result
     def median(region):
@@ -90,7 +90,7 @@ def ear_skin(labels, masks, mapped, colour):
     return result
 
 
-def apply_channels(labels, masks, mapped, colour=None, protected=None, positions=None):
+def apply_channels(labels, masks, mapped, colour=None, protected=None, positions=None, *, hair_ear_guard=False, lip_skin_guard=False):
     """Channel moves from the masks on a 4K ownership atlas; gutters re-padded so chart-border 1K blocks follow the edits.
     colour (the 4K bake) keeps hair-coloured beards hair (beard_hair). protected (hair rules marked overFaceMasks, with the 4K
     surface positions) stays hair where it joins hair the masks leave alone: a widow's peak or a hanging strand the parser
@@ -117,6 +117,18 @@ def apply_channels(labels, masks, mapped, colour=None, protected=None, positions
         restore = ear_skin(o, masks, mapped, colour)
         o[restore] = 0
         report['earBoneToSkin'] = int(restore.sum())
+    require(type(hair_ear_guard) is bool, 'hairEarGuard must be boolean')
+    if hair_ear_guard:
+        require('ear' in masks and colour is not None, 'Hair ear guard needs ear masks and baked color')
+        restore = ear_skin(o, masks, mapped, colour, channel=1)
+        o[restore] = 0
+        report['earHairToSkin'] = int(restore.sum())
+    require(type(lip_skin_guard) is bool, 'lipSkinGuard must be boolean')
+    if lip_skin_guard:
+        # Beard-color and connected overFaceMasks rules must not recolor the mouth.
+        restore = mapped & (masks['lips'] > .5) & (o == 1)
+        o[restore] = 0
+        report['lipHairToSkin'] = int(restore.sum())
     o = pad(o[..., None], mapped)[..., 0]
     moved = np.bincount(before[mapped].astype(np.int64)*10+o[mapped], minlength=100)
     report['moved'] = {f'{a}->{b}': int(moved[a*10+b]) for a in range(10) for b in range(10) if a != b and moved[a*10+b]}

@@ -7,11 +7,12 @@ import headkit.neck as N
 from headkit.gltf import mesh
 from headbatch.head_files import fit_matrix
 from _frame import band
-head = sys.argv[1]; man = json.load(open(head+'/manifest.json')); fit = fit_matrix(head)
-if 'neck' not in man['mesh']:
+head = sys.argv[1]; man = json.load(open(head+'/manifest.json'))
+if man['mesh'].get('neck') is None:
     from _frame import report_uncut_jaw
     report_uncut_jaw(head)
     sys.exit(0)
+fit = fit_matrix(head)
 m = mesh(sorted(glob.glob(head+'/run/precluster/attempt-*/oriented.glb'))[-1]); V, F = N.physical(m['positions'], m['faces'])
 args = sys.argv[2:]; reach = float(args[args.index('--reach')+1]) if '--reach' in args else None; args = [a for i, a in enumerate(args) if a != '--reach' and (i == 0 or args[i-1] != '--reach')]
 for s in map(float, args):

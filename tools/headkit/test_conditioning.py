@@ -44,6 +44,47 @@ class LocalPaintTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'reference bytes'):
                 restore(colour, labels, opening, value, masks, root/'ref.png', dict(spec,frontSha256='stale'))
 
+    def test_reference_lid_repair_is_review_bound_visible_and_skin_only(self):
+        import hashlib
+        from headkit.common import pin
+        from headkit.reference_eyes import restore
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            front = np.full((64,64,3), 128, np.uint8)
+            Image.fromarray(front).save(root/'front.png')
+            Image.fromarray(np.full_like(front,190)).save(root/'ref.png')
+            yy,xx = np.indices((64,64))
+            zbuf = np.zeros((64,64)); zbuf[29,19] = .1
+            np.savez(root/'view.npz', hit=np.ones((64,64),bool), face=(xx<yy).astype(int),
+                     centre=np.zeros(3), span=1., zbuf=zbuf)
+            value = dict(uv=np.array([[[0,0],[1,0],[1,1]],[[0,0],[1,1],[0,1]]]),
+                         faces=np.array([[0,1,2],[0,2,3]]),
+                         positions=np.array([[-.5,.5,0],[.5,.5,0],[.5,-.5,0],[-.5,-.5,0]]))
+            masks = dict(frontView=pin(root/'view.npz'),frontRender=pin(root/'front.png'))
+            spec = dict(frontSha256=masks['frontRender']['sha256'],
+                        referenceSha256=pin(root/'ref.png')['sha256'], includeLids=True)
+            contours = dict(rgbSha256=hashlib.sha256(front.tobytes()).hexdigest())
+            for side,c in [('R',18),('L',46)]:
+                spec[side] = dict(reference=[c,32,3,3],target=[c,32,3,3])
+                contours[side] = dict(opening=[[c-3,31],[c+3,31],[c+3,33],[c-3,33]],
+                                     iris=[[c-1,31],[c+1,31],[c+1,33],[c-1,33]],
+                                     excludeBrow=[[c-5,28],[c+5,28],[c+5,36],[c-5,36]])
+            labels = np.zeros((64,64),int); labels[29,17:19] = [1,2]
+            opening = np.zeros((64,64),float)
+            colour = np.zeros_like(front,dtype=np.float32)
+            restore(colour,labels,opening,value,masks,root/'ref.png',spec,contours=contours)
+            np.testing.assert_array_equal(colour[29,20], [190]*3)
+            self.assertFalse(colour[29,17:20].any())  # hair, metal and occluded skin
+            self.assertFalse(colour[20].any())
+            self.assertTrue(np.all(colour[28,20] < 190))  # soft outer boundary
+            with self.assertRaisesRegex(ValueError,'reviewed contours'):
+                restore(colour,labels,opening,value,masks,root/'ref.png',spec)
+            with self.assertRaisesRegex(ValueError,'exact front-render'):
+                restore(colour,labels,opening,value,masks,root/'ref.png',spec,
+                        contours=dict(contours,rgbSha256='stale'))
+            with self.assertRaisesRegex(ValueError,'boolean'):
+                restore(colour,labels,opening,value,masks,root/'ref.png',dict(spec,includeLids=1),contours=contours)
+
     def test_material_outline_uses_declared_axes_and_rejects_degenerate_contours(self):
         from headkit.paint import surface_outline
         points = np.array([[.2,.9,.2], [.8,.1,.8], [.2,.1,.8]])
@@ -75,6 +116,43 @@ class LocalPaintTests(unittest.TestCase):
         np.testing.assert_array_equal(rgb[~mask],initial[~mask])
         self.assertTrue(np.all(rgb[mask]==[0,200,0]))
         self.assertEqual(int(mask.sum()),9)
+
+
+class BrowEdgeTests(unittest.TestCase):
+    def test_seed_edges_stay_near_core_and_outside_lids_and_exclusions(self):
+        from headkit.brow_edges import fringe
+        seed=np.ones((24,24),bool);core=np.zeros_like(seed);core[10:12,10:12]=True
+        eyes=np.zeros_like(seed);eyes[12:]=True
+        excluded=np.zeros_like(seed);excluded[:,:10]=True
+        result=fringe(seed,core,eyes,excluded)
+        self.assertTrue(result[8,10])
+        self.assertFalse(result[6,10] or result[12,10] or result[10,9])
+        self.assertFalse(result[0].any())
+
+
+class MaterialLightTests(unittest.TestCase):
+    def test_local_light_balance_keeps_texture_other_materials_and_input(self):
+        from headkit.material_light import balance
+        n=128;yy,xx=np.indices((n,n));positions=np.dstack((xx/(n-1),yy/(n-1),(yy<n//2).astype(float)))
+        labels=np.ones((n,n),np.uint8);labels[:,-2:]=2
+        rgb=np.repeat((np.where(yy<n//2,100.,200.)+(xx%7-3))[...,None],3,axis=2).astype(np.float32)
+        original=rgb.copy();owners=np.zeros((n,n),int)
+        mesh={'positions':np.array([[0,0,0],[1,1,1]],float)}
+        spec={'channel':1,'reference':{'of':'z','gt':.8},'neighbours':128}
+        with patch('headkit.material_light.surface',return_value=(positions,owners,{})):
+            out,report=balance(rgb,labels,mesh,spec)
+            self.assertLess(float(np.median(out[n//2:,:-2])),115)
+            self.assertGreater(float(np.ptp(out[n//2:,:-2])),2)
+            self.assertTrue((out<=rgb+.001).all())
+            np.testing.assert_array_equal(out[:,-2:],rgb[:,-2:])
+            np.testing.assert_array_equal(rgb,original)
+            self.assertGreater(report['darkenedTexels'],n*n//3)
+            with self.assertRaisesRegex(ValueError,'32 texels'):
+                balance(rgb,labels,mesh,dict(spec,reference={'of':'z','gt':2}))
+            with self.assertRaisesRegex(ValueError,'limits'):
+                balance(rgb,labels,mesh,dict(spec,strength=float('nan')))
+            with self.assertRaisesRegex(ValueError,'channel'):
+                balance(rgb,labels,mesh,dict(spec,channel=True))
 
 
 class SourceRoleTests(unittest.TestCase):

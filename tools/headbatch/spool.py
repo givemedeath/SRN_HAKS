@@ -183,7 +183,15 @@ class Spool:
         elif stage == 'ownership':
             sheet = self.sheets/f'{head}-ownership-{attempt}.png'
             self.draw(sheet, 'ownsheet', head, attempt, sheet)  # the saved atlas: a rules preview would miss the face-mask channels
-            self.review(head, stage, f'{attempt}: ownership sheet queued: {sheet}')
+            note=f'{attempt}: ownership sheet queued: {sheet}'
+            if 'quality' in manifest and 'sourceHairRoles' not in manifest['quality']:
+                roles=self.workspace.head(head)/'review-evidence'/f'{head}-roles-{attempt}.png'
+                self.draw(roles,'roles',head,attempt,roles)
+                note+=f'; numeric channel/speck preflight queued: {roles}'
+                hair=self.workspace.head(head)/'review-evidence'/f'{head}-hairgaps-{attempt}.png'
+                self.draw(hair,'hairgaps',head,attempt,hair)
+                note+=f'; source hair/skin comparison queued: {hair}'
+            self.review(head,stage,note)
         elif stage == 'unwrap':
             passed, text = guards.unwrap_gates(result)
             if passed:
@@ -205,6 +213,12 @@ class Spool:
                     self.review(head, stage, f'{attempt}: exact-attempt palette evidence is incomplete')
                     return
                 sheet += '; game-size sheet '+str(text)
+                code, text = self.tool('review','--slot','irisrows',head,attempt)
+                if code:
+                    self.attention(head,stage,f'{attempt}: runtime iris comparison failed: {text}')
+                    self.review(head,stage,f'{attempt}: exact-attempt iris evidence is incomplete')
+                    return
+                sheet += '; runtime iris comparison '+str(text)
                 self.review(head, stage, f'{attempt}: rows {rows} | {sheet}; review alternate looks before quality/export')
                 return
             if rows == manifest['palette'].get('rows', {}) and guards.rows_reviewed(self.workspace, head):
@@ -222,7 +236,12 @@ class Spool:
         elif stage in ('paint', 'masks', 'tone'):
             sheet = self.sheets/f'{head}-{stage}-{attempt}.png'
             self.draw(sheet, 'texturesheet', head, stage, attempt, sheet)
-            self.review(head, stage, f'{attempt}: texture/mask sheet queued: {sheet}; visual approval required')
+            note = f'{attempt}: texture/mask sheet queued: {sheet}; visual approval required'
+            if stage == 'masks' and 'quality' in manifest:
+                eyes = self.sheets/f'{head}-eyes-{attempt}.png'
+                self.draw(eyes, 'eyereference', head, attempt, eyes)
+                note += f'; reference eye comparison queued: {eyes} (proposal only)'
+            self.review(head, stage, note)
         elif stage == 'export':
             matrix = guards.fit_matrix(self.workspace.head(head))
             budget = manifest['mesh'].get('triangleBudget', 20000)

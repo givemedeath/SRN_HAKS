@@ -11,7 +11,8 @@ from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
 from scipy.spatial import cKDTree
 from .common import require, pin, write, read, positive
 from .gltf import mesh
-from .face_masks import EYE_RING, EYES, IRIS, LIPS, NOSE_BASE, eye_contours, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
+from .brow_edges import upper_lids
+from .face_masks import EYE_RING, EYES, IRIS, LIPS, MOUTH, NOSE_BASE, eye_contours, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
 
 THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
 FACE_PX = 100; DECODE_ROWS = {'1': 117, '8': 26}; TOP = 12
@@ -21,6 +22,19 @@ CHECKS = {'featureFocusMin', 'blotchPxMax', 'specksMax', 'hairLockOnSkinPxMax', 
           'faceDarkRatioMin', 'hairEndTieExempt'}
 SEAM_RADIUS = .012   # head widths: about 1.5 1K texels on the face, the neighbours a seam step is seen against
 LIP_POLYGON = (61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17, 84, 181, 91, 146)
+
+
+def lip_hair_pixels(region, channel):
+    """Hair cannot own the confident mouth/lip interior (user channel contract)."""
+    core = binary_erosion(np.isin(region['labels'], (MOUTH,)+LIPS), np.ones((3,3))) & region['face']
+    return int(np.count_nonzero(core & (channel == 1)))
+
+
+def upper_lid_hair_pixels(region,channel,side=None):
+    """Reject hair on the confident upper-lid skin, independently of brow recall."""
+    lids=upper_lids(region['labels'].shape,region['pts'],region['view']['hit'],side)
+    core=binary_erosion(lids,np.ones((3,3)))
+    return int(np.count_nonzero(core & (channel==1)))
 
 
 def eligible(row):
@@ -106,6 +120,7 @@ def focus_view(source, masks, layers):
         iris = binary_erosion(contours['iris'])
         whites = eyes & ~binary_dilation(contours['iris'], iterations=4)
         brows = brow_seed(labels, pts, eyes, view['hit']) & ~(eyes | contours['excludeBrow'])
+    lids=upper_lids(labels.shape,pts,view['hit']);brows &= ~lids
     # Plain skin also excludes the colour-grown brow edges, which ownership rightly puts on hair (RUNBOOK 147).
     plain = plain_skin(labels, face, eyes, brows | brow_mask(render, labels, brows, eyes, view['hit']))
     cheeks = np.zeros((S, S), bool)
@@ -171,6 +186,8 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
         r['cybereyeImageSide'] = side
     share = lambda region, layer: round(float(np.isin(channel[region], layer).mean()), 3) if region.any() else None
     r['browsOnHair'] = share(brows, (1,)); r['irisOnTattoo1'] = share(iris, (8,)); r['whitesOnSkin'] = share(whites, (0,))
+    r['lipHairPx'] = lip_hair_pixels(region, channel)
+    r['upperLidHairPx'] = upper_lid_hair_pixels(region, channel, side)
     eyes_to_check = {'left': xs < pts[168, 0], 'right': xs >= pts[168, 0]}
     r['irisOnTattoo1ByEye'] = {name: share(iris & half, (8,)) for name, half in eyes_to_check.items() if name != side}
     # Above the nose only: below it the parser has no beard class and ownership keeps hair-coloured beards hair (RUNBOOK 145).
@@ -224,7 +241,8 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
     fails = [name for name, ok in (('featureFocus', r['featureFocus'] >= limits['featureFocusMin']), ('blotch', r['blotchPx'] <= limits['blotchPxMax']),
              ('specks', r['specks'] <= limits['specksMax']), ('hairLockOnSkin', (r['hairLockOnSkinPx'] or 0) <= limits['hairLockOnSkinPxMax']),
              ('browsOnHair', (r['browsOnHair'] or 0) >= limits['browsOnHairMin']), ('irisOnTattoo1', (r['irisOnTattoo1'] or 0) >= limits['irisOnTattoo1Min']),
-             ('whitesOnSkin', (r['whitesOnSkin'] or 0) >= limits['whitesOnSkinMin']),
+             ('whitesOnSkin', (r['whitesOnSkin'] or 0) >= limits['whitesOnSkinMin']), ('lipHair', r['lipHairPx'] == 0),
+             ('upperLidHair', r['upperLidHairPx'] == 0),
              ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax']),
              ('seamStep', r['seamStepRatio'] is None or r['seamStepRatio'] <= seam_max),
              ('bodySkin', r['skinMedianOffset'] is not None and r['skinMedianOffset'] <= limits['skinMedianOffsetMax']),

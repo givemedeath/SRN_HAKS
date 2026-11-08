@@ -22,8 +22,8 @@ GPU_JOB = Path(__file__).with_name('gpu_job.py')
 FINISHED_STAGES = ('export', 'native')  # the spooler or a person takes these on; a render waits for its review (RUNBOOK 63)
 LOCK_POLL_SECONDS = 2
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
-GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'common', 'gltf', 'occiput', 'source_inventory', 'diagnostics', 'rays'))
-DESIGN_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('run_headkit', '__init__', '__main__', 'common', 'comfy', 'design', 'source_inventory'))
+GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'gpu_lock', 'common', 'gltf', 'occiput', 'source_inventory', 'diagnostics', 'rays'))
+DESIGN_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('run_headkit', '__init__', '__main__', 'common', 'comfy', 'gpu_lock', 'design', 'source_inventory'))
 DEFAULT_GPU_STAGES = 'calibrate,geometry,appearance'
 
 
@@ -146,6 +146,8 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None, attempt
                 guards.approved_attempt(head, approve, attempt)
             if approve == 'repair':
                 guards.jaw(head, landmarks)
+            if approve == 'ownership' or 'tone' in stage_list:
+                guards.ownership_roles(head)
         with cpu_slot(workspace):
             guards.clean_stray_bytecode(bindings)  # strays recur, and the wait for a slot can be long (RUNBOOK 92)
             started = time.time();acquired=time.monotonic()
