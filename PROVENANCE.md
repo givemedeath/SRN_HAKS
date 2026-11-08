@@ -645,3 +645,22 @@ limitations are in docs/heads/dwarf-male-pair-v1.md and its JSON manifest.
 Installed stock palettes and body references were validation inputs and are
 not redistributed by this change. Generated intermediates, machine bindings,
 private receipts and HAK builds remain outside the repository.
+
+## Basalt, Rime and Willowglass heads (srn_head; 2026-11-08)
+
+The SRN project operator selected the generated Basalt and Rime male Dwarf
+designs and Willowglass female Elf design with long hair. ImageGen supplied
+appearance and paired clay references; Pixal supplied geometry and saved-shape
+appearance. Headbatch/headkit performed fitting, repair, UVs, texture baking,
+PLT ownership/palette mapping, native compilation and review. The user delegated
+operator reviews through the private NWN:EE client and authorized separate
+asset and tooling PRs.
+
+Only pmd0_head021, pmd0_head022 and pfe0_head021 MDL/PLT pairs are added.
+The exact client-reviewed resource hashes, submission counters, validation,
+gallery evidence and limitations are in docs/heads/dwarf-elf-head-trio-v1.md
+and its JSON manifest. Willowglass includes the verified local rear-temple
+hair closure while preserving her selected fit and prior mapped texture.
+The heads reference the game's built-in organic head materials; stock material
+and palette payloads are not redistributed. Machine bindings, intermediate
+models, private logs and generated HAKs remain outside the repository.
