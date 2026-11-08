@@ -27,7 +27,7 @@ DECLARED_POSTURE_LAYERS = {
 }
 # Approved overrides of installed-chain models, by name, role and pinned bytes. A clip change updates this pin.
 DECLARED_STOCK_OVERRIDES = {
-    'a_ba_custom': {'sha256': '8beffddee69cad533ac2ee09f6417f0d6331a25fcff8676818fca98e6c45167d', 'role': 'combat-animation',
+    'a_ba_custom': {'sha256': '71e091a80df1469d4d3a5f4771b4d4f62c01e39396b1fb4580cc33bb7de0a4bb', 'role': 'combat-animation',
                     'evidence': 'docs/phenomorpher/README.md (Release 1.5.0, user request 2026-11-07)'},
     'a_ba_non_combat': {'sha256': '708fd5b94f431e32e4991f960ddcfe16ea2bee9be07c1100f8f876be0cd9e632', 'role': 'carry-overlay',
                         'evidence': 'docs/phenomorpher/README.md (Release 1.5.0, user request 2026-11-07)'},

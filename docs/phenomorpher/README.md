@@ -20,14 +20,16 @@ The user asked to ship these on 2026-11-07. Pilot, gates and evidence: [firearm-
 
 * **`srn_body/a_ba_custom.mdl`** adds 30 automatic rifle clips (`fire_rfla` full auto, `fire_rflb` three-round burst)
   and changes 45: the rifle and shotgun fire clips kick 0.37 s later, on the engine's 0.5 s shot, and the pistol
-  support elbow bends down and out. 205 firearm clips in all.
+  support elbow bends down and out. `ready_pst` and `ready_smg` (30 clips) carry the pistol and SMG fire motion
+  for their stances, so a stance never fires gun effects. 235 firearm clips in all.
 * **`srn_body/a_ba_non_combat.mdl`** overrides the installed model. Its `xbowr` clip, which the client lays over a
   crossbow holder's arm whenever it's out of combat, keeps its nodes but has no keys. Rifles stay crossbow-class and
   aim forward outside combat; they hang muzzle-down at idle. Stock crossbows lose their shoulder carry too. Every
   other clip is the stock one, decompiled to ASCII.
 * **Gun effects (`srn_weapon`)**: the Colt L36 (both colours), Ares Predator IV, Ingram Smartgun X and AK-98 barrel
   parts carry a muzzle flash and a tumbling casing (`srnfx_casing.tga`) that fire on a `detonate` event at the shot,
-  in the gun's copy of each fire clip. SMG and automatic rifle clips fire one per kick.
+  in the gun's copy of each fire clip. SMG and automatic rifle clips fire one per kick. Each gun also has empty
+  clips for every stance, reload and grenade name, so its effects stop between shots.
 * Burst and full-auto mapping to native attacks belongs to SR_NWN, so those clips may change later.
 * Firing sounds stay with SR_NWN's D377 plan; rifles on the crossbow row still need their own mute there.
 

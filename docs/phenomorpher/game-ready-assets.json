@@ -630,14 +630,14 @@
  "resources": [
   {
    "path": "srn_body/a_ba_custom.mdl",
-   "sha256": "8beffddee69cad533ac2ee09f6417f0d6331a25fcff8676818fca98e6c45167d",
-   "bytes": 3893497,
+   "sha256": "71e091a80df1469d4d3a5f4771b4d4f62c01e39396b1fb4580cc33bb7de0a4bb",
+   "bytes": 4541847,
    "role": "combat-animation",
    "sourceResource": "a_ba_custom.mdl",
    "sourceArchive": null,
    "sourceSHA256": "c29d502d2b9fc830ba90302236fb2247d999dd6c851437e370fc21a936fd23c4",
    "nameOnlyChanges": [],
-   "addedClips": 205,
+   "addedClips": 235,
    "builder": "tools/itemkit/combat_clip_pilot.py"
   },
   {
@@ -20177,7 +20177,7 @@
   "1.3.0 (user-approved 2026-10-27; docs/phenomorpher/race-sizing/plan.md, human-bodies-lock-c7.md): race bodies at their lore rest heights with Fit = Large, Large-male joint heights at Fit, lore build, the b13/c6 female joins ported to the race females, idle soles on the floor; the c7 Human lock (c6 female joins, torso polish and rebuilt skin, and pmh2 at Fit joint heights). Rigs, libraries and pmh2 compile with Blender 5.2.1 + Neverblender 4.5.1 against the stock a_ba/a_fa. Per-resource release130 records the 1.2.0 hash and change class.",
   "1.3.0 foot fix (user request 2026-10-27): in every race library clip where a race body went further below the floor than in 1.2.0, rootdummy position keys are lifted by that extra depth at every key time (plus refinement points); nothing is lowered and clips that never sink are byte-for-byte the same animation. docs/phenomorpher/race-sizing/release-1.3.0.json (footFix).",
   "1.4.0 (user request 2026-11-07, docs/phenomorpher/animation-chain-probe.md): srn_body/a_ba_custom.mdl overrides the installed ASCII a_ba_custom with its stock clips unchanged and 175 added firearm clips named <action>_<weapon>_<slot>. installedAnimationChain still records the stock file the override is built from. Bodies, rigs and the 2DA tables are unchanged.",
-  "1.5.0 (user request 2026-11-07, docs/items/firearm-fx-pilot.md): srn_body/a_ba_custom.mdl adds 30 automatic rifle clips (fire_rfla, fire_rflb), shifts the rifle and shotgun fire clips' recoil 0.37 s later to the engine's 0.5 s shot, and fixes the pistol support elbow. srn_body/a_ba_non_combat.mdl overrides the installed binary with a decompiled ASCII copy whose xbowr carry overlay keeps its nodes but has no keys, so crossbow-class firearms stay aimed outside combat; every other clip is unchanged. installedAnimationChain still records the stock files these are built from."
+  "1.5.0 (user request 2026-11-07, docs/items/firearm-fx-pilot.md): srn_body/a_ba_custom.mdl adds 30 automatic rifle clips (fire_rfla, fire_rflb), shifts the rifle and shotgun fire clips' recoil 0.37 s later to the engine's 0.5 s shot, fixes the pistol support elbow, and adds ready_pst and ready_smg stance copies of the pistol and SMG fire clips so stances never fire gun effects. srn_body/a_ba_non_combat.mdl overrides the installed binary with a decompiled ASCII copy whose xbowr carry overlay keeps its nodes but has no keys, so crossbow-class firearms stay aimed outside combat; every other clip is unchanged. installedAnimationChain still records the stock files these are built from."
  ],
  "raceSelection": {
   "rows": {

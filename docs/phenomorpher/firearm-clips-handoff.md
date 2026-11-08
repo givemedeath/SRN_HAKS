@@ -23,13 +23,13 @@ Nothing plays these resources yet. SRN_HAKS supplies them, and SR_NWN owns the f
 
 | Pack | Resource | Change |
 |---|---|---|
-| `srn_body` | `a_ba_custom.mdl` | Overrides the installed model: stock clips unchanged, 205 clips added, parent still `a_ba_casts` |
+| `srn_body` | `a_ba_custom.mdl` | Overrides the installed model: stock clips unchanged, 235 clips added, parent still `a_ba_casts` |
 | `srn_body` | `a_ba_non_combat.mdl` | New in 1.5.0. Overrides the installed model: `xbowr` keeps its nodes but has no keys; every other clip is stock |
 | `srn_weapon` | `wbwsl_b_051`, `wbwsl_b_052`, `wbwsl_b_065`, `wbwsl_m_023`, `wbwxh_t_015` | New in 1.5.0: muzzle flash and casing emitters with their clips (Colt L36 both colours, Ares Predator IV, Ingram, AK-98) |
 | `srn_weapon` | `srnfx_casing.tga` | New in 1.5.0: tumbling casing sheet |
 | `srn_sound` | 17 WAVs, listed under Sounds | New in 1.4.0. No 2DA row references them |
 
-- SHA-256: `a_ba_custom.mdl` `8beffddee69cad533ac2ee09f6417f0d6331a25fcff8676818fca98e6c45167d` (3,893,497 bytes ASCII),
+- SHA-256: `a_ba_custom.mdl` `71e091a80df1469d4d3a5f4771b4d4f62c01e39396b1fb4580cc33bb7de0a4bb` (4,541,847 bytes ASCII),
   `a_ba_non_combat.mdl` `708fd5b94f431e32e4991f960ddcfe16ea2bee9be07c1100f8f876be0cd9e632` (712,917 bytes ASCII). The gun
   parts' hashes are in `docs/items/approved-weapons-v1.json`, which keeps each part's pre-effects hash too.
 - Body contract is 1.5.0, in `docs/phenomorpher/game-ready-assets.json`. No 2DA changed, so `ammunitiontypes.2da`,
@@ -39,7 +39,7 @@ Nothing plays these resources yet. SRN_HAKS supplies them, and SR_NWN owns the f
 
 ## Clips
 
-Names are `<action>_<weapon>_<slot>`. All 205 are in `a_ba_custom`, which every playable body reaches.
+Names are `<action>_<weapon>_<slot>`. All 235 are in `a_ba_custom`, which every playable body reaches.
 
 | Clip stem | Use | Clips | Length | `hit` event | Stock name to replace |
 |---|---|---:|---:|---|---|
@@ -51,6 +51,8 @@ Names are `<action>_<weapon>_<slot>`. All 205 are in `a_ba_custom`, which every 
 | `ready_sg` | Shotgun stance | 15 | 1 s | None | `xbowrdy` |
 | `fire_pst` | Pistol fire | 15 | 1 s | 0 s | `throwr` |
 | `fire_smg` | SMG fire | 15 | 1 s | None | `throwr` |
+| `ready_pst` | Pistol stance: `fire_pst`'s motion under its own name | 15 | 1 s | None | Ready names, below |
+| `ready_smg` | SMG stance: `fire_smg`'s motion under its own name | 15 | 1 s | None | Ready names, below |
 | `fire_dpst` | Dual pistol fire | 10 | 1 s | None | `throwr` |
 | `fire_dsmg` | Dual SMG fire | 10 | 1 s | None | `throwr` |
 | `reload_rfl` | Rifle reload, and shotgun until it has its own | 15 | 2 s | None | `custom16lp` |
@@ -110,14 +112,17 @@ void MapClip(object oActor, string sStock, string sStem)
 - **Never map `xbowr`.** Mapping it folds the right forearm over the shoulder for the whole of combat and reverses the rifle.
   The 1.5.0 `a_ba_non_combat` override already handles the out-of-combat carry, and `ReplaceObjectAnimation` on `xbowr`
   doesn't reach that overlay anyway.
-- **Pistol and SMG stance:** map `fire_pst` or `fire_smg` onto `bowrdy`, `bow`, `1hreadyr`, `1hreadyl`, `nwreadyr` and `nwreadyl`.
+- **Pistol and SMG stance:** map `ready_pst` or `ready_smg` onto `bowrdy`, `bow`, `1hreadyr`, `1hreadyl`, `nwreadyr` and `nwreadyl`.
+  Never map the `fire_*` names onto stances: the effect guns fire on those names, so the stance would flash and eject
+  casings (1.5.0 changed this from 1.4.0's advice).
   Without it, the stock ready stance hides the pistol behind the body between shots.
 - **Grenade:** map `custom18lp` to `throw_gren` and play `ANIMATION_LOOPING_CUSTOM18`.
 
 ### Gun effects
 
 Each effect gun carries its own copies of the fire clips under the same names (`fire_pst_hm` and so on), plus empty clips
-for idle, walk, run and the ready names. When the body plays a replaced fire clip, the gun plays its copy and sends a
+for idle, walk, run, the stock ready names and every slot's `ready_*`, `reload_*` and `throw_gren` name. A gun
+with no clip for the name the body plays keeps looping its last clip, effects and all. When the body plays a replaced fire clip, the gun plays its copy and sends a
 `detonate` event that fires a muzzle flash (`srn_flash01..09`) and one casing (`srn_casing`).
 
 | Gun clip | Detonates at |

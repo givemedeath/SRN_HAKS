@@ -139,14 +139,14 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wbwsl_b_012.mdl` | colt-l36-pistol | 1588 | `8ba64f5731688011c17bfbb4aabdb942aa19a997ba80e9dffe0a723b96d10d22` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_013.mdl` | ingram-smartgun-x | 1588 | `6d9c2e1b2a16524af8c4dd139484446c72027dafa7489996a5f8e0f647f9180b` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_015.mdl` | sr4-ares-predator-iv-3ab64906ed | 1588 | `8bc3d32864ddd147a6080779f3c021e345c32eee6d2ef2bb82c4583b93464672` | (invisible part) | yes |
-| `srn_weapon/wbwsl_b_051.mdl` | colt-l36-pistol | 1112528 | `72225d06a234009642d344e1ebae76401f8f3d4055533674b064c0164f1e24c8` | sr_cl36_051, srnfx_casing | yes |
-| `srn_weapon/wbwsl_b_052.mdl` | colt-l36-pistol | 1112528 | `6ae94b70d573c398944fc42c7970497dd44071b3f13bb97ee38ea2ef839a9c70` | sr_cl36_052, srnfx_casing | yes |
-| `srn_weapon/wbwsl_b_065.mdl` | sr4-ares-predator-iv-3ab64906ed | 988240 | `cbbfce86b7f0320339f46b590af358eeb58ad5890f3f96ca4985ce868ddec5e0` | sr3ab64906_065, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_051.mdl` | colt-l36-pistol | 1154648 | `99bc6299157a8362395a3e5f855f99586215f32cf184effdc0a95a3e45eccf71` | sr_cl36_051, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_052.mdl` | colt-l36-pistol | 1154648 | `9ece48aa714b7db9b4d06d73f7579d4a5479123cf29efc8c06bc7037870d9898` | sr_cl36_052, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_065.mdl` | sr4-ares-predator-iv-3ab64906ed | 1030360 | `69eded3eedd1ed24b13cb51846214770416b548e0d4f79e2b75a5feb0fb85b17` | sr3ab64906_065, srnfx_casing | yes |
 | `srn_weapon/wbwsl_m_011.mdl` | colt-l36-pistol | 1588 | `06d11150f4674c6ddfa315b1bd5ab42a15a797ae8c0406a4cb422e80ac621dad` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_012.mdl` | colt-l36-pistol | 1588 | `b53ef2ae16bdb84bd38318ea67a333ffdf7efa60ae000310b9322e957a1cbe56` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_013.mdl` | ingram-smartgun-x | 1588 | `2dd90ec38e56ff8815c3acc7c122ccd700492e623d433d80d78b1157c6b39b2c` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_015.mdl` | sr4-ares-predator-iv-3ab64906ed | 1588 | `5a2aae6bad7629d6d4385e3e283c50557e70ee5d89c51f889de1ff1b70020d2f` | (invisible part) | yes |
-| `srn_weapon/wbwsl_m_023.mdl` | ingram-smartgun-x | 1140412 | `24d6bcc0329f1c95de6f26b52cafd5a994e73b05a189394e14d1aba67551d15a` | sre9a211be_023, srnfx_casing | yes |
+| `srn_weapon/wbwsl_m_023.mdl` | ingram-smartgun-x | 1182532 | `688f616d009cf470a6f8d309438541ded8d0aabe93ac3c8b46e906669bcdaab7` | sre9a211be_023, srnfx_casing | yes |
 | `srn_weapon/wbwsl_t_011.mdl` | colt-l36-pistol | 1588 | `54a71086b1bb6bc873ccb3430f053b7dfe6816e31b2906adc3585cc1a0e31a03` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_012.mdl` | colt-l36-pistol | 1588 | `a571dcaf41d7e501268e75938956ee1c52d6a23e26019938589a2cf8d0bcda07` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_013.mdl` | ingram-smartgun-x | 1588 | `a866f7c3e293be58d4d1449fd5d8c9969dbc7193cad2bbf9c3b81cdaf932d832` | (invisible part) | yes |
@@ -155,7 +155,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wbwxh_b_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `0565e25b381de360d2e59da5755ed1487bd00a1f823b2d9b08bfb995749fac4e` | (invisible part) | yes |
 | `srn_weapon/wbwxh_m_015.mdl` | sr4-ak-98-84e46602ea | 1588 | `f0387b62866e0751fedf1c551e3fead9ad295bd66bcaec980d3a71bbe03b217e` | (invisible part) | yes |
 | `srn_weapon/wbwxh_m_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `e1d14dcd8ede842f7e3c7491042c37f63a593fc0f191bb5523d06c2f794235e1` | (invisible part) | yes |
-| `srn_weapon/wbwxh_t_015.mdl` | sr4-ak-98-84e46602ea | 1092292 | `dbdc37b2dd20151bfe694e4d4933669d352691b141f3258dab6a4cc90c9abf6e` | sra84e4660_015, srnfx_casing | yes |
+| `srn_weapon/wbwxh_t_015.mdl` | sr4-ak-98-84e46602ea | 1134412 | `621ca4693f9e0ab888be31c7e11e06ca09792f4e1f44ddf8accc724984513e50` | sra84e4660_015, srnfx_casing | yes |
 | `srn_weapon/wbwxh_t_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 939076 | `d9022597fb7bf7ff23c55acf2f6edf17b375e46e1b94c6505592a88589e3b639` | sr6abe18c_06 | yes |
 | `srn_weapon/wdbqs_b_061.mdl` | sr4-staff-dc4c1668ea | 191108 | `a20fe05a26dc5d318bd6833e371b4ecfa83a726ffbc4786be1ebe1c76b3a3acd` | srdc4c1668_06 | yes |
 | `srn_weapon/wdbqs_m_061.mdl` | sr4-staff-dc4c1668ea | 254076 | `48c426c70f0d7ab42502767adc57b211eed2ff53aabae19b3b497dd40261b7ad` | srdc4c1668_06 | yes |

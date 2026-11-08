@@ -402,6 +402,10 @@ Contract 1.5.0, 2026-11-07, at the user's request ("let's ship it", with the cro
 
 - **Predator:** new to this build. Its port sits on its right face just below the slide where the grip starts,
   measured from its cross-sections like the others.
+- **Between shots (review fix):** each gun has empty clips for every slot's stance, reload and grenade name
+  (`quiet_names`), and the pistol and SMG stances play `ready_pst`/`ready_smg`, copies of their fire clips under
+  their own names (`STANCE_COPIES`). Before this, a stance mapped to a fire clip fired the effects, and a gun with no
+  clip for a stance or reload kept looping its fire clip.
 - **Pre-effects source:** later builds take the guns from commit `2805a5ec` (`gun_source`), checked against the
   `preEffectsSha256` the weapon record keeps for each part.
 - **Client check (build `firearm-fx-ship-check2`):** the test hak carried no gun or body model, so the client ran

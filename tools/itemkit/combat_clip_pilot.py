@@ -45,6 +45,9 @@ RELOADS = ('custom17start',)
 # Crossbow-class weapons get their own ready stance, built from the shot clip's rest pose. Leave `xbowr` alone: mapping
 # it folds the right forearm back over the shoulder for as long as the weapon is in combat.
 READY = {'custom11lp': 'ready_rfl', 'custom19lp': 'ready_sg'}
+# Pistol and SMG stances play their fire clip's motion under a name of their own, because effect guns fire on the
+# fire names. Mapping the fire clip onto the ready names would flash and eject casings while standing.
+STANCE_COPIES = {'fire_pst': 'ready_pst', 'fire_smg': 'ready_smg'}
 # The engine fires on the stock clip's `hit` (0.5 s in `throwr` and `xbowshot`), not on ours. These clips kick at
 # 0.13 s, so their loop is turned later to kick at 0.5 s. Ready stances still come from the unshifted first pose.
 RECOIL_DELAY = {'custom11lp': .37, 'custom19lp': .37}
@@ -541,6 +544,8 @@ def stage_animation(hak, stock_dir, source_dir, body, weapons, stance):
             solved = solve_support(raw, roots[0], marks)
             delay = RECOIL_DELAY.get(name)
             blocks.append(clip_text(label, 'a_ba_custom', delayed(solved, delay) if delay else solved, tree))
+            if code in STANCE_COPIES:
+                blocks.append(clip_text(f'{STANCE_COPIES[code]}_{slot}', 'a_ba_custom', solved, tree))
             if code == 'fire_rfl':
                 blocks += [clip_text(f'{auto}_{slot}', 'a_ba_custom', kicked(solved, RIFLE_KICK, **spec), tree)
                            for auto, spec in AUTO.items()]
@@ -550,6 +555,8 @@ def stage_animation(hak, stock_dir, source_dir, body, weapons, stance):
                 wide, _ = retarget(read_clip(sources[sex], name), names, stock_bind, binds[1])
                 large = solve_support(wide, roots[1], marks)
                 blocks.append(clip_text(label + 'l', 'a_ba_custom', delayed(large, delay) if delay else large, tree))
+                if code in STANCE_COPIES:
+                    blocks.append(clip_text(f'{STANCE_COPIES[code]}_{slot}l', 'a_ba_custom', large, tree))
                 if code == 'fire_rfl':
                     blocks += [clip_text(f'{auto}_{slot}l', 'a_ba_custom', kicked(large, RIFLE_KICK, **spec), tree)
                                for auto, spec in AUTO.items()]
@@ -703,9 +710,9 @@ void main(){
  object pc=GetPCChatSpeaker();
  string text=GetStringLowerCase(GetPCChatMessage());
  if(text=="hold")Ready("ready_rfl");
- else if(text=="holdsmg")Hold("fire_smg");
+ else if(text=="holdsmg")Hold("ready_smg");
  else if(text=="holdshot")Ready("ready_sg");
- else if(text=="holdp")Hold("fire_pst");
+ else if(text=="holdp")Hold("ready_pst");
  else if(text=="rdstock")Ready("");
  else if(text=="ingram")ArmWith("sre9a211be_3","nw_wambu001",INVENTORY_SLOT_BULLETS);
  else if(text=="fingram")Attack("throwr","fire_smg","attack throwr ingram");

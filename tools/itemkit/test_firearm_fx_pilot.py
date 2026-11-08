@@ -53,9 +53,11 @@ class TaggedGun(unittest.TestCase):
     def test_quiet_clips_send_no_event(self):
         text = fx.tagged_gun(GUN, 'fire_pst', 'replaced', quiet=True)
         clips = dict(re.findall(r'(?ms)^newanim (\S+) wbwsl_b_051\n(.*?)^doneanim', text))
-        self.assertEqual(len(clips), 15 + len(fx.QUIET_CLIPS))
-        for name in fx.QUIET_CLIPS:
+        self.assertEqual(len(clips), 15 + len(fx.quiet_names()))
+        for name in fx.quiet_names():
             self.assertNotIn('event', clips[name])
+        for name in ('ready_rfl_hm', 'ready_pst_tfl', 'ready_smg_om', 'reload_rfl_efl', 'reload_dual_df', 'throw_gren_hm'):
+            self.assertIn(name, clips)
         self.assertIn('event 0.1 detonate', clips['fire_pst_hm'])
 
     def test_retimed_hits_move_every_fire_clip_and_leave_the_rest(self):

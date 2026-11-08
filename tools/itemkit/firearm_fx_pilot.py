@@ -35,6 +35,9 @@ HIT_TIMES = {'fire_pst': .5, 'fire_rfl': .13, 'fire_sg': .13, 'fire_smg': .1}
 FIRE_CLIP = re.compile(r'(?ms)^(newanim (fire_(?:pst|rfl|sg|smg))_\S+ a_ba_custom\n)(.*?)(^doneanim )')
 # Names the body plays outside the shot. A gun with no clip of the name keeps looping its last one, detonate and all.
 QUIET_CLIPS = ('pause1', 'pause2', 'walk', 'run', 'xbowrdy', 'bowrdy', 'bow', '1hreadyr', '1hreadyl', 'nwreadyr', 'nwreadyl')
+# The replacement names a body plays between shots (stances, reloads, the grenade), for every slot. Each gets an empty
+# clip too, or the gun keeps looping its fire clip through them.
+QUIET_STEMS = ('ready_rfl', 'ready_sg', *pilot.STANCE_COPIES.values(), *pilot.RELOAD_VARIANTS, 'reload_dual', 'throw_gren')
 BURST_LIFE = 1.5
 BURST_SIZE = .5
 # Old mod effects (`--old-fx`), relative to the `!Combat Override System` folder. The flash is 9 sprites on stock
@@ -220,6 +223,11 @@ def slots():
     return [*pilot.SLOTS, *(slot + 'l' for slot in pilot.SLOTS if slot.endswith('f'))]
 
 
+def quiet_names():
+    """Every name an effect gun gets an empty clip for: the stock between-shot names and each slot's stance and reload."""
+    return [*QUIET_CLIPS, *(f'{stem}_{slot}' for stem in QUIET_STEMS for slot in slots())]
+
+
 def retimed_hits(text, times=HIT_TIMES):
     """Move or add the `hit` event of every rifle, shotgun, pistol and SMG fire clip to its `times` entry."""
     def retime(match):
@@ -332,7 +340,7 @@ def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=No
     clips = ''.join(CLIP.format(clip=name, root=root, event=''.join(f'  event {t} detonate\n' for t in at), nodes=listing)
                     for name, at in timed)
     if quiet:
-        clips += ''.join(CLIP.format(clip=name, root=root, event='', nodes='') for name in QUIET_CLIPS)
+        clips += ''.join(CLIP.format(clip=name, root=root, event='', nodes='') for name in quiet_names())
     head = f'setsupermodel {root} NULL\n'
     if text.count(head) != 1:
         raise ValueError('Unexpected gun header: ' + root)

@@ -617,13 +617,13 @@ emitters and their clips to the effect-free parts at commit `2805a5ec` and compi
 
 | File | SHA-256, first 12 |
 |---|---|
-| `srn_weapon/wbwsl_b_051.mdl` | `72225D06A234` |
-| `srn_weapon/wbwsl_b_052.mdl` | `6AE94B70D573` |
-| `srn_weapon/wbwsl_b_065.mdl` | `CBBFCE86B7F0` |
-| `srn_weapon/wbwsl_m_023.mdl` | `24D6BCC0329F` |
-| `srn_weapon/wbwxh_t_015.mdl` | `DBDC37B2DD20` |
+| `srn_weapon/wbwsl_b_051.mdl` | `99BC6299157A` |
+| `srn_weapon/wbwsl_b_052.mdl` | `9ECE48AA714B` |
+| `srn_weapon/wbwsl_b_065.mdl` | `69EDED3EEDD1` |
+| `srn_weapon/wbwsl_m_023.mdl` | `688F616D009C` |
+| `srn_weapon/wbwxh_t_015.mdl` | `621CA4693F9E` |
 | `srn_weapon/srnfx_casing.tga` | `E8AA922AB82A` |
-| `srn_body/a_ba_custom.mdl` | `8BEFFDDEE69C` |
+| `srn_body/a_ba_custom.mdl` | `71E091A80DF1` |
 | `srn_body/a_ba_non_combat.mdl` | `708FD5B94F43` |
 
 `a_ba_non_combat.mdl` is the installed NWN:EE model decompiled to ASCII with the keys of its `xbowr` clip removed;
