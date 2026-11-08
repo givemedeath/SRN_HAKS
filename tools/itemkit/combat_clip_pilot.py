@@ -600,7 +600,7 @@ void Attack(string shot,string code,string text){
  int n=0;object a=GetObjectByTag("SRP_A",n);
  while(GetIsObjectValid(a)){
   ReplaceObjectAnimation(a,"pause1","");ReplaceObjectAnimation(a,"pause2","");
-  Map(a,shot,code);
+  if(code!="")Map(a,shot,code);
   AssignCommand(a,ClearAllActions(TRUE));AssignCommand(a,ActionAttack(target));
   a=GetObjectByTag("SRP_A",++n);}
  Say(text);SrpLog("phase "+text);}
@@ -656,6 +656,24 @@ void ArmWith(string resref,string ammo,int ammoSlot){
   AssignCommand(a,ActionEquipItem(item,INVENTORY_SLOT_RIGHTHAND));
   SrpLog("arm "+GetName(a)+" "+resref+" valid="+IntToString(GetIsObjectValid(item)));
   a=GetObjectByTag("SRP_A",++n);}}
+void CombatLog(int left){
+ object a=GetObjectByTag("SRP_A",0);
+ SrpLog("combat left="+IntToString(left)+" in="+IntToString(GetIsInCombat(a))+" anim="+IntToString(GetCurrentAction(a)));
+ if(left>0)DelayCommand(1.0,CombatLog(left-1));}
+void StockLoop(string clip){
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){
+  ReplaceObjectAnimation(a,"pause1","");ReplaceObjectAnimation(a,"pause2","");
+  ReplaceObjectAnimation(a,clip,"");ReplaceObjectAnimation(a,"custom11lp",clip);
+  AssignCommand(a,ClearAllActions(TRUE));AssignCommand(a,ActionPlayAnimation(ANIMATION_LOOPING_CUSTOM11,1.0,10000.0));
+  a=GetObjectByTag("SRP_A",++n);}
+ Say("stock loop "+clip);SrpLog("phase stock loop "+clip);CombatLog(40);}
+void StockFire(){
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){
+  ReplaceObjectAnimation(a,"xbowshot","");ReplaceObjectAnimation(a,"xbowrdy","");
+  a=GetObjectByTag("SRP_A",++n);}
+ Attack("xbowshot","","stock xbowshot attack");}
 void Arm(){ArmWith("''' + RIFLE + r'''","nw_wambo001",INVENTORY_SLOT_BOLTS);}
 void Show(int appearance,string race){ShowRace(appearance,race);DelayCommand(3.0,Arm());}
 '''
@@ -701,6 +719,10 @@ void main(){
  else if(GetStringLeft(text,3)=="rl ")Reload("",ANIMATION_LOOPING_CUSTOM16,2.0,StringToFloat(GetSubString(text,3,6)),FALSE);
  else if(GetStringLeft(text,3)=="rf ")Reload("",ANIMATION_LOOPING_CUSTOM16,2.0,StringToFloat(GetSubString(text,3,6)),TRUE);
  else if(GetStringLeft(text,3)=="rd ")Reload("reload_dual",ANIMATION_LOOPING_CUSTOM17,4.0,StringToFloat(GetSubString(text,3,6)),FALSE);
+ else if(text=="xloop")StockLoop("xbowshot");
+ else if(text=="xrdy")StockLoop("xbowrdy");
+ else if(text=="fstock"){StockFire();CombatLog(40);}
+ else if(text=="fxloop"){StockFire();DelayCommand(6.0,StockLoop("xbowshot"));}
  else if(text=="frifle")Attack("xbowshot","fire_rfl","attack xbowshot rifle");
  else if(text=="fproof")Attack("xbowshot","throw_gren","attack proof grenade on xbowshot");
  else if(text=="fshot")Attack("xbowshot","fire_sg","attack xbowshot shotgun");
