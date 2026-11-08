@@ -628,3 +628,20 @@ emitters and their clips to the effect-free parts at commit `2805a5ec` and compi
 
 `a_ba_non_combat.mdl` is the installed NWN:EE model decompiled to ASCII with the keys of its `xbowr` clip removed;
 it adds no new content. The `a_ba_custom.mdl` clips come from the old mod's combat clips as recorded for release 1.4.0.
+
+## Two male Dwarf heads (srn_head; 2026-11-07)
+
+The SRN project operator selected and approved two generated adult male Dwarf designs:
+a Danny DeVito-like older Dwarf and a copper-bearded Dwarf. ImageGen supplied the
+appearance and paired smooth-clay conditioning images. Pixal generated geometry
+and saved-shape appearance; headbatch/headkit fitted the meshes, baked textures,
+assigned PLT materials, mapped palettes and compiled native NWN:EE resources.
+The user approved the final client appearance and requested publication in a
+separate asset PR.
+
+Only pmd0_head019.mdl/.plt and pmd0_head020.mdl/.plt are added. The portable
+resource hashes, native checks, quality results, client evidence and known
+limitations are in docs/heads/dwarf-male-pair-v1.md and its JSON manifest.
+Installed stock palettes and body references were validation inputs and are
+not redistributed by this change. Generated intermediates, machine bindings,
+private receipts and HAK builds remain outside the repository.
