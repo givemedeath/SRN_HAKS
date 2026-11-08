@@ -1,4 +1,7 @@
-# Human female: PR #38 infrastructure adoption checkpoint
+# Human female: PR #38 infrastructure adoption checkpoint (SUPERSEDED)
+
+> [!NOTE]
+> **SUPERSEDED (2026-10-08 / 2026-10-27)**: The paused body goal and posture experiment referenced here were superseded when Gate 4 and Gate 5 were approved in `completionV1 closure v1` and published as PR #42 (2026-10-08). Subsequent female hip/knee join refinements were completed in `b13`/`c6` (2026-10-26) and locked under the `c7` Human bodies baseline on 2026-10-27 (contract 1.3.0 in `srn_body/`, `srn_body_tex/`). See `docs/phenotype-human-female-source-adoption-checkpoint.md` and `docs/phenomorpher/human-bodies-lock-c7.md`.
 
 This checkpoint adopts main commit `ea08b6db4ef814d44800554add6bba53e4253114` in the existing `codex/human-female-purposebuilt` worktree. The source preservation commit is `420e56b0adad7838c9f758e3eb4fa68b98151f13`. It does not resume the paused body goal or grant an asset, animation, client, production or publication approval.
 

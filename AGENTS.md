@@ -53,9 +53,9 @@ back at Fit. See `docs/phenomorpher/human-bodies-lock-c7.md` and its hash manife
 (`human-bodies-lock.md`) stays as written. Start further body work from c7. c7 is published in contract 1.3.0
 (`srn_body/`, `srn_body_tex/`; user-approved 2026-10-27).
 
-## Human female target authority
+## Human female target authority (historical — superseded)
 
-Continue from docs/phenotype-human-female-checkpoint.md and its explicit authoritative ledger/resume bindings. Preserve the stock-exact female rig, stature, attachments, head/neck, equipment sizing and tables. Keep the separately versioned “hips level + original upper lean” experiment and shared-female animation ownership in this target session. Finalize and validate that selected posture before further hip, thigh or torso adjustments.
+Historical note: The earlier v24 pause on Human female body work (and its "hips level + original upper lean" posture experiment) was superseded on 2026-10-08 when Gate 4 and Gate 5 were approved and published as PR #42 (see `docs/phenotype-human-female-source-adoption-checkpoint.md`). Subsequent female hip and knee join refinements (`b13`) were integrated into `c6` (2026-10-26), and all Human bodies were formally locked at `c7` on 2026-10-27 (contract 1.3.0 in `srn_body/`, `srn_body_tex/`; user-approved 2026-10-27; see `docs/phenomorpher/human-bodies-lock-c7.md`). Further body work starts from `c7`.
 
 Shared-infrastructure adoption creates no anatomy, animation or asset approvals and does not resume a paused target goal. Historical receipts/checkpoints remain immutable. Human female PR publication still requires full target validation and explicit final user approval. Other active worktrees are read-only; do not reset, clean, purge or borrow their executable tools.
 
@@ -65,9 +65,9 @@ User rule: no shelves when tapering. A connector taper must form a continuous sl
 
 Review the actual geometry in matched front, side and rear views and in the affected animations before accepting a taper. A new visible shelf blocks that taper even if its numerical geometry checks pass. Preserve protected neighboring parts, garments, UVs, maps and authored normals with explicit lineage; source anatomical features and already approved shapes stay separately documented. The current user-approved ankle shape is preserved while its texture seam is corrected. This rule applies to future phenotype connectors as well as the ongoing torso correction.
 
-Current female infrastructure checkpoint: `docs/phenotype-human-female-infrastructure-adoption.md`. Historical v24 checkpoint and receipts remain unchanged; this adoption does not resume the paused body goal.
+Historical female infrastructure checkpoint: `docs/phenotype-human-female-infrastructure-adoption.md` (superseded by PR #42 and the c7 lock). Historical v24 checkpoint and receipts remain unchanged.
 
-Current additive source-adoption progress checkpoint: docs/phenotype-human-female-source-adoption-checkpoint.md. Read its explicit ledger bindings before continuation. Historical adoption checkpoints remain unchanged. Its completionV1 closure v1 section (top of that file) supersedes the earlier historical stop on further animation preparation and game-client work (a pending authorization after an automatic approval review rejected attached resume evidence): Gate 4 and Gate 5 are complete (user approval 2026-10-08) and the Human bodies ship as PR #42, so that stop no longer holds follow-up work. This pointer grants no new asset or publication approval.
+Current additive source-adoption progress checkpoint: `docs/phenotype-human-female-source-adoption-checkpoint.md`. Read its explicit ledger bindings before continuation. Historical adoption checkpoints remain unchanged. Its completionV1 closure v1 section (top of that file) supersedes the earlier historical stop on further animation preparation and game-client work: Gate 4 and Gate 5 are complete (user approval 2026-10-08) and the Human bodies ship as PR #42, so that stop no longer holds follow-up work. All Human bodies are locked at c7 (2026-10-27).
 
 ## Archives of retired worktrees
 

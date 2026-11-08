@@ -1,4 +1,7 @@
-# Restart checkpoint v24 — paused at user request
+# Restart checkpoint v24 — paused at user request (SUPERSEDED)
+
+> [!NOTE]
+> **SUPERSEDED (2026-10-08 / 2026-10-27)**: This historical v24 pause checkpoint and its "hips level + original upper lean" stop were superseded when Gate 4 and Gate 5 were approved and published in `completionV1 closure v1` as PR #42 (2026-10-08). Subsequent female hip and knee join refinements were completed in `b13`/`c6` (2026-10-26) and locked under the `c7` Human bodies baseline on 2026-10-27 (contract 1.3.0 in `srn_body/`, `srn_body_tex/`). See `docs/phenotype-human-female-source-adoption-checkpoint.md` and `docs/phenomorpher/human-bodies-lock-c7.md`. The historical v24 text below is preserved for archival reference.
 
 All task workers stopped safely. No NWN/Blender/task Python process is running; the authorized fresh Human source-native animation compile was never dispatched. There is no uncertain submission or active job to recover. Current working bank v10 and all767source pins remain exact; no runtime conversion, final body selection, production promotion, final commit, push or PR.
 
