@@ -41,6 +41,26 @@ function Get-SrnTool {
     return $resolved.path
 }
 
+# NWN 2DA, SET and ASCII MDL files are Windows-1252. PowerShell 7's 'Default' encoding is UTF-8.
+function Read-SrnCp1252Text {
+    param([Parameter(Mandatory)][string]$Path)
+    [IO.File]::ReadAllText($Path, [Text.Encoding]::GetEncoding(1252))
+}
+
+function Read-SrnCp1252Lines {
+    param([Parameter(Mandatory)][string]$Path)
+    [IO.File]::ReadAllLines($Path, [Text.Encoding]::GetEncoding(1252))
+}
+
+# Captured native output is decoded with [Console]::OutputEncoding, which SrnTools.psm1 sets to UTF-8.
+function Invoke-SrnCp1252Native {
+    param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string[]]$Arguments)
+    $previous = [Console]::OutputEncoding
+    [Console]::OutputEncoding = [Text.Encoding]::GetEncoding(1252)
+    try { & $Path @Arguments }
+    finally { [Console]::OutputEncoding = $previous }
+}
+
 function Write-SrnJsonAtomic {
     param(
         [Parameter(Mandatory)][string]$Path,
@@ -91,7 +111,8 @@ function Publish-SrnDirectorySet {
     $backupRoot = New-Item -ItemType Directory -Path $backupPath
     $backedUp = [Collections.Generic.List[object]]::new()
     $installed = [Collections.Generic.List[object]]::new()
-    $preserveBackup = $false
+    # Kept until the outcome is known: a pipeline stop skips catch, and only this copy would remain.
+    $preserveBackup = $true
     try {
         foreach ($target in $targets) {
             New-Item -ItemType Directory -Path (Split-Path $target.destination -Parent) -Force | Out-Null
@@ -104,15 +125,16 @@ function Publish-SrnDirectorySet {
             [IO.Directory]::Move($target.source, $target.destination)
             $installed.Add($target)
         }
+        $preserveBackup = $false
     }
     catch {
         $publishFailure = $_
         try {
             foreach ($target in $installed) { Remove-Item -LiteralPath $target.destination -Recurse -Force }
             foreach ($target in $backedUp) { [IO.Directory]::Move((Join-Path $backupRoot.FullName $target.name), $target.destination) }
+            $preserveBackup = $false
         }
         catch {
-            $preserveBackup = $true
             throw "Could not restore previous analysis; backups preserved at $($backupRoot.FullName): $($_.Exception.Message)"
         }
         throw $publishFailure
@@ -122,4 +144,4 @@ function Publish-SrnDirectorySet {
     }
 }
 
-Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Resolve-SrnRepositoryPath, Get-SrnTool, Write-SrnJsonAtomic, Resolve-SrnQuarantinePath, Publish-SrnDirectorySet
+Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Resolve-SrnRepositoryPath, Get-SrnTool, Read-SrnCp1252Text, Read-SrnCp1252Lines, Invoke-SrnCp1252Native, Write-SrnJsonAtomic, Resolve-SrnQuarantinePath, Publish-SrnDirectorySet

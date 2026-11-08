@@ -134,9 +134,13 @@ def triangles(path, local_transform, *, maximum=MAX_TRIANGLES, require_uv=True):
 
 
 def plt_bytes(shades, layers):
+    """Serialize explicit NWN PLT channels: skin/hair 0/1, metals 2/3,
+    cloth 4/5, leather 6/7 and tattoos 8/9 (also used for head accessories).
+    Channel ownership and the matching palette selectors require separate review.
+    """
     require(shades.shape == layers.shape == (TEXTURE_SIZE, TEXTURE_SIZE), "Runtime palette must be 1024 square")
-    require(shades.dtype == layers.dtype == np.uint8 and np.all(np.isin(layers, [0, 1])),
-            "Explicit skin layer0 / hair layer1 masks required")
+    require(shades.dtype == layers.dtype == np.uint8 and np.all(layers <= 9),
+            "Explicit uint8 PLT masks with channel IDs 0..9 required")
     pixels = np.stack([shades, layers], axis=-1)[::-1].copy()
     return b"PLT V1  " + struct.pack("<IIII", 10, 0, TEXTURE_SIZE, TEXTURE_SIZE) + pixels.tobytes()
 

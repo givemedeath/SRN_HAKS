@@ -129,5 +129,13 @@ jobs:
           printf '%s' "$NEEDS" > "$RUNNER_TEMP/needs.json"
           # filter=all includes jobs retained from earlier attempts after "Re-run failed jobs";
           # ci_result.py keeps each job's newest attempt.
-          gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?filter=all&per_page=100" --paginate --jq '.jobs[]' > "$RUNNER_TEMP/jobs.jsonl"
+          # The jobs API can lag behind completed `needs`; refresh pending-only snapshots.
+          for attempt in 1 2 3 4 5 6; do
+            gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?filter=all&per_page=100" --paginate --jq '.jobs[]' > "$RUNNER_TEMP/jobs.jsonl"
+            result=0
+            '${{ steps.interpreter.outputs.python-path }}' -B tools/ci_result.py --plan "$RUNNER_TEMP/plan.json" --jobs "$RUNNER_TEMP/jobs.jsonl" --needs "$RUNNER_TEMP/needs.json" --pending-exit-code 2 || result=$?
+            if [ "$result" -ne 2 ]; then exit "$result"; fi
+            if [ "$attempt" -lt 6 ]; then sleep 10; fi
+          done
+          # Exhaustion still requires every selected job to have completed successfully.
           '${{ steps.interpreter.outputs.python-path }}' -B tools/ci_result.py --plan "$RUNNER_TEMP/plan.json" --jobs "$RUNNER_TEMP/jobs.jsonl" --needs "$RUNNER_TEMP/needs.json"

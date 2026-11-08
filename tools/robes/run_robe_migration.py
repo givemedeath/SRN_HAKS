@@ -15,7 +15,7 @@ from pathlib import Path
 from robe_common import REPO, TOOLS, pin, read, require, sha, write_fresh
 
 HELPERS = [TOOLS / "phenotypes" / name for name in (
-    "launch_shared_tool.py", "shared_toolchain.py", "bootstrap_shared_blender_addons.py",
+    "launch_shared_tool.py", "launch_hash_cache.py", "shared_toolchain.py", "bootstrap_shared_blender_addons.py",
     "smoke_shared_blender_import.py", "finalize_shared_tool_migration.py", "tool_runtime.py")] + [
     TOOLS / "shared_tools.py"] + [TOOLS / "robes" / name for name in (
     "robe_common.py", "robe_weights.py", "smoke_robe_tools.py", "extract_stock_robes.py",

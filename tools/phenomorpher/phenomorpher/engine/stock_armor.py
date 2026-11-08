@@ -1,7 +1,8 @@
 """Stock armour parts for the PhenoMorpher bodies (clothing plan, docs/phenomorpher/clothing/plan.md).
 
 Step 1 inventories and extracts the installed stock armour parts with overrides ignored, decompiles
-them, and pins every texture they reference. Later steps fit per-part affine profiles and run the
+them with Blender + Neverblender (neverblender_mdl), and pins every texture they and their materials
+reference. Later steps fit per-part affine profiles and run the
 pinned NWNArmory batch. Nothing here writes a pack or approves an asset.
 """
 import json
@@ -29,25 +30,20 @@ SLOTS = tuple(f'p{g}{r}{b}' for g in 'fm' for r in 'dehog' for b in '02')
 SOURCES = tuple(s for s in SLOTS if s[2] == 'h')
 TARGETS = tuple(s for s in SLOTS if s[2] != 'h')
 MODEL = 2002
-TEXTURES = {3: '.tga', 6: '.plt', 2033: '.dds', 2036: '.mtr'}
+TEXTURES = {3: '.tga', 6: '.plt', 2033: '.dds', 2072: '.mtr'}
 NAME = re.compile(r'^(p[fm][a-z][0-9])_([a-z]+?)(\d{3})$')
 BITMAP = re.compile(r'(?mi)^\s*(?:bitmap|texture\d|materialname)\s+(\S+)\s*$')
 
 
 def key_resources(game_root):
     """{resref.ext: [key files]} for the installed models and textures (resman resolves precedence)."""
+    from ..inputs import key_table
     resources = {}
     for key in sorted((Path(game_root)/'data').glob('*.key')):
-        data = key.read_bytes()
-        if data[:8] != b'KEY V1  ':
-            raise ValueError('Unsupported key file: ' + key.name)
-        _, count, _, table = struct.unpack_from('<IIII', data, 8)
-        for entry in range(table, table + 22*count, 22):
-            kind, _ = struct.unpack_from('<HI', data, entry + 16)
+        for resref, kind, _ in key_table(key)[1]:
             ext = '.mdl' if kind == MODEL else TEXTURES.get(kind)
             if ext:
-                name = data[entry:entry+16].rstrip(b'\0').decode('ascii').lower() + ext
-                resources.setdefault(name, []).append(key.name)
+                resources.setdefault(resref + ext, []).append(key.name)
     return resources
 
 
@@ -97,9 +93,13 @@ def references(text):
     return sorted({m.lower() for m in BITMAP.findall(text) if m.lower() not in ('null', '****')})
 
 
-def extract(extract_tool, decompiler, game_root, output, slots=SOURCES):
+MTR_TEXTURE = re.compile(r'(?mi)^\s*texture\d\s+(\S+)\s*$')
+
+
+def extract(extract_tool, neverblender, game_root, output, slots=SOURCES, timeout=600):
     """Fresh folder: raw/ (installed bytes), ascii/ (decompiled), textures/, reference/ (stock rigs and bare
-    style-001 parts, native) and stock-armor.json pins."""
+    style-001 parts, native) and stock-armor.json pins. neverblender: (Blender executable, add-on folder)."""
+    from . import neverblender_mdl
     output = Path(output); slots = tuple(slots)
     if set(slots) - set(SLOTS):
         raise ValueError('Unknown body slot: ' + ', '.join(sorted(set(slots) - set(SLOTS))))
@@ -111,22 +111,24 @@ def extract(extract_tool, decompiler, game_root, output, slots=SOURCES):
     resman_extract(extract_tool, game_root, models, raw)
     fit = fit_references(resources, slots); resman_extract(extract_tool, game_root, fit, reference)
     fit_pins = {n: {'sha256': digest((reference/n).read_bytes()), 'keys': resources[n]} for n in fit}
-    referenced = {}
+    referenced = {}; binaries = []
+    for name in models:
+        data = (raw/name).read_bytes()
+        if data[:4] == b'\0\0\0\0':
+            binaries.append((raw/name, ascii_dir/name))
+        else:
+            (ascii_dir/name).write_bytes(data)
+    # One Blender process decompiles every binary part.
+    tools, _ = neverblender_mdl.decompile_files(*neverblender, binaries, timeout=timeout)
     for name, row in models.items():
         source, target = raw/name, ascii_dir/name; data = source.read_bytes()
-        if data[:4] == b'\0\0\0\0':
-            result = subprocess.run([str(decompiler), '-d', '-e', str(source), str(target)], capture_output=True)
-            if result.returncode or not target.is_file():
-                raise ValueError('Decompile failed: ' + name + ': ' + result.stderr.decode(errors='replace'))
-        else:
-            target.write_bytes(data)
         text = target.read_text(encoding='cp1252')
         if 'newmodel' not in text or 'endmodelgeom' not in text:
             raise ValueError('Invalid decompiled model: ' + name)
         names = references(text)
         row.update(rawSHA256=digest(data), rawFormat='binary' if data[:4] == b'\0\0\0\0' else 'ascii',
                    asciiSHA256=digest(target.read_bytes()), references=names,
-                   meshTypes=sorted({m.lower() for m in re.findall(r'(?mi)^node\s+(trimesh|danglymesh|skin|animmesh|emitter|aabb)\s', text)}))
+                   meshTypes=sorted({m.lower() for m in re.findall(r'(?mi)^\s*node\s+(trimesh|danglymesh|skin|animmesh|emitter|aabb)\s', text)}))
         for ref in names:
             found = [ref + ext for ext in ('.plt', '.tga', '.dds', '.mtr') if ref + ext in resources]
             referenced[ref] = found
@@ -135,12 +137,26 @@ def extract(extract_tool, decompiler, game_root, output, slots=SOURCES):
                 row['unresolvedReferences'].append(ref)
     needed = sorted({f for found in referenced.values() for f in found})
     resman_extract(extract_tool, game_root, needed, textures)
-    pins = {n: {'sha256': digest((textures/n).read_bytes()), 'keys': resources[n]} for n in needed}
+    # Materials name further textures (normal, roughness maps); follow them until nothing new is named.
+    pending = [n for n in needed if n.endswith('.mtr')]; material_refs = {}
+    while pending:
+        names = sorted({m.lower() for n in pending for m in MTR_TEXTURE.findall((textures/n).read_text(encoding='cp1252'))
+                        if m.lower() not in ('null', '****')})
+        exts = ('.plt', '.tga', '.dds', '.mtr')
+        material_refs.update({r: [r + e for e in exts if r + e in resources] for r in names})
+        found = sorted({f for r in names for f in material_refs[r]} - set(needed))
+        if found:
+            resman_extract(extract_tool, game_root, found, textures); needed = sorted(set(needed) | set(found))
+        pending = [n for n in found if n.endswith('.mtr')]
+    pins ={n: {'sha256': digest((textures/n).read_bytes()), 'keys': resources[n]} for n in needed}
     manifest = {'schemaVersion': 1, 'kind': KIND, 'slots': list(slots), 'override': False,
                 'tools': {'resmanExtract': {'path': str(Path(extract_tool).resolve()), 'sha256': digest(Path(extract_tool).read_bytes())},
-                          'decompiler': {'path': str(Path(decompiler).resolve()), 'sha256': digest(Path(decompiler).read_bytes())}},
+                          'decompiler': {'mode': neverblender_mdl.EXECUTION_MODE, 'compilerSha256': tools['sha256'],
+                                         **{k: v for k, v in tools.items() if k in ('blender', 'neverblender', 'cleanmodels')}}},
                 'excluded': {'robe': 'skinned; separate route', 'bareStyle001': list(BARE)},
                 'models': models, 'textures': pins, 'fitReferences': fit_pins,
+                'materialTextureReferences': dict(sorted(material_refs.items())),
+                'unresolvedMaterialReferences': sorted(r for r, found in material_refs.items() if not found),
                 'counts': {'models': len(models), 'textures': len(pins), 'fitReferences': len(fit_pins),
                            'danglymesh': sum('danglymesh' in r['meshTypes'] for r in models.values()),
                            'unsupportedMeshTypes': sorted({t for r in models.values() for t in r['meshTypes']} - {'trimesh', 'danglymesh'})},
@@ -220,7 +236,17 @@ def armory_rotate(rotation):
 
 
 def nearest(a, b, chunk=400):
-    return np.concatenate([np.sqrt(((a[i:i+chunk, None, :] - b[None, :, :])**2).sum(-1)).min(1) for i in range(0, len(a), chunk)])
+    """Distance from each point of a to its nearest point of b. A nearest point lies within the distance to any point of
+    b, in x as in every axis, so a coarse sample of b bounds a window of the x-sorted points that must contain it."""
+    ordered = b[np.argsort(b[:, 0], kind='stable')]; xs = ordered[:, 0]; coarse = ordered[::16]
+    result = np.empty(len(a), np.result_type(a, b))
+    for start in range(0, len(a), chunk):
+        points = a[start:start+chunk]
+        bound = np.sqrt(((points[:, None, :] - coarse[None, :, :])**2).sum(-1)).min(1)*(1 + 1e-9) + 1e-12
+        low, high = np.searchsorted(xs, points[:, 0] - bound, 'left'), np.searchsorted(xs, points[:, 0] + bound, 'right')
+        for i, (point, first, last) in enumerate(zip(points, low, high), start):
+            result[i] = np.sqrt(((point - ordered[first:last])**2).sum(-1)).min()
+    return result
 
 
 def fit_part(stock, new, frame_rotation, axis_correction):
@@ -347,7 +373,7 @@ def unique_mesh_names(text, model):
     """A few stock parts name their mesh like the model's root dummy (e.g. pmh2_footl014); the game resolves
     it, but frame proofs need unique names. Rename such a childless mesh to <model>g, as its sibling parts
     spell it. Returns the text and the name-only changes."""
-    nodes = re.findall(r'(?mi)^node\s+(\S+)\s+(\S+)\s*$', text)
+    nodes = re.findall(r'(?mi)^\s*node\s+(\S+)\s+(\S+)\s*$', text)  # Neverblender indents node lines
     clash = [kind for kind, name in nodes if name.lower() == model.lower() and kind.lower() != 'dummy']
     if not clash:
         return text, []
@@ -355,19 +381,24 @@ def unique_mesh_names(text, model):
     parented = re.findall(r'(?mi)^\s*parent\s+' + re.escape(model) + r'\s*$', text)
     if len(clash) != 1 or len(parented) != 1 or any(name.lower() == model.lower() + 'g' for _, name in nodes):
         raise ValueError('Ambiguous duplicate node names: ' + model)
-    pattern = r'(?mi)^(node\s+' + re.escape(clash[0]) + r'\s+)' + re.escape(model) + r'(\s*)$'
+    pattern = r'(?mi)^(\s*node\s+' + re.escape(clash[0]) + r'\s+)' + re.escape(model) + r'(\s*)$'
     return (re.sub(pattern, lambda m: m[1] + model + 'g' + m[2], text, count=1),
             [{'node': model, 'type': clash[0], 'renamedTo': model + 'g'}])
 
 
 def armory_values(armory, source, fitted):
     """NWNArmory's own fit between two same-topology models: (scale, rotate, translate, max vertex residual)."""
-    result = subprocess.run([str(armory), '--values', str(source), str(fitted)], capture_output=True, text=True)
+    result = subprocess.run([str(armory), '--values', str(source), str(fitted)], capture_output=True, text=True, errors='replace')
     if result.returncode:
         raise ValueError('Armory --values failed: ' + result.stderr.strip())
+    # A non-finite fit can still print max_residual=0, so its mean and its vectors have to be finite too.
+    if re.search(r'(?mi)^(?:(?:scale|rotate|translate)=|; verts fit:).*\b(?:nan|inf)\b', result.stdout):
+        raise ValueError('Armory fit is not finite: ' + str(fitted))
     vector = lambda key: [float(v) for v in re.search(r'(?m)^' + key + r'=\(([^)]*)\)', result.stdout)[1].split(',')]
-    residual = float(re.search(r'verts fit: n=\d+ max_residual=([\d.eE+\-]+)', result.stdout)[1])
-    return vector('scale'), vector('rotate'), vector('translate'), residual, result.stdout
+    fit = re.search(r'verts fit: n=\d+ max_residual=([\d.eE+\-]+)', result.stdout)
+    if fit is None:
+        raise ValueError('Armory reported no vertex fit; degenerate source: ' + str(fitted))
+    return vector('scale'), vector('rotate'), vector('translate'), float(fit[1]), result.stdout
 
 
 def style_set(path):
@@ -390,7 +421,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
     armory = Path(armory).resolve(); output = Path(output)
     if digest(armory.read_bytes()) != ARMORY_SHA256:
         raise ValueError('Pinned NWNArmory 1.3.4 executable required')
-    version = subprocess.run([str(armory), '--version'], capture_output=True, text=True).stdout.strip()
+    version = subprocess.run([str(armory), '--version'], capture_output=True, text=True, errors='replace').stdout.strip()
     if version != ARMORY_VERSION:
         raise ValueError('Pinned NWNArmory version differs: ' + version)
     if output.exists():
@@ -427,7 +458,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
             correct_rigid(normal, copy, {'scale': [1, 1, 1], 'translate': [0, 0, 0]})  # bake frames: attachment-local meshes
             normal.write_text(copy.read_text(encoding='ascii'), encoding='ascii'); copy.unlink()
             fitted = base/'fitted'/name; fitted.parent.mkdir(); body = normal.read_text(encoding='ascii')
-            for block in reversed(list(re.finditer(r'(?ms)^node\s+(trimesh|danglymesh)\s+\S+\n.*?^endnode', body))):
+            for block in reversed(list(re.finditer(r'(?ms)^\s*node\s+(trimesh|danglymesh)\s+\S+\n.*?^\s*endnode', body))):
                 verts = np.asarray(arrays(block[0], 'verts'), float)
                 if verts.size:
                     body = body[:block.start()] + replace_array(block[0], 'verts', verts @ linear.T + translate) + body[block.end():]
@@ -444,7 +475,7 @@ def convert(stock_manifest, profiles_path, armory, output, slots, styles):
         for _, _, name, _ in selection:
             (folders['source']/name).write_text(source_text(name), encoding='cp1252', newline='')
         ini = work/'batch.ini'; ini.write_text(armory_ini([(Path(n).stem, profile[p]['transform']) for p, _, n, _ in selection]), encoding='ascii')
-        batch = subprocess.run([str(armory), str(ini), str(folders['source']), str(folders['raw'])], capture_output=True, text=True)
+        batch = subprocess.run([str(armory), str(ini), str(folders['source']), str(folders['raw'])], capture_output=True, text=True, errors='replace')
         (work/'batch.log').write_text(batch.stdout + batch.stderr, encoding='utf-8')
         if batch.returncode or {p.name for p in folders['raw'].iterdir()} != {n for _, _, n, _ in selection}:
             raise ValueError('Armory batch failed or omitted outputs: ' + slot)
@@ -560,7 +591,9 @@ def publish(pairs, body_manifest, root, manifest):
         for slot, row in sorted(conversion['slots'].items()):
             if slot in slots or slot not in TARGETS:
                 raise ValueError('Body slot published twice or not a target: ' + slot)
-            slots.add(slot); receipt, compiled_rows = compile_receipt(compiled, slot); clients.add(receipt['clientSha256'])
+            # Blender + Neverblender receipts name their compiler build; EE client receipts their client.
+            slots.add(slot); receipt, compiled_rows = compile_receipt(compiled, slot)
+            clients.add(receipt.get('compilerSha256') or receipt['clientSha256'])
             if set(compiled_rows) != set(row['models']):
                 raise ValueError('Compiled models differ from the conversion: ' + slot)
             sources.setdefault(row['source'], {'conversionSHA256': digest(conversion_path.read_bytes()), 'slots': []})['slots'].append(slot)
@@ -612,7 +645,10 @@ def verify_pack(root, manifest, verified=None):
         if path.suffix != '.mdl' or not found or found[0] not in TARGETS or found[1:] != (row['part'], row['style']) or found[0] != row['slot']:
             raise ValueError('Not a converted armour part of a target body: ' + name)
         content = path.read_bytes()
-        actual = digest(content) if verified is None else verified.get(str(path))
+        # The bytes read here are what is checked; a launcher pin, when given, must agree with them too.
+        actual = digest(content)
+        if verified is not None and verified.get(str(path)) != actual:
+            raise ValueError('Armour resource differs from its launch pin: ' + name)
         if actual != row['sha256'] or len(content) != row['bytes'] or content[:4] != b'\0\0\0\0':
             raise ValueError('Armour resource differs from its contract or is not a native binary: ' + name)
         if leaked_text(content):

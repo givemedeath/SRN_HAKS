@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fn-5-7c-e6e100e574",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-left-edge",
+      "pixel": [
+        41.0,
+        324.50000000000006
+      ]
+    },
+    {
+      "name": "upper-rear-right-edge",
+      "pixel": [
+        1216.0,
+        359.99999999999994
+      ]
+    },
+    {
+      "name": "rear-sight-top",
+      "pixel": [
+        1027.5,
+        202.0
+      ]
+    },
+    {
+      "name": "grip-base-bottom-at-common-centerline1040",
+      "pixel": [
+        1040.0,
+        1029.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fn-5-7c-e6e100e574.family.json",
+    "sha256": "15d4ae9a19240b05157ba2b3f6b3ff3cc4dd3c9caa001cd5016975839c7a1e8e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c4e2bae4a721dad0275adcf5e27e95e82739afb045320b172d86553f01d013c8.png",
+      "sha256": "c4e2bae4a721dad0275adcf5e27e95e82739afb045320b172d86553f01d013c8"
+    },
+    "clayReference": {
+      "path": "inputs/007bc918c3e3bec09f6e3fb9b59127fc4929badbe3037f156d15889bf9aa4801.png",
+      "sha256": "007bc918c3e3bec09f6e3fb9b59127fc4929badbe3037f156d15889bf9aa4801"
+    },
+    "geometry": {
+      "path": "inputs/85818d8d4fd25861f40da48b9ec6803b982c69e9f598f648d9369170fcb62ce3.png",
+      "sha256": "85818d8d4fd25861f40da48b9ec6803b982c69e9f598f648d9369170fcb62ce3"
+    },
+    "detail": {
+      "path": "inputs/d9e7559941691566e6ede8ceb0724470f10a7adf4da11b1933d18f35863d111d.png",
+      "sha256": "d9e7559941691566e6ede8ceb0724470f10a7adf4da11b1933d18f35863d111d"
+    },
+    "foregroundMask": {
+      "path": "inputs/e678347174fe41b373f9afe297fbf7eb6036e92566578598811c929cbf755c8d.png",
+      "sha256": "e678347174fe41b373f9afe297fbf7eb6036e92566578598811c929cbf755c8d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60.png",
+      "sha256": "520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60"
+    },
+    "mask": {
+      "path": "inputs/520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60.png",
+      "sha256": "520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60"
+    },
+    "calibrationReference": {
+      "path": "inputs/f5f57c745001fb7fb60738fa71b3ce88c822f2120ea225eff63fe0afcaab175d.png",
+      "sha256": "f5f57c745001fb7fb60738fa71b3ce88c822f2120ea225eff63fe0afcaab175d"
+    },
+    "sourceAudit": {
+      "path": "inputs/d80332dc2083d76c70ba4ec69c1a7521946c2bead8cbf0b5c62e7cd07f18a536.json",
+      "sha256": "d80332dc2083d76c70ba4ec69c1a7521946c2bead8cbf0b5c62e7cd07f18a536"
+    },
+    "referenceApproval": {
+      "path": "inputs/406ac8f82d017b292ad8e1bb21da6ec7b5c5a74a0532b7515bf72d134765edf8.json",
+      "sha256": "406ac8f82d017b292ad8e1bb21da6ec7b5c5a74a0532b7515bf72d134765edf8"
+    },
+    "calibrationDetail": {
+      "path": "inputs/8d73dfb93a781e3a7c361c788f9388e4d75593bfcb9a20973139c9ef169d3194.png",
+      "sha256": "8d73dfb93a781e3a7c361c788f9388e4d75593bfcb9a20973139c9ef169d3194"
+    }
+  },
+  "features": [
+    {
+      "name": "Compact efficient machine-pistol design; source grants one point recoil compensation without specifying a separate external device",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own FN5-7C art: angular upper, raked grip and rounded trigger opening; preserve proportions",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer compared the own labeled FN5-7C art Arsenal printed22/PDF24, the actual raw pair, native independent masks, final2048 detail/clay teal views and paired overlay. Correct compact angular upper, short left front, raked grip, frame/upper steps, sights, trigger and BOTH intentional trigger clearances retained. No optional stock, foregrip, long magazine, optic, suppressor or compensator. Fine four front vents, slide serrations, screw-face recesses, grip diamonds/stippling and small control surface ridges are filled in clay. The separate raised top rail with its structural spacing, broad raised rear control bar and major upper/frame part boundaries remain geometry; they are not fine cosmetic surface cuts. Whole object and clear margins, no broad halo, no subject-part loss. Native1254square RGB originals were opaque; independently extracted alpha and common uniform2048 resampling preserve framing without warp. Four discarded tiny1–3px detailed-mask labels were guard-edge AA fringe, not subject parts. No manual retouch candidate is selected; both original generated references remain the selected pair. Reference-only visual approval; full maintained finish gates required.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        972,
+        887,
+        1170,
+        1045
+      ],
+      "referenceAreaPixels": 27960,
+      "referenceMaskSha256": "520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1228,
+        926,
+        1317,
+        1045
+      ],
+      "referenceAreaPixels": 4180,
+      "referenceMaskSha256": "520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c4e2bae4a721dad0275adcf5e27e95e82739afb045320b172d86553f01d013c8",
+      "imageSha256": "d9e7559941691566e6ede8ceb0724470f10a7adf4da11b1933d18f35863d111d",
+      "maskSha256": "e678347174fe41b373f9afe297fbf7eb6036e92566578598811c929cbf755c8d",
+      "notes": "Assigned sole final reference reviewer compared the own labeled FN5-7C art Arsenal printed22/PDF24, the actual raw pair, native independent masks, final2048 detail/clay teal views and paired overlay. Correct compact angular upper, short left front, raked grip, frame/upper steps, sights, trigger and BOTH intentional trigger clearances retained. No optional stock, foregrip, long magazine, optic, suppressor or compensator. Fine four front vents, slide serrations, screw-face recesses, grip diamonds/stippling and small control surface ridges are filled in clay. The separate raised top rail with its structural spacing, broad raised rear control bar and major upper/frame part boundaries remain geometry; they are not fine cosmetic surface cuts. Whole object and clear margins, no broad halo, no subject-part loss. Native1254square RGB originals were opaque; independently extracted alpha and common uniform2048 resampling preserve framing without warp. Four discarded tiny1–3px detailed-mask labels were guard-edge AA fringe, not subject parts. No manual retouch candidate is selected; both original generated references remain the selected pair. Reference-only visual approval; full maintained finish gates required."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "007bc918c3e3bec09f6e3fb9b59127fc4929badbe3037f156d15889bf9aa4801",
+      "imageSha256": "85818d8d4fd25861f40da48b9ec6803b982c69e9f598f648d9369170fcb62ce3",
+      "maskSha256": "520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60",
+      "notes": "Assigned sole final reference reviewer compared the own labeled FN5-7C art Arsenal printed22/PDF24, the actual raw pair, native independent masks, final2048 detail/clay teal views and paired overlay. Correct compact angular upper, short left front, raked grip, frame/upper steps, sights, trigger and BOTH intentional trigger clearances retained. No optional stock, foregrip, long magazine, optic, suppressor or compensator. Fine four front vents, slide serrations, screw-face recesses, grip diamonds/stippling and small control surface ridges are filled in clay. The separate raised top rail with its structural spacing, broad raised rear control bar and major upper/frame part boundaries remain geometry; they are not fine cosmetic surface cuts. Whole object and clear margins, no broad halo, no subject-part loss. Native1254square RGB originals were opaque; independently extracted alpha and common uniform2048 resampling preserve framing without warp. Four discarded tiny1–3px detailed-mask labels were guard-edge AA fringe, not subject parts. No manual retouch candidate is selected; both original generated references remain the selected pair. Reference-only visual approval; full maintained finish gates required."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer compared the own labeled FN5-7C art Arsenal printed22/PDF24, the actual raw pair, native independent masks, final2048 detail/clay teal views and paired overlay. Correct compact angular upper, short left front, raked grip, frame/upper steps, sights, trigger and BOTH intentional trigger clearances retained. No optional stock, foregrip, long magazine, optic, suppressor or compensator. Fine four front vents, slide serrations, screw-face recesses, grip diamonds/stippling and small control surface ridges are filled in clay. The separate raised top rail with its structural spacing, broad raised rear control bar and major upper/frame part boundaries remain geometry; they are not fine cosmetic surface cuts. Whole object and clear margins, no broad halo, no subject-part loss. Native1254square RGB originals were opaque; independently extracted alpha and common uniform2048 resampling preserve framing without warp. Four discarded tiny1–3px detailed-mask labels were guard-edge AA fringe, not subject parts. No manual retouch candidate is selected; both original generated references remain the selected pair. Reference-only visual approval; full maintained finish gates required.",
+      "landmarks": [
+        {
+          "name": "muzzle-left-edge",
+          "detail": [
+            0.05133206769508058,
+            0.2771879342886118
+          ],
+          "geometry": [
+            0.050568377597540286,
+            0.27947851327749396
+          ]
+        },
+        {
+          "name": "upper-rear-right-edge",
+          "detail": [
+            0.9486679323049194,
+            0.3042931189903846
+          ],
+          "geometry": [
+            0.9486679323049194,
+            0.3035295926607572
+          ]
+        },
+        {
+          "name": "rear-sight-top",
+          "detail": [
+            0.804712348918575,
+            0.18365595890925482
+          ],
+          "geometry": [
+            0.8043305038698049,
+            0.1828924325796274
+          ]
+        },
+        {
+          "name": "grip-base-bottom-at-common-centerline1040",
+          "detail": [
+            0.8142584751378287,
+            0.8150922335111178
+          ],
+          "geometry": [
+            0.8142584751378287,
+            0.8150922335111178
+          ]
+        }
+      ],
+      "referenceSha256": "c4e2bae4a721dad0275adcf5e27e95e82739afb045320b172d86553f01d013c8",
+      "geometrySha256": "85818d8d4fd25861f40da48b9ec6803b982c69e9f598f648d9369170fcb62ce3",
+      "detailSha256": "d9e7559941691566e6ede8ceb0724470f10a7adf4da11b1933d18f35863d111d",
+      "foregroundMaskSha256": "e678347174fe41b373f9afe297fbf7eb6036e92566578598811c929cbf755c8d",
+      "geometryForegroundMaskSha256": "520ef8b4f57ab8e0bc398829b8805ff25f3760b0762e3a5a2b78333e03de9a60"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

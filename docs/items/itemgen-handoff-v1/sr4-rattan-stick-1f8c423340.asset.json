@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-rattan-stick-1f8c423340",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "lower-end",
+      "pixel": [
+        45.00000000000001,
+        1158.0
+      ]
+    },
+    {
+      "name": "upper-end",
+      "pixel": [
+        1202.0,
+        53.0
+      ]
+    },
+    {
+      "name": "centre",
+      "pixel": [
+        624.0,
+        602.9999999999999
+      ]
+    },
+    {
+      "name": "section-upper",
+      "pixel": [
+        905.0,
+        331.99999999999994
+      ]
+    },
+    {
+      "name": "section-lower",
+      "pixel": [
+        333.0,
+        884.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-rattan-stick-1f8c423340.family.json",
+    "sha256": "29ecbc8c41d58023a4b6091831c2afd824f1f8794d89902e0c6de441603a7509"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/6eb0a0ba756b776f6c7fbaeab9d8ac9080efc262529468a48f11a49d6df961b3.png",
+      "sha256": "6eb0a0ba756b776f6c7fbaeab9d8ac9080efc262529468a48f11a49d6df961b3"
+    },
+    "clayReference": {
+      "path": "inputs/d41edb2af4a8a72266bb44065585138dfcd31eb70d7670515b9e36199a8de639.png",
+      "sha256": "d41edb2af4a8a72266bb44065585138dfcd31eb70d7670515b9e36199a8de639"
+    },
+    "geometry": {
+      "path": "inputs/eab3d3648f29bf0fc380ba11ba14eab71f0092e1b8fcfa665a37afd334bf5b48.png",
+      "sha256": "eab3d3648f29bf0fc380ba11ba14eab71f0092e1b8fcfa665a37afd334bf5b48"
+    },
+    "detail": {
+      "path": "inputs/ff0a732ed2944b00c797d227314585aaaec2bd84b686cc5114bc79bc673f00ea.png",
+      "sha256": "ff0a732ed2944b00c797d227314585aaaec2bd84b686cc5114bc79bc673f00ea"
+    },
+    "foregroundMask": {
+      "path": "inputs/54a67d6c6f1d490d25fef4159b06af32051befa221625ffb7b7cc843e2e56f4c.png",
+      "sha256": "54a67d6c6f1d490d25fef4159b06af32051befa221625ffb7b7cc843e2e56f4c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/9b8e9e4fa60bbcd4164129829b024cb56cdd89a323035ac8edc734869206a440.png",
+      "sha256": "9b8e9e4fa60bbcd4164129829b024cb56cdd89a323035ac8edc734869206a440"
+    },
+    "mask": {
+      "path": "inputs/9b8e9e4fa60bbcd4164129829b024cb56cdd89a323035ac8edc734869206a440.png",
+      "sha256": "9b8e9e4fa60bbcd4164129829b024cb56cdd89a323035ac8edc734869206a440"
+    },
+    "calibrationReference": {
+      "path": "inputs/7f869bb7588b755ad090bbae1eac518226f519b37d99d5135534e02c053ca151.png",
+      "sha256": "7f869bb7588b755ad090bbae1eac518226f519b37d99d5135534e02c053ca151"
+    },
+    "sourceAudit": {
+      "path": "inputs/d7f62c16a5db4b0cc0d83deb46545f132d6e311ac1fd7c6273da6fa1486adc32.json",
+      "sha256": "d7f62c16a5db4b0cc0d83deb46545f132d6e311ac1fd7c6273da6fa1486adc32"
+    },
+    "referenceApproval": {
+      "path": "inputs/d8cad0096f0cdfbdbb1ca0600ca258d539d97fa4c12cf82d71bd40ad96870771.json",
+      "sha256": "d8cad0096f0cdfbdbb1ca0600ca258d539d97fa4c12cf82d71bd40ad96870771"
+    },
+    "calibrationDetail": {
+      "path": "inputs/576357b3abaaa81c21a070a3e86a0ed64cc6f6f9bad6243b9ff19e8378669e28.png",
+      "sha256": "576357b3abaaa81c21a070a3e86a0ed64cc6f6f9bad6243b9ff19e8378669e28"
+    }
+  },
+  "features": [
+    {
+      "name": "Thin light flexible rattan-palm stick approximately 60-70 centimetres long.",
+      "placementReviewed": true
+    },
+    {
+      "name": "The crossed pair in art demonstrates examples; one catalog row is a stick, not a mandatory permanently joined X assembly.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned pair approval reused. Original solid pair and independent foreground masks inspected: full rounded ends and continuous cylinder retained; no intentional openings. Native1254 square resampled to2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6eb0a0ba756b776f6c7fbaeab9d8ac9080efc262529468a48f11a49d6df961b3",
+      "imageSha256": "ff0a732ed2944b00c797d227314585aaaec2bd84b686cc5114bc79bc673f00ea",
+      "maskSha256": "54a67d6c6f1d490d25fef4159b06af32051befa221625ffb7b7cc843e2e56f4c",
+      "notes": "Exact assigned pair approval reused. Original solid pair and independent foreground masks inspected: full rounded ends and continuous cylinder retained; no intentional openings. Native1254 square resampled to2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d41edb2af4a8a72266bb44065585138dfcd31eb70d7670515b9e36199a8de639",
+      "imageSha256": "eab3d3648f29bf0fc380ba11ba14eab71f0092e1b8fcfa665a37afd334bf5b48",
+      "maskSha256": "9b8e9e4fa60bbcd4164129829b024cb56cdd89a323035ac8edc734869206a440",
+      "notes": "Exact assigned pair approval reused. Original solid pair and independent foreground masks inspected: full rounded ends and continuous cylinder retained; no intentional openings. Native1254 square resampled to2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned pair approval reused. Original solid pair and independent foreground masks inspected: full rounded ends and continuous cylinder retained; no intentional openings. Native1254 square resampled to2048.",
+      "landmarks": [
+        {
+          "name": "lower-end",
+          "detail": [
+            0.06769324296357616,
+            0.9087692116171404
+          ],
+          "geometry": [
+            0.06620253000827815,
+            0.9072787131244616
+          ]
+        },
+        {
+          "name": "upper-end",
+          "detail": [
+            0.9300706876034768,
+            0.0852687944121447
+          ],
+          "geometry": [
+            0.9308160440811258,
+            0.08601404365848406
+          ]
+        },
+        {
+          "name": "centre",
+          "detail": [
+            0.499254643522351,
+            0.4951558798987941
+          ],
+          "geometry": [
+            0.499254643522351,
+            0.4959011291451335
+          ]
+        },
+        {
+          "name": "section-upper",
+          "detail": [
+            0.7086998137417219,
+            0.2931933341408268
+          ],
+          "geometry": [
+            0.7086998137417219,
+            0.2939385833871663
+          ]
+        },
+        {
+          "name": "section-lower",
+          "detail": [
+            0.28235590852649006,
+            0.7045709181201552
+          ],
+          "geometry": [
+            0.281610552048841,
+            0.7053161673664944
+          ]
+        }
+      ],
+      "referenceSha256": "6eb0a0ba756b776f6c7fbaeab9d8ac9080efc262529468a48f11a49d6df961b3",
+      "geometrySha256": "eab3d3648f29bf0fc380ba11ba14eab71f0092e1b8fcfa665a37afd334bf5b48",
+      "detailSha256": "ff0a732ed2944b00c797d227314585aaaec2bd84b686cc5114bc79bc673f00ea",
+      "foregroundMaskSha256": "54a67d6c6f1d490d25fef4159b06af32051befa221625ffb7b7cc843e2e56f4c",
+      "geometryForegroundMaskSha256": "9b8e9e4fa60bbcd4164129829b024cb56cdd89a323035ac8edc734869206a440"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

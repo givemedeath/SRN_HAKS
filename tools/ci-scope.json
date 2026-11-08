@@ -18,6 +18,13 @@
     "^docs/imports/",
     "^srn_item/"
   ],
+  "packBuild": [
+    "^hakbuilder\\.json$",
+    "^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\\.Common|SrnTools)\\.",
+    "^tools/(toolchain|shared-tools)\\.lock\\.json$",
+    "^tools/ci-scope\\.json$",
+    "^\\.github/(workflows/ci\\.yml|actions/srn-tools/)"
+  ],
   "wheel": [
     "^tools/phenomorpher/"
   ],
@@ -25,6 +32,7 @@
   "groups": [
     {"name": "packs", "packTests": true, "shards": 1},
     {"name": "phenotypes", "pattern": "^tools/phenotypes/", "shards": 3},
+    {"name": "headkit", "pattern": "^tools/headkit/", "shards": 1},
     {"name": "core", "pattern": "^tools/", "shards": 1}
   ],
   "operatingSystems": ["ubuntu-latest", "windows-latest"],

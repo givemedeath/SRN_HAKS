@@ -8,6 +8,7 @@ import subprocess
 from audit_geometry import arrays
 from pipeline import digest, save_json
 from retarget import NODE
+from tool_runtime import tool as resolved_tool
 
 
 def freeze(args):
@@ -64,7 +65,9 @@ def freeze(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for field in ('inventory','output','cat','decompiler'): parser.add_argument('--'+field,type=Path,required=True)
-    freeze(parser.parse_args())
+    args=parser.parse_args()
+    args.cat=resolved_tool('resman_cat',path=args.cat);args.decompiler=resolved_tool('mdlcomp',path=args.decompiler)
+    freeze(args)
 
 
 if __name__=='__main__':main()

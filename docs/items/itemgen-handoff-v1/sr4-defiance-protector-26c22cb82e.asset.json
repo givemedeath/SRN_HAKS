@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-defiance-protector-26c22cb82e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-upper",
+      "pixel": [
+        80.0,
+        314.99999999999994
+      ]
+    },
+    {
+      "name": "top-sight",
+      "pixel": [
+        730.0,
+        254.00000000000003
+      ]
+    },
+    {
+      "name": "grip-lower",
+      "pixel": [
+        1000.0,
+        985.0
+      ]
+    },
+    {
+      "name": "trigger-bow-lower",
+      "pixel": [
+        440.00000000000006,
+        690.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-defiance-protector-26c22cb82e.family.json",
+    "sha256": "777ef4c2b70496e9fa8338f509c5d4b60b3677a1308bd18b2d5fb03c49846cc3"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/0d0b62769af8cee6cca6d2df4c699aeb1ce6d4810e27a315448e0fcd8dbb1fad.png",
+      "sha256": "0d0b62769af8cee6cca6d2df4c699aeb1ce6d4810e27a315448e0fcd8dbb1fad"
+    },
+    "clayReference": {
+      "path": "inputs/593c5f04a0f3efc51b63d4712e3c8f8e91ab74813bd9bed1526d1e580965c802.png",
+      "sha256": "593c5f04a0f3efc51b63d4712e3c8f8e91ab74813bd9bed1526d1e580965c802"
+    },
+    "geometry": {
+      "path": "inputs/382f7998e88e6a4123fe82562d51064b5797391fa4d529290ec2cda3fe9b1b02.png",
+      "sha256": "382f7998e88e6a4123fe82562d51064b5797391fa4d529290ec2cda3fe9b1b02"
+    },
+    "detail": {
+      "path": "inputs/4e6e99640ad1979056ae561ba583c66dd2fdccee17fbb1223ad8b17eef61f6e1.png",
+      "sha256": "4e6e99640ad1979056ae561ba583c66dd2fdccee17fbb1223ad8b17eef61f6e1"
+    },
+    "foregroundMask": {
+      "path": "inputs/ad246cfe90ef7daff1122e9a976625d464f42412ae1741f102cf79a23376e07a.png",
+      "sha256": "ad246cfe90ef7daff1122e9a976625d464f42412ae1741f102cf79a23376e07a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/7d2563478ac30662a5b52c73bc4b4b1a4600afba27059ede4ff031029db84979.png",
+      "sha256": "7d2563478ac30662a5b52c73bc4b4b1a4600afba27059ede4ff031029db84979"
+    },
+    "mask": {
+      "path": "inputs/7d2563478ac30662a5b52c73bc4b4b1a4600afba27059ede4ff031029db84979.png",
+      "sha256": "7d2563478ac30662a5b52c73bc4b4b1a4600afba27059ede4ff031029db84979"
+    },
+    "calibrationReference": {
+      "path": "inputs/be1afce45cb8e7c4b9328fea1712e00c8520dbd8dd82f0f3373e150ceb434a95.png",
+      "sha256": "be1afce45cb8e7c4b9328fea1712e00c8520dbd8dd82f0f3373e150ceb434a95"
+    },
+    "sourceAudit": {
+      "path": "inputs/e190fbd0803334e68fc38406aa77f1bdbe5a2fcb59fec3e2b9d647a02715a702.json",
+      "sha256": "e190fbd0803334e68fc38406aa77f1bdbe5a2fcb59fec3e2b9d647a02715a702"
+    },
+    "referenceApproval": {
+      "path": "inputs/a7406121b29c544417ad1f49f109c9601247ed664a8b07af76d46da2e7cceff8.json",
+      "sha256": "a7406121b29c544417ad1f49f109c9601247ed664a8b07af76d46da2e7cceff8"
+    },
+    "calibrationDetail": {
+      "path": "inputs/99babab402c909f871f9c8afe4cbb4c1f05720fee5973870c06ef63dd497a3bc.png",
+      "sha256": "99babab402c909f871f9c8afe4cbb4c1f05720fee5973870c06ef63dd497a3bc"
+    }
+  },
+  "features": [
+    {
+      "name": "Compact taser with top-mounted laser sight and gecko grip",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own PROTECTOR art: curved/raked grip, compact upper body and trigger opening; retain these proportions",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed actual retained DefianceProtector detail/clay and own PROTECTOR artwork Arsenal20/PDF22. Compact taser upper body, curved raked gecko grip, top-mounted laser and trigger opening follow source. Exact finish/unseen depth artistic. Earlier clay success is reused; residual shallow grip texture and small recesses are nonblocking under latest user direction. No replacement generation or changes to the raw images. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        742,
+        855,
+        887,
+        1075
+      ],
+      "referenceAreaPixels": 17495,
+      "referenceMaskSha256": "7d2563478ac30662a5b52c73bc4b4b1a4600afba27059ede4ff031029db84979",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0d0b62769af8cee6cca6d2df4c699aeb1ce6d4810e27a315448e0fcd8dbb1fad",
+      "imageSha256": "4e6e99640ad1979056ae561ba583c66dd2fdccee17fbb1223ad8b17eef61f6e1",
+      "maskSha256": "ad246cfe90ef7daff1122e9a976625d464f42412ae1741f102cf79a23376e07a",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed actual retained DefianceProtector detail/clay and own PROTECTOR artwork Arsenal20/PDF22. Compact taser upper body, curved raked gecko grip, top-mounted laser and trigger opening follow source. Exact finish/unseen depth artistic. Earlier clay success is reused; residual shallow grip texture and small recesses are nonblocking under latest user direction. No replacement generation or changes to the raw images. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "593c5f04a0f3efc51b63d4712e3c8f8e91ab74813bd9bed1526d1e580965c802",
+      "imageSha256": "382f7998e88e6a4123fe82562d51064b5797391fa4d529290ec2cda3fe9b1b02",
+      "maskSha256": "7d2563478ac30662a5b52c73bc4b4b1a4600afba27059ede4ff031029db84979",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed actual retained DefianceProtector detail/clay and own PROTECTOR artwork Arsenal20/PDF22. Compact taser upper body, curved raked gecko grip, top-mounted laser and trigger opening follow source. Exact finish/unseen depth artistic. Earlier clay success is reused; residual shallow grip texture and small recesses are nonblocking under latest user direction. No replacement generation or changes to the raw images. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "0d0b62769af8cee6cca6d2df4c699aeb1ce6d4810e27a315448e0fcd8dbb1fad",
+      "detailSha256": "4e6e99640ad1979056ae561ba583c66dd2fdccee17fbb1223ad8b17eef61f6e1",
+      "geometrySha256": "382f7998e88e6a4123fe82562d51064b5797391fa4d529290ec2cda3fe9b1b02",
+      "foregroundMaskSha256": "ad246cfe90ef7daff1122e9a976625d464f42412ae1741f102cf79a23376e07a",
+      "geometryForegroundMaskSha256": "7d2563478ac30662a5b52c73bc4b4b1a4600afba27059ede4ff031029db84979",
+      "landmarks": [
+        {
+          "name": "front-upper",
+          "detail": [
+            0.0856708700726141,
+            0.27246291434716596
+          ],
+          "geometry": [
+            0.0856708700726141,
+            0.2717156661184211
+          ]
+        },
+        {
+          "name": "top-sight",
+          "detail": [
+            0.5713587590767635,
+            0.22688077239372473
+          ],
+          "geometry": [
+            0.5713587590767635,
+            0.2253862759362348
+          ]
+        },
+        {
+          "name": "grip-lower",
+          "detail": [
+            0.7731060360477179,
+            0.7731192276062753
+          ],
+          "geometry": [
+            0.7731060360477179,
+            0.7753609722925101
+          ]
+        },
+        {
+          "name": "trigger-bow-lower",
+          "detail": [
+            0.35466723936721994,
+            0.5526810001265182
+          ],
+          "geometry": [
+            0.35466723936721994,
+            0.5534282483552632
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed actual retained DefianceProtector detail/clay and own PROTECTOR artwork Arsenal20/PDF22. Compact taser upper body, curved raked gecko grip, top-mounted laser and trigger opening follow source. Exact finish/unseen depth artistic. Earlier clay success is reused; residual shallow grip texture and small recesses are nonblocking under latest user direction. No replacement generation or changes to the raw images. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

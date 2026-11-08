@@ -30,7 +30,7 @@ function Get-SrnTool([string]$Name) {
     $tools = Get-Content (Join-Path $PSScriptRoot 'test-tools.json') -Raw | ConvertFrom-Json
     $tools.$Name
 }
-Export-ModuleMember -Function Get-SrnRepositoryRoot,Get-SrnTool,Resolve-SrnQuarantinePath,Publish-SrnDirectorySet
+Export-ModuleMember -Function Get-SrnRepositoryRoot,Get-SrnTool,Read-SrnCp1252Text,Read-SrnCp1252Lines,Invoke-SrnCp1252Native,Resolve-SrnQuarantinePath,Publish-SrnDirectorySet
 '@)
 $sourceHash = 'A' * 64
 foreach ($overlap in @('mdrnee_item/raw/migration','mdrnee_item/blueprints/raw/migration')) {

@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-urban-combat-dadb6ed882",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-outline",
+      "pixel": [
+        27.0,
+        352.00000000000006
+      ]
+    },
+    {
+      "name": "top-outline",
+      "pixel": [
+        306.5,
+        239.0
+      ]
+    },
+    {
+      "name": "right-outline",
+      "pixel": [
+        1231.0,
+        745.0
+      ]
+    },
+    {
+      "name": "bottom-outline",
+      "pixel": [
+        720.5,
+        1115.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-urban-combat-dadb6ed882.family.json",
+    "sha256": "1563cf27922e77f4bcc341ec9d581599b38d3335649b904933e6bb94b3136a52"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/34be7feca0582a2ef21a0a409490c0a490fa38e353dcb5090dcb95706bed9188.png",
+      "sha256": "34be7feca0582a2ef21a0a409490c0a490fa38e353dcb5090dcb95706bed9188"
+    },
+    "clayReference": {
+      "path": "inputs/f3b421b220e55c84aaef92ad60abe30f23ae32da40eb0c201fd7bdbc5d80ebfe.png",
+      "sha256": "f3b421b220e55c84aaef92ad60abe30f23ae32da40eb0c201fd7bdbc5d80ebfe"
+    },
+    "geometry": {
+      "path": "inputs/2d04ebd8a76f3f320b5e901d5ea419dc63254afd7b2c77e335aeacd9117c98ac.png",
+      "sha256": "2d04ebd8a76f3f320b5e901d5ea419dc63254afd7b2c77e335aeacd9117c98ac"
+    },
+    "detail": {
+      "path": "inputs/4e9f88c40f2db31ab424d61babeb03b6ec84f664b8bf8bd497118895e662f264.png",
+      "sha256": "4e9f88c40f2db31ab424d61babeb03b6ec84f664b8bf8bd497118895e662f264"
+    },
+    "foregroundMask": {
+      "path": "inputs/690d6044c9074326a29cfca85361741c92af45d4fc4c3216e254ce6ce745e22b.png",
+      "sha256": "690d6044c9074326a29cfca85361741c92af45d4fc4c3216e254ce6ce745e22b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/ae015aac1d92be290da58d5a7049e01ed089c868580554064297b41f25cbd4c9.png",
+      "sha256": "ae015aac1d92be290da58d5a7049e01ed089c868580554064297b41f25cbd4c9"
+    },
+    "mask": {
+      "path": "inputs/ae015aac1d92be290da58d5a7049e01ed089c868580554064297b41f25cbd4c9.png",
+      "sha256": "ae015aac1d92be290da58d5a7049e01ed089c868580554064297b41f25cbd4c9"
+    },
+    "calibrationReference": {
+      "path": "inputs/9e00bbfb4072cfb4f133def93f91672f49e9a73a94b181385f823da06ec6575f.png",
+      "sha256": "9e00bbfb4072cfb4f133def93f91672f49e9a73a94b181385f823da06ec6575f"
+    },
+    "sourceAudit": {
+      "path": "inputs/3d13d7e3fb8e573a20943226453ae967f8c274be9a737ed159480389930d84c6.json",
+      "sha256": "3d13d7e3fb8e573a20943226453ae967f8c274be9a737ed159480389930d84c6"
+    },
+    "referenceApproval": {
+      "path": "inputs/514acc8e15871d35787aea4d690fa81775a497e3f75e36a891323fd02ac621a2.json",
+      "sha256": "514acc8e15871d35787aea4d690fa81775a497e3f75e36a891323fd02ac621a2"
+    },
+    "calibrationDetail": {
+      "path": "inputs/e44af0f890d7289ffa2870673c9e3b6bd17c6ffb462a6de6554877d407b5149b.png",
+      "sha256": "e44af0f890d7289ffa2870673c9e3b6bd17c6ffb462a6de6554877d407b5149b"
+    }
+  },
+  "features": [
+    {
+      "name": "Entirely nonmetallic components, internal smartlink, fixed barrel-mounted sound suppressor and internal hydraulic recoil-compensation system.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own URBAN COMBAT art printed25/PDF27 lower-right: blocklike upper with short dark projecting front, rear raked grip, long separate magazine below the forward body and distinct trigger opening. Preserve these relationships rather than generic MP7/SMG geometry.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual prepared overlay inspected: paired framing, trigger opening and thin guard preserved; no backdrop debris. Matched angular upper/lower body, fixed suppressor and its actual dark end recess, magazine position, rear grip and open trigger guard. Grip texture, tiny circular side vents, scratches and small fasteners simplified in clay; shallow channels accepted. Actual raw pairs and both foreground masks inspected: matching camera/framing, no background debris. Arsenal printed25/PDF27 own URBAN COMBAT art and prose: nonmetallic body, fixed front suppressor, separate long forward magazine, rear raked grip and trigger opening. Major source layout retained; charcoal-gray composite appearance, panels, controls and unshown depth are interpreted. No new optic, external stock or hydraulic attachment.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1443,
+        812,
+        1550,
+        924
+      ],
+      "referenceAreaPixels": 5954,
+      "referenceMaskSha256": "ae015aac1d92be290da58d5a7049e01ed089c868580554064297b41f25cbd4c9",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "34be7feca0582a2ef21a0a409490c0a490fa38e353dcb5090dcb95706bed9188",
+      "imageSha256": "4e9f88c40f2db31ab424d61babeb03b6ec84f664b8bf8bd497118895e662f264",
+      "maskSha256": "690d6044c9074326a29cfca85361741c92af45d4fc4c3216e254ce6ce745e22b",
+      "notes": "Actual prepared overlay inspected: paired framing, trigger opening and thin guard preserved; no backdrop debris. Matched angular upper/lower body, fixed suppressor and its actual dark end recess, magazine position, rear grip and open trigger guard. Grip texture, tiny circular side vents, scratches and small fasteners simplified in clay; shallow channels accepted. Actual raw pairs and both foreground masks inspected: matching camera/framing, no background debris. Arsenal printed25/PDF27 own URBAN COMBAT art and prose: nonmetallic body, fixed front suppressor, separate long forward magazine, rear raked grip and trigger opening. Major source layout retained; charcoal-gray composite appearance, panels, controls and unshown depth are interpreted. No new optic, external stock or hydraulic attachment."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f3b421b220e55c84aaef92ad60abe30f23ae32da40eb0c201fd7bdbc5d80ebfe",
+      "imageSha256": "2d04ebd8a76f3f320b5e901d5ea419dc63254afd7b2c77e335aeacd9117c98ac",
+      "maskSha256": "ae015aac1d92be290da58d5a7049e01ed089c868580554064297b41f25cbd4c9",
+      "notes": "Actual prepared overlay inspected: paired framing, trigger opening and thin guard preserved; no backdrop debris. Matched angular upper/lower body, fixed suppressor and its actual dark end recess, magazine position, rear grip and open trigger guard. Grip texture, tiny circular side vents, scratches and small fasteners simplified in clay; shallow channels accepted. Actual raw pairs and both foreground masks inspected: matching camera/framing, no background debris. Arsenal printed25/PDF27 own URBAN COMBAT art and prose: nonmetallic body, fixed front suppressor, separate long forward magazine, rear raked grip and trigger opening. Major source layout retained; charcoal-gray composite appearance, panels, controls and unshown depth are interpreted. No new optic, external stock or hydraulic attachment."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "34be7feca0582a2ef21a0a409490c0a490fa38e353dcb5090dcb95706bed9188",
+      "detailSha256": "4e9f88c40f2db31ab424d61babeb03b6ec84f664b8bf8bd497118895e662f264",
+      "geometrySha256": "2d04ebd8a76f3f320b5e901d5ea419dc63254afd7b2c77e335aeacd9117c98ac",
+      "foregroundMaskSha256": "690d6044c9074326a29cfca85361741c92af45d4fc4c3216e254ce6ce745e22b",
+      "geometryForegroundMaskSha256": "ae015aac1d92be290da58d5a7049e01ed089c868580554064297b41f25cbd4c9",
+      "landmarks": [
+        {
+          "name": "left-outline",
+          "detail": [
+            0.0498046875,
+            0.2569859215017065
+          ],
+          "geometry": [
+            0.0498046875,
+            0.2521331058020478
+          ]
+        },
+        {
+          "name": "top-outline",
+          "detail": [
+            0.2584773074730514,
+            0.17262158703071673
+          ],
+          "geometry": [
+            0.2581040111940298,
+            0.171875
+          ]
+        },
+        {
+          "name": "right-outline",
+          "detail": [
+            0.9487021273839138,
+            0.5503946245733788
+          ],
+          "geometry": [
+            0.9494487199419569,
+            0.5503946245733788
+          ]
+        },
+        {
+          "name": "bottom-outline",
+          "detail": [
+            0.5675666265029021,
+            0.8266318259385665
+          ],
+          "geometry": [
+            0.5675666265029021,
+            0.8273784129692833
+          ]
+        }
+      ],
+      "notes": "Actual prepared overlay inspected: paired framing, trigger opening and thin guard preserved; no backdrop debris. Matched angular upper/lower body, fixed suppressor and its actual dark end recess, magazine position, rear grip and open trigger guard. Grip texture, tiny circular side vents, scratches and small fasteners simplified in clay; shallow channels accepted. Actual raw pairs and both foreground masks inspected: matching camera/framing, no background debris. Arsenal printed25/PDF27 own URBAN COMBAT art and prose: nonmetallic body, fixed front suppressor, separate long forward magazine, rear raked grip and trigger opening. Major source layout retained; charcoal-gray composite appearance, panels, controls and unshown depth are interpreted. No new optic, external stock or hydraulic attachment."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

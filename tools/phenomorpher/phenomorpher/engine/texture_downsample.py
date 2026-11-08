@@ -163,9 +163,11 @@ def downsample(root, manifest_path, output, max_size=1024):
             raise ValueError('Unsupported texture format: ' + row['path'])
         if row['sha256'] not in payloads:
             reduce = {'palette': reduce_plt, 'normal': reduce_normal, 'roughness': reduce_roughness}[kind]
-            result, stats = data, None
+            # Every 2:1 pass is recorded, so a multi-pass reduction still describes the published source.
+            result, stats = data, []
             while max(size(result, suffix)) > max_size:
-                result, stats = reduce(result)
+                before = list(size(result, suffix)); result, step = reduce(result)
+                stats.append({'from': before, 'to': list(size(result, suffix)), **step})
             payloads[row['sha256']] = {'kind': kind, 'data': result, 'stats': stats, 'resources': []}
         entry = payloads[row['sha256']]
         if entry['kind'] != kind:

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "cougar-approved-grip-v1",
+  "purpose": "Default sizing reference for future weapons",
+  "approval": {
+    "source": "user",
+    "date": "2026-10-22",
+    "instruction": "looks good, make sure future weapons are scaled based on that grip size",
+    "gripSizingApproved": true,
+    "completeClientValidation": false,
+    "productionPromotion": false
+  },
+  "referenceVariant": "cougar-fineblade-longblade/width20-v1",
+  "units": "NWN native model units",
+  "axes": {"depth": "X", "length": "+Y", "visibleFaceWidth": "Z"},
+  "nativeGripOrigin": [0.000394182, -0.0157349, 0.000168169],
+  "usableLength": 0.1831918,
+  "usableYRange": [-0.1073308, 0.075861],
+  "targetMidpointSection": {
+    "fractionFromPommel": 0.5,
+    "depth": 0.029581964161963813,
+    "visibleFaceWidth": 0.048606638683900284
+  },
+  "referenceSections": [
+    {"fractionFromPommel": 0.1, "depth": 0.0263369944822255, "visibleFaceWidth": 0.04514455920204863},
+    {"fractionFromPommel": 0.25, "depth": 0.02795733791530087, "visibleFaceWidth": 0.04615316782542491},
+    {"fractionFromPommel": 0.5, "depth": 0.029581964161963813, "visibleFaceWidth": 0.048606638683900284},
+    {"fractionFromPommel": 0.75, "depth": 0.029102932124533215, "visibleFaceWidth": 0.050913493892620114},
+    {"fractionFromPommel": 0.9, "depth": 0.029711338367954164, "visibleFaceWidth": 0.05031073434072089}
+  ],
+  "measurement": {
+    "method": "Intersect final grip triangles with planes normal to native Y; measure X/Z spans of intersections",
+    "lengthSource": "Reviewed usable grip landmarks transformed by the recorded native fit",
+    "exclude": "Do not use full multipart grip bounds, guard, ferrules or pommel as usable hand-contact length",
+    "historicalScaleFromOriginalCougar": {"depth": 0.8, "length": 1.0, "visibleFaceWidth": 0.64},
+    "historicalScaleIsNotAGenericFutureWeaponMultiplier": true
+  },
+  "sources": {
+    "gripArray": {
+      "repositoryRelativePath": "output/itemkit/cougar-fineblade-longblade/width20-v1/arrays/m.npz",
+      "sha256": "67486dc146320e822f90af4cf79b7b86cff3edaac15d2665134920ffd5726055"
+    },
+    "fitManifest": {
+      "repositoryRelativePath": "output/itemkit/cougar-fineblade-longblade/production-5k-v6.json",
+      "sha256": "d28db8806dbf0a6cc689a9b533f7bd7c98bdbeb7f11a1a6b4b3f2b20d81b4eff"
+    },
+    "variantReceipt": {
+      "repositoryRelativePath": "output/itemkit/cougar-fineblade-longblade/width20-v1/result.json",
+      "sha256": "6ff27ecedbc890f20ac3485df55e7663776ec29daf95166813ee1deecebb84f3"
+    },
+    "checkpoint": {
+      "repositoryRelativePath": "output/itemkit/cougar-fineblade-longblade/checkpoint-v22.json",
+      "sha256": "54a0ee00d41e3af74bd4efacf06845c22ceabcdd238d135c4602c9ff41de37b5"
+    }
+  }
+}

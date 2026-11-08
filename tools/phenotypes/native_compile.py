@@ -4,12 +4,36 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import time
 
 from pipeline import digest, save_json
 from tool_runtime import runtime, record_dependencies
+
+
+def supermodel_chains(sources, snapshot):
+    """Each model's cache identity: its own bytes, plus those of its ancestors in this compile set.
+
+    A compiled model carries data from its supermodel, so an unchanged child of a changed parent is stale. A model with
+    no ancestor here keeps its plain source hash, so older receipts stay reusable for it.
+    """
+    names = {path.name.lower(): path.name for path in sources}
+    parents = {}
+    for path in sources:
+        match = re.search(rb"(?mi)^\s*setsupermodel\s+\S+\s+(\S+)", path.read_bytes())
+        parent = names.get(match[1].decode("ascii", "replace").lower() + ".mdl") if match else None
+        if parent:
+            parents[path.name] = parent
+    chains = {}
+    for path in sources:
+        chain = [path.name]
+        while chain[-1] in parents and parents[chain[-1]] not in chain:
+            chain.append(parents[chain[-1]])
+        chains[path.name] = (snapshot[path.name] if len(chain) == 1 else
+                             hashlib.sha256(json.dumps([[name, snapshot[name]] for name in chain]).encode()).hexdigest())
+    return chains
 
 
 def main():
@@ -40,6 +64,7 @@ def main():
                           if args.with_material_resources and p.suffix.lower() in (".mtr", ".txi", ".tga", ".dds", ".plt"))
     dependency_hashes = {p.name: digest(p) for p in dependencies}
     snapshot = {p.name: digest(p) for p in sources}
+    chains = supermodel_chains(sources, snapshot)
     frozen_inputs = {str(p.resolve()): snapshot[p.name] for p in sources}
     frozen_inputs.update({str(p.resolve()): dependency_hashes[p.name] for p in dependencies})
     client = runtime("nwn", args.client,
@@ -67,7 +92,8 @@ def main():
         for entry in donor_receipt["models"]:
             source=converted/"ascii"/entry["name"]
             binary=donor/"resources"/entry["name"]
-            if source.exists() and digest(source)==entry["sourceSha256"]:
+            if (source.exists() and digest(source)==entry["sourceSha256"]
+                    and entry.get("supermodelChainSha256",entry["sourceSha256"])==chains[entry["name"]]):
                 if digest(binary)!=entry["binarySha256"]:
                     raise RuntimeError("Compiler cache donor binary changed: "+entry["name"])
                 pins={str(donor_path):donor_pin, str(binary):entry["binarySha256"]}
@@ -89,6 +115,7 @@ def main():
         destination = converted / "resources" / path.name
         cached = cache.get(path.name)
         if (cached and cached["sourceSha256"] == snapshot[path.name] and destination.exists()
+                and cached.get("supermodelChainSha256", cached["sourceSha256"]) == chains[path.name]
                 and cached["binarySha256"] == digest(destination)):
             receipts.append(cached)
             continue
@@ -108,7 +135,8 @@ def main():
         if digest(path)!=snapshot[path.name] or digest(override/path.name)!=snapshot[path.name]:
             raise RuntimeError("Compiler source or override changed during compilation: "+path.name)
         shutil.copyfile(target, destination)
-        receipt = {"name": path.name, "sourceSha256": snapshot[path.name], "binarySha256": digest(destination),
+        receipt = {"name": path.name, "sourceSha256": snapshot[path.name], "supermodelChainSha256": chains[path.name],
+                   "binarySha256": digest(destination),
                    "bytes": destination.stat().st_size, "seconds": round(time.time() - started, 2)}
         receipts.append(receipt)
         save_json(receipt_path, {"client": str(client), "clientSha256": client_hash,

@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-yamaha-sakura-fubuki-712dfc7818",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-silhouette-extreme",
+      "pixel": [
+        37.0,
+        803.0000000000001
+      ]
+    },
+    {
+      "name": "top-silhouette-extreme",
+      "pixel": [
+        1101.0,
+        285.0
+      ]
+    },
+    {
+      "name": "right-silhouette-extreme",
+      "pixel": [
+        1225.0,
+        671.0
+      ]
+    },
+    {
+      "name": "bottom-silhouette-extreme",
+      "pixel": [
+        977.0000000000001,
+        885.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-yamaha-sakura-fubuki-712dfc7818.family.json",
+    "sha256": "1c42123f5d1a4a9e429aacb15f590cb9c540f20041cf3410412111569ff166de"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/32a0d6ae82270b416f7b4dc7aab5b7819283cda704166a852d807e1909ec3868.png",
+      "sha256": "32a0d6ae82270b416f7b4dc7aab5b7819283cda704166a852d807e1909ec3868"
+    },
+    "clayReference": {
+      "path": "inputs/82332ac011c6d7de09365a943fefd90a8d875f2ae2a1d0ad7ffd255276e005d2.png",
+      "sha256": "82332ac011c6d7de09365a943fefd90a8d875f2ae2a1d0ad7ffd255276e005d2"
+    },
+    "geometry": {
+      "path": "inputs/763f025df3106da5b7a86976616c00dd1c835c4596f5d07b3e4d963fe53e230a.png",
+      "sha256": "763f025df3106da5b7a86976616c00dd1c835c4596f5d07b3e4d963fe53e230a"
+    },
+    "detail": {
+      "path": "inputs/ee1185221d34b8f79a7fc0898b0a62831078b7313848cb69f4835d432de2e059.png",
+      "sha256": "ee1185221d34b8f79a7fc0898b0a62831078b7313848cb69f4835d432de2e059"
+    },
+    "foregroundMask": {
+      "path": "inputs/d4b103fffe02113a73f13b44fdf05fef08239feb0e9636df1809f6a8f37004ff.png",
+      "sha256": "d4b103fffe02113a73f13b44fdf05fef08239feb0e9636df1809f6a8f37004ff"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283.png",
+      "sha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283"
+    },
+    "mask": {
+      "path": "inputs/3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283.png",
+      "sha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283"
+    },
+    "calibrationReference": {
+      "path": "inputs/03dad6bd44f2acd819c21b6ffef932414cc3754339caae8e779bc466c2ef84c4.png",
+      "sha256": "03dad6bd44f2acd819c21b6ffef932414cc3754339caae8e779bc466c2ef84c4"
+    },
+    "sourceAudit": {
+      "path": "inputs/be05c222e3cb6fdc761c1c0fc7b62495929c0ecc98872676808622bdef387c2d.json",
+      "sha256": "be05c222e3cb6fdc761c1c0fc7b62495929c0ecc98872676808622bdef387c2d"
+    },
+    "referenceApproval": {
+      "path": "inputs/eee2ba92011bfff34e7fef13bbd5f002cea9f72f01911b19ce74385b774dd67a.json",
+      "sha256": "eee2ba92011bfff34e7fef13bbd5f002cea9f72f01911b19ce74385b774dd67a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/dede5ee29cd4752fcb9efc5a6efb2b9523dcade1afa92bf21d2f9aff0141476d.png",
+      "sha256": "dede5ee29cd4752fcb9efc5a6efb2b9523dcade1afa92bf21d2f9aff0141476d"
+    }
+  },
+  "features": [
+    {
+      "name": "Four barrels with bullets stacked in-line; electronic firing without moving parts, rather than a standard magazine (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Integral folding stock (description); preserve the four muzzle/barrel endpoints, sculpted grip, trigger opening and stock structure in the drawing.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root actual final derived-pair approval reused without raw/derived re-review. Actual NEW conditioned overlay/clay inspectedonce: seamless isolatedringfill, majorreceiverpanelboundary intentionallypreserved, fourmuzzles/stowedstock/trigger/gripopenings and silhouette aligned/intact. Native1254 resampled2048, notnative2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        887,
+        922,
+        1084,
+        1093
+      ],
+      "referenceAreaPixels": 27499,
+      "referenceMaskSha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        793,
+        994,
+        865,
+        1093
+      ],
+      "referenceAreaPixels": 2342,
+      "referenceMaskSha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        742,
+        1122,
+        935,
+        1327
+      ],
+      "referenceAreaPixels": 26522,
+      "referenceMaskSha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        637,
+        1263,
+        804,
+        1377
+      ],
+      "referenceAreaPixels": 6211,
+      "referenceMaskSha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "32a0d6ae82270b416f7b4dc7aab5b7819283cda704166a852d807e1909ec3868",
+      "imageSha256": "ee1185221d34b8f79a7fc0898b0a62831078b7313848cb69f4835d432de2e059",
+      "maskSha256": "d4b103fffe02113a73f13b44fdf05fef08239feb0e9636df1809f6a8f37004ff",
+      "notes": "Root actual final derived-pair approval reused without raw/derived re-review. Actual NEW conditioned overlay/clay inspectedonce: seamless isolatedringfill, majorreceiverpanelboundary intentionallypreserved, fourmuzzles/stowedstock/trigger/gripopenings and silhouette aligned/intact. Native1254 resampled2048, notnative2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "82332ac011c6d7de09365a943fefd90a8d875f2ae2a1d0ad7ffd255276e005d2",
+      "imageSha256": "763f025df3106da5b7a86976616c00dd1c835c4596f5d07b3e4d963fe53e230a",
+      "maskSha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283",
+      "notes": "Root actual final derived-pair approval reused without raw/derived re-review. Actual NEW conditioned overlay/clay inspectedonce: seamless isolatedringfill, majorreceiverpanelboundary intentionallypreserved, fourmuzzles/stowedstock/trigger/gripopenings and silhouette aligned/intact. Native1254 resampled2048, notnative2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Root actual final derived-pair approval reused without raw/derived re-review. Actual NEW conditioned overlay/clay inspectedonce: seamless isolatedringfill, majorreceiverpanelboundary intentionallypreserved, fourmuzzles/stowedstock/trigger/gripopenings and silhouette aligned/intact. Native1254 resampled2048, notnative2K.",
+      "landmarks": [
+        {
+          "name": "left-silhouette-extreme",
+          "detail": [
+            0.049046144429233364,
+            0.6648197842758765
+          ],
+          "geometry": [
+            0.049046144429233364,
+            0.664060869678631
+          ]
+        },
+        {
+          "name": "top-silhouette-extreme",
+          "detail": [
+            0.8561359717249368,
+            0.2717020229027546
+          ],
+          "geometry": [
+            0.8561359717249368,
+            0.2717020229027546
+          ]
+        },
+        {
+          "name": "right-silhouette-extreme",
+          "detail": [
+            0.9501953125,
+            0.5646430574394825
+          ],
+          "geometry": [
+            0.9501953125,
+            0.5646430574394825
+          ]
+        },
+        {
+          "name": "bottom-silhouette-extreme",
+          "detail": [
+            0.7620766309498738,
+            0.72705078125
+          ],
+          "geometry": [
+            0.7491813987468408,
+            0.72705078125
+          ]
+        }
+      ],
+      "referenceSha256": "32a0d6ae82270b416f7b4dc7aab5b7819283cda704166a852d807e1909ec3868",
+      "geometrySha256": "763f025df3106da5b7a86976616c00dd1c835c4596f5d07b3e4d963fe53e230a",
+      "detailSha256": "ee1185221d34b8f79a7fc0898b0a62831078b7313848cb69f4835d432de2e059",
+      "geometryForegroundMaskSha256": "3f28f7c2b0407366e25c3793a9f879cf8e1ddd2b35ec958c23a2b254e03e7283",
+      "foregroundMaskSha256": "d4b103fffe02113a73f13b44fdf05fef08239feb0e9636df1809f6a8f37004ff"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

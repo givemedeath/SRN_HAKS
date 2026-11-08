@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hand-blade-ae7fcc1ff8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "middle-finger-upper",
+      "pixel": [
+        710.0,
+        49.00000000000002
+      ]
+    },
+    {
+      "name": "blade-tip-upper",
+      "pixel": [
+        1080.0,
+        101.0
+      ]
+    },
+    {
+      "name": "thumb-upper",
+      "pixel": [
+        170.0,
+        421.0
+      ]
+    },
+    {
+      "name": "wrist-end-lower",
+      "pixel": [
+        650.0000000000001,
+        1202.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hand-blade-ae7fcc1ff8.family.json",
+    "sha256": "b028094e4d060ac8410412db5bf35f9fc9b1c2fdbbfa04cc0275d2807d1fd988"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/92701ba4980cc1bfa14ed87ad3702ad568718da0900349539891e191a0b7602d.png",
+      "sha256": "92701ba4980cc1bfa14ed87ad3702ad568718da0900349539891e191a0b7602d"
+    },
+    "clayReference": {
+      "path": "inputs/27a20eecd7ae9d15df08d7892e16611098d76416c1aaf446d0fd5cce6383a35e.png",
+      "sha256": "27a20eecd7ae9d15df08d7892e16611098d76416c1aaf446d0fd5cce6383a35e"
+    },
+    "geometry": {
+      "path": "inputs/2d387c40a53fc0704a41454d9706f9ebf4c61b6f8a5d240be06c20e063bdd547.png",
+      "sha256": "2d387c40a53fc0704a41454d9706f9ebf4c61b6f8a5d240be06c20e063bdd547"
+    },
+    "detail": {
+      "path": "inputs/979b40092d2ea497800843cfdb43d22a2df81f35067be50c0a1de1ea47a93b3c.png",
+      "sha256": "979b40092d2ea497800843cfdb43d22a2df81f35067be50c0a1de1ea47a93b3c"
+    },
+    "foregroundMask": {
+      "path": "inputs/ab32f2d2e4d946b5ded16f12c394a845938bf9919dc23383d8eb616a02aa951b.png",
+      "sha256": "ab32f2d2e4d946b5ded16f12c394a845938bf9919dc23383d8eb616a02aa951b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020.png",
+      "sha256": "9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020"
+    },
+    "mask": {
+      "path": "inputs/9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020.png",
+      "sha256": "9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020"
+    },
+    "calibrationReference": {
+      "path": "inputs/997c54b4d91bee1b965989297906b88244861cfc4b65b58d13982c6ae3232dea.png",
+      "sha256": "997c54b4d91bee1b965989297906b88244861cfc4b65b58d13982c6ae3232dea"
+    },
+    "sourceAudit": {
+      "path": "inputs/bd5bbf85cbaa98abf14fdd9514adf3e080343d69145c250f33433f80b99a7c14.json",
+      "sha256": "bd5bbf85cbaa98abf14fdd9514adf3e080343d69145c250f33433f80b99a7c14"
+    },
+    "referenceApproval": {
+      "path": "inputs/4fce3a468aa00dedd862238e4433613346b5de5419f9764b4a4d88a08f0ef210.json",
+      "sha256": "4fce3a468aa00dedd862238e4433613346b5de5419f9764b4a4d88a08f0ef210"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f1712fcd6253ab0c6ee9bb2e67dd1e616339754eba788a8fece18316dd8da479.png",
+      "sha256": "f1712fcd6253ab0c6ee9bb2e67dd1e616339754eba788a8fece18316dd8da479"
+    }
+  },
+  "features": [
+    {
+      "name": "Blade projects from the side of the hand opposite the thumb, parallel to the hand",
+      "placementReviewed": true
+    },
+    {
+      "name": "Body/hand integration retained; natural-hand implant or cyberlimb upgrade, not a separate held knife",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole coherent five-digit cyberhand preserves ONE deployed side blade OPPOSITE THUMB and PARALLEL TO HAND, distinct side housing and fingertip direction. Closed wrist end, blade point and finger gaps remain. No held dagger, fingernail replacement, strap bracer or added spurs. Exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/microholes nonblocking; positive margins/no clipping, background or cast shadow. Per-role source topology retained. Native1254 retained;2048 resampled, no native rig approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1517,
+        790,
+        1535,
+        877
+      ],
+      "referenceAreaPixels": 268,
+      "referenceMaskSha256": "9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1468,
+        957,
+        1498,
+        1068
+      ],
+      "referenceAreaPixels": 891,
+      "referenceMaskSha256": "9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "92701ba4980cc1bfa14ed87ad3702ad568718da0900349539891e191a0b7602d",
+      "imageSha256": "979b40092d2ea497800843cfdb43d22a2df81f35067be50c0a1de1ea47a93b3c",
+      "maskSha256": "ab32f2d2e4d946b5ded16f12c394a845938bf9919dc23383d8eb616a02aa951b",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole coherent five-digit cyberhand preserves ONE deployed side blade OPPOSITE THUMB and PARALLEL TO HAND, distinct side housing and fingertip direction. Closed wrist end, blade point and finger gaps remain. No held dagger, fingernail replacement, strap bracer or added spurs. Exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/microholes nonblocking; positive margins/no clipping, background or cast shadow. Per-role source topology retained. Native1254 retained;2048 resampled, no native rig approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "27a20eecd7ae9d15df08d7892e16611098d76416c1aaf446d0fd5cce6383a35e",
+      "imageSha256": "2d387c40a53fc0704a41454d9706f9ebf4c61b6f8a5d240be06c20e063bdd547",
+      "maskSha256": "9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole coherent five-digit cyberhand preserves ONE deployed side blade OPPOSITE THUMB and PARALLEL TO HAND, distinct side housing and fingertip direction. Closed wrist end, blade point and finger gaps remain. No held dagger, fingernail replacement, strap bracer or added spurs. Exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/microholes nonblocking; positive margins/no clipping, background or cast shadow. Per-role source topology retained. Native1254 retained;2048 resampled, no native rig approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "92701ba4980cc1bfa14ed87ad3702ad568718da0900349539891e191a0b7602d",
+      "detailSha256": "979b40092d2ea497800843cfdb43d22a2df81f35067be50c0a1de1ea47a93b3c",
+      "geometrySha256": "2d387c40a53fc0704a41454d9706f9ebf4c61b6f8a5d240be06c20e063bdd547",
+      "foregroundMaskSha256": "ab32f2d2e4d946b5ded16f12c394a845938bf9919dc23383d8eb616a02aa951b",
+      "geometryForegroundMaskSha256": "9829e0b58b484922272cbc5aa2b252736dbea757109def7eff3be4e818a0e020",
+      "landmarks": [
+        {
+          "name": "middle-finger-upper",
+          "detail": [
+            0.5493865998819517,
+            0.12693631669535285
+          ],
+          "geometry": [
+            0.5493865998819517,
+            0.1262908777969019
+          ]
+        },
+        {
+          "name": "blade-tip-upper",
+          "detail": [
+            0.7882498934286464,
+            0.16049913941480207
+          ],
+          "geometry": [
+            0.7882498934286464,
+            0.15920826161790017
+          ]
+        },
+        {
+          "name": "thumb-upper",
+          "detail": [
+            0.20077530659758658,
+            0.367039586919105
+          ],
+          "geometry": [
+            0.20077530659758658,
+            0.367039586919105
+          ]
+        },
+        {
+          "name": "wrist-end-lower",
+          "detail": [
+            0.5106520117392446,
+            0.8711273666092944
+          ],
+          "geometry": [
+            0.5106520117392446,
+            0.8704819277108434
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual source/detail/clay and alpha comparison against Core336-337/PDF338-339 and errata5. Whole coherent five-digit cyberhand preserves ONE deployed side blade OPPOSITE THUMB and PARALLEL TO HAND, distinct side housing and fingertip direction. Closed wrist end, blade point and finger gaps remain. No held dagger, fingernail replacement, strap bracer or added spurs. Exact shell/finish/depth artistic, not unique labeled model art. Tiny seams/microholes nonblocking; positive margins/no clipping, background or cast shadow. Per-role source topology retained. Native1254 retained;2048 resampled, no native rig approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ceramic-knife-7f77d5dd6c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "tip",
+      "pixel": [
+        37.0,
+        606.0
+      ]
+    },
+    {
+      "name": "blade-low",
+      "pixel": [
+        350.0,
+        684.0
+      ]
+    },
+    {
+      "name": "guard-top",
+      "pixel": [
+        923.0000000000001,
+        322.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        1020.9999999999999,
+        625.9999999999999
+      ]
+    },
+    {
+      "name": "grip-top",
+      "pixel": [
+        1604.0,
+        228.99999999999997
+      ]
+    },
+    {
+      "name": "grip-right",
+      "pixel": [
+        1738.0,
+        330.00000000000006
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ceramic-knife-7f77d5dd6c.family.json",
+    "sha256": "0e6e825d87371363117dd95f5599446c8c5fa18154f8bd1db64c3b4ce13a39f7"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/61f2735202e64c4c011038f53c898e45d6e9282212d4bb2dada2d85bb4543fb3.png",
+      "sha256": "61f2735202e64c4c011038f53c898e45d6e9282212d4bb2dada2d85bb4543fb3"
+    },
+    "clayReference": {
+      "path": "inputs/f37ea29150b1382724e8db7d673093d61a00a0789be4c1bbf2bdfb171df61aed.png",
+      "sha256": "f37ea29150b1382724e8db7d673093d61a00a0789be4c1bbf2bdfb171df61aed"
+    },
+    "geometry": {
+      "path": "inputs/ada6390310353f365e0f651b627ea87280c5a27d9db67fcb822070a18c3a6fba.png",
+      "sha256": "ada6390310353f365e0f651b627ea87280c5a27d9db67fcb822070a18c3a6fba"
+    },
+    "detail": {
+      "path": "inputs/533f6725e001ac6c4af70ac40c295683e644c082fcf6cb83c06a605abc8941a5.png",
+      "sha256": "533f6725e001ac6c4af70ac40c295683e644c082fcf6cb83c06a605abc8941a5"
+    },
+    "foregroundMask": {
+      "path": "inputs/647351384758fe0f8c8933d9ce47393e4aa2e58af76867407478e41744b0b820.png",
+      "sha256": "647351384758fe0f8c8933d9ce47393e4aa2e58af76867407478e41744b0b820"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/101b58e5d27978702d0880265f85819de5cabee965d9b229c178d09602dca6b4.png",
+      "sha256": "101b58e5d27978702d0880265f85819de5cabee965d9b229c178d09602dca6b4"
+    },
+    "mask": {
+      "path": "inputs/101b58e5d27978702d0880265f85819de5cabee965d9b229c178d09602dca6b4.png",
+      "sha256": "101b58e5d27978702d0880265f85819de5cabee965d9b229c178d09602dca6b4"
+    },
+    "calibrationReference": {
+      "path": "inputs/08fe3096945d2559db77ee117f7d3b5779d9edf72a904acde3d87a1db8eff35f.png",
+      "sha256": "08fe3096945d2559db77ee117f7d3b5779d9edf72a904acde3d87a1db8eff35f"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/4be4073524fccc94bbda86c2de9836028bec00cca33277654463f871f523190b.json",
+      "sha256": "4be4073524fccc94bbda86c2de9836028bec00cca33277654463f871f523190b"
+    },
+    "referenceApproval": {
+      "path": "inputs/76dbd76b1c38b1f6412b0a1c0231c59fef6d0dfaa9f5bf51d37081e18389ced9.json",
+      "sha256": "76dbd76b1c38b1f6412b0a1c0231c59fef6d0dfaa9f5bf51d37081e18389ced9"
+    },
+    "calibrationDetail": {
+      "path": "inputs/3aab49a44292c6b15ce536ffd523e8ef8559e434881e0af9ec9b34f8aecb425b.png",
+      "sha256": "3aab49a44292c6b15ce536ffd523e8ef8559e434881e0af9ec9b34f8aecb425b"
+    }
+  },
+  "features": [
+    {
+      "name": "Entire knife is made of ceramic material; very light and suitable for outdoor sports.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Nonmetallic construction is central to its MAD-scanner concealment identity.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer reused the current typed primary-source review (Arsenal printed14/PDF16): generic outdoor utility knife entirely ceramic, no unique labeled model art. Actual detailed/clay native and final masks, teal views, full pair and overlay inspected. Blade tip, bevel, guard, smooth continuous handle, major boundaries and original camera retained. No intentional through holes. Fine butt arc seam filled inside explicit narrow interior patch; continuous groove removed, remaining rounded-end highlight/shading is smooth at normal reference viewing scale. Local-quadratic candidate rejected for visible tonal strip; final row interpolation selected. Original generated clay stays immutable; all alpha bytes unchanged and changed pixels outside patch0. Native foregrounds preserve RGB of their corresponding original/derived source; manual silhouettes cap native alpha, no detached specks, cast shadow or clipped ends. Common uniform transform only; six paired landmarks within2%. Final2048 square is resampled from1774x887, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "61f2735202e64c4c011038f53c898e45d6e9282212d4bb2dada2d85bb4543fb3",
+      "imageSha256": "533f6725e001ac6c4af70ac40c295683e644c082fcf6cb83c06a605abc8941a5",
+      "maskSha256": "647351384758fe0f8c8933d9ce47393e4aa2e58af76867407478e41744b0b820",
+      "notes": "Assigned sole final reference reviewer reused the current typed primary-source review (Arsenal printed14/PDF16): generic outdoor utility knife entirely ceramic, no unique labeled model art. Actual detailed/clay native and final masks, teal views, full pair and overlay inspected. Blade tip, bevel, guard, smooth continuous handle, major boundaries and original camera retained. No intentional through holes. Fine butt arc seam filled inside explicit narrow interior patch; continuous groove removed, remaining rounded-end highlight/shading is smooth at normal reference viewing scale. Local-quadratic candidate rejected for visible tonal strip; final row interpolation selected. Original generated clay stays immutable; all alpha bytes unchanged and changed pixels outside patch0. Native foregrounds preserve RGB of their corresponding original/derived source; manual silhouettes cap native alpha, no detached specks, cast shadow or clipped ends. Common uniform transform only; six paired landmarks within2%. Final2048 square is resampled from1774x887, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f37ea29150b1382724e8db7d673093d61a00a0789be4c1bbf2bdfb171df61aed",
+      "imageSha256": "ada6390310353f365e0f651b627ea87280c5a27d9db67fcb822070a18c3a6fba",
+      "maskSha256": "101b58e5d27978702d0880265f85819de5cabee965d9b229c178d09602dca6b4",
+      "notes": "Assigned sole final reference reviewer reused the current typed primary-source review (Arsenal printed14/PDF16): generic outdoor utility knife entirely ceramic, no unique labeled model art. Actual detailed/clay native and final masks, teal views, full pair and overlay inspected. Blade tip, bevel, guard, smooth continuous handle, major boundaries and original camera retained. No intentional through holes. Fine butt arc seam filled inside explicit narrow interior patch; continuous groove removed, remaining rounded-end highlight/shading is smooth at normal reference viewing scale. Local-quadratic candidate rejected for visible tonal strip; final row interpolation selected. Original generated clay stays immutable; all alpha bytes unchanged and changed pixels outside patch0. Native foregrounds preserve RGB of their corresponding original/derived source; manual silhouettes cap native alpha, no detached specks, cast shadow or clipped ends. Common uniform transform only; six paired landmarks within2%. Final2048 square is resampled from1774x887, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer reused the current typed primary-source review (Arsenal printed14/PDF16): generic outdoor utility knife entirely ceramic, no unique labeled model art. Actual detailed/clay native and final masks, teal views, full pair and overlay inspected. Blade tip, bevel, guard, smooth continuous handle, major boundaries and original camera retained. No intentional through holes. Fine butt arc seam filled inside explicit narrow interior patch; continuous groove removed, remaining rounded-end highlight/shading is smooth at normal reference viewing scale. Local-quadratic candidate rejected for visible tonal strip; final row interpolation selected. Original generated clay stays immutable; all alpha bytes unchanged and changed pixels outside patch0. Native foregrounds preserve RGB of their corresponding original/derived source; manual silhouettes cap native alpha, no detached specks, cast shadow or clipped ends. Common uniform transform only; six paired landmarks within2%. Final2048 square is resampled from1774x887, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "tip",
+          "detail": [
+            0.0498046875,
+            0.5788237657275711
+          ],
+          "geometry": [
+            0.049275978970933644,
+            0.5793526480443107
+          ]
+        },
+        {
+          "name": "blade-low",
+          "detail": [
+            0.21529045709776864,
+            0.6200765864332604
+          ],
+          "geometry": [
+            0.21529045709776864,
+            0.6200765864332604
+          ]
+        },
+        {
+          "name": "guard-top",
+          "detail": [
+            0.5182404442527893,
+            0.428621187773523
+          ],
+          "geometry": [
+            0.5182404442527893,
+            0.428621187773523
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5700538801012918,
+            0.5894014120623632
+          ],
+          "geometry": [
+            0.5700538801012918,
+            0.5894014120623632
+          ]
+        },
+        {
+          "name": "grip-top",
+          "detail": [
+            0.878290952546976,
+            0.3794351323167396
+          ],
+          "geometry": [
+            0.878290952546976,
+            0.3783773676832604
+          ]
+        },
+        {
+          "name": "grip-right",
+          "detail": [
+            0.9491378954418673,
+            0.43285224630743985
+          ],
+          "geometry": [
+            0.9496666039709336,
+            0.43285224630743985
+          ]
+        }
+      ],
+      "referenceSha256": "61f2735202e64c4c011038f53c898e45d6e9282212d4bb2dada2d85bb4543fb3",
+      "geometrySha256": "ada6390310353f365e0f651b627ea87280c5a27d9db67fcb822070a18c3a6fba",
+      "detailSha256": "533f6725e001ac6c4af70ac40c295683e644c082fcf6cb83c06a605abc8941a5",
+      "foregroundMaskSha256": "647351384758fe0f8c8933d9ce47393e4aa2e58af76867407478e41744b0b820",
+      "geometryForegroundMaskSha256": "101b58e5d27978702d0880265f85819de5cabee965d9b229c178d09602dca6b4"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

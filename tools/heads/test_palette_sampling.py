@@ -14,6 +14,29 @@ class PaletteSamplingTests(unittest.TestCase):
         self.assertEqual(choose_palette_row(values,mask,coverage,palette,0),0)
         with self.assertRaisesRegex(ValueError,'covered'):choose_palette_row(values,mask,np.zeros_like(coverage),palette,0)
 
+    def test_palette_preview_resolves_all_ten_channels_and_rows(self):
+        import tempfile,struct
+        from pathlib import Path
+        from prepare_palette_assembly import palette_image
+        palettes=[]
+        for layer in range(10):
+            palette=np.zeros((2,256,3),np.uint8)
+            palette[1,:,0]=layer*20;palette[1,:,1]=np.arange(256,dtype=np.uint8);palette[1,:,2]=150
+            palettes.append(palette)
+        pixels=np.c_[np.arange(10,dtype=np.uint8)+7,np.arange(10,dtype=np.uint8)].reshape(2,5,2)
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'all.plt'
+            path.write_bytes(b'PLT V1  '+struct.pack('<IIII',10,0,5,2)+pixels.tobytes())
+            rgb=palette_image(path,palettes[0],palettes[1],1,1,{i:(palettes[i],1) for i in range(2,10)})
+            expected=np.stack([palettes[i][1,i+7] for i in range(10)]).reshape(2,5,3)[::-1]
+            np.testing.assert_array_equal(rgb,expected)
+            with self.assertRaisesRegex(ValueError,'Missing palette binding for PLT channel 2'):
+                palette_image(path,palettes[0],palettes[1],1,1)
+            with self.assertRaisesRegex(ValueError,'Invalid palette/row'):
+                palette_image(path,palettes[0],palettes[1],1,1,{i:(palettes[i],-1) for i in range(2,10)})
+            pixels[0,0,1]=10;path.write_bytes(b'PLT V1  '+struct.pack('<IIII',10,0,5,2)+pixels.tobytes())
+            with self.assertRaisesRegex(ValueError,'0..9'):palette_image(path,palettes[0],palettes[1],1,1)
+
     def test_propose_masks_freezes_consumed_inputs_and_merges_compatible_fixed_groups(self):
         from pathlib import Path
         import tempfile
@@ -193,6 +216,27 @@ class PaletteSamplingTests(unittest.TestCase):
             res = read(out / 'assembly.json')
             self.assertTrue(res['palettePreview']['nativeResourcesRead'])
             self.assertEqual(res['palettePreview']['skinRow'], 0)
+            # Extra channels work for both head and body previews, with declared selector inputs.
+            extra_path=root/'metal.png'
+            extra=np.zeros((2,256,3),np.uint8);extra[1]=[35,60,90];Image.fromarray(extra).save(extra_path)
+            extra_plt=b'PLT V1  '+bytes(8)+struct.pack('<II',2,2)+bytes([7,2,8,1,9,0,10,2])
+            (native_dir/'head0.plt').write_bytes(extra_plt);(body_dir/'part.plt').write_bytes(extra_plt)
+            refreshed=[pin(item['path']) for item in inputs]
+            extended={**cfg,'inputs':refreshed,'paletteLayers':{'2':{'palette':pin(extra_path),'row':1}}}
+            missing=root/'missing-extra.json';write_fresh(missing,extended)
+            with self.assertRaisesRegex(ValueError,'Consumed source omitted from declaration'):
+                prepare(missing,root/'missing-extra-output')
+            extended['inputs']=refreshed+[pin(extra_path)]
+            extended_path=root/'extended.json';write_fresh(extended_path,extended)
+            prepare(extended_path,root/'extended')
+            expected=np.array([[[100,0,0],[35,60,90]],[[35,60,90],[100,0,0]]],np.uint8)
+            for filename in ('head0.png','part-0.png'):
+                np.testing.assert_array_equal(np.asarray(Image.open(root/'extended'/filename)),expected)
+            receipt=read(root/'extended'/'assembly.json')['palettePreview']['paletteLayers']['2']
+            self.assertEqual(receipt,{'palette':pin(extra_path),'row':1})
+            extra_path.write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError,'Frozen input changed'):
+                prepare(extended_path,root/'changed-extra-output')
 
 
 if __name__=='__main__':unittest.main()

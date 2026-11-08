@@ -63,6 +63,28 @@ class PackageImpactTests(unittest.TestCase):
                 p=root/(name+'.py');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
             self.assertIn('tools/pkg/test_core.py',select(['tools/pkg/engine/core.py'],catalog(root))['tests'])
 
+class NamespaceDependencyTests(unittest.TestCase):
+    def test_repository_namespace_absolute_imports_are_dependencies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for name,text in {'tools/kit/__init__':'','tools/kit/engine':'VALUE=1',
+                    'tools/kit/test_engine':'from tools.kit import engine\nfrom tools.kit.engine import VALUE'}.items():
+                p=root/(name+'.py');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
+            data=catalog(root)
+            self.assertIn('tools/kit/engine.py',data['dependencies']['tools/kit/test_engine.py'])
+            self.assertIn('tools/kit/test_engine.py',select(['tools/kit/engine.py'],data)['tests'])
+
+
+class CheckoutLocationTests(unittest.TestCase):
+    def test_a_checkout_under_an_excluded_folder_name_is_still_catalogued(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'build'/'repo'
+            write(root,{'tools/core.py':'VALUE=1','tools/test_core.py':'import core','tools/vendor/skip.py':''})
+            data=catalog(root)
+            self.assertEqual(data['tests'],['tools/test_core.py'])
+            self.assertEqual(data['dependencies']['tools/test_core.py'],['tools/core.py'])
+            self.assertNotIn('tools/vendor/skip.py',data['dependencies'])
+
 class PackageDiscoveryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):cls.data=catalog()
@@ -79,6 +101,15 @@ class PackageDiscoveryTests(unittest.TestCase):
         self.assertNotIn('tools/phenomorpher/phenomorpher/engine/retarget.py',self.data['dependencies']['tools/robes/lbs.py'])
 
 class PackageRunnerTests(unittest.TestCase):
+    def test_repository_namespace_imports_work_without_inherited_pythonpath(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            write(root,{'tools/kit/__init__.py':'','tools/shared.py':'VALUE=7',
+                'tools/kit/test_namespace.py':'import unittest\nfrom tools.shared import VALUE\nclass T(unittest.TestCase):\n    def test_v(self):self.assertEqual(VALUE,7)\n'})
+            with patch.dict('os.environ',{'PYTHONPATH':''}):
+                self.assertEqual(run_tests(['tools/kit/test_namespace.py'],sys.executable,root),0)
+
     def test_package_relative_tests_run_qualified_from_their_import_root_and_failures_propagate(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
@@ -93,6 +124,24 @@ class PackageRunnerTests(unittest.TestCase):
             self.assertEqual({row['root'] for row in rows},{'tools/kit','tools/flat'})
             self.assertTrue(any('pkg.test_ok' in row['test'] for row in rows))
             self.assertNotEqual(run_tests(['tools/kit/pkg/test_ok.py','tools/kit/pkg/test_bad.py'],sys.executable,root),0)
+    def test_parallel_shards_run_concurrently_keep_whole_logs_timings_and_failures(self):
+        # Each module announces itself and waits for another shard to start: a serial runner would time out.
+        WAIT='import time,unittest\nfrom pathlib import Path\nclass T(unittest.TestCase):\n    def test_v(self):\n        Path({name!r}).write_text("x");end=time.time()+20\n        while len([p for p in Path(".").glob("*.started")])<2 and time.time()<end:time.sleep(.05)\n        self.assertGreaterEqual(len(list(Path(".").glob("*.started"))),2)\n'
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            write(root,{f'tools/flat/test_{n}.py':WAIT.format(name=f'{n}.started') for n in 'abcd'})
+            write(root,{'tools/kit/pkg/__init__.py':'','tools/kit/pkg/test_bad.py':'import unittest\nclass T(unittest.TestCase):\n    def test_v(self):self.fail("bad")\n'})
+            flat=[f'tools/flat/test_{n}.py' for n in 'abcd'];timings=root/'timings.json'
+            log=root/'log.txt'
+            with log.open('w',encoding='utf-8') as out:
+                code=subprocess.call([sys.executable,'-c','import json,sys;sys.path.insert(0,sys.argv[1]);from test_impact import run_tests;'
+                    'from pathlib import Path;sys.exit(run_tests(json.loads(sys.argv[2]),sys.executable,Path(sys.argv[3]),Path(sys.argv[4]),absent=[],jobs=3,durations={}))',
+                    str(Path(__file__).resolve().parent),json.dumps(flat),str(root),str(timings)],stdout=out,stderr=subprocess.STDOUT)
+            self.assertEqual(code,0,log.read_text(encoding='utf-8'))
+            text=log.read_text(encoding='utf-8');self.assertEqual(text.count('=== tools/flat: '),3)
+            self.assertEqual({row['test'].split('(')[1].split('.')[0] for row in json.loads(timings.read_text(encoding='utf-8'))},{f'test_{n}' for n in 'abcd'})
+            for started in (root/'tools/flat').glob('*.started'):started.unlink()
+            self.assertNotEqual(run_tests([*flat,'tools/kit/pkg/test_bad.py'],sys.executable,root,absent=[],jobs=3,durations={}),0)
     def test_missing_or_empty_test_modules_fail_instead_of_passing_silently(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);write(root,{'tools/flat/test_empty.py':'X=1\n'})

@@ -179,7 +179,8 @@ def main():
     hanging = plan.get("hangingBelowCrotch")
     hanging_count = 0
     if hanging:
-        crotch = fit_report["stockTargets"]["crotch"]
+        # The same space as `points`: the outfit's own aligned crotch when fitted in the generation pose.
+        crotch = fit_report["outfitLandmarksAligned" if generation else "stockTargets"]["crotch"]
         below = np.flatnonzero((labels == 0) & (points[:, 2] < crotch))
         alpha = np.clip((crotch - points[below, 2]) / hanging["ramp"], 0, 1) * hanging["maximumLegShare"]
         for side, sign in (("L", -1), ("R", 1)):

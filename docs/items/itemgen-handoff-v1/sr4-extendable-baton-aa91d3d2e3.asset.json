@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-extendable-baton-aa91d3d2e3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-terminal-center",
+      "pixel": [
+        42.00000000000001,
+        417.5
+      ]
+    },
+    {
+      "name": "thin-shaft-top",
+      "pixel": [
+        300.0,
+        398.00000000000006
+      ]
+    },
+    {
+      "name": "middle-shaft-top",
+      "pixel": [
+        650.0,
+        385.0
+      ]
+    },
+    {
+      "name": "main-collar-top",
+      "pixel": [
+        1230.0,
+        363.00000000000006
+      ]
+    },
+    {
+      "name": "grip-rear-top",
+      "pixel": [
+        1725.0,
+        381.00000000000006
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-extendable-baton-aa91d3d2e3.family.json",
+    "sha256": "ff3ef0e3132cb9b92b65a3b13a577ccd5a858d6bff7f41397c24ebc54149caec"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/692b9ecd83171bf2b7f67b19f905d7fad9239656191135fc3593b343e57fb339.png",
+      "sha256": "692b9ecd83171bf2b7f67b19f905d7fad9239656191135fc3593b343e57fb339"
+    },
+    "clayReference": {
+      "path": "inputs/eea41411e4168fd5a256d055722057af442e95cbd0e4901736328879305215ef.png",
+      "sha256": "eea41411e4168fd5a256d055722057af442e95cbd0e4901736328879305215ef"
+    },
+    "geometry": {
+      "path": "inputs/1b1b500d6bedf824084e83a3810bafa1edbc2d413b920546bb76d52e918c4e63.png",
+      "sha256": "1b1b500d6bedf824084e83a3810bafa1edbc2d413b920546bb76d52e918c4e63"
+    },
+    "detail": {
+      "path": "inputs/fcd43ab889dadbe60ba0873bdd6d262c6e71907b33c64e7465763975dbac1154.png",
+      "sha256": "fcd43ab889dadbe60ba0873bdd6d262c6e71907b33c64e7465763975dbac1154"
+    },
+    "foregroundMask": {
+      "path": "inputs/563f2f4f7bc368b3d92b858774048f735a65760428c0bb0493052b49ca16035c.png",
+      "sha256": "563f2f4f7bc368b3d92b858774048f735a65760428c0bb0493052b49ca16035c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/f86a91c18027b51f59db1027981a0c3216be722e9a6e16a05bc028d3a0e2e125.png",
+      "sha256": "f86a91c18027b51f59db1027981a0c3216be722e9a6e16a05bc028d3a0e2e125"
+    },
+    "mask": {
+      "path": "inputs/f86a91c18027b51f59db1027981a0c3216be722e9a6e16a05bc028d3a0e2e125.png",
+      "sha256": "f86a91c18027b51f59db1027981a0c3216be722e9a6e16a05bc028d3a0e2e125"
+    },
+    "calibrationReference": {
+      "path": "inputs/7e239129fe6b9f0fc5c9558bc7e8e311fcbb9e1c54cd3a3306949d87c269693a.png",
+      "sha256": "7e239129fe6b9f0fc5c9558bc7e8e311fcbb9e1c54cd3a3306949d87c269693a"
+    },
+    "sourceAudit": {
+      "path": "inputs/ea2fd270c0c4598f6945556df1b24a20247664c17bad50f32cc8143f3c450a0b.json",
+      "sha256": "ea2fd270c0c4598f6945556df1b24a20247664c17bad50f32cc8143f3c450a0b"
+    },
+    "referenceApproval": {
+      "path": "inputs/69181d19fb66994b3d6e886f753fc6a4b0baf475055c63b6cd46af9776108f85.json",
+      "sha256": "69181d19fb66994b3d6e886f753fc6a4b0baf475055c63b6cd46af9776108f85"
+    },
+    "calibrationDetail": {
+      "path": "inputs/8e0f632877cd9caa2b1ddf1b5b4ca8f4d07328693409ec7a3f5e1f332891f61d.png",
+      "sha256": "8e0f632877cd9caa2b1ddf1b5b4ca8f4d07328693409ec7a3f5e1f332891f61d"
+    }
+  },
+  "features": [
+    {
+      "name": "Generic telescoping club; extended shaft must visibly comprise nested major sections. Fine grip texture belongs in appearance.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Parent inspected actual detailed and smooth-clay teal previews, clay mask and matched overlay, and primary Core printed305/PDF307. Full nested shafts, thin terminal and collars remain; no shadow/debris, no intentional openings. Independent masks retain the minor original cap contour difference; no mask transfer or geometry warping. Grip styling and finishes are artistic interpretation of the generic telescoping-club description.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "692b9ecd83171bf2b7f67b19f905d7fad9239656191135fc3593b343e57fb339",
+      "imageSha256": "fcd43ab889dadbe60ba0873bdd6d262c6e71907b33c64e7465763975dbac1154",
+      "maskSha256": "563f2f4f7bc368b3d92b858774048f735a65760428c0bb0493052b49ca16035c",
+      "notes": "Parent inspected actual detailed and smooth-clay teal previews, clay mask and matched overlay, and primary Core printed305/PDF307. Full nested shafts, thin terminal and collars remain; no shadow/debris, no intentional openings. Independent masks retain the minor original cap contour difference; no mask transfer or geometry warping. Grip styling and finishes are artistic interpretation of the generic telescoping-club description."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "eea41411e4168fd5a256d055722057af442e95cbd0e4901736328879305215ef",
+      "imageSha256": "1b1b500d6bedf824084e83a3810bafa1edbc2d413b920546bb76d52e918c4e63",
+      "maskSha256": "f86a91c18027b51f59db1027981a0c3216be722e9a6e16a05bc028d3a0e2e125",
+      "notes": "Parent inspected actual detailed and smooth-clay teal previews, clay mask and matched overlay, and primary Core printed305/PDF307. Full nested shafts, thin terminal and collars remain; no shadow/debris, no intentional openings. Independent masks retain the minor original cap contour difference; no mask transfer or geometry warping. Grip styling and finishes are artistic interpretation of the generic telescoping-club description."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Parent inspected actual detailed and smooth-clay teal previews, clay mask and matched overlay, and primary Core printed305/PDF307. Full nested shafts, thin terminal and collars remain; no shadow/debris, no intentional openings. Independent masks retain the minor original cap contour difference; no mask transfer or geometry warping. Grip styling and finishes are artistic interpretation of the generic telescoping-club description.",
+      "landmarks": [
+        {
+          "name": "left-terminal-center",
+          "detail": [
+            0.05033620498819363,
+            0.49920443830818967
+          ],
+          "geometry": [
+            0.05033620498819363,
+            0.49920443830818967
+          ]
+        },
+        {
+          "name": "thin-shaft-top",
+          "detail": [
+            0.18746771694214875,
+            0.4888621363146552
+          ],
+          "geometry": [
+            0.18746771694214875,
+            0.4883317618534483
+          ]
+        },
+        {
+          "name": "middle-shaft-top",
+          "detail": [
+            0.37349883780991733,
+            0.4819672683189655
+          ],
+          "geometry": [
+            0.37349883780991733,
+            0.4819672683189655
+          ]
+        },
+        {
+          "name": "main-collar-top",
+          "detail": [
+            0.6817789809622196,
+            0.4702990301724138
+          ],
+          "geometry": [
+            0.6817789809622196,
+            0.4697686557112069
+          ]
+        },
+        {
+          "name": "grip-rear-top",
+          "detail": [
+            0.9448801376180638,
+            0.47984577047413796
+          ],
+          "geometry": [
+            0.9448801376180638,
+            0.47931539601293105
+          ]
+        }
+      ],
+      "referenceSha256": "692b9ecd83171bf2b7f67b19f905d7fad9239656191135fc3593b343e57fb339",
+      "geometrySha256": "1b1b500d6bedf824084e83a3810bafa1edbc2d413b920546bb76d52e918c4e63",
+      "detailSha256": "fcd43ab889dadbe60ba0873bdd6d262c6e71907b33c64e7465763975dbac1154",
+      "foregroundMaskSha256": "563f2f4f7bc368b3d92b858774048f735a65760428c0bb0493052b49ca16035c",
+      "geometryForegroundMaskSha256": "f86a91c18027b51f59db1027981a0c3216be722e9a6e16a05bc028d3a0e2e125"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

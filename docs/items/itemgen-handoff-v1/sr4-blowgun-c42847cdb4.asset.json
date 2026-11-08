@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-blowgun-c42847cdb4",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "mouth-upper",
+      "pixel": [
+        60.0,
+        428.0
+      ]
+    },
+    {
+      "name": "mouth-lower",
+      "pixel": [
+        60.0,
+        551.0
+      ]
+    },
+    {
+      "name": "collar-junction-upper",
+      "pixel": [
+        245.0,
+        423.0
+      ]
+    },
+    {
+      "name": "far-end-upper",
+      "pixel": [
+        2119.9999999999995,
+        161.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-blowgun-c42847cdb4.family.json",
+    "sha256": "ba8ac60e46c56a1d9973e91bdf0b2a03d5c86d290203b439c79e555335315f4a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/2d36aa9eb0679a9b2dfaa6cd10de3011c677a83b9e9e5b40fcac041e87776516.png",
+      "sha256": "2d36aa9eb0679a9b2dfaa6cd10de3011c677a83b9e9e5b40fcac041e87776516"
+    },
+    "clayReference": {
+      "path": "inputs/d3162645325a8371752a103c2179bb7da792c7cf85e3141893d76a8d0abda4b7.png",
+      "sha256": "d3162645325a8371752a103c2179bb7da792c7cf85e3141893d76a8d0abda4b7"
+    },
+    "geometry": {
+      "path": "inputs/f937c1228b8609aff661ee310345733f74b47f0bc49e277206eb4996ee1042db.png",
+      "sha256": "f937c1228b8609aff661ee310345733f74b47f0bc49e277206eb4996ee1042db"
+    },
+    "detail": {
+      "path": "inputs/6d3ea470c26ed72a3895588e0c2ca03dc3ac35b4bec08a03c46938e3c4506790.png",
+      "sha256": "6d3ea470c26ed72a3895588e0c2ca03dc3ac35b4bec08a03c46938e3c4506790"
+    },
+    "foregroundMask": {
+      "path": "inputs/8e3a67f821de0a09455584f28beacc3471f764d97cfd3d207bbf3bb3d89314fc.png",
+      "sha256": "8e3a67f821de0a09455584f28beacc3471f764d97cfd3d207bbf3bb3d89314fc"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/f91b138c2f8ec6328e21ac9e95edc7043526315325fe166cea5c799e35a65443.png",
+      "sha256": "f91b138c2f8ec6328e21ac9e95edc7043526315325fe166cea5c799e35a65443"
+    },
+    "mask": {
+      "path": "inputs/f91b138c2f8ec6328e21ac9e95edc7043526315325fe166cea5c799e35a65443.png",
+      "sha256": "f91b138c2f8ec6328e21ac9e95edc7043526315325fe166cea5c799e35a65443"
+    },
+    "calibrationReference": {
+      "path": "inputs/361201eef42a9b61fd9b9dfbc40b87b7c0e61d66a6444df6b0077ea56c5f3980.png",
+      "sha256": "361201eef42a9b61fd9b9dfbc40b87b7c0e61d66a6444df6b0077ea56c5f3980"
+    },
+    "sourceAudit": {
+      "path": "inputs/af37b4bf45931248dd5b70d6521df58085ceb63db430a9aca419505913ea447a.json",
+      "sha256": "af37b4bf45931248dd5b70d6521df58085ceb63db430a9aca419505913ea447a"
+    },
+    "referenceApproval": {
+      "path": "inputs/53a8eda94d2e48092d9153b88f32f0c87779a8caf156e8b5393d29087b7447df.json",
+      "sha256": "53a8eda94d2e48092d9153b88f32f0c87779a8caf156e8b5393d29087b7447df"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4225c6a9207cce3d63732be5d6519dd54536552d02818c3625f0aa0a535db3fa.png",
+      "sha256": "4225c6a9207cce3d63732be5d6519dd54536552d02818c3625f0aa0a535db3fa"
+    }
+  },
+  "features": [
+    {
+      "name": "Narrow tube up to2meters long; the source does not fix every example at2meters.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Mouth end and open tube end consistent with a dart/large-needle blowgun.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native2172x724 images retained;2048 is resampled, not native2K. Actual detail/clay pair inspected against the retained source-approved generic Blowgun interpretation: one long narrow wooden tube,large collar and mouth recess with visible rim/inner wall. Smooth clay retains the recess as solid shaded interior surfaces,not a false alpha hole,and preserves the long silhouette. Exact grain,collar finish and unseen depth are artistic,not unique named-model art. Small collar rings/shallow grooves are nonblocking per user. No dart,added parts,background,clipping or cast shadow. Native2172x724 originals retained;2048square preparation is resampled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2d36aa9eb0679a9b2dfaa6cd10de3011c677a83b9e9e5b40fcac041e87776516",
+      "imageSha256": "6d3ea470c26ed72a3895588e0c2ca03dc3ac35b4bec08a03c46938e3c4506790",
+      "maskSha256": "8e3a67f821de0a09455584f28beacc3471f764d97cfd3d207bbf3bb3d89314fc",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native2172x724 images retained;2048 is resampled, not native2K. Actual detail/clay pair inspected against the retained source-approved generic Blowgun interpretation: one long narrow wooden tube,large collar and mouth recess with visible rim/inner wall. Smooth clay retains the recess as solid shaded interior surfaces,not a false alpha hole,and preserves the long silhouette. Exact grain,collar finish and unseen depth are artistic,not unique named-model art. Small collar rings/shallow grooves are nonblocking per user. No dart,added parts,background,clipping or cast shadow. Native2172x724 originals retained;2048square preparation is resampled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d3162645325a8371752a103c2179bb7da792c7cf85e3141893d76a8d0abda4b7",
+      "imageSha256": "f937c1228b8609aff661ee310345733f74b47f0bc49e277206eb4996ee1042db",
+      "maskSha256": "f91b138c2f8ec6328e21ac9e95edc7043526315325fe166cea5c799e35a65443",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native2172x724 images retained;2048 is resampled, not native2K. Actual detail/clay pair inspected against the retained source-approved generic Blowgun interpretation: one long narrow wooden tube,large collar and mouth recess with visible rim/inner wall. Smooth clay retains the recess as solid shaded interior surfaces,not a false alpha hole,and preserves the long silhouette. Exact grain,collar finish and unseen depth are artistic,not unique named-model art. Small collar rings/shallow grooves are nonblocking per user. No dart,added parts,background,clipping or cast shadow. Native2172x724 originals retained;2048square preparation is resampled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "2d36aa9eb0679a9b2dfaa6cd10de3011c677a83b9e9e5b40fcac041e87776516",
+      "detailSha256": "6d3ea470c26ed72a3895588e0c2ca03dc3ac35b4bec08a03c46938e3c4506790",
+      "geometrySha256": "f937c1228b8609aff661ee310345733f74b47f0bc49e277206eb4996ee1042db",
+      "foregroundMaskSha256": "8e3a67f821de0a09455584f28beacc3471f764d97cfd3d207bbf3bb3d89314fc",
+      "geometryForegroundMaskSha256": "f91b138c2f8ec6328e21ac9e95edc7043526315325fe166cea5c799e35a65443",
+      "landmarks": [
+        {
+          "name": "mouth-upper",
+          "detail": [
+            0.06134267842311343,
+            0.52862548828125
+          ],
+          "geometry": [
+            0.06134267842311343,
+            0.52392578125
+          ]
+        },
+        {
+          "name": "mouth-lower",
+          "detail": [
+            0.06134267842311343,
+            0.5811767578125
+          ],
+          "geometry": [
+            0.06134267842311343,
+            0.58544921875
+          ]
+        },
+        {
+          "name": "collar-junction-upper",
+          "detail": [
+            0.14039928289629805,
+            0.5264892578125
+          ],
+          "geometry": [
+            0.14039928289629805,
+            0.52435302734375
+          ]
+        },
+        {
+          "name": "far-end-upper",
+          "detail": [
+            0.941648652556953,
+            0.41455078125
+          ],
+          "geometry": [
+            0.941648652556953,
+            0.4102783203125
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native2172x724 images retained;2048 is resampled, not native2K. Actual detail/clay pair inspected against the retained source-approved generic Blowgun interpretation: one long narrow wooden tube,large collar and mouth recess with visible rim/inner wall. Smooth clay retains the recess as solid shaded interior surfaces,not a false alpha hole,and preserves the long silhouette. Exact grain,collar finish and unseen depth are artistic,not unique named-model art. Small collar rings/shallow grooves are nonblocking per user. No dart,added parts,background,clipping or cast shadow. Native2172x724 originals retained;2048square preparation is resampled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

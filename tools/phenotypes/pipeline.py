@@ -20,7 +20,7 @@ from PIL import Image, ImageDraw
 
 RACES = {
     "human": {"family": "h", "appearance": 6, "height": {"male": 1.75, "female": 1.65}},
-    "elf": {"family": "e", "appearance": 1, "height": {"male": 1.90, "female": 1.85}},
+    "elf": {"family": "e", "appearance": 1, "height": {"male": 1.90, "female": 1.77}},
     "dwarf": {"family": "d", "appearance": 0, "height": {"male": 1.20, "female": 1.15}},
     "orc": {"family": "o", "appearance": 5, "height": {"male": 1.90, "female": 1.80}},
     "troll": {"family": "g", "appearance": 2, "height": {"male": 2.50, "female": 2.30}},

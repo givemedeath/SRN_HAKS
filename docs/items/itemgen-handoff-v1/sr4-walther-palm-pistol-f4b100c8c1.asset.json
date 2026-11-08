@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-walther-palm-pistol-f4b100c8c1",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "main-trigger-opening",
+      "pixel": [
+        321.76118490967053,
+        685.5386025504783
+      ]
+    },
+    {
+      "name": "rear-trigger-clearance",
+      "pixel": [
+        528.9091954022989,
+        764.8471264367815
+      ]
+    },
+    {
+      "name": "upper-bore-centre",
+      "pixel": [
+        78.88455195162177,
+        375.4557449147883
+      ]
+    },
+    {
+      "name": "lower-bore-centre",
+      "pixel": [
+        78.97719298245615,
+        512.7754385964912
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-walther-palm-pistol-f4b100c8c1.family.json",
+    "sha256": "9fc4ed6b0abe5548c704f149260bd913a3518c7b9e893c6ba3cf5ca7c88aaa57"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/df617b4d8562b838ef76478878c42a6fa62a2983484f3adecbe33853a6a39f6e.png",
+      "sha256": "df617b4d8562b838ef76478878c42a6fa62a2983484f3adecbe33853a6a39f6e"
+    },
+    "clayReference": {
+      "path": "inputs/7a0c4e3c7cfc3fac3cd492df46b0a37ca2470724069ad6095d0868a96a3410b9.png",
+      "sha256": "7a0c4e3c7cfc3fac3cd492df46b0a37ca2470724069ad6095d0868a96a3410b9"
+    },
+    "geometry": {
+      "path": "inputs/b5fccced0ea48c20dc9fe1d2d17d6254e96e23dfb5ca173bb5554ee24859363f.png",
+      "sha256": "b5fccced0ea48c20dc9fe1d2d17d6254e96e23dfb5ca173bb5554ee24859363f"
+    },
+    "detail": {
+      "path": "inputs/597d7b854a0a7769594abc5a7e7ab5a75f4a1d05ba9ab0a8b6ad512a3bc440f0.png",
+      "sha256": "597d7b854a0a7769594abc5a7e7ab5a75f4a1d05ba9ab0a8b6ad512a3bc440f0"
+    },
+    "foregroundMask": {
+      "path": "inputs/40f381e4b34bf170051d10c04bd0fea9896a40980184cc672eed636ed207553d.png",
+      "sha256": "40f381e4b34bf170051d10c04bd0fea9896a40980184cc672eed636ed207553d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2.png",
+      "sha256": "4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2"
+    },
+    "mask": {
+      "path": "inputs/4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2.png",
+      "sha256": "4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2"
+    },
+    "calibrationReference": {
+      "path": "inputs/58fb5e5bca1b06cdd03d3459d3d01ab50f2507c009b890c2d7f9b847de4f8edb.png",
+      "sha256": "58fb5e5bca1b06cdd03d3459d3d01ab50f2507c009b890c2d7f9b847de4f8edb"
+    },
+    "sourceAudit": {
+      "path": "inputs/0db7cd6b75968687f3ed291fac420928bc023c31e12053f851b030fc61670e60.json",
+      "sha256": "0db7cd6b75968687f3ed291fac420928bc023c31e12053f851b030fc61670e60"
+    },
+    "referenceApproval": {
+      "path": "inputs/a6bae7937f7621bedfbfd8fe35a509d3dbf949a616e3af0e13dcb297126287c7.json",
+      "sha256": "a6bae7937f7621bedfbfd8fe35a509d3dbf949a616e3af0e13dcb297126287c7"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f921fee1acaa43b03df401aa02693a48ee63e184e574d90d4f4ce917368feae5.png",
+      "sha256": "f921fee1acaa43b03df401aa02693a48ee63e184e574d90d4f4ce917368feae5"
+    }
+  },
+  "features": [
+    {
+      "name": "Explicit European OVER-UNDER-BARREL hold-out; retain two vertically arranged barrel/end features and compact palm-grip class.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own PALMPISTOL image printed20/PDF22: broad low rectangular upper, short deep rear grip and rounded trigger opening; not a revolver or two separate pistols.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: matched framing, two barrel recesses and both trigger/clearance spaces retained; no backdrop debris. Actual detailed/clay pair and foregrounds inspected. Both barrel recesses, main trigger opening and separate rear trigger clearance preserved; matched body/grip proportions and framing. Clay removes grip checkering, color, wear and fine control-face ribs. Shallow side/rear grooves accepted under user waiver; no background debris. Arsenal printed20/PDF22 own PALM PISTOL drawing and prose: compact over-under-barrel hold-out with two vertically arranged barrel/end features, broad low rectangular upper, short deep rear grip and rounded trigger opening. Major source form retained. Gunmetal/charcoal finish, fine controls and unseen depth are interpreted; no revolver or extra barrels.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        339,
+        959,
+        717,
+        1248
+      ],
+      "referenceAreaPixels": 93869,
+      "referenceMaskSha256": "4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        809,
+        1204,
+        900,
+        1248
+      ],
+      "referenceAreaPixels": 2155,
+      "referenceMaskSha256": "4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "df617b4d8562b838ef76478878c42a6fa62a2983484f3adecbe33853a6a39f6e",
+      "imageSha256": "597d7b854a0a7769594abc5a7e7ab5a75f4a1d05ba9ab0a8b6ad512a3bc440f0",
+      "maskSha256": "40f381e4b34bf170051d10c04bd0fea9896a40980184cc672eed636ed207553d",
+      "notes": "Prepared overlay inspected: matched framing, two barrel recesses and both trigger/clearance spaces retained; no backdrop debris. Actual detailed/clay pair and foregrounds inspected. Both barrel recesses, main trigger opening and separate rear trigger clearance preserved; matched body/grip proportions and framing. Clay removes grip checkering, color, wear and fine control-face ribs. Shallow side/rear grooves accepted under user waiver; no background debris. Arsenal printed20/PDF22 own PALM PISTOL drawing and prose: compact over-under-barrel hold-out with two vertically arranged barrel/end features, broad low rectangular upper, short deep rear grip and rounded trigger opening. Major source form retained. Gunmetal/charcoal finish, fine controls and unseen depth are interpreted; no revolver or extra barrels."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7a0c4e3c7cfc3fac3cd492df46b0a37ca2470724069ad6095d0868a96a3410b9",
+      "imageSha256": "b5fccced0ea48c20dc9fe1d2d17d6254e96e23dfb5ca173bb5554ee24859363f",
+      "maskSha256": "4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2",
+      "notes": "Prepared overlay inspected: matched framing, two barrel recesses and both trigger/clearance spaces retained; no backdrop debris. Actual detailed/clay pair and foregrounds inspected. Both barrel recesses, main trigger opening and separate rear trigger clearance preserved; matched body/grip proportions and framing. Clay removes grip checkering, color, wear and fine control-face ribs. Shallow side/rear grooves accepted under user waiver; no background debris. Arsenal printed20/PDF22 own PALM PISTOL drawing and prose: compact over-under-barrel hold-out with two vertically arranged barrel/end features, broad low rectangular upper, short deep rear grip and rounded trigger opening. Major source form retained. Gunmetal/charcoal finish, fine controls and unseen depth are interpreted; no revolver or extra barrels."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "df617b4d8562b838ef76478878c42a6fa62a2983484f3adecbe33853a6a39f6e",
+      "detailSha256": "597d7b854a0a7769594abc5a7e7ab5a75f4a1d05ba9ab0a8b6ad512a3bc440f0",
+      "geometrySha256": "b5fccced0ea48c20dc9fe1d2d17d6254e96e23dfb5ca173bb5554ee24859363f",
+      "foregroundMaskSha256": "40f381e4b34bf170051d10c04bd0fea9896a40980184cc672eed636ed207553d",
+      "geometryForegroundMaskSha256": "4dcc7bac3dad64835844718760f739de2d942b76bf4d3c8b557aae09e77125c2",
+      "landmarks": [
+        {
+          "name": "main-trigger-opening",
+          "detail": [
+            0.2588877342466199,
+            0.537996853383438
+          ],
+          "geometry": [
+            0.25845439287031097,
+            0.5382854645888336
+          ]
+        },
+        {
+          "name": "rear-trigger-clearance",
+          "detail": [
+            0.4188483917380129,
+            0.5992185397171171
+          ],
+          "geometry": [
+            0.4186329753318341,
+            0.5994577265964178
+          ]
+        },
+        {
+          "name": "upper-bore-centre",
+          "detail": [
+            0.07133726825434451,
+            0.298630458481948
+          ],
+          "geometry": [
+            0.071824789748735,
+            0.2951606036099165
+          ]
+        },
+        {
+          "name": "lower-bore-centre",
+          "detail": [
+            0.07140880608938191,
+            0.40463348062960924
+          ],
+          "geometry": [
+            0.07201001416375696,
+            0.3992817322910852
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: matched framing, two barrel recesses and both trigger/clearance spaces retained; no backdrop debris. Actual detailed/clay pair and foregrounds inspected. Both barrel recesses, main trigger opening and separate rear trigger clearance preserved; matched body/grip proportions and framing. Clay removes grip checkering, color, wear and fine control-face ribs. Shallow side/rear grooves accepted under user waiver; no background debris. Arsenal printed20/PDF22 own PALM PISTOL drawing and prose: compact over-under-barrel hold-out with two vertically arranged barrel/end features, broad low rectangular upper, short deep rear grip and rounded trigger opening. Major source form retained. Gunmetal/charcoal finish, fine controls and unseen depth are interpreted; no revolver or extra barrels."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

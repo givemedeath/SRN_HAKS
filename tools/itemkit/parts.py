@@ -1,0 +1,77 @@
+"""Visible processing parts, with explicit inactive native placeholder accounting."""
+from tools.headkit.common import require
+from .firearms import SLOTS
+from .geometry import check_budgets
+from .routes import GRIP_BOUND_FAMILIES, MULTIPART, RIGGED_NATIVE_FAMILIES, ROUTES, WHOLE_NATIVE_FAMILIES, whole_shield
+
+FIREARM_VIEWS = ('left','right','muzzle','rear','top','underside','grip','oblique')
+
+
+def firearm_views(settings):
+    import numpy as np
+    require(isinstance(settings,dict) and set(settings)==set(FIREARM_VIEWS), 'Eight explicit firearm views required')
+    for row in settings.values():
+        require(set(row)=={'direction','target','up','scale'}, 'Explicit view direction, target, up and scale required')
+        for key in ('direction','target','up'):
+            vector=np.asarray(row[key],float)
+            require(vector.shape==(3,) and np.isfinite(vector).all(), 'Finite camera vectors required')
+        direction=np.asarray(row['direction'],float);up=np.asarray(row['up'],float)
+        require(np.linalg.norm(direction)>1e-8 and np.linalg.norm(up)>1e-8
+                and np.linalg.norm(np.cross(direction,up))/(np.linalg.norm(direction)*np.linalg.norm(up))>1e-4,
+                'Nondegenerate camera frame required')
+        require(type(row['scale']) in (float,int) and np.isfinite(row['scale']) and .01<=row['scale']<=3,
+                'Bounded relative camera scale required')
+    return {name:settings[name] for name in FIREARM_VIEWS}
+
+
+def active_parts(profile):
+    route = ROUTES[profile['family']]
+    # A shield without the whole-model contract stays a blocked multipart design.
+    if profile['family'] == 'shield' and not whole_shield(profile): return MULTIPART
+    if route.parts is not None: return route.parts
+    subtype = profile.get('firearm', {}).get('subtype')
+    require(subtype in SLOTS, 'Declare the whole-firearm native slot before processing')
+    return (SLOTS[subtype],)
+
+
+def active_icon_dimensions(profile):
+    dimensions=profile['native'].get('iconDimensions')
+    active=active_parts(profile)
+    require(isinstance(dimensions,dict), 'Measure active-part inventory icon dimensions')
+    if profile['family'] in RIGGED_NATIVE_FAMILIES:
+        require(set(dimensions)=={'b','m','t'}, 'Measure all rigged donor inventory icon dimensions')
+        dimensions={part:dimensions[part] for part in active}
+    require(set(dimensions)==set(active), 'Measure active-part inventory icon dimensions')
+    return dimensions
+
+
+def fitting_parts(profile, joins):
+    """Whole meshes keep both ends; only multipart melee uses cut planes."""
+    import math
+    active=active_parts(profile)
+    if len(active)==1:
+        require(not joins, 'A single-part weapon must not inherit melee part cuts')
+    else:
+        require(len(joins)==2 and all(math.isfinite(y) for y in joins) and joins[0]<joins[1],
+                'Two ordered natural part cuts required')
+    return active
+
+
+def grip_render_part(profile):
+    active=active_parts(profile)
+    part=profile['native'].get('gripPart',active[0] if len(active)==1 else 'm')
+    require(part in active, 'Grip close-up must use an active part')
+    return part
+
+
+def assembly_budget(profile, counts, kind):
+    active = active_parts(profile)
+    require(set(counts) == set(active), 'Count every active processing part exactly once')
+    full = dict(counts)
+    if profile['family'] in WHOLE_NATIVE_FAMILIES + RIGGED_NATIVE_FAMILIES:
+        require(kind in ('visible', 'shadow'), 'Known budget kind required')
+        for part in set(('b','m','t'))-set(active):
+            require(profile['budgets']['parts'][part] == {'visible':4, 'shadow':0},
+                    'Inactive slots must be tiny hidden placeholders')
+            full[part] = 4 if kind == 'visible' else 0
+    return check_budgets(full, profile['budgets'], kind)

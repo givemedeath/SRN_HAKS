@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ballista-8a36ca73ac",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "tube-mouth",
+      "pixel": [
+        145.0,
+        282.0
+      ]
+    },
+    {
+      "name": "tube-rear",
+      "pixel": [
+        1104.0,
+        101.99999999999999
+      ]
+    },
+    {
+      "name": "designator-face",
+      "pixel": [
+        105.00000000000001,
+        663.0
+      ]
+    },
+    {
+      "name": "cable-bottom",
+      "pixel": [
+        374.0,
+        1107.0
+      ]
+    },
+    {
+      "name": "pack-upper-dome",
+      "pixel": [
+        1017.0,
+        321.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ballista-8a36ca73ac.family.json",
+    "sha256": "f39ac7231c30f938db659ed34a34b94fb1e987d4703c1e1f08b399fbe19bfa0d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/16432381be662817c11d799f738c21b71c4c78346ccc475c9d7d1595bcb9ffb9.png",
+      "sha256": "16432381be662817c11d799f738c21b71c4c78346ccc475c9d7d1595bcb9ffb9"
+    },
+    "clayReference": {
+      "path": "inputs/788a27beaf39c4f9b39fa045634defa8cda0dbfdb24ea353640ff50b9ca3cdc7.png",
+      "sha256": "788a27beaf39c4f9b39fa045634defa8cda0dbfdb24ea353640ff50b9ca3cdc7"
+    },
+    "geometry": {
+      "path": "inputs/a0104012170ac7c62ce1c59639182dabd1508a536fa65389a53a38bb5e113f9e.png",
+      "sha256": "a0104012170ac7c62ce1c59639182dabd1508a536fa65389a53a38bb5e113f9e"
+    },
+    "detail": {
+      "path": "inputs/4c21c55ec15028755094aebb56fe032b1f7cc7c568c921fd7bd82ecdcae9a04f.png",
+      "sha256": "4c21c55ec15028755094aebb56fe032b1f7cc7c568c921fd7bd82ecdcae9a04f"
+    },
+    "foregroundMask": {
+      "path": "inputs/ef96e95e13f63fcd64cda7d9d1799b0162710a396b38bac6b420c352366e4da0.png",
+      "sha256": "ef96e95e13f63fcd64cda7d9d1799b0162710a396b38bac6b420c352366e4da0"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67.png",
+      "sha256": "926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67"
+    },
+    "mask": {
+      "path": "inputs/926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67.png",
+      "sha256": "926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67"
+    },
+    "calibrationReference": {
+      "path": "inputs/0df2d873f0f18512ed17fc52065420e9c44bbab1b98e00062dcfe147c3802f2a.png",
+      "sha256": "0df2d873f0f18512ed17fc52065420e9c44bbab1b98e00062dcfe147c3802f2a"
+    },
+    "sourceAudit": {
+      "path": "inputs/f130a0600fcbd9409a625f36f8fb7c65a5ae5d1449944b62abf3b059f58673f8.json",
+      "sha256": "f130a0600fcbd9409a625f36f8fb7c65a5ae5d1449944b62abf3b059f58673f8"
+    },
+    "referenceApproval": {
+      "path": "inputs/881bea7b8b91e5348c24f44e84f987cfbd3fb65f67d7d9bbfd4a925534cf57b4.json",
+      "sha256": "881bea7b8b91e5348c24f44e84f987cfbd3fb65f67d7d9bbfd4a925534cf57b4"
+    },
+    "calibrationDetail": {
+      "path": "inputs/5ad41a79ccba6046c218af3a97cb6ed8db76484d41a83ad8b709a238bfb4e125.png",
+      "sha256": "5ad41a79ccba6046c218af3a97cb6ed8db76484d41a83ad8b709a238bfb4e125"
+    }
+  },
+  "features": [
+    {
+      "name": "Saeder-Krupp semi-autonomous backpack missile launcher, not a medieval projectile device",
+      "placementReviewed": true
+    },
+    {
+      "name": "Armored backpack houses magazine/electronics and has adjustable top-mounted missile tube",
+      "placementReviewed": true
+    },
+    {
+      "name": "Included handheld laser target designator may connect by fiberoptic cable or bearer PAN",
+      "placementReviewed": true
+    },
+    {
+      "name": "Only special Ballista missiles; ammunition variants do not imply a new launcher silhouette",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        918,
+        966,
+        1057,
+        1391
+      ],
+      "referenceAreaPixels": 40823,
+      "referenceMaskSha256": "926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        858,
+        1377,
+        900,
+        1471
+      ],
+      "referenceAreaPixels": 2895,
+      "referenceMaskSha256": "926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "16432381be662817c11d799f738c21b71c4c78346ccc475c9d7d1595bcb9ffb9",
+      "imageSha256": "4c21c55ec15028755094aebb56fe032b1f7cc7c568c921fd7bd82ecdcae9a04f",
+      "maskSha256": "ef96e95e13f63fcd64cda7d9d1799b0162710a396b38bac6b420c352366e4da0",
+      "notes": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "788a27beaf39c4f9b39fa045634defa8cda0dbfdb24ea353640ff50b9ca3cdc7",
+      "imageSha256": "a0104012170ac7c62ce1c59639182dabd1508a536fa65389a53a38bb5e113f9e",
+      "maskSha256": "926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67",
+      "notes": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned source/pair and native foreground approvals reused; root inspected actual conditioned paired overlay. Full silhouette, intentional openings and thin structure retained with shared framing and clear padding. Native1254-square sources resampled to2048; no further image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "tube-mouth",
+          "detail": [
+            0.12045434421316478,
+            0.2505649649657048
+          ],
+          "geometry": [
+            0.12045434421316478,
+            0.2505649649657048
+          ]
+        },
+        {
+          "name": "tube-rear",
+          "detail": [
+            0.8732656863012206,
+            0.10929138703287605
+          ],
+          "geometry": [
+            0.8732656863012206,
+            0.10929138703287605
+          ]
+        },
+        {
+          "name": "designator-face",
+          "detail": [
+            0.08905449678509156,
+            0.549594038256859
+          ],
+          "geometry": [
+            0.08905449678509156,
+            0.549594038256859
+          ]
+        },
+        {
+          "name": "cable-bottom",
+          "detail": [
+            0.300218470738884,
+            0.8980688638245033
+          ],
+          "geometry": [
+            0.300218470738884,
+            0.8980688638245033
+          ]
+        },
+        {
+          "name": "pack-upper-dome",
+          "detail": [
+            0.8049710181451613,
+            0.2811742401844844
+          ],
+          "geometry": [
+            0.8049710181451613,
+            0.2811742401844844
+          ]
+        }
+      ],
+      "referenceSha256": "16432381be662817c11d799f738c21b71c4c78346ccc475c9d7d1595bcb9ffb9",
+      "geometrySha256": "a0104012170ac7c62ce1c59639182dabd1508a536fa65389a53a38bb5e113f9e",
+      "detailSha256": "4c21c55ec15028755094aebb56fe032b1f7cc7c568c921fd7bd82ecdcae9a04f",
+      "geometryForegroundMaskSha256": "926dba81c5eef4f9d9408b9568c2f5654d95a9640f5ca3d39517a83ff9354a67",
+      "foregroundMaskSha256": "ef96e95e13f63fcd64cda7d9d1799b0162710a396b38bac6b420c352366e4da0"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

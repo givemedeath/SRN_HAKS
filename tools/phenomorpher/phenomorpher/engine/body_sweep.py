@@ -83,8 +83,12 @@ def geometry_audit(meshes):
         p = np.asarray(m['position']); f = np.asarray(m['faces'])
         tri = p[f]; area = np.linalg.norm(np.cross(tri[:, 1]-tri[:, 0], tri[:, 2]-tri[:, 0]), axis=1)
         degenerate[m['part']+'/'+m['name']] = int((area < 1e-12).sum())
-        for row in np.round(tri, 6):
-            keys.setdefault(tuple(sorted(map(tuple, row))), set()).add(m['part'])
+        # Vertex order is irrelevant: sort each triangle's rounded corners lexicographically, once per mesh.
+        corners = np.round(tri, 6) + 0.  # +0. folds -0.0 into 0.0, as tuple equality does
+        order = np.lexsort((corners[..., 2], corners[..., 1], corners[..., 0]), axis=-1)
+        canonical = np.take_along_axis(corners, order[..., None], 1).reshape(len(tri), 9)
+        for row in np.unique(canonical, axis=0):
+            keys.setdefault(row.tobytes(), set()).add(m['part'])
     return {'degenerateTriangles': {k: v for k, v in degenerate.items() if v},
             'coincidentCrossPartTriangles': sum(1 for parts in keys.values() if len(parts) > 1)}
 
@@ -132,9 +136,21 @@ def connectors(source, candidate, scales):
     return {'droppedForLineage': dropped, 'minimum': minimum, 'surfaces': area}
 
 
-def posed_frames(models, prefix, clip_name, time):
-    names = lib.chain(prefix, models); owner = lib.effective(names, models)[clip_name]['owner']; clip = models[owner]['clips'][clip_name]
-    animated = {(prefix if n == owner else n): row for n, row in clip['nodes'].items()}
+class MissingClip(LookupError):
+    """The chain resolves, but no model in it stores this clip."""
+
+
+def resolve_clip(models, prefix, clip_name):
+    """(clip, owner, animated nodes) of the nearest owner; MissingClip when the chain has no such clip."""
+    table = lib.effective(lib.chain(prefix, models), models)
+    if clip_name not in table:
+        raise MissingClip(clip_name)
+    owner = table[clip_name]['owner']; clip = models[owner]['clips'][clip_name]
+    return clip, owner, {(prefix if n == owner else n): row for n, row in clip['nodes'].items()}
+
+
+def posed_frames(models, prefix, clip_name, time, resolved=None):
+    clip, owner, animated = resolved or resolve_clip(models, prefix, clip_name)
     return sample(models[prefix]['nodes'], animated, time), clip, owner
 
 
@@ -152,22 +168,24 @@ def motion(models, b, donor, clips):
     feet = lambda meshes: min(float(np.asarray(m['position'])[:, 2].min()) for m in meshes if m['part'] in ('footl', 'footr') and m.get('render', True))
     floor = feet(b['meshes']); donor_floor = feet(donor['meshes']); clip_rows = {}; missing = {}
     for clip_name in clips:
+        # Resolved once per clip and reused for every sample; only a missing clip is an unavailable row.
         try:
-            _, clip, owner = posed_frames(models, prefix, clip_name, 0.)
-        except KeyError:
+            resolved = resolve_clip(models, prefix, clip_name)
+        except MissingClip:
             missing[clip_name] = 'absent from the target chain'; continue
         try:
-            _, donor_clip, donor_owner = posed_frames(models, donor['prefix'], clip_name, 0.)
-        except KeyError:
+            donor_resolved = resolve_clip(models, donor['prefix'], clip_name)
+        except MissingClip:
             missing[clip_name] = 'absent from the donor chain'; continue
+        (clip, owner, _), (donor_clip, donor_owner, _) = resolved, donor_resolved
         worst = {}; sole = []
         # Sample both key schedules in normalized time, so a donor-only key is evaluated as well.
         fractions = sorted({round(t/clip['length'], 9) if clip['length'] else 0. for t in sample_times(clip)}
                            | {round(t/donor_clip['length'], 9) if donor_clip['length'] else 0. for t in sample_times(donor_clip)})
         for fraction in fractions:
             t = fraction*clip['length']
-            posed = posed_frames(models, prefix, clip_name, t)[0]
-            donor_posed = posed_frames(models, donor['prefix'], clip_name, fraction*donor_clip['length'])[0]
+            posed = posed_frames(models, prefix, clip_name, t, resolved)[0]
+            donor_posed = posed_frames(models, donor['prefix'], clip_name, fraction*donor_clip['length'], donor_resolved)[0]
             mesh_t = pose_rigid_meshes(b['meshes'], b['frames'], {**b['frames'], **posed})
             donor_t = pose_rigid_meshes(donor['meshes'], donor['frames'], {**donor['frames'], **donor_posed})
             sole.append((feet(mesh_t)-floor, feet(donor_t)-donor_floor, float(t)))
@@ -209,9 +227,9 @@ def sweep(root, manifest_path, output, prefixes, stock_manifest=None, with_motio
         raise ValueError('Unknown sweep target: ' + ', '.join(sorted(set(prefixes) - known)))
     if with_motion and stock_manifest is None:
         raise ValueError('A motion sweep needs the extracted stock manifest')
+    pins = {(root/r['path']).resolve(): r['sha256'] for r in contract['resources']}
     for path in consumed(root, contract, prefixes):
-        rows = [r for r in contract['resources'] if root/r['path'] == path]
-        if not rows or lib.digest(path.read_bytes()) != rows[0]['sha256']:
+        if lib.digest(path.read_bytes()) != pins.get(path.resolve()):
             raise ValueError('Published file differs from the contract: ' + str(path))
     models = None
     if with_motion:
@@ -227,13 +245,14 @@ def sweep(root, manifest_path, output, prefixes, stock_manifest=None, with_motio
     def load(prefix):
         if prefix not in cache:
             cache[prefix] = body(root, contract, prefix)
+            # Stature is shared by every target with this donor; measure each body once.
+            cache[prefix]['stature'] = sil.measure([m for m in cache[prefix]['meshes'] if m['part'] != 'head'],
+                                                   cache[prefix]['joints']).get('bindStatureMeters')
         return cache[prefix]
     try:
         for prefix in prefixes:
             b = load(prefix); donor = load(donor_of(prefix))
-            stature = sil.measure([m for m in b['meshes'] if m['part'] != 'head'], b['joints']).get('bindStatureMeters')
-            donor_stature = sil.measure([m for m in donor['meshes'] if m['part'] != 'head'], donor['joints']).get('bindStatureMeters')
-            b['scale'] = stature/donor_stature; scales = {p: b['scale'] for p in sil.PART_JOINTS}
+            b['scale'] = b['stature']/donor['stature']; scales = {p: b['scale'] for p in sil.PART_JOINTS}
             result = {'schemaVersion': 1, 'kind': KIND, 'release': label, 'contract': contract['version'],
                       'target': next(t['target'] for t in contract['targets'] if t['modelPrefix'] == prefix), 'prefix': prefix,
                       'donor': donor['prefix'], 'statureRatioToDonor': b['scale'], 'headIncluded': 'head' in b['parts']}

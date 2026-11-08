@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-tonfa-0cf54e380b",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "framing-upper-left",
+      "pixel": [
+        53.99999999999999,
+        230.99999999999991
+      ]
+    },
+    {
+      "name": "framing-upper-right",
+      "pixel": [
+        1720.0,
+        230.99999999999991
+      ]
+    },
+    {
+      "name": "framing-lower-left",
+      "pixel": [
+        53.99999999999999,
+        691.0
+      ]
+    },
+    {
+      "name": "framing-lower-right",
+      "pixel": [
+        1720.0,
+        691.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-tonfa-0cf54e380b.family.json",
+    "sha256": "437b160086e22bda90df37f69a4b8bfe8c7bbf4cebd4d6d9997a7c62e7de0210"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/d455727bc97c1ff259fc884237e38eb2c757e73fcb47b0f35e89e0a33c945c6a.png",
+      "sha256": "d455727bc97c1ff259fc884237e38eb2c757e73fcb47b0f35e89e0a33c945c6a"
+    },
+    "clayReference": {
+      "path": "inputs/7b827454a85ea17f5f20e0e45728796c09163c382617bd97c4a67103f157332a.png",
+      "sha256": "7b827454a85ea17f5f20e0e45728796c09163c382617bd97c4a67103f157332a"
+    },
+    "geometry": {
+      "path": "inputs/4f0b42e2436e84246df3d61901f304fb75ae6bd4165eeb57eaa5ee05ccc4e98b.png",
+      "sha256": "4f0b42e2436e84246df3d61901f304fb75ae6bd4165eeb57eaa5ee05ccc4e98b"
+    },
+    "detail": {
+      "path": "inputs/10f00d100387dcf7ce76935621626f965ee803fcd7364b742ccb5cc2eaa8ac00.png",
+      "sha256": "10f00d100387dcf7ce76935621626f965ee803fcd7364b742ccb5cc2eaa8ac00"
+    },
+    "foregroundMask": {
+      "path": "inputs/f4b293816633e746676cb29e31f57486497ba9637fb77aa25a1688e2e9c1f6f0.png",
+      "sha256": "f4b293816633e746676cb29e31f57486497ba9637fb77aa25a1688e2e9c1f6f0"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/5f0f8b9bb5796a3b6265665c45a60506cef13fc6c3b6bc6bc4322676298a284e.png",
+      "sha256": "5f0f8b9bb5796a3b6265665c45a60506cef13fc6c3b6bc6bc4322676298a284e"
+    },
+    "mask": {
+      "path": "inputs/5f0f8b9bb5796a3b6265665c45a60506cef13fc6c3b6bc6bc4322676298a284e.png",
+      "sha256": "5f0f8b9bb5796a3b6265665c45a60506cef13fc6c3b6bc6bc4322676298a284e"
+    },
+    "calibrationReference": {
+      "path": "inputs/c612cf4a0c3122a60050a2d637d369e8dc5723c1713ced0f70e16e2b5695bb71.png",
+      "sha256": "c612cf4a0c3122a60050a2d637d369e8dc5723c1713ced0f70e16e2b5695bb71"
+    },
+    "sourceAudit": {
+      "path": "inputs/179d9c03079637634c99f385153518be03a649bdee3b53e25055385b2548f842.json",
+      "sha256": "179d9c03079637634c99f385153518be03a649bdee3b53e25055385b2548f842"
+    },
+    "referenceApproval": {
+      "path": "inputs/0234b07e8927257dffcaaf9c672bb03dc8b9428bd9e62cf90436d06350f7f24b.json",
+      "sha256": "0234b07e8927257dffcaaf9c672bb03dc8b9428bd9e62cf90436d06350f7f24b"
+    },
+    "calibrationDetail": {
+      "path": "inputs/c623aae7943cee9d59a4f05700617374b5168ca10cdd2b94a28d71467b3b787a.png",
+      "sha256": "c623aae7943cee9d59a4f05700617374b5168ca10cdd2b94a28d71467b3b787a"
+    }
+  },
+  "features": [
+    {
+      "name": "Approximately 50-centimetre main baton with a one-sided crossbar approximately 15 centimetres long.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the side-handle T-like configuration, not a straight baton.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source-matched pair and masks reviewed; main shape and handle retained. User accepts shallow grooves. Original 1774x887 images resampled to 2048 canvas.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d455727bc97c1ff259fc884237e38eb2c757e73fcb47b0f35e89e0a33c945c6a",
+      "imageSha256": "10f00d100387dcf7ce76935621626f965ee803fcd7364b742ccb5cc2eaa8ac00",
+      "maskSha256": "f4b293816633e746676cb29e31f57486497ba9637fb77aa25a1688e2e9c1f6f0",
+      "notes": "Source-matched pair and masks reviewed; main shape and handle retained. User accepts shallow grooves. Original 1774x887 images resampled to 2048 canvas."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7b827454a85ea17f5f20e0e45728796c09163c382617bd97c4a67103f157332a",
+      "imageSha256": "4f0b42e2436e84246df3d61901f304fb75ae6bd4165eeb57eaa5ee05ccc4e98b",
+      "maskSha256": "5f0f8b9bb5796a3b6265665c45a60506cef13fc6c3b6bc6bc4322676298a284e",
+      "notes": "Source-matched pair and masks reviewed; main shape and handle retained. User accepts shallow grooves. Original 1774x887 images resampled to 2048 canvas."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Source-matched pair and masks reviewed; main shape and handle retained. User accepts shallow grooves. Original 1774x887 images resampled to 2048 canvas.",
+      "landmarks": [
+        {
+          "name": "framing-upper-left",
+          "detail": [
+            0.050884940199460105,
+            0.37602846224240777
+          ],
+          "geometry": [
+            0.04926456115026995,
+            0.3749481002575922
+          ]
+        },
+        {
+          "name": "framing-upper-right",
+          "detail": [
+            0.9507354388497301,
+            0.37602846224240777
+          ],
+          "geometry": [
+            0.9507354388497301,
+            0.3749481002575922
+          ]
+        },
+        {
+          "name": "framing-lower-left",
+          "detail": [
+            0.050884940199460105,
+            0.62451171875
+          ],
+          "geometry": [
+            0.04926456115026995,
+            0.6250518997424078
+          ]
+        },
+        {
+          "name": "framing-lower-right",
+          "detail": [
+            0.9507354388497301,
+            0.62451171875
+          ],
+          "geometry": [
+            0.9507354388497301,
+            0.6250518997424078
+          ]
+        }
+      ],
+      "referenceSha256": "d455727bc97c1ff259fc884237e38eb2c757e73fcb47b0f35e89e0a33c945c6a",
+      "geometrySha256": "4f0b42e2436e84246df3d61901f304fb75ae6bd4165eeb57eaa5ee05ccc4e98b",
+      "detailSha256": "10f00d100387dcf7ce76935621626f965ee803fcd7364b742ccb5cc2eaa8ac00",
+      "geometryForegroundMaskSha256": "5f0f8b9bb5796a3b6265665c45a60506cef13fc6c3b6bc6bc4322676298a284e",
+      "foregroundMaskSha256": "f4b293816633e746676cb29e31f57486497ba9637fb77aa25a1688e2e9c1f6f0"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

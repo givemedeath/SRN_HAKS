@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-phalanx-vogeljager-50d3c033d8",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-upper",
+      "pixel": [
+        40.0,
+        480.0
+      ]
+    },
+    {
+      "name": "optic-upper",
+      "pixel": [
+        450.0,
+        421.00000000000006
+      ]
+    },
+    {
+      "name": "front-support-lower",
+      "pixel": [
+        314.0,
+        746.0
+      ]
+    },
+    {
+      "name": "rear-grip-lower",
+      "pixel": [
+        620.0,
+        782.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-phalanx-vogeljager-50d3c033d8.family.json",
+    "sha256": "04c9614d3c3538738f04832dcb7ffd0f46301b96b55c11ddd523a2fbc7a5a0e5"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/11265b280eee00e43d9870df2930c77239d12b5b21a140c621e84010bee99079.png",
+      "sha256": "11265b280eee00e43d9870df2930c77239d12b5b21a140c621e84010bee99079"
+    },
+    "clayReference": {
+      "path": "inputs/5483d3682ddb8abdbfd42b319ecb8161623040e0016d9d734136feb8b2a240d5.png",
+      "sha256": "5483d3682ddb8abdbfd42b319ecb8161623040e0016d9d734136feb8b2a240d5"
+    },
+    "geometry": {
+      "path": "inputs/3d7e15c2430658d464304bd2b863b2b8ab4dc6dfdb5180e5c3b0c709b2194ead.png",
+      "sha256": "3d7e15c2430658d464304bd2b863b2b8ab4dc6dfdb5180e5c3b0c709b2194ead"
+    },
+    "detail": {
+      "path": "inputs/bb4cb5437b8eebe6524625d3a524c64e9405ed900724e5a8aa79f7f11c6495e5.png",
+      "sha256": "bb4cb5437b8eebe6524625d3a524c64e9405ed900724e5a8aa79f7f11c6495e5"
+    },
+    "foregroundMask": {
+      "path": "inputs/aca631749bb23d1552afb59ba07a9fa4b2099b8480c198bb27e2d7a724a0404c.png",
+      "sha256": "aca631749bb23d1552afb59ba07a9fa4b2099b8480c198bb27e2d7a724a0404c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/82f733e0cca5d5457880c1d390322011963c3aea1973418865a6bbf3411ae8a3.png",
+      "sha256": "82f733e0cca5d5457880c1d390322011963c3aea1973418865a6bbf3411ae8a3"
+    },
+    "mask": {
+      "path": "inputs/82f733e0cca5d5457880c1d390322011963c3aea1973418865a6bbf3411ae8a3.png",
+      "sha256": "82f733e0cca5d5457880c1d390322011963c3aea1973418865a6bbf3411ae8a3"
+    },
+    "calibrationReference": {
+      "path": "inputs/204f6634c7092347160503565dd75c368f93b15cf1e943c3d31ec084ea32e7cc.png",
+      "sha256": "204f6634c7092347160503565dd75c368f93b15cf1e943c3d31ec084ea32e7cc"
+    },
+    "sourceAudit": {
+      "path": "inputs/132cfea4cf84bb01e54af5e97ab89b179adf0a9e0077b925e9c4d77b2b2d9a63.json",
+      "sha256": "132cfea4cf84bb01e54af5e97ab89b179adf0a9e0077b925e9c4d77b2b2d9a63"
+    },
+    "referenceApproval": {
+      "path": "inputs/79c6ddc79eac9ef47be29ba17e064fa689b3cdcd4aaa1831ceedcbdc9c032600.json",
+      "sha256": "79c6ddc79eac9ef47be29ba17e064fa689b3cdcd4aaa1831ceedcbdc9c032600"
+    },
+    "calibrationDetail": {
+      "path": "inputs/79fa860dfe15c6cc4632418cbf901aa55ee8f66210b480195e897b2f04f1f69d.png",
+      "sha256": "79fa860dfe15c6cc4632418cbf901aa55ee8f66210b480195e897b2f04f1f69d"
+    }
+  },
+  "features": [
+    {
+      "name": "Man-portable anti-air launcher with imaging scope including low-light and thermographic capability, plus special control unit.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own VOGELJAGERII MISSILELAUNCHER illustration printed32/PDF34: long tube/body, integrated upper sight/control housing, lower forward support/grip and rear grip. Preserve own whole silhouette.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed retained PhalanxVogeljager detail and original clay against own VOGELJAGERII MISSILELAUNCHER Arsenal32/PDF34. Long body/tube, upper imaging/control housing, lower forward support/grip and rear grip follow source. Workbook spelling/model alias is explicitly source-audited. Separate missile excluded; no missile construction or internal view. Exact finish/unseen depth artistic. Original raw clay is reused: its tiny control channel and two band dimples are nonblocking under latest user instruction; obsolete smoothing retries are not dispatched. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        798,
+        1036,
+        855,
+        1104
+      ],
+      "referenceAreaPixels": 3329,
+      "referenceMaskSha256": "82f733e0cca5d5457880c1d390322011963c3aea1973418865a6bbf3411ae8a3",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "11265b280eee00e43d9870df2930c77239d12b5b21a140c621e84010bee99079",
+      "imageSha256": "bb4cb5437b8eebe6524625d3a524c64e9405ed900724e5a8aa79f7f11c6495e5",
+      "maskSha256": "aca631749bb23d1552afb59ba07a9fa4b2099b8480c198bb27e2d7a724a0404c",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed retained PhalanxVogeljager detail and original clay against own VOGELJAGERII MISSILELAUNCHER Arsenal32/PDF34. Long body/tube, upper imaging/control housing, lower forward support/grip and rear grip follow source. Workbook spelling/model alias is explicitly source-audited. Separate missile excluded; no missile construction or internal view. Exact finish/unseen depth artistic. Original raw clay is reused: its tiny control channel and two band dimples are nonblocking under latest user instruction; obsolete smoothing retries are not dispatched. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5483d3682ddb8abdbfd42b319ecb8161623040e0016d9d734136feb8b2a240d5",
+      "imageSha256": "3d7e15c2430658d464304bd2b863b2b8ab4dc6dfdb5180e5c3b0c709b2194ead",
+      "maskSha256": "82f733e0cca5d5457880c1d390322011963c3aea1973418865a6bbf3411ae8a3",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed retained PhalanxVogeljager detail and original clay against own VOGELJAGERII MISSILELAUNCHER Arsenal32/PDF34. Long body/tube, upper imaging/control housing, lower forward support/grip and rear grip follow source. Workbook spelling/model alias is explicitly source-audited. Separate missile excluded; no missile construction or internal view. Exact finish/unseen depth artistic. Original raw clay is reused: its tiny control channel and two band dimples are nonblocking under latest user instruction; obsolete smoothing retries are not dispatched. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "11265b280eee00e43d9870df2930c77239d12b5b21a140c621e84010bee99079",
+      "detailSha256": "bb4cb5437b8eebe6524625d3a524c64e9405ed900724e5a8aa79f7f11c6495e5",
+      "geometrySha256": "3d7e15c2430658d464304bd2b863b2b8ab4dc6dfdb5180e5c3b0c709b2194ead",
+      "foregroundMaskSha256": "aca631749bb23d1552afb59ba07a9fa4b2099b8480c198bb27e2d7a724a0404c",
+      "geometryForegroundMaskSha256": "82f733e0cca5d5457880c1d390322011963c3aea1973418865a6bbf3411ae8a3",
+      "landmarks": [
+        {
+          "name": "muzzle-upper",
+          "detail": [
+            0.07031806219487388,
+            0.4114237831681586
+          ],
+          "geometry": [
+            0.07031806219487388,
+            0.4114237831681586
+          ]
+        },
+        {
+          "name": "optic-upper",
+          "detail": [
+            0.37069247736981287,
+            0.3681740529092072
+          ],
+          "geometry": [
+            0.37069247736981287,
+            0.3689070991847826
+          ]
+        },
+        {
+          "name": "front-support-lower",
+          "detail": [
+            0.27105608599471115,
+            0.6064140924712276
+          ],
+          "geometry": [
+            0.27105608599471115,
+            0.6093462775735294
+          ]
+        },
+        {
+          "name": "rear-grip-lower",
+          "detail": [
+            0.49523796658869,
+            0.6328037583919437
+          ],
+          "geometry": [
+            0.49523796658869,
+            0.6335368046675192
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root viewed retained PhalanxVogeljager detail and original clay against own VOGELJAGERII MISSILELAUNCHER Arsenal32/PDF34. Long body/tube, upper imaging/control housing, lower forward support/grip and rear grip follow source. Workbook spelling/model alias is explicitly source-audited. Separate missile excluded; no missile construction or internal view. Exact finish/unseen depth artistic. Original raw clay is reused: its tiny control channel and two band dimples are nonblocking under latest user instruction; obsolete smoothing retries are not dispatched. Existing byte-bound reviewed-opening matte derives alpha only; original RGB bytes remain unchanged. Actual teal pair sheet inspected: trigger clearance, thin members and complete silhouettes retained; no significant detached structural parts missing. Native1254square originals remain immutable;2048 conditioning is resampled,not native2K. This is one final pair review,not client or production acceptance."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

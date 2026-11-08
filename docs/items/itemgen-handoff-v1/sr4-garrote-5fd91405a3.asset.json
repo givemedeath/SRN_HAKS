@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-garrote-5fd91405a3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "left-handle-edge",
+      "pixel": [
+        45.0,
+        177.49999999999997
+      ]
+    },
+    {
+      "name": "right-handle-edge",
+      "pixel": [
+        1216.0,
+        196.50000000000006
+      ]
+    },
+    {
+      "name": "upper-handle-cap",
+      "pixel": [
+        111.5,
+        133.0
+      ]
+    },
+    {
+      "name": "lowest-wire",
+      "pixel": [
+        622.5,
+        1130.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-garrote-5fd91405a3.family.json",
+    "sha256": "ad1dc4ee5630c40cc957542ff325cf89dad5c136321fac568dc0bf2eadc6be21"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/94cc2f895be4aeaa9a65939bd4289aeae250213a5866f523cabc2f127f6d6af7.png",
+      "sha256": "94cc2f895be4aeaa9a65939bd4289aeae250213a5866f523cabc2f127f6d6af7"
+    },
+    "clayReference": {
+      "path": "inputs/f8591184bb98a3f5a2355fad3f67f9d6ed0dc97d48118bea38d85ab6c7b58dea.png",
+      "sha256": "f8591184bb98a3f5a2355fad3f67f9d6ed0dc97d48118bea38d85ab6c7b58dea"
+    },
+    "geometry": {
+      "path": "inputs/2828fbd5a38dc67f795e8602175aa1311f21394a962af718b1b2f10276fab689.png",
+      "sha256": "2828fbd5a38dc67f795e8602175aa1311f21394a962af718b1b2f10276fab689"
+    },
+    "detail": {
+      "path": "inputs/b7076ef6222b4d874172dd79aa21261b1824c868c1914651381ba44c941a7780.png",
+      "sha256": "b7076ef6222b4d874172dd79aa21261b1824c868c1914651381ba44c941a7780"
+    },
+    "foregroundMask": {
+      "path": "inputs/392556fa5807ece352c64a93d671e6d8a2aa8c00ae257f88af1985def203f05f.png",
+      "sha256": "392556fa5807ece352c64a93d671e6d8a2aa8c00ae257f88af1985def203f05f"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/788f50c3123e1dfaea19cba457291357d3e4d3d8d9c0a04a6624cf01422ff459.png",
+      "sha256": "788f50c3123e1dfaea19cba457291357d3e4d3d8d9c0a04a6624cf01422ff459"
+    },
+    "mask": {
+      "path": "inputs/788f50c3123e1dfaea19cba457291357d3e4d3d8d9c0a04a6624cf01422ff459.png",
+      "sha256": "788f50c3123e1dfaea19cba457291357d3e4d3d8d9c0a04a6624cf01422ff459"
+    },
+    "calibrationReference": {
+      "path": "inputs/683be74ac716e37a03da25aa7b2c0dca6000618622865cbca71840503f0ccb84.png",
+      "sha256": "683be74ac716e37a03da25aa7b2c0dca6000618622865cbca71840503f0ccb84"
+    },
+    "sourceAudit": {
+      "path": "inputs/380520be633f6d3ef6d39ad35902963e570e36c1fd035504db5a7a4005ef6759.json",
+      "sha256": "380520be633f6d3ef6d39ad35902963e570e36c1fd035504db5a7a4005ef6759"
+    },
+    "referenceApproval": {
+      "path": "inputs/271fec4eeac866e6279b2a42dbb988b70975c8462b8b4d7283947bbedfa79ddf.json",
+      "sha256": "271fec4eeac866e6279b2a42dbb988b70975c8462b8b4d7283947bbedfa79ddf"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0fbd75424c6df2de8388a38877b5ebceb096f767dfc292bf6fbe3e5b2e7fb3fb.png",
+      "sha256": "0fbd75424c6df2de8388a38877b5ebceb096f767dfc292bf6fbe3e5b2e7fb3fb"
+    }
+  },
+  "features": [
+    {
+      "name": "Flexible rope or wire with a handle at each end.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Both handles and continuous connecting strand must be visible.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Continuous thin wire and both handles retained; large U space remains open. Clay removes checkering and wire stranding; matched silhouette and framing; no background remnant. Arsenal printed38/PDF40 ordinary Garrote description: flexible wire with one handle at each end. No own labeled illustration in reviewed pages; handle finish, caps, wire stranding, depth and slack U arrangement are artistic interpretation. Separate monofilament illustration is not substituted.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "94cc2f895be4aeaa9a65939bd4289aeae250213a5866f523cabc2f127f6d6af7",
+      "imageSha256": "b7076ef6222b4d874172dd79aa21261b1824c868c1914651381ba44c941a7780",
+      "maskSha256": "392556fa5807ece352c64a93d671e6d8a2aa8c00ae257f88af1985def203f05f",
+      "notes": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Continuous thin wire and both handles retained; large U space remains open. Clay removes checkering and wire stranding; matched silhouette and framing; no background remnant. Arsenal printed38/PDF40 ordinary Garrote description: flexible wire with one handle at each end. No own labeled illustration in reviewed pages; handle finish, caps, wire stranding, depth and slack U arrangement are artistic interpretation. Separate monofilament illustration is not substituted."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f8591184bb98a3f5a2355fad3f67f9d6ed0dc97d48118bea38d85ab6c7b58dea",
+      "imageSha256": "2828fbd5a38dc67f795e8602175aa1311f21394a962af718b1b2f10276fab689",
+      "maskSha256": "788f50c3123e1dfaea19cba457291357d3e4d3d8d9c0a04a6624cf01422ff459",
+      "notes": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Continuous thin wire and both handles retained; large U space remains open. Clay removes checkering and wire stranding; matched silhouette and framing; no background remnant. Arsenal printed38/PDF40 ordinary Garrote description: flexible wire with one handle at each end. No own labeled illustration in reviewed pages; handle finish, caps, wire stranding, depth and slack U arrangement are artistic interpretation. Separate monofilament illustration is not substituted."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "94cc2f895be4aeaa9a65939bd4289aeae250213a5866f523cabc2f127f6d6af7",
+      "detailSha256": "b7076ef6222b4d874172dd79aa21261b1824c868c1914651381ba44c941a7780",
+      "geometrySha256": "2828fbd5a38dc67f795e8602175aa1311f21394a962af718b1b2f10276fab689",
+      "foregroundMaskSha256": "392556fa5807ece352c64a93d671e6d8a2aa8c00ae257f88af1985def203f05f",
+      "geometryForegroundMaskSha256": "788f50c3123e1dfaea19cba457291357d3e4d3d8d9c0a04a6624cf01422ff459",
+      "landmarks": [
+        {
+          "name": "left-handle-edge",
+          "detail": [
+            0.05133726728723404,
+            0.15107865767045453
+          ],
+          "geometry": [
+            0.04980468750000001,
+            0.1499291723901099
+          ]
+        },
+        {
+          "name": "right-handle-edge",
+          "detail": [
+            0.9486627327127659,
+            0.16563880455482022
+          ],
+          "geometry": [
+            0.949429022606383,
+            0.15874189287275225
+          ]
+        },
+        {
+          "name": "upper-handle-cap",
+          "detail": [
+            0.10229554521276596,
+            0.11697726102022978
+          ],
+          "geometry": [
+            0.10267869015957447,
+            0.1162109375
+          ]
+        },
+        {
+          "name": "lowest-wire",
+          "detail": [
+            0.4938696808510638,
+            0.8810018106893107
+          ],
+          "geometry": [
+            0.49463597074468085,
+            0.8825344577297702
+          ]
+        }
+      ],
+      "notes": "Actual conditioned overlay inspected: common framing, complete silhouette and intentional open spaces preserved; no visible background debris. Continuous thin wire and both handles retained; large U space remains open. Clay removes checkering and wire stranding; matched silhouette and framing; no background remnant. Arsenal printed38/PDF40 ordinary Garrote description: flexible wire with one handle at each end. No own labeled illustration in reviewed pages; handle finish, caps, wire stranding, depth and slack U arrangement are artistic interpretation. Separate monofilament illustration is not substituted."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

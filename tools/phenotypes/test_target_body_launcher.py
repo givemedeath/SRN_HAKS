@@ -24,6 +24,7 @@ class TargetBodyLauncherTests(unittest.TestCase):
         self.fixture.mkdir()
         self.launcher = self.helpers/'Launch-TargetBodyClient.ps1'
         shutil.copyfile(Path(__file__).with_name(self.launcher.name), self.launcher)
+        shutil.copyfile(Path(__file__).parents[1]/'SrnTools.psm1', self.root/'tools/SrnTools.psm1')
         self.target = self.root/'target contract.json'
         self.toolchain = self.root/'toolchain.json'; self.toolchain.write_text('{}')
         self.migration = self.root/'migration.json'; self.migration.write_text('{}')

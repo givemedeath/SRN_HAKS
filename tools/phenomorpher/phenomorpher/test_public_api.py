@@ -181,13 +181,19 @@ class PublicContractTests(unittest.TestCase):
             self.assertEqual(source.read_bytes(),payload)
 
 
+class MeasurementHelperTests(unittest.TestCase):
+    def test_hashed_measurement_helpers_are_packaged(self):
+        engine = Path(__file__).resolve().parent/'engine'
+        text = (engine/'measurement_workflow.py').read_text(encoding='utf-8')
+        helpers = text[text.index('def historical_findings'):text.index('verified(p, sha(p))')]
+        names = [token.strip("'") for token in helpers.replace(',', ' ').replace('(', ' ').replace(')', ' ').split() if token.endswith(".py'")]
+        self.assertTrue(names and all((engine/name).is_file() for name in names))
+
+
 class LineageManifestTests(unittest.TestCase):
-    def test_packaged_lineage_matches_the_launcher_copy_and_every_engine_module(self):
+    def test_packaged_lineage_matches_every_engine_module(self):
         package = Path(__file__).resolve().parent
         packaged = (package/'source-lineage.json').read_bytes()
-        launcher = package.parent/'source-lineage.json'
-        if launcher.is_file():  # source checkout; an installed wheel ships only the packaged copy
-            self.assertEqual(packaged, launcher.read_bytes())
         for row in json.loads(packaged)['modules']:
             module = (package/'engine'/(row['module'] + '.py')).read_bytes().replace(b'\r\n', b'\n')
             self.assertEqual(hashlib.sha256(module).hexdigest(), row['packagedSHA256'], row['module'])

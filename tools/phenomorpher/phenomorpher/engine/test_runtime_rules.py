@@ -8,8 +8,9 @@ import unittest
 
 from . import anim_library as lib
 from .runtime_release import adopt
-from .runtime_rules import check
+from .runtime_rules import DECLARED_STOCK_OVERRIDES, check
 from . import test_runtime_release as fixtures
+from .test_anim_library import GEOMETRY, clip, native
 
 
 def staged(root):
@@ -77,6 +78,39 @@ class RuntimeRuleTests(unittest.TestCase):
             self.assertEqual(rules(report), ['stock-shadow'])
             self.assertEqual(report['violations'][0]['subject'], 'srn_body/' + Path(stock_name).name)
 
+    def test_only_the_pinned_stock_override_may_shadow_the_chain(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); _, contract, overlay = staged(root)
+            row = contract['installedAnimationChain'][0]; name = Path(row['resource']).stem.lower()
+            path = 'srn_body/' + Path(row['resource']).name
+            blob = f'setsupermodel {name} {row["parent"]}\n'.encode()
+            sha = hashlib.sha256(blob).hexdigest()
+            shadow = json.loads(json.dumps(contract))
+            shadow['resources'].append({'path': path, 'sha256': sha, 'role': 'combat-animation'})
+            files = {**overlay, path: blob}
+            approved = {name: {'sha256': sha, 'role': 'combat-animation'}}
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides=approved)), [])
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides={})), ['stock-shadow'])
+            wrong_role = {name: {'sha256': sha, 'role': 'body-part'}}
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides=wrong_role)), ['stock-shadow'])
+            wrong_pin = {name: {'sha256': '0' * 64, 'role': 'combat-animation'}}
+            self.assertEqual(rules(check(root, shadow, overlay=files, stock_overrides=wrong_pin)), ['stock-shadow'])
+            moved = f'setsupermodel {name} elsewhere\n'.encode()
+            moved_sha = hashlib.sha256(moved).hexdigest(); shadow['resources'][-1]['sha256'] = moved_sha
+            moved_pin = {name: {'sha256': moved_sha, 'role': 'combat-animation'}}
+            report = check(root, shadow, overlay={**overlay, path: moved}, stock_overrides=moved_pin)
+            self.assertEqual(rules(report), ['stock-shadow'])
+            with self.assertRaisesRegex(ValueError, 'differs from the contract'):
+                check(root, shadow, overlay={**overlay, path: blob}, stock_overrides=moved_pin)
+
+    def test_declared_stock_override_pins_the_shipped_model(self):
+        repo = Path(__file__).resolve().parents[4]
+        if not (repo/'srn_body').is_dir():
+            self.skipTest('Installed wheel has no repository packs')
+        for name, entry in DECLARED_STOCK_OVERRIDES.items():
+            blob = (repo/'srn_body'/(name + '.mdl')).read_bytes()
+            self.assertEqual(hashlib.sha256(blob).hexdigest(), entry['sha256'])
+
     def test_target_roots_may_not_store_clips(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); _, contract, overlay = staged(root)
@@ -90,6 +124,28 @@ class RuntimeRuleTests(unittest.TestCase):
             report = check(root, c, overlay=o)
             self.assertEqual(rules(report), ['root-clips'])
             self.assertEqual(report['violations'][0]['detail'], 'root stores its own clips: walk')
+
+    def test_published_roots_sit_at_the_origin(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); _, contract, overlay = staged(root)
+            library = lib.load_model('fixture', overlay['srn_body/pfx0.mdl'])['parent']
+            def swap(path, blob):
+                c = json.loads(json.dumps(contract)); next(r for r in c['resources'] if r['path'] == path)['sha256'] = hashlib.sha256(blob).hexdigest()
+                return check(root, c, overlay={**overlay, path: blob})
+            def fit(controls):
+                return swap('srn_body/pfx0.mdl', native('pfx0', library, [('pfx0', '', controls)] + GEOMETRY('pfx0')[1:]))
+            identity = fit({8: ([0.0], [[0.0, 0.0, 0.0]]), 20: ([0.0], [[0.0, 0.0, 0.0, -1.0]]), 36: ([0.0], [[1.0]])})
+            self.assertTrue(identity['passed'], identity['violations'])
+            offset = fit({8: ([0.0], [[0.0, 0.0, -0.0477]])})
+            self.assertEqual(rules(offset), ['root-transform'])
+            self.assertEqual(offset['violations'][0]['subject'], 'pfx0'); self.assertIn('position 0 0 -0.0477', offset['violations'][0]['detail'])
+            self.assertEqual(rules(fit({20: ([0.0], [[0.0, 0.0, 0.1, 0.995]])})), ['root-transform'])
+            # A library clip that keys its root moves every root on it.
+            path = next(r['path'] for r in contract['resources'] if r['role'] == 'animation-library'); model = lib.load_model(path, overlay[path])
+            name = model['name']; walk = clip('walk', name); walk['nodes'][0] = (name, '', {8: ([0.0, 1.0], [[0.0, 0.0, 0.1]]*2)})
+            report = swap(path, native(name, model['parent'], GEOMETRY(name), [walk]))
+            self.assertIn('root-transform', rules(report))
+            self.assertIn({'rule': 'root-transform', 'subject': name, 'detail': 'clips key the root node: walk'}, report['violations'])
 
     def test_only_declared_posture_layers_are_exempt(self):
         def layer(clips):

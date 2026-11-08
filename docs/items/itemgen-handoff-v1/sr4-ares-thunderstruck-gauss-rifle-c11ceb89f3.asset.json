@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-thunderstruck-gauss-rifle-c11ceb89f3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-frame-window",
+      "pixel": [
+        134.81222547584184,
+        565.9608345534407
+      ]
+    },
+    {
+      "name": "rear-brace-window",
+      "pixel": [
+        250.63087117520956,
+        579.4353927109726
+      ]
+    },
+    {
+      "name": "grip-trigger-space",
+      "pixel": [
+        354.88642659279776,
+        605.4506001846722
+      ]
+    },
+    {
+      "name": "shoulder-strap-space",
+      "pixel": [
+        574.2503704473964,
+        736.4754204902904
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-thunderstruck-gauss-rifle-c11ceb89f3.family.json",
+    "sha256": "0bf579ebbdbe76dadf1a32cd12561460c500fbba628823709b7b4da34551e9ad"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f4fa02ce3fc77905bbacd498264a38aee6d64d46bd1ff9e6c8efb90f56c3defb.png",
+      "sha256": "f4fa02ce3fc77905bbacd498264a38aee6d64d46bd1ff9e6c8efb90f56c3defb"
+    },
+    "clayReference": {
+      "path": "inputs/219205037b4cd38029ab3c08beae8608de40184250d6db32292dd3896b8f52d2.png",
+      "sha256": "219205037b4cd38029ab3c08beae8608de40184250d6db32292dd3896b8f52d2"
+    },
+    "geometry": {
+      "path": "inputs/46623a3b9407887e8abaab6cafde037a0e9ed9fa807398f924a2639bf824036a.png",
+      "sha256": "46623a3b9407887e8abaab6cafde037a0e9ed9fa807398f924a2639bf824036a"
+    },
+    "detail": {
+      "path": "inputs/d3758e599d7363211acb68b3818488ba274b61ac0ec4563b86810024d87265f4.png",
+      "sha256": "d3758e599d7363211acb68b3818488ba274b61ac0ec4563b86810024d87265f4"
+    },
+    "foregroundMask": {
+      "path": "inputs/ae7401c4b09b67f64b6625b4a7037129a6a2ef0ca5984ee4fbbd911f127a713e.png",
+      "sha256": "ae7401c4b09b67f64b6625b4a7037129a6a2ef0ca5984ee4fbbd911f127a713e"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865.png",
+      "sha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865"
+    },
+    "mask": {
+      "path": "inputs/51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865.png",
+      "sha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865"
+    },
+    "calibrationReference": {
+      "path": "inputs/017ed63f1c8eb6be380933b9e5e6c25b2fc5b500b46247e553a45b62722df241.png",
+      "sha256": "017ed63f1c8eb6be380933b9e5e6c25b2fc5b500b46247e553a45b62722df241"
+    },
+    "sourceAudit": {
+      "path": "inputs/ab57dc0a9aee5b1dbc7bb75ffe99f977417762cf805d516c41cd5acb22a5507e.json",
+      "sha256": "ab57dc0a9aee5b1dbc7bb75ffe99f977417762cf805d516c41cd5acb22a5507e"
+    },
+    "referenceApproval": {
+      "path": "inputs/9efcb5659425e8f3caf51611b145d7626c343cb267bfd3a0a282dad9a337ef92.json",
+      "sha256": "9efcb5659425e8f3caf51611b145d7626c343cb267bfd3a0a282dad9a337ef92"
+    },
+    "calibrationDetail": {
+      "path": "inputs/54ea7330356e3960f9dcef99e151386e88633ffe6c49d1bf86eb825268e1f085.png",
+      "sha256": "54ea7330356e3960f9dcef99e151386e88633ffe6c49d1bf86eb825268e1f085"
+    }
+  },
+  "features": [
+    {
+      "name": "Preserve the own labeled THUNDERSTRUCK GAUSS RIFLE silhouette on printed30/PDF32, not nearby MAG-5/Ultimax/RPK drawings",
+      "placementReviewed": true
+    },
+    {
+      "name": "Large elongated fore-body with long side slots, upper carry/brace form, large central circular component and bulky lower power/ammunition housings",
+      "placementReviewed": true
+    },
+    {
+      "name": "Distinctive rear open-frame/loop structure, rearward grip/guard opening and short projecting muzzle/front structure",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source requires a shoulder strap, hip-pad bracing system and built-in laser sight; later depiction must account for these exterior supports",
+      "placementReviewed": true
+    },
+    {
+      "name": "Separate ammunition clip and energy supply: one power clip OR external satchel/backpack; preserve major structures/openings without inventing functional internals",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Own Arsenal30/PDF32 Thunderstruck outline retained: rear open-frame/bracing structure and grip opening, circular middle exterior feature, long slotted fore-body, lower ammo and power housings. Shoulder strap with broad pad and rear bracing account for prose supports. One source-supported inserted power clip plus separate ammo housing; no external pack. Materials, fine controls and hidden depth interpreted. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        276,
+        675,
+        293,
+        690
+      ],
+      "referenceAreaPixels": 203,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        906,
+        706,
+        934,
+        724
+      ],
+      "referenceAreaPixels": 353,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        398,
+        830,
+        545,
+        973
+      ],
+      "referenceAreaPixels": 11653,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        242,
+        837,
+        340,
+        912
+      ],
+      "referenceAreaPixels": 6268,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        563,
+        864,
+        683,
+        1010
+      ],
+      "referenceAreaPixels": 7508,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        142,
+        945,
+        183,
+        979
+      ],
+      "referenceAreaPixels": 853,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        228,
+        949,
+        1456,
+        1276
+      ],
+      "referenceAreaPixels": 171590,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-8",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1458,
+        1020,
+        1505,
+        1036
+      ],
+      "referenceAreaPixels": 402,
+      "referenceMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f4fa02ce3fc77905bbacd498264a38aee6d64d46bd1ff9e6c8efb90f56c3defb",
+      "imageSha256": "d3758e599d7363211acb68b3818488ba274b61ac0ec4563b86810024d87265f4",
+      "maskSha256": "ae7401c4b09b67f64b6625b4a7037129a6a2ef0ca5984ee4fbbd911f127a713e",
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Own Arsenal30/PDF32 Thunderstruck outline retained: rear open-frame/bracing structure and grip opening, circular middle exterior feature, long slotted fore-body, lower ammo and power housings. Shoulder strap with broad pad and rear bracing account for prose supports. One source-supported inserted power clip plus separate ammo housing; no external pack. Materials, fine controls and hidden depth interpreted. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "219205037b4cd38029ab3c08beae8608de40184250d6db32292dd3896b8f52d2",
+      "imageSha256": "46623a3b9407887e8abaab6cafde037a0e9ed9fa807398f924a2639bf824036a",
+      "maskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Own Arsenal30/PDF32 Thunderstruck outline retained: rear open-frame/bracing structure and grip opening, circular middle exterior feature, long slotted fore-body, lower ammo and power housings. Shoulder strap with broad pad and rear bracing account for prose supports. One source-supported inserted power clip plus separate ammo housing; no external pack. Materials, fine controls and hidden depth interpreted. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "f4fa02ce3fc77905bbacd498264a38aee6d64d46bd1ff9e6c8efb90f56c3defb",
+      "detailSha256": "d3758e599d7363211acb68b3818488ba274b61ac0ec4563b86810024d87265f4",
+      "geometrySha256": "46623a3b9407887e8abaab6cafde037a0e9ed9fa807398f924a2639bf824036a",
+      "foregroundMaskSha256": "ae7401c4b09b67f64b6625b4a7037129a6a2ef0ca5984ee4fbbd911f127a713e",
+      "geometryForegroundMaskSha256": "51d217ca07029b5fd7d62a184205b693c26837e9b89df666db3ca03f98fa0865",
+      "landmarks": [
+        {
+          "name": "rear-frame-window",
+          "detail": [
+            0.14166352817082395,
+            0.4262275254892621
+          ],
+          "geometry": [
+            0.14187538175530168,
+            0.42637099818329904
+          ]
+        },
+        {
+          "name": "rear-brace-window",
+          "detail": [
+            0.22555896082400756,
+            0.43598496053230706
+          ],
+          "geometry": [
+            0.2263706152063971,
+            0.4363472983848216
+          ]
+        },
+        {
+          "name": "grip-trigger-space",
+          "detail": [
+            0.30107844972357667,
+            0.4548235520533264
+          ],
+          "geometry": [
+            0.30109729671924124,
+            0.45563318680857534
+          ]
+        },
+        {
+          "name": "shoulder-strap-space",
+          "detail": [
+            0.459978882957452,
+            0.5497035591164212
+          ],
+          "geometry": [
+            0.45998602011751877,
+            0.5502087950222996
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: matched complete source-constrained assembly, thin members/openings and framing; clean actual alpha retained. Root inspected actual detail/clay pair. Major source-constrained form, same camera/framing and required assemblies preserved. Actual delivered RGBA alpha is used directly; diagnostic confirms matching native topology. Apparent RGB fringe outside visible alpha is not treated as geometry debris. Structural openings/thin members preserved; no matte, mask transfer or cosmetic regeneration. Shallow residual clay grooves accepted under user waiver. Own Arsenal30/PDF32 Thunderstruck outline retained: rear open-frame/bracing structure and grip opening, circular middle exterior feature, long slotted fore-body, lower ammo and power housings. Shoulder strap with broad pad and rear bracing account for prose supports. One source-supported inserted power clip plus separate ammo housing; no external pack. Materials, fine controls and hidden depth interpreted. Root viewed actual source pages and returned detail. Actual original has alpha0..255; final matching-clay, pair and conditioning review remain pending."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

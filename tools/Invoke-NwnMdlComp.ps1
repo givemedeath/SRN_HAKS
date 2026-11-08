@@ -17,7 +17,7 @@ Register-SrnToolUse -Tool $resolvedTool -Inputs @($InputModel)
 $tool = $resolvedTool.path
 
 $inputPath = (Resolve-Path -LiteralPath $InputModel).Path
-$outputPath = [IO.Path]::GetFullPath($OutputModel)
+$outputPath = [IO.Path]::GetFullPath($OutputModel, $PWD.ProviderPath)
 if ([string]::Equals($inputPath, $outputPath, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'InputModel and OutputModel must be different paths.'
 }

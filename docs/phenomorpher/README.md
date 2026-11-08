@@ -3,13 +3,79 @@
 Version 1.0 published twenty reviewed bodies: Human, Dwarf, Elf, Orc and Troll,
 female and male, Fit and Large. Version 1.1.0 keeps those shapes, UVs and rigs and
 optimizes their runtime resources (see [Runtime optimization](#runtime-optimization-110)).
+Version 1.3.0 reshapes the race bodies to canon lore and publishes the c7 Human lock
+(see [Release 1.3.0](#release-130-race-lore-sizing-and-the-c7-human-lock)).
+Version 1.5.0 adds firearm effects and fixes the crossbow carry (see [Release 1.5.0](#release-150-firearm-effects-and-crossbow-carry)).
 Use [game-ready-assets.json](game-ready-assets.json) as the current resource and
 target contract. Previous Human delivery manifests remain historical records.
 
 The user approved these shapes and requested publication on 2026-10-13 after
-the final client and clothing checks. This release changes resource routing and
-skin/material defaults; it does not reshape any approved body or change its rig.
+the final client and clothing checks. That release changed resource routing and
+skin/material defaults; it did not reshape any approved body or change its rig.
 The selected female posture is **hips level + original upper lean/breathing**.
+
+## Release 1.5.0: firearm effects and crossbow carry
+
+The user asked to ship these on 2026-11-07. Pilot, gates and evidence: [firearm-fx-pilot.md](../items/firearm-fx-pilot.md).
+
+* **`srn_body/a_ba_custom.mdl`** adds 30 automatic rifle clips (`fire_rfla` full auto, `fire_rflb` three-round burst)
+  and changes 45: the rifle and shotgun fire clips kick 0.37 s later, on the engine's 0.5 s shot, and the pistol
+  support elbow bends down and out. `ready_pst` and `ready_smg` (30 clips) carry the pistol and SMG fire motion
+  for their stances, so a stance never fires gun effects. 235 firearm clips in all.
+* **`srn_body/a_ba_non_combat.mdl`** overrides the installed model. Its `xbowr` clip, which the client lays over a
+  crossbow holder's arm whenever it's out of combat, keeps its nodes but has no keys. Rifles stay crossbow-class and
+  aim forward outside combat; they hang muzzle-down at idle. Stock crossbows lose their shoulder carry too. Every
+  other clip is the stock one, decompiled to ASCII.
+* **Gun effects (`srn_weapon`)**: the Colt L36 (both colours), Ares Predator IV, Ingram Smartgun X and AK-98 barrel
+  parts carry a muzzle flash and a tumbling casing (`srnfx_casing.tga`) that fire on a `detonate` event at the shot,
+  in the gun's copy of each fire clip. SMG and automatic rifle clips fire one per kick. Each gun also has empty
+  clips for every stance, reload and grenade name, so its effects stop between shots.
+* Burst and full-auto mapping to native attacks belongs to SR_NWN, so those clips may change later.
+* Firing sounds stay with SR_NWN's D377 plan; rifles on the crossbow row still need their own mute there.
+
+Rollback is contract 1.4.0: restore `a_ba_custom.mdl` and the five gun parts from 1.4.0, remove `a_ba_non_combat.mdl`
+and `srnfx_casing.tga`, and restore this contract, `ASSETS.md` and the pins in `runtime_rules.py`.
+
+## Release 1.4.0: firearm clips
+
+The user asked to ship these on 2026-11-07. `srn_body/a_ba_custom.mdl` overrides the installed `a_ba_custom` with its stock clips
+unchanged and 175 added firearm clips: fire, ready, reload and grenade throw for all five races, both genders, Fit and Large.
+Clip names are `<action>_<weapon>_<slot>`, listed in [Clip names](animation-chain-probe.md#clip-names).
+
+* Nothing plays these clips until a script maps them with `ReplaceObjectAnimation`. SR_NWN builds that framework.
+* Bodies, rigs, the `srn_an_*` libraries and the 2DA tables are unchanged.
+* `srn-armor-assets.json` still names contract 1.3.0, which is the body build its armour was fitted to.
+* A game patch to `a_ba_custom` would be shadowed by this file.
+* Open items are in [Client results](animation-chain-probe.md#client-results): native dual fire, the upright rifle during a
+  reload out of combat, and the robe refit.
+
+Rollback is contract 1.3.0: remove `srn_body/a_ba_custom.mdl` and restore this contract and `ASSETS.md`.
+
+## Release 1.3.0: race lore sizing and the c7 Human lock
+
+The user reviewed every race in game and approved publication on 2026-10-27. Plan,
+evidence and gates: [race-sizing/plan.md](race-sizing/plan.md). Every changed
+resource and its 1.2.0 hash: [race-sizing/release-1.3.0.json](race-sizing/release-1.3.0.json).
+
+* **Race bodies.**
+  * Each body's rest pose is at its lore height (target = reference × 1.1051), with
+    Fit and Large equal.
+  * Large-male joint heights match Fit.
+  * Build matches lore relative to Human: Elf 0.80, Dwarf 2.15, Ork 1.28, Troll 1.32.
+  * The female hip, knee and torso joins are ported from the Human c6 lock.
+  * Idle soles rest on the floor.
+* **Humans (c7 lock).** These are the c6 female joins, torso polish and rebuilt skin, and
+  `pmh2` with its joint heights at Fit. See [human-bodies-lock-c7.md](human-bodies-lock-c7.md).
+* **Troll heads (`srn_head`).** All 34 published Troll heads are rescaled by the Troll
+  stature factor so they keep fitting the shorter Troll necks.
+* **Stock armour (`srn_armor`).** It is re-fitted to the new race bodies, user-approved in
+  game. Its manifest is [clothing/srn-armor-assets.json](clothing/srn-armor-assets.json).
+* **Height in game.** The client shows the idle stance, which is 0.8–2.6% shorter than
+  the rest-pose heights in the contract (calibrated in the plan, item 5).
+
+Rigs, the eight `srn_an_*` libraries and `pmh2` are compiled with Blender 5.2.1 and
+Neverblender 4.5.1 against the stock `a_ba`/`a_fa`. The 2DA tables are unchanged.
+Rollback is contract 1.2.0 and its resources at commit `d5f3645d`.
 
 ## Build and consume
 
@@ -85,7 +151,7 @@ for the Fit chest. Skin uses the selected no-grain detail and tone correction;
 garment and material-map resolutions retain their reviewed payloads. Original
 stock head001 geometry supplies context. Finished race-specific heads, a complete
 armor wardrobe, weighted robes/cloaks and exhaustive palette/frame testing are
-separate work. Bind stature is measured; absolute client height is not calibrated.
+separate work; the robe refit for all races is a [TODO](animation-chain-probe.md#todo). Bind stature is measured; client height was calibrated for 1.3.0 (idle stance, see above).
 The previously observed client exit crash remains unsymbolicated and was also
 present before this package; the final checks had no in-session crash.
 

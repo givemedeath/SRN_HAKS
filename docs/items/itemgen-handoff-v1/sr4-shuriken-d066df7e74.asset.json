@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-shuriken-d066df7e74",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "top-tip",
+      "pixel": [
+        628.0,
+        84.0
+      ]
+    },
+    {
+      "name": "right-tip",
+      "pixel": [
+        1190.0,
+        635.9999999999999
+      ]
+    },
+    {
+      "name": "bottom-tip",
+      "pixel": [
+        625.0,
+        1167.0
+      ]
+    },
+    {
+      "name": "left-tip",
+      "pixel": [
+        65.0,
+        636.9999999999999
+      ]
+    },
+    {
+      "name": "upper-left-shoulder",
+      "pixel": [
+        508.00000000000006,
+        391.00000000000006
+      ]
+    },
+    {
+      "name": "upper-right-shoulder",
+      "pixel": [
+        876.0,
+        519.0
+      ]
+    },
+    {
+      "name": "hole-top",
+      "pixel": [
+        627.0,
+        550.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-shuriken-d066df7e74.family.json",
+    "sha256": "59bf07475ad382cdfb483958867c7d23a981378d727c2e0ff45735b349841624"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c705ef5ab639716471fbd470830753a502407dc5214de7d4d11cdc69ad8d3307.png",
+      "sha256": "c705ef5ab639716471fbd470830753a502407dc5214de7d4d11cdc69ad8d3307"
+    },
+    "clayReference": {
+      "path": "inputs/8118811f93dd43feffeaab2485c96a6209fbf058853a24fba4f7a62c9bdaad94.png",
+      "sha256": "8118811f93dd43feffeaab2485c96a6209fbf058853a24fba4f7a62c9bdaad94"
+    },
+    "geometry": {
+      "path": "inputs/544795f9c7e179fdd56136554fb06441887166f2a4f3f38fdd611402b9f5e68d.png",
+      "sha256": "544795f9c7e179fdd56136554fb06441887166f2a4f3f38fdd611402b9f5e68d"
+    },
+    "detail": {
+      "path": "inputs/5d75df404a5693f3f319fabd09eb6896246970911fcc5e87bacf23de4f4b1446.png",
+      "sha256": "5d75df404a5693f3f319fabd09eb6896246970911fcc5e87bacf23de4f4b1446"
+    },
+    "foregroundMask": {
+      "path": "inputs/4d9141caa485059e2cf56d218a6b462ff60e1318286eecb59fc8c667d82101c7.png",
+      "sha256": "4d9141caa485059e2cf56d218a6b462ff60e1318286eecb59fc8c667d82101c7"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/02d03c0d457b381c3a1ce93ed5b8c6ea17222d0eab98993aa350ec3722ff970d.png",
+      "sha256": "02d03c0d457b381c3a1ce93ed5b8c6ea17222d0eab98993aa350ec3722ff970d"
+    },
+    "mask": {
+      "path": "inputs/02d03c0d457b381c3a1ce93ed5b8c6ea17222d0eab98993aa350ec3722ff970d.png",
+      "sha256": "02d03c0d457b381c3a1ce93ed5b8c6ea17222d0eab98993aa350ec3722ff970d"
+    },
+    "calibrationReference": {
+      "path": "inputs/dfc029f98d4ea73312a2f99b9f705fdad7e938d403f354770ec0bcc8a6f2eded.png",
+      "sha256": "dfc029f98d4ea73312a2f99b9f705fdad7e938d403f354770ec0bcc8a6f2eded"
+    },
+    "sourceAudit": {
+      "path": "inputs/2dd6da2d3f151636e46be206d06c802a2e6c3444e9326ae05aebf3fb05327ca3.json",
+      "sha256": "2dd6da2d3f151636e46be206d06c802a2e6c3444e9326ae05aebf3fb05327ca3"
+    },
+    "referenceApproval": {
+      "path": "inputs/8af7aa21a73e308ca10f236366dd1daa78166e94ba54672b766dc4990645eec1.json",
+      "sha256": "8af7aa21a73e308ca10f236366dd1daa78166e94ba54672b766dc4990645eec1"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4f2412dc77f768db8bb04af6addd43b0e350a5656aa3db22fee6da4f1c975ebd.png",
+      "sha256": "4f2412dc77f768db8bb04af6addd43b0e350a5656aa3db22fee6da4f1c975ebd"
+    }
+  },
+  "features": [
+    {
+      "name": "Multi-edged airfoil throwing blade",
+      "placementReviewed": true
+    },
+    {
+      "name": "Core printed306/PDF308 shuriken is a multi-edged airfoil throwing blade with unspecified styling. Retained four-point steel interpretation has smooth clay bevels and one genuine center opening. Independent manually traced point edges, concave shoulders and center ellipses exclude alpha-background specks, retaining all four tips and opening. Native landmark drift within2percent, no warp. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only. Refined v2 masks cap manual contour alpha by native source alpha (minimum), preventing contour expansion into native transparent pixels. Center opening stays fully clear; native interior background specks excluded by the measured ellipse. No component discard or hole fill. Small source-pair drift remains within2percent by seven named landmarks; no forced identity alignment.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        879,
+        899,
+        1165,
+        1181
+      ],
+      "referenceAreaPixels": 63381,
+      "referenceMaskSha256": "02d03c0d457b381c3a1ce93ed5b8c6ea17222d0eab98993aa350ec3722ff970d",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c705ef5ab639716471fbd470830753a502407dc5214de7d4d11cdc69ad8d3307",
+      "imageSha256": "5d75df404a5693f3f319fabd09eb6896246970911fcc5e87bacf23de4f4b1446",
+      "maskSha256": "4d9141caa485059e2cf56d218a6b462ff60e1318286eecb59fc8c667d82101c7",
+      "notes": "Core printed306/PDF308 shuriken is a multi-edged airfoil throwing blade with unspecified styling. Retained four-point steel interpretation has smooth clay bevels and one genuine center opening. Independent manually traced point edges, concave shoulders and center ellipses exclude alpha-background specks, retaining all four tips and opening. Native landmark drift within2percent, no warp. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only. Refined v2 masks cap manual contour alpha by native source alpha (minimum), preventing contour expansion into native transparent pixels. Center opening stays fully clear; native interior background specks excluded by the measured ellipse. No component discard or hole fill. Small source-pair drift remains within2percent by seven named landmarks; no forced identity alignment."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8118811f93dd43feffeaab2485c96a6209fbf058853a24fba4f7a62c9bdaad94",
+      "imageSha256": "544795f9c7e179fdd56136554fb06441887166f2a4f3f38fdd611402b9f5e68d",
+      "maskSha256": "02d03c0d457b381c3a1ce93ed5b8c6ea17222d0eab98993aa350ec3722ff970d",
+      "notes": "Core printed306/PDF308 shuriken is a multi-edged airfoil throwing blade with unspecified styling. Retained four-point steel interpretation has smooth clay bevels and one genuine center opening. Independent manually traced point edges, concave shoulders and center ellipses exclude alpha-background specks, retaining all four tips and opening. Native landmark drift within2percent, no warp. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only. Refined v2 masks cap manual contour alpha by native source alpha (minimum), preventing contour expansion into native transparent pixels. Center opening stays fully clear; native interior background specks excluded by the measured ellipse. No component discard or hole fill. Small source-pair drift remains within2percent by seven named landmarks; no forced identity alignment."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Core printed306/PDF308 shuriken is a multi-edged airfoil throwing blade with unspecified styling. Retained four-point steel interpretation has smooth clay bevels and one genuine center opening. Independent manually traced point edges, concave shoulders and center ellipses exclude alpha-background specks, retaining all four tips and opening. Native landmark drift within2percent, no warp. Assigned sole final reviewer inspected cited primary page/current raw forms, actual native foregrounds and final2048 masks/teal/paired overlay. Full silhouettes, tips/ends and genuine openings preserved. All raw RGB retained byte-identically in native foreground copies. Common crop/scale/offset only, no warp or independent crop. No broad fringe, clipped subject, detached foreground or background specks. Output2048 is resampled, not native2K. Reference approval only. Refined v2 masks cap manual contour alpha by native source alpha (minimum), preventing contour expansion into native transparent pixels. Center opening stays fully clear; native interior background specks excluded by the measured ellipse. No component discard or hole fill. Small source-pair drift remains within2percent by seven named landmarks; no forced identity alignment.",
+      "landmarks": [
+        {
+          "name": "top-tip",
+          "detail": [
+            0.5004001736111111,
+            0.06507758744266055
+          ],
+          "geometry": [
+            0.5004001736111111,
+            0.0634765625
+          ]
+        },
+        {
+          "name": "right-tip",
+          "detail": [
+            0.9501953125,
+            0.5069604716169724
+          ],
+          "geometry": [
+            0.9477942708333333,
+            0.5093620090309634
+          ]
+        },
+        {
+          "name": "bottom-tip",
+          "detail": [
+            0.49799913194444445,
+            0.9320325938933486
+          ],
+          "geometry": [
+            0.5012005208333333,
+            0.9376361811926606
+          ]
+        },
+        {
+          "name": "left-tip",
+          "detail": [
+            0.0498046875,
+            0.5077609840883027
+          ],
+          "geometry": [
+            0.05300607638888889,
+            0.508561496559633
+          ]
+        },
+        {
+          "name": "upper-left-shoulder",
+          "detail": [
+            0.4043585069444445,
+            0.3108349161410551
+          ],
+          "geometry": [
+            0.3963550347222222,
+            0.3100344036697248
+          ]
+        },
+        {
+          "name": "upper-right-shoulder",
+          "detail": [
+            0.6988862847222223,
+            0.41330051247133026
+          ],
+          "geometry": [
+            0.6996866319444445,
+            0.41089897505733947
+          ]
+        },
+        {
+          "name": "hole-top",
+          "detail": [
+            0.4995998263888889,
+            0.43811639908256883
+          ],
+          "geometry": [
+            0.49879947916666667,
+            0.43891691155389906
+          ]
+        }
+      ],
+      "referenceSha256": "c705ef5ab639716471fbd470830753a502407dc5214de7d4d11cdc69ad8d3307",
+      "geometrySha256": "544795f9c7e179fdd56136554fb06441887166f2a4f3f38fdd611402b9f5e68d",
+      "detailSha256": "5d75df404a5693f3f319fabd09eb6896246970911fcc5e87bacf23de4f4b1446",
+      "foregroundMaskSha256": "4d9141caa485059e2cf56d218a6b462ff60e1318286eecb59fc8c667d82101c7",
+      "geometryForegroundMaskSha256": "02d03c0d457b381c3a1ce93ed5b8c6ea17222d0eab98993aa350ec3722ff970d"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

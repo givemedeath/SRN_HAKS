@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "longsword",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 10000,
+    "shadow": 500,
+    "parts": {
+      "b": {
+        "visible": 6000,
+        "shadow": 300
+      },
+      "m": {
+        "visible": 2500,
+        "shadow": 100
+      },
+      "t": {
+        "visible": 1500,
+        "shadow": 100
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "b": "sr4-monofilament-sword-463d9cc9c1",
+      "m": "sr4-monofilament-sword-463d9cc9c1",
+      "t": "sr4-monofilament-sword-463d9cc9c1"
+    }
+  ],
+  "native": {
+    "reviewed": false
+  },
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr463d9cc9",
+    "blueprint": "sr463d9cc9",
+    "hak": "sr463d9cc9h",
+    "module": "sr463d9cc9m",
+    "displayName": "Monofilament Sword"
+  }
+}

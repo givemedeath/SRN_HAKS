@@ -184,13 +184,24 @@ registration marks coverage incomplete until reconciled again.
 
 `Invoke-SrnRetirementAudit.ps1` exposes the same read-only audit with explicit
 `-Python`, `-Worktree` and optional `-ToolsRoot`. Reports list consuming worktrees,
-required paths inside the target, missing paths, hash drift and incomplete
-declarations, including current Git worktrees with no registration. Historical
-provenance does not count as an active dependency. `dependencyClear` requires no
-active dependencies, missing files, drift or incomplete consumers.
+required paths inside the target, and missing paths/hash drift **inside that target**.
+Historical provenance does not count as an active dependency. References outside
+the target are not byte-verified by this retirement audit. Each distinct target
+file is freshly hashed once per invocation; every expected pin is still checked,
+including conflicting pins. No persistent hash cache or registry mutation is used.
+
+Incomplete declarations, including current worktrees with no registration, remain
+visible as advisory information. They do not veto this target's retirement, and
+unrelated stale records do not require a registry-wide cleanup or simultaneous
+agreement across branches. Schema v2's `knownDependenciesClear` means no blockers
+were found in recorded inbound references. `dependencyClear` is retained as a
+compatibility alias with that same target-scoped meaning. Neither field proves
+absence of undeclared reads. This replaces the former global-consensus policy.
 
 `safeToRetire` remains false: dependency clearance does not prove ignored assets
 are archived or authorize removal. The command neither copies nor deletes files.
+A target owner must review its archive and known inbound findings, then obtain
+explicit removal approval. There is no automatic deletion or force-clear option.
 A borrowed generated input needs a verified local or durable copy before its
 source worktree is retired. Mark the old location as provenance only after
 configurations and actual consumers use the verified copy. Shared kit code used
@@ -262,6 +273,28 @@ The validation record pins the committed helper bytes, and clean-checkout tests
 verify the complete declared helper set. This avoids binding evidence to local
 line endings that differ from the committed files. Preserve older run receipts.
 
+`launch_shared_tool.py` hashes every declared input before the run and again
+after it, and snapshots every `.py` input into the launch folder. For a headkit
+stage launch (about 3,800 inputs, 1.4 GB, 1,500 Python helpers) that took 26-33 s
+of a launch whose stage may take seconds. Setting `SRN_LAUNCH_HASH_CACHE` to a local
+SQLite path (machine state: never a portable lock, a receipt input or committed)
+enables `launch_hash_cache.py`:
+- A file reuses its recorded SHA-256 only while its size, `st_mtime_ns`, file index
+  and device are unchanged since it was hashed. A writer that keeps size and
+  timestamp (one that resets mtime) is not detected; without the variable every
+  input is hashed in full, as before.
+- A file modified within 2 s of the stat is hashed and never stored (a write may
+  still be in progress); a digest is stored only when the stat before and after
+  hashing match. The post-run check uses the same cache, so a file written during
+  the run has a new stamp, is rehashed and invalidates the launch.
+- Helper snapshots come from a read-only content-addressed store beside the cache,
+  hardlinked into the launch folder: the link is the same file as the verified store
+  entry, so the folder keeps its snapshots without copying and rehashing them. A link
+  across volumes falls back to copy and hash.
+- Several launches may share the cache (SQLite WAL); `launch.json` records
+  `hashCache` with hits, misses and recent-file refusals, or `null` when disabled.
+On the headkit input set a warm cache took a launch from about 32 s to 6.5 s.
+
 `tools/test_impact.py` builds a catalog of local imports, literal helper launches,
 configuration dependencies and documents read by literal path. Use
 `--changed <repository-relative-file> --run` for iterations. Tests run from their
@@ -275,6 +308,14 @@ heads, robes, the PhenoMorpher package or root tools). Markdown that no test rea
 require full-suite review; focused selection is a convenience, not a release gate.
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers
 change; CI rejects a stale catalog.
+
+`--run` splits each import root's selected modules into duration-balanced shards
+(`tools/ci-test-durations.json`) and runs `--jobs` of them at once (default 3), one
+child process each, longest first. Each shard's output is printed whole when it
+finishes, under a `=== <root>: N modules, exit E, S s` header. `--jobs 1` keeps the
+serial order; CI uses it because its runners are already sharded per job. The
+full local helper suite took about 19 minutes serially and 6 minutes with `--jobs 3`
+(2026-10-25).
 
 CI runs one entry workflow, `.github/workflows/ci.yml`:
 1. **Scope** runs `tools/ci_scope.py` once. It publishes the changed files, the
@@ -301,6 +342,10 @@ Pushes to `main` and manual runs with `full` keep full coverage. A newer commit
 cancels the older run of the same pull request. All jobs share one tool-cache key
 per runner OS through `.github/actions/srn-tools`. Per-test durations are uploaded
 as artifacts; refresh `tools/ci-test-durations.json` from them when shards drift.
+Every catalogued test module needs an entry there: a pull request that adds a test
+module adds its seconds (summed from `unittest --durations 0`), and one that removes
+a module removes its entry. `test_ci_scope` fails otherwise, because an unmeasured
+module weighs the median and unbalances both CI shards and local `--jobs` runs.
 
 Before PR readiness select validation from the changed files and their dependencies:
 focused affected tests for helper, configuration and documentation changes, the full

@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-monofilament-garrote-9562c98dfa",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-handle-end",
+      "pixel": [
+        51.0,
+        145.0
+      ]
+    },
+    {
+      "name": "upper-ring-right",
+      "pixel": [
+        505.0,
+        338.0
+      ]
+    },
+    {
+      "name": "wire-upper-inflection",
+      "pixel": [
+        670.0000000000001,
+        440.0
+      ]
+    },
+    {
+      "name": "wire-right",
+      "pixel": [
+        1176.0,
+        650.0
+      ]
+    },
+    {
+      "name": "lower-ring-left",
+      "pixel": [
+        805.0,
+        851.0
+      ]
+    },
+    {
+      "name": "lower-handle-end",
+      "pixel": [
+        1204.0,
+        1117.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-monofilament-garrote-9562c98dfa.family.json",
+    "sha256": "d1d8d3cfedbead06bb32df049c9906cd7366ec85034ba689a177a2c137b3adef"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/0e8e698a7ec3685e256381b63e01a587e56a1c9df0997d637365b01d80f36f04.png",
+      "sha256": "0e8e698a7ec3685e256381b63e01a587e56a1c9df0997d637365b01d80f36f04"
+    },
+    "clayReference": {
+      "path": "inputs/dc3fa5c910202c3467966c5af92c611ab4e469f4e79767057d690850b8362f09.png",
+      "sha256": "dc3fa5c910202c3467966c5af92c611ab4e469f4e79767057d690850b8362f09"
+    },
+    "geometry": {
+      "path": "inputs/0b686187a534c9c2b8f6f6556a5baaced380b24dbab2114b5e95bb22e3da3c16.png",
+      "sha256": "0b686187a534c9c2b8f6f6556a5baaced380b24dbab2114b5e95bb22e3da3c16"
+    },
+    "detail": {
+      "path": "inputs/0c2136e676e9e5706591351d293ae878cc6adc2c9c5a8783ae56de089bb93609.png",
+      "sha256": "0c2136e676e9e5706591351d293ae878cc6adc2c9c5a8783ae56de089bb93609"
+    },
+    "foregroundMask": {
+      "path": "inputs/a2c1c0dc348275dab5c4766f2b97f249e082d398cfc726a2b920b214f7f4e1ec.png",
+      "sha256": "a2c1c0dc348275dab5c4766f2b97f249e082d398cfc726a2b920b214f7f4e1ec"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc.png",
+      "sha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc"
+    },
+    "mask": {
+      "path": "inputs/961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc.png",
+      "sha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc"
+    },
+    "calibrationReference": {
+      "path": "inputs/eb0e89693b86a8e5832e0c75e7044ffb4e6a67c595de656ae521140a46161974.png",
+      "sha256": "eb0e89693b86a8e5832e0c75e7044ffb4e6a67c595de656ae521140a46161974"
+    },
+    "sourceAudit": {
+      "path": "inputs/b6335504e27707168544edb0aa62c7914c22bf65193abeb6ebe237b1426689d0.json",
+      "sha256": "b6335504e27707168544edb0aa62c7914c22bf65193abeb6ebe237b1426689d0"
+    },
+    "referenceApproval": {
+      "path": "inputs/12c0562ab32aecf70d3c1078c5e58e4ee4969a52194e53d1f8b39a143d566a48.json",
+      "sha256": "12c0562ab32aecf70d3c1078c5e58e4ee4969a52194e53d1f8b39a143d566a48"
+    },
+    "calibrationDetail": {
+      "path": "inputs/e88a403c0df268636263c105d6dbebd41e9dec5fe49d81ebe5482e67d50575c7.png",
+      "sha256": "e88a403c0df268636263c105d6dbebd41e9dec5fe49d81ebe5482e67d50575c7"
+    }
+  },
+  "features": [
+    {
+      "name": "Garrote with monofilament strand instead of conventional wire.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Two handles connected by continuous very fine filament; preserve labeled handle loops/openings and strand.",
+      "placementReviewed": true
+    },
+    {
+      "name": "The actual two compact loop handles, elongated slotted grip extensions and continuous fine connecting filament fit the MONOFILAMENT GARROTE labeled example at printed39/PDF41. Both large ring openings and both extension slots remain present; the filament connects both terminals without a break. Neutral finish, shallow panel treatment and depth are artistic; rendered filament width/contrast is reference legibility, not canonical physical thickness. No blade, spikes, people or invented internal mechanism. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        182,
+        261,
+        438,
+        385
+      ],
+      "referenceAreaPixels": 9838,
+      "referenceMaskSha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        551,
+        440,
+        771,
+        654
+      ],
+      "referenceAreaPixels": 36605,
+      "referenceMaskSha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1339,
+        1285,
+        1557,
+        1484
+      ],
+      "referenceAreaPixels": 34119,
+      "referenceMaskSha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1662,
+        1547,
+        1874,
+        1775
+      ],
+      "referenceAreaPixels": 11647,
+      "referenceMaskSha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0e8e698a7ec3685e256381b63e01a587e56a1c9df0997d637365b01d80f36f04",
+      "imageSha256": "0c2136e676e9e5706591351d293ae878cc6adc2c9c5a8783ae56de089bb93609",
+      "maskSha256": "a2c1c0dc348275dab5c4766f2b97f249e082d398cfc726a2b920b214f7f4e1ec",
+      "notes": "The actual two compact loop handles, elongated slotted grip extensions and continuous fine connecting filament fit the MONOFILAMENT GARROTE labeled example at printed39/PDF41. Both large ring openings and both extension slots remain present; the filament connects both terminals without a break. Neutral finish, shallow panel treatment and depth are artistic; rendered filament width/contrast is reference legibility, not canonical physical thickness. No blade, spikes, people or invented internal mechanism. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "dc3fa5c910202c3467966c5af92c611ab4e469f4e79767057d690850b8362f09",
+      "imageSha256": "0b686187a534c9c2b8f6f6556a5baaced380b24dbab2114b5e95bb22e3da3c16",
+      "maskSha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc",
+      "notes": "The actual two compact loop handles, elongated slotted grip extensions and continuous fine connecting filament fit the MONOFILAMENT GARROTE labeled example at printed39/PDF41. Both large ring openings and both extension slots remain present; the filament connects both terminals without a break. Neutral finish, shallow panel treatment and depth are artistic; rendered filament width/contrast is reference legibility, not canonical physical thickness. No blade, spikes, people or invented internal mechanism. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "The actual two compact loop handles, elongated slotted grip extensions and continuous fine connecting filament fit the MONOFILAMENT GARROTE labeled example at printed39/PDF41. Both large ring openings and both extension slots remain present; the filament connects both terminals without a break. Neutral finish, shallow panel treatment and depth are artistic; rendered filament width/contrast is reference legibility, not canonical physical thickness. No blade, spikes, people or invented internal mechanism. Actual matching clay has smooth surfaces with fine stitches, grain, cuts, panel recesses, fasteners and texture removed; major glove pad/cuff boundaries or garrote handle/strand construction retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. Both glove objects/cuff mouths or complete fine garrote strand/four openings retained. No clipped tip, missing member, detached artifact, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "upper-handle-end",
+          "detail": [
+            0.05516871675531915,
+            0.12991255784325212
+          ],
+          "geometry": [
+            0.05516871675531915,
+            0.12991255784325212
+          ]
+        },
+        {
+          "name": "upper-ring-right",
+          "detail": [
+            0.40306432845744683,
+            0.27784987845595127
+          ],
+          "geometry": [
+            0.40306432845744683,
+            0.27784987845595127
+          ]
+        },
+        {
+          "name": "wire-upper-inflection",
+          "detail": [
+            0.5295021609042554,
+            0.3560343691424555
+          ],
+          "geometry": [
+            0.5295021609042554,
+            0.3560343691424555
+          ]
+        },
+        {
+          "name": "wire-right",
+          "detail": [
+            0.9172448470744681,
+            0.5170024382029054
+          ],
+          "geometry": [
+            0.9172448470744681,
+            0.5170024382029054
+          ]
+        },
+        {
+          "name": "lower-ring-left",
+          "detail": [
+            0.6329512965425532,
+            0.6710718757321931
+          ],
+          "geometry": [
+            0.6329512965425532,
+            0.6710718757321931
+          ]
+        },
+        {
+          "name": "lower-handle-end",
+          "detail": [
+            0.9387009640957447,
+            0.8749647632087629
+          ],
+          "geometry": [
+            0.9387009640957447,
+            0.8749647632087629
+          ]
+        }
+      ],
+      "referenceSha256": "0e8e698a7ec3685e256381b63e01a587e56a1c9df0997d637365b01d80f36f04",
+      "geometrySha256": "0b686187a534c9c2b8f6f6556a5baaced380b24dbab2114b5e95bb22e3da3c16",
+      "detailSha256": "0c2136e676e9e5706591351d293ae878cc6adc2c9c5a8783ae56de089bb93609",
+      "foregroundMaskSha256": "a2c1c0dc348275dab5c4766f2b97f249e082d398cfc726a2b920b214f7f4e1ec",
+      "geometryForegroundMaskSha256": "961246b46b255e52912cd988bcbdee8464c7a8741c682107ecebb3e5468354cc"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

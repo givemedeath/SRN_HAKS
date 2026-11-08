@@ -72,4 +72,33 @@ class CommandLineTests(unittest.TestCase):
             (root/'plan.json').write_text('')
             self.assertEqual(subprocess.run(args,capture_output=True).returncode,1)
 
+class PendingMetadataTests(unittest.TestCase):
+    def test_pending_cli_signal_never_approves_or_hides_failures(self):
+        script=Path(__file__).with_name('ci_result.py')
+        pending=passing();pending[2]['status']='in_progress';pending[2]['conclusion']=None
+        failed=[dict(row) for row in pending];failed[1]['conclusion']='failure'
+        unselected=pending+[job('unexpected','failure')]
+        cases=(('pending',PLAN,pending,NEEDS,2),
+               ('missing',PLAN,pending[:-2],NEEDS,2),
+               ('complete',PLAN,passing(),NEEDS,0),
+               ('failed',PLAN,failed,NEEDS,1),
+               ('unselected',PLAN,unselected,NEEDS,1),
+               ('dependency',PLAN,pending,{**NEEDS,'helpers':{'result':'failure'}},1),
+               ('no-plan',None,pending,NEEDS,1))
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            args=[sys.executable,'-B',str(script),'--plan',str(root/'plan.json'),
+                  '--jobs',str(root/'jobs.json'),'--needs',str(root/'needs.json')]
+            for name,plan,jobs,needs,expected in cases:
+                with self.subTest(case=name):
+                    (root/'plan.json').write_text(json.dumps(plan) if plan is not None else '')
+                    (root/'jobs.json').write_text(json.dumps(jobs));(root/'needs.json').write_text(json.dumps(needs))
+                    result=subprocess.run(args+['--pending-exit-code','2'],capture_output=True,text=True)
+                    self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                    if expected==2:
+                        self.assertNotIn('::error::',result.stdout)
+                        self.assertNotIn('CI result: passed',result.stdout)
+                        self.assertEqual(subprocess.run(args,capture_output=True).returncode,1)
+
+
 if __name__=='__main__':unittest.main()

@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-mp-5-tx-ade01f2396",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-stock-hinge",
+      "pixel": [
+        70.0,
+        345.0
+      ]
+    },
+    {
+      "name": "muzzle",
+      "pixel": [
+        1210.0,
+        410.0
+      ]
+    },
+    {
+      "name": "magazine-base",
+      "pixel": [
+        715.0,
+        980.0
+      ]
+    },
+    {
+      "name": "trigger-opening",
+      "pixel": [
+        502.0,
+        658.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-mp-5-tx-ade01f2396.family.json",
+    "sha256": "7a16a702c718ece5238f3667d7147b8fd2013bcb95e9d129e0a5f05c55ad63cf"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/1f3c8e836f89269e39dd6abfdaf1305f2dba97dcbe12e9faf1b59ff1a78b93fa.png",
+      "sha256": "1f3c8e836f89269e39dd6abfdaf1305f2dba97dcbe12e9faf1b59ff1a78b93fa"
+    },
+    "clayReference": {
+      "path": "inputs/87bd41fc1cc7845d445117d7dc430a6e1af545ee8a3eb7d5e487c61082b26329.png",
+      "sha256": "87bd41fc1cc7845d445117d7dc430a6e1af545ee8a3eb7d5e487c61082b26329"
+    },
+    "geometry": {
+      "path": "inputs/2a1f7389eacba6598eb1cf8e42a894e0f3c846985f12e3b6ee44a58aa549d827.png",
+      "sha256": "2a1f7389eacba6598eb1cf8e42a894e0f3c846985f12e3b6ee44a58aa549d827"
+    },
+    "detail": {
+      "path": "inputs/5869fd7a69f89b52c26c75bfae7273fce07e3c37008d558a0f3258d86ddc0f44.png",
+      "sha256": "5869fd7a69f89b52c26c75bfae7273fce07e3c37008d558a0f3258d86ddc0f44"
+    },
+    "foregroundMask": {
+      "path": "inputs/d4797584738767baa7832d0a362d396587091fd9fcf016ab49d8b09c25b01a26.png",
+      "sha256": "d4797584738767baa7832d0a362d396587091fd9fcf016ab49d8b09c25b01a26"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/97ae543f683f0d13e4e1bc229742ae639b2cc4446de429993e7fa9ed7d0b3b1c.png",
+      "sha256": "97ae543f683f0d13e4e1bc229742ae639b2cc4446de429993e7fa9ed7d0b3b1c"
+    },
+    "mask": {
+      "path": "inputs/97ae543f683f0d13e4e1bc229742ae639b2cc4446de429993e7fa9ed7d0b3b1c.png",
+      "sha256": "97ae543f683f0d13e4e1bc229742ae639b2cc4446de429993e7fa9ed7d0b3b1c"
+    },
+    "calibrationReference": {
+      "path": "inputs/262f41ed615e71a809857bd5c164d52535a481fb0d72fe69c5bebd86f41b09f7.png",
+      "sha256": "262f41ed615e71a809857bd5c164d52535a481fb0d72fe69c5bebd86f41b09f7"
+    },
+    "sourceAudit": {
+      "path": "inputs/28790c7a2847f6d56bb47ea00cacd09418c53358588e8820feea026b880154c2.json",
+      "sha256": "28790c7a2847f6d56bb47ea00cacd09418c53358588e8820feea026b880154c2"
+    },
+    "referenceApproval": {
+      "path": "inputs/99f18d9353df0ab612a39314f482cd0c32232eadf660b47388030c2e647c2829.json",
+      "sha256": "99f18d9353df0ab612a39314f482cd0c32232eadf660b47388030c2e647c2829"
+    },
+    "calibrationDetail": {
+      "path": "inputs/73a7f82f485ae159e8fc5b3dbf411a9733346d4dad35373bfe4cfa7f51545a2b.png",
+      "sha256": "73a7f82f485ae159e8fc5b3dbf411a9733346d4dad35373bfe4cfa7f51545a2b"
+    }
+  },
+  "features": [
+    {
+      "name": "Gas-vent 2 system, laser sight and detachable folding stock (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve short receiver/barrel, vertical magazine and curved pistol grip of this TX illustration; do not substitute an unverified real-world MP5 photograph.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: aligned silhouette and padding, folded stock and hardware, magazine, laser, major gas-vent apertures and trigger preserved. Source/output topology one component and one opening unchanged. Native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        713,
+        993,
+        926,
+        1099
+      ],
+      "referenceAreaPixels": 16179,
+      "referenceMaskSha256": "97ae543f683f0d13e4e1bc229742ae639b2cc4446de429993e7fa9ed7d0b3b1c",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1f3c8e836f89269e39dd6abfdaf1305f2dba97dcbe12e9faf1b59ff1a78b93fa",
+      "imageSha256": "5869fd7a69f89b52c26c75bfae7273fce07e3c37008d558a0f3258d86ddc0f44",
+      "maskSha256": "d4797584738767baa7832d0a362d396587091fd9fcf016ab49d8b09c25b01a26",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: aligned silhouette and padding, folded stock and hardware, magazine, laser, major gas-vent apertures and trigger preserved. Source/output topology one component and one opening unchanged. Native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "87bd41fc1cc7845d445117d7dc430a6e1af545ee8a3eb7d5e487c61082b26329",
+      "imageSha256": "2a1f7389eacba6598eb1cf8e42a894e0f3c846985f12e3b6ee44a58aa549d827",
+      "maskSha256": "97ae543f683f0d13e4e1bc229742ae639b2cc4446de429993e7fa9ed7d0b3b1c",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: aligned silhouette and padding, folded stock and hardware, magazine, laser, major gas-vent apertures and trigger preserved. Source/output topology one component and one opening unchanged. Native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and foreground approvals reused. Actual conditioned overlay and smooth clay inspected: aligned silhouette and padding, folded stock and hardware, magazine, laser, major gas-vent apertures and trigger preserved. Source/output topology one component and one opening unchanged. Native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "rear-stock-hinge",
+          "detail": [
+            0.08126592398086523,
+            0.2739671135222382
+          ],
+          "geometry": [
+            0.08126592398086523,
+            0.2739671135222382
+          ]
+        },
+        {
+          "name": "muzzle",
+          "detail": [
+            0.9352137713186356,
+            0.32264462092001434
+          ],
+          "geometry": [
+            0.9352137713186356,
+            0.32264462092001434
+          ]
+        },
+        {
+          "name": "magazine-base",
+          "detail": [
+            0.5644206270798668,
+            0.7495089165620517
+          ],
+          "geometry": [
+            0.5644206270798668,
+            0.7495089165620517
+          ]
+        },
+        {
+          "name": "trigger-opening",
+          "detail": [
+            0.4048672134983361,
+            0.5091169184899569
+          ],
+          "geometry": [
+            0.4048672134983361,
+            0.5091169184899569
+          ]
+        }
+      ],
+      "referenceSha256": "1f3c8e836f89269e39dd6abfdaf1305f2dba97dcbe12e9faf1b59ff1a78b93fa",
+      "geometrySha256": "2a1f7389eacba6598eb1cf8e42a894e0f3c846985f12e3b6ee44a58aa549d827",
+      "detailSha256": "5869fd7a69f89b52c26c75bfae7273fce07e3c37008d558a0f3258d86ddc0f44",
+      "geometryForegroundMaskSha256": "97ae543f683f0d13e4e1bc229742ae639b2cc4446de429993e7fa9ed7d0b3b1c",
+      "foregroundMaskSha256": "d4797584738767baa7832d0a362d396587091fd9fcf016ab49d8b09c25b01a26"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

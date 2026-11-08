@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-taser-armor-shield-47bab89068",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "plate-upper-left",
+      "pixel": [
+        340.0,
+        155.0
+      ]
+    },
+    {
+      "name": "plate-upper-edge",
+      "pixel": [
+        600.0,
+        81.0
+      ]
+    },
+    {
+      "name": "handle-upper-edge",
+      "pixel": [
+        950.0,
+        417.0
+      ]
+    },
+    {
+      "name": "plate-bottom",
+      "pixel": [
+        700.0,
+        1220.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-taser-armor-shield-47bab89068.family.json",
+    "sha256": "0e4c0a26ccaccce0c4736c94063b75f86c291ba3dcee89afa7928df470a673ed"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/3ad3bbb8f3a094488bfee0ce1bec30f6167348fe32216aa41ceec5cc4ec4e2a0.png",
+      "sha256": "3ad3bbb8f3a094488bfee0ce1bec30f6167348fe32216aa41ceec5cc4ec4e2a0"
+    },
+    "clayReference": {
+      "path": "inputs/0df83eae0463fc26a657578ee56018e0896f4e4618e4608696afe6f676dd095d.png",
+      "sha256": "0df83eae0463fc26a657578ee56018e0896f4e4618e4608696afe6f676dd095d"
+    },
+    "geometry": {
+      "path": "inputs/c495b9dde76b4e1f51696286c24d5210c71c4ed2b6ad9fb6e2c7ec88d7fa8df4.png",
+      "sha256": "c495b9dde76b4e1f51696286c24d5210c71c4ed2b6ad9fb6e2c7ec88d7fa8df4"
+    },
+    "detail": {
+      "path": "inputs/6fc898bb8a09b6be59691d6ab4908a2b0ecb99f59c77ef5b96a35e182afd52a0.png",
+      "sha256": "6fc898bb8a09b6be59691d6ab4908a2b0ecb99f59c77ef5b96a35e182afd52a0"
+    },
+    "foregroundMask": {
+      "path": "inputs/429fc1aaa6c4f64db8720059b73a8fa6f7a49cc3f284148cd70de36fe44b366c.png",
+      "sha256": "429fc1aaa6c4f64db8720059b73a8fa6f7a49cc3f284148cd70de36fe44b366c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/973e1d265a5f59576be9d3809961770822d94e9f1da51cb2dc5d05115866e9a6.png",
+      "sha256": "973e1d265a5f59576be9d3809961770822d94e9f1da51cb2dc5d05115866e9a6"
+    },
+    "mask": {
+      "path": "inputs/973e1d265a5f59576be9d3809961770822d94e9f1da51cb2dc5d05115866e9a6.png",
+      "sha256": "973e1d265a5f59576be9d3809961770822d94e9f1da51cb2dc5d05115866e9a6"
+    },
+    "calibrationReference": {
+      "path": "inputs/8d6a5be3ce514d7d8a09123b8ed3039d487030a82b98174d608e6730335a865d.png",
+      "sha256": "8d6a5be3ce514d7d8a09123b8ed3039d487030a82b98174d608e6730335a865d"
+    },
+    "sourceAudit": {
+      "path": "inputs/e96f25ef98a5c0befad9c6ad9ee7cfc05116d196d33511ba3293051ad589730b.json",
+      "sha256": "e96f25ef98a5c0befad9c6ad9ee7cfc05116d196d33511ba3293051ad589730b"
+    },
+    "referenceApproval": {
+      "path": "inputs/592fc0b7bc8276048c80f80432de251def954a21e6d89b9c7dc9ae5c2eba2525.json",
+      "sha256": "592fc0b7bc8276048c80f80432de251def954a21e6d89b9c7dc9ae5c2eba2525"
+    },
+    "calibrationDetail": {
+      "path": "inputs/5c4735d1754188810768abdae85c5d1c22f1e6b20a6af88a1bda69373369a87c.png",
+      "sha256": "5c4735d1754188810768abdae85c5d1c22f1e6b20a6af88a1bda69373369a87c"
+    }
+  },
+  "features": [
+    {
+      "name": "Exact Taser Armor/Shield label occurs in the Exotic Melee attack table, not as an independently described product",
+      "placementReviewed": true
+    },
+    {
+      "name": "Primary Taser Shield paragraph supports a shield delivering electrical contact effect with20charges",
+      "placementReviewed": true
+    },
+    {
+      "name": "Armor-specific physical product is not separately identified on these pages; Shock Frills is a distinct armor modification with its own10charge description",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Taser SHIELD context against Core317/PDF319. Complete opaque curved shield with four pale edge contact strips and visible rear handle/forearm strap, no armor suit or Shock Frills substitution, no person/active effects/internals. This is the explicit supported shield mode of the combined combat table label,not a new independently described armor product or uniquely labeled Taser model art. Exact plate/strip/finish styling artistic. Complete silhouette and positive frame margins; no floor/cast shadow. No native approval. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1349,
+        740,
+        1448,
+        954
+      ],
+      "referenceAreaPixels": 17557,
+      "referenceMaskSha256": "973e1d265a5f59576be9d3809961770822d94e9f1da51cb2dc5d05115866e9a6",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3ad3bbb8f3a094488bfee0ce1bec30f6167348fe32216aa41ceec5cc4ec4e2a0",
+      "imageSha256": "6fc898bb8a09b6be59691d6ab4908a2b0ecb99f59c77ef5b96a35e182afd52a0",
+      "maskSha256": "429fc1aaa6c4f64db8720059b73a8fa6f7a49cc3f284148cd70de36fe44b366c",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Taser SHIELD context against Core317/PDF319. Complete opaque curved shield with four pale edge contact strips and visible rear handle/forearm strap, no armor suit or Shock Frills substitution, no person/active effects/internals. This is the explicit supported shield mode of the combined combat table label,not a new independently described armor product or uniquely labeled Taser model art. Exact plate/strip/finish styling artistic. Complete silhouette and positive frame margins; no floor/cast shadow. No native approval. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0df83eae0463fc26a657578ee56018e0896f4e4618e4608696afe6f676dd095d",
+      "imageSha256": "c495b9dde76b4e1f51696286c24d5210c71c4ed2b6ad9fb6e2c7ec88d7fa8df4",
+      "maskSha256": "973e1d265a5f59576be9d3809961770822d94e9f1da51cb2dc5d05115866e9a6",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Taser SHIELD context against Core317/PDF319. Complete opaque curved shield with four pale edge contact strips and visible rear handle/forearm strap, no armor suit or Shock Frills substitution, no person/active effects/internals. This is the explicit supported shield mode of the combined combat table label,not a new independently described armor product or uniquely labeled Taser model art. Exact plate/strip/finish styling artistic. Complete silhouette and positive frame margins; no floor/cast shadow. No native approval. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "3ad3bbb8f3a094488bfee0ce1bec30f6167348fe32216aa41ceec5cc4ec4e2a0",
+      "detailSha256": "6fc898bb8a09b6be59691d6ab4908a2b0ecb99f59c77ef5b96a35e182afd52a0",
+      "geometrySha256": "c495b9dde76b4e1f51696286c24d5210c71c4ed2b6ad9fb6e2c7ec88d7fa8df4",
+      "foregroundMaskSha256": "429fc1aaa6c4f64db8720059b73a8fa6f7a49cc3f284148cd70de36fe44b366c",
+      "geometryForegroundMaskSha256": "973e1d265a5f59576be9d3809961770822d94e9f1da51cb2dc5d05115866e9a6",
+      "landmarks": [
+        {
+          "name": "plate-upper-left",
+          "detail": [
+            0.26177552688953487,
+            0.14219127812237176
+          ],
+          "geometry": [
+            0.26177552688953487,
+            0.12325959971614803
+          ]
+        },
+        {
+          "name": "plate-upper-edge",
+          "detail": [
+            0.45871785760088923,
+            0.08615351003994953
+          ],
+          "geometry": [
+            0.45871785760088923,
+            0.0869107771761985
+          ]
+        },
+        {
+          "name": "handle-upper-edge",
+          "detail": [
+            0.7238325335584815,
+            0.3405952678195963
+          ],
+          "geometry": [
+            0.7238325335584815,
+            0.33983800068334735
+          ]
+        },
+        {
+          "name": "plate-bottom",
+          "detail": [
+            0.534464907874487,
+            0.9486807782275021
+          ],
+          "geometry": [
+            0.534464907874487,
+            0.9486807782275021
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root reviewed actual returned Taser SHIELD context against Core317/PDF319. Complete opaque curved shield with four pale edge contact strips and visible rear handle/forearm strap, no armor suit or Shock Frills substitution, no person/active effects/internals. This is the explicit supported shield mode of the combined combat table label,not a new independently described armor product or uniquely labeled Taser model art. Exact plate/strip/finish styling artistic. Complete silhouette and positive frame margins; no floor/cast shadow. No native approval. Single root final pair review: actual detailed/clay pair and alpha16 viewed together. Major shapes, placement, framing, thin members and intentional openings retained. No visible background or cast shadow. Fine grooves and subpixel alpha-hole differences nonblocking; each role retains its own source mask independently. No second cosmetic integration review."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

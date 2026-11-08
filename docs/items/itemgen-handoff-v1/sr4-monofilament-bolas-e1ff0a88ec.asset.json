@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-monofilament-bolas-e1ff0a88ec",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        38.0,
+        116.99999999999997
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1497.0,
+        116.99999999999997
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        38.0,
+        917.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1497.0,
+        917.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-monofilament-bolas-e1ff0a88ec.family.json",
+    "sha256": "d0f58dfbe2f4729543560b33a28a7d0f036f45fc165dfe18f99edeb0f74e32fe"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8f5812e1faf0376fc05a9932c5d56596e10f82edcbbef7fd91498500ce140380.png",
+      "sha256": "8f5812e1faf0376fc05a9932c5d56596e10f82edcbbef7fd91498500ce140380"
+    },
+    "clayReference": {
+      "path": "inputs/76913c7e3f9e0f30cb4943a58b0b4d6e054b4d9e7d40cdd377ddedae272c7384.png",
+      "sha256": "76913c7e3f9e0f30cb4943a58b0b4d6e054b4d9e7d40cdd377ddedae272c7384"
+    },
+    "geometry": {
+      "path": "inputs/a34e5b0a22c3e5c7f5e5bf1e8aaf1f925ebe5b28535f3bf57300788ef6143ba0.png",
+      "sha256": "a34e5b0a22c3e5c7f5e5bf1e8aaf1f925ebe5b28535f3bf57300788ef6143ba0"
+    },
+    "detail": {
+      "path": "inputs/98b345047a74548de403acb08a583cf958c48ea61a973fcd63b11cae1b6cbbf2.png",
+      "sha256": "98b345047a74548de403acb08a583cf958c48ea61a973fcd63b11cae1b6cbbf2"
+    },
+    "foregroundMask": {
+      "path": "inputs/63ba2ffcaa0acb40c95d549d9bd8df4999ebc2d9736f39e7efa1f8cdf6418b49.png",
+      "sha256": "63ba2ffcaa0acb40c95d549d9bd8df4999ebc2d9736f39e7efa1f8cdf6418b49"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/986932da629ede1f7b2a9ebaac0e7c52d7a0f2dbac1135bcbf87b80d426d00a5.png",
+      "sha256": "986932da629ede1f7b2a9ebaac0e7c52d7a0f2dbac1135bcbf87b80d426d00a5"
+    },
+    "mask": {
+      "path": "inputs/986932da629ede1f7b2a9ebaac0e7c52d7a0f2dbac1135bcbf87b80d426d00a5.png",
+      "sha256": "986932da629ede1f7b2a9ebaac0e7c52d7a0f2dbac1135bcbf87b80d426d00a5"
+    },
+    "calibrationReference": {
+      "path": "inputs/ec44336009c1f32c79b6f147e591a735ca4012c3815faec56f8e35c04da33d14.png",
+      "sha256": "ec44336009c1f32c79b6f147e591a735ca4012c3815faec56f8e35c04da33d14"
+    },
+    "sourceAudit": {
+      "path": "inputs/810f78aa4590103c9a8a74db362fb420e070f4e62af80da9b700ffb079a38c5f.json",
+      "sha256": "810f78aa4590103c9a8a74db362fb420e070f4e62af80da9b700ffb079a38c5f"
+    },
+    "referenceApproval": {
+      "path": "inputs/c1d20620367fa58d301937456396a216bbd8d30ed9a4e4313df4e19fceb19df0.json",
+      "sha256": "c1d20620367fa58d301937456396a216bbd8d30ed9a4e4313df4e19fceb19df0"
+    },
+    "calibrationDetail": {
+      "path": "inputs/7606f5caddf1a0c67997db419dfba3f40b16e34cb5784ce22061df0d92f30ed0.png",
+      "sha256": "7606f5caddf1a0c67997db419dfba3f40b16e34cb5784ce22061df0d92f30ed0"
+    }
+  },
+  "features": [
+    {
+      "name": "Ball-weight ends connected by monowire replacing the cords of ordinary bolas",
+      "placementReviewed": true
+    },
+    {
+      "name": "Ordinary bolas prose gives usually two or three weights; exact count/configuration must be declared, not treated as a fixed model",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the thin connecting members and separate weights/large intervening spaces; no thick rope substitution as exact appearance",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: framing and continuous thin wire retained, no backdrop remnant. Actual detailed/clay pair and both foregrounds reviewed. Two spherical weights, small collars, continuous fine single U wire and large open intervening space match. Clay removes metal finish, scratches and seams. No debris; complete thin connecting member retained. Arsenal printed40/PDF42: Bolas use interconnected cord with usually two or three ball weights; Monofilament Bolas replace that cord with monowire. No own labeled illustration: two-weight form, spherical weights, connecting collars, finish, pose and depth are interpreted. Visible wire thickness is for clear depiction, not a literal molecular dimension. No ordinary rope, blades, handles or spool substituted.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8f5812e1faf0376fc05a9932c5d56596e10f82edcbbef7fd91498500ce140380",
+      "imageSha256": "98b345047a74548de403acb08a583cf958c48ea61a973fcd63b11cae1b6cbbf2",
+      "maskSha256": "63ba2ffcaa0acb40c95d549d9bd8df4999ebc2d9736f39e7efa1f8cdf6418b49",
+      "notes": "Prepared overlay inspected: framing and continuous thin wire retained, no backdrop remnant. Actual detailed/clay pair and both foregrounds reviewed. Two spherical weights, small collars, continuous fine single U wire and large open intervening space match. Clay removes metal finish, scratches and seams. No debris; complete thin connecting member retained. Arsenal printed40/PDF42: Bolas use interconnected cord with usually two or three ball weights; Monofilament Bolas replace that cord with monowire. No own labeled illustration: two-weight form, spherical weights, connecting collars, finish, pose and depth are interpreted. Visible wire thickness is for clear depiction, not a literal molecular dimension. No ordinary rope, blades, handles or spool substituted."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "76913c7e3f9e0f30cb4943a58b0b4d6e054b4d9e7d40cdd377ddedae272c7384",
+      "imageSha256": "a34e5b0a22c3e5c7f5e5bf1e8aaf1f925ebe5b28535f3bf57300788ef6143ba0",
+      "maskSha256": "986932da629ede1f7b2a9ebaac0e7c52d7a0f2dbac1135bcbf87b80d426d00a5",
+      "notes": "Prepared overlay inspected: framing and continuous thin wire retained, no backdrop remnant. Actual detailed/clay pair and both foregrounds reviewed. Two spherical weights, small collars, continuous fine single U wire and large open intervening space match. Clay removes metal finish, scratches and seams. No debris; complete thin connecting member retained. Arsenal printed40/PDF42: Bolas use interconnected cord with usually two or three ball weights; Monofilament Bolas replace that cord with monowire. No own labeled illustration: two-weight form, spherical weights, connecting collars, finish, pose and depth are interpreted. Visible wire thickness is for clear depiction, not a literal molecular dimension. No ordinary rope, blades, handles or spool substituted."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "8f5812e1faf0376fc05a9932c5d56596e10f82edcbbef7fd91498500ce140380",
+      "detailSha256": "98b345047a74548de403acb08a583cf958c48ea61a973fcd63b11cae1b6cbbf2",
+      "geometrySha256": "a34e5b0a22c3e5c7f5e5bf1e8aaf1f925ebe5b28535f3bf57300788ef6143ba0",
+      "foregroundMaskSha256": "63ba2ffcaa0acb40c95d549d9bd8df4999ebc2d9736f39e7efa1f8cdf6418b49",
+      "geometryForegroundMaskSha256": "986932da629ede1f7b2a9ebaac0e7c52d7a0f2dbac1135bcbf87b80d426d00a5",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.051037255090691305,
+            0.25429115912982564
+          ],
+          "geometry": [
+            0.0498046875,
+            0.25244140625
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9501953125,
+            0.25429115912982564
+          ],
+          "geometry": [
+            0.9489627449093087,
+            0.25244140625
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.051037255090691305,
+            0.74755859375
+          ],
+          "geometry": [
+            0.0498046875,
+            0.74755859375
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9501953125,
+            0.74755859375
+          ],
+          "geometry": [
+            0.9489627449093087,
+            0.74755859375
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: framing and continuous thin wire retained, no backdrop remnant. Actual detailed/clay pair and both foregrounds reviewed. Two spherical weights, small collars, continuous fine single U wire and large open intervening space match. Clay removes metal finish, scratches and seams. No debris; complete thin connecting member retained. Arsenal printed40/PDF42: Bolas use interconnected cord with usually two or three ball weights; Monofilament Bolas replace that cord with monowire. No own labeled illustration: two-weight form, spherical weights, connecting collars, finish, pose and depth are interpreted. Visible wire thickness is for clear depiction, not a literal molecular dimension. No ordinary rope, blades, handles or spool substituted."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

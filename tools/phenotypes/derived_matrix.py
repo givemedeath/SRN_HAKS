@@ -63,13 +63,6 @@ def evaluate_target_eligibility(matrix: dict, target_id: str) -> tuple[bool, str
     return False, f"Unknown status: {status}"
 
 
-def require_eligible_target(matrix: dict, target_id: str) -> dict:
-    eligible, reason = evaluate_target_eligibility(matrix, target_id)
-    if not eligible:
-        raise RuntimeError(f"Target '{target_id}' cannot proceed: {reason}")
-    return get_target(matrix, target_id)
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--matrix", type=Path, default=DEFAULT_MATRIX_PATH, help="Path to target-matrix.json")

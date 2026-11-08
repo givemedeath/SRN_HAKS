@@ -3,9 +3,907 @@
   "dependencies": {
     "tools/ci_result.py": [],
     "tools/ci_scope.py": [
-      "tools/ci-test-durations.json",
       "tools/test-impact.json",
       "tools/test_impact.py"
+    ],
+    "tools/combat_release_manifest.py": [
+      "docs/imports/mdrnee_item-manifest.json",
+      "docs/imports/mdrnee_item-migration-manifest.json",
+      "docs/items/approved-weapon-waves-release-validation.json",
+      "docs/items/approved-weapons-v1.json",
+      "docs/items/combat-2a-release-manifest-v1.json",
+      "docs/items/combat-2a-release-manifest.md",
+      "docs/items/firearm-grip-standard-v1.json",
+      "docs/items/weapon-grip-standard-v1.json",
+      "hakbuilder.json"
+    ],
+    "tools/headbatch/__init__.py": [],
+    "tools/headbatch/compat/check_comfy_loader.py": [],
+    "tools/headbatch/compat/run_design_with_vram_limit.py": [
+      "tools/headbatch/run_headbatch.py"
+    ],
+    "tools/headbatch/gpu_contract.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py"
+    ],
+    "tools/headbatch/gpu_inputs.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/gpu_job.py": [
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/resource_budget.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/occiput.py"
+    ],
+    "tools/headbatch/guards.py": [
+      "tools/headbatch/gpu_job.py",
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_role_code.py",
+      "tools/headbatch/workspace.py",
+      "tools/headkit/comfy.py"
+    ],
+    "tools/headbatch/head_files.py": [],
+    "tools/headbatch/head_setup.py": [
+      "docs/heads/troll-build-allowance-r3.json",
+      "tools/headbatch/gpu_job.py",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/reference_record.py",
+      "tools/headbatch/workspace.py",
+      "tools/headkit/common.py",
+      "tools/headkit/render_device.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/headbatch/launcher.py": [
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/gpu_inputs.py",
+      "tools/headbatch/gpu_job.py",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/resource_budget.py",
+      "tools/headbatch/review/gpuclay.py",
+      "tools/headbatch/workspace.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/run_headkit.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/headbatch/presets.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_setup.py",
+      "tools/headbatch/review/slopescan.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/reference_record.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headkit/images.py"
+    ],
+    "tools/headbatch/resource_budget.py": [
+      "tools/headbatch/head_files.py"
+    ],
+    "tools/headbatch/review/__init__.py": [],
+    "tools/headbatch/review/_fit_views.py": [
+      "tools/headkit/body_neck.py",
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/neck.py",
+      "tools/headkit/rays.py"
+    ],
+    "tools/headbatch/review/_frame.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/review/_role_code.py": [
+      "tools/headbatch/review/roles.py",
+      "tools/headkit/common.py",
+      "tools/headkit/quality-thresholds.json"
+    ],
+    "tools/headbatch/review/backcount.py": [
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/bakelook.py": [
+      "tools/headbatch/review/_fit_views.py",
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/rays.py"
+    ],
+    "tools/headbatch/review/bakeviews.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/review/clay.py",
+      "tools/headbatch/review/grid.py"
+    ],
+    "tools/headbatch/review/boundary.py": [
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py"
+    ],
+    "tools/headbatch/review/chinprofile.py": [
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/clay.py": [
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/cutdry.py": [
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/common.py",
+      "tools/headkit/neck.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/review/cutreplay.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/cutshells.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/design_landmarks.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/fit.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/palette.py"
+    ],
+    "tools/headbatch/review/exportfit.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/common.py",
+      "tools/headkit/native.py"
+    ],
+    "tools/headbatch/review/eyereference.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/reference_eyes.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/review/fitcheck.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_fit_views.py",
+      "tools/headkit/fit.py",
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/gamesize.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/review/gpuclay.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/field.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/scalp_appearance.py"
+    ],
+    "tools/headbatch/review/grid.py": [
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/hairgaps.py": [
+      "tools/headbatch/review/roles.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headbatch/review/hot.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/irisrows.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/palette.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/review/jaw.py": [
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/materialchart.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/own_draft.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/preview.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headbatch/review/ownsheet.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/preview.py",
+      "tools/headkit/quality.py"
+    ],
+    "tools/headbatch/review/repairclay.py": [
+      "tools/headbatch/review/_fit_views.py",
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/rays.py"
+    ],
+    "tools/headbatch/review/roles.py": [
+      "tools/headbatch/review/_role_code.py",
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headbatch/review/rowramps.py": [
+      "tools/headbatch/head_files.py"
+    ],
+    "tools/headbatch/review/shells.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/common.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/skirtzone.py": [
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/slopescan.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_frame.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/texturesheet.py": [
+      "tools/headbatch/head_files.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headbatch/review/uvfinal.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headbatch/run_headbatch.py": [
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/head_setup.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/presets.py",
+      "tools/headbatch/review/gpuclay.py",
+      "tools/headbatch/spool.py",
+      "tools/headbatch/trials.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/spool.py": [
+      "docs/phenomorpher/runtime-optimization/review.md",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/run_headbatch.py",
+      "tools/headbatch/workspace.py"
+    ],
+    "tools/headbatch/test_headbatch.py": [
+      "tools/headbatch/compat/run_design_with_vram_limit.py",
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/gpu_job.py",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/head_setup.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/presets.py",
+      "tools/headbatch/reference_record.py",
+      "tools/headbatch/resource_budget.py",
+      "tools/headbatch/review/__init__.py",
+      "tools/headbatch/review/_frame.py",
+      "tools/headbatch/review/_role_code.py",
+      "tools/headbatch/review/bakeviews.py",
+      "tools/headbatch/review/cutdry.py",
+      "tools/headbatch/review/design_landmarks.py",
+      "tools/headbatch/review/eyereference.py",
+      "tools/headbatch/review/roles.py",
+      "tools/headbatch/review/rowramps.py",
+      "tools/headbatch/review/slopescan.py",
+      "tools/headbatch/review/texturesheet.py",
+      "tools/headbatch/run_headbatch.py",
+      "tools/headbatch/spool.py",
+      "tools/headbatch/trials.py",
+      "tools/headbatch/workspace.py",
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/cameras.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/gpu_lock.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/test_material_evidence.py": [
+      "tools/headbatch/review/hairgaps.py",
+      "tools/headbatch/review/irisrows.py",
+      "tools/headkit/brow_edges.py"
+    ],
+    "tools/headbatch/test_process_contracts.py": [
+      "tools/headbatch/gpu_contract.py",
+      "tools/headbatch/gpu_job.py",
+      "tools/headbatch/guards.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/resource_budget.py",
+      "tools/headbatch/review/_fit_views.py",
+      "tools/headbatch/test_headbatch.py",
+      "tools/headbatch/workspace.py",
+      "tools/headkit/common.py"
+    ],
+    "tools/headbatch/test_trial_settings.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/trials.py"
+    ],
+    "tools/headbatch/trial_sizing.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/native.py"
+    ],
+    "tools/headbatch/trials.py": [
+      "tools/headbatch/guards.py",
+      "tools/headbatch/head_files.py",
+      "tools/headbatch/launcher.py",
+      "tools/headbatch/trial_sizing.py",
+      "tools/headbatch/workspace.py",
+      "tools/heads/build_head_trial.py"
+    ],
+    "tools/headbatch/workspace.py": [
+      "tools/headbatch/races.json"
+    ],
+    "tools/headkit/__init__.py": [],
+    "tools/headkit/__main__.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/managed_startup.py",
+      "tools/headkit/common.py",
+      "tools/headkit/design.py",
+      "tools/headkit/fit.py",
+      "tools/headkit/generation.py",
+      "tools/headkit/native.py",
+      "tools/headkit/occiput.py",
+      "tools/headkit/palette.py",
+      "tools/headkit/preview.py",
+      "tools/headkit/replay.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/source_inventory.py",
+      "tools/headkit/stock-shades.json"
+    ],
+    "tools/headkit/benchmark_verification.py": [],
+    "tools/headkit/blender_render.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/render_device.py",
+      "tools/headkit/review_images.py"
+    ],
+    "tools/headkit/body_neck.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/brow_edges.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/textures.py"
+    ],
+    "tools/headkit/cameras.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/colour.py": [],
+    "tools/headkit/comfy.py": [
+      "tools/headkit/checkpoints.json",
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/gpu_lock.py",
+      "tools/headkit/model_contract.py",
+      "tools/headkit/reference_background.py",
+      "tools/headkit/source_inventory.py"
+    ],
+    "tools/headkit/comfy_nodes/__init__.py": [
+      "tools/headkit/comfy_nodes/managed_startup.py",
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py"
+    ],
+    "tools/headkit/comfy_nodes/gltf.py": [],
+    "tools/headkit/comfy_nodes/managed_startup.py": [
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/verified_startup.py"
+    ],
+    "tools/headkit/comfy_nodes/model_resolution.py": [
+      "tools/headkit/comfy_nodes/verification.py"
+    ],
+    "tools/headkit/comfy_nodes/nodes.py": [
+      "tools/headkit/comfy_nodes/gltf.py",
+      "tools/headkit/comfy_nodes/transport.py"
+    ],
+    "tools/headkit/comfy_nodes/runtime_identity.py": [
+      "tools/headkit/comfy_nodes/verification.py"
+    ],
+    "tools/headkit/comfy_nodes/source_snapshot.py": [
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/comfy_nodes/verified_startup.py"
+    ],
+    "tools/headkit/comfy_nodes/transport.py": [],
+    "tools/headkit/comfy_nodes/verification.py": [],
+    "tools/headkit/comfy_nodes/verified_loaders.py": [
+      "tools/headkit/comfy_nodes/model_resolution.py"
+    ],
+    "tools/headkit/comfy_nodes/verified_startup.py": [
+      "tools/headkit/comfy_nodes/source_snapshot.py"
+    ],
+    "tools/headkit/common.py": [
+      "tools/headkit/blender_render.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/manifest.schema.json",
+      "tools/headkit/quality-thresholds.json",
+      "tools/headkit/runner.py",
+      "tools/headkit/stock-shades.json",
+      "tools/heads/head_export.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/phenomorpher/phenomorpher/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/audit_geometry.py",
+      "tools/phenomorpher/phenomorpher/engine/measurement_common.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_worker.py",
+      "tools/phenomorpher/phenomorpher/engine/retarget.py",
+      "tools/phenomorpher/phenomorpher/engine/rig_native.py",
+      "tools/phenomorpher/phenomorpher/engine/silhouette_model.py",
+      "tools/phenomorpher/phenomorpher/engine/stock_armor.py",
+      "tools/phenomorpher/phenomorpher/engine/target_contract.py",
+      "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/height_targets.json",
+      "tools/phenotypes/launch_hash_cache.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/native_compile.py",
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/shared-tools.lock.json",
+      "tools/shared_tools.py"
+    ],
+    "tools/headkit/design.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/images.py",
+      "tools/headkit/templates/flux2-design.json",
+      "tools/headkit/templates/flux2-inpaint.json",
+      "tools/headkit/templates/qwen21-design.json"
+    ],
+    "tools/headkit/diagnostics.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/rays.py"
+    ],
+    "tools/headkit/face_encode.py": [
+      "tools/headkit/colour.py",
+      "tools/headkit/common.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/face_masks.py": [
+      "tools/headkit/colour.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/textures.py"
+    ],
+    "tools/headkit/feature_highlights.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/field.py": [],
+    "tools/headkit/fit.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headkit/generation.py": [
+      "tools/headkit/checkpoints.json",
+      "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/common.py",
+      "tools/headkit/model_contract.py",
+      "tools/headkit/source_inventory.py",
+      "tools/headkit/templates/export.json"
+    ],
+    "tools/headkit/gltf.py": [],
+    "tools/headkit/gpu_lock.py": [],
+    "tools/headkit/images.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/intersections.py": [],
+    "tools/headkit/material_light.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/textures.py"
+    ],
+    "tools/headkit/measure.py": [],
+    "tools/headkit/mesh.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/intersections.py"
+    ],
+    "tools/headkit/model_contract.py": [
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/native.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/images.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/native_reader.py",
+      "tools/heads/head_export.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_worker.py",
+      "tools/phenomorpher/phenomorpher/engine/rig_native.py",
+      "tools/phenomorpher/phenomorpher/engine/stock_armor.py",
+      "tools/phenotypes/native_compile.py"
+    ],
+    "tools/headkit/native_reader.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/neck.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/intersections.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/relief.py"
+    ],
+    "tools/headkit/occiput.py": [
+      "tools/headkit/gltf.py"
+    ],
+    "tools/headkit/paint.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/palette.py": [
+      "tools/headkit/colour.py",
+      "tools/headkit/common.py",
+      "tools/headkit/feature_highlights.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/skin_seams.py",
+      "tools/headkit/stock-shades.json"
+    ],
+    "tools/headkit/predicates.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/preview.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/palette.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/projection.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/textures.py"
+    ],
+    "tools/headkit/quality.py": [
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/quality-thresholds.json",
+      "tools/headkit/quality_reference.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/quality_reference.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/predicates.py"
+    ],
+    "tools/headkit/rays.py": [],
+    "tools/headkit/reference_background.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/reference_eyes.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py"
+    ],
+    "tools/headkit/relief.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/predicates.py"
+    ],
+    "tools/headkit/render_device.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gpu_lock.py"
+    ],
+    "tools/headkit/replay.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/native.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/review_images.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/run_headkit.py": [
+      "tools/headkit/__main__.py"
+    ],
+    "tools/headkit/runner.py": [
+      "tools/headkit/blender_render.py",
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/cameras.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/fit.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/images.py",
+      "tools/headkit/material_light.py",
+      "tools/headkit/measure.py",
+      "tools/headkit/mesh.py",
+      "tools/headkit/native.py",
+      "tools/headkit/neck.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/palette.py",
+      "tools/headkit/projection.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/reference_eyes.py",
+      "tools/headkit/render_device.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/scalp_patch.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py",
+      "tools/phenotypes/launch_shared_tool.py"
+    ],
+    "tools/headkit/scalp_appearance.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/scalp_patch.py"
+    ],
+    "tools/headkit/scalp_patch.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/rays.py"
+    ],
+    "tools/headkit/skin_seams.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/source_inventory.py": [
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/test_brow_edges.py": [
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/quality.py"
+    ],
+    "tools/headkit/test_comfy_runtime_snapshot.py": [
+      "tools/headkit/comfy_nodes/__init__.py",
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py"
+    ],
+    "tools/headkit/test_comfy_transport.py": [
+      "tools/headkit/comfy.py"
+    ],
+    "tools/headkit/test_conditioning.py": [
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/cameras.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/material_light.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/quality_reference.py",
+      "tools/headkit/reference_eyes.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/runner.py"
+    ],
+    "tools/headkit/test_face_masks.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/test_headkit.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/test_feature_highlights.py": [
+      "tools/headbatch/head_setup.py",
+      "tools/headkit/feature_highlights.py"
+    ],
+    "tools/headkit/test_generation_export.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/generation.py"
+    ],
+    "tools/headkit/test_headkit.py": [
+      "docs/heads/troll-build-allowance-r3.json",
+      "tools/headkit/__init__.py",
+      "tools/headkit/__main__.py",
+      "tools/headkit/blender_render.py",
+      "tools/headkit/body_neck.py",
+      "tools/headkit/checkpoints.json",
+      "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/gltf.py",
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/transport.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py",
+      "tools/headkit/common.py",
+      "tools/headkit/design.py",
+      "tools/headkit/examples/local-bindings.example.json",
+      "tools/headkit/examples/processing.json",
+      "tools/headkit/examples/texture-rules.json",
+      "tools/headkit/field.py",
+      "tools/headkit/fit.py",
+      "tools/headkit/generation.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/gpu_lock.py",
+      "tools/headkit/images.py",
+      "tools/headkit/intersections.py",
+      "tools/headkit/manifest.schema.json",
+      "tools/headkit/mesh.py",
+      "tools/headkit/native.py",
+      "tools/headkit/neck.py",
+      "tools/headkit/occiput.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/palette.py",
+      "tools/headkit/preview.py",
+      "tools/headkit/projection.py",
+      "tools/headkit/rays.py",
+      "tools/headkit/relief.py",
+      "tools/headkit/replay.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/run_headkit.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/source_inventory.py",
+      "tools/headkit/stock-shades.json",
+      "tools/headkit/templates/flux2-design.json",
+      "tools/headkit/templates/flux2-inpaint.json",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_worker.py",
+      "tools/phenomorpher/phenomorpher/engine/rig_native.py",
+      "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/height_targets.json",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/native_compile.py",
+      "tools/shared-tools.lock.json"
+    ],
+    "tools/headkit/test_managed_startup.py": [
+      "tools/headkit/__main__.py",
+      "tools/headkit/comfy_nodes/__init__.py",
+      "tools/headkit/comfy_nodes/managed_startup.py",
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py",
+      "tools/headkit/comfy_nodes/verified_startup.py",
+      "tools/headkit/common.py",
+      "tools/headkit/source_inventory.py"
+    ],
+    "tools/headkit/test_model_contract.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/checkpoints.json",
+      "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/common.py",
+      "tools/headkit/model_contract.py",
+      "tools/headkit/test_headkit.py"
+    ],
+    "tools/headkit/test_native_reader.py": [
+      "tools/headkit/native_reader.py"
+    ],
+    "tools/headkit/test_process_quality.py": [
+      "tools/headkit/cameras.py",
+      "tools/headkit/common.py",
+      "tools/headkit/images.py",
+      "tools/headkit/review_images.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/scalp_appearance.py",
+      "tools/headkit/test_headkit.py"
+    ],
+    "tools/headkit/test_reference_background.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/comfy_nodes/verified_loaders.py",
+      "tools/headkit/common.py",
+      "tools/headkit/reference_background.py"
+    ],
+    "tools/headkit/test_render_device.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/render_device.py"
+    ],
+    "tools/headkit/test_skin_seams.py": [
+      "tools/headkit/skin_seams.py"
+    ],
+    "tools/headkit/test_verification_performance.py": [
+      "tools/headkit/comfy_nodes/__init__.py",
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/common.py"
+    ],
+    "tools/headkit/test_verified_startup.py": [
+      "tools/headkit/comfy_nodes/nodes.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
+      "tools/headkit/comfy_nodes/verification.py",
+      "tools/headkit/comfy_nodes/verified_startup.py",
+      "tools/itemkit/fixture.py"
+    ],
+    "tools/headkit/textures.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/field.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/scalp_appearance.py",
+      "tools/headkit/uv.py"
+    ],
+    "tools/headkit/uv.py": [
+      "tools/headkit/common.py"
     ],
     "tools/heads/audit_fixture_rig.py": [
       "tools/heads/head_workflow.py",
@@ -48,10 +946,21 @@
       "tools/phenotypes/build_test_module.py",
       "tools/phenotypes/tool_runtime.py"
     ],
+    "tools/heads/build_head_trial.py": [
+      "tools/heads/build_head_fixture.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/phenotypes/build_test_module.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
     "tools/heads/cap_head_holes.py": [
       "tools/heads/correct_neck_rim.py",
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py"
+    ],
+    "tools/heads/client_capture_review.py": [
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_trial.py"
     ],
     "tools/heads/collect_fixture_inputs.py": [
       "tools/heads/head_workflow.py",
@@ -70,15 +979,14 @@
     ],
     "tools/heads/finalize_head_migration.py": [
       "tools/heads/head_workflow.py",
-      "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
-      "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py"
     ],
     "tools/heads/fit_head.py": [
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/head_export.py": [
+      "tools/headkit/templates/export.json",
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/head_workflow.py": [
@@ -99,7 +1007,7 @@
       "tools/heads/head_workflow.py"
     ],
     "tools/heads/native_reader.py": [
-      "tools/heads/head_workflow.py"
+      "tools/headkit/native_reader.py"
     ],
     "tools/heads/prepare_assembly.py": [
       "tools/heads/head_export.py",
@@ -160,6 +1068,10 @@
       "hakbuilder.json",
       "tools/heads/head_workflow.py"
     ],
+    "tools/heads/reindex_head.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/native_reader.py"
+    ],
     "tools/heads/render_assembly.py": [
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py"
@@ -182,6 +1094,13 @@
     "tools/heads/test_budget_extension.py": [
       "tools/heads/head_workflow.py",
       "tools/heads/roster.json"
+    ],
+    "tools/heads/test_client_capture_review.py": [
+      "tools/heads/build_head_trial.py",
+      "tools/heads/client_capture_review.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/test_head_trial.py",
+      "tools/heads/verify_head_trial.py"
     ],
     "tools/heads/test_derived_assembly.py": [
       "tools/heads/head_workflow.py",
@@ -220,6 +1139,13 @@
       "tools/heads/roster.json",
       "tools/heads/verify_head_hak.py"
     ],
+    "tools/heads/test_head_trial.py": [
+      "tools/heads/build_head_fixture.py",
+      "tools/heads/build_head_trial.py",
+      "tools/heads/head_workflow.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/heads/verify_head_trial.py"
+    ],
     "tools/heads/test_meshy_dispatch.py": [
       "tools/heads/head_workflow.py",
       "tools/heads/meshy_cli.py",
@@ -233,6 +1159,9 @@
       "tools/heads/head_workflow.py",
       "tools/heads/prepare_palette_assembly.py",
       "tools/heads/propose_material_masks.py"
+    ],
+    "tools/heads/test_reindex_head.py": [
+      "tools/heads/reindex_head.py"
     ],
     "tools/heads/test_submission_reconciliation.py": [
       "tools/heads/head_workflow.py",
@@ -250,6 +1179,10 @@
     "tools/heads/verify_head_hak.py": [
       "tools/heads/head_workflow.py"
     ],
+    "tools/heads/verify_head_trial.py": [
+      "tools/heads/client_capture_review.py",
+      "tools/heads/head_workflow.py"
+    ],
     "tools/heads/verify_retexture.py": [
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py"
@@ -258,10 +1191,480 @@
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py"
     ],
+    "tools/itemkit/__init__.py": [],
+    "tools/itemkit/__main__.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/itemkit/conditioning.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/examples/cougar.json",
+      "tools/itemkit/firearm_intake.py",
+      "tools/itemkit/firearm_package.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/generation.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/profiles/cougar-shortsword.json",
+      "tools/itemkit/resize.py",
+      "tools/itemkit/runner.py",
+      "tools/itemkit/shield_native.py"
+    ],
+    "tools/itemkit/anim_chain_probe.py": [
+      "tools/heads/build_head_trial.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
+    "tools/itemkit/atlas.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/uv.py",
+      "tools/itemkit/geometry.py"
+    ],
+    "tools/itemkit/blender_worker.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/uv.py",
+      "tools/itemkit/firearm_grip.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/grip.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/preflight.py",
+      "tools/itemkit/recovery.py",
+      "tools/itemkit/reduction.py",
+      "tools/itemkit/review.py",
+      "tools/itemkit/routes.py",
+      "tools/itemkit/transfer.py"
+    ],
+    "tools/itemkit/client_fixture_repair.py": [
+      "tools/headkit/common.py",
+      "tools/phenotypes/target_fixture.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/itemkit/combat_clip_pilot.py": [
+      "docs/items/approved-weapons-v1.json",
+      "tools/heads/build_head_trial.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/anim_chain_probe.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
+    "tools/itemkit/conditioning.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/reference_background.py"
+    ],
+    "tools/itemkit/contracts.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/conditioning.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/native_stack.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/routes.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/rig_native.py"
+    ],
+    "tools/itemkit/donor.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/textures.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/preflight.py",
+      "tools/itemkit/source_atlas.py",
+      "tools/itemkit/transfer.py"
+    ],
+    "tools/itemkit/firearm_fx_pilot.py": [
+      "tools/Invoke-NwnMdlComp.ps1",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/combat_clip_pilot.py"
+    ],
+    "tools/itemkit/firearm_grip.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/grip.py"
+    ],
+    "tools/itemkit/firearm_intake.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py"
+    ],
+    "tools/itemkit/firearm_native.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/native_reader.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/native.py",
+      "tools/phenomorpher/phenomorpher/engine/stock_armor.py"
+    ],
+    "tools/itemkit/firearm_package.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_native.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/routes.py",
+      "tools/itemkit/skinned_native.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/itemkit/firearms.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py"
+    ],
+    "tools/itemkit/fixture.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/routes.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/itemkit/generation.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/generation.py",
+      "tools/headkit/reference_background.py",
+      "tools/itemkit/conditioning.py",
+      "tools/itemkit/contracts.py"
+    ],
+    "tools/itemkit/geometry.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/itemkit/grip.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py"
+    ],
+    "tools/itemkit/native.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/native_reader.py",
+      "tools/heads/verify_head_hak.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_native.py",
+      "tools/itemkit/geometry.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
+      "tools/phenomorpher/phenomorpher/engine/stock_armor.py",
+      "tools/phenotypes/native_compile.py"
+    ],
+    "tools/itemkit/native_stack.py": [
+      "tools/headkit/common.py"
+    ],
+    "tools/itemkit/onehand_fire_motion.py": [
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
+    "tools/itemkit/parts.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/routes.py"
+    ],
+    "tools/itemkit/preflight.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/uv.py",
+      "tools/itemkit/atlas.py",
+      "tools/itemkit/geometry.py"
+    ],
+    "tools/itemkit/recovery.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py"
+    ],
+    "tools/itemkit/reduction.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py"
+    ],
+    "tools/itemkit/resize.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/grip.py"
+    ],
+    "tools/itemkit/review.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/blender_worker.py"
+    ],
+    "tools/itemkit/routes.py": [],
+    "tools/itemkit/run_itemkit.py": [
+      "tools/itemkit/__main__.py"
+    ],
+    "tools/itemkit/runner.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/atlas.py",
+      "tools/itemkit/blender_worker.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/donor.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/reduction.py",
+      "tools/itemkit/routes.py",
+      "tools/itemkit/shadow.py",
+      "tools/itemkit/textures.py",
+      "tools/itemkit/verification.py",
+      "tools/phenotypes/launch_shared_tool.py"
+    ],
+    "tools/itemkit/shadow.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/parts.py"
+    ],
+    "tools/itemkit/shield_native.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/native.py",
+      "tools/phenomorpher/phenomorpher/engine/rig_native.py",
+      "tools/phenomorpher/phenomorpher/engine/stock_armor.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/itemkit/skinned_native.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/native.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/stock_armor.py"
+    ],
+    "tools/itemkit/smoke_blender.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/blender_worker.py",
+      "tools/itemkit/profiles/cougar-shortsword.json"
+    ],
+    "tools/itemkit/smoke_recovery_blender.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/uv.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/blender_worker.py",
+      "tools/itemkit/preflight.py",
+      "tools/itemkit/recovery.py",
+      "tools/itemkit/transfer.py"
+    ],
+    "tools/itemkit/smoke_review_blender.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/blender_worker.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/review.py"
+    ],
+    "tools/itemkit/smoke_shadow_blender.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/blender_worker.py"
+    ],
+    "tools/itemkit/source_atlas.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/uv.py",
+      "tools/itemkit/atlas.py"
+    ],
+    "tools/itemkit/test_anim_chain_probe.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/anim_chain_probe.py"
+    ],
+    "tools/itemkit/test_atlas.py": [
+      "tools/itemkit/atlas.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_catalog_object.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/generation.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_combat_clip_pilot.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/combat_clip_pilot.py"
+    ],
+    "tools/itemkit/test_conditioning.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/common.py",
+      "tools/headkit/test_reference_background.py",
+      "tools/itemkit/conditioning.py",
+      "tools/itemkit/contracts.py"
+    ],
+    "tools/itemkit/test_curved_caps.py": [
+      "tools/itemkit/geometry.py"
+    ],
+    "tools/itemkit/test_donor.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/itemkit/donor.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/runner.py"
+    ],
+    "tools/itemkit/test_donor_caps.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/itemkit/donor.py",
+      "tools/itemkit/preflight.py"
+    ],
+    "tools/itemkit/test_firearm_fx_pilot.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/firearm_fx_pilot.py"
+    ],
+    "tools/itemkit/test_firearm_package.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/__main__.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_native.py",
+      "tools/itemkit/firearm_package.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/native.py"
+    ],
+    "tools/itemkit/test_firearm_processing.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_grip.py",
+      "tools/itemkit/firearm_intake.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/runner.py"
+    ],
+    "tools/itemkit/test_firearms.py": [
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_native.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/fixture.py"
+    ],
+    "tools/itemkit/test_fixture_placement.py": [
+      "tools/itemkit/fixture.py"
+    ],
+    "tools/itemkit/test_greatsword.py": [
+      "docs/items/weapon-grip-standard-v1.json",
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_grip.py",
+      "tools/itemkit/firearm_native.py",
+      "tools/itemkit/grip.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_itemkit.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/__main__.py",
+      "tools/itemkit/atlas.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/examples/firearm-sling-blocked.json",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/generation.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/profiles/cougar-shortsword.json",
+      "tools/itemkit/runner.py",
+      "tools/itemkit/textures.py",
+      "tools/itemkit/transfer.py"
+    ],
+    "tools/itemkit/test_material_palette.py": [
+      "tools/itemkit/textures.py"
+    ],
+    "tools/itemkit/test_native_stack.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/native_stack.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_onehand_fire_motion.py": [
+      "tools/itemkit/onehand_fire_motion.py"
+    ],
+    "tools/itemkit/test_preflight.py": [
+      "tools/itemkit/preflight.py"
+    ],
+    "tools/itemkit/test_recovery.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/recovery.py"
+    ],
+    "tools/itemkit/test_reduction.py": [
+      "tools/itemkit/reduction.py"
+    ],
+    "tools/itemkit/test_review.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/review.py"
+    ],
+    "tools/itemkit/test_rigged_contracts.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/runner.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_routes.py": [
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearms.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/routes.py"
+    ],
+    "tools/itemkit/test_shadow.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/shadow.py"
+    ],
+    "tools/itemkit/test_shield_native.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/firearm_native.py",
+      "tools/itemkit/parts.py",
+      "tools/itemkit/shield_native.py"
+    ],
+    "tools/itemkit/test_skinned_native.py": [
+      "tools/itemkit/firearm_native.py",
+      "tools/itemkit/skinned_native.py"
+    ],
+    "tools/itemkit/test_source_atlas.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/source_atlas.py"
+    ],
+    "tools/itemkit/test_staff.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_thrown.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_trial_policy.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/generation.py",
+      "tools/headkit/templates/geometry.json",
+      "tools/itemkit/generation.py"
+    ],
+    "tools/itemkit/test_workflow.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/__main__.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/grip.py",
+      "tools/itemkit/resize.py",
+      "tools/itemkit/runner.py",
+      "tools/itemkit/test_itemkit.py",
+      "tools/itemkit/verification.py"
+    ],
+    "tools/itemkit/textures.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/textures.py"
+    ],
+    "tools/itemkit/transfer.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py"
+    ],
+    "tools/itemkit/verification.py": [
+      "tools/headkit/common.py"
+    ],
     "tools/phenomorpher/finalize_runtime.py": [
       "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
-      "tools/phenotypes/shared_toolchain.py"
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/shared_tools.py"
     ],
     "tools/phenomorpher/phenomorpher/__init__.py": [],
     "tools/phenomorpher/phenomorpher/__main__.py": [
@@ -284,9 +1687,11 @@
       "tools/phenomorpher/phenomorpher/engine/convert_model.py",
       "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
       "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
       "tools/phenomorpher/phenomorpher/engine/replay_bodies.py",
       "tools/phenomorpher/phenomorpher/engine/retarget_v2.py",
       "tools/phenomorpher/phenomorpher/engine/rig_native.py",
+      "tools/phenomorpher/phenomorpher/engine/root_rebase.py",
       "tools/phenomorpher/phenomorpher/engine/runtime_release.py",
       "tools/phenomorpher/phenomorpher/engine/runtime_rules.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py",
@@ -388,8 +1793,7 @@
       "tools/phenomorpher/phenomorpher/engine/proportion_targets.py",
       "tools/phenomorpher/phenomorpher/engine/silhouette_model.py",
       "tools/phenomorpher/phenomorpher/engine/silhouette_reference.py",
-      "tools/phenomorpher/phenomorpher/engine/target_contract.py",
-      "tools/phenotypes/calculate_silhouette_difference.py"
+      "tools/phenomorpher/phenomorpher/engine/target_contract.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/morph_anatomy_v15c.py": [
       "tools/phenomorpher/phenomorpher/engine/check_terminal_connectivity_v13.py",
@@ -444,6 +1848,11 @@
       "tools/phenomorpher/phenomorpher/engine/anim_library.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/native_motion.py": [],
+    "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py": [
+      "tools/phenomorpher/phenomorpher/engine/neverblender_worker.py",
+      "tools/phenomorpher/phenomorpher/engine/rig_native.py"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/neverblender_worker.py": [],
     "tools/phenomorpher/phenomorpher/engine/nwn_part_measurements.py": [
       "tools/phenomorpher/phenomorpher/engine/silhouette_model.py",
       "tools/phenomorpher/phenomorpher/engine/target_contract.py"
@@ -490,6 +1899,11 @@
       "tools/phenomorpher/phenomorpher/engine/rig_controller_audit.py",
       "tools/phenomorpher/phenomorpher/engine/target_contract.py"
     ],
+    "tools/phenomorpher/phenomorpher/engine/root_rebase.py": [
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py",
+      "tools/phenomorpher/phenomorpher/engine/runtime_rules.py"
+    ],
     "tools/phenomorpher/phenomorpher/engine/runtime_release.py": [
       "docs/phenomorpher/ASSETS.md",
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
@@ -514,7 +1928,9 @@
     "tools/phenomorpher/phenomorpher/engine/stock_armor.py": [
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/armory_rigid.py",
-      "tools/phenomorpher/phenomorpher/engine/silhouette_model.py"
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
+      "tools/phenomorpher/phenomorpher/engine/silhouette_model.py",
+      "tools/phenomorpher/phenomorpher/inputs.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/target_animation_overlay.py": [
       "tools/phenomorpher/phenomorpher/engine/retarget.py",
@@ -563,6 +1979,13 @@
       "tools/phenomorpher/phenomorpher/engine/runtime_release.py",
       "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py"
     ],
+    "tools/phenomorpher/phenomorpher/engine/test_neverblender_mdl.py": [
+      "tools/phenomorpher/phenomorpher/cli.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
+      "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
+      "tools/phenomorpher/phenomorpher/inputs.py"
+    ],
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15a.py": [
       "tools/phenomorpher/phenomorpher/engine/phenomorpher_scene_v15a.py"
     ],
@@ -579,6 +2002,15 @@
       "tools/phenomorpher/phenomorpher/engine/rig_native.py",
       "tools/phenomorpher/phenomorpher/engine/test_anim_library.py"
     ],
+    "tools/phenomorpher/phenomorpher/engine/test_root_rebase.py": [
+      "tools/phenomorpher/phenomorpher/cli.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py",
+      "tools/phenomorpher/phenomorpher/engine/root_rebase.py",
+      "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
+      "tools/phenomorpher/phenomorpher/inputs.py",
+      "tools/phenomorpher/run.py"
+    ],
     "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py": [
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/motion_compare.py",
@@ -590,10 +2022,13 @@
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/runtime_release.py",
       "tools/phenomorpher/phenomorpher/engine/runtime_rules.py",
+      "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_stock_armor.py": [
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/armory_rigid.py",
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
       "tools/phenomorpher/phenomorpher/engine/retarget.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py"
     ],
@@ -605,6 +2040,7 @@
     "tools/phenomorpher/phenomorpher/engine/warp_segments_v12.py": [],
     "tools/phenomorpher/phenomorpher/engine/warp_torso_support_v12.py": [],
     "tools/phenomorpher/phenomorpher/inputs.py": [
+      "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py"
     ],
     "tools/phenomorpher/phenomorpher/test_cli_contract.py": [
@@ -622,12 +2058,12 @@
       "tools/phenomorpher/phenomorpher/api.py",
       "tools/phenomorpher/phenomorpher/cli.py",
       "tools/phenomorpher/phenomorpher/engine/convert_model.py",
+      "tools/phenomorpher/phenomorpher/engine/measurement_workflow.py",
       "tools/phenomorpher/phenomorpher/engine/morph_preview_pose_v13.py",
       "tools/phenomorpher/phenomorpher/source-lineage.json"
     ],
     "tools/phenomorpher/run.py": [
       "tools/phenomorpher/phenomorpher/inputs.py",
-      "tools/phenomorpher/source-lineage.json",
       "tools/phenotypes/launch_shared_tool.py"
     ],
     "tools/phenomorpher/test_finalize_runtime.py": [
@@ -662,7 +2098,6 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/audit_derived_connectors.py": [
-      "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/derived_review_configs.py",
       "tools/phenotypes/target_contract.py"
@@ -733,7 +2168,8 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_part_pipeline.py",
-      "tools/phenotypes/target_part_stage.py"
+      "tools/phenotypes/target_part_stage.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/audit_target_native_caps.py": [
       "tools/phenotypes/audit_geometry.py",
@@ -996,16 +2432,19 @@
       "tools/phenotypes/target_garment_ownership.py"
     ],
     "tools/phenotypes/deform_target_chest_waist.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/deform_target_terminal_caps.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/deform_target_terminal_envelope.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py"
@@ -1052,6 +2491,7 @@
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/derive_rig.py",
       "tools/phenotypes/equipment_frames.py",
+      "tools/phenotypes/stock_dwarf_control.py",
       "tools/phenotypes/target_contract.py",
       "tools/shared_tools.py"
     ],
@@ -1071,6 +2511,7 @@
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/configurations/derived/target-dwarf-male-stock.json",
       "tools/phenotypes/pose_preview_bridge.py",
+      "tools/phenotypes/retarget.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/descendant_mesh_edit.py": [
@@ -1078,9 +2519,11 @@
       "tools/phenotypes/round_generated_waist_cap.py"
     ],
     "tools/phenotypes/diagnose_equipment_gff_sources.py": [
-      "tools/phenotypes/pipeline.py"
+      "tools/phenotypes/pipeline.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/diagnose_native_cap_normal.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/audit_native_limb_shading.py",
       "tools/phenotypes/audit_target_native_part.py",
@@ -1184,6 +2627,7 @@
     ],
     "tools/phenotypes/finalize_shared_tool_migration.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared-tools.lock.json",
@@ -1203,7 +2647,8 @@
     "tools/phenotypes/freeze_equipment_supermodels.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/pipeline.py",
-      "tools/phenotypes/retarget.py"
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/freeze_part_references.py": [],
     "tools/phenotypes/freeze_stock_part_inputs.py": [],
@@ -1237,7 +2682,8 @@
     "tools/phenotypes/inventory_target_equipment.py": [
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/pipeline.py",
-      "tools/phenotypes/retarget.py"
+      "tools/phenotypes/retarget.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/investigate_target_sheet.py": [
       "tools/phenotypes/conservative_face_selection.py",
@@ -1253,8 +2699,12 @@
       "tools/phenotypes/tool_runtime.py",
       "tools/shared_tools.py"
     ],
+    "tools/phenotypes/launch_hash_cache.py": [
+      "tools/phenotypes/shared_toolchain.py"
+    ],
     "tools/phenotypes/launch_shared_tool.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
@@ -1307,6 +2757,7 @@
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/make_bounded_descendant.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/bounded_descendant_rules.py",
       "tools/phenotypes/diagnostic_bounded_descendant_representation.py",
       "tools/phenotypes/diagnostic_descendant_representation.py",
@@ -1339,7 +2790,8 @@
       "tools/phenotypes/audit_geometry.py",
       "tools/phenotypes/inventory_target_equipment.py",
       "tools/phenotypes/pipeline.py",
-      "tools/phenotypes/target_contract.py"
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/phenotypes/measure_stock_head_fit.py": [
       "tools/phenotypes/audit_geometry.py",
@@ -1423,6 +2875,7 @@
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_fixture.py",
       "tools/phenotypes/target_part_pipeline.py",
+      "tools/phenotypes/tool_runtime.py",
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/pelvis_routed_material_bridge.py": [
@@ -1532,7 +2985,6 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/preflight_derived_dwarf_client.py": [
-      "tools/phenotypes/run_derived_dwarf_client_test.py",
       "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/preflight_target_body_client.py": [
@@ -1640,6 +3092,7 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/phenotypes/remove_target_detached_components.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/repair_target_part_faces.py",
@@ -1716,12 +3169,14 @@
     "tools/phenotypes/render_target_pilot_patch_detail.py": [],
     "tools/phenotypes/repair_parts_kit.py": [],
     "tools/phenotypes/repair_target_chest_connector.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/deform_target_terminal_envelope.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/repair_target_chest_local_profile.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/deform_target_terminal_envelope.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
@@ -1729,12 +3184,14 @@
       "tools/phenotypes/target_contract.py"
     ],
     "tools/phenotypes/repair_target_part_faces.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_part_pipeline.py"
     ],
     "tools/phenotypes/repair_target_pelvis_upper_connector.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/conservative_face_selection.py",
       "tools/phenotypes/deform_target_terminal_envelope.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
@@ -1808,7 +3265,8 @@
       "tools/phenotypes/stage_stock_part.py"
     ],
     "tools/phenotypes/run_derived_dwarf_client_test.py": [
-      "tools/phenotypes/preflight_derived_dwarf_client.py"
+      "tools/phenotypes/preflight_derived_dwarf_client.py",
+      "tools/phenotypes/stock_dwarf_control.py"
     ],
     "tools/phenotypes/run_mesh_refinement_trial.py": [
       "tools/phenotypes/pipeline.py",
@@ -1826,6 +3284,7 @@
       "tools/phenotypes/pipeline.py"
     ],
     "tools/phenotypes/scale_target_limb_width.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/mirror_stock_limb_part.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py"
@@ -1866,6 +3325,8 @@
       "tools/shared_tools.py"
     ],
     "tools/phenotypes/shared_toolchain.py": [
+      "tools/phenotypes/launch_hash_cache.py",
+      "tools/phenotypes/launch_shared_tool.py",
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py",
       "tools/toolchain.lock.json"
@@ -1977,9 +3438,12 @@
     ],
     "tools/phenotypes/target_fixture.py": [
       "tools/phenotypes/build_test_module.py",
-      "tools/phenotypes/target_contract.py"
+      "tools/phenotypes/target_contract.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
-    "tools/phenotypes/target_fixture_dye.py": [],
+    "tools/phenotypes/target_fixture_dye.py": [
+      "tools/phenotypes/tool_runtime.py"
+    ],
     "tools/phenotypes/target_garment_face_ownership.py": [
       "tools/phenotypes/phenotype_material_execution_adoption.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
@@ -1990,6 +3454,7 @@
       "tools/phenotypes/target_part_stage.py"
     ],
     "tools/phenotypes/target_garment_ownership.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_part_pipeline.py",
@@ -2004,6 +3469,7 @@
       "tools/phenotypes/target_part_pipeline.py"
     ],
     "tools/phenotypes/target_part_pipeline.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/mirror_stock_limb_part.py",
       "tools/phenotypes/phenotype_execution_adoption.py",
       "tools/phenotypes/phenotype_infrastructure_adoption.py",
@@ -2166,6 +3632,7 @@
       "tools/phenotypes/test_human_female_stock_exact.py"
     ],
     "tools/phenotypes/test_current_skin_calibration_bridge.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/current_skin_calibration_bridge.py",
       "tools/phenotypes/replay_stage_skin_calibration.py",
       "tools/phenotypes/source_skin_detail_contract.py"
@@ -2259,6 +3726,7 @@
       "tools/phenotypes/diagnostic_descendant_representation.py"
     ],
     "tools/phenotypes/test_diagnostic_bounded_descendant_representation.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/bounded_descendant_rules.py",
       "tools/phenotypes/diagnostic_bounded_descendant_representation.py",
       "tools/phenotypes/diagnostic_descendant_representation.py",
@@ -2313,6 +3781,7 @@
       "tools/phenotypes/target_part_pipeline.py",
       "tools/phenotypes/test_human_female_stock_exact.py",
       "tools/phenotypes/test_mirror_stock_limb_part.py",
+      "tools/phenotypes/test_shared_toolchain.py",
       "tools/shared-tools.lock.json"
     ],
     "tools/phenotypes/test_fair_target_crease_band.py": [
@@ -2337,8 +3806,12 @@
       "tools/phenotypes/place_purposebuilt_pelvis.py"
     ],
     "tools/phenotypes/test_finalize_shared_tool_migration.py": [
+      "tools/headbatch/launcher.py",
+      "tools/heads/finalize_head_migration.py",
+      "tools/phenomorpher/finalize_runtime.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
-      "tools/phenotypes/shared_toolchain.py"
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/robes/finalize_robe_migration.py"
     ],
     "tools/phenotypes/test_fixed_material_dependencies.py": [
       "tools/phenotypes/build_test_module.py",
@@ -2378,10 +3851,17 @@
       "tools/phenotypes/target_contract.py",
       "tools/phenotypes/target_part_pipeline.py",
       "tools/phenotypes/test_human_female_stock_exact.py",
+      "tools/phenotypes/test_shared_toolchain.py",
       "tools/shared-tools.lock.json"
     ],
     "tools/phenotypes/test_inventory_target_equipment.py": [
       "tools/phenotypes/inventory_target_equipment.py"
+    ],
+    "tools/phenotypes/test_launch_hash_cache.py": [
+      "tools/phenotypes/launch_hash_cache.py",
+      "tools/phenotypes/launch_shared_tool.py",
+      "tools/phenotypes/shared_toolchain.py",
+      "tools/shared_tools.py"
     ],
     "tools/phenotypes/test_lean_pipeline.py": [
       "tools/phenotypes/compose_lean_gate3_sheets.py",
@@ -2415,6 +3895,7 @@
       "tools/phenotypes/target_part_stage.py"
     ],
     "tools/phenotypes/test_material_run_scope.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/phenotype_infrastructure_adoption.py",
       "tools/phenotypes/phenotype_material_execution_adoption.py",
       "tools/phenotypes/phenotype_material_run_scope.py",
@@ -2444,7 +3925,9 @@
       "tools/phenotypes/test_execution_adoption.py"
     ],
     "tools/phenotypes/test_native_compiler_input_bridge.py": [
+      "tools/phenotypes/native_compile.py",
       "tools/phenotypes/native_compiler_input_bridge.py",
+      "tools/phenotypes/pipeline.py",
       "tools/phenotypes/target_part_stage.py"
     ],
     "tools/phenotypes/test_native_tangent_descendant.py": [
@@ -2648,6 +4131,7 @@
       "tools/phenotypes/skin_lighting_atlas.py"
     ],
     "tools/phenotypes/test_source_face_material_lineage.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/replay_stage_skin_calibration.py",
       "tools/phenotypes/replay_stage_skin_detail.py",
@@ -2716,6 +4200,7 @@
       "tools/phenotypes/test_target_part_stage.py"
     ],
     "tools/phenotypes/test_stage_source_skin_detail.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/mirror_stock_limb_part.py",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/replay_stage_skin_detail.py",
@@ -2760,6 +4245,7 @@
       "tools/phenotypes/test_target_part_pipeline.py"
     ],
     "tools/phenotypes/test_target_body_launcher.py": [
+      "tools/SrnTools.psm1",
       "tools/heads/roster.json",
       "tools/phenotypes/Launch-TargetBodyClient.ps1",
       "tools/phenotypes/launch_shared_tool.py",
@@ -2769,6 +4255,7 @@
       "tools/phenotypes/shared_female_stock_basis.py"
     ],
     "tools/phenotypes/test_target_chest_connector.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/repair_target_chest_connector.py",
       "tools/phenotypes/target_contract.py",
@@ -2855,6 +4342,7 @@
       "tools/phenotypes/test_target_part_pipeline.py"
     ],
     "tools/phenotypes/test_target_pelvis_upper_connector.py": [
+      "tools/headkit/templates/geometry.json",
       "tools/phenotypes/place_purposebuilt_pelvis.py",
       "tools/phenotypes/repair_target_pelvis_upper_connector.py",
       "tools/phenotypes/target_contract.py",
@@ -2989,9 +4477,7 @@
       "tools/robes/robe_common.py"
     ],
     "tools/robes/finalize_robe_migration.py": [
-      "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
-      "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/robes/robe_common.py"
     ],
@@ -3071,6 +4557,7 @@
     "tools/robes/run_robe_migration.py": [
       "tools/phenotypes/bootstrap_shared_blender_addons.py",
       "tools/phenotypes/finalize_shared_tool_migration.py",
+      "tools/phenotypes/launch_hash_cache.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/phenotypes/shared_toolchain.py",
       "tools/phenotypes/smoke_shared_blender_import.py",
@@ -3144,8 +4631,12 @@
     "tools/test_clean_checkout.py": [
       "docs/shared-tool-validation.json"
     ],
+    "tools/test_combat_release_manifest.py": [
+      "tools/combat_release_manifest.py"
+    ],
     "tools/test_impact.py": [
       "tools/ci-scope.json",
+      "tools/ci-test-durations.json",
       "tools/phenotypes/shared_toolchain.py",
       "tools/phenotypes/tool_runtime.py",
       "tools/shared-tools.lock.json",
@@ -3165,6 +4656,11 @@
   },
   "unresolved": [],
   "packReferences": {
+    "tools/combat_release_manifest.py": [
+      "srn_2da",
+      "srn_tlk",
+      "srn_weapon"
+    ],
     "tools/heads/build_head_fixture.py": [
       "srn_body",
       "srn_head"
@@ -3178,8 +4674,41 @@
     "tools/heads/test_head_pipeline.py": [
       "srn_head"
     ],
+    "tools/heads/test_head_trial.py": [
+      "srn_head"
+    ],
     "tools/heads/test_target_and_publication.py": [
       "srn_head"
+    ],
+    "tools/itemkit/anim_chain_probe.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_body_tex"
+    ],
+    "tools/itemkit/combat_clip_pilot.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_body_tex",
+      "srn_weapon"
+    ],
+    "tools/itemkit/firearm_fx_pilot.py": [
+      "srn_body",
+      "srn_weapon"
+    ],
+    "tools/itemkit/native_stack.py": [
+      "srn_body"
+    ],
+    "tools/itemkit/test_combat_clip_pilot.py": [
+      "srn_body"
+    ],
+    "tools/itemkit/test_firearm_fx_pilot.py": [
+      "srn_body",
+      "srn_weapon"
+    ],
+    "tools/itemkit/test_native_stack.py": [
+      "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/engine/body_sweep.py": [
       "srn_body"
@@ -3195,6 +4724,9 @@
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py": [
       "srn_body",
       "srn_body_tex"
+    ],
+    "tools/phenomorpher/phenomorpher/engine/test_root_rebase.py": [
+      "srn_body"
     ],
     "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py": [
       "srn_body"
@@ -3232,11 +4764,39 @@
     ],
     "tools/robes/package_trial.py": [
       "srn_2da"
+    ],
+    "tools/test_combat_release_manifest.py": [
+      "srn_2da",
+      "srn_body",
+      "srn_body_tex",
+      "srn_weapon"
     ]
   },
   "tests": [
+    "tools/headbatch/test_headbatch.py",
+    "tools/headbatch/test_material_evidence.py",
+    "tools/headbatch/test_process_contracts.py",
+    "tools/headbatch/test_trial_settings.py",
+    "tools/headkit/test_brow_edges.py",
+    "tools/headkit/test_comfy_runtime_snapshot.py",
+    "tools/headkit/test_comfy_transport.py",
+    "tools/headkit/test_conditioning.py",
+    "tools/headkit/test_face_masks.py",
+    "tools/headkit/test_feature_highlights.py",
+    "tools/headkit/test_generation_export.py",
+    "tools/headkit/test_headkit.py",
+    "tools/headkit/test_managed_startup.py",
+    "tools/headkit/test_model_contract.py",
+    "tools/headkit/test_native_reader.py",
+    "tools/headkit/test_process_quality.py",
+    "tools/headkit/test_reference_background.py",
+    "tools/headkit/test_render_device.py",
+    "tools/headkit/test_skin_seams.py",
+    "tools/headkit/test_verification_performance.py",
+    "tools/headkit/test_verified_startup.py",
     "tools/heads/test_atlas_allowance.py",
     "tools/heads/test_budget_extension.py",
+    "tools/heads/test_client_capture_review.py",
     "tools/heads/test_derived_assembly.py",
     "tools/heads/test_derived_body_import.py",
     "tools/heads/test_fixture_identity.py",
@@ -3244,11 +4804,45 @@
     "tools/heads/test_geometry_guards.py",
     "tools/heads/test_head_holes.py",
     "tools/heads/test_head_pipeline.py",
+    "tools/heads/test_head_trial.py",
     "tools/heads/test_meshy_dispatch.py",
     "tools/heads/test_microface_materials.py",
     "tools/heads/test_palette_sampling.py",
+    "tools/heads/test_reindex_head.py",
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
+    "tools/itemkit/test_anim_chain_probe.py",
+    "tools/itemkit/test_atlas.py",
+    "tools/itemkit/test_catalog_object.py",
+    "tools/itemkit/test_combat_clip_pilot.py",
+    "tools/itemkit/test_conditioning.py",
+    "tools/itemkit/test_curved_caps.py",
+    "tools/itemkit/test_donor.py",
+    "tools/itemkit/test_donor_caps.py",
+    "tools/itemkit/test_firearm_fx_pilot.py",
+    "tools/itemkit/test_firearm_package.py",
+    "tools/itemkit/test_firearm_processing.py",
+    "tools/itemkit/test_firearms.py",
+    "tools/itemkit/test_fixture_placement.py",
+    "tools/itemkit/test_greatsword.py",
+    "tools/itemkit/test_itemkit.py",
+    "tools/itemkit/test_material_palette.py",
+    "tools/itemkit/test_native_stack.py",
+    "tools/itemkit/test_onehand_fire_motion.py",
+    "tools/itemkit/test_preflight.py",
+    "tools/itemkit/test_recovery.py",
+    "tools/itemkit/test_reduction.py",
+    "tools/itemkit/test_review.py",
+    "tools/itemkit/test_rigged_contracts.py",
+    "tools/itemkit/test_routes.py",
+    "tools/itemkit/test_shadow.py",
+    "tools/itemkit/test_shield_native.py",
+    "tools/itemkit/test_skinned_native.py",
+    "tools/itemkit/test_source_atlas.py",
+    "tools/itemkit/test_staff.py",
+    "tools/itemkit/test_thrown.py",
+    "tools/itemkit/test_trial_policy.py",
+    "tools/itemkit/test_workflow.py",
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
     "tools/phenomorpher/phenomorpher/engine/test_body_sweep.py",
     "tools/phenomorpher/phenomorpher/engine/test_check_connector_surfaces_v15.py",
@@ -3259,10 +4853,12 @@
     "tools/phenomorpher/phenomorpher/engine/test_morph_preview_pose_constraints_v14a.py",
     "tools/phenomorpher/phenomorpher/engine/test_morph_preview_pose_v13.py",
     "tools/phenomorpher/phenomorpher/engine/test_motion_baseline_v2.py",
+    "tools/phenomorpher/phenomorpher/engine/test_neverblender_mdl.py",
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15a.py",
     "tools/phenomorpher/phenomorpher/engine/test_phenomorpher_scene_v15b.py",
     "tools/phenomorpher/phenomorpher/engine/test_retarget_v2.py",
     "tools/phenomorpher/phenomorpher/engine/test_rig_native.py",
+    "tools/phenomorpher/phenomorpher/engine/test_root_rebase.py",
     "tools/phenomorpher/phenomorpher/engine/test_runtime_release.py",
     "tools/phenomorpher/phenomorpher/engine/test_runtime_rules.py",
     "tools/phenomorpher/phenomorpher/engine/test_stock_armor.py",
@@ -3331,6 +4927,7 @@
     "tools/phenotypes/test_human_female_stock_exact.py",
     "tools/phenotypes/test_infrastructure_adoption.py",
     "tools/phenotypes/test_inventory_target_equipment.py",
+    "tools/phenotypes/test_launch_hash_cache.py",
     "tools/phenotypes/test_lean_pipeline.py",
     "tools/phenotypes/test_limb_material_collection.py",
     "tools/phenotypes/test_material_execution_adoption.py",
@@ -3423,6 +5020,7 @@
     "tools/test_ci_result.py",
     "tools/test_ci_scope.py",
     "tools/test_clean_checkout.py",
+    "tools/test_combat_release_manifest.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
   ]

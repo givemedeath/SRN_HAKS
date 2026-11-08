@@ -6,8 +6,6 @@ and records explicit authority without inferring master status from filenames.
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from pathlib import Path
 import re
 import shutil
@@ -24,12 +22,8 @@ if str(REPO / 'tools') not in sys.path:
 if str(REPO / 'tools/phenotypes') not in sys.path:
     sys.path.insert(0, str(REPO / 'tools/phenotypes'))
 
-from shared_toolchain import sha, load as load_toolchain
+from shared_toolchain import sha
 from shared_tools import read_json, write_json, resolve_tool
-
-
-def digest(path: Path | str) -> str:
-    return sha(path)
 
 
 def decode_node(data: bytes, node_name_bytes: bytes) -> dict:
@@ -368,17 +362,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--manifest', type=Path, default=REPO / 'docs/phenotypes/human-male-assets.json')
     parser.add_argument('--output-dir', type=Path, default=REPO / 'output/phenotypes/derived-v1/masters')
-    parser.add_argument('--game-root', type=Path, default=Path(r'C:\Program Files (x86)\GOG Galaxy\Games\Neverwinter Nights Enhanced Edition'))
+    parser.add_argument('--game-root', type=Path, required=True)
     parser.add_argument('--female-ledger', type=Path, default=None, help='Declared Human female selection ledger binding')
     parser.add_argument('--toolchain', type=Path)
     args = parser.parse_args()
+    if not args.game_root.is_dir():
+        parser.error(f'--game-root is not a directory: {args.game_root}')
 
     print("Freezing Human male master...")
     male_receipt = freeze_human_male_master(
         args.manifest,
         args.output_dir / 'human-male-v1',
         toolchain_path=args.toolchain,
-        game_root=args.game_root if args.game_root.is_dir() else None,
+        game_root=args.game_root,
     )
     print(f"Human male master frozen: {male_receipt['resourceCount']} resources, 14 models verified with exact parity.")
 

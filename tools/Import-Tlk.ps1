@@ -14,25 +14,6 @@ $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'SrnHaks.Common.psm1') -Force
 
 $repoRoot = Get-SrnRepositoryRoot
-$quarantineRoot = Join-Path $repoRoot '.quarantine'
-
-function Resolve-QuarantinePath {
-    param([Parameter(Mandatory)][string]$RelativePath)
-    if ([string]::IsNullOrWhiteSpace($RelativePath) -or [IO.Path]::IsPathRooted($RelativePath)) {
-        throw 'OutputRelativePath must be a non-empty relative path beneath .quarantine.'
-    }
-    $root = [IO.Path]::GetFullPath($quarantineRoot)
-    $resolved = [IO.Path]::GetFullPath((Join-Path $root $RelativePath))
-    $prefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    $pathComparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
-        [StringComparison]::OrdinalIgnoreCase
-    }
-    else { [StringComparison]::Ordinal }
-    if (-not $resolved.StartsWith($prefix, $pathComparison)) {
-        throw "OutputRelativePath escapes .quarantine: $RelativePath"
-    }
-    return $resolved
-}
 
 function Get-TlkPayloadFingerprint {
     param([Parameter(Mandatory)]$Entry)
@@ -56,11 +37,11 @@ function New-CanonicalEntry {
     return [pscustomobject]$entry
 }
 
-$inputPath = [IO.Path]::GetFullPath($InputTlk)
-$profileFile = [IO.Path]::GetFullPath($ProfilePath)
+$inputPath = [IO.Path]::GetFullPath($InputTlk, $PWD.ProviderPath)
+$profileFile = [IO.Path]::GetFullPath($ProfilePath, $PWD.ProviderPath)
 if (-not (Test-Path -LiteralPath $inputPath -PathType Leaf)) { throw "Input TLK not found: $inputPath" }
 if (-not (Test-Path -LiteralPath $profileFile -PathType Leaf)) { throw "TLK import profile not found: $profileFile" }
-$workspace = Resolve-QuarantinePath $OutputRelativePath
+$workspace = Resolve-SrnQuarantinePath $OutputRelativePath
 New-Item -ItemType Directory -Force -Path $workspace | Out-Null
 
 $profile = Get-Content -Raw -LiteralPath $profileFile | ConvertFrom-Json -Depth 32

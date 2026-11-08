@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-aztechnology-series-5-iron-bomb-692aa97e9e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "nose-lower-contour",
+      "pixel": [
+        50.00000000000001,
+        962.0
+      ]
+    },
+    {
+      "name": "body-upper",
+      "pixel": [
+        550.0000000000001,
+        475.00000000000006
+      ]
+    },
+    {
+      "name": "upper-fin-tip",
+      "pixel": [
+        900.0,
+        178.0
+      ]
+    },
+    {
+      "name": "lower-fin-tip",
+      "pixel": [
+        1200.0,
+        729.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-aztechnology-series-5-iron-bomb-692aa97e9e.family.json",
+    "sha256": "0a69fbc1b212bbd92a85719917589e3dea973bd8e3de293bee8c2b8506cd81ca"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/a41c74bb7f6ede7a244a53cb89c4e1c3c7b0d1a98f28625eb1d11989736a0100.png",
+      "sha256": "a41c74bb7f6ede7a244a53cb89c4e1c3c7b0d1a98f28625eb1d11989736a0100"
+    },
+    "clayReference": {
+      "path": "inputs/7f4191f482997d9d7193824b9d66dd08544bddf1aa0a643e078f22cb7cadad71.png",
+      "sha256": "7f4191f482997d9d7193824b9d66dd08544bddf1aa0a643e078f22cb7cadad71"
+    },
+    "geometry": {
+      "path": "inputs/95df18e3ba5732dc25f2224312921b42af891906e7fb8bf7891e46e1fd30febe.png",
+      "sha256": "95df18e3ba5732dc25f2224312921b42af891906e7fb8bf7891e46e1fd30febe"
+    },
+    "detail": {
+      "path": "inputs/7421c89fd4c0b86dea926c874dd4402999ba1e2155862b15a519b4f4aae52763.png",
+      "sha256": "7421c89fd4c0b86dea926c874dd4402999ba1e2155862b15a519b4f4aae52763"
+    },
+    "foregroundMask": {
+      "path": "inputs/018dc8acccc033d43ccd0eb21e8cf9bf576eea0ae630f1ff226e7db0a7141eab.png",
+      "sha256": "018dc8acccc033d43ccd0eb21e8cf9bf576eea0ae630f1ff226e7db0a7141eab"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/0fe3b466a67b37d74f14401d0c492374b684602e4debb4cd27941508729edf7f.png",
+      "sha256": "0fe3b466a67b37d74f14401d0c492374b684602e4debb4cd27941508729edf7f"
+    },
+    "mask": {
+      "path": "inputs/0fe3b466a67b37d74f14401d0c492374b684602e4debb4cd27941508729edf7f.png",
+      "sha256": "0fe3b466a67b37d74f14401d0c492374b684602e4debb4cd27941508729edf7f"
+    },
+    "calibrationReference": {
+      "path": "inputs/3d223f9fbe9b976340018c2f10ddd39e926a169cdc3855b0ad4502b2c2348509.png",
+      "sha256": "3d223f9fbe9b976340018c2f10ddd39e926a169cdc3855b0ad4502b2c2348509"
+    },
+    "sourceAudit": {
+      "path": "inputs/3ff2d0c6017e9542d10a390e7c3a56d077338d9199563bc2e31ed90531976826.json",
+      "sha256": "3ff2d0c6017e9542d10a390e7c3a56d077338d9199563bc2e31ed90531976826"
+    },
+    "referenceApproval": {
+      "path": "inputs/efaabff44535f98204b76dda2b9d7e9cb59fdaaa0bffb7deff4f3c4de2da3b5f.json",
+      "sha256": "efaabff44535f98204b76dda2b9d7e9cb59fdaaa0bffb7deff4f3c4de2da3b5f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/98d2592cf0e204d738b5c3b17482348ea7adbcf235a9982d39f3baf3fc5d5dae.png",
+      "sha256": "98d2592cf0e204d738b5c3b17482348ea7adbcf235a9982d39f3baf3fc5d5dae"
+    }
+  },
+  "features": [
+    {
+      "name": "Unguided gravity bomb released from aircraft wing or body",
+      "placementReviewed": true
+    },
+    {
+      "name": "Thin metal shell with gliding fins; fin count, exact planform, body proportions and colors unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "No electronic equipment or guidance system; do not add a seeker head, guidance pod or powered rocket exhaust",
+      "placementReviewed": true
+    },
+    {
+      "name": "Optional parachute-retarded low-altitude version is explicitly available; select plain or parachute version rather than silently combining them",
+      "placementReviewed": true
+    },
+    {
+      "name": "Depict a complete external inert cosmetic munition or declared aircraft-carriage context; no handheld launcher substitute or functional cutaway",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root final pair review:ordinary Aztechnology Series5 unguided gravity bomb WITHOUT optional parachute. Actual detailed287 and successful second clay290 inspected against Arsenal124-125/PDF126-127 and195/PDF197. Rounded closed nose,thin metal exterior,all visible gliding fins and tail silhouette match in framing/proportions. Four-fin count/profile/colors/depth are artistic choices,three fins visible with fourth occluded;no own labeled silhouette supplied by source. No electronics,seeker,rocket exhaust,launcher,cutaway or action. Alpha diagnostics retain one component/no holes per role,positive complete margins,no opaque background/cast shadow. Shallow seams nonblocking. No native/engineering approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "a41c74bb7f6ede7a244a53cb89c4e1c3c7b0d1a98f28625eb1d11989736a0100",
+      "imageSha256": "7421c89fd4c0b86dea926c874dd4402999ba1e2155862b15a519b4f4aae52763",
+      "maskSha256": "018dc8acccc033d43ccd0eb21e8cf9bf576eea0ae630f1ff226e7db0a7141eab",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root final pair review:ordinary Aztechnology Series5 unguided gravity bomb WITHOUT optional parachute. Actual detailed287 and successful second clay290 inspected against Arsenal124-125/PDF126-127 and195/PDF197. Rounded closed nose,thin metal exterior,all visible gliding fins and tail silhouette match in framing/proportions. Four-fin count/profile/colors/depth are artistic choices,three fins visible with fourth occluded;no own labeled silhouette supplied by source. No electronics,seeker,rocket exhaust,launcher,cutaway or action. Alpha diagnostics retain one component/no holes per role,positive complete margins,no opaque background/cast shadow. Shallow seams nonblocking. No native/engineering approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7f4191f482997d9d7193824b9d66dd08544bddf1aa0a643e078f22cb7cadad71",
+      "imageSha256": "95df18e3ba5732dc25f2224312921b42af891906e7fb8bf7891e46e1fd30febe",
+      "maskSha256": "0fe3b466a67b37d74f14401d0c492374b684602e4debb4cd27941508729edf7f",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root final pair review:ordinary Aztechnology Series5 unguided gravity bomb WITHOUT optional parachute. Actual detailed287 and successful second clay290 inspected against Arsenal124-125/PDF126-127 and195/PDF197. Rounded closed nose,thin metal exterior,all visible gliding fins and tail silhouette match in framing/proportions. Four-fin count/profile/colors/depth are artistic choices,three fins visible with fourth occluded;no own labeled silhouette supplied by source. No electronics,seeker,rocket exhaust,launcher,cutaway or action. Alpha diagnostics retain one component/no holes per role,positive complete margins,no opaque background/cast shadow. Shallow seams nonblocking. No native/engineering approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "a41c74bb7f6ede7a244a53cb89c4e1c3c7b0d1a98f28625eb1d11989736a0100",
+      "detailSha256": "7421c89fd4c0b86dea926c874dd4402999ba1e2155862b15a519b4f4aae52763",
+      "geometrySha256": "95df18e3ba5732dc25f2224312921b42af891906e7fb8bf7891e46e1fd30febe",
+      "foregroundMaskSha256": "018dc8acccc033d43ccd0eb21e8cf9bf576eea0ae630f1ff226e7db0a7141eab",
+      "geometryForegroundMaskSha256": "0fe3b466a67b37d74f14401d0c492374b684602e4debb4cd27941508729edf7f",
+      "landmarks": [
+        {
+          "name": "nose-lower-contour",
+          "detail": [
+            0.07404032422512236,
+            0.7770122296744947
+          ],
+          "geometry": [
+            0.07404032422512236,
+            0.7777466836355529
+          ]
+        },
+        {
+          "name": "body-upper",
+          "detail": [
+            0.4412469412724307,
+            0.41933315063912013
+          ],
+          "geometry": [
+            0.4412469412724307,
+            0.4185986966780618
+          ]
+        },
+        {
+          "name": "upper-fin-tip",
+          "detail": [
+            0.6982915732055465,
+            0.2012003242048157
+          ],
+          "geometry": [
+            0.6982915732055465,
+            0.20046587024375742
+          ]
+        },
+        {
+          "name": "lower-fin-tip",
+          "detail": [
+            0.9186155434339315,
+            0.6058844567479191
+          ],
+          "geometry": [
+            0.9186155434339315,
+            0.6080878186310941
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root final pair review:ordinary Aztechnology Series5 unguided gravity bomb WITHOUT optional parachute. Actual detailed287 and successful second clay290 inspected against Arsenal124-125/PDF126-127 and195/PDF197. Rounded closed nose,thin metal exterior,all visible gliding fins and tail silhouette match in framing/proportions. Four-fin count/profile/colors/depth are artistic choices,three fins visible with fourth occluded;no own labeled silhouette supplied by source. No electronics,seeker,rocket exhaust,launcher,cutaway or action. Alpha diagnostics retain one component/no holes per role,positive complete margins,no opaque background/cast shadow. Shallow seams nonblocking. No native/engineering approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

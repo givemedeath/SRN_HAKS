@@ -1,0 +1,198 @@
+{
+ "schemaVersion": 1,
+ "kind": "human-bodies-lock",
+ "lock": "human-bodies-c7",
+ "date": "2026-10-27",
+ "basedOn": {
+  "lock": "human-bodies-c6",
+  "manifest": "docs/phenomorpher/human-bodies-lock-c6.json",
+  "sha256": "8eb892cd84be13ef549da447711dc1513b5054e233c8f60c54b421bc2cb152d3",
+  "sha256Of": "the committed LF bytes (.gitattributes: *.json eol=lf)",
+  "note": "Every c6 locked pack file is byte-identical in the c7 stage; the c6 record stays as written."
+ },
+ "userApproval": {
+  "b13": "2026-10-25 in-game tour: \"Looks good\"",
+  "c6": "2026-10-26 in-game tour: \"looks good\"; locked on request \"record this as the current locked human bodies\"",
+  "c7": "2026-10-27 in-game tour of pmh2 (race-sizing r3, profile-combo): \"pmh2 looks good. Record the c7 Human lock.\""
+ },
+ "scope": "c6 plus Human pmh2 (Large male): neck and bicep joint heights back to the Fit heights (race-sizing item 2, largefix.py), chest refit to them; rest height 1.9339 m, the same as pmh0. All 17 pmh2 models recompiled with Blender 5.2.1 + Neverblender 4.5.1 against the stock a_ba supermodel.",
+ "status": "locked working selection (client-reviewed). Not published: srn_body/ and srn_body_tex/ in git are unchanged; promotion is the separate publication step.",
+ "haks": {
+  "output/phenomorpher/combo-r3/hak/srn_body.hak": "cbccef0da747cc810dc5d36787d03af262b918604e999c7c0905571117daeb7e",
+  "output/phenomorpher/combo-r3/hak/srn_body_tex.hak": "495e42ae523ee90de5a61ace14f3521d3e0b9cd100ef827051f1b6d259fca058"
+ },
+ "haksNote": "combo-r3 also carries the race-sizing r3 race bodies, which are a candidate and not part of this lock.",
+ "changedPackFilesVsC6": [
+  {
+   "path": "srn_body/pmh2.mdl",
+   "sha256": "d7f668e251190e6326b976e2b53a9f68359fca92545592b12609b65aca0bba52",
+   "c6Sha256": "b5dff626979dd09cee43109eb92e0257b0dfdc6d0f6881498ef2732001b7c543",
+   "sourceChanged": true
+  },
+  {
+   "path": "srn_body/pmh2_bicepl001.mdl",
+   "sha256": "15fe855590fd5e374f214aa6c407b03b0a33fcdfd9ac71499dcf5f6a5fe970d8",
+   "c6Sha256": "f8072a2ca403db62ceb5f33ffcf3e631519d1fa1996898160cae9b26a65729a7",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_bicepr001.mdl",
+   "sha256": "3753fa6812e80913395dc662b27a1196155cce86387447a12ff40c6feedde459",
+   "c6Sha256": "cb1c558867807fc422268b129d42a04880f587d72f7d5e8bcc9db688b2918981",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_chest001.mdl",
+   "sha256": "67a391ac2ef7f9bb083ec55514efbd059b1767b3e019a1692596f5f7f0db641d",
+   "c6Sha256": "05c5c09ee4994364e6ceba7636eb1782473e18f29868eeb940d9d455c0db4dae",
+   "sourceChanged": true
+  },
+  {
+   "path": "srn_body/pmh2_footl001.mdl",
+   "sha256": "d9d5c531782ea235902ccbada5f51bd4fc71ed18b7d7fcf2bdc911c08160d39e",
+   "c6Sha256": "052e7612274261291c2e42db0dd243e180dbe340c45a5048c61a882db33739f8",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_footr001.mdl",
+   "sha256": "a368f466b5c53467e92c1427d91aad41079876bbc3d587a376cd7fb1f8e1f8ab",
+   "c6Sha256": "d3d1b4d0bde75191591e9438de56831cc073530dc52df14c4a6a52913c69f3ab",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_forel001.mdl",
+   "sha256": "6225ace2b2e571ccfab911122177cce1096eb231b62472e1fac6ad7883d58940",
+   "c6Sha256": "5efed523f7d0659bdb97f2de77b44797a8562b58145d8e3fb50979e2b88bbcb3",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_forer001.mdl",
+   "sha256": "2173a4ad55a9964b719b5569b53aea350cadd3a227ea7d501a6df3eb6c5671df",
+   "c6Sha256": "6c1e9fb56c7b2c0ee62874a213bfa10e25e9aaa614baa471376bd1b53a7056f6",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_handl001.mdl",
+   "sha256": "bc288958c4f27089ae093ad24fef8744db5af0ed7c04fa36701cc6f3e5accf01",
+   "c6Sha256": "31de205d59c2105be05bd14a63fc9f32f39d6677a19b991955c2a3385b82f699",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_handr001.mdl",
+   "sha256": "d2dafb16b54ff41fe3d8c0073273ffae65c55cecd1dde52e8f7ef1d591330a2a",
+   "c6Sha256": "e502d3ecad91657934b947c4e37a3f4b705fa5cd4d6040e5be375908b1da18ec",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_head001.mdl",
+   "sha256": "86712ba22e8f2c7020d64acf0801c91d45e75ded85bfe0b103edd18c653e1819",
+   "c6Sha256": "433a3d3c42403f7d3fdff9f1d10e309b49751f8ccb16f685053bd29ee09c5501",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_legl001.mdl",
+   "sha256": "83fd51a973be194b9a75a40357b09f27e4fea918f3802200f1db13f96e1ae264",
+   "c6Sha256": "93daa908ec7021f578982dcc1624fb296008f5eebf8b8f5bb8eb7822e122c1ce",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_legr001.mdl",
+   "sha256": "28bd48865e0c71f2414db229aa4971b989506dd4cc5465af7ec979e0b38659be",
+   "c6Sha256": "29bf09455b8408906b18b16d9902f54620fc6f5e38965a19ad6ae57b53f59b58",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_neck001.mdl",
+   "sha256": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
+   "c6Sha256": "2f35f2716bc9a6412440cb857685697197cc10a5024361fbd8270c20e3d652c8",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_pelvis001.mdl",
+   "sha256": "988d56355e4bb3a98884b668d261cd96dab4d1908425dfd4221bf157498e2075",
+   "c6Sha256": "f6c5d3f0710943cb2785a306be847e3f532024fa61fbbbbe258d38aa21d7500d",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_shinl001.mdl",
+   "sha256": "a57b84b44deb6aaa9cd1e489cb1986d0caf275d7e8a2b60a4edbe45485844e1a",
+   "c6Sha256": "02be2162085c7808bef51104ce1b0af7e8722771ac699095b24aa0cb61e98228",
+   "sourceChanged": false
+  },
+  {
+   "path": "srn_body/pmh2_shinr001.mdl",
+   "sha256": "5d93b9cc514344faa2d0adf5a883c3cc9e8c2db770ca22eac3290c8633c5157e",
+   "c6Sha256": "8af8839447f57f53a2f2583caf1070f849d2582f28fb42786e08d90f195ea5f7",
+   "sourceChanged": false
+  }
+ ],
+ "asciiSources": {
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2.mdl": "e0feea072db6ce0f64783a5e7c3912b0a73f146c2cc5ad2d444411fd5cf15ad9",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_bicepl001.mdl": "b62d6db986cd2d4228b9ad5a277cad8b06db7f65902a994c25235caa61526d7a",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_bicepr001.mdl": "622c7cb5173a746c6bfb8f68c77ef111ab58d3323a34b9cfda5523ebc05ddc56",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_chest001.mdl": "c3b8d0efd38db2fafb8d64e2b657c01fe19760aea1420e1f3d450cbf3ca504ec",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_footl001.mdl": "b60757168729d197f803377ab1db5c825804df7123ff8b22ebb4416ac96a177a",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_footr001.mdl": "e2ea4ac2eccbcd08b2d6c6d63971c5d371a01b24cd9b80cc493e56d778ae35f0",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_forel001.mdl": "005ef0b14a30f5e932142f5ac820f5654744075ab18a3a10fbfd4c9b0a4f1150",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_forer001.mdl": "8e5c41f20e76c14dc5132c470a91c47b721ee35ee650c68c823533a44d6755d3",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_handl001.mdl": "fae58f87c5c29d563ac5505711ec186300b970436190bce0f7f323be391dd587",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_handr001.mdl": "55a33f2f80a092a33e4e73c23308b60e6e0577dd85b4118b470f9d9cdb1be244",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_head001.mdl": "5b1d1ce2e60e2f9e74e8fdf474e5165fe4d5d368111ddfd40b182b070edba9a6",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_legl001.mdl": "913a499073029c207636eb39e2ea61b2ef8d05b168bfb4ed8d3fdbf2be5914de",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_legr001.mdl": "ff9cf572619f0ea9e2d96c5caccd13a888845786a9995adc3f92d1db93c7f8df",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_neck001.mdl": "d68d5df5dcf1c179cb5d58ecfc144408bda300a6dbf8184623c12511f8c5e0c7",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_pelvis001.mdl": "0d09372ad148e58a56aef839cae97b78473b7bd6b2b708ea6ec211ff84beaf9a",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_shinl001.mdl": "8957ee93ce7b71e8b985f83f475c3f8e3dbe3ec30e43e9f11deebec9a8377966",
+  "output/phenomorpher/race-sizing/c7h-ascii/pmh2_shinr001.mdl": "99c240f3c89240cdc071a0987d1f7d5044f6231707cbc4b6e4421fd174b0181d"
+ },
+ "asciiBaseline": {
+  "output/phenomorpher/race-sizing/src-ascii/pmh2.mdl": "368fbf541d72c231b263060906d67e82c9535f4644511bc8c2a5aff5b7934333",
+  "output/phenomorpher/race-sizing/src-ascii/pmh2_chest001.mdl": "77d17bd8cea854ed9bc09688ff2c2f9cc7352a302b2588c62d83ad0e1d7c8639"
+ },
+ "compile": {
+  "receipt": "output/phenomorpher/race-sizing/r3-compiled/native-compile.json",
+  "receiptSha256": "7fa8c42f5835559e8e4a7fc9520bcd99cc6f80657e7b7ecc47553ffd9624fc31",
+  "compilerSha256": "d2c6aaf4620db0415417ee88fb251e18b0b4204b06190a228267e9e115665214",
+  "blenderVersion": "5.2.1 LTS",
+  "stockSupermodels": {
+   "output/phenomorpher/race-sizing/stock-super/a_ba.mdl": "a38c9f0de00a7e401419d1e668ad1b9d825cfc9635712cdb9ae63e840104ee2b",
+   "output/phenomorpher/race-sizing/stock-super/a_fa.mdl": "1f8b1ac2e4ab31e1b2172c7ca208160267cdbf861cd36e544775f391b5b6978d"
+  }
+ },
+ "tools": {
+  "output/phenomorpher/race-sizing/tools-snapshot/largefix.py": "44efb28a701c61aec5c0e8ca88ea227103041faf5e6bfca55873341e139def69",
+  "output/phenomorpher/race-sizing/tools-snapshot/buildrace.sh": "869006218a5e48ca5f19af32409b92e0e20ec6a7b1db7c60ab07aff7ea84e194",
+  "output/phenomorpher/race-sizing/tools-snapshot/bodymotion.py": "efedfa8f4d6f6eb857438c11e06280e8062673bfe486d069542072288f43dfc6"
+ },
+ "toolkitCommit": "900a0633 (mdl-compile refuses an unresolved supermodel)",
+ "evidence": {
+  "output/phenomorpher/race-sizing/c7-evidence/01-mcp-computer-use-blob-1793112747379-r5w5g0.jpg": "cf1567405ae4a49ca5d2c9ae7b4b1d51eaa5c064104062d813860a0a6085b19e",
+  "output/phenomorpher/race-sizing/c7-evidence/02-mcp-computer-use-blob-1793112747380-4corfd.jpg": "acc20c119ea0746598a1e83dd83a5fe5f49020647d238fbd01985487abdd12f2",
+  "output/phenomorpher/race-sizing/c7-evidence/03-mcp-computer-use-blob-1793112826999-8p9a30.jpg": "c62bb51bd588cbac18e981fa526a97b8c18ccf9697316ffbb9d79cd1d534776f",
+  "output/phenomorpher/race-sizing/c7-evidence/04-mcp-computer-use-blob-1793112826999-rc1h7j.jpg": "aebc7cd59d71c5ca38e8ce3d780abf580d70866cad63d3d61a87eb935fc42184",
+  "output/phenomorpher/race-sizing/c7-evidence/05-mcp-computer-use-blob-1793112826999-s779cx.jpg": "dd921d60cdad82f302e4add1c17a094de543a7e3f29071e3caf98008e29be9a4",
+  "output/phenomorpher/race-sizing/c7-evidence/06-mcp-computer-use-blob-1793112826999-x3w7ov.jpg": "21c2202ccbf0fbc0444f00f1afecc48220f26db2767086a41f770a971a10ca31",
+  "output/phenomorpher/race-sizing/c7-evidence/07-mcp-computer-use-blob-1793112827000-brxt7v.jpg": "d28c46a2874ad4a8e478dab3b2e8b5b09a6f5928f6973b4f884e10836e6d9d0f",
+  "output/phenomorpher/race-sizing/c7-evidence/08-mcp-computer-use-blob-1793112827000-c7rm54.jpg": "3d71029a0787149a022b61b8694f89fb81227372aec465ce7ff4662547c39135",
+  "output/phenomorpher/race-sizing/c7-evidence/09-mcp-computer-use-blob-1793112827000-hqb951.jpg": "06fdc70d38eca665551707a3f5e5654e9fb379448772b203cab637fa9a2a7090",
+  "output/phenomorpher/race-sizing/c7-evidence/10-mcp-computer-use-blob-1793112827000-jue1yc.jpg": "6c715250e6147edac6d93d988afbbac9ff5665461f604f43ee853206f8604dd5",
+  "output/phenomorpher/race-sizing/c7-evidence/11-mcp-computer-use-blob-1793112827000-twyfki.jpg": "cf137942098a3b08e4e88c27fd51d25b9d86572d20cdec56860b9ba86820d8d7",
+  "output/phenomorpher/race-sizing/c7-evidence/12-mcp-computer-use-blob-1793112878788-arwlfe.jpg": "e7e756b2c6e276ddac4949518a6a7b841f062e084cab21f9f5bc63a8fa3e86f1",
+  "output/phenomorpher/race-sizing/c7-evidence/13-mcp-computer-use-blob-1793112878788-lqc9vq.jpg": "62cab2f8f72536d2debd3078f18f14f0b0efc388a17445668c9a0abd8f53399c",
+  "output/phenomorpher/race-sizing/c7-evidence/14-mcp-computer-use-blob-1793112878788-m0suq1.jpg": "57eb2bfa71fe3198c2e4e9cc74dec194829968fa265228413c652d6b67b7c179",
+  "output/phenomorpher/race-sizing/c7-evidence/15-mcp-computer-use-blob-1793112878788-n96ib3.jpg": "5b604f8b0670b0040bbd407d326e6ab682765ffae76675cdd353aca34bfaf533",
+  "output/phenomorpher/race-sizing/c7-evidence/16-mcp-computer-use-blob-1793112878788-psvveh.jpg": "67e2709578e6bdfbcd8034b2777cde589a8dccf43a3bba6d302111d347615089",
+  "output/phenomorpher/race-sizing/c7-evidence/17-mcp-computer-use-blob-1793112878788-utonig.jpg": "8ffbddfe4ec7519ac13d861d736c66334c093b7b5008b71bb068cdceb6bc1eb7",
+  "output/phenomorpher/race-sizing/c7-evidence/18-mcp-computer-use-blob-1793112913826-90huqz.jpg": "d9acd35415407c90fe6212f43575fcf68f5d4c61215c615aa79311a8e9ad75f5",
+  "output/phenomorpher/race-sizing/c7-evidence/19-mcp-computer-use-blob-1793112913826-caiv8a.jpg": "fbd3f76f7bbefdd1606020d5db7a441a1b27ec6c954fec40841110454b4ec661",
+  "output/phenomorpher/race-sizing/c7-evidence/20-mcp-computer-use-blob-1793112913826-y8x31p.jpg": "e15fdd0e1c460d99791fb4a8d4e5f0ae8a7e6e3d24cbdc5171be2bbc31c30b60",
+  "output/phenomorpher/race-sizing/c7-evidence/21-mcp-computer-use-blob-1793112934784-u5fd58.jpg": "c3e1983356d7684a4855c8a4b4aa9f4ba3e409dd4af2409cddf2e82f5fc0817d",
+  "output/phenomorpher/race-sizing/c7-evidence/22-mcp-computer-use-blob-1793112939846-d1z3bo.jpg": "1865538164bcd06a2f6bae0821a078a3d23588e4a14edbf25bd241aa5b60e30a"
+ },
+ "gates": {
+  "staticSweep": "output/phenomorpher/race-sizing/gates-r3/sweep/pmh2/pmh2.json",
+  "staticSweepSha256": "067281a2cc05aca6ee914d8c8e7026a23153b7fd15ac40c3b1c10abf9df02b56",
+  "verifyRuntime": "output/phenomorpher/race-sizing/gates-r3/verify-runtime",
+  "verifyRuntimeSha256": "9bd9c88e8c815028151d6aaf58d1cbcb26c0f021e6c84bfbbf1ca079cd506a70"
+ }
+}

@@ -13,7 +13,8 @@ diagnostics and repair depend on the defect actually observed.
 The installed `Pixal3DMultiViewConditioning` provides four side cameras at
 elevation zero using perspective projection. The additive workspace node is
 `tools/phenotypes/comfy_nodes/srn_orthographic_multiview/__init__.py`, installed
-as `custom_nodes/srn_orthographic_multiview` by the guarded installer. It checks
+as `custom_nodes/srn_orthographic_multiview` by the guarded installer, which takes
+the local `-ComfyRoot` and `-SharedRoot` paths explicitly. It checks
 exact upstream source hashes before patching the in-memory projection dispatcher;
 no installed core file or saved workflow is edited. Positive-FOV conditioning
 calls the original projector byte-exact. Removing the additive node and restarting

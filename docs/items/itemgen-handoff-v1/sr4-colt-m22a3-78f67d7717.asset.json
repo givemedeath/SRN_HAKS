@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-colt-m22a3-78f67d7717",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-top",
+      "pixel": [
+        27.0,
+        480.0
+      ]
+    },
+    {
+      "name": "scope-top",
+      "pixel": [
+        486.00000000000006,
+        384.99999999999994
+      ]
+    },
+    {
+      "name": "barrel-tip",
+      "pixel": [
+        1238.0,
+        530.0
+      ]
+    },
+    {
+      "name": "trigger-bottom",
+      "pixel": [
+        550.0,
+        663.0
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        405.0,
+        755.0
+      ]
+    },
+    {
+      "name": "magazine-base",
+      "pixel": [
+        690.0,
+        805.9999999999999
+      ]
+    },
+    {
+      "name": "launcher-tip",
+      "pixel": [
+        1057.0,
+        596.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-colt-m22a3-78f67d7717.family.json",
+    "sha256": "a990b017fd33a59135316234632dea344b5ad255ac529578337d58232f980851"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/f532f2508e1be431fbc9190600307cc96fc5c438da057c5509ad3c7cdc3355c6.png",
+      "sha256": "f532f2508e1be431fbc9190600307cc96fc5c438da057c5509ad3c7cdc3355c6"
+    },
+    "clayReference": {
+      "path": "inputs/80ca24ce473c1a57bf787013c6b02b5ed4fdd434ce3ae27d25e287b24d907f51.png",
+      "sha256": "80ca24ce473c1a57bf787013c6b02b5ed4fdd434ce3ae27d25e287b24d907f51"
+    },
+    "geometry": {
+      "path": "inputs/ab283782d8e057850843e1aa266ae14f8c970ed1aeae02d9a2cabd19cfeaf7ee.png",
+      "sha256": "ab283782d8e057850843e1aa266ae14f8c970ed1aeae02d9a2cabd19cfeaf7ee"
+    },
+    "detail": {
+      "path": "inputs/144751ebf16a480745790ac06a787ba5c391dd4fa3ad6e6df0854238ffa722e4.png",
+      "sha256": "144751ebf16a480745790ac06a787ba5c391dd4fa3ad6e6df0854238ffa722e4"
+    },
+    "foregroundMask": {
+      "path": "inputs/34edd1f76640a2069e04c86e117682ea03bace5b501ddbfd8ae299a9b2b55cb2.png",
+      "sha256": "34edd1f76640a2069e04c86e117682ea03bace5b501ddbfd8ae299a9b2b55cb2"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/67eb25c469220e1833c7c4513aa0380ca1d02d1c192838804a037797aa848294.png",
+      "sha256": "67eb25c469220e1833c7c4513aa0380ca1d02d1c192838804a037797aa848294"
+    },
+    "mask": {
+      "path": "inputs/67eb25c469220e1833c7c4513aa0380ca1d02d1c192838804a037797aa848294.png",
+      "sha256": "67eb25c469220e1833c7c4513aa0380ca1d02d1c192838804a037797aa848294"
+    },
+    "calibrationReference": {
+      "path": "inputs/7644b8ae43475d99f92d0f0491f80ba19fa8c5960d367ebca2e9ef916aaf1479.png",
+      "sha256": "7644b8ae43475d99f92d0f0491f80ba19fa8c5960d367ebca2e9ef916aaf1479"
+    },
+    "sourceAudit": {
+      "path": "inputs/3f15563ebadfeedeedf4a9972cf5dd5f7a19f2afde82692b109e713cf8ae24cd.json",
+      "sha256": "3f15563ebadfeedeedf4a9972cf5dd5f7a19f2afde82692b109e713cf8ae24cd"
+    },
+    "referenceApproval": {
+      "path": "inputs/0c8f104cb119350326c4a6fe0775bc04f6ba28343998c518fdb96c9477869cd2.json",
+      "sha256": "0c8f104cb119350326c4a6fe0775bc04f6ba28343998c518fdb96c9477869cd2"
+    },
+    "calibrationDetail": {
+      "path": "inputs/3733c23acdf4bfa7dde07a2e35ec31c495dbeb38deaaaa9c662a4317f29c4d01.png",
+      "sha256": "3733c23acdf4bfa7dde07a2e35ec31c495dbeb38deaaaa9c662a4317f29c4d01"
+    }
+  },
+  "features": [
+    {
+      "name": "Follow own M22A3 illustration on printed26/PDF28: flared solid buttstock, long receiver, angled pistol grip, projecting box magazine, thin upper barrel and substantial rectangular underbarrel launcher assembly.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Integral top-mounted imaging scope, barrel-built gas-vent system and underbarrel grenade launcher are required standard features. Preserve separate barrel/launcher structure and negative spaces.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned reviewer approved the source-matched detailed and bounded-retouched clay pair; checked foreground edges, trigger opening, thin barrel and launcher gap against actual matte previews. Native 1254 square images are resampled to 2048. No geometry approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        852,
+        1050,
+        986,
+        1112
+      ],
+      "referenceAreaPixels": 5945,
+      "referenceMaskSha256": "67eb25c469220e1833c7c4513aa0380ca1d02d1c192838804a037797aa848294",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f532f2508e1be431fbc9190600307cc96fc5c438da057c5509ad3c7cdc3355c6",
+      "imageSha256": "144751ebf16a480745790ac06a787ba5c391dd4fa3ad6e6df0854238ffa722e4",
+      "maskSha256": "34edd1f76640a2069e04c86e117682ea03bace5b501ddbfd8ae299a9b2b55cb2",
+      "notes": "Assigned reviewer approved the source-matched detailed and bounded-retouched clay pair; checked foreground edges, trigger opening, thin barrel and launcher gap against actual matte previews. Native 1254 square images are resampled to 2048. No geometry approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "80ca24ce473c1a57bf787013c6b02b5ed4fdd434ce3ae27d25e287b24d907f51",
+      "imageSha256": "ab283782d8e057850843e1aa266ae14f8c970ed1aeae02d9a2cabd19cfeaf7ee",
+      "maskSha256": "67eb25c469220e1833c7c4513aa0380ca1d02d1c192838804a037797aa848294",
+      "notes": "Assigned reviewer approved the source-matched detailed and bounded-retouched clay pair; checked foreground edges, trigger opening, thin barrel and launcher gap against actual matte previews. Native 1254 square images are resampled to 2048. No geometry approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned reviewer approved the source-matched detailed and bounded-retouched clay pair; checked foreground edges, trigger opening, thin barrel and launcher gap against actual matte previews. Native 1254 square images are resampled to 2048. No geometry approval.",
+      "landmarks": [
+        {
+          "name": "stock-top",
+          "detail": [
+            0.060776141094638504,
+            0.4147394613583138
+          ],
+          "geometry": [
+            0.060776141094638504,
+            0.4147394613583138
+          ]
+        },
+        {
+          "name": "scope-top",
+          "detail": [
+            0.3965026210905768,
+            0.345213700234192
+          ],
+          "geometry": [
+            0.3965026210905768,
+            0.345213700234192
+          ]
+        },
+        {
+          "name": "barrel-tip",
+          "detail": [
+            0.9465381613017871,
+            0.45133196721311475
+          ],
+          "geometry": [
+            0.9465381613017871,
+            0.45133196721311475
+          ]
+        },
+        {
+          "name": "trigger-bottom",
+          "detail": [
+            0.44331415642770106,
+            0.5486680327868853
+          ],
+          "geometry": [
+            0.44331415642770106,
+            0.5486680327868853
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.33725677167952883,
+            0.615998243559719
+          ],
+          "geometry": [
+            0.33725677167952883,
+            0.615998243559719
+          ]
+        },
+        {
+          "name": "magazine-base",
+          "detail": [
+            0.5457143899776604,
+            0.6533225995316159
+          ],
+          "geometry": [
+            0.5457143899776604,
+            0.6533225995316159
+          ]
+        },
+        {
+          "name": "launcher-tip",
+          "detail": [
+            0.8141492879264826,
+            0.49963407494145196
+          ],
+          "geometry": [
+            0.8141492879264826,
+            0.49963407494145196
+          ]
+        }
+      ],
+      "referenceSha256": "f532f2508e1be431fbc9190600307cc96fc5c438da057c5509ad3c7cdc3355c6",
+      "geometrySha256": "ab283782d8e057850843e1aa266ae14f8c970ed1aeae02d9a2cabd19cfeaf7ee",
+      "detailSha256": "144751ebf16a480745790ac06a787ba5c391dd4fa3ad6e6df0854238ffa722e4",
+      "foregroundMaskSha256": "34edd1f76640a2069e04c86e117682ea03bace5b501ddbfd8ae299a9b2b55cb2",
+      "geometryForegroundMaskSha256": "67eb25c469220e1833c7c4513aa0380ca1d02d1c192838804a037797aa848294"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

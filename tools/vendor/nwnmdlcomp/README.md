@@ -34,3 +34,18 @@ NWN 1.69 `chitin.key` through its legacy install discovery before it will compil
 installation with `nwn_base.key` does not satisfy that requirement. No legacy `chitin.key` is
 available on the current host, so the compilation smoke test correctly failed without producing an
 output file. The wrapper detects that failure even though the old executable returns exit code zero.
+
+**Compiling on an EE-only host (2026-11-07).** With no BioWare registry key, the compiler falls back to
+`C:/NeverwinterNights/Nwn/` and opens `chitin.key` there. EE's `data/nwn_base.key` is the same `KEY V1`
+format, and its BIF paths are relative (`data\...`), so this setup compiles:
+
+```powershell
+$nwn = 'C:\NeverwinterNights\Nwn'
+New-Item -ItemType Directory -Force $nwn | Out-Null
+Copy-Item '<EE install>\data\nwn_base.key' "$nwn\chitin.key"
+New-Item -ItemType Junction -Path "$nwn\data" -Target '<EE install>\data'
+```
+
+The firearm effect guns compiled this way and decompiled back with every clip, `detonate` event, emitter and
+emitter setting intact. Only editor-only emitter fields (`*_sel`, `wirecolor`, `iconSize`) and unused defaults
+were dropped. The `NWNDIR` variable in the upstream source isn't read by this build.

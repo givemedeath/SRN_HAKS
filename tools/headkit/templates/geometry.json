@@ -1,0 +1,282 @@
+{
+  "319": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "pixal3d_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "279": {
+    "class_type": "CFGOverride",
+    "inputs": {
+      "cfg": 1,
+      "start_percent": 0.769,
+      "end_percent": 1,
+      "model": [
+        "319",
+        0
+      ]
+    }
+  },
+  "126": {
+    "class_type": "RescaleCFG",
+    "inputs": {
+      "multiplier": 0.5,
+      "model": [
+        "279",
+        0
+      ]
+    }
+  },
+  "15": {
+    "class_type": "CLIPVisionLoader",
+    "inputs": {
+      "clip_name": "dino_v3_L_naf_fp32.safetensors"
+    }
+  },
+  "364": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "INPUT.png"
+    }
+  },
+  "199": {
+    "class_type": "CFGOverride",
+    "inputs": {
+      "cfg": 1,
+      "start_percent": 0.667,
+      "end_percent": 1,
+      "model": [
+        "319",
+        0
+      ]
+    }
+  },
+  "125": {
+    "class_type": "RescaleCFG",
+    "inputs": {
+      "multiplier": 0.7,
+      "model": [
+        "199",
+        0
+      ]
+    }
+  },
+  "108": {
+    "class_type": "ModelSamplingSD3",
+    "inputs": {
+      "shift": 5,
+      "model": [
+        "125",
+        0
+      ]
+    }
+  },
+  "87": {
+    "class_type": "EmptyTrellis2LatentStructure",
+    "inputs": {
+      "batch_size": 1
+    }
+  },
+  "3": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 56,
+      "steps": 12,
+      "cfg": 7.5,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": [
+        "108",
+        0
+      ],
+      "positive": [
+        "298",
+        0
+      ],
+      "negative": [
+        "298",
+        1
+      ],
+      "latent_image": [
+        "87",
+        0
+      ]
+    }
+  },
+  "117": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "trellis_2_shape_vae_bf16.safetensors"
+    }
+  },
+  "119": {
+    "class_type": "VaeDecodeStructureTrellis2",
+    "inputs": {
+      "resolution": "32",
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "117",
+        0
+      ]
+    }
+  },
+  "91": {
+    "class_type": "Trellis2ShapeStage",
+    "inputs": {
+      "positive": [
+        "298",
+        0
+      ],
+      "negative": [
+        "298",
+        1
+      ],
+      "voxel": [
+        "119",
+        0
+      ]
+    }
+  },
+  "18": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 242,
+      "steps": 20,
+      "cfg": 12.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": [
+        "126",
+        0
+      ],
+      "positive": [
+        "91",
+        0
+      ],
+      "negative": [
+        "91",
+        1
+      ],
+      "latent_image": [
+        "91",
+        2
+      ]
+    }
+  },
+  "94": {
+    "class_type": "Trellis2UpsampleStage",
+    "inputs": {
+      "target_resolution": 1536,
+      "positive": [
+        "91",
+        0
+      ],
+      "negative": [
+        "91",
+        1
+      ],
+      "shape_latent": [
+        "18",
+        0
+      ],
+      "vae": [
+        "117",
+        0
+      ]
+    }
+  },
+  "23": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 12,
+      "cfg": 7.5,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "126",
+        0
+      ],
+      "positive": [
+        "94",
+        0
+      ],
+      "negative": [
+        "94",
+        1
+      ],
+      "latent_image": [
+        "94",
+        2
+      ]
+    }
+  },
+  "92": {
+    "class_type": "HeadkitDecodeShapeV1",
+    "inputs": {
+      "latent": [
+        "23",
+        0
+      ],
+      "vae": [
+        "117",
+        0
+      ],
+      "chunk_budget_mb": 512,
+      "filename_prefix": "headkit/OUTPUT"
+    }
+  },
+  "960": {
+    "class_type": "MeshToFile3D",
+    "inputs": {
+      "mesh": [
+        "92",
+        0
+      ]
+    }
+  },
+  "961": {
+    "class_type": "Save3DAdvanced",
+    "inputs": {
+      "model_3d": [
+        "960",
+        0
+      ],
+      "filename_prefix": "headkit/OUTPUT",
+      "viewport_state": {},
+      "width": 1024,
+      "height": 1024
+    }
+  },
+  "963": {
+    "class_type": "HeadkitSaveShapeV1",
+    "inputs": {
+      "latent": [
+        "23",
+        0
+      ],
+      "filename_prefix": "headkit/OUTPUT"
+    }
+  },
+  "298": {
+    "class_type": "Pixal3DConditioning",
+    "inputs": {
+      "clip_vision_model": [
+        "15",
+        0
+      ],
+      "image": [
+        "364",
+        0
+      ],
+      "camera_angle_x": 45.0
+    }
+  }
+}

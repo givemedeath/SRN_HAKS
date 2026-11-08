@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-aquadyne-harpoon-gun-71afa41db3",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        36.0,
+        204.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1739.0,
+        204.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        36.0,
+        782.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1739.0,
+        782.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-aquadyne-harpoon-gun-71afa41db3.family.json",
+    "sha256": "a6a15059a578edeb54f34fe8a75eefe22430172dc8dc1193a23c7b94d707212e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/07ce3b2a7cefdea1ae8c67954827545e8c398ff6909be52c4f52825c05126167.png",
+      "sha256": "07ce3b2a7cefdea1ae8c67954827545e8c398ff6909be52c4f52825c05126167"
+    },
+    "clayReference": {
+      "path": "inputs/47c5a3c475f886a8d57585bc1e8737cab540e3de2d8443bd430a0c54e74fed4d.png",
+      "sha256": "47c5a3c475f886a8d57585bc1e8737cab540e3de2d8443bd430a0c54e74fed4d"
+    },
+    "geometry": {
+      "path": "inputs/09d26398364a508bf7e31b064de346f3f6f6aacc1cb45ac6d163ea680023da8c.png",
+      "sha256": "09d26398364a508bf7e31b064de346f3f6f6aacc1cb45ac6d163ea680023da8c"
+    },
+    "detail": {
+      "path": "inputs/82eabb358febc98795e4941c34706cc9b183122673bd2b109036897903567e06.png",
+      "sha256": "82eabb358febc98795e4941c34706cc9b183122673bd2b109036897903567e06"
+    },
+    "foregroundMask": {
+      "path": "inputs/ac2757b1b9f0ed9c45c8fa343b083953e0eaf6b24933d2cff545ca9309ce6923.png",
+      "sha256": "ac2757b1b9f0ed9c45c8fa343b083953e0eaf6b24933d2cff545ca9309ce6923"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9.png",
+      "sha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9"
+    },
+    "mask": {
+      "path": "inputs/843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9.png",
+      "sha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9"
+    },
+    "calibrationReference": {
+      "path": "inputs/8280f44efda8f8b4e08577f57ab1a9bb583129da61efce352c220eff47c18ec5.png",
+      "sha256": "8280f44efda8f8b4e08577f57ab1a9bb583129da61efce352c220eff47c18ec5"
+    },
+    "sourceAudit": {
+      "path": "inputs/4aa109938f33e4d089b98e8d5fb2834198fdc485f2a85ddd05518d883f200080.json",
+      "sha256": "4aa109938f33e4d089b98e8d5fb2834198fdc485f2a85ddd05518d883f200080"
+    },
+    "referenceApproval": {
+      "path": "inputs/52b10709d0e2498f40e09b6f069f4e315d7bb9d3c49d75d6d3585c5bac5fbf26.json",
+      "sha256": "52b10709d0e2498f40e09b6f069f4e315d7bb9d3c49d75d6d3585c5bac5fbf26"
+    },
+    "calibrationDetail": {
+      "path": "inputs/f9b1a62ace670e08996e96c1041b1fa76fa1a279f25174570aef39e7cfabbaf2.png",
+      "sha256": "f9b1a62ace670e08996e96c1041b1fa76fa1a279f25174570aef39e7cfabbaf2"
+    }
+  },
+  "features": [
+    {
+      "name": "The description names AquaDyne Shark-XS Harpoon Gun and describes an arrow-like barbed projectile launcher for diving.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Internal magazine construction is specified, not an exposed bank of external harpoons. Do not invent crossbow limbs from the neighboring pistol-crossbow artwork.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual foreground pair and conditioned overlay reviewed: aligned silhouette and main forms, preserved structural openings and thin members. Shallow grooves accepted. Arsenal printed18/PDF20: AquaDyne Shark-XS Harpoon Gun (catalog short alias), enclosed internal-magazine diving launcher and loaded barbed projectile. No crossbow limbs or exposed bank of harpoons. Exact external form and colors are interpretation; no own labeled illustration located.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        532,
+        739,
+        601,
+        755
+      ],
+      "referenceAreaPixels": 840,
+      "referenceMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        532,
+        781,
+        606,
+        794
+      ],
+      "referenceAreaPixels": 667,
+      "referenceMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1905,
+        818,
+        1924,
+        894
+      ],
+      "referenceAreaPixels": 1406,
+      "referenceMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        532,
+        854,
+        603,
+        871
+      ],
+      "referenceAreaPixels": 842,
+      "referenceMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1234,
+        935,
+        1477,
+        1088
+      ],
+      "referenceAreaPixels": 23555,
+      "referenceMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1418,
+        946,
+        1430,
+        953
+      ],
+      "referenceAreaPixels": 56,
+      "referenceMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1410,
+        978,
+        1434,
+        999
+      ],
+      "referenceAreaPixels": 324,
+      "referenceMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "07ce3b2a7cefdea1ae8c67954827545e8c398ff6909be52c4f52825c05126167",
+      "imageSha256": "82eabb358febc98795e4941c34706cc9b183122673bd2b109036897903567e06",
+      "maskSha256": "ac2757b1b9f0ed9c45c8fa343b083953e0eaf6b24933d2cff545ca9309ce6923",
+      "notes": "Actual foreground pair and conditioned overlay reviewed: aligned silhouette and main forms, preserved structural openings and thin members. Shallow grooves accepted. Arsenal printed18/PDF20: AquaDyne Shark-XS Harpoon Gun (catalog short alias), enclosed internal-magazine diving launcher and loaded barbed projectile. No crossbow limbs or exposed bank of harpoons. Exact external form and colors are interpretation; no own labeled illustration located."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "47c5a3c475f886a8d57585bc1e8737cab540e3de2d8443bd430a0c54e74fed4d",
+      "imageSha256": "09d26398364a508bf7e31b064de346f3f6f6aacc1cb45ac6d163ea680023da8c",
+      "maskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "notes": "Actual foreground pair and conditioned overlay reviewed: aligned silhouette and main forms, preserved structural openings and thin members. Shallow grooves accepted. Arsenal printed18/PDF20: AquaDyne Shark-XS Harpoon Gun (catalog short alias), enclosed internal-magazine diving launcher and loaded barbed projectile. No crossbow limbs or exposed bank of harpoons. Exact external form and colors are interpretation; no own labeled illustration located."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual foreground pair and conditioned overlay reviewed: aligned silhouette and main forms, preserved structural openings and thin members. Shallow grooves accepted. Arsenal printed18/PDF20: AquaDyne Shark-XS Harpoon Gun (catalog short alias), enclosed internal-magazine diving launcher and loaded barbed projectile. No crossbow limbs or exposed bank of harpoons. Exact external form and colors are interpretation; no own labeled illustration located.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.0498046875,
+            0.34716796875
+          ],
+          "geometry": [
+            0.0498046875,
+            0.34716796875
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.949666914245892,
+            0.34716796875
+          ],
+          "geometry": [
+            0.9501953125,
+            0.34716796875
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.0498046875,
+            0.65234375
+          ],
+          "geometry": [
+            0.0498046875,
+            0.65234375
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.949666914245892,
+            0.65234375
+          ],
+          "geometry": [
+            0.9501953125,
+            0.65234375
+          ]
+        }
+      ],
+      "referenceSha256": "07ce3b2a7cefdea1ae8c67954827545e8c398ff6909be52c4f52825c05126167",
+      "geometrySha256": "09d26398364a508bf7e31b064de346f3f6f6aacc1cb45ac6d163ea680023da8c",
+      "detailSha256": "82eabb358febc98795e4941c34706cc9b183122673bd2b109036897903567e06",
+      "geometryForegroundMaskSha256": "843ca857fe0f6b51d5f76d7a8ece3d093eb1a47b58e52e84f6d5b2cfab1dd7a9",
+      "foregroundMaskSha256": "ac2757b1b9f0ed9c45c8fa343b083953e0eaf6b24933d2cff545ca9309ce6923"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

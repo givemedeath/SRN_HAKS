@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-gm-heavy-cannon-2371f16b6c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-upper-ring",
+      "pixel": [
+        50.0,
+        616.0
+      ]
+    },
+    {
+      "name": "barrel-upper",
+      "pixel": [
+        400.0,
+        557.0
+      ]
+    },
+    {
+      "name": "rear-housing-top",
+      "pixel": [
+        1100.0,
+        323.00000000000006
+      ]
+    },
+    {
+      "name": "mount-bottom",
+      "pixel": [
+        899.9999999999999,
+        838.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-gm-heavy-cannon-2371f16b6c.family.json",
+    "sha256": "c8b0882d29e160535b65ec53b56bd63d4d06e4869a491030aa86a256c0011433"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/54b270da6d6c82ad134deb5bce9bf3ae4305ff0eb244c2ec2bc8d86163dba912.png",
+      "sha256": "54b270da6d6c82ad134deb5bce9bf3ae4305ff0eb244c2ec2bc8d86163dba912"
+    },
+    "clayReference": {
+      "path": "inputs/9aacb9fe9155fd8eb53e8e1bab59b896b339f6dd1ec888aa8f2c859827908e5e.png",
+      "sha256": "9aacb9fe9155fd8eb53e8e1bab59b896b339f6dd1ec888aa8f2c859827908e5e"
+    },
+    "geometry": {
+      "path": "inputs/0359490b657aee300ce846d1271b5e3c374a229d6ce1dbdd0854a9d489c0e65e.png",
+      "sha256": "0359490b657aee300ce846d1271b5e3c374a229d6ce1dbdd0854a9d489c0e65e"
+    },
+    "detail": {
+      "path": "inputs/0cf4c71b3a4b02266c7c74bfe75f493391a8dfd57beb8d44ff013d360eb307d4.png",
+      "sha256": "0cf4c71b3a4b02266c7c74bfe75f493391a8dfd57beb8d44ff013d360eb307d4"
+    },
+    "foregroundMask": {
+      "path": "inputs/73c11289c941c1550a2e616928f3a7b2a0707a3814348dca59c8dc37fc58ef42.png",
+      "sha256": "73c11289c941c1550a2e616928f3a7b2a0707a3814348dca59c8dc37fc58ef42"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/bd4373a1b2462a479cd54e1f69345ef8c9d496500bcece52b6b31a3e8835963e.png",
+      "sha256": "bd4373a1b2462a479cd54e1f69345ef8c9d496500bcece52b6b31a3e8835963e"
+    },
+    "mask": {
+      "path": "inputs/bd4373a1b2462a479cd54e1f69345ef8c9d496500bcece52b6b31a3e8835963e.png",
+      "sha256": "bd4373a1b2462a479cd54e1f69345ef8c9d496500bcece52b6b31a3e8835963e"
+    },
+    "calibrationReference": {
+      "path": "inputs/1171641de94177d14a20aba396c1292f8d22c80cffa11b80c9aad3fe40413ef9.png",
+      "sha256": "1171641de94177d14a20aba396c1292f8d22c80cffa11b80c9aad3fe40413ef9"
+    },
+    "sourceAudit": {
+      "path": "inputs/bc1b2aebb835b4920fc7ad0eebe690b81bb57fd5af9010f55562a81999c6ebc6.json",
+      "sha256": "bc1b2aebb835b4920fc7ad0eebe690b81bb57fd5af9010f55562a81999c6ebc6"
+    },
+    "referenceApproval": {
+      "path": "inputs/df2c8a58ca6271d3d2841dc6db75615e3df60caebae151266a67c17f2c51494c.json",
+      "sha256": "df2c8a58ca6271d3d2841dc6db75615e3df60caebae151266a67c17f2c51494c"
+    },
+    "calibrationDetail": {
+      "path": "inputs/7115fa12fc47376998ca1070bd762b90a36fe5a84ef5aeb5ceb5bae0efa1a86e.png",
+      "sha256": "7115fa12fc47376998ca1070bd762b90a36fe5a84ef5aeb5ceb5bae0efa1a86e"
+    }
+  },
+  "features": [
+    {
+      "name": "Heavy conventional cannon used on main battle tanks. It is neither a gauss cannon nor missile launcher; no external power array is required by its description.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Mounted large-bore cannon assembly appropriate to the main-gun context; absolute bore, barrel length, breech, recoil housing, and exact turret geometry are unspecified.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual GM Heavy Cannon detail against Arsenal124/PDF126,vehicle context123/PDF125 and table195/PDF197. Complete massive conventional ONE-barrel tank-mount exterior module,covered rear/recoil housing and broad closed interface base,not a handheld gun,gauss array or missile system. No whole tank,mandatory external power array,ammunition,cutaway/action. Exact exterior/bore ratios/mount/finish artistic,not unique labeled art or native mechanics. All muzzle/rear/base framed with positive margins,no cast shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "54b270da6d6c82ad134deb5bce9bf3ae4305ff0eb244c2ec2bc8d86163dba912",
+      "imageSha256": "0cf4c71b3a4b02266c7c74bfe75f493391a8dfd57beb8d44ff013d360eb307d4",
+      "maskSha256": "73c11289c941c1550a2e616928f3a7b2a0707a3814348dca59c8dc37fc58ef42",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual GM Heavy Cannon detail against Arsenal124/PDF126,vehicle context123/PDF125 and table195/PDF197. Complete massive conventional ONE-barrel tank-mount exterior module,covered rear/recoil housing and broad closed interface base,not a handheld gun,gauss array or missile system. No whole tank,mandatory external power array,ammunition,cutaway/action. Exact exterior/bore ratios/mount/finish artistic,not unique labeled art or native mechanics. All muzzle/rear/base framed with positive margins,no cast shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9aacb9fe9155fd8eb53e8e1bab59b896b339f6dd1ec888aa8f2c859827908e5e",
+      "imageSha256": "0359490b657aee300ce846d1271b5e3c374a229d6ce1dbdd0854a9d489c0e65e",
+      "maskSha256": "bd4373a1b2462a479cd54e1f69345ef8c9d496500bcece52b6b31a3e8835963e",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual GM Heavy Cannon detail against Arsenal124/PDF126,vehicle context123/PDF125 and table195/PDF197. Complete massive conventional ONE-barrel tank-mount exterior module,covered rear/recoil housing and broad closed interface base,not a handheld gun,gauss array or missile system. No whole tank,mandatory external power array,ammunition,cutaway/action. Exact exterior/bore ratios/mount/finish artistic,not unique labeled art or native mechanics. All muzzle/rear/base framed with positive margins,no cast shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "54b270da6d6c82ad134deb5bce9bf3ae4305ff0eb244c2ec2bc8d86163dba912",
+      "detailSha256": "0cf4c71b3a4b02266c7c74bfe75f493391a8dfd57beb8d44ff013d360eb307d4",
+      "geometrySha256": "0359490b657aee300ce846d1271b5e3c374a229d6ce1dbdd0854a9d489c0e65e",
+      "foregroundMaskSha256": "73c11289c941c1550a2e616928f3a7b2a0707a3814348dca59c8dc37fc58ef42",
+      "geometryForegroundMaskSha256": "bd4373a1b2462a479cd54e1f69345ef8c9d496500bcece52b6b31a3e8835963e",
+      "landmarks": [
+        {
+          "name": "muzzle-upper-ring",
+          "detail": [
+            0.07830731280438312,
+            0.5238658805762082
+          ],
+          "geometry": [
+            0.07830731280438312,
+            0.525327093982342
+          ]
+        },
+        {
+          "name": "barrel-upper",
+          "detail": [
+            0.33410010399756496,
+            0.48076008509526025
+          ],
+          "geometry": [
+            0.33410010399756496,
+            0.48149069179832715
+          ]
+        },
+        {
+          "name": "rear-housing-top",
+          "detail": [
+            0.8456856863839286,
+            0.30979811657760226
+          ],
+          "geometry": [
+            0.8456856863839286,
+            0.30979811657760226
+          ]
+        },
+        {
+          "name": "mount-bottom",
+          "detail": [
+            0.6995183771306818,
+            0.6860605686570632
+          ],
+          "geometry": [
+            0.6995183771306818,
+            0.6867911753601301
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual GM Heavy Cannon detail against Arsenal124/PDF126,vehicle context123/PDF125 and table195/PDF197. Complete massive conventional ONE-barrel tank-mount exterior module,covered rear/recoil housing and broad closed interface base,not a handheld gun,gauss array or missile system. No whole tank,mandatory external power array,ammunition,cutaway/action. Exact exterior/bore ratios/mount/finish artistic,not unique labeled art or native mechanics. All muzzle/rear/base framed with positive margins,no cast shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

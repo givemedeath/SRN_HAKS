@@ -15,6 +15,40 @@ from head_workflow import (MOTION, Session, RECIPE, allocate_slots, fit_similari
 from head_export import ascii_model, node_matrix, plt_bytes
 
 
+class PltEncodingTests(unittest.TestCase):
+    def test_all_channels_roundtrip_without_changing_inputs(self):
+        shades = np.full((1024, 1024), 37, dtype=np.uint8)
+        layers = np.zeros_like(shades)
+        for channel in range(10):
+            layers[channel, :] = channel
+            shades[channel, :] = 100 + channel
+        before_shades, before_layers = shades.copy(), layers.copy()
+        payload = plt_bytes(shades, layers)
+        self.assertEqual(payload[:24], b"PLT V1  " + struct.pack("<IIII", 10, 0, 1024, 1024))
+        self.assertEqual(len(payload), 24 + 1024 * 1024 * 2)
+        # PLTs store rows bottom-up, with unblended shade/channel byte pairs.
+        pixels = np.frombuffer(payload[24:], dtype=np.uint8).reshape(1024, 1024, 2)[::-1]
+        np.testing.assert_array_equal(pixels[:, :, 0], before_shades)
+        np.testing.assert_array_equal(pixels[:, :, 1], before_layers)
+        np.testing.assert_array_equal(shades, before_shades)
+        np.testing.assert_array_equal(layers, before_layers)
+
+    def test_invalid_channels_and_non_byte_masks_are_rejected(self):
+        shades = np.zeros((1024, 1024), dtype=np.uint8)
+        for channel in (10, 11, 127, 255):
+            with self.subTest(channel=channel):
+                layers = shades.copy(); layers[500, 500] = channel
+                with self.assertRaisesRegex(ValueError, "channel IDs"):
+                    plt_bytes(shades, layers)
+        for dtype in (np.float32, np.int16):
+            with self.subTest(dtype=dtype), self.assertRaisesRegex(ValueError, "uint8"):
+                plt_bytes(shades, shades.astype(dtype))
+            with self.subTest(shade_dtype=dtype), self.assertRaisesRegex(ValueError, "uint8"):
+                plt_bytes(shades.astype(dtype), shades)
+        with self.assertRaisesRegex(ValueError, "1024 square"):
+            plt_bytes(shades, np.zeros((512, 512), dtype=np.uint8))
+
+
 class HeadTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -204,7 +238,7 @@ class HeadTests(unittest.TestCase):
         payload = plt_bytes(shades, layers)
         self.assertEqual(payload[:8], b"PLT V1  ")
         self.assertEqual(payload[24:26], bytes([123, 1]))
-        layers[0,0] = 2
+        layers[0,0] = 10
         with self.assertRaisesRegex(ValueError, "masks"): plt_bytes(shades, layers)
         p = np.array([[[0,0,0],[1,0,0],[0,1,0]]], dtype=float)
         n = np.tile([0,0,1], (1,3,1)); uv = p[:,:,:2]

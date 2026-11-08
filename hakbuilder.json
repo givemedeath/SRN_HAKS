@@ -142,6 +142,16 @@
       "Name": "srn_armor",
       "Path": "./srn_armor/",
       "CompileModels": false
+    },
+    {
+      "Name": "srn_head",
+      "Path": "./srn_head/",
+      "CompileModels": false
+    },
+    {
+      "Name": "srn_weapon",
+      "Path": "./srn_weapon/",
+      "CompileModels": false
     }
   ],
   "ExpectedOverrides": [
@@ -850,6 +860,34 @@
       "Packs": [
         "srn_placeable",
         "srn_t_shp02"
+      ]
+    },
+    {
+      "Resource": "pfg0_head001.mdl",
+      "Packs": [
+        "srn_body",
+        "srn_head"
+      ]
+    },
+    {
+      "Resource": "pfg0_head001.plt",
+      "Packs": [
+        "srn_body",
+        "srn_head"
+      ]
+    },
+    {
+      "Resource": "pmg0_head001.mdl",
+      "Packs": [
+        "srn_body",
+        "srn_head"
+      ]
+    },
+    {
+      "Resource": "pmg0_head001.plt",
+      "Packs": [
+        "srn_body",
+        "srn_head"
       ]
     }
   ]

@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-shiawase-microwave-cannon-4f5474c842",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-power-loop",
+      "pixel": [
+        90.95682819383259,
+        612.8215859030837
+      ]
+    },
+    {
+      "name": "middle-power-loop",
+      "pixel": [
+        115.96151996151995,
+        613.1794131794131
+      ]
+    },
+    {
+      "name": "inner-power-loop",
+      "pixel": [
+        172.57037275064266,
+        638.9916452442159
+      ]
+    },
+    {
+      "name": "under-panel-clearance",
+      "pixel": [
+        661.1059681697614,
+        694.7972148541114
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-shiawase-microwave-cannon-4f5474c842.family.json",
+    "sha256": "58155fb579285a94f9d014d2785c8997ab0afaa061bd606c50d1ee4bf3c41703"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/96777a515ef2fab004845be6e89b534b43244af2b40987629300c2134ccb1e2d.png",
+      "sha256": "96777a515ef2fab004845be6e89b534b43244af2b40987629300c2134ccb1e2d"
+    },
+    "clayReference": {
+      "path": "inputs/f1b3b5e932be0cfd4663a1a8118e7557be6b940200e22bb7712444134c19962e.png",
+      "sha256": "f1b3b5e932be0cfd4663a1a8118e7557be6b940200e22bb7712444134c19962e"
+    },
+    "geometry": {
+      "path": "inputs/a370860315373bdb08d675e3e6fa47fa49ef63a9ce52a42aec573306b35283ec.png",
+      "sha256": "a370860315373bdb08d675e3e6fa47fa49ef63a9ce52a42aec573306b35283ec"
+    },
+    "detail": {
+      "path": "inputs/c539e3c2a4bb310fcf964e0f574882132b2a9382e5ac223f7d6cac06673f2ff8.png",
+      "sha256": "c539e3c2a4bb310fcf964e0f574882132b2a9382e5ac223f7d6cac06673f2ff8"
+    },
+    "foregroundMask": {
+      "path": "inputs/ca83dd5c8a8a6f0c005884917d5349a84373ed3b58888964e36ad9374d3597f8.png",
+      "sha256": "ca83dd5c8a8a6f0c005884917d5349a84373ed3b58888964e36ad9374d3597f8"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b.png",
+      "sha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b"
+    },
+    "mask": {
+      "path": "inputs/0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b.png",
+      "sha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b"
+    },
+    "calibrationReference": {
+      "path": "inputs/7022029041e50710261fd57d02752b8dbf769009412d96f154e5843e9f1f1a46.png",
+      "sha256": "7022029041e50710261fd57d02752b8dbf769009412d96f154e5843e9f1f1a46"
+    },
+    "sourceAudit": {
+      "path": "inputs/98e84c69974db7e25530ec7f486af4380d803f430a105cae6b1733c4a4034a75.json",
+      "sha256": "98e84c69974db7e25530ec7f486af4380d803f430a105cae6b1733c4a4034a75"
+    },
+    "referenceApproval": {
+      "path": "inputs/d38788e25d9bfb52d81693382c49fb3ae53e8392a7498c699557d1bf415ba18c.json",
+      "sha256": "d38788e25d9bfb52d81693382c49fb3ae53e8392a7498c699557d1bf415ba18c"
+    },
+    "calibrationDetail": {
+      "path": "inputs/852bc40e66ee674d03e07ecef1a19c004e80914be87d2e409f8a24272c4a40fb.png",
+      "sha256": "852bc40e66ee674d03e07ecef1a19c004e80914be87d2e409f8a24272c4a40fb"
+    }
+  },
+  "features": [
+    {
+      "name": "Vehicle-mounted electrically powered microwave emitter for crowd control. The description references Fichetti Pain Inducer rules, not that handheld weapon exterior.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Vehicle power/recharge context; no antenna, dish, horn, emitter aperture, casing shape, external battery or specific visible color is defined.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        156,
+        858,
+        247,
+        1157
+      ],
+      "referenceAreaPixels": 4997,
+      "referenceMaskSha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        208,
+        919,
+        260,
+        1073
+      ],
+      "referenceAreaPixels": 4326,
+      "referenceMaskSha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        275,
+        979,
+        379,
+        1095
+      ],
+      "referenceAreaPixels": 6677,
+      "referenceMaskSha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        955,
+        1045,
+        1230,
+        1178
+      ],
+      "referenceAreaPixels": 18646,
+      "referenceMaskSha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "96777a515ef2fab004845be6e89b534b43244af2b40987629300c2134ccb1e2d",
+      "imageSha256": "c539e3c2a4bb310fcf964e0f574882132b2a9382e5ac223f7d6cac06673f2ff8",
+      "maskSha256": "ca83dd5c8a8a6f0c005884917d5349a84373ed3b58888964e36ad9374d3597f8",
+      "notes": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "f1b3b5e932be0cfd4663a1a8118e7557be6b940200e22bb7712444134c19962e",
+      "imageSha256": "a370860315373bdb08d675e3e6fa47fa49ef63a9ce52a42aec573306b35283ec",
+      "maskSha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b",
+      "notes": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "96777a515ef2fab004845be6e89b534b43244af2b40987629300c2134ccb1e2d",
+      "detailSha256": "c539e3c2a4bb310fcf964e0f574882132b2a9382e5ac223f7d6cac06673f2ff8",
+      "geometrySha256": "a370860315373bdb08d675e3e6fa47fa49ef63a9ce52a42aec573306b35283ec",
+      "foregroundMaskSha256": "ca83dd5c8a8a6f0c005884917d5349a84373ed3b58888964e36ad9374d3597f8",
+      "geometryForegroundMaskSha256": "0a58d79b73070ee1178832ae72e2020102b53e1e10b5ef81749b303b3fc2675b",
+      "landmarks": [
+        {
+          "name": "outer-power-loop",
+          "detail": [
+            0.09460515721822618,
+            0.4841714581480335
+          ],
+          "geometry": [
+            0.0931773863641347,
+            0.4817403661321011
+          ]
+        },
+        {
+          "name": "middle-power-loop",
+          "detail": [
+            0.11328896638722234,
+            0.48443889479334773
+          ],
+          "geometry": [
+            0.11305615458837459,
+            0.4827277853395664
+          ]
+        },
+        {
+          "name": "inner-power-loop",
+          "detail": [
+            0.15558778824890798,
+            0.5037307073748145
+          ],
+          "geometry": [
+            0.15435013009815268,
+            0.5039048455695854
+          ]
+        },
+        {
+          "name": "under-panel-clearance",
+          "detail": [
+            0.520627514468134,
+            0.5454392503327917
+          ],
+          "geometry": [
+            0.5207831691840501,
+            0.5456709847589118
+          ]
+        }
+      ],
+      "notes": "Root inspected final prepared overlay: framing, source-required structure and major openings agree; no background debris. Root reviewed actual raw pair and teal alpha contact sheet. Major source-required assembly, mounting boundary, body proportions, large clearances and thin supports preserved. Small source-unprescribed cassette-handle/base-pocket opacity differences or tiny cable-contact alpha differences are nonblocking hardware simplification, not a canon substitution. Independent delivered alphas are retained; cross-role hole counts are not claimed identical. Shallow grooves are nonblocking. Actual-alpha diagnostic used, with no speculative cosmetic correction or extra image calls."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

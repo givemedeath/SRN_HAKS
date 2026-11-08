@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-pjss-elephant-rifle-189310ab58",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-upper",
+      "pixel": [
+        40.0,
+        308.0
+      ]
+    },
+    {
+      "name": "stock-upper",
+      "pixel": [
+        1700.0,
+        376.00000000000006
+      ]
+    },
+    {
+      "name": "fore-end-lower",
+      "pixel": [
+        650.0,
+        452.0
+      ]
+    },
+    {
+      "name": "trigger-bow-lower",
+      "pixel": [
+        1040.0,
+        530.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-pjss-elephant-rifle-189310ab58.family.json",
+    "sha256": "de3781f82e0e204b5dd0873ec5aec0d9b1b2aa2bbfe2662cc6c7f0b24a5db014"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/02d404f9e0cfd54e00b2b7b7e71d08c78a12db60f96f7308748921671502bff5.png",
+      "sha256": "02d404f9e0cfd54e00b2b7b7e71d08c78a12db60f96f7308748921671502bff5"
+    },
+    "clayReference": {
+      "path": "inputs/73838c6fbde24b4aff191dd514e233f0772f07380f247b452187c15dffa62ba7.png",
+      "sha256": "73838c6fbde24b4aff191dd514e233f0772f07380f247b452187c15dffa62ba7"
+    },
+    "geometry": {
+      "path": "inputs/b929a46c039321166b99e7f8d48dcf871da728a2c3c51ba15703272224c0cedd.png",
+      "sha256": "b929a46c039321166b99e7f8d48dcf871da728a2c3c51ba15703272224c0cedd"
+    },
+    "detail": {
+      "path": "inputs/88837e0863866e22ea4d919fcc06cf4e4bf32ab36ac51c615a685eaf4bfc5c1c.png",
+      "sha256": "88837e0863866e22ea4d919fcc06cf4e4bf32ab36ac51c615a685eaf4bfc5c1c"
+    },
+    "foregroundMask": {
+      "path": "inputs/e3cd8f9c5bce2edfe7cc7dd5706f5fc8ef279dfa836d652a5a26bc72938bb06a.png",
+      "sha256": "e3cd8f9c5bce2edfe7cc7dd5706f5fc8ef279dfa836d652a5a26bc72938bb06a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962.png",
+      "sha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962"
+    },
+    "mask": {
+      "path": "inputs/0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962.png",
+      "sha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962"
+    },
+    "calibrationReference": {
+      "path": "inputs/9deb80a369de3c01cdbc260f2361fd68f1b245e88ac675f590ec3cd9ed812dbd.png",
+      "sha256": "9deb80a369de3c01cdbc260f2361fd68f1b245e88ac675f590ec3cd9ed812dbd"
+    },
+    "sourceAudit": {
+      "path": "inputs/1ef422fb7dc906d9ca0fce5c0d6920fe075c1264c56dc9bd2045d267586d57cd.json",
+      "sha256": "1ef422fb7dc906d9ca0fce5c0d6920fe075c1264c56dc9bd2045d267586d57cd"
+    },
+    "referenceApproval": {
+      "path": "inputs/ba08885d50c8b48976d78763c804938d2b0b10221c0eadc4c9bd649be0c781e1.json",
+      "sha256": "ba08885d50c8b48976d78763c804938d2b0b10221c0eadc4c9bd649be0c781e1"
+    },
+    "calibrationDetail": {
+      "path": "inputs/22a6c0cf872b2210d5c2f08befbb6dfc93d972072160f7440b7c25f14f159f27.png",
+      "sha256": "22a6c0cf872b2210d5c2f08befbb6dfc93d972072160f7440b7c25f14f159f27"
+    }
+  },
+  "features": [
+    {
+      "name": "Huge double-barreled rifle with rigid stock and shock pad (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve paired barrels, sporting shoulder stock, break-action-style receiver/grip and trigger opening from the illustration; do not depict a single-barrel sniper rifle.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed actual PJSS detail/clay against own Core308/PDF310 illustration and explicit double-barreled description. Both retain exactly TWO vertically stacked muzzle bores,each with its continuous upper/lower shaft traced to the fore-end;no third/fourth tube. Rigid shock-pad stock,fore-end,iron sights,trigger/guard and sling loops retained. Color/engraving and hidden depth artistic. Clay smooths surface appearance without construction changes. Sixth/final detail success is reused;first clay succeeded. Actual native1774x887 wide framing retained,not1254 or native2K. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        451,
+        968,
+        476,
+        989
+      ],
+      "referenceAreaPixels": 454,
+      "referenceMaskSha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1141,
+        1020,
+        1252,
+        1084
+      ],
+      "referenceAreaPixels": 4929,
+      "referenceMaskSha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1252,
+        1026,
+        1262,
+        1046
+      ],
+      "referenceAreaPixels": 101,
+      "referenceMaskSha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1825,
+        1188,
+        1844,
+        1205
+      ],
+      "referenceAreaPixels": 260,
+      "referenceMaskSha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "02d404f9e0cfd54e00b2b7b7e71d08c78a12db60f96f7308748921671502bff5",
+      "imageSha256": "88837e0863866e22ea4d919fcc06cf4e4bf32ab36ac51c615a685eaf4bfc5c1c",
+      "maskSha256": "e3cd8f9c5bce2edfe7cc7dd5706f5fc8ef279dfa836d652a5a26bc72938bb06a",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed actual PJSS detail/clay against own Core308/PDF310 illustration and explicit double-barreled description. Both retain exactly TWO vertically stacked muzzle bores,each with its continuous upper/lower shaft traced to the fore-end;no third/fourth tube. Rigid shock-pad stock,fore-end,iron sights,trigger/guard and sling loops retained. Color/engraving and hidden depth artistic. Clay smooths surface appearance without construction changes. Sixth/final detail success is reused;first clay succeeded. Actual native1774x887 wide framing retained,not1254 or native2K. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "73838c6fbde24b4aff191dd514e233f0772f07380f247b452187c15dffa62ba7",
+      "imageSha256": "b929a46c039321166b99e7f8d48dcf871da728a2c3c51ba15703272224c0cedd",
+      "maskSha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed actual PJSS detail/clay against own Core308/PDF310 illustration and explicit double-barreled description. Both retain exactly TWO vertically stacked muzzle bores,each with its continuous upper/lower shaft traced to the fore-end;no third/fourth tube. Rigid shock-pad stock,fore-end,iron sights,trigger/guard and sling loops retained. Color/engraving and hidden depth artistic. Clay smooths surface appearance without construction changes. Sixth/final detail success is reused;first clay succeeded. Actual native1774x887 wide framing retained,not1254 or native2K. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "02d404f9e0cfd54e00b2b7b7e71d08c78a12db60f96f7308748921671502bff5",
+      "detailSha256": "88837e0863866e22ea4d919fcc06cf4e4bf32ab36ac51c615a685eaf4bfc5c1c",
+      "geometrySha256": "b929a46c039321166b99e7f8d48dcf871da728a2c3c51ba15703272224c0cedd",
+      "foregroundMaskSha256": "e3cd8f9c5bce2edfe7cc7dd5706f5fc8ef279dfa836d652a5a26bc72938bb06a",
+      "geometryForegroundMaskSha256": "0444bd971debce1d4f1f540585ca49dbf0f18e30ab4ca1a382f9abe5da49b962",
+      "landmarks": [
+        {
+          "name": "muzzle-upper",
+          "detail": [
+            0.055562999636627905,
+            0.41672684698879553
+          ],
+          "geometry": [
+            0.055562999636627905,
+            0.41829837403711484
+          ]
+        },
+        {
+          "name": "stock-upper",
+          "detail": [
+            0.9245446493459303,
+            0.4523481267507003
+          ],
+          "geometry": [
+            0.9245446493459303,
+            0.45287196910014005
+          ]
+        },
+        {
+          "name": "fore-end-lower",
+          "detail": [
+            0.37488758175872094,
+            0.49216014530812324
+          ],
+          "geometry": [
+            0.37488758175872094,
+            0.49216014530812324
+          ]
+        },
+        {
+          "name": "trigger-bow-lower",
+          "detail": [
+            0.5790459211482558,
+            0.5330198485644257
+          ],
+          "geometry": [
+            0.5790459211482558,
+            0.5335436909138656
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded per pair;2048 is resampled, not native2K. Root viewed actual PJSS detail/clay against own Core308/PDF310 illustration and explicit double-barreled description. Both retain exactly TWO vertically stacked muzzle bores,each with its continuous upper/lower shaft traced to the fore-end;no third/fourth tube. Rigid shock-pad stock,fore-end,iron sights,trigger/guard and sling loops retained. Color/engraving and hidden depth artistic. Clay smooths surface appearance without construction changes. Sixth/final detail success is reused;first clay succeeded. Actual native1774x887 wide framing retained,not1254 or native2K. Shallow grooves,small recesses and tiny edge differences are nonblocking. Actual alpha/positive margins and intentional openings reviewed;no floor/cast shadow or clipped structure. 2048conditioning is resampled. One final pair reviewer,not geometry/client/production acceptance."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

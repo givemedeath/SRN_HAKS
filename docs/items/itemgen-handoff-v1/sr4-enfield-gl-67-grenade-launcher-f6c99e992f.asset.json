@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-enfield-gl-67-grenade-launcher-f6c99e992f",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "stock-upper",
+      "pixel": [
+        60.0,
+        517.0
+      ]
+    },
+    {
+      "name": "upper-receiver",
+      "pixel": [
+        620.0,
+        484.0
+      ]
+    },
+    {
+      "name": "drum-base",
+      "pixel": [
+        720.0,
+        824.0
+      ]
+    },
+    {
+      "name": "muzzle-upper",
+      "pixel": [
+        1210.0,
+        531.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-enfield-gl-67-grenade-launcher-f6c99e992f.family.json",
+    "sha256": "643df0a5a46d3a8b57ce4d50d0347ca10cb1ca74e97418f125479a6ff5a749dc"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/ccc5d23064a747be47b2379c8165aafb092a1c35f10143a5de7ea9edfef9bc96.png",
+      "sha256": "ccc5d23064a747be47b2379c8165aafb092a1c35f10143a5de7ea9edfef9bc96"
+    },
+    "clayReference": {
+      "path": "inputs/32a5efc9fbb53d88d2d1e0f2f69361e0f5cfb2c8176799428870d5898f55066b.png",
+      "sha256": "32a5efc9fbb53d88d2d1e0f2f69361e0f5cfb2c8176799428870d5898f55066b"
+    },
+    "geometry": {
+      "path": "inputs/733e4b652a1656c99eb375effaddc01c053c208376d69c89d0b85d555e2cd1f3.png",
+      "sha256": "733e4b652a1656c99eb375effaddc01c053c208376d69c89d0b85d555e2cd1f3"
+    },
+    "detail": {
+      "path": "inputs/31a4e13a31fab3ee337be2be9eefb9c4517dbdd9ddcfe07daea050828cf2bd50.png",
+      "sha256": "31a4e13a31fab3ee337be2be9eefb9c4517dbdd9ddcfe07daea050828cf2bd50"
+    },
+    "foregroundMask": {
+      "path": "inputs/9265732bdbed8ccda3be1d2e9f8878fb06f08e60ff0b674954d2adc0b784c96e.png",
+      "sha256": "9265732bdbed8ccda3be1d2e9f8878fb06f08e60ff0b674954d2adc0b784c96e"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37.png",
+      "sha256": "b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37"
+    },
+    "mask": {
+      "path": "inputs/b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37.png",
+      "sha256": "b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37"
+    },
+    "calibrationReference": {
+      "path": "inputs/ce68c6cc6c60b92d59793bda26ef3299940ee1b18088ca9603e157a72998239b.png",
+      "sha256": "ce68c6cc6c60b92d59793bda26ef3299940ee1b18088ca9603e157a72998239b"
+    },
+    "sourceAudit": {
+      "path": "inputs/12ea0fc1cda712d14e93474f7c963cc8ceabf19998cb21f0545f8f9f2ab7908f.json",
+      "sha256": "12ea0fc1cda712d14e93474f7c963cc8ceabf19998cb21f0545f8f9f2ab7908f"
+    },
+    "referenceApproval": {
+      "path": "inputs/75fd4fa2078dfb8432530a9711453afe075c428dac923e9f6c0cae57975e559a.json",
+      "sha256": "75fd4fa2078dfb8432530a9711453afe075c428dac923e9f6c0cae57975e559a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/238a917024edf4e67ca0635da00692287e769b1509fc7a3da8398698a4fb87c6.png",
+      "sha256": "238a917024edf4e67ca0635da00692287e769b1509fc7a3da8398698a4fb87c6"
+    }
+  },
+  "features": [
+    {
+      "name": "Drum-fed personal grenade launcher with rigid stock and shock pad",
+      "placementReviewed": true
+    },
+    {
+      "name": "Internal smartgun system and airburst link are baseline identity",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own GL-67 art: large central drum, substantial upper receiver, pistol grip, rigid rear stock with opening and short forward assembly",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected corrected clay311 and retained detailed image,then the actual alpha-composited 5x trigger and sight crops. The sight aperture is restored,transparent,at matching location;thin tower sides intact. Trigger/guard has broad clear background on both sides. The tip is nearly tangent to the lower guard:one narrow antialiased pixel contact splits alpha-threshold connectivity,without filling the guard opening or losing the trigger. This harmless edge difference is not a missing structural opening. No image or alpha edits were made. Independent masks are retained,not forced to equal topology. Source authority own GL67 Arsenal31/PDF33 audit,large drum/receiver,grip/trigger,rigid stock and short front assembly unchanged. Shallow grooves nonblocking. Native1254square,2048resampled. Single final pair review;no geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1768,
+        741,
+        1783,
+        792
+      ],
+      "referenceAreaPixels": 607,
+      "referenceMaskSha256": "b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        766,
+        1091,
+        836,
+        1171
+      ],
+      "referenceAreaPixels": 3633,
+      "referenceMaskSha256": "b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        835,
+        1093,
+        904,
+        1171
+      ],
+      "referenceAreaPixels": 4539,
+      "referenceMaskSha256": "b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ccc5d23064a747be47b2379c8165aafb092a1c35f10143a5de7ea9edfef9bc96",
+      "imageSha256": "31a4e13a31fab3ee337be2be9eefb9c4517dbdd9ddcfe07daea050828cf2bd50",
+      "maskSha256": "9265732bdbed8ccda3be1d2e9f8878fb06f08e60ff0b674954d2adc0b784c96e",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected corrected clay311 and retained detailed image,then the actual alpha-composited 5x trigger and sight crops. The sight aperture is restored,transparent,at matching location;thin tower sides intact. Trigger/guard has broad clear background on both sides. The tip is nearly tangent to the lower guard:one narrow antialiased pixel contact splits alpha-threshold connectivity,without filling the guard opening or losing the trigger. This harmless edge difference is not a missing structural opening. No image or alpha edits were made. Independent masks are retained,not forced to equal topology. Source authority own GL67 Arsenal31/PDF33 audit,large drum/receiver,grip/trigger,rigid stock and short front assembly unchanged. Shallow grooves nonblocking. Native1254square,2048resampled. Single final pair review;no geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "32a5efc9fbb53d88d2d1e0f2f69361e0f5cfb2c8176799428870d5898f55066b",
+      "imageSha256": "733e4b652a1656c99eb375effaddc01c053c208376d69c89d0b85d555e2cd1f3",
+      "maskSha256": "b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected corrected clay311 and retained detailed image,then the actual alpha-composited 5x trigger and sight crops. The sight aperture is restored,transparent,at matching location;thin tower sides intact. Trigger/guard has broad clear background on both sides. The tip is nearly tangent to the lower guard:one narrow antialiased pixel contact splits alpha-threshold connectivity,without filling the guard opening or losing the trigger. This harmless edge difference is not a missing structural opening. No image or alpha edits were made. Independent masks are retained,not forced to equal topology. Source authority own GL67 Arsenal31/PDF33 audit,large drum/receiver,grip/trigger,rigid stock and short front assembly unchanged. Shallow grooves nonblocking. Native1254square,2048resampled. Single final pair review;no geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "ccc5d23064a747be47b2379c8165aafb092a1c35f10143a5de7ea9edfef9bc96",
+      "detailSha256": "31a4e13a31fab3ee337be2be9eefb9c4517dbdd9ddcfe07daea050828cf2bd50",
+      "geometrySha256": "733e4b652a1656c99eb375effaddc01c053c208376d69c89d0b85d555e2cd1f3",
+      "foregroundMaskSha256": "9265732bdbed8ccda3be1d2e9f8878fb06f08e60ff0b674954d2adc0b784c96e",
+      "geometryForegroundMaskSha256": "b423942fd9ae7e254b1bea346b8be44baf8d29c0db811fab50a789cf24875b37",
+      "landmarks": [
+        {
+          "name": "stock-upper",
+          "detail": [
+            0.08008853953035275,
+            0.4055164319248826
+          ],
+          "geometry": [
+            0.08008853953035275,
+            0.40404012617370894
+          ]
+        },
+        {
+          "name": "upper-receiver",
+          "detail": [
+            0.49372164043273176,
+            0.38115738703051644
+          ],
+          "geometry": [
+            0.49372164043273176,
+            0.37746662265258213
+          ]
+        },
+        {
+          "name": "drum-base",
+          "detail": [
+            0.5675846941652994,
+            0.632129364730047
+          ],
+          "geometry": [
+            0.5675846941652994,
+            0.632129364730047
+          ]
+        },
+        {
+          "name": "muzzle-upper",
+          "detail": [
+            0.929513657454881,
+            0.4158505721830986
+          ],
+          "geometry": [
+            0.929513657454881,
+            0.4143742664319249
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected corrected clay311 and retained detailed image,then the actual alpha-composited 5x trigger and sight crops. The sight aperture is restored,transparent,at matching location;thin tower sides intact. Trigger/guard has broad clear background on both sides. The tip is nearly tangent to the lower guard:one narrow antialiased pixel contact splits alpha-threshold connectivity,without filling the guard opening or losing the trigger. This harmless edge difference is not a missing structural opening. No image or alpha edits were made. Independent masks are retained,not forced to equal topology. Source authority own GL67 Arsenal31/PDF33 audit,large drum/receiver,grip/trigger,rigid stock and short front assembly unchanged. Shallow grooves nonblocking. Native1254square,2048resampled. Single final pair review;no geometry/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

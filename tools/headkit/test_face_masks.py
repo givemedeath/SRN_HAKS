@@ -1,0 +1,469 @@
+"""Focused tests of the face-mask stages on synthetic inputs (no models, Embree or xatlas needed)."""
+import hashlib
+import json
+from pathlib import Path
+import tempfile
+import unittest
+import numpy as np
+from headkit.common import manifest, write, read
+from headkit.face_masks import eye_contours, render_masks, bilinear, hair_locks, brow_seed, brow_mask, iris_circles, project, FILL, IRIS, BROW_RING, HAIR, SKIN, SEEN_DEPTH, SEEN_FACING
+from scipy.spatial import cKDTree
+from headkit.textures import pad, surface
+from headkit.face_encode import apply_channels, beard_hair, majority, consistent_blocks, treat, TREATMENT
+from headkit.quality import eligible, shade_span_failures, CHECKS, THRESHOLDS
+from headkit.uv import face_region
+from headkit.runner import STAGES, stage_roles, stage_libraries
+
+
+def flat(*names):
+    return {name: np.zeros((4096, 4096), np.float32) for name in names}
+
+
+class HairLocks(unittest.TestCase):
+    def scene(self):
+        S = 200; labels = np.full((S, S), SKIN, np.uint8); labels[:40] = HAIR
+        rgb = np.full((S, S, 3), (150, 100, 70), np.uint8); rgb[:40] = (230, 220, 190)
+        rgb[40:120, 20:28] = (230, 220, 190)     # a cream lock hanging from the hairline, labelled skin
+        rgb[100:110, 90:100] = (230, 220, 190)   # the same colour inside the face, touching neither hairline nor edge
+        face = np.zeros((S, S), bool); face[10:190, 10:190] = True
+        return rgb, labels, face
+
+    def test_lock_from_the_hairline_only(self):
+        rgb, labels, face = self.scene(); plain = face & (labels == SKIN)
+        lock = hair_locks(rgb, labels, np.ones_like(face), face, plain)
+        self.assertTrue(lock[60:110, 20:28].all()); self.assertFalse(lock[100:110, 90:100].any())
+
+    def test_close_colours_give_no_rule(self):
+        rgb, labels, face = self.scene(); rgb[:40] = (152, 101, 72)
+        self.assertIsNone(hair_locks(rgb, labels, np.ones_like(face), face, face & (labels == SKIN)))
+
+
+class Brows(unittest.TestCase):
+    def test_grows_by_colour_but_not_into_highlights(self):
+        S = 200; labels = np.full((S, S), SKIN, np.uint8); rgb = np.full((S, S, 3), 180, np.uint8)
+        rgb[50:60, 40:100] = np.clip(np.random.default_rng(1).normal(60, 6, (10, 60, 3)), 0, 255)
+        labels[52:58, 50:90] = 2   # parser brow shorter than the painted one
+        rgb[50:60, 100:110] = 250                                    # bright highlight at the brow end
+        grown = brow_mask(rgb, labels, labels == 2, np.zeros((S, S), bool), np.ones((S, S), bool))
+        self.assertGreater(grown[50:60, 41:99].mean(), .95); self.assertFalse(grown[:, 100:].any())
+
+    @staticmethod
+    def landmarks(S=220):
+        """Landmark brow polygons over y 50-60: subject's right brow x 20-100, left x 120-200."""
+        pts = np.zeros((478, 2))
+        for ring, (outer, inner) in ((BROW_RING['R'], (20, 100)), (BROW_RING['L'], (200, 120))):
+            xs = np.linspace(outer, inner, 5); pts[ring[:5]] = np.c_[xs, np.full(5, 50)]; pts[ring[5:]] = np.c_[xs[::-1], np.full(5, 60)]
+        return pts
+
+    def test_landmark_seed_for_white_brows_under_dark_marks(self):
+        # dwarf-male-c (RUNBOOK 143): the parser labels black forehead ink as brows and the white brows as skin.
+        S = 220; labels = np.full((S, S), SKIN, np.uint8); rgb = np.full((S, S, 3), (190, 130, 110), np.uint8)
+        noise = np.random.default_rng(1).normal(235, 6, (11, 81, 3)).clip(0, 255)
+        rgb[50:61, 20:101] = rgb[50:61, 120:201] = noise      # white brows on the landmark polygons
+        rgb[20:35, 40:80] = rgb[20:35, 140:180] = 15          # forehead ink
+        labels[20:35, 40:80] = labels[20:35, 140:180] = 2
+        none, hit = np.zeros((S, S), bool), np.ones((S, S), bool)
+        seed = brow_seed(labels, self.landmarks(), none, hit); grown = brow_mask(rgb, labels, seed, none, hit)
+        self.assertFalse(seed[20:35].any()); self.assertFalse(grown[20:35].any())
+        self.assertGreater(grown[51:60, 22:99].mean(), .95); self.assertGreater(grown[51:60, 122:199].mean(), .95)
+
+    def test_parser_brows_on_the_landmarks_kept_whole(self):
+        S = 220; labels = np.full((S, S), SKIN, np.uint8); labels[48:62, 15:105] = labels[48:62, 115:205] = 2   # past the polygons
+        labels[20:30, 60:70] = 3                                                                                # a stray parser brow
+        seed = brow_seed(labels, self.landmarks(), np.zeros((S, S), bool), np.ones((S, S), bool))
+        self.assertTrue(seed[48:62, 15:105].all() and seed[48:62, 115:205].all()); self.assertFalse(seed[20:30].any())
+
+
+class TracedEyes(unittest.TestCase):
+    def test_clipped_parser_and_brow_spill_on_pinned_front(self):
+        rgb = np.zeros((220, 220, 3), np.uint8)
+        hit = np.ones(rgb.shape[:2], bool)
+        centres = {'R': np.array([60, 60]), 'L': np.array([160, 60])}
+        trace = {'rgbSha256': hashlib.sha256(rgb.tobytes()).hexdigest()}
+        for side, (x, y) in centres.items():
+            def box(a, b, c, d):
+                return [[x+a, y+b], [x+c, y+b], [x+c, y+d], [x+a, y+d]]
+            trace[side] = dict(opening=box(-14, 0, 14, 8), iris=box(-5, 0, 5, 7),
+                               excludeBrow=box(-12, -3, 12, 0))
+        labels = np.full(hit.shape, SKIN, np.uint8)
+        labels[50:61, 20:101] = labels[50:61, 120:201] = 2
+        contours = eye_contours(rgb, trace, centres, hit)
+        soft, _ = render_masks(rgb, labels, Brows.landmarks(), {s: (c, 6) for s, c in centres.items()}, hit, contours)
+        for x, y in centres.values():
+            self.assertGreater(soft['iris'][y+3, x], .95)
+            self.assertLess(soft['iris'][y+3, x+10], .05)
+            self.assertGreater(soft['eye'][y+3, x+10], .95)
+            self.assertLess(soft['brow'][y, x], .05)
+            self.assertGreater(soft['brow'][y-6, x], .95)
+        rgb[0, 0] = 1
+        with self.assertRaisesRegex(ValueError, 'exact front-render'):
+            eye_contours(rgb, trace, centres, hit)
+        rgb[0, 0] = 0
+        trace['L']['iris'] = trace['R']['iris']
+        with self.assertRaisesRegex(ValueError, 'landmark region'):
+            eye_contours(rgb, trace, centres, hit)
+
+
+class Project(unittest.TestCase):
+    def test_shared_gutter_lookup_and_seen_only_sampling_match_each_mask_alone(self):
+        rng = np.random.default_rng(3); S = 32; size = 64
+        value = {'positions': np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], float), 'faces': np.array([[0, 1, 2], [0, 2, 3]]),
+                 'uv': np.array([[[.1, .1], [.9, .1], [.9, .9]], [[.1, .1], [.9, .9], [.1, .9]]])}
+        zbuf = np.zeros((S, S)); zbuf[:, S//2:] = 5  # the right half of the render misses: those texels are filled
+        view = {'hit': np.ones((S, S), bool), 'centre': (.5, .5), 'span': 1.0, 'zbuf': zbuf}
+        soft = {'a': rng.random((S, S), np.float32), 'b': rng.random((S, S), np.float32)}
+        out, report = project(value, view, soft, size)
+        positions, owners, _ = surface(value, size, enforce=False); mapped = owners >= 0; points = positions[mapped].astype(float)
+        u = ((points[:, 0]-.5)+.5)*S; v = (.5-(points[:, 1]-.5))*S
+        inside = (u >= 0) & (u < S-1) & (v >= 0) & (v < S-1); ui = np.clip(u.astype(int), 0, S-1); vi = np.clip(v.astype(int), 0, S-1)
+        seen = inside & (np.abs(zbuf[vi, ui]-points[:, 2]) < SEEN_DEPTH) & (1. > SEEN_FACING)
+        self.assertTrue(0 < seen.sum() < len(seen))
+        distance, index = cKDTree(points[seen]).query(points[~seen], k=1, distance_upper_bound=FILL)
+        found = np.isfinite(distance); weight = np.where(found, 1-np.where(found, distance, 0)/FILL, 0); index = np.where(found, index, 0)
+        uv = np.clip(np.c_[u, v]/S, 0, 1)
+        for name, mask in soft.items():
+            values = np.where(seen, bilinear(mask, uv), 0); values[~seen] = values[seen][index]*weight
+            atlas = np.zeros((size, size, 1), np.float32); atlas[mapped, 0] = np.clip(values, 0, 1)*255
+            self.assertTrue(np.array_equal(out[name], np.rint(pad(atlas, mapped)[..., 0]).astype(np.uint8)))
+
+
+class Beard(unittest.TestCase):
+    def test_hair_coloured_beard_stays_hair_below_the_nose(self):
+        # RUNBOOK 145: the parser calls beards skin. Grey beard (owned hair) and a skin-coloured patch the hair rule over-took,
+        # both under the parser skin mask; only the beard zone is judged by colour.
+        S = 64; labels = np.zeros((S, S), np.uint8); colour = np.zeros((S, S, 3), np.uint8); colour[:] = (190, 140, 100)
+        labels[:8] = 1; colour[:8] = (120, 120, 120)                                   # scalp hair, outside the parser skin
+        labels[40:50, 10:30] = 1; colour[40:50, 10:30] = (150, 150, 150)               # beard, a lighter grey
+        labels[40:50, 34:54] = 1                                                       # skin-coloured, owned hair by a rule
+        masks = {'skin': np.zeros((S, S), np.float32), 'brow': np.zeros((S, S), np.float32), 'beard': np.zeros((S, S), np.float32)}
+        masks['skin'][8:] = 1; masks['beard'][32:] = 1; skinlike = masks['skin'] > .5; mapped = np.ones((S, S), bool)
+        keep = beard_hair(labels, masks, mapped, colour, skinlike)
+        self.assertTrue(keep[40:50, 10:30].all()); self.assertFalse(keep[40:50, 34:54].any()); self.assertFalse(keep[:32].any())
+
+
+class Iris(unittest.TestCase):
+    def test_refined_within_guards(self):
+        S = 400; yy, xx = np.mgrid[0:S, 0:S]; luma = np.full((S, S), 230, np.float32); pts = np.zeros((478, 2))
+        for side, (c, ring) in IRIS.items():
+            centre = (120 if side == 'R' else 280, 200); luma[np.hypot(xx-centre[0], yy-centre[1]) < 20] = 40
+            pts[c] = centre; pts[list(ring)] = [(centre[0]+22*np.cos(a), centre[1]+22*np.sin(a)) for a in np.linspace(0, 2*np.pi, 4, endpoint=False)]
+        circles, refined = iris_circles(luma, pts)
+        self.assertTrue(refined); self.assertAlmostEqual(circles['R'][1], 20, delta=1.5)
+
+
+class Channels(unittest.TestCase):
+    def test_troll_ear_correction_keeps_bone_and_metal(self):
+        from headkit.face_encode import ear_skin
+        labels = np.zeros((16, 16), np.uint8)
+        labels[8:] = 9
+        ear = np.zeros((16,16), np.float32)
+        ear[8:12] = 1
+        rgb = np.full((16,16,3), [118, 95, 162], np.uint8)
+        rgb[12:] = [195, 152, 71]
+        rgb[9,0] = rgb[12,0]
+        labels[9,1] = 2
+        found = ear_skin(labels, {'ear':ear,'skin':labels == 0}, np.ones_like(ear,bool), rgb)
+        self.assertEqual(int(found.sum()), 62)
+        self.assertFalse(found[9,0] or found[9,1])
+
+    def test_hair_ear_guard_restores_skin_without_touching_hair_or_metal(self):
+        from headkit.face_encode import ear_skin
+        labels=np.zeros((16,16),np.uint8);labels[8:]=1
+        ear=np.zeros((16,16),np.float32);ear[8:12]=1
+        rgb=np.full((16,16,3),[187,122,88],np.uint8);rgb[12:]=[100,31,13]
+        rgb[9,0]=rgb[12,0];labels[9,1]=2
+        found=ear_skin(labels,{'ear':ear,'skin':labels==0},np.ones_like(ear,bool),rgb,channel=1)
+        self.assertEqual(int(found.sum()),62)
+        self.assertFalse(found[9,0] or found[9,1] or found[12:].any())
+        masks={k:np.zeros_like(ear) for k in ('iris','eye','brow','skin','lips','nose','hairlock','ear','beard')}
+        masks['skin']=np.asarray(labels==0,dtype=np.float32);masks['ear']=ear
+        plain,_=apply_channels(labels,masks,np.ones_like(ear,bool),rgb)
+        guarded,report=apply_channels(labels,masks,np.ones_like(ear,bool),rgb,hair_ear_guard=True)
+        self.assertEqual(report['earHairToSkin'],62)
+        self.assertTrue((guarded[found]==0).all())
+        np.testing.assert_array_equal(guarded[~found],plain[~found])
+        with self.assertRaisesRegex(ValueError,'ear masks'):
+            apply_channels(labels,{k:v for k,v in masks.items() if k!='ear'},np.ones_like(ear,bool),rgb,hair_ear_guard=True)
+
+    def test_lip_skin_guard_overrides_connected_beard_and_hairlock_without_touching_metal(self):
+        from unittest.mock import patch
+        size=16; labels=np.ones((size,size),np.uint8);labels[:3]=0;labels[7,7]=2
+        mapped=np.ones((size,size),bool)
+        masks={k:np.zeros((size,size),np.float32) for k in ('iris','eye','brow','skin','lips','nose','hairlock','beard')}
+        masks['skin'][:3]=1;masks['lips'][6:10,6:10]=1;masks['hairlock'][6:10,6:10]=1
+        positions=np.zeros((size,size,3));positions[:,:,0]=np.arange(size)
+        with patch('headkit.face_encode.joined',return_value=np.ones_like(mapped)):
+            old,_=apply_channels(labels,masks,mapped,protected=mapped,positions=positions)
+            fixed,report=apply_channels(labels,masks,mapped,protected=mapped,positions=positions,lip_skin_guard=True)
+        lips=(masks['lips']>.5)&(old==1)
+        self.assertEqual(report['lipHairToSkin'],15)
+        self.assertTrue((fixed[lips]==0).all());self.assertEqual(fixed[7,7],2)
+        np.testing.assert_array_equal(fixed[~lips],old[~lips])
+        with self.assertRaisesRegex(ValueError,'lipSkinGuard'):
+            apply_channels(labels,masks,mapped,lip_skin_guard='yes')
+
+    def test_lip_hair_contract_excludes_beard_and_uncertain_parser_edges(self):
+        from headkit.quality import lip_hair_pixels
+        labels=np.ones((16,16),np.uint8);labels[4:12,4:12]=12
+        channel=np.ones_like(labels);region={'labels':labels,'face':np.ones_like(labels,bool)}
+        self.assertEqual(lip_hair_pixels(region,channel),36)
+        channel[5:11,5:11]=0
+        self.assertEqual(lip_hair_pixels(region,channel),0)
+
+    def test_moves(self):
+        labels = np.zeros((4096, 4096), np.uint8); labels[100:110, 100:200] = 1   # hair-owned brow region partly
+        masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock'); mapped = np.ones((4096, 4096), bool)
+        masks['eye'][1000:1020, 1000:1040] = 1; masks['iris'][1005:1015, 1015:1025] = 1
+        masks['brow'][95:105, 100:200] = 1; masks['skin'][105:110, 100:200] = 1; masks['hairlock'][3000:3010, 3000:3010] = 1
+        o, report = apply_channels(labels, masks, mapped)
+        self.assertTrue((o[1005:1015, 1015:1025] == 8).all()); self.assertTrue((o[1000:1020, 1000:1010] == 0).all())
+        self.assertTrue((o[95:105, 100:200] == 1).all()); self.assertTrue((o[105:110, 100:200] == 0).all())
+        self.assertTrue((o[3000:3010, 3000:3010] == 1).all()); self.assertEqual(report['hairLockToHair'], 100)
+
+    def test_moved_counts_every_label_pair_once(self):
+        rng = np.random.default_rng(5); labels = rng.integers(0, 10, (4096, 4096)).astype(np.uint8); mapped = rng.random((4096, 4096)) > .3
+        masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock'); masks['iris'][:900] = 1; masks['skin'][900:1800] = 1
+        o, report = apply_channels(labels, masks, mapped)
+        expected = {f'{a}->{b}': int(((labels == a) & (o == b) & mapped).sum()) for a in range(10) for b in range(10)
+                    if a != b and ((labels == a) & (o == b) & mapped).any()}
+        self.assertTrue(expected); self.assertEqual(json.dumps(report['moved']), json.dumps(expected))
+
+    def test_tattoo1_holds_only_the_iris(self):
+        # rule-owned tattoo1 away from the eye (troll horns, tusks) takes tattoo2; tattoo2 ink stays (user 2026-10-30)
+        labels = np.zeros((4096, 4096), np.uint8); labels[2000:2010, 2000:2020] = 8; labels[2500:2510, 2500:2510] = 9
+        masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock'); mapped = np.ones((4096, 4096), bool)
+        masks['eye'][1000:1020, 1000:1040] = 1; masks['iris'][1005:1015, 1015:1025] = 1
+        o, report = apply_channels(labels, masks, mapped)
+        self.assertTrue((o[2000:2010, 2000:2020] == 9).all()); self.assertTrue((o[2500:2510, 2500:2510] == 9).all())
+        self.assertEqual(report['tattoo1ToTattoo2'], 200); self.assertEqual(int((o == 8).sum()), 100)
+
+    def test_protected_hair_joined_to_hair_stays_hair(self):
+        # RUNBOOK 161: a widow's peak (hair-owned, under the parser skin, touching hair outside it) stays hair when its rule is
+        # marked overFaceMasks; a freckle the same rule owns, away from the hair, and hair beside the eye still go to skin. So do
+        # scattered dots below the hairline, however many: the join radius is the texel pitch, not their own spacing.
+        labels = np.zeros((4096, 4096), np.uint8); labels[1000:1100, 1000:1400] = 1; labels[1100:1160, 1180:1220] = 1   # hair, peak
+        labels[1300:1303, 1100:1103] = 1; labels[1500:1504, 1280:1300] = 1   # freckle, lash-side strand
+        labels[1104:1300:8, 1004:1170:8] = 1   # 525 dots 8 texels apart, beside the peak
+        masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'beard'); mapped = np.ones((4096, 4096), bool)
+        masks['skin'][1100:1700, 1000:1400] = 1; masks['eye'][1505:1515, 1280:1300] = 1
+        ys, xs = np.mgrid[0:4096, 0:4096]; positions = np.stack([xs, ys, np.zeros_like(xs)], -1).astype(np.float32)
+        plain, _ = apply_channels(labels, masks, mapped)
+        o, report = apply_channels(labels, masks, mapped, protected=labels == 1, positions=positions)
+        self.assertTrue((plain[1100:1160, 1180:1220] == 0).all()); self.assertTrue((o[1100:1160, 1180:1220] == 1).all())
+        self.assertTrue((o[1300:1303, 1100:1103] == 0).all()); self.assertTrue((o[1500:1504, 1280:1300] == 0).all())
+        self.assertFalse((o[1104:1300:8, 1004:1170:8] == 1).any()); self.assertEqual(report['protectedKeptHair'], 60*40)
+        with self.assertRaisesRegex(ValueError, 'positions'): apply_channels(labels, masks, mapped, protected=labels == 1)
+
+    def test_masks_at_names_a_missing_mask(self):
+        from headkit.face_encode import masks_at
+        with self.assertRaisesRegex(ValueError, 'no beard mask'): masks_at({}, ('beard',))
+
+    def test_majority_and_consistent_blocks(self):
+        labels = np.zeros((8, 8), np.uint8); labels[0, :3] = 1; labels[1, :3] = 1; labels[0:2, 3] = 9
+        self.assertEqual(majority(labels).tolist(), [[0, 0], [0, 0]])
+        colour = np.zeros((8, 8, 3), np.float32); colour[labels == 0] = 100; colour[labels != 0] = 250
+        fixed, count = consistent_blocks(colour, labels)
+        self.assertEqual(count, 1); self.assertTrue(np.allclose(fixed[:4, :4], 100))
+
+
+class Treatment(unittest.TestCase):
+    def test_delight_only_darkens(self):
+        value = {'positions': np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], float),
+                 'faces': np.array([[0, 1, 2], [0, 2, 3]]), 'uv': np.array([[[0, 0], [1, 0], [1, 1]], [[0, 0], [1, 1], [0, 1]]], float)*.999+.0005}
+        value['positions'][:, 2] = 1; value['positions'] = np.r_[value['positions'], [[0, 0, 0]]]   # a front-facing plane (unused vertex sets the depth)
+        yy, xx = np.mgrid[0:4096, 0:4096]; colour = np.repeat((120+60*np.exp(-((xx-2048)**2+(yy-2048)**2)/600**2))[..., None], 3, 2).astype(np.float32)
+        settings = {k: 0 for k in TREATMENT}; settings['delight'] = .8
+        out, report = treat(colour, np.zeros((4096, 4096), np.uint8), flat('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket'), value, settings)
+        self.assertLessEqual(float((out-colour).max()), 1e-3); self.assertLess(float(out[2048, 2048, 0]), float(colour[2048, 2048, 0]))
+
+    def test_scalp_delight_darkens_visible_bright_skin_off_the_face_to_the_face_level(self):
+        # RUNBOOK 165: a front quad (the face region, skin 100) and a top quad off it (bright baked light 180, shade 60), in the
+        # atlas's top-left 1024 texels. Only the bright off-face skin of outer faces comes down, never below 0.6 of itself; the
+        # top quad's first triangle is marked hidden (inner wall) and keeps its colour.
+        value = {'positions': np.array([[0, 0, 1], [1, 0, 1], [1, .5, 1], [0, .5, 1], [0, 1, 0], [0, 1, 1], [1, 1, 1], [1, 1, 0]], float),
+                 'faces': np.array([[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7]]),
+                 'uv': (np.array([[[0, 0], [.5, 0], [.5, 1]], [[0, 0], [.5, 1], [0, 1]], [[.5, 0], [.5, 1], [1, 1]], [[.5, 0], [1, 1], [1, 0]]])*.998+.001)/4}
+        colour = np.full((4096, 4096, 3), 100, np.float32); colour[:512, 512:1024] = 180; colour[512:1024, 512:1024] = 60
+        masks = flat('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket'); labels = np.zeros((4096, 4096), np.uint8)
+        outer = np.array([True, True, False, True])
+        for strength in (0, .8):
+            settings = {k: 0 for k in TREATMENT}; settings['scalpDelight'] = strength
+            out, report = treat(colour, labels, masks, value, settings, outer=outer)
+            with self.subTest(strength=strength):
+                self.assertTrue(np.allclose(out[250:750, 25:475], 100)); self.assertTrue(np.allclose(out[750:875, 875:975], 60))
+                self.assertTrue(np.allclose(out[375:475, 550:600], 180))   # hidden
+                bright = out[75:225, 900:1000, 0]
+                if strength: self.assertTrue((bright < 140).all() and (bright >= .6*180-1e-3).all(), report)
+                else: self.assertTrue(np.allclose(bright, 180)); self.assertNotIn('scalpDelightGainP5P95', report)
+        with self.assertRaisesRegex(ValueError, 'outer faces'): treat(colour, labels, masks, value, settings)
+        with self.assertRaisesRegex(ValueError, 'setting'): treat(colour, labels, masks, value, dict(settings, scalpDelight=True), outer=outer)
+
+
+class Region(unittest.TestCase):
+    def test_front_triangles(self):
+        positions = np.array([[0, 0, 1], [1, 0, 1], [0, 1, 1], [0, 0, 0], [1, 0, 0], [0, 0, -1]], float)
+        faces = np.array([[0, 1, 2], [3, 4, 5]]); face, area = face_region(positions, faces)
+        self.assertEqual(face.tolist(), [True, False]); self.assertAlmostEqual(area[0], .5)
+
+    def scene(self, shared):
+        """A front quad (face) and a back quad at the same UV density; `shared` joins one face and one back triangle
+        into a single chart (a shared UV vertex), as mixed charts do on the real heads."""
+        positions = np.array([[0, 0, 1], [1, 0, 1], [1, .5, 1], [0, .5, 1], [0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]], float)
+        faces = np.array([[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7]])
+        x = .3 if shared else .5   # shared: the back chart's first corner is the face chart's (.3, .2) corner
+        uv = np.array([[[.1, .1], [.3, .1], [.3, .2]], [[.1, .1], [.3, .2], [.1, .2]],
+                       [[x, .2], [x, .4], [x+.2, .4]], [[x, .2], [x+.2, .4], [x+.2, .2]]])
+        return positions, faces, uv
+
+    def test_face_priority_reaches_the_ratio_on_pure_face_charts(self):
+        from headkit.test_headkit import FakePacker
+        from headkit.uv import face_priority
+        positions, faces, uv = self.scene(False); _, report = face_priority(FakePacker(), uv, positions, faces, 3.0, 2)
+        self.assertAlmostEqual(report['measuredDensityRatio'], 3.0, delta=.3)
+        positions, faces, uv = self.scene(True); _, mixed = face_priority(FakePacker(), uv, positions, faces, 3.0, 2)
+        self.assertLess(mixed['measuredDensityRatio'], 1.2)   # one chart, one scale: a mixed chart gives the face nothing extra
+
+    def test_grown_charts_scale_on_top_of_the_ratio(self):
+        # RUNBOOK 144: a chart the smaller page left sub-texel grows; growing the back chart by sqrt(3) evens out the densities.
+        from headkit.test_headkit import FakePacker
+        from headkit.uv import face_priority, chart_ids
+        positions, faces, uv = self.scene(False); back = int(chart_ids(uv, shared='vertex')[2])
+        _, report = face_priority(FakePacker(), uv, positions, faces, 3.0, 2, {back: 3**.5})
+        self.assertAlmostEqual(report['measuredDensityRatio'], 1.0, delta=.1); self.assertEqual(report['grownCharts'], 1)
+
+
+class Quality(unittest.TestCase):
+    def test_thresholds_complete_and_eligible_range(self):
+        self.assertEqual(set(read(THRESHOLDS)['limits']), CHECKS)
+        row = np.zeros((256, 4), np.uint8); row[10:200, 3] = 255; self.assertEqual(eligible(row), (10, 198))
+
+    def test_flat_channels_keep_the_palette_exemption(self):
+        palette = {'layers': {'0': {'shadeRange': {'checked': True}}, '2': {'shadeRange': {'checked': False}}, '9': {}}}
+        fails, exempt = shade_span_failures({'0': .5, '2': 0.0, '9': .9}, palette, .75)
+        self.assertEqual(fails, ['shadeSpan0']); self.assertEqual(exempt, ['2'])
+        # A body-pinned skin needs only the body minimum (RUNBOOK 154); other channels keep the full one.
+        palette['layers']['0']['shadeRange']['skinMedian'] = {'target': 99, 'achieved': 99.0}
+        self.assertEqual(shade_span_failures({'0': .6, '9': .6}, palette, .75, .5)[0], ['shadeSpan9'])
+        # RUNBOOK 159: hair whose brightest or darkest source value holds over the limit is exempt; other channels are not.
+        palette['layers']['1'] = {'shadeRange': {'checked': True, 'endTie': .14}}; palette['layers']['9'] = {'shadeRange': {'checked': True, 'endTie': .14}}
+        self.assertEqual(shade_span_failures({'1': .66, '9': .66}, palette, .75, .5, .1), (['shadeSpan9'], ['1']))
+        palette['layers']['1']['shadeRange']['endTie'] = .05; self.assertEqual(shade_span_failures({'1': .66}, palette, .75, .5, .1)[0], ['shadeSpan1'])
+
+    def test_seam_step_ratio_finds_tone_patches_at_chart_borders(self):
+        # RUNBOOK 153: a plane of skin texels split into two charts at x=.5; even texture scores ~1, a flat offset at the seam more.
+        from headkit.quality import seam_step_ratio
+        ys, xs = np.mgrid[0:64, 0:64]/64.; points = np.c_[xs.ravel(), ys.ravel(), np.zeros(xs.size)]; charts = (points[:, 0] >= .5).astype(int)
+        ramp = np.random.default_rng(1).integers(100, 104, len(points)).astype(np.uint8); patch = ramp+np.where(charts == 1, 12, 0).astype(np.uint8)
+        smooth, stepped = (seam_step_ratio(points, charts, s, 1.5) for s in (ramp, patch))
+        self.assertLess(smooth, 1.3); self.assertGreater(stepped, 2.0); self.assertIsNone(seam_step_ratio(points, np.zeros(len(points), int), ramp, 1.5))
+
+    def test_skin_median_offset_needs_the_body_anchor(self):
+        # RUNBOOK 154: a stretched skin without the body skin's median fails; a flat skin has nothing to anchor.
+        from headkit.quality import skin_median_offset
+        layer = lambda **range_: {'layers': {'0': {'shadeRange': range_}}}
+        self.assertIsNone(skin_median_offset(layer(checked=True)))
+        self.assertEqual(skin_median_offset(layer(checked=True, skinMedian={'target': 99, 'achieved': 104.0})), 5.0)
+        self.assertEqual(skin_median_offset(layer(checked=False)), 0.0); self.assertEqual(skin_median_offset({'layers': {}}), 0.0)
+        # RUNBOOK 158: the darkest face skin against the plain skin, measured only for a body-pinned skin.
+        from headkit.quality import face_dark_ratio
+        face, plain = np.r_[np.zeros(5), np.full(95, 60)], np.full(50, 100); pinned = layer(checked=True, skinMedian={'target': 99, 'achieved': 99.0})
+        self.assertEqual(face_dark_ratio(pinned, face, plain), 0.0); self.assertEqual(face_dark_ratio(pinned, face+20, plain), .2)
+        self.assertIsNone(face_dark_ratio(layer(checked=True), face, plain)); self.assertIsNone(face_dark_ratio(pinned, face[:0], plain))
+
+    def test_cybereye_side_setting_is_checked_before_any_work(self):
+        from headkit.quality import quality
+        with tempfile.TemporaryDirectory() as root:
+            for settings in ({'cybereyeImageSide': 'top'}, {'cybereye': 'left'}):
+                with self.subTest(settings=settings), self.assertRaisesRegex(ValueError, 'cybereyeImageSide'):
+                    quality('uv.glb', {}, {}, {}, Path(root)/'q', settings=settings)
+                self.assertFalse((Path(root)/'q').exists())
+
+    def test_seam_approval_raises_one_heads_limit_to_its_viewed_ratio(self):
+        # RUNBOOK 178: a head's own approved ratio, with its note; anything else keeps the shared limit or stops.
+        from headkit.quality import quality, seam_limit
+        self.assertEqual(seam_limit(1.45, None), 1.45); self.assertEqual(seam_limit(1.45, {'ratioMax': 1.65, 'approval': 'user 2026-11-04'}), 1.65)
+        bads = ({'ratioMax': 1.65}, {'ratioMax': 1.4, 'approval': 'x'}, {'ratioMax': True, 'approval': 'x'}, {'ratioMax': float('inf'), 'approval': 'x'},
+                {'ratioMax': 1.65, 'approval': ' '}, {'ratioMax': 1.65, 'approval': 'x', 'more': 1}, 1.65)
+        for bad in bads:
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'seamStepApproved'):
+                seam_limit(1.45, bad)
+        with tempfile.TemporaryDirectory() as root:   # through quality(): the allow-list takes the key, and a bad value stops before any work
+            with self.assertRaisesRegex(ValueError, 'seamStepApproved'):
+                quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'seamStepApproved': bads[0]}, embree='embree.dll')
+            self.assertFalse((Path(root)/'q').exists())
+
+
+class Wiring(unittest.TestCase):
+    def test_stage_order_and_declarations(self):
+        self.assertLess(STAGES.index('masks'), STAGES.index('ownership')); self.assertLess(STAGES.index('palette'), STAGES.index('quality'))
+        self.assertLess(STAGES.index('quality'), STAGES.index('export'))
+        self.assertEqual(stage_libraries('masks', {}), {'mediapipe', 'onnxruntime'})
+        self.assertEqual(stage_roles('masks', {'inputs': {'uvMesh': {}, 'design': {}}}), {'uvMesh'})
+
+    def test_face_sections_go_together(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/'m.json'; base = {'schemaVersion': 1, 'id': 'x', 'inputs': {}}
+            write(path, base); manifest(path)
+            full = dict(base, faceMasks={}, quality={}, ownership={'featureChannels': True}, tone={'faceTreatment': {}},
+                        palette={'fullShadeRange': True})
+            path.write_text(json.dumps(full)); manifest(path)
+            for drop in ('faceMasks', 'quality', 'palette'):
+                path.write_text(json.dumps({k: v for k, v in full.items() if k != drop}))
+                with self.assertRaises(ValueError): manifest(path)
+            rule = {'name': 'peak', 'channel': 1, 'when': {}, 'overFaceMasks': True}
+            path.write_text(json.dumps(dict(full, ownership={'featureChannels': True, 'rules': [rule]}))); manifest(path)
+            path.write_text(json.dumps(dict(base, ownership={'rules': [rule]})))
+            with self.assertRaisesRegex(ValueError, 'overFaceMasks'): manifest(path)
+
+    def test_face_masks_refuse_imported_runtime_atlases(self):
+        """Export must ship the shades the quality gate measured, built through the channel moves and treatment."""
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); (root/'atlas.png').write_bytes(b'x'); path = root/'m.json'
+            full = {'schemaVersion': 1, 'id': 'x', 'inputs': {}, 'faceMasks': {}, 'quality': {}, 'ownership': {'featureChannels': True},
+                    'tone': {'faceTreatment': {}}, 'palette': {'fullShadeRange': True}}
+            for role in ('runtimeColor', 'runtimeShades', 'ownership1k'):
+                data = dict(full, inputs={role: {'path': 'atlas.png', 'sha256': hashlib.sha256(b'x').hexdigest()}})
+                path.write_text(json.dumps(data))
+                with self.assertRaisesRegex(ValueError, role): manifest(path)
+                path.write_text(json.dumps({k: v for k, v in data.items() if k not in ('faceMasks', 'quality', 'ownership', 'tone', 'palette')}))
+                manifest(path)
+
+
+class ToneWithFaceTreatment(unittest.TestCase):
+    def runner(self, root, data):
+        from headkit.runner import Runner
+        from PIL import Image
+        colour, ownership, imported, detail = (root/n for n in ('colour.png', 'own.png', 'imported.png', 'detail.png'))
+        Image.new('RGB', (4096, 4096), (120, 90, 70)).save(colour); Image.new('L', (4096, 4096), 0).save(ownership)
+        Image.new('L', (4096, 4096), 1).save(imported); Image.new('RGB', (64, 64)).save(detail)
+        r = Runner.__new__(Runner); r.data = data; r.bindings = {}
+        results = {'ownership': {'fourk': {'path': str(ownership)}}, 'masks': {'files': {}}}
+        r.result = lambda stage, **_: results[stage]; r.source = lambda *a: None
+        r.input = lambda name: str({'ownership4k': imported, 'detail': detail}[name]); r._color4k = lambda **_: str(colour)
+        return r, ownership
+
+    def test_reference_matching_and_imported_atlas(self):
+        """Face treatment with reference tone matching and an imported ownership4k: tone_match gets only its skin/hair
+        samples, and the treatment reads the ownership stage's feature-adjusted atlas, not the imported one."""
+        from unittest import mock
+        data = {'inputs': {'ownership4k': {}, 'detail': {}}, 'ownership': {'featureChannels': True}, 'palette': {'inputs': {}},
+                'tone': {'skin': {'x': 1}, 'hair': {'x': 2}, 'faceTreatment': {}}}
+        self.assertNotIn('ownership4k', stage_roles('tone', data))
+        from headkit.runner import Runner
+        bare = Runner.__new__(Runner); bare.data = dict(data, fit={}); self.assertIn('ownership', bare.dependencies('tone'))
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); r, adjusted = self.runner(root, data); seen = {}
+            def fake_match(color, ownership, reference, config, output):
+                seen['config'] = set(config); seen['ownership'] = Path(ownership)
+                from PIL import Image
+                Image.open(color).save(output); return {}
+            def fake_treat(rgb, labels, masks, value, settings, outer=None, preserve_skin=None):
+                seen['labels'] = int(labels.max()); return rgb, {}
+            with mock.patch('headkit.textures.tone_match', fake_match), mock.patch('headkit.face_encode.treat', fake_treat),                  mock.patch('headkit.face_encode.masks_at', lambda *a: {}), mock.patch('headkit.gltf.mesh', lambda *a: None):
+                result = r._execute('tone', root)
+        self.assertEqual(seen['config'], {'skin', 'hair'}); self.assertEqual(seen['ownership'], adjusted)
+        self.assertEqual(seen['labels'], 0); self.assertEqual(result['ownershipInputRole'], 'ownership')
+
+
+if __name__ == '__main__':
+    unittest.main()

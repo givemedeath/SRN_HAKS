@@ -115,6 +115,22 @@ class RetargetV2Tests(unittest.TestCase):
             self.assertEqual(sorted(p.name for p in (fit/'ascii').iterdir()), ['pfd0.mdl', 'sr_afd_0.mdl', 'sr_afd_1.mdl'])
             self.assertEqual(sorted(p.name for p in fit.iterdir()), ['ascii', 'conversion.json', 'retarget-v2.json'])
 
+    def test_an_offset_stock_root_is_refused_before_anything_is_written(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); baseline, fit, large = self.fixture(root); clean = {}
+            for name in ('pfh0', 'a_ba'):
+                path = baseline/'ascii'/(name + '.mdl'); clean[name] = path.read_text()
+                for line in ('  orientation 0 0 1 0.1\n', '  position 0 0 -0.0477\n'):
+                    path.write_text(clean[name].replace('  parent NULL\n', '  parent NULL\n' + line, 1))
+                    with self.assertRaisesRegex(RuntimeError, 'Model root must sit at the origin: ' + ('pfd0' if name == 'pfh0' else 'sr_afd_1')):
+                        retarget(fit, baseline, large)
+                    self.assertEqual(sorted(p.name for p in fit.iterdir()), ['conversion.json'])
+                path.write_text(clean[name])
+            # A zero-angle orientation is the identity.
+            path = baseline/'ascii/pfh0.mdl'; path.write_text(clean['pfh0'].replace('  parent NULL\n', '  parent NULL\n  orientation 1 0 0 0\n', 1))
+            receipt = retarget(fit, baseline, large)
+            self.assertEqual(receipt['roots'][0]['joints']['pfd0'], [0.0, 0.0, 0.0])
+
     def test_a_rerun_refuses_to_replace_earlier_results(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); baseline, fit, large = self.fixture(root)

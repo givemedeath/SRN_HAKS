@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from test_shared_toolchain import helper_pins
 from unittest.mock import patch
 
 import numpy as np
@@ -90,7 +91,7 @@ class ExecutionFixture:
         runtime = self.write(self.out/'runtime.json', {'schemaVersion':2, 'kind':'phenotype-shared-toolchain',
             'toolsRoot':str(toolroot), 'requiredTools':['python'], 'runtimes':{'python':self.pin(runtime_exe)}})
         migration = self.write(self.out/'migration.json', {'kind':'phenotype-shared-tool-migration',
-            'smokeChecksPassed':True, 'toolchain':self.pin(runtime), 'launchHelpers':{}})
+            'smokeChecksPassed':True, 'toolchain':self.pin(runtime), 'launchHelpers':helper_pins()})
         self.proof = {'schemaVersion':2, 'kind':adoption.KIND, 'operation':adoption.OPERATION,
             'adoptionApplications':1, 'targetContract':self.pin(self.target_path), 'targetId':self.target['id'],
             'rigRevision':self.target['rig']['revision'], 'coordinateSpace':'working',

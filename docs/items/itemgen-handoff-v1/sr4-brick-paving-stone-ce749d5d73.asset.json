@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-brick-paving-stone-ce749d5d73",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "back-upper-corner",
+      "pixel": [
+        294.0,
+        322.00000000000006
+      ]
+    },
+    {
+      "name": "front-upper-corner",
+      "pixel": [
+        1010.0,
+        650.0
+      ]
+    },
+    {
+      "name": "front-bottom-corner",
+      "pixel": [
+        994.0,
+        940.0
+      ]
+    },
+    {
+      "name": "left-lower-corner",
+      "pixel": [
+        85.0,
+        713.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-brick-paving-stone-ce749d5d73.family.json",
+    "sha256": "e541dce26b82679d23047e79c70dfa3bbef4ba3bc65a3775f11b92c9be2d82ce"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/a02886275c2d84c37357aab087edef898ca5f595c071945c5757731560420440.png",
+      "sha256": "a02886275c2d84c37357aab087edef898ca5f595c071945c5757731560420440"
+    },
+    "clayReference": {
+      "path": "inputs/4e992213bdbbb188a9fe3d3f6f4ff06b51a14612ed32101b5aad1ffdf1fa64f6.png",
+      "sha256": "4e992213bdbbb188a9fe3d3f6f4ff06b51a14612ed32101b5aad1ffdf1fa64f6"
+    },
+    "geometry": {
+      "path": "inputs/9e563c92ecd00606921c884cca34701212090841b4c5357bdf94fcc54bf8fd66.png",
+      "sha256": "9e563c92ecd00606921c884cca34701212090841b4c5357bdf94fcc54bf8fd66"
+    },
+    "detail": {
+      "path": "inputs/25c88ec79c8a22de876533d258814c43c55e310252777d6daa9f574663545d7c.png",
+      "sha256": "25c88ec79c8a22de876533d258814c43c55e310252777d6daa9f574663545d7c"
+    },
+    "foregroundMask": {
+      "path": "inputs/f0b9c238174d333c2cd28fc4e56fa71dd84d741cc5b06d4590db779e92518303.png",
+      "sha256": "f0b9c238174d333c2cd28fc4e56fa71dd84d741cc5b06d4590db779e92518303"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/06aa9a20d95581cd1dddcf3b914cf8c5c864daaf37d43f5c39d965fe29a22100.png",
+      "sha256": "06aa9a20d95581cd1dddcf3b914cf8c5c864daaf37d43f5c39d965fe29a22100"
+    },
+    "mask": {
+      "path": "inputs/06aa9a20d95581cd1dddcf3b914cf8c5c864daaf37d43f5c39d965fe29a22100.png",
+      "sha256": "06aa9a20d95581cd1dddcf3b914cf8c5c864daaf37d43f5c39d965fe29a22100"
+    },
+    "calibrationReference": {
+      "path": "inputs/778899d79888e636baec0486ac1c0b0c67ff101ae99fd7bb1421ad6b2f0cfcfe.png",
+      "sha256": "778899d79888e636baec0486ac1c0b0c67ff101ae99fd7bb1421ad6b2f0cfcfe"
+    },
+    "sourceAudit": {
+      "path": "inputs/87c7be08cdebc38e0d8fe21359dcf8026c24fb505cf0944bdf1ec75345196d18.json",
+      "sha256": "87c7be08cdebc38e0d8fe21359dcf8026c24fb505cf0944bdf1ec75345196d18"
+    },
+    "referenceApproval": {
+      "path": "inputs/c61c32a73798294cb2788ea2afcf3df0c1967e5a97a233374ce85584e4ff4d34.json",
+      "sha256": "c61c32a73798294cb2788ea2afcf3df0c1967e5a97a233374ce85584e4ff4d34"
+    },
+    "calibrationDetail": {
+      "path": "inputs/bf378791bcf2a7592838db6e0dc3a2f9745eb2ac7480b0731c3ef575ffd4cc5e.png",
+      "sha256": "bf378791bcf2a7592838db6e0dc3a2f9745eb2ac7480b0731c3ef575ffd4cc5e"
+    }
+  },
+  "features": [
+    {
+      "name": "Recognizable ordinary brick or paving-stone solid with appropriate broad mass/silhouette; precise shape, material, color and holes are not fixed.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BRICK explicitly selected for the combined Brick/Paving Stone row. Broad rectangular six-face mass and three visible perspective faces retained; small chips/pores/grain removed from clay. No perforations added. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation. Source Arsenal printed20/PDF22 improvised-throwing table and compiled printed174/PDF176 establish ordinary object identity only. Printed19/PDF21 is introduction/cross-reference. No unique labeled art or named-model silhouette is asserted. Material/color/finish/layout/dimensions are declared artistic interpretation; reviewed mirror errata yields no relevant exterior change, with official byte identity unverified. Native1254square honestly resampled to2048square; reference-only approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "a02886275c2d84c37357aab087edef898ca5f595c071945c5757731560420440",
+      "imageSha256": "25c88ec79c8a22de876533d258814c43c55e310252777d6daa9f574663545d7c",
+      "maskSha256": "f0b9c238174d333c2cd28fc4e56fa71dd84d741cc5b06d4590db779e92518303",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BRICK explicitly selected for the combined Brick/Paving Stone row. Broad rectangular six-face mass and three visible perspective faces retained; small chips/pores/grain removed from clay. No perforations added. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "4e992213bdbbb188a9fe3d3f6f4ff06b51a14612ed32101b5aad1ffdf1fa64f6",
+      "imageSha256": "9e563c92ecd00606921c884cca34701212090841b4c5357bdf94fcc54bf8fd66",
+      "maskSha256": "06aa9a20d95581cd1dddcf3b914cf8c5c864daaf37d43f5c39d965fe29a22100",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BRICK explicitly selected for the combined Brick/Paving Stone row. Broad rectangular six-face mass and three visible perspective faces retained; small chips/pores/grain removed from clay. No perforations added. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final visual reviewer inspected original pair, native independent foreground/masks and final matched2048clay/overlay. BRICK explicitly selected for the combined Brick/Paving Stone row. Broad rectangular six-face mass and three visible perspective faces retained; small chips/pores/grain removed from clay. No perforations added. Whole object, complete boundaries and margins preserved. No detached components, clipping or broad halo. Independent valid alpha preserved and common crop/scale used; no warp, retouch or image generation. RawRGB unchanged in foreground preparation. Source Arsenal printed20/PDF22 improvised-throwing table and compiled printed174/PDF176 establish ordinary object identity only. Printed19/PDF21 is introduction/cross-reference. No unique labeled art or named-model silhouette is asserted. Material/color/finish/layout/dimensions are declared artistic interpretation; reviewed mirror errata yields no relevant exterior change, with official byte identity unverified. Native1254square honestly resampled to2048square; reference-only approval.",
+      "landmarks": [
+        {
+          "name": "back-upper-corner",
+          "detail": [
+            0.22697049780997305,
+            0.24981747953274766
+          ],
+          "geometry": [
+            0.22697049780997305,
+            0.2481997553913738
+          ]
+        },
+        {
+          "name": "front-upper-corner",
+          "detail": [
+            0.8061975306042228,
+            0.5151242387180511
+          ],
+          "geometry": [
+            0.8061975306042228,
+            0.5151242387180511
+          ]
+        },
+        {
+          "name": "front-bottom-corner",
+          "detail": [
+            0.7932539097596586,
+            0.7496942392172524
+          ],
+          "geometry": [
+            0.7948718623652291,
+            0.7505031012879393
+          ]
+        },
+        {
+          "name": "left-lower-corner",
+          "detail": [
+            0.05789445052785265,
+            0.5668914112420127
+          ],
+          "geometry": [
+            0.05627649792228211,
+            0.5701268595247603
+          ]
+        }
+      ],
+      "referenceSha256": "a02886275c2d84c37357aab087edef898ca5f595c071945c5757731560420440",
+      "geometrySha256": "9e563c92ecd00606921c884cca34701212090841b4c5357bdf94fcc54bf8fd66",
+      "detailSha256": "25c88ec79c8a22de876533d258814c43c55e310252777d6daa9f574663545d7c",
+      "foregroundMaskSha256": "f0b9c238174d333c2cd28fc4e56fa71dd84d741cc5b06d4590db779e92518303",
+      "geometryForegroundMaskSha256": "06aa9a20d95581cd1dddcf3b914cf8c5c864daaf37d43f5c39d965fe29a22100"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

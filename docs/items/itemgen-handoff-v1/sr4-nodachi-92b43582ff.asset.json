@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-nodachi-92b43582ff",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "blade-tip",
+      "pixel": [
+        1225.0,
+        24.999999999999996
+      ]
+    },
+    {
+      "name": "guard-top",
+      "pixel": [
+        426.0,
+        815.9999999999999
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        483.0,
+        884.0000000000001
+      ]
+    },
+    {
+      "name": "pommel-end",
+      "pixel": [
+        44.0,
+        1197.0
+      ]
+    },
+    {
+      "name": "pommel-hole",
+      "pixel": [
+        44.0,
+        1175.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-nodachi-92b43582ff.family.json",
+    "sha256": "349351f71b941daa4faf32f67034cc27e09f7322a948935874786f349192d6d0"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/571bea00bc35af3515b001cff240b55e42f1eada2384e38c10342a932de330d3.png",
+      "sha256": "571bea00bc35af3515b001cff240b55e42f1eada2384e38c10342a932de330d3"
+    },
+    "clayReference": {
+      "path": "inputs/2d5ea44776d4a34cece1728e634ea2059b772c4786374ed36ee8b71219ccc30a.png",
+      "sha256": "2d5ea44776d4a34cece1728e634ea2059b772c4786374ed36ee8b71219ccc30a"
+    },
+    "geometry": {
+      "path": "inputs/6a3506f89223471e895fa47ab2138899fd65b9b7db3689d92ccbfe86061ea2c9.png",
+      "sha256": "6a3506f89223471e895fa47ab2138899fd65b9b7db3689d92ccbfe86061ea2c9"
+    },
+    "detail": {
+      "path": "inputs/980539a62ed2c2866af5deeef4fd393d64d837a7d111809786973542d30899fb.png",
+      "sha256": "980539a62ed2c2866af5deeef4fd393d64d837a7d111809786973542d30899fb"
+    },
+    "foregroundMask": {
+      "path": "inputs/20848a3c889f20b4131f78dafb0452cd1c88c9d6b0a46375b2135a5ed5ce766d.png",
+      "sha256": "20848a3c889f20b4131f78dafb0452cd1c88c9d6b0a46375b2135a5ed5ce766d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/30f5745226ce79a56e3f9bfb714d2f88d701a00fe08fd36d4a22c8f44b4a82ba.png",
+      "sha256": "30f5745226ce79a56e3f9bfb714d2f88d701a00fe08fd36d4a22c8f44b4a82ba"
+    },
+    "mask": {
+      "path": "inputs/30f5745226ce79a56e3f9bfb714d2f88d701a00fe08fd36d4a22c8f44b4a82ba.png",
+      "sha256": "30f5745226ce79a56e3f9bfb714d2f88d701a00fe08fd36d4a22c8f44b4a82ba"
+    },
+    "calibrationReference": {
+      "path": "inputs/95f77ad773d7190d6ff78e7432424e19c7ff6e29164f78b3c5f22de2daef7108.png",
+      "sha256": "95f77ad773d7190d6ff78e7432424e19c7ff6e29164f78b3c5f22de2daef7108"
+    },
+    "sourceAudit": {
+      "path": "inputs/8b366e69f53c5aa603dcc684eb8e0f7fc1f87fbe96b01193e3efd51191071327.json",
+      "sha256": "8b366e69f53c5aa603dcc684eb8e0f7fc1f87fbe96b01193e3efd51191071327"
+    },
+    "referenceApproval": {
+      "path": "inputs/8efcd9901afb362e187bafb19128d7b9964b4ef96984141fdd8e5cc689111e73.json",
+      "sha256": "8efcd9901afb362e187bafb19128d7b9964b4ef96984141fdd8e5cc689111e73"
+    },
+    "calibrationDetail": {
+      "path": "inputs/615895805c1f8b72c74495bd4bb84edcc09378297cff4bc370626963270b7c1e.png",
+      "sha256": "615895805c1f8b72c74495bd4bb84edcc09378297cff4bc370626963270b7c1e"
+    }
+  },
+  "features": [
+    {
+      "name": "Large two-handed Japanese sword; retain sufficient two-hand grip.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual Arsenal printed14/PDF16 labeled NODACHI and generated detail compared. Very long continuously curved blade, slender point, small guard and long two-hand grip retain large Japanese-sword class and source length balance. Diagonal camera fits the whole sword without foreshortening or cropping. Dark wrap/satin steel and terminal fitting/open lanyard ring are restrained artistic depth/finish choices; absolute dimensions and reverse-side construction are unspecified. RGB white background and native1254 size require later conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        123,
+        1872,
+        152,
+        1903
+      ],
+      "referenceAreaPixels": 693,
+      "referenceMaskSha256": "30f5745226ce79a56e3f9bfb714d2f88d701a00fe08fd36d4a22c8f44b4a82ba",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "571bea00bc35af3515b001cff240b55e42f1eada2384e38c10342a932de330d3",
+      "imageSha256": "980539a62ed2c2866af5deeef4fd393d64d837a7d111809786973542d30899fb",
+      "maskSha256": "20848a3c889f20b4131f78dafb0452cd1c88c9d6b0a46375b2135a5ed5ce766d",
+      "notes": "Actual Arsenal printed14/PDF16 labeled NODACHI and generated detail compared. Very long continuously curved blade, slender point, small guard and long two-hand grip retain large Japanese-sword class and source length balance. Diagonal camera fits the whole sword without foreshortening or cropping. Dark wrap/satin steel and terminal fitting/open lanyard ring are restrained artistic depth/finish choices; absolute dimensions and reverse-side construction are unspecified. RGB white background and native1254 size require later conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2d5ea44776d4a34cece1728e634ea2059b772c4786374ed36ee8b71219ccc30a",
+      "imageSha256": "6a3506f89223471e895fa47ab2138899fd65b9b7db3689d92ccbfe86061ea2c9",
+      "maskSha256": "30f5745226ce79a56e3f9bfb714d2f88d701a00fe08fd36d4a22c8f44b4a82ba",
+      "notes": "Actual Arsenal printed14/PDF16 labeled NODACHI and generated detail compared. Very long continuously curved blade, slender point, small guard and long two-hand grip retain large Japanese-sword class and source length balance. Diagonal camera fits the whole sword without foreshortening or cropping. Dark wrap/satin steel and terminal fitting/open lanyard ring are restrained artistic depth/finish choices; absolute dimensions and reverse-side construction are unspecified. RGB white background and native1254 size require later conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual Arsenal printed14/PDF16 labeled NODACHI and generated detail compared. Very long continuously curved blade, slender point, small guard and long two-hand grip retain large Japanese-sword class and source length balance. Diagonal camera fits the whole sword without foreshortening or cropping. Dark wrap/satin steel and terminal fitting/open lanyard ring are restrained artistic depth/finish choices; absolute dimensions and reverse-side construction are unspecified. RGB white background and native1254 size require later conditioning. Actual matching clay has completely smooth grip/fittings with fine cuts, wrap, fasteners and texture filled; broad blade facets and major boundaries retained. Assigned sole reviewer inspected native/final independent masks, teal views and paired overlay. Genuine frame/guard/ring openings and thin structures preserved; specular metal highlights remain foreground. No clipped tip, missing rail/bar, detached foreground, broad fringe or shadow. Raw RGB unchanged; common crop/scale/offset only. 2048 output is resampled from1254 square, not native2K. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "blade-tip",
+          "detail": [
+            0.9479555348258707,
+            0.06229813839664686
+          ],
+          "geometry": [
+            0.9479555348258707,
+            0.06229813839664686
+          ]
+        },
+        {
+          "name": "guard-top",
+          "detail": [
+            0.3514280809494196,
+            0.652791410229202
+          ],
+          "geometry": [
+            0.3514280809494196,
+            0.652791410229202
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.3939838567578773,
+            0.7035544222198643
+          ],
+          "geometry": [
+            0.3939838567578773,
+            0.7035544222198643
+          ]
+        },
+        {
+          "name": "pommel-end",
+          "detail": [
+            0.06622972377694859,
+            0.9372135803533531
+          ],
+          "geometry": [
+            0.06622972377694859,
+            0.9372135803533531
+          ]
+        },
+        {
+          "name": "pommel-hole",
+          "detail": [
+            0.06622972377694859,
+            0.9207902529446095
+          ],
+          "geometry": [
+            0.06697631633499171,
+            0.9207902529446095
+          ]
+        }
+      ],
+      "referenceSha256": "571bea00bc35af3515b001cff240b55e42f1eada2384e38c10342a932de330d3",
+      "geometrySha256": "6a3506f89223471e895fa47ab2138899fd65b9b7db3689d92ccbfe86061ea2c9",
+      "detailSha256": "980539a62ed2c2866af5deeef4fd393d64d837a7d111809786973542d30899fb",
+      "foregroundMaskSha256": "20848a3c889f20b4131f78dafb0452cd1c88c9d6b0a46375b2135a5ed5ce766d",
+      "geometryForegroundMaskSha256": "30f5745226ce79a56e3f9bfb714d2f88d701a00fe08fd36d4a22c8f44b4a82ba"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

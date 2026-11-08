@@ -14,6 +14,10 @@ The [process package](docs/phenotype-process-package.md) documents individual-pa
 
 The SRN inspection gallery was removed on 2026-10-14 pending a redesign. Its historical checkpoints remain under `docs/heads` and `docs/gallery`, and the validation records they cite remain in `test-modules/srn_gallery`; the code is in Git history.
 
+### Pixal3D Head Toolkit
+
+The [head runbook](docs/heads/head-generation-toolkit.md) provides a reusable single-image process and the retained multiview alternative for complex heads, with manifest-driven cleanup, textures, PLT review and native packaging.
+
 ### Quick Start
 
 Requirements:

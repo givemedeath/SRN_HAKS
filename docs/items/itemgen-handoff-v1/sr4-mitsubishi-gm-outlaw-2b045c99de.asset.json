@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-mitsubishi-gm-outlaw-2b045c99de",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "nose-lower-contour",
+      "pixel": [
+        100.0,
+        977.0
+      ]
+    },
+    {
+      "name": "body-upper",
+      "pixel": [
+        600.0,
+        553.0
+      ]
+    },
+    {
+      "name": "upper-fin-tip",
+      "pixel": [
+        960.0,
+        188.0
+      ]
+    },
+    {
+      "name": "tail-lower-fin",
+      "pixel": [
+        1200.0,
+        662.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-mitsubishi-gm-outlaw-2b045c99de.family.json",
+    "sha256": "7bb0cfae5aaa9b3df38109850fc2349c790508140736267e997a9e8a94cfd2a3"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/ce09e4211cd42e745b6532c07ffdeb3ba468e8173a96ea1eab2a94e133082e5e.png",
+      "sha256": "ce09e4211cd42e745b6532c07ffdeb3ba468e8173a96ea1eab2a94e133082e5e"
+    },
+    "clayReference": {
+      "path": "inputs/3ba836f4aa1d533458ea45f2eb50a41a628ec8f4e8553130f6f47057ea6127a8.png",
+      "sha256": "3ba836f4aa1d533458ea45f2eb50a41a628ec8f4e8553130f6f47057ea6127a8"
+    },
+    "geometry": {
+      "path": "inputs/ec7fd5a469e5e67e7bf7d31974361cf627a730c0daad6c23efde24348323a00d.png",
+      "sha256": "ec7fd5a469e5e67e7bf7d31974361cf627a730c0daad6c23efde24348323a00d"
+    },
+    "detail": {
+      "path": "inputs/b7a9fec89ba133b6100509714771cc1ca31482864d68eb1e196b362f806cea29.png",
+      "sha256": "b7a9fec89ba133b6100509714771cc1ca31482864d68eb1e196b362f806cea29"
+    },
+    "foregroundMask": {
+      "path": "inputs/93589008dbfc93dffc536ed928dee665036ea035e4220755b316c3233d0307be.png",
+      "sha256": "93589008dbfc93dffc536ed928dee665036ea035e4220755b316c3233d0307be"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/f4c708521b6dc33b94d701422026e5d1a6bf7d3ac997e2c1249d627153434308.png",
+      "sha256": "f4c708521b6dc33b94d701422026e5d1a6bf7d3ac997e2c1249d627153434308"
+    },
+    "mask": {
+      "path": "inputs/f4c708521b6dc33b94d701422026e5d1a6bf7d3ac997e2c1249d627153434308.png",
+      "sha256": "f4c708521b6dc33b94d701422026e5d1a6bf7d3ac997e2c1249d627153434308"
+    },
+    "calibrationReference": {
+      "path": "inputs/7ee506e55d5b1360e210e4901a8fbbf94b4878e57e85cde4b20550577bbd54ca.png",
+      "sha256": "7ee506e55d5b1360e210e4901a8fbbf94b4878e57e85cde4b20550577bbd54ca"
+    },
+    "sourceAudit": {
+      "path": "inputs/2110ba5f57eb8300db1702111257c3d8210931dd8bce18c1de1e40eda7186750.json",
+      "sha256": "2110ba5f57eb8300db1702111257c3d8210931dd8bce18c1de1e40eda7186750"
+    },
+    "referenceApproval": {
+      "path": "inputs/22d031543e348668450638741c4905e796aa643c5f578a88e6ffebf6d3ebe604.json",
+      "sha256": "22d031543e348668450638741c4905e796aa643c5f578a88e6ffebf6d3ebe604"
+    },
+    "calibrationDetail": {
+      "path": "inputs/bdf879f8124e42147525a60fabcd0442c1830deba4a89c72d3238f2c8ffa18fe.png",
+      "sha256": "bdf879f8124e42147525a60fabcd0442c1830deba4a89c72d3238f2c8ffa18fe"
+    }
+  },
+  "features": [
+    {
+      "name": "Large self-propelled launch weapon, with interchangeable mission warheads called blocks. It is the missile body/system, not a handheld launcher.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Description and tables establish multiple payload configurations but no labeled exterior art, measurements, fin layout or exposed internals.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual assembled Outlaw BlockIII detail against Arsenal125/PDF127 and compiled195/PDF197. One complete self-propelled missile exterior,closed pointed nose,continuous covered body,four-fin tail interpreted with three visible fins/occluded fourth and dark rear exhaust recess. BlockIII selected explicitly;no mixing other block payloads/torpedo,exposed warhead,cutaway,launcher or active flight. Exact silhouette,fin count/finish artistic,not an own labeled design drawing or claim all blocks share one exterior. Entire nose/tail/fins framed,transparent,no floor/shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "ce09e4211cd42e745b6532c07ffdeb3ba468e8173a96ea1eab2a94e133082e5e",
+      "imageSha256": "b7a9fec89ba133b6100509714771cc1ca31482864d68eb1e196b362f806cea29",
+      "maskSha256": "93589008dbfc93dffc536ed928dee665036ea035e4220755b316c3233d0307be",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual assembled Outlaw BlockIII detail against Arsenal125/PDF127 and compiled195/PDF197. One complete self-propelled missile exterior,closed pointed nose,continuous covered body,four-fin tail interpreted with three visible fins/occluded fourth and dark rear exhaust recess. BlockIII selected explicitly;no mixing other block payloads/torpedo,exposed warhead,cutaway,launcher or active flight. Exact silhouette,fin count/finish artistic,not an own labeled design drawing or claim all blocks share one exterior. Entire nose/tail/fins framed,transparent,no floor/shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3ba836f4aa1d533458ea45f2eb50a41a628ec8f4e8553130f6f47057ea6127a8",
+      "imageSha256": "ec7fd5a469e5e67e7bf7d31974361cf627a730c0daad6c23efde24348323a00d",
+      "maskSha256": "f4c708521b6dc33b94d701422026e5d1a6bf7d3ac997e2c1249d627153434308",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual assembled Outlaw BlockIII detail against Arsenal125/PDF127 and compiled195/PDF197. One complete self-propelled missile exterior,closed pointed nose,continuous covered body,four-fin tail interpreted with three visible fins/occluded fourth and dark rear exhaust recess. BlockIII selected explicitly;no mixing other block payloads/torpedo,exposed warhead,cutaway,launcher or active flight. Exact silhouette,fin count/finish artistic,not an own labeled design drawing or claim all blocks share one exterior. Entire nose/tail/fins framed,transparent,no floor/shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "ce09e4211cd42e745b6532c07ffdeb3ba468e8173a96ea1eab2a94e133082e5e",
+      "detailSha256": "b7a9fec89ba133b6100509714771cc1ca31482864d68eb1e196b362f806cea29",
+      "geometrySha256": "ec7fd5a469e5e67e7bf7d31974361cf627a730c0daad6c23efde24348323a00d",
+      "foregroundMaskSha256": "93589008dbfc93dffc536ed928dee665036ea035e4220755b316c3233d0307be",
+      "geometryForegroundMaskSha256": "f4c708521b6dc33b94d701422026e5d1a6bf7d3ac997e2c1249d627153434308",
+      "landmarks": [
+        {
+          "name": "nose-lower-contour",
+          "detail": [
+            0.10741786941140279,
+            0.7931825248756219
+          ],
+          "geometry": [
+            0.10741786941140279,
+            0.7931825248756219
+          ]
+        },
+        {
+          "name": "body-upper",
+          "detail": [
+            0.47673313807424117,
+            0.4800606343283582
+          ],
+          "geometry": [
+            0.47673313807424117,
+            0.4807991293532338
+          ]
+        },
+        {
+          "name": "upper-fin-tip",
+          "detail": [
+            0.7426401315114848,
+            0.2105099502487562
+          ],
+          "geometry": [
+            0.7426401315114848,
+            0.2097714552238806
+          ]
+        },
+        {
+          "name": "tail-lower-fin",
+          "detail": [
+            0.9199114604696472,
+            0.560556592039801
+          ],
+          "geometry": [
+            0.9199114604696472,
+            0.5612950870646767
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual assembled Outlaw BlockIII detail against Arsenal125/PDF127 and compiled195/PDF197. One complete self-propelled missile exterior,closed pointed nose,continuous covered body,four-fin tail interpreted with three visible fins/occluded fourth and dark rear exhaust recess. BlockIII selected explicitly;no mixing other block payloads/torpedo,exposed warhead,cutaway,launcher or active flight. Exact silhouette,fin count/finish artistic,not an own labeled design drawing or claim all blocks share one exterior. Entire nose/tail/fins framed,transparent,no floor/shadow. Single root final pair review: actual returned detailed/clay references inspected for paired silhouette,framing,state,major construction and openings;actual alpha diagnostics show one component/no holes and clear frame margins in each role. No opaque background,cast shadow or structural redesign. Shallow channels are nonblocking."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

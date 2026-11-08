@@ -377,3 +377,271 @@ compile hashes are in `docs/phenomorpher/clothing/srn-armor-assets.json`;
 method and evidence are in `docs/phenomorpher/clothing/`. Robes, cloaks, heads
 and the bare body parts in `srn_body` are excluded. Every resource is below
 15 MiB; no size exception is required.
+
+## Approved female Troll heads (`srn_head`)
+
+Original SRN-generated references and Pixal3D geometry/appearance, locally cleaned,
+UV-mapped, fitted and encoded as NWN:EE native models with 1024-square PLTs.
+User-approved heads: attempt63 `pfg0_head032`, attempt68 Samurai `pfg0_head090`,
+attempt73 Bob `pfg0_head091`, and attempt74 Undercut `pfg0_head092`.
+Each head has 20,000 triangles. Fixed-string compiler tails are zeroed using the
+existing armour sanitizer; geometry, material references and PLTs are unchanged.
+This batch contains only four compiled MDL/PLT
+pairs; source images, masters, trial tools, demo modules and generated HAKs stay
+outside the production source pack. Approval does not establish exhaustive
+animation, equipment or palette-combination coverage.
+
+## Approved Cougar blades and Colt L36 (`srn_weapon`, 2026-10-24)
+
+The project operator supplied the detailed weapon references. Pixal3D generated
+the geometry and appearance; local processing fitted, reduced, UV-mapped,
+transferred textures and compiled the assets for NWN:EE. Published models and
+textures are the exact accepted payload: Cougar Fineblade Longblade (short sword),
+Cougar Fineblade Knife, Cougar Fineblade Longsword, and Colt L36 in its base and
+cool gunmetal finishes. Five item blueprints and their multipart inventory icons
+are included. Blueprint display names/descriptions receive only the documented
+publication cleanup; all non-display fields are preserved. User approval and
+per-resource/archive hashes are recorded in
+`docs/items/approved-weapons-v1.json`. Supplied branding remains part of the
+reference design; this record does not assert ownership of third-party marks.
+
+The new `srn_2da/baseitems.2da` is an installed-game compatibility derivative.
+It retains the accepted fixture's two display changes to Sling row 61:
+`ModelType` 0 to 2 and `MaxRange` 50 to 52. All other parsed fields and the
+original table's unrelated bytes are preserved. Installed-game authorship
+applies to the underlying table; a licensed NWN:EE installation is required.
+The operator explicitly requested including this display-table change in the
+PR for review. Its effect on ordinary Sling appearances is documented in
+`docs/items/approved-weapons.md`; this is not a new compatibility approval.
+
+Raw references, high-resolution masters, test module actors, experimental
+assets, SMG preparation and generated HAK archives are excluded. Every resource
+is below 15 MiB. The original accepted packages and trial history remain intact.
+
+## Approved male Troll heads (`srn_head`)
+
+Original SRN-generated Flux.2 designs and Pixal3D single-view geometry/appearance,
+locally wrapped, shaped, UV-mapped, fitted to `pmg0_head014` proportions and
+encoded as NWN:EE native models with 1024-square PLTs by the headkit pipeline.
+User-approved in game (client trial `srn_trl_batch1`, 2026-10-24): troll-male-01
+`pmg0_head015`, troll-male-02 `pmg0_head016`, troll-male-03 `pmg0_head017`,
+troll-male-04 (design A, rigger) `pmg0_head018`, troll-male-05 `pmg0_head019` and
+troll-male-06 `pmg0_head020`. Each head has 20,000 triangles; skin shades are
+tone-matched to the stock Troll male heads, and horns, tusks, metal and tattoos
+use PLT channels 1, 2, 8 and 9 as reviewed. Fixed-string tails were zeroed by
+the native stage with the existing armour sanitizer. This batch contains only six
+compiled MDL/PLT pairs; source images, masters, trial tools, demo modules and
+generated HAKs stay outside the production source pack. Approval does not
+establish exhaustive animation, equipment or palette-combination coverage.
+
+## Troll heads: neck cut, female batch 1 and batch 2 (`srn_head`, 2026-10-25)
+
+Same origin and pipeline as the approved male Troll heads above: original
+SRN-generated Flux.2 designs and Pixal3D single-view geometry/appearance,
+processed by the headkit pipeline into NWN:EE native models with 1024-square
+PLTs (20,000 triangles each). Every head now ends under the jaw; the body's own
+neck part forms the neck (`mesh.neck.cut`). All 30 compile through Blender 5.2.1
+LTS with NeverBlender 4.5.1 (cleanmodels v4.10.0); decoded geometry matches the
+source within 1.5e-8.
+
+- Neck-cut replacements for troll-male-01 to 06 (`pmg0_head015`-`020`); geometry
+  above the cut, UVs, materials and palette rows are unchanged.
+- Female batch 1, user-approved in game (2026-10-24) and neck cut:
+  troll-female-04 `pfg0_head010`, 05 `pfg0_head011`, 07 `pfg0_head013` and
+  08 `pfg0_head014`.
+- Batch 2: troll-female-12 `pfg0_head012`, 15-23 `pfg0_head015`-`023`, and
+  troll-male-21-30 `pmg0_head021`-`030`.
+
+All 30 heads were checked in game on the release Troll bodies (appearance 15104)
+in still client trials, and every actor loaded on its expected slot. The files
+are byte-identical to those trials' payloads and to the hashes pinned in each
+native-stage receipt. Fixed-string compiler tails were zeroed by the native stage
+where present. Only the compiled MDL/PLT pairs are included; source images,
+masters, trial tools, demo modules and generated HAKs stay outside the production
+source pack. Checks do not establish exhaustive animation, equipment or
+palette-combination coverage.
+
+## PhenoMorpher release 1.3.0: race lore sizing and the c7 Human lock (2026-10-27)
+
+Derived from the project's own published PhenoMorpher bodies (contract 1.2.0), with no new external source. All
+changes come from local, deterministic transforms of those models:
+* uniform rest-pose stature rescales;
+* Large-male joint heights set to Fit;
+* a sideways lore build scale;
+* the Human b13/c6 hip, knee and torso join recipes ported to the race females;
+* a root raise that puts idle soles on the floor;
+* per-clip root lifts in the race animation libraries (`srn_an_*`), so no race body goes further below the floor
+  than it did in 1.2.0.
+
+The c7 Human lock adds the c6 female joins, torso polish and rebuilt skin, and `pmh2` with its joint heights at Fit.
+The skin re-bake reuses the published body textures. The 34 published Troll heads in `srn_head` are rescaled
+uniformly by the Troll stature factor. Their geometry is otherwise unchanged, and their PLTs are unchanged.
+
+`srn_armor` is the installed-game stock armour re-fitted to the new race bodies with NWNArmory 1.3.4, with the same
+origin and licensing note as the stock armour conversion above. A licensed NWN:EE installation is required.
+
+Models are compiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0). Fixed-string tails are zeroed,
+and every published binary passes the leaked-text check.
+
+The user approved every race body, the armour and `pmh2` in game, and approved publication on 2026-10-27. Evidence
+and per-resource hashes are in `docs/phenomorpher/race-sizing/` (`plan.md`, `release-1.3.0.json`) and
+`docs/phenomorpher/human-bodies-lock-c7.json`. Generated stages, client fixtures and captures stay outside the
+production source packs.
+
+## Approved Waves 1 and 2 private weapon review (2026-11-03)
+
+The source-accurate SR4 catalog references and generated itemkit weapon assets in
+`test-modules/weapon-waves` are the user-reviewed private candidates. Geometry
+and appearance were produced through the retained clay/detail workflow, fitted
+to the shipped Humans and converted to native resources. Katana, Crossbow, Bow,
+Ingram orientation and Human weapon motion include the final reviewed repairs.
+Stock-derived carrier/animation/environment resources require a licensed NWN:EE
+installation. Existing approved comparison assets retain their prior provenance.
+The payload manifest records exact bytes; source books, generation intermediates,
+local bindings, HAK archives and body-pack duplicates are excluded. This publishes
+a reproducible private test fixture, with no production promotion or new rights
+claim over Shadowrun or Neverwinter Nights material.
+
+## Approved weapon waves normal-pack integration (srn_weapon, srn_2da; 2026-11-03)
+
+This supersedes the private layout above. The ten reviewed wave designs and
+separate AK-98 launcher blueprint join the existing Cougar/Colt resources in
+`srn_weapon`; no weapon geometry, material or embedded native animation is
+regenerated. The Cougar long-blade knife moves to F1/row22 with equal-length
+model aliases and fitted inventory icons; its original models/icons remain for
+saved-item compatibility. The other Cougar and Colt assets retain their native
+bytes and are explicitly assigned to the selected family plan. F2's appearance
+picker MaxRange becomes111; other gameplay/table fields are preserved.
+
+Crossbow texture pixels are unchanged under the corrected referenced resource
+name. The Throwing Knife includes its reviewed shared native projectile. Resource
+origins/hashes, routing migration and package validation are recorded in
+`docs/items/approved-weapons-v1.json` and the release guide. The frozen grouping
+plan is retained under `docs/items/weapon-baseitem-plan-v1/`.
+
+The comparison module remains in `test-modules/weapon-waves` and consumes the
+normal packs. Prototype Human motion roots and event hooks stay there exclusively
+for itemkit testing. The production body packs and roots are unchanged;
+production weapon animation belongs to PhenoMorpher toolkit. This PR publishes
+release sources and performs no live deployment or new rights assertion.
+
+## Troll heads: build allowance (`srn_head`, 2026-10-29)
+
+The 34 published Troll heads in `srn_head` are derived from their own 1.3.0 binaries, with no new source. On top of
+the 1.3.0 stature scaling, each head is scaled uniformly about its mesh node frame. Female heads use the square root
+of the Troll stature ratio S: ×1.0729 (S 1.151). Male heads use ×1.5. The user first chose ×1.0483 (the square root of
+S 1.099) for them, then chose ×1.5 after reviewing body renders. At ×1.0483 the male heads read about 20% smaller
+than the base head001 and left the neck showing behind the skull. Both choices were made on 2026-10-29. Normals, UVs,
+faces, materials and PLTs are unchanged.
+
+The heads are decompiled and recompiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0). Fixed-string
+tails are zeroed, and every binary passes the leaked-text check. Decoded positions equal the 1.3.0 positions × the
+factor within 6e-8 (female) and 3e-8 (male). The stock-head routing aliases `srn_body/p[mf]g0_head001.mdl` belong to the PhenoMorpher contract
+and are not changed. Per-head hashes are in `docs/heads/troll-build-allowance-r3.json`.
+
+## Race heads v1: first 12 heads (`srn_head`, 2026-11-03)
+
+Twelve generated heads join `srn_head`: five Human, four Orc, two Dwarf and one Troll. Each started from a local Flux.2 front design, then Pixal geometry and appearance, then the headkit chain with face masks, and native compile through Blender 5.2 and Neverblender. The content is contributed by the SRN project operator with Claude-assisted generation, fitting, texturing and validation. Stock palettes and body necks were local validation inputs and are not redistributed. The slots and client evidence are in `docs/heads/race-heads-v1-checkpoint.md`. This publishes no stock head, table or body change.
+
+## Vibro Blades — Sword and Ares Predator IV (srn_weapon, srn_2da; 2026-11-05)
+
+Same origin and pipeline as the approved weapon waves above: source-accurate SR4
+catalog references (clay and detail pairs), Pixal3D single-view geometry and
+saved-shape appearance generated through the shared itemkit trial ledger, then
+fitted to the Cougar melee and Colt firearm grip standards, reduced, UV-mapped,
+baked and compiled to NWN:EE native models. The Predator's engineering shell was
+rebuilt from its textured donor surface and bakes with a reviewed four-face
+sampling patch (22 of 687,404 texels) recorded in the private run. The
+exact payload bytes are published in `srn_weapon`; hashes and approval statements
+are in `docs/items/approved-weapons-v1.json`. `srn_2da/baseitems.2da` only
+extends the F2 and Sling appearance-picker `MaxRange` values (to 121 and 65).
+Generation intermediates, local bindings, HAK archives, ledger entries and client
+captures stay outside the repository. The Ares and Shadowrun names, branding and
+designs are third-party marks; this record asserts no ownership of them and adds
+no new rights claim.
+
+## Firearm sounds (`srn_sound`; 2026-11-07)
+
+Seventeen WAVs were copied byte for byte from the user's `SRN_CC` staging folder, `content/staging/sounds/`, into `srn_sound`. No 2DA
+row references them yet. Eight (`dryfire_*`, `ric_*`, `rocket`, `reload_rocket`) match the old Shadowrun mod's `gun sounds`
+folder under `SR_NWN/OLD_SR_MOD_ASSETS`. The nine `fire_*` files have no copy in those assets, so their origin is unrecorded. The
+user supplied them, but that isn't a record of their licence or recording source.
+
+`fire_sup_pst_smg` is the staged `fire_sup_pistol_smg.wav`, shortened because 19 characters exceed the 16-character resref limit.
+
+No resref collides with a stock `.wav` key or another WAV in this repository. The hyphenated names keep the spelling the old
+`visualeffects.2da` rows used.
+
+| File | SHA-256, first 12 |
+|---|---|
+| `dryfire_pistol.wav` | `343E14613D63` |
+| `dryfire_rifle.wav` | `C80E1AE22325` |
+| `fire_smg.wav` | `0733F3B1E84B` |
+| `fire_shotgun.wav` | `9E3464A25450` |
+| `fire_aslt_rifle.wav` | `A979225F38D9` |
+| `fire_hvy_pistol.wav` | `F31A56417940` |
+| `fire_lt_pistol.wav` | `8475D9A03B61` |
+| `fire_snp_rifle.wav` | `549454453AE2` |
+| `fire_spt_rifle.wav` | `6552910F3C17` |
+| `fire_sup_pst_smg.wav` | `20FAE7D8F921` |
+| `fire_sup_rifle.wav` | `B55D51DB4ADC` |
+| `reload_rocket.wav` | `80218182147D` |
+| `ric_conc-1.wav` | `43A8EC357F9F` |
+| `ric_conc-2.wav` | `63B11392E757` |
+| `ric_metal-1.wav` | `E1FB440E88FA` |
+| `ric_metal-2.wav` | `6F9D545AE480` |
+| `rocket.wav` | `40FE512E95EB` |
+
+## Troll heads: five approved designs and gnome-slot replacement (2026-11-07)
+
+Five new heads (four male, one female) were generated from operator-selected ImageGen designs, with clay/detail conditioning, Pixal geometry and saved-shape appearance, and headkit fitting, masks, PLT palette mapping and native compilation. The SRN project operator approved their publication after client review. The male trio designs are Breakwater, Ballast and Vesper; the earlier pair retains its approved proportions and palette textures.
+
+All 40 Troll heads are renamed into male/female slots 001–020 to replace base-game gnome heads. The 35 existing designs have no new geometry or texture source: only bounded native name fields and resource filenames change. PLT bytes are unchanged. See docs/heads/troll-head-reindex-v1.md and its hash manifest for the complete mapping, evidence, load order and saved-character migration implications. Historical provenance entries retain their original slots.
+
+## Firearm effects and crossbow carry (`srn_weapon`, `srn_body`; 2026-11-07)
+
+**Emitters: credit hairybrain.** The muzzle flash and the shell casing come from hairybrain's emitters in the old
+Shadowrun mod's `!Combat Override System` folder (`SR_NWN/OLD_SR_MOD_ASSETS`), credited at the user's direction:
+
+- **Flash:** the nine `muzzle_flash01..09` emitters in `WIP/combat_ovr_v1.hak/models/wbwxh_m_154.mdl`, renamed
+  `srn_flash01..09`, moved onto each gun's muzzle and retimed to start full and fade over 0.1 s. They draw the stock
+  `fxpa_flare` texture.
+- **Casing:** the `Casings39` emitter in `OLD/!DONE/gun models/wbwar_t_101.mdl`, renamed `srn_casing`, placed on each
+  gun's ejection port and resized to 0.085.
+- **Casing sheet:** `srnfx_casing.tga` is the old `fxpa_smoke02.tga` casing redrawn as 16 tumbling frames (the old
+  file overwrote a stock texture name).
+
+The gun geometry is unchanged from its approved publication. `tools/itemkit/firearm_fx_pilot.py --ship` adds the
+emitters and their clips to the effect-free parts at commit `2805a5ec` and compiles them with the vendored
+`nwnmdlcomp`. Compiled bytes vary between runs only in stored memory pointers; decompiles are identical.
+
+| File | SHA-256, first 12 |
+|---|---|
+| `srn_weapon/wbwsl_b_051.mdl` | `99BC6299157A` |
+| `srn_weapon/wbwsl_b_052.mdl` | `9ECE48AA714B` |
+| `srn_weapon/wbwsl_b_065.mdl` | `69EDED3EEDD1` |
+| `srn_weapon/wbwsl_m_023.mdl` | `688F616D009C` |
+| `srn_weapon/wbwxh_t_015.mdl` | `621CA4693F9E` |
+| `srn_weapon/srnfx_casing.tga` | `E8AA922AB82A` |
+| `srn_body/a_ba_custom.mdl` | `71E091A80DF1` |
+| `srn_body/a_ba_non_combat.mdl` | `708FD5B94F43` |
+
+`a_ba_non_combat.mdl` is the installed NWN:EE model decompiled to ASCII with the keys of its `xbowr` clip removed;
+it adds no new content. The `a_ba_custom.mdl` clips come from the old mod's combat clips as recorded for release 1.4.0.
+
+## Two male Dwarf heads (srn_head; 2026-11-07)
+
+The SRN project operator selected and approved two generated adult male Dwarf designs:
+a Danny DeVito-like older Dwarf and a copper-bearded Dwarf. ImageGen supplied the
+appearance and paired smooth-clay conditioning images. Pixal generated geometry
+and saved-shape appearance; headbatch/headkit fitted the meshes, baked textures,
+assigned PLT materials, mapped palettes and compiled native NWN:EE resources.
+The user approved the final client appearance and requested publication in a
+separate asset PR.
+
+Only pmd0_head019.mdl/.plt and pmd0_head020.mdl/.plt are added. The portable
+resource hashes, native checks, quality results, client evidence and known
+limitations are in docs/heads/dwarf-male-pair-v1.md and its JSON manifest.
+Installed stock palettes and body references were validation inputs and are
+not redistributed by this change. Generated intermediates, machine bindings,
+private receipts and HAK builds remain outside the repository.

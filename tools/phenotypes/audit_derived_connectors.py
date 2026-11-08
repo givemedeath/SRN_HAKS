@@ -13,9 +13,8 @@ import sys
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from audit_geometry import arrays
 from target_contract import PART_JOINTS, require
-from derived_review_configs import connector_vertex_distances
+from derived_review_configs import connector_vertex_distances, mesh_vertices
 
 CONNECTOR_PAIRS = [
     ("chest", "pelvis", "torso_g", "waist"),
@@ -63,7 +62,7 @@ def audit_connectors(
         require(mdl_path.is_file(), f"Model file missing: {mdl_path}")
 
         text = mdl_path.read_text(encoding="cp1252")
-        verts = np.array(arrays(text, "verts"), dtype=float)
+        verts = mesh_vertices(text)
         frame = np.array(frames[joint.lower()])
         v_world = verts @ frame[:3, :3].T + frame[:3, 3]
 

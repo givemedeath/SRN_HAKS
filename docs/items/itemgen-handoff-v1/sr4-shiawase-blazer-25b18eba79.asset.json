@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-shiawase-blazer-25b18eba79",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        46.0,
+        282.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1223.0,
+        282.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        46.0,
+        996.9999999999999
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1223.0,
+        996.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-shiawase-blazer-25b18eba79.family.json",
+    "sha256": "08613335c4d5c93e3530a811b76fb100fabfd180cce89c5d7259c98e467362f7"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/02b3e2653c2de0db24af66119017d20c850247e71fa8f0e9b5d735cb0e9c703c.png",
+      "sha256": "02b3e2653c2de0db24af66119017d20c850247e71fa8f0e9b5d735cb0e9c703c"
+    },
+    "clayReference": {
+      "path": "inputs/5d42f810cf8225c0b743e1f1d92022c4d5121e98a3d9b06cc5feeba0b06a9927.png",
+      "sha256": "5d42f810cf8225c0b743e1f1d92022c4d5121e98a3d9b06cc5feeba0b06a9927"
+    },
+    "geometry": {
+      "path": "inputs/c6f2e7a86a00cb32d89ea6834824dc1ef2c3a37366f7e3e305c0a61de913711e.png",
+      "sha256": "c6f2e7a86a00cb32d89ea6834824dc1ef2c3a37366f7e3e305c0a61de913711e"
+    },
+    "detail": {
+      "path": "inputs/a58d64625f2b5c402d9c05c73e46c8f0daf1d90372ac809949bbce7c76efca92.png",
+      "sha256": "a58d64625f2b5c402d9c05c73e46c8f0daf1d90372ac809949bbce7c76efca92"
+    },
+    "foregroundMask": {
+      "path": "inputs/c5125043323cb9d67e6fb1902debf7d99a6085e3ef30a0ca2e6affeab8a0eb20.png",
+      "sha256": "c5125043323cb9d67e6fb1902debf7d99a6085e3ef30a0ca2e6affeab8a0eb20"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/a7bab469571d5f94c89f21006cfd5de188a6875236353c189ca9bbb6304aa9f7.png",
+      "sha256": "a7bab469571d5f94c89f21006cfd5de188a6875236353c189ca9bbb6304aa9f7"
+    },
+    "mask": {
+      "path": "inputs/a7bab469571d5f94c89f21006cfd5de188a6875236353c189ca9bbb6304aa9f7.png",
+      "sha256": "a7bab469571d5f94c89f21006cfd5de188a6875236353c189ca9bbb6304aa9f7"
+    },
+    "calibrationReference": {
+      "path": "inputs/c6f0a285adb7922b053964378c920d06503f4c8d2a0bb7cfbfe829e81cd8c1f7.png",
+      "sha256": "c6f0a285adb7922b053964378c920d06503f4c8d2a0bb7cfbfe829e81cd8c1f7"
+    },
+    "sourceAudit": {
+      "path": "inputs/5b63612c90cea785bd6bfb07a5f832a0a9a89a6274d55a103aaee5a6f1a8af08.json",
+      "sha256": "5b63612c90cea785bd6bfb07a5f832a0a9a89a6274d55a103aaee5a6f1a8af08"
+    },
+    "referenceApproval": {
+      "path": "inputs/171cb2d8520de6b66d1459f5e3a3a3fcd011549680941f0b88ec731fbebb88ca.json",
+      "sha256": "171cb2d8520de6b66d1459f5e3a3a3fcd011549680941f0b88ec731fbebb88ca"
+    },
+    "calibrationDetail": {
+      "path": "inputs/8451a4ba61a52093d6351e953c57209612cf56a15e3b5c810a414562eb486573.png",
+      "sha256": "8451a4ba61a52093d6351e953c57209612cf56a15e3b5c810a414562eb486573"
+    }
+  },
+  "features": [
+    {
+      "name": "Compact submachine-gun-sized flamethrower with tank mounted at the REAR of the weapon; source says four uses.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own BLAZER drawing supplies narrow forward nozzle/body, pistol grip/open hand region and large rear-mounted tank.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve source tank/body/nozzle relationships; no extra backpack tank/hose assembly substituted.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Labeled Arsenal artwork and original pair reviewed; conditioned overlay retains rear tank, nozzle and hand opening. Native 1254 images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        823,
+        737,
+        1120,
+        1148
+      ],
+      "referenceAreaPixels": 68807,
+      "referenceMaskSha256": "a7bab469571d5f94c89f21006cfd5de188a6875236353c189ca9bbb6304aa9f7",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "02b3e2653c2de0db24af66119017d20c850247e71fa8f0e9b5d735cb0e9c703c",
+      "imageSha256": "a58d64625f2b5c402d9c05c73e46c8f0daf1d90372ac809949bbce7c76efca92",
+      "maskSha256": "c5125043323cb9d67e6fb1902debf7d99a6085e3ef30a0ca2e6affeab8a0eb20",
+      "notes": "Labeled Arsenal artwork and original pair reviewed; conditioned overlay retains rear tank, nozzle and hand opening. Native 1254 images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5d42f810cf8225c0b743e1f1d92022c4d5121e98a3d9b06cc5feeba0b06a9927",
+      "imageSha256": "c6f2e7a86a00cb32d89ea6834824dc1ef2c3a37366f7e3e305c0a61de913711e",
+      "maskSha256": "a7bab469571d5f94c89f21006cfd5de188a6875236353c189ca9bbb6304aa9f7",
+      "notes": "Labeled Arsenal artwork and original pair reviewed; conditioned overlay retains rear tank, nozzle and hand opening. Native 1254 images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Labeled Arsenal artwork and original pair reviewed; conditioned overlay retains rear tank, nozzle and hand opening. Native 1254 images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.049039049213435375,
+            0.22579656862745098
+          ],
+          "geometry": [
+            0.049039049213435375,
+            0.22579656862745098
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9501953125,
+            0.22579656862745098
+          ],
+          "geometry": [
+            0.9509609507865646,
+            0.22579656862745098
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.049039049213435375,
+            0.7734374999999999
+          ],
+          "geometry": [
+            0.049039049213435375,
+            0.774203431372549
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9501953125,
+            0.7734374999999999
+          ],
+          "geometry": [
+            0.9509609507865646,
+            0.774203431372549
+          ]
+        }
+      ],
+      "referenceSha256": "02b3e2653c2de0db24af66119017d20c850247e71fa8f0e9b5d735cb0e9c703c",
+      "geometrySha256": "c6f2e7a86a00cb32d89ea6834824dc1ef2c3a37366f7e3e305c0a61de913711e",
+      "detailSha256": "a58d64625f2b5c402d9c05c73e46c8f0daf1d90372ac809949bbce7c76efca92",
+      "geometryForegroundMaskSha256": "a7bab469571d5f94c89f21006cfd5de188a6875236353c189ca9bbb6304aa9f7",
+      "foregroundMaskSha256": "c5125043323cb9d67e6fb1902debf7d99a6085e3ef30a0ca2e6affeab8a0eb20"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

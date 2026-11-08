@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-forearm-snap-blades-afd6d2b8f0",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "elbow-upper",
+      "pixel": [
+        1100.0,
+        73.0
+      ]
+    },
+    {
+      "name": "blade-upper-tip",
+      "pixel": [
+        70.0,
+        870.0
+      ]
+    },
+    {
+      "name": "thumb-lower",
+      "pixel": [
+        429.99999999999994,
+        1125.0
+      ]
+    },
+    {
+      "name": "finger-lower",
+      "pixel": [
+        170.0,
+        1186.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-forearm-snap-blades-afd6d2b8f0.family.json",
+    "sha256": "b9ad0159a773e1f6d3179593541607b9bd4962b7d866ff2eb9cccdf5bad6b4c1"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/bac0ffac847ff62e0e2901d42760d7802c76f2912a1382f7e77f64df6e5120ae.png",
+      "sha256": "bac0ffac847ff62e0e2901d42760d7802c76f2912a1382f7e77f64df6e5120ae"
+    },
+    "clayReference": {
+      "path": "inputs/37d167960d76a5153b6533c38b86f2e8af7c048b3310e9996879813f8aede042.png",
+      "sha256": "37d167960d76a5153b6533c38b86f2e8af7c048b3310e9996879813f8aede042"
+    },
+    "geometry": {
+      "path": "inputs/2fb5ccf7f7d6ef36531a11e315d4aaff6548e18f9350839b762dd2411bf44008.png",
+      "sha256": "2fb5ccf7f7d6ef36531a11e315d4aaff6548e18f9350839b762dd2411bf44008"
+    },
+    "detail": {
+      "path": "inputs/91c29e2d50876396cf53b634d8a0dd4e5296595019a01208abff6276b17ba46b.png",
+      "sha256": "91c29e2d50876396cf53b634d8a0dd4e5296595019a01208abff6276b17ba46b"
+    },
+    "foregroundMask": {
+      "path": "inputs/941d9c6a1bb47a113aaa64ebf35e80e692dee9537f55a71ae76156d9729cac52.png",
+      "sha256": "941d9c6a1bb47a113aaa64ebf35e80e692dee9537f55a71ae76156d9729cac52"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/12338cd6dc6547ea9c29f83599b214662381395fd2f8d24842eb715c32917963.png",
+      "sha256": "12338cd6dc6547ea9c29f83599b214662381395fd2f8d24842eb715c32917963"
+    },
+    "mask": {
+      "path": "inputs/12338cd6dc6547ea9c29f83599b214662381395fd2f8d24842eb715c32917963.png",
+      "sha256": "12338cd6dc6547ea9c29f83599b214662381395fd2f8d24842eb715c32917963"
+    },
+    "calibrationReference": {
+      "path": "inputs/86bcd71dcb607830b5e8298de5b5ebc1b2f7152d438cf1f4bdf27b28070f7c9d.png",
+      "sha256": "86bcd71dcb607830b5e8298de5b5ebc1b2f7152d438cf1f4bdf27b28070f7c9d"
+    },
+    "sourceAudit": {
+      "path": "inputs/e1bd9ed004b064c350dbabfa375c85cfc669b00fb98deb9104d5dfb0a168ad82.json",
+      "sha256": "e1bd9ed004b064c350dbabfa375c85cfc669b00fb98deb9104d5dfb0a168ad82"
+    },
+    "referenceApproval": {
+      "path": "inputs/421df4a0ea7c0e1581fc270aa7f896be31861a87c548c4f82edba1bf6a62fe61.json",
+      "sha256": "421df4a0ea7c0e1581fc270aa7f896be31861a87c548c4f82edba1bf6a62fe61"
+    },
+    "calibrationDetail": {
+      "path": "inputs/a3aa8acd0d2b9f543cd71032c2f2b82e7a73d37f110bd614efaa6a2a5adab771.png",
+      "sha256": "a3aa8acd0d2b9f543cd71032c2f2b82e7a73d37f110bd614efaa6a2a5adab771"
+    }
+  },
+  "features": [
+    {
+      "name": "Three blades",
+      "placementReviewed": true
+    },
+    {
+      "name": "External forearm sheath",
+      "placementReviewed": true
+    },
+    {
+      "name": "Extending/retracting identity",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core305/PDF307 Forearm Snap-Blades paragraph and table. Exactly THREE parallel blades in an EXTERNAL sheath, distinct exits, straps and entire illustrative mannequin forearm/hand preserved. No implanted-claw or handheld substitution. No individually labeled art: exact bracer design/materials/depth are artistic. No native attachment or rig approval. Major blade tips, finger gaps and complete rounded elbow end remain; small seams/channels are nonblocking. Positive alpha16 margins/no clipping or visible background/cast shadow. Native1254 retained;2048 resampled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "bac0ffac847ff62e0e2901d42760d7802c76f2912a1382f7e77f64df6e5120ae",
+      "imageSha256": "91c29e2d50876396cf53b634d8a0dd4e5296595019a01208abff6276b17ba46b",
+      "maskSha256": "941d9c6a1bb47a113aaa64ebf35e80e692dee9537f55a71ae76156d9729cac52",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core305/PDF307 Forearm Snap-Blades paragraph and table. Exactly THREE parallel blades in an EXTERNAL sheath, distinct exits, straps and entire illustrative mannequin forearm/hand preserved. No implanted-claw or handheld substitution. No individually labeled art: exact bracer design/materials/depth are artistic. No native attachment or rig approval. Major blade tips, finger gaps and complete rounded elbow end remain; small seams/channels are nonblocking. Positive alpha16 margins/no clipping or visible background/cast shadow. Native1254 retained;2048 resampled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "37d167960d76a5153b6533c38b86f2e8af7c048b3310e9996879813f8aede042",
+      "imageSha256": "2fb5ccf7f7d6ef36531a11e315d4aaff6548e18f9350839b762dd2411bf44008",
+      "maskSha256": "12338cd6dc6547ea9c29f83599b214662381395fd2f8d24842eb715c32917963",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core305/PDF307 Forearm Snap-Blades paragraph and table. Exactly THREE parallel blades in an EXTERNAL sheath, distinct exits, straps and entire illustrative mannequin forearm/hand preserved. No implanted-claw or handheld substitution. No individually labeled art: exact bracer design/materials/depth are artistic. No native attachment or rig approval. Major blade tips, finger gaps and complete rounded elbow end remain; small seams/channels are nonblocking. Positive alpha16 margins/no clipping or visible background/cast shadow. Native1254 retained;2048 resampled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "bac0ffac847ff62e0e2901d42760d7802c76f2912a1382f7e77f64df6e5120ae",
+      "detailSha256": "91c29e2d50876396cf53b634d8a0dd4e5296595019a01208abff6276b17ba46b",
+      "geometrySha256": "2fb5ccf7f7d6ef36531a11e315d4aaff6548e18f9350839b762dd2411bf44008",
+      "foregroundMaskSha256": "941d9c6a1bb47a113aaa64ebf35e80e692dee9537f55a71ae76156d9729cac52",
+      "geometryForegroundMaskSha256": "12338cd6dc6547ea9c29f83599b214662381395fd2f8d24842eb715c32917963",
+      "landmarks": [
+        {
+          "name": "elbow-upper",
+          "detail": [
+            0.852233237939493,
+            0.0735885265261628
+          ],
+          "geometry": [
+            0.852233237939493,
+            0.07205555050872094
+          ]
+        },
+        {
+          "name": "blade-upper-tip",
+          "detail": [
+            0.06267886345053147,
+            0.6844794694767442
+          ],
+          "geometry": [
+            0.06267886345053147,
+            0.686778933502907
+          ]
+        },
+        {
+          "name": "thumb-lower",
+          "detail": [
+            0.3386396156991005,
+            0.8799339117005814
+          ],
+          "geometry": [
+            0.3386396156991005,
+            0.8799339117005814
+          ]
+        },
+        {
+          "name": "finger-lower",
+          "detail": [
+            0.1393346279640229,
+            0.9266896802325582
+          ],
+          "geometry": [
+            0.1393346279640229,
+            0.9274561682412791
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detail/clay and alpha comparison against Core305/PDF307 Forearm Snap-Blades paragraph and table. Exactly THREE parallel blades in an EXTERNAL sheath, distinct exits, straps and entire illustrative mannequin forearm/hand preserved. No implanted-claw or handheld substitution. No individually labeled art: exact bracer design/materials/depth are artistic. No native attachment or rig approval. Major blade tips, finger gaps and complete rounded elbow end remain; small seams/channels are nonblocking. Positive alpha16 margins/no clipping or visible background/cast shadow. Native1254 retained;2048 resampled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

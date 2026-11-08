@@ -1,0 +1,1211 @@
+{
+ "schemaVersion": 1,
+ "kind": "human-bodies-lock",
+ "lock": "human-bodies-c6",
+ "date": "2026-10-26",
+ "userApproval": {
+  "b13": "2026-10-25 in-game tour: \"Looks good\"",
+  "c6": "2026-10-26 in-game tour: \"looks good\"; locked on request \"record this as the current locked human bodies\""
+ },
+ "scope": "Human bodies as installed in profile-combo (combo-c6): female pfh0/pfh2 pelvis, legs, shins and chest geometry (b13 hip and knee joins + c6 torso polish) and the rebuilt skin textures (all human-textured races, both genders). Every other srn_body/srn_body_tex file is unchanged from the tracked tree at this commit's parent.",
+ "status": "locked working selection (client-reviewed). Not published: srn_body/ and srn_body_tex/ in git are unchanged; promotion is the separate publication step.",
+ "haks": {
+  "output/phenomorpher/combo-c6/hak/srn_body.hak": "3cd2a9c60bd8b8369835ce3511ee127d83132db532d04a47e917ebd5d1a8ebc7",
+  "output/phenomorpher/combo-c6/hak/srn_body_tex.hak": "d8d1ca45acf22ef63c3ae3b52542bc776f2c3e1accbd97b393271a5ad8234dc8"
+ },
+ "changedPackFiles": [
+  {
+   "path": "srn_body/pfd0_chest001.plt",
+   "sha256": "9278ebe4504ee42d68509c936d85c7c28124d65db3ad1e924bf71fe641195cea",
+   "trackedSha256": "e9f48de0b1431c7071daac125b55d9dcd9bd47d0f98b7b555b1b87b3ee69cc61"
+  },
+  {
+   "path": "srn_body/pfd0_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfd0_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfd0_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfd0_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfd0_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfd2_chest001.plt",
+   "sha256": "293874b956d4ebfc3a00efa0fbc072c29c7af5ae7a50dbeaa066272e3b791cca",
+   "trackedSha256": "ac06b97cf7efdedf9ec0b2277362e32d18cbf5112f3a5a10bb3cbe56ae566c7a"
+  },
+  {
+   "path": "srn_body/pfd2_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfd2_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfd2_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfd2_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfd2_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfe0_chest001.plt",
+   "sha256": "9278ebe4504ee42d68509c936d85c7c28124d65db3ad1e924bf71fe641195cea",
+   "trackedSha256": "e9f48de0b1431c7071daac125b55d9dcd9bd47d0f98b7b555b1b87b3ee69cc61"
+  },
+  {
+   "path": "srn_body/pfe0_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfe0_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfe0_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfe0_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfe0_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfe2_chest001.plt",
+   "sha256": "293874b956d4ebfc3a00efa0fbc072c29c7af5ae7a50dbeaa066272e3b791cca",
+   "trackedSha256": "ac06b97cf7efdedf9ec0b2277362e32d18cbf5112f3a5a10bb3cbe56ae566c7a"
+  },
+  {
+   "path": "srn_body/pfe2_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfe2_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfe2_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfe2_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfe2_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfg0_chest001.plt",
+   "sha256": "9278ebe4504ee42d68509c936d85c7c28124d65db3ad1e924bf71fe641195cea",
+   "trackedSha256": "e9f48de0b1431c7071daac125b55d9dcd9bd47d0f98b7b555b1b87b3ee69cc61"
+  },
+  {
+   "path": "srn_body/pfg0_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfg0_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfg0_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfg0_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfg0_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfg2_chest001.plt",
+   "sha256": "293874b956d4ebfc3a00efa0fbc072c29c7af5ae7a50dbeaa066272e3b791cca",
+   "trackedSha256": "ac06b97cf7efdedf9ec0b2277362e32d18cbf5112f3a5a10bb3cbe56ae566c7a"
+  },
+  {
+   "path": "srn_body/pfg2_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfg2_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfg2_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfg2_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfg2_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfh0_chest001.mdl",
+   "sha256": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+   "trackedSha256": "7856d0d5f8c12712eac57cface9aba95bbe5e13bc484a65cd2bd6554b572a3d4"
+  },
+  {
+   "path": "srn_body/pfh0_chest001.plt",
+   "sha256": "9278ebe4504ee42d68509c936d85c7c28124d65db3ad1e924bf71fe641195cea",
+   "trackedSha256": "e9f48de0b1431c7071daac125b55d9dcd9bd47d0f98b7b555b1b87b3ee69cc61"
+  },
+  {
+   "path": "srn_body/pfh0_legl001.mdl",
+   "sha256": "1e54d39b4dab500704b7cfc9218bcae8c17ea46f2305855e970dcd78436ca29b",
+   "trackedSha256": "8a3b4b1ddadd8ff7b3517e3af7a2749173bdde1ec8634cdbd541b7fe2236fdec"
+  },
+  {
+   "path": "srn_body/pfh0_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfh0_legr001.mdl",
+   "sha256": "4f5150192b0313e7627e6db123e78b7fcb6e7c49abc30e27bcb1d33204faf24e",
+   "trackedSha256": "aa4bd981015aaf900377148391e904db4ad71d29ef3cfbfd919553bd1500056e"
+  },
+  {
+   "path": "srn_body/pfh0_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfh0_pelvis001.mdl",
+   "sha256": "5eb411adb929a806705981cd67c4c586876f2bfdf140549e924bb9d42752b8ac",
+   "trackedSha256": "5ec4bfdbd945133dd81fcafdc304b3a23f2f95bb672c5048d11b5b45316ea80f"
+  },
+  {
+   "path": "srn_body/pfh0_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfh0_shinl001.mdl",
+   "sha256": "621cbd1344c25e6099aea270c7331c1971ca88f299c9514899a5212b9d3a951d",
+   "trackedSha256": "28b0c1bb4b4261f65570a22aaf03f3443eb123ed0c9bd036453f59348c9712a5"
+  },
+  {
+   "path": "srn_body/pfh0_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfh0_shinr001.mdl",
+   "sha256": "3e18e25c58dade7798c1251a2ce55da59eb3ba0668f5b2113ccc2c5e55238e52",
+   "trackedSha256": "6415892077e2a68a3e03a9f8188ed7b57a609c25694c0342a8017e995fdb7403"
+  },
+  {
+   "path": "srn_body/pfh0_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfh2_chest001.mdl",
+   "sha256": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+   "trackedSha256": "a2b1a4a8186f6f9412dc4bc0693d96e892ec21a0f19d5a0f4e82eaa2652e6aa8"
+  },
+  {
+   "path": "srn_body/pfh2_chest001.plt",
+   "sha256": "293874b956d4ebfc3a00efa0fbc072c29c7af5ae7a50dbeaa066272e3b791cca",
+   "trackedSha256": "ac06b97cf7efdedf9ec0b2277362e32d18cbf5112f3a5a10bb3cbe56ae566c7a"
+  },
+  {
+   "path": "srn_body/pfh2_legl001.mdl",
+   "sha256": "45e72304bb9f29987c73472077c485dcab8e283bee30bc2d420f3ef4fa94cda9",
+   "trackedSha256": "d0270d9276dc4b8fb4073f0e3f997dd46e1945f02ac70e70ce7739b780cac831"
+  },
+  {
+   "path": "srn_body/pfh2_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfh2_legr001.mdl",
+   "sha256": "700eaba05f6142e7c8072f0d54c66c163188623e950bae50a64a5d3f3e77c6cd",
+   "trackedSha256": "774779bd73a1f1335402acfe309a8f0909b71b5562a63ae9321121484210c2f5"
+  },
+  {
+   "path": "srn_body/pfh2_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfh2_pelvis001.mdl",
+   "sha256": "eb315ea583f4bc305f4d9489e0137e9272fd6cfabcc342e0f8970a3806f245a1",
+   "trackedSha256": "b8487d92d684a89f318cf6518aa1caafa98fc0c783c1e627d91a873997ece142"
+  },
+  {
+   "path": "srn_body/pfh2_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfh2_shinl001.mdl",
+   "sha256": "aa9eec3dd69681af82e4955a40c94d3fce073a2083709031facad7527eb10e89",
+   "trackedSha256": "f335b106b6708af74f456f76ce547fd0153eb556f78b6810b8f89d32250b76ed"
+  },
+  {
+   "path": "srn_body/pfh2_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfh2_shinr001.mdl",
+   "sha256": "68bbf2aaeab4168b9b7b9a682bf509b9e997f9233cc17f4945a4accc47b1fc05",
+   "trackedSha256": "3365ab9feab5b4515bb09fab1fd716070da2e8ba66e19a57db4551ad44ba9985"
+  },
+  {
+   "path": "srn_body/pfh2_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfo0_chest001.plt",
+   "sha256": "9278ebe4504ee42d68509c936d85c7c28124d65db3ad1e924bf71fe641195cea",
+   "trackedSha256": "e9f48de0b1431c7071daac125b55d9dcd9bd47d0f98b7b555b1b87b3ee69cc61"
+  },
+  {
+   "path": "srn_body/pfo0_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfo0_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfo0_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfo0_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfo0_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pfo2_chest001.plt",
+   "sha256": "293874b956d4ebfc3a00efa0fbc072c29c7af5ae7a50dbeaa066272e3b791cca",
+   "trackedSha256": "ac06b97cf7efdedf9ec0b2277362e32d18cbf5112f3a5a10bb3cbe56ae566c7a"
+  },
+  {
+   "path": "srn_body/pfo2_legl001.plt",
+   "sha256": "c1f9bf01bb41cb7a70d998790c0d5a45e0a60c2ece08b96ebdc8e7b7f96a6762",
+   "trackedSha256": "54b7b7f65b6daa00079e38f36256d654bfa2b9b368a11d68a1982fd97c013c32"
+  },
+  {
+   "path": "srn_body/pfo2_legr001.plt",
+   "sha256": "10e15478c7f6ff60b86eac10d14c1d01ee6fcb188f038edc34895aa2baa58c15",
+   "trackedSha256": "b3a34d9ea8696816ca1d2d993261fe5386bb985af6b4f6d2d83d6cdc7023baa3"
+  },
+  {
+   "path": "srn_body/pfo2_pelvis001.plt",
+   "sha256": "c3a847cd982ad5cc0bc48417b82e197fd13f6aab7fb8902b3d2dd1f82aa7f102",
+   "trackedSha256": "4caef3c5f1eafdb2d674318f5d5661f0965c9361eaae3bfd82401422c9361b60"
+  },
+  {
+   "path": "srn_body/pfo2_shinl001.plt",
+   "sha256": "f63e4e0406d6099e7b5785c3dfe413f200a0e50337b54cc39570c8ba754b5add",
+   "trackedSha256": "4d72eee5de706f6f718404ac43551e485ebabc172a8dd7093e268c5a49c5a5de"
+  },
+  {
+   "path": "srn_body/pfo2_shinr001.plt",
+   "sha256": "b40dd12a48025ffef179152c29f08e638754260598bb8911491a073ad8748fd6",
+   "trackedSha256": "dff893e095c540f394e19c227fbd51595f1b2935556b89ce6d69740c269cd864"
+  },
+  {
+   "path": "srn_body/pmd0_chest001.plt",
+   "sha256": "2ff82ca427950c43178f44aad722afc1bd902401e3d99b0b80e7135253b4887d",
+   "trackedSha256": "ecc07970a67df8af88be4b2bfe67fab2d8b9513667a74effc6b895f87cc82d3a"
+  },
+  {
+   "path": "srn_body/pmd0_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmd0_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmd0_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmd0_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmd0_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pmd2_chest001.plt",
+   "sha256": "2fc7b57648c7102716aad1bb829256af04aa899c62cf7749181298d2686dab5e",
+   "trackedSha256": "d6ccb9ad90deea0e5c0568c45d0140d60dbb370daae25768fb8f1011c40265aa"
+  },
+  {
+   "path": "srn_body/pmd2_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmd2_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmd2_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmd2_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmd2_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pme0_chest001.plt",
+   "sha256": "2ff82ca427950c43178f44aad722afc1bd902401e3d99b0b80e7135253b4887d",
+   "trackedSha256": "ecc07970a67df8af88be4b2bfe67fab2d8b9513667a74effc6b895f87cc82d3a"
+  },
+  {
+   "path": "srn_body/pme0_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pme0_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pme0_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pme0_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pme0_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pme2_chest001.plt",
+   "sha256": "2fc7b57648c7102716aad1bb829256af04aa899c62cf7749181298d2686dab5e",
+   "trackedSha256": "d6ccb9ad90deea0e5c0568c45d0140d60dbb370daae25768fb8f1011c40265aa"
+  },
+  {
+   "path": "srn_body/pme2_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pme2_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pme2_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pme2_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pme2_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pmg0_chest001.plt",
+   "sha256": "2ff82ca427950c43178f44aad722afc1bd902401e3d99b0b80e7135253b4887d",
+   "trackedSha256": "ecc07970a67df8af88be4b2bfe67fab2d8b9513667a74effc6b895f87cc82d3a"
+  },
+  {
+   "path": "srn_body/pmg0_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmg0_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmg0_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmg0_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmg0_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pmg2_chest001.plt",
+   "sha256": "2fc7b57648c7102716aad1bb829256af04aa899c62cf7749181298d2686dab5e",
+   "trackedSha256": "d6ccb9ad90deea0e5c0568c45d0140d60dbb370daae25768fb8f1011c40265aa"
+  },
+  {
+   "path": "srn_body/pmg2_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmg2_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmg2_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmg2_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmg2_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pmh0_chest001.plt",
+   "sha256": "2ff82ca427950c43178f44aad722afc1bd902401e3d99b0b80e7135253b4887d",
+   "trackedSha256": "ecc07970a67df8af88be4b2bfe67fab2d8b9513667a74effc6b895f87cc82d3a"
+  },
+  {
+   "path": "srn_body/pmh0_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmh0_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmh0_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmh0_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmh0_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pmh2_chest001.plt",
+   "sha256": "2fc7b57648c7102716aad1bb829256af04aa899c62cf7749181298d2686dab5e",
+   "trackedSha256": "d6ccb9ad90deea0e5c0568c45d0140d60dbb370daae25768fb8f1011c40265aa"
+  },
+  {
+   "path": "srn_body/pmh2_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmh2_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmh2_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmh2_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmh2_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pmo0_chest001.plt",
+   "sha256": "2ff82ca427950c43178f44aad722afc1bd902401e3d99b0b80e7135253b4887d",
+   "trackedSha256": "ecc07970a67df8af88be4b2bfe67fab2d8b9513667a74effc6b895f87cc82d3a"
+  },
+  {
+   "path": "srn_body/pmo0_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmo0_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmo0_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmo0_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmo0_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body/pmo2_chest001.plt",
+   "sha256": "2fc7b57648c7102716aad1bb829256af04aa899c62cf7749181298d2686dab5e",
+   "trackedSha256": "d6ccb9ad90deea0e5c0568c45d0140d60dbb370daae25768fb8f1011c40265aa"
+  },
+  {
+   "path": "srn_body/pmo2_legl001.plt",
+   "sha256": "8ed701ca43effb7c40a429e8c3f54147e988633ae9afbe8a239b1a448817f5d6",
+   "trackedSha256": "d047e75fd21be05dd4b3d9545575c0bc15856d4a48b9471ce51ce6b5d2cdf3d7"
+  },
+  {
+   "path": "srn_body/pmo2_legr001.plt",
+   "sha256": "3fe54f965ec93154d870391754c414b5f9b0e77a876673210fbb67394612a5c7",
+   "trackedSha256": "5bd8889c9f40d09c8bd4ad53c06b5e085e521266239cbb72057cf293d7d70bc0"
+  },
+  {
+   "path": "srn_body/pmo2_pelvis001.plt",
+   "sha256": "3326f6ad8c05fb1a616d54cfb585474c89aabf07502f400b0f00ae2ca51ca188",
+   "trackedSha256": "8df016bb11cb603157f57066f1dfd4dc1903f1d14f1f3954dcfe8e3a3d52e48f"
+  },
+  {
+   "path": "srn_body/pmo2_shinl001.plt",
+   "sha256": "a81f06fd9389b06ecdc2e5b54cddc3996374c187b42dde3eaa509a980a8a66b8",
+   "trackedSha256": "cbe9ee18e971a4a33e59965960ae8411095dbc1426c65087f7ba061bd02d3338"
+  },
+  {
+   "path": "srn_body/pmo2_shinr001.plt",
+   "sha256": "61c09458ee18775abaaa5a315963ccdae4314c57c6aea159c7ff2291e6ffae15",
+   "trackedSha256": "573f7596104e37c1afc576a50ddeed5ee5960ff8ef11245a89c35402baf3dc6d"
+  },
+  {
+   "path": "srn_body_tex/pfd2_chest001.mtr",
+   "sha256": "6462e72dc2bc858ec0ebf1ee23ae189b2cd5e1d8285b9086ae65854ff4be8242",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfd2_legl001.mtr",
+   "sha256": "87bcfdcbb38d0155c8a196156b2fe7087f454f7ac243de0da1c343db010021d2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfd2_legr001.mtr",
+   "sha256": "7bfe10bef617f7547f33e0bbdd52ea19654a211ef47f98da993150c19e9352b6",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfd2_pelvis001.mtr",
+   "sha256": "1156140d05c5cd708a268dd2da57d5bd9a9cdce3242fbcc024b24f858f66adc3",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfd2_shinl001.mtr",
+   "sha256": "3446f56feb5d15ab99758296ad288ed344f8b3a8db40d768a44b1401febac0a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfd2_shinr001.mtr",
+   "sha256": "b8411bbae491cf3acabc8f71bc36f9cab119019bd5edb628a92072b7831cf054",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfe2_chest001.mtr",
+   "sha256": "6462e72dc2bc858ec0ebf1ee23ae189b2cd5e1d8285b9086ae65854ff4be8242",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfe2_legl001.mtr",
+   "sha256": "87bcfdcbb38d0155c8a196156b2fe7087f454f7ac243de0da1c343db010021d2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfe2_legr001.mtr",
+   "sha256": "7bfe10bef617f7547f33e0bbdd52ea19654a211ef47f98da993150c19e9352b6",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfe2_pelvis001.mtr",
+   "sha256": "1156140d05c5cd708a268dd2da57d5bd9a9cdce3242fbcc024b24f858f66adc3",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfe2_shinl001.mtr",
+   "sha256": "3446f56feb5d15ab99758296ad288ed344f8b3a8db40d768a44b1401febac0a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfe2_shinr001.mtr",
+   "sha256": "b8411bbae491cf3acabc8f71bc36f9cab119019bd5edb628a92072b7831cf054",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfg2_chest001.mtr",
+   "sha256": "6462e72dc2bc858ec0ebf1ee23ae189b2cd5e1d8285b9086ae65854ff4be8242",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfg2_legl001.mtr",
+   "sha256": "87bcfdcbb38d0155c8a196156b2fe7087f454f7ac243de0da1c343db010021d2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfg2_legr001.mtr",
+   "sha256": "7bfe10bef617f7547f33e0bbdd52ea19654a211ef47f98da993150c19e9352b6",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfg2_pelvis001.mtr",
+   "sha256": "1156140d05c5cd708a268dd2da57d5bd9a9cdce3242fbcc024b24f858f66adc3",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfg2_shinl001.mtr",
+   "sha256": "3446f56feb5d15ab99758296ad288ed344f8b3a8db40d768a44b1401febac0a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfg2_shinr001.mtr",
+   "sha256": "b8411bbae491cf3acabc8f71bc36f9cab119019bd5edb628a92072b7831cf054",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfh2_chest001.mtr",
+   "sha256": "6462e72dc2bc858ec0ebf1ee23ae189b2cd5e1d8285b9086ae65854ff4be8242",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfh2_legl001.mtr",
+   "sha256": "87bcfdcbb38d0155c8a196156b2fe7087f454f7ac243de0da1c343db010021d2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfh2_legr001.mtr",
+   "sha256": "7bfe10bef617f7547f33e0bbdd52ea19654a211ef47f98da993150c19e9352b6",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfh2_pelvis001.mtr",
+   "sha256": "1156140d05c5cd708a268dd2da57d5bd9a9cdce3242fbcc024b24f858f66adc3",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfh2_shinl001.mtr",
+   "sha256": "3446f56feb5d15ab99758296ad288ed344f8b3a8db40d768a44b1401febac0a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfh2_shinr001.mtr",
+   "sha256": "b8411bbae491cf3acabc8f71bc36f9cab119019bd5edb628a92072b7831cf054",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfo2_chest001.mtr",
+   "sha256": "6462e72dc2bc858ec0ebf1ee23ae189b2cd5e1d8285b9086ae65854ff4be8242",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfo2_legl001.mtr",
+   "sha256": "87bcfdcbb38d0155c8a196156b2fe7087f454f7ac243de0da1c343db010021d2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfo2_legr001.mtr",
+   "sha256": "7bfe10bef617f7547f33e0bbdd52ea19654a211ef47f98da993150c19e9352b6",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfo2_pelvis001.mtr",
+   "sha256": "1156140d05c5cd708a268dd2da57d5bd9a9cdce3242fbcc024b24f858f66adc3",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfo2_shinl001.mtr",
+   "sha256": "3446f56feb5d15ab99758296ad288ed344f8b3a8db40d768a44b1401febac0a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pfo2_shinr001.mtr",
+   "sha256": "b8411bbae491cf3acabc8f71bc36f9cab119019bd5edb628a92072b7831cf054",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmd2_chest001.mtr",
+   "sha256": "f8047b42a55aa81be907b639dd81ec512b15e6c8a56023ca0cb1cb6cb281b9b5",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmd2_legl001.mtr",
+   "sha256": "7fde6ca70de8c55df3721fde76f72e4473030b31010ad877cf4819eea88c7c9f",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmd2_legr001.mtr",
+   "sha256": "f6a8309174940da200cf7a9c6228a38d2d8365542fc122ab9fe6a9fbddfd37ab",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmd2_pelvis001.mtr",
+   "sha256": "db7cb49fc0af5fe3c1e54820650e5adf1e5507aa03221f4506caad9f31301b6c",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmd2_shinl001.mtr",
+   "sha256": "142afa793a305cf35a989d0c0f43e020bf36d1ff909c1ea3b25838233828b51e",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmd2_shinr001.mtr",
+   "sha256": "ab2088a008555ed75604f934ba78c25b05fe4c1062267d745a4499ea4619c4a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pme2_chest001.mtr",
+   "sha256": "f8047b42a55aa81be907b639dd81ec512b15e6c8a56023ca0cb1cb6cb281b9b5",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pme2_legl001.mtr",
+   "sha256": "7fde6ca70de8c55df3721fde76f72e4473030b31010ad877cf4819eea88c7c9f",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pme2_legr001.mtr",
+   "sha256": "f6a8309174940da200cf7a9c6228a38d2d8365542fc122ab9fe6a9fbddfd37ab",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pme2_pelvis001.mtr",
+   "sha256": "db7cb49fc0af5fe3c1e54820650e5adf1e5507aa03221f4506caad9f31301b6c",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pme2_shinl001.mtr",
+   "sha256": "142afa793a305cf35a989d0c0f43e020bf36d1ff909c1ea3b25838233828b51e",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pme2_shinr001.mtr",
+   "sha256": "ab2088a008555ed75604f934ba78c25b05fe4c1062267d745a4499ea4619c4a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmg2_chest001.mtr",
+   "sha256": "f8047b42a55aa81be907b639dd81ec512b15e6c8a56023ca0cb1cb6cb281b9b5",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmg2_legl001.mtr",
+   "sha256": "7fde6ca70de8c55df3721fde76f72e4473030b31010ad877cf4819eea88c7c9f",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmg2_legr001.mtr",
+   "sha256": "f6a8309174940da200cf7a9c6228a38d2d8365542fc122ab9fe6a9fbddfd37ab",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmg2_pelvis001.mtr",
+   "sha256": "db7cb49fc0af5fe3c1e54820650e5adf1e5507aa03221f4506caad9f31301b6c",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmg2_shinl001.mtr",
+   "sha256": "142afa793a305cf35a989d0c0f43e020bf36d1ff909c1ea3b25838233828b51e",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmg2_shinr001.mtr",
+   "sha256": "ab2088a008555ed75604f934ba78c25b05fe4c1062267d745a4499ea4619c4a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmh2_chest001.mtr",
+   "sha256": "f8047b42a55aa81be907b639dd81ec512b15e6c8a56023ca0cb1cb6cb281b9b5",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmh2_legl001.mtr",
+   "sha256": "7fde6ca70de8c55df3721fde76f72e4473030b31010ad877cf4819eea88c7c9f",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmh2_legr001.mtr",
+   "sha256": "f6a8309174940da200cf7a9c6228a38d2d8365542fc122ab9fe6a9fbddfd37ab",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmh2_pelvis001.mtr",
+   "sha256": "db7cb49fc0af5fe3c1e54820650e5adf1e5507aa03221f4506caad9f31301b6c",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmh2_shinl001.mtr",
+   "sha256": "142afa793a305cf35a989d0c0f43e020bf36d1ff909c1ea3b25838233828b51e",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmh2_shinr001.mtr",
+   "sha256": "ab2088a008555ed75604f934ba78c25b05fe4c1062267d745a4499ea4619c4a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmo2_chest001.mtr",
+   "sha256": "f8047b42a55aa81be907b639dd81ec512b15e6c8a56023ca0cb1cb6cb281b9b5",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmo2_legl001.mtr",
+   "sha256": "7fde6ca70de8c55df3721fde76f72e4473030b31010ad877cf4819eea88c7c9f",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmo2_legr001.mtr",
+   "sha256": "f6a8309174940da200cf7a9c6228a38d2d8365542fc122ab9fe6a9fbddfd37ab",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmo2_pelvis001.mtr",
+   "sha256": "db7cb49fc0af5fe3c1e54820650e5adf1e5507aa03221f4506caad9f31301b6c",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmo2_shinl001.mtr",
+   "sha256": "142afa793a305cf35a989d0c0f43e020bf36d1ff909c1ea3b25838233828b51e",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/pmo2_shinr001.mtr",
+   "sha256": "ab2088a008555ed75604f934ba78c25b05fe4c1062267d745a4499ea4619c4a2",
+   "trackedSha256": "45e653a35c643f6027a3e2930e20d3857d563ef5aebf1acc6105b0c7104fcc9f"
+  },
+  {
+   "path": "srn_body_tex/s20f_chest2n.tga",
+   "sha256": "d4710e192f40ec8221179b1094d236c1c69c0aae5a1f0808af1c066ecaaf1878",
+   "trackedSha256": null
+  },
+  {
+   "path": "srn_body_tex/s20f_chest2r.tga",
+   "sha256": "1d73308d23110c546a505782fadbbf75ea442ab2aab241e5067d4300db0d7f37",
+   "trackedSha256": null
+  },
+  {
+   "path": "srn_body_tex/s20f_chestn.tga",
+   "sha256": "aa6fa86137c66c5c4a783a29e9656a894cc1d67e590b4f2af7eaee2195751eee",
+   "trackedSha256": "78a289e28cf52865d4cd15ef8af5d9874991f45bfa611e175ee80a962bac54e3"
+  },
+  {
+   "path": "srn_body_tex/s20f_chestr.tga",
+   "sha256": "b65901eb8e37c6041fd04aaeee7d3bd755fc3dbb9f83283b0ef9b226e7f462c4",
+   "trackedSha256": "2cfa8e0685bf2f4f275863720b8b3f7bcbdebdd73de046927bf41790310217bb"
+  },
+  {
+   "path": "srn_body_tex/s20f_legln.tga",
+   "sha256": "823cb8b7fcafa77274fee0f851295c4f958a54bd37ac2b7e88a0777ab1df85be",
+   "trackedSha256": "e8fd5e1b82de52e409d044cfa0743bb343df24f0edc67f8183666ea376f44f8d"
+  },
+  {
+   "path": "srn_body_tex/s20f_leglr.tga",
+   "sha256": "595668dd7138f00e708dd62fae277386870251be90a77b1fd8cbebb596591d10",
+   "trackedSha256": "d2c0e8dfd5f48107323445d9fbb6102e82f91f9808fb0911dcfb701fc48be17c"
+  },
+  {
+   "path": "srn_body_tex/s20f_legrn.tga",
+   "sha256": "13d32649ad4c5151d3806b2c618abb8b1c35a342edf3cb32afcede49f8fc9de2",
+   "trackedSha256": "e29df035cf2e7fa74bd300d87970804f81deabb7d593db8b0e367eb553b6d514"
+  },
+  {
+   "path": "srn_body_tex/s20f_legrr.tga",
+   "sha256": "066d1caea2834579ca13ce0c439ca5bab8a0ba0e5bea8713c3237136331ca02f",
+   "trackedSha256": "ff0b10542fa697dbd325d8e224ee071929635672a3dfcc25073cf87269a58c9e"
+  },
+  {
+   "path": "srn_body_tex/s20f_pelvisn.tga",
+   "sha256": "4bd094ef24e38c0bf76388f646a85f8974c0aa0d1868b5998722ddb5ef8078ff",
+   "trackedSha256": "c2708b2213e5dfcca0f2c6e8af0de1b844b680ad1c95bf6de8b8574b1c8103c1"
+  },
+  {
+   "path": "srn_body_tex/s20f_pelvisr.tga",
+   "sha256": "cf160095ce5fc4cc33fc27587147266a2eb0eda412154d67ed384ac5263485d8",
+   "trackedSha256": "1d644fbd337e19ea417d5d7376ba63fc4fa717e4fbd2bb7fa33c1bc858dcee59"
+  },
+  {
+   "path": "srn_body_tex/s20f_shinln.tga",
+   "sha256": "1116e8d6079a087cb5bbbcab3a01f389110231cc12bb09424ec60bab0ae53f14",
+   "trackedSha256": "347df12385e85826213077e86a0683a71ce5567ae9826c8f36c7c48899eb907c"
+  },
+  {
+   "path": "srn_body_tex/s20f_shinlr.tga",
+   "sha256": "47485afb5bcbf4c9924954b8b09beb08a57919ac9f5d1ee5f05591337d8e3c60",
+   "trackedSha256": "aac6fae07f0f46045f6a5c43344dd6fa0a784713cfc2189a61baa00f27876131"
+  },
+  {
+   "path": "srn_body_tex/s20f_shinrn.tga",
+   "sha256": "a28d962ee9dbee6a0a0b7edb8e4b5527047159b4dd6336af816d00635f9fe242",
+   "trackedSha256": "65e28075cd00d785e6ac326499a5fe49ee251249f204c835188a625b3bbeab33"
+  },
+  {
+   "path": "srn_body_tex/s20f_shinrr.tga",
+   "sha256": "94d85a568ab8d9c616a51f32d114bb92fbab159c214b11f4e21353d60fd188ba",
+   "trackedSha256": "8d7d1a2df8b401376684098b0418928f9ae3c9d7106d4df2411aa36c4da77228"
+  },
+  {
+   "path": "srn_body_tex/s20m_chest2n.tga",
+   "sha256": "539220f64b1190479bc0b9a5c52940cb1484560d3cb4410bf30141ec32d3a0ef",
+   "trackedSha256": null
+  },
+  {
+   "path": "srn_body_tex/s20m_chest2r.tga",
+   "sha256": "b14ac48f862efcc2e578acba8be7832a2a203b3758eb0b73eacc3d25e58d36a1",
+   "trackedSha256": null
+  },
+  {
+   "path": "srn_body_tex/s20m_chestn.tga",
+   "sha256": "9315b9da7386a5adf3a20ebddacae3caf22e16dec0af43ffd51c9c5ebf269936",
+   "trackedSha256": "2d69c26e8c0c8ebc2504fc43b576da915dd30ca05aca8138459ddf76abfedce8"
+  },
+  {
+   "path": "srn_body_tex/s20m_chestr.tga",
+   "sha256": "756f239b6f2dcc10dea4b9891e70f7034c6f79eb20570f8bf22b86b9aee19325",
+   "trackedSha256": "fba841329d171769387abedb41718c8f61f04923bbb52f2bcf67e5e5d681aab7"
+  },
+  {
+   "path": "srn_body_tex/s20m_legln.tga",
+   "sha256": "df1ac8afe651297293e28a87fffe0aeb5450b1de2768e48cc8eddc13ea38ee13",
+   "trackedSha256": "b4c752b1c2af0cb6a7da5b03d448580ad0c2a6df4c06bddd441891d18ff75ffb"
+  },
+  {
+   "path": "srn_body_tex/s20m_leglr.tga",
+   "sha256": "ae131986082d4c8376039fc4fb097cb12bd89a4b7541754226d82d90ba9c5fdd",
+   "trackedSha256": "093cde192dd377ca6529c64d3fce99082f9318ae77f34e983f1284ad8256dc64"
+  },
+  {
+   "path": "srn_body_tex/s20m_legrn.tga",
+   "sha256": "9c6ef3167dfa436dd6520b2df2ae9e9fdd63d2222f839a96befe58cc2c08529e",
+   "trackedSha256": "7e8dc6154c31b9f87da239d6e023fb36d972ee899eb763abb1618ee052ea1f24"
+  },
+  {
+   "path": "srn_body_tex/s20m_legrr.tga",
+   "sha256": "8a9e8ed3efe2d0a0b03603c5c8e1e269d9dd1d77bcf4e3c43aad2d83d213577e",
+   "trackedSha256": "093cde192dd377ca6529c64d3fce99082f9318ae77f34e983f1284ad8256dc64"
+  },
+  {
+   "path": "srn_body_tex/s20m_pelvisn.tga",
+   "sha256": "7907bdb7a10b6013db9d53f5bdff69917026ff2723748622029e2fc2a2565ba1",
+   "trackedSha256": "ac5ae8162f0763a5cec4e35c6f7245f439e6bce5c8c7d5ed1327054fb5ff2035"
+  },
+  {
+   "path": "srn_body_tex/s20m_pelvisr.tga",
+   "sha256": "6a095986a749c3cd75a7324d71f611228e47b04c07d4bd6afd6a5886f3753752",
+   "trackedSha256": "894a46b6e388bb81f0e3c25fc04a0227034f45729892c8e43f556edc431cb2f2"
+  },
+  {
+   "path": "srn_body_tex/s20m_shinln.tga",
+   "sha256": "e70e85f286a2d6b8a31370892303ad90ee15116f96a3a99d8c6d0308c8a874da",
+   "trackedSha256": "7f4108a280b706c0501a59436121119f7c3fc6aa54e658f3330f28c67ed40b58"
+  },
+  {
+   "path": "srn_body_tex/s20m_shinlr.tga",
+   "sha256": "00e02113a6a758be861bd1b2d0d9ef9c764e439f3ae0bdccbbfaa62fa0c1efb0",
+   "trackedSha256": "175aaa7776b8fc407ec61c67951c7ef4386fa01cf656d422c6e00cb416749a29"
+  },
+  {
+   "path": "srn_body_tex/s20m_shinrn.tga",
+   "sha256": "350afb22ea801c5889b31e486b94c2f37d5be9d0244e3dbafff29f96f4d7485d",
+   "trackedSha256": "15555bf5cce18f9fd91ac9f1f945a46149a4f9fd3e87d4e4f088de4c0e74bf5b"
+  },
+  {
+   "path": "srn_body_tex/s20m_shinrr.tga",
+   "sha256": "cca2c62edb85ab4e125389b838d4e9d9f03499f10d41e45ce5996a2deaf3254f",
+   "trackedSha256": "38e2da597298ca3cd24c16ff06e0f5806ee86919e2012c8a799572577d853996"
+  }
+ ],
+ "asciiSources": {
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_bicepl001.mdl": "7a4a547688f8a76dff4c3a77e8add51f6398ad95277e36a89afc20706f7444b1",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_bicepr001.mdl": "6bf50375d6d1f6536acb3e07bdc0724398c3e1ddd030f0d6603276a554d74192",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_chest001.mdl": "717733c80bbc31a872205a8414bcb6023bd4930754bb49608d110bcde790312f",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_legl001.mdl": "5f2ad254becb26203a763b6b3d58ed3bf9b734ceb300c311ec5410653dedbc3e",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_legr001.mdl": "d0aed3edaa5f30ff230077a4cb5400295fabd7d21ccf400f1e709bdf32ef4d0c",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_neck001.mdl": "1a3eeb4e3044196034ca2b075389e079ba936617a8973cc823895903fe9cb332",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_pelvis001.mdl": "b0273d70efa10df815e2cdc901432a1b25f07fcbdcfdd4f3e94e606dd6994aef",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_shinl001.mdl": "d86041146aafce28d7f2ac8b3d6e4fe63a1c523b94198fab380e4c4b34bcf780",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh0/pfh0_shinr001.mdl": "252c7b6b8fdab43be755741b1a0b53b7f5cd90f5e5c71576f97c70cee7e2f668",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_bicepl001.mdl": "b8bc047d0bc3c236656c4064fb9ff32ba73759ffc51fb8f8b4c5dcc5bfb01455",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_bicepr001.mdl": "602fe1511394b4f9a7cb95a892f1cc6b1670021d3d44d19d004771f1750eb889",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_chest001.mdl": "252b74aecc8db82ec5bc9539d2af7afcaf82ba84cbf1f118331dfed0e6d3c9a5",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_legl001.mdl": "0b14ff63e295f69364407a7660adb0c422455ad09f76c0ddc4cd9756bbd70cf7",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_legr001.mdl": "68187b35f163a33927b7faa2ce964f55f46f0836740d50788bba20e27510738d",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_neck001.mdl": "9f9b293128eb84e4621065851ad423bb81d982fb18c3ec11a0dfb8ec2e5f78e8",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_pelvis001.mdl": "3ca6605a198eb0d0d6d40e6fa89b3b206a107d3a89ca7374990c9b22156831fb",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_shinl001.mdl": "d28df9998d7e91546e0fea227fd2db3eeeb6b879b2a741c87f7908698f815233",
+  "output/phenomorpher/joins-pilot/c6-ascii-pfh2/pfh2_shinr001.mdl": "3179f47e0fa30a0283d0f69820bfd370f06c22c443e28981351f17ca23be45d3"
+ },
+ "compiledModels": {
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh0_chest001.mdl": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh0_legl001.mdl": "1e54d39b4dab500704b7cfc9218bcae8c17ea46f2305855e970dcd78436ca29b",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh0_legr001.mdl": "4f5150192b0313e7627e6db123e78b7fcb6e7c49abc30e27bcb1d33204faf24e",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh0_pelvis001.mdl": "5eb411adb929a806705981cd67c4c586876f2bfdf140549e924bb9d42752b8ac",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh0_shinl001.mdl": "621cbd1344c25e6099aea270c7331c1971ca88f299c9514899a5212b9d3a951d",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh0_shinr001.mdl": "3e18e25c58dade7798c1251a2ce55da59eb3ba0668f5b2113ccc2c5e55238e52",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh2_chest001.mdl": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh2_legl001.mdl": "45e72304bb9f29987c73472077c485dcab8e283bee30bc2d420f3ef4fa94cda9",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh2_legr001.mdl": "700eaba05f6142e7c8072f0d54c66c163188623e950bae50a64a5d3f3e77c6cd",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh2_pelvis001.mdl": "eb315ea583f4bc305f4d9489e0137e9272fd6cfabcc342e0f8970a3806f245a1",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh2_shinl001.mdl": "aa9eec3dd69681af82e4955a40c94d3fce073a2083709031facad7527eb10e89",
+  "output/phenomorpher/joins-pilot/c6-compiled/resources/pfh2_shinr001.mdl": "68bbf2aaeab4168b9b7b9a682bf509b9e997f9233cc17f4945a4accc47b1fc05"
+ },
+ "tools": {
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/asciirender.py": "f49904ff06c040216a1ab194bf905cff49f4d0529a66c4f97cb4ad2522b7f3af",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/ballsocket.py": "5a2e0caae7c26ced79736c6a409c2fe7b5b8cc2ebcc01b21219e6c815c1db020",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/bodyrender.py": "ec02a4ac6e5c6ba05cab19bb758a7e2bc5befda96324df839daede79d112f1d1",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/bodyslice.py": "93ae75f50453074434c973bb12537b42187e24c9cb892424643b0973b64f0d9a",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/briefcheck.py": "7f7e3bdf34fe46b745d4d37bdf43a723dbfc0a56c525422513a32cbd6b176dc8",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/brieflines.py": "60a60195a0bc80b524c72c1571f6d1dfe16807cc3e23895b29ec896e736aea84",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/briefpush.py": "de86a1b4721ba18443c17e253afa6e2af0c6c72aee972944300989a805e64a8a",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/cornerround.py": "de165b35d0aebfb1d263145d54ef3b48092ae8bb19ba5fb53328b204faeff758",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/cracks.py": "6407a85e6ce083f33895fa254f53e09acb8cdb614fbb8a8a833881980cf56201",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/crossmap.py": "b2bbf98d2b295609817f18e0f3025e9288b6922fdd6a63c0bd25b93117aaeb3f",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/cuplayers.py": "908d1c2b0a5d0f25752a1094ae97da1fee20bf61ae5f20ab3da290bfd3f0299f",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/deeptuck.py": "9c479c6a22e7e22171da78b57346d526c1fba6f4e2f7a1cf949dfada9737642f",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/domes.py": "04aeaa74634cf0f5f15a404f126e4a92bb9eb6463c79e99e1fce222cbbce6554",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/evalascii.py": "3de0ebe25b88054a034819ad1a578f733beceaef66c2a459581cda6b153f3130",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/fdebug.py": "8118fc27c5f3c9ec48490bc884b90359ff6cc9854bbf05f7671217eca0207f65",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/fdebug2.py": "c585ae9c198a4ee4bf309311f99168e31e2807adddedd972d3a9627cfc65c899",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/fillet.py": "cb46ccec2a1410af6958c2a579df2651d82dbbf89bd5dfb80b8ab1eddc50aa73",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/gpubody.py": "ea00312bef40b41307e3f749ca230060e125fe9148a77459caf1add5950b84ae",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/gpurender.py": "b481eb0f06be813c495303eabf7881fcd6eea1e33b06c27d0a5b15e381fa4617",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/hipstep.py": "53f666699e58455f8453087f5e0c77ea844cdfa920998dda4f4591d6a5da3299",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/holefix.py": "c6f6aef7572eb9f035b72503e4e0feceeffee7de28ba2087730d4235f946fcdc",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/idlecheck.py": "31c80e91cc3b031a1c630e291cd8fdd66432022e2d715d20c685d26a44cc3fc7",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/innerclear.py": "d0aaaf521dce48d89ecd09195fab34a9dd334818541b811c4555a2bb43f44fb0",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/jaudit.py": "3dbaf11f3e7e0c9d705ffb46614453a3d92ad10dd4bab69254b461ae9f7983a7",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/jointfix-v18.py": "35f6b2af7296551d3116925c2bc0975d24b3590d12d8c0571ca3b8ffff6af10a",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/jointfix-v22.py": "76283c16bb97cadd439e8f7ad9b4c7d13ca4e07a9b92f362a6f90573cf21d3cf",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/jointfix.py": "77d19d3d677f0cc24b6b88b0b9556c155ae1ff255cfd76c006788b9c125d6267",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/meshrender.py": "d3f47aef5b12eeb38c5fa9da49f811da6fd15b01f5da4590344479e19ef6ae79",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/normblend.py": "9294b256d99703bc36eda69c17ca025b373f5166ae82c15a1e2eb533a2615dfa",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/posecheck.py": "f9df61de2d273d8cb7ad08fb5e489366c7d8a143182df36e63cde9b7e1a43955",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/posesuite.py": "e5118ec52927607239bb3640265865b688cfeb38b9a578d9f710e0a4692b8eb8",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/refsheet.py": "34c616904df41e6f83eecb8c8bc00d66b378331d2e05db4a02f2436efacf1aa7",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/review.py": "56442eb4db9d3ae8454d955e671816659042730a7d6f66cc62d4a5c59bc1d5d4",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/rimcheck.py": "6cdc64633a88e2a257c0da72289916b5b7cabfe728a2c90bc0b8046e2c41c965",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/ringroll.py": "b8652ead50d5ec9b0282358ce1ccb99b61e47e746a17559db2fe371196c6ff72",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/seamnormals.py": "0cc291dbb72a068b9c0ced6cb6e9ca982d7231aae41d711a9546a13fee5b5e80",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/shelltransfer.py": "6c26a8a876754c8690ac051e6fb862f198218d8247b6713daf97f3b24d284fb5",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/sittuck.py": "3af66f8c6a1dbbd1cfacb400980ab925fc1e27c556603d75140494927ea25e54",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/subdiv.py": "5e40b82de06dbb148b4d154663bbca5546f523198e17a723e367ed9b49fe257f",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/sweep.py": "dce4dfd19105f5fe24a2d831a03f7b527a829e9857c1cb07cd73139c143edc31",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/topmap.py": "1ba8d8380576879cd98f71c50b85a7d28dda3e5c3348db9afef3baca1108f40b",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/walkpoke.py": "d5f9d6b4c4521b0ae8f7a28f37aff37124c43be9a1be343a7bf76091bcb8c009",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/walkpoke2.py": "9e434d7573d620c5a244bf653f5bd0d59e4134eda899d5108ff45a059d014518",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/walkrender.py": "64ad940a3a3a8ec04f1638ace08b1500caa0990b4664dd680d3db6546f229f6d",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/walkrender3.py": "5f3e87129db3e85e72db41852da3cdd573d43d5adbf1b948078ff2e84b5f97a0",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/xsect.py": "d5798e2fea6c02518efcf0e9d42ec788e997337af932f3c3baaa3f0c8d0e1964",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/buildcombo.sh": "494b024f4998b27f2da4e4d290ce9e30557741f46b44ba6e2de7fb4fc21952b1",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/chain.sh": "52652b9234d0054d74f870379a7aed258121686525f9b1297fab50c4f93b3637",
+  "output/phenomorpher/joins-pilot/scratchpad-snapshot-2026-10-25/joins/pheno.sh": "c31c9dda147481b9ac9083d8e8afab4acd205948950cb4298d4bdf4a13e7374e"
+ },
+ "evidence": {
+  "output/phenomorpher/joins-pilot/evidence/ref-c6-pfh0.png": "3dec0eb10680bd88bccf573d4d67daff740ab33f8b4f42016ae3a05e051eeb72",
+  "output/phenomorpher/joins-pilot/evidence/ref-c6-pfh2.png": "d1c24a3c58b6ec56b4f6438ce5c16c360c1c2b616aceb3be1dbac7dbca02bae2",
+  "output/phenomorpher/joins-pilot/evidence/torso-c6-pfh0-armsup.png": "ff689085a2552ecfc450a8feae98e13d123dee9870f93d966b782e576dcfc872",
+  "output/phenomorpher/joins-pilot/evidence/torso-c6-pfh0-motion.png": "7b24cf5b8c990a27781e1647cdd97281c24c2917c129a05d65aea729b544930b",
+  "output/phenomorpher/joins-pilot/evidence/torso-c6-pfh2-armsup.png": "b2d1a1994ba2dacae0355f6e46a9bb4bef55e6576a14af1b695d08383fc6976d",
+  "output/phenomorpher/joins-pilot/evidence/torso-c6-pfh2-motion.png": "c9595d85c02a7f71c8446e249d3cdf8f2f1a257e022d2e27d6a0abf569796224"
+ }
+}

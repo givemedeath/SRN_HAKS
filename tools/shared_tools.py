@@ -272,20 +272,31 @@ def register_run(repo, root=None, tools=(), inputs=(), provenance=(), *, complet
               'createdUtc': datetime.now(timezone.utc).isoformat(), 'toolsRoot': str(bank),
               'rootOrigin': origin, 'completeDeclaration': complete, 'references': refs,
               'inventorySha256':sha(repo/'tools/shared-tools.lock.json')}
+    # The run's own receipt holds this run's references. The rolling record holds every reference, and a repeat run
+    # that adds nothing leaves it alone: rewriting it costs time in proportion to the worktree's whole history.
     local = repo / '.tmp/tool-dependencies' / (uuid.uuid4().hex + '.json')
+    write_json(local, report, fresh=True)
     with locked(folder / 'registration.lock'):
         current = folder / 'current.json'
-        if current.exists() and not complete:
-            previous = read_json(current)
+        previous = read_json(current) if current.exists() else None
+        rolling = report
+        if previous and not complete:
             all_refs = {(row['role'], row['path']): row for row in previous['references']}
             all_refs.update({(row['role'], row['path']): row for row in refs})
-            report['references'] = list(all_refs.values())
-        write_json(local, report, fresh=True)
-        write_json(current, report)
+            rolling = {**report, 'references': list(all_refs.values())}
+        if not previous or any(previous.get(key) != rolling[key] for key in
+                               ('references', 'toolsRoot', 'rootOrigin', 'completeDeclaration', 'inventorySha256', 'worktree')):
+            write_json(current, rolling)
     return local
 
 
 def retirement_audit(repo, retiring, root=None):
+    """Report known inbound references, not the health of every other workspace.
+
+    Incomplete registrations are advisory: they cannot prove absence of hidden
+    reads, but requiring unanimity makes retirement impossible. Archive review
+    and explicit removal authorization remain separate from this read-only check.
+    """
     bank, _ = tools_root(repo, root)
     retiring = Path(retiring).resolve()
     known = {row['path'] for row in worktrees(repo)}
@@ -294,6 +305,8 @@ def retirement_audit(repo, retiring, root=None):
         record = read_json(path)
         records[str(Path(record['worktree']).resolve())] = record
     coverage, dependencies, missing, drift = [], [], [], []
+    resolved, hashed, unstable = {}, {}, set()
+    outside = 0
     for worktree in sorted(known | set(records)):
         if Path(worktree).resolve() == retiring:
             continue
@@ -306,18 +319,40 @@ def retirement_audit(repo, retiring, root=None):
             if row['role'] == 'provenance':
                 continue
             value = {'consumer': worktree, **row}
-            path = Path(row['path'])
-            if inside(path, retiring):
-                dependencies.append(value)
+            key = os.path.normcase(str(Path(row['path'])))
+            if key not in resolved:
+                resolved[key] = Path(row['path']).resolve()
+            path = resolved[key]
+            if not path.is_relative_to(retiring):
+                outside += 1
+                continue
+            dependencies.append(value)
             if not path.exists():
                 missing.append(value)
-            elif row.get('sha256') and (not path.is_file() or sha(path) != row['sha256']):
-                drift.append(value)
-    return {'kind': 'worktree-retirement-audit', 'retiringWorktree': str(retiring),
+            elif row.get('sha256'):
+                if not path.is_file():
+                    drift.append(value)
+                    continue
+                canonical = os.path.normcase(str(path))
+                if canonical not in hashed:
+                    before = path.stat()
+                    hashed[canonical] = sha(path)
+                    after = path.stat()
+                    if (before.st_ino, before.st_size, before.st_mtime_ns) != (after.st_ino, after.st_size, after.st_mtime_ns):
+                        unstable.add(canonical)
+                if canonical in unstable or hashed[canonical] != row['sha256']:
+                    drift.append(value)
+    clear = not (dependencies or missing or drift)
+    return {'schemaVersion': 2, 'kind': 'worktree-retirement-audit', 'retiringWorktree': str(retiring),
+            'scope': 'registered-inbound-references',
             'dependencies': dependencies, 'missingDependencies': missing, 'changedDependencies': drift,
-            'incompleteConsumers': coverage, 'dependencyClear': not (dependencies or missing or drift or coverage),
+            'incompleteConsumers': coverage, 'incompleteConsumersAreAdvisory': True,
+            'knownDependenciesClear': clear, 'dependencyClear': clear,
+            'outsideTargetReferencesNotVerified': outside, 'distinctTargetFilesHashed': len(hashed),
             'safeToRetire': False, 'ownerArchiveAndRemovalApprovalRequired': True,
-            'note': 'Dependency clearance is not evidence that ignored assets are backed up or removal is authorized.'}
+            'note': 'Clear means no blockers in known target references, not proof of no undeclared reads. '
+                    'Unrelated registry health and incomplete declarations are not a consensus veto. '
+                    'Verify the target archive and obtain explicit removal approval; this audit never deletes or authorizes deletion.'}
 
 
 def main():

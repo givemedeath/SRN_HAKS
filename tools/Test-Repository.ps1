@@ -114,7 +114,7 @@ foreach ($name in $registeredNames) {
         elseif ($file.Length -gt $softLimit -and -not $sizeExceptions.ContainsKey($relativeFile)) {
             Add-ValidationError "Resource '$relativeFile' exceeds 15 MiB without a PROVENANCE.md exception."
         }
-        if (Test-GitLfsPointer -Path $file.FullName) {
+        if ($file.Length -lt 1024 -and (Test-GitLfsPointer -Path $file.FullName)) {
             Add-ValidationError "Git LFS pointer detected at '$relativeFile'; this repository does not use LFS."
         }
         if ($file.Extension -ieq '.set') {
@@ -124,6 +124,12 @@ foreach ($name in $registeredNames) {
                 if ($setLine -match '^(Interior|HasHeightTransition|Grass|MainLight1|MainLight2|SourceLight1|SourceLight2|AnimLoop1|AnimLoop2|AnimLoop3)=(-?\d+)$' -and $Matches[2] -notin @('0', '1')) {
                     Add-ValidationError "SET boolean field '$($Matches[1])' must be 0 or 1 at '$relativeFile`:$setLineNumber'; found '$($Matches[2])'."
                 }
+            }
+            $setText = [System.Text.Encoding]::GetEncoding(28591).GetString([System.IO.File]::ReadAllBytes($file.FullName))
+            $loneLineFeed = [regex]::Match($setText, '(?<!\r)\n')
+            if ($loneLineFeed.Success) {
+                $setLineNumber = $setText.Substring(0, $loneLineFeed.Index).Split("`n").Count
+                Add-ValidationError "SET resource '$relativeFile`:$setLineNumber' has a lone LF; SET files must use CRLF."
             }
         }
     }
@@ -219,9 +225,10 @@ else {
     $changedPaths = @(& git -C $repoRoot diff --name-only --no-renames "$ChangedSince...HEAD")
     if ($LASTEXITCODE -ne 0) { throw "Unable to determine changes since '$ChangedSince'." }
     $mustBuildAll = $false
+    $packBuildPatterns = @((Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ci-scope.json') -Raw | ConvertFrom-Json).packBuild)
     foreach ($changedPath in $changedPaths) {
         $normalized = $changedPath.Replace('\\', '/')
-        if ($normalized -match '^hakbuilder\.json$|^tools/(Bootstrap-Tools|Build-Haks|Build-Tlk|Test-Repository|SrnHaks\.Common)\.|^tools/toolchain\.lock\.json$|^\.github/(workflows/ci\.yml|actions/srn-tools/)') { $mustBuildAll = $true }
+        if ($packBuildPatterns | Where-Object { $normalized -match $_ }) { $mustBuildAll = $true }
         $firstSegment = $normalized.Split('/')[0]
         if ($packByName.ContainsKey($firstSegment)) { [void]$packsToBuild.Add($firstSegment) }
     }

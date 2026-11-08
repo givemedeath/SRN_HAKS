@@ -41,5 +41,13 @@ class FixtureIdentityTests(unittest.TestCase):
         self.assertEqual(c['__struct_id'], 4)
         self.assertNotIn('__data_type', c)
 
+    def test_actors_revive_ten_seconds_after_death(self):
+        from build_head_fixture import make_creature, DEATH
+        c = make_creature({'FirstName': {'type': 'cexolocstring', 'value': {}}}, 'tag', 'name', 0, 0, 1, 0, 0, 6, 6, 1.0)
+        self.assertEqual(c['ScriptDeath'], {'type': 'resref', 'value': 'sr_h_death'})
+        self.assertIn('DelayCommand(10.0,Revive(o))', DEATH)
+        self.assertIn('EffectResurrection()', DEATH)
+        self.assertIn('SetLocalInt(o,"HEAD_STEP",0)', DEATH)
+
 
 if __name__=='__main__':unittest.main()

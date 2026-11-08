@@ -11,9 +11,9 @@
     {
       "module": "armory_rigid",
       "source": "armory_rigid.py",
-      "sourceSHA256": "828421bc2a13631995cfa8979353936914390fbd2627e88d83486bc339b42522",
-      "packagedSHA256": "b3f4228674c042e65c3a7a2ab6bc7679aa07d1ab19d0fab0221c596cb17c0ff6",
-      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+      "sourceSHA256": "c34c5c375c3385246e3c4fc1576a0f078404f53ec2e48fb69f7018e16839b430",
+      "packagedSHA256": "6b3fdf3fe456be5907bf97cf7e5cf7563fa1a2c4b78ea9bfb606263dee32b7e3",
+      "modifications": "Package-relative imports and LF encoding; numerical algorithms unchanged. Refuses non-root dummies other than pivots whose subtree ends in meshes (only meshes are baked and proven), and writes the corrected model with LF."
     },
     {
       "module": "audit_geometry",
@@ -89,8 +89,8 @@
       "module": "fit_anatomy_stage1_v15a",
       "source": "fit_anatomy_stage1_v15a.py",
       "sourceSHA256": "255f63e1898c85688345656aa5ec67ad5becc35252be1facb3b4f37e8e6f1637",
-      "packagedSHA256": "5031f325ea3441299ce9d5c850450d79543de58266ff2bf09e71f633f96c8760",
-      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+      "packagedSHA256": "015c82aeefc19235d714b7e0ce7e539389dd28d4a681279dc519c62e6b84c8db",
+      "modifications": "Package-relative imports and LF encoding; stage-1 stature is normalized, gated and reported on the rest (bind) pose instead of the pause1 standing pose (2026-10-26, race lore sizing)."
     },
     {
       "module": "fit_morph_preview_v11",
@@ -131,8 +131,8 @@
       "module": "measurement_workflow",
       "source": "measurement_workflow.py",
       "sourceSHA256": "0616c391de19853dbac952d2ef3b99febc6504c10ccb1fa8b92a4aead4b490a4",
-      "packagedSHA256": "424671412468f5d5da1e1d98a3466d2b7581faf34c8429a235d9035439d50042",
-      "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
+      "packagedSHA256": "19373dd0a2f991490ec9a6045caeb279e2a4783a476dff9a9b745595695fdca2",
+      "modifications": "Package-relative imports and LF encoding; numerical algorithms unchanged. Findings hash only the helpers packaged beside this module."
     },
     {
       "module": "morph_anatomy_v15c",
@@ -313,7 +313,7 @@
       "module": "test_fit_anatomy_stage1_v15a",
       "source": "test_fit_anatomy_stage1_v15a.py",
       "sourceSHA256": "1f049e2d1facf575c69350dedb8b1ff6133bc7913efcca6527586d6bec8e6ee4",
-      "packagedSHA256": "2558b57e2c647251ebba60cbc5bc9eceed762dc15d3d6b74cab43152ab500ed2",
+      "packagedSHA256": "18c0cb960bb983afbdf130c8b0d9d51cf6ff82761d1d5a0be2515ef5d976e583",
       "modifications": "Package-relative imports and LF encoding only; numerical algorithms unchanged."
     },
     {
@@ -369,8 +369,8 @@
       "module": "test_fit_anatomy_stage1_v15",
       "source": "test_fit_anatomy_stage1_v15.py",
       "sourceSHA256": "ea8a32e0d0ef2a34d7785488f8336658961209027d36c38f0dd4c6f00d57a381",
-      "packagedSHA256": "542e4e0657ea2ccddaac573a53697368140bc415290aa7ea3db8e5fd3fd5d0cf",
-      "modifications": "Relative imports; original stage1 regressions target maintained v15a fitter."
+      "packagedSHA256": "f8df8dc0c3cb5c7f00d8878b5496ccc03c0fac28e3c34fe7afad769c6613500f",
+      "modifications": "Relative imports; original stage1 regressions target maintained v15a fitter; adds the rest-pose stature regression (2026-10-26)."
     }
   ],
   "externalImports": [

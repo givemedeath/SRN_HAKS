@@ -1,0 +1,136 @@
+{
+  "1": {
+    "class_type": "HeadkitLoadMeshV1",
+    "inputs": {
+      "path": "SHARED_INPUT"
+    }
+  },
+  "241": {
+    "class_type": "RemeshMesh",
+    "inputs": {
+      "mesh": [
+        "1",
+        0
+      ],
+      "resolution": 768,
+      "sign_mode": "udf",
+      "sign_mode.qef": false,
+      "sign_mode.drop_inverted_components": false,
+      "sign_mode.drop_enclosed_components": false,
+      "band": 1.0,
+      "project_back": 0.0,
+      "fix_poles": false,
+      "smooth_iters": 20,
+      "drop_small_components": 0.0,
+      "precluster_max_verts": 20000000
+    }
+  },
+  "186": {
+    "class_type": "DecimateMesh",
+    "inputs": {
+      "mesh": [
+        "241",
+        0
+      ],
+      "target_face_count": 20000,
+      "placement_mode": "midpoint"
+    }
+  },
+  "187": {
+    "class_type": "MeshSmoothNormals",
+    "inputs": {
+      "mesh": [
+        "186",
+        0
+      ],
+      "crease_angle": 180.0
+    }
+  },
+  "188": {
+    "class_type": "MeshToFile3D",
+    "inputs": {
+      "mesh": [
+        "187",
+        0
+      ]
+    }
+  },
+  "922": {
+    "class_type": "Save3DAdvanced",
+    "inputs": {
+      "model_3d": [
+        "188",
+        0
+      ],
+      "filename_prefix": "headkit/OUTPUT",
+      "viewport_state": {},
+      "width": 1024,
+      "height": 1024
+    }
+  },
+  "286": {
+    "class_type": "DecimateMesh",
+    "inputs": {
+      "mesh": [
+        "241",
+        0
+      ],
+      "target_face_count": 200000,
+      "placement_mode": "midpoint"
+    }
+  },
+  "287": {
+    "class_type": "MeshSmoothNormals",
+    "inputs": {
+      "mesh": [
+        "286",
+        0
+      ],
+      "crease_angle": 180.0
+    }
+  },
+  "288": {
+    "class_type": "MeshToFile3D",
+    "inputs": {
+      "mesh": [
+        "287",
+        0
+      ]
+    }
+  },
+  "932": {
+    "class_type": "Save3DAdvanced",
+    "inputs": {
+      "model_3d": [
+        "288",
+        0
+      ],
+      "filename_prefix": "headkit/OUTPUT",
+      "viewport_state": {},
+      "width": 1024,
+      "height": 1024
+    }
+  },
+  "910": {
+    "class_type": "MeshToFile3D",
+    "inputs": {
+      "mesh": [
+        "241",
+        0
+      ]
+    }
+  },
+  "911": {
+    "class_type": "Save3DAdvanced",
+    "inputs": {
+      "model_3d": [
+        "910",
+        0
+      ],
+      "filename_prefix": "headkit/OUTPUT",
+      "viewport_state": {},
+      "width": 1024,
+      "height": 1024
+    }
+  }
+}

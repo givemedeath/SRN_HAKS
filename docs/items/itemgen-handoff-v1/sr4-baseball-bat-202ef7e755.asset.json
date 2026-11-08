@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-baseball-bat-202ef7e755",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "section-0-top",
+      "pixel": [
+        107.0,
+        392.00000000000006
+      ]
+    },
+    {
+      "name": "section-0-bottom",
+      "pixel": [
+        107.0,
+        458.99999999999994
+      ]
+    },
+    {
+      "name": "section-1-top",
+      "pixel": [
+        280.0,
+        399.0
+      ]
+    },
+    {
+      "name": "section-1-bottom",
+      "pixel": [
+        280.0,
+        452.9999999999999
+      ]
+    },
+    {
+      "name": "section-2-top",
+      "pixel": [
+        539.9999999999999,
+        395.00000000000006
+      ]
+    },
+    {
+      "name": "section-2-bottom",
+      "pixel": [
+        539.9999999999999,
+        457.00000000000006
+      ]
+    },
+    {
+      "name": "section-3-top",
+      "pixel": [
+        887.0,
+        373.0
+      ]
+    },
+    {
+      "name": "section-3-bottom",
+      "pixel": [
+        887.0,
+        478.0000000000001
+      ]
+    },
+    {
+      "name": "section-4-top",
+      "pixel": [
+        1234.0,
+        346.00000000000006
+      ]
+    },
+    {
+      "name": "section-4-bottom",
+      "pixel": [
+        1234.0,
+        503.9999999999999
+      ]
+    },
+    {
+      "name": "section-5-top",
+      "pixel": [
+        1494.0,
+        338.00000000000006
+      ]
+    },
+    {
+      "name": "section-5-bottom",
+      "pixel": [
+        1494.0,
+        512.0
+      ]
+    },
+    {
+      "name": "section-6-top",
+      "pixel": [
+        1667.0,
+        335.0
+      ]
+    },
+    {
+      "name": "section-6-bottom",
+      "pixel": [
+        1667.0,
+        514.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-baseball-bat-202ef7e755.family.json",
+    "sha256": "bde325806ac48c64480ad5cb0f17e78027b9e4d486e88de11e3e2fbf07ac79c0"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/7a1bbb04dfc40b02fb59b467a9a9b43b1643ec75799ff6176fa26aeeb34c78e3.png",
+      "sha256": "7a1bbb04dfc40b02fb59b467a9a9b43b1643ec75799ff6176fa26aeeb34c78e3"
+    },
+    "clayReference": {
+      "path": "inputs/3983e668e0e03258c6e99bce30462b5372149ae2e7ffe07044b51c7986c69c7b.png",
+      "sha256": "3983e668e0e03258c6e99bce30462b5372149ae2e7ffe07044b51c7986c69c7b"
+    },
+    "geometry": {
+      "path": "inputs/a16a4f8c097a82c14522c183515b1861cd7ecc8e19ad63b285d4b6834879d22b.png",
+      "sha256": "a16a4f8c097a82c14522c183515b1861cd7ecc8e19ad63b285d4b6834879d22b"
+    },
+    "detail": {
+      "path": "inputs/2807949959b324be694cc0a532edd518c025b811c0bd155d0f79b91ce9948ae6.png",
+      "sha256": "2807949959b324be694cc0a532edd518c025b811c0bd155d0f79b91ce9948ae6"
+    },
+    "foregroundMask": {
+      "path": "inputs/cff67146ebf6c8d1816a401ce22d7c01a401efed187707ad68725570aa4b294d.png",
+      "sha256": "cff67146ebf6c8d1816a401ce22d7c01a401efed187707ad68725570aa4b294d"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/32de3fcfd924a0a669b188726215d7d392b01d2fb6308000afe6d42bdedf32c3.png",
+      "sha256": "32de3fcfd924a0a669b188726215d7d392b01d2fb6308000afe6d42bdedf32c3"
+    },
+    "mask": {
+      "path": "inputs/32de3fcfd924a0a669b188726215d7d392b01d2fb6308000afe6d42bdedf32c3.png",
+      "sha256": "32de3fcfd924a0a669b188726215d7d392b01d2fb6308000afe6d42bdedf32c3"
+    },
+    "calibrationReference": {
+      "path": "inputs/4a3bbcf863aa29055bf9b11362de83b2040ad78d31e9f8514328b6baa90f4e4b.png",
+      "sha256": "4a3bbcf863aa29055bf9b11362de83b2040ad78d31e9f8514328b6baa90f4e4b"
+    },
+    "sourceAudit": {
+      "path": "inputs/52e867e5c0690ce7b63b9125b88f8a523869536a29f404faba661ec0223ae746.json",
+      "sha256": "52e867e5c0690ce7b63b9125b88f8a523869536a29f404faba661ec0223ae746"
+    },
+    "referenceApproval": {
+      "path": "inputs/314b3a4d84e383cec088867f99d4b309280ce31107fa66aa4861d841522333db.json",
+      "sha256": "314b3a4d84e383cec088867f99d4b309280ce31107fa66aa4861d841522333db"
+    },
+    "calibrationDetail": {
+      "path": "inputs/7d34f6763e2ec703ebfa8dfccd9e1cb11066f22cba5bd0118df7495ef2e53d7d.png",
+      "sha256": "7d34f6763e2ec703ebfa8dfccd9e1cb11066f22cba5bd0118df7495ef2e53d7d"
+    }
+  },
+  "features": [
+    {
+      "name": "Recognizable ordinary baseball-bat silhouette",
+      "placementReviewed": true
+    },
+    {
+      "name": "Unmodified sporting object",
+      "placementReviewed": true
+    },
+    {
+      "name": "Ordinary unmodified baseball bat matches the explicitly named improvised object; wooden finish and exact proportions are artistic choices. Arsenal specifies Clubs skill. Uniform neutral gray, smooth continuous taper and rounded ends. Wood grain, knots, shallow cuts and recesses removed; no tiny grooves or added panels visible. Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. ",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7a1bbb04dfc40b02fb59b467a9a9b43b1643ec75799ff6176fa26aeeb34c78e3",
+      "imageSha256": "2807949959b324be694cc0a532edd518c025b811c0bd155d0f79b91ce9948ae6",
+      "maskSha256": "cff67146ebf6c8d1816a401ce22d7c01a401efed187707ad68725570aa4b294d",
+      "notes": "Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. "
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3983e668e0e03258c6e99bce30462b5372149ae2e7ffe07044b51c7986c69c7b",
+      "imageSha256": "a16a4f8c097a82c14522c183515b1861cd7ecc8e19ad63b285d4b6834879d22b",
+      "maskSha256": "32de3fcfd924a0a669b188726215d7d392b01d2fb6308000afe6d42bdedf32c3",
+      "notes": "Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. "
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Ordinary unmodified baseball bat matches the explicitly named improvised object; wooden finish and exact proportions are artistic choices. Arsenal specifies Clubs skill. Uniform neutral gray, smooth continuous taper and rounded ends. Wood grain, knots, shallow cuts and recesses removed; no tiny grooves or added panels visible. Assigned sole visual reviewer inspected source evidence/current originals, independent native solid masks/teal and final2048 masks/teal/overlay. Entire object/tips/ends and major construction boundaries retained with no through openings to preserve; no detached subject, clipped edge, broad fringe or cast-shadow inclusion. All raw RGB preserved in native foreground. Same camera, no warp or independent framing transform. Raw1774x887 pair is resampled into2048 square with one common crop/scale/offset; not native2K. ",
+      "landmarks": [
+        {
+          "name": "section-0-top",
+          "detail": [
+            0.09542033228986758,
+            0.48318728885135137
+          ],
+          "geometry": [
+            0.09542033228986758,
+            0.48266997466216216
+          ]
+        },
+        {
+          "name": "section-0-bottom",
+          "detail": [
+            0.09542033228986758,
+            0.517847339527027
+          ],
+          "geometry": [
+            0.09542033228986758,
+            0.5183646537162162
+          ]
+        },
+        {
+          "name": "section-1-top",
+          "detail": [
+            0.1850965430699482,
+            0.4868084881756757
+          ],
+          "geometry": [
+            0.1850965430699482,
+            0.48629117398648647
+          ]
+        },
+        {
+          "name": "section-1-bottom",
+          "detail": [
+            0.1850965430699482,
+            0.5147434543918918
+          ],
+          "geometry": [
+            0.1850965430699482,
+            0.5147434543918918
+          ]
+        },
+        {
+          "name": "section-2-top",
+          "detail": [
+            0.3198700390400115,
+            0.48473923141891895
+          ],
+          "geometry": [
+            0.3198700390400115,
+            0.48422191722972974
+          ]
+        },
+        {
+          "name": "section-2-bottom",
+          "detail": [
+            0.3198700390400115,
+            0.5168127111486487
+          ],
+          "geometry": [
+            0.3198700390400115,
+            0.5168127111486487
+          ]
+        },
+        {
+          "name": "section-3-top",
+          "detail": [
+            0.49974082020005756,
+            0.47335831925675675
+          ],
+          "geometry": [
+            0.49974082020005756,
+            0.47284100506756754
+          ]
+        },
+        {
+          "name": "section-3-bottom",
+          "detail": [
+            0.49974082020005756,
+            0.5276763091216217
+          ],
+          "geometry": [
+            0.49974082020005756,
+            0.5276763091216217
+          ]
+        },
+        {
+          "name": "section-4-top",
+          "detail": [
+            0.6796116013601037,
+            0.4593908361486487
+          ],
+          "geometry": [
+            0.6796116013601037,
+            0.45887352195945946
+          ]
+        },
+        {
+          "name": "section-4-bottom",
+          "detail": [
+            0.6796116013601037,
+            0.5411264780405405
+          ],
+          "geometry": [
+            0.6796116013601037,
+            0.5411264780405405
+          ]
+        },
+        {
+          "name": "section-5-top",
+          "detail": [
+            0.814385097330167,
+            0.45525232263513515
+          ],
+          "geometry": [
+            0.814385097330167,
+            0.45421769425675673
+          ]
+        },
+        {
+          "name": "section-5-bottom",
+          "detail": [
+            0.814385097330167,
+            0.5452649915540541
+          ],
+          "geometry": [
+            0.814385097330167,
+            0.5447476773648648
+          ]
+        },
+        {
+          "name": "section-6-top",
+          "detail": [
+            0.9040613081102475,
+            0.4537003800675676
+          ],
+          "geometry": [
+            0.9040613081102475,
+            0.45318306587837837
+          ]
+        },
+        {
+          "name": "section-6-bottom",
+          "detail": [
+            0.9040613081102475,
+            0.5468169341216216
+          ],
+          "geometry": [
+            0.9040613081102475,
+            0.5462996199324325
+          ]
+        }
+      ],
+      "referenceSha256": "7a1bbb04dfc40b02fb59b467a9a9b43b1643ec75799ff6176fa26aeeb34c78e3",
+      "geometrySha256": "a16a4f8c097a82c14522c183515b1861cd7ecc8e19ad63b285d4b6834879d22b",
+      "detailSha256": "2807949959b324be694cc0a532edd518c025b811c0bd155d0f79b91ce9948ae6",
+      "foregroundMaskSha256": "cff67146ebf6c8d1816a401ce22d7c01a401efed187707ad68725570aa4b294d",
+      "geometryForegroundMaskSha256": "32de3fcfd924a0a669b188726215d7d392b01d2fb6308000afe6d42bdedf32c3"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

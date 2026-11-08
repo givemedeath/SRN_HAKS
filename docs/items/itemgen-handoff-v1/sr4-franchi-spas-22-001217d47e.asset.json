@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-franchi-spas-22-001217d47e",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "folded-stock-top-at-column400",
+      "pixel": [
+        400.0,
+        371.00000000000006
+      ]
+    },
+    {
+      "name": "grip-heel-at-column120",
+      "pixel": [
+        120.0,
+        788.9999999999999
+      ]
+    },
+    {
+      "name": "muzzle-end-at-row520",
+      "pixel": [
+        1239.0,
+        520.0
+      ]
+    },
+    {
+      "name": "shock-pad-back-at-row600",
+      "pixel": [
+        29.000000000000007,
+        599.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-franchi-spas-22-001217d47e.family.json",
+    "sha256": "0a8eff74c36cd0a6cd6df9fc7c46475dac5f3cc919c8aa7cb0857dbe879a79be"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c9a6d3f95d5c0f598367658469c9105a309430ce3de6caee7ba64a018f56d130.png",
+      "sha256": "c9a6d3f95d5c0f598367658469c9105a309430ce3de6caee7ba64a018f56d130"
+    },
+    "clayReference": {
+      "path": "inputs/3145c3fe5b534e07243e77f54398a038d1bacf0b0ee34dc965e20f2e04ea4a60.png",
+      "sha256": "3145c3fe5b534e07243e77f54398a038d1bacf0b0ee34dc965e20f2e04ea4a60"
+    },
+    "geometry": {
+      "path": "inputs/e0974479876248aab8193ce1e5ec31dec10650f6017ae105aa9294c9035e3527.png",
+      "sha256": "e0974479876248aab8193ce1e5ec31dec10650f6017ae105aa9294c9035e3527"
+    },
+    "detail": {
+      "path": "inputs/b415b5fada13adeb5cb6aafaf3b4f442c69318d72a56ff82f7b17ab5613ec971.png",
+      "sha256": "b415b5fada13adeb5cb6aafaf3b4f442c69318d72a56ff82f7b17ab5613ec971"
+    },
+    "foregroundMask": {
+      "path": "inputs/eb6453bfd585388e318df87b1036773a197c8ebef700d699f235f8b6b1ad0965.png",
+      "sha256": "eb6453bfd585388e318df87b1036773a197c8ebef700d699f235f8b6b1ad0965"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/ea825d72b1f6b703d79b6beac07275aac6178162aba948e0bef1025edba43b86.png",
+      "sha256": "ea825d72b1f6b703d79b6beac07275aac6178162aba948e0bef1025edba43b86"
+    },
+    "mask": {
+      "path": "inputs/ea825d72b1f6b703d79b6beac07275aac6178162aba948e0bef1025edba43b86.png",
+      "sha256": "ea825d72b1f6b703d79b6beac07275aac6178162aba948e0bef1025edba43b86"
+    },
+    "calibrationReference": {
+      "path": "inputs/b7549cd442b766dbb1e53942505d02902727098d99affe6fb3c015ac425fc546.png",
+      "sha256": "b7549cd442b766dbb1e53942505d02902727098d99affe6fb3c015ac425fc546"
+    },
+    "sourceAudit": {
+      "path": "inputs/2d057f0a96a4b0065c05a91e9dffd747b7b24f21ac6b9e01a4c9019c2f56e25a.json",
+      "sha256": "2d057f0a96a4b0065c05a91e9dffd747b7b24f21ac6b9e01a4c9019c2f56e25a"
+    },
+    "referenceApproval": {
+      "path": "inputs/7525522474d814552abfabe9dffe68a68820912bb3433286741a72607830f49e.json",
+      "sha256": "7525522474d814552abfabe9dffe68a68820912bb3433286741a72607830f49e"
+    },
+    "calibrationDetail": {
+      "path": "inputs/046fc6a74db3a8d5c9c0587cb31649c49f1214369e0431749d57bec4272c4071.png",
+      "sha256": "046fc6a74db3a8d5c9c0587cb31649c49f1214369e0431749d57bec4272c4071"
+    }
+  },
+  "features": [
+    {
+      "name": "Folding stock with shock pad and internal smartgun system",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own SPAS-22 art: compact rounded upper/body, short forward muzzle, raked grip and trigger opening; retain major stock/body boundaries",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole final reference reviewer inspected actual corrected raw clay, native independent foreground/masks, final2048 detail/clay teal images, clay mask and paired overlay against retained Arsenal printed28/PDF30 SPAS-22 authority. Rounded assault-shotgun body, folded shock-pad stock, thin upper stock members, major hinges/pivots, broad central part recesses, raised controls, raked grip and real trigger/guard opening retain matching structure and complete framing. Former shallow pad-face channels and tiny muzzle slot are filled in the new generated clay; grip texture, side vents, fine fastener-face recesses and small surface channels are smooth. Broad circular stock joints and large part boundaries remain structural. Independent alpha masks preserve the real guard opening and actual thin parts; no mask transfer/warp. Original detailed matte discarded only two one-pixel guard-edge AA fringe labels, not subject parts; normalization itself discarded zero components and filled zero holes. Common uniform crop/resampling only; native1254square RGB opaque originals honestly resampled2048. Selected clay is the new v50 generated correction, not any rejected manual trial. Reference-only approval; no geometry/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        397,
+        989,
+        502,
+        1081
+      ],
+      "referenceAreaPixels": 8377,
+      "referenceMaskSha256": "ea825d72b1f6b703d79b6beac07275aac6178162aba948e0bef1025edba43b86",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c9a6d3f95d5c0f598367658469c9105a309430ce3de6caee7ba64a018f56d130",
+      "imageSha256": "b415b5fada13adeb5cb6aafaf3b4f442c69318d72a56ff82f7b17ab5613ec971",
+      "maskSha256": "eb6453bfd585388e318df87b1036773a197c8ebef700d699f235f8b6b1ad0965",
+      "notes": "Assigned sole final reference reviewer inspected actual corrected raw clay, native independent foreground/masks, final2048 detail/clay teal images, clay mask and paired overlay against retained Arsenal printed28/PDF30 SPAS-22 authority. Rounded assault-shotgun body, folded shock-pad stock, thin upper stock members, major hinges/pivots, broad central part recesses, raised controls, raked grip and real trigger/guard opening retain matching structure and complete framing. Former shallow pad-face channels and tiny muzzle slot are filled in the new generated clay; grip texture, side vents, fine fastener-face recesses and small surface channels are smooth. Broad circular stock joints and large part boundaries remain structural. Independent alpha masks preserve the real guard opening and actual thin parts; no mask transfer/warp. Original detailed matte discarded only two one-pixel guard-edge AA fringe labels, not subject parts; normalization itself discarded zero components and filled zero holes. Common uniform crop/resampling only; native1254square RGB opaque originals honestly resampled2048. Selected clay is the new v50 generated correction, not any rejected manual trial. Reference-only approval; no geometry/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3145c3fe5b534e07243e77f54398a038d1bacf0b0ee34dc965e20f2e04ea4a60",
+      "imageSha256": "e0974479876248aab8193ce1e5ec31dec10650f6017ae105aa9294c9035e3527",
+      "maskSha256": "ea825d72b1f6b703d79b6beac07275aac6178162aba948e0bef1025edba43b86",
+      "notes": "Assigned sole final reference reviewer inspected actual corrected raw clay, native independent foreground/masks, final2048 detail/clay teal images, clay mask and paired overlay against retained Arsenal printed28/PDF30 SPAS-22 authority. Rounded assault-shotgun body, folded shock-pad stock, thin upper stock members, major hinges/pivots, broad central part recesses, raised controls, raked grip and real trigger/guard opening retain matching structure and complete framing. Former shallow pad-face channels and tiny muzzle slot are filled in the new generated clay; grip texture, side vents, fine fastener-face recesses and small surface channels are smooth. Broad circular stock joints and large part boundaries remain structural. Independent alpha masks preserve the real guard opening and actual thin parts; no mask transfer/warp. Original detailed matte discarded only two one-pixel guard-edge AA fringe labels, not subject parts; normalization itself discarded zero components and filled zero holes. Common uniform crop/resampling only; native1254square RGB opaque originals honestly resampled2048. Selected clay is the new v50 generated correction, not any rejected manual trial. Reference-only approval; no geometry/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole final reference reviewer inspected actual corrected raw clay, native independent foreground/masks, final2048 detail/clay teal images, clay mask and paired overlay against retained Arsenal printed28/PDF30 SPAS-22 authority. Rounded assault-shotgun body, folded shock-pad stock, thin upper stock members, major hinges/pivots, broad central part recesses, raised controls, raked grip and real trigger/guard opening retain matching structure and complete framing. Former shallow pad-face channels and tiny muzzle slot are filled in the new generated clay; grip texture, side vents, fine fastener-face recesses and small surface channels are smooth. Broad circular stock joints and large part boundaries remain structural. Independent alpha masks preserve the real guard opening and actual thin parts; no mask transfer/warp. Original detailed matte discarded only two one-pixel guard-edge AA fringe labels, not subject parts; normalization itself discarded zero components and filled zero holes. Common uniform crop/resampling only; native1254square RGB opaque originals honestly resampled2048. Selected clay is the new v50 generated correction, not any rejected manual trial. Reference-only approval; no geometry/client/production approval.",
+      "landmarks": [
+        {
+          "name": "folded-stock-top-at-column400",
+          "detail": [
+            0.33131457270408166,
+            0.3457077314268868
+          ],
+          "geometry": [
+            0.33131457270408166,
+            0.3457077314268868
+          ]
+        },
+        {
+          "name": "grip-heel-at-column120",
+          "detail": [
+            0.1255110012755102,
+            0.6528228183962264
+          ],
+          "geometry": [
+            0.1255110012755102,
+            0.6535575434846699
+          ]
+        },
+        {
+          "name": "muzzle-end-at-row520",
+          "detail": [
+            0.9479902742346938,
+            0.4551817696049528
+          ],
+          "geometry": [
+            0.948725286989796,
+            0.4551817696049528
+          ]
+        },
+        {
+          "name": "shock-pad-back-at-row600",
+          "detail": [
+            0.058624840561224495,
+            0.5139597766804245
+          ],
+          "geometry": [
+            0.05788982780612245,
+            0.5139597766804245
+          ]
+        }
+      ],
+      "referenceSha256": "c9a6d3f95d5c0f598367658469c9105a309430ce3de6caee7ba64a018f56d130",
+      "geometrySha256": "e0974479876248aab8193ce1e5ec31dec10650f6017ae105aa9294c9035e3527",
+      "detailSha256": "b415b5fada13adeb5cb6aafaf3b4f442c69318d72a56ff82f7b17ab5613ec971",
+      "foregroundMaskSha256": "eb6453bfd585388e318df87b1036773a197c8ebef700d699f235f8b6b1ad0965",
+      "geometryForegroundMaskSha256": "ea825d72b1f6b703d79b6beac07275aac6178162aba948e0bef1025edba43b86"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

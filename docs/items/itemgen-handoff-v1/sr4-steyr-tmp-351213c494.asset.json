@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-steyr-tmp-351213c494",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle",
+      "pixel": [
+        1206.0,
+        355.0
+      ]
+    },
+    {
+      "name": "front-fastener",
+      "pixel": [
+        942.0,
+        429.0
+      ]
+    },
+    {
+      "name": "magazine-base",
+      "pixel": [
+        196.99999999999997,
+        998.0
+      ]
+    },
+    {
+      "name": "trigger-opening",
+      "pixel": [
+        674.0,
+        524.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-steyr-tmp-351213c494.family.json",
+    "sha256": "f3f62089bb5765967e7ff0dd89552ebdef3187a5e63f70a75ad5c22da6c24cdd"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/331cdd5949e43c5f87d28a813e1587142cf97b4e0030d97e77263285ba29330f.png",
+      "sha256": "331cdd5949e43c5f87d28a813e1587142cf97b4e0030d97e77263285ba29330f"
+    },
+    "clayReference": {
+      "path": "inputs/eee72987b118af3e3b87f22a3e3a313c452a97d1596837016aee3d4a2f1fa706.png",
+      "sha256": "eee72987b118af3e3b87f22a3e3a313c452a97d1596837016aee3d4a2f1fa706"
+    },
+    "geometry": {
+      "path": "inputs/892b891cde6b3db548b4d93be722328c2f46fe21f6cf4b7f448f3cf23ddbdf16.png",
+      "sha256": "892b891cde6b3db548b4d93be722328c2f46fe21f6cf4b7f448f3cf23ddbdf16"
+    },
+    "detail": {
+      "path": "inputs/ba9b08be48bbf1d55aba9f5c377489c0e4b479879eea3f62f11e129d4e71e3fd.png",
+      "sha256": "ba9b08be48bbf1d55aba9f5c377489c0e4b479879eea3f62f11e129d4e71e3fd"
+    },
+    "foregroundMask": {
+      "path": "inputs/7b1792c1f4010f3720d6b9392d29e2feb92185eeb3a2da8fc51a9072cd4b3065.png",
+      "sha256": "7b1792c1f4010f3720d6b9392d29e2feb92185eeb3a2da8fc51a9072cd4b3065"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/df539d7f78e473b735d92ea06cae8e2ad987f93c36e916bdc6d9bc4c94f1c028.png",
+      "sha256": "df539d7f78e473b735d92ea06cae8e2ad987f93c36e916bdc6d9bc4c94f1c028"
+    },
+    "mask": {
+      "path": "inputs/df539d7f78e473b735d92ea06cae8e2ad987f93c36e916bdc6d9bc4c94f1c028.png",
+      "sha256": "df539d7f78e473b735d92ea06cae8e2ad987f93c36e916bdc6d9bc4c94f1c028"
+    },
+    "calibrationReference": {
+      "path": "inputs/cfe43b1116f8d6466a8877ae268342e6a795b3c7742ce68524e38cf2aaebc1ca.png",
+      "sha256": "cfe43b1116f8d6466a8877ae268342e6a795b3c7742ce68524e38cf2aaebc1ca"
+    },
+    "sourceAudit": {
+      "path": "inputs/fc194c709274a9425cd8af2b8911b4ae81d65cb3bff78628041034dff7b46153.json",
+      "sha256": "fc194c709274a9425cd8af2b8911b4ae81d65cb3bff78628041034dff7b46153"
+    },
+    "referenceApproval": {
+      "path": "inputs/21bf366e71ba3a9d30139843a73a14514023c33bd35c1c374e1f24a55c1dcd59.json",
+      "sha256": "21bf366e71ba3a9d30139843a73a14514023c33bd35c1c374e1f24a55c1dcd59"
+    },
+    "calibrationDetail": {
+      "path": "inputs/627aadb1022985f4e044fc878c644d76a0fb2a4cf281eac54a201415068d629d.png",
+      "sha256": "627aadb1022985f4e044fc878c644d76a0fb2a4cf281eac54a201415068d629d"
+    }
+  },
+  "features": [
+    {
+      "name": "Lightweight polymer-frame automatic pistol without recoil compensation (description).",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve the compact angular upper body, swept pistol grip, trigger-guard opening and small forward underside assembly visible in the drawing.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Sole derived-pair approval reused; actual newly conditioned overlay and clay inspected once. Smooth3tinyspots, raised outerfastener hardware/magplate boundaries and trigger/thinframe opening intact; aligned silhouette/framing. Topology unchanged; native1254 resampled2048, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        892,
+        745,
+        1273,
+        975
+      ],
+      "referenceAreaPixels": 54934,
+      "referenceMaskSha256": "df539d7f78e473b735d92ea06cae8e2ad987f93c36e916bdc6d9bc4c94f1c028",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "331cdd5949e43c5f87d28a813e1587142cf97b4e0030d97e77263285ba29330f",
+      "imageSha256": "ba9b08be48bbf1d55aba9f5c377489c0e4b479879eea3f62f11e129d4e71e3fd",
+      "maskSha256": "7b1792c1f4010f3720d6b9392d29e2feb92185eeb3a2da8fc51a9072cd4b3065",
+      "notes": "Sole derived-pair approval reused; actual newly conditioned overlay and clay inspected once. Smooth3tinyspots, raised outerfastener hardware/magplate boundaries and trigger/thinframe opening intact; aligned silhouette/framing. Topology unchanged; native1254 resampled2048, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "eee72987b118af3e3b87f22a3e3a313c452a97d1596837016aee3d4a2f1fa706",
+      "imageSha256": "892b891cde6b3db548b4d93be722328c2f46fe21f6cf4b7f448f3cf23ddbdf16",
+      "maskSha256": "df539d7f78e473b735d92ea06cae8e2ad987f93c36e916bdc6d9bc4c94f1c028",
+      "notes": "Sole derived-pair approval reused; actual newly conditioned overlay and clay inspected once. Smooth3tinyspots, raised outerfastener hardware/magplate boundaries and trigger/thinframe opening intact; aligned silhouette/framing. Topology unchanged; native1254 resampled2048, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Sole derived-pair approval reused; actual newly conditioned overlay and clay inspected once. Smooth3tinyspots, raised outerfastener hardware/magplate boundaries and trigger/thinframe opening intact; aligned silhouette/framing. Topology unchanged; native1254 resampled2048, not native2K.",
+      "landmarks": [
+        {
+          "name": "muzzle",
+          "detail": [
+            0.9393751676502146,
+            0.2882931539221219
+          ],
+          "geometry": [
+            0.9393751676502146,
+            0.2882931539221219
+          ]
+        },
+        {
+          "name": "front-fastener",
+          "detail": [
+            0.7353381504828326,
+            0.3454694554176072
+          ],
+          "geometry": [
+            0.7353381504828326,
+            0.3454694554176072
+          ]
+        },
+        {
+          "name": "magazine-base",
+          "detail": [
+            0.15955187097639484,
+            0.7851088547545146
+          ],
+          "geometry": [
+            0.15955187097639484,
+            0.7851088547545146
+          ]
+        },
+        {
+          "name": "trigger-opening",
+          "detail": [
+            0.528209663358369,
+            0.4188714640942438
+          ],
+          "geometry": [
+            0.528209663358369,
+            0.4188714640942438
+          ]
+        }
+      ],
+      "referenceSha256": "331cdd5949e43c5f87d28a813e1587142cf97b4e0030d97e77263285ba29330f",
+      "geometrySha256": "892b891cde6b3db548b4d93be722328c2f46fe21f6cf4b7f448f3cf23ddbdf16",
+      "detailSha256": "ba9b08be48bbf1d55aba9f5c377489c0e4b479879eea3f62f11e129d4e71e3fd",
+      "geometryForegroundMaskSha256": "df539d7f78e473b735d92ea06cae8e2ad987f93c36e916bdc6d9bc4c94f1c028",
+      "foregroundMaskSha256": "7b1792c1f4010f3720d6b9392d29e2feb92185eeb3a2da8fc51a9072cd4b3065"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

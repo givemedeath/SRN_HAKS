@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-s-iii-super-squirt-47faa946f6",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-upper",
+      "pixel": [
+        90.0,
+        403.99999999999994
+      ]
+    },
+    {
+      "name": "magazine-base",
+      "pixel": [
+        460.0,
+        965.9999999999999
+      ]
+    },
+    {
+      "name": "rear-grip-base",
+      "pixel": [
+        1160.0,
+        949.0
+      ]
+    },
+    {
+      "name": "rear-roof",
+      "pixel": [
+        1020.0,
+        296.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-s-iii-super-squirt-47faa946f6.family.json",
+    "sha256": "e30638448f642495b9e092d448382d14c5b46300e46cbcad05d0edd5166798b8"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/9294d5f029e588fac7bc31ed6ad410f0e0b368594882bcd3d4142a2b97199237.png",
+      "sha256": "9294d5f029e588fac7bc31ed6ad410f0e0b368594882bcd3d4142a2b97199237"
+    },
+    "clayReference": {
+      "path": "inputs/e90fcb810d9fb9e9dcddb4ce4b655d5544ab3143738f6c3b03fd9d382ba8fa70.png",
+      "sha256": "e90fcb810d9fb9e9dcddb4ce4b655d5544ab3143738f6c3b03fd9d382ba8fa70"
+    },
+    "geometry": {
+      "path": "inputs/f27df7c5bfad0d359bc8e3f57110d468fa0597f7b64a2b5d08ca2e0bcd582ba2.png",
+      "sha256": "f27df7c5bfad0d359bc8e3f57110d468fa0597f7b64a2b5d08ca2e0bcd582ba2"
+    },
+    "detail": {
+      "path": "inputs/ee6549718090facba739db4bd7afd3b7f02ed7f18ccbad5f8df7479bffe66f91.png",
+      "sha256": "ee6549718090facba739db4bd7afd3b7f02ed7f18ccbad5f8df7479bffe66f91"
+    },
+    "foregroundMask": {
+      "path": "inputs/326e96600e94d9f24785ec310ced964645f5cbb3395d1d149d3566c79d4291ab.png",
+      "sha256": "326e96600e94d9f24785ec310ced964645f5cbb3395d1d149d3566c79d4291ab"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/229d0511e0adc12249fe6c3e4f9d389e557bd1b028a1eda56459adde52b2db4e.png",
+      "sha256": "229d0511e0adc12249fe6c3e4f9d389e557bd1b028a1eda56459adde52b2db4e"
+    },
+    "mask": {
+      "path": "inputs/229d0511e0adc12249fe6c3e4f9d389e557bd1b028a1eda56459adde52b2db4e.png",
+      "sha256": "229d0511e0adc12249fe6c3e4f9d389e557bd1b028a1eda56459adde52b2db4e"
+    },
+    "calibrationReference": {
+      "path": "inputs/cef92ef029f225e0c323f67db6cae9038bd252a2390fbe5c352b9d2049370b06.png",
+      "sha256": "cef92ef029f225e0c323f67db6cae9038bd252a2390fbe5c352b9d2049370b06"
+    },
+    "sourceAudit": {
+      "path": "inputs/b186f31bf049d8d1704b308d4abcaf1383b39a99a8b15a0261869668bc89ff6d.json",
+      "sha256": "b186f31bf049d8d1704b308d4abcaf1383b39a99a8b15a0261869668bc89ff6d"
+    },
+    "referenceApproval": {
+      "path": "inputs/eade722bb8efa9c31e75257648ad45ffc116c49be74a086adf3c12dad0595f43.json",
+      "sha256": "eade722bb8efa9c31e75257648ad45ffc116c49be74a086adf3c12dad0595f43"
+    },
+    "calibrationDetail": {
+      "path": "inputs/4139f721b5e5163ffced6616836c92359a32ed0974c8bb70baf85ae9846e6fa5.png",
+      "sha256": "4139f721b5e5163ffced6616836c92359a32ed0974c8bb70baf85ae9846e6fa5"
+    }
+  },
+  "features": [
+    {
+      "name": "Non-lethal launcher delivering DMSO gel packs containing chemicals (description), not a conventional bullet-firing pistol.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve bulky pistol-like body, large multi-opening muzzle face, slanted forward magazine and rear pistol grip/trigger opening from the drawing.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual Super Squirt detail300/clay301 pair inspected against own Core printed309/PDF311 illustration and description: bulky upper body,multi-opening nose,forward-slanted magazine,rear grip and trigger opening are retained in the same perspective/framing. This depicts the non-lethal gel-launcher exterior;no conventional bullet-weapon substitution or internal/chemical instructions. Exact finish and hidden depth artistic. Matte clay retains major forms and openings;shallow channels and grip cuts are nonblocking per user. Genuine alpha,no clipping,floor or cast shadow. Native1254 originals retained;2048square is resampled.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1037,
+        1028,
+        1294,
+        1196
+      ],
+      "referenceAreaPixels": 32673,
+      "referenceMaskSha256": "229d0511e0adc12249fe6c3e4f9d389e557bd1b028a1eda56459adde52b2db4e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9294d5f029e588fac7bc31ed6ad410f0e0b368594882bcd3d4142a2b97199237",
+      "imageSha256": "ee6549718090facba739db4bd7afd3b7f02ed7f18ccbad5f8df7479bffe66f91",
+      "maskSha256": "326e96600e94d9f24785ec310ced964645f5cbb3395d1d149d3566c79d4291ab",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual Super Squirt detail300/clay301 pair inspected against own Core printed309/PDF311 illustration and description: bulky upper body,multi-opening nose,forward-slanted magazine,rear grip and trigger opening are retained in the same perspective/framing. This depicts the non-lethal gel-launcher exterior;no conventional bullet-weapon substitution or internal/chemical instructions. Exact finish and hidden depth artistic. Matte clay retains major forms and openings;shallow channels and grip cuts are nonblocking per user. Genuine alpha,no clipping,floor or cast shadow. Native1254 originals retained;2048square is resampled."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e90fcb810d9fb9e9dcddb4ce4b655d5544ab3143738f6c3b03fd9d382ba8fa70",
+      "imageSha256": "f27df7c5bfad0d359bc8e3f57110d468fa0597f7b64a2b5d08ca2e0bcd582ba2",
+      "maskSha256": "229d0511e0adc12249fe6c3e4f9d389e557bd1b028a1eda56459adde52b2db4e",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual Super Squirt detail300/clay301 pair inspected against own Core printed309/PDF311 illustration and description: bulky upper body,multi-opening nose,forward-slanted magazine,rear grip and trigger opening are retained in the same perspective/framing. This depicts the non-lethal gel-launcher exterior;no conventional bullet-weapon substitution or internal/chemical instructions. Exact finish and hidden depth artistic. Matte clay retains major forms and openings;shallow channels and grip cuts are nonblocking per user. Genuine alpha,no clipping,floor or cast shadow. Native1254 originals retained;2048square is resampled."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "9294d5f029e588fac7bc31ed6ad410f0e0b368594882bcd3d4142a2b97199237",
+      "detailSha256": "ee6549718090facba739db4bd7afd3b7f02ed7f18ccbad5f8df7479bffe66f91",
+      "geometrySha256": "f27df7c5bfad0d359bc8e3f57110d468fa0597f7b64a2b5d08ca2e0bcd582ba2",
+      "foregroundMaskSha256": "326e96600e94d9f24785ec310ced964645f5cbb3395d1d149d3566c79d4291ab",
+      "geometryForegroundMaskSha256": "229d0511e0adc12249fe6c3e4f9d389e557bd1b028a1eda56459adde52b2db4e",
+      "landmarks": [
+        {
+          "name": "muzzle-upper",
+          "detail": [
+            0.08747793540794979,
+            0.32776548032407404
+          ],
+          "geometry": [
+            0.08747793540794979,
+            0.3292730034722222
+          ]
+        },
+        {
+          "name": "magazine-base",
+          "detail": [
+            0.36625996992677823,
+            0.7513794849537037
+          ],
+          "geometry": [
+            0.36625996992677823,
+            0.7506257233796296
+          ]
+        },
+        {
+          "name": "rear-grip-base",
+          "detail": [
+            0.8936854406380753,
+            0.7385655381944445
+          ],
+          "geometry": [
+            0.8936854406380753,
+            0.7393192997685185
+          ]
+        },
+        {
+          "name": "rear-roof",
+          "detail": [
+            0.7882003464958159,
+            0.24635923032407409
+          ],
+          "geometry": [
+            0.7882003464958159,
+            0.24635923032407409
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual Super Squirt detail300/clay301 pair inspected against own Core printed309/PDF311 illustration and description: bulky upper body,multi-opening nose,forward-slanted magazine,rear grip and trigger opening are retained in the same perspective/framing. This depicts the non-lethal gel-launcher exterior;no conventional bullet-weapon substitution or internal/chemical instructions. Exact finish and hidden depth artistic. Matte clay retains major forms and openings;shallow channels and grip cuts are nonblocking per user. Genuine alpha,no clipping,floor or cast shadow. Native1254 originals retained;2048square is resampled."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

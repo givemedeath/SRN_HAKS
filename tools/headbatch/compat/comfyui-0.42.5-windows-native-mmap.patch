@@ -1,0 +1,19 @@
+--- a/comfy/utils.py
++++ b/comfy/utils.py
+@@ -162,7 +162,15 @@
+     metadata = None
+     if ckpt.lower().endswith(".safetensors") or ckpt.lower().endswith(".sft"):
+         try:
+-            if comfy.memory_management.aimdo_enabled:
++            native_mmap = comfy.memory_management.aimdo_enabled
++            if (not native_mmap and not DISABLE_MMAP and os.name == 'nt' and device.type == 'cpu'
++                    and os.environ.get('SRN_HEADKIT_NATIVE_MMAP') == '1'):
++                # Use the upstream file-backed reader without enabling the dynamic GPU patcher.
++                from comfy_aimdo import control
++                if control.lib is None and not control.init():
++                    raise RuntimeError('Cannot initialize the requested native safetensors reader')
++                native_mmap = True
++            if native_mmap:
+                 sd, metadata = load_safetensors(ckpt)
+                 if not return_metadata:
+                     metadata = None

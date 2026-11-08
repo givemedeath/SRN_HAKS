@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hammerheads-7817e46cbf",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "reviewed-feature-1",
+      "pixel": [
+        60.0,
+        620.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-2",
+      "pixel": [
+        1200.0,
+        620.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-3",
+      "pixel": [
+        854.9999999999999,
+        460.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-4",
+      "pixel": [
+        970.0,
+        620.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hammerheads-7817e46cbf.family.json",
+    "sha256": "7e80c02f02f9695d2b51a079474f0c028433d05f0f36e0845033ac4a85e12d9d"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/debdf69ef7a97edd1dfe82a380c866d10e14b998f02c991f0bb97f9c65a62d31.png",
+      "sha256": "debdf69ef7a97edd1dfe82a380c866d10e14b998f02c991f0bb97f9c65a62d31"
+    },
+    "clayReference": {
+      "path": "inputs/61d2bb7cd3a626fb5928eb2cabaeae8bda322abb3ae02f121f453456004fe991.png",
+      "sha256": "61d2bb7cd3a626fb5928eb2cabaeae8bda322abb3ae02f121f453456004fe991"
+    },
+    "geometry": {
+      "path": "inputs/bf31ab1971d357b1fce0f5947548cba95f5e91d2cf8e09c2713788a1509a132d.png",
+      "sha256": "bf31ab1971d357b1fce0f5947548cba95f5e91d2cf8e09c2713788a1509a132d"
+    },
+    "detail": {
+      "path": "inputs/5507b3ddfd40d461379cce90ba7c8978f1b985a21bce920a75eb05a0f47edd39.png",
+      "sha256": "5507b3ddfd40d461379cce90ba7c8978f1b985a21bce920a75eb05a0f47edd39"
+    },
+    "foregroundMask": {
+      "path": "inputs/6b6c8fe700e2437274363b84e4609b0979af27b2d060d7663c9c08a43aadd453.png",
+      "sha256": "6b6c8fe700e2437274363b84e4609b0979af27b2d060d7663c9c08a43aadd453"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/cff852eea9f15762effc216a723162e06efc323a85201b91e4cf35ba9a96502a.png",
+      "sha256": "cff852eea9f15762effc216a723162e06efc323a85201b91e4cf35ba9a96502a"
+    },
+    "mask": {
+      "path": "inputs/cff852eea9f15762effc216a723162e06efc323a85201b91e4cf35ba9a96502a.png",
+      "sha256": "cff852eea9f15762effc216a723162e06efc323a85201b91e4cf35ba9a96502a"
+    },
+    "calibrationReference": {
+      "path": "inputs/9e706a4e15445c10e658844abe87e08e37059635767747334b61f1242e9d4ec7.png",
+      "sha256": "9e706a4e15445c10e658844abe87e08e37059635767747334b61f1242e9d4ec7"
+    },
+    "sourceAudit": {
+      "path": "inputs/983e5b30c4f02479ba72d5565ca54b6c1eb0c650df5e35439a4b0c31488674f8.json",
+      "sha256": "983e5b30c4f02479ba72d5565ca54b6c1eb0c650df5e35439a4b0c31488674f8"
+    },
+    "referenceApproval": {
+      "path": "inputs/eec0c442e21ac9082efa0765efcd63908f73e90f0c6c3504fca2b7fc0f4cc3c2.json",
+      "sha256": "eec0c442e21ac9082efa0765efcd63908f73e90f0c6c3504fca2b7fc0f4cc3c2"
+    },
+    "calibrationDetail": {
+      "path": "inputs/2609e5bd462b651dfb3c0a722a389cad1cbda7bdeef51774d69779dcccc58a83.png",
+      "sha256": "2609e5bd462b651dfb3c0a722a389cad1cbda7bdeef51774d69779dcccc58a83"
+    }
+  },
+  "features": [
+    {
+      "name": "Blunt arrowhead, not sharp blade or hand-held hammer",
+      "placementReviewed": true
+    },
+    {
+      "name": "Own HAMMERHEAD art: broad blunt cap, short flared/tapered body and narrower attachment neck",
+      "placementReviewed": true
+    },
+    {
+      "name": "Fine threads/rings/markings belong to appearance, not clay surface cuts",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full blunt component, two broad structural recesses and rear neck retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "debdf69ef7a97edd1dfe82a380c866d10e14b998f02c991f0bb97f9c65a62d31",
+      "imageSha256": "5507b3ddfd40d461379cce90ba7c8978f1b985a21bce920a75eb05a0f47edd39",
+      "maskSha256": "6b6c8fe700e2437274363b84e4609b0979af27b2d060d7663c9c08a43aadd453",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full blunt component, two broad structural recesses and rear neck retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "61d2bb7cd3a626fb5928eb2cabaeae8bda322abb3ae02f121f453456004fe991",
+      "imageSha256": "bf31ab1971d357b1fce0f5947548cba95f5e91d2cf8e09c2713788a1509a132d",
+      "maskSha256": "cff852eea9f15762effc216a723162e06efc323a85201b91e4cf35ba9a96502a",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full blunt component, two broad structural recesses and rear neck retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full blunt component, two broad structural recesses and rear neck retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "reviewed-feature-1",
+          "detail": [
+            0.0636687005453379,
+            0.5028357872596154
+          ],
+          "geometry": [
+            0.0636687005453379,
+            0.5028357872596154
+          ]
+        },
+        {
+          "name": "reviewed-feature-2",
+          "detail": [
+            0.9417228600834047,
+            0.5028357872596154
+          ],
+          "geometry": [
+            0.9417228600834047,
+            0.5028357872596154
+          ]
+        },
+        {
+          "name": "reviewed-feature-3",
+          "detail": [
+            0.6759959433810948,
+            0.379638671875
+          ],
+          "geometry": [
+            0.6759959433810948,
+            0.379638671875
+          ]
+        },
+        {
+          "name": "reviewed-feature-4",
+          "detail": [
+            0.7645715822818648,
+            0.5028357872596154
+          ],
+          "geometry": [
+            0.7645715822818648,
+            0.5028357872596154
+          ]
+        }
+      ],
+      "referenceSha256": "debdf69ef7a97edd1dfe82a380c866d10e14b998f02c991f0bb97f9c65a62d31",
+      "geometrySha256": "bf31ab1971d357b1fce0f5947548cba95f5e91d2cf8e09c2713788a1509a132d",
+      "detailSha256": "5507b3ddfd40d461379cce90ba7c8978f1b985a21bce920a75eb05a0f47edd39",
+      "geometryForegroundMaskSha256": "cff852eea9f15762effc216a723162e06efc323a85201b91e4cf35ba9a96502a",
+      "foregroundMaskSha256": "6b6c8fe700e2437274363b84e4609b0979af27b2d060d7663c9c08a43aadd453"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

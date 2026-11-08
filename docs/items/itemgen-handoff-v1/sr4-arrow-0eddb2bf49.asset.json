@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-arrow-0eddb2bf49",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "reviewed-feature-1",
+      "pixel": [
+        30.0,
+        1175.0000000000002
+      ]
+    },
+    {
+      "name": "reviewed-feature-2",
+      "pixel": [
+        620.0,
+        620.0
+      ]
+    },
+    {
+      "name": "reviewed-feature-3",
+      "pixel": [
+        1000.0,
+        210.00000000000006
+      ]
+    },
+    {
+      "name": "reviewed-feature-4",
+      "pixel": [
+        1210.0,
+        40.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-arrow-0eddb2bf49.family.json",
+    "sha256": "623fe9d4acc9c6949167e4ef8cf88e01f497f490c5061f13167e7d135c8d6a65"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/712441a3067ec32b834df9fff3a6214cf236d321e8361d4da55617e76d81e202.png",
+      "sha256": "712441a3067ec32b834df9fff3a6214cf236d321e8361d4da55617e76d81e202"
+    },
+    "clayReference": {
+      "path": "inputs/125867018d42e1623ac9185446c56f5fda1004aeffd658fe013094e8e7c80da4.png",
+      "sha256": "125867018d42e1623ac9185446c56f5fda1004aeffd658fe013094e8e7c80da4"
+    },
+    "geometry": {
+      "path": "inputs/ec090cd935440e6ea26f45af63b6b6c126a9bc86b48d7d57b01b455c60a9f936.png",
+      "sha256": "ec090cd935440e6ea26f45af63b6b6c126a9bc86b48d7d57b01b455c60a9f936"
+    },
+    "detail": {
+      "path": "inputs/e85194961e53564cdbf62ed61466c86b612048deda5add9f9f687c9827eb9f26.png",
+      "sha256": "e85194961e53564cdbf62ed61466c86b612048deda5add9f9f687c9827eb9f26"
+    },
+    "foregroundMask": {
+      "path": "inputs/4101d7f3f365b8391ea979032fa68d713696d794cf8f35e6a472146d3a6dd1b8.png",
+      "sha256": "4101d7f3f365b8391ea979032fa68d713696d794cf8f35e6a472146d3a6dd1b8"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/17ce77ecb8d9b2898ea5c520bbc71e205a8de04c2bb0205381ca9b0f2458db4e.png",
+      "sha256": "17ce77ecb8d9b2898ea5c520bbc71e205a8de04c2bb0205381ca9b0f2458db4e"
+    },
+    "mask": {
+      "path": "inputs/17ce77ecb8d9b2898ea5c520bbc71e205a8de04c2bb0205381ca9b0f2458db4e.png",
+      "sha256": "17ce77ecb8d9b2898ea5c520bbc71e205a8de04c2bb0205381ca9b0f2458db4e"
+    },
+    "calibrationReference": {
+      "path": "inputs/3fc28a7ad7456456a4efbf0c4b6e44bf81296b5edc8c8e1181917e0f7cf0e622.png",
+      "sha256": "3fc28a7ad7456456a4efbf0c4b6e44bf81296b5edc8c8e1181917e0f7cf0e622"
+    },
+    "sourceAudit": {
+      "path": "inputs/b39e561b9a2c4d1cf209bd7c4ca236736b697d82e51890a15e896076f0ce7c51.json",
+      "sha256": "b39e561b9a2c4d1cf209bd7c4ca236736b697d82e51890a15e896076f0ce7c51"
+    },
+    "referenceApproval": {
+      "path": "inputs/7e12692d9e79474557c3f8067fff95373fff6a02f9094fb82337b336f1e2f26a.json",
+      "sha256": "7e12692d9e79474557c3f8067fff95373fff6a02f9094fb82337b336f1e2f26a"
+    },
+    "calibrationDetail": {
+      "path": "inputs/0c5ad8c754287edd8662fb94e7522bb57bf3707b67ae44d3816076c21344cc94.png",
+      "sha256": "0c5ad8c754287edd8662fb94e7522bb57bf3707b67ae44d3816076c21344cc94"
+    }
+  },
+  "features": [
+    {
+      "name": "Arrow ammunition identity distinct from crossbow bolt",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full slender shaft, head, thin vanes and exterior-connected U-nock retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "712441a3067ec32b834df9fff3a6214cf236d321e8361d4da55617e76d81e202",
+      "imageSha256": "e85194961e53564cdbf62ed61466c86b612048deda5add9f9f687c9827eb9f26",
+      "maskSha256": "4101d7f3f365b8391ea979032fa68d713696d794cf8f35e6a472146d3a6dd1b8",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full slender shaft, head, thin vanes and exterior-connected U-nock retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "125867018d42e1623ac9185446c56f5fda1004aeffd658fe013094e8e7c80da4",
+      "imageSha256": "ec090cd935440e6ea26f45af63b6b6c126a9bc86b48d7d57b01b455c60a9f936",
+      "maskSha256": "17ce77ecb8d9b2898ea5c520bbc71e205a8de04c2bb0205381ca9b0f2458db4e",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full slender shaft, head, thin vanes and exterior-connected U-nock retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned source/pair and actual foreground approvals reused; root inspected actual conditioned overlay. Full slender shaft, head, thin vanes and exterior-connected U-nock retained. Common framing and clear padding preserved. Native [1254, 1254] resampled2048; no additional image edits or cosmetic review.",
+      "landmarks": [
+        {
+          "name": "reviewed-feature-1",
+          "detail": [
+            0.05203706095041322,
+            0.9259214786650903
+          ],
+          "geometry": [
+            0.05203706095041322,
+            0.9259214786650903
+          ]
+        },
+        {
+          "name": "reviewed-feature-2",
+          "detail": [
+            0.49107050619834713,
+            0.5130194338456577
+          ],
+          "geometry": [
+            0.49107050619834713,
+            0.5130194338456577
+          ]
+        },
+        {
+          "name": "reviewed-feature-3",
+          "detail": [
+            0.7738378099173554,
+            0.20799269803310408
+          ],
+          "geometry": [
+            0.7738378099173554,
+            0.20799269803310408
+          ]
+        },
+        {
+          "name": "reviewed-feature-4",
+          "detail": [
+            0.930103951446281,
+            0.08151819781814273
+          ],
+          "geometry": [
+            0.930103951446281,
+            0.08151819781814273
+          ]
+        }
+      ],
+      "referenceSha256": "712441a3067ec32b834df9fff3a6214cf236d321e8361d4da55617e76d81e202",
+      "geometrySha256": "ec090cd935440e6ea26f45af63b6b6c126a9bc86b48d7d57b01b455c60a9f936",
+      "detailSha256": "e85194961e53564cdbf62ed61466c86b612048deda5add9f9f687c9827eb9f26",
+      "geometryForegroundMaskSha256": "17ce77ecb8d9b2898ea5c520bbc71e205a8de04c2bb0205381ca9b0f2458db4e",
+      "foregroundMaskSha256": "4101d7f3f365b8391ea979032fa68d713696d794cf8f35e6a472146d3a6dd1b8"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

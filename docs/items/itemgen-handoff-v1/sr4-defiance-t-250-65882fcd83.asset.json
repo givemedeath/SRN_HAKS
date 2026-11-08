@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-defiance-t-250-65882fcd83",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-muzzle-left",
+      "pixel": [
+        42.0,
+        251.99999999999997
+      ]
+    },
+    {
+      "name": "receiver-top-rear",
+      "pixel": [
+        1075.0,
+        198.00000000000003
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        1041.0,
+        435.9999999999999
+      ]
+    },
+    {
+      "name": "grip-bottom",
+      "pixel": [
+        1291.0,
+        499.0
+      ]
+    },
+    {
+      "name": "buttpad-right-low",
+      "pixel": [
+        1903.0,
+        586.0
+      ]
+    },
+    {
+      "name": "lower-tube-front",
+      "pixel": [
+        67.0,
+        325.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-defiance-t-250-65882fcd83.family.json",
+    "sha256": "40dd214f5f9a69cad9e43b68b20cef290ea818ab36c53ebfc3b76b44d9cb2102"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/2c4b937c70a18c5b95b56cc6e5a7eb473b81a0bb4050e154eef006813fd4823a.png",
+      "sha256": "2c4b937c70a18c5b95b56cc6e5a7eb473b81a0bb4050e154eef006813fd4823a"
+    },
+    "clayReference": {
+      "path": "inputs/5df8f5e47e37ab3cd3b8cfbf54729179181a662b628a48ea3d4f95a55d485064.png",
+      "sha256": "5df8f5e47e37ab3cd3b8cfbf54729179181a662b628a48ea3d4f95a55d485064"
+    },
+    "geometry": {
+      "path": "inputs/ff4323a61375f0c3d74d61d93571b1ecc130a89598d08cc03380ea2635e07896.png",
+      "sha256": "ff4323a61375f0c3d74d61d93571b1ecc130a89598d08cc03380ea2635e07896"
+    },
+    "detail": {
+      "path": "inputs/830a4d6617a99d540e2eca9531edd929be863db95ab6ee40edd8c0377b2bf234.png",
+      "sha256": "830a4d6617a99d540e2eca9531edd929be863db95ab6ee40edd8c0377b2bf234"
+    },
+    "foregroundMask": {
+      "path": "inputs/43ef7a0d5315b3331d7c001856f95c9a7445cd9458ab90b9eca8b04b042e599c.png",
+      "sha256": "43ef7a0d5315b3331d7c001856f95c9a7445cd9458ab90b9eca8b04b042e599c"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/cc798297f0d6dd86294c662178b20fdbdd2908573fe18772806493781611bfe6.png",
+      "sha256": "cc798297f0d6dd86294c662178b20fdbdd2908573fe18772806493781611bfe6"
+    },
+    "mask": {
+      "path": "inputs/cc798297f0d6dd86294c662178b20fdbdd2908573fe18772806493781611bfe6.png",
+      "sha256": "cc798297f0d6dd86294c662178b20fdbdd2908573fe18772806493781611bfe6"
+    },
+    "calibrationReference": {
+      "path": "inputs/236e29e7aae0a4d79964eef4d7afa768e9a3ffd525847c98d7101bb810e5f8dd.png",
+      "sha256": "236e29e7aae0a4d79964eef4d7afa768e9a3ffd525847c98d7101bb810e5f8dd"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/260fd4e10627a75f60aaecc746d126994892482035c7d6fae64bba8b81739da1.json",
+      "sha256": "260fd4e10627a75f60aaecc746d126994892482035c7d6fae64bba8b81739da1"
+    },
+    "referenceApproval": {
+      "path": "inputs/6fa8182e23e8fba0032770f71f843e10a1f53ab3068b162bf6ff3e89aa23b6f2.json",
+      "sha256": "6fa8182e23e8fba0032770f71f843e10a1f53ab3068b162bf6ff3e89aa23b6f2"
+    },
+    "calibrationDetail": {
+      "path": "inputs/cf44243f50b8e1602236c620e461d1f5304b96423d4379c4190aebf08a7e94da.png",
+      "sha256": "cf44243f50b8e1602236c620e461d1f5304b96423d4379c4190aebf08a7e94da"
+    }
+  },
+  "features": [
+    {
+      "name": "Self-loading shotgun with normal and short-barreled variants",
+      "placementReviewed": true
+    },
+    {
+      "name": "Labeled T-250 illustration: traditional full stock, short fore-end and straight barrel arrangement",
+      "placementReviewed": true
+    },
+    {
+      "name": "Normal-length T250 full-stock form matches labeled Arsenal printed28/PDF30 artwork and description; palette/finish remain interpretation. Corrected smoothv13clay has buttpad micro slots and fine ring cuts filled while preserving major couplings/fore-end/stock transitions. Six paired landmarks pass2%; one shared uniform2048resampling transform. Detailed original1942x809 gains exactly1transparentpixel per side to1944x809,all original pixels atx+1 unchanged,no warp/rescale before common normalization. Independent masks preserve guard as the single intentional enclosed opening. Keep coupling opaque: raw detailed strip is metallic/dark RGB55,55,55 at590,285;155,157,156 at600,286;36,34,36 at620,286 versus backdrop212,212,213. Bright plate highlights do not establish background. Primary art does not establish tiny through-hole. Manual internal clay-alpha patch restores this solid coupling region without changing RGB. Actual guard opening stays intact.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1045,
+        976,
+        1148,
+        1036
+      ],
+      "referenceAreaPixels": 4432,
+      "referenceMaskSha256": "cc798297f0d6dd86294c662178b20fdbdd2908573fe18772806493781611bfe6",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "2c4b937c70a18c5b95b56cc6e5a7eb473b81a0bb4050e154eef006813fd4823a",
+      "imageSha256": "830a4d6617a99d540e2eca9531edd929be863db95ab6ee40edd8c0377b2bf234",
+      "maskSha256": "43ef7a0d5315b3331d7c001856f95c9a7445cd9458ab90b9eca8b04b042e599c",
+      "notes": "Assigned sole final reviewer viewed primary labeled art,exact raw pair,actual enlarged guard/coupling grids,native masks/teal and final2048masks/teal/overlay. Full silhouette,thin trigger and connected guard background intact; external narrow tube gap remains. No broad halo,cast shadow,clipping or detached foreground. Coupling remains opaque based on actual raw metallic/dark RGB unlike backdrop; tiny clay internal alpha voids explicitly corrected with a reviewed internal mask patch,not treated as canonical holes. No raw RGB changed; source originals retained byte-identically. No parent duplicate visual pass claimed."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "5df8f5e47e37ab3cd3b8cfbf54729179181a662b628a48ea3d4f95a55d485064",
+      "imageSha256": "ff4323a61375f0c3d74d61d93571b1ecc130a89598d08cc03380ea2635e07896",
+      "maskSha256": "cc798297f0d6dd86294c662178b20fdbdd2908573fe18772806493781611bfe6",
+      "notes": "Assigned sole final reviewer viewed primary labeled art,exact raw pair,actual enlarged guard/coupling grids,native masks/teal and final2048masks/teal/overlay. Full silhouette,thin trigger and connected guard background intact; external narrow tube gap remains. No broad halo,cast shadow,clipping or detached foreground. Coupling remains opaque based on actual raw metallic/dark RGB unlike backdrop; tiny clay internal alpha voids explicitly corrected with a reviewed internal mask patch,not treated as canonical holes. No raw RGB changed; source originals retained byte-identically. No parent duplicate visual pass claimed."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Normal-length T250 full-stock form matches labeled Arsenal printed28/PDF30 artwork and description; palette/finish remain interpretation. Corrected smoothv13clay has buttpad micro slots and fine ring cuts filled while preserving major couplings/fore-end/stock transitions. Six paired landmarks pass2%; one shared uniform2048resampling transform. Detailed original1942x809 gains exactly1transparentpixel per side to1944x809,all original pixels atx+1 unchanged,no warp/rescale before common normalization. Independent masks preserve guard as the single intentional enclosed opening. Keep coupling opaque: raw detailed strip is metallic/dark RGB55,55,55 at590,285;155,157,156 at600,286;36,34,36 at620,286 versus backdrop212,212,213. Bright plate highlights do not establish background. Primary art does not establish tiny through-hole. Manual internal clay-alpha patch restores this solid coupling region without changing RGB. Actual guard opening stays intact.",
+      "landmarks": [
+        {
+          "name": "upper-muzzle-left",
+          "detail": [
+            0.052208293012546717,
+            0.4233599101027397
+          ],
+          "geometry": [
+            0.050285408602509345,
+            0.4214379994292237
+          ]
+        },
+        {
+          "name": "receiver-top-rear",
+          "detail": [
+            0.5487931919046983,
+            0.397414116010274
+          ],
+          "geometry": [
+            0.5502353552122263,
+            0.39453125
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5324486744193806,
+            0.5117678010844748
+          ],
+          "geometry": [
+            0.53292939552189,
+            0.5136897117579909
+          ]
+        },
+        {
+          "name": "grip-bottom",
+          "detail": [
+            0.6526289500467165,
+            0.5420378941923516
+          ],
+          "geometry": [
+            0.6521482289442072,
+            0.5444402825342466
+          ]
+        },
+        {
+          "name": "buttpad-right-low",
+          "detail": [
+            0.9468302647824346,
+            0.5838394513413242
+          ],
+          "geometry": [
+            0.9501953125,
+            0.5905661386986302
+          ]
+        },
+        {
+          "name": "lower-tube-front",
+          "detail": [
+            0.0642263205752803,
+            0.4584347798944064
+          ],
+          "geometry": [
+            0.06182271506273358,
+            0.4589152575627854
+          ]
+        }
+      ],
+      "referenceSha256": "2c4b937c70a18c5b95b56cc6e5a7eb473b81a0bb4050e154eef006813fd4823a",
+      "geometrySha256": "ff4323a61375f0c3d74d61d93571b1ecc130a89598d08cc03380ea2635e07896",
+      "detailSha256": "830a4d6617a99d540e2eca9531edd929be863db95ab6ee40edd8c0377b2bf234",
+      "foregroundMaskSha256": "43ef7a0d5315b3331d7c001856f95c9a7445cd9458ab90b9eca8b04b042e599c",
+      "geometryForegroundMaskSha256": "cc798297f0d6dd86294c662178b20fdbdd2908573fe18772806493781611bfe6"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

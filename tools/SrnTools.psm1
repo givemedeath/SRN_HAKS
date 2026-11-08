@@ -17,7 +17,7 @@ namespace SrnCanonicalPaths {
 }
 function Resolve-SrnRealPath {
     param([Parameter(Mandatory)][string]$Path)
-    $full = [IO.Path]::GetFullPath($Path); $root = [IO.Path]::GetPathRoot($full); $current = $root
+    $full = [IO.Path]::GetFullPath($Path, $PWD.ProviderPath); $root = [IO.Path]::GetPathRoot($full); $current = $root
     foreach ($part in $full.Substring($root.Length).Split([char[]]@('/', '\'), [StringSplitOptions]::RemoveEmptyEntries)) {
         $current = Join-Path $current $part
         if (Test-Path -LiteralPath $current) {
@@ -121,13 +121,24 @@ function Register-SrnToolUse {
         if (-not $lock.Length) { $lock.WriteByte(48); $lock.Flush() }
         $refs = @(@{path=$Tool.path; role='tool'; sha256=$Tool.sha256})
         foreach ($input in $Inputs) { $p=Resolve-SrnRealPath $input; $refs+=@{path=$p; role='input'; sha256=$(if (Test-Path $p -PathType Leaf) { (Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant() } else { $null })} }
-        $current=Join-Path $folder 'current.json'
-        if (Test-Path -LiteralPath $current) { $refs+=(Get-Content -Raw -Encoding utf8 $current | ConvertFrom-Json -AsHashtable).references }
+        # The run's own receipt holds this run's references; a repeat run that adds nothing leaves the rolling record alone.
+        $own=$refs; $current=Join-Path $folder 'current.json'; $changed=$true
+        if (Test-Path -LiteralPath $current) {
+            $previous=Get-Content -Raw -Encoding utf8 $current | ConvertFrom-Json -AsHashtable
+            $known=[Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+            foreach ($row in $previous.references) { $known[$row.role+':'+$row.path]=$row.sha256 }
+            $added=@($own | Where-Object { $key=$_.role+':'+$_.path; -not ($known.ContainsKey($key) -and $known[$key] -ceq $_.sha256) })
+            $changed=-not ($added.Count -eq 0 -and $previous.worktree -ceq $repo -and $previous.toolsRoot -ceq $Tool.toolsRoot -and $previous.rootOrigin -ceq $Tool.rootOrigin -and $previous.completeDeclaration -eq $false -and $previous.inventorySha256 -ceq $Tool.inventorySha256)
+            $refs+=$previous.references
+        }
         $refs=@($refs | Group-Object -CaseSensitive:(-not $IsWindows) -Property { $_.role+':'+$_.path } | ForEach-Object { $_.Group[0] })
-        $report=@{schemaVersion=1; kind='shared-tool-consumer'; worktree=$repo; createdUtc=[DateTime]::UtcNow.ToString('o'); toolsRoot=$Tool.toolsRoot; rootOrigin=$Tool.rootOrigin; completeDeclaration=$false; references=$refs; inventorySha256=$Tool.inventorySha256}
+        $report=@{schemaVersion=1; kind='shared-tool-consumer'; worktree=$repo; createdUtc=[DateTime]::UtcNow.ToString('o'); toolsRoot=$Tool.toolsRoot; rootOrigin=$Tool.rootOrigin; completeDeclaration=$false; references=$own; inventorySha256=$Tool.inventorySha256}
         $local=Join-Path $repo ('.tmp/tool-dependencies/'+[guid]::NewGuid().ToString('N')+'.json'); New-Item -ItemType Directory -Force -Path (Split-Path $local -Parent) | Out-Null
-        $json=($report | ConvertTo-Json -Depth 32)+"`n"; [IO.File]::WriteAllText($local,$json,[Text.UTF8Encoding]::new($false))
-        $temp="$current.$([guid]::NewGuid().ToString('N')).tmp"; [IO.File]::WriteAllText($temp,$json,[Text.UTF8Encoding]::new($false)); [IO.File]::Move($temp,$current,$true)
+        [IO.File]::WriteAllText($local,($report | ConvertTo-Json -Depth 32)+"`n",[Text.UTF8Encoding]::new($false))
+        if ($changed) {
+            $report.references=$refs
+            $temp="$current.$([guid]::NewGuid().ToString('N')).tmp"; [IO.File]::WriteAllText($temp,($report | ConvertTo-Json -Depth 32)+"`n",[Text.UTF8Encoding]::new($false)); [IO.File]::Move($temp,$current,$true)
+        }
     } finally { if ($acquired) { $lock.Unlock(0,1) }; $lock.Dispose() }
 }
 function Resolve-SrnRuntime {

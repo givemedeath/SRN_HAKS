@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-fleche-hail-barrage-rocket-launcher-a734f3c2db",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-silhouette-tangent",
+      "pixel": [
+        19.0,
+        486.00000000000006
+      ]
+    },
+    {
+      "name": "top-silhouette-tangent",
+      "pixel": [
+        787.5,
+        107.0
+      ]
+    },
+    {
+      "name": "front-silhouette-tangent",
+      "pixel": [
+        1234.0,
+        468.0
+      ]
+    },
+    {
+      "name": "mount-bottom-tangent",
+      "pixel": [
+        627.0,
+        1157.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-fleche-hail-barrage-rocket-launcher-a734f3c2db.family.json",
+    "sha256": "aa0a3251cb8e5754166671e0fb0ff63d16c99b6d15937752d020aad71e3a576e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/836f395e295b318012f9d10e823acef6a5741f7052faa1ea7a9936dd9d69c045.png",
+      "sha256": "836f395e295b318012f9d10e823acef6a5741f7052faa1ea7a9936dd9d69c045"
+    },
+    "clayReference": {
+      "path": "inputs/c7032098f2b2d1770a8f676e68a74c5d78e2f310e3a23ceed757331b228b1646.png",
+      "sha256": "c7032098f2b2d1770a8f676e68a74c5d78e2f310e3a23ceed757331b228b1646"
+    },
+    "geometry": {
+      "path": "inputs/f800e43deb1536a91997d5442d1c0ece2f6cb0fe77560dceed10c8dd6cf92d42.png",
+      "sha256": "f800e43deb1536a91997d5442d1c0ece2f6cb0fe77560dceed10c8dd6cf92d42"
+    },
+    "detail": {
+      "path": "inputs/d9c5bdbc92c86ef4550e269a2b72df262249fae110fa1f530688143e6d5c023f.png",
+      "sha256": "d9c5bdbc92c86ef4550e269a2b72df262249fae110fa1f530688143e6d5c023f"
+    },
+    "foregroundMask": {
+      "path": "inputs/4bbe33177cabb87eb6652c50d0c13026dc55c626bc972e01b88a70e281141d22.png",
+      "sha256": "4bbe33177cabb87eb6652c50d0c13026dc55c626bc972e01b88a70e281141d22"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/76c5b3785686460c82a1ace5a48629a62d7f7d70d2a867c4af68c3950fa329dc.png",
+      "sha256": "76c5b3785686460c82a1ace5a48629a62d7f7d70d2a867c4af68c3950fa329dc"
+    },
+    "mask": {
+      "path": "inputs/76c5b3785686460c82a1ace5a48629a62d7f7d70d2a867c4af68c3950fa329dc.png",
+      "sha256": "76c5b3785686460c82a1ace5a48629a62d7f7d70d2a867c4af68c3950fa329dc"
+    },
+    "calibrationReference": {
+      "path": "inputs/215f18a95d5474df0a0e119248f0cb36ae8759fb56c82791504528d73d9b8c13.png",
+      "sha256": "215f18a95d5474df0a0e119248f0cb36ae8759fb56c82791504528d73d9b8c13"
+    },
+    "sourceAudit": {
+      "path": "inputs/417c8354acfa7711399f25be7492eee183c3084dcc82ae7ed096530c012b193f.json",
+      "sha256": "417c8354acfa7711399f25be7492eee183c3084dcc82ae7ed096530c012b193f"
+    },
+    "referenceApproval": {
+      "path": "inputs/96bbbcbd03d581b747fbff12f95b8d1903f41fde9a4516f0e7126744ada7f553.json",
+      "sha256": "96bbbcbd03d581b747fbff12f95b8d1903f41fde9a4516f0e7126744ada7f553"
+    },
+    "calibrationDetail": {
+      "path": "inputs/d45d7f2844af8d4bae485ed9671732d8bcfe7574e21f37be3d709fe15ffc4410.png",
+      "sha256": "d45d7f2844af8d4bae485ed9671732d8bcfe7574e21f37be3d709fe15ffc4410"
+    }
+  },
+  "features": [
+    {
+      "name": "Vehicle main-gun rocket-launcher assembly, not a handheld shoulder launcher",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source defines a whole-magazine barrage capability; table capacity20 does not prescribe20 visible tubes",
+      "placementReviewed": true
+    },
+    {
+      "name": "Fixed mount/heavy turret context, with flexible mount allowed where vehicle permits",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact magazine layout, tube count, launcher casing, colors and projectile silhouette unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "836f395e295b318012f9d10e823acef6a5741f7052faa1ea7a9936dd9d69c045",
+      "imageSha256": "d9c5bdbc92c86ef4550e269a2b72df262249fae110fa1f530688143e6d5c023f",
+      "maskSha256": "4bbe33177cabb87eb6652c50d0c13026dc55c626bc972e01b88a70e281141d22",
+      "notes": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c7032098f2b2d1770a8f676e68a74c5d78e2f310e3a23ceed757331b228b1646",
+      "imageSha256": "f800e43deb1536a91997d5442d1c0ece2f6cb0fe77560dceed10c8dd6cf92d42",
+      "maskSha256": "76c5b3785686460c82a1ace5a48629a62d7f7d70d2a867c4af68c3950fa329dc",
+      "notes": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "836f395e295b318012f9d10e823acef6a5741f7052faa1ea7a9936dd9d69c045",
+      "detailSha256": "d9c5bdbc92c86ef4550e269a2b72df262249fae110fa1f530688143e6d5c023f",
+      "geometrySha256": "f800e43deb1536a91997d5442d1c0ece2f6cb0fe77560dceed10c8dd6cf92d42",
+      "foregroundMaskSha256": "4bbe33177cabb87eb6652c50d0c13026dc55c626bc972e01b88a70e281141d22",
+      "geometryForegroundMaskSha256": "76c5b3785686460c82a1ace5a48629a62d7f7d70d2a867c4af68c3950fa329dc",
+      "landmarks": [
+        {
+          "name": "rear-silhouette-tangent",
+          "detail": [
+            0.0498046875,
+            0.3915793046652422
+          ],
+          "geometry": [
+            0.0498046875,
+            0.3897291221509972
+          ]
+        },
+        {
+          "name": "top-silhouette-tangent",
+          "detail": [
+            0.6183751027115859,
+            0.111091635505698
+          ],
+          "geometry": [
+            0.6187450249075596,
+            0.1103515625
+          ]
+        },
+        {
+          "name": "front-silhouette-tangent",
+          "detail": [
+            0.9487156237161052,
+            0.37825799056267806
+          ],
+          "geometry": [
+            0.9494554681080526,
+            0.37862802706552706
+          ]
+        },
+        {
+          "name": "mount-bottom-tangent",
+          "detail": [
+            0.4996300778040263,
+            0.888168291488604
+          ],
+          "geometry": [
+            0.5014796887838947,
+            0.888908364494302
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected: matched framing, source-required major structure/recesses and support clearances retained, no background debris. Root inspected actual raw pair and actual-alpha teal diagnostic. Matched assembly silhouette, framing, proportions and major recesses/support clearances are retained; no backdrop debris. Source-unprescribed exterior details are interpreted. Large nozzle/launcher/barrel faces remain recessed surfaces, not invented transparent holes. Genuine independent alphas retained. Shallow clay grooves are nonblocking under the user waiver."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

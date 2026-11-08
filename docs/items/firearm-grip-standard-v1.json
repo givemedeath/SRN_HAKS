@@ -1,0 +1,119 @@
+{
+  "measurement": {
+    "referenceUniformScale": 0.22424495188079993,
+    "historicalMultiplierIsNotGeneric": true,
+    "sourceGripBasis": [
+      [
+        -0.43017354964040005,
+        -0.2500551702052076,
+        0.8674232698304922
+      ],
+      [
+        0.114184902689094,
+        0.9380828061643613,
+        0.3270511531499001
+      ],
+      [
+        -0.8954956868615618,
+        0.23973539712032912,
+        -0.3749858853075642
+      ]
+    ],
+    "sourceGripEndpoints": [
+      [
+        0.3294986985646664,
+        -0.2700000000000002,
+        -0.153149683061716
+      ],
+      [
+        0.27085554138957685,
+        -0.050000000000000065,
+        -0.09692672809452779
+      ]
+    ],
+    "landmarkScope": "Use the same grip axis and usable hand-contact landmark convention; exclude guard, magazine base and barrel.",
+    "method": "Sections of the retained original-frame pistol grip, transformed by the exact user-approved uniform fit"
+  },
+  "nativeGripOrigin": [
+    0.000394182,
+    -0.0157349,
+    0.000168169
+  ],
+  "units": "NWN native model units",
+  "referenceVariant": "colt-l36-pistol/native-hand-fit-depth-plus15-v1",
+  "sources": {
+    "render": {
+      "sha256": "98095d1d99d07fc859ad1bb5ba93925ebd422c321bcb01819bace17781bbac2c",
+      "repositoryRelativePath": "output/itemkit/colt-l36-pistol/native-hand-fit-depth-plus15-v1/render/result.json"
+    },
+    "measurements": {
+      "sha256": "fd319fe42e26ac98fcbec36ac71011da09a059da8b178ca1e328675711c6fdf7",
+      "repositoryRelativePath": "output/itemkit/colt-l36-pistol/grip-measurements-v1/measurements.json"
+    },
+    "frameProof": {
+      "sha256": "f3798b919710eb94c0610272e8f414d4d813913faeed8226ded534c21e8c932f",
+      "repositoryRelativePath": "output/itemkit/colt-l36-pistol/contract-v1/frame-proof-v1/frames.json"
+    },
+    "workingMesh": {
+      "sha256": "22eeaa20105331e287b966e4a899661e3d0b2036cda03fd6af6a3baa9eff86fc",
+      "repositoryRelativePath": "output/itemkit/colt-l36-pistol/selected-shell-v1/original-frame-donor.glb"
+    },
+    "fitConfig": {
+      "sha256": "aa9919ce1dce7478b03400133ac736f3df39c5f26ff10840e538dc07ccb435f5",
+      "repositoryRelativePath": "output/itemkit/colt-l36-pistol/pistol-native-hand-fit-depth-plus15-v1-config.json"
+    }
+  },
+  "referenceSections": [
+    {
+      "depth": 0.034674392682128664,
+      "fractionFromPommel": 0.1,
+      "visibleFaceWidth": 0.0780652489568791
+    },
+    {
+      "depth": 0.034153089157564064,
+      "fractionFromPommel": 0.25,
+      "visibleFaceWidth": 0.0768009311053267
+    },
+    {
+      "depth": 0.03401925883,
+      "fractionFromPommel": 0.5,
+      "visibleFaceWidth": 0.07260457881466521
+    },
+    {
+      "depth": 0.03404808551602408,
+      "fractionFromPommel": 0.75,
+      "visibleFaceWidth": 0.07031052372288435
+    },
+    {
+      "depth": 0.033512157554338,
+      "fractionFromPommel": 0.9,
+      "visibleFaceWidth": 0.06720827516312702
+    }
+  ],
+  "id": "colt-l36-approved-firearm-grip-v1",
+  "usableLength": 0.05259012220412899,
+  "purpose": "Default hand-fit scaling reference for future firearms",
+  "targetMidpointSection": {
+    "depth": 0.03401925883,
+    "fractionFromPommel": 0.5,
+    "visibleFaceWidth": 0.07260457881466521
+  },
+  "approval": {
+    "completeClientValidation": false,
+    "source": "user",
+    "productionPromotion": false,
+    "statements": [
+      "that should work",
+      "use that as a scaling reference for firearms"
+    ],
+    "gripSizingApproved": true,
+    "date": "2026-10-23"
+  },
+  "fittingRule": "Measure each firearm grip; use this reference thickness, width, usable length and native attachment as the starting hand-fit authority. Preserve firearm proportions and grip/barrel angle with a uniform fit. Review departures in both shipped Human hands. Do not force the former melee grip length or blindly reuse this asset scale.",
+  "axes": {
+    "depth": "X",
+    "visibleFaceWidth": "Z",
+    "length": "+Y"
+  },
+  "schemaVersion": 1
+}

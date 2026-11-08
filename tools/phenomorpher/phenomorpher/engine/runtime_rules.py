@@ -5,12 +5,14 @@ animation library or a declared posture layer, never through private animation c
 Structural mode needs no game install: stock names and parents come from the contract's
 installedAnimationChain (or, for older contracts, only the names in installedGameDependencies).
 Deep mode also checks the installed chain bytes against an extracted stock manifest.
+Every published rig, library and carrier keeps its root node at the origin, unkeyed by any
+clip (root-transform), as the stock rigs do; the compiler would drop a root offset anyway.
 """
 import json
 import re
 from pathlib import Path
 
-from .anim_library import RIG_ROLES, digest, load_model, stock_files, texture_header
+from .anim_library import RIG_ROLES, digest, load_model, root_offset, stock_files, texture_header
 
 LIBRARY_ROLE = 'animation-library'
 POSTURE_CLIPS = {'pause1', 'pause2'}
@@ -23,6 +25,14 @@ DECLARED_POSTURE_LAYERS = {
                   'evidence': 'docs/phenotype-human-female-source-adoption-checkpoint.md (Human female shared posture, '
                               'user approval 2026-10-08, shipped in #42)'},
 }
+# Approved overrides of installed-chain models, by name, role and pinned bytes. A clip change updates this pin.
+DECLARED_STOCK_OVERRIDES = {
+    'a_ba_custom': {'sha256': '71e091a80df1469d4d3a5f4771b4d4f62c01e39396b1fb4580cc33bb7de0a4bb', 'role': 'combat-animation',
+                    'evidence': 'docs/phenomorpher/README.md (Release 1.5.0, user request 2026-11-07)'},
+    'a_ba_non_combat': {'sha256': '708fd5b94f431e32e4991f960ddcfe16ea2bee9be07c1100f8f876be0cd9e632', 'role': 'carry-overlay',
+                        'evidence': 'docs/phenomorpher/README.md (Release 1.5.0, user request 2026-11-07)'},
+}
+SUPERMODEL_LINE = re.compile(rb'(?m)^setsupermodel\s+(\S+)\s+(\S+)')
 
 
 def stock_graph(manifest):
@@ -34,11 +44,13 @@ def stock_graph(manifest):
     return {n: None for n in names}
 
 
-def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, posture_layers=None):
+def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, posture_layers=None, stock_overrides=None):
     """manifest: contract path or parsed contract. overlay: {resource path: bytes} staged over root.
-    posture_layers: {name: {'sha256': ...}} declared posture layers (default DECLARED_POSTURE_LAYERS)."""
+    posture_layers: {name: {'sha256': ...}} declared posture layers (default DECLARED_POSTURE_LAYERS).
+    stock_overrides: {name: {'sha256': ..., 'role': ...}} approved stock overrides (default DECLARED_STOCK_OVERRIDES)."""
     root = Path(root).resolve(); overlay = overlay or {}
     declared = DECLARED_POSTURE_LAYERS if posture_layers is None else posture_layers
+    overrides = DECLARED_STOCK_OVERRIDES if stock_overrides is None else stock_overrides
     if not isinstance(manifest, dict):
         manifest = json.loads(Path(manifest).read_text(encoding='utf-8-sig'))
     def read(rel):
@@ -58,10 +70,21 @@ def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, p
             recorded = next((r for r in manifest.get('installedAnimationChain', []) if Path(r['resource']).stem.lower() == name), None)
             if recorded and recorded['sha256'] != row['sha256']:
                 fail('installed-chain', name, 'installed bytes differ from the contract')
+    def approved_override(row, name):
+        """A declared override (name, role and bytes) that still sits at its stock place in the chain."""
+        entry = overrides.get(name)
+        if entry is None or (row['role'], row['sha256']) != (entry['role'], entry['sha256']):
+            return False
+        blob = read(row['path'])
+        if digest(blob) != row['sha256']:
+            raise ValueError('Published model differs from the contract: ' + row['path'])
+        link = SUPERMODEL_LINE.search(blob)
+        return link is not None and (link[1].decode().lower(), link[2].decode().lower()) == (name, stock[name])
     # A pack model named after an installed-chain model replaces it at runtime, whatever its role.
     for row in manifest['resources']:
-        if Path(row['path']).suffix.lower() == '.mdl' and Path(row['path']).stem.lower() in stock:
-            fail('stock-shadow', row['path'], 'pack model shadows the installed ' + Path(row['path']).stem.lower())
+        name = Path(row['path']).stem.lower()
+        if Path(row['path']).suffix.lower() == '.mdl' and name in stock and not approved_override(row, name):
+            fail('stock-shadow', row['path'], 'pack model shadows the installed ' + name)
     # Published rigs, libraries and carriers, decoded from the pack bytes the contract pins.
     models, roles, rows = {}, {}, {}
     for row in manifest['resources']:
@@ -71,6 +94,13 @@ def check(root, manifest, stock_manifest=None, max_texture=1024, overlay=None, p
         if digest(blob) != row['sha256']:
             raise ValueError('Published model differs from the contract: ' + row['path'])
         models[name] = load_model(row['path'], blob); roles[name] = row['role']; rows[name] = row
+        # ASCII geometry carries no static controls here, so only its clip keys are checked.
+        offset = root_offset(models[name], name)
+        if offset:
+            fail('root-transform', name, 'root node is offset: ' + offset)
+        keyed = sorted(c for c, clip in models[name]['clips'].items() if clip['nodes'].get(name, {}).get('controls'))
+        if keyed:
+            fail('root-transform', name, 'clips key the root node: ' + ', '.join(keyed))
     def posture(name):
         """A declared layer (name and bytes) that still has the posture shape: idle clips over a_fa/a_ba."""
         m = models[name]

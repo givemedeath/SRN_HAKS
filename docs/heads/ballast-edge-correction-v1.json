@@ -1,0 +1,176 @@
+{
+  "client": {
+    "evidence": {
+      "path": "docs/heads/evidence/ballast-edge-correction-v1/client.png",
+      "sha256": "24798ca48ec92ced1385aec5f6f5f71fdc05f478880458de19f08fea049e7059"
+    },
+    "hairRows": [
+      63,
+      117
+    ],
+    "notRechecked": [
+      "motion",
+      "equipment",
+      "multiplayer",
+      "server deployment"
+    ],
+    "note": "Small pre-existing bright flecks in back hair remain outside this brow/ear correction.",
+    "operatorChecked": [
+      "front",
+      "three",
+      "threeleft",
+      "backright",
+      "backleft",
+      "gameplay distance",
+      "second hair row"
+    ],
+    "renderedHakSha256": "014316006c67c64c84044db5ac0d58dd4b4a82de6b69f7870fc83e01e25ce08b",
+    "skinRow": 3,
+    "slotVerified": 19
+  },
+  "head": "Ballast",
+  "kind": "srn-head-feature-highlight-correction-v1",
+  "model": "pmg0_head019",
+  "otherResourceHashesVerified": 125,
+  "ownershipUnchanged": true,
+  "parentPltSha256": "5ff16b816f30dd4f7c5afd3674076580ef562d7779378a1d15607726ccb4ea79",
+  "pipeline": {
+    "featureReport": {
+      "0": {
+        "changedTexels": 4671,
+        "feature": "ear",
+        "featureTexels": 15195,
+        "gutterTexels": 2804,
+        "maximumReduction": 52,
+        "referenceP90": 167.0,
+        "referenceP95": 181.0,
+        "referenceTexels": 130258,
+        "shoulder": 24
+      },
+      "1": {
+        "changedTexels": 624,
+        "contrast": 32,
+        "donorTexels": 3963,
+        "edgeTexels": 2564,
+        "feature": "brow",
+        "gutterTexels": 224,
+        "headroom": 12,
+        "maximumReduction": 184,
+        "radiusHeadWidths": 0.035,
+        "unsupportedTexels": 0
+      }
+    },
+    "profile": "face-v1",
+    "replayPltByteIdentical": true,
+    "setting": {
+      "repairFeatureHighlights": true
+    },
+    "skinContrastFactor": 0.9
+  },
+  "preservedMesh": {
+    "path": "srn_head/pmg0_head019.mdl",
+    "sha256": "dbe67176dfc125b5f479839df9addadc68f297b983ccf634d65437bb19c82abf"
+  },
+  "publication": "Pull request candidate; not deployed",
+  "quality": {
+    "limits": {
+      "blotchPxMax": 20,
+      "bodySkinSpanMin": 0.5,
+      "browsOnHairMin": 0.85,
+      "designSpecksWarn": 10,
+      "faceDarkRatioMin": 0.15,
+      "featureFocusMin": 5.0,
+      "hairEndTieExempt": 0.1,
+      "hairLockOnSkinPxMax": 4,
+      "hairOnFaceSkinMax": 0.03,
+      "irisOnTattoo1Min": 0.85,
+      "seamStepRatioMax": 1.45,
+      "shadeSpanMin": 0.75,
+      "skinMedianOffsetMax": 8,
+      "specksMax": 10,
+      "whitesOnSkinMin": 0.9
+    },
+    "metrics": {
+      "blotchPx": 0,
+      "browsOnHair": 0.943,
+      "cheekNoise": 2.06,
+      "designSpecks": 0,
+      "faceDarkRatio": 0.365,
+      "featureFocus": 5.56,
+      "hairLockOnSkinPx": 0,
+      "hairOnFaceSkin": 0.0,
+      "irisOnTattoo1": 1.0,
+      "irisOnTattoo1ByEye": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "seamOuterFaces": 19975,
+      "seamSkinTexels": 250563,
+      "seamStepRatio": 1.348,
+      "shadeSpan": {
+        "0": 0.727,
+        "1": 0.794,
+        "2": 1.0,
+        "8": 1.0,
+        "9": 1.0
+      },
+      "shadeSpanExempt": [],
+      "skinMedianOffset": 0.0,
+      "specks": 0,
+      "whitesOnSkin": 1.0
+    },
+    "passed": true
+  },
+  "resource": {
+    "path": "srn_head/pmg0_head019.plt",
+    "sha256": "c828626cf25a1926c55b9e6a44d06dd261369235715a43a0e9dbe63f9e2ad450"
+  },
+  "sourceCheckpointHashes": {
+    "masksReceipt": "9766fdad0c153a0ad17573e7ab5d9bcb8f013b989af94d67404bed5bc541528d",
+    "paletteReceipt": "f7a5ba08e0b28b9994b6ecbc8f14b18dda8ef1498e19c80641b722f984c298c6",
+    "toneReceipt": "15a4ab739d8a52af88ea2b1321cc803575c38581833bcc3abb152fcb14825bee",
+    "uvMesh": "8357a78893777080eb2ab2b42c846c3c49d6fde043f246d607fb7b2e7276c4de"
+  },
+  "tests": {
+    "broadCollectionErrorResolved": "Added repository root to the local test runner path and reran the missing transport module successfully.",
+    "broadPassed": 953,
+    "finalFeatureRegressionsPassed": 7,
+    "focusedFinalPassed": 48
+  },
+  "review": {
+    "surfaceMaskGrowthGuard": true,
+    "sameChannelAnchorsRequired": true,
+    "replayedTextureByteIdentical": true,
+    "helperSha256": "7384cb6f1dbac46333dd3137e75155d473250d7076fcc386789a0a4399b75014",
+    "featureReport": {
+      "0": {
+        "changedTexels": 4671,
+        "feature": "ear",
+        "featureTexels": 15195,
+        "gutterTexels": 2804,
+        "maskExpansionRejectedTexels": 0,
+        "maximumReduction": 52,
+        "referenceP90": 167.0,
+        "referenceP95": 181.0,
+        "referenceTexels": 130258,
+        "shoulder": 24
+      },
+      "1": {
+        "changedTexels": 624,
+        "contrast": 32,
+        "donorTexels": 3963,
+        "edgeTexels": 2564,
+        "feature": "brow",
+        "gutterTexels": 224,
+        "headroom": 12,
+        "maskExpansionRejectedTexels": 0,
+        "maximumReduction": 184,
+        "radiusHeadWidths": 0.035,
+        "unsupportedTexels": 0
+      }
+    },
+    "headkitTestsPassed": 647,
+    "ciCatalogAndScopeTestsPassed": 45,
+    "featureRegressionsPassed": 9
+  }
+}

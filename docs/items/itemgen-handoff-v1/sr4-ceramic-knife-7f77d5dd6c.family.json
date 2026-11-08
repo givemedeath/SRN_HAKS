@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "dagger",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 5000,
+    "shadow": 500,
+    "parts": {
+      "b": {
+        "meaning": "pommel",
+        "visible": 750,
+        "shadow": 100
+      },
+      "m": {
+        "meaning": "grip",
+        "visible": 1125,
+        "shadow": 100
+      },
+      "t": {
+        "meaning": "blade and guard",
+        "visible": 3125,
+        "shadow": 300
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "b": "sr4-ceramic-knife-7f77d5dd6c",
+      "m": "sr4-ceramic-knife-7f77d5dd6c",
+      "t": "sr4-ceramic-knife-7f77d5dd6c"
+    }
+  ],
+  "native": {
+    "reviewed": false
+  },
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "sr7f77d5dd",
+    "blueprint": "sr7f77d5dd",
+    "hak": "sr7f77d5ddh",
+    "module": "sr7f77d5ddm",
+    "displayName": "Ceramic Knife"
+  }
+}

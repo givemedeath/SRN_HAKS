@@ -28,7 +28,7 @@ class ConnectorCoverageTests(unittest.TestCase):
                 motion = np.eye(4)
                 motion[0, 3] = .3
                 frames.append(({'clip': 'run', 'time': .3, 'label': 'motion'}, {'p': np.eye(4), 'c': motion}))
-            with patch.object(review, 'arrays', side_effect=[parent, child]):
+            with patch.object(review, 'mesh_vertices', side_effect=[parent, child]):
                 return review.evaluate_connector_motion(*paths, 'p', 'c', Path(folder), posed_frames=frames)
 
     def test_one_touching_pair_cannot_hide_detached_ring(self):
@@ -40,6 +40,16 @@ class ConnectorCoverageTests(unittest.TestCase):
         self.assertEqual(result['samples'][0]['minSurfaceDistanceMeters'], 0)
         self.assertGreaterEqual(result['worstMotionSurfaceDistance'], .02)
         self.assertFalse(result['allPosesPassed'])
+
+    def test_mesh_vertices_reads_every_mesh_in_the_part_frame(self):
+        node = 'node {} {}\n  parent root\n{}  verts 1\n    {}\nendnode\n'
+        text = ('newmodel m\nnode dummy root\nendnode\n' + node.format('trimesh', 'a', '', '1 0 0')
+                + node.format('skin', 'b', '  position 0 0 2\n  orientation 0 0 1 0\n', '0 1 0'))
+        self.assertEqual(review.mesh_vertices(text).tolist(), [[1, 0, 0], [0, 1, 2]])
+        with self.assertRaisesRegex(ValueError, 'unrotated'):
+            review.mesh_vertices(text.replace('orientation 0 0 1 0', 'orientation 0 0 1 1.5'))
+        with self.assertRaisesRegex(ValueError, 'no mesh'):
+            review.mesh_vertices('newmodel m\nnode dummy root\nendnode\n')
 
     def test_reverse_coverage_and_empty_interface_fail(self):
         result = review.connector_vertex_distances(np.zeros((1, 3)), np.array([[0, 0, 0], [.03, 0, 0]]))

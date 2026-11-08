@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-hk-xm30-carbine-883ca11bfc",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "front-tip-left",
+      "pixel": [
+        74.0,
+        622.0
+      ]
+    },
+    {
+      "name": "upper-tip",
+      "pixel": [
+        834.5,
+        489.0
+      ]
+    },
+    {
+      "name": "stock-right",
+      "pixel": [
+        1307.0,
+        543.5
+      ]
+    },
+    {
+      "name": "lower-limb-or-magazine-bottom",
+      "pixel": [
+        1131.0,
+        919.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-hk-xm30-carbine-883ca11bfc.family.json",
+    "sha256": "299f091927bd347c60b67807703020424ee193b734f476c0070feb90164aa534"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/47ff5233772cf4b1cb88a97a856da153783c49481f96591829da41653c44621d.png",
+      "sha256": "47ff5233772cf4b1cb88a97a856da153783c49481f96591829da41653c44621d"
+    },
+    "clayReference": {
+      "path": "inputs/c93e4444663ff3bd76522f26acecf5c25852feb6c5b46ae2bf0b43beea511f79.png",
+      "sha256": "c93e4444663ff3bd76522f26acecf5c25852feb6c5b46ae2bf0b43beea511f79"
+    },
+    "geometry": {
+      "path": "inputs/9a03628ad98f286972c9314c7a00e718b7dc9390dff86195f4bf5985d0a1df3a.png",
+      "sha256": "9a03628ad98f286972c9314c7a00e718b7dc9390dff86195f4bf5985d0a1df3a"
+    },
+    "detail": {
+      "path": "inputs/184e6b523f08a8a14827713a80d87c4d685e119f37f8e46df1510b09e167b600.png",
+      "sha256": "184e6b523f08a8a14827713a80d87c4d685e119f37f8e46df1510b09e167b600"
+    },
+    "foregroundMask": {
+      "path": "inputs/75797561bff24271418333d1438da4fad8dbac0d645392610188f2d35b9f94cf.png",
+      "sha256": "75797561bff24271418333d1438da4fad8dbac0d645392610188f2d35b9f94cf"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/3ef73ffe0fc30182a87628733f806127462be1a1d11e4240ade53750204b90e9.png",
+      "sha256": "3ef73ffe0fc30182a87628733f806127462be1a1d11e4240ade53750204b90e9"
+    },
+    "mask": {
+      "path": "inputs/3ef73ffe0fc30182a87628733f806127462be1a1d11e4240ade53750204b90e9.png",
+      "sha256": "3ef73ffe0fc30182a87628733f806127462be1a1d11e4240ade53750204b90e9"
+    },
+    "calibrationReference": {
+      "path": "inputs/bfd6282cb3553d4ec69dc30a6699b7d6fc33d6cab491151d932bccde7d5b81b8.png",
+      "sha256": "bfd6282cb3553d4ec69dc30a6699b7d6fc33d6cab491151d932bccde7d5b81b8"
+    },
+    "sourceAudit": {
+      "path": "inputs/31d6ce78f32bff2b887270c24047d9746a9422c0746933d30dc971a0694c4afb.json",
+      "sha256": "31d6ce78f32bff2b887270c24047d9746a9422c0746933d30dc971a0694c4afb"
+    },
+    "referenceApproval": {
+      "path": "inputs/178ae02ab8c7fc5f6e0a5b1b86ba06eea215e3463926faf7906faf331e597e80.json",
+      "sha256": "178ae02ab8c7fc5f6e0a5b1b86ba06eea215e3463926faf7906faf331e597e80"
+    },
+    "calibrationDetail": {
+      "path": "inputs/c0a586c0bb95072fc7bcc3b9ab59b4c93458889c6aacd714b81df3db29af2859.png",
+      "sha256": "c0a586c0bb95072fc7bcc3b9ab59b4c93458889c6aacd714b81df3db29af2859"
+    }
+  },
+  "features": [
+    {
+      "name": "Retain the HK XM30 parent platform silhouette, grip/stock proportions and module interfaces; this is a parent-bound configuration, not a newly invented standalone model.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Compact carbine configuration expressly listed in core printed 308 description; shorten through the XM30 module system, preserving platform identity.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core308-309/PDF310-311 original XM30 family platform set and mode table. Small configuration below large family art is source-constrained carbine interpretation,not individually labeled own art. Actual322 detail has short fore-end/barrel,muzzleleft,tapered upperbody,rigid stock,central grip and rear clip,without scope,bipod/belt. Compact lower fore-end module matches family silhouette;no functional mechanics claimed. Finish/hidden depth/minor module contours artistic. Border maxalpha2,zero opaque border pixels:whole geometry retained,not clipped. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1102,
+        1029,
+        1287,
+        1208
+      ],
+      "referenceAreaPixels": 21843,
+      "referenceMaskSha256": "3ef73ffe0fc30182a87628733f806127462be1a1d11e4240ade53750204b90e9",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "47ff5233772cf4b1cb88a97a856da153783c49481f96591829da41653c44621d",
+      "imageSha256": "184e6b523f08a8a14827713a80d87c4d685e119f37f8e46df1510b09e167b600",
+      "maskSha256": "75797561bff24271418333d1438da4fad8dbac0d645392610188f2d35b9f94cf",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core308-309/PDF310-311 original XM30 family platform set and mode table. Small configuration below large family art is source-constrained carbine interpretation,not individually labeled own art. Actual322 detail has short fore-end/barrel,muzzleleft,tapered upperbody,rigid stock,central grip and rear clip,without scope,bipod/belt. Compact lower fore-end module matches family silhouette;no functional mechanics claimed. Finish/hidden depth/minor module contours artistic. Border maxalpha2,zero opaque border pixels:whole geometry retained,not clipped. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c93e4444663ff3bd76522f26acecf5c25852feb6c5b46ae2bf0b43beea511f79",
+      "imageSha256": "9a03628ad98f286972c9314c7a00e718b7dc9390dff86195f4bf5985d0a1df3a",
+      "maskSha256": "3ef73ffe0fc30182a87628733f806127462be1a1d11e4240ade53750204b90e9",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core308-309/PDF310-311 original XM30 family platform set and mode table. Small configuration below large family art is source-constrained carbine interpretation,not individually labeled own art. Actual322 detail has short fore-end/barrel,muzzleleft,tapered upperbody,rigid stock,central grip and rear clip,without scope,bipod/belt. Compact lower fore-end module matches family silhouette;no functional mechanics claimed. Finish/hidden depth/minor module contours artistic. Border maxalpha2,zero opaque border pixels:whole geometry retained,not clipped. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "47ff5233772cf4b1cb88a97a856da153783c49481f96591829da41653c44621d",
+      "detailSha256": "184e6b523f08a8a14827713a80d87c4d685e119f37f8e46df1510b09e167b600",
+      "geometrySha256": "9a03628ad98f286972c9314c7a00e718b7dc9390dff86195f4bf5985d0a1df3a",
+      "foregroundMaskSha256": "75797561bff24271418333d1438da4fad8dbac0d645392610188f2d35b9f94cf",
+      "geometryForegroundMaskSha256": "3ef73ffe0fc30182a87628733f806127462be1a1d11e4240ade53750204b90e9",
+      "landmarks": [
+        {
+          "name": "front-tip-left",
+          "detail": [
+            0.05053315887944984,
+            0.4389236902050114
+          ],
+          "geometry": [
+            0.051261630258899675,
+            0.4389236902050114
+          ]
+        },
+        {
+          "name": "upper-tip",
+          "detail": [
+            0.6045356429510518,
+            0.342029336916287
+          ],
+          "geometry": [
+            0.6074495284688513,
+            0.34057227897209563
+          ]
+        },
+        {
+          "name": "stock-right",
+          "detail": [
+            0.9487383697411004,
+            0.38173416589550113
+          ],
+          "geometry": [
+            0.9487383697411004,
+            0.3835554883257403
+          ]
+        },
+        {
+          "name": "lower-limb-or-magazine-bottom",
+          "detail": [
+            0.8205274069579288,
+            0.655296794917426
+          ],
+          "geometry": [
+            0.8190704641990292,
+            0.6582109108058087
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native original dimensions retained as recorded;2048 is resampled, not native2K. Core308-309/PDF310-311 original XM30 family platform set and mode table. Small configuration below large family art is source-constrained carbine interpretation,not individually labeled own art. Actual322 detail has short fore-end/barrel,muzzleleft,tapered upperbody,rigid stock,central grip and rear clip,without scope,bipod/belt. Compact lower fore-end module matches family silhouette;no functional mechanics claimed. Finish/hidden depth/minor module contours artistic. Border maxalpha2,zero opaque border pixels:whole geometry retained,not clipped. Source-form accepted. Actual raw pair and foreground inspected once:source silhouette,structural openings and thin members retained. Fine grooves nonblocking. Camera/proportions match. Native1254square originals retained;2048 resampled. Equal transparent64px padding preserves every native source pixel after reviewed background removal. No geometry/native/client/production approval."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

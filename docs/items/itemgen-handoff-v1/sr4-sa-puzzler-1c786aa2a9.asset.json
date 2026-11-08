@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-sa-puzzler-1c786aa2a9",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-silhouette-tangent",
+      "pixel": [
+        23.0,
+        400.0
+      ]
+    },
+    {
+      "name": "top-silhouette-tangent",
+      "pixel": [
+        223.0,
+        167.00000000000003
+      ]
+    },
+    {
+      "name": "front-silhouette-tangent",
+      "pixel": [
+        1230.0,
+        349.5
+      ]
+    },
+    {
+      "name": "grip-bottom-tangent",
+      "pixel": [
+        299.49999999999994,
+        1111.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-sa-puzzler-1c786aa2a9.family.json",
+    "sha256": "d0f20938f6c572b50c9a76eca943ad332a00e66aae1fca8dba59ca2566b45662"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/874ba1cf45306ae09fe2bb61f8a6a357b2eb8cbbf04ccd4ea04ca1b4d762bfd9.png",
+      "sha256": "874ba1cf45306ae09fe2bb61f8a6a357b2eb8cbbf04ccd4ea04ca1b4d762bfd9"
+    },
+    "clayReference": {
+      "path": "inputs/030bad41daab1c0a1782ad49f65142aec794977554f208fdd5de108b49925374.png",
+      "sha256": "030bad41daab1c0a1782ad49f65142aec794977554f208fdd5de108b49925374"
+    },
+    "geometry": {
+      "path": "inputs/8b91bd119f6a61b1a6b57703ab6de43160f61b2ce3da0d67b360d8bc813ed7d6.png",
+      "sha256": "8b91bd119f6a61b1a6b57703ab6de43160f61b2ce3da0d67b360d8bc813ed7d6"
+    },
+    "detail": {
+      "path": "inputs/a0acfb24ef7170bcb378a4c5b90899ed4dd104b4d0dec1072522e4023b67f2ea.png",
+      "sha256": "a0acfb24ef7170bcb378a4c5b90899ed4dd104b4d0dec1072522e4023b67f2ea"
+    },
+    "foregroundMask": {
+      "path": "inputs/8580d5a4bb8f4370b25f451331739d400ec16c6c13915bf8159500a401f3fa54.png",
+      "sha256": "8580d5a4bb8f4370b25f451331739d400ec16c6c13915bf8159500a401f3fa54"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a.png",
+      "sha256": "e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a"
+    },
+    "mask": {
+      "path": "inputs/e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a.png",
+      "sha256": "e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a"
+    },
+    "calibrationReference": {
+      "path": "inputs/59da79d2882f9db75d15009d812b1c7bb460cc1416ed5cd15102e0c4a6adeffd.png",
+      "sha256": "59da79d2882f9db75d15009d812b1c7bb460cc1416ed5cd15102e0c4a6adeffd"
+    },
+    "sourceAudit": {
+      "path": "inputs/05c9f02ec9e8d4ee864d8d1bbdc8ac4ed5bdc11870946b1ac68432a276db2bbf.json",
+      "sha256": "05c9f02ec9e8d4ee864d8d1bbdc8ac4ed5bdc11870946b1ac68432a276db2bbf"
+    },
+    "referenceApproval": {
+      "path": "inputs/3c8957a7a44457e6b2cfb06df6bf80eef6190ab2e83843a7978aab7826b1173d.json",
+      "sha256": "3c8957a7a44457e6b2cfb06df6bf80eef6190ab2e83843a7978aab7826b1173d"
+    },
+    "calibrationDetail": {
+      "path": "inputs/945e613a7328d0dadbdc87b926d30ca56cfa5fa8479ad18b15f767a7224dc7d3.png",
+      "sha256": "945e613a7328d0dadbdc87b926d30ca56cfa5fa8479ad18b15f767a7224dc7d3"
+    }
+  },
+  "features": [
+    {
+      "name": "Entirely polyresin construction; do not imply metal internals/exposed metal finish.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Can break down into roughly20 components disguised as ordinary carried items; assembled and disguised-parts states are distinct. A schematic breakdown is not needed for an inventory exterior.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Final prepared overlay inspected: exact paired framing, silhouette, integral controls and trigger-clearance openings retained; no background debris. Root inspected actual raw pair and teal actual-alpha diagnostic: matching outline, framing, barrel/body/grip and thin trigger/guard with both trigger-clearance spaces retained. All-resin appearance remains matte dark; clay removes color, grip microtexture and small fastener rings. Minor residual shallow slide grooves are nonblocking. No background debris. Assembled SA Puzzler exterior is explicitly interpreted from own primary description; no disassembly/internals or neighboring model substitution.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1114,
+        839,
+        1365,
+        1099
+      ],
+      "referenceAreaPixels": 51922,
+      "referenceMaskSha256": "e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        916,
+        868,
+        1065,
+        1076
+      ],
+      "referenceAreaPixels": 11555,
+      "referenceMaskSha256": "e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "874ba1cf45306ae09fe2bb61f8a6a357b2eb8cbbf04ccd4ea04ca1b4d762bfd9",
+      "imageSha256": "a0acfb24ef7170bcb378a4c5b90899ed4dd104b4d0dec1072522e4023b67f2ea",
+      "maskSha256": "8580d5a4bb8f4370b25f451331739d400ec16c6c13915bf8159500a401f3fa54",
+      "notes": "Final prepared overlay inspected: exact paired framing, silhouette, integral controls and trigger-clearance openings retained; no background debris. Root inspected actual raw pair and teal actual-alpha diagnostic: matching outline, framing, barrel/body/grip and thin trigger/guard with both trigger-clearance spaces retained. All-resin appearance remains matte dark; clay removes color, grip microtexture and small fastener rings. Minor residual shallow slide grooves are nonblocking. No background debris. Assembled SA Puzzler exterior is explicitly interpreted from own primary description; no disassembly/internals or neighboring model substitution."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "030bad41daab1c0a1782ad49f65142aec794977554f208fdd5de108b49925374",
+      "imageSha256": "8b91bd119f6a61b1a6b57703ab6de43160f61b2ce3da0d67b360d8bc813ed7d6",
+      "maskSha256": "e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a",
+      "notes": "Final prepared overlay inspected: exact paired framing, silhouette, integral controls and trigger-clearance openings retained; no background debris. Root inspected actual raw pair and teal actual-alpha diagnostic: matching outline, framing, barrel/body/grip and thin trigger/guard with both trigger-clearance spaces retained. All-resin appearance remains matte dark; clay removes color, grip microtexture and small fastener rings. Minor residual shallow slide grooves are nonblocking. No background debris. Assembled SA Puzzler exterior is explicitly interpreted from own primary description; no disassembly/internals or neighboring model substitution."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "874ba1cf45306ae09fe2bb61f8a6a357b2eb8cbbf04ccd4ea04ca1b4d762bfd9",
+      "detailSha256": "a0acfb24ef7170bcb378a4c5b90899ed4dd104b4d0dec1072522e4023b67f2ea",
+      "geometrySha256": "8b91bd119f6a61b1a6b57703ab6de43160f61b2ce3da0d67b360d8bc813ed7d6",
+      "foregroundMaskSha256": "8580d5a4bb8f4370b25f451331739d400ec16c6c13915bf8159500a401f3fa54",
+      "geometryForegroundMaskSha256": "e87a72d38ba480e341e15c734aaf12851f9dbfde2b470f8d707b24ad9e92f76a",
+      "landmarks": [
+        {
+          "name": "rear-silhouette-tangent",
+          "detail": [
+            0.050548811983471074,
+            0.3206373355263158
+          ],
+          "geometry": [
+            0.0498046875,
+            0.32100945723684204
+          ]
+        },
+        {
+          "name": "top-silhouette-tangent",
+          "detail": [
+            0.19937370867768595,
+            0.14722861842105264
+          ],
+          "geometry": [
+            0.19156040160123963,
+            0.14648437499999997
+          ]
+        },
+        {
+          "name": "front-silhouette-tangent",
+          "detail": [
+            0.9487070635330579,
+            0.2830530427631579
+          ],
+          "geometry": [
+            0.949451188016529,
+            0.2945888157894737
+          ]
+        },
+        {
+          "name": "grip-bottom-tangent",
+          "detail": [
+            0.2562992316632231,
+            0.8497944078947368
+          ],
+          "geometry": [
+            0.2585316051136364,
+            0.8527713815789474
+          ]
+        }
+      ],
+      "notes": "Final prepared overlay inspected: exact paired framing, silhouette, integral controls and trigger-clearance openings retained; no background debris. Root inspected actual raw pair and teal actual-alpha diagnostic: matching outline, framing, barrel/body/grip and thin trigger/guard with both trigger-clearance spaces retained. All-resin appearance remains matte dark; clay removes color, grip microtexture and small fastener rings. Minor residual shallow slide grooves are nonblocking. No background debris. Assembled SA Puzzler exterior is explicitly interpreted from own primary description; no disassembly/internals or neighboring model substitution."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

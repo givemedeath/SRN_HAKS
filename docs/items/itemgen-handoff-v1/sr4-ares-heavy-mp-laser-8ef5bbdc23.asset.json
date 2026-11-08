@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ares-heavy-mp-laser-8ef5bbdc23",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "emitter-carry-handle",
+      "pixel": [
+        557.3155505107832,
+        186.04313280363223
+      ]
+    },
+    {
+      "name": "front-upper-rail-gap",
+      "pixel": [
+        936.2817460317459,
+        196.3121693121693
+      ]
+    },
+    {
+      "name": "rear-upper-rail-gap",
+      "pixel": [
+        752.2285251215559,
+        223.7876823338736
+      ]
+    },
+    {
+      "name": "backpack-carry-handle",
+      "pixel": [
+        225.40362087326943,
+        600.0990415335464
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ares-heavy-mp-laser-8ef5bbdc23.family.json",
+    "sha256": "8e63724fcc0550f49b9d34756fb9ddd0eb56cc0adbdf0d86d285580739649354"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/1bd77df9fd3bce781bf3f5404c633535e226bec346451dbaf8a0ae8f0786ffc2.png",
+      "sha256": "1bd77df9fd3bce781bf3f5404c633535e226bec346451dbaf8a0ae8f0786ffc2"
+    },
+    "clayReference": {
+      "path": "inputs/d1c0cd7fad85b815bc039557eab20478c005fa63e141c86968b525724dd02dab.png",
+      "sha256": "d1c0cd7fad85b815bc039557eab20478c005fa63e141c86968b525724dd02dab"
+    },
+    "geometry": {
+      "path": "inputs/139163afb1b026b29f027e2aefbb0912ae50cfd916dff142774d793cb0c863c3.png",
+      "sha256": "139163afb1b026b29f027e2aefbb0912ae50cfd916dff142774d793cb0c863c3"
+    },
+    "detail": {
+      "path": "inputs/056da680d5d38e8931c9dd0d78ced0b1ae9108b86b97eb7e4e6392ff735f60e5.png",
+      "sha256": "056da680d5d38e8931c9dd0d78ced0b1ae9108b86b97eb7e4e6392ff735f60e5"
+    },
+    "foregroundMask": {
+      "path": "inputs/06267b106a66c003e3dec794a384c40c206e97c25f506588c6920df264f9015b.png",
+      "sha256": "06267b106a66c003e3dec794a384c40c206e97c25f506588c6920df264f9015b"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb.png",
+      "sha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb"
+    },
+    "mask": {
+      "path": "inputs/6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb.png",
+      "sha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb"
+    },
+    "calibrationReference": {
+      "path": "inputs/0536b6a8a5c2bcde394aac0f18a3fbd160b5dd1ba3fb0ca2e545eb0ee33e5c30.png",
+      "sha256": "0536b6a8a5c2bcde394aac0f18a3fbd160b5dd1ba3fb0ca2e545eb0ee33e5c30"
+    },
+    "sourceAudit": {
+      "path": "inputs/df405f564a8ea15bfe4aa6f5c360d5304d953833aa80b460167fd68ca1007dac.json",
+      "sha256": "df405f564a8ea15bfe4aa6f5c360d5304d953833aa80b460167fd68ca1007dac"
+    },
+    "referenceApproval": {
+      "path": "inputs/e7a21a720bcf3cac5fad11eebddbd929c34d3d1b2172f3c2c271bebdba25543e.json",
+      "sha256": "e7a21a720bcf3cac5fad11eebddbd929c34d3d1b2172f3c2c271bebdba25543e"
+    },
+    "calibrationDetail": {
+      "path": "inputs/554d181d94d3b05d8abafec80fe52504cb351bd79a6c430927a7f209020b926b.png",
+      "sha256": "554d181d94d3b05d8abafec80fe52504cb351bd79a6c430927a7f209020b926b"
+    }
+  },
+  "features": [
+    {
+      "name": "Heavy laser support system, too heavy/unbalanced to fire without proper support",
+      "placementReviewed": true
+    },
+    {
+      "name": "Built-in mount for a tripod OR gyro-mount stabilization system; choose and declare the support variant",
+      "placementReviewed": true
+    },
+    {
+      "name": "External battery power, usually backpack, OR a permanent emplacement linked to local power; no internal twin-clip-only substitution",
+      "placementReviewed": true
+    },
+    {
+      "name": "External satchel/backpack uses a self-recoiling power cable per printed36; exact emitter housing and support design unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Prepared overlay inspected: matched complete supported system, seven retained structural openings and all three feet; no broad floor card. Small contact-edge fringing accepted. Root viewed raw detail/clay, full foregrounds and physical ground contacts. Heavy emitter, three tripod legs/feet, upper carry handle, separate backpack and continuous coiled cable preserved. Major floor/shadow patches removed with bounded alpha-only contact calibration; RGB and protected upper alpha preserved. Small contact-edge antialias/fringing is accepted rather than prompting another cosmetic generation. Dark emitter interior remains a surface. Real structural openings and thin members retained; tiny clay grooves are nonblocking under user waiver. Heavy support laser on three-legged tripod, external backpack linked by a visible coiled cable. Full tripod feet, backpack and cable retained. Exact support and emitter design are interpreted from source-described complete assembly. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        871,
+        332,
+        988,
+        358
+      ],
+      "referenceAreaPixels": 1986,
+      "referenceMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1381,
+        340,
+        1599,
+        380
+      ],
+      "referenceAreaPixels": 1440,
+      "referenceMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1165,
+        388,
+        1270,
+        415
+      ],
+      "referenceAreaPixels": 1328,
+      "referenceMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        370,
+        958,
+        482,
+        979
+      ],
+      "referenceAreaPixels": 2063,
+      "referenceMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-5",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        171,
+        1067,
+        242,
+        1473
+      ],
+      "referenceAreaPixels": 13964,
+      "referenceMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-6",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        832,
+        1377,
+        864,
+        1452
+      ],
+      "referenceAreaPixels": 610,
+      "referenceMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-7",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        146,
+        1506,
+        158,
+        1534
+      ],
+      "referenceAreaPixels": 164,
+      "referenceMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1bd77df9fd3bce781bf3f5404c633535e226bec346451dbaf8a0ae8f0786ffc2",
+      "imageSha256": "056da680d5d38e8931c9dd0d78ced0b1ae9108b86b97eb7e4e6392ff735f60e5",
+      "maskSha256": "06267b106a66c003e3dec794a384c40c206e97c25f506588c6920df264f9015b",
+      "notes": "Prepared overlay inspected: matched complete supported system, seven retained structural openings and all three feet; no broad floor card. Small contact-edge fringing accepted. Root viewed raw detail/clay, full foregrounds and physical ground contacts. Heavy emitter, three tripod legs/feet, upper carry handle, separate backpack and continuous coiled cable preserved. Major floor/shadow patches removed with bounded alpha-only contact calibration; RGB and protected upper alpha preserved. Small contact-edge antialias/fringing is accepted rather than prompting another cosmetic generation. Dark emitter interior remains a surface. Real structural openings and thin members retained; tiny clay grooves are nonblocking under user waiver. Heavy support laser on three-legged tripod, external backpack linked by a visible coiled cable. Full tripod feet, backpack and cable retained. Exact support and emitter design are interpreted from source-described complete assembly. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "d1c0cd7fad85b815bc039557eab20478c005fa63e141c86968b525724dd02dab",
+      "imageSha256": "139163afb1b026b29f027e2aefbb0912ae50cfd916dff142774d793cb0c863c3",
+      "maskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "notes": "Prepared overlay inspected: matched complete supported system, seven retained structural openings and all three feet; no broad floor card. Small contact-edge fringing accepted. Root viewed raw detail/clay, full foregrounds and physical ground contacts. Heavy emitter, three tripod legs/feet, upper carry handle, separate backpack and continuous coiled cable preserved. Major floor/shadow patches removed with bounded alpha-only contact calibration; RGB and protected upper alpha preserved. Small contact-edge antialias/fringing is accepted rather than prompting another cosmetic generation. Dark emitter interior remains a surface. Real structural openings and thin members retained; tiny clay grooves are nonblocking under user waiver. Heavy support laser on three-legged tripod, external backpack linked by a visible coiled cable. Full tripod feet, backpack and cable retained. Exact support and emitter design are interpreted from source-described complete assembly. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "1bd77df9fd3bce781bf3f5404c633535e226bec346451dbaf8a0ae8f0786ffc2",
+      "detailSha256": "056da680d5d38e8931c9dd0d78ced0b1ae9108b86b97eb7e4e6392ff735f60e5",
+      "geometrySha256": "139163afb1b026b29f027e2aefbb0912ae50cfd916dff142774d793cb0c863c3",
+      "foregroundMaskSha256": "06267b106a66c003e3dec794a384c40c206e97c25f506588c6920df264f9015b",
+      "geometryForegroundMaskSha256": "6cd71b78bf2ed86273816e2ca0be0e93469598a1b6e8800c089e0566f55c24cb",
+      "landmarks": [
+        {
+          "name": "emitter-carry-handle",
+          "detail": [
+            0.45029164455271053,
+            0.16737929522517322
+          ],
+          "geometry": [
+            0.4502069498303723,
+            0.16772619394613134
+          ]
+        },
+        {
+          "name": "front-upper-rail-gap",
+          "detail": [
+            0.7286094338177936,
+            0.17492296915145567
+          ],
+          "geometry": [
+            0.7274290447403926,
+            0.17557080447139972
+          ]
+        },
+        {
+          "name": "rear-upper-rail-gap",
+          "detail": [
+            0.59343831260361,
+            0.19510658725630475
+          ],
+          "geometry": [
+            0.5928180520994563,
+            0.1957013132104704
+          ]
+        },
+        {
+          "name": "backpack-carry-handle",
+          "detail": [
+            0.20653113087303923,
+            0.47154636680120154
+          ],
+          "geometry": [
+            0.20634981307213285,
+            0.4720460501653985
+          ]
+        }
+      ],
+      "notes": "Prepared overlay inspected: matched complete supported system, seven retained structural openings and all three feet; no broad floor card. Small contact-edge fringing accepted. Root viewed raw detail/clay, full foregrounds and physical ground contacts. Heavy emitter, three tripod legs/feet, upper carry handle, separate backpack and continuous coiled cable preserved. Major floor/shadow patches removed with bounded alpha-only contact calibration; RGB and protected upper alpha preserved. Small contact-edge antialias/fringing is accepted rather than prompting another cosmetic generation. Dark emitter interior remains a surface. Real structural openings and thin members retained; tiny clay grooves are nonblocking under user waiver. Heavy support laser on three-legged tripod, external backpack linked by a visible coiled cable. Full tripod feet, backpack and cable retained. Exact support and emitter design are interpreted from source-described complete assembly. Root inspected the actual returned detailed image and primary Arsenal printed41/PDF43 and36/PDF38. Matching clay/pair/foreground/conditioning approval remains pending."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

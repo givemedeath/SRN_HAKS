@@ -89,7 +89,7 @@ class MotionCollisionTests(unittest.TestCase):
         b = {'prefix': 'pmd0', 'meshes': [foot], 'frames': {'j': np.eye(4)}, 'scale': 1.}
         donor = {'prefix': 'pmh0', 'meshes': [dict(foot)], 'frames': {'j': np.eye(4)}}
         now = {}; ours, theirs = [foot], [dict(foot)]
-        def posed(models, prefix, clip, t):
+        def posed(models, prefix, clip, t, resolved=None):
             now['t'] = t; return {}, {'length': 1.}, 'a_ba'
         # Collision at t=0 (2 pairs, no gap); a 5 mm gap and no collision at t=1.
         def contact(meshes, inventory):
@@ -98,6 +98,7 @@ class MotionCollisionTests(unittest.TestCase):
                     'intersectingTrianglePairCount': (2 if t == 0. else 0) if mine else 0}
         with patch.object(bs, 'LINKS', [('shinl', 'footl')]), patch.object(bs, 'sample', return_value={'j': np.eye(4)}), \
                 patch.object(bs, 'terminal_inventory', return_value='inv'), patch.object(bs, 'posed_frames', side_effect=posed), \
+                patch.object(bs, 'resolve_clip', return_value=({'length': 1.}, 'a_ba', {})), \
                 patch.object(bs, 'sample_times', return_value=[0., 1.]), patch.object(bs, 'terminal_contact', side_effect=contact), \
                 patch.object(bs, 'pose_rigid_meshes', side_effect=lambda meshes, *_: ours if meshes is b['meshes'] else theirs):
             row = bs.motion({'pmd0': {'nodes': {}}}, b, donor, ['walk'])['clips']['walk']['connectors']['shinl-footl']
@@ -111,7 +112,7 @@ class MotionCollisionTests(unittest.TestCase):
         donor = {'prefix': 'pmh0', 'meshes': [dict(foot)], 'frames': {'j': np.eye(4)}}
         clips = {'pmd0': {'length': 2., 'keys': [0., 2.]}, 'pmh0': {'length': 1., 'keys': [0., .5, 1.]}}
         now = {}; ours, theirs = [foot], [dict(foot)]
-        def posed(models, prefix, clip, t):
+        def posed(models, prefix, clip, t, resolved=None):
             now[prefix] = t; return {}, clips[prefix], 'a_ba'
         # The donor closes its gap only at its own mid key, which the target's schedule never reaches.
         def contact(meshes, inventory):
@@ -119,12 +120,36 @@ class MotionCollisionTests(unittest.TestCase):
             return {'minimumTriangleClearanceMeters': gap, 'intersectingTrianglePairCount': 0}
         with patch.object(bs, 'LINKS', [('shinl', 'footl')]), patch.object(bs, 'sample', return_value={'j': np.eye(4)}), \
                 patch.object(bs, 'terminal_inventory', return_value='inv'), patch.object(bs, 'posed_frames', side_effect=posed), \
+                patch.object(bs, 'resolve_clip', side_effect=lambda models, prefix, clip: (clips[prefix], 'a_ba', {})), \
                 patch.object(bs, 'sample_times', side_effect=lambda clip: clip['keys']), patch.object(bs, 'terminal_contact', side_effect=contact), \
                 patch.object(bs, 'pose_rigid_meshes', side_effect=lambda meshes, *_: ours if meshes is b['meshes'] else theirs):
             walk = bs.motion({'pmd0': {'nodes': {}}}, b, donor, ['walk'])['clips']['walk']
         row = walk['connectors']['shinl-footl']
         self.assertEqual(walk['samples'], 3)
         self.assertEqual((row['time'], row['donorClearanceMeters'], row['excessMeters']), (1., 0., 0.))
+
+
+class SweepOptimizationTests(unittest.TestCase):
+    def test_missing_clips_are_unavailable_but_other_lookup_errors_propagate(self):
+        import numpy as np
+        foot = {'part': 'footl', 'name': 'f', 'position': np.zeros((3, 3)), 'faces': np.array([[0, 1, 2]])}
+        b = {'prefix': 'pmd0', 'meshes': [foot], 'frames': {'j': np.eye(4)}, 'scale': 1.}
+        donor = {'prefix': 'pmh0', 'meshes': [dict(foot)], 'frames': {'j': np.eye(4)}}
+        models = {'pmd0': {'parent': 'null', 'nodes': {}, 'clips': {}}, 'pmh0': {'parent': 'null', 'nodes': {}, 'clips': {}}}
+        with patch.object(bs, 'LINKS', []), patch.object(bs, 'sample', return_value={'j': np.eye(4)}):
+            self.assertEqual(bs.motion(models, b, donor, ['walk'])['unavailableClips'], {'walk': 'absent from the target chain'})
+            with self.assertRaises(KeyError):
+                bs.motion({'pmh0': models['pmh0']}, b, donor, ['walk'])
+
+    def test_vectorized_coincident_triangles_match_the_tuple_definition(self):
+        import numpy as np
+        tri = np.random.default_rng(3).random((6, 3)).round(3)
+        faces = np.array([[0, 1, 2], [3, 4, 5]])
+        a = {'part': 'chest', 'name': 'a', 'position': tri, 'faces': faces}
+        # Same corners in another order, and a -0.0 copy of a zero triangle shared with a third part.
+        b = {'part': 'pelvis', 'name': 'b', 'position': np.vstack([tri[[2, 0, 1]], -np.zeros((3, 3))]), 'faces': faces}
+        c = {'part': 'neck', 'name': 'c', 'position': np.vstack([tri[[4, 5, 3]], np.zeros((3, 3))]), 'faces': faces}
+        self.assertEqual(bs.geometry_audit([a, b, c])['coincidentCrossPartTriangles'], 3)
 
 
 if __name__ == '__main__':

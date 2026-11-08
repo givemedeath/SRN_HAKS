@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-tomahawk-707e3f392c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-head",
+      "pixel": [
+        1150.0,
+        328.0
+      ]
+    },
+    {
+      "name": "blade-tip",
+      "pixel": [
+        924.0,
+        416.0
+      ]
+    },
+    {
+      "name": "butt",
+      "pixel": [
+        82.99999999999997,
+        723.0
+      ]
+    },
+    {
+      "name": "lower-head",
+      "pixel": [
+        1115.0,
+        905.0
+      ]
+    },
+    {
+      "name": "handhold",
+      "pixel": [
+        325.0,
+        717.9999999999999
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-tomahawk-707e3f392c.family.json",
+    "sha256": "1df633af9f409c5321658b8c86ac62251b4cfa6c28eed8fef93a44ff550f9df5"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8f750bc2ee0a6b078ad48e4ed5824f145128884ae8ffee62bc6223c0093376d1.png",
+      "sha256": "8f750bc2ee0a6b078ad48e4ed5824f145128884ae8ffee62bc6223c0093376d1"
+    },
+    "clayReference": {
+      "path": "inputs/1e18b80bf1d1c565202d940f159dae455f0f2d28d32fc0cc4f823faf1cdc3261.png",
+      "sha256": "1e18b80bf1d1c565202d940f159dae455f0f2d28d32fc0cc4f823faf1cdc3261"
+    },
+    "geometry": {
+      "path": "inputs/f61dda2d70f9b6372181e1ad16d1db81849d4b8cc3e18b5bd219727ca0790efb.png",
+      "sha256": "f61dda2d70f9b6372181e1ad16d1db81849d4b8cc3e18b5bd219727ca0790efb"
+    },
+    "detail": {
+      "path": "inputs/c46274300a51e9f90a8f41d7c7206b4528d9f4ab4333f39acd4e53a6b3de9673.png",
+      "sha256": "c46274300a51e9f90a8f41d7c7206b4528d9f4ab4333f39acd4e53a6b3de9673"
+    },
+    "foregroundMask": {
+      "path": "inputs/1fd74d6c53bc5708ad5c4f45d697af4effefa017d19b499da3ff22756d1ea71e.png",
+      "sha256": "1fd74d6c53bc5708ad5c4f45d697af4effefa017d19b499da3ff22756d1ea71e"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/3c1ba89a1ed762ef527217fa460009addd8456187cf100c5bfa8f7fe8897995a.png",
+      "sha256": "3c1ba89a1ed762ef527217fa460009addd8456187cf100c5bfa8f7fe8897995a"
+    },
+    "mask": {
+      "path": "inputs/3c1ba89a1ed762ef527217fa460009addd8456187cf100c5bfa8f7fe8897995a.png",
+      "sha256": "3c1ba89a1ed762ef527217fa460009addd8456187cf100c5bfa8f7fe8897995a"
+    },
+    "calibrationReference": {
+      "path": "inputs/1146b295e64f10b0147842b3aa520c1ba50dd0115ceaa6d0b7fe00a43184dfce.png",
+      "sha256": "1146b295e64f10b0147842b3aa520c1ba50dd0115ceaa6d0b7fe00a43184dfce"
+    },
+    "sourceAudit": {
+      "path": "inputs/b611becec4d14c6d264525501a330dd052dd6ad2899a73957049acecb8579e6f.json",
+      "sha256": "b611becec4d14c6d264525501a330dd052dd6ad2899a73957049acecb8579e6f"
+    },
+    "referenceApproval": {
+      "path": "inputs/1bdc2376e55bc308087042b4e98b3977833be3636e60139f9b0028cc3517635b.json",
+      "sha256": "1bdc2376e55bc308087042b4e98b3977833be3636e60139f9b0028cc3517635b"
+    },
+    "calibrationDetail": {
+      "path": "inputs/44ac68b7305f6410841c986aaeb6e7dd26235f6b9d1b9bbf322fc0dc4461e56b.png",
+      "sha256": "44ac68b7305f6410841c986aaeb6e7dd26235f6b9d1b9bbf322fc0dc4461e56b"
+    }
+  },
+  "features": [
+    {
+      "name": "Traditional Native American hand axe, also usable as a tool or thrown.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Authentic traditional examples have stone-chiseled blades; distinguish a chosen traditional depiction from a modern artistic variant.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exact assigned source/pair and native mask approvals reused; root inspected actual conditioned overlay. Full endpoints, thin structure and silhouette retained with clear padding and common framing. Native [1254, 1254] resampled to2048; no additional image edits or cosmetic re-review.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8f750bc2ee0a6b078ad48e4ed5824f145128884ae8ffee62bc6223c0093376d1",
+      "imageSha256": "c46274300a51e9f90a8f41d7c7206b4528d9f4ab4333f39acd4e53a6b3de9673",
+      "maskSha256": "1fd74d6c53bc5708ad5c4f45d697af4effefa017d19b499da3ff22756d1ea71e",
+      "notes": "Exact assigned source/pair and native mask approvals reused; root inspected actual conditioned overlay. Full endpoints, thin structure and silhouette retained with clear padding and common framing. Native [1254, 1254] resampled to2048; no additional image edits or cosmetic re-review."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1e18b80bf1d1c565202d940f159dae455f0f2d28d32fc0cc4f823faf1cdc3261",
+      "imageSha256": "f61dda2d70f9b6372181e1ad16d1db81849d4b8cc3e18b5bd219727ca0790efb",
+      "maskSha256": "3c1ba89a1ed762ef527217fa460009addd8456187cf100c5bfa8f7fe8897995a",
+      "notes": "Exact assigned source/pair and native mask approvals reused; root inspected actual conditioned overlay. Full endpoints, thin structure and silhouette retained with clear padding and common framing. Native [1254, 1254] resampled to2048; no additional image edits or cosmetic re-review."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Exact assigned source/pair and native mask approvals reused; root inspected actual conditioned overlay. Full endpoints, thin structure and silhouette retained with clear padding and common framing. Native [1254, 1254] resampled to2048; no additional image edits or cosmetic re-review.",
+      "landmarks": [
+        {
+          "name": "upper-head",
+          "detail": [
+            0.9133326301175958,
+            0.2703311479271357
+          ],
+          "geometry": [
+            0.9133326301175958,
+            0.2703311479271357
+          ]
+        },
+        {
+          "name": "blade-tip",
+          "detail": [
+            0.7360780297256098,
+            0.33935465085845895
+          ],
+          "geometry": [
+            0.7360780297256098,
+            0.33935465085845895
+          ]
+        },
+        {
+          "name": "butt",
+          "detail": [
+            0.0764713087979094,
+            0.5801525531302345
+          ],
+          "geometry": [
+            0.0764713087979094,
+            0.5801525531302345
+          ]
+        },
+        {
+          "name": "lower-head",
+          "detail": [
+            0.8858816964285714,
+            0.7229057069200168
+          ],
+          "geometry": [
+            0.8858816964285714,
+            0.7229057069200168
+          ]
+        },
+        {
+          "name": "handhold",
+          "detail": [
+            0.2662749074477352,
+            0.5762307631909547
+          ],
+          "geometry": [
+            0.2662749074477352,
+            0.5762307631909547
+          ]
+        }
+      ],
+      "referenceSha256": "8f750bc2ee0a6b078ad48e4ed5824f145128884ae8ffee62bc6223c0093376d1",
+      "geometrySha256": "f61dda2d70f9b6372181e1ad16d1db81849d4b8cc3e18b5bd219727ca0790efb",
+      "detailSha256": "c46274300a51e9f90a8f41d7c7206b4528d9f4ab4333f39acd4e53a6b3de9673",
+      "geometryForegroundMaskSha256": "3c1ba89a1ed762ef527217fa460009addd8456187cf100c5bfa8f7fe8897995a",
+      "foregroundMaskSha256": "1fd74d6c53bc5708ad5c4f45d697af4effefa017d19b499da3ff22756d1ea71e"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

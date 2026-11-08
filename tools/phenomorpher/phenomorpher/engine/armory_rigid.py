@@ -29,6 +29,23 @@ def profile_affine(transform):
     return rotation @ np.diag(scale), translation
 
 
+def near_identity(values, identity):
+    """Armory's skip test. It behaves as a float32 comparison, which puts the round 1.0001 and 0.9999 outside it."""
+    return np.max(np.abs(np.asarray(values, np.float32) - np.float32(identity))) < np.float32(1e-4)
+
+
+def armory_applied(transform):
+    """The SRT pinned v1.3.4 actually applies: it skips a scale or translate whose components all lie within
+    1e-4 of identity (measured 2026-10-27: translate 9.999e-5 and scale 1.00005 are dropped, 1e-4 and 1.0002
+    applied). The baked output always uses the exact profile; this only models Armory's raw output."""
+    applied = dict(transform)
+    if near_identity(transform['scale'], 1):
+        applied['scale'] = [1., 1., 1.]
+    if near_identity(transform['translate'], 0):
+        applied['translate'] = [0., 0., 0.]
+    return applied
+
+
 def rigid_frames(text):
     skeleton = nodes(text)
     matches = list(NODE.finditer(text.split('endmodelgeom', 1)[0]))
@@ -103,6 +120,7 @@ def correct_rigid(source, target, transform):
     original, text = source.read_text(encoding='ascii'), target.read_text(encoding='ascii')
     before = digest(target)
     linear, translation = profile_affine(transform)
+    raw_linear, raw_translation = profile_affine(armory_applied(transform))
     source_nodes, source_blocks, source_world = rigid_frames(original)
     _, target_blocks, _ = rigid_frames(text)
     source_meshes = {k: v for k, v in source_blocks.items() if arrays(v[3], 'verts')}
@@ -117,6 +135,17 @@ def correct_rigid(source, target, transform):
     source_root = re.search(r'(?mi)^newmodel\s+(\S+)', original)[1].lower()
     if source_root not in source_blocks or root.lower() not in target_blocks:
         raise RuntimeError('Rigid equipment requires its declared root node')
+    # Only meshes are baked and proven below. A pivot dummy whose subtree ends in meshes is absorbed into
+    # them; any other dummy (an attachment point) would keep a stale, unfitted frame.
+    children = {}
+    for name, node in source_nodes.items():
+        children.setdefault(node['parent'], []).append(name)
+    def pivot(name):
+        kids = children.get(name, [])
+        return bool(kids) and all(k in source_meshes or pivot(k) for k in kids)
+    others = sorted(k for k in source_blocks if k not in source_meshes and k != source_root and not pivot(k))
+    if others:
+        raise RuntimeError('Non-root dummy nodes require a separate placement proof: ' + ', '.join(others))
     preserved = ('bitmap', 'materialname', 'ambient', 'diffuse', 'specular', 'shininess',
                  'render', 'shadow', 'beaming', 'rotatetexture', 'tilefade', 'alpha',
                  'transparencyhint', 'inheritcolor', 'selfillumcolor')
@@ -142,7 +171,7 @@ def correct_rigid(source, target, transform):
                 if not a or not b or float(a[1]) != float(b[1]):
                     raise RuntimeError('Dangly physics changed: ' + key + ' ' + field)
         vertices = np.asarray(arrays(src[3], 'verts'))
-        raw_error = error(arrays(dst[3], 'verts'), vertices @ linear.T + translation, 'Armory local vertices')
+        raw_error = error(arrays(dst[3], 'verts'), vertices @ raw_linear.T + raw_translation, 'Armory local vertices')
         source_frame = source_world[key]
         composite = linear @ source_frame[:3, :3]
         body = replace_array(dst[3], 'verts', vertices @ composite.T + linear @ source_frame[:3, 3] + translation)
@@ -151,7 +180,7 @@ def correct_rigid(source, target, transform):
             raise RuntimeError('Equipment authored normals appeared/disappeared: ' + key)
         normal_error = None
         if normals:
-            normal_error = error(arrays(dst[3], 'normals'), directions(normals, np.linalg.inv(linear).T), 'Armory normals')
+            normal_error = error(arrays(dst[3], 'normals'), directions(normals, np.linalg.inv(raw_linear).T), 'Armory normals')
             final_normals = directions(normals, np.linalg.inv(composite).T)
             body = replace_array(body, 'normals', final_normals)
         tangents = arrays(src[3], 'tangents')
@@ -161,7 +190,7 @@ def correct_rigid(source, target, transform):
             tangent_values = np.asarray(tangents, float)
             if tangent_values.ndim != 2 or tangent_values.shape[1] != 4:
                 raise RuntimeError('Equipment tangents must contain XYZ and handedness')
-            raw = np.c_[directions(tangent_values[:, :3], np.linalg.inv(linear).T), tangent_values[:, 3]]
+            raw = np.c_[directions(tangent_values[:, :3], np.linalg.inv(raw_linear).T), tangent_values[:, 3]]
             error(arrays(dst[3], 'tangents'), raw, 'Armory tangents')
             final_tangents = directions(tangent_values[:, :3], composite)
             if normals:
@@ -202,7 +231,7 @@ def correct_rigid(source, target, transform):
             expected_normal = directions(arrays(src[3], 'normals'), np.linalg.inv(linear @ source_frame[:3, :3]).T)
             observed_normal = directions(arrays(dst[3], 'normals'), np.linalg.inv(frame[:3, :3]).T)
             normal_errors.append(error(observed_normal, expected_normal, 'corrected world normals'))
-    target.write_text(text, encoding='ascii')
+    target.write_text(text, encoding='ascii', newline='\n')
     return {'armoryOutputSha256': before, 'correctedSha256': digest(target),
             'meshNodes': len(errors), 'maximumWorldTransformError': max(errors),
             'maximumWorldNormalError': max(normal_errors, default=0.),

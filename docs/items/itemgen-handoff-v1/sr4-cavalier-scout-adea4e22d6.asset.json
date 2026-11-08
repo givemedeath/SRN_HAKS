@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-cavalier-scout-adea4e22d6",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "muzzle-left",
+      "pixel": [
+        167.0,
+        350.0
+      ]
+    },
+    {
+      "name": "rear-upper",
+      "pixel": [
+        1035.0,
+        350.0
+      ]
+    },
+    {
+      "name": "front-sight",
+      "pixel": [
+        270.0,
+        234.0
+      ]
+    },
+    {
+      "name": "rear-sight",
+      "pixel": [
+        900.0,
+        225.99999999999997
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        550.0,
+        672.0
+      ]
+    },
+    {
+      "name": "raised-round-control",
+      "pixel": [
+        689.9999999999999,
+        660.0
+      ]
+    },
+    {
+      "name": "grip-base",
+      "pixel": [
+        770.0,
+        1059.0
+      ]
+    },
+    {
+      "name": "grip-rear",
+      "pixel": [
+        1076.0,
+        964.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-cavalier-scout-adea4e22d6.family.json",
+    "sha256": "740a2c31925c9e0b8ff2f7444603444ae29a68fdf8ebd966b39d9b0bebe1dddf"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/0beeab98ace284b1b45c0e8089ee2588b932240fcf8323352259ead80b683fe6.png",
+      "sha256": "0beeab98ace284b1b45c0e8089ee2588b932240fcf8323352259ead80b683fe6"
+    },
+    "clayReference": {
+      "path": "inputs/51d68e841c4ed6af309c1373809086bd33f70f7ae6ac798967b3c7f23c1c6e18.png",
+      "sha256": "51d68e841c4ed6af309c1373809086bd33f70f7ae6ac798967b3c7f23c1c6e18"
+    },
+    "geometry": {
+      "path": "inputs/0ad79592a9a466c12d8cfe56c52a9e5ad2996717f898b2347b34552b673f9b9c.png",
+      "sha256": "0ad79592a9a466c12d8cfe56c52a9e5ad2996717f898b2347b34552b673f9b9c"
+    },
+    "detail": {
+      "path": "inputs/8c4392d85e7eddc06efd3ab27fd36bab39c7f84d0683957f012a9b8b87178c46.png",
+      "sha256": "8c4392d85e7eddc06efd3ab27fd36bab39c7f84d0683957f012a9b8b87178c46"
+    },
+    "foregroundMask": {
+      "path": "inputs/767e70a58384b34c2d26c08dd97e651c25fab24a8ec7ce93a84a50d9624f7861.png",
+      "sha256": "767e70a58384b34c2d26c08dd97e651c25fab24a8ec7ce93a84a50d9624f7861"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf.png",
+      "sha256": "7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf"
+    },
+    "mask": {
+      "path": "inputs/7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf.png",
+      "sha256": "7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf"
+    },
+    "calibrationReference": {
+      "path": "inputs/940ab459c63bb667d56b2b410d8c3b27debc6f50c0c79bc85e87bc7ea584f596.png",
+      "sha256": "940ab459c63bb667d56b2b410d8c3b27debc6f50c0c79bc85e87bc7ea584f596"
+    },
+    "sourceAudit": {
+      "path": "inputs/49829d41b42a11059dd8f2a8dbc6d3e30d1ed96994e863609e40e6cc02d98f0d.json",
+      "sha256": "49829d41b42a11059dd8f2a8dbc6d3e30d1ed96994e863609e40e6cc02d98f0d"
+    },
+    "referenceApproval": {
+      "path": "inputs/b5b19f587dc0f3dfa6d6a7b36740f6173060d02bd6567122d030dd6bc1d2472e.json",
+      "sha256": "b5b19f587dc0f3dfa6d6a7b36740f6173060d02bd6567122d030dd6bc1d2472e"
+    },
+    "calibrationDetail": {
+      "path": "inputs/931367291245b5f418eb54d0cf200663d417a034febf764df4ce9f12f3ee1e7f.png",
+      "sha256": "931367291245b5f418eb54d0cf200663d417a034febf764df4ce9f12f3ee1e7f"
+    }
+  },
+  "features": [
+    {
+      "name": "Very compact pocket-concealable semi-automatic pistol.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Pocket clip on the frame is text-required even if the tiny labeled art cannot resolve its reverse-side placement.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Use SCOUT labeled outline: short rectangular upper, compact raked grip and distinct small trigger/guard region.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole reviewer inspected the actual source-reviewed color and clay pair. The compact upper, both sights, broad grip panel, raised rectangular lever and round control, full outline and both actual trigger/guard background regions match. Shallow slide cuts, grip ribs, microtexture and fastener marks are absent from clay. Major frame boundaries, backed heel recess and muzzle surface remain solid. Native images are 1254 square; 2048 conditioning is resampling. Reference approval only; geometry is not approved.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        752,
+        839,
+        841,
+        1065
+      ],
+      "referenceAreaPixels": 13278,
+      "referenceMaskSha256": "7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        797,
+        930,
+        1000,
+        1081
+      ],
+      "referenceAreaPixels": 6212,
+      "referenceMaskSha256": "7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0beeab98ace284b1b45c0e8089ee2588b932240fcf8323352259ead80b683fe6",
+      "imageSha256": "8c4392d85e7eddc06efd3ab27fd36bab39c7f84d0683957f012a9b8b87178c46",
+      "maskSha256": "767e70a58384b34c2d26c08dd97e651c25fab24a8ec7ce93a84a50d9624f7861",
+      "notes": "Assigned sole reviewer inspected the actual source-reviewed color and clay pair. The compact upper, both sights, broad grip panel, raised rectangular lever and round control, full outline and both actual trigger/guard background regions match. Shallow slide cuts, grip ribs, microtexture and fastener marks are absent from clay. Major frame boundaries, backed heel recess and muzzle surface remain solid. Native images are 1254 square; 2048 conditioning is resampling. Reference approval only; geometry is not approved."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "51d68e841c4ed6af309c1373809086bd33f70f7ae6ac798967b3c7f23c1c6e18",
+      "imageSha256": "0ad79592a9a466c12d8cfe56c52a9e5ad2996717f898b2347b34552b673f9b9c",
+      "maskSha256": "7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf",
+      "notes": "Assigned sole reviewer inspected the actual source-reviewed color and clay pair. The compact upper, both sights, broad grip panel, raised rectangular lever and round control, full outline and both actual trigger/guard background regions match. Shallow slide cuts, grip ribs, microtexture and fastener marks are absent from clay. Major frame boundaries, backed heel recess and muzzle surface remain solid. Native images are 1254 square; 2048 conditioning is resampling. Reference approval only; geometry is not approved."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole reviewer inspected the actual source-reviewed color and clay pair. The compact upper, both sights, broad grip panel, raised rectangular lever and round control, full outline and both actual trigger/guard background regions match. Shallow slide cuts, grip ribs, microtexture and fastener marks are absent from clay. Major frame boundaries, backed heel recess and muzzle surface remain solid. Native images are 1254 square; 2048 conditioning is resampling. Reference approval only; geometry is not approved.",
+      "landmarks": [
+        {
+          "name": "muzzle-left",
+          "detail": [
+            0.05174518453663793,
+            0.21453085378132458
+          ],
+          "geometry": [
+            0.050774936018318936,
+            0.21453085378132458
+          ]
+        },
+        {
+          "name": "rear-upper",
+          "detail": [
+            0.8939208984375,
+            0.21453085378132458
+          ],
+          "geometry": [
+            0.8939208984375,
+            0.21453085378132458
+          ]
+        },
+        {
+          "name": "front-sight",
+          "detail": [
+            0.15168078192349138,
+            0.10199309647225537
+          ],
+          "geometry": [
+            0.15168078192349138,
+            0.10199309647225537
+          ]
+        },
+        {
+          "name": "rear-sight",
+          "detail": [
+            0.7629373484644396,
+            0.09423187183025057
+          ],
+          "geometry": [
+            0.7629373484644396,
+            0.09423187183025057
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.4233503670528017,
+            0.5269201456220167
+          ],
+          "geometry": [
+            0.4233503670528017,
+            0.5278902987022673
+          ]
+        },
+        {
+          "name": "raised-round-control",
+          "detail": [
+            0.5591851596174569,
+            0.5152783086590096
+          ],
+          "geometry": [
+            0.5591851596174569,
+            0.5152783086590096
+          ]
+        },
+        {
+          "name": "grip-base",
+          "detail": [
+            0.6368050410829741,
+            0.9023693876789977
+          ],
+          "geometry": [
+            0.6368050410829741,
+            0.9043096938394988
+          ]
+        },
+        {
+          "name": "grip-rear",
+          "detail": [
+            0.9337010876885776,
+            0.810204845055191
+          ],
+          "geometry": [
+            0.9346713362068966,
+            0.810204845055191
+          ]
+        }
+      ],
+      "referenceSha256": "0beeab98ace284b1b45c0e8089ee2588b932240fcf8323352259ead80b683fe6",
+      "geometrySha256": "0ad79592a9a466c12d8cfe56c52a9e5ad2996717f898b2347b34552b673f9b9c",
+      "detailSha256": "8c4392d85e7eddc06efd3ab27fd36bab39c7f84d0683957f012a9b8b87178c46",
+      "foregroundMaskSha256": "767e70a58384b34c2d26c08dd97e651c25fab24a8ec7ce93a84a50d9624f7861",
+      "geometryForegroundMaskSha256": "7643fb50f7a5b61fafd73bfafe353cd6a016b00258691c27a83343912e12d6cf"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,8 @@
+numpy==2.3.5
+Pillow==13.0.0
+scipy==1.15.3
+# Exercise loaded Pydantic field/default verification on clean CI hosts.
+pydantic==2.14.1
+# Native geometry libraries are optional, separately installed and byte-bound:
+# libigl 2.6.3, xatlas 0.0.11, PyMeshLab 2025.7.post1, Embree 4.4.0.
+# ComfyUI supplies Torch and its pinned Pixal3D/Trellis dependencies.

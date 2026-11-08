@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-streetline-special-69890a170c",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "rear-sight-top",
+      "pixel": [
+        351.0,
+        105.0
+      ]
+    },
+    {
+      "name": "front-sight-top",
+      "pixel": [
+        1234.0,
+        115.00000000000001
+      ]
+    },
+    {
+      "name": "muzzle-right",
+      "pixel": [
+        1362.0,
+        220.00000000000003
+      ]
+    },
+    {
+      "name": "magazine-bottom",
+      "pixel": [
+        568.0,
+        928.0
+      ]
+    },
+    {
+      "name": "trigger-tip",
+      "pixel": [
+        855.9999999999999,
+        589.0
+      ]
+    },
+    {
+      "name": "guard-bottom",
+      "pixel": [
+        812.9999999999999,
+        635.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-streetline-special-69890a170c.family.json",
+    "sha256": "ba7ed0311d3e3808288fbe157969b3d5b0e881ea8d93a5b7296e7b3099bf0a10"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/c35184a920e2441d946d5f76015b3228da59560d38a1e63cdb515bc09a8e56bb.png",
+      "sha256": "c35184a920e2441d946d5f76015b3228da59560d38a1e63cdb515bc09a8e56bb"
+    },
+    "clayReference": {
+      "path": "inputs/beeff80dcdc7882baf6483ed411f6044871726dcf0f983d62381b67fc249376d.png",
+      "sha256": "beeff80dcdc7882baf6483ed411f6044871726dcf0f983d62381b67fc249376d"
+    },
+    "geometry": {
+      "path": "inputs/da8f4da9695af8218ce2a2ece85c106e2c74b3106de8e3e493c94c7f9af03b2f.png",
+      "sha256": "da8f4da9695af8218ce2a2ece85c106e2c74b3106de8e3e493c94c7f9af03b2f"
+    },
+    "detail": {
+      "path": "inputs/04f8df333fc37a17907898738745b4e72f6b52ebfc4b8334f8870344581d2583.png",
+      "sha256": "04f8df333fc37a17907898738745b4e72f6b52ebfc4b8334f8870344581d2583"
+    },
+    "foregroundMask": {
+      "path": "inputs/921b3ae0a207847e4e8a7649de69beea354affd34b656ae369f7a3c97ec03f35.png",
+      "sha256": "921b3ae0a207847e4e8a7649de69beea354affd34b656ae369f7a3c97ec03f35"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/f78fd45efae35cb1d64ff6d8abafd58c3e2a36e5d5dae4f9732008ed9c3bc76e.png",
+      "sha256": "f78fd45efae35cb1d64ff6d8abafd58c3e2a36e5d5dae4f9732008ed9c3bc76e"
+    },
+    "mask": {
+      "path": "inputs/f78fd45efae35cb1d64ff6d8abafd58c3e2a36e5d5dae4f9732008ed9c3bc76e.png",
+      "sha256": "f78fd45efae35cb1d64ff6d8abafd58c3e2a36e5d5dae4f9732008ed9c3bc76e"
+    },
+    "calibrationReference": {
+      "path": "inputs/b9adca0b9c0f0242734d80f05c753f1536b588f53a969dd000111438703f541c.png",
+      "sha256": "b9adca0b9c0f0242734d80f05c753f1536b588f53a969dd000111438703f541c"
+    },
+    "gripStandard": {
+      "path": "inputs/e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2.json",
+      "sha256": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2"
+    },
+    "sourceAudit": {
+      "path": "inputs/0c169b58f974710938bc2cf9051f00b9e09576b65cab7ea823ab67d3355b2212.json",
+      "sha256": "0c169b58f974710938bc2cf9051f00b9e09576b65cab7ea823ab67d3355b2212"
+    },
+    "referenceApproval": {
+      "path": "inputs/275f5f3cc7bd9a16089bed16db712a41d841c32e489554f66e961e80ad25ebad.json",
+      "sha256": "275f5f3cc7bd9a16089bed16db712a41d841c32e489554f66e961e80ad25ebad"
+    },
+    "calibrationDetail": {
+      "path": "inputs/b5fe4f74fd3b11a2b5112dd95e6c924efbceb5cbf1864bde7cbf664e979acfc7.png",
+      "sha256": "b5fe4f74fd3b11a2b5112dd95e6c924efbceb5cbf1864bde7cbf664e979acfc7"
+    }
+  },
+  "features": [
+    {
+      "name": "Small lightweight composite hold-out",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned final reviewer accepts a declared source-description-based exterior interpretation of the small lightweight composite Streetline hold-out, Core printed307/PDF309, errata1.8. No unique published Streetline silhouette is claimed; adjacent Raecor art excluded. Dark finish, surface wear and unseen construction are artistic interpretation. Smooth clay fills fine grooves, stippling, scratches, microfasteners and the annular recess while retaining major structure and raised controls. Actual common-frame overlay and six landmark checks pass. Reference approval only.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        938,
+        870,
+        1424,
+        1157
+      ],
+      "referenceAreaPixels": 92764,
+      "referenceMaskSha256": "f78fd45efae35cb1d64ff6d8abafd58c3e2a36e5d5dae4f9732008ed9c3bc76e",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "c35184a920e2441d946d5f76015b3228da59560d38a1e63cdb515bc09a8e56bb",
+      "imageSha256": "04f8df333fc37a17907898738745b4e72f6b52ebfc4b8334f8870344581d2583",
+      "maskSha256": "921b3ae0a207847e4e8a7649de69beea354affd34b656ae369f7a3c97ec03f35",
+      "notes": "Assigned sole final reviewer inspected raw pair, independent native masks and teal, before/after enlarged ring patch, final 2048 masks/teal and paired overlay. Trigger opening and thin trigger, guard, both sights, complete muzzle/grip/magazine base and raised controls retained; intentional broad recess and major slide/receiver/part boundaries retained. Existing detailed foreground preserved. Independent clay alpha, no mask transfer or warp. Narrow manual interior repair fills recessed annular ring entirely; all pixels outside patch identical, original generated file unchanged. No detached parts, broad halo or clipping. Minor native edge AA differences do not lose subject parts."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "beeff80dcdc7882baf6483ed411f6044871726dcf0f983d62381b67fc249376d",
+      "imageSha256": "da8f4da9695af8218ce2a2ece85c106e2c74b3106de8e3e493c94c7f9af03b2f",
+      "maskSha256": "f78fd45efae35cb1d64ff6d8abafd58c3e2a36e5d5dae4f9732008ed9c3bc76e",
+      "notes": "Assigned sole final reviewer inspected raw pair, independent native masks and teal, before/after enlarged ring patch, final 2048 masks/teal and paired overlay. Trigger opening and thin trigger, guard, both sights, complete muzzle/grip/magazine base and raised controls retained; intentional broad recess and major slide/receiver/part boundaries retained. Existing detailed foreground preserved. Independent clay alpha, no mask transfer or warp. Narrow manual interior repair fills recessed annular ring entirely; all pixels outside patch identical, original generated file unchanged. No detached parts, broad halo or clipping. Minor native edge AA differences do not lose subject parts."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned final reviewer accepts a declared source-description-based exterior interpretation of the small lightweight composite Streetline hold-out, Core printed307/PDF309, errata1.8. No unique published Streetline silhouette is claimed; adjacent Raecor art excluded. Dark finish, surface wear and unseen construction are artistic interpretation. Smooth clay fills fine grooves, stippling, scratches, microfasteners and the annular recess while retaining major structure and raised controls. Actual common-frame overlay and six landmark checks pass. Reference approval only.",
+      "landmarks": [
+        {
+          "name": "rear-sight-top",
+          "detail": [
+            0.17470994015957447,
+            0.18359375
+          ],
+          "geometry": [
+            0.17470994015957447,
+            0.18359375
+          ]
+        },
+        {
+          "name": "front-sight-top",
+          "detail": [
+            0.8513439162234042,
+            0.19125491828087168
+          ],
+          "geometry": [
+            0.8513439162234042,
+            0.19125491828087168
+          ]
+        },
+        {
+          "name": "muzzle-right",
+          "detail": [
+            0.949429022606383,
+            0.27169718523002423
+          ],
+          "geometry": [
+            0.949429022606383,
+            0.27169718523002423
+          ]
+        },
+        {
+          "name": "magazine-bottom",
+          "detail": [
+            0.3409948470744681,
+            0.8141078995157385
+          ],
+          "geometry": [
+            0.3409948470744681,
+            0.8141078995157385
+          ]
+        },
+        {
+          "name": "trigger-tip",
+          "detail": [
+            0.5616863364361702,
+            0.5543942947941889
+          ],
+          "geometry": [
+            0.5609200465425532,
+            0.5543942947941889
+          ]
+        },
+        {
+          "name": "guard-bottom",
+          "detail": [
+            0.5287358710106382,
+            0.5896356688861986
+          ],
+          "geometry": [
+            0.5287358710106382,
+            0.5896356688861986
+          ]
+        }
+      ],
+      "referenceSha256": "c35184a920e2441d946d5f76015b3228da59560d38a1e63cdb515bc09a8e56bb",
+      "geometrySha256": "da8f4da9695af8218ce2a2ece85c106e2c74b3106de8e3e493c94c7f9af03b2f",
+      "detailSha256": "04f8df333fc37a17907898738745b4e72f6b52ebfc4b8334f8870344581d2583",
+      "foregroundMaskSha256": "921b3ae0a207847e4e8a7649de69beea354affd34b656ae369f7a3c97ec03f35",
+      "geometryForegroundMaskSha256": "f78fd45efae35cb1d64ff6d8abafd58c3e2a36e5d5dae4f9732008ed9c3bc76e"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

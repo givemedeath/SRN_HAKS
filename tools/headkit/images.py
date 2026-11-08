@@ -1,0 +1,257 @@
+"""Measured positive pair alignment; one shared alpha crop and placement evidence."""
+import math
+from pathlib import Path
+import numpy as np
+from PIL import Image, ImageChops, ImageDraw
+from .common import positive, require, pin, write
+
+
+def similarity(source, target, max_relative=1e-3):
+    source, target = np.asarray(source, float), np.asarray(target, float)
+    require(source.shape == target.shape and source.ndim == 2 and source.shape[0] >= source.shape[1] + 1,
+            'Enough corresponding landmarks required')
+    require(np.isfinite(source).all() and np.isfinite(target).all(), 'Finite landmarks required')
+    a, b = source - source.mean(0), target - target.mean(0)
+    require(np.linalg.matrix_rank(a) >= source.shape[1] - 1 and np.linalg.matrix_rank(b) >= source.shape[1] - 1,
+            'Degenerate landmark configuration')
+    u, _, vt = np.linalg.svd(a.T @ b)
+    rotation = u @ vt
+    require(np.linalg.det(rotation) > 0, 'Reflected correspondences rejected')
+    scale = float(np.sum((a @ rotation) * b) / np.sum(a * a))
+    positive(scale, 'uniform scale')
+    translation = target.mean(0) - source.mean(0) @ rotation * scale
+    errors = np.linalg.norm(source @ rotation * scale + translation - target, axis=1)
+    extent = float(np.linalg.norm(np.ptp(target, axis=0)))
+    require(extent > 0 and errors.max() <= extent * max_relative, 'Landmark fitting residual exceeds declared bound')
+    return scale, rotation, translation, errors
+
+
+def _minimum_silhouette_iou(config):
+    value=config.get('minimumSilhouetteIoU',.94)
+    require(isinstance(value,(int,float)) and not isinstance(value,bool),
+            'Minimum silhouette IoU must be a finite number from 0.94 to 1')
+    try:value=float(value)
+    except (OverflowError,TypeError,ValueError):
+        require(False,'Minimum silhouette IoU must be a finite number from 0.94 to 1')
+    require(math.isfinite(value) and .94<=value<=1,
+            'Minimum silhouette IoU must be a finite number from 0.94 to 1')
+    return value
+
+
+def feature_landmarks(config):
+    """Explicit observations to check visually, not anatomical approval."""
+    spec=config.get('featureChecks')
+    if spec is None:return {}
+    require(isinstance(spec,dict) and set(spec)=={'horns','tusks','neck','hairBelowJaw'}
+            and spec['neck']=='none' and spec['hairBelowJaw'] is True,
+            'Feature checks need horn/tusk counts, neck: none and hairBelowJaw: true')
+    groups={'jaw':['jaw-left','jaw-chin','jaw-right']}
+    for feature in ('horns','tusks'):
+        count=spec[feature]
+        require(type(count) is int and count in (0,2),'Feature checks support absent features or a left/right pair')
+        if count:
+            for side in ('left','right'):
+                name=feature[:-1]+'-'+side
+                groups[name]=[name+'-root',name+'-tip']
+    names={row['name'] for row in config.get('landmarks',[])}
+    require(set(sum(groups.values(),[]))<=names,'Missing horn/tusk roots or tips, or jaw boundary landmarks')
+    # Endpoints alone can crop off the outer arc of a curved horn/tusk (RUNBOOK 246).
+    for name,required in groups.items():
+        if name!='jaw':
+            required.extend(sorted(point for point in names if point.startswith(name+'-curve-')))
+    return groups
+
+
+def feature_evidence(aligned,detail,points,config,output):
+    groups=feature_landmarks(config)
+    if not groups:return {}
+    width,height=detail.size;lookup={p['name']:np.array(p['detail'])*[width,height] for p in points}
+    a=np.asarray(aligned.getchannel('A'))>127;b=np.asarray(detail.getchannel('A'))>127
+    cx, cy = np.rint(lookup['jaw-chin']).astype(int)
+    radius = max(2, round(min(width, height) * .01))
+    for role, mask in [('clay', a), ('detail', b)]:
+        require(mask[max(0,cy-radius):cy+radius+1, max(0,cx-radius):cx+radius+1].any(),
+                role + ' matte misses measured jaw-chin')
+    report={}
+    for name,names in groups.items():
+        selected=np.array([lookup[key] for key in names]);low=selected.min(0)-[.05*width,.05*height];high=selected.max(0)+[.05*width,.05*height]
+        if name=='jaw':high[1]+=.10*height  # include below the chin; hair may legitimately occupy it
+        x0,y0=np.maximum(np.floor(low),0).astype(int);x1,y1=np.minimum(np.ceil(high),[width,height]).astype(int)
+        aa,bb=a[y0:y1,x0:x1],b[y0:y1,x0:x1]
+        union=np.count_nonzero(aa|bb);require(union>0,'Feature crop contains no subject: '+name)
+        crop=Image.new('RGBA',((x1-x0)*3,y1-y0))
+        for index,image in enumerate((aligned,detail,Image.blend(aligned,detail,.5))):crop.paste(image.crop((x0,y0,x1,y1)),(index*(x1-x0),0))
+        target=output/(name+'-comparison.png');crop.save(target)
+        report[name]={'box':[int(x0),int(y0),int(x1),int(y1)],'silhouetteIoU':float(np.count_nonzero(aa&bb)/union),
+                      'comparison':pin(target),'visualReviewRequired':True}
+    return report
+
+
+def eye_evidence(clay_path, detail_path, config, output):
+    """Compare independently marked eye openings on the original pinned rasters."""
+    spec = config.get('eyeReview')
+    if spec is None:
+        return None
+    require(isinstance(spec, dict) and spec.get('claySha256') == pin(clay_path)['sha256']
+            and spec.get('detailSha256') == pin(detail_path)['sha256'], 'Eye review missing or stale for this pair')
+    sides = spec.get('eyes')
+    require(isinstance(sides, dict) and set(sides) == {'left', 'right'}, 'Review both eyes in viewer coordinates')
+    rows = {}
+    for side, eye in sides.items():
+        require(isinstance(eye, dict) and eye.get('state') in ('open', 'closed', 'mechanical', 'occluded')
+                and isinstance(eye.get('observation'), str) and eye['observation'].strip(), 'Record the observed eye state')
+        crops = []
+        heights = []
+        for role, path in [('clay', clay_path), ('detail', detail_path)]:
+            with Image.open(path) as img:
+                width, height = img.size
+                coords = np.asarray(eye.get(role), dtype=float)
+                require(coords.shape == (3,) and np.isfinite(coords).all(), 'Eye observation needs x, top and bottom pixels')
+                x, top, bottom = coords
+                require(0 <= x < width and 0 <= top <= bottom < height, 'Eye observation outside the source canvas')
+                opening = bottom - top
+                if eye['state'] == 'open':
+                    require(opening >= 2, 'Open eye has no measured lid separation: ' + side + ' ' + role)
+                heights.append(float(opening))
+                dx, dy = max(8, round(width * .075)), max(5, round(height * .045))
+                cy = round((top + bottom) / 2)
+                crops.append(img.convert('RGBA').crop((round(x)-dx, cy-dy, round(x)+dx, cy+dy)))
+        if eye['state'] == 'open':
+            require(abs(heights[0] - heights[1]) <= max(2, heights[1] * .30),
+                    'Clay eye opening differs from the detailed reference: ' + side)
+        # Equal source canvases and matching pixel scales, clay on the left.
+        sheet = Image.new('RGBA', (sum(c.width for c in crops), crops[0].height))
+        sheet.paste(crops[0]); sheet.paste(crops[1], (crops[0].width, 0))
+        target = output / ('eye-' + side + '-comparison.png')
+        sheet.save(target)
+        rows[side] = {'comparison': pin(target), 'openingPixels': heights, 'state': eye['state'],
+                      'observation': eye['observation']}
+    return rows
+
+
+def prepare(clay_path, detail_path, config, output):
+    minimum_iou=_minimum_silhouette_iou(config)
+    feature_landmarks(config)
+    output = Path(output); output.mkdir(parents=True, exist_ok=False)
+    clay, detail = (Image.open(p).convert('RGBA') for p in (clay_path, detail_path))
+    require(clay.size == detail.size, 'Pair must have matching canvases before alignment')
+    points = config.get('landmarks', [])
+    require(len(points) >= 3 and len({p['name'] for p in points}) == len(points), 'Named, distinct paired landmarks required')
+    width, height = clay.size
+    a = np.asarray([p['clay'] for p in points], float) * [width, height]
+    b = np.asarray([p['detail'] for p in points], float) * [width, height]
+    require(np.all((a >= 0) & (a <= [width, height])) and np.all((b >= 0) & (b <= [width, height])),
+            'Landmarks must be normalized image coordinates')
+    scale, rotation, translation, errors = similarity(a, b, config.get('maximumRelativeResidual', .01))
+    require(.97 <= scale <= 1.03, 'Pair needs a larger design/alignment correction')
+    require(abs(math.degrees(math.atan2(rotation[0, 1], rotation[0, 0]))) <= 3, 'Pair rotation exceeds bounded correction')
+    matrix = np.linalg.inv(scale * rotation.T); offset = -matrix @ translation
+    aligned = clay.transform(detail.size, Image.Transform.AFFINE,
+                             (*matrix[0], offset[0], *matrix[1], offset[1]), Image.Resampling.BICUBIC)
+    a_mask, b_mask = np.asarray(aligned.getchannel('A')) > 127, np.asarray(detail.getchannel('A')) > 127
+    require(a_mask.any() and b_mask.any() and not a_mask.all() and not b_mask.all(), 'Nonempty transparent-background inputs required')
+    for mask in (a_mask,b_mask):
+        require(not (mask[0].any() or mask[-1].any() or mask[:,0].any() or mask[:,-1].any()),'Input silhouette is clipped at canvas edge')
+    iou = float(np.count_nonzero(a_mask & b_mask) / np.count_nonzero(a_mask | b_mask))
+    require(iou >= minimum_iou, 'Paired silhouette alignment failed')
+    mask = ImageChops.lighter(aligned.getchannel('A'), detail.getchannel('A'))
+    aligned.save(output / 'geometry-pair.png'); detail.save(output / 'detail-pair.png')
+    Image.merge('RGBA', (mask, mask, mask, mask)).save(output / 'common-mask.png')
+    overlay = Image.blend(aligned, detail, .5); draw = ImageDraw.Draw(overlay)
+    for i, (point, value) in enumerate(zip(b, points), 1):
+        x, y = point; draw.ellipse((x-5, y-5, x+5, y+5), outline='yellow', width=2)
+        draw.text((x+7, y), f'{i}: {value["name"]}', fill='yellow')
+    overlay.save(output / 'alignment-overlay.png')
+    regions=feature_evidence(aligned,detail,points,config,output)
+    result = {'featureChecks':regions,'silhouetteIoU': iou, 'residualPixels': errors.tolist(), 'scale': scale,
+              'rotation': rotation.tolist(), 'translation': translation.tolist(), 'manualReviewRequired': True,
+              'landmarksAreOperatorMeasurements': True,
+              'images': {name: pin(output / name) for name in ('geometry-pair.png', 'detail-pair.png', 'common-mask.png', 'alignment-overlay.png')}}
+    eyes = eye_evidence(clay_path, detail_path, config, output)
+    if eyes is not None:
+        result['eyeReview'] = eyes
+    write(output / 'alignment.json', result, fresh=True)
+    return result
+
+
+def prepare_multiview(pairs, config, output):
+    """Keep a common canvas; never independently crop the four geometry views."""
+    require(set(pairs)=={'front','left','back','right'}, 'Four cardinal view pairs required')
+    require(config.get('rigReviewed') is True and config.get('fovDegrees')==20,
+            'Review the frozen 20-degree rig and its cardinal view assignments')
+    output=Path(output);output.mkdir(parents=True,exist_ok=False)
+    evidence={};metrics=[];canvas=None
+    expected={'front':0,'left':90,'back':180,'right':270}
+    for view, paths in pairs.items():
+        row=config['views'][view]
+        require(row.get('azimuthDegrees')==expected[view] and row.get('orientationReviewed') is True,
+                'View orientation needs explicit cardinal review: '+view)
+        result=prepare(paths[0],paths[1],row['alignment'],output/view)
+        with Image.open(output/view/'geometry-pair.png') as image:
+            require(canvas in (None,image.size),'All views must share the same canvas');canvas=image.size
+            mask=np.asarray(image.getchannel('A'))>127
+            y,x=np.nonzero(mask)
+            require(x.min()>1 and y.min()>1 and x.max()<image.width-2 and y.max()<image.height-2,
+                    'Clipped multiview silhouette: '+view)
+        crown=np.asarray(row['crown'],float);jaw=np.asarray(row['chin'],float);center=np.asarray(row['skullCenter'],float)
+        require(crown.shape==jaw.shape==center.shape==(2,) and np.isfinite([crown,jaw,center]).all()
+                and np.all((np.array([crown,jaw,center])>=0)&(np.array([crown,jaw,center])<=1)), 'Normalized cranial measurements required')
+        require(jaw[1]>crown[1],'Crown/chin orientation reversed')
+        metrics.append([jaw[1]-crown[1],*center]);evidence[view]=result
+    metrics=np.asarray(metrics);reference=metrics[0]
+    require(np.ptp(metrics[:,0])/reference[0]<=.02,'Multiview skull heights differ by more than 2%')
+    require(np.max(np.ptp(metrics[:,1:],axis=0))<=.02,'Multiview skull centers drift by more than 2% of canvas')
+    result={'views':evidence,'cranialMeasurements':metrics.tolist(),'commonCanvas':list(canvas),
+            'independentCropping':False,'rigFovDegrees':20,'manualReviewRequired':True}
+    write(output/'alignment.json',result,fresh=True);return result
+
+
+def subject(rgb, tolerance=14):
+    """The design's subject silhouette against its plain studio backdrop (the border median): pixels not in a
+    near-backdrop, low-saturation region connected to the canvas border, holes filled, largest component kept.
+    Returns (foreground, backdrop, near-backdrop mask, component count)."""
+    from scipy import ndimage
+    pixels=np.asarray(rgb).astype(np.int16);border=np.concatenate([pixels[:8].reshape(-1,3),pixels[-8:].reshape(-1,3),pixels[:,:8].reshape(-1,3),pixels[:,-8:].reshape(-1,3)])
+    backdrop=np.median(border,0)
+    require(float(np.mean(np.abs(border-backdrop).max(1)<tolerance))>=.6,'Design backdrop is not plain enough to matte')
+    near=(np.abs(pixels-backdrop).max(2)<tolerance)&(np.ptp(pixels,axis=2)<tolerance)
+    labels,_=ndimage.label(near);edge=np.unique(np.concatenate([labels[0],labels[-1],labels[:,0],labels[:,-1]]))
+    foreground=ndimage.binary_fill_holes(ndimage.binary_opening(~np.isin(labels,edge[edge>0])))
+    labels,count=ndimage.label(foreground);require(count>0,'Matte found no subject')
+    sizes=ndimage.sum(foreground,labels,range(1,count+1));return labels==1+int(np.argmax(sizes)),backdrop,near,count
+
+
+def matte(design_path, config, output):
+    """Single-image bootstrap: transparent background from the design's plain studio backdrop. The backdrop is the
+    border median; background is the near-backdrop, low-saturation region connected to the canvas border, so dark or
+    gray features inside the silhouette stay opaque. The head must not touch the canvas edge. Opt-in
+    enclosedBackgroundMinimumPixels also clears near-backdrop regions the subject fully encloses (the backdrop inside
+    a curled horn) when at least that large; each cleared region is recorded for review."""
+    tolerance=config.get('backgroundTolerance',14)
+    require(type(tolerance) is int and 4<=tolerance<=40,'Background tolerance must be an integer from 4 to 40')
+    enclosed=config.get('enclosedBackgroundMinimumPixels')
+    require(enclosed is None or (type(enclosed) is int and 50<=enclosed<=100000),
+            'Enclosed background minimum must be an integer from 50 to 100000 pixels')
+    from scipy import ndimage
+    output=Path(output);output.mkdir(parents=True,exist_ok=False)
+    with Image.open(design_path) as image:rgb=np.asarray(image.convert('RGB'))
+    foreground,backdrop,near,count=subject(rgb,tolerance)
+    cleared=[]
+    if enclosed is not None:
+        holes,holes_count=ndimage.label(near&foreground)
+        for index,size in enumerate(ndimage.sum(near&foreground,holes,range(1,holes_count+1)),1):
+            if size<enclosed:continue
+            region=holes==index;ys,xs=np.nonzero(region);foreground&=~region
+            cleared.append({'pixels':int(size),'center':[int(xs.mean()),int(ys.mean())],'box':[int(xs.min()),int(ys.min()),int(xs.max()),int(ys.max())]})
+    require(not (foreground[:2].any() or foreground[-2:].any() or foreground[:,:2].any() or foreground[:,-2:].any()),
+            'Subject touches the canvas edge: regenerate the design with margin')
+    alpha=(ndimage.gaussian_filter(foreground.astype(float),.7)*255).clip(0,255).astype(np.uint8)
+    rgba=np.dstack([rgb,alpha]);Image.fromarray(rgba,'RGBA').save(output/'design-rgba.png')
+    check=Image.new('RGB',(rgb.shape[1],rgb.shape[0]),(255,0,255));check.paste(Image.fromarray(rgba,'RGBA'),(0,0),Image.fromarray(alpha))
+    check.save(output/'matte-check.png')
+    ys,xs=np.nonzero(foreground);height,width=foreground.shape
+    result={'backdrop':backdrop.tolist(),'foregroundFraction':float(foreground.mean()),'droppedComponents':int(count-1),
+            **({'enclosedBackgroundMinimumPixels':enclosed,'clearedEnclosedBackground':cleared} if enclosed is not None else {}),
+            'marginPixels':{'top':int(ys.min()),'bottom':int(height-1-ys.max()),'left':int(xs.min()),'right':int(width-1-xs.max())},
+            'manualReviewRequired':True,'images':{name:pin(output/name) for name in ('design-rgba.png','matte-check.png')}}
+    write(output/'matte.json',result,fresh=True);return result

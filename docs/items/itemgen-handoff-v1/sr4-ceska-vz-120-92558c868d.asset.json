@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-ceska-vz-120-92558c868d",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "framing-upper-left",
+      "pixel": [
+        11.999999999999998,
+        252.0
+      ]
+    },
+    {
+      "name": "framing-upper-right",
+      "pixel": [
+        1238.0,
+        252.0
+      ]
+    },
+    {
+      "name": "framing-lower-left",
+      "pixel": [
+        11.999999999999998,
+        1060.0
+      ]
+    },
+    {
+      "name": "framing-lower-right",
+      "pixel": [
+        1238.0,
+        1060.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-ceska-vz-120-92558c868d.family.json",
+    "sha256": "be33d00c487fa98c4f97ac98e7ff78bf901dd2d4d3a2521ad99b760526d21a3e"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/580b9e27654a0022ee5c54b202dfeaac18d701a388f0128de2c4c91a6269a4fd.png",
+      "sha256": "580b9e27654a0022ee5c54b202dfeaac18d701a388f0128de2c4c91a6269a4fd"
+    },
+    "clayReference": {
+      "path": "inputs/0014bcfadc4d9e4ae1e2a5baaea8968e121253d6e7b9418d50705cdefca95a34.png",
+      "sha256": "0014bcfadc4d9e4ae1e2a5baaea8968e121253d6e7b9418d50705cdefca95a34"
+    },
+    "geometry": {
+      "path": "inputs/d3acdeb8d2dc3520bf5def530aaf62b5627c74f394043c2f976bd82fd89ddafe.png",
+      "sha256": "d3acdeb8d2dc3520bf5def530aaf62b5627c74f394043c2f976bd82fd89ddafe"
+    },
+    "detail": {
+      "path": "inputs/c858abdfb2b0989e03589747ace406c5aa0070ac3ac7ee4c08c9040371d53c80.png",
+      "sha256": "c858abdfb2b0989e03589747ace406c5aa0070ac3ac7ee4c08c9040371d53c80"
+    },
+    "foregroundMask": {
+      "path": "inputs/fd10a9bc40d0cd5b520652da1cb1d58ca5b4fcde2ac732aed786d1081e2fa2f9.png",
+      "sha256": "fd10a9bc40d0cd5b520652da1cb1d58ca5b4fcde2ac732aed786d1081e2fa2f9"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/e52f8e18630197d08b1d39a682b91fb467aa2cfa725a05032886803a0db28bcc.png",
+      "sha256": "e52f8e18630197d08b1d39a682b91fb467aa2cfa725a05032886803a0db28bcc"
+    },
+    "mask": {
+      "path": "inputs/e52f8e18630197d08b1d39a682b91fb467aa2cfa725a05032886803a0db28bcc.png",
+      "sha256": "e52f8e18630197d08b1d39a682b91fb467aa2cfa725a05032886803a0db28bcc"
+    },
+    "calibrationReference": {
+      "path": "inputs/67e0adfae1c9c6c4f95b4d28878949401542e2a6dcd05a0157e028d7de380198.png",
+      "sha256": "67e0adfae1c9c6c4f95b4d28878949401542e2a6dcd05a0157e028d7de380198"
+    },
+    "sourceAudit": {
+      "path": "inputs/48b5ee9a05423b5d596f20fa7935893ef964e8d2ea06665b4b658acdee197553.json",
+      "sha256": "48b5ee9a05423b5d596f20fa7935893ef964e8d2ea06665b4b658acdee197553"
+    },
+    "referenceApproval": {
+      "path": "inputs/74e291fc1079ccbf07d8c858638eb390690e5a4f09936939bfd3c95457b1e040.json",
+      "sha256": "74e291fc1079ccbf07d8c858638eb390690e5a4f09936939bfd3c95457b1e040"
+    },
+    "calibrationDetail": {
+      "path": "inputs/aacb1452e094e5646f0f21d495843b1aaa4f0484d35a1c07ce5971d1093d3a6a.png",
+      "sha256": "aacb1452e094e5646f0f21d495843b1aaa4f0484d35a1c07ce5971d1093d3a6a"
+    }
+  },
+  "features": [
+    {
+      "name": "Light service pistol; preserve the labeled VZ/120 compact upper, inset side-panel mass, raked grip and rounded open trigger guard proportions.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        845,
+        813,
+        1179,
+        1079
+      ],
+      "referenceAreaPixels": 62308,
+      "referenceMaskSha256": "e52f8e18630197d08b1d39a682b91fb467aa2cfa725a05032886803a0db28bcc",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "580b9e27654a0022ee5c54b202dfeaac18d701a388f0128de2c4c91a6269a4fd",
+      "imageSha256": "c858abdfb2b0989e03589747ace406c5aa0070ac3ac7ee4c08c9040371d53c80",
+      "maskSha256": "fd10a9bc40d0cd5b520652da1cb1d58ca5b4fcde2ac732aed786d1081e2fa2f9",
+      "notes": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "0014bcfadc4d9e4ae1e2a5baaea8968e121253d6e7b9418d50705cdefca95a34",
+      "imageSha256": "d3acdeb8d2dc3520bf5def530aaf62b5627c74f394043c2f976bd82fd89ddafe",
+      "maskSha256": "e52f8e18630197d08b1d39a682b91fb467aa2cfa725a05032886803a0db28bcc",
+      "notes": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Source-matched pair and masks reviewed; silhouette and openings preserved. User accepts shallow channels. Native images resampled to 2048.",
+      "landmarks": [
+        {
+          "name": "framing-upper-left",
+          "detail": [
+            0.049069074244281044,
+            0.20263671875
+          ],
+          "geometry": [
+            0.049069074244281044,
+            0.20190127533261137
+          ]
+        },
+        {
+          "name": "framing-upper-right",
+          "detail": [
+            0.9509309257557189,
+            0.20263671875
+          ],
+          "geometry": [
+            0.9509309257557189,
+            0.20190127533261137
+          ]
+        },
+        {
+          "name": "framing-lower-left",
+          "detail": [
+            0.049069074244281044,
+            0.796875
+          ],
+          "geometry": [
+            0.049069074244281044,
+            0.7976104434173886
+          ]
+        },
+        {
+          "name": "framing-lower-right",
+          "detail": [
+            0.9509309257557189,
+            0.796875
+          ],
+          "geometry": [
+            0.9509309257557189,
+            0.7976104434173886
+          ]
+        }
+      ],
+      "referenceSha256": "580b9e27654a0022ee5c54b202dfeaac18d701a388f0128de2c4c91a6269a4fd",
+      "geometrySha256": "d3acdeb8d2dc3520bf5def530aaf62b5627c74f394043c2f976bd82fd89ddafe",
+      "detailSha256": "c858abdfb2b0989e03589747ace406c5aa0070ac3ac7ee4c08c9040371d53c80",
+      "geometryForegroundMaskSha256": "e52f8e18630197d08b1d39a682b91fb467aa2cfa725a05032886803a0db28bcc",
+      "foregroundMaskSha256": "fd10a9bc40d0cd5b520652da1cb1d58ca5b4fcde2ac732aed786d1081e2fa2f9"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

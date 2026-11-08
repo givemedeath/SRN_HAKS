@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-vibro-blades-knife-9604aa44b5",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        42.00000000000001,
+        201.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        2127.0,
+        201.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        42.00000000000001,
+        515.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        2127.0,
+        515.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-vibro-blades-knife-9604aa44b5.family.json",
+    "sha256": "172a03841bcea400853faa88cc4d849fd96f28fdcfe9b5ec3473a95b33614ed3"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/8ec3cecccfde6090c6fb9098653787593a5f87b0f5a6b8f83f72001c82fbc81b.png",
+      "sha256": "8ec3cecccfde6090c6fb9098653787593a5f87b0f5a6b8f83f72001c82fbc81b"
+    },
+    "clayReference": {
+      "path": "inputs/e2460f6a3a1c3e1c53075c984fdc8b316ec76b8ce5a827f52c5afe1d67627b2e.png",
+      "sha256": "e2460f6a3a1c3e1c53075c984fdc8b316ec76b8ce5a827f52c5afe1d67627b2e"
+    },
+    "geometry": {
+      "path": "inputs/9cf88d9951908b5501f30b18950cfb38ac7059f341c44bb233cf1af932ea7042.png",
+      "sha256": "9cf88d9951908b5501f30b18950cfb38ac7059f341c44bb233cf1af932ea7042"
+    },
+    "detail": {
+      "path": "inputs/4291817f823d557e9bd52d43f6a334512ff5a56a9e6652a2de4321b27f79a5b7.png",
+      "sha256": "4291817f823d557e9bd52d43f6a334512ff5a56a9e6652a2de4321b27f79a5b7"
+    },
+    "foregroundMask": {
+      "path": "inputs/ad8b4da9a65d16781a32388bc3e8168933b9ffcf2eb563900b4af9e3c7f347ae.png",
+      "sha256": "ad8b4da9a65d16781a32388bc3e8168933b9ffcf2eb563900b4af9e3c7f347ae"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/79785dfbeb95986da85ec9bb927ffcd72a3ea444dbe532e10e6c590e35a60732.png",
+      "sha256": "79785dfbeb95986da85ec9bb927ffcd72a3ea444dbe532e10e6c590e35a60732"
+    },
+    "mask": {
+      "path": "inputs/79785dfbeb95986da85ec9bb927ffcd72a3ea444dbe532e10e6c590e35a60732.png",
+      "sha256": "79785dfbeb95986da85ec9bb927ffcd72a3ea444dbe532e10e6c590e35a60732"
+    },
+    "calibrationReference": {
+      "path": "inputs/364faef88d753b568db32d9986e61b3c1c5856eb18c99dbab689c83d2d96fff0.png",
+      "sha256": "364faef88d753b568db32d9986e61b3c1c5856eb18c99dbab689c83d2d96fff0"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/8a52b185aa91db5d385dc16ccbf3047f035475ea46a3606aa5367522b9fe2d61.json",
+      "sha256": "8a52b185aa91db5d385dc16ccbf3047f035475ea46a3606aa5367522b9fe2d61"
+    },
+    "referenceApproval": {
+      "path": "inputs/45346f90b6d1496898cfc150b82b818e4447465f629ea876e59a9e5b00331499.json",
+      "sha256": "45346f90b6d1496898cfc150b82b818e4447465f629ea876e59a9e5b00331499"
+    },
+    "calibrationDetail": {
+      "path": "inputs/14780b73de684be9d12d4bc11e6b02b18bc0d4e349151c596300c0727b6d2be2.png",
+      "sha256": "14780b73de684be9d12d4bc11e6b02b18bc0d4e349151c596300c0727b6d2be2"
+    }
+  },
+  "features": [
+    {
+      "name": "Knife-sized variant of the powered vibrating serrated-blade family.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Retain serrations in the detailed appearance reference; tiny serration cuts are smoothed from clay under the current authoring rule.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Battery-powered mechanism with removable/rechargeable battery; source does not specify battery-port or control placement.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Activation can be manual or triggered by gripping the handle; audible operation does not require a visible glow.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched broad blade, major scalloped edge, fuller, guard, powered grip and open pommel loop. Stippling and wear removed; shallow grooves and fasteners accepted under user waiver. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed16/PDF18 description and printed172/PDF174 table: powered serrated knife with battery housing. No own labeled illustration; silhouette, control layout, finish and depth are artistic interpretations. Major scalloped blade silhouette remains; fine texture is simplified.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1893,
+        998,
+        1921,
+        1079
+      ],
+      "referenceAreaPixels": 1284,
+      "referenceMaskSha256": "79785dfbeb95986da85ec9bb927ffcd72a3ea444dbe532e10e6c590e35a60732",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "8ec3cecccfde6090c6fb9098653787593a5f87b0f5a6b8f83f72001c82fbc81b",
+      "imageSha256": "4291817f823d557e9bd52d43f6a334512ff5a56a9e6652a2de4321b27f79a5b7",
+      "maskSha256": "ad8b4da9a65d16781a32388bc3e8168933b9ffcf2eb563900b4af9e3c7f347ae",
+      "notes": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched broad blade, major scalloped edge, fuller, guard, powered grip and open pommel loop. Stippling and wear removed; shallow grooves and fasteners accepted under user waiver. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed16/PDF18 description and printed172/PDF174 table: powered serrated knife with battery housing. No own labeled illustration; silhouette, control layout, finish and depth are artistic interpretations. Major scalloped blade silhouette remains; fine texture is simplified."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "e2460f6a3a1c3e1c53075c984fdc8b316ec76b8ce5a827f52c5afe1d67627b2e",
+      "imageSha256": "9cf88d9951908b5501f30b18950cfb38ac7059f341c44bb233cf1af932ea7042",
+      "maskSha256": "79785dfbeb95986da85ec9bb927ffcd72a3ea444dbe532e10e6c590e35a60732",
+      "notes": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched broad blade, major scalloped edge, fuller, guard, powered grip and open pommel loop. Stippling and wear removed; shallow grooves and fasteners accepted under user waiver. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed16/PDF18 description and printed172/PDF174 table: powered serrated knife with battery housing. No own labeled illustration; silhouette, control layout, finish and depth are artistic interpretations. Major scalloped blade silhouette remains; fine texture is simplified."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "8ec3cecccfde6090c6fb9098653787593a5f87b0f5a6b8f83f72001c82fbc81b",
+      "detailSha256": "4291817f823d557e9bd52d43f6a334512ff5a56a9e6652a2de4321b27f79a5b7",
+      "geometrySha256": "9cf88d9951908b5501f30b18950cfb38ac7059f341c44bb233cf1af932ea7042",
+      "foregroundMaskSha256": "ad8b4da9a65d16781a32388bc3e8168933b9ffcf2eb563900b4af9e3c7f347ae",
+      "geometryForegroundMaskSha256": "79785dfbeb95986da85ec9bb927ffcd72a3ea444dbe532e10e6c590e35a60732",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.05023590906369732,
+            0.4325032038643533
+          ],
+          "geometry": [
+            0.0498046875,
+            0.431640625
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9493328693726054,
+            0.4325032038643533
+          ],
+          "geometry": [
+            0.9501953125,
+            0.431640625
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.05023590906369732,
+            0.5679280855678234
+          ],
+          "geometry": [
+            0.0498046875,
+            0.568359375
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9493328693726054,
+            0.5679280855678234
+          ],
+          "geometry": [
+            0.9501953125,
+            0.568359375
+          ]
+        }
+      ],
+      "notes": "Actual prepared overlay inspected: common framing, thin members, complete outline and intentional openings preserved; no background debris. Matched broad blade, major scalloped edge, fuller, guard, powered grip and open pommel loop. Stippling and wear removed; shallow grooves and fasteners accepted under user waiver. Actual raw pair and both foreground previews viewed; no background debris; intended opening preserved. Arsenal printed16/PDF18 description and printed172/PDF174 table: powered serrated knife with battery housing. No own labeled illustration; silhouette, control layout, finish and depth are artistic interpretations. Major scalloped blade silhouette remains; fine texture is simplified."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

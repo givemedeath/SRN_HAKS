@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-monofilament-sword-463d9cc9c1",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        23.0,
+        215.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1754.0,
+        215.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        23.0,
+        607.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1754.0,
+        607.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-monofilament-sword-463d9cc9c1.family.json",
+    "sha256": "2c3aea1f94f2744c8d5f02ab8069c13427278a17523a6e9fe634c409c161f2aa"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/96192c21dca60f78430cee037aa1af21fb4062700e567e67fab4def2eb7714b8.png",
+      "sha256": "96192c21dca60f78430cee037aa1af21fb4062700e567e67fab4def2eb7714b8"
+    },
+    "clayReference": {
+      "path": "inputs/7c12186adaad2a2872904775b7387793c0cce42ac6489676507cd096ec3f6bf5.png",
+      "sha256": "7c12186adaad2a2872904775b7387793c0cce42ac6489676507cd096ec3f6bf5"
+    },
+    "geometry": {
+      "path": "inputs/c14addee8bb658852ecbdea3997ba785f418b827ff4a8eb083963baad77ec990.png",
+      "sha256": "c14addee8bb658852ecbdea3997ba785f418b827ff4a8eb083963baad77ec990"
+    },
+    "detail": {
+      "path": "inputs/3e35fc760bdff6b60f6415da2cf859e336cf2810f21d12941f07d3b4b3b8be5a.png",
+      "sha256": "3e35fc760bdff6b60f6415da2cf859e336cf2810f21d12941f07d3b4b3b8be5a"
+    },
+    "foregroundMask": {
+      "path": "inputs/14899404d5e6cab3b93dafa20538f15094bf98ad8c52f6bd19e997abb02a755a.png",
+      "sha256": "14899404d5e6cab3b93dafa20538f15094bf98ad8c52f6bd19e997abb02a755a"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5.png",
+      "sha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5"
+    },
+    "mask": {
+      "path": "inputs/2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5.png",
+      "sha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5"
+    },
+    "calibrationReference": {
+      "path": "inputs/5b57c5bc7fc0eaeb4693694d30d04932672e42dd9f6d16486e98098e181f2e2f.png",
+      "sha256": "5b57c5bc7fc0eaeb4693694d30d04932672e42dd9f6d16486e98098e181f2e2f"
+    },
+    "gripStandard": {
+      "path": "inputs/8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988.json",
+      "sha256": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988"
+    },
+    "sourceAudit": {
+      "path": "inputs/467e3f1ee8cbbf17b3f8a8e8e3c515aac7b317ce717a33b6fdfc2c74b1b329f4.json",
+      "sha256": "467e3f1ee8cbbf17b3f8a8e8e3c515aac7b317ce717a33b6fdfc2c74b1b329f4"
+    },
+    "referenceApproval": {
+      "path": "inputs/4ec4f3d9f0b6013a27d821f60e0cd454844d5dcfbcac28e08e02309423c8f838.json",
+      "sha256": "4ec4f3d9f0b6013a27d821f60e0cd454844d5dcfbcac28e08e02309423c8f838"
+    },
+    "calibrationDetail": {
+      "path": "inputs/b2506c0b3641459619d107be0b9ee9699642fa80f7c4d5e109629e8e1250aca1.png",
+      "sha256": "b2506c0b3641459619d107be0b9ee9699642fa80f7c4d5e109629e8e1250aca1"
+    }
+  },
+  "features": [
+    {
+      "name": "Broad solid sword blade",
+      "placementReviewed": true
+    },
+    {
+      "name": "Fine monofilament wire attached to edges",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Core printed305/PDF307: solid broad sword with superfine wire attached to its edges. Exact outline, mounts, colors and finishes are artistic interpretation; no own labeled artwork found.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        788,
+        958,
+        1710,
+        965
+      ],
+      "referenceAreaPixels": 5531,
+      "referenceMaskSha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1739,
+        960,
+        1934,
+        1087
+      ],
+      "referenceAreaPixels": 1686,
+      "referenceMaskSha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        151,
+        1018,
+        160,
+        1028
+      ],
+      "referenceAreaPixels": 77,
+      "referenceMaskSha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-4",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        788,
+        1083,
+        1709,
+        1089
+      ],
+      "referenceAreaPixels": 5479,
+      "referenceMaskSha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "96192c21dca60f78430cee037aa1af21fb4062700e567e67fab4def2eb7714b8",
+      "imageSha256": "3e35fc760bdff6b60f6415da2cf859e336cf2810f21d12941f07d3b4b3b8be5a",
+      "maskSha256": "14899404d5e6cab3b93dafa20538f15094bf98ad8c52f6bd19e997abb02a755a",
+      "notes": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Core printed305/PDF307: solid broad sword with superfine wire attached to its edges. Exact outline, mounts, colors and finishes are artistic interpretation; no own labeled artwork found."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "7c12186adaad2a2872904775b7387793c0cce42ac6489676507cd096ec3f6bf5",
+      "imageSha256": "c14addee8bb658852ecbdea3997ba785f418b827ff4a8eb083963baad77ec990",
+      "maskSha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5",
+      "notes": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Core printed305/PDF307: solid broad sword with superfine wire attached to its edges. Exact outline, mounts, colors and finishes are artistic interpretation; no own labeled artwork found."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Actual native foregrounds and conditioned overlay reviewed: aligned silhouette, guard and grip; preserved thin members and intentional openings. Shallow grooves accepted. Core printed305/PDF307: solid broad sword with superfine wire attached to its edges. Exact outline, mounts, colors and finishes are artistic interpretation; no own labeled artwork found.",
+      "landmarks": [
+        {
+          "name": "upper-left",
+          "detail": [
+            0.0498046875,
+            0.39794921875
+          ],
+          "geometry": [
+            0.0498046875,
+            0.39794921875
+          ]
+        },
+        {
+          "name": "upper-right",
+          "detail": [
+            0.9501953125,
+            0.39794921875
+          ],
+          "geometry": [
+            0.9496751561597343,
+            0.39794921875
+          ]
+        },
+        {
+          "name": "lower-left",
+          "detail": [
+            0.0498046875,
+            0.60205078125
+          ],
+          "geometry": [
+            0.0498046875,
+            0.6015301139987245
+          ]
+        },
+        {
+          "name": "lower-right",
+          "detail": [
+            0.9501953125,
+            0.60205078125
+          ],
+          "geometry": [
+            0.9496751561597343,
+            0.6015301139987245
+          ]
+        }
+      ],
+      "referenceSha256": "96192c21dca60f78430cee037aa1af21fb4062700e567e67fab4def2eb7714b8",
+      "geometrySha256": "c14addee8bb658852ecbdea3997ba785f418b827ff4a8eb083963baad77ec990",
+      "detailSha256": "3e35fc760bdff6b60f6415da2cf859e336cf2810f21d12941f07d3b4b3b8be5a",
+      "geometryForegroundMaskSha256": "2500ea1ea1575d0d01002e30da29a376f9ff2252c57022ecaa181191a74f25f5",
+      "foregroundMaskSha256": "14899404d5e6cab3b93dafa20538f15094bf98ad8c52f6bd19e997abb02a755a"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

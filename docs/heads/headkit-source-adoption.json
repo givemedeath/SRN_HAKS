@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "route": "Reviewed single-image Pixal3D heads 73 and 74",
+  "sourceFunctions": [
+    {
+      "source": "tools/heads/remove_review_zero_area_v1.py",
+      "sha256": "cc429b8a18ff69bd8633fab7eb89f26d98ae1fa01ef58549518c466d9825a693",
+      "functions": [
+        "load",
+        "accessor",
+        "arrays",
+        "encode"
+      ],
+      "destination": "tools/headkit/gltf.py"
+    },
+    {
+      "source": "tools/heads/render_trellis_field_diagnostics.py",
+      "sha256": "913c3e00d362b646ac573c9de3232a0c71341fb6a023564de3e784c994915d9f",
+      "functions": [
+        "GeneratedField"
+      ],
+      "destination": "tools/headkit/field.py"
+    },
+    {
+      "source": "tools/head_quality_v2/fast_intersections.py",
+      "sha256": "d64d65cdb34083084aca184e500c0e648cf271a012877467a28dcb290640c37d",
+      "functions": [
+        "_cross2",
+        "crossing_pairs",
+        "_validated_mesh",
+        "sphere_aabb_pairs",
+        "scan"
+      ],
+      "destination": "tools/headkit/intersections.py"
+    },
+    {
+      "source": "tools/heads/render_trellis_field_cpu.py",
+      "sha256": "5cd9699d6eac3fa7e5d3860f43bf42d410f17c3ac3bc239e6f61d2da2f594382",
+      "functions": [
+        "EmbreeScene"
+      ],
+      "destination": "tools/headkit/rays.py"
+    },
+    {
+      "source": "tools/head_quality_v2/uv.py",
+      "sha256": "ba2d214cc3ac892d4e3b8543f4cc3072adb28968033702c5b32d249e2fee7227",
+      "destination": "tools/headkit/uv.py",
+      "adaptation": "One chart iteration, as the successful fast finish preset; physical fans retained."
+    },
+    {
+      "sourceStage": "geometry",
+      "sha256": "262dba4c4245add6ffd0819242e9fd531b553d477c67444b3f71965475c3e83d",
+      "destination": "tools/headkit/templates/geometry.json",
+      "adaptation": "Input/output bindings and FOV are supplied per run; graph controls retained."
+    },
+    {
+      "sourceStage": "appearance",
+      "sha256": "e3aad48a3bc1fd0a6920b574b5d4eecf34414310aab17ff0f9e77ee4f86ea37f",
+      "destination": "tools/headkit/templates/appearance.json",
+      "adaptation": "Input/output bindings and FOV are supplied per run; graph controls retained."
+    },
+    {
+      "sourceStage": "export",
+      "sha256": "6115af9d8b7a04605b68b9de8fd5c6e30b2fa51b0e2d3d03cc1d3f9d7d5dfc16",
+      "destination": "tools/headkit/templates/export.json",
+      "adaptation": "Input/output bindings and FOV are supplied per run; graph controls retained."
+    },
+    {
+      "sourceStage": "calibrate",
+      "sha256": "74d769c7a592cd78e84049d400b34b9cd6feebeb7486f622a886e602b1a28646",
+      "destination": "tools/headkit/templates/calibrate.json",
+      "adaptation": "Input/output bindings and FOV are supplied per run; graph controls retained."
+    }
+  ],
+  "headSpecificScriptsAdopted": false,
+  "autonomousFactoryClaim": false,
+  "comfyAdapters": [
+    {
+      "source": "tools/heads/comfy_shape_checkpoint_v59/__init__.py",
+      "sha256": "0d5e16e712853e9a3c6b0e5b796c978b2e7934ec320dda7a234716e5939ac11f",
+      "functions": [
+        "SrnSaveShapeCheckpointV59"
+      ]
+    },
+    {
+      "source": "tools/heads/comfy_saved_shape_audit/__init__.py",
+      "sha256": "f6d184ef4c722c7ab329c52f79ab7425ca92f30fe1a8041d3fad7bb8a05d4f2a",
+      "functions": [
+        "summary",
+        "SrnLoadShapeCheckpointV61",
+        "SrnDecodeAuditedShapeV61"
+      ]
+    },
+    {
+      "source": "tools/heads/comfy_trellis_export/nodes.py",
+      "sha256": "130201e905006d8d2db9d85f6136a1ed7beb8d42ed0933c39fd5d46804c3eb91",
+      "functions": [
+        "SrnSaveTrellisField",
+        "SrnLoadReviewMesh"
+      ]
+    },
+    {
+      "source": "bounded-tangent-optional-native-reader",
+      "sha256": "7895591535283dce260ad885b60d10f71c1eb77f6d408b989fd2b97220e5e0fe",
+      "destination": "tools/headkit/native_reader.py"
+    }
+  ],
+  "adapterNodeNames": {
+    "SrnSaveShapeCheckpointV59": "HeadkitSaveShapeV1",
+    "SrnLoadShapeCheckpointV61": "HeadkitLoadShapeV1",
+    "SrnDecodeAuditedShapeV61": "HeadkitDecodeShapeV1",
+    "SrnSaveTrellisField": "HeadkitSaveFieldV1",
+    "SrnLoadReviewMesh": "HeadkitLoadMeshV1"
+  },
+  "multiview": {
+    "sourceRequestSha256": "bcbd941f076c1b0708a52134ebbaf8a4c1c4e0bf6f33d042b35119dd38735571",
+    "source": "attempt51-corrected-inputs",
+    "review": "accepted in game after downstream repair; raw generation was not production-ready",
+    "geometryViews": [
+      "front",
+      "left",
+      "back",
+      "right"
+    ],
+    "textureViews": [
+      "front"
+    ],
+    "fovDegrees": 20,
+    "spacingDegrees": 90,
+    "templates": [
+      "multiview-geometry.json",
+      "multiview-appearance.json"
+    ]
+  }
+}

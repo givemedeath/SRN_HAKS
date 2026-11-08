@@ -46,6 +46,51 @@ HEARTBEAT='''void main() {
   if(n==13){ClearAllActions();ActionPlayAnimation(ANIMATION_LOOPING_DEAD_FRONT,1.0,6.0);}
   if(n==14){ClearAllActions();ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectDeath(),OBJECT_SELF);}
 }'''
+# Actors revive 10 s after death and restart the motion sequence, so death/raise cycles repeat without a reload.
+DEATH='''void Revive(object o){
+  ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectResurrection(),o);
+  ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectHeal(GetMaxHitPoints(o)),o);
+  SetLocalInt(o,"HEAD_STEP",0);
+  WriteTimestampedLogEntry("HEAD_FIXTURE_REVIVE actor="+GetTag(o));}
+void main(){object o=OBJECT_SELF;
+  WriteTimestampedLogEntry("HEAD_FIXTURE_DEATH actor="+GetTag(o));
+  AssignCommand(GetModule(),DelayCommand(10.0,Revive(o)));}'''
+ENTER='''void main(){object p=GetEnteringObject();if(!GetIsPC(p))return;
+      SetLocalInt(GetModule(),"HEAD_TEST_STARTED",1);SendMessageToPC(p,"Head pilot: native candidates; client acceptance pending. Actors revive 10 s after death and repeat the motion sequence.");
+      WriteTimestampedLogEntry("HEAD_FIXTURE_CLIENT_ENTER");}'''
+# Trial views also apply fixed tattoo rows (PLT channels 8/9) and log the colours the engine applied.
+TATTOO='''  SetColor(OBJECT_SELF,COLOR_CHANNEL_TATTOO_1,GetLocalInt(OBJECT_SELF,"TATTOO1_ROW"));
+  SetColor(OBJECT_SELF,COLOR_CHANNEL_TATTOO_2,GetLocalInt(OBJECT_SELF,"TATTOO2_ROW"));
+'''
+COLORS='''  WriteTimestampedLogEntry("HEAD_FIXTURE_COLORS actor="+GetTag(OBJECT_SELF)+" skin="+IntToString(GetColor(OBJECT_SELF,COLOR_CHANNEL_SKIN))
+    +" hair="+IntToString(GetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR))+" tattoo1="+IntToString(GetColor(OBJECT_SELF,COLOR_CHANNEL_TATTOO_1))
+    +" tattoo2="+IntToString(GetColor(OBJECT_SELF,COLOR_CHANNEL_TATTOO_2)));
+'''
+# Armour actors (HEAD_ARMOUR = leather1 row + 1) wear the first stock chest armour the game resolves, recoloured on leather1,
+# so head PLT channels 2-7 can be compared bare and armoured. The log names the armour and the leather1 row the engine applied.
+ARMOUR='''  int armour=GetLocalInt(OBJECT_SELF,"HEAD_ARMOUR");
+  if(armour>0){object a=CreateItemOnObject("nw_aarcl001",OBJECT_SELF);
+    if(!GetIsObjectValid(a)) a=CreateItemOnObject("nw_aarcl009",OBJECT_SELF);
+    if(!GetIsObjectValid(a)) a=CreateItemOnObject("nw_cloth001",OBJECT_SELF);
+    if(!GetIsObjectValid(a)) WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" missing");
+    else{object b=CopyItemAndModify(a,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1,armour-1,TRUE);DestroyObject(a);
+      if(!GetIsObjectValid(b)) WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" recolour-failed leather1="+IntToString(armour-1));
+      else{ActionEquipItem(b,INVENTORY_SLOT_CHEST);
+        WriteTimestampedLogEntry("HEAD_FIXTURE_ARMOUR actor="+GetTag(OBJECT_SELF)+" resref="+GetResRef(b)+" leather1="
+          +IntToString(GetItemAppearance(b,ITEM_APPR_TYPE_ARMOR_COLOR,ITEM_APPR_ARMOR_COLOR_LEATHER1)));}}}
+'''
+
+
+def spawn_script(tattoo=False,armour=False):
+    if not tattoo and not armour:return SPAWN
+    hair='  SetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR,GetLocalInt(OBJECT_SELF,"HAIR_ROW"));\n'
+    require(SPAWN.count(hair)==1 and SPAWN.endswith('\n}'),'Fixture spawn script layout changed')
+    body=SPAWN.replace(hair,hair+TATTOO) if tattoo else SPAWN
+    return body[:-1]+(ARMOUR if armour else '')+(COLORS if tattoo else '')+'}'
+
+
+def module_scripts(tattoo=False,armour=False):
+    return {'sr_h_spawn':spawn_script(tattoo,armour),'sr_h_hb':HEARTBEAT,'sr_h_death':DEATH,'sr_h_enter':ENTER}
 
 
 def fixture_identity(config):
@@ -69,24 +114,68 @@ def fixture_identity(config):
     return target['prefix'],row,row,scale
 
 
-def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet=0):
+def make_creature(template,tag,name,x,y,slot,skin,hair,appearance,race,visual_scale,helmet=0,tattoo=None,gender=0,armour=None):
     item=copy.deepcopy(template)
     item.pop('__data_type', None)
     item['__struct_id'] = 4
     for key in list(item):
         if key.startswith('Script'):item[key]=field('resref','')
-    item.update({'Appearance_Type':field('word',appearance),'Race':field('byte',race),'Gender':field('byte',0),'Phenotype':field('int',0),
+    item.update({'Appearance_Type':field('word',appearance),'Race':field('byte',race),'Gender':field('byte',gender),'Phenotype':field('int',0),
         'Tag':field('cexostring',tag),'TemplateResRef':field('resref',tag),'FirstName':field('cexolocstring',{'0':name}),
         'LastName':field('cexolocstring',{}),'FactionID':field('word',2),'Plot':field('byte',0),
         'CurrentHitPoints':field('short',100),'MaxHitPoints':field('short',100),'HitPoints':field('short',100),
         'XPosition':field('float',x),'YPosition':field('float',y),'ZPosition':field('float',0),
         'XOrientation':field('float',0),'YOrientation':field('float',1),'ItemList':field('list',[]),'Equip_ItemList':field('list',[]),
-        'ScriptSpawn':field('resref','sr_h_spawn'),'ScriptHeartbeat':field('resref','sr_h_hb'),
+        'ScriptSpawn':field('resref','sr_h_spawn'),'ScriptHeartbeat':field('resref','sr_h_hb'),'ScriptDeath':field('resref','sr_h_death'),
         'VarTable':field('list',[{'__struct_id':0,'Name':field('cexostring',key),'Type':field('dword',1),'Value':field('int',value)}
                                for key,value in (('HEAD_SLOT',slot),('SKIN_ROW',skin),('HAIR_ROW',hair),('HEAD_HELMET',helmet))])})
     item['VarTable']['value'].append({'__struct_id':0,'Name':field('cexostring','BODY_VISUAL_SCALE'),
         'Type':field('dword',2),'Value':field('float',visual_scale)})
+    if tattoo is not None:
+        item['VarTable']['value']+=[{'__struct_id':0,'Name':field('cexostring',key),'Type':field('dword',1),'Value':field('int',value)}
+                                    for key,value in zip(('TATTOO1_ROW','TATTOO2_ROW'),tattoo,strict=True)]
+    if armour is not None:
+        item['VarTable']['value'].append({'__struct_id':0,'Name':field('cexostring','HEAD_ARMOUR'),'Type':field('dword',1),'Value':field('int',armour+1)})
     return item
+
+
+def target_creature(template,appearance,race,visual_scale,x=44,y=48,gender=0):
+    target=make_creature(template,'head_target','Stationary combat/spell target',x,y,1,3,5,appearance,race,visual_scale,gender=gender)
+    target['Plot']=field('byte',1);target['ScriptHeartbeat']=field('resref','');target['FactionID']=field('word',1)
+    return target
+
+
+def module_documents(actors,hak_names,lighting,*,name='SRN Head Pilot',
+                     description='Pending client review: slots, palettes, helmets and motions.',tag='SRN_HEAD_PILOT',events=None):
+    """Module GFF documents for the fixture floor; the first HAK name has the highest priority."""
+    tiles=[{'__struct_id':1,'Tile_ID':field('int',120),'Tile_Height':field('int',0),'Tile_Orientation':field('int',0),
+        **{key:field('byte',value) for key,value in {'Tile_AnimLoop1':1,'Tile_AnimLoop2':1,'Tile_AnimLoop3':1,
+        'Tile_MainLight1':0,'Tile_MainLight2':0,'Tile_SrcLight1':0,'Tile_SrcLight2':0}.items()}} for _ in range(64)]
+    require(lighting in ('ambient','directional'),'Explicit light profile required')
+    ambient,diffuse=(0xc0c0c0,0) if lighting=='ambient' else (0x505050,0xeeeeee)
+    area=structure('ARE ',Tileset=field('resref','sr_h_floor'),Width=field('int',8),Height=field('int',8),
+        Name=field('cexolocstring',{'0':'Head test floor'}),Tag=field('cexostring','sr_h_floor'),ResRef=field('resref','sr_h_floor'),
+        Tile_List=field('list',tiles),Version=field('dword',2),Flags=field('dword',4),DayNightCycle=field('byte',0),IsNight=field('byte',0),
+        SunAmbientColor=field('dword',ambient),MoonAmbientColor=field('dword',ambient),SunDiffuseColor=field('dword',diffuse),
+        MoonDiffuseColor=field('dword',diffuse),SunShadows=field('byte',int(lighting=='directional')),
+        ShadowOpacity=field('byte',20),FogClipDist=field('float',80),SkyBox=field('byte',0))
+    git=structure('GIT ',**{'Creature List':field('list',actors),'Door List':field('list',[]),'Placeable List':field('list',[]),
+        'TriggerList':field('list',[]),'WaypointList':field('list',[]),'StoreList':field('list',[])})
+    ifo=structure('IFO ',Mod_Name=field('cexolocstring',{'0':name}),Mod_Description=field('cexolocstring',{'0':description}),
+        Mod_Tag=field('cexostring',tag),Mod_Version=field('dword',3),Mod_MinGameVer=field('cexostring','1.69'),
+        Mod_IsSaveGame=field('byte',0),Mod_Entry_Area=field('resref','sr_h_floor'),Mod_Entry_X=field('float',25),Mod_Entry_Y=field('float',18),
+        Mod_Entry_Z=field('float',0),Mod_Entry_Dir_X=field('float',0),Mod_Entry_Dir_Y=field('float',1),
+        Mod_Area_list=field('list',[{'__struct_id':6,'Area_Name':field('resref','sr_h_floor')}]),
+        Mod_HakList=field('list',[{'__struct_id':8,'Mod_Hak':field('cexostring',hak)} for hak in hak_names]),
+        Mod_CustomTlk=field('cexostring',''),Mod_OnClientEntr=field('resref','sr_h_enter'))
+    for event,script in (events or {}).items():
+        require(event.startswith('Mod_On'),'Module events are Mod_On* script fields');ifo[event]=field('resref',script)
+    factions=[{'__struct_id':i,'FactionName':field('cexostring',faction),'FactionGlobal':field('word',1),
+               'FactionParentID':field('dword',4294967295)} for i,faction in enumerate(('PC','Hostile','Commoner','Merchant','Defender'))]
+    reps=[{'__struct_id':i*5+j,'FactionID1':field('dword',i),'FactionID2':field('dword',j),
+           'FactionRep':field('dword',0 if {i,j}=={1,2} else 50)} for i in range(5) for j in range(5) if i!=j]
+    fac=structure('FAC ',FactionList=field('list',factions),RepList=field('list',reps))
+    return {'module.ifo':ifo,'sr_h_floor.are':area,'sr_h_floor.git':git,'repute.fac':fac}
 
 
 def build(config_path,output):
@@ -98,8 +187,10 @@ def build(config_path,output):
     output=Path(output);require(not output.exists(),'Fresh isolated fixture required')
     user=output/'userdir';stage=output/'module-resources';sources=output/'hak-sources'
     for path in (stage,sources,user/'hak',user/'modules',user/'override'):path.mkdir(parents=True,exist_ok=True)
+    binaries={}  # each resolve hashes and registers the tool, so once per build
     def run(name,arguments):
-        result=subprocess.run([str(tool(name)),*map(str,arguments)],capture_output=True)
+        if name not in binaries:binaries[name]=str(tool(name))
+        result=subprocess.run([binaries[name],*map(str,arguments)],capture_output=True)
         if result.returncode:
             raise ValueError(name+' failed: '+result.stderr.decode('utf-8',errors='replace')+' '+result.stdout.decode('utf-8',errors='replace'))
         return result.stdout
@@ -164,37 +255,9 @@ def build(config_path,output):
         name=f'sr_h_helm{helmet}';item.update(TemplateResRef=field('resref',name),Tag=field('cexostring',name),
             PropertiesList=field('list',[]),Identified=field('byte',1))
         gff(name+'.uti',item)
-    target=creature('head_target','Stationary combat/spell target',44,48,1,3,5);target['Plot']=field('byte',1)
-    target['ScriptHeartbeat']=field('resref','');target['FactionID']=field('word',1);actors.append(target)
-    tiles=[{'__struct_id':1,'Tile_ID':field('int',120),'Tile_Height':field('int',0),'Tile_Orientation':field('int',0),
-        **{key:field('byte',value) for key,value in {'Tile_AnimLoop1':1,'Tile_AnimLoop2':1,'Tile_AnimLoop3':1,
-        'Tile_MainLight1':0,'Tile_MainLight2':0,'Tile_SrcLight1':0,'Tile_SrcLight2':0}.items()}} for _ in range(64)]
-    require(config['lighting'] in ('ambient','directional'),'Explicit light profile required')
-    ambient,diffuse=(0xc0c0c0,0) if config['lighting']=='ambient' else (0x505050,0xeeeeee)
-    area=structure('ARE ',Tileset=field('resref','sr_h_floor'),Width=field('int',8),Height=field('int',8),
-        Name=field('cexolocstring',{'0':'Head test floor'}),Tag=field('cexostring','sr_h_floor'),ResRef=field('resref','sr_h_floor'),
-        Tile_List=field('list',tiles),Version=field('dword',2),Flags=field('dword',4),DayNightCycle=field('byte',0),IsNight=field('byte',0),
-        SunAmbientColor=field('dword',ambient),MoonAmbientColor=field('dword',ambient),SunDiffuseColor=field('dword',diffuse),
-        MoonDiffuseColor=field('dword',diffuse),SunShadows=field('byte',int(config['lighting']=='directional')),
-        ShadowOpacity=field('byte',20),FogClipDist=field('float',80),SkyBox=field('byte',0))
-    git=structure('GIT ',**{'Creature List':field('list',actors),'Door List':field('list',[]),'Placeable List':field('list',[]),
-        'TriggerList':field('list',[]),'WaypointList':field('list',[]),'StoreList':field('list',[])})
-    ifo=structure('IFO ',Mod_Name=field('cexolocstring',{'0':'SRN Head Pilot'}),Mod_Description=field('cexolocstring',{'0':'Pending client review: slots, palettes, helmets and motions.'}),
-        Mod_Tag=field('cexostring','SRN_HEAD_PILOT'),Mod_Version=field('dword',3),Mod_MinGameVer=field('cexostring','1.69'),
-        Mod_IsSaveGame=field('byte',0),Mod_Entry_Area=field('resref','sr_h_floor'),Mod_Entry_X=field('float',25),Mod_Entry_Y=field('float',18),
-        Mod_Entry_Z=field('float',0),Mod_Entry_Dir_X=field('float',0),Mod_Entry_Dir_Y=field('float',1),
-        Mod_Area_list=field('list',[{'__struct_id':6,'Area_Name':field('resref','sr_h_floor')}]),
-        Mod_HakList=field('list',[{'__struct_id':8,'Mod_Hak':field('cexostring',name)} for name in ('srn_head','srn_body','sr_h_fixture')]),
-        Mod_CustomTlk=field('cexostring',''),Mod_OnClientEntr=field('resref','sr_h_enter'))
-    factions=[{'__struct_id':i,'FactionName':field('cexostring',name),'FactionGlobal':field('word',1),
-               'FactionParentID':field('dword',4294967295)} for i,name in enumerate(('PC','Hostile','Commoner','Merchant','Defender'))]
-    reps=[{'__struct_id':i*5+j,'FactionID1':field('dword',i),'FactionID2':field('dword',j),
-           'FactionRep':field('dword',0 if {i,j}=={1,2} else 50)} for i in range(5) for j in range(5) if i!=j]
-    fac=structure('FAC ',FactionList=field('list',factions),RepList=field('list',reps))
-    for name,document in (('module.ifo',ifo),('sr_h_floor.are',area),('sr_h_floor.git',git),('repute.fac',fac)):gff(name,document)
-    scripts={'sr_h_spawn':SPAWN,'sr_h_hb':HEARTBEAT,'sr_h_enter':'''void main(){object p=GetEnteringObject();if(!GetIsPC(p))return;
-      SetLocalInt(GetModule(),"HEAD_TEST_STARTED",1);SendMessageToPC(p,"Head pilot: native candidates; client acceptance pending. Reload to repeat motion/death sequence.");
-      WriteTimestampedLogEntry("HEAD_FIXTURE_CLIENT_ENTER");}'''}
+    actors.append(target_creature(template,appearance,race,visual_scale))
+    for name,document in module_documents(actors,('srn_head','srn_body','sr_h_fixture'),config['lighting']).items():gff(name,document)
+    scripts=module_scripts()
     for name,text in scripts.items():
         path=stage/(name+'.nss');path.write_text(text,encoding='ascii')
         run('nwn_script_comp',['--root',config['gameRoot'],'--userdirectory',user,'--no-ovr',path])

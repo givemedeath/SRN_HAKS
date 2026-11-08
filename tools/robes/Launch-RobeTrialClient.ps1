@@ -42,6 +42,7 @@ $taskLaunch=[ordered]@{kind='srn-robe-client-launch';processId=$taskStarted.Id;l
   hakSha256=$taskFixture.hak.sha256;moduleSha256=$taskFixture.module.sha256;launcherSha256=$taskLauncher;
   inputsVerifiedAfterSession=$true;
   note='Launch receipt only; client evidence requires observed screenshots and logged actor rows.'}
-New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Output) | Out-Null
+$taskOutputFolder=Split-Path -Parent $Output
+if ($taskOutputFolder) { New-Item -ItemType Directory -Force -Path $taskOutputFolder | Out-Null }
 $taskLaunch | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 -LiteralPath $Output
 $taskLaunch | ConvertTo-Json -Depth 5

@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-cybergun-cyber-microgrenade-launcher-a6a711eae5",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "elbow-top",
+      "pixel": [
+        1150.0,
+        65.0
+      ]
+    },
+    {
+      "name": "forearm-top",
+      "pixel": [
+        900.0,
+        150.0
+      ]
+    },
+    {
+      "name": "wrist-side",
+      "pixel": [
+        650.0,
+        517.0
+      ]
+    },
+    {
+      "name": "finger-tip-contour",
+      "pixel": [
+        300.0,
+        1129.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-cybergun-cyber-microgrenade-launcher-a6a711eae5.family.json",
+    "sha256": "c3ad1401f18c348f305cd94628cb58c227230b951ca662321a6f2fd13028dca6"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/9c0501488e74c17a58f6072e411fc1fb65ddb843dcb8ebbeb9c460cd8b5dd8c4.png",
+      "sha256": "9c0501488e74c17a58f6072e411fc1fb65ddb843dcb8ebbeb9c460cd8b5dd8c4"
+    },
+    "clayReference": {
+      "path": "inputs/a3121f5bd0bcb5260a1686e39e6a4785f19ec510dae79ca495e9e685a89d7a78.png",
+      "sha256": "a3121f5bd0bcb5260a1686e39e6a4785f19ec510dae79ca495e9e685a89d7a78"
+    },
+    "geometry": {
+      "path": "inputs/a765561ac5b7ad483f64cb3f4d23e4e013e35f25f117390041ce67274414ebd2.png",
+      "sha256": "a765561ac5b7ad483f64cb3f4d23e4e013e35f25f117390041ce67274414ebd2"
+    },
+    "detail": {
+      "path": "inputs/82970431faf41f8172dd8a9c75a026ce9896c11384f083532ccdb53216763e96.png",
+      "sha256": "82970431faf41f8172dd8a9c75a026ce9896c11384f083532ccdb53216763e96"
+    },
+    "foregroundMask": {
+      "path": "inputs/714ff47126c04ce50fd2f19658d1e18a2847d9a3734bd6c2b811c9c4a247cea9.png",
+      "sha256": "714ff47126c04ce50fd2f19658d1e18a2847d9a3734bd6c2b811c9c4a247cea9"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/75b734804916f324a242152613558c2d2318ec442bd1fd4ad4acb2e034f4c8c5.png",
+      "sha256": "75b734804916f324a242152613558c2d2318ec442bd1fd4ad4acb2e034f4c8c5"
+    },
+    "mask": {
+      "path": "inputs/75b734804916f324a242152613558c2d2318ec442bd1fd4ad4acb2e034f4c8c5.png",
+      "sha256": "75b734804916f324a242152613558c2d2318ec442bd1fd4ad4acb2e034f4c8c5"
+    },
+    "calibrationReference": {
+      "path": "inputs/f9c7203bdba49155eed1a6de4af6de058e35598e05ae311d206882c31e0539e5.png",
+      "sha256": "f9c7203bdba49155eed1a6de4af6de058e35598e05ae311d206882c31e0539e5"
+    },
+    "sourceAudit": {
+      "path": "inputs/7c322004fff5ccf01eaea19f3596755adfd94a2219fb43b106357a74334dbcce.json",
+      "sha256": "7c322004fff5ccf01eaea19f3596755adfd94a2219fb43b106357a74334dbcce"
+    },
+    "referenceApproval": {
+      "path": "inputs/fdd79f4e201f7c52f12facd96c57fa7f04beea3a083f42e6c915de71fd1a64b8.json",
+      "sha256": "fdd79f4e201f7c52f12facd96c57fa7f04beea3a083f42e6c915de71fd1a64b8"
+    },
+    "calibrationDetail": {
+      "path": "inputs/366e9f160b61a51fd0f438a8816a1c25cd5527b580a5bacb0e3426a1ac871143.png",
+      "sha256": "366e9f160b61a51fd0f438a8816a1c25cd5527b580a5bacb0e3426a1ac871143"
+    }
+  },
+  "features": [
+    {
+      "name": "Weapon integrated in a limb, usually cyberarm, rather than a separate held firearm",
+      "placementReviewed": true
+    },
+    {
+      "name": "Concealed palm firing port or hand-folded-back wrist configuration; one cybergun per limb",
+      "placementReviewed": true
+    },
+    {
+      "name": "Internal magazine and built-in smartgun identity; external clip port and permitted accessories are optional, not mandatory silhouette features",
+      "placementReviewed": true
+    },
+    {
+      "name": "Most components nonmetallic with remaining metal incorporated into the limb structure; exact exterior panel/port geometry unspecified",
+      "placementReviewed": true
+    },
+    {
+      "name": "Preserve this exact subtype identity through metadata; do not substitute another implant size/class or invent a labeled model from unrelated art.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed return and alpha16 diagnostics against the retained source-reviewed Core336-337/PDF338-339 and official errata5. Exact subtype Cyber Microgrenade Launcher: whole ivory/charcoal composite forearm/hand, elbow upper-right and fingers lower-left, rounded closed elbow end, FIVE coherent digits and one circular CLOSED PALM PORT COVER. No held gun, protruding barrel, magazine, added accessories, rotary launcher, grenade, cutaway, internals or action. Complete margins and no clipping. Exact shell/finish/port/depth are artistic interpretations; no individually labeled subtype art, engineering or native rig approval. Preserve this actual closed state. Root final pair review: exact detailed/clay framing, five digits, forearm/wrist proportions, closed palm cover and structural gaps preserved. Actual alpha16 comparison reviewed; no visible background or shadow. Tiny grooves/channels and isolated subpixel hole-count differences are nonblocking; each role retains its own source alpha topology independently. No structural redesign or second cosmetic review required.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "9c0501488e74c17a58f6072e411fc1fb65ddb843dcb8ebbeb9c460cd8b5dd8c4",
+      "imageSha256": "82970431faf41f8172dd8a9c75a026ce9896c11384f083532ccdb53216763e96",
+      "maskSha256": "714ff47126c04ce50fd2f19658d1e18a2847d9a3734bd6c2b811c9c4a247cea9",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed return and alpha16 diagnostics against the retained source-reviewed Core336-337/PDF338-339 and official errata5. Exact subtype Cyber Microgrenade Launcher: whole ivory/charcoal composite forearm/hand, elbow upper-right and fingers lower-left, rounded closed elbow end, FIVE coherent digits and one circular CLOSED PALM PORT COVER. No held gun, protruding barrel, magazine, added accessories, rotary launcher, grenade, cutaway, internals or action. Complete margins and no clipping. Exact shell/finish/port/depth are artistic interpretations; no individually labeled subtype art, engineering or native rig approval. Preserve this actual closed state. Root final pair review: exact detailed/clay framing, five digits, forearm/wrist proportions, closed palm cover and structural gaps preserved. Actual alpha16 comparison reviewed; no visible background or shadow. Tiny grooves/channels and isolated subpixel hole-count differences are nonblocking; each role retains its own source alpha topology independently. No structural redesign or second cosmetic review required."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "a3121f5bd0bcb5260a1686e39e6a4785f19ec510dae79ca495e9e685a89d7a78",
+      "imageSha256": "a765561ac5b7ad483f64cb3f4d23e4e013e35f25f117390041ce67274414ebd2",
+      "maskSha256": "75b734804916f324a242152613558c2d2318ec442bd1fd4ad4acb2e034f4c8c5",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed return and alpha16 diagnostics against the retained source-reviewed Core336-337/PDF338-339 and official errata5. Exact subtype Cyber Microgrenade Launcher: whole ivory/charcoal composite forearm/hand, elbow upper-right and fingers lower-left, rounded closed elbow end, FIVE coherent digits and one circular CLOSED PALM PORT COVER. No held gun, protruding barrel, magazine, added accessories, rotary launcher, grenade, cutaway, internals or action. Complete margins and no clipping. Exact shell/finish/port/depth are artistic interpretations; no individually labeled subtype art, engineering or native rig approval. Preserve this actual closed state. Root final pair review: exact detailed/clay framing, five digits, forearm/wrist proportions, closed palm cover and structural gaps preserved. Actual alpha16 comparison reviewed; no visible background or shadow. Tiny grooves/channels and isolated subpixel hole-count differences are nonblocking; each role retains its own source alpha topology independently. No structural redesign or second cosmetic review required."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "9c0501488e74c17a58f6072e411fc1fb65ddb843dcb8ebbeb9c460cd8b5dd8c4",
+      "detailSha256": "82970431faf41f8172dd8a9c75a026ce9896c11384f083532ccdb53216763e96",
+      "geometrySha256": "a765561ac5b7ad483f64cb3f4d23e4e013e35f25f117390041ce67274414ebd2",
+      "foregroundMaskSha256": "714ff47126c04ce50fd2f19658d1e18a2847d9a3734bd6c2b811c9c4a247cea9",
+      "geometryForegroundMaskSha256": "75b734804916f324a242152613558c2d2318ec442bd1fd4ad4acb2e034f4c8c5",
+      "landmarks": [
+        {
+          "name": "elbow-top",
+          "detail": [
+            0.8669446626167705,
+            0.06688106142241379
+          ],
+          "geometry": [
+            0.8669446626167705,
+            0.06610486260775862
+          ]
+        },
+        {
+          "name": "forearm-top",
+          "detail": [
+            0.67287024229871,
+            0.13285796066810346
+          ],
+          "geometry": [
+            0.67287024229871,
+            0.13285796066810346
+          ]
+        },
+        {
+          "name": "wrist-side",
+          "detail": [
+            0.47879582198064946,
+            0.4177229256465517
+          ],
+          "geometry": [
+            0.47879582198064946,
+            0.4184991244612069
+          ]
+        },
+        {
+          "name": "finger-tip-contour",
+          "detail": [
+            0.20709163353536478,
+            0.8927566002155173
+          ],
+          "geometry": [
+            0.20709163353536478,
+            0.8950851966594827
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each source mask retains its own components/openings, with no discarded components or filled holes. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Root inspected actual detailed return and alpha16 diagnostics against the retained source-reviewed Core336-337/PDF338-339 and official errata5. Exact subtype Cyber Microgrenade Launcher: whole ivory/charcoal composite forearm/hand, elbow upper-right and fingers lower-left, rounded closed elbow end, FIVE coherent digits and one circular CLOSED PALM PORT COVER. No held gun, protruding barrel, magazine, added accessories, rotary launcher, grenade, cutaway, internals or action. Complete margins and no clipping. Exact shell/finish/port/depth are artistic interpretations; no individually labeled subtype art, engineering or native rig approval. Preserve this actual closed state. Root final pair review: exact detailed/clay framing, five digits, forearm/wrist proportions, closed palm cover and structural gaps preserved. Actual alpha16 comparison reviewed; no visible background or shadow. Tiny grooves/channels and isolated subpixel hole-count differences are nonblocking; each role retains its own source alpha topology independently. No structural redesign or second cosmetic review required."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-boyd-richards-desperado-e91711d7df",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        24.999999999999996,
+        195.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1753.0,
+        195.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        24.999999999999996,
+        691.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1753.0,
+        691.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-boyd-richards-desperado-e91711d7df.family.json",
+    "sha256": "a281351b35bb1a2d5f822b26a14b99b792eef5c317def916c5c189bdd1e180a2"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/7cf07901a20fe17bb63d21be0ad75cd1865e3ae89467aabac334c15f91487799.png",
+      "sha256": "7cf07901a20fe17bb63d21be0ad75cd1865e3ae89467aabac334c15f91487799"
+    },
+    "clayReference": {
+      "path": "inputs/b2f23e4526262f3b5dbe01416470115e11959c4532ff0f03421fe2bddfa26f0a.png",
+      "sha256": "b2f23e4526262f3b5dbe01416470115e11959c4532ff0f03421fe2bddfa26f0a"
+    },
+    "geometry": {
+      "path": "inputs/49ce259501df82ed4efb8de448e94a252839378279d452a98dbcfe04a03eb4b0.png",
+      "sha256": "49ce259501df82ed4efb8de448e94a252839378279d452a98dbcfe04a03eb4b0"
+    },
+    "detail": {
+      "path": "inputs/a862ef9135c398d8cd14909251a13416badd231d04bf22c829f0d03be4b8b05e.png",
+      "sha256": "a862ef9135c398d8cd14909251a13416badd231d04bf22c829f0d03be4b8b05e"
+    },
+    "foregroundMask": {
+      "path": "inputs/fab67206a7768925cdb955faa460b811fa5d1afb0adf685f059c5330210d1567.png",
+      "sha256": "fab67206a7768925cdb955faa460b811fa5d1afb0adf685f059c5330210d1567"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493.png",
+      "sha256": "27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493"
+    },
+    "mask": {
+      "path": "inputs/27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493.png",
+      "sha256": "27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493"
+    },
+    "calibrationReference": {
+      "path": "inputs/a865b3f9fc32a10c0f10a07c5e9bcdabd873cafb462e5e3d1de89db8f7a9b8b4.png",
+      "sha256": "a865b3f9fc32a10c0f10a07c5e9bcdabd873cafb462e5e3d1de89db8f7a9b8b4"
+    },
+    "sourceAudit": {
+      "path": "inputs/1820ef042cb0555bdb313907056d109991893a826ef9535952f23e32139c4f41.json",
+      "sha256": "1820ef042cb0555bdb313907056d109991893a826ef9535952f23e32139c4f41"
+    },
+    "referenceApproval": {
+      "path": "inputs/f26720f7643255df3ebe1f0701ec289c3930a603145981d024b3c3d457d122e0.json",
+      "sha256": "f26720f7643255df3ebe1f0701ec289c3930a603145981d024b3c3d457d122e0"
+    },
+    "calibrationDetail": {
+      "path": "inputs/404a0fc43703f64def1fd3f3e3ed4b5a396b810fd505fdde67fdfafdd81aebe4.png",
+      "sha256": "404a0fc43703f64def1fd3f3e3ed4b5a396b810fd505fdde67fdfafdd81aebe4"
+    }
+  },
+  "features": [
+    {
+      "name": "Short-barreled repeating shotgun.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Exterior evokes the old AmericanWest rather than a generic modern tactical assault shotgun.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 describes a short repeating shotgun evoking the old AmericanWest. Short barrel, tubular magazine, stock/fore-end and trigger/lever spaces fit the explicitly declared interpretation. No tactical accessories. Exact lever action styling, wood/metal finish and dimensions are artistic choices; no own Desperado artwork is claimed.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        1674,
+        862,
+        1825,
+        867
+      ],
+      "referenceAreaPixels": 235,
+      "referenceMaskSha256": "27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        791,
+        995,
+        872,
+        1074
+      ],
+      "referenceAreaPixels": 3835,
+      "referenceMaskSha256": "27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        602,
+        1033,
+        753,
+        1188
+      ],
+      "referenceAreaPixels": 12253,
+      "referenceMaskSha256": "27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "a862ef9135c398d8cd14909251a13416badd231d04bf22c829f0d03be4b8b05e",
+      "maskSha256": "fab67206a7768925cdb955faa460b811fa5d1afb0adf685f059c5330210d1567",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 describes a short repeating shotgun evoking the old AmericanWest. Short barrel, tubular magazine, stock/fore-end and trigger/lever spaces fit the explicitly declared interpretation. No tactical accessories. Exact lever action styling, wood/metal finish and dimensions are artistic choices; no own Desperado artwork is claimed.",
+      "referenceSha256": "7cf07901a20fe17bb63d21be0ad75cd1865e3ae89467aabac334c15f91487799",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "49ce259501df82ed4efb8de448e94a252839378279d452a98dbcfe04a03eb4b0",
+      "maskSha256": "27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 describes a short repeating shotgun evoking the old AmericanWest. Short barrel, tubular magazine, stock/fore-end and trigger/lever spaces fit the explicitly declared interpretation. No tactical accessories. Exact lever action styling, wood/metal finish and dimensions are artistic choices; no own Desperado artwork is claimed.",
+      "referenceSha256": "b2f23e4526262f3b5dbe01416470115e11959c4532ff0f03421fe2bddfa26f0a",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "a862ef9135c398d8cd14909251a13416badd231d04bf22c829f0d03be4b8b05e",
+      "foregroundMaskSha256": "fab67206a7768925cdb955faa460b811fa5d1afb0adf685f059c5330210d1567",
+      "geometryForegroundMaskSha256": "27ceca87bdf6f342454438dfe4dc9f53d1c904cf717c43350379945928799493",
+      "geometrySha256": "49ce259501df82ed4efb8de448e94a252839378279d452a98dbcfe04a03eb4b0",
+      "landmarks": [
+        {
+          "detail": [
+            0.04739914690572585,
+            0.3701171875
+          ],
+          "geometry": [
+            0.046875,
+            0.3701171875
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.953125,
+            0.3701171875
+          ],
+          "geometry": [
+            0.953125,
+            0.3701171875
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.04739914690572585,
+            0.6298828125
+          ],
+          "geometry": [
+            0.046875,
+            0.6298828125
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.953125,
+            0.6298828125
+          ],
+          "geometry": [
+            0.953125,
+            0.6298828125
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural forms and openings retained. Shallow grooves accepted. Arsenal printed28/PDF30 describes a short repeating shotgun evoking the old AmericanWest. Short barrel, tubular magazine, stock/fore-end and trigger/lever spaces fit the explicitly declared interpretation. No tactical accessories. Exact lever action styling, wood/metal finish and dimensions are artistic choices; no own Desperado artwork is claimed.",
+      "referenceSha256": "7cf07901a20fe17bb63d21be0ad75cd1865e3ae89467aabac334c15f91487799"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

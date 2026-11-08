@@ -1,0 +1,4764 @@
+"""Synthetic regressions for reusable input, dispatch, mesh, palette and resume contracts."""
+import copy
+from contextlib import ExitStack
+import os
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+from types import SimpleNamespace
+import tempfile
+import sys
+import time
+import unittest
+from unittest.mock import patch
+import numpy as np
+from PIL import Image,ImageDraw
+from headkit import comfy
+from headkit.common import write,read,pin,verify,asset,manifest,source_version,digest
+from headkit.gltf import mesh,write_mesh,load,encode
+from headkit.images import similarity,prepare,prepare_multiview
+from headkit.field import GeneratedField,load_generated_field
+from headkit.mesh import topology,audit
+from headkit.textures import surface,pad,tone_match,bake
+from headkit.palette import quantize
+from headkit.runner import Runner
+
+
+class Temporary(unittest.TestCase):
+    def setUp(self):
+        self.directory=tempfile.TemporaryDirectory();self.root=Path(self.directory.name)
+    def tearDown(self):self.directory.cleanup()
+    def file(self,name,text='fixture'):
+        path=self.root/name;path.write_text(text);return path
+    def inventory(self):
+        from headkit.source_inventory import freeze_sources
+        root=self.root/f'comfy-{len(list(self.root.glob("comfy-*")))}';root.mkdir()
+        for relative in ['main.py','execution.py','nodes.py','server.py','folder_paths.py','comfy/model.py',
+                         'comfy_extras/nodes_trellis2.py','custom_nodes/plugin/flexgemm.py','custom_nodes/plugin/kernel.pyd']:
+            path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('fixture implementation')
+        rows=[pin(p) for p in sorted(root.rglob('*')) if p.is_file()]
+        return freeze_sources({'comfyRoot':str(root),'comfyCustomNodes':str(root/'custom_nodes'),'comfySources':rows})
+    def comfy_runtime_identity(self,source_inventory):
+        if not isinstance(source_inventory,dict):
+            from headkit.source_inventory import freeze_sources
+            source_inventory=freeze_sources({'comfyRoot':source_inventory[0],
+                'comfyCustomNodes':str(Path(source_inventory[0])/'custom_nodes'),
+                'comfySources':[pin(path) for path in sorted(Path(source_inventory[0]).rglob('*')) if path.is_file()]})
+        executable=pin(sys.executable);torch_file=self.root/'comfy-runtime'/'torch'/'_C.pyd'
+        torch_file.parent.mkdir(parents=True,exist_ok=True);torch_file.write_bytes(b'torch fixture bytes')
+        torch_pin=pin(torch_file);files=sorted([executable,torch_pin],key=lambda row:row['path'].casefold())
+        configuration=self.root/'controlled-startup.json'
+        if not configuration.exists():write(configuration,{'fixture':'controlled startup'})
+        identity={'schemaVersion':3,
+                  'python':{'path':executable['path'],'sha256':executable['sha256'],'version':'3.12 fixture',
+                            'implementation':'cpython','cacheTag':'cpython-312','prefix':str(self.root),'basePrefix':str(self.root)},
+                  'torch':{'path':torch_pin['path'],'sha256':torch_pin['sha256'],'version':'2.7 fixture',
+                           'cuda':'12.8','hip':None,'cudnn':8900},
+                  'coveredSourceRoots':[str(Path(source_inventory['core']).resolve())],
+                  'roots':[str(self.root.resolve())],'files':files,
+                  'comfySourceInventory':source_inventory,'session':{'id':'a'*32,'pid':123,'configuration':pin(configuration),'settingsSha256':'b'*64}}
+        identity['fingerprint']=digest(identity)
+        return identity
+    def freeze_request(self,prepared):
+        inventory=self.inventory();runtime=self.comfy_runtime_identity(inventory)
+        prepared['comfySourceInventory']=inventory;prepared['comfyRuntimeIdentity']=runtime
+        prepared['inputs']+=inventory['files']+runtime['files']+[runtime['session']['configuration']];return prepared
+    def runtime_identity(self):
+        return {'toolchain':pin(self.file('runtime-toolchain.json')),
+                'migrationReceipt':pin(self.file('runtime-migration.json')),'python':pin(sys.executable),
+                'toolsRoot':str(self.root.resolve())}
+    def bindings_data(self, *, tools_root=None, **values):
+        tools_root=Path(tools_root or self.root)
+        directory=tools_root/'headkit-runtime'/'site-packages'
+        files=[]
+        for name in ('numpy','PIL','scipy'):
+            package=directory/name;package.mkdir(parents=True,exist_ok=True)
+            module=package/'__init__.py';module.write_text('# pinned test fixture: '+name)
+            files.append(pin(module))
+        data={'schemaVersion':1,'toolsRoot':str(tools_root),
+              'pythonPackages':{'directory':str(directory),'files':files}}
+        data.update(values)
+        return data
+    def bind_dispatch(self,prepared,endpoint='http://127.0.0.1:8188'):
+        bindings=self.root/'dispatch-bindings.json'
+        if not bindings.exists():bindings.write_text('{}')
+        identity=self.runtime_identity();binding_pin=pin(bindings)
+        prepared.update(runtimeIdentity=identity,bindings=binding_pin,comfyEndpoint=endpoint)
+        if 'comfyRuntimeIdentity' not in prepared:
+            prepared['comfyRuntimeIdentity']=self.comfy_runtime_identity(prepared['comfySourceInventory'])
+        runtime_files=[] if prepared.get('runtimeVerification')=='server-owned' else prepared['comfyRuntimeIdentity']['files']
+        for row in runtime_files+[prepared['comfyRuntimeIdentity']['session']['configuration']]:
+            if row not in prepared['inputs']:prepared['inputs'].append(row)
+        if binding_pin not in prepared['inputs']:prepared['inputs'].append(binding_pin)
+        prepared['inputs'].extend(row for row in (identity['toolchain'],identity['migrationReceipt'],identity['python']) if row not in prepared['inputs'])
+        return identity,bindings
+    def submit(self,client,ledger,prepared,output,*,runtime_identity=None,bindings_path=None):
+        if bindings_path is None:
+            runtime_identity,bindings_path=self.bind_dispatch(prepared,client.url)
+            client.server_runtime=prepared['comfyRuntimeIdentity']
+        return comfy.submit(client,ledger,prepared,output,runtime_identity=runtime_identity,bindings_path=bindings_path)
+    def pair(self):
+        image=Image.new('RGBA',(128,128));ImageDraw.Draw(image).ellipse((20,10,108,118),fill=(180,150,120,255))
+        image.save(self.root/'clay.png');image.save(self.root/'detail.png')
+        return {'landmarks':[{'name':n,'clay':p,'detail':p} for n,p in [('crown',[.5,.1]),('left',[.25,.5]),('chin',[.5,.9])]]}
+
+
+class ClientTransportTests(unittest.TestCase):
+    def test_verification_endpoints_have_bounded_byte_read_timeout(self):
+        client = comfy.Client('http://127.0.0.1:8188')
+        for route, expected in [('/headkit/runtime-identity', 300),
+                                ('/headkit/verify-loader-models', 300),
+                                ('/queue', 30), ('/prompt', 30)]:
+            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened:
+                opened.return_value.__enter__.return_value.read.return_value = b'{"verified":true}'
+                self.assertEqual(client.request(route), {'verified': True})
+                self.assertEqual(opened.call_args.kwargs['timeout'], expected)
+
+    def test_verification_timeout_propagates_without_retry_or_dispatch(self):
+        client = comfy.Client('http://127.0.0.1:8188')
+        with patch.object(comfy.urllib.request, 'urlopen', side_effect=TimeoutError('verification timeout')) as opened:
+            with self.assertRaisesRegex(TimeoutError, 'verification timeout'):
+                client.request('/headkit/verify-loader-models', {'models': []})
+            self.assertEqual(opened.call_count, 1)
+            self.assertEqual(opened.call_args.args[0].full_url,
+                             'http://127.0.0.1:8188/headkit/verify-loader-models')
+
+
+class GraphTests(Temporary):
+    def test_native_single_profile_has_one_image_and_exact_controls(self):
+        g=comfy.compile_graph('geometry','pixal-single-v1',{'geometry':'clay.png'},'headkit/run',fov=42)
+        self.assertEqual(g['298']['inputs']['image'],['364',0]);self.assertEqual(g['298']['inputs']['camera_angle_x'],42)
+        self.assertEqual(g['319']['inputs']['unet_name'],'pixal3d_int8_convrot.safetensors')
+        self.assertEqual([g[k]['inputs']['seed'] for k in ['3','18','23']],[56,242,42])
+        self.assertEqual(g['18']['inputs']['cfg'],12);self.assertEqual(g['94']['inputs']['target_resolution'],1536)
+    def test_multiview_roles_and_checkpoint_are_distinct(self):
+        g=comfy.compile_graph('geometry','pixal-multiview-v1',{'geometry'+v:v+'.png' for v in ['Front','Left','Back','Right']},'headkit/run',fov=20)
+        self.assertEqual(g['324']['class_type'],'Pixal3DMultiViewConditioning')
+        self.assertEqual([g['324']['inputs'][v] for v in ['front','left','back','right']],[['364',0],['377',0],['378',0],['379',0]])
+        self.assertEqual([g[n]['inputs']['image'] for n in ['364','377','378','379']],['Front.png','Left.png','Back.png','Right.png'])
+        self.assertEqual(g['319']['inputs']['unet_name'],'pixal3d_multiview_int8_convrot.safetensors')
+        self.assertFalse(any(n['class_type']=='ImageCropToMask' for n in g.values()))
+    def test_multiview_appearance_uses_four_detailed_views_on_saved_shape(self):
+        shape=pin(self.file('shape.npz'))
+        g=comfy.compile_graph('appearance','pixal-multiview-v1',{'detail'+v:v+'-detail.png' for v in ['Front','Left','Back','Right']},'headkit/run',fov=20,shape=shape)
+        self.assertEqual([g['298']['inputs'][v] for v in ['front','left','back','right']],[['1001',0],['1002',0],['1003',0],['1004',0]])
+        self.assertEqual([g[n]['inputs']['image'] for n in ['1001','1002','1003','1004']],['Front-detail.png','Left-detail.png','Back-detail.png','Right-detail.png'])
+        self.assertEqual(g['319']['inputs']['unet_name'],'pixal3d_multiview_int8_convrot.safetensors')
+        self.assertEqual(g['970']['inputs'],shape);self.assertEqual(g['12']['inputs']['steps'],12);self.assertEqual(g['12']['inputs']['cfg'],1)
+    def test_wrong_route_fov_or_missing_view_rejected(self):
+        for profile,images,fov in [('pixal-single-v1',{'geometry':'x'},20),('pixal-multiview-v1',{'geometryFront':'x'},20),('pixal-multiview-v1',{'geometry'+v:'x' for v in ['Front','Left','Back','Right']},42),
+                                  ('pixal-multiview-v1',{'detail'+v:'x' for v in ['Front','Left','Back','Right']},20)]:
+            with self.assertRaises(ValueError):comfy.compile_graph('geometry',profile,images,'headkit/run',fov=fov)
+        shape=pin(self.file('shape.npz'))
+        for images in ({'detailFront':'x'},{'geometry'+v:'x' for v in ['Front','Left','Back','Right']}):
+            with self.assertRaisesRegex(ValueError,'multiview roles'):
+                comfy.compile_graph('appearance','pixal-multiview-v1',images,'headkit/run',fov=20,shape=shape)
+    def test_hash_bound_minimal_20k_export(self):
+        source=pin(self.file('mesh.glb'));g=comfy.compile_graph('export','pixal-single-v1',{},'headkit/run',source=source)
+        self.assertEqual(g['1']['inputs'],source);self.assertEqual(g['241']['inputs']['sign_mode'],'udf')
+        self.assertEqual(g['241']['inputs']['resolution'],768);self.assertEqual(g['186']['inputs']['target_face_count'],20000)
+        self.assertNotIn('932',g);self.assertNotIn('286',g)
+        Path(source['path']).write_text('changed')
+        with self.assertRaises(ValueError):comfy.compile_graph('export','pixal-single-v1',{},'headkit/run',source=source)
+    def test_template_manifest_has_no_operational_paths(self):
+        for path in (Path(__file__).parent/'templates').glob('*.json'):
+            content=path.read_text();self.assertNotIn('S:/',content);self.assertNotIn('F:/',content);self.assertNotIn('attempt74',content)
+
+    def test_calibration_uses_shared_mask_and_linked_detector_images(self):
+        g=comfy.compile_graph('calibrate','pixal-single-v1',{'geometry':'clay.png','detail':'detail.png','mask':'mask.png'},'headkit/run')
+        self.assertEqual(g['8']['inputs']['image'],['6',0]);self.assertEqual(g['14']['inputs']['image'],['5',0])
+        self.assertEqual(g['5']['inputs']['masks'],g['6']['inputs']['masks']);self.assertEqual(g['5']['inputs']['pad_factor'],1.1)
+    def test_saved_shape_is_hash_checked_before_appearance(self):
+        shape=pin(self.file('shape.npz'));Path(shape['path']).write_text('wrong')
+        with self.assertRaises(ValueError):comfy.compile_graph('appearance','pixal-single-v1',{'detail':'detail.png'},'headkit/run',fov=42,shape=shape)
+
+
+class GeometryApprovalTests(Temporary):
+    def test_rgb_staging_preserves_background_routing_and_legacy_default(self):
+        from headkit.generation import prepare_request
+        from headkit.source_inventory import freeze_sources
+        for index,decision in enumerate((None,{'route':'remove','size':[512,512]},
+                                         {'route':'preserve-alpha','size':[512,512]})):
+            data=self.fixture()
+            with Image.open(self.root/'detail.png') as image:
+                image=image.convert('RGBA');image.putpixel((10,10),(120,180,240,128));image.save(self.root/'detail.png')
+            data['inputs']['detail']['sha256']=pin(self.root/'detail.png')['sha256']
+            for role in ('geometry','mask'):data['inputs'][role]=dict(data['inputs']['detail'])
+            path=self.root/'manifest.json';write(path,data)
+            identity=self.comfy_runtime_identity(freeze_sources(read(self.root/'bindings.json')))
+            with patch('headkit.comfy.compile_graph',return_value={}) as compiler:
+                result=prepare_request(path,self.root/'bindings.json','calibrate',self.root/f'background-{index}.json',
+                                       runtime=self.runtime_identity(),comfy_runtime=identity,background=decision)
+            self.assertIs(compiler.call_args.kwargs['background'],decision)
+            with Image.open(next(Path(row['path']) for row in result['inputs']
+                                 if Path(row['path']).name=='geometry.png')) as staged:
+                expected=(60,90,120) if decision is None else (120,180,240)
+                self.assertEqual(staged.getpixel((10,10)),expected)
+            if decision is None:self.assertNotIn('backgroundDecision',result)
+            else:self.assertEqual(result['backgroundDecision'],decision)
+
+    def fixture(self):
+        self.pair();raw=pin(self.file('raw.glb'));shape=pin(self.file('shape.npz'))
+        data={'schemaVersion':1,'id':'geometry-review','inputs':{name:{'path':Path(row['path']).name,'sha256':row['sha256']}
+              for name,row in {'detail':pin(self.root/'detail.png'),'geometryRaw':raw,'shape':shape}.items()},
+              'camera':{'reviewed':True,'fovDegrees':42},'approval':{'inputReviewComplete':True}}
+        inventory=self.inventory();core=Path(inventory['core'])
+        adapter=core/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
+        for code in (Path(__file__).parent/'comfy_nodes').glob('*.py'):(adapter/code.name).write_bytes(code.read_bytes())
+        write(self.root/'bindings.json',{'schemaVersion':1,'toolsRoot':str(self.root),'comfyInput':str(self.root/'comfy-input'),
+              'comfyUrl':'http://127.0.0.1:8188','comfyRoot':str(core),'comfyCustomNodes':str(adapter.parent),'comfyStartupConfig':str(self.root/'controlled-startup.json'),
+              'comfySources':[pin(p) for p in sorted(core.rglob('*')) if p.is_file()]})
+        from headkit.source_inventory import freeze_sources
+        write(adapter/'source-roots.json',{'schemaVersion':1,'inventory':freeze_sources(read(self.root/'bindings.json'))})
+        return data
+    def request(self,data,stage='appearance'):
+        from headkit.__main__ import request_stage
+        write(self.root/'manifest.json',data)
+        runtime=self.runtime_identity()
+        from headkit.source_inventory import freeze_sources
+        server_runtime=self.comfy_runtime_identity(freeze_sources(read(self.root/'bindings.json')))
+        if stage=='export':return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime,comfy_runtime=server_runtime)
+        with patch('headkit.__main__.comfy.compile_graph',return_value={}):
+            return request_stage(self.root/'manifest.json',self.root/'bindings.json',stage,self.root/'request.json',runtime=runtime,comfy_runtime=server_runtime)
+    def approval(self,data):
+        return {'decision':'approved','notes':'Inspected generated clay and accessories',
+                'geometryRawSha256':data['inputs']['geometryRaw']['sha256'],'shapeSha256':data['inputs']['shape']['sha256']}
+    def test_missing_rejected_and_stale_geometry_reviews_block_before_staging(self):
+        data=self.fixture()
+        cases=[None,dict(self.approval(data),decision='rejected'),dict(self.approval(data),geometryRawSha256='0'*64),
+               dict(self.approval(data),shapeSha256='0'*64),dict(self.approval(data),notes=' ')]
+        for review in cases:
+            with self.subTest(review=review):
+                if review is not None:data['approval']['generatedGeometry']=review
+                with self.assertRaisesRegex(ValueError,'Approve generated clay'):self.request(data)
+                self.assertFalse((self.root/'comfy-input').exists());self.assertFalse((self.root/'request.json').exists())
+    def test_approved_geometry_and_saved_shape_are_frozen_in_request(self):
+        data=self.fixture();data['approval']['generatedGeometry']=self.approval(data);result=self.request(data)
+        self.assertEqual(result['expectedGeometry']['sha256'],data['inputs']['geometryRaw']['sha256'])
+        self.assertIn(data['inputs']['shape']['sha256'],[row['sha256'] for row in result['inputs']])
+        self.assertIn(result['bindings'],result['inputs'])
+        self.assertEqual(result['comfyEndpoint'],'http://127.0.0.1:8188')
+        self.assertEqual(result['runtimeIdentity'],self.runtime_identity())
+        for name in ('toolchain','migrationReceipt','python'):self.assertIn(result['runtimeIdentity'][name],result['inputs'])
+        source_config=Path(read(self.root/'bindings.json')['comfyCustomNodes'])/'srn_headkit'/'source-roots.json'
+        self.assertIn(pin(source_config),result['inputs'])
+        self.assertEqual(result['comfyRuntimeIdentity']['comfySourceInventory'],result['comfySourceInventory'])
+        self.assertEqual(read(self.root/'request.json'),result)
+
+    def test_multiview_appearance_stages_four_detailed_views(self):
+        data=self.fixture();data['profile']='pixal-multiview-v1';data['camera']['fovDegrees']=20
+        for view in ('Front','Left','Back','Right'):data['inputs']['detail'+view]=data['inputs']['detail']
+        data['approval']['generatedGeometry']=self.approval(data);write(self.root/'manifest.json',data)
+        with patch('headkit.__main__.comfy.compile_graph',return_value={}) as compile_graph:
+            from headkit.__main__ import request_stage
+            request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json',runtime=self.runtime_identity(),
+                          comfy_runtime=self.comfy_runtime_identity(__import__('headkit.source_inventory',fromlist=['freeze_sources']).freeze_sources(read(self.root/'bindings.json'))))
+        images=compile_graph.call_args.args[2]
+        self.assertEqual(sorted(images),['detailBack','detailFront','detailLeft','detailRight'])
+        self.assertTrue(all(path.endswith(name+'.png') for name,path in images.items()))
+
+    def test_changed_installed_source_snapshot_blocks_request(self):
+        data=self.fixture();data['approval']['generatedGeometry']=self.approval(data)
+        source_config=Path(read(self.root/'bindings.json')['comfyCustomNodes'])/'srn_headkit'/'source-roots.json'
+        config=read(source_config);config['inventory']['files'][0]['sha256']='0'*64;write(source_config,config)
+        with self.assertRaisesRegex(ValueError,'Installed Comfy source snapshot differs'):
+            self.request(data)
+        self.assertFalse((self.root/'comfy-input').exists())
+        self.assertFalse((self.root/'request.json').exists())
+
+    def test_request_pins_comfy_loader_category_resolved_path_and_bytes(self):
+        data=self.fixture();data['approval']['generatedGeometry']=self.approval(data)
+        write(self.root/'manifest.json',data)
+        name='pixal3d_int8_convrot.safetensors';model=self.root/name;model.write_bytes(b'reviewed checkpoint')
+        local=read(self.root/'bindings.json');local['models']={name:pin(model)};write(self.root/'bindings.json',local)
+        graph={'319':{'class_type':'UNETLoader','inputs':{'unet_name':name}}}
+        original_read=__import__('headkit.__main__',fromlist=['read']).read
+        def read_with_fixture_profile(path):
+            if Path(path).name=='checkpoints.json':return {name:pin(model)['sha256']}
+            return original_read(path)
+        with patch('headkit.__main__.comfy.compile_graph',return_value=graph), patch('headkit.__main__.read',side_effect=read_with_fixture_profile):
+            from headkit.__main__ import request_stage
+            result=request_stage(self.root/'manifest.json',self.root/'bindings.json','appearance',self.root/'request.json',runtime=self.runtime_identity(),comfy_runtime=self.comfy_runtime_identity(__import__('headkit.source_inventory',fromlist=['freeze_sources']).freeze_sources(read(self.root/'bindings.json'))))
+        self.assertEqual(result['loaderModels'],[{'category':'diffusion_models','name':name,
+            'pathIdentity':__import__('headkit.comfy_nodes.model_resolution',fromlist=['path_identity']).path_identity(model),
+            'sha256':pin(model)['sha256']}])
+        loader=result['prompt']['319']
+        self.assertEqual(loader['class_type'],'HeadkitVerifiedUNETLoaderV1')
+        self.assertEqual(loader['inputs']['headkit_model_sha256'],pin(model)['sha256'])
+        self.assertEqual(loader['inputs']['headkit_model_path_identity'],result['loaderModels'][0]['pathIdentity'])
+        self.assertIn(pin(model),result['inputs'])
+
+
+    def test_export_requires_review_bound_to_exact_source_before_staging(self):
+        data=self.fixture();data['inputs']['exportSource']=data['inputs']['geometryRaw']
+        valid={'decision':'approved','notes':'Reviewed exact oriented export clay','exportSourceSha256':data['inputs']['exportSource']['sha256']}
+        data['approval']['generatedGeometry']=self.approval(data)
+        for review in (None,dict(valid,decision='rejected'),dict(valid,exportSourceSha256='0'*64),dict(valid,notes=' ')):
+            with self.subTest(review=review):
+                if review is not None:data['approval']['exportGeometry']=review
+                with self.assertRaisesRegex(ValueError,'Approve generated clay'):self.request(data,'export')
+                self.assertFalse((self.root/'comfy-input').exists());self.assertFalse((self.root/'request.json').exists())
+    def test_export_freezes_reviewed_source_and_rejects_changed_mesh(self):
+        data=self.fixture();data['inputs']['exportSource']=data['inputs']['geometryRaw']
+        data['approval']['exportGeometry']={'decision':'approved','notes':'Reviewed exact oriented export clay','exportSourceSha256':data['inputs']['exportSource']['sha256']}
+        result=self.request(data,'export');self.assertIn(data['inputs']['exportSource']['sha256'],[p['sha256'] for p in result['inputs']])
+        self.assertEqual(result['prompt']['1']['inputs']['sha256'],data['inputs']['exportSource']['sha256'])
+        (self.root/'raw.glb').write_text('changed after review')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):self.request(data,'export')
+
+
+class RuntimeIdentityTests(Temporary):
+    def fixture(self):
+        toolchain=self.file('toolchain.json');migration=self.file('migration.json')
+        active={'toolsRoot':str(self.root),'tools':{'python':pin(sys.executable)}}
+        local={'schemaVersion':1,'toolsRoot':str(self.root),'toolchain':str(toolchain),'migrationReceipt':str(migration),'python':pin(sys.executable)}
+        return toolchain,migration,active,local
+    def launch(self,local,toolchain,migration,active):
+        from headkit.common import launched
+        write(self.root/'bindings.json',local)
+        with patch.dict('os.environ',{'SRN_SHARED_TOOLCHAIN':str(toolchain),'SRN_SHARED_TOOL_MIGRATION':str(migration)}), \
+             patch.dict(sys.modules,{'shared_toolchain':SimpleNamespace(load=lambda *a,**k:active)}):
+            return launched(self.root/'bindings.json')
+    def test_runtime_identity_matches_and_is_returned(self):
+        toolchain,migration,active,local=self.fixture();identity=self.launch(local,toolchain,migration,active)
+        self.assertEqual(identity,{'toolchain':pin(toolchain),'migrationReceipt':pin(migration),'python':pin(sys.executable),'toolsRoot':str(self.root.resolve())})
+    def test_rejects_different_toolchain_migration_python_or_tools_bank(self):
+        toolchain,migration,active,local=self.fixture()
+        for name,value in [('toolchain',str(self.file('other-toolchain'))),('migrationReceipt',str(self.file('other-migration'))),
+                           ('python',pin(self.file('other-python.exe'))),('toolsRoot',str(self.root/'other-bank'))]:
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(ValueError,'differs|differ'):self.launch(dict(local,**{name:value}),toolchain,migration,active)
+        blender=pin(self.file('blender.exe'));other=pin(self.file('other-blender.exe'));active['runtimes']={'blender':blender}
+        with self.assertRaisesRegex(ValueError,'Blender differs'):self.launch(dict(local,blender=other),toolchain,migration,active)
+        wrong=copy.deepcopy(active);wrong['tools']['python']=pin(self.file('fake-python.exe'))
+        with self.assertRaisesRegex(ValueError,'Executing Python'):self.launch(local,toolchain,migration,wrong)
+    def test_runner_receipt_records_actual_runtime_and_rejects_other_runtime(self):
+        runner=ResumeTests.fixture(self);runner.runtime={'verifiedRuntime':'A'}
+        with patch('headkit.runner.python_package_pins',return_value=runner.bindings['pythonPackages']['files']):
+            runner.execute('prepare')
+        receipt=read(runner.state['stages']['prepare']['path']);self.assertEqual(receipt['runtimeIdentity'],runner.runtime)
+        other=Runner(runner.manifest_path,runner.bindings_path,runner.run,runtime={'verifiedRuntime':'B'})
+        with self.assertRaisesRegex(ValueError,'runtime differs'):other.result('prepare',require_review=False)
+
+
+class PythonPackagePinTests(Temporary):
+    def test_missing_or_incomplete_package_inventory_is_rejected(self):
+        from headkit.common import python_package_pins
+        bindings=self.bindings_data()
+        with self.assertRaisesRegex(ValueError,'Missing complete Python package'):
+            python_package_pins({'toolsRoot':str(self.root)})
+        (Path(bindings['pythonPackages']['directory'])/'numpy'/'unlisted.py').write_text('extra executable module')
+        with self.assertRaisesRegex(ValueError,'complete installation membership'):
+            python_package_pins(bindings)
+
+    def test_bound_package_origins_must_resolve_inside_inventory(self):
+        from headkit.common import python_package_pins
+        bindings=self.bindings_data()
+        root=Path(bindings['pythonPackages']['directory'])
+        modules={name:SimpleNamespace(__file__=str(root/name/'__init__.py'),
+                __path__=[str(root/name)]) for name in ('numpy','PIL','scipy')}
+        with patch('headkit.common.importlib.import_module',side_effect=lambda name:modules[name]):
+            pins=python_package_pins(bindings,require_imports=True)
+        self.assertEqual(pins,bindings['pythonPackages']['files'])
+        modules['scipy']=SimpleNamespace(__file__=str(self.file('unbound-scipy.py')),
+                                      __path__=[str(self.root)])
+        with patch('headkit.common.importlib.import_module',side_effect=lambda name:modules[name]):
+            with self.assertRaisesRegex(ValueError,'outside its byte-bound installation'):
+                python_package_pins(bindings,require_imports=True)
+
+    def test_package_inventory_is_rechecked_after_import(self):
+        from headkit.common import python_package_pins
+        bindings=self.bindings_data();root=Path(bindings['pythonPackages']['directory'])
+        modules={name:SimpleNamespace(__file__=str(root/name/'__init__.py'),
+                __path__=[str(root/name)]) for name in ('numpy','PIL','scipy')}
+        def import_package(name):
+            if name=='scipy':(root/'scipy'/'late.py').write_text('changed while importing')
+            return modules[name]
+        with patch('headkit.common.importlib.import_module',side_effect=import_package):
+            with self.assertRaisesRegex(ValueError,'membership changed while importing'):
+                python_package_pins(bindings,require_imports=True)
+
+    def test_stage_receipt_pins_and_rechecks_the_complete_package_tree(self):
+        runner=ResumeTests.fixture(self)
+        with patch.object(runner,'_execute',return_value={'fixture':True}):
+            runner.execute('prepare')
+        receipt=read(runner.state['stages']['prepare']['path'])
+        self.assertTrue(set((item['path'],item['sha256']) for item in runner.bindings['pythonPackages']['files'])<=
+                        set((item['path'],item['sha256']) for item in receipt['inputs']))
+        runner=ResumeTests.fixture(self)
+        runner.run=self.root/'run-mutation';runner.run.mkdir()
+        runner.state_path=runner.run/'state.json';runner.state={'schemaVersion':1,'id':runner.data['id'],'stages':{}}
+        def adds_unpinned_module(stage,folder):
+            (Path(runner.bindings['pythonPackages']['directory'])/'numpy'/'late.py').write_text('changed during stage')
+            return {'fixture':True}
+        with patch.object(runner,'_execute',side_effect=adds_unpinned_module):
+            with self.assertRaisesRegex(ValueError,'complete installation membership'):
+                runner.execute('prepare')
+        failed=read(runner.run/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual(failed['state'],'failed')
+
+
+class ComfyServerRuntimeTests(Temporary):
+    def test_runtime_members_excludes_inactive_packages_and_nonexecution_assets(self):
+        from headkit.comfy_nodes.runtime_identity import runtime_members
+        stdlib=self.root/'Lib';active=self.root/'venv'/'site-packages'
+        paths=[stdlib/'os.py',stdlib/'site-packages'/'unused.py',active/'torch'/'kernel.dll',
+               active/'torch'/'template.jinja',active/'torch'/'sample.png',
+               active/'torch-1.dist-info'/'METADATA',active/'torch-1.dist-info'/'RECORD']
+        for path in paths:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+        files=runtime_members({stdlib,active})
+        self.assertEqual(files,{paths[i] for i in (0,2,3,5)})
+        self.assertIn(paths[1],runtime_members({stdlib,stdlib/'site-packages',active}))
+
+    def test_runtime_members_include_sourceless_bytecode_and_zip_imports(self):
+        from headkit.comfy_nodes.runtime_identity import runtime_members
+        active=self.root/'venv'/'site-packages'
+        paths=[active/'plain.pyc',active/'legacy.PYO',active/'bundle.pyz',active/'old.egg',active/'__pycache__'/'cached.pyc']
+        for path in paths:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+        self.assertEqual(runtime_members({active}),set(paths[:4]))
+
+    def test_runtime_byte_hash_catches_same_size_change_with_restored_timestamp(self):
+        from headkit.comfy_nodes.runtime_identity import _pin
+        path=self.file('kernel.dll','abc');before=_pin(path);stat=path.stat()
+        path.write_text('xyz');os.utime(path,ns=(stat.st_atime_ns,stat.st_mtime_ns))
+        self.assertNotEqual(before,_pin(path))
+
+    def test_runtime_identity_endpoint_uses_the_clients_get_method(self):
+        import ast
+        source=Path(__file__).parent/'comfy_nodes'/'__init__.py'
+        tree=ast.parse(source.read_text(encoding='utf-8'))
+        handlers=[node for node in ast.walk(tree) if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))
+                  and node.name=='verify_headkit_runtime_identity']
+        decorators=[decorator for handler in handlers for decorator in handler.decorator_list
+                    if isinstance(decorator,ast.Call) and isinstance(decorator.func,ast.Attribute)
+                    and decorator.func.attr in ('get','post')]
+        self.assertEqual(len(decorators),1)
+        self.assertEqual(decorators[0].func.attr,'get')
+        self.assertEqual(ast.literal_eval(decorators[0].args[0]),'/headkit/runtime-identity')
+        self.assertTrue(any(isinstance(node,ast.Name) and node.id=='loaded_source_code' for node in ast.walk(handlers[0])))
+
+    def test_session_restart_changes_the_runtime_fingerprint(self):
+        from headkit.comfy_nodes.runtime_identity import seal_runtime_identity,same_runtime_environment
+        baseline=seal_runtime_identity({'session':{'id':'a'*32},'files':[]})
+        restarted=seal_runtime_identity({'session':{'id':'b'*32},'files':[]})
+        self.assertNotEqual(baseline['fingerprint'],restarted['fingerprint'])
+        self.assertFalse(same_runtime_environment(restarted,baseline))
+
+    def test_server_snapshot_hashes_python_torch_and_native_runtime_files(self):
+        from headkit.comfy_nodes.runtime_identity import capture_runtime_identity
+        app=self.root/'comfy';app.mkdir()
+        stdlib=self.root/'embedded'/'Lib';site=stdlib/'site-packages'
+        package=site/'torch';native=package/'lib'/'cudnn.dll'
+        native.parent.mkdir(parents=True);torch_file=package/'__init__.py'
+        torch_file.write_text('torch fixture');native.write_bytes(b'CUDA native fixture')
+        stdlib_file=stdlib/'os.py';stdlib_file.parent.mkdir(parents=True,exist_ok=True);stdlib_file.write_text('stdlib fixture')
+        executable=self.root/'embedded'/'python.exe';executable.parent.mkdir(parents=True,exist_ok=True);executable.write_bytes(b'python fixture')
+        torch=SimpleNamespace(__file__=str(torch_file),__version__='2.7 fixture',
+              version=SimpleNamespace(cuda='12.8',hip=None),
+              backends=SimpleNamespace(cudnn=SimpleNamespace(version=lambda:8900)))
+        paths={'stdlib':str(stdlib),'platstdlib':str(stdlib),'purelib':str(site),'platlib':str(site)}
+        with patch('headkit.comfy_nodes.runtime_identity.sys.executable',str(executable)), \
+             patch('headkit.comfy_nodes.runtime_identity.sys.prefix',str(executable.parent)), \
+             patch('headkit.comfy_nodes.runtime_identity.sys.base_prefix',str(executable.parent)), \
+             patch('headkit.comfy_nodes.runtime_identity.sys.path',[str(site)]), \
+             patch('headkit.comfy_nodes.runtime_identity.sysconfig.get_paths',return_value=paths), \
+             patch.dict(sys.modules,{'torch':torch}):
+            from headkit.comfy_nodes.verification import verification_pass
+            controlled={'id':'a'*32,'pid':123}
+            with verification_pass('runtime-session-binding'):
+                bound=capture_runtime_identity(SimpleNamespace(base_path=str(app)),session=controlled)
+            self.assertEqual(bound['session'],controlled)
+            result=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            self.assertEqual(result['files'],sorted([pin(path) for path in
+                             (executable,native,torch_file,stdlib_file)],key=lambda row:row['path'].casefold()))
+            self.assertEqual(result['fingerprint'],capture_runtime_identity(SimpleNamespace(base_path=str(app)))['fingerprint'])
+            before=result['fingerprint'];native.write_bytes(b'changed CUDA native fixture')
+            changed=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            runtime_module=sys.modules[capture_runtime_identity.__module__]
+            # Directory entries come from resolved roots; temp may be an 8.3 alias on Windows runners.
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==native.resolve()):
+                with self.assertRaisesRegex(ValueError,'Linked Comfy runtime files'):
+                    capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            with patch.object(runtime_module,'_linked',side_effect=lambda path:Path(path)==package.resolve()):
+                with self.assertRaisesRegex(ValueError,'Linked Comfy runtime directories'):
+                    capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            added=site/'new.py';added.write_text('new runtime member')
+            enlarged=capture_runtime_identity(SimpleNamespace(base_path=str(app)))
+            self.assertNotEqual(changed['fingerprint'],enlarged['fingerprint'])
+            self.assertIn(pin(added),enlarged['files'])
+        paths_in={row['path'] for row in result['files']}
+        self.assertIn(str(executable.resolve()),paths_in)
+        self.assertIn(str(native.resolve()),paths_in)
+        self.assertNotEqual(before,changed['fingerprint'])
+
+    def test_server_runtime_snapshot_is_hash_bound_and_sources_must_match(self):
+        from headkit.source_inventory import validate_comfy_runtime
+        inventory=self.inventory();roots=inventory['roots'];snapshot=self.comfy_runtime_identity(inventory)
+        self.assertEqual(validate_comfy_runtime(snapshot,roots,inventory),snapshot)
+        changed=copy.deepcopy(snapshot);changed['torch']['version']='different torch'
+        with self.assertRaisesRegex(ValueError,'fingerprint'):
+            validate_comfy_runtime(changed,roots)
+        with self.assertRaisesRegex(ValueError,'source coverage'):
+            validate_comfy_runtime(snapshot,[str(self.root/'other-source')],inventory)
+
+        changed=copy.deepcopy(snapshot);changed['comfySourceInventory']['files'][0]['sha256']='0'*64
+        changed['fingerprint']=digest({key:value for key,value in changed.items() if key!='fingerprint'})
+        with self.assertRaisesRegex(ValueError,'startup source snapshot'):
+            validate_comfy_runtime(changed,roots,inventory)
+
+    def test_unmanaged_and_legacy_runtime_identities_are_rejected(self):
+        from headkit.source_inventory import validate_comfy_runtime
+        inventory=self.inventory();snapshot=self.comfy_runtime_identity(inventory)
+        for change in ('legacy','missing-session','bad-session'):
+            altered=copy.deepcopy(snapshot)
+            if change=='legacy':altered['schemaVersion']=2
+            elif change=='missing-session':del altered['session']
+            else:altered['session']['id']=''
+            altered['fingerprint']=digest({key:value for key,value in altered.items() if key!='fingerprint'})
+            with self.subTest(change=change),self.assertRaises(ValueError):
+                validate_comfy_runtime(altered,inventory['roots'],inventory)
+
+
+
+class SourceSnapshotTests(Temporary):
+    def test_installed_snapshot_matches_the_prepared_inventory(self):
+        from headkit.comfy_nodes.source_snapshot import capture_inventory,load_inventory,same_inventory
+        inventory=self.inventory()
+        captured=capture_inventory(inventory['core'],inventory['roots'])
+        self.assertTrue(same_inventory(captured,inventory))
+        path=self.root/'srn_headkit'/'source-roots.json';path.parent.mkdir()
+        write(path,{'schemaVersion':1,'inventory':inventory})
+        self.assertEqual(load_inventory(path,inventory['core']),inventory)
+
+    def test_restored_disk_files_do_not_hide_startup_source_changes(self):
+        from headkit.comfy_nodes.source_snapshot import capture_inventory,verify_inventory
+        inventory=self.inventory();path=Path(inventory['core'])/'nodes.py';reviewed=path.read_bytes()
+        path.write_text('modified implementation\n')
+        startup=capture_inventory(inventory['core'],inventory['roots'])
+        path.write_bytes(reviewed)
+        with self.assertRaisesRegex(ValueError,'startup snapshot'):
+            verify_inventory(startup)
+
+
+
+class AdapterInstallTests(Temporary):
+    def test_install_binds_the_source_snapshot_to_local_roots(self):
+        from headkit.__main__ import install_nodes
+        inventory=self.inventory();core=Path(inventory['core']);custom=core/'custom_nodes'
+        local={'comfyRoot':str(core),'comfyCustomNodes':str(custom),'comfySources':inventory['files']}
+        destination=custom/'srn_headkit'
+        result=install_nodes(destination,local)
+        from headkit.source_inventory import capture_sources
+        installed_inventory=capture_sources(inventory['core'],inventory['roots'])
+        self.assertTrue(result['restartRequired'])
+        self.assertEqual(read(destination/'source-roots.json'),{'schemaVersion':1,'inventory':installed_inventory})
+        self.assertTrue((destination/'source_snapshot.py').is_file())
+
+
+class SourceInventoryTests(Temporary):
+    def test_example_declares_inventory_and_launcher_bindings(self):
+        example=read(Path(__file__).parent/'examples'/'local-bindings.example.json')
+        self.assertTrue({'comfyRoot','comfyDependencyRoots','comfySources','toolchain','migrationReceipt','python'}<=set(example))
+    def test_incomplete_or_unrelated_source_pins_are_rejected(self):
+        from headkit.source_inventory import freeze_sources,verify_sources
+        inventory=self.inventory();local={'comfyRoot':inventory['core'],'comfyCustomNodes':str(Path(inventory['core'])/'custom_nodes'),'comfySources':inventory['files'][:1]}
+        with self.assertRaisesRegex(ValueError,'incomplete'):freeze_sources(local)
+        local['comfySources']=[pin(self.file('unrelated.py'))]
+        with self.assertRaisesRegex(ValueError,'incomplete'):freeze_sources(local)
+        self.assertEqual(verify_sources(inventory),inventory)
+    def test_changed_deleted_and_added_source_files_invalidate_inventory(self):
+        from headkit.source_inventory import verify_sources
+        for change in ('changed','deleted','added'):
+            inventory=self.inventory();root=Path(inventory['core'])
+            if change=='changed':(root/'nodes.py').write_text('modified')
+            elif change=='deleted':(root/'nodes.py').unlink()
+            else:(root/'comfy'/'new_loader.py').write_text('new loader')
+            with self.subTest(change=change):
+                with self.assertRaises(ValueError):verify_sources(inventory)
+    def test_submit_rejects_incomplete_inventory_before_server_contact(self):
+        request=self.freeze_request({'token':'missing-inventory','stage':'geometry','prompt':{},'inputs':[]})
+        request['comfySourceInventory']['files'].pop();client=FakeClient()
+        with patch.object(client,'request') as server:
+            self.bind_dispatch(request,client.url)
+            with self.assertRaisesRegex(ValueError,'incomplete'):self.submit(client,self.root/'ledger.json',request,self.root/'job')
+            server.assert_not_called()
+    def test_added_source_is_rejected_during_collection_and_on_terminal_reuse(self):
+        for terminal in (False,True):
+            client,ledger,token,output,job,_=CollectionReceiptTests.fixture(self)
+            if terminal:comfy.collect(client,ledger,token,output,job)
+            inventory=read(job/'submission-intent.json')['prepared']['comfySourceInventory']
+            (Path(inventory['core'])/'new_node.py').write_text('new implementation')
+            with self.subTest(terminal=terminal):
+                with self.assertRaisesRegex(ValueError,'membership'):comfy.collect(client,ledger,token,output,job)
+            if not terminal:self.assertEqual(read(job/'collection.json')['state'],'failed-validation')
+
+
+class ImageTests(Temporary):
+    def test_positive_similarity_is_scale_and_rotation_invariant(self):
+        a=np.array([[0,0],[1,0],[.3,1]]);rotation=np.array([[0,-1],[1,0]]);b=a@rotation*2+[4,6]
+        scale,r,t,error=similarity(a,b);self.assertAlmostEqual(scale,2);np.testing.assert_allclose(r,rotation,atol=1e-12)
+        np.testing.assert_allclose(a@r*scale+t,b)
+    def test_reflection_and_ambiguous_landmarks_rejected(self):
+        with self.assertRaises(ValueError):similarity([[0,0],[1,0],[0,1]],[[0,0],[-1,0],[0,1]])
+        with self.assertRaises(ValueError):similarity([[0,0]]*3,[[0,0]]*3)
+    def design(self,draw):
+        from PIL import ImageDraw
+        image=Image.new('RGB',(200,200),(200,200,200));draw(ImageDraw.Draw(image));path=self.root/'design.png';image.save(path);return path
+    def test_matte_keeps_interior_gray_and_dark_features_opaque(self):
+        from headkit.images import matte
+        def head(d):
+            d.ellipse((50,30,150,170),fill=(120,110,100));d.ellipse((90,60,110,80),fill=(200,200,200));d.rectangle((95,120,105,130),fill=(5,5,5))
+        result=matte(self.design(head),{},self.root/'matte')
+        with Image.open(self.root/'matte'/'design-rgba.png') as image:alpha=np.asarray(image.getchannel('A'))
+        self.assertEqual(alpha[70,100],255);self.assertEqual(alpha[125,100],255);self.assertEqual(alpha[5,5],0)
+        self.assertEqual(result['marginPixels']['top'],30);self.assertEqual(result['backdrop'],[200,200,200])
+    def test_matte_rejects_a_cropped_subject_or_busy_backdrop(self):
+        from headkit.images import matte
+        with self.assertRaisesRegex(ValueError,'canvas edge'):
+            matte(self.design(lambda d:d.ellipse((50,-20,150,170),fill=(120,110,100))),{},self.root/'cropped')
+        def busy(d):
+            for x in range(0,200,2):d.line((x,0,x,199),fill=(20,200,20))
+        with self.assertRaisesRegex(ValueError,'plain enough'):matte(self.design(busy),{},self.root/'busy')
+        with self.assertRaisesRegex(ValueError,'tolerance'):matte(self.design(lambda d:None),{'backgroundTolerance':2},self.root/'tol')
+    def test_matte_clears_large_enclosed_backdrop_only_when_asked(self):
+        from headkit.images import matte
+        def horn_loop(d):  # backdrop seen through a curled horn, and a small gray eye highlight
+            d.ellipse((40,30,160,170),fill=(120,110,100));d.ellipse((70,60,130,120),fill=(200,200,200))
+            d.ellipse((95,140,101,146),fill=(200,200,200))
+        default=matte(self.design(horn_loop),{},self.root/'default')
+        cleared=matte(self.design(horn_loop),{'enclosedBackgroundMinimumPixels':200},self.root/'cleared')
+        alpha=lambda name:np.asarray(Image.open(self.root/name/'design-rgba.png').getchannel('A'))
+        self.assertEqual(alpha('default')[90,100],255);self.assertNotIn('clearedEnclosedBackground',default)
+        self.assertEqual(alpha('cleared')[90,100],0);self.assertEqual(alpha('cleared')[143,98],255)  # small region kept
+        self.assertEqual(len(cleared['clearedEnclosedBackground']),1);self.assertEqual(cleared['clearedEnclosedBackground'][0]['center'],[100,90])
+        with self.assertRaisesRegex(ValueError,'Enclosed background'):matte(self.design(horn_loop),{'enclosedBackgroundMinimumPixels':10},self.root/'small')
+    def test_bootstrap_design_manifest_prepares_a_matte_through_the_runner(self):
+        design=self.design(lambda d:d.ellipse((50,30,150,170),fill=(120,110,100)))
+        data={'schemaVersion':1,'id':'bootstrap','profile':'pixal-single-v1','matte':{'backgroundTolerance':14},
+              'inputs':{'design':{'path':design.name,'sha256':pin(design)['sha256']}},
+              'features':[{'name':'horns','placementReviewed':True}],'approval':{'referenceDesignReviewed':True}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run');result=runner.execute('prepare')['result']
+        self.assertEqual(result['marginPixels']['top'],30)
+        receipt=read(runner.state['stages']['prepare']['path']);self.assertIn(str(design.resolve()),{p['path'] for p in receipt['inputs']})
+    def test_paired_preparation_keeps_identical_silhouette(self):
+        result=prepare(self.root/'clay.png',self.root/'detail.png',self.pair(),self.root/'prepared')
+        self.assertEqual(result['silhouetteIoU'],1);self.assertTrue(result['manualReviewRequired'])
+    def test_silhouette_iou_floor_rejects_lower_nonfinite_and_invalid_values(self):
+        values=(.939,0,-1,float('nan'),float('inf'),-float('inf'),1.01,True,'0.94',10**400)
+        for index,value in enumerate(values):
+            with self.subTest(value=repr(value)):
+                config=self.pair();config['minimumSilhouetteIoU']=value
+                output=self.root/f'bad-threshold-{index}'
+                with self.assertRaisesRegex(ValueError,'Minimum silhouette IoU'):
+                    prepare(self.root/'clay.png',self.root/'detail.png',config,output)
+                self.assertFalse(output.exists())
+    def test_silhouette_iou_floor_allows_documented_boundary(self):
+        for threshold in (.94,1.0):
+            with self.subTest(threshold=threshold):
+                config=self.pair();config['minimumSilhouetteIoU']=threshold
+                result=prepare(self.root/'clay.png',self.root/'detail.png',config,self.root/f'valid-{threshold}')
+                self.assertEqual(result['silhouetteIoU'],1)
+    def test_multiview_shared_scale_and_order_gates(self):
+        align=self.pair();pairs={v:(self.root/'clay.png',self.root/'detail.png') for v in ['front','left','back','right']}
+        config={'rigReviewed':True,'fovDegrees':20,'views':{v:{'azimuthDegrees':a,'orientationReviewed':True,'alignment':align,
+            'crown':[.5,.1],'chin':[.5,.9],'skullCenter':[.5,.5]} for v,a in [('front',0),('left',90),('back',180),('right',270)]}}
+        result=prepare_multiview(pairs,config,self.root/'good');self.assertFalse(result['independentCropping'])
+        config['views']['left']['skullCenter']=[.6,.5]
+        with self.assertRaisesRegex(ValueError,'drift'):prepare_multiview(pairs,config,self.root/'bad')
+    def test_multiview_pair_cannot_lower_silhouette_floor(self):
+        align=self.pair();align['minimumSilhouetteIoU']=.5
+        pairs={view:(self.root/'clay.png',self.root/'detail.png') for view in ('front','left','back','right')}
+        config={'rigReviewed':True,'fovDegrees':20,'views':{view:{'azimuthDegrees':azimuth,'orientationReviewed':True,
+            'alignment':align,'crown':[.5,.1],'chin':[.5,.9],'skullCenter':[.5,.5]}
+            for view,azimuth in [('front',0),('left',90),('back',180),('right',270)]}}
+        with self.assertRaisesRegex(ValueError,'Minimum silhouette IoU'):
+            prepare_multiview(pairs,config,self.root/'low-floor')
+
+
+class FakePacker:
+    """The xatlas pack semantics the UV re-pack depends on: density 0 grows an unbounded atlas (here one shelf row)
+    whose UVs are normalised to its used extents; an explicit density packs shelf rows onto one square page of the
+    given resolution and spills onto a second page past it."""
+    def __init__(self):self.calls=[]
+    def PackOptions(self):return SimpleNamespace(resolution=0,padding=0,bilinear=False,bruteForce=False,texels_per_unit=0.0)
+    def Atlas(self):return FakeAtlas(self.calls)
+
+
+class FakeAtlas:
+    def __init__(self,calls):self.calls=calls
+    def add_uv_mesh(self,points,faces):self.points=np.asarray(points,float);self.faces=np.asarray(faces,int)
+    def generate(self,pack_options):
+        from scipy.sparse import coo_matrix
+        from scipy.sparse.csgraph import connected_components
+        o=pack_options;self.calls.append(dict(vars(o)));f=self.faces;n=len(self.points)
+        count,labels=connected_components(coo_matrix((np.ones(f.size),(f.ravel(),np.repeat(f[:,0],3))),shape=(n,n)),directed=False)
+        density=o.texels_per_unit or 1.0;limit=o.resolution if o.texels_per_unit else np.inf
+        uv=np.zeros((n,2));x=y=row=width=0
+        for chart in range(count):
+            vertices=np.flatnonzero(labels==chart);p=self.points[vertices]*density;size=p.max(0)-p.min(0)+o.padding
+            if x+size[0]>limit:x,y,row=0,y+row,0
+            uv[vertices]=p-p.min(0)+[x,y];x+=size[0];row=max(row,size[1]);width=max(width,x)
+        self.atlas_count=1 if y+row<=limit else 2;self.chart_count=count
+        self.width,self.height=(o.resolution,)*2 if o.texels_per_unit else (int(np.ceil(width)),int(np.ceil(y+row)))
+        self.uv=uv/[self.width,self.height]
+    def __getitem__(self,index):return np.arange(len(self.points)),self.faces,self.uv
+
+
+class MeshTests(Temporary):
+    def tetra(self):
+        vertices=np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,1]],np.float32)
+        faces=np.array([[0,2,1],[0,1,3],[0,3,2],[1,2,3]])
+        return vertices,faces
+    def test_precluster_matches_the_reference_bytes_without_loading_other_attributes(self):
+        # Race heads v1: the packed-key, block-wise precluster writes the same bytes as the row-unique original
+        # (human-female-d raw head: peak commit 6.24 -> 3.72 GB) and reads only positions and indices.
+        from headkit.mesh import precluster,BLOCK
+        from headkit.gltf import positions
+        class Igl:
+            def bfs_orient(self,faces):return faces.copy(),np.zeros(len(faces),np.int64)
+        rng=np.random.default_rng(3);p=rng.random((4000,3)).astype(np.float32);f=rng.integers(0,4000,(9000,3))
+        f=np.r_[f,f[:50],f[:20,[1,2,0]],np.c_[f[:5,0],f[:5,0],f[:5,1]]]  # duplicates, rotated duplicates, degenerate faces
+        uv=rng.random((len(f),3,2)).astype(np.float32);normals=np.tile([[0,0,1.]],(len(f)*3,1)).astype(np.float32)
+        source=self.root/'raw.glb';write_mesh(source,p[f].reshape(-1,3),np.arange(len(f)*3).reshape(-1,3),uv,normals)
+        def reference(path,out,resolution):
+            value=mesh(path);vertices,faces=value['positions'],value['faces'];lo=vertices.min(0);size=float(np.max(np.ptp(vertices,axis=0)))
+            _,groups=np.unique(np.floor((vertices-lo)/size*resolution).astype(np.int64),axis=0,return_inverse=True)
+            clustered=np.zeros((groups.max()+1,3));np.add.at(clustered,groups,vertices);clustered/=np.bincount(groups)[:,None];result=groups[faces]
+            result=result[np.all(np.diff(np.sort(result,axis=1),axis=1)!=0,axis=1)]
+            _,first=np.unique(np.sort(result,axis=1),axis=0,return_index=True);result=result[np.sort(first)]
+            tri=clustered[result];result=result[np.linalg.norm(np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]),axis=1)>0]
+            used,inverse=np.unique(result,return_inverse=True);clustered=clustered[used];result,components=Igl().bfs_orient(np.asarray(inverse.reshape(-1,3),np.int32))
+            tri=clustered[result];volumes=np.bincount(components,weights=np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2]))/6)
+            flipped=volumes[components]<0;result[flipped]=result[flipped][:,[0,2,1]];write_mesh(out,clustered,result)
+        with patch('headkit.mesh.library',return_value=Igl()),patch('headkit.mesh.BLOCK',1000):
+            for resolution in (512,1024):
+                with self.subTest(resolution=resolution):
+                    lean,old=self.root/f'lean-{resolution}.glb',self.root/f'old-{resolution}.glb'
+                    record=precluster(source,lean,{},resolution);reference(source,old,resolution)
+                    self.assertEqual(lean.read_bytes(),old.read_bytes())
+                    self.assertEqual(record['beforeTriangles'],len(f))
+        self.assertEqual(positions(source)[0].shape,(len(f)*3,3));self.assertEqual(BLOCK,1<<22)
+    def test_topology_survives_uniform_scale_and_translation(self):
+        p,f=self.tetra()
+        for scale in (.01,10):self.assertTrue(topology(p*scale+[4,2,8],f)['closed'])
+    def test_topology_is_physical_not_uv_index_topology(self):
+        p,f=self.tetra();expanded=p[f].reshape(-1,3);indices=np.arange(12).reshape(-1,3)
+        self.assertTrue(topology(expanded,indices)['closed']);self.assertFalse(topology(p,f[:-1])['closed'])
+    def test_winding_and_duplicate_surfaces_are_not_closed(self):
+        p,f=self.tetra();f[0]=f[0,::-1];self.assertFalse(topology(p,f)['closed'])
+        p,f=self.tetra();self.assertFalse(topology(p,np.r_[f,f[:1]])['closed'])
+    def test_glb_transport_preserves_ordered_corners_and_normals(self):
+        p,f=self.tetra();uv=np.tile([[.1,.1],[.9,.1],[.1,.9]],(4,1,1));out=self.root/'mesh.glb'
+        write_mesh(out,p,f,uv);loaded=mesh(out);np.testing.assert_array_equal(loaded['positions'][loaded['faces']],p[f]);np.testing.assert_array_equal(loaded['uv'],uv.astype(np.float32))
+    def test_transformed_mesh_rejected(self):
+        p,f=self.tetra();out=self.root/'mesh.glb';write_mesh(out,p,f);d,b,_=load(out.read_bytes());d['nodes'][0]['translation']=[1,0,0]
+        with self.assertRaises(ValueError):load(encode(d,b))
+    def test_duplicate_visible_mesh_instances_rejected(self):
+        p,f=self.tetra();out=self.root/'mesh.glb';write_mesh(out,p,f);d,b,_=load(out.read_bytes())
+        d['nodes'].append({'mesh':0});d['scenes'][0]['nodes'].append(1)
+        with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
+            load(encode(d,b))
+    def test_comfy_loader_validates_the_active_scene_mesh_instance(self):
+        from headkit.comfy_nodes.gltf import load as comfy_load
+        p,f=self.tetra();out=self.root/'mesh.glb';write_mesh(out,p,f);d,b,_=load(out.read_bytes())
+        d['nodes'].append({'mesh':0});d['scenes'][0]['nodes'].append(1)
+        with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
+            comfy_load(encode(d,b))
+        d,b,_=load(out.read_bytes());d['scenes'][0]['nodes']=[]
+        with self.assertRaisesRegex(ValueError,'Exactly one visible mesh instance'):
+            comfy_load(encode(d,b))
+    NECK={'taper':{'minScale':.6,'frontStart':-.06,'backStart':-.03,'axis':[0,0]},'seal':{'height':'measured','inset':.9,'rise':.003}}
+    def bell(self,segments=32,rows=12):
+        """Closed head-local bell (face +y, up +z) whose neck cavity opens at a rim 2 cm lower in front than behind."""
+        rings=[]
+        for theta in np.arange(segments)*2*np.pi/segments:
+            low=-.08-.02*(1+np.cos(theta))/2
+            profile=[(.03,.10),(.05,.08)]+[(.05,z) for z in np.linspace(.06,low,rows)]+[(.04,z) for z in np.linspace(low,.04,rows)]+[(.02,.06)]
+            rings.append([(r*np.sin(theta),r*np.cos(theta),z) for r,z in profile])
+        rings=np.transpose(np.asarray(rings),(1,0,2));count=len(rings)
+        vertices=np.r_[[[0,0,.105]],rings.reshape(-1,3),[[0,0,.065]]];j=np.arange(segments);k=(j+1)%segments
+        ring=lambda row,index:1+row*segments+index;last=len(vertices)-1
+        faces=[np.c_[np.zeros(segments,int),ring(0,k),ring(0,j)]]
+        for row in range(count-1):
+            faces+=[np.c_[ring(row,j),ring(row,k),ring(row+1,k)],np.c_[ring(row,j),ring(row+1,k),ring(row+1,j)]]
+        faces=np.concatenate(faces+[np.c_[np.full(segments,last),ring(count-1,j),ring(count-1,k)]])
+        tri=vertices[faces]
+        if np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()<0:faces=faces[:,::-1]
+        return vertices,faces
+    def glb(self,local):return np.c_[local[:,0],local[:,2],-local[:,1]]  # inverse of GLB->NWN (x,-z,y)
+    def test_bell_fixture_is_closed_and_crossing_free(self):
+        from headkit.intersections import scan
+        p,f=self.bell();self.assertTrue(topology(p,f)['closed']);self.assertFalse(scan(p,f)['pairs'])
+    def test_pinched_vertex_link_is_not_closed(self):
+        p,f=self.tetra();report=topology(np.r_[p,-p],np.r_[f,(f+4)[:,::-1]])  # two tetrahedra sharing only the origin
+        self.assertEqual((report['boundaryEdges'],report['nonmanifoldEdges'],report['windingConflicts'],report['invalidVertexLinks']),(0,0,0,1));self.assertFalse(report['closed'])
+    def test_batched_crossing_scan_matches_one_chunk_at_a_time(self):
+        from headkit.intersections import scan,sphere_aabb_pairs,crossing_pairs
+        rng=np.random.default_rng(5);soup=rng.random((700,1,3))+np.exp2(rng.integers(-6,-2,(700,1,1)))*rng.normal(size=(700,3,3))
+        t=np.array([[0,0,0],[.3,0,0],[0,.3,0]]);lift=np.array([[0,0,0],[0,0,0],[0,0,1e-12]])
+        crafted=[(t,t+[.1,.1,0]),(t,t+[.3,0,0]),(t,[[.3,0,0],[0,.3,0],[.3,.3,0]]),(t,t+[.1,.1,0]+lift),  # coplanar overlap, vertex touch, shared edge, near-coplanar overlap
+                 (t,[[.1,.1,-.1],[.1,.1,.1],[.2,.05,0]]),(t,[[.1,.1,0],[.1,.1,.2],[.15,.1,.2]]),(t,[[.1,.1,1e-9],[.1,.1,.2],[.15,.1,.2]])]  # crossing, interior touch, near miss
+        tri=np.r_[soup,[np.asarray(x,float)+[2+i,2,2] for i,pair in enumerate(crafted) for x in pair]];p,f=tri.reshape(-1,3),np.arange(3*len(tri)).reshape(-1,3)
+        chunks=list(sphere_aabb_pairs(p,f,block=64))  # one tree query and one exact batch per 64-face chunk, as before batching
+        for block in (128,16384):
+            got=list(sphere_aabb_pairs(p,f,block=block));self.assertEqual(len(got),len(chunks))
+            for a,b in zip(got,chunks):np.testing.assert_array_equal(a,b)
+        def reference(cap):
+            hits,checked,log=[],0,[]
+            for n,pairs in enumerate(chunks,1):
+                if checked+len(pairs)>cap:return {'complete':False,'pairs':hits,'candidatePairs':checked,'nextBatchPairs':len(pairs)},log
+                hits+=pairs[crossing_pairs(tri[pairs[:,0]],tri[pairs[:,1]])].tolist();checked+=len(pairs)
+                if n%50==0:log.append({'candidatePairs':checked,'intersectionPairs':len(hits),'batches':n})
+            return {'complete':True,'pairs':hits,'candidatePairs':checked},log
+        total=sum(map(len,chunks));self.assertGreater(len(chunks),50)  # six radius bins, several blocks each, one progress report
+        for cap in (total,total-1,total//2,1,0):
+            want,want_log=reference(cap)
+            for workers,block in ((1,64),(4,128),(3,16384)):
+                with self.subTest(cap=cap,workers=workers,block=block):
+                    log=[];got=scan(p,f,max_pairs=cap,progress=log.append,workers=workers,block=block)
+                    self.assertEqual({k:got.get(k) for k in want},want);self.assertEqual([{k:v for k,v in row.items() if k!='elapsedSeconds'} for row in log],want_log)
+        hits=scan(p,f)['pairs'];self.assertGreater(len(hits),10)
+        self.assertEqual(sorted(pair for pair in hits if pair[0]>=700),[[700,701],[706,707],[708,709]])  # strict crossings only; touching and near misses pass
+    def test_scan_bounds_candidate_and_narrow_phase_work_by_the_pair_cap(self):
+        from headkit import intersections
+        rng=np.random.default_rng(9);n=3000                              # malformed mesh: every triangle overlaps every other
+        tri=rng.random((n,1,3))*.01+rng.normal(0,.3,(n,3,3));p,f=tri.reshape(-1,3),np.arange(3*n).reshape(-1,3)
+        built,checked=[],[];real=intersections.crossing_pairs
+        def narrow(a,b,eps=1e-10):checked.append(len(a));return real(a,b,eps)
+        with patch.object(intersections,'NEIGHBOUR_BUDGET',20000),patch.object(intersections,'crossing_pairs',side_effect=narrow):
+            result=intersections.scan(p,f,max_pairs=5000,workers=2)
+        self.assertEqual((result['complete'],result['reason']),(False,'resource-pair-cap'))
+        # Each block builds candidates only up to the chunk group that passes the cap and narrow-tests only pairs before
+        # the chunk that passes it, not the ~4.5 million pairs of the whole mesh.
+        self.assertLessEqual(max(checked),5000);self.assertLess(sum(checked),20*5000)
+    def test_neck_taper_profile_is_monotonic_and_c1_without_a_shelf(self):
+        from headkit.neck import taper_scale
+        taper=self.NECK['taper'];bottom=-.1;z=np.linspace(.0,bottom,4001);dz=z[0]-z[1]
+        for phi in (0,.7,np.pi/2,2.5,np.pi):
+            with self.subTest(phi=phi):
+                local=np.c_[np.full_like(z,.04*np.sin(phi)),np.full_like(z,.04*np.cos(phi)),z];scale=taper_scale(local,taper,bottom)
+                start=taper['backStart']+(taper['frontStart']-taper['backStart'])*((1+np.cos(phi))/2)**2
+                self.assertTrue(np.all(scale[z>=start]==1));self.assertAlmostEqual(scale[-1],taper['minScale'])
+                self.assertTrue(np.all(np.diff(scale)<=1e-15))  # never widens toward the rim
+                slope=np.diff(scale)/dz;curvature=6*(1-taper['minScale'])/(start-bottom)**2
+                # C1: the slope never jumps (a shelf or lip would), and it eases in from zero at the start.
+                self.assertLessEqual(np.abs(np.diff(slope)).max(),1.01*curvature*dz)
+                self.assertLess(np.abs(slope[np.argmax(z<start)]),2*curvature*dz)
+    def test_section_ring_closure_is_angular_not_density(self):
+        from headkit.mesh import enclosed
+        angle=np.linspace(0,2*np.pi,7);ring=np.c_[np.cos(angle),np.sin(angle)];segments=np.stack([ring[:-1],ring[1:]],1)
+        self.assertTrue(enclosed(segments,[0,0]));self.assertFalse(enclosed(segments[:-1],[0,0]))
+        self.assertFalse(enclosed(segments,[3,0]));self.assertFalse(enclosed(segments[:0],[0,0]))
+    def test_neck_seal_closes_the_open_bottom_inside_the_walls(self):
+        from headkit.neck import neck_policy,neck_seal,section,transform
+        from headkit.intersections import scan
+        p,f=self.bell();neck=neck_policy({'seal':dict(self.NECK['seal'],searchTop=-.03)},{'matrix':np.eye(4).tolist(),'reviewed':True})
+        cap,cap_faces,record=neck_seal(self.glb(p),f,neck,None)
+        self.assertEqual(record['capTriangles'],48);self.assertAlmostEqual(record['lowestClosedRing'],-.08,places=3)
+        self.assertAlmostEqual(record['height'],record['lowestClosedRing']+.003)
+        joined=np.r_[self.glb(p),cap];faces=np.r_[f,cap_faces+len(p)]
+        self.assertTrue(topology(joined,faces)['closed']);self.assertFalse(scan(joined,faces)['pairs'])
+        local=transform(neck['frame'],cap);rim=np.linalg.norm(local[:24,:2],axis=1)
+        self.assertTrue(np.all((rim>.8*.04)&(rim<.04)))  # spans the inner wall's opening without touching it
+        self.assertTrue(np.allclose(local[:25,2],record['height']) and np.isclose(local[25,2],record['height']+.003))
+        self.assertEqual(len(section(transform(neck['frame'],joined),faces,-.09)),len(section(p,f,-.09)))  # below: unchanged
+    def test_neck_repair_tapers_master_reduces_to_budget_minus_cap_and_audits(self):
+        from headkit import neck as mesh_module
+        p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        neck=mesh_module.neck_policy(self.NECK,fit);coarse,coarse_faces=self.bell(24);coarse=self.glb(coarse)
+        coarse,_=mesh_module.neck_taper(coarse,coarse_faces,neck);calls=[]
+        def reduce(bindings,vertices,faces,target,work):
+            calls.append((len(faces),target));np.savez(work,vertices=coarse);return coarse,coarse_faces
+        distances=[]
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(distances.append(np.array(P)) or np.zeros(len(P)),))
+        budget=len(f)+20;(self.root/'out').mkdir()
+        with patch.object(mesh_module,'_reduce',reduce),patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'out'/'final.glb',{},{'alphaWrap':False,'triangleBudget':budget,'neck':self.NECK},
+                                      {'sourceSha256':pin(source)['sha256'],'visualReviewed':True},fit=fit)
+        self.assertEqual(calls,[(len(f),budget-48)]);self.assertTrue(result['passed'])
+        self.assertEqual(result['topology']['triangles'],len(coarse_faces)+48);self.assertLessEqual(result['topology']['triangles'],budget)
+        self.assertEqual(result['neck']['budget'],{'total':budget,'reservedForCap':48,'reductionTarget':budget-48})
+        self.assertEqual(result['neck']['seal']['shellTriangles'],len(coarse_faces))
+        self.assertNotIn('shorten',result['neck'])  # undeclared shortening leaves earlier receipts byte-identical
+        master=mesh(self.root/'out'/'master.glb')['positions'];untapered=mesh(self.root/'out'/'master-untapered.glb')['positions']
+        self.assertEqual(result['surfaceDistance']['reference'],pin(self.root/'out'/'master.glb'))
+        np.testing.assert_allclose(np.sort(distances[0],0),np.sort(np.unique(master,axis=0),0))  # tapered master, not the source
+        self.assertGreater(np.abs(master-untapered).max(),.005);self.assertEqual(result['neck']['taper']['untapered'],pin(self.root/'out'/'master-untapered.glb'))
+    def test_interior_only_selection_deletes_bubbles_and_refuses_visible_floaters(self):
+        from headkit.mesh import select_shells,ShellReview
+        p,f=self.bell();t,tf=self.tetra();vertices=np.asarray(p,float);faces=np.asarray(f)
+        centre=vertices.mean(0);reach=np.linalg.norm(vertices-centre,axis=1).min()*.9
+        inside=lambda V,F,points:(np.linalg.norm(points-centre,axis=1)<reach).astype(float)  # stand-in winding number
+        def two(offset):
+            bubble=np.asarray(t,float)*.01+offset;return np.r_[vertices,bubble],np.r_[faces,np.asarray(tf)+len(vertices)]
+        policy={'keep':'largest','reviewed':True,'interiorOnly':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
+        V,F=two(centre);kept,kf,record=select_shells(V,F,policy,inside)
+        self.assertEqual(len(kf),len(faces));self.assertEqual(record['deleted'][0]['insideFraction'],1.0)
+        V,F=two(centre+[0,0,10]);outside=None
+        with self.assertRaisesRegex(ValueError,'not wholly inside') as raised:select_shells(V,F,policy,inside)
+        self.assertEqual(raised.exception.attempts['shells']['extra'][0]['insideFraction'],0.0)
+        with self.assertRaisesRegex(ValueError,'winding-number test'):select_shells(*two(centre),policy)
+    def test_repair_keeps_one_shell_and_deletes_floaters_only_by_reviewed_selection(self):
+        from headkit import neck as mesh_module
+        p,f=self.bell();t,tf=self.tetra();floater=t*.01+[0,-.3,0]  # a detached floater behind the head (GLB +z faces front)
+        source=self.root/'source.glb';write_mesh(source,np.r_[self.glb(p),floater],np.r_[f,tf+len(p)])
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        keep={'keep':'largest','reviewed':True,'maximumDeletedAreaFraction':.05,'expectedDeleted':1}
+        for components,message in ((None,'2 separate shells'),(dict(keep,reviewed=False),'reviewed'),(dict(keep,expectedDeleted=0),'1 shells would be deleted'),
+                                   (dict(keep,maximumDeletedAreaFraction=1e-6),'above the reviewed bound'),(dict(keep,maximumDeletedAreaFraction=.1),'supported profile')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message) as raised:
+                mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'components':components} if components else {'alphaWrap':False},inspection)
+            self.assertFalse((self.root/'master.glb').exists())
+            if message!='supported profile':  # a refusal carries the shell table for review (stored in the refused receipt)
+                extra=raised.exception.attempts['shells']['extra'];self.assertEqual(len(extra),1);self.assertIn('at [',str(raised.exception))
+                self.assertEqual(len(extra[0]['centroid']),3);self.assertEqual(len(extra[0]['box']),2);self.assertLess(extra[0]['areaFraction'],.05)
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':keep},inspection)
+        self.assertTrue(result['passed'] and result['componentDeletion']);self.assertEqual(result['topology']['triangles'],len(f))
+        self.assertEqual((result['shells']['shells'],result['shells']['keptTriangles'],[row['triangles'] for row in result['shells']['deleted']]),(2,len(f),[4]))
+        np.testing.assert_allclose(result['shells']['deleted'][0]['centroid'],floater.mean(0),atol=1e-5)
+        area=lambda v,f:np.linalg.norm(np.cross(v[f][:,1]-v[f][:,0],v[f][:,2]-v[f][:,0]),axis=1).sum()/2
+        self.assertAlmostEqual(result['shells']['deletedAreaFraction'],area(floater,tf)/(area(floater,tf)+area(p,f)),places=6)
+        np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(self.glb(p),axis=0),0),atol=1e-6)
+        # interiorOnly reaches libigl 2.6.3's fast_winding_number(V, F, Q); the floater behind the head is visible, so it is refused
+        calls=[];igl.fast_winding_number=lambda V,F,Q:calls.append((V.dtype,F.dtype,len(Q))) or np.zeros(len(Q))
+        with patch.object(mesh_module,'library',lambda b,name:igl),self.assertRaisesRegex(ValueError,'not wholly inside'):
+            mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False,'triangleBudget':len(f)+20,'components':dict(keep,interiorOnly=True)},inspection)
+        self.assertEqual(calls,[(np.float64,np.int64,4)])
+    def icosphere(self,radius=.1,levels=3):
+        g=(1+5**.5)/2;v=[(-1,g,0),(1,g,0),(-1,-g,0),(1,-g,0),(0,-1,g),(0,1,g),(0,-1,-g),(0,1,-g),(g,0,-1),(g,0,1),(-g,0,-1),(-g,0,1)]
+        f=[(0,11,5),(0,5,1),(0,1,7),(0,7,10),(0,10,11),(1,5,9),(5,11,4),(11,10,2),(10,7,6),(7,1,8),(3,9,4),(3,4,2),(3,2,6),(3,6,8),(3,8,9),(4,9,5),(2,4,11),(6,2,10),(8,6,7),(9,8,1)]
+        v=[np.array(p,float)/np.linalg.norm(p) for p in v]
+        for _ in range(levels):
+            cache={};faces=[]
+            def mid(a,b):
+                key=(min(a,b),max(a,b))
+                if key not in cache:m=v[a]+v[b];v.append(m/np.linalg.norm(m));cache[key]=len(v)-1
+                return cache[key]
+            for a,b,c in f:ab,bc,ca=mid(a,b),mid(b,c),mid(c,a);faces+=[(a,ab,ca),(b,bc,ab),(c,ca,bc),(ab,bc,ca)]
+            f=faces
+        return np.array(v)*radius,np.array(f)
+    def test_preview_relief_finds_cancelling_normals_and_crust_cells(self):
+        from headkit.preview import pinched,rough_cells
+        p,f=self.icosphere();self.assertFalse(pinched(p,f).any())
+        # A fan folded onto itself: two faces up, two down around the centre vertex; its rim vertices 1 and 3 fold too.
+        fan=np.array([[0,0,0],[1,0,0],[0,1,0],[-1,0,0],[0,-1,0]],float);faces=np.array([[0,1,2],[0,2,3],[0,4,3],[0,1,4]])
+        np.testing.assert_array_equal(pinched(fan,faces),[True,True,False,True,False])
+        rng=np.random.default_rng(5);noisy=p.copy();cap=p[:,2]>.06;noisy[cap]*=(1+rng.normal(0,.03,cap.sum()))[:,None]
+        cells=rough_cells(noisy,f,noisy,fraction=.05,cell=.05)
+        self.assertGreater(cells[0]['centre'][2],0);self.assertTrue(all(c['vertices']>0 for c in cells))  # densest crust cell sits on the crown
+    def test_relief_smoothing_calms_declared_region_only_and_stays_closed(self):
+        from headkit.relief import smooth
+        p,f=self.icosphere();rng=np.random.default_rng(3);noisy=p.copy();cap=p[:,2]>.03
+        noisy[cap]*=(1+rng.normal(0,.02,cap.sum()))[:,None]  # Pixal-style crust on the crown only
+        region={'name':'crown','reviewed':True,'iterations':30,'feather':2,'where':{'of':'z','gt':.03}}
+        out,records=smooth(noisy,f,[region],noisy);inner=noisy[:,2]>.05;radial=lambda v:np.linalg.norm(v,axis=1)
+        self.assertLess(np.std(radial(out[inner])),.4*np.std(radial(noisy[inner])))
+        np.testing.assert_array_equal(out[noisy[:,2]<.02],noisy[noisy[:,2]<.02])  # outside the region: untouched
+        self.assertTrue(topology(out,f)['closed']);self.assertEqual(records[0]['vertices'],int((noisy[:,2]>.03).sum()))
+        self.assertGreater(records[0]['maximumDisplacementMetres'],0);self.assertEqual((records[0]['mu'],records[0]['feather']),(-.53,2))
+        # mu 0 is the plain (shrinking) Laplacian used for bristle fins; Taubin keeps the volume on the same region.
+        plain,_=smooth(noisy,f,[dict(region,mu=0)],noisy)
+        self.assertLess(radial(plain[inner]).mean(),radial(out[inner]).mean()-.001);self.assertGreater(radial(out[inner]).mean(),.098)
+        for bad,message in ((dict(region,reviewed=False),'reviewed'),(dict(region,iterations=0),'1..100'),(dict(region,iterations=101),'1..100'),
+                            (dict(region,mu=-.3),'lambda < -mu'),(dict(region,feather=21),'Feather'),(dict(region,where={'of':'z','gt':5}),'selects no vertices')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):smooth(noisy,f,[bad],noisy)
+    def test_repair_smooths_the_dense_master_only_with_a_reviewed_fit(self):
+        from headkit import neck as mesh_module
+        p,f=self.bell(48,24);rng=np.random.default_rng(4);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
+        source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f);inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True}
+        policy={'alphaWrap':False,'triangleBudget':20000,'maximumRelativeSurfaceError':.025,
+                'smooth':[{'name':'crown','reviewed':True,'iterations':20,'where':{'of':'z','gt':.065}}]}
+        with self.assertRaisesRegex(ValueError,'reviewed head fit'):mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=None)
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit={'matrix':np.eye(4).tolist(),'reviewed':True})
+        region=result['smoothing']['regions'][0];self.assertEqual(region['name'],'crown');self.assertGreater(region['vertices'],0)
+        master=mesh(self.root/'master.glb')['positions'];self.assertTrue(result['passed'])
+        self.assertGreater(np.abs(np.sort(np.unique(master,axis=0),0)-np.sort(np.unique(self.glb(noisy),axis=0),0)).max(),1e-4)
+    def test_repair_rewraps_the_smoothed_master_so_collapsed_fins_cannot_cross(self):
+        from headkit import neck as mesh_module
+        p,f=self.bell(48,24);rng=np.random.default_rng(5);noisy=p.copy();top=p[:,2]>.06;noisy[top]+=rng.normal(0,.002,(top.sum(),3))
+        source=self.root/'source.glb';write_mesh(source,self.glb(noisy),f)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True,'confirmedShellDefect':True};inputs=[]
+        class Mesh:
+            def __init__(self,v,f):self.v,self.f=np.array(v),np.array(f);inputs.append(self.v.copy())
+            def compact(self):pass
+            def vertex_matrix(self):return self.v
+            def face_matrix(self):return self.f
+        class MeshSet:
+            def add_mesh(self,m):self.m=m
+            def generate_alpha_wrap(self,**k):pass
+            def current_mesh(self):return self.m
+        ml=SimpleNamespace(MeshSet=MeshSet,Mesh=Mesh,PureValue=lambda x:x);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':True,'triangleBudget':20000,'smooth':[{'name':'crown','reviewed':True,'iterations':20,'where':{'of':'z','gt':.065}}]}
+        with patch.object(mesh_module,'library',lambda b,name:ml if name=='pymeshlab' else igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit={'matrix':np.eye(4).tolist(),'reviewed':True})
+        self.assertEqual(len(inputs),2);self.assertTrue(result['smoothing']['rewrapped']);self.assertEqual(result['smoothing']['rewrapShells']['shells'],1)
+        self.assertGreater(np.abs(inputs[1]-inputs[0]).max(),1e-4)  # the second wrap received the smoothed master
+        np.testing.assert_allclose(np.sort(np.unique(mesh(self.root/'master.glb')['positions'],axis=0),0),np.sort(np.unique(inputs[1],axis=0),0),atol=1e-6)
+    def test_reduction_gate_passes_bounded_fine_relief_but_not_a_flattened_protrusion(self):
+        # race heads v1: 10 of 20 heads failed the 0.4% bound only on hair-strand relief (<=11 vertices, extent <=1.1%, <=1.16%)
+        from headkit.neck import fine_relief
+        p,f=self.icosphere(levels=4);diagonal=float(np.linalg.norm(np.ptp(p,axis=0)));error=np.full(len(p),.001)
+        strands=np.random.default_rng(6).choice(len(p),5,replace=False);error[strands]=.009  # ~0.2% of the area
+        relief=fine_relief(p,f,error,.003,.004,{})
+        self.assertTrue(relief['passed']);self.assertLessEqual(relief["regions"],5);self.assertLess(relief['measured']['extent'],.015)
+        tusk=error.copy();tusk[np.linalg.norm(p-p[0],axis=1)<.03*diagonal]=.009  # a lost protrusion: one long connected region
+        failed=fine_relief(p,f,tusk,.003,.004,{});self.assertFalse(failed['passed']);self.assertGreater(failed['measured']['extent'],.015)
+        for value,outward,policy in ((.02,.003,{}),(.009,.005,{}),(.009,.003,False),(.009,.003,{'maximumError':.008})):
+            with self.subTest(value=value,outward=outward,policy=policy):
+                deep=error.copy();deep[strands]=value;self.assertFalse(fine_relief(p,f,deep,outward,.004,policy)['passed'])
+        for bad in ({'maximumExtent':.05},{'other':.01},{'maximumError':0},True):
+            with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'fineRelief'):fine_relief(p,f,error,.003,.004,bad)
+    def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
+        from headkit import neck as mesh_module
+        from headkit.neck import neck_policy,neck_shorten,shorten_depth,transform
+        from headkit.intersections import scan
+        d=np.linspace(0,.2,4001)
+        for scale,band in ((.6,.02),(.3,.005),(.95,.05)):
+            with self.subTest(scale=scale,band=band):
+                slope=np.diff(shorten_depth(d,scale,band))/np.diff(d)
+                self.assertTrue(np.all(slope>0))  # strictly increasing: every vertical column keeps its order
+                self.assertAlmostEqual(slope[0],1,places=2);self.assertAlmostEqual(slope[-1],scale,places=2)  # no crease at the start
+        p,f=self.bell();bottom=float(p[:,2].min());fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        neck=neck_policy({'shorten':{'start':-.02,'rim':bottom+.02}},fit)
+        moved,record=neck_shorten(self.glb(p),neck);local=transform(neck['frame'],moved)
+        self.assertAlmostEqual(local[:,2].min(),bottom+.02,places=9);self.assertAlmostEqual(record['removedLengthMetres'],.02,places=9)
+        np.testing.assert_allclose(local[:,:2],p[:,:2],atol=1e-12)  # the outline never moves, only heights below the start
+        np.testing.assert_allclose(local[p[:,2]>=-.02],p[p[:,2]>=-.02],atol=1e-12)
+        self.assertTrue(topology(local,f)['closed']);self.assertFalse(scan(local,f)['pairs'])
+        for bad,message in (({'start':-.02},'start height'),({'start':-.02,'rim':-.01},'lower target'),
+                            ({'start':-.02,'rim':bottom+.01,'band':.1},'band'),({'start':-.02,'rim':-.04,'band':.03},'cannot reach its rim'),
+                            ({'start':-.02,'rim':bottom-1.0},'cannot reach its rim')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):neck_shorten(self.glb(p),neck_policy({'shorten':bad},fit))
+        # A rim below the current one lengthens with the same strictly increasing profile (far scale above 1).
+        longer,record=neck_shorten(self.glb(p),neck_policy({'shorten':{'start':-.02,'rim':bottom-.03}},fit));local=transform(neck['frame'],longer)
+        self.assertAlmostEqual(local[:,2].min(),bottom-.03,places=9);self.assertGreater(record['farScale'],1)
+        np.testing.assert_allclose(local[:,:2],p[:,:2],atol=1e-12);self.assertFalse(scan(local,f)['pairs'])
+        # In repair the stump is shortened on the dense master before the taper, which then starts from the new rim.
+        source=self.root/'source.glb';write_mesh(source,self.glb(p),f);igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'shorten':{'start':-.02,'rim':-.08},'taper':self.NECK['taper']}}
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,{'sourceSha256':pin(source)['sha256'],'visualReviewed':True},fit=fit)
+        self.assertTrue(result['passed']);self.assertAlmostEqual(result['neck']['shorten']['rimHeight'],-.08,places=6)
+        self.assertAlmostEqual(result['neck']['taper']['rimHeight'],-.08,places=6)
+        master=transform(neck['frame'],mesh(self.root/'master.glb')['positions']);self.assertAlmostEqual(master[:,2].min(),-.08,places=5)
+    def test_cut_refusal_after_a_rewrap_keeps_the_shell_table(self):
+        import headkit.neck as neck_module
+        from headkit.mesh import ShellReview
+        p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)
+        reference=self.root/'body-neck.json';write(reference,{'kind':'srn-head-body-neck','vertices':body[0].tolist(),'faces':body[1].tolist()},fresh=True)
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'cut':{'height':'measured','slope':-.2}}}
+        igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        real_select=neck_module.select_shells;real_cut=neck_module.neck_cut;calls=[]
+        def select(vertices,faces,selection,inside=None):
+            calls.append(1)
+            if len(calls)==1:return real_select(vertices,faces,selection,inside)
+            raise ShellReview('Master has 3 separate shells',{'count':3,'extra':['table']})
+        def cut(vertices,faces,trial,body_neck,rewrap=None):
+            a,b,record=real_cut(vertices,faces,trial,body_neck,rewrap=rewrap);return a,b,dict(record,closure='rewrap')
+        with patch.object(neck_module,'library',lambda *_:igl),patch.object(neck_module,'select_shells',select), \
+             patch.object(neck_module,'neck_cut',cut),patch.object(neck_module,'cut_candidates',lambda *_:[]):
+            with self.assertRaisesRegex(ShellReview,'Neck cut failed') as caught:
+                neck_module.repair(source,self.root/'final.glb',{},policy,{'sourceSha256':pin(source)['sha256'],'visualReviewed':True},
+                                   fit={'matrix':np.eye(4).tolist(),'reviewed':True},body=reference)
+        self.assertEqual(caught.exception.attempts,{'shells':{'count':3,'extra':['table']}})
+
+    def necked_head(self,segments=48,rows=80):
+        """Closed head-local revolved head (face +y, up +z): skull above z 0, a chin standing 4 cm forward of the neck
+        down to z -0.04 in front, and a 5.5 cm neck down to a closed bottom at -0.16; plus an octagonal body neck prism
+        (radius 4.5 cm, z -0.25..0.02) as the body reference."""
+        def radius(theta,z):
+            front=max(np.cos(theta),0)**2
+            if z>0:return .055+.045*np.sqrt(max(0,1-((z-.09)/.11)**2)) if z<.2 else .02
+            jaw=.055+.04*front*np.clip((z+.04)/.01,0,1)  # chin over the front, ending at -0.04
+            return jaw
+        zs=np.linspace(.2,-.16,rows);theta=np.arange(segments)*2*np.pi/segments
+        rings=np.array([[(radius(t,z)*np.sin(t),radius(t,z)*np.cos(t),z) for t in theta] for z in zs])
+        vertices=np.r_[[[0,0,.21]],rings.reshape(-1,3),[[0,0,-.17]]];j=np.arange(segments);k=(j+1)%segments
+        ring=lambda row,index:1+row*segments+index;last=len(vertices)-1
+        faces=[np.c_[np.zeros(segments,int),ring(0,k),ring(0,j)]]
+        for row in range(rows-1):faces+=[np.c_[ring(row,j),ring(row,k),ring(row+1,k)],np.c_[ring(row,j),ring(row+1,k),ring(row+1,j)]]
+        faces=np.concatenate(faces+[np.c_[np.full(segments,last),ring(rows-1,j),ring(rows-1,k)]])
+        tri=vertices[faces]
+        if np.einsum('ij,ij->i',tri[:,0],np.cross(tri[:,1],tri[:,2])).sum()<0:faces=faces[:,::-1]
+        a=np.arange(8)*np.pi/4+np.pi/8;octagon=np.c_[.045*np.cos(a),.045*np.sin(a)]
+        bv=np.r_[np.c_[octagon,np.full(8,-.25)],np.c_[octagon,np.full(8,.02)]];n=np.arange(8);m=(n+1)%8
+        bf=np.r_[np.c_[n,m,m+8],np.c_[n,m+8,n+8],[[0,n,n+1] for n in range(1,7)],[[8,9+n,8+n] for n in range(1,7)]]
+        return vertices,faces,(bv,bf)
+    def test_neck_cut_removes_the_neck_under_the_measured_jaw_onto_the_body_neck(self):
+        from headkit.neck import neck_policy,neck_cut,transform,jaw_line,section_radius,section
+        from headkit.intersections import scan
+        p,f,body=self.necked_head();fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        # The chin (5 cm outside the body neck, beyond the 4 cm reach) is the lowest front feature; the neck is not.
+        jaw=jaw_line(p,*body,.04,-.2);self.assertTrue(-.04<jaw['point'][2]<-.03);self.assertGreater(jaw['point'][1],.08)  # where the chin taper still stands beyond the reach
+        neck=neck_policy({'cut':{'height':'measured','slope':-.2,'band':.03,'reach':.04}},fit)
+        cut,faces,record=neck_cut(self.glb(p),f,neck,body);local=transform(neck['frame'],cut)
+        self.assertEqual(record['jawLine'],jaw);self.assertAlmostEqual(record['height'],jaw['height']-.01);self.assertEqual(record['closure'],'fan')
+        self.assertTrue(topology(local,faces)['closed']);self.assertFalse(scan(local,faces)['pairs'])
+        plane=record['height']+record['slope']*local[:,1]
+        self.assertTrue(np.all(local[:,2]>=plane-1e-6))  # nothing of the neck below the plane survives
+        # The ring lies on the plane, 3 mm inside the body neck (octagon radius 4.16-4.5 cm, smoothed over +-10 degrees);
+        # on this coarse mesh (rows 4.5 mm apart) edges clipped beside the chin taper land up to 5 mm off.
+        ring=local[np.abs(local[:,2]-plane)<1e-6];radii=np.linalg.norm(ring[:,:2],axis=1)
+        self.assertTrue(.038<np.median(radii)<.043 and radii.min()>.037 and radii.max()<.051);self.assertEqual(record['ringVertices'],len(ring))
+        # Above the band (the skull and the chin's top) nothing moves.
+        clear=lambda v:v[:,2]>record['height']+record['slope']*v[:,1]+record['band']+1e-9
+        np.testing.assert_allclose(np.sort(local[clear(local)],0),np.sort(p[clear(p)],0),atol=1e-9)
+        # A hollow (double-walled) stump leaves two rings: closed only by a wrapped repair's re-wrap, never guessed.
+        inner=p.copy();inner[:,:2]*=.9;hollow=np.r_[p,inner];hf=np.r_[f,f[:,::-1]+len(p)]
+        with self.assertRaisesRegex(ValueError,'only a wrapped repair'):neck_cut(self.glb(hollow),hf,neck,body)
+        calls=[];rewrap=lambda v,fs:(calls.append(len(fs)) or (v,fs))
+        _,_,hollow_record=neck_cut(self.glb(hollow),hf,neck,body,rewrap=rewrap)
+        self.assertEqual((hollow_record['closure'],len(hollow_record['loops']),len(calls)),('rewrap',2,1))
+        with self.assertRaisesRegex(ValueError,'cross the head'):neck_cut(self.glb(p),f,neck_policy({'cut':{'height':-.2}},fit),body)
+
+    def test_neck_cut_skirt_keeps_hair_hanging_below_the_jaw_and_removes_only_the_neck_column(self):
+        # User 2026-10-28: neck cuts avoid hair. Hair merged onto the back of the neck down to -0.10 (2.5 cm proud of
+        # the 5.5 cm neck) survives the cut down to the reviewed depth; the neck column inside it and the front are removed.
+        from headkit.neck import neck_policy,neck_cut,transform,face_angle,cut_candidates
+        p,f,body=self.necked_head();fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        theta=np.arctan2(p[:,0],p[:,1]);back=np.maximum(-np.cos(theta),0)**2;z=p[:,2]
+        hanging=(z<0)&(z>-.10);p=p.copy();p[hanging,:2]*=(1+back[hanging]*.025/.055)[:,None]
+        plain=neck_policy({'cut':{'height':'measured','slope':0.0}},fit)
+        v,_,record=neck_cut(self.glb(p),f,plain,body);local=transform(plain['frame'],v)
+        self.assertFalse(np.any(local[:,2]<record['height']-1e-6))  # a plain cut clips the hanging hair at the plane
+        default=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05}}},fit)
+        self.assertEqual((default['cut']['skirt'],default['cut']['cone']),({'depth':.05,'gap':.03},60.0))
+        neck=neck_policy({'cut':{'height':'measured','slope':0.0,'skirt':{'depth':.05,'gap':.015}}},fit)  # this hair is 2.5 cm proud
+        with self.assertRaisesRegex(ValueError,'only a wrapped repair'):neck_cut(self.glb(p),f,neck,body)
+        calls=[];rewrap=lambda v,fs:(calls.append(len(fs)) or (v,fs))
+        v,faces,record=neck_cut(self.glb(p),f,neck,body,rewrap=rewrap);local=transform(neck['frame'],v)
+        self.assertEqual((record['closure'],len(calls)),('rewrap',1));self.assertGreater(record['skirt']['hairVertices'],0)
+        self.assertGreaterEqual(record['skirt']['boundaryComponents'],1);self.assertEqual(record['snappedToPlane'],0)
+        below=local[local[:,2]<record['height']-1e-6];self.assertGreater(len(below),0)
+        self.assertGreater(below[:,2].min(),record['height']-.05-1e-6)  # nothing deeper than the reviewed depth
+        self.assertGreater(face_angle(below).min(),60)  # outside the front cone
+        self.assertGreater(np.linalg.norm(below[:,:2],axis=1).min(),.0416+.015)  # beyond the gap outside the body neck (octagon 4.16-4.5 cm)
+        self.assertEqual(cut_candidates(self.glb(p),f,neck,body)[0]['result'],'not surveyed')  # the ladder has no rewrap
+        # The wrap also spans the open space under the chin (a flat panel in front of the throat, 7.5 cm forward and 1-4
+        # cm under the plane): the tuck draws it inside the body neck and leaves the hair where it hangs.
+        gx,gz=np.meshgrid(np.linspace(-.03,.03,7),np.linspace(-.01,-.04,4));n=len(gx.ravel())
+        panel=np.c_[gx.ravel(),np.full(n,.075),record['height']+gz.ravel()];base=len(v)
+        quads=[(r*7+c,r*7+c+1,(r+1)*7+c+1,(r+1)*7+c) for r in range(3) for c in range(6)]
+        panel_faces=np.array([t for a,b,c,d in quads for t in ((a,b,c),(a,c,d))])+base
+        def spanning(points,fs):
+            return np.r_[points,transform(np.linalg.inv(neck['frame']),panel)],np.r_[fs,panel_faces]
+        tucked,_,tucked_record=neck_cut(self.glb(p),f,neck,body,rewrap=spanning);tl=transform(neck['frame'],tucked)
+        self.assertLess(np.linalg.norm(tl[base:,:2],axis=1).max(),.045-.003+1e-6)  # inside the body neck (octagon 4.16-4.5 cm, offset -3 mm)
+        deep=tl[base:][panel[:,2]<record['height']-.03]  # past 2*gap below the plane: the narrow core, not a tube lining the neck
+        self.assertLess(np.linalg.norm(deep[:,:2],axis=1).max(),.35*(.045-.003)+1e-6)
+        np.testing.assert_allclose(tl[:base],local,atol=1e-9)  # the kept hair (all within keep of itself) does not move
+        self.assertEqual(tucked_record['skirt']['tuck']['tuckedVertices'],n)
+        self.assertEqual(record['skirt']['tuck']['tuckedVertices'],0)
+        # The real panel (human-female-c) stands up to the band top ABOVE the plane, 3-4 cm outside the body neck, beside
+        # the chin: the invented surface is drawn in, the chin (original surface at the same height) does not move.
+        high=np.c_[gx.ravel(),np.full(n,.06),record['height']+.002-(gz.ravel()+.01)*.6]  # 2-20 mm above the plane, 6 cm forward
+        def spanning_high(points,fs):
+            return np.r_[points,transform(np.linalg.inv(neck['frame']),high)],np.r_[fs,panel_faces]
+        lifted,_,lifted_record=neck_cut(self.glb(p),f,neck,body,rewrap=spanning_high);ll=transform(neck['frame'],lifted)
+        from scipy.spatial import cKDTree
+        from headkit.neck import TUCK_INVENTED
+        away=cKDTree(local).query(high)[0]  # the panel's distance from the real (pre-wrap) surface
+        far,near=away>2*TUCK_INVENTED,away<TUCK_INVENTED;self.assertTrue(far.sum()>n//2)
+        self.assertLess(np.linalg.norm(ll[base:][far][:,:2],axis=1).max(),.045-.003+1e-6)  # invented: drawn inside the neck
+        np.testing.assert_allclose(ll[base:][near],high[near],atol=1e-9)  # touching the chin: left as real surface
+        np.testing.assert_allclose(ll[:base],local,atol=1e-9)  # every original vertex, the chin included, stays
+        for bad in ({'gap':.01},{'depth':.3},{'depth':.05,'cone':60},{'depth':.05,'width':1}):
+            with self.assertRaisesRegex(ValueError,'skirt'):neck_policy({'cut':{'height':'measured','skirt':bad}},fit)
+        with self.assertRaisesRegex(ValueError,'cone'):neck_policy({'cut':{'height':'measured','cone':10}},fit)
+    def test_chin_below_falls_back_to_a_shorter_reach_when_the_jaw_search_finds_the_lip(self):
+        # Race heads v1 dwarf-female-a / orc-male-d: at reach 0.08 the jaw search took the lower lip (z 0.0) and the cut ran
+        # through the mouth; a reviewed chinBelow makes the cut retry .06/.04/.03 and keep the first jaw under it.
+        from headkit.neck import neck_policy,measured_jaw
+        fit={'matrix':np.eye(4).tolist(),'reviewed':True};found={.08:0.0,.06:-.01,.04:-.032,.03:-.035}
+        def jaw(local,bv,bf,reach,slope,bottom,cone):
+            if reach==.06:raise ValueError('No front feature (chin) stands beyond the reach; set an explicit cut height')
+            return {'height':found[reach],'point':[0,.08,found[reach]],'reach':reach,'slope':slope}
+        cut=lambda **k:neck_policy({'cut':dict({'height':'measured','reach':.08},**k)},fit)['cut']
+        with patch('headkit.neck.jaw_line',side_effect=jaw):
+            plain=measured_jaw(None,None,None,cut());self.assertEqual(plain,jaw(None,None,None,.08,0.0,-.16,None))  # no chin rule: the record is unchanged
+            picked=measured_jaw(None,None,None,cut(chinBelow=-.02));self.assertEqual(picked['reach'],.04)
+            self.assertEqual([t['reach'] for t in picked['reachesTried']],[.08,.06]);self.assertIn('problem',picked['reachesTried'][1])
+            with self.assertRaisesRegex(ValueError,'No reach finds the chin at or below chinBelow'):measured_jaw(None,None,None,cut(chinBelow=-.05))
+        for bad in ({'chinBelow':.2},{'chinBelow':'low'},{'height':-.05,'chinBelow':-.02}):
+            with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'chinBelow'):neck_policy({'cut':dict({'height':'measured'},**bad)},fit)
+    def test_measured_jaw_with_a_front_cone_ignores_hair_hanging_beside_the_jaw(self):
+        from headkit.neck import jaw_line
+        p,f,body=self.necked_head();theta=np.arctan2(p[:,0],p[:,1]);side=np.exp(-((np.abs(theta)-np.radians(75))/.15)**2)
+        lock=(p[:,2]<0)&(p[:,2]>-.09);p=p.copy();p[lock,:2]*=(1+side[lock]*1.2)[:,None]  # side locks to -0.09, 6 cm proud
+        self.assertLess(jaw_line(p,*body,.04,-.2)['point'][2],-.06)  # the front half takes a lock for the chin
+        jaw=jaw_line(p,*body,.04,-.2,cone=60);self.assertTrue(-.04<jaw['point'][2]<-.03)  # the cone keeps the chin
+    def test_measured_jaw_ignores_a_flared_bust_below_the_search_bottom(self):
+        from headkit.neck import neck_policy,jaw_line
+        p,f,body=self.necked_head();flared=p.copy()
+        low=flared[:,2]<-.12;flared[low,:2]*=1.9  # a generated neck flaring into a bust base, beyond the reach
+        self.assertLess(jaw_line(flared,*body,.04,-.2,-1.0)['point'][2],-.12)  # unbounded: lands on the flare
+        jaw=jaw_line(flared,*body,.04,-.2,-.11);self.assertTrue(-.04<jaw['point'][2]<-.03)  # bounded: the chin again
+        self.assertEqual(neck_policy({'cut':{'height':'measured'}},{'matrix':np.eye(4).tolist(),'reviewed':True})['cut']['searchBottom'],-.16)
+        with self.assertRaisesRegex(ValueError,'searchBottom'):neck_policy({'cut':{'height':'measured','searchBottom':-.5}},{'matrix':np.eye(4).tolist(),'reviewed':True})
+    def test_neck_cut_in_repair_needs_the_body_reference_and_keeps_one_closed_shell(self):
+        from headkit import neck as mesh_module
+        p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        reference=self.root/'body-neck.json'
+        write(reference,{'kind':'srn-head-body-neck','vertices':body[0].tolist(),'faces':body[1].tolist()},fresh=True)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};policy={'alphaWrap':False,'triangleBudget':20000,
+            'neck':{'cut':{'height':'measured','slope':-.2}}};igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        with self.assertRaisesRegex(ValueError,'bodyNeck reference'):mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=fit)
+        with self.assertRaisesRegex(ValueError,'only a cut reads it'):
+            mesh_module.repair(source,self.root/'final.glb',{},{'alphaWrap':False},inspection,fit=fit,body=reference)
+        with patch.object(mesh_module,'library',lambda b,name:igl):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        self.assertTrue(result['passed']);self.assertEqual(result['neck']['cut']['bodyNeck'],pin(reference))
+        self.assertEqual(result['neck']['cut']['uncut'],pin(self.root/'master-uncut.glb'))
+        master=mesh(self.root/'master.glb')['positions'];self.assertGreater(master[:,1].min(),-.07)  # GLB y = NWN z: the neck is gone
+    def test_neck_cut_snaps_a_vertex_just_above_the_plane_instead_of_leaving_a_sliver(self):
+        # troll-male-a repair 1: a kept vertex 1.1e-6 m above the plane left a zero-area triangle the master audit refused
+        from headkit.neck import neck_policy,neck_cut,cut_problem
+        p,f,body=self.necked_head();row=float(np.unique(p[:,2])[np.argmin(np.abs(np.unique(p[:,2])+.06))])
+        neck=neck_policy({'cut':{'height':row-2e-9,'slope':0.0}},{'matrix':np.eye(4).tolist(),'reviewed':True})
+        v,faces,record=neck_cut(self.glb(p),f,neck,body)
+        self.assertIsNone(cut_problem(v,faces));self.assertGreater(record['snappedToPlane'],0);self.assertEqual(record['closure'],'fan')
+    def test_repair_tries_reviewed_fallback_slopes_then_reports_passing_cut_variants(self):
+        from headkit import neck as mesh_module
+        p,f,body=self.necked_head();source=self.root/'source.glb';write_mesh(source,self.glb(p),f);fit={'matrix':np.eye(4).tolist(),'reviewed':True}
+        reference=self.root/'body-neck.json';write(reference,{'kind':'srn-head-body-neck','vertices':body[0].tolist(),'faces':body[1].tolist()},fresh=True)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};igl=SimpleNamespace(point_mesh_squared_distance=lambda P,V,F:(np.zeros(len(P)),))
+        policy={'alphaWrap':False,'triangleBudget':20000,'neck':{'cut':{'height':'measured','slope':-.2,'slopes':[-.15]}}}
+        verdicts=iter(['22 crossing pairs',None])  # the declared slope crosses hanging hair; the reviewed fallback is clean
+        with patch.object(mesh_module,'library',lambda b,name:igl),patch.object(mesh_module,'cut_problem',lambda v,f:next(verdicts)):
+            result=mesh_module.repair(source,self.root/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        self.assertEqual(result['neck']['cut']['slope'],-.15)
+        self.assertEqual(result['neck']['cut']['slopesTried'],[{'slope':-.2,'problem':'22 crossing pairs'},{'slope':-.15,'problem':None}])
+        failing=self.root/'failing';failing.mkdir()
+        with patch.object(mesh_module,'library',lambda b,name:igl),patch.object(mesh_module,'cut_problem',lambda v,f:'1 crossing pairs'):
+            with self.assertRaisesRegex(ValueError,'slope -0.2: 1 crossing pairs; slope -0.15: 1 crossing pairs.*cut-candidates.json'):
+                mesh_module.repair(source,failing/'final.glb',{},policy,inspection,fit=fit,body=reference)
+        survey=read(failing/'cut-candidates.json');self.assertEqual(len(survey['tried']),2)
+        self.assertIn({'height':'measured','slope':-.1,'reach':.08},[row['cut'] for row in survey['candidates']])
+        with self.assertRaisesRegex(ValueError,'fallback slopes'):mesh_module.neck_policy({'cut':{'height':'measured','slopes':[-.9]}},fit)
+    def test_body_neck_reference_places_the_neck_part_in_the_head_frame(self):
+        from headkit.body_neck import build
+        skeleton=('newmodel pxg0\nnode dummy pxg0\n  parent NULL\nendnode\nnode dummy torso_g\n  parent pxg0\n  position 0 0 1.5\nendnode\n'
+                  'node dummy neck_g\n  parent torso_g\n  position 0 -0.02 0.4\n  orientation 1 0 0 0.1\nendnode\n'
+                  'node dummy head_g\n  parent neck_g\n  position 0 0.01 0.15\nendnode\n')
+        neck=('newmodel pxg0_neck001\nnode dummy pxg0_neck001\n  parent NULL\nendnode\nnode trimesh neck\n  parent pxg0_neck001\n  position 0 0 0.05\n'
+              '  verts 4\n    0 0 0\n    0.1 0 0\n    0 0.1 0\n    0 0 0.1\n  faces 4\n    0 1 2 1 0 1 2 1\n    0 1 3 1 0 1 2 1\n    0 2 3 1 0 1 2 1\n    1 2 3 1 0 1 2 1\nendnode\n')
+        (self.root/'s.mdl').write_text(skeleton);(self.root/'n.mdl').write_text(neck)
+        document=build(self.root/'s.mdl',self.root/'n.mdl',self.root/'ref.json','test body')
+        # neck_g -> head_g is a pure translation (0, 0.01, 0.15) in neck_g's rotated frame, so head-local = neck-local - that offset.
+        np.testing.assert_allclose(document['vertices'],[[0,-.01,-.1],[.1,-.01,-.1],[0,.09,-.1],[0,-.01,0]],atol=1e-9)
+        self.assertEqual(document['faces'],[[0,1,2],[0,1,3],[0,2,3],[1,2,3]]);self.assertEqual(document['sources']['neck'],pin(self.root/'n.mdl'))
+        from headkit.neck import body_neck
+        self.assertEqual(len(body_neck(self.root/'ref.json')[0]),4)
+    def test_neck_policy_refuses_without_reviewed_fit_or_with_bad_parameters(self):
+        from headkit import neck as mesh_module
+        p,f=self.bell();source=self.root/'source.glb';write_mesh(source,self.glb(p),f)
+        inspection={'sourceSha256':pin(source)['sha256'],'visualReviewed':True};eye=np.eye(4).tolist()
+        for fit,neck,message in ((None,self.NECK,'reviewed head fit'),({'matrix':eye},self.NECK,'reviewed head fit'),
+                                 ({'matrix':np.diag([1,1,-1,1]).tolist(),'reviewed':True},self.NECK,'positive uniform'),
+                                 ({'matrix':eye,'reviewed':True},{'taper':dict(self.NECK['taper'],minScale=.1)},'minScale'),
+                                 ({'matrix':eye,'reviewed':True},{'seal':dict(self.NECK['seal'])},'searchTop'),
+                                 ({'matrix':eye,'reviewed':True},{'disc':{}},'seal and/or cut'),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':-.05},'seal':dict(self.NECK['seal'],searchTop=-.03)},'takes no seal'),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':'lowest'}},"height or 'measured'"),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':-.05,'slope':.9}},'slope'),
+                                 ({'matrix':eye,'reviewed':True},{'cut':{'height':-.05,'reach':.5}},'reach')):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):
+                mesh_module.repair(source,self.root/'final.glb',{},{'neck':neck},inspection,fit=fit)
+        self.assertFalse((self.root/'master.glb').exists())
+        with self.assertRaisesRegex(ValueError,'no room'):
+            mesh_module.repair(source,self.root/'final.glb',{},{'neck':self.NECK,'triangleBudget':40},inspection,fit={'matrix':eye,'reviewed':True})
+    def test_uv_surface_uses_barycentric_positions_not_vertices(self):
+        p=np.array([[0,0,0],[1,0,0],[0,1,0]],float);value={'positions':p,'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
+        positions,ids,_=surface(value,16);self.assertEqual(ids[2,2],0);np.testing.assert_allclose(positions[2,2],[2.5/16,2.5/16,0])
+    def test_uv_audit_reports_every_face_without_a_mapped_texel(self):
+        from headkit.uv import raster_audit
+        good=np.array([[.1,.1],[.9,.1],[.1,.9]])
+        tiny=np.array([[.01,.01],[.02,.01],[.01,.02]])
+        report,owners=raster_audit([good,tiny],16)
+        self.assertEqual(report['degenerateUvFaces'],[])
+        self.assertEqual(report['unmappedUvFaces'],[1])
+        self.assertEqual(report['mappedTexelsByFace'],[int(np.count_nonzero(owners==0)),0])
+        self.assertEqual(sum(report['mappedTexelsByFace']),report['mappedTexels'])
+        report,_=raster_audit([tiny],512)
+        self.assertEqual(report['unmappedUvFaces'],[])
+        for uv in ([[[0,0],[1,0],[0,1]]],[[[0,0],[0,0],[0,0]]]):
+            with self.subTest(uv=uv):
+                report,_=raster_audit(np.array(uv)/16,16)
+                self.assertEqual(report['unmappedUvFaces'],[0])
+
+    def test_bake_rejects_subtexel_faces_before_padding_can_hide_them(self):
+        p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
+        value={'positions':p,'faces':np.array([[0,1,2]]),
+               'uv':np.array([[[.01,.01],[.02,.01],[.01,.02]]])}
+        with self.assertRaisesRegex(ValueError,'unmapped'):
+            surface(value,16)
+
+    def test_uv_audit_counts_final_owners_after_overlap(self):
+        from headkit.uv import raster_audit
+        uv=np.array([[[.1,.1],[.9,.1],[.1,.9]]]*2)
+        report,owners=raster_audit(uv,16)
+        self.assertEqual(report['overlapFaces'],[0,1])
+        self.assertEqual(report['unmappedUvFaces'],[0])
+        self.assertEqual(report['mappedTexelsByFace'],[0,int(np.count_nonzero(owners==1))])
+
+    def test_unwrap_routes_unsampled_faces_into_pack_only_own_charts(self):
+        from headkit.uv import unwrap
+        p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
+        value={'positions':p,'faces':np.array([[0,1,2]]),
+               'uv':np.array([[[.01,.01],[.02,.01],[.01,.02]]])}
+        with patch('headkit.uv.library'),patch('headkit.uv.physical_fans',return_value=(p,value['faces'])), \
+             patch('headkit.uv._chart',return_value=(value['uv']/1024,(2048,2048),1.0,1)) as chart, \
+             patch('headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':0}}), \
+             patch('headkit.uv._repack',side_effect=ValueError('own chart repack reached')) as repack:
+            with self.assertRaisesRegex(ValueError,'own chart repack reached'):unwrap(value,{})
+            chart.assert_called_once()
+            self.assertEqual(repack.call_args.args[5],[0])
+
+    def test_final_uv_probe_observes_both_layouts_without_relaxing_the_final_floor(self):
+        from contextlib import ExitStack
+        from unittest.mock import Mock
+        from headkit.uv import unwrap
+        points = np.eye(3)
+        faces = np.array([[0, 1, 2]])
+        uv = np.array([[[.1, .1], [.7, .1], [.1, .7]]])
+        value = {'positions': points, 'faces': faces, 'uv': uv}
+        raster = {'coverageFraction': .296, 'overlapFaces': [], 'degenerateUvFaces': [], 'unmappedUvFaces': []}
+        with ExitStack() as stack:
+            for func, result in {'library': None, 'physical_fans': (points, faces),
+                    '_chart': (uv, (2048, 2048), 1., 1), 'raster_audit': (raster, np.array([[0]])),
+                    'subtexel_audit': {'failingFaces': []}, 'gutter_audit': {'nearbyChartPixelsByRadius': {'1': 0}}}.items():
+                stack.enter_context(patch('headkit.uv.'+func, return_value=result))
+            repack = stack.enter_context(patch('headkit.uv.face_priority', return_value=(uv, {'charts': 1})))
+            with self.assertRaisesRegex(ValueError, r'Insufficient useful UV coverage \('):
+                unwrap(value, {}, {'faceDensity': 3})
+            repack.assert_not_called()
+            see = Mock()
+            with self.assertRaisesRegex(ValueError, 'coverage after face priority') as failure:
+                unwrap(value, {}, {'faceDensity': 3}, inspect_layout=see)
+            self.assertEqual([args.args[0] for args in see.call_args_list], ['Before face priority', 'Face priority'])
+            self.assertEqual(failure.exception.attempts[-1]['facePriority']['coverage2K'], .296)
+            repack.assert_called_once()
+            # Even a passing final layout cannot redeem a failed intermediate production floor.
+            final = dict(raster, coverageFraction=.31)
+            with patch('headkit.uv.raster_audit', side_effect=[(r, np.array([[0]])) for r in [raster]*3+[final]*3]):
+                with self.assertRaisesRegex(ValueError, 'final face pack 0.31000'):
+                    unwrap(value, {}, {'faceDensity': 3, 'refinePacking': True})
+
+    def test_entry_script_puts_bound_packages_first(self):
+        source=(Path(__file__).parent/'run_headkit.py').read_text().split('root=package_root')[0];namespace={}
+        exec(source,namespace);root=namespace['package_root']
+        bindings_path=self.root/'b.json';bindings_path.write_text(json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}))
+        self.assertEqual(root(['x','status','--bindings',str(bindings_path)]),'D:/pkgs')
+        self.assertIsNone(root(['x','status']));self.assertIsNone(root(['x','--bindings']))
+        bindings_path.write_text('{}');self.assertIsNone(root(['x','--bindings',str(bindings_path)]))
+        bindings_path.write_text('\ufeff'+json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}),encoding='utf-8')
+        self.assertEqual(root(['x','status','--bindings',str(bindings_path)]),'D:/pkgs')  # common.read accepts a BOM too
+        # batch --heads: every head's bindings share one package directory (race-heads-v1: batch native failed on all heads
+        # with "resolves outside its byte-bound installation: numpy" because only --bindings was read)
+        bindings_path.write_text(json.dumps({'pythonPackages':{'directory':'D:/pkgs','files':[]}}))
+        other=self.root/'o.json';other.write_text(json.dumps({'pythonPackages':{'directory':'D:/other','files':[]}}))
+        heads=self.root/'heads.json';heads.write_text(json.dumps([{'bindings':str(bindings_path)},{'bindings':str(bindings_path)}]))
+        self.assertEqual(root(['x','batch','--heads',str(heads),'--stages','native']),'D:/pkgs')
+        heads.write_text(json.dumps([{'bindings':str(bindings_path)},{'bindings':str(other)}]));self.assertIsNone(root(['x','batch','--heads',str(heads)]))
+        for bad in ('[]','{}','[1]','not json'):
+            with self.subTest(heads=bad):heads.write_text(bad);self.assertIsNone(root(['x','batch','--heads',str(heads)]))
+
+    def test_lower_coverage_floor_needs_a_recorded_review(self):
+        from headkit.uv import coverage_floor
+        self.assertEqual(coverage_floor(),(.30,None));self.assertEqual(coverage_floor({'minimumCoverage':.4}),(.4,None))
+        review={'reviewed':True,'notes':'Dense crest head: 1,335 charts at the 4 px 1K gutter floor reach 27%.'}
+        self.assertEqual(coverage_floor({'minimumCoverage':.25,'coverageReview':review}),(.25,review))
+        for policy in ({'minimumCoverage':.25},{'minimumCoverage':.25,'coverageReview':{'reviewed':True,'notes':' '}},
+                       {'minimumCoverage':.25,'coverageReview':{'reviewed':False,'notes':'x'}}):
+            with self.subTest(policy=policy),self.assertRaisesRegex(ValueError,'recorded review'):coverage_floor(policy)
+        for floor in (.1,0.0,'0.3'):
+            with self.subTest(floor=floor),self.assertRaisesRegex(ValueError,'0.15..1'):coverage_floor({'minimumCoverage':floor})
+        with self.assertRaisesRegex(ValueError,"user's approval"):coverage_floor({'minimumCoverage':.17,'coverageReview':review})
+        approved=dict(review,userApproved=True)
+        self.assertEqual(coverage_floor({'minimumCoverage':.17,'coverageReview':approved}),(.17,approved))
+
+    def test_unwrap_checks_the_coverage_floor_before_charting(self):
+        from headkit.uv import unwrap
+        with patch('headkit.uv.library'),patch('headkit.uv._chart') as chart:
+            with self.assertRaisesRegex(ValueError,'recorded review'):unwrap({'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.zeros((1,3,2))},{},{'minimumCoverage':.25})
+            chart.assert_not_called()
+
+    def test_bake_and_unwrap_agree_on_corner_connected_subtexel_faces(self):
+        from headkit.uv import raster_audit,subtexel_audit
+        # The sub-texel face shares only a UV corner with the big face it was cut from (as after an own-chart re-pack).
+        big=[[0,0],[8.3,0],[0,8.3]];corner=[[8.3,0],[8.5,0.02],[8.45,0.15]]
+        uv=np.array([big,corner],float)/16;report,owners=raster_audit(uv,16)
+        self.assertEqual(report['unmappedUvFaces'],[1])
+        self.assertTrue(subtexel_audit(uv,16,report,owners,.02)['passed'])
+        value={'positions':np.array([[0,0,0],[1,0,0],[0,1,0],[1.1,0,0],[1.05,.1,0]],float),'faces':np.array([[0,1,2],[1,3,4]]),'uv':uv}
+        positions,_,low=surface(value,16,.02);self.assertTrue(low['subtexel']['passed'])
+
+    def test_charts_touching_at_a_uv_corner_join_only_by_vertex(self):
+        from headkit.uv import chart_ids
+        uv=np.array([[[0,0],[.2,0],[0,.2]],[[.2,0],[.4,0],[.4,.2]],[[.6,.6],[.8,.6],[.6,.8]]],float)
+        self.assertEqual(len(set(chart_ids(uv))),3)
+        labels=chart_ids(uv,'vertex');self.assertEqual(labels[0],labels[1]);self.assertNotEqual(labels[0],labels[2])
+        with self.assertRaisesRegex(ValueError,'edge or vertex'):chart_ids(uv,'proximity')
+
+    def test_own_chart_is_planar_unique_and_owns_a_1k_texel(self):
+        from headkit.uv import _own_chart,raster_audit
+        corners=np.array([[0,0,0],[1e-4,0,0],[0,1e-4,0]],float)
+        a=_own_chart(corners,(2048,2048),10.0,0);b=_own_chart(corners,(2048,2048),10.0,1)
+        self.assertFalse(np.allclose(a[0],b[0]))
+        twice=abs((a[1,0]-a[0,0])*(a[2,1]-a[0,1])-(a[1,1]-a[0,1])*(a[2,0]-a[0,0]))
+        perimeter=sum(np.linalg.norm(a[k]-a[(k+1)%3]) for k in range(3))
+        self.assertGreaterEqual(twice/perimeter*1024,1.5-1e-9)
+        placed=(a-a.min(0))[None]+.25;report,_=raster_audit(placed,1024)
+        self.assertEqual(report['unmappedUvFaces'],[])
+
+    def test_own_chart_widens_a_sliver_instead_of_growing_it_across_the_atlas(self):
+        # troll-male-02 face 8143 (3D edges .035/.020/.015): grown uniformly it was a 7301 x 7 texel chart that set
+        # the atlas width. Short slivers grow to a 16 texel edge, long ones keep their length; both are then widened.
+        from headkit.uv import _own_chart,_inradius,raster_audit
+        corners=np.array([[0,0,0],[.035,0,0],[.0199,.00005,0]],float)
+        for density,length in ((1008.0,16),(12000.0,.035*12000/2507*1024)):
+            with self.subTest(density=density):
+                q=_own_chart(corners,(2507,2516),density,7);extent=(q.max(0)-q.min(0))*1024
+                self.assertGreaterEqual(_inradius(q),1.5);self.assertLess(_inradius(q),1.6)
+                self.assertAlmostEqual(extent.max(),length,delta=.02*length);self.assertLess(extent.min(),12)
+                report,_=raster_audit((q-q.min(0))[None]+.25,1024);self.assertEqual(report['unmappedUvFaces'],[])
+
+    def charted_grid(self):
+        # 36 separate unit right triangles charted 6x6 on a 2048 atlas; face 35 is charted below one 1K texel.
+        p=np.array([[3*k+x,0,y] for k in range(36) for x,y in ((0,0),(1,0),(0,1))],float);faces=np.arange(108).reshape(-1,3)
+        legs=np.full(36,.15);legs[35]=.0004;cells=np.c_[np.arange(36)%6,np.arange(36)//6]/6+.008
+        uv=cells[:,None]+legs[:,None,None]*np.array([[0,0],[1,0],[0,1]])
+        return {'positions':p,'faces':faces,'uv':uv},p[faces]
+
+    def test_repack_bounds_a_square_page_and_fits_the_densest_scale_after_a_spill(self):
+        from headkit.uv import _repack,PAGE
+        value,corners=self.charted_grid();packer=FakePacker()
+        uv,dims,count,scale=_repack(packer,value['uv'],(2048,2048),307.2,corners,[35],9,1.2)
+        self.assertEqual((dims,count),((PAGE,PAGE),36))
+        self.assertTrue(all(c['resolution']==PAGE and 0<c['texels_per_unit']<=1.2 for c in packer.calls))
+        # Six 307.2*scale+9 texel charts per row on the page: the fitted scale is within 0.5% of the densest that fits.
+        densest=(PAGE/6-9)/307.2;self.assertTrue(densest/1.005<scale<=densest)
+        self.assertEqual(scale,max(c['texels_per_unit'] for c in packer.calls if c['texels_per_unit']<=densest))
+        legs=np.abs(uv[:,[1,2]]-uv[:,:1]).max(2);np.testing.assert_allclose(legs[:,0],legs[:,1],rtol=1e-5)  # square texels, no stretch
+        packer.calls.clear();_,_,_,again=_repack(packer,value['uv'],(2048,2048),307.2,corners,[35],9,scale)
+        self.assertEqual((again,len(packer.calls)),(scale,1))  # a scale that fits is kept, never raised by default
+        packer.calls.clear()
+        _, _, _, refined = _repack(packer, value['uv'], (2048,2048), 307.2, corners, [35], 9, scale, refine=True)
+        self.assertTrue(densest/1.0005 < refined <= densest)
+        self.assertLessEqual(max(call['texels_per_unit'] for call in packer.calls), scale*1.015)
+        with self.assertRaisesRegex(ValueError,'spilled onto more than one atlas page'):
+            _repack(FakePacker(),value['uv'],(2048,2048),307.2,corners,[35],PAGE,1.0)
+
+    def test_unwrap_repairs_on_a_square_page_instead_of_an_unbounded_stretched_atlas(self):
+        # Unbounded, this re-pack is one 36-chart shelf ~11400 texels wide normalised onto a square texture.
+        from headkit.uv import unwrap,PAGE
+        value,_=self.charted_grid();packer=FakePacker()
+        with patch('headkit.uv.library',return_value=packer),patch('headkit.uv.physical_fans',return_value=(value['positions'],value['faces'])), \
+             patch('headkit.uv._chart',return_value=(value['uv'],(2048,2048),307.2,36)):
+            result,report=unwrap(value,{})
+        attempts=report['attempts'];self.assertEqual([a['badFaceCount'] for a in attempts],[1,0])
+        self.assertEqual((report['atlasDimensions'],report['ownCharts'],report['chosenPadding']),([PAGE,PAGE],[35],9))
+        self.assertEqual(attempts[1]['pageTexelsPerFirstPackTexel'],1.0);self.assertEqual(report['effectivePadding1024'],[4.5,4.5])
+        self.assertTrue(packer.calls and all(c['texels_per_unit']>0 and c['resolution']==PAGE for c in packer.calls))
+        self.assertGreaterEqual(report['pixelAudits']['2048']['coverageFraction'],.30)
+        uv=result['uv'];legs=np.abs(uv[:,[1,2]]-uv[:,:1]).max(2);np.testing.assert_allclose(legs[:,0],legs[:,1],rtol=1e-5)
+
+    def test_failed_unwrap_reports_its_rounds_for_every_failure(self):
+        from headkit.uv import unwrap
+        value,_=self.charted_grid()
+        with patch('headkit.uv.library',return_value=FakePacker()),patch('headkit.uv.physical_fans',return_value=(value['positions'],value['faces'])), \
+             patch('headkit.uv._chart',return_value=(value['uv'],(2048,2048),307.2,36)), \
+             patch('headkit.uv._repack',side_effect=ValueError('UV re-pack spilled onto more than one atlas page')):
+            with self.assertRaisesRegex(ValueError,'spilled') as caught:unwrap(value,{})
+        self.assertEqual([a['round'] for a in caught.exception.attempts],[0])
+        self.assertEqual(caught.exception.attempts[0]['badFaceCount'],1)
+
+    def test_imported_and_new_atlases_reject_unsampled_faces_at_each_resolution(self):
+        p=np.array([[0,0,0],[1,0,0],[0,1,0]],float)
+        value={'positions':p,'faces':np.array([[0,1,2]]),'normals':np.zeros((3,3)),
+               'uv':np.array([[[.01,.01],[.02,.01],[.01,.02]]])}
+        for reuse,size in ((True,4096),(True,2048),(True,1024),(False,4096)):
+            with self.subTest(reuse=reuse,size=size):
+                def audit(uv,current_size):
+                    return {'overlapFaces':[],'degenerateUvFaces':[],
+                            'unmappedUvFaces':[0] if size==current_size else [],'coverageFraction':.5},None
+                runner=SimpleNamespace(data={'mesh':{'reuseReviewedUvs':reuse}},bindings={},source=lambda *args:'fixture')
+                with patch('headkit.gltf.mesh',return_value=value),patch('headkit.gltf.write_mesh') as save, \
+                     patch('headkit.uv.raster_audit',side_effect=audit), \
+                     patch('headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':0}}), \
+                     patch('headkit.uv.unwrap',return_value=(value,{})):
+                    with self.assertRaisesRegex(ValueError,'UV audit failed|failed UV audit'):
+                        Runner._execute(runner,'unwrap',self.root)
+                    save.assert_not_called()
+
+    def test_padding_fills_only_unmapped_pixels_and_preserves_black(self):
+        values=np.zeros((4,4,3),np.uint8);values[1,1]=[0,0,0];values[2,2]=[80,90,100];mask=np.zeros((4,4),bool);mask[1,1]=mask[2,2]=True
+        result=pad(values,mask);np.testing.assert_array_equal(result[mask],values[mask]);np.testing.assert_array_equal(result[0,0],[0,0,0])
+
+
+class InputInventoryTests(Temporary):
+    def input_paths(self,local):
+        from headkit.__main__ import main
+        source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'installed-inventory',
+              'inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
+        bindings_path=self.root/'bindings.json';write(bindings_path,local)
+        output=self.root/'inputs.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),
+              '--bindings',str(bindings_path),'--output',str(output)]):
+            main()
+        return read(output)
+
+    def installed_adapter(self):
+        adapter=self.root/'custom_nodes'/'srn_headkit';adapter.mkdir(parents=True)
+        (adapter/'__init__.py').write_text('# installed adapter')
+        return adapter,self.bindings_data(comfyCustomNodes=str(adapter.parent))
+
+    def test_inputs_lists_installed_snapshot_and_detects_its_mutation(self):
+        from headkit.common import verify
+        adapter,local=self.installed_adapter();snapshot=adapter/'source-roots.json'
+        write(snapshot,{'schemaVersion':1,'inventory':{'files':[]}})
+        paths=self.input_paths(local)
+        self.assertEqual(paths.count(str(snapshot.resolve())),1)
+        self.assertIn(str((adapter/'__init__.py').resolve()),paths)
+        frozen=[pin(path) for path in paths];verify(frozen)
+        write(snapshot,{'schemaVersion':1,'inventory':{'files':['changed']}})
+        with self.assertRaisesRegex(ValueError,'Stale file pin: .*source-roots.json'):
+            verify(frozen)
+
+    def test_inputs_skips_receipts_from_other_code_instead_of_failing(self):
+        from headkit.__main__ import main
+        from headkit.common import stage_source_version,digest,manifest,bindings
+        source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'stale-run','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
+        bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
+        run=self.root/'run';run.mkdir();changed=self.file('changed.py','old helper')
+        old_pin=pin(changed);changed.write_text('helper edited since that receipt')
+        current=self.file('current.json','current output')
+        rows={};now=digest(bindings(bindings_path))
+        # bake ran under other bindings (a repinned runtime, RUNBOOK 168): rerun like the runner does, not a stale pin of them.
+        for stage,code,inputs,bound in (('repair','old-code',[old_pin],now),('unwrap',stage_source_version('unwrap'),[pin(current)],now),
+                                        ('bake',stage_source_version('bake'),[old_pin],'other-bindings')):
+            scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
+            path=run/f'{stage}.json';write(path,{'codeVersion':code,'manifestHash':scoped,'bindingsHash':bound,'inputs':inputs,'outputs':[],'state':'complete','result':{}});rows[stage]=pin(path)
+        write(run/'state.json',{'schemaVersion':1,'id':'stale-run','stages':rows})
+        output=self.root/'inputs.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),'--bindings',str(bindings_path),
+              '--output',str(output),'--run',str(run)]),patch('builtins.print') as shown:
+            main()
+        paths=read(output);self.assertIn(str(current.resolve()),paths);self.assertNotIn(str(changed.resolve()),paths)
+        self.assertNotIn(str((run/'state.json').resolve()),paths)
+        self.assertIn('"staleStagesSkipped": [\n    "bake",\n    "repair"\n  ]',shown.call_args.args[0])
+
+    def test_inputs_reruns_a_stage_the_runner_would_rerun(self):
+        from headkit.__main__ import launch_inputs
+        from headkit.common import stage_source_version,digest,manifest,bindings
+        source=pin(self.file('geometry.glb'));manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'stale-pins','inputs':{'geometry':{'path':'geometry.glb','sha256':source['sha256']}}})
+        bindings_path=self.root/'bindings.json';write(bindings_path,self.bindings_data())
+        run=self.root/'run';run.mkdir();now=digest(bindings(bindings_path))
+        changed=self.file('changed.glb','old output');old=pin(changed);changed.write_text('output edited since that receipt')
+        kept=self.file('kept.glb','kept output');review=self.file('review.json','reviewed');review_pin=pin(review);review.write_text('edited')
+        rows={}
+        for stage,outputs in (('repair',[old]),('unwrap',[pin(kept)])):
+            path=run/f'{stage}.json';scoped=Runner(manifest_path,bindings_path,run).manifest_digest(stage)
+            write(path,{'codeVersion':stage_source_version(stage),'manifestHash':scoped,'bindingsHash':now,'inputs':[],'outputs':outputs,'state':'complete','result':{}})
+            rows[stage]=pin(path)
+        failed=run/'paint.json';write(failed,{'codeVersion':stage_source_version('paint'),'manifestHash':Runner(manifest_path,bindings_path,run).manifest_digest('paint'),
+            'bindingsHash':now,'inputs':[],'outputs':[pin(kept)],'state':'failed','result':{}});rows['paint']=pin(failed)
+        missing=run/'bake.json';missing.write_text('{}');rows['bake']=pin(missing);missing.unlink()
+        write(run/'state.json',{'schemaVersion':1,'id':'stale-pins','stages':rows,'reviews':{'unwrap':review_pin}})
+        pins,stale=launch_inputs(manifest_path,bindings_path,run)
+        paths={row['path'] for row in pins}
+        self.assertEqual(sorted(stale),['bake','paint','repair']);self.assertIn(str(kept.resolve()),paths)
+        self.assertNotIn(str(changed.resolve()),paths);self.assertNotIn(str(review.resolve()),paths)
+
+    def test_helper_pins_split_into_shared_tooling_and_native_helpers(self):
+        from headkit.common import HELPER_PINS,NATIVE_HELPERS,SHARED_TOOLING
+        self.assertEqual(set(HELPER_PINS),set(NATIVE_HELPERS)|set(SHARED_TOOLING))
+        self.assertFalse(set(NATIVE_HELPERS)&set(SHARED_TOOLING))
+
+    def test_inputs_requires_the_declared_installed_snapshot(self):
+        adapter,local=self.installed_adapter()
+        with self.assertRaises(FileNotFoundError):self.input_paths(local)
+        self.assertFalse((self.root/'inputs.json').exists())
+
+    def test_inputs_lists_all_python_package_files(self):
+        from headkit.__main__ import main
+        from headkit.common import sha
+        source=self.file('geometry.glb')
+        manifest_path=self.root/'manifest.json'
+        write(manifest_path,{'schemaVersion':1,'id':'input-inventory',
+              'inputs':{'geometry':{'path':source.name,'sha256':sha(source)}}})
+        local=self.bindings_data()
+        bindings_path=self.root/'bindings.json';write(bindings_path,local)
+        output=self.root/'inputs.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(manifest_path),
+              '--bindings',str(bindings_path),'--output',str(output)]):
+            main()
+        paths=json.loads(output.read_text())
+        for item in local['pythonPackages']['files']:
+            self.assertIn(str(Path(item['path']).resolve()),paths)
+
+
+class LocalBindingSecurityTests(Temporary):
+    def test_embree_must_resolve_inside_declared_tools_root(self):
+        from headkit.common import bindings
+        tools=self.root/'tools';tools.mkdir();inside=tools/'embree.dll';inside.write_bytes(b'bound Embree')
+        outside=self.root/'outside'/'embree.dll';outside.parent.mkdir();outside.write_bytes(b'other Embree')
+        path=self.root/'bindings.json'
+        write(path,{'schemaVersion':1,'toolsRoot':str(tools),'embree':pin(inside)})
+        self.assertEqual(bindings(path)['embree'],pin(inside))
+        write(path,{'schemaVersion':1,'toolsRoot':str(tools),'embree':pin(outside)})
+        with self.assertRaisesRegex(ValueError,'Embree DLL must be inside'):
+            bindings(path)
+
+
+class UvBindingTests(Temporary):
+    def test_invalid_source_group_policy_is_rejected_before_loading_library(self):
+        from headkit.uv import unwrap
+        for value in (True,1,257,128.0):
+            with self.assertRaisesRegex(ValueError,'group limit'):unwrap({}, {}, {'maximumLocalGroups':value})
+    def test_atlas_patches_use_only_their_vertices_and_preserve_ordered_geometry(self):
+        from headkit.uv import _pack
+        class Atlas:
+            def __init__(self):self.meshes=[];self.atlas_count=1;self.width=self.height=2048
+            def add_mesh(self,vertices,indices):self.meshes.append((vertices.copy(),indices.copy()))
+            def generate(self,**kwargs):pass
+            def __getitem__(self,index):
+                vertices,indices=self.meshes[index]
+                return np.arange(len(vertices)),indices,vertices[:,:2]
+            def get_mesh_chart_count(self,index):return 1
+        atlas=Atlas();module=SimpleNamespace(Atlas=lambda:atlas,ChartOptions=SimpleNamespace,PackOptions=SimpleNamespace)
+        vertices=np.random.default_rng(4).random((100,3)).astype(np.float32)
+        faces=np.array([[50,60,70],[1,2,3]],np.uint32)
+        uv,_,_=_pack(module,vertices,faces,[np.array([0]),np.array([1])])
+        self.assertEqual([len(v) for v,_ in atlas.meshes],[3,3])
+        np.testing.assert_array_equal(uv,vertices[faces][:,:,:2])
+    def fixture(self,directory):
+        directory.mkdir(parents=True,exist_ok=True);module=directory/'xatlas.py';module.write_text('pinned fixture')
+        return {'toolsRoot':str(self.root/'tools-bank'),'libraries':{'xatlas':{'directory':str(directory),'files':[pin(module)]}}}
+    def test_uv_import_rejects_external_and_prefix_sibling_banks(self):
+        from headkit.uv import unwrap
+        for directory in (self.root/'other-worktree',self.root/'tools-bank-sibling'):
+            with self.subTest(directory=directory):
+                bindings=self.fixture(directory)
+                with patch('headkit.common.importlib.import_module') as importer:
+                    with self.assertRaisesRegex(ValueError,'declared durable tools bank'):unwrap({},bindings)
+                    importer.assert_not_called()
+    def test_uv_import_requires_current_dependency_hash(self):
+        from headkit.uv import unwrap
+        bindings=self.fixture(self.root/'tools-bank'/'libraries');Path(bindings['libraries']['xatlas']['files'][0]['path']).write_text('changed')
+        with patch('headkit.common.importlib.import_module') as importer:
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):unwrap({},bindings)
+            importer.assert_not_called()
+    def test_library_rejects_unpinned_package_and_native_files(self):
+        from headkit.common import library
+        directory=self.root/'tools-bank'/'libraries';package=directory/'pymeshlab';package.mkdir(parents=True)
+        entry=package/'__init__.py';entry.write_text('from . import helper')
+        helper=package/'helper.py';helper.write_text('value = 1')
+        native=package/'pymeshlab.pyd';native.write_bytes(b'native extension')
+        bindings={'toolsRoot':str(self.root/'tools-bank'),'libraries':{'pymeshlab':{
+            'directory':str(directory),'files':[pin(entry)]}}}
+        with patch('headkit.common.importlib.import_module') as importer:
+            with self.assertRaisesRegex(ValueError,'complete installation membership'):
+                library(bindings,'pymeshlab')
+            importer.assert_not_called()
+    def test_library_accepts_exact_recursive_inventory_and_restores_import_state(self):
+        from headkit.common import library
+        directory=self.root/'tools-bank'/'libraries';package=directory/'xatlas';package.mkdir(parents=True)
+        entry=package/'__init__.py';entry.write_text('from . import helper')
+        helper=package/'helper.py';helper.write_text('value = 1')
+        native=package/'xatlas.pyd';native.write_bytes(b'native extension')
+        files=[pin(path) for path in sorted(directory.rglob('*')) if path.is_file()]
+        bindings={'toolsRoot':str(self.root/'tools-bank'),'libraries':{'xatlas':{
+            'directory':str(directory),'files':files}}}
+        module=SimpleNamespace(__file__=str(entry.resolve()))
+        import sys
+        write_bytecode=sys.dont_write_bytecode
+        with patch('headkit.common.importlib.import_module',return_value=module) as importer:
+            self.assertIs(library(bindings,'xatlas'),module)
+            importer.assert_called_once_with('xatlas')
+        self.assertEqual(sys.dont_write_bytecode,write_bytecode)
+    def test_uv_import_rejects_cached_module_from_another_installation(self):
+        from headkit.uv import unwrap
+        bindings=self.fixture(self.root/'tools-bank'/'libraries');unexpected=self.file('unexpected-xatlas.py')
+        with patch('headkit.common.importlib.import_module',return_value=SimpleNamespace(__file__=str(unexpected))):
+            with self.assertRaisesRegex(ValueError,'byte-bound module'):unwrap({},bindings)
+    def test_uv_import_uses_the_pinned_tools_bank_module(self):
+        from headkit.uv import unwrap
+        bindings=self.fixture(self.root/'tools-bank'/'libraries');module=SimpleNamespace(__file__=bindings['libraries']['xatlas']['files'][0]['path'])
+        with patch('headkit.uv.physical_fans',return_value=(np.zeros((3,3)),np.array([[0,1,2]]))), \
+             patch('headkit.uv._chart',side_effect=RuntimeError('verified pack reached')) as pack, \
+             patch('headkit.common.importlib.import_module',return_value=module) as importer:
+            with self.assertRaisesRegex(RuntimeError,'verified pack reached'):unwrap({},bindings)
+            importer.assert_called_once_with('xatlas');self.assertIs(pack.call_args.args[0],module)
+
+
+class AppearanceTests(Temporary):
+    def test_saved_batch_zero_field_matches_xyz_without_changing_transport(self):
+        coords=np.array([[0,0,0],[1,0,0]],dtype=np.int32);attrs=np.array([[.2]*6,[.8]*6])
+        batched=np.c_[np.zeros(len(coords),np.int32),coords];before=batched.copy()
+        direct=GeneratedField.from_saved(coords,attrs,2)
+        saved=GeneratedField.from_saved(batched,attrs,2)
+        np.testing.assert_array_equal(saved.sample([[0,-.25,-.25]])[0],direct.sample([[0,-.25,-.25]])[0])
+        np.testing.assert_array_equal(batched,before)
+        with self.assertRaises(ValueError):GeneratedField(batched,attrs,2)
+    def test_saved_batch_field_rejects_mixed_nonzero_or_float_batch_coordinates(self):
+        attrs=np.ones((2,6))*.2
+        for coords in (np.array([[0,0,0,0],[1,1,0,0]]),np.array([[1,0,0,0],[1,1,0,0]]),
+                       np.zeros((2,4),dtype=float)):
+            with self.assertRaisesRegex(ValueError,'batch-zero'):GeneratedField.from_saved(coords,attrs,2)
+    def test_saved_batch_field_preserves_duplicate_and_range_checks(self):
+        for coords in (np.zeros((2,4),int),np.array([[0,0,0,0],[0,2,0,0]])):
+            with self.assertRaises(ValueError):GeneratedField.from_saved(coords,np.ones((2,6))*.2,2)
+    def test_trilinear_interpolation_clamps_after_weighting(self):
+        coords=np.array([[0,0,0],[1,0,0]]);attrs=np.array([[-.2]*6,[.8]*6])
+        with self.assertRaises(ValueError):GeneratedField(coords,attrs,2)
+        field=GeneratedField(coords,attrs,2,True);sample,fallback=field.sample([[0,-.25,-.25]])
+        np.testing.assert_allclose(sample,.3,atol=1e-6);self.assertFalse(fallback[0])
+    def test_nearest_field_fallback_is_counted(self):
+        field=GeneratedField(np.array([[0,0,0]]),np.ones((1,6))*.2,4)
+        values,fallback=field.sample([[.49,.49,.49]]);self.assertTrue(fallback[0]);np.testing.assert_allclose(values,.2)
+    def test_nearest_fallback_matches_brute_force_on_sparse_fields(self):
+        rng=np.random.default_rng(15)
+        for trial in range(6):
+            R=int(rng.integers(6,20));occupied=np.zeros((R,R,R),bool)
+            for _ in range(3):  # solid blocks give interior voxels the fallback tree must skip
+                lo=rng.integers(0,R-2,3);occupied[tuple(slice(a,a+int(rng.integers(2,5))) for a in lo)]=True
+            occupied[tuple(rng.integers(0,R,(3,8)))]=True
+            coords=np.argwhere(occupied);attrs=rng.random((len(coords),6))
+            field=GeneratedField(coords,attrs,R)
+            lattice=(rng.integers(-3,R+3,(64,3))+rng.integers(0,3,(64,3))/2+.5)/R-.5  # exact ties on half cells
+            points=np.r_[rng.uniform(-.6,.6,(400,3)),rng.uniform(-4,4,(100,3)),lattice].astype(np.float32)
+            values,fallback=field.sample(points,chunk=97)
+            grid=(points+.5)*R-.5;base=np.floor(grid).astype(int);frac=grid-base;weight=np.zeros(len(points))
+            for corner in np.ndindex(2,2,2):
+                cc=base+corner;inside=((cc>=0)&(cc<R)).all(1)
+                weight+=np.where(inside,occupied[tuple(cc.clip(0,R-1).T)],False)*np.prod(np.where(corner,frac,1-frac),axis=1)
+            np.testing.assert_array_equal(fallback,weight<=1e-8)
+            self.assertTrue(fallback.sum()>100)
+            keys=(coords[:,0]*R+coords[:,1])*R+coords[:,2];centres=(coords+.5)/R-.5
+            for point,value in zip(points[fallback],values[fallback]):
+                squared=((centres-point.astype(np.float64))**2).sum(axis=1)
+                tied=np.flatnonzero(squared==squared.min());expected=tied[np.argmin(keys[tied])]
+                np.testing.assert_array_equal(value,np.clip(attrs[expected],0,1).astype(np.float32))
+    def test_nearest_fallback_tie_takes_lowest_key(self):
+        field=GeneratedField(np.array([[4,0,0],[0,0,0],[2,0,4]]),np.array([[.1]*6,[.2]*6,[.3]*6]),8)
+        values,fallback=field.sample([[(2+.5)/8-.5,(0+.5)/8-.5,(0+.5)/8-.5]])
+        self.assertTrue(fallback[0]);np.testing.assert_allclose(values,.2)
+    def test_duplicate_voxel_is_rejected(self):
+        with self.assertRaises(ValueError):GeneratedField(np.zeros((2,3),int),np.ones((2,6)),4)
+    def test_saved_field_batch_column_is_dropped(self):
+        # HeadkitSaveFieldV1 stores Trellis sparse coords as (batch,x,y,z).
+        np.savez(self.root/'saved.npz',coords=np.array([[0,0,0,0],[0,1,0,0]],np.int32),
+                 attrs=np.array([[.2]*6,[.6]*6],np.float16),resolution=2)
+        field=load_generated_field(self.root/'saved.npz')
+        np.testing.assert_array_equal(np.sort(field.keys),[0,4])
+        values,fallback=field.sample([[0,-.25,-.25]]);np.testing.assert_allclose(values,.4,atol=1e-3);self.assertFalse(fallback[0])
+        np.savez(self.root/'plain.npz',coords=np.array([[0,0,0]]),attrs=np.ones((1,6))*.5,resolution=2)
+        self.assertEqual(load_generated_field(self.root/'plain.npz').resolution,2)
+    def test_saved_field_with_second_batch_is_rejected(self):
+        np.savez(self.root/'two.npz',coords=np.array([[0,0,0,0],[1,0,0,0]],np.int32),attrs=np.ones((2,6)),resolution=2)
+        with self.assertRaisesRegex(ValueError,'exactly one batch'):load_generated_field(self.root/'two.npz')
+    def test_subtexel_face_passes_only_inside_its_own_chart_and_bound(self):
+        from headkit.uv import raster_audit,subtexel_audit
+        big=[[0,0],[8.3,0],[0,8.3]]
+        attached=[[8.3,0],[0,8.3],[4.22,4.22]]      # shares the hypotenuse: same chart, owns no texel centre
+        loose=[[8.4,0.05],[0.05,8.4],[4.27,4.27]]   # same spot, no shared edge: another chart
+        for third,own in ((attached,True),(loose,False)):
+            with self.subTest(own=own):
+                uv=np.array([big,third],float)/16;report,owners=raster_audit(uv,16)
+                self.assertEqual(report['unmappedUvFaces'],[1])
+                self.assertEqual(subtexel_audit(uv,16,report,owners,.02)['passed'],own)
+        uv=np.array([big,attached],float)/16;report,owners=raster_audit(uv,16)
+        result=subtexel_audit(uv,16,report,owners,0.0)
+        self.assertFalse(result['passed']);self.assertEqual((result['count'],result['limit']),(1,0))
+        with self.assertRaisesRegex(ValueError,'0..2%'):subtexel_audit(uv,16,report,owners,.05)
+    def test_bake_rejects_unmapped_1k_faces_before_writing_output(self):
+        np.savez(self.root/'field.npz',coords=np.array([[0,0,0,0]],np.int32),attrs=np.ones((1,6))*.5,resolution=2)
+        value={'positions':np.eye(3),'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
+        def gated(_,size,*__,enforce=True):
+            if size==1024 and enforce:raise ValueError('UV overlap/degeneracy or unmapped faces block baking')
+            report={'overlapFaces':[],'degenerateUvFaces':[],'subtexel':{'passed':size!=1024}}
+            return np.zeros((size,size,3),np.float32),np.zeros((size,size),np.int32),report
+        with patch('headkit.textures.mesh',return_value=value),patch('headkit.textures.surface',side_effect=gated):
+            with self.assertRaisesRegex(ValueError,'unmapped'):bake('mesh.glb',self.root/'field.npz',self.root/'maps')
+            self.assertFalse((self.root/'maps').exists())
+            # A 4K-qualified donor atlas records the derived 1K sampling instead of failing on it.
+            source=self.root/'mesh.glb';source.write_bytes(b'mesh fixture')
+            result=bake(source,self.root/'field.npz',self.root/'diagnostic',allow_decoder_overshoot=True,derived_surface='diagnostic')
+            self.assertEqual(result['derivedSurface'],{'policy':'diagnostic','passed':False})
+            with self.assertRaisesRegex(ValueError,'derived surface'):bake('mesh.glb',self.root/'field.npz',self.root/'x',derived_surface='off')
+    def test_palette_excludes_transparent_and_255_preserving_opaque_black(self):
+        rgb=np.zeros((1024,1024,3),np.uint8);labels=np.zeros((1024,1024),np.uint8);labels[:5]=8
+        Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')
+        palette=np.full((1,256,4),255,np.uint8);palette[0,0]=[0,0,0,0];palette[0,1]=[0,0,0,255];palette[0,255]=[0,0,0,255]
+        Image.fromarray(palette).save(self.root/'pal.png')
+        result=quantize(self.root/'rgb.png',self.root/'labels.png',{'0':str(self.root/'pal.png'),'8':str(self.root/'pal.png')},{'0':0,'8':0},self.root/'quantized')
+        shades=np.asarray(Image.open(result['shades']['path']));self.assertTrue(np.all(shades==1));self.assertEqual(set(result['layers']),{'0','8'})
+    def test_unknown_ownership_is_not_assumed_hair(self):
+        Image.new('RGB',(1024,1024)).save(self.root/'rgb.png');Image.new('L',(1024,1024),255).save(self.root/'mask.png')
+        with self.assertRaisesRegex(ValueError,'ownership'):quantize(self.root/'rgb.png',self.root/'mask.png',{}, {},self.root/'bad')
+
+    def test_tone_match_preserves_accessories_and_variation(self):
+        color=np.full((8,8,3),120,np.uint8);color[:4,0]=80
+        labels=np.zeros((8,8),np.uint8);labels[4:]=1;labels[:,7]=2
+        Image.fromarray(color).save(self.root/'color.png');Image.fromarray(labels).save(self.root/'labels.png')
+        Image.new('RGB',(8,8),(160,140,130)).save(self.root/'reference.png')
+        config={k:{'reviewed':True,'referenceBoxes':[[0,0,1,1]]} for k in ('skin','hair')}
+        tone_match(self.root/'color.png',self.root/'labels.png',self.root/'reference.png',config,self.root/'matched.png')
+        result=np.asarray(Image.open(self.root/'matched.png'))
+        np.testing.assert_array_equal(result[:,7],color[:,7]);self.assertLess(result[0,0,0],result[0,1,0])
+
+
+class OwnershipModeTests(Temporary):
+    def bad_masks(self):
+        for mode in ('RGB','P','I;16'):
+            image=Image.new(mode,(1024,1024),(1,0,0) if mode=='RGB' else 1)
+            if mode=='P':image.putpalette([1,1,1]*256)
+            path=self.root/(mode.replace(';','-')+'.png');image.save(path);yield path
+    def test_quantization_rejects_non_label_image_modes(self):
+        color=self.root/'color.png';Image.new('RGB',(1024,1024)).save(color)
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name):
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):quantize(color,mask,{}, {},self.root/'quantized')
+                self.assertFalse((self.root/'quantized').exists())
+    def test_native_export_rejects_non_label_modes_before_geometry_work(self):
+        from headkit.native import prepare
+        shades=self.root/'shades.png';Image.new('L',(1024,1024)).save(shades)
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name),patch('headkit.native.helpers') as helpers:
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):prepare('unused',shades,mask,{},'head',self.root/'export')
+                helpers.assert_not_called();self.assertFalse((self.root/'export').exists())
+    def test_tone_matching_rejects_non_label_image_modes(self):
+        color=self.root/'color.png';Image.new('RGB',(1024,1024)).save(color)
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name):
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):tone_match(color,mask,'unused',{},self.root/'tone.png')
+    def test_projected_masks_reject_color_or_indexed_images(self):
+        from headkit.projection import project_ownership
+        embree=pin(self.file('embree.dll'))
+        for mask in self.bad_masks():
+            with self.subTest(mask=mask.name), \
+                 patch('headkit.projection.mesh',return_value={'positions':np.zeros((3,3)), 'faces':np.array([[0,1,2]])}), \
+                 patch('headkit.projection.surface',return_value=(np.zeros((1,1,3)),np.zeros((1,1),int),{})), \
+                 patch('headkit.projection.EmbreeScene'):
+                with self.assertRaisesRegex(ValueError,'eight-bit L'):
+                    project_ownership('unused',[{'calibrationReviewed':True,'mask':str(mask)}],embree,self.root/'projected.png')
+    def test_projection_uses_the_reviewed_subtexel_allowance(self):
+        from headkit.projection import project_ownership
+        embree=pin(self.file('embree.dll'));stop=ValueError('surface gate reached')
+        with patch('headkit.projection.mesh',return_value='uv'),patch('headkit.projection.surface',side_effect=stop) as gate:
+            with self.assertRaisesRegex(ValueError,'surface gate'):project_ownership('unused',[],embree,self.root/'p.png',max_subtexel_fraction=.01)
+        gate.assert_called_once_with('uv',1024,.01)
+        source=self.file('uv.glb','frozen UV mesh')
+        runner=SimpleNamespace(data={'mesh':{'maximumSubtexelFraction':.01},'ownership':{'reviewed':True,'mode':'project',
+            'sourceSha256':pin(source)['sha256'],'views':[{'maskInput':'front'}]}},bindings={'embree':embree},
+            source=lambda *args:source,input=lambda role:'mask-'+role)
+        with patch('headkit.projection.project_ownership',side_effect=stop) as project:
+            with self.assertRaisesRegex(ValueError,'surface gate'):Runner._execute(runner,'ownership',self.root)
+        self.assertEqual(project.call_args.kwargs,{'max_subtexel_fraction':.01})
+    def test_valid_labels_preserve_all_ten_channel_ids(self):
+        labels=(np.arange(1024*1024).reshape(1024,1024)%10).astype(np.uint8)
+        Image.fromarray(labels).save(self.root/'labels.png');Image.new('RGB',(1024,1024),(100,100,100)).save(self.root/'color.png')
+        Image.new('RGBA',(256,1),(100,100,100,255)).save(self.root/'palette.png')
+        palettes={str(i):str(self.root/'palette.png') for i in range(10)};rows={str(i):0 for i in range(10)}
+        result=quantize(self.root/'color.png',self.root/'labels.png',palettes,rows,self.root/'quantized')
+        with Image.open(result['ownership']['path']) as image:np.testing.assert_array_equal(np.asarray(image),labels)
+        self.assertEqual(set(result['layers']),set(rows))
+
+
+class ToneMatchTests(Temporary):
+    def fixture(self):
+        # Skin is a dark, compressed luma ramp with ties; hair is a separate channel; a grey row makes shade == luma.
+        rng=np.random.default_rng(5);luma=np.clip(rng.normal(60,12,(1024,1024)),0,255).astype(np.uint8);luma[:64]=30
+        rgb=np.repeat(luma[...,None],3,2);labels=np.zeros((1024,1024),np.uint8);labels[:,900:]=1
+        Image.fromarray(rgb).save(self.root/'c.png');Image.fromarray(labels).save(self.root/'o.png')
+        palette=np.full((2,256,4),255,np.uint8);palette[0,:,:3]=np.arange(256)[:,None];palette[1,:,:3]=255-np.arange(256)[:,None]
+        palette[0,7,3]=0;palette[:,255,3]=0;Image.fromarray(palette).save(self.root/'p.png')  # 255 is transparent, as in the game palettes
+        write(self.root/'refs.json',{'schemaVersion':1,'references':{'ref':{'layer':0,'quantiles':np.linspace(40,180,101).tolist()}}})
+        return luma,labels,{'0':str(self.root/'p.png'),'1':str(self.root/'p.png')},{'0':0,'1':0}
+    def test_opt_in_match_reaches_the_reference_keeps_order_and_isolates_channels(self):
+        luma,labels,palettes,rows=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            plain=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'plain')
+            toned=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'toned',tone_match={'0':{'reference':'ref'}})
+        self.assertNotIn('toneMatch',plain['layers']['0']);self.assertEqual(plain['layers']['1'],toned['layers']['1'])
+        before,after=(np.asarray(Image.open(r['shades']['path'])) for r in (plain,toned));skin=labels==0
+        np.testing.assert_array_equal(before[~skin],after[~skin])  # hair shades and decode stay byte-identical
+        np.testing.assert_array_equal(*(np.asarray(Image.open(r['decoded']['path']))[~skin] for r in (plain,toned)))
+        order=np.argsort(luma[skin],kind='stable');self.assertTrue(np.all(np.diff(after[skin][order].astype(int))>=0))
+        self.assertEqual(len(np.unique(after[skin&(luma==30)])),1)  # tied luma keeps one shade
+        self.assertNotIn(7,np.unique(after[skin]))  # transparent shades stay ineligible
+        report=toned['layers']['0']['toneMatch'];self.assertEqual(report['reference'],'ref')
+        self.assertEqual(report['referenceFile']['sha256'],pin(self.root/'refs.json')['sha256'])
+        self.assertLess(abs(report['before']['p50']-60),2);self.assertEqual(report['referencePercentiles']['p50'],110)
+        for name in ('p5','p25','p50','p75','p95'):  # each integer source luma holds ~3% of texels
+            self.assertLessEqual(abs(report['after'][name]-report['referencePercentiles'][name]),4)
+        self.assertEqual(report['rowsAfter'][0]['row'],0);self.assertEqual(sum(report['after']['histogram16']),int(skin.sum()))
+        self.assertGreater(toned['layers']['0']['meanSquaredColorError'],report['meanSquaredColorErrorBefore'])
+    def test_tone_match_rejections(self):
+        _,_,palettes,rows=self.fixture()
+        cases=[({'0':{'reference':'missing'}},{}, 'known stock shade reference'),({'0':{'reference':'ref','strength':1}},{},'known stock shade reference'),
+               ({'0':{'reference':'ref'}},{'0':4},'not both'),({'3':{'reference':'ref'}},{},'without mapped texels'),(['0'],{},'without mapped texels')]
+        for index,(spec,offsets,message) in enumerate(cases):
+            with self.subTest(spec=spec),patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+                with self.assertRaisesRegex(ValueError,message):
+                    quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/f'bad{index}',shade_offsets=offsets,tone_match=spec)
+                self.assertFalse((self.root/f'bad{index}').exists())
+    def test_full_range_stretches_every_varied_channel_and_keeps_order(self):
+        luma,labels,palettes,rows=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            plain=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'plain')
+            full=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'full',full_range=True)
+            toned=quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'toned',tone_match={'0':{'reference':'ref'}},full_range=True)
+        self.assertNotIn('shadeRange',plain['layers']['0'])
+        for result in (full,toned):
+            shades=np.asarray(Image.open(result['shades']['path']))
+            for key in ('0','1'):
+                selected=labels==int(key);report=result['layers'][key]['shadeRange']
+                self.assertEqual(report['eligible'],[0,253]);self.assertTrue(report['checked']);self.assertGreaterEqual(report['spanFraction'],.5)
+                order=np.argsort(luma[selected],kind='stable');self.assertTrue(np.all(np.diff(shades[selected][order].astype(int))>=0))
+                self.assertFalse({6,7,254}&set(np.unique(shades[selected]).tolist()))  # transparent shades and their lower neighbours
+        narrow=np.asarray(Image.open(plain['shades']['path']))[labels==0]
+        self.assertLess(np.percentile(narrow,99)-np.percentile(narrow,1),127)  # the nearest-colour fixture is the narrow case
+    def test_full_range_exempts_flat_channels_and_refuses_narrow_varied_ones(self):
+        _,_,palettes,rows=self.fixture()
+        Image.new('RGB',(1024,1024),(90,90,90)).save(self.root/'flat.png')
+        flat=quantize(self.root/'flat.png',self.root/'o.png',palettes,rows,self.root/'flat',full_range=True)
+        self.assertFalse(flat['layers']['0']['shadeRange']['checked'])
+        self.assertTrue(np.all(np.asarray(Image.open(flat['shades']['path']))==90))
+        with patch('headkit.palette.FULL_RANGE_SPAN',.999),self.assertRaisesRegex(ValueError,'full shade range required'):  # the guard trips
+            quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'spiky',full_range=True)
+        with self.assertRaisesRegex(ValueError,'not both'):
+            quantize(self.root/'c.png',self.root/'o.png',palettes,rows,self.root/'offset',shade_offsets={'0':4},full_range=True)
+        self.assertFalse((self.root/'spiky').exists());self.assertFalse((self.root/'offset').exists())
+    def test_shading_range_stretches_the_shading_not_the_fine_detail(self):
+        # RUNBOOK 149: a narrow smooth gradient with fine noise and a luma step at x=512; texels sit on a flat 3D surface
+        # (positions), the right half far behind the left in the separate case, as two unconnected parts of a head.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(7);x=np.arange(1024)
+        luma=80+20*x[None,:]/1024+rng.normal(0,3,(1024,1024));luma[:,512:]+=15;luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'g.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.;apart=flat.copy();apart[:,512:,2]=1
+        plain,full,shading=(quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/name,**kw) for name,kw in
+                            (('plain',{}),('full',{'full_range':True}),('shading',{'full_range':True,'shading_only':True,'positions':apart})))
+        shades={name:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,:900] for name,r in (('plain',plain),('full',full),('shading',shading))}
+        fine=lambda s:np.std(s[1:-1,1:-1]-(s[:-2,1:-1]+s[2:,1:-1]+s[1:-1,:-2]+s[1:-1,2:])/4)
+        self.assertGreaterEqual(shading['layers']['0']['shadeRange']['spanFraction'],.5);self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],.02)
+        self.assertLess(fine(shades['shading']),1.3*fine(shades['plain']));self.assertGreater(fine(shades['full']),1.5*fine(shades['plain']))
+        # On skin the shading stops SKIN_HEADROOM shades below the top of the row; only fine detail may reach the top shades.
+        self.assertLess(np.percentile(shades['shading'],99),253-8);self.assertGreater(np.percentile(shades['full'],99),253-8)
+        trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean()
+        self.assertGreater(trend(shades['shading']),1.5*trend(shades['plain']))  # the shading itself still uses the wider range
+        # Surface neighbours only: atlas neighbours far apart in 3D keep their step in the smoothed shading; on one continuous
+        # surface it spreads.
+        from headkit.palette import surface_smooth
+        mask=labels==0;sharp,spread=(surface_smooth(luma,mask,points,.02)[:,:900] for points in (apart,flat))
+        step=lambda s:s[:,512].mean()-s[:,511].mean();self.assertGreater(step(sharp),14);self.assertLess(step(spread),2)
+        for kw in ({'full_range':True},{'positions':flat}):
+            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'surface points'):
+                quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'bad',shading_only=True,**kw)
+    def test_shading_range_keeps_seam_offsets_at_their_own_amplitude(self):
+        # RUNBOOK 153: a near-flat skin whose two UV charts (x<512, x>=512) differ by 2 luma where they meet on the surface. The
+        # full stretch multiplies that offset into a tone step; surface-smoothed shading keeps it near its source size.
+        _,labels,palettes,rows=self.fixture();x=np.arange(1024)
+        luma=np.broadcast_to(100+10*np.sin(x/1024*np.pi)[None,:],(1024,1024)).copy();luma[:,512:]+=2;luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'n.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        full,shading=(np.asarray(Image.open(quantize(self.root/'n.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,**kw)['shades']['path'])).astype(float)
+                      for name,kw in (('nfull',{}),('nshading',{'shading_only':True,'positions':flat})))
+        step=lambda s:abs(s[:,512:515].mean()-s[:,509:512].mean());self.assertGreater(step(full),20);self.assertLess(step(shading),.25*step(full))
+    def test_skin_median_pins_the_body_skin_level(self):
+        # RUNBOOK 154: the face's skin keeps the body neck's median shade; the lower half of the stretch still reaches its end.
+        from headkit.palette import stretch
+        q=np.linspace(40,120,101);plain=stretch(q,0,200);low,high=stretch(q,0,200,median=50),stretch(q,0,200,median=150)
+        mid=lambda s:float(np.interp(.5,np.linspace(0,1,1001),s));self.assertAlmostEqual(mid(low),50,delta=.5);self.assertAlmostEqual(mid(high),150,delta=.5)
+        self.assertEqual((low.min(),high.min(),high.max()),(0,0,200))
+        # A lowered median never spreads the highlights wider than the plain stretch (human-female-c blotch): the top stops short.
+        self.assertAlmostEqual(low.max()-mid(low),plain.max()-mid(plain),delta=1.5);self.assertLess(low.max(),200)
+        at=lambda s,r:float(np.interp(r,np.linspace(0,1,1001),s));self.assertAlmostEqual(at(stretch(q,0,200,median=90,rank=.8),.8),90,delta=.5)
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(3)
+        luma=90+30*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024))
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'m.png')
+        # The face is the bright right-hand quarter of the skin: its median, not the channel's, lands on the body level.
+        face=np.zeros((1024,1024),bool);face[:,650:900]=True
+        for median in (110,180):
+            with self.subTest(median=median):
+                r=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/f'm{median}',full_range=True,skin_median=median,skin_anchor=face)
+                shades=np.asarray(Image.open(r['shades']['path']));self.assertLessEqual(abs(np.median(shades[face&(labels==0)])-median),1)
+                self.assertGreater(abs(np.median(shades[labels==0])-median),10)
+                report=r['layers']['0']['shadeRange']['skinMedian'];self.assertEqual(report['target'],median);self.assertGreater(report['rank'],.6)
+                self.assertIn(report['darkPower'],(2.,3.,4.5,None))
+        # Contrast may compress around a measured neck median but must still pass the same span check.
+        base=np.asarray(Image.open(r['shades']['path'])).astype(float)
+        adjusted=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mcontrast',
+                          full_range=True,skin_median=median,skin_anchor=face,skin_contrast=.95)
+        result=np.asarray(Image.open(adjusted['shades']['path'])).astype(float)
+        self.assertTrue(np.array_equal(result[labels!=0],base[labels!=0]))
+        self.assertTrue(np.all(np.abs(result[labels==0]-median)<=np.abs(base[labels==0]-median)+1))
+        self.assertEqual(adjusted['layers']['0']['shadeRange']['skinMedian']['skinShadeContrast'],.95)
+        with patch.dict('headkit.quality.DECODE_ROWS', {}, clear=True), patch('headkit.quality.focus_view',return_value={}), patch('headkit.quality.focus_metrics',
+                return_value=(None,{'cheekNoise':2.4,'featureFocus':5.3})) as score:
+            automatic=quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'auto-contrast',
+                               full_range=True,skin_median=median,skin_anchor=face,focus_source=('mesh',{}))
+        self.assertEqual(score.call_count,1)
+        self.assertEqual(automatic['skinFocusSearch']['selectedFactor'],1.0)
+        self.assertEqual(automatic['shades']['sha256'],r['shades']['sha256'])
+
+        for kw in ({'skin_median':60},{'skin_median':60,'full_range':True}):
+            with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'skin median'):quantize(self.root/'m.png',self.root/'o.png',palettes,rows,self.root/'mbad',**kw)
+    def test_pinned_skin_darkens_no_texel_past_its_source_contrast(self):
+        # RUNBOOK 158: lips at 0.7 and a lip line at 0.45 of the face's luma. The pinned stretch sends the channel's dark tail
+        # to shade 0 (orc-female-c lips 0.73 -> 0.15 of the face, lip line 0); the cap keeps each below-face texel at least
+        # (luma ratio)^power of the pinned median and never below SKIN_DARK_FLOOR of it.
+        from headkit import palette as P
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(4)
+        face=np.zeros((1024,1024),bool);face[300:600,350:650]=True;lips=np.zeros_like(face);lips[400:418,400:600]=True;line=np.zeros_like(face);line[418:422,400:600]=True
+        luma=60+90*np.arange(1024)[None,:]/1024+rng.normal(0,2,(1024,1024));level=np.median(luma[face])
+        luma[400:440,400:600]=.7*level+rng.normal(0,2,(40,200));luma[line]=.45*level
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'d.png')
+        def run(name,powers=P.SKIN_DARK_POWERS):
+            with patch.object(P,'SKIN_DARK_POWERS',powers):
+                r=quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,skin_median=100,skin_anchor=face)
+            return np.asarray(Image.open(r['shades']['path'])).astype(float),r['layers']['0']['shadeRange']
+        capped,report=run('dcap');loose,_=run('dloose',())
+        self.assertLessEqual(abs(np.median(capped[face])-100),1);self.assertGreaterEqual(report['spanFraction'],.5);self.assertEqual(report['skinMedian']['darkPower'],2)
+        self.assertLess(np.median(loose[lips]),40);self.assertEqual(loose[line].min(),0)  # the uncapped stretch crushes both
+        self.assertGreaterEqual(np.median(capped[lips]),.7**2*100-2);self.assertGreaterEqual(capped[line].min(),P.SKIN_DARK_FLOOR*100-1)
+        # Brighter-than-face texels keep their stretch; a low-contrast skin that the power-2 cap would leave narrow takes a steeper power.
+        bright=(labels==0)&(luma>level+5);self.assertTrue(np.array_equal(capped[bright],loose[bright]))
+        with patch.object(P,'FULL_RANGE_SPAN',.8):self.assertNotEqual(run('dsteep')[1]['skinMedian']['darkPower'],2)
+    def test_shading_only_applies_to_skin_and_hair_keeps_its_strands(self):
+        # RUNBOOK 158: stretching only the hair's smooth shading turned broad bake variation into camouflage patches while the
+        # strands kept their faint source amplitude (human-female-d, dwarf-female-d). Hair stretches whole, as without shading_only.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(9);x=np.arange(1024)
+        luma=np.broadcast_to(100+10*np.sin(x/1024*np.pi)[None,:],(1024,1024)).copy();luma[:,900:]=40+15*np.sin(np.arange(1024)/1024*np.pi)[:,None]
+        luma[:,900:]+=np.where(np.arange(124)%3==0,6,0)[None,:]+rng.normal(0,1,(1024,124))
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'h.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat3=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        full,shading=(quantize(self.root/'h.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,**kw) for name,kw in
+                      (('hfull',{}),('hshading',{'shading_only':True,'positions':flat3})))
+        self.assertEqual(shading['layers']['0']['shadeRange']['shadingSigma'],.02);self.assertNotIn('shadingSigma',shading['layers']['1']['shadeRange'])
+        hair=lambda r:np.asarray(Image.open(r['shades']['path']))[:,900:];self.assertTrue(np.array_equal(hair(full),hair(shading)))
+        # RUNBOOK 159: a flat hair with 15% on its p99 value and a few brighter outliers. The stretch cannot spread that block, so
+        # the span stops short at the top; endTie reports the block at that end (not the 17% block at p1, which reaches the row's
+        # bottom), and the outliers keep it from being the channel's maximum.
+        flat=np.where(np.arange(1024)[:,None]<870,30+np.arange(1024)[:,None]%5,47)*np.ones((1,124));luma[:,900:]=flat
+        luma[1:4,900:],luma[6:14,900:]=10,60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'t.png')
+        tied=quantize(self.root/'t.png',self.root/'o.png',palettes,rows,self.root/'ttied',full_range=True,shading_only=True,positions=flat3)['layers']['1']['shadeRange']
+        self.assertTrue(.5<=tied['spanFraction']<.75,tied);self.assertLess(tied['p99'],200);self.assertAlmostEqual(tied['endTie'],154/1024,delta=.002)
+    def test_body_skin_median_reads_the_plt_skin_layer(self):
+        from headkit.palette import body_skin_median
+        shades=np.array([[10,20,30,200]],np.uint8);layers=np.array([[0,0,0,1]],np.uint8);path=self.root/'neck.plt'
+        path.write_bytes(b'PLT V1  '+np.array([10,0,4,1],'<u4').tobytes()+np.stack([shades,layers],-1)[::-1].tobytes())
+        self.assertEqual(body_skin_median(path),20)
+    def test_plt_reader_and_reference_count_shared_textures_once(self):
+        from headkit.palette import plt_shades,shade_reference
+        def plt(name,shades,layers):
+            path=self.root/name;path.write_bytes(b'PLT V1  '+np.array([10,0,4,2],'<u4').tobytes()+np.stack([shades,layers],-1)[::-1].tobytes());return path
+        top=np.arange(8,dtype=np.uint8).reshape(2,4);layers=np.zeros((2,4),np.uint8);layers[0,0]=1
+        a=plt('a.plt',top,layers);b=plt('b.plt',top,layers);c=plt('c.plt',top+100,layers)
+        shades,read_layers=plt_shades(a);np.testing.assert_array_equal(shades,top);np.testing.assert_array_equal(read_layers,layers)
+        quantiles,unique=shade_reference([a,b,c],0,knots=3);self.assertEqual(unique,2);self.assertEqual(quantiles,[51.0,54.0,57.0])
+        (self.root/'short.plt').write_bytes(a.read_bytes()[:-1])
+        with self.assertRaisesRegex(ValueError,'size mismatch'):plt_shades(self.root/'short.plt')
+    def test_reference_entry_pins_every_source_and_counts_shared_textures_once(self):
+        from headkit.palette import shade_reference_entry
+        def plt(name,shades):
+            path=self.root/name;path.write_bytes(b'PLT V1  '+np.array([10,0,4,2],'<u4').tobytes()+np.stack([shades,np.zeros_like(shades)],-1)[::-1].tobytes());return path
+        top=np.arange(8,dtype=np.uint8).reshape(2,4);a=plt('X_HEAD001.plt',top);b=plt('x_head002.plt',top);c=plt('x_head003.plt',top+100)
+        entry=shade_reference_entry([c,a,b],0,'fixture skin')
+        self.assertEqual((entry['layer'],entry['uniqueTextures'],len(entry['quantiles'])),(0,2,101))
+        self.assertEqual([s['resref'] for s in entry['sources']],['x_head001.plt','x_head002.plt','x_head003.plt'])
+        self.assertEqual(entry['sources'][2]['sha256'],pin(c)['sha256'])
+        with self.assertRaisesRegex(ValueError,'Distinct stock PLT'):shade_reference_entry([a,a],0,'twice')
+    def test_committed_references_and_stage_binding(self):
+        from headkit.common import stage_code_files
+        from headkit.palette import REFERENCES
+        data=read(REFERENCES);self.assertTrue({'troll-male-skin-v1','troll-male-hair-v1'}<=set(data['references']))
+        races={f'{race}-{sex}-skin-v1' for race in ('human','dwarf','elf','orc','troll') for sex in ('male','female')}
+        self.assertLessEqual(races,set(data['references']))  # every playable metatype can tone-match its skin
+        for name,row in data['references'].items():
+            with self.subTest(reference=name):
+                q=np.asarray(row['quantiles']);self.assertEqual(len(q),101);self.assertTrue(np.all(np.diff(q)>=0) and 0<=q[0] and q[-1]<=254)
+                self.assertTrue(all(len(source['sha256'])==64 for source in row['sources']))
+        self.assertIn('stock-shades.json',{path.name for path in stage_code_files('palette')})
+        self.assertNotIn('stock-shades.json',{path.name for path in stage_code_files('ownership')})
+    def test_runner_passes_the_manifest_tone_match(self):
+        runner=SimpleNamespace(data={'inputs':{},'palette':{'inputs':{'0':'paletteSkin'},'rows':{'0':3},'toneMatch':{'0':{'reference':'troll-male-skin-v1'}}}},bindings={},
+                               tone_pass_through=lambda:False,result=lambda stage,**kw:{'maps':{'1024':{'path':'tone.png'}},'onek':{'path':'own.png'}},
+                               input=lambda name:name+'.png')
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
+        self.assertEqual(quantizer.call_args.kwargs['tone_match'],{'0':{'reference':'troll-male-skin-v1'}})
+        self.assertIs(quantizer.call_args.kwargs['full_range'],False)
+        runner.data['palette']['fullShadeRange']=True
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:Runner._execute(runner,'palette',self.root)
+        self.assertIs(quantizer.call_args.kwargs['full_range'],True)
+        # stretchShadingOnly also hands quantize each 1K texel's surface point; gutter texels take the nearest
+        runner.data['palette']['stretchShadingOnly']=True;runner.source=lambda *args:'uv.glb'
+        owners=np.full((1024,1024),-1);owners[:10,:10]=0;owners[-10:,-10:]=1;points=np.zeros((1024,1024,3),np.float32);points[-10:,-10:]=1
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.gltf.mesh',return_value={'uv':None}),\
+             patch('headkit.textures.surface',return_value=(points,owners,{})):Runner._execute(runner,'palette',self.root)
+        positions=quantizer.call_args.kwargs['positions'];self.assertIs(quantizer.call_args.kwargs['shading_only'],True)
+        self.assertEqual([positions[y,x,0] for y,x in ((0,0),(-1,-1),(100,100),(1000,1000))],[0,1,0,1]);self.assertIsNone(quantizer.call_args.kwargs['skin_median'])
+        del runner.data['palette']['stretchShadingOnly']
+        # matchBodySkin reads the bodySkin PLT's skin median, needs that input and pins it on the face region's texels
+        runner.data['palette']['matchBodySkin']=True
+        with self.assertRaisesRegex(ValueError,'bodySkin input'):Runner._execute(runner,'palette',self.root)
+        runner.data['inputs']['bodySkin']={}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.body_skin_median',return_value=99) as median,\
+             patch('headkit.gltf.mesh',return_value={'positions':None,'faces':None}),patch('headkit.textures.surface',return_value=(points,owners,{})),\
+             patch('headkit.uv.face_region',return_value=(np.array([False,True]),None)):
+            Runner._execute(runner,'palette',self.root)
+        self.assertEqual(quantizer.call_args.kwargs['skin_median'],99);median.assert_called_once_with('bodySkin.png')
+        anchor=quantizer.call_args.kwargs['skin_anchor'];self.assertEqual((anchor[0,0],anchor[-1,-1],anchor[500,500]),(False,True,False))
+        self.assertIsNone(quantizer.call_args.kwargs['positions'])
+        del runner.data['palette']['matchBodySkin'];del runner.data['inputs']['bodySkin']
+        runner.data['palette']['rows']='auto'  # tone-matched channels skip pre-ranking; quantize picks their row after matching
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer,patch('headkit.palette.rank_rows') as ranking:
+            Runner._execute(runner,'palette',self.root)
+        ranking.assert_not_called();self.assertEqual(quantizer.call_args.args[3],{'0':'auto'})
+    def tinted(self):
+        """Grey, reddish and bluish ramps: a grey source picks grey from the bake, a reddish design picks the red row."""
+        palette=np.full((3,256,4),255,np.uint8);ramp=np.arange(256)
+        palette[0,:,:3]=ramp[:,None];palette[1,:,:3]=np.c_[ramp,ramp*.6,ramp*.6];palette[2,:,:3]=np.c_[ramp*.6,ramp*.6,ramp]
+        Image.fromarray(palette).save(self.root/'tint.png');return palette
+    def test_design_row_takes_the_row_closest_to_the_design_colour(self):
+        from headkit.palette import lab
+        _,_,palettes,_=self.fixture();palette=self.tinted();palettes={'0':str(self.root/'tint.png'),'1':str(self.root/'p.png')}
+        target=lab(palette[2,40:180,:3]).mean(0).tolist()  # bluish design; the grey source's own row is another
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            chosen=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'design',
+                            tone_match={'0':{'reference':'ref','rowFrom':'design'}},design={'0':{'pixels':5000,'lab':target}})
+            few=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'few',
+                         tone_match={'0':{'reference':'ref','rowFrom':'design'}},design={'0':{'pixels':10,'lab':target}})
+            bake=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bake',tone_match={'0':{'reference':'ref'}})
+        report=chosen['layers']['0']['designRow']
+        self.assertEqual((chosen['rows']['0'],report['rows'][0]['row']),(2,2));self.assertEqual(report['bakeRow'],bake['rows']['0']);self.assertNotEqual(bake['rows']['0'],2)
+        self.assertEqual(few['rows']['0'],bake['rows']['0']);self.assertIn('Fewer than',few['layers']['0']['designRow']['fallback'])
+        self.assertNotIn('designRow',bake['layers']['0'])
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'),self.assertRaisesRegex(ValueError,'rowFrom bake or design'):
+            quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bad',tone_match={'0':{'reference':'ref','rowFrom':'render'}})
+    def quad(self,z,facing_front,uv_x):
+        # A unit square at depth z; vertex order sets the normal (+z or -z); UVs inside one vertical half of the atlas.
+        p=np.array([[-1,-1,z],[1,-1,z],[1,1,z],[-1,1,z]],float);f=np.array([[0,1,2],[0,2,3]]) if facing_front else np.array([[0,2,1],[0,3,2]])
+        uv=np.array([[uv_x,.1],[uv_x+.3,.1],[uv_x+.3,.9],[uv_x,.9]]);return p,f,uv
+    def mesh_value(self,*quads):
+        positions=[];faces=[];uvs=[]
+        for p,f,uv in quads:faces.append(f+len(positions)*0+sum(len(x) for x in positions));positions.append(p);uvs.append(uv[f])
+        return {'positions':np.concatenate(positions),'faces':np.concatenate(faces),'uv':np.concatenate(uvs)}
+    def test_front_view_keeps_the_nearest_front_facing_surface(self):
+        from headkit.palette import front_labels
+        layers=np.zeros((1024,1024),np.uint8);layers[:,512:]=1  # left atlas half channel 0, right half channel 1
+        front=self.quad(1,True,.1);behind=self.quad(-1,True,.6);back=self.quad(2,False,.6)  # back faces away, nearer in z
+        labels=front_labels(self.mesh_value(front,behind,back),layers,size=64)
+        inside=labels>=0;self.assertGreater(inside.mean(),.8);self.assertTrue(np.all(labels[inside]==0))
+    def test_design_reference_samples_each_channel_through_the_registered_front_view(self):
+        from headkit.palette import design_reference,lab
+        from headkit.images import subject
+        rgb=np.full((256,256,3),192,np.uint8);rgb[60:200,40:220]=(180,60,50)  # backdrop with a red subject block
+        layers=np.zeros((1024,1024),np.uint8)
+        reference=design_reference(rgb,subject(rgb)[0],self.mesh_value(self.quad(1,True,.1)),layers,self.root/'reference.png')
+        channel=reference['channels']['0'];self.assertGreater(channel['pixels'],1000)
+        np.testing.assert_allclose(channel['lab'],lab([[180,60,50]])[0],atol=.5);self.assertTrue((self.root/'reference.png').is_file())
+    def test_runner_reads_the_design_only_for_design_rows(self):
+        from headkit.runner import stage_roles,design_rows
+        from headkit.common import runner_slice
+        data={'inputs':{'design':{},'uvMesh':{}},'palette':{'inputs':{},'toneMatch':{'0':{'reference':'r'}}}}
+        self.assertNotIn('design',stage_roles('palette',data));self.assertFalse(design_rows(data))
+        data['palette']['toneMatch']['0']['rowFrom']='design';self.assertIn('design',stage_roles('palette',data));self.assertTrue(design_rows(data))
+        data['inputs']['bodySkin']={};self.assertNotIn('bodySkin',stage_roles('palette',data))   # read only with matchBodySkin
+        data['palette']['matchBodySkin']=True;self.assertIn('bodySkin',stage_roles('palette',data));self.assertNotIn('bodySkin',stage_roles('tone',data))
+        text=runner_slice(Path(__file__).parent/'runner.py','palette')
+        self.assertIn("design_reference(",text);self.assertIn("'design-reference.png'",text)
+        self.assertIn("dependencies.append('unwrap')",text)
+    def test_automatic_row_follows_the_matched_shades(self):
+        _,_,palettes,_=self.fixture()
+        with patch('headkit.palette.REFERENCES',self.root/'refs.json'):
+            with self.assertRaisesRegex(ValueError,'Rank automatic rows'):quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'bad')
+            result=quantize(self.root/'c.png',self.root/'o.png',palettes,{'0':'auto','1':0},self.root/'auto',tone_match={'0':{'reference':'ref'}})
+        self.assertEqual(result['rows'],{'0':0,'1':0});self.assertEqual(result['layers']['0']['toneMatch']['rowsAfter'][0]['row'],0)
+        self.assertAlmostEqual(result['layers']['0']['toneMatch']['rowsAfter'][0]['meanSquaredColorError'],result['layers']['0']['meanSquaredColorError'])
+
+
+class CheckpointTests(Temporary):
+    def transport(self):
+        path=Path(__file__).parent/'comfy_nodes'/'transport.py';spec=importlib.util.spec_from_file_location('transport_fixture',path)
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+    def test_lossless_checkpoint_and_bad_batch_rejection(self):
+        transport=self.transport();arrays={'samples':np.ones((1,4,2,1),np.float32),'coords':np.array([[0,0,0,0],[0,1,0,0]],np.int32),'coord_counts':np.array([2],np.int32)}
+        meta={'coord_resolution':32,'type':'trellis2','model_frame':'y_up'}
+        path=self.root/'latent.npz';transport.write(path,arrays,meta);restored,metadata=transport.read(path)
+        self.assertEqual(meta,metadata)
+        for key in arrays:np.testing.assert_array_equal(arrays[key],restored[key])
+        arrays['coords'][0,0]=1
+        with self.assertRaises(ValueError):transport.validate(arrays,meta)
+    def test_nonfinite_checkpoint_is_rejected(self):
+        arrays={'samples':np.full((1,4,1,1),np.nan,np.float32),'coords':np.zeros((1,4),np.int32),'coord_counts':np.array([1],np.int32)}
+        with self.assertRaises(ValueError):self.transport().validate(arrays,{'coord_resolution':32,'type':'trellis2','model_frame':'y_up'})
+
+
+class LoaderResolutionTests(Temporary):
+    def test_comfy_folder_resolver_must_select_the_bound_path_and_bytes(self):
+        from headkit.comfy_nodes.model_resolution import loader_models,verify_loader_models
+        name='pixal3d_int8_convrot.safetensors'
+        bound=self.root/'reviewed'/name;bound.parent.mkdir();bound.write_bytes(b'reviewed model')
+        shadow=self.root/'shadow'/name;shadow.parent.mkdir();shadow.write_bytes(b'different model')
+        graph={'1':{'class_type':'UNETLoader','inputs':{'unet_name':name}}}
+        expected=loader_models(graph,{name:pin(bound)},{name:pin(bound)['sha256']})
+        class FolderPaths:
+            selected=shadow
+            @classmethod
+            def get_full_path_or_raise(cls,category,filename):
+                self.assertEqual((category,filename),('diffusion_models',name))
+                return cls.selected
+        with self.assertRaisesRegex(ValueError,'different model path'):
+            verify_loader_models(expected,FolderPaths)
+        FolderPaths.selected=bound
+        bound_graph=__import__('headkit.comfy_nodes.model_resolution',fromlist=['bind_loader_models']).bind_loader_models(graph,expected)
+        self.assertEqual(verify_loader_models(expected,FolderPaths,bound_graph),{'verified':True,'count':1})
+        with self.assertRaisesRegex(ValueError,'hash-keyed headkit adapter'):
+            verify_loader_models(expected,FolderPaths,graph)
+        tampered=copy.deepcopy(bound_graph);tampered['1']['inputs']['headkit_model_sha256']='0'*64
+        with self.assertRaisesRegex(ValueError,'inputs differ'):
+            verify_loader_models(expected,FolderPaths,tampered)
+        shadow.write_bytes(b'modified after resolution')
+        FolderPaths.selected=shadow
+        expected[0]['pathIdentity']=__import__('headkit.comfy_nodes.model_resolution',fromlist=['path_identity']).path_identity(shadow)
+        with self.assertRaisesRegex(ValueError,'bytes differ'):
+            verify_loader_models(expected,FolderPaths)
+
+    def test_model_hash_is_bound_into_loader_type_and_cache_signature(self):
+        from headkit.comfy_nodes.model_resolution import loader_models,bind_loader_models,validate_bound_loader_nodes
+        from headkit.comfy_nodes.verified_loaders import verified_loader_mappings
+        name='pixal3d_int8_convrot.safetensors';model=self.root/name;model.write_bytes(b'reviewed model')
+        standard={'1':{'class_type':'UNETLoader','inputs':{'unet_name':name,'weight_dtype':'default'}}}
+        expected=loader_models(standard,{name:pin(model)},{name:pin(model)['sha256']})
+        graph=bind_loader_models(standard,expected);node=graph['1']
+        self.assertEqual(node['class_type'],'HeadkitVerifiedUNETLoaderV1')
+        self.assertTrue(validate_bound_loader_nodes(graph,expected))
+        self.assertEqual(node['inputs']['headkit_model_sha256'],expected[0]['sha256'])
+        class FolderPaths:
+            @classmethod
+            def get_full_path_or_raise(cls,category,filename):return model
+        class CoreLoader:
+            RETURN_TYPES=('MODEL',);FUNCTION='load_unet'
+            @classmethod
+            def INPUT_TYPES(cls):return {'required':{'unet_name':(['model.safetensors'],),'weight_dtype':(['default'],)}}
+            def load_unet(self,unet_name,weight_dtype):return ('loaded',unet_name,weight_dtype)
+        wrapper=verified_loader_mappings({'UNETLoader':CoreLoader},FolderPaths)['HeadkitVerifiedUNETLoaderV1']
+        first=wrapper.IS_CHANGED(expected[0]['sha256'],expected[0]['pathIdentity'])
+        changed=wrapper.IS_CHANGED('0'*64,expected[0]['pathIdentity'])
+        self.assertNotEqual(first,changed)
+        self.assertEqual(wrapper().load_verified(expected[0]['sha256'],expected[0]['pathIdentity'],
+            unet_name=name,weight_dtype='default'),('loaded',name,'default'))
+        model.write_bytes(b'replaced model')
+        with self.assertRaisesRegex(ValueError,'bytes different'):
+            wrapper().load_verified(expected[0]['sha256'],expected[0]['pathIdentity'],
+                unet_name=name,weight_dtype='default')
+
+    def test_unrecognized_model_loader_fields_fail_closed(self):
+        from headkit.comfy_nodes.model_resolution import loader_models
+        graph={'1':{'class_type':'CustomLoader','inputs':{'model_name':'unlisted.safetensors'}}}
+        with self.assertRaisesRegex(ValueError,'Unsupported Comfy model loader field'):
+            loader_models(graph,{}, {})
+
+    def test_sampler_name_is_an_algorithm_selector_not_a_model_file(self):
+        from headkit.comfy_nodes.model_resolution import loader_models
+        graph={'1':{'class_type':'KSampler','inputs':{'sampler_name':'euler','steps':12}}}
+        self.assertEqual(loader_models(graph,{},{}),[])
+
+
+class FakeClient:
+    def __init__(self,fail=False,on_idle=None,model_result=None):
+        self.fail=fail;self.posts=0;self.url='http://127.0.0.1:8188';self.on_idle=on_idle;self.model_result=model_result;self.routes=[];self.server_runtime=None
+    def idle(self):
+        if self.on_idle:self.on_idle()
+        return True
+    def request(self,route,data=None):
+        self.routes.append((route,data))
+        if route=='/object_info':return {'Example':{},'UNETLoader':{},'HeadkitVerifiedUNETLoaderV1':{}}
+        if route=='/headkit/runtime-identity':return self.server_runtime
+        if route=='/headkit/verify-loader-models':
+            return self.model_result if self.model_result is not None else {'verified':True,'count':len(data['models'])}
+        if route=='/prompt':
+            self.posts+=1
+            if self.fail:raise TimeoutError('lost acknowledgement')
+            return {'prompt_id':'prompt-1','node_errors':{}}
+        if route.startswith('/history'):return {}
+        if route=='/queue':return {'queue_running':[],'queue_pending':[]}
+        return {}
+
+
+class LedgerTests(Temporary):
+    def prepared(self,token='token-1'):return self.freeze_request({'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]})
+    def test_ambiguous_submission_stays_counted_and_blocks_duplicates(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,74,'Reviewed retained ledger');request=self.prepared();client=FakeClient(True)
+        with self.assertRaises(TimeoutError):self.submit(client,ledger,request,self.root/'job')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'intent')
+        with self.assertRaisesRegex(ValueError,'Reconcile'):self.submit(client,ledger,request,self.root/'another')
+        self.assertEqual(client.posts,1)
+    def test_generation_ceiling_and_queue_ownership(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,100,'Existing global count');client=FakeClient()
+        with self.assertRaisesRegex(ValueError,'100'):self.submit(client,ledger,self.prepared(),self.root/'job')
+        self.assertEqual(client.posts,0)
+    def test_request_is_frozen_before_submission(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'New environment');request=self.prepared();Path(request['inputs'][0]['path']).write_text('changed')
+        with self.assertRaisesRegex(ValueError,'Stale'):self.submit(FakeClient(),ledger,request,self.root/'job')
+    def test_existing_intent_receipt_does_not_publish_ledger_intent(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'New environment')
+        request=self.prepared();client=FakeClient();output=self.root/'job';output.mkdir()
+        receipt=output/'submission-intent.json';receipt.write_text('preserve historical receipt')
+        with self.assertRaises(FileExistsError):self.submit(client,ledger,request,output)
+        self.assertEqual(read(ledger)['jobs'],[])
+        self.assertEqual(receipt.read_text(),'preserve historical receipt')
+        self.assertEqual(client.posts,0)
+        self.assertNotIn('/prompt',[route for route,_ in client.routes])
+    def test_dispatch_requires_the_prepared_runtime_bindings_and_endpoint(self):
+        for mismatch in ('runtime','bindings','endpoint'):
+            with self.subTest(mismatch=mismatch):
+                request=self.prepared('token-'+mismatch);client=FakeClient();runtime,bindings=self.bind_dispatch(request,client.url)
+                if mismatch=='runtime':runtime=dict(runtime,toolsRoot=str(self.root/'different-runtime'))
+                elif mismatch=='bindings':bindings=self.file('other-bindings.json','{}')
+                else:client.url='http://localhost:8188'
+                with patch.object(client,'request') as server:
+                    with self.assertRaisesRegex(ValueError,'differ'):
+                        comfy.submit(client,self.root/'ledger.json',request,self.root/('job-'+mismatch),
+                                     runtime_identity=runtime,bindings_path=bindings)
+                    server.assert_not_called()
+    def test_inputs_are_reverified_under_lock_immediately_before_dispatch(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,99,'One attempt remains');request=self.prepared()
+        source=request['inputs'][0]['path'];client=FakeClient(on_idle=lambda:Path(source).write_text('changed during queue check'))
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):
+            self.submit(client,ledger,request,self.root/'preflight-failed')
+        state=read(ledger);self.assertEqual(state['jobs'][0]['state'],'preflight-rejected');self.assertEqual(client.posts,0)
+        self.assertTrue((self.root/'preflight-failed'/'submission-preflight-error.json').exists())
+        self.assertEqual(state['priorGenerationAttempts']+sum(j['stage']=='geometry' and j['state']!='preflight-rejected' for j in state['jobs']),99)
+        next_request=self.prepared('token-after-preflight');next_client=FakeClient()
+        self.submit(next_client,ledger,next_request,self.root/'valid-dispatch')
+        self.assertEqual(next_client.posts,1);self.assertEqual(read(ledger)['jobs'][-1]['state'],'submitted')
+    def test_comfy_runtime_files_are_pinned_and_reverified_under_lock_before_dispatch(self):
+        ledger=self.root/'runtime-inputs.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();runtime_file=request['comfyRuntimeIdentity']['torch']['path']
+        client=FakeClient(on_idle=lambda:Path(runtime_file).write_bytes(b'changed after runtime snapshot'))
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):
+            self.submit(client,ledger,request,self.root/'runtime-input-preflight')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertIn((runtime_file,request['comfyRuntimeIdentity']['torch']['sha256']),
+                      {(row['path'],row['sha256']) for row in request['inputs']})
+
+    def test_live_comfy_runtime_mismatch_is_preflight_rejected(self):
+        from headkit.common import digest
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();client=FakeClient();_,bindings=self.bind_dispatch(request,client.url)
+        changed=copy.deepcopy(request['comfyRuntimeIdentity']);changed['torch']['version']='different loaded Torch'
+        payload={key:value for key,value in changed.items() if key!='fingerprint'}
+        changed['fingerprint']=digest(payload);client.server_runtime=changed
+        with self.assertRaisesRegex(ValueError,'runtime differs'):
+            comfy.submit(client,ledger,request,self.root/'runtime-mismatch',runtime_identity=request['runtimeIdentity'],bindings_path=bindings)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertIn('/headkit/runtime-identity',[route for route,_ in client.routes])
+
+    def test_preparation_baseline_cannot_replace_fresh_dispatch_verification(self):
+        from headkit.common import digest
+        ledger=self.root/'baseline-ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();request['runtimeVerification']='server-owned'
+        client=FakeClient();_,bindings=self.bind_dispatch(request,client.url)
+        startup=copy.deepcopy(request['comfyRuntimeIdentity'])
+        original=client.request
+        def route(name,data=None):
+            if name=='/headkit/preparation-identity':
+                client.routes.append((name,data))
+                return {'kind':'preparation-baseline-v1','runtimeIdentity':startup,'requiresFreshDispatch':True}
+            return original(name,data)
+        client.request=route
+        self.assertEqual(comfy.preparation_runtime(client,{'comfyPreparationVerification':'dispatch-gated-baseline-v1'}),startup)
+        changed=copy.deepcopy(startup);changed['torch']['version']='changed since startup'
+        changed['fingerprint']=digest({k:v for k,v in changed.items()if k!='fingerprint'})
+        client.server_runtime=changed
+        with self.assertRaisesRegex(ValueError,'runtime differs'):
+            comfy.submit(client,ledger,request,self.root/'baseline-dispatch',runtime_identity=request['runtimeIdentity'],bindings_path=bindings)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertIn('/headkit/runtime-identity',[name for name,_ in client.routes])
+
+    def test_server_owned_runtime_is_reverified_under_lock_without_client_file_reads(self):
+        ledger=self.root/'server-owned-ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed generation count')
+        request=self.prepared();request['runtimeVerification']='server-owned'
+        runtime_file=request['comfyRuntimeIdentity']['torch']['path']
+        request['inputs']=[row for row in request['inputs'] if row['path']!=runtime_file]
+        client=FakeClient()
+        def change_runtime():
+            changed=copy.deepcopy(client.server_runtime)
+            changed['torch']['sha256']='0'*64
+            for row in changed['files']:
+                if row['path']==runtime_file:row['sha256']='0'*64
+            changed['fingerprint']=digest({k:v for k,v in changed.items() if k!='fingerprint'})
+            client.server_runtime=changed
+        client.on_idle=change_runtime
+        with self.assertRaisesRegex(ValueError,'runtime differs'):
+            self.submit(client,ledger,request,self.root/'server-owned-job')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+    def test_restarted_session_and_changed_settings_block_dispatch_without_attempt(self):
+        for field,value in (('id','b'*32),('settingsSha256','c'*64),('pid',456)):
+            with self.subTest(field=field):
+                ledger=self.root/(field+'-ledger.json');comfy.initialize_ledger(ledger,0,'Reviewed count')
+                request=self.prepared();client=FakeClient();_,bindings=self.bind_dispatch(request,client.url)
+                changed=copy.deepcopy(request['comfyRuntimeIdentity']);changed['session'][field]=value
+                changed['fingerprint']=digest({key:value for key,value in changed.items() if key!='fingerprint'})
+                client.server_runtime=changed
+                with self.assertRaisesRegex(ValueError,'runtime differs'):
+                    comfy.submit(client,ledger,request,self.root/(field+'-job'),runtime_identity=request['runtimeIdentity'],bindings_path=bindings)
+                self.assertEqual(client.posts,0);self.assertEqual(read(ledger)['priorGenerationAttempts'],0)
+                self.assertEqual(read(ledger)['jobs'][0]['state'],'preflight-rejected')
+
+    def test_loader_resolved_checkpoint_mismatch_is_preflight_rejected(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reviewed count')
+        request=self.prepared();model=self.file('pixal3d_int8_convrot.safetensors','reviewed bytes')
+        from headkit.comfy_nodes.model_resolution import path_identity
+        row=pin(model);request['inputs'].append(row)
+        from headkit.comfy_nodes.model_resolution import bind_loader_models
+        standard={'1':{'class_type':'UNETLoader','inputs':{'unet_name':model.name}}}
+        request['loaderModels']=[{'category':'diffusion_models','name':model.name,
+            'pathIdentity':path_identity(model),'sha256':row['sha256']}]
+        request['prompt']=bind_loader_models(standard,request['loaderModels'])
+        client=FakeClient(model_result={'verified':False})
+        original_read=comfy.read
+        def read_with_test_profile(path):
+            return {model.name:row['sha256']} if Path(path).name=='checkpoints.json' else original_read(path)
+        with patch('headkit.comfy.read',side_effect=read_with_test_profile):
+            with self.assertRaisesRegex(ValueError,'resolved checkpoint paths or bytes'):
+                self.submit(client,ledger,request,self.root/'preflight')
+        state=read(ledger);self.assertEqual(state['jobs'][0]['state'],'preflight-rejected')
+        self.assertEqual(client.posts,0)
+        self.assertEqual(state['priorGenerationAttempts']+sum(j['stage']=='geometry' and j['state']!='preflight-rejected' for j in state['jobs']),0)
+        self.assertIn('/headkit/verify-loader-models',[route for route,_ in client.routes])
+    def test_model_loader_cannot_be_omitted_or_given_unrelated_pins(self):
+        for variant in ('omitted','unrelated'):
+            with self.subTest(variant=variant):
+                ledger=self.root/(variant+'.json');comfy.initialize_ledger(ledger,0,'Reviewed count')
+                request=self.prepared('token-'+variant)
+                request['prompt']={'1':{'class_type':'UNETLoader','inputs':{'unet_name':'expected.safetensors'}}}
+                if variant=='unrelated':
+                    request['loaderModels']=[{'category':'diffusion_models','name':'other.safetensors',
+                        'pathIdentity':'a'*64,'sha256':'b'*64}]
+                client=FakeClient()
+                with self.assertRaisesRegex(ValueError,'do not exactly match graph loaders'):
+                    self.submit(client,ledger,request,self.root/variant)
+                self.assertEqual(client.posts,0)
+                self.assertNotIn('/headkit/verify-loader-models',[route for route,_ in client.routes])
+    def test_live_lock_is_exclusive_and_terminated_owner_is_recoverable(self):
+        ledger=self.root/'ledger.json';marker=self.root/'locked';env=os.environ.copy()
+        tools_root=str(Path(__file__).resolve().parents[1]);env['PYTHONPATH']=tools_root+os.pathsep+env.get('PYTHONPATH','')
+        script=('from headkit.comfy import locked; from pathlib import Path; import sys,time; '
+                'p=Path(sys.argv[1]); marker=Path(sys.argv[2]); '
+                'ctx=locked(p); ctx.__enter__(); marker.write_text("ready"); time.sleep(30)')
+        owner=subprocess.Popen([sys.executable,'-c',script,str(ledger),str(marker)],env=env)
+        try:
+            deadline=time.monotonic()+10
+            while not marker.exists() and owner.poll() is None and time.monotonic()<deadline:time.sleep(.05)
+            self.assertTrue(marker.exists(),'child did not acquire the ledger lock')
+            with self.assertRaises(FileExistsError):
+                with comfy.locked(ledger):pass
+        finally:
+            owner.terminate();owner.wait(timeout=10)
+        if os.name!='nt':self.assertTrue(Path(str(ledger)+'.lock').exists())
+        with comfy.locked(ledger):pass
+    def test_remote_endpoint_not_allowed(self):
+        with self.assertRaises(ValueError):comfy.Client('https://untrusted.example')
+
+    def test_failed_job_cannot_be_resubmitted_with_same_token(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,3,'Bound count');request=self.prepared();self.submit(FakeClient(),ledger,request,self.root/'job')
+        state=read(ledger);state['jobs'][0]['state']='failed';write(ledger,state)
+        with self.assertRaisesRegex(ValueError,'already submitted'):self.submit(FakeClient(),ledger,request,self.root/'retry')
+    def test_collect_rejects_outputs_outside_owned_prefix(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,3,'Bound count');request=self.prepared();client=FakeClient()
+        self.submit(client,ledger,request,self.root/'job')
+        def reply(route,data=None):
+            return {'prompt-1':{'status':{'status_str':'success'},'outputs':{'1':{'files':[{'filename':'escape.glb','subfolder':'other-run','type':'output'}]}}}}
+        client.request=reply
+        with self.assertRaisesRegex(ValueError,'outside'):comfy.collect(client,ledger,request['token'],self.root/'comfy-output',self.root/'job')
+
+
+class ItemTrialTests(Temporary):
+    def setUp(self):
+        super().setUp()
+        self.ledger=self.root/'trial.json'
+        write(self.ledger,{'schemaVersion':1,'priorGenerationAttempts':0,'jobs':[],
+                          'itemTrial':{'id':'trial','maximumGeometryAttempts':2}})
+        write(self.root/'dispatch-bindings.json',{'itemTrialId':'trial','submissionLedger':str(self.ledger)})
+    def request(self, token, model='cougar', reference='a', stage='geometry'):
+        return self.freeze_request({'token':token,'stage':stage,'outputNamespace':'itemkit',
+            'generationSubject':{'id':model,'referenceSha256':reference*64},
+            'prompt':{'1':{'class_type':'Example','inputs':{'filename_prefix':'itemkit/'+token+'/mesh'}}},
+            'inputs':[pin(self.file('input'))]})
+    def terminal(self,state='failed'):
+        data=read(self.ledger);data['jobs'][-1]['state']=state;write(self.ledger,data)
+    def test_five_attempt_policy_keeps_alias_history_and_blocks_sixth(self):
+        state=read(self.ledger);state['itemTrial']['maximumGeometryAttempts']=5;write(self.ledger,state)
+        for n,(model,ref) in enumerate((('cougar','a'),('renamed','a'),('renamed','b'),('third-name','b'),('third-name','c'))):
+            self.submit(FakeClient(),self.ledger,self.request(str(n),model,ref),self.root/str(n))
+            self.terminal('not-found' if n==2 else 'complete')
+        client=FakeClient()
+        with self.assertRaisesRegex(ValueError,'Five generation attempts'):
+            self.submit(client,self.ledger,self.request('sixth','cougar','d'),self.root/'sixth')
+        self.assertEqual(client.posts,0)
+        self.assertEqual(len(read(self.ledger)['jobs']),5)
+        self.submit(client,self.ledger,self.request('appearance',stage='appearance'),self.root/'appearance')
+        self.assertEqual(client.posts,1)
+    def test_two_attempts_survive_reference_changes_and_allow_another_model(self):
+        for n,ref in enumerate(('a','b')):
+            self.submit(FakeClient(),self.ledger,self.request(str(n),reference=ref),self.root/str(n));self.terminal()
+        client=FakeClient()
+        with self.assertRaisesRegex(ValueError,'Two generation attempts'):
+            self.submit(client,self.ledger,self.request('third',reference='c'),self.root/'third')
+        self.assertEqual(client.posts,0)
+        self.submit(client,self.ledger,self.request('other',model='another-model',reference='d'),self.root/'other')
+        self.assertEqual(client.posts,1)
+    def test_uncertain_post_counts_after_reconciliation(self):
+        with self.assertRaises(TimeoutError):
+            self.submit(FakeClient(True),self.ledger,self.request('uncertain'),self.root/'uncertain')
+        with self.assertRaisesRegex(ValueError,'Reconcile'):
+            self.submit(FakeClient(),self.ledger,self.request('blocked'),self.root/'blocked')
+        self.terminal('not-found')
+        self.submit(FakeClient(),self.ledger,self.request('second'),self.root/'second');self.terminal()
+        with self.assertRaisesRegex(ValueError,'Two generation attempts'):
+            self.submit(FakeClient(),self.ledger,self.request('third'),self.root/'third')
+    def test_preflight_rejection_does_not_spend_attempt(self):
+        request=self.request('preflight');source=request['inputs'][0]['path']
+        with self.assertRaisesRegex(ValueError,'Stale'):
+            self.submit(FakeClient(on_idle=lambda:Path(source).write_text('changed')),self.ledger,request,self.root/'preflight')
+        for token in ('first','second'):
+            self.submit(FakeClient(),self.ledger,self.request(token),self.root/token);self.terminal()
+    def test_renaming_reference_does_not_reset_attempts(self):
+        for token,model,ref in (('first','cougar','a'),('second','renamed','a')):
+            self.submit(FakeClient(),self.ledger,self.request(token,model,ref),self.root/token);self.terminal()
+        with self.assertRaisesRegex(ValueError,'Two generation attempts'):
+            self.submit(FakeClient(),self.ledger,self.request('third','renamed','b'),self.root/'third')
+    def test_appearance_and_export_do_not_spend_or_require_remaining_geometry_attempt(self):
+        for token,stage in (('one','geometry'),('two','geometry'),('texture','appearance'),('export','export')):
+            self.submit(FakeClient(),self.ledger,self.request(token,stage=stage),self.root/token);self.terminal('success')
+        self.assertEqual(len(read(self.ledger)['jobs']),4)
+    def test_missing_identity_or_replacement_ledger_fails_closed(self):
+        request=self.request('missing');del request['generationSubject']
+        with self.assertRaisesRegex(ValueError,'stable model'):
+            self.submit(FakeClient(),self.ledger,request,self.root/'missing')
+        other=self.root/'replacement.json';comfy.initialize_ledger(other,0,'Unrelated ledger')
+        with self.assertRaisesRegex(ValueError,'two-attempt'):
+            self.submit(FakeClient(),other,self.request('replacement'),self.root/'replacement')
+    def test_item_collection_accepts_only_owned_item_namespace(self):
+        token='collected';request=self.request(token);client=FakeClient();job=self.root/'job'
+        self.submit(client,self.ledger,request,job)
+        output=self.root/'output';folder=output/'itemkit'/token;folder.mkdir(parents=True)
+        (folder/'mesh.glb').write_bytes(b'geometry fixture')
+        client.request=lambda *args,**kwargs:{'prompt-1':{'status':{'status_str':'success'},'outputs':{'1':{'files':[
+            {'filename':'mesh.glb','subfolder':'itemkit/'+token,'type':'output'}]}}}}
+        result=comfy.collect(client,self.ledger,token,output,job)
+        self.assertEqual(len(result['outputs']),1)
+
+
+class CollectionReceiptTests(Temporary):
+    def fixture(self,server_owned=False):
+        base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
+        source=base/'input';source.write_text('frozen input');ledger=base/'ledger.json';job=base/'job';output=base/'comfy-output';token='collect-test'
+        prepared=self.freeze_request({'token':token,'stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(source)]})
+        if server_owned:
+            prepared['runtimeVerification']='server-owned'
+            server_file=prepared['comfyRuntimeIdentity']['torch']['path']
+            prepared['inputs']=[row for row in prepared['inputs'] if row['path']!=server_file]
+        comfy.initialize_ledger(ledger,0,'Reconciled fixture');client=FakeClient();self.submit(client,ledger,prepared,job)
+        artifact=output/'headkit'/token/'mesh.glb';artifact.parent.mkdir(parents=True);artifact.write_bytes(b'exported fixture')
+        history={'status':{'status_str':'success'},'prompt':[0,'prompt-1',{},{'headkitToken':token}],
+                 'outputs':{'1':{'files':[{'filename':'mesh.glb','subfolder':'headkit/'+token,'type':'output'}]}}}
+        client.request=lambda route,data=None: (client.server_runtime if route=='/headkit/runtime-identity' else
+            {'devices':[]} if route=='/system_stats' else {'prompt-1':history})
+        return client,ledger,token,output,job,artifact
+    def test_server_owned_runtime_is_checked_once_at_fresh_completion_only(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        with patch.object(comfy,'verify_comfy_runtime',wraps=comfy.verify_comfy_runtime) as runtime:
+            result=comfy.collect(client,ledger,token,output,job)
+            self.assertEqual(result['state'],'complete');runtime.assert_called_once()
+            with patch.object(client,'request',side_effect=AssertionError('Terminal receipts must not repoll')):
+                self.assertEqual(comfy.collect(client,ledger,token,output,job),result)
+            runtime.assert_called_once()
+    def test_changed_server_owned_runtime_fails_collection_and_preserves_receipt(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        changed=copy.deepcopy(client.server_runtime);path=Path(changed['torch']['path']);path.write_bytes(b'changed server dependency')
+        changed['torch']['sha256']=pin(path)['sha256']
+        for row in changed['files']:
+            if row['path']==str(path):row['sha256']=changed['torch']['sha256']
+        changed['fingerprint']=digest({key:value for key,value in changed.items() if key!='fingerprint'})
+        client.server_runtime=changed
+        with self.assertRaisesRegex(ValueError,'runtime differs'):comfy.collect(client,ledger,token,output,job)
+        result=read(job/'collection.json');self.assertEqual(result['state'],'failed-validation')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
+        with patch.object(client,'request',side_effect=AssertionError('Failed receipt must not repoll')):
+            self.assertEqual(comfy.collect(client,ledger,token,output,job),result)
+    def test_lost_connection_at_completion_stays_collectable(self):
+        import http.client,urllib.error
+        for lost in (urllib.error.URLError('refused'),TimeoutError('slow read'),http.client.RemoteDisconnected('closed')):
+            with self.subTest(lost=type(lost).__name__):
+                client,ledger,token,output,job,_=self.fixture(server_owned=True);answer=client.request
+                def unavailable(route,data=None):
+                    if route=='/headkit/runtime-identity':raise lost
+                    return answer(route,data)
+                with patch.object(client,'request',unavailable):
+                    with self.assertRaisesRegex(comfy.CollectionInterrupted,'job remains unresolved'):
+                        comfy.collect(client,ledger,token,output,job)
+                self.assertEqual(read(ledger)['jobs'][0]['state'],'submitted')
+                self.assertFalse((job/'collection.json').exists())
+                # The restarted server no longer has the prompt; the retained history still resumes it.
+                new=copy.deepcopy(client.server_runtime);new['session'].update(id='b'*32,pid=new['session']['pid']+1)
+                new['fingerprint']=digest({key:value for key,value in new.items() if key!='fingerprint'})
+                def restarted(route,data=None):
+                    return new if route=='/headkit/runtime-identity' else {} if route.startswith('/history/') else answer(route,data)
+                with patch.object(client,'request',restarted):
+                    result=comfy.collect(client,ledger,token,output,job)
+                self.assertEqual(result['state'],'complete');self.assertEqual(result['completionRuntime']['session']['id'],'b'*32)
+    def interrupted_then_restarted(self,change):
+        import urllib.error
+        client,ledger,token,output,job,_=self.fixture(server_owned=True);answer=client.request
+        def unavailable(route,data=None):
+            if route=='/headkit/runtime-identity':raise urllib.error.URLError('refused')
+            return answer(route,data)
+        with patch.object(client,'request',unavailable),self.assertRaises(comfy.CollectionInterrupted):
+            comfy.collect(client,ledger,token,output,job)
+        new=copy.deepcopy(client.server_runtime);change(new,job)
+        new['session'].update(id='b'*32);new['fingerprint']=digest({key:value for key,value in new.items() if key!='fingerprint'})
+        def restarted(route,data=None):
+            return new if route=='/headkit/runtime-identity' else {} if route.startswith('/history/') else answer(route,data)
+        with patch.object(client,'request',restarted):return comfy.collect,(client,ledger,token,output,job),restarted,client
+    def test_restart_with_another_deployment_stays_terminal(self):
+        def change(new,job):
+            path=Path(new['torch']['path']);path.write_bytes(b'changed server dependency');new['torch']['sha256']=pin(path)['sha256']
+            for row in new['files']:
+                if row['path']==str(path):row['sha256']=new['torch']['sha256']
+        collect,arguments,restarted,client=self.interrupted_then_restarted(change)
+        with patch.object(client,'request',restarted),self.assertRaisesRegex(ValueError,'runtime differs'):collect(*arguments)
+        self.assertEqual(read(arguments[1])['jobs'][0]['state'],'failed-validation')
+    def test_retained_history_of_another_job_is_refused(self):
+        collect,arguments,restarted,client=self.interrupted_then_restarted(lambda new,job:None)
+        job=arguments[4];history=read(job/'history.json');history['prompt'][3]['headkitToken']='other-job';(job/'history.json').write_text(json.dumps(history))
+        with patch.object(client,'request',restarted),self.assertRaisesRegex(ValueError,'does not belong to this job'):collect(*arguments)
+        self.assertEqual(read(arguments[1])['jobs'][0]['state'],'submitted');self.assertFalse((job/'collection.json').exists())
+    def test_wrong_collection_folder_leaves_the_job_collectable(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True);wrong=job.parent/'mistyped-job'
+        with self.assertRaisesRegex(ValueError,'Use the job directory given to submit'):comfy.collect(client,ledger,token,output,wrong)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'submitted');self.assertFalse(wrong.exists())
+        self.assertEqual(comfy.collect(client,ledger,token,output,job)['state'],'complete')
+    def test_server_answers_at_completion_remain_terminal(self):
+        import io,urllib.error
+        client,ledger,token,output,job,_=self.fixture(server_owned=True);answer=client.request
+        def refused(route,data=None):
+            if route=='/headkit/runtime-identity':
+                raise urllib.error.HTTPError(route,409,'Conflict',{},io.BytesIO(b'mismatch'))
+            return answer(route,data)
+        with patch.object(client,'request',refused):
+            with self.assertRaises(urllib.error.HTTPError):comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(read(job/'collection.json')['state'],'failed-validation')
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
+    def test_local_file_failure_at_completion_remains_terminal(self):
+        client,ledger,token,output,job,_=self.fixture(server_owned=True)
+        with patch.object(comfy,'verify_comfy_runtime',side_effect=FileNotFoundError('binding')):
+            with self.assertRaises(FileNotFoundError):comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(read(ledger)['jobs'][0]['state'],'failed-validation')
+    def test_repeat_collection_reuses_verified_receipt_without_server_or_writes(self):
+        client,ledger,token,output,job,artifact=self.fixture();first=comfy.collect(client,ledger,token,output,job,wait=True)
+        paths=[ledger,job/'history.json',job/'memory-samples.json',job/'collection.json'];before=[p.read_bytes() for p in paths]
+        with patch.object(client,'request',side_effect=AssertionError('terminal collection must not poll')):
+            self.assertEqual(comfy.collect(client,ledger,token,output,job),first)
+        self.assertEqual([p.read_bytes() for p in paths],before);self.assertEqual(read(ledger)['jobs'][0]['collection'],pin(job/'collection.json'))
+    def test_partial_history_and_memory_evidence_resume_without_overwrite(self):
+        client,ledger,token,output,job,_=self.fixture()
+        history=client.request('/history/prompt-1')['prompt-1']
+        write(job/'history.json',history)
+        write(job/'memory-samples.json',{'samples':[{'timestamp':1.0,'devices':[]}],
+              'scope':'collect monitoring window only; sampled device occupancy, not exact process peak'})
+        before=[(job/name).read_bytes() for name in ('history.json','memory-samples.json')]
+        result=comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(result['state'],'complete')
+        self.assertEqual(before,[(job/name).read_bytes() for name in ('history.json','memory-samples.json')])
+        self.assertEqual(read(ledger)['jobs'][0]['collection'],pin(job/'collection.json'))
+    def test_changed_terminal_evidence_or_output_cannot_be_reused(self):
+        for name in ('history.json','memory-samples.json','collection.json','artifact'):
+            with self.subTest(name=name):
+                client,ledger,token,output,job,artifact=self.fixture();comfy.collect(client,ledger,token,output,job)
+                target=artifact if name=='artifact' else job/name;target.write_bytes(b'changed')
+                with patch.object(client,'request',side_effect=AssertionError('must not overwrite from server')):
+                    with self.assertRaisesRegex(ValueError,'Stale file pin'):comfy.collect(client,ledger,token,output,job)
+                self.assertEqual(target.read_bytes(),b'changed')
+    def test_unpinned_terminal_receipt_is_preserved_and_submitted_partial_receipt_recovers(self):
+        client,ledger,token,output,job,_=self.fixture();comfy.collect(client,ledger,token,output,job)
+        state=read(ledger);state['jobs'][0].pop('collection');write(ledger,state)
+        before={p.name:p.read_bytes() for p in job.iterdir() if p.is_file()}
+        with patch.object(client,'request',side_effect=AssertionError('terminal must not poll')):
+            with self.assertRaisesRegex(ValueError,'historical evidence'):comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(before,{p.name:p.read_bytes() for p in job.iterdir() if p.is_file()})
+        state['jobs'][0]['state']='submitted';write(ledger,state)
+        recovered=comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(recovered['state'],'complete')
+        self.assertEqual(read(ledger)['jobs'][0]['collection'],pin(job/'collection.json'))
+        self.assertEqual(before,{p.name:p.read_bytes() for p in job.iterdir() if p.is_file()})
+    def test_terminal_collection_requires_its_original_directory(self):
+        client,ledger,token,output,job,_=self.fixture();comfy.collect(client,ledger,token,output,job)
+        with self.assertRaisesRegex(ValueError,'original collection directory'):comfy.collect(client,ledger,token,output,job.parent/'other')
+    def test_failed_server_job_receipt_is_reused_without_repoll(self):
+        client,ledger,token,output,job,_=self.fixture();client.request=lambda route,data=None: {'prompt-1':{'status':{'status_str':'error'},'outputs':{}}}
+        first=comfy.collect(client,ledger,token,output,job);self.assertEqual(first['state'],'failed')
+        with patch.object(client,'request',side_effect=AssertionError('failed job must not poll')):
+            self.assertEqual(comfy.collect(client,ledger,token,output,job),first)
+    def test_failed_validation_receipt_is_also_immutable(self):
+        client,ledger,token,output,job,_=self.fixture();client.request=lambda route,data=None: {'prompt-1':{'status':{'status_str':'success'},'outputs':{}}}
+        with self.assertRaisesRegex(ValueError,'No exported files'):comfy.collect(client,ledger,token,output,job)
+        before=(job/'collection.json').read_bytes()
+        with patch.object(client,'request',side_effect=AssertionError('failed terminal receipt must not poll')):
+            result=comfy.collect(client,ledger,token,output,job)
+        self.assertEqual(result['state'],'failed-validation');self.assertEqual((job/'collection.json').read_bytes(),before)
+
+
+class ReleaseTests(Temporary):
+    def fixture(self):
+        ledger=self.root/'ledger.json';comfy.initialize_ledger(ledger,0,'Reconciled test ledger')
+        request=self.freeze_request({'token':'release-race','stage':'geometry','prompt':{'1':{'class_type':'Example','inputs':{}}},'inputs':[pin(self.file('input'))]})
+        return ledger,request
+    def test_release_holds_submission_lock_through_idle_check_and_free(self):
+        ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient();events=[]
+        def blocked_submit():
+            with self.assertRaises(FileExistsError):self.submit(submitter,ledger,request,self.root/'job')
+            self.assertEqual(submitter.posts,0)
+        def idle():events.append('idle');blocked_submit();return True
+        def free(route,data=None):
+            self.assertEqual(route,'/free');self.assertEqual(data,{'unload_models':True,'free_memory':True})
+            events.append('free');blocked_submit();return {'freed':True}
+        releaser.idle=idle;releaser.request=free
+        self.assertEqual(comfy.release(releaser,ledger),{'freed':True});self.assertEqual(events,['idle','free'])
+        if os.name!='nt':self.assertTrue(Path(str(ledger)+'.lock').exists())
+        self.submit(submitter,ledger,request,self.root/'job');self.assertEqual(submitter.posts,1)
+    def test_submission_holds_same_lock_against_release(self):
+        ledger,request=self.fixture();submitter=FakeClient();releaser=FakeClient()
+        with patch.object(releaser,'request') as free:
+            def idle():
+                with self.assertRaises(FileExistsError):comfy.release(releaser,ledger)
+                return True
+            submitter.idle=idle;self.submit(submitter,ledger,request,self.root/'job');free.assert_not_called()
+    def test_busy_queue_or_unreconciled_jobs_never_free_models(self):
+        ledger,_=self.fixture();client=FakeClient()
+        with patch.object(client,'request') as free:
+            for state in ('intent','submitted','timed-out'):
+                write(ledger,dict(read(ledger),jobs=[{'state':state}]))
+                with self.assertRaisesRegex(ValueError,'Reconcile'):comfy.release(client,ledger)
+            write(ledger,dict(read(ledger),jobs=[]))
+            with patch.object(client,'idle',return_value=False):
+                with self.assertRaisesRegex(ValueError,'not idle'):comfy.release(client,ledger)
+            free.assert_not_called()
+    def test_failed_release_releases_os_lock_but_keeps_stable_sidecar(self):
+        ledger,_=self.fixture();client=FakeClient()
+        with patch.object(client,'idle',side_effect=OSError('offline')):
+            with self.assertRaises(OSError):comfy.release(client,ledger)
+        if os.name!='nt':self.assertTrue(Path(str(ledger)+'.lock').exists())
+        self.assertEqual(comfy.release(client,ledger),{})
+
+
+class NativeShadeTests(Temporary):
+    def test_published_troll_allowance_is_sex_specific_and_applied_once(self):
+        from headkit.native import COMPACT_TROLL_FIT_SHA256, troll_build_allowance
+        policy = Path(__file__).resolve().parents[2]/'docs/heads/troll-build-allowance-r3.json'
+        data = json.loads(policy.read_text())
+        for prefix, expected in [('pmg0', 1.5), ('pfg0', 1.0729)]:
+            released = next(row for row in data['heads'] if Path(row['path']).stem.startswith(prefix))
+            for digest, factor in [(COMPACT_TROLL_FIT_SHA256[prefix], expected),
+                                   (released['fromSHA256'], expected), (released['sha256'], 1.0)]:
+                with patch('headkit.native.pin', return_value={'sha256': digest}):
+                    self.assertEqual(troll_build_allowance(policy, 'reference', prefix+'_head099')['scale'], factor)
+        with patch('headkit.native.pin', return_value={'sha256': '0'*64}), self.assertRaisesRegex(ValueError, 'Unknown fit reference'):
+            troll_build_allowance(policy, 'reference', 'pmg0_head033')
+
+    def test_reserved_shade_255_is_rejected_before_export_work(self):
+        from headkit.native import prepare
+        shades=np.zeros((1024,1024),np.uint8);shades[400,500]=255;Image.fromarray(shades).save(self.root/'shades.png')
+        with patch('headkit.native.helpers') as helpers:
+            with self.assertRaisesRegex(ValueError,'Reserved PLT shade 255'):prepare('unused',self.root/'shades.png','unused',{},'head',self.root/'export')
+            helpers.assert_not_called();self.assertFalse((self.root/'export').exists())
+    def test_imported_shades_must_be_native_1k_grayscale_bytes(self):
+        from headkit.native import prepare
+        for index,image in enumerate((Image.new('L',(512,512)),Image.new('RGB',(1024,1024)),Image.new('I;16',(1024,1024),1000))):
+            path=self.root/f'shades-{index}.png';image.save(path)
+            with self.assertRaisesRegex(ValueError,'1K eight-bit grayscale'):prepare('unused',path,'unused',{},'head',self.root/'export')
+    def test_valid_imported_extreme_shades_and_accessory_layers_survive_export(self):
+        from headkit.native import prepare
+        p,f=MeshTests.tetra(self);source=self.root/'mesh.glb';uv=np.tile([[.1,.1],[.9,.1],[.1,.9]],(4,1,1));write_mesh(source,p,f,uv)
+        shades=np.zeros((1024,1024),np.uint8);shades[:512]=254;Image.fromarray(shades).save(self.root/'shades.png');Image.new('L',(1024,1024),8).save(self.root/'layers.png')
+        fit={'matrix':np.eye(4).tolist(),'reviewed':True,'sourceSha256':pin(source)['sha256']}
+        result=prepare(source,self.root/'shades.png',self.root/'layers.png',fit,'head',self.root/'export')
+        payload=Path(result['plt']['path']).read_bytes();pixels=np.frombuffer(payload[24:],np.uint8).reshape(1024,1024,2)[::-1]
+        np.testing.assert_array_equal(pixels[...,0],shades);self.assertTrue(np.all(pixels[...,1]==8))
+
+
+class ImportedUvTests(Temporary):
+    def test_shared_import_audit_enforces_coverage_gutters_and_fragmentation(self):
+        from headkit.uv import audit_imported_uvs
+        value={'uv':np.zeros((1,3,2)),'faces':np.array([[0,1,2]])}
+        good={'overlapFaces':[],'degenerateUvFaces':[],'unmappedUvFaces':[],'coverageFraction':.5}
+        for case,message in (('coverage','coverage'),('gutters','gutters'),('charts','fragmentation')):
+            with self.subTest(case=case),patch('headkit.uv.raster_audit',return_value=(dict(good,coverageFraction=.1) if case=='coverage' else good,None)),patch(
+                    'headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':int(case=='gutters')}}),patch(
+                    'headkit.uv.chart_ids',return_value=np.arange(257) if case=='charts' else np.array([0])):
+                with self.assertRaisesRegex(ValueError,message):audit_imported_uvs(value)
+        with patch('headkit.uv.raster_audit',return_value=(good,None)) as raster,patch(
+                'headkit.uv.gutter_audit',return_value={'nearbyChartPixelsByRadius':{'1':0}}) as gutters:
+            result=audit_imported_uvs(value)
+        self.assertEqual([call.args[1] for call in raster.call_args_list],[4096,2048,1024])
+        self.assertEqual([call.args[1] for call in gutters.call_args_list],[4096,2048,1024])
+        self.assertEqual(set(result['audits']),{'4096','2048','1024'})
+        self.assertTrue(result['visualReviewRequired'])
+
+    def test_replay_rejects_uv_overlap_before_native_preparation(self):
+        from headkit.replay import replay
+        p,f=MeshTests.tetra(self);source=self.root/'overlap.glb'
+        write_mesh(source,p,f,np.tile([[.1,.1],[.9,.1],[.1,.9]],(4,1,1)))
+        config=ReplayPinTests.fixture(self);config['source']=str(source);config['inputs'].append(pin(source))
+        with patch('headkit.replay.prepare',side_effect=AssertionError('Overlapping replay reached export')) as prepare:
+            with self.assertRaisesRegex(ValueError,'failed UV audit'):replay(config,self.root/'rejected')
+            prepare.assert_not_called()
+        self.assertFalse((self.root/'rejected'/'replay.json').exists())
+
+
+class ReplayPinTests(Temporary):
+    def fixture(self):
+        paths={name:str(self.file(name+'.dat',name)) for name in ('source','shades','layers','binary','expectedPlt')}
+        return dict(paths,id='retained',model='pfg0_head092',fit={},inputs=[pin(p) for p in paths.values()])
+    def replay(self,config,output,changed=None,geometry=None):
+        from headkit.replay import replay
+        def prepare(source,shades,layers,fit,model,folder):
+            folder.mkdir();plt=folder/'head.plt';plt.write_bytes(Path(config['expectedPlt']).read_bytes())
+            expected=folder/'expected.npz';expected.write_bytes(b'fixture');return {'plt':pin(plt),'expected':pin(expected)}
+        def native(*args):
+            if changed:Path(config[changed]).write_text('changed during processing')
+            return b'sanitized-native',{'verified':True}
+        with ExitStack() as stack:
+            geometry=geometry or {'topology':{'triangles':20000,'closed':True},'crossings':{'complete':True,'pairs':[]},'passed':True}
+            geometry_audit=stack.enter_context(patch('headkit.replay.audit',return_value=geometry))
+            stack.enter_context(patch('headkit.replay.mesh',return_value={}))
+            stack.enter_context(patch('headkit.replay.audit_imported_uvs',return_value={'imported':True,'audits':{}}))
+            stack.enter_context(patch('headkit.replay.prepare',side_effect=prepare))
+            stack.enter_context(patch('headkit.replay.audit_native',side_effect=native))
+            result=replay(config,output)
+            geometry_audit.assert_called_once_with(str(Path(config['source']).resolve()))
+            return result
+    def test_missing_each_consumed_pin_fails_before_processing(self):
+        from headkit.replay import replay
+        for role in ('source','shades','layers','binary','expectedPlt'):
+            config=self.fixture();config['inputs']=[p for p in config['inputs'] if Path(p['path']).resolve()!=Path(config[role]).resolve()]
+            self.assertEqual(len(config['inputs']),4)
+            with patch('headkit.replay.audit') as geometry_audit:
+                with self.assertRaisesRegex(ValueError,'Missing replay input pin: '+role):replay(config,self.root/'missing')
+                geometry_audit.assert_not_called();self.assertFalse((self.root/'missing').exists())
+    def test_unrelated_pins_do_not_qualify_consumed_artifacts(self):
+        config=self.fixture();config['inputs']=[pin(self.file('unrelated'))]
+        with self.assertRaisesRegex(ValueError,'Missing replay input pin'):self.replay(config,self.root/'unrelated-output')
+    def test_resolved_role_pins_are_recorded_without_repinning_consumed_bytes(self):
+        config=self.fixture();original=copy.deepcopy(config['inputs']);(self.root/'alias').mkdir()
+        config['source']=str(self.root/'alias'/'..'/'source.dat')
+        result=self.replay(config,self.root/'valid');self.assertEqual(read(self.root/'valid'/'replay.json'),result)
+        self.assertEqual(set(result['consumedInputs']),{'source','shades','layers','binary','expectedPlt'})
+        self.assertEqual(result['source'],original[0]);self.assertEqual(config['inputs'],original)
+    def test_every_consumed_artifact_is_reverified_after_processing(self):
+        for role in ('source','shades','layers','binary','expectedPlt'):
+            config=self.fixture();output=self.root/('changed-'+role)
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):self.replay(config,output,changed=role)
+            self.assertFalse((output/'replay.json').exists())
+    def test_conflicting_duplicate_pins_and_stale_input_are_rejected(self):
+        config=self.fixture();config['inputs'].append(dict(config['inputs'][0],sha256='0'*64))
+        with self.assertRaisesRegex(ValueError,'Conflicting replay input pins'):self.replay(config,self.root/'conflict')
+        config=self.fixture();Path(config['binary']).write_text('changed before replay')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):self.replay(config,self.root/'stale')
+
+
+class ReplayGeometryTests(Temporary):
+    def test_closed_crossing_components_fail_before_native_preparation(self):
+        from headkit.replay import replay
+        p,f=MeshTests.tetra(self)
+        source=self.root/'crossing.glb'
+        write_mesh(source,np.concatenate((p,p+[.2,.2,.2])),np.concatenate((f,f+len(p))))
+        self.assertTrue(topology(mesh(source)['positions'],mesh(source)['faces'])['closed'])
+        report=audit(source)
+        self.assertTrue(report['crossings']['complete'])
+        self.assertTrue(report['crossings']['pairs'])
+        config=ReplayPinTests.fixture(self);config['source']=str(source);config['inputs'].append(pin(source))
+        output=self.root/'rejected'
+        with patch('headkit.replay.prepare',side_effect=AssertionError('Crossing source reached native preparation')) as prepare:
+            with self.assertRaisesRegex(ValueError,'topology/collision audit'):replay(config,output)
+            prepare.assert_not_called()
+        self.assertFalse((output/'replay.json').exists())
+        self.assertFalse((output/(config['model']+'.mdl')).exists())
+
+    def test_incomplete_audit_and_overbudget_source_cannot_reach_export(self):
+        from headkit.replay import replay
+        cases=[
+            ({'topology':{'triangles':8,'closed':True},'crossings':{'complete':False,'pairs':[]},'passed':False},'topology/collision audit'),
+            ({'topology':{'triangles':20001,'closed':True},'crossings':{'complete':True,'pairs':[]},'passed':True},'closed 20K profile'),
+        ]
+        for index,(geometry,message) in enumerate(cases):
+            with self.subTest(case=index):
+                config=ReplayPinTests.fixture(self);output=self.root/str(index)
+                with patch('headkit.replay.audit',return_value=geometry),patch('headkit.replay.prepare') as prepare:
+                    with self.assertRaisesRegex(ValueError,message):replay(config,output)
+                    prepare.assert_not_called()
+                self.assertEqual(read(output/'geometry-audit.json'),geometry)
+                self.assertFalse((output/'replay.json').exists())
+
+    def test_valid_replay_retains_full_geometry_audit_evidence(self):
+        p,f=MeshTests.tetra(self);source=self.root/'valid.glb';write_mesh(source,p,f)
+        geometry=audit(source);self.assertTrue(geometry['passed'])
+        config=ReplayPinTests.fixture(self);config['source']=str(source);config['inputs'].append(pin(source))
+        result=ReplayPinTests.replay(self,config,self.root/'valid',geometry=geometry)
+        self.assertEqual(result['topology'],geometry['topology'])
+        self.assertEqual(result['geometryAudit'],pin(self.root/'valid'/'geometry-audit.json'))
+        self.assertEqual(read(result['geometryAudit']['path']),geometry)
+        self.assertFalse(result['generationPerformed']);self.assertFalse(result['repairPerformed'])
+
+
+class ResumeTests(Temporary):
+    def fixture(self):
+        alignment=self.pair();inputs={name:{'path':name+'.png','sha256':pin(self.root/(name+'.png'))['sha256']} for name in ['clay','detail']}
+        data={'schemaVersion':1,'id':'synthetic','inputs':inputs,'alignment':alignment,'features':[{'name':'hair','placementReviewed':True}],
+              'approval':{'referenceDesignReviewed':True}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def test_resume_reuses_only_verified_outputs(self):
+        runner=self.fixture();first=runner.execute('prepare');self.assertFalse(first['reused']);self.assertTrue(runner.execute('prepare')['reused'])
+        image=Path(first['result']['images']['geometry-pair.png']['path']);image.write_bytes(b'changed')
+        self.assertIn('staleOrFailed',runner.status()['stages']['prepare']);self.assertFalse(runner.execute('prepare')['reused'])
+    def unused_field(self):
+        # A large manifest input that prepare never reads.
+        field=self.file('field.npz','generated field');data=read(self.root/'manifest.json')
+        data['inputs']['field']={'path':'field.npz','sha256':pin(field)['sha256']};write(self.root/'manifest.json',data)
+        return field
+    def test_receipt_pins_only_the_inputs_a_stage_read(self):
+        runner=self.fixture();field=self.unused_field()
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run');runner.execute('prepare')
+        receipt=read(runner.state['stages']['prepare']['path']);paths={p['path'] for p in receipt['inputs']}
+        self.assertIn(str((self.root/'clay.png').resolve()),paths);self.assertIn(str((self.root/'detail.png').resolve()),paths)
+        self.assertNotIn(str(field.resolve()),paths)
+    def test_reading_undeclared_input_or_library_fails_the_stage(self):
+        from headkit import common
+        runner=self.fixture();self.unused_field()
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+        data=read(self.root/'manifest.json');data['inputs']['raw']=data['inputs'].pop('field');write(self.root/'manifest.json',data)
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:(runner.input('raw'),{})[1]):
+            with self.assertRaisesRegex(ValueError,'undeclared manifest inputs: raw'):runner.execute('prepare')
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:(common.LIBRARIES_USED.add('xatlas'),{})[1]):
+            with self.assertRaisesRegex(ValueError,'undeclared libraries: xatlas'):runner.execute('prepare')
+        self.assertIsNone(common.LIBRARIES_USED)
+    def test_upstream_check_hashes_each_file_once(self):
+        from headkit import common
+        runner=self.fixture();runner.execute('prepare');runner.review('prepare','approved','synthetic pair reviewed')
+        receipt=read(runner.state['stages']['prepare']['path']);output=receipt['outputs'][0]
+        calls=[];real=common.sha
+        with patch('headkit.common.sha',side_effect=lambda path,**kw:(calls.append(str(path)),real(path,**kw))[1]):
+            runner._verified=set();runner._verify([output,output]);runner._verify([output])
+            self.assertEqual(calls.count(output['path']),1)
+            runner.result('prepare');runner.result('prepare')
+        # Each top-level check starts a fresh memo, so a file changed between checks is still caught.
+        self.assertEqual(calls.count(output['path']),3)
+        Path(output['path']).write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
+    def test_file_hashes_are_reused_only_while_the_file_is_unchanged(self):
+        from headkit import common
+        path=self.file('cached.bin','first');old=time.time()-60;os.utime(path,(old,old));first=common.sha(path);reads=[]
+        real=Path.open
+        with patch('pathlib.Path.open',autospec=True,side_effect=lambda self,*a,**k:(reads.append(str(self)),real(self,*a,**k))[1]):
+            self.assertEqual(common.sha(path),first);self.assertEqual(reads,[])
+            self.assertEqual(common.sha(path,fresh=True),first);self.assertEqual(len(reads),1)
+            path.write_text('second, longer');reads.clear();self.assertNotEqual(common.sha(path),first);self.assertEqual(len(reads),1)
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):common.verify([{'path':str(path),'sha256':first}])
+        racy=self.file('racy.bin','aaaa');racy_digest=common.sha(racy);racy.write_text('bbbb')  # same size, same tick
+        self.assertNotEqual(common.sha(racy),racy_digest)
+    def test_launch_inputs_cover_only_the_launched_stages(self):
+        from headkit.__main__ import main
+        self.fixture();field=self.unused_field();listed={}
+        for name,extra in (('all',[]),('prepare',['--stages','prepare'])):
+            output=self.root/f'inputs-{name}.json'
+            with patch('sys.argv',['headkit','inputs','--manifest',str(self.root/'manifest.json'),'--bindings',str(self.root/'bindings.json'),
+                  '--output',str(output),'--run',str(self.root/'run'),*extra]),patch('builtins.print'):main()
+            listed[name]=read(output)
+        self.assertIn(str(field.resolve()),listed['all']);self.assertNotIn(str(field.resolve()),listed['prepare'])
+        self.assertIn(str((self.root/'clay.png').resolve()),listed['prepare'])
+    def test_reviewed_uv_reuse_needs_no_xatlas_binding(self):
+        from headkit.__main__ import main
+        from headkit.runner import stage_libraries
+        self.fixture();data=read(self.root/'manifest.json');self.assertEqual(stage_libraries('unwrap',data),{'xatlas'})
+        data['mesh']={'reuseReviewedUvs':True};write(self.root/'manifest.json',data);self.assertEqual(stage_libraries('unwrap',data),set())
+        output=self.root/'inputs-unwrap.json'
+        with patch('sys.argv',['headkit','inputs','--manifest',str(self.root/'manifest.json'),'--bindings',str(self.root/'bindings.json'),
+              '--output',str(output),'--run',str(self.root/'run'),'--stages','unwrap']),patch('builtins.print'):main()
+        self.assertTrue(output.exists())
+    def test_two_failures_are_retained_and_block_third(self):
+        runner=self.fixture()
+        for _ in range(2):
+            with self.assertRaises(ValueError):runner.execute('repair')
+        with self.assertRaisesRegex(ValueError,'Two stage failures'):runner.execute('repair')
+        self.assertEqual(len(list((self.root/'run'/'repair').glob('attempt-*/receipt.json'))),2)
+    def test_serialization_failure_retains_a_failed_receipt(self):
+        runner=self.fixture()
+        with patch.object(runner,'_execute',return_value={'invalid':float('nan')}):
+            with self.assertRaises(ValueError):runner.execute('prepare')
+        self.assertEqual(read(self.root/'run'/'prepare'/'attempt-01'/'receipt.json')['state'],'failed')
+    def test_failed_receipt_keeps_the_stage_repair_attempts(self):
+        runner=self.fixture();error=ValueError('UV still has 3 bad faces after 10 pack-only repair rounds')
+        error.attempts=[{'round':0,'badFaceCount':34,'atlasDimensions':[2507,2516]}]
+        with patch.object(runner,'_execute',side_effect=error),self.assertRaisesRegex(ValueError,'3 bad faces'):runner.execute('prepare')
+        failed=read(self.root/'run'/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual((failed['state'],failed['attempts']),('failed',error.attempts))
+        runner.execute('prepare');self.assertNotIn('attempts',read(self.root/'run'/'prepare'/'attempt-02'/'receipt.json'))
+        # An attempt log that cannot serialise is noted instead of losing the failed receipt.
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run-b');error.attempts=[{'bad':float('nan')}]
+        with patch.object(runner,'_execute',side_effect=error),self.assertRaises(ValueError):runner.execute('prepare')
+        failed=read(self.root/'run-b'/'prepare'/'attempt-01'/'receipt.json')
+        self.assertEqual(failed['state'],'failed');self.assertIn('unserializable',failed['attempts'])
+    def test_portable_paths_reject_escape(self):
+        with self.assertRaises(ValueError):asset(self.root/'manifest.json',{'path':'../escape','sha256':'0'*64})
+
+
+class ImportedOwnershipTests(Temporary):
+    def fixture(self,derived_uv=False):
+        base=self.root/f'case-{len(list(self.root.glob("case-*")))}';base.mkdir()
+        uv=base/'uv.glb';uv.write_text('frozen UV mesh');inputs={}
+        for role,mode,size in [('ownership1k','L',1024),('ownership4k','L',4096),('runtimeColor','RGB',1024),('basecolor4k','RGB',4096),('runtimeShades','L',1024),('detail','RGB',1024)]:
+            path=base/(role+'.png');Image.new(mode,(size,size)).save(path);inputs[role]={'path':path.name,'sha256':pin(path)['sha256']}
+        inputs['repairedMesh' if derived_uv else 'uvMesh']={'path':uv.name,'sha256':pin(uv)['sha256']}
+        data={'schemaVersion':1,'id':'ownership-binding','inputs':inputs,'ownership':{'reviewed':True,'sourceSha256':pin(uv)['sha256']},
+              'palette':{'inputs':{},'rows':{}},'tone':{},'fit':{'model':'head'}}
+        data['approval']={'textureMaps':{role:{'decision':'approved','notes':'Reviewed atlas on this exact mesh',
+            'sourceSha256':pin(uv)['sha256'],'textureSha256':inputs[role]['sha256']}
+            for role in ('basecolor4k','runtimeColor','runtimeShades')}}
+        write(base/'manifest.json',data);write(base/'bindings.json',self.bindings_data(tools_root=base))
+        return Runner(base/'manifest.json',base/'bindings.json',base/'run')
+    def test_paint_on_imported_textures_binds_their_approvals(self):
+        runner=self.fixture();data=read(runner.manifest_path);data['paint']={'operations':[]};write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('paint'),[])
+        before=runner.manifest_digest('paint')
+        # Paint has no upstream stage here, so only its own digest can notice a revoked texture approval.
+        data['approval']['textureMaps']['basecolor4k']['decision']='rejected';write(runner.manifest_path,data)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('paint'),before)
+    def test_imported_mesh_audit_blocks_export_and_records_passed_evidence(self):
+        runner=self.fixture();source=runner.input('uvMesh')
+        rejected={'source':pin(source),'passed':False,'topology':{'closed':False},
+                  'crossings':{'complete':True,'pairs':[]}}
+        with patch('headkit.mesh.audit',return_value=rejected) as audit, patch('headkit.native.prepare') as prepare:
+            with self.assertRaisesRegex(ValueError,'Imported mesh failed topology/collision audit'):
+                runner._execute('export',runner.run)
+            audit.assert_called_once_with(source);prepare.assert_not_called()
+        runner=self.fixture();source=runner.input('uvMesh')
+        accepted={'source':pin(source),'passed':True,'topology':{'closed':True},
+                  'crossings':{'complete':True,'pairs':[]}}
+        uv_report={'imported':True,'audits':{'1024':{'reviewed fixture':True}}}
+        with patch('headkit.mesh.audit',return_value=accepted) as audit, patch('headkit.gltf.mesh',return_value={}), patch(
+                'headkit.uv.audit_imported_uvs',return_value=uv_report), patch(
+                'headkit.native.prepare',return_value={'exported':True}) as prepare:
+            result=runner._execute('export',runner.run)
+        audit.assert_called_once_with(source);prepare.assert_called_once()
+        self.assertEqual(read(result['geometryAudit']['path']),accepted)
+        self.assertEqual(read(result['uvAudit']['path']),uv_report)
+
+    def folder(self,name):
+        path=self.root/name;path.mkdir();return path
+    def test_fit_chosen_before_uvs_binds_to_this_runs_reviewed_unwrap(self):
+        uv=self.file('uv.glb','unwrapped mesh');receipt={'path':'unwrap-receipt.json','sha256':'1'*64}
+        def runner(fit,inputs):
+            return SimpleNamespace(data={'inputs':inputs,'fit':fit,'mesh':{}},state={'stages':{'unwrap':receipt}},bindings={},
+                                   source=lambda *args:uv,input=lambda name:uv,_fit=lambda:fit,_staged_fit=lambda:False,
+                                   result=lambda stage:{'shades':{'path':'s.png'},'ownership':{'path':'o.png'}})
+        fit={'matrix':np.eye(4).tolist(),'reviewed':True,'sourceStage':'unwrap','model':'pmg0_head015'}
+        passed={'passed':True}
+        with patch('headkit.mesh.audit',return_value=passed),patch('headkit.native.prepare',return_value={'exported':True}) as prepare:
+            result=Runner._execute(runner(fit,{'repairedMesh':{}}),'export',self.folder('bound'))
+        self.assertEqual(prepare.call_args.args[3]['sourceSha256'],pin(uv)['sha256'])
+        self.assertNotIn('sourceSha256',fit);self.assertEqual(result['fitBinding'],{'sourceStage':'unwrap','unwrapReceipt':receipt})
+        for bad_fit,inputs in ((fit,{'uvMesh':{}}),(dict(fit,sourceSha256='0'*64),{'repairedMesh':{}})):
+            with self.subTest(inputs=sorted(inputs),hashed='sourceSha256' in bad_fit), \
+                 patch('headkit.mesh.audit',return_value=passed),patch('headkit.uv.audit_imported_uvs',return_value={}), \
+                 patch('headkit.gltf.mesh',return_value={}),patch('headkit.native.prepare') as prepare:
+                with self.assertRaisesRegex(ValueError,'own unwrap'):Runner._execute(runner(bad_fit,inputs),'export',self.folder(str(len(inputs))+str(len(bad_fit))))
+                prepare.assert_not_called()
+
+    def test_direct_uv_export_rejects_overlap_degenerate_and_unmapped_faces(self):
+        p,f=MeshTests.tetra(self)
+        good=np.array([[[.02,.02],[.48,.02],[.02,.48]],[[.52,.02],[.98,.02],[.98,.48]],
+                       [[.02,.52],[.48,.98],[.02,.98]],[[.52,.52],[.98,.52],[.98,.98]]])
+        for defect in ('overlap','degenerate','unmapped'):
+            with self.subTest(defect=defect):
+                runner=self.fixture();source=Path(runner.input('uvMesh'));uv=good.copy()
+                if defect=='overlap':uv[0]=uv[1]
+                elif defect=='degenerate':uv[0]=0
+                else:uv[0]=np.array([[.01,.01],[.010001,.01],[.01,.010001]])
+                source=source.with_name('candidate.glb');write_mesh(source,p,f,uv)
+                source_pin=pin(source);runner.data['inputs']['uvMesh']={'path':source.name,'sha256':source_pin['sha256']}
+                runner.data['ownership']['sourceSha256']=source_pin['sha256']
+                for review in runner.data['approval']['textureMaps'].values():review['sourceSha256']=source_pin['sha256']
+                with patch('headkit.mesh.audit',return_value={'passed':True}),patch('headkit.native.prepare',
+                        side_effect=AssertionError('Invalid UVs reached native preparation')) as prepare:
+                    with self.assertRaisesRegex(ValueError,'failed UV audit'):runner._execute('export',runner.run)
+                    prepare.assert_not_called()
+
+    def test_imported_masks_need_review_and_exact_mesh_hash(self):
+        runner=self.fixture();valid=copy.deepcopy(runner.data['ownership'])
+        for config in ({},dict(valid,reviewed=False),dict(valid,sourceSha256='0'*64)):
+            runner.data['ownership']=config
+            for role in ('ownership1k','ownership4k'):
+                with self.subTest(config=config,role=role):
+                    with self.assertRaisesRegex(ValueError,'ownership'):runner.input(role)
+        runner.data['ownership']=valid
+        for role in ('ownership1k','ownership4k'):
+            self.assertEqual(Path(runner.input(role)),Path(asset(runner.manifest_path,runner.data['inputs'][role])['path']))
+    def test_tone_palette_and_direct_export_do_not_consume_unreviewed_masks(self):
+        runner=self.fixture();runner.data['ownership']['reviewed']=False
+        for stage,target in [('tone','headkit.textures.tone_match'),('palette','headkit.palette.quantize'),('export','headkit.native.prepare')]:
+            with self.subTest(stage=stage),patch(target) as operation:
+                with self.assertRaisesRegex(ValueError,'Imported ownership'):runner._execute(stage,runner.run)
+                operation.assert_not_called()
+    def test_imported_masks_require_uv_dependency_when_not_imported(self):
+        runner=self.fixture(derived_uv=True)
+        with patch.object(runner,'_execute') as work:
+            for stage in ('tone','palette'):
+                with self.subTest(stage=stage):
+                    with self.assertRaisesRegex(ValueError,'Stage not completed: unwrap'):runner.execute(stage)
+            work.assert_not_called()
+    def test_cached_palette_tracks_and_respects_unwrap_review(self):
+        runner=self.fixture(derived_uv=True)
+        def unwrap(stage,folder):
+            target=folder/'uv.glb';target.write_text('frozen UV mesh');return {'mesh':pin(target)}
+        with patch.object(runner,'_execute',side_effect=unwrap):runner.execute('unwrap')
+        runner.review('unwrap','approved','Reviewed current UV mesh')
+        with patch('headkit.palette.quantize',return_value={'fixture':True}):runner.execute('palette')
+        runner.review('palette','approved','Reviewed matching ownership')
+        receipt=read(runner.state['stages']['palette']['path']);self.assertIn('unwrap',receipt['dependencies'])
+        runner.review('unwrap','rejected','UV review revoked')
+        with patch('headkit.palette.quantize') as quantizer:
+            with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('palette')
+            quantizer.assert_not_called()
+
+
+
+
+class ImportedTextureTests(Temporary):
+    fixture=ImportedOwnershipTests.fixture
+    def with_render(self):
+        runner=self.fixture();runner.data['inputs']['displayColor']=copy.deepcopy(runner.data['inputs']['runtimeColor'])
+        runner.data['render']={'mapInputs':{'basecolor':'displayColor'},'cameras':{'front':{}}}
+        runner.data['approval']['textureMaps']['displayColor']=copy.deepcopy(runner.data['approval']['textureMaps']['runtimeColor'])
+        return runner
+    def test_each_imported_atlas_needs_approved_exact_texture_and_mesh(self):
+        runner=self.with_render();reviews=runner.data['approval']['textureMaps']
+        for role in ('basecolor4k','runtimeColor','runtimeShades','displayColor'):
+            valid=copy.deepcopy(reviews[role])
+            for invalid in ({},dict(valid,decision='rejected'),dict(valid,notes=' '),dict(valid,sourceSha256='0'*64),dict(valid,textureSha256='0'*64)):
+                with self.subTest(role=role,review=invalid):
+                    reviews[role]=invalid
+                    with self.assertRaisesRegex(ValueError,'Imported texture'):runner.input(role)
+            reviews[role]=valid;self.assertTrue(Path(runner.input(role)).is_file())
+    def test_all_consuming_stages_reject_unreviewed_atlases_before_processing(self):
+        runner=self.with_render()
+        for stage,role,target in [('tone','basecolor4k','headkit.textures.tone_match'),('palette','runtimeColor','headkit.palette.quantize'),
+                                  ('export','runtimeShades','headkit.native.prepare'),('render','displayColor','headkit.review_images.atlas_sets')]:
+            valid=runner.data['approval']['textureMaps'].pop(role)
+            with self.subTest(stage=stage),patch(target) as work:
+                with self.assertRaisesRegex(ValueError,'Imported texture'):runner._execute(stage,runner.run)
+                work.assert_not_called()
+            runner.data['approval']['textureMaps'][role]=valid
+    def test_imported_atlas_rejects_another_active_uv_mesh(self):
+        runner=self.fixture();other=self.file('other-uv.glb');row=pin(other)
+        # Keep all paths portable beneath this fixture's manifest.
+        target=runner.manifest_path.parent/'other.glb';target.write_bytes(other.read_bytes())
+        runner.data['inputs']['uvMesh']={'path':target.name,'sha256':row['sha256']}
+        for role in ('basecolor4k','runtimeColor','runtimeShades'):
+            with self.subTest(role=role):
+                with self.assertRaisesRegex(ValueError,'exact UV mesh'):runner.input(role)
+
+
+class ToneResolutionTests(Temporary):
+    fixture=ImportedOwnershipTests.fixture
+    def one_k_only(self,runner):
+        runner.data['inputs'].pop('ownership4k')
+        path=Path(runner.manifest_path).parent/runner.data['inputs']['ownership1k']['path']
+        labels=(np.arange(1024*1024,dtype=np.uint32).reshape(1024,1024)%10).astype(np.uint8)
+        Image.fromarray(labels,'L').save(path)
+        runner.data['inputs']['ownership1k']['sha256']=pin(path)['sha256']
+        write(runner.manifest_path,runner.data)
+        return labels
+    def test_tone_rejects_lower_resolution_imports_before_matching(self):
+        for color_size,mask_size in ((1024,1024),(2048,2048),(4096,1024),(1024,4096)):
+            runner=self.fixture()
+            for role,size in [('basecolor4k',color_size),('ownership4k',mask_size)]:
+                path=Path(runner.manifest_path).parent/runner.data['inputs'][role]['path']
+                mode='RGB' if role=='basecolor4k' else 'L';Image.new(mode,(size,size)).save(path)
+                runner.data['inputs'][role]['sha256']=pin(path)['sha256']
+                if role=='basecolor4k':runner.data['approval']['textureMaps'][role]['textureSha256']=pin(path)['sha256']
+            with self.subTest(color=color_size,mask=mask_size),patch('headkit.textures.tone_match') as matcher:
+                with self.assertRaisesRegex(ValueError,'Tone inputs must be actual 4096'):runner._execute('tone',runner.run)
+                matcher.assert_not_called();self.assertFalse((runner.run/'tone-2048.png').exists())
+    def test_tone_checks_output_before_derivatives(self):
+        runner=self.fixture()
+        def match(*args):Image.new('RGB',(1024,1024)).save(args[-1]);return {}
+        with patch('headkit.textures.tone_match',side_effect=match):
+            with self.assertRaisesRegex(ValueError,'Tone output must be actual 4096'):runner._execute('tone',runner.run)
+        self.assertFalse((runner.run/'tone-2048.png').exists())
+    def test_4k_tone_produces_only_downsampled_2k_and_1k_maps(self):
+        runner=self.fixture()
+        def match(*args):Image.new('RGB',(4096,4096),(128,96,64)).save(args[-1]);return {'output':pin(args[-1])}
+        with patch('headkit.textures.tone_match',side_effect=match):result=runner._execute('tone',runner.run)
+        for size in (2048,1024):
+            with Image.open(result['maps'][str(size)]['path']) as image:self.assertEqual(image.size,(size,size))
+    def test_reviewed_1k_only_ownership_is_nearest_expanded_for_tone(self):
+        runner=self.fixture();labels=self.one_k_only(runner);observed={}
+        def match(color,ownership,reference,config,output):
+            with Image.open(ownership) as image:
+                self.assertEqual(image.mode,'L');self.assertEqual(image.size,(4096,4096))
+                expanded=np.asarray(image)
+                np.testing.assert_array_equal(expanded[::4,::4],labels)
+                blocks=expanded.reshape(1024,4,1024,4)
+                np.testing.assert_array_equal(blocks,np.broadcast_to(labels[:,None,:,None],blocks.shape))
+                observed['mask']=pin(ownership)
+            Image.new('RGB',(4096,4096),(128,96,64)).save(output)
+            return {'output':pin(output)}
+        with patch('headkit.textures.tone_match',side_effect=match):result=runner._execute('tone',runner.run)
+        self.assertEqual(result['ownershipInputRole'],'ownership1k')
+        self.assertEqual(result['ownershipUpsampling'],'nearest')
+        self.assertEqual(result['ownershipSource']['path'],runner.input('ownership1k'))
+        self.assertEqual(result['ownershipForTone'],observed['mask'])
+        self.assertTrue(Path(result['ownershipForTone']['path']).is_relative_to(runner.run))
+        for size in (2048,1024):
+            with Image.open(result['maps'][str(size)]['path']) as image:self.assertEqual(image.size,(size,size))
+    def test_tone_rejects_invalid_1k_ownership_before_matching(self):
+        for mode,size,unknown in (('RGB',1024,False),('L',512,False),('L',1024,True)):
+            runner=self.fixture();self.one_k_only(runner)
+            path=Path(runner.manifest_path).parent/runner.data['inputs']['ownership1k']['path']
+            Image.new(mode,(size,size),10 if unknown else 0).save(path)
+            runner.data['inputs']['ownership1k']['sha256']=pin(path)['sha256'];write(runner.manifest_path,runner.data)
+            message='Unknown ownership' if unknown else 'actual 1024x1024 eight-bit L'
+            with self.subTest(mode=mode,size=size,unknown=unknown),patch('headkit.textures.tone_match') as matcher:
+                with self.assertRaisesRegex(ValueError,message):runner._execute('tone',runner.run)
+                matcher.assert_not_called()
+                self.assertFalse((runner.run/'tone-4096.png').exists())
+    def test_1k_tone_mask_tracks_unwrap_review_and_skips_ownership_stage(self):
+        runner=self.fixture(derived_uv=True);self.one_k_only(runner)
+        def unwrap(stage,folder):
+            target=folder/'uv.glb';target.write_text('frozen UV mesh');return {'mesh':pin(target)}
+        with patch.object(runner,'_execute',side_effect=unwrap):runner.execute('unwrap')
+        runner.review('unwrap','approved','Reviewed UV mesh for imported 1K mask')
+        def match(*args):Image.new('RGB',(4096,4096),(128,96,64)).save(args[-1]);return {'output':pin(args[-1])}
+        with patch('headkit.textures.tone_match',side_effect=match) as matcher:runner.execute('tone')
+        matcher.assert_called_once()
+        receipt=read(runner.state['stages']['tone']['path'])
+        self.assertEqual(set(receipt['dependencies']),{'unwrap'})
+        self.assertNotIn('ownership',runner.state['stages'])
+        runner.review('tone','approved','Reviewed tone from the imported 1K ownership mask')
+        runner.review('unwrap','rejected','UV review revoked')
+        with patch('headkit.textures.tone_match') as matcher:
+            with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('tone')
+            matcher.assert_not_called()
+
+
+class ReviewGateTests(Temporary):
+    fixture=ResumeTests.fixture
+    def completed(self,stage,folder):
+        target=folder/'artifact.txt';target.write_text(stage);return {'artifact':pin(target)}
+    def test_review_is_persisted_and_gates_every_processing_dependency(self):
+        runner=self.fixture()
+        with patch.object(runner,'_execute',side_effect=self.completed):
+            for stage in ('repair','unwrap','bake','ownership','tone','palette','export','native'):
+                runner.execute(stage)
+                with self.assertRaisesRegex(ValueError,'pending'):runner.result(stage)
+                runner.review(stage,'rejected','Visible defect')
+                with self.assertRaisesRegex(ValueError,'rejected'):runner.result(stage)
+                runner.review(stage,'approved','Inspected corrected output')
+                self.assertIn('artifact',runner.result(stage))
+        restored=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertIn('artifact',restored.result('native'));self.assertEqual(restored.status()['stages']['native']['review'],'approved')
+    def test_missing_or_rejected_review_blocks_work_not_just_result_reads(self):
+        for decision in (None,'rejected'):
+            with self.subTest(decision=decision):
+                runner=self.fixture()
+                with patch.object(runner,'_execute',side_effect=self.completed) as work:
+                    runner.execute('repair')
+                    if decision:runner.review('repair',decision,'Visible geometry defect')
+                    with self.assertRaisesRegex(ValueError,'review'):runner.execute('unwrap')
+                    self.assertEqual(work.call_count,1)
+                # Each subcase uses its own run, retaining all its failed/complete evidence.
+                self.root= self.root/('case-'+str(decision));self.root.mkdir()
+    def test_rejecting_ancestor_blocks_cached_native_package_after_restart(self):
+        runner=self.fixture()
+        with patch.object(runner,'_execute',side_effect=self.completed):
+            for stage in ('repair','unwrap','bake','ownership','tone','palette','export','native'):
+                runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+        runner.review('repair','rejected','Found an accessory defect')
+        restored=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        with patch.object(restored,'_execute') as work:
+            with self.assertRaisesRegex(ValueError,'rejected'):restored.execute('native')
+            work.assert_not_called()
+    def test_review_bound_to_old_receipt_or_modified_review_is_rejected(self):
+        runner=self.fixture();runner.execute('prepare');review_pin=runner.review('prepare','approved','Reviewed input overlays')
+        old=read(review_pin['path']);old['stageReceipt']['sha256']='0'*64
+        write(review_pin['path'],old);runner.state['reviews']['prepare']=pin(review_pin['path'])
+        with self.assertRaisesRegex(ValueError,'Stale visual review'):runner.result('prepare')
+        runner.review('prepare','approved','Re-reviewed current receipt');current=runner.state['reviews']['prepare']
+        Path(current['path']).write_text('{}')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):runner.result('prepare')
+
+
+class ChainTests(Temporary):
+    fixture=ResumeTests.fixture;completed=ReviewGateTests.completed
+    def chain(self,runner,stages,fail=(),texts={}):
+        from headkit.__main__ import chain
+        order=[]
+        def work(stage,folder):
+            order.append(stage)
+            if stage in fail:raise ValueError('Synthetic failure: '+stage)
+            if stage in texts:target=folder/'artifact.txt';target.write_text(texts[stage]);return {'artifact':pin(target)}
+            return self.completed(stage,folder)
+        with patch.object(runner,'_execute',side_effect=work):result=chain(runner,stages)
+        return result,order,{row['stage']:row for row in result['stages']}
+    def test_a_stale_pin_under_a_review_folder_is_not_a_review_gate(self):
+        runner=self.fixture()
+        with patch.object(runner,'result',side_effect=ValueError('Stale file pin: D:/code-review/run/out.glb')):
+            result,_,rows=self.chain(runner,['unwrap'])
+        self.assertEqual((result['stopped'],rows['unwrap']['status']),('blocked-on-dependency','blocked-on-dependency'))
+    def test_runs_in_order_and_stops_at_review_gate_without_approving(self):
+        runner=self.fixture();result,order,rows=self.chain(runner,['repair','unwrap','bake'])
+        self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+        self.assertEqual(rows['repair']['status'],'ran');self.assertEqual(rows['repair']['review'],'pending')
+        self.assertIsInstance(rows['repair']['elapsedSeconds'],float);self.assertNotIn('bake',rows)
+        gate=rows['unwrap'];self.assertEqual((gate['status'],gate['dependency']),('blocked-on-review','repair'))
+        self.assertEqual(Path(gate['evidence']),runner.run/'repair'/'attempt-01');self.assertIn('review --stage repair',gate['next'])
+        self.assertNotIn('reviews',runner.state);self.assertFalse(result['autoApproved'])
+        runner.review('repair','rejected','Visible accessory defect')
+        result,order,rows=self.chain(runner,['repair','unwrap'])
+        self.assertEqual(order,[]);self.assertEqual(rows['unwrap']['status'],'blocked-on-review');self.assertIn('rejected',rows['unwrap']['reason'])
+    def test_reuses_completed_reviewed_stages(self):
+        runner=self.fixture();self.chain(runner,['repair']);runner.review('repair','approved','Inspected repair')
+        result,order,rows=self.chain(runner,['repair','unwrap'])
+        self.assertEqual(order,['unwrap']);self.assertEqual([rows[s]['status'] for s in ('repair','unwrap')],['reused','ran'])
+        self.assertEqual(rows['repair']['review'],'approved');self.assertIsNone(result['stopped'])
+        runner.review('unwrap','approved','Inspected UVs')
+        result,order,rows=self.chain(runner,['repair','unwrap','bake'])
+        self.assertEqual(order,['bake']);self.assertEqual([row['status'] for row in result['stages']],['reused','reused','ran'])
+    def test_stops_on_failure_and_resumes_there(self):
+        runner=self.fixture();self.chain(runner,['repair']);runner.review('repair','approved','Inspected repair')
+        result,order,rows=self.chain(runner,['repair','unwrap','bake'],fail=('unwrap',))
+        self.assertEqual(order,['unwrap']);self.assertEqual(result['stopped'],'failed');self.assertNotIn('bake',rows)
+        self.assertEqual(Path(rows['unwrap']['attempt']),runner.run/'unwrap'/'attempt-01');self.assertIn('Synthetic failure',rows['unwrap']['error'])
+        result,order,rows=self.chain(Runner(runner.manifest_path,runner.bindings_path,runner.run),['repair','unwrap','bake'])
+        self.assertEqual(order,['unwrap']);self.assertEqual(rows['repair']['status'],'reused')
+        self.assertEqual((rows['unwrap']['status'],Path(rows['unwrap']['attempt'])),('ran',runner.run/'unwrap'/'attempt-02'))
+        self.assertEqual((rows['bake']['status'],rows['bake']['dependency']),('blocked-on-review','unwrap'))
+    def rerun_repair(self,runner,decision,texts={}):
+        # Reviewed (or not) repair, then a manifest change that stales it without changing what the fake writes.
+        self.chain(runner,['repair'])
+        old=runner.review('repair',decision,'Inspected repair') if decision else None
+        runner.data['mesh']={'alphaWrap':False};return old,self.chain(runner,['repair','unwrap'],texts=texts)
+    def test_identical_rerun_outputs_carry_the_approval_and_continue(self):
+        runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,'approved')
+        self.assertEqual(order,['repair','unwrap']);self.assertIsNone(result['stopped'])
+        self.assertEqual((rows['repair']['status'],rows['repair']['review'],rows['unwrap']['status']),('ran','carried','ran'))
+        carried=runner.state['reviews']['repair'];self.assertEqual(rows['repair']['carriedReview'],carried)
+        review=read(carried['path']);self.assertEqual(review['carriedFrom'],old);self.assertEqual(review['decision'],'approved')
+        self.assertEqual(review['notes'],'Carried from attempt-01: identical outputs (binary sha256; JSON equal apart from attempt numbers and timings). Inspected repair')
+        self.assertEqual(review['stageReceipt'],runner.state['stages']['repair']);self.assertIn('attempt-02',review['stageReceipt']['path'])
+        self.assertIn('artifact',runner.result('repair'))
+    def test_changed_rerun_output_is_not_carried(self):
+        runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,'approved',texts={'repair':'repair!'})
+        self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+        self.assertEqual(rows['repair']['review'],'pending');self.assertNotIn('carriedReview',rows['repair'])
+        self.assertEqual((rows['unwrap']['status'],rows['unwrap']['dependency']),('blocked-on-review','repair'))
+        self.assertEqual(runner.state['reviews']['repair'],old);self.assertEqual(len(list((runner.run/'reviews').glob('repair-*'))),1)
+    def test_json_audits_carry_across_attempt_paths_and_timings_but_not_values(self):
+        def rerun(value,seconds):
+            def work(stage,folder):
+                audit=folder/'audit.json';write(audit,{'source':str(folder/'master.glb'),'elapsedSeconds':seconds,'relativeMaximum':value})
+                (folder/'final.glb').write_bytes(b'shell');return {'audit':pin(audit),'final':pin(folder/'final.glb')}
+            with patch.object(runner,'_execute',side_effect=work):return chain(runner,['repair'])
+        from headkit.__main__ import chain
+        for value,carried in ((.004,True),(.005,False)):
+            with self.subTest(value=value):
+                self.root=self.root/f'case-{value}';self.root.mkdir();runner=self.fixture()
+                rerun(.004,12.5);runner.review('repair','approved','Inspected repair');runner.data['mesh']={'alphaWrap':False}
+                row={row['stage']:row for row in rerun(value,97.25)['stages']}['repair']
+                self.assertEqual(row['review'],'carried' if carried else 'pending')
+    def test_rejected_or_absent_review_is_not_carried(self):
+        for decision in ('rejected',None):
+            with self.subTest(decision=decision):
+                self.root=self.root/('case-'+str(decision));self.root.mkdir()
+                runner=self.fixture();old,(result,order,rows)=self.rerun_repair(runner,decision)
+                self.assertEqual(order,['repair']);self.assertEqual(result['stopped'],'blocked-on-review')
+                self.assertEqual(rows['repair']['review'],'pending');self.assertNotIn('carriedReview',rows['repair'])
+                self.assertEqual(runner.state.get('reviews',{}).get('repair'),old)
+    def test_rejects_unknown_duplicate_or_reordered_stages(self):
+        runner=self.fixture()
+        for stages in ([],['unwrap','repair'],['repair','repair'],['gpu']):
+            with self.subTest(stages=stages),self.assertRaisesRegex(ValueError,'pipeline order'):self.chain(runner,stages)
+        self.assertEqual(runner.state['stages'],{})
+    def test_cli_records_the_gating_review_and_continues_in_one_launch(self):
+        from headkit.__main__ import main
+        runner=self.fixture();self.chain(runner,['repair'])
+        base=['headkit','chain','--manifest',str(runner.manifest_path),'--bindings',str(runner.bindings_path),'--run',str(runner.run),'--stages','unwrap']
+        printed=[]
+        with patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),             patch('headkit.runner.Runner._execute',autospec=True,side_effect=lambda r,s,f:self.completed(s,f)) as work:
+            with patch('sys.argv',base+['--approve','repair']),self.assertRaisesRegex(ValueError,'go together'):main()
+            work.assert_not_called()
+            with patch('sys.argv',base+['--approve','repair','--notes','Inspected the repaired shell']):main()
+        self.assertEqual([c.args[1] for c in work.call_args_list],['unwrap'])
+        result=json.loads(printed[-1]);self.assertEqual(result['stages'][0]['status'],'ran');self.assertFalse(result['autoApproved'])
+        review=read(result['reviewRecorded']['path']);self.assertEqual((review['decision'],review['notes']),('approved','Inspected the repaired shell'))
+        self.assertEqual(result['stages'][0]['review'],'pending')
+    def test_cli_requires_launcher_and_exits_nonzero_only_on_failure(self):
+        from headkit.__main__ import main
+        runner=self.fixture();argv=['headkit','chain','--manifest',str(runner.manifest_path),'--bindings',str(runner.bindings_path),
+                                    '--run',str(runner.run),'--stages','repair, unwrap']
+        with patch('sys.argv',argv),patch.dict('os.environ',{'SRN_SHARED_TOOLCHAIN':'','SRN_SHARED_TOOL_MIGRATION':''}):
+            with self.assertRaisesRegex(ValueError,'launch_shared_tool'):main()
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print'),\
+             patch('headkit.runner.Runner._execute',autospec=True,side_effect=lambda r,s,f:self.completed(s,f)) as work:
+            main();self.assertEqual([c.args[1] for c in work.call_args_list],['repair'])
+        with patch('sys.argv',argv[:-1]+['prepare']),patch('headkit.__main__.launched',return_value=None),patch('builtins.print'),\
+             patch('headkit.runner.Runner._execute',side_effect=ValueError('Synthetic failure')):
+            with self.assertRaises(SystemExit) as stop:main()
+        self.assertEqual(stop.exception.code,1)
+
+
+class ChainedRepairTests(Temporary):
+    def fixture(self,inspection):
+        raw=self.file('raw.glb','pixal shape')
+        data={'schemaVersion':1,'id':'chained-repair','inputs':{'raw':{'path':raw.name,'sha256':pin(raw)['sha256']}},
+              'mesh':{'alphaWrap':True,'shellInspection':inspection}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def precluster(self,runner):
+        def work(stage,folder):
+            target=folder/'oriented.glb';target.write_text('preclustered');return {'output':pin(target)}
+        with patch.object(runner,'_execute',side_effect=work):runner.execute('precluster')
+        return read(runner.state['stages']['precluster']['path'])['result']['output']
+    def test_repair_consumes_the_reviewed_precluster_output(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'notes':'non-manifold export'})
+        self.assertEqual(runner.dependencies('repair'),['precluster'])
+        output=self.precluster(runner)
+        with patch('headkit.neck.repair',return_value={'ok':True}) as repair:
+            with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
+            repair.assert_not_called();runner.review('precluster','approved','Closed exterior inspected')
+            runner._execute('repair',self.root)
+        source,_,_,_,inspection=repair.call_args.args
+        self.assertEqual(source,output['path']);self.assertEqual(inspection['sourceSha256'],output['sha256'])
+        self.assertTrue(inspection['confirmedShellDefect'])
+    def test_inline_inspection_cannot_carry_its_own_hash(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'sourceSha256':'0'*64})
+        self.precluster(runner);runner.review('precluster','approved','Closed exterior inspected')
+        with patch('headkit.neck.repair') as repair:
+            with self.assertRaisesRegex(ValueError,'inline mesh.shellInspection'):runner._execute('repair',self.root)
+            repair.assert_not_called()
+
+
+class FitProposalTests(Temporary):
+    def head(self):
+        """Head-local reference: an egg skull with a nose bump and a neck, face toward +y."""
+        u,v=np.meshgrid(np.linspace(.05,np.pi-.05,40),np.linspace(0,2*np.pi,48,endpoint=False),indexing="ij");p=np.stack([np.sin(u)*np.cos(v),np.sin(u)*np.sin(v),np.cos(u)],-1).reshape(-1,3)
+        p=p*[.08,.1,.12]+[0,0,.02];nose=np.exp(-((p[:,0]/.02)**2+((p[:,2]-.01)/.025)**2))*(p[:,1]>0);p[:,1]+=.035*nose
+        p[p[:,2]<-.06,:2]*=.6;faces=[]
+        for i in range(39):
+            for j in range(48):
+                a,b,c,d=i*48+j,i*48+(j+1)%48,(i+1)*48+j,(i+1)*48+(j+1)%48;faces+=[[a,c,b],[b,c,d]]
+        return p,np.array(faces)
+    def test_recovers_a_known_scale_and_offset_and_writes_a_reviewable_overlay(self):
+        from headkit.fit import propose
+        from headkit.gltf import write_mesh
+        points,faces=self.head();lines=['node trimesh head','  position 0 0 0',f'  verts {len(points)}']
+        lines+=[f'    {x} {y} {z}' for x,y,z in points]+[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+        reference=self.root/'reference.mdl';reference.write_text('\n'.join(lines))
+        scale,offset=.37,np.array([0,.024,.042]);local=(points-offset)/scale     # source head-local, unscaled
+        glb=np.stack([-local[:,0],local[:,2],local[:,1]],1)                        # inverse of (-x, z, y)
+        source=self.root/'source.glb';write_mesh(source,glb,faces)
+        result=propose(source,reference,self.root/'fit')
+        self.assertAlmostEqual(result['scale'],scale,delta=.0051);np.testing.assert_allclose(result['translation'],offset,atol=.003)
+        self.assertLess(result['meanAbsoluteProfileDistance'],.002);self.assertTrue(result['reviewRequired'])
+        self.assertEqual(np.asarray(result['matrix'])[:3,:3].diagonal().tolist(),[-result['scale'],-result['scale'],result['scale']])
+        self.assertTrue((self.root/'fit'/'fit-overlay.png').is_file())
+        nosed=propose(source,reference,self.root/'fit-nose',align='nose')
+        self.assertEqual(nosed['align'],'nose');np.testing.assert_allclose(nosed['translation'],offset,atol=.004)
+        np.testing.assert_allclose(np.asarray(nosed['sourceNose'])*nosed['scale']+nosed['translation'],nosed['referenceNose'],atol=1e-9)
+        pitched = propose(source, reference, self.root/'fit-pitch', align='nose', chin_down_degrees=10)
+        base = np.array(nosed['matrix'])
+        adjusted = np.array(pitched['matrix'])
+        np.testing.assert_allclose(pitched['pitch']['baseMatrix'], base)
+        relative = adjusted @ np.linalg.inv(base)
+        np.testing.assert_allclose(relative[:3, 3], 0, atol=1e-10)
+        np.testing.assert_allclose(relative[:3, :3].T @ relative[:3, :3], np.eye(3), atol=1e-10)
+        self.assertLess((relative @ [0, .12, 0, 1])[2], -.02)
+        np.testing.assert_allclose(pitched['translation'], adjusted[:3, 3])
+        realigned = propose(source, reference, self.root/'fit-larger-pitched', align='nose', chin_down_degrees=15,
+                            scale_multiplier=1.1, realign_after_pose=True)
+        enlarged = np.array(realigned['matrix'])
+        np.testing.assert_allclose(np.linalg.svd(enlarged[:3,:3], compute_uv=False), 1.1*nosed['scale'])
+        source_nose = np.array([*realigned['sourceNose'],1]) * [-1,-1,1,1]
+        np.testing.assert_allclose((enlarged @ source_nose)[:3], realigned['referenceNose'], atol=1e-9)
+        self.assertAlmostEqual(realigned['scale'], 1.1*nosed['scale'])
+        lowered = propose(source, reference, self.root/'fit-lowered', align='nose', chin_down_degrees=15,
+                          scale_multiplier=1.1, realign_after_pose=True, height_offset=-.051)
+        difference = np.zeros((4,4))
+        difference[2,3] = -.051
+        np.testing.assert_allclose(np.asarray(lowered['matrix']) - enlarged, difference, atol=1e-12)
+        np.testing.assert_allclose(lowered['translation'], np.array(lowered['matrix'])[:3,3])
+        self.assertEqual(lowered['heightOffset'], -.051)
+        larger = propose(source, reference, self.root/'fit-locally-scaled', align='nose', chin_down_degrees=15,
+                         scale_multiplier=1.1, realign_after_pose=True, height_offset=-.051, local_scale_multiplier=1.1)
+        before, after = np.asarray(lowered['matrix']), np.asarray(larger['matrix'])
+        np.testing.assert_array_equal(after[:,3], before[:,3])
+        np.testing.assert_allclose(after[:3,:3], 1.1*before[:3,:3], atol=1e-12)
+        self.assertAlmostEqual(larger['scale'], 1.1*lowered['scale'])
+        with self.assertRaisesRegex(ValueError, 'pitch'):
+            propose(source, reference, self.root/'fit-invalid-pitch', chin_down_degrees=float('nan'))
+        with self.assertRaisesRegex(ValueError,'profile, nose or landmarks'):propose(source,reference,self.root/'fit-bad',align='ears')
+        with self.assertRaisesRegex(ValueError,'landmark alignment'):propose(source,reference,self.root/'fit-bad2',landmarks={'base':'pfd0'})
+    def test_landmark_fit_maps_reviewed_face_landmarks_onto_the_base_head_whatever_the_eye_labels(self):
+        # Race heads v1: each race and sex has its own base head; a source scaled x0.8 and moved is mapped back exactly,
+        # with its eyes labelled either way (designs name the image-left eye 'left', the table is in head_g x order).
+        from headkit.fit import BASE_HEADS,LANDMARKS,landmark_policy,landmark_fit
+        base=BASE_HEADS['pfd0'];truth=np.asarray([base[k] for k in LANDMARKS]);shift=np.array([.01,-.02,.03])
+        source={k:((np.asarray(base[k])-shift)/.8).tolist() for k in LANDMARKS}
+        swapped=dict(source,eyeLeft=source['eyeRight'],eyeRight=source['eyeLeft'])
+        for given in (source,swapped):
+            with self.subTest(swapped=given is swapped):
+                a,b,residual=landmark_policy({'base':'pfd0','source':given,'reviewed':True});scale,translation,errors=landmark_fit(a,b,residual)
+                self.assertAlmostEqual(scale,.8,places=9);np.testing.assert_allclose(translation,shift,atol=1e-9);self.assertLess(errors.max(),1e-9)
+        bent=dict(source,lips=(np.asarray(source['lips'])+[0,0,.02]).tolist())
+        with self.assertRaisesRegex(ValueError,'Landmark residual'):landmark_fit(*landmark_policy({'base':'pfd0','source':bent,'reviewed':True}))
+        for bad in ({'base':'pfd0','source':source},{'base':'pzz0','source':source,'reviewed':True},{'base':'pfd0','source':source,'reviewed':True,'calibration':2},
+                    {'base':'pfd0','source':dict(source,eyeRight=source['eyeLeft']),'reviewed':True},{'base':'pfd0','source':source,'reviewed':True,'extra':1}):
+            with self.subTest(bad=sorted(bad)),self.assertRaises(ValueError):landmark_policy(bad)
+        np.testing.assert_allclose(truth,np.asarray([base[k] for k in LANDMARKS]))  # the table itself is untouched
+    def test_nose_alignment_ignores_tusks_further_forward_than_the_nose(self):
+        from headkit.fit import propose
+        from headkit.gltf import write_mesh
+        points,faces=self.head();lines=['node trimesh head','  position 0 0 0',f'  verts {len(points)}']
+        lines+=[f'    {x} {y} {z}' for x,y,z in points]+[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+        reference=self.root/'reference.mdl';reference.write_text('\n'.join(lines))
+        # Source only: a lower tusk/lip bump 4.5 cm below the nose that reaches further forward than the nose (05, 04-A).
+        tusk=np.exp(-((points[:,0]/.02)**2+((points[:,2]+.035)/.012)**2))*(points[:,1]>0);bumped=points.copy();bumped[:,1]+=.05*tusk
+        scale,offset=.37,np.array([0,.024,.042]);local=(bumped-offset)/scale
+        source=self.root/'source.glb';write_mesh(source,np.stack([-local[:,0],local[:,2],local[:,1]],1),faces)
+        nosed=propose(source,reference,self.root/'fit-nose',align='nose')
+        self.assertLess(abs(nosed['translation'][2]-offset[2]),.006);self.assertLess(nosed['noseProfileShift'],.02)
+        # A nose fit that would move the head further than the agreement bound is refused, never applied.
+        with patch('headkit.fit.nose_tip',side_effect=[np.array([0,.2,0.]),np.array([0,0,-.2])]):
+            with self.assertRaisesRegex(ValueError,'disagree by'):propose(source,reference,self.root/'fit-far',align='nose')
+    def test_reference_ranking_puts_a_head_with_back_hair_last(self):
+        # race heads v1: pfh0_head001, pfd0_head008 and pfo0_head009 carried back hair and mis-scaled their fits (0.50-0.60)
+        from headkit.fit import rank_references
+        points,faces=self.head();hair=points.copy();back=(hair[:,1]<0)&(hair[:,2]<.06);hair[back,1]*=1.8  # hanging back hair
+        paths=[]
+        for name,p in (('hair',hair),('compact',points)):
+            lines=['node trimesh head','  position 0 0 0',f'  verts {len(p)}']+[f'    {x} {y} {z}' for x,y,z in p]
+            lines+=[f'  faces {len(faces)}']+[f'    {a} {b} {c} 1 0 0 0 0' for a,b,c in faces]+['endnode']
+            path=self.root/f'{name}.mdl';path.write_text('\n'.join(lines));paths.append(path)
+        ranking=rank_references(paths,samples=20000)
+        self.assertEqual([Path(row['reference']['path']).stem for row in ranking],['compact','hair'])
+        self.assertGreater(ranking[1]['depthRatio'],ranking[0]['depthRatio']*1.15)
+    def test_reference_nodes_are_placed_through_their_transforms(self):
+        # Stock heads (decompiled pmd0/pme0/pmo0_head001) carry node offsets and 'orientation 0 0 1 0' (identity).
+        from headkit.fit import ascii_surface
+        tri='  verts 3\n 0 0 0\n 1 0 0\n 0 1 0\n  faces 1\n 0 1 2 1 0 0 0 0\n'
+        path=self.root/'moved.mdl';path.write_text('node dummy root\n  parent NULL\n  position 0 0 .5\nendnode\n'
+            'node trimesh x\n  parent root\n  position 0 0 .1\n  orientation 0 0 1 1.5707963267948966\n'+tri+'endnode')
+        points=ascii_surface(path,samples=2000)
+        # Rotated 90 degrees about z (x -> y) then lifted by both offsets: x in [-1,0], y in [0,1], z = 0.6.
+        np.testing.assert_allclose(points[:,2],.6,atol=1e-9);self.assertTrue((points[:,0]<=1e-9).all() and (points[:,1]>=-1e-9).all())
+        plain=self.root/'plain.mdl';plain.write_text('node trimesh x\n  orientation 0 0 1 0\n'+tri+'endnode')
+        np.testing.assert_allclose(ascii_surface(plain,samples=50)[:,2],0,atol=1e-12)
+        broken=self.root/'broken.mdl';broken.write_text('node trimesh x\n  parent missing\n'+tri+'endnode')
+        with self.assertRaisesRegex(ValueError,'hierarchy'):ascii_surface(broken)
+        # Animation blocks after the geometry reuse node names without verts; they must not replace the geometry nodes.
+        animated=self.root/'animated.mdl';animated.write_text('beginmodelgeom m\nnode trimesh x\n  parent NULL\n'+tri+'endnode\nendmodelgeom m\n'
+            'newanim pause1 m\n  length 1\nnode trimesh x\n  parent NULL\n  positionkey\n 0 0 0 9\n  endlist\nendnode\ndoneanim pause1 m\n')
+        np.testing.assert_allclose(ascii_surface(animated,samples=50)[:,2],0,atol=1e-12)
+
+
+class FitStageTests(Temporary):
+    fixture=ChainedRepairTests.fixture;precluster=ChainedRepairTests.precluster
+    def staged(self):
+        runner=self.fixture({'visualReviewed':True,'confirmedShellDefect':True,'notes':'n'});reference=self.file('reference.mdl','ref')
+        data=read(runner.manifest_path);data['inputs']['fitReference']={'path':reference.name,'sha256':pin(reference)['sha256']}
+        data['fit']={'matrixFrom':'fit','model':'pmg0_head016','sourceStage':'unwrap'};data['mesh']['neck']={'seal':{'height':'measured','inset':.9,'rise':.003,'searchTop':-.03}}
+        write(runner.manifest_path,data);return Runner(runner.manifest_path,runner.bindings_path,runner.run)
+    def test_reviewed_fit_stage_feeds_repair_and_export(self):
+        runner=self.staged()
+        self.assertEqual(runner.dependencies('fit'),['precluster']);self.assertEqual(runner.dependencies('repair'),['precluster','fit'])
+        self.assertIn('fit',runner.dependencies('export'))
+        output=self.precluster(runner);runner.review('precluster','approved','Closed exterior inspected')
+        matrix=[[-.37,0,0,0],[0,-.37,0,.024],[0,0,.37,.042],[0,0,0,1]]
+        with patch('headkit.fit.propose',return_value={'matrix':matrix,'scale':.37}) as propose:runner.execute('fit')
+        self.assertEqual(propose.call_args.args[0],output['path']);self.assertTrue(propose.call_args.args[1].endswith('reference.mdl'))
+        with patch('headkit.neck.repair',return_value={'ok':True}) as repair:
+            with self.assertRaisesRegex(ValueError,'pending'):runner._execute('repair',self.root)
+            runner.review('fit','approved','Overlay matches pmg0_head015 proportions');runner._execute('repair',self.root)
+        fit=repair.call_args.kwargs['fit'];self.assertEqual((fit['matrix'],fit['reviewed'],fit['model']),(matrix,True,'pmg0_head016'))
+        self.assertNotIn('matrixFrom',fit)
+    def test_staged_fit_cannot_also_carry_a_manifest_matrix(self):
+        runner=self.staged();runner.data['fit']['matrix']=np.eye(4).tolist()
+        with self.assertRaisesRegex(ValueError,'fit stage only'):runner._fit()
+
+
+class GeneratedFieldLineageTests(Temporary):
+    def fixture(self,geometry_roles=('uvMesh',)):
+        inputs={}
+        for role in geometry_roles:
+            path=self.file(role+'.glb',role)
+            inputs[role]={'path':path.name,'sha256':pin(path)['sha256']}
+        field=self.file('field.npz','generated field')
+        inputs['field']={'path':field.name,'sha256':pin(field)['sha256']}
+        geometry_role=next(role for role in ('uvMesh','repairedMesh','comfyExport','raw') if role in inputs)
+        data={'schemaVersion':1,'id':'field-lineage','inputs':inputs,'approval':{'appearanceField':{
+            'decision':'approved','geometryInput':geometry_role,'geometrySha256':inputs[geometry_role]['sha256'],
+            'fieldSha256':inputs['field']['sha256'],'notes':'Verified this field against the active geometry.'}}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+
+    def test_field_approval_binds_to_the_active_mesh_source(self):
+        for roles in (('uvMesh',),('comfyExport',),('comfyExport','repairedMesh'),('comfyExport','uvMesh'),('raw',)):
+            with self.subTest(roles=roles):
+                runner=self.fixture(roles)
+                expected=runner.data['inputs']['field']['path']
+                self.assertEqual(Path(runner.input('field')),runner.manifest_path.parent/expected)
+
+    def test_field_rejects_missing_or_mismatched_approval(self):
+        runner=self.fixture(('uvMesh','comfyExport'));valid=copy.deepcopy(runner.data['approval']['appearanceField'])
+        invalid=({},dict(valid,decision='pending'),dict(valid,notes=' '),dict(valid,geometryInput='comfyExport'),
+                 dict(valid,geometrySha256='0'*64),dict(valid,fieldSha256='0'*64))
+        for review in invalid:
+            with self.subTest(review=review):
+                runner.data['approval']['appearanceField']=review
+                with self.assertRaisesRegex(ValueError,'Generated field approval'):
+                    runner.input('field')
+        runner.data['approval']['appearanceField']=valid
+        field=runner.manifest_path.parent/runner.data['inputs']['field']['path'];field.write_text('changed field')
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):
+            runner.input('field')
+
+    def test_bake_rejects_unapproved_field_before_sampling(self):
+        runner=self.fixture();runner.data['approval']['appearanceField']['decision']='pending'
+        with patch('headkit.textures.bake') as bake:
+            with self.assertRaisesRegex(ValueError,'Generated field approval'):
+                runner._execute('bake',runner.run)
+            bake.assert_not_called()
+
+
+class RenderPlanTests(Temporary):
+    def camera(self):return {'name':'front','eye':[0,0,2],'target':[0,0,0],'orthoScale':2}
+    def test_empty_camera_and_mode_plans_are_rejected(self):
+        from headkit.review_images import render_plan
+        for config in ({'cameras':[]},{'cameras':[self.camera()],'modes':[]}):
+            with self.subTest(config=config):
+                with self.assertRaisesRegex(ValueError,'nonempty'):render_plan(config)
+    def test_complete_plan_requires_all_unique_frames(self):
+        from headkit.review_images import render_plan,validate_frames
+        config={'cameras':[self.camera()],'maps':dict.fromkeys(('basecolor','roughness','metallic','opacity'),'fixture')};expected=render_plan(config);self.assertEqual(len(expected),6)
+        records=[{'size':s,'mode':m,'view':v} for s,m,v in expected];validate_frames(config,records)
+        for bad in ([],records[:-1],records[:-1]+[records[0]]):
+            with self.subTest(count=len(bad)):
+                with self.assertRaisesRegex(ValueError,'frames'):validate_frames(config,bad)
+    def test_production_requires_all_material_modes_and_diagnostic_subset_is_explicit(self):
+        from headkit.review_images import render_plan
+        with self.assertRaisesRegex(ValueError,'Production render plans'):
+            render_plan({'cameras':[self.camera()],'modes':['clay']})
+        self.assertEqual(len(render_plan({'cameras':[self.camera()],'modes':['clay'],'diagnostic':True})),2)
+
+    def test_single_size_render_is_always_diagnostic(self):
+        from headkit.review_images import render_plan
+        with self.assertRaisesRegex(ValueError,'Single-size render plans'):
+            render_plan({'cameras':[self.camera()],'size':768})
+        self.assertEqual(len(render_plan({'cameras':[self.camera()],'size':768,'diagnostic':True,'maps':dict.fromkeys(('basecolor','roughness','metallic','opacity'),'fixture')})),3)
+
+    def test_textured_render_requires_present_non_degenerate_uvs(self):
+        from headkit.gltf import require_textured_uvs
+        vertices=np.array([[0,0,0],[1,0,0],[0,1,0]],np.float32);faces=np.array([[0,1,2]])
+        valid=np.array([[[0,0],[1,0],[0,1]]],np.float32)
+        path=self.root/'with-uv.glb';write_mesh(path,vertices,faces,uv=valid)
+        self.assertTrue(require_textured_uvs(path))
+        missing=self.root/'missing-uv.glb';write_mesh(missing,vertices,faces)
+        with self.assertRaisesRegex(ValueError,'TEXCOORD_0'):require_textured_uvs(missing)
+        flat=self.root/'flat-uv.glb';write_mesh(flat,vertices,faces,uv=np.zeros((1,3,2),np.float32))
+        with self.assertRaisesRegex(ValueError,'nondegenerate UVs'):require_textured_uvs(flat)
+    def render_runner(self):
+        path=self.file('uv.glb')
+        data={'schemaVersion':1,'id':'render-inputs','inputs':{'uvMesh':{'path':path.name,'sha256':pin(path)['sha256']}},
+              'render':{'cameras':[self.camera()],'mapInputs':{},'modes':['clay'],'size':16,'diagnostic':True}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data(toolchain=str(self.file('toolchain.json')),migrationReceipt=str(self.file('migration.json'))))
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+
+    def launcher(self):
+        from headkit.common import ROOT
+        with patch.object(sys,'path',[str(ROOT/'tools/phenotypes'),*sys.path]):
+            spec=importlib.util.spec_from_file_location('headkit_render_launcher',ROOT/'tools/phenotypes/launch_shared_tool.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return module
+
+    def test_render_launcher_snapshots_imported_helpers_and_config(self):
+        from headkit.common import ROOT,stage_code_pins
+        runner=self.render_runner();launcher=self.launcher();captured=[]
+        class Launched(Exception):pass
+        def launch(command,**kwargs):
+            self.assertIn('--input-manifest',command)
+            declared=Path(command[command.index('--input-manifest')+1])
+            paths,frozen=launcher.manifest_inputs([declared])
+            config=read(runner.run/'render-config.json')
+            self.assertTrue({row['path'] for row in stage_code_pins('render')}<={row['path'] for row in config['inputs']})
+            self.assertFalse([row for row in config['inputs'] if 'slice' in row])
+            self.assertIn((runner.run/'render-config.json').resolve(),paths)
+            output=runner.run/'launcher-snapshots';output.mkdir()
+            snapshots=launcher.helper_snapshots(paths,frozen,output)
+            helpers=[ROOT/'tools/headkit'/name for name in ('blender_render.py','gltf.py','review_images.py','common.py')]
+            helpers.append(ROOT/'tools/phenotypes/bootstrap_shared_blender_addons.py')
+            for path in helpers:
+                self.assertEqual(pin(snapshots[str(path)]['snapshot'])['sha256'],pin(path)['sha256'])
+            captured.append(command)
+            raise Launched
+        with patch('subprocess.run',side_effect=launch):
+            with self.assertRaises(Launched):runner._execute('render',runner.run)
+        self.assertEqual(len(captured),1)
+
+    def test_pre_native_review_renders_use_run_colour_ownership_and_named_views(self):
+        from headkit.paint import PREVIEW
+        runner=self.render_runner();decoded=self.root/'decoded.png';Image.new('RGB',(16,16),(9,8,7)).save(decoded)
+        labels=(np.arange(256).reshape(16,16)%10).astype(np.uint8);onek=self.root/'onek.png';Image.fromarray(labels).save(onek)
+        render=dict(runner.data['render'],mapStages={'basecolor':'palette'},ownershipView=True,modes=['clay','color-only','ownership'],views=['front','back'])
+        render.pop('cameras');render['frontAngleDegrees']=0;runner.data['render']=render
+        self.assertEqual(runner.dependencies('render'),['palette','ownership'])
+        results={'palette':{'decoded':pin(decoded)},'ownership':{'onek':pin(onek)}}
+        class Launched(Exception):pass
+        with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}),             patch('subprocess.run',side_effect=Launched):
+            with self.assertRaises(Launched):runner._execute('render',runner.run)
+        config=read(runner.run/'render-config.json')
+        self.assertEqual([row['name'] for row in config['cameras']],['front','back'])
+        self.assertEqual(Path(config['maps']['basecolor']),decoded.resolve())
+        np.testing.assert_array_equal(np.asarray(Image.open(config['maps']['ownership'])),PREVIEW[labels])
+        runner.data['render']=dict(render,ownershipView=False)
+        with patch.object(runner,'result',side_effect=lambda stage,**k:results[stage]),patch('headkit.gltf.mesh',return_value={'positions':np.eye(3)}):
+            with self.assertRaisesRegex(ValueError,'needs ownershipView'):runner._execute('render',self.root/'second')
+    def test_render_launcher_rejects_changed_imported_helper(self):
+        from headkit.common import stage_file_pins,verify
+        helper=self.file('imported-helper.py','value=1');frozen=stage_file_pins('render')+[pin(helper)]
+        runner=self.render_runner();launcher=self.launcher()
+        def launch(command,**kwargs):
+            helper.write_text('value=2')
+            # Both the shared launcher and Blender use the prepared hashes.
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):
+                verify(read(runner.run/'render-config.json')['inputs'])
+            launcher.manifest_inputs([Path(command[command.index('--input-manifest')+1])])
+        with patch('headkit.runner.stage_file_pins',return_value=frozen),patch('subprocess.run',side_effect=launch):
+            with self.assertRaisesRegex(ValueError,'Manifest input changed'):
+                runner._execute('render',runner.run)
+
+    def test_runner_rejects_empty_plan_before_atlas_or_blender_work(self):
+        path=self.file('uv.glb');data={'schemaVersion':1,'id':'empty-render','inputs':{'uvMesh':{'path':path.name,'sha256':pin(path)['sha256']}},
+            'render':{'cameras':[],'mapInputs':{}}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        runner=Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+        with patch('headkit.review_images.atlas_sets') as atlases,patch('subprocess.run') as blender:
+            with self.assertRaisesRegex(ValueError,'nonempty'):runner._execute('render',runner.run)
+            atlases.assert_not_called();blender.assert_not_called()
+        self.assertFalse((runner.run/'renders').exists())
+
+
+class ManifestDigestTests(Temporary):
+    fixture=ResumeTests.fixture
+    def test_pinning_a_palette_row_stales_palette_but_not_tone(self):
+        # Tone reads only the palette images (palette.inputs); a row pin used to force a byte-identical tone rerun.
+        runner=self.fixture();runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':{'0':'auto'}}
+        before={stage:runner.manifest_digest(stage) for stage in ('tone','palette')}
+        runner.data['palette']['rows']={'0':42}
+        self.assertEqual(runner.manifest_digest('tone'),before['tone']);self.assertNotEqual(runner.manifest_digest('palette'),before['palette'])
+        runner.data['palette']['inputs']={'0':'paletteHair'}
+        self.assertNotEqual(runner.manifest_digest('tone'),before['tone'])
+    def test_rewording_notes_never_changes_a_stage_digest(self):
+        from headkit.runner import STAGES
+        runner=self.fixture();data=runner.data
+        data.update(fit={'excludeLower':.25,'notes':'Fit chosen on the profile'},
+                    mesh={'neckReview':'Seal looks clean','shellInspection':{'visualReviewed':True,'notes':'non-manifold export'}},
+                    approval=dict(data['approval'],textureMaps={'basecolor4k':{'decision':'approved','notes':'Atlas reviewed'}}))
+        data['features'][0]['notes']='Swept back from the crown'
+        digests=lambda:{stage:runner.manifest_digest(stage) for stage in STAGES};before=digests()
+        runner.data=copy.deepcopy(data);runner.data['fit']['notes']='Reworded fit note';runner.data['features'][0]['notes']='Reworded'
+        runner.data['mesh']['shellInspection']['notes']='Reworded inspection';runner.data['approval']['textureMaps']['basecolor4k']['notes']='Reworded'
+        self.assertEqual(digests(),before)
+        # Non-notes keys still count, and a blanked review note still fails its gate, so it stales too.
+        for stage,change in (('fit',lambda d:d['fit'].update(excludeLower=.3)),('repair',lambda d:d['mesh'].update(neckReview='Seal shows a lip')),
+                             ('prepare',lambda d:d['features'][0].update(notes=' '))):
+            with self.subTest(stage=stage):
+                runner.data=copy.deepcopy(data);change(runner.data);self.assertNotEqual(runner.manifest_digest(stage),before[stage])
+
+
+class StageCodeVersionTests(Temporary):
+    def test_stage_code_binds_the_branch_import_closure_and_core_only(self):
+        from headkit.common import stage_code_files
+        package=self.root/'pkg';package.mkdir();root=self.root/'repo'
+        sources={'runner.py':"def _execute(self,stage,folder):\n    if stage=='fit':\n        from .fit import propose\n"
+                             "    if stage=='unwrap':\n        from .uv import unwrap\n",
+                 'fit.py':"def propose():\n    from .gltf import mesh\n",'gltf.py':"from .common import require\n",'common.py':'',
+                 'uv.py':"from . import gltf\n",'__init__.py':'','manifest.schema.json':'{}','test_package.py':"from . import fit,uv\n",'__main__.py':"from . import uv\n"}
+        for name,text in sources.items():(package/name).write_text(text)
+        names=lambda stage:{path.name for path in stage_code_files(stage,package,root)}
+        core={'__init__.py','runner.py','common.py','manifest.schema.json'}
+        self.assertEqual(names('fit'),core|{'fit.py','gltf.py'})  # a function-level import counts; uv.py, tests and the CLI do not
+        self.assertEqual(names('unwrap'),core|{'uv.py','gltf.py'})
+        with self.assertRaisesRegex(ValueError,'No runner branch'):stage_code_files('bake',package,root)
+    def test_package_stages_each_have_scoped_code(self):
+        from headkit.common import stage_code_files
+        from headkit.runner import STAGES
+        for stage in STAGES:
+            with self.subTest(stage=stage):
+                names={path.name for path in stage_code_files(stage)}
+                self.assertTrue({'runner.py','common.py','shared-tools.lock.json'}<=names)
+                self.assertFalse({'test_headkit.py','__main__.py','design.py'}&names)
+                # Render coordinates its GPU lane and idle check with ComfyUI.
+                self.assertNotIn('comfy.py',names)
+                if stage=='render':self.assertIn('gpu_lock.py',names)
+                # Generation adapters remain outside processing stages, including GPU rendering.
+                self.assertFalse([path for path in stage_code_files(stage) if 'comfy_nodes' in path.parts])
+        fit={path.name for path in stage_code_files('fit')};repair={path.name for path in stage_code_files('repair')}
+        self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)
+        self.assertTrue({'mesh.py','intersections.py'}<=repair);self.assertNotIn('uv.py',repair)
+        self.assertIn('blender_render.py',{path.name for path in stage_code_files('render')})
+        native={path.name for path in stage_code_files('native')}
+        self.assertTrue({'native_compile.py','neverblender_mdl.py','neverblender_worker.py','rig_native.py'}<=native)
+
+
+class NativeDependencyTests(Temporary):
+    def test_native_imports_and_compiler_inputs_are_pinned(self):
+        from headkit.common import ROOT,stage_code_pins
+        # Isolate actual imports from modules already loaded by other tests.
+        script="""import json,sys
+from pathlib import Path
+from headkit.common import ROOT
+from headkit.native import helpers,neverblender
+helpers();neverblender()
+sys.path.insert(0,str(ROOT/'tools/phenotypes'))
+import native_compile
+print(json.dumps(sorted({str(Path(module.__file__).resolve()) for module in list(sys.modules.values())
+    if getattr(module,'__file__',None) and Path(module.__file__).resolve().is_relative_to(ROOT)})))
+"""
+        result=subprocess.run([sys.executable,'-B','-c',script],capture_output=True,text=True,check=True)
+        consumed=set(json.loads(result.stdout))
+        consumed.add(str(ROOT/'tools/phenotypes/height_targets.json'))
+        consumed.add(str(ROOT/'tools/shared-tools.lock.json'))
+        for stage in ('native','export'):
+            with self.subTest(stage=stage):self.assertFalse(consumed-{row['path'] for row in stage_code_pins(stage)})
+
+
+class OcciputTests(Temporary):
+    def test_open_back_of_skull_is_flagged_and_a_closed_skull_passes(self):
+        from headkit.gltf import write_mesh
+        from headkit.occiput import back_coverage
+        rows,segments=60,64;phi=np.linspace(.05,np.pi-.05,rows);theta=np.arange(segments)*2*np.pi/segments  # no pole vertices (degenerate fans)
+        # glTF frame: y up, face +z, back -z.
+        sphere=np.array([(np.sin(a)*np.sin(b),np.cos(a),np.sin(a)*np.cos(b)) for a in phi for b in theta])*.1
+        j=np.arange(segments);k=(j+1)%segments;faces=np.concatenate([np.c_[r*segments+j,r*segments+k,(r+1)*segments+k] for r in range(rows-1)]
+                                                                    +[np.c_[r*segments+j,(r+1)*segments+k,(r+1)*segments+j] for r in range(rows-1)])
+        write_mesh(self.root/'closed.glb',sphere,faces);closed=back_coverage(self.root/'closed.glb')
+        self.assertFalse(closed['open']);self.assertEqual(closed['lowBands'],[])
+        centroid=sphere[faces].mean(1);height=(centroid[:,1]+.1)/.2
+        hole=(centroid[:,2]<-.04)&(height>.45)&(height<.7)  # the occiput missing behind the face shell
+        kept=faces[~hole];used,remap=np.unique(kept,return_inverse=True)  # drop the vertices only the hole used
+        write_mesh(self.root/'open.glb',sphere[used],remap.reshape(-1,3));opened=back_coverage(self.root/'open.glb')
+        self.assertTrue(opened['open']);self.assertTrue(all(.45<=b<.7 for b in opened['lowBands']))
+        front=faces[centroid[:,2]>.02];used,remap=np.unique(front,return_inverse=True)  # a face shell with no back at all
+        write_mesh(self.root/'shell.glb',sphere[used],remap.reshape(-1,3));shell=back_coverage(self.root/'shell.glb')
+        self.assertTrue(shell['open']);self.assertEqual(shell['reason'],'no back surface')
+
+
+class BatchTests(Temporary):
+    def heads(self):
+        rows=[];base=self.root
+        for name in ('a','b'):
+            self.root=base/name;self.root.mkdir();ResumeTests.fixture(self)
+            rows.append({'manifest':str(self.root/'manifest.json'),'bindings':str(self.root/'bindings.json'),'run':str(self.root/'run')})
+            (self.root/'prepared'/'ascii').mkdir(parents=True)
+        self.root=base;return rows
+
+    def run_batch(self,heads,precompile):
+        import headkit.__main__ as cli
+        seen=[]
+        def chain(runner,stages):
+            seen.append((runner.data['id'],getattr(runner,'precompiled',None)));return {'stages':[],'stopped':None}
+        def result(runner,stage,**kw):
+            if stage=='native':raise ValueError('Stage not completed: native')
+            return {'ascii':{'path':str(Path(runner.bindings_path).parent/'prepared'/'ascii'/'head.mdl')}}
+        with patch('headkit.__main__.launched',return_value=None),patch('headkit.__main__.chain',side_effect=chain), \
+             patch.object(Runner,'native_compiler',return_value=[{'path':'mdl-compiler.json','sha256':'s'}]), \
+             patch.object(Runner,'result',autospec=True,side_effect=result), \
+             patch('headkit.native.mdl_compiler',return_value={}),patch('headkit.native.precompile',side_effect=precompile) as compile_many:
+            report=cli.batch(heads,['native'],precompile=self.root/'shared')
+        return report,seen,compile_many
+
+    def test_one_shared_compile_for_every_eligible_head(self):
+        heads=self.heads()
+        mapping=lambda prepared,mdl,folder:{str(Path(p).resolve()):Path(folder)/f'{i:02d}' for i,p in enumerate(prepared)}
+        report,seen,compile_many=self.run_batch(heads,mapping)
+        compile_many.assert_called_once();self.assertEqual(len(compile_many.call_args[0][0]),2)
+        self.assertEqual([len(folders) for _,folders in seen],[2,2]);self.assertEqual(report['precompile'][0]['heads'],['synthetic','synthetic'])
+        self.assertNotIn('error',report['precompile'][0])
+
+    def test_a_failed_shared_compile_falls_back_to_per_head_compiles(self):
+        def broken(prepared,mdl,folder):raise RuntimeError('worker failed')
+        report,seen,_=self.run_batch(self.heads(),broken)
+        self.assertEqual(seen,[('synthetic',None),('synthetic',None)]);self.assertIn('worker failed',report['precompile'][0]['error'])
+
+    def test_heads_must_be_distinct_runs(self):
+        import headkit.__main__ as cli
+        heads=self.heads()
+        with self.assertRaisesRegex(ValueError,'distinct head runs'):cli.batch([heads[0],heads[0]],['native'])
+
+
+class NeverblenderNativeTests(Temporary):
+    def binding(self, addon=None):
+        blender=self.file('blender.exe');path=self.root/'mdl-compiler.json'
+        write(path,{'blender':pin(blender),'neverblender':{'path':str(addon or self.root/'neverblender')}});return path
+
+    def test_compiler_binding_verifies_blender_and_needs_an_absolute_addon(self):
+        from headkit.native import mdl_compiler
+        path=self.binding();self.assertEqual(mdl_compiler(path)['neverblender'],str(self.root/'neverblender'))
+        (self.root/'blender.exe').write_bytes(b'changed')
+        with self.assertRaises(ValueError):mdl_compiler(path)
+        with self.assertRaisesRegex(ValueError,'Absolute'):mdl_compiler(self.binding('relative/neverblender'))
+
+    def test_bound_compile_uses_neverblender_not_the_client(self):
+        from headkit import native
+        prepared=self.root/'prepared';(prepared/'ascii').mkdir(parents=True);(prepared/'resources').mkdir()
+        rows={}
+        for name in ('source.glb','ascii/head.mdl','resources/head.plt','expected-native.npz'):
+            (prepared/name).write_bytes(name.encode());rows[name]=pin(prepared/name)
+        write(prepared/'prepared.json',{'model':'head','source':rows['source.glb'],'ascii':rows['ascii/head.mdl'],
+                                        'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
+        engine=Path(self.root/'engine');engine.mkdir()
+        for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
+        def compile_folder(blender,addon,converted,dirs,timeout,cache=None):
+            (Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
+            return {'complete':True,'compiled':1,'executionMode':'neverblender-cleanmodels','compilerSha256':'c',
+                    'blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
+        nvb=SimpleNamespace(compile_folder=compile_folder,__file__=str(engine/'neverblender_mdl.py'))
+        hak=SimpleNamespace(write_hak=lambda path,rows:Path(path).write_bytes(b'hak'),
+                            payload=lambda path:{('head',2002):pin(self.root/'out/resources/head.mdl')['sha256'],
+                                                 ('head',6):pin(self.root/'out/resources/head.plt')['sha256']})
+        with patch('headkit.native.neverblender',return_value=nvb),patch('headkit.native.subprocess.run') as client, \
+             patch('headkit.native.audit_native',return_value=(b'binary',{'model':'head'})), \
+             patch('headkit.native.helpers',return_value=(None,hak,None,None,None)):
+            audit=native.compile_and_package(prepared,None,self.root/'out',native.mdl_compiler(self.binding()))
+        client.assert_not_called()
+        with self.assertRaisesRegex(ValueError,'Bind the EE client'):native.compile_and_package(prepared,None,self.root/'no-compiler')
+        self.assertEqual(audit['compiler']['mode'],'neverblender-cleanmodels');self.assertEqual(len(audit['compiler']['engine']),3)
+
+    def test_a_precompiled_binary_is_reused_and_recorded(self):
+        from headkit import native
+        prepared=self.root/'prepared';(prepared/'ascii').mkdir(parents=True);(prepared/'resources').mkdir();rows={}
+        for name in ('source.glb','ascii/head.mdl','resources/head.plt','expected-native.npz'):
+            (prepared/name).write_bytes(name.encode());rows[name]=pin(prepared/name)
+        write(prepared/'prepared.json',{'model':'head','source':rows['source.glb'],'ascii':rows['ascii/head.mdl'],
+                                        'plt':rows['resources/head.plt'],'expected':rows['expected-native.npz']})
+        cache=self.root/'batch'/'00'/'converted';cache.mkdir(parents=True);write(cache/'native-compile.json',{'complete':True})
+        engine=self.root/'engine';engine.mkdir()
+        for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py'):(engine/name).write_text(name)
+        seen=[]
+        def compile_folder(blender,addon,converted,dirs,timeout,cache=None):
+            seen.append(cache);(Path(converted)/'resources'/'head.mdl').write_bytes(b'binary');(Path(converted)/'native-compile.json').write_text('{}')
+            return {'complete':True,'compiled':0 if cache else 1,'reused':1 if cache else 0,'executionMode':'neverblender-cleanmodels',
+                    'compilerSha256':'c','blenderVersion':'5.2.1 LTS','compiler':{'cleanmodels':'v4.10.0'}}
+        hak=SimpleNamespace(write_hak=lambda path,rows:Path(path).write_bytes(b'hak'),
+                            payload=lambda path:{('head',2002):pin(Path(path).parent/'resources/head.mdl')['sha256'],
+                                                 ('head',6):pin(Path(path).parent/'resources/head.plt')['sha256']})
+        with patch('headkit.native.neverblender',return_value=SimpleNamespace(compile_folder=compile_folder,__file__=str(engine/'neverblender_mdl.py'))), \
+             patch('headkit.native.audit_native',return_value=(b'binary',{'model':'head'})),patch('headkit.native.helpers',return_value=(None,hak,None,None,None)):
+            audit=native.compile_and_package(prepared,{'path':'unused'},self.root/'out',native.mdl_compiler(self.binding()),cache=cache)
+            with self.assertRaisesRegex(ValueError,'needs the Neverblender compiler'):
+                native.compile_and_package(prepared,{'path':'unused'},self.root/'client',None,cache=cache)
+        self.assertEqual(seen,[cache]);self.assertEqual(audit['compiler']['precompiled'],pin(cache/'native-compile.json'))
+
+    def test_native_branch_hands_its_precompiled_folder_to_the_compile(self):
+        from headkit.common import runner_slice
+        text=runner_slice(Path(__file__).parent/'runner.py','native')
+        self.assertIn("getattr(self,'precompiled',{})",text);self.assertIn('cache=cache',text)
+
+    def test_native_receipt_is_bound_to_its_compiler_selection(self):
+        runner=ResumeTests.fixture(self);binding=self.root/'mdl-compiler.json'
+        def native():
+            with patch.object(runner,'dependencies',return_value=[]),patch.object(runner,'_execute',return_value={}), \
+                 patch('headkit.native.mdl_compiler_files',side_effect=lambda path:[pin(path)]):
+                return runner.execute('native')
+        self.assertFalse(native()['reused']);self.assertTrue(native()['reused'])  # client compile, no binding
+        write(binding,{'blender':'adopted'})
+        self.assertFalse(native()['reused']);receipt=read(runner.state['stages']['native']['path'])
+        self.assertEqual(receipt['compiler'],[pin(binding)]);self.assertIn(pin(binding),receipt['inputs']);self.assertTrue(native()['reused'])
+        write(binding,{'blender':'changed'});self.assertFalse(native()['reused'])
+        binding.unlink();self.assertFalse(native()['reused']);self.assertEqual(read(runner.state['stages']['native']['path'])['compiler'],[])
+
+    def test_native_runner_branch_reads_the_local_compiler_binding(self):
+        from headkit.common import runner_slice
+        text=runner_slice(Path(__file__).parent/'runner.py','native')
+        # The compile itself stays in the native branch; the shared gate only binds the selection (test above).
+        self.assertIn('compile_and_package',text);self.assertNotIn('compile_and_package',runner_slice(Path(__file__).parent/'runner.py','repair'))
+
+
+class ReviewImageTests(Temporary):
+    def test_retained_atlases_allow_fresh_output_but_existing_frames_are_protected(self):
+        from headkit.review_images import render_mode_folder
+        output = self.root/'fresh'
+        self.assertTrue(render_mode_folder(output,1024,'clay').is_dir())
+        self.assertTrue(render_mode_folder(output,1024,'color-only').is_dir())
+        with self.assertRaises(FileExistsError):
+            render_mode_folder(output,1024,'clay')
+
+    def test_default_and_example_deliver_both_native_resolutions(self):
+        from headkit.review_images import resolutions
+        self.assertEqual(resolutions({}),[2048,1024])
+        example=read(Path(__file__).parent/'examples'/'processing.json')
+        self.assertEqual(resolutions(example['render']),[2048,1024])
+        self.assertTrue(set(example['render']['mapInputs'].values())<=set(example['inputs']))
+        self.assertTrue(set(example['render']['mapInputs'].values())<=set(example['approval']['textureMaps']))
+        with self.assertRaises(ValueError):resolutions({'sizes':[768]})
+        with self.assertRaises(ValueError):resolutions({'sizes':[2048,1024],'size':768})
+    def test_atlases_are_filtered_to_actual_1k_and_hashed(self):
+        from headkit.review_images import atlas_sets
+        # Alternating pixels average to midgray; this catches nearest-neighbor derivatives.
+        values=np.tile(np.array([0,255],np.uint8),(2048,1024));Image.fromarray(values).save(self.root/'texture.png')
+        sets,records=atlas_sets({'maps':{'roughness':str(self.root/'texture.png')}},self.root/'atlases',[2048,1024])
+        self.assertEqual(len(records),2)
+        with Image.open(sets[2048]['roughness']) as image:np.testing.assert_array_equal(np.asarray(image),values)
+        with Image.open(sets[1024]['roughness']) as image:self.assertEqual(image.size,(1024,1024));self.assertTrue(np.all(np.asarray(image)==128))
+        with self.assertRaisesRegex(ValueError,'no upsampling'):atlas_sets({'maps':{'roughness':sets[1024]['roughness']}},self.root/'bad',[2048])
+    def test_atlas_traversal_is_rejected_before_any_output_or_overwrite(self):
+        from headkit.review_images import atlas_sets
+        source=self.root/'source.png';Image.new('RGB',(8,8),(20,50,90)).save(source)
+        victim=self.root/'outside.png';Image.new('RGB',(8,8),(90,50,20)).save(victim)
+        originals=[pin(source),pin(victim)];output=self.root/'attempt'
+        with self.assertRaisesRegex(ValueError,'supported map names'):
+            atlas_sets({'maps':{'basecolor':str(source),'../../../outside':str(source)}},output,[8])
+        self.assertFalse(output.exists())
+        self.assertEqual([pin(source),pin(victim)],originals)
+
+    def test_all_unrecognized_map_names_fail_before_image_io(self):
+        from headkit.review_images import atlas_sets,render_plan
+        bad_names=['../outside',r'..\outside','/absolute',r'C:\absolute',str(self.root/'absolute'),
+                   'extra','basecolor.png','',1]
+        for name in bad_names:
+            with self.subTest(name=name):
+                maps={'basecolor':'unused',name:'unused'}
+                with patch('PIL.Image.open',side_effect=AssertionError('Invalid names reached image IO')) as image_open:
+                    with self.assertRaisesRegex(ValueError,'supported map names'):atlas_sets({'maps':maps},self.root/'invalid',[8])
+                    image_open.assert_not_called()
+                for field in ('maps','mapInputs'):
+                    with self.assertRaisesRegex(ValueError,'supported map names'):
+                        render_plan({'cameras':[RenderPlanTests.camera(self)],field:maps})
+        for bad in (None,[],['basecolor']):
+            with self.subTest(mapping=bad):
+                with self.assertRaisesRegex(ValueError,'supported map names'):atlas_sets({'maps':bad},self.root/'invalid',[8])
+        self.assertFalse((self.root/'invalid').exists())
+
+    def test_supported_atlas_names_preserve_color_modes_and_hashes(self):
+        from headkit.review_images import atlas_sets
+        source=self.root/'source.png';Image.new('RGB',(8,8),(20,50,90)).save(source)
+        names={'basecolor','roughness','metallic','opacity'}
+        maps={name:str(source) for name in names}
+        sets,records=atlas_sets({'maps':maps},self.root/'valid',[8])
+        self.assertEqual(set(sets[8]),names);self.assertEqual(len(records),4)
+        for row in records:
+            self.assertEqual(row['source'],pin(source));self.assertEqual(row['image'],pin(sets[8][row['map']]))
+            with Image.open(row['image']['path']) as image:
+                self.assertEqual(image.mode,'RGB' if row['map']=='basecolor' else 'L')
+                self.assertEqual(image.size,(8,8))
+
+    def test_sheets_preserve_native_view_pixels_and_reject_wrong_dimensions(self):
+        from headkit.review_images import sheets
+        records=[]
+        for size in (2048,1024):
+            image=Image.new('RGB',(size,size),(20,50,90));path=self.root/f'frame-{size}.png';image.save(path)
+            records.append({'size':size,'mode':'clay','view':'front','image':pin(path)})
+            (self.root/'sheets'/str(size)).mkdir(parents=True)
+        result=sheets(records,self.root/'sheets',20000);self.assertEqual(len(result['sheets']),2)
+        for row in result['sheets']:
+            with Image.open(row['image']['path']) as image:
+                self.assertEqual(image.size,(row['size'],row['size']+32));self.assertEqual(image.getpixel((0,32)),(20,50,90))
+        records[0]['size']=1024
+        with self.assertRaisesRegex(ValueError,'dimensions'):sheets(records,self.root/'sheets',20000)
+
+
+class TextureStageTests(Temporary):
+    CREST={'name':'crest','pivotHeight':.6,'angleRange':[-20,150],'angleBinDegrees':3,'slabWidth':.02,
+           'midlineHalfWidth':.17,'envelopeClearance':.02,'stripeHalfWidth':.025}
+    @staticmethod
+    def quads(grid):
+        a,b,c,d=grid[:-1,:-1],grid[1:,:-1],grid[1:,1:],grid[:-1,1:]
+        return np.r_[np.stack([a,b,c],2).reshape(-1,3,3),np.stack([a,c,d],2).reshape(-1,3,3)]
+    @staticmethod
+    def soup(triangles, cell=4):
+        """Every face owns its vertices (as after a UV split) and one square UV cell; returns value, atlas size."""
+        n=len(triangles);side=int(np.ceil(np.sqrt(n)));k=np.arange(n);u0,v0=(k%side)/side,(k//side)/side;s=1/side
+        uv=np.stack([np.c_[u0+.1*s,v0+.1*s],np.c_[u0+.9*s,v0+.1*s],np.c_[u0+.1*s,v0+.9*s]],1)
+        return {'positions':triangles.reshape(-1,3),'faces':np.arange(3*n).reshape(n,3),'uv':uv},side*cell
+    class Rays:
+        """Brute-force stand-in for rays.EmbreeScene: nearest hit distance and face per ray (-1 on a miss); like Embree's
+        wrapper it refuses rays that are not finite unit vectors."""
+        def __init__(self,dll,points,faces):self.t=np.asarray(points,float)[np.asarray(faces)]
+        def query(self,origins,directions):
+            o=np.asarray(origins,float);d=np.broadcast_to(np.asarray(directions,float),o.shape);a,b,c=self.t[:,0],self.t[:,1],self.t[:,2]
+            if not (np.isfinite(o).all() and np.isfinite(d).all() and np.allclose(np.linalg.norm(d,axis=1),1,atol=1e-5,rtol=0)):
+                raise ValueError('Require finite unit rays')
+            e1,e2=b-a,c-a;best=np.full(len(o),np.inf);ids=np.full(len(o),-1)
+            for s in range(0,len(o),1024):
+                oo,dd=o[s:s+1024,None],d[s:s+1024,None];p=np.cross(dd,e2);det=(e1*p).sum(-1)
+                with np.errstate(divide='ignore',invalid='ignore'):
+                    inv=1/det;tv=oo-a;u=(tv*p).sum(-1)*inv;q=np.cross(tv,e1);v=(dd*q).sum(-1)*inv;t=(e2*q).sum(-1)*inv
+                    t=np.where((np.abs(det)>1e-12)&(u>=0)&(v>=0)&(u+v<=1)&(t>1e-9),t,np.inf);k=t.argmin(1)
+                best[s:s+1024]=t[np.arange(len(k)),k];ids[s:s+1024]=np.where(np.isfinite(best[s:s+1024]),k,-1)
+            return best,ids,None
+        def close(self):pass
+    def head(self):
+        """Lateral cylinder skull (x across, y up, z front), a raised midline fin and a raised side ridge at x=0.6."""
+        def ring(x,radii,degrees):
+            r,t=np.meshgrid(radii,np.radians(degrees),indexing='ij')
+            return np.stack([np.broadcast_to(x,r.shape),r*np.sin(t),-r*np.cos(t)],-1)
+        # The skull is dense enough that every 3-degree pivot-angle bin holds skull faces beneath the fin.
+        x,t=np.meshgrid(np.linspace(-.8,.8,41),np.radians(np.arange(0,361,1)),indexing='ij')
+        skull=self.quads(np.stack([x,np.sin(t),-np.cos(t)],-1))
+        fin=self.quads(ring(0.,[1,1.1,1.2,1.3,1.4],np.arange(20,121,3)));ridge=self.quads(ring(.6,[1,1.1,1.2,1.3,1.4],np.arange(20,121,3)))
+        value,size=self.soup(np.r_[skull,fin,ridge]);kind=np.repeat([0,1,2],[len(skull),len(fin),len(ridge)])
+        colours=np.array([[150,110,90],[180,180,180],[180,180,180]],np.uint8)[kind];side=size//4
+        cells=np.arange(side*side).reshape(side,side).repeat(4,0).repeat(4,1).clip(0,len(kind)-1)
+        return value,colours[cells].copy(),kind
+    def test_crest_selects_raised_midline_faces_not_skull_or_side_ridge(self):
+        from headkit.paint import crest_faces
+        value,rgb,kind=self.head();band,stripe,grown=crest_faces(value,rgb,self.CREST)
+        radius=np.hypot(*value['positions'][value['faces']].mean(1)[:,1:].T)
+        self.assertFalse(band[kind!=1].any());self.assertEqual(grown,0)
+        self.assertTrue(band[(kind==1)&(radius>1.1)].all());self.assertFalse(band[(kind==1)].all())
+        np.testing.assert_array_equal(stripe,band)
+    def test_crest_growth_crosses_uv_seams_through_welded_positions(self):
+        from headkit.paint import crest_faces,adjacency
+        value,rgb,kind=self.head()
+        grow={'rounds':12,'halfWidth':.2,'skullTolerance':.01,'grayMinimumLuminance':95,'grayMaximumSpread':30}
+        band,_,grown=crest_faces(value,rgb,dict(self.CREST,grow=grow))
+        self.assertGreater(grown,0);np.testing.assert_array_equal(band,kind==1)
+        # Split vertices at equal positions are neighbours; a nearby but distinct edge is not.
+        p=np.array([[0,0,0],[1,0,0],[0,1,0],[1,0,0],[0,1,0],[1,1,0],[1,0,1e-3],[0,1,0],[1,1,1]],float)
+        neighbours=adjacency(p,np.arange(9).reshape(3,3)).toarray()>0
+        np.testing.assert_array_equal(neighbours,[[False,True,False],[True,False,False],[False,False,False]])
+    def test_crest_paints_only_untextured_texels(self):
+        from headkit.paint import crest
+        value,rgb,kind=self.head();rgb[...]=(180,180,180);rgb[:,:8]=(10,10,10);report={}
+        op=dict(self.CREST,color=[18,16,17],stripeColor=[120,14,22],preserve={'darkBelow':45,'redAbove':40})
+        masks=crest(value,rgb,op,report);self.assertEqual(set(masks),{'crest','crest-stripe'});self.assertTrue((rgb[:,:8]==10).all())
+        painted=masks['crest-stripe'].copy();painted[:,:8]=False;outside=~masks['crest'];outside[:,:8]=False
+        self.assertTrue(painted.any() and (rgb[painted]==(120,14,22)).all() and (rgb[outside]==180).all())
+        self.assertEqual(report['paintedTexels']['crest-stripe'],int(painted.sum()))
+    def test_protrusion_selects_the_seeded_horn_not_the_skull_or_an_unseeded_ear(self):
+        # RUNBOOK 163: a sphere skull with a horn cylinder out along +x and an ear cylinder along -x; Embree replaced by a
+        # brute-force ray caster. The ball-opened solid keeps the sphere and drops both cylinders; only the seeded one is horn.
+        from headkit import paint,rays
+        lat,lon=np.meshgrid(np.radians(np.linspace(-90,90,13)),np.radians(np.linspace(0,360,25)),indexing='ij')
+        sphere=self.quads(np.stack([np.cos(lat)*np.cos(lon),np.sin(lat),np.cos(lat)*np.sin(lon)],-1))
+        def tube(x0,x1):
+            x,t=np.meshgrid(np.linspace(x0,x1,5),np.radians(np.linspace(0,360,9)),indexing='ij')
+            side=self.quads(np.stack([x,.2*np.cos(t),.2*np.sin(t)],-1));rim=np.stack([np.full(9,x1),.2*np.cos(t[0]),.2*np.sin(t[0])],-1)
+            return np.r_[side,np.stack([np.broadcast_to([x1,0,0],(8,3)),rim[:-1],rim[1:]],1)]
+        def outward(tris,inside):
+            """Wind each triangle so its normal points away from the given inside point (repaired meshes face outward)."""
+            n=np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0]);flip=(n*(tris.mean(1)-inside)).sum(1)<0
+            tris=tris.copy();tris[flip]=tris[flip][:,[0,2,1]];return tris
+        axis=lambda tris,x0,x1:np.c_[np.clip(tris.mean(1)[:,0],min(x0,x1)+.05,max(x0,x1)-.05),np.zeros((len(tris),2))]
+        horn,ear=tube(.85,2.2),tube(-.85,-1.6);sphere=outward(sphere,np.zeros(3))
+        horn,ear=outward(horn,axis(horn,.85,2.2)),outward(ear,axis(ear,-.85,-1.6));value,size=self.soup(np.r_[sphere,horn,ear])
+        kind=np.repeat([0,1,2],[len(sphere),len(horn),len(ear)]);centre=value['positions'][value['faces']].mean(1)
+        # Clearance just over one voxel step (3.8 wide / 48 voxels = 0.0396 head heights): the skull's surface voxels stay in.
+        op={'op':'protrusion','name':'horns','seeds':[{'of':'x','gt':.8}],'ball':.15,'clearance':.045,'voxels':48}
+        with patch.object(paint,'EmbreeScene',self.Rays),patch.object(rays,'EmbreeScene',self.Rays):
+            selected,report=paint.protrusion_faces(value,np.full((size,size,3),128,np.uint8),op,{},'embree.dll')
+            self.assertFalse(selected[kind==0].any());self.assertFalse(selected[kind==2].any())
+            self.assertLessEqual(report['standingOut'],len(horn)+len(ear),report)   # no skull face stands out
+            with self.assertRaisesRegex(ValueError,'voxel step'):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),dict(op,clearance=.03),{},'embree.dll')
+            self.assertTrue(selected[(kind==1)&(centre[:,0]>1.2)].all(),report)
+            for bad in (dict(op,ball=.5),dict(op,grow=1.5),dict(op,seeds=[]),dict(op,extra=1)):
+                with self.subTest(op=bad),self.assertRaises(ValueError):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),bad,{},'embree.dll')
+            with self.assertRaisesRegex(ValueError,'Embree'):paint.protrusion_faces(value,np.zeros((size,size,3),np.uint8),op,{},None)
+    def test_outer_faces_drop_the_inner_wall_of_a_double_shell(self):
+        # RUNBOOK 164: a repaired head is double-walled (Alpha Wrap). Outer wall faces outward, a hidden inner wall 0.005 head
+        # heights behind it faces the cavity; the seam check and the horn detector must see only the outer wall.
+        from headkit import rays
+        lat,lon=np.meshgrid(np.radians(np.linspace(-90,90,13)),np.radians(np.linspace(0,360,25)),indexing='ij')
+        unit=np.stack([np.cos(lat)*np.cos(lon),np.sin(lat),np.cos(lat)*np.sin(lon)],-1)
+        def wound(tris,out):
+            n=np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0]);tris=tris[np.linalg.norm(n,axis=1)>1e-9]   # drop the poles' slivers
+            flip=((np.cross(tris[:,1]-tris[:,0],tris[:,2]-tris[:,0])*tris.mean(1)).sum(1)<0)==out
+            tris=tris.copy();tris[flip]=tris[flip][:,[0,2,1]];return tris
+        shell=np.r_[wound(self.quads(unit),True),wound(self.quads(.99*unit),False)];half=len(shell)//2
+        # A zero-area face last: Embree refuses its ray, so it is simply not outer.
+        value,_=self.soup(np.r_[shell,np.zeros((1,3,3))]);positions=value['positions'].astype(float)
+        with patch.object(rays,'EmbreeScene',self.Rays):
+            outer,normal=rays.outer_faces('embree.dll',positions,value['faces'],2.)
+            np.testing.assert_array_equal(outer,np.arange(len(shell)+1)<half)
+            self.assertTrue(((normal*positions[value['faces']].mean(1)).sum(1)[:half]>0).all());self.assertFalse(normal[-1].any())
+            # A single solid wall: every face is outer.
+            solid,_=self.soup(shell[:half]);p=solid['positions'].astype(float)
+            self.assertTrue(rays.outer_faces('embree.dll',p,solid['faces'],2.)[0].all())
+    def two_faces(self, size=64):
+        p=np.array([[0,0,0],[1,0,0],[0,1,1],[1,0,0],[1,1,1],[0,1,1]],np.float32)
+        uv=np.array([[[.02,.02],[.9,.02],[.02,.9]],[[.98,.1],[.98,.98],[.1,.98]]])
+        source=self.root/'faces.glb';write_mesh(source,p,np.arange(6).reshape(2,3),uv)
+        rgb=np.full((size,size,3),120,np.uint8);rgb[:,:size//2]=(200,20,20);Image.fromarray(rgb).save(self.root/'color.png')
+        return source,rgb
+    def test_preview_splats_views_reports_region_stats_and_previews_run_rules(self):
+        from headkit.preview import splat,region_stats,preview
+        source,rgb=self.two_faces();value=mesh(source);blue=np.zeros_like(rgb);blue[...]=(0,0,255)
+        tiles=splat(value,[rgb,blue],size=64,samples=20000)
+        self.assertEqual([name for name,_ in tiles],[n for n in ('front','char-left','back','char-right') for _ in range(2)])
+        colour,label=tiles[0][1],tiles[1][1];drawn=(label!=70).any(-1)
+        self.assertTrue(drawn.any() and (colour[drawn][:,0]>colour[drawn][:,1]).any() and (label[drawn][:,2]>label[drawn][:,0]).all())
+        stats=region_stats(value,rgb,{'all':{'of':'lum','ge':0},'none':{'of':'lum','gt':999}})
+        self.assertEqual(stats['none'],{'texels':0});self.assertEqual(stats['all']['red'][2],180)
+        Image.fromarray(np.full((64,64),200,np.uint8)).save(self.root/'metal.png')
+        rules=[{'name':'red','channel':9,'when':{'of':'red','gt':50}}]
+        runner=SimpleNamespace(data={'inputs':{},'ownership':{'mode':'rules','rules':rules}},_sealed=lambda:False,
+            result=lambda stage,require_review=True:{'unwrap':{'mesh':{'path':str(source)}},
+                'bake':{'maps':{'basecolor-4096.png':{'path':str(self.root/'color.png')},'metallic-4096.png':{'path':str(self.root/'metal.png')}}}}[stage])
+        result=preview(runner,'ownership',self.root/'preview')
+        self.assertTrue(Path(result['preview']).is_file());self.assertEqual(sum(result['report']['channels'].values()),64*64)
+        self.assertGreater(result['report']['rules'][0]['texels'],0)
+        with self.assertRaisesRegex(ValueError,'named regions'):preview(runner,'stats',self.root/'stats')
+        with self.assertRaisesRegex(ValueError,'ownership, stats, relief or rows'):preview(runner,'colour',self.root/'other')
+    def test_preview_rows_decodes_each_channel_with_its_manifest_row_and_the_ranked_rows(self):
+        # race heads v1: automatic rows were hue-wrong on 16 of 20 heads; reviewers pin rows from this sheet before the palette
+        from headkit.preview import preview
+        source,rgb=self.two_faces();owners=np.zeros((64,64),np.uint8);owners[:,32:]=1;Image.fromarray(owners).save(self.root/'own.png')
+        ramp=np.arange(256)[:,None];palette=np.zeros((4,256,4),np.uint8);palette[...,3]=255;palette[3,:,3]=0
+        palette[0,:,:3]=ramp;palette[1,:,0]=ramp[:,0];palette[2,:,2]=ramp[:,0];Image.fromarray(palette).save(self.root/'pal.png')
+        paths={'paletteSkin':str(self.root/'pal.png'),'paletteHair':str(self.root/'pal.png'),'ownership1k':str(self.root/'own.png')}
+        runner=SimpleNamespace(data={'inputs':paths,'palette':{'inputs':{'0':'paletteSkin','1':'paletteHair'},'rows':{'0':2,'1':'auto'}}},
+            _sealed=lambda:False,input=lambda name:paths[name],
+            result=lambda stage,require_review=True:{'unwrap':{'mesh':{'path':str(source)}},'bake':{'maps':{'basecolor-4096.png':{'path':str(self.root/'color.png')}}}}[stage])
+        result=preview(runner,'rows',self.root/'rows');rows=[(c['channel'],c['row'],c['manifest']) for c in result['candidates']]
+        self.assertEqual(rows[0],('0',2,True));self.assertEqual(len({(c,r) for c,r,_ in rows}),len(rows))  # the manifest row once, first
+        self.assertEqual({r for c,r,_ in rows if c=='1'},{0,1,2});self.assertNotIn(3,{r for _,r,_ in rows})  # transparent row never offered
+        self.assertTrue(Path(result['preview']).is_file())
+    def test_green_blue_separates_ochre_keratin_from_pink_skin(self):
+        from headkit.paint import colour_values
+        rgb = np.array([[[116, 90, 43], [93, 69, 73]]], np.uint8)
+        np.testing.assert_array_equal(colour_values(rgb)['gb'], [[47, -4]])
+
+    def test_rule_ownership_first_match_wins_and_padding_takes_nearest_label(self):
+        from headkit.paint import rule_ownership
+        from headkit.uv import raster_audit
+        source,rgb=self.two_faces();owners=raster_audit(mesh(source)['uv'],64)[1];mapped=owners>=0;red=rgb[...,0]==200
+        rules=[{'name':'red','channel':9,'when':{'of':'red','gt':50}},{'name':'rest','channel':1,'when':{'of':'lum','ge':0}}]
+        labels,report=rule_ownership(source,self.root/'color.png',{'rules':rules})
+        self.assertTrue((labels[mapped&red]==9).all() and (labels[mapped&~red]==1).all() and set(np.unique(labels))=={1,9})
+        self.assertEqual([row['texels'] for row in report['rules']],[int((mapped&red).sum()),int((mapped&~red).sum())])
+        labels,_=rule_ownership(source,self.root/'color.png',{'rules':rules[::-1]});self.assertTrue((labels==1).all())
+        Image.fromarray(np.where(np.arange(64)[None,:]<8,255,0).astype(np.uint8).repeat(64,0)).save(self.root/'mask.png')
+        config={'default':2,'regions':{'right':{'of':'x','center':1,'lt':.5}},
+                'rules':[{'name':'masked','channel':3,'when':{'mask':'m'}},{'name':'right','channel':8,'when':{'region':'right'}}]}
+        labels,_=rule_ownership(source,self.root/'color.png',config,masks={'m':self.root/'mask.png'})
+        right=np.arange(64)[None,:]>=8
+        self.assertTrue((labels[mapped&(owners==1)&right]==8).all() and (labels[mapped&(owners==0)&right]==2).all())
+        self.assertTrue((labels[mapped&(np.arange(64)[None,:]<8)]==3).all())
+        for bad in ({'of':'metallic','gt':1},{'region':'missing'},{'of':'lum'},{'channel':1}):
+            with self.subTest(condition=bad),self.assertRaises(ValueError):
+                rule_ownership(source,self.root/'color.png',{'rules':[{'name':'x','channel':1,'when':bad}]})
+        # overFaceMasks (RUNBOOK 161): the marked hair rule's texels, padded like the labels; only on hair rules, only booleans.
+        marked=[dict(rules[0],channel=1,overFaceMasks=True),rules[1]]
+        labels,_,keep=rule_ownership(source,self.root/'color.png',{'rules':marked},protected=True)
+        self.assertTrue((keep==(mapped&red)).all());self.assertEqual(len(rule_ownership(source,self.root/'color.png',{'rules':marked})),2)
+        self.assertIsNone(rule_ownership(source,self.root/'color.png',{'rules':rules},protected=True)[2])   # nothing marked
+        for bad in (dict(rules[0],overFaceMasks=True),dict(rules[1],overFaceMasks=1)):
+            with self.subTest(rule=bad),self.assertRaisesRegex(ValueError,'overFaceMasks'):
+                rule_ownership(source,self.root/'color.png',{'rules':[bad]})
+    def test_worked_texture_example_conditions_evaluate(self):
+        from headkit.paint import rule_ownership,adjust
+        example=read(Path(__file__).parent/'examples'/'texture-rules.json');source,rgb=self.two_faces()
+        Image.new('L',(64,64),200).save(self.root/'metal.png');Image.new('L',(64,64),0).save(self.root/'mask.png')
+        labels,report=rule_ownership(source,self.root/'color.png',example['ownership'],metallic=self.root/'metal.png',
+                                     masks={'neck-cap':self.root/'mask.png','crest':self.root/'mask.png'})
+        self.assertEqual(set(np.unique(labels)),{0,2});Image.fromarray(labels).save(self.root/'labels.png')
+        Image.new('RGB',(256,89),(90,10,10)).save(self.root/'tattoo.png')
+        adjust(self.root/'color.png',self.root/'labels.png',example['tone'],{'9':self.root/'tattoo.png'},self.root/'tone.png')
+        self.assertEqual({op['op'] for op in example['paint']['operations']},{'fill','crest'})
+    def test_fill_paints_faces_and_their_padding_with_a_median_colour(self):
+        from headkit.paint import fill,texel_source
+        from headkit.uv import raster_audit
+        source,rgb=self.two_faces();value=mesh(source);owners=raster_audit(value['uv'],64)[1];report={}
+        masks=fill(value,rgb,{'name':'cap','faces':{'of':'index','ge':1},'color':{'median':{'of':'y','ge':0}}},report,texel_source(value,rgb),{})
+        self.assertEqual(report['color'],[200,20,20]);self.assertTrue(masks['cap'][owners==1].all() and not masks['cap'][owners==0].any())
+        self.assertGreater(masks['cap'].sum(),(owners==1).sum());self.assertTrue((rgb[masks['cap']]==(200,20,20)).all())
+    def test_fill_selects_the_recorded_neck_seal_faces(self):
+        from headkit.paint import fill,texel_source
+        source,rgb=self.two_faces();value=mesh(source);report={};op={'name':'cap','faces':{'of':'seal','gt':.5},'color':[1,2,3]}
+        by_index=fill(value,rgb.copy(),dict(op,faces={'of':'index','ge':1}),{},texel_source(value,rgb),{})['cap']
+        np.testing.assert_array_equal(fill(value,rgb.copy(),op,report,texel_source(value,rgb),{},1)['cap'],by_index)
+        for start in (None,0,2):
+            with self.subTest(start=start),self.assertRaisesRegex(ValueError,'No neck seal'):fill(value,rgb.copy(),op,{},texel_source(value,rgb),{},start)
+    def test_sealed_runs_make_paint_depend_on_repair(self):
+        runner=self.texture_runner();self.assertEqual(runner.dependencies('paint'),['bake','unwrap'])
+        runner.data['mesh']={'neck':{'seal':{'height':'measured','inset':.9,'rise':.003}}}
+        self.assertEqual(runner.dependencies('paint'),['bake','unwrap','repair'])
+    def test_null_neck_means_no_neck_shaping_like_an_absent_one(self):
+        runner=self.texture_runner();mesh=dict(runner.data.get('mesh') or {});mesh.pop('neck',None)
+        runner.data['mesh']=mesh;absent=runner.dependencies('paint');runner.manifest_digest('paint')
+        runner.data['mesh']=dict(mesh,neck=None);self.assertEqual(runner.dependencies('paint'),absent);runner.manifest_digest('paint')
+        self.assertNotIn('repair',absent)
+    def test_adjust_passes_through_and_maps_brightness_onto_a_palette_ramp(self):
+        from headkit.paint import adjust
+        rgb=np.zeros((8,8,3),np.uint8);rgb[:,:,0]=np.arange(8)[None,:]*30;Image.fromarray(rgb).save(self.root/'c.png')
+        labels=np.zeros((8,8),np.uint8);labels[:4]=9;Image.fromarray(labels).save(self.root/'o.png')
+        adjust(self.root/'c.png',self.root/'o.png',{'mode':'adjust'},{},self.root/'same.png')
+        np.testing.assert_array_equal(np.asarray(Image.open(self.root/'same.png')),rgb)
+        palette=np.zeros((2,256,4),np.uint8);palette[1,:,0]=np.arange(256);palette[...,3]=255;Image.fromarray(palette).save(self.root/'p.png')
+        config={'operations':[{'op':'paletteRamp','when':{'channel':9},'palette':'9','row':1,'luminanceScale':1},
+                              {'op':'set','when':{'all':[{'channel':0},{'of':'r','gt':100}]},'color':[1,2,3]}]}
+        result=adjust(self.root/'c.png',self.root/'o.png',config,{'9':self.root/'p.png'},self.root/'out.png')
+        out=np.asarray(Image.open(self.root/'out.png'))
+        np.testing.assert_array_equal(out[:4,:,0],rgb[:4,:,0]);self.assertTrue((out[4:,4:]==(1,2,3)).all())
+        np.testing.assert_array_equal(out[4:,:4],rgb[4:,:4]);self.assertEqual([r['texels'] for r in result['operations']],[32,16])
+    def test_auto_rows_equal_brute_force_ranking(self):
+        from headkit.palette import rank_rows
+        rng=np.random.default_rng(3);rgb=rng.integers(40,200,(64,64,3),dtype=np.uint8);labels=rng.choice([0,1],(64,64)).astype(np.uint8)
+        rgb[:20]=rgb[:20]//8*8  # repeated colours exercise the unique-colour weights
+        Image.fromarray(rgb).save(self.root/'c.png');Image.fromarray(labels).save(self.root/'o.png')
+        palette=rng.integers(0,256,(12,256,4),dtype=np.uint8);palette[...,3]=np.where(rng.random((12,256))<.3,0,255)
+        palette[5,:,3]=0;palette[7]=palette[2];palette[2,255,:3]=rgb[0,0];Image.fromarray(palette).save(self.root/'p.png')
+        ranking=rank_rows(self.root/'c.png',self.root/'o.png',{'0':self.root/'p.png','1':self.root/'p.png'},keep=5,chunk=8)
+        for key in ('0','1'):
+            colours=rgb[labels==int(key)].astype(np.int64);scores=[]
+            for row in range(12):
+                allowed=(palette[row,:,3]>0)&(np.arange(256)<255)
+                if allowed.any():
+                    squared=((colours[:,None,:]-palette[row,allowed,:3].astype(np.int64)[None])**2).sum(-1).min(1)
+                    scores.append((squared.sum()/len(colours),row))
+            scores.sort()
+            self.assertEqual([(r['meanSquaredDistance'],r['row']) for r in ranking[key]['top']],scores[:5])
+            self.assertEqual(ranking[key]['row'],scores[0][1]);self.assertEqual(ranking[key]['rowsScored'],11)
+    def test_palette_auto_rows_resolve_before_quantization(self):
+        runner=ImportedOwnershipTests.fixture(self);base=runner.manifest_path.parent
+        palette=np.zeros((3,256,4),np.uint8);palette[0,:,:3]=255;palette[0,:,3]=255;palette[2,:,3]=255
+        Image.fromarray(palette).save(base/'skin.png');runner.data['inputs']['paletteSkin']={'path':'skin.png','sha256':pin(base/'skin.png')['sha256']}
+        runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':'auto'}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:result=runner._execute('palette',runner.run)
+        self.assertEqual(quantizer.call_args.args[3],{'0':2});self.assertEqual(result['rowRanking']['0']['row'],2)
+        self.assertTrue((runner.run/'row-ranking.json').is_file())
+    def texture_runner(self):
+        alignment=self.pair();inputs={name:{'path':name+'.png','sha256':pin(self.root/(name+'.png'))['sha256']} for name in ['clay','detail']}
+        data={'schemaVersion':1,'id':'painted','inputs':inputs,'alignment':alignment,'features':[{'name':'hair','placementReviewed':True}],
+              'approval':{'referenceDesignReviewed':True},'paint':{'operations':[{'op':'fill','name':'cap','faces':{'of':'index','ge':0},'color':[1,2,3]}]},
+              'ownership':{'mode':'rules','reviewed':True,'rules':[]},'tone':{'mode':'adjust'}}
+        write(self.root/'manifest.json',data);write(self.root/'bindings.json',self.bindings_data())
+        return Runner(self.root/'manifest.json',self.root/'bindings.json',self.root/'run')
+    def test_later_stage_rules_do_not_stale_earlier_receipts(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+        data=read(runner.manifest_path);data['ownership']['rules']=[{'name':'all-skin','channel':0,'when':{'mapped':True}}];data['tone']={'mode':'adjust','operations':[]}
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        for stage in ('repair','unwrap','bake'):self.assertIn('artifact',runner.result(stage))
+        data['mesh']=dict(data.get('mesh') or {},maximumSubtexelFraction=.004);write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertIn('artifact',runner.result('repair'))  # repair does not read the UV and bake keys
+        for stage in ('unwrap','bake'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
+        data['mesh']=dict(data['mesh'],triangleBudget=19000);write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        for stage in ('repair','unwrap','bake'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale stage'):runner.result(stage)
+        receipt=read(runner.state['stages']['repair']['path']);self.assertNotIn(str(runner.manifest_path),{p['path'] for p in receipt['inputs']})
+    def test_runner_is_bound_by_stage_slice(self):
+        from headkit.common import runner_slice_sha,stage_code_pins,verify
+        source=("class Runner:\n    def shared(self):\n        return 1\n\n    def _execute(self,stage,folder):\n        m=1\n"
+                "        if stage=='bake':\n            # bake notes\n            return 'bake'\n"
+                "        if stage=='palette':\n            return 'palette'\n        raise ValueError(stage)\n")
+        path=self.file('runner.py',source)
+        pins={stage:{'path':str(path),'sha256':runner_slice_sha(path,stage),'slice':stage} for stage in ('bake','palette')}
+        self.assertNotEqual(pins['bake']['sha256'],pins['palette']['sha256'])
+        # An edit inside the bake branch stales bake only.
+        path.write_text(source.replace("return 'bake'","return 'baked'"),encoding='utf-8')
+        verify([pins['palette']],fresh=True)
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):verify([pins['bake']],fresh=True)
+        # A shared edit (outside the stage branches) stales every stage.
+        path.write_text(source.replace('return 1','return 2'),encoding='utf-8')
+        for stage in ('bake','palette'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'Stale file pin'):verify([pins[stage]],fresh=True)
+        # A branch with an else is kept whole for every stage.
+        path.write_text(source.replace("        raise ValueError","        else:pass\n        raise ValueError"),encoding='utf-8')
+        before=runner_slice_sha(path,'bake',fresh=True)
+        path.write_text(source.replace("        raise ValueError","        else:pass\n        raise ValueError").replace("'palette'\n","'palettes'\n"),encoding='utf-8')
+        self.assertNotEqual(runner_slice_sha(path,'bake',fresh=True),before)
+        rows=[row for row in stage_code_pins('palette') if row['path'].endswith('runner.py')]
+        self.assertEqual([row['slice'] for row in rows],['palette']);verify(rows,fresh=True)
+    def test_pass_through_tone_is_skipped_and_palette_reads_the_painted_colour(self):
+        from headkit.__main__ import chain
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        self.assertTrue(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['paint','ownership'])
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake','paint','ownership'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            rows=chain(runner,['tone','palette'])['stages']
+        self.assertEqual([(row['stage'],row['status']) for row in rows],[('tone','skipped'),('palette','ran')])
+        self.assertNotIn('tone',runner.state['stages'])
+        self.assertEqual(set(read(runner.state['stages']['palette']['path'])['dependencies']),{'paint','ownership'})
+        # Any operation makes tone a reviewed stage again, and palette waits for it.
+        data=read(runner.manifest_path);data['tone']={'mode':'adjust','operations':[{'op':'set','channel':1,'color':[1,2,3]}]}
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertFalse(runner.tone_pass_through());self.assertEqual(runner.dependencies('palette'),['tone','ownership'])
+        data['paint']=None;del data['paint'];data['tone']={'mode':'adjust'};write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(runner.dependencies('palette'),['bake','ownership'])
+    def test_a_code_change_names_the_stale_stage_not_its_code_pin(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            runner.execute('repair');runner.review('repair','approved','Reviewed this stage')
+        with patch('headkit.runner.stage_source_version',return_value='edited'),patch('headkit.common.runner_slice_sha',return_value='0'*64):
+            with self.assertRaisesRegex(ValueError,'Stale stage; rerun with current input snapshot: repair'):runner.result('repair')
+    def test_a_uv_coverage_floor_stales_unwrap_but_not_the_approved_repair(self):
+        # race heads v1: a reviewed mesh.uv floor set after repair approval forced 4-7 min identical repair reruns
+        runner=self.texture_runner();before={stage:runner.manifest_digest(stage) for stage in ('repair','unwrap','bake')};data=read(runner.manifest_path)
+        for key,value in (('uv',{'minimumCoverage':.21,'coverageReview':'reviewed'}),('maximumSubtexelFraction',.004),('allowDecoderOvershoot',True),('reuseReviewedUvs',False)):
+            with self.subTest(key=key):
+                changed=copy.deepcopy(data);changed.setdefault('mesh',{})[key]=value;write(runner.manifest_path,changed)
+                fresh=Runner(runner.manifest_path,runner.bindings_path,runner.run);self.assertEqual(fresh.manifest_digest('repair'),before['repair'])
+                self.assertNotEqual(fresh.manifest_digest('unwrap'),before['unwrap']);self.assertNotEqual(fresh.manifest_digest('bake'),before['bake'])
+        changed=copy.deepcopy(data);changed.setdefault('mesh',{})['triangleBudget']=19000;write(runner.manifest_path,changed)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('repair'),before['repair'])
+    def test_later_approvals_do_not_stale_the_matte(self):
+        runner=self.texture_runner();before=runner.manifest_digest('prepare');data=read(runner.manifest_path)
+        data['approval'].update(appearanceField={'decision':'approved'},textureMaps={'basecolor4k':{'decision':'approved'}})
+        write(runner.manifest_path,data);runner=Runner(runner.manifest_path,runner.bindings_path,runner.run)
+        self.assertEqual(runner.manifest_digest('prepare'),before)
+        data['approval']['referenceDesignReviewed']=False;write(runner.manifest_path,data)
+        self.assertNotEqual(Runner(runner.manifest_path,runner.bindings_path,runner.run).manifest_digest('prepare'),before)
+    def test_chain_skips_optional_stages_the_manifest_leaves_out(self):
+        from headkit.__main__ import chain,skip_reason
+        runner=self.texture_runner();data=read(runner.manifest_path);data.pop('paint');write(runner.manifest_path,data)
+        runner=Runner(runner.manifest_path,runner.bindings_path,runner.run);completed=ReviewGateTests.completed
+        self.assertEqual(skip_reason(runner,'paint'),'Not configured: the manifest has no paint section');self.assertIsNone(skip_reason(runner,'bake'))
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)):
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            rows=chain(runner,['paint','ownership'])['stages']
+        self.assertEqual([(row['stage'],row['status']) for row in rows],[('paint','skipped'),('ownership','ran')])
+        self.assertNotIn('paint',runner.state['stages'])
+        # Run directly, an unconfigured stage fails with its reason, not a KeyError.
+        with self.assertRaisesRegex(ValueError,'no paint section'):runner._execute('paint',self.root)
+    def test_pass_through_palette_quantizes_the_paint_1k_map(self):
+        runner=self.texture_runner()
+        maps={'paint':{'maps':{'basecolor-1024.png':{'path':'painted-1k.png'}}}}
+        runner.result=lambda stage,**kw:maps.get(stage,{'onek':{'path':'own-1k.png'}})
+        runner.input=lambda name:name+'.png';runner.data['palette']={'inputs':{'0':'paletteSkin'},'rows':{'0':3}}
+        with patch('headkit.palette.quantize',return_value={'fixture':True}) as quantizer:runner._execute('palette',self.root)
+        self.assertEqual(quantizer.call_args.args[0],'painted-1k.png')
+    def test_review_gate_blocks_consumers_of_paint(self):
+        runner=self.texture_runner();completed=ReviewGateTests.completed
+        with patch.object(runner,'_execute',side_effect=lambda stage,folder:completed(self,stage,folder)) as work:
+            for stage in ('repair','unwrap','bake'):runner.execute(stage);runner.review(stage,'approved','Reviewed this stage')
+            runner.execute('paint');calls=work.call_count
+            for decision in (None,'rejected'):
+                if decision:runner.review('paint',decision,'Crest recolor bled onto skin')
+                for stage in ('ownership','tone'):
+                    with self.subTest(decision=decision,stage=stage),self.assertRaisesRegex(ValueError,'review|rejected'):runner.execute(stage)
+            self.assertEqual(work.call_count,calls)
+            runner.review('paint','approved','Inspected recolored atlas and masks');runner.execute('ownership')
+            runner.review('ownership','approved','Inspected rule ownership');runner.execute('tone')
+        dependencies=lambda stage:set(read(runner.state['stages'][stage]['path'])['dependencies'])
+        self.assertEqual(dependencies('paint'),{'bake','unwrap'});self.assertEqual(dependencies('ownership'),{'unwrap','paint','bake'})
+        self.assertEqual(dependencies('tone'),{'paint','ownership'})
+        runner.review('bake','rejected','Bake revoked')
+        with patch.object(runner,'_execute') as work:
+            with self.assertRaisesRegex(ValueError,'rejected'):runner.execute('tone')
+            work.assert_not_called()
+
+
+
+class FakeDesignClient:
+    """Mocked ComfyUI: /prompt "renders" one PNG per batch item into the bound output folder; never any HTTP."""
+    def __init__(self,output,*,status='success',polls=1,subfolder=None,reject=False):
+        self.url='http://127.0.0.1:8188';self.output=Path(output);self.status=status;self.polls=polls;self.subfolder=subfolder
+        self.reject=reject;self.routes=[];self.images=[]
+    def request(self,route,data=None):
+        self.routes.append(route)
+        if route=='/prompt':
+            if self.reject:return {'error':'invalid prompt','node_errors':{'13':'bad'}}
+            graph=data['prompt'];self.images=[];prefix=graph['9']['inputs']['filename_prefix']
+            batch=graph['47']['inputs'].get('batch_size', graph['47']['inputs'].get('amount')) if '47' in graph else graph['205']['inputs']['amount']
+            folder,stem=prefix.rsplit('/',1)
+            for i in range(batch):
+                path=self.output/(self.subfolder or folder)/f'{stem}_{i+1:05}_.png';path.parent.mkdir(parents=True,exist_ok=True)
+                Image.new('RGB',(16,16),(i*40,90,30)).save(path)
+                self.images.append({'filename':path.name,'subfolder':self.subfolder or folder,'type':'output'})
+            return {'prompt_id':'prompt-7','number':1,'node_errors':{}}
+        if route=='/history/prompt-7':
+            if self.polls:self.polls-=1;return {}
+            return {'prompt-7':{'outputs':{'9':{'images':self.images}},'status':{'status_str':self.status,'completed':self.status=='success'}}}
+        raise AssertionError('Unexpected route '+route)
+
+
+class DesignTests(Temporary):
+    def test_legacy_flux_bindings_may_contain_unrelated_geometry_models(self):
+        from headkit.design import design_model_pins, DEFAULT_PROFILE
+        self.assertEqual(design_model_pins({'models': {'geometry': {'path': 'unused'}}}, DEFAULT_PROFILE), [])
+
+    def test_qwen_text_profile_uses_the_installed_small_stack_and_preserves_receipt(self):
+        from headkit.design import compile_design, generate
+        graph=compile_design('full hair', [], 42, 2, 'headkit-design/t/test', profile='qwen21-int8-v1')
+        self.assertEqual(graph['13']['inputs']['steps'],25)
+        self.assertEqual(graph['13']['inputs']['cfg'],1.0)
+        self.assertEqual(graph['47']['inputs'],{'samples':['6',2],'amount':2})
+        self.assertEqual(graph['12a']['inputs']['device'],'cpu')
+        self.assertNotIn('LoraLoaderModelOnly',[row['class_type'] for row in graph.values()])
+        with self.assertRaisesRegex(ValueError,'text-only'):
+            compile_design('p',['headkit-design/t/ref.png'],42,1,'headkit-design/t/test',profile='qwen21-int8-v1')
+        data=read(self.spec);data['profile']='qwen21-int8-v1';write(self.spec,data)
+        from headkit.design import PROFILES
+        names=[PROFILES['qwen21-int8-v1'][key] for key in ('model','encoder','vae')]
+        self.local['models']={}
+        for name in names:
+            file=self.root/name;file.write_bytes(b'fixture weights')
+            self.local['models'][name]=pin(file)
+        client=FakeDesignClient(self.local['comfyOutput'])
+        result=generate(client,self.local,self.bindings,self.spec,'troll-a',42,2,[],self.root/'qwen-out')
+        receipt=read(result['receipt'])
+        self.assertEqual(receipt['profile'],'qwen21-int8-v1')
+        self.assertEqual(receipt['settings']['encoder'],'qwen3vl_8b_int8_convrot.safetensors')
+        self.assertEqual(len(result['outputs']),2)
+        self.assertEqual(receipt['references'],[])
+
+    def setUp(self):
+        super().setUp()
+        # Every design test must stay offline: any real HTTP attempt fails the test.
+        guard=patch('urllib.request.urlopen',side_effect=AssertionError('network contact in a design test'));guard.start();self.addCleanup(guard.stop)
+        sleep=patch('headkit.design.time.sleep');sleep.start();self.addCleanup(sleep.stop)
+        self.local={'comfyUrl':'http://127.0.0.1:8188','comfyInput':str(self.root/'comfy-in'),'comfyOutput':str(self.root/'comfy-out')}
+        self.bindings=self.root/'bindings.json';write(self.bindings,self.bindings_data(**self.local))
+        self.spec=self.root/'designs.json'
+        write(self.spec,{'common':'Front view, plain gray background.','designs':{'troll-a':'One adult troll head, ram horns.'},
+                         'neckInpaint':'A short neck of the same SKIN skin; SKIN pores.'})
+        self.reference=self.root/'species.png';Image.new('RGB',(32,32),(100,80,60)).save(self.reference)
+    def head(self,size=256):
+        image=Image.new('RGB',(size,size),(200,200,200));draw=ImageDraw.Draw(image)
+        draw.ellipse((60,20,196,170),fill=(120,110,100));draw.rectangle((105,150,151,215),fill=(120,110,100))
+        draw.rectangle((85,215,171,230),fill=(120,110,100));path=self.root/'troll-a-s7-b0.png';image.save(path);return path
+    def generate(self,client=None,seed=7,batch=3,references=None,output='out'):
+        from headkit import design
+        client=client or FakeDesignClient(self.local['comfyOutput'])
+        return client,design.generate(client,self.local,self.bindings,self.spec,'troll-a',seed,batch,
+                                      [self.reference] if references is None else references,self.root/output)
+    def inpaint(self,client=None,**options):
+        from headkit import design
+        client=client or FakeDesignClient(self.local['comfyOutput'])
+        return client,design.inpaint(client,self.local,self.bindings,self.spec,options.pop('design',None) or self.head(),
+                                     'dark brown',11,2,self.root/'neck',**options)
+
+    def test_design_graph_wires_batch_references_and_fixed_controls(self):
+        from headkit.design import compile_design,FIXED
+        g=compile_design('prompt',['headkit-design/t/r0.png','headkit-design/t/r1.png'],5,3,'headkit-design/t/troll-a-s5')
+        self.assertEqual((g['47']['inputs']['batch_size'],g['13']['inputs']['latent_image']),(3,['47',0]))
+        self.assertEqual((g['48']['inputs']['steps'],g['47']['inputs']['width'],g['48']['inputs']['height']),(FIXED['steps'],FIXED['size'],FIXED['size']))
+        self.assertEqual(g['26']['inputs']['guidance'],FIXED['guidance']);self.assertEqual(g['12']['inputs']['unet_name'],FIXED['model'])
+        self.assertEqual((g['89']['inputs']['lora_name'],g['22']['inputs']['model']),(FIXED['turboLora'],['89',0]))
+        self.assertEqual((g['6']['inputs']['text'],g['25']['inputs']['noise_seed']),('prompt',5))
+        self.assertEqual([g[n]['inputs']['image'] for n in ('100','104')],['headkit-design/t/r0.png','headkit-design/t/r1.png'])
+        self.assertEqual([g[n]['inputs']['conditioning'] for n in ('103','107','22')],[['26',0],['103',0],['107',0]])
+        self.assertEqual(g['9']['inputs'],{'images':['8',0],'filename_prefix':'headkit-design/t/troll-a-s5'})
+        self.assertEqual(compile_design('p',[],5,1,'headkit-design/t/x')['22']['inputs']['conditioning'],['26',0])
+    def test_inpaint_graph_noise_masks_the_design_latent_and_references_the_design(self):
+        from headkit.design import compile_inpaint
+        g=compile_inpaint('neck','headkit-design/t/design.png','headkit-design/t/mask.png',9,4,'headkit-design/t/n')
+        self.assertNotIn('47',g);self.assertEqual(g['13']['inputs']['latent_image'],['205',0])
+        self.assertEqual(g['205']['inputs'],{'samples':['204',0],'amount':4})
+        self.assertEqual(g['204']['inputs'],{'samples':['201',0],'mask':['203',0]});self.assertEqual(g['201']['inputs']['pixels'],['200',0])
+        self.assertEqual((g['200']['inputs']['image'],g['100']['inputs']['image']),('headkit-design/t/design.png',)*2)
+        self.assertEqual(g['203']['inputs'],{'image':'headkit-design/t/mask.png','channel':'red'})
+        self.assertEqual(g['22']['inputs']['conditioning'],['103',0]);self.assertNotIn('104',g)
+    def test_graphs_reject_unisolated_prefix_or_inputs_and_bad_seed_batch_or_prompt(self):
+        from headkit.design import compile_design
+        ok=dict(prompt='p',references=[],seed=1,batch=1,prefix='headkit-design/t/x')
+        for change in ({'prefix':'headkit/t/x'},{'prefix':'headkit-design/../x'},{'prefix':'headkit-design/t\\x'},{'prefix':'headkit-design'},
+                       {'prefix':'headkit-design//x'},{'references':['other/r.png']},{'references':['C:/comfy/headkit-design/r.png']},
+                       {'references':['headkit-design/t/r.png']*5},{'seed':-1},{'seed':2**64},{'seed':True},{'seed':1.0},
+                       {'batch':0},{'batch':9},{'prompt':'  '}):
+            with self.subTest(change=change),self.assertRaises(ValueError):compile_design(**{**ok,**change})
+    def test_dangling_link_or_unwired_image_socket_is_rejected(self):
+        from headkit.design import compile_design,_validated
+        for node,key,value in (('8','samples',['999',0]),('201','pixels','design.png'),('9','images','x.png')):
+            g=compile_design('p',['headkit-design/t/r.png'],1,1,'headkit-design/t/x')
+            g.setdefault(node,{'class_type':'VAEEncode','inputs':{}})['inputs'][key]=value
+            with self.subTest(node=node),self.assertRaises(ValueError):_validated(g)
+        g=compile_design('p',[],1,1,'headkit-design/t/x');g['77']={'class_type':'SaveImage','inputs':{'images':['8',0],'filename_prefix':'other'}}
+        with self.assertRaisesRegex(ValueError,'one SaveImage'):_validated(g)
+    def test_template_settings_match_the_documented_fixed_controls(self):
+        from headkit.design import TEMPLATES,FIXED
+        for name in ('flux2-design.json','flux2-inpaint.json'):
+            g=read(TEMPLATES/name)
+            self.assertEqual((g['48']['inputs']['steps'],g['48']['inputs']['width'],g['26']['inputs']['guidance']),(FIXED['steps'],FIXED['size'],FIXED['guidance']))
+            self.assertEqual((g['16']['inputs']['sampler_name'],g['89']['inputs']['strength_model']),(FIXED['sampler'],1.0))
+    def test_spec_and_prompt_validation(self):
+        from headkit.design import load_spec,design_prompt,inpaint_prompt,FEATURE_RULES
+        spec=load_spec(self.spec)
+        self.assertEqual(design_prompt(spec,'troll-a'),'One adult troll head, ram horns.\nFront view, plain gray background.\n'+FEATURE_RULES)
+        self.assertEqual(inpaint_prompt(spec,'dark brown'),'A short neck of the same dark brown skin; dark brown pores.')
+        for bad in ({'designs':{'a':'x'}},{'common':'c','designs':{}},{'common':'c','designs':{'Bad Name':'x'}},{'common':'c','designs':{'a':' '}},
+                    {'common':'c','designs':{'a':'x'},'neckInpaint':'no placeholder'},{'common':'c','designs':{'a':'x'},'extra':1}):
+            write(self.root/'bad.json',bad)
+            with self.subTest(bad=bad),self.assertRaises(ValueError):load_spec(self.root/'bad.json')
+        with self.assertRaisesRegex(ValueError,'Unknown design head'):design_prompt(spec,'troll-b')
+        for skin in ('',' brown','dark\nbrown','SKIN','x'*81):
+            with self.subTest(skin=skin),self.assertRaises(ValueError):inpaint_prompt(spec,skin)
+        with self.assertRaisesRegex(ValueError,'no neckInpaint'):inpaint_prompt({'common':'c','designs':{'a':'x'}},'brown')
+    def test_design_prompt_carries_and_guards_the_feature_rules(self):
+        from headkit.design import load_spec,design_prompt,FEATURE_RULES
+        for text in ('Dramatic lighting.','A rim-lit elf.','Backlit portrait.','Glossy eyes.','shiny irises','cinematic lighting'):
+            write(self.root/'rules.json',{'common':'Front view.','designs':{'a':'One elf head. '+text}})
+            with self.subTest(text=text),self.assertRaisesRegex(ValueError,'contradicts the face feature rules'):design_prompt(load_spec(self.root/'rules.json'),'a')
+        write(self.root/'rules.json',{'common':'Front view.','designs':{'a':'One elf head, sharp grey eyes, ink lines.'}})
+        self.assertTrue(design_prompt(load_spec(self.root/'rules.json'),'a').endswith(FEATURE_RULES))
+    def test_design_prompt_refuses_ink_as_dark_as_the_hair(self):
+        from headkit.design import load_spec,design_prompt,colour_conflict
+        clash='One dwarf head.\nHair: black medium-length hair.\nTattoo: thin BLACK circuit lines on the cheek.'
+        self.assertIsNotNone(colour_conflict(clash))
+        self.assertIsNotNone(colour_conflict('Hair: dark brown bob.\nTattoo: a thin dark line under the eye.'))
+        for fine in ('Hair: black hair.\nTattoo: thin deep dark crimson-red circuit lines.','Hair: white hair.\nTattoo: thin black lines.',
+                     'Hair: black hair.\nTattoo: none.','Hair: none; bald scalp.\nTattoo: thin black lines.','Hair: black hair.'):
+            with self.subTest(fine=fine):self.assertIsNone(colour_conflict(fine))
+        write(self.root/'clash.json',{'common':'c','designs':{'a':clash}})
+        with self.assertRaisesRegex(ValueError,'Design colours do not separate for a'):design_prompt(load_spec(self.root/'clash.json'),'a')
+        write(self.root/'clash.json',{'common':'c','designs':{'a':clash},'colourReviewed':{'a':'ink split by position, reviewed'}})
+        self.assertIn('\nc\n',design_prompt(load_spec(self.root/'clash.json'),'a'))
+        for bad in ({'b':'note'},{'a':' '},['a']):
+            write(self.root/'bad.json',{'common':'c','designs':{'a':clash},'colourReviewed':bad})
+            with self.subTest(bad=bad),self.assertRaises(ValueError):load_spec(self.root/'bad.json')
+    def test_example_spec_shape_is_accepted(self):
+        from headkit.design import load_spec
+        write(self.root/'example.json',{'common':'c','designs':{'troll-male-02':'x','troll-male-04-stub':'y'},'neckEdit':'e','neckInpaint':'n SKIN'})
+        self.assertEqual(sorted(load_spec(self.root/'example.json')['designs']),['troll-male-02','troll-male-04-stub'])
+
+    def test_design_dispatches_once_and_pins_every_input_and_output(self):
+        from headkit.design import SUBFOLDER
+        client,result=self.generate()
+        self.assertEqual(client.routes,['/prompt','/history/prompt-7','/history/prompt-7'])
+        receipt=read(result['receipt']);token=receipt['token']
+        self.assertEqual((receipt['state'],receipt['kind'],receipt['seed'],receipt['batch'],receipt['promptId']),('complete','design',7,3,'prompt-7'))
+        self.assertTrue(receipt['proposalOnly'] and receipt['reviewRequired']);self.assertIn('direct',receipt['dispatch'])
+        from headkit.design import FEATURE_RULES
+        self.assertEqual(receipt['prompt'],'One adult troll head, ram horns.\nFront view, plain gray background.\n'+FEATURE_RULES)
+        self.assertEqual(receipt['graphSha256'],digest(receipt['graph']));self.assertEqual(receipt['graph']['47']['inputs']['batch_size'],3)
+        self.assertEqual(receipt['outputPrefix'],f'{SUBFOLDER}/{token}/troll-a-s7');self.assertEqual(receipt['spec'],pin(self.spec))
+        self.assertEqual(receipt['bindings'],pin(self.bindings));self.assertIsInstance(receipt['elapsedSeconds'],float)
+        staged=receipt['staged']['reference-0.png']
+        self.assertEqual(staged['source'],pin(self.reference));self.assertEqual(staged['staged']['sha256'],staged['source']['sha256'])
+        self.assertEqual(Path(staged['staged']['path']),(self.root/'comfy-in'/SUBFOLDER/token/'reference-0.png').resolve())
+        self.assertEqual(receipt['graph']['100']['inputs']['image'],staged['comfyImage'])
+        self.assertEqual([Path(p['path']).name for p in receipt['outputs']],[f'troll-a-s7-b{i}.png' for i in range(3)])
+        self.assertEqual([p['sha256'] for p in receipt['outputs']],[p['sha256'] for p in receipt['comfyOutputs']])
+        verify(receipt['outputs']+receipt['comfyOutputs']);self.assertEqual(result['outputs'],[p['path'] for p in receipt['outputs']])
+    def test_existing_receipt_or_missing_reference_stops_before_any_contact(self):
+        self.generate()
+        client=FakeDesignClient(self.local['comfyOutput'])
+        with self.assertRaisesRegex(ValueError,'already exists'):self.generate(client)
+        with self.assertRaisesRegex(ValueError,'Image file'):self.generate(client,seed=8,references=[self.root/'missing.png'])
+        with self.assertRaisesRegex(ValueError,'Batch'):self.generate(client,seed=9,batch=0)
+        self.assertEqual(client.routes,[])
+    def test_failed_rejected_or_foreign_output_jobs_leave_a_failed_receipt(self):
+        for seed,client,message in ((1,FakeDesignClient(self.local['comfyOutput'],status='error'),'job failed'),
+                                    (2,FakeDesignClient(self.local['comfyOutput'],reject=True),'rejected'),
+                                    (3,FakeDesignClient(self.local['comfyOutput'],subfolder='elsewhere'),'owned design prefix')):
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(ValueError,message):self.generate(client,seed=seed)
+                receipt=read(self.root/'out'/f'troll-a-s{seed}.json');self.assertEqual(receipt['state'],'failed')
+                self.assertIn(message,receipt['error']);self.assertNotIn('outputs',receipt)
+                self.assertEqual(client.routes.count('/prompt'),1)
+        self.assertEqual(sorted(p.name for p in (self.root/'out').glob('*.png')),[])
+    def test_unfinished_job_times_out_without_resubmitting(self):
+        from headkit.design import dispatch,compile_design
+        client=FakeDesignClient(self.local['comfyOutput'],polls=10**6);record={}
+        with self.assertRaisesRegex(ValueError,'unfinished'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=0)
+        self.assertEqual(client.routes,['/prompt','/history/prompt-7']);self.assertEqual(record['promptId'],'prompt-7')
+
+    def test_design_jobs_can_queue_in_front_with_a_longer_deadline(self):
+        # A design behind Pixal jobs on a shared ComfyUI hit the fixed 2700 s deadline (troll batch v2).
+        from headkit.design import dispatch,compile_design
+        client=FakeDesignClient(self.local['comfyOutput']);sent=[];request=client.request
+        client.request=lambda route,data=None:(sent.append(data) or request(route,data))
+        record={};dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=7200,front=True)
+        self.assertTrue(sent[0]['front']);self.assertEqual(record['queue'],{'deadline':7200,'front':True})
+        record={};sent.clear();dispatch(client,compile_design('p',[],1,1,'headkit-design/t/y'),'t',record)
+        self.assertNotIn('front',sent[0]);self.assertEqual(record['queue'],{'deadline':2700,'front':False})
+        with self.assertRaisesRegex(ValueError,'deadline'):dispatch(client,compile_design('p',[],1,1,'headkit-design/t/z'),'t',{},deadline=10**6)
+
+    def test_inpaint_masks_rows_below_the_neck_cut_and_records_the_mask(self):
+        client,result=self.inpaint();receipt=read(result['receipt'])
+        self.assertEqual((receipt['kind'],receipt['state'],receipt['cutSource'],receipt['lift']),('design-inpaint','complete','waist-minus-lift',24))
+        self.assertEqual(receipt['cutRow'],receipt['waistRow']-24);self.assertEqual((receipt['matte']['topRow'],receipt['matte']['bottomRow']),(20,230))
+        self.assertGreater(receipt['cutRow'],125);self.assertEqual(receipt['prompt'],'A short neck of the same dark brown skin; dark brown pores.')
+        mask=receipt['mask'];verify([mask,receipt['design']]);self.assertEqual((mask['cutRow'],mask['blurRadius'],mask['size']),(receipt['cutRow'],6,[256,256]))
+        with Image.open(mask['path']) as image:values=np.asarray(image)
+        self.assertEqual(values.shape,(256,256));self.assertTrue((values[:receipt['cutRow']-30]==0).all());self.assertTrue((values[receipt['cutRow']+30:]==255).all())
+        staged=receipt['staged'];self.assertEqual(staged['mask.png']['source'],pin(mask['path']));self.assertEqual(staged['design.png']['source'],receipt['design'])
+        g=receipt['graph'];self.assertEqual((g['200']['inputs']['image'],g['203']['inputs']['image']),(staged['design.png']['comfyImage'],staged['mask.png']['comfyImage']))
+        self.assertEqual(g['205']['inputs']['amount'],2);self.assertEqual(Path(result['receipt']).name,'troll-a-s7-b0-inpaint-s11.json')
+        self.assertEqual([Path(p).name for p in result['outputs']],['troll-a-s7-b0-inpaint-s11-b0.png','troll-a-s7-b0-inpaint-s11-b1.png'])
+    def test_carve_inpaint_keeps_the_jaw_and_carves_a_closed_stump(self):
+        carve={'top':160,'keep':[[70,160],[128,185],[186,160]],'stump':[128,40,36,190,205]}
+        client,result=self.inpaint(carve=carve);receipt=read(result['receipt'])
+        self.assertEqual((receipt['cutSource'],receipt['lift'],receipt['carve']['backdrop']),('carve',None,[200,200,200]))
+        verify([receipt['guide'],receipt['mask']]);self.assertEqual(receipt['staged']['design.png']['source'],receipt['guide'])
+        with Image.open(receipt['guide']['path']) as image:guide=np.asarray(image.convert('RGB'))
+        with Image.open(receipt['design']['path']) as image:design=np.asarray(image.convert('RGB'))
+        np.testing.assert_array_equal(guide[:160],design[:160])                     # head kept
+        self.assertEqual(guide[200,128].tolist(),design[200,128].tolist())           # own neck skin inside the stump
+        self.assertEqual(guide[222,90].tolist(),[200,200,200])                       # the wide bust is carved to backdrop
+        self.assertEqual(guide[212,128].tolist(),[200,200,200])                      # below the rounded stump bottom
+        with Image.open(receipt['mask']['path']) as image:mask=np.asarray(image)
+        self.assertTrue((mask[:125]==0).all());self.assertEqual((int(mask[240,128]),int(mask[240,30])),(255,255))  # blurred edges aside
+        for i,(bad,message) in enumerate(((dict(carve,top=60),'top half'),(dict(carve,stump=[128,40,36,150,140]),'ySide'),(dict(carve,keep=[[1,1]]),'Keep polygon'))):
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):self.inpaint(client,carve=bad,name=f'bad-{i}')
+        with self.assertRaisesRegex(ValueError,'no --cut'):self.inpaint(client,carve=carve,cut=200,name='bad-cut')
+    def test_inpaint_rejects_cut_rows_in_the_top_half_or_outside_the_subject(self):
+        client=FakeDesignClient(self.local['comfyOutput'])
+        for cut in (21,125,231):
+            with self.subTest(cut=cut),self.assertRaisesRegex(ValueError,'top half'):self.inpaint(client,cut=cut)
+        self.assertEqual(client.routes,[]);self.assertEqual(list((self.root/'neck').glob('*')),[])
+        _,result=self.inpaint(cut=200);receipt=read(result['receipt'])
+        self.assertEqual((receipt['cutRow'],receipt['cutSource'],receipt['lift']),(200,'explicit',None))
+    def test_inpaint_requires_a_safe_name_and_png_design(self):
+        unsafe=self.root/'Design 1.png';self.head().replace(unsafe)
+        with self.assertRaisesRegex(ValueError,'--name'):self.inpaint(design=unsafe)
+        _,result=self.inpaint(design=unsafe,name='troll-a-pick');self.assertTrue(result['receipt'].endswith('troll-a-pick-inpaint-s11.json'))
+        jpeg=self.root/'troll.jpg';Image.new('RGB',(8,8)).save(jpeg)
+        with self.assertRaisesRegex(ValueError,'Image file'):self.inpaint(design=jpeg)
+
+    def test_cli_requires_launcher_and_dispatches_through_the_bound_local_client(self):
+        from headkit.__main__ import main
+        fake=FakeDesignClient(self.local['comfyOutput'])
+        argv=['headkit','design','--bindings',str(self.bindings),'--spec',str(self.spec),'--head','troll-a','--seed','3',
+              '--batch','2','--reference',str(self.reference),'--output',str(self.root/'cli')]
+        with patch('sys.argv',argv),patch.dict('os.environ',{'SRN_SHARED_TOOLCHAIN':'','SRN_SHARED_TOOL_MIGRATION':''}):
+            with self.assertRaisesRegex(ValueError,'launch_shared_tool'):main()
+        printed=[]
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),\
+             patch.object(comfy.Client,'request',autospec=True,side_effect=lambda client,route,data=None:fake.request(route,data)):
+            main()
+        result=json.loads(printed[-1]);self.assertEqual((result['state'],len(result['outputs']),result['proposalOnly']),('complete',2,True))
+        self.assertEqual(read(result['receipt'])['comfyEndpoint'],'http://127.0.0.1:8188')
+        argv=['headkit','design-inpaint','--bindings',str(self.bindings),'--spec',str(self.spec),'--design',str(self.head()),
+              '--skin','grey','--cut','200','--seed','5','--batch','1','--output',str(self.root/'cli')]
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),patch('builtins.print',side_effect=printed.append),\
+             patch.object(comfy.Client,'request',autospec=True,side_effect=lambda client,route,data=None:fake.request(route,data)):
+            main()
+        receipt=read(json.loads(printed[-1])['receipt']);self.assertEqual((receipt['cutRow'],receipt['skin'],receipt['batch']),(200,'grey',1))
+        write(self.bindings,self.bindings_data(**{**self.local,'comfyUrl':'http://192.168.1.5:8188'}))
+        with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),self.assertRaisesRegex(ValueError,'bound local'):main()
+
+if __name__=='__main__':unittest.main()

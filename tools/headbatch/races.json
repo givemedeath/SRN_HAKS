@@ -1,0 +1,14 @@
+{
+  "races": {
+    "human": {"letter": "h", "appearanceRow": 15100, "raceId": 6},
+    "dwarf": {"letter": "d", "appearanceRow": 15101, "raceId": 0},
+    "elf": {"letter": "e", "appearanceRow": 15102, "raceId": 1},
+    "orc": {"letter": "o", "appearanceRow": 15103, "raceId": 5},
+    "troll": {"letter": "g", "appearanceRow": 15104, "raceId": 2}
+  },
+  "compactFitHead": {
+    "pmh0": 1, "pfh0": 24, "pmd0": 1, "pfd0": 12, "pme0": 1, "pfe0": 9, "pmo0": 11, "pfo0": 11
+  },
+  "compactFitHeadNotes": "Most compact stock head per prefix: heads with a ponytail or hanging hair pull the profile fit too small (RUNBOOK 42, 81). Trolls have no stock head here; set workspace fitReferenceOverrides.",
+  "designPalettes": ["pal-skin01.tga", "pal-hair01.tga", "pal-armor01.tga", "pal-armor02.tga", "pal-tattoo01.tga"]
+}

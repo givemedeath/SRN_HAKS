@@ -1,0 +1,14 @@
+{
+  "archiveId": "itemkit-catalog-generation-2026-11-03-v1",
+  "archiveManifestSha256": "a19e1be64dcaa287e76148b4ab415cbe2cfa9ab050b55c9d81de0042d81da28f",
+  "archivedFiles": 4322,
+  "archivedBytes": 2740306202,
+  "generationInputBundles": 246,
+  "terminalJobs": 88,
+  "unresolvedJobs": 0,
+  "allDestinationHashesVerified": true,
+  "ledgerUnchanged": true,
+  "mainToolingModified": false,
+  "fullLocalRegressionRun": false,
+  "seconds": 109.187
+}

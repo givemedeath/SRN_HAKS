@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-stoner-ares-m107-a64d328183",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "upper-left",
+      "pixel": [
+        32.00000000000001,
+        123.0
+      ]
+    },
+    {
+      "name": "upper-right",
+      "pixel": [
+        1518.0,
+        123.0
+      ]
+    },
+    {
+      "name": "lower-left",
+      "pixel": [
+        32.00000000000001,
+        926.0
+      ]
+    },
+    {
+      "name": "lower-right",
+      "pixel": [
+        1518.0,
+        926.0
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-stoner-ares-m107-a64d328183.family.json",
+    "sha256": "52a1b7796e9591b69f96311839b5881d053c9a6b36453d0070c55155ebe4bd6a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/5ef9e88137091d40d047509bf122aa6aa61f32dfe9c61b6160248e30158b7522.png",
+      "sha256": "5ef9e88137091d40d047509bf122aa6aa61f32dfe9c61b6160248e30158b7522"
+    },
+    "clayReference": {
+      "path": "inputs/06ecc7ac3dac103d649bdcef4e7bd46fd5638ced44c4ad53637da75204093071.png",
+      "sha256": "06ecc7ac3dac103d649bdcef4e7bd46fd5638ced44c4ad53637da75204093071"
+    },
+    "geometry": {
+      "path": "inputs/15dafc592ecfd58ea035003f2bc7a54b41bd74c657ffaf1ca7d32ba7317ea7b1.png",
+      "sha256": "15dafc592ecfd58ea035003f2bc7a54b41bd74c657ffaf1ca7d32ba7317ea7b1"
+    },
+    "detail": {
+      "path": "inputs/93cde601d5da5764a9766d692cc31e39971ded545e61b3fc9ecc748d2801fc10.png",
+      "sha256": "93cde601d5da5764a9766d692cc31e39971ded545e61b3fc9ecc748d2801fc10"
+    },
+    "foregroundMask": {
+      "path": "inputs/4399747b38e3488d3723561f9b08e068bbddf0c0d9cca1733bb4bfe2320a1290.png",
+      "sha256": "4399747b38e3488d3723561f9b08e068bbddf0c0d9cca1733bb4bfe2320a1290"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4.png",
+      "sha256": "478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4"
+    },
+    "mask": {
+      "path": "inputs/478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4.png",
+      "sha256": "478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4"
+    },
+    "calibrationReference": {
+      "path": "inputs/754c6eb42112766376789eb6a648f73d5ab56b0955aad7855123f6cc238cc9d0.png",
+      "sha256": "754c6eb42112766376789eb6a648f73d5ab56b0955aad7855123f6cc238cc9d0"
+    },
+    "sourceAudit": {
+      "path": "inputs/edcd550ce70d24d72d917a1c13cd59d384e8334ab0617580e2a214090b534695.json",
+      "sha256": "edcd550ce70d24d72d917a1c13cd59d384e8334ab0617580e2a214090b534695"
+    },
+    "referenceApproval": {
+      "path": "inputs/d71337678d7347acb481a09ed7eec0d7d9bce786c2d3b9515170c6e8d06bea0f.json",
+      "sha256": "d71337678d7347acb481a09ed7eec0d7d9bce786c2d3b9515170c6e8d06bea0f"
+    },
+    "calibrationDetail": {
+      "path": "inputs/2c41e216a4f07089ff437eae4318397b589657e18ffef661003a0266dbd0fe54.png",
+      "sha256": "2c41e216a4f07089ff437eae4318397b589657e18ffef661003a0266dbd0fe54"
+    }
+  },
+  "features": [
+    {
+      "name": "Built-in top laser, barrel-mounted gas-vent3 system and detachable underbarrel-mounted TRIPOD are standard.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Do not substitute a Barrett-style M107 sniper rifle; source explicitly identifies this as a Stoner-Ares HMG.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed30/PDF32 requires top-mounted laser, barrel gas-vent3 housing and detachable tripod. All three tripod legs/feet and major openings retained. Magazine-fed configuration shown. No own labeled drawing: external silhouette, color, depth and tripod pose are artistic interpretation, not Barrett M107.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [
+    {
+      "name": "reviewed-image-opening-1",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        530,
+        596,
+        605,
+        644
+      ],
+      "referenceAreaPixels": 1260,
+      "referenceMaskSha256": "478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-2",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        516,
+        824,
+        545,
+        872
+      ],
+      "referenceAreaPixels": 1049,
+      "referenceMaskSha256": "478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4",
+      "requiresMeasured3DProbe": true
+    },
+    {
+      "name": "reviewed-image-opening-3",
+      "mustRemainOpen": true,
+      "referenceBounds": [
+        779,
+        862,
+        848,
+        986
+      ],
+      "referenceAreaPixels": 3797,
+      "referenceMaskSha256": "478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4",
+      "requiresMeasured3DProbe": true
+    }
+  ],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "imageSha256": "93cde601d5da5764a9766d692cc31e39971ded545e61b3fc9ecc748d2801fc10",
+      "maskSha256": "4399747b38e3488d3723561f9b08e068bbddf0c0d9cca1733bb4bfe2320a1290",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed30/PDF32 requires top-mounted laser, barrel gas-vent3 housing and detachable tripod. All three tripod legs/feet and major openings retained. Magazine-fed configuration shown. No own labeled drawing: external silhouette, color, depth and tripod pose are artistic interpretation, not Barrett M107.",
+      "referenceSha256": "5ef9e88137091d40d047509bf122aa6aa61f32dfe9c61b6160248e30158b7522",
+      "route": "preserve-alpha"
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "imageSha256": "15dafc592ecfd58ea035003f2bc7a54b41bd74c657ffaf1ca7d32ba7317ea7b1",
+      "maskSha256": "478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4",
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed30/PDF32 requires top-mounted laser, barrel gas-vent3 housing and detachable tripod. All three tripod legs/feet and major openings retained. Magazine-fed configuration shown. No own labeled drawing: external silhouette, color, depth and tripod pose are artistic interpretation, not Barrett M107.",
+      "referenceSha256": "06ecc7ac3dac103d649bdcef4e7bd46fd5638ced44c4ad53637da75204093071",
+      "route": "preserve-alpha"
+    },
+    "referencePair": {
+      "decision": "approved",
+      "detailSha256": "93cde601d5da5764a9766d692cc31e39971ded545e61b3fc9ecc748d2801fc10",
+      "foregroundMaskSha256": "4399747b38e3488d3723561f9b08e068bbddf0c0d9cca1733bb4bfe2320a1290",
+      "geometryForegroundMaskSha256": "478d31fdc714daafebcb7c2f330c3b341c380444e118debadb707123178336c4",
+      "geometrySha256": "15dafc592ecfd58ea035003f2bc7a54b41bd74c657ffaf1ca7d32ba7317ea7b1",
+      "landmarks": [
+        {
+          "detail": [
+            0.05101407719106783,
+            0.2583956576810025
+          ],
+          "geometry": [
+            0.0498046875,
+            0.25537109375
+          ],
+          "name": "upper-left"
+        },
+        {
+          "detail": [
+            0.9495906176544661,
+            0.2583956576810025
+          ],
+          "geometry": [
+            0.9501953125,
+            0.25537109375
+          ],
+          "name": "upper-right"
+        },
+        {
+          "detail": [
+            0.05101407719106783,
+            0.744140625
+          ],
+          "geometry": [
+            0.0498046875,
+            0.744140625
+          ],
+          "name": "lower-left"
+        },
+        {
+          "detail": [
+            0.9495906176544661,
+            0.744140625
+          ],
+          "geometry": [
+            0.9501953125,
+            0.744140625
+          ],
+          "name": "lower-right"
+        }
+      ],
+      "notes": "Actual conditioned overlay reviewed: matched framing/proportions, structural members and openings retained. Shallow grooves accepted. Arsenal printed30/PDF32 requires top-mounted laser, barrel gas-vent3 housing and detachable tripod. All three tripod legs/feet and major openings retained. Magazine-fed configuration shown. No own labeled drawing: external silhouette, color, depth and tripod pose are artistic interpretation, not Barrett M107.",
+      "referenceSha256": "5ef9e88137091d40d047509bf122aa6aa61f32dfe9c61b6160248e30158b7522"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

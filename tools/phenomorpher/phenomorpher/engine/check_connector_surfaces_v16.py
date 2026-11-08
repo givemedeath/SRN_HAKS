@@ -113,8 +113,19 @@ def penetration(source_points, candidate_points, weights, source_closed, candida
     if s_tri is None or c_tri is None:
         return {'status': 'unavailable', 'surfaces': surfaces,
                 'reason': 'Opposite owning part has unbalanced (open) edges; solid penetration is undefined'}
-    sd, _, _ = closest_surface(source_points, s_tri); cd, _, _ = closest_surface(candidate_points, c_tri)
-    si = inside_closed(source_points, s_tri) & (sd > epsilon); ci = inside_closed(candidate_points, c_tri) & (cd > epsilon)
+    def depths(points, triangles):
+        """Depth of the points inside the closed surface, zero elsewhere. Distance is only needed for those points, but
+        closest_surface would have refused any nonfinite point, and inside_closed cannot."""
+        points = np.asarray(points, float)
+        if not np.isfinite(points).all():
+            raise ValueError('Finite surface geometry required')
+        inside = inside_closed(points, triangles); result = np.zeros(len(points))
+        result[inside] = closest_surface(points[inside], triangles)[0]
+        return inside & (result > epsilon), result
+    si, sd = depths(source_points, s_tri)
+    # The source and candidate surfaces are often the same bytes: an unchanged part costs one measurement, not two.
+    same = np.array_equal(source_points, candidate_points) and np.array_equal(s_tri, c_tri)
+    ci, cd = (si, sd) if same else depths(candidate_points, c_tri)
     source_depth = np.where(si, sd, 0.); candidate_depth = np.where(ci, cd, 0.); new = candidate_depth > scale*source_depth + epsilon
     return {'status': 'measured', 'surfaces': surfaces,
             'sourceInsideAreaFraction': float(weights[si].sum()/weights.sum()), 'candidateInsideAreaFraction': float(weights[ci].sum()/weights.sum()),

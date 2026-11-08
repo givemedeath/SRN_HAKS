@@ -1,0 +1,480 @@
+{
+ "schemaVersion": 1,
+ "kind": "PhenoMorpher-release-1.3.0",
+ "contract": "docs/phenomorpher/game-ready-assets.json",
+ "contractSHA256": "aa78f15d2e5c0c78e5c5c9a7a5f152e040d156cfaa6ce871b7c381fdef18d672",
+ "fromContractSHA256": "b4ec9143fec0353f8d0ed52a39027ee3cd7e2352f63831e7b39913e40a6438a3",
+ "resources": 935,
+ "changed": 517,
+ "changeClasses": {
+  "race-rig": 16,
+  "race-body-part": 256,
+  "c6-human-lock": 220,
+  "race-animation-library": 8,
+  "c7-human-lock-pmh2": 17
+ },
+ "targetsWithNewStature": [
+  "pfd0",
+  "pfd2",
+  "pmd0",
+  "pmd2",
+  "pfe0",
+  "pfe2",
+  "pme0",
+  "pme2",
+  "pmh2",
+  "pfo0",
+  "pfo2",
+  "pmo0",
+  "pmo2",
+  "pfg0",
+  "pfg2",
+  "pmg0",
+  "pmg2"
+ ],
+ "source": {
+  "stage": "output/phenomorpher/race-sizing/r3-release",
+  "candidateContractSHA256": "da5c96dc2ff70f795b0aec2390034ec4d05e0c91eb0b1128e5261686759e3d0e"
+ },
+ "trollHeads": {
+  "rule": "uniform rescale about each node frame by the Troll stature factor (race-sizing restature.py), decompiled from and recompiled with Blender 5.2.1 + Neverblender 4.5.1; geometry above the neck cut, UVs, materials and PLTs otherwise unchanged",
+  "heads": [
+   {
+    "path": "srn_head/pfg0_head010.mdl",
+    "sha256": "5e01e3f26c384d6135d7bce8ce3802e625421e2dbb1c26f30eeb952b5b192b05",
+    "fromSHA256": "b5bdbb90bc6fcd93a11bfd20223b9b77d6c68728f1d5c8cc7eaf9eab82089c8f",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head011.mdl",
+    "sha256": "38e2e0d8b206997e13c5e666580b4750d99670b0e78a7f11f5b65551a6e24381",
+    "fromSHA256": "a3227453f43557b51e710869f14101f2da6b8d961cb56744023abc16757dfab5",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head012.mdl",
+    "sha256": "538d44a2b61fd2bf0b84dc90c4e41684d311c361f85018ec37d435f23290a8b4",
+    "fromSHA256": "e1c366f2fe53aee45f2766a61fcd6efff7565eab0f6a83d656187e076c66f3de",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head013.mdl",
+    "sha256": "5471bc443248615c57fdeff3a87373f27420d1a79ad4799a78603dcf8fea0ced",
+    "fromSHA256": "fe6eb9670c33fda552215129a048e339ba80eab7aa3e81a438e31fa5945bbc3f",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head014.mdl",
+    "sha256": "eb8485eaacbdd7dc75feb4c0f43863d814fad9a5497aee4e52a049af18203ee5",
+    "fromSHA256": "6bda429221dc543cc3e3c3ba5ebb3f0cc2128acc87a7023439f5c74dc3be619b",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head015.mdl",
+    "sha256": "54fa53cad090cf99ad4d5007147b4316f9b0f007c5b60153b266fae3ea27fbd1",
+    "fromSHA256": "825e4dae581bf3218c5a06d8aad685e75f70fa2b115c9da4b4b1f04bb3ca5c42",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head016.mdl",
+    "sha256": "91597b31a502c21a1732be920a1a02117f71a65ae26723a296a06c5b5d520d7f",
+    "fromSHA256": "d20754c5465caafd587c286990edd58d4fa9f88f75a27c87103d4fb23061994f",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head017.mdl",
+    "sha256": "636d8adf7782b607ac1a92157c4c7f4c601d51a6e3e5acae564707bbbcc76803",
+    "fromSHA256": "bd6a17f374263db37c507091cc86534c2b56323d8e595de76dc6b57a23cb39d2",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head018.mdl",
+    "sha256": "92b16d15c7fd50ee4c4f5b2ccb51dda50fa1c5aa4f5e32acae29aaf65c757c6e",
+    "fromSHA256": "ef2694ea89f4110c85621e3c2b13013714ca3e7fdd791b080401702daa42b2a8",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head019.mdl",
+    "sha256": "0268aa53b8842d2f707c8190978a648974a4af9821da4edef3984a6a2d41c3d8",
+    "fromSHA256": "e2a8c4b2ee9b775846bcbb7e79f63cd24a175df310fa7a25d7b82599b135505b",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head020.mdl",
+    "sha256": "75e0b944a32ba0e80d5407f0b700a57a474b31f063a4247a8195c394dfb2985d",
+    "fromSHA256": "9244e70ca050f6fe6bbf22d5d3b3d7921e629d90e310b64fc00700833df79e2a",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head021.mdl",
+    "sha256": "6aca51de75f2e2727ed3339281b415918bad81f7eb440d6f2c111ff6d681cced",
+    "fromSHA256": "f5766aaf0968cdfb7c8c16ea00e97981dcee7e2991bbb2fe9f4b431e548bff05",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head022.mdl",
+    "sha256": "55127f4da7df333866ac334e25e863d84c4844b3c6af76c3f4fb043f920f5f96",
+    "fromSHA256": "49f54ae1e6bb359db9eaf0f4a7104c341b21df2996c068bf20ea7093a07d8e7e",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head023.mdl",
+    "sha256": "0e683f24145c0191a6cea0bd1c86eeda4e097abfd77a50144ee845785b719e94",
+    "fromSHA256": "3658488fb4132573ca62aa254dcae165b6abbebee316ccb25abc6a5ac6683f22",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head032.mdl",
+    "sha256": "60eb700f955a496cc05019ceebd9121804d7c7fcf99a786205aa5d1532fb9b40",
+    "fromSHA256": "27557b6b68d59c2604e9363b1a0b56ea3d5af72e4f8f7d1e5f0f0edb320deb37",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head090.mdl",
+    "sha256": "869642fc53e1f9055001527d0eefc583b266b1a092b90e47eaaa387feb7b4165",
+    "fromSHA256": "df2af05ce2165c4dbe2874e7d28414439e8ff8cfe532d577699b5f186967c48c",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head091.mdl",
+    "sha256": "c7298acbf9619c115a6328ee7be31614c3f07d732323dcadba0a53c5633aa58b",
+    "fromSHA256": "33083b98577786b137081688acaee873adb34b2ff938bcb3453ec62076492d7a",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pfg0_head092.mdl",
+    "sha256": "1257ad1764647b056de3cb365f83fcdfe763021f019db377785344bd037f6b5e",
+    "fromSHA256": "a10f4e0b1149a6c49ac07d59f0c0cef49c7a9311934945c2d90936056c9110af",
+    "scale": 0.9786426887523271
+   },
+   {
+    "path": "srn_head/pmg0_head015.mdl",
+    "sha256": "6b2d7b3a97c41dcfeebcfdf08b5ea9c9faa1108c32a76862c8f079f1069ffc13",
+    "fromSHA256": "94321147231ef5dc38591463e382b11699aa2192a53222d62a23548d158f4629",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head016.mdl",
+    "sha256": "a80b9df94a8853f4b055916f47c8db811ba0f6e78726b996096f56c074f21953",
+    "fromSHA256": "a42615d4503e380124973dcb449a427b21a88cd423887cf7114eae6e9996e007",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head017.mdl",
+    "sha256": "1a84ef71b824478237b5a4cd711d448cfbe434f6da09870861cc8cb704e1d4b7",
+    "fromSHA256": "81736267340b9ea9fe27dbcbf7867b7801594e62d6949e854ff02f27e93cca19",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head018.mdl",
+    "sha256": "c815dc9a6180e3efcd7f1923ec03f64019f546ddd9cddc140aa3d197df0f1fa4",
+    "fromSHA256": "85e34cf42f84d379b7e4e6e480995594b8304c990a945e9cb0e3df6bbf4070d8",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head019.mdl",
+    "sha256": "460f5bbc431fd6e5573a69203b0a7cc62dbc4faf669649f5479501f85f5227dd",
+    "fromSHA256": "d930a14a20169e9689090d50bb59e2df42f1d62c0b2f89bf789413987f1548a8",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head020.mdl",
+    "sha256": "f5851702697493e24a1922b393ba95e7be5d6b3953ed0d2f57297acffb60d0c7",
+    "fromSHA256": "986e076b62b9ddebb4b0eb0b073be0bf781080962b1c9960496c09d8c969cd6b",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head021.mdl",
+    "sha256": "80e01ab19c71a022d80c9e5a30a3f417c47ba096882173b4e9a45a60b180d187",
+    "fromSHA256": "e642226c43945a9369f3ac8237e8a0b1f72c810d9b7ea6f0c5c953bec6a6dbb6",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head022.mdl",
+    "sha256": "f0d32407e8c00d030c87814d1de0a081ac2733c294f118083f82401f6e40396a",
+    "fromSHA256": "d4a6b0d6fff514cc369511cb0d3a73ce050a7bec714b64e0226d6edd9fabef70",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head023.mdl",
+    "sha256": "f88da4f604d77616011c999032bf6e96426e42c502ca4a59d1611f7239b3c58e",
+    "fromSHA256": "370f914e29e8c5b6e6960a8221396b00ef2dc9a32d650c79f561d42fbd85d97f",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head024.mdl",
+    "sha256": "512fe88b5fcc6985972df2637a749a8807dd3d3fd4914d8b76356870ae71bb57",
+    "fromSHA256": "631f6ccb708e32b5acd20935dea80ba5f9ef1cbc425a1c7d866cfaab1adf5800",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head025.mdl",
+    "sha256": "fa6649c906e2ee371540b4c8baa74abe66405777b52d18a399c6bf8550da4547",
+    "fromSHA256": "53cb5cf24d1d7caf78306ce6c92b7419274fec4ba441cadb25b0ac17d7dc021b",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head026.mdl",
+    "sha256": "5fe3f51da2b53366680f4899cb62e11405891f3b087beb970a2bb0316b7d241f",
+    "fromSHA256": "6b95b1324856d8961b66391c40575987ef084b18b7c7e33e04065e6fb8be297b",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head027.mdl",
+    "sha256": "3911711bf69c783c0a969d3aae6322873a31a0f79dc2214839dd057bb46d6edc",
+    "fromSHA256": "924fa6d55e796913b41321b267d9bda0efa01c92a48de1fc85ace935084d706f",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head028.mdl",
+    "sha256": "820b916e5ff59566278092d8cd88d66ccfb0d8e0f074af2176c5059f59bf2b47",
+    "fromSHA256": "d4279285ead3e136086ea3da90f8d97e65e1e75bba6d828c561f6e28f7ec87fc",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head029.mdl",
+    "sha256": "3251c044f1b6149fe2f8f60ae33b2ca08eadfd53ef3bae785a89b6e00e23c598",
+    "fromSHA256": "c580448fd0892e1eca0fb5d264ddbb87570bcff763ca98e4ed5301b140f60405",
+    "scale": 0.9882558362785459
+   },
+   {
+    "path": "srn_head/pmg0_head030.mdl",
+    "sha256": "3318cb6eceea08a47efca884180ccb3768c4f8dc57266aef78ef359120424ebb",
+    "fromSHA256": "3a7c46956d3e3f9510c0a789c79959e4efddf99b0500f90fb226c07c14f23b33",
+    "scale": 0.9882558362785459
+   }
+  ]
+ },
+ "userApproval": "2026-10-27: approved publication of the r3 race bodies, the c7 Human lock and the r2 armour",
+ "footFix": {
+  "rule": "in every clip where a race body (Fit or Large) goes further below the floor than in 1.2.0, rootdummy position keys are placed at every key time of the clip, plus halfway points where linear root interpolation leaves more than 0.5 mm, and lifted by that extra depth (max over the library bodies of min(0, 1.2.0 lowest point) - r3 lowest point); nothing is lowered",
+  "tool": "race-sizing footfix.py (output/phenomorpher/race-sizing/r4-ascii/footfix.json)",
+  "compile": "Blender 5.2.1 + Neverblender 4.5.1 cleanmodels against the stock a_ba/a_fa (r4-compiled)",
+  "previousContractSHA256": "124c2278caffd764bf258cd3a24cf405a651af8d1655c4009d17b65ea10a1b9e",
+  "libraries": [
+   {
+    "path": "srn_body/srn_an_df.mdl",
+    "r3SHA256": "96728b9f104ecb7313f1d5c53935171e3f61c6efad54647fe3fb53937353d5d5",
+    "r3Bytes": 2258156,
+    "sha256": "397c1e8d85fd4daa78c85f406ba7adca5050cd39159274e623f2f300ad6966d3",
+    "bytes": 2276380,
+    "clipsLifted": 79,
+    "rootKeysAdded": 1139,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gutokdb",
+      34.9
+     ],
+     [
+      "kdbck",
+      34.5
+     ],
+     [
+      "kdbckdmg",
+      33.9
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "kdbck",
+      0.8
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_dm.mdl",
+    "r3SHA256": "e8cc5aa2e1b11fd80cbc03a51db546f398fb7c5d176bed2d9faa27b33da0080c",
+    "r3Bytes": 2175172,
+    "sha256": "2a2fcae74ca340e0a28e7cc9e51c949d5f3461b5fb86b13f845bd3113d21715e",
+    "bytes": 2191444,
+    "clipsLifted": 78,
+    "rootKeysAdded": 1017,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      32.6
+     ],
+     [
+      "gustandf",
+      32.5
+     ],
+     [
+      "kdfntdie",
+      31.5
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "kdfntdie",
+      0.9
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_ef.mdl",
+    "r3SHA256": "7c8f995b116d502c698d2751373c4ae1d2d105d5482271afa1ffd691d52ab548",
+    "r3Bytes": 2093952,
+    "sha256": "012af4e552c86ac8ea6f214d044f44bdd4400af15f383f643f806b9115bd26e4",
+    "bytes": 2101568,
+    "clipsLifted": 36,
+    "rootKeysAdded": 476,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      14.9
+     ],
+     [
+      "worship",
+      4.1
+     ],
+     [
+      "1hslashl",
+      2.8
+     ]
+    ],
+    "worstRemainingMm": []
+   },
+   {
+    "path": "srn_body/srn_an_em.mdl",
+    "r3SHA256": "568b1decdc0c8c27257bcd5466d634e3e005983730188bf41b609085fae19f5b",
+    "r3Bytes": 2004636,
+    "sha256": "4f24ad89601600d2b857fd8e8b40aff8b62affdcdc065825ee5ec1be9b91a3d9",
+    "bytes": 2018508,
+    "clipsLifted": 69,
+    "rootKeysAdded": 867,
+    "worstExtraDepthBeforeMm": [
+     [
+      "sitcross",
+      26.4
+     ],
+     [
+      "gustandb",
+      8.9
+     ],
+     [
+      "worship",
+      7.9
+     ]
+    ],
+    "worstRemainingMm": []
+   },
+   {
+    "path": "srn_body/srn_an_gf.mdl",
+    "r3SHA256": "59543d0ed760ca3faf38e29d65aa0d7c1a627ee02181a349799e944ccb8c2cb2",
+    "r3Bytes": 2093952,
+    "sha256": "8921abf740dc021eafc02ab46da9cc1fbecc6c1797b6876eb76848a83a3e32a1",
+    "bytes": 2110176,
+    "clipsLifted": 61,
+    "rootKeysAdded": 1014,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      40.9
+     ],
+     [
+      "gutokdb",
+      34.5
+     ],
+     [
+      "kdbckdmg",
+      33.5
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "gustandf",
+      1.5
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_gm.mdl",
+    "r3SHA256": "6bf5d005e5d16218e58aa2eee4d5cbd26b16d06664d905b78890e5073126f1ed",
+    "r3Bytes": 2004636,
+    "sha256": "018c428300975aba879cd646c0e8d3d4e2593b71e69d5752f4191973db9d5608",
+    "bytes": 2021436,
+    "clipsLifted": 73,
+    "rootKeysAdded": 1050,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      52.0
+     ],
+     [
+      "sitcross",
+      49.2
+     ],
+     [
+      "gustandf",
+      32.1
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "nwkicks",
+      1.3
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_of.mdl",
+    "r3SHA256": "3085431882ec5210a28670eb2c2ffe0ea1bc08a8e6e6a43832b2ee7af186b978",
+    "r3Bytes": 2093952,
+    "sha256": "2a265897c89b8925e1ee675d872b8c83a08353894ba3e1015473aa2897886485",
+    "bytes": 2109696,
+    "clipsLifted": 62,
+    "rootKeysAdded": 984,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      29.8
+     ],
+     [
+      "kdfnt",
+      23.3
+     ],
+     [
+      "gutokdb",
+      22.9
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "gustandf",
+      2.2
+     ]
+    ]
+   },
+   {
+    "path": "srn_body/srn_an_om.mdl",
+    "r3SHA256": "e6c0f2a8b103d56187147055d4a5f231adb07c1833c00c97629599d599b85fb8",
+    "r3Bytes": 2004636,
+    "sha256": "1bbb49ea53552b9ecc0186a3076e7ac2e7b3a835ea652ca097f38c322ec17403",
+    "bytes": 2020108,
+    "clipsLifted": 74,
+    "rootKeysAdded": 967,
+    "worstExtraDepthBeforeMm": [
+     [
+      "gustandb",
+      38.5
+     ],
+     [
+      "sitcross",
+      33.4
+     ],
+     [
+      "gustandf",
+      25.0
+     ]
+    ],
+    "worstRemainingMm": [
+     [
+      "nwstab",
+      1.1
+     ]
+    ]
+   }
+  ],
+  "userRequest": "2026-10-27: fix the foot sinking issues in the animation libraries"
+ }
+}

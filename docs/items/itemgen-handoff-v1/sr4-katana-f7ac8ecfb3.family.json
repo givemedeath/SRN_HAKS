@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "longsword",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {
+    "remeshResolution": 768,
+    "targetFaceCount": 200000,
+    "signMode": "udf"
+  },
+  "budgets": {
+    "visible": 10000,
+    "shadow": 500,
+    "parts": {
+      "b": {
+        "visible": 6000,
+        "shadow": 300
+      },
+      "m": {
+        "visible": 2500,
+        "shadow": 100
+      },
+      "t": {
+        "visible": 1500,
+        "shadow": 100
+      }
+    }
+  },
+  "allowedAssemblies": [
+    {
+      "b": "sr4-katana-f7ac8ecfb3",
+      "m": "sr4-katana-f7ac8ecfb3",
+      "t": "sr4-katana-f7ac8ecfb3"
+    }
+  ],
+  "native": {
+    "reviewed": false
+  },
+  "notes": "Current reference-bound preparation. Native target contract and generated hand fit remain separate gates.",
+  "resources": {
+    "texturePrefix": "srf7ac8ecf",
+    "blueprint": "srf7ac8ecf",
+    "hak": "srf7ac8ecfh",
+    "module": "srf7ac8ecfm",
+    "displayName": "Katana"
+  }
+}

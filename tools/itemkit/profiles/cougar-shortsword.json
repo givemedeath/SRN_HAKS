@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-family",
+  "family": "shortsword",
+  "nativePackaging": "pending-contract",
+  "materialRoute": "diffuse",
+  "bakeSize": 4096,
+  "runtimeTextureSize": 1024,
+  "sourceExport": {"remeshResolution": 768, "targetFaceCount": 200000},
+  "budgets": {
+    "visible": 5000,
+    "shadow": 500,
+    "parts": {
+      "b": {"meaning": "pommel", "visible": 750, "shadow": 100},
+      "m": {"meaning": "grip", "visible": 1125, "shadow": 100},
+      "t": {"meaning": "blade and guard", "visible": 3125, "shadow": 300}
+    }
+  },
+  "allowedAssemblies": [{"b": "cougar-fineblade-longblade", "m": "cougar-fineblade-longblade", "t": "cougar-fineblade-longblade"}],
+  "native": {"reviewed": false},
+  "notes": "Preliminary Cougar starting cap: 5K visible triangles, at the lower end of budget-policy.json's 5K-15K melee range. Preserve the former part allocation proportions; shadow caps remain unchanged. This is not asset or client acceptance. Measure the effective shortsword row, native donor frame, grip and inventory icons before enabling export. The 200K donor export is not the runtime budget. UDF export is an explicit trial and must preserve the pommel opening and thin blade."
+}

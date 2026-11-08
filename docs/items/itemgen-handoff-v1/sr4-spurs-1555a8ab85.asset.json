@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-spurs-1555a8ab85",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "finger-left-at-row1000",
+      "pixel": [
+        183.79032258064515,
+        1543.3085013146363
+      ]
+    },
+    {
+      "name": "wrist-top-at-column1000",
+      "pixel": [
+        1578.6870967741936,
+        177.9745836985101
+      ]
+    },
+    {
+      "name": "thumb-side-at-row500",
+      "pixel": [
+        1761.6,
+        799.6625766871167
+      ]
+    },
+    {
+      "name": "finger-right-at-row1150",
+      "pixel": [
+        1040.3580645161292,
+        1766.402278702892
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-spurs-1555a8ab85.family.json",
+    "sha256": "cc432ccb2c8737ac9b9cb1390fde35804a47d2e673703a6472dc262acecb1e5a"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/3d5a9b3cb64e7ab63be6c66433bd982e5a475dde18c7c5099bd10f258c5ebb9c.png",
+      "sha256": "3d5a9b3cb64e7ab63be6c66433bd982e5a475dde18c7c5099bd10f258c5ebb9c"
+    },
+    "clayReference": {
+      "path": "inputs/6b2bd1120f686268cf1a218113deb6d8ae082bf91d869ff9389d39e6b9cb8954.png",
+      "sha256": "6b2bd1120f686268cf1a218113deb6d8ae082bf91d869ff9389d39e6b9cb8954"
+    },
+    "geometry": {
+      "path": "inputs/bc2329944d4feb16ddacb49980872752655542d53e2d15ea189f76ab9626e0d3.png",
+      "sha256": "bc2329944d4feb16ddacb49980872752655542d53e2d15ea189f76ab9626e0d3"
+    },
+    "detail": {
+      "path": "inputs/ce9bc497204854f03242c2347d8eba129eaeeb94a83243e886fd6b55a12d817c.png",
+      "sha256": "ce9bc497204854f03242c2347d8eba129eaeeb94a83243e886fd6b55a12d817c"
+    },
+    "foregroundMask": {
+      "path": "inputs/84c3a70f731890cbffa11d48260882e874ff7c535c12d227990df909ff574408.png",
+      "sha256": "84c3a70f731890cbffa11d48260882e874ff7c535c12d227990df909ff574408"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/6366e7859dcb39079621338ebdd3e81f2dcdbd5971bc0bf02ceb527b44d2f33b.png",
+      "sha256": "6366e7859dcb39079621338ebdd3e81f2dcdbd5971bc0bf02ceb527b44d2f33b"
+    },
+    "mask": {
+      "path": "inputs/6366e7859dcb39079621338ebdd3e81f2dcdbd5971bc0bf02ceb527b44d2f33b.png",
+      "sha256": "6366e7859dcb39079621338ebdd3e81f2dcdbd5971bc0bf02ceb527b44d2f33b"
+    },
+    "calibrationReference": {
+      "path": "inputs/78bb57cd5aab16cd5f0bbb672576d7e348d082511edf0524c59036bee036ec38.png",
+      "sha256": "78bb57cd5aab16cd5f0bbb672576d7e348d082511edf0524c59036bee036ec38"
+    },
+    "sourceAudit": {
+      "path": "inputs/0df5953bade6dcd96684875a1378e0a11e6f7b8e50666c09c5eafd4e5f833302.json",
+      "sha256": "0df5953bade6dcd96684875a1378e0a11e6f7b8e50666c09c5eafd4e5f833302"
+    },
+    "referenceApproval": {
+      "path": "inputs/cc9cae23c2cd1da08638ffe37dadc03341f6fe3d536d76f024fe51031f63c987.json",
+      "sha256": "cc9cae23c2cd1da08638ffe37dadc03341f6fe3d536d76f024fe51031f63c987"
+    },
+    "calibrationDetail": {
+      "path": "inputs/617d3fe17293646d0df2cf7a4445b4b2116cf25d361f5b350a56ed10f20adeb5.png",
+      "sha256": "617d3fe17293646d0df2cf7a4445b4b2116cf25d361f5b350a56ed10f20adeb5"
+    }
+  },
+  "features": [
+    {
+      "name": "Variable number of blades protruding from wrist OR knuckles; count is not fixed at three",
+      "placementReviewed": true
+    },
+    {
+      "name": "Implant table lists retractable Spur; declare deployed/retracted state and chosen location",
+      "placementReviewed": true
+    },
+    {
+      "name": "Do not substitute fingernail Hand Razors or side-of-hand Hand Blade",
+      "placementReviewed": true
+    },
+    {
+      "name": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed350 detail and matching351 clay inspected together:FOUR separated long fingers plus ONE opposable thumb, two deployed knuckle spurs, palm and wrist cuff retained. Exact counts/pose/mechanical hand styling are explicit artistic nonstandalone context; primary source permits variable blade count at wrist or knuckles. No nail razors or side-hand blade. Matched framing, thin blade edges and intentional gaps retained. Clay simplifies grain,wear,screws and microdetail; shallow panel seams nonblocking. Native1254RGBA originals retained;2048 conditioning is resampled. Single final pair reviewer,no geometry/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "3d5a9b3cb64e7ab63be6c66433bd982e5a475dde18c7c5099bd10f258c5ebb9c",
+      "imageSha256": "ce9bc497204854f03242c2347d8eba129eaeeb94a83243e886fd6b55a12d817c",
+      "maskSha256": "84c3a70f731890cbffa11d48260882e874ff7c535c12d227990df909ff574408",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed350 detail and matching351 clay inspected together:FOUR separated long fingers plus ONE opposable thumb, two deployed knuckle spurs, palm and wrist cuff retained. Exact counts/pose/mechanical hand styling are explicit artistic nonstandalone context; primary source permits variable blade count at wrist or knuckles. No nail razors or side-hand blade. Matched framing, thin blade edges and intentional gaps retained. Clay simplifies grain,wear,screws and microdetail; shallow panel seams nonblocking. Native1254RGBA originals retained;2048 conditioning is resampled. Single final pair reviewer,no geometry/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "6b2bd1120f686268cf1a218113deb6d8ae082bf91d869ff9389d39e6b9cb8954",
+      "imageSha256": "bc2329944d4feb16ddacb49980872752655542d53e2d15ea189f76ab9626e0d3",
+      "maskSha256": "6366e7859dcb39079621338ebdd3e81f2dcdbd5971bc0bf02ceb527b44d2f33b",
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed350 detail and matching351 clay inspected together:FOUR separated long fingers plus ONE opposable thumb, two deployed knuckle spurs, palm and wrist cuff retained. Exact counts/pose/mechanical hand styling are explicit artistic nonstandalone context; primary source permits variable blade count at wrist or knuckles. No nail razors or side-hand blade. Matched framing, thin blade edges and intentional gaps retained. Clay simplifies grain,wear,screws and microdetail; shallow panel seams nonblocking. Native1254RGBA originals retained;2048 conditioning is resampled. Single final pair reviewer,no geometry/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "referenceSha256": "3d5a9b3cb64e7ab63be6c66433bd982e5a475dde18c7c5099bd10f258c5ebb9c",
+      "detailSha256": "ce9bc497204854f03242c2347d8eba129eaeeb94a83243e886fd6b55a12d817c",
+      "geometrySha256": "bc2329944d4feb16ddacb49980872752655542d53e2d15ea189f76ab9626e0d3",
+      "foregroundMaskSha256": "84c3a70f731890cbffa11d48260882e874ff7c535c12d227990df909ff574408",
+      "geometryForegroundMaskSha256": "6366e7859dcb39079621338ebdd3e81f2dcdbd5971bc0bf02ceb527b44d2f33b",
+      "landmarks": [
+        {
+          "name": "finger-left-at-row1000",
+          "detail": [
+            0.08974136844758064,
+            0.7535686041575372
+          ],
+          "geometry": [
+            0.09119361139112903,
+            0.7535686041575372
+          ]
+        },
+        {
+          "name": "wrist-top-at-column1000",
+          "detail": [
+            0.7708433089717742,
+            0.08690165219653813
+          ],
+          "geometry": [
+            0.7708433089717742,
+            0.08617543547326906
+          ]
+        },
+        {
+          "name": "thumb-side-at-row500",
+          "detail": [
+            0.86015625,
+            0.3904602425230062
+          ],
+          "geometry": [
+            0.8594301285282258,
+            0.3904602425230062
+          ]
+        },
+        {
+          "name": "finger-right-at-row1150",
+          "detail": [
+            0.5079873361895162,
+            0.8625011126478965
+          ],
+          "geometry": [
+            0.507261214717742,
+            0.8625011126478965
+          ]
+        }
+      ],
+      "notes": "Root inspected the prepared overlay against the single accepted raw pair. Paired silhouette and landmarks remain aligned; each normalized preparation mask retains its own components/openings. Explicit user-authorized Molotov native alpha cleanup is separately bound and disclosed; no further native edits or common-mask replacement occurred. Thin members and structural openings retained. Fine grooves/seams are nonblocking. Native1254 images retained;2048 is resampled, not native2K. Actual source-reviewed350 detail and matching351 clay inspected together:FOUR separated long fingers plus ONE opposable thumb, two deployed knuckle spurs, palm and wrist cuff retained. Exact counts/pose/mechanical hand styling are explicit artistic nonstandalone context; primary source permits variable blade count at wrist or knuckles. No nail razors or side-hand blade. Matched framing, thin blade edges and intentional gaps retained. Clay simplifies grain,wear,screws and microdetail; shallow panel seams nonblocking. Native1254RGBA originals retained;2048 conditioning is resampled. Single final pair reviewer,no geometry/client/production approval. Native1254 sources retained; explicit NEAREST prefit to2K avoids Lanczos inventing tiny topology changes. Each mask retains its own components/openings; no common-mask replacement or new native edit. Maintained conditioning uses identity scale. Resampled2K,not native2K."
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}

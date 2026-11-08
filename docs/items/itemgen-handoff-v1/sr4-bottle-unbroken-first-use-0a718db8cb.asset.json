@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "kind": "item-asset",
+  "id": "sr4-bottle-unbroken-first-use-0a718db8cb",
+  "profile": "pixal-single-v1",
+  "generationSettings": {
+    "preset": "pixal-single-v1",
+    "shapeResolution": 1536,
+    "shapeCFG": 12,
+    "textureCFG": 1,
+    "textureSteps": 12
+  },
+  "conditioning": "clay-detail-v1",
+  "landmarks": [
+    {
+      "name": "outer-profile-y200-left",
+      "pixel": [
+        516.0,
+        200.0
+      ]
+    },
+    {
+      "name": "outer-profile-y200-right",
+      "pixel": [
+        733.0,
+        200.0
+      ]
+    },
+    {
+      "name": "outer-profile-y400-left",
+      "pixel": [
+        394.0,
+        400.0
+      ]
+    },
+    {
+      "name": "outer-profile-y400-right",
+      "pixel": [
+        856.0,
+        400.0
+      ]
+    },
+    {
+      "name": "outer-profile-y700-left",
+      "pixel": [
+        386.0,
+        700.0
+      ]
+    },
+    {
+      "name": "outer-profile-y700-right",
+      "pixel": [
+        864.0,
+        700.0
+      ]
+    },
+    {
+      "name": "outer-profile-y1000-left",
+      "pixel": [
+        389.99999999999994,
+        1000.0000000000001
+      ]
+    },
+    {
+      "name": "outer-profile-y1000-right",
+      "pixel": [
+        859.0,
+        1000.0000000000001
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "source-reviewed detailed appearance",
+      "region": "complete depicted object; use the exact saved shape for appearance"
+    }
+  ],
+  "familyProfile": {
+    "path": "sr4-bottle-unbroken-first-use-0a718db8cb.family.json",
+    "sha256": "0d0e5fec5931ed66ec0e23cee520e042a4c2a83232c41e19ae01daeaba87f102"
+  },
+  "inputs": {
+    "reference": {
+      "path": "inputs/51dc1d9fb945c5de57fdc6ff37a689a0ba613fcf7930d3ddb9043aa756b99d53.png",
+      "sha256": "51dc1d9fb945c5de57fdc6ff37a689a0ba613fcf7930d3ddb9043aa756b99d53"
+    },
+    "clayReference": {
+      "path": "inputs/1db79bfda0c11551465293d00cb880340ef5557bd618f3f7d8a22afa80581149.png",
+      "sha256": "1db79bfda0c11551465293d00cb880340ef5557bd618f3f7d8a22afa80581149"
+    },
+    "geometry": {
+      "path": "inputs/6fa193f6abc6afd733e17ea11af5c5abd4ec756760e7264bf15d3910ff84c4d4.png",
+      "sha256": "6fa193f6abc6afd733e17ea11af5c5abd4ec756760e7264bf15d3910ff84c4d4"
+    },
+    "detail": {
+      "path": "inputs/438d9b8760a0ba42d02e280f0c3b1a20c960fb2e29cf9218041720bed2411dee.png",
+      "sha256": "438d9b8760a0ba42d02e280f0c3b1a20c960fb2e29cf9218041720bed2411dee"
+    },
+    "foregroundMask": {
+      "path": "inputs/bd1c41e99cbe0d536e151b9021a4a2e64565182161670f8a9a720458688e4cb9.png",
+      "sha256": "bd1c41e99cbe0d536e151b9021a4a2e64565182161670f8a9a720458688e4cb9"
+    },
+    "geometryForegroundMask": {
+      "path": "inputs/5d1045243008bbd39d8230bc8aa609e7ec962f5b2ace831b7aef3cab7a61fad9.png",
+      "sha256": "5d1045243008bbd39d8230bc8aa609e7ec962f5b2ace831b7aef3cab7a61fad9"
+    },
+    "mask": {
+      "path": "inputs/5d1045243008bbd39d8230bc8aa609e7ec962f5b2ace831b7aef3cab7a61fad9.png",
+      "sha256": "5d1045243008bbd39d8230bc8aa609e7ec962f5b2ace831b7aef3cab7a61fad9"
+    },
+    "calibrationReference": {
+      "path": "inputs/4ab444b8bbd72d9a06e9b66ffcc48a9454c08f0cc2d237c41f662fe783778ee0.png",
+      "sha256": "4ab444b8bbd72d9a06e9b66ffcc48a9454c08f0cc2d237c41f662fe783778ee0"
+    },
+    "sourceAudit": {
+      "path": "inputs/5cb2fa36679d68b02ca4c9cf8b79e31a20048cec62ce6d3cce0fa892ace52c93.json",
+      "sha256": "5cb2fa36679d68b02ca4c9cf8b79e31a20048cec62ce6d3cce0fa892ace52c93"
+    },
+    "referenceApproval": {
+      "path": "inputs/7d7a70284e59a0bb08c79996d15fe3dfb5986d5f80c738d7161e0ebd86dd8154.json",
+      "sha256": "7d7a70284e59a0bb08c79996d15fe3dfb5986d5f80c738d7161e0ebd86dd8154"
+    },
+    "calibrationDetail": {
+      "path": "inputs/8dc9abfc0a789626faa7587cadbb95a0f15d833103e1d4b459cb53a70dc5e6ff.png",
+      "sha256": "8dc9abfc0a789626faa7587cadbb95a0f15d833103e1d4b459cb53a70dc5e6ff"
+    }
+  },
+  "features": [
+    {
+      "name": "Intact ordinary bottle silhouette; no jagged break or exposed shard. Source does not fix glass type, color, brand, contents or cap.",
+      "placementReviewed": true
+    },
+    {
+      "name": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Intact amber bottle and smooth gray bottle match the generic first-use intact object. No break/shards, label or accessory. The bottle mouth is a solid shaded interior cavity, not background. Profile and rolled rim retained; no actual through openings. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K.",
+      "placementReviewed": true
+    }
+  ],
+  "openings": [],
+  "camera": {
+    "reviewed": false,
+    "fovDegrees": null
+  },
+  "approval": {
+    "background": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "51dc1d9fb945c5de57fdc6ff37a689a0ba613fcf7930d3ddb9043aa756b99d53",
+      "imageSha256": "438d9b8760a0ba42d02e280f0c3b1a20c960fb2e29cf9218041720bed2411dee",
+      "maskSha256": "bd1c41e99cbe0d536e151b9021a4a2e64565182161670f8a9a720458688e4cb9",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Intact amber bottle and smooth gray bottle match the generic first-use intact object. No break/shards, label or accessory. The bottle mouth is a solid shaded interior cavity, not background. Profile and rolled rim retained; no actual through openings. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K."
+    },
+    "geometryBackground": {
+      "decision": "approved",
+      "route": "preserve-alpha",
+      "referenceSha256": "1db79bfda0c11551465293d00cb880340ef5557bd618f3f7d8a22afa80581149",
+      "imageSha256": "6fa193f6abc6afd733e17ea11af5c5abd4ec756760e7264bf15d3910ff84c4d4",
+      "maskSha256": "5d1045243008bbd39d8230bc8aa609e7ec962f5b2ace831b7aef3cab7a61fad9",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Intact amber bottle and smooth gray bottle match the generic first-use intact object. No break/shards, label or accessory. The bottle mouth is a solid shaded interior cavity, not background. Profile and rolled rim retained; no actual through openings. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K."
+    },
+    "referencePair": {
+      "decision": "approved",
+      "notes": "Assigned sole reviewer inspected current raw detail/clay, native foreground/masks, final2048 role previews/masks and paired overlay. Intact amber bottle and smooth gray bottle match the generic first-use intact object. No break/shards, label or accessory. The bottle mouth is a solid shaded interior cavity, not background. Profile and rolled rim retained; no actual through openings. No detached subject, clipped edge, broad fringe or cast-shadow inclusion. Native RGB unchanged. One shared crop/scale/offset, no warp. Raw1254 square is resampled2048 square with generous margins, not native2K.",
+      "landmarks": [
+        {
+          "name": "outer-profile-y200-left",
+          "detail": [
+            0.4084577501917178,
+            0.15401656539351852
+          ],
+          "geometry": [
+            0.4092915228783231,
+            0.15401656539351852
+          ]
+        },
+        {
+          "name": "outer-profile-y200-right",
+          "detail": [
+            0.5893864231850716,
+            0.15401656539351852
+          ],
+          "geometry": [
+            0.5893864231850716,
+            0.15401656539351852
+          ]
+        },
+        {
+          "name": "outer-profile-y400-left",
+          "detail": [
+            0.3067374824258691,
+            0.32075557002314814
+          ],
+          "geometry": [
+            0.30590370973926384,
+            0.32075557002314814
+          ]
+        },
+        {
+          "name": "outer-profile-y400-right",
+          "detail": [
+            0.6919404636375255,
+            0.32075557002314814
+          ],
+          "geometry": [
+            0.6927742363241309,
+            0.32075557002314814
+          ]
+        },
+        {
+          "name": "outer-profile-y700-left",
+          "detail": [
+            0.3000673009330266,
+            0.5708640769675926
+          ],
+          "geometry": [
+            0.3000673009330266,
+            0.5708640769675926
+          ]
+        },
+        {
+          "name": "outer-profile-y700-right",
+          "detail": [
+            0.6986106451303681,
+            0.5708640769675926
+          ],
+          "geometry": [
+            0.6986106451303681,
+            0.5708640769675926
+          ]
+        },
+        {
+          "name": "outer-profile-y1000-left",
+          "detail": [
+            0.3034023916794478,
+            0.8209725839120371
+          ],
+          "geometry": [
+            0.30423616436605316,
+            0.8209725839120371
+          ]
+        },
+        {
+          "name": "outer-profile-y1000-right",
+          "detail": [
+            0.6944417816973415,
+            0.8209725839120371
+          ],
+          "geometry": [
+            0.6952755543839467,
+            0.8209725839120371
+          ]
+        }
+      ],
+      "referenceSha256": "51dc1d9fb945c5de57fdc6ff37a689a0ba613fcf7930d3ddb9043aa756b99d53",
+      "geometrySha256": "6fa193f6abc6afd733e17ea11af5c5abd4ec756760e7264bf15d3910ff84c4d4",
+      "detailSha256": "438d9b8760a0ba42d02e280f0c3b1a20c960fb2e29cf9218041720bed2411dee",
+      "foregroundMaskSha256": "bd1c41e99cbe0d536e151b9021a4a2e64565182161670f8a9a720458688e4cb9",
+      "geometryForegroundMaskSha256": "5d1045243008bbd39d8230bc8aa609e7ec962f5b2ace831b7aef3cab7a61fad9"
+    },
+    "referenceDesignReviewed": true,
+    "inputReviewComplete": true
+  },
+  "fit": {
+    "reviewed": false,
+    "preserveSourceProportions": true,
+    "nativeAdapterRequired": true
+  },
+  "processing": {
+    "openingProbes": [],
+    "thicknessProbes": [],
+    "uvMargin": 0.016,
+    "cageExtrusion": 0.001,
+    "maxRayDistance": 0.003,
+    "capColour": [
+      0.08,
+      0.08,
+      0.08
+    ]
+  },
+  "clientCoverage": [
+    "human-male",
+    "human-female"
+  ],
+  "notes": "Input approval propagated from the exact accepted conditioning manifest, source audit and measured pair landmarks; no new cosmetic or geometry approval. Camera FOV requires calibration. Measure intentional 3D openings and thin sections before reduction; do not treat empty probe inventories as approval. Preserve the shared five-geometry-attempt ledger and all prior attempts. Exact source/approval bytes are pinned input roles; historical originals are archived."
+}
