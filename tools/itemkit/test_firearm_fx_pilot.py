@@ -131,6 +131,18 @@ class TaggedGun(unittest.TestCase):
             self.assertGreater(spans[0], 2 * spans[4])
             self.assertEqual(spans[0], spans[8])
 
+    def test_every_shipped_gun_has_a_port_and_a_shipped_part(self):
+        self.assertEqual(sorted(fx.GUNS), sorted(fx.PORTS))
+        for part, stem in fx.GUNS.values():
+            self.assertTrue((fx.REPO / 'srn_weapon' / part).is_file(), part)
+            self.assertIn(stem, fx.HIT_TIMES)
+
+    def test_shipping_drops_only_the_pilot_clips(self):
+        clip = 'newanim {0} a_ba_custom\n  length 1\ndoneanim {0} a_ba_custom\n'
+        text = 'x\n' + clip.format('fire_rfl_hm') + clip.format('srp_xbowr_still') + clip.format('fire_rfla_hm') + 'donemodel a_ba_custom\n'
+        kept = fx.TEST_CLIP.sub('', text)
+        self.assertEqual(re.findall(r'(?m)^newanim (\S+)', kept), ['fire_rfl_hm', 'fire_rfla_hm'])
+
     def test_a_gun_with_clips_is_refused(self):
         with self.assertRaisesRegex(ValueError, 'Unexpected gun shape'):
             fx.tagged_gun(GUN.replace('donemodel', 'newanim old wbwsl_b_051\ndoneanim old wbwsl_b_051\ndonemodel'), 'fire_pst', 'stock')

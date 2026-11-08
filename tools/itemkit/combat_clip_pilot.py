@@ -8,6 +8,7 @@ Output goes to ignored `output/`. Its `a_ba_custom.mdl` is what `srn_body` ships
 and updating the contract and the hash pin in `runtime_rules.py`. The test module, chat commands and stand-ins stay private to this pilot.
 """
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -726,6 +727,7 @@ void main(){
  else if(GetStringLeft(text,3)=="rd ")Reload("reload_dual",ANIMATION_LOOPING_CUSTOM17,4.0,StringToFloat(GetSubString(text,3,6)),FALSE);
  else if(GetStringLeft(text,3)=="xr ")CarryOverlay(GetSubString(text,3,10));
  else if(text=="rearm")Arm();
+ else if(GetStringLeft(text,4)=="arm ")ArmWith(GetSubString(text,4,16),"nw_wambu001",INVENTORY_SLOT_BULLETS);
  else if(text=="xloop")StockLoop("xbowshot");
  else if(text=="xrdy")StockLoop("xbowrdy");
  else if(text=="fstock"){StockFire();CombatLog(40);}
@@ -790,16 +792,35 @@ def carry_overlays(hak, non_combat, chain=CARRY_CHAIN, stock=CARRY_STOCK):
     return clips
 
 
+# The last commit whose firearm parts have no effects. Shipped guns now carry emitters and clips, so pilots and the
+# effects build start from these bytes, checked against `preEffectsSha256` in the weapon publication record.
+PRE_EFFECTS_COMMIT = '2805a5ecb7d2c2fcbd7ee71bc79ae605e0ed5eab'
+
+
+def gun_source(part):
+    """A srn_weapon part's bytes without firearm effects."""
+    data = (REPO / 'srn_weapon' / part).read_bytes()
+    if b'srn_casing' not in data:
+        return data
+    data = subprocess.run(['git', 'show', f'{PRE_EFFECTS_COMMIT}:srn_weapon/{part}'], cwd=REPO, check=True,
+                          capture_output=True, timeout=120).stdout
+    record = json.loads((REPO / 'docs/items/approved-weapons-v1.json').read_text(encoding='utf-8'))
+    row = next(r for r in record['resources'] if r['path'] == 'srn_weapon/' + part)
+    if hashlib.sha256(data).hexdigest() != row['preEffectsSha256']:
+        raise ValueError('Pre-effects source differs from the record: ' + part)
+    return data
+
+
 def stage_standins(hak):
     """Copy each dual gun's parts to a short sword part number, so a blueprint can put it in the left hand."""
     for _, number, parts in STANDINS.values():
         for letter, part in zip('bmt', parts):
             old, new = f'wbwsl_{letter}_{part:03}', f'wswss_{letter}_{number:03}'
-            (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
+            (hak / (new + '.mdl')).write_bytes(gun_source(old + '.mdl').replace(old.encode(), new.encode()))
     for prefix, (_, _, number, part) in (('wbwsl', SLING_RIFLE), ('wbwln', BOW_RIFLE)):
         for letter in 'bmt':
             old, new = f'wbwxh_{letter}_{part:03}', f'{prefix}_{letter}_{number:03}'
-            (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
+            (hak / (new + '.mdl')).write_bytes(gun_source(old + '.mdl').replace(old.encode(), new.encode()))
 
 
 def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=None):
@@ -817,7 +838,7 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=
         models = []
         for part in spec['parts']:
             binary, text = stock_dir / (part + '.bin'), stock_dir / part
-            binary.write_bytes((REPO / 'srn_weapon' / part).read_bytes())
+            binary.write_bytes(gun_source(part))
             subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(binary), str(text)],
                            check=True, capture_output=True, timeout=120)
             models.append(text.read_text(encoding='cp1252'))

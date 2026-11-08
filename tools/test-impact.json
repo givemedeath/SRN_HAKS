@@ -1144,6 +1144,7 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/combat_clip_pilot.py": [
+      "docs/items/approved-weapons-v1.json",
       "tools/heads/build_head_trial.py",
       "tools/itemkit/__init__.py",
       "tools/itemkit/anim_chain_probe.py",
@@ -1174,6 +1175,7 @@
       "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/firearm_fx_pilot.py": [
+      "tools/Invoke-NwnMdlComp.ps1",
       "tools/itemkit/__init__.py",
       "tools/itemkit/combat_clip_pilot.py"
     ],
@@ -4596,6 +4598,7 @@
       "srn_weapon"
     ],
     "tools/itemkit/firearm_fx_pilot.py": [
+      "srn_body",
       "srn_weapon"
     ],
     "tools/itemkit/native_stack.py": [
@@ -4605,7 +4608,8 @@
       "srn_body"
     ],
     "tools/itemkit/test_firearm_fx_pilot.py": [
-      "srn_body"
+      "srn_body",
+      "srn_weapon"
     ],
     "tools/itemkit/test_native_stack.py": [
       "srn_body"

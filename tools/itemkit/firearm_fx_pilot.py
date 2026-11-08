@@ -12,6 +12,7 @@ import argparse
 from functools import partial
 from pathlib import Path
 import re
+import subprocess
 import sys
 
 import numpy as np
@@ -22,7 +23,10 @@ if str(REPO) not in sys.path:
     sys.path.append(str(REPO))
 from tools.itemkit import combat_clip_pilot as pilot
 
-GUNS = {'colt': ('wbwsl_b_051.mdl', 'fire_pst'), 'ingram': ('wbwsl_m_023.mdl', 'fire_smg'), 'ak98': ('wbwxh_t_015.mdl', 'fire_rfl')}
+# Each shipped firearm's barrel part, and the fire clip it plays. Both Colt colours share one shape.
+GUNS = {'colt': ('wbwsl_b_051.mdl', 'fire_pst'), 'colt_gunmetal': ('wbwsl_b_052.mdl', 'fire_pst'),
+        'ingram': ('wbwsl_m_023.mdl', 'fire_smg'), 'ak98': ('wbwxh_t_015.mdl', 'fire_rfl'),
+        'predator': ('wbwsl_b_065.mdl', 'fire_pst')}
 STOCK_CLIPS = ('throwr', 'xbowshot')
 BURST_TIME = .1
 # Gate 2: recoil onsets from hand speed in the clip keys, shared by every slot. Moving `hit` to these doesn't move
@@ -59,7 +63,12 @@ DUAL = {'fire_pst': ('fire_dpst', (.5,), (.73,)), 'fire_smg': ('fire_dsmg', (.14
 STANDIN_PARTS = {'colt': {'left': 'wswss_b_201', 'right': 'wswss_b_204'},
                  'ingram': {'left': 'wswss_m_202', 'right': 'wswss_m_205'}}
 # Ejection ports on each gun's right side (+x), placed by hand from its cross-sections.
-PORTS = {'colt': (.025, .10, -.05), 'ingram': (.015, .10, -.06), 'ak98': (.031, .165, -.06)}
+# The Predator's is on its right face (x max 0.022) just below the slide top (0.14) where the grip starts (z -0.06).
+PORTS = {'colt': (.025, .10, -.05), 'colt_gunmetal': (.025, .10, -.05), 'ingram': (.015, .10, -.06),
+         'ak98': (.031, .165, -.06), 'predator': (.022, .125, -.05)}
+# What `--ship` copies from a build into the packs. Stand-ins, test clips and the test module stay in output/.
+SHIP_BODY = ('a_ba_custom.mdl', 'a_ba_non_combat.mdl')
+TEST_CLIP = re.compile(r'(?ms)^newanim (srp_\S+) a_ba_custom\n.*?^doneanim \1 a_ba_custom\n')
 EMITTER = '''node emitter {name}
   parent {root}
   position {x:.5f} {y:.5f} {z:.5f}
@@ -344,6 +353,11 @@ def extend(names, quiet, corrected, hit_at, old_fx, hak, stock_dir, scripts):
             raise ValueError(f'Expected 9 old flashes and 1 casing, found {len(flashes)} and {len(casing)}')
         tumbling_sheet(old_fx / OLD_CASING_SHEET, hak / (CASING_SHEET + '.tga'))
     for label, (part, stem) in GUNS.items():
+        if not (stock_dir / part).exists():
+            binary = stock_dir / (part + '.bin')
+            binary.write_bytes(pilot.gun_source(part))
+            subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(binary), str(stock_dir / part)],
+                           check=True, capture_output=True, timeout=120)
         text = (stock_dir / part).read_text(encoding='cp1252')
         burst = HIT_TIMES[stem] if corrected and hit_at is None else BURST_TIME
         root = re.search(r'(?m)^newmodel (\S+)', text)[1]
@@ -365,6 +379,29 @@ def extend(names, quiet, corrected, hit_at, old_fx, hak, stock_dir, scripts):
     scripts['srp_chat'] = scripts['srp_chat'].replace(marker, CHAT + marker)
 
 
+def ship(output, repo=REPO):
+    """Copy a finished `--old-fx` build into srn_weapon and srn_body; returns {pack path: bytes}."""
+    hak, compiled = Path(output) / 'stage-hak', Path(output) / 'compiled'
+    files = {}
+    # srn_weapon models are binary. The legacy compiler needs a chitin.key it can find (tools/vendor/nwnmdlcomp).
+    for part, _ in GUNS.values():
+        subprocess.run(['pwsh', '-NoProfile', '-File', str(REPO / 'tools/Invoke-NwnMdlComp.ps1'), '-Mode', 'Compile',
+                        '-InputModel', str(hak / part), '-OutputModel', str(compiled / part)], check=True, timeout=300)
+        data = (compiled / part).read_bytes()
+        if not data.startswith(b'\0\0\0\0'):
+            raise ValueError('Not a binary model: ' + part)
+        files[f'srn_weapon/{part}'] = data
+    files[f'srn_weapon/{CASING_SHEET}.tga'] = (hak / (CASING_SHEET + '.tga')).read_bytes()
+    custom = (hak / SHIP_BODY[0]).read_text(encoding='cp1252')
+    files['srn_body/' + SHIP_BODY[0]] = TEST_CLIP.sub('', custom).encode('cp1252')
+    files['srn_body/' + SHIP_BODY[1]] = (hak / SHIP_BODY[1]).read_bytes()
+    if b'srp_' in b''.join(files.values()):
+        raise ValueError('A pilot-only name would ship')
+    for path, data in files.items():
+        (Path(repo) / path).write_bytes(data)
+    return {path: len(data) for path, data in files.items()}
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     for option in ('output', 'source-dir', 'game-root', 'tool-dir', 'game-userdir'):
@@ -375,8 +412,15 @@ if __name__ == '__main__':
     parser.add_argument('--corrected-hits', action='store_true', help='Move fire clip hit events to HIT_TIMES')
     parser.add_argument('--hit-at', type=float, help='Diagnostic: put every fire clip hit event at this time')
     parser.add_argument('--old-fx', help="The old mod's '!Combat Override System' folder, for its flash and casing")
+    parser.add_argument('--ship', action='store_true', help='Copy the built guns, casing sheet and body clips into the packs')
     options = vars(parser.parse_args())
+    shipping = options.pop('ship')
+    if shipping and not (options['old_fx'] and options['names'] == 'replaced' and options['quiet']):
+        parser.error('--ship needs --old-fx, --names replaced and --quiet')
     hooks = partial(extend, options.pop('names'), options.pop('quiet'), options.pop('corrected_hits'), options.pop('hit_at'),
                     options.pop('old_fx'))
     result = pilot.build(extend=hooks, **options)
     print('built', result['customBytes'])
+    if shipping:
+        for path, size in ship(options['output']).items():
+            print('shipped', path, size)

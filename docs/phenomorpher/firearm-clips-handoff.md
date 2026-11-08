@@ -135,15 +135,14 @@ Firearm reloads are silent by user decision on 2026-11-07, so don't add a reload
 
 ## Open items
 
-- **Needs a decision: sling or crossbow.** The upright rifle no longer forces sling (see below). D377 mutes only sling row 6. Rifle and shotgun clips were tested on a crossbow-class
+- **Crossbow class chosen for rifles (user, 2026-11-07).** D377 mutes only sling row 6, so SR_NWN needs a crossbow-row mute too. Rifle and shotgun clips were tested on a crossbow-class
   weapon through `xbowshot`, firing bolts, so their native firing sound wouldn't be muted. Pistol and SMG were tested on sling.
 - **SMG on `throwr`:** unconfirmed. `fire_smg` also ran on `xbowshot` in testing.
 - **Native dual fire is untested.** Ranged weapons refuse any left-hand item, and `0B2B-02-firearms.md` rejects dual firearms so
   far. Dual poses were only seen on short sword stand-ins.
-- **Upright rifle out of combat:** out of combat the client lays stock `xbowr` from `a_ba_non_combat` over crossbow
-  holders' clips, standing the gun up. An overriding `a_ba_non_combat` with a keyless `xbowr` fixes it while keeping
-  crossbow class (pilot build v24). The override is global and still needs a home in a shipped hak. See
-  `docs/items/firearm-fx-pilot.md`.
+- **Upright rifle out of combat:** fixed in contract 1.5.0. `srn_body/a_ba_non_combat.mdl` keeps stock `xbowr`'s
+  nodes but drops its keys, so crossbow-class rifles stay aimed outside combat. Stock crossbows lose their shoulder carry
+  too. See `docs/items/firearm-fx-pilot.md`.
 - **Shotgun:** there's no model yet, so its clips were solved on the rifle. It wasn't viewed on Elf or Orc after the rename.
 - **Robes:** refit is deferred, and Trolls in robes break.
 - **Close-up review** covers Human male only. Other races were checked in group shots.

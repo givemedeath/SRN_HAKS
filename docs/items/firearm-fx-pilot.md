@@ -1,7 +1,7 @@
 # Firearm muzzle flash and shell casing pilot
 
-Emitters on the firearm models fire on a `detonate` event in a clip the gun plays during the shot. Nothing ships
-from this pilot. The builder is `tools/itemkit/firearm_fx_pilot.py`, and output goes to ignored `output/`.
+Emitters on the firearm models fire on a `detonate` event in a clip the gun plays during the shot. Shipped in contract
+1.5.0 on 2026-11-07 (see [Shipped](#shipped)). The builder is `tools/itemkit/firearm_fx_pilot.py`, and output goes to ignored `output/`.
 
 | Gate | Question | Status |
 |---|---|---|
@@ -180,7 +180,7 @@ Both fire on one `detonate` at 0.5 s.
 - The Ingram gives one flash and one casing per attack. Mapping a burst to a native attack is still gate 5.
 - **Provenance:** `gun credits.txt` beside the old gun models credits the d20mm team (Demigog for models and emitters,
   Dforce and Psionic for models) and the Urban Terror team. So the casing emitter is probably Demigog's. The flash in
-  the WIP hak has no credit. Check reuse terms before anything ships.
+  the WIP hak has no credit. The user credits hairybrain for both emitters (2026-11-07; `PROVENANCE.md`).
 
 Evidence is in `output/firearm-fx-pilot-v10-evidence/` (ignored). The v9 front views are in
 `output/firearm-fx-pilot-v9-evidence/`.
@@ -326,7 +326,7 @@ clip a crossbow holder plays, the way `walk_swordr` and `torchl` ride on the arm
 (folded about 234°), `rhand_g` and `rhand` (turned 40°): that is the raised-forearm, muzzle-up carry. It lands on top
 of our fire clips too, so the AK-98 stands up through the head. In combat the overlay is off.
 
-**Fix, proven in the pilot, keeps crossbow class:** ship an overriding `a_ba_non_combat` whose `xbowr` keeps its nodes
+**Fix, shipped in 1.5.0, keeps crossbow class:** ship an overriding `a_ba_non_combat` whose `xbowr` keeps its nodes
 but has no keys (`carry_overlays`, `CARRY_STOCK = 'srp_xbowr_still'`). In the client (build v24):
 
 - **Idle:** the arm hangs and the rifle points muzzle-down, as on the sling test part.
@@ -389,3 +389,24 @@ What adopting it needs, not done here:
 
 Evidence is in `output/firearm-fx-pilot-v14-evidence/`, `output/firearm-fx-pilot-v15-evidence/` and
 `output/firearm-fx-pilot-v16-evidence/` (ignored).
+
+## Shipped
+
+Contract 1.5.0, 2026-11-07, at the user's request ("let's ship it", with the crossbow fix and hairybrain's credit).
+`firearm_fx_pilot.py --ship` copies one build into the packs:
+
+| Pack | Files |
+|---|---|
+| `srn_weapon` | Effect barrel parts for the Colt L36 (`wbwsl_b_051`, `wbwsl_b_052`), Ares Predator IV (`wbwsl_b_065`), Ingram (`wbwsl_m_023`) and AK-98 (`wbwxh_t_015`), compiled to binary; `srnfx_casing.tga` |
+| `srn_body` | `a_ba_custom.mdl` without the pilot's `srp_*` clips; `a_ba_non_combat.mdl` with the keyless `xbowr` |
+
+- **Predator:** new to this build. Its port sits on its right face just below the slide where the grip starts,
+  measured from its cross-sections like the others.
+- **Pre-effects source:** later builds take the guns from commit `2805a5ec` (`gun_source`), checked against the
+  `preEffectsSha256` the weapon record keeps for each part.
+- **Client check (build `firearm-fx-ship-check2`):** the test hak carried no gun or body model, so the client ran
+  the repo's `srn_weapon` and `srn_body`. On Trolls: AK idle hangs muzzle-down; its fire loop aims forward 15 s out of
+  combat and ejects casings; combat fire ejects casings; the Predator fires and ejects casings to its right. The
+  0.1 s flash wasn't caught by the roughly 0.15 s screen captures. Evidence: `output/firearm-fx-ship-evidence` (ignored).
+- **Not covered:** the other races with the shipped files, the default camera, frame rate, and burst and full-auto
+  mapping, which SR_NWN decides.

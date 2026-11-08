@@ -1,7 +1,7 @@
 {
  "schemaVersion": 1,
  "kind": "PhenoMorpher-game-ready-bodies",
- "version": "1.4.0",
+ "version": "1.5.0",
  "accepted": "2026-11-07",
  "packs": [
   "srn_body",
@@ -630,14 +630,28 @@
  "resources": [
   {
    "path": "srn_body/a_ba_custom.mdl",
-   "sha256": "f9e7d11e897dd57121ba28c6ebcd40c33b020d66f9e4dfbe84d7ef39edcf6fd3",
-   "bytes": 2443937,
+   "sha256": "8beffddee69cad533ac2ee09f6417f0d6331a25fcff8676818fca98e6c45167d",
+   "bytes": 3893497,
    "role": "combat-animation",
    "sourceResource": "a_ba_custom.mdl",
    "sourceArchive": null,
    "sourceSHA256": "c29d502d2b9fc830ba90302236fb2247d999dd6c851437e370fc21a936fd23c4",
    "nameOnlyChanges": [],
-   "addedClips": 175,
+   "addedClips": 205,
+   "builder": "tools/itemkit/combat_clip_pilot.py"
+  },
+  {
+   "path": "srn_body/a_ba_non_combat.mdl",
+   "sha256": "708fd5b94f431e32e4991f960ddcfe16ea2bee9be07c1100f8f876be0cd9e632",
+   "bytes": 712917,
+   "role": "carry-overlay",
+   "sourceResource": "a_ba_non_combat.mdl",
+   "sourceArchive": null,
+   "sourceSHA256": "6222498236772cb30d44d92ed4819842f9a0b17d95a0bbfe081d447c66a7f717",
+   "nameOnlyChanges": [],
+   "changedClips": [
+    "xbowr"
+   ],
    "builder": "tools/itemkit/combat_clip_pilot.py"
   },
   {
@@ -20162,7 +20176,8 @@
   "1.2.0: model roots sit at the origin, as in the stock rigs. Each non-Human rig and library root offset was folded into rootdummy, handconjure and headconjure and the library rootdummy keys (root-rebase/root-rebase-receipt.json); bind and library clip world frames are unchanged within float32 rounding.",
   "1.3.0 (user-approved 2026-10-27; docs/phenomorpher/race-sizing/plan.md, human-bodies-lock-c7.md): race bodies at their lore rest heights with Fit = Large, Large-male joint heights at Fit, lore build, the b13/c6 female joins ported to the race females, idle soles on the floor; the c7 Human lock (c6 female joins, torso polish and rebuilt skin, and pmh2 at Fit joint heights). Rigs, libraries and pmh2 compile with Blender 5.2.1 + Neverblender 4.5.1 against the stock a_ba/a_fa. Per-resource release130 records the 1.2.0 hash and change class.",
   "1.3.0 foot fix (user request 2026-10-27): in every race library clip where a race body went further below the floor than in 1.2.0, rootdummy position keys are lifted by that extra depth at every key time (plus refinement points); nothing is lowered and clips that never sink are byte-for-byte the same animation. docs/phenomorpher/race-sizing/release-1.3.0.json (footFix).",
-  "1.4.0 (user request 2026-11-07, docs/phenomorpher/animation-chain-probe.md): srn_body/a_ba_custom.mdl overrides the installed ASCII a_ba_custom with its stock clips unchanged and 175 added firearm clips named <action>_<weapon>_<slot>. installedAnimationChain still records the stock file the override is built from. Bodies, rigs and the 2DA tables are unchanged."
+  "1.4.0 (user request 2026-11-07, docs/phenomorpher/animation-chain-probe.md): srn_body/a_ba_custom.mdl overrides the installed ASCII a_ba_custom with its stock clips unchanged and 175 added firearm clips named <action>_<weapon>_<slot>. installedAnimationChain still records the stock file the override is built from. Bodies, rigs and the 2DA tables are unchanged.",
+  "1.5.0 (user request 2026-11-07, docs/items/firearm-fx-pilot.md): srn_body/a_ba_custom.mdl adds 30 automatic rifle clips (fire_rfla, fire_rflb), shifts the rifle and shotgun fire clips' recoil 0.37 s later to the engine's 0.5 s shot, and fixes the pistol support elbow. srn_body/a_ba_non_combat.mdl overrides the installed binary with a decompiled ASCII copy whose xbowr carry overlay keeps its nodes but has no keys, so crossbow-class firearms stay aimed outside combat; every other clip is unchanged. installedAnimationChain still records the stock files these are built from."
  ],
  "raceSelection": {
   "rows": {
