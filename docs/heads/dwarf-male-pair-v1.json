@@ -1,0 +1,325 @@
+{
+  "appearanceApproval": "looks good",
+  "buildValidation": {
+    "allResourcePayloadHashesVerified": true,
+    "elapsedSeconds": 12.827999999979511,
+    "hakSha256": "a14116ffd16b49d69f16167985d192c8ae491cdf981dd923cf22f745f6a38444",
+    "inputsUnchanged": true,
+    "resources": 130
+  },
+  "existingResourcesUnchanged": 126,
+  "heads": [
+    {
+      "attempts": {
+        "bake": 1,
+        "export": 4,
+        "fit": 1,
+        "masks": 1,
+        "native": 4,
+        "ownership": 5,
+        "palette": 7,
+        "precluster": 1,
+        "prepare": 1,
+        "quality": 5,
+        "render": 5,
+        "repair": 1,
+        "tone": 6,
+        "unwrap": 1
+      },
+      "client": {
+        "checks": [
+          "front",
+          "four three-quarter views",
+          "gameplay distance",
+          "talk/look motion",
+          "second hair row"
+        ],
+        "gallery": {
+          "path": "docs/heads/evidence/dwarf-male-pair-v1/pmd0_head019-client.jpg",
+          "sha256": "ebc36ba795cbec545326cc10d6cfa57c85478eee50da32e06acccdb771f7c64e"
+        },
+        "residuals": "Small pre-existing peach flecks in curls, gray wisps at ears and a crown wisp in tilted motion remain; no additional corrective pass used.",
+        "verifiedSlot": 19
+      },
+      "designsUsed": 3,
+      "geometrySubmissions": 1,
+      "id": "dwarf-male-a",
+      "model": "pmd0_head019",
+      "name": "DeVito-like Dwarf",
+      "nativeReadback": {
+        "model": "pmd0_head019",
+        "normalsMaximumError": 0.0,
+        "onlyFixedStringFieldsChanged": true,
+        "positionsMaximumError": 7.450580541412677e-09,
+        "uvMaximumError": 0.0,
+        "zeroedTailBytes": 0
+      },
+      "paletteRows": {
+        "0": 12,
+        "1": 19,
+        "2": 0,
+        "3": 0,
+        "8": 115,
+        "9": 0
+      },
+      "quality": {
+        "decodeRows": {
+          "1": 117,
+          "8": 26
+        },
+        "failed": [],
+        "limits": {
+          "blotchPxMax": 20,
+          "bodySkinSpanMin": 0.5,
+          "browsOnHairMin": 0.85,
+          "designSpecksWarn": 10,
+          "faceDarkRatioMin": 0.15,
+          "featureFocusMin": 5.0,
+          "hairEndTieExempt": 0.1,
+          "hairLockOnSkinPxMax": 4,
+          "hairOnFaceSkinMax": 0.03,
+          "irisOnTattoo1Min": 0.85,
+          "seamStepRatioMax": 1.45,
+          "shadeSpanMin": 0.75,
+          "skinMedianOffsetMax": 8,
+          "specksMax": 10,
+          "whitesOnSkinMin": 0.9
+        },
+        "metrics": {
+          "blotchPx": 0,
+          "browsOnHair": 0.993,
+          "cheekNoise": 1.95,
+          "designSpecks": 0,
+          "faceDarkRatio": 0.188,
+          "featureFocus": 7.86,
+          "hairLockOnSkinPx": null,
+          "hairOnFaceSkin": 0.0,
+          "irisOnTattoo1": 0.992,
+          "irisOnTattoo1ByEye": {
+            "left": 0.996,
+            "right": 0.989
+          },
+          "lipHairPx": 0,
+          "seamOuterFaces": 19982,
+          "seamSkinTexels": 291221,
+          "seamStepRatio": 1.335,
+          "shadeSpan": {
+            "0": 0.7,
+            "1": 0.791,
+            "8": 1.0
+          },
+          "shadeSpanExempt": [],
+          "skinMedianOffset": 0.0,
+          "specks": 0,
+          "upperLidHairPx": 0,
+          "whitesOnSkin": 0.982
+        },
+        "passed": true
+      },
+      "resources": [
+        {
+          "bytes": 1178908,
+          "path": "srn_head/pmd0_head019.mdl",
+          "sha256": "b5ddb65873593451cbd292c1f452df15b3857878a50d1bbb146469bc4df70f53"
+        },
+        {
+          "bytes": 2097176,
+          "path": "srn_head/pmd0_head019.plt",
+          "sha256": "e3e60fe595164144305e6e1ee5bf35286d53440a83f733484a671f8767231c59"
+        }
+      ],
+      "selectedAttempts": {
+        "bake": "attempt-01",
+        "export": "attempt-04",
+        "fit": "attempt-01",
+        "masks": "attempt-01",
+        "native": "attempt-04",
+        "ownership": "attempt-05",
+        "palette": "attempt-07",
+        "precluster": "attempt-01",
+        "prepare": "attempt-01",
+        "quality": "attempt-05",
+        "render": "attempt-05",
+        "repair": "attempt-01",
+        "tone": "attempt-06",
+        "unwrap": "attempt-01"
+      },
+      "slot": 19,
+      "sourceHashes": {
+        "clientCaptures": "c3ba53714a9dfc899e627e2c1c46f4310f4b5dccf1e963969b7aad52bcc785c2",
+        "clientLog": "a21ecb063902a7b3c85e20f47cd993274b1a7db07ec85a6dad99edbf991929de",
+        "clientManifest": "aaaa62c2556f52abd6eea0d3e61c697ff1f826da0c146dd17385d8e22ec2399e",
+        "nativeReceipt": "7586088882aa7e87af917ebdebdee5b53aab76d596b1b344a84de874a2b2ab90",
+        "operatorReview": "e11f96f8e239d9035d70ce61fe2c29ca7a763cac4a3b6d53f97fc4d785820e33",
+        "paletteReceipt": "0edf486f27c0423c6ddb43dbdcc4a36848299b7e57e7ccac9ddf020d73d27dff",
+        "qualityReceipt": "66acc7b45a42732d704b7a633225d0d1e246ad6aceb600d2deaaa0768bb04bcd",
+        "uvMesh": "8a3a8af92694b4076483c0d0ceed725d9a2114b69f77580964302c6eb0523e4e"
+      }
+    },
+    {
+      "attempts": {
+        "bake": 1,
+        "export": 2,
+        "fit": 1,
+        "masks": 2,
+        "native": 2,
+        "ownership": 5,
+        "palette": 6,
+        "precluster": 1,
+        "prepare": 1,
+        "quality": 4,
+        "render": 3,
+        "repair": 1,
+        "tone": 5,
+        "unwrap": 1
+      },
+      "client": {
+        "checks": [
+          "front",
+          "four three-quarter views",
+          "gameplay distance",
+          "talk/look motion",
+          "second hair row"
+        ],
+        "gallery": {
+          "path": "docs/heads/evidence/dwarf-male-pair-v1/pmd0_head020-client.jpg",
+          "sha256": "b7f19cacd54ab255b1949286f074351f389c28d63e73441f2486d6192f82be89"
+        },
+        "residuals": "Angular beard/cheek edges and a small dark outer-eye/cheek mark remain visible at close zoom.",
+        "verifiedSlot": 20
+      },
+      "designsUsed": 3,
+      "geometrySubmissions": 2,
+      "id": "dwarf-male-b",
+      "model": "pmd0_head020",
+      "name": "Copper-bearded Dwarf",
+      "nativeReadback": {
+        "model": "pmd0_head020",
+        "normalsMaximumError": 0.0,
+        "onlyFixedStringFieldsChanged": true,
+        "positionsMaximumError": 7.437417098854482e-09,
+        "uvMaximumError": 0.0,
+        "zeroedTailBytes": 0
+      },
+      "paletteRows": {
+        "0": 13,
+        "1": 5,
+        "2": 0,
+        "3": 0,
+        "8": 23,
+        "9": 0
+      },
+      "quality": {
+        "decodeRows": {
+          "1": 117,
+          "8": 26
+        },
+        "failed": [],
+        "limits": {
+          "blotchPxMax": 20,
+          "bodySkinSpanMin": 0.5,
+          "browsOnHairMin": 0.85,
+          "designSpecksWarn": 10,
+          "faceDarkRatioMin": 0.15,
+          "featureFocusMin": 5.0,
+          "hairEndTieExempt": 0.1,
+          "hairLockOnSkinPxMax": 4,
+          "hairOnFaceSkinMax": 0.03,
+          "irisOnTattoo1Min": 0.85,
+          "seamStepRatioMax": 1.45,
+          "shadeSpanMin": 0.75,
+          "skinMedianOffsetMax": 8,
+          "specksMax": 10,
+          "whitesOnSkinMin": 0.9
+        },
+        "metrics": {
+          "blotchPx": 0,
+          "browsOnHair": 0.957,
+          "cheekNoise": 1.33,
+          "designSpecks": 1,
+          "faceDarkRatio": 0.176,
+          "featureFocus": 9.66,
+          "hairLockOnSkinPx": null,
+          "hairOnFaceSkin": 0.006,
+          "irisOnTattoo1": 0.993,
+          "irisOnTattoo1ByEye": {
+            "left": 0.988,
+            "right": 0.999
+          },
+          "lipHairPx": 0,
+          "seamOuterFaces": 12141,
+          "seamSkinTexels": 42416,
+          "seamStepRatio": 1.326,
+          "shadeSpan": {
+            "0": 0.866,
+            "1": 0.791,
+            "2": 1.0
+          },
+          "shadeSpanExempt": [],
+          "skinMedianOffset": 0.0,
+          "specks": 1,
+          "whitesOnSkin": 1.0
+        },
+        "passed": true
+      },
+      "resources": [
+        {
+          "bytes": 1257724,
+          "path": "srn_head/pmd0_head020.mdl",
+          "sha256": "4f74c8b2a32f7aa26fb8cab8ce9fd2d6d8bd974f63653f1e7095561a26876311"
+        },
+        {
+          "bytes": 2097176,
+          "path": "srn_head/pmd0_head020.plt",
+          "sha256": "a8eb1e4ba8a38be5937b7fe4087dc427ce1a74aa2ea9dfe2fc7dc7a95dafb7e2"
+        }
+      ],
+      "selectedAttempts": {
+        "bake": "attempt-01",
+        "export": "attempt-02",
+        "fit": "attempt-01",
+        "masks": "attempt-02",
+        "native": "attempt-02",
+        "ownership": "attempt-05",
+        "palette": "attempt-06",
+        "precluster": "attempt-01",
+        "prepare": "attempt-01",
+        "quality": "attempt-04",
+        "render": "attempt-03",
+        "repair": "attempt-01",
+        "tone": "attempt-05",
+        "unwrap": "attempt-01"
+      },
+      "slot": 20,
+      "sourceHashes": {
+        "clientCaptures": "87792de7ba048bc9db2d77bced818fa74d1780f310a4702ce5376f89867107d1",
+        "clientLog": "f0dbdde8eb0d690811cf2d5b66455101f05fb8475c4190743bc70183924f5b80",
+        "clientManifest": "72b4ec9b7cbde340d32cb0bf5b7b1adf77217d7b459fb88d424f3bc16e43de4a",
+        "nativeReceipt": "f8ce8aeeff95d3123dfa14f96838712dc9d835c2bb2a34a7af7fe03ef1a65119",
+        "operatorReview": "f16420025df31e296251d262bb43c0b7d9c7fe87a93b86f51f1ced96cf9e078d",
+        "paletteReceipt": "59ab9272e2182136a7babb222c1f56fb9db5c61973dcc5ef8393c3d2cb29995a",
+        "qualityReceipt": "a1c660a5e53a3dccfb3655fcdf235a825b68de3ff4ed5eecf3d477830c37d792",
+        "uvMesh": "b6f834ad8db2427025703c118eb2dc10d761bae84c8f4dc3fb3cd026e72d9558"
+      }
+    }
+  ],
+  "kind": "srn-dwarf-male-pair-publication-v1",
+  "loadOrder": "srn_head above srn_body; normal male Dwarf slots 19 and 20",
+  "notChecked": [
+    "Helmet combinations",
+    "Full animation catalogue",
+    "Every possible palette row",
+    "Multiplayer",
+    "Server deployment",
+    "Production-pack client session; approved resource bytes were checked in isolated trial HAKs"
+  ],
+  "publication": "Pull request candidate; not merged or deployed",
+  "publicationApproval": "code review the changes and make sure repeatable improvements are made back into headkit and then publish the new heads and the tooling changes as separate PR's",
+  "schemaVersion": 1,
+  "slotAudit": {
+    "inProgressCollisions": 0,
+    "installedIndexes": 2,
+    "registeredPacks": 30,
+    "selectedResourceCollisions": 0
+  }
+}

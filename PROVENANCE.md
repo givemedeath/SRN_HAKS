@@ -597,3 +597,20 @@ No resref collides with a stock `.wav` key or another WAV in this repository. Th
 Five new heads (four male, one female) were generated from operator-selected ImageGen designs, with clay/detail conditioning, Pixal geometry and saved-shape appearance, and headkit fitting, masks, PLT palette mapping and native compilation. The SRN project operator approved their publication after client review. The male trio designs are Breakwater, Ballast and Vesper; the earlier pair retains its approved proportions and palette textures.
 
 All 40 Troll heads are renamed into male/female slots 001–020 to replace base-game gnome heads. The 35 existing designs have no new geometry or texture source: only bounded native name fields and resource filenames change. PLT bytes are unchanged. See docs/heads/troll-head-reindex-v1.md and its hash manifest for the complete mapping, evidence, load order and saved-character migration implications. Historical provenance entries retain their original slots.
+
+## Two male Dwarf heads (srn_head; 2026-11-07)
+
+The SRN project operator selected and approved two generated adult male Dwarf designs:
+a Danny DeVito-like older Dwarf and a copper-bearded Dwarf. ImageGen supplied the
+appearance and paired smooth-clay conditioning images. Pixal generated geometry
+and saved-shape appearance; headbatch/headkit fitted the meshes, baked textures,
+assigned PLT materials, mapped palettes and compiled native NWN:EE resources.
+The user approved the final client appearance and requested publication in a
+separate asset PR.
+
+Only pmd0_head019.mdl/.plt and pmd0_head020.mdl/.plt are added. The portable
+resource hashes, native checks, quality results, client evidence and known
+limitations are in docs/heads/dwarf-male-pair-v1.md and its JSON manifest.
+Installed stock palettes and body references were validation inputs and are
+not redistributed by this change. Generated intermediates, machine bindings,
+private receipts and HAK builds remain outside the repository.
