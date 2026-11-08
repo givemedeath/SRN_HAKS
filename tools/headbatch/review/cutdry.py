@@ -105,7 +105,7 @@ def main():
     if args.verify_cut and (args.attempt or args.height is not None):
         parser.error("--verify-cut uses the current manifest and approved fit")
     from headkit.common import read
-    if 'neck' not in read(args.head/'manifest.json')['mesh']:
+    if read(args.head/'manifest.json')['mesh'].get('neck') is None:
         if args.verify_cut or args.attempt or args.height is not None:
             parser.error('A cut-specific replay or height requires a configured neck cut')
         from _frame import report_uncut_jaw

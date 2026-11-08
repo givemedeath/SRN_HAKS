@@ -3826,8 +3826,11 @@ class StageCodeVersionTests(Temporary):
             with self.subTest(stage=stage):
                 names={path.name for path in stage_code_files(stage)}
                 self.assertTrue({'runner.py','common.py','shared-tools.lock.json'}<=names)
-                self.assertFalse({'test_headkit.py','__main__.py','comfy.py','design.py'}&names)
-                # The Comfy adapter package is GPU-side; an adapter edit must not stale CPU stages.
+                self.assertFalse({'test_headkit.py','__main__.py','design.py'}&names)
+                # Render coordinates its GPU lane and idle check with ComfyUI.
+                self.assertNotIn('comfy.py',names)
+                if stage=='render':self.assertIn('gpu_lock.py',names)
+                # Generation adapters remain outside processing stages, including GPU rendering.
                 self.assertFalse([path for path in stage_code_files(stage) if 'comfy_nodes' in path.parts])
         fit={path.name for path in stage_code_files('fit')};repair={path.name for path in stage_code_files('repair')}
         self.assertIn('fit.py',fit);self.assertFalse({'mesh.py','uv.py','native.py'}&fit)

@@ -1,5 +1,4 @@
 {
-  "schemaVersion": 2,
   "dependencies": {
     "tools/ci_result.py": [],
     "tools/ci_scope.py": [
@@ -42,6 +41,7 @@
     "tools/headbatch/guards.py": [
       "tools/headbatch/gpu_job.py",
       "tools/headbatch/head_files.py",
+      "tools/headbatch/review/_role_code.py",
       "tools/headbatch/workspace.py",
       "tools/headkit/comfy.py"
     ],
@@ -53,7 +53,9 @@
       "tools/headbatch/head_files.py",
       "tools/headbatch/reference_record.py",
       "tools/headbatch/workspace.py",
-      "tools/headkit/common.py"
+      "tools/headkit/common.py",
+      "tools/headkit/render_device.py",
+      "tools/shared_tools.py"
     ],
     "tools/headbatch/launcher.py": [
       "tools/headbatch/gpu_contract.py",
@@ -100,6 +102,11 @@
       "tools/headkit/gltf.py",
       "tools/headkit/neck.py",
       "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/review/_role_code.py": [
+      "tools/headbatch/review/roles.py",
+      "tools/headkit/common.py",
+      "tools/headkit/quality-thresholds.json"
     ],
     "tools/headbatch/review/backcount.py": [
       "tools/headkit/gltf.py"
@@ -159,6 +166,12 @@
       "tools/headkit/common.py",
       "tools/headkit/native.py"
     ],
+    "tools/headbatch/review/eyereference.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/reference_eyes.py",
+      "tools/headkit/runner.py"
+    ],
     "tools/headbatch/review/fitcheck.py": [
       "tools/headbatch/head_files.py",
       "tools/headbatch/review/_fit_views.py",
@@ -181,12 +194,28 @@
       "tools/headbatch/review/_frame.py",
       "tools/headkit/gltf.py"
     ],
+    "tools/headbatch/review/hairgaps.py": [
+      "tools/headbatch/review/roles.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/uv.py"
+    ],
     "tools/headbatch/review/hot.py": [
       "tools/headbatch/head_files.py",
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/mesh.py",
       "tools/headkit/neck.py"
+    ],
+    "tools/headbatch/review/irisrows.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/palette.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py"
     ],
     "tools/headbatch/review/jaw.py": [
       "tools/headbatch/review/_frame.py",
@@ -221,6 +250,19 @@
       "tools/headkit/gltf.py",
       "tools/headkit/mesh.py",
       "tools/headkit/rays.py"
+    ],
+    "tools/headbatch/review/roles.py": [
+      "tools/headbatch/review/_role_code.py",
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/quality.py",
+      "tools/headkit/runner.py",
+      "tools/headkit/textures.py",
+      "tools/headkit/uv.py"
     ],
     "tools/headbatch/review/rowramps.py": [
       "tools/headbatch/head_files.py"
@@ -287,19 +329,34 @@
       "tools/headbatch/reference_record.py",
       "tools/headbatch/resource_budget.py",
       "tools/headbatch/review/__init__.py",
+      "tools/headbatch/review/_frame.py",
+      "tools/headbatch/review/_role_code.py",
       "tools/headbatch/review/bakeviews.py",
+      "tools/headbatch/review/cutdry.py",
       "tools/headbatch/review/design_landmarks.py",
+      "tools/headbatch/review/eyereference.py",
+      "tools/headbatch/review/roles.py",
       "tools/headbatch/review/rowramps.py",
+      "tools/headbatch/review/slopescan.py",
       "tools/headbatch/review/texturesheet.py",
       "tools/headbatch/run_headbatch.py",
       "tools/headbatch/spool.py",
       "tools/headbatch/trials.py",
       "tools/headbatch/workspace.py",
+      "tools/headkit/brow_edges.py",
       "tools/headkit/cameras.py",
+      "tools/headkit/comfy.py",
       "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/gpu_lock.py",
       "tools/headkit/review_images.py",
       "tools/headkit/runner.py"
+    ],
+    "tools/headbatch/test_material_evidence.py": [
+      "tools/headbatch/review/hairgaps.py",
+      "tools/headbatch/review/irisrows.py",
+      "tools/headkit/brow_edges.py"
     ],
     "tools/headbatch/test_process_contracts.py": [
       "tools/headbatch/gpu_contract.py",
@@ -313,6 +370,7 @@
       "tools/headkit/common.py"
     ],
     "tools/headbatch/test_trial_settings.py": [
+      "tools/headbatch/guards.py",
       "tools/headbatch/trials.py"
     ],
     "tools/headbatch/trial_sizing.py": [
@@ -351,10 +409,16 @@
     "tools/headkit/blender_render.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/render_device.py",
       "tools/headkit/review_images.py"
     ],
     "tools/headkit/body_neck.py": [
       "tools/headkit/common.py"
+    ],
+    "tools/headkit/brow_edges.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/textures.py"
     ],
     "tools/headkit/cameras.py": [
       "tools/headkit/common.py"
@@ -365,6 +429,7 @@
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/gpu_lock.py",
       "tools/headkit/model_contract.py",
       "tools/headkit/reference_background.py",
       "tools/headkit/source_inventory.py"
@@ -483,10 +548,18 @@
       "tools/headkit/templates/export.json"
     ],
     "tools/headkit/gltf.py": [],
+    "tools/headkit/gpu_lock.py": [],
     "tools/headkit/images.py": [
       "tools/headkit/common.py"
     ],
     "tools/headkit/intersections.py": [],
+    "tools/headkit/material_light.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/face_encode.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/textures.py"
+    ],
     "tools/headkit/measure.py": [],
     "tools/headkit/mesh.py": [
       "tools/headkit/common.py",
@@ -560,6 +633,7 @@
       "tools/headkit/textures.py"
     ],
     "tools/headkit/quality.py": [
+      "tools/headkit/brow_edges.py",
       "tools/headkit/common.py",
       "tools/headkit/face_masks.py",
       "tools/headkit/gltf.py",
@@ -578,11 +652,16 @@
       "tools/headkit/common.py"
     ],
     "tools/headkit/reference_eyes.py": [
-      "tools/headkit/common.py"
+      "tools/headkit/common.py",
+      "tools/headkit/face_masks.py"
     ],
     "tools/headkit/relief.py": [
       "tools/headkit/common.py",
       "tools/headkit/predicates.py"
+    ],
+    "tools/headkit/render_device.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gpu_lock.py"
     ],
     "tools/headkit/replay.py": [
       "tools/headkit/common.py",
@@ -599,6 +678,7 @@
     ],
     "tools/headkit/runner.py": [
       "tools/headkit/blender_render.py",
+      "tools/headkit/brow_edges.py",
       "tools/headkit/cameras.py",
       "tools/headkit/common.py",
       "tools/headkit/face_encode.py",
@@ -606,6 +686,7 @@
       "tools/headkit/fit.py",
       "tools/headkit/gltf.py",
       "tools/headkit/images.py",
+      "tools/headkit/material_light.py",
       "tools/headkit/measure.py",
       "tools/headkit/mesh.py",
       "tools/headkit/native.py",
@@ -616,6 +697,7 @@
       "tools/headkit/quality.py",
       "tools/headkit/rays.py",
       "tools/headkit/reference_eyes.py",
+      "tools/headkit/render_device.py",
       "tools/headkit/review_images.py",
       "tools/headkit/scalp_patch.py",
       "tools/headkit/textures.py",
@@ -644,6 +726,11 @@
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/common.py"
     ],
+    "tools/headkit/test_brow_edges.py": [
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/quality.py"
+    ],
     "tools/headkit/test_comfy_runtime_snapshot.py": [
       "tools/headkit/comfy_nodes/__init__.py",
       "tools/headkit/comfy_nodes/nodes.py",
@@ -656,9 +743,11 @@
       "tools/headkit/comfy.py"
     ],
     "tools/headkit/test_conditioning.py": [
+      "tools/headkit/brow_edges.py",
       "tools/headkit/cameras.py",
       "tools/headkit/common.py",
       "tools/headkit/face_encode.py",
+      "tools/headkit/material_light.py",
       "tools/headkit/paint.py",
       "tools/headkit/quality_reference.py",
       "tools/headkit/reference_eyes.py",
@@ -709,6 +798,7 @@
       "tools/headkit/fit.py",
       "tools/headkit/generation.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/gpu_lock.py",
       "tools/headkit/images.py",
       "tools/headkit/intersections.py",
       "tools/headkit/manifest.schema.json",
@@ -781,6 +871,11 @@
       "tools/headkit/comfy_nodes/verified_loaders.py",
       "tools/headkit/common.py",
       "tools/headkit/reference_background.py"
+    ],
+    "tools/headkit/test_render_device.py": [
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py",
+      "tools/headkit/render_device.py"
     ],
     "tools/headkit/test_skin_seams.py": [
       "tools/headkit/skin_seams.py"
@@ -4558,7 +4653,6 @@
       "tools/test_impact.py"
     ]
   },
-  "unresolved": [],
   "packReferences": {
     "tools/combat_release_manifest.py": [
       "srn_2da",
@@ -4676,10 +4770,13 @@
       "srn_weapon"
     ]
   },
+  "schemaVersion": 2,
   "tests": [
     "tools/headbatch/test_headbatch.py",
+    "tools/headbatch/test_material_evidence.py",
     "tools/headbatch/test_process_contracts.py",
     "tools/headbatch/test_trial_settings.py",
+    "tools/headkit/test_brow_edges.py",
     "tools/headkit/test_comfy_runtime_snapshot.py",
     "tools/headkit/test_comfy_transport.py",
     "tools/headkit/test_conditioning.py",
@@ -4692,6 +4789,7 @@
     "tools/headkit/test_native_reader.py",
     "tools/headkit/test_process_quality.py",
     "tools/headkit/test_reference_background.py",
+    "tools/headkit/test_render_device.py",
     "tools/headkit/test_skin_seams.py",
     "tools/headkit/test_verification_performance.py",
     "tools/headkit/test_verified_startup.py",
@@ -4924,5 +5022,6 @@
     "tools/test_combat_release_manifest.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
-  ]
+  ],
+  "unresolved": []
 }
