@@ -597,3 +597,34 @@ No resref collides with a stock `.wav` key or another WAV in this repository. Th
 Five new heads (four male, one female) were generated from operator-selected ImageGen designs, with clay/detail conditioning, Pixal geometry and saved-shape appearance, and headkit fitting, masks, PLT palette mapping and native compilation. The SRN project operator approved their publication after client review. The male trio designs are Breakwater, Ballast and Vesper; the earlier pair retains its approved proportions and palette textures.
 
 All 40 Troll heads are renamed into male/female slots 001–020 to replace base-game gnome heads. The 35 existing designs have no new geometry or texture source: only bounded native name fields and resource filenames change. PLT bytes are unchanged. See docs/heads/troll-head-reindex-v1.md and its hash manifest for the complete mapping, evidence, load order and saved-character migration implications. Historical provenance entries retain their original slots.
+
+## Firearm effects and crossbow carry (`srn_weapon`, `srn_body`; 2026-11-07)
+
+**Emitters: credit hairybrain.** The muzzle flash and the shell casing come from hairybrain's emitters in the old
+Shadowrun mod's `!Combat Override System` folder (`SR_NWN/OLD_SR_MOD_ASSETS`), credited at the user's direction:
+
+- **Flash:** the nine `muzzle_flash01..09` emitters in `WIP/combat_ovr_v1.hak/models/wbwxh_m_154.mdl`, renamed
+  `srn_flash01..09`, moved onto each gun's muzzle and retimed to start full and fade over 0.1 s. They draw the stock
+  `fxpa_flare` texture.
+- **Casing:** the `Casings39` emitter in `OLD/!DONE/gun models/wbwar_t_101.mdl`, renamed `srn_casing`, placed on each
+  gun's ejection port and resized to 0.085.
+- **Casing sheet:** `srnfx_casing.tga` is the old `fxpa_smoke02.tga` casing redrawn as 16 tumbling frames (the old
+  file overwrote a stock texture name).
+
+The gun geometry is unchanged from its approved publication. `tools/itemkit/firearm_fx_pilot.py --ship` adds the
+emitters and their clips to the effect-free parts at commit `2805a5ec` and compiles them with the vendored
+`nwnmdlcomp`. Compiled bytes vary between runs only in stored memory pointers; decompiles are identical.
+
+| File | SHA-256, first 12 |
+|---|---|
+| `srn_weapon/wbwsl_b_051.mdl` | `99BC6299157A` |
+| `srn_weapon/wbwsl_b_052.mdl` | `9ECE48AA714B` |
+| `srn_weapon/wbwsl_b_065.mdl` | `69EDED3EEDD1` |
+| `srn_weapon/wbwsl_m_023.mdl` | `688F616D009C` |
+| `srn_weapon/wbwxh_t_015.mdl` | `621CA4693F9E` |
+| `srn_weapon/srnfx_casing.tga` | `E8AA922AB82A` |
+| `srn_body/a_ba_custom.mdl` | `71E091A80DF1` |
+| `srn_body/a_ba_non_combat.mdl` | `708FD5B94F43` |
+
+`a_ba_non_combat.mdl` is the installed NWN:EE model decompiled to ASCII with the keys of its `xbowr` clip removed;
+it adds no new content. The `a_ba_custom.mdl` clips come from the old mod's combat clips as recorded for release 1.4.0.

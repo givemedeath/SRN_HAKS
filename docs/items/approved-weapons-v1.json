@@ -1122,18 +1122,22 @@
       "sourceArchive": "srn_cl36_test.hak",
       "sourceResource": "wbwsl_b_051.mdl",
       "path": "srn_weapon/wbwsl_b_051.mdl",
-      "sha256": "8d4b57302a6494375b170cda0914f9a4485648d77cbd0c9ccea3362dc8e2622e",
-      "bytes": 839204,
-      "resourceType": 2002
+      "sha256": "99bc6299157a8362395a3e5f855f99586215f32cf184effdc0a95a3e45eccf71",
+      "bytes": 1154648,
+      "resourceType": 2002,
+      "preEffectsSha256": "8d4b57302a6494375b170cda0914f9a4485648d77cbd0c9ccea3362dc8e2622e",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
     },
     {
       "item": "colt-l36-pistol",
       "sourceArchive": "srn_cl36_test.hak",
       "sourceResource": "wbwsl_b_052.mdl",
       "path": "srn_weapon/wbwsl_b_052.mdl",
-      "sha256": "f290809216aa379e361e97024ed91f1ed22c06f5922a57fef0d9ece754c63df4",
-      "bytes": 839204,
-      "resourceType": 2002
+      "sha256": "9ece48aa714b7db9b4d06d73f7579d4a5479123cf29efc8c06bc7037870d9898",
+      "bytes": 1154648,
+      "resourceType": 2002,
+      "preEffectsSha256": "f290809216aa379e361e97024ed91f1ed22c06f5922a57fef0d9ece754c63df4",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
     },
     {
       "item": "colt-l36-pistol",
@@ -1169,9 +1173,11 @@
       "sourceResource": "wbwsl_m_023.mdl",
       "approvedSourceSha256": "0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251",
       "path": "srn_weapon/wbwsl_m_023.mdl",
-      "sha256": "0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251",
-      "bytes": 702028,
-      "resourceType": 2002
+      "sha256": "688f616d009cf470a6f8d309438541ded8d0aabe93ac3c8b46e906669bcdaab7",
+      "bytes": 1182532,
+      "resourceType": 2002,
+      "preEffectsSha256": "0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
     },
     {
       "item": "colt-l36-pistol",
@@ -1247,9 +1253,11 @@
       "sourceResource": "wbwxh_t_015.mdl",
       "approvedSourceSha256": "e063d37959ee12d7a6ec20314f4c8f28a079835b0e8a3e12ea0eddd6bfa2bbdb",
       "path": "srn_weapon/wbwxh_t_015.mdl",
-      "sha256": "e063d37959ee12d7a6ec20314f4c8f28a079835b0e8a3e12ea0eddd6bfa2bbdb",
-      "bytes": 716060,
-      "resourceType": 2002
+      "sha256": "621ca4693f9e0ab888be31c7e11e06ca09792f4e1f44ddf8accc724984513e50",
+      "bytes": 1134412,
+      "resourceType": 2002,
+      "preEffectsSha256": "e063d37959ee12d7a6ec20314f4c8f28a079835b0e8a3e12ea0eddd6bfa2bbdb",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
     },
     {
       "item": "sr4-crossbows-heavy-6abe18c0e6",
@@ -1684,9 +1692,11 @@
       "sourceResource": "wbwsl_b_065.mdl",
       "approvedSourceSha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
       "path": "srn_weapon/wbwsl_b_065.mdl",
-      "sha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
-      "bytes": 646316,
-      "resourceType": 2002
+      "sha256": "69eded3eedd1ed24b13cb51846214770416b548e0d4f79e2b75a5feb0fb85b17",
+      "bytes": 1030360,
+      "resourceType": 2002,
+      "preEffectsSha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
     },
     {
       "item": "sr4-ares-predator-iv-3ab64906ed",
@@ -1717,7 +1727,20 @@
       "sha256": "3edc37a64750b95f017650aaef8fd8d699a4cb686e5dfca9e4aba92f058adc3f",
       "bytes": 746,
       "resourceType": 2025
+    },
+    {
+      "item": "firearm-effects",
+      "sourceArchive": null,
+      "sourceResource": "fxpa_smoke02.tga",
+      "path": "srn_weapon/srnfx_casing.tga",
+      "sha256": "e8aa922ab82acf7e0d471deaa85c6410eb6de7611ce5ece16440a984625f3185",
+      "bytes": 262188,
+      "resourceType": 3,
+      "note": "Shared casing sprite sheet for the firearm effect emitters; redrawn from the old SR mod Combat Override System sheet."
     }
+  ],
+  "sharedResourceItems": [
+    "firearm-effects"
   ],
   "sources": {
     "sr_cl36_test.mod": "e0b6db105fa60b164c90af89d05a2516c0cc80d126f9ed6220883dfaf7109f18",

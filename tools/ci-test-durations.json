@@ -44,6 +44,7 @@
   "tools/itemkit/test_curved_caps.py": 0.001,
   "tools/itemkit/test_donor.py": 0.31,
   "tools/itemkit/test_donor_caps.py": 2.567,
+  "tools/itemkit/test_firearm_fx_pilot.py": 0.1,
   "tools/itemkit/test_firearm_package.py": 2.83,
   "tools/itemkit/test_firearm_processing.py": 0.19,
   "tools/itemkit/test_firearms.py": 0.01,
