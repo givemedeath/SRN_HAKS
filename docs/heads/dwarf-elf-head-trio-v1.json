@@ -1,0 +1,659 @@
+{
+  "buildValidation": {
+    "affectedPackOnly": "srn_head",
+    "allResourcePayloadHashesVerified": true,
+    "existingResourcesUnchanged": 130,
+    "hakSha256": "6990133a6ccd70ca5f41d6ee68333a0e61377235f30f8bdced8cf0ca15d63f1f",
+    "resources": 136
+  },
+  "existingResourcesUnchanged": 130,
+  "heads": [
+    {
+      "attempts": {
+        "bake": 1,
+        "export": 2,
+        "fit": 1,
+        "masks": 2,
+        "native": 2,
+        "ownership": 2,
+        "palette": 4,
+        "precluster": 1,
+        "prepare": 1,
+        "quality": 2,
+        "render": 2,
+        "repair": 1,
+        "tone": 1,
+        "unwrap": 1
+      },
+      "client": {
+        "checks": [
+          "four three-quarter views",
+          "talk/look motion",
+          "second hair colour"
+        ],
+        "evidenceRecords": [
+          "c1d7f47aa26704f8d36f0736f20c813e6a0e36e17b2d0525ca6e36d0fc5085db",
+          "ad6cd2e4da35ae8be58d32f238c3613adcb575d772df02c099f5a3a651f00cad"
+        ],
+        "gallery": {
+          "path": "docs/heads/evidence/dwarf-elf-head-trio-v1/pmd0_head021-client.jpg",
+          "sha256": "033adeed366fa4035e23cf37b0a82fa3020145c4711946e3f125405a44820d5a"
+        },
+        "limitations": [
+          "Black hair row63 suppresses fine beard relief; alternate brown65 shows the preserved texture.",
+          "Helmet combinations, every palette row and production packaging not checked."
+        ],
+        "nativeRecordSha256": "19ee90f3872cf9859639b33ead6d6a94dcc38ed5456efa338a5d4e2e7cd2319d",
+        "operatorApproved": true,
+        "reviewSha256": "ffaf2a9b74d0987a89e16f8fdba8895adc5f20249590d007cdb4ced11e1dca8c",
+        "sourceFrames": [
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "basalt-client-complete-angle-0.png",
+            "sha256": "e8e342d4faf12e4f6437e6cfe5ea1753b8475188e2f0dec1eaf4fb34f469da14"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "basalt-client-complete-angle-1.png",
+            "sha256": "e90b2220c1fd5fcb5b691924092844b04b6469ba5c51b4fc45d26e7c9a25916c"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "basalt-client-complete-angle-2.png",
+            "sha256": "c9c9e0a1d41c4069e7e547b9f9cf126902ae9b7ec47a27e444d43ac94fc22bef"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "basalt-client-complete-angle-3.png",
+            "sha256": "47ad7127da7c8ad697615175ce00a84f2f2a61c9d28491bc772e15a3b97a9cc0"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "basalt-client-final-motion-look-0.png",
+            "sha256": "7a64a631470afd46fb48ed57615ed2a2f07c42de3a8c9c208869d1f8173658a9"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "basalt-client-final-motion-look-2.png",
+            "sha256": "b346dfb2aa6d9cb6f1300fd361081252892a4d3684cbb6c52b022dd91845f02b"
+          }
+        ],
+        "trialManifestSha256": "1217cd66d7326c3a18a287fd8bbc84a94e62b178231740237ba1cca300cd7644",
+        "userVisualApproval": false,
+        "verifiedSlot": 21
+      },
+      "designSelection": {
+        "approval": "Select all three",
+        "finalReferenceSha256": "ae60b1a6feb347a207e46132546d5c449888c5ed06d8e41d91fdc2d8c6dfc65a",
+        "initialFile": "basalt-v1.png",
+        "initialSha256": "ae60b1a6feb347a207e46132546d5c449888c5ed06d8e41d91fdc2d8c6dfc65a"
+      },
+      "designsUsed": 2,
+      "geometrySubmissions": 1,
+      "id": "dwarf-male-a",
+      "model": "pmd0_head021",
+      "name": "Basalt",
+      "nativeMaterial": {
+        "applied": true,
+        "channels": [
+          0,
+          1,
+          8
+        ],
+        "expectedStockSha256": "103112ca80c6b67e88cc2c3a21f9806799bbc94fb077497e7d2f65130db90d3d",
+        "material": "oldm_head",
+        "policy": "stock-organic-head-v1"
+      },
+      "nativeReadback": {
+        "normalsMaximumError": 0.0,
+        "onlyFixedStringFieldsChanged": true,
+        "positionsMaximumError": 7.4446430686769816e-09,
+        "uvMaximumError": 0.0
+      },
+      "paletteRows": {
+        "0": 3,
+        "1": 63,
+        "2": 0,
+        "3": 0,
+        "8": 115,
+        "9": 0
+      },
+      "quality": {
+        "failed": [],
+        "limits": {
+          "blotchPxMax": 20,
+          "bodySkinSpanMin": 0.5,
+          "browsOnHairMin": 0.85,
+          "designSpecksWarn": 10,
+          "faceDarkRatioMin": 0.15,
+          "featureFocusMin": 5.0,
+          "hairEndTieExempt": 0.1,
+          "hairLockOnSkinPxMax": 4,
+          "hairOnFaceSkinMax": 0.03,
+          "irisOnTattoo1Min": 0.85,
+          "seamStepRatioMax": 1.45,
+          "shadeSpanMin": 0.75,
+          "skinMedianOffsetMax": 8,
+          "specksMax": 10,
+          "whitesOnSkinMin": 0.9
+        },
+        "metrics": {
+          "blotchPx": 0,
+          "browsOnHair": 0.975,
+          "cheekNoise": 1.1,
+          "designSpecks": 0,
+          "faceDarkRatio": 0.185,
+          "featureFocus": 9.69,
+          "hairLockOnSkinPx": null,
+          "hairOnFaceSkin": 0.0,
+          "irisOnTattoo1": 1.0,
+          "irisOnTattoo1ByEye": {
+            "left": 1.0,
+            "right": 1.0
+          },
+          "lipHairPx": 0,
+          "seamOuterFaces": 19935,
+          "seamSkinTexels": 122702,
+          "seamStepRatio": 1.425,
+          "shadeSpan": {
+            "0": 0.794,
+            "1": 0.779,
+            "8": 1.0
+          },
+          "shadeSpanExempt": [],
+          "skinMedianOffset": 0.0,
+          "specks": 1,
+          "upperLidHairPx": 0,
+          "whitesOnSkin": 1.0
+        },
+        "passed": true
+      },
+      "resources": [
+        {
+          "path": "srn_head/pmd0_head021.mdl",
+          "sha256": "f52a964b772a68a05e248773bfa51f6300494b795863785122e34b05c44e917d"
+        },
+        {
+          "path": "srn_head/pmd0_head021.plt",
+          "sha256": "93312c3b660c5ace0b45e81188898b8a77cd152670a86acbdf8382a89e67ed1f"
+        }
+      ],
+      "slot": 21,
+      "style": "Short black curls, square black beard and broad adult Dwarf face."
+    },
+    {
+      "attempts": {
+        "bake": 1,
+        "export": 3,
+        "fit": 1,
+        "masks": 2,
+        "native": 3,
+        "ownership": 2,
+        "palette": 3,
+        "precluster": 1,
+        "prepare": 1,
+        "quality": 2,
+        "render": 2,
+        "repair": 1,
+        "tone": 2,
+        "unwrap": 1
+      },
+      "client": {
+        "checks": [
+          "four three-quarter views",
+          "talk/look motion",
+          "second hair colour"
+        ],
+        "evidenceRecords": [
+          "ec8b4f6374bb06cfec96257857123fcd8f6b8607184bf24d3c624de42cac5942"
+        ],
+        "gallery": {
+          "path": "docs/heads/evidence/dwarf-elf-head-trio-v1/pmd0_head022-client.jpg",
+          "sha256": "4c0b854f8cce79bd4012b86e731a239c2fe09059f13cb7490628854035607921"
+        },
+        "limitations": [
+          "helmet combinations",
+          "every palette row",
+          "production packaging"
+        ],
+        "nativeRecordSha256": "932aa5185335a7d6d415bedb60b01eb3284c6ad4e240528310e54ba1fd158e42",
+        "operatorApproved": true,
+        "reviewSha256": "f15a7eda8bb6b37c4eed64cc9e2d3746f2e8d178213d8d8d17ad4866aefd0770",
+        "sourceFrames": [
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "rime-client-final-angle-0.png",
+            "sha256": "a930e97c367de09a275ab6169e4c2a7cdb25b29597ca4c75cb4b103e63357662"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "rime-client-final-angle-1.png",
+            "sha256": "54dc838b28fc17337d08f38b62daafc86fd1872a605bbffbce74082fe133f33e"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "rime-client-final-angle-2.png",
+            "sha256": "7b1b48766047d9bb1349729a161960327dddd5da82f8a9ab7275c7fec1663d1b"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "rime-client-final-angle-3.png",
+            "sha256": "1fe7f398376f0705ff448b523119a883e6bcd717bb1509313e2e1a97211963dd"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "rime-client-final-motion-look-0.png",
+            "sha256": "b5bae2f275d8c60c53c01e5439d72959c02c03597974d572ee82bd09a1c94cc5"
+          },
+          {
+            "crop": [
+              500,
+              420,
+              2500,
+              1540
+            ],
+            "file": "rime-client-final-motion-look-2.png",
+            "sha256": "7f1564508de4157ae4ab98781235e0b9467a668c522cbc19819be733405391de"
+          }
+        ],
+        "trialManifestSha256": "55ed53ac7ff646c5b64e6ac912ee14b84541057562133ecb6c7c450079ceb968",
+        "userVisualApproval": false,
+        "verifiedSlot": 22
+      },
+      "designSelection": {
+        "approval": "Select all three",
+        "finalReferenceSha256": "a1650549e30e64f0b050ae1a1333ad59e07d2b7cc61e24922a7b8b2483cf6cb6",
+        "initialFile": "rime-v1.png",
+        "initialSha256": "a1650549e30e64f0b050ae1a1333ad59e07d2b7cc61e24922a7b8b2483cf6cb6"
+      },
+      "designsUsed": 2,
+      "geometrySubmissions": 1,
+      "id": "dwarf-male-b",
+      "model": "pmd0_head022",
+      "name": "Rime",
+      "nativeMaterial": {
+        "applied": true,
+        "channels": [
+          0,
+          1,
+          8
+        ],
+        "expectedStockSha256": "103112ca80c6b67e88cc2c3a21f9806799bbc94fb077497e7d2f65130db90d3d",
+        "material": "oldm_head",
+        "policy": "stock-organic-head-v1"
+      },
+      "nativeReadback": {
+        "normalsMaximumError": 0.0,
+        "onlyFixedStringFieldsChanged": true,
+        "positionsMaximumError": 7.450580541412677e-09,
+        "uvMaximumError": 0.0
+      },
+      "paletteRows": {
+        "0": 117,
+        "1": 19,
+        "2": 0,
+        "3": 0,
+        "8": 132,
+        "9": 0
+      },
+      "quality": {
+        "failed": [],
+        "limits": {
+          "blotchPxMax": 20,
+          "bodySkinSpanMin": 0.5,
+          "browsOnHairMin": 0.85,
+          "designSpecksWarn": 10,
+          "faceDarkRatioMin": 0.15,
+          "featureFocusMin": 5.0,
+          "hairEndTieExempt": 0.1,
+          "hairLockOnSkinPxMax": 4,
+          "hairOnFaceSkinMax": 0.03,
+          "irisOnTattoo1Min": 0.85,
+          "seamStepRatioMax": 1.45,
+          "shadeSpanMin": 0.75,
+          "skinMedianOffsetMax": 8,
+          "specksMax": 10,
+          "whitesOnSkinMin": 0.9
+        },
+        "metrics": {
+          "blotchPx": 0,
+          "browsOnHair": 0.99,
+          "cheekNoise": 2.85,
+          "designSpecks": 0,
+          "faceDarkRatio": 0.23,
+          "featureFocus": 5.28,
+          "hairLockOnSkinPx": null,
+          "hairOnFaceSkin": 0.0,
+          "irisOnTattoo1": 1.0,
+          "irisOnTattoo1ByEye": {
+            "left": 1.0,
+            "right": 1.0
+          },
+          "lipHairPx": 0,
+          "seamOuterFaces": 19933,
+          "seamSkinTexels": 87797,
+          "seamStepRatio": 1.29,
+          "shadeSpan": {
+            "0": 0.794,
+            "1": 0.791,
+            "8": 1.0
+          },
+          "shadeSpanExempt": [],
+          "skinMedianOffset": 1.0,
+          "specks": 1,
+          "upperLidHairPx": 0,
+          "whitesOnSkin": 1.0
+        },
+        "passed": true
+      },
+      "resources": [
+        {
+          "path": "srn_head/pmd0_head022.mdl",
+          "sha256": "54303c694bd7b884f48775df12fc0d63b8f7504b8a81e114afe20a3e019141b4"
+        },
+        {
+          "path": "srn_head/pmd0_head022.plt",
+          "sha256": "f0b5f823b149d4957a4e229ee3eae1684b0a03002589a159e3388130a9c097a0"
+        }
+      ],
+      "slot": 22,
+      "style": "Silver swept hair, curled moustache and two long beard braids."
+    },
+    {
+      "attempts": {
+        "bake": 2,
+        "export": 3,
+        "fit": 6,
+        "masks": 7,
+        "native": 3,
+        "ownership": 4,
+        "paint": 6,
+        "palette": 5,
+        "precluster": 3,
+        "prepare": 3,
+        "quality": 4,
+        "render": 4,
+        "repair": 4,
+        "tone": 4,
+        "unwrap": 3
+      },
+      "client": {
+        "checks": [
+          "four three-quarter views",
+          "talk/look motion",
+          "second hair colour"
+        ],
+        "evidenceRecords": [
+          "fcb1f531ca714f31f84c90276a1a240d849c8ad6307110c84fce72af2f044121"
+        ],
+        "gallery": {
+          "path": "docs/heads/evidence/dwarf-elf-head-trio-v1/pfe0_head021-client.jpg",
+          "sha256": "7668ea93fdc7e4a3239866dc6bbc2cdc2ac713cbaf62bd43d0c625813974ff9e"
+        },
+        "limitations": [
+          "helmet combinations",
+          "every palette row",
+          "extended gameplay or every animation",
+          "production packaging"
+        ],
+        "nativeRecordSha256": "4fe893f27db76b504e473091146a78cc3783ddb2c40e4af86606db6ee3d2e50f",
+        "operatorApproved": true,
+        "reviewSha256": "826afdd20a29ba8ad537322436aeeaea559e1811d847cf070f59e2f288d36c8f",
+        "sourceFrames": [
+          {
+            "crop": [
+              280,
+              330,
+              1280,
+              840
+            ],
+            "file": "willowglass-client-run06-angle-0.png",
+            "sha256": "71b52ffd9ce60ce4129db3272d83f9e57b775f42bdb7c95e4aa3bd820b31b4d7"
+          },
+          {
+            "crop": [
+              280,
+              330,
+              1280,
+              840
+            ],
+            "file": "willowglass-client-run06-angle-1.png",
+            "sha256": "d7e3b4f523312b7d4b864b3d543f826b1336784bfeaaca0e7ff6f70b5d03dc64"
+          },
+          {
+            "crop": [
+              280,
+              330,
+              1280,
+              840
+            ],
+            "file": "willowglass-client-run06-angle-2.png",
+            "sha256": "6ff9fc295199ffeaaa11a8a9b5b3fa1dd83e53520ddf7b1f32dfdeac990c62a2"
+          },
+          {
+            "crop": [
+              280,
+              330,
+              1280,
+              840
+            ],
+            "file": "willowglass-client-run06-angle-3.png",
+            "sha256": "6801a6c3c4185bd97947b700e42541e35963ac43fc4d9ddb43ea9c917451ffac"
+          },
+          {
+            "crop": [
+              280,
+              330,
+              1280,
+              840
+            ],
+            "file": "willowglass-client-run06-motion-0.png",
+            "sha256": "06510dbccc78fda5ebad6d103727971e871378278df3bf0db357ac4aa9bc7f42"
+          },
+          {
+            "crop": [
+              280,
+              330,
+              1280,
+              840
+            ],
+            "file": "willowglass-client-run06-second-look.png",
+            "sha256": "83121d1071dc37d68c3910473aafc388daa840fc3d68d8dccb5b05bad0a91c38"
+          }
+        ],
+        "trialManifestSha256": "bd22586e8571bf89ea49d930fc6a28b816487e37c0f6d9fc0cfd20715232d9e8",
+        "userVisualApproval": false,
+        "verifiedSlot": 21
+      },
+      "designSelection": {
+        "approval": "Select all three",
+        "finalReferenceSha256": "80b8561f47003afd68f3a5433432d2bbd5abecb72a07f93b72b1f88e553d6dbb",
+        "initialFile": "willowglass-v1.png",
+        "initialSha256": "06d1c4e3c51bb96f1ebc6060c440df3223262e9908b9d6a49daece7c539df813"
+      },
+      "designsUsed": 4,
+      "geometrySubmissions": 6,
+      "id": "elf-female-a",
+      "model": "pfe0_head021",
+      "name": "Willowglass",
+      "nativeMaterial": {
+        "applied": true,
+        "channels": [
+          0,
+          1,
+          8
+        ],
+        "expectedStockSha256": "103112ca80c6b67e88cc2c3a21f9806799bbc94fb077497e7d2f65130db90d3d",
+        "material": "oldf_head",
+        "policy": "stock-organic-head-v1"
+      },
+      "nativeReadback": {
+        "normalsMaximumError": 0.0,
+        "onlyFixedStringFieldsChanged": true,
+        "positionsMaximumError": 7.450137645692578e-09,
+        "uvMaximumError": 0.0
+      },
+      "paletteRows": {
+        "0": 156,
+        "1": 99,
+        "2": 0,
+        "3": 0,
+        "8": 113,
+        "9": 0
+      },
+      "quality": {
+        "failed": [],
+        "limits": {
+          "blotchPxMax": 20,
+          "bodySkinSpanMin": 0.5,
+          "browsOnHairMin": 0.85,
+          "designSpecksWarn": 10,
+          "faceDarkRatioMin": 0.15,
+          "featureFocusMin": 5.0,
+          "hairEndTieExempt": 0.1,
+          "hairLockOnSkinPxMax": 4,
+          "hairOnFaceSkinMax": 0.03,
+          "irisOnTattoo1Min": 0.85,
+          "seamStepRatioMax": 1.45,
+          "shadeSpanMin": 0.75,
+          "skinMedianOffsetMax": 8,
+          "specksMax": 10,
+          "whitesOnSkinMin": 0.9
+        },
+        "metrics": {
+          "blotchPx": 0,
+          "browsOnHair": 0.964,
+          "cheekNoise": 1.44,
+          "designSpecks": 0,
+          "faceDarkRatio": 0.164,
+          "featureFocus": 9.21,
+          "hairLockOnSkinPx": 0,
+          "hairOnFaceSkin": 0.0,
+          "irisOnTattoo1": 0.995,
+          "irisOnTattoo1ByEye": {
+            "left": 0.993,
+            "right": 0.997
+          },
+          "lipHairPx": 0,
+          "seamOuterFaces": 10528,
+          "seamSkinTexels": 70259,
+          "seamStepRatio": 1.224,
+          "shadeSpan": {
+            "0": 0.723,
+            "1": 0.819,
+            "8": 1.0
+          },
+          "shadeSpanExempt": [],
+          "skinMedianOffset": 1.0,
+          "specks": 0,
+          "upperLidHairPx": 0,
+          "whitesOnSkin": 1.0
+        },
+        "passed": true
+      },
+      "resources": [
+        {
+          "path": "srn_head/pfe0_head021.mdl",
+          "sha256": "a3bc23fef4cb41d461a763f45457098752b2edd55aaa766f0c540a88fa082c27"
+        },
+        {
+          "path": "srn_head/pfe0_head021.plt",
+          "sha256": "20099a55f978153405b7563e10c7c7d5b374c7763da08c5f9d3eced1eefa4931"
+        }
+      ],
+      "slot": 21,
+      "style": "Long aubergine hair, exposed pointed ears and tapered adult Elf face."
+    }
+  ],
+  "kind": "srn-head-trio-publication-v1",
+  "notChecked": [
+    "helmet combinations",
+    "every palette row",
+    "extended gameplay and every animation",
+    "multiplayer",
+    "separate combined-production-pack client session"
+  ],
+  "productionPackClientSessionPerformed": false,
+  "publicationAuthorization": "Code review the changes, fix any issues, then push and open separate PRs for the three new heads and the headkit improvements.",
+  "resources": [
+    {
+      "path": "srn_head/pmd0_head021.mdl",
+      "sha256": "f52a964b772a68a05e248773bfa51f6300494b795863785122e34b05c44e917d"
+    },
+    {
+      "path": "srn_head/pmd0_head021.plt",
+      "sha256": "93312c3b660c5ace0b45e81188898b8a77cd152670a86acbdf8382a89e67ed1f"
+    },
+    {
+      "path": "srn_head/pmd0_head022.mdl",
+      "sha256": "54303c694bd7b884f48775df12fc0d63b8f7504b8a81e114afe20a3e019141b4"
+    },
+    {
+      "path": "srn_head/pmd0_head022.plt",
+      "sha256": "f0b5f823b149d4957a4e229ee3eae1684b0a03002589a159e3388130a9c097a0"
+    },
+    {
+      "path": "srn_head/pfe0_head021.mdl",
+      "sha256": "a3bc23fef4cb41d461a763f45457098752b2edd55aaa766f0c540a88fa082c27"
+    },
+    {
+      "path": "srn_head/pfe0_head021.plt",
+      "sha256": "20099a55f978153405b7563e10c7c7d5b374c7763da08c5f9d3eced1eefa4931"
+    }
+  ]
+}
