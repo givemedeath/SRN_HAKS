@@ -687,6 +687,7 @@ void main(){
  else if(text=="dpistol")ArmDual("sr_cl36_1","srp_dcolt","nw_wambu001");
  else if(text=="dsmg")ArmDual("sre9a211be_3","srp_dingr","nw_wambu001");
  else if(text=="srifle")ArmWith("srp_srifle","nw_wambu001",INVENTORY_SLOT_BULLETS);
+ else if(text=="fsrifle"){Hold("ready_rfl");Attack("throwr","fire_rfl","attack throwr sling rifle");}
  else if(text=="spistol")ArmDual("srp_rcolt","srp_dcolt","nw_wambu001");
  else if(text=="ssmg")ArmDual("srp_ringr","srp_dingr","nw_wambu001");
  else if(text=="lpdual")Clips("custom13lp","fire_dpst",ANIMATION_LOOPING_CUSTOM13,"dual pistol loop");

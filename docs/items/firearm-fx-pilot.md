@@ -321,16 +321,42 @@ Builds `output/firearm-fx-pilot-v14-dual` and `output/firearm-fx-pilot-v15-sling
 
 ### Rifle pointing through the head
 
-- **Cause:** out of combat, the engine shows crossbow-class weapons upright, overriding the hand keys in our clips. The
-  AK-98 then stands with its muzzle up behind the head, during idle and during the fire clips. In combat the same clips
-  hold it forward. Shotguns are crossbow-class too, so they show the same thing.
-- **Sling test:** a sling-class copy of the AK-98 (`srp_srifle`, part `wbwsl_*_203`, chat command `srifle`) stays
-  forward during the rifle loop out of combat.
-- **But in combat** the engine plays its one-handed `throwr` attack for a sling-class weapon, which is the clip the
-  pistols use. Clips are replaced by name per creature, not per weapon, so a sling rifle and a pistol can't have
-  different attacks.
-- **Open:** this is the "sling or crossbow" decision in `docs/phenomorpher/firearm-clips-handoff.md`. Options are to
-  keep rifles crossbow-class and only play rifle clips in combat, or to make rifles sling-class and swap the `throwr`
-  replacement by script on equip. Neither is chosen here.
+**Root cause:** the client draws crossbow-class weapons (`WeaponWield` 6) in a carry pose whenever the creature is not in
+combat mode. It turns the weapon in the hand so the muzzle points up, whatever clip is playing. Stock clips leave the
+`rhand` hook unrotated in idle and turn it in `xbowrdy`/`xbowshot`, so stock crossbows look right in both states. Our
+clips keep the hook still, so out of combat the AK-98 stands muzzle-up and passes through the head.
 
-Evidence is in `output/firearm-fx-pilot-v14-evidence/` and `output/firearm-fx-pilot-v15-evidence/` (ignored).
+How it was pinned down (builds v15 and v16):
+
+- **Not in the files:** the AK-98 parts carry no animations, `baseitems.2da` has no rotation column for held weapons,
+  and the engine names no hook other than `rhand` and `lhand`.
+- **Tied to the wield type:** the same mesh and clip as a sling-class item (`srp_srifle`, part `wbwsl_*_203`) hangs
+  muzzle-down in idle and stays forward through the rifle loop. As a crossbow it flips muzzle-up.
+- **Tied to combat state, not the clip:** looping `fire_rfl` straight after an attack keeps the rifle forward for several
+  seconds. Once the actor drops out of combat mode, about 12 s later, the same loop flips the rifle muzzle-up with the
+  flash behind the head. So it shows "sometimes": whenever a rifle or shotgun clip plays outside combat mode, or while
+  combat mode ends.
+- **Script can't hold combat mode:** nwscript has no call that sets it.
+
+**Fix, proven in the pilot:** make firearms sling-class and choose each creature's clips by the gun it holds. The game
+plays `throwr` for every sling-class attack, so on equip map `throwr` to that gun's fire clip and the ready names
+(`bowrdy`, `bow`, `1hreadyr`, `1hreadyl`, `nwreadyr`, `nwreadyl`) to its stance. Each creature holds one gun at a
+time, so a per-creature `ReplaceObjectAnimation` on equip is enough. Chat command `fsrifle` does this for the sling
+AK-98 (`ready_rfl` stance, `fire_rfl` on `throwr`). In the client (build v16):
+
+- **In combat:** the rifle points forward through the fire clip and the stance between shots.
+- **After combat:** it stays forward through the rifle loop 15 s later.
+- **Idle:** it hangs muzzle-down from the right hand.
+
+What adopting it needs, not done here:
+
+- **A firearm base item:** a `baseitems.2da` row with `WeaponWield` 10 and the gun's own stats, not the stock sling row.
+- **SR_NWN equip hook:** map `throwr` and the ready names from the equipped gun. The pilot's `ReloadCode` picks the
+  reload by "not a sling", which would also need the gun kind.
+- **Sound:** the D377 mute on sling row 6 then covers rifles and shotguns too, which settles the handoff's
+  sling-or-crossbow question in favour of sling.
+- **Checks still to run:** shotgun, the other races and bodies, and the rifle's muzzle flash on a sling part. The `203`
+  test part was copied without effects.
+
+Evidence is in `output/firearm-fx-pilot-v14-evidence/`, `output/firearm-fx-pilot-v15-evidence/` and
+`output/firearm-fx-pilot-v16-evidence/` (ignored).
