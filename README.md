@@ -144,7 +144,13 @@ Build `srn_body_tex` alongside `srn_body` and `srn_2da`, and use custom TLK `srn
 
 ### Generated Head Production Selection
 
-`srn_head` contains only the approved female Troll03 `pfg0_head032` (20K triangles, one 1K PLT). See [current head dispositions](docs/heads/production-heads.md) and the [single-image head runbook](docs/heads/pixal-single-production-runbook-v1.md). Other generated heads and the review demo are archived.
+`srn_head` contains client-approved native NWN:EE character heads across Dwarf, Elf, Human, Orc, and Troll races (both male and female models, each capped at 20,000 triangles with 1024-square PLT recoloring). The models are fitted to stock stature and neck cuts (`mesh.neck.cut`).
+
+For production workflows, pipelines, and manifests, see:
+- [Head Generation Toolkit](docs/heads/head-generation-toolkit.md) (single-image runbook and multiview alternative)
+- [Race Heads Runbook](docs/heads/race-heads-v1-runbook.md)
+- [Troll Head Reindex Manifest](docs/heads/troll-head-reindex-v1.md)
+- [Dwarf Male Pair Documentation](docs/heads/dwarf-male-pair-v1.md)
 
 ## Subdirectories & System Boundaries
 
