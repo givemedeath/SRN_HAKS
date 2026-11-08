@@ -1,4 +1,5 @@
 {
+  "schemaVersion": 2,
   "dependencies": {
     "tools/ci_result.py": [],
     "tools/ci_scope.py": [
@@ -4653,6 +4654,7 @@
       "tools/test_impact.py"
     ]
   },
+  "unresolved": [],
   "packReferences": {
     "tools/combat_release_manifest.py": [
       "srn_2da",
@@ -4770,7 +4772,6 @@
       "srn_weapon"
     ]
   },
-  "schemaVersion": 2,
   "tests": [
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",
@@ -5022,6 +5023,5 @@
     "tools/test_combat_release_manifest.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
-  ],
-  "unresolved": []
+  ]
 }

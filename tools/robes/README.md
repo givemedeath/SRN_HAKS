@@ -1,0 +1,247 @@
+# Robes Toolkit
+
+## Overview
+The `tools/robes` component provides an automated pipeline for generating, inspecting, fitting, skinning, and packaging custom robes and garments for Neverwinter Nights (NWN) Human male phenotype 0 (`pmh0`). It integrates concept preparation, Meshy AI generation (via `meshy-cli`), automated mesh defect repair, landmark similarity alignment, dual-quaternion proxy-rig pose conversion, voxel lattice clearance inflation, region-restricted barycentric skin weight transfer, runtime collapse decimation, and client verification fixture builds.
+
+## Interface
+- `[apose_skeleton.py:generation_rest]`: Computes robe-local rest frames with limb bones rotated into outfit generation A-pose using fit inverse proxy transforms.
+- `[apose_skeleton.py:main]`: CLI entry point for generating A-pose rest skeleton variants (`--model`, `--fit-arrays`, `--resref`, `--node-prefix`).
+- `[blender_io.py:import_single]`: Imports a single-mesh GLB scene into Blender, baking world transformations into mesh vertices.
+- `[blender_io.py:base_color_image]`: Retrieves the first image linked to a Principled BSDF Base Color socket on an object.
+- `[blender_io.py:face_colours]`: Samples base-colour RGB values at triangle UV centroids across mesh loops.
+- `[blender_roundtrip.py:clear]`: Clears meshes, materials, images, and armatures from Blender memory.
+- `[blender_roundtrip.py:summary]`: Gathers object names, types, matrices, vertex groups, and UV layer summaries.
+- `[blender_roundtrip.py:load]`: Imports an ASCII NWN model via Neverblender.
+- `[blender_roundtrip.py:main]`: CLI driver validating Neverblender import and export roundtrips (`--source`, `--source-sha256`, `--output`).
+- `[blender_roundtrip.py:EXPORT]`: Immutable Neverblender export options dictionary.
+- `[blender_roundtrip.py:IMPORT]`: Immutable Neverblender import options dictionary.
+- `[build_robe_fixture.py:stock_hide]`: Resolves body part hiding flags from stock `parts_robe.2da` rows.
+- `[build_robe_fixture.py:renamed_model]`: Renames ASCII model references while preserving bitmap directives.
+- `[build_robe_fixture.py:scripts]`: Generates NWScript event handlers (`sr_rt_spawn`, `sr_rt_hb`, `sr_rt_report`, `sr_rt_enter`, `sr_rt_equip`, `sr_rt_unequip`).
+- `[build_robe_fixture.py:main]`: CLI driver building test HAKs, demo modules, area blueprints, and actor UTCs (`--fixture`, `--run-root`, `--game-root`, `--user-directory`, `--staging`).
+- `[build_robe_fixture.py:MOTION]`: Motion matrix script definition table.
+- `[build_robe_model.py:skeleton_nodes]`: Filters stock phenotype skeleton nodes to ancestors required by used bone weights.
+- `[build_robe_model.py:generation_rest]`: Computes rest frames at outfit A-pose joints for client skinning.
+- `[build_robe_model.py:axis_angle]`: Converts a 3x3 rotation matrix into a 4-element axis-angle vector.
+- `[build_robe_model.py:node_for_faces]`: Constructs an ASCII `skin` geometry node for a subset of faces with deduplicated UVs and weights.
+- `[build_robe_model.py:face_groups]`: Partitions triangles into segment-specific fixed and skin PLT node groups.
+- `[build_robe_model.py:main]`: CLI driver assembling intended ASCII NWN robe models (`--weights`, `--stock-model`, `--model`, `--prefix`, `--tolerances`, `--output`).
+- `[build_robe_model.py:SEGMENT_NODES]`: Canonical segment node names (`torso`, `arml`, `armr`, `legl`, `legr`).
+- `[build_robe_model.py:SEGMENT_START]`: Mapping of proxy segments to joint landmarks.
+- `[compare_skin_models.py:dense_nearest]`: Chunked Euclidean nearest-neighbour distance and index computation.
+- `[compare_skin_models.py:neighbour_lists]`: Spatial hash grid search across 27 adjacent cells.
+- `[compare_skin_models.py:reference_coverage]`: Evaluates face centroid and winding coverage against reference models.
+- `[compare_skin_models.py:reverse_weight_error]`: Measures maximum bone weight deviation across coincident vertices.
+- `[compare_skin_models.py:nearest]`: Grid-accelerated nearest-neighbour locator for 3D coordinates.
+- `[compare_skin_models.py:smoothing_edges]`: Counts shared triangle edges whose smooth/hard shading state differs.
+- `[compare_skin_models.py:corners]`: Extracts face vertex positions and UV coordinates from node arrays.
+- `[compare_skin_models.py:compare_mesh]`: Compares geometry, pairing, UVs, weights, and sampled deformation of mesh nodes.
+- `[compare_skin_models.py:compare]`: Full structural and deformation comparison between two ASCII models across motion clips.
+- `[compare_skin_models.py:animation_content]`: Hashes animation controller blocks for invariant comparison.
+- `[compare_skin_models.py:verdict]`: Evaluates model comparison metrics against frozen tolerances.
+- `[compare_skin_models.py:main]`: CLI entry point comparing two ASCII models (`--left`, `--right`, `--extraction`, `--chain-model`, `--output`).
+- `[contact_sheet.py:main]`: CLI tool assembling review render images into a labelled PNG contact sheet (`--layout`, `--output`).
+- `[deformation_review.py:skin_nodes]`: Extracts skin nodes, bone indices, weights, and rest positions from a rig.
+- `[deformation_review.py:pose]`: Linear-blend skins nodes under given bone transformation frames.
+- `[deformation_review.py:areas]`: Calculates triangle surface areas from 3D coordinates.
+- `[deformation_review.py:merged]`: Merges multiple vertex and face arrays into a single coordinate system.
+- `[deformation_review.py:penetration]`: Measures vertex penetration depth and count inside target body meshes.
+- `[deformation_review.py:measures]`: Extracts severity scores for penetration, stretch, compression, and triangle collapse.
+- `[deformation_review.py:donor_cache_key]`: Generates deterministic SHA-256 cache keys for stock donor baselines.
+- `[deformation_review.py:donor_baseline]`: Retrieves or computes cached donor deformation baselines.
+- `[deformation_review.py:main]`: CLI driver evaluating candidate skin deformation across stock animation clips (`--candidate`, `--node-vertices`, `--fit-arrays`, `--donor`, `--extraction`, `--config`, `--output`).
+- `[deformation_review.py:FLAG]`: Numerical threshold limits for stretch, compression, penetration, and collapse.
+- `[extract_stock_robes.py:Extractor]`: Class managing resource extraction from NWN BIF archives and MDL decompilation.
+- `[extract_stock_robes.py:main]`: CLI entry point extracting installed stock robe models and dependencies (`--game-root`, `--user-directory`, `--prefix`, `--output`).
+- `[extract_stock_robes.py:COMPILER_SHA256]`: Pinned hash for the `mdlcomp` compiler binary.
+- `[extract_stock_robes.py:BODY_PARTS]`: Canonical list of 19 phenotype body parts.
+- `[extract_stock_robes.py:TABLES]`: Required 2DA tables and color palette TGAs.
+- `[finalize_robe_migration.py:finalize]`: Verifies smoke launch receipts, tool versions, and frozen helpers to produce migration receipts.
+- `[finalize_robe_migration.py:main]`: CLI driver for migration finalization (`--toolchain`, `--verification-dir`, `--output`).
+- `[fit_math.py:smoothstep]`: Hermite interpolation polynomial between low and high bounds.
+- `[fit_math.py:rotate_front]`: Reorients vertex coordinates between coordinate front conventions (`-Y` to `+Y`).
+- `[fit_math.py:stock_targets]`: Extracts geometric target landmarks from stock phenotype body assemblies.
+- `[fit_math.py:line_fit]`: SVD line fitting computing 3D centreline and dominant direction.
+- `[fit_math.py:at_height]`: Computes line intersection at a given Z elevation.
+- `[fit_math.py:outfit_landmarks]`: Identifies crotch, waist, collar, and limb centrelines on raw outfit meshes.
+- `[fit_math.py:similarity]`: Calculates uniform scale and translation offsets aligning outfit landmarks to stock body.
+- `[fit_math.py:apply_similarity]`: Applies uniform scale and offset to landmark dictionaries.
+- `[fit_math.py:outfit_joints]`: Estimates outfit shoulder, elbow, wrist, hip, knee, and ankle joint coordinates.
+- `[fit_math.py:rotation_between]`: Computes Rodrigues rotation matrix mapping vector `a` onto vector `b`.
+- `[fit_math.py:segment_transform]`: Computes 4x4 affine matrix mapping source joint segment onto target joint segment.
+- `[fit_math.py:proxy_transforms]`: Generates affine transforms for all proxy limbs.
+- `[fit_math.py:segment_labels]`: Geodesic segmentation of welded vertices into torso, arm, and leg regions.
+- `[fit_math.py:apply_segment_overrides]`: Reassigns geodesic segment labels based on geometric boundary rules.
+- `[fit_math.py:proxy_weights]`: Computes smooth proxy-rig blend weights along limb axes.
+- `[fit_math.py:blend_dual_quaternion]`: Dual-quaternion blending of affine segment matrices preserving joint volume.
+- `[fit_math.py:blend]`: Deforms vertices under proxy transforms using linear or dual-quaternion blending.
+- `[fit_math.py:generation_pose_matrices]`: Generates inverse proxy matrices mapping bind pose to outfit A-pose.
+- `[fit_math.py:generation_pose_frames]`: Transforms bind frames into outfit generation A-pose space.
+- `[fit_math.py:pose_weighted]`: Blends bind-pose points into generation pose via dense bone weights.
+- `[fit_math.py:visible_parts]`: Filters stock body parts left visible by robe HIDE flags.
+- `[fit_math.py:lattice_inflate]`: Smooth 3D voxel lattice inflation clearing garment geometry away from stock body.
+- `[fit_math.py:PROXY]`: Proxy segment identifiers (`torso`, `ua_L`, `fa_L`, `hand_L`, `ua_R`, `fa_R`, `hand_R`, `th_L`, `sh_L`, `ft_L`, `th_R`, `sh_R`, `ft_R`).
+- `[fit_math.py:SEGMENTS]`: High-level mesh segment names (`torso`, `arm_L`, `arm_R`, `leg_L`, `leg_R`).
+- `[fit_math.py:BONE_PROXY]`: Mapping of stock skeleton bones to proxy segments.
+- `[fit_outfit.py:mesh_arrays]`: Extracts vertex and loop-triangle index buffers from Blender mesh objects.
+- `[fit_outfit.py:outer_visibility]`: Ray-casts outward hemisphere to classify outer surface vs inner lining vertices.
+- `[fit_outfit.py:describe]`: Computes rotation angle, singular values, and translation components of affine matrices.
+- `[fit_outfit.py:main]`: CLI driver fitting outfit meshes onto stock phenotype bodies (`--config`, `--repaired`, `--stock-ascii`, `--output`).
+- `[fit_outfit.py:BLENDS]`: Default joint transition blend distances and smoothing iterations.
+- `[freeze_tolerances.py:invariant_changes]`: Identifies non-numeric header, render state, and bitmap mismatches.
+- `[freeze_tolerances.py:measure]`: Measures worst-case control roundtrip losses across model comparison reports.
+- `[freeze_tolerances.py:main]`: CLI driver freezing control tolerances (`--comparison`, `--bone-limit`, `--output`).
+- `[freeze_tolerances.py:BOUNDS]`: Minimum representation bounds based on exporter numeric precision.
+- `[inspect_source.py:arrays]`: Extracts vertex, triangle, and loop buffers from Blender mesh data.
+- `[inspect_source.py:boundary_loops]`: Traces connected non-manifold boundary edge loops.
+- `[inspect_source.py:sections]`: Slices mesh cross-sections along a given axis.
+- `[inspect_source.py:hidden_faces]`: Ray-tests interior faces across multi-directional rays to detect occluded geometry.
+- `[inspect_source.py:skin_estimate]`: Identifies exposed skin faces based on base-colour hue and saturation heuristics.
+- `[inspect_source.py:main]`: CLI driver inspecting raw Meshy exports for budget, topology, and geometry defects (`--source`, `--source-sha256`, `--output`).
+- `[inventory_stock_robes.py:landmarks]`: Computes anatomical landmark elevations from bind frames.
+- `[inventory_stock_robes.py:classify]`: Categorizes garment hem coverage (`floor`, `knee-to-ankle`, `thigh`, `waist`).
+- `[inventory_stock_robes.py:skin_report]`: Compiles skin vertex bounds, weight validation, leg bridging, and hem coverage.
+- `[inventory_stock_robes.py:main]`: CLI driver generating stock robe inventories and donor recommendations (`--extraction`, `--output`).
+- `[Launch-RobeTrialClient.ps1:Get-TaskPin]`: Helper resolving path and computing lowercase SHA-256 hash.
+- `[Launch-RobeTrialClient.ps1:Test-TaskPins]`: Validates hashes of client executable, bindings, fixtures, HAKs, and modules.
+- `[Launch-RobeTrialClient.ps1:main-flow]`: Powershell script launching isolated NWN client (`-FixtureReceipt`, `-Binding`, `-Output`).
+- `[lbs.py:Rig]`: Class encapsulating model bind hierarchy and inherited supermodel animation controllers.
+- `[lbs.py:bind_world]`: Computes world bind-space vertex coordinates for model nodes.
+- `[lbs.py:skin]`: Linear-blend skins node vertices under given bone transformation frames.
+- `[lbs.py:rigid]`: Transforms rigid mesh node vertices under node transformation frames.
+- `[lbs.py:motion_samples]`: Generates animation frame sampling matrix across motion families.
+- `[lbs.py:chain_for]`: Resolves supermodel inheritance chain for a given model from extraction manifests.
+- `[lbs.py:MOTION]`: Standard motion clip evaluation families and names.
+- `[mdl_ascii.py:Node]`: Represents an ASCII model node with properties and counted data arrays.
+- `[mdl_ascii.py:Model]`: Represents a complete ASCII NWN model with header, nodes, and animation blocks.
+- `[mdl_ascii.py:parse]`: Parses ASCII MDL text into a `Model` instance.
+- `[mdl_ascii.py:read]`: Reads and parses an ASCII MDL file from disk.
+- `[mdl_ascii.py:dumps]`: Serializes a `Model` instance to ASCII MDL format.
+- `[mdl_ascii.py:write]`: Writes an ASCII MDL model to disk using exclusive file creation.
+- `[mdl_ascii.py:bind_frames]`: Computes world bind transformation matrices for all nodes in a model.
+- `[mdl_ascii.py:skin_matrix]`: Converts per-vertex bone/weight pairs into a dense weight matrix.
+- `[meshy_robe.py:Session]`: Manages append-only JSON event chains, credit tracking, and exclusive locks for Meshy jobs.
+- `[meshy_robe.py:model_formats]`: Enforces GLB inclusion in target model format lists.
+- `[meshy_robe.py:validate_request]`: Validates Meshy API request payloads against operation schemas and safety policies.
+- `[meshy_robe.py:task_fields]`: Extracts task ID, status, and consumed credit amounts from CLI responses.
+- `[meshy_robe.py:load_binding]`: Loads and pins runtime binding configuration.
+- `[meshy_robe.py:launcher]`: Locates and pins the `meshy-cli` executable.
+- `[meshy_robe.py:run_cli]`: Executes `meshy-cli` subprocess commands and logs stdout/stderr.
+- `[meshy_robe.py:invoke]`: Executes `meshy-cli` ensuring executable and binding hashes remain unchanged.
+- `[meshy_robe.py:dispatch]`: Reserves credits and dispatches paid Meshy generation jobs.
+- `[meshy_robe.py:wait]`: Waits for asynchronous Meshy tasks to reach terminal status (`SUCCEEDED`, `FAILED`, `CANCELED`).
+- `[meshy_robe.py:collect]`: Downloads and hashes finished 3D model and texture outputs into source banks.
+- `[meshy_robe.py:main]`: CLI driver managing Meshy sessions (`init`, `status`, `dispatch`, `wait`, `collect`).
+- `[mesh_ops.py:weld_ids]`: Computes merged vertex indices based on spatial coordinate welding within tolerance.
+- `[mesh_ops.py:union_find]`: Disjoint-set union-find data structure.
+- `[mesh_ops.py:islands]`: Identifies connected face component islands on welded mesh connectivity.
+- `[mesh_ops.py:edges]`: Extracts unique undirected triangle edges with occurrence counts.
+- `[mesh_ops.py:slice_loops]`: Extracts connected planar cross-section loops crossing an axis plane.
+- `[mesh_ops.py:cut_points]`: Computes exact edge-plane intersection points for crossing triangles.
+- `[mesh_ops.py:neighbours]`: Computes symmetric vertex adjacency graph over welded vertices.
+- `[mesh_ops.py:geodesic_labels]`: Multi-source Dijkstra geodesic distance and partition labeling.
+- `[mesh_ops.py:smooth_field]`: Laplacian smoothing of per-vertex scalar or vector fields over adjacency graphs.
+- `[package_trial.py:validated_matches]`: Verifies byte equivalence between staged package files and validated builds.
+- `[package_trial.py:row_line]`: Reads specific line from `parts_robe.2da` ensuring row index match.
+- `[package_trial.py:row_visibility]`: Extracts hidden and visible part lists from a 2DA row.
+- `[package_trial.py:readme]`: Generates Markdown README text for trial release packages.
+- `[package_trial.py:main]`: CLI packager assembling trial HAKs, modules, items, 2DAs, and manifests (`--config`, `--run-root`, `--fixture-receipt`, `--output`).
+- `[package_trial.py:GATES]`: Standard robe trial verification gates (`referenceApproval`, `workingSelection`, `nativeValidation`, `clientValidation`, `productionAcceptance`).
+- `[parts_robe.py:write_2da]`: Formats and writes position-true 2DA tables with empty row padding.
+- `[parts_robe.py:read_2da]`: Parses CP1252 2DA tables into column headers and row dictionaries.
+- `[parts_robe.py:HIDE]`: Column names for the 19 body part hiding flags.
+- `[prepare_reference.py:content_rows]`: Identifies rows containing pixels exceeding background threshold.
+- `[prepare_reference.py:subject_block]`: Locates primary subject bounding box between vertical background gaps.
+- `[prepare_reference.py:subject_bottom]`: Returns bottom row index of the primary subject.
+- `[prepare_reference.py:main]`: CLI tool cropping concept reference images to caption-free bounds (`--source`, `--outfit`, `--output`).
+- `[prepare_robe_materials.py:plt_bytes]`: Encodes 2D shade and layer arrays into binary NWN PLT format.
+- `[prepare_robe_materials.py:tga]`: Saves image arrays to Truevision TGA format.
+- `[prepare_robe_materials.py:main]`: CLI tool converting PBR textures to NWN TGA/MTR and skin PLT materials (`--config`, `--run-root`, `--prefix`, `--flip-normal-green`, `--output`).
+- `[prepare_robe_materials.py:MTR_PARAMETERS]`: Standard NWN:EE PBR material parameter declarations.
+- `[reduce_runtime.py:build]`: Reconstructs Blender mesh with vertex groups for bone weights, segments, and visibility masks.
+- `[reduce_runtime.py:weld]`: Merges coincident vertices in Blender using `bmesh.ops.remove_doubles`.
+- `[reduce_runtime.py:decimate]`: Decimates mesh polygons to target count using collapse decimation.
+- `[reduce_runtime.py:read_back]`: Extracts decimated vertices, triangles, loop UVs, skin masks, and interpolated channel weights.
+- `[reduce_runtime.py:main]`: CLI tool reducing weighted meshes to runtime face budgets (`--weights`, `--fit-arrays`, `--config`, `--tolerances`, `--target-faces`, `--output`).
+- `[render_review.py:clear]`: Removes all objects, meshes, and materials from active Blender scene.
+- `[render_review.py:material]`: Creates Principled BSDF review material with solid diffuse colour.
+- `[render_review.py:from_arrays]`: Creates Blender mesh object from vertex and face lists.
+- `[render_review.py:entry_sources]`: Resolves source files referenced by a review render specification.
+- `[render_review.py:load]`: Loads GLB, NPZ, or stock body geometry into Blender for rendering.
+- `[render_review.py:lights]`: Sets up standardized 3-point sun lighting (key, fill, rim) and ambient environment.
+- `[render_review.py:main]`: CLI driver generating orthographic review turnaround renders (`--spec`, `--output`).
+- `[render_review.py:VIEWS]`: Standard orthographic review camera angles (`front`, `back`, `left`, `right`, `threequarter`, `top`).
+- `[repair_source.py:weld]`: Merges seam-split coincident vertices in Blender BMesh.
+- `[repair_source.py:triangles]`: Counts loop triangles in a Blender mesh.
+- `[repair_source.py:remove_duplicates]`: Removes identical winding duplicate faces while preserving back-face cloth layers.
+- `[repair_source.py:remove_floating]`: Deletes disconnected floating mesh islands exceeding threshold distance from main body.
+- `[repair_source.py:main]`: CLI driver repairing raw Meshy outfit exports (`--config`, `--run-root`, `--output`).
+- `[robe_common.py:require]`: Assertion helper raising `ValueError` with descriptive message on falsy condition.
+- `[robe_common.py:sha]`: Computes streaming SHA-256 hex digest of a file.
+- `[robe_common.py:pin]`: Returns dictionary containing resolved file path and SHA-256 hash.
+- `[robe_common.py:read_pinned]`: Reads binary file contents and returns bytes with matching SHA-256 pin.
+- `[robe_common.py:skin_colour]`: Boolean mask detecting warm, moderately saturated exposed skin colours in sRGB.
+- `[robe_common.py:merge_pins]`: Appends newly read pins while verifying hash consistency for repeated reads.
+- `[robe_common.py:verify_pins]`: Verifies existence and SHA-256 hashes for a collection of pinned paths.
+- `[robe_common.py:read]`: Deserializes JSON files with UTF-8 BOM tolerance.
+- `[robe_common.py:write_fresh]`: Writes JSON payload atomically via temporary file and hardlink, refusing to overwrite.
+- `[robe_common.py:fresh_directory]`: Creates a new directory, asserting it did not previously exist.
+- `[robe_common.py:utc]`: Returns current UTC timestamp in ISO 8601 format.
+- `[robe_common.py:FLAGS]`: Standard gate approval flags dictionary initialized to false.
+- `[robe_node_variant.py:as_kind]`: Duplicates a model node as either `dummy` or render-0 `trimesh` box.
+- `[robe_node_variant.py:variant]`: Modifies model node kinds and inserts stock skeleton nodes.
+- `[robe_node_variant.py:main]`: CLI driver generating structural node variants for engine testing (`--source`, `--model`, `--placeholders`, `--output`).
+- `[robe_node_variant.py:BOX_VERTS]`: 4 cm rootdummy placeholder box vertex coordinates.
+- `[robe_node_variant.py:BOX_FACES]`: Standard 12-face cube topology.
+- `[robe_weights.py:limit_and_normalize]`: Enforces maximum influences per vertex, prunes small weights, and normalizes rows to 1.0.
+- `[robe_weights.py:validate]`: Evaluates weight matrix against hierarchy, influence limits, and sum tolerances.
+- `[robe_weights.py:from_pairs]`: Converts per-vertex bone/weight lists into a dense matrix.
+- `[robe_weights.py:to_pairs]`: Converts dense weight matrix into sorted per-vertex bone/weight lists.
+- `[robe_weights.py:limb_corrections]`: Applies rigid hand weights past wrist bands and sharpens shoulder/elbow crease blending.
+- `[run_robe_migration.py:launch]`: Spawns toolchain verification tasks via `launch_shared_tool.py`.
+- `[run_robe_migration.py:main]`: Orchestrates Python, stock extraction, and Blender import migration smokes (`--toolchain`, `--verification-dir`, `--output`, `--game-root`, `--user-directory`, `--blender-preferences`).
+- `[run_robe_migration.py:HELPERS]`: Pinned list of shared and local helper scripts required for migration.
+- `[smoke_robe_tools.py:top-level-smoke]`: Executes quick smoke test of NumPy, Pillow, and weight normalization.
+- `[stock_body.py:Body]`: Class loading stock phenotype body parts, assembling bind frames, and computing landmarks.
+- `[stock_body.py:closest_on_triangles]`: Ericson region-based projection finding closest points, distances, and signed normals on triangle meshes.
+- `[stock_body.py:ATTACH]`: Canonical mapping of phenotype parts to attachment bone nodes.
+- `[stock_body.py:SKIN_BONES]`: Ordered list of the 17 standard skin bones.
+- `[transfer_weights.py:Donor]`: BVH-accelerated triangle mesh container for barycentric weight interpolation.
+- `[transfer_weights.py:robe_donor_faces]`: Extracts donor skin node faces, dense weights, and dominant bone assignments.
+- `[transfer_weights.py:cage_part]`: Constructs rigid body part cage with 1.0 weight on the part bone.
+- `[transfer_weights.py:skin_mask]`: Generates exposed skin boolean mask for mesh loops.
+- `[transfer_weights.py:main]`: CLI driver transferring donor skin weights onto fitted outfit meshes (`--config`, `--repaired`, `--fit`, `--extraction`, `--tolerances`, `--output`).
+- `[transfer_weights.py:ARM_BONES]`: Sets of arm bone identifiers for left and right limbs.
+- `[transfer_weights.py:UPPER_BONES]`: Torso and pelvis bone identifiers.
+
+## Invariants
+- `[robe_common.py:FLAGS]`: Default approval flags (`referenceApproved`, `nativeValidated`, `clientValidated`, `productionAccepted`, `gameClientTesting`) remain `False` in all emitted receipts; offline numerical and visual passes never authorize game client or production acceptance.
+- `[robe_common.py:write_fresh]`: Output files and receipts must be fresh; written atomically via temporary files and hard links (`os.link`), refusing to overwrite existing files.
+- `[robe_common.py:fresh_directory]`: Destination directories must be fresh and non-existent prior to invocation.
+- `[robe_common.py:verify_pins]`: All pinned input file paths and SHA-256 hashes are verified before reading and re-verified after execution to ensure input immutability.
+- `[robe_common.py:merge_pins]`: Files read multiple times within a tool invocation must maintain byte-identical hash values across reads.
+- `[parts_robe.py:write_2da]`: `parts_robe.2da` rows are strictly indexed by numerical position; missing or empty rows are padded with `****` so engine row labels stay true.
+- `[blender_io.py:import_single]`: Imported GLB scenes must contain exactly one MESH object; world transformation matrices are baked into mesh vertices with matrix_world reset to identity.
+- `[stock_body.py:Body]`: Stock phenotype parts must attach to their corresponding canonical bone locators (`ATTACH`); bind frames and rest poses remain immutable.
+- `[fit_math.py:proxy_transforms]`: Outfit A-pose is converted onto stock bind joints via proxy deformation without modifying stock bind frames or animations.
+- `[fit_math.py:lattice_inflate]`: 3D spatial clearance inflation pushes outer garment vertices beyond stock body parts while keeping relative layer order intact.
+- `[robe_weights.py:limit_and_normalize]`: Vertex bone influences are capped at 4 (`max_influences=4`), weights pruned below threshold (default 0.001), and renormalized to sum strictly to 1.0 within tolerance.
+- `[robe_weights.py:validate]`: Weights assigned to bones outside the declared bind hierarchy or unweighted vertices fail validation.
+- `[meshy_robe.py:Session]`: Credit cap (1 to 300 credits) is enforced; at most one paid Meshy job may be open at any time; 3D generation requests require recorded reference approval.
+- `[meshy_robe.py:validate_request]`: Paid request parameters must specify 4K PBR, A-pose mode, triangle topology (<= 100,000 polycount), and disallow shell metacharacters (`\r\n"%&|<>^`).
+- `[build_robe_model.py:main]`: Model resrefs must not exceed 16 characters and node prefixes must not exceed 8 characters; skin node bone count must not exceed `boneLimitPerSkinNode`; vertex and tvert counts must remain within 16-bit limits (< 65,535); every face must be assigned to exactly one node group.
+- `[compare_skin_models.py:verdict]`: Compares structure, bind translation/rotation, face counts, UV presence, bitmaps, and sampled deformations against frozen tolerances (`freeze_tolerances.py:BOUNDS`).
+- `[package_trial.py:main]`: Packaged robe models, PLTs, and textures must match client-validated build bytes identically; `productionAcceptance` remains `False`.
+- `[Launch-RobeTrialClient.ps1:Test-TaskPins]`: Client launch refuses execution if another `nwmain` process is running or if the isolated userdir `override` folder is not empty; client, module, HAK, and fixture hashes are checked before launch and re-checked after exit.
+
+## Side Effects
+- `[robe_common.py:write_fresh]`: Writes atomic JSON receipts, temporary files, and hardlinks to the filesystem.
+- `[extract_stock_robes.py:main]`: Spawns external binaries `nwn_resman_cat`, `nwn_resman_grep`, and `mdlcomp` to extract game BIF archives and decompile binary models to ASCII.
+- `[build_robe_fixture.py:main]`: Spawns `nwn_resman_cat`, `nwn_gff`, `nwn_script_comp`, and `nwn_erf` to build standalone test HAKs and modules; writes `.uti`, `.nss`, `.ncs`, `.are`, `.ifo`, `.git`, and `.fac` files.
+- `[meshy_robe.py:invoke]`: Spawns external CLI tool `meshy-cli`, issues asynchronous network requests to Meshy API, acquires `operation.lock` files, and downloads GLB/texture assets.
+- `[blender_roundtrip.py:main]`, `[inspect_source.py:main]`, `[repair_source.py:main]`, `[fit_outfit.py:main]`, `[transfer_weights.py:main]`, `[reduce_runtime.py:main]`, `[render_review.py:main]`: Execute headless Blender (`bpy`) sessions; import/export GLTF/GLB models; write `.npz` arrays, `.npy` masks, and PNG review renders.
+- `[Launch-RobeTrialClient.ps1:main-flow]`: Launches external interactive NWN client process (`nwmain.exe`), blocks until exit, and records process launch receipts.
+- `[package_trial.py:main]`: Copies validated HAK, MOD, UTI, and 2DA files into destination package directories; generates package `manifest.json` and `README.md`.
+
+## Verification
+- Run: `pytest tools/robes`

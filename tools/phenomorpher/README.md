@@ -1,4 +1,6 @@
-# PhenoMorpher
+# PhenoMorpher Blueprint
+
+## System Overview
 
 PhenoMorpher is the project's maintained Python toolkit for measuring NWN bodies,
 making conservative phenotype proposals and transferring static modular clothing.
@@ -7,6 +9,35 @@ It uses NumPy and Pillow; it adds no service, automatic landmark detector or new
 system. The [shipped Human bodies](https://github.com/givemedeath/SRN_HAKS/pull/42)
 provide the donor assets. The [full phenotype body release](https://github.com/givemedeath/SRN_HAKS/pull/45)
 is packaged separately; its manifest and assets are not included in this toolkit.
+
+## Subdirectories & System Boundaries
+- [phenomorpher](./phenomorpher/README.md): Core toolkit package providing the public API (`phenomorpher.api`), managed CLI dispatch (`phenomorpher.cli`), input declaration (`phenomorpher.inputs`), and numerical engine backends (`phenomorpher.engine`).
+
+## Local Interface & Invariants
+- **Local Interface**:
+  - `[finalize_runtime.py:finalize]`: Finalizes a CPU-only Python shared tool migration receipt from a valid doctor smoke run.
+  - `[finalize_runtime.py:verify_doctor]`: Enforces exact doctor launch command, local package Python/JSON input freezing, and loaded package source origin verification.
+  - `[finalize_runtime.py:pin]`: Computes path and sha256 pin for runtime tracking.
+  - `[run.py:main]`: Managed repository execution wrapper dispatching via `launch_shared_tool.py` with pre-frozen inputs and thread capping.
+  - `[run.py:consumed]`: Gathers all package files and dynamic command inputs for frozen launch verification.
+- **Local Invariants**:
+  - `[finalize_runtime.py:verify_doctor]`: Doctor command must match `['-B', '-m', 'phenomorpher', 'doctor']`; all local package Python and JSON inputs must be frozen at current sha256 hashes; refuses altered or external package sources.
+  - `[finalize_runtime.py:finalize]`: Output receipt destination must not already exist; smoke interpreter must match bound runtime toolchain; smoke checks must have passed.
+  - `[run.py:main]`: Thread concurrency is capped at four threads (`OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS = '4'`); launches must be isolated with fresh outputs.
+
+## Global Invariants
+- Model roots must remain at the origin with zero rotation, scale, or animation keying.
+- Connector tapers must form continuous slopes without shelves, cuff ledges, or pinches.
+- Sound joints and natural motion take priority over character proportions or stature.
+- Offline tests and geometry proposals create no reference approval, anatomy approval, native/client validation, or production acceptance.
+
+## Global Side Effects
+- `[run.py:main]`: Generates temporary input declaration files and dispatches subprocesses via `launch_shared_tool.py`.
+- `[finalize_runtime.py:finalize]`: Writes migration receipt `.json` to disk.
+- CLI data runs generate compiled models, downsampled textures, and audit receipts in fresh output directories.
+
+## System Verification
+- Run: `pytest tools/phenomorpher`
 
 ## Setup and entry point
 
