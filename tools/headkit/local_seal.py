@@ -26,7 +26,7 @@ def geometry_fingerprint(value):
     return digest.hexdigest()
 
 
-def bundle(source, payloads, rows, output):
+def bundle(source, payloads, rows, output, *, palette_report=None):
     """Embed actual baseline maps in one declared GLB input, with content hashes."""
     expected={'basecolor4k','shades','layers','decoded','hairPalette'}
     require(set(payloads)==expected,'Local repair needs the approved colour, PLT maps and hair table')
@@ -37,9 +37,26 @@ def bundle(source, payloads, rows, output):
         data=Path(path).read_bytes();binary.extend(b'\0'*((-len(binary))%4));offset=len(binary);binary.extend(data)
         index=len(document['bufferViews']);document['bufferViews'].append({'buffer':0,'byteOffset':offset,'byteLength':len(data)})
         records[name]={'bufferView':index,'sha256':hashlib.sha256(data).hexdigest()}
+    evidence = None
+    if palette_report is not None:
+        report_pin = pin(palette_report);inputs.append(report_pin)
+        report = json.loads(Path(palette_report).read_text(encoding='utf-8'))
+        require(report.get('rows') == rows,'Baseline palette rows differ')
+        for role, name in (('shades','shades'),('ownership','layers'),('decoded','decoded')):
+            require(report.get(role,{}).get('sha256') == records[name]['sha256'],
+                    'Baseline palette report differs from '+name)
+        hair = report.get('layers',{}).get('1',{})
+        span = hair.get('shadeRange',{})
+        tie = span.get('endTie')
+        require(span.get('checked') is True and type(tie) in (int,float) and 0<=tie<=1,
+                'Checked source hair end-tie evidence required')
+        with Image.open(payloads['layers']) as image: count=int((np.asarray(image)==1).sum())
+        require(count>0 and hair.get('pixels')==count,'Baseline hair pixel count differs')
+        evidence={'report':report_pin,'endTie':tie,'hairTexels':count}
     document['buffers'][0]['byteLength']=len(binary)
     document.setdefault('extras',{})['headkitLocalRepair']={'kind':KIND,'rows':rows,
-        'geometryFingerprint':geometry_fingerprint(mesh(source)),'maps':records,'source':inputs[0]}
+        'geometryFingerprint':geometry_fingerprint(mesh(source)),'maps':records,'source':inputs[0],
+        **({'hairEndTieEvidence':evidence} if evidence is not None else {})}
     Path(output).write_bytes(encode(document,bytes(binary)));verify(inputs,fresh=True)
     return {'source':inputs,'output':pin(output),'kind':KIND}
 
@@ -277,6 +294,20 @@ def transfer_maps(value,v,f,uv,new,plan,maps,rows,output):
             'protectedRuntimeTexels':int(old_mapped.sum()),'maximumDonorDistance':max_distance}
 
 
+
+def retained_hair_evidence(evidence, before_shades, before_layers, shades, layers):
+    # The historical tie is rounded to three decimals. Subtract its rounding
+    # uncertainty and assume every changed old hair texel belonged to that tie.
+    # Added hair gets no tie credit. This is a conservative lower bound.
+    old=before_layers==1;current=layers==1
+    count=int(old.sum());total=int(current.sum())
+    require(count==evidence['hairTexels'] and count>0 and total>0,'Hair evidence pixel counts differ')
+    unchanged=int((old & current & (before_shades==shades)).sum())
+    tied=max(0.,(evidence['endTie']-.0005)*count-(count-unchanged))
+    return {**evidence,'unchangedHairTexels':unchanged,'outputHairTexels':total,
+            'lowerBound':min(1.,tied/total)}
+
+
 def repair(source,output,bindings,policy):
     recipe=policy['localSeal'];require(recipe.get('sourceSha256')==pin(source)['sha256'] and recipe.get('reviewed') is True
         and isinstance(recipe.get('notes'),str) and recipe['notes'].strip(),'Review and bind the exact local-repair source')
@@ -297,7 +328,12 @@ def repair(source,output,bindings,policy):
     require(closed.all(),'The reviewed cavity still exposes its inner wall')
     closure.append({'cavityRays':int(core.sum()),'sealedRays':int(closed.sum())})
     images=transfer_maps(value,v,f,uv,new,plan,maps,data['rows'],folder/'local-maps')
-    np.savez_compressed(folder/'local-maps/runtime-color.npz',kind=np.array('headkit-stock-runtime-v1'),
+    evidence={}
+    if 'hairEndTieEvidence' in data:
+        kept=retained_hair_evidence(data['hairEndTieEvidence'],maps['shades'],maps['layers'],
+            np.asarray(Image.open(images['shades']['path'])),np.asarray(Image.open(images['ownership']['path'])))
+        evidence['hairEndTieEvidence']=np.array(json.dumps(kept,sort_keys=True))
+    np.savez_compressed(folder/'local-maps/runtime-color.npz',**evidence,kind=np.array('headkit-stock-runtime-v1'),
         shades=np.asarray(Image.open(images['shades']['path'])),layers=np.asarray(Image.open(images['ownership']['path'])),
         rgb=np.asarray(Image.open(images['decoded']['path'])),rows=np.array(json.dumps(data['rows'],sort_keys=True)),
         geometryFingerprint=np.array(geometry_fingerprint(geometry)))

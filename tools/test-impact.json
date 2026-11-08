@@ -900,6 +900,7 @@
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
       "tools/headkit/local_seal.py",
+      "tools/headkit/quality.py",
       "tools/headkit/stock_encoding.py",
       "tools/headkit/uv.py"
     ],

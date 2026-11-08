@@ -30,6 +30,7 @@ def preserve(color,ownership,palette_files,rows,source,output,*,full_range=False
         require(str(data['geometryFingerprint'])==geometry_fingerprint(mesh(source)),'Stock encoding geometry changed')
         require(json.loads(str(data['rows']))==rows,'Stock encoding palette rows changed')
         shades,layers,rgb=(data[key].copy() for key in ('shades','layers','rgb'))
+        hair_evidence=json.loads(str(data['hairEndTieEvidence'])) if 'hairEndTieEvidence' in data else None
     require(shades.dtype==layers.dtype==rgb.dtype==np.uint8 and shades.shape==layers.shape==(1024,1024)
             and rgb.shape==(1024,1024,3),'Stock runtime encoding must be uint8 at 1K')
     require(np.max(layers)<=9 and np.max(shades)<255,'Invalid stock layer/shade')
@@ -52,6 +53,20 @@ def preserve(color,ownership,palette_files,rows,source,output,*,full_range=False
         require(not checked or span>=FULL_RANGE_SPAN,'Preserved stock channel '+key+' fails the shade range floor')
         report[key]={'pixels':int(selected.sum()),'preserved':True,'shadeRange':{
             'eligible':[int(lo),int(hi)],'p1':float(p1),'p99':float(p99),'spanFraction':round(span,3),'checked':checked}}
+        if key=='1' and hair_evidence is not None:
+            e=hair_evidence
+            require(type(e.get('endTie')) in (int,float) and 0<=e['endTie']<=1
+                    and all(type(e.get(k)) is int for k in ('hairTexels','unchangedHairTexels','outputHairTexels'))
+                    and 0<=e['unchangedHairTexels']<=e['hairTexels'] and e['hairTexels']>0
+                    and e['unchangedHairTexels']<=e['outputHairTexels']==int(selected.sum())
+                    and isinstance(e.get('report'),dict) and isinstance(e['report'].get('sha256'),str)
+                    and len(e['report']['sha256'])==64
+                    and set(e['report']['sha256'])<=set('0123456789abcdef'),'Invalid byte-bound hair end-tie evidence')
+            tied=max(0.,(e['endTie']-.0005)*e['hairTexels']-(e['hairTexels']-e['unchangedHairTexels']))
+            lower=min(1.,tied/e['outputHairTexels'])
+            require(type(e.get('lowerBound')) in (int,float) and e['lowerBound']==lower,
+                    'Hair end-tie lower bound differs from its source evidence')
+            report[key]['shadeRange'].update(endTie=lower,endTieEvidence=e)
         tables[key]=table[:,:3]
     if body_skin is not None:
         require('0' in report,'Body-pinned stock encoding needs a skin channel')

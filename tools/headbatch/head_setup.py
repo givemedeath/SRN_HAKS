@@ -276,7 +276,6 @@ def revise_conditioning(workspace, name, design, reference, checked, approval, c
         ledger = head/'gpu/gpu.json'
         if ledger.exists() and 'geometry' in guards.read(ledger)['stages']:
             raise guards.Refused('A current accepted geometry already exists for the slot')
-        selection = guards.read(head/'design/design-receipt.json')
         record_pin = pin(reference)
         checked_pin = pin(checked)
         record, pair = reference_record.load(reference, name, design)
@@ -289,7 +288,7 @@ def revise_conditioning(workspace, name, design, reference, checked, approval, c
         manifest = guards.read(head/'manifest.json')
         inputs = manifest['inputs']
         if ('clay' not in inputs or 'detail' not in inputs or (not paired and
-                (selection['selectedDesign']['sha256'] != record['design']['sha256'] or
+                (inputs['design']['sha256'] != record['design']['sha256'] or
                  inputs['detail']['sha256'] != record['conditioning']['detail']['sha256']))):
             raise guards.Refused('A clay-only revision must retain the selected design and diffuse input')
         # Content-addressed targets make retries safe and preserve the old prepare and its inputs.

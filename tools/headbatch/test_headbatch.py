@@ -2299,6 +2299,29 @@ class ConditioningContracts(Base):
             self.assertEqual(pin(head/active['inputs'][role]['path'])['sha256'], expected['sha256'])
         self.assertEqual([pin(Path(p['path'])) for p in preserved], preserved)
         self.assertIn(record['features']['hair'], [r['description'] for r in active['features']])
+        # A paired replacement becomes the active identity for later clay-only edits.
+        record['conditioning']['clay'] = raster('later-clay','white')
+        later = write(self.root/'later-clay.json', record)
+        reference_record.check(later, name, self.root/'later-measured')
+        later_check = self.root/'later-measured/reference-check.json'
+        head_setup.revise_clay(self.workspace, name, design, later, later_check, 'select later clay', check=lambda *_:None)
+        revised = guards.read(head/'manifest.json')
+        self.assertEqual(revised['inputs']['design'], active['inputs']['design'])
+        self.assertEqual(revised['inputs']['detail'], active['inputs']['detail'])
+        self.assertEqual(revised['inputs']['clay']['sha256'], record['conditioning']['clay']['sha256'])
+        self.assertEqual([pin(Path(p['path'])) for p in preserved], preserved)
+        # Historical design and a new diffuse both remain invalid for clay-only selection.
+        for role, replacement in [('design', guards.read(original)['design']),
+                                  ('detail', raster('unselected-detail','red'))]:
+            changed = dict(record)
+            changed['conditioning'] = dict(record['conditioning'])
+            if role == 'design': changed['design'] = replacement
+            else: changed['conditioning']['detail'] = replacement
+            other = write(self.root/('invalid-'+role+'.json'), changed)
+            reference_record.check(other, name, self.root/('invalid-'+role))
+            with self.assertRaisesRegex(guards.Refused, 'clay-only'):
+                head_setup.revise_clay(self.workspace, name, (other.parent/changed['design']['path']).resolve(), other,
+                    self.root/('invalid-'+role)/'reference-check.json', 'invalid clay-only', check=lambda *_:None)
         before = pin(head/'manifest.json')
         data = guards.read(ledger); data['stages']['geometry']={}; write(ledger,data)
         with self.assertRaisesRegex(guards.Refused, 'accepted geometry'):
@@ -2535,7 +2558,7 @@ class IrisRowCandidates(unittest.TestCase):
             rgb,pins=source_appearance(runner,{'preservedStockEncoding':{'input':{}}})
             self.assertEqual(rgb.shape,(1024,1024,3))
             self.assertTrue(np.all(rgb==[45,70,80]))
-            self.assertEqual(Path(pins[0]['path']),path)
+            self.assertEqual(Path(pins[0]['path']),path.resolve())
 
     def test_explicit_rows_are_previewed_even_when_outside_automatic_shortlist(self):
         import numpy as np

@@ -315,7 +315,12 @@ A material repaint cannot close a hair opening that exposes an inner wall.
 Use mesh.localSeal with a reviewed diagnostic view, pixel seed, exact source
 hash and notes. Package the accepted UV mesh, actual basecolor, PLT shade,
 layer and decode maps and hair table using headkit.local_seal.bundle. Bind
-that portable GLB as comfyExport. Repair measures the rim, tries at most three
+that portable GLB as comfyExport. For hair using the source-luma end-tie
+exemption, pass palette_report to bundle with the original palette JSON. The
+bundler checks its rows and exact shade/ownership/decode hashes. Repair carries
+a conservative tie lower bound: changed original hair is subtracted and added
+hair gets no credit. Fresh quality uses that byte-bound evidence; decoded
+colour ties never manufacture an exemption. Repair measures the rim, tries at most three
 closures, requires one fewer handle, verifies every cavity ray and simplifies
 only the local neighbourhood to the unchanged 20K limit. Preserve all original
 charts and fit; new charts occupy empty atlas space. Reuse and audit those UVs.
