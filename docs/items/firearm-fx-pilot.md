@@ -338,7 +338,8 @@ How it was pinned down (builds v15 and v16):
   combat mode ends.
 - **Script can't hold combat mode:** nwscript has no call that sets it.
 - **Not the hook keys:** the rifle clips key `rhand` at identity on every frame. Giving it a changing tilt of 0.1° and
-  then 3° (builds v18 and v19) left the crossbow just as upright out of combat.
+  then 3° (builds v18 and v19) left the crossbow just as upright out of combat. So did a changing 1.1° to 2.3° tilt
+  plus a 2 mm move off each body's own hook position on every key (build v20).
 - **Bow-class (build v17):** a longbow-class AK-98 (`srp_brifle`, part `wbwln_*_203`, chat `brifle`, `fbrifle` maps
   `bowshot` and the ready names) plays the rifle clip, but the engine hangs bows from `lhand`, so the gun sits in the
   support hand. In the ready stance the gun's pose in the left hand is the same on every body in rotation and within
