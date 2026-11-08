@@ -131,6 +131,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sreab35fc_02.tga` | sr4-whip-eab35fc25c | 3145772 | `3ef829ce50351de70cd2afe5792bc11987b867cf937108f334a27c920d32cc02` |  | yes |
 | `srn_weapon/srf7ac8ec.uti` | sr4-katana-f7ac8ecfb3 | 730 | `cf0bcf1715b6ae17f463b2fb1f83b046308add5fa47b641bf59556f5734c7678` |  | yes |
 | `srn_weapon/srf7ac8ec_06.tga` | sr4-katana-f7ac8ecfb3 | 3145772 | `700cba0c15292689e44aff6c96381c8153f8934b9ca171cefe9d06c6421014c2` |  | yes |
+| `srn_weapon/srnfx_casing.tga` | firearm-effects | 262188 | `e8aa922ab82acf7e0d471deaa85c6410eb6de7611ce5ece16440a984625f3185` |  | yes |
 | `srn_weapon/wbwln_b_091.mdl` | sr4-bow-dd7dc09f67 | 1588 | `47135fdbc7a7d02ecb2918483950bf7d56e8d2f24e7f31a21ed3992142ff40eb` | (invisible part) | yes |
 | `srn_weapon/wbwln_m_091.mdl` | sr4-bow-dd7dc09f67 | 896828 | `a9c2d5b9fc9fbffa32d8f1bc601a1c5ababd66fb4f355ad869038d6fa47e3ddb` | srdd7dc09_09 | yes |
 | `srn_weapon/wbwln_t_091.mdl` | sr4-bow-dd7dc09f67 | 1588 | `38553aeebb1d135f90cc9eea4e2443632fa346af06a5120995a48e067c535749` | (invisible part) | yes |
@@ -138,14 +139,14 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wbwsl_b_012.mdl` | colt-l36-pistol | 1588 | `8ba64f5731688011c17bfbb4aabdb942aa19a997ba80e9dffe0a723b96d10d22` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_013.mdl` | ingram-smartgun-x | 1588 | `6d9c2e1b2a16524af8c4dd139484446c72027dafa7489996a5f8e0f647f9180b` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_015.mdl` | sr4-ares-predator-iv-3ab64906ed | 1588 | `8bc3d32864ddd147a6080779f3c021e345c32eee6d2ef2bb82c4583b93464672` | (invisible part) | yes |
-| `srn_weapon/wbwsl_b_051.mdl` | colt-l36-pistol | 839204 | `8d4b57302a6494375b170cda0914f9a4485648d77cbd0c9ccea3362dc8e2622e` | sr_cl36_051 | yes |
-| `srn_weapon/wbwsl_b_052.mdl` | colt-l36-pistol | 839204 | `f290809216aa379e361e97024ed91f1ed22c06f5922a57fef0d9ece754c63df4` | sr_cl36_052 | yes |
-| `srn_weapon/wbwsl_b_065.mdl` | sr4-ares-predator-iv-3ab64906ed | 646316 | `fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40` | sr3ab64906_065 | yes |
+| `srn_weapon/wbwsl_b_051.mdl` | colt-l36-pistol | 1154648 | `99bc6299157a8362395a3e5f855f99586215f32cf184effdc0a95a3e45eccf71` | sr_cl36_051, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_052.mdl` | colt-l36-pistol | 1154648 | `9ece48aa714b7db9b4d06d73f7579d4a5479123cf29efc8c06bc7037870d9898` | sr_cl36_052, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_065.mdl` | sr4-ares-predator-iv-3ab64906ed | 1030360 | `69eded3eedd1ed24b13cb51846214770416b548e0d4f79e2b75a5feb0fb85b17` | sr3ab64906_065, srnfx_casing | yes |
 | `srn_weapon/wbwsl_m_011.mdl` | colt-l36-pistol | 1588 | `06d11150f4674c6ddfa315b1bd5ab42a15a797ae8c0406a4cb422e80ac621dad` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_012.mdl` | colt-l36-pistol | 1588 | `b53ef2ae16bdb84bd38318ea67a333ffdf7efa60ae000310b9322e957a1cbe56` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_013.mdl` | ingram-smartgun-x | 1588 | `2dd90ec38e56ff8815c3acc7c122ccd700492e623d433d80d78b1157c6b39b2c` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_015.mdl` | sr4-ares-predator-iv-3ab64906ed | 1588 | `5a2aae6bad7629d6d4385e3e283c50557e70ee5d89c51f889de1ff1b70020d2f` | (invisible part) | yes |
-| `srn_weapon/wbwsl_m_023.mdl` | ingram-smartgun-x | 702028 | `0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251` | sre9a211be_023 | yes |
+| `srn_weapon/wbwsl_m_023.mdl` | ingram-smartgun-x | 1182532 | `688f616d009cf470a6f8d309438541ded8d0aabe93ac3c8b46e906669bcdaab7` | sre9a211be_023, srnfx_casing | yes |
 | `srn_weapon/wbwsl_t_011.mdl` | colt-l36-pistol | 1588 | `54a71086b1bb6bc873ccb3430f053b7dfe6816e31b2906adc3585cc1a0e31a03` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_012.mdl` | colt-l36-pistol | 1588 | `a571dcaf41d7e501268e75938956ee1c52d6a23e26019938589a2cf8d0bcda07` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_013.mdl` | ingram-smartgun-x | 1588 | `a866f7c3e293be58d4d1449fd5d8c9969dbc7193cad2bbf9c3b81cdaf932d832` | (invisible part) | yes |
@@ -154,7 +155,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wbwxh_b_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `0565e25b381de360d2e59da5755ed1487bd00a1f823b2d9b08bfb995749fac4e` | (invisible part) | yes |
 | `srn_weapon/wbwxh_m_015.mdl` | sr4-ak-98-84e46602ea | 1588 | `f0387b62866e0751fedf1c551e3fead9ad295bd66bcaec980d3a71bbe03b217e` | (invisible part) | yes |
 | `srn_weapon/wbwxh_m_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `e1d14dcd8ede842f7e3c7491042c37f63a593fc0f191bb5523d06c2f794235e1` | (invisible part) | yes |
-| `srn_weapon/wbwxh_t_015.mdl` | sr4-ak-98-84e46602ea | 716060 | `e063d37959ee12d7a6ec20314f4c8f28a079835b0e8a3e12ea0eddd6bfa2bbdb` | sra84e4660_015 | yes |
+| `srn_weapon/wbwxh_t_015.mdl` | sr4-ak-98-84e46602ea | 1134412 | `621ca4693f9e0ab888be31c7e11e06ca09792f4e1f44ddf8accc724984513e50` | sra84e4660_015, srnfx_casing | yes |
 | `srn_weapon/wbwxh_t_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 939076 | `d9022597fb7bf7ff23c55acf2f6edf17b375e46e1b94c6505592a88589e3b639` | sr6abe18c_06 | yes |
 | `srn_weapon/wdbqs_b_061.mdl` | sr4-staff-dc4c1668ea | 191108 | `a20fe05a26dc5d318bd6833e371b4ecfa83a726ffbc4786be1ebe1c76b3a3acd` | srdc4c1668_06 | yes |
 | `srn_weapon/wdbqs_m_061.mdl` | sr4-staff-dc4c1668ea | 254076 | `48c426c70f0d7ab42502767adc57b211eed2ff53aabae19b3b497dd40261b7ad` | srdc4c1668_06 | yes |
@@ -212,7 +213,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 
 ## Pinned commit vs HEAD
 
-At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 150 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
+At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 151 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
 
 ## Collisions
 

@@ -8,6 +8,7 @@ Output goes to ignored `output/`. Its `a_ba_custom.mdl` is what `srn_body` ships
 and updating the contract and the hash pin in `runtime_rules.py`. The test module, chat commands and stand-ins stay private to this pilot.
 """
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -22,7 +23,7 @@ if str(REPO) not in sys.path:
     sys.path.append(str(REPO))
 from tools.itemkit import anim_chain_probe as probe
 from tools.phenomorpher.phenomorpher.engine.anim_library import load_model
-from tools.phenomorpher.phenomorpher.engine.native_motion import quaternion_matrix, sample
+from tools.phenomorpher.phenomorpher.engine.native_motion import quaternion_matrix, sample, value
 
 # Clips are named <action>_<weapon>_<slot>, as in fire_rfl_dm. Female Large slots add `l`, as in fire_rfl_dfl.
 CLIPS = {'custom11lp': 'fire_rfl', 'custom12lp': 'fire_pst', 'custom13lp': 'fire_dpst', 'custom14lp': 'fire_smg',
@@ -44,19 +45,40 @@ RELOADS = ('custom17start',)
 # Crossbow-class weapons get their own ready stance, built from the shot clip's rest pose. Leave `xbowr` alone: mapping
 # it folds the right forearm back over the shoulder for as long as the weapon is in combat.
 READY = {'custom11lp': 'ready_rfl', 'custom19lp': 'ready_sg'}
+# Pistol and SMG stances play their fire clip's motion under a name of their own, because effect guns fire on the
+# fire names. Mapping the fire clip onto the ready names would flash and eject casings while standing.
+STANCE_COPIES = {'fire_pst': 'ready_pst', 'fire_smg': 'ready_smg'}
+# The engine fires on the stock clip's `hit` (0.5 s in `throwr` and `xbowshot`), not on ours. These clips kick at
+# 0.13 s, so their loop is turned later to kick at 0.5 s. Ready stances still come from the unshifted first pose.
+RECOIL_DELAY = {'custom11lp': .37, 'custom19lp': .37}
+# Automatic rifle fire, built from the single `fire_rfl` kick: back from 0.125 s, recovered by 0.5 s. Each round's kick
+# is squeezed into `span` and played at `scale`, and one kick sits at 0.5 s for the engine's shot. `fire_rfla` is full
+# auto at 10 rounds a second and `fire_rflb` a three-round burst. Both loop.
+RIFLE_KICK = (.125, .5)
+AUTO = {'fire_rfla': {'kicks': tuple(round(.1 * i, 2) for i in range(10)), 'span': .1, 'scale': .35},
+        'fire_rflb': {'kicks': (.4, .5, .6), 'span': .1, 'scale': .5}}
 # Stock `xbowrdy` breathing and weight shift is laid over the hold on these nodes. The arms ride on the torso.
 SWAY = ('pelvis_g', 'torso_g', 'neck_g', 'head_g')
 LEGS = (('lthigh_g', 'lshin_g', 'lfoot_g'), ('rthigh_g', 'rshin_g', 'rfoot_g'))
 # One reload per magazine position, chosen by weapon. The rifle clip also serves the shotgun until one is built.
 RELOAD_VARIANTS = {'reload_rfl': 'rifle', 'reload_smg': 'smg', 'reload_pst': 'pistol'}
 # Ranged weapons can't take the off hand, so the pilot copies these guns onto short sword parts for the left hand.
-STANDINS = {'srp_dcolt': ('sr_cl36_1', 201, (51, 11, 11)), 'srp_dingr': ('sre9a211be_3', 202, (13, 23, 13))}
+# Left-hand copies, and right-hand copies for dual fire on stand-ins: each hand's gun needs its own clip events.
+STANDINS = {'srp_dcolt': ('sr_cl36_1', 201, (51, 11, 11)), 'srp_dingr': ('sre9a211be_3', 202, (13, 23, 13)),
+            'srp_rcolt': ('sr_cl36_1', 204, (51, 11, 11)), 'srp_ringr': ('sre9a211be_3', 205, (13, 23, 13))}
+# Out of combat the engine turns a crossbow-class weapon upright in the hand, whatever the clip keys. This copies the
+# AK-98 onto sling part 203, as `srp_srifle`, to see whether the rifle clips hold it forward on a sling-class weapon.
+SLING_RIFLE = ('srp_srifle', 'sr_cl36_1', 203, 15)
+# The same AK-98 as a longbow (base item 8) on bow part 203, as `srp_brifle`: bows attack with `bowshot`, which no pistol uses.
+BOW_RIFLE = ('srp_brifle', 8, 203, 15)
 ARM = ('lbicep_g', 'lforearm_g', 'lhand_g')
 HANDS = {'rhand', 'lhand'}
 RIGHT_ARM = ('rbicep_g', 'rforearm_g', 'rhand_g')
 CHAIN = ('rootdummy', 'torso_g', *RIGHT_ARM, *ARM)
 PALM_CLEARANCE, REACH, MAX_PULL, RELOAD_BLEND = .015, .97, .16, .25
 RELOAD_PULL = .30
+# Where the left elbow bends in a two-handed pistol grip, in the torso frame (x right, y forward, z up): down and out.
+GRIP_ELBOW = np.array([-.5, 0., -1.]) / np.linalg.norm([-.5, 0., -1.])
 # When the left palm is on the magazine during the reload: on it, away to the belt from .7 to 1.1, then back on it.
 RELOAD_CONTACT = np.array([[0., 1.], [.3, 1.], [.7, 0.], [1.1, 0.], [1.47, 1.], [2., 1.]])
 SOURCES = {'m': ('a_ba_non_combat', 'a_ba'), 'f': ('a_fa', 'a_fa')}
@@ -205,15 +227,17 @@ def hold_ends(clip):
     return {**clip, 'nodes': nodes, 'transition': RELOAD_BLEND}
 
 
-def limb_rotations(rig, names, before, after, wrist, hand, parent='torso_g'):
-    """Local rotations that put an arm's wrist and hand in place, with the source elbow as pole and its twist kept."""
+def limb_rotations(rig, names, before, after, wrist, hand, parent='torso_g', pole=None):
+    """Local rotations that put an arm's wrist and hand in place, with its twist kept.
+
+    The elbow bends toward `pole`, a direction in the parent's frame, or else toward the source elbow."""
     bicep, forearm, palm = names
     upper_offset, lower_offset = (rig[node]['controls'][8]['values'][0] for node in (forearm, palm))
     upper_length, lower_length = np.linalg.norm(upper_offset), np.linalg.norm(lower_offset)
     shoulder = after[bicep][:3, 3]
     distance = np.linalg.norm(wrist - shoulder)
     axis = (wrist - shoulder) / distance
-    pole = before[forearm][:3, 3] - before[bicep][:3, 3]
+    pole = after[parent][:3, :3] @ pole if pole is not None else before[forearm][:3, 3] - before[bicep][:3, 3]
     pole -= (pole @ axis) * axis
     pole /= np.linalg.norm(pole)
     along = (upper_length ** 2 - lower_length ** 2 + distance ** 2) / (2 * distance)
@@ -276,9 +300,11 @@ def solve_support(clip, root, marks, magazine=None):
             break
     else:
         raise ValueError(f'{root["name"]}: fore-end out of reach')
+    # A two-handed pistol grip has no source elbow to follow: the old clip's left arm hangs free.
+    pole = GRIP_ELBOW if marks.get('fixed') is not None and magazine is None else None
     keys = {node: [] for node in (*ARM, *RIGHT_ARM)}
     for (time, before, after), (wrist, hand), shift in zip(poses, wrists, shifts):
-        for node, local in zip(ARM, limb_rotations(rig, ARM, before, after, wrist, hand)):
+        for node, local in zip(ARM, limb_rotations(rig, ARM, before, after, wrist, hand, pole=pole)):
             keys[node].append(axis_row(time, local))
         if pull:
             held = after['rhand_g']
@@ -319,6 +345,58 @@ def fit_errors(clip, source, root, marks):
         aims.append(float(np.degrees(np.arccos(np.clip(barrel @ wanted, -1, 1)))))
     return {'supportZ': round(float(clip['support'][1][:, 2].min()), 2), 'pullMetres': round(clip['pull'], 2), 'contactMetres': round(max(gaps), 4),
             'aimDegrees': round(max(aims), 3)}
+
+
+def delayed(clip, delay):
+    """A looping clip turned `delay` seconds later around its loop. Events stay where they are."""
+    length, nodes = clip['length'], {}
+    for node, keys in clip['nodes'].items():
+        moved = {}
+        for kind, rows in keys.items():
+            rotation = kind == 'orientation'
+            source = {'times': rows[:, 0], 'values': quaternions(rows) if rotation else rows[:, 1:4]}
+            times = sorted({0., length, *np.round((rows[:, 0] + delay) % length, 6)})
+            out = []
+            for time in times:
+                pose = value(source, (time - delay) % length, rotation)
+                out.append(axis_row(time, quaternion_matrix(pose)) if rotation else [time, *pose])
+            moved[kind] = np.array(out)
+        nodes[node] = moved
+    return {**clip, 'nodes': nodes}
+
+
+def kicked(clip, window, kicks, span, scale):
+    """The clip held at the start of `window`, with that window's kick replayed at each of `kicks`.
+
+    Each replay is squeezed into `span` seconds and played at `scale` of its strength. Events stay where they are."""
+    start, end = window
+    length, nodes = clip['length'], {}
+    steps = np.linspace(0, 1, 9)
+    times = sorted({0., length, *(round(k + span * f, 6) for k in kicks for f in steps if k + span * f <= length)})
+    for node, keys in clip['nodes'].items():
+        moved = {}
+        for kind, rows in keys.items():
+            rotation = kind == 'orientation'
+            source = {'times': rows[:, 0], 'values': quaternions(rows) if rotation else rows[:, 1:4]}
+            rest = np.asarray(value(source, start, rotation), float)
+            out = []
+            for time in times:
+                active = [k for k in kicks if k <= time <= k + span + 1e-9]
+                pose = rest
+                if active:
+                    kick = value(source, start + (time - active[-1]) / span * (end - start), rotation)
+                    kick = np.asarray(kick, float)
+                    if rotation and kick @ rest < 0:
+                        kick = -kick
+                    pose = rest + scale * (kick - rest)
+                    if rotation:
+                        pose = pose / np.linalg.norm(pose)
+                out.append(axis_row(time, quaternion_matrix(pose)) if rotation else [time, *pose])
+            out = np.array(out)
+            # A node the kick doesn't move needs only its two end keys.
+            moved[kind] = out[[0, -1]] if np.allclose(out[:, 1:], out[0, 1:], atol=1e-5) else out
+        nodes[node] = moved
+    return {**clip, 'nodes': nodes}
 
 
 def rest_clip(clip):
@@ -464,13 +542,24 @@ def stage_animation(hak, stock_dir, source_dir, body, weapons, stance):
                 continue
             marks = weapons[TWO_HANDED[name]]
             solved = solve_support(raw, roots[0], marks)
-            blocks.append(clip_text(label, 'a_ba_custom', solved, tree))
+            delay = RECOIL_DELAY.get(name)
+            blocks.append(clip_text(label, 'a_ba_custom', delayed(solved, delay) if delay else solved, tree))
+            if code in STANCE_COPIES:
+                blocks.append(clip_text(f'{STANCE_COPIES[code]}_{slot}', 'a_ba_custom', solved, tree))
+            if code == 'fire_rfl':
+                blocks += [clip_text(f'{auto}_{slot}', 'a_ba_custom', kicked(solved, RIFLE_KICK, **spec), tree)
+                           for auto, spec in AUTO.items()]
             blocks += ready_blocks(name, slot, '', solved, tree, stance, binds[0][2] / stock_bind[2], drifts, roots[0])
             row['fit'] = fit_errors(solved, raw, roots[0], marks)
             if sex == 'f':
                 wide, _ = retarget(read_clip(sources[sex], name), names, stock_bind, binds[1])
                 large = solve_support(wide, roots[1], marks)
-                blocks.append(clip_text(label + 'l', 'a_ba_custom', large, tree))
+                blocks.append(clip_text(label + 'l', 'a_ba_custom', delayed(large, delay) if delay else large, tree))
+                if code in STANCE_COPIES:
+                    blocks.append(clip_text(f'{STANCE_COPIES[code]}_{slot}l', 'a_ba_custom', large, tree))
+                if code == 'fire_rfl':
+                    blocks += [clip_text(f'{auto}_{slot}l', 'a_ba_custom', kicked(large, RIFLE_KICK, **spec), tree)
+                               for auto, spec in AUTO.items()]
                 blocks += ready_blocks(name, slot, 'l', large, tree, stance, binds[1][2] / stock_bind[2], drifts, roots[1])
                 row['large'] = fit_errors(large, wide, roots[1], marks)
             else:
@@ -519,7 +608,7 @@ void Attack(string shot,string code,string text){
  int n=0;object a=GetObjectByTag("SRP_A",n);
  while(GetIsObjectValid(a)){
   ReplaceObjectAnimation(a,"pause1","");ReplaceObjectAnimation(a,"pause2","");
-  Map(a,shot,code);
+  if(code!="")Map(a,shot,code);
   AssignCommand(a,ClearAllActions(TRUE));AssignCommand(a,ActionAttack(target));
   a=GetObjectByTag("SRP_A",++n);}
  Say(text);SrpLog("phase "+text);}
@@ -575,6 +664,29 @@ void ArmWith(string resref,string ammo,int ammoSlot){
   AssignCommand(a,ActionEquipItem(item,INVENTORY_SLOT_RIGHTHAND));
   SrpLog("arm "+GetName(a)+" "+resref+" valid="+IntToString(GetIsObjectValid(item)));
   a=GetObjectByTag("SRP_A",++n);}}
+void CombatLog(int left){
+ object a=GetObjectByTag("SRP_A",0);
+ SrpLog("combat left="+IntToString(left)+" in="+IntToString(GetIsInCombat(a))+" anim="+IntToString(GetCurrentAction(a)));
+ if(left>0)DelayCommand(1.0,CombatLog(left-1));}
+void StockLoop(string clip){
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){
+  ReplaceObjectAnimation(a,"pause1","");ReplaceObjectAnimation(a,"pause2","");
+  ReplaceObjectAnimation(a,clip,"");ReplaceObjectAnimation(a,"custom11lp",clip);
+  AssignCommand(a,ClearAllActions(TRUE));AssignCommand(a,ActionPlayAnimation(ANIMATION_LOOPING_CUSTOM11,1.0,10000.0));
+  a=GetObjectByTag("SRP_A",++n);}
+ Say("stock loop "+clip);SrpLog("phase stock loop "+clip);CombatLog(40);}
+void StockFire(){
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){
+  ReplaceObjectAnimation(a,"xbowshot","");ReplaceObjectAnimation(a,"xbowrdy","");
+  a=GetObjectByTag("SRP_A",++n);}
+ Attack("xbowshot","","stock xbowshot attack");}
+void CarryOverlay(string kind){
+ string clip=kind=="stock"?"":"srp_xbowr_"+kind;
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){ReplaceObjectAnimation(a,"xbowr",clip);a=GetObjectByTag("SRP_A",++n);}
+ Say("xbowr "+kind);SrpLog("phase xbowr "+kind);}
 void Arm(){ArmWith("''' + RIFLE + r'''","nw_wambo001",INVENTORY_SLOT_BOLTS);}
 void Show(int appearance,string race){ShowRace(appearance,race);DelayCommand(3.0,Arm());}
 '''
@@ -598,17 +710,21 @@ void main(){
  object pc=GetPCChatSpeaker();
  string text=GetStringLowerCase(GetPCChatMessage());
  if(text=="hold")Ready("ready_rfl");
- else if(text=="holdsmg")Hold("fire_smg");
+ else if(text=="holdsmg")Hold("ready_smg");
  else if(text=="holdshot")Ready("ready_sg");
- else if(text=="holdp")Hold("fire_pst");
+ else if(text=="holdp")Hold("ready_pst");
  else if(text=="rdstock")Ready("");
  else if(text=="ingram")ArmWith("sre9a211be_3","nw_wambu001",INVENTORY_SLOT_BULLETS);
  else if(text=="fingram")Attack("throwr","fire_smg","attack throwr ingram");
  else if(text=="side")Camera(pc,0.0,5.0,80.0);
  else if(text=="dpistol")ArmDual("sr_cl36_1","srp_dcolt","nw_wambu001");
  else if(text=="dsmg")ArmDual("sre9a211be_3","srp_dingr","nw_wambu001");
- else if(text=="spistol")ArmDual("srp_dcolt","srp_dcolt","nw_wambu001");
- else if(text=="ssmg")ArmDual("srp_dingr","srp_dingr","nw_wambu001");
+ else if(text=="srifle")ArmWith("srp_srifle","nw_wambu001",INVENTORY_SLOT_BULLETS);
+ else if(text=="brifle")ArmWith("srp_brifle","nw_wamar001",INVENTORY_SLOT_ARROWS);
+ else if(text=="fbrifle"){Hold("ready_rfl");Attack("bowshot","fire_rfl","attack bowshot bow rifle");}
+ else if(text=="fsrifle"){Hold("ready_rfl");Attack("throwr","fire_rfl","attack throwr sling rifle");}
+ else if(text=="spistol")ArmDual("srp_rcolt","srp_dcolt","nw_wambu001");
+ else if(text=="ssmg")ArmDual("srp_ringr","srp_dingr","nw_wambu001");
  else if(text=="lpdual")Clips("custom13lp","fire_dpst",ANIMATION_LOOPING_CUSTOM13,"dual pistol loop");
  else if(text=="lsdual")Clips("custom15lp","fire_dsmg",ANIMATION_LOOPING_CUSTOM15,"dual smg loop");
  else if(text=="fdpistol")Attack("throwr","fire_dpst","attack throwr dual pistol");
@@ -616,6 +732,13 @@ void main(){
  else if(GetStringLeft(text,3)=="rl ")Reload("",ANIMATION_LOOPING_CUSTOM16,2.0,StringToFloat(GetSubString(text,3,6)),FALSE);
  else if(GetStringLeft(text,3)=="rf ")Reload("",ANIMATION_LOOPING_CUSTOM16,2.0,StringToFloat(GetSubString(text,3,6)),TRUE);
  else if(GetStringLeft(text,3)=="rd ")Reload("reload_dual",ANIMATION_LOOPING_CUSTOM17,4.0,StringToFloat(GetSubString(text,3,6)),FALSE);
+ else if(GetStringLeft(text,3)=="xr ")CarryOverlay(GetSubString(text,3,10));
+ else if(text=="rearm")Arm();
+ else if(GetStringLeft(text,4)=="arm ")ArmWith(GetSubString(text,4,16),"nw_wambu001",INVENTORY_SLOT_BULLETS);
+ else if(text=="xloop")StockLoop("xbowshot");
+ else if(text=="xrdy")StockLoop("xbowrdy");
+ else if(text=="fstock"){StockFire();CombatLog(40);}
+ else if(text=="fxloop"){StockFire();DelayCommand(6.0,StockLoop("xbowshot"));}
  else if(text=="frifle")Attack("xbowshot","fire_rfl","attack xbowshot rifle");
  else if(text=="fproof")Attack("xbowshot","throw_gren","attack proof grenade on xbowshot");
  else if(text=="fshot")Attack("xbowshot","fire_sg","attack xbowshot shotgun");
@@ -642,15 +765,73 @@ void main(){
 '''
 
 
+# Diagnostic: which carry overlay test copy also goes into the chain as `xbowr` itself, or None.
+CARRY_CHAIN = None
+# Diagnostic: which test copy replaces `xbowr` inside an overriding stock a_ba_non_combat, or None.
+CARRY_STOCK = 'srp_xbowr_still'
+
+
+def carry_overlays(hak, non_combat, chain=CARRY_CHAIN, stock=CARRY_STOCK):
+    """Test copies of the stock `xbowr` crossbow carry overlay: `rhand` left unturned, no keys at all, and no nodes."""
+    block = re.search(r'(?ms)^newanim xbowr a_ba_non_combat\n.*?^doneanim xbowr a_ba_non_combat\n', non_combat)[0]
+    block = block.replace(' a_ba_non_combat', ' a_ba_custom')
+
+    def unturned(match):
+        rows = re.sub(r'(?m)^(\s*\S+)(\s+\S+){4}$', lambda row: row[1] + ' 0 0 0 0', match[2])
+        return match[1] + rows + match[3]
+    hand = re.sub(r'(?ms)(node dummy rhand\n\s*parent \S+\n\s*orientationkey[^\n]*\n)(.*?)(^\s*endnode)', unturned, block)
+    still = re.sub(r'(?m)^\s*orientationkey.*\n(^\s*-?\d.*\n)*', '', block)
+    empty = re.sub(r'(?ms)^\s*node .*?endnode\n', '', block)
+    empty = empty.replace('doneanim', '  node dummy a_ba_custom\n    parent NULL\n  endnode\ndoneanim')
+    clips = {'srp_xbowr_hand': hand, 'srp_xbowr_still': still, 'srp_xbowr_empty': empty, 'srp_xbowr_stock': block}
+    if hand == block or still == block:
+        raise ValueError('Unexpected stock xbowr shape')
+    text = ''.join(body.replace('xbowr a_ba_custom', name + ' a_ba_custom') for name, body in clips.items())
+    if chain:
+        text += clips[chain]  # under the stock name, so the chain finds it before a_ba_non_combat's
+    if stock:
+        swapped = clips[stock].replace(' a_ba_custom', ' a_ba_non_combat')
+        (hak / 'a_ba_non_combat.mdl').write_text(non_combat.replace(block.replace(' a_ba_custom', ' a_ba_non_combat'), swapped),
+                                                 encoding='cp1252', newline='\n')
+    custom = (hak / 'a_ba_custom.mdl').read_text(encoding='cp1252')
+    (hak / 'a_ba_custom.mdl').write_text(custom.replace('donemodel a_ba_custom', text + 'donemodel a_ba_custom'),
+                                         encoding='cp1252', newline='\n')
+    return clips
+
+
+# The last commit whose firearm parts have no effects. Shipped guns now carry emitters and clips, so pilots and the
+# effects build start from these bytes, checked against `preEffectsSha256` in the weapon publication record.
+PRE_EFFECTS_COMMIT = '2805a5ecb7d2c2fcbd7ee71bc79ae605e0ed5eab'
+
+
+def gun_source(part):
+    """A srn_weapon part's bytes without firearm effects."""
+    data = (REPO / 'srn_weapon' / part).read_bytes()
+    if b'srn_casing' not in data:
+        return data
+    data = subprocess.run(['git', 'show', f'{PRE_EFFECTS_COMMIT}:srn_weapon/{part}'], cwd=REPO, check=True,
+                          capture_output=True, timeout=120).stdout
+    record = json.loads((REPO / 'docs/items/approved-weapons-v1.json').read_text(encoding='utf-8'))
+    row = next(r for r in record['resources'] if r['path'] == 'srn_weapon/' + part)
+    if hashlib.sha256(data).hexdigest() != row['preEffectsSha256']:
+        raise ValueError('Pre-effects source differs from the record: ' + part)
+    return data
+
+
 def stage_standins(hak):
     """Copy each dual gun's parts to a short sword part number, so a blueprint can put it in the left hand."""
     for _, number, parts in STANDINS.values():
         for letter, part in zip('bmt', parts):
             old, new = f'wbwsl_{letter}_{part:03}', f'wswss_{letter}_{number:03}'
-            (hak / (new + '.mdl')).write_bytes((REPO / 'srn_weapon' / (old + '.mdl')).read_bytes().replace(old.encode(), new.encode()))
+            (hak / (new + '.mdl')).write_bytes(gun_source(old + '.mdl').replace(old.encode(), new.encode()))
+    for prefix, (_, _, number, part) in (('wbwsl', SLING_RIFLE), ('wbwln', BOW_RIFLE)):
+        for letter in 'bmt':
+            old, new = f'wbwxh_{letter}_{part:03}', f'{prefix}_{letter}_{number:03}'
+            (hak / (new + '.mdl')).write_bytes(gun_source(old + '.mdl').replace(old.encode(), new.encode()))
 
 
-def build(output, source_dir, game_root, tool_dir, game_userdir, client):
+def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=None):
+    """extend(hak, stock_dir, scripts), if given, adds to the staged hak and the module scripts."""
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     tools = probe.Tools(tool_dir, game_root)
@@ -664,7 +845,7 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client):
         models = []
         for part in spec['parts']:
             binary, text = stock_dir / (part + '.bin'), stock_dir / part
-            binary.write_bytes((REPO / 'srn_weapon' / part).read_bytes())
+            binary.write_bytes(gun_source(part))
             subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(binary), str(text)],
                            check=True, capture_output=True, timeout=120)
             models.append(text.read_text(encoding='cp1252'))
@@ -674,9 +855,15 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client):
                     str(stock_dir / 'a_ba.mdl')], check=True, capture_output=True, timeout=120)
     stance = read_clip((stock_dir / 'a_ba.mdl').read_text(encoding='cp1252'), 'xbowrdy')
     records, drifts = stage_animation(hak, stock_dir, Path(source_dir), REPO / 'srn_body', weapons, stance)
+    (stock_dir / 'a_ba_non_combat.bin').write_bytes(tools.stock('a_ba_non_combat.mdl', game_userdir))
+    subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(stock_dir / 'a_ba_non_combat.bin'),
+                    str(stock_dir / 'a_ba_non_combat.mdl')], check=True, capture_output=True, timeout=120)
+    carry_overlays(hak, (stock_dir / 'a_ba_non_combat.mdl').read_text(encoding='cp1252'))
     stage_standins(hak)
     hak_order = [probe.HAK, 'sw_reviewenv', 'srn_weapon', 'srn_armor', 'srn_body_tex', 'srn_body', 'srn_2da']
     scripts = {'srp_inc': probe.SCRIPTS['srp_inc'] + PHASES, 'srp_enter': ENTER, 'srp_chat': CHAT}
+    if extend:
+        extend(hak, stock_dir, scripts)
     probe.stage_module(stage, tools, REPO / 'test-modules/weapon-waves/module', game_userdir, hak_order, scripts)
 
     def target(data):
@@ -696,6 +883,23 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client):
             for part in (1, 2, 3):
                 data[f'ModelPart{part}']['value'] = number
         tools.gff(REPO / 'srn_weapon' / (gun + '.uti'), stage / (resref + '.uti'), left_hand)
+    resref, gun, number, _ = SLING_RIFLE
+
+    def sling(data):
+        data['TemplateResRef']['value'] = resref
+        data['Tag']['value'] = resref
+        for part in (1, 2, 3):
+            data[f'ModelPart{part}']['value'] = number
+    tools.gff(REPO / 'srn_weapon' / (gun + '.uti'), stage / (resref + '.uti'), sling)
+    bow_resref, base, number, _ = BOW_RIFLE
+
+    def bow(data):
+        data['TemplateResRef']['value'] = bow_resref
+        data['Tag']['value'] = bow_resref
+        data['BaseItem']['value'] = base
+        for part in (1, 2, 3):
+            data[f'ModelPart{part}']['value'] = number
+    tools.gff(REPO / 'srn_weapon' / (RIFLE + '.uti'), stage / (bow_resref + '.uti'), bow)
     tools.run('nwn_erf', '-c', '-e', 'HAK', '-f', user / 'hak' / (probe.HAK + '.hak'), hak)
     for name, folder in (('sw_reviewenv', REPO / 'test-modules/weapon-waves/haks/sw_reviewenv'),
                          *((n, REPO / n) for n in hak_order[2:])):
