@@ -326,6 +326,9 @@ class TrialModuleTests(unittest.TestCase):
         cmd,ps1=launch_scripts('srn_trl_batch')
         self.assertIn('Launch.ps1',cmd);self.assertIn("'+TestNewModule', 'srn_trl_batch'",ps1)
         self.assertIn("[string]$Client = ''",ps1);self.assertIn('-userdirectory',ps1);self.assertIn('Runtime hash mismatch',ps1)
+        self.assertIn('$PSVersionTable.PSVersion.Major -lt 6',ps1)
+        self.assertIn("Join-Path $PSHOME 'Modules/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility.psd1'",ps1)
+        self.assertLess(ps1.index('Import-Module'),ps1.index('$Manifest ='))
         _,ps1=launch_scripts('m',"C:\\Games\\it's\\nwmain.exe")
         self.assertIn("[string]$Client = 'C:\\Games\\it''s\\nwmain.exe'",ps1)
 

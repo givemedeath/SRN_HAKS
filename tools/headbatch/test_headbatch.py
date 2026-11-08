@@ -131,6 +131,19 @@ class Portable(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec('numpy') and importlib.util.find_spec('scipy'),
                      'Fresh-master geometry test requires the bound headkit packages')
 class CutDryTests(Base):
+    def test_null_neck_diagnostics_use_uncut_jaw(self):
+        head=self.head();write(head/'manifest.json',{'mesh':{'neck':None}})
+        import review._frame as frame
+        with unittest.mock.patch.dict(sys.modules,{'_frame':frame}), \
+                unittest.mock.patch.object(frame,'report_uncut_jaw') as report:
+            with unittest.mock.patch.object(sys,'argv',['cutdry.py',str(head)]):
+                runpy.run_path(str(HERE/'review/cutdry.py'),run_name='__main__')
+            report.assert_called_once_with(head)
+            report.reset_mock()
+            with unittest.mock.patch.object(sys,'argv',['slopescan.py',str(head)]),self.assertRaises(SystemExit):
+                runpy.run_path(str(HERE/'review/slopescan.py'),run_name='__main__')
+            report.assert_called_once_with(str(head))
+
     def test_uncut_jaw_uses_lowest_triangle_at_neck_centre(self):
         import numpy as np
         from unittest import mock
@@ -260,6 +273,9 @@ class VramPromptOwnershipTests(Base):
 
     def test_face_quality_profile_uses_refined_unwrap(self):
         from head_setup import face_quality_profile
+        self.assertTrue(face_quality_profile()['ownership']['hairEarGuard'])
+        self.assertTrue(face_quality_profile()['ownership']['browSeedGuard'])
+        self.assertEqual(face_quality_profile()['ownership']['browSeedGuardPixels'],8)
         uv = face_quality_profile()['mesh']['uv']
         self.assertEqual(uv['faceDensity'], 3)
         self.assertIs(uv['refinePacking'], True)
@@ -804,6 +820,12 @@ class Launches(Base):
         super().setUp()
         idle=unittest.mock.patch.object(launcher.Comfy,'ensure_idle')
         idle.start();self.addCleanup(idle.stop)
+    def test_geometry_snapshot_pins_the_shared_mutex_consumed_by_comfy(self):
+        from headkit.comfy import locked
+        from headkit.gpu_lock import locked as shared_mutex
+        self.assertIs(locked,shared_mutex)
+        self.assertIn('tools/headkit/gpu_lock.py',launcher.GPU_MODULES)
+
     def test_a_launch_record_is_never_reused(self):
         output = self.root/'launch'
         output.mkdir()
@@ -854,6 +876,7 @@ class Launches(Base):
                     result=launcher.run_one_design(self.workspace,'elf',folder,bindings,'elf-male-a','1','1')
                 self.assertEqual(result['exitCode'],0)
                 inputs=guards.read(launch.call_args.args[2]);command=launch.call_args.args[3]
+                self.assertIn(str(launcher.REPO/'tools/headkit/gpu_lock.py'),inputs)
                 if profile=='qwen21-int8-v1':
                     self.assertNotIn('--reference',command);self.assertNotIn(str(reference),inputs)
                     self.assertIn(str(model),inputs)
@@ -1128,13 +1151,13 @@ class Setup(Base):
         head_setup.set_up(self.workspace, 'elf-male-a', design, approval='t', check=lambda *_: None)
         settings = self.workspace.head('elf-male-a')/'overrides.json'
         overrides = guards.read(settings)
-        overrides['ownership'] = {'featureChannels':True, 'boneEarGuard':True, 'hairMaskRequiresRule':True}
+        overrides['ownership'] = {'featureChannels':True, 'boneEarGuard':True, 'hairEarGuard':True, 'browSeedGuard':True, 'hairMaskRequiresRule':True}
         write(settings, overrides)
         rules = write(self.root/'rules.json', {'regions': {'hair': {}}, 'rules': [{'channel': 1}], 'notes': 'n'})
         path = head_setup.set_ownership(self.workspace, 'elf-male-a', rules, lambda *_: None)
         data = guards.read(path)['ownership']
         self.assertEqual((data['mode'], data['rules']), ('rules', [{'channel': 1}]))
-        self.assertTrue(data['featureChannels'] and data['boneEarGuard'] and data['hairMaskRequiresRule'])
+        self.assertTrue(data['featureChannels'] and data['boneEarGuard'] and data['hairEarGuard'] and data['browSeedGuard'] and data['hairMaskRequiresRule'])
         self.assertNotIn('$replace', data)
 
     def test_route_declarations_name_their_gate(self):
@@ -1380,6 +1403,54 @@ class Review(Base):
         self.assertEqual(run.call_args.kwargs['cwd'], self.workspace.heads)
         self.assertTrue(run.call_args.args[0][2].endswith('rowramps.py'))
 
+    def test_uncut_jaw_tools_refuse_missing_pending_rejected_or_stale_fit_before_slot(self):
+        head = self.head()
+        fit = {'path': str(head/'run/fit/attempt-01/receipt.json'), 'sha256': 'current'}
+        review = {'path': str(head/'run/reviews/fit-review.json'), 'sha256': 'review'}
+        cases = [
+            ({}, None),
+            ({'stages': {'fit': fit}}, None),
+            ({'stages': {'fit': fit}, 'reviews': {'fit': review}},
+             {'decision': 'rejected', 'stageReceipt': fit}),
+            ({'stages': {'fit': dict(fit, sha256='new')}, 'reviews': {'fit': review}},
+             {'decision': 'approved', 'stageReceipt': fit}),
+        ]
+        cases=[(state,recorded,mesh) for state,recorded in cases for mesh in ({},{'neck':None})]
+        for state, recorded, mesh in cases:
+            write(head/'manifest.json',{'mesh':mesh})
+            write(head/'run/state.json', state)
+            if recorded is not None:
+                write(review['path'], recorded)
+            for tool in ('slopescan', 'cutdry'):
+                for with_slot in (False, True):
+                    with self.subTest(state=state, tool=tool, slot=with_slot), \
+                            unittest.mock.patch.object(launcher, 'cpu_slot') as slot, \
+                            unittest.mock.patch.object(run_headbatch.subprocess, 'run') as run:
+                        with self.assertRaisesRegex(guards.Refused, 'review the current fit'):
+                            run_headbatch.review(self.workspace, tool, [head.name], with_slot)
+                        slot.assert_not_called()
+                        run.assert_not_called()
+
+    def test_uncut_jaw_preflight_accepts_matching_review_and_preserves_other_routes(self):
+        head = self.head()
+        fit = {'path': str(head/'run/fit/attempt-01/receipt.json'), 'sha256': 'current'}
+        review = {'path': str(head/'run/reviews/fit-review.json'), 'sha256': 'review'}
+        write(head/'run/state.json', {'stages': {'fit': fit}, 'reviews': {'fit': review}})
+        write(review['path'], {'decision': 'approved', 'stageReceipt': fit})
+        with unittest.mock.patch.object(launcher, 'cpu_slot') as slot, \
+                unittest.mock.patch.object(run_headbatch.subprocess, 'run') as run:
+            run.return_value.returncode = 0
+            for tool in ('slopescan', 'cutdry'):
+                self.assertEqual(run_headbatch.review(self.workspace, tool, [head.name], True), 0)
+            self.assertEqual(slot.call_count, 2)
+        write(head/'run/state.json', {})
+        with unittest.mock.patch.object(run_headbatch.subprocess, 'run') as run:
+            run.return_value.returncode = 0
+            self.assertEqual(run_headbatch.review(self.workspace, 'fitcheck', [head.name], False), 0)
+            self.assertEqual(run_headbatch.review(self.workspace, 'cutdry', [head.name, '--help'], False), 0)
+            write(head/'manifest.json', {'mesh': {'neck': {'cut': {}}}})
+            self.assertEqual(run_headbatch.review(self.workspace, 'cutdry', [head.name], False), 0)
+
     def views_of(self, *arguments):
         head = self.head()
         self.receipt(head, 'unwrap', 1, {'state': 'complete'})
@@ -1466,6 +1537,25 @@ class SpoolTests(Base):
         self.started.clear()
         write(self.workspace.spool/'results'/f'{name}.json', {'heads': [{'id': head, 'stages': [{'stage': stage, 'status': status}]}]})
         self.spool.step()
+
+    def test_face_masks_queue_reference_eyes_without_approving_them(self):
+        head = self.head()
+        data = json.loads((head/'manifest.json').read_text()); data['quality'] = {}
+        write(head/'manifest.json',data)
+        self.receipt(head,'masks',1,{'result':{}})
+        self.finish(stage='masks')
+        expected = self.workspace.spool/'sheets'/f'{head.name}-eyes-attempt-01.png'
+        self.assertIn(('eyereference',head.name,'attempt-01',expected), self.queued)
+        self.assertEqual(self.started,[])
+        self.assertIn('proposal only',self.spool.state['review'][head.name+'/masks']['text'])
+
+    def test_ownership_queues_role_metrics_before_tone(self):
+        head=self.head();data=guards.read(head/'manifest.json');data['quality']={};write(head/'manifest.json',data)
+        self.receipt(head,'ownership',1,{'result':{}});self.finish(stage='ownership')
+        target=head/'review-evidence'/f'{head.name}-roles-attempt-01.png'
+        self.assertIn(('roles',head.name,'attempt-01',target),self.queued)
+        self.assertEqual(self.started,[])
+        self.assertIn('numeric channel/speck',self.spool.state['review'][head.name+'/ownership']['text'])
 
     def test_unwrap_gate_advances_to_bake(self):
         head = self.head()
@@ -2262,6 +2352,83 @@ class FitLandmarkEvidence(Base):
             np.testing.assert_allclose(diagnostic.positions(head.name), [[1/3,1/3,0,0,0,-1]], atol=1e-6)
 
 
+class ReferenceEyeProposal(Base):
+    def test_registration_uses_each_lid_span_and_rejects_closed_or_reversed_eyes(self):
+        import numpy as np
+        from review.eyereference import propose
+        from headkit.face_masks import EYE_RING
+        source=np.zeros((478,2));target=source.copy()
+        circles={};targets={}
+        for side,c in [('R',100),('L',300)]:
+            source[EYE_RING[side]]=np.tile([[c-30,196],[c+30,204]],(8,1))
+            target[EYE_RING[side]]=np.tile([[c-15,194],[c+15,206]],(8,1))
+            circles[side]=(np.array([c,200]),8.);targets[side]=[[c,200],8.]
+        result=propose(source,target,circles,targets,(400,400),(400,400))
+        np.testing.assert_allclose(result['R']['target'],[100,200,4,12])
+        with self.assertRaisesRegex(ValueError,'front-view order'):
+            propose(source,target,circles,dict(R=targets['L'],L=targets['R']),(400,400),(400,400))
+        target[EYE_RING['L'],1]=200
+        with self.assertRaisesRegex(ValueError,'open lid spans'):
+            propose(source,target,circles,targets,(400,400),(400,400))
+
+
+class EarlyRoleMetrics(unittest.TestCase):
+    def test_spill_check_excludes_beard_and_counts_unowned_locks_at_game_size(self):
+        import numpy as np
+        from review.roles import measure
+        shape=(6,6);ys,xs=np.indices(shape);channel=np.zeros(shape,int)
+        channel[3:]=1;channel[0,2]=1
+        brows=np.zeros(shape,bool);brows[1,[1,4]]=True;channel[brows]=1
+        iris=np.zeros(shape,bool);iris[2,[1,4]]=True;channel[iris]=8
+        whites=np.zeros(shape,bool);whites[2,[0,5]]=True
+        plain=~(brows|iris|whites);pts=np.zeros((478,2));pts[2,1]=3;pts[168,0]=3
+        region=dict(view={'hit':np.ones(shape,bool)},uv=None,brows=brows,iris=iris,whites=whites,
+                    xs=xs,ys=ys,pts=pts,face=np.ones(shape,bool),plain=plain,
+                    render=np.zeros(shape+(3,),np.uint8),labels=np.zeros(shape,int),
+                    small=lambda a,exact=False:a,mask=lambda a:a)
+        with unittest.mock.patch('review.roles.nearest',return_value=channel),unittest.mock.patch('review.roles.hair_locks',return_value=None),unittest.mock.patch('review.roles.upper_lid_hair_pixels',return_value=0):
+            metrics,_,_,spill=measure(region,channel,{})
+        self.assertAlmostEqual(metrics['hairOnFaceSkin'],1/12)
+        self.assertEqual(int(spill.sum()),1)
+        self.assertEqual(metrics['irisByEye'],{'left':1.,'right':1.})
+        locks=np.zeros(shape,bool);locks[4,2:4]=True;channel[locks]=0
+        with unittest.mock.patch('review.roles.nearest',return_value=channel),unittest.mock.patch('review.roles.hair_locks',return_value=locks),unittest.mock.patch('review.roles.upper_lid_hair_pixels',return_value=0):
+            metrics,_,_,_=measure(region,channel,{})
+        self.assertEqual(metrics['hairLockOnSkinPx'],2)
+
+
+class OwnershipRolePreflight(Base):
+    def test_requires_current_saved_inputs_and_successful_numeric_report(self):
+        from head_files import sha
+        head=self.head();data=guards.read(head/'manifest.json');data['quality']={};write(head/'manifest.json',data)
+        def pin(path):return {'path':str(Path(path).resolve()),'sha256':sha(path)}
+        with self.assertRaisesRegex(guards.Refused,'role preflight'):guards.ownership_roles(head)
+        labels=write(head/'labels.png','labels')
+        self.receipt(head,'ownership',1,{'result':{'onek':pin(labels)}})
+        self.receipt(head,'masks',1,{'result':{}})
+        state={stage:pin(head/'run'/stage/'attempt-01/receipt.json') for stage in ('ownership','masks')}
+        write(head/'run/state.json',{'stages':state})
+        from headbatch.review._role_code import files as role_code_files
+        code_files=role_code_files()
+        self.assertIn((HERE.parent/'headkit/brow_edges.py').resolve(),code_files)
+        inputs=[state['ownership'],state['masks'],pin(labels),*[pin(path) for path in code_files]]
+        report={'kind':'headbatch-ownership-roles-v1','head':head.name,'stageReceipt':state['ownership'],
+                'candidate':None,'inputs':inputs,'settings':{},'passed':True,'failed':[]}
+        path=head/'review-evidence/roles.json'
+        def save(value):write(path,value);write(head/'ownership-roles.json',pin(path))
+        save(report);guards.ownership_roles(head)
+        for change in [{'passed':False,'failed':['specks']},{'candidate':pin(labels)},
+                       {'stageReceipt':{'path':'old','sha256':'old'}},{'settings':{'different':True}}]:
+            save(dict(report,**change))
+            with self.assertRaises(guards.Refused):guards.ownership_roles(head)
+        save(report)
+        original_sha=guards.sha
+        with unittest.mock.patch.object(guards,'sha',side_effect=lambda path:
+                'changed-helper' if Path(path).name=='brow_edges.py' else original_sha(path)):
+            with self.assertRaisesRegex(guards.Refused,'changed role checker'):guards.ownership_roles(head)
+        labels.write_text('changed')
+        with self.assertRaisesRegex(guards.Refused,'changed role input'):guards.ownership_roles(head)
+
 class TextureSheetContract(Base):
     def test_eye_pair_keeps_both_halves_in_the_same_camera(self):
         from PIL import Image
@@ -2298,6 +2465,29 @@ class TextureSheetContract(Base):
         self.assertTrue(output.is_file())
         Image.new('RGB',(16,16),'blue').save(image)
         with self.assertRaisesRegex(ValueError,'changed'):draw(head,'tone','attempt-01',self.root/'changed.png')
+
+
+class RenderDeviceDefaults(unittest.TestCase):
+    def test_workspace_gpu_profile_binds_the_existing_shared_lane(self):
+        from types import SimpleNamespace
+        from head_setup import bind_render_device
+        value={'device':'GPU','backend':'OPTIX','memoryLimitBytes':12000000000}
+        workspace=SimpleNamespace(data={'renderDevice':value,'comfy':{'url':'http://localhost:8188','gpuIndex':0}})
+        data={'render':{}}
+        with unittest.mock.patch('shared_tools.tools_root',return_value=(Path('shared-root'),'explicit')):bind_render_device(workspace,data)
+        self.assertEqual(data['render']['compute']['gpuLock'],str(Path('shared-root/locks/gpu-0')))
+        self.assertEqual(data['render']['compute']['comfyUrl'],'http://localhost:8188')
+        self.assertEqual(value,{'device':'GPU','backend':'OPTIX','memoryLimitBytes':12000000000})
+    def test_per_head_cpu_opt_out_is_preserved(self):
+        from types import SimpleNamespace
+        from head_setup import bind_render_device
+        data={'render':{'compute':{'device':'CPU'}}};bind_render_device(SimpleNamespace(data={'renderDevice':{'device':'GPU'}}),data)
+        self.assertEqual(data['render']['compute'],{'device':'CPU'})
+    def test_a_different_gpu_lane_is_refused(self):
+        from types import SimpleNamespace
+        from head_setup import bind_render_device
+        workspace=SimpleNamespace(data={'renderDevice':{'device':'GPU','gpuIndex':1},'comfy':{'gpuIndex':0}})
+        with self.assertRaisesRegex(guards.Refused,'same shared GPU index'):bind_render_device(workspace,{'render':{}})
 
 
 if __name__ == '__main__':

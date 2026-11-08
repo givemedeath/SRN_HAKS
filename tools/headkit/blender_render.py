@@ -1,4 +1,4 @@
-"""Four-thread CPU inspection renderer; images never establish automatic approval."""
+"""Four-thread inspection renderer with explicit, coordinated GPU compute; images never establish automatic approval."""
 import argparse,json,math,sys,time,hashlib
 from pathlib import Path
 import bpy
@@ -10,6 +10,16 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument('--config',required=True,type=Path)
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);cfg=json.loads(args.config.read_text())
     sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+    from tools.headkit.render_device import lease,MemoryWatch,settings
+    from tools.headkit.common import read,write,pin
+    out=Path(cfg['output']);compute=settings(cfg)
+    with lease(cfg),MemoryWatch(cfg,out/'gpu-memory.json') as memory:
+        render(cfg,memory.identity)
+    if compute['device']=='GPU':
+        path=out/'renders.json';result=read(path);result['gpuMemory']=pin(out/'gpu-memory.json');write(path,result)
+
+
+def render(cfg,identity):
     from tools.headkit.gltf import mesh,require_textured_uvs
     from tools.headkit.review_images import resolutions,render_plan,validate_frames,render_mode_folder
     from tools.headkit.common import verify,pin,write,require
@@ -28,7 +38,9 @@ def main():
     for polygon in data.polygons:polygon.use_smooth=True
     if value['normals'] is not None:data.normals_split_custom_set_from_vertices((value['normals']@transform.T).tolist())
     data.use_auto_smooth=True;uv=data.uv_layers.new();corners=value['uv'].copy();corners[...,1]=1-corners[...,1];uv.data.foreach_set('uv',corners.reshape(-1))
-    scene=bpy.context.scene;scene.render.engine='CYCLES';scene.cycles.device='CPU';scene.cycles.samples=16;scene.cycles.use_denoising=False
+    from tools.headkit.render_device import configure
+    scene=bpy.context.scene;scene.render.engine='CYCLES';device=configure(bpy,cfg,identity);scene.cycles.samples=16;scene.cycles.use_denoising=False
+    scene.render.use_persistent_data=True
     scene.render.threads_mode='FIXED';scene.render.threads=4;scene.render.resolution_x=scene.render.resolution_y=sizes[0]
     scene.render.resolution_percentage=100;scene.render.image_settings.file_format='PNG';scene.world.color=(.14,.14,.14)
     scene.view_settings.view_transform='Standard';scene.view_settings.look='None';scene.view_settings.exposure=0;scene.view_settings.gamma=1
@@ -43,14 +55,14 @@ def main():
         shader=nodes.new('ShaderNodeEmission' if mode in ('color-only','ownership') else 'ShaderNodeBsdfPrincipled')
         if mode=='clay':shader.inputs['Base Color'].default_value=(.48,.48,.48,1);shader.inputs['Roughness'].default_value=.8
         elif mode=='ownership':
-            texture=nodes.new('ShaderNodeTexImage');texture.image=bpy.data.images.load(maps['ownership']);texture.interpolation='Closest'
+            texture=nodes.new('ShaderNodeTexImage');texture.image=bpy.data.images.load(maps['ownership'],check_existing=True);texture.interpolation='Closest'
             texture.image.colorspace_settings.name='sRGB';links.new(texture.outputs['Color'],shader.inputs['Color'])
         else:
             for key,socket in [('basecolor','Color' if mode=='color-only' else 'Base Color')]+([] if mode=='color-only' else [('roughness','Roughness'),('metallic','Metallic'),('opacity','Alpha')]):
                 if key in cfg.get('materialConstants',{}):
                     shader.inputs[socket].default_value=cfg['materialConstants'][key]
                     continue
-                texture=nodes.new('ShaderNodeTexImage');texture.image=bpy.data.images.load(maps[key]);texture.image.colorspace_settings.name='sRGB' if key=='basecolor' else 'Non-Color'
+                texture=nodes.new('ShaderNodeTexImage');texture.image=bpy.data.images.load(maps[key],check_existing=True);texture.image.colorspace_settings.name='sRGB' if key=='basecolor' else 'Non-Color'
                 links.new(texture.outputs['Color'],shader.inputs[socket])
         links.new(shader.outputs[0],output.inputs['Surface']);return mat
     records=[]
@@ -66,7 +78,7 @@ def main():
                 scene.render.filepath=str(out/str(size)/mode/(view['name']+'.png'));begun=time.monotonic();bpy.ops.render.render(write_still=True)
                 records.append({'size':size,'mode':mode,'view':view['name'],'seconds':time.monotonic()-begun,'image':pin(scene.render.filepath)})
     validate_frames(cfg,records)
-    verify(cfg['inputs']);write(out/'renders.json',{'threads':4,'gpuUsed':False,'elapsedSeconds':time.monotonic()-start,
+    verify(cfg['inputs']);write(out/'renders.json',{'threads':4,'gpuUsed':device['device']=='GPU','compute':device,'persistentData':True,'elapsedSeconds':time.monotonic()-start,
         'views':records,'atlases':cfg.get('atlases',[]),'sizes':sizes,'diagnostic':cfg.get('diagnostic',False),
         'triangles':len(faces),'aoAdded':False,'visualApprovalRequired':True},fresh=True)
 

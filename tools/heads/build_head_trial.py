@@ -261,6 +261,11 @@ def launch_scripts(module,client=None):
     default=("'"+client.replace("'","''")+"'") if client else "''"
     ps1=f'''param([string]$Client = {default})
 $ErrorActionPreference = 'Stop'
+# Python can carry PowerShell 7's PSModulePath into Windows PowerShell 5.
+# Load this host's own hash functions before verifying any runtime file.
+if ($PSVersionTable.PSVersion.Major -lt 6) {{
+  Import-Module (Join-Path $PSHOME 'Modules/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility.psd1') -Force -ErrorAction Stop
+}}
 $Root = $PSScriptRoot
 $UserDir = Join-Path $Root 'userdir'
 if (!$Client -or !(Test-Path -LiteralPath $Client -PathType Leaf)) {{ throw 'Supply -Client with the path to your installed NWN:EE nwmain.exe.' }}

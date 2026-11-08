@@ -166,6 +166,50 @@ class Channels(unittest.TestCase):
         self.assertEqual(int(found.sum()), 62)
         self.assertFalse(found[9,0] or found[9,1])
 
+    def test_hair_ear_guard_restores_skin_without_touching_hair_or_metal(self):
+        from headkit.face_encode import ear_skin
+        labels=np.zeros((16,16),np.uint8);labels[8:]=1
+        ear=np.zeros((16,16),np.float32);ear[8:12]=1
+        rgb=np.full((16,16,3),[187,122,88],np.uint8);rgb[12:]=[100,31,13]
+        rgb[9,0]=rgb[12,0];labels[9,1]=2
+        found=ear_skin(labels,{'ear':ear,'skin':labels==0},np.ones_like(ear,bool),rgb,channel=1)
+        self.assertEqual(int(found.sum()),62)
+        self.assertFalse(found[9,0] or found[9,1] or found[12:].any())
+        masks={k:np.zeros_like(ear) for k in ('iris','eye','brow','skin','lips','nose','hairlock','ear','beard')}
+        masks['skin']=np.asarray(labels==0,dtype=np.float32);masks['ear']=ear
+        plain,_=apply_channels(labels,masks,np.ones_like(ear,bool),rgb)
+        guarded,report=apply_channels(labels,masks,np.ones_like(ear,bool),rgb,hair_ear_guard=True)
+        self.assertEqual(report['earHairToSkin'],62)
+        self.assertTrue((guarded[found]==0).all())
+        np.testing.assert_array_equal(guarded[~found],plain[~found])
+        with self.assertRaisesRegex(ValueError,'ear masks'):
+            apply_channels(labels,{k:v for k,v in masks.items() if k!='ear'},np.ones_like(ear,bool),rgb,hair_ear_guard=True)
+
+    def test_lip_skin_guard_overrides_connected_beard_and_hairlock_without_touching_metal(self):
+        from unittest.mock import patch
+        size=16; labels=np.ones((size,size),np.uint8);labels[:3]=0;labels[7,7]=2
+        mapped=np.ones((size,size),bool)
+        masks={k:np.zeros((size,size),np.float32) for k in ('iris','eye','brow','skin','lips','nose','hairlock','beard')}
+        masks['skin'][:3]=1;masks['lips'][6:10,6:10]=1;masks['hairlock'][6:10,6:10]=1
+        positions=np.zeros((size,size,3));positions[:,:,0]=np.arange(size)
+        with patch('headkit.face_encode.joined',return_value=np.ones_like(mapped)):
+            old,_=apply_channels(labels,masks,mapped,protected=mapped,positions=positions)
+            fixed,report=apply_channels(labels,masks,mapped,protected=mapped,positions=positions,lip_skin_guard=True)
+        lips=(masks['lips']>.5)&(old==1)
+        self.assertEqual(report['lipHairToSkin'],15)
+        self.assertTrue((fixed[lips]==0).all());self.assertEqual(fixed[7,7],2)
+        np.testing.assert_array_equal(fixed[~lips],old[~lips])
+        with self.assertRaisesRegex(ValueError,'lipSkinGuard'):
+            apply_channels(labels,masks,mapped,lip_skin_guard='yes')
+
+    def test_lip_hair_contract_excludes_beard_and_uncertain_parser_edges(self):
+        from headkit.quality import lip_hair_pixels
+        labels=np.ones((16,16),np.uint8);labels[4:12,4:12]=12
+        channel=np.ones_like(labels);region={'labels':labels,'face':np.ones_like(labels,bool)}
+        self.assertEqual(lip_hair_pixels(region,channel),36)
+        channel[5:11,5:11]=0
+        self.assertEqual(lip_hair_pixels(region,channel),0)
+
     def test_moves(self):
         labels = np.zeros((4096, 4096), np.uint8); labels[100:110, 100:200] = 1   # hair-owned brow region partly
         masks = flat('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock'); mapped = np.ones((4096, 4096), bool)

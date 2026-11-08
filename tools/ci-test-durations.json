@@ -1,7 +1,7 @@
 {
- "source": "Local Windows serial run of the full helper suite (tools/test_impact.py --run --jobs 1, 2026-10-25, main 769673e7); seconds per test module, summed from unittest --durations 0. New wave modules: focused Windows serial run, 2026-11-03, summed unittest durations; existing module measurements retained. tools/headbatch/test_headbatch.py: focused Windows run, 2026-11-04. Four head conditioning/process/capture modules: focused Windows serial run, 2026-11-05, summed unittest durations. Skin seam and isolated trial settings modules measured on Windows, 2026-11-06. Native head renamer: focused Windows serial run, 2026-11-07. Feature-highlight module: focused Windows serial run, 2026-11-07, summed unittest durations.",
+ "source": "Local Windows serial run of the full helper suite (tools/test_impact.py --run --jobs 1, 2026-10-25, main 769673e7); seconds per test module, summed from unittest --durations 0. New wave modules: focused Windows serial run, 2026-11-03, summed unittest durations; existing module measurements retained. tools/headbatch/test_headbatch.py: focused Windows run, 2026-11-04. Four head conditioning/process/capture modules: focused Windows serial run, 2026-11-05, summed unittest durations. Skin seam and isolated trial settings modules measured on Windows, 2026-11-06. Native head renamer: focused Windows serial run, 2026-11-07. Feature-highlight module: focused Windows serial run, 2026-11-07, summed unittest durations. No-cut review preflight: existing headbatch test module remeasured on Windows, 2026-11-07, serial full headbatch suite (219 tests); summed per-test elapsed durations. Material evidence module: focused Windows serial run 2026-11-07, summed unittest durations. GPU render guard module: focused Windows run, 2026-11-07, summed unittest durations. Upper-lid guard module: focused Windows serial run, 2026-11-07, summed unittest durations.",
  "seconds": {
-  "tools/headbatch/test_headbatch.py": 0.9,
+  "tools/headbatch/test_headbatch.py": 16.812,
   "tools/headbatch/test_process_contracts.py": 0.471,
   "tools/headbatch/test_trial_settings.py": 0.022,
   "tools/headkit/test_comfy_runtime_snapshot.py": 129.03,
@@ -246,6 +246,9 @@
   "tools/test_clean_checkout.py": 3.26,
   "tools/test_combat_release_manifest.py": 0.67,
   "tools/test_shared_tools.py": 37.9,
-  "tools/test_test_impact.py": 1.65
+  "tools/test_test_impact.py": 1.65,
+  "tools/headbatch/test_material_evidence.py": 0.024,
+  "tools/headkit/test_render_device.py": 0.026,
+  "tools/headkit/test_brow_edges.py": 0.078
  }
 }

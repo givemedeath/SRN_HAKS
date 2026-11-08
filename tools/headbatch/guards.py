@@ -1,12 +1,13 @@
 """Checks that refuse a launch before it spends CPU. Each one answers a confirmed batch mistake (docs/heads/race-heads-v1-runbook.md)."""
 from contextlib import ExitStack, contextmanager
+from pathlib import Path
 import json
 import os
 import re
 import time
 
 from gpu_job import geometry_limit, submissions
-from head_files import attempts, current, fit_matrix, read
+from head_files import attempts, current, decision, fit_matrix, read, sha
 from headkit.comfy import locked
 from workspace import TOOLS
 
@@ -29,6 +30,23 @@ def coverage(receipt):
         return receipt['result']['pixelAudits']['2048']['coverageFraction']
     found = COVERAGE.search(str(receipt.get('error', '')))
     return float(found[1]) if found else None
+
+
+def uncut_review_ready(workspace, tool, arguments):
+    """No-cut jaw probes consume the reviewed fit; refuse before waiting for a CPU lane."""
+    if tool not in ('slopescan', 'cutdry') or not arguments or any(a in ('-h', '--help') for a in arguments):
+        return
+    head = workspace.head(arguments[0])
+    manifest = head/'manifest.json'
+    if not manifest.is_file():
+        return  # Preserve the tool's own missing-input diagnostic.
+    mesh = read(manifest).get('mesh')
+    if not isinstance(mesh, dict) or mesh.get('neck') is not None:
+        return
+    if decision(head, 'fit') != 'approved':
+        attempt = current(head, 'fit') or 'not run'
+        raise Refused(f'{head.name}: review the current fit ({attempt}) before no-cut {tool}; '
+                      'record its exact-attempt review before taking a CPU slot (RUNBOOK 305)')
 
 
 def crlf_in_pinned_code():
@@ -77,6 +95,32 @@ def ownership_rules(head):
     ownership = read(head/'manifest.json')['ownership']
     if ownership.get('mode') == 'rules' and not ownership.get('rules'):
         raise Refused(f'{head.name}: ownership has no rules (RUNBOOK 98)')
+
+
+def ownership_roles(head):
+    """Require current, successful saved-ownership roles before spending tone/palette work."""
+    manifest=read(head/'manifest.json')
+    if 'quality' not in manifest or 'sourceHairRoles' in manifest['quality']:return
+    try:
+        binding=read(head/'ownership-roles.json')
+        if sha(binding['path'])!=binding['sha256']:raise ValueError('changed report')
+        report=read(binding['path']);state=read(head/'run/state.json')['stages']
+        owner=read(state['ownership']['path'])['result']['onek']
+        if (report.get('kind')!='headbatch-ownership-roles-v1' or report.get('head')!=head.name
+                or report.get('stageReceipt')!=state['ownership'] or report.get('candidate') is not None
+                or report.get('settings')!=manifest.get('quality',{})):
+            raise ValueError('stale or candidate role evidence')
+        inputs=report['inputs']
+        if owner not in inputs or state['masks'] not in inputs:raise ValueError('missing ownership/masks pins')
+        from headbatch.review._role_code import files as role_code_files
+        for path in role_code_files():
+            if not any(Path(row['path']).resolve()==path.resolve() and row['sha256']==sha(path) for row in inputs):
+                raise ValueError('changed role checker or thresholds')
+        if any(sha(row['path'])!=row['sha256'] for row in inputs):raise ValueError('changed role input')
+        if report.get('passed') is not True or report.get('failed')!=[]:
+            raise ValueError('failed '+', '.join(report.get('failed',[])))
+    except (OSError,ValueError,KeyError,TypeError) as error:
+        raise Refused(f'{head.name}: ownership role preflight {error}; run review --slot roles on the current saved attempt (RUNBOOK 312)') from None
 
 
 def uv_margin(head):

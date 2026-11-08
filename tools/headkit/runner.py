@@ -482,7 +482,7 @@ class Runner:
                 positions,owners=(surface(value,4096,enforce=False)[:2] if protected is not None else (None,raster_audit(value['uv'],4096)[1]))
                 with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
                 # protected is None without an overFaceMasks rule: unchanged moves
-                names = CHANNEL_MASKS + (('ear',) if config.get('boneEarGuard') else ())
+                names = CHANNEL_MASKS + (('ear',) if config.get('boneEarGuard') or config.get('hairEarGuard') else ())
                 features = masks_at(self.result('masks')['files'],names)
                 if config.get('hairMaskRequiresRule') is True:
                     require(config.get('mode') == 'rules' and any(r['channel']==1 for r in config['rules']),
@@ -493,7 +493,13 @@ class Runner:
                         report['hairMaskExcluded'][region] = int(np.sum((features[region]>.5) & ~hair & (owners>=0)))
                         features[region] = features[region]*hair
                 labels,report['featureChannels']=apply_channels(np.asarray(image),features,owners>=0,colour,
-                                                                protected=protected,positions=positions)
+                                                                protected=protected,positions=positions,hair_ear_guard=config.get('hairEarGuard',False),
+                                                                lip_skin_guard=config.get('lipSkinGuard',False))
+                require(type(config.get('browSeedGuard',False)) is bool,'browSeedGuard must be boolean')
+                from .brow_edges import adjust
+                labels,report['browSeedGuard']=adjust(labels,value,self.result('masks'),owners>=0,
+                    config.get('browSeedGuardPixels',3),recover_brows=config.get('browSeedGuard',False),
+                    cybereye_image_side=m.get('quality',{}).get('cybereyeImageSide'))
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
@@ -528,7 +534,8 @@ class Runner:
                 keys={op['palette'] for op in m['tone'].get('operations',[]) if 'palette' in op}
                 result=adjust(color,ownership,m['tone'],{key:self.input(m['palette']['inputs'][key]) for key in keys},output)
             else:result=tone_match(color,ownership,self.input('detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'),
-                                   {k:v for k,v in m['tone'].items() if k not in ('faceTreatment','preserveSkinMasks','referenceEyes')},output)
+                                   {k:v for k,v in m['tone'].items() if k not in ('faceTreatment','preserveSkinMasks','referenceEyes','materialLight')},output)
+            require('materialLight' not in m['tone'] or face_treatment is not None, 'Material light needs faceTreatment')
             preserve_names=m['tone'].get('preserveSkinMasks',[])
             require(isinstance(preserve_names,list) and all(isinstance(k,str) for k in preserve_names)
                     and len(set(preserve_names))==len(preserve_names), 'preserveSkinMasks must list unique paint mask names')
@@ -565,7 +572,11 @@ class Runner:
                     require(m['faceMasks'].get('eyeContours'), 'Reference-eye repair requires reviewed eye contours')
                     role = 'detail' if m.get('profile','pixal-single-v1')=='pixal-single-v1' else 'frontDetail'
                     result['referenceEyeTexels'] = restore(rgb,labels,features['eye'],value,mask_files,
-                                                           self.input(role),m['tone']['referenceEyes'])
+                                                           self.input(role),m['tone']['referenceEyes'],
+                                                           contours=m['faceMasks']['eyeContours'])
+                if 'materialLight' in m['tone']:
+                    from .material_light import balance
+                    rgb,result['materialLight']=balance(rgb,labels,value,m['tone']['materialLight'])
                 treated,result['faceTreatment']=treat(rgb,labels,features,value,face_treatment,outer=outer,preserve_skin=preserve)
                 Image.fromarray(np.rint(treated).clip(0,255).astype(np.uint8)).save(output);result['output']=pin(output)
             result.update(ownershipInputRole=ownership_role,ownershipSource=pin(ownership_source),
@@ -703,6 +714,8 @@ class Runner:
             import subprocess,sys
             from .common import ROOT
             from .review_images import resolutions,atlas_sets,sheets,render_plan,validate_frames
+            from .render_device import settings
+            settings(m['render'])
             begun=time.monotonic()
             source=self.source('uvMesh','unwrap','mesh');cfg=dict(m['render']);views=cfg.pop('views',None)
             if 'cameras' not in cfg:
@@ -736,7 +749,7 @@ class Runner:
             command+=['--input-manifest',str(folder/'render-inputs.json')]
             command+=['--','--python',str(Path(__file__).parent/'blender_render.py'),'--','--config',str(folder/'render-config.json')]
             execution=subprocess.run(command,capture_output=True,text=True,errors='replace',timeout=1800,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
-            (folder/'blender.log').write_text(execution.stdout+'\n'+execution.stderr);require(execution.returncode==0,'CPU render failed; inspect log')
+            (folder/'blender.log').write_text(execution.stdout+'\n'+execution.stderr);require(execution.returncode==0,'Inspection render failed; inspect log')
             result=read(folder/'renders'/'renders.json');validate_frames(cfg,result['views'])
             result.update(sheets(result['views'],folder/'renders',result['triangles'],
                                  {'1024':'decoded PLT' if cfg.get('runtimePalette') else 'source atlas',
