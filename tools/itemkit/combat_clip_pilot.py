@@ -674,6 +674,11 @@ void StockFire(){
   ReplaceObjectAnimation(a,"xbowshot","");ReplaceObjectAnimation(a,"xbowrdy","");
   a=GetObjectByTag("SRP_A",++n);}
  Attack("xbowshot","","stock xbowshot attack");}
+void CarryOverlay(string kind){
+ string clip=kind=="stock"?"":"srp_xbowr_"+kind;
+ int n=0;object a=GetObjectByTag("SRP_A",n);
+ while(GetIsObjectValid(a)){ReplaceObjectAnimation(a,"xbowr",clip);a=GetObjectByTag("SRP_A",++n);}
+ Say("xbowr "+kind);SrpLog("phase xbowr "+kind);}
 void Arm(){ArmWith("''' + RIFLE + r'''","nw_wambo001",INVENTORY_SLOT_BOLTS);}
 void Show(int appearance,string race){ShowRace(appearance,race);DelayCommand(3.0,Arm());}
 '''
@@ -719,6 +724,8 @@ void main(){
  else if(GetStringLeft(text,3)=="rl ")Reload("",ANIMATION_LOOPING_CUSTOM16,2.0,StringToFloat(GetSubString(text,3,6)),FALSE);
  else if(GetStringLeft(text,3)=="rf ")Reload("",ANIMATION_LOOPING_CUSTOM16,2.0,StringToFloat(GetSubString(text,3,6)),TRUE);
  else if(GetStringLeft(text,3)=="rd ")Reload("reload_dual",ANIMATION_LOOPING_CUSTOM17,4.0,StringToFloat(GetSubString(text,3,6)),FALSE);
+ else if(GetStringLeft(text,3)=="xr ")CarryOverlay(GetSubString(text,3,10));
+ else if(text=="rearm")Arm();
  else if(text=="xloop")StockLoop("xbowshot");
  else if(text=="xrdy")StockLoop("xbowrdy");
  else if(text=="fstock"){StockFire();CombatLog(40);}
@@ -747,6 +754,40 @@ void main(){
  else return;
  SetPCChatMessage("");}
 '''
+
+
+# Diagnostic: which carry overlay test copy also goes into the chain as `xbowr` itself, or None.
+CARRY_CHAIN = None
+# Diagnostic: which test copy replaces `xbowr` inside an overriding stock a_ba_non_combat, or None.
+CARRY_STOCK = 'srp_xbowr_still'
+
+
+def carry_overlays(hak, non_combat, chain=CARRY_CHAIN, stock=CARRY_STOCK):
+    """Test copies of the stock `xbowr` crossbow carry overlay: `rhand` left unturned, no keys at all, and no nodes."""
+    block = re.search(r'(?ms)^newanim xbowr a_ba_non_combat\n.*?^doneanim xbowr a_ba_non_combat\n', non_combat)[0]
+    block = block.replace(' a_ba_non_combat', ' a_ba_custom')
+
+    def unturned(match):
+        rows = re.sub(r'(?m)^(\s*\S+)(\s+\S+){4}$', lambda row: row[1] + ' 0 0 0 0', match[2])
+        return match[1] + rows + match[3]
+    hand = re.sub(r'(?ms)(node dummy rhand\n\s*parent \S+\n\s*orientationkey[^\n]*\n)(.*?)(^\s*endnode)', unturned, block)
+    still = re.sub(r'(?m)^\s*orientationkey.*\n(^\s*-?\d.*\n)*', '', block)
+    empty = re.sub(r'(?ms)^\s*node .*?endnode\n', '', block)
+    empty = empty.replace('doneanim', '  node dummy a_ba_custom\n    parent NULL\n  endnode\ndoneanim')
+    clips = {'srp_xbowr_hand': hand, 'srp_xbowr_still': still, 'srp_xbowr_empty': empty, 'srp_xbowr_stock': block}
+    if hand == block or still == block:
+        raise ValueError('Unexpected stock xbowr shape')
+    text = ''.join(body.replace('xbowr a_ba_custom', name + ' a_ba_custom') for name, body in clips.items())
+    if chain:
+        text += clips[chain]  # under the stock name, so the chain finds it before a_ba_non_combat's
+    if stock:
+        swapped = clips[stock].replace(' a_ba_custom', ' a_ba_non_combat')
+        (hak / 'a_ba_non_combat.mdl').write_text(non_combat.replace(block.replace(' a_ba_custom', ' a_ba_non_combat'), swapped),
+                                                 encoding='cp1252', newline='\n')
+    custom = (hak / 'a_ba_custom.mdl').read_text(encoding='cp1252')
+    (hak / 'a_ba_custom.mdl').write_text(custom.replace('donemodel a_ba_custom', text + 'donemodel a_ba_custom'),
+                                         encoding='cp1252', newline='\n')
+    return clips
 
 
 def stage_standins(hak):
@@ -786,6 +827,10 @@ def build(output, source_dir, game_root, tool_dir, game_userdir, client, extend=
                     str(stock_dir / 'a_ba.mdl')], check=True, capture_output=True, timeout=120)
     stance = read_clip((stock_dir / 'a_ba.mdl').read_text(encoding='cp1252'), 'xbowrdy')
     records, drifts = stage_animation(hak, stock_dir, Path(source_dir), REPO / 'srn_body', weapons, stance)
+    (stock_dir / 'a_ba_non_combat.bin').write_bytes(tools.stock('a_ba_non_combat.mdl', game_userdir))
+    subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(stock_dir / 'a_ba_non_combat.bin'),
+                    str(stock_dir / 'a_ba_non_combat.mdl')], check=True, capture_output=True, timeout=120)
+    carry_overlays(hak, (stock_dir / 'a_ba_non_combat.mdl').read_text(encoding='cp1252'))
     stage_standins(hak)
     hak_order = [probe.HAK, 'sw_reviewenv', 'srn_weapon', 'srn_armor', 'srn_body_tex', 'srn_body', 'srn_2da']
     scripts = {'srp_inc': probe.SCRIPTS['srp_inc'] + PHASES, 'srp_enter': ENTER, 'srp_chat': CHAT}

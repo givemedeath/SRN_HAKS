@@ -321,12 +321,26 @@ Builds `output/firearm-fx-pilot-v14-dual` and `output/firearm-fx-pilot-v15-sling
 
 ### Rifle pointing through the head
 
-**Root cause:** the client draws crossbow-class weapons (`WeaponWield` 6) in a carry pose whenever the creature is not in
-combat mode. It turns the weapon in the hand so the muzzle points up, whatever clip is playing, the stock `xbowshot`
-included (build v21). Stock crossbows only fire in combat, so it never shows with them. Out of combat the AK-98 stands
-muzzle-up and passes through the head.
+**Root cause (build v24):** out of combat, the client lays the stock `xbowr` clip from `a_ba_non_combat` over whatever
+clip a crossbow holder plays, the way `walk_swordr` and `torchl` ride on the arm. `xbowr` keys only `rforearm_g`
+(folded about 234°), `rhand_g` and `rhand` (turned 40°): that is the raised-forearm, muzzle-up carry. It lands on top
+of our fire clips too, so the AK-98 stands up through the head. In combat the overlay is off.
 
-How it was pinned down (builds v15 and v16):
+**Fix, proven in the pilot, keeps crossbow class:** ship an overriding `a_ba_non_combat` whose `xbowr` keeps its nodes
+but has no keys (`carry_overlays`, `CARRY_STOCK = 'srp_xbowr_still'`). In the client (build v24):
+
+- **Idle:** the arm hangs and the rifle points muzzle-down, as on the sling test part.
+- **Rifle loop out of combat:** `fire_rfl` aims forward from the start and still at 19 s.
+- **Combat:** `frifle` fires forward as before. Back in idle 20 s after combat the rifle hangs muzzle-down again.
+
+Only the model override works. `ReplaceObjectAnimation(a, "xbowr", ...)` to an empty or keyless copy changed nothing
+(build v22, chat `xr <kind>`), and neither did a keyless clip named `xbowr` in `a_ba_custom` (build v23): the client
+reads the overlay straight from `a_ba_non_combat`, not through the creature's chain. The override is global, so stock
+crossbows lose their shoulder carry as well. A styled rifle carry can't go in `xbowr`, because the overlay also
+lands on the fire clips out of combat; it belongs in per-gun idle and walk clips mapped on equip. Evidence:
+`output/firearm-fx-pilot-v24-evidence` (ignored).
+
+How the flip was first narrowed (builds v15 to v21):
 
 - **Not in the files:** the AK-98 parts carry no animations, `baseitems.2da` has no rotation column for held weapons,
   and the engine names no hook other than `rhand` and `lhand`.
@@ -349,11 +363,11 @@ How it was pinned down (builds v15 and v16):
 - **Stock clip, same flip (build v21):** the stock `xbowshot`, unmapped and played on the crossbow AK-98, points the
   rifle forward as an attack. Played straight after as a scripted loop (`custom11lp` mapped to `xbowshot`, chat `fxloop`;
   `xloop` alone, `fstock` the attack alone), the same clip shows the rifle muzzle-up within 3 s, and through the
-  shot it swings over the shoulder and through the head. `GetIsInCombat` reads 0 from the first second of the loop. A
-  stock clip that aims crossbows in combat does not aim them out of it, so no clip of ours can either. Evidence:
-  `output/firearm-fx-pilot-v21-evidence` (ignored).
+  shot it swings over the shoulder and through the head. `GetIsInCombat` reads 0 from the first second of the loop.
+  That ruled out our clips; the `xbowr` overlay above explains it. Evidence: `output/firearm-fx-pilot-v21-evidence`
+  (ignored).
 
-**Fix, proven in the pilot:** make firearms sling-class and choose each creature's clips by the gun it holds. The game
+**Earlier fix, also proven but costs model slots:** make firearms sling-class and choose each creature's clips by the gun it holds. The game
 plays `throwr` for every sling-class attack, so on equip map `throwr` to that gun's fire clip and the ready names
 (`bowrdy`, `bow`, `1hreadyr`, `1hreadyl`, `nwreadyr`, `nwreadyl`) to its stance. Each creature holds one gun at a
 time, so a per-creature `ReplaceObjectAnimation` on equip is enough. Chat command `fsrifle` does this for the sling
