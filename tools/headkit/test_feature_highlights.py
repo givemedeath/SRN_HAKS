@@ -36,6 +36,24 @@ class FeatureHighlights(unittest.TestCase):
         np.testing.assert_array_equal(out[40:],field[40:])
         self.assertTrue(np.isin(out,self.allowed).all())
 
+    def test_restored_brow_across_uv_seam_uses_bounded_surface_donors(self):
+        self.features['brow'][20:30,16:48] = 1
+        field = np.full((128,128),60,dtype=np.uint8)
+        # A whole restored UV island can be wider than the old two-texel
+        # growth or three-texel boundary, while lying on the same real brow.
+        field[80:96,80:96] = 240
+        yy,xx=np.mgrid[:16,:16]
+        self.points[80:96,80:96,0]=(20+xx/2)/127
+        self.points[80:96,80:96,1]=(22+yy/4)/127
+        self.selected[85,85]=False  # a different material stays protected
+        field[110,110]=240  # distant hair is never a donor/target
+        out,report=self.fix(field,1)
+        self.assertLess(out[88,88],100)
+        self.assertEqual(out[85,85],240)
+        self.assertEqual(out[110,110],240)
+        self.assertGreater(report['changedTexels'],200)
+        np.testing.assert_array_equal(out[21:28,16:48],field[21:28,16:48])
+
     def test_ear_shoulder_preserves_form_protected_ink_and_other_skin(self):
         self.features['ear'][16:48,16:48] = 1
         self.features['skin'][16:48,16:48] = 0

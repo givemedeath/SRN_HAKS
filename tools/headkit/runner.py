@@ -40,7 +40,7 @@ def stage_roles(stage,data):
 # texture maps) added to the same manifest do not stale the matte. 'section!key,...' binds a section without keys only later
 # stages read: repair skips the UV and bake keys, so a reviewed UV coverage floor does not stale an approved repair.
 MESH_AFTER_REPAIR='uv','reuseReviewedUvs','maximumSubtexelFraction','allowDecoderOvershoot'
-STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':{'mesh.scalpPatch'},'fit':{'fit'},
+STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':{'mesh.scalpPatch','mesh.lowerHairTrim'},'fit':{'fit'},
     'repair':{'mesh!'+','.join(MESH_AFTER_REPAIR),'fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
     'tone':{'tone','profile','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval','nativeSizing'},
@@ -383,6 +383,14 @@ class Runner:
         if stage=='precluster':
             from .mesh import precluster
             recipe = m.get('mesh', {}).get('scalpPatch')
+            hair_trim = m.get('mesh', {}).get('lowerHairTrim')
+            if hair_trim is not None:
+                from .hair_base import trim
+                require(recipe is None, 'Hair-base trim and scalp patches need separate reviewed attempts')
+                require(m['mesh'].get('alphaWrap') is True, 'Hair-base trim requires the exterior repair stage')
+                result = precluster(self.input('raw'),folder/'before-hair-trim.glb',b)
+                correction = trim(result['output']['path'],folder/'oriented.glb',hair_trim)
+                return dict(result,output=correction['output'],lowerHairTrim=correction)
             if recipe is None:
                 return precluster(self.input('raw'),folder/'oriented.glb',b)
             from .scalp_patch import restore
@@ -403,8 +411,17 @@ class Runner:
             return propose(source,self.input('fitReference'),folder/'fit',exclude_lower=m['fit'].get('excludeLower',.25),align=m['fit'].get('align','profile'),
                            landmarks=m['fit'].get('landmarks'),chin_down_degrees=m['fit'].get('chinDownDegrees',0),
                            scale_multiplier=m['fit'].get('scaleMultiplier',1),realign_after_pose=m['fit'].get('realignAfterPose',False),
-                           height_offset=m['fit'].get('heightOffset',0),local_scale_multiplier=m['fit'].get('localScaleMultiplier',1))
+                           height_offset=m['fit'].get('heightOffset',0),local_scale_multiplier=m['fit'].get('localScaleMultiplier',1),
+                           depth_offset=m['fit'].get('depthOffset',0))
         if stage=='repair':
+            if m.get('mesh',{}).get('localSeal'):
+                from .local_seal import repair as local_repair
+                from .mesh import checked_fit
+                fit=self._fit()
+                require(isinstance(fit,dict) and fit.get('reviewed') is True,'Local closure needs the reviewed fit matrix')
+                result=local_repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'])
+                result['fitMatrix']=checked_fit(fit['matrix']).tolist()
+                return result
             from .neck import repair
             if 'raw' not in m['inputs'] or 'comfyExport' in m['inputs']:
                 return repair(self.input('comfyExport'),folder/'final.glb',b,m['mesh'],read(self.input('shellInspection')),fit=self._fit(),body=self._body_neck())
@@ -455,7 +472,9 @@ class Runner:
             require(config.get('reviewed') is True and (config.get('mode')=='rules' or config.get('sourceSha256')==pin(source)['sha256']),
                     'Ownership review must bind the exact UV mesh')
             if config['mode']=='rules':
-                from .paint import rule_ownership,PREVIEW
+                from .paint import rule_ownership,PREVIEW,material_ownership
+                if 'paint' in m:
+                    config=material_ownership(config,self.result('paint'),source)
                 masks={name:row['path'] for name,row in self.result('paint')['masks'].items()} if 'paint' in m else {}
                 metallic=self.input('metallic4k') if 'metallic4k' in m['inputs'] else None if 'basecolor4k' in m['inputs'] else self.result('bake')['maps']['metallic-4096.png']['path']
                 labels,report,protected=rule_ownership(source,self._color4k(),config,metallic=metallic,masks=masks,protected=True)
@@ -482,7 +501,8 @@ class Runner:
                 positions,owners=(surface(value,4096,enforce=False)[:2] if protected is not None else (None,raster_audit(value['uv'],4096)[1]))
                 with Image.open(self._color4k()) as colour:colour=np.asarray(colour.convert('RGB'))
                 # protected is None without an overFaceMasks rule: unchanged moves
-                names = CHANNEL_MASKS + (('ear',) if config.get('boneEarGuard') or config.get('hairEarGuard') else ())
+                material_hints = 'paint' in m and self.result('paint').get('ownershipHints')
+                names = CHANNEL_MASKS + (('ear',) if config.get('boneEarGuard') or config.get('hairEarGuard') or material_hints else ())
                 features = masks_at(self.result('masks')['files'],names)
                 if config.get('hairMaskRequiresRule') is True:
                     require(config.get('mode') == 'rules' and any(r['channel']==1 for r in config['rules']),
@@ -495,12 +515,23 @@ class Runner:
                 labels,report['featureChannels']=apply_channels(np.asarray(image),features,owners>=0,colour,
                                                                 protected=protected,positions=positions,hair_ear_guard=config.get('hairEarGuard',False),
                                                                 lip_skin_guard=config.get('lipSkinGuard',False))
+                if material_hints:
+                    from .paint import apply_material_hints
+                    labels=apply_material_hints(labels,self.result('paint'),features,owners>=0)
                 require(type(config.get('browSeedGuard',False)) is bool,'browSeedGuard must be boolean')
                 from .brow_edges import adjust
                 labels,report['browSeedGuard']=adjust(labels,value,self.result('masks'),owners>=0,
                     config.get('browSeedGuardPixels',3),recover_brows=config.get('browSeedGuard',False),
                     cybereye_image_side=m.get('quality',{}).get('cybereyeImageSide'))
                 image=Image.fromarray(labels);onek=Image.fromarray(majority(labels))
+            if 'paint' in m and self.result('paint').get('ownershipHints'):
+                require(config.get('mode') == 'rules' and config.get('featureChannels') is True,
+                        'Material heals require rule ownership with feature protections')
+                from .paint import audit_material_hints
+                from .gltf import mesh
+                from .uv import raster_audit
+                mapped=owners>=0 if config.get('featureChannels') else raster_audit(mesh(source)['uv'],4096)[1]>=0
+                report['materialHeals']=audit_material_hints(np.asarray(image),np.asarray(onek),self.result('paint'),mapped)
             image.save(folder/'ownership-4096.png');onek.save(folder/'ownership-1024.png')
             return {'fourk':pin(folder/'ownership-4096.png'),'onek':pin(folder/'ownership-1024.png'),'channelIdsNeverBlended':True,'visualReviewRequired':True,**report}
         if stage=='tone':
@@ -594,6 +625,12 @@ class Runner:
             else:color=self.result('tone')['maps']['1024']['path']
             palettes={layer:self.input(name) for layer,name in m['palette']['inputs'].items()}
             ownership=self.input('ownership1k') if 'ownership1k' in m['inputs'] else self.result('ownership')['onek']['path']
+            if m['palette'].get('preserveStockEncoding'):
+                from .stock_encoding import preserve
+                return preserve(color,ownership,palettes,m['palette']['rows'],
+                                self.source('uvMesh','unwrap','mesh'),folder/'palette',
+                                full_range=m['palette'].get('fullShadeRange') is True,
+                                body_skin=self.input('bodySkin') if m['palette'].get('matchBodySkin') is True else None)
             rows=m['palette']['rows'];rows={key:'auto' for key in palettes} if rows=='auto' else dict(rows);ranking=None
             tone=m['palette'].get('toneMatch') or {};ranked=[key for key,row in rows.items() if row=='auto' and key in palettes and key not in tone]
             if ranked:
@@ -694,7 +731,9 @@ class Runner:
             policy=m.get('nativeSizing')
             require(policy in (None,'troll-build-allowance-r3'), 'Unknown native sizing policy')
             refs=(self.input('nativeSizingPolicy'), self.input('fitReference')) if policy else None
-            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted',sizing_inputs=refs)
+            material_options = ({'material_policy':m['palette']['nativeMaterial']}
+                                if 'nativeMaterial' in m.get('palette',{}) else {})
+            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted',sizing_inputs=refs,**material_options)
             if bound:result['fitBinding']={'sourceStage':'unwrap','unwrapReceipt':self.state['stages']['unwrap']}
             if self._staged_fit():result['fitStage']={'receipt':self.state['stages']['fit'],'matrix':fit['matrix']}
             if uv_audit is not None:result['uvAudit']=uv_audit

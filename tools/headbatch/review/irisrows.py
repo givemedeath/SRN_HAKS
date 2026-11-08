@@ -1,5 +1,5 @@
 """Exact-attempt decoded iris crops beside source appearance and alternative runtime rows."""
-import sys
+import argparse
 from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw
@@ -10,30 +10,45 @@ from headkit.face_masks import sample
 from headkit.palette import rows_for_shades
 
 
-def candidates(rgb,layers,shades,palette,current):
+def candidates(rgb,layers,shades,palette,current,requested=()):
+    for row in requested:
+        require(type(row) is int and 0<=row<min(176,len(palette)), 'Candidate iris row must be an integer from 0 to 175 within the palette')
     selected=layers==8
     if not selected.any():return [],[]
     ranked=rows_for_shades(rgb[selected],shades[selected],palette[:176],keep=8)
-    return list(dict.fromkeys([int(current)]+[row['row'] for row in ranked])),ranked
+    return list(dict.fromkeys([int(current),*requested]+[row['row'] for row in ranked])),ranked
 
 
-def run(head,attempt):
+
+def source_appearance(runner,result):
+    if result.get('preservedStockEncoding'):
+        path=runner._color4k()
+        with Image.open(path) as image:
+            rgb=np.asarray(image.convert('RGB').resize((1024,1024),Image.Resampling.BOX))
+        return rgb,[pin(path)]
+    tone=runner.result('tone')
+    color=tone.get('maps',{}).get('1024')
+    if color is None:return None,[runner.state['stages']['tone']]
+    with Image.open(color['path']) as image:rgb=np.asarray(image.convert('RGB'))
+    return rgb,[runner.state['stages']['tone'],color]
+
+def run(head,attempt,requested=()):
     head=Path(head);runner=Runner(head/'manifest.json',head/'bindings.json',head/'run')
     result=runner.result('palette',require_review=False);receipt=runner.state['stages']['palette']
     require(Path(receipt['path']).parent.name==attempt,'Iris comparison needs the current exact palette attempt')
-    tone=runner.result('tone');masks=runner.result('masks');color=tone.get('maps',{}).get('1024')
+    rgb,appearance_inputs=source_appearance(runner,result);masks=runner.result('masks')
     folder=head/'review-evidence'/('irisrows-'+attempt);number=1
     while folder.exists():number+=1;folder=head/'review-evidence'/f'irisrows-{attempt}-{number:02d}'
     folder.mkdir(parents=True)
     base={'kind':'headbatch-runtime-iris-comparison-v1','attempt':attempt,'stageReceipt':receipt,'approved':False}
-    if color is None or '8' not in result['rows']:
+    if rgb is None or '8' not in result['rows']:
         report={**base,'skipped':'No 1K source appearance or iris channel'};write(folder/'report.json',report,fresh=True);print(report['skipped']);return report
     paths={k:runner.input(role) for k,role in runner.data['palette']['inputs'].items()}
-    inputs=[receipt,runner.state['stages']['tone'],runner.state['stages']['masks'],color,result['ownership'],result['shades'],masks['source'],*masks['files'].values(),*[pin(p) for p in paths.values()],pin(__file__)]
+    inputs=[receipt,*appearance_inputs,runner.state['stages']['masks'],result['ownership'],result['shades'],masks['source'],*masks['files'].values(),*[pin(p) for p in paths.values()],pin(__file__)]
     verify(inputs,fresh=True)
-    rgb=np.array(Image.open(color['path']).convert('RGB'));layers=np.array(Image.open(result['ownership']['path']));shades=np.array(Image.open(result['shades']['path']))
+    layers=np.array(Image.open(result['ownership']['path']));shades=np.array(Image.open(result['shades']['path']))
     tables={k:np.array(Image.open(p).convert('RGBA')) for k,p in paths.items()}
-    choices,ranked=candidates(rgb,layers,shades,tables['8'],result['rows']['8'])
+    choices,ranked=candidates(rgb,layers,shades,tables['8'],result['rows']['8'],requested)
     if not choices:
         report={**base,'inputs':inputs,'skipped':'No mapped iris texels'};write(folder/'report.json',report,fresh=True);print(report['skipped']);return report
     region=focus_view(masks['source']['path'],masks,layers);xy=region['pts'][[468,473]]
@@ -50,8 +65,12 @@ def run(head,attempt):
             decoded[selected]=tables[str(layer)][chosen,shades[selected],:3]
         x=(j%2)*420;y=(j//2)*190;sheet.paste(crop(decoded),(x,y+25));draw.text((x+8,y+7),'iris row '+str(row)+(' CURRENT' if row==result['rows']['8'] else ''),fill='white')
     out=folder/'sheet.png';sheet.save(out);verify(inputs,fresh=True)
-    report={**base,'inputs':inputs,'rows':choices,'ranking':ranked,'sheet':pin(out),'requiresVisualReview':True}
+    report={**base,'inputs':inputs,'rows':choices,'requestedRows':list(requested),'ranking':ranked,'sheet':pin(out),'requiresVisualReview':True}
     write(folder/'report.json',report,fresh=True);print(out);return report
 
 
-if __name__=='__main__':run(sys.argv[1],sys.argv[2])
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('head');parser.add_argument('attempt')
+    parser.add_argument('--rows',type=int,nargs='+',default=[],help='Preview proposed iris rows before changing the manifest or spending a palette pass')
+    args=parser.parse_args();run(args.head,args.attempt,args.rows)

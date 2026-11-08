@@ -9,7 +9,7 @@ import numpy as np
 from headkit.common import pin, read, require, verify
 from headkit.diagnostics import sheet
 from headkit.gltf import mesh
-from headkit.mesh import BASIS
+from headkit.mesh import BASIS, checked_fit
 from headkit.rays import EmbreeScene
 from _fit_views import bounds, tile
 
@@ -20,7 +20,7 @@ def draw(head, attempt, output):
     receipt = pin(folder/'receipt.json')
     data = read(receipt['path'])
     require(data.get('state') == 'complete', 'A completed repair is required')
-    fit = data['dependencies']['fit']
+    fit = data.get('dependencies',{}).get('fit')
     result = data['result']
     cut = (result.get('neck') or {}).get('cut')
     before = cut['uncut'] if cut else result['master']
@@ -28,9 +28,13 @@ def draw(head, attempt, output):
     for artifact in (before, after):
         require(Path(artifact['path']).parent == folder and artifact in data['outputs'], 'Mesh must be a pinned output of the named repair')
     embree = read(head/'bindings.json')['embree']
-    pins = [receipt, fit, before, after, embree]
+    pins = [receipt, before, after, embree]+([fit] if fit else [])
     verify(pins, fresh=True)
-    matrix = np.asarray(read(fit['path'])['result']['matrix']) @ BASIS
+    if fit:
+        matrix = checked_fit(read(fit['path'])['result']['matrix']) @ BASIS
+    else:
+        require(result.get('localSeal') and 'fitMatrix' in result,'Repair needs a pinned fit stage or local-closure fit matrix')
+        matrix = checked_fit(result['fitMatrix']) @ BASIS
     size = 360
     views = [('Front',(0.,1.,0.)), ('Side',(1.,0.,0.)), ('Rear',(0.,-1.,0.)), ('Under jaw',(0.,.12,-1.))]
     tiles = []

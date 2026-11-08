@@ -60,7 +60,27 @@ def troll_build_allowance(policy, reference, model):
             'pivot': 'identity mesh node frame', 'publishedScale': rule['factors'][prefix]['scale']}
 
 
-def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inputs=None):
+
+# Bound NWN:EE stock organic-head material; shader values use positive overrides.
+STOCK_HEAD_MATERIAL_SHA256 = '103112ca80c6b67e88cc2c3a21f9806799bbc94fb077497e7d2f65130db90d3d'
+
+
+def material_binding(policy, model, layers):
+    if policy is None:
+        return None
+    require(policy == 'stock-organic-head-v1', 'Unknown native palette material policy')
+    match = re.fullmatch(r'p([mf])[hedog][0-9]_head[0-9]{3}', model)
+    require(match is not None, 'Stock material needs an explicit male/female head model')
+    channels = sorted({int(v) for v in layers})
+    require(channels and set(channels) <= set(range(10)), 'Invalid native material channels')
+    organic = set(channels) <= {0,1,8,9}
+    return {'policy':policy,'applied':organic,'channels':channels,
+            'material':('oldm_head' if match[1]=='m' else 'oldf_head') if organic else model,
+            **({'expectedStockSha256':STOCK_HEAD_MATERIAL_SHA256} if organic else
+               {'reason':'Mixed accessory channels retain the legacy material; review their separate material response.'})}
+
+
+def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inputs=None, material_policy=None):
     require(re.fullmatch(r'[a-z][a-z0-9_]{0,13}',model) is not None,'Safe NWN model resref required')
     with Image.open(shades_path) as image:
         require(image.mode=='L' and image.size==(1024,1024),'Runtime shades must be 1K eight-bit grayscale')
@@ -79,7 +99,9 @@ def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inpu
         matrix=matrix.copy();matrix[:3,:]*=sizing['scale']
     # One PLT covers all surfaces, including independently reviewed accessory channels.
     payload=head_export.plt_bytes(shades,layers)
-    ascii_text=head_export.ascii_model(model,points,normals,uv,[{'kind':'palette','triangles':list(range(len(points)))}])
+    material = material_binding(material_policy, model, np.unique(layers))
+    options = {'palette_material':material['material']} if material and material['applied'] else {}
+    ascii_text=head_export.ascii_model(model,points,normals,uv,[{'kind':'palette','triangles':list(range(len(points)))}],**options)
     output=Path(output);(output/'ascii').mkdir(parents=True,exist_ok=False);(output/'resources').mkdir()
     (output/'ascii'/f'{model}.mdl').write_text(ascii_text,encoding='ascii')
     (output/'resources'/f'{model}.plt').write_bytes(payload)
@@ -88,10 +110,11 @@ def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inpu
             'ascii':pin(output/'ascii'/f'{model}.mdl'),'plt':pin(output/'resources'/f'{model}.plt'),
             'expected':pin(output/'expected-native.npz'),'fitReviewRequired':True,'clientValidated':False}
     if sizing is not None:result['nativeSizing']=sizing
+    if material is not None:result['nativeMaterial']=material
     write(output/'prepared.json',result,fresh=True);return result
 
 
-def audit_native(binary, model, expected_path):
+def audit_native(binary, model, expected_path, *, expected_material=None):
     _,_,sanitize,fields,leaks=helpers();original=Path(binary).read_bytes();clean=sanitize(original)
     allowed=np.zeros(len(original),bool)
     for offset,size in fields(original): allowed[offset:offset+size]=True
@@ -99,8 +122,16 @@ def audit_native(binary, model, expected_path):
     require(not changed[~allowed].any() and sanitize(clean)==clean and not leaks(clean),'Unsafe native sanitization')
     before=decode(original,model,require_tangents=False);after=decode(clean,model,require_tangents=False)
     require(len(before)==len(after)==1,'Exactly one rigid PLT mesh required')
-    require(after[0]['textures'][0]==model and all(name.lower() in ('','null',model) for name in after[0]['textures'][1:]),
+    require(expected_material in (None,'oldm_head','oldf_head'), 'Unsupported native material dependency')
+    if expected_material is not None:
+        require(model.startswith('pm') if expected_material=='oldm_head' else model.startswith('pf'),
+                'Native stock material sex differs from the head')
+    # The fourth legacy string field is the EE material name, not another bitmap.
+    require(after[0]['textures'][0]==model and all(name.lower() in ('','null',model) for name in after[0]['textures'][1:3]),
             'Unexpected native texture dependency')
+    material = after[0]['textures'][3].lower()
+    require(material == expected_material if expected_material else material in ('','null',model),
+            'Native material read-back differs from the selected policy')
     result={'model':model,'zeroedTailBytes':int(changed.sum()),'onlyFixedStringFieldsChanged':True}
     with np.load(expected_path,allow_pickle=False) as expected:
         for name,key in [('positions','position'),('normals','normal'),('uv','uv')]:
@@ -175,7 +206,18 @@ def compile_and_package(prepared_dir, client, output, mdl=None, cache=None):
                       engine=[pin(engine/name) for name in ('neverblender_mdl.py','neverblender_worker.py','rig_native.py')])
         if receipt.get('reused'):compiler['precompiled']=pin(Path(cache)/'native-compile.json')
     model=preparation['model'];binary=converted/'resources'/f'{model}.mdl'
-    clean,audit=audit_native(binary,model,preparation['expected']['path'])
+    binding = preparation.get('nativeMaterial')
+    expected_material = None
+    if binding is not None:
+        raw = Path(preparation['plt']['path']).read_bytes()
+        import struct
+        require(raw[:8]==b'PLT V1  ' and struct.unpack_from('<II',raw,16)==(1024,1024)
+                and len(raw)==24+1024*1024*2, 'Invalid material-bound PLT')
+        channels = np.unique(np.frombuffer(raw,dtype=np.uint8,offset=24).reshape(-1,2)[:,1])
+        require(binding == material_binding(binding.get('policy'),model,channels), 'Prepared material policy differs from its actual PLT')
+        if binding['applied']:expected_material=binding['material']
+    clean,audit=audit_native(binary,model,preparation['expected']['path'],expected_material=expected_material)
+    if binding is not None:audit['nativeMaterial']=binding
     resources=output/'resources';resources.mkdir();target=resources/f'{model}.mdl';target.write_bytes(clean)
     plt=resources/f'{model}.plt';plt.write_bytes(Path(preparation['plt']['path']).read_bytes())
     _,hak,*_=helpers();archive=output/f'{model}.hak';hak.write_hak(archive,[(model,2002,clean),(model,6,plt.read_bytes())])

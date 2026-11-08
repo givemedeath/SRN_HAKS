@@ -1,4 +1,4 @@
-"""Comfy adapter with controlled deployment and fresh loaded-code verification."""
+"""Comfy adapter with controlled-session and fresh deployment/runtime-file verification."""
 import logging
 import json
 
@@ -14,7 +14,6 @@ else:
     from .verified_loaders import verified_loader_mappings
     from .model_resolution import verify_loader_models
     from .runtime_identity import capture_runtime_identity, same_runtime_environment
-    from .source_snapshot import loaded_source_code
     from .managed_startup import session_context
     from .verification import HEAVY_VERIFICATION_LOCK, verification_pass
     from aiohttp import web
@@ -29,8 +28,6 @@ else:
                 with audit.phase('deployment'):
                     session, config = session_context(folder_paths.base_path)
                 inventory = config['inventory']
-                with audit.phase('loaded-code'):
-                    loaded_source_code(inventory['roots'])
                 with audit.phase('runtime-files'):
                     identity = capture_runtime_identity(folder_paths, inventory, session=session)
                 declared = {(row['path'], row['sha256']) for row in config['runtime']['files']}
@@ -55,8 +52,6 @@ else:
                     session, config = session_context(folder_paths.base_path)
                     if session != _STARTUP_SESSION:
                         raise ValueError('Controlled Comfy session changed; prepare again')
-                with audit.phase('loaded-code'):
-                    loaded_source_code(_STARTUP_COMFY_SOURCE_INVENTORY['roots'])
                 with audit.phase('runtime-files'):
                     current = capture_runtime_identity(folder_paths, _STARTUP_COMFY_SOURCE_INVENTORY, session=session)
                     if not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):

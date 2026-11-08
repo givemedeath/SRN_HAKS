@@ -166,7 +166,12 @@ class Spool:
         elif stage == 'fit':
             sheet = self.sheets/f'{head}-fit-{attempt}-reference.png'
             self.draw(sheet, 'fitcheck', '--reference', head, attempt, sheet)
-            self.review(head, stage, f'{attempt}: front and side against the fit reference: {sheet}')
+            note = f'{attempt}: front and side against the fit reference: {sheet}'
+            if 'bodyTorso' in manifest.get('inputs', {}):
+                assembled = self.sheets/f'{head}-fit-{attempt}-body.png'
+                self.draw(assembled, 'fitassembly', head, attempt, assembled)
+                note += f' | actual torso and neck: {assembled}'
+            self.review(head, stage, note)
         elif stage == 'repair':
             self.review(head, stage, f'{attempt}: {self.repair_evidence(head, attempt, manifest, receipt)}')
         elif stage == 'bake':
@@ -273,7 +278,7 @@ class Spool:
         except guards.Refused as refusal:
             jaw = f'JAW FAIL - {refusal}'
         cut = (manifest['mesh'].get('neck') or {}).get('cut')
-        if 'fit' in receipt.get('dependencies', {}):
+        if 'fit' in receipt.get('dependencies', {}) or receipt.get('result',{}).get('localSeal'):
             sheet = self.sheets/f'{head}-repair-{attempt}-normals.png'
             self.draw(sheet, 'repairclay', head, attempt, sheet)
         else:  # Historical repairs can have a fixed manifest fit and no fit-stage dependency.

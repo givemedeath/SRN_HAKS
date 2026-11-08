@@ -11,7 +11,7 @@ import subprocess
 from gpu_job import FIELD_NODE, GEOMETRY_NODE, file_from, link_or_copy
 import guards
 from head_files import sha, write_json
-from workspace import PYTHON, RACE_DATA
+from workspace import PYTHON, RACE_DATA, prefix
 import reference_record
 
 FEATURE = re.compile(r'^(Face|Ears|Brows|Horns|Tusks|Beard|Hair|Cyberware|Piercings|Tattoo|Scars): (.*)$', re.M)
@@ -174,6 +174,18 @@ def bind_render_device(workspace,data):
     data['render']['compute']=settings({'compute':value})
 
 
+
+def bind_preserved_render(data):
+    """Use actual 4K source appearance at 2K and the unchanged PLT decode at 1K."""
+    if not data.get('palette',{}).get('preserveStockEncoding') or 'render' not in data:return
+    if 'basecolor4k' not in data['inputs']:
+        raise guards.Refused('Protected stock rendering needs a bound basecolor4k source; do not upscale the 1K PLT decode')
+    render=data['render']
+    stages=dict(render.get('mapStages',{}));stages.pop('basecolor',None)
+    render['mapStages']=stages
+    render['mapInputs']={**render.get('mapInputs',{}),'basecolor':'basecolor4k'}
+    render['runtimePalette']=True
+
 def rewrite_manifest(workspace, name, check, overrides, replaced):
     head = workspace.head(name)
     receipt = guards.read(head/'design'/'design-receipt.json')
@@ -203,6 +215,7 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
     if 'nativeSizingPolicy' in inputs:
         data['nativeSizing'] = 'troll-build-allowance-r3'
     tone_every_channel(data, race, sex, name)
+    bind_preserved_render(data)
     candidate = head/'manifest.check.json'
     write_json(candidate, data)
     try:
@@ -244,6 +257,14 @@ def set_ownership(workspace, name, rules, check=validate):
 
 
 def revise_clay(workspace, name, design, reference, checked, approval, check=validate):
+    return revise_conditioning(workspace, name, design, reference, checked, approval, check=check)
+
+
+def revise_pair(workspace, name, design, reference, checked, approval, check=validate):
+    return revise_conditioning(workspace, name, design, reference, checked, approval, check=check, paired=True)
+
+
+def revise_conditioning(workspace, name, design, reference, checked, approval, check=validate, paired=False):
     """Select a checked clay for an existing head. Its original conditioning, reviews and GPU ledger stay addressable."""
     from headkit.common import pin, verify, write
     if name not in workspace.head_ids() or reference is None or not approval.strip():
@@ -267,8 +288,9 @@ def revise_clay(workspace, name, design, reference, checked, approval, check=val
         verify([checked_pin, record_pin, *measured['pair']['images'].values()], fresh=True)
         manifest = guards.read(head/'manifest.json')
         inputs = manifest['inputs']
-        if (selection['selectedDesign']['sha256'] != record['design']['sha256'] or 'clay' not in inputs
-                or 'detail' not in inputs or inputs['detail']['sha256'] != record['conditioning']['detail']['sha256']):
+        if ('clay' not in inputs or 'detail' not in inputs or (not paired and
+                (selection['selectedDesign']['sha256'] != record['design']['sha256'] or
+                 inputs['detail']['sha256'] != record['conditioning']['detail']['sha256']))):
             raise guards.Refused('A clay-only revision must retain the selected design and diffuse input')
         # Content-addressed targets make retries safe and preserve the old prepare and its inputs.
         folder = head/'inputs'/'conditioning'/record_pin['sha256']
@@ -284,8 +306,29 @@ def revise_clay(workspace, name, design, reference, checked, approval, check=val
                 copied.replace(target)
         if sha(target) != record['conditioning']['clay']['sha256']:
             raise guards.Refused('Saved revised clay differs from the checked input')
+        selected = {'clay': pin(target), 'detail': inputs['detail']}
+        if paired:
+            # Version every changed image; original inputs, reviews and rejected GPU
+            # submissions remain intact. Never reset the slot or its counters.
+            for role, source, expected in (
+                    ('detail', pair['detail'], record['conditioning']['detail']['sha256']),
+                    ('design', Path(design).resolve(), record['design']['sha256'])):
+                destination = folder/(role+'.png')
+                if not destination.exists():
+                    from tempfile import TemporaryDirectory
+                    with TemporaryDirectory(dir=folder) as scratch:
+                        copied = Path(scratch)/(role+'.png')
+                        shutil.copyfile(source, copied)
+                        if sha(copied) != expected:
+                            raise guards.Refused('Revised '+role+' changed during selection')
+                        copied.replace(destination)
+                if sha(destination) != expected:
+                    raise guards.Refused('Saved revised '+role+' differs from the checked input')
+                selected[role] = pin(destination)
         receipt = {'head': name, 'referenceRecord': record_pin, 'pairCheck': checked_pin,
-                   'clay': pin(target), 'detail': inputs['detail'], 'approval': approval}
+                   **selected, 'approval': approval}
+        if paired:
+            receipt['originalSelection'] = pin(head/'design/design-receipt.json')
         selection_path = folder/'selection.json'
         if selection_path.exists():
             if guards.read(selection_path) != receipt:
@@ -293,7 +336,12 @@ def revise_clay(workspace, name, design, reference, checked, approval, check=val
         else:
             write(selection_path, receipt, fresh=True)
         overrides = guards.read(head/'overrides.json')
-        overrides['inputs']['clay'] = {'path': target.relative_to(head).as_posix(), 'sha256': receipt['clay']['sha256']}
+        for role in ('clay', 'detail', 'design') if paired else ('clay',):
+            selected_path = Path(selected[role]['path'])
+            overrides['inputs'][role] = {'path': selected_path.relative_to(head).as_posix(), 'sha256': selected[role]['sha256']}
+        if paired:
+            overrides['features'] = [dict(name=key, description=value, placementReviewed=True)
+                                     for key, value in record['features'].items()]
         overrides['alignment'] = record['conditioning']['alignment']
         return write_locked_manifest(workspace, name, check, overrides)
 
@@ -393,6 +441,15 @@ def set_up(workspace, name, design, reach=.04, slope=-.2, deviations=(), approva
     if race == 'troll' and quality_profile:
         overrides['ownership']['boneEarGuard'] = True
     overrides['inputs'] = {'bodyNeck': {'path': 'inputs/body-neck.json', 'sha256': sha(head/'inputs'/'body-neck.json')}}
+    body_prefix = prefix(race, sex)
+    torso = workspace.data.get('bodyTorsoReferences', {}).get(body_prefix)
+    if torso:
+        source = workspace.path(torso)
+        if not source.is_file() or source.stem[:4] != body_prefix:
+            raise guards.Refused('Body torso reference must exist and match '+body_prefix)
+        target = head/'inputs'/source.name
+        shutil.copy2(source, target)
+        overrides['inputs']['bodyTorso'] = {'path': 'inputs/'+target.name, 'sha256': sha(target)}
     overrides.setdefault('mesh', {})['neck'] = None if no_neck_cut else {'$replace': True, 'cut': {
         'height': 'measured', 'slope': slope, 'band': 0.03, 'reach': reach,
         'notes': f'Heads have no neck: plane under the lowest front feature beyond the reach, slope {slope}; stub drawn 3 mm inside the smoothed body neck over 3 cm.'}}
@@ -428,8 +485,8 @@ def face_quality_profile():
     return {'mesh': {'uv': {'faceDensity': 3, 'refinePacking': True}}, 'faceMasks': {},
             'ownership': {'featureChannels': True, 'hairEarGuard': True, 'browSeedGuard': True, 'browSeedGuardPixels': 8, 'lipSkinGuard': True},
             'tone': {'faceTreatment': {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3,
-                     'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0}},
-            'quality': {}, 'palette': {'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True, 'skinShadeContrast': 'auto', 'repairSkinSeams': True, 'repairFeatureHighlights': True},
+                     'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0, 'browSkinRefill': 0}},
+            'quality': {}, 'palette': {'nativeMaterial': 'stock-organic-head-v1', 'fullShadeRange': True, 'stretchShadingOnly': True, 'matchBodySkin': True, 'skinShadeContrast': 'auto', 'repairSkinSeams': True, 'repairFeatureHighlights': True},
             'render': {'$replace': True, 'frontAngleDegrees': -90,
                        'sizes': [2048, 1024], 'modes': ['clay','color-only','material-lit'],
                        'mapStages': {'basecolor': 'tone'}, 'runtimePalette': True,

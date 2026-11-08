@@ -222,7 +222,15 @@ def heal(value, rgb, op, report, texels, regions):
         v = (ab[:,0]*delta[:,1]-ab[:,1]*delta[:,0])/det
         corners = value['positions'][value['faces'][faces]]
         return (np.einsum('ij,ijk->ik',np.c_[1-u-v,u,v],corners)-lo)/span
-    distance,indices = cKDTree(points(donors)).query(points(target)+offset,k=4)
+    donor_points,target_points=points(donors),points(target)
+    side=op.get('headSide')
+    require(side in (None,'front','rear'),'Head heal side must be front or rear in unposed GLB +z-forward coordinates')
+    if side is not None:
+        z=np.r_[donor_points[:,2],target_points[:,2]]
+        require(bool(np.all(z<=.5) if side=='rear' else np.all(z>=.5)),
+                'Head heal target/donor leaves the declared '+side+' half (+z is front before fitting)')
+        report.update(headSide=side,normalizedDepthRange=[float(z.min()),float(z.max())])
+    distance,indices = cKDTree(donor_points).query(target_points+offset,k=4)
     require(distance[:,0].max()<=.10,'Local paint donor lies too far from its target')
     weights = 1/np.maximum(distance,.0005)
     colors = (rgb[donors][indices]*weights[:,:,None]).sum(axis=1)/weights.sum(axis=1)[:,None]
@@ -230,6 +238,84 @@ def heal(value, rgb, op, report, texels, regions):
     report.update(paintedTexels=count,donorSamples=int(donors.sum()),maximumDistance=float(distance[:,0].max()))
     return {op['name']:target}
 
+
+
+def material_hint(op, source):
+    """An explicit local hair repair must bind geometry and explain the material decision."""
+    if 'materialChannel' not in op:
+        return None
+    require(op.get('op') == 'heal' and type(op['materialChannel']) is int and op['materialChannel'] == 1,
+            'Material heals currently support hair channel 1 only')
+    require(op.get('sourceSha256') == source['sha256'],
+            'Material heal must bind the exact UV mesh SHA256')
+    require(isinstance(op.get('notes'), str) and op['notes'].strip(),
+            'Material heal needs the observed defect and reviewed donor material')
+    return {'name':op['name'], 'channel':1, 'sourceSha256':source['sha256'], 'notes':op['notes']}
+
+
+def material_ownership(config, painted, source):
+    """Carry a measured paint region into rules, retaining all later face/eye/ear protections."""
+    hints = painted.get('ownershipHints', [])
+    if not hints:
+        return config
+    require(config.get('mode') == 'rules', 'Material heals require rule ownership')
+    digest = pin(source)['sha256']
+    require(painted['source']['sha256'] == digest, 'Material heal uses another UV mesh')
+    rules = []
+    names = set()
+    for hint in hints:
+        name = hint['name']
+        require(name not in names and type(hint.get('channel')) is int and hint.get('channel') == 1 and hint.get('sourceSha256') == digest
+                and hint.get('mask') == painted['masks'].get(name),
+                'Invalid or stale material heal ownership hint')
+        names.add(name)
+        rules.append({'name':'material-heal-'+name, 'channel':1,
+                      'when':{'mask':name}})
+    return dict(config, rules=rules+config['rules'])
+
+
+def apply_material_hints(labels, painted, features, mapped):
+    """Honor a reviewed local hair heal after soft parsing, never over anatomical protections."""
+    from scipy.ndimage import binary_dilation
+    hints = painted.get('ownershipHints', [])
+    if not hints:
+        return labels
+    required = ('eye','iris','ear','lips','nose')
+    require(all(name in features for name in required), 'Material heal needs eye/iris/ear/lip/nose protections')
+    blocked = np.logical_or.reduce([features[name] > .5 for name in required])
+    blocked |= binary_dilation(features['eye'] > .5, iterations=12)
+    selected = np.zeros_like(mapped)
+    for hint in hints:
+        with Image.open(hint['mask']['path']) as image:
+            require(image.mode == 'L' and image.size == (4096,4096), 'Material heal needs its exact 4K mask')
+            active = (np.asarray(image) > 0) & mapped
+        require(not np.any(active & blocked), 'Material heal intersects protected eyes, nose, lips or ears')
+        require(np.all(np.isin(labels[active], (0,1))), 'Material heal intersects another material channel')
+        selected |= active
+    result = labels.copy()
+    result[selected] = 1
+    return result
+
+
+def audit_material_hints(labels, onek, painted, mapped):
+    """Refuse semantic overrides or runtime downsampling that loses a declared hair repair."""
+    reports = []
+    for hint in painted.get('ownershipHints', []):
+        with Image.open(hint['mask']['path']) as image:
+            require(image.mode == 'L' and image.size == (4096,4096), 'Material heal needs its exact 4K mask')
+            mask = np.asarray(image) > 0
+            # Eight of sixteen rounds to 128 in an L image, but is a tie, not a hair majority.
+            counts=mask.reshape(1024,4,1024,4).sum(axis=(1,3))
+            runtime=counts>8
+        active = mask & mapped
+        require(0 < active.sum() <= mapped.sum()*.03 and runtime.any(), 'Material heal exceeds its local limit or has no runtime interior')
+        report = {'name':hint['name'], 'channel':hint['channel'], 'mappedTexels':int(active.sum()),
+                  'runtimeTexels':int(runtime.sum()), 'boundaryTies':int(np.sum(counts==8)), 'wrong4k':int(np.sum(labels[active] != hint['channel'])),
+                  'wrong1k':int(np.sum(onek[runtime] != hint['channel']))}
+        reports.append(report)
+        require(report['wrong4k'] == 0 and report['wrong1k'] == 0,
+                f"Material heal conflicts with feature protection or loses its runtime channel: {hint['name']}; wrong 4K={report['wrong4k']}/{report['mappedTexels']}, 1K={report['wrong1k']}/{report['runtimeTexels']}")
+    return reports
 
 def paint(source, color, config, output, *, seal_start=None, embree=None):
     """Apply configured recolor/fill operations in order; each emits a 4K face mask for review and ownership rules.
@@ -240,6 +326,8 @@ def paint(source, color, config, output, *, seal_start=None, embree=None):
     require(rgb.shape==(4096,4096,3),'Paint source must be an actual 4096x4096 colour map')
     operations=config.get('operations');require(isinstance(operations,list) and operations,'Configured paint operations required')
     output=Path(output);output.mkdir(parents=True,exist_ok=False);texels=texel_source(value,rgb);regions=config.get('regions',{})
+    source_pin=pin(source)
+    hints=[hint for op in operations if (hint := material_hint(op,source_pin)) is not None]
     masks={};reports=[]
     for op in operations:
         require(op.get('op') in ('crest','fill','protrusion','mask','heal') and isinstance(op.get('name'),str) and op['name'].replace('-','').isalnum(),'Named crest/fill/protrusion/mask operation required')
@@ -266,7 +354,9 @@ def paint(source, color, config, output, *, seal_start=None, embree=None):
     pins={}
     for name,mask in masks.items():
         path=output/f'{name}-faces-4096.png';Image.fromarray(mask.astype(np.uint8)*255).save(path);pins[name]=pin(path)
-    result={'source':pin(source),'color':pin(color),'maps':files,'masks':pins,'operations':reports,'visualReviewRequired':True}
+    result={'source':source_pin,'color':pin(color),'maps':files,'masks':pins,'operations':reports,'visualReviewRequired':True}
+    if hints:
+        result['ownershipHints']=[dict(hint,mask=pins[hint['name']]) for hint in hints]
     write(output/'paint.json',result,fresh=True);return result
 
 

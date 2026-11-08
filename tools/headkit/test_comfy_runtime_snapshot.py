@@ -1913,7 +1913,6 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         helper = next(node for node in ast.walk(tree)
                       if isinstance(node, ast.FunctionDef) and node.name == '_capture_startup')
         inventory = {'roots': ['fixture']}
-        loaded = [{'path': 'fixture'}]
         identity = {'fingerprint': 'fixture','files': []}
         managed_session = {'id':'fixture'}
         folders = types.SimpleNamespace(base_path='fixture')
@@ -1923,11 +1922,11 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                      'HEAVY_VERIFICATION_LOCK':HEAVY_VERIFICATION_LOCK,'verification_pass':verification_pass,
                      'logging': types.SimpleNamespace(getLogger=Mock(return_value=logger)), 'folder_paths': folders,
                      'session_context': Mock(return_value=(managed_session,{'inventory':inventory,'runtime':{'files':[]}})),
-                     'loaded_source_code': Mock(return_value=loaded),
+                     'loaded_source_code': Mock(side_effect=AssertionError('retired census must not run')),
                      'capture_runtime_identity': Mock(return_value=identity)}
         exec(compile(ast.Module(body=[helper], type_ignores=[]), str(source), 'exec'), namespace)
         self.assertEqual(namespace['_capture_startup'](), (inventory, managed_session, identity))
-        namespace['loaded_source_code'].assert_called_once_with(inventory['roots'])
+        namespace['loaded_source_code'].assert_not_called()
         namespace['capture_runtime_identity'].assert_called_once_with(folders, inventory, session=managed_session)
         namespace['capture_runtime_identity'].side_effect = ValueError('invalid runtime')
         self.assertEqual(namespace['_capture_startup'](), (None, None, None))
@@ -1935,14 +1934,16 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual(namespace['_capture_startup'](), (None, None, None))
         self.assertEqual(logger.exception.call_count, 2)
 
-    def test_runtime_endpoint_returns_the_live_loaded_code_identity(self):
+    def test_runtime_endpoint_returns_the_live_deployment_identity(self):
         source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'
         tree = ast.parse(source.read_text(encoding='utf-8'))
         handler = next(node for node in ast.walk(tree)
                        if isinstance(node, ast.AsyncFunctionDef)
                        and node.name == 'verify_headkit_runtime_identity')
-        self.assertTrue(any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-                            and node.func.id == 'loaded_source_code' for node in ast.walk(handler)))
+        self.assertFalse(any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                             and node.func.id == 'loaded_source_code' for node in ast.walk(handler)))
+        calls={node.func.id for node in ast.walk(handler) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name)}
+        self.assertTrue({'session_context','same_runtime_environment'}<=calls)
         self.assertTrue(any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
                             and node.func.id == 'capture_runtime_identity' and len(node.args) == 2
                             for node in ast.walk(handler)))

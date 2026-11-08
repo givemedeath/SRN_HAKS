@@ -145,10 +145,11 @@ def plt_bytes(shades, layers):
     return b"PLT V1  " + struct.pack("<IIII", 10, 0, TEXTURE_SIZE, TEXTURE_SIZE) + pixels.tobytes()
 
 
-def ascii_model(model, points, normals, uv, groups):
+def ascii_model(model, points, normals, uv, groups, *, palette_material=None):
     lines = [f"newmodel {model}", f"setsupermodel {model} NULL", "classification CHARACTER",
              "setanimationscale 1", f"beginmodelgeom {model}", f"node dummy {model}",
              "  parent NULL", "endnode"]
+    require(palette_material in (None,'oldm_head','oldf_head'), 'Unsupported stock head material')
     assigned = []
     for number, group in enumerate(groups):
         ids = np.asarray(group["triangles"])
@@ -163,7 +164,7 @@ def ascii_model(model, points, normals, uv, groups):
         lines += [f"node trimesh {model}p{number}", f"  parent {model}", "  position 0 0 0",
                   "  orientation 0 0 0 0", "  ambient 1 1 1", "  diffuse 1 1 1",
                   "  specular 0 0 0", "  shininess 0", f"  bitmap {material}",
-                  f"  materialname {material}", "  render 1", "  shadow 1"]
+                  f"  materialname {palette_material if palette_material and group['kind'] == 'palette' else material}", "  render 1", "  shadow 1"]
         for label, values in (("verts", p), ("normals", n), ("tverts", np.c_[tex, np.zeros(len(tex))])):
             lines.append(f"  {label} {len(values)}")
             lines.extend("    " + " ".join(format(float(v), ".17g") for v in row) for row in values)

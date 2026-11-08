@@ -77,5 +77,6 @@
     "backend": "OPTIX",
     "gpuIndex": 0,
     "memoryLimitBytes": 12000000000
-  }
+  },
+  "bodyTorsoReferences": {}
 }

@@ -85,6 +85,8 @@ def plan(workspace, name, uv_only=False, scan=slopescan, floor_review=None):
     mesh = overrides.setdefault('mesh', {})
     before = copy.deepcopy(overrides)
     notes, hold = [], []
+    if mesh.get('localSeal'):
+        return overrides, ['local closure preserves reviewed geometry, UV and appearance policy'], hold, False
     defaults = {**FINE_RELIEF, **workspace.data.get('repairDefaults', {})}
     if not uv_only and defaults['fineRelief'] and 'fineRelief' not in mesh and name.split('-')[0] not in defaults['skipRaces']:
         mesh['fineRelief'] = dict(defaults['fineRelief'])

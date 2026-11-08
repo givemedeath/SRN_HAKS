@@ -57,6 +57,10 @@ Start from `examples/single-image.json` or `examples/multiview.json`. They are t
 
 1. Make matching **clay geometry** and **detailed appearance** references. Use the same face, pose, perspective, crop and silhouette. Neutral closed mouth; gaze follows the head forward rather than looking sideways at the camera. Keep the full skull, jaw, ears, hair and accessory tips within the frame. Use a near-frontal angle that exposes the important features. A very short closed neck stump is optional; no long neck or shoulders.
    When using built-in ImageGen for the clay edit, request a transparent background on that first edit (`transparent_background: true`). Grey clay on a grey backdrop can make colour-key matting remove real jaw, brow, ear and beard surfaces. Inspect the actual alpha at native resolution before paired alignment: preserve those surfaces, require nonempty transparent margins on all four sides, and retain the original generated raster. Do not copy the detail silhouette onto the clay to force the silhouette-IoU check to pass. This preflight prevents a background correction from consuming another design attempt.
+For long hair, preserve a coherent rear curtain behind the jaw and side locks, covering a complete rounded rear skull. Removing the anatomical neck must not erase hair behind that space. Do not prescribe transparent background between side curtains when rear hair belongs there: Willowglass's two seeds repeated that reference's rear gap. Use this conditioning clause: **“No anatomical neck or shoulders; keep the complete jaw and all rear hair. Long hair forms one continuous rear mass behind the jaw, with layered depth and no cutout window. Background is transparent only outside the complete hairstyle.”** Inspect the native alpha and paired image before submission; a silhouette-IoU pass does not prove rear volume. Headbatch reference intake always includes this review check. If a design repeatedly leaves the occiput open, correct its reference before spending more seeds.
+
+Paired preparation retains native framing when every independently measured landmark already lies within the declared residual bound, avoiding an unnecessary warp from gray-clay detector noise. Single-image paired preparation otherwise preserves bounded registration overflow with a shared transparent canvas margin. It first rejects genuinely clipped native source rasters, and records source/output canvas sizes and integer padding. This changes framing only, preserving the source pixels and all alignment/IoU thresholds. Four-view references retain a fixed common canvas and refuse independent growth.
+
 2. **Clay hair must be smooth broad coherent masses.** Retain the hairstyle's silhouette, attachment, main parting and large locks. Remove fine strand texture, tiny grooves, ripples, flyaways and corrugation. Do not turn locks into inflated ropes or rigid plates. Hair may flow near the face, but its route, front/back attachment and taper or natural end must be obvious. Show rear hair behind the neck when it belongs there; avoid floating bottom blobs and ambiguous hidden tails.
 3. Match the approved eye expression. For an open organic eye, separate the upper and lower lid rims around a visible smooth, unpainted globe. Match each corner, lid angle and opening under the brow. Keep pigment, pupils and lashes in the detailed reference. Preserve mechanical cybereye structure; **a cybereye has no eyelashes**. Detailed images retain painted eyes, brows, lashes and original material detail. Skin adjacent to an eye must not become a different-colored patch.
 4. Record the counts, anatomical sides, roots, directions and silhouettes of **every horn, tusk, datajack, cybereye and other accessory**. Explicitly record absent features. No duplicate, detached or hidden ambiguous accessory may be accepted as a reference. Hair must not conceal the measurements needed to establish a feature.
@@ -188,6 +192,20 @@ Use `examples/processing.json` as the input-role map. Fill annotations per head;
 
 `render` uses Blender Cycles with four host threads. Headbatch binds optional workspace `renderDevice` GPU settings to the shared GPU lane; the workspace example selects OptiX with a 12 GB sampled device-wide budget. CPU remains an explicit option for unsupported machines. GPU mode verifies the budgeted PCI device, disables CPU/hybrid rendering, requires the shared GPU lock and an idle bound ComfyUI, and refuses silent CPU fallback. A failed or exceeded memory sampler terminates only its owned Blender worker and leaves failure evidence; sampling is not an allocator hard limit. Persistent scene data and image reuse avoid rebuilding unchanged data for each camera. The receipt records actual backend/device, per-view timings and sampled memory. It retains matching clay/color-only/material-lit views with actual UV textures and no added AO. The anatomical front angle is a measured manifest input. Default cameras cover front, both profiles, both three-quarter views, back, crown, actual underside, face/ears and cyberware; adjust close-up targets as data when an accessory lies elsewhere. Render2K inspection sheets/atlases and actual1K viewing-distance previews. The processing example sets `render.sizes` to `[2048, 1024]`, also the default. Each size renders all selected cameras and all three materials with the same framing and lighting. The 1K pass uses actual BOX-filtered 1K textures, not resized 2K screenshots. Outputs live under `renders/2048/` and `renders/1024/`, with per-material view folders, native-resolution labeled `*-sheet.png` contact sheets, and full-resolution base-color/roughness/metallic/opacity images under `atlases/`. Atlas sources must be at least the requested resolution; the renderer rejects upsampling. A single explicit `render.size` remains available only when `diagnostic: true`; otherwise it is rejected, and it does **not** satisfy delivery review. A render receipt records timings, dimensions, atlas and sheet hashes but never a visual pass.
 
+New face profiles also enable `palette.nativeMaterial: stock-organic-head-v1`.
+When the actual PLT uses only skin, hair and tattoo channels (0, 1, 8, 9),
+export binds the built-in sex-matched oldm_head/oldf_head material while keeping
+the model-named PLT bitmap. Those EE materials use Metallicness 0.001,
+Specularity 0.04 and Roughness 0.65; a literal zero would select the generated
+shader fallback. This prevents palette alpha from generating a metallic response
+on organic heads. Mixed accessory channels retain their legacy material and
+report that separate material review is needed. Legacy manifests without the
+setting preserve their output. Native read-back distinguishes the fourth material
+string from the first three texture fields and still rejects extra maps. Trial
+specs automatically verify the effective stock MTR hash and freeze its resource
+containers; a missing or overridden material blocks the trial. This packages
+only MDL and PLT. The final client appearance gate remains mandatory.
+
 `palette.repairFeatureHighlights: true` is enabled automatically by headbatch's
 `face-v1` profile. After shade stretching and skin seam repair, it removes hot
 brow fringes using nearby brow-interior samples in 3D. Ear highlights whose
@@ -195,7 +213,7 @@ upper tail exceeds plain face skin by more than 32 shades receive a continuous
 highlight shoulder referenced to that skin. Ownership, other materials and
 `tone.preserveSkinMasks` stay protected; corrected samples also update their
 same-channel chart gutters. Mask expansion requires nearby same-channel feature
-anchors in 3D, so UV proximity alone cannot transfer a feature mask.
+anchors in 3D, so UV proximity alone cannot transfer a feature mask. Brow growth follows the bounded surface neighborhood across UV seams, including source-supported hairs restored beyond the original parser mask; low-confidence restored texels stay eligible for the highlight correction. Ear growth retains its narrower atlas margin.
 `featureHighlightRepair` records changes, rejected mask growth and missing
 local evidence in the palette receipt. Shade-span statistics and quality checks
 measure the corrected output. Existing manifests opt in explicitly; this does
@@ -233,9 +251,9 @@ Use `tools/headbatch` to run a batch: `docs/heads/head-batch-orchestration.md` c
 
 Lessons from the 20-head troll batch v2 (2026-10-25), where one orchestrator dispatched one CPU agent per head. Each rule answers a mistake that actually happened.
 
-- **Design pick.** Two horns only. Each horn must be short and thick and form ONE continuous curve: zoom on each horn and reject any extra ring, coil, prong or branch. Ram loops must stay fully visible beside the head; a loop that wraps behind the ear came back from Pixal as a tall horn plus a separate coil. Short horns curving up and back are the most reliable shape. Hair must be a mass that covers the scalp, with nothing below the jaw. Sparse slicked-back strands left the occiput open on every seed of one design, and large horns swept over the head with layered hair made a shape decode that exceeded a 12 GiB card at every seed.
+- **Design pick.** Two horns only. Each horn must be short and thick and form ONE continuous curve: zoom on each horn and reject any extra ring, coil, prong or branch. Ram loops must stay fully visible beside the head; a loop that wraps behind the ear came back from Pixal as a tall horn plus a separate coil. Short horns curving up and back are the most reliable shape. Hair must be a coherent mass covering the scalp. Side/rear hair and beards may extend below the jaw; the anatomical head has no neck. Preserve continuous rear volume for long hair. Sparse slicked-back strands left the occiput open on every seed of one design, and large horns swept over the head with layered hair made a shape decode that exceeded a 12 GiB card at every seed.
 - **Attempt cap (user rule).** At most 5 geometry submissions per head slot (reseeds, OOM failures and redesigns all count) and at most 3 designs. At the cap, stop and report the slot with its best candidate; the user decides.
-- **Check the raw shape right after geometry, before appearance** (`run_headkit.py check-occiput RAW.glb ...`, read-only, `occiput.py`). Look for an open back of skull: face area per height band in the central back third, OPEN when two adjacent bands between 35% and 80% of the height hold under 5% of the median band. An open shape gets one automatic geometry reseed (+1000, calibrate reused); open twice means change the design. Agents still confirm the back and the horn pieces on their precluster, and stop with `GEOMETRY: open back of skull` or `HORNS: extra piece`. A detached small accessory on a good horn (a stray ring) is removed by a reviewed tight shell selection in repair, not by another re-roll.
+- **Check the raw shape right after geometry, before appearance** (`run_headkit.py check-occiput RAW.glb ...`, read-only, `occiput.py`). Look for an open back of skull: face area per height band in the central back third. The posterior depth frame uses only face centroids in the checked cranial height range, so low rear hair cannot push sampling behind the skull. OPEN when two adjacent bands between 35% and 80% of the height hold under 5% of the median band. An open shape gets one automatic geometry reseed (+1000, calibrate reused); open twice means change the design. Agents still confirm the back and the horn pieces on their precluster, and stop with `GEOMETRY: open back of skull` or `HORNS: extra piece`. A detached small accessory on a good horn (a stray ring) is removed by a reviewed tight shell selection in repair, not by another re-roll.
 - **Sharing one GPU between designs and Pixal.** A design queued behind Pixal jobs hits `design`'s dispatch deadline (default 2700 s; `design --deadline SECONDS`, or `--front` to queue ahead of pending prompts), and Flux.2 left in VRAM makes the next shape decode run out of memory. Hold new Pixal submissions while a design runs, start the design on an empty queue, and unload models (ComfyUI `/free`) after it. Free models before every Pixal job; after an OOM, retry once after freeing, then reseed geometry once. Other processes (an open game client, other sessions) also hold VRAM.
 - **Re-roll bookkeeping.** Key dispatch by head plus GPU ready time, not head name, or a re-roll under the same name is never picked up. Relink `inputs/raw.glb` and `field.npz` when the GPU output changes. Give every design launch a frozen copy of the spec: editing the master spec mid-launch invalidates it.
 - **Agent loop budget.** Settle the neck cut and stray shells by dry run before the first repair. Allow repair at most 3 launches, each fixing every refusal reason; ownership 2; tone and palette 2 each, with all pins chosen from one decoded comparison sheet; render 1 (+1 after a later pin); and a 2.5 h cap per head. Every launch hashes about 3,650 inputs (about 1.5 GB) twice: always chain an approval into the next stage and never run approve-only launches. The orchestrator's acceptance is the render approval. Helpers must exit by themselves; kill stray ones. With these rules a head took about 1 h, against 2-3 h before.
@@ -264,3 +282,74 @@ It corrects hair-rule spill on ears while protecting actual hair and metal.
 Review the saved ownership and decoded PLT in both profiles and the client.
 
 New face-profile heads use `ownership.browSeedGuardPixels: 8` to recover source-supported brow fringe within eight front-render pixels. The repair remains inside the source brow seed and outside eye/lid exclusions, recovers only skin-to-hair texels and records its reach. All feature-channel heads also project a separate landmark-anchored upper-lid skin guard after channel assignment, regardless of whether brow recovery is enabled. It moves only hair-owned lid texels to skin and leaves irises and other materials intact. Early ownership and final PLT quality reject hair on the eroded upper-lid core independently of brow coverage (RUNBOOK 322). Existing manifests retain the three-pixel default until deliberately migrated. Inspect each eyebrow in the decoded runtime look; aggregate numeric coverage alone does not approve the edge (RUNBOOK 321).
+
+Brow-adjacent skin keeps its authored shadows by default (tone.faceTreatment.browSkinRefill: 0). The optional 0–1 refill strength is for a specifically reviewed leftover-pigment defect; it must not run as unconditional cleanup. Review decoded PLT eyes after treatment (RUNBOOK 342).
+
+
+### Local hair material heals
+
+For a confirmed skin-coloured bake artifact on hair, a configured paint heal can
+set materialChannel to 1, sourceSha256 to the exact UV mesh hash, and notes to the
+observed defect and reviewed adjacent hair donor. The existing small target/donor
+and 3D-distance limits still apply. Source coordinates, face selections and donor
+measurements belong in the external workspace recipe.
+
+Headkit automatically carries that heal's emitted mask into rule ownership.
+It preserves the eye, iris, nose, lip and ear protections and then runs the
+mandatory lid guard. The final ownership audit requires hair on every mapped
+repair texel and on every strictly majority-covered runtime block. Half-covered
+blocks remain governed by the normal majority tie rule. A mismatch refuses the
+attempt and reports the 4K and 1K counts rather than silently repainting anatomy.
+This requires rule ownership with featureChannels enabled; imported atlases do
+not acquire a bypass.
+
+Hard upper-eyelid guards use visible-only projection: the front depth/facing
+qualification must pass. Nearest-surface fill remains available for soft masks,
+but cannot extend a hard lid rule onto an occluded rear hair surface. Review the
+native material from both rear angles and alternate hair colours, as well as the
+front lids and brows; numerical success alone does not establish appearance.
+
+### Local closure with protected appearance
+
+A material repaint cannot close a hair opening that exposes an inner wall.
+Use mesh.localSeal with a reviewed diagnostic view, pixel seed, exact source
+hash and notes. Package the accepted UV mesh, actual basecolor, PLT shade,
+layer and decode maps and hair table using headkit.local_seal.bundle. Bind
+that portable GLB as comfyExport. Repair measures the rim, tries at most three
+closures, requires one fewer handle, verifies every cavity ray and simplifies
+only the local neighbourhood to the unchanged 20K limit. Preserve all original
+charts and fit; new charts occupy empty atlas space. Reuse and audit those UVs.
+
+Bind the repair maps as imported basecolor4k, ownership1k and runtimeColor with
+the normal exact-source texture approvals. palette.preserveStockEncoding true
+validates the stock-runtime NPZ, geometry fingerprint, fixed rows, ownership,
+decoded colours, opacity and the existing shade-range floor before copying
+indices without global tone or quantization. This explicit import route does
+not pretend to rerun ownership or tone. Masks, quality, native, GPU render and
+isolated client review remain required. Recipes and machine paths remain in
+the external workspace; historical assets and attempts remain immutable.
+
+For the face-mask pipeline, protected stock import is restricted to a reviewed
+localSeal plus explicit uvMesh, runtimeColor and ownership1k bindings with
+preserveStockEncoding true. A runtimeShades direct-export import remains
+forbidden. The typed package still has to pass its exact mesh/row/ownership/
+decode checks and the normal fresh masks and quality gate. If shared guard
+adoption makes historical receipts stale, explicitly import the immutable
+repaired UV output, retain its repair and unwrap lineage, and re-audit geometry
+and UVs at export; do not claim those historical stages reran.
+
+A local repair can change the complete front image hash despite preserving the
+eyes. Before retaining eye contours, compare old/new RGB pixels across both
+eyes and brows, inspect the crop, record zero changed eye pixels and a new
+whole-image binding, then regenerate masks. Never weaken the exact-image guard.
+
+Protected face encoding must retain palette.matchBodySkin true. The preservation
+pass measures the actual current face-skin median against the declared body PLT
+and reports that calibration without changing the shade indices. Fresh quality
+still enforces body alignment and the existing body-pinned shade-span floor.
+
+Headbatch automatically binds a preserved-encoding render to its declared
+basecolor4k source for 2K source-appearance views and to the exact palette decode
+for 1K runtime-PLT views. Both production delivery sizes and all material modes
+remain required. It refuses a missing source during setup; no atlas is upscaled.
+The sheets retain their distinct source-appearance/runtime labels.

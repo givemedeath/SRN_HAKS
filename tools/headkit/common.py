@@ -141,7 +141,14 @@ def manifest(path):
     # Imported runtime atlases bypass the gated path: palette would skip the channel moves and treatment, and export would
     # ship shades the quality gate never measured.
     bypass = sorted({'runtimeColor', 'runtimeShades', 'ownership1k'} & set(data['inputs']))
-    require(not all(face) or not bypass, 'Face masks build and gate the runtime atlases; do not import ' + ', '.join(bypass))
+    preserved = ((data.get('palette') or {}).get('preserveStockEncoding') is True
+                 and isinstance((data.get('mesh') or {}).get('localSeal'),dict)
+                 and (data['mesh']['localSeal'].get('reviewed') is True)
+                 and {'runtimeColor','ownership1k','uvMesh'} <= set(data['inputs']))
+    # A typed stock-index package is decoded and checked against this exact UV mesh, rows and ownership
+    # by stock_encoding.preserve, then measured by the normal quality gate. Direct export stays forbidden.
+    refused = [role for role in bypass if not (preserved and role in ('runtimeColor','ownership1k'))]
+    require(not all(face) or not refused, 'Face masks build and gate the runtime atlases; do not import ' + ', '.join(refused))
     budget = data.get('mesh', {}).get('triangleBudget', 20000)
     require(type(budget) is int and 4 <= budget <= 20000, 'Initial supported runtime budget is <=20K')
     return data

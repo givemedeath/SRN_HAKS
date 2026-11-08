@@ -6,7 +6,7 @@ shape). Precluster and the repair wrap cannot fix that, and an agent finds it on
 raw GLB first. Read-only; no stage depends on it.
 
 Method: face area per 2.5% height band (glTF y up) in the central back third (|x - centre| < width/6, z behind the
-centre by more than a quarter of the depth). OPEN when two or more adjacent bands between 35% and 80% of the height
+centre by more than a quarter of the checked cranial depth; lower hanging hair does not define that frame). OPEN when two or more adjacent bands between 35% and 80% of the height
 hold less than 5% of the median non-empty band area. Validated on troll batch v2: both open shapes flagged, every closed
 shape passed (a stubble or bald scalp gives a low floor, not a gap).
 """
@@ -24,15 +24,26 @@ def back_coverage(path):
     m = mesh(path); vertices = np.asarray(m['positions'], float); faces = np.asarray(m['faces']).reshape(-1, 3)
     lo, hi = vertices.min(0), vertices.max(0); centre = (lo+hi)/2; extent = hi-lo; corners = vertices[faces]
     centroids = corners.mean(1); area = np.linalg.norm(np.cross(corners[:, 1]-corners[:, 0], corners[:, 2]-corners[:, 0]), axis=1)/2
-    back = (np.abs(centroids[:, 0]-centre[0]) < extent[0]/6) & (centroids[:, 2] < centre[2]-.25*extent[2])
     height = (centroids[:, 1]-lo[1])/extent[1]
+    cranial = (height >= LOW/BANDS) & (height < HIGH/BANDS)
+    # Long hair below the checked skull can sweep far behind it. Derive the
+    # depth frame from the population actually checked, not those lower locks.
+    depth = centroids[cranial, 2]
+    if not len(depth):
+        return {'open':True, 'lowBands':[round(b/BANDS,3) for b in range(LOW,HIGH)],
+                'floorSquareCm':0., 'bandSquareCm':[0.]*BANDS, 'reason':'no cranial surface'}
+    depth_low, depth_high = float(depth.min()), float(depth.max())
+    back_boundary = depth_low + .25*(depth_high-depth_low)
+    back = (np.abs(centroids[:, 0]-centre[0]) < extent[0]/6) & (centroids[:, 2] < back_boundary)
+    frame = {'checkedDepthBounds':[depth_low,depth_high], 'backBoundary':back_boundary,
+             'globalDepthBounds':[float(lo[2]),float(hi[2])]}
     bands = np.array([area[back & (height >= b/BANDS) & (height < (b+1)/BANDS)].sum() for b in range(BANDS)])
     filled = bands[bands > 0]
     if not bands[LOW:HIGH].any():  # no back surface at all in the checked height range: open, not a zero floor
         return {'open': True, 'lowBands': [round(b/BANDS, 3) for b in range(LOW, HIGH)], 'floorSquareCm': 0.0,
-                'bandSquareCm': [round(float(v)*1e4, 2) for v in bands], 'reason': 'no back surface'}
+                'bandSquareCm': [round(float(v)*1e4, 2) for v in bands], 'reason': 'no back surface', **frame}
     floor = FLOOR*float(np.median(filled))
     low = [b for b in range(LOW, HIGH) if bands[b] < floor]
     run = max((sum(1 for _ in group) for adjacent, group in itertools.groupby(np.diff(low) == 1) if adjacent), default=0)+1 if low else 0
     return {'open': run >= 2, 'lowBands': [round(b/BANDS, 3) for b in low], 'floorSquareCm': round(floor*1e4, 2),
-            'bandSquareCm': [round(float(v)*1e4, 2) for v in bands]}
+            'bandSquareCm': [round(float(v)*1e4, 2) for v in bands], **frame}

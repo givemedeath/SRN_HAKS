@@ -127,6 +127,31 @@ class Project(unittest.TestCase):
             self.assertTrue(np.array_equal(out[name], np.rint(pad(atlas, mapped)[..., 0]).astype(np.uint8)))
 
 
+    def test_hard_masks_do_not_fill_occluded_or_back_facing_nearby_surfaces(self):
+        from unittest.mock import patch
+        value={'positions':np.array([[0,0,0],[1,0,0],[0,1,0],[0,0,-.001],[0,1,-.001],[1,0,-.001]],float),
+               'faces':np.array([[0,1,2],[3,4,5]]),'uv':np.zeros((2,3,2))}
+        points=np.array([[[.4,.4,0],[.4,.4,-.001]],[[.4,.4,-.004],[0,0,0]]],np.float32)
+        owners=np.array([[0,1],[0,-1]])
+        view={'hit':np.ones((16,16),bool),'zbuf':np.zeros((16,16)),'centre':(.5,.5),'span':1}
+        masks={'hard':np.ones((16,16),np.float32),'soft':np.ones((16,16),np.float32)}
+        with patch('headkit.face_masks.surface',return_value=(points,owners,None)):
+            result,report=project(value,view,masks,size=2,visible_only=('hard',))
+            legacy,_=project(value,view,masks,size=2)
+            self.assertEqual(result['hard'][0,0],255)
+            self.assertEqual(result['hard'][0,1],0)
+            self.assertEqual(result['hard'][1,0],0)
+            self.assertGreater(result['soft'][0,1],0)
+            self.assertGreater(result['soft'][1,0],0)
+            np.testing.assert_array_equal(result['soft'],legacy['soft'])
+            self.assertEqual(report['visibleOnly'],['hard'])
+            with patch('headkit.face_masks.cKDTree',side_effect=AssertionError('Unneeded tree')):
+                strict,_=project(value,view,{'hard':masks['hard']},size=2,visible_only=('hard',))
+            np.testing.assert_array_equal(strict['hard'],result['hard'])
+            with self.assertRaisesRegex(ValueError,'name masks'):
+                project(value,view,masks,size=2,visible_only=('typo',))
+
+
 class Beard(unittest.TestCase):
     def test_hair_coloured_beard_stays_hair_below_the_nose(self):
         # RUNBOOK 145: the parser calls beards skin. Grey beard (owned hair) and a skin-coloured patch the hair rule over-took,
@@ -275,6 +300,48 @@ class Treatment(unittest.TestCase):
         settings = {k: 0 for k in TREATMENT}; settings['delight'] = .8
         out, report = treat(colour, np.zeros((4096, 4096), np.uint8), flat('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket'), value, settings)
         self.assertLessEqual(float((out-colour).max()), 1e-3); self.assertLess(float(out[2048, 2048, 0]), float(colour[2048, 2048, 0]))
+
+    def test_brow_skin_shadows_are_preserved_by_default_and_refill_is_explicit(self):
+        from unittest.mock import patch
+        yy,xx=np.mgrid[:32,:32]
+        points=np.stack((xx*.005,yy*.005,np.ones_like(xx)),axis=-1).astype(float)
+        owners=np.zeros((32,32),int)
+        value={'positions':np.array([[0,0,1],[1,0,1],[0,1,1]],float),
+               'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
+        colour=np.full((32,32,3),[180,140,110],np.float32)
+        labels=np.zeros((32,32),np.uint8);labels[8:12,12:20]=1
+        colour[labels==1]=[50,35,30]
+        shadow=np.zeros_like(labels,bool);shadow[12:16,12:20]=True
+        colour[shadow]=[65,48,35]
+        masks={name:np.zeros((32,32),np.float32) for name in
+               ('iris','eye','brow','lips','nose','lipline','socket')}
+        masks['brow'][labels==1]=1
+        settings={key:0 for key in TREATMENT if key!='browSkinRefill'}
+        settings['browEdge']=1
+        results={}
+        with patch('headkit.face_encode.surface',return_value=(points,owners,None)), \
+             patch('headkit.face_encode.face_region',return_value=(np.array([True]),None)), \
+             patch('headkit.face_encode.chart_ids',return_value=np.array([0])), \
+             patch('headkit.face_encode.pad',side_effect=lambda rgb,mapped:rgb):
+            for strength in (None,.5,1):
+                current=dict(settings,**({} if strength is None else {'browSkinRefill':strength}))
+                result,report=treat(colour,labels,masks,value,current)
+                results[strength]=result
+                if strength is None:
+                    np.testing.assert_array_equal(result[shadow],colour[shadow])
+                    self.assertEqual(report['browFringeRefilled'],0)
+                    self.assertEqual(report['settings']['browSkinRefill'],0)
+                else:
+                    self.assertGreater(report['browFringeRefilled'],0)
+                    self.assertTrue((result[shadow]>=colour[shadow]).all())
+                    self.assertTrue((result[shadow]>colour[shadow]).any())
+                np.testing.assert_array_equal(result[labels==1],colour[labels==1])
+            np.testing.assert_allclose(results[.5][shadow],(results[1][shadow]+colour[shadow])/2)
+            protected,report=treat(colour,labels,masks,value,dict(settings,browSkinRefill=1),
+                                   preserve_skin=np.ones_like(labels))
+            np.testing.assert_array_equal(protected[shadow],colour[shadow])
+            self.assertEqual(report['browFringeRefilled'],0)
+
 
     def test_scalp_delight_darkens_visible_bright_skin_off_the_face_to_the_face_level(self):
         # RUNBOOK 165: a front quad (the face region, skin 100) and a top quad off it (bright baked light 180, shade 60), in the

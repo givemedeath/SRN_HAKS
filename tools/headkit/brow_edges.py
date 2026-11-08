@@ -3,17 +3,22 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import binary_dilation
 from .common import require
-from .face_masks import EYE_RING, BROW_RING, IRIS, polygon, brow_seed, eye_contours, sample, project
+from .face_masks import EYE_RING, BROW_RING, IRIS, polygon, brow_seed, eye_contours, sample, project, HAIR
 from .textures import pad
 
 
-def upper_lids(shape,pts,hit,cybereye_image_side=None):
+def upper_lids(shape,pts,hit,cybereye_image_side=None,*,source_hair=None):
     """Lower half of the brow-to-upper-eye gap, anchored to each eye's own landmarks.
 
-    The parser can join a dark lid crease to a brow. Its label is therefore not
+    With a source-hair mask, protect the full gap and the eight-pixel end margin,
+    preserving genuine hair locks in the added upper band. The legacy lower band
+    remains mandatory. The parser can join a dark lid crease to a brow. Its label is therefore not
     evidence that the crease is hair. Keep the landmark brow and eye opening out.
     """
     require(cybereye_image_side in (None,'left','right'),'Unknown cybereye side')
+    if source_hair is not None:
+        require(isinstance(source_hair,np.ndarray) and source_hair.shape==shape and source_hair.dtype==bool,
+                'Source hair needs a matching boolean front mask')
     ys,xs=np.indices(shape);out=np.zeros(shape,bool)
     for side,ring in EYE_RING.items():
         eye=pts[ring[8:]+[ring[0]]];brow=pts[BROW_RING[side][5:]]
@@ -25,6 +30,10 @@ def upper_lids(shape,pts,hit,cybereye_image_side=None):
         top=(ey+by)/2
         local=(xs>=max(eye[0,0]-.18*width,brow[0,0])) & (xs<=min(eye[-1,0]+.18*width,brow[-1,0]))
         local &= (ys>=top[None,:]) & (ys<=ey[None,:]+1) & (ey>by+2)[None,:]
+        if source_hair is not None:
+            gap=(xs>=min(eye[0,0]-.18*width,brow[0,0])-8) & (xs<=max(eye[-1,0]+.18*width,brow[-1,0])+8)
+            gap &= (ys>=by[None,:]+1) & (ys<=ey[None,:]+1) & (ey>by+2)[None,:]
+            local |= gap & ~source_hair
         local &= ~polygon(shape,pts,EYE_RING[side]) & ~polygon(shape,pts,BROW_RING[side])
         out |= local
     if cybereye_image_side is not None:
@@ -55,7 +64,7 @@ def adjust(labels,value,masks,mapped,maximum_front_pixels=3,*,recover_brows=Fals
     with Image.open(files['frontLabels']['path']) as image:parsed=np.asarray(image)
     pts=np.load(files['frontLandmarks']['path'],allow_pickle=False)
     with np.load(files['frontView']['path'],allow_pickle=False) as saved:view={k:saved[k] for k in saved.files}
-    lids=upper_lids(parsed.shape,pts,view['hit'],cybereye_image_side)
+    lids=upper_lids(parsed.shape,pts,view['hit'],cybereye_image_side,source_hair=parsed==HAIR)
     eyes=binary_dilation(polygon(parsed.shape,pts,EYE_RING['R']) | polygon(parsed.shape,pts,EYE_RING['L']),iterations=1)
     excluded=lids.copy()
     if 'eyeContours' in masks:
@@ -68,7 +77,7 @@ def adjust(labels,value,masks,mapped,maximum_front_pixels=3,*,recover_brows=Fals
         core=sample(view,atlas[...,None],value['uv'])[...,0]>.5
         repair=fringe(seed,core,eyes,excluded,maximum_front_pixels)
         require(repair.any(),'No source-bound brow edge evidence')
-    maps,_=project(value,view,{'browEdge':repair.astype(np.float32),'upperLid':lids.astype(np.float32)},size=len(labels))
+    maps,_=project(value,view,{'browEdge':repair.astype(np.float32),'upperLid':lids.astype(np.float32)},size=len(labels),visible_only=('upperLid',))
     result,report=apply_regions(labels,mapped,maps['browEdge']>127,maps['upperLid']>127)
     result=pad(result[...,None],mapped)[...,0]
     report.update(maximumFrontPixels=maximum_front_pixels if recover_brows else None,

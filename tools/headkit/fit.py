@@ -168,7 +168,7 @@ def landmark_fit(source, target, maximum_residual):
 
 
 def propose(source, reference, output, *, exclude_lower=.25, align='profile', landmarks=None, chin_down_degrees=0,
-            scale_multiplier=1, realign_after_pose=False, height_offset=0, local_scale_multiplier=1):
+            scale_multiplier=1, realign_after_pose=False, height_offset=0, local_scale_multiplier=1, depth_offset=0):
     """align='nose' keeps the profile-matched scale but places the head by aligning nose tips (troll-male-01's
     reviewed rule against pmg0_head014), so hair, crests or a neckless reference cannot shift the placement.
     align='landmarks' scales and places the head by its reviewed face landmarks on the base head's (BASE_HEADS)."""
@@ -182,9 +182,11 @@ def propose(source, reference, output, *, exclude_lower=.25, align='profile', la
             'Realigning a posed head requires a measured nose alignment')
     require(type(height_offset) in (int, float) and np.isfinite(height_offset),
             'Fit height offset must be a finite number in head-local metres')
+    require(type(depth_offset) in (int,float) and np.isfinite(depth_offset) and abs(depth_offset)<=.05,
+            'Fit depth offset must be finite and within five centimetres in the body frame')
     require(type(local_scale_multiplier) in (int, float) and np.isfinite(local_scale_multiplier) and local_scale_multiplier > 0,
             'Local uniform scale must be positive and finite')
-    require(align != 'landmarks' or (chin_down_degrees == 0 and scale_multiplier == 1 and height_offset == 0 and local_scale_multiplier == 1),
+    require(align != 'landmarks' or (chin_down_degrees == 0 and scale_multiplier == 1 and height_offset == 0 and local_scale_multiplier == 1 and depth_offset == 0),
             'Pose adjustments would move reviewed fit landmarks')
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     value=mesh(source);local=head_local(surface_samples(value['positions'][value['faces']],1000000));target=ascii_surface(reference)
@@ -232,6 +234,11 @@ def propose(source, reference, output, *, exclude_lower=.25, align='profile', la
         matrix[2,3] += height_offset
         fitted[:,2] += height_offset
         result.update(heightOffset=height_offset, translation=matrix[:3,3].tolist())
+    if depth_offset:
+        # +y is body-frame forward; apply after pose/nose realignment, before local uniform scaling.
+        matrix[1,3] += depth_offset
+        fitted[:,1] += depth_offset
+        result.update(depthOffset=depth_offset, translation=matrix[:3,3].tolist())
     if local_scale_multiplier != 1:
         # Local uniform scaling changes only the linear part of the finished fit.
         # Keep the origin at its exact posed position in the head_g frame.

@@ -238,6 +238,20 @@ class BoundedDesignOverrideTests(Base):
         with self.assertRaisesRegex(guards.Refused, '3 designs reached'):
             guards.design_cap(folder, head)
 
+    def test_submitted_imagegen_edits_count_once_even_without_outputs(self):
+        folder = self.root/'design'
+        head = 'elf-female-a'
+        for attempt in (1, 2, 3):
+            write(folder/'submissions'/head/f'design-{attempt:04}-submitted.json', {'head': head, 'attempt': attempt})
+            write(folder/'submissions'/head/f'design-{attempt:04}-complete.json', {'head': head, 'attempt': attempt})
+        with self.assertRaisesRegex(guards.Refused, '3 designs reached'):
+            guards.design_cap(folder, head)
+        write(folder/f'design-cap-override-{head}', {'head': head, 'maximumDesigns': 4, 'approval': 'one extra conditioning edit'})
+        guards.design_cap(folder, head)
+        write(folder/'submissions'/head/'design-0004-submitted.json', {'head': head, 'attempt': 4})
+        with self.assertRaisesRegex(guards.Refused, 'authorized cap of 4'):
+            guards.design_cap(folder, head)
+
     def test_one_additional_design_stops_at_its_authorized_count(self):
         head = 'elf-male-a'
         folder = self.root/'design'
@@ -276,6 +290,7 @@ class VramPromptOwnershipTests(Base):
         self.assertTrue(face_quality_profile()['ownership']['hairEarGuard'])
         self.assertTrue(face_quality_profile()['ownership']['browSeedGuard'])
         self.assertEqual(face_quality_profile()['ownership']['browSeedGuardPixels'],8)
+        self.assertEqual(face_quality_profile()['tone']['faceTreatment']['browSkinRefill'],0)
         uv = face_quality_profile()['mesh']['uv']
         self.assertEqual(uv['faceDensity'], 3)
         self.assertIs(uv['refinePacking'], True)
@@ -499,6 +514,18 @@ class Guards(Base):
         write(head/'jaw-reviewed')
         guards.jaw(head, marks)
         self.assertIsNone(guards.jaw_limit(head, None))
+
+    def test_imported_uv_gate_and_coverage(self):
+        receipt={'imported':True,'coverageFloor':.30,'audits':{
+            size:{'raster':{'coverageFraction':.49,'overlapFaces':[],'degenerateUvFaces':[],
+                  'subtexel':{'passed':True}},'gutters':{'nearbyChartPixelsByRadius':{'1':0,'2':0,'4':7}}}
+            for size in ('4096','2048','1024')}}
+        self.assertTrue(guards.unwrap_gates(receipt)[0])
+        self.assertEqual(guards.coverage({'result':receipt}),.49)
+        receipt['audits']['1024']['gutters']['nearbyChartPixelsByRadius']['1']=1
+        self.assertFalse(guards.unwrap_gates(receipt)[0])
+        receipt['audits'].pop('4096')
+        self.assertFalse(guards.unwrap_gates(receipt)[0])
 
     def test_unwrap_gates(self):
         receipt = {'attempts': [{'badFaceCount': 0, 'subtexel': {'1024': {'passed': True}}}], 'gutters': {'1024': {'nearbyChartPixelsByRadius': {'1': 0}}}, 'geometryUnchanged': True, 'charts': 9}
@@ -845,6 +872,17 @@ class Launches(Base):
             launcher.run_stages(self.workspace, 'n', 'ownership', ['elf-male-a'])
         slot.assert_not_called()
 
+    def test_missing_eye_contours_refuse_before_tone_slot_or_attempt(self):
+        head=self.head();data=guards.read(head/'manifest.json')
+        data['tone']={'referenceEyes':{'fixture':True}};data['faceMasks']={}
+        write(head/'manifest.json',data)
+        with unittest.mock.patch.object(launcher,'cpu_slot') as slot, self.assertRaisesRegex(guards.Refused,'eyeContours before tone'):
+            launcher.run_stages(self.workspace,'needs-eye-contours','tone',[head.name])
+        slot.assert_not_called()
+        self.assertFalse((head/'run/tone').exists())
+        data['faceMasks']['eyeContours']={'fixture':'source-bound traces'};write(head/'manifest.json',data)
+        guards.reference_eye_prerequisites(head)
+
     def test_a_busy_head_refuses_a_second_launch(self):
         self.head()
         with guards.head_lock(self.workspace, 'elf-male-a'), self.assertRaisesRegex(guards.Refused, 'RUNBOOK 190'):
@@ -1052,6 +1090,19 @@ class Setup(Base):
               'outputs':[{'path':str(image),'sha256':head_setup.sha(image)}]})
         return image
 
+    def test_body_torso_reference_is_copied_and_remains_pinned_after_rewrite(self):
+        design=self.prepare()
+        torso=write(self.root/'body-native/pme0_chest001.mdl','native torso fixture')
+        self.workspace.data['bodyTorsoReferences']={'pme0':str(torso)}
+        path=head_setup.set_up(self.workspace,'elf-male-a',design,approval='fixture selection',check=lambda *_:None)
+        data=guards.read(path)
+        self.assertEqual(data['inputs']['bodyTorso'],{'path':'inputs/pme0_chest001.mdl','sha256':head_setup.sha(torso)})
+        torso.write_text('source later changed')
+        self.assertNotEqual(data['inputs']['bodyTorso']['sha256'],head_setup.sha(torso))
+        head_setup.write_manifest(self.workspace,'elf-male-a',check=lambda *_:None)
+        self.assertEqual(guards.read(path)['inputs']['bodyTorso'],data['inputs']['bodyTorso'])
+        self.assertEqual((path.parent/data['inputs']['bodyTorso']['path']).read_text(),'native torso fixture')
+
     def test_face_profile_setup_replaces_diagnostics_and_survives_rewrite(self):
         from headkit.cameras import review_cameras
         from headkit.review_images import render_plan, resolutions
@@ -1228,6 +1279,37 @@ class Setup(Base):
             head_setup.tone_every_channel(data, 'elf', 'male', 'h')
 
 
+
+class StockMaterialTrialCheck(Base):
+    def test_built_in_material_proof_binds_exact_runtime_sources_and_rejects_drift(self):
+        from stock_materials import check,expected
+        from headkit.native import material_binding
+        from headkit.common import pin,read
+        sys.path.insert(0,str(HERE.parent/'heads'));sys.path.insert(0,str(HERE.parent/'phenotypes'))
+        from build_head_trial import stock_material_inputs
+        stock=b'customshadervs vslit_sm\ncustomshaderfs fslit_sm\nparameter float Metallicness 0.001\nparameter float Specularity 0.04\nparameter float Roughness 0.65'
+        base=write(self.root/'base.hak','base');container=write(self.root/'game.bif','stock container')
+        spec={'gameRoot':str(self.root/'game'),'base':{'haks':[pin(base)]},
+              'heads':[{'model':'pmd0_head021','nativeMaterial':material_binding('stock-organic-head-v1','pmd0_head021',[0,1,8])}]}
+        proof=check(self.workspace,spec,self.root/'material-check',fetch=lambda name:(stock,[pin(container)],'bound stock fixture'))
+        spec['stockMaterialCheck']=proof
+        paths=stock_material_inputs(spec)
+        self.assertIn(container,paths);self.assertIn(Path(proof['path']),paths)
+        wrong=json.loads(json.dumps(spec));wrong['heads'][0]['nativeMaterial']['material']='oldf_head'
+        with self.assertRaises(ValueError):expected(wrong)
+        with self.assertRaisesRegex(ValueError,'differs'):
+            check(self.workspace,spec,self.root/'bad-material',fetch=lambda name:(b'changed',[], 'changed fixture'))
+        container.write_text('changed source')
+        with self.assertRaises(ValueError):stock_material_inputs(spec)
+
+    def test_legacy_trial_does_not_resolve_or_require_stock_materials(self):
+        from stock_materials import check
+        fetch=unittest.mock.Mock()
+        output=self.root/'unused'
+        self.assertIsNone(check(self.workspace,{'heads':[{'model':'pmd0_head021'}]},output,fetch=fetch))
+        fetch.assert_not_called();self.assertFalse(output.exists())
+
+
 class Trials(Base):
     def test_spec_uses_each_heads_newest_native_and_chosen_rows(self):
         for file in ('head.hak', 'mod.mod'):
@@ -1279,6 +1361,16 @@ class Trials(Base):
 
 
 class Presets(Base):
+    def test_local_closure_preserves_explicit_policy(self):
+        head = self.head()
+        original = {'mesh': {'localSeal': {'reviewed': True}, 'neck': None}}
+        write(head/'overrides.json', original)
+        result, notes, hold, changed = presets.plan(self.workspace, head.name)
+        self.assertEqual(result, original)
+        self.assertFalse(changed)
+        self.assertEqual(hold, [])
+        self.assertIn('preserves', notes[0])
+
     def overrides(self, head, cut):
         write(head/'overrides.json', {'mesh': {'neck': {'cut': cut}}})
 
@@ -1490,6 +1582,26 @@ class Review(Base):
         with self.assertRaisesRegex(ValueError, 'rejected'):
             gpu_contract.evidence_geometry(ledger, 'geometry-0001')
         self.assertIn('geometry-0002 | REJECTED', launcher.status(self.workspace)[0])
+
+    def test_status_distinguishes_current_review_from_pending_or_stale(self):
+        head=self.head()
+        self.receipt(head,'prepare',1,{'result':{}})
+        stage={'path':str(head/'run/prepare/attempt-01/receipt.json'),'sha256':'current'}
+        review={'path':str(head/'run/reviews/prepare-review.json'),'sha256':'review'}
+        write(head/'run/state.json',{'stages':{'prepare':stage},'reviews':{'prepare':review}})
+        write(review['path'],{'stageReceipt':stage,'decision':'approved'})
+        self.assertIn('PREPARE REVIEWED; READY FOR NEXT STAGE',launcher.status(self.workspace)[0])
+        self.assertNotIn('WAITING ON REVIEW',launcher.status(self.workspace)[0])
+        for change in [{'decision':'pending'},{'decision':'rejected'},
+                       {'stageReceipt':dict(stage,sha256='older')}]:
+            write(review['path'],dict({'stageReceipt':stage,'decision':'approved'},**change))
+            self.assertIn('WAITING ON REVIEW',launcher.status(self.workspace)[0])
+        write(review['path'],{'stageReceipt':stage,'decision':'approved'})
+        self.receipt(head,'prepare',2,{'error':'new failed candidate'})
+        os.utime(head/'run/prepare/attempt-02/receipt.json',(2**31,2**31))
+        latest=launcher.status(self.workspace)[0]
+        self.assertIn('prepare attempt-02 failed',latest)
+        self.assertNotIn('READY FOR NEXT STAGE',latest)
 
     def test_status_names_a_head_waiting_on_review(self):
         head = self.head()
@@ -1817,6 +1929,16 @@ class SpoolTests(Base):
                          self.workspace.spool/'sheets'/f'{head.name}-fit-attempt-01-reference.png'))
         self.assertFalse(self.started)
 
+    def test_fit_automatically_queues_pinned_upper_body_context_when_declared(self):
+        head=self.head();data=guards.read(head/'manifest.json')
+        data['inputs']={'bodyTorso':{'path':'inputs/pme0_chest001.mdl','sha256':'1'*64}}
+        write(head/'manifest.json',data)
+        self.receipt(head,'fit',1,{'result':{}});self.finish(stage='fit')
+        target=self.workspace.spool/'sheets'/f'{head.name}-fit-attempt-01-body.png'
+        self.assertIn(('fitassembly',head.name,'attempt-01',target),self.queued)
+        self.assertIn('actual torso and neck',self.spool.state['review'][head.name+'/fit']['text'])
+        self.assertFalse(self.started)
+
     def test_repair_without_a_cut_compares_master_to_final(self):
         head=self.head()
         self.receipt(head, 'repair', 1, {'result': {}})
@@ -2135,6 +2257,54 @@ class ConditioningContracts(Base):
             select()
         self.assertEqual(pin(head/'manifest.json'), candidate)
 
+    def test_revised_pair_keeps_slot_history_and_clay_only_guard(self):
+        from PIL import Image, ImageDraw
+        import reference_record
+        from headkit.common import pin
+        fixture = Setup(methodName='test_set_up_writes_a_complete_head')
+        fixture.root, fixture.workspace = self.root, self.workspace
+        fixture.prepare()
+        name = 'elf-male-a'
+        image, original = self.record()
+        record = guards.read(original)
+        def raster(label, color):
+            path = self.root/(label+'.png')
+            canvas = Image.new('RGBA', (64,64))
+            ImageDraw.Draw(canvas).ellipse((12,10,51,55), fill=color)
+            canvas.save(path)
+            return pin(path)
+        alignment = {'landmarks': [{'name':str(i), 'clay':xy, 'detail':xy}
+                     for i,xy in enumerate([[.3,.3],[.6,.3],[.4,.6]])]}
+        record['conditioning'] = {'clay':raster('old-clay','gray'), 'detail':raster('old-detail','brown'), 'alignment':alignment}
+        write(original, record)
+        head = head_setup.set_up(self.workspace, name, image, approval='original', reference=original, check=lambda *_:None).parent
+        ledger = write(head/'gpu/gpu.json', {'stages':{}, 'geometrySubmissions':2,
+                                          'rejectedGeometry':[{'submission':1},{'submission':2}]})
+        preserved = [pin(p) for p in [ledger, head/'design/design-receipt.json', head/'inputs/clay.png', head/'inputs/detail.png']]
+        record['design'] = raster('new-design','gold')
+        record['conditioning'].update(clay=raster('new-clay','silver'), detail=raster('new-detail','gold'))
+        record['features']['hair'] = 'Long continuous rear curtain behind the jaw; no rear cutout.'
+        new = write(self.root/'revised-pair.json', record)
+        report = reference_record.check(new, name, self.root/'pair-measured')
+        self.assertTrue(any('rear volume' in text for text in report['visualChecks']))
+        checked = self.root/'pair-measured/reference-check.json'
+        design = Path(record['design']['path'])
+        with self.assertRaisesRegex(guards.Refused, 'clay-only'):
+            head_setup.revise_clay(self.workspace, name, design, new, checked, 'select pair', check=lambda *_:None)
+        for _ in range(2):
+            head_setup.revise_pair(self.workspace, name, design, new, checked, 'select pair', check=lambda *_:None)
+        active = guards.read(head/'manifest.json')
+        for role in ('clay','detail','design'):
+            expected = record['design'] if role=='design' else record['conditioning'][role]
+            self.assertEqual(pin(head/active['inputs'][role]['path'])['sha256'], expected['sha256'])
+        self.assertEqual([pin(Path(p['path'])) for p in preserved], preserved)
+        self.assertIn(record['features']['hair'], [r['description'] for r in active['features']])
+        before = pin(head/'manifest.json')
+        data = guards.read(ledger); data['stages']['geometry']={}; write(ledger,data)
+        with self.assertRaisesRegex(guards.Refused, 'accepted geometry'):
+            head_setup.revise_pair(self.workspace, name, design, new, checked, 'select pair', check=lambda *_:None)
+        self.assertEqual(pin(head/'manifest.json'), before)
+
     def test_face_profile_is_complete_and_feature_channels_get_tones(self):
         profile=head_setup.face_quality_profile()
         self.assertEqual(profile['mesh']['uv']['faceDensity'],3)
@@ -2352,7 +2522,85 @@ class FitLandmarkEvidence(Base):
             np.testing.assert_allclose(diagnostic.positions(head.name), [[1/3,1/3,0,0,0,-1]], atol=1e-6)
 
 
+
+class IrisRowCandidates(unittest.TestCase):
+    def test_preserved_encoding_uses_bound_source_without_reading_historical_tone(self):
+        from types import SimpleNamespace
+        from PIL import Image
+        import numpy as np
+        from review.irisrows import source_appearance
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'source.png';Image.new('RGB',(4096,4096),(45,70,80)).save(path)
+            runner=SimpleNamespace(_color4k=lambda:str(path),result=lambda stage:(_ for _ in ()).throw(AssertionError(stage)))
+            rgb,pins=source_appearance(runner,{'preservedStockEncoding':{'input':{}}})
+            self.assertEqual(rgb.shape,(1024,1024,3))
+            self.assertTrue(np.all(rgb==[45,70,80]))
+            self.assertEqual(Path(pins[0]['path']),path)
+
+    def test_explicit_rows_are_previewed_even_when_outside_automatic_shortlist(self):
+        import numpy as np
+        from review.irisrows import candidates
+        rgb=np.zeros((2,2,3),np.uint8);layers=np.full((2,2),8,np.uint8);shades=np.zeros((2,2),np.uint8)
+        table=np.zeros((176,256,4),np.uint8)
+        with unittest.mock.patch('review.irisrows.rows_for_shades',return_value=[{'row':115}]):
+            rows,_=candidates(rgb,layers,shades,table,115,[0,132,115])
+        self.assertEqual(rows,[115,0,132])
+        for bad in (-1,176,True):
+            with self.assertRaisesRegex(ValueError,'Candidate iris row'):
+                candidates(rgb,layers,shades,table,115,[bad])
+
 class ReferenceEyeProposal(Base):
+    def test_failed_proposal_retains_both_native_eye_crops(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        import numpy as np
+        from PIL import Image
+        from headkit.common import pin
+        import review.eyereference as eyes
+        for fail_registration in (False,True):
+            with self.subTest(registration=fail_registration):
+                head=self.root/('failed-register' if fail_registration else 'failed-trace')
+                attempt=head/'run/masks/attempt-01';attempt.mkdir(parents=True)
+                receipt=attempt/'receipt.json';receipt.write_text('{}')
+                reference=head/'reference.png';front=head/'front.png';labels=head/'labels.png'
+                Image.new('RGB',(64,64),(10,20,30)).save(reference)
+                Image.new('RGB',(64,64),(40,50,60)).save(front)
+                Image.new('L',(64,64),0).save(labels)
+                pts=np.full((500,2),32.);landmarks=head/'points.npy';np.save(landmarks,pts)
+                view=head/'view.npz';np.savez(view,hit=np.ones((64,64),bool))
+                (head/'models').mkdir();(head/'models/face_landmarker.task').write_bytes(b'model')
+                result={'files':{'frontRender':pin(front),'frontLabels':pin(labels),
+                     'frontLandmarks':pin(landmarks),'frontView':pin(view)},'iris':{}}
+                runner=SimpleNamespace(result=lambda *a,**k:result,state={'stages':{'masks':pin(receipt)}},
+                    input=lambda role:str(reference),data={},bindings={'libraries':{'mediapipe':{'directory':str(head)}}})
+                proposal=ValueError('closed lids') if fail_registration else None
+                with patch.object(eyes,'Runner',return_value=runner),patch.object(eyes,'library',return_value=object()), \
+                     patch.object(eyes,'landmarks',return_value=pts),patch.object(eyes,'iris_circles',return_value=({},False)), \
+                     patch.object(eyes,'propose',return_value={},side_effect=proposal), \
+                     patch.object(eyes,'contour_proposal',side_effect=ValueError('missing opening')):
+                    output=eyes.draw(head,'attempt-01',head/'sheet.png')
+                report=json.loads(output.with_suffix('.json').read_text())
+                self.assertFalse(report['approved']);self.assertNotIn('eyeContours',report)
+                self.assertTrue(report['contourProposalError'])
+                self.assertEqual(set(report['crops']),{'reference','front'})
+                with Image.open(report['crops']['front']['path']) as image:
+                    self.assertEqual(image.getpixel((0,0)),(40,50,60))
+
+
+    def test_native_front_crop_survives_contour_overlay_and_existing_evidence_is_preserved(self):
+        from PIL import Image
+        from review.eyereference import evidence_sheet
+        output=self.root/'eye-sheet.png'
+        rows=[(name,name,Image.new('RGB',(20,10),color)) for name,color in
+              [('reference',(10,20,30)),('front',(40,50,60)),('contours',(70,80,90))]]
+        pins=evidence_sheet(output,rows)
+        self.assertEqual(set(pins),{'reference','front','contours'})
+        for name,_,native in rows:
+            with Image.open(pins[name]['path']) as actual:
+                self.assertEqual(actual.size,native.size)
+                self.assertEqual(actual.tobytes(),native.tobytes())
+        with self.assertRaisesRegex(ValueError,'already exists'):evidence_sheet(output,rows)
+
     def test_registration_uses_each_lid_span_and_rejects_closed_or_reversed_eyes(self):
         import numpy as np
         from review.eyereference import propose
@@ -2370,6 +2618,32 @@ class ReferenceEyeProposal(Base):
         target[EYE_RING['L'],1]=200
         with self.assertRaisesRegex(ValueError,'open lid spans'):
             propose(source,target,circles,targets,(400,400),(400,400))
+
+
+class NativeEyeContours(unittest.TestCase):
+    def test_proposed_contours_bind_actual_pixels_and_keep_iris_inside_openings(self):
+        import numpy as np
+        from PIL import Image,ImageDraw
+        from review.eyereference import contour_proposal
+        from headkit.face_masks import eye_contours
+        rgb=np.zeros((100,100,3),np.uint8);hit=np.ones((100,100),bool)
+        image=Image.new('L',(100,100))
+        for x in (30,70):ImageDraw.Draw(image).ellipse((x-12,45,x+12,55),fill=255)
+        opening=np.asarray(image)>0
+        circles={side:(np.array([x,50]),7.) for side,x in [('R',30),('L',70)]}
+        recipe={side:{'target':[x,50,7,8]} for side,x in [('R',30),('L',70)]}
+        with unittest.mock.patch('headkit.face_masks.render_masks',return_value=({},{'eye':opening})):
+            spec,overlay=contour_proposal(rgb,None,None,circles,hit,recipe)
+        regions=eye_contours(rgb,spec,{s:c[0] for s,c in circles.items()},hit)
+        self.assertFalse((regions['iris']&~regions['opening']).any())
+        self.assertGreater(regions['iris'].sum(),20)
+        self.assertEqual(overlay.shape,rgb.shape)
+        changed=rgb.copy();changed[0,0]=255
+        with self.assertRaisesRegex(ValueError,'exact front-render'):
+            eye_contours(changed,spec,{s:c[0] for s,c in circles.items()},hit)
+        with unittest.mock.patch('headkit.face_masks.render_masks',return_value=({},{'eye':np.zeros_like(opening)})):
+            with self.assertRaisesRegex(ValueError,'Missing eye opening'):
+                contour_proposal(rgb,None,None,circles,hit,recipe)
 
 
 class EarlyRoleMetrics(unittest.TestCase):
@@ -2468,6 +2742,24 @@ class TextureSheetContract(Base):
 
 
 class RenderDeviceDefaults(unittest.TestCase):
+    def test_preserved_render_uses_real_source_and_native_decode_at_delivery_sizes(self):
+        from head_setup import bind_preserved_render
+        data={'palette':{'preserveStockEncoding':True},'inputs':{'basecolor4k':{}},
+              'render':{'mapStages':{'basecolor':'palette'},'sizes':[2048,1024]}}
+        bind_preserved_render(data)
+        self.assertEqual(data['render']['sizes'],[2048,1024])
+        self.assertEqual(data['render']['mapInputs'],{'basecolor':'basecolor4k'})
+        self.assertNotIn('basecolor',data['render']['mapStages'])
+        self.assertTrue(data['render']['runtimePalette'])
+        data['inputs'].clear()
+        with self.assertRaisesRegex(guards.Refused,'do not upscale'):bind_preserved_render(data)
+
+    def test_ordinary_render_binding_is_preserved(self):
+        from head_setup import bind_preserved_render
+        data={'inputs':{},'render':{'mapStages':{'basecolor':'tone'}}}
+        bind_preserved_render(data)
+        self.assertEqual(data,{'inputs':{},'render':{'mapStages':{'basecolor':'tone'}}})
+
     def test_workspace_gpu_profile_binds_the_existing_shared_lane(self):
         from types import SimpleNamespace
         from head_setup import bind_render_device
