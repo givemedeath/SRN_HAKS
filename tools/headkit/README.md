@@ -69,7 +69,7 @@ Comprehensive generation, processing, fitting, UV unwrapping, texturing, quality
   - `prepare(head_mesh, skeleton)`: Prepares head model geometry for NWN binary MDL export (`native.py`).
   - `audit_native(mdl_path)`: Verifies compiled NWN model hierarchy, node naming, and bounding volumes (`native.py`).
   - `decode(mdl_stream)`: Decodes NWN binary and ASCII MDL model structures (`native_reader.py`).
-  - `model_contract(model)`: Validates final head model contract (vertex count <= 2000, valid bones, texture references) (`model_contract.py`).
+  - `model_contract(graph, bindings, checkpoints)`: Verifies ComfyUI checkpoint and loader model bindings against reviewed profiles (`model_contract.py`).
 - Common Contracts & Utilities:
   - `verification_pass(name)`: Context manager running hash verification pass on required assets (`common.py`).
   - `require(condition, message)`: Assertion utility enforcing pipeline invariants (`common.py`).
@@ -84,7 +84,8 @@ Comprehensive generation, processing, fitting, UV unwrapping, texturing, quality
 - `[comfy:verify_comfy_runtime]` ComfyUI server runtime environment and executing bytecode must match the reviewed frozen deployment inventory before any prompt is dispatched.
 - `[uv:audit_imported_uvs]` UV coordinates must be normalized to `[0, 1]`, with positive winding orientation and minimum gutter margins of 4 pixels at 1024x1024 resolution to prevent cross-island bleeding.
 - `[quality:quality]` Head texture PLT maps must satisfy all numeric thresholds in `quality-thresholds.json`: lip hair contamination <= 0.02, upper lid hair contamination == 0, seam step ratio <= 1.25, and skin median offset within tolerance.
-- `[model_contract:model_contract]` Final head models must adhere strictly to NWN engine limits: maximum 2000 triangles, exact node hierarchy with `head_g` geometry parented to `neck` bone, and valid single-material texture references.
+- `[native:prepare / audit_native]` Final head models must adhere strictly to the 20,000-triangle budget, exact node hierarchy with geometry parented to `neck` bone, and valid single-material palette texture references.
+- `[model_contract:model_contract]` ComfyUI loader model choices must resolve to simple filenames without path traversal, matching exact reviewed SHA-256 checkpoint hashes and path identities.
 - `[runner:Runner]` Stage receipts are immutable once written; subsequent pipeline stages must verify the SHA-256 digests of all declared input receipts before execution.
 
 ## Side Effects

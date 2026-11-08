@@ -177,7 +177,7 @@ For production workflows, pipelines, and manifests, see:
 ## Global Invariants
 
 - `[AGENTS.md:Connector Taper Rule]`: No shelves when tapering connector joints: a connector taper must form a continuous sloped transition between measured starting and ending contours without introducing flat shelves, rolled lips, cuff ledges, or secondary shoulders.
-- `[AGENTS.md:Toolchain Binding]`: Installed Python, Blender, and NWN executable paths must reside strictly in ignored, byte-bound local runtime bindings (`toolchain.lock.json`); machine-specific absolute paths are forbidden in committed repository files.
+- `[AGENTS.md:Toolchain Binding]`: Installed Python, Blender, and NWN executable paths must reside strictly in ignored, byte-bound local runtime bindings generated via `tools/phenotypes/bind_shared_runtimes.py` (see `docs/shared-tooling-and-workflow.md`); tracked `tools/toolchain.lock.json` contains portable release metadata, and machine-specific absolute paths are forbidden in committed repository files.
 - `[AGENTS.md:Validation Authority]`: Numerical connector success, tool receipts, and intermediate exports never automatically authorize anatomy or production acceptance; acceptance requires native and client validation gates.
 - `[Repository Layout]`: Top-level pack directories must match `^srn_[a-z0-9_]{1,12}$` and have corresponding entries in `hakbuilder.json`.
 - `[Talk Table]`: String reference IDs in `srn_tlk/srn.tlk.json` are immutable and monotonically increasing.
