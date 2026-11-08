@@ -1,7 +1,7 @@
 # Comfy Nodes (`tools/headkit/comfy_nodes`)
 
 ## Overview
-Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`) providing verified model loaders, lossless shape/field checkpoints, single-primitive GLB transport, and cryptographic loaded-code execution proof for the head generation pipeline. The adapter enforces strict deployment provenance, isolating ComfyUI processes to local loopback execution while verifying that in-memory bytecode, classes, and constants match frozen disk source code.
+Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`) providing verified model loaders, lossless shape/field checkpoints, single-primitive GLB transport, and controlled deployment/runtime-file provenance. Startup verifies frozen inventories before importing ComfyUI, uses an empty bytecode-cache location and loopback endpoint, and rechecks the session and files on requests and exit. Trusted plugins and process state are the boundary: production checks do not compare live bytecode, classes or constants to source and cannot detect temporarily changed-and-restored files between checks.
 
 ## Interface
 - `HeadkitSaveShapeV1`: ComfyUI node saving sparse Pixal Trellis.2 shape latents into validated NPZ archives.
@@ -26,7 +26,7 @@ Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`
 - `verify_inventory(inventory)`: Checks that all files in a source inventory exist and match recorded hashes.
 - `same_inventory(left, right)`: Compares two source inventory records for exact equivalence.
 - `members(core, roots)`: Traverses source roots bottom-up, enforcing unlinked source file constraints.
-- `loaded_source_code(roots)`: Compares active in-memory module codes, ASTs, classes, and constants against disk files.
+- `loaded_source_code(roots)`: Retained legacy object/AST census for research and regression tests; not called by production startup or runtime identity.
 - `verification_pass(name)`: Context manager yielding an active `VerificationPass` with automated logging and cleanup.
 - `resident_bytes()`: Queries exact current process Resident Set Size (RSS) across Windows and POSIX systems.
 - `start(path, receipt, *, execute=None)`: Launches controlled ComfyUI subprocess under pinned Python with isolated environment.
@@ -40,7 +40,7 @@ Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`
 - `arrays(d, b, p)`: Extracts position and triangle index numpy arrays from validated GLB primitives.
 - `accessor(d, b, index)`: Extracts typed numpy array slices from GLB buffer views and accessors.
 - `encode(d, b)`: Packs JSON document and binary payload into standard GLB container format.
-- `verified_sources(requested_roots, *, session=None)`: Audits executing module bodies against pinned source inventories.
+- `verified_sources(requested_roots, *, session=None)`: Retained legacy execution-proof helper; not part of the active adapter request path.
 - `NODE_CLASS_MAPPINGS`: Dictionary registering custom nodes with ComfyUI runtime.
 - `HEAVY_VERIFICATION_LOCK`: Reentrant lock guarding concurrent filesystem and memory verification passes.
 - `CURRENT_PASS`: Thread/context-local variable storing the active `VerificationPass` instance.
@@ -58,7 +58,7 @@ Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`
 - `[runtime_identity:capture_runtime_identity]` Symlinks and Windows reparse directory/file junctions are strictly prohibited in runtime and source trees.
 - `[managed_startup:session_context]` Process must run under pinned Python with isolated flags (`-I -B`). Controlled listen host is restricted strictly to loopback `127.0.0.1`.
 - `[verification:VerificationPass]` Verification passes are isolated boundaries; pass cannot be reopened or queried once closed. Source retention buffer is capped at 32 MiB total and 1 MiB per file.
-- `[source_snapshot:loaded_source_code]` All executed bytecode, classes, instance fields, module constants, and imported symbols in covered roots must match reviewed source on disk.
+- `[managed_startup / runtime_identity]` Frozen deployment membership and file hashes, declared runtime files and controlled session must match on startup, request and exit checks. Hot reload and attachment to an unmanaged server are unsupported. The retired object/AST census does not define the production contract.
 
 ## Side Effects
 - `[transport:write]` Creates new NPZ archive with shape latent arrays and metadata; fails if destination file exists (`'xb'` mode).
@@ -67,7 +67,7 @@ Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`
 - `[nodes:HeadkitSaveFieldV1.save]` Serializes Trellis 6-channel appearance voxel field to NPZ in ComfyUI output directory.
 - `[verification:verification_pass]` Spawns background thread sampling process RSS every 50ms; logs audit pass timings and memory counters.
 - `[managed_startup:start]` Binds local loopback socket `127.0.0.1:port` with `SO_EXCLUSIVEADDRUSE` to probe port availability; modifies `os.environ`, `sys.argv`, and `sys.path`; creates temporary directories for bytecode and writes startup JSON receipt to disk.
-- `[verified_startup:main]` Registers audit hook via `sys.addaudithook` to inspect all Python `exec` code events against pinned SHA-256 hashes.
+- `[verified_startup:main]` Retained legacy execution-audit trampoline; the supported managed startup uses `runpy.run_path` after verifying the deployment.
 - `[__init__]` Registers HTTP routes on ComfyUI `PromptServer.instance.routes` for runtime identity and model verification endpoints.
 
 ## Verification

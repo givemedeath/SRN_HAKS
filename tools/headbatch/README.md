@@ -51,6 +51,10 @@ Orchestrates multi-head generation, GPU inference, stage progression, and automa
 - [`trials.py:write_spec(workspace, race, version)`](./trials.py#L125-L162): Generates client test module specification JSON for both sexes of a race.
 - [`trials.py:build(workspace, name, version)`](./trials.py#L173-L200): Compiles client trial HAK and module files.
 
+- [client_trial.py](./client_trial.py): Holds CPU/GPU leases through the owned private client lifetime; enforces window/FPS, memory and time limits; closes the child on startup/receipt failures; archives each finished session log.
+- [stock_materials.py](./stock_materials.py): Validates the installed stock organic material bytes before a client trial.
+- [review/fitassembly.py](./review/fitassembly.py): Shows the bound torso and neck with the stock reference and exact fit attempt.
+
 ## Invariants
 - Machine-specific filesystem paths must reside solely in `workspace.json` and never in committed repository files.
 - Geometry submissions are strictly capped at 5 attempts per head (`guards.geometry_cap`); model identity and prior attempts must never be reset to gain extra submissions.

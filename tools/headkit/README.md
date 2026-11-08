@@ -5,7 +5,7 @@ Comprehensive generation, processing, fitting, UV unwrapping, texturing, quality
 
 ## Interface
 - Child Subdirectories:
-  - [`comfy_nodes`](./comfy_nodes/README.md): Custom ComfyUI runtime adapter, verified model loaders, shape/field checkpoints, and loaded-code execution proof.
+  - [`comfy_nodes`](./comfy_nodes/README.md): Custom ComfyUI runtime adapter, verified model loaders, shape/field checkpoints, and controlled deployment/runtime-file provenance.
   - `examples`: Pipeline configuration and binding examples (`face-masks.json`, `multiview.json`, `texture-rules.json`).
   - `templates`: Workflow JSON templates for ComfyUI generation (`geometry.json`, `appearance.json`, `flux2-design.json`, `calibrate.json`).
 - Core Orchestration & CLI:
@@ -62,6 +62,11 @@ Comprehensive generation, processing, fitting, UV unwrapping, texturing, quality
   - `quality(plt_texture, thresholds)`: Validates face quality gates (lip hair, upper eyelid hair, seam step ratio, skin median offset) (`quality.py`).
   - `restore(eye_bake, reference_eyes)`: Replaces front-bake eye regions with approved reference eye bitmaps (`reference_eyes.py`).
   - `upper_lids(masks, skin)`: Ensures upper eyelid regions maintain skin pigmentation rather than brow hair (`brow_edges.py`).
+- Reusable Local Quality Corrections:
+  - hair_base.py: Source-supported hair colour healing with 4K and strict-majority 1K coverage audits.
+  - local_seal.py: Source-bound, reviewed local hair tunnel closure with protected geometry/UVs, bounded presets and full topology/cavity checks.
+  - stock_encoding.py: Typed palette-index preservation after local repair, with actual geometry, ownership, decode, opacity, range and body-skin calibration checks.
+  - Brow/upper-lid and highlight repairs project only onto the visible surface and preserve feature exclusions.
 - Render & Native Compilation:
   - `render(blend_file, cameras, output_dir)`: Coordinates 4-thread Cycles GPU inspection renders (`blender_render.py`).
   - `lease(device_id)`: Claims exclusive Cycles GPU render device with VRAM memory watch (`render_device.py`).
@@ -81,7 +86,7 @@ Comprehensive generation, processing, fitting, UV unwrapping, texturing, quality
 - `[neck:taper_scale]` Connector tapers must form a continuous sloped transition between measured starting and ending contours; no flat shelves, rolled lips, cuff ledges, or secondary shoulder ledges are permitted at neck/body join boundaries.
 - `[mesh:physical]` Meshes must be watertight, 2-manifold triangle meshes with no non-manifold edges, zero self-intersections, and positive oriented face volume.
 - `[comfy:submit]` Only one generation job may hold the local GPU mutex at a time; concurrent dispatches to the ComfyUI server are strictly rejected.
-- `[comfy:verify_comfy_runtime]` ComfyUI server runtime environment and executing bytecode must match the reviewed frozen deployment inventory before any prompt is dispatched.
+- `[comfy:verify_comfy_runtime]` ComfyUI session, deployment membership and runtime file hashes must match the reviewed frozen inventories before dispatch. This assumes trusted plugins; it does not verify live Python objects against source.
 - `[uv:audit_imported_uvs]` UV coordinates must be normalized to `[0, 1]`, with positive winding orientation and minimum gutter margins of 4 pixels at 1024x1024 resolution to prevent cross-island bleeding.
 - `[quality:quality]` Head texture PLT maps must satisfy all numeric thresholds in `quality-thresholds.json`: lip hair contamination <= 0.02, upper lid hair contamination == 0, seam step ratio <= 1.25, and skin median offset within tolerance.
 - `[native:prepare / audit_native]` Final head models must adhere strictly to the 20,000-triangle budget, exact node hierarchy with geometry parented to `neck` bone, and valid single-material palette texture references.
