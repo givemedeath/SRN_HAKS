@@ -34,6 +34,7 @@ response, matrix/rigger, FRFZ catalog).
 8. A generic neck is fine; the neck slot is free for accessories.
 9. Mechanical values in the parts tables are nulled out; SR mechanics live in SR_NWN.
 10. Geometry is generated with the local Comfy install.
+11. Male and female get their own torso cut at a minimum. Whether other slots also differ depends on the outfit.
 
 ## What is proven
 
@@ -78,8 +79,9 @@ Neck-slot rules:
 
 ## Part rules
 
-**Numbering.** One number means one design in a slot on all 20 bodies. A set uses the same number in every slot
-it covers; variations within a set take the next numbers. Stock rows (0–200) and stock model numbers (up to
+**Numbering.** One number means one design in a slot, present on all 20 bodies. Where the male and female cuts
+differ they share the number, so a recipe never names the wearer's gender. A set uses the same number in every
+slot it covers; variations within a set take the next numbers. Stock rows (0–200) and stock model numbers (up to
 255) are never reused; 256–299 stay empty as a buffer. Proposed blocks, with the registry as the source of
 truth:
 
@@ -139,11 +141,15 @@ matching rings, each part end is built to overlap:
 ## Bodies and race versions
 
 * Author on Human male Fit first, then Human female Fit. The bodies are fixed; parts are fitted around them.
+* The chest is always authored as a separate male and female cut. Each set's brief says which other slots also
+  get their own female cut; the rest are one design fitted to both. Every separate cut is its own generated
+  model with its own references and submission count.
 * The other 18 bodies (Large Human and both builds of Dwarf, Elf, Orc, Troll) come from `cleanmodels variants`,
   learning its fit from our own `srn_body` and `srn_armor` haks.
 * Hard-surface plates distort under strong non-uniform scaling (Dwarf, Troll). Heavy kits are deferred until a
   per-race plate fit is designed.
-* Every part exists on all 20 bodies, so recipes never depend on the wearer.
+* Every number exists on all 20 bodies, so recipes never depend on the wearer. A cut designed for one gender
+  only still needs a counterpart on the other under the same number.
 * Neck-slot headgear must clear the **head envelope** of each race: the outer bounds of that race's published
   heads, measured in Phase 0.
 
@@ -167,9 +173,10 @@ name `srn_parts`), separate from the converted stock clothing in `srn_armor`.
 ## Pipeline for one set
 
 1. **Brief.** Break the concept into slots, a tier for each joint, colour channels, badge positions and
-   accessories. Allocate numbers in the registry.
+   accessories. Name the slots that get a separate female cut (the chest always does). Allocate numbers in the
+   registry.
 2. **References.** Garment-only, headless, rest-stance Human male: clay for geometry, colour for appearance.
-   Review before generating.
+   The same pair on the Human female for each separate female cut. Review before generating.
 3. **Generate** the source on the local engine, recorded in the ledger.
 4. **Split** on the Human male body with planar joint cuts and the overlap ends for each tier.
 5. **Fit** around the unchanged body: clearance, no body edits.
@@ -177,7 +184,7 @@ name `srn_parts`), separate from the converted stock clothing in `srn_armor`.
 7. **Skinned pieces** (hoods, bandoliers, skirts that need it): weights, then compile with cleanmodels.
 8. **Offline gates** (below).
 9. **Human male in the client:** standing, idle and motion. User review.
-10. **Human female:** fit and review.
+10. **Human female:** generate, split and fit the separate female cuts; fit the shared slots; review.
 11. **Race versions** for the other 18 bodies, gates, then a sampled client review on the hardest bodies.
 12. **Publish:** models and textures to the pack, table rows, registry entry, publication validation and a pack
     build.
@@ -223,7 +230,8 @@ In the client:
 
 **Phase 1: pilot set.** Corporate security tiers 1–3 from the first concept sheet, because it is rigid-friendly
 and needs no robe. It includes a utility belt, a shoulder badge shown as five corporations through palette and
-logo, and one skinned neck-slot respirator or balaclava. Human male, then female, then race versions. User
+logo, and one skinned neck-slot respirator or balaclava. Human male, then female with its own torso cuts, then
+race versions. User
 review at references, at the Human male client view and at the all-body sample.
 
 **Phase 2: second family.** Civilian clothing, to prove mixing across families by tier, with a mixing fixture.
@@ -242,6 +250,7 @@ attachments.
 The kit publishes a registry file with the packs. Per part it gives:
 
 * slot, number, set and family tags;
+* whether the male and female cuts differ;
 * tier at each joint;
 * coverage (which skin is exposed; whether it is headgear);
 * neck-part category (headgear, back, neckwear, torso) so recipes do not double-book the slot;
@@ -265,7 +274,6 @@ Notes SR_NWN needs:
 5. **Starting budgets** as listed. Proposed; tuned in the pilot.
 6. **Pilot set:** corporate security tiers 1–3. Proposed; confirm.
 7. **Pack name** for new parts (`srn_parts`), and whether to split it per slot later.
-8. **Gendered designs:** default is one design fitted to both genders. Confirm, or name the sets that differ.
 
 ## Not covered and risks
 
