@@ -364,8 +364,8 @@ The choice between this and one part number per logo is the user's and is not ma
 * Decision 13 stands in substance (logos are plain, not tintable), but the badge names a material file and a
   shared strip, not a texture of its own.
 * The handoff names the material and its parameter and lists each logo's cell. SR_NWN sets the value on the
-  wearing creature, not on the item, and does not need to reapply it on equip. When it must be set again
-  (login, area change, a player arriving later) is not yet checked.
+  wearing creature, not on the item, and does not need to reapply it when the same item is equipped again.
+  When it must be set again (login, area change, a player arriving later) is not yet checked.
 * The kit ships one custom shader, which includes the stock `inc_standard` and so has to be rechecked on a new
   game build.
 * Adding a logo replaces the strip; no part is copied.
@@ -379,14 +379,19 @@ and decision 13 stands as reworded in the revision above.
 
 * A part that shows a logo carries a badge mesh that names the shared logo material. The material reads one
   strip texture holding every logo, and a parameter picks the cell. Cell 0 is blank.
-* SR_NWN sets the cell on the wearing creature. No part is copied per logo and nothing is reapplied when the
-  item is equipped.
+* SR_NWN sets the cell on the wearing creature, and no part is copied per logo. The value belongs to the
+  creature, not the item: every logo part the creature wears shows the same logo, and equipping the same
+  item again needs no call. SR_NWN sets the cell again whenever the logo to show changes, for example when
+  an item with another logo is equipped or an item passes to another character. Two different logos on one
+  character at once would need a second material and is not tried.
 * Phase 1 builds what the proof only sketched: the shared material, shader and strip as kit resources, the
   strip layout and cell count, the handoff entry (material, parameter, each logo's cell), and a gate that a
-  badge mesh names the material.
+  badge mesh names the material and reads the right way round on each side. That gate uses a logo that is
+  not symmetric, because a mirrored test badge went unnoticed through two proofs.
 * Still to check before logos are relied on: what other players see in multiplayer, including one who arrives
-  after the call; whether the value lasts through a save, an area change or a login; and the shader on each
-  new game build. The multiplayer check needs a second client.
+  after the call; whether the value lasts through a save, an area change or a login; the shader on other
+  graphics cards and drivers; and the shader on each new game build. The multiplayer check needs a second
+  client.
 
 The other points of "what Phase 0 changed" still wait for the user: the fit for Large female bodies and
 headgear, adopting cleanmodels, and the number-block widths.

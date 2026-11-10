@@ -48,8 +48,9 @@ TIERS = (0, 1, 2, 3)  # skin-tight, cloth, padded or armored, heavy
 MESHES = {'rigid': FITTED + ('belt', 'shoulder', 'neck'), 'dangly': ('belt',), 'skinned': ('belt', 'neck', 'robe')}
 CHANNELS = ('cloth1', 'cloth2', 'leather1', 'leather2', 'metal1', 'metal2', 'skin')
 NECK_CATEGORIES = ('headgear', 'back', 'neckwear', 'torso')
-# Where a part may show a logo. How the logo is carried is not settled: the swap of a shared blank
-# texture does not work inside a tinted part (spikes.md, section 15), so no texture name is derived here.
+# Where a part may show a logo. A logo is one cell of a shared strip, read through a shared material and
+# picked per wearer (plan.md, revision "logos use the shader value"). The material and the logo cells are
+# Phase 1 work, so nothing about them is derived here yet.
 BADGE_POSITIONS = {'shoulder': ('left', 'right'), 'neck': ('lanyard',)}
 ROBE_HIDES = ('FOOTR', 'FOOTL', 'SHINR', 'SHINL', 'LEGR', 'LEGL', 'PELVIS', 'CHEST', 'BELT', 'NECK', 'FORER',
               'FOREL', 'BICEPR', 'BICEPL', 'SHOR', 'SHOL', 'HANDR', 'HANDL', 'HEAD')
@@ -196,8 +197,8 @@ def numbers(parts, slot):
 def handoff(parts):
     """The registry as SR_NWN consumes it: each part with the table, item fields and model names it implies.
 
-    A part's `badge` says where it shows a logo; the handoff names no logo texture, because the way a logo
-    is carried and changed at run time is still to be chosen (spikes.md, section 15)."""
+    A part's `badge` says where it shows a logo. The handoff does not yet name the shared logo material, its
+    parameter or the logo cells (plan.md, revision "logos use the shader value"); that entry is Phase 1 work."""
     rows = []
     for part in parts:
         slot = SLOTS[part['slot']]

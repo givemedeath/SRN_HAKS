@@ -9,7 +9,7 @@ The `tools/armorkit` package is the foundation for modular clothing, armor, head
 - `[registry.py:SLOTS]` - Per slot: parts table, model tokens, the `xArmorPart_*` item fields and `ITEM_APPR_ARMOR_MODEL_*` indices.
 - `[registry.py:model_name]` / `[registry.py:model_names]` / `[registry.py:texture_names]` - Resource names a part implies: `p<m|f><race><phenotype>_<slot><number>`.
 - `[registry.py:block]` - The family a number's block belongs to (300-2999 accessory, 3000s civilian, 4000s workwear, 5000s corporate, 6000s security, 7000s runner, 8000s gang, 9000+ open).
-- `[registry.py:handoff]` - The registry with derived table, item-field, model and texture names, as SR_NWN consumes it. A part's `badge` says where it shows a logo; no logo texture is named, because how a logo is carried is not settled (spikes.md, section 15).
+- `[registry.py:handoff]` - The registry with derived table, item-field, model and texture names, as SR_NWN consumes it. A part's `badge` says where it shows a logo. The shared logo material, its parameter and the logo cells are not in the handoff yet (plan.md, revision "logos use the shader value"); that entry is Phase 1 work.
 - `[tables.py:generate]` / `[tables.py:generate_all]` - Table text from stock text and registry parts: stock rows kept, gaps padded, live rows nulled.
 - `[tables.py:check]` - Fails on a gap, a duplicate, a changed stock row or column row, a registry part without a live row or inside the stock range, or a live row no part owns.
 - `[seams.py:JOINTS]` / `[seams.py:sides]` - The eight joints: over slot, under slot and the bones that define each plane; limb joints are recorded on sides `l` and `r`, the neck and waist on `c`.
