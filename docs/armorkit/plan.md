@@ -450,3 +450,53 @@ What follows from it:
 
 The group digit, the neck bands and the standalone range for basics were proposed while drafting this scheme
 and are open to the user's correction.
+
+## Revision 2026-11-10: cleanmodels 4.17.5 adopted
+
+The user decided to adopt cleanmodels 4.17.5 and to install it in the primary checkout's shared tool root, so
+that nothing depends on a worktree. This replaces decision 14, which tied the move to a fit proof that did not
+pass, and the cleanmodels row of the toolchain table.
+
+* **Pin.** `tools/shared-tools.lock.json` now names the standalone Windows build of the plenarius release
+  v4.17.5 by the SHA-256 of its executable; the release archive was checked against its published SHA-256
+  before it was installed. `tools/armorkit/toolchain.py` resolves it through the shared-tool helper, which
+  refuses a missing or changed executable. It is a new entry, not a version move: no lock named cleanmodels
+  before, and the `v4.0.0-rc17` folder in the shared root is still used by nothing and was left as it is.
+* **Role.** Armorkit compiles its parts with it, rigid and skinned, and makes race versions with its
+  `variants` command; the seam gate decides each part. How race versions are fitted where the close-up proof
+  failed is the subject of the next revision. Headgear is not covered by `variants`.
+* **Other kits are unchanged.** Phenomorpher, headkit and itemkit keep compiling through Blender and the
+  cleanmodels port inside the Neverblender add-on. The two may write different bytes for the same model, so
+  no kit changes compiler without its own check.
+* **Windows only.** No test runs the compiler, so CI needs no Linux build yet; the release publishes one.
+* **The lock file changed.** Its hash is part of the tool cache key and of what shared-tool runs record, so a
+  run started after this merges records the new hash.
+
+## Revision 2026-11-10: shape factors for Large female bodies (user decision)
+
+The user asked whether the waist step on Large female bodies comes from the bodies and whether they need
+another pass first. It does not and they do not ([spikes.md](spikes.md), section 19): the bodies are smooth
+across the join, and the step comes from `cleanmodels variants` scaling about the skeleton while the SRN Large
+female differs from the Fit female by more than a scale. Offered a fit that follows the body surface or
+per-region shape factors, the user chose shape factors. This replaces "Large female bodies need another fit"
+in the Phase 0 revision.
+
+* `variants` makes the race versions for the 18 bodies other than the two Human Fit sources. For each target
+  body and slot, armorkit sends the source body's own skin part through `variants` as a probe, compares it
+  with the target's real part by region, and passes the factors it finds as `--shape`. The seam gate still
+  decides each part.
+* Proven on the test chest shell for the five Large female bodies: measured against where the shell was
+  meant to sit, the waist went from 3.5–7.3 cm too far in to 0.6–2.0 cm too far out, and the step is gone
+  in the client.
+* Known limit: the factors cannot follow the backward set of the Human Large female torso, so a garment stays
+  up to 4.5 cm short at the back there. The user saw the measured outlines and the client views of this and
+  kept shape factors. That is acceptable for cloth and armored tiers. A skin-tight piece that fails the gate
+  on a Large female body is the case for a fit that follows the body surface, which is not built.
+* Phase 1 builds the probe and the factors into armorkit and checks what this proof did not cover: slots
+  other than the chest, and Large male bodies, four of which showed the same inward error without factors.
+* Headgear is not part of this decision. It is still to be fitted per race from the head envelopes, as the
+  Phase 0 revision says, and that is not yet proven.
+* Seen on the way, outside armorkit: the published race clothing in `srn_armor` under-fits Large female bodies
+  at the waist by 1.5–2.8 cm a side, which is mild in the client and hidden by a matching pelvis piece. Fit
+  male chests measure 4.5–7.5 cm inside the body at the front at the waist, which has not been looked at in
+  the client. No change is made to that pack here.

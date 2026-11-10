@@ -19,6 +19,7 @@ The `tools/armorkit` package is the foundation for modular clothing, armor, head
 - `[measure.py:clearance]` - How far a worn part's ring stands outside the body ring at a joint. It refuses a torso piece at the neck, shoulder and hip, which a plane section cannot measure.
 - `[client_fixture.py:build]` - Write a fresh user directory holding a fixture hak, the packs under test and a module with scripted actors and camera shots. Actors wear bare skin parts unless given part numbers, colours or an item blueprint written with `xArmorPart_*` fields.
 - `[client.py:run]` - Start the game on a built fixture, capture the window after each shot line, stop that client and return log lines and captures. A capture that would be taken after a later shot began, and a shot whose actor does not exist, fail the run.
+- `[toolchain.py:cleanmodels]` - The standalone cleanmodels 4.17.5 executable pinned in `tools/shared-tools.lock.json`, resolved from the shared tool root with its bytes verified; `root` overrides the root. Armorkit compiles parts with it and takes its race versions only where they pass review.
 
 ### Subdirectories & Data Assets
 - `examples/registry.json` - A small valid, publishable registry used by the tests.

@@ -103,7 +103,7 @@ function Resolve-SrnTool {
     if ($tool.origin -eq 'vendored') {
         if (-not (Test-SrnWithin $target (Join-Path $RepositoryRoot 'tools/vendor'))) { throw 'Vendored tool must belong to the consuming checkout' }
     } else { Assert-SrnDurablePath $target $RepositoryRoot }
-    if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "Missing tool: $target. Run Bootstrap-Tools.ps1 for Neverwinter utilities; manually install the pinned Armory version for armory." }
+    if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { throw "Missing tool: $target. $(if ($tool.ContainsKey('installation')) { $tool.installation } else { 'Run tools/Bootstrap-Tools.ps1.' })" }
     $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($hash -cne $entry.sha256) { throw "Tool binary changed: $target" }
     if ((Get-FileHash $lockPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $inventoryHash) { throw 'Tool inventory changed during resolution' }
