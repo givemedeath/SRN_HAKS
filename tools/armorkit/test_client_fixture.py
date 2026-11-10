@@ -23,6 +23,7 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual({key: value - 1 for key, value in got.items()},
                          {f'AK_M{i}': (0 if i in (8, 14, 15, 18) else 1) for i in range(19)})
         self.assertEqual(values({'bare': True}), {'AK_BARE': 1})
+        self.assertEqual(values({'item': 'ak_bp1', 'parts': {'belt': 300}}), {'AK_ITEM': 'ak_bp1', 'AK_M8': 301})
 
     def test_colours_overall_per_part_and_body(self):
         got = values({'colours': {'cloth1': 0, 'metal2': 175}, 'partColours': {'chest': {'leather1': 40}, 'foot.r': {'cloth2': 9}},

@@ -52,7 +52,8 @@ void main() {
   v=GetLocalInt(OBJECT_SELF,"AK_HEAD"); if(v>0) SetCreatureBodyPart(CREATURE_PART_HEAD,v);
   for(i=0;i<4;i++) { v=GetLocalInt(OBJECT_SELF,"AK_B"+IntToString(i)); if(v>0) SetColor(OBJECT_SELF,i,v-1); }
   if(GetLocalInt(OBJECT_SELF,"AK_BARE")==0) {
-    object it=CreateItemOnObject("nw_cloth001",OBJECT_SELF);
+    string res=GetLocalString(OBJECT_SELF,"AK_ITEM"); if(res=="") res="nw_cloth001";
+    object it=CreateItemOnObject(res,OBJECT_SELF);
     for(i=0;i<ITEM_APPR_ARMOR_NUM_MODELS;i++) { v=GetLocalInt(OBJECT_SELF,"AK_M"+IntToString(i)); if(v>0) it=Modify(it,ITEM_APPR_TYPE_ARMOR_MODEL,i,v-1); }
     for(i=0;i<ITEM_APPR_ARMOR_NUM_COLORS*(ITEM_APPR_ARMOR_NUM_MODELS+1);i++) { v=GetLocalInt(OBJECT_SELF,"AK_C"+IntToString(i)); if(v>0) it=Modify(it,ITEM_APPR_TYPE_ARMOR_COLOR,i,v-1); }
     ActionEquipItem(it,INVENTORY_SLOT_CHEST);
@@ -94,7 +95,10 @@ def actor_variables(actor):
     if actor.get('bare'):
         values['AK_BARE'] = 1
     # Every item part is set, so nothing of the stock template outfit shows: bare skin unless `parts` says otherwise.
-    for key, number in {**({} if actor.get('bare') else NAKED), **actor.get('parts', {})}.items():
+    # An actor given its own item blueprint wears it as built, apart from the parts named here.
+    if actor.get('item'):
+        values['AK_ITEM'] = registry_resref(actor['item'])
+    for key, number in {**({} if actor.get('bare') or actor.get('item') else NAKED), **actor.get('parts', {})}.items():
         require(type(number) is int and 0 <= number <= registry.LAST_NUMBER, f'{key}: part number out of range')
         for index in model_indices(key):
             values[f'AK_M{index}'] = number + 1
@@ -168,6 +172,8 @@ def enter_script(name, shots, start=8.0, hold=3.0):
              '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
              '  SetCutsceneMode(pc,TRUE,FALSE);',
              '  WriteTimestampedLogEntry("ARMORKIT enter shots=' + str(len(shots)) + '");']
+    if shots:  # attach once ahead of the first shot, so its capture is not taken before the camera has moved
+        lines.append(f'  DelayCommand({start - 3.0:.1f},AttachCamera(pc,GetObjectByTag("{actor_tag(name, shots[0].get("actor", 0))}")));')
     for index, shot in enumerate(shots):
         require(set(shot) <= {'actor', 'facing', 'distance', 'pitch', 'height'} and type(shot.get('actor')) is int,
                 'A shot is {actor, facing, distance, pitch, height}')
@@ -251,12 +257,15 @@ def build(spec, output, nwn_root, *, tools_directory=None):
     """Write the fixture's user directory under a fresh `output` folder and return its record.
 
     spec: name (short resref), resources (folder packed into the fixture hak, may be absent), haks (built
-    packs to copy in, lowest priority last), tlk (optional file), actors, shots, scripts ({resref: NSS text}).
+    packs to copy in, lowest priority last), tlk (optional file), actors, shots, scripts ({resref: NSS text}),
+    blueprints ({resref: {template: stock item resref, fields: {GFF label: [type, value]}}}; an actor wears one
+    through its `item` key).
     """
     from tools.phenotypes import tool_runtime
     name = spec['name']
     require(NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 12 characters')
-    require(set(spec) <= {'name', 'resources', 'haks', 'tlk', 'actors', 'shots', 'scripts', 'entry', 'size'}, 'Unknown fixture keys')
+    require(set(spec) <= {'name', 'resources', 'haks', 'tlk', 'actors', 'shots', 'scripts', 'blueprints', 'entry', 'size'},
+            'Unknown fixture keys')
     output = Path(output).resolve()
     output.mkdir(parents=True)
     user, staged, documents, binary, stock = (output / part for part in ('userdir', 'hak-resources', 'json', 'module', 'stock'))
@@ -306,6 +315,16 @@ def build(spec, output, nwn_root, *, tools_directory=None):
         source.write_text(text, encoding='ascii', newline='\n')
         run('nwn_script_comp', [*common, source])
         require(source.with_suffix('.ncs').is_file(), 'Script did not compile: ' + resref)
+    for resref, blueprint in spec.get('blueprints', {}).items():
+        stock_name = registry_resref(blueprint['template']) + '.uti'
+        installed(stock_name)
+        run('nwn_gff', ['-i', stock / stock_name, '-o', stock / (stock_name + '.json')])
+        item = json.loads((stock / (stock_name + '.json')).read_text(encoding='utf-8'))
+        item.update({label: field(kind, value) for label, (kind, value) in blueprint['fields'].items()})
+        item.update({'TemplateResRef': field('resref', registry_resref(resref)), 'Tag': field('cexostring', resref)})
+        path = documents / (resref + '.uti.json')
+        path.write_text(json.dumps(item), encoding='utf-8')
+        run('nwn_gff', ['-i', path, '-o', binary / (resref + '.uti')])
     installed(TEMPLATE_CREATURE)
     run('nwn_gff', ['-i', stock / TEMPLATE_CREATURE, '-o', stock / (TEMPLATE_CREATURE + '.json')])
     template = json.loads((stock / (TEMPLATE_CREATURE + '.json')).read_text(encoding='utf-8'))

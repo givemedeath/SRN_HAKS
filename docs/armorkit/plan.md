@@ -307,3 +307,22 @@ Stock rows 0–200, stock models to 255 and the 256–299 buffer are unchanged. 
 part number, so a table that uses the top of the range has about 9,000 rows. The exact widths were chosen while
 carrying out Phase 0 and are open to the user's correction; the result of the client proof for numbers in these
 ranges is in [spikes.md](spikes.md).
+
+## Revision 2026-11-10: what Phase 0 changed
+
+Phase 0 is carried out; results are in [spikes.md](spikes.md) (sections 10–17) and
+[seam-contract.md](seam-contract.md). The plan text above stays as approved. These points now differ from it
+and wait for the user to decide before Phase 1:
+
+* **Decision 14 is not met.** The close-up fit proof did not pass: race versions leave a visible waist step on
+  Large female bodies and do not fit headgear to Dwarf or Troll heads. The cleanmodels pin was not moved.
+* **Race versions.** `cleanmodels variants` is usable for male bodies and Fit female bodies. Large female
+  bodies and all headgear need another fit (per race from the head envelopes for headgear).
+* **Logos (decisions 7 and 13).** A plain-texture badge inside a tinted part is overwritten by the tint
+  texture of the part, and the runtime swap does not reach a badge textured through a material file. A logo
+  approach has to be chosen (spikes.md, section 15).
+* **Parts tables.** `parts_robe` has stock rows 0–38 and hide columns, not rows 0–200; the generator handles it.
+* **Clearance gate.** A worn part replaces the body part in its slot, so the gate that matters is the join with
+  neighbouring parts (the seam contract), not skin showing through the part.
+* **Not checked in Phase 0:** how the toolset lists the new numbers; helmet scales per race; motion for any
+  test part.

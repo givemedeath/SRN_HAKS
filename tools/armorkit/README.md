@@ -17,7 +17,7 @@ The `tools/armorkit` package is the foundation for modular clothing, armor, head
 - `[seams.py:section]` / `[seams.py:ring]` / `[seams.py:swing]` / `[seams.py:minimum_overlap]` - Plane sections, radial rings, joint swing and the overlap rule the contract is built from.
 - `[measure.py:seam_contract]` / `[measure.py:head_envelopes]` - Rebuild the two data files from `srn_body`, `srn_head` and extracted stock animation models.
 - `[measure.py:clearance]` - How far a worn part's ring stands outside the body ring at a joint.
-- `[client_fixture.py:build]` - Write a fresh user directory holding a fixture hak, the packs under test and a module with scripted actors and camera shots.
+- `[client_fixture.py:build]` - Write a fresh user directory holding a fixture hak, the packs under test and a module with scripted actors and camera shots. Actors wear bare skin parts unless given part numbers, colours or an item blueprint written with `xArmorPart_*` fields.
 - `[client.py:run]` - Start the game on a built fixture, capture the window after each shot line, stop that client and return log lines and captures.
 
 ### Subdirectories & Data Assets
