@@ -58,9 +58,11 @@ def family(path, *, validate_native=True):
         require(data.get('sourceExport') == {'remeshResolution':768, 'targetFaceCount':200000, 'signMode':'udf'},
                 'Catalog generation uses the qualified 200K UDF donor route')
     settings=data.get('resources', {})
-    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName'}, 'Unsupported resource identity')
+    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName','appearanceIndex'}, 'Unsupported resource identity')
     for key in ('texturePrefix','hak','module','blueprint'):
         if key in settings: resref(settings[key])
+    # Designs sharing a carrier in one wave pin distinct slots; first-free would hand each the same one.
+    if 'appearanceIndex' in settings: integer(settings['appearanceIndex'], 1, 25, 'appearance index')
     if 'texturePrefix' in settings: require(len(settings['texturePrefix'])<=13,'Texture prefix leaves no appearance suffix')
     if data['family'] == 'shield' and not shield or route.subtypes is None and 'firearm' not in data:
         require(data['nativePackaging'] == 'blocked', 'Shield and unqualified Sling native adapters are deferred')
