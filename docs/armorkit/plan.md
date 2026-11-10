@@ -369,3 +369,24 @@ The choice between this and one part number per logo is the user's and is not ma
 * The kit ships one custom shader, which includes the stock `inc_standard` and so has to be rechecked on a new
   game build.
 * Adding a logo replaces the strip; no part is copied.
+
+## Revision 2026-11-10: logos use the shader value (user decision)
+
+The user chose the shader approach of the revision above over one part number per logo. This replaces the
+**Logos** paragraph under [Part rules](#part-rules) and the logo note under
+[Handoff to SR_NWN](#handoff-to-sr_nwn). Decision 7 (logos only on shoulders and neck-slot lanyards) stands,
+and decision 13 stands as reworded in the revision above.
+
+* A part that shows a logo carries a badge mesh that names the shared logo material. The material reads one
+  strip texture holding every logo, and a parameter picks the cell. Cell 0 is blank.
+* SR_NWN sets the cell on the wearing creature. No part is copied per logo and nothing is reapplied when the
+  item is equipped.
+* Phase 1 builds what the proof only sketched: the shared material, shader and strip as kit resources, the
+  strip layout and cell count, the handoff entry (material, parameter, each logo's cell), and a gate that a
+  badge mesh names the material.
+* Still to check before logos are relied on: what other players see in multiplayer, including one who arrives
+  after the call; whether the value lasts through a save, an area change or a login; and the shader on each
+  new game build. The multiplayer check needs a second client.
+
+The other points of "what Phase 0 changed" still wait for the user: the fit for Large female bodies and
+headgear, adopting cleanmodels, and the number-block widths.
