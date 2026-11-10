@@ -481,12 +481,16 @@ How much wider the Large Human female chest part is than the Fit one, by height 
   stand 1.2 cm outside the body, came out 2.3 cm inside it on each side at the waist and 2.8 cm outside it
   at the ribs.
 * Between the ribs and the shoulder blades the SRN Large female torso sits 3–4 cm further back on the skeleton
-  than the Fit one (the stock Large stays within about 1 cm). Scaling cannot follow a shift: the shell was
+  than the Fit one (the stock Large stays within 1.5 cm). Scaling cannot follow a shift: the shell was
   about 4 cm inside the body at the back.
-* On Large female bodies the chest part is the outer surface down to 3–6 cm below the waist joint; on Fit it
-  hands over to the pelvis at the joint. A top authored on Fit ends its hem on the widest part of the body.
-* Large male bodies have errors of the same size, but outward: the shell is loose where it is wrong, which is
-  why section 12 found them acceptable.
+* On Large female bodies the chest part stays the outer surface well below the waist joint. The pelvis takes
+  over 2–5 cm below the joint at the sides and 4.5–10.5 cm below it at the back, deepest on the Troll and
+  shallowest on the Dwarf (Human: 3.5 and 6 cm). On Fit female bodies it takes over at the joint at the
+  sides. A top authored on Fit ends its hem on the widest part of the body.
+* Large male bodies differ among themselves. On the Human the shell is loose where it is wrong, up to
+  4.8 cm proud at the front at the waist. On the Dwarf, Elf, Orc and Troll it is 2–6 cm inside the body on
+  each side from the waist to 10 cm above it, the same inward error as on Large female bodies, although
+  section 12 found them acceptable at its zoom. None was rerun with shape factors.
 
 **Result: the bodies and the published clothing.**
 
@@ -494,7 +498,8 @@ How much wider the Large Human female chest part is than the Fit one, by height 
   20 bodies, and Large female bodies are no worse than Fit ones. No fault was found in the bodies.
 * On the four Large female bodies that have clothing in `srn_armor`, the median chest (36 each) sits 1.5–2.8 cm
   inside the body on each side and 3–5 cm inside at the front at the waist. Fit female and Large male chests
-  sit outside. In the client this reads as a slightly pinched waist over a bare pelvis and is hidden by the
+  sit outside. Fit male chests are level with the body at the sides but 4.5–7.5 cm inside it at the front at
+  the waist; that was not looked at in the client. On Large female bodies the shortfall reads as a slightly pinched waist over a bare pelvis and is hidden by the
   matching pelvis piece (*published-clothing-pfo2.jpg*, *published-clothing-pfh2.jpg*, with the Fit Orc
   female for comparison in *published-clothing-pfo0.jpg*).
 
@@ -520,7 +525,8 @@ body plus the shell's 1.2 cm, half width in cm (negative is inside the body):
 
 * In the client the hem now meets the pelvis on all five, front and rear, with no step.
 * What the factors do not reach: on the Human Large female the shell stays 1.8–4.5 cm short at the back from
-  the hips to the ribs, the backward set described above. On the other four the back is within 2.3 cm.
+  the hips to the ribs, the backward set described above. On the other four the back is within 2.3 cm from
+  the hips to the ribs, and 2.1–4.3 cm proud at shoulder height (Troll most).
   Outlines of body and shell are drawn in *large-female-back-outlines.png*; in the client her back reads
   slightly flatter in the shell than bare, with no gap, because a worn part replaces the body part
   (*large-female-back-views-pfh2.jpg*, scratch scripts `back_diagram.py`, `run12.py`).
@@ -532,6 +538,7 @@ body plus the shell's 1.2 cm, half width in cm (negative is inside the body):
 **Verdict.** The step of section 12 comes from the fit method meeting a body that is not a scaled Fit body. It
 is not a fault of the bodies. Shape factors measured from the bodies remove it for this shell.
 
-Not checked: slots other than the chest; Large male and Fit bodies with factors; a looser or a skin-tight real
+Not checked: slots other than the chest; Large male bodies with factors, four of which show the inward error;
+Fit bodies with factors; a looser or a skin-tight real
 garment; a pelvis piece made the same way under the chest; motion; the three client sheets of run 10 not named
 above.

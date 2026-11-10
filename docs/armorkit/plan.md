@@ -462,18 +462,15 @@ pass, and the cleanmodels row of the toolchain table.
   before it was installed. `tools/armorkit/toolchain.py` resolves it through the shared-tool helper, which
   refuses a missing or changed executable. It is a new entry, not a version move: no lock named cleanmodels
   before, and the `v4.0.0-rc17` folder in the shared root is still used by nothing and was left as it is.
-* **Role.** Armorkit compiles its parts with it, rigid and skinned. Its `variants` command gives the first
-  pass of the race versions for male bodies and for Fit female bodies, where the close-up proof was usable;
-  the seam gate decides each part. It is not relied on for Large female bodies or for headgear, which wait for
-  the fit decision that is still open.
+* **Role.** Armorkit compiles its parts with it, rigid and skinned, and makes race versions with its
+  `variants` command; the seam gate decides each part. How race versions are fitted where the close-up proof
+  failed is the subject of the next revision. Headgear is not covered by `variants`.
 * **Other kits are unchanged.** Phenomorpher, headkit and itemkit keep compiling through Blender and the
   cleanmodels port inside the Neverblender add-on. The two may write different bytes for the same model, so
   no kit changes compiler without its own check.
 * **Windows only.** No test runs the compiler, so CI needs no Linux build yet; the release publishes one.
 * **The lock file changed.** Its hash is part of the tool cache key and of what shared-tool runs record, so a
   run started after this merges records the new hash.
-
-Still waiting for the user before Phase 1: the fit for Large female bodies and for headgear.
 
 ## Revision 2026-11-10: shape factors for Large female bodies (user decision)
 
@@ -482,9 +479,10 @@ another pass first. It does not and they do not ([spikes.md](spikes.md), section
 across the join, and the step comes from `cleanmodels variants` scaling about the skeleton while the SRN Large
 female differs from the Fit female by more than a scale. Offered a fit that follows the body surface or
 per-region shape factors, the user chose shape factors. This replaces "Large female bodies need another fit"
-in the Phase 0 revision and "not relied on for Large female bodies" in the cleanmodels revision.
+in the Phase 0 revision.
 
-* `variants` makes the race versions for all 20 bodies. For each target body and slot, armorkit sends the
+* `variants` makes the race versions for the 18 bodies other than the two Human Fit sources. For each target
+  body and slot, armorkit sends the
   source body's own skin part through `variants` as a probe, compares it with the target's real part by
   region, and passes the factors it finds as `--shape`. The seam gate still decides each part.
 * Proven on the test chest shell for the five Large female bodies: measured against where the shell was
@@ -495,8 +493,8 @@ in the Phase 0 revision and "not relied on for Large female bodies" in the clean
   kept shape factors. That is acceptable for cloth and armored tiers. A skin-tight piece
   that fails the gate on a Large female body is the case for a fit that follows the body surface, which is
   not built.
-* Phase 1 builds the probe and the factors into armorkit and checks slots other than the chest, which this
-  proof did not cover.
+* Phase 1 builds the probe and the factors into armorkit and checks what this proof did not cover: slots
+  other than the chest, and Large male bodies, four of which showed the same inward error without factors.
 * Headgear is not part of this decision. It is still to be fitted per race from the head envelopes, as the
   Phase 0 revision says, and that is not yet proven.
 * Seen on the way, outside armorkit: the published race clothing in `srn_armor` under-fits Large female

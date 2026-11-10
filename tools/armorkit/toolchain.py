@@ -13,6 +13,7 @@ CLEANMODELS = 'cleanmodels'
 def cleanmodels(root=None, repo=REPO):
     """The pinned cleanmodels executable: path, version and verified SHA-256 (see shared_tools.resolve_tool).
 
-    `root` overrides the shared tool root. A missing or changed executable raises ValueError."""
+    `root` overrides the shared tool root. A missing or changed executable raises ValueError. Every call
+    reads and hashes the executable, so resolve it once per run and pass the result on."""
     from tools import shared_tools
     return shared_tools.resolve_tool(CLEANMODELS, repo, root)

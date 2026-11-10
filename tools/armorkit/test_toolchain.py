@@ -23,7 +23,9 @@ class ToolchainTests(unittest.TestCase):
             self.assertTrue(binary['relativePath'].startswith(f'cleanmodels/v{entry["version"]}/{platform}/'))
             self.assertRegex(binary['sha256'], r'^[0-9a-f]{64}$')
         self.assertIn(entry['version'], entry['installation'])
-        self.assertIsNone(re.search(r'[A-Za-z]:[\\/]', json.dumps(entry)))  # no machine path in the portable lock
+        drive = re.compile(r'(?<![A-Za-z])[A-Za-z]:[\\/](?!/)')  # C:\ or C:/ but not the :// of a URL
+        self.assertIsNone(drive.search(json.dumps(entry)))  # no machine path in the portable lock
+        self.assertTrue(drive.search(json.dumps('D:\\tools')) and drive.search('at C:/tools') and not drive.search('https://example.org'))
 
     def test_cleanmodels_is_resolved_by_the_shared_helper_with_the_given_root(self):
         from tools import shared_tools
