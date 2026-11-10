@@ -1,4 +1,5 @@
 """Parts are written in their bone's space with their normals, one tint texture each, and compiled by the pinned tool."""
+import json
 import subprocess
 import tempfile
 import unittest
@@ -11,6 +12,7 @@ from . import export, seams
 
 SQUARE = (np.array([(0, 0, 1.0), (1, 0, 1), (1, 1, 1), (0, 1, 1)]), np.array([(0, 1, 2), (0, 2, 3)]),
           np.array([(0, 0.0), (1, 0), (1, 1), (0, 1)]), np.tile((0.0, 0, 1), (4, 1)))
+TEXTURE = (np.full((2, 4), 200), np.full((2, 4), export.LAYERS['cloth1']))
 
 
 def block(text, keyword):
@@ -29,13 +31,21 @@ class GeometryTests(unittest.TestCase):
         loose = np.concatenate([vertices, [(5.0, 5, 5)]])  # a vertex no face uses still gets a unit normal
         self.assertTrue(np.allclose(np.linalg.norm(export.vertex_normals(loose, faces), axis=1), 1))
 
-    def test_points_and_directions_are_taken_into_the_bones_space(self):
+    def test_vertices_repeated_at_one_position_share_a_normal(self):
+        # two faces folded along the edge (0,0,0)-(1,1,0); the second has its own copies of the edge's vertices
+        vertices = np.array([(0, 0, 0.0), (1, 0, 0), (1, 1, 0), (0, 0, 0), (1, 1, 0), (0, 1, 1)])
+        normals = export.vertex_normals(vertices, np.array([(0, 1, 2), (3, 4, 5)]))
+        self.assertTrue(np.allclose(normals[0], normals[3]) and np.allclose(normals[2], normals[4]))
+        self.assertFalse(np.allclose(normals[0], normals[1]))  # the fold's normal is not the flat face's
+        self.assertTrue(np.allclose(np.linalg.norm(normals, axis=1), 1))
+
+    def test_points_and_normals_are_taken_into_the_bones_space(self):
         bone = np.array([[0.0, -1, 0, 2], [1, 0, 0, 3], [0, 0, 1, 4], [0, 0, 0, 1]])  # a quarter turn about z, then moved
         local = np.array([(1.0, 0, 0), (0, 2, 0), (0, 0, 3)])
         world = local @ bone[:3, :3].T + bone[:3, 3]
         self.assertTrue(np.allclose(export.to_bone(world, bone), local))
         self.assertTrue(np.allclose(export.to_bone(local @ bone[:3, :3].T, bone, direction=True), local / np.linalg.norm(local, axis=1)[:, None]))
-        scaled = bone.copy(); scaled[:3, :3] *= 2.0  # a scaled bone still gives unit directions
+        scaled = bone.copy(); scaled[:3, :3] *= 2.0  # a scaled bone still gives unit normals
         self.assertTrue(np.allclose(np.linalg.norm(export.to_bone(local, scaled, direction=True), axis=1), 1))
         self.assertTrue(np.allclose(export.to_bone(local @ scaled[:3, :3].T + scaled[:3, 3], scaled), local))
 
@@ -56,23 +66,27 @@ class ModelTests(unittest.TestCase):
 
     def test_a_model_that_cannot_be_drawn_is_refused(self):
         vertices, faces, uvs, normals = SQUARE
+        broken = vertices.copy(); broken[0, 0] = np.nan
         for arguments in (('pmh0_chest6030', vertices, faces[:0], uvs, normals), ('pmh0_chest6030', vertices, faces + 2, uvs, normals),
                           ('pmh0_chest6030', vertices, faces, uvs[:3], normals), ('pmh0_chest6030', vertices, faces, uvs, normals[:, :2]),
+                          ('pmh0_chest6030', broken, faces, uvs, normals), ('pmh0_chest6030', vertices, faces, uvs, np.full_like(normals, np.inf)),
                           ('a_name_that_is_too_long', vertices, faces, uvs, normals), ('PMH0_chest001', vertices, faces, uvs, normals)):
             with self.assertRaises(ValueError):
                 export.model_text(*arguments)
 
     def test_a_part_is_written_in_its_bones_space_with_its_tint_texture(self):
-        vertices, faces, uvs, normals = SQUARE
+        vertices = SQUARE[0]
         bone = np.eye(4); bone[:3, 3] = (0.5, 0.25, 1.0)
-        texture = (np.full((2, 4), 200), np.full((2, 4), export.LAYERS['cloth1']))
         with tempfile.TemporaryDirectory() as folder:
-            name = export.write_part(folder, 'pmh0', 'bicepl', 6030, SQUARE, {seams.BONES['bicepl']: bone}, texture)
+            name = export.write_part(folder, 'pmh0', 'bicepl', 6030, SQUARE, {seams.BONES['bicepl']: bone}, TEXTURE)
             self.assertEqual(name, 'pmh0_bicepl6030')
             text = (Path(folder) / 'pmh0_bicepl6030.mdl').read_text(encoding='cp1252')
             self.assertTrue(np.allclose(block(text, 'verts'), vertices - bone[:3, 3]))
             shades, layers = export.read_tint((Path(folder) / 'pmh0_bicepl6030.plt').read_bytes())
-            self.assertTrue(np.array_equal(shades, texture[0]) and np.array_equal(layers, texture[1]))
+            self.assertTrue(np.array_equal(shades, TEXTURE[0]) and np.array_equal(layers, TEXTURE[1]))
+            mirrored = np.diag((-1.0, 1, 1, 1))
+            with self.assertRaisesRegex(ValueError, 'mirrored bone'):
+                export.write_part(folder, 'pmh0', 'bicepr', 6030, SQUARE, {seams.BONES['bicepr']: mirrored}, TEXTURE)
 
 
 class TintTests(unittest.TestCase):
@@ -101,54 +115,92 @@ class TintTests(unittest.TestCase):
 
 
 class CompileTests(unittest.TestCase):
-    def run_with(self, returncode, write=True):
+    """The tool is faked: it writes a file per source and reports as cleanmodels does with --json."""
+
+    def compile(self, names=('a', 'b'), returncode=0, write=True, errors=(), faces=2, noise=''):
         calls = []
 
         def fake(command, **options):
             calls.append(command)
-            if write:
-                Path(command[-1]).write_bytes(b'binary')
-            return subprocess.CompletedProcess(command, returncode, stdout='', stderr='reading the model failed')
-        with tempfile.TemporaryDirectory() as folder, mock.patch.object(export.subprocess, 'run', side_effect=fake):
-            sources = [Path(folder) / 'a.mdl', Path(folder) / 'b.mdl']
-            out = Path(folder) / 'out'; out.mkdir()
-            compiled = export.compile_models(sources, out, tool={'path': 'cleanmodels'}, game='game', resources=['packs', 'more'])
-            return calls, [path.relative_to(folder).as_posix() for path in compiled]
+            inputs = [Path(argument) for argument in command if argument.endswith('.mdl') and Path(argument).parent.name == 'ascii']
+            for source in inputs if write else ():
+                (self.out / source.name).write_bytes(b'binary')
+            report = [{'file': str(source), **({'error': 'no newmodel line'} if source.stem in errors else {'actions': ['compiled']})} for source in inputs]
+            return subprocess.CompletedProcess(command, returncode, stdout=noise + json.dumps(report[0] if len(report) == 1 else report), stderr='the tool said so')
+        with tempfile.TemporaryDirectory() as folder:
+            source, self.out = Path(folder) / 'ascii', Path(folder) / 'out'
+            source.mkdir(); self.out.mkdir()
+            for name in names:
+                (source / (name + '.mdl')).write_text('node trimesh x\n  faces 2\n    0 1 2 1 0 1 2 1\n    0 2 3 1 0 2 3 1\n', encoding='cp1252')
+            (source / 'a.plt').write_bytes(b'tint')
+            with mock.patch.object(export.subprocess, 'run', side_effect=fake), \
+                    mock.patch.object(export.native_reader, 'decode', return_value=[{'faces': np.zeros((faces, 3), int)}]):
+                compiled = export.compile_models([source / (name + '.mdl') for name in names], self.out, tool={'path': 'cleanmodels'},
+                                                 game='game', resources=['packs', 'more'])
+            return calls, [path.relative_to(folder).as_posix() for path in compiled], sorted(path.name for path in self.out.iterdir())
 
-    def test_each_model_is_compiled_by_the_given_tool_into_the_output_folder(self):
-        calls, compiled = self.run_with(0)
+    def test_all_models_go_to_the_tool_in_one_call_and_their_textures_come_along(self):
+        calls, compiled, written = self.compile()
         self.assertEqual(compiled, ['out/a.mdl', 'out/b.mdl'])
-        self.assertEqual(len(calls), 2)
-        self.assertEqual(calls[0][:8], ['cleanmodels', 'compile', '--overwrite', '--game-dir', 'game', '--resource-dir', 'packs', '--resource-dir'])
-        self.assertTrue(calls[0][-2].endswith('a.mdl') and calls[0][-1].endswith('a.mdl') and calls[0][-2] != calls[0][-1])
+        self.assertEqual(written, ['a.mdl', 'a.plt', 'b.mdl'])  # only a has a texture beside it
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][:9], ['cleanmodels', 'compile', '--overwrite', '--json', '--game-dir', 'game', '--resource-dir', 'packs', '--resource-dir'])
+        self.assertTrue(calls[0][-3].endswith('a.mdl') and calls[0][-2].endswith('b.mdl') and Path(calls[0][-1]).name == 'out')
 
-    def test_a_failed_or_empty_compile_raises_with_the_tools_words(self):
-        with self.assertRaisesRegex(ValueError, 'a.mdl did not compile: reading the model failed'):
-            self.run_with(1)
+    def test_one_model_names_its_output_file_and_words_before_the_report_are_passed_over(self):
+        calls, compiled, _ = self.compile(names=('a',), noise='note: no install found\n')
+        self.assertEqual(compiled, ['out/a.mdl'])
+        self.assertTrue(Path(calls[0][-2]).parent.name == 'ascii' and Path(calls[0][-1]).parts[-2:] == ('out', 'a.mdl'))
+
+    def test_a_model_that_did_not_come_out_whole_raises_with_the_tools_words(self):
+        with self.assertRaisesRegex(ValueError, 'The models did not compile: .*the tool said so'):
+            self.compile(returncode=1)
+        with self.assertRaisesRegex(ValueError, '^b.mdl did not compile'):
+            self.compile(errors=('b',))
         with self.assertRaisesRegex(ValueError, 'a.mdl did not compile'):
-            self.run_with(0, write=False)
+            self.compile(write=False)
+        with self.assertRaisesRegex(ValueError, 'a.mdl compiled to 1 faces, not the 2 of its source'):
+            self.compile(faces=1)
+
+    def test_sources_are_never_compiled_in_place_and_no_sources_need_no_tool(self):
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(export.subprocess, 'run') as run, \
+                mock.patch.object(export.toolchain, 'cleanmodels') as pinned:
+            self.assertEqual(export.compile_models([], folder), [])
+            with self.assertRaisesRegex(ValueError, 'other than the sources'):
+                export.compile_models([Path(folder) / 'a.mdl'], folder, tool={'path': 'cleanmodels'})
+            with self.assertRaisesRegex(ValueError, 'share a name'):
+                export.compile_models([Path(folder) / 'x' / 'a.mdl', Path(folder) / 'y' / 'a.mdl'], folder, tool={'path': 'cleanmodels'})
+        run.assert_not_called()
+        pinned.assert_not_called()
 
     def test_the_pinned_tool_is_used_when_none_is_given(self):
         with mock.patch.object(export.toolchain, 'cleanmodels', return_value={'path': 'pinned'}) as pinned, \
                 mock.patch.object(export.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, stdout='', stderr='no')):
             with self.assertRaises(ValueError):
-                export.compile_models(['x.mdl'], 'out')
+                export.compile_models(['ascii/x.mdl'], 'out')
         pinned.assert_called_once_with()
 
-    def test_a_written_part_compiles_with_the_pinned_tool_where_it_is_installed(self):
+    def test_written_parts_compile_with_the_pinned_tool_where_it_is_installed(self):
         try:
             tool = export.toolchain.cleanmodels()
         except ValueError as error:
             self.skipTest(str(error)[:80])
-        bone = np.eye(4)
+        rig = {seams.BONES[token]: np.eye(4) for token in ('chest', 'bicepl')}
         with tempfile.TemporaryDirectory() as folder:
             source, out = Path(folder) / 'ascii', Path(folder) / 'out'
             source.mkdir(); out.mkdir()
-            name = export.write_part(source, 'pmh0', 'chest', 300, SQUARE, {seams.BONES['chest']: bone},
-                                     (np.full((2, 2), 200), np.full((2, 2), export.LAYERS['cloth1'])))
-            compiled = export.compile_models([source / (name + '.mdl')], out, tool=tool)
-            self.assertGreater(compiled[0].stat().st_size, 100)
-            self.assertNotEqual(compiled[0].read_bytes()[:1], b'#')  # binary, not the ASCII source
+            names = [export.write_part(source, 'pmh0', 'chest', 300, SQUARE, rig, TEXTURE),
+                     export.write_part(source, 'pmh0', 'bicepl', 65535, SQUARE, rig, TEXTURE)]  # the longest name a part can have
+            self.assertEqual(len(names[1]), 16)
+            compiled = export.compile_models([source / (name + '.mdl') for name in names], out, tool=tool)
+            self.assertEqual(sorted(path.name for path in out.iterdir()), sorted(name + suffix for name in names for suffix in ('.mdl', '.plt')))
+            for path in compiled:
+                self.assertNotEqual(path.read_bytes()[:1], b'#')  # binary, not the ASCII source
+            self.assertEqual(export.compile_models([source / (names[0] + '.mdl')], out, tool=tool), [out / (names[0] + '.mdl')])
+            text = (source / (names[0] + '.mdl')).read_text(encoding='cp1252')
+            (source / (names[0] + '.mdl')).write_text(text[:text.index('  verts')], encoding='cp1252')  # cut short: no mesh data
+            with self.assertRaises(ValueError):
+                export.compile_models([source / (names[0] + '.mdl')], out, tool=tool)
 
 
 if __name__ == '__main__':

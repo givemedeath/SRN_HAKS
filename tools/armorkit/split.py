@@ -226,10 +226,12 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
 
     `faces` are the part's faces. Its rim is the edges it has on the plane within `limit`, each on one face
     only, that face on the under side. Every rim point is carried past the plane on a dome about the joint
-    centre, `depth` deep, in `steps` rings; the new vertices are numbered from `base`. Turned about the joint
-    a dome stays inside itself, so the cap never leaves an over part as wide as the rim, and it shows in the
-    gap that opens on the other side of the bend (seams.minimum_overlap). `lean` draws the cap in a little
-    more than a dome from the start, because the over part often narrows just past the plane."""
+    centre, in `steps` rings; the new vertices are numbered from `base`. The dome is `depth` deep, but at no
+    rim point deeper than that point is far from the centre: every cap point then stays within its rim
+    point's distance of the centre however the joint turns, so the cap does not leave an over part as wide
+    as the rim, and it shows in the gap that opens on the other side of the bend (seams.minimum_overlap).
+    `lean` draws the cap in a little more than a dome from the start, because the over part often narrows
+    just past the plane."""
     relative = vertices - point
     height = relative @ normal
     flat = relative - height[:, None] * normal
@@ -246,7 +248,8 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     rim = np.unique(edges)
     slot = np.full(len(vertices), -1, int); slot[rim] = np.arange(len(rim))
     angles = np.radians(CAP_TOP * np.arange(1, steps + 1) / steps)
-    rings = [point + flat[rim] * (np.cos(a) * (1.0 - lean * np.sin(a))) - normal * (depth * np.sin(a)) for a in angles]
+    deep = np.minimum(depth, np.linalg.norm(flat[rim], axis=1))[:, None]
+    rings = [point + flat[rim] * (np.cos(a) * (1.0 - lean * np.sin(a))) - normal * (deep * np.sin(a)) for a in angles]
     index = np.concatenate([rim[None], base + np.arange(steps * len(rim)).reshape(steps, len(rim))])  # [ring, rim point]
     a, b = slot[edges[:, 0]], slot[edges[:, 1]]  # the part's face runs a to b, so the cap's runs b to a
     near, far = index[:-1], index[1:]

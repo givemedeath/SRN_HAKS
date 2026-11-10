@@ -1,8 +1,8 @@
 # Pilot set: corporate security
 
 Phase 1 of the [armorkit plan](plan.md). This is the brief (pipeline step 1) for the pilot and the order the
-work is taken in. Written 2026-11-10 when Phase 1 started. Of the tooling only the splitter exists
-(`tools/armorkit/split.py`); no model is generated or built yet. The concept is the
+work is taken in. Written 2026-11-10 when Phase 1 started. Of the tooling the splitter and the export step exist
+(`tools/armorkit/split.py`, `export.py`); no model is generated or built yet. The concept is the
 "Corporate Security: Facility & Patrol Uniforms" sheet in the SRN concept art folder. Choices marked
 *proposed* were made while drafting and are open to the user's correction.
 
@@ -99,8 +99,8 @@ the client, as the plan requires.
 2. References for the Human male Site Guard outfit: garment only, headless, rest stance, a clay image for
    geometry and a colour image for appearance. User review.
 3. Split and fit tooling written against the seam contract. It takes the Xenomech kit's method, not its code
-   or its recipe per outfit, and uses tint textures in place of the kit's tint shaders. The splitter is
-   built; reading a source, fitting, materials and export are not.
+   or its recipe per outfit, and uses tint textures in place of the kit's tint shaders. The splitter and
+   the export of parts as compiled models are built; reading a source, fitting and materials are not.
 4. Generate, split, fit, write materials, compile. Offline gates.
 5. Human male Site Guard outfit in the client: standing, idle and motion. User review.
 6. The remaining male models, then the female chest cuts. User review.

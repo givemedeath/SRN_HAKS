@@ -149,6 +149,18 @@ class CapTests(unittest.TestCase):
             self.assertTrue(len(inside_sleeve))
             self.assertLessEqual(np.linalg.norm(inside_sleeve[:, :2], axis=1).max(), self.RADIUS + 1e-9, degrees)
 
+    def test_a_cap_is_nowhere_deeper_than_its_rim_point_is_far_from_the_joint(self):
+        self.v = self.v * (0.4, 1.0, 1.0)  # an oval rim: 0.04 from the centre on its narrow sides, less than the depth
+        points = self.cap()[0]
+        rim = np.unique(self.under)
+        rim = rim[np.abs(self.v[rim, 2] - 0.4) < 1e-9]
+        reach = np.linalg.norm(self.v[rim] - self.point, axis=1)
+        self.assertLess(reach.min(), self.DEPTH)
+        rings = points.reshape(split.CAP_STEPS, len(rim), 3) - self.point  # ring by ring, in the rim's order
+        self.assertTrue(np.all(np.linalg.norm(rings, axis=2) <= reach + 1e-9))  # so no turn about the joint takes a point farther out
+        top = -rings[-1][:, 2] / np.sin(np.radians(split.CAP_TOP))
+        self.assertTrue(np.allclose(top, np.minimum(self.DEPTH, reach)))
+
     def test_a_cap_grows_only_from_under_side_faces_within_the_planes_reach(self):
         self.assertEqual(len(self.cap(faces=self.over)[2]), 0)
         self.assertEqual(len(self.cap(limit=0.01)[2]), 0)

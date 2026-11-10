@@ -22,7 +22,10 @@
     "tools/armorkit/export.py": [
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
-      "tools/armorkit/toolchain.py"
+      "tools/armorkit/toolchain.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/native_reader.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/measure.py": [
       "tools/armorkit/registry.py",
