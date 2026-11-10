@@ -395,3 +395,58 @@ and decision 13 stands as reworded in the revision above.
 
 The other points of "what Phase 0 changed" still wait for the user: the fit for Large female bodies and
 headgear, adopting cleanmodels, and the number-block widths.
+
+## Revision 2026-11-10: part numbers by digit
+
+The user asked for a better organizing scheme than the blocks of the "wider number blocks" revision, and
+directed that runner and role sets come last so that they are easy to expand later. This replaces that
+revision's table and the **Numbering** paragraph under [Part rules](#part-rules); decision 15 now refers to
+the table below. Nothing had been numbered under the earlier blocks.
+
+| Range | Meaning |
+|---|---|
+| 0–255 | Stock rows and models, never reused |
+| 256–299 | Buffer, left empty |
+| 300–999 | Test and proof parts; the registry refuses them for publication |
+| 1000–2999 | Standalone pieces, which belong to no set |
+| 3000–3999 | Civilian sets |
+| 4000–4999 | Workwear sets |
+| 5000–5999 | Corporate / business sets |
+| 6000–6999 | Security and law enforcement sets |
+| 7000–7999 | Gang, syndicate and FRFZ sets |
+| 8000–8999 | Heavy and military sets |
+| 9000–9999 | Runner and role sets (decker, rigger, samurai, mage) |
+| 10000 and up | Closed. Kept for more runner and role sets, opened by a later decision |
+
+A family number reads by digit as **family, group, set, variant**: 6123 is security, group 1, set 2,
+variant 3.
+
+* **Group (hundreds).** Each family names its groups as it first uses them, for example one per role under
+  runner. A hundred never belongs to two groups; a group that fills takes the next free hundred.
+* **Set (tens).** A set keeps the same number in every slot it covers, and where the male and female cuts
+  differ they share it, so a recipe never names the wearer's gender. Ten numbers never belong to two sets; a
+  set that needs more than ten variants takes the next ten as well.
+* **Variant (units).** 0 is the base; 1–9 are variations of it such as a tier, a trim or rolled sleeves. A
+  variant exists only in the slots where it differs.
+
+In the standalone range the meaning follows the table. On fitted slots these are basics that any family may
+use. Standalone neck parts are numbered by the category the registry already records: headgear 1000–1499,
+back 1500–1999, neckwear 2000–2499, torso rigs 2500–2999. Belt, shoulder and robe numbers are not banded
+until there is enough content to see their natural groups.
+
+What follows from it:
+
+* A list of numbers is all the toolset shows, so the digits are the only label a builder gets there.
+* SR_NWN can read family, set and variant from the number without a lookup. The handoff also gives each
+  family part its `setNumber` and `variant`.
+* Tables stop at 10,000 rows, so the 65,536-row table that was never tried on a multiplayer server does not
+  arise. The item field itself holds numbers up to 65535 and the client proofs loaded them
+  ([spikes.md](spikes.md), section 10), so opening the numbers from 10000 later needs no new proof of the
+  field.
+* Standalone pieces have 2,000 numbers in each table where the earlier accessory block had 2,700; they remain
+  twice as wide as any family.
+* A piece that several families use still lives under one home family or in the standalone range, and
+  carries the others as tags.
+
+The group digit, the neck bands and the standalone range for basics were proposed while drafting this scheme
+and are open to the user's correction.

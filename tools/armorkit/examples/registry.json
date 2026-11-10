@@ -3,42 +3,42 @@
   "kind": "srn-armorkit-registry",
   "parts": [
     {
-      "slot": "chest", "number": 6000, "set": "example-security", "families": ["security"], "genderedCut": true,
+      "slot": "chest", "number": 6000, "set": "example-security", "group": "example-corpsec", "families": ["security"], "genderedCut": true,
       "tiers": {"neck": 1, "shoulder": 1, "waist": 2}, "coverage": {"skin": false, "headgear": false},
       "channels": ["cloth1", "leather1", "metal1"], "badge": null, "mesh": "rigid",
       "bodies": ["pmh0", "pmh2", "pmd0", "pmd2", "pme0", "pme2", "pmo0", "pmo2", "pmg0", "pmg2",
                  "pfh0", "pfh2", "pfd0", "pfd2", "pfe0", "pfe2", "pfo0", "pfo2", "pfg0", "pfg2"]
     },
     {
-      "slot": "bicep", "number": 6000, "set": "example-security", "families": ["security"], "genderedCut": false,
+      "slot": "bicep", "number": 6000, "set": "example-security", "group": "example-corpsec", "families": ["security"], "genderedCut": false,
       "tiers": {"shoulder": 1, "elbow": 1}, "coverage": {"skin": true, "headgear": false},
       "channels": ["cloth1", "skin"], "badge": null, "mesh": "rigid",
       "bodies": ["pmh0", "pmh2", "pmd0", "pmd2", "pme0", "pme2", "pmo0", "pmo2", "pmg0", "pmg2",
                  "pfh0", "pfh2", "pfd0", "pfd2", "pfe0", "pfe2", "pfo0", "pfo2", "pfg0", "pfg2"]
     },
     {
-      "slot": "shoulder", "number": 6000, "set": "example-security", "families": ["security"], "genderedCut": false,
+      "slot": "shoulder", "number": 6000, "set": "example-security", "group": "example-corpsec", "families": ["security"], "genderedCut": false,
       "tiers": {"shoulder": 2}, "coverage": {"skin": false, "headgear": false},
       "channels": ["metal1", "leather1"], "badge": {"positions": ["left"]}, "mesh": "rigid",
       "bodies": ["pmh0", "pmh2", "pmd0", "pmd2", "pme0", "pme2", "pmo0", "pmo2", "pmg0", "pmg2",
                  "pfh0", "pfh2", "pfd0", "pfd2", "pfe0", "pfe2", "pfo0", "pfo2", "pfg0", "pfg2"]
     },
     {
-      "slot": "belt", "number": 300, "families": ["accessory"], "genderedCut": false,
+      "slot": "belt", "number": 1000, "families": ["accessory"], "genderedCut": false,
       "tiers": {"waist": 2}, "coverage": {"skin": false, "headgear": false},
       "channels": ["leather1", "metal1"], "badge": null, "mesh": "dangly",
       "bodies": ["pmh0", "pmh2", "pmd0", "pmd2", "pme0", "pme2", "pmo0", "pmo2", "pmg0", "pmg2",
                  "pfh0", "pfh2", "pfd0", "pfd2", "pfe0", "pfe2", "pfo0", "pfo2", "pfg0", "pfg2"]
     },
     {
-      "slot": "neck", "number": 300, "families": ["accessory"], "genderedCut": false, "neckCategory": "headgear",
+      "slot": "neck", "number": 1000, "families": ["accessory"], "genderedCut": false, "neckCategory": "headgear",
       "tiers": {"neck": 0}, "coverage": {"skin": true, "headgear": true},
       "channels": ["cloth1", "skin"], "badge": null, "mesh": "skinned",
       "bodies": ["pmh0", "pmh2", "pmd0", "pmd2", "pme0", "pme2", "pmo0", "pmo2", "pmg0", "pmg2",
                  "pfh0", "pfh2", "pfd0", "pfd2", "pfe0", "pfe2", "pfo0", "pfo2", "pfg0", "pfg2"]
     },
     {
-      "slot": "neck", "number": 301, "families": ["accessory"], "genderedCut": false, "neckCategory": "neckwear",
+      "slot": "neck", "number": 2000, "families": ["accessory"], "genderedCut": false, "neckCategory": "neckwear",
       "tiers": {}, "coverage": {"skin": true, "headgear": false},
       "channels": ["cloth1", "skin"], "badge": {"positions": ["lanyard"]}, "mesh": "skinned",
       "bodies": ["pmh0", "pmh2", "pmd0", "pmd2", "pme0", "pme2", "pmo0", "pmo2", "pmg0", "pmg2",

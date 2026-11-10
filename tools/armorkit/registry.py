@@ -57,16 +57,23 @@ ROBE_HIDES = ('FOOTR', 'FOOTL', 'SHINR', 'SHINL', 'LEGR', 'LEGL', 'PELVIS', 'CHE
 
 # Stock tables hold rows 0-200 (parts_robe 0-38) and stock models run to 255; 256-299 stay empty as a buffer.
 FIRST_NUMBER = 300
-LAST_NUMBER = 65535  # the word field's range; names stay within 16 characters up to 99999
-# Blocks widened on 2026-11-10 at the user's request (plan.md, revision of that date): accessories get the
-# widest band, every family one thousand numbers. The exact widths are open to the user's correction.
-BLOCKS = ((300, 2999, 'accessory'), (3000, 3999, 'civilian'), (4000, 4999, 'workwear'), (5000, 5999, 'corporate'),
-          (6000, 6999, 'security'), (7000, 7999, 'runner'), (8000, 8999, 'gang'), (9000, LAST_NUMBER, None))
-FAMILIES = tuple(name for _, _, name in BLOCKS if name) + ('heavy',)
+FIELD_LIMIT = 65535  # the item field is a word; names stay within 16 characters up to 99999
+# Numbers by digit (plan.md, revision "part numbers by digit"): 300-999 are test parts and never published,
+# 1000-2999 are standalone pieces, and each family has one thousand. In a family thousand the hundreds digit
+# is a group, the tens digit a set and the units digit a variant. Runner and role sets come last so that they
+# can grow into the numbers from 10000, which stay closed until that is decided.
+TEST, STANDALONE = 'test', 'standalone'
+FAMILY_BLOCKS = ('civilian', 'workwear', 'corporate', 'security', 'gang', 'heavy', 'runner')
+BLOCKS = ((300, 999, TEST), (1000, 2999, STANDALONE)) + tuple(
+    (3000 + 1000 * index, 3999 + 1000 * index, family) for index, family in enumerate(FAMILY_BLOCKS))
+LAST_NUMBER = BLOCKS[-1][1]
+FAMILIES = ('accessory',) + FAMILY_BLOCKS
+# Standalone neck parts are numbered by their category, the only label a number list shows.
+NECK_BANDS = {'headgear': (1000, 1499), 'back': (1500, 1999), 'neckwear': (2000, 2499), 'torso': (2500, 2999)}
 
-PART_KEYS = {'slot', 'number', 'set', 'families', 'genderedCut', 'tiers', 'neckCategory', 'coverage', 'channels',
-             'badge', 'bodies', 'mesh', 'sides', 'hide'}
-REQUIRED = PART_KEYS - {'set', 'neckCategory', 'sides', 'hide'}
+PART_KEYS = {'slot', 'number', 'set', 'group', 'families', 'genderedCut', 'tiers', 'neckCategory', 'coverage',
+             'channels', 'badge', 'bodies', 'mesh', 'sides', 'hide'}
+REQUIRED = PART_KEYS - {'set', 'group', 'neckCategory', 'sides', 'hide'}
 TAG = re.compile(r'[a-z0-9][a-z0-9-]{0,31}')
 
 
@@ -76,10 +83,10 @@ def require(condition, message):
 
 
 def block(number):
-    """The family a number's block belongs to; None for the open block from 9000."""
-    for first, last, family in BLOCKS:
+    """The block a number belongs to: `test`, `standalone` or the family of its thousand."""
+    for first, last, name in BLOCKS:
         if first <= number <= last:
-            return family
+            return name
     raise ValueError(f'Part number {number} is outside every block')
 
 
@@ -118,17 +125,26 @@ def _unique(values, allowed, label, *, empty=False):
 
 def validate_part(part, *, publish=False):
     require(isinstance(part, dict) and REQUIRED <= set(part) <= PART_KEYS,
-            'Part keys must be ' + ', '.join(sorted(REQUIRED)) + ' plus optional set, neckCategory, sides, hide')
+            'Part keys must be ' + ', '.join(sorted(REQUIRED)) + ' plus optional set, group, neckCategory, sides, hide')
     slot, number = part['slot'], part['number']
     require(isinstance(slot, str) and slot in SLOTS, f'Unknown slot {slot!r}')
     label = f'{slot} {number}'
-    require(type(number) is int and FIRST_NUMBER <= number <= LAST_NUMBER,
+    require(type(number) is int and FIRST_NUMBER <= number,
             f'{label}: numbers start at {FIRST_NUMBER}; stock rows, stock models and the 256-299 buffer are never reused')
+    require(number <= LAST_NUMBER,
+            f'{label}: numbers from {LAST_NUMBER + 1} are kept for more runner and role sets and are not open yet')
     _unique(part['families'], FAMILIES, label + ': families')
-    family = block(number)
-    require(family is None or family in part['families'], f'{label}: numbers in this block belong to the {family} family')
-    if 'set' in part:
-        require(isinstance(part['set'], str) and TAG.fullmatch(part['set']), label + ': set must be a lowercase tag')
+    name = block(number)
+    in_family = name in FAMILY_BLOCKS
+    require(not in_family or name in part['families'], f'{label}: numbers in this block belong to the {name} family')
+    require(not publish or name != TEST, f'{label}: numbers 300-999 are test parts and are never published')
+    for key in ('set', 'group'):
+        require(key not in part or (isinstance(part[key], str) and TAG.fullmatch(part[key])),
+                f'{label}: {key} must be a lowercase tag')
+    require(not in_family or ('set' in part and 'group' in part),
+            f'{label}: a part in a family block names its set and its group')
+    require(name != STANDALONE or ('set' not in part and 'group' not in part),
+            f'{label}: numbers 1000-2999 are standalone pieces, which belong to no set or group')
     require(type(part['genderedCut']) is bool, label + ': genderedCut must be true or false')
     require(slot != 'chest' or part['genderedCut'], label + ': the chest is always a separate male and female cut')
     tiers = part['tiers']
@@ -141,6 +157,10 @@ def validate_part(part, *, publish=False):
     require((slot == 'neck') == ('neckCategory' in part), label + ': neckCategory belongs to neck parts, and every neck part has one')
     require(slot != 'neck' or (isinstance(part['neckCategory'], str) and part['neckCategory'] in NECK_CATEGORIES),
             f'{label}: neckCategory must be one of {list(NECK_CATEGORIES)}')
+    if slot == 'neck' and name == STANDALONE:
+        first, last = NECK_BANDS[part['neckCategory']]
+        require(first <= number <= last,
+                f'{label}: standalone {part["neckCategory"]} neck parts are numbered {first}-{last}')
     coverage = part['coverage']
     require(isinstance(coverage, dict) and set(coverage) == {'skin', 'headgear'} and all(type(v) is bool for v in coverage.values()),
             label + ': coverage is {skin: bool, headgear: bool}')
@@ -170,17 +190,20 @@ def validate(data, *, publish=False):
     """Check a registry document and return its parts ordered by slot and number."""
     require(isinstance(data, dict) and set(data) == {'schemaVersion', 'kind', 'parts'} and data['schemaVersion'] == 1
             and data['kind'] == KIND and isinstance(data['parts'], list), 'Unsupported registry document')
-    seen, sets = set(), {}
+    seen, owners = set(), {}
     for part in data['parts']:
         validate_part(part, publish=publish)
         key = (part['slot'], part['number'])
         require(key not in seen, f'Duplicate part {key[0]} {key[1]}')
         seen.add(key)
-        # A set uses one number in every slot it covers, so a number never belongs to two sets. A part
-        # without a set belongs to none, and may share its number with a set's part in another slot.
-        if 'set' in part:
-            owner = sets.setdefault(part['number'], part['set'])
-            require(owner == part['set'], f'Number {part["number"]} is used by two sets: {owner} and {part["set"]}')
+        # A set uses the same number in every slot it covers and the next units for its variants, so ten
+        # numbers never belong to two sets; in the same way a hundred never belongs to two groups.
+        for kind, size in (('set', 10), ('group', 100)):
+            if kind in part:
+                first = part['number'] // size * size
+                owner = owners.setdefault((kind, first), part[kind])
+                require(owner == part[kind],
+                        f'Numbers {first}-{first + size - 1} are used by two {kind}s: {owner} and {part[kind]}')
     return sorted(data['parts'], key=lambda part: (part['slot'], part['number']))
 
 
@@ -197,13 +220,17 @@ def numbers(parts, slot):
 def handoff(parts):
     """The registry as SR_NWN consumes it: each part with the table, item fields and model names it implies.
 
-    A part's `badge` says where it shows a logo. The handoff does not yet name the shared logo material, its
-    parameter or the logo cells (plan.md, revision "logos use the shader value"); that entry is Phase 1 work."""
+    A part in a family block also carries `setNumber` (its number with the units digit at 0) and `variant`
+    (the units digit). A part's `badge` says where it shows a logo. The handoff does not yet name the shared
+    logo material, its parameter or the logo cells (plan.md, revision "logos use the shader value"); that
+    entry is Phase 1 work."""
     rows = []
     for part in parts:
         slot = SLOTS[part['slot']]
         used = [slot['tokens'].index(token) for token in tokens(part)]
-        rows.append({**part, 'table': slot['table'], 'block': block(part['number']),
+        number, name = part['number'], block(part['number'])
+        digits = {'setNumber': number - number % 10, 'variant': number % 10} if name in FAMILY_BLOCKS else {}
+        rows.append({**part, 'table': slot['table'], 'block': name, **digits,
                      'itemFields': [slot['fields'][i] for i in used], 'itemModelIndices': [slot['models'][i] for i in used],
                      'models': model_names(part), 'tintTextures': texture_names(part)})
     return {'schemaVersion': 1, 'kind': KIND + '-handoff', 'parts': rows}

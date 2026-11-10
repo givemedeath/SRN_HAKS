@@ -113,7 +113,7 @@ def actor_variables(actor):
     if actor.get('item'):
         values['AK_ITEM'] = registry_resref(actor['item'])
     for key, number in {**({} if actor.get('bare') or actor.get('item') else NAKED), **actor.get('parts', {})}.items():
-        require(type(number) is int and 0 <= number <= registry.LAST_NUMBER, f'{key}: part number out of range')
+        require(type(number) is int and 0 <= number <= registry.FIELD_LIMIT, f'{key}: part number out of range')
         for index in model_indices(key):
             values[f'AK_M{index}'] = number + 1
     for channel, shade in actor.get('colours', {}).items():

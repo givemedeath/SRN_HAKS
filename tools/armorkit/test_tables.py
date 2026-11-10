@@ -16,7 +16,7 @@ def stock(table):
     return '\r\n'.join(['2DA V2.0', '', '     ' + '  '.join(columns) + '  ', *rows]) + '\r\n'
 
 
-PARTS = [part(), part(number=9002, families=['heavy'], set='heavy-a'),
+PARTS = [part(), part(number=9002, families=['runner'], set='runner-a', group='runner'),
          part(slot='belt', number=300, families=['accessory'], set=..., genderedCut=False, tiers={})]
 STOCK = {table: stock(table) for table in registry.TABLES}
 

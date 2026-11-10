@@ -8,7 +8,7 @@ The `tools/armorkit` package is the foundation for modular clothing, armor, head
 - `[registry.py:validate]` / `[registry.py:load]` - Check a registry document (`srn-armorkit-registry`, schema version 1) and return its parts ordered by slot and number; `publish=True` also requires all 20 bodies.
 - `[registry.py:SLOTS]` - Per slot: parts table, model tokens, the `xArmorPart_*` item fields and `ITEM_APPR_ARMOR_MODEL_*` indices.
 - `[registry.py:model_name]` / `[registry.py:model_names]` / `[registry.py:texture_names]` - Resource names a part implies: `p<m|f><race><phenotype>_<slot><number>`.
-- `[registry.py:block]` - The family a number's block belongs to (300-2999 accessory, 3000s civilian, 4000s workwear, 5000s corporate, 6000s security, 7000s runner, 8000s gang, 9000+ open).
+- `[registry.py:block]` - The block a number belongs to: 300-999 `test`, 1000-2999 `standalone`, then the family of its thousand (3000s civilian, 4000s workwear, 5000s corporate, 6000s security, 7000s gang, 8000s heavy, 9000s runner).
 - `[registry.py:handoff]` - The registry with derived table, item-field, model and texture names, as SR_NWN consumes it. A part's `badge` says where it shows a logo. The shared logo material, its parameter and the logo cells are not in the handoff yet (plan.md, revision "logos use the shader value"); that entry is Phase 1 work.
 - `[tables.py:generate]` / `[tables.py:generate_all]` - Table text from stock text and registry parts: stock rows kept, gaps padded, live rows nulled.
 - `[tables.py:check]` - Fails on a gap, a duplicate, a changed stock row or column row, a registry part without a live row or inside the stock range, or a live row no part owns.
@@ -26,9 +26,10 @@ The `tools/armorkit` package is the foundation for modular clothing, armor, head
 - `head-envelopes.json` - Outer bounds of the published heads per race and gender, in head-bone space, from surfaces sampled every 3 mm.
 
 ## Invariants
-- `[registry.py:validate_part]` - Part numbers start at 300; stock rows 0-200, stock models to 255 and the 256-299 buffer are never reused. Numbers stop at 65535 (the item field is a word) and every model name is at most 16 characters.
+- `[registry.py:validate_part]` - Part numbers start at 300; stock rows 0-200, stock models to 255 and the 256-299 buffer are never reused. Numbers stop at 9999; the item field holds up to 65535, and the numbers from 10000 are kept closed for more runner and role sets. Every model name is at most 16 characters.
+- `[registry.py:validate_part]` - A family number reads as family, group, set, variant by digit, and its part names its `set` and `group`; a standalone number (1000-2999) has neither, and a standalone neck part sits in the band of its category (headgear 1000-1499, back 1500-1999, neckwear 2000-2499, torso 2500-2999); test numbers (300-999) are refused with `publish=True`.
 - `[registry.py:validate_part]` - A number in a family block carries that family's tag; the chest is always a separate male and female cut; a fitted part declares a tier 0-3 at each of its joints; logos sit only on shoulder parts and neck-slot lanyards; the skin channel is used exactly when skin is exposed.
-- `[registry.py:validate]` - One part per slot and number; a number never belongs to two sets (a part without a set belongs to none).
+- `[registry.py:validate]` - One part per slot and number; ten numbers never belong to two sets and a hundred never belongs to two groups.
 - `[tables.py:generate]` - Stock rows are copied byte for byte (201 rows, 39 for `parts_robe`); live rows are `COSTMODIFIER 0`, `ACBONUS 0.00`; padding rows are `****` in every column; rows count from 0 with no gaps up to the highest part number.
 - `[seams.py:validate_contract]` - The part nearer the torso lies over the other and the chest lies over everything it touches; every joint is measured on both Human Fit bodies (more SRN bodies may be added); tier offsets grow with the tier; each stored tier number equals what the body rings, the tier offsets and the design bend give.
 - `[seams.py:mixes]` - Two parts mix cleanly at a joint when the over part's tier is at least the under part's.
