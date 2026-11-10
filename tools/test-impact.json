@@ -1,6 +1,72 @@
 {
   "schemaVersion": 2,
   "dependencies": {
+    "tools/armorkit/__init__.py": [],
+    "tools/armorkit/__main__.py": [
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/head-envelopes.json",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seam-contract.json",
+      "tools/armorkit/tables.py"
+    ],
+    "tools/armorkit/client.py": [
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/client_fixture.py": [
+      "tools/armorkit/registry.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/armorkit/measure.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/native_reader.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
+    "tools/armorkit/registry.py": [],
+    "tools/armorkit/seams.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seam-contract.json"
+    ],
+    "tools/armorkit/tables.py": [
+      "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/test_cli.py": [
+      "tools/armorkit/__main__.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/examples/registry.json",
+      "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/test_client_fixture.py": [
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/test_measure.py": [
+      "tools/armorkit/head-envelopes.json",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/seams.py"
+    ],
+    "tools/armorkit/test_registry.py": [
+      "tools/armorkit/examples/registry.json",
+      "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/test_seams.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/test_registry.py"
+    ],
+    "tools/armorkit/test_tables.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/tables.py",
+      "tools/armorkit/test_registry.py"
+    ],
     "tools/ci_result.py": [],
     "tools/ci_scope.py": [
       "tools/test-impact.json",
@@ -4727,6 +4793,10 @@
   },
   "unresolved": [],
   "packReferences": {
+    "tools/armorkit/test_measure.py": [
+      "srn_body",
+      "srn_head"
+    ],
     "tools/combat_release_manifest.py": [
       "srn_2da",
       "srn_tlk",
@@ -4844,6 +4914,12 @@
     ]
   },
   "tests": [
+    "tools/armorkit/test_cli.py",
+    "tools/armorkit/test_client_fixture.py",
+    "tools/armorkit/test_measure.py",
+    "tools/armorkit/test_registry.py",
+    "tools/armorkit/test_seams.py",
+    "tools/armorkit/test_tables.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",

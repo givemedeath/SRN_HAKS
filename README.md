@@ -157,6 +157,7 @@ For production workflows, pipelines, and manifests, see:
 
 - [Tools & Infrastructure](./tools/README.md): Shared development tools, CI test impact analysis, build scripts, toolchain verification, and pipeline launchers.
   - [Headbatch](./tools/headbatch/README.md): Multi-head batch orchestration, GPU inference pipeline, stage progression, submission budgeting, and client trial module builder.
+  - [Armorkit](./tools/armorkit/README.md): Modular armor and clothing parts: part registry, `parts_*.2da` table generation, measured seam contract and head envelopes, and isolated game-client fixtures.
   - [Headkit](./tools/headkit/README.md): Character head creation, fitting, UV unwrapping, texturing, quality gate verification, and NWN native model compilation toolkit.
   - [Heads Pipeline](./tools/heads/README.md): Head production pipeline, landmark fitting, neck closure/taper auditing, and PBR/PLT material generation across a 200-head roster and 7 acceptance gates.
   - [Itemkit](./tools/itemkit/README.md): Single-image 3D generation, fitting, UV atlasing, texture baking, shadow proxy generation, inspection fixtures, and native equipment packaging for Neverwinter Nights: Enhanced Edition.

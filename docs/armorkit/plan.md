@@ -285,3 +285,68 @@ None. The eight raised with the draft were settled on 2026-11-09 and are decisio
   remove it.
 * Part numbers and tables are global to a module. Any other provider of the same tables must be removed or
   merged.
+
+## Revision 2026-11-10: wider number blocks
+
+The user asked for wider part-number blocks, accessories most of all, because the item field holds numbers up
+to 65535. This replaces the block table under [Part rules](#part-rules), which decision 15 refers to; the
+rest of the plan stands. Nothing had been numbered under the old blocks.
+
+| Block | Use |
+|---|---|
+| 300–2999 | Shared accessories (neck, belt, shoulder items not tied to a set) |
+| 3000–3999 | Civilian |
+| 4000–4999 | Workwear |
+| 5000–5999 | Corporate / business |
+| 6000–6999 | Security and law enforcement |
+| 7000–7999 | Runner and role gear (decker, rigger, samurai, mage) |
+| 8000–8999 | Gangs, syndicates, FRFZ |
+| 9000+ | Heavy kits and overflow |
+
+Stock rows 0–200, stock models to 255 and the 256–299 buffer are unchanged. A table is padded up to its highest
+part number: about 9,000 rows for a table whose highest part is in a family block, and up to 65,536 rows
+(about 1.8 MB) once a part in the open block from 9000 uses the top of the range. The exact widths were chosen while
+carrying out Phase 0 and are open to the user's correction; the result of the client proof for numbers in these
+ranges is in [spikes.md](spikes.md).
+
+## Revision 2026-11-10: what Phase 0 changed
+
+Phase 0 is carried out; results are in [spikes.md](spikes.md) (sections 10–17) and
+[seam-contract.md](seam-contract.md). The plan text above stays as approved. These points now differ from it
+and wait for the user to decide before Phase 1:
+
+* **Decision 14 is not met.** The close-up fit proof did not pass: race versions leave a visible waist step on
+  Large female bodies and do not fit headgear to Dwarf or Troll heads. The cleanmodels pin was not moved.
+* **Race versions.** `cleanmodels variants` is usable for male bodies and Fit female bodies. Large female
+  bodies and all headgear need another fit (per race from the head envelopes for headgear).
+* **Logos (decisions 7 and 13).** A plain-texture badge inside a tinted part is overwritten by the tint
+  texture of the part, and the runtime swap does not reach a badge textured through a material file. A logo
+  approach has to be chosen (spikes.md, section 15).
+* **Parts tables.** `parts_robe` has stock rows 0–38 and hide columns, not rows 0–200; the generator handles it.
+* **Clearance gate.** A worn part replaces the body part in its slot, so the gate that matters is the join with
+  neighbouring parts (the seam contract), not skin showing through the part.
+* **Toolset.** It lists the new numbers by part number only, with no names, and lists only rows that have a
+  model. The test part had no inventory icon and the item picture showed a gap; parts will probably need
+  icons (not tested).
+* **cleanmodels has no pin today.** The "4.0.0-rc17 shared pin" of decision 14 and the toolchain table is a
+  folder in the shared tool root that no lock file names. Adopting cleanmodels 4.17.x adds a new shared-tool
+  entry; the Phase 0 compiles and race versions used an unpinned download of 4.17.5.
+* **Seam measurement.** The contract (now version 2, see [seam-contract.md](seam-contract.md)) covers under
+  ends at every joint and over ends at five of them. A torso piece's neck hole, armholes and leg holes cannot
+  be measured by the plane section used here and need a measure of their own before the seam gate can cover
+  them.
+* **Review fixes (same day).** A code review of this phase found that the first seam contract counted
+  animation clips the bodies never play, that the head envelopes missed surface between vertices, and that
+  the capture driver could file a picture under the wrong shot, which had spoiled the first helmet sheet.
+  All three are corrected and re-measured or re-run; spikes.md section 14 and seam-contract.md say how.
+* **Not checked in Phase 0** (each is listed with its proof in spikes.md):
+  * tint-texture fallback from a female or Large model to another gender or build (the plan's Phase 0 list
+    asks for it; only the race fallback was proven);
+  * material files (normal maps) on a new part number;
+  * part numbers above 1000 on slots other than chest and bicep, although every family block now starts at
+    3000 on all slots;
+  * a table of 65,536 rows on a multiplayer server;
+  * helmet scales per race, and helmets on Large bodies;
+  * motion for any test part: walking, running, combat, a scripted head turn or the automatic look-at;
+  * the toolset beyond one Human male armor item, not saved or reopened;
+  * SR_NWN branches other than `master`.

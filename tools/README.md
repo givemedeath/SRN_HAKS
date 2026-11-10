@@ -11,6 +11,7 @@ Shared toolchains, pipeline runners, test selection engines, and batch orchestra
 
 ## Subdirectories & Boundaries
 - [headbatch](./headbatch/README.md) - Multi-head batch orchestration, GPU inference pipeline, stage progression, submission budgeting, and client trial module builder.
+- [armorkit](./armorkit/README.md) - Modular armor and clothing parts: part registry, `parts_*.2da` table generation, measured seam contract and head envelopes, and isolated game-client fixtures.
 - [headkit](./headkit/README.md) - Character head creation, fitting, UV unwrapping, texturing, quality gate verification, and NWN native model compilation toolkit.
 - [heads](./heads/README.md) - Production pipeline, landmark similarity fitting, neck closure audits, and native asset export toolchain for Neverwinter Nights character heads across a 200-head roster and 7 acceptance gates.
 - [itemkit](./itemkit/README.md) - Single-image 3D generation, fitting, UV atlasing, texture baking, shadow proxy generation, inspection fixtures, and native equipment packaging for Neverwinter Nights: Enhanced Edition.

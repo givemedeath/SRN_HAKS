@@ -1,0 +1,1544 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-armorkit-seam-contract",
+ "version": 2,
+ "units": "metres",
+ "directions": 16,
+ "tierOffsets": {
+  "0": 0.004,
+  "1": 0.012,
+  "2": 0.025,
+  "3": 0.05
+ },
+ "designBend": "p95",
+ "joints": {
+  "neck": {
+   "over": "chest",
+   "under": "neck",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "c": {
+       "point": [
+        -0.0,
+        -0.0502,
+        1.6764
+       ],
+       "normal": [
+        0.0,
+        0.0,
+        1.0
+       ],
+       "bodyRing": [
+        0.0815,
+        0.0717,
+        0.0577,
+        0.0618,
+        0.0704,
+        0.0619,
+        0.0577,
+        0.0721,
+        0.0819,
+        0.0625,
+        0.0514,
+        0.0572,
+        0.0663,
+        0.0571,
+        0.051,
+        0.062
+       ],
+       "underPastPlane": 0.0708
+      }
+     },
+     "bend": {
+      "max": 54.6,
+      "maxClip": "a_ba:dodgelr",
+      "p99": 31.2,
+      "p95": 18.5,
+      "median": 6.3
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0859,
+       "meanRadius": 0.068,
+       "minimumOverlap": 0.0228
+      },
+      "1": {
+       "envelopeRadius": 0.0939,
+       "meanRadius": 0.076,
+       "minimumOverlap": 0.0254
+      },
+      "2": {
+       "envelopeRadius": 0.1069,
+       "meanRadius": 0.089,
+       "minimumOverlap": 0.0298
+      },
+      "3": {
+       "envelopeRadius": 0.1319,
+       "meanRadius": 0.114,
+       "minimumOverlap": 0.0381
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "c": {
+       "point": [
+        -0.004,
+        -0.0141,
+        1.5538
+       ],
+       "normal": [
+        0.0,
+        0.0,
+        1.0
+       ],
+       "bodyRing": [
+        0.0575,
+        0.0463,
+        0.0401,
+        0.0475,
+        0.0564,
+        0.0475,
+        0.0401,
+        0.0463,
+        0.0575,
+        0.0503,
+        0.042,
+        0.0488,
+        0.0587,
+        0.0488,
+        0.042,
+        0.0503
+       ],
+       "underPastPlane": 0.0534
+      }
+     },
+     "bend": {
+      "max": 54.6,
+      "maxClip": "a_ba:dodgelr",
+      "p99": 32.8,
+      "p95": 18.6,
+      "median": 6.3
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0627,
+       "meanRadius": 0.0528,
+       "minimumOverlap": 0.0178
+      },
+      "1": {
+       "envelopeRadius": 0.0707,
+       "meanRadius": 0.0608,
+       "minimumOverlap": 0.0204
+      },
+      "2": {
+       "envelopeRadius": 0.0837,
+       "meanRadius": 0.0738,
+       "minimumOverlap": 0.0248
+      },
+      "3": {
+       "envelopeRadius": 0.1087,
+       "meanRadius": 0.0988,
+       "minimumOverlap": 0.0332
+      }
+     }
+    }
+   }
+  },
+  "shoulder": {
+   "over": "chest",
+   "under": "bicep",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.201,
+        -0.0487,
+        1.5574
+       ],
+       "normal": [
+        -0.12791,
+        0.06953,
+        -0.98935
+       ],
+       "bodyRing": [
+        0.033,
+        0.0345,
+        0.0391,
+        0.0452,
+        0.0514,
+        0.0637,
+        0.0796,
+        0.0912,
+        0.0989,
+        0.1051,
+        0.1031,
+        0.0916,
+        0.0749,
+        0.0615,
+        0.0517,
+        0.0383
+       ],
+       "underPastPlane": 0.0627
+      },
+      "r": {
+       "point": [
+        0.201,
+        -0.0487,
+        1.5574
+       ],
+       "normal": [
+        0.1279,
+        0.06953,
+        -0.98935
+       ],
+       "bodyRing": [
+        0.0989,
+        0.0912,
+        0.0796,
+        0.0637,
+        0.0509,
+        0.0451,
+        0.0391,
+        0.0345,
+        0.033,
+        0.0383,
+        0.0517,
+        0.0615,
+        0.0749,
+        0.0916,
+        0.1031,
+        0.1051
+       ],
+       "underPastPlane": 0.0627
+      }
+     },
+     "bend": {
+      "max": 148.5,
+      "maxClip": "a_ba_custom:throw_gren_df",
+      "p99": 120.8,
+      "p95": 101.0,
+      "median": 68.7
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.1091,
+       "meanRadius": 0.0704,
+       "minimumOverlap": 0.0704
+      },
+      "1": {
+       "envelopeRadius": 0.1171,
+       "meanRadius": 0.0784,
+       "minimumOverlap": 0.0784
+      },
+      "2": {
+       "envelopeRadius": 0.1301,
+       "meanRadius": 0.0914,
+       "minimumOverlap": 0.0914
+      },
+      "3": {
+       "envelopeRadius": 0.1551,
+       "meanRadius": 0.1164,
+       "minimumOverlap": 0.1164
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.1425,
+        -0.0048,
+        1.5129
+       ],
+       "normal": [
+        -0.10029,
+        -0.07797,
+        -0.9919
+       ],
+       "bodyRing": [
+        0.0436,
+        0.0442,
+        0.0399,
+        0.0426,
+        0.0468,
+        0.047,
+        0.0471,
+        0.052,
+        0.0522,
+        0.0491,
+        0.0384,
+        0.0356,
+        0.0347,
+        0.0319,
+        0.033,
+        0.0386
+       ],
+       "underPastPlane": 0.0261
+      },
+      "r": {
+       "point": [
+        0.1347,
+        -0.0048,
+        1.5129
+       ],
+       "normal": [
+        0.10029,
+        -0.07797,
+        -0.9919
+       ],
+       "bodyRing": [
+        0.0522,
+        0.052,
+        0.0471,
+        0.047,
+        0.0468,
+        0.0426,
+        0.0399,
+        0.0442,
+        0.0436,
+        0.0386,
+        0.033,
+        0.0319,
+        0.0347,
+        0.0356,
+        0.0387,
+        0.0491
+       ],
+       "underPastPlane": 0.0261
+      }
+     },
+     "bend": {
+      "max": 151.3,
+      "maxClip": "a_ba_custom:throw_gren_df",
+      "p99": 121.5,
+      "p95": 100.8,
+      "median": 64.8
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0562,
+       "meanRadius": 0.0463,
+       "minimumOverlap": 0.0463
+      },
+      "1": {
+       "envelopeRadius": 0.0642,
+       "meanRadius": 0.0543,
+       "minimumOverlap": 0.0543
+      },
+      "2": {
+       "envelopeRadius": 0.0772,
+       "meanRadius": 0.0673,
+       "minimumOverlap": 0.0673
+      },
+      "3": {
+       "envelopeRadius": 0.1022,
+       "meanRadius": 0.0923,
+       "minimumOverlap": 0.0923
+      }
+     }
+    }
+   }
+  },
+  "elbow": {
+   "over": "bicep",
+   "under": "forearm",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.24,
+        -0.0274,
+        1.2555
+       ],
+       "normal": [
+        -0.12791,
+        0.06953,
+        -0.98935
+       ],
+       "bodyRing": [
+        0.045,
+        0.0473,
+        0.0476,
+        0.0464,
+        0.0436,
+        0.0509,
+        0.0527,
+        0.0511,
+        0.0485,
+        0.0464,
+        0.0438,
+        0.0434,
+        0.0423,
+        0.0397,
+        0.0319,
+        0.0388
+       ],
+       "underPastPlane": 0.0408,
+       "overPastPlane": 0.0435
+      },
+      "r": {
+       "point": [
+        0.24,
+        -0.0274,
+        1.2555
+       ],
+       "normal": [
+        0.1279,
+        0.06953,
+        -0.98935
+       ],
+       "bodyRing": [
+        0.0485,
+        0.0511,
+        0.0527,
+        0.0509,
+        0.0436,
+        0.0464,
+        0.0476,
+        0.0473,
+        0.045,
+        0.0388,
+        0.0319,
+        0.0397,
+        0.0423,
+        0.0434,
+        0.0438,
+        0.0464
+       ],
+       "underPastPlane": 0.0408,
+       "overPastPlane": 0.0435
+      }
+     },
+     "bend": {
+      "max": 150.2,
+      "maxClip": "a_ba:plstab",
+      "p99": 122.1,
+      "p95": 108.7,
+      "median": 67.5
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0567,
+       "meanRadius": 0.049,
+       "minimumOverlap": 0.049
+      },
+      "1": {
+       "envelopeRadius": 0.0647,
+       "meanRadius": 0.057,
+       "minimumOverlap": 0.057
+      },
+      "2": {
+       "envelopeRadius": 0.0777,
+       "meanRadius": 0.07,
+       "minimumOverlap": 0.07
+      },
+      "3": {
+       "envelopeRadius": 0.1027,
+       "meanRadius": 0.095,
+       "minimumOverlap": 0.095
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.1745,
+        -0.0297,
+        1.1966
+       ],
+       "normal": [
+        -0.10029,
+        -0.07797,
+        -0.9919
+       ],
+       "bodyRing": [
+        0.0326,
+        0.0328,
+        0.031,
+        0.0306,
+        0.0292,
+        0.0307,
+        0.0305,
+        0.0309,
+        0.0302,
+        0.0308,
+        0.0324,
+        0.0335,
+        0.0326,
+        0.0315,
+        0.0307,
+        0.0301
+       ],
+       "underPastPlane": 0.0202,
+       "overPastPlane": 0.005
+      },
+      "r": {
+       "point": [
+        0.1667,
+        -0.0297,
+        1.1966
+       ],
+       "normal": [
+        0.10029,
+        -0.07797,
+        -0.9919
+       ],
+       "bodyRing": [
+        0.0302,
+        0.0309,
+        0.0305,
+        0.0307,
+        0.0292,
+        0.031,
+        0.031,
+        0.0328,
+        0.0327,
+        0.0301,
+        0.0307,
+        0.0314,
+        0.0326,
+        0.0335,
+        0.0325,
+        0.0308
+       ],
+       "underPastPlane": 0.02,
+       "overPastPlane": 0.005
+      }
+     },
+     "bend": {
+      "max": 146.5,
+      "maxClip": "a_ba:victorymg",
+      "p99": 121.2,
+      "p95": 108.6,
+      "median": 68.4
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0375,
+       "meanRadius": 0.0353,
+       "minimumOverlap": 0.0353
+      },
+      "1": {
+       "envelopeRadius": 0.0455,
+       "meanRadius": 0.0433,
+       "minimumOverlap": 0.0433
+      },
+      "2": {
+       "envelopeRadius": 0.0585,
+       "meanRadius": 0.0563,
+       "minimumOverlap": 0.0563
+      },
+      "3": {
+       "envelopeRadius": 0.0835,
+       "meanRadius": 0.0813,
+       "minimumOverlap": 0.0813
+      }
+     }
+    }
+   }
+  },
+  "wrist": {
+   "over": "forearm",
+   "under": "hand",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.2731,
+        -0.0045,
+        0.9637
+       ],
+       "normal": [
+        -0.11235,
+        0.07773,
+        -0.99062
+       ],
+       "bodyRing": [
+        0.032,
+        0.0344,
+        0.0378,
+        0.0417,
+        0.0434,
+        0.0426,
+        0.0424,
+        0.0394,
+        0.0384,
+        0.0374,
+        0.0365,
+        0.036,
+        0.0375,
+        0.0379,
+        0.037,
+        0.0319
+       ],
+       "underPastPlane": 0.0174,
+       "overPastPlane": 0.0317
+      },
+      "r": {
+       "point": [
+        0.2731,
+        -0.0045,
+        0.9637
+       ],
+       "normal": [
+        0.11235,
+        0.07773,
+        -0.99062
+       ],
+       "bodyRing": [
+        0.0384,
+        0.0394,
+        0.0424,
+        0.0426,
+        0.0434,
+        0.0417,
+        0.0378,
+        0.0344,
+        0.032,
+        0.0319,
+        0.037,
+        0.0379,
+        0.0375,
+        0.036,
+        0.0365,
+        0.0374
+       ],
+       "underPastPlane": 0.0175,
+       "overPastPlane": 0.0317
+      }
+     },
+     "bend": {
+      "max": 105.3,
+      "maxClip": "a_ba_custom:reload_smg_dm",
+      "p99": 64.5,
+      "p95": 51.2,
+      "median": 24.0
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0474,
+       "meanRadius": 0.0419,
+       "minimumOverlap": 0.0419
+      },
+      "1": {
+       "envelopeRadius": 0.0554,
+       "meanRadius": 0.0499,
+       "minimumOverlap": 0.0499
+      },
+      "2": {
+       "envelopeRadius": 0.0684,
+       "meanRadius": 0.0629,
+       "minimumOverlap": 0.0629
+      },
+      "3": {
+       "envelopeRadius": 0.0934,
+       "meanRadius": 0.0879,
+       "minimumOverlap": 0.0879
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.1999,
+        -0.0157,
+        0.9442
+       ],
+       "normal": [
+        -0.10015,
+        0.05485,
+        -0.99346
+       ],
+       "bodyRing": [
+        0.0252,
+        0.0267,
+        0.026,
+        0.025,
+        0.0254,
+        0.0252,
+        0.0259,
+        0.0244,
+        0.0249,
+        0.0251,
+        0.0263,
+        0.0279,
+        0.0278,
+        0.0275,
+        0.0276,
+        0.0242
+       ],
+       "underPastPlane": 0.0088,
+       "overPastPlane": 0.0107
+      },
+      "r": {
+       "point": [
+        0.1921,
+        -0.0157,
+        0.9442
+       ],
+       "normal": [
+        0.10013,
+        0.05485,
+        -0.99346
+       ],
+       "bodyRing": [
+        0.0249,
+        0.0244,
+        0.0259,
+        0.0252,
+        0.0254,
+        0.025,
+        0.026,
+        0.0267,
+        0.0252,
+        0.0242,
+        0.0276,
+        0.0275,
+        0.0278,
+        0.0279,
+        0.0263,
+        0.0251
+       ],
+       "underPastPlane": 0.0088,
+       "overPastPlane": 0.0107
+      }
+     },
+     "bend": {
+      "max": 107.4,
+      "maxClip": "a_ba_custom:reload_smg_dm",
+      "p99": 66.4,
+      "p95": 51.7,
+      "median": 23.3
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0319,
+       "meanRadius": 0.0299,
+       "minimumOverlap": 0.0299
+      },
+      "1": {
+       "envelopeRadius": 0.0399,
+       "meanRadius": 0.0379,
+       "minimumOverlap": 0.0379
+      },
+      "2": {
+       "envelopeRadius": 0.0529,
+       "meanRadius": 0.0509,
+       "minimumOverlap": 0.0509
+      },
+      "3": {
+       "envelopeRadius": 0.0779,
+       "meanRadius": 0.0759,
+       "minimumOverlap": 0.0759
+      }
+     }
+    }
+   }
+  },
+  "waist": {
+   "over": "chest",
+   "under": "pelvis",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "c": {
+       "point": [
+        -0.0,
+        0.0308,
+        1.2074
+       ],
+       "normal": [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       "bodyRing": [
+        0.1586,
+        0.1587,
+        0.1456,
+        0.1124,
+        0.0957,
+        0.1016,
+        0.1347,
+        0.1562,
+        0.1593,
+        0.1543,
+        0.1406,
+        0.1318,
+        0.1314,
+        0.1304,
+        0.1348,
+        0.153
+       ],
+       "underPastPlane": 0.0,
+       "overPastPlane": 0.03
+      }
+     },
+     "bend": {
+      "max": 96.4,
+      "maxClip": "a_ba:whirlwind",
+      "p99": 55.8,
+      "p95": 36.9,
+      "median": 14.1
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.1633,
+       "meanRadius": 0.1414,
+       "minimumOverlap": 0.1062
+      },
+      "1": {
+       "envelopeRadius": 0.1713,
+       "meanRadius": 0.1494,
+       "minimumOverlap": 0.1122
+      },
+      "2": {
+       "envelopeRadius": 0.1843,
+       "meanRadius": 0.1624,
+       "minimumOverlap": 0.122
+      },
+      "3": {
+       "envelopeRadius": 0.2093,
+       "meanRadius": 0.1874,
+       "minimumOverlap": 0.1407
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "c": {
+       "point": [
+        -0.003,
+        0.0308,
+        1.2074
+       ],
+       "normal": [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       "bodyRing": [
+        0.108,
+        0.117,
+        0.1125,
+        0.0911,
+        0.0764,
+        0.0927,
+        0.1151,
+        0.1191,
+        0.1094,
+        0.1003,
+        0.0797,
+        0.0756,
+        0.0726,
+        0.0747,
+        0.0791,
+        0.0987
+       ],
+       "underPastPlane": 0.049,
+       "overPastPlane": 0.0609
+      }
+     },
+     "bend": {
+      "max": 96.4,
+      "maxClip": "a_ba:whirlwind",
+      "p99": 56.5,
+      "p95": 37.2,
+      "median": 14.0
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.1231,
+       "meanRadius": 0.0991,
+       "minimumOverlap": 0.0752
+      },
+      "1": {
+       "envelopeRadius": 0.1311,
+       "meanRadius": 0.1071,
+       "minimumOverlap": 0.0813
+      },
+      "2": {
+       "envelopeRadius": 0.1441,
+       "meanRadius": 0.1201,
+       "minimumOverlap": 0.0912
+      },
+      "3": {
+       "envelopeRadius": 0.1691,
+       "meanRadius": 0.1451,
+       "minimumOverlap": 0.1102
+      }
+     }
+    }
+   }
+  },
+  "hip": {
+   "over": "pelvis",
+   "under": "thigh",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.1081,
+        0.0074,
+        1.025
+       ],
+       "normal": [
+        0.06625,
+        -0.03563,
+        -0.99717
+       ],
+       "bodyRing": [
+        0.094,
+        0.0935,
+        0.0938,
+        0.0959,
+        0.0949,
+        0.0977,
+        0.0971,
+        0.0965,
+        0.0968,
+        0.092,
+        0.0841,
+        0.0961,
+        0.0983,
+        0.0954,
+        0.0873,
+        0.0894
+       ],
+       "underPastPlane": 0.0692
+      },
+      "r": {
+       "point": [
+        0.1081,
+        0.0074,
+        1.025
+       ],
+       "normal": [
+        -0.06624,
+        -0.03563,
+        -0.99717
+       ],
+       "bodyRing": [
+        0.0968,
+        0.0965,
+        0.0971,
+        0.0977,
+        0.0949,
+        0.0959,
+        0.0938,
+        0.0935,
+        0.094,
+        0.0894,
+        0.0873,
+        0.0954,
+        0.0983,
+        0.0961,
+        0.0841,
+        0.092
+       ],
+       "underPastPlane": 0.0692
+      }
+     },
+     "bend": {
+      "max": 151.9,
+      "maxClip": "a_ba_custom:mount1start",
+      "p99": 99.5,
+      "p95": 67.1,
+      "median": 26.0
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.1023,
+       "meanRadius": 0.0979,
+       "minimumOverlap": 0.0979
+      },
+      "1": {
+       "envelopeRadius": 0.1103,
+       "meanRadius": 0.1059,
+       "minimumOverlap": 0.1059
+      },
+      "2": {
+       "envelopeRadius": 0.1233,
+       "meanRadius": 0.1189,
+       "minimumOverlap": 0.1189
+      },
+      "3": {
+       "envelopeRadius": 0.1483,
+       "meanRadius": 0.1439,
+       "minimumOverlap": 0.1439
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.0861,
+        -0.0019,
+        1.0165
+       ],
+       "normal": [
+        0.03202,
+        -0.01044,
+        -0.99943
+       ],
+       "bodyRing": [
+        0.081,
+        0.0832,
+        0.0905,
+        0.0946,
+        0.0943,
+        0.0951,
+        0.0914,
+        0.0829,
+        0.0798,
+        0.0884,
+        0.0942,
+        0.095,
+        0.0951,
+        0.0973,
+        0.0952,
+        0.0886
+       ],
+       "underPastPlane": 0.1118
+      },
+      "r": {
+       "point": [
+        0.0788,
+        -0.0019,
+        1.0165
+       ],
+       "normal": [
+        -0.03202,
+        -0.01044,
+        -0.99943
+       ],
+       "bodyRing": [
+        0.0798,
+        0.0829,
+        0.0914,
+        0.0951,
+        0.0943,
+        0.0947,
+        0.0905,
+        0.0832,
+        0.081,
+        0.0886,
+        0.0952,
+        0.0973,
+        0.0951,
+        0.095,
+        0.0942,
+        0.0884
+       ],
+       "underPastPlane": 0.1118
+      }
+     },
+     "bend": {
+      "max": 148.8,
+      "maxClip": "a_ba_custom:mount1start",
+      "p99": 94.8,
+      "p95": 66.7,
+      "median": 26.6
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.1013,
+       "meanRadius": 0.0944,
+       "minimumOverlap": 0.0944
+      },
+      "1": {
+       "envelopeRadius": 0.1093,
+       "meanRadius": 0.1024,
+       "minimumOverlap": 0.1024
+      },
+      "2": {
+       "envelopeRadius": 0.1223,
+       "meanRadius": 0.1154,
+       "minimumOverlap": 0.1154
+      },
+      "3": {
+       "envelopeRadius": 0.1473,
+       "meanRadius": 0.1404,
+       "minimumOverlap": 0.1404
+      }
+     }
+    }
+   }
+  },
+  "knee": {
+   "over": "thigh",
+   "under": "shin",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.0774,
+        -0.0091,
+        0.564
+       ],
+       "normal": [
+        0.06625,
+        -0.03563,
+        -0.99717
+       ],
+       "bodyRing": [
+        0.0535,
+        0.0668,
+        0.0828,
+        0.0807,
+        0.0754,
+        0.0819,
+        0.0843,
+        0.0716,
+        0.0556,
+        0.0462,
+        0.0462,
+        0.0452,
+        0.0461,
+        0.0446,
+        0.0465,
+        0.0456
+       ],
+       "underPastPlane": 0.0438,
+       "overPastPlane": 0.0032
+      },
+      "r": {
+       "point": [
+        0.0774,
+        -0.0091,
+        0.564
+       ],
+       "normal": [
+        -0.06624,
+        -0.03563,
+        -0.99717
+       ],
+       "bodyRing": [
+        0.0556,
+        0.0716,
+        0.0843,
+        0.0819,
+        0.0754,
+        0.0807,
+        0.0828,
+        0.0668,
+        0.0535,
+        0.0456,
+        0.0465,
+        0.0447,
+        0.0461,
+        0.0452,
+        0.0462,
+        0.0462
+       ],
+       "underPastPlane": 0.0438,
+       "overPastPlane": 0.0032
+      }
+     },
+     "bend": {
+      "max": 153.4,
+      "maxClip": "a_ba:dodgelr",
+      "p99": 125.5,
+      "p95": 81.1,
+      "median": 47.9
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0883,
+       "meanRadius": 0.0648,
+       "minimumOverlap": 0.0648
+      },
+      "1": {
+       "envelopeRadius": 0.0963,
+       "meanRadius": 0.0728,
+       "minimumOverlap": 0.0728
+      },
+      "2": {
+       "envelopeRadius": 0.1093,
+       "meanRadius": 0.0858,
+       "minimumOverlap": 0.0858
+      },
+      "3": {
+       "envelopeRadius": 0.1343,
+       "meanRadius": 0.1108,
+       "minimumOverlap": 0.1108
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.0713,
+        -0.0067,
+        0.5548
+       ],
+       "normal": [
+        0.03202,
+        -0.01044,
+        -0.99943
+       ],
+       "bodyRing": [
+        0.0419,
+        0.0452,
+        0.0512,
+        0.0522,
+        0.0513,
+        0.0534,
+        0.051,
+        0.0449,
+        0.0422,
+        0.0432,
+        0.0465,
+        0.049,
+        0.0493,
+        0.0485,
+        0.0465,
+        0.0436
+       ],
+       "underPastPlane": 0.04,
+       "overPastPlane": 0.04
+      },
+      "r": {
+       "point": [
+        0.064,
+        -0.0067,
+        0.5548
+       ],
+       "normal": [
+        -0.03202,
+        -0.01044,
+        -0.99943
+       ],
+       "bodyRing": [
+        0.0424,
+        0.0449,
+        0.0506,
+        0.0533,
+        0.0534,
+        0.0526,
+        0.0507,
+        0.0461,
+        0.0418,
+        0.0429,
+        0.0461,
+        0.0474,
+        0.0487,
+        0.0484,
+        0.047,
+        0.0433
+       ],
+       "underPastPlane": 0.04,
+       "overPastPlane": 0.04
+      }
+     },
+     "bend": {
+      "max": 154.2,
+      "maxClip": "a_ba:dodgelr",
+      "p99": 127.2,
+      "p95": 79.8,
+      "median": 47.5
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0574,
+       "meanRadius": 0.0515,
+       "minimumOverlap": 0.0515
+      },
+      "1": {
+       "envelopeRadius": 0.0654,
+       "meanRadius": 0.0595,
+       "minimumOverlap": 0.0595
+      },
+      "2": {
+       "envelopeRadius": 0.0784,
+       "meanRadius": 0.0725,
+       "minimumOverlap": 0.0725
+      },
+      "3": {
+       "envelopeRadius": 0.1034,
+       "meanRadius": 0.0975,
+       "minimumOverlap": 0.0975
+      }
+     }
+    }
+   }
+  },
+  "ankle": {
+   "over": "shin",
+   "under": "foot",
+   "bodies": {
+    "pmh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.057,
+        -0.0757,
+        0.1366
+       ],
+       "normal": [
+        0.04717,
+        -0.15385,
+        -0.98697
+       ],
+       "bodyRing": [
+        0.0285,
+        0.033,
+        0.0365,
+        0.0452,
+        0.0544,
+        0.0566,
+        0.056,
+        0.0582,
+        0.0591,
+        0.0577,
+        0.0602,
+        0.0608,
+        0.0459,
+        0.0375,
+        0.031,
+        0.0269
+       ],
+       "underPastPlane": 0.0639,
+       "overPastPlane": 0.0381
+      },
+      "r": {
+       "point": [
+        0.057,
+        -0.0757,
+        0.1366
+       ],
+       "normal": [
+        -0.04718,
+        -0.15385,
+        -0.98697
+       ],
+       "bodyRing": [
+        0.0591,
+        0.0582,
+        0.056,
+        0.0566,
+        0.0544,
+        0.0452,
+        0.0365,
+        0.033,
+        0.0285,
+        0.0269,
+        0.031,
+        0.0375,
+        0.0459,
+        0.0608,
+        0.0602,
+        0.0577
+       ],
+       "underPastPlane": 0.0639,
+       "overPastPlane": 0.0381
+      }
+     },
+     "bend": {
+      "max": 86.5,
+      "maxClip": "a_ba:gustandf",
+      "p99": 61.4,
+      "p95": 48.2,
+      "median": 13.5
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0648,
+       "meanRadius": 0.0507,
+       "minimumOverlap": 0.0507
+      },
+      "1": {
+       "envelopeRadius": 0.0728,
+       "meanRadius": 0.0587,
+       "minimumOverlap": 0.0587
+      },
+      "2": {
+       "envelopeRadius": 0.0858,
+       "meanRadius": 0.0717,
+       "minimumOverlap": 0.0717
+      },
+      "3": {
+       "envelopeRadius": 0.1108,
+       "meanRadius": 0.0967,
+       "minimumOverlap": 0.0967
+      }
+     }
+    },
+    "pfh0": {
+     "sides": {
+      "l": {
+       "point": [
+        -0.0377,
+        -0.0679,
+        0.1506
+       ],
+       "normal": [
+        0.0818,
+        -0.14922,
+        -0.98542
+       ],
+       "bodyRing": [
+        0.0282,
+        0.0308,
+        0.0335,
+        0.0397,
+        0.0404,
+        0.04,
+        0.0349,
+        0.0316,
+        0.0285,
+        0.0309,
+        0.0352,
+        0.0396,
+        0.0402,
+        0.0379,
+        0.031,
+        0.0276
+       ],
+       "underPastPlane": 0.0174,
+       "overPastPlane": 0.0127
+      },
+      "r": {
+       "point": [
+        0.0305,
+        -0.0679,
+        0.1506
+       ],
+       "normal": [
+        -0.0818,
+        -0.14922,
+        -0.98542
+       ],
+       "bodyRing": [
+        0.0285,
+        0.0316,
+        0.0349,
+        0.04,
+        0.0404,
+        0.0397,
+        0.0335,
+        0.0308,
+        0.0282,
+        0.0276,
+        0.031,
+        0.0379,
+        0.0402,
+        0.0396,
+        0.0352,
+        0.0309
+       ],
+       "underPastPlane": 0.0174,
+       "overPastPlane": 0.0127
+      }
+     },
+     "bend": {
+      "max": 86.9,
+      "maxClip": "a_ba:gustandf",
+      "p99": 61.8,
+      "p95": 48.3,
+      "median": 14.8
+     },
+     "tiers": {
+      "0": {
+       "envelopeRadius": 0.0444,
+       "meanRadius": 0.0384,
+       "minimumOverlap": 0.0384
+      },
+      "1": {
+       "envelopeRadius": 0.0524,
+       "meanRadius": 0.0464,
+       "minimumOverlap": 0.0464
+      },
+      "2": {
+       "envelopeRadius": 0.0654,
+       "meanRadius": 0.0594,
+       "minimumOverlap": 0.0594
+      },
+      "3": {
+       "envelopeRadius": 0.0904,
+       "meanRadius": 0.0844,
+       "minimumOverlap": 0.0844
+      }
+     }
+    }
+   }
+  }
+ },
+ "source": {
+  "bodies": {
+   "pmh0": {
+    "pmh0.mdl": "16a6de844d118c16548f854c8dc37caeb340d4dd263abcd15c18f9d62bbc210e",
+    "pmh0_bicepl001.mdl": "656f98b8edd521a2f898175ca088a340634afeee77e7e1f27658457e81c1ea3a",
+    "pmh0_bicepr001.mdl": "29565bdb202b931d505ba2bf09a1d5578a2df4666510dc781bf5e23de22b5d89",
+    "pmh0_chest001.mdl": "1166b998c00fc026b77d9f7fea61de15f4f201b7649ce124a37d191b32776197",
+    "pmh0_footl001.mdl": "6c4ecddbe2ae353ea4f61299f269c5a25380824bdd8aa77120208e44d456fe9f",
+    "pmh0_footr001.mdl": "bb99ff7da6bdfeb29da28a1bb557969c201a6c1d80c0552ed0ecb9ca06ede424",
+    "pmh0_forel001.mdl": "ee349d9899ec0fa79a93a964e4431ce9e077cdb71c6f1f6ddbefd90f0a814ac2",
+    "pmh0_forer001.mdl": "34bf7c221ee26e6b6edcd99ba4500d90809ab7442ec388fa936f584df8f6ab86",
+    "pmh0_handl001.mdl": "55fdc6d2b7296458e56fd68f04697d92b0caab865f3e6cefdb1606a5512c9433",
+    "pmh0_handr001.mdl": "1373b78c7c6bf739b627fde3e8052516ef08c80c7d48c7429a7c5aebe57db434",
+    "pmh0_legl001.mdl": "0909edd9218867502084b41f7e7ed7950be29e2673501df9d87f68a3afcd0bd7",
+    "pmh0_legr001.mdl": "9da28da610ad19428c9df5b7c1ce7a69a85100b3be7229bda82c65f042dd7c33",
+    "pmh0_neck001.mdl": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
+    "pmh0_pelvis001.mdl": "012ccaf2c7c55e71da070e4b5b0b37acfc43ae327d874c1a124d6e835e678007",
+    "pmh0_shinl001.mdl": "77f88c0c9372e780c7aff79bfbefe701b34e6ce7e76fe4cfea0a26d4ec9336e1",
+    "pmh0_shinr001.mdl": "cfc6f848c980477adaa039197b5ff395c9b3f9ffcfbcc32b55ed29629ab2def3"
+   },
+   "pfh0": {
+    "pfh0.mdl": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+    "pfh0_bicepl001.mdl": "c01bf39e7969d910f5e054c0902bb72da6ec4608cb8a1731dae6f85b787b050e",
+    "pfh0_bicepr001.mdl": "38af2257ac41b02f45f7741971dc2e40cd79222ad0e9d8af98df6081ae20774b",
+    "pfh0_chest001.mdl": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+    "pfh0_footl001.mdl": "6066ba224d7f63e32460512aa83c8c4db967e003cbb2f3bb2b9c79f1bbd3eeaf",
+    "pfh0_footr001.mdl": "b2c32ea2996f8e55f0c9c0b955873ae580c17852d5a100e794c4815de541d1b1",
+    "pfh0_forel001.mdl": "6187b6bf75c84eda2ecafbdd2d38e2e28a45ed7f3b20ba609f5c988babbf9df5",
+    "pfh0_forer001.mdl": "97cf51de4c12886b63735ebd53016062d56746fd7eff5f54711b949179919bb6",
+    "pfh0_handl001.mdl": "46c7577a678da57062e8f5f76deef92aef87c0755e83c7b34d9dd6844d19a1d2",
+    "pfh0_handr001.mdl": "2a6a52997c2f4b247acf897151b2505e93f22cddac9962e354a377562598364b",
+    "pfh0_legl001.mdl": "1e54d39b4dab500704b7cfc9218bcae8c17ea46f2305855e970dcd78436ca29b",
+    "pfh0_legr001.mdl": "4f5150192b0313e7627e6db123e78b7fcb6e7c49abc30e27bcb1d33204faf24e",
+    "pfh0_neck001.mdl": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
+    "pfh0_pelvis001.mdl": "5eb411adb929a806705981cd67c4c586876f2bfdf140549e924bb9d42752b8ac",
+    "pfh0_shinl001.mdl": "621cbd1344c25e6099aea270c7331c1971ca88f299c9514899a5212b9d3a951d",
+    "pfh0_shinr001.mdl": "3e18e25c58dade7798c1251a2ce55da59eb3ba0668f5b2113ccc2c5e55238e52"
+   }
+  },
+  "animation": {
+   "pmh0": {
+    "models": {
+     "a_ba": "a38c9f0de00a7e401419d1e668ad1b9d825cfc9635712cdb9ae63e840104ee2b",
+     "a_ba_non_combat": "708fd5b94f431e32e4991f960ddcfe16ea2bee9be07c1100f8f876be0cd9e632",
+     "a_ba_med_weap": "9894151ab16d5439e2fedc500c9b44c4e03cad664e8e4e7e6883e1072a82419d",
+     "a_ba_custom": "71e091a80df1469d4d3a5f4771b4d4f62c01e39396b1fb4580cc33bb7de0a4bb",
+     "a_ba_casts": "911a1b316cae62adfe94782b0a3083730f1601a4e5c4802d48a57bf4436adfb4"
+    },
+    "clips": 407,
+    "shadowedClips": 138
+   },
+   "pfh0": {
+    "models": {
+     "srn_fa_h0": "19435776bf8557fa0df736f477df69c9fc3e58150d5c844862aafcf4812e7112",
+     "a_fa": "1f8b1ac2e4ab31e1b2172c7ca208160267cdbf861cd36e544775f391b5b6978d",
+     "a_ba": "a38c9f0de00a7e401419d1e668ad1b9d825cfc9635712cdb9ae63e840104ee2b",
+     "a_ba_non_combat": "708fd5b94f431e32e4991f960ddcfe16ea2bee9be07c1100f8f876be0cd9e632",
+     "a_ba_med_weap": "9894151ab16d5439e2fedc500c9b44c4e03cad664e8e4e7e6883e1072a82419d",
+     "a_ba_custom": "71e091a80df1469d4d3a5f4771b4d4f62c01e39396b1fb4580cc33bb7de0a4bb",
+     "a_ba_casts": "911a1b316cae62adfe94782b0a3083730f1601a4e5c4802d48a57bf4436adfb4"
+    },
+    "clips": 407,
+    "shadowedClips": 189
+   }
+  }
+ }
+}

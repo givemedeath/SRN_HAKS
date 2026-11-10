@@ -1,0 +1,47 @@
+# Armor Toolkit (tools/armorkit)
+
+## Overview
+The `tools/armorkit` package is the foundation for modular clothing, armor, headgear and accessory parts on the 20 SRN bodies: a part registry, the generator for the twelve `parts_*.2da` tables, the measured seam contract and head envelopes, and an isolated client fixture builder. It follows [the armorkit plan](../../docs/armorkit/plan.md); evidence for engine behaviour is in [the spike record](../../docs/armorkit/spikes.md) and the measurements are explained in [the seam contract](../../docs/armorkit/seam-contract.md). Generation, splitting, fitting and publication are later phases and are not here yet. Nothing in this package writes into a pack.
+
+## Interface
+- `[__main__.py:main]` - Command line: `registry` (validate, write the SR_NWN handoff file), `tables` (generate and check the parts tables; nothing is written unless all twelve pass), `measure` (seam contract and head envelopes from pack folders; `--only seams` or `--only heads` for one of them), `fixture` (build a client fixture; `--run` also starts the game on it, with `--timeout` and `--settle`).
+- `[registry.py:validate]` / `[registry.py:load]` - Check a registry document (`srn-armorkit-registry`, schema version 1) and return its parts ordered by slot and number; `publish=True` also requires all 20 bodies.
+- `[registry.py:SLOTS]` - Per slot: parts table, model tokens, the `xArmorPart_*` item fields and `ITEM_APPR_ARMOR_MODEL_*` indices.
+- `[registry.py:model_name]` / `[registry.py:model_names]` / `[registry.py:texture_names]` - Resource names a part implies: `p<m|f><race><phenotype>_<slot><number>`.
+- `[registry.py:block]` - The family a number's block belongs to (300-2999 accessory, 3000s civilian, 4000s workwear, 5000s corporate, 6000s security, 7000s runner, 8000s gang, 9000+ open).
+- `[registry.py:handoff]` - The registry with derived table, item-field, model and texture names, as SR_NWN consumes it. A part's `badge` says where it shows a logo; no logo texture is named, because how a logo is carried is not settled (spikes.md, section 15).
+- `[tables.py:generate]` / `[tables.py:generate_all]` - Table text from stock text and registry parts: stock rows kept, gaps padded, live rows nulled.
+- `[tables.py:check]` - Fails on a gap, a duplicate, a changed stock row or column row, a registry part without a live row or inside the stock range, or a live row no part owns.
+- `[seams.py:JOINTS]` / `[seams.py:sides]` - The eight joints: over slot, under slot and the bones that define each plane; limb joints are recorded on sides `l` and `r`, the neck and waist on `c`.
+- `[seams.py:load_contract]` / `[seams.py:envelope]` / `[seams.py:overlap]` / `[seams.py:mixes]` - Read the frozen `seam-contract.json`, get a tier's per-direction envelope at a joint (a limb joint needs its side) and its minimum overlap, and test whether two parts mix cleanly there.
+- `[seams.py:section]` / `[seams.py:ring]` / `[seams.py:swing]` / `[seams.py:minimum_overlap]` - Plane sections, radial rings, joint swing and the overlap rule the contract is built from.
+- `[measure.py:seam_contract]` / `[measure.py:head_envelopes]` - Rebuild the two data files from `srn_body`, `srn_head` and extracted stock animation models.
+- `[measure.py:clearance]` - How far a worn part's ring stands outside the body ring at a joint. It refuses a torso piece at the neck, shoulder and hip, which a plane section cannot measure.
+- `[client_fixture.py:build]` - Write a fresh user directory holding a fixture hak, the packs under test and a module with scripted actors and camera shots. Actors wear bare skin parts unless given part numbers, colours or an item blueprint written with `xArmorPart_*` fields.
+- `[client.py:run]` - Start the game on a built fixture, capture the window after each shot line, stop that client and return log lines and captures. A capture that would be taken after a later shot began, and a shot whose actor does not exist, fail the run.
+
+### Subdirectories & Data Assets
+- `examples/registry.json` - A small valid, publishable registry used by the tests.
+- `seam-contract.json` - Seam contract version 2, measured on the c7 Human Fit bodies, with the hashes of the body and animation models it came from.
+- `head-envelopes.json` - Outer bounds of the published heads per race and gender, in head-bone space, from surfaces sampled every 3 mm.
+
+## Invariants
+- `[registry.py:validate_part]` - Part numbers start at 300; stock rows 0-200, stock models to 255 and the 256-299 buffer are never reused. Numbers stop at 65535 (the item field is a word) and every model name is at most 16 characters.
+- `[registry.py:validate_part]` - A number in a family block carries that family's tag; the chest is always a separate male and female cut; a fitted part declares a tier 0-3 at each of its joints; logos sit only on shoulder parts and neck-slot lanyards; the skin channel is used exactly when skin is exposed.
+- `[registry.py:validate]` - One part per slot and number; a number never belongs to two sets (a part without a set belongs to none).
+- `[tables.py:generate]` - Stock rows are copied byte for byte (201 rows, 39 for `parts_robe`); live rows are `COSTMODIFIER 0`, `ACBONUS 0.00`; padding rows are `****` in every column; rows count from 0 with no gaps up to the highest part number.
+- `[seams.py:validate_contract]` - The part nearer the torso lies over the other and the chest lies over everything it touches; every joint is measured on both Human Fit bodies (more SRN bodies may be added); tier offsets grow with the tier; each stored tier number equals what the body rings, the tier offsets and the design bend give.
+- `[seams.py:mixes]` - Two parts mix cleanly at a joint when the over part's tier is at least the under part's.
+- `[client.py:stop]` / `[client.py:start]` - Only a client this module started is stopped, by process id; a client that is already running blocks the run, and so does a process listing that fails.
+- `[client_fixture.py:enter_script]` - Each shot schedules the next one, so the game stays `hold` seconds on every shot even after a stall.
+- `[client_fixture.py:build]` - The spec is checked before the output folder is made; the folder must be new; fixture names are at most 11 characters so every resource built from them fits a resource name; two packs may not share a file name, and a pack is never copied over an existing link.
+- `[client_fixture.py:build]` - The game install is an explicit argument; no machine path is stored in the package.
+
+## Side Effects
+- `[client_fixture.py:build]` - Creates a fresh output folder (user directory, staged resources, module sources) and resolves the pinned Neverwinter utilities through `tools/phenotypes/tool_runtime.py`, which registers the run under `.tmp/tool-dependencies`. Packs are hard-linked into the user directory where the volume allows, and their SHA-256 goes into `fixture.json`.
+- `[client.py:run]` - Starts and stops `nwmain.exe` on the fixture's own user directory, writes `settings.tml` there on first use and saves window captures.
+- `[__main__.py:command_tables]` / `[__main__.py:command_measure]` - Write only to the output folder given.
+
+## Verification
+- Run: `<bundled-python> -B tools/test_impact.py --changed tools/armorkit/registry.py --run`, or `<bundled-python> -B -m unittest discover -s tools/armorkit -t .`
+- `test_measure.py` reads `srn_body` and `srn_head`: it fails when a locked Human Fit body model changes, when an animation model in `srn_body` differs from the one the bends were sampled from, or when the published heads differ from the recorded ones (added, removed or changed). Each is the signal to re-measure; a head change needs only `measure --only heads`.

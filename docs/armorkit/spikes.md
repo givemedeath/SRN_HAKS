@@ -179,3 +179,224 @@ Sources: [plenarius/cleanmodels](https://github.com/plenarius/cleanmodels),
 [EffectVisualEffect](https://nwnlexicon.com/EffectVisualEffect),
 [material files](https://nwn.wiki/x/moRGAg), [head-aligned effects](https://nwn.wiki/x/R4dGAg),
 [patch 8193.37 notes](https://nwn.wiki/x/AwDmC), [NWNX:EE item functions](https://nwnxee.github.io/unified/group__item.html).
+
+# Phase 0 proofs (2026-11-10)
+
+Run with the `tools/armorkit` fixture builder on NWN:EE 89.8193.37-17, each in its own user directory, against
+the five packs built from this checkout that day (`srn_2da`, `srn_head`, `srn_armor`, `srn_body`,
+`srn_body_tex`). Evidence is the `ARMORKIT ...` log lines and window captures; contact sheets named in
+*italics* and the run scripts are in `.tmp/armorkit-spikes/evidence/phase0/` on the machine that ran them.
+These are engine and tool findings, not asset approvals.
+
+The test parts were made by hand for these proofs and are not art: a chest shell (the body chest pushed out
+1.2 cm, numbers 6000, 9002 and 65535), a shoulder plate with a badge quad (300 and up), and a skinned hood
+built from the measured neck ring and head envelope, carried on a neck part with the generic neck (300). The
+Human male and female Fit sources were written as ASCII and compiled with cleanmodels 4.17.5; the other 18
+bodies came from `cleanmodels variants`.
+
+## 10. Part numbers above 1000 and the generated tables
+
+**Method.** `tools/armorkit/tables.py` generated `parts_chest` (65,536 rows), `parts_shoulder` and
+`parts_neck` (301 rows) from a registry: stock rows unchanged, padding rows `****` in both columns, live rows
+`0` / `0.00`. Chest 6000 and 9002 were set by `CopyItemAndModify`; chest 65535 came from a blueprint with
+`xArmorPart_Torso = 65535`.
+
+**Result.** *numbers-tint-fallback.jpg*
+
+```
+ARMORKIT actor=pmh0 ... worn=1 ac=0 parts=1,1,1,1,1,1,1,6000,0,300,1,1,1,1,300,300,1,1,0
+ARMORKIT actor=X script chest 9002 ... ac=0 parts=...,9002,...
+ARMORKIT actor=X blueprint chest 65535 ... ac=0 parts=6,6,16,16,4,4,17,65535,0,1,...
+```
+
+* 6000, 9002 and 65535 render and read back, by script and by blueprint. 65535 is the top of the word field.
+* Padding rows written as `****` in both columns work (the earlier spike used `0` / `****`).
+* The 65,536-row table loaded and the fixture started in its usual time (not timed).
+
+**Not checked.** Part numbers above 1000 on slots other than chest and bicep (see the upper limit below). A
+table of this size on a multiplayer server.
+
+**Toolset.** The toolset (same build) was started with `-userDirectory` on a copy of this proof's user
+directory and opened the fixture module; a new armor item from the Item Wizard was opened on its Appearance
+tab. *toolset-part-lists.jpg*
+
+* The Torso list holds 65 entries, not 65,536: only rows that have a model are listed. The new parts appear
+  as `007 (Part 65535)`, `008 (Part 9002)` and `009 (Part 6000)`, among the other parts of armor value 0.
+* The lists carry no names, only the part number, and are not in number order.
+* Choosing `Part 6000` showed the test chest in the 3D preview and Armor Class 0.
+* The Left Shoulder list shows `001 (Part 300)`.
+* The inventory picture of the item lost its chest area with Part 6000 chosen. The test part ships no
+  inventory icon (inferred cause, not tested).
+
+Limits: Human male preview only; the item was not saved, placed or reopened; lists for the other slots and
+the female lists were not read.
+
+**Upper limit.** Tested the day before by the planning session on the stock Human male (scratch script and log
+`spike5/` in `.tmp/armorkit-spikes/`, *part-number-limit.jpg*), not rerun here:
+
+```
+P9 tables chestRows=70001 bicepRows=65536 chest65535=0.00 chest65536=0.00 chest70000=0.00
+P9 actor=Chest 32768 want=32768 torso=32768 lbicep=1 stored={"type":"word","value":32768}
+P9 actor=Chest 65535 want=65535 torso=65535 lbicep=1 stored={"type":"word","value":65535}
+P9 actor=Chest 65536 want=65536 torso=0 lbicep=1 stored={"type":"word","value":0}
+P9 actor=Chest 70000 want=70000 torso=4464 lbicep=1 stored={"type":"word","value":4464}
+P9 actor=Chest 1000 want=1000 torso=1000 lbicep=65535 stored={"type":"word","value":1000}
+```
+
+* Chest 1000, 2000, 5000, 9999, 10000, 32767, 32768 and 65535 rendered and read back.
+* 65535 is the hard limit: 65536 is stored as 0 (a bare chest) and 70000 as 4464, while `CopyItemAndModify`
+  still reports success. The registry refuses numbers above 65535 for that reason.
+* `pmh0_bicepl65535`, a 16-character model name, rendered on the bicep slot.
+* Tables padded to 65,536 and 70,001 rows loaded; each is about 1.7 to 1.8 MB.
+
+## 11. Tint textures: names, fallback and colours
+
+**Result.** *numbers-tint-fallback.jpg*, *badge-tint-texture-name.jpg*
+
+* The tint texture named like the part model is applied to **every mesh in that part**, whatever texture each
+  mesh names (see section 15 for what this does to badges).
+* A Dwarf male model whose mesh named `pmd0_chest9002`, with only `pmh0_chest9002.plt` present, rendered with
+  the Human texture and the item colours: the race fallback works.
+* Race versions from cleanmodels keep the Human texture name of their gender in the mesh, so they do not rely
+  on the fallback. They rendered tinted on all 20 bodies, Large included.
+* Item colours apply to the new parts. A per-part colour override changed the chest alone, and the left
+  shoulder alone.
+* A tint texture under a name other than the model name is drawn, but not with the item colours (the plate in
+  *badge-tint-texture-name.jpg*, case 302, is dark).
+
+**Not checked.** Fallback from a female or Large model to another gender or build. Material files (normal maps)
+on a new part number.
+
+## 12. Race versions of our own parts, close up on all 20 bodies
+
+**Method.** `cleanmodels variants --to <the nine other bodies of that gender> --compile --game-dir <install>
+--resource-dir srn_body --resource-dir srn_armor --resource-dir srn_2da`, from the Human male and Human female
+sources. All 72 versions were written without errors. Each of the 20 bodies wore chest 6000, shoulder 300 and
+neck 300 over bare skin parts and was captured from the front and rear quarter, then cropped at capture
+resolution around the torso. The chest shells were also compared offline with the chest of each body.
+
+**Result.** *race-versions-h/d/e/o/g.jpg*, *race-versions-torso-fit.jpg*, *race-versions-torso-large.jpg*
+
+| Bodies | Chest shell in the client | Offline (shell against the chest of that body) |
+|---|---|---|
+| Human male and female Fit (the sources) | Sits as built | Median gap 1.2 cm |
+| Male Fit: Dwarf, Elf, Orc, Troll | Looks right; hem meets the pelvis | Median gap 1.1–2.7 cm; under 7% of points inside the body |
+| Male Large: all five | Looks acceptable; hem meets the pelvis | 21–50% of points inside the body; waist ring up to 2.2 cm narrower than the body ring |
+| Female Fit: Dwarf, Elf, Orc, Troll | Usable; the hem is slightly narrower than the waist below it | About 38–40% of points inside the body; median gap 0.2–0.6 cm |
+| Female Large: all five | **Visible step at the waist**: the bare belly and hips stand out below the hem | 31–60% of points inside; waist ring 2.6–5.6 cm narrower than the body ring |
+
+* A worn part replaces the body part in its slot, so "inside the body" does not show as skin poking through.
+  What shows is the mismatch at the joints with the neighbouring parts.
+* The shoulder plates stayed on the shoulders on every body.
+* The skinned hood (section 13) did not fit Dwarf heads and was poor on Troll heads.
+
+**Verdict.** Not a pass. `variants` is good enough for male bodies and for Fit female bodies at this zoom, and
+not for Large female bodies or for headgear on Dwarf and Troll. The shared cleanmodels pin was therefore **not**
+moved (plan decision 14); `tools/shared-tools.lock.json` has no cleanmodels entry today, so the move would add
+one. The "repository pin (4.0.0-rc17)" of section 8 and of the plan is a folder in the shared tool root that
+no lock file names: adopting cleanmodels is a new shared-tool entry, not a version move, and every compile and
+race version in these proofs used the unpinned 4.17.5 download.
+
+**Limits.** One hand-made, skin-tight chest shell and one shoulder plate; no limb parts. Standing poses only.
+The female shell is faceted because of how it was made, which is not a race-version fault. The offline
+"inside" figure uses the nearest body point and is rough (the Human female source itself scores 7%).
+
+## 13. A skinned part authored here, compiled offline
+
+**Method.** The hood is a `skin` node inside `p?h0_neck300`, vertices in the neck part space, weighted to
+`torso_g`, `neck_g` and `head_g`, with no bones in the part. `cleanmodels compile --game-dir <install>
+--resource-dir srn_body` compiled it; no client compile was involved.
+
+**Result.** It loaded and stayed on the head through idle movement on Human, Elf and Orc of both genders and
+builds, including a Large Troll leaning back. The race versions were too small for the Dwarf male head (a cap
+on the back of the head), sat above the Dwarf female head, and were too small for the Troll male head, with
+the horns pushing through.
+
+So a skinned part can be authored and compiled offline here, but headgear cannot get its race versions from
+`variants`: it has to be fitted per race from the head envelope of that race.
+
+**Not checked.** A scripted head turn or the automatic look-at with this hood (section 6 covered that with
+third-party parts). Walking, running and combat.
+
+## 14. The helmet slot on SRN heads
+
+**Method.** A stock helmet (`nw_arhe001`) equipped on the ten Fit bodies, once on the published race rows
+(`HELMET_SCALE_M 1.05`, `HELMET_SCALE_F 0.85` on all five) and once on copies of those rows with trial scales
+taken from head envelope depth (Dwarf 1.13 / 1.18, Elf 0.96 / 1.03, Orc 1.2 / 1.09, Troll 1.94 / 2.05).
+
+**Result.** *helmets.jpg* (second run, see below)
+
+```
+ARMORKIT helm actor=pmg0 helm stock worn=1 appearance=15104
+ARMORKIT helm actor=pfg0 helm trial worn=1 appearance=15109
+```
+
+* The helmet replaces the head on all ten bodies and sits on the neck, at the stock scale and at the trial
+  scale. All 20 actors reported the helmet worn.
+* The scale columns are honoured per race row and gender. The Troll helmets at 1.94 and 2.05 are visibly larger
+  than at the stock 1.05 and 0.85, which look small on those bodies; the Dwarf helmets at 1.13 and 1.18 are
+  larger than at stock.
+
+**The first run's sheet was wrong.** The driver then saved each capture under the shot number of a log line
+without checking that the game had not moved on. The client stalled for 11 seconds during that run, four shots
+fired back to back, and eight of the twenty helmet pictures showed a later actor under an earlier label (male
+bodies under three of the female stock-scale labels; four stock-scale bodies were missing). It was found in
+review by comparing log times with file times; that sheet is kept as *helmets-run2-mislabelled.jpg*. The bullets
+above were first written from it and are now supported by the second run, made with a driver that lets each
+shot schedule the next and refuses a capture taken after a later shot began (twenty captures, no two alike,
+script `run6.py`). The bare-neck and side-view logo captures of the first run were taken after the driver was
+back in step (by the same comparison of times); the other five runs show no such gap.
+
+**Limits.** One stock helmet, standing, front quarter only. The right scale for each race was not settled; it
+needs one of our own helmets. The scale is per race row and gender, so Fit and Large share it. Large bodies were
+not captured.
+
+## 15. Logo badges on SRN bodies
+
+**Method.** A badge quad on the shoulder plate, in six builds of the part, swapped with
+`ReplaceObjectTexture(wearer, "srn_logo_0", <logo>)`.
+
+**Result.** *badge-tint-texture-name.jpg*, *badge-reapply.jpg*, *badge-material-file.jpg*
+
+| Part build | Badge shows | Swap |
+|---|---|---|
+| Tint texture named like the model; badge mesh names `srn_logo_0` (compiled or ASCII, either node order, with or without glow) | The tint texture of the part | No effect |
+| Tint texture under its own name; badge mesh names `srn_logo_0` | The blank logo | Works, per wearer; the plate loses the item colours |
+| Tint texture named like the model; badge textured through a material file (`texture0 srn_logo_0`) | The blank logo, plate tinted | No effect |
+
+* The earlier logo proof (section 7) worked because that part had no tint texture of its own name.
+* After unequipping and re-equipping, the badge is blank again. Calling the same replacement again does
+  nothing, even 12 seconds later. Restoring first (`ReplaceObjectTexture(wearer, "srn_logo_0", "")`) and then
+  setting it works, and so does setting a different logo.
+* Where it works, it works on SRN bodies as on stock ones (Human male).
+
+**Verdict.** The badge as planned (a plain-texture mesh inside a tinted part, swapped at runtime) does not
+work as written. No build gave a tinted part and a swappable badge together. Ways forward, none tried: one part
+number per logo with the logo in a material file (the wide number blocks allow it); a badge-only part with no
+tint texture; or another runtime call that reaches material textures.
+
+## 16. SR_NWN: competing tables and armor value
+
+Read from `SR_NWN` at its `master` branch (commit `9bb8169bf`, 2026-11-02).
+
+* The only `parts_*.2da` files are stock reference copies under `content/reference/nwn-ee/` and one source
+  file in a Troll spike folder. No table is shipped from outside those folders.
+* Nothing under `src`, `tools`, `ops` or `tests` reads item armor value, parts tables or armor appearance
+  (searched for `GetItemACValue`, `ACValue`, `BaseAC`, `ACBONUS`, `ArmorPart`, `ArmorModel`,
+  `ItemAppearance`, `ITEM_APPR_`).
+
+**Limits.** Only `master` was read; the repository has many other branches. `OLD_SR_MOD_ASSETS` was not
+searched.
+
+## 17. Seen in passing
+
+* **Heads on Large bodies.** Published heads exist for the Fit build only. A Large body asks for the head model
+  of its own build first: Large Trolls showed the `p?g2_head001` that `srn_body` ships instead of published
+  head 1, and the Large Human female showed a stock head 28. Large bodies whose head number has no Large model
+  fell back to the published Fit head (Human male 86).
+* **Necks.** The neck bone is the same share of head-bone height in every race (about 4.4% male, 6.7% female),
+  and Elf heads reach lower than Human heads, so Elf necks are not longer by measurement. The neck part is a
+  low-polygon tube wider than a narrow jaw, which shows as a ring under the head on Human and Elf alike
+  (*bare-necks.jpg*).
+* **Human clothing.** `srn_armor` holds no Human parts; the Human bodies wear the stock game parts.
+* **Stock tables.** `parts_robe` has rows 0–38 and 19 `HIDE*` columns; the other eleven tables have rows 0–200.
