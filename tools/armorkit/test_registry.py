@@ -9,7 +9,8 @@ EXAMPLE = Path(__file__).with_name('examples') / 'registry.json'
 
 
 def part(**changes):
-    base = {'slot': 'chest', 'number': 6000, 'set': 'corpsec-t1', 'families': ['security'], 'genderedCut': True,
+    base = {'slot': 'chest', 'number': 6000, 'set': 'corpsec-t1', 'group': 'corpsec', 'families': ['security'],
+            'genderedCut': True,
             'tiers': {'neck': 1, 'shoulder': 1, 'waist': 1}, 'coverage': {'skin': False, 'headgear': False},
             'channels': ['cloth1', 'metal1'], 'badge': None, 'bodies': list(registry.BODIES), 'mesh': 'rigid'}
     base.update(changes)
@@ -48,14 +49,51 @@ class RegistryTests(unittest.TestCase):
     def test_numbers_stay_out_of_stock_rows_and_the_buffer(self):
         for number in (0, 200, 255, 299):
             self.rejected('numbers start at 300', part(number=number))
-        self.rejected('numbers start at 300', part(number=65536))
-        registry.validate(document(part(number=9000, families=['heavy'])))
+        for number in (10000, registry.FIELD_LIMIT):
+            self.rejected('kept for more runner and role sets', part(number=number, families=['runner']))
+        registry.validate(document(part(number=9999, families=['runner'])))
 
     def test_block_decides_the_family(self):
-        self.assertEqual([registry.block(n) for n in (300, 2999, 3000, 4500, 5999, 6000, 7000, 8999, 9000, 65535)],
-                         ['accessory', 'accessory', 'civilian', 'workwear', 'corporate', 'security', 'runner', 'gang', None, None])
+        self.assertEqual([registry.block(n) for n in (300, 999, 1000, 2999, 3000, 4500, 5999, 6000, 7000, 8999, 9000, 9999)],
+                         ['test', 'test', 'standalone', 'standalone', 'civilian', 'workwear', 'corporate', 'security',
+                          'gang', 'heavy', 'runner', 'runner'])
+        self.assertEqual(registry.LAST_NUMBER, 9999)  # runner sets are last so that they can grow past it
+        with self.assertRaisesRegex(ValueError, 'outside every block'):
+            registry.block(10000)
         self.rejected('belong to the security family', part(families=['civilian']))
         registry.validate(document(part(families=['security', 'corporate'])))
+
+    def test_family_numbers_read_as_group_set_and_variant(self):
+        for key in ('set', 'group'):
+            self.rejected('names its set and its group', part(**{key: ...}))
+            self.rejected(key + ' must be a lowercase tag', part(**{key: 'Corp Sec'}))
+        variant = part(number=6001)
+        registry.validate(document(part(), variant, part(number=6010, set='corpsec-t2')))
+        self.rejected('6000-6009 are used by two sets', part(), part(number=6009, set='corpsec-t2'))
+        self.rejected('6000-6099 are used by two groups', part(), part(number=6090, set='police-a', group='police'))
+        registry.validate(document(part(), part(number=6100, set='police-a', group='police')))
+        row = registry.handoff(registry.validate(document(part(number=6123))))['parts'][0]
+        self.assertEqual((row['block'], row['group'], row['setNumber'], row['variant']), ('security', 'corpsec', 6120, 3))
+
+    def test_standalone_pieces_belong_to_no_set_and_necks_follow_their_category(self):
+        tee = part(number=1000, families=['civilian', 'workwear'], set=..., group=...)
+        row = registry.handoff(registry.validate(document(tee), publish=True))['parts'][0]
+        self.assertEqual(row['block'], 'standalone')
+        self.assertFalse({'setNumber', 'variant'} & set(row))
+        self.rejected('belong to no set or group', {**tee, 'set': 'tees'})
+        self.rejected('belong to no set or group', {**tee, 'group': 'basics'})
+        neck = part(slot='neck', families=['accessory'], set=..., group=..., genderedCut=False, tiers={}, neckCategory='back')
+        for category, first, last in (('headgear', 1000, 1499), ('back', 1500, 1999), ('neckwear', 2000, 2499), ('torso', 2500, 2999)):
+            for number in (first, last):
+                registry.validate(document({**neck, 'neckCategory': category, 'number': number}))
+            other = 2999 if first == 1000 else first - 1
+            self.rejected(f'standalone {category} neck parts are numbered {first}-{last}', {**neck, 'neckCategory': category, 'number': other})
+        registry.validate(document({**neck, 'number': 6000, 'set': 'corpsec-t1', 'group': 'corpsec', 'families': ['security']}))
+
+    def test_test_numbers_are_free_but_never_published(self):
+        scratch = part(number=300, families=['accessory'], set=..., group=...)
+        registry.validate(document(scratch, {**scratch, 'number': 999, 'set': 'proof'}))
+        self.rejected('test parts and are never published', scratch, publish=True)
 
     def test_chest_is_always_a_gendered_cut(self):
         self.rejected('separate male and female cut', part(genderedCut=False))
@@ -84,7 +122,7 @@ class RegistryTests(unittest.TestCase):
         shoulder = part(slot='shoulder', tiers={'shoulder': 2}, genderedCut=False, badge={'positions': ['left', 'right']})
         row = registry.handoff(registry.validate(document(shoulder)))['parts'][0]
         self.assertEqual(row['badge'], {'positions': ['left', 'right']})
-        self.assertNotIn('logoTexture', row)  # how a logo is carried is not settled (spikes.md, section 15)
+        self.assertNotIn('logoTexture', row)  # the shared logo material joins the handoff in Phase 1
         self.rejected('badge positions', {**shoulder, 'badge': {'positions': ['chest']}})
         self.rejected('a badge needs its side', {**shoulder, 'sides': ['r'], 'badge': {'positions': ['left']}})
 
@@ -98,7 +136,6 @@ class RegistryTests(unittest.TestCase):
         other = part(slot='pelvis', tiers={'waist': 1, 'hip': 1}, genderedCut=False)
         registry.validate(document(part(), other))
         self.rejected('used by two sets', part(), {**other, 'set': 'corpsec-t2'})
-        registry.validate(document(part(), {k: v for k, v in other.items() if k != 'set'}))
 
     def test_publication_needs_all_twenty_bodies(self):
         partial = part(bodies=['pmh0', 'pfh0'])
