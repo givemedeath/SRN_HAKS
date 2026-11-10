@@ -491,7 +491,8 @@ in the Phase 0 revision and "not relied on for Large female bodies" in the clean
   meant to sit, the waist went from 3.5–7.3 cm too far in to 0.6–2.0 cm too far out, and the step is gone
   in the client.
 * Known limit: the factors cannot follow the backward set of the Human Large female torso, so a garment stays
-  up to 4.5 cm short at the back there. That is acceptable for cloth and armored tiers. A skin-tight piece
+  up to 4.5 cm short at the back there. The user saw the measured outlines and the client views of this and
+  kept shape factors. That is acceptable for cloth and armored tiers. A skin-tight piece
   that fails the gate on a Large female body is the case for a fit that follows the body surface, which is
   not built.
 * Phase 1 builds the probe and the factors into armorkit and checks slots other than the chest, which this

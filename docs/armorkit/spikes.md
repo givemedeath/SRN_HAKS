@@ -521,6 +521,11 @@ body plus the shell's 1.2 cm, half width in cm (negative is inside the body):
 * In the client the hem now meets the pelvis on all five, front and rear, with no step.
 * What the factors do not reach: on the Human Large female the shell stays 1.8–4.5 cm short at the back from
   the hips to the ribs, the backward set described above. On the other four the back is within 2.3 cm.
+  Outlines of body and shell are drawn in *large-female-back-outlines.png*; in the client her back reads
+  slightly flatter in the shell than bare, with no gap, because a worn part replaces the body part
+  (*large-female-back-views-pfh2.jpg*, scratch scripts `back_diagram.py`, `run12.py`).
+* Expected but not tried: a back-mounted accessory made the same way would also sit about 3 cm forward on
+  the Human Large female, which over bare skin means sunk into the back.
 * At shoulder height the shell is 3.3–4.9 cm short at the front on the four non-Human bodies. That was so
   before the factors as well and they do not change it.
 
