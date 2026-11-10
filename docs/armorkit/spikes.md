@@ -216,6 +216,24 @@ ARMORKIT actor=X blueprint chest 65535 ... ac=0 parts=6,6,16,16,4,4,17,65535,0,1
 **Not checked.** The toolset: it was not opened, so how it lists parts in these ranges is unknown. Part numbers
 above 1000 on slots other than chest. A table of this size on a multiplayer server.
 
+**Upper limit.** Tested the day before by the planning session on the stock Human male (scratch script and log
+`spike5/` in `.tmp/armorkit-spikes/`, *part-number-limit.jpg*), not rerun here:
+
+```
+P9 tables chestRows=70001 bicepRows=65536 chest65535=0.00 chest65536=0.00 chest70000=0.00
+P9 actor=Chest 32768 want=32768 torso=32768 lbicep=1 stored={"type":"word","value":32768}
+P9 actor=Chest 65535 want=65535 torso=65535 lbicep=1 stored={"type":"word","value":65535}
+P9 actor=Chest 65536 want=65536 torso=0 lbicep=1 stored={"type":"word","value":0}
+P9 actor=Chest 70000 want=70000 torso=4464 lbicep=1 stored={"type":"word","value":4464}
+P9 actor=Chest 1000 want=1000 torso=1000 lbicep=65535 stored={"type":"word","value":1000}
+```
+
+* Chest 1000, 2000, 5000, 9999, 10000, 32767, 32768 and 65535 rendered and read back.
+* 65535 is the hard limit: 65536 is stored as 0 (a bare chest) and 70000 as 4464, while `CopyItemAndModify`
+  still reports success. The registry refuses numbers above 65535 for that reason.
+* `pmh0_bicepl65535`, a 16-character model name, rendered on the bicep slot.
+* Tables padded to 65,536 and 70,001 rows loaded; each is about 1.7 to 1.8 MB.
+
 ## 11. Tint textures: names, fallback and colours
 
 **Result.** *numbers-tint-fallback.jpg*, *badge-tint-texture-name.jpg*
