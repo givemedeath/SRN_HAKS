@@ -474,3 +474,30 @@ pass, and the cleanmodels row of the toolchain table.
   run started after this merges records the new hash.
 
 Still waiting for the user before Phase 1: the fit for Large female bodies and for headgear.
+
+## Revision 2026-11-10: shape factors for Large female bodies (user decision)
+
+The user asked whether the waist step on Large female bodies comes from the bodies and whether they need
+another pass first. It does not and they do not ([spikes.md](spikes.md), section 19): the bodies are smooth
+across the join, and the step comes from `cleanmodels variants` scaling about the skeleton while the SRN Large
+female differs from the Fit female by more than a scale. Offered a fit that follows the body surface or
+per-region shape factors, the user chose shape factors. This replaces "Large female bodies need another fit"
+in the Phase 0 revision and "not relied on for Large female bodies" in the cleanmodels revision.
+
+* `variants` makes the race versions for all 20 bodies. For each target body and slot, armorkit sends the
+  source body's own skin part through `variants` as a probe, compares it with the target's real part by
+  region, and passes the factors it finds as `--shape`. The seam gate still decides each part.
+* Proven on the test chest shell for the five Large female bodies: measured against where the shell was
+  meant to sit, the waist went from 3.5–7.3 cm too far in to 0.6–2.0 cm too far out, and the step is gone
+  in the client.
+* Known limit: the factors cannot follow the backward set of the Human Large female torso, so a garment stays
+  up to 4.5 cm short at the back there. That is acceptable for cloth and armored tiers. A skin-tight piece
+  that fails the gate on a Large female body is the case for a fit that follows the body surface, which is
+  not built.
+* Phase 1 builds the probe and the factors into armorkit and checks slots other than the chest, which this
+  proof did not cover.
+* Headgear is not part of this decision. It is still to be fitted per race from the head envelopes, as the
+  Phase 0 revision says, and that is not yet proven.
+* Seen on the way, outside armorkit: the published race clothing in `srn_armor` under-fits Large female
+  bodies at the waist by 1.5–2.8 cm a side. It is mild in the client and hidden by a matching pelvis piece.
+  No change is made to it here.

@@ -455,3 +455,78 @@ area change or a new login; other graphics cards and drivers; other game builds
 (the custom shader includes the stock `inc_standard`); the toolset preview and the inventory and character-sheet
 views; more than four cells, and how large the strip may be; a badge that also needs a normal map (that needs
 a shader made from `vslit_nm`); bodies other than Human male (the shader does not depend on the body).
+
+## 19. Why race versions under-fit Large female bodies, and shape factors
+
+**Method.** Offline first. In body space, horizontal sections of the chest and pelvis skin parts and of the
+test chest shell of section 12 were measured from the waist joint centre: half width, front depth and back
+depth. The same was done for the Fit and Large chest parts of the stock game, for every chest in `srn_armor`
+against the body it was made for, and for the bare outline across the join. The published clothing was then
+viewed in the client on Large female bodies with a bare pelvis and with the matching pelvis piece. Scratch
+scripts `waist_profile.py`, `chest_compare.py`, `armor_compare.py`, `run10.py`.
+
+**Result: the cause.**
+
+How much wider the Large Human female chest part is than the Fit one, by height above the waist joint:
+
+| Height | SRN Large ÷ Fit | Stock game Large ÷ Fit | Test shell, Large ÷ Fit (what `variants` applied) |
+|---|---|---|---|
+| Waist | 1.79 | 1.69 | 1.38 |
+| +8 cm | 1.44 | 1.67 | 1.44 |
+| +12 cm | 1.31 | 1.66 | 1.40 |
+| +20 cm | 1.20 | 1.46 | not measured |
+
+* `variants` fits by scaling about the skeleton, close to one factor for the whole chest. The SRN Large female
+  grows far more at the waist than at the ribs, which the stock Large female does not. The shell, meant to
+  stand 1.2 cm outside the body, came out 2.3 cm inside it on each side at the waist and 2.8 cm outside it
+  at the ribs.
+* Between the ribs and the shoulder blades the SRN Large female torso sits 3–4 cm further back on the skeleton
+  than the Fit one (the stock Large stays within about 1 cm). Scaling cannot follow a shift: the shell was
+  about 4 cm inside the body at the back.
+* On Large female bodies the chest part is the outer surface down to 3–6 cm below the waist joint; on Fit it
+  hands over to the pelvis at the joint. A top authored on Fit ends its hem on the widest part of the body.
+* Large male bodies have errors of the same size, but outward: the shell is loose where it is wrong, which is
+  why section 12 found them acceptable.
+
+**Result: the bodies and the published clothing.**
+
+* The bare outline across the chest and pelvis join changes by at most 1.5 cm per centimetre of height on all
+  20 bodies, and Large female bodies are no worse than Fit ones. No fault was found in the bodies.
+* On the four Large female bodies that have clothing in `srn_armor`, the median chest (36 each) sits 1.5–2.8 cm
+  inside the body on each side and 3–5 cm inside at the front at the waist. Fit female and Large male chests
+  sit outside. In the client this reads as a slightly pinched waist over a bare pelvis and is hidden by the
+  matching pelvis piece (*published-clothing-pfo2.jpg*, *published-clothing-pfh2.jpg*, with the Fit Orc
+  female for comparison in *published-clothing-pfo0.jpg*).
+
+**Method: shape factors.** `variants` takes `--shape` with a factor for each of shoulders, chest, waist and
+hips. The factors were taken from the bodies themselves: the source body's own chest skin part goes through
+`variants` as a probe, and where the probe is narrower or wider than the target's real chest part is the
+factor that region needs (two rounds of correction). The factors were then applied to the test shell, measured
+against the body, and viewed in the client on the five Large female bodies over a bare pelvis. Scratch scripts
+`shape_fit.py`, `run11.py`.
+
+**Result: shape factors.** *large-female-shape-factors.jpg*
+
+Factors found: hips 1.38–1.41, waist 1.29–1.42, chest 0.88–0.93, shoulders 0.91–1.06. Shell error against the
+body plus the shell's 1.2 cm, half width in cm (negative is inside the body):
+
+| Body | Waist before | Waist after | Hips before | Hips after |
+|---|---|---|---|---|
+| Human Large female | −3.5 | +0.9 | −4.6 | −0.2 |
+| Dwarf Large female | −5.1 | +0.9 | −6.1 | −0.1 |
+| Elf Large female | −4.7 | +0.6 | −5.9 | −0.6 |
+| Orc Large female | −5.9 | +1.3 | −6.6 | +0.5 |
+| Troll Large female | −7.3 | +2.0 | −7.6 | +1.7 |
+
+* In the client the hem now meets the pelvis on all five, front and rear, with no step.
+* What the factors do not reach: on the Human Large female the shell stays 1.8–4.5 cm short at the back from
+  the hips to the ribs, the backward set described above. On the other four the back is within 2.3 cm.
+* At shoulder height the shell is 3.3–4.9 cm short at the front on the four non-Human bodies. That was so
+  before the factors as well and they do not change it.
+
+**Verdict.** The step of section 12 comes from the fit method meeting a body that is not a scaled Fit body. It
+is not a fault of the bodies. Shape factors measured from the bodies remove it for this shell.
+
+Not checked: slots other than the chest; Large male and Fit bodies with factors; a looser or a skin-tight real
+garment; a pelvis piece made the same way under the chest; motion; the three client sheets of run 10 not named
+above.
