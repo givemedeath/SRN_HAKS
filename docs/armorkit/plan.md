@@ -1,7 +1,8 @@
 # Armorkit plan
 
-Draft for approval, 2026-11-09. Nothing is built yet. This records the user's decisions from the planning
-session, what was proven in the client, and the work in order. Evidence for every "proven" statement is in
+Written 2026-11-09; every decision raised with the draft was settled by the user the same day. Nothing is built
+yet. This records the user's decisions from the planning session, what was proven in the client, and the work
+in order. Evidence for every "proven" statement is in
 [spikes.md](spikes.md). Revisions are appended as dated sections; this text stays as approved.
 
 ## Goal and scope
@@ -35,6 +36,14 @@ response, matrix/rigger, FRFZ catalog).
 9. Mechanical values in the parts tables are nulled out; SR mechanics live in SR_NWN.
 10. Geometry is generated with the local Comfy install.
 11. Male and female get their own torso cut at a minimum. Whether other slots also differ depends on the outfit.
+12. Every new parts-table row carries `ACBONUS 0.00`.
+13. Logo badges use a separate plain texture, an accepted exception to one tint texture per part.
+14. The shared cleanmodels pin moves to 4.17.x once the Phase 0 close-up fit proof passes; `variants` then
+    makes the race versions of new parts.
+15. Part numbers follow the blocks tabled under [Part rules](#part-rules).
+16. The triangle and texture budgets listed there are starting values, tuned in the pilot.
+17. The pilot set is corporate security tiers 1–3.
+18. New parts publish to a new pack, `srn_parts`. Splitting it per slot is revisited if its size calls for it.
 
 ## What is proven
 
@@ -82,8 +91,7 @@ Neck-slot rules:
 **Numbering.** One number means one design in a slot, present on all 20 bodies. Where the male and female cuts
 differ they share the number, so a recipe never names the wearer's gender. A set uses the same number in every
 slot it covers; variations within a set take the next numbers. Stock rows (0–200) and stock model numbers (up to
-255) are never reused; 256–299 stay empty as a buffer. Proposed blocks, with the registry as the source of
-truth:
+255) are never reused; 256–299 stay empty as a buffer. Blocks, with the registry as the source of truth:
 
 | Block | Use |
 |---|---|
@@ -116,7 +124,7 @@ the registry into `srn_2da`: stock rows unchanged, padded with no gaps, live row
 
 **Logos.** A part that shows a logo carries a small badge mesh with the shared blank texture `srn_logo_0`.
 SR_NWN swaps it per wearer. Logo textures are plain (not tintable) and their names are at most 16 characters.
-This is a deliberate exception to "one PLT per part" and needs the user's confirmation (open decision 2).
+This is the accepted exception to "one PLT per part" (decision 13).
 
 **Budgets (starting values, tuned in the pilot).** Chest up to 4,000 triangles, other body slots up to 1,500,
 accessories up to 2,000, a whole worn outfit up to 20,000 (the robe trial's accepted runtime budget). Runtime
@@ -162,13 +170,13 @@ matching rings, each part end is built to overlap:
 | Tint texture encoding | `tools/headkit` palette code |
 | Joint and part measurement | `tools/phenomorpher` measurement and connector checks |
 | Skin weights for skinned pieces | `tools/robes` weight transfer, in A/T pose |
-| Compile, decompile, skin checks, race versions | cleanmodels 4.17.x (needs the shared pin moved from 4.0.0-rc17; open decision 3) |
+| Compile, decompile, skin checks, race versions | cleanmodels 4.17.x (the shared pin moves from 4.0.0-rc17 once the Phase 0 fit proof passes; decision 14) |
 | Hand authoring | NeverBlender 4.5.1 in Blender 5.2 |
 | Client fixtures | A fixture builder grown from the spike scripts: isolated user directory, scripted actors and camera, log lines as evidence |
 | Runs and receipts | [Shared tooling and workflow](../shared-tooling-and-workflow.md): pinned tools, declared inputs, immutable receipts |
 
-New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts publish to a new pack (working
-name `srn_parts`), separate from the converted stock clothing in `srn_armor`.
+New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts publish to the new pack
+`srn_parts`, separate from the converted stock clothing in `srn_armor`.
 
 ## Pipeline for one set
 
@@ -215,9 +223,8 @@ In the client:
 
 **Phase 0: foundation.** No new art.
 
-* Settle the open decisions below.
-* Move the cleanmodels pin, if approved.
 * `tools/armorkit` skeleton: registry, table generator, fixture builder, tests.
+* Move the cleanmodels pin once the close-up fit proof below passes.
 * Measure and freeze the seam contract and the per-race head envelopes.
 * Remaining proofs:
   * a part number above 1000, and how the toolset shows new numbers;
@@ -266,14 +273,7 @@ Notes SR_NWN needs:
 
 ## Open decisions
 
-1. **`ACBONUS 0.00` on every new row.** Proposed; confirm.
-2. **Logo badges as a separate plain texture,** an exception to one PLT per part. Proposed; confirm.
-3. **Move the shared cleanmodels pin to 4.17.x** and use `variants` for race versions of new parts. Proposed
-   after the close-up fit proof in Phase 0.
-4. **Number blocks** as tabled above. Proposed; confirm or adjust.
-5. **Starting budgets** as listed. Proposed; tuned in the pilot.
-6. **Pilot set:** corporate security tiers 1–3. Proposed; confirm.
-7. **Pack name** for new parts (`srn_parts`), and whether to split it per slot later.
+None. The eight raised with the draft were settled on 2026-11-09 and are decisions 11–18 above.
 
 ## Not covered and risks
 
