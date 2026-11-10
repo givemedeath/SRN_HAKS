@@ -324,5 +324,7 @@ and wait for the user to decide before Phase 1:
 * **Parts tables.** `parts_robe` has stock rows 0–38 and hide columns, not rows 0–200; the generator handles it.
 * **Clearance gate.** A worn part replaces the body part in its slot, so the gate that matters is the join with
   neighbouring parts (the seam contract), not skin showing through the part.
-* **Not checked in Phase 0:** how the toolset lists the new numbers; helmet scales per race; motion for any
-  test part.
+* **Toolset.** It lists the new numbers by part number only, with no names, and lists only rows that have a
+  model. The test part had no inventory icon and the item picture showed a gap; parts will probably need
+  icons (not tested).
+* **Not checked in Phase 0:** helmet scales per race; motion for any test part.

@@ -213,8 +213,23 @@ ARMORKIT actor=X blueprint chest 65535 ... ac=0 parts=6,6,16,16,4,4,17,65535,0,1
 * Padding rows written as `****` in both columns work (the earlier spike used `0` / `****`).
 * The 65,536-row table loaded and the fixture started in its usual time (not timed).
 
-**Not checked.** The toolset: it was not opened, so how it lists parts in these ranges is unknown. Part numbers
-above 1000 on slots other than chest. A table of this size on a multiplayer server.
+**Not checked.** Part numbers above 1000 on slots other than chest and bicep (see the upper limit below). A
+table of this size on a multiplayer server.
+
+**Toolset.** The toolset (same build) was started with `-userDirectory` on a copy of this proof's user
+directory and opened the fixture module; a new armor item from the Item Wizard was opened on its Appearance
+tab. *toolset-part-lists.jpg*
+
+* The Torso list holds 65 entries, not 65,536: only rows that have a model are listed. The new parts appear
+  as `007 (Part 65535)`, `008 (Part 9002)` and `009 (Part 6000)`, among the other parts of armor value 0.
+* The lists carry no names, only the part number, and are not in number order.
+* Choosing `Part 6000` showed the test chest in the 3D preview and Armor Class 0.
+* The Left Shoulder list shows `001 (Part 300)`.
+* The inventory picture of the item lost its chest area with Part 6000 chosen. The test part ships no
+  inventory icon (inferred cause, not tested).
+
+Limits: Human male preview only; the item was not saved, placed or reopened; lists for the other slots and
+the female lists were not read.
 
 **Upper limit.** Tested the day before by the planning session on the stock Human male (scratch script and log
 `spike5/` in `.tmp/armorkit-spikes/`, *part-number-limit.jpg*), not rerun here:
