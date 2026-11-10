@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -97,6 +98,19 @@ class SharedToolsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'binary changed'):resolve_tool('erf',self.repo)
         with self.assertRaisesRegex(ValueError,'binary changed'):self.ps(f"Resolve-SrnTool erf -RepositoryRoot '{self.repo}' | ConvertTo-Json")
         with self.assertRaises(ValueError):resolve_tool('erf',self.repo,override=self.repo/'first')
+
+    def test_missing_tool_message_is_the_lock_installation_text_in_both_resolvers(self):
+        entry=lambda path:{key:{'relativePath':path,'sha256':'0'*64} for key in ['windows-x64','linux-x64']}
+        self.data['tools']['manual']={'origin':'shared','version':'test','installation':'Unpack zzmanualzz by hand.','platforms':entry('absent/manual.exe')}
+        self.data['tools']['fetched']={'origin':'shared','version':'test','platforms':entry('absent/fetched.exe')}
+        write_json(self.repo/'tools/shared-tools.lock.json',self.data)
+        def said(call):
+            with self.assertRaises(ValueError) as caught:call()
+            plain=re.sub(r'\x1b\[[0-9;]*m','',str(caught.exception))  # PowerShell colours its errors
+            return re.sub(r'[^A-Za-z]+','',plain)  # and wraps long lines
+        for name,hint in (('manual','Unpackzzmanualzzbyhand'),('fetched','RuntoolsBootstrapToolsps')):
+            for call in (lambda:resolve_tool(name,self.repo),lambda:self.ps(f"Resolve-SrnTool {name} -RepositoryRoot '{self.repo}' | ConvertTo-Json")):
+                message=said(call);self.assertIn('Missingtool',message);self.assertIn(hint,message)
 
     def test_addon_cache_excluded_source_drift_rejected(self):
         bank=self.bank/'addons';bank.mkdir();(bank/'addon.py').write_bytes(b'addon')

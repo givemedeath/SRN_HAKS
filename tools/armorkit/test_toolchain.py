@@ -31,14 +31,15 @@ class ToolchainTests(unittest.TestCase):
         from tools import shared_tools
         with mock.patch.object(shared_tools, 'resolve_tool', return_value={'path': 'x'}) as resolve:
             self.assertEqual(toolchain.cleanmodels(root='elsewhere'), {'path': 'x'})
+            with self.assertRaises(TypeError):
+                toolchain.cleanmodels('elsewhere')  # positional paths are refused: the order is easy to swap
         resolve.assert_called_once_with('cleanmodels', toolchain.REPO, 'elsewhere')
 
     def test_changed_or_missing_bytes_are_refused(self):
         from tools import shared_tools
-        entry = self.entry()['platforms'].get(shared_tools.platform_key())
-        if entry is None:
-            self.skipTest('cleanmodels is not pinned for this platform')
-        with tempfile.TemporaryDirectory() as folder:
+        # The pinned platform is forced so that this also runs where cleanmodels is not pinned, such as Linux CI.
+        platform, entry = next(iter(self.entry()['platforms'].items()))
+        with mock.patch.object(shared_tools, 'platform_key', return_value=platform), tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             with self.assertRaisesRegex(ValueError, 'Missing tool'):
                 toolchain.cleanmodels(root=root)

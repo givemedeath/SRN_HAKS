@@ -485,23 +485,25 @@ How much wider the Large Human female chest part is than the Fit one, by height 
   about 4 cm inside the body at the back.
 * On Large female bodies the chest part stays the outer surface well below the waist joint. The pelvis takes
   over 2–5 cm below the joint at the sides and 4.5–10.5 cm below it at the back, deepest on the Troll and
-  shallowest on the Dwarf (Human: 3.5 and 6 cm). On Fit female bodies it takes over at the joint at the
-  sides. A top authored on Fit ends its hem on the widest part of the body.
-* Large male bodies differ among themselves. On the Human the shell is loose where it is wrong, up to
-  4.8 cm proud at the front at the waist. On the Dwarf, Elf, Orc and Troll it is 2–6 cm inside the body on
-  each side from the waist to 10 cm above it, the same inward error as on Large female bodies, although
-  section 12 found them acceptable at its zoom. None was rerun with shape factors.
+  shallowest on the Dwarf (Human: 3.5 and 6 cm). On all five Fit female bodies it takes over at the joint at
+  the sides. A top authored on Fit ends its hem on the widest part of the body.
+* Large male bodies differ among themselves. On the Human the shell is loose where it is wrong, up to 4.8 cm
+  proud at the front at the waist. On the Dwarf, Elf, Orc and Troll it is 2–6 cm inside the body on each side
+  from the waist to 5 cm above it, and on the Elf, Orc and Troll to 10 cm above it. That is the same inward
+  error as on Large female bodies, although section 12 found them acceptable at its zoom. None was rerun with
+  shape factors.
 
 **Result: the bodies and the published clothing.**
 
 * The bare outline across the chest and pelvis join changes by at most 1.5 cm per centimetre of height on all
   20 bodies, and Large female bodies are no worse than Fit ones. No fault was found in the bodies.
-* On the four Large female bodies that have clothing in `srn_armor`, the median chest (36 each) sits 1.5–2.8 cm
-  inside the body on each side and 3–5 cm inside at the front at the waist. Fit female and Large male chests
-  sit outside. Fit male chests are level with the body at the sides but 4.5–7.5 cm inside it at the front at
-  the waist; that was not looked at in the client. On Large female bodies the shortfall reads as a slightly pinched waist over a bare pelvis and is hidden by the
-  matching pelvis piece (*published-clothing-pfo2.jpg*, *published-clothing-pfh2.jpg*, with the Fit Orc
-  female for comparison in *published-clothing-pfo0.jpg*).
+* On the four Large female bodies that have clothing in `srn_armor`, the median chest (36 each) sits 1.5–2.8
+  cm inside the body on each side and 3–5 cm inside at the front at the waist. Fit female and Large male
+  chests sit outside. Fit male chests are level with the body at the sides but 4.5–7.5 cm inside it at the
+  front at the waist; that was not looked at in the client. On Large female bodies the shortfall reads as a
+  slightly pinched waist over a bare pelvis and is hidden by the matching pelvis piece (*published-clothing-
+  pfo2.jpg*, *published-clothing-pfh2.jpg*, with the Fit Orc female for comparison in *published-clothing-
+  pfo0.jpg*).
 
 **Method: shape factors.** `variants` takes `--shape` with a factor for each of shoulders, chest, waist and
 hips. The factors were taken from the bodies themselves: the source body's own chest skin part goes through
@@ -512,8 +514,9 @@ against the body, and viewed in the client on the five Large female bodies over 
 
 **Result: shape factors.** *large-female-shape-factors.jpg*
 
-Factors found: hips 1.38–1.41, waist 1.29–1.42, chest 0.88–0.93, shoulders 0.91–1.06. Shell error against the
-body plus the shell's 1.2 cm, half width in cm (negative is inside the body):
+Factors found: hips 1.38–1.41, waist 1.29–1.42, chest 0.88–0.93, shoulders 0.91–1.06. Shell error in half
+width, in cm, against where the shell was meant to sit, which is 1.2 cm outside the body. A negative value is
+short of that position; it is inside the body only when it is below −1.2.
 
 | Body | Waist before | Waist after | Hips before | Hips after |
 |---|---|---|---|---|
@@ -539,6 +542,5 @@ body plus the shell's 1.2 cm, half width in cm (negative is inside the body):
 is not a fault of the bodies. Shape factors measured from the bodies remove it for this shell.
 
 Not checked: slots other than the chest; Large male bodies with factors, four of which show the inward error;
-Fit bodies with factors; a looser or a skin-tight real
-garment; a pelvis piece made the same way under the chest; motion; the three client sheets of run 10 not named
-above.
+Fit bodies with factors; a looser or a skin-tight real garment; a pelvis piece made the same way under the
+chest; motion; the three client sheets of run 10 not named above.

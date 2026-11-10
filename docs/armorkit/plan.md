@@ -482,21 +482,21 @@ per-region shape factors, the user chose shape factors. This replaces "Large fem
 in the Phase 0 revision.
 
 * `variants` makes the race versions for the 18 bodies other than the two Human Fit sources. For each target
-  body and slot, armorkit sends the
-  source body's own skin part through `variants` as a probe, compares it with the target's real part by
-  region, and passes the factors it finds as `--shape`. The seam gate still decides each part.
+  body and slot, armorkit sends the source body's own skin part through `variants` as a probe, compares it
+  with the target's real part by region, and passes the factors it finds as `--shape`. The seam gate still
+  decides each part.
 * Proven on the test chest shell for the five Large female bodies: measured against where the shell was
   meant to sit, the waist went from 3.5–7.3 cm too far in to 0.6–2.0 cm too far out, and the step is gone
   in the client.
 * Known limit: the factors cannot follow the backward set of the Human Large female torso, so a garment stays
   up to 4.5 cm short at the back there. The user saw the measured outlines and the client views of this and
-  kept shape factors. That is acceptable for cloth and armored tiers. A skin-tight piece
-  that fails the gate on a Large female body is the case for a fit that follows the body surface, which is
-  not built.
+  kept shape factors. That is acceptable for cloth and armored tiers. A skin-tight piece that fails the gate
+  on a Large female body is the case for a fit that follows the body surface, which is not built.
 * Phase 1 builds the probe and the factors into armorkit and checks what this proof did not cover: slots
   other than the chest, and Large male bodies, four of which showed the same inward error without factors.
 * Headgear is not part of this decision. It is still to be fitted per race from the head envelopes, as the
   Phase 0 revision says, and that is not yet proven.
-* Seen on the way, outside armorkit: the published race clothing in `srn_armor` under-fits Large female
-  bodies at the waist by 1.5–2.8 cm a side. It is mild in the client and hidden by a matching pelvis piece.
-  No change is made to it here.
+* Seen on the way, outside armorkit: the published race clothing in `srn_armor` under-fits Large female bodies
+  at the waist by 1.5–2.8 cm a side, which is mild in the client and hidden by a matching pelvis piece. Fit
+  male chests measure 4.5–7.5 cm inside the body at the front at the waist, which has not been looked at in
+  the client. No change is made to that pack here.
