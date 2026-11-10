@@ -58,3 +58,11 @@ class GreatswordTests(Fixture):
         with self.assertRaisesRegex(ValueError,'uniformly'):two_hand_uniform(p,f,bad,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard)
         bad=m.copy();bad[:3,:3]*=.8
         with self.assertRaisesRegex(ValueError,'thickness'):two_hand_uniform(p,f,bad,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard)
+        # A depth departure is refused without its explicit flag, then needs the digest of this exact measurement.
+        with self.assertRaisesRegex(ValueError,'thickness'):two_hand_uniform(p,f,bad,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard,review)
+        with self.assertRaises(GripDeparture) as caught:
+            two_hand_uniform(p,f,bad,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard,{'depthDepartureApproved':True})
+        self.assertAlmostEqual(caught.exception.report['midpointRelativeDifferences']['depth'],-.2,delta=.01)
+        bound={'decision':'approved','depthDepartureApproved':True,'notes':'User chose the length',
+               'measurementDigest':caught.exception.report['measurementDigest']}
+        _,r=two_hand_uniform(p,f,bad,[[0,-.07,0],[0,.07,0]],[0,-.09,0],standard,bound);self.assertEqual(r['departureReview'],bound)

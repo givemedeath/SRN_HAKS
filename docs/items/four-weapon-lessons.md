@@ -338,3 +338,10 @@ Melee wave 1 follow-up: thickness, size and fitting (2026-11-10)
 
 `splitBladeSlices` only catches gross delamination: the Claymore's hairline edge split near the tip scored 1 and was
 not flagged, so end-on views still decide. Halving the blade also closed that split visually.
+
+Two-hand sizing departure (2026-11-10): sized by the approved midpoint depth, the wave-1 Claymore's round, thick
+grip made it 0.98 m, shorter than the 1.10 m one-handed Sword. The user chose about 1.45 m instead. The two-hand
+fit still refuses any depth departure by default; it now accepts one only when `fit.gripDeparture` carries
+`depthDepartureApproved: true` and the digest of that exact measurement, taken from the fit worker's own retained
+`grip-measurement.json` (an offline measurement differs in float rounding and will not match). The both-body visual
+hand-fit review is unchanged and still required.

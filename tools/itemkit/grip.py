@@ -86,7 +86,11 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None
             and np.allclose((e[1]-e[0])/length,[0,1,0],atol=1e-6),'Two-hand grip must follow native+Y at its measured origin')
     sections=reference_sections(final,faces,standard,origin[1],length)
     mid=next(r for r in sections if r['fractionFromPommel']==.5);target=standard['targetMidpointSection']
-    require(abs(mid['depth']/target['depth']-1)<.01,'Two-hand grip must match approved midpoint thickness')
+    # The approved depth is the default authority. A design whose round, thick grip would make a two-hander shorter
+    # than a one-hander (wave-1 Claymore: 0.98 m by depth) may depart only through an explicit, digest-bound review.
+    depth_departs=abs(mid['depth']/target['depth']-1)>=.01
+    require(not depth_departs or (review or {}).get('depthDepartureApproved') is True,
+            'Two-hand grip must match approved midpoint thickness')
     report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':m.tolist(),
             'sizingAuthority':'midpoint-depth-two-hand','usableLength':float(length),'nativeGripOrigin':origin.tolist(),
             'measuredFittedSections':sections,'midpointRelativeDifferences':{
@@ -95,5 +99,5 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None
             'proportionsAndAnglesPreserved':True,'bothBodyVisualReviewRequired':True}
     report['measurementDigest']=digest(report)
     # Length is the intended departure; width over 5% needs the same bound review as firearms.
-    if abs(report['midpointRelativeDifferences']['visibleFaceWidth'])>.05:bind_departure(report,review)
+    if depth_departs or abs(report['midpointRelativeDifferences']['visibleFaceWidth'])>.05:bind_departure(report,review)
     return m,report
