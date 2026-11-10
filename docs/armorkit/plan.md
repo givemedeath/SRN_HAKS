@@ -350,3 +350,22 @@ and wait for the user to decide before Phase 1:
   * motion for any test part: walking, running, combat, a scripted head turn or the automatic look-at;
   * the toolset beyond one Human male armor item, not saved or reopened;
   * SR_NWN branches other than `master`.
+
+## Revision 2026-11-10: a logo picked by a shader value (proof)
+
+The user asked for the untried third logo approach to be tested before choosing one. It passed
+([spikes.md](spikes.md), section 18): all logos sit in one strip texture, the badge reads it through a material
+file with a small custom vertex shader, and SR_NWN picks the cell per wearer with
+`SetMaterialShaderUniformVec4`. The part keeps its tint texture and item colours, the value survives
+re-equipping, and it works on rigid and skinned meshes.
+
+The choice between this and one part number per logo is the user's and is not made here. If it is chosen:
+
+* Decision 13 stands in substance (logos are plain, not tintable), but the badge names a material file and a
+  shared strip, not a texture of its own.
+* The handoff names the material and its parameter and lists each logo's cell. SR_NWN sets the value on the
+  wearing creature, not on the item, and does not need to reapply it on equip. When it must be set again
+  (login, area change, a player arriving later) is not yet checked.
+* The kit ships one custom shader, which includes the stock `inc_standard` and so has to be rechecked on a new
+  game build.
+* Adding a logo replaces the strip; no part is copied.
