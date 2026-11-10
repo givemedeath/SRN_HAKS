@@ -59,8 +59,8 @@ def model_text(name, vertices, faces, uvs, normals):
 def tint(shades, layers):
     """The bytes of a tint texture: per pixel a shade 0-255 and the layer of its colour channel.
 
-    Rows are stored in the order given. Which end of them the game puts at texture coordinate v = 0 is not
-    yet checked in the client."""
+    Rows are stored in the order given, and the game puts the first row at texture coordinate v = 0 (spike
+    record, section 21)."""
     shades, layers = np.asarray(shades), np.asarray(layers)
     require(shades.ndim == 2 and shades.shape == layers.shape and shades.size, 'A tint texture needs a shade and a layer per pixel')
     require(set(np.unique(layers).tolist()) <= set(LAYERS.values()) and shades.min() >= 0 and shades.max() <= 255,

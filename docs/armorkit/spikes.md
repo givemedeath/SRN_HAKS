@@ -567,9 +567,28 @@ about the joint centre turns inside itself, which is what `seams.minimum_overlap
 
 Seen in passing: tint textures loaded only as one texture per part, named like its model, on a mesh with real
 texture coordinates. One flat tint texture shared by all parts, with every texture coordinate at zero, drew
-every part as chrome. Which of the two differences caused that was not separated.
+every part as chrome. Section 21 rules out the zero coordinates; the cause is not known.
 
 Not checked: the Human Fit female and the other 18 bodies; a generated garment in place of the stand-in,
 whose parts carry the body's own nested ends and show ragged edges at the knees with any under end; motion;
 parts of different sets or tiers worn together; a loose garment whose rim is far from the joint centre. The
 band run's captures were not kept: a later run cleared the folder.
+
+## 21. Parts written by the export step, in the client
+
+Checked on 2026-11-10 (scratch script `export_view.py`). The stand-in of section 20 was split with caps and
+written by `tools/armorkit/export.py`: models in bone space with normals taken on the whole outfit before the
+split, one tint texture per part named like its model, compiled with cleanmodels 4.17.5. Human Fit male,
+standing and sitting, 12 stills.
+
+* **Tint texture rows.** Each part's texture coordinates ran 0–1 up its own height, and its texture held one
+  colour channel in the first half of its rows and another in the second. Every part showed the first
+  channel on its lower half. The first row stored is the row at v = 0.
+* **Normals.** The shading runs on across the waist, shoulders, elbows and knees with no crease at the
+  seams.
+* **Texture coordinates all at zero.** The same parts with every coordinate at zero drew in the flat colour
+  of the texture's first pixel, not as chrome. So the chrome of section 20 did not come from the zero
+  coordinates.
+
+Not checked: a texture that is not square or not 64 pixels; which way u runs; parts on any other body;
+shadows, which these parts cast for the first time.
