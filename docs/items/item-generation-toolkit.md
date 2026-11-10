@@ -363,6 +363,19 @@ Use the native length axis as camera up for icons, and check each alpha footprin
 and the assembled icon; a numerical render success cannot detect a cropped part.
 Keep a textured fitted scene and a final visible GLB alongside the native files.
 
+## Long-weapon straightness
+
+Long thin weapons (`shortsword`, `longsword`, `greatsword`, `staff`) need
+`approval.referenceView` before a geometry request: an approved `oblique` pair, or
+`side` with `sideViewWaiver: true` and review notes. After each collected clay run
+`python -m tools.itemkit.straightness check MESH.glb --family F`; bend, twist and
+guard-skew flags are advisory and go to the reviewer with the views. A bowed but
+otherwise correct clay can be unbent with `straighten MESH.glb OUT_DIR`; review
+the straightened views like a generated attempt. Appearance and the source bake
+stay in the generated frame, so re-apply the saved map with `--map` to the
+textured donor and working shell before fitting. See the wave-1 section of
+`four-weapon-lessons.md` for calibration and limits.
+
 ## Native and geometry contracts
 
 The supplied profile remains `pending-contract` until the actual effective content

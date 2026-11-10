@@ -290,3 +290,36 @@ original-frame donor. Native triangles9988/216, strict UV/gutter/source gates
 unchanged. Small internal part-cut offsets can avoid source-vertex coincidences;
 Staff required85/109micron shifts, preserving the entire external shape.
 Do not regenerate geometry or repeat completed target work for these cut errors.
+
+Melee wave 1: long weapons bow and twist (2026-11-10)
+
+Five designs, flat side-on single-view references. Only the short knife came out
+usable on attempt 1. The Sword's guard became a deep slab, the Claymore's blade
+twisted, the Club bowed and the Spear's head bent about 90 degrees into depth.
+A second seed fixed only the Claymore. This repeats the 2026-11-03 Staff lesson
+above, which was not read before the second seed was spent.
+
+An oblique matched pair fixed invented part depth (Sword guard and hilt on
+attempt 3) but not the bow along the length: the blade still curved in depth
+like a sabre. The bow is a habit of the model with long thin objects, not a
+reference fault, so a further seed or view does not remove it.
+
+Guards now in the toolkit:
+
+| Mistake | Guard |
+| --- | --- |
+| Geometry attempt spent on a long weapon from a flat side view | `request --stage geometry` refuses a `shortsword`, `longsword`, `greatsword` or `staff` manifest without `approval.referenceView` (`view: oblique`, or `view: side` with `sideViewWaiver: true` and review notes). |
+| Bent or twisted clay reaches review unnoticed | `python -m tools.itemkit.straightness check MESH.glb --family F` reports centreline bend, blade twist and guard skew against advisory limits (1.5% of length, 12 degrees, 6 degrees). Run it on every collected clay; a flag goes to the reviewer with the views. |
+| Seeds spent on a bow that seeds do not fix | `python -m tools.itemkit.straightness straighten MESH.glb OUT_DIR` unbends about the smoothed centreline. Cross-sections move and turn rigidly; triangles, UVs and textures are carried exactly. |
+| Straightened clay and its colour drift apart | Appearance and the source bake stay in the generated frame. Re-apply the saved map (`--map OUT_DIR/straighten-map.npz`) unchanged to the textured donor and the working shell, then bind those in a fresh fitting manifest. |
+
+Calibration on the ten wave-1 clays: every bowed mesh measured 2.3% to 18.6%
+bend, the twisted Claymore 31.9 degrees of twist, and the two acceptable
+results (Claymore attempt 2, straightened Sword) passed. The check does not
+detect an invented thick part such as the slab guard; end-on views still need a
+close look. Its midline assumes a roughly symmetric section, so an asymmetric
+knife reads as bent and the limits are advisory outside the long families.
+
+Straightening is a geometry change after generation. It needs the same user
+clay review as a generated attempt, on the straightened views, and the review
+record names the generated source, the map hash and the straightened mesh hash.
