@@ -18,8 +18,12 @@ SMOOTHING_SIGMA = 6.0
 MAX_PASSES = 4
 CONVERGED_PCT = .3
 # Advisory review limits. A flagged clay still goes to the user; it is never silently accepted or rejected.
-LIMITS = {'bendPctOfLength': 1.5, 'twistDegrees': 12.0, 'guardSkewDegrees': 6.0}
-LONG_FAMILIES = ('shortsword', 'longsword', 'greatsword', 'staff')
+LIMITS = {'bendPctOfLength': 1.5, 'twistDegrees': 12.0, 'guardSkewDegrees': 6.0,
+          'guardSectionRatio': 2.5,      # slab or plate guard: wave-1 slabs measured 3.1 and 3.6, bar guards 1.1 to 1.3
+          'bladeDepthToWidth': .5,       # wave 1: the Sword at 0.40 was accepted, the Claymore at 0.65 was called too thick
+          'splitBladeSlices': 2}         # gross delamination only; a hairline edge split still needs the end-on views
+THIN_FACTOR = .5
+LONG_FAMILIES =('shortsword', 'longsword', 'greatsword', 'staff')
 _KERNEL = np.exp(-.5 * (np.arange(-18, 19) / SMOOTHING_SIGMA) ** 2); _KERNEL /= _KERNEL.sum()
 
 
@@ -141,22 +145,131 @@ def measure(positions):
         doubled = np.convolve(doubled, np.ones(5) / 5, mode='valid')
         twist = float(np.degrees(np.ptp(doubled)))
     # Guard skew: the wide run's own long direction against the plane square to the weapon axis.
-    skew = None; guard = np.flatnonzero(wide)
+    skew = None; guard_section = None; guard = np.flatnonzero(wide)
+    # Split blade: a sound blade has two surfaces through its mid-width; a delaminated one shows four or more.
+    split = 0; major = int(np.argmax(np.nanmedian(extent[~wide], axis=0))); thin = 1 - major
+    for i, rows in enumerate(members):
+        if wide[i] or len(rows) < 100 or np.isnan(extent[i, 0]): continue
+        core = rows[np.abs(p[rows, 1 + major] - mid[i, major]) < .12 * extent[i, major]]
+        if len(core) < 40: continue
+        depth = np.sort(p[core, 1 + thin]); gaps = np.diff(depth)
+        if (gaps > .12 * extent[i, thin]).sum() >= 3: split += 1
     if len(guard):
         runs = np.split(guard, np.flatnonzero(np.diff(guard) > 1) + 1); run = max(runs, key=len)
         rows = np.concatenate([members[i] for i in run]); body = np.nanmedian(extent[~wide].max(1)) / 2
         centre = np.array([np.interp(centres[run].mean(), centres[~wide], mid[~wide, j]) for j in (0, 1)])
         radial = np.linalg.norm(p[rows, 1:] - centre, axis=1); arms = rows[radial > 1.5 * body]
         if len(arms) >= 200:
-            points = p[arms] - p[arms].mean(0); _, vectors = np.linalg.eigh(np.cov(points.T)); arm = vectors[:, -1]
+            points = p[arms] - p[arms].mean(0); values, vectors = np.linalg.eigh(np.cov(points.T)); arm = vectors[:, -1]
             if np.hypot(arm[1], arm[2]) > .5:                     # a real cross-guard, not a long collar
                 skew = float(np.degrees(np.arcsin(min(1., abs(arm[0])))))
-    return {'vertices': int(len(positions)), 'extents': [float(x) for x in extents],
+                # A bar guard has a compact cross-section; an invented plate or slab is far deeper one way than the other.
+                guard_section = float(np.sqrt(values[1] / max(values[0], 1e-18)))
+    blade = _blade_slices(wide); ratio = None
+    if blade is not None:
+        rows = [i for i in blade if not np.isnan(extent[i, 0])]
+        if len(rows) >= 20: ratio = float(np.median(extent[rows, thin] / extent[rows, major]))
+    return {'bladeDepthToWidth': ratio, 'vertices': int(len(positions)), 'extents': [float(x) for x in extents],
             'aspectRatio': float(length / max(extents[1], 1e-12)),
             'bendPctOfLength': float(history[0]), 'residualBendPctAfterStraightening': float(history[-1]) if len(history) > 1
             else float(history[0]), 'straighteningPasses': len(history),
             'twistDegrees': twist, 'flatSectionsMeasured': len(angles), 'guardSkewDegrees': skew,
-            'guardSlices': int(wide.sum())}
+            'guardSlices': int(wide.sum()), 'guardSectionRatio': guard_section, 'splitBladeSlices': int(split)}
+
+
+def _blade_slices(wide):
+    """Slice indices of the blade: the longer side of the cross-guard, clear of its blend. None without a guard."""
+    guard = np.flatnonzero(wide)
+    if not len(guard): return None
+    run = max(np.split(guard, np.flatnonzero(np.diff(guard) > 1) + 1), key=len)
+    below, above = np.arange(0, run[0]), np.arange(run[-1] + 1, len(wide))
+    side = below if len(below) > len(above) else above
+    return side[~wide[side]] if len(side) >= 20 else None
+
+
+def fit_thin(positions, target_ratio=None, factor=None):
+    """Measure a depth-only blade thinning map for an already straight mesh (thin after straightening, never before).
+
+    Generation makes blades two to three times too thick for their width. The map scales the blade about its own
+    mid-plane so its median depth-to-width ratio meets the target, ramping in over the guard blend so the guard,
+    grip and pommel are untouched. Width, length and outline do not change.
+
+    Give either an explicit depth `factor` or a `target_ratio`; with neither the blade is halved. Halving is the
+    reviewed default: on the wave-1 Claymore (0.65 as generated) the user rejected a 0.22 target as too thin and
+    chose half the original thickness.
+    """
+    _require(target_ratio is None or factor is None, 'Give a depth factor or a target ratio, not both')
+    if target_ratio is None and factor is None: factor = THIN_FACTOR
+    _require(factor is None or .2 <= factor <= 1, 'Blade depth factor must lie in [0.2, 1]')
+    _require(target_ratio is None or .05 <= target_ratio <= .6, 'Blade depth-to-width target must lie in [0.05, 0.6]')
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); p = (positions - mean) @ axes
+    centres, mid, extent, wide, _ = _sections(p); blade = _blade_slices(wide)
+    _require(blade is not None, 'No cross-guard found: the blade cannot be separated from the hilt automatically')
+    major = int(np.argmax(np.nanmedian(extent[~wide], axis=0))); thin = 1 - major
+    rows = np.array([i for i in blade if not np.isnan(extent[i, 0])]); _require(len(rows) >= 20, 'Too few blade sections')
+    current = float(np.median(extent[rows, thin] / extent[rows, major]))
+    if factor is None: factor = min(1., target_ratio / current)
+    factor = float(factor); target_ratio = current * factor
+    gain = np.ones(SLICES); gain[blade] = factor
+    # Ramp only across the guard's blend slices next to the blade root; the guard core, grip and pommel keep gain 1.
+    guard = np.flatnonzero(wide); run = max(np.split(guard, np.flatnonzero(np.diff(guard) > 1) + 1), key=len)
+    ramp = run[-4:] if blade[0] > run[-1] else run[:4][::-1]; t = (np.arange(len(ramp)) + 1) / (len(ramp) + 1)
+    gain[ramp] = 1 + (factor - 1) * (3 * t ** 2 - 2 * t ** 3)
+    known = ~np.isnan(mid[:, thin]); plane = np.interp(centres, centres[known], mid[known, thin])
+    plane = np.convolve(np.pad(plane, 18, mode='edge'), _KERNEL, mode='valid')
+    return ({'mean': mean, 'axes': axes, 'table': np.column_stack([centres, plane, gain]), 'axis': np.array(1 + thin)},
+            {'bladeDepthToWidthBefore': current, 'target': target_ratio, 'depthFactor': factor})
+
+
+def apply_thin(positions, mapping, normals=None):
+    positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']; k = int(mapping['axis'])
+    centres, plane, gain = mapping['table'].T; p = (positions - mean) @ axes
+    g = np.interp(p[:, 0], centres, gain); c = np.interp(p[:, 0], centres, plane); p[:, k] = c + (p[:, k] - c) * g
+    moved = p @ axes.T + mean
+    if normals is None: return moved
+    v = np.asarray(normals, float) @ axes; v[:, k] /= g; v = v @ axes.T        # inverse-transpose of the depth scale
+    return moved, v / np.linalg.norm(v, axis=1)[:, None]
+
+
+def load_thin(path):
+    with np.load(path, allow_pickle=False) as archive:
+        _require(set(archive.files) == {'mean', 'axes', 'table', 'axis'}, 'Unexpected thinning map')
+        mapping = {name: archive[name] for name in archive.files}
+    _require(mapping['mean'].shape == (3,) and mapping['axes'].shape == (3, 3) and mapping['table'].shape == (SLICES, 3)
+             and int(mapping['axis']) in (1, 2) and all(np.isfinite(v).all() for v in mapping.values())
+             and mapping['table'][:, 2].min() > .1 and mapping['table'][:, 2].max() <= 1 + 1e-9, 'Invalid thinning map')
+    return mapping
+
+
+def thin(source, output, map_path=None, target_ratio=None, factor=None):
+    """Write OUTPUT/thinned.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte."""
+    from tools.headkit.common import pin, write
+    from tools.headkit.gltf import encode, load, arrays
+    source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
+    source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
+    if map_path is None:
+        mapping, report = fit_thin(positions, target_ratio, factor); map_path = output / 'thin-map.npz'
+        with map_path.open('xb') as stream: np.savez(stream, **mapping)
+        mode = 'measured'
+    else: mapping, report, mode = load_thin(map_path), None, 'applied'
+    normals = attributes.get('NORMAL'); buffer = bytearray(binary)
+    if normals is None: moved = apply_thin(positions, mapping)
+    else: moved, turned = apply_thin(positions, mapping, normals)
+    _replace(document, buffer, primitive['attributes']['POSITION'], moved)
+    if normals is not None: _replace(document, buffer, primitive['attributes']['NORMAL'], turned)
+    target = output / 'thinned.glb'
+    with target.open('xb') as stream: stream.write(encode(document, bytes(buffer)))
+    after, after_faces, after_attributes = arrays(*load(target.read_bytes()))
+    _require(np.array_equal(after_faces, faces) and all(np.array_equal(after_attributes[name], attributes[name])
+             for name in attributes if name not in ('POSITION', 'NORMAL')), 'Thinning changed topology, UVs or other attributes')
+    before_metrics, after_metrics = measure(positions), measure(after)
+    result = {'source': source_pin, 'output': pin(target), 'map': dict(pin(map_path), mode=mode), 'fit': report,
+              'before': before_metrics, 'after': after_metrics, 'assessmentAfter': assess(after_metrics),
+              'maximumVertexMove': float(np.linalg.norm(moved - positions, axis=1).max()),
+              'outlineExtentsUnchanged': bool(np.allclose(np.sort(before_metrics['extents'])[1:], np.sort(after_metrics['extents'])[1:], rtol=2e-3)),
+              'method': 'depth-only scale of the blade about its mid-plane, smooth ramp at the guard; hilt untouched',
+              'visualReviewRequired': True}
+    write(output / 'thin.json', result, fresh=True); return result
 
 
 def assess(metrics, limits=None):
@@ -223,7 +336,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0]); commands = parser.add_subparsers(dest='command', required=True)
     c = commands.add_parser('check'); c.add_argument('mesh', type=Path); c.add_argument('--output', type=Path); c.add_argument('--family')
     c = commands.add_parser('straighten'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c = commands.add_parser('thin'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c.add_argument('--ratio', type=float, help='target blade depth-to-width ratio'); c.add_argument('--factor', type=float, help='explicit depth factor (default 0.5)')
     a = parser.parse_args(argv)
+    if a.command == 'thin':
+        result = thin(a.mesh, a.output, a.map, a.ratio, a.factor)
+        print(json.dumps({k: result[k] for k in ('output', 'map', 'fit', 'maximumVertexMove', 'outlineExtentsUnchanged', 'assessmentAfter')}, indent=2)); return 0
     if a.command == 'check':
         from tools.headkit.gltf import positions as read_positions
         metrics = measure(read_positions(a.mesh)[0]); result = {'mesh': str(a.mesh), 'metrics': metrics, 'assessment': assess(metrics)}

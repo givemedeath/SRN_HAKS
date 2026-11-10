@@ -323,3 +323,18 @@ knife reads as bent and the limits are advisory outside the long families.
 Straightening is a geometry change after generation. It needs the same user
 clay review as a generated attempt, on the straightened views, and the review
 record names the generated source, the map hash and the straightened mesh hash.
+
+Melee wave 1 follow-up: thickness, size and fitting (2026-11-10)
+
+| Mistake | Guard |
+| --- | --- |
+| Invented slab or plate guard passes the straightness check | `check` reports `guardSectionRatio`; above 2.5 is flagged (wave-1 slabs 3.1 and 3.6, bar guards 1.1 to 1.3). |
+| Blade far too thick for its width | `check` reports `bladeDepthToWidth`; above 0.5 is flagged. The Sword at 0.40 was accepted, the Claymore at 0.65 was called too thick. |
+| Thick blade sent back for a new seed | `python -m tools.itemkit.straightness thin MESH.glb OUT_DIR [--factor F \| --ratio R]` scales only the blade's depth about its mid-plane; guard, grip, pommel, width and length are untouched. The default halves the blade: on the Claymore the user rejected a 0.22 target as too thin and chose half. Thin after straightening, review the thinned views, and re-apply the saved map (`--map`) to the textured donor and working shell. |
+| Weapon overscaled by a strict pommel-to-guard hand span | `autofit.grip_start_for_length` extends the hand span into the pommel so the weapon matches the stock carrier's length. The Sword came out 1.26 m, was sent back, and was accepted at 1.10 m. |
+| Part cut lands on mesh vertices and the part fails its closed-solid check | `autofit.clear_cut` moves each cut up to 0.3 mm to the plane farthest from any vertex. |
+| Cut rims of a 200K shell exceed the per-part triangle budgets | `autofit.thin_shell` collapses the closed working shell to 40,000 triangles (same genus, within 0.25% of the length) before fitting. |
+| Hand-picked grip endpoints, joins and probes per design | `autofit.landmarks` finds pommel, grip, guard and blade from a straight shell, by cross-guard or, for a knife, by the thin blade run. |
+
+`splitBladeSlices` only catches gross delamination: the Claymore's hairline edge split near the tip scored 1 and was
+not flagged, so end-on views still decide. Halving the blade also closed that split visually.

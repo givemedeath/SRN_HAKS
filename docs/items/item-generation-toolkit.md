@@ -376,6 +376,14 @@ stay in the generated frame, so re-apply the saved map with `--map` to the
 textured donor and working shell before fitting. See the wave-1 section of
 `four-weapon-lessons.md` for calibration and limits.
 
+The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
+(`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default
+(`--factor` or `--ratio` to choose); it runs after straightening and its map carries
+to the donor and shell the same way. `tools/itemkit/autofit.py` measures the fit
+inputs from a straight shell: landmarks, a grip span sized to the stock carrier
+length, vertex-free part cuts and a 40,000-triangle working shell. These measure
+and never approve; hand-fit review on both Human bodies is unchanged.
+
 ## Native and geometry contracts
 
 The supplied profile remains `pending-contract` until the actual effective content
