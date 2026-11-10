@@ -162,6 +162,17 @@ void main() {
         'ExecuteScript("'+previous+'",GetModule());' if previous else '')
 
 
+HEARTBEAT_ITEM = re.compile(r'GetItemPossessedBy\(OBJECT_SELF,"([a-z0-9_]{1,16})"\)')
+
+
+def retarget_heartbeat(script, item_name):
+    """Point the inherited motion heartbeat at this design, whatever donor it held."""
+    from .contracts import resref
+    item_name = resref(item_name)
+    require(len(HEARTBEAT_ITEM.findall(script)) == 1, 'Fixture heartbeat must hold exactly one reviewed item')
+    return HEARTBEAT_ITEM.sub('GetItemPossessedBy(OBJECT_SELF,"'+item_name+'")', script)
+
+
 def build(manifest_path, manifest, native, local, output):
     from tools.phenotypes import tool_runtime
     output = Path(output).resolve(); output.mkdir(); resources = output/'module-resources'; resources.mkdir()
@@ -256,8 +267,9 @@ def build(manifest_path, manifest, native, local, output):
                           '-o', resources/'sr_it_enter.ncs', script_path])
     heartbeat = resources/'sr_it_hb.nss'
     if heartbeat.exists():
-        # The inherited motion fixture must re-equip this design, not its donor sword.
-        heartbeat.write_text(heartbeat.read_text(encoding='ascii').replace('"sr_cougar"', '"'+item_name+'"'), encoding='ascii')
+        # The inherited motion fixture must re-equip this design, not its donor item
+        # (templates have carried both the Cougar sword and the Colt pistol).
+        heartbeat.write_text(retarget_heartbeat(heartbeat.read_text(encoding='ascii'), item_name), encoding='ascii')
         run('nwn_script_comp', ['--root', compiler_root, '--no-keys', '--no-ovr', '--userdirectory', compiler_user,
                               '--dirs', include, '-o', resources/'sr_it_hb.ncs', heartbeat])
     userdir = output/'userdir'; (userdir/'modules').mkdir(parents=True); (userdir/'hak').mkdir()
