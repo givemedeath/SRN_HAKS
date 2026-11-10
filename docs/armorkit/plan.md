@@ -285,3 +285,25 @@ None. The eight raised with the draft were settled on 2026-11-09 and are decisio
   remove it.
 * Part numbers and tables are global to a module. Any other provider of the same tables must be removed or
   merged.
+
+## Revision 2026-11-10: wider number blocks
+
+The user asked for wider part-number blocks, accessories most of all, because the item field holds numbers up
+to 65535. This replaces the block table under [Part rules](#part-rules) and the example in decision 15; the
+rest of the plan stands. Nothing had been numbered under the old blocks.
+
+| Block | Use |
+|---|---|
+| 300–2999 | Shared accessories (neck, belt, shoulder items not tied to a set) |
+| 3000–3999 | Civilian |
+| 4000–4999 | Workwear |
+| 5000–5999 | Corporate / business |
+| 6000–6999 | Security and law enforcement |
+| 7000–7999 | Runner and role gear (decker, rigger, samurai, mage) |
+| 8000–8999 | Gangs, syndicates, FRFZ |
+| 9000+ | Heavy kits and overflow |
+
+Stock rows 0–200, stock models to 255 and the 256–299 buffer are unchanged. A table is padded up to its highest
+part number, so a table that uses the top of the range has about 9,000 rows. The exact widths were chosen while
+carrying out Phase 0 and are open to the user's correction; the result of the client proof for numbers in these
+ranges is in [spikes.md](spikes.md).
