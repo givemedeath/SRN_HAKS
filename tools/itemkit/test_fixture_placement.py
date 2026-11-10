@@ -4,10 +4,19 @@ import unittest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
-from tools.itemkit.fixture import field, place_review_actors, entry_script, audit_module_payload, require_unshadowed, gff_float
+from tools.itemkit.fixture import (field, place_review_actors, entry_script, audit_module_payload, require_unshadowed,
+                                   gff_float, retarget_heartbeat)
 
 
 class PlacementTests(unittest.TestCase):
+    def test_heartbeat_retargets_any_donor_item(self):
+        line = 'object blade=GetItemPossessedBy(OBJECT_SELF,"{}"); Gear("SHIELD","nw_ashlw001");'
+        for donor in ('sr_cougar', 'sr_cl36_1'):
+            self.assertEqual(retarget_heartbeat(line.format(donor), 'sr3ab64906_5'), line.format('sr3ab64906_5'))
+        with self.assertRaises(ValueError): retarget_heartbeat('void main(){}', 'sr_cfs')
+        with self.assertRaises(ValueError): retarget_heartbeat(line.format('a')+line.format('b'), 'sr_cfs')
+        with self.assertRaises(ValueError): retarget_heartbeat(line.format('sr_cougar'), 'bad"resref')
+
     def test_module_payload_rejects_changed_missing_and_extra_resources(self):
         with tempfile.TemporaryDirectory() as tmp:
             source, extracted = Path(tmp)/'source', Path(tmp)/'extracted'
