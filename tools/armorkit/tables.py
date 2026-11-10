@@ -71,15 +71,21 @@ def generate_all(stock, parts):
 
 
 def check(table, text, parts, stock_text=None):
-    """Fail on a gap, a duplicate, a registry part without a live row, or a live row no part owns."""
+    """Fail on a gap, a duplicate, a registry part without a live row, a live row no part owns, a part in the
+    stock or buffer range and, given the stock text, on a changed stock row or column row."""
+    require(table in TABLE_SLOT, 'Unknown parts table ' + str(table))
     columns, rows = parse(text)  # parse rejects gaps and duplicate or missing indices
     stock = STOCK_ROWS[table]
+    require(columns[:2] == ['COSTMODIFIER', 'ACBONUS'], table + ': unexpected columns')
     require(len(rows) >= stock, table + ': stock rows are missing')
     if stock_text is not None:
-        require(parse(stock_text)[1] == rows[:stock], table + ': a stock row changed')
+        stock_columns, stock_rows = parse(stock_text)
+        require(stock_columns == columns, table + ': the column row differs from stock')
+        require(stock_rows == rows[:stock], table + ': a stock row changed')
     slot = TABLE_SLOT[table]
     wanted = registry.numbers(parts, slot)
     require(len(set(wanted)) == len(wanted), table + ': duplicate part number in the registry')
+    require(all(number >= registry.FIRST_NUMBER for number in wanted), table + ': a registry part reuses a stock or buffer row')
     by_number = {part['number']: part for part in parts if part['slot'] == slot}
     for number in wanted:
         require(number < len(rows), f'{table}: registry part {number} has no row')

@@ -36,6 +36,13 @@
     "tools/armorkit/tables.py": [
       "tools/armorkit/registry.py"
     ],
+    "tools/armorkit/test_cli.py": [
+      "tools/armorkit/__main__.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/examples/registry.json",
+      "tools/armorkit/registry.py"
+    ],
     "tools/armorkit/test_client_fixture.py": [
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
@@ -4786,10 +4793,6 @@
   },
   "unresolved": [],
   "packReferences": {
-    "tools/armorkit/test_client_fixture.py": [
-      "srn_2da",
-      "srn_body"
-    ],
     "tools/armorkit/test_measure.py": [
       "srn_body",
       "srn_head"
@@ -4911,6 +4914,7 @@
     ]
   },
   "tests": [
+    "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
     "tools/armorkit/test_measure.py",
     "tools/armorkit/test_registry.py",

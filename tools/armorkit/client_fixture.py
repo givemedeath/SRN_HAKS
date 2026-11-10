@@ -1,12 +1,14 @@
 """Build an isolated client fixture: a throwaway hak and module in a fresh user directory.
 
-Grown from the Phase 0 spike scripts (docs/armorkit/spikes.md). A fixture never touches the repository
-packs or the player's own game folders: everything it needs is copied into its own user directory, the
-client is started on it with `-userdirectory <dir> +TestNewModule <name>`, and the scripts write
+Grown from the Phase 0 spike scripts (docs/armorkit/spikes.md). A fixture never changes the repository
+packs or the player's own game folders: everything it needs is placed in its own user directory (packs
+as hard links where the volume allows, which the client only reads; their hashes go into the record),
+the client is started on it with `-userdirectory <dir> +TestNewModule <name>`, and the scripts write
 `ARMORKIT ...` log lines that serve as evidence. The game install is an explicit argument; no machine
 path lives here.
 """
 import copy
+import hashlib
 import json
 import math
 import os
@@ -29,7 +31,14 @@ CREATURE_COLOURS = {'skin': 0, 'hair': 1, 'tattoo1': 2, 'tattoo2': 3}
 TEMPLATE_CREATURE = 'nw_humanmerc001.utc'
 TEMPLATE_TILESET = 'ttr01'
 FLAT_TILE = 120
-NAME = re.compile(r'[a-z][a-z0-9_]{0,11}')
+# Eleven characters: the fixture's own resources add up to five (`<name>_edge`) and resource names stop at 16.
+NAME = re.compile(r'[a-z][a-z0-9_]{0,10}')
+RESREF = 16
+START = 8.0  # seconds after the player enters before the first shot
+HOLD = 3.0  # seconds the game stays on each shot before it moves to the next
+ACTOR_KEYS = {'label', 'body', 'position', 'facing', 'appearance', 'race', 'head', 'bare', 'item', 'parts', 'colours',
+              'partColours', 'bodyColours', 'script', 'vars'}
+SHOT_KEYS = {'actor', 'facing', 'distance', 'pitch', 'height'}
 NAKED = {slot: 1 if slot in registry.FITTED or slot == 'neck' else 0 for slot in registry.SLOTS}
 
 SPAWN_SCRIPT = '''object Modify(object it,int type,int index,int value) {
@@ -74,6 +83,7 @@ def gff_float(value):
 
 
 def variable(name, value):
+    require(type(value) in (int, float, str), f'Actor variable {name} must be a whole number, a number or text')
     kind, code = {int: ('int', 1), float: ('float', 2), str: ('cexostring', 3)}[type(value)]
     return {'__struct_id': 0, 'Name': field('cexostring', name), 'Type': field('dword', code), 'Value': field(kind, value)}
 
@@ -89,8 +99,12 @@ def model_indices(key):
 
 def actor_variables(actor):
     """Local variables the spawn script reads. Values are stored plus one so that zero means unset."""
+    require(isinstance(actor, dict) and set(actor) <= ACTOR_KEYS, 'Actor keys are ' + ', '.join(sorted(ACTOR_KEYS)))
+    for key in ('parts', 'colours', 'partColours', 'bodyColours', 'vars'):
+        require(isinstance(actor.get(key, {}), dict), f'Actor {key} must be an object')
     values = {}
-    if actor.get('head'):
+    if 'head' in actor:  # the script reads zero as "keep head 1", so zero is not a head number
+        require(type(actor['head']) is int and 1 <= actor['head'] <= 255, 'Actor head must be a head number 1-255')
         values['AK_HEAD'] = actor['head']
     if actor.get('bare'):
         values['AK_BARE'] = 1
@@ -106,6 +120,7 @@ def actor_variables(actor):
         require(channel in COLOURS and type(shade) is int and 0 <= shade <= 175, 'Armor colours are channel: 0-175')
         values[f'AK_C{COLOURS[channel]}'] = shade + 1
     for key, colours in actor.get('partColours', {}).items():
+        require(isinstance(colours, dict), f'{key}: part colours are channel: 0-175')
         for index in model_indices(key):
             for channel, shade in colours.items():
                 require(channel in COLOURS and type(shade) is int and 0 <= shade <= 175, 'Armor colours are channel: 0-175')
@@ -116,7 +131,8 @@ def actor_variables(actor):
     if actor.get('script'):
         values['AK_SCRIPT'] = registry_resref(actor['script'])
     for name, value in actor.get('vars', {}).items():
-        require(re.fullmatch(r'[A-Z][A-Z0-9_]{0,30}', name) and not name.startswith('AK_'), 'Unsafe actor variable ' + name)
+        require(isinstance(name, str) and re.fullmatch(r'[A-Z][A-Z0-9_]{0,30}', name) and not name.startswith('AK_'),
+                'Unsafe actor variable ' + str(name))
         values[name] = value
     return [variable(name, value) for name, value in sorted(values.items())]
 
@@ -127,13 +143,18 @@ def registry_resref(name):
 
 
 def actor_tag(name, index):
-    return f'{name}_a{index}'
+    tag = f'{name}_a{index}'
+    require(len(tag) <= RESREF, 'Too many actors for a fixture name this long: ' + tag)
+    return tag
 
 
 def creature(template, actor, name, index):
     """A placed creature from the stock template: no scripts but the fixture's, no gear, plot."""
+    require(isinstance(actor, dict) and {'label', 'body', 'position'} <= set(actor), 'An actor needs label, body and position')
     body = actor['body']
-    require(body in registry.BODIES, 'Actor body must be one of the 20 SRN bodies, or give appearance/race explicitly')
+    require(isinstance(body, str) and body in registry.BODIES, 'Actor body must be one of the 20 SRN bodies')
+    require(isinstance(actor['label'], str) and isinstance(actor['position'], (list, tuple)) and len(actor['position']) == 2,
+            'Actor label is text and position is [x, y]')
     race = SRN_RACES[body[2]] | {key: actor[key] for key in ('appearance', 'race') if key in actor}
     c = copy.deepcopy(template)
     c.pop('__data_type', None)
@@ -156,31 +177,39 @@ def creature(template, actor, name, index):
     return c
 
 
-def enter_script(name, shots, start=8.0, hold=3.0):
+def enter_script(name, shots, start=START, hold=HOLD):
     """The module entry script: hide the player, then step the camera through `shots`.
 
     Each shot attaches the camera to an actor (by index) and logs `ARMORKIT shot=<n>` once it is set, so
-    a driver can capture the window after each line. Facing 90 looks north, at the front of an actor
-    placed with the default facing."""
-    lines = ['void Shot(object pc,int n,string tag,float facing,float distance,float pitch,float height) {',
-             '  object t=GetObjectByTag(tag); if(GetIsObjectValid(t)) AttachCamera(pc,t);',
-             '  SetCameraHeight(pc,height); AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));',
-             '  WriteTimestampedLogEntry("ARMORKIT shot="+IntToString(n)+" target="+tag+" valid="+IntToString(GetIsObjectValid(t)));',
-             '}',
-             'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;',
-             '  SetCameraLimits(pc,1.0,89.0,0.5,40.0);',
-             '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
-             '  SetCutsceneMode(pc,TRUE,FALSE);',
-             '  WriteTimestampedLogEntry("ARMORKIT enter shots=' + str(len(shots)) + '");']
-    if shots:  # attach once ahead of the first shot, so its capture is not taken before the camera has moved
-        lines.append(f'  DelayCommand({start - 3.0:.1f},AttachCamera(pc,GetObjectByTag("{actor_tag(name, shots[0].get("actor", 0))}")));')
+    a driver can capture the window after each line. A shot schedules the next one itself, `hold` seconds
+    after it fired, so the game stays that long on every shot even after a stall (shots laid out on the
+    clock up front fire back to back once the client catches up). Facing 90 looks north, at the front of
+    an actor placed with the default facing."""
+    require(isinstance(shots, list) and start >= 3.0 and hold > 0, 'Shots are a list; start is at least 3 s and hold positive')
+    lines = ['void Shot(object pc,int n) {',
+             f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("ARMORKIT done"); return; }}',
+             '  string tag; float facing; float distance; float pitch; float height;']
     for index, shot in enumerate(shots):
-        require(set(shot) <= {'actor', 'facing', 'distance', 'pitch', 'height'} and type(shot.get('actor')) is int,
+        require(isinstance(shot, dict) and set(shot) <= SHOT_KEYS and type(shot.get('actor')) is int and shot['actor'] >= 0
+                and all(type(shot[key]) in (int, float) for key in SHOT_KEYS - {'actor'} if key in shot),
                 'A shot is {actor, facing, distance, pitch, height}')
-        values = ','.join(f'{float(shot.get(key, default)):.3f}' for key, default in
-                          (('facing', 90.0), ('distance', 5.0), ('pitch', 84.0), ('height', 0.0)))
-        lines.append(f'  DelayCommand({start + index * hold:.1f},Shot(pc,{index},"{actor_tag(name, shot["actor"])}",{values}));')
-    lines.append(f'  DelayCommand({start + len(shots) * hold:.1f},WriteTimestampedLogEntry("ARMORKIT done"));')
+        facing, distance, pitch, height = (f'{float(shot.get(key, default)):.3f}' for key, default in
+                                           (('facing', 90.0), ('distance', 5.0), ('pitch', 84.0), ('height', 0.0)))
+        lines.append(f'  if(n=={index}) {{ tag="{actor_tag(name, shot["actor"])}"; facing={facing}; distance={distance}; '
+                     f'pitch={pitch}; height={height}; }}')
+    lines += ['  object t=GetObjectByTag(tag); if(GetIsObjectValid(t)) AttachCamera(pc,t);',
+              '  SetCameraHeight(pc,height); AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));',
+              '  WriteTimestampedLogEntry("ARMORKIT shot="+IntToString(n)+" target="+tag+" valid="+IntToString(GetIsObjectValid(t)));',
+              f'  DelayCommand({hold:.1f},Shot(pc,n+1));',
+              '}',
+              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;',
+              '  SetCameraLimits(pc,1.0,89.0,0.5,40.0);',
+              '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
+              '  SetCutsceneMode(pc,TRUE,FALSE);',
+              '  WriteTimestampedLogEntry("ARMORKIT enter shots=' + str(len(shots)) + '");']
+    if shots:  # attach once ahead of the first shot, so its capture is not taken before the camera has moved
+        lines.append(f'  DelayCommand({start - 3.0:.1f},AttachCamera(pc,GetObjectByTag("{actor_tag(name, shots[0]["actor"])}")));')
+    lines.append(f'  DelayCommand({start:.1f},Shot(pc,0));')
     return '\n'.join(lines + ['}']) + '\n'
 
 
@@ -246,33 +275,60 @@ def row(actors_per_row, index, spacing=1.9, origin=(34.0, 40.0), depth=4.0):
 
 
 def place(source, target):
-    """Put a built pack in the fixture: a hard link where the volume allows (the client only reads it), else a copy."""
+    """Put a built pack in the fixture: a hard link where the volume allows (the client only reads it), else a copy.
+
+    The target must be new. Copying onto an existing hard link would write through it into the pack it links to."""
+    require(not Path(target).exists(), f'Fixture file already exists: {Path(target).name}')
     try:
         os.link(source, target)
     except OSError:
         shutil.copyfile(source, target)
 
 
+def digest(path):
+    """SHA-256 of a file, read in pieces (packs run to hundreds of megabytes)."""
+    sha = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for piece in iter(lambda: stream.read(1 << 20), b''):
+            sha.update(piece)
+    return sha.hexdigest()
+
+
 def build(spec, output, nwn_root, *, tools_directory=None):
     """Write the fixture's user directory under a fresh `output` folder and return its record.
 
     spec: name (short resref), resources (folder packed into the fixture hak, may be absent), haks (built
-    packs to copy in, lowest priority last), tlk (optional file), actors, shots, scripts ({resref: NSS text}),
-    blueprints ({resref: {template: stock item resref, fields: {GFF label: [type, value]}}}; an actor wears one
-    through its `item` key).
+    packs to place in the fixture, lowest priority last), tlk (optional file), actors, shots, scripts
+    ({resref: NSS text}), blueprints ({resref: {template: stock item resref, fields: {GFF label: [type, value]}}};
+    an actor wears one through its `item` key), start and hold (seconds before the first shot and on each shot).
+    Everything that can be checked is checked before the output folder is made.
     """
     from tools.phenotypes import tool_runtime
-    name = spec['name']
-    require(NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 12 characters')
-    require(set(spec) <= {'name', 'resources', 'haks', 'tlk', 'actors', 'shots', 'scripts', 'blueprints', 'entry', 'size'},
-            'Unknown fixture keys')
+    require(isinstance(spec, dict) and set(spec) <= {'name', 'resources', 'haks', 'tlk', 'actors', 'shots', 'scripts',
+                                                     'blueprints', 'entry', 'size', 'start', 'hold'}, 'Unknown fixture keys')
+    name = spec.get('name')
+    require(isinstance(name, str) and NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 11 characters')
+    actors, shots = spec.get('actors'), spec.get('shots', [])
+    require(isinstance(actors, list) and actors, 'A fixture needs at least one actor')
+    start, hold = spec.get('start', START), spec.get('hold', HOLD)
+    require(all(type(value) in (int, float) for value in (start, hold)), 'start and hold are seconds')
+    scripts = {name + '_sp': SPAWN_SCRIPT, name + '_en': enter_script(name, shots, start, hold),
+               **{registry_resref(key): text for key, text in spec.get('scripts', {}).items()}}
+    require(all(shot['actor'] < len(actors) for shot in shots), 'A shot names an actor that does not exist')
+    actor_tag(name, len(actors) - 1)
+    sources = [Path(source) for source in spec.get('haks', ())]
+    for source in sources:
+        require(source.suffix == '.hak' and registry_resref(source.stem) != name and source.is_file(),
+                f'Fixture haks are existing .hak files with resref names: {source.name}')
+    require(len({source.stem for source in sources}) == len(sources), 'Two fixture haks share a name')
+    root = Path(nwn_root)
+    require((root / 'data').is_dir(), 'The game install folder is required (the one holding data/)')
     output = Path(output).resolve()
+    require(not output.exists(), f'A fixture is built into a fresh folder; this one exists (remove a failed build first): {output.name}')
     output.mkdir(parents=True)
     user, staged, documents, binary, stock = (output / part for part in ('userdir', 'hak-resources', 'json', 'module', 'stock'))
     for folder in (user / 'hak', user / 'modules', user / 'override', user / 'tlk', staged, documents, binary, stock):
         folder.mkdir(parents=True)
-    root = Path(nwn_root)
-    require((root / 'data').is_dir(), 'The game install folder is required (the one holding data/)')
     common = ['--root', root, '--userdirectory', user, '--no-ovr']
     tools = {}
 
@@ -289,27 +345,24 @@ def build(spec, output, nwn_root, *, tools_directory=None):
         (stock / resource).write_bytes(data)
         return data
 
-    haks = []
-    for source in spec.get('haks', ()):
-        source = Path(source)
-        require(source.suffix == '.hak' and registry_resref(source.stem) != name, 'Fixture haks are .hak files with resref names')
+    haks, digests = [], {}
+    for source in sources:
         place(source, user / 'hak' / source.name)
         haks.append(source.stem)
+        digests[source.stem] = digest(source)
     tlk = None
     if spec.get('tlk'):
         tlk = registry_resref(Path(spec['tlk']).stem)
         shutil.copyfile(spec['tlk'], user / 'tlk' / Path(spec['tlk']).name)
     if spec.get('resources'):
         for path in sorted(Path(spec['resources']).iterdir()):
-            require(path.is_file() and len(path.stem) <= 16 and path.name == path.name.lower(), 'Hak resources are lowercase resref files: ' + path.name)
+            require(path.is_file() and len(path.stem) <= RESREF and path.name == path.name.lower(), 'Hak resources are lowercase resref files: ' + path.name)
             shutil.copyfile(path, staged / path.name)
     (staged / (name + '.set')).write_text(tileset(installed(TEMPLATE_TILESET + '.set').decode('cp1252'), name), encoding='cp1252', newline='')
     (staged / (name + '_edge.2da')).write_bytes(installed(TEMPLATE_TILESET + '_edge.2da'))
     hak = user / 'hak' / (name + '.hak')
     run('nwn_erf', ['-c', '-f', hak, '-e', 'HAK', staged])
 
-    scripts = {name + '_sp': SPAWN_SCRIPT, name + '_en': enter_script(name, spec.get('shots', [])),
-               **{registry_resref(key): text for key, text in spec.get('scripts', {}).items()}}
     for resref, text in scripts.items():
         source = binary / (resref + '.nss')
         source.write_text(text, encoding='ascii', newline='\n')
@@ -328,7 +381,7 @@ def build(spec, output, nwn_root, *, tools_directory=None):
     installed(TEMPLATE_CREATURE)
     run('nwn_gff', ['-i', stock / TEMPLATE_CREATURE, '-o', stock / (TEMPLATE_CREATURE + '.json')])
     template = json.loads((stock / (TEMPLATE_CREATURE + '.json')).read_text(encoding='utf-8'))
-    creatures = [creature(template, actor, name, index) for index, actor in enumerate(spec['actors'])]
+    creatures = [creature(template, actor, name, index) for index, actor in enumerate(actors)]
     for filename, document in {**area_documents(name, creatures, spec.get('size', 8)),
                                **module_documents(name, haks, tlk, spec.get('entry', (40.0, 30.0)))}.items():
         path = documents / (filename + '.json')
@@ -337,8 +390,9 @@ def build(spec, output, nwn_root, *, tools_directory=None):
     module = user / 'modules' / (name + '.mod')
     run('nwn_erf', ['-c', '-f', module, '-e', 'MOD', binary])
     record = {'name': name, 'userDirectory': str(user), 'module': module.name, 'hak': hak.name, 'haks': haks,
+              'hakDigests': digests,
               'actors': [{'tag': actor_tag(name, index), 'label': actor['label'], 'body': actor['body']}
-                         for index, actor in enumerate(spec['actors'])],
-              'shots': len(spec.get('shots', [])), 'clientValidated': False}
+                         for index, actor in enumerate(actors)],
+              'shots': len(shots), 'start': start, 'hold': hold, 'clientValidated': False}
     (output / 'fixture.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
     return record

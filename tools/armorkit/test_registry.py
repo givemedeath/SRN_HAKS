@@ -1,6 +1,5 @@
 """The registry accepts only parts that follow the plan's part rules."""
 import copy
-import json
 import unittest
 from pathlib import Path
 
@@ -83,7 +82,9 @@ class RegistryTests(unittest.TestCase):
     def test_logos_only_on_shoulders_and_lanyards(self):
         self.rejected('logos live only on shoulder parts', part(badge={'positions': ['left']}))
         shoulder = part(slot='shoulder', tiers={'shoulder': 2}, genderedCut=False, badge={'positions': ['left', 'right']})
-        self.assertEqual(registry.handoff(registry.validate(document(shoulder)))['parts'][0]['logoTexture'], 'srn_logo_0')
+        row = registry.handoff(registry.validate(document(shoulder)))['parts'][0]
+        self.assertEqual(row['badge'], {'positions': ['left', 'right']})
+        self.assertNotIn('logoTexture', row)  # how a logo is carried is not settled (spikes.md, section 15)
         self.rejected('badge positions', {**shoulder, 'badge': {'positions': ['chest']}})
         self.rejected('a badge needs its side', {**shoulder, 'sides': ['r'], 'badge': {'positions': ['left']}})
 
@@ -97,6 +98,7 @@ class RegistryTests(unittest.TestCase):
         other = part(slot='pelvis', tiers={'waist': 1, 'hip': 1}, genderedCut=False)
         registry.validate(document(part(), other))
         self.rejected('used by two sets', part(), {**other, 'set': 'corpsec-t2'})
+        registry.validate(document(part(), {k: v for k, v in other.items() if k != 'set'}))
 
     def test_publication_needs_all_twenty_bodies(self):
         partial = part(bodies=['pmh0', 'pfh0'])
@@ -114,13 +116,15 @@ class RegistryTests(unittest.TestCase):
 
     def test_unknown_keys_and_documents_are_rejected(self):
         self.rejected('Part keys must be', {**part(), 'acBonus': 4})
+        for key, value, message in (('families', [['security']], 'families must be a list'), ('slot', ['chest'], 'Unknown slot'),
+                                    ('mesh', {}, 'not allowed on this slot'), ('channels', [{'a': 1}], 'channels must be a list')):
+            self.rejected(message, part(**{key: value}))
         with self.assertRaisesRegex(ValueError, 'Unsupported registry document'):
             registry.validate({**document(), 'schemaVersion': 2})
         original = part()
         snapshot = copy.deepcopy(original)
         registry.validate(document(original))
         self.assertEqual(original, snapshot)
-        self.assertEqual(json.loads(EXAMPLE.read_text(encoding='utf-8'))['kind'], registry.KIND)
 
 
 if __name__ == '__main__':

@@ -1,10 +1,11 @@
 """The seam contract: where rigid parts meet, which one lies over the other, and how much room each tier gets.
 
-Parts meet at eight joints. Each joint has a fixed plane through the child bone, a fixed layering order
-(the part nearer the torso lies over the other; the chest lies over everything it touches) and, per
-tier, an envelope around the body's own ring at that plane plus a minimum overlap for the under end
+Parts meet at eight joints. Each joint has a fixed plane through a bone at the joint, a fixed layering
+order (the part nearer the torso lies over the other; the chest lies over everything it touches) and,
+per tier, an envelope around the body's own ring at that plane plus a minimum overlap for the under end
 (docs/armorkit/plan.md, "Seam rules"). The numbers are measured on the locked Human Fit bodies by
-`measure` and frozen in seam-contract.json; `load_contract` and `mixes` are what the gates use.
+`measure` and frozen in seam-contract.json; `load_contract`, `envelope`, `overlap` and `mixes` are what
+the gates use.
 """
 import json
 import math
@@ -20,24 +21,32 @@ KIND = 'srn-armorkit-seam-contract'
 DIRECTIONS = 16
 # Room each tier gets outside the body's ring, in metres: skin-tight, cloth, padded or armored, heavy.
 # Stock Human clothing sits 0-1 cm off the body at the joints, flared cuffs and boots 3-7 cm (seam-contract.md).
+# These are what `measure` writes into a new contract; a frozen contract carries its own `tierOffsets`.
 TIER_OFFSETS = {0: 0.004, 1: 0.012, 2: 0.025, 3: 0.05}
-# joint: over slot, under slot, bone at the joint centre, the two bones whose line is the plane normal
-# (pointing from the over part into the under part), and the bone whose rotation opens the seam.
-# Paired joints are measured on the left side; `{}` takes the side letter.
+DESIGN_BENDS = ('p95', 'p99', 'max')  # the swing statistic a contract may build its minimum overlap on
+AUTHORING_BODIES = ('pmh0', 'pfh0')  # every contract holds at least these
+TOLERANCE = 0.0005  # stored tier numbers may differ this much from their recomputed value (inputs are rounded)
+# joint: over slot, under slot, bone at the joint centre, and the two bones whose line is the plane normal
+# (pointing from the over part into the under part). `{}` takes the side letter of a paired joint.
 JOINTS = {
-    'neck': {'over': 'chest', 'under': 'neck', 'centre': 'neck_g', 'axis': None, 'normal': (0.0, 0.0, 1.0), 'moving': 'neck_g'},
-    'shoulder': {'over': 'chest', 'under': 'bicep', 'centre': '{}bicep_g', 'axis': ('{}bicep_g', '{}forearm_g'), 'moving': '{}bicep_g'},
-    'elbow': {'over': 'bicep', 'under': 'forearm', 'centre': '{}forearm_g', 'axis': ('{}bicep_g', '{}forearm_g'), 'moving': '{}forearm_g'},
-    'wrist': {'over': 'forearm', 'under': 'hand', 'centre': '{}hand_g', 'axis': ('{}forearm_g', '{}hand_g'), 'moving': '{}hand_g'},
-    'waist': {'over': 'chest', 'under': 'pelvis', 'centre': 'torso_g', 'axis': None, 'normal': (0.0, 0.0, -1.0), 'moving': 'torso_g'},
-    'hip': {'over': 'pelvis', 'under': 'thigh', 'centre': '{}thigh_g', 'axis': ('{}thigh_g', '{}shin_g'), 'moving': '{}thigh_g'},
-    'knee': {'over': 'thigh', 'under': 'shin', 'centre': '{}shin_g', 'axis': ('{}thigh_g', '{}shin_g'), 'moving': '{}shin_g'},
-    'ankle': {'over': 'shin', 'under': 'foot', 'centre': '{}foot_g', 'axis': ('{}shin_g', '{}foot_g'), 'moving': '{}foot_g'},
+    'neck': {'over': 'chest', 'under': 'neck', 'centre': 'neck_g', 'axis': None, 'normal': (0.0, 0.0, 1.0)},
+    'shoulder': {'over': 'chest', 'under': 'bicep', 'centre': '{}bicep_g', 'axis': ('{}bicep_g', '{}forearm_g')},
+    'elbow': {'over': 'bicep', 'under': 'forearm', 'centre': '{}forearm_g', 'axis': ('{}bicep_g', '{}forearm_g')},
+    'wrist': {'over': 'forearm', 'under': 'hand', 'centre': '{}hand_g', 'axis': ('{}forearm_g', '{}hand_g')},
+    'waist': {'over': 'chest', 'under': 'pelvis', 'centre': 'torso_g', 'axis': None, 'normal': (0.0, 0.0, -1.0)},
+    'hip': {'over': 'pelvis', 'under': 'thigh', 'centre': '{}thigh_g', 'axis': ('{}thigh_g', '{}shin_g')},
+    'knee': {'over': 'thigh', 'under': 'shin', 'centre': '{}shin_g', 'axis': ('{}thigh_g', '{}shin_g')},
+    'ankle': {'over': 'shin', 'under': 'foot', 'centre': '{}foot_g', 'axis': ('{}shin_g', '{}foot_g')},
 }
 BONES = {'neck': 'neck_g', 'chest': 'torso_g', 'pelvis': 'pelvis_g', 'bicepl': 'lbicep_g', 'bicepr': 'rbicep_g',
          'forel': 'lforearm_g', 'forer': 'rforearm_g', 'handl': 'lhand_g', 'handr': 'rhand_g', 'legl': 'lthigh_g',
          'legr': 'rthigh_g', 'shinl': 'lshin_g', 'shinr': 'rshin_g', 'footl': 'lfoot_g', 'footr': 'rfoot_g',
          'belt': 'belt_g', 'shol': 'lshoulder_g', 'shor': 'rshoulder_g'}
+
+
+def sides(joint):
+    """The sides a joint is recorded on: left and right for a limb joint, `c` for the neck and waist."""
+    return ('l', 'r') if '{}' in JOINTS[joint]['centre'] else ('c',)
 
 
 def unit(vector):
@@ -48,7 +57,10 @@ def unit(vector):
 
 
 def frame(normal):
-    """Two in-plane unit axes for a plane normal: u as close to body left-right (X) as the plane allows, v = n x u."""
+    """Two in-plane unit axes for a plane normal: u as close to body left-right (X) as the plane allows, v = n x u.
+
+    The axes are in body space on both sides, so direction 0 of a right-side ring points the same way as
+    direction 0 of a left-side ring; a right ring is the left ring mirrored, not the same list."""
     normal = unit(normal)
     u = np.array([1.0, 0.0, 0.0]) - normal[0] * normal
     if np.linalg.norm(u) < 0.2:
@@ -124,16 +136,26 @@ def rotation(matrix):
     return block / np.cbrt(np.linalg.det(block))
 
 
+def swing_terms(rest, bone, reference, normal):
+    """The parts of a swing that do not change with the pose: the plane normal as the over part's bone
+    sees it in the bind pose, and as the under part's bone carries it."""
+    normal = unit(normal)
+    return rotation(rest[reference]).T @ normal, rotation(rest[bone]).T @ normal
+
+
+def swing_angle(before, carried, reference_rotation, bone_rotation):
+    """Degrees between the bind-pose normal and the normal a posed bone carries, both in the reference bone's frame."""
+    return math.degrees(math.acos(float(np.clip(before @ (reference_rotation.T @ bone_rotation @ carried), -1, 1))))
+
+
 def swing(rest, pose, bone, reference, normal):
     """Degrees the under part's axis has swung away from the over part since the bind pose.
 
     `normal` is the joint plane normal in the bind pose; it rides on `bone` and is compared in the
     frame of `reference` (the bone carrying the over part). Twist about the axis is left out: it
     turns the under end inside the over end without opening the seam."""
-    normal = unit(normal)
-    before = rotation(rest[reference]).T @ normal
-    after = rotation(pose[reference]).T @ rotation(pose[bone]) @ rotation(rest[bone]).T @ normal
-    return math.degrees(math.acos(float(np.clip(before @ after, -1, 1))))
+    before, carried = swing_terms(rest, bone, reference, normal)
+    return swing_angle(before, carried, rotation(pose[reference]), rotation(pose[bone]))
 
 
 def minimum_overlap(radius, degrees):
@@ -144,8 +166,19 @@ def minimum_overlap(radius, degrees):
     return radius * min(1.0, math.tan(math.radians(min(degrees, 89.0))))
 
 
+def tier_values(rings, offset, degrees):
+    """A tier's numbers at a joint, from the body rings of its sides, the tier's offset and the design swing.
+
+    The envelope radius and the mean radius are those of the wider side, so one rule serves left and right."""
+    mean = max(float(np.mean(ring)) for ring in rings) + offset
+    return {'envelopeRadius': max(float(np.max(ring)) for ring in rings) + offset, 'meanRadius': mean,
+            'minimumOverlap': minimum_overlap(mean, degrees)}
+
+
 def validate_contract(data):
     require(isinstance(data, dict) and data.get('schemaVersion') == 1 and data.get('kind') == KIND, 'Unsupported seam contract')
+    require(data.get('directions') == DIRECTIONS, f'The contract records {DIRECTIONS} directions')
+    require(data.get('designBend') in DESIGN_BENDS, f'designBend must be one of {list(DESIGN_BENDS)}')
     require(set(data['joints']) == set(registry.JOINTS), 'The contract covers exactly the eight joints')
     require(sorted(data['tierOffsets']) == [str(t) for t in registry.TIERS], 'Tier offsets for tiers 0-3 required')
     offsets = [data['tierOffsets'][str(t)] for t in registry.TIERS]
@@ -153,20 +186,20 @@ def validate_contract(data):
     for name, joint in data['joints'].items():
         spec = JOINTS[name]
         require((joint['over'], joint['under']) == (spec['over'], spec['under']), name + ': layering order differs from the kit')
-        require(set(joint['bodies']) == {'pmh0', 'pfh0'}, name + ': measured on both Human Fit bodies')
+        require(set(AUTHORING_BODIES) <= set(joint['bodies']) <= set(registry.BODIES),
+                name + ': measured on both Human Fit bodies, and on SRN bodies only')
         for body, row in joint['bodies'].items():
             label = f'{name} {body}'
-            require(abs(np.linalg.norm(row['normal']) - 1) < 1e-4 and len(row['point']) == 3, label + ': plane needs a point and a unit normal')
-            require(len(row['bodyRing']) == DIRECTIONS and min(row['bodyRing']) > 0, label + ': body ring needs a radius in every direction')
+            require(set(row['sides']) == set(sides(name)), f'{label}: sides must be {list(sides(name))}')
+            for side in row['sides'].values():
+                require(abs(np.linalg.norm(side['normal']) - 1) < 1e-4 and len(side['point']) == 3, label + ': plane needs a point and a unit normal')
+                require(len(side['bodyRing']) == DIRECTIONS and min(side['bodyRing']) > 0, label + ': body ring needs a radius in every direction')
             require(set(row['tiers']) == {str(t) for t in registry.TIERS}, label + ': tiers 0-3 required')
-            previous = None
-            for tier in registry.TIERS:
-                values = row['tiers'][str(tier)]
-                require(values['envelopeRadius'] > 0 and values['minimumOverlap'] > 0, label + ': positive envelope and overlap required')
-                require(previous is None or (values['envelopeRadius'] > previous['envelopeRadius']
-                                             and values['minimumOverlap'] >= previous['minimumOverlap']),
-                        label + ': envelopes and overlaps must not shrink as the tier rises')
-                previous = values
+            rings = [side['bodyRing'] for side in row['sides'].values()]
+            for tier, offset in zip(registry.TIERS, offsets):
+                stored, wanted = row['tiers'][str(tier)], tier_values(rings, offset, row['bend'][data['designBend']])
+                require(set(stored) == set(wanted) and all(abs(stored[key] - wanted[key]) <= TOLERANCE for key in wanted),
+                        f'{label}: tier {tier} disagrees with the body ring, the tier offsets and the design bend')
     return data
 
 
@@ -175,10 +208,19 @@ def load_contract(path=CONTRACT):
         return validate_contract(json.load(stream))
 
 
-def envelope(contract, joint, body, tier):
-    """Per-direction envelope radii of a tier at a joint: the body's ring pushed out by the tier's offset."""
-    row = contract['joints'][joint]['bodies'][body]
-    return [radius + contract['tierOffsets'][str(tier)] for radius in row['bodyRing']]
+def envelope(contract, joint, body, tier, side=None):
+    """Per-direction envelope radii of a tier at a joint: the body's ring pushed out by the tier's offset.
+
+    A limb joint needs its side, `l` or `r`: the two rings are recorded separately, in body axes."""
+    rows = contract['joints'][joint]['bodies'][body]['sides']
+    side = 'c' if side is None and set(rows) == {'c'} else side
+    require(side in rows, f'{joint}: side must be one of {sorted(rows)}')
+    return [radius + contract['tierOffsets'][str(tier)] for radius in rows[side]['bodyRing']]
+
+
+def overlap(contract, joint, body, tier):
+    """How far an under end of this tier continues past the joint plane, at the least."""
+    return contract['joints'][joint]['bodies'][body]['tiers'][str(tier)]['minimumOverlap']
 
 
 def mixes(over_part, under_part, joint):

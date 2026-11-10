@@ -61,9 +61,15 @@ class GeometryTests(unittest.TestCase):
         self.assertAlmostEqual(seams.swing(rest, {'over': np.eye(4), 'under': scaled}, 'under', 'over', normal), 45, places=6)
 
     def test_minimum_overlap_grows_with_the_bend_up_to_one_radius(self):
-        self.assertAlmostEqual(seams.minimum_overlap(0.1, 20), 0.1 * math.tan(math.radians(20)))
-        self.assertEqual(seams.minimum_overlap(0.1, 45), 0.1 * math.tan(math.radians(45)))
+        self.assertAlmostEqual(seams.minimum_overlap(0.1, 20), 0.036397, places=6)
+        self.assertAlmostEqual(seams.minimum_overlap(0.1, 45), 0.1, places=12)
         self.assertEqual(seams.minimum_overlap(0.1, 110), 0.1)
+
+    def test_tier_numbers_come_from_the_wider_side(self):
+        got = seams.tier_values([[0.04] * 16, [0.05] * 15 + [0.06]], 0.012, 30)
+        self.assertAlmostEqual(got['envelopeRadius'], 0.072)
+        self.assertAlmostEqual(got['meanRadius'], 0.050625 + 0.012)
+        self.assertAlmostEqual(got['minimumOverlap'], (0.050625 + 0.012) * 0.577350, places=6)
 
     def test_planes_follow_the_limb_and_point_into_the_under_part(self):
         rig = {name: np.eye(4) for name in ('neck_g', 'torso_g', 'lbicep_g', 'lforearm_g')}
@@ -97,25 +103,49 @@ class ContractTests(unittest.TestCase):
                 radii = [tiers[str(t)]['envelopeRadius'] for t in registry.TIERS]
                 self.assertEqual(radii, sorted(radii), joint)
                 self.assertAlmostEqual(radii[3] - radii[0], 0.046, places=3)
-                self.assertEqual(len(seams.envelope(self.contract, joint, body, 2)), seams.DIRECTIONS)
-                bend = row['bodies'][body]['bend']
-                self.assertAlmostEqual(tiers['1']['minimumOverlap'], seams.minimum_overlap(tiers['1']['meanRadius'], bend['p95']), places=3)
+                for side in seams.sides(joint):
+                    self.assertEqual(len(seams.envelope(self.contract, joint, body, 2, side)), seams.DIRECTIONS)
+                self.assertEqual(seams.overlap(self.contract, joint, body, 1), tiers['1']['minimumOverlap'])
+
+    def test_limb_joints_have_two_sides_and_the_rest_one(self):
+        self.assertEqual({joint: seams.sides(joint) for joint in ('neck', 'waist', 'elbow')},
+                         {'neck': ('c',), 'waist': ('c',), 'elbow': ('l', 'r')})
+        for joint, row in self.contract['joints'].items():
+            for body in seams.AUTHORING_BODIES:
+                self.assertEqual(tuple(row['bodies'][body]['sides']), seams.sides(joint))
+        with self.assertRaisesRegex(ValueError, 'side must be one of'):
+            seams.envelope(self.contract, 'elbow', 'pmh0', 1)
+        self.assertEqual(seams.envelope(self.contract, 'waist', 'pmh0', 1), seams.envelope(self.contract, 'waist', 'pmh0', 1, 'c'))
+        left, right = (self.contract['joints']['shoulder']['bodies']['pfh0']['sides'][side]['point'] for side in 'lr')
+        self.assertGreater(abs(left[0] + right[0]), 0.005)
 
     def test_envelope_is_the_body_ring_plus_the_tier_offset(self):
-        ring = self.contract['joints']['elbow']['bodies']['pmh0']['bodyRing']
-        self.assertTrue(np.allclose(np.array(seams.envelope(self.contract, 'elbow', 'pmh0', 3)) - ring, 0.05))
+        ring = self.contract['joints']['elbow']['bodies']['pmh0']['sides']['r']['bodyRing']
+        self.assertTrue(np.allclose(np.array(seams.envelope(self.contract, 'elbow', 'pmh0', 3, 'r')) - ring, 0.05))
 
     def test_tampered_contracts_are_refused(self):
         for change, message in ((lambda c: c['joints']['knee'].update(over='shin', under='thigh'), 'layering order'),
                                 (lambda c: c['joints'].pop('ankle'), 'exactly the eight joints'),
                                 (lambda c: c['tierOffsets'].update({'2': 0.001}), 'grow with the tier'),
                                 (lambda c: c['joints']['neck']['bodies'].pop('pfh0'), 'both Human Fit bodies'),
-                                (lambda c: c['joints']['hip']['bodies']['pmh0']['bodyRing'].__setitem__(3, 0.0), 'radius in every direction'),
-                                (lambda c: c['joints']['hip']['bodies']['pmh0']['tiers']['2'].update(envelopeRadius=0.01), 'must not shrink')):
+                                (lambda c: c['joints']['neck']['bodies'].update(pmh1={}), 'on SRN bodies only'),
+                                (lambda c: c['joints']['hip']['bodies']['pmh0']['sides'].pop('r'), 'sides must be'),
+                                (lambda c: c['joints']['hip']['bodies']['pmh0']['sides']['l']['bodyRing'].__setitem__(3, 0.0), 'radius in every direction'),
+                                (lambda c: c['joints']['hip']['bodies']['pmh0']['tiers']['2'].update(envelopeRadius=0.01), 'tier 2 disagrees'),
+                                (lambda c: c['joints']['waist']['bodies']['pfh0']['bend'].update(p95=20.0), 'tier 0 disagrees'),
+                                (lambda c: c['tierOffsets'].update({'3': 0.08}), 'tier 3 disagrees'),
+                                (lambda c: c.update(designBend='median'), 'designBend must be'),
+                                (lambda c: c.update(directions=8), 'records 16 directions')):
             broken = copy.deepcopy(self.contract)
             change(broken)
             with self.assertRaisesRegex(ValueError, message):
                 seams.validate_contract(broken)
+
+    def test_a_contract_may_hold_more_bodies_than_the_two_it_is_authored_on(self):
+        wider = copy.deepcopy(self.contract)
+        for joint in wider['joints'].values():
+            joint['bodies']['pmo2'] = copy.deepcopy(joint['bodies']['pmh0'])
+        self.assertEqual(len(seams.envelope(seams.validate_contract(wider), 'knee', 'pmo2', 0, 'l')), seams.DIRECTIONS)
 
     def test_parts_mix_cleanly_when_the_over_tier_is_at_least_the_under_tier(self):
         chest = part()

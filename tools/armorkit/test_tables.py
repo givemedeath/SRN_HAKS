@@ -84,6 +84,19 @@ class TableTests(unittest.TestCase):
         self.check_fails('rows continue past the highest part number', text + '9003 ****          ****\r\n')
         self.check_fails('stock rows are missing', '\r\n'.join(lines[:row[100]]) + '\r\n', [])
 
+    def test_check_is_as_strict_as_generate_about_columns_and_stock_numbers(self):
+        robe = STOCK['parts_robe']
+        swapped = robe.replace('HIDECHEST', 'HIDEX').replace('HIDEPELVIS', 'HIDECHEST').replace('HIDEX', 'HIDEPELVIS')
+        with self.assertRaisesRegex(ValueError, 'column row differs from stock'):
+            tables.check('parts_robe', swapped, [], robe)
+        chest = STOCK['parts_chest']
+        with self.assertRaisesRegex(ValueError, 'unexpected columns'):
+            tables.check('parts_chest', chest.replace('COSTMODIFIER', 'FOO'), [])
+        with self.assertRaisesRegex(ValueError, 'reuses a stock or buffer row'):
+            tables.check('parts_chest', chest, [part(number=150)], chest)
+        with self.assertRaisesRegex(ValueError, 'Unknown parts table'):
+            tables.check('parts_head', chest, [])
+
 
 if __name__ == '__main__':
     unittest.main()

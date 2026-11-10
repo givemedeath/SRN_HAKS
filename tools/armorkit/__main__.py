@@ -28,21 +28,27 @@ def command_registry(args):
 def command_tables(args):
     parts = registry.load(args.registry, publish=args.publish)
     stock = {table: (Path(args.stock) / (table + '.2da')).read_bytes().decode('cp1252') for table in registry.TABLES}
+    made = tables.generate_all(stock, parts)
+    report = [tables.check(table, text, parts, stock[table]) for table, text in made.items()]
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
-    report = []
-    for table, text in tables.generate_all(stock, parts).items():
-        report.append(tables.check(table, text, parts, stock[table]))
+    for table, text in made.items():  # written only once every table has passed its check
         (output / (table + '.2da')).write_bytes(text.encode('cp1252'))
     print(json.dumps(report))
 
 
 def command_measure(args):
     from . import measure
-    output = Path(args.output)
-    write_json(output / 'seam-contract.json', measure.seam_contract(args.body_pack, [args.body_pack, *args.supermodels]))
-    write_json(output / 'head-envelopes.json', measure.head_envelopes(args.head_pack, args.body_pack))
-    print(json.dumps({'written': [str(output / 'seam-contract.json'), str(output / 'head-envelopes.json')]}))
+    output, written = Path(args.output), []
+    registry.require(args.only == 'heads' or args.supermodels,
+                     'The seam contract needs --supermodels: a folder of extracted stock animation models')
+    if args.only in (None, 'heads'):  # seconds; first, so a wrong pack folder fails before the long measurement
+        write_json(output / 'head-envelopes.json', measure.head_envelopes(args.head_pack, args.body_pack))
+        written.append(str(output / 'head-envelopes.json'))
+    if args.only in (None, 'seams'):
+        write_json(output / 'seam-contract.json', measure.seam_contract(args.body_pack, [args.body_pack, *args.supermodels]))
+        written.append(str(output / 'seam-contract.json'))
+    print(json.dumps({'written': written}))
 
 
 def command_fixture(args):
@@ -51,32 +57,37 @@ def command_fixture(args):
     spec = json.loads(Path(args.spec).read_text(encoding='utf-8'))
     record = fixture.build(spec, args.output, args.nwn_root)
     if args.run:
-        record['evidence'] = client.run(args.nwn_root, record, Path(args.output) / 'captures')
+        record['evidence'] = client.run(args.nwn_root, record, Path(args.output) / 'captures',
+                                        timeout=args.timeout, settle=args.settle)
     print(json.dumps(record))
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='armorkit', description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
+    # The handler lives under `handler`: `run` is the fixture command's own flag.
     p = commands.add_parser('registry', help='validate a registry and optionally write the SR_NWN handoff file')
     p.add_argument('registry'); p.add_argument('--publish', action='store_true'); p.add_argument('--handoff')
-    p.set_defaults(run=command_registry)
+    p.set_defaults(handler=command_registry)
     p = commands.add_parser('tables', help='generate the twelve parts tables from a registry and stock tables')
     p.add_argument('registry'); p.add_argument('--stock', required=True, help='folder holding the stock parts_*.2da files')
     p.add_argument('--output', required=True); p.add_argument('--publish', action='store_true')
-    p.set_defaults(run=command_tables)
+    p.set_defaults(handler=command_tables)
     p = commands.add_parser('measure', help='measure the seam contract and head envelopes from pack folders')
     p.add_argument('--body-pack', required=True); p.add_argument('--head-pack', required=True)
     p.add_argument('--supermodels', action='append', default=[], help='folder of extracted stock animation models')
+    p.add_argument('--only', choices=('seams', 'heads'), help='measure one of the two files (heads need no --supermodels)')
     p.add_argument('--output', required=True)
-    p.set_defaults(run=command_measure)
+    p.set_defaults(handler=command_measure)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)
     p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')
-    p.add_argument('--run', action='store_true')
-    p.set_defaults(run=command_fixture)
+    p.add_argument('--run', action='store_true', help='start the game client on the built fixture and capture its shots')
+    p.add_argument('--timeout', type=float, help='seconds to wait for the run (default: scaled to the number of shots)')
+    p.add_argument('--settle', type=float, default=1.5, help='seconds between a shot line and its capture')
+    p.set_defaults(handler=command_fixture)
     args = parser.parse_args(argv)
-    args.run(args)
+    args.handler(args)
 
 
 if __name__ == '__main__':

@@ -293,7 +293,9 @@ resolution around the torso. The chest shells were also compared offline with th
 **Verdict.** Not a pass. `variants` is good enough for male bodies and for Fit female bodies at this zoom, and
 not for Large female bodies or for headgear on Dwarf and Troll. The shared cleanmodels pin was therefore **not**
 moved (plan decision 14); `tools/shared-tools.lock.json` has no cleanmodels entry today, so the move would add
-one.
+one. The "repository pin (4.0.0-rc17)" of section 8 and of the plan is a folder in the shared tool root that
+no lock file names: adopting cleanmodels is a new shared-tool entry, not a version move, and every compile and
+race version in these proofs used the unpinned 4.17.5 download.
 
 **Limits.** One hand-made, skin-tight chest shell and one shoulder plate; no limb parts. Standing poses only.
 The female shell is faceted because of how it was made, which is not a race-version fault. The offline
@@ -322,11 +324,28 @@ third-party parts). Walking, running and combat.
 (`HELMET_SCALE_M 1.05`, `HELMET_SCALE_F 0.85` on all five) and once on copies of those rows with trial scales
 taken from head envelope depth (Dwarf 1.13 / 1.18, Elf 0.96 / 1.03, Orc 1.2 / 1.09, Troll 1.94 / 2.05).
 
-**Result.** *helmets.jpg*
+**Result.** *helmets.jpg* (second run, see below)
 
-* The helmet replaces the head on all ten bodies and sits on the neck.
-* The scale columns are honoured per race row and gender; the Troll helmet at 1.94 is visibly larger than at
-  1.05, which looks small on that body.
+```
+ARMORKIT helm actor=pmg0 helm stock worn=1 appearance=15104
+ARMORKIT helm actor=pfg0 helm trial worn=1 appearance=15109
+```
+
+* The helmet replaces the head on all ten bodies and sits on the neck, at the stock scale and at the trial
+  scale. All 20 actors reported the helmet worn.
+* The scale columns are honoured per race row and gender. The Troll helmets at 1.94 and 2.05 are visibly larger
+  than at the stock 1.05 and 0.85, which look small on those bodies; the Dwarf helmets at 1.13 and 1.18 are
+  larger than at stock.
+
+**The first run's sheet was wrong.** The driver then saved each capture under the shot number of a log line
+without checking that the game had not moved on. The client stalled for 11 seconds during that run, four shots
+fired back to back, and eight of the twenty helmet pictures showed a later actor under an earlier label (male
+bodies under three of the female stock-scale labels; four stock-scale bodies were missing). It was found in
+review by comparing log times with file times; that sheet is kept as *helmets-run2-mislabelled.jpg*. The bullets
+above were first written from it and are now supported by the second run, made with a driver that lets each
+shot schedule the next and refuses a capture taken after a later shot began (twenty captures, no two alike,
+script `run6.py`). The bare-neck and side-view logo captures of the first run were taken after the driver was
+back in step (by the same comparison of times); the other five runs show no such gap.
 
 **Limits.** One stock helmet, standing, front quarter only. The right scale for each race was not settled; it
 needs one of our own helmets. The scale is per race row and gender, so Fit and Large share it. Large bodies were

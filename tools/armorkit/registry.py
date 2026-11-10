@@ -48,16 +48,17 @@ TIERS = (0, 1, 2, 3)  # skin-tight, cloth, padded or armored, heavy
 MESHES = {'rigid': FITTED + ('belt', 'shoulder', 'neck'), 'dangly': ('belt',), 'skinned': ('belt', 'neck', 'robe')}
 CHANNELS = ('cloth1', 'cloth2', 'leather1', 'leather2', 'metal1', 'metal2', 'skin')
 NECK_CATEGORIES = ('headgear', 'back', 'neckwear', 'torso')
+# Where a part may show a logo. How the logo is carried is not settled: the swap of a shared blank
+# texture does not work inside a tinted part (spikes.md, section 15), so no texture name is derived here.
 BADGE_POSITIONS = {'shoulder': ('left', 'right'), 'neck': ('lanyard',)}
-BLANK_LOGO = 'srn_logo_0'
 ROBE_HIDES = ('FOOTR', 'FOOTL', 'SHINR', 'SHINL', 'LEGR', 'LEGL', 'PELVIS', 'CHEST', 'BELT', 'NECK', 'FORER',
               'FOREL', 'BICEPR', 'BICEPL', 'SHOR', 'SHOL', 'HANDR', 'HANDL', 'HEAD')
 
 # Stock tables hold rows 0-200 (parts_robe 0-38) and stock models run to 255; 256-299 stay empty as a buffer.
 FIRST_NUMBER = 300
 LAST_NUMBER = 65535  # the word field's range; names stay within 16 characters up to 99999
-# Blocks as widened by the user on 2026-11-10 (plan.md, revision of that date): accessories get the widest
-# band, every family one thousand numbers.
+# Blocks widened on 2026-11-10 at the user's request (plan.md, revision of that date): accessories get the
+# widest band, every family one thousand numbers. The exact widths are open to the user's correction.
 BLOCKS = ((300, 2999, 'accessory'), (3000, 3999, 'civilian'), (4000, 4999, 'workwear'), (5000, 5999, 'corporate'),
           (6000, 6999, 'security'), (7000, 7999, 'runner'), (8000, 8999, 'gang'), (9000, LAST_NUMBER, None))
 FAMILIES = tuple(name for _, _, name in BLOCKS if name) + ('heavy',)
@@ -100,21 +101,25 @@ def model_names(part):
 
 
 def texture_names(part):
-    """The tint texture of each Human model per gender present; other bodies fall back to these."""
+    """The tint texture of each Human Fit model per gender present.
+
+    Race versions keep these names in their meshes. A model that names its own, missing texture falls back
+    to them across race (spikes.md, section 11); across gender or build that fallback is not proven."""
     genders = sorted({body[1] for body in part['bodies']})
     return [model_name(f'p{gender}h0', token, part['number']) for gender in genders for token in tokens(part)]
 
 
 def _unique(values, allowed, label, *, empty=False):
-    require(isinstance(values, list) and (empty or values) and len(set(values)) == len(values)
-            and all(value in allowed for value in values), f'{label} must be a list of distinct values from {list(allowed)}')
+    require(isinstance(values, list) and (empty or values) and all(isinstance(value, str) for value in values)
+            and len(set(values)) == len(values) and all(value in allowed for value in values),
+            f'{label} must be a list of distinct values from {list(allowed)}')
 
 
 def validate_part(part, *, publish=False):
     require(isinstance(part, dict) and REQUIRED <= set(part) <= PART_KEYS,
             'Part keys must be ' + ', '.join(sorted(REQUIRED)) + ' plus optional set, neckCategory, sides, hide')
     slot, number = part['slot'], part['number']
-    require(slot in SLOTS, f'Unknown slot {slot!r}')
+    require(isinstance(slot, str) and slot in SLOTS, f'Unknown slot {slot!r}')
     label = f'{slot} {number}'
     require(type(number) is int and FIRST_NUMBER <= number <= LAST_NUMBER,
             f'{label}: numbers start at {FIRST_NUMBER}; stock rows, stock models and the 256-299 buffer are never reused')
@@ -130,9 +135,11 @@ def validate_part(part, *, publish=False):
     require(isinstance(tiers, dict) and set(tiers) <= set(joints) and all(type(v) is int and v in TIERS for v in tiers.values()),
             f'{label}: tiers map {list(joints)} to 0-3')
     require(slot not in FITTED or set(tiers) == set(joints), f'{label}: a fitted part declares a tier at each of {list(joints)}')
-    require(part['mesh'] in MESHES and slot in MESHES[part['mesh']], f'{label}: mesh {part["mesh"]!r} is not allowed on this slot')
+    require(isinstance(part['mesh'], str) and part['mesh'] in MESHES and slot in MESHES[part['mesh']],
+            f'{label}: mesh {part["mesh"]!r} is not allowed on this slot')
     require((slot == 'neck') == ('neckCategory' in part), label + ': neckCategory belongs to neck parts, and every neck part has one')
-    require(slot != 'neck' or part['neckCategory'] in NECK_CATEGORIES, f'{label}: neckCategory must be one of {list(NECK_CATEGORIES)}')
+    require(slot != 'neck' or (isinstance(part['neckCategory'], str) and part['neckCategory'] in NECK_CATEGORIES),
+            f'{label}: neckCategory must be one of {list(NECK_CATEGORIES)}')
     coverage = part['coverage']
     require(isinstance(coverage, dict) and set(coverage) == {'skin', 'headgear'} and all(type(v) is bool for v in coverage.values()),
             label + ': coverage is {skin: bool, headgear: bool}')
@@ -147,7 +154,7 @@ def validate_part(part, *, publish=False):
     if 'sides' in part:
         require(len(SLOTS[slot]['tokens']) == 2, label + ': sides belongs to paired slots')
         _unique(part['sides'], ('l', 'r'), label + ': sides')
-        require(badge is None or all({'left': 'l', 'right': 'r'}.get(p, 'l') in part['sides'] for p in badge['positions']),
+        require(badge is None or all({'left': 'l', 'right': 'r'}[p] in part['sides'] for p in badge['positions']),
                 label + ': a badge needs its side of the part')
     if 'hide' in part:
         require(slot == 'robe', label + ': hide belongs to robe parts')
@@ -168,9 +175,11 @@ def validate(data, *, publish=False):
         key = (part['slot'], part['number'])
         require(key not in seen, f'Duplicate part {key[0]} {key[1]}')
         seen.add(key)
-        # A set uses one number in every slot it covers, so a number never belongs to two sets.
-        owner = sets.setdefault(part['number'], part.get('set'))
-        require(owner == part.get('set'), f'Number {part["number"]} is used by two sets: {owner} and {part.get("set")}')
+        # A set uses one number in every slot it covers, so a number never belongs to two sets. A part
+        # without a set belongs to none, and may share its number with a set's part in another slot.
+        if 'set' in part:
+            owner = sets.setdefault(part['number'], part['set'])
+            require(owner == part['set'], f'Number {part["number"]} is used by two sets: {owner} and {part["set"]}')
     return sorted(data['parts'], key=lambda part: (part['slot'], part['number']))
 
 
@@ -185,13 +194,15 @@ def numbers(parts, slot):
 
 
 def handoff(parts):
-    """The registry as SR_NWN consumes it: each part with the table, item fields and model names it implies."""
+    """The registry as SR_NWN consumes it: each part with the table, item fields and model names it implies.
+
+    A part's `badge` says where it shows a logo; the handoff names no logo texture, because the way a logo
+    is carried and changed at run time is still to be chosen (spikes.md, section 15)."""
     rows = []
     for part in parts:
         slot = SLOTS[part['slot']]
         used = [slot['tokens'].index(token) for token in tokens(part)]
         rows.append({**part, 'table': slot['table'], 'block': block(part['number']),
                      'itemFields': [slot['fields'][i] for i in used], 'itemModelIndices': [slot['models'][i] for i in used],
-                     'models': model_names(part), 'tintTextures': texture_names(part),
-                     'logoTexture': BLANK_LOGO if part['badge'] else None})
+                     'models': model_names(part), 'tintTextures': texture_names(part)})
     return {'schemaVersion': 1, 'kind': KIND + '-handoff', 'parts': rows}
