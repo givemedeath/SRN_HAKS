@@ -350,3 +350,48 @@ and wait for the user to decide before Phase 1:
   * motion for any test part: walking, running, combat, a scripted head turn or the automatic look-at;
   * the toolset beyond one Human male armor item, not saved or reopened;
   * SR_NWN branches other than `master`.
+
+## Revision 2026-11-10: a logo picked by a shader value (proof)
+
+The user asked for the untried third logo approach to be tested before choosing one. It passed
+([spikes.md](spikes.md), section 18): all logos sit in one strip texture, the badge reads it through a material
+file with a small custom vertex shader, and SR_NWN picks the cell per wearer with
+`SetMaterialShaderUniformVec4`. The part keeps its tint texture and item colours, the value survives
+re-equipping, and it works on rigid and skinned meshes.
+
+The choice between this and one part number per logo is the user's and is not made here. If it is chosen:
+
+* Decision 13 stands in substance (logos are plain, not tintable), but the badge names a material file and a
+  shared strip, not a texture of its own.
+* The handoff names the material and its parameter and lists each logo's cell. SR_NWN sets the value on the
+  wearing creature, not on the item, and does not need to reapply it when the same item is equipped again.
+  When it must be set again (login, area change, a player arriving later) is not yet checked.
+* The kit ships one custom shader, which includes the stock `inc_standard` and so has to be rechecked on a new
+  game build.
+* Adding a logo replaces the strip; no part is copied.
+
+## Revision 2026-11-10: logos use the shader value (user decision)
+
+The user chose the shader approach of the revision above over one part number per logo. This replaces the
+**Logos** paragraph under [Part rules](#part-rules) and the logo note under
+[Handoff to SR_NWN](#handoff-to-sr_nwn). Decision 7 (logos only on shoulders and neck-slot lanyards) stands,
+and decision 13 stands as reworded in the revision above.
+
+* A part that shows a logo carries a badge mesh that names the shared logo material. The material reads one
+  strip texture holding every logo, and a parameter picks the cell. Cell 0 is blank.
+* SR_NWN sets the cell on the wearing creature, and no part is copied per logo. The value belongs to the
+  creature, not the item: every logo part the creature wears shows the same logo, and equipping the same
+  item again needs no call. SR_NWN sets the cell again whenever the logo to show changes, for example when
+  an item with another logo is equipped or an item passes to another character. Two different logos on one
+  character at once would need a second material and is not tried.
+* Phase 1 builds what the proof only sketched: the shared material, shader and strip as kit resources, the
+  strip layout and cell count, the handoff entry (material, parameter, each logo's cell), and a gate that a
+  badge mesh names the material and reads the right way round on each side. That gate uses a logo that is
+  not symmetric, because a mirrored test badge went unnoticed through two proofs.
+* Still to check before logos are relied on: what other players see in multiplayer, including one who arrives
+  after the call; whether the value lasts through a save, an area change or a login; the shader on other
+  graphics cards and drivers; and the shader on each new game build. The multiplayer check needs a second
+  client.
+
+The other points of "what Phase 0 changed" still wait for the user: the fit for Large female bodies and
+headgear, adopting cleanmodels, and the number-block widths.

@@ -373,7 +373,8 @@ not captured.
 **Verdict.** The badge as planned (a plain-texture mesh inside a tinted part, swapped at runtime) does not
 work as written. No build gave a tinted part and a swappable badge together. Ways forward, none tried: one part
 number per logo with the logo in a material file (the wide number blocks allow it); a badge-only part with no
-tint texture; or another runtime call that reaches material textures.
+tint texture; or another runtime call that reaches material textures. The third was tried afterwards and
+works: see section 18.
 
 ## 16. SR_NWN: competing tables and armor value
 
@@ -400,3 +401,57 @@ searched.
   (*bare-necks.jpg*).
 * **Human clothing.** `srn_armor` holds no Human parts; the Human bodies wear the stock game parts.
 * **Stock tables.** `parts_robe` has rows 0–38 and 19 `HIDE*` columns; the other eleven tables have rows 0–200.
+
+## 18. A logo picked per wearer by a shader value
+
+**Method.** The third way forward of section 15, tried at the user's request. One strip texture holds four
+logo cells side by side. The badge mesh names a material file with the strip as `texture0`, one parameter
+`LogoCell` and a custom vertex shader; the fragment shader is the stock `fslit`. The vertex shader is the stock
+`vslit` with one added line, which moves the badge's 0–1 texture coordinate into the chosen cell:
+
+```
+ApplyStandardShader();
+vVertexTexCoords.x = (vVertexTexCoords.x + LogoCell) / 4.0;
+```
+
+The part keeps its tint texture named like the model. A script on the wearer calls
+`SetMaterialShaderUniformVec4(wearer, "ak_logo", "LogoCell", <cell>)`. Human male, the shoulder plate (rigid)
+and the hood (skinned) of section 13, game build 89.8193.37-17 (scratch scripts `run7.py`, `run8.py`,
+`run9.py`).
+
+**Result.** *logo-shader-before.jpg*, *logo-shader-after.jpg*, *logo-shader-cases.jpg*,
+*logo-shader-reequip.jpg*
+
+| Case | Seen |
+|---|---|
+| No call | Cell 0 (the blank logo); the plate takes the item colours |
+| Three wearers of the same part set to cells 1, 2 and 3, the third with other item colours | Each shows its own logo, and each plate its own item colours |
+| Unequip and re-equip, no further call | The logo is still shown. Run 9 logged the item off and on again and captured the bare shoulder in between |
+| Re-equip, then the same call again; or reset, then set | The logo is shown |
+| The call made on the armor item instead of the wearer | No effect |
+| Value set while the part is not worn, part worn afterwards | The logo is shown |
+| Set to one logo, 14 seconds later to another | The second logo |
+| Left and right shoulder | Both show the logo |
+| The skinned hood on the same material and shader | The chosen cell, on a standing wearer; no head turn or other motion was run |
+| Hood and plate worn together, one call | Both show the logo |
+
+* The client logs record no shader error.
+* The badge of the test shoulder plate was mapped mirrored from the start. The sheet of section 15 already
+  shows a reversed "B" in its "set a different logo" case, and that was not noticed then. Run 8 flips the
+  coordinate. This was an error in the scratch part, not an effect of the shader.
+* One custom shader served both the rigid and the skinned mesh. The shared stock include `inc_transform`
+  switches skinning on a `skinmesh` value, so a skinned mesh needs no shader of its own. (The stock
+  `vslit_sk` differs from `vslit` only in its environment-map setting.)
+* The value belongs to the creature and the material name, not to the item. Every part a creature wears
+  that uses the material shows the same logo, and a value set before the part is worn is used when it is.
+
+**Verdict.** This gives what section 15 could not: a tinted part and a logo chosen per wearer together, on
+rigid and skinned meshes, with nothing to reapply when the same item is equipped again. Because the value
+sits on the creature, an item that carries a different logo needs a new call when it is equipped.
+
+Not checked: two different logos on one creature at once (that needs a second material); what other players
+see in multiplayer, including a player who arrives after the call; whether the value lasts through a save, an
+area change or a new login; other graphics cards and drivers; other game builds
+(the custom shader includes the stock `inc_standard`); the toolset preview and the inventory and character-sheet
+views; more than four cells, and how large the strip may be; a badge that also needs a normal map (that needs
+a shader made from `vslit_nm`); bodies other than Human male (the shader does not depend on the body).
