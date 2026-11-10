@@ -7,6 +7,7 @@
   "tools/armorkit/test_registry.py": 0.003,
   "tools/armorkit/test_seams.py": 0.037,
   "tools/armorkit/test_tables.py": 0.134,
+  "tools/armorkit/test_toolchain.py": 0.28,
   "tools/headbatch/test_fitassembly.py": 0.008,
   "tools/headbatch/test_headbatch.py": 16.812,
   "tools/headbatch/test_material_evidence.py": 0.024,

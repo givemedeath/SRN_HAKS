@@ -450,3 +450,27 @@ What follows from it:
 
 The group digit, the neck bands and the standalone range for basics were proposed while drafting this scheme
 and are open to the user's correction.
+
+## Revision 2026-11-10: cleanmodels 4.17.5 adopted
+
+The user decided to adopt cleanmodels 4.17.5 and to install it in the primary checkout's shared tool root, so
+that nothing depends on a worktree. This replaces decision 14, which tied the move to a fit proof that did not
+pass, and the cleanmodels row of the toolchain table.
+
+* **Pin.** `tools/shared-tools.lock.json` now names the standalone Windows build of the plenarius release
+  v4.17.5 by the SHA-256 of its executable; the release archive was checked against its published SHA-256
+  before it was installed. `tools/armorkit/toolchain.py` resolves it through the shared-tool helper, which
+  refuses a missing or changed executable. It is a new entry, not a version move: no lock named cleanmodels
+  before, and the `v4.0.0-rc17` folder in the shared root is still used by nothing and was left as it is.
+* **Role.** Armorkit compiles its parts with it, rigid and skinned. Its `variants` command gives the first
+  pass of the race versions for male bodies and for Fit female bodies, where the close-up proof was usable;
+  the seam gate decides each part. It is not relied on for Large female bodies or for headgear, which wait for
+  the fit decision that is still open.
+* **Other kits are unchanged.** Phenomorpher, headkit and itemkit keep compiling through Blender and the
+  cleanmodels port inside the Neverblender add-on. The two may write different bytes for the same model, so
+  no kit changes compiler without its own check.
+* **Windows only.** No test runs the compiler, so CI needs no Linux build yet; the release publishes one.
+* **The lock file changed.** Its hash is part of the tool cache key and of what shared-tool runs record, so a
+  run started after this merges records the new hash.
+
+Still waiting for the user before Phase 1: the fit for Large female bodies and for headgear.

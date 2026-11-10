@@ -67,6 +67,14 @@
       "tools/armorkit/tables.py",
       "tools/armorkit/test_registry.py"
     ],
+    "tools/armorkit/test_toolchain.py": [
+      "tools/armorkit/toolchain.py",
+      "tools/shared-tools.lock.json",
+      "tools/shared_tools.py"
+    ],
+    "tools/armorkit/toolchain.py": [
+      "tools/shared_tools.py"
+    ],
     "tools/ci_result.py": [],
     "tools/ci_scope.py": [
       "tools/test-impact.json",
@@ -4920,6 +4928,7 @@
     "tools/armorkit/test_registry.py",
     "tools/armorkit/test_seams.py",
     "tools/armorkit/test_tables.py",
+    "tools/armorkit/test_toolchain.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",

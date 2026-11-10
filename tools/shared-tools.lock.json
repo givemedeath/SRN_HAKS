@@ -115,6 +115,17 @@
           "sha256": "08480e535e38d712a831575ea78cc8ed952629ee4705ae8d505cdba31fc01f7f"
         }
       }
+    },
+    "cleanmodels": {
+      "origin": "shared",
+      "version": "4.17.5",
+      "installation": "Extract cleanmodels-windows-amd64.exe from the plenarius/cleanmodels v4.17.5 release archive (SHA-256 f42f674a8eb31e01fcd98899cf3304bb10048f7913b0be4a60c302b7e02c7c75) to cleanmodels/v4.17.5/windows-x64 in the shared root.",
+      "platforms": {
+        "windows-x64": {
+          "relativePath": "cleanmodels/v4.17.5/windows-x64/cleanmodels-windows-amd64.exe",
+          "sha256": "0f29bf0d9fe5bbe457ff2d917e799f9426346fdd3118285edd9d5351c8baaceb"
+        }
+      }
     }
   },
   "addons": {

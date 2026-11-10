@@ -37,7 +37,8 @@ explicit callers while enforcing the same location and byte checks. There is no
 sibling-worktree search or fallback to a different version.
 
 The portable inventory pins Neverwinter utilities 2.1.2, NWNArmory 1.3.4,
-Neverblender 4.1.0 source files, and the existing vendored executables. Generated
+cleanmodels 4.17.5 (Windows; used by `tools/armorkit`), Neverblender 4.1.0 source
+files, and the existing vendored executables. Generated
 Python caches are excluded from addon identity; added or modified source files
 fail verification. Machine paths belong only in ignored local bindings. Ordinary
 repository and item-import builds resolve Neverwinter utilities without requiring
