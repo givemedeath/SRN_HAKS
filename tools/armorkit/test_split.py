@@ -300,6 +300,17 @@ class SplitTests(unittest.TestCase):
         self.assertLess(parts['legl'][0][:, 0].mean(), -0.1)
         self.assertGreater(parts['legr'][0][:, 0].mean(), 0.1)
 
+    def test_two_limbs_that_are_one_surface_off_the_cuts_are_refused(self):
+        J = {name: np.array(p, float) for name, p in JOINTS.items()}
+        (lv, lf, lt), (rv, rf, rt) = [tube(J[s + 'thigh_g'], J[s + 'shin_g'] + (0, 0, 0.05), 0.07, around=12, along=8) for s in 'lr']
+        # a strip from the left leg's inner side to the right leg's, far below the crotch, on the legs' own vertices
+        a = sorted(np.argsort(lv[:, 0] - 10 * abs(lv[:, 2] - 0.7))[-2:], key=lambda i: lv[i, 2])
+        b = sorted(len(lv) + np.argsort(-rv[:, 0] - 10 * abs(rv[:, 2] - 0.7))[-2:], key=lambda i: rv[i - len(lv), 2])
+        legs = (np.concatenate([lv, rv]), np.concatenate([lf, rf + len(lv), [(a[0], b[0], b[1]), (a[0], b[1], a[1])]]), np.concatenate([lt, rt]))
+        v, f, t = join(tube((0, 0, 0.95), (0, 0, 1.60), 0.15), legs)
+        with self.assertRaisesRegex(ValueError, 'one surface that no cut parts'):
+            split.split(v, f, t, JOINTS, RADII)
+
     def test_an_overlap_gives_only_the_under_part_a_cap_past_the_plane(self):
         key, depth = ('elbow', 'l'), 0.04
         plain = split.split(self.v, self.f, self.t, JOINTS, RADII)

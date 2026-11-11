@@ -47,6 +47,7 @@ def arm_half(z):
 
 
 def inside(x, z):
+    """Whether the doll, arms hanging beside it, takes a point of its front view."""
     x = abs(x)
     if z < CROTCH:
         return abs(x - LEG(z)) < 0.07 or (z >= HAND_END and abs(x - ARM(z)) < arm_half(z))
@@ -57,7 +58,18 @@ def inside(x, z):
     return x < 0.06
 
 
-def doll(cell=0.02, depth=0.08):
+def held_out(x, z):
+    """As `inside`, with the arms held out from the body instead: they end above the hips."""
+    x = abs(x)
+    arm = z >= 1.20 and abs(x - (0.22 + 1.5 * (1.56 - z))) < 0.07
+    if z < CROTCH:
+        return abs(x - LEG(z)) < 0.07
+    if z < ARMPIT:
+        return x < 0.17 or arm
+    return x < 0.29 if z < NECK else x < 0.06
+
+
+def doll(cell=0.02, depth=0.08, inside=inside):
     """A flat figure with shared vertices and no open edge: every cell of a grid that `inside` takes, extruded front
     to back, with a wall wherever a taken cell borders a free one. It is one surface from the feet to the collar,
     as a generated outfit is, and its sections are closed curves."""
@@ -138,6 +150,12 @@ class JointTests(unittest.TestCase):
             self.assertLess(tip[2], 0.8)  # the arm is followed to the fingers, and not on into the leg beside them
             self.assertGreater(abs(tip[0]), 0.4)
 
+    def test_the_armpit_of_arms_held_out_is_above_the_hands_and_not_at_the_bare_waist(self):
+        vertices, faces = doll(inside=held_out)
+        marks = repose.landmarks(vertices, faces)
+        self.assertAlmostEqual(marks['armpit'], ARMPIT, delta=0.03)  # nothing is beside the torso from 0.9 to 1.2 either
+        self.assertAlmostEqual(marks['crotch'], CROTCH, delta=0.03)
+
     def test_an_outfit_without_separate_legs_or_arms_is_refused(self):
         block = join(tube((0, 0, 0), (0, 0, 1.7), 0.2))
         with self.assertRaises(ValueError):
@@ -172,6 +190,19 @@ class ReposeTests(unittest.TestCase):
                 self.assertLess(error, 0.05, f'{joint}{side} {again[joint + side]} {self.there[joint + side]}')
         # the arms hang beside the body now, and the legs stand under the hips
         self.assertLess(np.abs(self.result['vertices'][:, 0]).max(), 0.45)
+
+    def test_a_leg_pressed_past_the_middle_comes_back_to_its_own_side(self):
+        there = {'hipl': np.array([-0.1, 0.0, 1.0]), 'hipr': np.array([0.1, 0.0, 1.0]), 'hips': np.array([0.0, 0.0, 1.0])}
+        # a left thigh past the middle, one clear of it, a right thigh past it that half follows the pelvis, and
+        # the left of a waistband, which follows the legs by a quarter, and of a chest, which does not
+        points = np.array([[0.006, 0.01, 0.7], [-0.05, 0.0, 0.7], [-0.004, 0.0, 0.7], [0.01, 0.0, 1.05], [0.01, 0.0, 1.4]])
+        result = repose.apart(points, np.array([-1.0, -1.0, 1.0, -1.0, -1.0]), np.array([1.0, 1.0, 0.5, 0.25, 0.0]), there)
+        np.testing.assert_allclose(result[:, 0], [-repose.LEGS_APART, -0.05, repose.LEGS_APART, 0.01 - 0.5 * (0.01 + repose.LEGS_APART), 0.01])
+        np.testing.assert_allclose(result[:, 1:], points[:, 1:])
+        fitted, weights = self.result['vertices'], self.result['weights']
+        legs = weights[[index for index, bone in enumerate(repose.BONES) if repose.kind(bone[0]) in ('thigh', 'shin', 'foot')]].sum(axis=0)
+        left = (legs > 0.999) & (self.result['posed'][:, 0] < -0.02)
+        self.assertTrue(left.any() and (fitted[left, 0] <= -repose.LEGS_APART + 1e-9).all())
 
     def test_the_ground_is_set_by_the_feet_and_not_by_a_hem_that_hangs_lower(self):
         # a sole, an ankle that half follows the foot, a shin that barely does, and a hem below them all

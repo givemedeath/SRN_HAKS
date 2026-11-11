@@ -259,21 +259,31 @@ def owners(vertices, faces, parts, cuts):
 
     A piece with one clear choice goes to it whole, however much of it lies past a plane that only grazes it.
     Two limbs that touch at a few coinciding vertices trace as one piece that votes for both about equally;
-    such a piece is traced again without welding, which takes the two shells apart, and each votes alone."""
+    such a piece is traced again without welding, which takes the two shells apart, and each votes alone. A
+    piece that still votes for two parts then, and holds most of what votes for its second choice anywhere, is
+    one surface no cut parts (two trouser legs pressed through each other below the cut between them): it is
+    refused, since its first choice would get both parts. The few faces of a weld itself go where they vote."""
     vote = classify(vertices[faces].mean(axis=1), parts)
     a, b, c = (vertices[faces[:, i]] for i in range(3))
     weight = np.linalg.norm(np.cross(b - a, c - a), axis=1)
+    names = list(parts)
 
     def choose(piece):
         _, piece = np.unique(piece, return_inverse=True)
         tally = np.zeros((piece.max() + 1, len(parts)))
         np.add.at(tally, (piece, vote), weight)
         total = tally.sum(axis=1)
-        return tally.argmax(axis=1)[piece], ((total > 0) & (np.sort(tally, axis=1)[:, -2] >= RIVAL * total))[piece]
+        order = np.argsort(tally, axis=1)
+        second = np.take_along_axis(tally, order[:, -2:-1], axis=1)[:, 0]
+        return order[:, -1], (total > 0) & (second >= RIVAL * total), second, order[:, -2], tally.sum(axis=0), piece
 
-    owner, torn = choose(pieces(vertices, faces, cuts))
+    first, torn, _, _, _, piece = choose(pieces(vertices, faces, cuts))
+    owner, torn = first[piece], torn[piece]
     if torn.any():
-        owner = np.where(torn, choose(pieces(vertices, faces, cuts, welded=False))[0], owner)
+        first, still, second, rival, all_votes, piece = choose(pieces(vertices, faces, cuts, welded=False))
+        for label in np.flatnonzero(still & (second >= all_votes[rival] / 2)):
+            require(not torn[piece == label].any(), f'The {names[first[label]]} and the {names[rival[label]]} are one surface that no cut parts')
+        owner = np.where(torn, first[piece], owner)
     return owner
 
 
