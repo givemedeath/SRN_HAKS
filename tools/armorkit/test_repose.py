@@ -262,6 +262,8 @@ class ReposeTests(unittest.TestCase):
         self.assertTrue(np.array_equal(result['source'][:len(self.given)], self.given))
         with self.assertRaises(ValueError):
             repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials[:-1])
+        with self.assertRaises(ValueError):  # designed with pads, and shows none
+            repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=np.zeros(len(self.faces), int), padded='lr')
 
     def test_a_vertex_follows_only_the_bones_it_is_free_to(self):
         names = [bone[0] for bone in repose.BONES]

@@ -44,6 +44,34 @@ class GeometryTests(unittest.TestCase):
         normals = export.vertex_normals(vertices, np.array([(0, 1, 2), (3, 5, 4)]))
         self.assertTrue(np.allclose(normals[:3], (0, 0, 1)) and np.allclose(normals[3:], (0, 0, -1)))
 
+    def test_faces_the_split_added_are_lit_as_surfaces_of_their_own(self):
+        # a tube along z, eight sides and one ring of faces, closed at its top by a fan from a middle of its own per rim vertex
+        angles = np.arange(8) * np.pi / 4
+        ring = np.stack([np.cos(angles), np.sin(angles), np.zeros(8)], axis=1)
+        vertices = np.concatenate([ring, ring + (0, 0, 1), np.tile((0.0, 0, 1), (8, 1))])  # bottom, top, the fan's middle
+        own = [face for i in range(8) for face in ([i, (i + 1) % 8, 8 + i], [(i + 1) % 8, 8 + (i + 1) % 8, 8 + i])]
+        fan = [[16 + i, 8 + i, 8 + (i + 1) % 8] for i in range(8)]
+        faces, added = np.array(own + fan), np.arange(24) >= 16
+        carried = np.concatenate([ring, ring, ring])  # as the split leaves them: every vertex has its edge's normal, straight out
+        uvs = np.arange(48.0).reshape(24, 2)
+        v, f, n, t = export.added_normals(vertices, faces, added, carried, uvs)
+        # the outfit's own faces keep their vertices and normals; the fan has vertices of its own, those on the edge repeated
+        self.assertTrue(np.array_equal(f[~added], faces[~added]))
+        self.assertTrue(np.array_equal(v[:24], vertices) and np.array_equal(n[:16], carried[:16]) and np.array_equal(t[:24], uvs))
+        self.assertEqual(len(v), 24 + 8)
+        self.assertFalse(np.isin(f[added], f[~added]).any())
+        self.assertTrue(np.allclose(v[f[added]], vertices[faces[added]]))  # the same surface
+        self.assertTrue(np.allclose(t[f[added]], uvs[faces[added]]))
+        # and it is lit along its own facing, evenly: the edge is a crease
+        self.assertTrue(np.allclose(n[np.unique(f[added])], (0, 0, 1)))
+        self.assertTrue(np.allclose(np.linalg.norm(n, axis=1), 1.0))
+        # a part with nothing added is left as it is
+        v, f, n = export.added_normals(vertices[:16], faces[:16], np.zeros(16, bool), carried[:16])
+        self.assertTrue(np.array_equal(v, vertices[:16]) and np.array_equal(f, faces[:16]) and np.array_equal(n, carried[:16]))
+        for flags, normals in ((added[:-1], carried), (added, carried[:-1])):
+            with self.assertRaises(ValueError):
+                export.added_normals(vertices, faces, flags, normals)
+
     def test_points_and_normals_are_taken_into_the_bones_space(self):
         bone = np.array([[0.0, -1, 0, 2], [1, 0, 0, 3], [0, 0, 1, 4], [0, 0, 0, 1]])  # a quarter turn about z, then moved
         local = np.array([(1.0, 0, 0), (0, 2, 0), (0, 0, 3)])

@@ -697,6 +697,21 @@ class SleeveTests(unittest.TestCase):
         with self.assertRaises(ValueError):  # flags for another mesh
             split.split(self.v, self.f, self.t, JOINTS, RADII, sleeves=sleeves)
 
+    def test_an_outfit_designed_with_a_pad_that_shows_none_is_refused(self):
+        materials = self.patch()
+        self.assertTrue(split.troughs(self.v, self.f, self.t, JOINTS, materials, padded='l')[4]['l']['pad'].any())
+        for given, sides in ((np.zeros(len(self.f), int), 'l'),  # a pad of the sleeve's own material cannot be told
+                             (materials, 'lr'),  # there is no right arm
+                             (None, 'l'),  # nothing to tell a pad by
+                             (materials, 'x')):
+            with self.assertRaises(ValueError):
+                split.troughs(self.v, self.f, self.t, JOINTS, given, padded=sides)
+        v, f, t = figure()  # arms that are surfaces of their own: a pad on one is not cut out, so one expected there is refused
+        patch = (np.linalg.norm(v[f].mean(axis=1) - self.arm[0], axis=1) < 0.085).astype(int)
+        self.assertEqual(split.troughs(v, f, t, JOINTS, patch)[4], {})
+        with self.assertRaises(ValueError):
+            split.troughs(v, f, t, JOINTS, patch, padded='l')
+
     def test_under_a_shoulder_pad_the_walls_are_measured_right_under_the_armpit(self):
         # the shoulder stands 3 cm farther out front and back than the arm does under the armpit
         v = self.v.copy()

@@ -3,7 +3,8 @@
 A part model hangs on its bone, so its vertices and normals are written in that bone's space. A part's whole
 texture is one tint texture named like its model. Normals are written out, not left to the compiler: taken on
 the outfit before it is split and carried through the cut as extra columns beside the texture coordinates,
-they keep the shading continuous across a joint, where normals taken on each part alone would crease.
+they keep the shading continuous across a joint, where normals taken on each part alone would crease. The
+faces the split added are the exception: they are lit as surfaces of their own (`added_normals`).
 """
 import json
 import re
@@ -46,6 +47,34 @@ def vertex_normals(vertices, faces, weld=WELD):
     own, shared = summed(np.arange(len(vertices))), summed(place)[place]
     normal = np.where(((own * shared).sum(axis=1) > 0)[:, None], shared, own)
     return np.where(np.any(normal != 0, axis=1)[:, None], normal, (0.0, 0.0, 1.0))
+
+
+def added_normals(vertices, faces, added, normals, *others, weld=WELD):
+    """A part whose added faces (its closings and caps, flagged in `added`) are lit as surfaces of their own:
+    (vertices, faces, normals, *others).
+
+    What the split adds grows from an edge of the outfit's own surface. Its new vertices carry what was copied
+    from that edge, the normals too, and the edge's vertices are the outfit's own. Lit by those normals, which
+    stand across the closing and not on it, a closing is shaded round like the sleeve it closes and shows as a
+    folded fan. The added faces therefore get vertices of their own, those on the edge repeated, with the
+    normals of the added faces alone (`vertex_normals`): the edge is a crease, and the closing is evenly lit.
+    `others` are arrays with a row per vertex (texture coordinates), repeated alike."""
+    vertices, faces, normals = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(normals, float)
+    added = np.asarray(added, bool)
+    require(added.shape == (len(faces),) and len(normals) == len(vertices), 'One flag per face and one normal per vertex are required')
+    if not added.any():
+        return (vertices, faces, normals, *[np.asarray(other) for other in others])
+    used = np.unique(faces[added])
+    shared = used[np.isin(used, faces[~added])]  # on the edge: the outfit's own faces use them too
+    remap = np.arange(len(vertices))
+    remap[shared] = len(vertices) + np.arange(len(shared))
+    faces = faces.copy()
+    faces[added] = remap[faces[added]]
+    grown = lambda rows: np.concatenate([rows, rows[shared]])
+    vertices, normals = grown(vertices), grown(normals)
+    mine = np.unique(faces[added])
+    normals[mine] = vertex_normals(vertices, faces[added], weld)[mine]
+    return (vertices, faces, normals, *[grown(np.asarray(other)) for other in others])
 
 
 def to_bone(points, bone, direction=False):

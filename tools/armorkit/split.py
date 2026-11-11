@@ -546,7 +546,7 @@ def pad(vertices, faces, materials, joints, side):
     return found | (np.isin(rest, islands) & ~found)
 
 
-def troughs(vertices, faces, uvs, joints, materials=None):
+def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     """The mesh with its fused sleeves cut out along the arms, in the pose it is given in: (vertices, faces, uvs,
     origin, sleeves).
 
@@ -559,7 +559,10 @@ def troughs(vertices, faces, uvs, joints, materials=None):
     With `materials`, a material per face, a shoulder pad on such an arm is found too (`pad`) and parted from
     the rest along its own outline, the edges where its material ends: `split` gives it to a shoulder part,
     which rides on the arm. Cut out by planes wide enough to hold it instead, the pad took what the torso wears
-    round it along, and the torso ended a hand's width short of its own shoulder.
+    round it along, and the torso ended a hand's width short of its own shoulder. `padded` names the sides the
+    outfit is designed with a shoulder pad on: one that shows none there is refused. A pad of the sleeve's own
+    material cannot be told from the sleeve, and would be cut in two on the shoulder plane without a word, its
+    upper half left on the chest when the arm lifts.
 
     `joints` holds the shoulder and elbow joints as `lbicep_g`, `lforearm_g` and so on, in the mesh's space and in
     metres. `origin[i]` is the face that new face i was cut from. `sleeves` maps a side with a fused sleeve to
@@ -575,9 +578,12 @@ def troughs(vertices, faces, uvs, joints, materials=None):
     first, then those the cuts made, then the torso's own."""
     v, f, t = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
     origin, found = np.arange(len(f)), {}
+    require(set(padded) <= {'l', 'r'} and (materials is not None or not padded), 'Pads are expected on the l or r side, and told by materials')
     pads = {side: None if materials is None else pad(v, f, materials, joints, side) for side in 'lr'}
     for side in 'lr':
         seam = sleeve(v, f, joints, side, padded=pads[side] is not None)
+        require(side not in padded or (seam is not None and pads[side] is not None),
+                f'The {side} shoulder shows no pad: a pad is a patch of a material of its own, on a sleeve that is one surface with the torso')
         if seam is not None:
             found[side] = [seam, *seam['walls']]
             for plane in found[side]:
