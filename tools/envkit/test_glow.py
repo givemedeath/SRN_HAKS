@@ -62,6 +62,43 @@ class GlowTests(unittest.TestCase):
         (_, (_, lower)), _, (_, (_, upper)), _ = cards[0]; self.assertEqual((upper, lower), (0.0, 0.5))
         self.assertEqual(cards[1][0][1][1], 1.0); self.assertEqual(image.size[1], 2 * round((2 + 4 * 0.25) * 24))
 
+    def test_light_on_a_side_wall_spreads_from_that_wall(self):
+        where, covered, toward = glow.position_map(POINTS, UVS, FACES, 32, facing=True)
+        np.testing.assert_allclose(toward[covered], np.tile([0, 1.0, 0], (int(covered.sum()), 1)), atol=1e-9)  # the test wall faces front
+        # The same wall turned to face +X: x and y change places, and the surface says so.
+        side = np.stack([where[..., 1] + 2.0, -where[..., 0], where[..., 2]], -1); east = np.zeros_like(toward); east[..., 0] = 1.0
+        lit = np.full((32, 32, 3), 0.8)
+        image, cards = glow.halo(lit, side, covered, toward=east, reach=0.25, strength=0.5)
+        self.assertEqual(len(cards), 1); places = np.array([place for place, _ in cards[0]])
+        np.testing.assert_allclose(places[:, 0], 3.04)  # just out from the wall at x = 3
+        np.testing.assert_allclose(glow.card_normal(cards[0]), [1, 0, 0], atol=1e-9)  # and facing the way the wall does
+        self.assertLess(places[0][1], places[1][1])  # seen from the east, the picture's left is the south
+        self.assertLess(places[:, 1].min(), -2.4); self.assertGreater(places[:, 1].max(), 2.4)
+        front = glow.halo(lit, where, covered, toward=toward, reach=0.25, strength=0.5)[1]  # facing front it is the card it always was
+        self.assertEqual(front, glow.halo(lit, where, covered, reach=0.25, strength=0.5)[1])
+        up = np.zeros_like(toward); up[..., 2] = 1.0
+        self.assertIsNone(glow.halo(lit, where, covered, toward=up, reach=0.25, strength=0.5))  # a skylight gets no upright card
+        speck = np.zeros_like(lit); speck[10, 10] = 0.8
+        self.assertIsNone(glow.halo(speck, where, covered, toward=toward, reach=0.25, strength=0.5))  # nor does a patch too small to matter
+        text = convert.model_text('ek_test', POINTS, np.tile([0, 1.0, 0], (4, 1)), UVS, FACES, cards)
+        self.assertIn('  normals 4\n    1 0 0\n', text[text.index('node trimesh ek_test_halo0'):])
+
+    def test_light_the_model_hides_gets_no_card_and_patches_far_apart_get_one_each(self):
+        # A wall 20 metres long facing front: columns run from x = 10 down to -10, rows from z = 2 down to 0.
+        across, height = np.meshgrid(np.linspace(10, -10, 640), np.linspace(2, 0, 64))
+        where = np.stack([across, np.ones_like(across), height], -1); covered = np.ones(across.shape, bool)
+        toward = np.zeros_like(where); toward[..., 1] = 1.0
+        ends = np.zeros((64, 640, 3)); ends[:, :60] = 0.8; ends[:, -60:] = 0.8  # lit for two metres at each end only
+        cards = glow.halo(ends, where, covered, toward=toward, reach=0.25, strength=0.5)[1]
+        self.assertEqual(len(cards), 2)  # not one card stretched across the dark middle
+        self.assertTrue(all(abs(card[0][0][0] - card[1][0][0]) < 4 for card in cards))
+        # The same light with another wall of the model standing two metres in front of it: seen by nobody, so no card.
+        both = np.concatenate([where, where + [0, 2.0, 0]], 1); lit = np.concatenate([ends, np.zeros_like(ends)], 1)
+        facing = np.concatenate([toward, toward], 1); all_covered = np.ones(both.shape[:2], bool)
+        self.assertIsNone(glow.halo(lit, both, all_covered, toward=facing, reach=0.25, strength=0.5))
+        near = np.concatenate([where, where + [0, 0.2, 0]], 1)  # a frame standing 20 cm proud of a window hides nothing
+        self.assertEqual(len(glow.halo(lit, near, all_covered, toward=facing, reach=0.25, strength=0.5)[1]), 2)
+
     def test_the_card_is_a_node_of_the_model_that_takes_no_light(self):
         normals = np.tile([0, 1.0, 0], (4, 1))
         cards = glow.halo(np.full((16, 16, 3), 0.8), *glow.position_map(POINTS, UVS, FACES, 16))[1]
@@ -78,6 +115,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(convert.lights_script('ek_test', 'OBJECT_SELF', on=True),
                          'ReplaceObjectTexture(OBJECT_SELF,"ek_test");ReplaceObjectTexture(OBJECT_SELF,"ek_test_h");')
         self.assertNotIn('_h', convert.lights_script('ek_test', 'OBJECT_SELF', on=False, halo=False))
+        # For a tile or static scenery, per player: the glow map and the halo are overridden by name with dark textures.
+        self.assertEqual(convert.blackout_script('ek_test', 'oPC', on=False), 'SetTextureOverride("ek_test_i","ek_test_o",oPC);SetTextureOverride("ek_test_h","ek_off",oPC);')
+        self.assertEqual(convert.blackout_script('ek_test', 'OBJECT_INVALID', on=True, halo=False), 'SetTextureOverride("ek_test_i","",OBJECT_INVALID);')
         self.assertNotIn('_i', convert.material_text('ek_test'))  # what `ek_test_o` is written from: the material without its glow
 
     def test_the_shipped_game_set_loads_and_a_bad_one_is_refused(self):
@@ -95,6 +135,7 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 0}, 'out of range')
             refused({'source': 'meshy/x', 'height': 1.0, 'halo': {'reach': 0.2}}, 'needs lit parts')
             refused({'source': 'meshy/x', 'height': 1.0, 'lit': [{'box': [[0, 0], [1, 1]]}]}, 'two corners')
+            refused({'source': 'meshy/x', 'height': 1.0, 'lift': -1}, 'lifted by 0 to 20')
             tiles = {'ground': 'pavement', 'group': 'Long', 'label': 'Long', 'sets': {'dgt04': 'Concrete'}}
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped
             long_name.write_text(json.dumps({'models': {'ek_thirteen_c': {'source': 'meshy/x', 'height': 1.0, 'tiles': tiles}}}), encoding='utf-8')

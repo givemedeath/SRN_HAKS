@@ -132,16 +132,31 @@
     ],
     "tools/envkit/__init__.py": [],
     "tools/envkit/__main__.py": [
+      "docs/additions/catalog.json",
       "tools/armorkit/__init__.py",
       "tools/armorkit/export.py",
+      "tools/envkit/additions.py",
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
       "tools/envkit/meshy.py",
-      "tools/envkit/placeables.py",
       "tools/envkit/reference.py",
       "tools/envkit/tile.py",
       "tools/headkit/comfy.py",
       "tools/shared_tools.py"
+    ],
+    "tools/envkit/additions.py": [
+      "tools/envkit/blueprints.py",
+      "tools/envkit/catalog.py",
+      "tools/envkit/convert.py",
+      "tools/envkit/placeables.py",
+      "tools/envkit/tile.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/blueprints.py": [
+      "tools/envkit/placeables.py"
+    ],
+    "tools/envkit/catalog.py": [
+      "docs/additions/catalog.json"
     ],
     "tools/envkit/convert.py": [
       "tools/envkit/glow.py"
@@ -161,11 +176,16 @@
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/envkit/__init__.py",
+      "tools/envkit/placeables.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/reference.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
+    ],
+    "tools/envkit/test_catalog.py": [
+      "tools/envkit/blueprints.py",
+      "tools/envkit/catalog.py"
     ],
     "tools/envkit/test_convert.py": [
       "tools/envkit/convert.py",
@@ -184,6 +204,9 @@
       "tools/headkit/gpu_lock.py"
     ],
     "tools/envkit/test_placeables.py": [
+      "tools/envkit/additions.py",
+      "tools/envkit/catalog.py",
+      "tools/envkit/convert.py",
       "tools/envkit/placeables.py"
     ],
     "tools/envkit/test_reference.py": [
@@ -191,6 +214,9 @@
       "tools/envkit/sets/stuffer-shack.json"
     ],
     "tools/envkit/test_tile.py": [
+      "tools/envkit/additions.py",
+      "tools/envkit/catalog.py",
+      "tools/envkit/convert.py",
       "tools/envkit/tile.py"
     ],
     "tools/envkit/tile.py": [
@@ -5045,6 +5071,7 @@
     "tools/armorkit/test_split.py",
     "tools/armorkit/test_tables.py",
     "tools/armorkit/test_toolchain.py",
+    "tools/envkit/test_catalog.py",
     "tools/envkit/test_convert.py",
     "tools/envkit/test_glow.py",
     "tools/envkit/test_local.py",

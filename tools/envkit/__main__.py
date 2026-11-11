@@ -1,7 +1,9 @@
 """Command line for envkit, in the order a set goes through it. `crops` writes every crop of a set for a look and
 `reference` redraws assets on the bound ComfyUI; `meshy` makes paid models under the ledger's cap; `game` converts
-generated models to compiled placeables and `placeables` puts them in the pack and the table; `tiles` builds a model as
-a tile group and `install` puts that group in the shared pack and its tilesets."""
+generated models to compiled placeables, `placeables` puts them in the pack and the table and `blueprints` gives
+them blueprints a builder can paint; `tiles` builds a model as a tile group and `install` puts that group in the shared
+pack and its tilesets. Whatever is added to the table or a tileset is entered in the additions catalog, which
+repository verification (tools/Test-Repository.ps1) checks against the packs."""
 import argparse
 import json
 import sys
@@ -11,8 +13,9 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     __package__ = 'tools.envkit'
 
-from . import fresh, local, reference, require
+from . import additions, fresh, local, reference, require
 
+CATALOG = 'docs/additions/catalog.json'  # catalog.PATH, said here so that asking for help imports nothing
 MESHY_NEEDS = {'init': ('cap',), 'prop': ('key', 'image', 'triangles', 'work'), 'building': ('key', 'image', 'work'),
                'remesh': ('key', 'source', 'triangles', 'work'), 'wait': ('key', 'work'), 'download': ('key', 'work', 'bank'),
                'master': ('key', 'work', 'bank')}
@@ -63,14 +66,29 @@ def command_game(args):
         model = models[name]; source, maps = _generated(args.root, model)
         with fresh(output / name) as folder:  # a model that fails leaves nothing in the way of the next attempt
             report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
-                                       colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'))
+                                       colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'),
+                                       lift=model.get('lift', 0.0))
             report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
             (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(report), flush=True)
 
 
+def _ground_colour(pack, texture):
+    """The mean colour (0-1) of a ground texture in a pack, for the area map; mid grey where it cannot be read."""
+    from PIL import Image
+    for path in (Path(pack) / f'{texture}.tga', Path(pack) / f'{texture}.dds'):
+        try:
+            with Image.open(path) as image:
+                return [value / 255 for value in image.convert('RGB').resize((1, 1), Image.BOX).getpixel((0, 0))]
+        except (OSError, ValueError):
+            continue
+    return [0.4, 0.4, 0.4]
+
+
 def command_tiles(args):
-    """Build a model's tile group: tile models (compiled), walkmeshes and the shared material and maps."""
+    """Build a model's tile group: tile models (compiled), walkmeshes, area-map pictures and the shared material and maps."""
+    import numpy as np
+    from PIL import Image
     from . import convert, tile
     models = convert.load_models(args.models)
     require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
@@ -78,56 +96,16 @@ def command_tiles(args):
     with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
         made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
                              lit=model.get('lit'), halo=model.get('halo'))
-        report = tile.group(args.model, made, folder / 'source', ground=model['tiles']['ground'])
+        tiles = model['tiles']
+        with Image.open(maps['base_color']) as image:
+            colour = np.asarray(image.convert('RGB').resize((512, 512)), float) / 255
+        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'),
+                            ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']))
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
         files = convert.skin(args.model, maps, folder / 'shared', _crunch(), made, colour=model.get('colour', 1024))
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
-
-
-def command_install(args):
-    """Put a built tile group into the packs: its files into the shared pack, its records into each tileset named."""
-    import shutil
-    from . import convert, tile
-    models = convert.load_models(args.models); built = Path(args.built) / args.model; repo = Path(args.repo)
-    require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
-    made = json.loads((built / 'report.json').read_text(encoding='utf-8')); tiles = models[args.model]['tiles']; shared = repo / args.pack
-    require(shared.is_dir() and all((repo / f'srn_t_{name}' / f'{name}.set').is_file() for name in tiles['sets']), 'A pack or set file named is missing')
-    # Every tileset is worked out before anything is copied or written, so a refusal on one leaves none half done.
-    prepared = {name: tile.prepare(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
-                                   group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
-    copied = []
-    for one in made['tiles']:
-        copied += [shutil.copyfile(built / 'compiled' / f'{one["model"]}.mdl', shared / f'{one["model"]}.mdl'),
-                   shutil.copyfile(built / 'source' / f'{one["model"]}.wok', shared / f'{one["model"]}.wok')]
-    # The lights-out materials serve a placeable a script can reach; no script reaches a tile, so they stay behind.
-    idle = (args.model + '_o', convert.HALO_OUT)
-    copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'shared').iterdir()) if path.stem not in idle]
-    placed = {name: tile.commit(one) for name, one in prepared.items()}
-    print(json.dumps({'files': len(copied), 'sets': placed}), flush=True)
-
-
-def command_placeables(args):
-    """Put converted models into the placeable pack and give each a row in the placeables table."""
-    import shutil
-    from . import convert, placeables
-    models = convert.load_models(args.models); built, repo = Path(args.built), Path(args.repo); pack, table = repo / args.pack, repo / args.table
-    unknown = [name for name in args.model if not models.get(name, {}).get('placeable')]
-    require(not unknown, 'The game set gives these no placeable row: ' + ', '.join(unknown))
-    chosen = {name: model['placeable'] for name, model in models.items() if model.get('placeable') and (not args.model or name in args.model)}
-    require(chosen and pack.is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
-    missing = [name for name in chosen if not (built / name / 'compiled' / f'{name}.mdl').is_file()]
-    require(not missing, 'Convert these first (envkit game): ' + ', '.join(missing))
-    text, rows = placeables.register(table.read_bytes().decode('cp1252'), [{'model': name, **placed} for name, placed in chosen.items()])
-    copied = 0
-    for name in chosen:
-        shutil.copyfile(built / name / 'compiled' / f'{name}.mdl', pack / f'{name}.mdl'); copied += 1
-        for path in sorted((built / name / 'source').iterdir()):
-            if path.suffix in ('.pwk', '.mtr', '.dds', '.txi'):
-                shutil.copyfile(path, pack / path.name); copied += 1
-    table.write_bytes(text.encode('cp1252'))
-    print(json.dumps({'rows': rows, 'files': copied}), flush=True)
 
 
 def command_meshy(args):
@@ -173,17 +151,25 @@ def main(argv=None):
     sub.set_defaults(run=command_game)
     sub = commands.add_parser('tiles', help='build a model as a tile group')
     sub.add_argument('--models', required=True); sub.add_argument('--root', required=True); sub.add_argument('--output', required=True)
-    sub.add_argument('--model', required=True)
+    sub.add_argument('--model', required=True); sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_t_common', help='pack holding the ground texture')
     sub.set_defaults(run=command_tiles)
     sub = commands.add_parser('install', help='put a built tile group into the shared pack and its tilesets')
     sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `tiles` built into')
     sub.add_argument('--model', required=True); sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_t_common')
-    sub.set_defaults(run=command_install)
+    sub.add_argument('--catalog', default=CATALOG); sub.add_argument('--provenance', help='PROVENANCE.md section of a group new to the catalog')
+    sub.add_argument('--dark-pack', default='srn_placeable', help='the one pack holding the dark halo lit models share')
+    sub.set_defaults(run=additions.command_install)
     sub = commands.add_parser('placeables', help='put converted models into the placeable pack and the placeables table')
     sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `game` converted into')
     sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_placeable'); sub.add_argument('--table', default='srn_2da/placeables.2da')
     sub.add_argument('--model', action='append', default=[], help='limit to these models (repeatable)')
-    sub.set_defaults(run=command_placeables)
+    sub.add_argument('--catalog', default=CATALOG); sub.add_argument('--provenance', help='PROVENANCE.md section of models new to the catalog')
+    sub.add_argument('--dark-pack', default='srn_placeable', help='the one pack holding the dark halo lit models share')
+    sub.set_defaults(run=additions.command_placeables)
+    sub = commands.add_parser('blueprints', help='give catalogued placeables blueprints and list them in the standard palette')
+    sub.add_argument('--models', required=True); sub.add_argument('--game', required=True, help='the game install folder (the one holding data/)')
+    sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_placeable'); sub.add_argument('--catalog', default=CATALOG)
+    sub.set_defaults(run=additions.command_blueprints)
     parsers = {}
     for name, run in (('crops', command_crops), ('reference', command_reference)):
         sub = parsers[name] = commands.add_parser(name)

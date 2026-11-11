@@ -11,6 +11,7 @@
   "tools/armorkit/test_split.py": 2.6,
   "tools/armorkit/test_tables.py": 0.134,
   "tools/armorkit/test_toolchain.py": 0.28,
+  "tools/envkit/test_catalog.py": 0.05,
   "tools/envkit/test_convert.py": 2.8,
   "tools/envkit/test_glow.py": 0.15,
   "tools/envkit/test_local.py": 0.13,

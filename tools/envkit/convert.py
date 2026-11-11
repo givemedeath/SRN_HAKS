@@ -22,6 +22,7 @@ NODE_VERTICES = 60000  # a compiled mesh node indexes its vertices with 16 bits
 NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character suffix
 TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row and column
 NON_WALK = 7
+OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 
 
@@ -235,6 +236,13 @@ def split(faces, limit=NODE_VERTICES):
     return parts
 
 
+def card_normal_line(card):
+    """A halo card's normal as a line of a model: the way the card faces."""
+    from . import glow
+    x, y, z = (glow.card_normal(card).round(5) + 0.0).tolist()  # rounded first: a zero keeps no sign
+    return f'    {x:g} {y:g} {z:g}'
+
+
 def model_text(name, vertices, normals, uvs, faces, cards=None):
     """The ASCII model. `cards` are a halo's sheets (`glow.halo`), four corners each, all showing `name`_h. That
     texture's TXI makes the game add them to what is behind. They take no light (ambient and diffuse are black) and show
@@ -257,7 +265,7 @@ def model_text(name, vertices, normals, uvs, faces, cards=None):
         lines += [f'node trimesh {name}_halo{number}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
                   f'  bitmap {name}_h', '  render 1', '  shadow 0', '  transparencyhint 1', '  verts 4']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
-        lines += ['  normals 4'] + ['    0 1 0'] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
+        lines += ['  normals 4'] + [card_normal_line(card)] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
     return '\n'.join(lines + [f'endmodelgeom {name}', f'donemodel {name}']) + '\n'
 
 
@@ -267,15 +275,35 @@ def material_text(name, illumination=False):
     return '\n'.join(lines) + '\n'
 
 
-def walk_text(name, low, high):
-    """Collision: a box over the model's footprint, and where a character stands to use it (in front and behind)."""
-    (x0, y0, _), (x1, y1, z1) = low, high
-    corners = [(x1, y1), (x0, y1), (x0, y0), (x1, y0)]
-    verts = [(x, y, 0.0) for x, y in corners] + [(x, y, z1) for x, y in corners]
-    faces = [(0, 1, 5), (0, 5, 4), (1, 2, 6), (1, 6, 5), (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7), (4, 5, 6), (4, 6, 7)]
-    lines = [f'node trimesh {name}_wg', f'  parent {name}_pwk', '  position 0 0 0', '  orientation 0 1 0 0', f'  verts {len(verts)}']
-    lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in verts]
-    lines += [f'  faces {len(faces)}'] + [f'    {a} {b} {c} 1 0 0 0 {NON_WALK}' for a, b, c in faces] + ['endnode']
+def outline(points, sides=8):
+    """The model's footprint as a polygon of at most `sides` corners that holds every point: the lines square to
+    `sides` evenly spaced directions, each pushed out to the farthest point, cut where neighbours meet. A box comes out
+    as its own four corners (north-east first, counter-clockwise); a heap or a thing on an arm loses its empty corners."""
+    flat = np.asarray(points, float)[:, :2]; angles = np.arange(sides) * 2 * np.pi / sides
+    square = np.stack([np.cos(angles), np.sin(angles)], 1); reach = (flat @ square.T).max(0); corners = []
+    for index in range(sides):
+        after = (index + 1) % sides
+        corner = np.linalg.solve(square[[index, after]], reach[[index, after]])
+        if not corners or np.abs(corner - corners[-1]).max() > 1e-4:
+            corners.append(corner)
+    if len(corners) > 1 and np.abs(corners[0] - corners[-1]).max() <= 1e-4:
+        corners.pop()
+    return [(round(float(x), 6) + 0.0, round(float(y), 6) + 0.0) for x, y in corners]
+
+
+def walk_text(name, vertices, *, overhead=False):
+    """Collision: an upright block on the model's footprint (`outline`), as tall as the model, and where a character
+    stands to use it (in front and behind). `overhead` leaves the block out: a thing hung above head height is walked
+    under."""
+    vertices = np.asarray(vertices, float); (x0, y0, _), (x1, y1, z1) = vertices.min(0), vertices.max(0); lines = []
+    if not overhead:
+        corners = outline(vertices); count = len(corners)
+        verts = [(x, y, 0.0) for x, y in corners] + [(x, y, z1) for x, y in corners]
+        faces = [face for index in range(count) for face in ((index, (index + 1) % count, (index + 1) % count + count), (index, (index + 1) % count + count, index + count))]
+        faces += [(count, count + index, count + index + 1) for index in range(1, count - 1)]
+        lines = [f'node trimesh {name}_wg', f'  parent {name}_pwk', '  position 0 0 0', '  orientation 0 1 0 0', f'  verts {len(verts)}']
+        lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in verts]
+        lines += [f'  faces {len(faces)}'] + [f'    {a} {b} {c} 1 0 0 0 {NON_WALK}' for a, b, c in faces] + ['endnode']
     for number, y in ((1, y1 + 0.5), (2, y0 - 0.5)):
         lines += [f'node dummy {name}_pwk_use0{number}', f'  parent {name}_pwk', f'  position 0 {y:.5f} 0', '  orientation 0 1 0 0', 'endnode']
     return '\n'.join(lines) + '\n'
@@ -317,32 +345,45 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None):
 
 
 def load_models(path):
-    """The game models of a set: {name: {source, height, colour, signTilt, lit, halo, tiles}}. `source` is the generated
+    """The game models of a set: {name: {source, height, colour, signTilt, lift, lit, halo, tiles}}. `lift` hangs the
+    model that many metres above the ground it is placed on (a camera on a wall). `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
-    `tiles` makes the model a tile group too: its ground texture, its group name and palette label, and the terrain its
-    corners stand on in each tileset ({tileset: terrain}); `placeable` gives it a row in the placeables table: its label
-    and the row of placeableobjsnds.2da it sounds like."""
+    `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
+    corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
+    hide it, and `door` ({at: [x, y, z], facing, type}: where a door stands on the finished model, the way it faces in
+    degrees and its row of doortypes.2da); `placeable` gives it a row in the placeables table: its label
+    and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
+    under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lit', 'halo', 'tiles', 'placeable'}, 'Model needs source and height: ' + name)
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'lit', 'halo', 'tiles', 'placeable'}, 'Model needs source and height: ' + name)
+        require(isinstance(model.get('lift', 0), (int, float)) and 0 <= model.get('lift', 0) <= 20, 'A model is lifted by 0 to 20 metres: ' + name)
         source = Path(model['source'])
         require(not source.is_absolute() and '..' not in source.parts and ':' not in model['source'], 'Model source is a folder under the output root: ' + name)
         require(model['height'] > 0 and model.get('colour', 1024) in (512, 1024, 2048, 4096), 'Model height or colour size is out of range: ' + name)
         for region in model.get('lit', []):
             require(isinstance(region, dict) and 'box' in region and set(region) <= {'part', 'box', 'gain', 'saturation', 'value'}
                     and np.asarray(region['box'], float).shape == (2, 3), 'A lit part needs a box of two corners: ' + name)
-        require(set(model.get('halo', {})) <= {'reach', 'strength', 'core'} and ('halo' not in model or model.get('lit')),
-                'A halo takes reach, strength and core, and needs lit parts: ' + name)
+        require(set(model.get('halo', {})) <= {'reach', 'strength', 'core', 'least'} and ('halo' not in model or model.get('lit')),
+                'A halo takes reach, strength, core and least, and needs lit parts: ' + name)
         placed = model.get('placeable')
-        require(placed is None or (set(placed) == {'label', 'sound'} and isinstance(placed['label'], str) and placed['label'] and type(placed['sound']) is int),
+        require(placed is None or ({'label', 'sound'} <= set(placed) <= {'label', 'sound', 'category', 'static'} and isinstance(placed['label'], str) and placed['label']
+                                   and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
-        require(tiles is None or (set(tiles) == {'ground', 'group', 'label', 'sets'} and isinstance(tiles['sets'], dict) and tiles['sets']
+        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
+        door = (tiles or {}).get('door')
+        require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type'} and np.asarray(door['at'], float).shape == (3,)
+                                 and type(door.get('type', 0)) is int and door.get('type', 0) >= 0), 'A door needs the place it stands at: ' + name)
+        number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
+        require(door is None or number(door.get('facing', 0.0)), 'A door faces a number of degrees: ' + name)
+        fade = (tiles or {}).get('fade')
+        require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
     return data['models']
 
 
@@ -356,8 +397,14 @@ def lights_out(name, folder, crunch, halo):
     itself a material: a name with its own material file (client checks, 2026-11-10: a glow map's own name, or a
     replacement that was only a texture, changed nothing; a replacement with a material file took effect at once and
     an empty `new` brought the lights back). So the model gets `name`_o, its material without the glow map, and its
-    halo gets `ek_off`, a black sheet. Each needs a texture of its own name to be found; a 16-pixel one serves. The
-    object must not be static: a static placeable is scenery no script can reach."""
+    halo gets `ek_off`, a black sheet. Each needs a texture of its own name to be found; a 16-pixel black one serves.
+    The object must not be static: a static placeable is scenery no script can reach.
+
+    A tile is no object, and static scenery is out of that call's reach. `SetTextureOverride(old, new, player)` reaches
+    both, for one player or all, but it swaps textures by name and knows no material (client checks, 2026-11-11: the
+    model's own name overridden with `name`_o drew the building in that 16-pixel black; the glow map `name`_i
+    overridden with it put the lights out and left the rest as it was). So the same files serve both calls
+    (`lights_script`, `blackout_script`); docs/envkit/lights.md is the account of them for those who write scripts."""
     from PIL import Image
     folder = Path(folder); dark = Image.new('RGB', (16, 16)); written = [_compress(dark, folder / f'{name}_o.dds', '-DXT1', 16, crunch, data=False)]
     (folder / f'{name}_o.mtr').write_text(material_text(name), encoding='cp1252', newline='\n')
@@ -369,13 +416,31 @@ def lights_out(name, folder, crunch, halo):
     return written
 
 
+def lights(name, folder):
+    """What a script swaps to put a built model's lights out, read off the files in `folder`: {lit, out, glow}, the
+    material, its lights-out twin and the glow map, and for a model with a halo {halo, dark} too. None for a model
+    with no lit parts."""
+    folder = Path(folder)
+    if not (folder / f'{name}_o.mtr').is_file():
+        return None
+    found = {'lit': name, 'out': f'{name}_o', 'glow': f'{name}_i'}
+    return {**found, 'halo': f'{name}_h', 'dark': HALO_OUT} if (folder / f'{name}_h.mtr').is_file() else found
+
+
 def lights_script(name, target, on, halo=True):
     """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on."""
     swaps = [(name, f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
     return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps)
 
 
-def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None):
+def blackout_script(name, player, on, halo=True):
+    """One line of NWScript that puts out, or back on, the lights of every `name` the player `player` (an expression;
+    OBJECT_INVALID for everyone) sees: tiles and static scenery as well as objects a script can reach."""
+    swaps = [(f'{name}_i', f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
+    return ''.join(f'SetTextureOverride("{old}","{"" if on else new}",{player});' for old, new in swaps)
+
+
+def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card}. `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
@@ -386,6 +451,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         vertices, normals, uvs, faces = two_sided(vertices, normals, uvs, faces, sign_tilt)
         vertices, again = stand(vertices, height); scale *= again
     normals, repaired = repair_normals(vertices, normals, faces)
+    vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
     require(not halo or lit, 'A halo spreads the lit parts: name them')
     if lit:
         require(illumination is None, 'Give the lit parts or a glow map, not both')
@@ -393,9 +459,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         from . import glow
         size = max(colour // 2, 256)
         base = np.asarray(Image.open(maps['base_color']).convert('RGB').resize((size, size)), float) / 255
-        where, covered = glow.position_map(vertices, uvs, faces, size); shine = glow.glow(base, where, covered, lit)
+        where, covered, toward = glow.position_map(vertices, uvs, faces, size, facing=True); shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
-        card = glow.halo(shine, where, covered, **halo) if halo else None
+        card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
             'illumination': illumination, 'card': card}
 
@@ -424,13 +490,13 @@ def measured(name, made, files, sign_tilt=None):
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None):
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0):
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. The keywords are
-    `shape`'s."""
+    `shape`'s. A model lifted clear of a standing character's head gets no block to walk into."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
-    made = shape(model, maps, height=height, colour=colour, illumination=illumination, sign_tilt=sign_tilt, lit=lit, halo=halo)
+    made = shape(model, maps, height=height, colour=colour, illumination=illumination, sign_tilt=sign_tilt, lit=lit, halo=halo, lift=lift)
     vertices, card = made['vertices'], made['card']
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card[1] if card else None),
                                         encoding='cp1252', newline='\n')
-    (folder / f'{name}.pwk').write_text(walk_text(name, vertices.min(0), vertices.max(0)), encoding='cp1252', newline='\n')
+    (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
     return measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt)

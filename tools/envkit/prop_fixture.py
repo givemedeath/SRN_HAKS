@@ -14,24 +14,18 @@ from pathlib import Path
 
 from tools.armorkit import client, client_fixture
 from tools.armorkit.client_fixture import field, gff_float
-from tools.envkit import require
+from tools.envkit import placeables, require
 
 LOG_PREFIX = 'ENVKIT'
-COLUMNS = 13  # after the row number: Label StrRef ModelName LightColor LightOffsetX/Y/Z SoundAppType ShadowSize BodyBag LowGore Reflection Static
 START, HOLD = 8.0, 4.0
 NL = chr(10)
 LABEL = re.compile(r'[A-Za-z0-9_-]+')
 
 
 def table(stock_text, models):
-    """The placeables table with one row appended per model; returns (text, {model: row number})."""
-    lines = stock_text.replace('\r\n', '\n').rstrip('\n').split('\n')
-    require(lines[0].startswith('2DA V2.0') and lines[2].split()[:3] == ['Label', 'StrRef', 'ModelName'], 'Unexpected placeables table')
-    last = int(lines[-1].split()[0]); rows = {}
-    for offset, model in enumerate(models, 1):
-        rows[model] = last + offset
-        lines.append(f'{last + offset} "[envkit]{model}" **** {model} **** **** **** **** **** 1 0 **** **** 1')
-    return '\r\n'.join(lines) + '\r\n', rows
+    """The placeables table with a row of its own appended for each model under test, whether or not the table names
+    the model already; returns (text, {model: row number})."""
+    return placeables.register(stock_text, [{'model': model, 'label': model, 'sound': None} for model in models], again=True)
 
 
 def placed(tag, appearance, position, bearing, static=True):
@@ -90,7 +84,8 @@ def enter_script(shots, start=START, hold=HOLD):
 def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD, ground=None):
     """props: [{model, position: [x, y], bearing, static, appearance}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
     humans for scale. ground: {tileset, fill, tiles: {(column, row): tile}} lays the area with a tileset whose set file is
-    among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west.
+    among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west;
+    its `lights` ({(column, row): [main light 1, main light 2]}) colour those tiles' main lights.
     Returns the fixture record."""
     from tools.phenotypes import tool_runtime
     require(client_fixture.NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 11 characters')
@@ -139,6 +134,8 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         area[name + '_a.are']['Tileset'] = field('resref', ground['tileset'])
         for index, laid in enumerate(area[name + '_a.are']['Tile_List']['value']):
             laid['Tile_ID'] = field('int', ground['tiles'].get((index % size, index // size), ground['fill']))
+            for number, colour in enumerate(ground.get('lights', {}).get((index % size, index // size), ()), 1):
+                laid[f'Tile_MainLight{number}'] = field('byte', colour)  # rows of lightcolor.2da, as a builder sets them in the Toolset
     area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', prop.get('appearance', rows.get(prop['model'])), prop['position'], prop.get('bearing', math.pi), prop.get('static', True))
                                                              for index, prop in enumerate(props)])
     if night:

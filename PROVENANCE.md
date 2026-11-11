@@ -183,6 +183,10 @@ type 117 door at its hook, and `Road_Huge_Hole` and `SubwayEntrance` got their t
 doors, with no door placed by hand. The row's tileset only decides which areas list that door under
 "Tileset Specific" in the door palette. The same test showed the five arcology groups in the palette, placed
 three of them, and found only concrete tiles among the raised-ground tiles the Toolset chose by itself.
+The other two, `Arcology_Corner` and `Arcology_Gate_02`, were placed in the Toolset on 2026-11-11: it built
+the raised concrete round each, and the saved area was loaded in the game client, where both rendered with
+their textures. `Arcology_Gate_02` got no door of its own, because its hook is the generic type 0, which the
+Toolset leaves for the builder.
 The work modifies the MDRNEE tile import under the same notice and attribution conditions.
 
 ## Stuffer Shack tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
@@ -218,8 +222,29 @@ height. The Meshy source, the full-detail spare, the references and the client c
 the Toolset the same day: both palettes list `Stuffer Shack 2x2` under Groups, and painting it laid the four
 tiles in order with no turn (south-west, south-east, north-west, north-east), as the saved areas record. In
 Modern Exterior the Toolset changed no other tile; in Suburbs it repainted the twelve tiles around the group as
-its own grass-to-asphalt edges and corners. The tiles have no door hook, no tile lights, no minimap image and no
-roof fade.
+its own grass-to-asphalt edges and corners.
+
+Rebuilt later on 2026-11-11 under the same tile numbers, with what the stock tiles carry. Each tile has a
+32-pixel picture for the area map (`ek_ss_shack_m00` to `_m11`, drawn from the model seen from above) and two
+main lights for a builder to colour. The halo sheets fade out by day and in by night through the `day`,
+`night`, `day2night` and `night2day` animations. Everything above 3 metres carries `tilefade`, with a black lid
+(`ek_black`) drawn only while it is hidden. The north-west tile has a door record of type 58, the invisible
+transition door this tileset already uses for its subway entrance, at the storefront door. Checked in the game
+client: a coloured main light lit the building and the ground round it; the halos were absent by day and
+present by night; with the client's second-storey setting on, the top and the sign's halo were hidden and the
+lid shown (the setting has no effect while a script holds the camera in cutscene mode). Checked in the Toolset
+in Modern Exterior: painting the group made the door by itself at the storefront, facing out; a group turned a
+quarter turn before painting kept its four tiles together and its door on the turned front; Tile Properties
+offered both main lights; and a highrise painted on the tiles beside the group left the group as it was. The
+area map itself was not looked at in the client, and the door was not checked in Suburbs.
+
+Rebuilt once more the same day: the signs on the east and west walls and the east window now glow, each with a
+halo sheet facing out from its own wall, and the bins against the front wall stop movement without stopping
+sight. Checked in the game client at night from both sides, with the sight line over the bins clear.
+
+The group's lights-out material (`ek_ss_shack_o`) was added to `srn_t_common` the same day, so that tiles carry
+the same set as lit props. A tile is no object, so its lights are put out for a player with `SetTextureOverride`
+on its glow map and halo sheet; `docs/envkit/lights.md` is the account of both calls and of what was checked.
 
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
@@ -244,8 +269,25 @@ recompressed. The vending machine, ATM and drink case have a glow map and a halo
 and a second material (`<name>_o`, with the shared black halo `ek_off`) that a script swaps in with
 `ReplaceObjectTexture` to put their lights out; that needs the placed object not to be static. Checked in the
 game client on 2026-11-11 from the pack's files and these table rows, lights on, out and on again. The rows
-have no blueprints or palette entries, and the security camera stands at ground level until a builder raises
-it to a wall.
+had no blueprints or palette entries at that point; both were added later the same day (below).
+
+Converted again later on 2026-11-11 under the same rows. The collision block of each prop now follows its
+footprint with the empty corners cut (an eight-sided outline; a box-shaped prop keeps its box). The security
+camera hangs 2.6 metres above the spot it is placed on and has no block to walk into. Halo sheets face the way
+their light does. Checked in the game client from the pack's files by day and by night, lights on, out and
+on again.
+
+Each prop also has a blueprint in `srn_placeable`, named as its model (`ek_ss_vending.utp` and so on): scenery
+that cannot be destroyed or used, static except for the three lit props, whose lights a script must be able to
+reach. So that the Toolset offers them, the pack carries `placeablepalstd.itp`: the game's own standard
+placeable palette (104,993 bytes, SHA-256 `a682f56ff787eb675946413e1abb4e14d4512bec67ddff37ec822ed2ad1b9a65`,
+read from the installed game, version 89.8193.37) with these ten blueprints added under the Modern Exterior and
+Modern Interior categories of the pack's `placeablepal.itp`. Every blueprint the game's palette lists is kept
+under the category it had. Made by `tools/envkit` (`envkit blueprints`). Checked in the Toolset on 2026-11-11:
+the Standard tab listed the blueprints under their categories, and a painted trash can and vending machine were
+saved with their rows, names and static settings.
+
+The rows, tiles and groups this project adds are listed in `docs/additions/catalog.json`.
 
 ## MDRNEE placeable import (2026-09-11)
 
