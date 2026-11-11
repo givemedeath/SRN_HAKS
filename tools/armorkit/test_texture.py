@@ -131,6 +131,23 @@ class MaterialTests(unittest.TestCase):
         self.assertAlmostEqual(shades[0, 0], 1.1 * middle, delta=2)
         self.assertAlmostEqual(shades[1, 0], 0.8 * middle, delta=2)
         self.assertTrue((shades[:, 5:] == texture.MIDDLE).all())
+
+    def test_a_closing_is_drawn_in_the_outfits_commonest_material_at_its_middle_shade(self):
+        fabric = int(texture.labels(np.array([FABRIC]), self.found['tones'])[0])
+        self.assertEqual(fabric, 0)  # most of the outfit's texels: the first material
+        channels = ['cloth1', 'leather1', 'metal1']
+        # a part of tan and plate; its closing's texels were read off its edge, dark tan
+        colour = np.zeros((8, 8, 3)); covered = np.ones((8, 8), bool)
+        colour[:, :4], colour[:, 4:] = TAN, PLATE
+        colour[2:4, 1:3] = np.array(TAN) * 0.6
+        closing = texture.face_texels(SQUARE * 0.25 + (0.125, 0.25), FACES, [True, True], 8)
+        self.assertTrue(np.array_equal(np.argwhere(closing), [(2, 1), (2, 2), (3, 1), (3, 2)]))
+        self.assertFalse(texture.face_texels(SQUARE * 0.25 + (0.125, 0.25), FACES, [False, False], 8).any())
+        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels)
+        self.assertTrue((plain_layers[closing] != export.LAYERS['cloth1']).all() and (plain_shades[closing] < texture.MIDDLE - 30).all())
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing)
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())
+        self.assertTrue(np.array_equal(layers[~closing], plain_layers[~closing]) and np.array_equal(shades[~closing], plain_shades[~closing]))
         self.assertTrue(shades.min() >= texture.SHADES[0] and shades.max() <= texture.SHADES[1])
         self.assertEqual(export.read_tint(export.tint(shades, layers))[1].tolist(), layers.tolist())  # it is a tint texture
         with self.assertRaises(ValueError):

@@ -488,6 +488,23 @@ class SleeveTests(unittest.TestCase):
         loose = open_edges(capped[1], capped[0])
         self.assertFalse(self.on(capped[0][loose], ('shoulder', 'l')).all(axis=1).any())  # the whole rim is taken up
 
+    def test_the_split_tells_what_made_each_face(self):
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, {('shoulder', 'l'): 0.05}, made=made)
+        self.assertEqual(set(made), set(parts))
+        seam = split.sleeve(self.v, self.f, JOINTS, 'l')
+        point, normal = self.planes[('shoulder', 'l')]
+        for name, (points, faces, _) in parts.items():
+            self.assertEqual(len(made[name]), len(faces), name)
+        sleeve, faces, _ = parts['bicepl']
+        kinds = made['bicepl']
+        self.assertEqual(sorted(set(kinds.tolist())), [split.OWN, split.CLOSING, split.CAP])
+        past_seam = ((sleeve - seam['point']) @ seam['normal'])[faces].max(axis=1) > 1e-6  # only its rounded closing
+        self.assertTrue(np.all(kinds[past_seam & (kinds != split.CAP)] == split.CLOSING))
+        above = ((sleeve - point) @ seams.unit(normal))[faces].min(axis=1) < -1e-6  # only its cap, under the chest
+        self.assertTrue(np.array_equal(above, kinds == split.CAP))
+        self.assertEqual(sorted(set(made['chest'].tolist())), [split.OWN, split.CLOSING])  # an over part: closed, no cap
+
     def test_walls_stand_in_front_of_the_sleeve_and_behind_it(self):
         seam = split.sleeve(self.v, self.f, JOINTS, 'l')
         front, back = seam['walls']

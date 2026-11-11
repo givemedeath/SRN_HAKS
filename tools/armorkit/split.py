@@ -22,6 +22,7 @@ CAP_STEPS = 3  # rings a cap is built from: it is seen only in the gap a bend op
 SEAM_RINGS = 1  # rings a rounded seam closing is built from, between its line and its hub
 CAP_TOP = 90.0  # degrees of its dome a cap covers: all of it. Short of the pole it has a hole there, which shows once the joint turns far
 LEAN = 0.3  # how much more than a dome a cap draws in as it leaves the plane, to clear an over part that narrows there
+OWN, CLOSING, CAP = 0, 1, 2  # what made a face of a part: the outfit's own surface, or the split (`split`, `made`)
 WELD = 1e-5  # vertices this close are one point when pieces are traced (models repeat vertices at texture seams)
 RIVAL = 0.35  # a piece whose second choice won this share of its area is two parts welded together: it is traced again unwelded
 FREE_END = 0.12  # how far the bone of a neck, hand or foot runs on past its joint
@@ -578,7 +579,7 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
     return v, f, t, owner, list(parts), origin, cuts, sleeves, between, limit
 
 
-def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=()):
+def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -588,7 +589,9 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     part was cut from a neighbour off the joint planes (a sleeve along the arm, the thighs between the legs),
     its opening on that cut is closed, a sleeve's rounded out toward the chest. A joint in `whole` (a neck, wrist or ankle, by joint and side) is not
     cut: its under part is left out and that surface stays on the part beside it, as a collar stays on the
-    chest of an outfit that has no neck part of its own. Parts with no faces are left out."""
+    chest of an outfit that has no neck part of its own. Parts with no faces are left out.
+    `made`, if a dict is given, is filled with what made each face of each part, in the order of its faces:
+    `OWN` for the outfit's own surface, `CLOSING` and `CAP` for what the split added."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
@@ -609,12 +612,13 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         mine = f[owner == index]
         if not len(mine):
             continue
-        pv, pf, pt, closed = v, mine, t, np.zeros((0, 3))
+        pv, pf, pt, closed, kinds = v, mine, t, np.zeros((0, 3)), [np.full(len(mine), OWN)]
         for seam, facing in closings:  # closed first: an under part's cap then grows from a closed rim
             if name in facing:
                 more = seam_fill(pv, pt, pf, len(pv), seam, *facing[name])
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 closed = np.concatenate([closed, more[0]])
+                kinds.append(np.full(len(more[2]), CLOSING))
         for (joint, side), depth in overlaps.items():
             if depth and (joint, side) not in whole and token(seams.JOINTS[joint]['under'], side) == name:
                 point, normal = cuts[(joint, side)]
@@ -624,5 +628,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 reach_here = max([limit[(joint, side)]] + (np.linalg.norm(away, axis=1) + WELD).tolist())
                 more = cap(pv, pt, pf, len(pv), point, seams.unit(normal), depth, reach_here)
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
+                kinds.append(np.full(len(more[2]), CAP))
         result[name] = compact(pv, pf, pt)
+        if made is not None:
+            made[name] = np.concatenate(kinds)
     return result

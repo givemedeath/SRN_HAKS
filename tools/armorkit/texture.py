@@ -156,7 +156,8 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
     cells of `cell`). Every cell belongs to the peak it climbs to, going each time to the heaviest cell beside
     it, the weights smoothed over the cells around; the `count` heaviest peaks start a k-means, each from the
     middle of what climbs to it. `tones` are the k-means' centres, `colours` the middle colour of each material
-    and `light` its middle lightness. A peak with less than `least` of the colours is not a material, and
+    and `light` its middle lightness, the material most of the colours belong to first. A peak with less than
+    `least` of the colours is not a material, and
     fewer than `count` peaks is an error: the source does not show that many materials."""
     colours = np.asarray(colours, float).reshape(-1, 3)
     require(len(colours), 'No texel has a colour')
@@ -184,6 +185,8 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
     require(not gaps or min(gaps) >= apart, f'The colours do not show {count} separate materials')
     which = labels(colours, centres)
     require(all(np.any(which == k) for k in range(count)), 'A material has no texel')
+    order = np.argsort(-np.bincount(which, minlength=count), kind='stable')  # the commonest material first
+    centres, which = centres[order], np.argsort(order)[which]
     middle = np.array([np.median(colours[which == k], axis=0) for k in range(count)])
     return {'tones': centres, 'colours': middle, 'light': np.array([float(np.median(colours[which == k] @ LIGHT)) for k in range(count)])}
 
@@ -193,7 +196,13 @@ def labels(colours, tones):
     return np.argmin(np.linalg.norm(tone(colours)[:, None] - np.asarray(tones, float)[None], axis=2), axis=1)
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE):
+def face_texels(uvs, faces, chosen, size):
+    """(size, size) of flags: the texels on a face that `chosen` flags (one flag per face)."""
+    owner, _ = raster(uvs, faces, size)
+    return (owner >= 0) & np.asarray(chosen, bool)[np.maximum(owner, 0)]
+
+
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k. A texel's shade is
@@ -201,7 +210,14 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     `relief`, the part's `normal_map`, it is also lighter on raised edges and darker in creases (`relief_shade`,
     which wants the part's `chart_map` as `charts`), but a texel the colour already shows darker than its
     material is not darkened twice. Charts are spread outward until the whole texture is filled (or `pad`
-    texels, if given, the rest then getting the first channel at `MIDDLE`)."""
+    texels, if given, the rest then getting the first channel at `MIDDLE`).
+
+    `closing` flags the texels of the part's closings (`face_texels` of the faces `split.split` reports as
+    `CLOSING`). A closing has no surface of its own on the generated outfit; its colours are those of its
+    edge, which runs along creases and through whatever lies over the limb where it left the torso. It gets
+    the outfit's commonest material, the first of `found`, at `MIDDLE`: the cloth the outfit is made of. Left
+    as read, a sleeve's closing was a vest's colour, most of its edge being cut through the vest, and the
+    closings between the thighs were as dark as the crease at the crotch."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     require(len(channels) == len(found['tones']) and all(name in export.LAYERS for name in channels), 'A colour channel is needed per material')
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))
@@ -213,6 +229,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         factor = relief_shade(relief, charts, bend, slope)[covered]
         ratio = np.maximum(factor, 1.0) * np.minimum(ratio, np.minimum(factor, 1.0) * np.maximum(ratio, 1.0))
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
+    plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
+    material[plain], shade[plain] = 0, MIDDLE
     _, material, shade = spread(covered, material, shade, passes=pad)
     return np.round(shade).astype(int), np.array([export.LAYERS[name] for name in channels])[material]
 
