@@ -158,6 +158,33 @@ the upstream D20 Modern/Vault terms and is not relicensed under the repository's
 
 Source: <https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>
 
+## Arcology groups in Modern Exterior (2026-11-10)
+
+D20 Shadowrun Exterior (`srt04`) differs from D20 Modern Exterior (`dgt04`) in five raised-ground tiles: an
+arcology glass edge, its corner, a windowed edge and two gated openings, in the slots where Modern Exterior
+has concrete walls and a stairway. Those five tile records are appended to `dgt04.set` as tiles 429-433 with
+their door records, unchanged apart from terrain names spelled as Modern Exterior spells them, and offered as
+five one-tile groups (`Arcology_Edge_01`, `Arcology_Edge_02_Window`, `Arcology_Corner`, `Arcology_Gate_01`,
+`Arcology_Gate_02`) with matching feature entries in `dgt04palstd.itp`. They are groups so that they are
+placed deliberately and never chosen at random beside the concrete walls. No existing tile or group number
+in `dgt04.set` changes.
+
+Their five models, five walkmeshes and the `arcology_torii01-03` textures move unmodified from `srn_t_srt04`
+to `srn_t_common`, so that neither tileset needs the other's pack. `srn_t_srt04` keeps its own `srt04.set`
+and palette and remains a supported tileset; it is not retired. `dgt05_i02_01.mdl` and `.wok`, a hospital tile both
+tilesets list, moves from `srn_t_dgt04` to `srn_t_common` for the same reason: it was the one model
+Shadowrun Exterior could not resolve without the Modern Exterior pack.
+
+The windowed edge keeps its imported door type 117 (`GlassWindow`), although that `doortypes.2da` row names
+`SRT04`, and no door row is added or changed. A Toolset test on 2026-11-10 showed why none is needed: when a
+tile with a typed door hook is painted, the Toolset creates the hook's door itself, with the hook's door
+type as its appearance, whatever tileset the row names. In a Modern Exterior area the windowed edge got a
+type 117 door at its hook, and `Road_Huge_Hole` and `SubwayEntrance` got their type 58 invisible transition
+doors, with no door placed by hand. The row's tileset only decides which areas list that door under
+"Tileset Specific" in the door palette. The same test showed the five arcology groups in the palette, placed
+three of them, and found only concrete tiles among the raised-ground tiles the Toolset chose by itself.
+The work modifies the MDRNEE tile import under the same notice and attribution conditions.
+
 ## MDRNEE placeable import (2026-09-11)
 
 `mdrnee_placeable.hak` was imported in full under the `mdrnee_placeable` profile. Its verified
