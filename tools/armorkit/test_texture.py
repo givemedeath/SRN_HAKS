@@ -50,7 +50,7 @@ class RasterTests(unittest.TestCase):
 class SizeTests(unittest.TestCase):
     def test_a_larger_part_gets_a_larger_texture_within_the_limits(self):
         square = lambda side: (np.array([[0, 0, 0], [side, 0, 0], [side, side, 0], [0, side, 0]], float), FACES)
-        self.assertEqual(texture.size(*square(0.2)), 256)  # 0.04 m2 at 1.5 mm a texel and 35 % cover: 225, so 256
+        self.assertEqual(texture.size(*square(0.2)), 256)  # 0.04 m2 at 2.2 mm a texel and 35 % cover: 154, so 256
         self.assertEqual(texture.size(*square(0.4)), 512)
         self.assertEqual(texture.size(*square(0.01)), 128)
         self.assertEqual(texture.size(*square(5.0)), 1024)
@@ -109,6 +109,8 @@ class MaterialTests(unittest.TestCase):
     def test_a_source_with_fewer_materials_than_asked_for_is_refused(self):
         with self.assertRaises(ValueError):
             texture.materials(self.colours[self.truth < 2], 3)
+        with self.assertRaises(ValueError):  # a tone on a hundredth of the texels is a mark, not a material
+            texture.materials(np.concatenate([self.colours[self.truth < 2], self.colours[self.truth == 2][:80]]), 3)
         with self.assertRaises(ValueError):
             texture.materials(np.zeros((0, 3)), 3)
 
@@ -226,6 +228,12 @@ class ReliefTests(unittest.TestCase):
         fine = texture.fine_normals(values, np.tile([0.0, 0.0, 1.0], (2, 1)))
         self.assertTrue(np.allclose(fine, [np.sin(tilt), 0, np.cos(tilt)], atol=1e-3))
         self.assertTrue(np.allclose(texture.fine_normals(values, np.tile([0.0, 0.0, -1.0], (2, 1))), [-np.sin(tilt), 0, -np.cos(tilt)], atol=1e-3))
+
+    def test_a_map_is_halved_by_averaging_two_by_two(self):
+        image = np.zeros((4, 4, 3)); image[0, 0], image[0, 1], image[3, 3] = (1, 0, 0), (0, 1, 0), (0, 0, 1)
+        half = texture.halved(image)
+        self.assertEqual(half.shape, (2, 2, 3))
+        self.assertTrue(np.allclose(half[0, 0], [0.25, 0.25, 0]) and np.allclose(half[1, 1], [0, 0, 0.25]) and np.allclose(half[0, 1], 0))
 
     def test_a_normal_map_is_written_bottom_row_first_with_the_material_that_binds_it(self):
         image = np.zeros((2, 4, 3)); image[0, 0] = (1.0, 0.5, 0.0)

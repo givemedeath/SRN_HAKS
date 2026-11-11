@@ -29,7 +29,8 @@ MIDDLE = 170  # the shade a material's middle lightness gets; lighter and darker
 SHADES = (30, 240)  # the shades a texel may get. Texels at the very top of the range come out black in the client: with 254
 # as the limit a part's brightest edges were black marks, with 240 they are not. Where between the two it starts is not known.
 BLOCKS = ((1, 3), (4, 2), (32, 2))  # a point off the colour field's shell looks in blocks of this many voxels, this many blocks round
-TEXEL = 0.0015  # metres of surface a texel should span at most: finer than this the generated colours hold no more detail
+TEXEL = 0.0022  # metres of surface a texel should span at most. At 0.0015, the voxel of the generated colours, a worn outfit's
+# tint textures came to 19 MB; at this size they are a third of that
 COVER = 0.35  # the share of a texture its charts fill, as the layout packs a generated part
 SIZES = (128, 1024)  # the smallest and the largest texture a part gets, in texels a side
 LIGHT = np.array([0.2126, 0.7152, 0.0722])
@@ -148,31 +149,37 @@ def tone(colours):
     return np.stack([0.25 * value[:, 0], 100 * value[:, 1] / light, 100 * value[:, 2] / light], axis=1)
 
 
-def materials(colours, count, cell=6.0, apart=14.0, rounds=25, sample=200000):
+def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sample=200000):
     """The materials of an outfit, from the colours of all its texels: {`tones`, `colours`, `light`}, each one per material.
 
-    A source drawn in flat tones has one heavy mode per material. The heaviest cells of the colours' histogram
-    (in `tone` space) that lie at least `apart` from each other start a k-means; `tones` are its centres,
-    `colours` the middle colour of each material and `light` its middle lightness. Fewer than `count` separate
-    modes is an error: the source does not show that many materials."""
+    A source drawn in flat tones has one peak per material in the histogram of its colours (in `tone` space,
+    cells of `cell`). Every cell belongs to the peak it climbs to, going each time to the heaviest cell beside
+    it, the weights smoothed over the cells around; the `count` heaviest peaks start a k-means, each from the
+    middle of what climbs to it. `tones` are the k-means' centres, `colours` the middle colour of each material
+    and `light` its middle lightness. A peak with less than `least` of the colours is not a material, and
+    fewer than `count` peaks is an error: the source does not show that many materials."""
     colours = np.asarray(colours, float).reshape(-1, 3)
     require(len(colours), 'No texel has a colour')
     rng = np.random.default_rng(0)
     some = tone(colours[rng.choice(len(colours), min(len(colours), sample), replace=False)])
-    cells, counts = np.unique(np.round(some / cell).astype(int), axis=0, return_counts=True)
-    centres = []
-    for index in np.argsort(-counts, kind='stable'):
-        if all(np.linalg.norm(cells[index] * cell - other) > apart for other in centres):
-            centres.append(cells[index] * cell)
-        if len(centres) == count:
-            break
-    require(len(centres) == count, f'The colours show {len(centres)} materials, not {count}')
-    centres = np.array(centres)
+    cells, inverse, counts = np.unique(np.round(some / cell).astype(int), axis=0, return_inverse=True, return_counts=True)
+    index = {spot: number for number, spot in enumerate(map(tuple, cells.tolist()))}
+    steps = list(product((-1, 0, 1), repeat=3))
+    beside = [sorted(index[near] for near in ((x + i, y + j, z + k) for i, j, k in steps) if near in index) for x, y, z in index]
+    weight = np.array([counts[near].sum() for near in beside])
+    peak = np.array([near[int(np.argmax(weight[near]))] for near in beside])
+    while not np.array_equal(peak, peak[peak]):
+        peak = peak[peak]
+    share = np.bincount(peak, weights=counts, minlength=len(cells)) / len(some)
+    heaviest = [number for number in np.argsort(-share, kind='stable')[:count] if share[number] >= least]
+    require(len(heaviest) == count, f'The colours show {len(heaviest)} materials, not {count}')
+    mine = peak[inverse.reshape(-1)]
+    centres = np.array([some[mine == number].mean(axis=0) for number in heaviest])
     for _ in range(rounds):
         nearest = np.argmin(np.linalg.norm(some[:, None] - centres[None], axis=2), axis=1)
         centres = np.array([some[nearest == k].mean(axis=0) if np.any(nearest == k) else centres[k] for k in range(count)])
-    # A lone material's fringe can start a centre of its own; the k-means then halves that material, and the two
-    # halves end up close together. Materials that close are one.
+    # One material can have two peaks; the k-means then halves it, and the two halves end up close together.
+    # Materials that close are one.
     gaps = [np.linalg.norm(centres[i] - centres[j]) for i in range(count) for j in range(i)]
     require(not gaps or min(gaps) >= apart, f'The colours do not show {count} separate materials')
     which = labels(colours, centres)
@@ -371,6 +378,14 @@ def tga(image):
     require(pixels.ndim == 3 and pixels.shape[2] == 3 and pixels.size, 'An image is rows of RGB pixels')
     height, width = pixels.shape[:2]
     return bytes([0, 0, 2]) + bytes(9) + width.to_bytes(2, 'little') + height.to_bytes(2, 'little') + bytes([24, 0]) + pixels[:, :, ::-1].tobytes()
+
+
+def halved(image):
+    """An image at half its size each way: each texel the mean of two by two. A normal map shows little in the
+    game's even light once its relief is in the tint shade, and at half size it costs a quarter."""
+    image = np.asarray(image, float)
+    rows, columns = image.shape[0] // 2 * 2, image.shape[1] // 2 * 2
+    return image[:rows, :columns].reshape(rows // 2, 2, columns // 2, 2, -1).mean(axis=(1, 3))
 
 
 def write_relief(folder, model, image, roughness=0.8):
