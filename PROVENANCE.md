@@ -200,10 +200,13 @@ Origin: the concept sheet `01_stuffer_shack_convenience_store.png` was supplied 
 OpenAI-generated sheet from the operator's own brief). Its building views were redrawn locally with Qwen-Image
 2.1 as plain references, and the 3D model was generated from those references by the operator's Meshy account
 through the pinned `meshy-cli@0.4.0`, then remeshed by Meshy to 78,889 triangles. Attribution:
-[Meshy](https://www.meshy.ai/). The account's tier has not been verified, so the generated model and what is
-made from it are treated as CC BY 4.0 with Meshy attribution, as `docs/heads/evidence/NOTICE.md` sets out, until
-the operator confirms the tier; this is the first Meshy-made model in a production pack, and that confirmation
-is owed before release.
+[Meshy](https://www.meshy.ai/). This is the first Meshy-made model in a production pack. The operator confirmed
+on 2026-11-11 that the Meshy account is on a paid plan. Meshy's published
+[licence guidance](https://help.meshy.ai/en/articles/9992001-can-i-use-meshy-assets-commercially-license-copyright-explained)
+says paid users own the assets they generate from inputs they are authorized to use, so the Free-plan CC BY 4.0
+condition that `docs/heads/evidence/NOTICE.md` allowed for does not apply to this model; it ships under the
+repository's licence, with Meshy named here as the generator. That confirmation is the operator's statement and
+was not checked against the account.
 
 Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's
 axes and scaled to 5.6 metres; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow
