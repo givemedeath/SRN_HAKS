@@ -92,6 +92,31 @@ class MaterialTests(unittest.TestCase):
         creases = np.array([FABRIC, TAN, PLATE]) * 0.55
         self.assertEqual(texture.labels(creases, self.found['tones']).tolist(), order)
 
+    def test_a_mesh_face_is_of_the_material_most_of_its_readings_show(self):
+        # a strip of 40 cells along x, two faces each; the colour at a point is fabric, from x = 2 tan, from x = 3 plate
+        positions = np.array([(x, y, 0.0) for x in np.linspace(0, 4, 41) for y in (0.0, 0.1)])
+        faces = np.array([face for i in range(40) for face in ([2 * i, 2 * i + 2, 2 * i + 1], [2 * i + 1, 2 * i + 2, 2 * i + 3])])
+        rng = np.random.default_rng(5)
+        asked = []
+
+        def read(points):
+            asked.append(len(points))
+            kind = (points[:, 0] >= 2).astype(int) + (points[:, 0] >= 3)
+            values = np.concatenate([shaded(colour, 1, rng) for colour in np.array([FABRIC, TAN, PLATE])[kind]])
+            return values, (points[:, 0] > 2.5) & (points[:, 0] < 2.6)  # one cell of the tan has no colour
+        which, found = texture.mesh_materials(positions, faces, read, 3)
+        self.assertEqual(asked, [4 * len(faces)])  # each face at its middle and toward each corner
+        fabric, tan, plate = texture.labels(np.array([FABRIC, TAN, PLATE]), found['tones']).tolist()
+        self.assertEqual(fabric, 0)  # the commonest first
+        middle = positions[faces].mean(axis=1)[:, 0]
+        expected = np.where(middle < 2, fabric, np.where(middle < 3, tan, plate))
+        expected[(middle > 2.5) & (middle < 2.6)] = fabric  # a face with no reading is of the commonest material
+        self.assertEqual(which.tolist(), expected.tolist())
+        # a face across the line between two materials goes to the one three of its four readings show
+        across = np.array([(1.9, 0, 0), (2.02, 0, 0), (1.9, 0.1, 0)])
+        again, _ = texture.mesh_materials(np.concatenate([positions, across]), np.concatenate([faces, [[82, 83, 84]]]), read, 3)
+        self.assertEqual(again[-1], fabric)
+
     def test_a_tint_texture_is_filled_to_its_last_texel_from_the_nearest_chart(self):
         which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
         channels = [None] * 3

@@ -231,13 +231,13 @@ class ReposeTests(unittest.TestCase):
             self.assertLess(np.linalg.svd(points - points.mean(axis=0), compute_uv=False)[-1], 1e-6)
             self.assertGreater(np.linalg.svd(self.result['vertices'][found['on'][0]] - self.result['vertices'][found['on'][0]].mean(axis=0), compute_uv=False)[-1], 1e-4)
             self.assertFalse(found['on'][1:3].any())  # the doll is flat: the walls in front of it and behind it meet nothing
-            self.assertTrue(found['on'][3].any())  # the top, across the arm above the shoulder joint
+            self.assertFalse(found['on'][3].any() or found['pad'].any())  # no materials were given: no pad is looked for
             # the torso's own vertices on the cuts follow no bone of that arm; the sleeve's, at the same places, do
             arm = [index for index, bone in enumerate(repose.BONES) if bone[0] in ('upper' + side, 'fore' + side, 'hand' + side)]
             weights = self.result['weights'][arm].sum(axis=0)
             self.assertTrue(found['torso'].any())
             self.assertEqual(weights[found['torso']].max(), 0.0)
-            self.assertGreater(weights[found['on'].any(axis=0) & ~found['torso']].max(), 0.3)
+            self.assertGreater(weights[found['on'].any(axis=0) & ~found['torso']].max(), 0.02)  # a little, this near the shoulder
             self.assertFalse(found['on'][:, :given].any())  # only vertices the cuts made lie on them
             inside = source[faces[found['inside']]].mean(axis=1)[:, 0] - SHIFT[0]
             self.assertTrue(np.all(inside < 0) if side == 'l' else np.all(inside > 0))
@@ -246,6 +246,22 @@ class ReposeTests(unittest.TestCase):
         self.assertEqual(self.result['weights'].shape, (len(repose.BONES), len(self.result['vertices'])))
         self.assertTrue(np.allclose(self.result['weights'].sum(axis=0), 1.0))
         self.assertTrue(np.isfinite(self.result['vertices']).all())
+
+    def test_a_shoulder_pad_told_by_its_material_is_parted_along_its_outline(self):
+        # a patch of another material round each shoulder joint
+        centre = self.given[self.faces].mean(axis=1)
+        materials = np.zeros(len(self.faces), int)
+        for side in 'lr':
+            materials[np.linalg.norm(centre - self.result['joints']['shoulder' + side], axis=1) < 0.07 * SCALE] = 1
+        result = repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials)
+        self.assertTrue(np.array_equal(np.any([found['pad'] for found in result['sleeves'].values()], axis=0), (materials == 1)[result['origin']]))
+        for side, found in result['sleeves'].items():
+            self.assertTrue(found['pad'].any() and found['on'][3].any())
+            # the outline is one edge of the torso and the pad through the bend: no vertex of the torso's own lies on it alone
+            self.assertFalse((found['torso'] & ~found['on'][:3].any(axis=0)).any())
+        self.assertTrue(np.array_equal(result['source'][:len(self.given)], self.given))
+        with self.assertRaises(ValueError):
+            repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials[:-1])
 
     def test_a_vertex_follows_only_the_bones_it_is_free_to(self):
         names = [bone[0] for bone in repose.BONES]

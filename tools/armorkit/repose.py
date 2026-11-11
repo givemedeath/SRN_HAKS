@@ -368,14 +368,15 @@ def grounded(vertices, feet):
     return vertices
 
 
-def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE):
+def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE, materials=None):
     """An outfit carried onto a body: its `vertices` in the body's rest pose and fitted round it, with what was found.
 
     `bones` and `parts` are the body's (`measure.body`). Sleeves that are one surface with the torso are first
     cut out along the arms, in the pose the outfit came in (`split.troughs`), where the armpit is open: `faces`
     are the outfit's with the faces those cuts crossed divided, `origin` the face each came from, `source` the
     vertices given followed by the new ones on those cuts, and `sleeves` what `split.split` takes to part the
-    sleeves there. The torso's own vertices on those cuts follow no bone of that arm. Each leg is kept on its
+    sleeves there. With `materials`, a material per face (`texture.mesh_materials`), a shoulder pad on such an
+    arm is parted along its outline too. The torso's own vertices on those cuts follow no bone of that arm. Each leg is kept on its
     own side of the middle (`apart`), and the soles are set on the ground by the share each vertex follows a
     foot. Also returned: the outfit's own `joints` and `landmarks`,
     its `scale` to the body (neck height over neck height), the bone `weights`, the `posed` vertices before the
@@ -385,7 +386,7 @@ def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE):
     here, marks = outfit_joints(vertices, faces, there)
     scale = float(there['neck'][2] / (marks['neck'] - marks['floor']))
     arms = {side + bone: here[joint + side] * scale for side in 'lr' for bone, joint in (('bicep_g', 'shoulder'), ('forearm_g', 'elbow'))}
-    cut, faces, _, origin, sleeves = split.troughs(vertices * scale, faces, np.zeros((len(vertices), 0)), arms)
+    cut, faces, _, origin, sleeves = split.troughs(vertices * scale, faces, np.zeros((len(vertices), 0)), arms, materials)
     vertices = np.concatenate([vertices, cut[len(vertices):] / scale])
     free = np.ones((len(BONES), len(vertices)), bool)  # the torso's own vertices on a sleeve cut follow no bone of that arm
     for side, found in sleeves.items():

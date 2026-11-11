@@ -582,39 +582,6 @@ class SleeveTests(unittest.TestCase):
         self.assertAlmostEqual(area(both, new_f), 1.0, places=6)  # the whole triangle under the hub, no sliver
         self.assertTrue(np.all(normals(both, new_f) @ seam['normal'] > 0.99))
 
-    def test_with_a_dome_the_longest_line_is_closed_by_it_and_across_its_ends(self):
-        # the cut x = 0 holds two lines, each down and up again: one of four edges, one of two; a face hangs from each edge
-        long = [(0, 0, 0), (0, 1, -1), (0, 2, -2), (0, 3, -1), (0, 4, 0)]
-        short = [(0, 10, 0), (0, 11, -1), (0, 12, 0)]
-        hung = [(-1, y + 0.5, 0) for y in (0, 1, 2, 3, 10, 11)]
-        v = np.array(long + short + hung, float)
-        t = np.stack([np.arange(len(v)) / len(v), np.zeros(len(v))], axis=1)
-        f = np.array([[0, 1, 8], [1, 2, 9], [2, 3, 10], [3, 4, 11], [5, 6, 12], [6, 7, 13]])
-        seam = {'point': np.array([0.0, 0, 0]), 'normal': np.array([1.0, 0, 0]), 'radius': 50.0}
-        centre, out, rings = np.array([0.0, 2, -0.5]), np.array([1.0, 0, 0]), split.DOME_RINGS
-        far = np.linalg.norm(np.array(long, float) - centre, axis=1)
-        pole = centre + split.SHOULDER_DOME * far.min() * out
-        for facing in (1.0, -1.0):
-            new_v, new_t, new_f = split.seam_fill(v, t, f, len(v), seam, facing, dome=(centre, out))
-            both = np.concatenate([v, new_v])
-            drawn = new_f[(both[new_f][:, :, 1] < 5).all(axis=1)]
-            mine = np.unique(drawn[drawn >= len(v)])
-            self.assertEqual(len(mine), len(long) * (rings + 1))  # a column per point of the line, in to the pole
-            self.assertEqual((np.abs(both[mine] - pole).sum(axis=1) < 1e-9).sum(), len(long))
-            self.assertEqual(len(drawn), len(long) * (2 * rings + 1))  # a strip per edge, and one across from end to end
-            self.assertEqual(len(open_edges(drawn, both)), len(long))  # one surface, open along the line and from end to end
-            self.assertTrue(np.all(facing * normals(both, drawn)[:, 0] > 0))
-            # it rises from the cut toward the pole, and no point of it is farther from the centre than its point of the line
-            self.assertGreater(both[mine][:, 0].min(), 0.0)
-            for number, reach in enumerate(far):
-                column = mine[np.all(np.abs(new_t[mine - len(v)] - t[number]) < 1e-12, axis=1)]
-                self.assertEqual(len(column), rings + 1)
-                self.assertLess(np.linalg.norm(both[column] - centre, axis=1).max(), reach + 1e-9)
-            rest = new_f[(both[new_f][:, :, 1] > 5).all(axis=1)]  # the shorter line, flat from the middle between its ends
-            self.assertEqual(len(rest), 2)
-            np.testing.assert_allclose(both[rest[:, 0]], [[0, 11, 0]] * 2)
-        self.assertEqual(len(split.seam_fill(v, t, f, len(v), seam, 1.0)[2]), 6)  # without one, each flat from its own middle
-
     def test_a_shoulder_is_measured_only_where_the_arm_is_a_surface_of_its_own(self):
         J = {name: np.array(p, float) for name, p in JOINTS.items()}
         inside = J['lbicep_g'] + 0.06 * seams.unit(J['lbicep_g'] - J['lforearm_g'])
@@ -636,18 +603,17 @@ class SleeveTests(unittest.TestCase):
         self.assertTrue(np.array_equal(v[:len(self.v)], self.v))  # the vertices given, then those on the cuts
         self.assertGreater(len(v), len(self.v))
         self.assertTrue(np.array_equal(np.unique(origin), np.arange(len(self.f))))
-        self.assertEqual(sleeves['l']['on'].shape, (4, len(v)))  # the seam, the two walls and the top
+        self.assertEqual(sleeves['l']['on'].shape, (4, len(v)))  # the seam, the two walls and a pad's outline
         self.assertEqual(sleeves['l']['inside'].shape, (len(f),))
         seam = split.sleeve(self.v, self.f, JOINTS, 'l')
         on_seam = v[sleeves['l']['on'][0]]
         self.assertTrue(len(on_seam) and np.allclose((on_seam - seam['point']) @ seam['normal'], 0.0, atol=1e-9))
         self.assertTrue(np.all((v[f[sleeves['l']['inside']]].mean(axis=1) - seam['point']) @ seam['normal'] < 0))  # the arm's side
-        # the top closes the trough across the arm, a little above the shoulder joint
+        # the trough is taken from a little above the shoulder joint down; without materials no pad is looked for
         start, axis = self.arm
-        on_top = v[sleeves['l']['on'][3]]
-        self.assertTrue(len(on_top) and np.allclose((on_top - start) @ axis, -split.SHOULDER_TOP, atol=1e-9))
-        self.assertGreater(((v[f[sleeves['l']['inside']]].mean(axis=1) - start) @ axis).min(), -split.SHOULDER_TOP)
-        self.assertGreater(((on_seam - start) @ axis).min(), -split.SHOULDER_TOP - split.OVERRUN - 1e-9)  # the seam ends just past it
+        along = (v[f].mean(axis=1) - start) @ axis
+        self.assertGreater(along[sleeves['l']['inside']].min(), -3 * split.SLEEVE_STEP - 1e-9)
+        self.assertFalse(sleeves['l']['on'][3].any() or sleeves['l']['pad'].any())
         # the torso has vertices of its own along the cuts, where the sleeve's are, and the trough's faces use none
         own = sleeves['l']['torso']
         self.assertEqual(own.shape, (len(v),))
@@ -655,69 +621,95 @@ class SleeveTests(unittest.TestCase):
         self.assertTrue(sleeves['l']['on'][:, own].any(axis=0).all())
         arm_side = v[sleeves['l']['on'].any(axis=0) & ~own]
         self.assertLess(np.abs(v[own][:, None] - arm_side[None]).sum(axis=2).min(axis=1).max(), 1e-9)
-        self.assertFalse(own[f[sleeves['l']['inside']]].any())
-        # nothing has moved since: the parts are those `split` finds and cuts by itself, and all but the chest
-        # are closed the same way
-        carried, found = self.own(v, f, t, sleeves=sleeves), self.own(self.v, self.f, self.t)
-        self.assertEqual({name: areas if name != 'chest' else areas[0] for name, areas in carried.items()},
-                         {name: areas if name != 'chest' else areas[0] for name, areas in found.items()})
+        self.assertFalse(own[f[sleeves['l']['inside'] & (along >= 0)]].any())  # from the shoulder joint down it is the arm's
+        # nothing has moved since: the parts are those `split` finds and cuts by itself
+        self.assertEqual(self.own(v, f, t, sleeves=sleeves), self.own(self.v, self.f, self.t))
         self.assertNotIn(('shoulder', 'l'), split.reaches(v, f, JOINTS, RADII, sleeves=sleeves))
         self.assertIn(('shoulder', 'l'), split.reaches(v, f, JOINTS, RADII, sleeves={}))  # told that no sleeve is fused
         with self.assertRaises(ValueError):  # flags for another mesh
             split.split(self.v, self.f, self.t, JOINTS, RADII, sleeves=sleeves)
 
-    def test_the_chests_closing_over_a_sleeve_cut_in_the_pose_the_outfit_came_in_is_a_dome_about_the_shoulder(self):
-        v, f, t, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)
-        left, right = (np.array(JOINTS[name], float) for name in ('lbicep_g', 'rbicep_g'))
-        out = seams.unit(left - right)  # from the shoulder joint toward the arm
-        edge = np.linalg.norm(v[sleeves['l']['torso']] - left, axis=1)  # the torso's edge of the armhole
-        for more in ({'sleeves': sleeves}, {}):
-            made = {}
-            chest, faces, _ = split.split(*((v, f, t) if more else (self.v, self.f, self.t)), JOINTS, RADII, made=made, **more)['chest']
-            closing = faces[made['chest'] == split.CLOSING]
-            domed = chest[np.unique(closing)]
-            domed = domed[(domed - left) @ out > -0.05]  # this armhole's
-            if not more:  # found at rest, the cut runs under the armpit only: a flat closing, which nowhere stands out from its edge
-                self.assertLess(((domed - left) @ out).max(), ((chest[np.unique(faces[made['chest'] == split.OWN])] - left) @ out).max() + 1e-9)
-                continue
-            spots, count = np.unique(np.round(chest[closing].reshape(-1, 3), 9), axis=0, return_counts=True)
-            pole = spots[np.argmax(count)]  # where most of the closing's faces meet
-            high = float((pole - left) @ out)
-            # the pole stands from the joint toward the arm, a share of the edge's nearest distance away
-            np.testing.assert_allclose(pole - left, high * out, atol=1e-9)
-            self.assertAlmostEqual(high, split.SHOULDER_DOME * edge.min(), places=3)  # the joint planes cut the edge too
-            self.assertGreater((np.abs(chest[closing] - pole).sum(axis=2) < 1e-9).any(axis=1).sum(), 8)
-            self.assertGreater((normals(chest, closing) @ out).sum(), 0.0)  # seen from the arm's side
-            self.assertLess(np.linalg.norm(domed - left, axis=1).max(), edge.max() + 1e-9)  # inside the edge's own reach
-            self.assertGreater(((domed - left) @ out).max(), ((v[sleeves['l']['torso']] - left) @ out).max())  # and out past it
+    def patch(self, reach=0.085, outer=False):
+        """A material per face: 1 within `reach` of the left shoulder joint (with `outer`, only on the arm's outer side), else 0."""
+        away = self.v[self.f].mean(axis=1) - self.arm[0]
+        return ((np.linalg.norm(away, axis=1) < reach) & (not outer or away[:, 0] < -0.02)).astype(int)
 
-    def test_what_the_trough_holds_above_the_shoulder_plane_can_go_to_a_shoulder_part(self):
-        v, f, t, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)
-        plain, made = self.own(v, f, t, sleeves=sleeves), {}
-        parts = split.split(v, f, t, JOINTS, RADII, made=made, sleeves=sleeves, shoulders=True)
-        self.assertEqual(set(parts) - set(plain), {'shol'})  # there is no right arm
-        pad, faces, _ = parts['shol']
-        own = faces[made['shol'] == split.OWN]
-        point, normal = self.planes[('shoulder', 'l')]
+    def test_a_shoulder_pad_is_the_patch_of_one_material_over_the_shoulder_joint(self):
+        for outer in (False, True):
+            materials = self.patch(outer=outer)
+            self.assertTrue(np.array_equal(split.pad(self.v, self.f, materials, JOINTS, 'l'), materials == 1))
+        materials = self.patch()
+        self.assertIsNone(split.pad(self.v, self.f, materials, JOINTS, 'r'))  # there is no right arm
+        self.assertIsNone(split.pad(self.v, self.f, np.zeros(len(self.f), int), JOINTS, 'l'))  # one material: the sleeve itself
+        length = np.linalg.norm(np.array(JOINTS['lforearm_g']) - np.array(JOINTS['lbicep_g']))
+        self.assertIsNone(split.pad(self.v, self.f, self.patch(reach=1.1 * split.PAD_REACH * length), JOINTS, 'l'))  # too far down the arm
+        # a face in the pad read as another material is the pad's; a patch as large as a quarter of it is not
+        centre = self.v[self.f].mean(axis=1) - self.arm[0]
+        inner = np.flatnonzero(materials == 1)[np.argmin(np.where(np.abs(centre[materials == 1, 1]) > 0.04, np.linalg.norm(centre[materials == 1], axis=1), 9.0))]
+        spotted = materials.copy(); spotted[inner] = 2
+        self.assertTrue(np.array_equal(split.pad(self.v, self.f, spotted, JOINTS, 'l'), materials == 1))
+        halved = np.where((materials == 1) & (centre[:, 1] < -0.04), 2, materials)  # its rear face is of another material
+        found = split.pad(self.v, self.f, halved, JOINTS, 'l')
+        self.assertTrue(found is not None and found.sum() < (materials == 1).sum() and not found[halved == 2].any())
+        with self.assertRaises(ValueError):
+            split.pad(self.v, self.f, materials[:-1], JOINTS, 'l')
+
+    def test_a_shoulder_pad_is_cut_out_along_its_outline_and_goes_to_a_shoulder_part(self):
+        plain = self.own(self.v, self.f, self.t)
+        for outer in (False, True):  # a pad all round the shoulder, and one on the arm's outer side alone
+            materials = self.patch(outer=outer)
+            v, f, t, origin, sleeves = split.troughs(self.v, self.f, self.t, JOINTS, materials)
+            found = sleeves['l']
+            self.assertTrue(np.array_equal(found['pad'], (materials == 1)[origin]))
+            self.assertAlmostEqual(area(v, f[found['pad']]), area(self.v, self.f[materials == 1]), places=9)
+            # the outline: the points both a face of the pad and another face hold
+            weld = mesh_ops.weld_ids(v, 1e-6)
+            held = [np.isin(weld, weld[f[chosen]]) for chosen in (found['pad'], ~found['pad'])]
+            self.assertTrue(found['on'][3].any() and np.array_equal(found['on'][3], held[0] & held[1]))
+            # it stays one edge through the bend: only on the trough has the torso vertices of its own
+            self.assertFalse((found['torso'] & ~found['on'][:3].any(axis=0)).any())
+            made = {}
+            parts = split.split(v, f, t, JOINTS, RADII, made=made, sleeves=sleeves)
+            self.assertEqual(set(parts) - set(plain), {'shol'})
+            padded = {name: tuple(round(area(points, part[made[name] == kind]), 6) for kind in (split.OWN, split.CLOSING))
+                      for name, (points, part, _) in parts.items()}
+            # the pad goes whole to the shoulder part, from both sides of the shoulder plane, and nothing else does
+            self.assertAlmostEqual(padded['shol'][0], area(self.v, self.f[materials == 1]), places=6)
+            self.assertLess(padded['chest'][0], plain['chest'][0])
+            self.assertLess(padded['bicepl'][0], plain['bicepl'][0])
+            self.assertAlmostEqual(padded['chest'][0] + padded['bicepl'][0] + padded['shol'][0], plain['chest'][0] + plain['bicepl'][0], places=5)
+            self.assertEqual({name: found for name, found in padded.items() if name not in ('chest', 'bicepl', 'shol')},
+                             {name: found for name, found in plain.items() if name not in ('chest', 'bicepl')})
+            # it is closed underneath, across its own outline; the chest and the upper arm are closed where it lay
+            pad, faces, _ = parts['shol']
+            self.assertEqual(len(open_edges(faces, pad)), 0)
+            self.assertGreater(padded['chest'][1], plain['chest'][1])
+            self.assertGreater(padded['bicepl'][1], plain['bicepl'][1])
+            # the chest's closing there is the shoulder under the pad: rounded out from the shoulder plane, toward
+            # the arm, and nowhere farther from the joint than the pad's outline on that plane
+            chest, faces, _ = parts['chest']
+            point, normal = self.planes[('shoulder', 'l')]
+            closing = chest[np.unique(faces[made['chest'] == split.CLOSING])]
+            above = closing[(closing - point) @ seams.unit(normal) < -1e-6]
+            edge = v[found['on'][3]]
+            self.assertTrue(len(above))
+            self.assertLess(np.linalg.norm(above - self.arm[0], axis=1).max(), np.linalg.norm(edge - self.arm[0], axis=1).max() + 1e-6)
+        with self.assertRaises(ValueError):  # flags for another mesh
+            split.split(self.v, self.f, self.t, JOINTS, RADII, sleeves=sleeves)
+
+    def test_under_a_shoulder_pad_the_walls_are_measured_right_under_the_armpit(self):
+        # the shoulder stands 3 cm farther out front and back than the arm does under the armpit
+        v = self.v.copy()
+        wide = (v[:, 2] > 1.5) & (v[:, 0] < -0.21)
+        v[wide, 1] += 0.03 * np.sign(v[wide, 1])
         start, axis = self.arm
-        seam = split.sleeve(self.v, self.f, JOINTS, 'l')
-        self.assertLess(((pad[own] - point) @ seams.unit(normal)).max(), 1e-9)  # above the shoulder plane: the chest's side
-        self.assertGreater(((pad[own] - start) @ axis).min(), -split.SHOULDER_TOP - 1e-9)  # below the trough's top
-        self.assertLess(((pad[own] - seam['point']) @ seam['normal']).max(), 1e-9)  # and on the arm's side of the seam
-        self.assertGreater(area(pad, own), 0.01)
-        # it is the chest's loss alone, and the chest is closed where it left
-        with_pad = {name: tuple(round(area(points, part[made[name] == kind]), 6) for kind in (split.OWN, split.CLOSING))
-                    for name, (points, part, _) in parts.items()}
-        self.assertAlmostEqual(with_pad['chest'][0] + with_pad['shol'][0], plain['chest'][0], places=6)
-        self.assertGreater(with_pad['chest'][1], plain['chest'][1])
-        self.assertEqual({name: found for name, found in with_pad.items() if name not in ('chest', 'shol')},
-                         {name: found for name, found in plain.items() if name != 'chest'})
-        # closed toward the chest, open underneath on the shoulder plane, where the upper arm's own end lies
-        self.assertGreater(with_pad['shol'][1], 0.0)
-        loose = open_edges(faces, pad)
-        self.assertTrue(len(loose) and self.on(pad[loose], ('shoulder', 'l')).all())
-        with self.assertRaises(ValueError):  # only a sleeve cut in the pose the outfit came in has a top
-            split.split(self.v, self.f, self.t, JOINTS, RADII, shoulders=True)
+        other = np.array(JOINTS['rbicep_g'], float) - start
+        across = np.cross(axis, seams.unit(other - (other @ axis) * axis))
+        stand = lambda seam: sorted(float((wall['point'] - start) @ across) for wall in seam['walls'])
+        whole, padded = split.sleeve(v, self.f, JOINTS, 'l'), split.sleeve(v, self.f, JOINTS, 'l', padded=True)
+        self.assertAlmostEqual(stand(whole)[1] - stand(whole)[0], 2 * (0.05 + 0.03 + split.SLEEVE_WALL), places=6)
+        self.assertAlmostEqual(stand(padded)[1] - stand(padded)[0], 2 * (0.05 + split.SLEEVE_WALL), places=6)
+        self.assertAlmostEqual(padded['point'] @ padded['normal'] - start @ padded['normal'], whole['point'] @ whole['normal'] - start @ whole['normal'], places=9)  # the seam stands where it stood
 
     def test_a_flank_pressed_into_the_sleeve_after_the_cut_stays_the_torsos(self):
         v, f, t, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)
