@@ -14,12 +14,12 @@ onto it over the slab's outermost cells."""
 import json
 import re
 import subprocess
+import tempfile
 from pathlib import Path
 
 import numpy as np
 
-from . import convert
-from .convert import require
+from . import convert, require
 
 SIZE = 10.0
 CELLS = 20  # walk cells across a tile: half a metre each
@@ -213,7 +213,7 @@ def share_cards(cards, rows, columns, corner):
 def group(name, made, folder, *, ground):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces}]} with the tiles in the set file's order."""
-    require(len(name) <= 12, 'A tile group name leaves four characters for the tile: ' + name)
+    require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     vertices, normals, uvs, faces = made['vertices'], made['normals'], made['uvs'], made['faces']
     rows, columns, corner = layout(vertices); found = survey(vertices, faces, rows, columns, corner)
@@ -325,13 +325,11 @@ def prepare(set_path, palette_path, made, *, terrain, group_name, label):
 
 def commit(prepared):
     """Write what `prepare` worked out: the palette, then the set file; returns {firstTile, group}."""
-    palette_path = prepared['palette']; staged = palette_path.with_suffix('.itp.json'); staged.write_text(json.dumps(prepared['document']), encoding='utf-8')
-    try:
-        wrote = subprocess.run([prepared['tool'], '-i', str(staged), '-l', 'json', '-o', str(palette_path), '-k', 'gff'], capture_output=True, timeout=120,
+    with tempfile.TemporaryDirectory() as folder:  # the JSON never lies in the pack, where a stopped run would leave it
+        staged = Path(folder) / 'palette.json'; staged.write_text(json.dumps(prepared['document']), encoding='utf-8')
+        wrote = subprocess.run([prepared['tool'], '-i', str(staged), '-l', 'json', '-o', str(prepared['palette']), '-k', 'gff'], capture_output=True, timeout=120,
                                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         require(wrote.returncode == 0, 'The palette could not be written: ' + wrote.stderr.decode(errors='replace')[-400:])
-    finally:
-        staged.unlink(missing_ok=True)
     prepared['set'].write_bytes(prepared['text'].encode('cp1252'))
     return {'firstTile': prepared['firstTile'], 'group': prepared['group']}
 

@@ -88,6 +88,30 @@ class MeshyTests(unittest.TestCase):
                          run=FakeMeshy(answer=False))
         self.assertEqual((self.ledger.entry('a')['state'], self.ledger.committed()), ('uncertain', 15))
 
+    def test_a_call_refused_before_it_is_sent_gives_its_reservation_back(self):
+        def refuse(arguments, folder):
+            raise meshy.NotSent('npm not found')
+        with self.assertRaisesRegex(ValueError, 'npm not found'):
+            meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=refuse)
+        self.assertEqual((meshy.Ledger(self.ledger.path).data['entries'], self.ledger.committed()), ([], 0))
+        with self.assertRaises(TypeError):  # no work folder: refused before anything is reserved
+            meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), None, run=FakeMeshy())
+        self.assertEqual(meshy.Ledger(self.ledger.path).data['entries'], [])
+        meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=FakeMeshy())  # the key is free
+
+    def test_an_incomplete_download_leaves_no_folder_in_the_way_of_the_retry(self):
+        run = FakeMeshy()
+        meshy.submit(self.ledger, 'p', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=run)
+        meshy.wait(self.ledger, 'p', self.root / 'work', run=run)
+
+        def cut_short(arguments, folder):
+            bank = Path(arguments[arguments.index('--output-dir') + 1]); bank.mkdir(parents=True); (bank / 'texture_0.png').write_bytes(b'x')
+            return 1, {}
+        with self.assertRaisesRegex(ValueError, 'Download incomplete'):
+            meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=cut_short)
+        self.assertFalse((self.root / 'bank').exists())
+        self.assertEqual(list(meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=run).values()), [9000])
+
     def test_a_full_detail_generation_is_never_downloaded_but_its_remesh_is(self):
         run = FakeMeshy(credits=30, triangle_counts=(60000, 31000))
         task = meshy.submit(self.ledger, 'gen', 'shack', 'building', meshy.building_arguments([self.image]), self.root / 'work', run=run)

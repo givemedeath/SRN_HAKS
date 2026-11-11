@@ -153,6 +153,9 @@ class FixtureTests(unittest.TestCase):
         self.assertIn('label="a"; ReplaceObjectTexture(GetObjectByTag("fx_p0"),"ek_a_i","ek_black"); }', dark)
         with self.assertRaisesRegex(ValueError, 'one line'):
             fixture.enter_script([{'label': 'a', 'stand': [30, 38], 'run': 'a;' + chr(10) + 'b;'}])
+        for label in ('say "hi"', 'lights off', 'a/b'):  # it goes into the script, the log line and a file name
+            with self.assertRaisesRegex(ValueError, 'shot label'):
+                fixture.enter_script([{'label': label, 'stand': [30, 38]}])
 
 
 if __name__ == '__main__':

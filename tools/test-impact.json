@@ -120,6 +120,7 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/export.py",
       "tools/envkit/convert.py",
+      "tools/envkit/local.py",
       "tools/envkit/meshy.py",
       "tools/envkit/placeables.py",
       "tools/envkit/reference.py",
@@ -136,9 +137,7 @@
       "tools/headkit/design.py"
     ],
     "tools/envkit/meshy.py": [],
-    "tools/envkit/placeables.py": [
-      "tools/envkit/convert.py"
-    ],
+    "tools/envkit/placeables.py": [],
     "tools/envkit/preview_blender.py": [],
     "tools/envkit/prop_fixture.py": [
       "tools/armorkit/__init__.py",

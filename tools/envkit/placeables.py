@@ -4,7 +4,7 @@ The table is appended to and never renumbered: a placed object names its row by 
 that model's. New rows follow the last row's own layout, column for column, so the file reads as before."""
 import re
 
-from .convert import require
+from . import require
 
 COLUMNS = ('Label', 'StrRef', 'ModelName', 'LightColor', 'LightOffsetX', 'LightOffsetY', 'LightOffsetZ', 'SoundAppType', 'ShadowSize', 'BodyBag',
            'LowGore', 'Reflection', 'Static')

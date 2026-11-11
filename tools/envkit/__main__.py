@@ -1,5 +1,7 @@
-"""Command line for envkit. `crops` writes every crop of a set for a look; `reference` redraws assets on the bound ComfyUI;
-`game` converts generated models to compiled placeables."""
+"""Command line for envkit, in the order a set goes through it. `crops` writes every crop of a set for a look and
+`reference` redraws assets on the bound ComfyUI; `meshy` makes paid models under the ledger's cap; `game` converts
+generated models to compiled placeables and `placeables` puts them in the pack and the table; `tiles` builds a model as
+a tile group and `install` puts that group in the shared pack and its tilesets."""
 import argparse
 import json
 import sys
@@ -9,7 +11,22 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     __package__ = 'tools.envkit'
 
-from . import reference
+from . import fresh, local, reference, require
+
+MESHY_NEEDS = {'init': ('cap',), 'prop': ('key', 'image', 'triangles', 'work'), 'building': ('key', 'image', 'work'),
+               'remesh': ('key', 'source', 'triangles', 'work'), 'wait': ('key', 'work'), 'download': ('key', 'work', 'bank'),
+               'master': ('key', 'work', 'bank')}
+
+
+def _generated(root, model):
+    """(folder, maps) of a generated model, as a Meshy download or a local job leaves it under the output root."""
+    source = Path(root) / model['source']
+    return source, {key: source / f'texture_0_{key}.png' for key in local.MAPS}
+
+
+def _crunch():
+    from .. import shared_tools
+    return shared_tools.resolve_tool('crunch', Path(__file__).resolve().parents[2])['path']
 
 
 def command_crops(args):
@@ -23,7 +40,7 @@ def command_reference(args):
     from ..headkit.comfy import Client
     data = reference.load_set(args.set); sheet = reference.resolve_sheet(args.sheets, data['sheet'])
     unknown = [name for name in args.asset if name not in data['assets']]
-    reference.require(not unknown, 'Unknown assets: ' + ', '.join(unknown))
+    require(not unknown, 'Unknown assets: ' + ', '.join(unknown))
     local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output)
     for name in args.asset or list(data['assets']):
         asset = data['assets'][name]
@@ -36,42 +53,36 @@ def command_reference(args):
 
 def command_game(args):
     """Convert generated models to compiled game placeables, as the game set states them."""
-    from .. import shared_tools
     from ..armorkit import export
     from . import convert
-    models = convert.load_models(args.models); root, output = Path(args.root), Path(args.output)
+    models = convert.load_models(args.models); output = Path(args.output)
     unknown = [name for name in args.model if name not in models]
-    reference.require(not unknown, 'Unknown models: ' + ', '.join(unknown))
-    crunch = shared_tools.resolve_tool('crunch', Path(__file__).resolve().parents[2])['path']
+    require(not unknown, 'Unknown models: ' + ', '.join(unknown))
+    crunch = _crunch()
     for name in args.model or list(models):
-        model, folder = models[name], output / name
-        reference.require(not folder.exists(), 'A model is converted into a fresh folder: ' + str(folder))
-        source = root / model['source']
-        maps = {key: source / f'texture_0_{key}.png' for key in ('base_color', 'normal', 'metallic', 'roughness')}
-        report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
-                                   colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'))
-        report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
-        (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
+        model = models[name]; source, maps = _generated(args.root, model)
+        with fresh(output / name) as folder:  # a model that fails leaves nothing in the way of the next attempt
+            report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
+                                       colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'))
+            report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
+            (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(report), flush=True)
 
 
 def command_tiles(args):
     """Build a model's tile group: tile models (compiled), walkmeshes and the shared material and maps."""
-    from .. import shared_tools
     from . import convert, tile
-    models = convert.load_models(args.models); root, folder = Path(args.root), Path(args.output) / args.model
-    reference.require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
-    reference.require(not folder.exists(), 'A group is built into a fresh folder: ' + str(folder))
-    model = models[args.model]; source = root / model['source']
-    maps = {key: source / f'texture_0_{key}.png' for key in ('base_color', 'normal', 'metallic', 'roughness')}
-    made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
-                         lit=model.get('lit'), halo=model.get('halo'))
-    report = tile.group(args.model, made, folder / 'source', ground=model['tiles']['ground'])
-    compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
-    files = convert.skin(args.model, maps, folder / 'shared', shared_tools.resolve_tool('crunch', Path(__file__).resolve().parents[2])['path'], made,
-                         colour=model.get('colour', 1024))
-    report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
-    (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
+    models = convert.load_models(args.models)
+    require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
+    model = models[args.model]; source, maps = _generated(args.root, model)
+    with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
+        made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
+                             lit=model.get('lit'), halo=model.get('halo'))
+        report = tile.group(args.model, made, folder / 'source', ground=model['tiles']['ground'])
+        compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
+        files = convert.skin(args.model, maps, folder / 'shared', _crunch(), made, colour=model.get('colour', 1024))
+        report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
+        (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
 
 
@@ -80,9 +91,9 @@ def command_install(args):
     import shutil
     from . import convert, tile
     models = convert.load_models(args.models); built = Path(args.built) / args.model; repo = Path(args.repo)
-    reference.require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
+    require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
     made = json.loads((built / 'report.json').read_text(encoding='utf-8')); tiles = models[args.model]['tiles']; shared = repo / args.pack
-    reference.require(shared.is_dir() and all((repo / f'srn_t_{name}' / f'{name}.set').is_file() for name in tiles['sets']), 'A pack or set file named is missing')
+    require(shared.is_dir() and all((repo / f'srn_t_{name}' / f'{name}.set').is_file() for name in tiles['sets']), 'A pack or set file named is missing')
     # Every tileset is worked out before anything is copied or written, so a refusal on one leaves none half done.
     prepared = {name: tile.prepare(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
                                    group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
@@ -103,11 +114,11 @@ def command_placeables(args):
     from . import convert, placeables
     models = convert.load_models(args.models); built, repo = Path(args.built), Path(args.repo); pack, table = repo / args.pack, repo / args.table
     unknown = [name for name in args.model if not models.get(name, {}).get('placeable')]
-    reference.require(not unknown, 'The game set gives these no placeable row: ' + ', '.join(unknown))
+    require(not unknown, 'The game set gives these no placeable row: ' + ', '.join(unknown))
     chosen = {name: model['placeable'] for name, model in models.items() if model.get('placeable') and (not args.model or name in args.model)}
-    reference.require(chosen and pack.is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
+    require(chosen and pack.is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
     missing = [name for name in chosen if not (built / name / 'compiled' / f'{name}.mdl').is_file()]
-    reference.require(not missing, 'Convert these first (envkit game): ' + ', '.join(missing))
+    require(not missing, 'Convert these first (envkit game): ' + ', '.join(missing))
     text, rows = placeables.register(table.read_bytes().decode('cp1252'), [{'model': name, **placed} for name, placed in chosen.items()])
     copied = 0
     for name in chosen:
@@ -121,6 +132,8 @@ def command_placeables(args):
 
 def command_meshy(args):
     from . import meshy
+    missing = ['--' + name for name in MESHY_NEEDS.get(args.action, ()) if not getattr(args, name)]
+    require(not missing, f'envkit meshy {args.action} needs ' + ', '.join(missing))  # said before the ledger is touched
     if args.action == 'init':
         meshy.Ledger.create(args.ledger, args.cap)
     ledger = meshy.Ledger(args.ledger)

@@ -77,6 +77,16 @@ class Ledger:
     def update(self, key, **fields):
         self.load(); self.entry(key).update(fields); self.save()
 
+    def release(self, key):
+        """Drop a reservation whose call was never sent: its credits and its key are free again."""
+        self.load(); row = self.entry(key)
+        require(row['state'] == 'reserved', 'Only an unsent reservation is released: ' + key)
+        self.data['entries'].remove(row); self.save()
+
+
+class NotSent(ValueError):
+    """The call was refused before anything reached Meshy."""
+
 
 def _images(paths):
     paths = [Path(path).resolve() for path in paths]
@@ -107,10 +117,11 @@ def remesh_arguments(task, triangles):
 
 def run_cli(arguments, folder):
     """(exit code, parsed stdout). The launcher is an npm .cmd shim, which cmd.exe re-parses: text it would rewrite is refused."""
-    require(not any(set('\r\n"%&|<>^') & set(value) for value in arguments),
-            'Meshy arguments cannot contain line breaks or the characters " % & | < > ^')
+    if any(set('\r\n"%&|<>^') & set(value) for value in arguments):
+        raise NotSent('Meshy arguments cannot contain line breaks or the characters " % & | < > ^')
     executable = shutil.which(CLI[0])
-    require(executable is not None, 'npm not found')
+    if executable is None:
+        raise NotSent('npm not found')
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     full = [executable, *CLI[1:], *arguments, '--output-schema', 'v1', '--format', 'json', '--no-update-check']
     result = subprocess.run(full, capture_output=True, text=True, encoding='utf-8', check=False)
@@ -129,11 +140,16 @@ def task_fields(response):
 
 
 def submit(ledger, key, asset, operation, arguments, folder, *, run=run_cli):
-    """Reserve, then send once. An answer without a task id leaves the entry `uncertain` and still counted."""
+    """Reserve, then send once. An answer without a task id leaves the entry `uncertain` and still counted; a call
+    refused before it was sent gives its reservation back."""
     require(operation in PRICES, 'Unknown operation: ' + str(operation))
+    folder = Path(folder)  # a missing folder is refused here, before anything is reserved
     ledger.reserve(key, asset, operation, arguments)
-    code, response = run([RESOURCE[operation], 'create', '--async', '--operation-id', key, '--include-raw', *arguments],
-                         Path(folder) / key / 'create')
+    try:
+        code, response = run([RESOURCE[operation], 'create', '--async', '--operation-id', key, '--include-raw', *arguments],
+                             folder / key / 'create')
+    except NotSent:
+        ledger.release(key); raise
     task = task_fields(response)['id'] if code == 0 else None
     ledger.update(key, state='submitted' if task else 'uncertain', taskId=task)
     require(task, 'Submission uncertain; check the Meshy task list before any retry of ' + key)
@@ -186,7 +202,9 @@ def download(ledger, key, folder, bank, *, master=False, run=run_cli):
     require(not bank.exists(), 'Fresh download folder required: ' + str(bank))
     code, _ = run(['download', '--task-json', row['task'], '--all', '--output-dir', str(bank.resolve())], Path(folder) / key / 'download')
     models = sorted(bank.rglob('*.glb')) if bank.exists() else []
-    require(code == 0 and models, 'Download incomplete: ' + key)
+    if code != 0 or not models:
+        shutil.rmtree(bank, ignore_errors=True)  # what came down is no model, and would stand in the way of the retry
+        raise ValueError('Download incomplete: ' + key)
     counts = {str(path): triangles(path) for path in models}
     accepted = bool(master) or max(counts.values()) <= MAX_TRIANGLES  # the ledger says so, so the folder is not taken for a working model
     ledger.update(key, downloaded=str(bank), triangles=counts, master=bool(master), accepted=accepted)

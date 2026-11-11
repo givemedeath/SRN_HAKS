@@ -4,9 +4,26 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from . import local
+from . import fresh, local
 
 IMAGING = importlib.util.find_spec('PIL') is not None and importlib.util.find_spec('numpy') is not None
+
+
+class FreshFolderTests(unittest.TestCase):
+    def test_a_folder_appears_only_when_its_work_finished_and_a_failure_does_not_block_the_retry(self):
+        with tempfile.TemporaryDirectory() as root:
+            target = Path(root) / 'made'
+            with self.assertRaisesRegex(ValueError, 'no roughness'):
+                with fresh(target) as staging:
+                    (staging / 'model.glb').write_bytes(b'x')
+                    raise ValueError('no roughness map')
+            self.assertFalse(target.exists())
+            with fresh(target) as staging:  # the retry starts clean: the first attempt's file is gone
+                self.assertEqual(list(staging.iterdir()), []); (staging / 'report.json').write_text('{}', encoding='utf-8')
+            self.assertEqual([path.name for path in Path(root).iterdir()], ['made']); self.assertTrue((target / 'report.json').is_file())
+            with self.assertRaisesRegex(ValueError, 'fresh folder'):
+                with fresh(target):
+                    pass
 
 
 class GraphTests(unittest.TestCase):

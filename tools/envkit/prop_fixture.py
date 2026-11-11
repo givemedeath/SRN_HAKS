@@ -6,6 +6,7 @@ props stand in a row; the entry script walks an unseen player along it, sets the
 placeables table is the repository's with the props appended, inside the fixture hak."""
 import json
 import math
+import re
 import shutil
 import subprocess
 import time
@@ -19,6 +20,7 @@ LOG_PREFIX = 'ENVKIT'
 COLUMNS = 13  # after the row number: Label StrRef ModelName LightColor LightOffsetX/Y/Z SoundAppType ShadowSize BodyBag LowGore Reflection Static
 START, HOLD = 8.0, 4.0
 NL = chr(10)
+LABEL = re.compile(r'[A-Za-z0-9_-]+')
 
 
 def table(stock_text, models):
@@ -66,6 +68,8 @@ def enter_script(shots, start=START, hold=HOLD):
     """Hide the player, then for each shot stand them at a spot and set the camera: {label, stand: [x, y], facing,
     distance, pitch, height, run}. Facing 90 looks north. `run` is script the shot runs first, to change the scene."""
     require(all(NL not in shot.get('run', '') for shot in shots), 'A shot runs one line of script')
+    # The label goes into the script, the log line and the capture's file name.
+    require(all(LABEL.fullmatch(str(shot['label'])) for shot in shots), 'A shot label is letters, digits, - and _')
     lines = ['void Shot(object pc,int n) {', f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("{LOG_PREFIX} done"); return; }}',
              '  float x; float y; float facing; float distance; float pitch; float height; string label;']
     for index, shot in enumerate(shots):
@@ -166,9 +170,8 @@ def capture(pid, path):
 def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings=''):
     """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and captures."""
     user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
-    settings = user / 'settings.tml'
-    if extra_settings or not settings.exists():  # settings asked for replace those an earlier run left
-        settings.write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
+    # Every run states its own settings, so none are left over from the run before.
+    (user / 'settings.tml').write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
     process = client.start(nwn_root, user, Path(record['module']).stem, width=width, height=height)
     shots, seen = [], 0
     try:

@@ -10,7 +10,7 @@ import urllib.error
 import uuid
 from pathlib import Path
 
-from . import require
+from . import fresh, require
 
 SUBFOLDER = 'envkit-local'
 MODEL, VISION = 'pixal3d_int8_convrot.safetensors', 'dino_v3_L_naf_fp32.safetensors'
@@ -103,7 +103,7 @@ def make(client, local, name, reference, seed, triangles, output, *, texture=204
     import json
     import shutil
     from ..headkit import design
-    output = Path(output); staging = output.with_name(output.name + '.partial')
+    output = Path(output)
     require(not output.exists(), 'Fresh output folder required: ' + str(output))
     queue = client.request('/queue')
     require(not queue.get('queue_running') and not queue.get('queue_pending'), 'ComfyUI is busy; nothing submitted')
@@ -120,18 +120,17 @@ def make(client, local, name, reference, seed, triangles, output, *, texture=204
         made = Path(local['comfyOutput']) / SUBFOLDER / token
         models = sorted(made.glob('model*.glb'))
         require(len(models) == 1, f'Expected one model, found {len(models)}')
-        # Gathered beside the output and moved into place whole: a job missing a map leaves no half-filled folder to
-        # block the retry or pass for a finished model.
-        shutil.rmtree(staging, ignore_errors=True); staging.mkdir(parents=True); shutil.copyfile(models[0], staging / 'model.glb')
-        for master in sorted(made.glob('master*.glb'))[:1]:
-            shutil.copyfile(master, staging / 'master.glb')
-        for kind in MAPS:
-            images = sorted(made.glob(kind + '*.png'))
-            require(len(images) == 1, f'Expected one {kind} map, found {len(images)}')
-            shutil.copyfile(images[0], staging / f'texture_0_{kind}.png')
-        staging.rename(output); record['state'] = 'complete'
+        with fresh(output) as staging:  # a job missing a map leaves no half-filled output folder
+            shutil.copyfile(models[0], staging / 'model.glb')
+            for master in sorted(made.glob('master*.glb'))[:1]:
+                shutil.copyfile(master, staging / 'master.glb')
+            for kind in MAPS:
+                images = sorted(made.glob(kind + '*.png'))
+                require(len(images) == 1, f'Expected one {kind} map, found {len(images)}')
+                shutil.copyfile(images[0], staging / f'texture_0_{kind}.png')
+        record['state'] = 'complete'
     except Exception as error:
-        shutil.rmtree(staging, ignore_errors=True); record.update(state='failed', error=str(error)); raise
+        record.update(state='failed', error=str(error)); raise
     finally:
         output.parent.mkdir(parents=True, exist_ok=True)
         (output.parent / (output.name + '.json')).write_text(json.dumps(record, indent=1), encoding='utf-8')
