@@ -345,20 +345,25 @@ def seam_fill(vertices, uvs, faces, base, seam, facing):
     height = relative @ seam['normal']
     on = (np.abs(height) < WELD) & (np.linalg.norm(relative - height[:, None] * seam['normal'], axis=1) <= seam['radius'])
     edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
-    edges = np.sort(edges[on[edges].all(axis=1)], axis=1)
+    edges = edges[on[edges].all(axis=1)]
+    # The line is traced by position, as `pieces` traces: a vertex repeated at a texture seam is one point of it.
+    # The new faces keep the vertex numbers the part's own faces use there, and so their texture coordinates.
+    spot = np.full(len(vertices), -1, int)
+    spot[on] = mesh_ops.weld_ids(vertices[on], WELD)
+    edges = edges[spot[edges[:, 0]] != spot[edges[:, 1]]]
     if len(edges):
-        edges, count = np.unique(edges, axis=0, return_counts=True)
-        edges = edges[count == 1]
+        _, inverse, count = np.unique(np.sort(spot[edges], axis=1), axis=0, return_inverse=True, return_counts=True)
+        edges = edges[count[inverse.reshape(-1)] == 1]
     new_v, new_t, new_f = [], [], []
     if len(edges):
-        line = mesh_ops.union_find(len(vertices), edges.tolist())
-        for label in np.unique(line[edges[:, 0]]):
-            mine = edges[line[edges[:, 0]] == label]
-            points, uses = np.unique(mine, return_counts=True)
-            ends = points[uses == 1]
-            centre = vertices[ends].mean(axis=0) if len(ends) == 2 else vertices[points].mean(axis=0)
+        line = mesh_ops.union_find(int(spot.max()) + 1, spot[edges].tolist())[spot[edges[:, 0]]]
+        for label in np.unique(line):
+            mine = edges[line == label]
+            spots, first, uses = np.unique(spot[mine], return_index=True, return_counts=True)
+            where = vertices[mine.reshape(-1)[first]]  # one position per point of the line
+            centre = where[uses == 1].mean(axis=0) if np.count_nonzero(uses == 1) == 2 else where.mean(axis=0)
             hub = base + len(new_v)
-            new_v.append(centre); new_t.append(uvs[points].mean(axis=0))
+            new_v.append(centre); new_t.append(uvs[np.unique(mine)].mean(axis=0))
             for a, b in mine.tolist():
                 normal = np.cross(vertices[a] - centre, vertices[b] - centre)
                 new_f.append((hub, a, b) if facing * (normal @ seam['normal']) > 0 else (hub, b, a))

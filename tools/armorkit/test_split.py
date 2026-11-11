@@ -420,6 +420,20 @@ class SleeveTests(unittest.TestCase):
         loose = open_edges(capped[1])
         self.assertFalse(self.on(capped[0][loose], ('shoulder', 'l')).all(axis=1).any())  # the whole rim is taken up
 
+    def test_a_line_through_a_vertex_repeated_at_a_texture_seam_is_closed_with_one_fan(self):
+        # two faces hang from the cut x = 0; its line runs down and up again through a point both faces hold a
+        # vertex of their own at, with unlike texture coordinates (numbers 1 and 3)
+        v = np.array([[0, 0, 0], [0, 1, -1], [0, 2, 0], [0, 1, -1], [-1, 0.5, -0.5], [-1, 1.5, -0.5]], float)
+        t = np.array([[0, 0], [0.4, 0], [1, 0], [0.6, 0], [0.2, 1], [0.8, 1]], float)
+        f = np.array([[0, 1, 4], [3, 2, 5]])
+        seam = {'point': np.array([0.0, 1, 0]), 'normal': np.array([1.0, 0, 0]), 'radius': 5.0}
+        new_v, new_t, new_f = split.seam_fill(v, t, f, len(v), seam, 1.0)
+        np.testing.assert_allclose(new_v, [[0, 1, 0]])  # one hub, between the line's two ends
+        self.assertEqual(sorted(sorted(face) for face in new_f.tolist()), [[0, 1, 6], [2, 3, 6]])  # each face's own vertex
+        both = np.concatenate([v, new_v])
+        self.assertAlmostEqual(area(both, new_f), 1.0, places=6)  # the whole triangle under the hub, no sliver
+        self.assertTrue(np.all(normals(both, new_f) @ seam['normal'] > 0.99))
+
     def test_a_sleeve_fused_down_to_the_elbow_is_refused(self):
         v, f, _ = fused(armpit=1.10)
         with self.assertRaises(ValueError):
