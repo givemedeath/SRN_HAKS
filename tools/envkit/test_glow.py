@@ -41,8 +41,8 @@ class GlowTests(unittest.TestCase):
         where, covered = glow.position_map(POINTS, UVS, FACES, 64)
         base = np.full((64, 64, 3), 0.9)
         lit = glow.glow(base, where, covered, [{'box': [[-1.0, 0.5, 0.5], [1.0, 1.5, 1.5]]}])
-        image, cards, light = glow.halo(lit, where, covered, reach=0.25, strength=0.5)
-        self.assertEqual(len(cards), 1); corners = cards[0]
+        image, cards, light = made = glow.halo(lit, where, covered, reach=0.25, strength=0.5)
+        self.assertEqual(len(cards), 1); corners = cards[0]; self.assertIs(made.cards, cards); self.assertIs(made.light, light)  # read by name elsewhere
         # The card's light is the lit square metre, in the picture's own rows and columns: none of it in the rim the glow spreads into.
         self.assertEqual(light[0].shape, image.size[::-1]); self.assertAlmostEqual(float(light[0].sum()), 2.0, delta=0.3)
         self.assertEqual(float(light[0][:10].sum() + light[0][-10:].sum() + light[0][:, :10].sum() + light[0][:, -10:].sum()), 0.0)

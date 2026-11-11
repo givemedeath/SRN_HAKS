@@ -9,6 +9,8 @@ with a metre grid so the boxes can be read off a picture.
 The game's own bloom adds no visible spread to a glow map (client check, 2026-11-10: bloom on and off looked the
 same), so the light around a sign is drawn: `halo` blurs the model's glow, seen square on from the side it faces,
 onto a card that stands just in front of it and is added to the picture behind."""
+from typing import NamedTuple
+
 import numpy as np
 
 from . import require
@@ -91,8 +93,16 @@ def elevation(base, where, covered, *, side=0, scale=60, grid=1.0):
     return image
 
 
+class Halo(NamedTuple):
+    """What `halo` makes: the one picture its cards share, the cards, and each card's light. Read by name: the three are
+    told apart by nothing else."""
+    image: object
+    cards: list
+    light: list
+
+
 def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.05, clear=0.3):
-    """(image, cards, light) of the cards that carry the spread of the model's glow, or None where nothing glows.
+    """The cards that carry the spread of the model's glow, a `Halo` (image, cards, light), or None where nothing glows.
 
     The glow seen square on is blurred over `reach` metres and dimmed to `strength`. Over the lit parts themselves it
     is held back by `core`, or a sign's lettering washes out to white. Lit parts more than `apart` metres apart in
@@ -160,7 +170,7 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
         cards.append([(place(high[0], low[2]), (left, lower)), (place(low[0], low[2]), (right, lower)),
                       (place(low[0], high[2]), (right, upper)), (place(high[0], high[2]), (left, upper))])
         top += tall
-    return Image.fromarray(sheet), cards, light
+    return Halo(Image.fromarray(sheet), cards, light)
 
 
 def card_normal(card):
