@@ -92,13 +92,8 @@ def register(folder):
             target = props.get(props[key]['same'])
             require(target is not None and target['type'] == kind and 'same' not in target,
                     f'{key} is the same as {props[key]["same"]}, which is not a made prop of type {kind}')
-    heads = {}
-    for kind in types:
-        heads.setdefault(kind.rsplit('-', 1)[-1], []).append(kind)
     return {'types': dict(sorted(types.items())), 'make': sum(len(r['original']) + len(r['variant']) for r in types.values()),
-            'reuse': sum(len(r['same']) for r in types.values()),
-            # Types that end in the same word may be one type under two names; listed for the person onboarding a sheet.
-            'alike': {head: sorted(kinds) for head, kinds in sorted(heads.items()) if len(kinds) > 1}}
+            'reuse': sum(len(r['same']) for r in types.values())}
 
 
 def resolve_sheet(sheets, sheet):

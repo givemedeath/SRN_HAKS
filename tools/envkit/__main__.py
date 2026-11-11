@@ -45,8 +45,6 @@ def command_props(args):
     found = reference.register(args.sets)
     for kind, rows in found['types'].items():
         print(kind + ': ' + ' '.join(rows['original'] + ['variant ' + key for key in rows['variant']] + ['same ' + key for key in rows['same']]))
-    for head, kinds in found['alike'].items():
-        print('alike: ' + ' '.join(kinds))
     print(f"{found['make']} to make, {found['reuse']} reused")
 
 

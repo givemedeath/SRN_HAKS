@@ -1,0 +1,38 @@
+{
+  "sheet": {
+    "file": "51_underground_street_doc_cyberclinic.png",
+    "sha256": "4afaa31745009ae321dd98bed1deac7df38c9f1cd6b20bc84564dae0d083b71f",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "augmentation-chair": {"kind": "prop", "type": "surgery-chair", "subject": "padded cyberware surgery chair on a heavy pedestal", "box": [58, 630, 140, 762]},
+    "surgical-light": {"kind": "prop", "type": "surgical-light", "subject": "ceiling-mounted surgical lamp on a jointed arm", "box": [503, 623, 629, 724]},
+    "surgical-cart": {"kind": "prop", "type": "medical-cart", "subject": "wheeled steel surgical cart loaded with instruments and bins", "box": [624, 644, 743, 757]},
+    "vitals-machine": {"kind": "prop", "type": "vitals-machine", "subject": "wheeled anaesthesia and vital-signs machine with a monitor", "box": [753, 626, 839, 767]},
+    "medical-console": {"kind": "prop", "type": "console-desk", "subject": "desk with two monitors and a keyboard", "box": [847, 648, 966, 755]},
+    "cyberware-storage": {"kind": "prop", "type": "cyberware-cabinet", "subject": "secure glass-door cabinet of cyberware trays with hazard stripes", "box": [972, 630, 1069, 763]},
+    "cyberware-tubes": {"kind": "prop", "type": "specimen-tubes", "subject": "three glass display tubes holding a cyber arm, a cyber eye and a cyber leg", "box": [1080, 619, 1215, 762]},
+    "exam-table": {"kind": "prop", "type": "exam-table", "subject": "padded medical examination table", "box": [32, 843, 150, 904]},
+    "hospital-bed": {"kind": "prop", "type": "hospital-bed", "subject": "steel-framed hospital bed with a blue blanket", "box": [167, 849, 275, 906]},
+    "curtain-straight": {"kind": "prop", "type": "privacy-curtain", "subject": "teal privacy curtain on a straight rail", "box": [309, 839, 381, 903]},
+    "curtain-corner": {"kind": "prop", "type": "privacy-curtain", "variant": "The same curtain on a corner rail.", "subject": "teal privacy curtain on a corner rail", "box": [413, 833, 471, 905]},
+    "medical-cabinet": {"kind": "prop", "type": "medical-cabinet", "subject": "steel medical cabinet with glass doors", "box": [502, 827, 562, 908]},
+    "supply-shelving": {"kind": "prop", "type": "shelf-unit", "variant": "Steel rack of medical supply boxes and bottles.", "subject": "steel shelving rack of medical supplies", "box": [597, 822, 667, 906]},
+    "chem-storage": {"kind": "prop", "type": "shelf-unit", "same": "street-doc/supply-shelving", "subject": "steel shelving rack of chemical bottles", "box": [700, 831, 784, 906]},
+    "staff-locker": {"kind": "prop", "type": "locker", "variant": "Plain two-door steel staff locker.", "subject": "two-door steel staff locker", "box": [821, 822, 869, 906]},
+    "biowaste-bin": {"kind": "prop", "type": "trash-can", "variant": "Yellow lidded biohazard bin.", "subject": "yellow biohazard waste bin", "box": [897, 840, 954, 906]},
+    "medical-crate": {"kind": "prop", "type": "hard-case", "subject": "hard plastic equipment case with latches", "box": [972, 839, 1063, 904]},
+    "cryo-cooler": {"kind": "prop", "type": "cooler", "subject": "insulated organ transport cooler", "box": [1084, 835, 1181, 907]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "subject": "L-shaped reception desk with terminals and paperwork", "box": [19, 930, 221, 1003]},
+    "waiting-seats": {"kind": "prop", "type": "waiting-seats", "subject": "row of three worn upholstered waiting seats", "box": [239, 934, 346, 1004]},
+    "coffee-table": {"kind": "prop", "type": "coffee-table", "subject": "low coffee table with magazines", "box": [364, 957, 445, 1004]},
+    "wall-monitor": {"kind": "prop", "type": "wall-monitor", "subject": "wall-mounted patient vitals monitor", "box": [462, 940, 546, 991]},
+    "floor-scale": {"kind": "prop", "type": "floor-scale", "subject": "upright medical floor scale", "box": [578, 934, 622, 1002]},
+    "iv-stand": {"kind": "prop", "type": "iv-stand", "subject": "wheeled IV drip stand", "box": [652, 932, 694, 1002]},
+    "gas-rack": {"kind": "prop", "type": "gas-cylinders", "subject": "rack of medical gas cylinders", "box": [722, 936, 774, 998]},
+    "utility-sink": {"kind": "prop", "type": "utility-sink", "subject": "steel utility sink on legs", "box": [812, 936, 868, 998]},
+    "workbench": {"kind": "prop", "type": "workbench", "variant": "Steel repair bench with drawers, tools and parts.", "subject": "steel repair workbench with drawers and tools", "box": [905, 930, 1020, 992]},
+    "tool-cabinet": {"kind": "prop", "type": "tool-chest", "subject": "red rolling tool chest", "box": [1037, 938, 1112, 1002]},
+    "doc-stool": {"kind": "prop", "type": "stool", "subject": "wheeled round stool", "box": [1141, 940, 1190, 1000]}
+  }
+}

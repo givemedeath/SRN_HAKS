@@ -86,12 +86,10 @@ class SetTests(unittest.TestCase):
         self.sheet('depot', bin={'type': 'trash-can'})
         with self.assertRaisesRegex(ValueError, 'Type trash-can needs one original.*depot/bin, shop/bin'):
             reference.register(self.root)
-        self.sheet('depot', bin={'type': 'trash-can', 'same': 'shop/bin'}, skip={'type': 'trash-can', 'variant': 'A wheeled skip.'},
-                   dome={'type': 'dome-camera'})
+        self.sheet('depot', bin={'type': 'trash-can', 'same': 'shop/bin'}, skip={'type': 'trash-can', 'variant': 'A wheeled skip.'})
         found = reference.register(self.root)
         self.assertEqual(found['types']['trash-can'], {'original': ['shop/bin'], 'variant': ['depot/skip'], 'same': ['depot/bin']})
-        self.assertEqual((found['make'], found['reuse']), (4, 1))
-        self.assertEqual(found['alike'], {'camera': ['dome-camera', 'security-camera']})  # perhaps one type under two names
+        self.assertEqual((found['make'], found['reuse']), (3, 1))
 
     def test_same_names_a_made_prop_of_its_own_type(self):
         self.sheet('shop', bin={'type': 'trash-can'}, camera={'type': 'security-camera'})
