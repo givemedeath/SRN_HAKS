@@ -142,6 +142,18 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
     return record
 
 
+def capture(pid, path):
+    """The client window's pixels. A window that opened minimised (someone is using the machine) cannot be grabbed, so
+    it is shown, without taking the focus, and grabbed again."""
+    try:
+        return client.capture(pid, path)
+    except OSError:
+        import ctypes
+        ctypes.WinDLL('user32').ShowWindow(ctypes.c_void_p(client.window(pid)), 4)  # SW_SHOWNOACTIVATE
+        time.sleep(0.7)
+        return client.capture(pid, path)
+
+
 def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings=''):
     """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and captures."""
     user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
@@ -160,7 +172,7 @@ def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra
                 values = client.parse_line(line)
                 if 'shot' in values and 'target' in values:
                     time.sleep(settle)
-                    shots.append(str(client.capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png')))
+                    shots.append(str(capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png')))
             seen = len(lines)
             if f'{LOG_PREFIX} done' in lines:
                 break
