@@ -219,6 +219,7 @@ try {
     $gameText = [Text.Encoding]::GetEncoding(1252)  # as envkit writes the table and the set files
     $lastImported = [int]$additions.baseline.placeables.lastImportedRow
     # A model with a glow map has the whole lights-out set of docs/envkit/lights.md, and its entry says so.
+    $packFolders = @(Get-ChildItem -LiteralPath $repoRoot -Directory -Filter 'srn_*' | ForEach-Object { $_.Name })
     $packFile = { param($pack, $name) Test-Path -LiteralPath (Join-Path $repoRoot (Join-Path $pack $name)) -PathType Leaf }
     $checkLights = {
         param($entry, $material, $what)
@@ -230,11 +231,11 @@ try {
         if ([string]$lights.lit -cne $material -or [string]$lights.out -cne "${material}_o" -or [string]$lights.glow -cne "${material}_i") { Add-ValidationError "The lights of $what do not follow its material $material." }
         $needed = @("$($lights.lit).mtr", "$($lights.out).mtr", "$($lights.out).dds", "$($lights.glow).dds")
         if ($lights.PSObject.Properties['halo']) { $needed += "$($lights.halo).mtr", "$($lights.halo).dds", "$($lights.halo).txi" }
+        elseif (& $packFile $entry.pack "${material}_h.mtr") { Add-ValidationError "$what has a halo ($($entry.pack)/${material}_h.mtr) that its lights in the additions catalog do not name." }
         foreach ($name in $needed) { if (-not (& $packFile $entry.pack $name)) { Add-ValidationError "$($entry.pack) has no $name for the lights of $what." } }
         if ($lights.PSObject.Properties['dark']) {
             foreach ($suffix in '.mtr', '.dds', '.txi') {
-                $holders = @(Get-ChildItem -LiteralPath $repoRoot -Directory -Filter 'srn_*' | Where-Object { & $packFile $_.Name "$($lights.dark)$suffix" })
-                if ($holders.Count -eq 0) { Add-ValidationError "No pack has $($lights.dark)$suffix, the dark halo of $what." }  # in two, it is a cross-HAK duplicate above
+                if (-not ($packFolders | Where-Object { & $packFile $_ "$($lights.dark)$suffix" })) { Add-ValidationError "No pack has $($lights.dark)$suffix, the dark halo of $what." }  # in two, it is a cross-HAK duplicate above
             }
         }
     }

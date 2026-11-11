@@ -239,7 +239,7 @@ def split(faces, limit=NODE_VERTICES):
 def card_normal_line(card):
     """A halo card's normal as a line of a model: the way the card faces."""
     from . import glow
-    x, y, z = (glow.card_normal(card) + 0.0).round(5).tolist()
+    x, y, z = (glow.card_normal(card).round(5) + 0.0).tolist()  # rounded first: a zero keeps no sign
     return f'    {x:g} {y:g} {z:g}'
 
 
@@ -380,12 +380,14 @@ def load_models(path):
         door = (tiles or {}).get('door')
         require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type'} and np.asarray(door['at'], float).shape == (3,)
                                  and type(door.get('type', 0)) is int and door.get('type', 0) >= 0), 'A door needs the place it stands at: ' + name)
-        require((tiles or {}).get('fade') is None or 0 < tiles['fade'] < model['height'], 'The fade height lies within the model: ' + name)
+        number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
+        require(door is None or number(door.get('facing', 0.0)), 'A door faces a number of degrees: ' + name)
+        fade = (tiles or {}).get('fade')
+        require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
     return data['models']
 
 
 HALO_OUT = 'ek_off'  # one for every model: a black sheet added to the picture adds nothing
-HALO_OUT_PACK = 'srn_placeable'  # the one pack that holds it: the same file in two packs fails repository verification
 
 
 def lights_out(name, folder, crunch, halo):

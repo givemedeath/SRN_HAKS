@@ -135,17 +135,22 @@
       "docs/additions/catalog.json",
       "tools/armorkit/__init__.py",
       "tools/armorkit/export.py",
-      "tools/envkit/blueprints.py",
-      "tools/envkit/catalog.py",
+      "tools/envkit/additions.py",
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
       "tools/envkit/meshy.py",
-      "tools/envkit/placeables.py",
       "tools/envkit/reference.py",
       "tools/envkit/tile.py",
       "tools/headkit/comfy.py",
-      "tools/phenotypes/tool_runtime.py",
       "tools/shared_tools.py"
+    ],
+    "tools/envkit/additions.py": [
+      "tools/envkit/blueprints.py",
+      "tools/envkit/catalog.py",
+      "tools/envkit/convert.py",
+      "tools/envkit/placeables.py",
+      "tools/envkit/tile.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/blueprints.py": [
       "tools/envkit/placeables.py"
@@ -199,7 +204,7 @@
       "tools/headkit/gpu_lock.py"
     ],
     "tools/envkit/test_placeables.py": [
-      "tools/envkit/__main__.py",
+      "tools/envkit/additions.py",
       "tools/envkit/catalog.py",
       "tools/envkit/convert.py",
       "tools/envkit/placeables.py"
@@ -209,6 +214,9 @@
       "tools/envkit/sets/stuffer-shack.json"
     ],
     "tools/envkit/test_tile.py": [
+      "tools/envkit/additions.py",
+      "tools/envkit/catalog.py",
+      "tools/envkit/convert.py",
       "tools/envkit/tile.py"
     ],
     "tools/envkit/tile.py": [
@@ -4940,9 +4948,6 @@
       "srn_2da",
       "srn_placeable",
       "srn_t_common"
-    ],
-    "tools/envkit/convert.py": [
-      "srn_placeable"
     ],
     "tools/heads/build_head_fixture.py": [
       "srn_body",

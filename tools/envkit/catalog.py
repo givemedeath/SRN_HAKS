@@ -30,10 +30,13 @@ def load(path):
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and data.get('kind') == KIND and data.get('schemaVersion') == 1, 'Additions catalog required: ' + str(path))
     require(set(data) == {'schemaVersion', 'kind', 'baseline', 'placeables', 'tileGroups'}, 'The catalog has a baseline, placeables and tile groups')
-    table = data['baseline']['placeables']
+    baseline = data['baseline']
+    require(isinstance(baseline, dict) and set(baseline) == {'placeables', 'tilesets'} and isinstance(baseline['placeables'], dict) and isinstance(baseline['tilesets'], dict),
+            'The catalog\'s baseline has placeables and tilesets')
+    table = baseline['placeables']
     require(set(table) == {'table', 'lastImportedRow'} and type(table['lastImportedRow']) is int, 'The placeables baseline names its table and its last imported row')
-    for name, tileset in data['baseline']['tilesets'].items():
-        require(set(tileset) == {'set', 'importedTiles', 'importedGroups'} and type(tileset['importedTiles']) is int and type(tileset['importedGroups']) is int,
+    for name, tileset in baseline['tilesets'].items():
+        require(isinstance(tileset, dict) and set(tileset) == {'set', 'importedTiles', 'importedGroups'} and type(tileset['importedTiles']) is int and type(tileset['importedGroups']) is int,
                 'A tileset baseline names its set file and counts its imported tiles and groups: ' + name)
     for entry in data['placeables']:
         require(PLACEABLE_KEYS <= set(entry) <= PLACEABLE_KEYS | {'blueprint', 'category', 'lights'} and type(entry['row']) is int, 'A placeable entry is incomplete: ' + str(entry.get('model')))

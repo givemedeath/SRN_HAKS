@@ -26,7 +26,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import convert, require
+from . import convert, game_bytes, require
 
 SIZE = 10.0
 MINIMAP = 32  # pixels across a tile's picture on the area map
@@ -481,10 +481,10 @@ def prepare(set_path, palette_path, made, *, terrain, group_name, label):
     if all(there):
         listed = re.search(r'(?ms)^\[GROUP(\d+)\]\r?\nName=' + re.escape(group_name) + r'\r?\nRows=' + str(made['rows']) + r'\r?\nColumns=' + str(made['columns']) + r'\r?$', text)
         require(listed, f'{set_path.name} lists the tiles but not their group {group_name} at {made["rows"]} by {made["columns"]}')
-        text, first = revise(text, tile_records(made, terrain), doors(made))
+        text, first = revise(text, tile_records(made, terrain), doors(made)); game_bytes(text, set_path.name)
         return {'tool': None, 'set': set_path, 'text': text, 'palette': palette_path, 'document': None, 'firstTile': first, 'group': int(listed.group(1))}
     require(not any(there), f'{set_path.name} lists some of the group\'s tiles and not others')
-    text, first, number = register(text, tile_records(made, terrain), group_name, made['rows'], made['columns'], doors(made))
+    text, first, number = register(text, tile_records(made, terrain), group_name, made['rows'], made['columns'], doors(made)); game_bytes(text, set_path.name)
     tool = str(tool_runtime.tool('nwn_gff'))
     read = subprocess.run([tool, '-i', str(palette_path), '-k', 'json'], capture_output=True, timeout=120, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     require(read.returncode == 0, 'The palette could not be read: ' + read.stderr.decode(errors='replace')[-400:])

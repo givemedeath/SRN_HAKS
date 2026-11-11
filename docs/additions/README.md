@@ -38,7 +38,8 @@ A row or tile added without its entry fails verification, and so does an entry l
 4. `python -B -m tools.envkit blueprints ... --game <game folder>` writes a blueprint for each catalogued model that
    has a category and rebuilds `srn_placeable/placeablepalstd.itp`.
 
-Running step 3 again for models that already have rows replaces their files and leaves the table alone.
+Running step 3 again for models that already have rows replaces their files and leaves the table alone. A model
+built again without lit parts has its old glow map, lights-out material and halo removed from the pack.
 
 Rules the commands follow, and that a row added by hand must follow too:
 
@@ -73,7 +74,8 @@ so a script can put its lights out; the others are static.
 ## Lights
 
 A model with lit parts ships with a lights-out material and dark textures, and its catalog entry names them under
-`lights`. The commands write both for placeables and tile groups alike. [docs/envkit/lights.md](../envkit/lights.md)
+`lights`. The dark halo they all share, `ek_off`, is kept in one pack (`srn_placeable`, the commands' `--dark-pack`),
+so installing a lit tile group can write those three files there. The commands write both for placeables and tile groups alike. [docs/envkit/lights.md](../envkit/lights.md)
 is the standard for those files and shows how a script uses them.
 
 ## Adding a tile group

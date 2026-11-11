@@ -1,4 +1,5 @@
 """A model's row is appended to the placeables table in the table's own layout, and no row there moves."""
+import argparse
 import contextlib
 import io
 import json
@@ -6,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from . import catalog, convert, placeables
+from . import additions, catalog, convert, placeables
 
 HEAD = '2DA V2.0\n\n      Label                    StrRef ModelName     LightColor LightOffsetX LightOffsetY LightOffsetZ SoundAppType ShadowSize BodyBag LowGore Reflection  Static \n'
 TABLE = (HEAD + '0     Armoire                  5645   PLC_A01       ****       ****         ****         ****         13           1          0       ****    ****        1      \n'
@@ -53,12 +54,13 @@ class PlaceableTests(unittest.TestCase):
 
 class CommandTests(unittest.TestCase):
     def test_the_command_ships_a_models_files_and_enters_it_and_its_lights_in_the_catalog(self):
-        from . import __main__ as command
         with tempfile.TemporaryDirectory() as scratch:
-            repo = Path(scratch); pack, dark, built = repo / 'props', repo / convert.HALO_OUT_PACK, repo / 'built' / 'ek_a'
+            repo = Path(scratch); pack, dark, built = repo / 'props', repo / 'shared', repo / 'built' / 'ek_a'
             for folder in (pack, dark, built / 'compiled', built / 'source', repo / 'sets', repo / 'tables', repo / 'docs'):
                 folder.mkdir(parents=True)
-            (repo / 'sets' / 'shop.json').write_text(json.dumps({'models': {'ek_a': {'source': 'models/a', 'height': 1.0, 'placeable': {'label': 'Shop, Bin', 'sound': 28}}}}), encoding='utf-8')
+            given = lambda label: (repo / 'sets' / 'shop.json').write_text(json.dumps({'models': {'ek_a': {'source': 'models/a', 'height': 1.0, 'placeable': {'label': label, 'sound': 28}}}}),
+                                                                           encoding='utf-8')
+            given('Shop, Bin')
             (repo / 'tables' / 'placeables.2da').write_bytes(TABLE.encode('cp1252'))
             (built / 'compiled' / 'ek_a.mdl').write_bytes(b'compiled')
             files = {name: name.encode() for name in ('ek_a.mtr', 'ek_a.pwk', 'ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr', 'ek_a_s.dds', convert.HALO_OUT + '.mtr')}
@@ -68,15 +70,18 @@ class CommandTests(unittest.TestCase):
             catalog.save(listed, {'schemaVersion': 1, 'kind': catalog.KIND, 'placeables': [], 'tileGroups': [],
                                   'baseline': {'placeables': {'table': 'tables/placeables.2da', 'lastImportedRow': 7}, 'tilesets': {}}})
 
-            def run(*more):
+            def run(provenance=None):
                 with contextlib.redirect_stdout(io.StringIO()) as said:
-                    command.main(['placeables', '--models', str(repo / 'sets' / 'shop.json'), '--built', str(repo / 'built'), '--repo', str(repo), '--pack', 'props',
-                                  '--table', 'tables/placeables.2da', '--catalog', 'docs/catalog.json', *more])
+                    additions.command_placeables(argparse.Namespace(models=str(repo / 'sets' / 'shop.json'), built=str(repo / 'built'), repo=str(repo), pack='props', dark_pack='shared',
+                                                                    table='tables/placeables.2da', catalog='docs/catalog.json', provenance=provenance, model=[]))
                 return json.loads(said.getvalue())
             with self.assertRaisesRegex(ValueError, 'name its PROVENANCE.md section'):
                 run()
-            self.assertEqual(list(pack.iterdir()), [])  # refused before anything was copied
-            self.assertEqual(run('--provenance', 'Shop props')['rows'], {'ek_a': 8})
+            given('Shop \u2192 Bin')  # an arrow the game's code page lacks
+            with self.assertRaisesRegex(ValueError, 'code page lacks'):
+                run('Shop props')
+            self.assertEqual(list(pack.iterdir()), [])  # each refused before anything was copied
+            given('Shop, Bin'); self.assertEqual(run('Shop props')['rows'], {'ek_a': 8})
             self.assertEqual(run()['rows'], {'ek_a': 8})  # converted again: the row stands
             entry, = catalog.load(listed)['placeables']
             self.assertEqual((entry['row'], entry['model'], entry['label'], entry['provenance']), (8, 'ek_a', '[envkit]Shop, Bin', 'Shop props'))
@@ -84,6 +89,7 @@ class CommandTests(unittest.TestCase):
             # What was built is only read: the catalog once went to the last file the copying had named.
             self.assertEqual({path.name: path.read_bytes() for path in (built / 'source').iterdir()}, files)
             self.assertTrue((dark / (convert.HALO_OUT + '.mtr')).is_file()); self.assertFalse((pack / (convert.HALO_OUT + '.mtr')).exists())  # the shared dark halo has one home
+            self.assertEqual((repo / 'tables' / 'placeables.2da').read_bytes().count(b'ek_a'), 1)  # one row, however often it is converted
             self.assertEqual((pack / 'ek_a.mdl').read_bytes(), b'compiled'); self.assertTrue((pack / 'ek_a_o.mtr').is_file())
             lit = ('ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr')
             for name in lit:  # built again with no lit parts

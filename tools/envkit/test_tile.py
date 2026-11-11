@@ -241,6 +241,53 @@ class TileTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'some of the group'):
                 tile.prepare(path, Path(scratch) / 'none.itp', full, terrain='Concrete', group_name='New_Group', label='New Group')
 
+    def test_installing_a_group_again_ships_its_files_and_enters_it_and_its_lights_in_the_catalog(self):
+        import argparse, contextlib, io, json, tempfile
+        from pathlib import Path
+        from . import additions, catalog, convert
+        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9, 'lights': 2, 'doors': []}
+                                                   for row in (0, 1) for column in (0, 1)]}
+        text, _, _ = tile.register(SET.replace('[GENERAL]', '[TERRAIN0]\r\nName=Concrete\r\n\r\n[GENERAL]'), tile.tile_records(made, 'Concrete'), 'New_Group', 2, 2)
+        with tempfile.TemporaryDirectory() as scratch:
+            repo = Path(scratch); pack, dark, built, tileset = repo / 'tiles', repo / 'shared', repo / 'built' / 'ek_test', repo / ('srn_t_' + 'x')
+            for folder in (pack, dark, tileset, built / 'compiled', built / 'source', built / 'shared', repo / 'sets', repo / 'docs'):
+                folder.mkdir(parents=True)
+            (tileset / 'x.set').write_bytes(text.encode('cp1252'))
+            group = {'ground': 'pavement', 'group': 'New_Group', 'label': 'New Group', 'sets': {'x': 'Concrete'}}
+            (repo / 'sets' / 'shop.json').write_text(json.dumps({'models': {'ek_test': {'source': 'models/a', 'height': 4.0, 'tiles': group}}}), encoding='utf-8')
+            (built / 'report.json').write_text(json.dumps(made), encoding='utf-8')
+            for one in made['tiles']:
+                (built / 'compiled' / f'{one["model"]}.mdl').write_bytes(b'compiled'); (built / 'source' / f'{one["model"]}.wok').write_bytes(b'walk')
+            (built / 'source' / 'ek_test_m00.tga').write_bytes(b'map')
+            files = {name: name.encode() for name in ('ek_test.mtr', 'ek_test_i.dds', 'ek_test_o.mtr', 'ek_test_o.dds', 'ek_test_h.mtr', convert.HALO_OUT + '.mtr')}
+            for name, content in files.items():
+                (built / 'shared' / name).write_bytes(content)
+            listed = repo / 'docs' / 'catalog.json'
+            catalog.save(listed, {'schemaVersion': 1, 'kind': catalog.KIND, 'placeables': [], 'tileGroups': [], 'baseline': {
+                'placeables': {'table': 'tables/placeables.2da', 'lastImportedRow': 7}, 'tilesets': {'x': {'set': 'x.set', 'importedTiles': 2, 'importedGroups': 1}}}})
+
+            def run(provenance=None):
+                with contextlib.redirect_stdout(io.StringIO()) as said:
+                    additions.command_install(argparse.Namespace(models=str(repo / 'sets' / 'shop.json'), built=str(repo / 'built'), model='ek_test', repo=str(repo), pack='tiles',
+                                                                 dark_pack='shared', catalog='docs/catalog.json', provenance=provenance))
+                return json.loads(said.getvalue())
+            with self.assertRaisesRegex(ValueError, 'name its PROVENANCE.md section'):
+                run()
+            self.assertEqual(list(pack.iterdir()), [])  # refused before anything was copied
+            self.assertEqual(run('Shop tiles')['sets'], {'x': {'firstTile': 2, 'group': 1}}); run()  # and again: the group stands
+            entry, = catalog.load(listed)['tileGroups']
+            self.assertEqual((entry['tileset'], entry['group'], entry['tiles'], entry['models'][0], entry['provenance']), ('x', 1, [2, 3, 4, 5], 'ek_test_t00', 'Shop tiles'))
+            self.assertEqual(entry['lights'], {'lit': 'ek_test', 'out': 'ek_test_o', 'glow': 'ek_test_i', 'halo': 'ek_test_h', 'dark': convert.HALO_OUT})
+            self.assertEqual({path.name: path.read_bytes() for path in (built / 'shared').iterdir()}, files)  # what was built is only read
+            self.assertTrue((dark / (convert.HALO_OUT + '.mtr')).is_file()); self.assertFalse((pack / (convert.HALO_OUT + '.mtr')).exists())  # the shared dark halo has one home
+            self.assertTrue(all((pack / name).is_file() for name in ('ek_test_t10.mdl', 'ek_test_t10.wok', 'ek_test_m00.tga', 'ek_test_o.mtr')))
+            self.assertEqual((tileset / 'x.set').read_bytes().count(b'Model=ek_test_t'), 4)  # written again in place, not appended
+            lit = ('ek_test_i.dds', 'ek_test_o.mtr', 'ek_test_o.dds', 'ek_test_h.mtr')
+            for name in lit:  # built again with no lit parts
+                (built / 'shared' / name).unlink()
+            self.assertEqual(sorted(run()['removed']), sorted(lit))
+            self.assertNotIn('lights', catalog.load(listed)['tileGroups'][0]); self.assertFalse(any((pack / name).exists() for name in lit))
+
     def test_the_palette_offers_the_group_among_the_groups_once(self):
         document = {'MAIN': {'value': [{'ID': {'value': 0}, 'LIST': {'value': []}}, {'ID': {'value': 1}, 'LIST': {'value': []}}]}}
         tile.palette(document, 'New Group 2x2', 'ek_test_t00')
