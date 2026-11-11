@@ -29,7 +29,7 @@ $fixture = Get-Content -LiteralPath $resolvedFixture -Raw | ConvertFrom-Json -De
 if ($fixture.schemaVersion -ne 1) { throw "Unsupported fixture schema version '$($fixture.schemaVersion)'." }
 $expectedHakCount = @($fixture.haks).Count
 if ($expectedHakCount -lt 1) { throw 'Fixture must declare at least one HAK.' }
-if (@($fixture.areas).Count -ne 18) { throw "Fixture must declare exactly 18 areas; found $(@($fixture.areas).Count)." }
+if (@($fixture.areas).Count -ne 17) { throw "Fixture must declare exactly 17 areas; found $(@($fixture.areas).Count)." }
 if ($fixture.defaultAreaWidth -lt 8 -or $fixture.defaultAreaWidth -gt 32 -or
     $fixture.defaultAreaHeight -lt 8 -or $fixture.defaultAreaHeight -gt 32) {
     throw 'Default test-area dimensions must each be between 8 and 32 tiles.'
@@ -342,7 +342,7 @@ $roundTripJson = Join-Path $temporaryRoot 'roundtrip-module.ifo.json'
 if ($LASTEXITCODE -ne 0) { throw 'Unable to decode the packed module.ifo.' }
 $decodedIfo = Get-Content -LiteralPath $roundTripJson -Raw | ConvertFrom-Json -Depth 64
 if (@($decodedIfo.Mod_HakList.value).Count -ne $expectedHakCount) { throw "Round-trip module.ifo does not declare $expectedHakCount HAKs." }
-if (@($decodedIfo.Mod_Area_list.value).Count -ne 18) { throw 'Round-trip module.ifo does not declare 18 areas.' }
+if (@($decodedIfo.Mod_Area_list.value).Count -ne 17) { throw 'Round-trip module.ifo does not declare 17 areas.' }
 if ([string]$decodedIfo.Mod_CustomTlk.value -cne [string]$fixture.customTlk) {
     throw "Round-trip module.ifo does not declare custom TLK '$($fixture.customTlk)'."
 }
@@ -394,5 +394,5 @@ $receiptPath = Join-Path $resolvedOutput 'srn_mdrnee_test.receipt.json'
 $receipt | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $receiptPath -Encoding utf8NoBOM
 
 Write-Host "Built $modulePath"
-Write-Host "Verified 18 areas, $expectedHakCount HAK declarations, and $($inventory.Count) packed resources."
+Write-Host "Verified 17 areas, $expectedHakCount HAK declarations, and $($inventory.Count) packed resources."
 Write-Host "Receipt: $receiptPath"

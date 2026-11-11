@@ -1,8 +1,8 @@
 # MDRNEE tileset smoke module
 
-This fixture creates `output/srn_mdrnee_test.mod`, a portable NWN:EE module that declares all 25
+This fixture creates `output/srn_mdrnee_test.mod`, a portable NWN:EE module that declares all 24
 curated HAKs produced from `mdrnee_tile.hak`, `mdrnee_audio.hak`, and
-`mdrnee_placeable.hak`. It contains one 16 x 16 area for each of the 18 tilesets.
+`mdrnee_placeable.hak`. It contains one 16 x 16 area for each of the 17 tilesets.
 Area names include the friendly tileset name and resref.
 
 Build everything with:
@@ -15,7 +15,7 @@ The builder verifies that all declared HAKs exist, converts generated GFF JSON w
 `nwn_gff`, packs with the pinned `nwn_erf`, normalizes the archive date, reopens the module, and
 writes `output/srn_mdrnee_test.receipt.json` with module and HAK hashes.
 
-For a Toolset test, copy the MOD to the NWN user `modules` directory, the 25 declared HAKs to the
+For a Toolset test, copy the MOD to the NWN user `modules` directory, the 24 declared HAKs to the
 user `hak` directory, and `output/srn.tlk` to the user `tlk` directory. The generated module
 declares `srn` as its custom TLK. Open the module and inspect each named area. For an in-game test,
 start as a DM and use the area chooser; the entry area is **D20 Modern Exterior (`mt_dgt04`)**.
@@ -35,7 +35,8 @@ responsible for representative-area generation and live validation.
 ## Recorded smoke result
 
 On 2026-09-10 the operator reported that all 18 areas passed Toolset and game-client smoke testing
-with the original 21 decomposed HAKs. No smoke-test defect was observed. See
+with the original 21 decomposed HAKs, when D20 Shadowrun Exterior (`srt04`, retired 2026-11-11) was still
+one of them. No smoke-test defect was observed. See
 `docs/imports/mdrnee_tile-deferred-work.md` for the targeted edge-table and extended palette tests.
 
 Extended palette testing confirmed that **D20 Office Interiors UDP (`udp2`)** expects an interior

@@ -76,7 +76,6 @@ origin, hash, disposition, dependency evidence, and recommended landing are reco
 | `srn_t_net01` | D20 VirtuNet |
 | `srn_t_shp02` | D20 Starship Interior SW |
 | `srn_t_sjm01` | D20 SJ Metal Interior |
-| `srn_t_srt04` | D20 Shadowrun Exterior |
 | `srn_t_tbx78` | D20 Modern Facility |
 | `srn_t_tfb01` | D20 Modern Interior |
 | `srn_t_tjsb0` | D20 Secret Base |
@@ -171,7 +170,8 @@ in `dgt04.set` changes.
 
 Their five models, five walkmeshes and the `arcology_torii01-03` textures move unmodified from `srn_t_srt04`
 to `srn_t_common`, so that neither tileset needs the other's pack. `srn_t_srt04` keeps its own `srt04.set`
-and palette and remains a supported tileset; it is not retired. `dgt05_i02_01.mdl` and `.wok`, a hospital tile both
+and palette and remains a supported tileset; it is not retired (it was retired the next day, see the
+section after this one). `dgt05_i02_01.mdl` and `.wok`, a hospital tile both
 tilesets list, moves from `srn_t_dgt04` to `srn_t_common` for the same reason: it was the one model
 Shadowrun Exterior could not resolve without the Modern Exterior pack.
 
@@ -188,6 +188,43 @@ the raised concrete round each, and the saved area was loaded in the game client
 their textures. `Arcology_Gate_02` got no door of its own, because its hook is the generic type 0, which the
 Toolset leaves for the builder.
 The work modifies the MDRNEE tile import under the same notice and attribution conditions.
+
+## Shadowrun Exterior retired (`srn_t_srt04`; 2026-11-11)
+
+The user retired D20 Shadowrun Exterior (`srt04`) on 2026-11-11. D20 Modern Exterior (`dgt04`) has held every
+one of its tiles since the arcology groups were added, so the pack `srn_t_srt04` (`srt04.set` and
+`srt04palstd.itp`, its only two files) is removed, with its `hakbuilder.json` entry and its area in the MDRNEE
+tileset smoke module, which now has 17 areas and 24 HAKs. The last commit that holds the pack is `3122b09d`.
+
+Tile numbers are not shared between the two sets. An area or a generator that used `srt04` moves to `dgt04`
+with this map, under which all 264 `srt04` tiles name the same model as their `dgt04` tile:
+
+| `srt04` tile | `dgt04` tile |
+| --- | --- |
+| 2 | 429 |
+| 4 | 431 |
+| 50 | 432 |
+| 191 | 433 |
+| 192 | 430 |
+| any other tile below 191 | the same number |
+| 193 and above | the number less 2 |
+
+Only the models are the same. Under the map the two sets still differed in other tile fields when the pack was
+removed (animation loops on 259 tiles, path nodes on 132, orientations on 102, minimaps on 34, and a few
+visibility nodes, lights, doors and terrain corners), and in their terrain crossers, transitions and groups.
+`dgt04.set` is the authority; nothing was copied across from `srt04.set` for the retirement.
+
+`doortypes.2da` row 117 (`GlassWindow`) named `SRT04` as its tileset. Its only remaining user is `dgt04` tile
+430, the windowed arcology edge, so the row now names `DGT04` and the door is listed under "Tileset Specific"
+in Modern Exterior areas. The row number, model and text are unchanged.
+
+Left as they are: the five `srt04_a0x_0y` models and walkmeshes in `srn_t_common`, which `dgt04` tiles 429-433
+use; sixteen minimap images in `srn_t_dgt04` (`midg04_d35_01`, `midg04_e09_03`, `_04`, `_07`, `_09` to `_12`,
+`_14`, `_16`, `_64`, `midg04_e11_05`, `midg04_f26_01` to `_04`) that only `srt04.set` named and no set names
+now; the tileset's name in `srn.tlk`, whose row numbers must not move; and the `mdrnee_tile` import profile
+and import records under `docs/imports`, which describe the import as it was made. Applying that profile again
+would create `srn_t_srt04` again; drop it again if that is ever done. Module areas built on `srt04` do not open
+without the set file and have to be moved to `dgt04` first.
 
 ## Stuffer Shack tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
 

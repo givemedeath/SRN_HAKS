@@ -118,7 +118,7 @@
 114  EvilDCDoor1*CN         TCN_UDoor_08  TTI01   nw_door_ttr_18 63526         1          1            9
 115  DomeDoor*TU            TID_UDoor_01  TTU01   nw_door_ttr_14 84422         1          1            36
 116  Reserved48             ****          ****    ****           ****          ****       ****         ****
-117        GlassWindow            t_door12      SRT04   nw_door_ttr_30 16777226       1          1            1
+117        GlassWindow            t_door12      DGT04   nw_door_ttr_30 16777226       1          1            1
 118  User002                ****          ****    ****           ****          ****       ****         ****
 119  User003                ****          ****    ****           ****          ****       ****         ****
 120  User004                ****          ****    ****           ****          ****       ****         ****
