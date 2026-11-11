@@ -185,6 +185,35 @@ doors, with no door placed by hand. The row's tileset only decides which areas l
 three of them, and found only concrete tiles among the raised-ground tiles the Toolset chose by itself.
 The work modifies the MDRNEE tile import under the same notice and attribution conditions.
 
+## Stuffer Shack tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
+
+The first envkit building: a single-storey convenience store as a 2 by 2 tile group, `Stuffer_Shack`, offered
+in D20 Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its four tile records are
+appended to each set file (`dgt04` tiles 434-437, group 57; `udp1` tiles 676-679, group 106) and the group is
+listed under Groups in each palette. No existing tile or group number changes. The four tile models
+(`ek_ss_shack_t00`, `_t01`, `_t10`, `_t11`, compiled), their walkmeshes, the shared material and its maps
+(`ek_ss_shack` colour, `_n`, `_s`, `_r`, glow `_i`, halo `_h`) live in `srn_t_common`, so neither tileset needs the
+other's pack. The ground around the building is the `pavement` texture Modern Exterior's plain tiles use, already in
+`srn_t_common`.
+
+Origin: the concept sheet `01_stuffer_shack_convenience_store.png` was supplied by the SRN project operator (an
+OpenAI-generated sheet from the operator's own brief). Its building views were redrawn locally with Qwen-Image
+2.1 as plain references, and the 3D model was generated from those references by the operator's Meshy account
+through the pinned `meshy-cli@0.4.0`, then remeshed by Meshy to 78,889 triangles. Attribution:
+[Meshy](https://www.meshy.ai/). The account's tier has not been verified, so the generated model and what is
+made from it are treated as CC BY 4.0 with Meshy attribution, as `docs/heads/evidence/NOTICE.md` sets out, until
+the operator confirms the tier; this is the first Meshy-made model in a production pack, and that confirmation
+is owed before release.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's
+axes and scaled to 5.6 metres; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow
+map and a halo sheet were made from its own colour for the sign, windows, door and OPEN sign; the mesh was
+shared out over four tiles with a ground square each; and a walkmesh was generated from its shape, in which
+the building stops movement and sight, the bollards stop movement only, and the slab is walked on at its own
+height. The Meshy source, the full-detail spare, the references and the client captures stay in ignored
+`output/envkit/`. Checked in the game client in a Modern Exterior area and a Suburbs area on 2026-11-11; not
+checked in the Toolset. The tiles have no door hook, no tile lights, no minimap image and no roof fade.
+
 ## MDRNEE placeable import (2026-09-11)
 
 `mdrnee_placeable.hak` was imported in full under the `mdrnee_placeable` profile. Its verified
