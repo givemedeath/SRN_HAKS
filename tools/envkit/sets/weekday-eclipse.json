@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "41_weekday_eclipse_nightclub.png",
+    "sha256": "e1f29f00bf7b73a42ecca2e467c7e2e2abd90b984fdfa10bc67d0d35c6085657",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "dark nightclub with a curved glazed front, a neon eclipse marquee and violet light strips", "box": [0, 14, 890, 530], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a dark nightclub with a curved neon marquee", "box": [895, 110, 1242, 296]},
+    "building-rear": {"kind": "building", "subject": "rear service alley elevation of a dark nightclub", "box": [900, 330, 1249, 505]},
+    "hostess-podium": {"kind": "prop", "type": "reception-desk", "variant": "Branding: small hostess podium with a neon crescent, a terminal and an orchid.", "subject": "small hostess podium with a neon crescent", "box": [11, 630, 176, 796]},
+    "bar-counter": {"kind": "prop", "type": "bar-counter", "subject": "curved bar counter with a lit bottle wall, taps and four stools", "box": [183, 621, 468, 797]},
+    "booth-seating": {"kind": "prop", "type": "booth-seating", "subject": "curved red padded booth around a small round table", "box": [472, 656, 688, 786]},
+    "dj-console": {"kind": "prop", "type": "dj-console", "subject": "DJ console with decks, a mixer and two screens", "box": [693, 637, 896, 793]},
+    "stage-light-rig": {"kind": "prop", "type": "light-rig", "variant": "Truss stage frame with four coloured spotlights.", "subject": "truss stage frame with four coloured spotlights", "box": [897, 616, 1102, 789]},
+    "queue-stanchions": {"kind": "prop", "type": "stanchions", "variant": "Branding: three brass posts with purple ropes.", "subject": "three brass stanchions with purple ropes", "box": [1105, 673, 1283, 789]},
+    "wand-checkpoint": {"kind": "prop", "type": "scanner-arch", "variant": "Walk-through arch with a hand-scan screen and green side lights.", "subject": "walk-through security arch with a hand-scan screen", "box": [1288, 616, 1438, 790]},
+    "neon-wall-sign": {"kind": "prop", "type": "neon-sign", "variant": "Branding: oval Weekday Eclipse neon sign with a crescent.", "subject": "oval neon wall sign reading Weekday Eclipse", "box": [6, 867, 227, 1013]},
+    "restroom-doors": {"kind": "prop", "type": "restroom-doors", "subject": "pair of restroom doors with lit pictograms in a wall section", "box": [240, 854, 439, 1020]},
+    "service-door": {"kind": "prop", "type": "service-door", "same": "nabs-studio/service-door", "subject": "service door in a concrete wall section", "box": [462, 850, 611, 1017]},
+    "street-light": {"kind": "prop", "type": "floodlight", "variant": "Branding: street light pole with a hanging Eclipse banner.", "subject": "street light pole with a hanging banner", "box": [648, 818, 748, 1022]},
+    "trash-pile": {"kind": "prop", "type": "street-clutter", "variant": "Blue wheeled dumpster with rubbish bags, a crate and a pallet.", "subject": "blue dumpster with rubbish bags, a crate and a pallet", "box": [748, 890, 972, 1015]},
+    "branded-wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: weathered Weekday Eclipse panel with two lamps.", "subject": "wall-mounted sign reading Weekday Eclipse", "box": [978, 855, 1205, 1021]},
+    "coat-check": {"kind": "prop", "type": "shop-counter", "variant": "Coat check counter with a neon header and a rail of coats.", "subject": "coat check counter with a rail of coats", "box": [1218, 856, 1443, 1021]}
+  }
+}
