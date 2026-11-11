@@ -73,6 +73,15 @@ class MeshyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'already used'):
             meshy.submit(self.ledger, 'a', 'vending', 'remesh', meshy.remesh_arguments('task-a', 9000), self.root / 'work', run=run)
 
+    def test_a_ledger_held_during_a_wait_does_not_drop_entries_added_meanwhile(self):
+        run = FakeMeshy()
+        held = meshy.Ledger(self.ledger.path)
+        meshy.submit(held, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=run)
+        other = meshy.Ledger(self.ledger.path)  # a second process submits while the first is still waiting
+        meshy.submit(other, 'b', 'atm', 'prop', meshy.prop_arguments(self.image, 5000), self.root / 'work', run=run)
+        meshy.wait(held, 'a', self.root / 'work', run=run)
+        self.assertEqual([row['key'] for row in meshy.Ledger(self.ledger.path).data['entries']], ['a', 'b'])
+
     def test_an_unanswered_submission_stays_counted_and_uncertain(self):
         with self.assertRaisesRegex(ValueError, 'uncertain'):
             meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work',

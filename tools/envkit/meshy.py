@@ -34,7 +34,12 @@ class Ledger:
     """One JSON file: the cap and every paid call, counted at its estimate until Meshy reports what it consumed."""
 
     def __init__(self, path):
-        self.path = Path(path); self.data = json.loads(self.path.read_text(encoding='utf-8'))
+        self.path = Path(path); self.load()
+
+    def load(self):
+        """Read the file again. A wait holds a ledger for minutes while other calls add entries, so every change starts
+        from the file as it is now; this narrows the overlap to the write itself, it is not a lock."""
+        self.data = json.loads(self.path.read_text(encoding='utf-8'))
         require(self.data.get('kind') == 'srn-envkit-meshy-ledger', 'Envkit Meshy ledger required')
 
     @classmethod
@@ -60,6 +65,7 @@ class Ledger:
         return sum(row['estimate'] if row.get('credits') is None else row['credits'] for row in self.data['entries'])
 
     def reserve(self, key, asset, operation, arguments):
+        self.load()
         require(KEY.fullmatch(key) is not None, 'Ledger keys must be safe IDs: ' + str(key))
         require(all(row['key'] != key for row in self.data['entries']), 'Key already used: ' + key)
         estimate = PRICES[operation]
@@ -71,7 +77,7 @@ class Ledger:
         return row
 
     def update(self, key, **fields):
-        self.entry(key).update(fields); self.save()
+        self.load(); self.entry(key).update(fields); self.save()
 
 
 def _images(paths):
