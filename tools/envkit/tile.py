@@ -25,7 +25,10 @@ door: a line in the set file from which the Toolset makes the door when the tile
 
 A long walk is planned tile to tile before the game looks at any walkmesh, from each tile's path node in the set file:
 a letter that says by which sides the tile can be left and which of those are joined inside it, and a turn. Each tile
-of a group gets the node its own ground gives it, so a group can be of any size (`path_node`)."""
+of a group gets the node its own ground gives it, so a group can be of any size (`path_node`). Within about two tiles
+the game goes by the walkmesh alone, so a wrong node passes unseen in a walk across the group: a new group is checked in
+the client with walkers sent from four tiles away and more (the Stuffer Shack's first nodes were turned half a turn
+wrong, and only such a walk showed it)."""
 import json
 import re
 import subprocess

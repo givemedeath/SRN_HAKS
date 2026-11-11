@@ -261,6 +261,20 @@ The rebuild moved each tile's first main light with the finer survey, by about 0
 1.2 metres on the north-east one; a coloured main light was looked at again in the client at night and lit the
 ground and the walls on every side. The area map was also looked at zoomed in, at its full 32 pixels a tile.
 
+The path nodes of the four tiles were corrected the same day, in both set files and nowhere else. They had been
+written as `H` turned 180, 270, 90 and 0, taking `H` to name the corner a building closes; it names the corner
+that is walked, so each tile pointed its two exits into the building. The game plans a walk of more than about
+two tiles from these nodes before it looks at a walkmesh, and walkers sent to the building from four tiles away
+stopped short of it, one of them ten metres off against the east wall; nearer walks, which were all that had
+been checked, go by the walkmesh and were right. `tools/envkit` now works each tile's node out from its own
+ground, for a group of any size, from the engine's table of path nodes as nwn.wiki gives it (checked against
+the walkmeshes of the 1,091 stock tiles of the two tilesets, which also settled that a turn is counter-clockwise).
+The four tiles are now `H` 0, `H` 90, `I` 270 and `I` 270. Checked in the game client in Modern Exterior: the
+same three walkers from four tiles away and more each reached their spot. Checked too with two throwaway groups
+made from the same model at other sizes, three tiles by three and a single tile, which are in no pack: six
+walkers from the far corners of the area reached their spots beside them, and in the Toolset the larger was
+listed under Groups and laid its nine tiles in order, the single one under Features, with no other tile changed.
+
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
 Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a
