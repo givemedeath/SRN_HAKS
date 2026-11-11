@@ -33,9 +33,39 @@ def command_reference(args):
                           'elapsedSeconds': result['elapsedSeconds']}), flush=True)
 
 
+def command_meshy(args):
+    from . import meshy
+    if args.action == 'init':
+        meshy.Ledger.create(args.ledger, args.cap)
+    ledger = meshy.Ledger(args.ledger)
+    if args.action in ('prop', 'building', 'remesh'):
+        arguments = (meshy.prop_arguments(args.image[0], args.triangles) if args.action == 'prop' else
+                     meshy.building_arguments(args.image) if args.action == 'building' else
+                     meshy.remesh_arguments(ledger.entry(args.source)['taskId'], args.triangles))
+        print(json.dumps({'key': args.key, 'task': meshy.submit(ledger, args.key, args.asset, args.action, arguments, args.work)}))
+    elif args.action == 'wait':
+        print(json.dumps(meshy.wait(ledger, args.key, args.work)))
+    elif args.action == 'download':
+        print(json.dumps(meshy.download(ledger, args.key, args.work, args.bank)))
+    rows = [{k: row.get(k) for k in ('key', 'asset', 'operation', 'state', 'estimate', 'credits', 'taskId')} for row in ledger.data['entries']]
+    print(json.dumps({'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='envkit')
     commands = parser.add_subparsers(dest='command', required=True)
+    sub = commands.add_parser('meshy', help='paid Meshy calls under the ledger cap')
+    sub.add_argument('action', choices=['init', 'status', 'prop', 'building', 'remesh', 'wait', 'download'])
+    sub.add_argument('--ledger', required=True)
+    sub.add_argument('--cap', type=int)
+    sub.add_argument('--key', help='ledger key of this call')
+    sub.add_argument('--asset')
+    sub.add_argument('--image', action='append', default=[], help='reference image (repeat for building views)')
+    sub.add_argument('--triangles', type=int, help='prop target, or remesh ceiling')
+    sub.add_argument('--source', help='remesh: ledger key of the generation to remesh')
+    sub.add_argument('--work', help='folder for CLI transcripts and task records')
+    sub.add_argument('--bank', help='download: fresh folder for the model')
+    sub.set_defaults(run=command_meshy)
     parsers = {}
     for name, run in (('crops', command_crops), ('reference', command_reference)):
         sub = parsers[name] = commands.add_parser(name)

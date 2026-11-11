@@ -1,0 +1,182 @@
+"""Meshy generation under a credit cap, through the pinned meshy-cli (which owns the credentials).
+
+Two routes. A prop is generated in smart-topology mode, which builds low-poly parts to a triangle target. A building is
+generated in full detail from up to four views and then remeshed inside Meshy to a target. Only a model whose triangle
+count was bounded that way is downloaded: the full-detail result of a generation runs to millions of triangles and stays
+on Meshy (user rule, 2026-11-10: nothing over 100k leaves Meshy unless it has to).
+
+Every paid call is reserved in the ledger before it is sent, so a crash between sending and recording leaves the credits
+counted, not lost track of."""
+import json
+import re
+import shutil
+import struct
+import subprocess
+from pathlib import Path
+
+CLI = ('npm', 'exec', '--yes', '--package=meshy-cli@0.4.0', '--', 'meshy')
+PRICES = {'prop': 15, 'building': 30, 'remesh': 5}  # docs.meshy.ai/en/api/pricing, read 2026-11-10
+RESOURCE = {'prop': 'image-to-3d', 'building': 'multi-image-to-3d', 'remesh': 'remesh'}
+BOUNDED = {'prop', 'remesh'}  # the operations whose result has a triangle target
+MAX_TRIANGLES = 100000
+PROP_TRIANGLES = (100, 15000)  # smart-topology's own range
+REMESH_HEADROOM = 0.92  # a remesh lands a little over its target: the robe trial asked for 100,000 and got 103,196
+KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
+IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+class Ledger:
+    """One JSON file: the cap and every paid call, counted at its estimate until Meshy reports what it consumed."""
+
+    def __init__(self, path):
+        self.path = Path(path); self.data = json.loads(self.path.read_text(encoding='utf-8'))
+        require(self.data.get('kind') == 'srn-envkit-meshy-ledger', 'Envkit Meshy ledger required')
+
+    @classmethod
+    def create(cls, path, cap):
+        path = Path(path)
+        require(type(cap) is int and cap > 0, 'Credit cap must be a positive whole number')
+        require(not path.exists(), 'Ledger already exists: ' + str(path))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-envkit-meshy-ledger', 'cap': cap, 'entries': []}, indent=1),
+                        encoding='utf-8')
+        return cls(path)
+
+    def save(self):
+        temporary = self.path.with_suffix('.tmp')
+        temporary.write_text(json.dumps(self.data, indent=1), encoding='utf-8'); temporary.replace(self.path)
+
+    def entry(self, key):
+        found = [row for row in self.data['entries'] if row['key'] == key]
+        require(found, 'No ledger entry: ' + str(key))
+        return found[0]
+
+    def committed(self):
+        return sum(row['estimate'] if row.get('credits') is None else row['credits'] for row in self.data['entries'])
+
+    def reserve(self, key, asset, operation, arguments):
+        require(KEY.fullmatch(key) is not None, 'Ledger keys must be safe IDs: ' + str(key))
+        require(all(row['key'] != key for row in self.data['entries']), 'Key already used: ' + key)
+        estimate = PRICES[operation]
+        require(self.committed() + estimate <= self.data['cap'],
+                f'Credit cap would be exceeded: {self.committed()} committed + {estimate} > {self.data["cap"]}')
+        row = {'key': key, 'asset': asset, 'operation': operation, 'estimate': estimate, 'state': 'reserved', 'taskId': None,
+               'credits': None, 'arguments': arguments}
+        self.data['entries'].append(row); self.save()
+        return row
+
+    def update(self, key, **fields):
+        self.entry(key).update(fields); self.save()
+
+
+def _images(paths):
+    paths = [Path(path).resolve() for path in paths]
+    require(paths and all(path.is_file() and path.suffix.lower() in IMAGES for path in paths), 'Reference images required')
+    return [str(path) for path in paths]
+
+
+def prop_arguments(image, triangles, resolution='2k'):
+    require(type(triangles) is int and PROP_TRIANGLES[0] <= triangles <= PROP_TRIANGLES[1],
+            f'A prop target is {PROP_TRIANGLES[0]}-{PROP_TRIANGLES[1]} triangles')
+    return ['--image-url', _images([image])[0], '--model-type', 'smart-topology', '--target-polycount', str(triangles),
+            '--should-texture', 'true', '--enable-pbr', 'true', '--texture-resolution', resolution, '--target-formats', 'glb']
+
+
+def building_arguments(images, resolution='4k'):
+    require(1 <= len(images) <= 4, 'A building takes one to four views')
+    return ['--image-urls', ','.join(_images(images)), '--should-texture', 'true', '--enable-pbr', 'true',
+            '--texture-resolution', resolution, '--target-formats', 'glb']
+
+
+def remesh_arguments(task, triangles):
+    """`triangles` is the ceiling wanted; the request asks for a little less because a remesh overshoots."""
+    require(type(triangles) is int and 100 <= triangles <= MAX_TRIANGLES, f'A remesh ceiling is 100-{MAX_TRIANGLES} triangles')
+    require(isinstance(task, str) and task, 'Remesh the generation task by its id')
+    return ['--input-task-id', task, '--topology', 'triangle', '--target-polycount', str(int(triangles * REMESH_HEADROOM)),
+            '--target-formats', 'glb']
+
+
+def run_cli(arguments, folder):
+    """(exit code, parsed stdout). The launcher is an npm .cmd shim, which cmd.exe re-parses: text it would rewrite is refused."""
+    require(not any(set('\r\n"%&|<>^') & set(value) for value in arguments),
+            'Meshy arguments cannot contain line breaks or the characters " % & | < > ^')
+    executable = shutil.which(CLI[0])
+    require(executable is not None, 'npm not found')
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
+    full = [executable, *CLI[1:], *arguments, '--output-schema', 'v1', '--format', 'json', '--no-update-check']
+    result = subprocess.run(full, capture_output=True, text=True, encoding='utf-8', check=False)
+    (folder / 'stdout.json').write_text(result.stdout, encoding='utf-8'); (folder / 'stderr.log').write_text(result.stderr, encoding='utf-8')
+    text = result.stdout.strip()
+    return result.returncode, (json.loads(text[text.index('{'):]) if '{' in text else {})
+
+
+def task_fields(response):
+    result = response.get('result', response)
+    if not isinstance(result, dict):
+        result = {'id': result} if isinstance(result, str) else {}
+    task = result.get('task') or result.get('submission') or result
+    return {'id': task.get('task_id') or task.get('id') or result.get('task_id'), 'status': task.get('status'),
+            'credits': task.get('consumed_credits')}
+
+
+def submit(ledger, key, asset, operation, arguments, folder, *, run=run_cli):
+    """Reserve, then send once. An answer without a task id leaves the entry `uncertain` and still counted."""
+    require(operation in PRICES, 'Unknown operation: ' + str(operation))
+    ledger.reserve(key, asset, operation, arguments)
+    code, response = run([RESOURCE[operation], 'create', '--async', '--operation-id', key, '--include-raw', *arguments],
+                         Path(folder) / key / 'create')
+    task = task_fields(response)['id'] if code == 0 else None
+    ledger.update(key, state='submitted' if task else 'uncertain', taskId=task)
+    require(task, 'Submission uncertain; check the Meshy task list before any retry of ' + key)
+    return task
+
+
+def wait(ledger, key, folder, *, timeout=1800, run=run_cli):
+    row = ledger.entry(key)
+    require(row['taskId'] and row['state'] in ('submitted', 'pending', 'in_progress'), 'Nothing to wait for: ' + key)
+    saved = Path(folder) / key / 'task.json'
+    if saved.exists():
+        saved.unlink()  # the CLI never overwrites, and an earlier wait may have timed out with the task unfinished
+    code, response = run([RESOURCE[row['operation']], 'wait', row['taskId'], '--timeout', str(timeout), '--include-raw',
+                          '--save-json', str(saved)], Path(folder) / key / 'wait')
+    fields = task_fields(response)
+    if fields['status'] in ('SUCCEEDED', 'FAILED', 'CANCELED'):
+        ledger.update(key, state=fields['status'].lower(), credits=fields['credits'], task=str(saved))
+    require(code == 0 and fields['status'] == 'SUCCEEDED', f'Task {key} is {fields["status"]}')
+    return fields
+
+
+def triangles(glb):
+    """Triangles in a binary glTF, from the index counts of its triangle primitives."""
+    data = Path(glb).read_bytes()
+    require(data[:4] == b'glTF', 'Binary glTF required: ' + str(glb))
+    length, kind = struct.unpack_from('<II', data, 12)
+    require(kind == 0x4E4F534A, 'glTF JSON chunk missing')
+    document = json.loads(data[20:20 + length]); total = 0
+    for mesh in document.get('meshes', []):
+        for primitive in mesh['primitives']:
+            require(primitive.get('mode', 4) == 4, 'Only triangle lists are counted')
+            accessor = primitive['indices'] if 'indices' in primitive else primitive['attributes']['POSITION']
+            total += document['accessors'][accessor]['count'] // 3
+    return total
+
+
+def download(ledger, key, folder, bank, *, run=run_cli):
+    """Fetch a finished model. Only bounded operations qualify, and a model over the ceiling is kept out of the bank."""
+    row = ledger.entry(key)
+    require(row['operation'] in BOUNDED, 'Only a remeshed or smart-topology model is downloaded; remesh ' + key + ' first')
+    require(row['state'] == 'succeeded' and row.get('task'), 'Successful task required: ' + key)
+    bank = Path(bank)
+    require(not bank.exists(), 'Fresh download folder required: ' + str(bank))
+    code, _ = run(['download', '--task-json', row['task'], '--all', '--output-dir', str(bank.resolve())], Path(folder) / key / 'download')
+    models = sorted(bank.rglob('*.glb')) if bank.exists() else []
+    require(code == 0 and models, 'Download incomplete: ' + key)
+    counts = {str(path): triangles(path) for path in models}
+    ledger.update(key, downloaded=str(bank), triangles=counts)
+    require(max(counts.values()) <= MAX_TRIANGLES, f'Model exceeds {MAX_TRIANGLES} triangles: {counts}')
+    return counts
