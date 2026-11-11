@@ -106,6 +106,8 @@ def command_tiles(args):
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
+    for note in report['notes']:  # beside the report, which stays the only thing on standard output
+        print('note: ' + note, file=sys.stderr, flush=True)
 
 
 def command_meshy(args):

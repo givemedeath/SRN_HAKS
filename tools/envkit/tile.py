@@ -23,12 +23,13 @@ and `night2day` animations the game plays as the hour turns (here they fade the 
 night), `tilefade` on what stands above a stated height so the game can hide it when a character is behind, and a
 door: a line in the set file from which the Toolset makes the door when the tile is painted.
 
-A long walk is planned tile to tile before the game looks at any walkmesh, from each tile's path node in the set file:
-a letter that says by which sides the tile can be left and which of those are joined inside it, and a turn. Each tile
-of a group gets the node its own ground gives it, so a group can be of any size (`path_node`). Within about two tiles
-the game goes by the walkmesh alone, so a wrong node passes unseen in a walk across the group: a new group is checked in
-the client with walkers sent from four tiles away and more (the Stuffer Shack's first nodes were turned half a turn
-wrong, and only such a walk showed it)."""
+A walk from one tile to another is planned tile to tile, from each tile's path node in the set file: a letter that
+says by which sides the tile can be left and which of those are joined inside it, and a turn. Each tile of a group gets
+the node its own ground gives it, so a group can be of any size (`path_node`). A wrong node does not always show in a
+short walk. The Stuffer Shack's first nodes were turned half a turn wrong, and walks of a tile or two round it still
+arrived; only walkers from four tiles away stopped short. Yet a walk of 7.5 metres into a walled yard failed from the
+next tile while the yard's side was not an exit. So a new group is checked in the client with walkers sent from four
+tiles away and more, and from the next tile onto any ground that has one way in. `group` notes ground no exit reaches."""
 import json
 import re
 import subprocess
@@ -56,6 +57,7 @@ KNEE, EYE, HEAD, STEP = 0.45, 1.4, 2.2, 0.05
 PATH_NODES = {'A': ('NWSE',), 'I': ('NWS',), 'H': ('WS',), 'L': ('NS',), 'N': ('N',), 'T': (), 'J': ('WS', 'EN'), 'U': ('W', 'SNE'),
               'X': ('N', 'W'), 'Y': ('N', 'S'), 'V': ('N', 'SE'), 'W': ('N', 'SW'), 'w': ('N', 'W', 'E', 'S')}
 EXIT = 4  # cells of a tile's side that must lie open together for the side to be an exit: a metre
+WALK_FACES = 500  # the most walk faces of any stock tile of Modern Exterior and Suburbs: a tile with more is noted
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
              'BottomRightHeight', 'Top', 'Right', 'Bottom', 'Left', 'MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1',
              'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds', 'PathNode', 'Orientation', 'VisibilityNode', 'VisibilityOrientation', 'ImageMap2D')
@@ -272,7 +274,8 @@ def path_node(found, row, column):
     or from the next tile, until that side was called an exit: client, 2026-11-11). Where a side opens onto two grounds
     of the tile that do not join, the opening nearest its middle counts. The node chosen has no exit that is not one
     and joins no two that the tile's ground does not join; of those it is the one with the most exits, then the most of
-    them joined. So what it gets wrong, where no letter fits, is a way left unsaid, never a way through a wall.
+    them joined, then the most ground reached. So what it gets wrong, where no letter fits, is a way left unsaid, never
+    a way through a wall.
     exits: the sides the node leaves by, of N, W, S, E. offPath: the walk cells of the tile that no exit reaches: ground
     a walk from another tile will not be planned onto."""
     material = found['material']; rows, columns = material.shape; r0, c0 = row * CELLS, column * CELLS
@@ -282,26 +285,24 @@ def path_node(found, row, column):
     region = {}
     for side in 'NWSE':
         at = beyond[side]; line, limit = (at[0], rows) if side in 'NS' else (at[1], columns)
-        clear = [*(walk[inside[side]] & (material[at] == STONE if 0 <= line < limit else True)), False]; start = nearest = None
-        for cell, free in enumerate(clear):
-            start = cell if free and start is None else start
-            if not free and start is not None:
-                off = max(start - CELLS / 2, CELLS / 2 - cell, 0)  # how far the opening lies from the side's middle
-                if cell - start >= EXIT and (nearest is None or off < nearest):
-                    nearest = off; region[side] = int(masses[inside[side]][start])
-                start = None
+        clear = walk[inside[side]] & (material[at] == STONE if 0 <= line < limit else True)
+        edges = np.flatnonzero(np.diff(np.concatenate([[0], clear.astype(int), [0]]))).tolist()  # where each open stretch starts and ends
+        # (how far the opening lies from the side's middle, its first cell), of the openings wide enough
+        ways = [(max(start - CELLS / 2, CELLS / 2 - end, 0), start) for start, end in zip(edges[::2], edges[1::2]) if end - start >= EXIT]
+        if ways:
+            region[side] = int(masses[inside[side]][min(ways)[1]])
     best = None
     for letter, parts in PATH_NODES.items():
         for quarter in range(4):
             turned = [''.join('NWSE'[('NWSE'.index(side) + quarter) % 4] for side in part) for part in parts]; exits = ''.join(turned)
             if any(side not in region for side in exits) or any(len({region[side] for side in part}) > 1 for part in turned):
                 continue
-            score = (len(exits), sum(len(part) * (len(part) - 1) // 2 for part in turned))
+            reached = int((walk & np.isin(masses, [region[side] for side in exits])).sum())
+            score = (len(exits), sum(len(part) * (len(part) - 1) // 2 for part in turned), reached)
             if best is None or score > best[0]:
                 best = (score, letter, quarter * 90, exits)
-    _, letter, turn, exits = best  # T, with no exit, fits any tile
-    reached = {region[side] for side in exits}
-    return {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int((walk & ~np.isin(masses, list(reached))).sum())}
+    (_, _, reached), letter, turn, exits = best  # T, with no exit, fits any tile
+    return {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int(walk.sum()) - reached}
 
 
 def _daylight(name, halos):
@@ -339,8 +340,8 @@ def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=No
     """One tile's ASCII model. parts: [(vertices, normals, uvs, faces)] of the building, in the tile's space; a fifth
     value, true, marks a part the game may hide (`tilefade`). ground: the texture of the ten-metre square under it, laid
     twice across the tile as the plain tiles lay theirs. lights: the places of its main lights. fade: the height above
-    which things may be hidden; a halo card above it goes with them, and one whose body it crosses is cut there. cap: the lid drawn at that height
-    only while they are hidden ([(x0, y0, x1, y1)]), so the building is not seen hollow."""
+    which things may be hidden; a halo card above it goes with them, and one whose body it crosses is cut there. cap: the
+    lid drawn at that height only while they are hidden ([(x0, y0, x1, y1)]), so the building is not seen hollow."""
     require(len(name) <= 16 and name == name.lower() and name.replace('_', '').isalnum(), 'A tile model name is a lowercase resref: ' + name)
     lines = ['#MAXMODEL ASCII', f'newmodel {name}', f'setsupermodel {name} null', 'classification TILE', 'setanimationscale 1.0',
              f'beginmodelgeom {name}', f'node dummy {name}', '  parent null', 'endnode']
@@ -413,8 +414,9 @@ def share_cards(cards, rows, columns, corner):
 
 def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
-    {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}]} with the tiles in the
-    set file's order.
+    {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
+    in the set file's order. notes: what to look at before the group is installed, in words: ground no exit of its tile
+    reaches, and a tile with more walk faces than any stock one.
 
     colour: the model's colour texture (0-1 array); with it each tile gets its picture for the area map, `image`, drawn
     over `ground_colour`. fade: the height in metres above which the building may be hidden. door: {at: [x, y, z],
@@ -426,7 +428,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
     middle = vertices[faces].mean(1); home = np.clip(((middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
     high = middle[:, 2] >= fade if fade is not None else np.zeros(len(faces), bool)
-    cards = share_cards(made['card'][1] if made['card'] else [], rows, columns, corner); tiles = []
+    cards = share_cards(made['card'][1] if made['card'] else [], rows, columns, corner); tiles, notes = [], []
     pictures = minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground_colour) if colour is not None else {}
     if door is not None:
         at = np.asarray(door['at'], float); cell = np.clip(((at[:2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
@@ -447,8 +449,11 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
             one = {'model': model, 'row': row, 'column': column, 'faces': int(here.sum()), 'fadingFaces': int((here & high).sum()), 'walkFaces': int(len(walk[1])),
-                   'closedCells': int((found['material'][row * CELLS:(row + 1) * CELLS, column * CELLS:(column + 1) * CELLS] != STONE).sum()),
                    'path': path_node(found, row, column), 'lights': len(lights), 'doors': []}
+            if one['path']['offPath']:
+                notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no exit of the tile reaches; a walk from another tile is not planned onto them')
+            if one['walkFaces'] > WALK_FACES:
+                notes.append(f'{model}: {one["walkFaces"]} walk faces, where no stock tile has more than {WALK_FACES}')
             if (row, column) in pictures:
                 from PIL import Image
                 one['image'] = f'{name}_m{row}{column}'  # a 24-bit picture, stored bottom row first as the stock ones are
@@ -457,7 +462,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 x, y, z = (at - centre).round(2).tolist()
                 one['doors'].append({'type': int(door.get('type', 0)), 'x': x, 'y': y, 'z': z, 'orientation': float(door.get('facing', 0.0))})
             tiles.append(one)
-    return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles}
+    return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles, 'notes': notes}
 
 
 def compile_tiles(sources, output):

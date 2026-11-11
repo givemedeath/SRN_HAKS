@@ -280,7 +280,7 @@ class TileTests(unittest.TestCase):
             one = report['tiles'][0]
             self.assertEqual((one['image'], one['lights'], one['doors']), ('ek_shop_m00', 2, [{'type': 58, 'x': 0.0, 'y': 1.0, 'z': 0.2, 'orientation': 90.0}]))
             self.assertTrue(0 < one['fadingFaces'] < one['faces']); self.assertEqual(report['fade'], 2.0)
-            self.assertEqual(one['path'], {'node': 'A', 'turn': 0, 'exits': 'NWSE', 'offPath': 0})
+            self.assertEqual(one['path'], {'node': 'A', 'turn': 0, 'exits': 'NWSE', 'offPath': 0}); self.assertEqual(report['notes'], [])
             with Image.open(Path(scratch) / 'ek_shop_m00.tga') as picture:
                 self.assertEqual((picture.size, picture.mode), ((tile.MINIMAP, tile.MINIMAP), 'RGB'))
             self.assertTrue((Path(scratch) / 'ek_black.tga').is_file())
@@ -288,6 +288,25 @@ class TileTests(unittest.TestCase):
             self.assertIn('node trimesh ek_shop_t00_cap', text); self.assertIn('node light ek_shop_t00ml2', text)
             with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
+
+    def test_a_built_group_notes_ground_no_exit_reaches(self):
+        import tempfile
+        # The walled yard on a slab two tiles wide, its only gap three quarters of a metre: the yard's ground is in the west tile and no exit reaches it.
+        vertices, faces = scene(box((-8.0, -4.6, 0), (8.0, 4.6, 0.1)), box((-4.0, -3.0, 0.1), (-3.6, 4.4, 3)), box((-4.0, -3.0, 0.1), (0.4, -2.6, 3)),
+                                box((-4.0, 4.0, 0.1), (0.4, 4.4, 3)), box((0.0, -3.0, 0.1), (0.4, 3.25, 3)))
+        made = {'vertices': vertices, 'normals': np.tile([0.0, 0, 1], (len(vertices), 1)), 'uvs': np.zeros((len(vertices), 2)), 'faces': faces, 'card': None}
+        with tempfile.TemporaryDirectory() as scratch:
+            report = tile.group('ek_yard', made, scratch, ground='pavement')
+        self.assertEqual((report['rows'], report['columns'], len(report['notes'])), (1, 2, 1))
+        self.assertRegex(report['notes'][0], r'^ek_yard_t00: \d{3} walk cells that no exit of the tile reaches')
+
+    def test_of_nodes_that_say_as_much_the_one_that_reaches_most_ground_is_taken(self):
+        # One tile, shut on the east, with three grounds that do not join: a large one north, a small one south-west, a middling one south-east.
+        # The west side opens on two of them and goes with the south-west (its opening spans the side's middle). No letter has three exits
+        # apart, so two are stated: north and south, the two largest grounds, not north and west, which the table of letters comes to first.
+        material = np.full((tile.CELLS, tile.CELLS), tile.STONE)
+        material[:, 36:] = tile.OBSCURING; material[20:22] = tile.OBSCURING; material[:20, 10:12] = tile.OBSCURING
+        self.assertEqual(tile.path_node({'material': material}, 0, 0), {'node': 'Y', 'turn': 0, 'exits': 'NS', 'offPath': 200})
 
     def test_a_tiles_record_names_its_picture_lights_and_doors_and_a_door_block_follows_it(self):
         made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}, 'lights': 2,
