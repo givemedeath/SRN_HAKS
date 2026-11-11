@@ -35,6 +35,12 @@ class PlaceableTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unexpected placeables table'):
             placeables.register('not a table\n\nx\n', [{'model': 'ek_a', 'label': 'One', 'sound': 28}])
 
+    def test_the_rows_already_there_are_found_by_model_so_a_placed_model_can_be_converted_again(self):
+        self.assertEqual(placeables.rows(TABLE), {'plc_a01': 0, 'old_thing': 7})
+        text, made = placeables.register(TABLE, [{'model': 'old_thing', 'label': 'Under Test', 'sound': None}], again=True)  # a fixture's own row
+        self.assertEqual(made, {'old_thing': 8}); self.assertEqual(placeables.TOKEN.findall(text.rstrip('\n').split('\n')[-1])[8], '****')
+        self.assertEqual(placeables.rows(text)['old_thing'], 7)  # the first row is the model's own
+
     def test_the_tables_own_line_ends_are_kept(self):
         text, _ = placeables.register(TABLE.replace('\n', '\r\n'), [{'model': 'ek_a', 'label': 'Shop, Bin', 'sound': 28}])
         self.assertNotIn('\n', text.replace('\r\n', '')); self.assertTrue(text.endswith('\r\n'))

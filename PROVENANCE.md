@@ -265,8 +265,13 @@ recompressed. The vending machine, ATM and drink case have a glow map and a halo
 and a second material (`<name>_o`, with the shared black halo `ek_off`) that a script swaps in with
 `ReplaceObjectTexture` to put their lights out; that needs the placed object not to be static. Checked in the
 game client on 2026-11-11 from the pack's files and these table rows, lights on, out and on again. The rows
-have no blueprints or palette entries, and the security camera stands at ground level until a builder raises
-it to a wall.
+have no blueprints or palette entries.
+
+Converted again later on 2026-11-11 under the same rows. The collision block of each prop now follows its
+footprint with the empty corners cut (an eight-sided outline; a box-shaped prop keeps its box). The security
+camera hangs 2.6 metres above the spot it is placed on and has no block to walk into. Halo sheets face the way
+their light does. Checked in the game client from the pack's files by day and by night, lights on, out and
+on again.
 
 ## MDRNEE placeable import (2026-09-11)
 

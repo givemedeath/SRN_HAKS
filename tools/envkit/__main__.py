@@ -63,7 +63,8 @@ def command_game(args):
         model = models[name]; source, maps = _generated(args.root, model)
         with fresh(output / name) as folder:  # a model that fails leaves nothing in the way of the next attempt
             report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
-                                       colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'))
+                                       colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'),
+                                       lift=model.get('lift', 0.0))
             report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
             (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(report), flush=True)
@@ -128,7 +129,8 @@ def command_install(args):
 
 
 def command_placeables(args):
-    """Put converted models into the placeable pack and give each a row in the placeables table."""
+    """Put converted models into the placeable pack and give each a row in the placeables table. Models that all have
+    their rows already are converted again in place: their files are replaced and the table is left as it is."""
     import shutil
     from . import convert, placeables
     models = convert.load_models(args.models); built, repo = Path(args.built), Path(args.repo); pack, table = repo / args.pack, repo / args.table
@@ -138,7 +140,12 @@ def command_placeables(args):
     require(chosen and pack.is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
     missing = [name for name in chosen if not (built / name / 'compiled' / f'{name}.mdl').is_file()]
     require(not missing, 'Convert these first (envkit game): ' + ', '.join(missing))
-    text, rows = placeables.register(table.read_bytes().decode('cp1252'), [{'model': name, **placed} for name, placed in chosen.items()])
+    text = table.read_bytes().decode('cp1252'); there = placeables.rows(text)
+    require(all(name in there for name in chosen) or not any(name in there for name in chosen), 'Some of these models have rows and some have none: register them apart')
+    if all(name in there for name in chosen):
+        rows = {name: there[name] for name in chosen}
+    else:
+        text, rows = placeables.register(text, [{'model': name, **placed} for name, placed in chosen.items()])
     copied = 0
     for name in chosen:
         shutil.copyfile(built / name / 'compiled' / f'{name}.mdl', pack / f'{name}.mdl'); copied += 1

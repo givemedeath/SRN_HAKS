@@ -14,24 +14,18 @@ from pathlib import Path
 
 from tools.armorkit import client, client_fixture
 from tools.armorkit.client_fixture import field, gff_float
-from tools.envkit import require
+from tools.envkit import placeables, require
 
 LOG_PREFIX = 'ENVKIT'
-COLUMNS = 13  # after the row number: Label StrRef ModelName LightColor LightOffsetX/Y/Z SoundAppType ShadowSize BodyBag LowGore Reflection Static
 START, HOLD = 8.0, 4.0
 NL = chr(10)
 LABEL = re.compile(r'[A-Za-z0-9_-]+')
 
 
 def table(stock_text, models):
-    """The placeables table with one row appended per model; returns (text, {model: row number})."""
-    lines = stock_text.replace('\r\n', '\n').rstrip('\n').split('\n')
-    require(lines[0].startswith('2DA V2.0') and lines[2].split()[:3] == ['Label', 'StrRef', 'ModelName'], 'Unexpected placeables table')
-    last = int(lines[-1].split()[0]); rows = {}
-    for offset, model in enumerate(models, 1):
-        rows[model] = last + offset
-        lines.append(f'{last + offset} "[envkit]{model}" **** {model} **** **** **** **** **** 1 0 **** **** 1')
-    return '\r\n'.join(lines) + '\r\n', rows
+    """The placeables table with a row of its own appended for each model under test, whether or not the table names
+    the model already; returns (text, {model: row number})."""
+    return placeables.register(stock_text, [{'model': model, 'label': model, 'sound': None} for model in models], again=True)
 
 
 def placed(tag, appearance, position, bearing, static=True):

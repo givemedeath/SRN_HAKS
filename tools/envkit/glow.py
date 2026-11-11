@@ -91,7 +91,7 @@ def elevation(base, where, covered, *, side=0, scale=60, grid=1.0):
     return image
 
 
-def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.5, clear=0.3):
+def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.05, clear=0.3):
     """(image, cards) of the cards that carry the spread of the model's glow, or None where nothing glows.
 
     The glow seen square on is blurred over `reach` metres and dimmed to `strength`. Over the lit parts themselves it

@@ -124,9 +124,21 @@ class ConvertTests(unittest.TestCase):
         for line in ('texture0 ek_test', 'texture1 ek_test_n', 'texture2 ek_test_s', 'texture3 ek_test_r', 'texture5 ek_test_i'):
             self.assertIn(line, material)
         self.assertIn('texture5 null', convert.material_text('ek_test'))
-        walk = convert.walk_text('ek_test', np.array([-1.0, -0.5, 0]), np.array([1.0, 0.5, 2.0]))
+        crate = np.array([[x, y, z] for x in (-1.0, 1.0) for y in (-0.5, 0.5) for z in (0.0, 2.0)])
+        walk = convert.walk_text('ek_test', crate)
         self.assertIn('node trimesh ek_test_wg', walk); self.assertIn('parent ek_test_pwk', walk); self.assertEqual(walk.count(' 7\n'), 10)
-        self.assertIn('ek_test_pwk_use01', walk)
+        self.assertIn('ek_test_pwk_use01', walk); self.assertIn('  position 0 1.00000 0', walk)  # half a metre in front of it
+        self.assertEqual(convert.outline(crate), [(1.0, 0.5), (-1.0, 0.5), (-1.0, -0.5), (1.0, -0.5)])  # a box keeps its four corners
+        # A camera on an arm: a small housing far out along +y from a wall plate. The block follows it, not its bounding box.
+        arm = np.array([[x, y, 0.0] for x, y in ((-0.5, 0.0), (0.5, 0.0), (-0.1, 1.0), (0.1, 1.0))])
+        corners = np.array(convert.outline(arm)); x, y = corners[:, 0], corners[:, 1]
+        area = abs(float(x @ np.roll(y, -1) - y @ np.roll(x, -1))) / 2
+        self.assertLess(area, 0.9); self.assertGreaterEqual(area, 0.6 - 1e-9)  # between the shape itself (0.6) and its box (1.0): the corners are cut
+        for index in range(len(corners)):  # and it holds every point: none lies outside any of its sides
+            edge = corners[(index + 1) % len(corners)] - corners[index]; out = np.array([edge[1], -edge[0]])
+            self.assertLessEqual(float(((arm[:, :2] - corners[index]) @ out).max()), 1e-9)
+        hung = convert.walk_text('ek_test', crate + [0, 0, 2.6], overhead=True)
+        self.assertNotIn('_wg', hung); self.assertIn('ek_test_pwk_use02', hung)  # walked under: nothing to walk into
 
     def test_specular_is_small_for_paint_and_the_surface_colour_for_metal(self):
         base = np.full((1, 2, 3), 0.8)
@@ -135,10 +147,11 @@ class ConvertTests(unittest.TestCase):
 
 class FixtureTests(unittest.TestCase):
     def test_props_are_appended_to_the_table_and_placed_static(self):
-        stock = '2DA V2.0\r\n\r\n      Label StrRef ModelName LightColor\r\n0 Armoire 5645 PLC_A01 ****\r\n7 Chest **** PLC_C01 ****\r\n'
-        text, rows = fixture.table(stock, ['ek_a', 'ek_b'])
-        self.assertEqual(rows, {'ek_a': 8, 'ek_b': 9}); self.assertTrue(text.endswith('9 "[envkit]ek_b" **** ek_b **** **** **** **** **** 1 0 **** **** 1\r\n'))
-        self.assertEqual(len(text.split('\r\n')[-2].split()) - 1, fixture.COLUMNS)
+        stock = ('2DA V2.0\r\n\r\n  Label StrRef ModelName LightColor LightOffsetX LightOffsetY LightOffsetZ SoundAppType ShadowSize BodyBag LowGore Reflection Static\r\n'
+                 '0 Armoire 5645 PLC_A01 **** **** **** **** 13 1 0 **** **** 1\r\n7 Chest **** ek_a **** **** **** **** 27 1 0 **** **** 1\r\n')
+        text, rows = fixture.table(stock, ['ek_a', 'ek_b'])  # ek_a is in the table already: the one under test still gets a row of its own
+        self.assertEqual(rows, {'ek_a': 8, 'ek_b': 9}); self.assertTrue(text.startswith(stock))
+        self.assertEqual(text.split('\r\n')[-2].split(), ['9', '"[envkit]ek_b"', '****', 'ek_b', '****', '****', '****', '****', '****', '1', '0', '****', '****', '1'])
         prop = fixture.placed('fx_p0', 8, [30.0, 40.0], 3.14)
         self.assertEqual((prop['__struct_id'], prop['Appearance']['value'], prop['Static']['value']), (9, 8, 1))
         self.assertEqual(fixture.placed('fx_p1', 8, [30.0, 40.0], 3.14, static=False)['Static']['value'], 0)  # one a script can reach

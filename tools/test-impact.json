@@ -161,6 +161,7 @@
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/envkit/__init__.py",
+      "tools/envkit/placeables.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/reference.py": [
