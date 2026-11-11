@@ -68,6 +68,25 @@ def command_image(args):
     print(json.dumps({'images': [str(path) for path in images]}))
 
 
+def command_generate(args):
+    from . import generate
+    need = lambda *names: registry.require(all(getattr(args, name) is not None for name in names),
+                                           f'{args.stage} needs ' + ', '.join('--' + name for name in names))
+    if args.stage == 'calibrate':
+        need('models')
+        done = generate.calibrate(args.work, args.model, args.source, args.models, args.url)
+    elif args.stage == 'geometry':
+        need('models', 'fov')
+        done = generate.geometry(args.work, args.model, args.source, args.fov, args.models, args.url)
+    elif args.stage == 'appearance':
+        need('models', 'fov', 'shape')
+        done = generate.appearance(args.work, args.model, args.source, args.fov, args.shape, args.models, args.url)
+    else:
+        need('faces')
+        done = generate.export(args.work, args.model, args.source, args.faces, args.fill, args.url)
+    print(json.dumps({key: done.get(key) for key in ('folder', 'status', 'seconds', 'files', 'attempt', 'previews')}))
+
+
 def command_register(args):
     from . import brief
     brief.register(args.folder, *args.image)
@@ -119,6 +138,15 @@ def main(argv=None):
     p.add_argument('--url', default='http://127.0.0.1:8188'); p.add_argument('--profile', default='flux2-turbo-v1')
     p.add_argument('--deadline', type=float, default=1800)
     p.set_defaults(handler=command_image)
+    p = commands.add_parser('generate', help='post one source job to the local engine: calibrate, geometry (counted), appearance or export')
+    p.add_argument('stage', choices=('calibrate', 'geometry', 'appearance', 'export'))
+    p.add_argument('work', help='folder holding one folder per model, and the attempts ledger')
+    p.add_argument('model'); p.add_argument('source', help='the image, or for export the generated mesh')
+    p.add_argument('--models', help="the engine's models folder (from the local runtime binding)")
+    p.add_argument('--fov', type=float); p.add_argument('--shape', help='the saved shape of a geometry attempt')
+    p.add_argument('--faces', type=int); p.add_argument('--fill', type=float, help='export a solid with its outside surface only')
+    p.add_argument('--url', default='http://127.0.0.1:8188')
+    p.set_defaults(handler=command_generate)
     p = commands.add_parser('register', help='record images as made from a sealed reference folder (another image route, a derived image)')
     p.add_argument('folder'); p.add_argument('image', nargs='+')
     p.set_defaults(handler=command_register)

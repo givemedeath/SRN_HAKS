@@ -20,11 +20,11 @@ URL = 'http://127.0.0.1:8188'
 STAGED = 'headkit-design/armorkit-ref'  # where the engine keeps the images a job is given and the ones it makes
 
 
-def upload(url, path, name):
+def upload(url, path, name, subfolder=STAGED):
     """Hand the engine an image to work from; returns the name it knows it by."""
     boundary = uuid.uuid4().hex
     parts = [f'--{boundary}\r\nContent-Disposition: form-data; name="{field}"\r\n\r\n{value}\r\n'.encode()
-             for field, value in (('subfolder', STAGED), ('type', 'input'), ('overwrite', 'true'))]
+             for field, value in (('subfolder', subfolder), ('type', 'input'), ('overwrite', 'true'))]
     parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="image"; filename="{name}"\r\nContent-Type: image/png\r\n\r\n'.encode()
                  + Path(path).read_bytes() + b'\r\n')
     parts.append(f'--{boundary}--\r\n'.encode())
@@ -34,10 +34,10 @@ def upload(url, path, name):
     return (answer.get('subfolder', '') + '/' + answer['name']).lstrip('/')
 
 
-def fetch(url, row):
-    """The bytes of an image the engine made (`row` as its history names it)."""
+def fetch(url, row, timeout=120):
+    """The bytes of a file the engine made (`row` as its history names it)."""
     query = urllib.parse.urlencode({'filename': row['filename'], 'subfolder': row.get('subfolder', ''), 'type': row.get('type', 'output')})
-    with urllib.request.urlopen(url + '/view?' + query, timeout=120) as response:
+    with urllib.request.urlopen(url + '/view?' + query, timeout=timeout) as response:
         return response.read()
 
 

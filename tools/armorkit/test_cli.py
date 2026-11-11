@@ -63,6 +63,27 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(calls['given'], ('brief.json', 'folder', 7, 1, ['earlier.png'], 'http://127.0.0.1:8188', 'flux2-turbo-v1', 1800))
         self.assertEqual(got, {'images': [str(Path('run-1') / 'image-0.png')]})
 
+    def test_generate_routes_each_stage_with_what_it_needs(self):
+        from . import generate
+        calls = []
+        stage = lambda name: (lambda *given: calls.append((name, given)) or {'folder': name + '-1', 'status': 'success'})
+        url = 'http://127.0.0.1:8188'
+        with mock.patch.object(generate, 'calibrate', stage('calibrate')), mock.patch.object(generate, 'geometry', stage('geometry')), \
+                mock.patch.object(generate, 'appearance', stage('appearance')), mock.patch.object(generate, 'export', stage('export')):
+            self.assertEqual(run('generate', 'calibrate', 'work', 'outfit', 'image.png', '--models', 'models')['folder'], 'calibrate-1')
+            run('generate', 'geometry', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)
+            run('generate', 'appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5, '--shape', 'shape.npz')
+            run('generate', 'export', 'work', 'outfit', 'mesh.glb', '--faces', 12000, '--fill', 0.5)
+            for missing in (('geometry', 'work', 'outfit', 'image.png', '--models', 'models'),  # no field of view
+                            ('calibrate', 'work', 'outfit', 'image.png'), ('export', 'work', 'outfit', 'mesh.glb'),
+                            ('appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)):
+                with self.assertRaises(ValueError):
+                    run('generate', *missing)
+        self.assertEqual(calls, [('calibrate', ('work', 'outfit', 'image.png', 'models', url)),
+                                 ('geometry', ('work', 'outfit', 'image.png', 36.5, 'models', url)),
+                                 ('appearance', ('work', 'outfit', 'image.png', 36.5, 'shape.npz', 'models', url)),
+                                 ('export', ('work', 'outfit', 'mesh.glb', 12000, 0.5, url))])
+
     def fixture_run(self, *flags):
         """Run the fixture command with the builder and the client replaced; return what each was called with."""
         calls = {}

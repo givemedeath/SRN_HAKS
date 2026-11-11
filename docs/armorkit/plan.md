@@ -192,7 +192,8 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
    `python -m tools.armorkit admit` lets through.
 2. **References.** Garment-only, headless, rest-stance Human male: clay for geometry, colour for appearance.
    The same pair on the Human female for each separate female cut. Review before generating.
-3. **Generate** the source on the local engine, recorded in the ledger.
+3. **Generate** the source on the local engine, recorded in the ledger (`python -m tools.armorkit generate`:
+   calibrate, geometry, export, appearance). At most five geometry attempts per model.
 4. **Split** on the Human male body with planar joint cuts and the overlap ends for each tier.
 5. **Fit** around the unchanged body: clearance, no body edits.
 6. **Materials.** Label regions to channels, write the PLT and material file, mark skin regions, place badges.
