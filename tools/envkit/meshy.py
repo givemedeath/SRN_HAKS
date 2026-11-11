@@ -15,6 +15,8 @@ import struct
 import subprocess
 from pathlib import Path
 
+from . import require
+
 CLI = ('npm', 'exec', '--yes', '--package=meshy-cli@0.4.0', '--', 'meshy')
 PRICES = {'prop': 15, 'building': 30, 'remesh': 5}  # docs.meshy.ai/en/api/pricing, read 2026-11-10
 RESOURCE = {'prop': 'image-to-3d', 'building': 'multi-image-to-3d', 'remesh': 'remesh'}
@@ -24,11 +26,6 @@ PROP_TRIANGLES = (100, 15000)  # smart-topology's own range
 REMESH_HEADROOM = 0.92  # a remesh lands a little over its target: the robe trial asked for 100,000 and got 103,196
 KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
 IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
-
-
-def require(condition, message):
-    if not condition:
-        raise ValueError(message)
 
 
 class Ledger:
@@ -191,6 +188,7 @@ def download(ledger, key, folder, bank, *, master=False, run=run_cli):
     models = sorted(bank.rglob('*.glb')) if bank.exists() else []
     require(code == 0 and models, 'Download incomplete: ' + key)
     counts = {str(path): triangles(path) for path in models}
-    ledger.update(key, downloaded=str(bank), triangles=counts, master=bool(master))
-    require(master or max(counts.values()) <= MAX_TRIANGLES, f'Model exceeds {MAX_TRIANGLES} triangles: {counts}')
+    accepted = bool(master) or max(counts.values()) <= MAX_TRIANGLES  # the ledger says so, so the folder is not taken for a working model
+    ledger.update(key, downloaded=str(bank), triangles=counts, master=bool(master), accepted=accepted)
+    require(accepted, f'Model exceeds {MAX_TRIANGLES} triangles and is not a working model: {counts}')
     return counts

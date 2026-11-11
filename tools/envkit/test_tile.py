@@ -105,6 +105,17 @@ class TileTests(unittest.TestCase):
         self.assertTrue(all(record['PathNode'] == record['VisibilityNode'] == 'H' and record['TopLeft'] == 'Concrete' and record['Doors'] == 0 for record in records))
         self.assertEqual(tuple(key for key, _ in tile.tile_records(made, 'Concrete')[0]), tile.TILE_KEYS)
 
+    def test_a_closed_tile_outside_a_two_by_two_group_is_refused_rather_than_called_open(self):
+        kiosk = {'rows': 1, 'columns': 1, 'tiles': [{'model': 'ek_test_t00', 'row': 0, 'column': 0, 'closedCells': 30}]}
+        with self.assertRaisesRegex(ValueError, 'pathfinding of its closed tiles'):
+            tile.tile_records(kiosk, 'Concrete')
+        kiosk['tiles'][0]['closedCells'] = 0  # a patch of paving is an open tile
+        self.assertEqual(dict(tile.tile_records(kiosk, 'Concrete')[0])['PathNode'], 'A')
+
+    def test_a_set_files_terrains_are_read_so_a_wrong_one_can_be_refused(self):
+        text = '[TERRAIN TYPES]\r\nCount=2\r\n\r\n[TERRAIN0]\r\nName=Grass\r\n\r\n[TERRAIN1]\r\nName=Asphalt\r\nStrRef=5\r\n\r\n[CROSSER0]\r\nName=Road\r\n'
+        self.assertEqual(tile.terrains(text), ['Grass', 'Asphalt'])
+
     def test_tiles_and_their_group_are_appended_and_nothing_there_is_renumbered(self):
         made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9} for row in (0, 1) for column in (0, 1)]}
         text, first, number = tile.register(SET, tile.tile_records(made, 'Concrete'), 'New_Group', 2, 2)
@@ -127,6 +138,9 @@ class TileTests(unittest.TestCase):
         self.assertEqual(document['MAIN']['value'][0]['LIST']['value'], [])
         with self.assertRaisesRegex(ValueError, 'already lists'):
             tile.palette(document, 'Again', 'ek_test_t00')
+        tile.palette(document, 'Kiosk', 'ek_kiosk_t00', single=True)  # a one-tile group is a feature, as the palettes keep them
+        self.assertEqual([row['RESREF']['value'] for row in document['MAIN']['value'][0]['LIST']['value']], ['ek_kiosk_t00'])
+        self.assertEqual(len(document['MAIN']['value'][1]['LIST']['value']), 1)
 
 
 if __name__ == '__main__':

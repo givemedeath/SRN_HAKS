@@ -11,10 +11,7 @@ same), so the light around a sign is drawn: `halo` blurs the model's glow, seen 
 just in front of it and is added to the picture behind."""
 import numpy as np
 
-
-def require(condition, message):
-    if not condition:
-        raise ValueError(message)
+from . import require
 
 
 def position_map(points, uvs, faces, size):

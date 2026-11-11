@@ -9,6 +9,8 @@ import re
 import uuid
 from pathlib import Path
 
+from . import require
+
 PROFILE = 'qwen21-int8-v1'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
 LEAD = {
@@ -31,11 +33,6 @@ WEAR = ('Keep the grime, stains, rust streaks, scratches, worn paint and graffit
 RULES = ('Show the whole object centred with a clear margin on a plain white background. Even, flat, neutral lighting. '
          'Signs, screens and lamps keep their own colours, but nothing glows, blooms or casts coloured light on other '
          'surfaces. No cast shadow, no ground, no people, no captions or text outside the object.')
-
-
-def require(condition, message):
-    if not condition:
-        raise ValueError(message)
 
 
 def prompt(kind, subject, notes=''):

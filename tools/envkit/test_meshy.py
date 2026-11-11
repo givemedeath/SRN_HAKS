@@ -102,7 +102,7 @@ class MeshyTests(unittest.TestCase):
         meshy.submit(self.ledger, 'rm', 'shack', 'remesh', meshy.remesh_arguments(task, 100000), self.root / 'work', run=run)
         meshy.wait(self.ledger, 'rm', self.root / 'work', run=run)
         counts = meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm', run=run)
-        self.assertEqual(list(counts.values()), [91000])
+        self.assertEqual(list(counts.values()), [91000]); self.assertIs(self.ledger.entry('rm')['accepted'], True)
         self.assertEqual(self.ledger.committed(), 35)
         with self.assertRaisesRegex(ValueError, 'already a reduced model'):
             meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'master-rm', master=True, run=run)
@@ -113,6 +113,7 @@ class MeshyTests(unittest.TestCase):
         meshy.wait(self.ledger, 'p', self.root / 'work', run=run)
         with self.assertRaisesRegex(ValueError, 'exceeds 100000'):
             meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=run)
+        self.assertIs(self.ledger.entry('p')['accepted'], False)  # on record, so its folder is not taken for a working model
 
     def test_a_failed_task_is_settled_at_what_meshy_charged(self):
         run = FakeMeshy(status='FAILED', credits=0)

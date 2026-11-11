@@ -13,16 +13,12 @@ from pathlib import Path
 
 from tools.armorkit import client, client_fixture
 from tools.armorkit.client_fixture import field, gff_float
+from tools.envkit import require
 
 LOG_PREFIX = 'ENVKIT'
 COLUMNS = 13  # after the row number: Label StrRef ModelName LightColor LightOffsetX/Y/Z SoundAppType ShadowSize BodyBag LowGore Reflection Static
 START, HOLD = 8.0, 4.0
 NL = chr(10)
-
-
-def require(condition, message):
-    if not condition:
-        raise ValueError(message)
 
 
 def table(stock_text, models):
@@ -171,7 +167,7 @@ def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra
     """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and captures."""
     user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
     settings = user / 'settings.tml'
-    if not settings.exists():
+    if extra_settings or not settings.exists():  # settings asked for replace those an earlier run left
         settings.write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
     process = client.start(nwn_root, user, Path(record['module']).stem, width=width, height=height)
     shots, seen = [], 0

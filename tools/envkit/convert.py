@@ -13,6 +13,8 @@ from pathlib import Path
 
 import numpy as np
 
+from . import require
+
 COMPONENT = {5120: 'i1', 5121: 'u1', 5122: '<i2', 5123: '<u2', 5125: '<u4', 5126: '<f4'}
 WIDTH = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}
 TO_GAME = np.array([[-1.0, 0, 0], [0, 0, 1.0], [0, 1.0, 0]])  # a rotation: glTF up (Y) to Z, glTF front (+Z) to +Y
@@ -20,11 +22,6 @@ NODE_VERTICES = 60000  # a compiled mesh node indexes its vertices with 16 bits
 NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character suffix
 NON_WALK = 7
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
-
-
-def require(condition, message):
-    if not condition:
-        raise ValueError(message)
 
 
 def _accessor(document, binary, index):

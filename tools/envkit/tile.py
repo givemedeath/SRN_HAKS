@@ -256,13 +256,15 @@ CORNER_TURN = {('Bottom', 'Left'): 0, ('Bottom', 'Right'): 90, ('Top', 'Right'):
 
 def tile_records(made, terrain):
     """The set file's record of each tile, in order: all four corners `terrain` at height 0, no crossers, no lights or
-    doors. In a 2 by 2 group each tile has the building on its inner corner, and says so for pathfinding."""
+    doors. In a 2 by 2 group each tile has the building on its inner corner, and says so for pathfinding. Any other
+    group is recorded only where its tiles are open: an open tile's path runs through its middle, which is wrong for a
+    tile with something standing on it, and no other shape has had its path node worked out."""
     rows, columns = made['rows'], made['columns']; records = []
     for tile in made['tiles']:
         if rows == columns == 2:
             node, turn = 'H', CORNER_TURN[('Top' if tile['row'] == 0 else 'Bottom', 'Right' if tile['column'] == 0 else 'Left')]
         else:
-            require(tile['closedCells'] == 0 or rows * columns == 1, 'Only a 2 by 2 group has its pathfinding worked out')
+            require(tile['closedCells'] == 0, 'Only a 2 by 2 group has the pathfinding of its closed tiles worked out')
             node, turn = 'A', 0
         values = {'Model': tile['model'], 'WalkMesh': 'msb01', **{corner: terrain for corner in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')},
                   **{corner + 'Height': 0 for corner in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')}, 'Top': '', 'Right': '', 'Bottom': '', 'Left': '',
@@ -291,31 +293,49 @@ def register(text, records, group_name, rows, columns):
     return text.rstrip('\r\n') + end + end + made, first, number
 
 
-def palette(document, label, model):
-    """The palette (as nwn_gff's JSON) with the group listed under Groups, where the Toolset offers the tile groups of
-    more than one tile; `model` is its first tile's."""
-    groups = [node for node in document['MAIN']['value'] if node['ID']['value'] == 1]
-    require(len(groups) == 1, 'The palette has no Groups list')
+def terrains(text):
+    """The terrain names a set file declares."""
+    return re.findall(r'(?m)^\[TERRAIN\d+\]\r?\nName=([^\r\n]+)', text)
+
+
+def palette(document, label, model, single=False):
+    """The palette (as nwn_gff's JSON) with the group listed where the Toolset's palettes keep its kind: a group of
+    one tile under Features, a larger one under Groups. `model` is its first tile's."""
+    groups = [node for node in document['MAIN']['value'] if node['ID']['value'] == (0 if single else 1)]
+    require(len(groups) == 1, 'The palette has no ' + ('Features' if single else 'Groups') + ' list')
     rows = groups[0]['LIST']['value']
     require(all(row['RESREF']['value'].lower() != model for row in rows), 'The palette already lists ' + model)
     rows.append({'__struct_id': 0, 'NAME': {'type': 'cexostring', 'value': label}, 'RESREF': {'type': 'resref', 'value': model}})
     return document
 
 
-def install(set_path, palette_path, made, *, terrain, group_name, label):
-    """Append a built group to a tileset's set file and palette in place; returns {firstTile, group}."""
+def prepare(set_path, palette_path, made, *, terrain, group_name, label):
+    """Work out what installing a built group into a tileset will write, writing nothing: every refusal (a terrain the
+    tileset lacks, a tile or group already there, a palette that cannot be read) comes before any file changes."""
     from ..phenotypes import tool_runtime
-    set_path, palette_path = Path(set_path), Path(palette_path)
-    text, first, number = register(set_path.read_bytes().decode('cp1252'), tile_records(made, terrain), group_name, made['rows'], made['columns'])
-    tool = str(tool_runtime.tool('nwn_gff')); quiet = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
-    read = subprocess.run([tool, '-i', str(palette_path), '-k', 'json'], capture_output=True, timeout=120, creationflags=quiet)
+    set_path, palette_path = Path(set_path), Path(palette_path); text = set_path.read_bytes().decode('cp1252')
+    require(terrain in terrains(text), f'{set_path.name} has no terrain named {terrain}: ' + ', '.join(terrains(text)))
+    text, first, number = register(text, tile_records(made, terrain), group_name, made['rows'], made['columns'])
+    tool = str(tool_runtime.tool('nwn_gff'))
+    read = subprocess.run([tool, '-i', str(palette_path), '-k', 'json'], capture_output=True, timeout=120, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     require(read.returncode == 0, 'The palette could not be read: ' + read.stderr.decode(errors='replace')[-400:])
-    document = palette(json.loads(read.stdout), label, made['tiles'][0]['model'])
-    staged = palette_path.with_suffix('.itp.json'); staged.write_text(json.dumps(document), encoding='utf-8')
+    document = palette(json.loads(read.stdout), label, made['tiles'][0]['model'], single=len(made['tiles']) == 1)
+    return {'tool': tool, 'set': set_path, 'text': text, 'palette': palette_path, 'document': document, 'firstTile': first, 'group': number}
+
+
+def commit(prepared):
+    """Write what `prepare` worked out: the palette, then the set file; returns {firstTile, group}."""
+    palette_path = prepared['palette']; staged = palette_path.with_suffix('.itp.json'); staged.write_text(json.dumps(prepared['document']), encoding='utf-8')
     try:
-        wrote = subprocess.run([tool, '-i', str(staged), '-l', 'json', '-o', str(palette_path), '-k', 'gff'], capture_output=True, timeout=120, creationflags=quiet)
+        wrote = subprocess.run([prepared['tool'], '-i', str(staged), '-l', 'json', '-o', str(palette_path), '-k', 'gff'], capture_output=True, timeout=120,
+                               creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         require(wrote.returncode == 0, 'The palette could not be written: ' + wrote.stderr.decode(errors='replace')[-400:])
     finally:
         staged.unlink(missing_ok=True)
-    set_path.write_bytes(text.encode('cp1252'))
-    return {'firstTile': first, 'group': number}
+    prepared['set'].write_bytes(prepared['text'].encode('cp1252'))
+    return {'firstTile': prepared['firstTile'], 'group': prepared['group']}
+
+
+def install(set_path, palette_path, made, *, terrain, group_name, label):
+    """Append a built group to one tileset's set file and palette in place; returns {firstTile, group}."""
+    return commit(prepare(set_path, palette_path, made, terrain=terrain, group_name=group_name, label=label))

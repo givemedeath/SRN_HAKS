@@ -83,6 +83,9 @@ def command_install(args):
     reference.require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
     made = json.loads((built / 'report.json').read_text(encoding='utf-8')); tiles = models[args.model]['tiles']; shared = repo / args.pack
     reference.require(shared.is_dir() and all((repo / f'srn_t_{name}' / f'{name}.set').is_file() for name in tiles['sets']), 'A pack or set file named is missing')
+    # Every tileset is worked out before anything is copied or written, so a refusal on one leaves none half done.
+    prepared = {name: tile.prepare(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
+                                   group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
     copied = []
     for one in made['tiles']:
         copied += [shutil.copyfile(built / 'compiled' / f'{one["model"]}.mdl', shared / f'{one["model"]}.mdl'),
@@ -90,8 +93,7 @@ def command_install(args):
     # The lights-out materials serve a placeable a script can reach; no script reaches a tile, so they stay behind.
     idle = (args.model + '_o', convert.HALO_OUT)
     copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'shared').iterdir()) if path.stem not in idle]
-    placed = {name: tile.install(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
-                                 group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
+    placed = {name: tile.commit(one) for name, one in prepared.items()}
     print(json.dumps({'files': len(copied), 'sets': placed}), flush=True)
 
 
@@ -100,6 +102,8 @@ def command_placeables(args):
     import shutil
     from . import convert, placeables
     models = convert.load_models(args.models); built, repo = Path(args.built), Path(args.repo); pack, table = repo / args.pack, repo / args.table
+    unknown = [name for name in args.model if not models.get(name, {}).get('placeable')]
+    reference.require(not unknown, 'The game set gives these no placeable row: ' + ', '.join(unknown))
     chosen = {name: model['placeable'] for name, model in models.items() if model.get('placeable') and (not args.model or name in args.model)}
     reference.require(chosen and pack.is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
     missing = [name for name in chosen if not (built / name / 'compiled' / f'{name}.mdl').is_file()]
