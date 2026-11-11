@@ -41,8 +41,11 @@ class GlowTests(unittest.TestCase):
         where, covered = glow.position_map(POINTS, UVS, FACES, 64)
         base = np.full((64, 64, 3), 0.9)
         lit = glow.glow(base, where, covered, [{'box': [[-1.0, 0.5, 0.5], [1.0, 1.5, 1.5]]}])
-        image, cards = glow.halo(lit, where, covered, reach=0.25, strength=0.5)
-        self.assertEqual(len(cards), 1); corners = cards[0]
+        image, cards, light = made = glow.halo(lit, where, covered, reach=0.25, strength=0.5)
+        self.assertEqual(len(cards), 1); corners = cards[0]; self.assertIs(made.cards, cards); self.assertIs(made.light, light)  # read by name elsewhere
+        # The card's light is the lit square metre, in the picture's own rows and columns: none of it in the rim the glow spreads into.
+        self.assertEqual(light[0].shape, image.size[::-1]); self.assertAlmostEqual(float(light[0].sum()), 2.0, delta=0.3)
+        self.assertEqual(float(light[0][:10].sum() + light[0][-10:].sum() + light[0][:, :10].sum() + light[0][:, -10:].sum()), 0.0)
         places = np.array([place for place, _ in corners])
         np.testing.assert_allclose(places[:, 1], 1.04)  # just in front of the wall
         self.assertLess(places[:, 0].min(), -1.4); self.assertGreater(places[:, 0].max(), 1.4)  # past the glow on each side
@@ -57,7 +60,8 @@ class GlowTests(unittest.TestCase):
         self.assertIsNone(glow.halo(np.zeros_like(lit), where, covered))
         # A sign standing a metre out from the wall gets its own card at its own depth; the two share one picture.
         deep = where.copy(); deep[:, 32:, 1] += 1.0
-        image, cards = glow.halo(np.full_like(lit, 0.8), deep, covered, reach=0.25, strength=0.5)
+        image, cards, light = glow.halo(np.full_like(lit, 0.8), deep, covered, reach=0.25, strength=0.5)
+        self.assertEqual(len(light), 2)  # one to each card
         self.assertEqual([round(card[0][0][1], 2) for card in cards], [1.04, 2.04])
         (_, (_, lower)), _, (_, (_, upper)), _ = cards[0]; self.assertEqual((upper, lower), (0.0, 0.5))
         self.assertEqual(cards[1][0][1][1], 1.0); self.assertEqual(image.size[1], 2 * round((2 + 4 * 0.25) * 24))
@@ -68,7 +72,7 @@ class GlowTests(unittest.TestCase):
         # The same wall turned to face +X: x and y change places, and the surface says so.
         side = np.stack([where[..., 1] + 2.0, -where[..., 0], where[..., 2]], -1); east = np.zeros_like(toward); east[..., 0] = 1.0
         lit = np.full((32, 32, 3), 0.8)
-        image, cards = glow.halo(lit, side, covered, toward=east, reach=0.25, strength=0.5)
+        image, cards, _ = glow.halo(lit, side, covered, toward=east, reach=0.25, strength=0.5)
         self.assertEqual(len(cards), 1); places = np.array([place for place, _ in cards[0]])
         np.testing.assert_allclose(places[:, 0], 3.04)  # just out from the wall at x = 3
         np.testing.assert_allclose(glow.card_normal(cards[0]), [1, 0, 0], atol=1e-9)  # and facing the way the wall does

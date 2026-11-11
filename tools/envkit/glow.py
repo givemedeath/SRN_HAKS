@@ -9,6 +9,8 @@ with a metre grid so the boxes can be read off a picture.
 The game's own bloom adds no visible spread to a glow map (client check, 2026-11-10: bloom on and off looked the
 same), so the light around a sign is drawn: `halo` blurs the model's glow, seen square on from the side it faces,
 onto a card that stands just in front of it and is added to the picture behind."""
+from typing import NamedTuple
+
 import numpy as np
 
 from . import require
@@ -91,8 +93,16 @@ def elevation(base, where, covered, *, side=0, scale=60, grid=1.0):
     return image
 
 
+class Halo(NamedTuple):
+    """What `halo` makes: the one picture its cards share, the cards, and each card's light. Read by name: the three are
+    told apart by nothing else."""
+    image: object
+    cards: list
+    light: list
+
+
 def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.05, clear=0.3):
-    """(image, cards) of the cards that carry the spread of the model's glow, or None where nothing glows.
+    """The cards that carry the spread of the model's glow, a `Halo` (image, cards, light), or None where nothing glows.
 
     The glow seen square on is blurred over `reach` metres and dimmed to `strength`. Over the lit parts themselves it
     is held back by `core`, or a sign's lettering washes out to white. Lit parts more than `apart` metres apart in
@@ -100,7 +110,9 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
     from the wall drew the door's glow over a person standing at the door (client check, 2026-11-10). Each card
     reaches past its glow on every side. The cards share one picture, stacked top to bottom; a card is its four
     places, each with the texture corner it shows: bottom left, bottom right, top right, top left as seen from in
-    front of it.
+    front of it. light: for each card the lit parts it spreads, before any blur, as the square metres of them that
+    each pixel of the card's picture holds; rows from the card's top, columns from its left. A tile cuts a card by it
+    where the top of a building can be hidden (`tile.model_text`).
 
     `toward` (`position_map` with `facing`) says which way each texel's surface faces. With it a texel's light goes to
     a card on the upright side it faces most nearly (`SIDES`), so a sign on a side wall spreads from that wall. Three
@@ -114,7 +126,7 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
     shining = covered & (lit.max(-1) > 0)
     if not shining.any():
         return None
-    pad = 2 * reach; pictures, frames = [], []
+    pad = 2 * reach; pictures, frames, light = [], [], []
     if toward is not None:  # the upright side each texel faces most nearly, or none where it faces up or down
         along = np.stack([toward[..., 0] * x + toward[..., 1] * y for x, y in SIDES], -1)
         faced = np.where(along.max(-1) > 0.5, along.argmax(-1), -1)
@@ -146,6 +158,7 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
                 source = np.asarray(sharp.filter(ImageFilter.GaussianBlur(1)), float).max(-1, keepdims=True) / 255
                 spread = np.asarray(sharp.filter(ImageFilter.GaussianBlur(reach * scale / 2)), float) * strength * (1 - core * source)
                 pictures.append(spread.round().astype(np.uint8)); frames.append((low, high, float(spots[patch, 1].max()) + 0.04, (ahead_x, ahead_y)))
+                light.append((np.asarray(sharp).max(-1) > 0) / scale ** 2)
     if not pictures:
         return None
     sheet = np.zeros((sum(len(picture) for picture in pictures), max(picture.shape[1] for picture in pictures), 3), np.uint8)
@@ -157,7 +170,7 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
         cards.append([(place(high[0], low[2]), (left, lower)), (place(low[0], low[2]), (right, lower)),
                       (place(low[0], high[2]), (right, upper)), (place(high[0], high[2]), (left, upper))])
         top += tall
-    return Image.fromarray(sheet), cards
+    return Halo(Image.fromarray(sheet), cards, light)
 
 
 def card_normal(card):

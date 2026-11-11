@@ -472,7 +472,7 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
     (folder / f'{name}.mtr').write_text(material_text(name, illumination is not None), encoding='cp1252', newline='\n')
     files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination)
     if card:
-        files.append(_compress(card[0], folder / f'{name}_h.dds', '-DXT1', 512, crunch, data=False))
+        files.append(_compress(card.image, folder / f'{name}_h.dds', '-DXT1', 512, crunch, data=False))
         card_material = ['renderhint NormalAndSpecMapped', '', f'texture0 {name}_h', 'texture1 null', 'texture2 null', 'texture3 null',
                          'texture4 null', f'texture5 {name}_h']
         (folder / f'{name}_h.mtr').write_text('\n'.join(card_material) + '\n', encoding='cp1252', newline='\n')
@@ -485,7 +485,7 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
 def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
-            'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card[1]) if card else 0,
+            'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
             'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
@@ -496,7 +496,7 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumin
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     made = shape(model, maps, height=height, colour=colour, illumination=illumination, sign_tilt=sign_tilt, lit=lit, halo=halo, lift=lift)
     vertices, card = made['vertices'], made['card']
-    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card[1] if card else None),
+    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None),
                                         encoding='cp1252', newline='\n')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
     return measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt)

@@ -217,6 +217,7 @@
       "tools/envkit/additions.py",
       "tools/envkit/catalog.py",
       "tools/envkit/convert.py",
+      "tools/envkit/glow.py",
       "tools/envkit/tile.py"
     ],
     "tools/envkit/tile.py": [

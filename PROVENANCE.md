@@ -246,6 +246,58 @@ The group's lights-out material (`ek_ss_shack_o`) was added to `srn_t_common` th
 the same set as lit props. A tile is no object, so its lights are put out for a player with `SetTextureOverride`
 on its glow map and halo sheet; `docs/envkit/lights.md` is the account of both calls and of what was checked.
 
+The four walkmeshes were rebuilt later on 2026-11-11, with nothing else of the group changed. The building's
+shape is now followed to a quarter of a metre instead of a half, on a grid whose lines fall only where the
+ground changes: 272 to 358 faces a tile where there were about 840 (the stock tiles of these two tilesets have
+at most 500). The ramp onto the slab is still its outermost half metre. Checked in the game client in Modern
+Exterior from the built packs: a script read the surface and the ground height at 864 points along six lines
+across the group, an eighth of a metre apart, and every one agreed with the walkmesh as built; a sight line
+along the west side was clear 0.1 metres outside the cells the wall closes and blocked 0.2 metres inside them; walkers reached the recess of the storefront door and a spot on the slab against the west wall
+and stayed there, and one sent from the north-east to the south side went round the building. The two things
+left unchecked above were checked the same day. In the client, in both tilesets, the area map showed the four
+pictures in place, the roof in the middle of its dark ground, north up. In the Toolset, in Suburbs, painting
+the group made one door by itself, of type 58, at the storefront and facing out, as the saved area records.
+The rebuild moved each tile's first main light with the finer survey, by about 0.15 metres on three tiles and
+1.2 metres on the north-east one; a coloured main light was looked at again in the client at night and lit the
+ground and the walls on every side. The area map was also looked at zoomed in, at its full 32 pixels a tile.
+
+The path nodes of the four tiles were corrected the same day, in both set files and nowhere else. They had been
+written as `H` turned 180, 270, 90 and 0, taking `H` to name the corner a building closes; it names the corner
+that is walked, so each tile pointed its two exits into the building. The game plans a walk of more than about
+two tiles from these nodes before it looks at a walkmesh, and walkers sent to the building from four tiles away
+stopped short of it, one of them ten metres off against the east wall; nearer walks, which were all that had
+been checked, go by the walkmesh and were right. `tools/envkit` now works each tile's node out from its own
+ground, for a group of any size, from the engine's table of path nodes as nwn.wiki gives it (checked against
+the walkmeshes of the 1,091 stock tiles of the two tilesets, which also settled that a turn is counter-clockwise).
+The four tiles are now `H` 0, `H` 90, `I` 270 and `I` 270. Checked in the game client in Modern Exterior: the
+same three walkers from four tiles away and more each reached their spot. Checked too with two throwaway groups
+made from the same model at other sizes, three tiles by three and a single tile, which are in no pack: six
+walkers from the far corners of the area reached their spots beside them, and in the Toolset the larger was
+listed under Groups and laid its nine tiles in order, the single one under Features, with no other tile changed.
+
+Later the same day the rest of what a group carries was checked at those two sizes, on throwaway groups built
+with lit parts, a halo, a hidden top, main lights and a door, in no pack. In the client at night both were lit
+with their halos, and with the player free their tops hid under the black lid. On the single tile the sign's
+glow stayed in the air over the hidden top: one halo card held the sign and the windows under it, and a card
+went or stayed whole. A halo card with lights on both sides of the hiding height is now cut there, going by
+where the lit parts it spreads lie (one whose lights are all on one side stays whole, as before, and a light
+that reaches less than a quarter metre across the height counts on one side only). That rule changes one card
+of the shack: the east-wall card of `ek_ss_shack_t01`, from 0.40 to 4.80 metres, is cut at 3.0 metres, so the
+east sign's glow now hides with the
+sign while the east window's stays, as seen in the client; the other three tiles were rebuilt byte for byte the
+same. In the Toolset, in Modern Exterior, painting each of the two groups made one door of type 58 at its hook,
+as the saved area records.
+
+A third throwaway group, two tiles with a walled yard whose only way in is a gap 2.5 metres wide off the middle
+of the side the tiles share, showed the path nodes still wrong for such ground. A side had been counted an exit
+only where it was open at its middle; walkers sent into the yard stopped at its walls, one from the far corner
+of the area and one from 7.5 metres away in the next tile. With that side stated as an exit all four walkers
+reached their spots, so the game finds an opening wherever it is along a side. A side is now an exit where a
+metre of it is open anywhere. The shack's four tiles are therefore all `A` in both set files (each tile's strip
+of pavement reaches all four of its sides), and nothing else of the shack changed. Checked in the client after
+the change: the three far walkers reached their spots at the shack in Modern Exterior and in Suburbs, six
+reached theirs beside the three-by-three and the single tile, and four theirs in and beside the yard.
+
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
 Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a

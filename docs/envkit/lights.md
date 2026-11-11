@@ -74,8 +74,9 @@ void EkBlackout(string sName, int bOn, object oPC = OBJECT_INVALID, int bHalo = 
 - It is per player, not per object or per area: every copy of the model that player sees goes dark, wherever it
   stands. For one building among several of the same model there is no call; use a different model.
 - The game's script header says `OBJECT_INVALID` applies the override to all active players, so one who joins
-  afterwards is not covered: apply it again when a player enters. Whether an override outlasts an area change
-  has not been checked.
+  afterwards is not covered: apply it again when a player enters.
+- An override outlasts an area change: a player who leaves the area and comes back finds the lights still out,
+  until a script puts them on again. This holds for both forms, one player and `OBJECT_INVALID`.
 
 ## Tiles by day and night
 
@@ -94,6 +95,8 @@ In the game client on 2026-11-11, from the files in the packs, at night:
   glow and halo out with the rest of each model unchanged, and on again.
 - `SetTextureOverride` for every player (`OBJECT_INVALID`), on the tile group: the same.
 - `SetTextureOverride` of the tile's material name with its lights-out material: the building drew black.
+- `SetTextureOverride` on the tile group, for one player and then for every player, with the player sent to a
+  second area and back: the lights were still out on return, and came on again when the override was cleared.
 
 ## For those who make models
 
