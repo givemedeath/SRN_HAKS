@@ -208,6 +208,106 @@ class MaterialTests(unittest.TestCase):
         self.assertEqual(texture.edge_materials(seen, closing, least=0.1), [1, 2])
         self.assertEqual(texture.edge_materials(seen, np.zeros((4, 4), bool)), [])
 
+    def test_an_outfits_materials_have_the_two_channels_of_their_kind(self):
+        self.assertEqual(texture.channels(['cloth', 'leather', 'metal']), [('cloth1', 'cloth2'), ('leather1', 'leather2'), ('metal1', 'metal2')])
+        # two materials of a kind have a channel each, the commoner the first
+        self.assertEqual(texture.channels(['cloth', 'leather', 'cloth', 'metal', 'metal', 'leather']),
+                         [('cloth1', 'cloth1'), ('leather1', 'leather1'), ('cloth2', 'cloth2'), ('metal1', 'metal1'), ('metal2', 'metal2'), ('leather2', 'leather2')])
+        self.assertEqual(texture.channels(['metal', 'cloth', 'cloth']), [('metal1', 'metal2'), ('cloth1', 'cloth1'), ('cloth2', 'cloth2')])
+        self.assertEqual({name for pair in texture.channels(texture.KINDS) for name in pair}, set(export.LAYERS) - {'skin', 'hair', 'tattoo1', 'tattoo2'})
+        for kinds in ([], ['cloth', 'silk'], ['cloth', 'cloth', 'cloth']):
+            with self.assertRaises(ValueError):
+                texture.channels(kinds)
+
+    def strip(self, squares):
+        # squares along x, two faces each: the first is beside the next square, the second beside the one before
+        v = np.array([(x, y, 0) for x in range(squares + 1) for y in (0, 1)], float)
+        return v, np.array([face for x in range(squares) for face in ((2 * x, 2 * x + 2, 2 * x + 3), (2 * x, 2 * x + 3, 2 * x + 1))])
+
+    def test_a_garment_takes_its_kinds_second_channel_by_the_slot_it_is_worn_on(self):
+        # a shirt, a vest across it, trousers that reach up onto the chest part, boots: cloth and leather
+        v, f = self.strip(7)
+        cloth, leather = 0, 1
+        materials = np.repeat([cloth, cloth, leather, cloth, cloth, cloth, leather], 2)
+        slots = np.repeat(['chest', 'chest', 'chest', 'chest', 'thigh', 'thigh', 'foot'], 2)
+        flags = texture.worn_second(v, f, materials, slots, ['cloth', 'leather'])
+        self.assertEqual(flags.shape, (14, 2))
+        # the shirt is worn on the chest; the trousers on the thighs, their top on the chest part with them
+        self.assertEqual(flags[materials == cloth, cloth].tolist(), [False] * 4 + [True] * 6)
+        # the vest is worn on the chest, the boots on the feet
+        self.assertEqual(flags[materials == leather, leather].tolist(), [False, False, True, True])
+        # cloth showing on the vest's faces is the trousers' on the face beside them and the shirt's on the other
+        self.assertEqual(flags[4:6, cloth].tolist(), [True, False])
+        # leather showing on cloth is the vest's or the boots' beside it, and elsewhere what the cloth's own slot says
+        self.assertEqual(flags[materials == cloth, leather].tolist(), [False] * 8 + [True, False])
+        # a face no material was read for answers as its neighbours and its own slot do
+        unread = materials.copy(); unread[13] = -1
+        self.assertEqual(texture.worn_second(v, f, unread, slots, ['cloth', 'leather'])[13].tolist(), [True, True])
+        # decided by where a garment is worn, not by the part a face is on: with the vest gone, shirt and trousers are one
+        whole = texture.worn_second(v, f, np.where(np.arange(14) < 12, cloth, leather), slots, ['cloth', 'leather'])
+        self.assertFalse(whole[:12, cloth].any())  # two squares on the thighs, four on the chest
+        # an outfit with one garment of a kind is coloured by that kind's first channel, wherever it is worn
+        self.assertFalse(texture.worn_second(v, f, np.zeros(14, int), np.repeat('thigh', 14), ['cloth']).any())
+        self.assertTrue(texture.worn_second(v, f, materials, slots, ['cloth', 'leather'], second={'cloth': ('chest',), 'leather': ()})[:4, cloth].all())
+        for given, kinds in ((materials[:-1], ['cloth', 'leather']), (materials, ['cloth']), (materials, ['cloth', 'silk'])):
+            with self.assertRaises(ValueError):
+                texture.worn_second(v, f, given, slots, kinds)
+
+    def test_what_the_split_added_takes_the_channel_of_the_edge_it_grew_from(self):
+        v, f = self.strip(2)
+        # a closing of two rings on the strip's left edge, a cap on its right, and an added face that touches nothing
+        v = np.concatenate([v, [(-1, 0, 0), (-1, 1, 0), (-2, 0.5, 0), (3, 0.5, 0), (9, 9, 9), (9, 8, 9), (8, 9, 9)]])
+        f = np.concatenate([f, [(0, 1, 7), (0, 7, 6), (6, 7, 8), (4, 9, 5), (10, 11, 12)]])
+        added = np.arange(9) >= 4
+        rows = np.array([[True, False]] * 2 + [[False, True]] * 2 + [[True, True]] * 5)
+        flags = texture.added_second(v, f, added, rows)
+        self.assertTrue(np.array_equal(flags[:4], rows[:4]))
+        self.assertEqual(flags[4:].tolist(), [[True, False]] * 3 + [[False, True]] + [[False, False]])
+        self.assertTrue(np.array_equal(texture.added_second(v, f[:4], added[:4], rows[:4]), rows[:4]))
+        self.assertTrue(rows[4:].all())  # the rows given are left as they were
+        for flagged, given in ((added[:-1], rows), (added, rows[:-1])):
+            with self.assertRaises(ValueError):
+                texture.added_second(v, f, flagged, given)
+
+    def test_a_texel_takes_its_materials_second_channel_where_its_garment_does(self):
+        which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
+        kinds = [None] * 3
+        for k, kind in zip(which, texture.KINDS):
+            kinds[k] = kind
+        channels = texture.channels(kinds)
+        fabric, tan = int(which[0]), int(which[1])
+        colour = np.zeros((8, 8, 3)); covered = np.ones((8, 8), bool)
+        colour[:, :4], colour[:, 4:] = TAN, FABRIC
+        covered[:, 7] = False
+        second = np.zeros((8, 8, 3), bool)
+        second[:4, :, tan] = True  # the upper rows are a garment that takes the leather's second channel
+        second[2:, :, fabric] = True
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, second=second)
+        self.assertTrue((layers[:4, :4] == export.LAYERS['leather2']).all() and (layers[4:, :4] == export.LAYERS['leather1']).all())
+        self.assertTrue((layers[:2, 4:7] == export.LAYERS['cloth1']).all() and (layers[2:, 4:7] == export.LAYERS['cloth2']).all())
+        self.assertTrue((layers[:, 7] == export.LAYERS['cloth1']).all())  # not covered and not spread into: the first channel
+        # without the flags every material is on its first channel, the shades the same
+        plain_shades, plain = texture.tint_maps(colour, covered, self.found, channels, pad=0)
+        self.assertTrue(np.array_equal(plain_shades, shades))
+        self.assertEqual(sorted(np.unique(plain).tolist()), sorted([export.LAYERS['cloth1'], export.LAYERS['leather1']]))
+        # a closing is the outfit's cloth, in the channel the cloth has there
+        closing = np.zeros((8, 8), bool); closing[:, 0] = True
+        closed = texture.tint_maps(colour, covered, self.found, channels, pad=0, second=second, closing=closing)[1]
+        self.assertTrue((closed[:2, 0] == export.LAYERS['cloth1']).all() and (closed[2:, 0] == export.LAYERS['cloth2']).all())
+        # spread, a chart's edge takes its channel outward with it
+        spread = texture.tint_maps(colour, covered, self.found, channels, second=second)[1]
+        self.assertTrue((spread[:2, 7] == export.LAYERS['cloth1']).all() and (spread[2:, 7] == export.LAYERS['cloth2']).all())
+        # the flags of faces, a row of them per face, laid out per texel
+        rows = texture.face_texels(SQUARE, FACES, [[True, False, True], [False, True, True]], 8)
+        self.assertEqual(rows.shape, (8, 8, 3))
+        self.assertTrue(np.array_equal(rows[:, :, 0], texture.face_texels(SQUARE, FACES, [True, False], 8)) and rows[:, :, 2].all())
+        self.assertTrue(np.array_equal(rows[:, :, 1], ~rows[:, :, 0]))
+        for given in (second[:, :, :2], second[:4]):
+            with self.assertRaises(ValueError):
+                texture.tint_maps(colour, covered, self.found, channels, second=given)
+        with self.assertRaises(ValueError):
+            texture.tint_maps(colour, covered, self.found, [('cloth1', 'cloth2'), ('leather1',), ('metal1', 'metal2')])
+
 
 class FieldTests(unittest.TestCase):
     """A field of 256 voxels a side with one coloured sheet of voxels at x index 32."""

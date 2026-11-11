@@ -21,7 +21,7 @@ from tools.headkit.colour import lab
 from tools.headkit.field import GeneratedField, load_generated_field
 from tools.robes import mesh_ops
 
-from . import export
+from . import export, split
 from .registry import require
 
 PAD = 4  # texels between charts, and how far a chart's colours are copied outward into the empty texels round it
@@ -38,6 +38,9 @@ BEND = 1.2  # how much lighter a raised edge and darker a crease gets, per unit 
 SLOPE = 0.35  # how much darker a texel gets as the fine surface tilts away from the simplified one
 BROAD = ((1, 1.0), (4, 0.6))  # the bend is taken across this many texels each way, with this weight: sharp edges and broad folds
 RELIEF_SHADE = (0.72, 1.2)  # the least and the most the relief changes a shade by
+KINDS = ('cloth', 'leather', 'metal')  # the kinds of material the game tints, two colour channels each
+SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'leather': ('forearm', 'hand', 'shin', 'foot'),
+          'metal': ('pelvis', 'thigh', 'shin', 'foot')}  # the slots a garment is worn on that takes its kind's second channel
 TURN_LIMIT = 0.35  # the most one turn counts for: a jump in the map (a dropped reading beside a kept one) is not an edge that sharp
 
 
@@ -197,9 +200,11 @@ def labels(colours, tones):
 
 
 def face_texels(uvs, faces, chosen, size):
-    """(size, size) of flags: the texels on a face that `chosen` flags (one flag per face)."""
+    """(size, size) of flags: the texels on a face that `chosen` flags (one flag per face). With a row of flags
+    per face, (size, size, flags in a row)."""
     owner, _ = raster(uvs, faces, size)
-    return (owner >= 0) & np.asarray(chosen, bool)[np.maximum(owner, 0)]
+    picked = np.asarray(chosen, bool)[np.maximum(owner, 0)]
+    return picked & (owner >= 0).reshape(owner.shape + (1,) * (picked.ndim - 2))
 
 
 def face_materials(uvs, faces, colour, covered, found, size):
@@ -270,10 +275,93 @@ def overlaid(vertices, faces, material, closing, others):
     return flagged
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None):
+def channels(kinds):
+    """The two colour channels of each material, [(first, second)], from the kind of each (`KINDS`), the
+    commonest material first as `materials` has them.
+
+    The game tints six channels, two of each kind, and an outfit is to use them all. One that shows one
+    material of a kind has both of that kind's channels for it: its garments worn on the slots of `SECOND`
+    take the second (`worn_second`), so that trousers are coloured apart from the shirt, boots and gloves from
+    the vest, leg plates from arm plates. Where the colours show two materials of a kind, each has a channel
+    to itself, the commoner the first. A third of a kind has no channel and is an error."""
+    kinds = list(kinds)
+    require(kinds and all(kind in KINDS for kind in kinds), f'A material is one of {KINDS}')
+    require(all(kinds.count(kind) <= 2 for kind in kinds), 'The game tints two channels of a kind')
+    return [(kind + '1', kind + '2') if kinds.count(kind) == 1 else (kind + str(1 + kinds[:index].count(kind)),) * 2
+            for index, kind in enumerate(kinds)]
+
+
+def worn_second(positions, faces, materials, slots, kinds, second=SECOND):
+    """Flags (face, material): whether material k, where it shows on face i, takes its second colour channel
+    (`channels`).
+
+    The outfit's colours tell materials apart, not garments: a shirt and trousers of one cloth are one
+    material. Garments are told as patches, faces of one material joined edge to edge (vertices at one
+    position being one point). A patch ends where another material lies across it: a vest between shirt and
+    trousers, a cuff between sleeve and glove. It is worn on the slot most of its area lies on, and takes the
+    second channel if `second` lists that slot for its material's kind. Decided per part instead, the colour
+    would change along the joint planes, across a garment.
+
+    `positions` and `faces` are the outfit's own faces from all its parts together, without what the split
+    added, in the frame the outfit came in, where the two sides of every cut still meet. `materials` holds a
+    material per face (`face_materials`, -1 for none), `slots` the slot of the part each face is on, `kinds`
+    the kind of each material.
+
+    A texel is of the material its own colour shows, so along a patch's edge texels of one material lie on
+    faces of the other. A face therefore answers for every material: for one it is not of as a patch of that
+    material beside it does, and where there is none as its own patch's slot would. A material whose patches
+    would all take the second channel takes the first: an outfit with one garment of a kind is coloured by
+    that kind's first channel."""
+    positions, faces, materials = np.asarray(positions, float), np.asarray(faces, int), np.asarray(materials, int)
+    names, slot = np.unique(np.asarray(slots), return_inverse=True)
+    slot = slot.reshape(-1)
+    require(len(materials) == len(faces) == len(slot) and len(faces), 'A material and a slot per face are required')
+    require(materials.max() < len(kinds) and all(kind in second for kind in kinds), 'Every material needs a kind')
+    a, b = split.beside(positions, faces).T
+    same = (materials[a] == materials[b]) & (materials[a] >= 0)
+    patch = mesh_ops.union_find(len(faces), zip(a[same].tolist(), b[same].tolist()))
+    corners = positions[faces]
+    area = 0.5 * np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1)
+    member = np.unique(patch, return_inverse=True)[1].reshape(-1)
+    tally = np.zeros((member.max() + 1, len(names)))
+    np.add.at(tally, (member, slot), area)
+    home = tally.argmax(axis=1)[member]  # per face, the slot its patch is worn on
+    listed = np.array([[name in second[kind] for name in names] for kind in kinds])  # (material, slot)
+    flags = listed[:, home].T.copy()
+    for face, other in ((a, b), (b, a)):
+        differ = (materials[face] != materials[other]) & (materials[other] >= 0)
+        flags[face[differ], materials[other[differ]]] = listed[materials[other[differ]], home[other[differ]]]
+    for k in range(len(kinds)):
+        if flags[materials == k, k].all():
+            flags[:, k] = False
+    return flags
+
+
+def added_second(vertices, faces, added, flags):
+    """`worn_second`'s flags for every face of one part: those of the faces the split `added` (its closings and
+    caps) are taken from the own faces they grew from, ring by ring. `flags` has a row per face of the part;
+    the rows of the added faces are not read. A closing is drawn in the outfit's commonest material
+    (`tint_maps`), and so in the channel that material has on the edge it closes."""
+    faces, known = np.asarray(faces, int), ~np.asarray(added, bool)
+    flags = np.array(flags, bool)
+    require(known.shape == (len(faces),) and len(flags) == len(faces), 'One flag and one row per face are required')
+    flags[~known] = False
+    a, b = split.beside(vertices, faces).T
+    while True:
+        reach = known[a] != known[b]
+        if not reach.any():
+            return flags
+        source, target = np.where(known[a[reach]], a[reach], b[reach]), np.where(known[a[reach]], b[reach], a[reach])
+        flags[target] = flags[source]
+        known[target] = True
+
+
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
-    `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k. A texel's shade is
+    `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
+    (`channels`), the second of which a texel takes where `second` flags it for its material: (size, size,
+    materials), `face_texels` of the part's `worn_second` flags. A texel's shade is
     `MIDDLE` at its material's middle lightness and follows its own lightness from there, within `SHADES`; with
     `relief`, the part's `normal_map`, it is also lighter on raised edges and darker in creases (`relief_shade`,
     which wants the part's `chart_map` as `charts`), but a texel the colour already shows darker than its
@@ -288,7 +376,9 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     closings between the thighs were as dark as the crease at the crotch. The texels of a limb's `overlaid`
     faces are flagged with them and drawn the same way."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
-    require(len(channels) == len(found['tones']) and all(name in export.LAYERS for name in channels), 'A colour channel is needed per material')
+    pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
+    require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
+            'A colour channel is needed per material')
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))
     material[covered] = labels(colour[covered], found['tones'])
     ratio = (colour[covered] @ LIGHT) / np.maximum(found['light'][material[covered]], 1e-6)
@@ -300,8 +390,14 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
     plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
     material[plain], shade[plain] = 0, MIDDLE
-    _, material, shade = spread(covered, material, shade, passes=pad)
-    return np.round(shade).astype(int), np.array([export.LAYERS[name] for name in channels])[material]
+    other = np.zeros(covered.shape, int)
+    if second is not None:
+        second = np.asarray(second, bool)
+        require(second.shape == covered.shape + (len(pairs),), 'A flag per texel and material is required')
+        other[covered] = np.take_along_axis(second, material[:, :, None], axis=2)[:, :, 0][covered]
+    layer = np.array([[export.LAYERS[name] for name in pair] for pair in pairs])[material, other]
+    _, layer, shade = spread(covered, layer, shade, passes=pad)
+    return np.round(shade).astype(int), layer
 
 
 def open_field(path):
