@@ -25,7 +25,7 @@ def _generated(root, model):
 
 
 def _crunch():
-    from .. import shared_tools
+    from tools import shared_tools
     return shared_tools.resolve_tool('crunch', Path(__file__).resolve().parents[2])['path']
 
 
@@ -37,7 +37,7 @@ def command_crops(args):
 
 
 def command_reference(args):
-    from ..headkit.comfy import Client
+    from tools.headkit.comfy import Client
     data = reference.load_set(args.set); sheet = reference.resolve_sheet(args.sheets, data['sheet'])
     unknown = [name for name in args.asset if name not in data['assets']]
     require(not unknown, 'Unknown assets: ' + ', '.join(unknown))
@@ -53,7 +53,7 @@ def command_reference(args):
 
 def command_game(args):
     """Convert generated models to compiled game placeables, as the game set states them."""
-    from ..armorkit import export
+    from tools.armorkit import export
     from . import convert
     models = convert.load_models(args.models); output = Path(args.output)
     unknown = [name for name in args.model if name not in models]

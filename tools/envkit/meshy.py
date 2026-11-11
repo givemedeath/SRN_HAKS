@@ -7,12 +7,15 @@ into the pipeline unless it has to). The full-detail result, which runs to milli
 as a master: a spare kept apart from the working model.
 
 Every paid call is reserved in the ledger before it is sent, so a crash between sending and recording leaves the credits
-counted, not lost track of."""
+counted, not lost track of. Every change to the ledger is made under a lock shared by all processes, so two calls at
+once cannot both pass the cap or drop each other's entry."""
+import contextlib
 import json
 import re
 import shutil
 import struct
 import subprocess
+import time
 from pathlib import Path
 
 from . import require
@@ -31,14 +34,35 @@ IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
 class Ledger:
     """One JSON file: the cap and every paid call, counted at its estimate until Meshy reports what it consumed."""
 
+    PATIENCE = 30.0  # seconds to wait for another call's change; a change takes milliseconds
+
     def __init__(self, path):
         self.path = Path(path); self.load()
 
     def load(self):
-        """Read the file again. A wait holds a ledger for minutes while other calls add entries, so every change starts
-        from the file as it is now; this narrows the overlap to the write itself, it is not a lock."""
-        self.data = json.loads(self.path.read_text(encoding='utf-8'))
-        require(self.data.get('kind') == 'srn-envkit-meshy-ledger', 'Envkit Meshy ledger required')
+        """Read the file again, between other calls' changes: on Windows a file being read cannot be replaced, nor one
+        being replaced read."""
+        with self.changing():
+            pass
+
+    def changing(self):
+        """Hold the ledger for one change (read, check, write) against every other process and thread, and read it
+        afresh: a wait holds a ledger object for minutes while other calls add entries, so every change starts from
+        the file as it is now. Used as `with ledger.changing():`; a change ends with `save`."""
+        from tools.headkit.gpu_lock import locked
+        held = contextlib.ExitStack(); deadline = time.monotonic() + self.PATIENCE
+        while True:
+            try:
+                held.enter_context(locked(self.path)); break
+            except FileExistsError:
+                require(time.monotonic() < deadline, 'The ledger is held by another call: ' + str(self.path))
+                time.sleep(0.02)
+        try:
+            self.data = json.loads(self.path.read_text(encoding='utf-8'))
+            require(self.data.get('kind') == 'srn-envkit-meshy-ledger', 'Envkit Meshy ledger required')
+        except BaseException:
+            held.close(); raise
+        return held
 
     @classmethod
     def create(cls, path, cap):
@@ -63,25 +87,27 @@ class Ledger:
         return sum(row['estimate'] if row.get('credits') is None else row['credits'] for row in self.data['entries'])
 
     def reserve(self, key, asset, operation, arguments):
-        self.load()
-        require(KEY.fullmatch(key) is not None, 'Ledger keys must be safe IDs: ' + str(key))
-        require(all(row['key'] != key for row in self.data['entries']), 'Key already used: ' + key)
-        estimate = PRICES[operation]
-        require(self.committed() + estimate <= self.data['cap'],
-                f'Credit cap would be exceeded: {self.committed()} committed + {estimate} > {self.data["cap"]}')
-        row = {'key': key, 'asset': asset, 'operation': operation, 'estimate': estimate, 'state': 'reserved', 'taskId': None,
-               'credits': None, 'arguments': arguments}
-        self.data['entries'].append(row); self.save()
+        require(isinstance(key, str) and KEY.fullmatch(key) is not None, 'Ledger keys must be safe IDs: ' + str(key))
+        with self.changing():
+            require(all(row['key'] != key for row in self.data['entries']), 'Key already used: ' + key)
+            estimate = PRICES[operation]
+            require(self.committed() + estimate <= self.data['cap'],
+                    f'Credit cap would be exceeded: {self.committed()} committed + {estimate} > {self.data["cap"]}')
+            row = {'key': key, 'asset': asset, 'operation': operation, 'estimate': estimate, 'state': 'reserved', 'taskId': None,
+                   'credits': None, 'arguments': arguments}
+            self.data['entries'].append(row); self.save()
         return row
 
     def update(self, key, **fields):
-        self.load(); self.entry(key).update(fields); self.save()
+        with self.changing():
+            self.entry(key).update(fields); self.save()
 
     def release(self, key):
         """Drop a reservation whose call was never sent: its credits and its key are free again."""
-        self.load(); row = self.entry(key)
-        require(row['state'] == 'reserved', 'Only an unsent reservation is released: ' + key)
-        self.data['entries'].remove(row); self.save()
+        with self.changing():
+            row = self.entry(key)
+            require(row['state'] == 'reserved', 'Only an unsent reservation is released: ' + key)
+            self.data['entries'].remove(row); self.save()
 
 
 class NotSent(ValueError):

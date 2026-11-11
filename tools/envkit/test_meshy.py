@@ -82,6 +82,29 @@ class MeshyTests(unittest.TestCase):
         meshy.wait(held, 'a', self.root / 'work', run=run)
         self.assertEqual([row['key'] for row in meshy.Ledger(self.ledger.path).data['entries']], ['a', 'b'])
 
+    def test_reservations_made_at_once_cannot_pass_the_cap_or_drop_each_other(self):
+        import threading
+        from tools.headkit.gpu_lock import locked
+        refused = []
+
+        def reserve(number):
+            try:
+                meshy.Ledger(self.ledger.path).reserve(f'k{number}', 'vending', 'prop', [])
+            except ValueError as error:
+                refused.append(str(error))
+        threads = [threading.Thread(target=reserve, args=(number,)) for number in range(6)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        after = meshy.Ledger(self.ledger.path)  # a cap of 50 holds three props of 15, however the six calls fall
+        self.assertEqual((len(after.data['entries']), after.committed(), len(refused)), (3, 45, 3))
+        self.assertTrue(all('cap would be exceeded' in message for message in refused))
+        impatient = meshy.Ledger(self.ledger.path); impatient.PATIENCE = 0.1
+        with locked(self.ledger.path):  # another call is in the middle of its change
+            with self.assertRaisesRegex(ValueError, 'held by another call'):
+                impatient.update('k0', state='submitted')
+
     def test_an_unanswered_submission_stays_counted_and_uncertain(self):
         with self.assertRaisesRegex(ValueError, 'uncertain'):
             meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work',

@@ -235,7 +235,7 @@ def group(name, made, folder, *, ground):
 def compile_tiles(sources, output):
     """Compile tile models with the pinned cleanmodels into `output`; returns the compiled paths. (armorkit's compile
     reads each model back with a reader that knows no walkmesh node, so the tiles are checked here by size alone.)"""
-    from ..armorkit import toolchain
+    from tools.armorkit import toolchain
     sources, output = [Path(source) for source in sources], Path(output); output.mkdir(parents=True, exist_ok=True)
     require(all(source.parent.resolve() != output.resolve() for source in sources), 'Compile into a folder other than the sources\'')
     tool = toolchain.cleanmodels(); targets = []
@@ -312,7 +312,7 @@ def palette(document, label, model, single=False):
 def prepare(set_path, palette_path, made, *, terrain, group_name, label):
     """Work out what installing a built group into a tileset will write, writing nothing: every refusal (a terrain the
     tileset lacks, a tile or group already there, a palette that cannot be read) comes before any file changes."""
-    from ..phenotypes import tool_runtime
+    from tools.phenotypes import tool_runtime
     set_path, palette_path = Path(set_path), Path(palette_path); text = set_path.read_bytes().decode('cp1252')
     require(terrain in terrains(text), f'{set_path.name} has no terrain named {terrain}: ' + ', '.join(terrains(text)))
     text, first, number = register(text, tile_records(made, terrain), group_name, made['rows'], made['columns'])

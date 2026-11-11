@@ -151,7 +151,9 @@
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],
-    "tools/envkit/meshy.py": [],
+    "tools/envkit/meshy.py": [
+      "tools/headkit/gpu_lock.py"
+    ],
     "tools/envkit/placeables.py": [],
     "tools/envkit/preview_blender.py": [],
     "tools/envkit/prop_fixture.py": [
@@ -178,7 +180,8 @@
       "tools/envkit/local.py"
     ],
     "tools/envkit/test_meshy.py": [
-      "tools/envkit/meshy.py"
+      "tools/envkit/meshy.py",
+      "tools/headkit/gpu_lock.py"
     ],
     "tools/envkit/test_placeables.py": [
       "tools/envkit/placeables.py"

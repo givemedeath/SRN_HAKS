@@ -77,6 +77,37 @@ class MatteTests(unittest.TestCase):
             alpha = cut.getchannel('A')
             self.assertEqual((alpha.getpixel((2, 2)), alpha.getpixel((20, 20)), alpha.getpixel((31, 31))), (0, 255, 255))
 
+    def test_every_attempt_keeps_its_own_record_and_none_is_written_over(self):
+        import json
+        from unittest import mock
+        from PIL import Image, ImageDraw
+        image = Image.new('RGB', (64, 64), (252, 252, 252)); ImageDraw.Draw(image).rectangle([16, 16, 47, 47], fill=(40, 60, 200))
+        source = self.root / 'ref.png'; image.save(source)
+        bound = {'comfyInput': str(self.root / 'in'), 'comfyOutput': str(self.root / 'out')}; output = self.root / 'models' / 'bin'
+
+        class Idle:
+            def request(self, path):
+                return {'queue_running': [], 'queue_pending': []}
+
+        def timed_out(client, graph, token, record, deadline):
+            record['promptId'] = 'p-1'; raise ValueError('The job did not finish in time')
+
+        def finished(client, graph, token, record, deadline):
+            made = self.root / 'out' / local.SUBFOLDER / token; made.mkdir(parents=True)
+            for name in ('model_00001_.glb', *(f'{kind}_00001_.png' for kind in local.MAPS)):
+                (made / name).write_bytes(b'x')
+        with mock.patch('tools.headkit.design.dispatch', timed_out), self.assertRaisesRegex(ValueError, 'in time'):
+            local.make(Idle(), bound, 'bin', source, 7, 3000, output)
+        first = list(output.parent.glob('bin.failed-*.json')); self.assertEqual(len(first), 1); kept = first[0].read_bytes()
+        self.assertEqual((json.loads(kept)['state'], json.loads(kept)['promptId'], output.exists()), ('failed', 'p-1', False))
+        with mock.patch('tools.headkit.design.dispatch', finished):  # the retry is not blocked, and names itself apart
+            self.assertEqual(local.make(Idle(), bound, 'bin', source, 7, 3000, output)['state'], 'complete')
+        self.assertEqual(first[0].read_bytes(), kept)  # the timed-out job can still be traced by its own record
+        self.assertEqual(json.loads((output.parent / 'bin.json').read_text(encoding='utf-8'))['state'], 'complete')
+        self.assertEqual(sorted(path.name for path in output.iterdir()), ['model.glb', *sorted(f'texture_0_{kind}.png' for kind in local.MAPS)])
+        with mock.patch('tools.headkit.design.dispatch', finished), self.assertRaisesRegex(ValueError, 'Fresh output folder'):
+            local.make(Idle(), bound, 'bin', source, 7, 3000, output)
+
     def test_an_image_with_no_plain_background_is_refused(self):
         from PIL import Image
         source = self.root / 'full.png'; Image.new('RGB', (32, 32), (10, 10, 10)).save(source)

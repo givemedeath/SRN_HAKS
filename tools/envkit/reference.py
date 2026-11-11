@@ -80,7 +80,7 @@ def crop(sheet_path, box, output):
 
 def make(client, local, bindings_path, name, text, reference, seed, output, *, batch=1, deadline=2400):
     """One edit job on the bound local ComfyUI. The server may be shared, so a busy queue refuses instead of waiting."""
-    from ..headkit import design
+    from tools.headkit import design
     require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + str(name))
     queue = client.request('/queue')
     require(not queue.get('queue_running') and not queue.get('queue_pending'), 'ComfyUI is busy; nothing submitted')

@@ -99,12 +99,16 @@ def compile_local(image, seed, triangles, prefix, *, texture=2048, shape_resolut
 
 def make(client, local, name, reference, seed, triangles, output, *, texture=2048, deadline=3600):
     """Run one prop on the bound ComfyUI and copy its model and maps into a fresh `output` folder, named as a Meshy
-    download is (`model.glb`, `texture_0_<map>.png`). A busy server is left alone."""
+    download is (`model.glb`, `texture_0_<map>.png`). A busy server is left alone.
+
+    Every attempt leaves its own record beside the output and none is written over: `<output>.json` for the one that
+    made the model, `<output>.failed-<token>.json` for one that did not. A job that timed out may still be running on
+    the server, and its record is what names it."""
     import json
     import shutil
-    from ..headkit import design
-    output = Path(output)
-    require(not output.exists(), 'Fresh output folder required: ' + str(output))
+    from tools.headkit import design
+    output = Path(output); receipt = output.parent / (output.name + '.json')
+    require(not output.exists() and not receipt.exists(), 'Fresh output folder required: ' + str(output))
     queue = client.request('/queue')
     require(not queue.get('queue_running') and not queue.get('queue_pending'), 'ComfyUI is busy; nothing submitted')
     token = uuid.uuid4().hex; prefix = f'{SUBFOLDER}/{token}'
@@ -133,5 +137,8 @@ def make(client, local, name, reference, seed, triangles, output, *, texture=204
         record.update(state='failed', error=str(error)); raise
     finally:
         output.parent.mkdir(parents=True, exist_ok=True)
-        (output.parent / (output.name + '.json')).write_text(json.dumps(record, indent=1), encoding='utf-8')
+        if record.get('state') != 'complete':
+            receipt = output.parent / f'{output.name}.failed-{token}.json'
+        with receipt.open('x', encoding='utf-8') as stream:  # never over a record already there
+            stream.write(json.dumps(record, indent=1))
     return record
