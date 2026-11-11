@@ -322,12 +322,13 @@ def load_models(path):
     """The game models of a set: {name: {source, height, colour, signTilt, lit, halo, tiles}}. `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, and the terrain its
-    corners stand on in each tileset ({tileset: terrain})."""
+    corners stand on in each tileset ({tileset: terrain}); `placeable` gives it a row in the placeables table: its label
+    and the row of placeableobjsnds.2da it sounds like."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lit', 'halo', 'tiles'}, 'Model needs source and height: ' + name)
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lit', 'halo', 'tiles', 'placeable'}, 'Model needs source and height: ' + name)
         source = Path(model['source'])
         require(not source.is_absolute() and '..' not in source.parts and ':' not in model['source'], 'Model source is a folder under the output root: ' + name)
         require(model['height'] > 0 and model.get('colour', 1024) in (512, 1024, 2048, 4096), 'Model height or colour size is out of range: ' + name)
@@ -336,6 +337,9 @@ def load_models(path):
                     and np.asarray(region['box'], float).shape == (2, 3), 'A lit part needs a box of two corners: ' + name)
         require(set(model.get('halo', {})) <= {'reach', 'strength', 'core'} and ('halo' not in model or model.get('lit')),
                 'A halo takes reach, strength and core, and needs lit parts: ' + name)
+        placed = model.get('placeable')
+        require(placed is None or (set(placed) == {'label', 'sound'} and isinstance(placed['label'], str) and placed['label'] and type(placed['sound']) is int),
+                'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
         require(tiles is None or (set(tiles) == {'ground', 'group', 'label', 'sets'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),

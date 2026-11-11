@@ -121,6 +121,7 @@
       "tools/armorkit/export.py",
       "tools/envkit/convert.py",
       "tools/envkit/meshy.py",
+      "tools/envkit/placeables.py",
       "tools/envkit/reference.py",
       "tools/envkit/tile.py",
       "tools/headkit/comfy.py",
@@ -135,6 +136,9 @@
       "tools/headkit/design.py"
     ],
     "tools/envkit/meshy.py": [],
+    "tools/envkit/placeables.py": [
+      "tools/envkit/convert.py"
+    ],
     "tools/envkit/preview_blender.py": [],
     "tools/envkit/prop_fixture.py": [
       "tools/armorkit/__init__.py",
@@ -160,6 +164,9 @@
     ],
     "tools/envkit/test_meshy.py": [
       "tools/envkit/meshy.py"
+    ],
+    "tools/envkit/test_placeables.py": [
+      "tools/envkit/placeables.py"
     ],
     "tools/envkit/test_reference.py": [
       "tools/envkit/reference.py",
@@ -4894,6 +4901,8 @@
       "srn_weapon"
     ],
     "tools/envkit/__main__.py": [
+      "srn_2da",
+      "srn_placeable",
       "srn_t_common"
     ],
     "tools/heads/build_head_fixture.py": [
@@ -5021,6 +5030,7 @@
     "tools/envkit/test_glow.py",
     "tools/envkit/test_local.py",
     "tools/envkit/test_meshy.py",
+    "tools/envkit/test_placeables.py",
     "tools/envkit/test_reference.py",
     "tools/envkit/test_tile.py",
     "tools/headbatch/test_fitassembly.py",

@@ -88,7 +88,7 @@ def enter_script(shots, start=START, hold=HOLD):
 
 
 def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD, ground=None):
-    """props: [{model, position: [x, y], bearing, static}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
+    """props: [{model, position: [x, y], bearing, static, appearance}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
     humans for scale. ground: {tileset, fill, tiles: {(column, row): tile}} lays the area with a tileset whose set file is
     among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west.
     Returns the fixture record."""
@@ -112,7 +112,8 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
     for path in sorted(Path(resources).iterdir()):
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Hak resources are lowercase resref files: ' + path.name)
         shutil.copyfile(path, staged / path.name)
-    text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props}))
+    # A prop that names its own row (`appearance`) is placed by it: the table's row for that model is what is under test.
+    text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props if 'appearance' not in prop}))
     (staged / 'placeables.2da').write_text(text, encoding='cp1252', newline='')
     if ground is None:
         stock_set = run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '.set']).decode('cp1252')
@@ -138,7 +139,7 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         area[name + '_a.are']['Tileset'] = field('resref', ground['tileset'])
         for index, laid in enumerate(area[name + '_a.are']['Tile_List']['value']):
             laid['Tile_ID'] = field('int', ground['tiles'].get((index % size, index // size), ground['fill']))
-    area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', rows[prop['model']], prop['position'], prop.get('bearing', math.pi), prop.get('static', True))
+    area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', prop.get('appearance', rows.get(prop['model'])), prop['position'], prop.get('bearing', math.pi), prop.get('static', True))
                                                              for index, prop in enumerate(props)])
     if night:
         area[name + '_a.are'].update({'IsNight': field('byte', 1), 'MoonAmbientColor': field('dword', 0x302820),

@@ -14,21 +14,21 @@
     "ek_ss_vending": {"source": "meshy/models/vending-machine-a1", "height": 1.83, "colour": 2048, "lit": [
       {"part": "display", "box": [[-0.22, 0.2, 0.46], [0.47, 0.59, 1.42]], "gain": 1.0},
       {"part": "price screen", "box": [[-0.47, 0.4, 1.25], [-0.28, 0.59, 1.36]], "gain": 1.5}
-    ], "halo": {"reach": 0.15, "strength": 0.45}},
+    ], "halo": {"reach": 0.15, "strength": 0.45}, "placeable": {"label": "Stuffer Shack, Vending Machine", "sound": 28}},
     "ek_ss_atm": {"source": "meshy/models/atm-kiosk-a1", "height": 1.55, "colour": 1024, "lit": [
       {"part": "ATM header", "box": [[-0.31, 0.0, 1.33], [0.31, 1.0, 1.52]], "gain": 1.5},
       {"part": "screen", "box": [[-0.215, 0.0, 0.91], [0.215, 1.0, 1.19]], "gain": 2.0},
       {"part": "keypad display", "box": [[-0.19, 0.0, 0.8], [-0.09, 1.0, 0.85]], "gain": 2.0, "saturation": 0.2}
-    ], "halo": {"reach": 0.12, "strength": 0.45}},
-    "ek_ss_snacks": {"source": "meshy/models/snack-rack-a1", "height": 1.6, "colour": 2048},
+    ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Stuffer Shack, ATM", "sound": 28}},
+    "ek_ss_snacks": {"source": "meshy/models/snack-rack-a1", "height": 1.6, "colour": 2048, "placeable": {"label": "Stuffer Shack, Snack Rack", "sound": 28}},
     "ek_ss_drinks": {"source": "meshy/models/drink-case-a1", "height": 2.0, "colour": 2048, "lit": [
       {"part": "shelves", "box": [[-0.86, 0.0, 0.15], [0.84, 1.0, 1.62]], "gain": 1.0}
-    ], "halo": {"reach": 0.15, "strength": 0.4}},
-    "ek_ss_camera": {"source": "meshy/models/security-camera-a1", "height": 0.5, "colour": 1024},
-    "ek_ss_hvac": {"source": "meshy/models/rooftop-hvac-a1", "height": 1.1, "colour": 1024},
-    "ek_ss_clutter": {"source": "meshy/models/street-clutter-a1", "height": 0.55, "colour": 1024},
-    "ek_ss_trash": {"source": "local/models/trash-can-b1-8k", "height": 1.0, "colour": 1024},
-    "ek_ss_recycle": {"source": "local/models/recycle-bin-a1", "height": 1.0, "colour": 1024},
-    "ek_ss_board": {"source": "local/models/sandwich-board-a1", "height": 1.0, "colour": 1024, "signTilt": 15.0}
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Stuffer Shack, Drink Case", "sound": 28}},
+    "ek_ss_camera": {"source": "meshy/models/security-camera-a1", "height": 0.5, "colour": 1024, "placeable": {"label": "Stuffer Shack, Security Camera", "sound": 27}},
+    "ek_ss_hvac": {"source": "meshy/models/rooftop-hvac-a1", "height": 1.1, "colour": 1024, "placeable": {"label": "Stuffer Shack, Rooftop Unit", "sound": 28}},
+    "ek_ss_clutter": {"source": "meshy/models/street-clutter-a1", "height": 0.55, "colour": 1024, "placeable": {"label": "Stuffer Shack, Street Clutter", "sound": 23}},
+    "ek_ss_trash": {"source": "local/models/trash-can-b1-8k", "height": 1.0, "colour": 1024, "placeable": {"label": "Stuffer Shack, Trash Can", "sound": 28}},
+    "ek_ss_recycle": {"source": "local/models/recycle-bin-a1", "height": 1.0, "colour": 1024, "placeable": {"label": "Stuffer Shack, Recycling Bin", "sound": 28}},
+    "ek_ss_board": {"source": "local/models/sandwich-board-a1", "height": 1.0, "colour": 1024, "signTilt": 15.0, "placeable": {"label": "Stuffer Shack, Sandwich Board", "sound": 27}}
   }
 }

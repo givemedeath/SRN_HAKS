@@ -95,6 +95,26 @@ def command_install(args):
     print(json.dumps({'files': len(copied), 'sets': placed}), flush=True)
 
 
+def command_placeables(args):
+    """Put converted models into the placeable pack and give each a row in the placeables table."""
+    import shutil
+    from . import convert, placeables
+    models = convert.load_models(args.models); built, repo = Path(args.built), Path(args.repo); pack, table = repo / args.pack, repo / args.table
+    chosen = {name: model['placeable'] for name, model in models.items() if model.get('placeable') and (not args.model or name in args.model)}
+    reference.require(chosen and pack.is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
+    missing = [name for name in chosen if not (built / name / 'compiled' / f'{name}.mdl').is_file()]
+    reference.require(not missing, 'Convert these first (envkit game): ' + ', '.join(missing))
+    text, rows = placeables.register(table.read_bytes().decode('cp1252'), [{'model': name, **placed} for name, placed in chosen.items()])
+    copied = 0
+    for name in chosen:
+        shutil.copyfile(built / name / 'compiled' / f'{name}.mdl', pack / f'{name}.mdl'); copied += 1
+        for path in sorted((built / name / 'source').iterdir()):
+            if path.suffix in ('.pwk', '.mtr', '.dds', '.txi'):
+                shutil.copyfile(path, pack / path.name); copied += 1
+    table.write_bytes(text.encode('cp1252'))
+    print(json.dumps({'rows': rows, 'files': copied}), flush=True)
+
+
 def command_meshy(args):
     from . import meshy
     if args.action == 'init':
@@ -142,6 +162,11 @@ def main(argv=None):
     sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `tiles` built into')
     sub.add_argument('--model', required=True); sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_t_common')
     sub.set_defaults(run=command_install)
+    sub = commands.add_parser('placeables', help='put converted models into the placeable pack and the placeables table')
+    sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `game` converted into')
+    sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_placeable'); sub.add_argument('--table', default='srn_2da/placeables.2da')
+    sub.add_argument('--model', action='append', default=[], help='limit to these models (repeatable)')
+    sub.set_defaults(run=command_placeables)
     parsers = {}
     for name, run in (('crops', command_crops), ('reference', command_reference)):
         sub = parsers[name] = commands.add_parser(name)
