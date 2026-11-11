@@ -1,4 +1,4 @@
-"""Command line for the armorkit foundation: registry, parts tables, measurements and client fixtures."""
+"""Command line for the armorkit foundation: registry, parts tables, measurements, outfit briefs and client fixtures."""
 import argparse
 import json
 import sys
@@ -51,6 +51,16 @@ def command_measure(args):
     print(json.dumps({'written': written}))
 
 
+def command_brief(args):
+    from . import brief
+    document = brief.load(args.brief)
+    if args.prompt:  # refused where two materials are drawn too alike: no prompt is written then
+        Path(args.prompt).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.prompt).write_text(brief.prompt(document) + '\n', encoding='utf-8', newline='\n')
+    print(json.dumps({'model': document['model'], 'materials': {material['name']: material['kind'] for material in document['materials']},
+                      'pads': document.get('pads', []), 'prompt': args.prompt}))
+
+
 def command_fixture(args):
     from . import client
     from . import client_fixture as fixture
@@ -79,6 +89,9 @@ def main(argv=None):
     p.add_argument('--only', choices=('seams', 'heads'), help='measure one of the two files (heads need no --supermodels)')
     p.add_argument('--output', required=True)
     p.set_defaults(handler=command_measure)
+    p = commands.add_parser('brief', help="check an outfit's brief and write the image prompt its materials give")
+    p.add_argument('brief'); p.add_argument('--prompt', help='file to write the image prompt to')
+    p.set_defaults(handler=command_brief)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)
     p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')

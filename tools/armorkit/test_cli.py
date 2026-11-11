@@ -29,6 +29,23 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(got['parts'], len(handoff['parts']))
         self.assertEqual(handoff['kind'], registry.KIND + '-handoff')
 
+    def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
+        from . import brief
+        given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK,
+                 'materials': [{'name': 'fabric', 'kind': 'cloth', 'colour': [128, 128, 128], 'look': 'GREY cloth', 'wears': 'the shirt.'},
+                               {'name': 'plates', 'kind': 'metal', 'colour': [150, 180, 220], 'look': 'PALE BLUE plastic', 'wears': 'the guards.'}]}
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'brief.json'
+            path.write_text(json.dumps(given), encoding='utf-8')
+            self.assertEqual(run('brief', path), {'model': 'test-outfit', 'materials': {'fabric': 'cloth', 'plates': 'metal'}, 'pads': [], 'prompt': None})
+            run('brief', path, '--prompt', Path(folder) / 'out' / 'PROMPT.txt')
+            self.assertEqual((Path(folder) / 'out' / 'PROMPT.txt').read_text(encoding='utf-8'), brief.prompt(given) + '\n')
+            given['materials'][1]['colour'] = [135, 135, 140]  # drawn too alike: refused, and no prompt is written
+            path.write_text(json.dumps(given), encoding='utf-8')
+            with self.assertRaises(ValueError):
+                run('brief', path, '--prompt', Path(folder) / 'again.txt')
+            self.assertFalse((Path(folder) / 'again.txt').exists())
+
     def fixture_run(self, *flags):
         """Run the fixture command with the builder and the client replaced; return what each was called with."""
         calls = {}

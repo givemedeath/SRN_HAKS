@@ -182,7 +182,11 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
 
 1. **Brief.** Break the concept into slots, a tier for each joint, colour channels, badge positions and
    accessories. Name the slots that get a separate female cut (the chest always does). Allocate numbers in the
-   registry.
+   registry. For each model to generate, write its brief file (`tools/armorkit/briefs/`, format in
+   `tools/armorkit/brief.py`): every material with its kind (cloth, leather or metal), the flat colour it is
+   drawn in and what is made of it, at most two of a kind, in clearly different hues. The colour paragraph of
+   the image prompt is written from that file (`python -m tools.armorkit brief`), and the bake sorts the outfit
+   into the six channels by it. No reference image is made without one.
 2. **References.** Garment-only, headless, rest-stance Human male: clay for geometry, colour for appearance.
    The same pair on the Human female for each separate female cut. Review before generating.
 3. **Generate** the source on the local engine, recorded in the ledger.
