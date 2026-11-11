@@ -69,8 +69,22 @@ def command_game(args):
         print(json.dumps(report), flush=True)
 
 
+def _ground_colour(pack, texture):
+    """The mean colour (0-1) of a ground texture in a pack, for the area map; mid grey where it cannot be read."""
+    from PIL import Image
+    for path in (Path(pack) / f'{texture}.tga', Path(pack) / f'{texture}.dds'):
+        try:
+            with Image.open(path) as image:
+                return [value / 255 for value in image.convert('RGB').resize((1, 1), Image.BOX).getpixel((0, 0))]
+        except (OSError, ValueError):
+            continue
+    return [0.4, 0.4, 0.4]
+
+
 def command_tiles(args):
-    """Build a model's tile group: tile models (compiled), walkmeshes and the shared material and maps."""
+    """Build a model's tile group: tile models (compiled), walkmeshes, area-map pictures and the shared material and maps."""
+    import numpy as np
+    from PIL import Image
     from . import convert, tile
     models = convert.load_models(args.models)
     require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
@@ -78,7 +92,11 @@ def command_tiles(args):
     with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
         made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
                              lit=model.get('lit'), halo=model.get('halo'))
-        report = tile.group(args.model, made, folder / 'source', ground=model['tiles']['ground'])
+        tiles = model['tiles']
+        with Image.open(maps['base_color']) as image:
+            colour = np.asarray(image.convert('RGB').resize((512, 512)), float) / 255
+        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'),
+                            ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']))
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
         files = convert.skin(args.model, maps, folder / 'shared', _crunch(), made, colour=model.get('colour', 1024))
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
@@ -101,6 +119,7 @@ def command_install(args):
     for one in made['tiles']:
         copied += [shutil.copyfile(built / 'compiled' / f'{one["model"]}.mdl', shared / f'{one["model"]}.mdl'),
                    shutil.copyfile(built / 'source' / f'{one["model"]}.wok', shared / f'{one["model"]}.wok')]
+    copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'source').glob('*.tga'))]  # area-map pictures and the lid's texture
     # The lights-out materials serve a placeable a script can reach; no script reaches a tile, so they stay behind.
     idle = (args.model + '_o', convert.HALO_OUT)
     copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'shared').iterdir()) if path.stem not in idle]
@@ -173,7 +192,7 @@ def main(argv=None):
     sub.set_defaults(run=command_game)
     sub = commands.add_parser('tiles', help='build a model as a tile group')
     sub.add_argument('--models', required=True); sub.add_argument('--root', required=True); sub.add_argument('--output', required=True)
-    sub.add_argument('--model', required=True)
+    sub.add_argument('--model', required=True); sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_t_common', help='pack holding the ground texture')
     sub.set_defaults(run=command_tiles)
     sub = commands.add_parser('install', help='put a built tile group into the shared pack and its tilesets')
     sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `tiles` built into')

@@ -130,6 +130,98 @@ class TileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'already has a group'):
             tile.register(SET, tile.tile_records(made, 'Concrete'), 'Old', 2, 2)
 
+    def test_the_area_map_picture_shows_each_tile_from_above_with_north_at_the_top(self):
+        corners, faces = box((-2, 2, 0), (2, 4, 3))  # a red block in the north half of one tile
+        pictures = tile.minimaps(corners, np.zeros((len(corners), 2)), faces, np.array([[[1.0, 0.0, 0.0]]]), 1, 1, np.array([-5.0, -5.0]), (0.2, 0.3, 0.4))
+        picture = pictures[(0, 0)]; self.assertEqual(picture.shape, (tile.MINIMAP, tile.MINIMAP, 3))
+        np.testing.assert_allclose(picture[5, 16], [1, 0, 0]); np.testing.assert_allclose(picture[26, 16], [0.2, 0.3, 0.4])  # row 0 is the north edge
+        np.testing.assert_allclose(picture[5, 2], [0.2, 0.3, 0.4])
+
+    def test_a_tile_carries_lights_a_fading_top_with_its_lid_and_halos_that_belong_to_the_night(self):
+        walk = (np.array([[-5.0, -5, 0], [5, -5, 0], [-5, 5, 0], [5, 5, 0]]), np.array([[2, 0, 3, tile.STONE], [3, 0, 1, tile.STONE]]))
+        low = (np.array([[0.0, 0, 0], [1, 0, 0], [0, 0, 1]]), np.tile([0, 1.0, 0], (3, 1)), np.zeros((3, 2)), np.array([[0, 1, 2]]), False)
+        top = (low[0] + [0, 0, 3], low[1], low[2], low[3], True)
+        sheet = lambda bottom: [((1.0, 0.5, bottom), (0.0, 1.0)), ((-1.0, 0.5, bottom), (1.0, 1.0)), ((-1.0, 0.5, bottom + 1), (1.0, 0.0)), ((1.0, 0.5, bottom + 1), (0.0, 0.0))]
+        text = tile.model_text('ek_test_t00', [low, top], 'ek_test', 'pavement', [sheet(1.0), sheet(3.0)], walk, lights=[(1.0, 2.0, 4.0), (0.0, 0.0, 7.1)], fade=2.5,
+                               cap=[(-1.0, -1.0, 1.0, 1.0)])
+        geometry, _, animations = text.partition('endmodelgeom')
+        nodes = {block.split('\n', 1)[0]: block for block in geometry.split('node ')[1:]}
+        self.assertIn('  tilefade 0', nodes['trimesh ek_test_t00_m0']); self.assertIn('  tilefade 1', nodes['trimesh ek_test_t00_m1'])
+        self.assertIn('  tilefade 0', nodes['trimesh ek_test_t00_halo0']); self.assertIn('  tilefade 1', nodes['trimesh ek_test_t00_halo1'])  # the sign's light goes with the sign
+        lid = nodes['trimesh ek_test_t00_cap']  # drawn only while the top is hidden
+        self.assertIn('  tilefade 2', lid); self.assertIn('  bitmap ek_black', lid); self.assertIn('    -1.00000 -1.00000 2.50000', lid); self.assertIn('  faces 2', lid)
+        self.assertIn('  position 1.00000 2.00000 4.00000', nodes['light ek_test_t00ml1']); self.assertIn('  radius 14', nodes['light ek_test_t00ml2'])
+        self.assertEqual([line.split()[1] for line in animations.splitlines() if line.startswith('newanim')], ['day', 'day2night', 'night', 'night2day'])
+        day, night = animations.split('newanim night ')[0].split('newanim day2night')[0], animations.split('newanim night ')[1].split('doneanim')[0]
+        self.assertEqual(day.count('      0.00000 0\n'), 2); self.assertEqual(night.count('      0.00000 1\n'), 2)  # both halos: clear by day, full by night
+        plain = tile.model_text('ek_test_t00', [low[:4]], 'ek_test', 'pavement', [], walk)
+        self.assertNotIn('newanim', plain); self.assertNotIn('node light', plain); self.assertNotIn('_cap', plain)
+
+    def test_the_lid_follows_the_buildings_outline_and_the_lights_hang_over_open_ground(self):
+        rows, columns, corner = tile.layout(SHOP[0]); found = tile.survey(*SHOP, rows, columns, corner)
+        strips = tile.lid(found, 0, 0, 2.0); area = sum((x1 - x0) * (y1 - y0) for x0, y0, x1, y1 in strips)
+        self.assertTrue(18.0 <= area <= 21.0)  # the 6 by 3 metres the walls enclose, to the grain of the survey
+        self.assertTrue(all(-3.2 <= x0 < x1 <= 3.2 and -2.2 <= y0 < y1 <= 1.2 for x0, y0, x1, y1 in strips))
+        first, second = tile.light_places(found, 0, 0)
+        self.assertEqual(found['material'][int((first[1] + 5) / 0.5), int((first[0] + 5) / 0.5)], tile.STONE); self.assertEqual(first[2], tile.LIGHT_HEIGHT)
+        self.assertEqual(second, (0.0, 0.0, 4.5))  # over the middle, clear of the 3 metre roof
+
+    def test_a_built_group_reports_its_pictures_lights_fading_faces_and_door(self):
+        import tempfile
+        from pathlib import Path
+        from PIL import Image
+        vertices, faces = SHOP
+        made = {'vertices': vertices, 'normals': np.tile([0.0, 0, 1], (len(vertices), 1)), 'uvs': np.zeros((len(vertices), 2)), 'faces': faces, 'card': None}
+        with tempfile.TemporaryDirectory() as scratch:
+            report = tile.group('ek_shop', made, scratch, ground='pavement', colour=np.full((2, 2, 3), 0.5), fade=2.0,
+                                door={'at': [0.0, 1.0, 0.2], 'facing': 90.0, 'type': 58})
+            one = report['tiles'][0]
+            self.assertEqual((one['image'], one['lights'], one['doors']), ('ek_shop_m00', 2, [{'type': 58, 'x': 0.0, 'y': 1.0, 'z': 0.2, 'orientation': 90.0}]))
+            self.assertTrue(0 < one['fadingFaces'] < one['faces']); self.assertEqual(report['fade'], 2.0)
+            with Image.open(Path(scratch) / 'ek_shop_m00.tga') as picture:
+                self.assertEqual((picture.size, picture.mode), ((tile.MINIMAP, tile.MINIMAP), 'RGB'))
+            self.assertTrue((Path(scratch) / 'ek_black.tga').is_file())
+            text = (Path(scratch) / 'ek_shop_t00.mdl').read_text(encoding='cp1252')
+            self.assertIn('node trimesh ek_shop_t00_cap', text); self.assertIn('node light ek_shop_t00ml2', text)
+            with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
+                tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
+
+    def test_a_tiles_record_names_its_picture_lights_and_doors_and_a_door_block_follows_it(self):
+        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9, 'lights': 2,
+                                                    'image': f'ek_test_m{row}{column}', 'doors': [{'type': 58, 'x': 4.75, 'y': -1.1, 'z': 0.18, 'orientation': 90.0}] if (row, column) == (1, 0) else []}
+                                                   for row in (0, 1) for column in (0, 1)]}
+        records = tile.tile_records(made, 'Concrete'); third = dict(records[2])
+        self.assertEqual((third['MainLight1'], third['MainLight2'], third['SourceLight1'], third['Doors'], third['ImageMap2D']), (1, 1, 0, 1, 'ek_test_m10'))
+        self.assertEqual(dict(records[0])['Doors'], 0)
+        text, first, _ = tile.register(SET, records, 'New_Group', 2, 2, tile.doors(made))
+        self.assertIn('ImageMap2D=ek_test_m10\r\n\r\n[TILE4DOOR0]\r\nType=58\r\nX=4.75\r\nY=-1.1\r\nZ=0.18\r\nOrientation=90.0\r\n\r\n[TILE5]\r\n', text)
+        self.assertEqual(text.count('DOOR0]'), 1)
+
+    def test_a_group_already_in_the_set_file_is_written_again_under_the_numbers_it_has(self):
+        import tempfile
+        from pathlib import Path
+        bare = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9} for row in (0, 1) for column in (0, 1)]}
+        text, _, _ = tile.register(SET.replace('[GENERAL]', '[TERRAIN0]\r\nName=Concrete\r\n\r\n[GENERAL]'), tile.tile_records(bare, 'Concrete'), 'New_Group', 2, 2)
+        full = {**bare, 'tiles': [{**one, 'lights': 2, 'image': 'ek_test_m' + one['model'][-2:], 'doors': [{'type': 58, 'x': 1.0, 'y': 2.0, 'z': 0.2, 'orientation': 0.0}] if one['model'].endswith('10') else []}
+                                  for one in bare['tiles']]}
+        again, first = tile.revise(text, tile.tile_records(full, 'Concrete'), tile.doors(full))
+        self.assertEqual(first, 2); self.assertEqual(again.count('[TILE'), text.count('[TILE') + 1)  # the same tiles, and one door block
+        self.assertIn('[TILE4]\r\nModel=ek_test_t10\r\n', again); self.assertIn('ImageMap2D=ek_test_m10\r\n\r\n[TILE4DOOR0]\r\nType=58\r\n', again)
+        self.assertIn('[TILE1]\r\nModel=b\r\n', again); self.assertTrue(again.endswith(text[text.index('[GROUPS]'):]))  # nothing else moved
+        once_more, _ = tile.revise(again, tile.tile_records(full, 'Concrete'), tile.doors(full))
+        self.assertEqual(once_more, again)  # the door block is replaced, not added to
+        with self.assertRaisesRegex(ValueError, 'does not list exactly one'):
+            tile.revise(SET, tile.tile_records(full, 'Concrete'), tile.doors(full))
+        with tempfile.TemporaryDirectory() as scratch:  # through the install: no palette is touched for a group already there
+            path = Path(scratch) / 't.set'; path.write_bytes(text.encode('cp1252'))
+            prepared = tile.prepare(path, Path(scratch) / 'none.itp', full, terrain='Concrete', group_name='New_Group', label='New Group')
+            self.assertIsNone(prepared['document']); self.assertEqual(tile.commit(prepared), {'firstTile': 2, 'group': 1})
+            self.assertEqual(path.read_bytes().decode('cp1252'), again)
+            half = text.replace('Model=ek_test_t11', 'Model=other')
+            path.write_bytes(half.encode('cp1252'))
+            with self.assertRaisesRegex(ValueError, 'some of the group'):
+                tile.prepare(path, Path(scratch) / 'none.itp', full, terrain='Concrete', group_name='New_Group', label='New Group')
+
     def test_the_palette_offers_the_group_among_the_groups_once(self):
         document = {'MAIN': {'value': [{'ID': {'value': 0}, 'LIST': {'value': []}}, {'ID': {'value': 1}, 'LIST': {'value': []}}]}}
         tile.palette(document, 'New Group 2x2', 'ek_test_t00')

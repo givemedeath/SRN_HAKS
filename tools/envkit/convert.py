@@ -319,8 +319,10 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None):
 def load_models(path):
     """The game models of a set: {name: {source, height, colour, signTilt, lit, halo, tiles}}. `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
-    `tiles` makes the model a tile group too: its ground texture, its group name and palette label, and the terrain its
-    corners stand on in each tileset ({tileset: terrain}); `placeable` gives it a row in the placeables table: its label
+    `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
+    corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
+    hide it, and `door` ({at: [x, y, z], facing, type}: where a door stands on the finished model, the way it faces in
+    degrees and its row of doortypes.2da); `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
@@ -339,10 +341,14 @@ def load_models(path):
         require(placed is None or (set(placed) == {'label', 'sound'} and isinstance(placed['label'], str) and placed['label'] and type(placed['sound']) is int),
                 'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
-        require(tiles is None or (set(tiles) == {'ground', 'group', 'label', 'sets'} and isinstance(tiles['sets'], dict) and tiles['sets']
+        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
+        door = (tiles or {}).get('door')
+        require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type'} and np.asarray(door['at'], float).shape == (3,)
+                                 and type(door.get('type', 0)) is int and door.get('type', 0) >= 0), 'A door needs the place it stands at: ' + name)
+        require((tiles or {}).get('fade') is None or 0 < tiles['fade'] < model['height'], 'The fade height lies within the model: ' + name)
     return data['models']
 
 

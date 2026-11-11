@@ -90,7 +90,8 @@ def enter_script(shots, start=START, hold=HOLD):
 def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD, ground=None):
     """props: [{model, position: [x, y], bearing, static, appearance}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
     humans for scale. ground: {tileset, fill, tiles: {(column, row): tile}} lays the area with a tileset whose set file is
-    among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west.
+    among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west;
+    its `lights` ({(column, row): [main light 1, main light 2]}) colour those tiles' main lights.
     Returns the fixture record."""
     from tools.phenotypes import tool_runtime
     require(client_fixture.NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 11 characters')
@@ -139,6 +140,8 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         area[name + '_a.are']['Tileset'] = field('resref', ground['tileset'])
         for index, laid in enumerate(area[name + '_a.are']['Tile_List']['value']):
             laid['Tile_ID'] = field('int', ground['tiles'].get((index % size, index // size), ground['fill']))
+            for number, colour in enumerate(ground.get('lights', {}).get((index % size, index // size), ()), 1):
+                laid[f'Tile_MainLight{number}'] = field('byte', colour)  # rows of lightcolor.2da, as a builder sets them in the Toolset
     area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', prop.get('appearance', rows.get(prop['model'])), prop['position'], prop.get('bearing', math.pi), prop.get('static', True))
                                                              for index, prop in enumerate(props)])
     if night:

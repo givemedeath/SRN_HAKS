@@ -10,7 +10,7 @@
       {"part": "right window goods", "box": [[-3.5, 3.1, 1.2], [-1.4, 3.9, 2.95]], "gain": 1.0, "saturation": 0.12},
       {"part": "OPEN sign", "box": [[-2.6, 3.1, 1.9], [-1.7, 3.9, 2.5]], "gain": 2.0, "saturation": 0.4}
     ], "halo": {"reach": 0.4, "strength": 0.55},
-      "tiles": {"ground": "pavement", "group": "Stuffer_Shack", "label": "Stuffer Shack 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}}},
+      "tiles": {"ground": "pavement", "group": "Stuffer_Shack", "label": "Stuffer Shack 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 3.0, "door": {"at": [-0.25, 3.9, 0.18], "facing": 90.0, "type": 58}}},
     "ek_ss_vending": {"source": "meshy/models/vending-machine-a1", "height": 1.83, "colour": 2048, "lit": [
       {"part": "display", "box": [[-0.22, 0.2, 0.46], [0.47, 0.59, 1.42]], "gain": 1.0},
       {"part": "price screen", "box": [[-0.47, 0.4, 1.25], [-0.28, 0.59, 1.36]], "gain": 1.5}

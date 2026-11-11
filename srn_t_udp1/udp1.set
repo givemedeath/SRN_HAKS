@@ -21657,8 +21657,8 @@ Top=
 Right=
 Bottom=
 Left=
-MainLight1=0
-MainLight2=0
+MainLight1=1
+MainLight2=1
 SourceLight1=0
 SourceLight2=0
 AnimLoop1=0
@@ -21670,7 +21670,7 @@ PathNode=H
 Orientation=180
 VisibilityNode=H
 VisibilityOrientation=180
-ImageMap2D=
+ImageMap2D=ek_ss_shack_m00
 
 [TILE677]
 Model=ek_ss_shack_t01
@@ -21687,8 +21687,8 @@ Top=
 Right=
 Bottom=
 Left=
-MainLight1=0
-MainLight2=0
+MainLight1=1
+MainLight2=1
 SourceLight1=0
 SourceLight2=0
 AnimLoop1=0
@@ -21700,7 +21700,7 @@ PathNode=H
 Orientation=270
 VisibilityNode=H
 VisibilityOrientation=270
-ImageMap2D=
+ImageMap2D=ek_ss_shack_m01
 
 [TILE678]
 Model=ek_ss_shack_t10
@@ -21717,20 +21717,27 @@ Top=
 Right=
 Bottom=
 Left=
-MainLight1=0
-MainLight2=0
+MainLight1=1
+MainLight2=1
 SourceLight1=0
 SourceLight2=0
 AnimLoop1=0
 AnimLoop2=0
 AnimLoop3=0
-Doors=0
+Doors=1
 Sounds=0
 PathNode=H
 Orientation=90
 VisibilityNode=H
 VisibilityOrientation=90
-ImageMap2D=
+ImageMap2D=ek_ss_shack_m10
+
+[TILE678DOOR0]
+Type=58
+X=4.75
+Y=-1.1
+Z=0.18
+Orientation=90.0
 
 [TILE679]
 Model=ek_ss_shack_t11
@@ -21747,8 +21754,8 @@ Top=
 Right=
 Bottom=
 Left=
-MainLight1=0
-MainLight2=0
+MainLight1=1
+MainLight2=1
 SourceLight1=0
 SourceLight2=0
 AnimLoop1=0
@@ -21760,7 +21767,7 @@ PathNode=H
 Orientation=0
 VisibilityNode=H
 VisibilityOrientation=0
-ImageMap2D=
+ImageMap2D=ek_ss_shack_m11
 
 [GROUPS]
 Count=107
