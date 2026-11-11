@@ -183,6 +183,10 @@ type 117 door at its hook, and `Road_Huge_Hole` and `SubwayEntrance` got their t
 doors, with no door placed by hand. The row's tileset only decides which areas list that door under
 "Tileset Specific" in the door palette. The same test showed the five arcology groups in the palette, placed
 three of them, and found only concrete tiles among the raised-ground tiles the Toolset chose by itself.
+The other two, `Arcology_Corner` and `Arcology_Gate_02`, were placed in the Toolset on 2026-11-11: it built
+the raised concrete round each, and the saved area was loaded in the game client, where both rendered with
+their textures. `Arcology_Gate_02` got no door of its own, because its hook is the generic type 0, which the
+Toolset leaves for the builder.
 The work modifies the MDRNEE tile import under the same notice and attribution conditions.
 
 ## Stuffer Shack tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
@@ -218,8 +222,21 @@ height. The Meshy source, the full-detail spare, the references and the client c
 the Toolset the same day: both palettes list `Stuffer Shack 2x2` under Groups, and painting it laid the four
 tiles in order with no turn (south-west, south-east, north-west, north-east), as the saved areas record. In
 Modern Exterior the Toolset changed no other tile; in Suburbs it repainted the twelve tiles around the group as
-its own grass-to-asphalt edges and corners. The tiles have no door hook, no tile lights, no minimap image and no
-roof fade.
+its own grass-to-asphalt edges and corners.
+
+Rebuilt later on 2026-11-11 under the same tile numbers, with what the stock tiles carry. Each tile has a
+32-pixel picture for the area map (`ek_ss_shack_m00` to `_m11`, drawn from the model seen from above) and two
+main lights for a builder to colour. The halo sheets fade out by day and in by night through the `day`,
+`night`, `day2night` and `night2day` animations. Everything above 3 metres carries `tilefade`, with a black lid
+(`ek_black`) drawn only while it is hidden. The north-west tile has a door record of type 58, the invisible
+transition door this tileset already uses for its subway entrance, at the storefront door. Checked in the game
+client: a coloured main light lit the building and the ground round it; the halos were absent by day and
+present by night; with the client's second-storey setting on, the top and the sign's halo were hidden and the
+lid shown (the setting has no effect while a script holds the camera in cutscene mode). Checked in the Toolset
+in Modern Exterior: painting the group made the door by itself at the storefront, facing out; a group turned a
+quarter turn before painting kept its four tiles together and its door on the turned front; Tile Properties
+offered both main lights; and a highrise painted on the tiles beside the group left the group as it was. The
+area map itself was not looked at in the client, and the door was not checked in Suburbs.
 
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
