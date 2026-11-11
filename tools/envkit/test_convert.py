@@ -42,8 +42,8 @@ class ConvertTests(unittest.TestCase):
 
     def test_a_model_stands_up_to_scale_and_faces_front(self):
         vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
-        points, turned, texture, scale, yaw = convert.fit(vertices, normals, uvs, 2.0)
-        self.assertAlmostEqual(scale, 0.5); self.assertEqual(yaw, 0.0)
+        points, turned, texture, scale, angles = convert.fit(vertices, normals, uvs, 2.0)
+        self.assertAlmostEqual(scale, 0.5); self.assertEqual(angles, (0.0, 0.0, 0.0))
         np.testing.assert_allclose(points.min(0), [-0.5, 0, 0], atol=1e-9); np.testing.assert_allclose(points.max(0), [0.5, 0, 2.0], atol=1e-9)
         np.testing.assert_allclose(turned, [[0, 1, 0]] * 4, atol=1e-9)  # glTF's front is the game's +Y
         np.testing.assert_allclose(texture, uvs)  # unchanged: flipping v scrambled every island in the client
@@ -62,6 +62,21 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(convert.square_up(box), 0.0)
         ring = np.array([[np.cos(a), np.sin(a), 0] for a in np.linspace(0, 2 * np.pi, 90, endpoint=False)])
         self.assertEqual(convert.square_up(ring), 0.0)
+
+    def test_a_leaning_box_is_stood_upright_but_a_ball_is_left_alone(self):
+        corners = np.array([[x, y, z] for x in (-1, 1) for y in (-0.4, 0.4) for z in (0, 2)], float)  # 2 wide, 0.8 deep, 2 tall
+        faces = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        leaning = corners @ convert._turn(20.0, 12.0, -7.0).T  # as a model drawn from above and to one side comes back
+        angles = convert.upright(leaning, faces)
+        self.assertNotEqual(angles, (0.0, 0.0, 0.0))
+        stood = leaning @ convert._turn(*angles).T
+        np.testing.assert_allclose(np.ptp(stood, axis=0), [2.0, 0.8, 2.0], rtol=0.015)  # the same box, the same way round
+        self.assertEqual(convert.upright(corners, faces), (0.0, 0.0, 0.0))  # already square: nothing to do
+        ball = np.random.default_rng(3).normal(size=(3000, 3)); ball /= np.linalg.norm(ball, axis=1)[:, None]  # no way up to find
+        self.assertEqual(convert.upright(ball, np.arange(3000).reshape(-1, 3)), (0.0, 0.0, 0.0))
+        # Through fit, the leaning box ends standing on the ground at its stated height.
+        points, _, _, _, used = convert.fit(leaning @ convert.TO_GAME, np.tile([0, 0, 1.0], (8, 1)), np.zeros((8, 2)), 2.0, faces=faces)
+        self.assertEqual(used, angles); np.testing.assert_allclose(np.ptp(points, axis=0), [2.0, 0.8, 2.0], rtol=0.015)
 
     def test_zero_normals_are_rebuilt_from_the_faces(self):
         vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; normals = np.array([[0, 1, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0]], float)

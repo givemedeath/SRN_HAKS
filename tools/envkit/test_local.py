@@ -22,6 +22,8 @@ class GraphTests(unittest.TestCase):
     def test_the_reference_is_cut_out_before_conditioning_and_each_stage_has_its_own_seed(self):
         self.assertEqual(self.graph['3']['inputs']['masks'], ['2', 0]); self.assertEqual(self.graph['2']['inputs']['mask'], ['1', 1])
         self.assertEqual(self.graph['20']['inputs']['image'], ['3', 0])
+        # The field of view is measured from that same cut-out, not guessed.
+        self.assertEqual((self.graph['5']['inputs']['image'], self.graph['20']['inputs']['camera_angle_x']), (['3', 0], ['6', 0]))
         seeds = [node['inputs']['seed'] for node in self.graph.values() if node['class_type'] == 'KSampler']
         self.assertEqual(sorted(seeds), [7, 8, 9, 10])
         self.assertEqual(self.graph['26']['inputs']['resolution'], '32')  # a choice: the server refuses the number 32

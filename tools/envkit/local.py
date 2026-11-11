@@ -13,7 +13,7 @@ from pathlib import Path
 SUBFOLDER = 'envkit-local'
 MODEL, VISION = 'pixal3d_int8_convrot.safetensors', 'dino_v3_L_naf_fp32.safetensors'
 SHAPE_VAE, TEXTURE_VAE = 'trellis_2_shape_vae_bf16.safetensors', 'trellis_2_texture_vae_bf16.safetensors'
-FOV = 49.13  # the conditioning node's own default; the head kit measures it per image, a prop does not need that
+MOGE = 'moge_2_vitl_normal_fp16.safetensors'
 MAPS = ('base_color', 'metallic', 'roughness', 'normal')
 MASTER_TRIANGLES = 200000
 
@@ -55,7 +55,13 @@ def compile_local(image, seed, triangles, prefix, *, texture=2048, shape_resolut
         '3': node('ImageCropToMask', images=link('1'), masks=link('2'), width=1024, height=1024, pad_factor=1.1, grow_mask=0, background='#000000'),
         '10': node('UNETLoader', unet_name=MODEL, weight_dtype='default'), '11': node('CLIPVisionLoader', clip_name=VISION),
         '12': node('VAELoader', vae_name=SHAPE_VAE), '13': node('VAELoader', vae_name=TEXTURE_VAE),
-        '20': node('Pixal3DConditioning', clip_vision_model=link('11'), image=link('3'), camera_angle_x=FOV),
+        # The camera's field of view is measured from the image, as the conditioning node asks and the head kit does;
+        # a fixed guess bends the proportions of anything not drawn at that angle.
+        '4': node('LoadMoGeModel', model_name=MOGE),
+        '5': node('MoGeInference', moge_model=link('4'), image=link('3'), resolution_level=9, fov_x_degrees=0, batch_size=1,
+                  force_projection=True, apply_mask=True, refine_steps=3),
+        '6': node('MoGeGeometryToFOV', moge_geometry=link('5'), axis='horizontal', unit='degrees'),
+        '20': node('Pixal3DConditioning', clip_vision_model=link('11'), image=link('3'), camera_angle_x=link('6')),
         # Shape: coarse structure, shape at that structure, then the shape again at the higher resolution.
         '21': node('CFGOverride', cfg=1, start_percent=0.667, end_percent=1, model=link('10')), '22': node('RescaleCFG', multiplier=0.7, model=link('21')),
         '23': node('ModelSamplingSD3', shift=5, model=link('22')), '24': node('EmptyTrellis2LatentStructure', batch_size=1),
@@ -78,7 +84,7 @@ def compile_local(image, seed, triangles, prefix, *, texture=2048, shape_resolut
         '50': node('RemeshMesh', mesh=link('33'), resolution=512, sign_mode='solid', band=1, project_back=0, fix_poles=False, smooth_iters=0,
                    drop_small_components=0.01, precluster_max_verts=20000000, **{'sign_mode.fill': 20.0, 'sign_mode.qef': True}),
         '51': node('DecimateMesh', mesh=link('50'), target_face_count=triangles, placement_mode='qem',
-                   **{'placement_mode.line_quadric_weight': 0.0, 'placement_mode.feature_edge_quadric_weight': 1.0,
+                   **{'placement_mode.line_quadric_weight': 1.0, 'placement_mode.feature_edge_quadric_weight': 5.0,
                       'placement_mode.feature_edge_min_dihedral_deg': 30.0, 'placement_mode.clamp_v_to_edge': True}),
         '52': node('UnwrapMesh', mesh=link('51'), segmenter='pec', resolution=texture, padding=2, weld_distance=0),
         '53': node('BakeTextureFromVoxel', mesh=link('52'), voxel_colors=link('43'), texture_size=texture, reference_mesh=link('33')),

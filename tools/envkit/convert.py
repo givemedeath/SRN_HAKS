@@ -113,20 +113,66 @@ def square_up(points, limit=45.0, step=0.25):
     return best if area_at[best] < 0.97 * area_at[0.0] else 0.0
 
 
-def fit(vertices, normals, uvs, height, *, square=True):
-    """The mesh in game space: turned to the game's axes, squared to them, `height` metres tall, centred, standing on
-    z = 0. Texture coordinates pass through unchanged: the game reads a DDS from its first row, as glTF does (flipping
-    them scrambled every texture island in the first client check)."""
+def _turn(yaw, pitch, roll):
+    """Rotation in game space: `roll` about the front axis (Y), then `pitch` about the side axis (X), then `yaw` about up (Z)."""
+    y, p, r = np.radians([yaw, pitch, roll])
+    about_z = np.array([[np.cos(y), -np.sin(y), 0], [np.sin(y), np.cos(y), 0], [0, 0, 1.0]])
+    about_x = np.array([[1.0, 0, 0], [0, np.cos(p), -np.sin(p)], [0, np.sin(p), np.cos(p)]])
+    about_y = np.array([[np.cos(r), 0, np.sin(r)], [0, 1.0, 0], [-np.sin(r), 0, np.cos(r)]])
+    return about_z @ about_x @ about_y
+
+
+def upright(points, faces, *, limit=(45.0, 35.0, 35.0), sample=6000):
+    """(yaw, pitch, roll) in degrees that stand a made thing square to the axes, or zeros.
+
+    A model generated locally comes back the way the reference was drawn: seen from above and to one side, so it leans
+    (the trash can, 2026-11-10). The turn taken is the one that gives the smallest box around the model, searched
+    within `limit` so up stays up and the front stays the front: a made thing, tapered or not, fills the least room
+    standing straight. Two checks keep it from turning things that were right: the box must shrink by a clear margin,
+    and the model's surface must not end up pointing less along the axes than before (a wall camera on its arm has a
+    smaller box when tipped, but its housing then points nowhere)."""
+    of_face = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+    area = np.linalg.norm(of_face, axis=1); keep = area > 1e-12
+    of_face, area = of_face[keep] / area[keep, None], area[keep]
+    if len(area) > sample:
+        pick = np.random.default_rng(0).choice(len(area), sample, replace=False, p=area / area.sum())
+        of_face, area = of_face[pick], np.ones(sample)
+    area = area / area.sum()
+    # Only points on the outside can touch the box: keep the farthest one in each of many directions.
+    directions = np.random.default_rng(1).normal(size=(3000, 3))
+    hull = points[np.unique(np.concatenate([(points @ directions.T).argmax(0), (points @ directions.T).argmin(0)]))] if len(points) > 4000 else points
+    volume = lambda angles: float(np.prod(np.ptp(hull @ _turn(*angles).T, axis=0) + 1e-9))
+    along = lambda angles: float(area @ (np.abs(of_face @ _turn(*angles).T).max(1) ** 8))
+    step = 5.0; spans = [np.arange(-bound, bound + step, step) for bound in limit]
+    best = min(((y, p, r) for y in spans[0] for p in spans[1] for r in spans[2]), key=volume)
+    for step in (1.0, 0.25):
+        offsets = np.arange(-4 * step, 4 * step + step / 2, step)
+        best = min(((best[0] + y, best[1] + p, best[2] + r) for y in offsets for p in offsets for r in offsets), key=volume)
+    best = tuple(float(np.clip(angle, -bound, bound)) for angle, bound in zip(best, limit))
+    still = (0.0, 0.0, 0.0)
+    # A lean of five degrees swells the box of an upright thing by about a fifth; a shapeless heap finds less than a
+    # tenth by any turn, so a tenth is the margin.
+    if volume(best) > 0.90 * volume(still) or along(best) < along(still) - 0.005 or max(abs(angle) for angle in best) < 0.5:
+        return still
+    return best
+
+
+def fit(vertices, normals, uvs, height, *, faces=None, square=True):
+    """The mesh in game space: turned to the game's axes, stood square to them, `height` metres tall, centred, on z = 0.
+    With `faces` the model is stood upright from its flat sides (`upright`); without, or where that finds no evidence,
+    only its footprint is squared (`square_up`). Texture coordinates pass through unchanged: the game reads a DDS from
+    its first row, as glTF does (flipping them scrambled every texture island in the first client check)."""
     require(height > 0, 'A height in metres is required')
     points, turned = vertices @ TO_GAME.T, normals @ TO_GAME.T
-    yaw = square_up(points) if square else 0.0
-    if yaw:
-        c, s = np.cos(np.radians(yaw)), np.sin(np.radians(yaw)); turn = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1.0]])
-        points, turned = points @ turn.T, turned @ turn.T
+    angles = upright(points, faces) if square and faces is not None else (0.0, 0.0, 0.0)
+    if not any(angles) and square:
+        angles = (square_up(points), 0.0, 0.0)
+    if any(angles):
+        turn = _turn(*angles); points, turned = points @ turn.T, turned @ turn.T
     low, high = points.min(0), points.max(0)
     scale = height / (high[2] - low[2])
     points = (points - np.array([(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, low[2]])) * scale
-    return points, turned, np.array(uvs[:, :2], float), scale, yaw
+    return points, turned, np.array(uvs[:, :2], float), scale, angles
 
 
 def split(faces, limit=NODE_VERTICES):
@@ -215,12 +261,12 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumin
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     vertices, normals, uvs, faces = read_glb(model)
-    vertices, normals, uvs, scale, yaw = fit(vertices, normals, uvs, height)
+    vertices, normals, uvs, scale, angles = fit(vertices, normals, uvs, height, faces=faces)
     normals, repaired = repair_normals(vertices, normals, faces)
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, normals, uvs, faces), encoding='cp1252', newline='\n')
     (folder / f'{name}.mtr').write_text(material_text(name, illumination is not None), encoding='cp1252', newline='\n')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices.min(0), vertices.max(0)), encoding='cp1252', newline='\n')
     files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination)
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(scale), 5),
-            'repairedNormals': repaired, 'squaredByDegrees': yaw,
+            'repairedNormals': repaired, 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
