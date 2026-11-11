@@ -24,7 +24,7 @@
     "display-case": {"kind": "prop", "type": "display-case", "variant": "Glass case holding an open rare book on a stone plinth.", "subject": "glass display case holding an open book", "box": [963, 770, 1067, 882]},
     "sculpture": {"kind": "prop", "type": "statue-pedestal", "variant": "Bronze ringed sphere sculpture on a stone block.", "subject": "bronze ringed sphere sculpture on a stone block", "box": [1078, 766, 1147, 860]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1143, 766, 1194, 807]},
-    "card-reader": {"kind": "prop", "type": "access-terminal", "same": "draco-foundation/keypad-panel", "subject": "wall-mounted card reader", "box": [1198, 766, 1230, 810]},
+    "card-reader": {"kind": "prop", "type": "access-terminal", "variant": "Single black wall card reader with a green light.", "subject": "wall-mounted card reader", "box": [1198, 766, 1230, 810]},
     "server-rack": {"kind": "prop", "type": "server-rack", "same": "warpdrive-campus/server-rack", "subject": "black server rack with blue lights", "box": [1158, 820, 1237, 977]},
     "banners": {"kind": "prop", "type": "banner-set", "variant": "Branding: pair of burgundy UD Penrose Library banners.", "subject": "pair of burgundy hanging banners", "box": [1240, 743, 1394, 957]},
     "directory-board": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: dark Penrose Library floor directory board.", "subject": "dark wall directory board", "box": [1403, 750, 1527, 894]},

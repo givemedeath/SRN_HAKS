@@ -17,6 +17,11 @@
     "security-camera": {"kind": "prop", "type": "security-camera", "subject": "wall-mounted security camera", "box": [1252, 622, 1444, 822]},
     "sandwich-board": {"kind": "prop", "type": "sandwich-board", "subject": "folding sandwich-board sign", "box": [36, 872, 204, 1040]},
     "rooftop-hvac": {"kind": "prop", "type": "rooftop-unit", "subject": "rooftop air-conditioning unit", "box": [452, 886, 734, 1040], "notes": "It is old and heavily used: dirt streaks, scuffs, dents, chipped paint and rust spots all over, as in the source."},
-    "street-clutter": {"kind": "prop", "type": "street-clutter", "subject": "pile of street rubbish", "box": [1212, 896, 1444, 1040]}
+    "street-clutter": {"kind": "prop", "type": "street-clutter", "subject": "pile of street rubbish", "box": [1212, 896, 1444, 1040]},
+    "parking-bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "pair of yellow and black parking bollards", "box": [1103, 667, 1257, 836]},
+    "delivery-crates": {"kind": "prop", "type": "hard-case", "variant": "Branding: red, yellow and blue stackable crates with the Stuffer Shack mark.", "subject": "stack of three plastic delivery crates", "box": [213, 893, 424, 1038]},
+    "open-sign": {"kind": "prop", "type": "neon-sign", "variant": "Oval neon sign reading Open.", "subject": "oval neon sign reading Open", "box": [746, 934, 864, 1024]},
+    "pole-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Stuffer Shack emblem box on a pole.", "subject": "lit emblem sign box on a pole", "box": [868, 897, 950, 1043]},
+    "fascia-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: lit Stuffer Shack fascia panel.", "subject": "lit fascia sign panel reading Stuffer Shack", "box": [951, 905, 1192, 1010]}
   }
 }

@@ -16,7 +16,7 @@
     "supply-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: white and red case with the DocWagon emblem.", "subject": "white and red emergency supply case", "box": [996, 678, 1201, 812]},
     "bay-door": {"kind": "prop", "type": "dock-door", "variant": "Roller door lettered Ambulance Bay 01 with red beacons.", "subject": "ambulance bay roller door in a wall section", "box": [1206, 637, 1442, 825]},
     "bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "pair of yellow and black safety bollards", "box": [15, 892, 159, 1030]},
-    "drone-dock": {"kind": "prop", "type": "drone-dock", "variant": "Two-arm dock over a lit pad.", "subject": "drone docking post with two arms over a lit pad", "box": [165, 879, 357, 1032], "notes": "Leave the logo and lettering off."},
+    "drone-dock": {"kind": "prop", "type": "drone-dock", "variant": "Two-arm dock over a lit pad.", "unbranded": true, "subject": "drone docking post with two arms over a lit pad", "box": [165, 879, 357, 1032]},
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: DocWagon wayfinding pylon.", "subject": "freestanding wayfinding pylon sign reading DocWagon", "box": [363, 873, 468, 1038]},
     "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: lit DocWagon panel sign.", "subject": "wall-mounted lit sign reading DocWagon", "box": [468, 902, 628, 992]},
     "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "same": "ares-depot/rooftop-unit", "subject": "rooftop air-conditioning and communications unit with a dish", "box": [628, 878, 853, 1035]},

@@ -13,10 +13,16 @@ from . import require
 
 PROFILE = 'qwen21-int8-v1'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
-KIN = {'type', 'same', 'variant'}
+KIN = {'type', 'same', 'variant', 'unbranded'}
+BRANDING = 'Branding:'
 LEAD = {
     'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
+    # A prop that serves several locations is drawn on its sheet with one location's mark. "Keep the markings" and a note
+    # to leave the logo off pulled against each other, so the unbranded prop has a lead of its own.
+    'unbranded': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
+                 'Keep exactly the same design, colours, proportions and viewing angle, but leave off every company logo, '
+                 'emblem and brand name. Hazard stripes, warning signs and plain labels stay.',
     'building': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
                 'Keep exactly the same architecture, colours, proportions, signage and viewing angle. '
                 # The props drawn against the walls and the pavement slab under them stay on the building (user,
@@ -36,11 +42,13 @@ RULES = ('Show the whole object centred with a clear margin on a plain white bac
          'surfaces. No cast shadow, no ground, no people, no captions or text outside the object.')
 
 
-def prompt(kind, subject, notes=''):
-    require(kind in LEAD, 'Asset kind must be one of: ' + ', '.join(sorted(LEAD)))
+def prompt(kind, subject, notes='', unbranded=False):
+    require(kind in ('prop', 'building'), 'Asset kind must be one of: building, prop')
     require(isinstance(subject, str) and subject.strip() and '\n' not in subject, 'Subject must be one line of text')
     require(isinstance(notes, str), 'Notes must be text')
-    return ' '.join(part for part in (LEAD[kind].format(subject=subject.strip()), WEAR, notes.strip(), RULES) if part)
+    require(unbranded is False or unbranded is True and kind == 'prop', 'Only a prop is drawn unbranded')
+    lead = LEAD['unbranded' if unbranded else kind]
+    return ' '.join(part for part in (lead.format(subject=subject.strip()), WEAR, notes.strip(), RULES) if part)
 
 
 def load_set(path):
@@ -56,7 +64,8 @@ def load_set(path):
         require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
         require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', *KIN},
                 'Asset needs kind, subject and box: ' + name)
-        prompt(asset['kind'], asset['subject'], asset.get('notes', ''))
+        require(asset['kind'] == 'prop' or not KIN & set(asset), 'Only props have a type: ' + name)
+        prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
         if asset['kind'] == 'prop':
             require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)
             require(not {'same', 'variant'} <= set(asset), 'A prop is the same as another or a variant, not both: ' + name)
@@ -64,8 +73,8 @@ def load_set(path):
                     'same names another prop as set/asset: ' + name)
             require('variant' not in asset or isinstance(asset['variant'], str) and asset['variant'].strip()
                     and '\n' not in asset['variant'], 'variant says in one line what differs: ' + name)
-        else:
-            require(not KIN & set(asset), 'Only props have a type: ' + name)
+            require('unbranded' not in asset or 'same' not in asset and not str(asset.get('variant', '')).startswith(BRANDING),
+                    'unbranded is for a prop that is made and does not carry its location\'s branding: ' + name)
         box = asset['box']
         require(isinstance(box, list) and len(box) == 4 and all(type(v) is int for v in box)
                 and 0 <= box[0] < box[2] <= width and 0 <= box[1] < box[3] <= height, 'Crop box is outside the sheet: ' + name)
@@ -76,9 +85,13 @@ def register(folder):
     """Every prop of every concept set in a folder, by type, so that a sheet's props are checked against the sheets before
     it. The sheets repeat themselves (most draw a camera, a fence, crates, a rooftop unit), so one prop of a type is its
     original and every other one says which it is: `same` (the named prop serves and nothing is made) or `variant` (a
-    design of its own, with what differs). A type shared without saying so is refused. A prop that carries its location's
-    branding (name, emblem, livery) is a variant even where the object is otherwise the same (user, 2026-11-11: "allow more
-    variants for branding"); its line starts `Branding:`, which marks the ones that share a shape."""
+    design of its own, with what differs). A type shared without saying so is refused.
+
+    Branding (user, 2026-11-11): a prop that needs its location's name, emblem or livery is a variant even where the object
+    is otherwise the same, and its line starts `Branding:`. That is for signs, banners, reception desks, guard booths,
+    vehicle gates and cases, "not every possible logo or text that showed up": kiosks, lockers, fences, rooftop units,
+    barriers and other utility gear are one prop for every location, drawn `unbranded` where the sheet shows a mark.
+    Adobe-patterned and scrap-built pieces stay variants of their own as a regional style."""
     props = {}
     for path in sorted(Path(folder).glob('*.json')):
         if 'sheet' in json.loads(path.read_text(encoding='utf-8')):  # game sets share the folder

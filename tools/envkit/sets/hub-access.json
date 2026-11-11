@@ -16,7 +16,7 @@
     "security-door": {"kind": "prop", "type": "secure-door", "variant": "Armoured hatch door with a red status bar in an angled frame.", "subject": "armoured hatch door in an angled frame", "box": [940, 600, 1040, 718]},
     "turnstile": {"kind": "prop", "type": "turnstile", "variant": "Single full-height barred turnstile with green lights.", "subject": "single full-height barred turnstile", "box": [1058, 604, 1150, 718]},
     "scanner-arch": {"kind": "prop", "type": "scanner-arch", "same": "council-hall/security-arch", "subject": "walk-through security scanner arch", "box": [1166, 600, 1244, 718]},
-    "id-kiosk": {"kind": "prop", "type": "access-terminal", "same": "union-station/id-terminal", "subject": "slim identity check terminal", "box": [1245, 643, 1282, 718]},
+    "id-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Thin pedestal stand with a small screen.", "subject": "slim identity check terminal", "box": [1245, 643, 1282, 718]},
     "baggage-scanner": {"kind": "prop", "type": "baggage-scanner", "same": "union-station/baggage-scanner", "subject": "baggage X-ray scanner with a conveyor and an operator desk", "box": [1286, 610, 1460, 722]},
     "terminal-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Angled kiosk with a fingerprint screen, unmarked.", "subject": "angled kiosk with a fingerprint screen", "box": [1464, 626, 1527, 718]},
     "striped-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "saeder-krupp-yard/utility-barrier", "subject": "concrete road barrier with yellow hazard stripes", "box": [15, 743, 168, 812]},
@@ -43,8 +43,10 @@
     "planter": {"kind": "prop", "type": "planter", "variant": "Long concrete planter with ferns.", "subject": "long concrete planter with ferns", "box": [518, 923, 662, 1014]},
     "grass-planter": {"kind": "prop", "type": "planter", "same": "hub-access/planter", "subject": "square concrete planter with grasses", "box": [680, 923, 787, 1017]},
     "bench": {"kind": "prop", "type": "bench", "variant": "Dark slatted bench on concrete ends.", "subject": "dark slatted bench on concrete ends", "box": [810, 936, 974, 1014]},
-    "trash-bin": {"kind": "prop", "type": "trash-can", "variant": "Grey square litter bin.", "subject": "grey litter bin with an emblem", "box": [1000, 926, 1060, 1012], "notes": "Leave the logo and lettering off."},
+    "trash-bin": {"kind": "prop", "type": "trash-can", "variant": "Grey square litter bin.", "unbranded": true, "subject": "grey litter bin with an emblem", "box": [1000, 926, 1060, 1012]},
     "map-console": {"kind": "prop", "type": "map-table", "variant": "Slanted wayfinding map console on a pedestal.", "subject": "slanted wayfinding map console on a pedestal", "box": [1178, 918, 1287, 1014]},
-    "operations-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "operations desk of screens with a chair", "box": [1318, 918, 1502, 1014]}
+    "operations-console": {"kind": "prop", "type": "console-desk", "same": "warpdrive-campus/operations-console", "subject": "operations desk of screens with a chair", "box": [1318, 918, 1502, 1014]},
+    "fence-panel": {"kind": "prop", "type": "fence-section", "same": "cas-checkpoint/security-fence", "subject": "short chain-link fence panel", "box": [1288, 735, 1358, 812]},
+    "lit-bollard": {"kind": "prop", "type": "bollard", "same": "council-hall/bollard", "subject": "steel bollard with a light band", "box": [1095, 930, 1140, 1010]}
   }
 }

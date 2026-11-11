@@ -57,7 +57,7 @@ def command_reference(args):
     for name in args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]:  # a same is not made
         asset = data['assets'][name]
         source = reference.crop(sheet, asset['box'], output / 'crops' / f'{name}.png')
-        text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''))
+        text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
         result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         print(json.dumps({'asset': name, 'state': result['state'], 'outputs': result['outputs'],
                           'elapsedSeconds': result['elapsedSeconds']}), flush=True)

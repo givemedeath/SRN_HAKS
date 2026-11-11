@@ -13,7 +13,7 @@
     "armory-rack": {"kind": "prop", "type": "weapon-rack", "variant": "Open rack of rifles over ammunition boxes, no doors.", "subject": "open armoury rack of rifles and ammunition boxes", "box": [509, 620, 674, 793]},
     "surveillance-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "surveillance console of six screens with a desk and a chair", "box": [683, 626, 906, 790]},
     "cell-door": {"kind": "prop", "type": "cell-door", "same": "lone-star-precinct/cell-door", "subject": "barred detention-cell door in a steel frame", "box": [911, 618, 1051, 790]},
-    "evidence-locker": {"kind": "prop", "type": "locker", "variant": "Mesh-fronted evidence cage locker with the ZDF mark.", "subject": "mesh-fronted secure evidence locker", "box": [1068, 625, 1253, 791]},
+    "evidence-locker": {"kind": "prop", "type": "locker", "variant": "Mesh-fronted evidence cage locker.", "unbranded": true, "subject": "mesh-fronted secure evidence locker", "box": [1068, 625, 1253, 791]},
     "checkpoint-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: octagonal booth with a camera, ZDF mark.", "subject": "octagonal prefab checkpoint booth with a camera", "box": [1263, 616, 1438, 791]},
     "vehicle-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Unmarked plate gate between floodlit posts.", "subject": "armoured vehicle gate between two floodlit posts", "box": [6, 859, 290, 1028]},
     "vehicle-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [293, 920, 467, 1027]},

@@ -8,7 +8,7 @@
     "building-hero": {"kind": "building", "subject": "white and red corporate robotics laboratory with a glazed tower", "box": [0, 88, 905, 555]},
     "building-front": {"kind": "building", "subject": "front elevation of a white and red corporate robotics laboratory", "box": [824, 111, 1240, 304]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a white and red corporate robotics laboratory", "box": [913, 325, 1250, 537]},
-    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Curved white desk under a canopy with planters, Mitsuhama livery.", "subject": "curved white corporate reception desk under a canopy", "box": [3, 637, 282, 826]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved white desk under a canopy with planters, Mitsuhama livery.", "subject": "curved white corporate reception desk under a canopy", "box": [3, 637, 282, 826]},
     "robotics-workbench": {"kind": "prop", "type": "workbench", "variant": "Bench with a tool wall, a monitor and a stool.", "subject": "robotics workbench with a tool wall and a monitor", "box": [288, 647, 497, 820]},
     "robot-arm": {"kind": "prop", "type": "robot-arm", "subject": "yellow industrial robot arm on a work station", "box": [508, 640, 700, 825]},
     "drone-rack": {"kind": "prop", "type": "drone-rack", "subject": "charging rack holding six small drones", "box": [712, 646, 874, 823]},

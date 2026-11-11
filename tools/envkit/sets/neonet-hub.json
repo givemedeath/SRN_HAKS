@@ -11,17 +11,17 @@
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: dark desk under a canopy with violet light, NeoNET livery.", "subject": "dark corporate reception desk under a canopy", "box": [8, 625, 255, 790]},
     "server-racks": {"kind": "prop", "type": "server-rack", "variant": "Four racks lit blue and violet, unmarked.", "subject": "bank of four server racks", "box": [261, 624, 474, 790]},
     "data-vault": {"kind": "prop", "type": "vault-cabinet", "subject": "secure data vault cabinet with a lock screen", "box": [482, 621, 627, 790]},
-    "cooling-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Twin-fan cooling module with pipes inside a railing.", "subject": "cooling unit module with two fans", "box": [631, 627, 889, 790], "notes": "Leave the logo and lettering off."},
+    "cooling-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Twin-fan cooling module with pipes inside a railing.", "unbranded": true, "subject": "cooling unit module with two fans", "box": [631, 627, 889, 790]},
     "matrix-kiosk": {"kind": "prop", "type": "access-terminal", "same": "renraku-node/matrix-kiosk", "subject": "freestanding public data kiosk", "box": [894, 621, 1018, 790]},
     "turnstile": {"kind": "prop", "type": "turnstile", "variant": "Pair of turnstiles with violet glass gates.", "subject": "pair of security turnstiles with glass gates", "box": [1037, 653, 1223, 788]},
     "cable-bundle": {"kind": "prop", "type": "conduit", "variant": "Wall bundle of blue and violet cables on brackets.", "subject": "wall-mounted bundle of coloured cables on brackets", "box": [1237, 614, 1445, 789]},
-    "battery-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Three-bay UPS cabinet with status screens.", "subject": "three-bay battery backup cabinet", "box": [7, 847, 182, 1020], "notes": "Leave the logo and lettering off."},
+    "battery-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Three-bay UPS cabinet with status screens.", "unbranded": true, "subject": "three-bay battery backup cabinet", "box": [7, 847, 182, 1020]},
     "checkpoint-terminal": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "freestanding checkpoint terminal with a fingerprint scanner", "box": [206, 852, 299, 1017]},
     "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [326, 855, 462, 1013]},
     "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: dark NeoNET Matrix Services Hub panel.", "subject": "wall-mounted corporate sign reading NeoNET", "box": [467, 896, 691, 1007]},
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: NeoNET Matrix Services Hub pylon.", "subject": "freestanding pylon sign reading NeoNET", "box": [693, 840, 816, 1020]},
     "secure-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey strapped case with the NeoNET mark.", "subject": "grey strapped hard case", "box": [831, 898, 1019, 1020]},
-    "comms-unit": {"kind": "prop", "type": "comms-array", "variant": "Dish and antennas inside a railing.", "subject": "rooftop communications unit with a dish and antennas", "box": [1031, 843, 1260, 1017], "notes": "Leave the logo and lettering off."},
+    "comms-unit": {"kind": "prop", "type": "comms-array", "variant": "Dish and antennas inside a railing.", "unbranded": true, "subject": "rooftop communications unit with a dish and antennas", "box": [1031, 843, 1260, 1017]},
     "barrier-block": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with violet stripes", "box": [1267, 924, 1441, 1017]}
   }
 }

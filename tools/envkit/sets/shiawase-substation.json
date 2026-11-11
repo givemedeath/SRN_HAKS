@@ -16,7 +16,7 @@
     "fence-section": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire and a high-voltage sign", "box": [1044, 659, 1251, 810]},
     "trench-cover": {"kind": "prop", "type": "trench-cover", "subject": "steel cable trench cover with hazard edging", "box": [1257, 674, 1448, 810]},
     "wall-signs": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Shiawase substation panel behind a high-voltage danger sign.", "subject": "wall sign reading Shiawase Utility Control Substation with a danger sign", "box": [8, 887, 256, 1021]},
-    "battery-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Two-door battery cabinet with green charge lights.", "subject": "two-door battery backup cabinet with green lights", "box": [259, 877, 408, 1030], "notes": "Leave the logo and lettering off."},
+    "battery-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Two-door battery cabinet with green charge lights.", "unbranded": true, "subject": "two-door battery backup cabinet with green lights", "box": [259, 877, 408, 1030]},
     "service-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey case with the Shiawase mark.", "subject": "grey hard service case", "box": [418, 907, 592, 1028]},
     "access-terminal": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "freestanding access terminal with a palm scanner", "box": [602, 879, 706, 1030]},
     "gate-module": {"kind": "prop", "type": "vehicle-gate", "variant": "Branding: barred gate between beacon posts, Shiawase mark.", "subject": "barred vehicle gate between two beacon posts", "box": [718, 884, 1005, 1030]},

@@ -22,7 +22,7 @@
     "crowd-barrier": {"kind": "prop", "type": "crowd-barrier", "same": "union-station/crowd-barrier", "subject": "steel crowd control barrier", "box": [6, 918, 90, 982]},
     "branded-barrier": {"kind": "prop", "type": "crowd-barrier", "variant": "Branding: barrier with a blue Denver 2072 cover.", "subject": "crowd barrier with a printed cover", "box": [93, 913, 180, 982]},
     "queue-stanchion": {"kind": "prop", "type": "stanchions", "same": "council-hall/stanchions", "subject": "pair of queue stanchions with a red rope", "box": [183, 918, 242, 982]},
-    "entry-turnstile": {"kind": "prop", "type": "turnstile", "same": "union-station/access-turnstile", "subject": "row of waist-high turnstiles", "box": [248, 910, 337, 987]},
+    "entry-turnstile": {"kind": "prop", "type": "turnstile", "same": "rtg-station/turnstile-bank", "subject": "row of waist-high turnstiles", "box": [248, 910, 337, 987]},
     "light-tower": {"kind": "prop", "type": "floodlight", "same": "mesametric-facility/floodlight-mast", "subject": "mobile floodlight mast on a generator trailer", "box": [346, 886, 397, 987]},
     "screening-gate": {"kind": "prop", "type": "scanner-arch", "same": "council-hall/security-arch", "subject": "walk-through security scanner arch", "box": [406, 893, 464, 987]},
     "event-banners": {"kind": "prop", "type": "banner-set", "variant": "Branding: three event banners in blue, mountain and white.", "subject": "row of three event banners", "box": [490, 753, 694, 870]},

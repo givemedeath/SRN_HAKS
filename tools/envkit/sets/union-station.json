@@ -14,7 +14,7 @@
     "inspection-booth": {"kind": "prop", "type": "guard-booth", "variant": "Glazed counter booth with warm light, unmarked.", "subject": "glazed inspection counter booth", "box": [488, 880, 584, 977]},
     "guard-post": {"kind": "prop", "type": "guard-booth", "variant": "Narrow sentry box with a pitched roof.", "subject": "narrow sentry box with a pitched roof", "box": [594, 874, 674, 977]},
     "floodlight-mast": {"kind": "prop", "type": "floodlight", "variant": "Tripod mast with a ring of lamps.", "subject": "tripod floodlight mast with a ring of lamps", "box": [684, 871, 738, 977]},
-    "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "security camera on a short mount", "box": [756, 893, 818, 974]},
+    "security-camera": {"kind": "prop", "type": "security-camera", "same": "denver-nexus/camera-post", "subject": "security camera on a short mount", "box": [756, 893, 818, 974]},
     "id-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Slim ID terminal with a blue screen, unmarked.", "subject": "slim identity check terminal", "box": [846, 884, 898, 977]},
     "access-turnstile": {"kind": "prop", "type": "turnstile", "variant": "Three waist-high turnstiles with green arrows.", "subject": "row of three waist-high turnstiles", "box": [916, 898, 1022, 977]},
     "transit-schedule": {"kind": "prop", "type": "schedule-board", "subject": "freestanding transit schedule display board", "box": [1030, 878, 1112, 977]},

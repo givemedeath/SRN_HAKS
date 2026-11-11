@@ -17,7 +17,7 @@
     "cargo-jet": {"kind": "prop", "type": "aircraft", "variant": "Large grey cargo jet with a purple tail.", "subject": "large grey cargo jet", "box": [350, 720, 554, 800]},
     "cargo-loader": {"kind": "prop", "type": "cargo-loader", "subject": "yellow scissor-lift cargo loader", "box": [596, 730, 700, 806]},
     "forklift": {"kind": "prop", "type": "forklift", "same": "saeder-krupp-yard/forklift", "subject": "yellow forklift truck", "box": [710, 740, 772, 802]},
-    "tow-tractor": {"kind": "prop", "type": "service-tug", "same": "tbird-hangar/service-tug", "subject": "small airfield tow tractor", "box": [781, 750, 860, 802]},
+    "tow-tractor": {"kind": "prop", "type": "service-tug", "variant": "White airport tow tractor with a cab.", "subject": "small airfield tow tractor", "box": [781, 750, 860, 802]},
     "baggage-carts": {"kind": "prop", "type": "luggage-cart", "variant": "Train of three flatbed baggage carts with crates.", "subject": "train of three flatbed baggage carts", "box": [868, 753, 967, 802]},
     "cargo-pallet": {"kind": "prop", "type": "pallet-stack", "variant": "Strapped pallet of tan crates.", "subject": "strapped pallet of tan crates", "box": [970, 750, 1042, 802]},
     "freight-container": {"kind": "prop", "type": "shipping-container", "variant": "Plain grey freight container.", "subject": "grey freight container", "box": [1048, 740, 1132, 800]},
@@ -32,10 +32,10 @@
     "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Rooftop block with a radome, vents and antennas.", "subject": "rooftop block with a radome and antennas", "box": [570, 880, 654, 970]},
     "guard-tower": {"kind": "prop", "type": "guard-tower", "same": "cas-checkpoint/guard-tower", "subject": "concrete guard tower with a glazed cabin", "box": [678, 870, 742, 977]},
     "perimeter-fence": {"kind": "prop", "type": "fence-section", "same": "hub-access/razor-fence", "subject": "chain-link fence panel topped with a razor-wire coil", "box": [750, 906, 847, 974]},
-    "segment-gate": {"kind": "prop", "type": "vehicle-gate", "same": "hub-access/fence-gate", "subject": "chain-link vehicle gate", "box": [856, 913, 944, 974]},
-    "boom-gate": {"kind": "prop", "type": "gate-arm", "same": "gridguide-center/barrier-arm", "subject": "boom gate with a red-striped arm", "box": [948, 930, 1027, 972]},
+    "segment-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Sliding gate segment with a striped panel beside mesh.", "subject": "chain-link vehicle gate", "box": [856, 913, 944, 974]},
+    "boom-gate": {"kind": "prop", "type": "gate-arm", "same": "eagle-security/barrier-gate", "subject": "boom gate with a red-striped arm", "box": [948, 930, 1027, 972]},
     "checkpoint-booth": {"kind": "prop", "type": "guard-booth", "variant": "Small tan booth with a lit roof band.", "subject": "small tan checkpoint booth", "box": [1030, 896, 1090, 974]},
-    "apron-light": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin-lamp light mast", "box": [1106, 853, 1147, 974]},
+    "apron-light": {"kind": "prop", "type": "floodlight", "variant": "Twin-lantern lamp post.", "subject": "twin-lamp light mast", "box": [1106, 853, 1147, 974]},
     "camera-pole": {"kind": "prop", "type": "security-camera", "same": "denver-nexus/camera-post", "subject": "security camera on a pole", "box": [1166, 878, 1224, 977]},
     "sensor-mast": {"kind": "prop", "type": "comms-array", "same": "warpdrive-campus/comms-mast", "subject": "lattice sensor mast", "box": [1248, 853, 1287, 977]}
   }

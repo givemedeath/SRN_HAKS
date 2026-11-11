@@ -15,7 +15,7 @@
     "editing-console": {"kind": "prop", "type": "console-desk", "variant": "Editing desk with four screens and a chair, unmarked.", "subject": "video editing console of four screens with a chair", "box": [795, 638, 1012, 790]},
     "audio-booth": {"kind": "prop", "type": "audio-booth", "subject": "audio control booth with a mixing desk and an On Air sign", "box": [1020, 617, 1253, 795]},
     "green-screen": {"kind": "prop", "type": "green-screen", "variant": "Plain green screen on a pipe frame, no lamps.", "subject": "green screen on a pipe frame", "box": [1271, 618, 1443, 793]},
-    "server-rack": {"kind": "prop", "type": "server-rack", "variant": "Bank of three server racks.", "subject": "bank of three broadcast server racks", "box": [12, 849, 213, 1030], "notes": "Leave the logo and lettering off."},
+    "server-rack": {"kind": "prop", "type": "server-rack", "variant": "Bank of three server racks.", "unbranded": true, "subject": "bank of three broadcast server racks", "box": [12, 849, 213, 1030]},
     "road-case": {"kind": "prop", "type": "hard-case", "variant": "Branding: wheeled black road case with the NABS emblem.", "subject": "wheeled black equipment road case", "box": [228, 889, 415, 1028]},
     "site-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: stepped adobe monument sign reading NABS.", "subject": "ground-mounted monument sign reading NABS Native American Broadcast Service", "box": [416, 861, 667, 1030]},
     "dish-cluster": {"kind": "prop", "type": "comms-array", "variant": "Two large dishes and a mast on a railed platform.", "subject": "rooftop cluster of two satellite dishes and a mast", "box": [671, 849, 974, 1029]},

@@ -16,11 +16,11 @@
     "welding-station": {"kind": "prop", "type": "welding-station", "subject": "welding bench with gas bottles and a red screen", "box": [584, 924, 708, 1015]},
     "forklift": {"kind": "prop", "type": "forklift", "same": "saeder-krupp-yard/forklift", "subject": "yellow forklift truck", "box": [712, 918, 811, 1021]},
     "cargo-pallet": {"kind": "prop", "type": "pallet-stack", "variant": "Pallet of shrink-wrapped grey cartons.", "subject": "pallet of shrink-wrapped grey cartons", "box": [812, 956, 886, 1015]},
-    "security-fence": {"kind": "prop", "type": "fence-section", "same": "cas-checkpoint/security-fence", "subject": "chain-link fence panel with barbed wire", "box": [886, 914, 968, 1016]},
+    "security-fence": {"kind": "prop", "type": "fence-section", "same": "hub-access/razor-fence", "subject": "chain-link fence panel with barbed wire", "box": [886, 914, 968, 1016]},
     "shutter-door": {"kind": "prop", "type": "dock-door", "variant": "Roll-up shutter in a steel frame with a top lamp and a striped sill.", "subject": "industrial roll-up shutter door in a steel frame", "box": [972, 920, 1072, 1017]},
     "control-console": {"kind": "prop", "type": "console-desk", "variant": "Standing two-screen line control console.", "subject": "standing two-screen control console", "box": [1076, 933, 1167, 1017]},
     "floodlight-mast": {"kind": "prop", "type": "floodlight", "variant": "Mobile floodlight mast on a yellow generator trailer.", "subject": "mobile floodlight mast on a generator trailer", "box": [1169, 893, 1263, 1020]},
     "fuel-drums": {"kind": "prop", "type": "fuel-drums", "subject": "four red and yellow fuel drums on a pallet", "box": [1267, 935, 1377, 1017]},
-    "safety-bollards": {"kind": "prop", "type": "bollard", "same": "pcc-customs/bollards", "subject": "pair of yellow bollards", "box": [1382, 935, 1437, 1014]}
+    "safety-bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "pair of yellow bollards", "box": [1382, 935, 1437, 1014]}
   }
 }

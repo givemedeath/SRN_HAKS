@@ -20,7 +20,7 @@
     "monument-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Denver GridGuide panel on a concrete base.", "subject": "monument sign reading Denver GridGuide Traffic Control Center", "box": [448, 859, 665, 1030]},
     "service-bay-door": {"kind": "prop", "type": "dock-door", "variant": "Roll-up door lettered S-1 in a concrete frame with hazard stripes.", "subject": "roll-up service bay door in a concrete frame", "box": [672, 859, 869, 1029]},
     "sensor-cluster": {"kind": "prop", "type": "comms-array", "variant": "Radome, dish, masts and a camera on a railed roof platform.", "subject": "rooftop sensor cluster of a radome, a dish and masts", "box": [876, 855, 1116, 1024]},
-    "roadside-bollards": {"kind": "prop", "type": "bollard", "same": "pcc-customs/bollards", "subject": "pair of yellow bollards", "box": [1122, 904, 1230, 1024]},
+    "roadside-bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "pair of yellow bollards", "box": [1122, 904, 1230, 1024]},
     "fence-section": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire", "box": [1235, 872, 1443, 1025]}
   }
 }

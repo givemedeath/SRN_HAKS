@@ -81,6 +81,33 @@ class SetTests(unittest.TestCase):
         self.assertEqual(found['types']['trash-can']['original'], ['stuffer-shack/trash-can'])
         self.assertEqual(found['make'] + found['reuse'], sum(len(row) for rows in found['types'].values() for row in rows.values()))
 
+    def test_a_crop_that_catches_its_neighbour_says_so(self):
+        """On a packed sheet two boxes can share ground; the edit then needs a note on which object is meant."""
+        for path in sorted(SET.parent.glob('*.json')):
+            data = json.loads(path.read_text(encoding='utf-8'))
+            props = [(name, asset) for name, asset in data.get('assets', {}).items() if 'sheet' in data and asset['kind'] == 'prop']
+            for index, (name, asset) in enumerate(props):
+                for other, second in props[index + 1:]:
+                    (a0, a1, a2, a3), (b0, b1, b2, b3) = asset['box'], second['box']
+                    shared = max(0, min(a2, b2) - max(a0, b0)) * max(0, min(a3, b3) - max(a1, b1))
+                    if shared * 10 > min((a2 - a0) * (a3 - a1), (b2 - b0) * (b3 - b1)):
+                        self.assertTrue('notes' in asset or 'notes' in second, f'{path.stem}: {name} and {other} overlap')
+
+    def test_an_unbranded_prop_is_drawn_without_the_mark_on_its_sheet(self):
+        text = reference.prompt('prop', 'access kiosk', unbranded=True)
+        self.assertIn('leave off every company logo', text); self.assertNotIn('markings', text)
+        self.assertIn('Hazard stripes', text); self.assertIn('do not clean or repaint', text)
+        self.assertIn('markings', reference.prompt('prop', 'access kiosk'))
+        with self.assertRaisesRegex(ValueError, 'Only a prop'):
+            reference.prompt('building', 'depot', unbranded=True)
+        good = json.loads(SET.read_text(encoding='utf-8'))
+        good['assets']['trash-can']['unbranded'] = True
+        self.assertTrue(reference.load_set(self.write(good))['assets']['trash-can']['unbranded'])
+        for change in ({'same': 'shop/bin'}, {'variant': 'Branding: red bin with the shop emblem.'}):  # nothing made; the mark is wanted
+            data = copy.deepcopy(good); data['assets']['trash-can'].update(change)
+            with self.assertRaisesRegex(ValueError, 'unbranded is for a prop that is made'):
+                reference.load_set(self.write(data))
+
     def test_a_type_drawn_on_two_sheets_must_say_same_or_variant(self):
         self.sheet('shop', bin={'type': 'trash-can'}, camera={'type': 'security-camera'})
         self.sheet('depot', bin={'type': 'trash-can'})

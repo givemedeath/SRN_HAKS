@@ -13,7 +13,7 @@
     "surveillance-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "surveillance console of nine screens with a desk and a chair", "box": [569, 623, 829, 791]},
     "server-racks": {"kind": "prop", "type": "server-rack", "subject": "bank of five server racks", "box": [841, 620, 1114, 793]},
     "cooling-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Large cooling module with two fan stacks, red pipes and a railing.", "subject": "large cooling unit module with two fan stacks", "box": [1127, 618, 1440, 789]},
-    "matrix-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Public kiosk with a large glowing screen, Renraku mark.", "subject": "freestanding public data kiosk with a large screen", "box": [19, 851, 135, 1029], "notes": "Leave the logo and lettering off."},
+    "matrix-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Public kiosk with a large glowing screen.", "unbranded": true, "subject": "freestanding public data kiosk with a large screen", "box": [19, 851, 135, 1029]},
     "cable-conduit": {"kind": "prop", "type": "conduit", "subject": "wall-mounted trunk of red and black cable conduits", "box": [153, 860, 355, 1028]},
     "power-cabinet": {"kind": "prop", "type": "power-cabinet", "subject": "backup power cabinet with warning signs", "box": [360, 869, 509, 1030]},
     "security-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: glazed booth with a beacon, Renraku livery.", "subject": "glazed prefab security booth with a beacon", "box": [517, 837, 690, 1031]},
