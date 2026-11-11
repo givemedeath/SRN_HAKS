@@ -92,7 +92,8 @@ In the client the crotch then showed two flat plain patches with a black hole ab
 when the body sat or crouched. The game stands a body with its thighs turned out, which opens the cut between
 the legs at the front; the patches were the thighs' flat inner walls and the hole the pelvis, open on both hip
 planes. The pelvis is now closed on both planes and repeats a strip of the trousers along the crotch, just
-under the thighs. The caps at the shoulders, streaked with sleeve and guard, are drawn in one material. The accent and
+under the thighs. A cap keeps the materials its rim shows without their streaks, so the knee between the two
+halves of its pad is the pad, and the thighs' inner walls are drawn as the trousers they close. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in
