@@ -1,0 +1,35 @@
+node trimesh ek_ss_snacks_wg
+  parent ek_ss_snacks_pwk
+  position 0 0 0
+  orientation 0 1 0 0
+  verts 8
+    0.58544 0.26297 0.00000
+    -0.58544 0.26297 0.00000
+    -0.58544 -0.26297 0.00000
+    0.58544 -0.26297 0.00000
+    0.58544 0.26297 1.60000
+    -0.58544 0.26297 1.60000
+    -0.58544 -0.26297 1.60000
+    0.58544 -0.26297 1.60000
+  faces 10
+    0 1 5 1 0 0 0 7
+    0 5 4 1 0 0 0 7
+    1 2 6 1 0 0 0 7
+    1 6 5 1 0 0 0 7
+    2 3 7 1 0 0 0 7
+    2 7 6 1 0 0 0 7
+    3 0 4 1 0 0 0 7
+    3 4 7 1 0 0 0 7
+    4 5 6 1 0 0 0 7
+    4 6 7 1 0 0 0 7
+endnode
+node dummy ek_ss_snacks_pwk_use01
+  parent ek_ss_snacks_pwk
+  position 0 0.76297 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_ss_snacks_pwk_use02
+  parent ek_ss_snacks_pwk
+  position 0 -0.76297 0
+  orientation 0 1 0 0
+endnode
