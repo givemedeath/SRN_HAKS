@@ -51,12 +51,12 @@ class SetTests(unittest.TestCase):
 
     def test_a_building_prompt_removes_the_street_and_keeps_lit_colours_without_spill(self):
         text = reference.prompt('building', 'corner shop', 'Roof units stay.')
-        self.assertIn('Remove the street', text); self.assertIn('Roof units stay.', text)
-        self.assertIn('Keep the fixtures and street furniture', text)  # props against the walls ship on the building
+        self.assertIn('Remove the road', text); self.assertIn('Roof units stay.', text)
+        self.assertIn('Keep the pavement slab', text); self.assertIn('street furniture on it', text)  # both ship on the building
         self.assertIn('keep their own colours', text); self.assertIn('nothing glows', text)
         for kind in ('prop', 'building'):  # the edit tidies unless told not to
             self.assertIn('do not clean or repaint', reference.prompt(kind, 'thing'))
-        self.assertNotIn('Remove the street', reference.prompt('prop', 'crate'))
+        self.assertNotIn('Remove the road', reference.prompt('prop', 'crate'))
         with self.assertRaisesRegex(ValueError, 'kind'):
             reference.prompt('vehicle', 'van')
 
