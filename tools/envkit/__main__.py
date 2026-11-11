@@ -1,4 +1,5 @@
-"""Command line for envkit. `crops` writes every crop of a set for a look; `reference` redraws assets on the bound ComfyUI."""
+"""Command line for envkit. `crops` writes every crop of a set for a look; `reference` redraws assets on the bound ComfyUI;
+`game` converts generated models to compiled placeables."""
 import argparse
 import json
 import sys
@@ -31,6 +32,27 @@ def command_reference(args):
         result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         print(json.dumps({'asset': name, 'state': result['state'], 'outputs': result['outputs'],
                           'elapsedSeconds': result['elapsedSeconds']}), flush=True)
+
+
+def command_game(args):
+    """Convert generated models to compiled game placeables, as the game set states them."""
+    from .. import shared_tools
+    from ..armorkit import export
+    from . import convert
+    models = convert.load_models(args.models); root, output = Path(args.root), Path(args.output)
+    unknown = [name for name in args.model if name not in models]
+    reference.require(not unknown, 'Unknown models: ' + ', '.join(unknown))
+    crunch = shared_tools.resolve_tool('crunch', Path(__file__).resolve().parents[2])['path']
+    for name in args.model or list(models):
+        model, folder = models[name], output / name
+        reference.require(not folder.exists(), 'A model is converted into a fresh folder: ' + str(folder))
+        source = root / model['source']
+        maps = {key: source / f'texture_0_{key}.png' for key in ('base_color', 'normal', 'metallic', 'roughness')}
+        report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
+                                   colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'))
+        report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
+        (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
+        print(json.dumps(report), flush=True)
 
 
 def command_meshy(args):
@@ -66,6 +88,12 @@ def main(argv=None):
     sub.add_argument('--work', help='folder for CLI transcripts and task records')
     sub.add_argument('--bank', help='download: fresh folder for the model')
     sub.set_defaults(run=command_meshy)
+    sub = commands.add_parser('game', help='convert generated models to compiled placeables')
+    sub.add_argument('--models', required=True, help='game set file: each model source, height and lit parts')
+    sub.add_argument('--root', required=True, help="the set's output root, holding the generated models")
+    sub.add_argument('--output', required=True, help='folder that takes one fresh folder per model')
+    sub.add_argument('--model', action='append', default=[], help='limit to these models (repeatable)')
+    sub.set_defaults(run=command_game)
     parsers = {}
     for name, run in (('crops', command_crops), ('reference', command_reference)):
         sub = parsers[name] = commands.add_parser(name)

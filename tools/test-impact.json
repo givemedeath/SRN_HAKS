@@ -117,11 +117,18 @@
     ],
     "tools/envkit/__init__.py": [],
     "tools/envkit/__main__.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/envkit/convert.py",
       "tools/envkit/meshy.py",
       "tools/envkit/reference.py",
-      "tools/headkit/comfy.py"
+      "tools/headkit/comfy.py",
+      "tools/shared_tools.py"
     ],
-    "tools/envkit/convert.py": [],
+    "tools/envkit/convert.py": [
+      "tools/envkit/glow.py"
+    ],
+    "tools/envkit/glow.py": [],
     "tools/envkit/local.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
@@ -141,6 +148,11 @@
     "tools/envkit/test_convert.py": [
       "tools/envkit/convert.py",
       "tools/envkit/prop_fixture.py"
+    ],
+    "tools/envkit/test_glow.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/glow.py",
+      "tools/envkit/sets/stuffer-shack-game.json"
     ],
     "tools/envkit/test_local.py": [
       "tools/envkit/local.py"
@@ -4993,6 +5005,7 @@
     "tools/armorkit/test_tables.py",
     "tools/armorkit/test_toolchain.py",
     "tools/envkit/test_convert.py",
+    "tools/envkit/test_glow.py",
     "tools/envkit/test_local.py",
     "tools/envkit/test_meshy.py",
     "tools/envkit/test_reference.py",

@@ -237,7 +237,11 @@ def split(faces, limit=NODE_VERTICES):
     return parts
 
 
-def model_text(name, vertices, normals, uvs, faces):
+def model_text(name, vertices, normals, uvs, faces, card=None):
+    """The ASCII model. `card` is a halo's four corners (`glow.halo`): a flat sheet showing `name`_h. Its texture's
+    TXI makes the game add it to what is behind. It takes no light (ambient and diffuse are black) and shows its picture
+    through the glow slot of its own material file, so it is as bright by night as by day. (A `selfillumcolor` line
+    would do the same, but the compiled model then fails the read-back check, which knows no such controller.)"""
     require(len(name) <= NAME_LENGTH and name == name.lower() and name.replace('_', '').isalnum(),
             f'A model name is a lowercase resref of at most {NAME_LENGTH} characters: {name}')
     require(all(np.isfinite(values).all() for values in (vertices, normals, uvs)), name + ': a coordinate is not a number')
@@ -250,6 +254,11 @@ def model_text(name, vertices, normals, uvs, faces):
         lines += [f'  tverts {len(used)}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in uvs[used].tolist()]
         lines += [f'  normals {len(used)}'] + [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in normals[used].tolist()]
         lines += [f'  faces {len(part)}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in part.tolist()] + ['endnode']
+    if card:
+        lines += [f'node trimesh {name}_halo', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
+                  f'  bitmap {name}_h', '  render 1', '  shadow 0', '  transparencyhint 1', '  verts 4']
+        lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
+        lines += ['  normals 4'] + ['    0 1 0'] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
     return '\n'.join(lines + [f'endmodelgeom {name}', f'donemodel {name}']) + '\n'
 
 
@@ -302,25 +311,63 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None):
                _compress(Image.open(maps['normal']).convert('RGB'), folder / f'{name}_n.dds', '-DXN', half, crunch, data=True),
                _compress(channel(shine), folder / f'{name}_s.dds', '-DXT5A', half, crunch, data=True),
                _compress(channel(grey('roughness')), folder / f'{name}_r.dds', '-DXT5A', half, crunch, data=True)]
-    if illumination is not None:
-        written.append(_compress(Image.open(illumination).convert('RGB'), folder / f'{name}_i.dds', '-DXT1', colour, crunch, data=False))
+    if illumination is not None:  # a path or an image; mostly black, so half size like the other maps
+        lit = illumination if isinstance(illumination, Image.Image) else Image.open(illumination)
+        written.append(_compress(lit.convert('RGB'), folder / f'{name}_i.dds', '-DXT1', half, crunch, data=False))
     return written
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None):
+def load_models(path):
+    """The game models of a set: {name: {source, height, colour, signTilt, lit}}. `source` is the generated model's
+    folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model."""
+    data = json.loads(Path(path).read_text(encoding='utf-8'))
+    require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
+    for name, model in data['models'].items():
+        require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lit', 'halo'}, 'Model needs source and height: ' + name)
+        source = Path(model['source'])
+        require(not source.is_absolute() and '..' not in source.parts and ':' not in model['source'], 'Model source is a folder under the output root: ' + name)
+        require(model['height'] > 0 and model.get('colour', 1024) in (512, 1024, 2048, 4096), 'Model height or colour size is out of range: ' + name)
+        for region in model.get('lit', []):
+            require(isinstance(region, dict) and 'box' in region and set(region) <= {'part', 'box', 'gain', 'saturation', 'value'}
+                    and np.asarray(region['box'], float).shape == (2, 3), 'A lit part needs a box of two corners: ' + name)
+        require(set(model.get('halo', {})) <= {'reach', 'strength', 'core'} and ('halo' not in model or model.get('lit')),
+                'A halo takes reach, strength and core, and needs lit parts: ' + name)
+    return data['models']
+
+
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None):
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. `sign_tilt`, in
-    degrees, rebuilds a two-sided sign from its front sheet (`two_sided`)."""
+    degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit` names the parts lit from within as
+    boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow map instead. `halo` ({reach, strength})
+    adds the card that spreads the lit parts' light (`glow.halo`)."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
-    vertices, normals, uvs, faces = read_glb(model)
+    vertices, normals, uvs, faces = read_glb(model); card = None
     vertices, normals, uvs, scale, angles = fit(vertices, normals, uvs, height, faces=faces)
     if sign_tilt is not None:
         vertices, normals, uvs, faces = two_sided(vertices, normals, uvs, faces, sign_tilt)
         vertices, again = stand(vertices, height); scale *= again
     normals, repaired = repair_normals(vertices, normals, faces)
-    (folder / f'{name}.mdl').write_text(model_text(name, vertices, normals, uvs, faces), encoding='cp1252', newline='\n')
+    if lit:
+        require(illumination is None, 'Give the lit parts or a glow map, not both')
+        from PIL import Image
+        from . import glow
+        size = max(colour // 2, 256)
+        base = np.asarray(Image.open(maps['base_color']).convert('RGB').resize((size, size)), float) / 255
+        where, covered = glow.position_map(vertices, uvs, faces, size); shine = glow.glow(base, where, covered, lit)
+        illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
+        card = glow.halo(shine, where, covered, **halo) if halo else None
+    require(not halo or lit, 'A halo spreads the lit parts: name them')
+    (folder / f'{name}.mdl').write_text(model_text(name, vertices, normals, uvs, faces, card[1] if card else None), encoding='cp1252', newline='\n')
     (folder / f'{name}.mtr').write_text(material_text(name, illumination is not None), encoding='cp1252', newline='\n')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices.min(0), vertices.max(0)), encoding='cp1252', newline='\n')
     files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination)
+    if card:
+        files.append(_compress(card[0], folder / f'{name}_h.dds', '-DXT1', 512, crunch, data=False))
+        card_material = ['renderhint NormalAndSpecMapped', '', f'texture0 {name}_h', 'texture1 null', 'texture2 null', 'texture3 null',
+                         'texture4 null', f'texture5 {name}_h']
+        (folder / f'{name}_h.mtr').write_text('\n'.join(card_material) + '\n', encoding='cp1252', newline='\n')
+        (folder / f'{name}_h.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(scale), 5),
-            'repairedNormals': repaired, 'signTilt': sign_tilt, 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
+            'repairedNormals': repaired, 'signTilt': sign_tilt, 'lit': bool(illumination is not None), 'halo': bool(card), 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
