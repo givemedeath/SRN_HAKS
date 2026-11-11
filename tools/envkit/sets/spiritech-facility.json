@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "22_spiritech_arcane_research_facility.png",
+    "sha256": "ee7a926540b24d6bf1cb0bc8cb34559c6c307956c801fe3dbe1787c9b059218b",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "grey and violet arcane research institute with a glazed sigil window, a round wing and hanging banners", "box": [0, 14, 860, 555], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a grey and violet arcane research institute", "box": [851, 118, 1218, 304]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a grey and violet arcane research institute", "box": [871, 330, 1209, 520]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: dark desk with violet light under a canopy, Spiritech livery.", "subject": "dark reception desk with violet lighting under a canopy", "box": [8, 634, 272, 812]},
+    "ritual-dais": {"kind": "prop", "type": "ritual-circle", "variant": "Raised stepped dais with four rune pylons.", "subject": "raised ritual circle dais with four rune pylons", "box": [271, 640, 522, 812]},
+    "enchanting-workbench": {"kind": "prop", "type": "workbench", "variant": "Corporate enchanting bench with apparatus, a lamp and a violet runner.", "subject": "enchanting workbench with alchemical apparatus", "box": [523, 646, 740, 812]},
+    "reagent-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Glass-door cabinet of lit reagent jars with gold trim.", "subject": "glass-door cabinet of reagent jars", "box": [745, 634, 897, 806]},
+    "containment-chamber": {"kind": "prop", "type": "containment-chamber", "subject": "cylindrical magical containment chamber holding a glowing crystal", "box": [909, 622, 1073, 809]},
+    "warded-door": {"kind": "prop", "type": "secure-door", "variant": "Branding: door with a gold ward sigil and violet light, Spiritech style.", "subject": "warded security door with a gold sigil", "box": [1085, 643, 1256, 803]},
+    "hermetic-console": {"kind": "prop", "type": "console-desk", "variant": "Angular standing console with three ward screens.", "subject": "angular standing console with three screens", "box": [1266, 644, 1441, 812]},
+    "library-shelf": {"kind": "prop", "type": "shelf-unit", "variant": "Wide bookcase with an orrery, a skull and gold trim.", "subject": "wide bookcase with an orrery and a skull", "box": [8, 859, 246, 1034]},
+    "focus-case": {"kind": "prop", "type": "display-case", "variant": "Branding: tall glass case of foci on a marked plinth.", "subject": "tall glass display case of magical foci", "box": [259, 870, 429, 1032]},
+    "ward-pylons": {"kind": "prop", "type": "ward-pylon", "subject": "pair of stone ward pylons holding glowing crystals", "box": [436, 864, 597, 1029]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: dark Spiritech panel sign.", "subject": "wall-mounted sign reading Spiritech Arcane Research", "box": [600, 895, 750, 985]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Spiritech directory pylon.", "subject": "freestanding directory pylon sign reading Spiritech", "box": [752, 858, 845, 1029]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Branding: exhaust unit with an armillary sensor, Spiritech mark.", "subject": "rooftop exhaust unit with an armillary sensor", "box": [851, 854, 1145, 1028]},
+    "service-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey case with gold trim and the Spiritech mark.", "subject": "grey hard service case with gold trim", "box": [1157, 906, 1322, 1022]},
+    "access-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: access kiosk with the Spiritech mark.", "subject": "freestanding access kiosk with a screen", "box": [1335, 873, 1432, 1027]}
+  }
+}
