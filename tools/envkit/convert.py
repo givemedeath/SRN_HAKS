@@ -169,10 +169,60 @@ def fit(vertices, normals, uvs, height, *, faces=None, square=True):
         angles = (square_up(points), 0.0, 0.0)
     if any(angles):
         turn = _turn(*angles); points, turned = points @ turn.T, turned @ turn.T
+    points, scale = stand(points, height)
+    return points, turned, np.array(uvs[:, :2], float), scale, angles
+
+
+def stand(points, height):
+    """(points, scale): `height` metres tall, centred over the origin, on z = 0."""
     low, high = points.min(0), points.max(0)
     scale = height / (high[2] - low[2])
-    points = (points - np.array([(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, low[2]])) * scale
-    return points, turned, np.array(uvs[:, :2], float), scale, angles
+    return (points - np.array([(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, low[2]])) * scale, scale
+
+
+def two_sided(points, normals, uvs, faces, tilt, *, gap=0.02):
+    """(points, normals, uvs, faces) of a sign that reads the same from both sides: the front sheet leaning back `tilt`
+    degrees and a half-turned copy of it behind, the two meeting along the top.
+
+    A generator sees one side of a sandwich board. It invents the other (the sandwich board, 2026-11-10: scrambled
+    lettering on the back) and guesses how the two halves stand (front sheet upright, rear one slanting). The front sheet
+    is the part drawn from the reference, so it is the only part kept: everything within the sheet's own thickness of
+    its face. The thickness is where the first empty band lies behind the face, measured on the surface of the lower
+    half, under the hinge. The copy is turned, not mirrored, so its lettering reads the right way round."""
+    require(0 <= tilt < 45, 'A sign leans back by less than 45 degrees')
+    corners = points[faces]; of_face = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+    area = np.linalg.norm(of_face, axis=1); unit = of_face / np.maximum(area, 1e-12)[:, None]
+    middle = corners.mean(1); tall = float(np.ptp(points[:, 2]))
+    # The sheet's face: the faces looking front that lie foremost. The rear sheet's inner side looks front too, from
+    # further back, so the direction is found again from the foremost faces until it settles.
+    front = np.array([0.0, 1.0, 0.0])
+    for _ in range(3):
+        facing = np.flatnonzero(unit @ front > 0.8)
+        require(len(facing), 'The model has no face looking front')
+        reach = middle[facing] @ front; foremost = facing[reach > np.percentile(reach, 98) - 0.05 * tall]
+        front = of_face[foremost].sum(0); front /= np.linalg.norm(front)
+    face = float(np.percentile(points[np.unique(faces[foremost])] @ front, 98))
+    random = np.random.default_rng(0); pick = random.choice(len(faces), 40000, p=area / area.sum())
+    weights = random.dirichlet((1, 1, 1), 40000); surface = (corners[pick] * weights[:, :, None]).sum(1)
+    ordered = np.sort(face - surface[surface[:, 2] < points[:, 2].min() + tall / 2] @ front)  # 0 on the face, growing behind it
+    steps = np.diff(ordered); empty = np.flatnonzero((steps > gap * tall) & (ordered[:-1] > 0))
+    require(len(empty), 'Nothing stands apart behind the front sheet: not a two-sided sign')
+    thick = float(ordered[empty[0]])
+    keep = face - points @ front < thick + gap * tall / 2
+    kept = faces[keep[faces].all(1)]; used = np.unique(kept)
+    require(len(kept), 'The front sheet holds no faces')
+    index = np.full(len(points), -1); index[used] = np.arange(len(used)); kept = index[kept]
+    lean = np.radians(tilt); target = np.array([0.0, np.cos(lean), np.sin(lean)])
+    cross, dot = np.cross(front, target), float(front @ target)
+    skew = np.array([[0, -cross[2], cross[1]], [cross[2], 0, -cross[0]], [-cross[1], cross[0], 0]])
+    turn = np.eye(3) + skew + skew @ skew / (1 + dot)  # the shortest turn that takes the sheet's face to its lean
+    sheet, facing_out = points[used] @ turn.T, normals[used] @ turn.T
+    # The hinge the copy turns about: the top of the sheet's back, so the two backs meet there and spread below.
+    top = sheet[:, 2].max() - thick * np.sin(lean)
+    centre = (sheet[:, 0].min() + sheet[:, 0].max()) / 2, (face - thick - top * np.sin(lean)) / np.cos(lean)
+    behind = np.column_stack([2 * centre[0] - sheet[:, 0], 2 * centre[1] - sheet[:, 1], sheet[:, 2]])
+    return (np.concatenate([sheet, behind]), np.concatenate([facing_out, facing_out * [-1, -1, 1]]), np.concatenate([uvs[used], uvs[used]]),
+            np.concatenate([kept, kept + len(used)]))
 
 
 def split(faces, limit=NODE_VERTICES):
@@ -257,16 +307,20 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None):
     return written
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None):
-    """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured."""
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None):
+    """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. `sign_tilt`, in
+    degrees, rebuilds a two-sided sign from its front sheet (`two_sided`)."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     vertices, normals, uvs, faces = read_glb(model)
     vertices, normals, uvs, scale, angles = fit(vertices, normals, uvs, height, faces=faces)
+    if sign_tilt is not None:
+        vertices, normals, uvs, faces = two_sided(vertices, normals, uvs, faces, sign_tilt)
+        vertices, again = stand(vertices, height); scale *= again
     normals, repaired = repair_normals(vertices, normals, faces)
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, normals, uvs, faces), encoding='cp1252', newline='\n')
     (folder / f'{name}.mtr').write_text(material_text(name, illumination is not None), encoding='cp1252', newline='\n')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices.min(0), vertices.max(0)), encoding='cp1252', newline='\n')
     files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination)
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(scale), 5),
-            'repairedNormals': repaired, 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
+            'repairedNormals': repaired, 'signTilt': sign_tilt, 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}

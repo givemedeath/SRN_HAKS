@@ -78,6 +78,28 @@ class ConvertTests(unittest.TestCase):
         points, _, _, _, used = convert.fit(leaning @ convert.TO_GAME, np.tile([0, 0, 1.0], (8, 1)), np.zeros((8, 2)), 2.0, faces=faces)
         self.assertEqual(used, angles); np.testing.assert_allclose(np.ptp(points, axis=0), [2.0, 0.8, 2.0], rtol=0.015)
 
+    def test_a_two_sided_sign_is_its_front_sheet_and_a_half_turned_copy(self):
+        def slab(low, high):  # a box and its outward triangles
+            corners = np.array([[x, y, z] for x in (low[0], high[0]) for y in (low[1], high[1]) for z in (low[2], high[2])], float)
+            return corners, np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        front, faces = slab((-0.4, 0.2, 0.0), (0.4, 0.3, 1.0))  # upright, as the generator stood it
+        rear = slab((-0.4, 0.1, 0.0), (0.4, 0.2, 1.1))[0]; rear[:, 1] -= 0.45 * (1 - rear[:, 2] / 1.1)  # slanting away behind it
+        points = np.concatenate([front, rear]); both = np.concatenate([faces, faces + 8])
+        normals = np.tile([0, 1.0, 0], (16, 1)); uvs = np.linspace(0, 1, 32).reshape(16, 2)
+        sheet, out, texture, made = convert.two_sided(points, normals, uvs, both, 15.0)
+        self.assertEqual((len(sheet), len(made)), (16, 24))  # the front slab twice; nothing of the invented rear
+        np.testing.assert_allclose(texture[:8], uvs[:8]); np.testing.assert_allclose(texture[8:], uvs[:8])  # both sides show the front's picture
+        np.testing.assert_allclose(out[0], [0, np.cos(np.radians(15)), np.sin(np.radians(15))], atol=1e-9)  # leaning back
+        np.testing.assert_allclose(out[8], out[0] * [-1, -1, 1], atol=1e-9)
+        # A half turn about an upright line: the same heights, the footprint the same either way round, no mirror.
+        np.testing.assert_allclose(sheet[8:, 2], sheet[:8, 2]); middle = (sheet[:, 1].min() + sheet[:, 1].max()) / 2
+        np.testing.assert_allclose(sorted(sheet[:8, 1] - middle), sorted(middle - sheet[8:, 1]), atol=1e-9)
+        for a, b, c in made:  # every triangle of both slabs still faces out of its own slab
+            self.assertGreater(np.cross(sheet[b] - sheet[a], sheet[c] - sheet[a]) @ (sheet[[a, b, c]].mean(0) - sheet[:8 if a < 8 else 16][-8:].mean(0)), 0)
+        self.assertAlmostEqual(float(sheet[:8, 1].min()), float(sheet[8:, 1].max()), places=6)  # their backs meet along the top
+        with self.assertRaisesRegex(ValueError, 'not a two-sided sign'):
+            convert.two_sided(front, normals[:8], uvs[:8], faces, 15.0)
+
     def test_zero_normals_are_rebuilt_from_the_faces(self):
         vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; normals = np.array([[0, 1, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0]], float)
         fixed, count = convert.repair_normals(vertices, normals, np.array(WALL['faces']))
