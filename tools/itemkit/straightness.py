@@ -57,9 +57,17 @@ def _sections(p):
 
 
 def _midline(p):
-    centres, mid, _, wide, _ = _sections(p); mid = mid.copy(); mid[wide] = np.nan; known = ~np.isnan(mid[:, 0])
+    centres, mid, extent, wide, _ = _sections(p); mid = mid.copy(); mid[wide] = np.nan
+    # A slice near either end of a bent thick shaft cuts its end cap obliquely, so its midpoint is off the axis and
+    # would hook the centreline. Within about one section width of each end, continue the adjacent interior line.
+    step = centres[1] - centres[0]; margin = int(np.ceil(.75 * np.nanmedian(extent.min(1)) / step))    # thin blades bow in depth: little is hidden
+    margin = min(max(margin, 2), SLICES // 8); inner = mid.copy(); inner[:margin] = np.nan; inner[-margin:] = np.nan
+    known = ~np.isnan(inner[:, 0])
     _require(known.sum() >= SLICES // 4, 'Too few usable cross-sections to measure a centreline')
-    return centres, np.stack([np.interp(centres, centres[known], mid[known, j]) for j in (0, 1)], 1)
+    line = np.stack([np.interp(centres, centres[known], inner[known, j]) for j in (0, 1)], 1); rows = np.flatnonzero(known)
+    for end, near in ((slice(0, rows[0]), rows[:2 * margin]), (slice(rows[-1] + 1, SLICES), rows[-2 * margin:])):
+        for j in (0, 1): line[end, j] = np.polyval(np.polyfit(centres[near], inner[near, j], 1), centres[end])
+    return centres, line
 
 
 def _measure_pass(p):

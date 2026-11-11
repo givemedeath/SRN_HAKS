@@ -93,3 +93,17 @@ class StraightnessTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ThickShaftTests(unittest.TestCase):
+    def test_a_bent_thick_shaft_keeps_its_flat_end_caps(self):
+        # A club: slices near the ends of a bent thick shaft cut the caps obliquely and must not hook the centreline.
+        rng = np.random.default_rng(3); n = 60000; t = rng.uniform(-.5, .5, n); a = rng.uniform(0, 2 * np.pi, n)
+        side = np.column_stack([t, .06 * np.cos(a), .06 * np.sin(a)]); r = .06 * np.sqrt(rng.uniform(0, 1, n // 5)); b = a[:n // 5]
+        caps = np.column_stack([np.where(rng.random(n // 5) < .5, -.5, .5), r * np.cos(b), r * np.sin(b)]); p = np.r_[side, caps]
+        radius = 2.; ang = p[:, 0] / radius; rr = radius - p[:, 2]
+        bent = np.column_stack([rr * np.sin(ang), p[:, 1], radius - rr * np.cos(ang)])
+        mapping, history = s.fit_map(bent); out = s.apply_map(bent, mapping)
+        self.assertGreater(history[0], 4); self.assertLess(s.measure(out)['bendPctOfLength'], 1)
+        frame = lambda q: np.sort(np.ptp((q - q.mean(0)) @ s.principal_frame(q)[1], axis=0))[::-1]
+        np.testing.assert_allclose(frame(out), [1, .12, .12], rtol=.08)       # caps stay square (the old hook measured 17%)
