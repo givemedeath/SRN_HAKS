@@ -238,14 +238,15 @@ def turn(a, b):
     return np.eye(3) + skew + skew @ skew / (1 + dot)
 
 
-def repose(vertices, faces, here, there, scale, height):
+def repose(vertices, faces, here, there, scale, height, free=None):
     """(vertices, weights): the outfit with each of its bones carried onto the body's.
 
     `here` and `there` are the outfit's and the body's joints, `scale` the outfit's overall scale to the body
     and `height` the outfit's own height. Each bone turns the outfit onto its body bone, stretches it along the
     bone to the body's length and scales it across by `scale`. A vertex follows the bones it is nearest to,
     counted in each bone's own thickness; `weights[bone, vertex]` is evened out over the surface so that
-    joints bend smoothly."""
+    joints bend smoothly. `free[bone, vertex]`, if given, says which bones a vertex may follow at all: the
+    torso's edge of a sleeve cut follows no bone of that arm, and the evening carries that into the torso."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     moved, distance = [], []
     for name, start, end in BONES:
@@ -259,6 +260,9 @@ def repose(vertices, faces, here, there, scale, height):
         nearest = np.clip(along, 0.0, np.linalg.norm(b - a))
         distance.append(np.linalg.norm(relative - nearest[:, None] * from_axis, axis=1) / (THICK[kind(name)] * height))
     distance = np.array(distance)
+    free = np.ones(distance.shape, bool) if free is None else np.asarray(free, bool)
+    require(free.shape == distance.shape and free.any(axis=0).all(), 'Every vertex is free to follow at least one bone')
+    distance = np.where(free, distance, np.inf)
     weight = np.clip(1 - (distance - distance.min(axis=0)) / BLEND, 0.0, None)
     weight /= weight.sum(axis=0)
     edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
@@ -266,7 +270,7 @@ def repose(vertices, faces, here, there, scale, height):
     count = np.maximum(np.bincount(edges[:, 0], minlength=len(vertices)), 1)
     for _ in range(SMOOTHING):
         around = np.array([np.bincount(edges[:, 0], weights=row[edges[:, 1]], minlength=len(vertices)) for row in weight])
-        weight = 0.5 * weight + 0.5 * around / count
+        weight = np.where(free, 0.5 * weight + 0.5 * around / count, 0.0)
     weight /= weight.sum(axis=0)
     return np.einsum('bv,bvk->vk', weight, np.array(moved)), weight
 
@@ -367,18 +371,30 @@ def grounded(vertices, feet):
 def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE):
     """An outfit carried onto a body: its `vertices` in the body's rest pose and fitted round it, with what was found.
 
-    `bones` and `parts` are the body's (`measure.body`). The outfit keeps its faces. Each leg is kept on its own
-    side of the middle (`apart`), and the soles are set on the ground by the share each vertex follows a foot. Also returned: the outfit's own `joints` and `landmarks`,
+    `bones` and `parts` are the body's (`measure.body`). Sleeves that are one surface with the torso are first
+    cut out along the arms, in the pose the outfit came in (`split.troughs`), where the armpit is open: `faces`
+    are the outfit's with the faces those cuts crossed divided, `origin` the face each came from, `source` the
+    vertices given followed by the new ones on those cuts, and `sleeves` what `split.split` takes to part the
+    sleeves there. The torso's own vertices on those cuts follow no bone of that arm. Each leg is kept on its
+    own side of the middle (`apart`), and the soles are set on the ground by the share each vertex follows a
+    foot. Also returned: the outfit's own `joints` and `landmarks`,
     its `scale` to the body (neck height over neck height), the bone `weights`, the `posed` vertices before the
     fit and the fit's `widening` report."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     there = body_joints(bones, parts)
     here, marks = outfit_joints(vertices, faces, there)
     scale = float(there['neck'][2] / (marks['neck'] - marks['floor']))
-    posed, weight = repose(vertices, faces, here, there, scale, marks['height'])
+    arms = {side + bone: here[joint + side] * scale for side in 'lr' for bone, joint in (('bicep_g', 'shoulder'), ('forearm_g', 'elbow'))}
+    cut, faces, _, origin, sleeves = split.troughs(vertices * scale, faces, np.zeros((len(vertices), 0)), arms)
+    vertices = np.concatenate([vertices, cut[len(vertices):] / scale])
+    free = np.ones((len(BONES), len(vertices)), bool)  # the torso's own vertices on a sleeve cut follow no bone of that arm
+    for side, found in sleeves.items():
+        arm = [index for index, bone in enumerate(BONES) if bone[0] in ('upper' + side, 'fore' + side, 'hand' + side)]
+        free[np.ix_(arm, np.flatnonzero(found['torso']))] = False
+    posed, weight = repose(vertices, faces, here, there, scale, marks['height'], free)
     fitted, report = fit(posed, weight, there, parts, clearance)
     follows = lambda kinds: weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) in kinds]].sum(axis=0)
     fitted = apart(fitted, np.where(vertices[:, 0] < marks['middle'], -1.0, 1.0), follows(('thigh', 'shin', 'foot')), there)
     fitted = grounded(fitted, follows(('foot',)))
-    return {'vertices': fitted, 'faces': faces, 'joints': here, 'landmarks': marks, 'scale': scale, 'weights': weight, 'posed': posed,
-            'widening': report}
+    return {'vertices': fitted, 'faces': faces, 'origin': origin, 'source': vertices, 'sleeves': sleeves, 'joints': here, 'landmarks': marks,
+            'scale': scale, 'weights': weight, 'posed': posed, 'widening': report}
