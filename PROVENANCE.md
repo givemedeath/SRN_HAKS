@@ -214,8 +214,12 @@ map and a halo sheet were made from its own colour for the sign, windows, door a
 shared out over four tiles with a ground square each; and a walkmesh was generated from its shape, in which
 the building stops movement and sight, the bollards stop movement only, and the slab is walked on at its own
 height. The Meshy source, the full-detail spare, the references and the client captures stay in ignored
-`output/envkit/`. Checked in the game client in a Modern Exterior area and a Suburbs area on 2026-11-11; not
-checked in the Toolset. The tiles have no door hook, no tile lights, no minimap image and no roof fade.
+`output/envkit/`. Checked in the game client in a Modern Exterior area and a Suburbs area on 2026-11-11, and in
+the Toolset the same day: both palettes list `Stuffer Shack 2x2` under Groups, and painting it laid the four
+tiles in order with no turn (south-west, south-east, north-west, north-east), as the saved areas record. In
+Modern Exterior the Toolset changed no other tile; in Suburbs it repainted the twelve tiles around the group as
+its own grass-to-asphalt edges and corners. The tiles have no door hook, no tile lights, no minimap image and no
+roof fade.
 
 ## MDRNEE placeable import (2026-09-11)
 
