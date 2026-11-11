@@ -55,6 +55,46 @@ def command_game(args):
         print(json.dumps(report), flush=True)
 
 
+def command_tiles(args):
+    """Build a model's tile group: tile models (compiled), walkmeshes and the shared material and maps."""
+    from .. import shared_tools
+    from . import convert, tile
+    models = convert.load_models(args.models); root, folder = Path(args.root), Path(args.output) / args.model
+    reference.require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
+    reference.require(not folder.exists(), 'A group is built into a fresh folder: ' + str(folder))
+    model = models[args.model]; source = root / model['source']
+    maps = {key: source / f'texture_0_{key}.png' for key in ('base_color', 'normal', 'metallic', 'roughness')}
+    made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
+                         lit=model.get('lit'), halo=model.get('halo'))
+    report = tile.group(args.model, made, folder / 'source', ground=model['tiles']['ground'])
+    compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
+    files = convert.skin(args.model, maps, folder / 'shared', shared_tools.resolve_tool('crunch', Path(__file__).resolve().parents[2])['path'], made,
+                         colour=model.get('colour', 1024))
+    report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
+    (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
+    print(json.dumps(report), flush=True)
+
+
+def command_install(args):
+    """Put a built tile group into the packs: its files into the shared pack, its records into each tileset named."""
+    import shutil
+    from . import convert, tile
+    models = convert.load_models(args.models); built = Path(args.built) / args.model; repo = Path(args.repo)
+    reference.require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
+    made = json.loads((built / 'report.json').read_text(encoding='utf-8')); tiles = models[args.model]['tiles']; shared = repo / args.pack
+    reference.require(shared.is_dir() and all((repo / f'srn_t_{name}' / f'{name}.set').is_file() for name in tiles['sets']), 'A pack or set file named is missing')
+    copied = []
+    for one in made['tiles']:
+        copied += [shutil.copyfile(built / 'compiled' / f'{one["model"]}.mdl', shared / f'{one["model"]}.mdl'),
+                   shutil.copyfile(built / 'source' / f'{one["model"]}.wok', shared / f'{one["model"]}.wok')]
+    # The lights-out materials serve a placeable a script can reach; no script reaches a tile, so they stay behind.
+    idle = (args.model + '_o', convert.HALO_OUT)
+    copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'shared').iterdir()) if path.stem not in idle]
+    placed = {name: tile.install(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
+                                 group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
+    print(json.dumps({'files': len(copied), 'sets': placed}), flush=True)
+
+
 def command_meshy(args):
     from . import meshy
     if args.action == 'init':
@@ -94,6 +134,14 @@ def main(argv=None):
     sub.add_argument('--output', required=True, help='folder that takes one fresh folder per model')
     sub.add_argument('--model', action='append', default=[], help='limit to these models (repeatable)')
     sub.set_defaults(run=command_game)
+    sub = commands.add_parser('tiles', help='build a model as a tile group')
+    sub.add_argument('--models', required=True); sub.add_argument('--root', required=True); sub.add_argument('--output', required=True)
+    sub.add_argument('--model', required=True)
+    sub.set_defaults(run=command_tiles)
+    sub = commands.add_parser('install', help='put a built tile group into the shared pack and its tilesets')
+    sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `tiles` built into')
+    sub.add_argument('--model', required=True); sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_t_common')
+    sub.set_defaults(run=command_install)
     parsers = {}
     for name, run in (('crops', command_crops), ('reference', command_reference)):
         sub = parsers[name] = commands.add_parser(name)

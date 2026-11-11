@@ -87,9 +87,11 @@ def enter_script(shots, start=START, hold=HOLD):
     return '\n'.join(lines) + '\n'
 
 
-def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD):
+def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD, ground=None):
     """props: [{model, position: [x, y], bearing, static}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
-    humans for scale. Returns the fixture record."""
+    humans for scale. ground: {tileset, fill, tiles: {(column, row): tile}} lays the area with a tileset whose set file is
+    among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west.
+    Returns the fixture record."""
     from tools.phenotypes import tool_runtime
     require(client_fixture.NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 11 characters')
     root, output = Path(nwn_root), Path(output).resolve()
@@ -112,9 +114,12 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         shutil.copyfile(path, staged / path.name)
     text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props}))
     (staged / 'placeables.2da').write_text(text, encoding='cp1252', newline='')
-    stock_set = run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '.set']).decode('cp1252')
-    (staged / (name + '.set')).write_text(client_fixture.tileset(stock_set, name), encoding='cp1252', newline='')
-    (staged / (name + '_edge.2da')).write_bytes(run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '_edge.2da']))
+    if ground is None:
+        stock_set = run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '.set']).decode('cp1252')
+        (staged / (name + '.set')).write_text(client_fixture.tileset(stock_set, name), encoding='cp1252', newline='')
+        (staged / (name + '_edge.2da')).write_bytes(run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '_edge.2da']))
+    else:
+        require((staged / (ground['tileset'] + '.set')).is_file(), 'The tileset laid must be among the resources')
     hak = user / 'hak' / (name + '.hak')
     run('nwn_erf', ['-c', '-f', hak, '-e', 'HAK', staged])
     script = binary / (name + '_en.nss'); script.write_text(enter_script(shots, start, hold), encoding='ascii', newline='\n')
@@ -129,6 +134,10 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         creatures = [person(template, f'{name}_h{index}', one['position'], one.get('facing', 270.0), one.get('height', 0.0))
                      for index, one in enumerate(people)]
     area = client_fixture.area_documents(name, creatures, size)
+    if ground is not None:
+        area[name + '_a.are']['Tileset'] = field('resref', ground['tileset'])
+        for index, laid in enumerate(area[name + '_a.are']['Tile_List']['value']):
+            laid['Tile_ID'] = field('int', ground['tiles'].get((index % size, index // size), ground['fill']))
     area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', rows[prop['model']], prop['position'], prop.get('bearing', math.pi), prop.get('static', True))
                                                              for index, prop in enumerate(props)])
     if night:

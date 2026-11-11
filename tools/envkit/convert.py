@@ -319,13 +319,15 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None):
 
 
 def load_models(path):
-    """The game models of a set: {name: {source, height, colour, signTilt, lit}}. `source` is the generated model's
-    folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model."""
+    """The game models of a set: {name: {source, height, colour, signTilt, lit, halo, tiles}}. `source` is the generated
+    model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
+    `tiles` makes the model a tile group too: its ground texture, its group name and palette label, and the terrain its
+    corners stand on in each tileset ({tileset: terrain})."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lit', 'halo'}, 'Model needs source and height: ' + name)
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lit', 'halo', 'tiles'}, 'Model needs source and height: ' + name)
         source = Path(model['source'])
         require(not source.is_absolute() and '..' not in source.parts and ':' not in model['source'], 'Model source is a folder under the output root: ' + name)
         require(model['height'] > 0 and model.get('colour', 1024) in (512, 1024, 2048, 4096), 'Model height or colour size is out of range: ' + name)
@@ -334,6 +336,10 @@ def load_models(path):
                     and np.asarray(region['box'], float).shape == (2, 3), 'A lit part needs a box of two corners: ' + name)
         require(set(model.get('halo', {})) <= {'reach', 'strength', 'core'} and ('halo' not in model or model.get('lit')),
                 'A halo takes reach, strength and core, and needs lit parts: ' + name)
+        tiles = model.get('tiles')
+        require(tiles is None or (set(tiles) == {'ground', 'group', 'label', 'sets'} and isinstance(tiles['sets'], dict) and tiles['sets']
+                                  and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
+                'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
     return data['models']
 
 
@@ -366,18 +372,18 @@ def lights_script(name, target, on, halo=True):
     return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps)
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None):
-    """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. `sign_tilt`, in
-    degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit` names the parts lit from within as
-    boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow map instead. `halo` ({reach, strength})
-    adds the card that spreads the lit parts' light (`glow.halo`)."""
-    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
+def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None):
+    """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
+    illumination, card}. `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
+    names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
+    map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`)."""
     vertices, normals, uvs, faces = read_glb(model); card = None
     vertices, normals, uvs, scale, angles = fit(vertices, normals, uvs, height, faces=faces)
     if sign_tilt is not None:
         vertices, normals, uvs, faces = two_sided(vertices, normals, uvs, faces, sign_tilt)
         vertices, again = stand(vertices, height); scale *= again
     normals, repaired = repair_normals(vertices, normals, faces)
+    require(not halo or lit, 'A halo spreads the lit parts: name them')
     if lit:
         require(illumination is None, 'Give the lit parts or a glow map, not both')
         from PIL import Image
@@ -387,10 +393,14 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumin
         where, covered = glow.position_map(vertices, uvs, faces, size); shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, **halo) if halo else None
-    require(not halo or lit, 'A halo spreads the lit parts: name them')
-    (folder / f'{name}.mdl').write_text(model_text(name, vertices, normals, uvs, faces, card[1] if card else None), encoding='cp1252', newline='\n')
+    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
+            'illumination': illumination, 'card': card}
+
+
+def skin(name, maps, folder, crunch, made, *, colour=1024):
+    """Write the model's material file and maps, its halo's and its lights-out set into `folder`; returns the textures."""
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); illumination, card = made['illumination'], made['card']
     (folder / f'{name}.mtr').write_text(material_text(name, illumination is not None), encoding='cp1252', newline='\n')
-    (folder / f'{name}.pwk').write_text(walk_text(name, vertices.min(0), vertices.max(0)), encoding='cp1252', newline='\n')
     files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination)
     if card:
         files.append(_compress(card[0], folder / f'{name}_h.dds', '-DXT1', 512, crunch, data=False))
@@ -400,6 +410,24 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumin
         (folder / f'{name}_h.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
     if illumination is not None:
         files += lights_out(name, folder, crunch, bool(card))
-    return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(scale), 5),
-            'repairedNormals': repaired, 'signTilt': sign_tilt, 'lit': bool(illumination is not None), 'haloCards': len(card[1]) if card else 0, 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
+    return files
+
+
+def measured(name, made, files, sign_tilt=None):
+    vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
+    return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
+            'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card[1]) if card else 0,
+            'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
+
+
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None):
+    """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. The keywords are
+    `shape`'s."""
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
+    made = shape(model, maps, height=height, colour=colour, illumination=illumination, sign_tilt=sign_tilt, lit=lit, halo=halo)
+    vertices, card = made['vertices'], made['card']
+    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card[1] if card else None),
+                                        encoding='cp1252', newline='\n')
+    (folder / f'{name}.pwk').write_text(walk_text(name, vertices.min(0), vertices.max(0)), encoding='cp1252', newline='\n')
+    return measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt)
