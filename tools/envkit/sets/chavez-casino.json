@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "36_lakeside_amusement_park_chavez_family_casino.png",
+    "sha256": "684fb492b98e07dea7b9e22cf8001dc76bed09a1751063499604cd1933573e8f",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "art-deco casino pavilion with a neon roulette-wheel crown, a lit marquee and gold doors", "box": [8, 103, 1010, 542], "notes": "Remove the park gate, the ticket booth, the ferris wheel, the roller coaster, the sky and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of an art-deco casino pavilion with a neon crown", "box": [1024, 96, 1523, 232]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of an art-deco casino pavilion", "box": [1021, 252, 1523, 380]},
+    "cashier-counter": {"kind": "prop", "type": "shop-counter", "variant": "Gilded cashier cage counter with a neon Cashier sign.", "subject": "gilded cashier cage counter with a neon sign", "box": [15, 585, 275, 766]},
+    "slot-machines": {"kind": "prop", "type": "slot-machines", "subject": "bank of three slot machines with red stools", "box": [295, 595, 480, 760]},
+    "roulette-table": {"kind": "prop", "type": "roulette-table", "subject": "roulette table with a wheel and a betting layout", "box": [484, 612, 730, 757]},
+    "card-table": {"kind": "prop", "type": "card-table", "subject": "green felt card table with six red chairs", "box": [733, 623, 962, 760]},
+    "ticket-kiosk": {"kind": "prop", "type": "atm", "variant": "Art-deco ticket redemption kiosk with a neon header.", "subject": "art-deco ticket redemption kiosk", "box": [968, 585, 1085, 760]},
+    "entry-turnstile": {"kind": "prop", "type": "turnstile", "same": "union-station/access-turnstile", "subject": "row of waist-high turnstiles", "box": [1102, 629, 1312, 743]},
+    "amusement-arch": {"kind": "prop", "type": "entry-arch", "subject": "weathered amusement park entry arch with marquee bulbs and a star", "box": [1328, 581, 1519, 758]},
+    "security-desk": {"kind": "prop", "type": "console-desk", "variant": "Curved gilded security desk under a wall of camera screens.", "subject": "curved gilded security desk under a wall of camera screens", "box": [4, 808, 269, 966]},
+    "velvet-stanchions": {"kind": "prop", "type": "stanchions", "variant": "Brass posts with a red velvet rope.", "subject": "pair of brass stanchions with a red velvet rope", "box": [277, 839, 429, 960]},
+    "money-counter": {"kind": "prop", "type": "money-counter", "subject": "banknote counting machine with stacks of notes", "box": [439, 838, 574, 959]},
+    "casino-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: gilded neon Chavez Family Casino sign with card suits.", "subject": "wall-mounted neon sign reading Chavez Family Casino", "box": [581, 809, 827, 960]},
+    "service-door": {"kind": "prop", "type": "service-door", "variant": "Steel door with a mesh window, a keypad and hazard stripes in a concrete wall section.", "subject": "guarded steel service door in a concrete wall section", "box": [837, 809, 1008, 962]},
+    "neon-pylon": {"kind": "prop", "type": "neon-sign", "variant": "Art-deco neon spade pylon in a planter.", "subject": "art-deco neon pylon with a spade in a planter", "box": [1031, 796, 1188, 962]},
+    "surveillance-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1198, 821, 1326, 930]},
+    "supply-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: wheeled black road case lettered Casino Supplies.", "subject": "wheeled black road case", "box": [1346, 826, 1521, 963]}
+  }
+}

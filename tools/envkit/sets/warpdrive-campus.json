@@ -1,0 +1,24 @@
+{
+  "sheet": {
+    "file": "40_warpdrive_systems_technology_campus.png",
+    "sha256": "79338e6fe489f96889f7b3078c55f9fe07118f91cfdc770c6dc40bc497fe2994",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "glazed corporate technology campus in grey stone with violet light strips, a rooftop dish and antennas", "box": [5, 55, 1135, 380], "notes": "Remove the guard, the guard booth, the fence, the trees, the monument sign, the sky, the mountains, the skyline and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a glazed corporate technology campus", "box": [62, 400, 545, 560]},
+    "building-side": {"kind": "building", "subject": "side elevation of a glazed corporate technology campus", "box": [565, 400, 905, 560]},
+    "server-rack": {"kind": "prop", "type": "server-rack", "variant": "Modern black glass-door rack with blue lights.", "subject": "modern black server rack with blue lights", "box": [13, 870, 95, 1013]},
+    "operations-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "operations desk of screens with a chair", "box": [97, 898, 240, 1010]},
+    "terminal-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: secure terminal kiosk with the Warpdrive mark.", "subject": "secure terminal kiosk", "box": [244, 892, 305, 1008]},
+    "turnstiles": {"kind": "prop", "type": "turnstile", "variant": "Pair of glass-flap speed gates with green arrows.", "subject": "pair of glass-flap speed gates", "box": [305, 913, 424, 998]},
+    "bollard": {"kind": "prop", "type": "bollard", "same": "council-hall/bollard", "subject": "steel security bollard with a light band", "box": [426, 926, 486, 1005]},
+    "cctv-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [487, 904, 555, 977]},
+    "scanner-arch": {"kind": "prop", "type": "scanner-arch", "variant": "Branding: walk-through arch with violet light strips and the Warpdrive mark.", "subject": "walk-through scanner arch with violet light strips", "box": [557, 880, 648, 1010]},
+    "data-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: black case with violet trim and the Warpdrive mark.", "subject": "black hard data case with violet trim", "box": [650, 917, 742, 994]},
+    "uplink-dish": {"kind": "prop", "type": "comms-array", "variant": "Single large dish on a pedestal mount.", "subject": "large satellite dish on a pedestal mount", "box": [744, 870, 832, 1004]},
+    "comms-mast": {"kind": "prop", "type": "comms-array", "variant": "Lattice tower with panel antennas and a red beacon.", "subject": "lattice communications tower with a red beacon", "box": [841, 858, 897, 1009]},
+    "wall-panel": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: grey Warpdrive Systems panel.", "subject": "wall panel sign reading Warpdrive Systems", "box": [901, 896, 1022, 1001]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: black desk with violet light strips, a terminal and a plant.", "subject": "black reception desk with violet light strips", "box": [1021, 898, 1167, 1000]}
+  }
+}
