@@ -139,6 +139,35 @@ class CapTests(unittest.TestCase):
     def cap(self, faces=None, limit=1.0):
         return split.cap(self.v, self.t, self.under if faces is None else faces, len(self.v), self.point, self.normal, self.DEPTH, limit)
 
+    def test_a_cap_carries_the_rim_of_a_pad_round_the_hinge(self):
+        centre = self.v[self.under].mean(axis=1)
+        full, grown, steps = centre[:, 1] > 0.03, [], split.GUARD_STEPS  # the front of the tube is a pad
+        hinge = np.cross((0.0, 1.0, 0.0), -self.normal)  # turns the front past the plane
+        build = lambda **more: split.cap(self.v, self.t, self.under, len(self.v), self.point, self.normal, self.DEPTH, 1.0, steps=steps, **more)
+        plain = build()
+        points, uvs, faces = build(full=full, hinge=hinge, grown=grown)
+        self.assertEqual((len(points), len(grown)), (len(plain[0]), len(faces)))
+        self.assertTrue(np.array_equal(faces, plain[2]) and np.array_equal(uvs, plain[1]))
+        every = np.concatenate([self.v, points])
+        rim = np.abs(self.v[self.under][:, :, 2] - 0.4) < 1e-9  # each added face grew from a face with an edge on the plane
+        self.assertTrue(np.all(rim[grown].sum(axis=1) == 2))
+        count = len(points) // steps  # rim points
+        moved = (np.linalg.norm(points - plain[0], axis=1) > 1e-9).reshape(steps, count)
+        self.assertFalse(moved[-1].any())  # the pole stays
+        self.assertTrue(moved[0].any() and not moved[0].all() and all(np.array_equal(row, moved[0]) for row in moved[:-1]))
+        start = self.v[np.unique(self.under[rim.sum(axis=1) == 2][full[rim.sum(axis=1) == 2]])]
+        start = start[np.abs(start[:, 2] - 0.4) < 1e-9] - self.point  # the pad's rim points
+        self.assertEqual(len(start), int(moved[0].sum()))
+        rings = (points - self.point).reshape(steps, count, 3)
+        for k in range(steps - 1):
+            turn = np.radians(split.GUARD_SWEEP) * (k + 1) / (steps - 1)
+            ring = rings[k][moved[0]]
+            self.assertTrue(np.allclose(np.sort(ring[:, 0]), np.sort(start[:, 0])))  # along the hinge it stays where it was
+            self.assertTrue(np.allclose(np.sort(np.hypot(ring[:, 1], ring[:, 2])), np.sort((1 - split.GUARD_TUCK) * start[:, 1])))
+            self.assertTrue(np.allclose(np.arctan2(-ring[:, 2], ring[:, 1]), turn))  # turned past the plane
+        with self.assertRaises(ValueError):
+            build(full=full)
+
     def test_a_cap_is_joined_to_the_rim_and_lies_inside_its_dome(self):
         points, uvs, faces = self.cap()
         rim = int((np.abs(self.v[np.unique(self.under)][:, 2] - 0.4) < 1e-9).sum())
@@ -960,6 +989,91 @@ class CrotchTests(unittest.TestCase):
         loose = open_edges(capped[1], capped[0])
         self.assertFalse(self.on(capped[0][loose], ('hip', 'l')).all(axis=1).any())  # the whole rim is taken up
 
+
+def padded_leg(low=0.09, high=0.09):
+    """A torso and a left leg that is one tube from hip to ankle, with a pad over the knee: (vertices, faces,
+    uvs, materials). The pad is material 1 on the leg's front, `high` above the knee joint and `low` below it."""
+    J = {name: np.array(p, float) for name, p in JOINTS.items()}
+    v, f, t = join(tube((0, 0, 0.95), (0, 0, 1.60), 0.15), tube(J['lthigh_g'] + (0, 0, 0.06), J['lfoot_g'] - (0, 0, 0.1), 0.07, around=16, along=58))
+    centre = v[f].mean(axis=1) - J['lshin_g']
+    pad = (centre[:, 2] < high) & (centre[:, 2] > -low) & (centre[:, 1] > 0.02) & (np.abs(centre[:, 0]) < 0.1)
+    return v, f, t, pad.astype(int)
+
+
+class KneeTests(unittest.TestCase):
+    def setUp(self):
+        self.v, self.f, self.t, self.materials = padded_leg()
+        self.point, normal = split.planes(JOINTS)[('knee', 'l')]
+        self.normal = seams.unit(normal)
+
+    def test_a_knee_pad_is_the_patch_of_one_material_over_the_knee_joint(self):
+        pad = split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'l')
+        self.assertTrue(np.array_equal(pad, self.materials == 1))
+        self.assertIsNone(split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'r'))  # no leg there
+        self.assertIsNone(split.guard(self.v, self.f, np.zeros(len(self.f), int), JOINTS, 'knee', 'l'))  # the trousers reach farther
+        v, f, _, guard = padded_leg(low=0.35)  # one patch with a guard down the shin is still the knee's pad
+        self.assertTrue(np.array_equal(split.guard(v, f, guard, JOINTS, 'knee', 'l'), guard == 1))
+        v, f, _, long = padded_leg(high=0.3)  # one that runs up the thigh is no pad
+        self.assertIsNone(split.guard(v, f, long, JOINTS, 'knee', 'l'))
+        small = (self.materials == 1) & (np.abs(self.v[self.f].mean(axis=1)[:, 2] - JOINTS['lshin_g'][2]) < 0.012)
+        self.assertTrue(small.any())
+        self.assertIsNone(split.guard(self.v, self.f, small.astype(int), JOINTS, 'knee', 'l'))  # a strap's end over the knee
+        speck = self.materials.copy()
+        inside = np.flatnonzero(self.materials == 1)
+        middle = inside[np.argmin(np.linalg.norm(self.v[self.f[inside]].mean(axis=1) - (np.array(JOINTS['lshin_g']) + (0, 0.07, 0.04)), axis=1))]
+        speck[middle] = 2  # a face read wrongly inside the pad is the pad's
+        self.assertTrue(np.array_equal(split.guard(self.v, self.f, speck, JOINTS, 'knee', 'l'), self.materials == 1))
+        with self.assertRaises(ValueError):
+            split.guard(self.v, self.f, self.materials[:-1], JOINTS, 'knee', 'l')
+
+    def test_a_knee_pad_is_cut_on_the_plane_and_the_shins_cap_carries_its_rim_round_the_knee(self):
+        pad, depth = self.materials == 1, {('knee', 'l'): 0.04}
+        height = lambda points: (points - self.point) @ self.normal  # past the plane on the shin's side
+        was, made = {}, {}
+        cut = split.split(self.v, self.f, self.t, JOINTS, RADII, depth, made=was)
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, depth, guards={('knee', 'l'): pad}, made=made)
+        for name in parts:  # each half of the pad stays on its part: nothing but the shin's cap differs
+            if name != 'shinl':
+                self.assertEqual(len(parts[name][1]), len(cut[name][1]), name)
+                self.assertTrue(np.array_equal(parts[name][0], cut[name][0]) and np.array_equal(made[name], was[name]), name)
+        self.assertEqual(sorted(set(was['shinl'].tolist())), [split.OWN, split.CAP])
+        self.assertEqual(sorted(set(made['shinl'].tolist())), [split.OWN, split.CAP, split.PADDED])
+        self.assertEqual(int((made['shinl'] == split.OWN).sum()), int((was['shinl'] == split.OWN).sum()))
+        self.assertEqual(int((made['shinl'] != split.OWN).sum()) * (2 * split.CAP_STEPS - 1), int((was['shinl'] != split.OWN).sum()) * (2 * split.GUARD_STEPS - 1))
+        points, faces, _ = parts['shinl']
+        self.assertAlmostEqual(-height(cut['shinl'][0]).min(), 0.04, places=6)  # a cap as deep as it was asked for
+        reach = np.linalg.norm((self.v[self.f[pad]] - self.point)[np.abs(height(self.v[self.f[pad]])) < 0.01], axis=1).max()
+        self.assertGreater(-height(points).min(), 0.9 * (1 - split.GUARD_TUCK) * reach)  # under a pad, as far past the plane as the pad is far out
+        under = points[np.unique(faces[made['shinl'] == split.PADDED])] - self.point
+        self.assertTrue(np.all(np.hypot(under[:, 1], under[:, 2]) < reach + 1e-6))  # carried round the hinge, across the leg
+        self.assertGreater(under[:, 1].max(), 0.9 * reach)  # from the front of the knee
+        self.assertAlmostEqual(under[:, 1].min(), (1 - split.GUARD_TUCK) * under[:, 1].max() * np.cos(np.radians(split.GUARD_SWEEP)), delta=0.003)
+        for bad in ({('knee', 'l'): pad[:-1]}, {('knee', 'x'): pad}, {('hip', 'l'): pad}):
+            with self.assertRaises(ValueError):
+                split.split(self.v, self.f, self.t, JOINTS, RADII, guards=bad)
+
+    def test_an_elbow_pad_is_found_behind_the_elbow_or_on_its_outer_side(self):
+        J = {name: np.array(p, float) for name, p in JOINTS.items()}
+        inside = J['lbicep_g'] + 0.06 * seams.unit(J['lbicep_g'] - J['lforearm_g'])
+        beyond = J['lhand_g'] + 0.10 * seams.unit(J['lhand_g'] - J['lforearm_g'])
+        v, f, t = join(tube((0, 0, 0.95), (0, 0, 1.60), 0.15), tube(inside, beyond, 0.05, around=16, along=60))
+        centre = v[f].mean(axis=1) - J['lforearm_g']
+        behind = ((np.abs(centre[:, 2]) < 0.07) & (centre[:, 1] < -0.015) & (np.abs(centre[:, 0]) < 0.1)).astype(int)
+        outside = ((np.abs(centre[:, 2]) < 0.07) & (centre[:, 0] < -0.015) & (np.abs(centre[:, 0]) < 0.1) & (np.abs(centre[:, 1]) < 0.035)).astype(int)
+        for materials in (behind, outside):  # a pad behind the elbow, and one on its outer side only
+            pad = split.guard(v, f, materials, JOINTS, 'elbow', 'l')
+            self.assertTrue(np.array_equal(pad, materials == 1))
+        self.assertIsNone(split.guard(v, f, np.zeros(len(f), int), JOINTS, 'elbow', 'l'))
+        with self.assertRaises(ValueError):
+            split.guard(v, f, behind, JOINTS, 'hip', 'l')
+        pad, made = behind == 1, {}
+        parts = split.split(v, f, t, JOINTS, RADII, {('elbow', 'l'): 0.03}, guards={('elbow', 'l'): pad}, made=made)
+        self.assertEqual(sorted(set(made['forel'].tolist())), [split.OWN, split.CAP, split.PADDED])
+        self.assertEqual(set(made['bicepl'].tolist()) - {split.CLOSING}, {split.OWN})  # the upper arm keeps its half as it was cut
+        points, faces, _ = parts['forel']
+        under = points[np.unique(faces[made['forel'] == split.PADDED])] - J['lforearm_g']
+        self.assertTrue(under[:, 1].min() < -0.045 and under[:, 1].max() < 0.02)  # from behind the elbow, round its hinge
+        self.assertAlmostEqual(sum(area(q, g[made[name] == split.OWN]) for name, (q, g, _) in parts.items()), area(v, f), places=6)
 
 if __name__ == '__main__':
     unittest.main()

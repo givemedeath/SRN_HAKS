@@ -178,6 +178,29 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())
         self.assertTrue(np.array_equal(layers[~closing], plain_layers[~closing]) and np.array_equal(shades[~closing], plain_shades[~closing]))
 
+    def test_beside_a_pad_a_cap_is_the_outfits_cloth(self):
+        channels = ['cloth1', 'leather1', 'metal1']
+        # a cap of 120 texels square: a third repeats the rim's cloth, creased dark in a band, a third the pad's strap,
+        # and a third, grown from the pad's rim, the pad
+        colour = np.zeros((256, 256, 3)); covered = np.ones((256, 256), bool)
+        colour[:] = TAN
+        cap = np.zeros((256, 256), bool); cap[64:184, 64:184] = True
+        colour[64:184, 64:104], colour[64:184, 104:144], colour[64:184, 144:184] = FABRIC, TAN, PLATE
+        colour[64:184, 80:84] = np.array(FABRIC) * 0.6
+        padded = np.zeros((256, 256), bool); padded[64:184, 144:184] = True
+        strap = np.zeros((256, 256), bool); strap[64:184, 104:144] = True
+        as_read = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap)
+        self.assertTrue((as_read[1][strap] == export.LAYERS['leather1']).all())  # wide enough to be no streak
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, padded=padded)
+        cloth = cap & (as_read[1] == export.LAYERS['cloth1'])
+        self.assertTrue((layers[strap] == export.LAYERS['cloth1']).all())
+        self.assertTrue((np.abs(shades[strap] - as_read[0][cloth].mean()) <= 0.5).all())  # at the mean shade of the cap's cloth
+        self.assertTrue(np.array_equal(shades[cloth], as_read[0][cloth]) and shades[cloth].min() < texture.MIDDLE - 30)  # its creases kept
+        self.assertTrue((layers[padded] == export.LAYERS['metal1']).all() and np.array_equal(shades[padded], as_read[0][padded]))
+        self.assertTrue(np.array_equal(layers[~cap], as_read[1][~cap]) and np.array_equal(shades[~cap], as_read[0][~cap]))
+        none = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, padded=np.zeros((256, 256), bool))
+        self.assertTrue(np.array_equal(none[0], as_read[0]) and np.array_equal(none[1], as_read[1]))  # a cap with no pad is as it was
+
     def test_a_cap_keeps_its_rims_materials_without_their_streaks(self):
         channels = ['cloth1', 'leather1', 'metal1']
         # a cap of 128 texels square in a texture of 256: its left half repeats the rim's cloth, creased dark in a band and

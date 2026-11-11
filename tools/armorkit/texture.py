@@ -363,7 +363,7 @@ def added_second(vertices, faces, added, flags):
         known[target] = True
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -389,8 +389,15 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     guard strapped over it, the cap was streaked with both. Each of its texels takes the material most of
     the cap's texels show within a texture's side over `CAP_STREAK` of it: a streak goes, a pad stays. A
     texel that changes material gets the mean shade of the cap's texels that were read as that material;
-    the others keep their shades. A thigh's closing toward the other leg is flagged with its cap, not as a
-    closing: its rim is the trousers' own, and drawn as that it does not stand out beside the crotch."""
+    the others keep their shades. A thigh's closing toward the other leg (`split.WALL`) is flagged with its
+    cap, not as a closing: its rim is the trousers' own, and drawn as that it does not stand out beside the
+    crotch.
+
+    `padded` flags the texels of a cap that grew from a pad's rim (the faces reported as `PADDED`). On a cap
+    that has any, the others are the limb beside the pad, and are drawn as the outfit's cloth, the first of
+    `found`: a pad's strap runs round the joint along the rim, and read as its rim the side of a knee's cap
+    was a flat triangle of webbing in the gap the bend opens. A texel read as cloth keeps its shade; the
+    others get the mean shade of those."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
     require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
@@ -407,6 +414,12 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
     material[plain], shade[plain] = 0, MIDDLE
     dome = covered & np.asarray(cap, bool) & ~plain if cap is not None else plain & False
+    if padded is not None and (dome & np.asarray(padded, bool)).any():
+        beside = dome & ~np.asarray(padded, bool)
+        read = beside & (material == 0)
+        shade[beside & ~read] = shade[read].mean() if read.any() else MIDDLE
+        material[beside] = 0
+        dome = dome & ~beside
     if dome.any():
         reach = max(1, covered.shape[0] // CAP_STREAK)
         settled = np.argmax([smooth(dome & (material == k), reach) for k in range(len(pairs))], axis=0)

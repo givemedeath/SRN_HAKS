@@ -93,7 +93,13 @@ when the body sat or crouched. The game stands a body with its thighs turned out
 the legs at the front; the patches were the thighs' flat inner walls and the hole the pelvis, open on both hip
 planes. The pelvis is now closed on both planes and repeats a strip of the trousers along the crotch, just
 under the thighs. A cap keeps the materials its rim shows without their streaks, so the knee between the two
-halves of its pad is the pad, and the thighs' inner walls are drawn as the trousers they close. The accent and
+halves of its pad is the pad, and the thighs' inner walls are drawn as the trousers they close.
+
+The knee and elbow pads are cut in two on their joint planes, and sitting, the upper half of a knee pad lay
+along the top of the thigh with trousers showing between the halves. Giving the whole pad to the shin or the
+forearm was tried and taken back: it swung off the thigh at any bend and stood out behind a bent elbow. The
+shin's and the forearm's caps now carry the pad's rim round the joint's hinge, in the pad's material, so the
+gap a bend opens between the two halves is filled out to their cut edges. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in
