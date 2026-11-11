@@ -122,21 +122,21 @@
       "tools/headkit/comfy.py"
     ],
     "tools/envkit/convert.py": [],
-    "tools/envkit/fixture.py": [
+    "tools/envkit/meshy.py": [],
+    "tools/envkit/preview_blender.py": [],
+    "tools/envkit/prop_fixture.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/phenotypes/tool_runtime.py"
     ],
-    "tools/envkit/meshy.py": [],
-    "tools/envkit/preview_blender.py": [],
     "tools/envkit/reference.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],
     "tools/envkit/test_convert.py": [
       "tools/envkit/convert.py",
-      "tools/envkit/fixture.py"
+      "tools/envkit/prop_fixture.py"
     ],
     "tools/envkit/test_meshy.py": [
       "tools/envkit/meshy.py"
@@ -1088,7 +1088,6 @@
       "tools/headkit/common.py"
     ],
     "tools/headkit/test_verified_startup.py": [
-      "tools/envkit/fixture.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/source_snapshot.py",
       "tools/headkit/comfy_nodes/verification.py",
@@ -4854,9 +4853,7 @@
       "tools/test_impact.py"
     ]
   },
-  "unresolved": [
-    "tools/headkit/test_verified_startup.py"
-  ],
+  "unresolved": [],
   "packReferences": {
     "tools/armorkit/test_measure.py": [
       "srn_body",

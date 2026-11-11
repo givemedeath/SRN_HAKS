@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import convert, fixture
+from . import convert, prop_fixture as fixture
 
 
 def glb(path, vertices, normals, uvs, faces, *, rotation=None):
