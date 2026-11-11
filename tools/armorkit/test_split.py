@@ -304,5 +304,108 @@ class SplitTests(unittest.TestCase):
         self.assertEqual(calls, [{}])
 
 
+def fused(armpit=1.44, depth=0.05, half=0.045):
+    """A flat torso and left arm that are one surface down to the armpit, as a generated outfit's are.
+
+    Its outline is extruded front to back: above the armpit one strip from the arm's outer side to the torso's
+    right side, below it an arm strip and a torso strip, with the underside of the web between them. Vertices
+    are shared, as in a real mesh."""
+    arm = lambda z: -0.2 - (1.55 - z) * 0.1 / 0.27  # the arm's middle, through the shoulder and elbow joints
+    levels = np.linspace(1.60, 1.00, 31)
+    index, points, faces = {}, [], []
+
+    def vertex(x, y, z):
+        key = (round(x, 6), round(y, 6), round(z, 6))
+        if key not in index:
+            index[key] = len(points); points.append(key)
+        return index[key]
+
+    def quad(a, b, c, d):
+        corners = [vertex(*p) for p in (a, b, c, d)]
+        faces.extend([(corners[0], corners[1], corners[2]), (corners[0], corners[2], corners[3])])
+
+    def columns(z, joined):
+        inner = min(arm(z) + half, -0.16)
+        return [(arm(z) - half, inner), (inner, -0.15), (-0.15, 0.15)] if joined else [(arm(z) - half, arm(z) + half), (-0.15, 0.15)]
+
+    for top, bottom in zip(levels[:-1], levels[1:]):
+        joined = (top + bottom) / 2 > armpit
+        for (a0, b0), (a1, b1) in zip(columns(top, joined), columns(bottom, joined)):
+            for y in (depth, -depth):  # front and back
+                quad((a0, y, top), (b0, y, top), (b1, y, bottom), (a1, y, bottom))
+        walls = [columns(z, joined)[0][0] for z in (top, bottom)], [0.15, 0.15]
+        if not joined:  # the arm's inner side and the torso's left side
+            walls += ([arm(z) + half for z in (top, bottom)], [-0.15, -0.15])
+        for x0, x1 in walls:
+            quad((x0, depth, top), (x0, -depth, top), (x1, -depth, bottom), (x1, depth, bottom))
+    for a, b in columns(1.60, True):  # the top, and the underside of the web at the armpit
+        quad((a, depth, 1.60), (b, depth, 1.60), (b, -depth, 1.60), (a, -depth, 1.60))
+    z = levels[np.argmin(np.abs(levels - armpit))]
+    quad((arm(z) + half, depth, z), (-0.15, depth, z), (-0.15, -depth, z), (arm(z) + half, -depth, z))
+    return np.array(points), np.array(faces), np.zeros((len(points), 2))
+
+
+def open_edges(faces):
+    edges = np.sort(np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]]), axis=1)
+    edges, count = np.unique(edges, axis=0, return_counts=True)
+    return edges[count == 1]
+
+
+class SleeveTests(unittest.TestCase):
+    def setUp(self):
+        self.v, self.f, self.t = fused()
+        self.planes = split.planes(JOINTS)
+
+    def on(self, points, key):
+        point, normal = self.planes[key]
+        return np.abs((points - point) @ seams.unit(normal)) < 1e-6
+
+    def test_a_sleeve_fused_with_the_torso_is_found_and_an_arm_of_its_own_is_not(self):
+        seam = split.sleeve(self.v, self.f, JOINTS, 'l')
+        self.assertGreater(seam['normal'][0], 0.9)  # it faces the torso
+        self.assertTrue(0.09 < seam['depth'] < 0.15, seam['depth'])  # the armpit, down the arm from the shoulder plane
+        inside = (np.array([-0.2 + 0.045, 0, 1.55]) - seam['point']) @ seam['normal']
+        self.assertTrue(-0.02 < inside < 0.02, inside)  # at the sleeve's inner side
+        self.assertIsNone(split.sleeve(self.v, self.f, JOINTS, 'r'))  # there is no right arm
+        self.assertIsNone(split.sleeve(*figure()[:2], JOINTS, 'l'))  # tubes: the arm is its own surface
+
+    def test_the_sleeve_is_cut_off_along_the_arm_and_both_openings_are_closed(self):
+        seam = split.sleeve(self.v, self.f, JOINTS, 'l')
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII)
+        self.assertLessEqual({'chest', 'bicepl', 'forel', 'pelvis'}, set(parts))  # the figure's arm ends at the wrist
+        sleeve, sleeve_faces, _ = parts['bicepl']
+        self.assertGreater(area(sleeve, sleeve_faces), 0.05)
+        self.assertLess(((sleeve - seam['point']) @ seam['normal']).max(), 1e-6)  # nothing past the seam
+        loose = open_edges(sleeve_faces)
+        self.assertTrue(len(loose))
+        for key in (('shoulder', 'l'), ('elbow', 'l')):  # its only open edges are its two joint rims
+            loose = loose[~self.on(sleeve[loose], key).all(axis=1)]
+        self.assertEqual(len(loose), 0)
+        chest, chest_faces, _ = parts['chest']
+        loose = open_edges(chest_faces)
+        for key in (('shoulder', 'l'), ('waist', 'c')):
+            loose = loose[~self.on(chest[loose], key).all(axis=1)]
+        self.assertEqual(len(loose), 0)
+        # the two closing fans lie on the seam and face each other
+        for (points, faces, _), facing in ((parts['bicepl'], 1.0), (parts['chest'], -1.0)):
+            on_seam = np.abs((points - seam['point']) @ seam['normal'])[faces].max(axis=1) < 1e-6
+            self.assertTrue(on_seam.any())
+            self.assertTrue(np.all(facing * (normals(points, faces)[on_seam] @ seam['normal']) > 0))
+
+    def test_the_sleeves_cap_grows_from_its_closed_rim(self):
+        plain = split.split(self.v, self.f, self.t, JOINTS, RADII)['bicepl']
+        capped = split.split(self.v, self.f, self.t, JOINTS, RADII, {('shoulder', 'l'): 0.05})['bicepl']
+        point, normal = self.planes[('shoulder', 'l')]
+        self.assertGreater(len(capped[1]), len(plain[1]))
+        self.assertLess(((capped[0] - point) @ seams.unit(normal)).min(), -0.02)  # past the plane, under the chest
+        loose = open_edges(capped[1])
+        self.assertFalse(self.on(capped[0][loose], ('shoulder', 'l')).all(axis=1).any())  # the whole rim is taken up
+
+    def test_a_sleeve_fused_down_to_the_elbow_is_refused(self):
+        v, f, _ = fused(armpit=1.10)
+        with self.assertRaises(ValueError):
+            split.sleeve(v, f, JOINTS, 'l')
+
+
 if __name__ == '__main__':
     unittest.main()
