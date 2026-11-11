@@ -48,6 +48,9 @@ class CatalogTests(unittest.TestCase):
             path.write_text(json.dumps({**again, 'tileGroups': [{**GROUP, 'models': ['ek_shop_t00']}]}), encoding='utf-8')  # two tiles, one model
             with self.assertRaisesRegex(ValueError, 'tile group entry is incomplete'):
                 catalog.load(path)
+            path.write_text(json.dumps({**again, 'placeables': again['placeables'] + [{**PLACED, 'model': 'ek_c'}]}), encoding='utf-8')  # as a merge can leave it
+            with self.assertRaisesRegex(ValueError, 'more than one entry for: 22740'):
+                catalog.load(path)
             path.write_text('{"kind": "something else"}', encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'Additions catalog required'):
                 catalog.load(path)
@@ -61,7 +64,7 @@ class BlueprintTests(unittest.TestCase):
         self.assertEqual((value('LocName'), value('Static'), value('Plot'), value('Useable')), ({'0': 'Shop, Bin'}, 1, 1, 0))
         self.assertEqual(blueprints.blueprint('ek_a', 22740, 'Shop, Bin', 158, static=False)['Static']['value'], 0)  # its lights can be put out by script
         self.assertTrue(all(made[event] == {'type': 'resref', 'value': ''} for event in blueprints.EVENTS))
-        for resref, category in (('EK_A', 158), ('ek_a_name_much_too_long', 158), ('ek_a', 300)):
+        for resref, category in (('EK_A', 158), ('ek_a_name_much_too_long', 158), ('ek_caf\u00e9', 158), ('ek_a', 300)):
             with self.assertRaisesRegex(ValueError, 'blueprint'):
                 blueprints.blueprint(resref, 22740, 'Shop, Bin', category)
 
@@ -83,6 +86,9 @@ class BlueprintTests(unittest.TestCase):
             blueprints.palette(skeleton, stock, [{'resref': 'ek_x', 'name': 'X', 'category': 77}])
         with self.assertRaisesRegex(ValueError, 'already lists plc_barrel'):
             blueprints.palette(skeleton, stock, [{'resref': 'plc_barrel', 'name': 'Again', 'category': 9}])
+        loose = {'MAIN': blueprints.field('list', stock['MAIN']['value'] + [node(STRREF=9000, LIST=[listed('plc_stray')])])}  # a blueprint under no category
+        with self.assertRaisesRegex(ValueError, 'outside any category'):
+            blueprints.palette(skeleton, loose, [])
         with self.assertRaisesRegex(ValueError, 'the pack\'s tree lacks: 9'):
             blueprints.palette({'MAIN': blueprints.field('list', [node(ID=158, STRREF=7001)])}, stock, [])
 

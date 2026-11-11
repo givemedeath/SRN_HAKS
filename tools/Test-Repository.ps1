@@ -216,15 +216,19 @@ try {
     $additions = Get-Content -LiteralPath $additionsPath -Raw | ConvertFrom-Json
     if ($additions.kind -cne 'srn-additions-catalog' -or $additions.schemaVersion -ne 1) { throw 'not an additions catalog (schema 1)' }
     $tableRelative = [string]$additions.baseline.placeables.table
+    $gameText = [Text.Encoding]::GetEncoding(1252)  # as envkit writes the table and the set files
     $lastImported = [int]$additions.baseline.placeables.lastImportedRow
     $tableRows = @{}
-    foreach ($line in [IO.File]::ReadAllLines((Join-Path $repoRoot $tableRelative), [Text.Encoding]::Latin1)) {
+    foreach ($line in [IO.File]::ReadAllLines((Join-Path $repoRoot $tableRelative), $gameText)) {
         if ($line -notmatch '^\s*(\d+)\s' -or [int]$Matches[1] -le $lastImported) { continue }
         $tokens = @([regex]::Matches($line, '"[^"]*"|\S+') | ForEach-Object { $_.Value })
         if ($tokens.Count -gt 3) { $tableRows[[int]$tokens[0]] = @($tokens[1].Trim('"'), $tokens[3].ToLowerInvariant()) }
     }
     $listedRows = @{}
-    foreach ($entry in @($additions.placeables)) { $listedRows[[int]$entry.row] = $entry }
+    foreach ($entry in @($additions.placeables)) {
+        if ($listedRows.ContainsKey([int]$entry.row)) { Add-ValidationError "The additions catalog has more than one entry for row $($entry.row)." }
+        $listedRows[[int]$entry.row] = $entry
+    }
     foreach ($row in @($tableRows.Keys | Sort-Object)) {
         if (-not $listedRows.ContainsKey($row)) { Add-ValidationError "$tableRelative row $row ($($tableRows[$row][1])) is not in docs/additions/catalog.json."; continue }
         $entry = $listedRows[$row]
@@ -251,7 +255,7 @@ try {
     }
     foreach ($tilesetName in $baselineNames) {
         $baseline = $additions.baseline.tilesets.$tilesetName
-        $setText = [IO.File]::ReadAllText((Join-Path $repoRoot $baseline.set), [Text.Encoding]::Latin1)
+        $setText = [IO.File]::ReadAllText((Join-Path $repoRoot $baseline.set), $gameText)
         $tileModels = @{}
         foreach ($match in [regex]::Matches($setText, '(?m)^\[TILE(\d+)\]\r?\nModel=([^\r\n]+)')) { $tileModels[[int]$match.Groups[1].Value] = $match.Groups[2].Value }
         $setGroups = @{}
@@ -263,7 +267,10 @@ try {
                 tiles = @(for ($index = 0; $index -lt $count; $index++) { [int]$fields["Tile$index"] }) }
         }
         $listedGroups = @{}
-        foreach ($entry in @($additions.tileGroups | Where-Object { $_.tileset -ceq $tilesetName })) { $listedGroups[[int]$entry.group] = $entry }
+        foreach ($entry in @($additions.tileGroups | Where-Object { $_.tileset -ceq $tilesetName })) {
+            if ($listedGroups.ContainsKey([int]$entry.group)) { Add-ValidationError "The additions catalog has more than one entry for group $($entry.group) of $tilesetName." }
+            $listedGroups[[int]$entry.group] = $entry
+        }
         $collected = [System.Collections.Generic.HashSet[int]]::new()
         foreach ($number in @($setGroups.Keys | Where-Object { $_ -ge [int]$baseline.importedGroups } | Sort-Object)) {
             if (-not $listedGroups.ContainsKey($number)) { Add-ValidationError "$($baseline.set) group $number ($($setGroups[$number].name)) is not in docs/additions/catalog.json."; continue }

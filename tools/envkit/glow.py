@@ -115,14 +115,13 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
     if not shining.any():
         return None
     pad = 2 * reach; pictures, frames = [], []
+    if toward is not None:  # the upright side each texel faces most nearly, or none where it faces up or down
+        along = np.stack([toward[..., 0] * x + toward[..., 1] * y for x, y in SIDES], -1)
+        faced = np.where(along.max(-1) > 0.5, along.argmax(-1), -1)
     for side, (ahead_x, ahead_y) in enumerate(SIDES):
         # In the card's own frame: across (the viewer's left is positive), depth towards the viewer, height.
         frame = lambda places: np.stack([places[:, 0] * ahead_y - places[:, 1] * ahead_x, places[:, 0] * ahead_x + places[:, 1] * ahead_y, places[:, 2]], 1)
-        if toward is None:
-            mine = shining if side == 0 else np.zeros_like(shining)
-        else:
-            along = np.stack([toward[..., 0] * x + toward[..., 1] * y for x, y in SIDES], -1)
-            mine = shining & (along.argmax(-1) == side) & (along.max(-1) > 0.5)
+        mine = shining & (faced == side) if toward is not None else shining if side == 0 else np.zeros_like(shining)
         if not mine.any():
             continue
         spots = frame(where[mine]); colours = lit[mine]; order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]

@@ -147,7 +147,9 @@
       "tools/phenotypes/tool_runtime.py",
       "tools/shared_tools.py"
     ],
-    "tools/envkit/blueprints.py": [],
+    "tools/envkit/blueprints.py": [
+      "tools/envkit/placeables.py"
+    ],
     "tools/envkit/catalog.py": [
       "docs/additions/catalog.json"
     ],

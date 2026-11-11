@@ -36,6 +36,9 @@ def load(path):
     for entry in data['tileGroups']:
         require(set(entry) >= GROUP_KEYS and set(entry) <= GROUP_KEYS | {'label', 'door'} and len(entry['tiles']) == len(entry['models']) == entry['rows'] * entry['columns'],
                 'A tile group entry is incomplete: ' + str(entry.get('name')))
+    numbers = [entry['row'] for entry in data['placeables']] + [(entry['tileset'], entry['group']) for entry in data['tileGroups']]
+    twice = sorted({str(number) for number in numbers if numbers.count(number) > 1})
+    require(not twice, 'The catalog has more than one entry for: ' + ', '.join(twice))
     return data
 
 

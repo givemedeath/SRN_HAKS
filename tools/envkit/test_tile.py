@@ -178,7 +178,7 @@ class TileTests(unittest.TestCase):
 
     def test_the_lid_follows_the_buildings_outline_and_the_lights_hang_over_open_ground(self):
         rows, columns, corner = tile.layout(SHOP[0]); found = tile.survey(*SHOP, rows, columns, corner)
-        strips = tile.lid(found, 0, 0, 2.0); area = sum((x1 - x0) * (y1 - y0) for x0, y0, x1, y1 in strips)
+        strips = tile.lid(found, 0, 0); area = sum((x1 - x0) * (y1 - y0) for x0, y0, x1, y1 in strips)
         self.assertTrue(18.0 <= area <= 21.0)  # the 6 by 3 metres the walls enclose, to the grain of the survey
         self.assertTrue(all(-3.2 <= x0 < x1 <= 3.2 and -2.2 <= y0 < y1 <= 1.2 for x0, y0, x1, y1 in strips))
         first, second = tile.light_places(found, 0, 0)

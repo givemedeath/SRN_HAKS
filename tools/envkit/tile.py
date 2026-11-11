@@ -196,9 +196,9 @@ def _walk_node(name, parent, vertices, faces):
     return lines + ['  aabb ' + form(boxes[0])] + ['    ' + form(b) for b in boxes[1:]] + ['endnode']
 
 
-def lid(found, row, column, height):
+def lid(found, row, column):
     """The lid over the building's outline in one tile, as strips: [(x0, y0, x1, y1)] in the tile's space. Rows of the
-    outline that run alike are joined into one strip."""
+    outline that run alike are joined into one strip. The outline is the survey's, taken at eye height."""
     across = CELLS * FINE; closed = found['footprint'][row * across:(row + 1) * across, column * across:(column + 1) * across]
     side = np.linspace(-SIZE / 2, SIZE / 2, across + 1); strips, open_runs = [], {}
     for y in range(across + 1):
@@ -345,7 +345,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                     parts.append((vertices[used] - centre, normals[used], uvs[used], local.reshape(-1, 3), hidden))
             walk = walkmesh(found, row, column); lights = light_places(found, row, column)
             text = model_text(model, parts, name, ground, cards.get((row, column), []), walk, lights=lights, fade=fade,
-                              cap=lid(found, row, column, fade) if fade is not None else ())
+                              cap=lid(found, row, column) if fade is not None else ())
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
             one = {'model': model, 'row': row, 'column': column, 'faces': int(here.sum()), 'fadingFaces': int((here & high).sum()), 'walkFaces': int(len(walk[1])),

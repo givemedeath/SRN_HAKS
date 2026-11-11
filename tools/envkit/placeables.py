@@ -10,6 +10,7 @@ COLUMNS = ('Label', 'StrRef', 'ModelName', 'LightColor', 'LightOffsetX', 'LightO
            'LowGore', 'Reflection', 'Static')
 TOKEN = re.compile(r'"[^"]*"|\S+')
 PREFIX = '[envkit]'
+RESREF = re.compile(r'[a-z0-9_]{1,16}')  # a model or blueprint name: the game reads these letters alike whatever the code page
 
 
 def rows(text):
@@ -34,7 +35,7 @@ def register(text, entries, *, again=False):
     number, made = int(last.split()[0]), {}
     for entry in entries:
         model, label = entry['model'], entry['label']
-        require(model == model.lower() and re.fullmatch(r'[a-z0-9_]{1,16}', model), 'A placeable model is a lowercase resref: ' + model)
+        require(RESREF.fullmatch(model), 'A placeable model is a lowercase resref: ' + model)
         require(model not in named, 'The placeables table already names ' + model)
         sound = entry['sound']
         require(label and '"' not in label and (sound is None or (isinstance(sound, int) and sound >= 0)), 'A placeable needs a label and a sound row: ' + model)

@@ -8,7 +8,7 @@ list with these blueprints added, laid out on the pack's category tree (`placeab
 The fields of a blueprint are the game's own for a plain placeable (read off `plc_rubble.utp`, 2026-11-11)."""
 import copy
 
-from . import require
+from . import placeables, require
 
 PALETTE = 'placeablepalstd.itp'
 SKELETON = 'placeablepal.itp'
@@ -24,7 +24,7 @@ def blueprint(resref, row, name, category, *, static=True, comment=''):
     """A scenery blueprint as nwn_gff's JSON: row `row` of the placeables table, named `name`, in palette category
     `category`. It cannot be destroyed or used. `static` makes it scenery no script can reach; one whose lights a
     script should be able to put out (`convert.lights_script`) is made not static."""
-    require(resref == resref.lower() and 0 < len(resref) <= 16 and resref.replace('_', '').isalnum(), 'A blueprint is named by a lowercase resref: ' + resref)
+    require(placeables.RESREF.fullmatch(resref), 'A blueprint is named by a lowercase resref: ' + resref)
     require(type(row) is int and row >= 0 and type(category) is int and 0 <= category <= 255 and name, 'A blueprint needs its row, its name and a palette category: ' + resref)
     values = {'Appearance': ('dword', row), 'LocName': ('cexolocstring', {'0': name}), 'Description': ('cexolocstring', {}), 'Tag': ('cexostring', resref),
               'TemplateResRef': ('resref', resref), 'PaletteID': ('byte', category), 'Comment': ('cexostring', comment), 'Static': ('byte', 1 if static else 0),
@@ -50,6 +50,8 @@ def palette(skeleton, stock, entries):
                 listed.setdefault(node['ID']['value'], []).extend(copy.deepcopy(one) for one in inner if 'RESREF' in one)
             gather([one for one in inner if 'RESREF' not in one])
     gather(stock['MAIN']['value'])
+    count = lambda nodes: sum(1 if 'RESREF' in node else count(node.get('LIST', {}).get('value', [])) for node in nodes)
+    require(sum(map(len, listed.values())) == count(stock['MAIN']['value']), 'The game\'s palette lists blueprints outside any category: none may be left out')
     known = set()
 
     def identify(nodes):

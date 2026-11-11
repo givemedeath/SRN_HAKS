@@ -19,8 +19,9 @@ of each tileset that has additions.
 
 - every row of `placeables.2da` above the baseline is in the catalog, with the same model and label, and the rows
   run on without a gap
-- every tile and group above a tileset's baseline is in the catalog, and each group's name, size, tile numbers and
-  tile models match the set file
+- every group above a tileset's baseline is in the catalog, with the name, size, tile numbers and tile models the
+  set file gives it, and every tile above the baseline belongs to one of those groups
+- no row and no group has two entries
 - every listed model (`.mdl`), tile walkmesh (`.wok`) and blueprint (`.utp`) is a file of the pack the entry names
 - nothing is listed that the packs do not have
 
@@ -83,9 +84,16 @@ group already installed rebuilds it under the tile numbers it has.
 
 ## Adding something by hand
 
-A tile or group made without envkit (the arcology groups are the example) gets its entry by hand, with
+A group made without envkit (the arcology groups are the example) gets its entry by hand, with
 `"madeBy": "hand"` and the same fields as the entries beside it. `source` says where it came from and `provenance`
 names its section of `PROVENANCE.md`.
+
+The catalog records tiles by their group. A tile added outside any group (a terrain tile, a crosser) has no entry
+form yet and fails verification: give the catalog and its check in `tools/Test-Repository.ps1` a form for lone
+tiles before adding one.
+
+A row's label is changed by hand, in the table and in its catalog entry together; `envkit placeables` refuses to
+convert a model again under a label other than the one its row has.
 
 ## Two branches adding at once
 

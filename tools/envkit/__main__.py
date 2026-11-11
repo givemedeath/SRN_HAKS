@@ -32,8 +32,8 @@ def _crunch():
     return shared_tools.resolve_tool('crunch', Path(__file__).resolve().parents[2])['path']
 
 
-def _catalogued(args, kind):
-    """(catalog, its path, what a new entry says of itself): the additions catalog to enter `kind` of thing in."""
+def _catalogued(args):
+    """(catalog, its path, what a new entry says of itself): the additions catalog a command enters its work in."""
     import datetime
     from . import catalog
     repo = Path(args.repo); path = repo / args.catalog
@@ -43,13 +43,13 @@ def _catalogued(args, kind):
     return catalog.load(path), path, {'madeBy': 'envkit', 'source': source, 'provenance': args.provenance, 'added': datetime.date.today().isoformat()}
 
 
-def _entry(old, core, fresh, what):
+def _entry(old, core, origin, what):
     """An entry for the catalog: one already there keeps what it says of its origin; a new one must name its
     PROVENANCE.md section."""
     if old:
         return core
-    require(fresh['provenance'], f'{what} is new to the catalog: name its PROVENANCE.md section with --provenance')
-    return {**core, **fresh}
+    require(origin['provenance'], f'{what} is new to the catalog: name its PROVENANCE.md section with --provenance')
+    return {**core, **origin}
 
 
 def command_crops(args):
@@ -139,6 +139,15 @@ def command_install(args):
     # Every tileset is worked out before anything is copied or written, so a refusal on one leaves none half done.
     prepared = {name: tile.prepare(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
                                    group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
+    from . import catalog
+    data, path, origin = _catalogued(args)
+    numbers = {name: (one['firstTile'], one['group']) for name, one in prepared.items()}
+    for name, (first, number) in numbers.items():  # refused here too, before anything is copied, if the catalog says otherwise
+        old = [entry for entry in data['tileGroups'] if (entry['tileset'], entry['group']) == (name, number)]
+        core = {'tileset': name, 'group': number, 'name': tiles['group'], 'label': tiles['label'], 'rows': made['rows'], 'columns': made['columns'],
+                'tiles': [first + index for index in range(len(made['tiles']))], 'models': [one['model'] for one in made['tiles']], 'pack': args.pack}
+        require(name in data['baseline']['tilesets'], f'The catalog has no baseline for {name}: add its imported tile and group counts first')
+        catalog.put_group(data, _entry(old, core, origin, f'{tiles["group"]} in {name}'))
     copied = []
     for one in made['tiles']:
         copied += [shutil.copyfile(built / 'compiled' / f'{one["model"]}.mdl', shared / f'{one["model"]}.mdl'),
@@ -147,15 +156,6 @@ def command_install(args):
     # The lights-out materials serve a placeable a script can reach; no script reaches a tile, so they stay behind.
     idle = (args.model + '_o', convert.HALO_OUT)
     copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'shared').iterdir()) if path.stem not in idle]
-    from . import catalog
-    data, path, fresh = _catalogued(args, 'tile group')
-    numbers = {name: (one['firstTile'], one['group']) for name, one in prepared.items()}
-    for name, (first, number) in numbers.items():  # refused here, before any set file is written, if the catalog says otherwise
-        old = [entry for entry in data['tileGroups'] if (entry['tileset'], entry['group']) == (name, number)]
-        core = {'tileset': name, 'group': number, 'name': tiles['group'], 'label': tiles['label'], 'rows': made['rows'], 'columns': made['columns'],
-                'tiles': [first + index for index in range(len(made['tiles']))], 'models': [one['model'] for one in made['tiles']], 'pack': args.pack}
-        require(name in data['baseline']['tilesets'], f'The catalog has no baseline for {name}: add its imported tile and group counts first')
-        catalog.put_group(data, _entry(old, core, fresh, f'{tiles["group"]} in {name}'))
     placed = {name: tile.commit(one) for name, one in prepared.items()}
     catalog.save(path, data)
     print(json.dumps({'files': len(copied), 'sets': placed}), flush=True)
@@ -179,17 +179,19 @@ def command_placeables(args):
         rows = {name: there[name] for name in chosen}
     else:
         text, rows = placeables.register(text, [{'model': name, **placed} for name, placed in chosen.items()])
+    from . import catalog
+    data, path, origin = _catalogued(args)
+    for name, row in rows.items():  # refused here, before anything is copied, if the catalog says otherwise
+        old = [entry for entry in data['placeables'] if entry['row'] == row]; label = placeables.PREFIX + chosen[name]['label']
+        # Converting again leaves the table as it is, so the label it gave the row stands too.
+        require(not old or old[0]['label'] == label, f'Row {row} is labelled otherwise in the catalog: a label is changed by hand, in the table and the catalog together')
+        catalog.put_placeable(data, _entry(old, {'row': row, 'model': name, 'label': label, 'pack': args.pack}, origin, name))
     copied = 0
     for name in chosen:
         shutil.copyfile(built / name / 'compiled' / f'{name}.mdl', pack / f'{name}.mdl'); copied += 1
         for path in sorted((built / name / 'source').iterdir()):
             if path.suffix in ('.pwk', '.mtr', '.dds', '.txi'):
                 shutil.copyfile(path, pack / path.name); copied += 1
-    from . import catalog
-    data, path, fresh = _catalogued(args, 'placeable')
-    for name, row in rows.items():
-        old = [entry for entry in data['placeables'] if entry['row'] == row]
-        catalog.put_placeable(data, _entry(old, {'row': row, 'model': name, 'label': placeables.PREFIX + chosen[name]['label'], 'pack': args.pack}, fresh, name))
     table.write_bytes(text.encode('cp1252')); catalog.save(path, data)
     print(json.dumps({'rows': rows, 'files': copied}), flush=True)
 
@@ -225,7 +227,8 @@ def command_blueprints(args):
             if placed is None or 'category' not in placed:
                 continue
             static = placed.get('static', not models[entry['model']].get('lit'))
-            write(blueprints.blueprint(entry['model'], entry['row'], placed['label'], placed['category'], static=static, comment='envkit: ' + entry['source']),
+            write(blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
+                                       comment='envkit: ' + entry['source']),
                   pack / f'{entry["model"]}.utp')
             catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']}); made.append(entry['model'])
         listed = [{'resref': entry['blueprint'], 'name': entry['label'].removeprefix(placeables.PREFIX), 'category': entry['category']}
