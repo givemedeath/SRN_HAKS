@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "19_cas_sector_border_checkpoint.png",
+    "sha256": "b512988c496a4da5e3dae05b77b311d21fb52916a98a1cfd7738d1c4ab761b2f",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "long grey border checkpoint with an office wing, a control tower and a multi-lane inspection canopy", "box": [0, 55, 1200, 482], "notes": "Remove the vehicles, the people, the sky, the mountains and the title text."},
+    "building-front": {"kind": "building", "subject": "front elevation of a long grey border checkpoint with a lane canopy", "box": [48, 515, 762, 648]},
+    "building-rear": {"kind": "building", "subject": "rear elevation of a long grey border checkpoint with garage bays", "box": [796, 520, 1527, 648]},
+    "inspection-booth": {"kind": "prop", "type": "guard-booth", "variant": "Square lane booth with a beacon between yellow guard posts, unmarked.", "subject": "square lane inspection booth with a beacon", "box": [55, 708, 207, 836]},
+    "security-kiosk": {"kind": "prop", "type": "guard-booth", "variant": "Low wide pedestrian kiosk with roof units, unmarked.", "subject": "low wide pedestrian security kiosk", "box": [253, 724, 388, 835]},
+    "barrier-arm": {"kind": "prop", "type": "gate-arm", "variant": "Unmarked boom gate on a short post.", "subject": "boom gate arm on a short post", "box": [429, 762, 604, 833]},
+    "vehicle-bollard": {"kind": "prop", "type": "bollard", "variant": "Single wide retractable steel bollard with a hazard band.", "subject": "wide retractable steel vehicle bollard", "box": [648, 734, 741, 836]},
+    "turnstiles": {"kind": "prop", "type": "turnstile", "variant": "Full-height barred turnstile bank under a canopy.", "subject": "bank of full-height barred turnstiles under a canopy", "box": [775, 722, 969, 836]},
+    "xray-scanner": {"kind": "prop", "type": "scanner-arch", "variant": "Truck-height X-ray arch with a control cabinet, no conveyor.", "subject": "truck-height cargo X-ray scanner arch with a control cabinet", "box": [1008, 705, 1229, 836]},
+    "garage-bay": {"kind": "prop", "type": "garage-bay", "subject": "small concrete inspection garage with a roller door", "box": [1263, 706, 1523, 836]},
+    "guard-tower": {"kind": "prop", "type": "guard-tower", "subject": "medium concrete guard tower with a glazed cabin", "box": [84, 868, 207, 991]},
+    "security-fence": {"kind": "prop", "type": "fence-section", "variant": "Long plain barbed-wire run without footings.", "subject": "long chain-link security fence with barbed wire", "box": [276, 885, 527, 990]},
+    "jersey-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [567, 916, 732, 986]},
+    "checkpoint-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: ground-mounted CAS Sector Entry direction board on two posts.", "subject": "ground-mounted direction sign reading CAS Sector Entry", "box": [779, 894, 930, 988]},
+    "lane-sign": {"kind": "prop", "type": "lane-gantry", "variant": "Small frame of three lane signals.", "subject": "frame of three lane signal signs", "box": [974, 907, 1180, 987]},
+    "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1231, 889, 1337, 988]},
+    "floodlight": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin floodlight on a pole", "box": [1397, 885, 1489, 988]}
+  }
+}

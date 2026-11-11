@@ -1,0 +1,24 @@
+{
+  "sheet": {
+    "file": "17_council_of_denver_intersector_administration_hall.png",
+    "sha256": "36a4d4582083774d30619dc2926e2405b6491b827d01d2f3c797fea80566b1bb",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "monumental stone administration hall with a glazed centre and six hanging banners", "box": [0, 50, 1112, 390], "notes": "Remove the people, the drones, the sky, the mountains and the title text."},
+    "building-front": {"kind": "building", "subject": "front elevation of a monumental stone administration hall", "box": [60, 412, 558, 578]},
+    "building-side": {"kind": "building", "subject": "side elevation of a monumental stone administration hall", "box": [582, 428, 885, 578]},
+    "council-desk": {"kind": "prop", "type": "council-desk", "subject": "curved wooden council desk section with three chairs and an emblem", "box": [5, 936, 166, 1033]},
+    "lectern": {"kind": "prop", "type": "lectern", "subject": "wooden speaking lectern with a microphone and an emblem", "box": [174, 946, 239, 1031]},
+    "security-arch": {"kind": "prop", "type": "scanner-arch", "variant": "Walk-through personal security arch with red light strips.", "subject": "walk-through security scanner arch", "box": [247, 923, 331, 1031]},
+    "stanchions": {"kind": "prop", "type": "stanchions", "variant": "Unbranded chrome posts with a red rope.", "subject": "pair of chrome queue stanchions with a red rope", "box": [343, 955, 424, 1026]},
+    "records-cabinet": {"kind": "prop", "type": "filing-cabinet", "subject": "four-drawer steel filing cabinet", "box": [435, 929, 505, 1030]},
+    "jurisdiction-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Council of Denver Intersector Administration Hall plaque.", "subject": "dark plaque sign reading Council of Denver Intersector Administration Hall", "box": [514, 943, 669, 1020]},
+    "banner-set": {"kind": "prop", "type": "banner-set", "subject": "row of six hanging sector banners on a rail", "box": [678, 926, 868, 1030]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: stone-fronted desk with the Council emblem.", "subject": "stone-fronted reception desk with an emblem", "box": [873, 947, 1019, 1031]},
+    "wall-display": {"kind": "prop", "type": "wall-monitor", "variant": "Large wall display showing the Council emblem.", "subject": "large wall-mounted display monitor", "box": [1026, 924, 1154, 1027]},
+    "bench-seating": {"kind": "prop", "type": "waiting-seats", "variant": "Four-seat grey metal beam seating.", "subject": "row of four grey metal beam seats", "box": [1159, 956, 1295, 1022]},
+    "floodlight": {"kind": "prop", "type": "floodlight", "subject": "twin floodlight on a pole", "box": [1298, 907, 1365, 1030]},
+    "bollard": {"kind": "prop", "type": "bollard", "variant": "Single dark bollard with an amber light band.", "subject": "dark security bollard with a light band", "box": [1376, 943, 1432, 1031]}
+  }
+}
