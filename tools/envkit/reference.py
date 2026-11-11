@@ -16,7 +16,10 @@ LEAD = {
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
     'building': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
                 'Keep exactly the same architecture, colours, proportions, signage and viewing angle. '
-                'Remove the street, pavement, puddles, reflections, litter and everything that is not part of the building.',
+                # The props drawn against the walls stay on the building (user, 2026-11-10: it makes dressing areas faster).
+                'Keep the fixtures and street furniture that stand against its walls, such as bollards, bins and rubbish '
+                'bags, exactly where they are. Remove the street, pavement slab, puddles, reflections and loose litter, '
+                'so the walls and those props end at the ground line.',
 }
 # Left to itself the edit tidies: the first Stuffer Shack pass came back with near-white walls (user, 2026-11-10: "it does
 # look too clean"). The wear is part of the design, so every prompt asks for it by name.
