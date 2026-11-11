@@ -35,7 +35,7 @@ class ReferenceTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()  # the long spelling: a temporary folder can come as a short one
         self.given = document()
         self.path = self.root / 'brief.json'
         self.path.write_text(json.dumps(self.given), encoding='utf-8')

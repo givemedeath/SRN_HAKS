@@ -126,6 +126,18 @@ class GenerateTests(unittest.TestCase):
         self.assertEqual(len(generate.attempts(self.work)['models']['other']), 6)  # another model's history is left as it is
         self.assertEqual(generate.attempts(self.work / 'nowhere'), {'maximumGeometryAttempts': 5, 'models': {}})
 
+    def test_another_spelling_of_a_model_has_no_history_of_its_own(self):
+        earlier = [{'attempt': k + 1, 'token': str(k), 'state': 'complete'} for k in range(5)]
+        (self.work / generate.LEDGER).write_text(json.dumps({'maximumGeometryAttempts': 5, 'models': {'outfit': earlier}}), encoding='utf-8')
+        before = (self.work / generate.LEDGER).read_bytes()
+        for spelling in ('outfit/', './outfit', 'outfit\\', 'Outfit', 'outfit.', 'outfit/.', '../' + self.work.name + '/outfit', '.', ''):
+            with self.subTest(spelling=spelling), self.assertRaises(ValueError) as refused:
+                generate.geometry(self.work, spelling, self.image, 36.6, 'models')
+            self.assertIn('not the name of a model folder', str(refused.exception))
+        with self.assertRaises(ValueError):
+            generate.export(self.work, 'outfit/', self.image, 1000)
+        self.assertEqual(((self.work / generate.LEDGER).read_bytes(), self.engine.posted), (before, []))
+
     def test_an_attempt_with_no_known_outcome_blocks_the_next(self):
         self.engine.lost = True
         with self.assertRaises(ConnectionError):

@@ -11,7 +11,7 @@ anything is posted, and calibrate registers the copies it makes of the image. An
 `MAXIMUM` geometry attempts, counted in `trial-ledger.json` in the work folder before the job is posted; an
 attempt whose outcome is not known blocks the next one until it is reconciled by hand. Export and appearance
 jobs are not counted. The ledger is locked for the whole of an attempt, so two started together cannot both be counted
-as the same one.
+as the same one. A model is named exactly as its folder is, so another spelling of it has no history of its own.
 
 A work folder holds one folder per model, and a model's jobs are numbered folders under `geometry-trial` in it.
 """
@@ -92,11 +92,23 @@ def run(client, url, graph, token, folder, deadline=DEADLINE, poll=POLL):
     return prompt_id, entry, files, round(time.monotonic() - started, 1)
 
 
+def named(work, model):
+    """The model's folder, if `model` is its name exactly as the work folder lists it.
+
+    The name is the model's identity in the attempts ledger. `outfit/`, `./outfit` and, on Windows, `Outfit`
+    or `outfit.` all open the folder `outfit`, and each would start a history of its own there: a model with
+    its five attempts made would get five more under another spelling. Any spelling but the listed one is
+    refused."""
+    work = Path(work).resolve()
+    require(work.is_dir() and isinstance(model, str) and any(entry.name == model and entry.is_dir() for entry in work.iterdir()),
+            f'{model!r} is not the name of a model folder in {work}')
+    return work / model
+
+
 def job(work, model, stage):
     """(work folder, the job's new folder, its token, the prefix the engine keeps its files under)."""
     work = Path(work).resolve()
-    require((work / model).is_dir(), f'{work / model} is not a model folder')
-    root = work / model / JOBS
+    root = named(work, model) / JOBS
     root.mkdir(exist_ok=True)
     folder = root / f'{stage}-{len(list(root.glob(stage + "-*"))) + 1}'
     folder.mkdir()
@@ -151,9 +163,10 @@ def geometry(work, model, image, fov, models, url=reference.URL):
     The ledger is held (`tools.headkit.gpu_lock`) from before it is read until the attempt's outcome is
     written. Two attempts started together in one work folder would otherwise both read it, both pass the
     count, and each overwrite what the other wrote: a sixth job posted with five on record. The second is
-    refused while the first is under way."""
+    refused while the first is under way. The model is named exactly as its folder is (`named`), so another
+    spelling of it cannot start a second history."""
     image = Path(image).resolve()
-    document, _ = brief.admit(image, Path(work) / model)
+    document, _ = brief.admit(image, named(work, model))
     with ExitStack() as held:
         try:
             held.enter_context(locked(Path(work).resolve() / LEDGER))
