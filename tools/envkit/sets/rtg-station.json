@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "32_rtg_light_rail_station.png",
+    "sha256": "81b65383cdb0e17e48f1d4c65041d248ba4a6bb6c6d0fdc2415e20909f140316",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "elevated light-rail station with an arched glazed canopy, a glass elevator tower, stairs and a fare concourse", "box": [0, 14, 885, 530], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of an elevated light-rail station", "box": [875, 134, 1253, 284]},
+    "building-trackside": {"kind": "building", "subject": "trackside elevation of an elevated light-rail platform", "box": [879, 327, 1254, 476]},
+    "fare-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Branding: tap validator post with a green reader and RTG stripes.", "subject": "fare validator post with a green reader", "box": [20, 631, 115, 805]},
+    "platform-bench": {"kind": "prop", "type": "waiting-seats", "variant": "Branding: three-seat steel bench with yellow arms and RTG stripes.", "subject": "three-seat steel platform bench", "box": [131, 693, 322, 806]},
+    "route-map-sign": {"kind": "prop", "type": "schedule-board", "variant": "Branding: lit RTG network map board on striped feet.", "subject": "lit transit network map board", "box": [324, 628, 536, 806]},
+    "turnstile-bank": {"kind": "prop", "type": "turnstile", "same": "union-station/access-turnstile", "subject": "row of three waist-high turnstiles", "box": [542, 687, 792, 805]},
+    "ticket-kiosk": {"kind": "prop", "type": "atm", "variant": "Branding: ticket machine with a Tickets header and RTG stripes.", "subject": "transit ticket machine", "box": [799, 630, 922, 806]},
+    "platform-canopy": {"kind": "prop", "type": "platform-canopy", "subject": "arched glazed platform canopy module on two posts", "box": [930, 616, 1211, 806]},
+    "elevator-access": {"kind": "prop", "type": "stair-module", "variant": "Branding: glazed elevator tower with a stair flight and RTG stripes.", "subject": "glazed elevator tower with a stair flight", "box": [1208, 616, 1437, 806]},
+    "vending-machine": {"kind": "prop", "type": "vending-machine", "variant": "Branding: red RTG drinks machine.", "subject": "red drinks vending machine", "box": [18, 857, 161, 1032]},
+    "security-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: hexagonal booth with two roof cameras and the RTG mark.", "subject": "hexagonal security booth with two roof cameras", "box": [195, 849, 404, 1032]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: RTG Light-Rail wayfinding pylon.", "subject": "freestanding wayfinding pylon sign reading RTG Light-Rail", "box": [432, 848, 557, 1032]},
+    "track-barrier": {"kind": "prop", "type": "crowd-barrier", "variant": "Glazed platform-edge safety rail with a lit top and hazard stripes.", "subject": "glazed platform-edge safety rail", "box": [573, 902, 853, 1030]},
+    "maintenance-cart": {"kind": "prop", "type": "service-tug", "variant": "Branding: yellow flatbed service cart with tool cases and a beacon, RTG stripes.", "subject": "yellow flatbed service cart with tool cases", "box": [869, 881, 1094, 1030]},
+    "light-pole": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin-arm light pole", "box": [1091, 848, 1245, 1032]},
+    "recycle-bins": {"kind": "prop", "type": "recycle-bin", "variant": "Pair of bins, grey for trash and blue for recycling.", "subject": "pair of trash and recycling bins", "box": [1250, 902, 1419, 1032]}
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "30_denver_gridguide_traffic_control_center.png",
+    "sha256": "eae23090eb826f6d719c9cc8cd396e8418fa6ffce6be0932f707be0a0f9cba09",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "concrete traffic control centre with a glazed control tower, rooftop antennas and a lane canopy", "box": [0, 14, 945, 535], "notes": "Remove the title banner, the traffic lights, the road sign and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a concrete traffic control centre with a control tower", "box": [886, 119, 1247, 301]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a concrete traffic control centre", "box": [940, 325, 1250, 495]},
+    "traffic-console-wall": {"kind": "prop", "type": "console-desk", "variant": "Wall of traffic map screens over a three-seat console.", "subject": "wall of traffic map screens over a three-seat console", "box": [5, 628, 346, 806]},
+    "signal-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Grey signal-controller cabinet with a high-voltage mark.", "subject": "grey roadside signal-controller cabinet", "box": [355, 650, 466, 805]},
+    "camera-pole": {"kind": "prop", "type": "security-camera", "variant": "Dome and bullet cameras on a traffic pole with a beacon.", "subject": "traffic pole carrying a dome camera and a bullet camera", "box": [488, 617, 590, 806]},
+    "road-sign-gantry": {"kind": "prop", "type": "lane-gantry", "variant": "Truss gantry carrying a green highway sign over three lane signals.", "subject": "truss gantry carrying a green highway sign over three lane signals", "box": [600, 620, 946, 806]},
+    "access-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: kiosk with a fingerprint screen and the GridGuide mark.", "subject": "access kiosk with a fingerprint screen", "box": [951, 627, 1048, 805]},
+    "barrier-arm": {"kind": "prop", "type": "gate-arm", "variant": "Yellow housing with a red lamp and a red-striped arm.", "subject": "boom gate with a yellow housing and a red-striped arm", "box": [1063, 678, 1290, 804]},
+    "utility-locker": {"kind": "prop", "type": "locker", "variant": "Branding: triple grey lockers lettered GG.", "subject": "bank of three grey steel lockers", "box": [1292, 639, 1442, 806]},
+    "maintenance-workbench": {"kind": "prop", "type": "workbench", "same": "tbird-hangar/maintenance-workbench", "subject": "red maintenance workbench under a tool wall", "box": [7, 867, 245, 1030]},
+    "monitoring-terminal": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "monitoring desk of screens with a chair", "box": [249, 871, 449, 1030]},
+    "monument-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Denver GridGuide panel on a concrete base.", "subject": "monument sign reading Denver GridGuide Traffic Control Center", "box": [448, 859, 665, 1030]},
+    "service-bay-door": {"kind": "prop", "type": "dock-door", "variant": "Roll-up door lettered S-1 in a concrete frame with hazard stripes.", "subject": "roll-up service bay door in a concrete frame", "box": [672, 859, 869, 1029]},
+    "sensor-cluster": {"kind": "prop", "type": "comms-array", "variant": "Radome, dish, masts and a camera on a railed roof platform.", "subject": "rooftop sensor cluster of a radome, a dish and masts", "box": [876, 855, 1116, 1024]},
+    "roadside-bollards": {"kind": "prop", "type": "bollard", "same": "pcc-customs/bollards", "subject": "pair of yellow bollards", "box": [1122, 904, 1230, 1024]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire", "box": [1235, 872, 1443, 1025]}
+  }
+}
