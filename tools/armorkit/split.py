@@ -30,6 +30,7 @@ OVERRUN = 0.03  # two cuts that meet each run this far past the other: a cut sto
 SLEEVE_STEP = 0.01  # the arm is sectioned this far apart when the armpit is looked for
 SLEEVE_FUSED = 1.6  # a section reaching this many times farther toward the torso than away from it is sleeve and torso in one
 SLEEVE_ROOM = 0.003  # the sleeve seam stands this far inside the sleeve's inner side at the armpit
+SLEEVE_WALL = 0.01  # the walls in front of the arm and behind it stand this far outside the sleeve
 SLEEVE_ARMPIT = 0.03  # the sleeve's inner side is taken over this far below the armpit
 
 
@@ -134,12 +135,13 @@ def regions(joints, radii, reach=REACH, reaches=None, whole=()):
     return result
 
 
-def cut(vertices, faces, uvs, point, normal, radius=None):
+def cut(vertices, faces, uvs, point, normal, radius=None, bounds=()):
     """Split the triangles the plane crosses, so that none spans it. Returns (vertices, faces, uvs, origin).
 
     With `radius`, an edge is split only where it crosses within that distance of `point`, measured in the
     plane; a triangle at that rim is split on one edge only and still spans the plane. The choice is made per
-    edge, so the two faces on an edge always agree and no new vertex is left on a whole edge. New vertices lie
+    edge, so the two faces on an edge always agree and no new vertex is left on a whole edge. `bounds` are
+    (point, normal) planes the cut stops at: an edge is not split where it crosses past one. New vertices lie
     on the plane and on an old edge, with texture coordinates carried along; `origin[i]` is the face that new
     face i came from. Face order and winding are kept."""
     v, t = np.asarray(vertices, float), np.asarray(uvs, float)
@@ -160,7 +162,7 @@ def cut(vertices, faces, uvs, point, normal, radius=None):
             s = d[a] / (d[a] - d[b])
             p = v[a] + s * (v[b] - v[a])
             across = p - point
-            if radius is not None and np.linalg.norm(across - (across @ n) * n) > radius:
+            if (radius is not None and np.linalg.norm(across - (across @ n) * n) > radius) or any((p - stop) @ facing > 0 for stop, facing in bounds):
                 made[key] = None
             else:
                 new_v.append(p); new_t.append(t[a] + s * (t[b] - t[a]))
@@ -222,19 +224,27 @@ def classify(centres, parts):
     return np.where(allowed.any(axis=1), constrained.argmin(axis=1), distance.argmin(axis=1))
 
 
+def on_cut(vertices, point, normal, radius, bounds=()):
+    """Which vertices lie on a cut: on its plane, within `radius` of its point measured in the plane, and not
+    past any of `bounds`, the (point, normal) planes the cut stops at."""
+    relative = vertices - point
+    height = relative @ normal
+    on = (np.abs(height) < WELD) & (np.linalg.norm(relative - height[:, None] * normal, axis=1) <= radius)
+    for stop, facing in bounds:
+        on &= (vertices - stop) @ facing <= WELD
+    return on
+
+
 def pieces(vertices, faces, cuts, welded=True):
     """A piece number per face: faces joined edge to edge, never across a cut.
 
-    `cuts` holds (point, normal, limit). An edge lying on a cut plane within its limit separates. With
-    `welded`, vertices at one position are one point; without, only faces that share vertex numbers join."""
+    `cuts` holds (point, normal, limit) or (point, normal, limit, bounds), as `on_cut` takes them. An edge lying
+    on a cut separates. With `welded`, vertices at one position are one point; without, only faces that share
+    vertex numbers join."""
     weld = mesh_ops.weld_ids(vertices, WELD) if welded else np.arange(len(vertices))
-    on_cut = np.zeros((len(vertices), len(cuts)), bool)
-    for column, (point, normal, limit) in enumerate(cuts):
-        relative = vertices - point
-        height = relative @ normal
-        on_cut[:, column] = (np.abs(height) < WELD) & (np.linalg.norm(relative - height[:, None] * normal, axis=1) <= limit)
+    on = np.stack([on_cut(vertices, *found) for found in cuts], axis=1)
     start, end = faces, np.roll(faces, -1, axis=1)  # edge i of a face runs from its corner i to the next
-    joins = ~(on_cut[start] & on_cut[end]).any(axis=2)
+    joins = ~(on[start] & on[end]).any(axis=2)
     edge = np.sort(np.stack([weld[start], weld[end]], axis=2), axis=2)[joins]
     face = np.broadcast_to(np.arange(len(faces))[:, None], faces.shape)[joins]
     order = np.lexsort((edge[:, 1], edge[:, 0]))
@@ -302,17 +312,26 @@ def sleeve(vertices, faces, joints, side):
     """Where a sleeve is cut from the torso it is fused with, or None where the arm is a surface of its own.
 
     The sleeve and the torso of a generated outfit are one surface from the shoulder down to the armpit. That
-    is below the shoulder plane, which therefore cannot part them. The seam is a second plane, along the arm
-    and facing the torso, where a shirt's sleeve is sewn on. It stands just inside the sleeve's inner side as
-    that is right under the armpit, and it runs down to the elbow, so that it also cuts a stray bridge from the
-    upper arm to the flank. A sleeve that widens toward the elbow (a loose cuff, an elbow guard) is cut by it
-    there; both sides of that cut are the sleeve's, so nothing opens. Standing where the sleeve is widest
-    instead, the seam lies inside the flank at the armpit, and the slab of the torso's side it cuts off goes
-    with the arm.
-    Returns its `point`, `normal` and `radius`, the `depth` of the armpit below the shoulder plane, and the
-    `reach` the shoulder plane needs to cut the sleeve's own side of the seam. Both cuts run a few centimetres
-    past where they meet: a cut stops at whole edges, and a triangle left spanning one plane at its rim would
-    join the two sides again."""
+    is below the shoulder plane, which therefore cannot part them. The sleeve is cut out by three more planes
+    along the arm, a trough the arm lies in.
+
+    The seam faces the torso, where a shirt's sleeve is sewn on. It stands just inside the sleeve's inner side
+    as that is right under the armpit, and it runs down to the elbow, so that it also cuts a stray bridge from
+    the upper arm to the flank. Standing where the sleeve is widest instead (an elbow guard), the seam lies
+    inside the flank at the armpit, and the slab of the torso's side it cuts off goes with the arm.
+
+    The two walls stand in front of the arm and behind it, across the seam, just outside the arm's outer half
+    as it is from the shoulder plane to right under the armpit. Whatever the torso wears beside the arm there
+    (a vest's side panel, a pouch behind the arm) is one surface with the sleeve too, and the walls leave it
+    on the torso; the seam alone gives it to the arm, where it rides along when the arm lifts. The seam runs
+    from wall to wall and each wall from the arm's outer side to the seam, each a little past where they meet:
+    a cut stops at whole edges, and a triangle left spanning one plane at its rim would join the two sides
+    again. A sleeve wider farther down than the trough is cut by these planes there; both sides of that cut are
+    the sleeve's, so nothing opens.
+
+    Returns the seam's `point`, `normal`, `radius` and `bounds`, its `walls` (each with the same four), the
+    `depth` of the armpit below the shoulder plane, and the `reach` the shoulder plane needs to cut across the
+    trough."""
     start, end = (np.asarray(joints[side + name], float) for name in ('bicep_g', 'forearm_g'))
     other = np.asarray(joints[('r' if side == 'l' else 'l') + 'bicep_g'], float)
     length = float(np.linalg.norm(end - start))
@@ -321,6 +340,7 @@ def sleeve(vertices, faces, joints, side):
     inward = seams.unit(inward - (inward @ axis) * axis)
     u, v = seams.frame(axis)
     toward, along = np.array([inward @ u, inward @ v]), np.array([-(inward @ v), inward @ u])
+    across = along[0] * u + along[1] * v  # the walls' normal: `along`, in space
     fused, clear, under, armpit = [], [], [], None
     for depth in np.arange(0.0, length, SLEEVE_STEP):
         points = round_origin(seams.section(vertices, faces, start + depth * axis, axis))
@@ -340,22 +360,34 @@ def sleeve(vertices, faces, joints, side):
         return None
     require(clear, f'The {side} sleeve is one surface with the torso down to the elbow')
     seam = float(max((points @ toward).max() for points in under)) + SLEEVE_ROOM
-    own = np.concatenate(fused + clear)
-    own = own[own @ toward <= seam]
-    top = fused[0][fused[0] @ toward <= seam]
-    return {'point': start + seam * inward + length / 2 * axis, 'normal': inward, 'depth': float(armpit),
-            'radius': float(np.hypot(length / 2 + 3 * SLEEVE_STEP, np.abs(own @ along).max() + 3 * SLEEVE_STEP)),
-            'reach': float(np.linalg.norm(top, axis=1).max()) + 3 * SLEEVE_STEP}
+    # the sleeve's width front to back, taken on its outer half: what the torso wears can lie on the inner one
+    wide = np.concatenate([points[points @ toward <= 0] for points in under + fused]) @ along
+    back, front = float(wide.min()) - SLEEVE_WALL, float(wide.max()) + SLEEVE_WALL
+    inside = lambda points: points[(points @ toward <= seam) & (points @ along >= back) & (points @ along <= front)]
+    outer = float(min((inside(points) @ toward).min() for points in fused + clear)) - 3 * SLEEVE_STEP
+    middle = start + length / 2 * axis
+    stop = [(start + seam * inward + OVERRUN * inward, inward)]  # the walls end a little past the seam
+    wall = lambda where, sign: {'point': middle + (seam + outer) / 2 * inward + where * across, 'normal': sign * across, 'bounds': stop,
+                                'radius': float(np.hypot(length / 2 + 3 * SLEEVE_STEP, (seam - outer) / 2 + OVERRUN))}
+    return {'point': middle + seam * inward + (front + back) / 2 * across, 'normal': inward, 'depth': float(armpit),
+            'radius': float(np.hypot(length / 2 + 3 * SLEEVE_STEP, (front - back) / 2 + OVERRUN)),
+            'bounds': [(start + (front + OVERRUN) * across, across), (start + (back - OVERRUN) * across, -across)],
+            'walls': [wall(front, 1.0), wall(back, -1.0)],
+            'reach': float(np.linalg.norm(inside(fused[0]), axis=1).max()) + 3 * SLEEVE_STEP}
 
 
 def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RINGS):
     """Faces that close a part's opening on a cut off the joint planes (a sleeve seam, the cut between the legs):
-    (vertices, uvs, faces) to add, numbered from `base`. `seam` holds the cut's `point`, `normal` and `radius`.
+    (vertices, uvs, faces) to add, numbered from `base`. `seam` holds the cut's `point`, `normal` and `radius`,
+    and may hold the `bounds` it stops at and the `walls` that cut the part beside it (`sleeve`).
 
-    The part's edges on the cut, each on one face only, run from the joint plane down round the armpit or the
-    crotch and back up. Each such line is closed from the middle between its two ends, which lies on the joint
-    plane: the part's rim there is then a closed curve again, which its cap grows from. The closing faces along
-    the cut's normal with `facing` +1 and against it with -1.
+    The part's edges on the cut and on its walls, each on one face only, run from the joint plane down round
+    the armpit or the crotch and back up, from one plane onto the next where the opening turns a corner. Each
+    such line is closed from the middle between its two ends, which lies on the joint plane: the part's rim
+    there is then a closed curve again, which its cap grows from. The closing's faces follow each other along
+    the line, all wound one way, and as a whole it faces along the normals of the planes its edges lie on with
+    `facing` +1 and against them with -1; a wall's normal points away from the arm. One face alone cannot be
+    asked: where the opening turns a corner, a face from the middle to a wall may stand square to that wall.
 
     Every vertex of a closing has the texture coordinates of the point of the line it lies inward from, as a
     cap's have those of its rim, and the middle is one vertex per point of the line: a closing is then drawn
@@ -363,26 +395,27 @@ def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RIN
     the outfit, where a baked colour is whatever surface happens to be nearest.
 
     Without `rim` the closing is a flat fan. With `rim`, the joint's centre and the unit normal of its plane,
-    it is rounded out the way it faces, in `rings` rings, toward the ball about the joint centre that the
-    line's two ends lie on: the part's rim on the joint plane is then closed by an arc of that ball and not by
-    a straight line, so a sleeve is round at the shoulder when the arm lifts off the chest. The closing
-    nowhere leaves the ball, so however the joint turns it stays where the part's own rim already reaches;
-    past the ball, down toward the armpit or the crotch, it is flat. The rounding leans into the joint plane,
-    so the rim stays on it. A line that does not end twice on that plane (the hole or the stub a stray bridge
-    left) is closed flat."""
-    relative = vertices - seam['point']
-    height = relative @ seam['normal']
-    on = (np.abs(height) < WELD) & (np.linalg.norm(relative - height[:, None] * seam['normal'], axis=1) <= seam['radius'])
+    it is rounded out the way it faces on the cut itself, in `rings` rings, toward
+    the ball about the joint centre that the line's two ends lie on: the part's rim on the joint plane is then
+    closed by an arc of that ball and not by a straight line, so a sleeve is round at the shoulder when the arm
+    lifts off the chest. The closing nowhere leaves the ball, so however the joint turns it stays where the
+    part's own rim already reaches; past the ball, down toward the armpit or the crotch, it is flat. The
+    rounding leans into the joint plane, so the rim stays on it. A line that does not end twice on that plane
+    (the hole or the stub a stray bridge left) is closed flat."""
+    found = (seam, *seam.get('walls', ()))
+    planes = [on_cut(vertices, plane['point'], plane['normal'], plane['radius'], plane.get('bounds', ())) for plane in found]
+    on = np.any(planes, axis=0)
     edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
-    edges = edges[on[edges].all(axis=1)]
+    lies = np.stack([plane[edges].all(axis=1) for plane in planes])  # [plane, edge]: both ends on that plane
+    edges, lies = edges[lies.any(axis=0)], lies.argmax(axis=0)[lies.any(axis=0)]
     # The line is traced by position, as `pieces` traces: a vertex repeated at a texture seam is one point of it.
     # The new faces keep the vertex numbers the part's own faces use there, and so their texture coordinates.
     spot = np.full(len(vertices), -1, int)
     spot[on] = mesh_ops.weld_ids(vertices[on], WELD)
-    edges = edges[spot[edges[:, 0]] != spot[edges[:, 1]]]
+    edges, lies = edges[spot[edges[:, 0]] != spot[edges[:, 1]]], lies[spot[edges[:, 0]] != spot[edges[:, 1]]]
     if len(edges):
         _, inverse, count = np.unique(np.sort(spot[edges], axis=1), axis=0, return_inverse=True, return_counts=True)
-        edges = edges[count[inverse.reshape(-1)] == 1]
+        edges, lies = edges[count[inverse.reshape(-1)] == 1], lies[count[inverse.reshape(-1)] == 1]
     new_v, new_t, new_f = [], [], []
     if len(edges):
         line = mesh_ops.union_find(int(spot.max()) + 1, spot[edges].tolist())[spot[edges[:, 0]]]
@@ -413,9 +446,26 @@ def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RIN
                     column[vertex].append(base + len(new_v))
                     new_v.append(rounded(centre + share * (vertices[vertex] - centre), share) if ring else hub)
                     new_t.append(uvs[vertex])
-            for a, b in mine.tolist():
-                normal = np.cross(vertices[a] - centre, vertices[b] - centre)
-                p, q = (a, b) if facing * (normal @ seam['normal']) > 0 else (b, a)
+            # the line's edges in the order they follow each other from one end, each turned to run that way
+            faced = lambda p, q, plane: facing * float(np.cross(vertices[p] - centre, vertices[q] - centre) @ found[plane]['normal'])
+            sides, at = lies[line == label].tolist(), {}
+            for number, (a, b) in enumerate(mine.tolist()):
+                at.setdefault(int(spot[a]), []).append(number); at.setdefault(int(spot[b]), []).append(number)
+            here, left, run = int(spots[np.argmin(uses)]), set(range(len(mine))), []
+            while True:
+                number = next((number for number in at[here] if number in left), None)
+                if number is None:
+                    break
+                left.discard(number)
+                a, b = mine[number].tolist()
+                run.append((a, b, sides[number]) if int(spot[a]) == here else (b, a, sides[number]))
+                here = int(spot[run[-1][1]])
+            if sum(faced(*edge) for edge in run) < 0:
+                run = [(q, p, plane) for p, q, plane in run]
+            for number in sorted(left):  # a line that branches: what the walk did not reach is faced edge by edge
+                a, b = mine[number].tolist()
+                run.append((a, b, sides[number]) if faced(a, b, sides[number]) > 0 else (b, a, sides[number]))
+            for p, q, _ in run:
                 inner_p, inner_q = [p] + column[p], [q] + column[q]
                 for step in range(len(inner_p) - 2):
                     new_f.append((inner_p[step + 1], inner_p[step], inner_q[step]))
@@ -424,6 +474,7 @@ def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RIN
     return np.array(new_v).reshape(-1, 3), np.array(new_t).reshape(-1, uvs.shape[1]), np.array(new_f, int).reshape(-1, 3)
 
 
+####
 def compact(vertices, faces, uvs):
     """(vertices, faces, uvs) holding only the vertices the faces use."""
     used = np.unique(faces)
@@ -517,7 +568,8 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
     require(np.linalg.norm(middle - (left + right) / 2) < HIPS_EVEN and abs((middle - point_r) @ normal_r) < WELD,
             'The two hip planes do not meet midway between the hip joints')
     between = {'point': middle, 'normal': across, 'radius': max(limit[('hip', 'l')], limit[('hip', 'r')])}
-    walls = [(found['point'], found['normal'], found['radius']) for found in (between, *sleeves.values())]
+    walls = [(found['point'], found['normal'], found['radius'], found.get('bounds', ()))
+             for found in (between, *(plane for seam in sleeves.values() for plane in (seam, *seam['walls'])))]
     for wall in walls:
         v, f, t, o = cut(v, f, t, *wall)
         origin = origin[o]

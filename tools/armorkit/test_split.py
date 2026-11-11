@@ -91,6 +91,18 @@ class CutTests(unittest.TestCase):
         self.assertTrue(spans.any())
         self.assertTrue(np.all(nv[nf][spans][:, :, 0] > 0.5))  # only the far tube is left spanning the plane
 
+    def test_a_cut_stops_at_its_bounds(self):
+        v, f, t = tube((0, 0, 0), (0, 0, 1), 0.1, along=3)
+        nv, nf, _, _ = split.cut(v, f, t, (0, 0, 0.4), (0, 0, 1), bounds=[(np.zeros(3), np.array([1.0, 0, 0]))])  # where x <= 0
+        made = nv[len(v):]
+        self.assertTrue(len(made) and np.all(made[:, 0] <= 1e-9))
+        height = nv[nf][:, :, 2] - 0.4
+        spans = (height.max(axis=1) > 1e-9) & (height.min(axis=1) < -1e-9)
+        self.assertTrue(spans.any())
+        self.assertTrue(np.all(nv[nf][spans][:, :, 0].max(axis=1) > -1e-9))  # what still spans the plane reaches past the bound
+        on = split.on_cut(nv, np.array([0, 0, 0.4]), np.array([0, 0, 1.0]), 1.0, [(np.zeros(3), np.array([1.0, 0, 0]))])
+        self.assertEqual(int(on.sum()), len(made))
+
     def test_faces_at_the_rim_of_a_cut_agree_on_their_shared_edge(self):
         v, f, t = tube((0, 0, 0), (0, 0, 1), 0.1, along=3)
         nv, nf, _, origin = split.cut(v, f, t, (0.1, 0, 0.4), (0, 0, 1), radius=0.1)  # reaches a third of the way round
@@ -328,16 +340,19 @@ class SplitTests(unittest.TestCase):
         self.assertEqual(calls, [{}])
 
 
-def fused(armpit=1.44, depth=0.05, half=0.045, flare=0.0):
+def fused(armpit=1.44, depth=0.05, half=0.045, flare=0.0, panel=0.0):
     """A flat torso and left arm that are one surface down to the armpit, as a generated outfit's are.
 
     Its outline is extruded front to back: above the armpit one strip from the arm's outer side to the torso's
     right side, below it an arm strip and a torso strip, with the underside of the web between them. Vertices
     are shared, as in a real mesh. With `flare`, the sleeve is that much wider on each side near the elbow, as
-    under an elbow guard."""
+    under an elbow guard. With `panel`, the torso stands that much farther out front and back, and above the
+    armpit so does everything from 1 cm inside the arm's middle on: a vest whose edge lies beside the arm.
+    (Its ledge under that edge at the armpit is left open.)"""
     arm = lambda z: -0.2 - (1.55 - z) * 0.1 / 0.27  # the arm's middle, through the shoulder and elbow joints
     levels = np.linspace(1.60, 1.00, 31)
     wide = lambda z: half + (flare if z < 1.37 else 0.0)
+    deep = depth + panel
     index, points, faces = {}, [], []
 
     def vertex(x, y, z):
@@ -351,23 +366,31 @@ def fused(armpit=1.44, depth=0.05, half=0.045, flare=0.0):
         faces.extend([(corners[0], corners[1], corners[2]), (corners[0], corners[2], corners[3])])
 
     def columns(z, joined):
+        """The outline's strips at one height: (from, to, how far out front and back)."""
+        if not joined:
+            return [(arm(z) - wide(z), arm(z) + wide(z), depth), (-0.15, 0.15, deep)]
         inner = min(arm(z) + wide(z), -0.16)
-        return [(arm(z) - wide(z), inner), (inner, -0.15), (-0.15, 0.15)] if joined else [(arm(z) - wide(z), arm(z) + wide(z)), (-0.15, 0.15)]
+        sleeve = [(arm(z) - wide(z), arm(z) + 0.01, depth), (arm(z) + 0.01, inner, deep)] if panel else [(arm(z) - wide(z), inner, depth)]
+        return sleeve + [(inner, -0.15, deep), (-0.15, 0.15, deep)]
 
     for top, bottom in zip(levels[:-1], levels[1:]):
         joined = (top + bottom) / 2 > armpit
-        for (a0, b0), (a1, b1) in zip(columns(top, joined), columns(bottom, joined)):
-            for y in (depth, -depth):  # front and back
+        for (a0, b0, out), (a1, b1, _) in zip(columns(top, joined), columns(bottom, joined)):
+            for y in (out, -out):  # front and back
                 quad((a0, y, top), (b0, y, top), (b1, y, bottom), (a1, y, bottom))
-        walls = [columns(z, joined)[0][0] for z in (top, bottom)], [0.15, 0.15]
+        walls = [([columns(z, joined)[0][0] for z in (top, bottom)], depth), ([0.15, 0.15], deep)]
         if not joined:  # the arm's inner side and the torso's left side
-            walls += ([arm(z) + wide(z) for z in (top, bottom)], [-0.15, -0.15])
-        for x0, x1 in walls:
-            quad((x0, depth, top), (x0, -depth, top), (x1, -depth, bottom), (x1, depth, bottom))
-    for a, b in columns(1.60, True):  # the top, and the underside of the web at the armpit
-        quad((a, depth, 1.60), (b, depth, 1.60), (b, -depth, 1.60), (a, -depth, 1.60))
+            walls += [([arm(z) + wide(z) for z in (top, bottom)], depth), ([-0.15, -0.15], deep)]
+        for (x0, x1), out in walls:
+            quad((x0, out, top), (x0, -out, top), (x1, -out, bottom), (x1, out, bottom))
+        if joined and panel:  # the vest's edge beside the arm, front and back
+            x0, x1 = arm(top) + 0.01, arm(bottom) + 0.01
+            for sign in (1, -1):
+                quad((x0, sign * depth, top), (x0, sign * deep, top), (x1, sign * deep, bottom), (x1, sign * depth, bottom))
+    for a, b, out in columns(1.60, True):  # the top, and the underside of the web at the armpit
+        quad((a, out, 1.60), (b, out, 1.60), (b, -out, 1.60), (a, -out, 1.60))
     z = levels[np.argmin(np.abs(levels - armpit))]
-    quad((arm(z) + wide(z), depth, z), (-0.15, depth, z), (-0.15, -depth, z), (arm(z) + wide(z), -depth, z))
+    quad((arm(z) + wide(z), deep, z), (-0.15, deep, z), (-0.15, -deep, z), (arm(z) + wide(z), -deep, z))
     return np.array(points), np.array(faces), np.zeros((len(points), 2))
 
 
@@ -464,6 +487,51 @@ class SleeveTests(unittest.TestCase):
         self.assertLess(((capped[0] - point) @ seams.unit(normal)).min(), -0.02)  # past the plane, under the chest
         loose = open_edges(capped[1], capped[0])
         self.assertFalse(self.on(capped[0][loose], ('shoulder', 'l')).all(axis=1).any())  # the whole rim is taken up
+
+    def test_walls_stand_in_front_of_the_sleeve_and_behind_it(self):
+        seam = split.sleeve(self.v, self.f, JOINTS, 'l')
+        front, back = seam['walls']
+        self.assertTrue(np.allclose(front['normal'], -back['normal']))  # they face apart
+        for wall in (front, back):
+            self.assertTrue(np.allclose(np.abs(wall['normal']), [0, 1, 0]))  # across the seam, along the arm
+            self.assertAlmostEqual(wall['point'] @ wall['normal'], 0.05 + split.SLEEVE_WALL, places=6)  # just outside the sleeve
+            (stop, facing), = wall['bounds']  # and it ends a little past the seam
+            self.assertTrue(np.allclose(facing, seam['normal']))
+            self.assertAlmostEqual((stop - seam['point']) @ seam['normal'], split.OVERRUN, places=6)
+        for stop, facing in seam['bounds']:  # as the seam ends a little past each wall
+            self.assertAlmostEqual(stop @ facing, 0.05 + split.SLEEVE_WALL + split.OVERRUN, places=6)
+
+    def test_what_the_torso_wears_beside_the_arm_stays_on_the_torso(self):
+        # a vest standing 4 cm out in front of the arm and behind it, its edge 1 cm inside the arm's middle: on
+        # the arm's side of the seam, and one surface with the sleeve
+        v, f, t = fused(panel=0.04)
+        seam = split.sleeve(v, f, JOINTS, 'l')
+        parts = split.split(v, f, t, JOINTS, RADII)
+        self.assertLess(np.abs(parts['bicepl'][0][:, 1]).max(), 0.05 + split.SLEEVE_WALL + 1e-6)  # the sleeve ends at its walls
+        chest = parts['chest'][0]
+        beside = (np.abs(chest[:, 1]) > 0.08) & ((chest - seam['point']) @ seam['normal'] < -0.01) & (chest[:, 2] < 1.54)
+        self.assertTrue(beside.any())  # the vest's edge beside the arm, under the shoulder plane, is the chest's
+        self.assertGreater(area(*parts['bicepl'][:2]), 0.05)
+
+    def test_an_opening_that_turns_a_corner_is_closed_as_one_surface(self):
+        # what a trough leaves of a square sleeve: its outer side x = -1, its back y = -1 and a floor, open on the
+        # seam x = 0 and on the front wall y = 0.5, from the joint plane z = 1 down, round the corner and up again
+        corners = [(-1, 0.5), (-1, -1), (0, -1), (0, 0.5)]
+        v = np.array([(x, y, z) for z in (1.0, 0.0) for x, y in corners], float)  # 0 to 3 at the top, 4 to 7 on the floor
+        f = np.array([[0, 4, 5], [0, 5, 1], [1, 5, 6], [1, 6, 2], [4, 7, 6], [4, 6, 5]])
+        t = np.arange(16, dtype=float).reshape(8, 2)
+        seam = {'point': np.array([0.0, 0, 0.5]), 'normal': np.array([1.0, 0, 0]), 'radius': 5.0,
+                'walls': [{'point': np.array([-0.5, 0.5, 0.5]), 'normal': np.array([0.0, 1, 0]), 'radius': 5.0}]}
+        for facing in (1.0, -1.0):
+            new_v, new_t, new_f = split.seam_fill(v, t, f, len(v), seam, facing)
+            both = np.concatenate([v, new_v])
+            # one line of four edges: down the seam, along the floor on it, along the floor on the wall, up the wall
+            self.assertEqual(len(new_f), 4)
+            np.testing.assert_allclose(new_v, [[-0.5, -0.25, 1.0]] * 5)  # its middle, between its two ends
+            self.assertTrue(np.all(facing * (normals(both, new_f) @ np.array([1.0, 1, 0])) > 0))  # away from the sleeve, or into it
+            place = lambda number: tuple(np.round(both[number], 6))
+            runs = [(place(a), place(b)) for face in new_f.tolist() for a, b in zip(face, face[1:] + face[:1]) if place(a) != place(b)]
+            self.assertEqual(len(runs), len(set(runs)))  # one surface: no edge is run twice the same way
 
     def test_a_line_through_a_vertex_repeated_at_a_texture_seam_is_closed_with_one_fan(self):
         # two faces hang from the cut x = 0; its line runs down and up again through a point both faces hold a
