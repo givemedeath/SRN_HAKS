@@ -85,8 +85,13 @@ class CommandTests(unittest.TestCase):
             self.assertEqual({path.name: path.read_bytes() for path in (built / 'source').iterdir()}, files)
             self.assertTrue((dark / (convert.HALO_OUT + '.mtr')).is_file()); self.assertFalse((pack / (convert.HALO_OUT + '.mtr')).exists())  # the shared dark halo has one home
             self.assertEqual((pack / 'ek_a.mdl').read_bytes(), b'compiled'); self.assertTrue((pack / 'ek_a_o.mtr').is_file())
-            (built / 'source' / 'ek_a_o.mtr').unlink(); run()  # built again with no lit parts
+            lit = ('ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr')
+            for name in lit:  # built again with no lit parts
+                (built / 'source' / name).unlink()
+            self.assertEqual(run()['removed'], ['ek_a_i.dds', 'ek_a_o.dds', 'ek_a_o.mtr', 'ek_a_h.mtr'])
             self.assertNotIn('lights', catalog.load(listed)['placeables'][0])
+            # Its light files leave the pack with its lights: a glow map left behind would read as a lit model.
+            self.assertFalse(any((pack / name).exists() for name in lit)); self.assertTrue((pack / 'ek_a_s.dds').is_file())
 
 
 if __name__ == '__main__':

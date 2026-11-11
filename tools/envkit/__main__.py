@@ -57,6 +57,17 @@ def _lit(old, core, lights):
     return {**core, 'lights': lights} if lights else core
 
 
+def _unlit(pack, name, built, models):
+    """Remove from a pack the light files of a model built again without them, and return their names: a glow map
+    left behind would read as a lit model whose entry records no lights. Only the three names of the lights standard
+    are looked at, and never one that is a model of the set in its own right."""
+    gone = [path for stem in (f'{name}_i', f'{name}_o', f'{name}_h') if stem not in models for path in sorted(Path(pack).glob(stem + '.*'))
+            if path.suffix in ('.mtr', '.dds', '.txi') and not (Path(built) / path.name).is_file()]
+    for path in gone:
+        path.unlink()
+    return [path.name for path in gone]
+
+
 def _entry(old, core, origin, what):
     """An entry for the catalog: one already there keeps what it says of its origin; a new one must name its
     PROVENANCE.md section."""
@@ -170,9 +181,10 @@ def command_install(args):
     copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'source').glob('*.tga'))]  # area-map pictures and the lid's texture
     # The lights-out set goes with the tiles as it goes with a placeable: one standard for whoever scripts them.
     copied += [shutil.copyfile(path, _home(repo, args.pack, path)) for path in sorted((built / 'shared').iterdir())]
+    removed = _unlit(shared, args.model, built / 'shared', models)
     placed = {name: tile.commit(one) for name, one in prepared.items()}
     catalog.save(record, data)
-    print(json.dumps({'files': len(copied), 'sets': placed}), flush=True)
+    print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed}), flush=True)
 
 
 def command_placeables(args):
@@ -201,14 +213,15 @@ def command_placeables(args):
         require(not old or old[0]['label'] == label, f'Row {row} is labelled otherwise in the catalog: a label is changed by hand, in the table and the catalog together')
         core = _lit(old, {'row': row, 'model': name, 'label': label, 'pack': args.pack}, convert.lights(name, built / name / 'source'))
         catalog.put_placeable(data, _entry(old, core, origin, name))
-    copied = 0
+    copied, removed = 0, []
     for name in chosen:
+        removed += _unlit(pack, name, built / name / 'source', models)
         shutil.copyfile(built / name / 'compiled' / f'{name}.mdl', pack / f'{name}.mdl'); copied += 1
         for path in sorted((built / name / 'source').iterdir()):
             if path.suffix in ('.pwk', '.mtr', '.dds', '.txi'):
                 shutil.copyfile(path, _home(repo, args.pack, path)); copied += 1
     table.write_bytes(text.encode('cp1252')); catalog.save(record, data)  # `record`, not a name the copying above uses
-    print(json.dumps({'rows': rows, 'files': copied}), flush=True)
+    print(json.dumps({'rows': rows, 'files': copied, 'removed': removed}), flush=True)
 
 
 def command_blueprints(args):
