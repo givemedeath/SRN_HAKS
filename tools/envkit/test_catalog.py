@@ -51,6 +51,13 @@ class CatalogTests(unittest.TestCase):
             path.write_text(json.dumps({**again, 'placeables': again['placeables'] + [{**PLACED, 'model': 'ek_c'}]}), encoding='utf-8')  # as a merge can leave it
             with self.assertRaisesRegex(ValueError, 'more than one entry for: 22740'):
                 catalog.load(path)
+            lights = {'lit': 'ek_a', 'out': 'ek_a_o', 'glow': 'ek_a_i'}
+            for given in (lights, {**lights, 'halo': 'ek_a_h', 'dark': 'ek_off'}):  # without a halo, and with one
+                path.write_text(json.dumps({**again, 'placeables': [{**PLACED, 'lights': given}]}), encoding='utf-8')
+                self.assertEqual(catalog.load(path)['placeables'][0]['lights'], given)
+            path.write_text(json.dumps({**again, 'placeables': [{**PLACED, 'lights': {**lights, 'halo': 'ek_a_h'}}]}), encoding='utf-8')  # a halo with nothing to darken it
+            with self.assertRaisesRegex(ValueError, 'lights name its material'):
+                catalog.load(path)
             path.write_text('{"kind": "something else"}', encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'Additions catalog required'):
                 catalog.load(path)

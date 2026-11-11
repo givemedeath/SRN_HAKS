@@ -199,6 +199,9 @@
       "tools/headkit/gpu_lock.py"
     ],
     "tools/envkit/test_placeables.py": [
+      "tools/envkit/__main__.py",
+      "tools/envkit/catalog.py",
+      "tools/envkit/convert.py",
       "tools/envkit/placeables.py"
     ],
     "tools/envkit/test_reference.py": [
@@ -4937,6 +4940,9 @@
       "srn_2da",
       "srn_placeable",
       "srn_t_common"
+    ],
+    "tools/envkit/convert.py": [
+      "srn_placeable"
     ],
     "tools/heads/build_head_fixture.py": [
       "srn_body",

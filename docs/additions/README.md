@@ -22,6 +22,7 @@ of each tileset that has additions.
 - every group above a tileset's baseline is in the catalog, with the name, size, tile numbers and tile models the
   set file gives it, and every tile above the baseline belongs to one of those groups
 - no row and no group has two entries
+- every model with a glow map has its whole lights-out set in its pack, and its entry names it under `lights`
 - every listed model (`.mdl`), tile walkmesh (`.wok`) and blueprint (`.utp`) is a file of the pack the entry names
 - nothing is listed that the packs do not have
 
@@ -68,6 +69,12 @@ Categories are the IDs of `placeablepal.itp`. Those in use:
 
 A blueprint is scenery: it cannot be destroyed or used. A model with lit parts gets a blueprint that is not static,
 so a script can put its lights out; the others are static.
+
+## Lights
+
+A model with lit parts ships with a lights-out material and dark textures, and its catalog entry names them under
+`lights`. The commands write both for placeables and tile groups alike. [docs/envkit/lights.md](../envkit/lights.md)
+is the standard for those files and shows how a script uses them.
 
 ## Adding a tile group
 

@@ -218,6 +218,26 @@ try {
     $tableRelative = [string]$additions.baseline.placeables.table
     $gameText = [Text.Encoding]::GetEncoding(1252)  # as envkit writes the table and the set files
     $lastImported = [int]$additions.baseline.placeables.lastImportedRow
+    # A model with a glow map has the whole lights-out set of docs/envkit/lights.md, and its entry says so.
+    $packFile = { param($pack, $name) Test-Path -LiteralPath (Join-Path $repoRoot (Join-Path $pack $name)) -PathType Leaf }
+    $checkLights = {
+        param($entry, $material, $what)
+        $lights = if ($entry.PSObject.Properties['lights']) { $entry.lights } else { $null }
+        if (-not $lights) {
+            if (& $packFile $entry.pack "${material}_i.dds") { Add-ValidationError "$what has a glow map ($($entry.pack)/${material}_i.dds) and no lights in the additions catalog." }
+            return
+        }
+        if ([string]$lights.lit -cne $material -or [string]$lights.out -cne "${material}_o" -or [string]$lights.glow -cne "${material}_i") { Add-ValidationError "The lights of $what do not follow its material $material." }
+        $needed = @("$($lights.lit).mtr", "$($lights.out).mtr", "$($lights.out).dds", "$($lights.glow).dds")
+        if ($lights.PSObject.Properties['halo']) { $needed += "$($lights.halo).mtr", "$($lights.halo).dds", "$($lights.halo).txi" }
+        foreach ($name in $needed) { if (-not (& $packFile $entry.pack $name)) { Add-ValidationError "$($entry.pack) has no $name for the lights of $what." } }
+        if ($lights.PSObject.Properties['dark']) {
+            foreach ($suffix in '.mtr', '.dds', '.txi') {
+                $holders = @(Get-ChildItem -LiteralPath $repoRoot -Directory -Filter 'srn_*' | Where-Object { & $packFile $_.Name "$($lights.dark)$suffix" })
+                if ($holders.Count -eq 0) { Add-ValidationError "No pack has $($lights.dark)$suffix, the dark halo of $what." }  # in two, it is a cross-HAK duplicate above
+            }
+        }
+    }
     $tableRows = @{}
     foreach ($line in [IO.File]::ReadAllLines((Join-Path $repoRoot $tableRelative), $gameText)) {
         if ($line -notmatch '^\s*(\d+)\s' -or [int]$Matches[1] -le $lastImported) { continue }
@@ -235,6 +255,7 @@ try {
         if ($tableRows[$row][0] -cne [string]$entry.label -or $tableRows[$row][1] -cne ([string]$entry.model).ToLowerInvariant()) {
             Add-ValidationError "Row $row is $($tableRows[$row][1]) '$($tableRows[$row][0])' in $tableRelative and $($entry.model) '$($entry.label)' in the additions catalog."
         }
+        & $checkLights $entry ([string]$entry.model) "placeables row $row"
         $needed = @("$($entry.model).mdl")
         if ($entry.PSObject.Properties['blueprint']) { $needed += "$($entry.blueprint).utp" }
         foreach ($name in $needed) {
@@ -275,6 +296,7 @@ try {
         foreach ($number in @($setGroups.Keys | Where-Object { $_ -ge [int]$baseline.importedGroups } | Sort-Object)) {
             if (-not $listedGroups.ContainsKey($number)) { Add-ValidationError "$($baseline.set) group $number ($($setGroups[$number].name)) is not in docs/additions/catalog.json."; continue }
             $entry = $listedGroups[$number]; $group = $setGroups[$number]
+            & $checkLights $entry (([string]@($entry.models)[0]) -replace '_t\d\d$', '') "group $number of $tilesetName"
             if ($group.name -cne [string]$entry.name -or $group.rows -ne [int]$entry.rows -or $group.columns -ne [int]$entry.columns -or (($group.tiles -join ',') -cne (@($entry.tiles) -join ','))) {
                 Add-ValidationError "Group $number of $tilesetName is '$($group.name)' $($group.rows)x$($group.columns) [$($group.tiles -join ',')] in the set file and '$($entry.name)' $($entry.rows)x$($entry.columns) [$(@($entry.tiles) -join ',')] in the additions catalog."
             }

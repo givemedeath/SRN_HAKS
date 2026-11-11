@@ -8,6 +8,9 @@ file (the baseline) and an entry for everything above it. `tools/Test-Repository
 holds the talk table to its allocations: a row or tile above the baseline that the catalog does not list fails
 repository verification, and so does a listed one the packs do not have as listed.
 
+An entry of a model with lit parts also says, under `lights`, what a script swaps to put them out; docs/envkit/lights.md
+is the standard those names follow.
+
 envkit's own commands write their entries (`placeables`, `blueprints`, `install`); an addition made by hand gets its
 entry by hand (docs/additions/README.md)."""
 import json
@@ -18,6 +21,7 @@ from . import require
 KIND = 'srn-additions-catalog'
 PATH = 'docs/additions/catalog.json'
 PLACEABLE_KEYS = {'row', 'model', 'label', 'pack', 'madeBy', 'source', 'provenance', 'added'}
+LIGHT_KEYS = ({'lit', 'out', 'glow'}, {'lit', 'out', 'glow', 'halo', 'dark'})  # without a halo, and with one
 GROUP_KEYS = {'tileset', 'group', 'name', 'rows', 'columns', 'tiles', 'models', 'pack', 'madeBy', 'source', 'provenance', 'added'}
 
 
@@ -32,10 +36,14 @@ def load(path):
         require(set(tileset) == {'set', 'importedTiles', 'importedGroups'} and type(tileset['importedTiles']) is int and type(tileset['importedGroups']) is int,
                 'A tileset baseline names its set file and counts its imported tiles and groups: ' + name)
     for entry in data['placeables']:
-        require(PLACEABLE_KEYS <= set(entry) <= PLACEABLE_KEYS | {'blueprint', 'category'} and type(entry['row']) is int, 'A placeable entry is incomplete: ' + str(entry.get('model')))
+        require(PLACEABLE_KEYS <= set(entry) <= PLACEABLE_KEYS | {'blueprint', 'category', 'lights'} and type(entry['row']) is int, 'A placeable entry is incomplete: ' + str(entry.get('model')))
     for entry in data['tileGroups']:
-        require(set(entry) >= GROUP_KEYS and set(entry) <= GROUP_KEYS | {'label', 'door'} and len(entry['tiles']) == len(entry['models']) == entry['rows'] * entry['columns'],
+        require(set(entry) >= GROUP_KEYS and set(entry) <= GROUP_KEYS | {'label', 'door', 'lights'} and len(entry['tiles']) == len(entry['models']) == entry['rows'] * entry['columns'],
                 'A tile group entry is incomplete: ' + str(entry.get('name')))
+    for entry in data['placeables'] + data['tileGroups']:
+        lights = entry.get('lights')
+        require(lights is None or (isinstance(lights, dict) and set(lights) in LIGHT_KEYS and all(isinstance(value, str) and value for value in lights.values())),
+                'An entry\'s lights name its material, its lights-out twin and its glow map, and with a halo the halo and its dark sheet: ' + str(entry.get('model', entry.get('name'))))
     numbers = [entry['row'] for entry in data['placeables']] + [(entry['tileset'], entry['group']) for entry in data['tileGroups']]
     twice = sorted({str(number) for number in numbers if numbers.count(number) > 1})
     require(not twice, 'The catalog has more than one entry for: ' + ', '.join(twice))

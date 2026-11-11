@@ -30,7 +30,14 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_vending",
-   "category": 161
+   "category": 161,
+   "lights": {
+    "lit": "ek_ss_vending",
+    "out": "ek_ss_vending_o",
+    "glow": "ek_ss_vending_i",
+    "halo": "ek_ss_vending_h",
+    "dark": "ek_off"
+   }
   },
   {
    "row": 22741,
@@ -42,7 +49,14 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_atm",
-   "category": 161
+   "category": 161,
+   "lights": {
+    "lit": "ek_ss_atm",
+    "out": "ek_ss_atm_o",
+    "glow": "ek_ss_atm_i",
+    "halo": "ek_ss_atm_h",
+    "dark": "ek_off"
+   }
   },
   {
    "row": 22742,
@@ -66,7 +80,14 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_drinks",
-   "category": 166
+   "category": 166,
+   "lights": {
+    "lit": "ek_ss_drinks",
+    "out": "ek_ss_drinks_o",
+    "glow": "ek_ss_drinks_i",
+    "halo": "ek_ss_drinks_h",
+    "dark": "ek_off"
+   }
   },
   {
    "row": 22744,
@@ -255,7 +276,14 @@
    "source": "tools/envkit/sets/stuffer-shack-game.json",
    "provenance": "Stuffer Shack tile group",
    "added": "2026-11-11",
-   "label": "Stuffer Shack 2x2"
+   "label": "Stuffer Shack 2x2",
+   "lights": {
+    "lit": "ek_ss_shack",
+    "out": "ek_ss_shack_o",
+    "glow": "ek_ss_shack_i",
+    "halo": "ek_ss_shack_h",
+    "dark": "ek_off"
+   }
   },
   {
    "tileset": "udp1",
@@ -280,7 +308,14 @@
    "source": "tools/envkit/sets/stuffer-shack-game.json",
    "provenance": "Stuffer Shack tile group",
    "added": "2026-11-11",
-   "label": "Stuffer Shack 2x2"
+   "label": "Stuffer Shack 2x2",
+   "lights": {
+    "lit": "ek_ss_shack",
+    "out": "ek_ss_shack_o",
+    "glow": "ek_ss_shack_i",
+    "halo": "ek_ss_shack_h",
+    "dark": "ek_off"
+   }
   }
  ]
 }

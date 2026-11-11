@@ -385,6 +385,7 @@ def load_models(path):
 
 
 HALO_OUT = 'ek_off'  # one for every model: a black sheet added to the picture adds nothing
+HALO_OUT_PACK = 'srn_placeable'  # the one pack that holds it: the same file in two packs fails repository verification
 
 
 def lights_out(name, folder, crunch, halo):
@@ -394,8 +395,14 @@ def lights_out(name, folder, crunch, halo):
     itself a material: a name with its own material file (client checks, 2026-11-10: a glow map's own name, or a
     replacement that was only a texture, changed nothing; a replacement with a material file took effect at once and
     an empty `new` brought the lights back). So the model gets `name`_o, its material without the glow map, and its
-    halo gets `ek_off`, a black sheet. Each needs a texture of its own name to be found; a 16-pixel one serves. The
-    object must not be static: a static placeable is scenery no script can reach."""
+    halo gets `ek_off`, a black sheet. Each needs a texture of its own name to be found; a 16-pixel black one serves.
+    The object must not be static: a static placeable is scenery no script can reach.
+
+    A tile is no object, and static scenery is out of that call's reach. `SetTextureOverride(old, new, player)` reaches
+    both, for one player or all, but it swaps textures by name and knows no material (client checks, 2026-11-11: the
+    model's own name overridden with `name`_o drew the building in that 16-pixel black; the glow map `name`_i
+    overridden with it put the lights out and left the rest as it was). So the same files serve both calls
+    (`lights_script`, `blackout_script`); docs/envkit/lights.md is the account of them for those who write scripts."""
     from PIL import Image
     folder = Path(folder); dark = Image.new('RGB', (16, 16)); written = [_compress(dark, folder / f'{name}_o.dds', '-DXT1', 16, crunch, data=False)]
     (folder / f'{name}_o.mtr').write_text(material_text(name), encoding='cp1252', newline='\n')
@@ -407,10 +414,28 @@ def lights_out(name, folder, crunch, halo):
     return written
 
 
+def lights(name, folder):
+    """What a script swaps to put a built model's lights out, read off the files in `folder`: {lit, out, glow}, the
+    material, its lights-out twin and the glow map, and for a model with a halo {halo, dark} too. None for a model
+    with no lit parts."""
+    folder = Path(folder)
+    if not (folder / f'{name}_o.mtr').is_file():
+        return None
+    found = {'lit': name, 'out': f'{name}_o', 'glow': f'{name}_i'}
+    return {**found, 'halo': f'{name}_h', 'dark': HALO_OUT} if (folder / f'{name}_h.mtr').is_file() else found
+
+
 def lights_script(name, target, on, halo=True):
     """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on."""
     swaps = [(name, f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
     return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps)
+
+
+def blackout_script(name, player, on, halo=True):
+    """One line of NWScript that puts out, or back on, the lights of every `name` the player `player` (an expression;
+    OBJECT_INVALID for everyone) sees: tiles and static scenery as well as objects a script can reach."""
+    swaps = [(f'{name}_i', f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
+    return ''.join(f'SetTextureOverride("{old}","{"" if on else new}",{player});' for old, new in swaps)
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0):

@@ -43,6 +43,20 @@ def _catalogued(args):
     return catalog.load(path), path, {'madeBy': 'envkit', 'source': source, 'provenance': args.provenance, 'added': datetime.date.today().isoformat()}
 
 
+def _home(repo, pack, path):
+    """Where a built file goes: into its model's pack, but the dark halo every lit model shares into the one pack that
+    holds it."""
+    from . import convert
+    return Path(repo) / (convert.HALO_OUT_PACK if path.stem == convert.HALO_OUT else pack) / path.name
+
+
+def _lit(old, core, lights):
+    """`core` with what a script swaps to put the model's lights out; an entry of a model no longer lit forgets its own."""
+    for entry in old:
+        entry.pop('lights', None)
+    return {**core, 'lights': lights} if lights else core
+
+
 def _entry(old, core, origin, what):
     """An entry for the catalog: one already there keeps what it says of its origin; a new one must name its
     PROVENANCE.md section."""
@@ -135,29 +149,29 @@ def command_install(args):
     models = convert.load_models(args.models); built = Path(args.built) / args.model; repo = Path(args.repo)
     require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
     made = json.loads((built / 'report.json').read_text(encoding='utf-8')); tiles = models[args.model]['tiles']; shared = repo / args.pack
-    require(shared.is_dir() and all((repo / f'srn_t_{name}' / f'{name}.set').is_file() for name in tiles['sets']), 'A pack or set file named is missing')
+    require(shared.is_dir() and (repo / convert.HALO_OUT_PACK).is_dir() and all((repo / f'srn_t_{name}' / f'{name}.set').is_file() for name in tiles['sets']),
+            'A pack or set file named is missing')
     # Every tileset is worked out before anything is copied or written, so a refusal on one leaves none half done.
     prepared = {name: tile.prepare(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
                                    group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
     from . import catalog
-    data, path, origin = _catalogued(args)
+    data, record, origin = _catalogued(args)
     numbers = {name: (one['firstTile'], one['group']) for name, one in prepared.items()}
     for name, (first, number) in numbers.items():  # refused here too, before anything is copied, if the catalog says otherwise
         old = [entry for entry in data['tileGroups'] if (entry['tileset'], entry['group']) == (name, number)]
         core = {'tileset': name, 'group': number, 'name': tiles['group'], 'label': tiles['label'], 'rows': made['rows'], 'columns': made['columns'],
                 'tiles': [first + index for index in range(len(made['tiles']))], 'models': [one['model'] for one in made['tiles']], 'pack': args.pack}
         require(name in data['baseline']['tilesets'], f'The catalog has no baseline for {name}: add its imported tile and group counts first')
-        catalog.put_group(data, _entry(old, core, origin, f'{tiles["group"]} in {name}'))
+        catalog.put_group(data, _entry(old, _lit(old, core, convert.lights(args.model, built / 'shared')), origin, f'{tiles["group"]} in {name}'))
     copied = []
     for one in made['tiles']:
         copied += [shutil.copyfile(built / 'compiled' / f'{one["model"]}.mdl', shared / f'{one["model"]}.mdl'),
                    shutil.copyfile(built / 'source' / f'{one["model"]}.wok', shared / f'{one["model"]}.wok')]
     copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'source').glob('*.tga'))]  # area-map pictures and the lid's texture
-    # The lights-out materials serve a placeable a script can reach; no script reaches a tile, so they stay behind.
-    idle = (args.model + '_o', convert.HALO_OUT)
-    copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'shared').iterdir()) if path.stem not in idle]
+    # The lights-out set goes with the tiles as it goes with a placeable: one standard for whoever scripts them.
+    copied += [shutil.copyfile(path, _home(repo, args.pack, path)) for path in sorted((built / 'shared').iterdir())]
     placed = {name: tile.commit(one) for name, one in prepared.items()}
-    catalog.save(path, data)
+    catalog.save(record, data)
     print(json.dumps({'files': len(copied), 'sets': placed}), flush=True)
 
 
@@ -170,7 +184,7 @@ def command_placeables(args):
     unknown = [name for name in args.model if not models.get(name, {}).get('placeable')]
     require(not unknown, 'The game set gives these no placeable row: ' + ', '.join(unknown))
     chosen = {name: model['placeable'] for name, model in models.items() if model.get('placeable') and (not args.model or name in args.model)}
-    require(chosen and pack.is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
+    require(chosen and pack.is_dir() and (repo / convert.HALO_OUT_PACK).is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
     missing = [name for name in chosen if not (built / name / 'compiled' / f'{name}.mdl').is_file()]
     require(not missing, 'Convert these first (envkit game): ' + ', '.join(missing))
     text = table.read_bytes().decode('cp1252'); there = placeables.rows(text)
@@ -180,19 +194,20 @@ def command_placeables(args):
     else:
         text, rows = placeables.register(text, [{'model': name, **placed} for name, placed in chosen.items()])
     from . import catalog
-    data, path, origin = _catalogued(args)
+    data, record, origin = _catalogued(args)
     for name, row in rows.items():  # refused here, before anything is copied, if the catalog says otherwise
         old = [entry for entry in data['placeables'] if entry['row'] == row]; label = placeables.PREFIX + chosen[name]['label']
         # Converting again leaves the table as it is, so the label it gave the row stands too.
         require(not old or old[0]['label'] == label, f'Row {row} is labelled otherwise in the catalog: a label is changed by hand, in the table and the catalog together')
-        catalog.put_placeable(data, _entry(old, {'row': row, 'model': name, 'label': label, 'pack': args.pack}, origin, name))
+        core = _lit(old, {'row': row, 'model': name, 'label': label, 'pack': args.pack}, convert.lights(name, built / name / 'source'))
+        catalog.put_placeable(data, _entry(old, core, origin, name))
     copied = 0
     for name in chosen:
         shutil.copyfile(built / name / 'compiled' / f'{name}.mdl', pack / f'{name}.mdl'); copied += 1
         for path in sorted((built / name / 'source').iterdir()):
             if path.suffix in ('.pwk', '.mtr', '.dds', '.txi'):
-                shutil.copyfile(path, pack / path.name); copied += 1
-    table.write_bytes(text.encode('cp1252')); catalog.save(path, data)
+                shutil.copyfile(path, _home(repo, args.pack, path)); copied += 1
+    table.write_bytes(text.encode('cp1252')); catalog.save(record, data)  # `record`, not a name the copying above uses
     print(json.dumps({'rows': rows, 'files': copied}), flush=True)
 
 

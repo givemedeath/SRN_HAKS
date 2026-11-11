@@ -1,7 +1,12 @@
 """A model's row is appended to the placeables table in the table's own layout, and no row there moves."""
+import contextlib
+import io
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
-from . import placeables
+from . import catalog, convert, placeables
 
 HEAD = '2DA V2.0\n\n      Label                    StrRef ModelName     LightColor LightOffsetX LightOffsetY LightOffsetZ SoundAppType ShadowSize BodyBag LowGore Reflection  Static \n'
 TABLE = (HEAD + '0     Armoire                  5645   PLC_A01       ****       ****         ****         ****         13           1          0       ****    ****        1      \n'
@@ -44,6 +49,44 @@ class PlaceableTests(unittest.TestCase):
     def test_the_tables_own_line_ends_are_kept(self):
         text, _ = placeables.register(TABLE.replace('\n', '\r\n'), [{'model': 'ek_a', 'label': 'Shop, Bin', 'sound': 28}])
         self.assertNotIn('\n', text.replace('\r\n', '')); self.assertTrue(text.endswith('\r\n'))
+
+
+class CommandTests(unittest.TestCase):
+    def test_the_command_ships_a_models_files_and_enters_it_and_its_lights_in_the_catalog(self):
+        from . import __main__ as command
+        with tempfile.TemporaryDirectory() as scratch:
+            repo = Path(scratch); pack, dark, built = repo / 'props', repo / convert.HALO_OUT_PACK, repo / 'built' / 'ek_a'
+            for folder in (pack, dark, built / 'compiled', built / 'source', repo / 'sets', repo / 'tables', repo / 'docs'):
+                folder.mkdir(parents=True)
+            (repo / 'sets' / 'shop.json').write_text(json.dumps({'models': {'ek_a': {'source': 'models/a', 'height': 1.0, 'placeable': {'label': 'Shop, Bin', 'sound': 28}}}}), encoding='utf-8')
+            (repo / 'tables' / 'placeables.2da').write_bytes(TABLE.encode('cp1252'))
+            (built / 'compiled' / 'ek_a.mdl').write_bytes(b'compiled')
+            files = {name: name.encode() for name in ('ek_a.mtr', 'ek_a.pwk', 'ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr', 'ek_a_s.dds', convert.HALO_OUT + '.mtr')}
+            for name, content in files.items():
+                (built / 'source' / name).write_bytes(content)
+            listed = repo / 'docs' / 'catalog.json'
+            catalog.save(listed, {'schemaVersion': 1, 'kind': catalog.KIND, 'placeables': [], 'tileGroups': [],
+                                  'baseline': {'placeables': {'table': 'tables/placeables.2da', 'lastImportedRow': 7}, 'tilesets': {}}})
+
+            def run(*more):
+                with contextlib.redirect_stdout(io.StringIO()) as said:
+                    command.main(['placeables', '--models', str(repo / 'sets' / 'shop.json'), '--built', str(repo / 'built'), '--repo', str(repo), '--pack', 'props',
+                                  '--table', 'tables/placeables.2da', '--catalog', 'docs/catalog.json', *more])
+                return json.loads(said.getvalue())
+            with self.assertRaisesRegex(ValueError, 'name its PROVENANCE.md section'):
+                run()
+            self.assertEqual(list(pack.iterdir()), [])  # refused before anything was copied
+            self.assertEqual(run('--provenance', 'Shop props')['rows'], {'ek_a': 8})
+            self.assertEqual(run()['rows'], {'ek_a': 8})  # converted again: the row stands
+            entry, = catalog.load(listed)['placeables']
+            self.assertEqual((entry['row'], entry['model'], entry['label'], entry['provenance']), (8, 'ek_a', '[envkit]Shop, Bin', 'Shop props'))
+            self.assertEqual(entry['lights'], {'lit': 'ek_a', 'out': 'ek_a_o', 'glow': 'ek_a_i', 'halo': 'ek_a_h', 'dark': convert.HALO_OUT})
+            # What was built is only read: the catalog once went to the last file the copying had named.
+            self.assertEqual({path.name: path.read_bytes() for path in (built / 'source').iterdir()}, files)
+            self.assertTrue((dark / (convert.HALO_OUT + '.mtr')).is_file()); self.assertFalse((pack / (convert.HALO_OUT + '.mtr')).exists())  # the shared dark halo has one home
+            self.assertEqual((pack / 'ek_a.mdl').read_bytes(), b'compiled'); self.assertTrue((pack / 'ek_a_o.mtr').is_file())
+            (built / 'source' / 'ek_a_o.mtr').unlink(); run()  # built again with no lit parts
+            self.assertNotIn('lights', catalog.load(listed)['placeables'][0])
 
 
 if __name__ == '__main__':

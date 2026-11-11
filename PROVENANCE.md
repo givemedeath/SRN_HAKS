@@ -242,6 +242,10 @@ Rebuilt once more the same day: the signs on the east and west walls and the eas
 halo sheet facing out from its own wall, and the bins against the front wall stop movement without stopping
 sight. Checked in the game client at night from both sides, with the sight line over the bins clear.
 
+The group's lights-out material (`ek_ss_shack_o`) was added to `srn_t_common` the same day, so that tiles carry
+the same set as lit props. A tile is no object, so its lights are put out for a player with `SetTextureOverride`
+on its glow map and halo sheet; `docs/envkit/lights.md` is the account of both calls and of what was checked.
+
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
 Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a

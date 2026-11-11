@@ -115,6 +115,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(convert.lights_script('ek_test', 'OBJECT_SELF', on=True),
                          'ReplaceObjectTexture(OBJECT_SELF,"ek_test");ReplaceObjectTexture(OBJECT_SELF,"ek_test_h");')
         self.assertNotIn('_h', convert.lights_script('ek_test', 'OBJECT_SELF', on=False, halo=False))
+        # For a tile or static scenery, per player: the glow map and the halo are overridden by name with dark textures.
+        self.assertEqual(convert.blackout_script('ek_test', 'oPC', on=False), 'SetTextureOverride("ek_test_i","ek_test_o",oPC);SetTextureOverride("ek_test_h","ek_off",oPC);')
+        self.assertEqual(convert.blackout_script('ek_test', 'OBJECT_INVALID', on=True, halo=False), 'SetTextureOverride("ek_test_i","",OBJECT_INVALID);')
         self.assertNotIn('_i', convert.material_text('ek_test'))  # what `ek_test_o` is written from: the material without its glow
 
     def test_the_shipped_game_set_loads_and_a_bad_one_is_refused(self):
