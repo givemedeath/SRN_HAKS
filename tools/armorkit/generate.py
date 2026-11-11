@@ -10,17 +10,20 @@ sealed brief (`brief.admit`): a calibrate, geometry or appearance job on any oth
 anything is posted, and calibrate registers the copies it makes of the image. And a model gets at most
 `MAXIMUM` geometry attempts, counted in `trial-ledger.json` in the work folder before the job is posted; an
 attempt whose outcome is not known blocks the next one until it is reconciled by hand. Export and appearance
-jobs are not counted.
+jobs are not counted. The ledger is locked for the whole of an attempt, so two started together cannot both be counted
+as the same one.
 
 A work folder holds one folder per model, and a model's jobs are numbered folders under `geometry-trial` in it.
 """
 import json
 import time
 import uuid
+from contextlib import ExitStack
 from pathlib import Path
 
 from tools.headkit import comfy
 from tools.headkit.comfy_nodes.model_resolution import bind_loader_models, model_choices, path_identity
+from tools.headkit.gpu_lock import locked
 from tools.headkit.reference_background import analyze_reference
 
 from . import brief, reference
@@ -143,36 +146,46 @@ def geometry(work, model, image, fov, models, url=reference.URL):
 
     The attempt is written to the ledger before the job is posted, and stays there whatever happens. If the
     job's outcome is not learned (the engine went away, the wait ran out), the attempt stays `submitted` with
-    the error, and no further attempt is made on the model until someone has looked and set its state."""
+    the error, and no further attempt is made on the model until someone has looked and set its state.
+
+    The ledger is held (`tools.headkit.gpu_lock`) from before it is read until the attempt's outcome is
+    written. Two attempts started together in one work folder would otherwise both read it, both pass the
+    count, and each overwrite what the other wrote: a sixth job posted with five on record. The second is
+    refused while the first is under way."""
     image = Path(image).resolve()
     document, _ = brief.admit(image, Path(work) / model)
-    ledger = attempts(work)
-    rows = ledger['models'].setdefault(model, [])
-    require(not any(row['state'] in OUTSTANDING for row in rows), f'An earlier attempt on {model} has no known outcome: reconcile it first')
-    require(len(rows) < MAXIMUM, f'{model} has had its {MAXIMUM} geometry attempts')
-    client = engine(url)
-    work, folder, token, prefix = job(work, model, 'geometry')
-    save = lambda: (work / LEDGER).write_text(json.dumps(ledger, indent=1), encoding='utf-8')
-    record = started('geometry', model, token, image, document)
-    staged = reference.upload(url, image, 'geometry.png', prefix)
-    graph, pins = bound(comfy.compile_graph('geometry', PROFILE, {'geometry': staged}, prefix, fov=fov), models)
-    row = {'attempt': len(rows) + 1, 'token': token, 'state': 'intent', 'imageSha256': record['imageSha256'], 'fov': fov,
-           'started': time.strftime('%Y-%m-%dT%H:%M:%S'), 'folder': str(folder.relative_to(work))}
-    rows.append(row)
-    save()
-    record.update(fov=fov, attempt=row['attempt'], models=pins)
-    (folder / 'graph.json').write_text(json.dumps(graph, indent=1), encoding='utf-8')
-    row['state'] = 'submitted'
-    save()
-    try:
-        done = run(client, url, graph, token, folder)
-    except Exception as error:
-        row['error'] = str(error)[:500]
+    with ExitStack() as held:
+        try:
+            held.enter_context(locked(Path(work).resolve() / LEDGER))
+        except FileExistsError:
+            require(False, f'Another geometry attempt is under way in {work}: its ledger is held')
+        ledger = attempts(work)
+        rows = ledger['models'].setdefault(model, [])
+        require(not any(row['state'] in OUTSTANDING for row in rows), f'An earlier attempt on {model} has no known outcome: reconcile it first')
+        require(len(rows) < MAXIMUM, f'{model} has had its {MAXIMUM} geometry attempts')
+        client = engine(url)
+        work, folder, token, prefix = job(work, model, 'geometry')
+        save = lambda: (work / LEDGER).write_text(json.dumps(ledger, indent=1), encoding='utf-8')
+        record = started('geometry', model, token, image, document)
+        staged = reference.upload(url, image, 'geometry.png', prefix)
+        graph, pins = bound(comfy.compile_graph('geometry', PROFILE, {'geometry': staged}, prefix, fov=fov), models)
+        row = {'attempt': len(rows) + 1, 'token': token, 'state': 'intent', 'imageSha256': record['imageSha256'], 'fov': fov,
+               'started': time.strftime('%Y-%m-%dT%H:%M:%S'), 'folder': str(folder.relative_to(work))}
+        rows.append(row)
         save()
-        raise
-    row.update(state='complete' if done[1].get('status', {}).get('status_str') == 'success' else 'failed', promptId=done[0], seconds=done[3])
-    save()
-    return finished(folder, record, done)
+        record.update(fov=fov, attempt=row['attempt'], models=pins)
+        (folder / 'graph.json').write_text(json.dumps(graph, indent=1), encoding='utf-8')
+        row['state'] = 'submitted'
+        save()
+        try:
+            done = run(client, url, graph, token, folder)
+        except Exception as error:
+            row['error'] = str(error)[:500]
+            save()
+            raise
+        row.update(state='complete' if done[1].get('status', {}).get('status_str') == 'success' else 'failed', promptId=done[0], seconds=done[3])
+        save()
+        return finished(folder, record, done)
 
 
 def appearance(work, model, image, fov, shape, models, url=reference.URL):

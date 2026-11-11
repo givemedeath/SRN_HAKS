@@ -17,6 +17,7 @@ class Engine:
         self.outputs = {'12': {'images': [{'filename': 'node-12_00001_.png', 'subfolder': 's', 'type': 'output'}]},
                         '30': {'text': ['fov 36.6']}}
         self.status, self.refuse, self.lost = 'success', False, False
+        self.meanwhile = None  # called once while a posted job is being waited for
 
     def idle(self):
         return not self.busy
@@ -29,6 +30,9 @@ class Engine:
             return {'prompt_id': f'job-{len(self.posted)}'}
         if self.lost:
             raise ConnectionError('the engine went away')
+        if self.meanwhile:
+            meanwhile, self.meanwhile = self.meanwhile, None
+            meanwhile()
         prompt_id = route.rsplit('/', 1)[1]
         return {prompt_id: {'outputs': self.outputs, 'status': {'status_str': self.status, 'completed': True}}}
 
@@ -134,6 +138,36 @@ class GenerateTests(unittest.TestCase):
         self.assertIn('reconcile', str(refused.exception))
         self.assertEqual(len(self.engine.posted), 1)
         generate.appearance(self.work, 'outfit', self.image, 36.6, self.image, 'models')  # only geometry is blocked
+
+    def test_a_second_attempt_started_while_one_is_under_way_is_refused(self):
+        (self.work / 'other').mkdir()
+        refused = []
+
+        def second():  # as another command would, while the first attempt's job runs: the same model, and another
+            for model in ('outfit', 'other'):
+                try:
+                    generate.geometry(self.work, model, self.image, 36.6, 'models')
+                except ValueError as error:
+                    refused.append(str(error))
+        (self.work / 'other' / 'reference').mkdir()
+        brief.seal(document(), self.work / 'other' / 'reference')
+        brief.register(self.work / 'other' / 'reference', self.image)
+        self.engine.meanwhile = second
+        self.assertEqual(generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')['attempt'], 1)
+        self.assertEqual(len(refused), 2)
+        self.assertTrue(all('under way' in message for message in refused))
+        # one job posted and one attempt on record: neither read the ledger the first was still writing
+        self.assertEqual(len(self.engine.posted), 1)
+        self.assertEqual(list(generate.attempts(self.work)['models']), ['outfit'])
+        self.assertEqual([row['state'] for row in self.ledger()], ['complete'])
+        self.assertFalse((self.work / 'other' / generate.JOBS).exists())
+        # the ledger is let go when the attempt ends, however it ends
+        self.assertEqual(generate.geometry(self.work, 'other', self.image, 36.6, 'models')['attempt'], 1)
+        self.engine.lost = True
+        with self.assertRaises(ConnectionError):
+            generate.geometry(self.work, 'other', self.image, 36.6, 'models')
+        self.engine.lost = False
+        self.assertEqual(generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')['attempt'], 2)
 
     def test_a_busy_engine_is_left_alone_and_nothing_is_counted(self):
         self.engine.busy = True
