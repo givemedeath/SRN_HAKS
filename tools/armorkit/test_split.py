@@ -694,8 +694,40 @@ class SleeveTests(unittest.TestCase):
             edge = v[found['on'][3]]
             self.assertTrue(len(above))
             self.assertLess(np.linalg.norm(above - self.arm[0], axis=1).max(), np.linalg.norm(edge - self.arm[0], axis=1).max() + 1e-6)
+            # and nothing is left open on the shoulder plane, where the lifted arm no longer fills the chest's opening
+            unit = seams.unit(normal)
+            on = np.abs((chest - point) @ unit) < 1e-6
+            left = [edge for edge in open_edges(faces, chest).tolist() if on[edge].all()]
+            self.assertEqual(left, [])
         with self.assertRaises(ValueError):  # flags for another mesh
             split.split(self.v, self.f, self.t, JOINTS, RADII, sleeves=sleeves)
+
+    def test_what_a_part_has_open_on_a_joint_plane_is_closed_facing_out_of_it(self):
+        # a square tube standing on the plane z = 0, open at both ends, its faces outward
+        ring = np.array([(1, 1), (-1, 1), (-1, -1), (1, -1)], float)
+        v = np.concatenate([np.c_[ring, np.zeros(4)], np.c_[ring, np.ones(4)]])
+        f = np.array([face for a in range(4) for b in [(a + 1) % 4] for face in ((a, b, b + 4), (a, b + 4, a + 4))])
+        t = np.arange(16.0).reshape(8, 2)
+        point, normal = np.zeros(3), np.array([0.0, 0, -1])
+        more_v, more_t, more_f = split.lid(v, t, f, len(v), point, normal, 2.0)
+        self.assertEqual((len(more_v), len(more_f)), (4, 4))
+        self.assertTrue(np.allclose(more_v, 0.0))  # the middle of the opening, once per edge
+        whole_v, whole_f = np.concatenate([v, more_v]), np.concatenate([f, more_f])
+        self.assertTrue(all((whole_v[edge][:, 2] == 1).all() for edge in open_edges(whole_f, whole_v).tolist()))  # only the far end is open
+        corners = whole_v[more_f]
+        facing = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+        self.assertTrue(np.allclose(facing / np.linalg.norm(facing, axis=1, keepdims=True), (0, 0, -1)))  # out of the tube
+        self.assertTrue(np.array_equal(more_t, t[more_f[:, 1]]))  # drawn in what the part shows along that edge
+        self.assertTrue((more_f[:, 2] >= len(v)).all() and (more_f[:, :2] < 4).all())
+        # vertices repeated along the opening are one point of it
+        twice = np.concatenate([v, v[:1]]); again = f.copy(); again[0, 0] = 8
+        self.assertEqual(len(split.lid(twice, np.concatenate([t, t[:1]]), again, 9, point, normal, 2.0)[2]), 4)
+        # nothing within reach, nothing on the plane, or nothing open there: nothing is added
+        for given in ((v, f, 1.0), (v + (0, 0, 0.5), f, 2.0), (whole_v, whole_f, 2.0)):
+            points, faces, limit = given
+            added = split.lid(points, np.zeros((len(points), 2)), faces, len(points), point, normal, limit)
+            self.assertEqual([len(part) for part in added], [0, 0, 0])
+            self.assertEqual(added[1].shape[1], 2)
 
     def test_an_outfit_designed_with_a_pad_that_shows_none_is_refused(self):
         materials = self.patch()

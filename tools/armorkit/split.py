@@ -682,6 +682,44 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     return np.concatenate(rings), np.tile(uvs[rim], (steps, 1)), added
 
 
+def lid(vertices, uvs, faces, base, point, normal, limit):
+    """Faces that close what a part has open on a joint plane: (vertices, uvs, faces) to add, numbered from `base`.
+
+    An over part is open on its joint plane, and the under part stands in the opening and fills it. A chest
+    that a shoulder pad was cut off is open there as wide as the pad lay on it, a hand's width more than the
+    upper arm from front to back: with the arm lifted, the corners the arm does not fill showed as holes, right
+    through the chest. The part's edges on the plane within `limit` of `point`, each on one face only (vertices
+    at one position being one point), are closed line by line from the middle of each line's points, the new
+    faces wound against the faces they grow from: the lid then faces the way the surface round it does, out
+    of the part. The under part stands through the lid as it stood in the opening. Each new vertex has the
+    texture coordinates of the point of the line it grew from."""
+    relative = vertices - point
+    height = relative @ normal
+    on = (np.abs(height) < WELD) & (np.linalg.norm(relative - height[:, None] * normal, axis=1) <= limit)
+    none = np.zeros((0, 3)), np.zeros((0, uvs.shape[1])), np.zeros((0, 3), int)
+    if not on.any():
+        return none
+    spot = np.full(len(vertices), -1, int)
+    spot[on] = mesh_ops.weld_ids(vertices[on], WELD)
+    edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
+    edges = edges[on[edges].all(axis=1)]
+    edges = edges[spot[edges[:, 0]] != spot[edges[:, 1]]]
+    if not len(edges):
+        return none
+    _, inverse, count = np.unique(np.sort(spot[edges], axis=1), axis=0, return_inverse=True, return_counts=True)
+    edges = edges[count[inverse.reshape(-1)] == 1]
+    if not len(edges):
+        return none
+    line = mesh_ops.union_find(int(spot.max()) + 1, spot[edges].tolist())[spot[edges[:, 0]]]
+    middle = np.zeros((len(edges), 3))
+    for label in np.unique(line):
+        mine = edges[line == label]
+        _, first = np.unique(spot[mine], return_index=True)
+        middle[line == label] = vertices[mine.reshape(-1)[first]].mean(axis=0)  # one position per point of the line
+    added = base + np.arange(len(edges))
+    return middle, uvs[edges[:, 0]], np.stack([edges[:, 1], edges[:, 0], added], axis=1)
+
+
 def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole=(), sleeves=None):
     """The mesh cut on every plane, and the part each face goes to.
 
@@ -796,7 +834,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     found on this mesh in the pose it came in. A shoulder pad found with them is a shoulder part (`assign`),
     closed underneath across its own outline. The outfit has no surface under a pad: the chest is closed where
     the pad lay on it, rounded out from the shoulder plane as the shoulder under the pad, and the upper arm is
-    closed flat under it, where the pad always covers it."""
+    closed flat under it, where the pad always covers it. What is then left open of the chest on the shoulder
+    plane is closed too (`lid`)."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
@@ -809,7 +848,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     # left the torso. The other closings stay flat: the torso's own, those of a stray bridge, and the thighs',
     # which lie against each other, where a rounded one comes out through the other leg at the crotch.
     rim = lambda joint, side: (np.asarray(cuts[(joint, side)][0], float), seams.unit(cuts[(joint, side)][1]))
-    closings = []
+    closings, lids = [], []
     for side, found in sleeves.items():
         trough, outline = found, None
         if 'on' in found:  # cut in the pose the outfit came in: the trough's three planes, and the pad's outline
@@ -818,6 +857,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         closings.append((trough, {token('bicep', side): (1.0, rim('shoulder', side)), token('forearm', side): (1.0, None),
                                   'chest': (-1.0, None), 'pelvis': (-1.0, None)}))
         if outline is not None:
+            if np.any(outline['on']):  # a pad was cut off: the chest is open on the shoulder plane as wide as it lay
+                lids.append(('shoulder', side))
             closings.append((outline, {token('shoulder', side): (1.0, None), token('bicep', side): (1.0, None),
                                        'chest': (-1.0, rim('shoulder', side), PAD_RINGS)}))
     closings.append((between, {token('thigh', 'l'): (1.0, None), token('thigh', 'r'): (-1.0, None)}))
@@ -833,6 +874,10 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 closed = np.concatenate([closed, more[0]])
                 kinds.append(np.full(len(more[2]), CLOSING))
+        for joint, side in lids if name == 'chest' else ():
+            more = lid(pv, pt, pf, len(pv), cuts[(joint, side)][0], seams.unit(cuts[(joint, side)][1]), limit[(joint, side)] + WELD)
+            pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
+            kinds.append(np.full(len(more[2]), CLOSING))
         for (joint, side), depth in overlaps.items():
             if depth and (joint, side) not in whole and token(seams.JOINTS[joint]['under'], side) == name:
                 point, normal = cuts[(joint, side)]
