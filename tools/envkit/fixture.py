@@ -1,0 +1,147 @@
+"""An isolated client fixture for envkit placeables: a throwaway hak and module in a fresh user directory.
+
+Built on armorkit's fixture pieces (flat area on a copied stock tileset, module documents, isolated user directory). The
+props stand in a row; the entry script walks an unseen player along it, sets the camera at each one and writes
+`ENVKIT shot=<n>` so a driver can capture the window. Nothing here touches the repository packs: the fixture's own
+placeables table is the repository's with the props appended, inside the fixture hak."""
+import json
+import math
+import shutil
+import subprocess
+import time
+from pathlib import Path
+
+from tools.armorkit import client, client_fixture
+from tools.armorkit.client_fixture import field, gff_float
+
+LOG_PREFIX = 'ENVKIT'
+COLUMNS = 13  # after the row number: Label StrRef ModelName LightColor LightOffsetX/Y/Z SoundAppType ShadowSize BodyBag LowGore Reflection Static
+START, HOLD = 8.0, 4.0
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def table(stock_text, models):
+    """The placeables table with one row appended per model; returns (text, {model: row number})."""
+    lines = stock_text.replace('\r\n', '\n').rstrip('\n').split('\n')
+    require(lines[0].startswith('2DA V2.0') and lines[2].split()[:3] == ['Label', 'StrRef', 'ModelName'], 'Unexpected placeables table')
+    last = int(lines[-1].split()[0]); rows = {}
+    for offset, model in enumerate(models, 1):
+        rows[model] = last + offset
+        lines.append(f'{last + offset} "[envkit]{model}" **** {model} **** **** **** **** **** 1 0 **** **** 1')
+    return '\r\n'.join(lines) + '\r\n', rows
+
+
+def placed(tag, appearance, position, bearing):
+    """One static placeable of a table row in an area's placeable list."""
+    x, y = position
+    values = {'TemplateResRef': field('resref', ''), 'Tag': field('cexostring', tag), 'LocName': field('cexolocstring', {'0': tag}),
+              'Description': field('cexolocstring', {}), 'Appearance': field('dword', appearance), 'Static': field('byte', 1),
+              'Useable': field('byte', 0), 'Plot': field('byte', 1), 'HP': field('short', 15), 'CurrentHP': field('short', 15),
+              'Hardness': field('byte', 5), 'Fort': field('byte', 16), 'Ref': field('byte', 0), 'Will': field('byte', 0),
+              'Faction': field('dword', 1), 'AnimationState': field('byte', 0), 'HasInventory': field('byte', 0),
+              'Lockable': field('byte', 0), 'Locked': field('byte', 0), 'PortraitId': field('word', 0), 'Type': field('byte', 0),
+              'BodyBag': field('byte', 0), 'TrapFlag': field('byte', 0), 'Conversation': field('resref', ''),
+              'X': gff_float(x), 'Y': gff_float(y), 'Z': gff_float(0.0), 'Bearing': gff_float(bearing)}
+    return {'__struct_id': 9, **values}
+
+
+def enter_script(shots, start=START, hold=HOLD):
+    """Hide the player, then for each shot stand them at a spot and set the camera: {label, stand: [x, y], facing,
+    distance, pitch, height}. Facing 90 looks north."""
+    lines = ['void Shot(object pc,int n) {', f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("{LOG_PREFIX} done"); return; }}',
+             '  float x; float y; float facing; float distance; float pitch; float height; string label;']
+    for index, shot in enumerate(shots):
+        lines.append(f'  if(n=={index}) {{ x={shot["stand"][0]:.3f}; y={shot["stand"][1]:.3f}; facing={float(shot.get("facing", 90)):.3f}; '
+                     f'distance={float(shot.get("distance", 5)):.3f}; pitch={float(shot.get("pitch", 75)):.3f}; '
+                     f'height={float(shot.get("height", 1.0)):.3f}; label="{shot["label"]}"; }}')
+    lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetArea(pc),Vector(x,y,0.0),facing)));',
+              '  SetCameraHeight(pc,height); AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));',
+              f'  DelayCommand(1.0,WriteTimestampedLogEntry("{LOG_PREFIX} shot="+IntToString(n)+" target="+label+" valid=1"));',
+              f'  DelayCommand({hold:.1f},Shot(pc,n+1));', '}',
+              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', '  SetCameraLimits(pc,1.0,89.0,0.5,60.0);',
+              '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
+              '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{LOG_PREFIX} enter shots={len(shots)}");',
+              f'  DelayCommand({start:.1f},Shot(pc,0));', '}']
+    return '\n'.join(lines) + '\n'
+
+
+def build(name, resources, props, shots, output, nwn_root, stock_table, *, night=False, size=8, start=START, hold=HOLD):
+    """props: [{model, position: [x, y], bearing}] (bearing in radians). Returns the fixture record."""
+    from tools.phenotypes import tool_runtime
+    require(client_fixture.NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 11 characters')
+    root, output = Path(nwn_root), Path(output).resolve()
+    require((root / 'data').is_dir(), 'The game install folder is required (the one holding data/)')
+    require(not output.exists(), 'A fixture is built into a fresh folder: ' + output.name)
+    user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))
+    for folder in (user / 'hak', user / 'modules', staged, documents, binary):
+        folder.mkdir(parents=True)
+    common = ['--root', root, '--userdirectory', user, '--no-ovr']; tools = {}
+
+    def run(tool, args):
+        tools.setdefault(tool, tool_runtime.tool(tool))
+        result = subprocess.run([str(tools[tool]), *map(str, args)], capture_output=True, timeout=600,
+                                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        require(result.returncode == 0, tool + ' failed: ' + result.stderr.decode(errors='replace')[-2000:])
+        return result.stdout
+
+    for path in sorted(Path(resources).iterdir()):
+        require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Hak resources are lowercase resref files: ' + path.name)
+        shutil.copyfile(path, staged / path.name)
+    text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props}))
+    (staged / 'placeables.2da').write_text(text, encoding='cp1252', newline='')
+    stock_set = run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '.set']).decode('cp1252')
+    (staged / (name + '.set')).write_text(client_fixture.tileset(stock_set, name), encoding='cp1252', newline='')
+    (staged / (name + '_edge.2da')).write_bytes(run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '_edge.2da']))
+    hak = user / 'hak' / (name + '.hak')
+    run('nwn_erf', ['-c', '-f', hak, '-e', 'HAK', staged])
+    script = binary / (name + '_en.nss'); script.write_text(enter_script(shots, start, hold), encoding='ascii', newline='\n')
+    run('nwn_script_comp', [*common, script])
+    require(script.with_suffix('.ncs').is_file(), 'The entry script did not compile')
+    area = client_fixture.area_documents(name, [], size)
+    area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', rows[prop['model']], prop['position'], prop.get('bearing', math.pi))
+                                                             for index, prop in enumerate(props)])
+    if night:
+        area[name + '_a.are'].update({'IsNight': field('byte', 1), 'MoonAmbientColor': field('dword', 0x302820),
+                                      'MoonDiffuseColor': field('dword', 0x504840)})
+    for filename, document in {**area, **client_fixture.module_documents(name, [], None, tuple(shots[0]['stand']) if shots else (40.0, 30.0))}.items():
+        path = documents / (filename + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
+        run('nwn_gff', ['-i', path, '-o', binary / filename])
+    module = user / 'modules' / (name + '.mod')
+    run('nwn_erf', ['-c', '-f', module, '-e', 'MOD', binary])
+    record = {'name': name, 'userDirectory': str(user), 'module': module.name, 'hak': hak.name, 'rows': rows, 'shots': [shot['label'] for shot in shots],
+              'start': start, 'hold': hold, 'night': night, 'clientValidated': False}
+    (output / 'fixture.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
+    return record
+
+
+def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings=''):
+    """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and captures."""
+    user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
+    settings = user / 'settings.tml'
+    if not settings.exists():
+        settings.write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
+    process = client.start(nwn_root, user, Path(record['module']).stem, width=width, height=height)
+    shots, seen = [], 0
+    try:
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            time.sleep(client.POLL)
+            require(process.poll() is None, 'The client exited before the fixture finished')
+            lines = client.log_lines(user, LOG_PREFIX)
+            for line in lines[seen:]:
+                values = client.parse_line(line)
+                if 'shot' in values and 'target' in values:
+                    time.sleep(settle)
+                    shots.append(str(client.capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png')))
+            seen = len(lines)
+            if f'{LOG_PREFIX} done' in lines:
+                break
+        else:
+            raise ValueError('The fixture did not finish within the timeout')
+        return {'lines': client.log_lines(user, LOG_PREFIX), 'captures': shots}
+    finally:
+        client.stop(process)
