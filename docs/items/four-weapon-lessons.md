@@ -345,3 +345,31 @@ fit still refuses any depth departure by default; it now accepts one only when `
 `depthDepartureApproved: true` and the digest of that exact measurement, taken from the fit worker's own retained
 `grip-measurement.json` (an offline measurement differs in float rounding and will not match). The both-body visual
 hand-fit review is unchanged and still required.
+
+### Club continuation — 2026-11-11
+
+The wave-1 Club (a round club on the longsword carrier) reached an approved in-game result at 0.76 m on geometry
+attempt 3 of 5, from an oblique reference pair. It exposed four gaps, each now closed in the tools:
+
+| What went wrong | Guard now in place |
+| --- | --- |
+| Straightening a bent thick shaft hooked and sheared its end caps: slices near the ends cut the caps obliquely, so the measured centreline curled | `straightness._midline` ignores the last section depth at each end and continues the adjacent interior line (a synthetic bent club went from 2.1% residual bend and 17% section error to 0.16%). |
+| The generated pommel cap was flat but tilted 23 degrees (head cap 8); a 0.6%-of-length slab fit read it as 3.5 | The straightening map now carries `ends`: flat caps tilted 0.5 to 30 degrees are sheared square over one section size. Flatness is a plane fit to the cap's outward envelope within 2% of the section size, so blade points and rounded butts are left alone. Older maps without `ends` still load. |
+| The one-hand transverse grip correction scales depth and width separately; it turned the round club into a 4 x 6.5 cm oval and amplified the cap tilt | `fit.sizingAuthority: usable-length-round` (`grip.one_hand_round`) applies one transverse scale so the midpoint diameter equals the approved face width. It refuses a section that is not round within 10% and always requires a `fit.gripDeparture` bound to the worker's measurement digest. |
+| A strictly uniform fit (no transverse scale) left a 7.3 cm handle on a 0.76 m club | Not offered as a route. Check the fitted section in `grip-measurement.json`, not the pre-correction `sourceSection`, before quoting a handle size. |
+
+The Club's grip is 4.9 cm round: face width on standard, depth +65%. The Human male hand closes around it in game.
+The Human female was seen only mid-swing, so the both-body hand-fit review for this departure is half done.
+
+Fit-driver notes for designs without a blade or cross-guard: `auto_fit.py` cannot find landmarks on a round club.
+Name the striking end and all four landmarks by measurement (`bladeAtLowEnd`, `pommelEnd`, `gripStart`, `gripEnd`,
+`bladeStart`), read from the width profile along the straightened shell. The thickness probes fall back to the
+nearest far-side vertex when a sparse thick shaft has none straight above. The round route needs two fit passes, like
+the two-hand departure: the first stops at the departure gate and retains the measurement, the second binds its digest.
+
+Other points from this run:
+
+- A fit manifest must carry `approval.texturedDonor` and `approval.workingMesh` for its exact inputs before the fit
+  stage; a failed first attempt leaves its run folder unusable, so correct the manifest under a new suffix.
+- A fixture manifest is a new manifest, so the whole CPU pipeline reruns under it (about 30 minutes for one weapon).
+- The appearance job left a pale squiggle on the grip texture. It is not noticeable at game distance and is unfixed.

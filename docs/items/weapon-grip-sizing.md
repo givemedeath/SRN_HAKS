@@ -29,6 +29,12 @@ For each future weapon:
 4. Inspect the actual grip in the native hand on both supported Human bodies
    before acceptance. Intentional sizing departures need explicit review.
 
+A round one-hand grip (a club or baton) may keep its section round: the
+`usable-length-round` fit scales both transverse axes equally so the midpoint
+diameter equals the reference face width. Its depth then exceeds the reference
+(the wave-1 Club is +65%), which is an intentional departure: it needs a review
+bound to the exact measurement and the hand-fit inspection on both Human bodies.
+
 This is a sizing reference, not a requirement to copy the Cougar's grip shape.
 Two-handed weapons or unusual grip mechanisms still need their own contact and
 native contracts. Firearm packaging remains blocked until its multipart contract

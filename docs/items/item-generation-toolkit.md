@@ -384,6 +384,19 @@ inputs from a straight shell: landmarks, a grip span sized to the stock carrier
 length, vertex-free part cuts and a 40,000-triangle working shell. These measure
 and never approve; hand-fit review on both Human bodies is unchanged.
 
+Straightening also squares flat end caps that are tilted off the long axis (0.5 to
+30 degrees), such as a club's pommel and head; the correction is stored in the
+map's `ends` and carries to the donor and shell with the rest. A blade point or a
+rounded butt is not a flat cap and is left alone.
+
+A one-hand weapon with a round grip can keep its section round: set
+`fit.sizingAuthority` to `usable-length-round`. The fit then applies one transverse
+scale so the grip's midpoint diameter equals the approved face width, instead of
+scaling depth and width separately. The depth departs from the standard by
+construction, so the fit always stops until `fit.gripDeparture` carries an approved
+review with the digest from the worker's retained `grip-measurement.json`. See the
+Club continuation in `four-weapon-lessons.md`.
+
 ## Native and geometry contracts
 
 The supplied profile remains `pending-contract` until the actual effective content
