@@ -38,6 +38,13 @@
       "tools/phenomorpher/phenomorpher/engine/native_motion.py"
     ],
     "tools/armorkit/registry.py": [],
+    "tools/armorkit/repose.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/gltf.py",
+      "tools/robes/mesh_ops.py"
+    ],
     "tools/armorkit/seams.py": [
       "tools/armorkit/registry.py",
       "tools/armorkit/seam-contract.json"
@@ -75,6 +82,13 @@
     "tools/armorkit/test_registry.py": [
       "tools/armorkit/examples/registry.json",
       "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/test_repose.py": [
+      "tools/armorkit/repose.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/test_split.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/gltf.py"
     ],
     "tools/armorkit/test_seams.py": [
       "tools/armorkit/registry.py",
@@ -4951,6 +4965,7 @@
     "tools/armorkit/test_export.py",
     "tools/armorkit/test_measure.py",
     "tools/armorkit/test_registry.py",
+    "tools/armorkit/test_repose.py",
     "tools/armorkit/test_seams.py",
     "tools/armorkit/test_split.py",
     "tools/armorkit/test_tables.py",

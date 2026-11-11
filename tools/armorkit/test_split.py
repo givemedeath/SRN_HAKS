@@ -218,6 +218,25 @@ class SplitTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 split.split(v, f, t, JOINTS, RADII, reaches=bad)
 
+    def test_a_joint_left_whole_keeps_its_surface_on_the_part_beside_it(self):
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, {('neck', 'c'): 0.03}, whole={('neck', 'c')})
+        self.assertEqual(set(parts), TOKENS - {'neck'})
+        self.assertAlmostEqual(parts['chest'][0][:, 2].max(), 1.70, places=6)  # the collar, above the neck plane at 1.65
+        self.assertAlmostEqual(sum(area(p, f) for p, f, _ in parts.values()), area(self.v, self.f), places=6)  # and no cap
+        with self.assertRaises(ValueError):
+            split.split(self.v, self.f, self.t, JOINTS, RADII, whole={('hip', 'l')})
+
+    def test_reaches_are_found_where_the_outfit_is_bulkier_than_its_tier(self):
+        # tubes as thick as their joints need none; the figure's torso hangs round the hip joints like a coat, which counts
+        self.assertLessEqual(set(split.reaches(self.v, self.f, JOINTS, RADII)), {('hip', 'l'), ('hip', 'r')})
+        J = {name: np.array(p, float) for name, p in JOINTS.items()}
+        boot = tube(J['lshin_g'], J['lfoot_g'] - (0, 0, 0.1), 0.12)
+        v, f, t = join(tube((0, 0, 0.95), (0, 0, 1.60), 0.15), tube(J['lthigh_g'] + (0, 0, 0.06), J['lshin_g'], 0.08), boot)
+        found = split.reaches(v, f, JOINTS, RADII)
+        self.assertEqual(set(found) - {('hip', 'l'), ('hip', 'r')}, {('ankle', 'l')})  # the knee plane lies on the boot's open top
+        self.assertTrue(0.12 < found[('ankle', 'l')] < 0.14)
+        self.assertIn('footl', split.split(v, f, t, JOINTS, RADII, reaches={key: found[key] for key in found if key[0] != 'hip'}))
+
     def test_limbs_that_touch_are_not_mixed(self):
         joints = {**JOINTS, 'lforearm_g': (-0.14, 0, 1.28), 'lhand_g': (-0.145, 0, 1.03)}  # the left arm hangs onto the thigh
         for side, x in (('l', -0.06), ('r', 0.06)):  # and the legs stand closer than they are thick
@@ -465,6 +484,13 @@ class CrotchTests(unittest.TestCase):
             between = np.abs(points[:, 0])[faces].max(axis=1) < 1e-6
             self.assertTrue(between.any(), name)
             self.assertTrue(np.all(facing * normals(points, faces)[between][:, 0] > 0), name)
+
+    def test_a_hip_plane_reaches_over_its_own_leg_only(self):
+        thin = {**RADII, ('hip', 'l'): 0.05, ('hip', 'r'): 0.05}  # trousers much bulkier than the tier
+        found = split.reaches(self.v, self.f, JOINTS, thin)
+        for side in 'lr':
+            # to the leg's outer side (0.07 m from the joint) and just past the middle (0.12 m), not to the far leg's (0.31 m)
+            self.assertTrue(0.12 < found[('hip', side)] < 0.2, found)
 
     def test_a_thighs_cap_grows_from_its_closed_rim(self):
         overlaps = {('hip', 'l'): 0.05}
