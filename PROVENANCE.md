@@ -257,6 +257,9 @@ and stayed there, and one sent from the north-east to the south side went round 
 left unchecked above were checked the same day. In the client, in both tilesets, the area map showed the four
 pictures in place, the roof in the middle of its dark ground, north up. In the Toolset, in Suburbs, painting
 the group made one door by itself, of type 58, at the storefront and facing out, as the saved area records.
+The rebuild moved each tile's first main light with the finer survey, by about 0.15 metres on three tiles and
+1.2 metres on the north-east one; a coloured main light was looked at again in the client at night and lit the
+ground and the walls on every side. The area map was also looked at zoomed in, at its full 32 pixels a tile.
 
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
