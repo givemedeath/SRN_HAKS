@@ -11,7 +11,7 @@
     "pump-control-console": {"kind": "prop", "type": "console-desk", "same": "tbird-hangar/control-desk", "subject": "hooded pump control console of three screens with a chair", "box": [8, 632, 268, 804]},
     "pipe-manifold": {"kind": "prop", "type": "pump-unit", "subject": "pipe manifold arching over three blue pumps", "box": [270, 635, 490, 802]},
     "filtration-tanks": {"kind": "prop", "type": "pressure-tank", "variant": "Pair of banded filter tanks lettered FILT-01 and FILT-02 behind a yellow rail.", "subject": "pair of banded filtration tanks behind a yellow rail", "box": [491, 622, 707, 804]},
-    "drum-rack": {"kind": "prop", "type": "goods-rack", "variant": "Steel rack of yellow and blue chemical drums.", "subject": "steel rack of yellow and blue chemical drums", "box": [710, 640, 863, 800]},
+    "drum-rack": {"kind": "prop", "type": "shelf-unit", "variant": "Steel rack of yellow and blue chemical drums.", "subject": "steel rack of yellow and blue chemical drums", "box": [710, 640, 863, 800]},
     "maintenance-kiosk": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "maintenance kiosk with a screen and a keypad", "box": [874, 630, 977, 802]},
     "catwalk-segment": {"kind": "prop", "type": "catwalk", "subject": "elevated steel catwalk segment with yellow railings", "box": [987, 645, 1216, 802]},
     "utility-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Chain-link double gate between concrete posts with red lamps.", "subject": "chain-link double gate between concrete posts with red lamps", "box": [1219, 631, 1445, 798]},

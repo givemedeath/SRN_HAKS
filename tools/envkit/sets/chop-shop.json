@@ -19,7 +19,7 @@
     "fence-section": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire on striped footings", "box": [207, 926, 376, 1042]},
     "garage-door": {"kind": "prop", "type": "dock-door", "variant": "Branding: roll-up door painted with the gear emblem over a hazard sill.", "subject": "roll-up garage door painted with a gear emblem", "box": [391, 925, 560, 1041]},
     "fuel-drums": {"kind": "prop", "type": "fuel-drums", "variant": "Red and blue drums with jerry cans on a pallet.", "subject": "red and blue fuel drums with jerry cans on a pallet", "box": [579, 944, 728, 1041]},
-    "office-nook": {"kind": "prop", "type": "desk-terminal", "variant": "Cluttered desk nook with a terminal, filing cabinets and a lamp.", "subject": "cluttered office desk nook with a terminal and filing cabinets", "box": [745, 929, 946, 1042]},
+    "office-nook": {"kind": "prop", "type": "console-desk", "variant": "Cluttered desk nook with a terminal, filing cabinets and a lamp.", "subject": "cluttered office desk nook with a terminal and filing cabinets", "box": [745, 929, 946, 1042]},
     "crate-pallet": {"kind": "prop", "type": "pallet-stack", "variant": "Wooden and steel crates on pallets.", "subject": "wooden and steel crates on pallets", "box": [961, 942, 1123, 1041]},
     "floodlight-mast": {"kind": "prop", "type": "floodlight", "same": "mesametric-facility/floodlight-mast", "subject": "mobile floodlight mast on a yellow generator base", "box": [1153, 922, 1238, 1042]},
     "security-shutter": {"kind": "prop", "type": "dock-door", "variant": "Mesh security shutter in a concrete frame with a top lamp.", "subject": "mesh security shutter in a concrete frame", "box": [1269, 928, 1438, 1041]}

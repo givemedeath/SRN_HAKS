@@ -14,13 +14,13 @@
     "shop-counter": {"kind": "prop", "type": "shop-counter", "subject": "wooden shop counter with a hanging banner, a till and a crystal ball", "box": [638, 791, 845, 917]},
     "enchanting-workbench": {"kind": "prop", "type": "workbench", "subject": "enchanting workbench with a glowing work surface, a lamp and drawers", "box": [855, 792, 1075, 917]},
     "ritual-circle": {"kind": "prop", "type": "ritual-circle", "subject": "round stone floor slab carved with a glowing ritual circle", "box": [1079, 812, 1272, 916]},
-    "warded-door": {"kind": "prop", "type": "secure-door", "subject": "warded metal door in a stone frame with a keypad", "box": [1283, 786, 1430, 919]},
+    "warded-door": {"kind": "prop", "type": "door", "subject": "warded metal door in a stone frame with a keypad", "box": [1283, 786, 1430, 919]},
     "candle-stand": {"kind": "prop", "type": "candle-stand", "subject": "pair of wrought-iron stands of candles and incense", "box": [25, 965, 175, 1054]},
     "shelf-unit": {"kind": "prop", "type": "shelf-unit", "subject": "wooden shelf unit of books, boxes and a skull, hung with ivy", "box": [208, 945, 391, 1050]},
     "charm-rack": {"kind": "prop", "type": "charm-rack", "subject": "brass rail hung with charms and talismans", "box": [422, 956, 584, 1052]},
     "reagent-locker": {"kind": "prop", "type": "locker", "subject": "three-door steel locker with hazard stripes", "box": [616, 948, 770, 1055]},
     "consultation-table": {"kind": "prop", "type": "table-and-chairs", "subject": "round table with a crystal ball and two upholstered chairs on a rug", "box": [803, 957, 1039, 1057]},
-    "service-door": {"kind": "prop", "type": "service-door", "subject": "metal service door in a stone wall section with a lamp above", "box": [1073, 947, 1174, 1054]},
+    "service-door": {"kind": "prop", "type": "door", "variant": "Plain metal door in a stone wall section with a lamp above.", "subject": "metal service door in a stone wall section with a lamp above", "box": [1073, 947, 1174, 1054]},
     "sigil-panel": {"kind": "prop", "type": "sigil-panel", "subject": "stone wall panel carved with glowing runes and a sigil", "box": [1214, 953, 1413, 1052]}
   }
 }

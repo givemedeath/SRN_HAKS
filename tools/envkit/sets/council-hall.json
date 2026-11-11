@@ -17,7 +17,7 @@
     "banner-set": {"kind": "prop", "type": "banner-set", "subject": "row of six hanging sector banners on a rail", "box": [678, 926, 868, 1030]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: stone-fronted desk with the Council emblem.", "subject": "stone-fronted reception desk with an emblem", "box": [873, 947, 1019, 1031]},
     "wall-display": {"kind": "prop", "type": "wall-monitor", "variant": "Large wall display.", "unbranded": true, "subject": "large wall-mounted display monitor", "box": [1026, 924, 1154, 1027]},
-    "bench-seating": {"kind": "prop", "type": "waiting-seats", "variant": "Four-seat grey metal beam seating.", "subject": "row of four grey metal beam seats", "box": [1159, 956, 1295, 1022]},
+    "bench-seating": {"kind": "prop", "type": "bench", "variant": "Four-seat grey metal beam seating.", "subject": "row of four grey metal beam seats", "box": [1159, 956, 1295, 1022]},
     "floodlight": {"kind": "prop", "type": "floodlight", "subject": "twin floodlight on a pole", "box": [1298, 907, 1365, 1030]},
     "bollard": {"kind": "prop", "type": "bollard", "variant": "Single dark bollard with an amber light band.", "subject": "dark security bollard with a light band", "box": [1376, 943, 1432, 1031]}
   }

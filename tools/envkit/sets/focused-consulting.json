@@ -19,8 +19,8 @@
     "queue-rope": {"kind": "prop", "type": "stanchions", "same": "chavez-casino/velvet-stanchions", "subject": "pair of brass stanchions with a red velvet rope", "box": [259, 892, 418, 1017]},
     "private-desk": {"kind": "prop", "type": "executive-desk", "subject": "executive wooden desk with a chair, a bookcase, a painting and a lamp", "box": [435, 860, 711, 1016]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [727, 869, 871, 1003]},
-    "service-door": {"kind": "prop", "type": "service-door", "same": "nabs-studio/service-door", "subject": "steel staff service door in a concrete frame", "box": [899, 864, 1037, 1017]},
-    "utility-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Two-door grey cabinet with a high-voltage mark and a red stripe.", "subject": "two-door grey utility cabinet", "box": [1076, 873, 1226, 1020]},
+    "service-door": {"kind": "prop", "type": "door", "same": "nabs-studio/service-door", "subject": "steel staff service door in a concrete frame", "box": [899, 864, 1037, 1017]},
+    "utility-cabinet": {"kind": "prop", "type": "power-cabinet", "same": "gridguide-center/signal-cabinet", "subject": "two-door grey utility cabinet", "box": [1076, 873, 1226, 1020]},
     "document-cart": {"kind": "prop", "type": "document-cart", "subject": "wheeled cart of file boxes and binders", "box": [1258, 879, 1428, 1021]}
   }
 }

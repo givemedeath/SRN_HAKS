@@ -15,12 +15,12 @@
     "ceramic-pots": {"kind": "prop", "type": "ceramic-pots", "subject": "group of three painted ceramic pots", "box": [408, 927, 512, 1017]},
     "hanging-textile": {"kind": "prop", "type": "wall-hanging", "subject": "woven serape hanging from a wooden rail", "box": [514, 903, 598, 1016]},
     "shop-counter": {"kind": "prop", "type": "shop-counter", "variant": "Carved dark-wood counter with a terminal and a till.", "subject": "carved wooden shop counter with a terminal", "box": [598, 917, 770, 1018]},
-    "secure-door": {"kind": "prop", "type": "secure-door", "variant": "Riveted steel strongroom door with a keypad, no frame of stone.", "subject": "riveted steel strongroom door with a keypad", "box": [776, 901, 852, 1020]},
-    "shipping-crates": {"kind": "prop", "type": "crate-stack", "subject": "stack of three wooden shipping crates", "box": [860, 917, 954, 1019]},
-    "stash-cabinet": {"kind": "prop", "type": "stash-cabinet", "subject": "carved wooden cabinet with a false back standing open", "box": [958, 904, 1060, 1020]},
-    "desk-terminal": {"kind": "prop", "type": "desk-terminal", "subject": "computer terminal on a small wooden desk", "box": [1063, 935, 1168, 1020]},
+    "secure-door": {"kind": "prop", "type": "door", "variant": "Riveted steel strongroom door with a keypad, no frame of stone.", "subject": "riveted steel strongroom door with a keypad", "box": [776, 901, 852, 1020]},
+    "shipping-crates": {"kind": "prop", "type": "pallet-stack", "variant": "Two stacked wooden shipping crates, no pallet.", "subject": "stack of three wooden shipping crates", "box": [860, 917, 954, 1019]},
+    "stash-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Carved wooden cabinet with one door open on hidden crates.", "subject": "carved wooden cabinet with a false back standing open", "box": [958, 904, 1060, 1020]},
+    "desk-terminal": {"kind": "prop", "type": "console-desk", "variant": "Single terminal on a small wooden desk.", "subject": "computer terminal on a small wooden desk", "box": [1063, 935, 1168, 1020]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1161, 906, 1227, 981]},
-    "service-door": {"kind": "prop", "type": "service-door", "same": "talismonger/service-door", "subject": "metal service door in a stucco wall section with a lamp above", "box": [1241, 901, 1326, 1022]},
+    "service-door": {"kind": "prop", "type": "door", "same": "talismonger/service-door", "subject": "metal service door in a stucco wall section with a lamp above", "box": [1241, 901, 1326, 1022]},
     "wall-niche": {"kind": "prop", "type": "wall-niche", "subject": "tiled wall niche holding a statuette and candles", "box": [1341, 902, 1439, 1021]}
   }
 }

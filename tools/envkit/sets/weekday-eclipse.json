@@ -17,7 +17,7 @@
     "wand-checkpoint": {"kind": "prop", "type": "scanner-arch", "variant": "Walk-through arch with a hand-scan screen and green side lights.", "subject": "walk-through security arch with a hand-scan screen", "box": [1288, 616, 1438, 790]},
     "neon-wall-sign": {"kind": "prop", "type": "neon-sign", "variant": "Branding: oval Weekday Eclipse neon sign with a crescent.", "subject": "oval neon wall sign reading Weekday Eclipse", "box": [6, 867, 227, 1013]},
     "restroom-doors": {"kind": "prop", "type": "restroom-doors", "subject": "pair of restroom doors with lit pictograms in a wall section", "box": [240, 854, 439, 1020]},
-    "service-door": {"kind": "prop", "type": "service-door", "same": "nabs-studio/service-door", "subject": "service door in a concrete wall section", "box": [462, 850, 611, 1017]},
+    "service-door": {"kind": "prop", "type": "door", "same": "nabs-studio/service-door", "subject": "service door in a concrete wall section", "box": [462, 850, 611, 1017]},
     "street-light": {"kind": "prop", "type": "floodlight", "variant": "Single-arm street light pole.", "subject": "street light pole with a hanging banner", "box": [648, 818, 748, 1022], "notes": "Leave the banner off."},
     "trash-pile": {"kind": "prop", "type": "street-clutter", "variant": "Blue wheeled dumpster with rubbish bags, a crate and a pallet.", "subject": "blue dumpster with rubbish bags, a crate and a pallet", "box": [748, 890, 972, 1015]},
     "branded-wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: weathered Weekday Eclipse panel with two lamps.", "subject": "wall-mounted sign reading Weekday Eclipse", "box": [978, 855, 1205, 1021]},

@@ -9,16 +9,16 @@
     "building-front": {"kind": "building", "subject": "front elevation of a grey corporate biotech laboratory", "box": [50, 475, 550, 595]},
     "building-service": {"kind": "building", "subject": "service elevation of a grey corporate biotech laboratory with loading doors", "box": [590, 470, 1090, 595]},
     "lab-bench": {"kind": "prop", "type": "workbench", "variant": "Lab bench with a shelf of glassware and a terminal.", "subject": "laboratory bench with glassware shelves", "box": [12, 903, 159, 1023]},
-    "sample-freezer": {"kind": "prop", "type": "freezer", "subject": "two-door laboratory sample freezer", "box": [166, 897, 261, 1021]},
+    "sample-freezer": {"kind": "prop", "type": "fridge", "variant": "Solid two-door laboratory freezer.", "subject": "two-door laboratory sample freezer", "box": [166, 897, 261, 1021]},
     "containment-pod": {"kind": "prop", "type": "containment-chamber", "variant": "Green-lit life-support pod holding a figure.", "subject": "green-lit life-support containment pod", "box": [268, 887, 363, 1023]},
     "specimen-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Glass-door cabinet of lit specimen jars.", "subject": "glass-door cabinet of specimen jars", "box": [368, 900, 465, 1018]},
     "med-scanner": {"kind": "prop", "type": "med-scanner", "subject": "ring medical scanner with a patient bed and a monitor", "box": [470, 909, 605, 1020]},
-    "keypad-door": {"kind": "prop", "type": "secure-door", "variant": "Grey laboratory door with a window and a keypad in a hazard-striped frame.", "subject": "grey laboratory door with a keypad", "box": [613, 889, 710, 1016]},
+    "keypad-door": {"kind": "prop", "type": "door", "variant": "Grey laboratory door with a window and a keypad in a hazard-striped frame.", "subject": "grey laboratory door with a keypad", "box": [613, 889, 710, 1016]},
     "instrument-cart": {"kind": "prop", "type": "medical-cart", "variant": "Three-shelf instrument cart with a monitor.", "subject": "rolling laboratory instrument cart", "box": [724, 904, 825, 1015]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [837, 912, 907, 991]},
     "biohazard-locker": {"kind": "prop", "type": "locker", "variant": "Yellow single-door biohazard gear locker.", "subject": "yellow biohazard gear locker", "box": [920, 902, 990, 1018]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: grey desk with violet light and the Apex Plasmids mark.", "subject": "grey reception desk with violet lighting", "box": [1000, 911, 1186, 1017]},
-    "cleanroom-airlock": {"kind": "prop", "type": "secure-door", "variant": "Glazed walk-through cleanroom airlock booth.", "subject": "glazed walk-through cleanroom airlock booth", "box": [1190, 885, 1323, 1017]},
-    "data-terminal": {"kind": "prop", "type": "desk-terminal", "variant": "Standing data terminal with a screen and a keyboard.", "subject": "standing data terminal with a screen", "box": [1334, 897, 1427, 1020]}
+    "cleanroom-airlock": {"kind": "prop", "type": "door", "variant": "Glazed walk-through cleanroom airlock booth.", "subject": "glazed walk-through cleanroom airlock booth", "box": [1190, 885, 1323, 1017]},
+    "data-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Standing data terminal with a screen and a keyboard.", "subject": "standing data terminal with a screen", "box": [1334, 897, 1427, 1020]}
   }
 }

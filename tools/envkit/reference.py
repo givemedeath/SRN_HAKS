@@ -15,6 +15,12 @@ PROFILE = 'qwen21-int8-v1'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
 KIN = {'type', 'same', 'variant', 'unbranded'}
 BRANDING = 'Branding:'
+# Type names that turned out to mean a type already in use (review of 2026-11-11). Two names for one kind of prop hide
+# its repeats from the register, so a retired name is refused with the name to use.
+RETIRED = {'atm': 'pay-kiosk', 'crate-stack': 'pallet-stack', 'cyberware-cabinet': 'storage-cabinet', 'desk-terminal': 'console-desk',
+           'drink-case': 'fridge', 'floor-cache': 'floor-hatch', 'folding-table': 'table-and-chairs', 'freezer': 'fridge',
+           'goods-rack': 'shelf-unit', 'junction-box': 'power-cabinet', 'ladder-hatch': 'floor-hatch', 'recycle-bin': 'trash-can',
+           'secure-door': 'door', 'service-door': 'door', 'stash-cabinet': 'storage-cabinet', 'waiting-seats': 'bench'}
 LEAD = {
     'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
@@ -68,6 +74,7 @@ def load_set(path):
         prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
         if asset['kind'] == 'prop':
             require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)
+            require(asset['type'] not in RETIRED, f'Type {asset["type"]} is now {RETIRED.get(asset["type"])}: {name}')
             require(not {'same', 'variant'} <= set(asset), 'A prop is the same as another or a variant, not both: ' + name)
             require('same' not in asset or re.fullmatch(f'{NAME.pattern}/{NAME.pattern}', str(asset['same'])) is not None,
                     'same names another prop as set/asset: ' + name)

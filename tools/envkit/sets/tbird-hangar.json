@@ -12,7 +12,7 @@
     "maintenance-workbench": {"kind": "prop", "type": "workbench", "variant": "Red tool-drawer bench under a hooded tool wall.", "subject": "red maintenance workbench under a tool wall", "box": [268, 636, 477, 801]},
     "pallet-stack": {"kind": "prop", "type": "pallet-stack", "variant": "Shrink-wrapped pallet with wooden and military cases.", "subject": "pallet of shrink-wrapped cargo and cases", "box": [485, 643, 686, 799]},
     "fuel-tank": {"kind": "prop", "type": "fuel-tank", "subject": "horizontal fuel tank with a pump, a ladder and a canopy", "box": [693, 634, 959, 794]},
-    "crate-cache": {"kind": "prop", "type": "floor-cache", "subject": "open floor hatch hiding a cache of cases", "box": [962, 655, 1150, 800]},
+    "crate-cache": {"kind": "prop", "type": "floor-hatch", "subject": "open floor hatch hiding a cache of cases", "box": [962, 655, 1150, 800]},
     "landing-light": {"kind": "prop", "type": "floodlight", "variant": "Tall lattice mast with a cluster of landing lights.", "subject": "tall lattice mast with a cluster of floodlights", "box": [1157, 611, 1247, 801]},
     "stair-unit": {"kind": "prop", "type": "stair-module", "variant": "Wheeled aircraft boarding stairs with yellow rails.", "subject": "wheeled aircraft boarding stair unit", "box": [1263, 659, 1439, 801]},
     "service-tug": {"kind": "prop", "type": "service-tug", "subject": "small airfield service tug with a beacon", "box": [9, 903, 200, 1027]},

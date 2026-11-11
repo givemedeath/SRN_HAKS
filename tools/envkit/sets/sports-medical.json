@@ -10,7 +10,7 @@
     "building-rear": {"kind": "building", "subject": "rear service elevation of a grey and red sports clinic", "box": [890, 300, 1253, 487]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved grey desk with a red stripe and the Aurora Village emblem wall.", "subject": "curved grey reception desk with a red stripe", "box": [5, 616, 274, 795]},
     "check-in-kiosk": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "patient check-in kiosk", "box": [278, 622, 378, 793]},
-    "waiting-seats": {"kind": "prop", "type": "waiting-seats", "variant": "Three red padded seats under a runner poster.", "subject": "row of three red padded waiting seats under a poster", "box": [387, 617, 596, 794]},
+    "waiting-seats": {"kind": "prop", "type": "bench", "variant": "Three red padded seats under a runner poster.", "subject": "row of three red padded waiting seats under a poster", "box": [387, 617, 596, 794]},
     "treadmill": {"kind": "prop", "type": "treadmill", "subject": "rehabilitation treadmill with side rails and a screen", "box": [599, 618, 800, 795]},
     "exam-bed": {"kind": "prop", "type": "exam-table", "variant": "Padded treatment bed with a stool and a wall monitor.", "subject": "padded treatment bed with a stool and a wall monitor", "box": [805, 616, 1016, 792]},
     "monitoring-station": {"kind": "prop", "type": "console-desk", "same": "hargreaves-clinic/monitoring-station", "subject": "patient monitoring desk of medical screens with a chair", "box": [1028, 617, 1267, 793]},

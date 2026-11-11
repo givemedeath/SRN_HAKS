@@ -14,7 +14,7 @@
     "woven-textiles": {"kind": "prop", "type": "wall-hanging", "variant": "Red woven Pueblo rug on a wooden rack.", "subject": "red woven rug on a wooden rack", "box": [192, 868, 272, 982]},
     "planter": {"kind": "prop", "type": "planter", "variant": "Stone block planter with an agave.", "subject": "stone block planter with an agave", "box": [278, 862, 374, 984]},
     "stone-bench": {"kind": "prop", "type": "bench", "variant": "Carved sandstone bench.", "subject": "carved sandstone bench", "box": [378, 895, 470, 982]},
-    "secure-door": {"kind": "prop", "type": "secure-door", "variant": "Heavy wooden double door with a painted Pueblo diamond in a steel frame.", "subject": "heavy wooden double door with a painted diamond in a steel frame", "box": [470, 842, 606, 984]},
+    "secure-door": {"kind": "prop", "type": "door", "variant": "Heavy wooden double door with a painted Pueblo diamond in a steel frame.", "subject": "heavy wooden double door with a painted diamond in a steel frame", "box": [470, 842, 606, 984]},
     "cargo-crates": {"kind": "prop", "type": "hard-case", "variant": "Three unmarked tan and grey cases.", "subject": "stack of three tan and grey cargo cases", "box": [610, 876, 704, 980]},
     "trade-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Dark console terminal with a tilted trade screen.", "subject": "dark console terminal with a tilted screen", "box": [706, 866, 792, 982]},
     "comms-rack": {"kind": "prop", "type": "server-rack", "variant": "Open rack of radio and network gear with amber lights.", "subject": "open rack of radio and network gear", "box": [803, 852, 872, 982]},

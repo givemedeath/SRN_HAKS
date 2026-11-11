@@ -11,7 +11,7 @@
     "bulkhead-door": {"kind": "prop", "type": "dock-door", "variant": "Heavy bulkhead door lettered U-01 in an angled frame with red lamps.", "subject": "heavy bulkhead door in an angled frame with red lamps", "box": [8, 625, 299, 812]},
     "maintenance-locker": {"kind": "prop", "type": "locker", "same": "street-doc/staff-locker", "subject": "double grey steel locker", "box": [310, 633, 430, 812]},
     "cable-trunk": {"kind": "prop", "type": "conduit", "variant": "Trunk of grey, red and yellow cables turning a corner with a junction box.", "subject": "trunk of cables turning a corner with a junction box", "box": [447, 640, 650, 812], "notes": "Ignore the hatch edge at the lower right."},
-    "ladder-hatch": {"kind": "prop", "type": "ladder-hatch", "subject": "open floor hatch with a ladder cage", "box": [628, 645, 828, 812], "notes": "Ignore the cable ends at the upper left."},
+    "ladder-hatch": {"kind": "prop", "type": "floor-hatch", "variant": "Round open hatch with a ladder cage.", "subject": "open floor hatch with a ladder cage", "box": [628, 645, 828, 812], "notes": "Ignore the cable ends at the upper left."},
     "pump-unit": {"kind": "prop", "type": "pump-unit", "variant": "Single large pump with red pipes and a control box on a skid.", "subject": "large pump with red pipes on a skid", "box": [836, 635, 1098, 812]},
     "hazard-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [1105, 694, 1294, 808]},
     "utility-kiosk": {"kind": "prop", "type": "access-terminal", "same": "saeder-krupp-yard/loading-console", "subject": "bulky utility terminal kiosk", "box": [1303, 618, 1432, 812]},

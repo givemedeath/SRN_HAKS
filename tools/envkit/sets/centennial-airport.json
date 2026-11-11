@@ -25,7 +25,7 @@
     "ground-power-unit": {"kind": "prop", "type": "generator", "variant": "Yellow wheeled ground power cart.", "subject": "yellow wheeled ground power cart", "box": [1198, 748, 1248, 800]},
     "compressor-cart": {"kind": "prop", "type": "generator", "variant": "White enclosed compressor cart.", "subject": "white enclosed compressor cart", "box": [1254, 754, 1310, 800]},
     "airport-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Centennial Airport Denver panel.", "subject": "panel sign reading Centennial Airport Denver", "box": [1330, 733, 1530, 792]},
-    "wayfinding-panels": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: stack of five purple and grey wayfinding panels.", "subject": "stack of five wayfinding panels", "box": [1336, 795, 1522, 962]},
+    "wayfinding-panels": {"kind": "prop", "type": "directory-sign", "variant": "Branding: stack of five purple and grey wayfinding panels.", "subject": "stack of five wayfinding panels", "box": [1336, 795, 1522, 962]},
     "restricted-sign": {"kind": "prop", "type": "hazard-sign", "variant": "Red-striped Restricted Area sign.", "subject": "red-striped sign reading Restricted Area", "box": [1336, 963, 1522, 1010]},
     "hangar-door": {"kind": "prop", "type": "dock-door", "variant": "Wide grey sectional hangar door with hazard stripes.", "subject": "wide grey sectional hangar door", "box": [338, 878, 434, 974]},
     "service-bay-door": {"kind": "prop", "type": "dock-door", "same": "centennial-airport/hangar-door", "subject": "grey sectional service bay door", "box": [506, 886, 564, 967]},

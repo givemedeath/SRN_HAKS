@@ -13,7 +13,7 @@
     "pipe-bundle": {"kind": "prop", "type": "conduit", "variant": "Stack of four rusty pipes on brackets.", "subject": "stack of four rusty pipes on brackets", "box": [130, 903, 260, 1002]},
     "ladder": {"kind": "prop", "type": "ladder", "subject": "yellow steel ladder segment", "box": [264, 891, 321, 1016]},
     "sealed-gate": {"kind": "prop", "type": "dock-door", "variant": "Riveted checkpoint gate lettered CHK-03 with red lamps and hazard stripes.", "subject": "riveted checkpoint gate with red lamps", "box": [330, 897, 479, 1018]},
-    "service-door": {"kind": "prop", "type": "service-door", "variant": "Rusted riveted door with a cage lamp in a steel frame.", "subject": "rusted riveted service door in a steel frame", "box": [484, 897, 558, 1015]},
+    "service-door": {"kind": "prop", "type": "door", "variant": "Rusted riveted door with a cage lamp in a steel frame.", "subject": "rusted riveted service door in a steel frame", "box": [484, 897, 558, 1015]},
     "cache-crates": {"kind": "prop", "type": "hard-case", "variant": "Olive, grey and yellow cases with warning triangles.", "subject": "cluster of olive, grey and yellow cases", "box": [559, 917, 658, 1015]},
     "stash-locker": {"kind": "prop", "type": "locker", "variant": "Mesh-fronted contraband cage locker with hazard labels.", "subject": "mesh-fronted cage locker", "box": [657, 888, 752, 1016]},
     "generator": {"kind": "prop", "type": "generator", "same": "utility-hub/generator-cabinet", "subject": "yellow enclosed generator", "box": [752, 916, 866, 1015]},

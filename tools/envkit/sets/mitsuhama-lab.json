@@ -12,7 +12,7 @@
     "robotics-workbench": {"kind": "prop", "type": "workbench", "variant": "Bench with a tool wall, a monitor and a stool.", "subject": "robotics workbench with a tool wall and a monitor", "box": [288, 647, 497, 820]},
     "robot-arm": {"kind": "prop", "type": "robot-arm", "subject": "yellow industrial robot arm on a work station", "box": [508, 640, 700, 825]},
     "drone-rack": {"kind": "prop", "type": "drone-rack", "subject": "charging rack holding six small drones", "box": [712, 646, 874, 823]},
-    "airlock-door": {"kind": "prop", "type": "secure-door", "variant": "White double-leaf cleanroom airlock with windows.", "subject": "white double cleanroom airlock door with windows", "box": [887, 639, 1083, 820]},
+    "airlock-door": {"kind": "prop", "type": "door", "variant": "White double-leaf cleanroom airlock with windows.", "subject": "white double cleanroom airlock door with windows", "box": [887, 639, 1083, 820]},
     "equipment-lockers": {"kind": "prop", "type": "locker", "same": "ares-depot/equipment-lockers", "subject": "row of grey equipment lockers with a red band", "box": [1096, 650, 1247, 820]},
     "parts-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Two-door glazed cabinet of parts bins.", "subject": "glass-door cabinet of parts bins", "box": [1258, 647, 1437, 821]},
     "cage-barrier": {"kind": "prop", "type": "fence-section", "variant": "Indoor steel mesh safety cage with hazard stripes.", "subject": "steel mesh safety cage barrier with hazard stripes", "box": [4, 869, 230, 1025]},

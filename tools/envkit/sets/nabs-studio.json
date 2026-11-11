@@ -20,7 +20,7 @@
     "site-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: stepped adobe monument sign reading NABS.", "subject": "ground-mounted monument sign reading NABS Native American Broadcast Service", "box": [416, 861, 667, 1030]},
     "dish-cluster": {"kind": "prop", "type": "comms-array", "variant": "Two large dishes and a mast on a railed platform.", "subject": "rooftop cluster of two satellite dishes and a mast", "box": [671, 849, 974, 1029]},
     "access-kiosk": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "access kiosk with a palm scanner", "box": [985, 850, 1100, 1027]},
-    "service-door": {"kind": "prop", "type": "service-door", "variant": "Door lettered Service in a concrete wall section with a lamp.", "subject": "service door in a concrete wall section", "box": [1126, 846, 1275, 1025]},
+    "service-door": {"kind": "prop", "type": "door", "variant": "Door lettered Service in a concrete wall section with a lamp.", "subject": "service door in a concrete wall section", "box": [1126, 846, 1275, 1025]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1301, 857, 1437, 995]}
   }
 }

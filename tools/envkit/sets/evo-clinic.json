@@ -12,7 +12,7 @@
     "check-in-kiosk": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "tall biometric check-in kiosk", "box": [315, 621, 446, 808]},
     "med-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Wide glass-door cabinet stocked with medicines, green cross.", "subject": "glass-door medical supply cabinet", "box": [464, 624, 633, 808]},
     "exam-bed": {"kind": "prop", "type": "surgery-chair", "variant": "Reclining exam bed with an overhead lamp ring and a monitor arm.", "subject": "reclining medical exam bed with an overhead lamp and a monitor", "box": [646, 621, 895, 808]},
-    "specimen-fridge": {"kind": "prop", "type": "drink-case", "variant": "Lab fridge of lit sample vials with a biohazard mark.", "subject": "glass-door laboratory specimen fridge", "box": [910, 621, 1086, 808]},
+    "specimen-fridge": {"kind": "prop", "type": "fridge", "variant": "Lab fridge of lit sample vials with a biohazard mark.", "subject": "glass-door laboratory specimen fridge", "box": [910, 621, 1086, 808]},
     "sanitation-station": {"kind": "prop", "type": "utility-sink", "variant": "Wall panel with a basin, a dispenser and a dryer.", "subject": "wall-mounted sanitation station with a basin", "box": [1117, 630, 1244, 808]},
     "lab-locker": {"kind": "prop", "type": "locker", "same": "street-doc/staff-locker", "subject": "two-door white laboratory locker with a keypad", "box": [1266, 621, 1415, 808]},
     "cryocase": {"kind": "prop", "type": "cooler", "variant": "Glass-lidded cryo case of lit vials.", "unbranded": true, "subject": "glass-lidded cryogenic sample case", "box": [4, 877, 203, 1014]},
@@ -20,7 +20,7 @@
     "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Evo Biotech Clinic panel.", "subject": "wall-mounted sign reading Evo Biotech Clinic and Augmentation Lab", "box": [368, 910, 548, 1012]},
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Evo Clinic pylon with a DNA helix.", "subject": "freestanding pylon sign reading Evo Clinic", "box": [550, 853, 645, 1017]},
     "air-scrubber": {"kind": "prop", "type": "rooftop-unit", "variant": "Air-scrubber unit with a lit filter panel and side pipes.", "unbranded": true, "subject": "rooftop air-scrubber unit", "box": [650, 879, 904, 1014]},
-    "security-door": {"kind": "prop", "type": "secure-door", "variant": "Grey steel door in a frame with a hazard sill and a keypad.", "unbranded": true, "subject": "grey security door in a frame with a card reader", "box": [908, 876, 1029, 1015]},
+    "security-door": {"kind": "prop", "type": "door", "variant": "Grey steel door in a frame with a hazard sill and a keypad.", "unbranded": true, "subject": "grey security door in a frame with a card reader", "box": [908, 876, 1029, 1015]},
     "gurney": {"kind": "prop", "type": "gurney", "subject": "wheeled patient gurney with an IV pole", "box": [1046, 878, 1229, 1015]},
     "emergency-barrier": {"kind": "prop", "type": "concrete-barrier", "variant": "White barrier with a red cross and beacon lamps.", "subject": "white road barrier with a red cross and beacon lamps", "box": [1238, 898, 1437, 1012]}
   }

@@ -13,13 +13,13 @@
     "check-in-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved lobby desk with the Coffin Hotel neon emblem, a lamp and a terminal.", "subject": "curved hotel check-in desk with a neon emblem", "box": [253, 931, 383, 1032]},
     "vending-machine": {"kind": "prop", "type": "vending-machine", "variant": "Branding: dark red cabinet with the Coffin Hotel emblem.", "subject": "drinks vending machine with a neon coffin emblem", "box": [378, 910, 463, 1031]},
     "sink-station": {"kind": "prop", "type": "utility-sink", "variant": "Three-basin communal wash station with mirrors.", "subject": "communal wash station of three basins with mirrors", "box": [463, 920, 583, 1032]},
-    "hallway-door": {"kind": "prop", "type": "service-door", "variant": "Numbered interior corridor door with hazard stripes, in its own frame.", "subject": "numbered metal corridor door in a frame", "box": [578, 903, 655, 1028]},
+    "hallway-door": {"kind": "prop", "type": "door", "variant": "Numbered interior corridor door with hazard stripes, in its own frame.", "subject": "numbered metal corridor door in a frame", "box": [578, 903, 655, 1028]},
     "stair-module": {"kind": "prop", "type": "stair-module", "subject": "steel stair flight with yellow handrails", "box": [650, 922, 770, 1029]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [767, 922, 841, 1008]},
     "locker-set": {"kind": "prop", "type": "locker", "same": "ares-depot/equipment-lockers", "subject": "row of steel personal lockers", "box": [838, 916, 932, 1030]},
-    "bench": {"kind": "prop", "type": "waiting-seats", "same": "street-doc/waiting-seats", "subject": "row of three upholstered lobby seats", "box": [931, 955, 1043, 1030]},
+    "bench": {"kind": "prop", "type": "bench", "same": "street-doc/waiting-seats", "subject": "row of three upholstered lobby seats", "box": [931, 955, 1043, 1030]},
     "stash-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey case marked with a red triangle.", "subject": "hard equipment case with a warning triangle", "box": [1037, 943, 1137, 1029]},
-    "safe-room-door": {"kind": "prop", "type": "secure-door", "variant": "Heavy rusted door with hazard stripes and a card reader, in a steel frame.", "subject": "heavy concealed safe-room door with a card reader", "box": [1134, 901, 1236, 1030]},
+    "safe-room-door": {"kind": "prop", "type": "door", "variant": "Heavy rusted door with hazard stripes and a card reader, in a steel frame.", "subject": "heavy concealed safe-room door with a card reader", "box": [1134, 901, 1236, 1030]},
     "privacy-divider": {"kind": "prop", "type": "privacy-curtain", "variant": "Beige cloth on a freestanding rail frame.", "subject": "freestanding cloth privacy divider", "box": [1236, 908, 1339, 1030]},
     "neon-sign": {"kind": "prop", "type": "neon-sign", "variant": "Branding: square neon panel reading Coffin Hotel.", "subject": "neon wall sign reading Coffin Hotel", "box": [1337, 908, 1447, 1025]}
   }

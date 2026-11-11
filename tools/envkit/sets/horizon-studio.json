@@ -21,7 +21,7 @@
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: magenta Horizon pylon.", "subject": "freestanding pylon sign reading Horizon", "box": [580, 864, 686, 1034]},
     "access-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Slim white angular credential kiosk.", "unbranded": true, "subject": "slim credential access kiosk", "box": [709, 894, 812, 1032]},
     "billboard": {"kind": "prop", "type": "billboard", "subject": "rooftop billboard on a truss with floodlights reading Horizon", "box": [837, 876, 1097, 1034]},
-    "service-door": {"kind": "prop", "type": "service-door", "same": "nabs-studio/service-door", "subject": "grey service door in a wall section with a keypad", "box": [1115, 880, 1247, 1034]},
+    "service-door": {"kind": "prop", "type": "door", "same": "nabs-studio/service-door", "subject": "grey service door in a wall section with a keypad", "box": [1115, 880, 1247, 1034]},
     "display-plinth": {"kind": "prop", "type": "display-case", "variant": "Glass cube on a lit plinth showing a product.", "subject": "glass display cube on a lit plinth", "box": [1277, 880, 1423, 1033]}
   }
 }

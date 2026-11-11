@@ -10,7 +10,7 @@
     "building-rear": {"kind": "building", "subject": "rear service elevation of an abandoned concrete research building", "box": [846, 302, 1247, 498]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: cracked, abandoned desk with faded Aztechnology livery.", "subject": "cracked abandoned corporate reception desk", "box": [4, 612, 260, 812]},
     "surveillance-console": {"kind": "prop", "type": "console-desk", "variant": "Cracked, dead screens on a worn console desk.", "subject": "abandoned surveillance console with cracked screens", "box": [262, 620, 471, 809]},
-    "airlock-door": {"kind": "prop", "type": "secure-door", "variant": "Sealed double laboratory door with biohazard marks in a red frame.", "subject": "sealed double laboratory door with a biohazard mark", "box": [468, 616, 664, 805]},
+    "airlock-door": {"kind": "prop", "type": "door", "variant": "Sealed double laboratory door with biohazard marks in a red frame.", "subject": "sealed double laboratory door with a biohazard mark", "box": [468, 616, 664, 805]},
     "specimen-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Cracked glass cabinet of specimen jars.", "subject": "cracked glass cabinet of specimen jars", "box": [673, 612, 849, 805]},
     "biohazard-crate": {"kind": "prop", "type": "hard-case", "variant": "Rusted red case with a biohazard mark.", "subject": "rusted red hard case with a biohazard mark", "box": [855, 653, 1038, 804]},
     "warning-barrier": {"kind": "prop", "type": "concrete-barrier", "variant": "Barrier carrying a Restricted Area sign.", "subject": "concrete barrier carrying a restricted area sign", "box": [1040, 650, 1232, 808]},
@@ -21,7 +21,7 @@
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: weathered Aztechnology Research Annex pylon.", "subject": "weathered pylon sign reading Aztechnology Research Annex B-12", "box": [610, 860, 740, 1035]},
     "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [751, 883, 861, 1025]},
     "rooftop-exhaust": {"kind": "prop", "type": "rooftop-unit", "variant": "Rusted exhaust unit with a round stack.", "subject": "rusted rooftop exhaust unit", "box": [867, 887, 1071, 1027]},
-    "service-door": {"kind": "prop", "type": "service-door", "variant": "Rusted louvred door in a concrete wall section, marked S-3.", "subject": "rusted service door in a concrete wall section", "box": [1073, 871, 1235, 1036]},
+    "service-door": {"kind": "prop", "type": "door", "variant": "Rusted louvred door in a concrete wall section, marked S-3.", "subject": "rusted service door in a concrete wall section", "box": [1073, 871, 1235, 1036]},
     "debris": {"kind": "prop", "type": "street-clutter", "variant": "Looted equipment, planks and a crate among rubbish bags.", "subject": "pile of debris, looted equipment and rubbish bags", "box": [1237, 896, 1443, 1032]}
   }
 }

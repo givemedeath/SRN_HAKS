@@ -11,7 +11,7 @@
     "control-console": {"kind": "prop", "type": "console-desk", "variant": "Hooded utility control console with a schematic wall and a chair.", "subject": "hooded utility control console with screens and a chair", "box": [12, 657, 246, 810]},
     "breaker-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Four-bay breaker cabinet with indicator lights.", "subject": "four-bay electrical breaker cabinet", "box": [260, 661, 426, 810]},
     "transformer-bank": {"kind": "prop", "type": "transformer", "subject": "power transformer with four insulators and cooling fins", "box": [443, 642, 674, 810]},
-    "junction-box": {"kind": "prop", "type": "junction-box", "subject": "utility junction box on legs with conduit pipes", "box": [689, 670, 822, 810]},
+    "junction-box": {"kind": "prop", "type": "power-cabinet", "variant": "Junction box on legs with conduit pipes.", "unbranded": true, "subject": "utility junction box on legs with conduit pipes", "box": [689, 670, 822, 810]},
     "maintenance-kiosk": {"kind": "prop", "type": "guard-booth", "variant": "Branding: square prefab kiosk, Shiawase livery.", "subject": "square prefab maintenance kiosk with a window", "box": [838, 656, 1021, 810]},
     "fence-section": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire and a high-voltage sign", "box": [1044, 659, 1251, 810]},
     "trench-cover": {"kind": "prop", "type": "trench-cover", "subject": "steel cable trench cover with hazard edging", "box": [1257, 674, 1448, 810]},

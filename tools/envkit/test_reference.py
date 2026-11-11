@@ -134,6 +134,7 @@ class SetTests(unittest.TestCase):
                                 (lambda d: d['assets']['trash-can'].update(same='shop/bin', variant='Taller.'), 'not both'),
                                 (lambda d: d['assets']['trash-can'].update(same='bin'), 'set/asset'),
                                 (lambda d: d['assets']['trash-can'].update(variant=' '), 'one line'),
+                                (lambda d: d['assets']['trash-can'].update(type='recycle-bin'), 'recycle-bin is now trash-can'),
                                 (lambda d: d['assets']['building-hero'].update(type='shop'), 'Only props')):
             data = copy.deepcopy(good); change(data)
             with self.assertRaisesRegex(ValueError, message):
