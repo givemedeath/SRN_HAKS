@@ -15,6 +15,7 @@ MODEL, VISION = 'pixal3d_int8_convrot.safetensors', 'dino_v3_L_naf_fp32.safetens
 SHAPE_VAE, TEXTURE_VAE = 'trellis_2_shape_vae_bf16.safetensors', 'trellis_2_texture_vae_bf16.safetensors'
 FOV = 49.13  # the conditioning node's own default; the head kit measures it per image, a prop does not need that
 MAPS = ('base_color', 'metallic', 'roughness', 'normal')
+MASTER_TRIANGLES = 200000
 
 
 def require(condition, message):
@@ -72,15 +73,21 @@ def compile_local(image, seed, triangles, prefix, *, texture=2048, shape_resolut
         '42': sampler('40', '41', link('41', 2), 12, 1, 'normal', 3),
         '43': node('VaeDecodeTextureTrellis', samples=link('42'), vae=link('13'), shape_subdivides=link('33', 1)),
         # Game mesh: a clean surface, cut to the triangle target, unwrapped, with the maps baked from the dense result.
-        '50': node('RemeshMesh', mesh=link('33'), resolution=512, sign_mode='udf', band=1, project_back=0, fix_poles=False, smooth_iters=0,
-                   drop_small_components=0.01, precluster_max_verts=20000000,
-                   **{'sign_mode.qef': False, 'sign_mode.drop_inverted_components': False, 'sign_mode.drop_enclosed_components': False}),
-        '51': node('DecimateMesh', mesh=link('50'), target_face_count=triangles, placement_mode='midpoint'),
+        # `solid` gives one watertight skin with sharp edges kept. The first trash can used `udf`, which leaves an inner
+        # shell behind the outer one; cutting that pair to 3,000 triangles tore it into shards.
+        '50': node('RemeshMesh', mesh=link('33'), resolution=512, sign_mode='solid', band=1, project_back=0, fix_poles=False, smooth_iters=0,
+                   drop_small_components=0.01, precluster_max_verts=20000000, **{'sign_mode.fill': 20.0, 'sign_mode.qef': True}),
+        '51': node('DecimateMesh', mesh=link('50'), target_face_count=triangles, placement_mode='qem',
+                   **{'placement_mode.line_quadric_weight': 0.0, 'placement_mode.feature_edge_quadric_weight': 1.0,
+                      'placement_mode.feature_edge_min_dihedral_deg': 30.0, 'placement_mode.clamp_v_to_edge': True}),
         '52': node('UnwrapMesh', mesh=link('51'), segmenter='pec', resolution=texture, padding=2, weld_distance=0),
         '53': node('BakeTextureFromVoxel', mesh=link('52'), voxel_colors=link('43'), texture_size=texture, reference_mesh=link('33')),
         '54': node('BakeNormalMapFromMesh', low_poly=link('52'), high_poly=link('33'), resolution=texture, cage_distance=0.05, ignore_backfaces=True),
         '55': node('ApplyTextureToMesh', mesh=link('52'), base_color=link('53', 0), metallic=link('53', 1), roughness=link('53', 2), normal_map=link('54')),
         '56': node('SaveGLB', mesh=link('55'), filename_prefix=prefix + '/model'),
+        # The spare: the same skin at a high count, without maps (see the Meshy master rule in meshy.py).
+        '57': node('DecimateMesh', mesh=link('50'), target_face_count=MASTER_TRIANGLES, placement_mode='midpoint'),
+        '58': node('SaveGLB', mesh=link('57'), filename_prefix=prefix + '/master'),
     }
     for number, (name, source) in enumerate(zip(MAPS, (link('53', 0), link('53', 1), link('53', 2), link('54'))), 60):
         graph[str(number)] = node('SaveImage', images=source, filename_prefix=f'{prefix}/{name}')
@@ -111,6 +118,8 @@ def make(client, local, name, reference, seed, triangles, output, *, texture=204
         models = sorted(made.glob('model*.glb'))
         require(len(models) == 1, f'Expected one model, found {len(models)}')
         output.mkdir(parents=True); shutil.copyfile(models[0], output / 'model.glb')
+        for master in sorted(made.glob('master*.glb'))[:1]:
+            shutil.copyfile(master, output / 'master.glb')
         for kind in MAPS:
             images = sorted(made.glob(kind + '*.png'))
             require(len(images) == 1, f'Expected one {kind} map, found {len(images)}')

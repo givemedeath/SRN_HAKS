@@ -32,6 +32,10 @@ class GraphTests(unittest.TestCase):
         self.assertEqual((self.graph['53']['inputs']['mesh'], self.graph['53']['inputs']['reference_mesh']), (['52', 0], ['33', 0]))
         self.assertEqual((self.graph['54']['inputs']['low_poly'], self.graph['54']['inputs']['high_poly']), (['52', 0], ['33', 0]))
         self.assertEqual(self.graph['56']['inputs'], {'mesh': ['55', 0], 'filename_prefix': 'envkit-local/t/model'})
+        # One skin, not the two shells that tore the first trash can apart, and a spare of it at a high count.
+        self.assertEqual(self.graph['50']['inputs']['sign_mode'], 'solid')
+        self.assertEqual((self.graph['57']['inputs']['mesh'], self.graph['57']['inputs']['target_face_count']), (['50', 0], local.MASTER_TRIANGLES))
+        self.assertEqual(self.graph['58']['inputs']['filename_prefix'], 'envkit-local/t/master')
         saved = sorted(node['inputs']['filename_prefix'].rsplit('/', 1)[1] for node in self.graph.values() if node['class_type'] == 'SaveImage')
         self.assertEqual(saved, sorted(local.MAPS))
 

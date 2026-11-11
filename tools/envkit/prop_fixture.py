@@ -49,6 +49,21 @@ def placed(tag, appearance, position, bearing):
     return {'__struct_id': 9, **values}
 
 
+def person(template, tag, position, facing=270.0, height=0.0):
+    """A stock human standing still, for scale: the template's own clothes and build, no scripts, no conversation.
+    Facing 270 looks south, at a camera that looks north. `height` lifts them onto a slab the walkmesh does not know."""
+    import copy
+    c = copy.deepcopy(template); c.pop('__data_type', None); c['__struct_id'] = 4
+    for key in list(c):
+        if key.startswith('Script'):
+            c[key] = field('resref', '')
+    turn = math.radians(facing)
+    c.update({'Tag': field('cexostring', tag), 'TemplateResRef': field('resref', tag), 'FactionID': field('word', 2), 'Plot': field('byte', 1),
+              'Conversation': field('resref', ''), 'XPosition': gff_float(position[0]), 'YPosition': gff_float(position[1]),
+              'ZPosition': gff_float(height), 'XOrientation': gff_float(math.cos(turn)), 'YOrientation': gff_float(math.sin(turn))})
+    return c
+
+
 def enter_script(shots, start=START, hold=HOLD):
     """Hide the player, then for each shot stand them at a spot and set the camera: {label, stand: [x, y], facing,
     distance, pitch, height}. Facing 90 looks north."""
@@ -69,8 +84,9 @@ def enter_script(shots, start=START, hold=HOLD):
     return '\n'.join(lines) + '\n'
 
 
-def build(name, resources, props, shots, output, nwn_root, stock_table, *, night=False, size=8, start=START, hold=HOLD):
-    """props: [{model, position: [x, y], bearing}] (bearing in radians). Returns the fixture record."""
+def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD):
+    """props: [{model, position: [x, y], bearing}] (bearing in radians). people: [{position, facing, height}], stock
+    humans for scale. Returns the fixture record."""
     from tools.phenotypes import tool_runtime
     require(client_fixture.NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 11 characters')
     root, output = Path(nwn_root), Path(output).resolve()
@@ -101,7 +117,15 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, night
     script = binary / (name + '_en.nss'); script.write_text(enter_script(shots, start, hold), encoding='ascii', newline='\n')
     run('nwn_script_comp', [*common, script])
     require(script.with_suffix('.ncs').is_file(), 'The entry script did not compile')
-    area = client_fixture.area_documents(name, [], size)
+    creatures = []
+    if people:
+        stock = documents / client_fixture.TEMPLATE_CREATURE
+        stock.write_bytes(run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_CREATURE]))
+        run('nwn_gff', ['-i', stock, '-o', documents / (stock.name + '.json')])
+        template = json.loads((documents / (stock.name + '.json')).read_text(encoding='utf-8'))
+        creatures = [person(template, f'{name}_h{index}', one['position'], one.get('facing', 270.0), one.get('height', 0.0))
+                     for index, one in enumerate(people)]
+    area = client_fixture.area_documents(name, creatures, size)
     area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', rows[prop['model']], prop['position'], prop.get('bearing', math.pi))
                                                              for index, prop in enumerate(props)])
     if night:
