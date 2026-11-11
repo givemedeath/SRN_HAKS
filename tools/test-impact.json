@@ -115,6 +115,19 @@
       "docs/items/weapon-grip-standard-v1.json",
       "hakbuilder.json"
     ],
+    "tools/envkit/__init__.py": [],
+    "tools/envkit/__main__.py": [
+      "tools/envkit/reference.py",
+      "tools/headkit/comfy.py"
+    ],
+    "tools/envkit/reference.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py"
+    ],
+    "tools/envkit/test_reference.py": [
+      "tools/envkit/reference.py",
+      "tools/envkit/sets/stuffer-shack.json"
+    ],
     "tools/headbatch/__init__.py": [],
     "tools/headbatch/client_trial.py": [
       "tools/headbatch/guards.py",
@@ -4955,6 +4968,7 @@
     "tools/armorkit/test_split.py",
     "tools/armorkit/test_tables.py",
     "tools/armorkit/test_toolchain.py",
+    "tools/envkit/test_reference.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",

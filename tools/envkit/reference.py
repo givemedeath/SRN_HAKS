@@ -1,0 +1,92 @@
+"""Reference images: one clean, isolated view per asset, edited from a concept-sheet crop by the local Qwen 2.1 profile.
+
+A concept sheet packs a building and its props into one picture, each too small and too dressed (captions, wet ground,
+neon spill) to hand to a 3D generator. A set file names the crop of each asset; `make` redraws that crop alone on white.
+Outputs are proposals for human review: nothing here approves a reference or spends generation credits."""
+import hashlib
+import json
+import re
+import uuid
+from pathlib import Path
+
+PROFILE = 'qwen21-int8-v1'
+NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
+LEAD = {
+    'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
+            'Keep exactly the same design, colours, proportions, markings and viewing angle.',
+    'building': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
+                'Keep exactly the same architecture, colours, proportions, signage and viewing angle. '
+                'Remove the street, pavement, puddles, reflections, litter and everything that is not part of the building.',
+}
+# Lit parts keep their colour because the emissive texture is taken from it; the spill is removed because a generator
+# bakes it into the neighbouring surfaces.
+RULES = ('Show the whole object centred with a clear margin on a plain white background. Even, flat, neutral lighting. '
+         'Signs, screens and lamps keep their own colours, but nothing glows, blooms or casts coloured light on other '
+         'surfaces. No cast shadow, no ground, no people, no captions or text outside the object.')
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def prompt(kind, subject, notes=''):
+    require(kind in LEAD, 'Asset kind must be one of: ' + ', '.join(sorted(LEAD)))
+    require(isinstance(subject, str) and subject.strip() and '\n' not in subject, 'Subject must be one line of text')
+    require(isinstance(notes, str), 'Notes must be text')
+    return ' '.join(part for part in (LEAD[kind].format(subject=subject.strip()), notes.strip(), RULES) if part)
+
+
+def load_set(path):
+    """A set is one concept sheet (file name and SHA-256, never a machine path) and the crop box of each asset on it."""
+    data = json.loads(Path(path).read_text(encoding='utf-8'))
+    require(isinstance(data, dict) and set(data) == {'sheet', 'assets'}, 'A set has exactly sheet and assets')
+    sheet = data['sheet']
+    require(isinstance(sheet, dict) and set(sheet) == {'file', 'sha256', 'size'} and Path(sheet['file']).name == sheet['file']
+            and re.fullmatch(r'[0-9a-f]{64}', str(sheet['sha256'])) is not None, 'Sheet needs a bare file name, sha256 and size')
+    width, height = sheet['size']
+    require(isinstance(data['assets'], dict) and data['assets'], 'A set needs assets')
+    for name, asset in data['assets'].items():
+        require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
+        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes'},
+                'Asset needs kind, subject and box: ' + name)
+        prompt(asset['kind'], asset['subject'], asset.get('notes', ''))
+        box = asset['box']
+        require(isinstance(box, list) and len(box) == 4 and all(type(v) is int for v in box)
+                and 0 <= box[0] < box[2] <= width and 0 <= box[1] < box[3] <= height, 'Crop box is outside the sheet: ' + name)
+    return data
+
+
+def resolve_sheet(sheets, sheet):
+    """The sheet as bytes on this machine: found by name in the given folder and accepted only at the recorded hash."""
+    path = Path(sheets) / sheet['file']
+    require(path.is_file(), 'Concept sheet not found: ' + str(path))
+    require(hashlib.sha256(path.read_bytes()).hexdigest() == sheet['sha256'], 'Concept sheet differs from the set: ' + path.name)
+    return path
+
+
+def crop(sheet_path, box, output):
+    from PIL import Image
+    output = Path(output); output.parent.mkdir(parents=True, exist_ok=True)
+    with Image.open(sheet_path) as image:
+        image.convert('RGB').crop(tuple(box)).save(output)
+    return output
+
+
+def make(client, local, bindings_path, name, text, reference, seed, output, *, batch=1, deadline=2400):
+    """One edit job on the bound local ComfyUI. The server may be shared, so a busy queue refuses instead of waiting."""
+    from ..headkit import design
+    require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + str(name))
+    queue = client.request('/queue')
+    require(not queue.get('queue_running') and not queue.get('queue_pending'), 'ComfyUI is busy; nothing submitted')
+    reference = Path(reference); token = uuid.uuid4().hex; base = f'{name}-s{seed}'
+    staged = 'reference-0' + reference.suffix.lower()
+    require(not (Path(output) / f'{base}.json').exists(), 'Receipt already exists; use another seed or output folder')
+    Path(output).mkdir(parents=True, exist_ok=True)
+    graph = design.compile_design(text, [f'{design.SUBFOLDER}/{token}/{staged}'], seed, batch,
+                                  f'{design.SUBFOLDER}/{token}/{base}', profile=PROFILE)
+    receipt = {'schemaVersion': 1, 'kind': 'envkit-reference', 'proposalOnly': True, 'reviewRequired': True, 'asset': name,
+               'prompt': text, 'seed': seed, 'batch': batch, 'profile': PROFILE, 'settings': dict(design.PROFILES[PROFILE]),
+               'token': token, 'outputPrefix': graph['9']['inputs']['filename_prefix']}
+    return design._execute(client, local, bindings_path, graph, receipt, {staged: reference}, output, base, batch, None,
+                           queue={'deadline': deadline})
