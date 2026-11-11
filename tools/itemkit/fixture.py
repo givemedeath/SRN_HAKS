@@ -129,13 +129,14 @@ SHOT_LEAD, SHOT_HOLD, SHOT_OFFSET, SHOT_CYCLE = 0.7, 1.8, 20, 40
 # Times are chosen so that, with the female half a cycle behind, her equip shots (steps 5 and 6) and his armour shots
 # (steps 25 and 26) do not want the camera at once. Armour takes most of a step to go on, so it is shot a step later.
 SHOTS = ((1, 2.0, 'front-rear-sides', 270, 3.2, 80, 1.0), (1, 5.0, 'front-rear-sides', 90, 3.2, 80, 1.0),
-         (2, 2.0, 'front-rear-sides', 180, 3.2, 80, 1.0), (2, 5.0, 'front-rear-sides', 0, 3.2, 80, 1.0),
+         (2, 2.0, 'front-rear-sides', 180, 2.4, 80, 1.0), (2, 5.0, 'front-rear-sides', 0, 2.4, 80, 1.0),   # nearer than the other actor, 3 m to the side
          (3, 2.0, 'idle', 180, 1.4, 85, 0.95), (3, 5.0, 'shadows', 225, 5.0, 50, 0.5),
          (5, 2.8, 'equip-unequip', 270, 3.0, 80, 1.0), (6, 2.4, 'equip-unequip', 270, 3.0, 80, 1.0),
          (7, 3.0, 'walk', 180, 4.0, 78, 1.0), (9, 2.5, 'run', 180, 5.0, 75, 1.0),
          (11, 3.0, 'attacks', 180, 3.0, 82, 1.1), (12, 2.5, 'attacks', 225, 2.6, 82, 1.1),
          (16, 3.0, 'shield-offhand', 225, 3.0, 82, 1.1), (20, 3.5, 'shield-offhand', 315, 3.0, 82, 1.1),
          (25, 5.4, 'gloves-armor', 225, 2.8, 82, 1.1), (26, 5.0, 'gloves-armor', 180, 1.4, 85, 0.95))
+SHOT_WAITS = 6   # a shot that finds the camera in use waits up to 2.4 s for it before leaving itself to the next cycle
 SHOT_BARE = 30   # the motion sequence's own unequip of armour and gloves does not always complete; the later, idle steps start bare
 SHOT_ACTORS = (('sr_it_male', 'human-male'), ('sr_it_female', 'human-female'))
 
@@ -147,8 +148,8 @@ def shot_script(shots=SHOTS):
     6-second steps. A watcher follows each actor's step and, at a stated time into a step, attaches the hidden
     player's camera to that actor and logs `ITEMKIT_SHOT shot=<n> ...` for the driver to capture. The female runs
     half a cycle behind the male so the two are rarely wanted at once. Armour, gloves and the off hand are removed
-    outright at step 30, so the next cycle's bare-hand shots are bare; a shot that finds the camera in use is left
-    for the next cycle, and `ITEMKIT_SHOTS done` is logged when every shot has been taken once."""
+    outright at step 30, so the next cycle's bare-hand shots are bare; a shot that finds the camera in use waits
+    briefly and is otherwise left for the next cycle, and `ITEMKIT_SHOTS done` is logged when every shot has been taken once."""
     require(shots and {row[2] for row in shots} == set(CHECKS), 'Scripted shots must cover every melee client check')
     by_step = {}
     for step, delay, *_ in shots:
@@ -171,8 +172,9 @@ void ItkFire(object pc,object t,int id,string check,int n) {
   DelayCommand(@HOLD@,ItkFree());
   if(fired>=@TOTAL@) DelayCommand(@HOLD@+0.5,ItkDone());
 }
-void ItkTry(object pc,object t,int id,string check,int n,float facing,float distance,float pitch,float height) {
-  object m=GetModule(); if(GetLocalInt(m,"ITK_D"+IntToString(id)) || GetLocalInt(m,"ITK_BUSY")) return;
+void ItkTry(object pc,object t,int id,string check,int n,float facing,float distance,float pitch,float height,int waits=@WAITS@) {
+  object m=GetModule(); if(GetLocalInt(m,"ITK_D"+IntToString(id))) return;
+  if(GetLocalInt(m,"ITK_BUSY")) { if(waits>0) DelayCommand(0.4,ItkTry(pc,t,id,check,n,facing,distance,pitch,height,waits-1)); return; }
   SetLocalInt(m,"ITK_BUSY",1); AttachCamera(pc,t); SetCameraHeight(pc,height);
   AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));
   DelayCommand(@LEAD@,ItkFire(pc,t,id,check,n));
@@ -183,6 +185,8 @@ void ItkBare(object t) {
 }
 void ItkPlan(object pc,object t,int base,int n) {
   if(n==@BARE@) ItkBare(t);
+  // The armour of step 23 did not go on while an off-hand weapon was still being put away: take that weapon out first.
+  if(n==22) DelayCommand(5.0,DestroyObject(GetItemInSlot(INVENTORY_SLOT_LEFTHAND,t)));
 @PLAN@
 }
 void ItkWatch(object pc) {
@@ -204,7 +208,7 @@ void ItkBegin(object pc,object male,object female) {
   WriteTimestampedLogEntry("ITEMKIT_SHOTS enter total="+IntToString(@TOTAL@));
   DelayCommand(4.0,ItkWatch(pc));
 }
-'''.replace('@PLAN@', chr(10).join(plan)).replace('@TOTAL@', str(total)).replace('@BARE@', str(SHOT_BARE)).replace('@PER@', str(len(shots))).replace(
+'''.replace('@PLAN@', chr(10).join(plan)).replace('@TOTAL@', str(total)).replace('@BARE@', str(SHOT_BARE)).replace('@WAITS@', str(SHOT_WAITS)).replace('@PER@', str(len(shots))).replace(
         '@HOLD@', f'{SHOT_HOLD:.1f}').replace('@LEAD@', f'{SHOT_LEAD:.1f}').replace('@OFFSET@', str(SHOT_OFFSET)).replace(
         '@LAST@', str(SHOT_CYCLE - 1)).replace('@TOGGLE@', SHOT_TOGGLE).replace('@FEMALE@', SHOT_ACTORS[1][0]).replace('@MALE@', SHOT_ACTORS[0][0])
 
