@@ -49,13 +49,23 @@ BONE_ENDS = {'chest': ('torso_g', 'neck_g'), 'neck': ('neck_g', None), 'pelvis':
              'shin': ('{}shin_g', '{}foot_g'), 'foot': ('{}foot_g', None)}
 
 
-def regions(joints, radii, reach=REACH):
+def limits(radii, reach=REACH, reaches=None):
+    """{(joint, side): how far its plane cuts from the joint centre}: `reach` joint radii, or the distance
+    `reaches` gives for that joint. An outfit bulkier than its tier at a joint (a shoulder guard, a boot) needs
+    the longer reach to be cut through there, while its parts are still told apart by the tier's thickness."""
+    reaches = reaches or {}
+    require(set(reaches) <= set(radii) and all(value > 0 for value in reaches.values()), 'Reaches are distances above zero, by joint and side')
+    return {key: float(reaches.get(key, reach * radius)) for key, radius in radii.items()}
+
+
+def regions(joints, radii, reach=REACH, reaches=None):
     """{token: {bone, radii, planes}}: a part's bone, its thickness at each end and its side of each joint plane.
 
     `planes` holds (point, normal, sign, limit). A plane only says anything within `limit` of its joint,
     measured in the plane: the shoulder plane runs on through the lower torso, which is still chest."""
     joints = {name: np.asarray(position, float) for name, position in joints.items()}
     cuts = planes(joints)
+    limit = limits(radii, reach, reaches)
     result = {}
     for slot, (start, end) in BONE_ENDS.items():
         for side in ('lr' if '{}' in start else 'c'):
@@ -78,7 +88,7 @@ def regions(joints, radii, reach=REACH):
     for (joint, side), (point, normal) in cuts.items():
         spec = seams.JOINTS[joint]
         for slot, sign in ((spec['over'], -1.0), (spec['under'], 1.0)):
-            result[token(slot, side)]['planes'].append((point, seams.unit(normal), sign, reach * radii[(joint, side)]))
+            result[token(slot, side)]['planes'].append((point, seams.unit(normal), sign, limit[(joint, side)]))
     return result
 
 
@@ -257,7 +267,7 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     return np.concatenate(rings), np.tile(uvs[rim], (steps, 1)), added.reshape(-1, 3)
 
 
-def assign(vertices, faces, uvs, joints, radii, reach=REACH):
+def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None):
     """The mesh cut on every plane, and the part each face goes to.
 
     Returns (vertices, faces, uvs, owner, names, origin, cuts): `owner[i]` indexes `names`, `origin[i]` is the
@@ -270,31 +280,33 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH):
     left, right = np.asarray(joints['lthigh_g'], float), np.asarray(joints['rthigh_g'], float)
     up = seams.unit(np.asarray(joints['neck_g'], float) - np.asarray(joints['torso_g'], float))
     require(up[2] > 0.8 and seams.unit(np.cross(up, right - left))[1] > 0.8, 'The joints must stand z up and face +y, as the bodies do')
+    limit = limits(radii, reach, reaches)
     origin = np.arange(len(f))
     for key, (point, normal) in cuts.items():
-        v, f, t, o = cut(v, f, t, point, normal, reach * radii[key])
+        v, f, t, o = cut(v, f, t, point, normal, limit[key])
         origin = origin[o]
     # Trousers join the legs at the crotch, below both hip planes: without a cut between the legs there, the
     # two thighs would be one piece. The cut runs between the hip joints, as far as the hip planes reach.
-    between = ((left + right) / 2, seams.unit(right - left), reach * max(radii[('hip', 'l')], radii[('hip', 'r')]))
+    between = ((left + right) / 2, seams.unit(right - left), max(limit[('hip', 'l')], limit[('hip', 'r')]))
     v, f, t, o = cut(v, f, t, *between)
     origin = origin[o]
-    parts = regions(joints, radii, reach)
-    owner = owners(v, f, parts, [(point, seams.unit(normal), reach * radii[key]) for key, (point, normal) in cuts.items()] + [between])
+    parts = regions(joints, radii, reach, reaches)
+    owner = owners(v, f, parts, [(point, seams.unit(normal), limit[key]) for key, (point, normal) in cuts.items()] + [between])
     return v, f, t, owner, list(parts), origin, cuts
 
 
-def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH):
+def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
     joint there (the largest of the body ring plus the part's tier room); a plane cuts within `reach` times
-    it. `overlaps` maps (joint, side) to how deep the under part's cap runs past the plane under the over
+    it, or within the distance `reaches` gives for that joint and side. `overlaps` maps (joint, side) to how deep the under part's cap runs past the plane under the over
     part; a joint without one gets no cap. Parts with no faces are left out."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
-    v, f, t, owner, names, _, cuts = assign(vertices, faces, uvs, joints, radii, reach)
+    v, f, t, owner, names, _, cuts = assign(vertices, faces, uvs, joints, radii, reach, reaches)
+    limit = limits(radii, reach, reaches)
     result = {}
     for index, name in enumerate(names):
         mine = f[owner == index]
@@ -304,7 +316,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH):
         for (joint, side), depth in overlaps.items():
             if depth and token(seams.JOINTS[joint]['under'], side) == name:
                 point, normal = cuts[(joint, side)]
-                more = cap(v, t, mine, sum(len(x) for x in pv), point, seams.unit(normal), depth, reach * radii[(joint, side)])
+                more = cap(v, t, mine, sum(len(x) for x in pv), point, seams.unit(normal), depth, limit[(joint, side)])
                 pv.append(more[0]); pt.append(more[1]); pf.append(more[2])
         result[name] = compact(np.concatenate(pv), np.concatenate(pf), np.concatenate(pt))
     return result

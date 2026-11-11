@@ -198,6 +198,26 @@ class SplitTests(unittest.TestCase):
         self.assertAlmostEqual(chest[:, 2].min(), 1.2, places=6)
         self.assertTrue(np.any((chest[:, 0] < -0.12) & (chest[:, 2] < 1.3)))
 
+    def test_a_boot_wider_than_the_ankles_reach_is_cut_with_a_longer_reach(self):
+        J = {name: np.array(p, float) for name, p in JOINTS.items()}
+        wide = 0.12  # the ankle plane reaches 1.35 x 0.055 m: a boot this wide is not cut through
+        boot = tube(J['lshin_g'], J['lfoot_g'] - (0, 0, 0.1), wide)
+        keep = [tube((0, 0, 0.95), (0, 0, 1.60), 0.15), tube(J['lthigh_g'] + (0, 0, 0.06), J['lshin_g'], 0.08), boot]
+        v, f, t = join(*keep)
+        short = split.split(v, f, t, JOINTS, RADII)
+        self.assertNotIn('footl', short)
+        self.assertLess(short['shinl'][0][:, 2].min(), 0.05)
+        parts = split.split(v, f, t, JOINTS, RADII, reaches={('ankle', 'l'): 0.15})
+        ankle = J['lfoot_g'][2]
+        self.assertLess(parts['footl'][0][:, 2].max(), ankle + 0.01)
+        self.assertGreater(parts['shinl'][0][:, 2].min(), ankle - 0.01)
+        # the boot's surface is kept (the shin also takes a sliver of the thigh's end at the knee)
+        self.assertAlmostEqual(area(*parts['footl'][:2]) + area(*parts['shinl'][:2]), area(*boot[:2]), places=3)
+        self.assertEqual(split.limits(RADII, reaches={('ankle', 'l'): 0.15})[('ankle', 'r')], split.REACH * RADII[('ankle', 'r')])
+        for bad in ({('ankle', 'l'): 0.0}, {('ankle', 'x'): 0.1}):
+            with self.assertRaises(ValueError):
+                split.split(v, f, t, JOINTS, RADII, reaches=bad)
+
     def test_limbs_that_touch_are_not_mixed(self):
         joints = {**JOINTS, 'lforearm_g': (-0.14, 0, 1.28), 'lhand_g': (-0.145, 0, 1.03)}  # the left arm hangs onto the thigh
         for side, x in (('l', -0.06), ('r', 0.06)):  # and the legs stand closer than they are thick
