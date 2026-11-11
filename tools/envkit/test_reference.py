@@ -53,6 +53,8 @@ class SetTests(unittest.TestCase):
         text = reference.prompt('building', 'corner shop', 'Roof units stay.')
         self.assertIn('Remove the street', text); self.assertIn('Roof units stay.', text)
         self.assertIn('keep their own colours', text); self.assertIn('nothing glows', text)
+        for kind in ('prop', 'building'):  # the edit tidies unless told not to
+            self.assertIn('do not clean or repaint', reference.prompt(kind, 'thing'))
         self.assertNotIn('Remove the street', reference.prompt('prop', 'crate'))
         with self.assertRaisesRegex(ValueError, 'kind'):
             reference.prompt('vehicle', 'van')

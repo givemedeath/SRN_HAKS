@@ -18,6 +18,10 @@ LEAD = {
                 'Keep exactly the same architecture, colours, proportions, signage and viewing angle. '
                 'Remove the street, pavement, puddles, reflections, litter and everything that is not part of the building.',
 }
+# Left to itself the edit tidies: the first Stuffer Shack pass came back with near-white walls (user, 2026-11-10: "it does
+# look too clean"). The wear is part of the design, so every prompt asks for it by name.
+WEAR = ('Keep the grime, stains, rust streaks, scratches, worn paint and graffiti exactly as dirty as in the source; '
+        'do not clean or repaint anything.')
 # Lit parts keep their colour because the emissive texture is taken from it; the spill is removed because a generator
 # bakes it into the neighbouring surfaces.
 RULES = ('Show the whole object centred with a clear margin on a plain white background. Even, flat, neutral lighting. '
@@ -34,7 +38,7 @@ def prompt(kind, subject, notes=''):
     require(kind in LEAD, 'Asset kind must be one of: ' + ', '.join(sorted(LEAD)))
     require(isinstance(subject, str) and subject.strip() and '\n' not in subject, 'Subject must be one line of text')
     require(isinstance(notes, str), 'Notes must be text')
-    return ' '.join(part for part in (LEAD[kind].format(subject=subject.strip()), notes.strip(), RULES) if part)
+    return ' '.join(part for part in (LEAD[kind].format(subject=subject.strip()), WEAR, notes.strip(), RULES) if part)
 
 
 def load_set(path):

@@ -5,9 +5,9 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "single-storey convenience store", "box": [0, 96, 975, 600]},
-    "building-front": {"kind": "building", "subject": "front elevation of a single-storey convenience store", "box": [950, 138, 1250, 296]},
-    "building-rear": {"kind": "building", "subject": "rear service elevation of a single-storey convenience store", "box": [940, 328, 1250, 496]},
+    "building-hero": {"kind": "building", "subject": "single-storey convenience store", "box": [0, 96, 975, 600], "notes": "Remove the bollards, bins, rubbish bags and the pavement slab so the walls end at the ground line."},
+    "building-front": {"kind": "building", "subject": "front elevation of a single-storey convenience store", "box": [950, 138, 1250, 296], "notes": "Remove the bollards, bins, rubbish bags and the pavement slab so the walls end at the ground line."},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a single-storey convenience store", "box": [940, 328, 1250, 496], "notes": "Remove the bollards, bins, rubbish bags and the pavement slab so the walls end at the ground line."},
     "vending-machine": {"kind": "prop", "subject": "vending machine", "box": [28, 616, 212, 830]},
     "atm-kiosk": {"kind": "prop", "subject": "ATM kiosk", "box": [236, 622, 384, 834]},
     "snack-rack": {"kind": "prop", "subject": "stocked snack display rack", "box": [398, 622, 566, 834]},
