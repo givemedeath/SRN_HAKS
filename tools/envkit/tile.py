@@ -6,12 +6,16 @@ out by where each triangle lies, every tile gets its own ground and its own walk
 from the south-west corner eastwards, row by row northwards (read off Modern Exterior's four-way street group, whose
 kerbs sit in the outer corner of each tile, 2026-11-11).
 
-The walkmesh is a grid. A cell is closed where the mesh stands between knee and head height, so a sign or canopy
-overhead closes nothing. The largest closed mass is the building: its cells, and upright faces round its outline up to
+The walkmesh is surveyed on a grid of quarter-metre cells and drawn with grid lines only where the ground changes:
+a stretch of open ground is two large faces, as it is in the stock tiles, and the outline of what stands on it is
+followed to the cell (the stock tiles of these tilesets have some 20 to 70 walk faces each and at most 500; a face
+for every cell would be 3,200 a tile). The lines run through the whole group, so neighbouring tiles meet corner to
+corner. A cell is closed where the mesh stands between knee and head height, so a sign or canopy overhead closes
+nothing. The largest closed mass is the building: its cells, and upright faces round its outline up to
 its roof, are Obscuring, which stops both movement and sight, as the upright faces of the stock tiles do. Smaller
 closed things (bollards, bins) are Nonwalk: in the way, but seen over; so is whatever joins the building without
 reaching eye height, such as bins standing against its wall. Where the mesh has a slab, the walkmesh rises
-onto it over the slab's outermost cells.
+onto it over the slab's outermost half metre.
 
 A tile also carries what the stock tiles carry (read off Modern Exterior's and the stock city's tiles, 2026-11-11): a
 32-pixel picture for the area map, two main lights a builder colours in the Toolset, the `day`, `night`, `day2night`
@@ -32,8 +36,9 @@ SIZE = 10.0
 MINIMAP = 32  # pixels across a tile's picture on the area map
 CAP = 'ek_black'  # the texture of the lid that closes a building whose top is hidden
 LIGHT_HEIGHT = 4.0
-CELLS = 20  # walk cells across a tile: half a metre each
-FINE = 4  # samples across a walk cell
+CELLS = 40  # walk cells across a tile: a quarter metre each
+FINE = 2  # samples across a walk cell
+RAMP = 2  # cells from the slab's edge to its full height: the half metre a character steps up over
 STONE, OBSCURING, NONWALK = 4, 2, 7  # rows of surfacemat.2da
 KNEE, EYE, HEAD, STEP = 0.45, 1.4, 2.2, 0.05
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
@@ -106,14 +111,19 @@ def _masses(closed):
 
 
 def survey(vertices, faces, rows, columns, corner):
-    """The group's walk cells, [row, column] from the south-west: {material, raised, slab, roof}.
+    """The group's walk cells, [row, column] from the south-west: {material, raised, depth, slab, roof, footprint, lines}.
 
     material: Stone where one can walk, Obscuring for the building where it stands at eye height, Nonwalk for the
     lesser things in the way and for the parts of the building's mass that are lower than that.
     raised: the cell lies on the slab (or inside what stands on it). slab: the slab's height. roof: the building's.
-    footprint: the building's outline at the survey's own grain, FINE samples to the cell."""
+    footprint: the building's outline at the survey's own grain, FINE samples to the cell.
+    depth: how many cells a cell lies inside the slab's edge, counted to one past RAMP; 0 off the slab.
+    lines: (columns, rows) of the cell boundaries the walkmesh is drawn on, through the whole group: the tiles' own
+    edges, wherever the cells on either side differ anywhere along the line, and RAMP cells inside the slab's edge."""
     points = scatter(vertices, faces); across = np.array([columns, rows]) * CELLS * FINE; step = SIZE / CELLS / FINE
-    place = np.clip(((points[:, :2] - corner) / step).astype(int), 0, across - 1)
+    # A face that lies on the boundary between two samples falls to the far side of it, all of it: left to rounding its
+    # points fall on either side by chance, and the outline they draw is ragged.
+    place = np.clip(((points[:, :2] - corner) / step + 1e-6).astype(int), 0, across - 1)
     standing = (points[:, 2] > KNEE) & (points[:, 2] < HEAD)
     solid = np.zeros((across[1], across[0]), bool); solid[place[standing, 1], place[standing, 0]] = True
     solid = ~_outside(~solid)  # what the walls enclose is closed too
@@ -125,7 +135,7 @@ def survey(vertices, faces, rows, columns, corner):
     on_slab = ~_outside(~(low > STEP))  # and what the slab's rim encloses stands on it
     slab = float(np.median(low[low > STEP])) if (low > STEP).any() else 0.0
     cells = lambda fine: fine.reshape(rows * CELLS, FINE, columns * CELLS, FINE).mean((1, 3))
-    closed = cells(solid) >= 0.25; raised = cells(on_slab) >= 0.5
+    closed = cells(solid) >= 0.25; raised = cells(on_slab) > 0.5
     labels, count = _masses(closed); material = np.full(closed.shape, STONE); footprint = np.zeros_like(solid)
     if count:
         sizes = np.bincount(labels.ravel())[1:]; building = int(sizes.argmax()) + 1
@@ -133,33 +143,46 @@ def survey(vertices, faces, rows, columns, corner):
         footprint = tall & np.repeat(np.repeat(material == OBSCURING, FINE, 0), FINE, 1)
     require(not (closed[0].any() or closed[-1].any() or closed[:, 0].any() or closed[:, -1].any()) and not (raised[0].any() or raised[-1].any() or raised[:, 0].any() or raised[:, -1].any()),
             'The model reaches the edge of its tiles: the group leaves no ground around it')
-    return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint}
+    depth = raised.astype(int); inner = raised
+    for _ in range(RAMP):  # a cell is one deeper than the shallowest of the four beside it
+        wide = np.pad(inner, 1); inner = inner & wide[:-2, 1:-1] & wide[2:, 1:-1] & wide[1:-1, :-2] & wide[1:-1, 2:]; depth += inner
+    kind = material * 4 + raised * 2 + (depth > RAMP)  # past the ramp the walkmesh has reached the slab's height
+    lines = (sorted({column * CELLS for column in range(columns + 1)} | {int(x) for x in np.flatnonzero((kind[:, 1:] != kind[:, :-1]).any(0)) + 1}),
+             sorted({row * CELLS for row in range(rows + 1)} | {int(y) for y in np.flatnonzero((kind[1:] != kind[:-1]).any(1)) + 1}))
+    return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint, 'lines': lines, 'depth': depth}
+
+
+def lines(found, row, column):
+    """(columns, rows) of one tile's grid lines, counted in cells from its south-west corner."""
+    return tuple([value - first for value in found['lines'][axis] if first <= value <= first + CELLS] for axis, first in ((0, column * CELLS), (1, row * CELLS)))
 
 
 def walkmesh(found, row, column):
-    """(vertices, faces with a material each) of one tile's walkmesh, in the tile's own space."""
-    material, raised = found['material'], found['raised']; rows, columns = material.shape
-    first_row, first_column = row * CELLS, column * CELLS
-    lift = np.zeros((CELLS + 1, CELLS + 1))
-    for y in range(CELLS + 1):
-        for x in range(CELLS + 1):
-            around = [raised[r, c] for r in (first_row + y - 1, first_row + y) for c in (first_column + x - 1, first_column + x) if 0 <= r < rows and 0 <= c < columns]
-            lift[y, x] = found['slab'] if len(around) == 4 and all(around) else 0.0  # the rim of the slab is the ramp onto it
-    side = np.linspace(-SIZE / 2, SIZE / 2, CELLS + 1)
-    vertices = [[side[x], side[y], lift[y, x]] for y in range(CELLS + 1) for x in range(CELLS + 1)]
-    at = lambda y, x: y * (CELLS + 1) + x; faces = []
+    """(vertices, faces with a material each) of one tile's walkmesh, in the tile's own space: a pair of faces to
+    each box of the tile's grid lines, the floor's vertices first. Between two lines the cells are all alike, on both
+    sides of every line, so a box has one material and one neighbour on each side."""
+    material, depth = found['material'], found['depth']; rows, columns = material.shape
+    first_row, first_column = row * CELLS, column * CELLS; xs, ys = lines(found, row, column); cell = SIZE / CELLS
+
+    def lift(y, x):  # the rim of the slab is the ramp onto it: a corner on the slab's edge is on the ground, one RAMP cells in is up
+        around = [depth[r, c] for r in (first_row + y - 1, first_row + y) for c in (first_column + x - 1, first_column + x) if 0 <= r < rows and 0 <= c < columns]
+        return found['slab'] * min(min(around), RAMP) / RAMP if len(around) == 4 else 0.0
+    vertices = [[x * cell - SIZE / 2, y * cell - SIZE / 2, lift(y, x)] for y in ys for x in xs]
+    at = lambda j, i: j * len(xs) + i; faces = []
     walls = lambda r, c: 0 <= r < rows and 0 <= c < columns and material[r, c] == OBSCURING
-    for y in range(CELLS):
-        for x in range(CELLS):
-            kind = int(material[first_row + y, first_column + x])
-            faces += [[at(y + 1, x), at(y, x), at(y + 1, x + 1), kind], [at(y + 1, x + 1), at(y, x), at(y, x + 1), kind]]
+    for j in range(len(ys) - 1):
+        for i in range(len(xs) - 1):
+            south, west, north, east = first_row + ys[j], first_column + xs[i], first_row + ys[j + 1], first_column + xs[i + 1]
+            kind = int(material[south, west])
+            faces += [[at(j + 1, i), at(j, i), at(j + 1, i + 1), kind], [at(j + 1, i + 1), at(j, i), at(j, i + 1), kind]]
             if kind != OBSCURING:
                 continue
             # An upright face on each side of the building that looks out on open ground, from the ground to the roof.
-            for (dy, dx), (a, b) in (((0, -1), ((y + 1, x), (y, x))), ((0, 1), ((y, x + 1), (y + 1, x + 1))), ((-1, 0), ((y, x), (y, x + 1))), ((1, 0), ((y + 1, x + 1), (y + 1, x)))):
-                if walls(first_row + y + dy, first_column + x + dx):
+            for beyond, (a, b) in (((south, west - 1), ((j + 1, i), (j, i))), ((south, east), ((j, i + 1), (j + 1, i + 1))),
+                                   ((south - 1, west), ((j, i), (j, i + 1))), ((north, west), ((j + 1, i + 1), (j + 1, i)))):
+                if walls(*beyond):
                     continue
-                base = len(vertices); vertices += [[side[a[1]], side[a[0]], found['roof']], [side[b[1]], side[b[0]], found['roof']]]
+                base = len(vertices); vertices += [[*vertices[at(*a)][:2], found['roof']], [*vertices[at(*b)][:2], found['roof']]]
                 faces += [[at(*a), at(*b), base + 1, OBSCURING], [at(*a), base + 1, base, OBSCURING]]
     return np.array(vertices), np.array(faces)
 

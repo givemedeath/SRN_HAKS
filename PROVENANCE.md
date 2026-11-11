@@ -246,6 +246,18 @@ The group's lights-out material (`ek_ss_shack_o`) was added to `srn_t_common` th
 the same set as lit props. A tile is no object, so its lights are put out for a player with `SetTextureOverride`
 on its glow map and halo sheet; `docs/envkit/lights.md` is the account of both calls and of what was checked.
 
+The four walkmeshes were rebuilt later on 2026-11-11, with nothing else of the group changed. The building's
+shape is now followed to a quarter of a metre instead of a half, on a grid whose lines fall only where the
+ground changes: 272 to 358 faces a tile where there were about 840 (the stock tiles of these two tilesets have
+at most 500). The ramp onto the slab is still its outermost half metre. Checked in the game client in Modern
+Exterior from the built packs: a script read the surface and the ground height at 864 points along six lines
+across the group, an eighth of a metre apart, and every one agreed with the walkmesh as built; a sight line
+along the west side was clear 0.1 metres outside the cells the wall closes and blocked 0.2 metres inside them; walkers reached the recess of the storefront door and a spot on the slab against the west wall
+and stayed there, and one sent from the north-east to the south side went round the building. The two things
+left unchecked above were checked the same day. In the client, in both tilesets, the area map showed the four
+pictures in place, the roof in the middle of its dark ground, north up. In the Toolset, in Suburbs, painting
+the group made one door by itself, of type 58, at the storefront and facing out, as the saved area records.
+
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
 Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a

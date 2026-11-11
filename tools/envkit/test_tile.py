@@ -25,6 +25,27 @@ SHOP = scene(box((-4, -3, 0), (4, 3, 0.2)),  # the slab
              box((-3, 1, 2.6), (3, 2.9, 3)),  # the canopy: overhead, so nothing to walk into
              box((0.55, 2.3, 0.2), (0.95, 2.7, 1.2)))  # the bollard
 
+CELL = tile.SIZE / tile.CELLS
+
+
+def floor(found, row=0, column=0):
+    """(vertices, floor faces, upright faces) of a tile's walkmesh: the floor's vertices come first, one to each crossing of its lines."""
+    vertices, faces = tile.walkmesh(found, row, column); xs, ys = tile.lines(found, row, column)
+    level = (faces[:, :3] < len(xs) * len(ys)).all(1)  # an upright face reaches a roof vertex
+    return vertices, faces[level], faces[~level]
+
+
+def ground(vertices, flat, x, y):
+    """(height, material) of the floor under a point."""
+    for a, b, c, kind in flat:
+        (ax, ay, az), (bx, by, bz), (cx, cy, cz) = vertices[[a, b, c]]
+        whole = (bx - ax) * (cy - ay) - (cx - ax) * (by - ay)
+        v, w = ((x - ax) * (cy - ay) - (cx - ax) * (y - ay)) / whole, ((bx - ax) * (y - ay) - (x - ax) * (by - ay)) / whole
+        if min(v, w, 1 - v - w) >= -1e-9:
+            return az + v * (bz - az) + w * (cz - az), kind
+    raise AssertionError(f'No floor under {x}, {y}')
+
+
 SET = '\r\n'.join(['[GENERAL]', 'Name=T', '', '[TILES]', 'Count=2', '', '[TILE0]', 'Model=a', '', '[TILE1]', 'Model=b', '', '[GROUPS]', 'Count=1', '',
                    '[GROUP0]', 'Name=Old', 'Rows=1', 'Columns=1', 'Tile0=1'])
 
@@ -38,39 +59,60 @@ class TileTests(unittest.TestCase):
 
     def test_the_walkmesh_closes_the_building_and_the_bollard_but_not_the_ground_under_the_canopy(self):
         rows, columns, corner = tile.layout(SHOP[0]); found = tile.survey(*SHOP, rows, columns, corner)
-        at = lambda x, y: found['material'][int((y - corner[1]) / 0.5), int((x - corner[0]) / 0.5)]
+        at = lambda x, y: found['material'][int((y - corner[1]) / CELL), int((x - corner[0]) / CELL)]
         self.assertEqual(at(-2.9, 0), tile.OBSCURING)  # a wall
         self.assertEqual(at(0, -0.5), tile.OBSCURING)  # the floor the walls enclose, though the model has none
         self.assertEqual(at(0.75, 2.6), tile.NONWALK)  # the bollard: in the way, seen over
         self.assertEqual(at(-1.0, 2.1), tile.STONE)  # under the canopy
         self.assertEqual(at(-4.5, 4.0), tile.STONE)
         self.assertAlmostEqual(found['slab'], 0.2, places=2); self.assertAlmostEqual(found['roof'], 3.0)
-        vertices, faces = tile.walkmesh(found, 0, 0)
-        grid = vertices[:(tile.CELLS + 1) ** 2]
+        vertices, flat, upright = floor(found); xs, ys = tile.lines(found, 0, 0)
+        grid = vertices[:len(xs) * len(ys)]
         np.testing.assert_allclose([grid[:, :2].min(), grid[:, :2].max()], [-5, 5])  # the whole tile and no more
         rim = (np.abs(grid[:, 0]) == 5) | (np.abs(grid[:, 1]) == 5); self.assertEqual(float(np.abs(grid[rim, 2]).max()), 0.0)
-        height = lambda x, y: grid[(np.abs(grid[:, 0] - x) < 1e-9) & (np.abs(grid[:, 1] - y) < 1e-9), 2][0]
+        height = lambda x, y: ground(vertices, flat, x, y)[0]
         self.assertAlmostEqual(height(-1.5, 2.0), found['slab'], places=6); self.assertEqual(height(-4.5, 0.0), 0.0)
-        self.assertEqual(height(4.0, 0.0), 0.0)  # the slab's own edge: the ramp starts here
-        level = (faces[:, :3] < len(grid)).all(1); flat, upright = faces[level], faces[~level]  # an upright face reaches a roof vertex
-        self.assertEqual(len(flat), 2 * tile.CELLS ** 2)
+        self.assertAlmostEqual(height(-4.0, 0.0), 0.0, places=6)  # the slab's own edge: the ramp starts here
+        self.assertAlmostEqual(height(-3.75, 0.0), found['slab'] / 2, places=6); self.assertAlmostEqual(height(-3.5, 0.0), found['slab'], places=6)  # and is half a metre long
+        # Lines only where the ground changes: far fewer faces than cells, and every cell still under a face of its own material.
+        self.assertEqual(len(flat), 2 * (len(xs) - 1) * (len(ys) - 1)); self.assertLess(len(flat), 500)
+        for r in range(tile.CELLS):
+            for c in range(tile.CELLS):
+                self.assertEqual(ground(vertices, flat, (c + 0.5) * CELL - 5, (r + 0.5) * CELL - 5)[1], found['material'][r, c], (r, c))
         up = np.cross(vertices[flat[:, 1]] - vertices[flat[:, 0]], vertices[flat[:, 2]] - vertices[flat[:, 0]])[:, 2]
         self.assertTrue((up > 0).all())  # every floor face looks up
         self.assertTrue(len(upright) and (upright[:, 3] == tile.OBSCURING).all())
         self.assertAlmostEqual(float(vertices[upright[:, :3]][..., 2].max()), 3.0)  # walls of sight, up to the roof
-        # An upright pair of faces on every half metre of the building's outline: each side of a closed cell that looks out.
+        # Upright faces all the way round the building's outline: along each side of a closed cell that looks out.
         closed = np.pad(found['material'] == tile.OBSCURING, 1)
         sides = sum(int((closed & ~np.roll(closed, turn, axis)).sum()) for axis in (0, 1) for turn in (1, -1))
-        self.assertEqual(len(upright), 2 * sides); self.assertGreaterEqual(sides, 2 * (12 + 6))  # at least the 6 by 3 metres of walls
+        foot = vertices[upright[::2, :2]][..., :2]  # the two floor corners each pair of upright faces stands on
+        self.assertAlmostEqual(float(np.linalg.norm(foot[:, 0] - foot[:, 1], axis=1).sum()), sides * CELL, places=6)
+        self.assertGreaterEqual(sides * CELL, 2 * (6 + 3))  # at least the 6 by 3 metres of walls
 
     def test_a_bin_against_the_wall_stops_movement_but_is_seen_over(self):
         binned = scene(SHOP, box((-1.5, 1.0, 0.2), (-0.7, 1.7, 1.1)))  # touching the north wall, under the canopy
         rows, columns, corner = tile.layout(binned[0]); found = tile.survey(*binned, rows, columns, corner)
-        at = lambda x, y: found['material'][int((y - corner[1]) / 0.5), int((x - corner[0]) / 0.5)]
+        at = lambda x, y: found['material'][int((y - corner[1]) / CELL), int((x - corner[0]) / CELL)]
         self.assertEqual(at(-1.1, 1.6), tile.NONWALK); self.assertEqual(at(-1.1, 0.9), tile.OBSCURING)
-        vertices, faces = tile.walkmesh(found, 0, 0); upright = faces[(faces[:, :3] >= (tile.CELLS + 1) ** 2).any(1)]
-        self.assertLess(float(vertices[upright[:, :3]][..., 1].max()), 1.51)  # no wall of sight round the bin: the building's ends with the cell of its own wall
-        self.assertFalse(found['footprint'][int((1.6 - corner[1]) / 0.125), int((-1.1 - corner[0]) / 0.125)])  # nor does the lid cover it
+        vertices, flat, upright = floor(found)
+        self.assertLess(float(vertices[upright[:, :3]][..., 1].max()), 1.26)  # no wall of sight round the bin: the building's ends with the cell of its own wall
+        self.assertEqual(ground(vertices, flat, -1.1, 1.4)[1], tile.NONWALK); self.assertEqual(ground(vertices, flat, -1.1, 1.9)[1], tile.STONE)  # the bin's own outline, to the cell
+        sample = CELL / tile.FINE
+        self.assertFalse(found['footprint'][int((1.6 - corner[1]) / sample), int((-1.1 - corner[0]) / sample)])  # nor does the lid cover it
+
+    def test_the_tiles_of_a_group_meet_corner_to_corner(self):
+        wide = scene(box((-6, -5.3, 0), (6.1, 5.4, 0.2)), box((-4.3, -3.1, 0.2), (3.9, 2.6, 3)), box((4.9, 1.1, 0.2), (5.4, 1.6, 1.0)))
+        rows, columns, corner = tile.layout(wide[0]); found = tile.survey(*wide, rows, columns, corner); self.assertEqual((rows, columns), (2, 2))
+
+        def edge(row, column, axis, side):  # the walkmesh's corners along one edge of a tile: where along it, and how high
+            vertices = tile.walkmesh(found, row, column)[0]
+            return sorted(map(tuple, np.round(np.delete(vertices[np.abs(vertices[:, axis] - side) < 1e-9], axis, 1), 6).tolist()))
+        for row in (0, 1):
+            self.assertEqual(edge(row, 0, 0, 5.0), edge(row, 1, 0, -5.0))  # west tile's east edge, east tile's west: the same corners at the same heights
+        for column in (0, 1):
+            self.assertEqual(edge(0, column, 1, 5.0), edge(1, column, 1, -5.0))
+        self.assertGreater(len(edge(0, 0, 0, 5.0)), 2)  # and the building's own lines cross it
 
     def test_a_model_that_leaves_no_ground_round_it_is_refused(self):
         with self.assertRaisesRegex(ValueError, 'edge of its tiles'):
@@ -182,7 +224,7 @@ class TileTests(unittest.TestCase):
         self.assertTrue(18.0 <= area <= 21.0)  # the 6 by 3 metres the walls enclose, to the grain of the survey
         self.assertTrue(all(-3.2 <= x0 < x1 <= 3.2 and -2.2 <= y0 < y1 <= 1.2 for x0, y0, x1, y1 in strips))
         first, second = tile.light_places(found, 0, 0)
-        self.assertEqual(found['material'][int((first[1] + 5) / 0.5), int((first[0] + 5) / 0.5)], tile.STONE); self.assertEqual(first[2], tile.LIGHT_HEIGHT)
+        self.assertEqual(found['material'][int((first[1] + 5) / CELL), int((first[0] + 5) / CELL)], tile.STONE); self.assertEqual(first[2], tile.LIGHT_HEIGHT)
         self.assertEqual(second, (0.0, 0.0, 4.5))  # over the middle, clear of the 3 metre roof
 
     def test_a_built_group_reports_its_pictures_lights_fading_faces_and_door(self):
