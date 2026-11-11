@@ -158,6 +158,95 @@ the upstream D20 Modern/Vault terms and is not relicensed under the repository's
 
 Source: <https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>
 
+## Arcology groups in Modern Exterior (2026-11-10)
+
+D20 Shadowrun Exterior (`srt04`) differs from D20 Modern Exterior (`dgt04`) in five raised-ground tiles: an
+arcology glass edge, its corner, a windowed edge and two gated openings, in the slots where Modern Exterior
+has concrete walls and a stairway. Those five tile records are appended to `dgt04.set` as tiles 429-433 with
+their door records, unchanged apart from terrain names spelled as Modern Exterior spells them, and offered as
+five one-tile groups (`Arcology_Edge_01`, `Arcology_Edge_02_Window`, `Arcology_Corner`, `Arcology_Gate_01`,
+`Arcology_Gate_02`) with matching feature entries in `dgt04palstd.itp`. They are groups so that they are
+placed deliberately and never chosen at random beside the concrete walls. No existing tile or group number
+in `dgt04.set` changes.
+
+Their five models, five walkmeshes and the `arcology_torii01-03` textures move unmodified from `srn_t_srt04`
+to `srn_t_common`, so that neither tileset needs the other's pack. `srn_t_srt04` keeps its own `srt04.set`
+and palette and remains a supported tileset; it is not retired. `dgt05_i02_01.mdl` and `.wok`, a hospital tile both
+tilesets list, moves from `srn_t_dgt04` to `srn_t_common` for the same reason: it was the one model
+Shadowrun Exterior could not resolve without the Modern Exterior pack.
+
+The windowed edge keeps its imported door type 117 (`GlassWindow`), although that `doortypes.2da` row names
+`SRT04`, and no door row is added or changed. A Toolset test on 2026-11-10 showed why none is needed: when a
+tile with a typed door hook is painted, the Toolset creates the hook's door itself, with the hook's door
+type as its appearance, whatever tileset the row names. In a Modern Exterior area the windowed edge got a
+type 117 door at its hook, and `Road_Huge_Hole` and `SubwayEntrance` got their type 58 invisible transition
+doors, with no door placed by hand. The row's tileset only decides which areas list that door under
+"Tileset Specific" in the door palette. The same test showed the five arcology groups in the palette, placed
+three of them, and found only concrete tiles among the raised-ground tiles the Toolset chose by itself.
+The work modifies the MDRNEE tile import under the same notice and attribution conditions.
+
+## Stuffer Shack tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
+
+The first envkit building: a single-storey convenience store as a 2 by 2 tile group, `Stuffer_Shack`, offered
+in D20 Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its four tile records are
+appended to each set file (`dgt04` tiles 434-437, group 57; `udp1` tiles 676-679, group 106) and the group is
+listed under Groups in each palette. No existing tile or group number changes. The four tile models
+(`ek_ss_shack_t00`, `_t01`, `_t10`, `_t11`, compiled), their walkmeshes, the shared material and its maps
+(`ek_ss_shack` colour, `_n`, `_s`, `_r`, glow `_i`, halo `_h`) live in `srn_t_common`, so neither tileset needs the
+other's pack. The ground around the building is the `pavement` texture Modern Exterior's plain tiles use, already in
+`srn_t_common`.
+
+Origin: the concept sheet `01_stuffer_shack_convenience_store.png` was supplied by the SRN project operator (an
+OpenAI-generated sheet from the operator's own brief). Its building views were redrawn locally with Qwen-Image
+2.1 as plain references, and the 3D model was generated from those references by the operator's Meshy account
+through the pinned `meshy-cli@0.4.0`, then remeshed by Meshy to 78,889 triangles. Attribution:
+[Meshy](https://www.meshy.ai/). This is the first Meshy-made model in a production pack. The operator confirmed
+on 2026-11-11 that the Meshy account is on a paid plan. Meshy's published
+[licence guidance](https://help.meshy.ai/en/articles/9992001-can-i-use-meshy-assets-commercially-license-copyright-explained)
+says paid users own the assets they generate from inputs they are authorized to use, so the Free-plan CC BY 4.0
+condition that `docs/heads/evidence/NOTICE.md` allowed for does not apply to this model; it ships under the
+repository's licence, with Meshy named here as the generator. That confirmation is the operator's statement and
+was not checked against the account.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's
+axes and scaled to 5.6 metres; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow
+map and a halo sheet were made from its own colour for the sign, windows, door and OPEN sign; the mesh was
+shared out over four tiles with a ground square each; and a walkmesh was generated from its shape, in which
+the building stops movement and sight, the bollards stop movement only, and the slab is walked on at its own
+height. The Meshy source, the full-detail spare, the references and the client captures stay in ignored
+`output/envkit/`. Checked in the game client in a Modern Exterior area and a Suburbs area on 2026-11-11, and in
+the Toolset the same day: both palettes list `Stuffer Shack 2x2` under Groups, and painting it laid the four
+tiles in order with no turn (south-west, south-east, north-west, north-east), as the saved areas record. In
+Modern Exterior the Toolset changed no other tile; in Suburbs it repainted the twelve tiles around the group as
+its own grass-to-asphalt edges and corners. The tiles have no door hook, no tile lights, no minimap image and no
+roof fade.
+
+## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
+
+Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a
+row appended to `srn_2da/placeables.2da` (22740-22749, labelled `[envkit]Stuffer Shack, ...`): vending machine
+`ek_ss_vending`, ATM `ek_ss_atm`, snack rack `ek_ss_snacks`, drink case `ek_ss_drinks`, security camera
+`ek_ss_camera`, rooftop unit `ek_ss_hvac`, street clutter `ek_ss_clutter`, trash can `ek_ss_trash`, recycling bin
+`ek_ss_recycle` and sandwich board `ek_ss_board`. No existing row changes. Each prop is a compiled model, a
+box collision file, a material file and its maps (colour 1024 or 2048, the other maps at half that).
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a
+plain reference. Seven were then generated by the operator's Meshy account through the pinned
+`meshy-cli@0.4.0` at 4,000 to 11,000 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+tile group's entry above records). Three, the trash can, recycling bin and sandwich board, were generated
+locally with Pixal3D on Trellis 2 in ComfyUI and reduced to 5,000 to 8,000 triangles. No third-party mesh or
+texture was used.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's
+axes and scaled to a stated height; the locally generated ones were stood upright; the sandwich board was
+rebuilt as its front sheet and a half-turned copy, because the generator invented its back; textures were
+recompressed. The vending machine, ATM and drink case have a glow map and a halo sheet for their lit parts,
+and a second material (`<name>_o`, with the shared black halo `ek_off`) that a script swaps in with
+`ReplaceObjectTexture` to put their lights out; that needs the placed object not to be static. Checked in the
+game client on 2026-11-11 from the pack's files and these table rows, lights on, out and on again. The rows
+have no blueprints or palette entries, and the security camera stands at ground level until a builder raises
+it to a wall.
+
 ## MDRNEE placeable import (2026-09-11)
 
 `mdrnee_placeable.hak` was imported in full under the `mdrnee_placeable` profile. Its verified

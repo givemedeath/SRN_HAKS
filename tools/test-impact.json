@@ -130,6 +130,75 @@
       "docs/items/weapon-grip-standard-v1.json",
       "hakbuilder.json"
     ],
+    "tools/envkit/__init__.py": [],
+    "tools/envkit/__main__.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/envkit/convert.py",
+      "tools/envkit/local.py",
+      "tools/envkit/meshy.py",
+      "tools/envkit/placeables.py",
+      "tools/envkit/reference.py",
+      "tools/envkit/tile.py",
+      "tools/headkit/comfy.py",
+      "tools/shared_tools.py"
+    ],
+    "tools/envkit/convert.py": [
+      "tools/envkit/glow.py"
+    ],
+    "tools/envkit/glow.py": [],
+    "tools/envkit/local.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py"
+    ],
+    "tools/envkit/meshy.py": [
+      "tools/headkit/gpu_lock.py"
+    ],
+    "tools/envkit/placeables.py": [],
+    "tools/envkit/preview_blender.py": [],
+    "tools/envkit/prop_fixture.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/envkit/__init__.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/reference.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py"
+    ],
+    "tools/envkit/test_convert.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/prop_fixture.py"
+    ],
+    "tools/envkit/test_glow.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/glow.py",
+      "tools/envkit/sets/stuffer-shack-game.json"
+    ],
+    "tools/envkit/test_local.py": [
+      "tools/envkit/local.py"
+    ],
+    "tools/envkit/test_meshy.py": [
+      "tools/envkit/meshy.py",
+      "tools/headkit/gpu_lock.py"
+    ],
+    "tools/envkit/test_placeables.py": [
+      "tools/envkit/placeables.py"
+    ],
+    "tools/envkit/test_reference.py": [
+      "tools/envkit/reference.py",
+      "tools/envkit/sets/stuffer-shack.json"
+    ],
+    "tools/envkit/test_tile.py": [
+      "tools/envkit/tile.py"
+    ],
+    "tools/envkit/tile.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/toolchain.py",
+      "tools/envkit/convert.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
     "tools/headbatch/__init__.py": [],
     "tools/headbatch/client_trial.py": [
       "tools/headbatch/guards.py",
@@ -4849,6 +4918,11 @@
       "srn_tlk",
       "srn_weapon"
     ],
+    "tools/envkit/__main__.py": [
+      "srn_2da",
+      "srn_placeable",
+      "srn_t_common"
+    ],
     "tools/heads/build_head_fixture.py": [
       "srn_body",
       "srn_head"
@@ -4971,6 +5045,13 @@
     "tools/armorkit/test_split.py",
     "tools/armorkit/test_tables.py",
     "tools/armorkit/test_toolchain.py",
+    "tools/envkit/test_convert.py",
+    "tools/envkit/test_glow.py",
+    "tools/envkit/test_local.py",
+    "tools/envkit/test_meshy.py",
+    "tools/envkit/test_placeables.py",
+    "tools/envkit/test_reference.py",
+    "tools/envkit/test_tile.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",
