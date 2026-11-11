@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import shutil
+import sys
 from tools.headkit import comfy
 from tools.headkit.common import asset, bindings, launched, pin, read, require, verify, write, python_package_pins, verification_pass
 from .contracts import all_pins, code_pins, family, manifest, source_version, evidence_pins,stage_roles
@@ -73,6 +74,13 @@ def write_input_paths(output, pins):
 def consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None):
     with verification_pass('item-consumed-inputs'):
         return _consumed_inputs(manifest_path, bindings_path, run, extra, stage)
+
+
+def chain_inputs(manifest_path, bindings_path, run, stages):
+    """Every file a chain of stages consumes from outside itself, each read once."""
+    require(run is not None and stages, 'A chain names its run folder and stages')
+    with verification_pass('item-consumed-inputs'):
+        return sorted({path for stage in stages for path in _consumed_inputs(manifest_path, bindings_path, run, (), stage)})
 
 
 def consumed_pins(manifest_path, bindings_path, run=None, extra=(),stage=None):
@@ -214,12 +222,16 @@ def main():
         if name in ('run', 'resume'): c.add_argument('--evidence', type=Path)
         if name == 'review':
             c.add_argument('--decision', choices=['approved', 'rejected'], required=True); c.add_argument('--notes', required=True)
+    c = commands.add_parser('chain', help='run consecutive stages in one verified launch; all but the last are approved on their gates')
+    for key in ('manifest', 'bindings', 'run'): c.add_argument('--'+key, type=Path, required=True)
+    c.add_argument('--stages', nargs='+', required=True); c.add_argument('--notes', required=True)
     c = commands.add_parser('preflight'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--probe', action='store_true')
     c.add_argument('--scope', choices=['generation', 'processing'], default='processing')
     c = commands.add_parser('inputs'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--run', type=Path)
     c.add_argument('--stage',choices=GENERATION_STAGES+PROCESSING_STAGES)
+    c.add_argument('--stages', nargs='+', choices=PROCESSING_STAGES+('export',), help='every input a chain of these stages consumes')
     c.add_argument('--extra', type=Path, action='append', default=[]); c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('request')
     for key in ('manifest', 'bindings', 'output'): c.add_argument('--'+key, type=Path, required=True)
@@ -301,8 +313,15 @@ def main():
         result=set_trial_limit(shared_ledger(local), local['itemTrialId'], a.maximum, a.evidence, a.output)
     elif a.command == 'preflight': result = preflight(a.manifest, a.bindings, a.probe, a.scope)
     elif a.command == 'inputs':
-        paths = consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage); write(a.output, paths, fresh=True)
+        require(not (a.stage and a.stages), 'Give --stage or --stages, not both')
+        paths = chain_inputs(a.manifest, a.bindings, a.run, a.stages) if a.stages else consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage)
+        write(a.output, paths, fresh=True)
         result = {'inputs': str(a.output), 'count': len(paths)}
+    elif a.command == 'chain':
+        from .runner import Runner
+        with comfy.locked(a.run/'runner'):
+            runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, package_pins=package_pins)
+            result = runner.chain(a.stages, a.notes, progress=lambda row: print(json.dumps(row), file=sys.stderr, flush=True))
     elif a.command in ('prepare', 'run', 'resume', 'review', 'status'):
         from .runner import Runner
         if a.command == 'status': result = Runner(a.manifest, a.bindings, a.run).status()

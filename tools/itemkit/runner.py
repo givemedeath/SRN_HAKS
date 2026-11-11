@@ -311,6 +311,34 @@ class Runner:
         write(target, result, fresh=True); self.state['reviews'][stage] = pin(target); write(self.state_path, self.state)
         return result
 
+    def chain(self, stages, notes, *, progress=None):
+        """Run consecutive stages in this one verified launch, approving each but the last on its numerical gates.
+
+        A stage launched on its own pays for the launcher's input freeze, the input listing and a review launch each
+        time; that bookkeeping was about three quarters of a measured 41-minute run. Here they are paid once for the
+        chain. Nothing inside a stage is relaxed: every stage still takes its own fresh verification passes, writes
+        its own attempt and receipt, and a failure stops the chain where it happened. The last stage is left
+        unreviewed so that a person looks at it before anything consumes it. `client` is never chained: it needs
+        reviewed evidence."""
+        stages = list(stages)
+        require(stages and len(set(stages)) == len(stages) and all(stage in DEPENDENCIES and stage != 'client' for stage in stages),
+                'A chain is distinct processing stages, without the client stage')
+        require(isinstance(notes, str) and notes.strip(), 'Chain review notes required: they are filed with every automatic approval')
+        for index, stage in enumerate(stages):
+            for parent in DEPENDENCIES[stage]:
+                require(parent in stages[:index] or parent in self.state.get('reviews', {}),
+                        f'Chain stage {stage} needs {parent} earlier in the chain or already reviewed')
+        done = []
+        for index, stage in enumerate(stages):
+            started = time.monotonic(); row = {'stage': stage, 'reviewed': False}; done.append(row)
+            try: row['reused'] = self.execute(stage)['reused']
+            finally: row['seconds'] = round(time.monotonic() - started, 1)
+            if index < len(stages) - 1:
+                self.review(stage, 'approved', notes); row['reviewed'] = True
+            row['seconds'] = round(time.monotonic() - started, 1)
+            if progress is not None: progress(row)
+        return {'stages': done, 'unreviewed': stages[-1], 'productionAccepted': False}
+
     def status(self):
         result = {}; audit = VerificationPass()
         for stage in DEPENDENCIES:

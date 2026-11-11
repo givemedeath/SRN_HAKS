@@ -397,6 +397,24 @@ construction, so the fit always stops until `fit.gripDeparture` carries an appro
 review with the digest from the worker's retained `grip-measurement.json`. See the
 Club continuation in `four-weapon-lessons.md`.
 
+## Chained stages
+
+Consecutive processing stages can run in one verified launch:
+
+    python tools/itemkit/run_itemkit.py inputs --manifest M --bindings B --run RUN --stages fit reduce ... native --output LIST
+    python tools/phenotypes/launch_shared_tool.py ... --input-path-list LIST -- tools/itemkit/run_itemkit.py chain         --manifest M --bindings B --run RUN --stages fit reduce ... native --notes "..."
+
+`chain` runs each stage as `run` would and approves every stage but the last with the given notes, which must say what
+the approval rests on (the numerical gates). The last stage is left unreviewed for a person. It refuses a plan with a
+missing parent, a repeated stage or the `client` stage before running anything, and a failed stage stops the chain.
+Each stage still takes its own fresh verification passes and writes its own attempt and receipt; only the launcher's
+input freeze, the input listing and the per-stage review launches are paid once instead of per stage.
+
+Measured on the wave-1 Club (2026-11-11, fit through native, same inputs): about 37 minutes stage by stage, about 13
+minutes chained. Triangle counts were identical and the baked texture differed from a stage-by-stage run by at most
+one colour level, the same as two stage-by-stage runs differ from each other. Roughly half of the chained time is
+still verification inside the stages. End a chain at `render` when the look has not been reviewed yet.
+
 ## Unattended client capture
 
 A built fixture can be photographed without anyone driving the client:
