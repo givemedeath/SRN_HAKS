@@ -1,0 +1,40 @@
+{
+  "sheet": {
+    "file": "48_university_of_denver_penrose_library.png",
+    "sha256": "762befa04bb16fba804c269ebda917f2846474172a2880fd12a593e5fb010a40",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "collegiate stone university library with a large glazed dome rotunda, a canopy entrance and a burgundy banner", "box": [0, 0, 888, 335], "notes": "Remove the sculpture, the trees, the aircraft, the sky, the mountains, the skyline and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a collegiate stone library with a glazed dome", "box": [925, 15, 1525, 145]},
+    "building-side": {"kind": "building", "subject": "side elevation of a collegiate stone library with a glazed dome", "box": [905, 165, 1195, 292]},
+    "entrance-doors": {"kind": "prop", "type": "glass-door", "variant": "Bronze-framed double glass entrance doors with side lights.", "subject": "bronze-framed double glass entrance doors", "box": [943, 590, 1064, 716]},
+    "staff-door": {"kind": "prop", "type": "secure-door", "variant": "Plain grey steel door with a slit window and a reader.", "subject": "plain grey steel door with a slit window", "box": [1068, 590, 1132, 716]},
+    "service-door": {"kind": "prop", "type": "service-door", "variant": "Dark steel door with a hazard sill and a wall reader.", "subject": "dark steel service door with a hazard sill", "box": [1138, 590, 1202, 716]},
+    "lab-door": {"kind": "prop", "type": "glass-door", "same": "focused-consulting/glass-door", "subject": "glass door module in a dark frame", "box": [1204, 590, 1256, 716]},
+    "tall-bookcase": {"kind": "prop", "type": "shelf-unit", "variant": "Tall wooden library bookcase full of books.", "subject": "tall wooden library bookcase", "box": [8, 760, 94, 968]},
+    "wide-bookcase": {"kind": "prop", "type": "shelf-unit", "variant": "Double-width dark library bookcase.", "subject": "double-width dark library bookcase", "box": [98, 763, 217, 888]},
+    "narrow-bookcase": {"kind": "prop", "type": "shelf-unit", "same": "penrose-library/tall-bookcase", "subject": "wooden library bookcase", "box": [220, 766, 284, 874]},
+    "book-cart": {"kind": "prop", "type": "document-cart", "variant": "Steel library cart of books.", "subject": "steel library cart of books", "box": [286, 778, 350, 867]},
+    "study-carrels": {"kind": "prop", "type": "cubicles", "variant": "Row of three wooden study carrels with lamps and chairs.", "subject": "row of three wooden study carrels", "box": [355, 770, 524, 855], "notes": "Ignore the table and chairs at the lower right."},
+    "reading-table": {"kind": "prop", "type": "table-and-chairs", "variant": "Long reading table with brass lamps and red chairs.", "subject": "long reading table with brass lamps and red chairs", "box": [440, 778, 634, 902], "notes": "Ignore the study carrels behind at the upper left."},
+    "librarian-desk": {"kind": "prop", "type": "desk-terminal", "variant": "Dark desk with two screens and an office chair.", "subject": "dark desk with two screens and an office chair", "box": [640, 766, 797, 874]},
+    "potted-plant": {"kind": "prop", "type": "planter", "variant": "Large leafy plant in a square concrete pot.", "subject": "large leafy plant in a square concrete pot", "box": [798, 766, 870, 902]},
+    "info-totem": {"kind": "prop", "type": "access-terminal", "variant": "Branding: slim burgundy information totem with the UD mark.", "subject": "slim information totem", "box": [898, 763, 954, 887]},
+    "display-case": {"kind": "prop", "type": "display-case", "variant": "Glass case holding an open rare book on a stone plinth.", "subject": "glass display case holding an open book", "box": [963, 770, 1067, 882]},
+    "sculpture": {"kind": "prop", "type": "statue-pedestal", "variant": "Bronze ringed sphere sculpture on a stone block.", "subject": "bronze ringed sphere sculpture on a stone block", "box": [1078, 766, 1147, 860]},
+    "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1143, 766, 1194, 807]},
+    "card-reader": {"kind": "prop", "type": "access-terminal", "same": "draco-foundation/keypad-panel", "subject": "wall-mounted card reader", "box": [1198, 766, 1230, 810]},
+    "server-rack": {"kind": "prop", "type": "server-rack", "same": "warpdrive-campus/server-rack", "subject": "black server rack with blue lights", "box": [1158, 820, 1237, 977]},
+    "banners": {"kind": "prop", "type": "banner-set", "variant": "Branding: pair of burgundy UD Penrose Library banners.", "subject": "pair of burgundy hanging banners", "box": [1240, 743, 1394, 957]},
+    "directory-board": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: dark Penrose Library floor directory board.", "subject": "dark wall directory board", "box": [1403, 750, 1527, 894]},
+    "magazine-rack": {"kind": "prop", "type": "goods-rack", "variant": "Low double rack of magazines.", "subject": "low double magazine rack", "box": [96, 878, 232, 994]},
+    "armchairs": {"kind": "prop", "type": "armchair", "subject": "pair of padded armchairs, one red and one black", "box": [256, 880, 394, 950]},
+    "drum-table": {"kind": "prop", "type": "coffee-table", "variant": "Round bronze drum table.", "subject": "round bronze drum table", "box": [310, 946, 398, 996]},
+    "sofa": {"kind": "prop", "type": "sofa", "variant": "Burgundy two-seat sofa with tan cushions.", "subject": "burgundy two-seat sofa", "box": [406, 903, 557, 994]},
+    "stone-planter": {"kind": "prop", "type": "planter", "same": "penrose-library/potted-plant", "subject": "leafy plant in a stone planter", "box": [578, 876, 674, 1000]},
+    "bench": {"kind": "prop", "type": "bench", "variant": "Wooden slat bench on stone ends.", "subject": "wooden slat bench on stone ends", "box": [680, 893, 834, 992]},
+    "trash-bin": {"kind": "prop", "type": "trash-can", "variant": "Plain brushed-steel cylinder bin.", "subject": "brushed-steel cylinder bin", "box": [836, 913, 876, 980]},
+    "turnstiles": {"kind": "prop", "type": "turnstile", "same": "warpdrive-campus/turnstiles", "subject": "row of glass-flap speed gates", "box": [926, 890, 1102, 992]}
+  }
+}

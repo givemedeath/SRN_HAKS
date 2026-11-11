@@ -1,0 +1,42 @@
+{
+  "sheet": {
+    "file": "49_centennial_airport_cargo_and_executive_terminal.png",
+    "sha256": "073a00eaab267325e91befcbde66bbcd8d43ef342969004688f7e8fd7eb4f5e4",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "grey airport executive terminal with a glazed atrium, a row of hangars and a control tower", "box": [0, 85, 1536, 328], "notes": "Remove the vehicles, the aircraft, the fence, the sky, the mountains and all text."},
+    "terminal-front": {"kind": "building", "subject": "front elevation of a grey airport executive terminal with a glazed atrium", "box": [15, 355, 390, 448]},
+    "terminal-side": {"kind": "building", "subject": "side elevation of a grey airport executive terminal", "box": [410, 345, 630, 448]},
+    "hangar-front": {"kind": "building", "subject": "front elevation of a grey aircraft hangar lettered H3", "box": [650, 350, 912, 448]},
+    "hangar-side": {"kind": "building", "subject": "side elevation of a grey aircraft hangar", "box": [930, 345, 1108, 448]},
+    "customs-front": {"kind": "building", "subject": "front elevation of a long grey customs and cargo processing building", "box": [1128, 362, 1430, 448]},
+    "control-tower": {"kind": "building", "subject": "elevation of an airport control tower", "box": [1443, 333, 1502, 448]},
+    "executive-jet": {"kind": "prop", "type": "aircraft", "subject": "small white executive jet", "box": [43, 743, 182, 800]},
+    "cargo-tiltwing": {"kind": "prop", "type": "aircraft", "variant": "Olive tilt-wing cargo aircraft.", "subject": "olive tilt-wing cargo aircraft", "box": [193, 733, 342, 800]},
+    "cargo-jet": {"kind": "prop", "type": "aircraft", "variant": "Large grey cargo jet with a purple tail.", "subject": "large grey cargo jet", "box": [350, 720, 554, 800]},
+    "cargo-loader": {"kind": "prop", "type": "cargo-loader", "subject": "yellow scissor-lift cargo loader", "box": [596, 730, 700, 806]},
+    "forklift": {"kind": "prop", "type": "forklift", "same": "saeder-krupp-yard/forklift", "subject": "yellow forklift truck", "box": [710, 740, 772, 802]},
+    "tow-tractor": {"kind": "prop", "type": "service-tug", "same": "tbird-hangar/service-tug", "subject": "small airfield tow tractor", "box": [781, 750, 860, 802]},
+    "baggage-carts": {"kind": "prop", "type": "luggage-cart", "variant": "Train of three flatbed baggage carts with crates.", "subject": "train of three flatbed baggage carts", "box": [868, 753, 967, 802]},
+    "cargo-pallet": {"kind": "prop", "type": "pallet-stack", "variant": "Strapped pallet of tan crates.", "subject": "strapped pallet of tan crates", "box": [970, 750, 1042, 802]},
+    "freight-container": {"kind": "prop", "type": "shipping-container", "variant": "Plain grey freight container.", "subject": "grey freight container", "box": [1048, 740, 1132, 800]},
+    "fuel-tank": {"kind": "prop", "type": "fuel-tank", "variant": "Small white skid tank.", "subject": "small white skid fuel tank", "box": [1136, 750, 1192, 800]},
+    "ground-power-unit": {"kind": "prop", "type": "generator", "variant": "Yellow wheeled ground power cart.", "subject": "yellow wheeled ground power cart", "box": [1198, 748, 1248, 800]},
+    "compressor-cart": {"kind": "prop", "type": "generator", "variant": "White enclosed compressor cart.", "subject": "white enclosed compressor cart", "box": [1254, 754, 1310, 800]},
+    "airport-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Centennial Airport Denver panel.", "subject": "panel sign reading Centennial Airport Denver", "box": [1330, 733, 1530, 792]},
+    "wayfinding-panels": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: stack of five purple and grey wayfinding panels.", "subject": "stack of five wayfinding panels", "box": [1336, 795, 1522, 962]},
+    "restricted-sign": {"kind": "prop", "type": "hazard-sign", "variant": "Red-striped Restricted Area sign.", "subject": "red-striped sign reading Restricted Area", "box": [1336, 963, 1522, 1010]},
+    "hangar-door": {"kind": "prop", "type": "dock-door", "variant": "Wide grey sectional hangar door with hazard stripes.", "subject": "wide grey sectional hangar door", "box": [338, 878, 434, 974]},
+    "service-bay-door": {"kind": "prop", "type": "dock-door", "same": "centennial-airport/hangar-door", "subject": "grey sectional service bay door", "box": [506, 886, 564, 967]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Rooftop block with a radome, vents and antennas.", "subject": "rooftop block with a radome and antennas", "box": [570, 880, 654, 970]},
+    "guard-tower": {"kind": "prop", "type": "guard-tower", "same": "cas-checkpoint/guard-tower", "subject": "concrete guard tower with a glazed cabin", "box": [678, 870, 742, 977]},
+    "perimeter-fence": {"kind": "prop", "type": "fence-section", "same": "hub-access/razor-fence", "subject": "chain-link fence panel topped with a razor-wire coil", "box": [750, 906, 847, 974]},
+    "segment-gate": {"kind": "prop", "type": "vehicle-gate", "same": "hub-access/fence-gate", "subject": "chain-link vehicle gate", "box": [856, 913, 944, 974]},
+    "boom-gate": {"kind": "prop", "type": "gate-arm", "same": "gridguide-center/barrier-arm", "subject": "boom gate with a red-striped arm", "box": [948, 930, 1027, 972]},
+    "checkpoint-booth": {"kind": "prop", "type": "guard-booth", "variant": "Small tan booth with a lit roof band.", "subject": "small tan checkpoint booth", "box": [1030, 896, 1090, 974]},
+    "apron-light": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin-lamp light mast", "box": [1106, 853, 1147, 974]},
+    "camera-pole": {"kind": "prop", "type": "security-camera", "same": "denver-nexus/camera-post", "subject": "security camera on a pole", "box": [1166, 878, 1224, 977]},
+    "sensor-mast": {"kind": "prop", "type": "comms-array", "same": "warpdrive-campus/comms-mast", "subject": "lattice sensor mast", "box": [1248, 853, 1287, 977]}
+  }
+}

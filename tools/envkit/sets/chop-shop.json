@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "54_illegal_vehicle_chop_shop.png",
+    "sha256": "24073d24fd1239ac0f058a122b85f2f567c53cc70cc1968820aa6e90a6b3e0c5",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "corrugated scrap-yard garage with an open repair bay, a painted Chop Shop sign and a stair to an upper office", "box": [0, 14, 870, 440], "notes": "Remove the title banner, the wrecked car, the tyres and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a corrugated scrap-yard garage", "box": [864, 109, 1237, 256]},
+    "building-side": {"kind": "building", "subject": "side elevation of a corrugated scrap-yard garage", "box": [880, 270, 1237, 437]},
+    "vehicle-lift": {"kind": "prop", "type": "vehicle-lift", "subject": "yellow two-post vehicle lift", "box": [15, 754, 214, 888]},
+    "stripped-chassis": {"kind": "prop", "type": "car-wreck", "subject": "stripped car body shell on stands", "box": [221, 780, 442, 884]},
+    "engine-hoist": {"kind": "prop", "type": "engine-hoist", "variant": "Red hoist carrying an engine block.", "subject": "red engine hoist carrying an engine block", "box": [448, 750, 616, 886]},
+    "welding-station": {"kind": "prop", "type": "welding-station", "variant": "Red welder cart with gas bottles and a mask.", "subject": "red welder cart with gas bottles and a welding mask", "box": [637, 746, 769, 886]},
+    "heavy-workbench": {"kind": "prop", "type": "workbench", "variant": "Steel bench with drawers under a pegboard of wrenches.", "subject": "heavy steel workbench under a pegboard of wrenches", "box": [794, 763, 1019, 886]},
+    "parts-rack": {"kind": "prop", "type": "shelf-unit", "same": "ghost-riders/parts-rack", "subject": "steel rack of engine blocks and parts crates", "box": [1040, 747, 1246, 886]},
+    "tool-chest": {"kind": "prop", "type": "tool-chest", "same": "street-doc/tool-cabinet", "subject": "red rolling tool chest", "box": [1286, 749, 1429, 886]},
+    "scrap-bin": {"kind": "prop", "type": "dumpster", "variant": "Open skip of scrap body parts lettered Scrap.", "subject": "open skip full of scrap body parts", "box": [6, 935, 202, 1042]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire on striped footings", "box": [207, 926, 376, 1042]},
+    "garage-door": {"kind": "prop", "type": "dock-door", "variant": "Branding: roll-up door painted with the gear emblem over a hazard sill.", "subject": "roll-up garage door painted with a gear emblem", "box": [391, 925, 560, 1041]},
+    "fuel-drums": {"kind": "prop", "type": "fuel-drums", "variant": "Red and blue drums with jerry cans on a pallet.", "subject": "red and blue fuel drums with jerry cans on a pallet", "box": [579, 944, 728, 1041]},
+    "office-nook": {"kind": "prop", "type": "desk-terminal", "variant": "Cluttered desk nook with a terminal, filing cabinets and a lamp.", "subject": "cluttered office desk nook with a terminal and filing cabinets", "box": [745, 929, 946, 1042]},
+    "crate-pallet": {"kind": "prop", "type": "pallet-stack", "variant": "Wooden and steel crates on pallets.", "subject": "wooden and steel crates on pallets", "box": [961, 942, 1123, 1041]},
+    "floodlight-mast": {"kind": "prop", "type": "floodlight", "same": "mesametric-facility/floodlight-mast", "subject": "mobile floodlight mast on a yellow generator base", "box": [1153, 922, 1238, 1042]},
+    "security-shutter": {"kind": "prop", "type": "dock-door", "variant": "Mesh security shutter in a concrete frame with a top lamp.", "subject": "mesh security shutter in a concrete frame", "box": [1269, 928, 1438, 1041]}
+  }
+}
