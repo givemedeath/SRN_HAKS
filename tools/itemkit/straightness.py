@@ -95,6 +95,39 @@ def _apply_pass(p, table, vectors=None):
     return moved, vectors
 
 
+def _fit_ends(p):
+    """Flat end caps that are tilted off the long axis, as rows [x_end, y, z, a, b, reach, 0]: the cap is x = x_end + a*dy + b*dz.
+
+    A cap is taken as flat when its outward envelope, sampled over the inner 70% of the section, fits a plane to
+    within 2% of the section size; a blade point or a rounded butt does not and is left alone. Tilts under half a
+    degree need nothing and tilts over 30 degrees are treated as design, not error (the wave-1 Club pommel was 23).
+    """
+    centres, mid, extent, _, _ = _sections(p); rows = []
+    for sign in (-1, 1):
+        zone = slice(0, SLICES // 20) if sign < 0 else slice(SLICES - SLICES // 20, SLICES)
+        if np.isnan(extent[zone]).all(): continue
+        size = float(np.nanmedian(extent[zone].max(1))); centre = np.nanmedian(mid[zone], axis=0)
+        end = p[:, 0].min() if sign < 0 else p[:, 0].max(); near = p[np.abs(p[:, 0] - end) < .35 * size]
+        cell = np.floor((near[:, 1:] - centre) / (size / 14)).astype(int); inner = np.hypot(*(cell + .5).T) * size / 14 < .35 * size
+        keys, inverse = np.unique(cell[inner], axis=0, return_inverse=True); inverse = inverse.reshape(-1)
+        if len(keys) < 24: continue
+        outer = np.full(len(keys), -np.inf); np.maximum.at(outer, inverse, sign * near[inner, 0])
+        A = np.c_[np.ones(len(keys)), (keys + .5) * size / 14]; fit, *_ = np.linalg.lstsq(A, sign * outer, rcond=None)
+        rms = float(np.sqrt(np.mean((A @ fit - sign * outer) ** 2))); tilt = np.degrees(np.arctan(np.hypot(fit[1], fit[2])))
+        if rms < .02 * size and .5 < tilt < 30: rows.append([end, centre[0], centre[1], fit[1], fit[2], size, 0.])
+    return np.array(rows, float).reshape(-1, 7)
+
+
+def _apply_ends(p, ends, vectors=None):
+    """Shear each tilted flat cap square, fading the correction out over one section size along the shaft."""
+    p = p.copy()
+    for end, y, z, a, b, reach, _ in ends:
+        w = np.clip(1 - np.abs(p[:, 0] - end) / reach, 0, 1); w = w * w * (3 - 2 * w)
+        p[:, 0] -= w * (a * (p[:, 1] - y) + b * (p[:, 2] - z))
+        if vectors is not None: vectors = np.column_stack([vectors[:, 0], vectors[:, 1] + w * a * vectors[:, 0], vectors[:, 2] + w * b * vectors[:, 0]])
+    return p, vectors
+
+
 def fit_map(positions):
     """Measure the unbend map of a mesh. Returns (map, per-pass midline range in % of length)."""
     positions = np.asarray(positions, float); mean, axes = principal_frame(positions)
@@ -102,8 +135,9 @@ def fit_map(positions):
     for _ in range(MAX_PASSES):
         table, deviation = _measure_pass(p); p, _ = _apply_pass(p, table); tables.append(table); history.append(deviation)
         if deviation < CONVERGED_PCT: break
+    ends = _fit_ends(p); p, _ = _apply_ends(p, ends)
     shift = float((p[:, 0].max() + p[:, 0].min()) / 2 - (start[:, 0].max() + start[:, 0].min()) / 2)
-    return {'mean': mean, 'axes': axes, 'tables': np.array(tables), 'shift': np.array(shift)}, history
+    return {'mean': mean, 'axes': axes, 'tables': np.array(tables), 'shift': np.array(shift), 'ends': ends}, history
 
 
 def apply_map(positions, mapping, normals=None):
@@ -112,6 +146,7 @@ def apply_map(positions, mapping, normals=None):
     _require(positions.ndim == 2 and positions.shape[1] == 3 and np.isfinite(positions).all(), 'Finite positions required')
     p = (positions - mean) @ axes; v = None if normals is None else np.asarray(normals, float) @ axes
     for table in mapping['tables']: p, v = _apply_pass(p, table, v)
+    p, v = _apply_ends(p, mapping.get('ends', ()), v)                 # maps saved before end squaring have none
     p[:, 0] -= float(mapping['shift']); moved = p @ axes.T + mean
     if v is None: return moved
     v = v @ axes.T; length = np.linalg.norm(v, axis=1); _require(np.all(length > 0), 'Degenerate normal after straightening')
@@ -124,11 +159,12 @@ def save_map(path, mapping):
 
 def load_map(path):
     with np.load(path, allow_pickle=False) as archive:
-        _require(set(archive.files) == {'mean', 'axes', 'tables', 'shift'}, 'Unexpected straightening map')
+        _require(set(archive.files) - {'ends'} == {'mean', 'axes', 'tables', 'shift'}, 'Unexpected straightening map')
         mapping = {name: archive[name] for name in archive.files}
     _require(mapping['mean'].shape == (3,) and mapping['axes'].shape == (3, 3) and mapping['tables'].ndim == 3
              and mapping['tables'].shape[1:] == (SLICES, 15) and 1 <= len(mapping['tables']) <= MAX_PASSES
-             and all(np.isfinite(value).all() for value in mapping.values()), 'Invalid straightening map')
+             and all(np.isfinite(value).all() for value in mapping.values())
+             and mapping.get('ends', np.zeros((0, 7))).shape[1:] == (7,) and len(mapping.get('ends', ())) <= 2, 'Invalid straightening map')
     return mapping
 
 

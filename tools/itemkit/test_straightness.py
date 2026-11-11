@@ -107,3 +107,16 @@ class ThickShaftTests(unittest.TestCase):
         self.assertGreater(history[0], 4); self.assertLess(s.measure(out)['bendPctOfLength'], 1)
         frame = lambda q: np.sort(np.ptp((q - q.mean(0)) @ s.principal_frame(q)[1], axis=0))[::-1]
         np.testing.assert_allclose(frame(out), [1, .12, .12], rtol=.08)       # caps stay square (the old hook measured 17%)
+
+    def test_a_tilted_flat_cap_is_squared_and_a_point_is_left_alone(self):
+        rng = np.random.default_rng(5); n = 80000; a = rng.uniform(0, 2 * np.pi, n); r = .06 * np.sqrt(rng.uniform(0, 1, n))
+        y, z = r * np.cos(a), r * np.sin(a); t = rng.uniform(-.5, .5, n)
+        side = np.column_stack([t, .06 * np.cos(a), .06 * np.sin(a)]); slant = np.tan(np.radians(15))
+        low = np.column_stack([np.full(n // 4, -.5), y[:n // 4], z[:n // 4]]); high = np.column_stack([.5 + slant * y[:n // 4], y[:n // 4], z[:n // 4]])
+        side = side[side[:, 0] < .5 + slant * side[:, 1]]; p = np.r_[side, low, high]
+        mapping, _ = s.fit_map(p); self.assertEqual(len(mapping['ends']), 1)          # only the slanted cap is corrected
+        out, normals = s.apply_map(p, mapping, np.tile([1., 0, 0], (len(p), 1))); q = (out - out.mean(0)) @ s.principal_frame(out)[1]
+        cap = q[q[:, 0] > q[:, 0].max() - .004] if np.ptp(q[q[:, 0] > q[:, 0].max() - .004, 1]) > .1 else q[q[:, 0] < q[:, 0].min() + .004]
+        self.assertGreater(np.ptp(cap[:, 1]), .11); self.assertLess(np.ptp(cap[:, 0]), .004)       # the whole cap now lies in one plane
+        self.assertTrue(np.allclose(np.linalg.norm(normals, axis=1), 1))
+        self.assertEqual(len(s.fit_map(sword())[0]['ends']), 0)                        # blade point and pommel are not flat caps

@@ -101,3 +101,29 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None
     # Length is the intended departure; width over 5% needs the same bound review as firearms.
     if depth_departs or abs(report['midpointRelativeDifferences']['visibleFaceWidth'])>.05:bind_departure(report,review)
     return m,report
+
+
+def one_hand_uniform(vertices,faces,matrix,origin,standard,review=None):
+    """Keep a round one-hand grip round instead of squashing it to the reference section.
+
+    The usable length stays the sizing authority and the similarity is left uniform, so a club's circular handle
+    and square end caps survive (the wave-1 Club became a 4 x 6.5 cm oval with a slanted pommel under the transverse
+    correction). The section therefore departs from the standard by construction: it always needs a review bound to
+    this exact measurement, and the both-body visual hand-fit review afterwards.
+    """
+    require(standard.get('id')=='cougar-approved-grip-v1'
+            and standard.get('approval',{}).get('gripSizingApproved') is True,'Approved melee grip reference required')
+    m=np.asarray(matrix,float);origin=np.asarray(origin,float)
+    require(m.shape==(4,4) and np.isfinite(m).all() and np.allclose(m[3],[0,0,0,1]) and origin.shape==(3,),'Finite grip transform required')
+    gram=m[:3,:3].T@m[:3,:3]
+    require(np.linalg.det(m[:3,:3])>0 and np.allclose(gram,np.eye(3)*gram[0,0],atol=1e-12,rtol=1e-7),
+            'A round one-hand grip must be fitted uniformly')
+    sections=reference_sections(transform(vertices,m),faces,standard,origin[1],standard['usableLength'])
+    mid=next(r for r in sections if r['fractionFromPommel']==.5);target=standard['targetMidpointSection']
+    report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':m.tolist(),
+            'sizingAuthority':'usable-length-uniform','usableLength':float(standard['usableLength']),'nativeGripOrigin':origin.tolist(),
+            'measuredFittedSections':sections,'midpointRelativeDifferences':{
+                'depth':mid['depth']/target['depth']-1,'visibleFaceWidth':mid['visibleFaceWidth']/target['visibleFaceWidth']-1},
+            'transverseScale':[1.,1.,1.],'proportionsAndAnglesPreserved':True,'bothBodyVisualReviewRequired':True}
+    report['measurementDigest']=digest(report);bind_departure(report,review)
+    return m,report
