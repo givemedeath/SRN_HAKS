@@ -76,7 +76,9 @@ def register(folder):
     """Every prop of every concept set in a folder, by type, so that a sheet's props are checked against the sheets before
     it. The sheets repeat themselves (most draw a camera, a fence, crates, a rooftop unit), so one prop of a type is its
     original and every other one says which it is: `same` (the named prop serves and nothing is made) or `variant` (a
-    design of its own, with what differs). A type shared without saying so is refused."""
+    design of its own, with what differs). A type shared without saying so is refused. A prop that carries its location's
+    branding (name, emblem, livery) is a variant even where the object is otherwise the same (user, 2026-11-11: "allow more
+    variants for branding"); its line starts `Branding:`, which marks the ones that share a shape."""
     props = {}
     for path in sorted(Path(folder).glob('*.json')):
         if 'sheet' in json.loads(path.read_text(encoding='utf-8')):  # game sets share the folder
