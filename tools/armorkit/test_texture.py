@@ -156,6 +156,76 @@ class FieldTests(unittest.TestCase):
         self.assertTrue(self.read(170, 0.25)[1][0])
 
 
+class ReliefTests(unittest.TestCase):
+    """A flat square of the simplified outfit, facing +z, u along +x and v along +y, under a tilted fine surface."""
+    POSITIONS = np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], float) * 0.2
+    NORMALS = np.tile([0.0, 0.0, 1.0], (4, 1))
+
+    @staticmethod
+    def reads(normal, missed=False):
+        value = texture.tensors(np.array([normal], float))
+        value[:, 3:] += 0.5
+        return lambda points: (np.repeat(value, len(points), axis=0), np.full(len(points), missed))
+
+    def bake(self, normal, **options):
+        posed = options.pop('posed', self.POSITIONS * 1.8)
+        return texture.normal_map(SQUARE, FACES, options.pop('positions', self.POSITIONS), self.NORMALS, posed, self.reads(normal, **options), 8)
+
+    def test_a_fine_surface_tilted_along_u_or_v_shows_in_red_or_green(self):
+        tilt = np.radians(30)
+        along_u, covered, missed = self.bake((np.sin(tilt), 0, np.cos(tilt)))
+        self.assertTrue(covered.all() and missed == 0)
+        self.assertTrue(np.allclose(along_u, [0.5 + 0.5 * np.sin(tilt), 0.5, 0.5 + 0.5 * np.cos(tilt)]))
+        along_v = self.bake((0, np.sin(tilt), np.cos(tilt)))[0]
+        self.assertTrue(np.allclose(along_v, [0.5, 0.5 + 0.5 * np.sin(tilt), 0.5 + 0.5 * np.cos(tilt)]))
+        self.assertTrue(np.allclose(self.bake((0, -np.sin(tilt), -np.cos(tilt)))[0], along_v))  # a face wound the other way reads the same
+
+    def test_a_reading_of_another_surface_and_a_texel_with_no_reading_stay_flat(self):
+        steep = np.radians(80)
+        self.assertTrue(np.allclose(self.bake((np.sin(steep), 0, np.cos(steep)))[0], texture.FLAT))
+        image, _, missed = self.bake((0.5, 0, 0.866), missed=True)
+        self.assertTrue(np.allclose(image, texture.FLAT) and missed == 64)
+
+    def test_a_face_the_split_made_stays_flat(self):
+        # the second face is a cap's: on the generated mesh its vertices repeat the rim's, so it has no area there
+        positions = self.POSITIONS.copy(); positions[3] = positions[0]
+        image = self.bake((0.5, 0, 0.866), positions=positions, posed=self.POSITIONS * 1.8)[0]
+        rows, columns = np.mgrid[0:8, 0:8]
+        self.assertTrue(np.allclose(image[columns < rows], texture.FLAT))  # the half the second face covers
+        self.assertTrue(np.allclose(image[columns > rows], [0.75, 0.5, 0.933], atol=1e-3))
+
+    def test_the_directions_of_a_high_detail_mesh_are_read_whatever_its_winding(self):
+        # a sheet of small triangles tilted 20 degrees about y, every other one wound backwards
+        tilt = np.radians(20); grid = np.linspace(-0.2, 0.2, 81)
+        x, y = (axis.reshape(-1) for axis in np.meshgrid(grid, grid, indexing='ij'))
+        vertices = np.stack([x * np.cos(tilt), y, -x * np.sin(tilt)], axis=1)
+        index = np.arange(81 * 81).reshape(81, 81)
+        a, b, c, d = index[:-1, :-1].reshape(-1), index[1:, :-1].reshape(-1), index[1:, 1:].reshape(-1), index[:-1, 1:].reshape(-1)
+        faces = np.concatenate([np.stack([a, b, c], axis=1), np.stack([a, d, c], axis=1)])  # the second set runs the other way round
+        field, levels = texture.normal_field(vertices, faces, side=256)
+        points = np.array([[0.05 * np.cos(tilt), 0.03, -0.05 * np.sin(tilt)], [-0.1 * np.cos(tilt), -0.07, 0.1 * np.sin(tilt) + 2 / 256]])
+        values, missed = texture.read_field(field, levels, points)
+        self.assertFalse(missed.any())
+        fine = texture.fine_normals(values, np.tile([0.0, 0.0, 1.0], (2, 1)))
+        self.assertTrue(np.allclose(fine, [np.sin(tilt), 0, np.cos(tilt)], atol=1e-3))
+        self.assertTrue(np.allclose(texture.fine_normals(values, np.tile([0.0, 0.0, -1.0], (2, 1))), [-np.sin(tilt), 0, -np.cos(tilt)], atol=1e-3))
+
+    def test_a_normal_map_is_written_bottom_row_first_with_the_material_that_binds_it(self):
+        image = np.zeros((2, 4, 3)); image[0, 0] = (1.0, 0.5, 0.0)
+        blob = texture.tga(image)
+        self.assertEqual(len(blob), 18 + 2 * 4 * 3)
+        self.assertEqual((blob[2], int.from_bytes(blob[12:14], 'little'), int.from_bytes(blob[14:16], 'little'), blob[16], blob[17]), (2, 4, 2, 24, 0))
+        self.assertEqual(list(blob[18:21]), [0, 128, 255])  # the row at v = 0 comes first, stored blue, green, red
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertEqual(texture.write_relief(folder, 'pmh0_bicepl6030', image), 'pmh0_bicepl6030n')
+            self.assertEqual((Path(folder) / 'pmh0_bicepl6030n.tga').read_bytes(), blob)
+            material = (Path(folder) / 'pmh0_bicepl6030.mtr').read_text().splitlines()
+            self.assertEqual(material[:2], ['renderhint NormalTangents', 'texture1 pmh0_bicepl6030n'])
+            self.assertFalse(any(line.startswith('texture0') for line in material))  # the tint texture stays the colour
+            with self.assertRaises(ValueError):
+                texture.write_relief(folder, 'pmh0_bicepl60300', image)  # 17 characters with the n
+
+
 class FakeAtlas:
     """Stands in for the unwrapping library: every face becomes a chart of its own."""
     atlas_count = 1

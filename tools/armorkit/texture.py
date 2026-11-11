@@ -6,15 +6,19 @@ of a re-posed, cut part still knows where it was on the mesh the colours were ge
 is read there. The colours are then sorted into materials over the whole outfit, so that a material is the same
 tint channel on every part, and the shade follows the lightness.
 
+A part's normal map is baked the same way from the generator's own high-detail mesh, whose relief the simplified
+outfit lost: edges, seams and folds come back as light and shade (`normal_map`).
+
 Texture rows run down from v = 0, as the game reads a tint texture (spike record, section 21): texel (row, column)
 has its centre at u = (column + 0.5) / size, v = (row + 0.5) / size.
 """
 from itertools import product
+from pathlib import Path
 
 import numpy as np
 
 from tools.headkit.colour import lab
-from tools.headkit.field import load_generated_field
+from tools.headkit.field import GeneratedField, load_generated_field
 
 from . import export
 from .registry import require
@@ -236,3 +240,118 @@ def read_field(field, levels, points):
         values[index[found]] = value[found]
         missed[index[found]] = False
     return np.clip(values, 0.0, 1.0), missed
+
+
+# --- Relief: a normal map per part, from the generator's own high-detail mesh ---
+
+TURN = 75.0  # degrees the fine surface may turn from the simplified one; past that the reading is of another surface nearby
+MADE = 0.2  # a face this much smaller on the generated mesh than its part's faces are on average was made by the split
+FLAT = (0.5, 0.5, 1.0)  # the colour of a texel with no relief
+MATERIAL = 'renderhint NormalTangents\ntexture1 {}\nparameter float Roughness {:g}\nparameter float Specularity 0.04\nparameter float Metallicness 0.001\n'
+
+
+def tensors(normals):
+    """Six channels per normal (xx, yy, zz, xy, xz, yz of n n^T), which do not change when a normal is turned round."""
+    n = np.asarray(normals, float)
+    return np.stack([n[:, 0] * n[:, 0], n[:, 1] * n[:, 1], n[:, 2] * n[:, 2], n[:, 0] * n[:, 1], n[:, 0] * n[:, 2], n[:, 1] * n[:, 2]], axis=1)
+
+
+def normal_field(vertices, faces, side=1536):
+    """(field, levels) for `read_field`: the directions of a high-detail mesh's surface, per voxel of its frame.
+
+    The generator's own mesh has millions of faces and no consistent winding, so its normals cannot simply be
+    added up. Each voxel holds the area-weighted sum of its faces' `tensors`, scaled to trace 1 and with the
+    last three channels shifted by a half, so that all six lie in 0-1 as a colour field's do. `side` is the
+    number of voxels along the frame's unit cube."""
+    vertices, faces = np.asarray(vertices, np.float32), np.asarray(faces, int)
+    require(len(faces), 'The high-detail mesh has no faces')
+    a, b, c = (vertices[faces[:, i]] for i in range(3))
+    normal = np.cross(b - a, c - a)
+    twice = np.maximum(np.linalg.norm(normal, axis=1), 1e-30)  # twice the face's area
+    cell = np.clip(np.floor(((a + b + c) / 3 + 0.5) * side).astype(np.int64), 0, side - 1)
+    key = (cell[:, 0] * side + cell[:, 1]) * side + cell[:, 2]
+    order = np.argsort(key, kind='stable')
+    found, start = np.unique(key[order], return_index=True)
+    total = np.add.reduceat((tensors(normal) / twice[:, None])[order], start, axis=0)
+    total /= np.maximum(total[:, :3].sum(axis=1, keepdims=True), 1e-30)
+    total[:, 3:] += 0.5
+    coords = np.stack([found // (side * side), found // side % side, found % side], axis=1)
+    field = GeneratedField(coords, np.clip(total, 0.0, 1.0).astype(np.float32), int(side))
+    field.nearest = lambda query: np.zeros(len(query), np.int64)  # placeholders, as in open_field
+    return field, [(block, reach, blocks(field, block)) for block, reach in BLOCKS]
+
+
+def fine_normals(values, low, turn=TURN):
+    """Unit normals of the fine surface from values read off a `normal_field`, on the side `low` faces.
+
+    The direction is the one the tensor is largest along. Where it turns more than `turn` degrees from `low`,
+    the simplified surface's own normal, `low` is kept: the reading belongs to some other surface close by."""
+    value, low = np.array(values, float), np.asarray(low, float)
+    value[:, 3:6] -= 0.5
+    matrix = np.stack([value[:, [0, 3, 4]], value[:, [3, 1, 5]], value[:, [4, 5, 2]]], axis=1)
+    fine = np.linalg.eigh(matrix)[1][:, :, 2]
+    along = (fine * low).sum(axis=1)
+    fine = fine * np.where(along < 0, -1.0, 1.0)[:, None]
+    return np.where((np.abs(along) > np.cos(np.radians(turn)))[:, None], fine, low)
+
+
+def normal_map(uvs, faces, positions, normals, posed, read, size, pad=PAD + 2):
+    """(image, covered, missed): a part's normal map, (size, size, 3) in 0-1, rows running down from v = 0.
+
+    `positions` and `normals` are the part's vertices and unit normals on the generated mesh, `posed` its
+    vertices as the part is worn; `read(points)` returns (values, missed) off a `normal_field`. A texel holds
+    the fine surface's normal in the simplified surface's own frame there: red along u, green along v, blue
+    outward. That frame is taken on the generated mesh, where the fine surface is, and holds on the worn
+    part, which was bent and widened but not sheared much. A cap or a closing was made by the split and has no
+    surface of its own on the generated mesh (its vertices repeat its rim's): it stays flat, as does a texel
+    nothing was read for."""
+    uvs, faces = np.asarray(uvs, float), np.asarray(faces, int)
+    positions, normals, posed = (np.asarray(rows, float) for rows in (positions, normals, posed))
+    owner, weight = raster(uvs, faces, size)
+    covered = owner >= 0
+    corner, w = faces[owner[covered]], weight[covered][:, :, None]
+    low = (w * normals[corner]).sum(axis=1)
+    low /= np.maximum(np.linalg.norm(low, axis=1, keepdims=True), 1e-12)
+    values, missed = read((w * positions[corner]).sum(axis=1))
+    p, t, q = positions[faces], uvs[faces], posed[faces]
+    area = lambda corners: np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1)
+    made = area(p) < MADE * area(q) * (area(p).sum() / max(area(q).sum(), 1e-30))
+    fine = np.where((np.asarray(missed, bool) | made[owner[covered]])[:, None], low, fine_normals(values, low))
+    e1, e2, d1, d2 = p[:, 1] - p[:, 0], p[:, 2] - p[:, 0], t[:, 1] - t[:, 0], t[:, 2] - t[:, 0]
+    det = d1[:, 0] * d2[:, 1] - d2[:, 0] * d1[:, 1]
+    det = np.where(np.abs(det) < 1e-20, 1e-20, det)[:, None]
+    along_u = ((e1 * d2[:, 1:] - e2 * d1[:, 1:]) / det)[owner[covered]]
+    along_v = ((e2 * d1[:, :1] - e1 * d2[:, :1]) / det)[owner[covered]]
+    tangent = along_u - low * (low * along_u).sum(axis=1, keepdims=True)
+    length = np.linalg.norm(tangent, axis=1, keepdims=True)
+    tangent = tangent / np.maximum(length, 1e-12)
+    other = np.cross(low, tangent)
+    other *= np.where((other * along_v).sum(axis=1) < 0, -1.0, 1.0)[:, None]
+    inside = np.stack([(fine * tangent).sum(axis=1), (fine * other).sum(axis=1), (fine * low).sum(axis=1)], axis=1)
+    inside = np.where(length > 1e-9, inside, (0.0, 0.0, 1.0))  # no direction along u: nothing to tilt against
+    image = np.empty((size, size, 3))
+    image[:] = FLAT
+    image[covered] = inside * 0.5 + 0.5
+    return spread(covered, image, passes=pad)[1], covered, int(np.count_nonzero(missed))
+
+
+def tga(image):
+    """The bytes of an uncompressed 24-bit TGA from 0-1 RGB rows that run from v = 0: its first stored row is
+    the picture's bottom row, which is where the game puts v = 0."""
+    pixels = (np.clip(np.asarray(image, float), 0.0, 1.0) * 255 + 0.5).astype(np.uint8)
+    require(pixels.ndim == 3 and pixels.shape[2] == 3 and pixels.size, 'An image is rows of RGB pixels')
+    height, width = pixels.shape[:2]
+    return bytes([0, 0, 2]) + bytes(9) + width.to_bytes(2, 'little') + height.to_bytes(2, 'little') + bytes([24, 0]) + pixels[:, :, ::-1].tobytes()
+
+
+def write_relief(folder, model, image, roughness=0.8):
+    """Write a part's normal map as `<model>n.tga` and the material file `<model>.mtr` that binds it; returns the map's name.
+
+    The material file is named like the model's texture, so the game applies it to that part, and leaves out
+    `texture0`, so the tint texture stays the part's colour (docs/phenotype-body-material-process.md)."""
+    name = model + 'n'
+    require(len(name) <= 16 and name == name.lower(), 'A normal map name is a lowercase resref: ' + name)
+    folder = Path(folder)
+    (folder / (name + '.tga')).write_bytes(tga(image))
+    (folder / (model + '.mtr')).write_text(MATERIAL.format(name, roughness), encoding='ascii', newline='\n')
+    return name
