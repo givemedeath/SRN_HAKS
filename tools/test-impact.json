@@ -122,6 +122,10 @@
       "tools/headkit/comfy.py"
     ],
     "tools/envkit/convert.py": [],
+    "tools/envkit/local.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py"
+    ],
     "tools/envkit/meshy.py": [],
     "tools/envkit/preview_blender.py": [],
     "tools/envkit/prop_fixture.py": [
@@ -137,6 +141,9 @@
     "tools/envkit/test_convert.py": [
       "tools/envkit/convert.py",
       "tools/envkit/prop_fixture.py"
+    ],
+    "tools/envkit/test_local.py": [
+      "tools/envkit/local.py"
     ],
     "tools/envkit/test_meshy.py": [
       "tools/envkit/meshy.py"
@@ -4986,6 +4993,7 @@
     "tools/armorkit/test_tables.py",
     "tools/armorkit/test_toolchain.py",
     "tools/envkit/test_convert.py",
+    "tools/envkit/test_local.py",
     "tools/envkit/test_meshy.py",
     "tools/envkit/test_reference.py",
     "tools/headbatch/test_fitassembly.py",

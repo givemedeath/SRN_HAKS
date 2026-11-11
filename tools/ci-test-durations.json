@@ -11,6 +11,7 @@
   "tools/armorkit/test_tables.py": 0.134,
   "tools/armorkit/test_toolchain.py": 0.28,
   "tools/envkit/test_convert.py": 0.18,
+  "tools/envkit/test_local.py": 0.13,
   "tools/envkit/test_meshy.py": 0.2,
   "tools/envkit/test_reference.py": 0.41,
   "tools/headbatch/test_fitassembly.py": 0.008,
