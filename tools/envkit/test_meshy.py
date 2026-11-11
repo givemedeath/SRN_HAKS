@@ -94,12 +94,18 @@ class MeshyTests(unittest.TestCase):
         meshy.wait(self.ledger, 'gen', self.root / 'work', run=run)
         with self.assertRaisesRegex(ValueError, 'remesh gen first'):
             meshy.download(self.ledger, 'gen', self.root / 'work', self.root / 'bank-gen', run=run)
-        run.credits = 5
+        run.triangle_counts = (1873900,)  # as a master it comes down whole, with no ceiling, and is marked as one
+        self.assertEqual(list(meshy.download(self.ledger, 'gen', self.root / 'work', self.root / 'master-gen', master=True, run=run).values()),
+                         [1873900])
+        self.assertTrue(self.ledger.entry('gen')['master'])
+        run.triangle_counts = (60000, 31000); run.credits = 5
         meshy.submit(self.ledger, 'rm', 'shack', 'remesh', meshy.remesh_arguments(task, 100000), self.root / 'work', run=run)
         meshy.wait(self.ledger, 'rm', self.root / 'work', run=run)
         counts = meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm', run=run)
         self.assertEqual(list(counts.values()), [91000])
         self.assertEqual(self.ledger.committed(), 35)
+        with self.assertRaisesRegex(ValueError, 'already a reduced model'):
+            meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'master-rm', master=True, run=run)
 
     def test_a_model_over_the_ceiling_is_reported_not_accepted(self):
         run = FakeMeshy(triangle_counts=(103196,))

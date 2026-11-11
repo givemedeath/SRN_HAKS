@@ -45,8 +45,8 @@ def command_meshy(args):
         print(json.dumps({'key': args.key, 'task': meshy.submit(ledger, args.key, args.asset, args.action, arguments, args.work)}))
     elif args.action == 'wait':
         print(json.dumps(meshy.wait(ledger, args.key, args.work)))
-    elif args.action == 'download':
-        print(json.dumps(meshy.download(ledger, args.key, args.work, args.bank)))
+    elif args.action in ('download', 'master'):
+        print(json.dumps(meshy.download(ledger, args.key, args.work, args.bank, master=args.action == 'master')))
     rows = [{k: row.get(k) for k in ('key', 'asset', 'operation', 'state', 'estimate', 'credits', 'taskId')} for row in ledger.data['entries']]
     print(json.dumps({'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
 
@@ -55,7 +55,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog='envkit')
     commands = parser.add_subparsers(dest='command', required=True)
     sub = commands.add_parser('meshy', help='paid Meshy calls under the ledger cap')
-    sub.add_argument('action', choices=['init', 'status', 'prop', 'building', 'remesh', 'wait', 'download'])
+    sub.add_argument('action', choices=['init', 'status', 'prop', 'building', 'remesh', 'wait', 'download', 'master'])
     sub.add_argument('--ledger', required=True)
     sub.add_argument('--cap', type=int)
     sub.add_argument('--key', help='ledger key of this call')

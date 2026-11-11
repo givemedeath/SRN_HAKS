@@ -2,8 +2,9 @@
 
 Two routes. A prop is generated in smart-topology mode, which builds low-poly parts to a triangle target. A building is
 generated in full detail from up to four views and then remeshed inside Meshy to a target. Only a model whose triangle
-count was bounded that way is downloaded: the full-detail result of a generation runs to millions of triangles and stays
-on Meshy (user rule, 2026-11-10: nothing over 100k leaves Meshy unless it has to).
+count was bounded that way becomes a working model (user rule, 2026-11-10: lean on Meshy's remesh, nothing over 100k
+into the pipeline unless it has to). The full-detail result, which runs to millions of triangles, can be fetched only
+as a master: a spare kept apart from the working model.
 
 Every paid call is reserved in the ledger before it is sent, so a crash between sending and recording leaves the credits
 counted, not lost track of."""
@@ -172,10 +173,17 @@ def triangles(glb):
     return total
 
 
-def download(ledger, key, folder, bank, *, run=run_cli):
-    """Fetch a finished model. Only bounded operations qualify, and a model over the ceiling is kept out of the bank."""
+def download(ledger, key, folder, bank, *, master=False, run=run_cli):
+    """Fetch a finished model. A working model comes from a bounded operation and must be at or under the ceiling.
+
+    `master` fetches a full-detail generation instead, as a spare kept beside the working model while the kit is still
+    learning how the reduced models hold up (user, 2026-11-10). A master has no ceiling and is never the game model."""
     row = ledger.entry(key)
-    require(row['operation'] in BOUNDED, 'Only a remeshed or smart-topology model is downloaded; remesh ' + key + ' first')
+    if master:
+        require(row['operation'] not in BOUNDED, key + ' is already a reduced model; download it without master')
+    else:
+        require(row['operation'] in BOUNDED, 'Only a remeshed or smart-topology model is a working model; remesh ' + key
+                + ' first, or fetch it as a master')
     require(row['state'] == 'succeeded' and row.get('task'), 'Successful task required: ' + key)
     bank = Path(bank)
     require(not bank.exists(), 'Fresh download folder required: ' + str(bank))
@@ -183,6 +191,6 @@ def download(ledger, key, folder, bank, *, run=run_cli):
     models = sorted(bank.rglob('*.glb')) if bank.exists() else []
     require(code == 0 and models, 'Download incomplete: ' + key)
     counts = {str(path): triangles(path) for path in models}
-    ledger.update(key, downloaded=str(bank), triangles=counts)
-    require(max(counts.values()) <= MAX_TRIANGLES, f'Model exceeds {MAX_TRIANGLES} triangles: {counts}')
+    ledger.update(key, downloaded=str(bank), triangles=counts, master=bool(master))
+    require(master or max(counts.values()) <= MAX_TRIANGLES, f'Model exceeds {MAX_TRIANGLES} triangles: {counts}')
     return counts
