@@ -275,6 +275,27 @@ made from the same model at other sizes, three tiles by three and a single tile,
 walkers from the far corners of the area reached their spots beside them, and in the Toolset the larger was
 listed under Groups and laid its nine tiles in order, the single one under Features, with no other tile changed.
 
+Later the same day the rest of what a group carries was checked at those two sizes, on throwaway groups built
+with lit parts, a halo, a hidden top, main lights and a door, in no pack. In the client at night both were lit
+with their halos, and with the player free their tops hid under the black lid. On the single tile the sign's
+glow stayed in the air over the hidden top: one halo card held the sign and the windows under it, and a card
+went or stayed whole. A halo card whose body the hiding height crosses is now cut there (one it crosses only
+near its top or bottom stays whole, as before). That rule changes one card of the shack: the east-wall card of
+`ek_ss_shack_t01`, from 0.40 to 4.80 metres, is cut at 3.0 metres, so the east sign's glow now hides with the
+sign while the east window's stays, as seen in the client; the other three tiles were rebuilt byte for byte the
+same. In the Toolset, in Modern Exterior, painting each of the two groups made one door of type 58 at its hook,
+as the saved area records.
+
+A third throwaway group, two tiles with a walled yard whose only way in is a gap 2.5 metres wide off the middle
+of the side the tiles share, showed the path nodes still wrong for such ground. A side had been counted an exit
+only where it was open at its middle; walkers sent into the yard stopped at its walls, one from the far corner
+of the area and one from 7.5 metres away in the next tile. With that side stated as an exit all four walkers
+reached their spots, so the game finds an opening wherever it is along a side. A side is now an exit where a
+metre of it is open anywhere. The shack's four tiles are therefore all `A` in both set files (each tile's strip
+of pavement reaches all four of its sides), and nothing else of the shack changed. Checked in the client after
+the change: the three far walkers reached their spots at the shack in Modern Exterior and in Suburbs, six
+reached theirs beside the three-by-three and the single tile, and four theirs in and beside the yard.
+
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
 Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a

@@ -165,35 +165,35 @@ class TileTests(unittest.TestCase):
         return {(row, column): tuple(tile.path_node(found, row, column).values()) for row in range(rows) for column in range(columns)}
 
     def test_each_tile_of_a_group_leaves_by_the_sides_its_ground_reaches(self):
-        # A building across the middle of four tiles: each tile is walked round its outer corner. H leaves west and south; a turn is counter-clockwise.
+        # A building across the middle of four tiles leaves each a strip round its outer corner, which reaches all four of the tile's sides:
+        # the two outer ones whole, the two shared ones at their outer ends. An opening need not be at a side's middle.
         wide = scene(box((-6, -5.3, 0), (6.1, 5.4, 0.2)), box((-5.6, -5.1, 0.2), (5.7, 5.2, 3)))
-        self.assertEqual(self.nodes(wide), {(0, 0): ('H', 0, 'WS', 0), (0, 1): ('H', 90, 'SE', 0), (1, 1): ('H', 180, 'NE', 0), (1, 0): ('H', 270, 'NW', 0)})
-        # One tile with the shop in its middle and ground all round it: every side, all joined.
-        self.assertEqual(self.nodes(SHOP), {(0, 0): ('A', 0, 'NWSE', 0)})
-        # A row of three with a long shed through them: the ends are walked round, the middle is crossed by nobody, its two sides apart.
+        self.assertEqual(set(self.nodes(wide).values()), {('A', 0, 'NWSE', 0)})
+        self.assertEqual(self.nodes(SHOP), {(0, 0): ('A', 0, 'NWSE', 0)})  # one tile with the shop in its middle and ground all round it
+        # A row of three with a long shed through them. The middle tile's ground is two strips that do not join, and its west and east sides
+        # open onto both: no letter says that, so each side goes with one strip (the first found of two as near its middle) and the north is left alone.
         shed = scene(box((-13, -3.5, 0), (13, 3.5, 0.2)), box((-12, -2.5, 0.2), (12, 2.5, 3)))
-        self.assertEqual(self.nodes(shed), {(0, 0): ('I', 0, 'NWS', 0), (0, 1): ('Y', 0, 'NS', 0), (0, 2): ('I', 180, 'NSE', 0)})
-        # Three by three under one block: the middle tile is closed whole, a tile at the middle of a side is left only outwards, a corner tile by its two outer sides.
+        self.assertEqual(self.nodes(shed), {(0, 0): ('A', 0, 'NWSE', 0), (0, 1): ('U', 270, 'NWSE', 0), (0, 2): ('A', 0, 'NWSE', 0)})
+        # Three by three under one block: the middle tile is closed whole, a tile at the middle of a side is left by all but its inner side
+        # (I leaves north, west and south; a turn is counter-clockwise), a corner tile by all four.
         block = scene(box((-13, -13, 0), (13, 13, 0.2)), box((-11, -11, 0.2), (11, 11, 3)))
         found = self.nodes(block)
-        self.assertEqual((found[(1, 1)], found[(0, 1)], found[(1, 0)], found[(2, 1)], found[(1, 2)]),
-                         (('T', 0, '', 0), ('N', 180, 'S', 0), ('N', 90, 'W', 0), ('N', 0, 'N', 0), ('N', 270, 'E', 0)))
-        self.assertEqual((found[(0, 0)], found[(0, 2)], found[(2, 2)], found[(2, 0)]), (('H', 0, 'WS', 0), ('H', 90, 'SE', 0), ('H', 180, 'NE', 0), ('H', 270, 'NW', 0)))
+        self.assertEqual((found[(1, 1)], found[(1, 0)], found[(0, 1)], found[(1, 2)], found[(2, 1)]),
+                         (('T', 0, '', 0), ('I', 0, 'NWS', 0), ('I', 90, 'WSE', 0), ('I', 180, 'NSE', 0), ('I', 270, 'NWE', 0)))
+        self.assertEqual({found[spot] for spot in ((0, 0), (0, 2), (2, 2), (2, 0))}, {('A', 0, 'NWSE', 0)})
 
-    def test_ground_no_exit_reaches_is_counted_and_a_side_shut_at_its_middle_is_no_exit(self):
-        # Two tiles side by side. A yard walled on three sides stands in the west one; its fourth wall, just inside the east tile,
-        # shuts the middle of the side the tiles share and leaves the yard a way out north of it, into the east tile only.
-        yard = scene(box((-4.0, -3.0, 0), (-3.6, 4.4, 3)), box((-4.0, -3.0, 0), (0.4, -2.6, 3)), box((-4.0, 4.0, 0), (0.4, 4.4, 3)), box((0.0, -3.0, 0), (0.4, 1.5, 3)))
-        found = tile.survey(*yard, 1, 2, np.array([-10.0, -5.0]))
-        west, east = tile.path_node(found, 0, 0), tile.path_node(found, 0, 1)
-        self.assertEqual((west['node'], west['turn'], west['exits']), ('I', 0, 'NWS'))  # round the yard, not into it and not east
-        self.assertGreater(west['offPath'], 300)  # the yard's own ground, some 3.6 by 6.6 metres of quarter-metre cells
-        self.assertEqual((east['node'], east['turn'], east['exits'], east['offPath']), ('I', 180, 'NSE', 0))
-        # Without the fourth wall the yard opens on the middle of the shared side: the west tile then has two grounds, each with its exits.
-        open_yard = scene(box((-4.0, -3.0, 0), (-3.6, 4.4, 3)), box((-4.0, -3.0, 0), (0.4, -2.6, 3)), box((-4.0, 4.0, 0), (0.4, 4.4, 3)))
-        found = tile.survey(*open_yard, 1, 2, np.array([-10.0, -5.0])); west = tile.path_node(found, 0, 0)
-        self.assertEqual((west['node'], west['turn'], west['exits'], west['offPath']), ('U', 180, 'NWSE', 0))  # U: one side alone, the other three joined
-        self.assertEqual(tile.path_node(found, 0, 1)['node'], 'A')
+    def test_a_side_is_an_exit_wherever_a_metre_of_it_is_open_and_ground_no_exit_reaches_is_counted(self):
+        # Two tiles side by side. A yard walled on three sides stands in the west one; its fourth wall, just inside the east tile, shuts the
+        # middle of the side the tiles share and leaves the yard a way out 2.5 metres wide north of it. That is the west tile's east exit:
+        # the yard's ground leaves by it alone, the ground round the yard by the other three (U: one side alone, the other three joined).
+        walls = [box((-4.0, -3.0, 0), (-3.6, 4.4, 3)), box((-4.0, -3.0, 0), (0.4, -2.6, 3)), box((-4.0, 4.0, 0), (0.4, 4.4, 3))]
+        nodes = lambda *fourth: [tuple(tile.path_node(found, 0, column).values()) for found in [tile.survey(*scene(*walls, *fourth), 1, 2, np.array([-10.0, -5.0]))] for column in (0, 1)]
+        self.assertEqual(nodes(box((0.0, -3.0, 0), (0.4, 1.5, 3))), [('U', 180, 'NWSE', 0), ('A', 0, 'NWSE', 0)])
+        self.assertEqual(nodes(), [('U', 180, 'NWSE', 0), ('A', 0, 'NWSE', 0)])  # the same with no fourth wall
+        # A gap of three quarters of a metre is no exit. The side is still left by, south of the yard, but the yard's own ground is reached
+        # by no exit: some 3.6 by 6.6 metres of quarter-metre cells.
+        west, east = nodes(box((0.0, -3.0, 0), (0.4, 3.25, 3)))
+        self.assertEqual((west[:3], east), (('A', 0, 'NWSE'), ('A', 0, 'NWSE', 0))); self.assertGreater(west[3], 300)
 
     def test_the_set_file_states_each_tiles_node_and_a_group_built_before_nodes_is_refused(self):
         made = {'rows': 1, 'columns': 2, 'tiles': [{'model': 'ek_test_t00', 'row': 0, 'column': 0, 'path': {'node': 'I', 'turn': 0}},
@@ -236,18 +236,26 @@ class TileTests(unittest.TestCase):
         low = (np.array([[0.0, 0, 0], [1, 0, 0], [0, 0, 1]]), np.tile([0, 1.0, 0], (3, 1)), np.zeros((3, 2)), np.array([[0, 1, 2]]), False)
         top = (low[0] + [0, 0, 3], low[1], low[2], low[3], True)
         sheet = lambda bottom: [((1.0, 0.5, bottom), (0.0, 1.0)), ((-1.0, 0.5, bottom), (1.0, 1.0)), ((-1.0, 0.5, bottom + 1), (1.0, 0.0)), ((1.0, 0.5, bottom + 1), (0.0, 0.0))]
-        text = tile.model_text('ek_test_t00', [low, top], 'ek_test', 'pavement', [sheet(1.0), sheet(3.0)], walk, lights=[(1.0, 2.0, 4.0), (0.0, 0.0, 7.1)], fade=2.5,
+        text = tile.model_text('ek_test_t00', [low, top], 'ek_test', 'pavement', [sheet(1.0), sheet(2.0), sheet(3.0)], walk, lights=[(1.0, 2.0, 4.0), (0.0, 0.0, 7.1)], fade=2.5,
                                cap=[(-1.0, -1.0, 1.0, 1.0)])
         geometry, _, animations = text.partition('endmodelgeom')
         nodes = {block.split('\n', 1)[0]: block for block in geometry.split('node ')[1:]}
         self.assertIn('  tilefade 0', nodes['trimesh ek_test_t00_m0']); self.assertIn('  tilefade 1', nodes['trimesh ek_test_t00_m1'])
-        self.assertIn('  tilefade 0', nodes['trimesh ek_test_t00_halo0']); self.assertIn('  tilefade 1', nodes['trimesh ek_test_t00_halo1'])  # the sign's light goes with the sign
+        self.assertIn('  tilefade 0', nodes['trimesh ek_test_t00_halo0']); self.assertIn('  tilefade 1', nodes['trimesh ek_test_t00_halo3'])  # the sign's light goes with the sign
+        # The sheet from 2 to 3 metres crosses the fade height: it is cut there, the lower half staying and the upper going, each with its half of the picture.
+        under, over = nodes['trimesh ek_test_t00_halo1'], nodes['trimesh ek_test_t00_halo2']
+        self.assertIn('  tilefade 0', under); self.assertIn('    -1.00000 0.50000 2.50000', under); self.assertNotIn('3.00000', under); self.assertIn('    1.00000 0.50000 0', under)
+        self.assertIn('  tilefade 1', over); self.assertIn('    1.00000 0.50000 2.50000', over); self.assertNotIn(' 2.00000', over); self.assertIn('    0.00000 0.50000 0', over)
+        whole = tile.model_text('ek_test_t00', [low], 'ek_test', 'pavement', [sheet(2.0)], walk)  # with nothing to hide, nothing is cut
+        # A height that only crosses a card's rim leaves it whole, with its middle: the glow under a sign goes with the sign, the glow over a window stays.
+        self.assertEqual(tile._level_cut(sheet(2.3), 2.5), [(sheet(2.3), True)]); self.assertEqual(tile._level_cut(sheet(1.7), 2.5), [(sheet(1.7), False)])
+        self.assertEqual(whole.count('node trimesh ek_test_t00_halo'), 1 + 4)  # the one card, and its line in each of the four animations
         lid = nodes['trimesh ek_test_t00_cap']  # drawn only while the top is hidden
         self.assertIn('  tilefade 2', lid); self.assertIn('  bitmap ek_black', lid); self.assertIn('    -1.00000 -1.00000 2.50000', lid); self.assertIn('  faces 2', lid)
         self.assertIn('  position 1.00000 2.00000 4.00000', nodes['light ek_test_t00ml1']); self.assertIn('  radius 14', nodes['light ek_test_t00ml2'])
         self.assertEqual([line.split()[1] for line in animations.splitlines() if line.startswith('newanim')], ['day', 'day2night', 'night', 'night2day'])
         day, night = animations.split('newanim night ')[0].split('newanim day2night')[0], animations.split('newanim night ')[1].split('doneanim')[0]
-        self.assertEqual(day.count('      0.00000 0\n'), 2); self.assertEqual(night.count('      0.00000 1\n'), 2)  # both halos: clear by day, full by night
+        self.assertEqual(day.count('      0.00000 0\n'), 4); self.assertEqual(night.count('      0.00000 1\n'), 4)  # every halo: clear by day, full by night
         plain = tile.model_text('ek_test_t00', [low[:4]], 'ek_test', 'pavement', [], walk)
         self.assertNotIn('newanim', plain); self.assertNotIn('node light', plain); self.assertNotIn('_cap', plain)
 

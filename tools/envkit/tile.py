@@ -48,14 +48,14 @@ FINE = 2  # samples across a walk cell
 RAMP = 2  # cells from the slab's edge to its full height: the half metre a character steps up over
 STONE, OBSCURING, NONWALK = 4, 2, 7  # rows of surfacemat.2da
 KNEE, EYE, HEAD, STEP = 0.45, 1.4, 2.2, 0.05
-# The engine's path nodes whose exits are the middles of a tile's sides, each as the sides its regions join at no turn
+# The engine's path nodes whose exits are a tile's four sides, each as the sides its regions join at no turn
 # (N, W, S, E; +y is north). A turn is counter-clockwise, in quarters. From the engine's table as nwn.wiki's page on
 # tile path nodes gives it, checked against the walkmeshes of the 1,091 stock tiles of Modern Exterior and Suburbs on
 # 2026-11-11: with turns counter-clockwise 93 of the 96 exits of their H tiles lie on walkable ground, clockwise 37.
 # The first that fits is taken, so the letters the stock tiles use most come first.
 PATH_NODES = {'A': ('NWSE',), 'I': ('NWS',), 'H': ('WS',), 'L': ('NS',), 'N': ('N',), 'T': (), 'J': ('WS', 'EN'), 'U': ('W', 'SNE'),
               'X': ('N', 'W'), 'Y': ('N', 'S'), 'V': ('N', 'SE'), 'W': ('N', 'SW'), 'w': ('N', 'W', 'E', 'S')}
-EXIT = 2  # cells either side of the middle of a tile's side that must be open for the side to be an exit: a metre in all
+EXIT = 4  # cells of a tile's side that must lie open together for the side to be an exit: a metre
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
              'BottomRightHeight', 'Top', 'Right', 'Bottom', 'Left', 'MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1',
              'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds', 'PathNode', 'Orientation', 'VisibilityNode', 'VisibilityOrientation', 'ImageMap2D')
@@ -266,22 +266,30 @@ def light_places(found, row, column):
 def path_node(found, row, column):
     """One tile's path node: {node, turn, exits, offPath}.
 
-    A side is an exit where the ground is open for a metre about its middle, on this tile and on the one beyond (ground
-    is taken to lie beyond the group's own edge). The node chosen has no exit that is not one and joins no two that
-    the tile's ground does not join; of those it is the one with the most exits, then the most of them joined. So what
-    it gets wrong, where no letter fits, is a way left unsaid, never a way through a wall.
+    A side is an exit where the ground is open for a metre anywhere along it, on this tile and on the one beyond
+    (ground is taken to lie beyond the group's own edge): the game finds its own way to the opening, which need not be
+    at the side's middle (a yard entered only by a gap 2.75 metres off the middle of a side was not walked into, from far
+    or from the next tile, until that side was called an exit: client, 2026-11-11). Where a side opens onto two grounds
+    of the tile that do not join, the opening nearest its middle counts. The node chosen has no exit that is not one
+    and joins no two that the tile's ground does not join; of those it is the one with the most exits, then the most of
+    them joined. So what it gets wrong, where no letter fits, is a way left unsaid, never a way through a wall.
     exits: the sides the node leaves by, of N, W, S, E. offPath: the walk cells of the tile that no exit reaches: ground
-    a long walk will not be planned onto, though a short one can be."""
-    material = found['material']; rows, columns = material.shape; r0, c0 = row * CELLS, column * CELLS; middle = slice(CELLS // 2 - EXIT, CELLS // 2 + EXIT)
-    walk = material[r0:r0 + CELLS, c0:c0 + CELLS] == STONE; masses, _ = _masses(walk)
-    inside = {'N': (CELLS - 1, middle), 'S': (0, middle), 'W': (middle, 0), 'E': (middle, CELLS - 1)}
-    beyond = {'N': (r0 + CELLS, slice(c0 + middle.start, c0 + middle.stop)), 'S': (r0 - 1, slice(c0 + middle.start, c0 + middle.stop)),
-              'W': (slice(r0 + middle.start, r0 + middle.stop), c0 - 1), 'E': (slice(r0 + middle.start, r0 + middle.stop), c0 + CELLS)}
-
-    def open_beyond(side):
+    a walk from another tile will not be planned onto."""
+    material = found['material']; rows, columns = material.shape; r0, c0 = row * CELLS, column * CELLS
+    walk = material[r0:r0 + CELLS, c0:c0 + CELLS] == STONE; masses, _ = _masses(walk); along = slice(None)
+    inside = {'N': (CELLS - 1, along), 'S': (0, along), 'W': (along, 0), 'E': (along, CELLS - 1)}
+    beyond = {'N': (r0 + CELLS, slice(c0, c0 + CELLS)), 'S': (r0 - 1, slice(c0, c0 + CELLS)), 'W': (slice(r0, r0 + CELLS), c0 - 1), 'E': (slice(r0, r0 + CELLS), c0 + CELLS)}
+    region = {}
+    for side in 'NWSE':
         at = beyond[side]; line, limit = (at[0], rows) if side in 'NS' else (at[1], columns)
-        return not 0 <= line < limit or bool((material[at] == STONE).all())
-    region = {side: int(masses[inside[side]][0]) for side in 'NWSE' if walk[inside[side]].all() and open_beyond(side)}
+        clear = [*(walk[inside[side]] & (material[at] == STONE if 0 <= line < limit else True)), False]; start = nearest = None
+        for cell, free in enumerate(clear):
+            start = cell if free and start is None else start
+            if not free and start is not None:
+                off = max(start - CELLS / 2, CELLS / 2 - cell, 0)  # how far the opening lies from the side's middle
+                if cell - start >= EXIT and (nearest is None or off < nearest):
+                    nearest = off; region[side] = int(masses[inside[side]][start])
+                start = None
     best = None
     for letter, parts in PATH_NODES.items():
         for quarter in range(4):
@@ -308,11 +316,30 @@ def _daylight(name, halos):
     return lines
 
 
+def _level_cut(card, height, rim=1 / 3):
+    """A halo card cut level at the height above which things may be hidden: [(card, whether it is above)].
+
+    A card's outer part is the glow round its light, so a height that crosses a card within `rim` of its top or bottom
+    is taken to pass the edge of one light: the card stays whole and goes with its middle (a sign just above the height
+    takes the glow under it along when it is hidden). A height that crosses the body of a card is taken to pass between
+    two lights that share it, a sign over windows on a small building: the card is cut there, so the sign's glow goes
+    with the sign and the windows' stays. This goes by the card's shape alone; it does not know where its lights are."""
+    low, high = card[0][0][2], card[2][0][2]; share = (height - low) / (high - low) if height is not None and high > low else 0.0
+    if not rim <= share <= 1 - rim:
+        return [(card, height is not None and (low + high) / 2 >= height)]
+
+    def at(bottom, top):
+        (start, (u0, v0)), (end, (u1, v1)) = bottom, top
+        return tuple(start[axis] + share * (end[axis] - start[axis]) for axis in range(3)), (u0 + share * (u1 - u0), v0 + share * (v1 - v0))
+    left, right = at(card[0], card[3]), at(card[1], card[2])
+    return [([card[0], card[1], right, left], False), ([left, right, card[2], card[3]], True)]
+
+
 def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=None, cap=()):
     """One tile's ASCII model. parts: [(vertices, normals, uvs, faces)] of the building, in the tile's space; a fifth
     value, true, marks a part the game may hide (`tilefade`). ground: the texture of the ten-metre square under it, laid
     twice across the tile as the plain tiles lay theirs. lights: the places of its main lights. fade: the height above
-    which things may be hidden; a halo card whose middle is above it goes with them. cap: the lid drawn at that height
+    which things may be hidden; a halo card above it goes with them, and one whose body it crosses is cut there. cap: the lid drawn at that height
     only while they are hidden ([(x0, y0, x1, y1)]), so the building is not seen hollow."""
     require(len(name) <= 16 and name == name.lower() and name.replace('_', '').isalnum(), 'A tile model name is a lowercase resref: ' + name)
     lines = ['#MAXMODEL ASCII', f'newmodel {name}', f'setsupermodel {name} null', 'classification TILE', 'setanimationscale 1.0',
@@ -331,8 +358,8 @@ def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=No
             lines += [f'  tverts {len(used)}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in uvs[used].tolist()]
             lines += [f'  normals {len(used)}'] + [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in normals[used].tolist()]
             lines += [f'  faces {len(part)}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in part.tolist()] + ['endnode']
-    for index, card in enumerate(cards):
-        above = fade is not None and (card[0][0][2] + card[2][0][2]) / 2 >= fade
+    cut = [piece for card in cards for piece in _level_cut(card, fade)]; cards = [card for card, _ in cut]
+    for index, (card, above) in enumerate(cut):
         lines += [f'node trimesh {name}_halo{index}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
                   f'  bitmap {material}_h', '  render 1', '  shadow 0', '  rotatetexture 0', f'  tilefade {1 if above else 0}', '  transparencyhint 1', '  alpha 1', '  verts 4']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
