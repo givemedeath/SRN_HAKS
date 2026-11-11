@@ -24,6 +24,10 @@ LEAN = 0.3  # how much more than a dome a cap draws in as it leaves the plane, t
 WELD = 1e-5  # vertices this close are one point when pieces are traced (models repeat vertices at texture seams)
 RIVAL = 0.35  # a piece whose second choice won this share of its area is two parts welded together: it is traced again unwelded
 FREE_END = 0.12  # how far the bone of a neck, hand or foot runs on past its joint
+OVERRUN = 0.03  # two cuts that meet each run this far past the other: a cut stops at whole edges
+SLEEVE_STEP = 0.01  # the arm is sectioned this far apart when the armpit is looked for
+SLEEVE_FUSED = 1.6  # a section reaching this many times farther toward the torso than away from it is sleeve and torso in one
+SLEEVE_ROOM = 0.003  # the sleeve seam stands this far inside the sleeve's inner side at the armpit
 
 
 def token(slot, side):
@@ -49,13 +53,54 @@ BONE_ENDS = {'chest': ('torso_g', 'neck_g'), 'neck': ('neck_g', None), 'pelvis':
              'shin': ('{}shin_g', '{}foot_g'), 'foot': ('{}foot_g', None)}
 
 
-def regions(joints, radii, reach=REACH):
+def limits(radii, reach=REACH, reaches=None):
+    """{(joint, side): how far its plane cuts from the joint centre}: `reach` joint radii, or the distance
+    `reaches` gives for that joint. An outfit bulkier than its tier at a joint (a shoulder guard, a boot) needs
+    the longer reach to be cut through there, while its parts are still told apart by the tier's thickness."""
+    reaches = reaches or {}
+    require(set(reaches) <= set(radii) and all(value > 0 for value in reaches.values()), 'Reaches are distances above zero, by joint and side')
+    return {key: float(reaches.get(key, reach * radius)) for key, radius in radii.items()}
+
+
+def reaches(vertices, faces, joints, radii, reach=REACH):
+    """{(joint, side): distance} for the joints where an outfit is bulkier than its tier: how far the plane has to
+    reach there to cut through the outfit's own section round the joint.
+
+    Other limbs the plane also crosses do not count: only the closed curves of the section that run round the
+    joint centre. A hip plane is measured on its own leg's side of the middle (and a little past it, to meet the
+    cut between the legs): the two hip planes tilt apart, and where one reached across to the other leg, the
+    band between the two planes would belong to neither thigh nor to the pelvis. A shoulder is measured only
+    where the arm is a surface of its own: a fused sleeve's section there takes in the whole torso, and its
+    seam sets that reach (`sleeve`). A torso that hangs round the hip joints (a coat, a skirt) also counts as a
+    curve round them: such an outfit's hip reaches are not to be used."""
+    v, f = np.asarray(vertices, float), np.asarray(faces, int)
+    left, right = np.asarray(joints['lthigh_g'], float), np.asarray(joints['rthigh_g'], float)
+    middle, across = (left + right) / 2, seams.unit(right - left)
+    found = {}
+    for (joint, side), (point, normal) in planes(joints).items():
+        if joint == 'shoulder' and sleeve(v, f, joints, side) is not None:
+            continue
+        own = round_origin(seams.section(v, f, point, normal))
+        if joint == 'hip' and len(own):
+            ends = own.reshape(-1, 2, 2)  # the curves' segments: taken at points along them, not only at their ends
+            own = (ends[:, :1] + np.linspace(0.0, 1.0, 9)[None, :, None] * (ends[:, 1:] - ends[:, :1])).reshape(-1, 2)
+            a, b = seams.frame(normal)
+            world = point + own[:, :1] * a + own[:, 1:] * b
+            own = own[((world - middle) @ across) * (1.0 if side == 'r' else -1.0) >= -OVERRUN]
+        if len(own) and 1.05 * np.linalg.norm(own, axis=1).max() > reach * radii[(joint, side)]:
+            found[(joint, side)] = 1.05 * float(np.linalg.norm(own, axis=1).max())
+    return found
+
+
+def regions(joints, radii, reach=REACH, reaches=None, whole=()):
     """{token: {bone, radii, planes}}: a part's bone, its thickness at each end and its side of each joint plane.
 
     `planes` holds (point, normal, sign, limit). A plane only says anything within `limit` of its joint,
-    measured in the plane: the shoulder plane runs on through the lower torso, which is still chest."""
+    measured in the plane: the shoulder plane runs on through the lower torso, which is still chest. A joint in
+    `whole` is not cut: its under part is left out, so that surface goes to a neighbour."""
     joints = {name: np.asarray(position, float) for name, position in joints.items()}
     cuts = planes(joints)
+    limit = limits(radii, reach, reaches)
     result = {}
     for slot, (start, end) in BONE_ENDS.items():
         for side in ('lr' if '{}' in start else 'c'):
@@ -77,8 +122,12 @@ def regions(joints, radii, reach=REACH):
             result[token(slot, side)] = {'bone': (a, b), 'radii': (float(first), float(last)), 'planes': []}
     for (joint, side), (point, normal) in cuts.items():
         spec = seams.JOINTS[joint]
+        if (joint, side) in whole:  # not cut: the under part does not exist, and its surface stays on a neighbour
+            del result[token(spec['under'], side)]
+            continue
         for slot, sign in ((spec['over'], -1.0), (spec['under'], 1.0)):
-            result[token(slot, side)]['planes'].append((point, seams.unit(normal), sign, reach * radii[(joint, side)]))
+            if token(slot, side) in result:
+                result[token(slot, side)]['planes'].append((point, seams.unit(normal), sign, limit[(joint, side)]))
     return result
 
 
@@ -214,6 +263,120 @@ def owners(vertices, faces, parts, cuts):
     return owner
 
 
+def curves(segments):
+    """(curve, ids) for a section's segments, (n, 2, 2): the number of the curve each segment belongs to and the
+    numbers of its two end points. Segments that share an end point are one curve."""
+    _, ids = np.unique(np.round(np.asarray(segments, float).reshape(-1, 2) / WELD).astype(np.int64), axis=0, return_inverse=True)
+    ids = ids.reshape(-1, 2)
+    return mesh_ops.union_find(int(ids.max()) + 1, ids.tolist())[ids[:, 0]], ids
+
+
+def round_origin(segments):
+    """The points of the section's closed curves that run round the plane's point, as (n, 2), the two ends of
+    each segment in turn; empty where no curve does. A curve left open by the mesh's own edge is not counted:
+    it has no inside."""
+    segments = np.asarray(segments, float).reshape(-1, 2, 2)
+    if not len(segments):
+        return np.zeros((0, 2))
+    curve, ids = curves(segments)
+    found = []
+    for label in np.unique(curve):
+        mine = segments[curve == label]
+        ends, uses = np.unique(ids[curve == label], return_counts=True)
+        loose = mine.reshape(-1, 2)[np.isin(ids[curve == label].reshape(-1), ends[uses % 2 == 1])]
+        # an end counts as closed when another end lies on it: one point can round to two neighbouring cells
+        if len(loose) and np.any(np.sort(np.linalg.norm(loose[:, None] - loose[None], axis=2), axis=1)[:, 1] > 10 * WELD):
+            continue
+        y0, y1 = mine[:, 0, 1], mine[:, 1, 1]
+        crosses = (y0 > 0) != (y1 > 0)  # a ray from the point along the first axis: an odd count means inside
+        x = mine[:, 0, 0] - y0 / np.where(crosses, y1 - y0, 1.0) * (mine[:, 1, 0] - mine[:, 0, 0])
+        if np.count_nonzero(crosses & (x > 0)) % 2:
+            found.append(mine.reshape(-1, 2))
+    return np.concatenate(found) if found else np.zeros((0, 2))
+
+
+def sleeve(vertices, faces, joints, side):
+    """Where a sleeve is cut from the torso it is fused with, or None where the arm is a surface of its own.
+
+    The sleeve and the torso of a generated outfit are one surface from the shoulder down to the armpit. That
+    is below the shoulder plane, which therefore cannot part them. The seam is a second plane, along the arm
+    and facing the torso, where a shirt's sleeve is sewn on. It stands just inside the sleeve's inner side,
+    taken where the sleeve is widest between the armpit and the elbow, so that it never cuts the sleeve itself,
+    and it runs down to the elbow, so that it also cuts a stray bridge from the upper arm to the flank.
+    Returns its `point`, `normal` and `radius`, the `depth` of the armpit below the shoulder plane, and the
+    `reach` the shoulder plane needs to cut the sleeve's own side of the seam. Both cuts run a few centimetres
+    past where they meet: a cut stops at whole edges, and a triangle left spanning one plane at its rim would
+    join the two sides again."""
+    start, end = (np.asarray(joints[side + name], float) for name in ('bicep_g', 'forearm_g'))
+    other = np.asarray(joints[('r' if side == 'l' else 'l') + 'bicep_g'], float)
+    length = float(np.linalg.norm(end - start))
+    axis = seams.unit(end - start)
+    inward = other - start
+    inward = seams.unit(inward - (inward @ axis) * axis)
+    u, v = seams.frame(axis)
+    toward, along = np.array([inward @ u, inward @ v]), np.array([-(inward @ v), inward @ u])
+    fused, clear, armpit = [], [], None
+    for depth in np.arange(0.0, length, SLEEVE_STEP):
+        points = round_origin(seams.section(vertices, faces, start + depth * axis, axis))
+        if not len(points):
+            break  # the arm has ended
+        if (points @ toward).max() > SLEEVE_FUSED * -(points @ toward).min():
+            if armpit is None:
+                fused.append(points)
+        else:
+            if not fused:
+                return None  # the arm is its own surface at the shoulder plane
+            armpit = depth if armpit is None else armpit
+            clear.append(points)
+    if not fused:
+        return None
+    require(clear, f'The {side} sleeve is one surface with the torso down to the elbow')
+    seam = float(max((points @ toward).max() for points in clear)) + SLEEVE_ROOM
+    own = np.concatenate(fused + clear)
+    own = own[own @ toward <= seam]
+    top = fused[0][fused[0] @ toward <= seam]
+    return {'point': start + seam * inward + length / 2 * axis, 'normal': inward, 'depth': float(armpit),
+            'radius': float(np.hypot(length / 2 + 3 * SLEEVE_STEP, np.abs(own @ along).max() + 3 * SLEEVE_STEP)),
+            'reach': float(np.linalg.norm(top, axis=1).max()) + 3 * SLEEVE_STEP}
+
+
+def seam_fill(vertices, uvs, faces, base, seam, facing):
+    """Faces that close a part's opening on a cut off the joint planes (a sleeve seam, the cut between the legs):
+    (vertices, uvs, faces) to add, numbered from `base`. `seam` holds the cut's `point`, `normal` and `radius`.
+
+    The part's edges on the cut, each on one face only, run from the joint plane down round the armpit or the
+    crotch and back up. Each such line is closed with a fan from the middle between its two ends, which lies on
+    the joint plane: the part's rim there is then a closed curve again, which its cap grows from. The fan faces
+    along the cut's normal with `facing` +1 and against it with -1."""
+    relative = vertices - seam['point']
+    height = relative @ seam['normal']
+    on = (np.abs(height) < WELD) & (np.linalg.norm(relative - height[:, None] * seam['normal'], axis=1) <= seam['radius'])
+    edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
+    edges = edges[on[edges].all(axis=1)]
+    # The line is traced by position, as `pieces` traces: a vertex repeated at a texture seam is one point of it.
+    # The new faces keep the vertex numbers the part's own faces use there, and so their texture coordinates.
+    spot = np.full(len(vertices), -1, int)
+    spot[on] = mesh_ops.weld_ids(vertices[on], WELD)
+    edges = edges[spot[edges[:, 0]] != spot[edges[:, 1]]]
+    if len(edges):
+        _, inverse, count = np.unique(np.sort(spot[edges], axis=1), axis=0, return_inverse=True, return_counts=True)
+        edges = edges[count[inverse.reshape(-1)] == 1]
+    new_v, new_t, new_f = [], [], []
+    if len(edges):
+        line = mesh_ops.union_find(int(spot.max()) + 1, spot[edges].tolist())[spot[edges[:, 0]]]
+        for label in np.unique(line):
+            mine = edges[line == label]
+            spots, first, uses = np.unique(spot[mine], return_index=True, return_counts=True)
+            where = vertices[mine.reshape(-1)[first]]  # one position per point of the line
+            centre = where[uses == 1].mean(axis=0) if np.count_nonzero(uses == 1) == 2 else where.mean(axis=0)
+            hub = base + len(new_v)
+            new_v.append(centre); new_t.append(uvs[np.unique(mine)].mean(axis=0))
+            for a, b in mine.tolist():
+                normal = np.cross(vertices[a] - centre, vertices[b] - centre)
+                new_f.append((hub, a, b) if facing * (normal @ seam['normal']) > 0 else (hub, b, a))
+    return np.array(new_v).reshape(-1, 3), np.array(new_t).reshape(-1, uvs.shape[1]), np.array(new_f, int).reshape(-1, 3)
+
+
 def compact(vertices, faces, uvs):
     """(vertices, faces, uvs) holding only the vertices the faces use."""
     used = np.unique(faces)
@@ -257,54 +420,82 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     return np.concatenate(rings), np.tile(uvs[rim], (steps, 1)), added.reshape(-1, 3)
 
 
-def assign(vertices, faces, uvs, joints, radii, reach=REACH):
+def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole=()):
     """The mesh cut on every plane, and the part each face goes to.
 
-    Returns (vertices, faces, uvs, owner, names, origin, cuts): `owner[i]` indexes `names`, `origin[i]` is the
-    face of the mesh given that face i was cut from, and `cuts` maps (joint, side) to its plane."""
+    Returns (vertices, faces, uvs, owner, names, origin, cuts, sleeves, between, limit): `owner[i]` indexes
+    `names`, `origin[i]` is the face of the mesh given that face i was cut from, `cuts` maps (joint, side) to
+    its plane, `sleeves` maps a side to the sleeve seam cut there (`sleeve`), `between` is the cut between the
+    legs (`point`, `normal`, `radius`) and `limit` maps (joint, side) to how far its plane cut."""
     v, f, t = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
     require(len(v) == len(t), 'One texture coordinate per vertex is required')
     require(len(f), 'The mesh has no faces')
     cuts = planes(joints)
     require(set(radii) == set(cuts), 'A radius is required for every joint and side')
+    whole = set(whole)
+    require(whole <= {key for key in cuts if key[0] in ('neck', 'wrist', 'ankle')}, 'Only a neck, a wrist or an ankle can be left uncut')
     left, right = np.asarray(joints['lthigh_g'], float), np.asarray(joints['rthigh_g'], float)
     up = seams.unit(np.asarray(joints['neck_g'], float) - np.asarray(joints['torso_g'], float))
     require(up[2] > 0.8 and seams.unit(np.cross(up, right - left))[1] > 0.8, 'The joints must stand z up and face +y, as the bodies do')
+    # A sleeve fused with the torso is cut off along the arm as well; the shoulder plane then reaches only as far
+    # as the sleeve's own side of that seam, unless the caller says how far.
+    sleeves = {side: found for side, found in ((side, sleeve(v, f, joints, side)) for side in 'lr') if found is not None}
+    reaches = {**{('shoulder', side): found['reach'] for side, found in sleeves.items()}, **(reaches or {})}
+    limit = limits(radii, reach, reaches)
     origin = np.arange(len(f))
     for key, (point, normal) in cuts.items():
-        v, f, t, o = cut(v, f, t, point, normal, reach * radii[key])
+        if key in whole:
+            continue
+        v, f, t, o = cut(v, f, t, point, normal, limit[key])
         origin = origin[o]
     # Trousers join the legs at the crotch, below both hip planes: without a cut between the legs there, the
     # two thighs would be one piece. The cut runs between the hip joints, as far as the hip planes reach.
-    between = ((left + right) / 2, seams.unit(right - left), reach * max(radii[('hip', 'l')], radii[('hip', 'r')]))
-    v, f, t, o = cut(v, f, t, *between)
-    origin = origin[o]
-    parts = regions(joints, radii, reach)
-    owner = owners(v, f, parts, [(point, seams.unit(normal), reach * radii[key]) for key, (point, normal) in cuts.items()] + [between])
-    return v, f, t, owner, list(parts), origin, cuts
+    between = {'point': (left + right) / 2, 'normal': seams.unit(right - left), 'radius': max(limit[('hip', 'l')], limit[('hip', 'r')])}
+    walls = [(found['point'], found['normal'], found['radius']) for found in (between, *sleeves.values())]
+    for wall in walls:
+        v, f, t, o = cut(v, f, t, *wall)
+        origin = origin[o]
+    parts = regions(joints, radii, reach, reaches, whole)
+    owner = owners(v, f, parts, [(point, seams.unit(normal), limit[key]) for key, (point, normal) in cuts.items() if key not in whole] + walls)
+    return v, f, t, owner, list(parts), origin, cuts, sleeves, between, limit
 
 
-def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH):
+def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=()):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
     joint there (the largest of the body ring plus the part's tier room); a plane cuts within `reach` times
-    it. `overlaps` maps (joint, side) to how deep the under part's cap runs past the plane under the over
-    part; a joint without one gets no cap. Parts with no faces are left out."""
+    it, or within the distance `reaches` gives for that joint and side. `overlaps` maps (joint, side) to how
+    deep the under part's cap runs past the plane under the over part; a joint without one gets no cap. Where a
+    part was cut from a neighbour off the joint planes (a sleeve along the arm, the thighs between the legs),
+    its opening on that cut is closed. A joint in `whole` (a neck, wrist or ankle, by joint and side) is not
+    cut: its under part is left out and that surface stays on the part beside it, as a collar stays on the
+    chest of an outfit that has no neck part of its own. Parts with no faces are left out."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
-    v, f, t, owner, names, _, cuts = assign(vertices, faces, uvs, joints, radii, reach)
+    v, f, t, owner, names, _, cuts, sleeves, between, limit = assign(vertices, faces, uvs, joints, radii, reach, reaches, whole)
+    # The cuts off the joint planes, each with the parts it leaves open and the way their closing faces: a
+    # sleeve seam opens the sleeve and the chest, and where it cut a stray bridge near the elbow, the forearm and
+    # the pelvis; the cut between the legs opens the two thighs toward each other wherever trousers joined them
+    # below the hip planes.
+    closings = [(found, {token('bicep', side): 1.0, token('forearm', side): 1.0, 'chest': -1.0, 'pelvis': -1.0})
+                for side, found in sleeves.items()]
+    closings.append((between, {token('thigh', 'l'): 1.0, token('thigh', 'r'): -1.0}))
     result = {}
     for index, name in enumerate(names):
         mine = f[owner == index]
         if not len(mine):
             continue
-        pv, pf, pt = [v], [mine], [t]
+        pv, pf, pt = v, mine, t
+        for seam, facing in closings:  # closed first: an under part's cap then grows from a closed rim
+            if name in facing:
+                more = seam_fill(pv, pt, pf, len(pv), seam, facing[name])
+                pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
         for (joint, side), depth in overlaps.items():
-            if depth and token(seams.JOINTS[joint]['under'], side) == name:
+            if depth and (joint, side) not in whole and token(seams.JOINTS[joint]['under'], side) == name:
                 point, normal = cuts[(joint, side)]
-                more = cap(v, t, mine, sum(len(x) for x in pv), point, seams.unit(normal), depth, reach * radii[(joint, side)])
-                pv.append(more[0]); pt.append(more[1]); pf.append(more[2])
-        result[name] = compact(np.concatenate(pv), np.concatenate(pf), np.concatenate(pt))
+                more = cap(pv, pt, pf, len(pv), point, seams.unit(normal), depth, limit[(joint, side)])
+                pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
+        result[name] = compact(pv, pf, pt)
     return result
