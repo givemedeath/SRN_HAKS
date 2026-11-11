@@ -38,6 +38,7 @@ BEND = 1.2  # how much lighter a raised edge and darker a crease gets, per unit 
 SLOPE = 0.35  # how much darker a texel gets as the fine surface tilts away from the simplified one
 BROAD = ((1, 1.0), (4, 0.6))  # the bend is taken across this many texels each way, with this weight: sharp edges and broad folds
 RELIEF_SHADE = (0.72, 1.2)  # the least and the most the relief changes a shade by
+CAP_CLOTH = 0.25  # a part that shows the outfit's commonest material on this share of its own texels has a cap of it
 KINDS = ('cloth', 'leather', 'metal')  # the kinds of material the game tints, two colour channels each
 SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thigh', 'shin', 'foot'),
           'leather': ('shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')}
@@ -362,7 +363,7 @@ def added_second(vertices, faces, added, flags):
         known[target] = True
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -380,7 +381,15 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     the outfit's commonest material, the first of `found`, at `MIDDLE`: the cloth the outfit is made of. Left
     as read, a sleeve's closing was a vest's colour, most of its edge being cut through the vest, and the
     closings between the thighs were as dark as the crease at the crotch. The texels of a limb's `overlaid`
-    faces are flagged with them and drawn the same way."""
+    faces are flagged with them and drawn the same way.
+
+    `cap` flags the texels of the part's cap (the faces reported as `CAP`). A cap repeats its rim's colours
+    toward its pole, and shows in the gap a bent joint opens. Where the rim runs through two materials, a
+    sleeve and the guard strapped over it, the cap was streaked with both. It is of one material: the
+    outfit's commonest if the part shows that on `CAP_CLOTH` of its own texels or more, else the one most of
+    the part shows, so a sleeve's cap is cloth and a glove's stays leather. Its texels read as that material
+    keep their shades, the creases of the cloth the rim runs through; the others get the mean of those
+    shades."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
     require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
@@ -396,6 +405,13 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
     plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
     material[plain], shade[plain] = 0, MIDDLE
+    dome = covered & np.asarray(cap, bool) & ~plain if cap is not None else plain & False
+    if dome.any():
+        own = np.bincount(material[covered & ~plain & ~dome], minlength=1)
+        first = 0 if own[0] >= CAP_CLOTH * own.sum() else int(own.argmax())
+        same = dome & (material == first)
+        shade[dome & ~same] = shade[same].mean() if same.any() else MIDDLE
+        material[dome] = first
     other = np.zeros(covered.shape, int)
     if second is not None:
         second = np.asarray(second, bool)

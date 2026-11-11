@@ -86,7 +86,13 @@ limbs, so all the straps are coloured with the gloves and boots.
 The second mesh first built with its upper sleeves on the chest part: the cut that parts a sleeve from the
 torso stopped 2 cm short of the shoulder plane behind each shoulder, and the forearms lifted out of sleeves
 that stayed put. The cut now reaches 10 cm above the shoulder joint, and a build whose sleeve stays joined to
-the torso is refused. The accent and
+the torso is refused.
+
+In the client the crotch then showed two flat plain patches with a black hole above them, and the seat a hole
+when the body sat or crouched. The game stands a body with its thighs turned out, which opens the cut between
+the legs at the front; the patches were the thighs' flat inner walls and the hole the pelvis, open on both hip
+planes. The pelvis is now closed on both planes and repeats a strip of the trousers along the crotch, just
+under the thighs. The caps at the shoulders, streaked with sleeve and guard, are drawn in one material. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in

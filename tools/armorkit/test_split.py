@@ -188,9 +188,12 @@ class SplitTests(unittest.TestCase):
         self.v, self.f, self.t = figure()
 
     def test_every_part_is_cut_out_and_the_surface_is_kept(self):
-        parts = split.split(self.v, self.f, self.t, JOINTS, RADII)
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, made=made)
         self.assertEqual(set(parts), TOKENS)
-        self.assertAlmostEqual(sum(area(p, f) for p, f, _ in parts.values()), area(self.v, self.f), places=6)
+        self.assertAlmostEqual(sum(area(p, f[made[name] == split.OWN]) for name, (p, f, _) in parts.items()), area(self.v, self.f), places=6)
+        added = {name for name in parts if (made[name] != split.OWN).any()}
+        self.assertEqual(added, {'pelvis'})  # open on both hip planes, where the thighs do not always stand: closed there
         regions = split.regions(JOINTS, RADII)
         for name, (points, faces, uvs) in parts.items():
             self.assertEqual(len(points), len(uvs))
@@ -235,10 +238,12 @@ class SplitTests(unittest.TestCase):
                 split.split(v, f, t, JOINTS, RADII, reaches=bad)
 
     def test_a_joint_left_whole_keeps_its_surface_on_the_part_beside_it(self):
-        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, {('neck', 'c'): 0.03}, whole={('neck', 'c')})
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, {('neck', 'c'): 0.03}, whole={('neck', 'c')}, made=made)
         self.assertEqual(set(parts), TOKENS - {'neck'})
         self.assertAlmostEqual(parts['chest'][0][:, 2].max(), 1.70, places=6)  # the collar, above the neck plane at 1.65
-        self.assertAlmostEqual(sum(area(p, f) for p, f, _ in parts.values()), area(self.v, self.f), places=6)  # and no cap
+        self.assertAlmostEqual(sum(area(p, f[made[name] == split.OWN]) for name, (p, f, _) in parts.items()), area(self.v, self.f), places=6)
+        self.assertFalse(any((kinds == split.CAP).any() for kinds in made.values()))  # and no cap
         with self.assertRaises(ValueError):
             split.split(self.v, self.f, self.t, JOINTS, RADII, whole={('hip', 'l')})
 
@@ -741,6 +746,14 @@ class SleeveTests(unittest.TestCase):
         # vertices repeated along the opening are one point of it
         twice = np.concatenate([v, v[:1]]); again = f.copy(); again[0, 0] = 8
         self.assertEqual(len(split.lid(twice, np.concatenate([t, t[:1]]), again, 9, point, normal, 2.0)[2]), 4)
+        # a line that does not come round (the tube without one wall) is closed straight from its end to its start
+        more_v, _, more_f = split.lid(v, t, f[:6], len(v), point, normal, 2.0)
+        self.assertEqual((len(more_v), len(more_f)), (4, 4))
+        self.assertTrue(np.allclose(more_v, 0.0))
+        corners = np.concatenate([v, more_v])[more_f]
+        facing = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+        self.assertTrue(np.allclose(facing / np.linalg.norm(facing, axis=1, keepdims=True), (0, 0, -1)))
+        self.assertAlmostEqual(float(np.linalg.norm(facing, axis=1).sum() / 2), 4.0)  # the whole square
         # nothing within reach, nothing on the plane, or nothing open there: nothing is added
         for given in ((v, f, 1.0), (v + (0, 0, 0.5), f, 2.0), (whole_v, whole_f, 2.0)):
             points, faces, limit = given
@@ -859,6 +872,57 @@ class CrotchTests(unittest.TestCase):
             closing = np.abs(points[:, 0])[faces].max(axis=1) < 1e-6  # the faces on the middle
             self.assertTrue(closing.any(), name)
             self.assertTrue(np.all(facing * normals(points, faces)[closing][:, 0] > -1e-9), name)  # facing the other leg
+
+    def test_the_pelvis_is_closed_on_both_hip_planes(self):
+        made = {}
+        points, faces, _ = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES, made=made)['pelvis']
+        kinds = made['pelvis']
+        self.assertEqual(sorted(set(kinds.tolist())), [split.OWN, split.CLOSING, split.GUSSET])
+        mine = faces[kinds != split.GUSSET]
+        loose = open_edges(mine, points)
+        for side in 'lr':  # nothing is left open on either plane, the triangle between the two lids included
+            self.assertFalse(self.on(points[loose], ('hip', side)).all(axis=1).any(), side)
+            self.assertTrue(((kinds == split.CLOSING) & self.on(points, ('hip', side))[faces].all(axis=1)).any(), side)
+        whole = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES)
+        self.assertEqual(len(whole['pelvis'][1]), len(faces))  # the same parts whether or not it is asked what made them
+
+    def test_the_pelvis_repeats_the_crotch_under_the_thighs(self):
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES, made=made)
+        points, faces, _ = parts['pelvis']
+        strip = faces[made['pelvis'] == split.GUSSET]
+        used = points[np.unique(strip)]
+        self.assertLessEqual(np.abs(used[:, 0]).max(), split.GUSSET_WIDTH + 1e-9)
+        self.assertGreater(used[:, 2].min(), 0.93 - split.GUSSET_BELOW)  # down to the crotch, which is as low as the cut's line goes
+        flat = used[used[:, 2] > 0.93 + 0.03]  # above the corner at the crotch: the front and the back, 0.06 from the middle
+        self.assertTrue(len(flat) and np.allclose(np.abs(np.abs(flat[:, 1]) - 0.06), split.GUSSET_UNDER))  # along their normals
+        under = [((points - point) @ seams.unit(normal))[strip].min(axis=1) for point, normal in (self.planes[('hip', side)] for side in 'lr')]
+        self.assertTrue(np.all(np.maximum(*under) > -split.GUSSET_UNDER - 1e-9))  # every face of it under a hip plane, where a thigh is
+        self.assertTrue(all(split.GUSSET not in made[name] for name in parts if name != 'pelvis'))
+
+    def test_the_surface_along_the_cut_between_the_legs_is_repeated_under_it(self):
+        # the front of a pair of trousers: a sheet facing +y, 0.1 in front of the cut's point, with a column of vertices on the cut
+        xs, zs = np.linspace(-0.2, 0.2, 9), np.linspace(0.0, -0.3, 7)
+        v = np.array([(x, 0.1, z) for z in zs for x in xs])
+        f = np.array([face for row in range(6) for col in range(8) for a in [row * 9 + col]
+                      for face in ((a, a + 1, a + 9), (a + 1, a + 10, a + 9))])
+        self.assertTrue(np.all(normals(v, f)[:, 1] > 0))
+        t = v[:, [0, 2]] * 3.0
+        seam = {'point': np.zeros(3), 'normal': np.array([1.0, 0, 0]), 'radius': 0.15, 'down': np.array([0, 0, -1.0])}
+        more_v, more_t, more_f = split.gusset(v, t, f, 100, seam)
+        # the cut's line reaches down to z = -0.10 (0.15 from its point, the sheet standing 0.1 in front of it)
+        self.assertEqual(more_f.min(), 100)
+        strip = more_f - 100
+        self.assertAlmostEqual(area(more_v, strip), 2 * split.GUSSET_WIDTH * (0.10 + split.GUSSET_BELOW), places=9)
+        self.assertTrue(np.allclose(more_v[:, 1], 0.1 - split.GUSSET_UNDER))  # under the surface it repeats
+        self.assertTrue(np.all(normals(more_v, strip)[:, 1] > 0))  # and facing as it does
+        self.assertTrue(np.allclose(more_t, more_v[:, [0, 2]] * 3.0))  # with its columns
+        wide = split.gusset(v, t, f, 0, seam, width=0.1, below=0.05)
+        self.assertAlmostEqual(area(wide[0], wide[2]), 0.2 * 0.15, places=9)
+        # legs nothing joins have no point on the cut, and no strip
+        apart = v + (0.02, 0, 0)
+        self.assertEqual([len(part) for part in split.gusset(apart, t, f, 0, seam)], [0, 0, 0])
+        self.assertEqual(split.gusset(apart, t, f, 0, seam)[1].shape[1], 2)
 
     def test_the_cut_between_the_legs_holds_the_line_the_hip_planes_meet_in(self):
         # one hip joint half a millimetre higher: midway between the joints the two planes are that far apart

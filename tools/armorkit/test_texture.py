@@ -178,6 +178,30 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())
         self.assertTrue(np.array_equal(layers[~closing], plain_layers[~closing]) and np.array_equal(shades[~closing], plain_shades[~closing]))
 
+    def test_a_cap_is_drawn_in_one_material(self):
+        channels = ['cloth1', 'leather1', 'metal1']
+        # a glove's cap repeats its rim: tan, dark where the rim is creased, with a streak of the plate strapped over it
+        colour = np.zeros((8, 8, 3)); covered = np.ones((8, 8), bool)
+        colour[:], colour[:, 7] = TAN, FABRIC
+        cap = np.zeros((8, 8), bool); cap[2:6, 0:4] = True
+        colour[2:6, 0], colour[2:6, 1] = PLATE, np.array(TAN) * 0.6
+        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels)
+        self.assertEqual(sorted(set(plain_layers[cap].tolist())), sorted([export.LAYERS['leather1'], export.LAYERS['metal1']]))
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, cap=cap)
+        self.assertTrue((layers[cap] == export.LAYERS['leather1']).all())  # leather, as most of the glove: it shows a sixth of cloth
+        tan = cap & (plain_layers == export.LAYERS['leather1'])
+        self.assertTrue(np.array_equal(shades[tan], plain_shades[tan]) and shades[tan].min() < texture.MIDDLE - 30)  # its creases kept
+        self.assertTrue((np.abs(shades[cap & ~tan] - plain_shades[tan].mean()) <= 0.5).all())  # the plate's streak: tan of the cap's mean shade
+        self.assertTrue(np.array_equal(layers[~cap], plain_layers[~cap]) and np.array_equal(shades[~cap], plain_shades[~cap]))
+        # a part that shows the outfit's cloth on a quarter of its own texels has a cap of cloth, however its rim reads
+        sleeve = colour.copy(); sleeve[:, 5:] = FABRIC
+        shades, layers = texture.tint_maps(sleeve, covered, self.found, channels, cap=cap)
+        self.assertTrue((layers[cap] == export.LAYERS['cloth1']).all() and (shades[cap] == texture.MIDDLE).all())  # none of it read as cloth
+        # where a closing is flagged too, it is the closing's
+        closing = np.zeros((8, 8), bool); closing[2:4, 0:4] = True
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, cap=cap)
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (layers[cap & ~closing] == export.LAYERS['leather1']).all())
+
     def test_what_the_torso_wears_over_a_limb_is_found_by_its_reaching_the_cut(self):
         # a strip of five squares along x, two faces each, and a closing on its left end (vertices of its own)
         v = np.array([(x, y, 0) for x in range(6) for y in (0, 1)] + [(0, 0, 0), (0, 1, 0), (-1, 0.5, 0)], float)
