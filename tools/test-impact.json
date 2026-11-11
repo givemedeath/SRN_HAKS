@@ -19,6 +19,15 @@
       "tools/armorkit/registry.py",
       "tools/phenotypes/tool_runtime.py"
     ],
+    "tools/armorkit/export.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/split.py",
+      "tools/armorkit/toolchain.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/native_reader.py",
+      "tools/robes/mesh_ops.py"
+    ],
     "tools/armorkit/measure.py": [
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
@@ -32,6 +41,11 @@
     "tools/armorkit/seams.py": [
       "tools/armorkit/registry.py",
       "tools/armorkit/seam-contract.json"
+    ],
+    "tools/armorkit/split.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/tables.py": [
       "tools/armorkit/registry.py"
@@ -48,6 +62,11 @@
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/registry.py"
     ],
+    "tools/armorkit/test_export.py": [
+      "tools/armorkit/export.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py"
+    ],
     "tools/armorkit/test_measure.py": [
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
@@ -61,6 +80,11 @@
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
       "tools/armorkit/test_registry.py"
+    ],
+    "tools/armorkit/test_split.py": [
+      "tools/armorkit/seams.py",
+      "tools/armorkit/split.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/test_tables.py": [
       "tools/armorkit/registry.py",
@@ -4924,9 +4948,11 @@
   "tests": [
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
+    "tools/armorkit/test_export.py",
     "tools/armorkit/test_measure.py",
     "tools/armorkit/test_registry.py",
     "tools/armorkit/test_seams.py",
+    "tools/armorkit/test_split.py",
     "tools/armorkit/test_tables.py",
     "tools/armorkit/test_toolchain.py",
     "tools/headbatch/test_fitassembly.py",

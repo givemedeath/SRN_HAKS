@@ -544,3 +544,56 @@ is not a fault of the bodies. Shape factors measured from the bodies remove it f
 Not checked: slots other than the chest; Large male bodies with factors, four of which show the inward error;
 Fit bodies with factors; a looser or a skin-tight real garment; a pelvis piece made the same way under the
 chest; motion; the three client sheets of run 10 not named above.
+
+## 20. The under end of a split part: a rounded cap, not a copy of the over part
+
+Checked in the client on 2026-11-10 (Phase 1; scratch script `overlap_view.py`). The outfit was a stand-in:
+the Human Fit male's 15 skin parts pushed out 1.2 cm and joined, then cut by `tools/armorkit/split.py` with
+the tier 1 overlaps of the seam contract. Every part was tinted unlike its neighbours, so one part showing
+through another is a patch of the wrong colour. Poses: standing, sitting, crouching (get low), conjure and
+worship, as stills.
+
+| Under end | Standing | Sitting, crouching |
+|---|---|---|
+| Band: a copy of the over part's surface past the plane, 15% narrower at its far end (the splitter's first form) | Patches of the under part show through the over part at the waist, shoulders and knees | Large areas show through: the pelvis over much of the back, the thighs through the pelvis |
+| None | Clean colours, an open gap at every joint | The gaps widen |
+| Dome grown from the under part's own rim, about the joint centre | No gaps; slivers at the shoulder tops and knees | Clean |
+| The same dome drawn in a further 30% of its radius by its far end (`split.cap`, `LEAN`) | No gaps, no slivers seen | Clean |
+
+Why the band fails: it lies almost on the over part's surface at rest, and it is as deep as the contract's
+minimum overlap, so it swings out of the over part when the joint turns. At the contract's design bends that
+is 3.1 cm at the wrist to 8.2 cm at the hip beyond its 15% narrowing; only the neck stays inside. A dome
+about the joint centre turns inside itself, which is what `seams.minimum_overlap` assumes.
+
+After this check `split.cap` was changed once more: a cap is now nowhere deeper than its rim point is far
+from the joint centre, because a cap deeper than its rim is wide would swing out the same way. The check
+above covers the cap as deep as the contract overlap everywhere. With the new rule the stand-in was seen
+again for gaps only, standing and sitting, and showed none.
+
+Seen in passing: tint textures loaded only as one texture per part, named like its model, on a mesh with real
+texture coordinates. One flat tint texture shared by all parts, with every texture coordinate at zero, drew
+every part as chrome. Section 21 rules out the zero coordinates; the cause is not known.
+
+Not checked: the Human Fit female and the other 18 bodies; a generated garment in place of the stand-in,
+whose parts carry the body's own nested ends and show ragged edges at the knees with any under end; motion;
+parts of different sets or tiers worn together; a loose garment whose rim is far from the joint centre. The
+band run's captures were not kept: a later run cleared the folder.
+
+## 21. Parts written by the export step, in the client
+
+Checked on 2026-11-10 (scratch script `export_view.py`). The stand-in of section 20 was split with caps and
+written by `tools/armorkit/export.py`: models in bone space with normals taken on the whole outfit before the
+split, one tint texture per part named like its model, compiled with cleanmodels 4.17.5. Human Fit male,
+standing and sitting, 12 stills.
+
+* **Tint texture rows.** Each part's texture coordinates ran 0–1 up its own height, and its texture held one
+  colour channel in the first half of its rows and another in the second. Every part showed the first
+  channel on its lower half. The first row stored is the row at v = 0.
+* **Normals.** The shading runs on across the waist, shoulders, elbows and knees with no crease at the
+  seams.
+* **Texture coordinates all at zero.** The same parts with every coordinate at zero drew in the flat colour
+  of the texture's first pixel, not as chrome. So the chrome of section 20 did not come from the zero
+  coordinates.
+
+Not checked: a texture that is not square or not 64 pixels; which way u runs; parts on any other body;
+shadows, which these parts cast for the first time.
