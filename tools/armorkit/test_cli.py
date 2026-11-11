@@ -37,14 +37,31 @@ class CommandLineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'brief.json'
             path.write_text(json.dumps(given), encoding='utf-8')
-            self.assertEqual(run('brief', path), {'model': 'test-outfit', 'materials': {'fabric': 'cloth', 'plates': 'metal'}, 'pads': [], 'prompt': None})
-            run('brief', path, '--prompt', Path(folder) / 'out' / 'PROMPT.txt')
-            self.assertEqual((Path(folder) / 'out' / 'PROMPT.txt').read_text(encoding='utf-8'), brief.prompt(given) + '\n')
-            given['materials'][1]['colour'] = [135, 135, 140]  # drawn too alike: refused, and no prompt is written
+            self.assertEqual(run('brief', path), {'model': 'test-outfit', 'materials': {'fabric': 'cloth', 'plates': 'metal'}, 'pads': [], 'sealed': None})
+            sealed = Path(folder) / 'out'
+            run('brief', path, '--seal', sealed)
+            self.assertEqual((sealed / 'PROMPT.txt').read_text(encoding='utf-8'), brief.prompt(given) + '\n')
+            self.assertEqual(brief.sealed(sealed)[0], given)
+            # an image made from the folder's prompt by another route is registered, and is then let through
+            image, stray = sealed / 'image.png', Path(folder) / 'stray.png'
+            image.write_bytes(b'made from the prompt'); stray.write_bytes(b'from somewhere else')
+            self.assertEqual(run('register', sealed, image), {'registered': ['image.png']})
+            self.assertEqual(run('admit', image, '--root', folder), {'model': 'test-outfit', 'folder': str(sealed)})
+            with self.assertRaises(ValueError):
+                run('admit', stray, '--root', folder)
+            given['materials'][1]['colour'] = [135, 135, 140]  # drawn too alike: refused, and nothing is written
             path.write_text(json.dumps(given), encoding='utf-8')
             with self.assertRaises(ValueError):
-                run('brief', path, '--prompt', Path(folder) / 'again.txt')
-            self.assertFalse((Path(folder) / 'again.txt').exists())
+                run('brief', path, '--seal', Path(folder) / 'again')
+            self.assertFalse((Path(folder) / 'again').exists())
+
+    def test_image_makes_reference_images_from_the_brief_it_is_given(self):
+        from . import reference
+        calls = {}
+        with mock.patch.object(reference, 'generate', lambda *given: calls.setdefault('given', given) and [Path('run-1') / 'image-0.png']):
+            got = run('image', 'brief.json', 'folder', '--seed', 7, '--reference', 'earlier.png')
+        self.assertEqual(calls['given'], ('brief.json', 'folder', 7, 1, ['earlier.png'], 'http://127.0.0.1:8188', 'flux2-turbo-v1', 1800))
+        self.assertEqual(got, {'images': [str(Path('run-1') / 'image-0.png')]})
 
     def fixture_run(self, *flags):
         """Run the fixture command with the builder and the client replaced; return what each was called with."""

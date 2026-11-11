@@ -185,8 +185,11 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
    registry. For each model to generate, write its brief file (`tools/armorkit/briefs/`, format in
    `tools/armorkit/brief.py`): every material with its kind (cloth, leather or metal), the flat colour it is
    drawn in and what is made of it, at most two of a kind, in clearly different hues. The colour paragraph of
-   the image prompt is written from that file (`python -m tools.armorkit brief`), and the bake sorts the outfit
-   into the six channels by it. No reference image is made without one.
+   the image prompt is written from that file, and the bake sorts the outfit into the six channels by it. No
+   reference image is made without one: the reference folder is sealed with the brief
+   (`python -m tools.armorkit brief BRIEF --seal FOLDER`, or `image` to make the image locally), every image
+   made from it is registered there, and a geometry or appearance job is posted only for an image that
+   `python -m tools.armorkit admit` lets through.
 2. **References.** Garment-only, headless, rest-stance Human male: clay for geometry, colour for appearance.
    The same pair on the Human female for each separate female cut. Review before generating.
 3. **Generate** the source on the local engine, recorded in the ledger.
