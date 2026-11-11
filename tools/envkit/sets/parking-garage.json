@@ -8,7 +8,7 @@
     "building-hero": {"kind": "building", "subject": "open multi-level concrete parking garage with a spiral ramp, a glazed lobby and a skybridge", "box": [0, 14, 895, 570], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of a multi-level concrete parking garage", "box": [900, 110, 1262, 318]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a multi-level concrete parking garage", "box": [885, 345, 1255, 545]},
-    "pay-kiosk": {"kind": "prop", "type": "atm", "variant": "Branding: parking pay kiosk with a P header and the Denver FRFZ mark.", "subject": "parking pay kiosk", "box": [30, 662, 136, 838]},
+    "pay-kiosk": {"kind": "prop", "type": "atm", "variant": "Parking pay kiosk with a P header.", "subject": "parking pay kiosk", "box": [30, 662, 136, 838], "notes": "Leave the logo off; keep the P header."},
     "cashier-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: wide glazed cashier booth with a beacon and the Denver FRFZ mark.", "subject": "wide glazed cashier booth", "box": [166, 663, 391, 838]},
     "barrier-arm": {"kind": "prop", "type": "gate-arm", "same": "gridguide-center/barrier-arm", "subject": "boom gate with a yellow housing and a red-striped arm", "box": [400, 725, 605, 834]},
     "ticket-machine": {"kind": "prop", "type": "atm", "variant": "Entry ticket machine with a Ticket header and hazard stripes.", "subject": "parking entry ticket machine", "box": [615, 665, 721, 838]},
@@ -21,6 +21,6 @@
     "light-pole": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin-arm light pole", "box": [616, 886, 718, 1040]},
     "utility-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Grey cabinet with a high-voltage mark and side pipes.", "subject": "grey utility cabinet with side pipes", "box": [761, 905, 952, 1040]},
     "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Lit Parking P1 to P4 panel with arrows.", "subject": "wall-mounted sign reading Parking P1 to P4", "box": [976, 919, 1190, 1031]},
-    "maintenance-cart": {"kind": "prop", "type": "tool-chest", "variant": "Branding: wheeled service cart with drawers, a cable reel and cases, Denver FRFZ mark.", "subject": "wheeled service cart with drawers and tool cases", "box": [1218, 905, 1427, 1040]}
+    "maintenance-cart": {"kind": "prop", "type": "tool-chest", "variant": "Wheeled service cart with drawers, a cable reel and cases.", "subject": "wheeled service cart with drawers and tool cases", "box": [1218, 905, 1427, 1040], "notes": "Leave the logo and lettering off."}
   }
 }

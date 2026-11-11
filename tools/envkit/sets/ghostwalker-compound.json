@@ -11,7 +11,7 @@
     "ritual-circle-floor": {"kind": "prop", "type": "ritual-circle", "variant": "Flat violet and gold floor circle, no dais.", "subject": "flat violet and gold ritual circle floor disc", "box": [5, 903, 189, 1006]},
     "arcane-lectern": {"kind": "prop", "type": "lectern", "variant": "Stone lectern holding an open spellbook.", "subject": "stone lectern holding an open spellbook", "box": [192, 894, 289, 1007]},
     "banner-plinth": {"kind": "prop", "type": "banner-set", "variant": "Branding: single purple dragon banner in a stone frame on a plinth.", "subject": "single hanging banner in a stone frame on a plinth", "box": [302, 869, 391, 1008]},
-    "ceremonial-door": {"kind": "prop", "type": "secure-door", "variant": "Branding: arched stone doorway with gold dragon doors.", "subject": "ornate arched stone doorway with gold double doors", "box": [403, 869, 540, 1008]},
+    "ceremonial-door": {"kind": "prop", "type": "secure-door", "variant": "Arched stone doorway with gold dragon doors.", "subject": "ornate arched stone doorway with gold double doors", "box": [403, 869, 540, 1008]},
     "ward-panel": {"kind": "prop", "type": "ward-pylon", "variant": "Glowing ward field panel between two stone posts.", "subject": "glowing ward field panel between two stone posts", "box": [544, 885, 678, 1005]},
     "brazier": {"kind": "prop", "type": "brazier", "subject": "stone pedestal brazier with a burning bowl", "box": [689, 882, 764, 1010]},
     "gate-module": {"kind": "prop", "type": "turnstile", "variant": "Full-height turnstile gate in a stone and steel frame.", "subject": "full-height turnstile gate in a stone and steel frame", "box": [769, 884, 927, 1008]},

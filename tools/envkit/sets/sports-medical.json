@@ -9,7 +9,7 @@
     "building-front": {"kind": "building", "subject": "front elevation of a grey and red sports clinic", "box": [888, 120, 1253, 279]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a grey and red sports clinic", "box": [890, 300, 1253, 487]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved grey desk with a red stripe and the Aurora Village emblem wall.", "subject": "curved grey reception desk with a red stripe", "box": [5, 616, 274, 795]},
-    "check-in-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: check-in kiosk with a red cross on its screen and base.", "subject": "patient check-in kiosk", "box": [278, 622, 378, 793]},
+    "check-in-kiosk": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "patient check-in kiosk", "box": [278, 622, 378, 793]},
     "waiting-seats": {"kind": "prop", "type": "waiting-seats", "variant": "Three red padded seats under a runner poster.", "subject": "row of three red padded waiting seats under a poster", "box": [387, 617, 596, 794]},
     "treadmill": {"kind": "prop", "type": "treadmill", "subject": "rehabilitation treadmill with side rails and a screen", "box": [599, 618, 800, 795]},
     "exam-bed": {"kind": "prop", "type": "exam-table", "variant": "Padded treatment bed with a stool and a wall monitor.", "subject": "padded treatment bed with a stool and a wall monitor", "box": [805, 616, 1016, 792]},
@@ -19,9 +19,9 @@
     "gurney": {"kind": "prop", "type": "gurney", "variant": "Yellow-framed folding transport gurney.", "subject": "yellow-framed folding transport gurney", "box": [172, 890, 357, 1013]},
     "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Aurora Village Sports Medical Center panel with two lamps.", "subject": "wall-mounted sign reading Aurora Village Sports Medical Center", "box": [358, 889, 573, 1003]},
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Aurora Village Sports Medical Center pylon.", "subject": "freestanding pylon sign reading Aurora Village Sports Medical Center", "box": [580, 848, 707, 1018]},
-    "ambulance-door": {"kind": "prop", "type": "dock-door", "variant": "Roller door lettered Ambulance Service with red lamps and hazard stripes.", "subject": "ambulance bay roller door in a concrete frame", "box": [726, 852, 960, 1012]},
-    "records-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Branding: lock-screen records terminal with a red cross.", "subject": "secure records terminal with a lock screen", "box": [991, 861, 1105, 1011]},
+    "ambulance-door": {"kind": "prop", "type": "dock-door", "same": "docwagon-station/bay-door", "subject": "ambulance bay roller door in a concrete frame", "box": [726, 852, 960, 1012]},
+    "records-terminal": {"kind": "prop", "type": "access-terminal", "same": "hargreaves-clinic/records-terminal", "subject": "secure records terminal with a lock screen", "box": [991, 861, 1105, 1011]},
     "sanitizer-stand": {"kind": "prop", "type": "sanitizer-stand", "subject": "hand sanitiser dispenser on a stand", "box": [1140, 865, 1232, 1011]},
-    "barrier": {"kind": "prop", "type": "concrete-barrier", "variant": "Branding: red-striped barrier with the Aurora Village mark.", "subject": "concrete road barrier with red stripes and an emblem", "box": [1235, 911, 1442, 1007]}
+    "barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red stripes and an emblem", "box": [1235, 911, 1442, 1007]}
   }
 }

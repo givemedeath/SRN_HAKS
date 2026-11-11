@@ -8,19 +8,19 @@
     "building-hero": {"kind": "building", "subject": "concrete water treatment plant with banded tanks, pipe runs, a settling basin and a roller door", "box": [0, 14, 870, 560], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of a concrete water treatment plant", "box": [846, 127, 1240, 300]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a concrete water treatment plant", "box": [874, 325, 1251, 495]},
-    "pump-control-console": {"kind": "prop", "type": "console-desk", "variant": "Branding: hooded console of three screens showing the Denver Water mark.", "subject": "hooded pump control console of three screens with a chair", "box": [8, 632, 268, 804]},
+    "pump-control-console": {"kind": "prop", "type": "console-desk", "same": "tbird-hangar/control-desk", "subject": "hooded pump control console of three screens with a chair", "box": [8, 632, 268, 804]},
     "pipe-manifold": {"kind": "prop", "type": "pump-unit", "subject": "pipe manifold arching over three blue pumps", "box": [270, 635, 490, 802]},
     "filtration-tanks": {"kind": "prop", "type": "pressure-tank", "variant": "Pair of banded filter tanks lettered FILT-01 and FILT-02 behind a yellow rail.", "subject": "pair of banded filtration tanks behind a yellow rail", "box": [491, 622, 707, 804]},
     "drum-rack": {"kind": "prop", "type": "goods-rack", "variant": "Steel rack of yellow and blue chemical drums.", "subject": "steel rack of yellow and blue chemical drums", "box": [710, 640, 863, 800]},
-    "maintenance-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: kiosk with the Denver Water wave on its screen.", "subject": "maintenance kiosk with a screen and a keypad", "box": [874, 630, 977, 802]},
+    "maintenance-kiosk": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "maintenance kiosk with a screen and a keypad", "box": [874, 630, 977, 802]},
     "catwalk-segment": {"kind": "prop", "type": "catwalk", "subject": "elevated steel catwalk segment with yellow railings", "box": [987, 645, 1216, 802]},
     "utility-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Chain-link double gate between concrete posts with red lamps.", "subject": "chain-link double gate between concrete posts with red lamps", "box": [1219, 631, 1445, 798]},
     "hazard-sign": {"kind": "prop", "type": "hazard-sign", "subject": "yellow wall-mounted hazard sign reading Reclamation Process Area", "box": [10, 875, 225, 1024]},
     "sludge-container": {"kind": "prop", "type": "dumpster", "subject": "green wheeled dumpster lettered Sludge Waste", "box": [238, 876, 459, 1024]},
     "service-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: blue, grey and yellow cases with the Denver Water mark.", "subject": "stack of three hard service cases", "box": [462, 876, 648, 1022], "notes": "Ignore the camera edge at the right."},
     "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [646, 862, 782, 1020]},
-    "rooftop-power-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Branding: fan unit lettered DW with a high-voltage mark.", "subject": "rooftop power unit with a side fan", "box": [782, 869, 1024, 1022]},
-    "fence-section": {"kind": "prop", "type": "fence-section", "variant": "Branding: razor-wire panel carrying a Denver Water sign.", "subject": "chain-link fence section with razor wire and a sign", "box": [1026, 863, 1260, 1028]},
+    "rooftop-power-unit": {"kind": "prop", "type": "rooftop-unit", "same": "stuffer-shack/rooftop-hvac", "subject": "rooftop power unit with a side fan", "box": [782, 869, 1024, 1022]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "same": "saeder-krupp-yard/fence-section", "subject": "chain-link fence section with razor wire and a sign", "box": [1026, 863, 1260, 1028]},
     "safety-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [1263, 922, 1443, 1022]}
   }
 }

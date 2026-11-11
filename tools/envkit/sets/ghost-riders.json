@@ -20,7 +20,7 @@
     "fuel-drums": {"kind": "prop", "type": "fuel-drums", "variant": "Three loose rusted drums in red, grey and yellow.", "subject": "three loose rusted fuel drums", "box": [470, 885, 627, 1029]},
     "fence-segment": {"kind": "prop", "type": "fence-section", "variant": "Branding: patched razor-wire panel with a skull banner on striped footings.", "subject": "patched chain-link fence section with a hanging banner", "box": [636, 865, 883, 1030]},
     "floodlight-mast": {"kind": "prop", "type": "floodlight", "same": "mesametric-facility/floodlight-mast", "subject": "mobile floodlight mast on a yellow generator base", "box": [906, 848, 1035, 1030]},
-    "generator": {"kind": "prop", "type": "generator", "variant": "Branding: yellow generator tagged Ghost Riders with trailing cables.", "subject": "yellow enclosed generator with trailing cables", "box": [1047, 904, 1261, 1028]},
+    "generator": {"kind": "prop", "type": "generator", "same": "aurora-warrens/utility-generator", "subject": "yellow enclosed generator with trailing cables", "box": [1047, 904, 1261, 1028]},
     "service-locker": {"kind": "prop", "type": "locker", "variant": "Branding: rusted double locker with the skull stencil.", "subject": "rusted double steel locker", "box": [1273, 865, 1431, 1030]}
   }
 }

@@ -43,7 +43,7 @@
     "planter": {"kind": "prop", "type": "planter", "variant": "Long concrete planter with ferns.", "subject": "long concrete planter with ferns", "box": [518, 923, 662, 1014]},
     "grass-planter": {"kind": "prop", "type": "planter", "same": "hub-access/planter", "subject": "square concrete planter with grasses", "box": [680, 923, 787, 1017]},
     "bench": {"kind": "prop", "type": "bench", "variant": "Dark slatted bench on concrete ends.", "subject": "dark slatted bench on concrete ends", "box": [810, 936, 974, 1014]},
-    "trash-bin": {"kind": "prop", "type": "trash-can", "variant": "Branding: grey bin with the mountain mark.", "subject": "grey litter bin with an emblem", "box": [1000, 926, 1060, 1012]},
+    "trash-bin": {"kind": "prop", "type": "trash-can", "variant": "Grey square litter bin.", "subject": "grey litter bin with an emblem", "box": [1000, 926, 1060, 1012], "notes": "Leave the logo and lettering off."},
     "map-console": {"kind": "prop", "type": "map-table", "variant": "Slanted wayfinding map console on a pedestal.", "subject": "slanted wayfinding map console on a pedestal", "box": [1178, 918, 1287, 1014]},
     "operations-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "operations desk of screens with a chair", "box": [1318, 918, 1502, 1014]}
   }

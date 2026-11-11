@@ -20,7 +20,7 @@
     "reading-table": {"kind": "prop", "type": "table-and-chairs", "variant": "Long reading table with brass lamps and red chairs.", "subject": "long reading table with brass lamps and red chairs", "box": [440, 778, 634, 902], "notes": "Ignore the study carrels behind at the upper left."},
     "librarian-desk": {"kind": "prop", "type": "desk-terminal", "variant": "Dark desk with two screens and an office chair.", "subject": "dark desk with two screens and an office chair", "box": [640, 766, 797, 874]},
     "potted-plant": {"kind": "prop", "type": "planter", "variant": "Large leafy plant in a square concrete pot.", "subject": "large leafy plant in a square concrete pot", "box": [798, 766, 870, 902]},
-    "info-totem": {"kind": "prop", "type": "access-terminal", "variant": "Branding: slim burgundy information totem with the UD mark.", "subject": "slim information totem", "box": [898, 763, 954, 887]},
+    "info-totem": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: slim burgundy information totem with the UD mark.", "subject": "slim information totem", "box": [898, 763, 954, 887]},
     "display-case": {"kind": "prop", "type": "display-case", "variant": "Glass case holding an open rare book on a stone plinth.", "subject": "glass display case holding an open book", "box": [963, 770, 1067, 882]},
     "sculpture": {"kind": "prop", "type": "statue-pedestal", "variant": "Bronze ringed sphere sculpture on a stone block.", "subject": "bronze ringed sphere sculpture on a stone block", "box": [1078, 766, 1147, 860]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1143, 766, 1194, 807]},

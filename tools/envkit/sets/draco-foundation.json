@@ -11,7 +11,7 @@
     "building-rear": {"kind": "building", "subject": "rear elevation of a grand stone office with pagoda roofs", "box": [1265, 95, 1525, 240]},
     "stone-column": {"kind": "prop", "type": "column", "subject": "square stone column with a dark cap and base", "box": [110, 842, 160, 968]},
     "stone-arch": {"kind": "prop", "type": "entry-arch", "variant": "Plain grey stone archway.", "subject": "plain grey stone archway", "box": [175, 833, 269, 928]},
-    "dragon-door": {"kind": "prop", "type": "secure-door", "variant": "Branding: bronze double door with a gold dragon relief in a steel frame.", "subject": "bronze double door with a gold dragon relief", "box": [291, 835, 380, 946]},
+    "dragon-door": {"kind": "prop", "type": "secure-door", "variant": "Bronze double door with a gold dragon relief in a steel frame.", "subject": "bronze double door with a gold dragon relief", "box": [291, 835, 380, 946]},
     "steel-door": {"kind": "prop", "type": "secure-door", "variant": "Plain engraved steel double door with a top reader.", "subject": "engraved steel double door", "box": [395, 843, 453, 930]},
     "dome-camera": {"kind": "prop", "type": "security-camera", "variant": "Ceiling dome camera.", "subject": "ceiling dome security camera", "box": [463, 841, 510, 873]},
     "keypad-panel": {"kind": "prop", "type": "access-terminal", "variant": "Wall-mounted keypad and reader panel.", "subject": "wall-mounted keypad and reader panel", "box": [463, 877, 508, 916]},
@@ -25,7 +25,7 @@
     "archive-bookcase": {"kind": "prop", "type": "shelf-unit", "variant": "Dark steel-framed bookcase with a rolling ladder.", "subject": "dark steel-framed bookcase with a rolling ladder", "box": [805, 843, 925, 928]},
     "research-desk": {"kind": "prop", "type": "desk-terminal", "variant": "Grey desk with two terminals and a microscope.", "subject": "grey research desk with two terminals", "box": [802, 935, 892, 1010]},
     "research-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "research desk of screens", "box": [893, 905, 1034, 1005]},
-    "artifact-case": {"kind": "prop", "type": "display-case", "variant": "Branding: glass case holding a gold dragon on a dark plinth.", "subject": "glass display case holding a gold dragon figure", "box": [1058, 843, 1137, 942]},
+    "artifact-case": {"kind": "prop", "type": "display-case", "variant": "Glass case holding a gold dragon on a dark plinth.", "subject": "glass display case holding a gold dragon figure", "box": [1058, 843, 1137, 942]},
     "small-cases": {"kind": "prop", "type": "display-case", "variant": "Pair of small glass cases holding a gold mask and an urn.", "subject": "pair of small glass display cases", "box": [1145, 853, 1245, 937]},
     "artifact-trunk": {"kind": "prop", "type": "hard-case", "variant": "Dark riveted artifact trunk with gold fittings.", "subject": "dark riveted artifact trunk with gold fittings", "box": [1053, 948, 1170, 1011]},
     "vault-cabinet": {"kind": "prop", "type": "vault-cabinet", "variant": "Dark two-door safe cabinet with gold fittings.", "subject": "dark two-door safe cabinet", "box": [1179, 937, 1259, 1006]},
@@ -33,7 +33,7 @@
     "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: dark Draco Foundation plaque.", "subject": "dark plaque sign reading Draco Foundation", "box": [1348, 838, 1464, 878]},
     "framed-painting": {"kind": "prop", "type": "wall-hanging", "variant": "Framed ink landscape painting.", "subject": "framed ink landscape painting", "box": [1350, 882, 1431, 938]},
     "armillary": {"kind": "prop", "type": "statue-pedestal", "variant": "Brass armillary sphere on a tall wooden stand.", "subject": "brass armillary sphere on a tall wooden stand", "box": [1437, 880, 1481, 1005]},
-    "dragon-statuette": {"kind": "prop", "type": "statue-pedestal", "variant": "Branding: small gold dragon statuette on a base.", "subject": "small gold dragon statuette on a base", "box": [1341, 939, 1401, 1006]},
+    "dragon-statuette": {"kind": "prop", "type": "statue-pedestal", "variant": "Small gold dragon statuette on a base.", "subject": "small gold dragon statuette on a base", "box": [1341, 939, 1401, 1006]},
     "vase": {"kind": "prop", "type": "ceramic-pots", "variant": "Single blue and white porcelain vase.", "subject": "blue and white porcelain vase", "box": [1408, 942, 1446, 1003]},
     "bamboo-plant": {"kind": "prop", "type": "planter", "variant": "Tall bamboo in a black pot.", "subject": "tall bamboo in a black pot", "box": [1478, 842, 1527, 1005]}
   }
