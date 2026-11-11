@@ -298,12 +298,13 @@ def sleeve(vertices, faces, joints, side):
 
 
 def seam_fill(vertices, uvs, faces, base, seam, facing):
-    """Faces that close a part's opening on a sleeve seam: (vertices, uvs, faces) to add, numbered from `base`.
+    """Faces that close a part's opening on a cut off the joint planes (a sleeve seam, the cut between the legs):
+    (vertices, uvs, faces) to add, numbered from `base`. `seam` holds the cut's `point`, `normal` and `radius`.
 
-    The part's edges on the seam plane, each on one face only, run from the shoulder plane down round the
-    armpit and back up. Each such line is closed with a fan from the middle between its two ends, which lies
-    on the shoulder plane: the sleeve's rim there is then a closed curve again, which its cap grows from.
-    `facing` is +1 for the sleeve, whose fan faces the torso, and -1 for the chest."""
+    The part's edges on the cut, each on one face only, run from the joint plane down round the armpit or the
+    crotch and back up. Each such line is closed with a fan from the middle between its two ends, which lies on
+    the joint plane: the part's rim there is then a closed curve again, which its cap grows from. The fan faces
+    along the cut's normal with `facing` +1 and against it with -1."""
     relative = vertices - seam['point']
     height = relative @ seam['normal']
     on = (np.abs(height) < WELD) & (np.linalg.norm(relative - height[:, None] * seam['normal'], axis=1) <= seam['radius'])
@@ -413,23 +414,31 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
     joint there (the largest of the body ring plus the part's tier room); a plane cuts within `reach` times
-    it, or within the distance `reaches` gives for that joint and side. `overlaps` maps (joint, side) to how deep the under part's cap runs past the plane under the over
-    part; a joint without one gets no cap. Parts with no faces are left out."""
+    it, or within the distance `reaches` gives for that joint and side. `overlaps` maps (joint, side) to how
+    deep the under part's cap runs past the plane under the over part; a joint without one gets no cap. Where a
+    part was cut from a neighbour off the joint planes (a sleeve along the arm, the thighs between the legs),
+    its opening on that cut is closed. Parts with no faces are left out."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
     v, f, t, owner, names, _, cuts, sleeves = assign(vertices, faces, uvs, joints, radii, reach, reaches)
     limit = limits(radii, reach, {**{('shoulder', side): found['reach'] for side, found in sleeves.items()}, **(reaches or {})})
+    # The cuts off the joint planes, each with the parts it leaves open and the way their closing faces: a
+    # sleeve seam opens the sleeve and the chest; the cut between the legs opens the two thighs toward each other
+    # wherever trousers joined them below the hip planes.
+    left, right = np.asarray(joints['lthigh_g'], float), np.asarray(joints['rthigh_g'], float)
+    between = {'point': (left + right) / 2, 'normal': seams.unit(right - left), 'radius': max(limit[('hip', 'l')], limit[('hip', 'r')])}
+    closings = [(found, {token('bicep', side): 1.0, 'chest': -1.0}) for side, found in sleeves.items()]
+    closings.append((between, {token('thigh', 'l'): 1.0, token('thigh', 'r'): -1.0}))
     result = {}
     for index, name in enumerate(names):
         mine = f[owner == index]
         if not len(mine):
             continue
         pv, pf, pt = v, mine, t
-        for side, found in sleeves.items():  # close the sleeve seam first: the sleeve's cap grows from the closed rim
-            facing = 1.0 if name == token('bicep', side) else -1.0 if name == 'chest' else 0.0
-            if facing:
-                more = seam_fill(pv, pt, pf, len(pv), found, facing)
+        for seam, facing in closings:  # closed first: an under part's cap then grows from a closed rim
+            if name in facing:
+                more = seam_fill(pv, pt, pf, len(pv), seam, facing[name])
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
         for (joint, side), depth in overlaps.items():
             if depth and token(seams.JOINTS[joint]['under'], side) == name:

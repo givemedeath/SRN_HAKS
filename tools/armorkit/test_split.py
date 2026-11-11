@@ -407,5 +407,73 @@ class SleeveTests(unittest.TestCase):
             split.sleeve(v, f, JOINTS, 'l')
 
 
+def trousers(crotch=0.93, depth=0.06, half=0.07):
+    """Flat trousers that are one surface down to the crotch, below both hip planes, with shared vertices."""
+    leg = lambda z: 0.12 + (1.0 - z) * 0.02 / 0.45  # a leg's middle, through the hip and knee joints
+    levels = np.linspace(1.30, 0.60, 36)
+    index, points, faces = {}, [], []
+
+    def vertex(x, y, z):
+        key = (round(x, 6), round(y, 6), round(z, 6))
+        if key not in index:
+            index[key] = len(points); points.append(key)
+        return index[key]
+
+    def quad(a, b, c, d):
+        corners = [vertex(*p) for p in (a, b, c, d)]
+        faces.extend([(corners[0], corners[1], corners[2]), (corners[0], corners[2], corners[3])])
+
+    def columns(z, joined):
+        inner, outer = leg(z) - half, leg(z) + half
+        return [(-outer, -inner), (-inner, inner), (inner, outer)] if joined else [(-outer, -inner), (inner, outer)]
+
+    for top, bottom in zip(levels[:-1], levels[1:]):
+        joined = (top + bottom) / 2 > crotch
+        for (a0, b0), (a1, b1) in zip(columns(top, joined), columns(bottom, joined)):
+            for y in (depth, -depth):
+                quad((a0, y, top), (b0, y, top), (b1, y, bottom), (a1, y, bottom))
+        walls = [[sign * (leg(z) + half) for z in (top, bottom)] for sign in (-1, 1)]
+        if not joined:
+            walls += [[sign * (leg(z) - half) for z in (top, bottom)] for sign in (-1, 1)]
+        for x0, x1 in walls:
+            quad((x0, depth, top), (x0, -depth, top), (x1, -depth, bottom), (x1, depth, bottom))
+    z = levels[np.argmin(np.abs(levels - crotch))]
+    quad((-(leg(z) - half), depth, z), (leg(z) - half, depth, z), (leg(z) - half, -depth, z), (-(leg(z) - half), -depth, z))
+    return np.array(points), np.array(faces), np.zeros((len(points), 2))
+
+
+class CrotchTests(unittest.TestCase):
+    REACHES = {('hip', 'l'): 0.2, ('hip', 'r'): 0.2}  # bulky trousers: the hip planes reach past the middle
+
+    def setUp(self):
+        self.v, self.f, self.t = trousers()
+        self.planes = split.planes(JOINTS)
+
+    def on(self, points, key):
+        point, normal = self.planes[key]
+        return np.abs((points - point) @ seams.unit(normal)) < 1e-6
+
+    def test_thighs_fused_above_the_crotch_are_closed_toward_each_other(self):
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES)
+        for name, side, facing in (('legl', 'l', 1.0), ('legr', 'r', -1.0)):
+            points, faces, _ = parts[name]
+            self.assertLessEqual((facing * points[:, 0]).max(), 1e-6, name)  # nothing past the middle
+            loose = open_edges(faces)
+            loose = loose[points[loose][:, :, 2].min(axis=1) > 0.6 + 1e-6]  # the trouser leg's own end
+            loose = loose[~self.on(points[loose], ('hip', side)).all(axis=1)]  # and its rim on the hip plane are open
+            self.assertEqual(len(loose), 0, name)
+            between = np.abs(points[:, 0])[faces].max(axis=1) < 1e-6
+            self.assertTrue(between.any(), name)
+            self.assertTrue(np.all(facing * normals(points, faces)[between][:, 0] > 0), name)
+
+    def test_a_thighs_cap_grows_from_its_closed_rim(self):
+        overlaps = {('hip', 'l'): 0.05}
+        capped = split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps, reaches=self.REACHES)['legl']
+        point, normal = self.planes[('hip', 'l')]
+        self.assertLess(((capped[0] - point) @ seams.unit(normal)).min(), -0.02)  # past the plane, under the pelvis
+        loose = open_edges(capped[1])
+        self.assertFalse(self.on(capped[0][loose], ('hip', 'l')).all(axis=1).any())  # the whole rim is taken up
+
+
 if __name__ == '__main__':
     unittest.main()
