@@ -265,13 +265,25 @@ recompressed. The vending machine, ATM and drink case have a glow map and a halo
 and a second material (`<name>_o`, with the shared black halo `ek_off`) that a script swaps in with
 `ReplaceObjectTexture` to put their lights out; that needs the placed object not to be static. Checked in the
 game client on 2026-11-11 from the pack's files and these table rows, lights on, out and on again. The rows
-have no blueprints or palette entries.
+had no blueprints or palette entries at that point; both were added later the same day (below).
 
 Converted again later on 2026-11-11 under the same rows. The collision block of each prop now follows its
 footprint with the empty corners cut (an eight-sided outline; a box-shaped prop keeps its box). The security
 camera hangs 2.6 metres above the spot it is placed on and has no block to walk into. Halo sheets face the way
 their light does. Checked in the game client from the pack's files by day and by night, lights on, out and
 on again.
+
+Each prop also has a blueprint in `srn_placeable`, named as its model (`ek_ss_vending.utp` and so on): scenery
+that cannot be destroyed or used, static except for the three lit props, whose lights a script must be able to
+reach. So that the Toolset offers them, the pack carries `placeablepalstd.itp`: the game's own standard
+placeable palette (104,993 bytes, SHA-256 `a682f56ff787eb675946413e1abb4e14d4512bec67ddff37ec822ed2ad1b9a65`,
+read from the installed game, version 89.8193.37) with these ten blueprints added under the Modern Exterior and
+Modern Interior categories of the pack's `placeablepal.itp`. Every blueprint the game's palette lists is kept
+under the category it had. Made by `tools/envkit` (`envkit blueprints`). Checked in the Toolset on 2026-11-11:
+the Standard tab listed the blueprints under their categories, and a painted trash can and vending machine were
+saved with their rows, names and static settings.
+
+The rows, tiles and groups this project adds are listed in `docs/additions/catalog.json`.
 
 ## MDRNEE placeable import (2026-09-11)
 
