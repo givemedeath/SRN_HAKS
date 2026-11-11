@@ -36,6 +36,8 @@ SLEEVE_ROOM = 0.003  # the sleeve seam stands this far inside the sleeve's inner
 SLEEVE_WALL = 0.01  # the walls in front of the arm and behind it stand this far outside the sleeve
 SLEEVE_ARMPIT = 0.03  # the sleeve's inner side is taken over this far below the armpit
 SHOULDER_TOP = 0.06  # a trough cut in the pose the outfit came in is closed across the arm this far above the shoulder joint
+DOME_RINGS = 3  # rings the dome over an armhole is built from, between its edge and its pole
+SHOULDER_DOME = 0.75  # the chest's closing over such a trough is a dome about the shoulder joint, this share of its edge's nearest distance high
 
 
 def token(slot, side):
@@ -391,7 +393,7 @@ def sleeve(vertices, faces, joints, side):
             'reach': float(np.linalg.norm(inside(fused[0]), axis=1).max()) + 3 * SLEEVE_STEP}
 
 
-def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RINGS):
+def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RINGS, dome=None):
     """Faces that close a part's opening on a cut off the joint planes (a sleeve seam, the cut between the legs):
     (vertices, uvs, faces) to add, numbered from `base`. `seam` holds the cut's `point`, `normal` and `radius`,
     and may hold the `bounds` it stops at and the `walls` that cut the part beside it (`sleeve`). A cut made in
@@ -418,7 +420,16 @@ def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RIN
     lifts off the chest. The closing nowhere leaves the ball, so however the joint turns it stays where the
     part's own rim already reaches; past the ball, down toward the armpit or the crotch, it is flat. The
     rounding leans into the joint plane, so the rim stays on it. A line that does not end twice on that plane
-    (the hole or the stub a stray bridge left) is closed flat."""
+    (the hole or the stub a stray bridge left) is closed flat.
+
+    With `dome`, a centre and a unit direction, the longest line is closed by a dome about that centre, in
+    `DOME_RINGS` rings, and across from one of its ends to the other. The dome's pole stands from the centre in that
+    direction, `SHOULDER_DOME` of the line's nearest distance away, and every point of the dome is nearer the
+    centre than the point of the line it lies inward from. The edge of an armhole a shoulder pad left with the
+    arm runs all round the shoulder joint, and the surface has nothing under the pad: closed from the line's
+    middle, the torso ends in a flat lid where its shoulder was, which shows as a plate once the arm has moved
+    away. The dome is the shoulder the pad lay on, and it stays inside what turns about the joint as far out as
+    the edge."""
     if 'on' in seam:  # flags for the vertices the cut left; those added since lie on none of its planes
         planes, normals = [np.concatenate([flags, np.zeros(len(vertices) - len(flags), bool)]) for flags in seam['on']], seam['normals']
     else:
@@ -440,12 +451,17 @@ def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RIN
     new_v, new_t, new_f = [], [], []
     if len(edges):
         line = mesh_ops.union_find(int(spot.max()) + 1, spot[edges].tolist())[spot[edges[:, 0]]]
+        longest = None if dome is None else np.unique(line)[np.argmax(np.bincount(np.unique(line, return_inverse=True)[1]))]
         for label in np.unique(line):
             mine = edges[line == label]
             spots, first, uses = np.unique(spot[mine], return_index=True, return_counts=True)
             where = vertices[mine.reshape(-1)[first]]  # one position per point of the line
             ends = where[uses == 1]
             centre = ends.mean(axis=0) if len(ends) == 2 else where.mean(axis=0)
+            domed = label == longest
+            if domed:
+                low = SHOULDER_DOME * float(np.linalg.norm(where - dome[0], axis=1).min())
+                centre = dome[0] + low * dome[1]  # the pole
             out, ball = np.zeros(3), 0.0
             if rim is not None and len(ends) == 2 and np.abs((ends - rim[0]) @ rim[1]).max() < WELD:
                 out = facing * (seam['normal'] - (seam['normal'] @ rim[1]) * rim[1])
@@ -458,14 +474,24 @@ def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RIN
                 along = float(away @ out)
                 lift = -along + np.sqrt(max(ball * ball - float(away @ away) + along * along, 0.0))
                 return flat + max(lift, 0.0) * np.sqrt(1 - share * share) * out
-            hub = rounded(centre, 0.0) if ball else centre
-            column = {}  # per vertex of the line, its vertices on the way in to the hub and at it, outermost first
+            def arched(point, share):
+                """A point of the dome, `share` of the way from its pole out to `point` of the line."""
+                away = point - dome[0]
+                far = float(np.linalg.norm(away))
+                way = share * away / max(far, 1e-12) + (1 - share) * dome[1]
+                return dome[0] + (share * far + (1 - share) * low) * way / max(float(np.linalg.norm(way)), 1e-12)
+            middle = rounded(centre, 0.0) if ball else centre
+            column = {}  # per vertex of the line, its vertices on the way in to the middle and at it, outermost first
             for vertex in np.unique(mine).tolist():
                 column[vertex] = []
-                for ring in range(rings if ball else 0, -1, -1):
-                    share = ring / (rings + 1)  # of the way from the hub out to the line
+                between = DOME_RINGS if domed else rings if ball else 0
+                for ring in range(between, -1, -1):
+                    share = ring / (between + 1)  # of the way from the middle out to the line
                     column[vertex].append(base + len(new_v))
-                    new_v.append(rounded(centre + share * (vertices[vertex] - centre), share) if ring else hub)
+                    if domed:
+                        new_v.append(arched(vertices[vertex], share))
+                    else:
+                        new_v.append(rounded(centre + share * (vertices[vertex] - centre), share) if ring else middle)
                     new_t.append(uvs[vertex])
             # the line's edges in the order they follow each other from one end, each turned to run that way
             faced = lambda p, q, plane: facing * float(np.cross(vertices[p] - centre, vertices[q] - centre) @ normals[plane])
@@ -481,6 +507,8 @@ def seam_fill(vertices, uvs, faces, base, seam, facing, rim=None, rings=SEAM_RIN
                 a, b = mine[number].tolist()
                 run.append((a, b, sides[number]) if int(spot[a]) == here else (b, a, sides[number]))
                 here = int(spot[run[-1][1]])
+            if domed and len(ends) == 2 and run:  # round to where the walk began
+                run.append((run[-1][1], run[0][0], run[0][2]))
             if sum(faced(*edge) for edge in run) < 0:
                 run = [(q, p, plane) for p, q, plane in run]
             for number in sorted(left):  # a line that branches: what the walk did not reach is faced edge by edge
@@ -739,8 +767,13 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     # left the torso. The other closings stay flat: the torso's own, those of a stray bridge, and the thighs',
     # which lie against each other, where a rounded one comes out through the other leg at the crotch.
     rim = lambda joint, side: (np.asarray(cuts[(joint, side)][0], float), seams.unit(cuts[(joint, side)][1]))
+    # The chest's closing over a trough cut in the pose the outfit came in, which runs all round the shoulder
+    # joint, is a dome about that joint, out toward the arm: the shoulder under what left with the arm.
+    joint = lambda side: np.asarray(joints[side + 'bicep_g'], float)
+    dome = lambda side: (joint(side), seams.unit(joint(side) - joint('r' if side == 'l' else 'l')))
     closings = [(found, {token('bicep', side): (1.0, rim('shoulder', side)), token('forearm', side): (1.0, None),
-                         token('shoulder', side): (1.0, None), 'chest': (-1.0, None), 'pelvis': (-1.0, None)})
+                         token('shoulder', side): (1.0, None), 'chest': (-1.0, None, dome(side) if 'on' in found else None),
+                         'pelvis': (-1.0, None)})
                 for side, found in sleeves.items()]
     closings.append((between, {token('thigh', 'l'): (1.0, None), token('thigh', 'r'): (-1.0, None)}))
     result = {}
@@ -751,7 +784,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         pv, pf, pt, closed, kinds = v, mine, t, np.zeros((0, 3)), [np.full(len(mine), OWN)]
         for seam, facing in closings:  # closed first: an under part's cap then grows from a closed rim
             if name in facing:
-                more = seam_fill(pv, pt, pf, len(pv), seam, *facing[name])
+                more = seam_fill(pv, pt, pf, len(pv), seam, *facing[name][:2], dome=facing[name][2] if len(facing[name]) > 2 else None)
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 closed = np.concatenate([closed, more[0]])
                 kinds.append(np.full(len(more[2]), CLOSING))
