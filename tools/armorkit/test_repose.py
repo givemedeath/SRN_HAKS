@@ -173,6 +173,13 @@ class ReposeTests(unittest.TestCase):
         # the arms hang beside the body now, and the legs stand under the hips
         self.assertLess(np.abs(self.result['vertices'][:, 0]).max(), 0.45)
 
+    def test_the_ground_is_set_by_the_feet_and_not_by_a_hem_that_hangs_lower(self):
+        # a sole, an ankle that half follows the foot, a shin that barely does, and a hem below them all
+        points = np.array([[0, 0, 0.04], [0, 0, 0.12], [0, 0, 0.30], [0, 0, -0.05]], float)
+        result = repose.grounded(points, np.array([1.0, 0.5, 0.02, 0.0]))
+        np.testing.assert_allclose(result[:, 2], [0.0, 0.10, 0.2992, -0.05])
+        np.testing.assert_allclose(repose.grounded(points, np.zeros(4)), points)  # no feet: nothing to set down
+
     def test_the_faces_are_kept_and_every_vertex_follows_bones_that_add_up_to_one(self):
         self.assertTrue(np.array_equal(self.result['faces'], self.faces))
         self.assertEqual(self.result['weights'].shape, (len(repose.BONES), len(self.result['vertices'])))

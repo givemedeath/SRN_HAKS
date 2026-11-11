@@ -434,6 +434,14 @@ class SleeveTests(unittest.TestCase):
         self.assertAlmostEqual(area(both, new_f), 1.0, places=6)  # the whole triangle under the hub, no sliver
         self.assertTrue(np.all(normals(both, new_f) @ seam['normal'] > 0.99))
 
+    def test_a_shoulder_is_measured_only_where_the_arm_is_a_surface_of_its_own(self):
+        J = {name: np.array(p, float) for name, p in JOINTS.items()}
+        inside = J['lbicep_g'] + 0.06 * seams.unit(J['lbicep_g'] - J['lforearm_g'])
+        v, f, _ = join(tube((0, 0, 0.95), (0, 0, 1.60), 0.15), tube(inside, J['lforearm_g'], 0.11))  # a bulky sleeve
+        found = split.reaches(v, f, JOINTS, RADII)
+        self.assertTrue(0.11 < found[('shoulder', 'l')] < 0.14, found)
+        self.assertNotIn(('shoulder', 'l'), split.reaches(self.v, self.f, JOINTS, RADII))  # fused: the seam sets it
+
     def test_a_sleeve_fused_down_to_the_elbow_is_refused(self):
         v, f, _ = fused(armpit=1.10)
         with self.assertRaises(ValueError):

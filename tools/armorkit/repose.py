@@ -15,11 +15,10 @@ import numpy as np
 from tools.headkit import gltf
 from tools.robes import mesh_ops
 
-from . import seams
+from . import seams, split
 from .registry import require
 
 LEVELS = 240  # horizontal sections taken through the outfit
-WELD = 1e-5  # section points this close are one point
 BIG, FINE = 0.15, 0.05  # a section curve counts as torso, arm or leg from this share of the outfit's height round; a wrist from this
 NECK = 0.45  # the neck starts where the torso's curve is narrower than this share of its widest above the armpits
 STEP_LIMIT = 0.05  # a limb is followed to the next section's curve only within this share of the height
@@ -67,9 +66,7 @@ def slices(vertices, faces, levels):
         segments = seams.section(vertices, faces, np.array([0.0, 0.0, z]), up)
         if len(segments):
             world = segments[..., :1] * u[:2] + segments[..., 1:] * v[:2]
-            _, ids = np.unique(np.round(world.reshape(-1, 2) / WELD).astype(np.int64), axis=0, return_inverse=True)
-            ids = ids.reshape(-1, 2)
-            curve = mesh_ops.union_find(int(ids.max()) + 1, ids.tolist())[ids[:, 0]]
+            curve = split.curves(segments)[0]
             for label in np.unique(curve):
                 mine = world[curve == label]
                 length = np.linalg.norm(mine[:, 1] - mine[:, 0], axis=1)
@@ -211,6 +208,7 @@ def outfit_joints(vertices, faces, body):
         joints['toe' + side] = np.array([joints['ankle' + side][0], below[:, 1].max(), marks['floor']])
         arm = centreline(marks, sign, marks['armpit'] - 0.005 * marks['height'], 'arm')
         upper = arm[arm[:, 0] > marks['armpit'] - 0.12 * marks['height']]
+        require(len(upper) >= 2, f'The {"left" if sign < 0 else "right"} arm leaves the torso too far below the other to place its shoulder')
         height = level(body['shoulder' + side][2])
         shoulder = np.array([np.polyval(np.polyfit(upper[:, 0], upper[:, 1], 1), height), np.polyval(np.polyfit(upper[:, 0], upper[:, 2], 1), height), height])
         path = np.concatenate([shoulder[None], arm[::-1][:, [1, 2, 0]]])  # from the shoulder down the arm
@@ -333,6 +331,19 @@ def fit(posed, weight, there, parts, clearance=CLEARANCE):
     return result + (1 - used)[:, None] * posed, report
 
 
+def grounded(vertices, feet):
+    """The vertices with the soles set on the ground: `feet[i]` is the share vertex i follows a foot.
+
+    The lowest vertex that mostly follows a foot comes down (or up) to z = 0, and every vertex with it by its own
+    share. A hem or a fingertip may hang lower than the feet; it does not set the ground and is not moved."""
+    vertices = np.array(vertices, float)
+    soles = np.flatnonzero(feet > 0.5)
+    if len(soles):
+        lowest = soles[np.argmin(vertices[soles, 2])]
+        vertices[:, 2] -= vertices[lowest, 2] * np.minimum(feet / feet[lowest], 1.0)
+    return vertices
+
+
 def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE):
     """An outfit carried onto a body: its `vertices` in the body's rest pose and fitted round it, with what was found.
 
@@ -346,9 +357,6 @@ def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE):
     scale = float(there['neck'][2] / (marks['neck'] - marks['floor']))
     posed, weight = repose(vertices, faces, here, there, scale, marks['height'])
     fitted, report = fit(posed, weight, there, parts, clearance)
-    feet = weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) == 'foot']].sum(axis=0)
-    lowest = int(np.argmin(fitted[:, 2]))
-    if feet[lowest] > 0:  # the lowest point comes down to the ground, and the feet with it
-        fitted[:, 2] -= fitted[lowest, 2] * np.minimum(feet / feet[lowest], 1.0)
+    fitted = grounded(fitted, weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) == 'foot']].sum(axis=0))
     return {'vertices': fitted, 'faces': faces, 'joints': here, 'landmarks': marks, 'scale': scale, 'weights': weight, 'posed': posed,
             'widening': report}

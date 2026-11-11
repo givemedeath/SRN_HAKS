@@ -41,6 +41,7 @@
     "tools/armorkit/repose.py": [
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
+      "tools/armorkit/split.py",
       "tools/headkit/__init__.py",
       "tools/headkit/gltf.py",
       "tools/robes/mesh_ops.py"
