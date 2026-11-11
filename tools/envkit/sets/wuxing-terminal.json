@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "08_wuxing_freight_terminal.png",
+    "sha256": "dd0a9def4cf6e3bc184596c5e18aaea1b793af607012c4f130e6c2412fddcc91",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "green corporate freight terminal with an office block, a customs canopy, loading bays and a sign tower", "box": [0, 14, 960, 560], "notes": "Remove the title banner at the top left."},
+    "building-front": {"kind": "building", "subject": "front elevation of a green corporate freight terminal with loading bays", "box": [878, 101, 1270, 282]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a green corporate freight terminal", "box": [975, 320, 1370, 475], "notes": "Remove the text at the top right."},
+    "customs-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: green customs desk under a canopy, Wuxing livery.", "subject": "customs and receiving desk under a canopy", "box": [8, 629, 256, 804]},
+    "scanner-arch": {"kind": "prop", "type": "scanner-arch", "subject": "cargo scanner arch over a conveyor with a control terminal", "box": [260, 634, 451, 804]},
+    "warehouse-shelving": {"kind": "prop", "type": "shelf-unit", "variant": "Industrial yellow pallet racking loaded with boxes.", "subject": "industrial pallet racking loaded with boxes", "box": [455, 631, 628, 800]},
+    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "variant": "Branding: shrink-wrapped pallet with the Wuxing mark.", "subject": "pallet of boxes and shrink-wrapped cargo", "box": [633, 658, 825, 804]},
+    "rolling-crates": {"kind": "prop", "type": "hard-case", "variant": "Two wheeled cargo crates, grey and green, Wuxing mark.", "subject": "two wheeled cargo crates", "box": [842, 664, 1026, 800]},
+    "dock-door": {"kind": "prop", "type": "dock-door", "subject": "loading dock roller door in a wall section marked Bay 2", "box": [1037, 624, 1239, 801]},
+    "forklift": {"kind": "prop", "type": "forklift", "variant": "Branding: yellow forklift with Wuxing marks.", "subject": "yellow forklift truck", "box": [1248, 632, 1445, 802]},
+    "shipping-container": {"kind": "prop", "type": "shipping-container", "variant": "Branding: green Wuxing container.", "subject": "green steel shipping container", "box": [5, 884, 238, 1017]},
+    "security-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Branding: barred gate between floodlit posts, Wuxing mark.", "subject": "barred vehicle gate between two floodlit posts", "box": [235, 870, 496, 1016]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: green Wuxing panel sign.", "subject": "wall-mounted corporate sign reading Wuxing", "box": [500, 912, 677, 996]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: tall green Wuxing directory pylon.", "subject": "tall freestanding directory pylon sign reading Wuxing", "box": [678, 841, 767, 1020]},
+    "drone-pad": {"kind": "prop", "type": "drone-dock", "variant": "Low octagonal landing pad with green lights, Wuxing mark.", "subject": "low octagonal drone landing pad", "box": [772, 917, 949, 1010]},
+    "checkpoint-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Branding: palm-scanner terminal with the Wuxing mark.", "subject": "freestanding checkpoint terminal with a palm scanner", "box": [949, 863, 1036, 1016]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "same": "shiawase-substation/rooftop-unit", "subject": "rooftop air-conditioning unit with pipes", "box": [1040, 885, 1258, 1012]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "same": "saeder-krupp-yard/fence-section", "subject": "chain-link fence section with razor wire on striped footings", "box": [1265, 858, 1446, 1016]}
+  }
+}

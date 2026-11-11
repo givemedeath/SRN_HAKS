@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "10_neonet_matrix_services_hub.png",
+    "sha256": "d7b143d6600fbb4d14816824f78008806c54925233947ca08009a8eafe3d870c",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "faceted grey data services hub with violet lighting, cooling fans and antennas", "box": [0, 14, 880, 540], "notes": "Remove the title banner at the top left."},
+    "building-front": {"kind": "building", "subject": "front elevation of a faceted grey data services hub", "box": [872, 119, 1231, 293]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a faceted grey data services hub", "box": [879, 323, 1243, 509]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: dark desk under a canopy with violet light, NeoNET livery.", "subject": "dark corporate reception desk under a canopy", "box": [8, 625, 255, 790]},
+    "server-racks": {"kind": "prop", "type": "server-rack", "variant": "Four racks lit blue and violet, unmarked.", "subject": "bank of four server racks", "box": [261, 624, 474, 790]},
+    "data-vault": {"kind": "prop", "type": "vault-cabinet", "subject": "secure data vault cabinet with a lock screen", "box": [482, 621, 627, 790]},
+    "cooling-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Branding: twin-fan cooling module with the NeoNET mark.", "subject": "cooling unit module with two fans", "box": [631, 627, 889, 790]},
+    "matrix-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: public kiosk with a network screen, NeoNET mark.", "subject": "freestanding public data kiosk", "box": [894, 621, 1018, 790]},
+    "turnstile": {"kind": "prop", "type": "turnstile", "variant": "Pair of turnstiles with violet glass gates.", "subject": "pair of security turnstiles with glass gates", "box": [1037, 653, 1223, 788]},
+    "cable-bundle": {"kind": "prop", "type": "conduit", "variant": "Wall bundle of blue and violet cables on brackets.", "subject": "wall-mounted bundle of coloured cables on brackets", "box": [1237, 614, 1445, 789]},
+    "battery-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Branding: UPS cabinet with the NeoNET mark.", "subject": "three-bay battery backup cabinet", "box": [7, 847, 182, 1020]},
+    "checkpoint-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Branding: fingerprint terminal with violet stripes.", "subject": "freestanding checkpoint terminal with a fingerprint scanner", "box": [206, 852, 299, 1017]},
+    "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [326, 855, 462, 1013]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: dark NeoNET Matrix Services Hub panel.", "subject": "wall-mounted corporate sign reading NeoNET", "box": [467, 896, 691, 1007]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: NeoNET Matrix Services Hub pylon.", "subject": "freestanding pylon sign reading NeoNET", "box": [693, 840, 816, 1020]},
+    "secure-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey strapped case with the NeoNET mark.", "subject": "grey strapped hard case", "box": [831, 898, 1019, 1020]},
+    "comms-unit": {"kind": "prop", "type": "comms-array", "variant": "Branding: dish and violet-lit antennas inside a railing, NeoNET mark.", "subject": "rooftop communications unit with a dish and antennas", "box": [1031, 843, 1260, 1017]},
+    "barrier-block": {"kind": "prop", "type": "concrete-barrier", "variant": "Branding: violet-striped barrier with the NeoNET mark.", "subject": "concrete road barrier with violet stripes", "box": [1267, 924, 1441, 1017]}
+  }
+}

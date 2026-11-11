@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "06_shiawase_utility_control_substation.png",
+    "sha256": "ea59cfddfbe6a73f51d34faaec6839f9155f67f2c4ff7152e685147eb9466e09",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "two-storey white utility control substation with a fenced transformer yard", "box": [0, 88, 840, 560]},
+    "building-front": {"kind": "building", "subject": "front elevation of a two-storey white utility control substation", "box": [844, 120, 1252, 312]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a two-storey white utility control substation", "box": [851, 349, 1256, 530]},
+    "control-console": {"kind": "prop", "type": "console-desk", "variant": "Hooded utility control console with a schematic wall and a chair.", "subject": "hooded utility control console with screens and a chair", "box": [12, 657, 246, 810]},
+    "breaker-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Four-bay breaker cabinet with indicator lights.", "subject": "four-bay electrical breaker cabinet", "box": [260, 661, 426, 810]},
+    "transformer-bank": {"kind": "prop", "type": "transformer", "subject": "power transformer with four insulators and cooling fins", "box": [443, 642, 674, 810]},
+    "junction-box": {"kind": "prop", "type": "junction-box", "subject": "utility junction box on legs with conduit pipes", "box": [689, 670, 822, 810]},
+    "maintenance-kiosk": {"kind": "prop", "type": "guard-booth", "variant": "Branding: square prefab kiosk, Shiawase livery.", "subject": "square prefab maintenance kiosk with a window", "box": [838, 656, 1021, 810]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "variant": "Branding: razor-wire panel with a high-voltage sign on red-striped footings.", "subject": "chain-link fence section with razor wire and a high-voltage sign", "box": [1044, 659, 1251, 810]},
+    "trench-cover": {"kind": "prop", "type": "trench-cover", "subject": "steel cable trench cover with hazard edging", "box": [1257, 674, 1448, 810]},
+    "wall-signs": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Shiawase substation panel behind a high-voltage danger sign.", "subject": "wall sign reading Shiawase Utility Control Substation with a danger sign", "box": [8, 887, 256, 1021]},
+    "battery-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Branding: two-door battery cabinet with green charge lights, Shiawase mark.", "subject": "two-door battery backup cabinet with green lights", "box": [259, 877, 408, 1030]},
+    "service-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey case with the Shiawase mark.", "subject": "grey hard service case", "box": [418, 907, 592, 1028]},
+    "access-terminal": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "freestanding access terminal with a palm scanner", "box": [602, 879, 706, 1030]},
+    "gate-module": {"kind": "prop", "type": "vehicle-gate", "variant": "Branding: barred gate between beacon posts, Shiawase mark.", "subject": "barred vehicle gate between two beacon posts", "box": [718, 884, 1005, 1030]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Low unit with pipes inside a yellow railing.", "subject": "low rooftop air-conditioning unit inside a railing", "box": [1011, 890, 1299, 1030]},
+    "bollards": {"kind": "prop", "type": "bollard", "subject": "pair of yellow and black safety bollards", "box": [1298, 891, 1441, 1025]}
+  }
+}
