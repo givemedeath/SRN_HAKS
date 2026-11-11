@@ -235,6 +235,13 @@ def split(faces, limit=NODE_VERTICES):
     return parts
 
 
+def card_normal_line(card):
+    """A halo card's normal as a line of a model: the way the card faces."""
+    from . import glow
+    x, y, z = (glow.card_normal(card) + 0.0).round(5).tolist()
+    return f'    {x:g} {y:g} {z:g}'
+
+
 def model_text(name, vertices, normals, uvs, faces, cards=None):
     """The ASCII model. `cards` are a halo's sheets (`glow.halo`), four corners each, all showing `name`_h. That
     texture's TXI makes the game add them to what is behind. They take no light (ambient and diffuse are black) and show
@@ -257,7 +264,7 @@ def model_text(name, vertices, normals, uvs, faces, cards=None):
         lines += [f'node trimesh {name}_halo{number}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
                   f'  bitmap {name}_h', '  render 1', '  shadow 0', '  transparencyhint 1', '  verts 4']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
-        lines += ['  normals 4'] + ['    0 1 0'] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
+        lines += ['  normals 4'] + [card_normal_line(card)] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
     return '\n'.join(lines + [f'endmodelgeom {name}', f'donemodel {name}']) + '\n'
 
 
@@ -399,9 +406,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         from . import glow
         size = max(colour // 2, 256)
         base = np.asarray(Image.open(maps['base_color']).convert('RGB').resize((size, size)), float) / 255
-        where, covered = glow.position_map(vertices, uvs, faces, size); shine = glow.glow(base, where, covered, lit)
+        where, covered, toward = glow.position_map(vertices, uvs, faces, size, facing=True); shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
-        card = glow.halo(shine, where, covered, **halo) if halo else None
+        card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
             'illumination': illumination, 'card': card}
 

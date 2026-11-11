@@ -63,6 +63,15 @@ class TileTests(unittest.TestCase):
         sides = sum(int((closed & ~np.roll(closed, turn, axis)).sum()) for axis in (0, 1) for turn in (1, -1))
         self.assertEqual(len(upright), 2 * sides); self.assertGreaterEqual(sides, 2 * (12 + 6))  # at least the 6 by 3 metres of walls
 
+    def test_a_bin_against_the_wall_stops_movement_but_is_seen_over(self):
+        binned = scene(SHOP, box((-1.5, 1.0, 0.2), (-0.7, 1.7, 1.1)))  # touching the north wall, under the canopy
+        rows, columns, corner = tile.layout(binned[0]); found = tile.survey(*binned, rows, columns, corner)
+        at = lambda x, y: found['material'][int((y - corner[1]) / 0.5), int((x - corner[0]) / 0.5)]
+        self.assertEqual(at(-1.1, 1.6), tile.NONWALK); self.assertEqual(at(-1.1, 0.9), tile.OBSCURING)
+        vertices, faces = tile.walkmesh(found, 0, 0); upright = faces[(faces[:, :3] >= (tile.CELLS + 1) ** 2).any(1)]
+        self.assertLess(float(vertices[upright[:, :3]][..., 1].max()), 1.51)  # no wall of sight round the bin: the building's ends with the cell of its own wall
+        self.assertFalse(found['footprint'][int((1.6 - corner[1]) / 0.125), int((-1.1 - corner[0]) / 0.125)])  # nor does the lid cover it
+
     def test_a_model_that_leaves_no_ground_round_it_is_refused(self):
         with self.assertRaisesRegex(ValueError, 'edge of its tiles'):
             tile.survey(*box((-5, -5, 0), (5, 5, 3)), 1, 1, np.array([-5.0, -5.0]))
@@ -97,6 +106,16 @@ class TileTests(unittest.TestCase):
         np.testing.assert_allclose([place for place, _ in east], [[-1, -2, 1], [-5, -2, 1], [-5, -2, 2], [-1, -2, 2]])  # in the tile's own space
         np.testing.assert_allclose([place[0] for place, _ in west], [5, 3, 3, 5])
         np.testing.assert_allclose([uv[0] for _, uv in east], [0.0, 0.4, 0.4, 0.0]); np.testing.assert_allclose([uv[0] for _, uv in west], [0.4, 0.6, 0.6, 0.4])
+
+    def test_a_card_on_a_side_wall_is_cut_along_the_wall_it_stands_on(self):
+        # Facing +X at x = 3: seen from the east its left corner is the southern one. It crosses from the south row into the north.
+        card = [((3.0, -2.0, 1.0), (0.0, 0.5)), ((3.0, 4.0, 1.0), (0.6, 0.5)), ((3.0, 4.0, 2.0), (0.6, 0.0)), ((3.0, -2.0, 2.0), (0.0, 0.0))]
+        shared = tile.share_cards([card], 2, 2, np.array([-10.0, -10.0]))
+        self.assertEqual(sorted(shared), [(0, 1), (1, 1)])  # the east column, both rows
+        south, north = shared[(0, 1)][0], shared[(1, 1)][0]
+        np.testing.assert_allclose([place for place, _ in south], [[-2, 3, 1], [-2, 5, 1], [-2, 5, 2], [-2, 3, 2]])
+        np.testing.assert_allclose([place[1] for place, _ in north], [-5, -1, -1, -5])
+        np.testing.assert_allclose([uv[0] for _, uv in south], [0.0, 0.2, 0.2, 0.0]); np.testing.assert_allclose([uv[0] for _, uv in north], [0.2, 0.6, 0.6, 0.2])
 
     def test_each_tile_of_a_two_by_two_group_says_which_corner_the_building_closes(self):
         made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9} for row in (0, 1) for column in (0, 1)]}

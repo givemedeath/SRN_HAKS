@@ -238,6 +238,10 @@ quarter turn before painting kept its four tiles together and its door on the tu
 offered both main lights; and a highrise painted on the tiles beside the group left the group as it was. The
 area map itself was not looked at in the client, and the door was not checked in Suburbs.
 
+Rebuilt once more the same day: the signs on the east and west walls and the east window now glow, each with a
+halo sheet facing out from its own wall, and the bins against the front wall stop movement without stopping
+sight. Checked in the game client at night from both sides, with the sight line over the bins clear.
+
 ## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
 Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a

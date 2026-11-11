@@ -8,7 +8,11 @@
       {"part": "door goods", "box": [[-1.2, 3.1, 0.3], [0.7, 3.9, 2.9]], "gain": 1.0, "saturation": 0.12},
       {"part": "right window glass", "box": [[-3.5, 3.1, 1.2], [-1.4, 3.9, 2.95]], "gain": 0.35},
       {"part": "right window goods", "box": [[-3.5, 3.1, 1.2], [-1.4, 3.9, 2.95]], "gain": 1.0, "saturation": 0.12},
-      {"part": "OPEN sign", "box": [[-2.6, 3.1, 1.9], [-1.7, 3.9, 2.5]], "gain": 2.0, "saturation": 0.4}
+      {"part": "OPEN sign", "box": [[-2.6, 3.1, 1.9], [-1.7, 3.9, 2.5]], "gain": 2.0, "saturation": 0.4},
+      {"part": "east side sign", "box": [[4.8, -4.05, 3.0], [6.2, -1.2, 4.0]], "gain": 1.0},
+      {"part": "west side sign", "box": [[-6.2, -4.1, 3.0], [-4.8, -1.15, 4.0]], "gain": 1.0},
+      {"part": "east window glass", "box": [[4.8, -4.3, 1.2], [6.2, -3.1, 2.75]], "gain": 0.35},
+      {"part": "east window goods", "box": [[4.8, -4.3, 1.2], [6.2, -3.1, 2.75]], "gain": 1.0, "saturation": 0.12}
     ], "halo": {"reach": 0.4, "strength": 0.55},
       "tiles": {"ground": "pavement", "group": "Stuffer_Shack", "label": "Stuffer Shack 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 3.0, "door": {"at": [-0.25, 3.9, 0.18], "facing": 90.0, "type": 58}}},
     "ek_ss_vending": {"source": "meshy/models/vending-machine-a1", "height": 1.83, "colour": 2048, "lit": [

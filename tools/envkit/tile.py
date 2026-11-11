@@ -9,7 +9,8 @@ kerbs sit in the outer corner of each tile, 2026-11-11).
 The walkmesh is a grid. A cell is closed where the mesh stands between knee and head height, so a sign or canopy
 overhead closes nothing. The largest closed mass is the building: its cells, and upright faces round its outline up to
 its roof, are Obscuring, which stops both movement and sight, as the upright faces of the stock tiles do. Smaller
-closed things (bollards, bins) are Nonwalk: in the way, but seen over. Where the mesh has a slab, the walkmesh rises
+closed things (bollards, bins) are Nonwalk: in the way, but seen over; so is whatever joins the building without
+reaching eye height, such as bins standing against its wall. Where the mesh has a slab, the walkmesh rises
 onto it over the slab's outermost cells.
 
 A tile also carries what the stock tiles carry (read off Modern Exterior's and the stock city's tiles, 2026-11-11): a
@@ -34,7 +35,7 @@ LIGHT_HEIGHT = 4.0
 CELLS = 20  # walk cells across a tile: half a metre each
 FINE = 4  # samples across a walk cell
 STONE, OBSCURING, NONWALK = 4, 2, 7  # rows of surfacemat.2da
-KNEE, HEAD, STEP = 0.45, 2.2, 0.05
+KNEE, EYE, HEAD, STEP = 0.45, 1.4, 2.2, 0.05
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
              'BottomRightHeight', 'Top', 'Right', 'Bottom', 'Left', 'MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1',
              'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds', 'PathNode', 'Orientation', 'VisibilityNode', 'VisibilityOrientation', 'ImageMap2D')
@@ -107,7 +108,8 @@ def _masses(closed):
 def survey(vertices, faces, rows, columns, corner):
     """The group's walk cells, [row, column] from the south-west: {material, raised, slab, roof}.
 
-    material: Stone where one can walk, Obscuring for the building, Nonwalk for the lesser things in the way.
+    material: Stone where one can walk, Obscuring for the building where it stands at eye height, Nonwalk for the
+    lesser things in the way and for the parts of the building's mass that are lower than that.
     raised: the cell lies on the slab (or inside what stands on it). slab: the slab's height. roof: the building's.
     footprint: the building's outline at the survey's own grain, FINE samples to the cell."""
     points = scatter(vertices, faces); across = np.array([columns, rows]) * CELLS * FINE; step = SIZE / CELLS / FINE
@@ -115,6 +117,9 @@ def survey(vertices, faces, rows, columns, corner):
     standing = (points[:, 2] > KNEE) & (points[:, 2] < HEAD)
     solid = np.zeros((across[1], across[0]), bool); solid[place[standing, 1], place[standing, 0]] = True
     solid = ~_outside(~solid)  # what the walls enclose is closed too
+    looking = (points[:, 2] > EYE) & (points[:, 2] < HEAD)
+    tall = np.zeros(solid.shape, bool); tall[place[looking, 1], place[looking, 0]] = True
+    tall = ~_outside(~tall)
     low = np.zeros(solid.shape); under = points[:, 2] <= KNEE
     np.maximum.at(low, (place[under, 1], place[under, 0]), points[under, 2])
     on_slab = ~_outside(~(low > STEP))  # and what the slab's rim encloses stands on it
@@ -124,8 +129,8 @@ def survey(vertices, faces, rows, columns, corner):
     labels, count = _masses(closed); material = np.full(closed.shape, STONE); footprint = np.zeros_like(solid)
     if count:
         sizes = np.bincount(labels.ravel())[1:]; building = int(sizes.argmax()) + 1
-        material[closed] = NONWALK; material[labels == building] = OBSCURING
-        footprint = solid & np.repeat(np.repeat(labels == building, FINE, 0), FINE, 1)
+        material[closed] = NONWALK; material[(labels == building) & (cells(tall) >= 0.25)] = OBSCURING
+        footprint = tall & np.repeat(np.repeat(material == OBSCURING, FINE, 0), FINE, 1)
     require(not (closed[0].any() or closed[-1].any() or closed[:, 0].any() or closed[:, -1].any()) and not (raised[0].any() or raised[-1].any() or raised[:, 0].any() or raised[:, -1].any()),
             'The model reaches the edge of its tiles: the group leaves no ground around it')
     return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint}
@@ -260,7 +265,7 @@ def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=No
         lines += [f'node trimesh {name}_halo{index}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
                   f'  bitmap {material}_h', '  render 1', '  shadow 0', '  rotatetexture 0', f'  tilefade {1 if above else 0}', '  transparencyhint 1', '  alpha 1', '  verts 4']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
-        lines += ['  normals 4'] + ['    0 1 0'] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
+        lines += ['  normals 4'] + [convert.card_normal_line(card)] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
     if cap:  # `tilefade 2`: drawn only while the parts above it are hidden
         corners = [corner for x0, y0, x1, y1 in cap for corner in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
         lines += [f'node trimesh {name}_cap', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1', f'  bitmap {CAP}',
@@ -284,21 +289,27 @@ def walk_text(name, walk):
 
 
 def share_cards(cards, rows, columns, corner):
-    """{(row, column): [card]}: each halo card cut along the tile lines it crosses, in each tile's own space."""
-    shared = {}
+    """{(row, column): [card]}: each halo card cut along the tile lines it crosses, in each tile's own space. A card
+    stands upright facing along x or along y, so it runs along the other of the two and is cut along that."""
+    shared = {}; counts = (columns, rows)
     for card in cards:
-        (left, depth, bottom), (u_left, v_bottom) = card[0]; (right, _, _), (u_right, _) = card[1]; (_, _, top), (_, v_top) = card[2]
-        row = int(np.clip((depth - corner[1]) // SIZE, 0, rows - 1))
-        for column in range(columns):
-            west, east = corner[0] + column * SIZE, corner[0] + (column + 1) * SIZE
-            near, far = min(left, east), max(right, west)  # the card runs from its left (high x) to its right (low x)
-            if near - far < 1e-6:
+        (start, (u_start, v_bottom)), (end, (u_end, _)), (upper, (_, v_top)) = [(np.array(place, float), uv) for place, uv in card[:3]]
+        along = int(np.abs(end - start)[:2].argmax()); fixed = 1 - along
+        held = int(np.clip((start[fixed] - corner[fixed]) // SIZE, 0, counts[fixed] - 1))
+        for index in range(counts[along]):
+            low, high = corner[along] + index * SIZE, corner[along] + (index + 1) * SIZE
+            near, far = np.clip([start[along], end[along]], low, high)  # in the card's own order, left corner to right
+            if abs(near - far) < 1e-6:
                 continue
-            u = lambda x: u_left + (left - x) / (left - right) * (u_right - u_left)
-            centre = np.array([west + SIZE / 2, corner[1] + (row + 0.5) * SIZE, 0.0])
-            piece = [((near, depth, bottom), (u(near), v_bottom)), ((far, depth, bottom), (u(far), v_bottom)),
-                     ((far, depth, top), (u(far), v_top)), ((near, depth, top), (u(near), v_top))]
-            shared.setdefault((row, column), []).append([(tuple(np.array(place) - centre), corner_uv) for place, corner_uv in piece])
+            u = lambda value: u_start + (value - start[along]) / (end[along] - start[along]) * (u_end - u_start)
+            cell = {along: index, fixed: held}; column, row = cell[0], cell[1]
+            centre = np.array([corner[0] + (column + 0.5) * SIZE, corner[1] + (row + 0.5) * SIZE, 0.0])
+
+            def at(value, height):
+                point = start.copy(); point[along] = value; point[2] = height
+                return tuple((point - centre).tolist())
+            shared.setdefault((row, column), []).append([(at(near, start[2]), (u(near), v_bottom)), (at(far, start[2]), (u(far), v_bottom)),
+                                                         (at(far, upper[2]), (u(far), v_top)), (at(near, upper[2]), (u(near), v_top))])
     return shared
 
 
