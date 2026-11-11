@@ -133,8 +133,9 @@ def command_blueprints(args):
     import tempfile
     from tools.phenotypes import tool_runtime
     from . import blueprints, catalog, convert, placeables
-    models = convert.load_models(args.models); repo = Path(args.repo); pack = repo / args.pack; path = repo / args.catalog
-    data = catalog.load(path); gff = str(tool_runtime.tool('nwn_gff'))
+    models = convert.load_models(args.models); repo = Path(args.repo); pack = repo / args.pack; record = repo / args.catalog
+    require(pack.is_dir() and record.is_file(), 'The pack or the additions catalog is missing: ' + str(pack) + ', ' + str(record))
+    data = catalog.load(record); gff = str(tool_runtime.tool('nwn_gff'))
     run = lambda arguments: subprocess.run([str(value) for value in arguments], capture_output=True, timeout=300, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     with tempfile.TemporaryDirectory() as scratch:
         scratch = Path(scratch)
@@ -151,18 +152,20 @@ def command_blueprints(args):
         stock = run([tool_runtime.tool('nwn_resman_cat'), '--root', args.game, blueprints.PALETTE])
         require(stock.returncode == 0 and stock.stdout, 'The game\'s own placeable palette could not be read from ' + str(args.game))
         (scratch / 'stock.itp').write_bytes(stock.stdout)
-        made = []
+        made = {}
         for entry in data['placeables']:
             placed = models.get(entry['model'], {}).get('placeable')
             if placed is None or 'category' not in placed:
                 continue
             static = placed.get('static', not models[entry['model']].get('lit'))
-            write(blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
-                                       comment='envkit: ' + entry['source']),
-                  pack / f'{entry["model"]}.utp')
-            catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']}); made.append(entry['model'])
+            made[entry['model']] = blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
+                                                        comment='envkit: ' + entry['source'])
+            catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']})
         listed = [{'resref': entry['blueprint'], 'name': entry['label'].removeprefix(placeables.PREFIX), 'category': entry['category']}
                   for entry in data['placeables'] if entry.get('blueprint')]
-        write(blueprints.palette(read(pack / blueprints.SKELETON), read(scratch / 'stock.itp'), listed), pack / blueprints.PALETTE)
-    catalog.save(path, data)
-    print(json.dumps({'blueprints': made, 'palette': len(listed)}), flush=True)
+        palette = blueprints.palette(read(pack / blueprints.SKELETON), read(scratch / 'stock.itp'), listed)
+        for model, document in made.items():  # every blueprint and the palette are worked out before the first is written
+            write(document, pack / f'{model}.utp')
+        write(palette, pack / blueprints.PALETTE)
+    catalog.save(record, data)
+    print(json.dumps({'blueprints': list(made), 'palette': len(listed)}), flush=True)

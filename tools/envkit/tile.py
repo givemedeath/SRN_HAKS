@@ -481,29 +481,30 @@ def prepare(set_path, palette_path, made, *, terrain, group_name, label):
     if all(there):
         listed = re.search(r'(?ms)^\[GROUP(\d+)\]\r?\nName=' + re.escape(group_name) + r'\r?\nRows=' + str(made['rows']) + r'\r?\nColumns=' + str(made['columns']) + r'\r?$', text)
         require(listed, f'{set_path.name} lists the tiles but not their group {group_name} at {made["rows"]} by {made["columns"]}')
-        text, first = revise(text, tile_records(made, terrain), doors(made)); game_bytes(text, set_path.name)
-        return {'tool': None, 'set': set_path, 'text': text, 'palette': palette_path, 'document': None, 'firstTile': first, 'group': int(listed.group(1))}
+        text, first = revise(text, tile_records(made, terrain), doors(made))
+        return {'tool': None, 'set': set_path, 'written': game_bytes(text, set_path.name), 'palette': palette_path, 'document': None, 'firstTile': first, 'group': int(listed.group(1))}
     require(not any(there), f'{set_path.name} lists some of the group\'s tiles and not others')
-    text, first, number = register(text, tile_records(made, terrain), group_name, made['rows'], made['columns'], doors(made)); game_bytes(text, set_path.name)
+    text, first, number = register(text, tile_records(made, terrain), group_name, made['rows'], made['columns'], doors(made))
+    written = game_bytes(text, set_path.name)  # refused here, before anything is written, if a name has a character the game lacks
     tool = str(tool_runtime.tool('nwn_gff'))
     read = subprocess.run([tool, '-i', str(palette_path), '-k', 'json'], capture_output=True, timeout=120, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     require(read.returncode == 0, 'The palette could not be read: ' + read.stderr.decode(errors='replace')[-400:])
     document = palette(json.loads(read.stdout), label, made['tiles'][0]['model'], single=len(made['tiles']) == 1)
-    return {'tool': tool, 'set': set_path, 'text': text, 'palette': palette_path, 'document': document, 'firstTile': first, 'group': number}
+    return {'tool': tool, 'set': set_path, 'written': written, 'palette': palette_path, 'document': document, 'firstTile': first, 'group': number}
 
 
 def commit(prepared):
     """Write what `prepare` worked out: the palette (for a group new to the tileset), then the set file; returns
     {firstTile, group}."""
     if prepared['document'] is None:
-        prepared['set'].write_bytes(prepared['text'].encode('cp1252'))
+        prepared['set'].write_bytes(prepared['written'])
         return {'firstTile': prepared['firstTile'], 'group': prepared['group']}
     with tempfile.TemporaryDirectory() as folder:  # the JSON never lies in the pack, where a stopped run would leave it
         staged = Path(folder) / 'palette.json'; staged.write_text(json.dumps(prepared['document']), encoding='utf-8')
         wrote = subprocess.run([prepared['tool'], '-i', str(staged), '-l', 'json', '-o', str(prepared['palette']), '-k', 'gff'], capture_output=True, timeout=120,
                                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         require(wrote.returncode == 0, 'The palette could not be written: ' + wrote.stderr.decode(errors='replace')[-400:])
-    prepared['set'].write_bytes(prepared['text'].encode('cp1252'))
+    prepared['set'].write_bytes(prepared['written'])
     return {'firstTile': prepared['firstTile'], 'group': prepared['group']}
 
 

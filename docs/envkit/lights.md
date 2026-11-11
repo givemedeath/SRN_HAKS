@@ -60,7 +60,7 @@ For tiles, for static scenery, or for a blackout of every copy at once:
 
 ```c
 // Puts out, or back on, the lights of every copy of an envkit model that oPC sees: tiles and static
-// placeables as well as the rest. OBJECT_INVALID as oPC means every player.
+// placeables as well as the rest. OBJECT_INVALID as oPC means every player then in the game.
 void EkBlackout(string sName, int bOn, object oPC = OBJECT_INVALID, int bHalo = TRUE)
 {
     SetTextureOverride(sName + "_i", bOn ? "" : sName + "_o", oPC);
@@ -73,8 +73,9 @@ void EkBlackout(string sName, int bOn, object oPC = OBJECT_INVALID, int bHalo = 
   in that 16-pixel black.
 - It is per player, not per object or per area: every copy of the model that player sees goes dark, wherever it
   stands. For one building among several of the same model there is no call; use a different model.
-- What a player who joins later sees, and whether the override outlasts an area change, has not been checked.
-  Apply it again when a player enters if it matters.
+- The game's script header says `OBJECT_INVALID` applies the override to all active players, so one who joins
+  afterwards is not covered: apply it again when a player enters. Whether an override outlasts an area change
+  has not been checked.
 
 ## Tiles by day and night
 

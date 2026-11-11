@@ -222,12 +222,13 @@ try {
     $packFolders = @(Get-ChildItem -LiteralPath $repoRoot -Directory -Filter 'srn_*' | ForEach-Object { $_.Name })
     $packFile = { param($pack, $name) Test-Path -LiteralPath (Join-Path $repoRoot (Join-Path $pack $name)) -PathType Leaf }
     $checkLights = {
-        param($entry, $material, $what)
+        param($entry, $material, $what, [bool]$named)  # $named: the entry's model is its material; a group's tiles only share one
         $lights = if ($entry.PSObject.Properties['lights']) { $entry.lights } else { $null }
         if (-not $lights) {
             if (& $packFile $entry.pack "${material}_i.dds") { Add-ValidationError "$what has a glow map ($($entry.pack)/${material}_i.dds) and no lights in the additions catalog." }
             return
         }
+        if (-not $named) { $material = [string]$lights.lit }  # a group's own entry says which material its tiles share
         if ([string]$lights.lit -cne $material -or [string]$lights.out -cne "${material}_o" -or [string]$lights.glow -cne "${material}_i") { Add-ValidationError "The lights of $what do not follow its material $material." }
         $needed = @("$($lights.lit).mtr", "$($lights.out).mtr", "$($lights.out).dds", "$($lights.glow).dds")
         if ($lights.PSObject.Properties['halo']) { $needed += "$($lights.halo).mtr", "$($lights.halo).dds", "$($lights.halo).txi" }
@@ -256,7 +257,7 @@ try {
         if ($tableRows[$row][0] -cne [string]$entry.label -or $tableRows[$row][1] -cne ([string]$entry.model).ToLowerInvariant()) {
             Add-ValidationError "Row $row is $($tableRows[$row][1]) '$($tableRows[$row][0])' in $tableRelative and $($entry.model) '$($entry.label)' in the additions catalog."
         }
-        & $checkLights $entry ([string]$entry.model) "placeables row $row"
+        & $checkLights $entry ([string]$entry.model) "placeables row $row" $true
         $needed = @("$($entry.model).mdl")
         if ($entry.PSObject.Properties['blueprint']) { $needed += "$($entry.blueprint).utp" }
         foreach ($name in $needed) {
@@ -297,7 +298,7 @@ try {
         foreach ($number in @($setGroups.Keys | Where-Object { $_ -ge [int]$baseline.importedGroups } | Sort-Object)) {
             if (-not $listedGroups.ContainsKey($number)) { Add-ValidationError "$($baseline.set) group $number ($($setGroups[$number].name)) is not in docs/additions/catalog.json."; continue }
             $entry = $listedGroups[$number]; $group = $setGroups[$number]
-            & $checkLights $entry (([string]@($entry.models)[0]) -replace '_t\d\d$', '') "group $number of $tilesetName"
+            & $checkLights $entry (([string]@($entry.models)[0]) -replace '_t\d\d$', '') "group $number of $tilesetName" $false
             if ($group.name -cne [string]$entry.name -or $group.rows -ne [int]$entry.rows -or $group.columns -ne [int]$entry.columns -or (($group.tiles -join ',') -cne (@($entry.tiles) -join ','))) {
                 Add-ValidationError "Group $number of $tilesetName is '$($group.name)' $($group.rows)x$($group.columns) [$($group.tiles -join ',')] in the set file and '$($entry.name)' $($entry.rows)x$($entry.columns) [$(@($entry.tiles) -join ',')] in the additions catalog."
             }
