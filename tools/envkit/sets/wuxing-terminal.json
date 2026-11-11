@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "green corporate freight terminal with an office block, a customs canopy, loading bays and a sign tower", "box": [0, 14, 960, 560], "notes": "Remove the title banner at the top left."},
+    "building-hero": {"kind": "building", "subject": "green corporate freight terminal with an office block, a customs canopy, loading bays and a sign tower", "box": [0, 14, 960, 560], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of a green corporate freight terminal with loading bays", "box": [878, 101, 1270, 282]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a green corporate freight terminal", "box": [975, 320, 1370, 475], "notes": "Remove the text at the top right."},
     "customs-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: green customs desk under a canopy, Wuxing livery.", "subject": "customs and receiving desk under a canopy", "box": [8, 629, 256, 804]},

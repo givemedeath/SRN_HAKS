@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "14_knight_errant_rapid_response_post.png",
+    "sha256": "f8caac507468f85ea883c3508fd9092c36d8468e45ed680f13767ee8b37c4b73",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "black and yellow hardened security response post with a guard window, a vehicle bay and a fenced side", "box": [0, 14, 890, 535], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a black and yellow security response post", "box": [888, 122, 1228, 296]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a black and yellow security response post", "box": [900, 332, 1239, 504]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: black desk with amber light under a canopy, Knight Errant livery.", "subject": "black guarded reception desk under a canopy", "box": [9, 617, 277, 796]},
+    "surveillance-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "surveillance console of six screens with a desk and a chair", "box": [284, 624, 492, 788]},
+    "gear-lockers": {"kind": "prop", "type": "locker", "variant": "Branding: dark lockers with the Knight Errant yellow band.", "subject": "row of three dark gear lockers with a yellow band", "box": [497, 620, 643, 787]},
+    "weapons-cabinet": {"kind": "prop", "type": "weapon-rack", "variant": "Branding: rifle cabinet with amber lighting and Knight Errant chevrons.", "subject": "armoured weapon storage cabinet holding rifles", "box": [658, 618, 832, 787]},
+    "drone-dock": {"kind": "prop", "type": "drone-dock", "variant": "Branding: four-pillar dock with Knight Errant chevrons.", "subject": "drone docking post of four pillars over a lit landing pad", "box": [855, 616, 1037, 786]},
+    "turret": {"kind": "prop", "type": "turret", "variant": "Branding: turret with Knight Errant chevrons.", "subject": "automated gun turret on a pedestal", "box": [1054, 616, 1214, 789]},
+    "barricade": {"kind": "prop", "type": "concrete-barrier", "same": "saeder-krupp-yard/utility-barrier", "subject": "concrete road barrier with yellow hazard stripes", "box": [1223, 665, 1436, 787]},
+    "security-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Branding: plate gate between beacon posts, Knight Errant chevron.", "subject": "steel security gate between two beacon posts", "box": [11, 852, 275, 1019]},
+    "checkpoint-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Branding: palm-scanner terminal with a Knight Errant chevron.", "subject": "freestanding checkpoint terminal with a palm scanner", "box": [287, 848, 384, 1018]},
+    "armored-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: black case with a Knight Errant chevron.", "subject": "black armoured hard case", "box": [393, 890, 572, 1015]},
+    "shield-rack": {"kind": "prop", "type": "shield-rack", "subject": "rack holding three riot shields", "box": [573, 860, 736, 1017]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Knight Errant pylon.", "subject": "freestanding pylon sign reading Knight Errant", "box": [739, 848, 841, 1022]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: dark Knight Errant panel sign.", "subject": "wall-mounted sign reading Knight Errant", "box": [843, 886, 1052, 992]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Branding: unit with a dish and antennas, Knight Errant chevrons.", "subject": "rooftop air-conditioning and communications unit with a dish", "box": [1060, 848, 1300, 1012]},
+    "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1305, 865, 1444, 1012]}
+  }
+}

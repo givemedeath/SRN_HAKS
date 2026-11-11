@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "faceted grey data services hub with violet lighting, cooling fans and antennas", "box": [0, 14, 880, 540], "notes": "Remove the title banner at the top left."},
+    "building-hero": {"kind": "building", "subject": "faceted grey data services hub with violet lighting, cooling fans and antennas", "box": [0, 14, 880, 540], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of a faceted grey data services hub", "box": [872, 119, 1231, 293]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a faceted grey data services hub", "box": [879, 323, 1243, 509]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: dark desk under a canopy with violet light, NeoNET livery.", "subject": "dark corporate reception desk under a canopy", "box": [8, 625, 255, 790]},

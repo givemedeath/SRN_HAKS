@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "12_abandoned_aztechnology_research_compound.png",
+    "sha256": "e6a10f078941816b4451007173bfa3497d88fd2b75e90f8af242100c180474a1",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "abandoned stepped stone and concrete research building behind a razor-wire fence", "box": [0, 14, 880, 535], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of an abandoned stepped stone research building", "box": [848, 89, 1237, 276]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of an abandoned concrete research building", "box": [846, 302, 1247, 498]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Cracked, abandoned desk with faded Aztechnology livery.", "subject": "cracked abandoned corporate reception desk", "box": [4, 612, 260, 812]},
+    "surveillance-console": {"kind": "prop", "type": "console-desk", "variant": "Cracked, dead screens on a worn console desk.", "subject": "abandoned surveillance console with cracked screens", "box": [262, 620, 471, 809]},
+    "airlock-door": {"kind": "prop", "type": "secure-door", "variant": "Sealed double laboratory door with biohazard marks in a red frame.", "subject": "sealed double laboratory door with a biohazard mark", "box": [468, 616, 664, 805]},
+    "specimen-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Cracked glass cabinet of specimen jars.", "subject": "cracked glass cabinet of specimen jars", "box": [673, 612, 849, 805]},
+    "biohazard-crate": {"kind": "prop", "type": "hard-case", "variant": "Rusted red case with a biohazard mark.", "subject": "rusted red hard case with a biohazard mark", "box": [855, 653, 1038, 804]},
+    "warning-barrier": {"kind": "prop", "type": "concrete-barrier", "variant": "Barrier carrying a Restricted Area sign.", "subject": "concrete barrier carrying a restricted area sign", "box": [1040, 650, 1232, 808]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "variant": "Branding: weathered barbed-wire panel with a faded Aztechnology mark and graffiti.", "subject": "weathered chain-link fence section with barbed wire", "box": [1235, 606, 1438, 808]},
+    "checkpoint-kiosk": {"kind": "prop", "type": "guard-booth", "variant": "Branding: abandoned booth with broken glass, Aztechnology mark.", "subject": "abandoned security booth with broken glass", "box": [5, 862, 184, 1034]},
+    "generator-unit": {"kind": "prop", "type": "generator", "variant": "Large fixed emergency generator with exhaust pipes.", "subject": "large rusted emergency generator unit", "box": [190, 870, 392, 1025]},
+    "ruined-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: broken stone slab sign, Aztechnology Research Annex B-12.", "subject": "broken stone slab sign reading Aztechnology Research Annex", "box": [405, 890, 598, 1030]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: weathered Aztechnology Research Annex pylon.", "subject": "weathered pylon sign reading Aztechnology Research Annex B-12", "box": [610, 860, 740, 1035]},
+    "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [751, 883, 861, 1025]},
+    "rooftop-exhaust": {"kind": "prop", "type": "rooftop-unit", "variant": "Rusted exhaust unit with a round stack.", "subject": "rusted rooftop exhaust unit", "box": [867, 887, 1071, 1027]},
+    "service-door": {"kind": "prop", "type": "service-door", "variant": "Rusted louvred door in a concrete wall section, marked S-3.", "subject": "rusted service door in a concrete wall section", "box": [1073, 871, 1235, 1036]},
+    "debris": {"kind": "prop", "type": "street-clutter", "variant": "Looted equipment, planks and a crate among rubbish bags.", "subject": "pile of debris, looted equipment and rubbish bags", "box": [1237, 896, 1443, 1032]}
+  }
+}

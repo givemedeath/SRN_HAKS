@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "11_docwagon_emergency_response_station.png",
+    "sha256": "90bf50a2274d2d6b9ee54a82c624ec8189070409c9fa4516537e4ea19805648c",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "white and red emergency response station with a clinic front, two ambulance bays and a rooftop helipad", "box": [0, 14, 870, 555], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a white and red emergency response station", "box": [868, 106, 1257, 328]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a white and red emergency response station", "box": [870, 357, 1265, 551]},
+    "triage-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved white desk with a red light strip under a canopy, DocWagon livery.", "subject": "curved triage reception desk under a canopy", "box": [3, 638, 289, 826]},
+    "check-in-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: white and red palm-scanner kiosk, DocWagon mark.", "subject": "biometric check-in kiosk with a palm scanner", "box": [298, 642, 401, 822]},
+    "med-locker": {"kind": "prop", "type": "storage-cabinet", "variant": "Branding: glass-door supply locker with the DocWagon emblem.", "subject": "glass-door medical supply locker", "box": [420, 641, 593, 821]},
+    "gurney": {"kind": "prop", "type": "gurney", "variant": "Folding ambulance stretcher on a scissor frame, no IV pole.", "subject": "folding ambulance stretcher on a wheeled frame", "box": [602, 664, 818, 818]},
+    "trauma-cart": {"kind": "prop", "type": "medical-cart", "variant": "Red drawer crash cart with a monitor and oxygen bottles.", "subject": "red emergency crash cart with a monitor", "box": [820, 652, 991, 822]},
+    "supply-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: white and red case with the DocWagon emblem.", "subject": "white and red emergency supply case", "box": [996, 678, 1201, 812]},
+    "bay-door": {"kind": "prop", "type": "dock-door", "variant": "Branding: Ambulance Bay 01 roller door with red beacons.", "subject": "ambulance bay roller door in a wall section", "box": [1206, 637, 1442, 825]},
+    "bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "pair of yellow and black safety bollards", "box": [15, 892, 159, 1030]},
+    "drone-dock": {"kind": "prop", "type": "drone-dock", "variant": "Branding: two-arm dock over a lit pad, DocWagon mark.", "subject": "drone docking post with two arms over a lit pad", "box": [165, 879, 357, 1032]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: DocWagon wayfinding pylon.", "subject": "freestanding wayfinding pylon sign reading DocWagon", "box": [363, 873, 468, 1038]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: lit DocWagon panel sign.", "subject": "wall-mounted lit sign reading DocWagon", "box": [468, 902, 628, 992]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Branding: unit with a dish and antennas inside a railing, DocWagon mark.", "subject": "rooftop air-conditioning and communications unit with a dish", "box": [628, 878, 853, 1035]},
+    "security-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Branding: mesh gate between red-lit posts, DocWagon stripes.", "subject": "mesh security gate between two posts", "box": [853, 902, 1093, 1037]},
+    "med-barrier": {"kind": "prop", "type": "concrete-barrier", "variant": "Branding: white barrier with the DocWagon emblem.", "subject": "white road barrier with a medical emblem", "box": [1102, 925, 1271, 1027]},
+    "stretcher-rack": {"kind": "prop", "type": "stretcher-rack", "subject": "wheeled rack holding three yellow stretchers", "box": [1274, 890, 1433, 1035]}
+  }
+}

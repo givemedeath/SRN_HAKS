@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "curved glass media studio with a rooftop billboard and a loading annex", "box": [0, 14, 890, 555], "notes": "Remove the title banner at the top left."},
+    "building-hero": {"kind": "building", "subject": "curved glass media studio with a rooftop billboard and a loading annex", "box": [0, 14, 890, 555], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of a curved glass media studio with a rooftop billboard", "box": [865, 114, 1247, 315]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a media studio with a loading door", "box": [890, 348, 1255, 532]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved silver desk with magenta light and orchids, Horizon livery.", "subject": "curved silver reception desk with magenta lighting", "box": [6, 639, 294, 822]},

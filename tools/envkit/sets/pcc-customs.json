@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "15_pueblo_corporate_council_customs_station.png",
+    "sha256": "37b5119baa230ca5e4bd31924ee90f1d4be826b1f2e95cbd707f0a60f7b5e0b0",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "adobe-toned customs and border station with stepped turquoise motifs and inspection lanes", "box": [0, 14, 850, 570], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of an adobe-toned customs and border station", "box": [834, 132, 1250, 304]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of an adobe-toned customs and border station", "box": [853, 340, 1247, 525]},
+    "permit-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: round adobe desk with turquoise steps under a canopy, PCC livery.", "subject": "round customs permit desk under a canopy", "box": [3, 657, 255, 822]},
+    "scanner-arch": {"kind": "prop", "type": "scanner-arch", "variant": "Branding: walk-through scanner arch in adobe tones, PCC mark, no conveyor.", "subject": "large cargo scanner arch", "box": [260, 655, 499, 822]},
+    "inspection-table": {"kind": "prop", "type": "workbench", "variant": "Steel inspection table with a lamp, a monitor and cases beneath.", "subject": "steel inspection table with a lamp and a monitor", "box": [505, 679, 693, 822]},
+    "permit-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Branding: permit kiosk in adobe tones, PCC mark.", "subject": "freestanding permit kiosk with a screen", "box": [697, 656, 803, 822]},
+    "holding-barrier": {"kind": "prop", "type": "concrete-barrier", "variant": "Branding: striped barrier with a turquoise stepped motif.", "subject": "concrete road barrier with hazard stripes", "box": [812, 726, 1004, 822]},
+    "gate-arm": {"kind": "prop", "type": "gate-arm", "subject": "boom gate arm on a post", "box": [1012, 706, 1229, 822]},
+    "checkpoint-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: glazed adobe booth with a camera, PCC mark.", "subject": "glazed prefab checkpoint booth", "box": [1232, 646, 1442, 822]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: adobe PCC monolith sign.", "subject": "freestanding stone pylon sign reading PCC Pueblo Corporate Council", "box": [7, 870, 125, 1034]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Customs and Border Operations panel.", "subject": "wall-mounted sign reading Customs and Border Operations", "box": [121, 923, 272, 1023]},
+    "solar-canopy": {"kind": "prop", "type": "solar-canopy", "subject": "solar panel canopy on two posts", "box": [273, 883, 522, 1034]},
+    "comms-mast": {"kind": "prop", "type": "comms-array", "variant": "Lattice mast with antennas and a dish beside a cabinet.", "subject": "lattice communications mast with antennas and a dish", "box": [519, 887, 640, 1034]},
+    "crate-stack": {"kind": "prop", "type": "hard-case", "variant": "Branding: yellow, teal and grey cases with PCC marks.", "subject": "stack of four hard cases", "box": [652, 902, 870, 1034]},
+    "checkpoint-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Branding: lane control console with a vehicle screen, PCC mark.", "subject": "lane control console with a screen", "box": [887, 885, 1009, 1034]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "variant": "Branding: razor-wire panel on adobe footings with turquoise steps.", "subject": "chain-link fence section with razor wire on adobe footings", "box": [1035, 881, 1241, 1034]},
+    "bollards": {"kind": "prop", "type": "bollard", "variant": "Three yellow and black bollards with amber light bands.", "subject": "set of three bollards with light bands", "box": [1259, 926, 1447, 1034]}
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "13_lone_star_precinct.png",
+    "sha256": "bda4436a76a011cd9ba439f40c890eb14cbfaca2f9f77576f11d298c4715e67d",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "grey and blue private security precinct with a glazed front, a garage door and a fenced side", "box": [0, 14, 890, 540], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a grey and blue private security precinct", "box": [891, 108, 1247, 302]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a grey and blue private security precinct", "box": [892, 332, 1258, 506]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved blue desk under a canopy, Lone Star livery.", "subject": "curved blue report desk under a canopy", "box": [7, 620, 294, 806]},
+    "security-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "security console of six screens with a desk and a chair", "box": [298, 636, 489, 804]},
+    "equipment-lockers": {"kind": "prop", "type": "locker", "variant": "Branding: lockers with the Lone Star blue band.", "subject": "row of three grey lockers with a blue band", "box": [490, 631, 636, 804]},
+    "evidence-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Glass-door evidence cabinet of bagged items.", "subject": "glass-door evidence cabinet", "box": [643, 625, 807, 804]},
+    "cell-door": {"kind": "prop", "type": "cell-door", "subject": "barred holding-cell door in a steel frame", "box": [819, 625, 966, 800]},
+    "watch-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: octagonal booth with a camera, Lone Star livery.", "subject": "octagonal prefab watch booth with a camera", "box": [973, 614, 1153, 805]},
+    "vehicle-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Branding: plate gate between pillars, Lone Star marks.", "subject": "steel vehicle gate between two pillars", "box": [1157, 628, 1441, 803]},
+    "patrol-barrier": {"kind": "prop", "type": "concrete-barrier", "variant": "Branding: blue-striped barrier with the Lone Star mark.", "subject": "concrete road barrier with blue stripes", "box": [5, 935, 197, 1030]},
+    "access-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Branding: pedestal terminal with the Lone Star mark on screen.", "subject": "freestanding access terminal", "box": [202, 860, 303, 1027]},
+    "bollards": {"kind": "prop", "type": "bollard", "variant": "Grey bollards with amber light bands.", "subject": "pair of grey bollards with amber lights", "box": [317, 903, 451, 1024]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: blue Lone Star panel sign.", "subject": "wall-mounted sign reading Lone Star Private Security", "box": [462, 906, 671, 1030]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Lone Star pylon.", "subject": "freestanding pylon sign reading Lone Star Private Security", "box": [673, 857, 795, 1030]},
+    "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [810, 882, 929, 1012]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "same": "ares-depot/rooftop-unit", "subject": "rooftop communications unit with a dish and antennas", "box": [942, 866, 1237, 1025]},
+    "supply-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: blue case with the Lone Star mark.", "subject": "blue hard supply case", "box": [1247, 911, 1439, 1029]}
+  }
+}
