@@ -15,7 +15,8 @@ nothing. The largest closed mass is the building: its cells, and upright faces r
 its roof, are Obscuring, which stops both movement and sight, as the upright faces of the stock tiles do. Smaller
 closed things (bollards, bins) are Nonwalk: in the way, but seen over; so is whatever joins the building without
 reaching eye height, such as bins standing against its wall. Where the mesh has a slab, the walkmesh rises
-onto it over the slab's outermost half metre.
+onto it over the slab's outermost half metre. A strip of slab too narrow for that, a kerb or a step three quarters of
+a metre to a metre wide, is climbed over its outer quarter metre instead; a narrower one is left on the ground.
 
 A tile also carries what the stock tiles carry (read off Modern Exterior's and the stock city's tiles, 2026-11-11): a
 32-pixel picture for the area map, two main lights a builder colours in the Toolset, the `day`, `night`, `day2night`
@@ -135,8 +136,11 @@ def survey(vertices, faces, rows, columns, corner):
     raised: the cell lies on the slab (or inside what stands on it). slab: the slab's height. roof: the building's.
     footprint: the building's outline at the survey's own grain, FINE samples to the cell.
     depth: how many cells a cell lies inside the slab's edge, counted to one past RAMP; 0 off the slab.
+    crest: the cell is the top of a strip of slab too narrow to hold the ramp: more than one cell inside the edge, with
+    no cell past the ramp within RAMP cells of it. The walkmesh is at the slab's height all round such a cell.
     lines: (columns, rows) of the cell boundaries the walkmesh is drawn on, through the whole group: the tiles' own
-    edges, wherever the cells on either side differ anywhere along the line, and RAMP cells inside the slab's edge."""
+    edges, wherever the cells on either side differ anywhere along the line, RAMP cells inside the slab's edge, and
+    round each crest."""
     points = scatter(vertices, faces); across = np.array([columns, rows]) * CELLS * FINE; step = SIZE / CELLS / FINE
     # A face that lies on the boundary between two samples falls to the far side of it, all of it: left to rounding its
     # points fall on either side by chance, and the outline they draw is ragged.
@@ -163,10 +167,15 @@ def survey(vertices, faces, rows, columns, corner):
     depth = raised.astype(int); inner = raised
     for _ in range(RAMP):  # a cell is one deeper than the shallowest of the four beside it
         wide = np.pad(inner, 1); inner = inner & wide[:-2, 1:-1] & wide[2:, 1:-1] & wide[1:-1, :-2] & wide[1:-1, 2:]; depth += inner
-    kind = material * 4 + raised * 2 + (depth > RAMP)  # past the ramp the walkmesh has reached the slab's height
+    # Without a crest a strip up to 2 * RAMP cells wide has no cell past the ramp, so no line but its own edge, and
+    # would be drawn flat on the ground with the slab standing through it.
+    wide = np.pad(depth, RAMP); high, across = depth.shape; reach = range(2 * RAMP + 1)
+    crest = (depth > 1) & (depth == np.max([wide[dy:dy + high, dx:dx + across] for dy in reach for dx in reach], axis=0)) & (depth <= RAMP)
+    kind = material * 8 + raised * 4 + (depth > RAMP) * 2 + crest  # past the ramp, and on a crest, the walkmesh has reached the slab's height
     lines = (sorted({column * CELLS for column in range(columns + 1)} | {int(x) for x in np.flatnonzero((kind[:, 1:] != kind[:, :-1]).any(0)) + 1}),
              sorted({row * CELLS for row in range(rows + 1)} | {int(y) for y in np.flatnonzero((kind[1:] != kind[:-1]).any(1)) + 1}))
-    return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint, 'lines': lines, 'depth': depth}
+    return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint, 'lines': lines, 'depth': depth,
+            'crest': crest}
 
 
 def lines(found, row, column):
@@ -178,12 +187,13 @@ def walkmesh(found, row, column):
     """(vertices, faces with a material each) of one tile's walkmesh, in the tile's own space: a pair of faces to
     each box of the tile's grid lines, the floor's vertices first. Between two lines the cells are all alike, on both
     sides of every line, so a box has one material and one neighbour on each side."""
-    material, depth = found['material'], found['depth']; rows, columns = material.shape
+    material, depth, crest = found['material'], found['depth'], found['crest']; rows, columns = material.shape
     first_row, first_column = row * CELLS, column * CELLS; xs, ys = lines(found, row, column); cell = SIZE / CELLS
 
-    def lift(y, x):  # the rim of the slab is the ramp onto it: a corner on the slab's edge is on the ground, one RAMP cells in is up
-        around = [depth[r, c] for r in (first_row + y - 1, first_row + y) for c in (first_column + x - 1, first_column + x) if 0 <= r < rows and 0 <= c < columns]
-        return found['slab'] * min(min(around), RAMP) / RAMP if len(around) == 4 else 0.0
+    def lift(y, x):  # the rim of the slab is the ramp onto it: a corner on the slab's edge is on the ground, one RAMP cells in is up, and so is one on a crest
+        around = [(r, c) for r in (first_row + y - 1, first_row + y) for c in (first_column + x - 1, first_column + x) if 0 <= r < rows and 0 <= c < columns]
+        least = min(int(depth[cell]) for cell in around) if len(around) == 4 else 0
+        return found['slab'] if least and any(crest[cell] for cell in around) else found['slab'] * min(least, RAMP) / RAMP
     vertices = [[x * cell - SIZE / 2, y * cell - SIZE / 2, lift(y, x)] for y in ys for x in xs]
     at = lambda j, i: j * len(xs) + i; faces = []
     walls = lambda r, c: 0 <= r < rows and 0 <= c < columns and material[r, c] == OBSCURING

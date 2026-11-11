@@ -289,6 +289,16 @@ class TileTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
 
+    def test_a_strip_of_slab_too_narrow_for_the_ramp_is_still_climbed(self):
+        # Strips six metres long and 0.2 high across one tile. One a metre wide has no cell deeper than the ramp, so no line but its own
+        # edge: it is up over its middle half metre all the same, climbed over the quarter metre either side.
+        height = lambda south, north, y: ground(*floor(tile.survey(*scene(box((-3, south, 0), (3, north, 0.2))), 1, 1, np.array([-5.0, -5.0])))[:2], 0.1, y)[0]
+        self.assertEqual([round(float(height(-0.5, 0.5, y)), 3) for y in (-0.6, -0.375, -0.2, 0.0, 0.2, 0.375, 0.6)], [0.0, 0.1, 0.2, 0.2, 0.2, 0.1, 0.0])
+        self.assertEqual([round(float(height(-0.5, 0.25, y)), 3) for y in (-0.375, -0.125, 0.125)], [0.1, 0.2, 0.1])  # three quarters of a metre: up over its middle cell
+        self.assertEqual(round(float(height(-0.25, 0.25, 0.0)), 3), 0.0)  # half a metre: too narrow to climb, left on the ground
+        # A slab wide enough for the ramp has no crest: it is climbed over its outer half metre as before.
+        self.assertEqual([round(float(height(-1.0, 1.0, y)), 3) for y in (-0.875, -0.75, -0.5, 0.0)], [0.05, 0.1, 0.2, 0.2])
+
     def test_a_built_group_notes_ground_no_exit_reaches(self):
         import tempfile
         # The walled yard on a slab two tiles wide, its only gap three quarters of a metre: the yard's ground is in the west tile and no exit reaches it.
