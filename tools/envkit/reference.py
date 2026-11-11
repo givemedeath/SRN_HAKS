@@ -13,6 +13,7 @@ from . import require
 
 PROFILE = 'qwen21-int8-v1'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
+KIN = {'type', 'same', 'variant'}
 LEAD = {
     'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
@@ -53,13 +54,51 @@ def load_set(path):
     require(isinstance(data['assets'], dict) and data['assets'], 'A set needs assets')
     for name, asset in data['assets'].items():
         require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
-        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes'},
+        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', *KIN},
                 'Asset needs kind, subject and box: ' + name)
         prompt(asset['kind'], asset['subject'], asset.get('notes', ''))
+        if asset['kind'] == 'prop':
+            require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)
+            require(not {'same', 'variant'} <= set(asset), 'A prop is the same as another or a variant, not both: ' + name)
+            require('same' not in asset or re.fullmatch(f'{NAME.pattern}/{NAME.pattern}', str(asset['same'])) is not None,
+                    'same names another prop as set/asset: ' + name)
+            require('variant' not in asset or isinstance(asset['variant'], str) and asset['variant'].strip()
+                    and '\n' not in asset['variant'], 'variant says in one line what differs: ' + name)
+        else:
+            require(not KIN & set(asset), 'Only props have a type: ' + name)
         box = asset['box']
         require(isinstance(box, list) and len(box) == 4 and all(type(v) is int for v in box)
                 and 0 <= box[0] < box[2] <= width and 0 <= box[1] < box[3] <= height, 'Crop box is outside the sheet: ' + name)
     return data
+
+
+def register(folder):
+    """Every prop of every concept set in a folder, by type, so that a sheet's props are checked against the sheets before
+    it. The sheets repeat themselves (most draw a camera, a fence, crates, a rooftop unit), so one prop of a type is its
+    original and every other one says which it is: `same` (the named prop serves and nothing is made) or `variant` (a
+    design of its own, with what differs). A type shared without saying so is refused."""
+    props = {}
+    for path in sorted(Path(folder).glob('*.json')):
+        if 'sheet' in json.loads(path.read_text(encoding='utf-8')):  # game sets share the folder
+            props.update({f'{path.stem}/{name}': asset for name, asset in load_set(path)['assets'].items() if asset['kind'] == 'prop'})
+    types = {}
+    for key, asset in props.items():
+        role = 'same' if 'same' in asset else 'variant' if 'variant' in asset else 'original'
+        types.setdefault(asset['type'], {'original': [], 'variant': [], 'same': []})[role].append(key)
+    for kind, rows in types.items():
+        require(len(rows['original']) == 1, f'Type {kind} needs one original; the others say same or variant: '
+                + ', '.join(rows['original'] or rows['variant'] + rows['same']))
+        for key in rows['same']:
+            target = props.get(props[key]['same'])
+            require(target is not None and target['type'] == kind and 'same' not in target,
+                    f'{key} is the same as {props[key]["same"]}, which is not a made prop of type {kind}')
+    heads = {}
+    for kind in types:
+        heads.setdefault(kind.rsplit('-', 1)[-1], []).append(kind)
+    return {'types': dict(sorted(types.items())), 'make': sum(len(r['original']) + len(r['variant']) for r in types.values()),
+            'reuse': sum(len(r['same']) for r in types.values()),
+            # Types that end in the same word may be one type under two names; listed for the person onboarding a sheet.
+            'alike': {head: sorted(kinds) for head, kinds in sorted(heads.items()) if len(kinds) > 1}}
 
 
 def resolve_sheet(sheets, sheet):

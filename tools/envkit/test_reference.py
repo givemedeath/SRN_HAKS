@@ -71,6 +71,49 @@ class SetTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, message):
                 reference.load_set(self.write(data))
 
+    def sheet(self, stem, **props):
+        assets = {name.replace('_', '-'): {'kind': 'prop', 'subject': name, 'box': [0, 0, 2, 2], **more} for name, more in props.items()}
+        data = {'sheet': {'file': stem + '.png', 'sha256': 'a' * 64, 'size': [4, 4]}, 'assets': assets}
+        (self.root / f'{stem}.json').write_text(json.dumps(data), encoding='utf-8')
+
+    def test_the_onboarded_sheets_declare_every_repeated_prop(self):
+        found = reference.register(SET.parent)  # the game sets in the same folder are not sheets and are passed over
+        self.assertEqual(found['types']['trash-can']['original'], ['stuffer-shack/trash-can'])
+        self.assertEqual(found['make'] + found['reuse'], sum(len(row) for rows in found['types'].values() for row in rows.values()))
+
+    def test_a_type_drawn_on_two_sheets_must_say_same_or_variant(self):
+        self.sheet('shop', bin={'type': 'trash-can'}, camera={'type': 'security-camera'})
+        self.sheet('depot', bin={'type': 'trash-can'})
+        with self.assertRaisesRegex(ValueError, 'Type trash-can needs one original.*depot/bin, shop/bin'):
+            reference.register(self.root)
+        self.sheet('depot', bin={'type': 'trash-can', 'same': 'shop/bin'}, skip={'type': 'trash-can', 'variant': 'A wheeled skip.'},
+                   dome={'type': 'dome-camera'})
+        found = reference.register(self.root)
+        self.assertEqual(found['types']['trash-can'], {'original': ['shop/bin'], 'variant': ['depot/skip'], 'same': ['depot/bin']})
+        self.assertEqual((found['make'], found['reuse']), (4, 1))
+        self.assertEqual(found['alike'], {'camera': ['dome-camera', 'security-camera']})  # perhaps one type under two names
+
+    def test_same_names_a_made_prop_of_its_own_type(self):
+        self.sheet('shop', bin={'type': 'trash-can'}, camera={'type': 'security-camera'})
+        for target in ('shop/camera', 'shop/gone', 'yard/bin'):  # another type, no such prop, itself only a same
+            self.sheet('depot', bin={'type': 'trash-can', 'same': target})
+            self.sheet('yard', bin={'type': 'trash-can', 'same': 'shop/bin'})
+            with self.assertRaisesRegex(ValueError, 'not a made prop of type trash-can'):
+                reference.register(self.root)
+        self.sheet('depot', bin={'type': 'trash-can', 'variant': 'Dented.'}); self.sheet('yard', bin={'type': 'trash-can', 'same': 'depot/bin'})
+        self.assertEqual(reference.register(self.root)['types']['trash-can']['same'], ['yard/bin'])  # a variant is made, so it serves
+
+    def test_props_carry_a_type_and_buildings_none(self):
+        good = json.loads(SET.read_text(encoding='utf-8'))
+        for change, message in ((lambda d: d['assets']['trash-can'].pop('type'), 'needs a type'),
+                                (lambda d: d['assets']['trash-can'].update(same='shop/bin', variant='Taller.'), 'not both'),
+                                (lambda d: d['assets']['trash-can'].update(same='bin'), 'set/asset'),
+                                (lambda d: d['assets']['trash-can'].update(variant=' '), 'one line'),
+                                (lambda d: d['assets']['building-hero'].update(type='shop'), 'Only props')):
+            data = copy.deepcopy(good); change(data)
+            with self.assertRaisesRegex(ValueError, message):
+                reference.load_set(self.write(data))
+
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):
         sheet = {'file': 'sheet.png', 'sha256': 'a' * 64, 'size': [4, 4]}
         with self.assertRaisesRegex(ValueError, 'not found'):
