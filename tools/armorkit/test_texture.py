@@ -238,8 +238,9 @@ class MaterialTests(unittest.TestCase):
         self.assertEqual(flags[materials == leather, leather].tolist(), [False, False, True, True])
         # cloth showing on the vest's faces is the trousers' on the face beside them and the shirt's on the other
         self.assertEqual(flags[4:6, cloth].tolist(), [True, False])
-        # leather showing on cloth is the vest's or the boots' beside it, and elsewhere what the cloth's own slot says
-        self.assertEqual(flags[materials == cloth, leather].tolist(), [False] * 8 + [True, False])
+        # leather showing on cloth is the vest's or the boots' beside it, and elsewhere what the slot the face is on says:
+        # on the chest part the vest's, on the thighs leather worn on a leg
+        self.assertEqual(flags[materials == cloth, leather].tolist(), [False] * 6 + [True] * 4)
         # a face no material was read for answers as its neighbours and its own slot do
         unread = materials.copy(); unread[13] = -1
         self.assertEqual(texture.worn_second(v, f, unread, slots, ['cloth', 'leather'])[13].tolist(), [True, True])
@@ -252,6 +253,24 @@ class MaterialTests(unittest.TestCase):
         for given, kinds in ((materials[:-1], ['cloth', 'leather']), (materials, ['cloth']), (materials, ['cloth', 'silk'])):
             with self.assertRaises(ValueError):
                 texture.worn_second(v, f, given, slots, kinds)
+
+    def test_every_strap_on_a_limb_is_coloured_with_the_gloves_and_boots(self):
+        # a vest, then down one side: a strap on the upper arm, one on the forearm, a glove; one on the thigh, a boot.
+        # Cloth lies between them all, so each is a patch of its own
+        v, f = self.strip(11)
+        cloth, leather = 0, 1
+        materials = np.repeat([leather, cloth, leather, cloth, leather, cloth, leather, cloth, leather, cloth, leather], 2)
+        slots = np.repeat(['chest', 'chest', 'bicep', 'bicep', 'forearm', 'forearm', 'hand', 'thigh', 'thigh', 'shin', 'foot'], 2)
+        flags = texture.worn_second(v, f, materials, slots, ['cloth', 'leather'])
+        self.assertEqual(flags[materials == leather, leather][::2].tolist(), [False, True, True, True, True, True])
+        self.assertEqual(set(texture.SECOND['leather']), {'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot'})
+        # a strap too thin to have faces of its own shows on the sleeve's faces. The sleeve is the shirt's, worn on the
+        # chest, but the strap is where the face is: on the forearm
+        v, f = self.strip(5)
+        thin = texture.worn_second(v, f, np.repeat([leather, cloth, cloth, cloth, cloth], 2),
+                                   np.repeat(['chest', 'chest', 'chest', 'forearm', 'forearm'], 2), ['cloth', 'leather'])
+        self.assertFalse(thin[:, cloth].any())  # one shirt, on the first cloth channel throughout
+        self.assertEqual(thin[:, leather].tolist(), [False] * 6 + [True] * 4)
 
     def test_what_the_split_added_takes_the_channel_of_the_edge_it_grew_from(self):
         v, f = self.strip(2)

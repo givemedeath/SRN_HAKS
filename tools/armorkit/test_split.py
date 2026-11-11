@@ -525,11 +525,22 @@ class SleeveTests(unittest.TestCase):
         for wall in (front, back):
             self.assertTrue(np.allclose(np.abs(wall['normal']), [0, 1, 0]))  # across the seam, along the arm
             self.assertAlmostEqual(wall['point'] @ wall['normal'], 0.05 + split.SLEEVE_WALL, places=6)  # just outside the sleeve
-            (stop, facing), = wall['bounds']  # and it ends a little past the seam
+            (stop, facing), past = wall['bounds']  # and it ends a little past the seam
             self.assertTrue(np.allclose(facing, seam['normal']))
             self.assertAlmostEqual((stop - seam['point']) @ seam['normal'], split.OVERRUN, places=6)
-        for stop, facing in seam['bounds']:  # as the seam ends a little past each wall
+        for stop, facing in seam['bounds'][:2]:  # as the seam ends a little past each wall
             self.assertAlmostEqual(stop @ facing, 0.05 + split.SLEEVE_WALL + split.OVERRUN, places=6)
+        # along the arm all three reach well above the shoulder joint, where the shoulder plane has to cross them
+        # wherever the body's joint stands, and stop a little past the elbow
+        start, end = (np.asarray(JOINTS['l' + name], float) for name in ('bicep_g', 'forearm_g'))
+        axis = seams.unit(end - start)
+        for plane in (seam, front, back):
+            top = (plane['point'] - start) @ axis - np.sqrt(plane['radius'] ** 2 - min(plane['radius'], np.linalg.norm(
+                (plane['point'] - start) - ((plane['point'] - start) @ axis) * axis)) ** 2)
+            self.assertLessEqual(top, -3 * split.SLEEVE_STEP + 1e-9)
+            stop, facing = plane['bounds'][-1]
+            self.assertTrue(np.allclose(facing, axis))
+            self.assertAlmostEqual((stop - end) @ axis, 3 * split.SLEEVE_STEP, places=6)
 
     def test_what_the_torso_wears_beside_the_arm_stays_on_the_torso(self):
         # a vest standing 4 cm out in front of the arm and behind it, its edge 1 cm inside the arm's middle: on
@@ -582,6 +593,14 @@ class SleeveTests(unittest.TestCase):
         self.assertAlmostEqual(area(both, new_f), 1.0, places=6)  # the whole triangle under the hub, no sliver
         self.assertTrue(np.all(normals(both, new_f) @ seam['normal'] > 0.99))
 
+    def test_a_sleeve_its_cuts_leave_joined_to_the_torso_is_refused(self):
+        v, f, t, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)
+        split.split(v, f, t, JOINTS, RADII, sleeves=sleeves)  # parted: the sleeve goes with the arm
+        sleeves['l']['on'] = np.zeros_like(sleeves['l']['on'])  # as if the cuts had stopped short: sleeve and torso are one piece
+        with self.assertRaises(ValueError) as refused:
+            split.split(v, f, t, JOINTS, RADII, sleeves=sleeves)
+        self.assertIn('stays joined to the torso', str(refused.exception))
+
     def test_a_shoulder_is_measured_only_where_the_arm_is_a_surface_of_its_own(self):
         J = {name: np.array(p, float) for name, p in JOINTS.items()}
         inside = J['lbicep_g'] + 0.06 * seams.unit(J['lbicep_g'] - J['lforearm_g'])
@@ -612,7 +631,7 @@ class SleeveTests(unittest.TestCase):
         # the trough is taken from a little above the shoulder joint down; without materials no pad is looked for
         start, axis = self.arm
         along = (v[f].mean(axis=1) - start) @ axis
-        self.assertGreater(along[sleeves['l']['inside']].min(), -3 * split.SLEEVE_STEP - 1e-9)
+        self.assertGreater(along[sleeves['l']['inside']].min(), -split.SLEEVE_ABOVE - 1e-9)
         self.assertFalse(sleeves['l']['on'][3].any() or sleeves['l']['pad'].any())
         # the torso has vertices of its own along the cuts, where the sleeve's are, and the trough's faces use none
         own = sleeves['l']['torso']

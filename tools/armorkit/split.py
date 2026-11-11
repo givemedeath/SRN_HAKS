@@ -31,6 +31,11 @@ FREE_END = 0.12  # how far the bone of a neck, hand or foot runs on past its joi
 HIPS_EVEN = 0.01  # the line the two hip planes meet in lies this near the middle between the hip joints, or the body is refused
 OVERRUN = 0.03  # two cuts that meet each run this far past the other: a cut stops at whole edges
 SLEEVE_STEP = 0.01  # the arm is sectioned this far apart when the armpit is looked for
+SLEEVE_ABOVE = 0.10  # a trough cut with the arms held out reaches this far above the shoulder joint, along the arm. The
+# shoulder plane closes the trough at its top and stands where the body's joint is, while the trough is placed by the
+# outfit's own shoulder, which is estimated. Three steps above it, the wall behind one outfit's arm ended 2 cm under the
+# plane: the strip between joined sleeve and torso, and the whole upper sleeve went to the chest. That outfit needs 0.075
+SLEEVE_PARTED = 0.5  # at least this share of a trough's faces, by area, goes with the arm, or the sleeve was not parted
 SLEEVE_FUSED = 1.6  # a section reaching this many times farther toward the torso than away from it is sleeve and torso in one
 SLEEVE_ROOM = 0.003  # the sleeve seam stands this far inside the sleeve's inner side at the armpit
 SLEEVE_WALL = 0.01  # the walls in front of the arm and behind it stand this far outside the sleeve
@@ -326,7 +331,7 @@ def round_origin(segments):
     return np.concatenate(found) if found else np.zeros((0, 2))
 
 
-def sleeve(vertices, faces, joints, side, padded=False):
+def sleeve(vertices, faces, joints, side, padded=False, above=3 * SLEEVE_STEP):
     """Where a sleeve is cut from the torso it is fused with, or None where the arm is a surface of its own.
 
     The sleeve and the torso of a generated outfit are one surface from the shoulder down to the armpit. That
@@ -344,7 +349,10 @@ def sleeve(vertices, faces, joints, side, padded=False):
     on the torso; the seam alone gives it to the arm, where it rides along when the arm lifts. The seam runs
     from wall to wall and each wall from the arm's outer side to the seam, each a little past where they meet:
     a cut stops at whole edges, and a triangle left spanning one plane at its rim would join the two sides
-    again. A sleeve wider farther down than the trough is cut by these planes there; both sides of that cut are
+    again. Along the arm the three planes run from `above` over the shoulder joint to a little past the
+    elbow. The shoulder plane closes the trough at its top, so they have to reach it: three steps do where the
+    trough is found on the body's own joints, and `troughs`, which finds it on an outfit's estimated ones with
+    the arms held out, asks for `SLEEVE_ABOVE`. A sleeve wider farther down than the trough is cut by these planes there; both sides of that cut are
     the sleeve's, so nothing opens. With `padded`, a shoulder pad covers the arm's outer half above the armpit
     and is cut out by itself (`pad`): the walls are then measured right under the armpit alone, where the arm is
     no wider than its sleeve, and what the torso wears beside the pad stays on the torso.
@@ -385,13 +393,16 @@ def sleeve(vertices, faces, joints, side, padded=False):
     back, front = float(wide.min()) - SLEEVE_WALL, float(wide.max()) + SLEEVE_WALL
     inside = lambda points: points[(points @ toward <= seam) & (points @ along >= back) & (points @ along <= front)]
     outer = float(min((inside(points) @ toward).min() for points in fused + clear)) - 3 * SLEEVE_STEP
-    middle = start + length / 2 * axis
-    stop = [(start + seam * inward + OVERRUN * inward, inward)]  # the walls end a little past the seam
+    # the planes run from above the shoulder joint to three steps past the elbow
+    half = (length + 3 * SLEEVE_STEP + above) / 2
+    middle = start + (half - above) * axis
+    past = (end + 3 * SLEEVE_STEP * axis, axis)  # no plane cuts the forearm farther down for reaching higher up
+    stop = [(start + seam * inward + OVERRUN * inward, inward), past]  # the walls end a little past the seam
     wall = lambda where, sign: {'point': middle + (seam + outer) / 2 * inward + where * across, 'normal': sign * across, 'bounds': stop,
-                                'radius': float(np.hypot(length / 2 + 3 * SLEEVE_STEP, (seam - outer) / 2 + OVERRUN))}
+                                'radius': float(np.hypot(half, (seam - outer) / 2 + OVERRUN))}
     return {'point': middle + seam * inward + (front + back) / 2 * across, 'normal': inward, 'depth': float(armpit),
-            'radius': float(np.hypot(length / 2 + 3 * SLEEVE_STEP, (front - back) / 2 + OVERRUN)),
-            'bounds': [(start + (front + OVERRUN) * across, across), (start + (back - OVERRUN) * across, -across)],
+            'radius': float(np.hypot(half, (front - back) / 2 + OVERRUN)),
+            'bounds': [(start + (front + OVERRUN) * across, across), (start + (back - OVERRUN) * across, -across), past],
             'walls': [wall(front, 1.0), wall(back, -1.0)],
             'reach': float(np.linalg.norm(inside(fused[0]), axis=1).max()) + 3 * SLEEVE_STEP}
 
@@ -581,7 +592,7 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     require(set(padded) <= {'l', 'r'} and (materials is not None or not padded), 'Pads are expected on the l or r side, and told by materials')
     pads = {side: None if materials is None else pad(v, f, materials, joints, side) for side in 'lr'}
     for side in 'lr':
-        seam = sleeve(v, f, joints, side, padded=pads[side] is not None)
+        seam = sleeve(v, f, joints, side, padded=pads[side] is not None, above=SLEEVE_ABOVE)
         require(side not in padded or (seam is not None and pads[side] is not None),
                 f'The {side} shoulder shows no pad: a pad is a patch of a material of its own, on a sleeve that is one surface with the torso')
         if seam is not None:
@@ -593,7 +604,7 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     for side, planes in found.items():
         start, end = (np.asarray(joints[side + name], float) for name in ('bicep_g', 'forearm_g'))
         along = (centre - start) @ seams.unit(end - start)
-        inside = (along >= -3 * SLEEVE_STEP) & (along <= np.linalg.norm(end - start))  # as far up as the planes reach
+        inside = (along >= -SLEEVE_ABOVE) & (along <= np.linalg.norm(end - start))  # as far up as the planes reach
         for plane in planes:
             inside &= (centre - plane['point']) @ plane['normal'] < 0
         mine = np.zeros(len(f), bool) if pads[side] is None else pads[side][origin]
@@ -811,6 +822,14 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
     owner = owners(v, f, parts, [(point, seams.unit(normal), limit[key]) for key, (point, normal) in cuts.items() if key not in whole] + walls)
     names = list(parts)
     for side, found in (carried or {}).items():
+        # The trough was cut so that the sleeve goes with the arm. Where its cuts and the shoulder plane leave a strip
+        # that still joins sleeve and torso, they are one piece and the chest, the larger, takes it all: the arm then
+        # lifts out of a sleeve that stays on the chest. Nothing shows of that standing, so it is refused here.
+        bare = (np.asarray(found['inside'], bool) & ~np.asarray(found.get('pad', np.zeros(len(origin), bool)), bool))[origin]
+        arm = np.isin(owner, [names.index(token(slot, side)) for slot in ('bicep', 'forearm', 'hand') if token(slot, side) in names])
+        size = np.linalg.norm(np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]]), axis=1)
+        require(size[bare & arm].sum() >= SLEEVE_PARTED * size[bare].sum(),
+                f'The {side} sleeve stays joined to the torso: {size[bare & arm].sum() / max(size[bare].sum(), 1e-12):.0%} of it goes with the arm')
         mine = np.asarray(found.get('pad', np.zeros(len(origin), bool)), bool)[origin]
         if mine.any():
             owner = np.where(mine, len(names), owner)
