@@ -399,7 +399,8 @@ def run_one_design(workspace, race, folder, bindings, head, seed, batch):
     spec = folder/'launches'/f'spec-{label}.json'
     spec.write_bytes((folder/f'designs-{race}.json').read_bytes())
     profile = guards.read(spec).get('profile', 'flux2-turbo-v1')
-    # Qwen is text-only: a configured species reference is neither consumed nor passed to its compiler (RUNBOOK 244).
+    # Head designs on Qwen stay text-only: a configured species reference is neither consumed nor passed (RUNBOOK 244).
+    # The compiler itself accepts Qwen references (image edit); this launcher does not use that.
     reference = None if profile == 'qwen21-int8-v1' else workspace.design_reference(race, head.split('-')[1])
     files = [PYTHON]+[str(REPO/module) for module in DESIGN_MODULES]+sorted(str(path) for path in (HEADKIT/'templates').glob('*.json'))+[str(spec), str(bindings)]
     if profile == 'qwen21-int8-v1':

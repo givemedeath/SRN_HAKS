@@ -158,6 +158,189 @@ the upstream D20 Modern/Vault terms and is not relicensed under the repository's
 
 Source: <https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>
 
+## Arcology groups in Modern Exterior (2026-11-10)
+
+D20 Shadowrun Exterior (`srt04`) differs from D20 Modern Exterior (`dgt04`) in five raised-ground tiles: an
+arcology glass edge, its corner, a windowed edge and two gated openings, in the slots where Modern Exterior
+has concrete walls and a stairway. Those five tile records are appended to `dgt04.set` as tiles 429-433 with
+their door records, unchanged apart from terrain names spelled as Modern Exterior spells them, and offered as
+five one-tile groups (`Arcology_Edge_01`, `Arcology_Edge_02_Window`, `Arcology_Corner`, `Arcology_Gate_01`,
+`Arcology_Gate_02`) with matching feature entries in `dgt04palstd.itp`. They are groups so that they are
+placed deliberately and never chosen at random beside the concrete walls. No existing tile or group number
+in `dgt04.set` changes.
+
+Their five models, five walkmeshes and the `arcology_torii01-03` textures move unmodified from `srn_t_srt04`
+to `srn_t_common`, so that neither tileset needs the other's pack. `srn_t_srt04` keeps its own `srt04.set`
+and palette and remains a supported tileset; it is not retired. `dgt05_i02_01.mdl` and `.wok`, a hospital tile both
+tilesets list, moves from `srn_t_dgt04` to `srn_t_common` for the same reason: it was the one model
+Shadowrun Exterior could not resolve without the Modern Exterior pack.
+
+The windowed edge keeps its imported door type 117 (`GlassWindow`), although that `doortypes.2da` row names
+`SRT04`, and no door row is added or changed. A Toolset test on 2026-11-10 showed why none is needed: when a
+tile with a typed door hook is painted, the Toolset creates the hook's door itself, with the hook's door
+type as its appearance, whatever tileset the row names. In a Modern Exterior area the windowed edge got a
+type 117 door at its hook, and `Road_Huge_Hole` and `SubwayEntrance` got their type 58 invisible transition
+doors, with no door placed by hand. The row's tileset only decides which areas list that door under
+"Tileset Specific" in the door palette. The same test showed the five arcology groups in the palette, placed
+three of them, and found only concrete tiles among the raised-ground tiles the Toolset chose by itself.
+The other two, `Arcology_Corner` and `Arcology_Gate_02`, were placed in the Toolset on 2026-11-11: it built
+the raised concrete round each, and the saved area was loaded in the game client, where both rendered with
+their textures. `Arcology_Gate_02` got no door of its own, because its hook is the generic type 0, which the
+Toolset leaves for the builder.
+The work modifies the MDRNEE tile import under the same notice and attribution conditions.
+
+## Stuffer Shack tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
+
+The first envkit building: a single-storey convenience store as a 2 by 2 tile group, `Stuffer_Shack`, offered
+in D20 Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its four tile records are
+appended to each set file (`dgt04` tiles 434-437, group 57; `udp1` tiles 676-679, group 106) and the group is
+listed under Groups in each palette. No existing tile or group number changes. The four tile models
+(`ek_ss_shack_t00`, `_t01`, `_t10`, `_t11`, compiled), their walkmeshes, the shared material and its maps
+(`ek_ss_shack` colour, `_n`, `_s`, `_r`, glow `_i`, halo `_h`) live in `srn_t_common`, so neither tileset needs the
+other's pack. The ground around the building is the `pavement` texture Modern Exterior's plain tiles use, already in
+`srn_t_common`.
+
+Origin: the concept sheet `01_stuffer_shack_convenience_store.png` was supplied by the SRN project operator (an
+OpenAI-generated sheet from the operator's own brief). Its building views were redrawn locally with Qwen-Image
+2.1 as plain references, and the 3D model was generated from those references by the operator's Meshy account
+through the pinned `meshy-cli@0.4.0`, then remeshed by Meshy to 78,889 triangles. Attribution:
+[Meshy](https://www.meshy.ai/). This is the first Meshy-made model in a production pack. The operator confirmed
+on 2026-11-11 that the Meshy account is on a paid plan. Meshy's published
+[licence guidance](https://help.meshy.ai/en/articles/9992001-can-i-use-meshy-assets-commercially-license-copyright-explained)
+says paid users own the assets they generate from inputs they are authorized to use, so the Free-plan CC BY 4.0
+condition that `docs/heads/evidence/NOTICE.md` allowed for does not apply to this model; it ships under the
+repository's licence, with Meshy named here as the generator. That confirmation is the operator's statement and
+was not checked against the account.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's
+axes and scaled to 5.6 metres; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow
+map and a halo sheet were made from its own colour for the sign, windows, door and OPEN sign; the mesh was
+shared out over four tiles with a ground square each; and a walkmesh was generated from its shape, in which
+the building stops movement and sight, the bollards stop movement only, and the slab is walked on at its own
+height. The Meshy source, the full-detail spare, the references and the client captures stay in ignored
+`output/envkit/`. Checked in the game client in a Modern Exterior area and a Suburbs area on 2026-11-11, and in
+the Toolset the same day: both palettes list `Stuffer Shack 2x2` under Groups, and painting it laid the four
+tiles in order with no turn (south-west, south-east, north-west, north-east), as the saved areas record. In
+Modern Exterior the Toolset changed no other tile; in Suburbs it repainted the twelve tiles around the group as
+its own grass-to-asphalt edges and corners.
+
+Rebuilt later on 2026-11-11 under the same tile numbers, with what the stock tiles carry. Each tile has a
+32-pixel picture for the area map (`ek_ss_shack_m00` to `_m11`, drawn from the model seen from above) and two
+main lights for a builder to colour. The halo sheets fade out by day and in by night through the `day`,
+`night`, `day2night` and `night2day` animations. Everything above 3 metres carries `tilefade`, with a black lid
+(`ek_black`) drawn only while it is hidden. The north-west tile has a door record of type 58, the invisible
+transition door this tileset already uses for its subway entrance, at the storefront door. Checked in the game
+client: a coloured main light lit the building and the ground round it; the halos were absent by day and
+present by night; with the client's second-storey setting on, the top and the sign's halo were hidden and the
+lid shown (the setting has no effect while a script holds the camera in cutscene mode). Checked in the Toolset
+in Modern Exterior: painting the group made the door by itself at the storefront, facing out; a group turned a
+quarter turn before painting kept its four tiles together and its door on the turned front; Tile Properties
+offered both main lights; and a highrise painted on the tiles beside the group left the group as it was. The
+area map itself was not looked at in the client, and the door was not checked in Suburbs.
+
+Rebuilt once more the same day: the signs on the east and west walls and the east window now glow, each with a
+halo sheet facing out from its own wall, and the bins against the front wall stop movement without stopping
+sight. Checked in the game client at night from both sides, with the sight line over the bins clear.
+
+The group's lights-out material (`ek_ss_shack_o`) was added to `srn_t_common` the same day, so that tiles carry
+the same set as lit props. A tile is no object, so its lights are put out for a player with `SetTextureOverride`
+on its glow map and halo sheet; `docs/envkit/lights.md` is the account of both calls and of what was checked.
+
+The four walkmeshes were rebuilt later on 2026-11-11, with nothing else of the group changed. The building's
+shape is now followed to a quarter of a metre instead of a half, on a grid whose lines fall only where the
+ground changes: 272 to 358 faces a tile where there were about 840 (the stock tiles of these two tilesets have
+at most 500). The ramp onto the slab is still its outermost half metre. Checked in the game client in Modern
+Exterior from the built packs: a script read the surface and the ground height at 864 points along six lines
+across the group, an eighth of a metre apart, and every one agreed with the walkmesh as built; a sight line
+along the west side was clear 0.1 metres outside the cells the wall closes and blocked 0.2 metres inside them; walkers reached the recess of the storefront door and a spot on the slab against the west wall
+and stayed there, and one sent from the north-east to the south side went round the building. The two things
+left unchecked above were checked the same day. In the client, in both tilesets, the area map showed the four
+pictures in place, the roof in the middle of its dark ground, north up. In the Toolset, in Suburbs, painting
+the group made one door by itself, of type 58, at the storefront and facing out, as the saved area records.
+The rebuild moved each tile's first main light with the finer survey, by about 0.15 metres on three tiles and
+1.2 metres on the north-east one; a coloured main light was looked at again in the client at night and lit the
+ground and the walls on every side. The area map was also looked at zoomed in, at its full 32 pixels a tile.
+
+The path nodes of the four tiles were corrected the same day, in both set files and nowhere else. They had been
+written as `H` turned 180, 270, 90 and 0, taking `H` to name the corner a building closes; it names the corner
+that is walked, so each tile pointed its two exits into the building. The game plans a walk of more than about
+two tiles from these nodes before it looks at a walkmesh, and walkers sent to the building from four tiles away
+stopped short of it, one of them ten metres off against the east wall; nearer walks, which were all that had
+been checked, go by the walkmesh and were right. `tools/envkit` now works each tile's node out from its own
+ground, for a group of any size, from the engine's table of path nodes as nwn.wiki gives it (checked against
+the walkmeshes of the 1,091 stock tiles of the two tilesets, which also settled that a turn is counter-clockwise).
+The four tiles are now `H` 0, `H` 90, `I` 270 and `I` 270. Checked in the game client in Modern Exterior: the
+same three walkers from four tiles away and more each reached their spot. Checked too with two throwaway groups
+made from the same model at other sizes, three tiles by three and a single tile, which are in no pack: six
+walkers from the far corners of the area reached their spots beside them, and in the Toolset the larger was
+listed under Groups and laid its nine tiles in order, the single one under Features, with no other tile changed.
+
+Later the same day the rest of what a group carries was checked at those two sizes, on throwaway groups built
+with lit parts, a halo, a hidden top, main lights and a door, in no pack. In the client at night both were lit
+with their halos, and with the player free their tops hid under the black lid. On the single tile the sign's
+glow stayed in the air over the hidden top: one halo card held the sign and the windows under it, and a card
+went or stayed whole. A halo card with lights on both sides of the hiding height is now cut there, going by
+where the lit parts it spreads lie (one whose lights are all on one side stays whole, as before, and a light
+that reaches less than a quarter metre across the height counts on one side only). That rule changes one card
+of the shack: the east-wall card of `ek_ss_shack_t01`, from 0.40 to 4.80 metres, is cut at 3.0 metres, so the
+east sign's glow now hides with the
+sign while the east window's stays, as seen in the client; the other three tiles were rebuilt byte for byte the
+same. In the Toolset, in Modern Exterior, painting each of the two groups made one door of type 58 at its hook,
+as the saved area records.
+
+A third throwaway group, two tiles with a walled yard whose only way in is a gap 2.5 metres wide off the middle
+of the side the tiles share, showed the path nodes still wrong for such ground. A side had been counted an exit
+only where it was open at its middle; walkers sent into the yard stopped at its walls, one from the far corner
+of the area and one from 7.5 metres away in the next tile. With that side stated as an exit all four walkers
+reached their spots, so the game finds an opening wherever it is along a side. A side is now an exit where a
+metre of it is open anywhere. The shack's four tiles are therefore all `A` in both set files (each tile's strip
+of pavement reaches all four of its sides), and nothing else of the shack changed. Checked in the client after
+the change: the three far walkers reached their spots at the shack in Modern Exterior and in Suburbs, six
+reached theirs beside the three-by-three and the single tile, and four theirs in and beside the yard.
+
+## Stuffer Shack props (`srn_placeable`, `srn_2da`; 2026-11-11)
+
+Ten envkit props from the same concept sheet as the Stuffer Shack tile group join `srn_placeable`, each with a
+row appended to `srn_2da/placeables.2da` (22740-22749, labelled `[envkit]Stuffer Shack, ...`): vending machine
+`ek_ss_vending`, ATM `ek_ss_atm`, snack rack `ek_ss_snacks`, drink case `ek_ss_drinks`, security camera
+`ek_ss_camera`, rooftop unit `ek_ss_hvac`, street clutter `ek_ss_clutter`, trash can `ek_ss_trash`, recycling bin
+`ek_ss_recycle` and sandwich board `ek_ss_board`. No existing row changes. Each prop is a compiled model, a
+box collision file, a material file and its maps (colour 1024 or 2048, the other maps at half that).
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a
+plain reference. Seven were then generated by the operator's Meshy account through the pinned
+`meshy-cli@0.4.0` at 4,000 to 11,000 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+tile group's entry above records). Three, the trash can, recycling bin and sandwich board, were generated
+locally with Pixal3D on Trellis 2 in ComfyUI and reduced to 5,000 to 8,000 triangles. No third-party mesh or
+texture was used.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's
+axes and scaled to a stated height; the locally generated ones were stood upright; the sandwich board was
+rebuilt as its front sheet and a half-turned copy, because the generator invented its back; textures were
+recompressed. The vending machine, ATM and drink case have a glow map and a halo sheet for their lit parts,
+and a second material (`<name>_o`, with the shared black halo `ek_off`) that a script swaps in with
+`ReplaceObjectTexture` to put their lights out; that needs the placed object not to be static. Checked in the
+game client on 2026-11-11 from the pack's files and these table rows, lights on, out and on again. The rows
+had no blueprints or palette entries at that point; both were added later the same day (below).
+
+Converted again later on 2026-11-11 under the same rows. The collision block of each prop now follows its
+footprint with the empty corners cut (an eight-sided outline; a box-shaped prop keeps its box). The security
+camera hangs 2.6 metres above the spot it is placed on and has no block to walk into. Halo sheets face the way
+their light does. Checked in the game client from the pack's files by day and by night, lights on, out and
+on again.
+
+Each prop also has a blueprint in `srn_placeable`, named as its model (`ek_ss_vending.utp` and so on): scenery
+that cannot be destroyed or used, static except for the three lit props, whose lights a script must be able to
+reach. So that the Toolset offers them, the pack carries `placeablepalstd.itp`: the game's own standard
+placeable palette (104,993 bytes, SHA-256 `a682f56ff787eb675946413e1abb4e14d4512bec67ddff37ec822ed2ad1b9a65`,
+read from the installed game, version 89.8193.37) with these ten blueprints added under the Modern Exterior and
+Modern Interior categories of the pack's `placeablepal.itp`. Every blueprint the game's palette lists is kept
+under the category it had. Made by `tools/envkit` (`envkit blueprints`). Checked in the Toolset on 2026-11-11:
+the Standard tab listed the blueprints under their categories, and a painted trash can and vending machine were
+saved with their rows, names and static settings.
+
+The rows, tiles and groups this project adds are listed in `docs/additions/catalog.json`.
+
 ## MDRNEE placeable import (2026-09-11)
 
 `mdrnee_placeable.hak` was imported in full under the `mdrnee_placeable` profile. Its verified

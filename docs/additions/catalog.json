@@ -1,0 +1,321 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-additions-catalog",
+ "baseline": {
+  "placeables": {
+   "table": "srn_2da/placeables.2da",
+   "lastImportedRow": 22739
+  },
+  "tilesets": {
+   "dgt04": {
+    "set": "srn_t_dgt04/dgt04.set",
+    "importedTiles": 429,
+    "importedGroups": 52
+   },
+   "udp1": {
+    "set": "srn_t_udp1/udp1.set",
+    "importedTiles": 676,
+    "importedGroups": 106
+   }
+  }
+ },
+ "placeables": [
+  {
+   "row": 22740,
+   "model": "ek_ss_vending",
+   "label": "[envkit]Stuffer Shack, Vending Machine",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_vending",
+   "category": 161,
+   "lights": {
+    "lit": "ek_ss_vending",
+    "out": "ek_ss_vending_o",
+    "glow": "ek_ss_vending_i",
+    "halo": "ek_ss_vending_h",
+    "dark": "ek_off"
+   }
+  },
+  {
+   "row": 22741,
+   "model": "ek_ss_atm",
+   "label": "[envkit]Stuffer Shack, ATM",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_atm",
+   "category": 161,
+   "lights": {
+    "lit": "ek_ss_atm",
+    "out": "ek_ss_atm_o",
+    "glow": "ek_ss_atm_i",
+    "halo": "ek_ss_atm_h",
+    "dark": "ek_off"
+   }
+  },
+  {
+   "row": 22742,
+   "model": "ek_ss_snacks",
+   "label": "[envkit]Stuffer Shack, Snack Rack",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_snacks",
+   "category": 174
+  },
+  {
+   "row": 22743,
+   "model": "ek_ss_drinks",
+   "label": "[envkit]Stuffer Shack, Drink Case",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_drinks",
+   "category": 166,
+   "lights": {
+    "lit": "ek_ss_drinks",
+    "out": "ek_ss_drinks_o",
+    "glow": "ek_ss_drinks_i",
+    "halo": "ek_ss_drinks_h",
+    "dark": "ek_off"
+   }
+  },
+  {
+   "row": 22744,
+   "model": "ek_ss_camera",
+   "label": "[envkit]Stuffer Shack, Security Camera",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_camera",
+   "category": 200
+  },
+  {
+   "row": 22745,
+   "model": "ek_ss_hvac",
+   "label": "[envkit]Stuffer Shack, Rooftop Unit",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_hvac",
+   "category": 161
+  },
+  {
+   "row": 22746,
+   "model": "ek_ss_clutter",
+   "label": "[envkit]Stuffer Shack, Street Clutter",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_clutter",
+   "category": 162
+  },
+  {
+   "row": 22747,
+   "model": "ek_ss_trash",
+   "label": "[envkit]Stuffer Shack, Trash Can",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_trash",
+   "category": 158
+  },
+  {
+   "row": 22748,
+   "model": "ek_ss_recycle",
+   "label": "[envkit]Stuffer Shack, Recycling Bin",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_recycle",
+   "category": 158
+  },
+  {
+   "row": 22749,
+   "model": "ek_ss_board",
+   "label": "[envkit]Stuffer Shack, Sandwich Board",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ss_board",
+   "category": 156
+  }
+ ],
+ "tileGroups": [
+  {
+   "tileset": "dgt04",
+   "group": 52,
+   "name": "Arcology_Edge_01",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    429
+   ],
+   "models": [
+    "srt04_a02_01"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "hand",
+   "source": "srn_t_srt04 (tile records moved by hand)",
+   "provenance": "Arcology groups in Modern Exterior",
+   "added": "2026-11-10"
+  },
+  {
+   "tileset": "dgt04",
+   "group": 53,
+   "name": "Arcology_Edge_02_Window",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    430
+   ],
+   "models": [
+    "srt04_a02_02"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "hand",
+   "source": "srn_t_srt04 (tile records moved by hand)",
+   "provenance": "Arcology groups in Modern Exterior",
+   "added": "2026-11-10"
+  },
+  {
+   "tileset": "dgt04",
+   "group": 54,
+   "name": "Arcology_Corner",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    431
+   ],
+   "models": [
+    "srt04_a04_01"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "hand",
+   "source": "srn_t_srt04 (tile records moved by hand)",
+   "provenance": "Arcology groups in Modern Exterior",
+   "added": "2026-11-10"
+  },
+  {
+   "tileset": "dgt04",
+   "group": 55,
+   "name": "Arcology_Gate_01",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    432
+   ],
+   "models": [
+    "srt04_a05_01"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "hand",
+   "source": "srn_t_srt04 (tile records moved by hand)",
+   "provenance": "Arcology groups in Modern Exterior",
+   "added": "2026-11-10"
+  },
+  {
+   "tileset": "dgt04",
+   "group": 56,
+   "name": "Arcology_Gate_02",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    433
+   ],
+   "models": [
+    "srt04_a05_02"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "hand",
+   "source": "srn_t_srt04 (tile records moved by hand)",
+   "provenance": "Arcology groups in Modern Exterior",
+   "added": "2026-11-10"
+  },
+  {
+   "tileset": "dgt04",
+   "group": 57,
+   "name": "Stuffer_Shack",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    434,
+    435,
+    436,
+    437
+   ],
+   "models": [
+    "ek_ss_shack_t00",
+    "ek_ss_shack_t01",
+    "ek_ss_shack_t10",
+    "ek_ss_shack_t11"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack tile group",
+   "added": "2026-11-11",
+   "label": "Stuffer Shack 2x2",
+   "lights": {
+    "lit": "ek_ss_shack",
+    "out": "ek_ss_shack_o",
+    "glow": "ek_ss_shack_i",
+    "halo": "ek_ss_shack_h",
+    "dark": "ek_off"
+   }
+  },
+  {
+   "tileset": "udp1",
+   "group": 106,
+   "name": "Stuffer_Shack",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    676,
+    677,
+    678,
+    679
+   ],
+   "models": [
+    "ek_ss_shack_t00",
+    "ek_ss_shack_t01",
+    "ek_ss_shack_t10",
+    "ek_ss_shack_t11"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/stuffer-shack-game.json",
+   "provenance": "Stuffer Shack tile group",
+   "added": "2026-11-11",
+   "label": "Stuffer Shack 2x2",
+   "lights": {
+    "lit": "ek_ss_shack",
+    "out": "ek_ss_shack_o",
+    "glow": "ek_ss_shack_i",
+    "halo": "ek_ss_shack_h",
+    "dark": "ek_off"
+   }
+  }
+ ]
+}

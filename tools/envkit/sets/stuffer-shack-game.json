@@ -1,0 +1,38 @@
+{
+  "models": {
+    "ek_ss_shack": {"source": "meshy/models/building-a1", "height": 5.6, "colour": 4096, "lit": [
+      {"part": "fascia sign", "box": [[-4.2, 4.2, 3.05], [3.2, 4.8, 4.35]], "gain": 1.0},
+      {"part": "left window glass", "box": [[0.9, 3.1, 1.2], [4.1, 3.9, 2.95]], "gain": 0.35},
+      {"part": "left window goods", "box": [[0.9, 3.1, 1.2], [4.1, 3.9, 2.95]], "gain": 1.0, "saturation": 0.12},
+      {"part": "door glass", "box": [[-1.2, 3.1, 0.3], [0.7, 3.9, 2.9]], "gain": 0.35},
+      {"part": "door goods", "box": [[-1.2, 3.1, 0.3], [0.7, 3.9, 2.9]], "gain": 1.0, "saturation": 0.12},
+      {"part": "right window glass", "box": [[-3.5, 3.1, 1.2], [-1.4, 3.9, 2.95]], "gain": 0.35},
+      {"part": "right window goods", "box": [[-3.5, 3.1, 1.2], [-1.4, 3.9, 2.95]], "gain": 1.0, "saturation": 0.12},
+      {"part": "OPEN sign", "box": [[-2.6, 3.1, 1.9], [-1.7, 3.9, 2.5]], "gain": 2.0, "saturation": 0.4},
+      {"part": "east side sign", "box": [[4.8, -4.05, 3.0], [6.2, -1.2, 4.0]], "gain": 1.0},
+      {"part": "west side sign", "box": [[-6.2, -4.1, 3.0], [-4.8, -1.15, 4.0]], "gain": 1.0},
+      {"part": "east window glass", "box": [[4.8, -4.3, 1.2], [6.2, -3.1, 2.75]], "gain": 0.35},
+      {"part": "east window goods", "box": [[4.8, -4.3, 1.2], [6.2, -3.1, 2.75]], "gain": 1.0, "saturation": 0.12}
+    ], "halo": {"reach": 0.4, "strength": 0.55, "least": 0.5},
+      "tiles": {"ground": "pavement", "group": "Stuffer_Shack", "label": "Stuffer Shack 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 3.0, "door": {"at": [-0.25, 3.9, 0.18], "facing": 90.0, "type": 58}}},
+    "ek_ss_vending": {"source": "meshy/models/vending-machine-a1", "height": 1.83, "colour": 2048, "lit": [
+      {"part": "display", "box": [[-0.22, 0.2, 0.46], [0.47, 0.59, 1.42]], "gain": 1.0},
+      {"part": "price screen", "box": [[-0.47, 0.4, 1.25], [-0.28, 0.59, 1.36]], "gain": 1.5}
+    ], "halo": {"reach": 0.15, "strength": 0.45}, "placeable": {"label": "Stuffer Shack, Vending Machine", "sound": 28, "category": 161}},
+    "ek_ss_atm": {"source": "meshy/models/atm-kiosk-a1", "height": 1.55, "colour": 1024, "lit": [
+      {"part": "ATM header", "box": [[-0.31, 0.0, 1.33], [0.31, 1.0, 1.52]], "gain": 1.5},
+      {"part": "screen", "box": [[-0.215, 0.0, 0.91], [0.215, 1.0, 1.19]], "gain": 2.0},
+      {"part": "keypad display", "box": [[-0.19, 0.0, 0.8], [-0.09, 1.0, 0.85]], "gain": 2.0, "saturation": 0.2}
+    ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Stuffer Shack, ATM", "sound": 28, "category": 161}},
+    "ek_ss_snacks": {"source": "meshy/models/snack-rack-a1", "height": 1.6, "colour": 2048, "placeable": {"label": "Stuffer Shack, Snack Rack", "sound": 28, "category": 174}},
+    "ek_ss_drinks": {"source": "meshy/models/drink-case-a1", "height": 2.0, "colour": 2048, "lit": [
+      {"part": "shelves", "box": [[-0.86, 0.0, 0.15], [0.84, 1.0, 1.62]], "gain": 1.0}
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Stuffer Shack, Drink Case", "sound": 28, "category": 166}},
+    "ek_ss_camera": {"source": "meshy/models/security-camera-a1", "height": 0.5, "lift": 2.6, "colour": 1024, "placeable": {"label": "Stuffer Shack, Security Camera", "sound": 27, "category": 200}},
+    "ek_ss_hvac": {"source": "meshy/models/rooftop-hvac-a1", "height": 1.1, "colour": 1024, "placeable": {"label": "Stuffer Shack, Rooftop Unit", "sound": 28, "category": 161}},
+    "ek_ss_clutter": {"source": "meshy/models/street-clutter-a1", "height": 0.55, "colour": 1024, "placeable": {"label": "Stuffer Shack, Street Clutter", "sound": 23, "category": 162}},
+    "ek_ss_trash": {"source": "local/models/trash-can-b1-8k", "height": 1.0, "colour": 1024, "placeable": {"label": "Stuffer Shack, Trash Can", "sound": 28, "category": 158}},
+    "ek_ss_recycle": {"source": "local/models/recycle-bin-a1", "height": 1.0, "colour": 1024, "placeable": {"label": "Stuffer Shack, Recycling Bin", "sound": 28, "category": 158}},
+    "ek_ss_board": {"source": "local/models/sandwich-board-a1", "height": 1.0, "colour": 1024, "signTilt": 15.0, "placeable": {"label": "Stuffer Shack, Sandwich Board", "sound": 27, "category": 156}}
+  }
+}
