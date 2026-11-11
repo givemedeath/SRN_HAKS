@@ -87,6 +87,8 @@ put the lights out against that, as in a power cut.
 In the game client on 2026-11-11, from the files in the packs, at night:
 
 - `ReplaceObjectTexture` on the three lit Stuffer Shack placeables, not static: lights out, and on again.
+- `ReplaceObjectTexture` on two vending machines side by side, one static and one not: the one that was not
+  static went dark and the static one stayed lit, though `GetObjectByTag` found both.
 - `SetTextureOverride` for one player, on the Stuffer Shack tile group and on a static vending machine beside it:
   glow and halo out with the rest of each model unchanged, and on again.
 - `SetTextureOverride` for every player (`OBJECT_INVALID`), on the tile group: the same.
