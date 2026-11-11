@@ -202,6 +202,57 @@ def face_texels(uvs, faces, chosen, size):
     return (owner >= 0) & np.asarray(chosen, bool)[np.maximum(owner, 0)]
 
 
+def face_materials(uvs, faces, colour, covered, found, size):
+    """The material of each face: the one most of its texels show (`labels`), -1 for a face with no texel."""
+    owner, _ = raster(uvs, faces, size)
+    seen = (owner >= 0) & np.asarray(covered, bool)
+    tally = np.zeros((len(faces), len(found['tones'])), int)
+    np.add.at(tally, (owner[seen], labels(np.asarray(colour, float)[seen], found['tones'])), 1)
+    return np.where(tally.sum(axis=1) > 0, tally.argmax(axis=1), -1)
+
+
+def edge_materials(material, closing, least=0.25):
+    """The materials other than the first that a part shows along its cut edge: those `least` or more of its
+    closings' texels were read as, a closing being coloured from its edge. `material` holds a material per
+    texel (-1 for none), `closing` flags the closings' texels."""
+    along = np.asarray(material)[np.asarray(closing, bool) & (np.asarray(material) >= 0)]
+    share = np.bincount(along, minlength=1) / max(len(along), 1)
+    return [k for k in range(1, len(share)) if share[k] >= least]
+
+
+def overlaid(vertices, faces, material, closing, others):
+    """Flags per face: a limb's faces that show what the torso wears over it.
+
+    Where an arm rests against a vest, the generated outfit has one surface, and it is the vest's: cut off, the
+    sleeve's side toward the torso is the vest's colour, and shows it once the arm lifts. `material` is the
+    material per face (`face_materials`), `closing` flags the closings, `others` are the materials the torso
+    shows along the same cut (`edge_materials` of the chest). A patch of one of those materials, faces joined
+    edge to edge, that reaches a closing is flagged: it runs on across the cut as the torso's garment. A cap
+    repeats its rim's colours and is part of the patch its rim is in. A patch that does not reach the cut (a
+    strap round the arm) is the limb's own. Drawn with the closings (`tint_maps`), the flagged faces get the
+    outfit's cloth."""
+    faces, material = np.asarray(faces, int), np.asarray(material)
+    closing = np.asarray(closing, bool)
+    weld = mesh_ops.weld_ids(np.asarray(vertices, float), 1e-5)
+    flagged = np.zeros(len(faces), bool)
+    at_cut = np.zeros(int(weld.max()) + 1, bool)
+    at_cut[weld[faces[closing]]] = True
+    for other in others:
+        mine = np.flatnonzero(~closing & (material == other))
+        if not len(mine):
+            continue
+        corners = weld[faces[mine]]
+        edges = np.sort(np.concatenate([corners[:, [0, 1]], corners[:, [1, 2]], corners[:, [2, 0]]]), axis=1)
+        face = np.tile(np.arange(len(mine)), 3)
+        order = np.lexsort((edges[:, 1], edges[:, 0]))
+        edges, face = edges[order], face[order]
+        same = (edges[1:] == edges[:-1]).all(axis=1)
+        patch = mesh_ops.union_find(len(mine), zip(face[:-1][same].tolist(), face[1:][same].tolist()))
+        reaches = np.unique(patch[at_cut[corners].any(axis=1)])
+        flagged[mine[np.isin(patch, reaches)]] = True
+    return flagged
+
+
 def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
@@ -217,7 +268,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     edge, which runs along creases and through whatever lies over the limb where it left the torso. It gets
     the outfit's commonest material, the first of `found`, at `MIDDLE`: the cloth the outfit is made of. Left
     as read, a sleeve's closing was a vest's colour, most of its edge being cut through the vest, and the
-    closings between the thighs were as dark as the crease at the crotch."""
+    closings between the thighs were as dark as the crease at the crotch. The texels of a limb's `overlaid`
+    faces are flagged with them and drawn the same way."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     require(len(channels) == len(found['tones']) and all(name in export.LAYERS for name in channels), 'A colour channel is needed per material')
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))

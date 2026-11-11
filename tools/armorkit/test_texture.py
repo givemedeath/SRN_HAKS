@@ -131,6 +131,10 @@ class MaterialTests(unittest.TestCase):
         self.assertAlmostEqual(shades[0, 0], 1.1 * middle, delta=2)
         self.assertAlmostEqual(shades[1, 0], 0.8 * middle, delta=2)
         self.assertTrue((shades[:, 5:] == texture.MIDDLE).all())
+        self.assertTrue(shades.min() >= texture.SHADES[0] and shades.max() <= texture.SHADES[1])
+        self.assertEqual(export.read_tint(export.tint(shades, layers))[1].tolist(), layers.tolist())  # it is a tint texture
+        with self.assertRaises(ValueError):
+            texture.tint_maps(colour, covered, self.found, ['cloth1', 'leather1', 'no such channel'])
 
     def test_a_closing_is_drawn_in_the_outfits_commonest_material_at_its_middle_shade(self):
         fabric = int(texture.labels(np.array([FABRIC]), self.found['tones'])[0])
@@ -148,10 +152,36 @@ class MaterialTests(unittest.TestCase):
         shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing)
         self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())
         self.assertTrue(np.array_equal(layers[~closing], plain_layers[~closing]) and np.array_equal(shades[~closing], plain_shades[~closing]))
-        self.assertTrue(shades.min() >= texture.SHADES[0] and shades.max() <= texture.SHADES[1])
-        self.assertEqual(export.read_tint(export.tint(shades, layers))[1].tolist(), layers.tolist())  # it is a tint texture
-        with self.assertRaises(ValueError):
-            texture.tint_maps(colour, covered, self.found, ['cloth1', 'leather1', 'no such channel'])
+
+    def test_what_the_torso_wears_over_a_limb_is_found_by_its_reaching_the_cut(self):
+        # a strip of five squares along x, two faces each, and a closing on its left end (vertices of its own)
+        v = np.array([(x, y, 0) for x in range(6) for y in (0, 1)] + [(0, 0, 0), (0, 1, 0), (-1, 0.5, 0)], float)
+        f = np.array([face for x in range(5) for face in ((2 * x, 2 * x + 2, 2 * x + 3), (2 * x, 2 * x + 3, 2 * x + 1))] + [(12, 13, 14)])
+        closing = np.arange(len(f)) == 10
+        tan, plate = 1, 2
+        material = np.repeat([tan, tan, 0, tan, plate, 0], [2, 2, 2, 2, 2, 1])
+        over = texture.overlaid(v, f, material, closing, [tan])
+        # the vest's colour next to the cut and joined to it; not the same colour farther along, past the cloth
+        self.assertEqual(np.flatnonzero(over).tolist(), [0, 1, 2, 3])
+        self.assertEqual(np.flatnonzero(texture.overlaid(v, f, material, closing, [tan, plate])).tolist(), [0, 1, 2, 3])  # a plate away from the cut
+        self.assertFalse(texture.overlaid(v, f, material, closing, []).any())
+        self.assertFalse(texture.overlaid(v, f, material, np.zeros(len(f), bool), [tan]).any())  # no cut, nothing reaches it
+
+    def test_a_parts_materials_are_told_by_face_and_along_its_cut(self):
+        colour = np.zeros((8, 8, 3)); covered = np.ones((8, 8), bool)
+        colour[:] = FABRIC
+        rows, columns = np.mgrid[0:8, 0:8]
+        colour[rows > columns] = TAN  # the texels of the second face: v greater than u
+        which = texture.face_materials(SQUARE, FACES, colour, covered, self.found, 8)
+        wanted = texture.labels(np.array([FABRIC, TAN]), self.found['tones'])
+        self.assertEqual(which.tolist(), wanted.tolist())
+        self.assertEqual(texture.face_materials(SQUARE, FACES, colour, np.zeros((8, 8), bool), self.found, 8).tolist(), [-1, -1])
+        # along a cut: what a quarter or more of the closings' texels show, the outfit's cloth aside
+        seen = np.full((4, 4), 0); seen[0] = [1, 1, 1, 2]; seen[1] = [1, 0, 0, -1]
+        closing = np.zeros((4, 4), bool); closing[:2] = True
+        self.assertEqual(texture.edge_materials(seen, closing), [1])  # four of seven; the one texel of material 2 is a mark
+        self.assertEqual(texture.edge_materials(seen, closing, least=0.1), [1, 2])
+        self.assertEqual(texture.edge_materials(seen, np.zeros((4, 4), bool)), [])
 
 
 class FieldTests(unittest.TestCase):
