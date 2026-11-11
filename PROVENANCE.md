@@ -279,9 +279,10 @@ Later the same day the rest of what a group carries was checked at those two siz
 with lit parts, a halo, a hidden top, main lights and a door, in no pack. In the client at night both were lit
 with their halos, and with the player free their tops hid under the black lid. On the single tile the sign's
 glow stayed in the air over the hidden top: one halo card held the sign and the windows under it, and a card
-went or stayed whole. A halo card whose body the hiding height crosses is now cut there (one it crosses only
-near its top or bottom stays whole, as before). That rule changes one card of the shack: the east-wall card of
-`ek_ss_shack_t01`, from 0.40 to 4.80 metres, is cut at 3.0 metres, so the east sign's glow now hides with the
+went or stayed whole. A halo card with lights on both sides of the hiding height is now cut there, going by
+where the lit parts it spreads lie (one whose lights are all on one side stays whole, as before, and a light with
+less than a fifth of itself across the height counts on one side only). That rule changes one card of the
+shack: the east-wall card of `ek_ss_shack_t01`, from 0.40 to 4.80 metres, is cut at 3.0 metres, so the east sign's glow now hides with the
 sign while the east window's stays, as seen in the client; the other three tiles were rebuilt byte for byte the
 same. In the Toolset, in Modern Exterior, painting each of the two groups made one door of type 58 at its hook,
 as the saved area records.

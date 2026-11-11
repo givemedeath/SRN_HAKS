@@ -59,6 +59,8 @@ PATH_NODES = {'A': ('NWSE',), 'I': ('NWS',), 'H': ('WS',), 'L': ('NS',), 'N': ('
               'X': ('N', 'W'), 'Y': ('N', 'S'), 'V': ('N', 'SE'), 'W': ('N', 'SW'), 'w': ('N', 'W', 'E', 'S')}
 EXIT = 4  # cells of a tile's side that must lie open together for the side to be an exit: a metre
 WALK_FACES = 500  # the most walk faces of any stock tile of Modern Exterior and Suburbs: a tile with more is noted
+LIT = 0.05  # square metres: a lit patch smaller than this does not say where a halo card goes (the least patch `glow.halo` gives a card to)
+FOOT = 0.2  # the share of one light that must lie on a side of the hiding height for the light to count there: less is its foot, or its head
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
              'BottomRightHeight', 'Top', 'Right', 'Bottom', 'Left', 'MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1',
              'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds', 'PathNode', 'Orientation', 'VisibilityNode', 'VisibilityOrientation', 'ImageMap2D')
@@ -327,17 +329,25 @@ def _daylight(name, halos):
     return lines
 
 
-def _level_cut(card, height, rim=1 / 3):
+def _level_cut(card, height, light=None):
     """A halo card cut level at the height above which things may be hidden: [(card, whether it is above)].
 
-    A card's outer part is the glow round its light, so a height that crosses a card within `rim` of its top or bottom
-    is taken to pass the edge of one light: the card stays whole and goes with its middle (a sign just above the height
-    takes the glow under it along when it is hidden). A height that crosses the body of a card is taken to pass between
-    two lights that share it, a sign over windows on a small building: the card is cut there, so the sign's glow goes
-    with the sign and the windows' stays. This goes by the card's shape alone; it does not know where its lights are."""
-    low, high = card[0][0][2], card[2][0][2]; share = (height - low) / (high - low) if height is not None and high > low else 0.0
-    if not rim <= share <= 1 - rim:
-        return [(card, height is not None and (low + high) / 2 >= height)]
+    light: the lit parts the card spreads, as `glow.halo` gives them. Each light, a patch of lit pixels that touch, is
+    on the side of the height where it lies; one the height passes through is on both, unless less than FOOT of it is
+    on one side (a sign whose foot dips under the height goes with its body: cut there, the glow under a hidden sign
+    was left hanging over the door). A card goes or stays whole with its lights: a sign above the height takes the glow
+    under it along when it is hidden, and the glow over a window stays. A card with light on both sides, a sign over
+    windows on a small building or one tall light, is cut at the height, so the sign's glow goes with the sign and the
+    windows' stays. A card whose light is not known, or is all in patches under LIT, is never cut and goes by its middle."""
+    low, high = card[0][0][2], card[2][0][2]; whole = [(card, height is not None and (low + high) / 2 >= height)]
+    if height is None or light is None or not low < height < high:
+        return whole
+    share = (height - low) / (high - low); line = int(round((1 - share) * len(light)))  # the picture's rows above the height
+    patches, count = _masses(light > 0)
+    area = np.bincount(patches.ravel(), light.ravel(), count + 1)[1:]; over = np.bincount(patches[:line].ravel(), light[:line].ravel(), count + 1)[1:]
+    counted = area >= LIT; sides = {bool(side) for side, part in ((True, over), (False, area - over)) if (part[counted] >= FOOT * area[counted]).any()}
+    if len(sides) < 2:
+        return [(card, sides.pop())] if sides else whole
 
     def at(bottom, top):
         (start, (u0, v0)), (end, (u1, v1)) = bottom, top
@@ -346,11 +356,12 @@ def _level_cut(card, height, rim=1 / 3):
     return [([card[0], card[1], right, left], False), ([left, right, card[2], card[3]], True)]
 
 
-def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=None, cap=()):
+def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=None, cap=(), lit=None):
     """One tile's ASCII model. parts: [(vertices, normals, uvs, faces)] of the building, in the tile's space; a fifth
     value, true, marks a part the game may hide (`tilefade`). ground: the texture of the ten-metre square under it, laid
     twice across the tile as the plain tiles lay theirs. lights: the places of its main lights. fade: the height above
-    which things may be hidden; a halo card above it goes with them, and one whose body it crosses is cut there. cap: the
+    which things may be hidden; a halo card whose light is above it goes with them, and one with light on both sides of
+    it is cut there (`_level_cut`). lit: each card's light, as `glow.halo` gives it; without it no card is cut. cap: the
     lid drawn at that height only while they are hidden ([(x0, y0, x1, y1)]), so the building is not seen hollow."""
     require(len(name) <= 16 and name == name.lower() and name.replace('_', '').isalnum(), 'A tile model name is a lowercase resref: ' + name)
     lines = ['#MAXMODEL ASCII', f'newmodel {name}', f'setsupermodel {name} null', 'classification TILE', 'setanimationscale 1.0',
@@ -369,7 +380,7 @@ def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=No
             lines += [f'  tverts {len(used)}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in uvs[used].tolist()]
             lines += [f'  normals {len(used)}'] + [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in normals[used].tolist()]
             lines += [f'  faces {len(part)}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in part.tolist()] + ['endnode']
-    cut = [piece for card in cards for piece in _level_cut(card, fade)]; cards = [card for card, _ in cut]
+    cut = [piece for card, light in zip(cards, lit or [None] * len(cards)) for piece in _level_cut(card, fade, light)]; cards = [card for card, _ in cut]
     for index, (card, above) in enumerate(cut):
         lines += [f'node trimesh {name}_halo{index}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
                   f'  bitmap {material}_h', '  render 1', '  shadow 0', '  rotatetexture 0', f'  tilefade {1 if above else 0}', '  transparencyhint 1', '  alpha 1', '  verts 4']
@@ -397,11 +408,12 @@ def walk_text(name, walk):
     return '\n'.join([f'beginwalkmeshgeom {name}', *_walk_node(name, name, *walk), f'endwalkmeshgeom {name}']) + '\n'
 
 
-def share_cards(cards, rows, columns, corner):
-    """{(row, column): [card]}: each halo card cut along the tile lines it crosses, in each tile's own space. A card
-    stands upright facing along x or along y, so it runs along the other of the two and is cut along that."""
+def share_cards(cards, rows, columns, corner, lit=None):
+    """{(row, column): [(card, light)]}: each halo card cut along the tile lines it crosses, in each tile's own space,
+    with its part of the card's light (`lit`, as `glow.halo` gives it; None without). A card stands upright facing
+    along x or along y, so it runs along the other of the two and is cut along that."""
     shared = {}; counts = (columns, rows)
-    for card in cards:
+    for card, light in zip(cards, lit or [None] * len(cards)):
         (start, (u_start, v_bottom)), (end, (u_end, _)), (upper, (_, v_top)) = [(np.array(place, float), uv) for place, uv in card[:3]]
         along = int(np.abs(end - start)[:2].argmax()); fixed = 1 - along
         held = int(np.clip((start[fixed] - corner[fixed]) // SIZE, 0, counts[fixed] - 1))
@@ -417,8 +429,9 @@ def share_cards(cards, rows, columns, corner):
             def at(value, height):
                 point = start.copy(); point[along] = value; point[2] = height
                 return tuple((point - centre).tolist())
-            shared.setdefault((row, column), []).append([(at(near, start[2]), (u(near), v_bottom)), (at(far, start[2]), (u(far), v_bottom)),
-                                                         (at(far, upper[2]), (u(far), v_top)), (at(near, upper[2]), (u(near), v_top))])
+            piece = [(at(near, start[2]), (u(near), v_bottom)), (at(far, start[2]), (u(far), v_bottom)), (at(far, upper[2]), (u(far), v_top)), (at(near, upper[2]), (u(near), v_top))]
+            first, last = sorted(round(float((value - start[along]) / (end[along] - start[along]) * light.shape[1])) for value in (near, far)) if light is not None else (0, 0)
+            shared.setdefault((row, column), []).append((piece, light[:, first:last] if light is not None else None))
     return shared
 
 
@@ -438,7 +451,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
     middle = vertices[faces].mean(1); home = np.clip(((middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
     high = middle[:, 2] >= fade if fade is not None else np.zeros(len(faces), bool)
-    cards = share_cards(made['card'][1] if made['card'] else [], rows, columns, corner); tiles, notes = [], []
+    cards = share_cards(made['card'][1], rows, columns, corner, made['card'][2]) if made['card'] else {}; tiles, notes = [], []
     pictures = minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground_colour) if colour is not None else {}
     if door is not None:
         at = np.asarray(door['at'], float); cell = np.clip(((at[:2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
@@ -454,7 +467,8 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                     used, local = np.unique(faces[chosen], return_inverse=True)
                     parts.append((vertices[used] - centre, normals[used], uvs[used], local.reshape(-1, 3), hidden))
             walk = walkmesh(found, row, column); lights = light_places(found, row, column)
-            text = model_text(model, parts, name, ground, cards.get((row, column), []), walk, lights=lights, fade=fade,
+            halos = cards.get((row, column), [])
+            text = model_text(model, parts, name, ground, [card for card, _ in halos], walk, lights=lights, fade=fade, lit=[light for _, light in halos],
                               cap=lid(found, row, column) if fade is not None else ())
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')

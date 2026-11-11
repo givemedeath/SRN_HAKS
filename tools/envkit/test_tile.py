@@ -142,9 +142,11 @@ class TileTests(unittest.TestCase):
 
     def test_a_halo_card_is_cut_where_it_crosses_into_the_next_tile(self):
         card = [((4.0, 3.0, 1.0), (0.0, 0.5)), ((-2.0, 3.0, 1.0), (0.6, 0.5)), ((-2.0, 3.0, 2.0), (0.6, 0.0)), ((4.0, 3.0, 2.0), (0.0, 0.0))]
-        shared = tile.share_cards([card], 2, 2, np.array([-10.0, -10.0]))
+        light = np.zeros((4, 60)); light[:, :10] = 1.0; light[:, 50:] = 2.0  # the card's picture: ten columns to the metre, lit at its two ends
+        shared = tile.share_cards([card], 2, 2, np.array([-10.0, -10.0]), [light])
         self.assertEqual(sorted(shared), [(1, 0), (1, 1)])  # the north row, both tiles
-        east, west = shared[(1, 1)][0], shared[(1, 0)][0]
+        (east, lit_east), (west, lit_west) = shared[(1, 1)][0], shared[(1, 0)][0]
+        self.assertEqual((lit_east.shape, float(lit_east.sum()), lit_west.shape, float(lit_west.sum())), ((4, 40), 40.0, (4, 20), 80.0))  # each piece keeps its own part of the light
         np.testing.assert_allclose([place for place, _ in east], [[-1, -2, 1], [-5, -2, 1], [-5, -2, 2], [-1, -2, 2]])  # in the tile's own space
         np.testing.assert_allclose([place[0] for place, _ in west], [5, 3, 3, 5])
         np.testing.assert_allclose([uv[0] for _, uv in east], [0.0, 0.4, 0.4, 0.0]); np.testing.assert_allclose([uv[0] for _, uv in west], [0.4, 0.6, 0.6, 0.4])
@@ -154,7 +156,7 @@ class TileTests(unittest.TestCase):
         card = [((3.0, -2.0, 1.0), (0.0, 0.5)), ((3.0, 4.0, 1.0), (0.6, 0.5)), ((3.0, 4.0, 2.0), (0.6, 0.0)), ((3.0, -2.0, 2.0), (0.0, 0.0))]
         shared = tile.share_cards([card], 2, 2, np.array([-10.0, -10.0]))
         self.assertEqual(sorted(shared), [(0, 1), (1, 1)])  # the east column, both rows
-        south, north = shared[(0, 1)][0], shared[(1, 1)][0]
+        (south, unlit), (north, _) = shared[(0, 1)][0], shared[(1, 1)][0]; self.assertIsNone(unlit)  # no light was given
         np.testing.assert_allclose([place for place, _ in south], [[-2, 3, 1], [-2, 5, 1], [-2, 5, 2], [-2, 3, 2]])
         np.testing.assert_allclose([place[1] for place, _ in north], [-5, -1, -1, -5])
         np.testing.assert_allclose([uv[0] for _, uv in south], [0.0, 0.2, 0.2, 0.0]); np.testing.assert_allclose([uv[0] for _, uv in north], [0.2, 0.6, 0.6, 0.2])
@@ -236,19 +238,35 @@ class TileTests(unittest.TestCase):
         low = (np.array([[0.0, 0, 0], [1, 0, 0], [0, 0, 1]]), np.tile([0, 1.0, 0], (3, 1)), np.zeros((3, 2)), np.array([[0, 1, 2]]), False)
         top = (low[0] + [0, 0, 3], low[1], low[2], low[3], True)
         sheet = lambda bottom: [((1.0, 0.5, bottom), (0.0, 1.0)), ((-1.0, 0.5, bottom), (1.0, 1.0)), ((-1.0, 0.5, bottom + 1), (1.0, 0.0)), ((1.0, 0.5, bottom + 1), (0.0, 0.0))]
+        both = np.full((24, 48), 0.01)  # a card's light, lit all over: 11.52 square metres of it, half above the middle of the card
         text = tile.model_text('ek_test_t00', [low, top], 'ek_test', 'pavement', [sheet(1.0), sheet(2.0), sheet(3.0)], walk, lights=[(1.0, 2.0, 4.0), (0.0, 0.0, 7.1)], fade=2.5,
-                               cap=[(-1.0, -1.0, 1.0, 1.0)])
+                               cap=[(-1.0, -1.0, 1.0, 1.0)], lit=[both, both, both])
         geometry, _, animations = text.partition('endmodelgeom')
         nodes = {block.split('\n', 1)[0]: block for block in geometry.split('node ')[1:]}
         self.assertIn('  tilefade 0', nodes['trimesh ek_test_t00_m0']); self.assertIn('  tilefade 1', nodes['trimesh ek_test_t00_m1'])
         self.assertIn('  tilefade 0', nodes['trimesh ek_test_t00_halo0']); self.assertIn('  tilefade 1', nodes['trimesh ek_test_t00_halo3'])  # the sign's light goes with the sign
-        # The sheet from 2 to 3 metres crosses the fade height: it is cut there, the lower half staying and the upper going, each with its half of the picture.
+        # The sheet from 2 to 3 metres has light on both sides of the fade height: it is cut there, the lower half staying and the upper going, each with its half of the picture.
         under, over = nodes['trimesh ek_test_t00_halo1'], nodes['trimesh ek_test_t00_halo2']
         self.assertIn('  tilefade 0', under); self.assertIn('    -1.00000 0.50000 2.50000', under); self.assertNotIn('3.00000', under); self.assertIn('    1.00000 0.50000 0', under)
         self.assertIn('  tilefade 1', over); self.assertIn('    1.00000 0.50000 2.50000', over); self.assertNotIn(' 2.00000', over); self.assertIn('    0.00000 0.50000 0', over)
         whole = tile.model_text('ek_test_t00', [low], 'ek_test', 'pavement', [sheet(2.0)], walk)  # with nothing to hide, nothing is cut
-        # A height that only crosses a card's rim leaves it whole, with its middle: the glow under a sign goes with the sign, the glow over a window stays.
+        # A card goes or stays whole with its light, wherever the height crosses the card: the glow under a sign goes with the sign, though most
+        # of the card is under the height; the glow over a window stays, though most of the card is above it.
+        sign, window = np.zeros((20, 48)), np.zeros((20, 48)); sign[:4] = 0.01; window[16:] = 0.01
+        self.assertEqual(tile._level_cut(sheet(1.7), 2.5, sign), [(sheet(1.7), True)]); self.assertEqual(tile._level_cut(sheet(2.3), 2.5, window), [(sheet(2.3), False)])
+        speck = window.copy(); speck[0, :4] = 0.01  # a patch of 0.04 square metres above the height: too small to say anything
+        self.assertEqual(tile._level_cut(sheet(2.3), 2.5, speck), [(sheet(2.3), False)])
+        # One light the height passes through. With a tenth of it under the height that is the sign's foot, and the card goes whole with the sign;
+        # with half of it under, the light is on both sides and the card is cut.
+        tall = np.zeros((20, 48)); tall[:10] = 0.01
+        self.assertEqual(tile._level_cut(sheet(1.95), 2.5, tall), [(sheet(1.95), True)])
+        self.assertEqual([above for _, above in tile._level_cut(sheet(1.75), 2.5, tall)], [False, True])
+        self.assertEqual(len(tile._level_cut(sheet(2.0), 2.5, sign + window)), 2)  # a sign over a window on one card: cut between them
+        wall = np.zeros((20, 48)); wall[8:] = 0.01  # and so it is with a small sign over a tall lit wall, where the height crosses near the card's top
+        self.assertEqual([above for _, above in tile._level_cut(sheet(1.75), 2.5, sign + wall)], [False, True])
+        # A card whose light is not known is never cut and goes by its middle.
         self.assertEqual(tile._level_cut(sheet(2.3), 2.5), [(sheet(2.3), True)]); self.assertEqual(tile._level_cut(sheet(1.7), 2.5), [(sheet(1.7), False)])
+        self.assertEqual(tile._level_cut(sheet(2.0), 2.5), [(sheet(2.0), True)])
         self.assertEqual(whole.count('node trimesh ek_test_t00_halo'), 1 + 4)  # the one card, and its line in each of the four animations
         lid = nodes['trimesh ek_test_t00_cap']  # drawn only while the top is hidden
         self.assertIn('  tilefade 2', lid); self.assertIn('  bitmap ek_black', lid); self.assertIn('    -1.00000 -1.00000 2.50000', lid); self.assertIn('  faces 2', lid)
@@ -273,7 +291,11 @@ class TileTests(unittest.TestCase):
         from pathlib import Path
         from PIL import Image
         vertices, faces = SHOP
-        made = {'vertices': vertices, 'normals': np.tile([0.0, 0, 1], (len(vertices), 1)), 'uvs': np.zeros((len(vertices), 2)), 'faces': faces, 'card': None}
+        # Its halo, as `glow.halo` gives one: a picture (not the tile's business), a card on the front wall from 1 to 3 metres, and that card's
+        # light, lit all over. The light lies on both sides of the 2 metre fade height, so the tile carries the card as two.
+        card = [((2.0, -2.04, 1.0), (0.0, 1.0)), ((-2.0, -2.04, 1.0), (1.0, 1.0)), ((-2.0, -2.04, 3.0), (1.0, 0.0)), ((2.0, -2.04, 3.0), (0.0, 0.0))]
+        made = {'vertices': vertices, 'normals': np.tile([0.0, 0, 1], (len(vertices), 1)), 'uvs': np.zeros((len(vertices), 2)), 'faces': faces,
+                'card': (None, [card], [np.full((48, 96), 1 / 576)])}
         with tempfile.TemporaryDirectory() as scratch:
             report = tile.group('ek_shop', made, scratch, ground='pavement', colour=np.full((2, 2, 3), 0.5), fade=2.0,
                                 door={'at': [0.0, 1.0, 0.2], 'facing': 90.0, 'type': 58})
@@ -286,6 +308,7 @@ class TileTests(unittest.TestCase):
             self.assertTrue((Path(scratch) / 'ek_black.tga').is_file())
             text = (Path(scratch) / 'ek_shop_t00.mdl').read_text(encoding='cp1252')
             self.assertIn('node trimesh ek_shop_t00_cap', text); self.assertIn('node light ek_shop_t00ml2', text)
+            geometry = text.split('endmodelgeom')[0]; self.assertEqual(geometry.count('node trimesh ek_shop_t00_halo'), 2); self.assertIn('    2.00000 -2.04000 2.00000', geometry)
             with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
 
