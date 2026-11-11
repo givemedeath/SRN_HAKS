@@ -119,7 +119,8 @@
       "tools/armorkit/export.py",
       "tools/armorkit/registry.py",
       "tools/headkit/colour.py",
-      "tools/headkit/field.py"
+      "tools/headkit/field.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/toolchain.py": [
       "tools/shared_tools.py"

@@ -88,6 +88,24 @@ class MaterialTests(unittest.TestCase):
         for k, colour in enumerate((FABRIC, TAN, PLATE)):
             self.assertTrue(np.allclose(self.found['colours'][order[k]], colour, atol=0.04))
         self.assertEqual(order[0], 0)  # the heaviest mode comes first
+        # a deep crease is much darker than its material and still that material
+        creases = np.array([FABRIC, TAN, PLATE]) * 0.55
+        self.assertEqual(texture.labels(creases, self.found['tones']).tolist(), order)
+
+    def test_a_crease_too_dark_to_show_its_colour_takes_the_material_round_it(self):
+        which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
+        channels = [None] * 3
+        for k, name in zip(which, ('cloth1', 'leather1', 'metal1')):
+            channels[k] = name
+        colour = np.zeros((16, 16, 3)); covered = np.zeros((16, 16), bool)
+        colour[:, :10], covered[:, :10] = TAN, True
+        colour[:, 12:], covered[:, 12:] = FABRIC, True  # another chart, two empty texels away
+        colour[:, 4:6] = 0.05  # a crease in the tan, nearly black
+        colour[:, 12] = 0.05  # and the dark edge of the cloth chart, nearest the tan across the gap
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=1)
+        self.assertTrue((layers[:, :10] == export.LAYERS['leather1']).all())
+        self.assertTrue((layers[:, 12:] == export.LAYERS['cloth1']).all())  # from its own chart, not across the gap
+        self.assertTrue((shades[:, 4:6] == texture.SHADES[0]).all())  # still the darkest shade of its material
 
     def test_a_source_with_fewer_materials_than_asked_for_is_refused(self):
         with self.assertRaises(ValueError):
@@ -224,6 +242,75 @@ class ReliefTests(unittest.TestCase):
             self.assertFalse(any(line.startswith('texture0') for line in material))  # the tint texture stays the colour
             with self.assertRaises(ValueError):
                 texture.write_relief(folder, 'pmh0_bicepl60300', image)  # 17 characters with the n
+
+
+class ReliefShadeTests(unittest.TestCase):
+    """A normal map of 32 texels a side with one fold running down it: the fine surface leans along u on either side."""
+
+    @staticmethod
+    def fold(ridge):
+        image = np.empty((32, 32, 3)); image[:] = texture.FLAT
+        lean = np.sin(np.radians(30)) * (1 if ridge else -1)
+        image[:, 12:16, 0], image[:, 16:20, 0] = 0.5 - 0.5 * lean, 0.5 + 0.5 * lean  # away from the middle on a ridge, toward it in a crease
+        image[:, 12:20, 2] = 0.5 + 0.5 * np.cos(np.radians(30))
+        return image
+
+    def test_a_flat_map_leaves_the_shade_alone(self):
+        image = np.empty((16, 16, 3)); image[:] = texture.FLAT
+        self.assertTrue(np.allclose(texture.relief_shade(image), 1.0))
+
+    def test_a_ridge_is_lighter_along_its_top_and_a_crease_darker_along_its_bottom(self):
+        ridge, crease = texture.relief_shade(self.fold(True)), texture.relief_shade(self.fold(False))
+        self.assertTrue((ridge[:, 15:17] > 1.15).all())  # the limit is 1.2
+        self.assertTrue((crease[:, 15:17] < 0.8).all())
+        self.assertTrue((ridge[:, 15:17] > crease[:, 15:17] + 0.4).all())
+        self.assertTrue(np.allclose(ridge[:, :6], 1.0) and np.allclose(ridge[:, 26:], 1.0))  # nothing far from the fold
+        self.assertTrue(np.allclose(ridge, ridge[:1]))  # the same all the way along it
+        low, high = texture.RELIEF_SHADE
+        for shade in (ridge, crease):
+            self.assertTrue(shade.min() >= low and shade.max() <= high)
+
+    def test_a_fold_along_u_shows_as_one_along_v_does(self):
+        turned = np.transpose(self.fold(True), (1, 0, 2))[:, :, [1, 0, 2]]  # the same fold, running along u
+        self.assertTrue(np.allclose(texture.relief_shade(turned), texture.relief_shade(self.fold(True)).T))
+
+    def test_charts_lying_close_are_not_read_as_bends_at_each_others_edges(self):
+        # two charts four texels apart, each level but leaning its own way, as the packing leaves them
+        image = np.empty((16, 32, 3)); image[:] = texture.FLAT
+        charts = np.full((16, 32), -1); charts[:, 4:14], charts[:, 18:28] = 0, 1
+        for chart, lean in ((0, -0.4), (1, 0.4)):
+            image[charts == chart] = (0.5 + 0.5 * lean, 0.5, 0.5 + 0.5 * np.sqrt(1 - lean * lean))
+        level = 1 - texture.SLOPE * (1 - np.sqrt(1 - 0.16))
+        self.assertTrue(np.allclose(texture.relief_shade(image, charts)[charts >= 0], level))
+        self.assertFalse(np.allclose(texture.relief_shade(image)[charts >= 0], level))  # without the charts their edges show
+        # the chart of a texel comes from the faces: two triangles that share no laid-out vertex are two charts
+        uvs = np.array([[0, 0], [0.4, 0], [0, 0.4], [0.6, 0.6], [1, 0.6], [0.6, 1]], float)
+        found = texture.chart_map(uvs, np.array([[0, 1, 2], [3, 4, 5]]), 16)
+        self.assertEqual((found[1, 1] >= 0, found[10, 10] >= 0, found[1, 1] != found[10, 10], found[15, 0]), (True, True, True, -1))
+
+    def test_a_tilted_surface_is_darker_however_it_tilts(self):
+        image = np.empty((16, 16, 3)); image[:] = (0.5 + 0.5 * np.sin(np.radians(40)), 0.5, 0.5 + 0.5 * np.cos(np.radians(40)))
+        self.assertTrue(np.allclose(texture.relief_shade(image), 1 - texture.SLOPE * (1 - np.cos(np.radians(40)))))
+
+    def test_smoothing_keeps_a_level_map_level_to_its_border(self):
+        self.assertTrue(np.allclose(texture.smooth(np.full((9, 7, 2), 0.3), 2), 0.3))
+        step = np.zeros((8, 8)); step[:, 4:] = 1.0
+        self.assertTrue(np.allclose(texture.smooth(step, 1)[3], [0, 0, 0, 1 / 3, 2 / 3, 1, 1, 1]))
+
+    def test_the_relief_reaches_the_tint_texture(self):
+        rng = np.random.default_rng(3)
+        found = texture.materials(np.concatenate([shaded(FABRIC, 6000, rng), shaded(TAN, 2500, rng), shaded(PLATE, 1500, rng)]), 3)
+        colour = np.empty((32, 32, 3)); colour[:] = TAN
+        covered = np.ones((32, 32), bool)
+        channels = ['cloth1', 'leather1', 'metal1']
+        plain = texture.tint_maps(colour, covered, found, channels)[0]
+        deep = texture.tint_maps(colour, covered, found, channels, relief=self.fold(False))[0]
+        self.assertTrue((deep[:, 15:17] < plain[:, 15:17] - 20).all())  # the crease is darker in the shade
+        self.assertTrue(np.array_equal(deep[:, :6], plain[:, :6]))
+        colour[:, 15:17] = np.array(TAN) * 0.7  # the generated colour already shows the crease about as dark as the relief would
+        twice = texture.tint_maps(colour, covered, found, channels, relief=self.fold(False))[0]
+        once = texture.tint_maps(colour, covered, found, channels)[0]
+        self.assertTrue((twice[:, 15:17] >= once[:, 15:17] - 5).all())  # the darker of the two, not one on top of the other
 
 
 class FakeAtlas:

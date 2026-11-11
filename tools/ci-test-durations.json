@@ -10,7 +10,7 @@
   "tools/armorkit/test_seams.py": 0.037,
   "tools/armorkit/test_split.py": 2.6,
   "tools/armorkit/test_tables.py": 0.134,
-  "tools/armorkit/test_texture.py": 0.3,
+  "tools/armorkit/test_texture.py": 0.6,
   "tools/armorkit/test_toolchain.py": 0.28,
   "tools/headbatch/test_fitassembly.py": 0.008,
   "tools/headbatch/test_headbatch.py": 16.812,

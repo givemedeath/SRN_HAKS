@@ -19,6 +19,7 @@ import numpy as np
 
 from tools.headkit.colour import lab
 from tools.headkit.field import GeneratedField, load_generated_field
+from tools.robes import mesh_ops
 
 from . import export
 from .registry import require
@@ -31,6 +32,13 @@ TEXEL = 0.0015  # metres of surface a texel should span at most: finer than this
 COVER = 0.35  # the share of a texture its charts fill, as the layout packs a generated part
 SIZES = (128, 1024)  # the smallest and the largest texture a part gets, in texels a side
 LIGHT = np.array([0.2126, 0.7152, 0.0722])
+SURE = 0.6  # a texel darker than this share of its material's middle lightness has lost its colour to shadow: its material is its neighbours'
+SETTLE = 16  # how many texels a material is carried into such a shadow from its lit sides
+BEND = 1.2  # how much lighter a raised edge and darker a crease gets, per unit the fine normal turns across a texel
+SLOPE = 0.35  # how much darker a texel gets as the fine surface tilts away from the simplified one
+BROAD = ((1, 1.0), (4, 0.6))  # the bend is taken across this many texels each way, with this weight: sharp edges and broad folds
+RELIEF_SHADE = (0.72, 1.2)  # the least and the most the relief changes a shade by
+TURN_LIMIT = 0.35  # the most one turn counts for: a jump in the map (a dropped reading beside a kept one) is not an edge that sharp
 
 
 def layout(xatlas, vertices, faces, size, padding=PAD):
@@ -126,10 +134,15 @@ def colour_map(uvs, faces, positions, read, size):
 
 
 def tone(colours):
-    """Colours (0-1) as Lab with the lightness counted half: shading must weigh less than a material's own colour."""
+    """Colours (0-1) in the space materials are told apart in: a quarter of the Lab lightness, and the two Lab
+    colour axes as shares of the lightness.
+
+    Shading makes a texel darker and, in Lab, less coloured with it; its colour as a share of its lightness
+    stays. So a tan strap's dark crease stays tan instead of drifting to the grey cloth beside it, while a pale
+    plate and a mid-grey cloth, which differ mostly in lightness, are still apart."""
     value = lab(np.asarray(colours, float).reshape(-1, 3) * 255)
-    value[:, 0] *= 0.5
-    return value
+    light = np.maximum(value[:, 0], 10.0)  # below this a share of the lightness is noise
+    return np.stack([0.25 * value[:, 0], 100 * value[:, 1] / light, 100 * value[:, 2] / light], axis=1)
 
 
 def materials(colours, count, cell=6.0, apart=14.0, rounds=25, sample=200000):
@@ -155,6 +168,10 @@ def materials(colours, count, cell=6.0, apart=14.0, rounds=25, sample=200000):
     for _ in range(rounds):
         nearest = np.argmin(np.linalg.norm(some[:, None] - centres[None], axis=2), axis=1)
         centres = np.array([some[nearest == k].mean(axis=0) if np.any(nearest == k) else centres[k] for k in range(count)])
+    # A lone material's fringe can start a centre of its own; the k-means then halves that material, and the two
+    # halves end up close together. Materials that close are one.
+    gaps = [np.linalg.norm(centres[i] - centres[j]) for i in range(count) for j in range(i)]
+    require(not gaps or min(gaps) >= apart, f'The colours do not show {count} separate materials')
     which = labels(colours, centres)
     require(all(np.any(which == k) for k in range(count)), 'A material has no texel')
     middle = np.array([np.median(colours[which == k], axis=0) for k in range(count)])
@@ -166,17 +183,45 @@ def labels(colours, tones):
     return np.argmin(np.linalg.norm(tone(colours)[:, None] - np.asarray(tones, float)[None], axis=2), axis=1)
 
 
-def tint_maps(colour, covered, found, channels, pad=PAD + 2):
+def settle(material, sure, covered, passes=SETTLE):
+    """The material per texel, with each unsure texel given the material of the nearest sure texel it is joined to.
+
+    A deep crease is nearly black in the generated colours whatever it is made of, so its own colour cannot
+    say. The materials of the sure texels are carried inward a texel a pass, only through covered texels, so
+    never from one chart to another."""
+    material, filled = np.array(material), np.array(sure, bool)
+    for _ in range(passes):
+        if filled[covered].all():
+            break
+        wider, carried = spread(filled, material, passes=1)
+        take = wider & covered & ~filled
+        material[take] = carried[take]
+        filled |= take
+    return material
+
+
+def tint_maps(colour, covered, found, channels, pad=PAD + 2, relief=None, charts=None, bend=BEND, slope=SLOPE):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
-    `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k. A texel's shade
-    is `MIDDLE` at its material's middle lightness and follows its own lightness from there. Charts are spread
+    `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k. A texel much
+    darker than its material takes its material from its neighbours (`settle`). A texel's shade
+    is `MIDDLE` at its material's middle lightness and follows its own lightness from there; with `relief`, the
+    part's `normal_map`, it is also lighter on raised edges and darker in creases (`relief_shade`, which wants the
+    part's `chart_map` as `charts`); a texel the colour already shows darker than its material is not darkened twice.
+    Charts are spread
     `pad` texels into the empty texels round them; what is still empty gets the first channel at `MIDDLE`."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     require(len(channels) == len(found['tones']) and all(name in export.LAYERS for name in channels), 'A colour channel is needed per material')
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))
     material[covered] = labels(colour[covered], found['tones'])
-    shade[covered] = np.clip(MIDDLE * (colour[covered] @ LIGHT) / np.maximum(found['light'][material[covered]], 1e-6), *SHADES)
+    material = settle(material, covered & (colour @ LIGHT >= SURE * found['light'][material]), covered)
+    ratio = (colour[covered] @ LIGHT) / np.maximum(found['light'][material[covered]], 1e-6)
+    if relief is not None:
+        # A generated colour is already darker in its creases. Where it is, the relief's darkening is not laid on
+        # top of that: the texel takes the darker of the two, or a crease shaded twice comes out black.
+        factor = relief_shade(relief, charts, bend, slope)[covered]
+        ratio = np.maximum(factor, 1.0) * np.minimum(ratio, np.minimum(factor, 1.0) * np.maximum(ratio, 1.0))
+    shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
     _, material, shade = spread(covered, material, shade, passes=pad)
     return np.round(shade).astype(int), np.array([export.LAYERS[name] for name in channels])[material]
 
@@ -355,3 +400,58 @@ def write_relief(folder, model, image, roughness=0.8):
     (folder / (name + '.tga')).write_bytes(tga(image))
     (folder / (model + '.mtr')).write_text(MATERIAL.format(name, roughness), encoding='ascii', newline='\n')
     return name
+
+
+# --- Relief in the shade: edges and creases painted into the tint texture, where they show in any light ---
+
+
+def smooth(image, radius):
+    """The mean over the (2 radius + 1) texels square round each texel, the border repeated outward."""
+    if radius < 1:
+        return np.asarray(image, float)
+    edge = ((radius + 1, radius), (radius + 1, radius)) + ((0, 0),) * (np.ndim(image) - 2)
+    total = np.pad(np.asarray(image, float), edge, mode='edge').cumsum(axis=0).cumsum(axis=1)
+    side = 2 * radius + 1
+    return (total[side:, side:] - total[:-side, side:] - total[side:, :-side] + total[:-side, :-side]) / side ** 2
+
+
+def chart_map(uvs, faces, size):
+    """Per texel the number of the chart covering it, -1 for none. Faces that share a laid-out vertex are one chart."""
+    faces = np.asarray(faces, int)
+    label = np.asarray(mesh_ops.union_find(int(faces.max()) + 1, np.concatenate([faces[:, :2], faces[:, 1:]]).tolist()))
+    owner = raster(uvs, faces, size)[0]
+    return np.where(owner >= 0, label[faces[:, 0]][owner], -1)
+
+
+def beside(value, chart, step, axis):
+    """Each texel's neighbour `step` texels along an axis, or the texel's own value where that neighbour is
+    off the texture or on another chart: across a chart's edge there is nothing to compare with."""
+    same = np.roll(chart, -step, axis=axis) == chart
+    border = [slice(None), slice(None)]
+    border[axis] = slice(-step, None) if step > 0 else slice(None, -step)
+    same[tuple(border)] = False
+    return np.where(same, np.roll(value, -step, axis=axis), value)
+
+
+def relief_shade(image, charts=None, bend=BEND, slope=SLOPE, broad=BROAD, limits=RELIEF_SHADE):
+    """The factor a part's `normal_map` changes each texel's shade by: above 1 on a raised edge, below 1 in a
+    crease and wherever the fine surface tilts away.
+
+    The game lights these parts evenly, so a normal map alone shows little. Where the fine normal turns outward
+    across a texel (it leans along u more with rising u, or along v with rising v) the surface is a ridge
+    there, and where it turns inward a crease: the sum of the two turns is the bend. It is taken sharp and,
+    smoothed, over a few texels, so that both a stitched edge and a fold show. With `charts` (`chart_map`) a
+    texel is compared only with texels of its own chart; without, charts lying a few texels apart would read
+    as bends at each other's edges."""
+    image = np.asarray(image, float)
+    lean, out = image[:, :, :2] * 2 - 1, image[:, :, 2] * 2 - 1
+    chart = np.zeros(image.shape[:2], int) if charts is None else np.asarray(charts, int)
+    inside = (chart >= 0).astype(float)
+    total = np.zeros(image.shape[:2])
+    for step, weight in broad:
+        radius = step // 2
+        soft = lean if radius < 1 else smooth(lean * inside[:, :, None], radius) / np.maximum(smooth(inside, radius), 1e-9)[:, :, None]
+        for axis, channel in ((1, 0), (0, 1)):  # the lean along u across columns, the lean along v across rows
+            turn = (beside(soft[:, :, channel], chart, step, axis) - beside(soft[:, :, channel], chart, -step, axis)) / 2
+            total += weight * np.clip(turn, -TURN_LIMIT, TURN_LIMIT)
+    return np.clip(1 + bend * total - slope * (1 - out), *limits)
