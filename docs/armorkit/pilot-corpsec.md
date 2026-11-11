@@ -75,7 +75,24 @@ Phase 3), the back harness, the wrist display and the carried weapons.
 As built on 2026-11-11 the Site Guard's reference shows three materials, one of each kind, so each has both
 of its kind's channels and they are told apart by garment: cloth 1 the shirt, cloth 2 the trousers, leather 1
 the carrier, leather 2 gloves and boots, metal 1 the shoulder and arm guards, metal 2 the knee and shin guards.
-Its materials and their kinds are in `tools/armorkit/briefs/corpsec-siteguard-male.json`. The accent and
+Its materials and their kinds are in `tools/armorkit/briefs/corpsec-siteguard-male.json`.
+
+Rebuilt later that day from a second brief (`corpsec-siteguard-male-2.json`, geometry attempt 3 of 5): the plates
+are asked for in a clear sky blue, 58 from the cloth in the image where the first were 17, and every strap that
+holds a guard or pad on is tan webbing, the gear's material. In the first image the straps were a grey-blue
+between cloth and plates and had no material of their own. Leather 2 now takes everything of leather on the
+limbs, so all the straps are coloured with the gloves and boots.
+
+The second mesh first built with its upper sleeves on the chest part: the cut that parts a sleeve from the
+torso stopped 2 cm short of the shoulder plane behind each shoulder, and the forearms lifted out of sleeves
+that stayed put. The cut now reaches 10 cm above the shoulder joint, and a build whose sleeve stays joined to
+the torso is refused.
+
+In the client the crotch then showed two flat plain patches with a black hole above them, and the seat a hole
+when the body sat or crouched. The game stands a body with its thighs turned out, which opens the cut between
+the legs at the front; the patches were the thighs' flat inner walls and the hole the pelvis, open on both hip
+planes. The pelvis is now closed on both planes and repeats a strip of the trousers along the crotch, just
+under the thighs. The caps at the shoulders, streaked with sleeve and guard, are drawn in one material. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in
