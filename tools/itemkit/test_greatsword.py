@@ -5,7 +5,7 @@ from PIL import Image
 from tools.headkit.common import read,write,pin
 from .test_itemkit import Fixture
 from . import contracts,native
-from .grip import one_hand_uniform,two_hand_uniform
+from .grip import one_hand_round,two_hand_uniform
 from .firearm_native import placeholder_geometry
 
 
@@ -69,14 +69,18 @@ class GreatswordTests(Fixture):
 
     def test_round_one_hand_grip_stays_round_only_through_a_bound_review(self):
         standard=read(Path(__file__).resolve().parents[2]/'docs/items/weapon-grip-standard-v1.json');a=np.arange(32)*2*np.pi/32
-        ring=np.c_[np.cos(a)*.02,np.zeros(32),np.sin(a)*.02];p=np.concatenate([ring+[0,-.2,0],ring+[0,.2,0]])
+        ring=np.c_[np.cos(a)*.035,np.zeros(32),np.sin(a)*.035];p=np.concatenate([ring+[0,-.2,0],ring+[0,.2,0]])
         f=np.array([(i,(i+1)%32,(i+1)%32+32) for i in range(32)]+[(i,(i+1)%32+32,i+32) for i in range(32)]);m=np.eye(4)
-        with self.assertRaises(GripDeparture) as caught:one_hand_uniform(p,f,m,[0,0,0],standard)
-        r=caught.exception.report;self.assertAlmostEqual(r['measuredFittedSections'][0]['depth'],.04,delta=.001)
-        self.assertGreater(r['midpointRelativeDifferences']['depth'],.3);self.assertLess(r['midpointRelativeDifferences']['visibleFaceWidth'],-.1)
+        width=standard['targetMidpointSection']['visibleFaceWidth']
+        with self.assertRaises(GripDeparture) as caught:one_hand_round(p,f,m,[0,0,0],standard)
+        r=caught.exception.report;mid=r['measuredFittedSections'][2]
+        self.assertAlmostEqual(mid['depth'],width,delta=.0005);self.assertAlmostEqual(mid['visibleFaceWidth'],width,delta=.0005)
+        self.assertGreater(r['midpointRelativeDifferences']['depth'],.5);self.assertAlmostEqual(r['transverseScale'][0],width/.07,delta=.01)
         review={'decision':'approved','measurementDigest':r['measurementDigest'],'notes':'User asked for the club to stay round'}
-        actual,bound=one_hand_uniform(p,f,m,[0,0,0],standard,review);self.assertTrue(np.array_equal(actual,m))
-        self.assertEqual(bound['transverseScale'],[1.,1.,1.]);self.assertEqual(bound['departureReview'],review)
-        with self.assertRaises(GripDeparture):one_hand_uniform(p,f,m,[0,0,0],standard,dict(review,measurementDigest='0'*64))
+        actual,bound=one_hand_round(p,f,m,[0,0,0],standard,review);self.assertEqual(bound['departureReview'],review)
+        self.assertAlmostEqual(actual[0,0],actual[2,2]);self.assertEqual(actual[1,1],1)          # same scale on both transverse axes, length kept
+        with self.assertRaises(GripDeparture):one_hand_round(p,f,m,[0,0,0],standard,dict(review,measurementDigest='0'*64))
         squashed=m.copy();squashed[0,0]=.5
-        with self.assertRaisesRegex(ValueError,'uniformly'):one_hand_uniform(p,f,squashed,[0,0,0],standard,review)
+        with self.assertRaisesRegex(ValueError,'uniform fit'):one_hand_round(p,f,squashed,[0,0,0],standard,review)
+        oval=p*[1,1,.6]
+        with self.assertRaisesRegex(ValueError,'not round'):one_hand_round(oval,f,m,[0,0,0],standard,review)

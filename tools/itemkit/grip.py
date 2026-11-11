@@ -103,13 +103,14 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None
     return m,report
 
 
-def one_hand_uniform(vertices,faces,matrix,origin,standard,review=None):
+def one_hand_round(vertices,faces,matrix,origin,standard,review=None):
     """Keep a round one-hand grip round instead of squashing it to the reference section.
 
-    The usable length stays the sizing authority and the similarity is left uniform, so a club's circular handle
-    and square end caps survive (the wave-1 Club became a 4 x 6.5 cm oval with a slanted pommel under the transverse
-    correction). The section therefore departs from the standard by construction: it always needs a review bound to
-    this exact measurement, and the both-body visual hand-fit review afterwards.
+    The usable length stays the sizing authority. Both transverse axes get the same scale, chosen so the grip's
+    midpoint diameter equals the approved visible-face width; a club's circular handle and square end caps
+    survive (the wave-1 Club became a 4 x 6.5 cm oval with a slanted pommel under the per-axis correction, and a
+    7.3 cm log with no correction at all). The depth therefore departs from the standard by construction: it
+    always needs a review bound to this exact measurement, and the both-body visual hand-fit review afterwards.
     """
     require(standard.get('id')=='cougar-approved-grip-v1'
             and standard.get('approval',{}).get('gripSizingApproved') is True,'Approved melee grip reference required')
@@ -117,13 +118,17 @@ def one_hand_uniform(vertices,faces,matrix,origin,standard,review=None):
     require(m.shape==(4,4) and np.isfinite(m).all() and np.allclose(m[3],[0,0,0,1]) and origin.shape==(3,),'Finite grip transform required')
     gram=m[:3,:3].T@m[:3,:3]
     require(np.linalg.det(m[:3,:3])>0 and np.allclose(gram,np.eye(3)*gram[0,0],atol=1e-12,rtol=1e-7),
-            'A round one-hand grip must be fitted uniformly')
-    sections=reference_sections(transform(vertices,m),faces,standard,origin[1],standard['usableLength'])
-    mid=next(r for r in sections if r['fractionFromPommel']==.5);target=standard['targetMidpointSection']
-    report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':m.tolist(),
-            'sizingAuthority':'usable-length-uniform','usableLength':float(standard['usableLength']),'nativeGripOrigin':origin.tolist(),
-            'measuredFittedSections':sections,'midpointRelativeDifferences':{
+            'A round one-hand grip starts from a uniform fit')
+    measured=section_dimensions(transform(vertices,m),faces,origin[1]);target=standard['targetMidpointSection']
+    require(abs(measured[0]/measured[1]-1)<.1,'Grip section is not round; use the standard transverse calibration')
+    k=float(target['visibleFaceWidth']/measured.mean());require(np.isfinite(k) and k>0,'Positive grip calibration required')
+    correction=np.eye(4);correction[:3,:3]=np.diag([k,1.,k]);correction[:3,3]=origin-origin*[k,1.,k];result=correction@m
+    sections=reference_sections(transform(vertices,result),faces,standard,origin[1],standard['usableLength'])
+    mid=next(r for r in sections if r['fractionFromPommel']==.5)
+    report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':result.tolist(),
+            'sizingAuthority':'usable-length-round','usableLength':float(standard['usableLength']),'nativeGripOrigin':origin.tolist(),
+            'sourceSection':measured.tolist(),'transverseScale':[k,1.,k],'measuredFittedSections':sections,'midpointRelativeDifferences':{
                 'depth':mid['depth']/target['depth']-1,'visibleFaceWidth':mid['visibleFaceWidth']/target['visibleFaceWidth']-1},
-            'transverseScale':[1.,1.,1.],'proportionsAndAnglesPreserved':True,'bothBodyVisualReviewRequired':True}
+            'roundSectionPreserved':True,'bothBodyVisualReviewRequired':True}
     report['measurementDigest']=digest(report);bind_departure(report,review)
-    return m,report
+    return result,report
