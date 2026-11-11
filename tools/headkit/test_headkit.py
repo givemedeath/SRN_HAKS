@@ -4639,8 +4639,9 @@ class DesignTests(Temporary):
         self.assertEqual(graph['47']['inputs'],{'samples':['6',2],'amount':2})
         self.assertEqual(graph['12a']['inputs']['device'],'cpu')
         self.assertNotIn('LoraLoaderModelOnly',[row['class_type'] for row in graph.values()])
-        with self.assertRaisesRegex(ValueError,'text-only'):
-            compile_design('p',['headkit-design/t/ref.png'],42,1,'headkit-design/t/test',profile='qwen21-int8-v1')
+        self.assertNotIn('vae',graph['6']['inputs'])
+        self.assertFalse([key for key in graph['6']['inputs'] if key.startswith('images.')])
+        self.assertNotIn('LoadImage',[row['class_type'] for row in graph.values()])
         data=read(self.spec);data['profile']='qwen21-int8-v1';write(self.spec,data)
         from headkit.design import PROFILES
         names=[PROFILES['qwen21-int8-v1'][key] for key in ('model','encoder','vae')]
@@ -4655,6 +4656,34 @@ class DesignTests(Temporary):
         self.assertEqual(receipt['settings']['encoder'],'qwen3vl_8b_int8_convrot.safetensors')
         self.assertEqual(len(result['outputs']),2)
         self.assertEqual(receipt['references'],[])
+
+    def test_qwen_profile_takes_reference_images_as_image_edit_inputs(self):
+        from headkit.design import compile_design, generate, PROFILES, MAX_REFERENCES
+        refs=['headkit-design/t/a.png','headkit-design/t/b.png']
+        graph=compile_design('isolate the prop',refs,7,3,'headkit-design/t/test',profile='qwen21-int8-v1')
+        encoder=graph['6']['inputs']
+        # The VAE turns each reference into a spliced latent; without it the references would only be described.
+        self.assertEqual(encoder['vae'],['10',0])
+        self.assertEqual([encoder['images.image_1'],encoder['images.image_2']],[['100',0],['101',0]])
+        self.assertEqual([graph[key] for key in ('100','101')],[{'class_type':'LoadImage','inputs':{'image':ref}} for ref in refs])
+        # Sampling stays on the encoder's latent, which the node sizes to the first reference.
+        self.assertEqual(graph['47']['inputs'],{'samples':['6',2],'amount':3})
+        self.assertEqual(graph['13']['inputs']['latent_image'],['47',0])
+        with self.assertRaisesRegex(ValueError,'At most'):
+            compile_design('p',[f'headkit-design/t/{i}.png' for i in range(MAX_REFERENCES+1)],7,1,'headkit-design/t/test',profile='qwen21-int8-v1')
+        with self.assertRaisesRegex(ValueError,'Stage input images'):
+            compile_design('p',['elsewhere/a.png'],7,1,'headkit-design/t/test',profile='qwen21-int8-v1')
+        data=read(self.spec);data['profile']='qwen21-int8-v1';write(self.spec,data)
+        self.local['models']={}
+        for name in [PROFILES['qwen21-int8-v1'][key] for key in ('model','encoder','vae')]:
+            file=self.root/name;file.write_bytes(b'fixture weights');self.local['models'][name]=pin(file)
+        source=self.root/'sheet-crop.png';Image.new('RGB',(32,24),(200,40,40)).save(source)
+        result=generate(FakeDesignClient(self.local['comfyOutput']),self.local,self.bindings,self.spec,'troll-a',7,1,[source],self.root/'qwen-edit-out')
+        receipt=read(result['receipt'])
+        self.assertEqual(len(receipt['references']),1)
+        self.assertEqual(receipt['graph']['6']['inputs']['images.image_1'],['100',0])
+        self.assertEqual(receipt['graph']['100']['inputs']['image'],receipt['references'][0])
+        self.assertEqual(receipt['staged']['reference-0.png']['comfyImage'],receipt['references'][0])
 
     def setUp(self):
         super().setUp()
