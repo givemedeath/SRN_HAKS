@@ -43,6 +43,7 @@
       "tools/headkit/checkpoints.json",
       "tools/headkit/comfy.py",
       "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/common.py",
       "tools/headkit/generation.py",
       "tools/headkit/gpu_lock.py",
       "tools/headkit/reference_background.py"

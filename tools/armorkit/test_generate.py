@@ -138,6 +138,17 @@ class GenerateTests(unittest.TestCase):
             generate.export(self.work, 'outfit/', self.image, 1000)
         self.assertEqual(((self.work / generate.LEDGER).read_bytes(), self.engine.posted), (before, []))
 
+    def test_a_ledger_write_cut_short_leaves_the_ledger_as_it_was(self):
+        earlier = [{'attempt': 1, 'token': '0', 'state': 'complete'}]
+        (self.work / generate.LEDGER).write_text(json.dumps({'maximumGeometryAttempts': 5, 'models': {'outfit': earlier, 'other': earlier}}), encoding='utf-8')
+        before = (self.work / generate.LEDGER).read_bytes()
+        with mock.patch.object(generate.common.os, 'replace', side_effect=OSError('cut short')), self.assertRaises(OSError):
+            generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')
+        self.assertEqual(((self.work / generate.LEDGER).read_bytes(), self.engine.posted), (before, []))  # and nothing was posted uncounted
+        self.assertEqual([path.name for path in self.work.glob(generate.LEDGER + '.*') if path.suffix != '.lock'], [])
+        self.assertEqual(generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')['attempt'], 2)
+        self.assertEqual(len(generate.attempts(self.work)['models']['other']), 1)
+
     def test_an_attempt_with_no_known_outcome_blocks_the_next(self):
         self.engine.lost = True
         with self.assertRaises(ConnectionError):

@@ -11,7 +11,7 @@ anything is posted, and calibrate registers the copies it makes of the image. An
 `MAXIMUM` geometry attempts, counted in `trial-ledger.json` in the work folder before the job is posted; an
 attempt whose outcome is not known blocks the next one until it is reconciled by hand. Export and appearance
 jobs are not counted. The ledger is locked for the whole of an attempt, so two started together cannot both be counted
-as the same one. A model is named exactly as its folder is, so another spelling of it has no history of its own.
+as the same one. It is saved to a file of its own and put in place whole, so a write cut short loses no history. A model is named exactly as its folder is, so another spelling of it has no history of its own.
 
 A work folder holds one folder per model, and a model's jobs are numbered folders under `geometry-trial` in it.
 """
@@ -21,7 +21,7 @@ import uuid
 from contextlib import ExitStack
 from pathlib import Path
 
-from tools.headkit import comfy
+from tools.headkit import comfy, common
 from tools.headkit.comfy_nodes.model_resolution import bind_loader_models, model_choices, path_identity
 from tools.headkit.gpu_lock import locked
 from tools.headkit.reference_background import analyze_reference
@@ -178,7 +178,7 @@ def geometry(work, model, image, fov, models, url=reference.URL):
         require(len(rows) < MAXIMUM, f'{model} has had its {MAXIMUM} geometry attempts')
         client = engine(url)
         work, folder, token, prefix = job(work, model, 'geometry')
-        save = lambda: (work / LEDGER).write_text(json.dumps(ledger, indent=1), encoding='utf-8')
+        save = lambda: common.write(work / LEDGER, ledger)  # whole or not at all: a write cut short leaves the last one
         record = started('geometry', model, token, image, document)
         staged = reference.upload(url, image, 'geometry.png', prefix)
         graph, pins = bound(comfy.compile_graph('geometry', PROFILE, {'geometry': staged}, prefix, fov=fov), models)
