@@ -597,3 +597,26 @@ standing and sitting, 12 stills.
 
 Not checked: a texture that is not square or not 64 pixels; which way u runs; parts on any other body;
 shadows, which these parts cast for the first time.
+
+## 22. Baked textures on generated parts, in the client
+
+Scratch run, 2026-11-10 and 11: the trial Site Guard outfit split into 14 parts, each with a tint texture baked
+from the generated colours (`tools/armorkit/texture.py`), 512 or 1024 pixels square, and for two of three
+numbers a normal map bound by a material file. Human Fit male, standing, 20 stills a run.
+
+* **Tint textures of 512 and 1024 pixels** are read like the 64-pixel ones of section 21.
+* **A material file with a normal map on a tinted part.** A material file named like the part's texture, with
+  `renderhint NormalTangents`, `texture1` naming a 24-bit TGA and no `texture0`, applies the normal map and
+  keeps the tint texture as the colour.
+* **Which way the normal map reads.** With red along u, green along v and the map's first stored row at v = 0,
+  surfaces shade as one; the same map with green reversed shows the faces as facets.
+* **Shades at the top of the range come out black.** With shades allowed up to 254, each part's brightest
+  edges showed as black marks, with and without a material file.
+  With shades limited to 240 the marks are gone. Nothing else changed between the two runs. The marks did
+  not move when the same texels were given another channel, a higher lowest shade or a filled background,
+  and a part set to cast no shadow still had them.
+* **The metal channels** draw mirror-like on these parts: pale grey plates in the generated colours come out
+  near black with the grey row nearest their colour, while a red and a gold row show as red and gold metal.
+
+Not checked: where between 240 and 254 the black begins, and whether it is the same for every channel and
+palette row; whether the compiled models carry tangents of their own; a compressed normal map; parts on any other body; the same parts in motion.

@@ -26,14 +26,13 @@ from .registry import require
 
 PAD = 4  # texels between charts, and how far a chart's colours are copied outward into the empty texels round it
 MIDDLE = 170  # the shade a material's middle lightness gets; lighter and darker texels spread from there
-SHADES = (30, 254)  # the shades a texel may get: 255 is left unused, as in the stock palettes' last column
+SHADES = (30, 240)  # the shades a texel may get. Texels at the very top of the range come out black in the client: with 254
+# as the limit a part's brightest edges were black marks, with 240 they are not. Where between the two it starts is not known.
 BLOCKS = ((1, 3), (4, 2), (32, 2))  # a point off the colour field's shell looks in blocks of this many voxels, this many blocks round
 TEXEL = 0.0015  # metres of surface a texel should span at most: finer than this the generated colours hold no more detail
 COVER = 0.35  # the share of a texture its charts fill, as the layout packs a generated part
 SIZES = (128, 1024)  # the smallest and the largest texture a part gets, in texels a side
 LIGHT = np.array([0.2126, 0.7152, 0.0722])
-SURE = 0.6  # a texel darker than this share of its material's middle lightness has lost its colour to shadow: its material is its neighbours'
-SETTLE = 16  # how many texels a material is carried into such a shadow from its lit sides
 BEND = 1.2  # how much lighter a raised edge and darker a crease gets, per unit the fine normal turns across a texel
 SLOPE = 0.35  # how much darker a texel gets as the fine surface tilts away from the simplified one
 BROAD = ((1, 1.0), (4, 0.6))  # the bend is taken across this many texels each way, with this weight: sharp edges and broad folds
@@ -98,11 +97,15 @@ def raster(uvs, faces, size):
 
 
 def spread(filled, *layers, passes=PAD + 2):
-    """(filled, *layers) with filled texels copied outward into empty neighbours, one texel a pass.
+    """(filled, *layers) with filled texels copied outward into empty neighbours, one texel a pass; with
+    `passes` None, until no texel is empty.
 
-    The game blends neighbouring texels; without this a chart's edge would blend with whatever lies beside it."""
+    The game blends neighbouring texels; without this a chart's edge would blend with whatever lies beside it.
+    Seen from afar it blends texels many at a time, so a tint texture is filled to the last texel."""
     filled, layers = np.array(filled, bool), [np.array(layer) for layer in layers]
-    for _ in range(passes):
+    for _ in range(sum(filled.shape) if passes is None else passes):
+        if filled.all() or not filled.any():
+            break
         before, values = filled.copy(), [layer.copy() for layer in layers]  # a pass reaches the next texel only
         for axis, step in ((0, 1), (0, -1), (1, 1), (1, -1)):
             source = np.roll(before, step, axis=axis)
@@ -183,38 +186,19 @@ def labels(colours, tones):
     return np.argmin(np.linalg.norm(tone(colours)[:, None] - np.asarray(tones, float)[None], axis=2), axis=1)
 
 
-def settle(material, sure, covered, passes=SETTLE):
-    """The material per texel, with each unsure texel given the material of the nearest sure texel it is joined to.
-
-    A deep crease is nearly black in the generated colours whatever it is made of, so its own colour cannot
-    say. The materials of the sure texels are carried inward a texel a pass, only through covered texels, so
-    never from one chart to another."""
-    material, filled = np.array(material), np.array(sure, bool)
-    for _ in range(passes):
-        if filled[covered].all():
-            break
-        wider, carried = spread(filled, material, passes=1)
-        take = wider & covered & ~filled
-        material[take] = carried[take]
-        filled |= take
-    return material
-
-
-def tint_maps(colour, covered, found, channels, pad=PAD + 2, relief=None, charts=None, bend=BEND, slope=SLOPE):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
-    `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k. A texel much
-    darker than its material takes its material from its neighbours (`settle`). A texel's shade
-    is `MIDDLE` at its material's middle lightness and follows its own lightness from there; with `relief`, the
-    part's `normal_map`, it is also lighter on raised edges and darker in creases (`relief_shade`, which wants the
-    part's `chart_map` as `charts`); a texel the colour already shows darker than its material is not darkened twice.
-    Charts are spread
-    `pad` texels into the empty texels round them; what is still empty gets the first channel at `MIDDLE`."""
+    `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k. A texel's shade is
+    `MIDDLE` at its material's middle lightness and follows its own lightness from there, within `SHADES`; with
+    `relief`, the part's `normal_map`, it is also lighter on raised edges and darker in creases (`relief_shade`,
+    which wants the part's `chart_map` as `charts`), but a texel the colour already shows darker than its
+    material is not darkened twice. Charts are spread outward until the whole texture is filled (or `pad`
+    texels, if given, the rest then getting the first channel at `MIDDLE`)."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     require(len(channels) == len(found['tones']) and all(name in export.LAYERS for name in channels), 'A colour channel is needed per material')
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))
     material[covered] = labels(colour[covered], found['tones'])
-    material = settle(material, covered & (colour @ LIGHT >= SURE * found['light'][material]), covered)
     ratio = (colour[covered] @ LIGHT) / np.maximum(found['light'][material[covered]], 1e-6)
     if relief is not None:
         # A generated colour is already darker in its creases. Where it is, the relief's darkening is not laid on

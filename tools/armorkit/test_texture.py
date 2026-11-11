@@ -92,20 +92,19 @@ class MaterialTests(unittest.TestCase):
         creases = np.array([FABRIC, TAN, PLATE]) * 0.55
         self.assertEqual(texture.labels(creases, self.found['tones']).tolist(), order)
 
-    def test_a_crease_too_dark_to_show_its_colour_takes_the_material_round_it(self):
+    def test_a_tint_texture_is_filled_to_its_last_texel_from_the_nearest_chart(self):
         which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
         channels = [None] * 3
         for k, name in zip(which, ('cloth1', 'leather1', 'metal1')):
             channels[k] = name
-        colour = np.zeros((16, 16, 3)); covered = np.zeros((16, 16), bool)
-        colour[:, :10], covered[:, :10] = TAN, True
-        colour[:, 12:], covered[:, 12:] = FABRIC, True  # another chart, two empty texels away
-        colour[:, 4:6] = 0.05  # a crease in the tan, nearly black
-        colour[:, 12] = 0.05  # and the dark edge of the cloth chart, nearest the tan across the gap
-        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=1)
-        self.assertTrue((layers[:, :10] == export.LAYERS['leather1']).all())
-        self.assertTrue((layers[:, 12:] == export.LAYERS['cloth1']).all())  # from its own chart, not across the gap
-        self.assertTrue((shades[:, 4:6] == texture.SHADES[0]).all())  # still the darkest shade of its material
+        colour = np.zeros((32, 32, 3)); covered = np.zeros((32, 32), bool)
+        colour[:, :4], covered[:, :4] = TAN, True
+        colour[:, 28:], covered[:, 28:] = FABRIC, True
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels)
+        self.assertTrue((layers[:, :16] == export.LAYERS['leather1']).all() and (layers[:, 16:] == export.LAYERS['cloth1']).all())
+        self.assertTrue((shades[:, 4:16] == shades[:, 3:4]).all() and (shades[:, 16:28] == shades[:, 28:29]).all())
+        filled, value = texture.spread(np.zeros((4, 4), bool), np.ones((4, 4)), passes=None)
+        self.assertFalse(filled.any())  # nothing to spread from: it stops
 
     def test_a_source_with_fewer_materials_than_asked_for_is_refused(self):
         with self.assertRaises(ValueError):
