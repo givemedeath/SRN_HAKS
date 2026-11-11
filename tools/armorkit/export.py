@@ -18,25 +18,34 @@ from tools.robes import mesh_ops
 
 from . import registry, seams, toolchain
 from .registry import require
+from .split import WELD
 
 # The layer a tint texture stores per pixel for each colour channel of the registry.
 LAYERS = {'skin': 0, 'metal1': 2, 'metal2': 3, 'cloth1': 4, 'cloth2': 5, 'leather1': 6, 'leather2': 7}
 TINT_HEADER = b'PLT V1  ' + (10).to_bytes(4, 'little') + bytes(4)
-WELD = 1e-5  # vertices this close share one normal: a source repeats its vertices along texture seams
+BATCH = 40  # models per compiler call: all their paths must fit the 32,767 characters of a Windows command line
 
 
 def vertex_normals(vertices, faces, weld=WELD):
-    """A unit normal per vertex: the normals of the faces at its position, weighted by their area.
+    """A unit normal per vertex: the normals of its faces, weighted by their area.
 
-    Vertices at one position get one normal, so a texture seam does not show as a crease."""
+    A source repeats its vertices along texture seams. Vertices at one position share the normal of all
+    their faces together where their own faces look that way, so a seam does not show as a crease; two
+    sheets lying back to back keep a normal each."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     of_face = np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])
+
+    def summed(index):  # per index, the unit sum of the face normals there; zero where they cancel or there are none
+        total = np.zeros((index.max() + 1, 3))
+        for corner in range(3):
+            np.add.at(total, index[faces[:, corner]], of_face)
+        length = np.linalg.norm(total, axis=1)[:, None]
+        return np.where(length > 1e-12, total / np.maximum(length, 1e-12), 0.0)
+
     place = mesh_ops.weld_ids(vertices, weld)
-    total = np.zeros((place.max() + 1, 3))
-    for corner in range(3):
-        np.add.at(total, place[faces[:, corner]], of_face)
-    length = np.linalg.norm(total, axis=1)
-    return np.where(length[:, None] > 1e-12, total / np.maximum(length, 1e-12)[:, None], (0.0, 0.0, 1.0))[place]
+    own, shared = summed(np.arange(len(vertices))), summed(place)[place]
+    normal = np.where(((own * shared).sum(axis=1) > 0)[:, None], shared, own)
+    return np.where(np.any(normal != 0, axis=1)[:, None], normal, (0.0, 0.0, 1.0))
 
 
 def to_bone(points, bone, direction=False):
@@ -105,11 +114,23 @@ def write_part(folder, body, token, number, mesh, rig, texture):
     return name
 
 
+def report(text):
+    """The entries of the tool's JSON report: a list, or one object for one input, after any lines of notes."""
+    for start in re.finditer(r'^[\[{]', text, re.M):
+        try:
+            found = json.JSONDecoder().raw_decode(text[start.start():])[0]
+        except ValueError:
+            continue
+        return [entry for entry in (found if isinstance(found, list) else [found]) if isinstance(entry, dict)]
+    return []
+
+
 def compile_models(sources, output, *, tool=None, game=None, resources=()):
     """Compile ASCII models into the folder `output` with the pinned cleanmodels; returns the compiled paths.
 
-    The models go to the tool in one call, and each one's tint texture, where it lies beside the source, is
-    copied along, so the folder holds everything the parts need. game: the game install folder, when
+    The models go to the tool `BATCH` at a call, and each one's tint texture, where it lies beside the source,
+    is copied along, so the folder holds everything the parts need; a model or texture of the same name left
+    there by an earlier run is removed first. game: the game install folder, when
     cleanmodels cannot find it by itself. resources: folders or packs it may read supermodels and materials
     from. `output` must not be a folder the sources are in: the tool would compile them in place.
 
@@ -127,19 +148,22 @@ def compile_models(sources, output, *, tool=None, game=None, resources=()):
         command += ['--game-dir', str(game)]
     for resource in resources:
         command += ['--resource-dir', str(resource)]
+    output.mkdir(parents=True, exist_ok=True)
     targets = [output / source.name for source in sources]
-    # One input names its output file; several name the folder their outputs go to.
-    result = subprocess.run([*command, *map(str, sources), str(targets[0] if len(sources) == 1 else output)], capture_output=True,
-                            text=True, timeout=600, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-    said = (result.stdout + result.stderr)[-800:]
-    starts = [position for position in (result.stdout.find('['), result.stdout.find('{')) if position >= 0]
-    try:  # the report is a list, or one object for one input; the tool may print a note before it
-        report = json.JSONDecoder().raw_decode(result.stdout[min(starts):])[0] if starts else None
-    except ValueError:
-        report = None
-    entries = report if isinstance(report, list) else [report] if isinstance(report, dict) else []
-    failed = [Path(entry['file']).name for entry in entries if isinstance(entry, dict) and entry.get('error')]
-    require(result.returncode == 0 and not failed and len(entries) == len(sources), f'{", ".join(failed) or "The models"} did not compile: {said}')
+    for target in targets:  # nothing left by an earlier run may stand in for this one's model or texture
+        target.unlink(missing_ok=True)
+        target.with_suffix('.plt').unlink(missing_ok=True)
+    said = ''
+    for start in range(0, len(sources), BATCH):
+        batch = sources[start:start + BATCH]
+        # One input names its output file; several name the folder their outputs go to.
+        result = subprocess.run([*command, *map(str, batch), str(targets[start] if len(batch) == 1 else output)], capture_output=True,
+                                text=True, timeout=600, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        said = (result.stdout + result.stderr)[-800:]
+        entries = report(result.stdout)
+        failed = [f'{Path(str(entry.get("file", "A model"))).name} did not compile: {entry["error"]}' for entry in entries if entry.get('error')]
+        require(not failed, '; '.join(failed))
+        require(result.returncode == 0 and len(entries) == len(batch), 'The models did not compile: ' + said)
     for source, target in zip(sources, targets):
         require(target.is_file(), f'{source.name} did not compile: {said}')
         wanted = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', source.read_text(encoding='cp1252'), re.M))

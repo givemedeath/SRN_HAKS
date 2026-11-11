@@ -39,6 +39,11 @@ class GeometryTests(unittest.TestCase):
         self.assertFalse(np.allclose(normals[0], normals[1]))  # the fold's normal is not the flat face's
         self.assertTrue(np.allclose(np.linalg.norm(normals, axis=1), 1))
 
+    def test_sheets_lying_back_to_back_keep_a_normal_each(self):
+        vertices = np.concatenate([SQUARE[0][:3], SQUARE[0][:3]])  # the same triangle twice, with its own vertices each time
+        normals = export.vertex_normals(vertices, np.array([(0, 1, 2), (3, 5, 4)]))
+        self.assertTrue(np.allclose(normals[:3], (0, 0, 1)) and np.allclose(normals[3:], (0, 0, -1)))
+
     def test_points_and_normals_are_taken_into_the_bones_space(self):
         bone = np.array([[0.0, -1, 0, 2], [1, 0, 0, 3], [0, 0, 1, 4], [0, 0, 0, 1]])  # a quarter turn about z, then moved
         local = np.array([(1.0, 0, 0), (0, 2, 0), (0, 0, 3)])
@@ -117,7 +122,7 @@ class TintTests(unittest.TestCase):
 class CompileTests(unittest.TestCase):
     """The tool is faked: it writes a file per source and reports as cleanmodels does with --json."""
 
-    def compile(self, names=('a', 'b'), returncode=0, write=True, errors=(), faces=2, noise=''):
+    def compile(self, names=('a', 'b'), returncode=0, write=True, errors=(), faces=2, noise='', stale=()):
         calls = []
 
         def fake(command, **options):
@@ -133,6 +138,8 @@ class CompileTests(unittest.TestCase):
             for name in names:
                 (source / (name + '.mdl')).write_text('node trimesh x\n  faces 2\n    0 1 2 1 0 1 2 1\n    0 2 3 1 0 2 3 1\n', encoding='cp1252')
             (source / 'a.plt').write_bytes(b'tint')
+            for name in stale:
+                (self.out / name).write_bytes(b'left by an earlier run')
             with mock.patch.object(export.subprocess, 'run', side_effect=fake), \
                     mock.patch.object(export.native_reader, 'decode', return_value=[{'faces': np.zeros((faces, 3), int)}]):
                 compiled = export.compile_models([source / (name + '.mdl') for name in names], self.out, tool={'path': 'cleanmodels'},
@@ -140,9 +147,9 @@ class CompileTests(unittest.TestCase):
             return calls, [path.relative_to(folder).as_posix() for path in compiled], sorted(path.name for path in self.out.iterdir())
 
     def test_all_models_go_to_the_tool_in_one_call_and_their_textures_come_along(self):
-        calls, compiled, written = self.compile()
+        calls, compiled, written = self.compile(stale=('b.plt',))
         self.assertEqual(compiled, ['out/a.mdl', 'out/b.mdl'])
-        self.assertEqual(written, ['a.mdl', 'a.plt', 'b.mdl'])  # only a has a texture beside it
+        self.assertEqual(written, ['a.mdl', 'a.plt', 'b.mdl'])  # only a has a texture beside it; b's old one is gone
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][:9], ['cleanmodels', 'compile', '--overwrite', '--json', '--game-dir', 'game', '--resource-dir', 'packs', '--resource-dir'])
         self.assertTrue(calls[0][-3].endswith('a.mdl') and calls[0][-2].endswith('b.mdl') and Path(calls[0][-1]).name == 'out')
@@ -155,12 +162,25 @@ class CompileTests(unittest.TestCase):
     def test_a_model_that_did_not_come_out_whole_raises_with_the_tools_words(self):
         with self.assertRaisesRegex(ValueError, 'The models did not compile: .*the tool said so'):
             self.compile(returncode=1)
-        with self.assertRaisesRegex(ValueError, '^b.mdl did not compile'):
+        with self.assertRaisesRegex(ValueError, '^b.mdl did not compile: no newmodel line$'):
             self.compile(errors=('b',))
         with self.assertRaisesRegex(ValueError, 'a.mdl did not compile'):
-            self.compile(write=False)
+            self.compile(write=False, stale=('a.mdl', 'b.mdl'))  # an earlier run's models do not stand in
         with self.assertRaisesRegex(ValueError, 'a.mdl compiled to 1 faces, not the 2 of its source'):
             self.compile(faces=1)
+
+    def test_many_models_go_to_the_tool_a_batch_at_a_time(self):
+        with mock.patch.object(export, 'BATCH', 2):
+            calls, compiled, _ = self.compile(names=('a', 'b', 'c'))
+        self.assertEqual(compiled, ['out/a.mdl', 'out/b.mdl', 'out/c.mdl'])
+        self.assertEqual([sum(argument.endswith('.mdl') and Path(argument).parent.name == 'ascii' for argument in call) for call in calls], [2, 1])
+        self.assertTrue(Path(calls[0][-1]).name == 'out' and Path(calls[1][-1]).parts[-2:] == ('out', 'c.mdl'))
+
+    def test_the_report_is_found_after_notes_that_hold_brackets(self):
+        said = '\n'.join(['note: looked in {game}', '[1/2] a.mdl ok', '[{"file": "a.mdl"}, 7]', '1 file'])
+        self.assertEqual(export.report(said), [{'file': 'a.mdl'}])
+        self.assertEqual(export.report('{"file": "a.mdl", "error": "bad"}'), [{'file': 'a.mdl', 'error': 'bad'}])
+        self.assertEqual(export.report('nothing to read'), [])
 
     def test_sources_are_never_compiled_in_place_and_no_sources_need_no_tool(self):
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(export.subprocess, 'run') as run, \
@@ -174,10 +194,12 @@ class CompileTests(unittest.TestCase):
         pinned.assert_not_called()
 
     def test_the_pinned_tool_is_used_when_none_is_given(self):
-        with mock.patch.object(export.toolchain, 'cleanmodels', return_value={'path': 'pinned'}) as pinned, \
-                mock.patch.object(export.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, stdout='', stderr='no')):
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(export.toolchain, 'cleanmodels', return_value={'path': 'pinned'}) as pinned, \
+                mock.patch.object(export.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, stdout='', stderr='no')) as run:
             with self.assertRaises(ValueError):
-                export.compile_models(['ascii/x.mdl'], 'out')
+                export.compile_models([Path(folder) / 'ascii' / 'x.mdl'], Path(folder) / 'new' / 'out')
+            self.assertTrue((Path(folder) / 'new' / 'out').is_dir())  # a missing output folder is made
+            self.assertEqual(run.call_args.args[0][0], 'pinned')
         pinned.assert_called_once_with()
 
     def test_written_parts_compile_with_the_pinned_tool_where_it_is_installed(self):

@@ -565,6 +565,11 @@ minimum overlap, so it swings out of the over part when the joint turns. At the 
 is 3.1 cm at the wrist to 8.2 cm at the hip beyond its 15% narrowing; only the neck stays inside. A dome
 about the joint centre turns inside itself, which is what `seams.minimum_overlap` assumes.
 
+After this check `split.cap` was changed once more: a cap is now nowhere deeper than its rim point is far
+from the joint centre, because a cap deeper than its rim is wide would swing out the same way. The check
+above covers the cap as deep as the contract overlap everywhere. With the new rule the stand-in was seen
+again for gaps only, standing and sitting, and showed none.
+
 Seen in passing: tint textures loaded only as one texture per part, named like its model, on a mesh with real
 texture coordinates. One flat tint texture shared by all parts, with every texture coordinate at zero, drew
 every part as chrome. Section 21 rules out the zero coordinates; the cause is not known.
