@@ -21667,9 +21667,9 @@ AnimLoop3=0
 Doors=0
 Sounds=0
 PathNode=H
-Orientation=180
+Orientation=0
 VisibilityNode=H
-VisibilityOrientation=180
+VisibilityOrientation=0
 ImageMap2D=ek_ss_shack_m00
 
 [TILE677]
@@ -21697,9 +21697,9 @@ AnimLoop3=0
 Doors=0
 Sounds=0
 PathNode=H
-Orientation=270
+Orientation=90
 VisibilityNode=H
-VisibilityOrientation=270
+VisibilityOrientation=90
 ImageMap2D=ek_ss_shack_m01
 
 [TILE678]
@@ -21726,10 +21726,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=1
 Sounds=0
-PathNode=H
-Orientation=90
-VisibilityNode=H
-VisibilityOrientation=90
+PathNode=I
+Orientation=270
+VisibilityNode=I
+VisibilityOrientation=270
 ImageMap2D=ek_ss_shack_m10
 
 [TILE678DOOR0]
@@ -21763,10 +21763,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=H
-Orientation=0
-VisibilityNode=H
-VisibilityOrientation=0
+PathNode=I
+Orientation=270
+VisibilityNode=I
+VisibilityOrientation=270
 ImageMap2D=ek_ss_shack_m11
 
 [GROUPS]

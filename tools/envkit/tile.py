@@ -21,7 +21,11 @@ A tile also carries what the stock tiles carry (read off Modern Exterior's and t
 32-pixel picture for the area map, two main lights a builder colours in the Toolset, the `day`, `night`, `day2night`
 and `night2day` animations the game plays as the hour turns (here they fade the halo sheets, which belong to the
 night), `tilefade` on what stands above a stated height so the game can hide it when a character is behind, and a
-door: a line in the set file from which the Toolset makes the door when the tile is painted."""
+door: a line in the set file from which the Toolset makes the door when the tile is painted.
+
+A long walk is planned tile to tile before the game looks at any walkmesh, from each tile's path node in the set file:
+a letter that says by which sides the tile can be left and which of those are joined inside it, and a turn. Each tile
+of a group gets the node its own ground gives it, so a group can be of any size (`path_node`)."""
 import json
 import re
 import subprocess
@@ -41,6 +45,14 @@ FINE = 2  # samples across a walk cell
 RAMP = 2  # cells from the slab's edge to its full height: the half metre a character steps up over
 STONE, OBSCURING, NONWALK = 4, 2, 7  # rows of surfacemat.2da
 KNEE, EYE, HEAD, STEP = 0.45, 1.4, 2.2, 0.05
+# The engine's path nodes whose exits are the middles of a tile's sides, each as the sides its regions join at no turn
+# (N, W, S, E; +y is north). A turn is counter-clockwise, in quarters. From the engine's table as nwn.wiki's page on
+# tile path nodes gives it, checked against the walkmeshes of the 1,091 stock tiles of Modern Exterior and Suburbs on
+# 2026-11-11: with turns counter-clockwise 93 of the 96 exits of their H tiles lie on walkable ground, clockwise 37.
+# The first that fits is taken, so the letters the stock tiles use most come first.
+PATH_NODES = {'A': ('NWSE',), 'I': ('NWS',), 'H': ('WS',), 'L': ('NS',), 'N': ('N',), 'T': (), 'J': ('WS', 'EN'), 'U': ('W', 'SNE'),
+              'X': ('N', 'W'), 'Y': ('N', 'S'), 'V': ('N', 'SE'), 'W': ('N', 'SW'), 'w': ('N', 'W', 'E', 'S')}
+EXIT = 2  # cells either side of the middle of a tile's side that must be open for the side to be an exit: a metre in all
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
              'BottomRightHeight', 'Top', 'Right', 'Bottom', 'Left', 'MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1',
              'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds', 'PathNode', 'Orientation', 'VisibilityNode', 'VisibilityOrientation', 'ImageMap2D')
@@ -248,6 +260,39 @@ def light_places(found, row, column):
     return [(float(first[0]), float(first[1]), LIGHT_HEIGHT), (0.0, 0.0, max(found['roof'] + 1.5, LIGHT_HEIGHT))]
 
 
+def path_node(found, row, column):
+    """One tile's path node: {node, turn, exits, offPath}.
+
+    A side is an exit where the ground is open for a metre about its middle, on this tile and on the one beyond (ground
+    is taken to lie beyond the group's own edge). The node chosen has no exit that is not one and joins no two that
+    the tile's ground does not join; of those it is the one with the most exits, then the most of them joined. So what
+    it gets wrong, where no letter fits, is a way left unsaid, never a way through a wall.
+    exits: the sides the node leaves by, of N, W, S, E. offPath: the walk cells of the tile that no exit reaches: ground
+    a long walk will not be planned onto, though a short one can be."""
+    material = found['material']; rows, columns = material.shape; r0, c0 = row * CELLS, column * CELLS; middle = slice(CELLS // 2 - EXIT, CELLS // 2 + EXIT)
+    walk = material[r0:r0 + CELLS, c0:c0 + CELLS] == STONE; masses, _ = _masses(walk)
+    inside = {'N': (CELLS - 1, middle), 'S': (0, middle), 'W': (middle, 0), 'E': (middle, CELLS - 1)}
+    beyond = {'N': (r0 + CELLS, slice(c0 + middle.start, c0 + middle.stop)), 'S': (r0 - 1, slice(c0 + middle.start, c0 + middle.stop)),
+              'W': (slice(r0 + middle.start, r0 + middle.stop), c0 - 1), 'E': (slice(r0 + middle.start, r0 + middle.stop), c0 + CELLS)}
+
+    def open_beyond(side):
+        at = beyond[side]; line, limit = (at[0], rows) if side in 'NS' else (at[1], columns)
+        return not 0 <= line < limit or bool((material[at] == STONE).all())
+    region = {side: int(masses[inside[side]][0]) for side in 'NWSE' if walk[inside[side]].all() and open_beyond(side)}
+    best = None
+    for letter, parts in PATH_NODES.items():
+        for quarter in range(4):
+            turned = [''.join('NWSE'[('NWSE'.index(side) + quarter) % 4] for side in part) for part in parts]; exits = ''.join(turned)
+            if any(side not in region for side in exits) or any(len({region[side] for side in part}) > 1 for part in turned):
+                continue
+            score = (len(exits), sum(len(part) * (len(part) - 1) // 2 for part in turned))
+            if best is None or score > best[0]:
+                best = (score, letter, quarter * 90, exits)
+    _, letter, turn, exits = best  # T, with no exit, fits any tile
+    reached = {region[side] for side in exits}
+    return {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int((walk & ~np.isin(masses, list(reached))).sum())}
+
+
 def _daylight(name, halos):
     """The four animations the game plays on a tile as the hour turns, with the halo sheets clear by day and full by
     night. Lengths and the quarter-second blend are the stock city tiles'."""
@@ -338,8 +383,8 @@ def share_cards(cards, rows, columns, corner):
 
 def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
-    {rows, columns, tiles: [{model, row, column, faces, walkFaces, image, lights, doors}]} with the tiles in the set
-    file's order.
+    {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}]} with the tiles in the
+    set file's order.
 
     colour: the model's colour texture (0-1 array); with it each tile gets its picture for the area map, `image`, drawn
     over `ground_colour`. fade: the height in metres above which the building may be hidden. door: {at: [x, y, z],
@@ -373,7 +418,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
             one = {'model': model, 'row': row, 'column': column, 'faces': int(here.sum()), 'fadingFaces': int((here & high).sum()), 'walkFaces': int(len(walk[1])),
                    'closedCells': int((found['material'][row * CELLS:(row + 1) * CELLS, column * CELLS:(column + 1) * CELLS] != STONE).sum()),
-                   'lights': len(lights), 'doors': []}
+                   'path': path_node(found, row, column), 'lights': len(lights), 'doors': []}
             if (row, column) in pictures:
                 from PIL import Image
                 one['image'] = f'{name}_m{row}{column}'  # a 24-bit picture, stored bottom row first as the stock ones are
@@ -402,24 +447,15 @@ def compile_tiles(sources, output):
     return targets
 
 
-# One closed corner, as Modern Exterior's own tile with a building on one corner states it (H, turned 270 with the
-# building top left): the turn that puts the closed corner where the building is in each tile of a group.
-CORNER_TURN = {('Bottom', 'Left'): 0, ('Bottom', 'Right'): 90, ('Top', 'Right'): 180, ('Top', 'Left'): 270}
-
-
 def tile_records(made, terrain):
     """The set file's record of each tile, in order: all four corners `terrain` at height 0, no crossers, and the
     main lights, doors and area-map picture the tile was built with (`doors` gives each tile's door records to write
-    after it). In a 2 by 2 group each tile has the building on its inner corner, and says so for pathfinding. Any other
-    group is recorded only where its tiles are open: an open tile's path runs through its middle, which is wrong for a
-    tile with something standing on it, and no other shape has had its path node worked out."""
-    rows, columns = made['rows'], made['columns']; records = []
+    after it). Each tile states the path node it was built with (`path_node`); the same node serves for visibility, as
+    it does in nearly every stock tile."""
+    records = []
     for tile in made['tiles']:
-        if rows == columns == 2:
-            node, turn = 'H', CORNER_TURN[('Top' if tile['row'] == 0 else 'Bottom', 'Right' if tile['column'] == 0 else 'Left')]
-        else:
-            require(tile['closedCells'] == 0, 'Only a 2 by 2 group has the pathfinding of its closed tiles worked out')
-            node, turn = 'A', 0
+        require('path' in tile, 'This group was built before each tile had its path node worked out: build it again')
+        node, turn = tile['path']['node'], tile['path']['turn']
         values = {'Model': tile['model'], 'WalkMesh': 'msb01', **{corner: terrain for corner in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')},
                   **{corner + 'Height': 0 for corner in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')}, 'Top': '', 'Right': '', 'Bottom': '', 'Left': '',
                   'MainLight1': int(tile.get('lights', 0) >= 1), 'MainLight2': int(tile.get('lights', 0) >= 2),

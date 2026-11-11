@@ -159,26 +159,59 @@ class TileTests(unittest.TestCase):
         np.testing.assert_allclose([place[1] for place, _ in north], [-5, -1, -1, -5])
         np.testing.assert_allclose([uv[0] for _, uv in south], [0.0, 0.2, 0.2, 0.0]); np.testing.assert_allclose([uv[0] for _, uv in north], [0.2, 0.6, 0.6, 0.2])
 
-    def test_each_tile_of_a_two_by_two_group_says_which_corner_the_building_closes(self):
-        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9} for row in (0, 1) for column in (0, 1)]}
-        records = [dict(record) for record in tile.tile_records(made, 'Concrete')]
-        self.assertEqual([record['Orientation'] for record in records], [180, 270, 90, 0])  # south-west, south-east, north-west, north-east
-        self.assertTrue(all(record['PathNode'] == record['VisibilityNode'] == 'H' and record['TopLeft'] == 'Concrete' and record['Doors'] == 0 for record in records))
-        self.assertEqual(tuple(key for key, _ in tile.tile_records(made, 'Concrete')[0]), tile.TILE_KEYS)
+    def nodes(self, model):
+        """{(row, column): (node, turn, exits, offPath)} of the group a model takes."""
+        rows, columns, corner = tile.layout(model[0]); found = tile.survey(*model, rows, columns, corner)
+        return {(row, column): tuple(tile.path_node(found, row, column).values()) for row in range(rows) for column in range(columns)}
 
-    def test_a_closed_tile_outside_a_two_by_two_group_is_refused_rather_than_called_open(self):
-        kiosk = {'rows': 1, 'columns': 1, 'tiles': [{'model': 'ek_test_t00', 'row': 0, 'column': 0, 'closedCells': 30}]}
-        with self.assertRaisesRegex(ValueError, 'pathfinding of its closed tiles'):
-            tile.tile_records(kiosk, 'Concrete')
-        kiosk['tiles'][0]['closedCells'] = 0  # a patch of paving is an open tile
-        self.assertEqual(dict(tile.tile_records(kiosk, 'Concrete')[0])['PathNode'], 'A')
+    def test_each_tile_of_a_group_leaves_by_the_sides_its_ground_reaches(self):
+        # A building across the middle of four tiles: each tile is walked round its outer corner. H leaves west and south; a turn is counter-clockwise.
+        wide = scene(box((-6, -5.3, 0), (6.1, 5.4, 0.2)), box((-5.6, -5.1, 0.2), (5.7, 5.2, 3)))
+        self.assertEqual(self.nodes(wide), {(0, 0): ('H', 0, 'WS', 0), (0, 1): ('H', 90, 'SE', 0), (1, 1): ('H', 180, 'NE', 0), (1, 0): ('H', 270, 'NW', 0)})
+        # One tile with the shop in its middle and ground all round it: every side, all joined.
+        self.assertEqual(self.nodes(SHOP), {(0, 0): ('A', 0, 'NWSE', 0)})
+        # A row of three with a long shed through them: the ends are walked round, the middle is crossed by nobody, its two sides apart.
+        shed = scene(box((-13, -3.5, 0), (13, 3.5, 0.2)), box((-12, -2.5, 0.2), (12, 2.5, 3)))
+        self.assertEqual(self.nodes(shed), {(0, 0): ('I', 0, 'NWS', 0), (0, 1): ('Y', 0, 'NS', 0), (0, 2): ('I', 180, 'NSE', 0)})
+        # Three by three under one block: the middle tile is closed whole, a tile at the middle of a side is left only outwards, a corner tile by its two outer sides.
+        block = scene(box((-13, -13, 0), (13, 13, 0.2)), box((-11, -11, 0.2), (11, 11, 3)))
+        found = self.nodes(block)
+        self.assertEqual((found[(1, 1)], found[(0, 1)], found[(1, 0)], found[(2, 1)], found[(1, 2)]),
+                         (('T', 0, '', 0), ('N', 180, 'S', 0), ('N', 90, 'W', 0), ('N', 0, 'N', 0), ('N', 270, 'E', 0)))
+        self.assertEqual((found[(0, 0)], found[(0, 2)], found[(2, 2)], found[(2, 0)]), (('H', 0, 'WS', 0), ('H', 90, 'SE', 0), ('H', 180, 'NE', 0), ('H', 270, 'NW', 0)))
+
+    def test_ground_no_exit_reaches_is_counted_and_a_side_shut_at_its_middle_is_no_exit(self):
+        # Two tiles side by side. A yard walled on three sides stands in the west one; its fourth wall, just inside the east tile,
+        # shuts the middle of the side the tiles share and leaves the yard a way out north of it, into the east tile only.
+        yard = scene(box((-4.0, -3.0, 0), (-3.6, 4.4, 3)), box((-4.0, -3.0, 0), (0.4, -2.6, 3)), box((-4.0, 4.0, 0), (0.4, 4.4, 3)), box((0.0, -3.0, 0), (0.4, 1.5, 3)))
+        found = tile.survey(*yard, 1, 2, np.array([-10.0, -5.0]))
+        west, east = tile.path_node(found, 0, 0), tile.path_node(found, 0, 1)
+        self.assertEqual((west['node'], west['turn'], west['exits']), ('I', 0, 'NWS'))  # round the yard, not into it and not east
+        self.assertGreater(west['offPath'], 300)  # the yard's own ground, some 3.6 by 6.6 metres of quarter-metre cells
+        self.assertEqual((east['node'], east['turn'], east['exits'], east['offPath']), ('I', 180, 'NSE', 0))
+        # Without the fourth wall the yard opens on the middle of the shared side: the west tile then has two grounds, each with its exits.
+        open_yard = scene(box((-4.0, -3.0, 0), (-3.6, 4.4, 3)), box((-4.0, -3.0, 0), (0.4, -2.6, 3)), box((-4.0, 4.0, 0), (0.4, 4.4, 3)))
+        found = tile.survey(*open_yard, 1, 2, np.array([-10.0, -5.0])); west = tile.path_node(found, 0, 0)
+        self.assertEqual((west['node'], west['turn'], west['exits'], west['offPath']), ('U', 180, 'NWSE', 0))  # U: one side alone, the other three joined
+        self.assertEqual(tile.path_node(found, 0, 1)['node'], 'A')
+
+    def test_the_set_file_states_each_tiles_node_and_a_group_built_before_nodes_is_refused(self):
+        made = {'rows': 1, 'columns': 2, 'tiles': [{'model': 'ek_test_t00', 'row': 0, 'column': 0, 'path': {'node': 'I', 'turn': 0}},
+                                                   {'model': 'ek_test_t01', 'row': 0, 'column': 1, 'path': {'node': 'N', 'turn': 270}}]}
+        records = [dict(record) for record in tile.tile_records(made, 'Concrete')]
+        self.assertEqual([(record['PathNode'], record['Orientation'], record['VisibilityNode'], record['VisibilityOrientation']) for record in records], [('I', 0, 'I', 0), ('N', 270, 'N', 270)])
+        self.assertTrue(all(record['TopLeft'] == 'Concrete' and record['Doors'] == 0 for record in records))
+        self.assertEqual(tuple(key for key, _ in tile.tile_records(made, 'Concrete')[0]), tile.TILE_KEYS)
+        del made['tiles'][1]['path']
+        with self.assertRaisesRegex(ValueError, 'build it again'):
+            tile.tile_records(made, 'Concrete')
 
     def test_a_set_files_terrains_are_read_so_a_wrong_one_can_be_refused(self):
         text = '[TERRAIN TYPES]\r\nCount=2\r\n\r\n[TERRAIN0]\r\nName=Grass\r\n\r\n[TERRAIN1]\r\nName=Asphalt\r\nStrRef=5\r\n\r\n[CROSSER0]\r\nName=Road\r\n'
         self.assertEqual(tile.terrains(text), ['Grass', 'Asphalt'])
 
     def test_tiles_and_their_group_are_appended_and_nothing_there_is_renumbered(self):
-        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9} for row in (0, 1) for column in (0, 1)]}
+        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}} for row in (0, 1) for column in (0, 1)]}
         text, first, number = tile.register(SET, tile.tile_records(made, 'Concrete'), 'New_Group', 2, 2)
         self.assertEqual((first, number), (2, 1))
         self.assertIn('[TILES]\r\nCount=6\r\n', text); self.assertIn('[GROUPS]\r\nCount=2\r\n', text)
@@ -239,6 +272,7 @@ class TileTests(unittest.TestCase):
             one = report['tiles'][0]
             self.assertEqual((one['image'], one['lights'], one['doors']), ('ek_shop_m00', 2, [{'type': 58, 'x': 0.0, 'y': 1.0, 'z': 0.2, 'orientation': 90.0}]))
             self.assertTrue(0 < one['fadingFaces'] < one['faces']); self.assertEqual(report['fade'], 2.0)
+            self.assertEqual(one['path'], {'node': 'A', 'turn': 0, 'exits': 'NWSE', 'offPath': 0})
             with Image.open(Path(scratch) / 'ek_shop_m00.tga') as picture:
                 self.assertEqual((picture.size, picture.mode), ((tile.MINIMAP, tile.MINIMAP), 'RGB'))
             self.assertTrue((Path(scratch) / 'ek_black.tga').is_file())
@@ -248,7 +282,7 @@ class TileTests(unittest.TestCase):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
 
     def test_a_tiles_record_names_its_picture_lights_and_doors_and_a_door_block_follows_it(self):
-        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9, 'lights': 2,
+        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}, 'lights': 2,
                                                     'image': f'ek_test_m{row}{column}', 'doors': [{'type': 58, 'x': 4.75, 'y': -1.1, 'z': 0.18, 'orientation': 90.0}] if (row, column) == (1, 0) else []}
                                                    for row in (0, 1) for column in (0, 1)]}
         records = tile.tile_records(made, 'Concrete'); third = dict(records[2])
@@ -261,7 +295,7 @@ class TileTests(unittest.TestCase):
     def test_a_group_already_in_the_set_file_is_written_again_under_the_numbers_it_has(self):
         import tempfile
         from pathlib import Path
-        bare = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9} for row in (0, 1) for column in (0, 1)]}
+        bare = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}} for row in (0, 1) for column in (0, 1)]}
         text, _, _ = tile.register(SET.replace('[GENERAL]', '[TERRAIN0]\r\nName=Concrete\r\n\r\n[GENERAL]'), tile.tile_records(bare, 'Concrete'), 'New_Group', 2, 2)
         full = {**bare, 'tiles': [{**one, 'lights': 2, 'image': 'ek_test_m' + one['model'][-2:], 'doors': [{'type': 58, 'x': 1.0, 'y': 2.0, 'z': 0.2, 'orientation': 0.0}] if one['model'].endswith('10') else []}
                                   for one in bare['tiles']]}
@@ -287,7 +321,7 @@ class TileTests(unittest.TestCase):
         import argparse, contextlib, io, json, tempfile
         from pathlib import Path
         from . import additions, catalog, convert
-        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'closedCells': 9, 'lights': 2, 'doors': []}
+        made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}, 'lights': 2, 'doors': []}
                                                    for row in (0, 1) for column in (0, 1)]}
         text, _, _ = tile.register(SET.replace('[GENERAL]', '[TERRAIN0]\r\nName=Concrete\r\n\r\n[GENERAL]'), tile.tile_records(made, 'Concrete'), 'New_Group', 2, 2)
         with tempfile.TemporaryDirectory() as scratch:
