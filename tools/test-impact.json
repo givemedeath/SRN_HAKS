@@ -106,10 +106,20 @@
       "tools/armorkit/tables.py",
       "tools/armorkit/test_registry.py"
     ],
+    "tools/armorkit/test_texture.py": [
+      "tools/armorkit/export.py",
+      "tools/armorkit/texture.py"
+    ],
     "tools/armorkit/test_toolchain.py": [
       "tools/armorkit/toolchain.py",
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
+    ],
+    "tools/armorkit/texture.py": [
+      "tools/armorkit/export.py",
+      "tools/armorkit/registry.py",
+      "tools/headkit/colour.py",
+      "tools/headkit/field.py"
     ],
     "tools/armorkit/toolchain.py": [
       "tools/shared_tools.py"
@@ -4970,6 +4980,7 @@
     "tools/armorkit/test_seams.py",
     "tools/armorkit/test_split.py",
     "tools/armorkit/test_tables.py",
+    "tools/armorkit/test_texture.py",
     "tools/armorkit/test_toolchain.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
