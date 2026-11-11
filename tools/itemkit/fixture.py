@@ -90,11 +90,17 @@ def gff_float(value):
 
 
 def place_review_actors(git, area, ifo, actors):
-    """Embed the two bound actors in the entry area, before any client event."""
+    """Embed the two bound actors in the entry area, before any client event.
+
+    Creatures the template area came with are left out: the floor template carries a 30-body lineup that holds
+    nothing and does nothing, and it fills every review picture. An inherited creature that already bears a review
+    actor's tag is still a collision."""
     require(len(actors) == 2, 'Both Human review actors required')
     result = copy.deepcopy(git)
-    rows = result.setdefault('Creature List', field('list', []))['value']
-    tags = {row.get('Tag', {}).get('value') for row in rows}
+    inherited = result.setdefault('Creature List', field('list', []))['value']
+    tags = {row.get('Tag', {}).get('value') for row in inherited}
+    require(not tags & {actor['Tag']['value'] for actor in actors}, 'Review actor placement collision')
+    rows = result['Creature List']['value'] = []; tags = set()
     width, height = (area[key]['value'] * 10 for key in ('Width', 'Height'))
     x, y, z = (ifo['Mod_Entry_' + axis]['value'] for axis in ('X', 'Y', 'Z'))
     dx, dy = (ifo['Mod_Entry_Dir_' + axis]['value'] for axis in ('X', 'Y'))
@@ -113,6 +119,94 @@ def place_review_actors(git, area, ifo, actors):
                       XOrientation=gff_float(-dx), YOrientation=gff_float(-dy))
         rows.append(placed); tags.add(tag)
     return result
+
+
+# Scripted camera shots for an unattended capture run (tools/itemkit/client_capture.py). Each row is
+# (heartbeat step, seconds into the step, required check, camera facing, distance, pitch, height). The actors face
+# north (90) at their targets, so facing 270 looks at an actor's front and 180 at its right hand from the side.
+SHOT_TOGGLE = 'itk_shots'   # a 2DA the capture driver puts in the fixture's override folder; without it nothing changes
+SHOT_LEAD, SHOT_HOLD, SHOT_OFFSET, SHOT_CYCLE = 0.7, 1.8, 20, 40
+# Times are chosen so that, with the female half a cycle behind, her equip shots (steps 5 and 6) and his armour shots
+# (steps 25 and 26) do not want the camera at once. Armour takes most of a step to go on, so it is shot a step later.
+SHOTS = ((1, 2.0, 'front-rear-sides', 270, 3.2, 80, 1.0), (1, 5.0, 'front-rear-sides', 90, 3.2, 80, 1.0),
+         (2, 2.0, 'front-rear-sides', 180, 3.2, 80, 1.0), (2, 5.0, 'front-rear-sides', 0, 3.2, 80, 1.0),
+         (3, 2.0, 'idle', 180, 1.4, 85, 0.95), (3, 5.0, 'shadows', 225, 5.0, 50, 0.5),
+         (5, 2.8, 'equip-unequip', 270, 3.0, 80, 1.0), (6, 2.4, 'equip-unequip', 270, 3.0, 80, 1.0),
+         (7, 3.0, 'walk', 180, 4.0, 78, 1.0), (9, 2.5, 'run', 180, 5.0, 75, 1.0),
+         (11, 3.0, 'attacks', 180, 3.0, 82, 1.1), (12, 2.5, 'attacks', 225, 2.6, 82, 1.1),
+         (16, 3.0, 'shield-offhand', 225, 3.0, 82, 1.1), (20, 3.5, 'shield-offhand', 315, 3.0, 82, 1.1),
+         (25, 5.4, 'gloves-armor', 225, 2.8, 82, 1.1), (26, 5.0, 'gloves-armor', 180, 1.4, 85, 0.95))
+SHOT_BARE = 30   # the motion sequence's own unequip of armour and gloves does not always complete; the later, idle steps start bare
+SHOT_ACTORS = (('sr_it_male', 'human-male'), ('sr_it_female', 'human-female'))
+
+
+def shot_script(shots=SHOTS):
+    """NWScript for the scripted shots: dormant unless the toggle 2DA is present.
+
+    The motion heartbeat already walks each actor through equip, walk, run, attacks, shield, off-hand and armour in
+    6-second steps. A watcher follows each actor's step and, at a stated time into a step, attaches the hidden
+    player's camera to that actor and logs `ITEMKIT_SHOT shot=<n> ...` for the driver to capture. The female runs
+    half a cycle behind the male so the two are rarely wanted at once. Armour, gloves and the off hand are removed
+    outright at step 30, so the next cycle's bare-hand shots are bare; a shot that finds the camera in use is left
+    for the next cycle, and `ITEMKIT_SHOTS done` is logged when every shot has been taken once."""
+    require(shots and {row[2] for row in shots} == set(CHECKS), 'Scripted shots must cover every melee client check')
+    by_step = {}
+    for step, delay, *_ in shots:
+        require(type(step) is int and 0 <= step < SHOT_CYCLE - 1 and SHOT_LEAD <= delay <= 6 - .5,
+                'A shot is taken inside its own 6-second step')
+        by_step.setdefault(step, []).append(delay)
+    require(all(b - a >= SHOT_LEAD + SHOT_HOLD + .3 for row in by_step.values() for a, b in zip(sorted(row), sorted(row)[1:])),
+            'Shots of one step need time to aim and hold between them')
+    plan = []
+    for index, (step, delay, check, facing, distance, pitch, height) in enumerate(shots):
+        plan.append(f'  if(n=={step}) DelayCommand({delay - SHOT_LEAD:.1f},ItkTry(pc,t,base+{index},"{check}",n,'
+                    f'{float(facing):.1f},{float(distance):.1f},{float(pitch):.1f},{float(height):.2f}));')
+    total = len(shots) * len(SHOT_ACTORS)
+    return '''void ItkFree() { SetLocalInt(GetModule(),"ITK_BUSY",0); }
+void ItkDone() { WriteTimestampedLogEntry("ITEMKIT_SHOTS done"); }
+void ItkFire(object pc,object t,int id,string check,int n) {
+  object m=GetModule(); SetLocalInt(m,"ITK_D"+IntToString(id),1);
+  int fired=GetLocalInt(m,"ITK_FIRED")+1; SetLocalInt(m,"ITK_FIRED",fired);
+  WriteTimestampedLogEntry("ITEMKIT_SHOT shot="+IntToString(id)+" target="+GetTag(t)+" check="+check+" step="+IntToString(n)+" valid="+IntToString(GetIsObjectValid(t)));
+  DelayCommand(@HOLD@,ItkFree());
+  if(fired>=@TOTAL@) DelayCommand(@HOLD@+0.5,ItkDone());
+}
+void ItkTry(object pc,object t,int id,string check,int n,float facing,float distance,float pitch,float height) {
+  object m=GetModule(); if(GetLocalInt(m,"ITK_D"+IntToString(id)) || GetLocalInt(m,"ITK_BUSY")) return;
+  SetLocalInt(m,"ITK_BUSY",1); AttachCamera(pc,t); SetCameraHeight(pc,height);
+  AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));
+  DelayCommand(@LEAD@,ItkFire(pc,t,id,check,n));
+}
+void ItkBare(object t) {
+  DestroyObject(GetItemInSlot(INVENTORY_SLOT_CHEST,t)); DestroyObject(GetItemInSlot(INVENTORY_SLOT_ARMS,t));
+  DestroyObject(GetItemInSlot(INVENTORY_SLOT_LEFTHAND,t));
+}
+void ItkPlan(object pc,object t,int base,int n) {
+  if(n==@BARE@) ItkBare(t);
+@PLAN@
+}
+void ItkWatch(object pc) {
+  int i;
+  for(i=0;i<2;i++) {
+    object t=GetObjectByTag(i==0 ? "@MALE@" : "@FEMALE@"); int s=GetLocalInt(t,"STEP");
+    if(s!=GetLocalInt(t,"ITK_SEEN")) { SetLocalInt(t,"ITK_SEEN",s); ItkPlan(pc,t,i*@PER@,s==0 ? @LAST@ : s-1); }
+  }
+  if(GetLocalInt(GetModule(),"ITK_FIRED")<@TOTAL@) DelayCommand(0.25,ItkWatch(pc));
+}
+void ItkBegin(object pc,object male,object female) {
+  if(Get2DAString("@TOGGLE@","On",0)!="1") return;
+  SetCameraLimits(pc,1.0,89.0,0.5,40.0);
+  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);
+  SetCutsceneMode(pc,TRUE,FALSE);
+  SetLocalInt(male,"STEP",0); SetLocalInt(female,"STEP",@OFFSET@);
+  ItkBare(male); ItkBare(female);
+  AssignCommand(male,SetFacing(90.0)); AssignCommand(female,SetFacing(90.0));
+  WriteTimestampedLogEntry("ITEMKIT_SHOTS enter total="+IntToString(@TOTAL@));
+  DelayCommand(4.0,ItkWatch(pc));
+}
+'''.replace('@PLAN@', chr(10).join(plan)).replace('@TOTAL@', str(total)).replace('@BARE@', str(SHOT_BARE)).replace('@PER@', str(len(shots))).replace(
+        '@HOLD@', f'{SHOT_HOLD:.1f}').replace('@LEAD@', f'{SHOT_LEAD:.1f}').replace('@OFFSET@', str(SHOT_OFFSET)).replace(
+        '@LAST@', str(SHOT_CYCLE - 1)).replace('@TOGGLE@', SHOT_TOGGLE).replace('@FEMALE@', SHOT_ACTORS[1][0]).replace('@MALE@', SHOT_ACTORS[0][0])
 
 
 def entry_script(item_name, comparison=False, previous='', *, equipment_slot='right'):
@@ -149,6 +243,7 @@ void StartReview(object pc,int retries) {
   GiveBlade(pc); GiveBlade(male); GiveBlade(female);
   COMPARISON
   WriteTimestampedLogEntry("ITEMKIT_READY area="+GetTag(area)+" male="+GetTag(male)+" female="+GetTag(female));
+  ItkBegin(pc,male,female);
 }
 void main() {
   object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;
@@ -157,7 +252,7 @@ void main() {
 }'''
     if equipment_slot == 'left':
         script = script.replace('INVENTORY_SLOT_RIGHTHAND', 'INVENTORY_SLOT_LEFTHAND').replace(' right=', ' left=')
-    return script.replace('ITEM_RESREF', item_name).replace('COMPARISON',
+    return (shot_script() + script).replace('ITEM_RESREF', item_name).replace('COMPARISON',
         '\n  '.join('if(!GetIsObjectValid(GetItemPossessedBy(pc,"'+name+'"))) CreateItemOnObject("'+name+'",pc);' for name in comparisons)).replace('PRIOR',
         'ExecuteScript("'+previous+'",GetModule());' if previous else '')
 

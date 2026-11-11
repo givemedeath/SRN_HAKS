@@ -1556,6 +1556,10 @@
       "tools/headkit/uv.py",
       "tools/itemkit/geometry.py"
     ],
+    "tools/itemkit/autofit.py": [
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/straightness.py"
+    ],
     "tools/itemkit/blender_worker.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
@@ -1570,6 +1574,12 @@
       "tools/itemkit/review.py",
       "tools/itemkit/routes.py",
       "tools/itemkit/transfer.py"
+    ],
+    "tools/itemkit/client_capture.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/headkit/common.py",
+      "tools/itemkit/fixture.py"
     ],
     "tools/itemkit/client_fixture_repair.py": [
       "tools/headkit/common.py",
@@ -1661,7 +1671,8 @@
       "tools/headkit/generation.py",
       "tools/headkit/reference_background.py",
       "tools/itemkit/conditioning.py",
-      "tools/itemkit/contracts.py"
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/straightness.py"
     ],
     "tools/itemkit/geometry.py": [
       "tools/headkit/common.py"
@@ -1794,6 +1805,10 @@
       "tools/headkit/uv.py",
       "tools/itemkit/atlas.py"
     ],
+    "tools/itemkit/straightness.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py"
+    ],
     "tools/itemkit/test_anim_chain_probe.py": [
       "tools/itemkit/__init__.py",
       "tools/itemkit/anim_chain_probe.py"
@@ -1801,6 +1816,12 @@
     "tools/itemkit/test_atlas.py": [
       "tools/itemkit/atlas.py",
       "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_autofit.py": [
+      "tools/headkit/gltf.py",
+      "tools/itemkit/autofit.py",
+      "tools/itemkit/straightness.py",
+      "tools/itemkit/test_straightness.py"
     ],
     "tools/itemkit/test_catalog_object.py": [
       "tools/headkit/common.py",
@@ -1867,6 +1888,7 @@
       "tools/itemkit/fixture.py"
     ],
     "tools/itemkit/test_fixture_placement.py": [
+      "tools/itemkit/client_capture.py",
       "tools/itemkit/fixture.py"
     ],
     "tools/itemkit/test_greatsword.py": [
@@ -1961,6 +1983,11 @@
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
       "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_straightness.py": [
+      "tools/headkit/gltf.py",
+      "tools/itemkit/generation.py",
+      "tools/itemkit/straightness.py"
     ],
     "tools/itemkit/test_thrown.py": [
       "tools/headkit/common.py",
@@ -5184,6 +5211,7 @@
     "tools/heads/test_target_and_publication.py",
     "tools/itemkit/test_anim_chain_probe.py",
     "tools/itemkit/test_atlas.py",
+    "tools/itemkit/test_autofit.py",
     "tools/itemkit/test_catalog_object.py",
     "tools/itemkit/test_combat_clip_pilot.py",
     "tools/itemkit/test_conditioning.py",
@@ -5211,6 +5239,7 @@
     "tools/itemkit/test_skinned_native.py",
     "tools/itemkit/test_source_atlas.py",
     "tools/itemkit/test_staff.py",
+    "tools/itemkit/test_straightness.py",
     "tools/itemkit/test_thrown.py",
     "tools/itemkit/test_trial_policy.py",
     "tools/itemkit/test_workflow.py",

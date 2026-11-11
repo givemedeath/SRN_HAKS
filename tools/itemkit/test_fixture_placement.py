@@ -69,6 +69,13 @@ class PlacementTests(unittest.TestCase):
             self.assertTrue(all(row[k] == v for k, v in source.items() if not k.startswith('__')))
         self.assertEqual(self.actors, before); self.assertEqual(self.git['Creature List']['value'], [])
 
+    def test_template_lineup_is_left_out_of_the_review_area(self):
+        git = copy.deepcopy(self.git)
+        git['Creature List']['value'] = [{'__struct_id': 4, 'Tag': field('cexostring', 'sw1_m%d' % i)} for i in range(30)]
+        rows = place_review_actors(git, self.area, self.ifo, self.actors)['Creature List']['value']
+        self.assertEqual([r['Tag']['value'] for r in rows], [a['Tag']['value'] for a in self.actors])
+        self.assertEqual(len(git['Creature List']['value']), 30)                      # the caller's document is not changed
+
     def test_collision_and_outside_area_rejected(self):
         result = place_review_actors(self.git, self.area, self.ifo, self.actors)
         with self.assertRaisesRegex(ValueError, 'collision'):
@@ -104,3 +111,30 @@ class PlacementTests(unittest.TestCase):
 
 
 if __name__ == '__main__': unittest.main()
+
+
+class ScriptedShotTests(unittest.TestCase):
+    def test_entry_script_carries_a_dormant_shot_sequence_for_every_check(self):
+        from tools.itemkit.fixture import CHECKS, SHOTS, SHOT_TOGGLE, shot_script
+        script = entry_script('sr_blade')
+        self.assertIn('Get2DAString("' + SHOT_TOGGLE + '","On",0)!="1") return;', script)   # nothing changes without the toggle
+        self.assertIn('ItkBegin(pc,male,female);', script); self.assertNotIn('@', script)
+        self.assertIn('DURATION_TYPE_PERMANENT', script)                                    # placeholders touch nothing else
+        self.assertEqual(script.count(',ItkTry(pc,t,base+'), len(SHOTS)); self.assertIn('<' + str(2 * len(SHOTS)) + ')', script)
+        self.assertEqual({row[2] for row in SHOTS}, set(CHECKS))
+        with self.assertRaisesRegex(ValueError, 'every melee client check'): shot_script(SHOTS[:-2])
+        with self.assertRaisesRegex(ValueError, 'time to aim'): shot_script(SHOTS + ((26, 3.0, 'gloves-armor', 0, 3, 80, 1),))
+        with self.assertRaisesRegex(ValueError, 'inside its own'): shot_script(SHOTS + ((30, 5.9, 'idle', 0, 3, 80, 1),))
+
+    def test_capture_evidence_is_grouped_unreviewed_and_names_what_is_missing(self):
+        from tools.itemkit.client_capture import evidence_draft, shot_rows
+        rows = shot_rows(['ITEMKIT_READY area=a', 'ITEMKIT_SHOT shot=4 target=sr_it_male check=idle step=3 valid=1',
+                          'ITEMKIT_SHOT shot=20 target=sr_it_female check=idle step=3 valid=0'])
+        self.assertEqual([(r['shot'], r['step'], r['valid']) for r in rows], [(4, 3, True), (20, 3, False)])
+        shots = [{**rows[0], 'captures': ['a.png', 'b.png']}, {**rows[1], 'captures': ['c.png'], 'rejected': 'next shot began'}]
+        draft = evidence_draft(shots, 'log.txt', checks=('idle', 'walk'))
+        self.assertEqual(draft['observations'], [{'body': 'human-male', 'check': 'idle', 'result': 'unreviewed', 'reviewedBy': '',
+                                                  'notes': '', 'screenshots': ['a.png', 'b.png'], 'logs': ['log.txt']}])
+        self.assertEqual(draft['missing'], [{'body': 'human-male', 'check': 'walk'}, {'body': 'human-female', 'check': 'idle'},
+                                            {'body': 'human-female', 'check': 'walk'}])
+        self.assertTrue(draft['reviewRequired'])

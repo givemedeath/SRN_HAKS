@@ -397,6 +397,26 @@ construction, so the fit always stops until `fit.gripDeparture` carries an appro
 review with the digest from the worker's retained `grip-measurement.json`. See the
 Club continuation in `four-weapon-lessons.md`.
 
+## Unattended client capture
+
+A built fixture can be photographed without anyone driving the client:
+
+    python -m tools.itemkit.client_capture FIXTURE_DIR CAPTURES --nwn-root GAME_INSTALL
+
+`FIXTURE_DIR` holds the fixture stage's `fixture.json`. The fixture's entry script carries a dormant shot sequence
+(`fixture.SHOTS`): the driver switches it on with a 2DA in the fixture's own override folder, so the module bytes are
+the same for an interactive look and a capture run. It then starts the client through `tools/armorkit/client.py`,
+which refuses to start while any client is running and stops only the one it started. The player is hidden; the
+camera is attached to each Human actor at stated moments of the existing motion sequence (four sides, hand close-up,
+shadow, unequipped and re-equipped, walk, run, two attack frames, shield, off-hand, armour and gloves). Three window
+captures are saved after each `ITEMKIT_SHOT` line. A shot that finds the camera in use is taken on the next cycle,
+so a run lasts five to nine minutes.
+
+`capture.json` records the shots and equip lines. `evidence-draft.json` groups the pictures by body and required
+check with `result: "unreviewed"` and lists any check without a picture. It is material for the client evidence, not
+the evidence: a person still looks, judges and writes the review. The fixture area keeps only the two review actors;
+the template's idle lineup is left out.
+
 ## Native and geometry contracts
 
 The supplied profile remains `pending-contract` until the actual effective content
