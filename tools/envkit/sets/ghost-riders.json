@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "44_ghost_riders_motorpool.png",
+    "sha256": "7e3ae15a1d3963e6e81e640816e625b0d4bd868add5ba67c3cabecdcca0a2b2c",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "patched scrap-metal biker garage with open repair bays, a neon motorcycle sign and a painted skull wall", "box": [0, 14, 905, 540], "notes": "Remove the title banner, the motorcycles and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a patched scrap-metal biker garage", "box": [895, 123, 1229, 280]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a patched scrap-metal biker garage", "box": [906, 323, 1232, 480]},
+    "repair-bench": {"kind": "prop", "type": "workbench", "variant": "Battered repair bench under a lit tool wall with a vice and oil cans.", "subject": "battered motorcycle repair bench under a tool wall", "box": [18, 630, 258, 796]},
+    "parking-pad": {"kind": "prop", "type": "floor-marking", "subject": "painted motorcycle parking pad with a skull emblem and hazard stripes", "box": [258, 672, 462, 796]},
+    "parts-rack": {"kind": "prop", "type": "shelf-unit", "variant": "Steel rack of engine blocks and parts crates.", "subject": "steel rack of engine blocks and parts crates", "box": [470, 620, 645, 796]},
+    "planning-table": {"kind": "prop", "type": "table-and-chairs", "variant": "Scrap planning table with a map, a radio and four mismatched chairs.", "subject": "scrap planning table with a map and four mismatched chairs", "box": [655, 633, 900, 790]},
+    "burn-barrel": {"kind": "prop", "type": "burn-barrel", "subject": "burning oil drum with a stencilled skull", "box": [918, 620, 1008, 798]},
+    "barricade-wall": {"kind": "prop", "type": "concrete-barrier", "variant": "Branding: barrier sprayed with the Ghost Riders tag.", "subject": "concrete barrier sprayed with graffiti", "box": [1015, 670, 1235, 793]},
+    "garage-door": {"kind": "prop", "type": "dock-door", "variant": "Branding: roll-up door painted with the goggled skull.", "subject": "roll-up garage door painted with a skull", "box": [1238, 616, 1439, 796]},
+    "graffiti-sign-wall": {"kind": "prop", "type": "graffiti-wall", "variant": "Branding: wall slab painted Ghost Riders with a flaming skull under two lamps.", "subject": "wall slab painted with a flaming skull mural", "box": [12, 861, 246, 1030]},
+    "stash-crates": {"kind": "prop", "type": "hard-case", "variant": "Branding: olive, orange and grey cases with the skull stencil.", "subject": "stack of battered supply cases", "box": [255, 880, 466, 1028]},
+    "fuel-drums": {"kind": "prop", "type": "fuel-drums", "variant": "Three loose rusted drums in red, grey and yellow.", "subject": "three loose rusted fuel drums", "box": [470, 885, 627, 1029]},
+    "fence-segment": {"kind": "prop", "type": "fence-section", "variant": "Branding: patched razor-wire panel with a skull banner on striped footings.", "subject": "patched chain-link fence section with a hanging banner", "box": [636, 865, 883, 1030]},
+    "floodlight-mast": {"kind": "prop", "type": "floodlight", "same": "mesametric-facility/floodlight-mast", "subject": "mobile floodlight mast on a yellow generator base", "box": [906, 848, 1035, 1030]},
+    "generator": {"kind": "prop", "type": "generator", "same": "aurora-warrens/utility-generator", "subject": "yellow enclosed generator with trailing cables", "box": [1047, 904, 1261, 1028]},
+    "service-locker": {"kind": "prop", "type": "locker", "variant": "Branding: rusted double locker with the skull stencil.", "subject": "rusted double steel locker", "box": [1273, 865, 1431, 1030]}
+  }
+}

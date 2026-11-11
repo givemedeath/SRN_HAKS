@@ -1,0 +1,23 @@
+{
+  "sheet": {
+    "file": "29_ghostwalker_arcane_liaison_compound.png",
+    "sha256": "4893bdbfe96a0aade1aacea02f589856376fb70b4c4116b328a127e33bf3f54c",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "monumental stone civic compound with a glazed dome, an arched entrance and purple dragon banners", "box": [0, 45, 1112, 410], "notes": "Remove the title banner, the guards, the fences, the checkpoint lanes, the sky, the mountains, the skyline and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a monumental stone civic compound with a dome", "box": [60, 440, 556, 578]},
+    "building-side": {"kind": "building", "subject": "side elevation of a monumental stone civic compound with a dome", "box": [562, 445, 985, 578]},
+    "ritual-circle-floor": {"kind": "prop", "type": "ritual-circle", "variant": "Flat violet and gold floor circle, no dais.", "subject": "flat violet and gold ritual circle floor disc", "box": [5, 903, 189, 1006]},
+    "arcane-lectern": {"kind": "prop", "type": "lectern", "variant": "Stone lectern holding an open spellbook.", "subject": "stone lectern holding an open spellbook", "box": [192, 894, 289, 1007]},
+    "banner-plinth": {"kind": "prop", "type": "banner-set", "variant": "Branding: single purple dragon banner in a stone frame on a plinth.", "subject": "single hanging banner in a stone frame on a plinth", "box": [302, 869, 391, 1008]},
+    "ceremonial-door": {"kind": "prop", "type": "door", "variant": "Arched stone doorway with gold dragon doors.", "subject": "ornate arched stone doorway with gold double doors", "box": [403, 869, 540, 1008]},
+    "ward-panel": {"kind": "prop", "type": "ward-pylon", "variant": "Glowing ward field panel between two stone posts.", "subject": "glowing ward field panel between two stone posts", "box": [544, 885, 678, 1005]},
+    "brazier": {"kind": "prop", "type": "brazier", "subject": "stone pedestal brazier with a burning bowl", "box": [689, 882, 764, 1010]},
+    "gate-module": {"kind": "prop", "type": "turnstile", "variant": "Full-height turnstile gate in a stone and steel frame.", "subject": "full-height turnstile gate in a stone and steel frame", "box": [769, 884, 927, 1008]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved dark desk with the gold dragon emblem and a flower vase.", "subject": "curved dark reception desk with a gold emblem", "box": [928, 893, 1093, 1005]},
+    "archive-shelf": {"kind": "prop", "type": "shelf-unit", "variant": "Tall stone-framed bookcase of records.", "subject": "tall stone-framed bookcase of records", "box": [1096, 874, 1199, 1006]},
+    "surveillance-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1217, 888, 1303, 993]},
+    "courtyard-planter": {"kind": "prop", "type": "planter", "variant": "Carved stone planter with a conifer and violet flowers.", "subject": "carved stone planter with a conifer and violet flowers", "box": [1304, 871, 1441, 1008]}
+  }
+}

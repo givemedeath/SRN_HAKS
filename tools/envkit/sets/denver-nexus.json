@@ -1,0 +1,20 @@
+{
+  "sheet": {
+    "file": "21_denver_nexus_clandestine_data_haven.png",
+    "sha256": "ea99f410d10b1cc79a7ffde9c34d0e8799fafeb85b11ebf6cf8fe97e587a95f9",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "old stone military academy hall with a central tower and a guard tower by the gate", "box": [330, 0, 1100, 390], "notes": "Remove the trees, the statue, the vehicle, the snow, the sky, the mountains and all text."},
+    "server-rack": {"kind": "prop", "type": "server-rack", "variant": "Single open rack cabinet with blue lights, unmarked.", "subject": "single open server rack cabinet", "box": [20, 856, 122, 1004]},
+    "legacy-console": {"kind": "prop", "type": "console-desk", "variant": "Retro console desk with a green CRT and switch panels.", "subject": "retro console desk with a green CRT monitor", "box": [135, 876, 284, 988]},
+    "narrow-rack": {"kind": "prop", "type": "server-rack", "same": "denver-nexus/server-rack", "subject": "narrow server rack cabinet", "box": [290, 858, 370, 1004]},
+    "tape-drive": {"kind": "prop", "type": "tape-drive", "subject": "reel-to-reel tape drive cabinet", "box": [386, 856, 474, 1002]},
+    "crates": {"kind": "prop", "type": "hard-case", "variant": "Unmarked olive and steel military cases.", "subject": "stack of olive and steel hard cases", "box": [490, 878, 630, 992]},
+    "terminal-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Retro CRT terminal kiosk, unmarked.", "subject": "retro standing terminal kiosk with a CRT screen", "box": [640, 854, 714, 998]},
+    "generator": {"kind": "prop", "type": "generator", "variant": "Yellow skid-mounted generator with pipes.", "subject": "yellow skid-mounted generator with pipes", "box": [740, 866, 864, 992]},
+    "pressure-tank": {"kind": "prop", "type": "pressure-tank", "subject": "riveted steel pressure tank with pipes and gauges", "box": [868, 843, 974, 994]},
+    "condenser": {"kind": "prop", "type": "rooftop-unit", "variant": "Twin-fan condenser unit, unmarked.", "subject": "twin-fan condenser unit", "box": [982, 876, 1110, 982]},
+    "camera-post": {"kind": "prop", "type": "security-camera", "variant": "Camera on a short pedestal mount with a junction box.", "subject": "security camera on a short pedestal mount", "box": [1116, 850, 1210, 998]}
+  }
+}

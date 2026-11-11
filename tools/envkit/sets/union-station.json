@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "26_denver_union_station_cas_hub_border_and_transit_facility.png",
+    "sha256": "2bc600cc575d958255c8aba8edd9b1b0b187bb72516109c15c0fb62cf84b93da",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "historic stone railway station with arched windows, a clock, a neon roof sign and an entrance canopy", "box": [0, 0, 1240, 335], "notes": "Remove the people, the fences, the barriers, the skyline, the sky and all text outside the building."},
+    "armored-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "saeder-krupp-yard/utility-barrier", "subject": "concrete road barrier with yellow hazard stripes", "box": [18, 908, 128, 980]},
+    "crowd-barrier": {"kind": "prop", "type": "crowd-barrier", "subject": "steel crowd control barrier", "box": [132, 904, 210, 974]},
+    "queue-stanchion": {"kind": "prop", "type": "stanchions", "same": "council-hall/stanchions", "subject": "pair of queue stanchions with a red rope", "box": [216, 904, 286, 980]},
+    "security-scanner": {"kind": "prop", "type": "scanner-arch", "same": "council-hall/security-arch", "subject": "walk-through security scanner arch", "box": [292, 884, 364, 977]},
+    "baggage-scanner": {"kind": "prop", "type": "baggage-scanner", "subject": "baggage X-ray scanner with a conveyor and an operator terminal", "box": [368, 890, 480, 977]},
+    "inspection-booth": {"kind": "prop", "type": "guard-booth", "variant": "Glazed counter booth with warm light, unmarked.", "subject": "glazed inspection counter booth", "box": [488, 880, 584, 977]},
+    "guard-post": {"kind": "prop", "type": "guard-booth", "variant": "Narrow sentry box with a pitched roof.", "subject": "narrow sentry box with a pitched roof", "box": [594, 874, 674, 977]},
+    "floodlight-mast": {"kind": "prop", "type": "floodlight", "variant": "Tripod mast with a ring of lamps.", "subject": "tripod floodlight mast with a ring of lamps", "box": [684, 871, 738, 977]},
+    "security-camera": {"kind": "prop", "type": "security-camera", "same": "denver-nexus/camera-post", "subject": "security camera on a short mount", "box": [756, 893, 818, 974]},
+    "id-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Slim ID terminal with a blue screen, unmarked.", "subject": "slim identity check terminal", "box": [846, 884, 898, 977]},
+    "access-turnstile": {"kind": "prop", "type": "turnstile", "variant": "Three waist-high turnstiles with green arrows.", "subject": "row of three waist-high turnstiles", "box": [916, 898, 1022, 977]},
+    "transit-schedule": {"kind": "prop", "type": "schedule-board", "subject": "freestanding transit schedule display board", "box": [1030, 878, 1112, 977]},
+    "station-seating": {"kind": "prop", "type": "bench", "same": "council-hall/bench-seating", "subject": "row of metal beam seats", "box": [1122, 906, 1236, 970]},
+    "waste-receptacle": {"kind": "prop", "type": "trash-can", "variant": "Tall blue station recycling bin.", "subject": "tall blue station waste bin", "box": [1242, 906, 1296, 974]},
+    "luggage-cart": {"kind": "prop", "type": "luggage-cart", "subject": "brass luggage cart loaded with cases", "box": [1308, 884, 1402, 977]},
+    "planter": {"kind": "prop", "type": "planter", "subject": "stone planter box with shrubs", "box": [1408, 878, 1526, 974]}
+  }
+}

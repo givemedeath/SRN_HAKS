@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "37_casquilho_imports_antiques_and_specialty_goods_shop.png",
+    "sha256": "175ef52767688786d54345ba2994140593e35762dfada12921f32f9be69bb282",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "single-storey stucco import and antiques shop", "box": [0, 45, 740, 402], "notes": "Remove the city skyline and the neighbouring buildings behind it."},
+    "building-front": {"kind": "building", "subject": "front elevation of a single-storey stucco import and antiques shop", "box": [108, 423, 497, 591]},
+    "building-side": {"kind": "building", "subject": "side alley elevation of a single-storey stucco import and antiques shop", "box": [597, 423, 1034, 590]},
+    "storefront-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: carved hanging sign on a wrought-iron wall bracket, reading Casquilho Imports.", "subject": "hanging shop sign on a wrought-iron bracket reading Casquilho Imports", "box": [14, 910, 132, 1018]},
+    "display-cabinet": {"kind": "prop", "type": "display-case", "variant": "Tall glass-fronted wooden cabinet of figurines, not a counter case.", "subject": "tall lit glass display cabinet of figurines", "box": [134, 902, 230, 1024]},
+    "shelf-unit": {"kind": "prop", "type": "shelf-unit", "variant": "Open wooden shelves of painted ceramics.", "subject": "wooden shelf unit of painted ceramics", "box": [233, 906, 328, 1024]},
+    "statue-pedestal": {"kind": "prop", "type": "statue-pedestal", "subject": "carved stone idol on a stone pedestal", "box": [342, 900, 407, 1024]},
+    "ceramic-pots": {"kind": "prop", "type": "ceramic-pots", "subject": "group of three painted ceramic pots", "box": [408, 927, 512, 1017]},
+    "hanging-textile": {"kind": "prop", "type": "wall-hanging", "subject": "woven serape hanging from a wooden rail", "box": [514, 903, 598, 1016]},
+    "shop-counter": {"kind": "prop", "type": "shop-counter", "variant": "Carved dark-wood counter with a terminal and a till.", "subject": "carved wooden shop counter with a terminal", "box": [598, 917, 770, 1018]},
+    "secure-door": {"kind": "prop", "type": "door", "variant": "Riveted steel strongroom door with a keypad, no frame of stone.", "subject": "riveted steel strongroom door with a keypad", "box": [776, 901, 852, 1020]},
+    "shipping-crates": {"kind": "prop", "type": "pallet-stack", "variant": "Two stacked wooden shipping crates, no pallet.", "subject": "stack of three wooden shipping crates", "box": [860, 917, 954, 1019]},
+    "stash-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Carved wooden cabinet with one door open on hidden crates.", "subject": "carved wooden cabinet with a false back standing open", "box": [958, 904, 1060, 1020]},
+    "desk-terminal": {"kind": "prop", "type": "console-desk", "variant": "Single terminal on a small wooden desk.", "subject": "computer terminal on a small wooden desk", "box": [1063, 935, 1168, 1020]},
+    "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1161, 906, 1227, 981]},
+    "service-door": {"kind": "prop", "type": "door", "same": "talismonger/service-door", "subject": "metal service door in a stucco wall section with a lamp above", "box": [1241, 901, 1326, 1022]},
+    "wall-niche": {"kind": "prop", "type": "wall-niche", "subject": "tiled wall niche holding a statuette and candles", "box": [1341, 902, 1439, 1021]}
+  }
+}

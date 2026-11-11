@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "33_denver_parking_garage_and_skybridge.png",
+    "sha256": "e8bf8f4226ed03259268fc30e9d4e174516677ccb7363d01298295b69151a98d",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "open multi-level concrete parking garage with a spiral ramp, a glazed lobby and a skybridge", "box": [0, 14, 895, 570], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a multi-level concrete parking garage", "box": [900, 110, 1262, 318]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a multi-level concrete parking garage", "box": [885, 345, 1255, 545]},
+    "pay-kiosk": {"kind": "prop", "type": "pay-kiosk", "variant": "Parking pay kiosk with a P header.", "unbranded": true, "subject": "parking pay kiosk", "box": [30, 662, 136, 838], "notes": "Keep the P header."},
+    "cashier-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: wide glazed cashier booth with a beacon and the Denver FRFZ mark.", "subject": "wide glazed cashier booth", "box": [166, 663, 391, 838]},
+    "barrier-arm": {"kind": "prop", "type": "gate-arm", "same": "gridguide-center/barrier-arm", "subject": "boom gate with a yellow housing and a red-striped arm", "box": [400, 725, 605, 834]},
+    "ticket-machine": {"kind": "prop", "type": "pay-kiosk", "variant": "Entry ticket machine with a Ticket header and hazard stripes.", "subject": "parking entry ticket machine", "box": [615, 665, 721, 838]},
+    "concrete-divider": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [737, 745, 925, 836]},
+    "stairwell-module": {"kind": "prop", "type": "stair-module", "variant": "Concrete stairwell block with yellow rails and a Stairs sign.", "subject": "concrete stairwell block with yellow rails", "box": [940, 649, 1148, 840]},
+    "skybridge-segment": {"kind": "prop", "type": "skybridge", "subject": "glazed steel skybridge segment", "box": [1158, 681, 1437, 830]},
+    "wayfinding-sign": {"kind": "prop", "type": "directory-sign", "variant": "Branding: Denver FRFZ parking directory board listing levels, lobby and skybridge.", "subject": "parking directory sign board", "box": [39, 888, 159, 1042]},
+    "elevator-door": {"kind": "prop", "type": "elevator-door", "subject": "elevator lobby door in a concrete frame with side lamps", "box": [189, 890, 389, 1042]},
+    "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [419, 907, 571, 1036]},
+    "light-pole": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin-arm light pole", "box": [616, 886, 718, 1040]},
+    "utility-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Grey cabinet with a high-voltage mark and side pipes.", "subject": "grey utility cabinet with side pipes", "box": [761, 905, 952, 1040]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Lit Parking P1 to P4 panel with arrows.", "subject": "wall-mounted sign reading Parking P1 to P4", "box": [976, 919, 1190, 1031]},
+    "maintenance-cart": {"kind": "prop", "type": "tool-chest", "variant": "Wheeled service cart with drawers, a cable reel and cases.", "unbranded": true, "subject": "wheeled service cart with drawers and tool cases", "box": [1218, 905, 1427, 1040]}
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "03_mitsuhama_robotics_fabrication_laboratory.png",
+    "sha256": "ff20e6eec5b2cc632a1e081bbef9d8168a4a42f5001fc9d3ac7e7a3b6a0447da",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "white and red corporate robotics laboratory with a glazed tower", "box": [0, 88, 905, 555]},
+    "building-front": {"kind": "building", "subject": "front elevation of a white and red corporate robotics laboratory", "box": [824, 111, 1240, 304]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a white and red corporate robotics laboratory", "box": [913, 325, 1250, 537]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved white desk under a canopy with planters, Mitsuhama livery.", "subject": "curved white corporate reception desk under a canopy", "box": [3, 637, 282, 826]},
+    "robotics-workbench": {"kind": "prop", "type": "workbench", "variant": "Bench with a tool wall, a monitor and a stool.", "subject": "robotics workbench with a tool wall and a monitor", "box": [288, 647, 497, 820]},
+    "robot-arm": {"kind": "prop", "type": "robot-arm", "subject": "yellow industrial robot arm on a work station", "box": [508, 640, 700, 825]},
+    "drone-rack": {"kind": "prop", "type": "drone-rack", "subject": "charging rack holding six small drones", "box": [712, 646, 874, 823]},
+    "airlock-door": {"kind": "prop", "type": "door", "variant": "White double-leaf cleanroom airlock with windows.", "subject": "white double cleanroom airlock door with windows", "box": [887, 639, 1083, 820]},
+    "equipment-lockers": {"kind": "prop", "type": "locker", "same": "ares-depot/equipment-lockers", "subject": "row of grey equipment lockers with a red band", "box": [1096, 650, 1247, 820]},
+    "parts-cabinet": {"kind": "prop", "type": "storage-cabinet", "variant": "Two-door glazed cabinet of parts bins.", "subject": "glass-door cabinet of parts bins", "box": [1258, 647, 1437, 821]},
+    "cage-barrier": {"kind": "prop", "type": "fence-section", "variant": "Indoor steel mesh safety cage with hazard stripes.", "subject": "steel mesh safety cage barrier with hazard stripes", "box": [4, 869, 230, 1025]},
+    "security-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "security console of six screens with a desk and a chair", "box": [235, 871, 451, 1032]},
+    "tool-chest": {"kind": "prop", "type": "tool-chest", "same": "street-doc/tool-cabinet", "subject": "red rolling tool chest", "box": [453, 882, 597, 1030]},
+    "crate-set": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey, red and yellow cases with Mitsuhama marks.", "subject": "group of three hard equipment cases", "box": [604, 878, 785, 1032]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: lit white Mitsuhama panel sign.", "subject": "lit wall-mounted corporate sign reading Mitsuhama", "box": [792, 905, 984, 1000]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Mitsuhama Robotics Fab Lab pylon.", "subject": "freestanding corporate pylon sign reading Mitsuhama Robotics Fab Lab", "box": [981, 871, 1067, 1032]},
+    "rooftop-exhaust": {"kind": "prop", "type": "rooftop-unit", "variant": "Exhaust unit with twin stacks and a railing.", "subject": "rooftop exhaust unit with two stacks", "box": [1067, 864, 1314, 1030]},
+    "keypad-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Wall keypad panel with a lock screen.", "subject": "wall-mounted keypad access panel", "box": [1323, 882, 1410, 1029]}
+  }
+}

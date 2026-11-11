@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "35_front_range_night_bazaar.png",
+    "sha256": "af19305a7c7051d35a71f99999bc0f23707895cb26c4634b58abb398115e3c44",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "scrap-built night market gatehouse with a watchtower", "box": [0, 96, 882, 540]},
+    "building-front": {"kind": "building", "subject": "front elevation of a scrap-built night market gatehouse", "box": [874, 108, 1255, 290]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a scrap-built night market gatehouse", "box": [885, 335, 1255, 492]},
+    "vendor-stall": {"kind": "prop", "type": "market-stall", "subject": "scrap-metal market stall with a red awning and a counter", "box": [2, 627, 283, 810]},
+    "tarped-kiosk": {"kind": "prop", "type": "market-stall", "variant": "Smaller kiosk under blue tarps with no counter front.", "subject": "small scrap-metal vendor kiosk under blue tarps", "box": [283, 633, 500, 809]},
+    "neon-sign": {"kind": "prop", "type": "neon-sign", "subject": "framed neon wall sign reading Cyberware", "box": [503, 657, 689, 792]},
+    "food-cart": {"kind": "prop", "type": "food-cart", "subject": "street food cart with a striped umbrella and a gas bottle", "box": [684, 622, 874, 810]},
+    "folding-table": {"kind": "prop", "type": "table-and-chairs", "variant": "Folding table with a folding chair and a small crate.", "subject": "folding table with a folding chair and a small crate", "box": [870, 701, 1053, 808]},
+    "case-stack": {"kind": "prop", "type": "hard-case", "variant": "Five coloured cases stacked.", "subject": "stack of five coloured hard equipment cases", "box": [1066, 637, 1249, 802]},
+    "generator": {"kind": "prop", "type": "generator", "subject": "yellow portable generator with a coiled cable", "box": [1255, 659, 1432, 809]},
+    "shutter-booth": {"kind": "prop", "type": "guard-booth", "subject": "small armoured booth with a roller shutter and a camera", "box": [5, 861, 227, 1036]},
+    "bench": {"kind": "prop", "type": "bench", "unbranded": true, "subject": "worn metal public bench", "box": [225, 929, 412, 1034]},
+    "light-string": {"kind": "prop", "type": "light-string", "subject": "string of hanging bulbs between two poles", "box": [415, 885, 628, 1035]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "subject": "freestanding pylon sign reading FRFZ Night Bazaar with a neon side panel", "box": [638, 858, 803, 1035]},
+    "trash-pile": {"kind": "prop", "type": "street-clutter", "same": "stuffer-shack/street-clutter", "subject": "pile of rubbish bags and cardboard", "box": [801, 913, 1003, 1035]},
+    "fence-segment": {"kind": "prop", "type": "fence-section", "subject": "chain-link fence segment topped with razor wire on concrete blocks", "box": [1005, 873, 1237, 1038]},
+    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "subject": "pallet of strapped boxes and wrapped cargo", "box": [1242, 876, 1444, 1035]}
+  }
+}

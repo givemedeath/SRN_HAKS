@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "25_t_bird_smuggler_hangar.png",
+    "sha256": "e796e069819d7d212a1f83c3cb35a98c4b5c6c2d860cf05ddf761582ea533f4c",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "corrugated aircraft hangar with an open front, a side office, a fuel tank and a landing apron", "box": [0, 14, 905, 580], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a corrugated aircraft hangar", "box": [838, 111, 1240, 296]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a corrugated aircraft hangar", "box": [911, 333, 1249, 516]},
+    "control-desk": {"kind": "prop", "type": "console-desk", "variant": "Hooded control desk with five screens and a chair.", "subject": "hooded hangar control desk with five screens", "box": [6, 629, 256, 804]},
+    "maintenance-workbench": {"kind": "prop", "type": "workbench", "variant": "Red tool-drawer bench under a hooded tool wall.", "subject": "red maintenance workbench under a tool wall", "box": [268, 636, 477, 801]},
+    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "variant": "Shrink-wrapped pallet with wooden and military cases.", "subject": "pallet of shrink-wrapped cargo and cases", "box": [485, 643, 686, 799]},
+    "fuel-tank": {"kind": "prop", "type": "fuel-tank", "subject": "horizontal fuel tank with a pump, a ladder and a canopy", "box": [693, 634, 959, 794]},
+    "crate-cache": {"kind": "prop", "type": "floor-hatch", "subject": "open floor hatch hiding a cache of cases", "box": [962, 655, 1150, 800]},
+    "landing-light": {"kind": "prop", "type": "floodlight", "variant": "Tall lattice mast with a cluster of landing lights.", "subject": "tall lattice mast with a cluster of floodlights", "box": [1157, 611, 1247, 801]},
+    "stair-unit": {"kind": "prop", "type": "stair-module", "variant": "Wheeled aircraft boarding stairs with yellow rails.", "subject": "wheeled aircraft boarding stair unit", "box": [1263, 659, 1439, 801]},
+    "service-tug": {"kind": "prop", "type": "service-tug", "subject": "small airfield service tug with a beacon", "box": [9, 903, 200, 1027]},
+    "hangar-door": {"kind": "prop", "type": "dock-door", "variant": "Unmarked roll-up door in a wall section with side lamps.", "subject": "roll-up door in a wall section", "box": [205, 852, 417, 1031]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: rusted T-Bird Smuggler Hangar panel with lamps.", "subject": "wall-mounted sign reading T-Bird Smuggler Hangar", "box": [422, 896, 579, 1002]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: T-Bird Denver FRFZ pylon.", "subject": "freestanding pylon sign reading T-Bird", "box": [582, 855, 667, 1034]},
+    "comms-mast": {"kind": "prop", "type": "comms-array", "variant": "Dish and mast with cabinets inside a yellow railing.", "subject": "rooftop communications mast with a dish", "box": [673, 867, 845, 1028]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "variant": "Razor-wire panel between red-beacon posts on yellow-striped footings.", "subject": "chain-link fence section with razor wire between beacon posts", "box": [846, 870, 1032, 1029]},
+    "generator-unit": {"kind": "prop", "type": "generator", "variant": "Grey enclosed generator with an exhaust pipe.", "subject": "grey enclosed generator unit", "box": [1037, 893, 1214, 1027]},
+    "loading-ramp": {"kind": "prop", "type": "loading-ramp", "subject": "steel loading ramp with yellow rails", "box": [1218, 911, 1444, 1025]}
+  }
+}

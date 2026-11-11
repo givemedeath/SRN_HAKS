@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "20_sioux_sector_border_checkpoint.png",
+    "sha256": "cf720675cdfaabe5d9c93b4c8400486ce7b76ff28d903a4bf9c5d323cdd2d736",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "adobe-toned border checkpoint with stepped patterns, two watch posts and inspection lanes", "box": [0, 14, 880, 535], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of an adobe-toned border checkpoint with two watch posts", "box": [836, 127, 1254, 290]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of an adobe-toned border checkpoint", "box": [872, 315, 1250, 485]},
+    "permit-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: adobe desk with patterned bands under a canopy, Sioux emblem.", "subject": "adobe customs permit desk under a canopy", "box": [14, 623, 261, 792]},
+    "scanner-arch": {"kind": "prop", "type": "scanner-arch", "same": "wuxing-terminal/scanner-arch", "subject": "cargo scanner arch over a conveyor", "box": [270, 627, 474, 792]},
+    "inspection-table": {"kind": "prop", "type": "workbench", "same": "pcc-customs/inspection-table", "subject": "steel inspection table with a monitor and cases", "box": [484, 647, 691, 793]},
+    "permit-kiosk": {"kind": "prop", "type": "access-terminal", "same": "pcc-customs/permit-kiosk", "subject": "freestanding permit kiosk with a screen", "box": [701, 621, 809, 791]},
+    "holding-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [826, 684, 1027, 791]},
+    "gate-arm": {"kind": "prop", "type": "gate-arm", "same": "pcc-customs/gate-arm", "subject": "boom gate arm on a post", "box": [1034, 678, 1238, 791]},
+    "checkpoint-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: glazed adobe booth with patterned bands and a camera.", "subject": "glazed adobe checkpoint booth with a camera", "box": [1238, 616, 1440, 791]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: stone slab sign reading Sioux Sector Border Checkpoint.", "subject": "stone slab sign reading Sioux Sector Border Checkpoint", "box": [10, 885, 220, 1036]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Sioux Sector wayfinding pylon.", "subject": "freestanding wayfinding pylon sign reading Sioux Sector", "box": [218, 835, 308, 1036]},
+    "solar-canopy": {"kind": "prop", "type": "solar-canopy", "variant": "Canopy on two posts painted with stepped patterns.", "subject": "solar panel canopy on two patterned posts", "box": [312, 867, 580, 1038]},
+    "comms-mast": {"kind": "prop", "type": "comms-array", "same": "pcc-customs/comms-mast", "subject": "communications mast with antennas and a dish", "box": [574, 844, 683, 1034]},
+    "crate-stack": {"kind": "prop", "type": "hard-case", "variant": "Branding: olive, grey and tan cases with the Sioux emblem.", "subject": "stack of five cargo cases", "box": [702, 896, 918, 1032]},
+    "checkpoint-terminal": {"kind": "prop", "type": "access-terminal", "same": "pcc-customs/checkpoint-terminal", "subject": "lane control console with a screen", "box": [930, 884, 1071, 1034]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "same": "pcc-customs/fence-section", "subject": "chain-link fence section with razor wire on patterned footings", "box": [1087, 883, 1286, 1036]},
+    "bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "set of three yellow bollards", "box": [1295, 910, 1441, 1030]}
+  }
+}
