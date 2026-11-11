@@ -22,7 +22,10 @@ from .registry import require
 PAD = 4  # texels between charts, and how far a chart's colours are copied outward into the empty texels round it
 MIDDLE = 170  # the shade a material's middle lightness gets; lighter and darker texels spread from there
 SHADES = (30, 254)  # the shades a texel may get: 255 is left unused, as in the stock palettes' last column
-BLOCKS = ((4, 2), (32, 2))  # a point off the colour field's shell looks in blocks of this many voxels, this many blocks round
+BLOCKS = ((1, 3), (4, 2), (32, 2))  # a point off the colour field's shell looks in blocks of this many voxels, this many blocks round
+TEXEL = 0.0015  # metres of surface a texel should span at most: finer than this the generated colours hold no more detail
+COVER = 0.35  # the share of a texture its charts fill, as the layout packs a generated part
+SIZES = (128, 1024)  # the smallest and the largest texture a part gets, in texels a side
 LIGHT = np.array([0.2126, 0.7152, 0.0722])
 
 
@@ -45,6 +48,15 @@ def layout(xatlas, vertices, faces, size, padding=PAD):
     mapping, new_faces = np.asarray(mapping, int), np.asarray(new_faces, int)
     require(np.array_equal(vertices[mapping[new_faces]], vertices[faces.astype(int)]), 'The layout changed the part')
     return mapping, new_faces, np.asarray(uvs, float)
+
+
+def size(vertices, faces):
+    """The texels a side a part's texture needs: the power of two at which its surface gets a texel per `TEXEL`."""
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
+    a, b, c = (vertices[faces[:, i]] for i in range(3))
+    area = float(np.linalg.norm(np.cross(b - a, c - a), axis=1).sum() / 2)
+    need = np.sqrt(area / COVER) / TEXEL
+    return int(np.clip(2 ** int(np.ceil(np.log2(max(need, 1.0)))), *SIZES))
 
 
 def raster(uvs, faces, size):
@@ -177,10 +189,13 @@ def open_field(path):
 
 
 def blocks(field, block):
-    """A field averaged over cubes of `block` voxels: (sorted cube keys, mean values, cubes per axis)."""
+    """A field averaged over cubes of `block` voxels: (sorted cube keys, mean values, cubes per axis). Cubes of
+    one voxel are the field's own voxels."""
     keys, side = field.keys, field.resolution
+    if block == 1:
+        return keys, field.attrs, side
     cubes = np.stack([keys // (side * side), keys // side % side, keys % side], axis=1) // block
-    per_axis = side // block + 1
+    per_axis = -(-side // block)
     key = (cubes[:, 0] * per_axis + cubes[:, 1]) * per_axis + cubes[:, 2]
     order = np.argsort(key, kind='stable')
     found, start = np.unique(key[order], return_index=True)
@@ -208,7 +223,8 @@ def read_field(field, levels, points):
     """(values, missed) of a colour field at points in its frame, for `colour_map`.
 
     A point on the shell is read between its voxels. A simplified mesh leaves the shell by a few voxels in
-    places; such a point takes the mean of the nearest filled block, small blocks first. `missed` marks the
+    places; such a point takes the nearest voxel within a few, and failing that the mean of the nearest filled
+    block, small blocks first. `missed` marks the
     points with no block near them either."""
     points = np.asarray(points, np.float32)
     values, missed = field.sample(points)

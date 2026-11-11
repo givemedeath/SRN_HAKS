@@ -47,6 +47,15 @@ class RasterTests(unittest.TestCase):
         self.assertFalse(filled[1, 0])  # the given arrays are left alone
 
 
+class SizeTests(unittest.TestCase):
+    def test_a_larger_part_gets_a_larger_texture_within_the_limits(self):
+        square = lambda side: (np.array([[0, 0, 0], [side, 0, 0], [side, side, 0], [0, side, 0]], float), FACES)
+        self.assertEqual(texture.size(*square(0.2)), 256)  # 0.04 m2 at 1.5 mm a texel and 35 % cover: 225, so 256
+        self.assertEqual(texture.size(*square(0.4)), 512)
+        self.assertEqual(texture.size(*square(0.01)), 128)
+        self.assertEqual(texture.size(*square(5.0)), 1024)
+
+
 class ColourMapTests(unittest.TestCase):
     def test_a_texel_takes_the_colour_of_the_point_it_came_from(self):
         # the part lies anywhere now; its vertices remember where they were on the generated mesh
@@ -132,10 +141,16 @@ class FieldTests(unittest.TestCase):
         self.assertTrue(np.allclose(values[0, :3], [0.2, 0.4, 0.6], atol=1e-5))
         self.assertAlmostEqual(float(self.read(0, 0.25)[0][0, 0]), 0.8, places=5)
 
-    def test_a_point_a_few_voxels_off_the_shell_takes_the_nearest_blocks_mean(self):
+    def test_a_point_a_few_voxels_off_the_shell_takes_the_nearest_voxel(self):
         values, missed = self.read(3, 0.25)
         self.assertFalse(missed[0])
         self.assertTrue(np.allclose(values[0, :3], [0.8, 0.4, 0.6], atol=1e-5))  # its own side of the sheet, not the other half
+
+    def test_a_point_farther_off_takes_the_mean_of_the_nearest_block(self):
+        y = (128 + 0.5) / 256 - 0.5  # just inside the redder half, whose blocks of 32 start at this row
+        values, missed = self.read(20, y)
+        self.assertFalse(missed[0])
+        self.assertTrue(np.allclose(values[0, :3], [0.8, 0.4, 0.6], atol=1e-5))
 
     def test_a_point_far_from_any_voxel_is_missed(self):
         self.assertTrue(self.read(170, 0.25)[1][0])
