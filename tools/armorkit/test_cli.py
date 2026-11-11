@@ -29,6 +29,61 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(got['parts'], len(handoff['parts']))
         self.assertEqual(handoff['kind'], registry.KIND + '-handoff')
 
+    def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
+        from . import brief
+        given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK,
+                 'materials': [{'name': 'fabric', 'kind': 'cloth', 'colour': [128, 128, 128], 'look': 'GREY cloth', 'wears': 'the shirt.'},
+                               {'name': 'plates', 'kind': 'metal', 'colour': [150, 180, 220], 'look': 'PALE BLUE plastic', 'wears': 'the guards.'}]}
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'brief.json'
+            path.write_text(json.dumps(given), encoding='utf-8')
+            self.assertEqual(run('brief', path), {'model': 'test-outfit', 'materials': {'fabric': 'cloth', 'plates': 'metal'}, 'pads': [], 'sealed': None})
+            sealed = Path(folder) / 'out'
+            run('brief', path, '--seal', sealed)
+            self.assertEqual((sealed / 'PROMPT.txt').read_text(encoding='utf-8'), brief.prompt(given) + '\n')
+            self.assertEqual(brief.sealed(sealed)[0], given)
+            # an image made from the folder's prompt by another route is registered, and is then let through
+            image, stray = sealed / 'image.png', Path(folder) / 'stray.png'
+            image.write_bytes(b'made from the prompt'); stray.write_bytes(b'from somewhere else')
+            self.assertEqual(run('register', sealed, image), {'registered': ['image.png']})
+            self.assertEqual(run('admit', image, '--root', folder), {'model': 'test-outfit', 'folder': str(sealed)})
+            with self.assertRaises(ValueError):
+                run('admit', stray, '--root', folder)
+            given['materials'][1]['colour'] = [135, 135, 140]  # drawn too alike: refused, and nothing is written
+            path.write_text(json.dumps(given), encoding='utf-8')
+            with self.assertRaises(ValueError):
+                run('brief', path, '--seal', Path(folder) / 'again')
+            self.assertFalse((Path(folder) / 'again').exists())
+
+    def test_image_makes_reference_images_from_the_brief_it_is_given(self):
+        from . import reference
+        calls = {}
+        with mock.patch.object(reference, 'generate', lambda *given: calls.setdefault('given', given) and [Path('run-1') / 'image-0.png']):
+            got = run('image', 'brief.json', 'folder', '--seed', 7, '--reference', 'earlier.png')
+        self.assertEqual(calls['given'], ('brief.json', 'folder', 7, 1, ['earlier.png'], 'http://127.0.0.1:8188', 'flux2-turbo-v1', 1800))
+        self.assertEqual(got, {'images': [str(Path('run-1') / 'image-0.png')]})
+
+    def test_generate_routes_each_stage_with_what_it_needs(self):
+        from . import generate
+        calls = []
+        stage = lambda name: (lambda *given: calls.append((name, given)) or {'folder': name + '-1', 'status': 'success'})
+        url = 'http://127.0.0.1:8188'
+        with mock.patch.object(generate, 'calibrate', stage('calibrate')), mock.patch.object(generate, 'geometry', stage('geometry')), \
+                mock.patch.object(generate, 'appearance', stage('appearance')), mock.patch.object(generate, 'export', stage('export')):
+            self.assertEqual(run('generate', 'calibrate', 'work', 'outfit', 'image.png', '--models', 'models')['folder'], 'calibrate-1')
+            run('generate', 'geometry', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)
+            run('generate', 'appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5, '--shape', 'shape.npz')
+            run('generate', 'export', 'work', 'outfit', 'mesh.glb', '--faces', 12000, '--fill', 0.5)
+            for missing in (('geometry', 'work', 'outfit', 'image.png', '--models', 'models'),  # no field of view
+                            ('calibrate', 'work', 'outfit', 'image.png'), ('export', 'work', 'outfit', 'mesh.glb'),
+                            ('appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)):
+                with self.assertRaises(ValueError):
+                    run('generate', *missing)
+        self.assertEqual(calls, [('calibrate', ('work', 'outfit', 'image.png', 'models', url)),
+                                 ('geometry', ('work', 'outfit', 'image.png', 36.5, 'models', url)),
+                                 ('appearance', ('work', 'outfit', 'image.png', 36.5, 'shape.npz', 'models', url)),
+                                 ('export', ('work', 'outfit', 'mesh.glb', 12000, 0.5, url))])
+
     def fixture_run(self, *flags):
         """Run the fixture command with the builder and the client replaced; return what each was called with."""
         calls = {}

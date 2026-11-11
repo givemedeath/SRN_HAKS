@@ -3,13 +3,20 @@
   "dependencies": {
     "tools/armorkit/__init__.py": [],
     "tools/armorkit/__main__.py": [
+      "tools/armorkit/brief.py",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
+      "tools/armorkit/generate.py",
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
+      "tools/armorkit/reference.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/seam-contract.json",
       "tools/armorkit/tables.py"
+    ],
+    "tools/armorkit/brief.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/texture.py"
     ],
     "tools/armorkit/client.py": [
       "tools/armorkit/client_fixture.py",
@@ -28,6 +35,19 @@
       "tools/headkit/native_reader.py",
       "tools/robes/mesh_ops.py"
     ],
+    "tools/armorkit/generate.py": [
+      "tools/armorkit/brief.py",
+      "tools/armorkit/reference.py",
+      "tools/armorkit/registry.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/checkpoints.json",
+      "tools/headkit/comfy.py",
+      "tools/headkit/comfy_nodes/model_resolution.py",
+      "tools/headkit/common.py",
+      "tools/headkit/generation.py",
+      "tools/headkit/gpu_lock.py",
+      "tools/headkit/reference_background.py"
+    ],
     "tools/armorkit/measure.py": [
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
@@ -36,6 +56,13 @@
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
+    "tools/armorkit/reference.py": [
+      "tools/armorkit/brief.py",
+      "tools/armorkit/registry.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/design.py"
     ],
     "tools/armorkit/registry.py": [],
     "tools/armorkit/repose.py": [
@@ -58,11 +85,19 @@
     "tools/armorkit/tables.py": [
       "tools/armorkit/registry.py"
     ],
+    "tools/armorkit/test_brief.py": [
+      "tools/armorkit/brief.py",
+      "tools/armorkit/briefs/corpsec-siteguard-male.json",
+      "tools/armorkit/texture.py"
+    ],
     "tools/armorkit/test_cli.py": [
       "tools/armorkit/__main__.py",
+      "tools/armorkit/brief.py",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/examples/registry.json",
+      "tools/armorkit/generate.py",
+      "tools/armorkit/reference.py",
       "tools/armorkit/registry.py"
     ],
     "tools/armorkit/test_client_fixture.py": [
@@ -75,10 +110,20 @@
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py"
     ],
+    "tools/armorkit/test_generate.py": [
+      "tools/armorkit/brief.py",
+      "tools/armorkit/generate.py",
+      "tools/armorkit/test_brief.py"
+    ],
     "tools/armorkit/test_measure.py": [
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
       "tools/armorkit/seams.py"
+    ],
+    "tools/armorkit/test_reference.py": [
+      "tools/armorkit/brief.py",
+      "tools/armorkit/reference.py",
+      "tools/armorkit/test_brief.py"
     ],
     "tools/armorkit/test_registry.py": [
       "tools/armorkit/examples/registry.json",
@@ -106,10 +151,22 @@
       "tools/armorkit/tables.py",
       "tools/armorkit/test_registry.py"
     ],
+    "tools/armorkit/test_texture.py": [
+      "tools/armorkit/export.py",
+      "tools/armorkit/texture.py"
+    ],
     "tools/armorkit/test_toolchain.py": [
       "tools/armorkit/toolchain.py",
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
+    ],
+    "tools/armorkit/texture.py": [
+      "tools/armorkit/export.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/split.py",
+      "tools/headkit/colour.py",
+      "tools/headkit/field.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/toolchain.py": [
       "tools/shared_tools.py"
@@ -5062,15 +5119,19 @@
     ]
   },
   "tests": [
+    "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
     "tools/armorkit/test_export.py",
+    "tools/armorkit/test_generate.py",
     "tools/armorkit/test_measure.py",
+    "tools/armorkit/test_reference.py",
     "tools/armorkit/test_registry.py",
     "tools/armorkit/test_repose.py",
     "tools/armorkit/test_seams.py",
     "tools/armorkit/test_split.py",
     "tools/armorkit/test_tables.py",
+    "tools/armorkit/test_texture.py",
     "tools/armorkit/test_toolchain.py",
     "tools/envkit/test_catalog.py",
     "tools/envkit/test_convert.py",

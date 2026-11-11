@@ -25,6 +25,7 @@ STEP_LIMIT = 0.05  # a limb is followed to the next section's curve only within 
 CLEARANCE = 0.012  # how far the fitted outfit stands outside the body: the seam contract's cloth tier
 SECTORS, RING = 24, 0.02  # the fit compares outfit and body in this many directions round a bone, in rings this tall
 WIDEST = 1.8  # the fit never widens the outfit by more than this
+LEGS_APART = 0.002  # each leg of the fitted outfit stays this far on its own side of the middle between the hips
 # Bones as (name, joint at its start, joint at its end). `hips` is the point between the hip joints.
 BONES = [('pelvis', 'waist', 'hips'), ('torso', 'waist', 'neck'), ('neck', 'neck', 'top')] + [
     (name + side, start + side, end + side) for side in 'lr' for name, start, end in
@@ -81,8 +82,9 @@ def landmarks(vertices, faces):
     """Heights of a standing outfit's `floor`, `crotch`, `armpit`, `neck` and `top`, with the sections they come from.
 
     The crotch is the lowest section with a curve across the middle (the legs never cross it), the armpit the
-    lowest above it with nothing beside that curve (the arms have joined the torso), and the neck where that
-    curve has narrowed to a share of its widest. `torso(curve)` says whether a curve crosses the middle; `big`
+    lowest above it and above the hands with nothing beside that curve (the arms have joined the torso), and the
+    neck where that curve has narrowed to a share of its widest. Arms held out from the body end above the hips,
+    so the sections between have nothing beside the torso either; they are below the lowest one that has. `torso(curve)` says whether a curve crosses the middle; `big`
     and `fine` hold the sections' curves above the two size limits."""
     vertices = np.asarray(vertices, float)
     floor, top = float(vertices[:, 2].min()), float(vertices[:, 2].max())
@@ -96,7 +98,8 @@ def landmarks(vertices, faces):
     crotch = next((i for i, row in enumerate(big) if any(torso(curve) for curve in row)), None)
     require(crotch is not None and crotch > 0, 'No crotch found: the legs must stand apart below the torso')
     alone = [bool(row) and all(torso(curve) for curve in row) for row in big]
-    armpit = next((i for i in range(crotch + LEVELS // 10, LEVELS - 4) if all(alone[i:i + 4])), None)
+    hands = next((i for i in range(crotch + 1, LEVELS) if any(not torso(curve) for curve in big[i])), LEVELS)
+    armpit = next((i for i in range(max(hands, crotch + LEVELS // 10), LEVELS - 4) if all(alone[i:i + 4])), None)
     require(armpit is not None, 'No armpit found: the arms must hang clear of the torso and join it at the shoulders')
     width = [max((curve['hi'][0] - curve['lo'][0] for curve in row if torso(curve)), default=0.0) for row in big]
     neck = next((i for i in range(armpit + 3, LEVELS) if width[i] < NECK * max(width[armpit:])), None)
@@ -235,14 +238,15 @@ def turn(a, b):
     return np.eye(3) + skew + skew @ skew / (1 + dot)
 
 
-def repose(vertices, faces, here, there, scale, height):
+def repose(vertices, faces, here, there, scale, height, free=None):
     """(vertices, weights): the outfit with each of its bones carried onto the body's.
 
     `here` and `there` are the outfit's and the body's joints, `scale` the outfit's overall scale to the body
     and `height` the outfit's own height. Each bone turns the outfit onto its body bone, stretches it along the
     bone to the body's length and scales it across by `scale`. A vertex follows the bones it is nearest to,
     counted in each bone's own thickness; `weights[bone, vertex]` is evened out over the surface so that
-    joints bend smoothly."""
+    joints bend smoothly. `free[bone, vertex]`, if given, says which bones a vertex may follow at all: the
+    torso's edge of a sleeve cut follows no bone of that arm, and the evening carries that into the torso."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     moved, distance = [], []
     for name, start, end in BONES:
@@ -256,6 +260,9 @@ def repose(vertices, faces, here, there, scale, height):
         nearest = np.clip(along, 0.0, np.linalg.norm(b - a))
         distance.append(np.linalg.norm(relative - nearest[:, None] * from_axis, axis=1) / (THICK[kind(name)] * height))
     distance = np.array(distance)
+    free = np.ones(distance.shape, bool) if free is None else np.asarray(free, bool)
+    require(free.shape == distance.shape and free.any(axis=0).all(), 'Every vertex is free to follow at least one bone')
+    distance = np.where(free, distance, np.inf)
     weight = np.clip(1 - (distance - distance.min(axis=0)) / BLEND, 0.0, None)
     weight /= weight.sum(axis=0)
     edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
@@ -263,7 +270,7 @@ def repose(vertices, faces, here, there, scale, height):
     count = np.maximum(np.bincount(edges[:, 0], minlength=len(vertices)), 1)
     for _ in range(SMOOTHING):
         around = np.array([np.bincount(edges[:, 0], weights=row[edges[:, 1]], minlength=len(vertices)) for row in weight])
-        weight = 0.5 * weight + 0.5 * around / count
+        weight = np.where(free, 0.5 * weight + 0.5 * around / count, 0.0)
     weight /= weight.sum(axis=0)
     return np.einsum('bv,bvk->vk', weight, np.array(moved)), weight
 
@@ -331,6 +338,23 @@ def fit(posed, weight, there, parts, clearance=CLEARANCE):
     return result + (1 - used)[:, None] * posed, report
 
 
+def apart(vertices, side, legs, there):
+    """The vertices with each leg kept on its own side of the middle between the body's hip joints.
+
+    `side[i]` is -1 for a vertex of the outfit's left half and +1 for one of its right, as the outfit came;
+    `legs[i]` is the share vertex i follows leg bones. Wide trouser legs fitted round a body's thighs press into
+    each other, and each then lies partly past the middle. The cut between the legs cannot part such legs: the
+    strip of one leg past the middle is one surface with the other leg over the crotch, and with its own leg
+    below where that cut ends. A vertex past the middle, or nearer to it than `LEGS_APART`, moves back across:
+    all the way if it follows the legs by half or more, as the inside of a thigh does, which also follows the
+    pelvis, and by twice its share below that. The inner sides then lie flat against each other, as cloth does,
+    and the torso above the crotch stays where it is."""
+    vertices = np.array(vertices, float)
+    across = seams.unit(there['hipr'] - there['hipl'])
+    short = np.maximum(LEGS_APART - side * ((vertices - there['hips']) @ across), 0.0)
+    return vertices + (side * np.minimum(2 * legs, 1.0) * short)[:, None] * across
+
+
 def grounded(vertices, feet):
     """The vertices with the soles set on the ground: `feet[i]` is the share vertex i follows a foot.
 
@@ -344,19 +368,35 @@ def grounded(vertices, feet):
     return vertices
 
 
-def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE):
+def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE, materials=None, padded=()):
     """An outfit carried onto a body: its `vertices` in the body's rest pose and fitted round it, with what was found.
 
-    `bones` and `parts` are the body's (`measure.body`). The outfit keeps its faces. The soles are set on the
-    ground by the share each vertex follows a foot. Also returned: the outfit's own `joints` and `landmarks`,
+    `bones` and `parts` are the body's (`measure.body`). Sleeves that are one surface with the torso are first
+    cut out along the arms, in the pose the outfit came in (`split.troughs`), where the armpit is open: `faces`
+    are the outfit's with the faces those cuts crossed divided, `origin` the face each came from, `source` the
+    vertices given followed by the new ones on those cuts, and `sleeves` what `split.split` takes to part the
+    sleeves there. With `materials`, a material per face (`texture.mesh_materials`), a shoulder pad on such an
+    arm is parted along its outline too; `padded` names the sides the outfit is designed with one on, and an
+    outfit that shows none there is refused. The torso's own vertices on those cuts follow no bone of that arm. Each leg is kept on its
+    own side of the middle (`apart`), and the soles are set on the ground by the share each vertex follows a
+    foot. Also returned: the outfit's own `joints` and `landmarks`,
     its `scale` to the body (neck height over neck height), the bone `weights`, the `posed` vertices before the
     fit and the fit's `widening` report."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     there = body_joints(bones, parts)
     here, marks = outfit_joints(vertices, faces, there)
     scale = float(there['neck'][2] / (marks['neck'] - marks['floor']))
-    posed, weight = repose(vertices, faces, here, there, scale, marks['height'])
+    arms = {side + bone: here[joint + side] * scale for side in 'lr' for bone, joint in (('bicep_g', 'shoulder'), ('forearm_g', 'elbow'))}
+    cut, faces, _, origin, sleeves = split.troughs(vertices * scale, faces, np.zeros((len(vertices), 0)), arms, materials, padded)
+    vertices = np.concatenate([vertices, cut[len(vertices):] / scale])
+    free = np.ones((len(BONES), len(vertices)), bool)  # the torso's own vertices on a sleeve cut follow no bone of that arm
+    for side, found in sleeves.items():
+        arm = [index for index, bone in enumerate(BONES) if bone[0] in ('upper' + side, 'fore' + side, 'hand' + side)]
+        free[np.ix_(arm, np.flatnonzero(found['torso']))] = False
+    posed, weight = repose(vertices, faces, here, there, scale, marks['height'], free)
     fitted, report = fit(posed, weight, there, parts, clearance)
-    fitted = grounded(fitted, weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) == 'foot']].sum(axis=0))
-    return {'vertices': fitted, 'faces': faces, 'joints': here, 'landmarks': marks, 'scale': scale, 'weights': weight, 'posed': posed,
-            'widening': report}
+    follows = lambda kinds: weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) in kinds]].sum(axis=0)
+    fitted = apart(fitted, np.where(vertices[:, 0] < marks['middle'], -1.0, 1.0), follows(('thigh', 'shin', 'foot')), there)
+    fitted = grounded(fitted, follows(('foot',)))
+    return {'vertices': fitted, 'faces': faces, 'origin': origin, 'source': vertices, 'sleeves': sleeves, 'joints': here, 'landmarks': marks,
+            'scale': scale, 'weights': weight, 'posed': posed, 'widening': report}

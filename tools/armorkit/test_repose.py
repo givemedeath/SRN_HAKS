@@ -47,6 +47,7 @@ def arm_half(z):
 
 
 def inside(x, z):
+    """Whether the doll, arms hanging beside it, takes a point of its front view."""
     x = abs(x)
     if z < CROTCH:
         return abs(x - LEG(z)) < 0.07 or (z >= HAND_END and abs(x - ARM(z)) < arm_half(z))
@@ -57,7 +58,18 @@ def inside(x, z):
     return x < 0.06
 
 
-def doll(cell=0.02, depth=0.08):
+def held_out(x, z):
+    """As `inside`, with the arms held out from the body instead: they end above the hips."""
+    x = abs(x)
+    arm = z >= 1.20 and abs(x - (0.22 + 1.5 * (1.56 - z))) < 0.07
+    if z < CROTCH:
+        return abs(x - LEG(z)) < 0.07
+    if z < ARMPIT:
+        return x < 0.17 or arm
+    return x < 0.29 if z < NECK else x < 0.06
+
+
+def doll(cell=0.02, depth=0.08, inside=inside):
     """A flat figure with shared vertices and no open edge: every cell of a grid that `inside` takes, extruded front
     to back, with a wall wherever a taken cell borders a free one. It is one surface from the feet to the collar,
     as a generated outfit is, and its sections are closed curves."""
@@ -138,6 +150,12 @@ class JointTests(unittest.TestCase):
             self.assertLess(tip[2], 0.8)  # the arm is followed to the fingers, and not on into the leg beside them
             self.assertGreater(abs(tip[0]), 0.4)
 
+    def test_the_armpit_of_arms_held_out_is_above_the_hands_and_not_at_the_bare_waist(self):
+        vertices, faces = doll(inside=held_out)
+        marks = repose.landmarks(vertices, faces)
+        self.assertAlmostEqual(marks['armpit'], ARMPIT, delta=0.03)  # nothing is beside the torso from 0.9 to 1.2 either
+        self.assertAlmostEqual(marks['crotch'], CROTCH, delta=0.03)
+
     def test_an_outfit_without_separate_legs_or_arms_is_refused(self):
         block = join(tube((0, 0, 0), (0, 0, 1.7), 0.2))
         with self.assertRaises(ValueError):
@@ -149,7 +167,8 @@ class ReposeTests(unittest.TestCase):
     def setUpClass(cls):
         cls.bones, cls.parts = body()
         v, cls.faces = doll()
-        cls.result = repose.onto_body(v * SCALE + SHIFT, cls.faces, cls.bones, cls.parts)
+        cls.given = v * SCALE + SHIFT
+        cls.result = repose.onto_body(cls.given, cls.faces, cls.bones, cls.parts)
         cls.there = repose.body_joints(cls.bones, cls.parts)
 
     def test_a_turn_takes_one_direction_to_the_other_and_is_a_rotation(self):
@@ -164,7 +183,7 @@ class ReposeTests(unittest.TestCase):
 
     def test_the_outfits_joints_end_up_on_the_bodys(self):
         self.assertAlmostEqual(self.result['scale'], 1 / SCALE, delta=0.05)
-        again, marks = repose.outfit_joints(self.result['vertices'], self.faces, self.there)
+        again, marks = repose.outfit_joints(self.result['vertices'], self.result['faces'], self.there)
         self.assertAlmostEqual(marks['floor'], 0.0, delta=0.01)  # the soles are on the ground
         for joint in ('knee', 'ankle', 'shoulder', 'elbow', 'wrist'):
             for side in 'lr':
@@ -173,6 +192,19 @@ class ReposeTests(unittest.TestCase):
         # the arms hang beside the body now, and the legs stand under the hips
         self.assertLess(np.abs(self.result['vertices'][:, 0]).max(), 0.45)
 
+    def test_a_leg_pressed_past_the_middle_comes_back_to_its_own_side(self):
+        there = {'hipl': np.array([-0.1, 0.0, 1.0]), 'hipr': np.array([0.1, 0.0, 1.0]), 'hips': np.array([0.0, 0.0, 1.0])}
+        # a left thigh past the middle, one clear of it, a right thigh past it that half follows the pelvis, and
+        # the left of a waistband, which follows the legs by a quarter, and of a chest, which does not
+        points = np.array([[0.006, 0.01, 0.7], [-0.05, 0.0, 0.7], [-0.004, 0.0, 0.7], [0.01, 0.0, 1.05], [0.01, 0.0, 1.4]])
+        result = repose.apart(points, np.array([-1.0, -1.0, 1.0, -1.0, -1.0]), np.array([1.0, 1.0, 0.5, 0.25, 0.0]), there)
+        np.testing.assert_allclose(result[:, 0], [-repose.LEGS_APART, -0.05, repose.LEGS_APART, 0.01 - 0.5 * (0.01 + repose.LEGS_APART), 0.01])
+        np.testing.assert_allclose(result[:, 1:], points[:, 1:])
+        fitted, weights = self.result['vertices'], self.result['weights']
+        legs = weights[[index for index, bone in enumerate(repose.BONES) if repose.kind(bone[0]) in ('thigh', 'shin', 'foot')]].sum(axis=0)
+        left = (legs > 0.999) & (self.result['posed'][:, 0] < -0.02)
+        self.assertTrue(left.any() and (fitted[left, 0] <= -repose.LEGS_APART + 1e-9).all())
+
     def test_the_ground_is_set_by_the_feet_and_not_by_a_hem_that_hangs_lower(self):
         # a sole, an ankle that half follows the foot, a shin that barely does, and a hem below them all
         points = np.array([[0, 0, 0.04], [0, 0, 0.12], [0, 0, 0.30], [0, 0, -0.05]], float)
@@ -180,11 +212,76 @@ class ReposeTests(unittest.TestCase):
         np.testing.assert_allclose(result[:, 2], [0.0, 0.10, 0.2992, -0.05])
         np.testing.assert_allclose(repose.grounded(points, np.zeros(4)), points)  # no feet: nothing to set down
 
-    def test_the_faces_are_kept_and_every_vertex_follows_bones_that_add_up_to_one(self):
-        self.assertTrue(np.array_equal(self.result['faces'], self.faces))
+    def test_the_sleeves_are_cut_as_the_outfit_came_and_the_other_faces_are_kept(self):
+        faces, origin, sleeves = self.result['faces'], self.result['origin'], self.result['sleeves']
+        self.assertEqual(set(sleeves), {'l', 'r'})  # the doll's arms are one surface with its torso down to the armpit
+        given = len(self.given)
+        source = self.result['source']
+        self.assertTrue(np.array_equal(source[:given], self.given))  # its own vertices, then those on the cuts
+        self.assertEqual(len(source), len(self.result['vertices']))
+        whole = np.bincount(origin, minlength=len(self.faces))[origin] == 1
+        self.assertTrue(whole.any() and not whole.all())
+        self.assertTrue(np.array_equal(faces[whole], self.faces[origin[whole]]))
+        self.assertTrue(np.array_equal(np.unique(origin), np.arange(len(self.faces))))
+        for side, found in sleeves.items():
+            self.assertEqual(found['on'].shape, (4, len(source)))
+            self.assertEqual(found['inside'].shape, (len(faces),))
+            points = source[found['on'][0]]  # the seam is flat in the pose the outfit came in, wherever the bend took it
+            self.assertGreater(len(points), 3)
+            self.assertLess(np.linalg.svd(points - points.mean(axis=0), compute_uv=False)[-1], 1e-6)
+            self.assertGreater(np.linalg.svd(self.result['vertices'][found['on'][0]] - self.result['vertices'][found['on'][0]].mean(axis=0), compute_uv=False)[-1], 1e-4)
+            self.assertFalse(found['on'][1:3].any())  # the doll is flat: the walls in front of it and behind it meet nothing
+            self.assertFalse(found['on'][3].any() or found['pad'].any())  # no materials were given: no pad is looked for
+            # the torso's own vertices on the cuts follow no bone of that arm; the sleeve's, at the same places, do
+            arm = [index for index, bone in enumerate(repose.BONES) if bone[0] in ('upper' + side, 'fore' + side, 'hand' + side)]
+            weights = self.result['weights'][arm].sum(axis=0)
+            self.assertTrue(found['torso'].any())
+            self.assertEqual(weights[found['torso']].max(), 0.0)
+            self.assertGreater(weights[found['on'].any(axis=0) & ~found['torso']].max(), 0.02)  # a little, this near the shoulder
+            self.assertFalse(found['on'][:, :given].any())  # only vertices the cuts made lie on them
+            inside = source[faces[found['inside']]].mean(axis=1)[:, 0] - SHIFT[0]
+            self.assertTrue(np.all(inside < 0) if side == 'l' else np.all(inside > 0))
+
+    def test_every_vertex_follows_bones_that_add_up_to_one(self):
         self.assertEqual(self.result['weights'].shape, (len(repose.BONES), len(self.result['vertices'])))
         self.assertTrue(np.allclose(self.result['weights'].sum(axis=0), 1.0))
         self.assertTrue(np.isfinite(self.result['vertices']).all())
+
+    def test_a_shoulder_pad_told_by_its_material_is_parted_along_its_outline(self):
+        # a patch of another material round each shoulder joint
+        centre = self.given[self.faces].mean(axis=1)
+        materials = np.zeros(len(self.faces), int)
+        for side in 'lr':
+            materials[np.linalg.norm(centre - self.result['joints']['shoulder' + side], axis=1) < 0.07 * SCALE] = 1
+        result = repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials)
+        self.assertTrue(np.array_equal(np.any([found['pad'] for found in result['sleeves'].values()], axis=0), (materials == 1)[result['origin']]))
+        for side, found in result['sleeves'].items():
+            self.assertTrue(found['pad'].any() and found['on'][3].any())
+            # the outline is one edge of the torso and the pad through the bend: no vertex of the torso's own lies on it alone
+            self.assertFalse((found['torso'] & ~found['on'][:3].any(axis=0)).any())
+        self.assertTrue(np.array_equal(result['source'][:len(self.given)], self.given))
+        with self.assertRaises(ValueError):
+            repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials[:-1])
+        with self.assertRaises(ValueError):  # designed with pads, and shows none
+            repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=np.zeros(len(self.faces), int), padded='lr')
+
+    def test_a_vertex_follows_only_the_bones_it_is_free_to(self):
+        names = [bone[0] for bone in repose.BONES]
+        there = self.there  # a trouser leg on the body's own left leg, bent nowhere
+        v, f = tube(there['hipl'], there['anklel'], 0.05, around=8, along=20)[:2]
+        knee = np.abs(v[:, 2] - there['kneel'][2]) < 0.03
+        self.assertTrue(knee.any())
+        free = np.ones((len(repose.BONES), len(v)), bool)
+        free[names.index('shinl'), knee] = False
+        _, plain = repose.repose(v, f, there, there, 1.0, 1.8)
+        _, held = repose.repose(v, f, there, there, 1.0, 1.8, free)
+        self.assertGreater(plain[names.index('shinl'), knee].min(), 0.3)  # at the knee a vertex follows both bones
+        self.assertEqual(held[names.index('shinl'), knee].max(), 0.0)
+        self.assertTrue(np.allclose(held.sum(axis=0), 1.0))
+        low = v[:, 2] < there['anklel'][2] + 0.1
+        self.assertGreater(held[names.index('shinl'), low].min(), 0.5)  # farther down the shin it still does
+        with self.assertRaises(ValueError):
+            repose.repose(v, f, there, there, 1.0, 1.8, np.zeros_like(free))
 
     def test_a_vertex_in_the_middle_of_a_bone_follows_that_bone(self):
         names = [bone[0] for bone in repose.BONES]

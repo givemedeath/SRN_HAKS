@@ -1,4 +1,4 @@
-"""Command line for the armorkit foundation: registry, parts tables, measurements and client fixtures."""
+"""Command line for the armorkit foundation: registry, parts tables, measurements, outfit briefs and client fixtures."""
 import argparse
 import json
 import sys
@@ -51,6 +51,54 @@ def command_measure(args):
     print(json.dumps({'written': written}))
 
 
+def command_brief(args):
+    from . import brief
+    document = brief.load(args.brief)
+    if args.seal:  # refused where two materials are drawn too alike: nothing is written then
+        brief.seal(document, args.seal)
+    if args.adopt:
+        brief.adopt(document, args.adopt)
+    print(json.dumps({'model': document['model'], 'materials': {material['name']: material['kind'] for material in document['materials']},
+                      'pads': document.get('pads', []), 'sealed': args.seal or args.adopt}))
+
+
+def command_image(args):
+    from . import reference
+    images = reference.generate(args.brief, args.folder, args.seed, args.batch, args.reference, args.url, args.profile, args.deadline)
+    print(json.dumps({'images': [str(path) for path in images]}))
+
+
+def command_generate(args):
+    from . import generate
+    need = lambda *names: registry.require(all(getattr(args, name) is not None for name in names),
+                                           f'{args.stage} needs ' + ', '.join('--' + name for name in names))
+    if args.stage == 'calibrate':
+        need('models')
+        done = generate.calibrate(args.work, args.model, args.source, args.models, args.url)
+    elif args.stage == 'geometry':
+        need('models', 'fov')
+        done = generate.geometry(args.work, args.model, args.source, args.fov, args.models, args.url)
+    elif args.stage == 'appearance':
+        need('models', 'fov', 'shape')
+        done = generate.appearance(args.work, args.model, args.source, args.fov, args.shape, args.models, args.url)
+    else:
+        need('faces')
+        done = generate.export(args.work, args.model, args.source, args.faces, args.fill, args.url)
+    print(json.dumps({key: done.get(key) for key in ('folder', 'status', 'seconds', 'files', 'attempt', 'previews')}))
+
+
+def command_register(args):
+    from . import brief
+    brief.register(args.folder, *args.image)
+    print(json.dumps({'registered': [Path(path).name for path in args.image]}))
+
+
+def command_admit(args):
+    from . import brief
+    document, folder = brief.admit(args.image, args.root)
+    print(json.dumps({'model': document['model'], 'folder': str(folder)}))
+
+
 def command_fixture(args):
     from . import client
     from . import client_fixture as fixture
@@ -79,6 +127,32 @@ def main(argv=None):
     p.add_argument('--only', choices=('seams', 'heads'), help='measure one of the two files (heads need no --supermodels)')
     p.add_argument('--output', required=True)
     p.set_defaults(handler=command_measure)
+    p = commands.add_parser('brief', help="check an outfit's brief, and seal a reference folder with it")
+    p.add_argument('brief')
+    p.add_argument('--seal', help='reference folder to seal: gets PROMPT.txt, the image prompt the materials give')
+    p.add_argument('--adopt', help='reference folder whose image was made before the brief: its PROMPT.txt must be the brief\'s')
+    p.set_defaults(handler=command_brief)
+    p = commands.add_parser('image', help='make reference images from a brief on the local image engine')
+    p.add_argument('brief'); p.add_argument('folder'); p.add_argument('--seed', type=int, required=True)
+    p.add_argument('--batch', type=int, default=1); p.add_argument('--reference', action='append', default=[])
+    p.add_argument('--url', default='http://127.0.0.1:8188'); p.add_argument('--profile', default='flux2-turbo-v1')
+    p.add_argument('--deadline', type=float, default=1800)
+    p.set_defaults(handler=command_image)
+    p = commands.add_parser('generate', help='post one source job to the local engine: calibrate, geometry (counted), appearance or export')
+    p.add_argument('stage', choices=('calibrate', 'geometry', 'appearance', 'export'))
+    p.add_argument('work', help='folder holding one folder per model, and the attempts ledger')
+    p.add_argument('model'); p.add_argument('source', help='the image, or for export the generated mesh')
+    p.add_argument('--models', help="the engine's models folder (from the local runtime binding)")
+    p.add_argument('--fov', type=float); p.add_argument('--shape', help='the saved shape of a geometry attempt')
+    p.add_argument('--faces', type=int); p.add_argument('--fill', type=float, help='export a solid with its outside surface only')
+    p.add_argument('--url', default='http://127.0.0.1:8188')
+    p.set_defaults(handler=command_generate)
+    p = commands.add_parser('register', help='record images as made from a sealed reference folder (another image route, a derived image)')
+    p.add_argument('folder'); p.add_argument('image', nargs='+')
+    p.set_defaults(handler=command_register)
+    p = commands.add_parser('admit', help='check that an image comes from a sealed brief before it is taken further')
+    p.add_argument('image'); p.add_argument('--root', required=True, help='folder searched for sealed reference folders')
+    p.set_defaults(handler=command_admit)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)
     p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')

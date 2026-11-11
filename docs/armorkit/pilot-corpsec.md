@@ -72,6 +72,12 @@ Phase 3), the back harness, the wrist display and the carried weapons.
 | Metal 1 | Armor plates |
 | Metal 2 | Buckles and hardware |
 
+As built on 2026-11-11 the Site Guard's reference shows three materials, one of each kind, so each has both
+of its kind's channels and they are told apart by garment: cloth 1 the shirt, cloth 2 the trousers, leather 1
+the carrier, leather 2 gloves and boots, metal 1 the shoulder and arm guards, metal 2 the knee and shin guards.
+Its materials and their kinds are in `tools/armorkit/briefs/corpsec-siteguard-male.json`. The accent and
+hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
+
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in
 the repository; the logo art has to be supplied or made before the brassard is reviewed in the client.
 
