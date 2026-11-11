@@ -37,11 +37,12 @@ class GlowTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'low corner'):
             glow.glow(base, where, covered, [{'box': [[1, 0, 0], [0, 1, 1]]}])
 
-    def test_the_halo_is_a_card_in_front_that_fades_away_from_the_glow(self):
+    def test_the_halo_is_a_card_in_front_that_fades_away_from_the_glow_one_for_each_depth(self):
         where, covered = glow.position_map(POINTS, UVS, FACES, 64)
         base = np.full((64, 64, 3), 0.9)
         lit = glow.glow(base, where, covered, [{'box': [[-1.0, 0.5, 0.5], [1.0, 1.5, 1.5]]}])
-        image, corners = glow.halo(lit, where, covered, reach=0.25, strength=0.5)
+        image, cards = glow.halo(lit, where, covered, reach=0.25, strength=0.5)
+        self.assertEqual(len(cards), 1); corners = cards[0]
         places = np.array([place for place, _ in corners])
         np.testing.assert_allclose(places[:, 1], 1.04)  # just in front of the wall
         self.assertLess(places[:, 0].min(), -1.4); self.assertGreater(places[:, 0].max(), 1.4)  # past the glow on each side
@@ -54,16 +55,30 @@ class GlowTests(unittest.TestCase):
         held = np.asarray(glow.halo(lit, where, covered, reach=0.25, strength=0.5, core=1.0)[0], float)
         self.assertLess(held[tall // 2, wide // 2].max(), picture[tall // 2, wide // 2].max())  # held back over the lit part itself
         self.assertIsNone(glow.halo(np.zeros_like(lit), where, covered))
+        # A sign standing a metre out from the wall gets its own card at its own depth; the two share one picture.
+        deep = where.copy(); deep[:, 32:, 1] += 1.0
+        image, cards = glow.halo(np.full_like(lit, 0.8), deep, covered, reach=0.25, strength=0.5)
+        self.assertEqual([round(card[0][0][1], 2) for card in cards], [1.04, 2.04])
+        (_, (_, lower)), _, (_, (_, upper)), _ = cards[0]; self.assertEqual((upper, lower), (0.0, 0.5))
+        self.assertEqual(cards[1][0][1][1], 1.0); self.assertEqual(image.size[1], 2 * round((2 + 4 * 0.25) * 24))
 
     def test_the_card_is_a_node_of_the_model_that_takes_no_light(self):
         normals = np.tile([0, 1.0, 0], (4, 1))
-        card = glow.halo(np.full((16, 16, 3), 0.8), *glow.position_map(POINTS, UVS, FACES, 16))[1]
-        text = convert.model_text('ek_test', POINTS, normals, UVS, FACES, card)
-        node = text[text.index('node trimesh ek_test_halo'):]
+        cards = glow.halo(np.full((16, 16, 3), 0.8), *glow.position_map(POINTS, UVS, FACES, 16))[1]
+        text = convert.model_text('ek_test', POINTS, normals, UVS, FACES, cards)
+        node = text[text.index('node trimesh ek_test_halo0'):]
         for line in ('  bitmap ek_test_h', '  ambient 0 0 0', '  diffuse 0 0 0', '  shadow 0', '  verts 4', '  faces 2'):
             self.assertIn(line, node)
         self.assertNotIn('selfillumcolor', text)  # the compiled model's read-back check knows no such controller
         self.assertNotIn('_halo', convert.model_text('ek_test', POINTS, normals, UVS, FACES))
+
+    def test_a_script_puts_the_lights_out_by_swapping_in_materials_and_back_by_clearing_them(self):
+        out = convert.lights_script('ek_test', 'OBJECT_SELF', on=False)
+        self.assertEqual(out, 'ReplaceObjectTexture(OBJECT_SELF,"ek_test","ek_test_o");ReplaceObjectTexture(OBJECT_SELF,"ek_test_h","ek_off");')
+        self.assertEqual(convert.lights_script('ek_test', 'OBJECT_SELF', on=True),
+                         'ReplaceObjectTexture(OBJECT_SELF,"ek_test");ReplaceObjectTexture(OBJECT_SELF,"ek_test_h");')
+        self.assertNotIn('_h', convert.lights_script('ek_test', 'OBJECT_SELF', on=False, halo=False))
+        self.assertNotIn('_i', convert.material_text('ek_test'))  # what `ek_test_o` is written from: the material without its glow
 
     def test_the_shipped_game_set_loads_and_a_bad_one_is_refused(self):
         folder = Path(__file__).parent / 'sets'

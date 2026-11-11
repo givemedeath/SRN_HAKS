@@ -17,6 +17,7 @@ from tools.armorkit.client_fixture import field, gff_float
 LOG_PREFIX = 'ENVKIT'
 COLUMNS = 13  # after the row number: Label StrRef ModelName LightColor LightOffsetX/Y/Z SoundAppType ShadowSize BodyBag LowGore Reflection Static
 START, HOLD = 8.0, 4.0
+NL = chr(10)
 
 
 def require(condition, message):
@@ -35,11 +36,12 @@ def table(stock_text, models):
     return '\r\n'.join(lines) + '\r\n', rows
 
 
-def placed(tag, appearance, position, bearing):
-    """One static placeable of a table row in an area's placeable list."""
+def placed(tag, appearance, position, bearing, static=True):
+    """One placeable of a table row in an area's placeable list. A static one is scenery the server never sees again; one
+    a script must reach by its tag (to swap a texture, say) is placed not static."""
     x, y = position
     values = {'TemplateResRef': field('resref', ''), 'Tag': field('cexostring', tag), 'LocName': field('cexolocstring', {'0': tag}),
-              'Description': field('cexolocstring', {}), 'Appearance': field('dword', appearance), 'Static': field('byte', 1),
+              'Description': field('cexolocstring', {}), 'Appearance': field('dword', appearance), 'Static': field('byte', 1 if static else 0),
               'Useable': field('byte', 0), 'Plot': field('byte', 1), 'HP': field('short', 15), 'CurrentHP': field('short', 15),
               'Hardness': field('byte', 5), 'Fort': field('byte', 16), 'Ref': field('byte', 0), 'Will': field('byte', 0),
               'Faction': field('dword', 1), 'AnimationState': field('byte', 0), 'HasInventory': field('byte', 0),
@@ -66,13 +68,14 @@ def person(template, tag, position, facing=270.0, height=0.0):
 
 def enter_script(shots, start=START, hold=HOLD):
     """Hide the player, then for each shot stand them at a spot and set the camera: {label, stand: [x, y], facing,
-    distance, pitch, height}. Facing 90 looks north."""
+    distance, pitch, height, run}. Facing 90 looks north. `run` is script the shot runs first, to change the scene."""
+    require(all(NL not in shot.get('run', '') for shot in shots), 'A shot runs one line of script')
     lines = ['void Shot(object pc,int n) {', f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("{LOG_PREFIX} done"); return; }}',
              '  float x; float y; float facing; float distance; float pitch; float height; string label;']
     for index, shot in enumerate(shots):
         lines.append(f'  if(n=={index}) {{ x={shot["stand"][0]:.3f}; y={shot["stand"][1]:.3f}; facing={float(shot.get("facing", 90)):.3f}; '
                      f'distance={float(shot.get("distance", 5)):.3f}; pitch={float(shot.get("pitch", 75)):.3f}; '
-                     f'height={float(shot.get("height", 1.0)):.3f}; label="{shot["label"]}"; }}')
+                     f'height={float(shot.get("height", 1.0)):.3f}; label="{shot["label"]}"; {shot.get("run", "")} }}')
     lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetArea(pc),Vector(x,y,0.0),facing)));',
               '  SetCameraHeight(pc,height); AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));',
               f'  DelayCommand(1.0,WriteTimestampedLogEntry("{LOG_PREFIX} shot="+IntToString(n)+" target="+label+" valid=1"));',
@@ -85,7 +88,7 @@ def enter_script(shots, start=START, hold=HOLD):
 
 
 def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD):
-    """props: [{model, position: [x, y], bearing}] (bearing in radians). people: [{position, facing, height}], stock
+    """props: [{model, position: [x, y], bearing, static}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
     humans for scale. Returns the fixture record."""
     from tools.phenotypes import tool_runtime
     require(client_fixture.NAME.fullmatch(name), 'Fixture name must be a lowercase resref of at most 11 characters')
@@ -126,7 +129,7 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         creatures = [person(template, f'{name}_h{index}', one['position'], one.get('facing', 270.0), one.get('height', 0.0))
                      for index, one in enumerate(people)]
     area = client_fixture.area_documents(name, creatures, size)
-    area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', rows[prop['model']], prop['position'], prop.get('bearing', math.pi))
+    area[name + '_a.git']['Placeable List'] = field('list', [placed(f'{name}_p{index}', rows[prop['model']], prop['position'], prop.get('bearing', math.pi), prop.get('static', True))
                                                              for index, prop in enumerate(props)])
     if night:
         area[name + '_a.are'].update({'IsNight': field('byte', 1), 'MoonAmbientColor': field('dword', 0x302820),

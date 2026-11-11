@@ -83,31 +83,42 @@ def elevation(base, where, covered, *, scale=60, grid=1.0):
     return image
 
 
-def halo(lit, where, covered, *, reach=0.35, strength=0.6, core=0.6, scale=24):
-    """(image, corners) of the card that carries the spread of the model's glow, or None where nothing glows.
+def halo(lit, where, covered, *, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25):
+    """(image, cards) of the cards that carry the spread of the model's glow, or None where nothing glows.
 
     The glow seen from the front is blurred over `reach` metres and dimmed to `strength`. Over the lit parts
-    themselves it is held back by `core`, or a sign's lettering washes out to white. The card stands 4 cm in front
-    of the foremost lit texel and reaches past the glow on every side. `corners` are its four places, each with the
-    texture corner it shows: bottom left, bottom right, top right, top left as seen from the front. Only light that
-    faces front is served: the card is flat."""
+    themselves it is held back by `core`, or a sign's lettering washes out to white. Lit parts more than `apart`
+    metres apart in depth get a card each, 4 cm in front of their own foremost texel: one card at the depth of a sign
+    that stands out from the wall drew the door's glow over a person standing at the door (client check, 2026-11-10).
+    Each card reaches past its glow on every side. The cards share one picture, stacked top to bottom; a card is its
+    four places, each with the texture corner it shows: bottom left, bottom right, top right, top left as seen from
+    the front. Only light that faces front is served: the cards are flat."""
     from PIL import Image, ImageFilter
     require(reach > 0 and 0 < strength <= 1 and 0 <= core <= 1, 'A halo needs a reach in metres, a strength up to 1 and a core of 0 to 1')
     shining = covered & (lit.max(-1) > 0)
     if not shining.any():
         return None
     spots, colours = where[shining], lit[shining]; pad = 2 * reach
-    low, high = spots.min(0) - pad, spots.max(0) + pad
-    wide, tall = int(np.ceil((high[0] - low[0]) * scale)), int(np.ceil((high[2] - low[2]) * scale))
-    picture = np.zeros((tall, wide, 3))
-    rows = np.clip(((high[2] - spots[:, 2]) * scale).astype(int), 0, tall - 1)
-    columns = np.clip(((high[0] - spots[:, 0]) * scale).astype(int), 0, wide - 1)
-    np.maximum.at(picture, (rows, columns), colours)
-    image = Image.fromarray((picture * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))  # close the gaps between texels
-    source = np.asarray(image.filter(ImageFilter.GaussianBlur(1)), float).max(-1, keepdims=True) / 255
-    spread = np.asarray(image.filter(ImageFilter.GaussianBlur(reach * scale / 2)), float) * strength * (1 - core * source)
-    image = Image.fromarray(spread.round().astype(np.uint8))
-    front = float(spots[:, 1].max()) + 0.04
-    corners = [((high[0], front, low[2]), (0.0, 1.0)), ((low[0], front, low[2]), (1.0, 1.0)),
-               ((low[0], front, high[2]), (1.0, 0.0)), ((high[0], front, high[2]), (0.0, 0.0))]
-    return image, corners
+    order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]
+    layers = np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1)
+    pictures, frames = [], []
+    for layer in layers:
+        low, high = spots[layer].min(0) - pad, spots[layer].max(0) + pad
+        wide, tall = int(np.ceil((high[0] - low[0]) * scale)), int(np.ceil((high[2] - low[2]) * scale))
+        picture = np.zeros((tall, wide, 3))
+        rows = np.clip(((high[2] - spots[layer, 2]) * scale).astype(int), 0, tall - 1)
+        columns = np.clip(((high[0] - spots[layer, 0]) * scale).astype(int), 0, wide - 1)
+        np.maximum.at(picture, (rows, columns), colours[layer])
+        sharp = Image.fromarray((picture * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))  # close the gaps between texels
+        source = np.asarray(sharp.filter(ImageFilter.GaussianBlur(1)), float).max(-1, keepdims=True) / 255
+        spread = np.asarray(sharp.filter(ImageFilter.GaussianBlur(reach * scale / 2)), float) * strength * (1 - core * source)
+        pictures.append(spread.round().astype(np.uint8)); frames.append((low, high, float(spots[layer, 1].max()) + 0.04))
+    sheet = np.zeros((sum(len(picture) for picture in pictures), max(picture.shape[1] for picture in pictures), 3), np.uint8)
+    cards, top = [], 0
+    for picture, (low, high, front) in zip(pictures, frames):
+        tall, wide = picture.shape[:2]; sheet[top:top + tall, :wide] = picture
+        left, right, upper, lower = 0.0, wide / sheet.shape[1], top / len(sheet), (top + tall) / len(sheet)
+        cards.append([((high[0], front, low[2]), (left, lower)), ((low[0], front, low[2]), (right, lower)),
+                      ((low[0], front, high[2]), (right, upper)), ((high[0], front, high[2]), (left, upper))])
+        top += tall
+    return Image.fromarray(sheet), cards

@@ -237,11 +237,12 @@ def split(faces, limit=NODE_VERTICES):
     return parts
 
 
-def model_text(name, vertices, normals, uvs, faces, card=None):
-    """The ASCII model. `card` is a halo's four corners (`glow.halo`): a flat sheet showing `name`_h. Its texture's
-    TXI makes the game add it to what is behind. It takes no light (ambient and diffuse are black) and shows its picture
-    through the glow slot of its own material file, so it is as bright by night as by day. (A `selfillumcolor` line
-    would do the same, but the compiled model then fails the read-back check, which knows no such controller.)"""
+def model_text(name, vertices, normals, uvs, faces, cards=None):
+    """The ASCII model. `cards` are a halo's sheets (`glow.halo`), four corners each, all showing `name`_h. That
+    texture's TXI makes the game add them to what is behind. They take no light (ambient and diffuse are black) and show
+    their picture through the glow slot of their own material file, so they are as bright by night as by day. (A
+    `selfillumcolor` line would do the same, but the compiled model then fails the read-back check, which knows no such
+    controller.)"""
     require(len(name) <= NAME_LENGTH and name == name.lower() and name.replace('_', '').isalnum(),
             f'A model name is a lowercase resref of at most {NAME_LENGTH} characters: {name}')
     require(all(np.isfinite(values).all() for values in (vertices, normals, uvs)), name + ': a coordinate is not a number')
@@ -254,8 +255,8 @@ def model_text(name, vertices, normals, uvs, faces, card=None):
         lines += [f'  tverts {len(used)}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in uvs[used].tolist()]
         lines += [f'  normals {len(used)}'] + [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in normals[used].tolist()]
         lines += [f'  faces {len(part)}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in part.tolist()] + ['endnode']
-    if card:
-        lines += [f'node trimesh {name}_halo', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
+    for number, card in enumerate(cards or []):
+        lines += [f'node trimesh {name}_halo{number}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
                   f'  bitmap {name}_h', '  render 1', '  shadow 0', '  transparencyhint 1', '  verts 4']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
         lines += ['  normals 4'] + ['    0 1 0'] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
@@ -336,6 +337,35 @@ def load_models(path):
     return data['models']
 
 
+HALO_OUT = 'ek_off'  # one for every model: a black sheet added to the picture adds nothing
+
+
+def lights_out(name, folder, crunch, halo):
+    """Write what a script swaps in to put a lit model's lights out, and return the texture files.
+
+    `ReplaceObjectTexture(object, old, new)` works on these models only when `old` is a mesh's `bitmap` and `new` is
+    itself a material: a name with its own material file (client checks, 2026-11-10: a glow map's own name, or a
+    replacement that was only a texture, changed nothing; a replacement with a material file took effect at once and
+    an empty `new` brought the lights back). So the model gets `name`_o, its material without the glow map, and its
+    halo gets `ek_off`, a black sheet. Each needs a texture of its own name to be found; a 16-pixel one serves. The
+    object must not be static: a static placeable is scenery no script can reach."""
+    from PIL import Image
+    folder = Path(folder); dark = Image.new('RGB', (16, 16)); written = [_compress(dark, folder / f'{name}_o.dds', '-DXT1', 16, crunch, data=False)]
+    (folder / f'{name}_o.mtr').write_text(material_text(name), encoding='cp1252', newline='\n')
+    if halo:
+        written.append(_compress(dark, folder / f'{HALO_OUT}.dds', '-DXT1', 16, crunch, data=False))
+        (folder / f'{HALO_OUT}.mtr').write_text('\n'.join(['renderhint NormalAndSpecMapped', '', f'texture0 {HALO_OUT}'] + [f'texture{slot} null' for slot in range(1, 6)]) + '\n',
+                                                encoding='cp1252', newline='\n')
+        (folder / f'{HALO_OUT}.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
+    return written
+
+
+def lights_script(name, target, on, halo=True):
+    """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on."""
+    swaps = [(name, f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
+    return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps)
+
+
 def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None):
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. `sign_tilt`, in
     degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit` names the parts lit from within as
@@ -368,6 +398,8 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumin
                          'texture4 null', f'texture5 {name}_h']
         (folder / f'{name}_h.mtr').write_text('\n'.join(card_material) + '\n', encoding='cp1252', newline='\n')
         (folder / f'{name}_h.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
+    if illumination is not None:
+        files += lights_out(name, folder, crunch, bool(card))
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(scale), 5),
-            'repairedNormals': repaired, 'signTilt': sign_tilt, 'lit': bool(illumination is not None), 'halo': bool(card), 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
+            'repairedNormals': repaired, 'signTilt': sign_tilt, 'lit': bool(illumination is not None), 'haloCards': len(card[1]) if card else 0, 'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}

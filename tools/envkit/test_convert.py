@@ -141,6 +141,7 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(len(text.split('\r\n')[-2].split()) - 1, fixture.COLUMNS)
         prop = fixture.placed('fx_p0', 8, [30.0, 40.0], 3.14)
         self.assertEqual((prop['__struct_id'], prop['Appearance']['value'], prop['Static']['value']), (9, 8, 1))
+        self.assertEqual(fixture.placed('fx_p1', 8, [30.0, 40.0], 3.14, static=False)['Static']['value'], 0)  # one a script can reach
         with self.assertRaisesRegex(ValueError, 'Unexpected placeables table'):
             fixture.table('not a table\n\nx\n', ['ek_a'])
 
@@ -148,6 +149,10 @@ class FixtureTests(unittest.TestCase):
         script = fixture.enter_script([{'label': 'a', 'stand': [30, 38]}, {'label': 'b', 'stand': [34, 38], 'distance': 9}])
         self.assertIn('if(n>=2) { WriteTimestampedLogEntry("ENVKIT done"); return; }', script)
         self.assertIn('x=34.000; y=38.000; facing=90.000; distance=9.000;', script); self.assertIn('ENVKIT shot=', script)
+        dark = fixture.enter_script([{'label': 'a', 'stand': [30, 38], 'run': 'ReplaceObjectTexture(GetObjectByTag("fx_p0"),"ek_a_i","ek_black");'}])
+        self.assertIn('label="a"; ReplaceObjectTexture(GetObjectByTag("fx_p0"),"ek_a_i","ek_black"); }', dark)
+        with self.assertRaisesRegex(ValueError, 'one line'):
+            fixture.enter_script([{'label': 'a', 'stand': [30, 38], 'run': 'a;' + chr(10) + 'b;'}])
 
 
 if __name__ == '__main__':
