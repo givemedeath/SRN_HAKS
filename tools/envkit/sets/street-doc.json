@@ -16,7 +16,7 @@
     "hospital-bed": {"kind": "prop", "type": "hospital-bed", "subject": "steel-framed hospital bed with a blue blanket", "box": [167, 849, 275, 906]},
     "curtain-straight": {"kind": "prop", "type": "privacy-curtain", "subject": "teal privacy curtain on a straight rail", "box": [309, 839, 381, 903]},
     "curtain-corner": {"kind": "prop", "type": "privacy-curtain", "variant": "The same curtain on a corner rail.", "subject": "teal privacy curtain on a corner rail", "box": [413, 833, 471, 905]},
-    "medical-cabinet": {"kind": "prop", "type": "medical-cabinet", "subject": "steel medical cabinet with glass doors", "box": [502, 827, 562, 908]},
+    "medical-cabinet": {"kind": "prop", "type": "storage-cabinet", "subject": "steel medical cabinet with glass doors", "box": [502, 827, 562, 908]},
     "supply-shelving": {"kind": "prop", "type": "shelf-unit", "variant": "Steel rack of medical supply boxes and bottles.", "subject": "steel shelving rack of medical supplies", "box": [597, 822, 667, 906]},
     "chem-storage": {"kind": "prop", "type": "shelf-unit", "same": "street-doc/supply-shelving", "subject": "steel shelving rack of chemical bottles", "box": [700, 831, 784, 906]},
     "staff-locker": {"kind": "prop", "type": "locker", "variant": "Plain two-door steel staff locker.", "subject": "two-door steel staff locker", "box": [821, 822, 869, 906]},

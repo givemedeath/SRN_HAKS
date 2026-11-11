@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "04_renraku_matrix_infrastructure_node.png",
+    "sha256": "c7719ca1aa42f22b5a2cd7c399049be491dbb5c6d43c144b7ccc792e808be943",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "black and red corporate data bunker with cooling stacks and dishes", "box": [0, 96, 905, 540]},
+    "building-front": {"kind": "building", "subject": "front elevation of a black and red corporate data bunker", "box": [868, 120, 1257, 296]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a black and red corporate data bunker", "box": [915, 330, 1258, 525]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: dark desk under a canopy with planters, Renraku livery.", "subject": "dark corporate security reception desk under a canopy", "box": [16, 621, 312, 794]},
+    "turnstile-gate": {"kind": "prop", "type": "turnstile", "subject": "row of three security turnstiles with red barriers", "box": [328, 660, 562, 789]},
+    "surveillance-console": {"kind": "prop", "type": "console-desk", "variant": "Branding: nine-screen console desk with Renraku marks.", "subject": "surveillance console of nine screens with a desk and a chair", "box": [569, 623, 829, 791]},
+    "server-racks": {"kind": "prop", "type": "server-rack", "subject": "bank of five server racks", "box": [841, 620, 1114, 793]},
+    "cooling-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Large cooling module with two fan stacks, red pipes and a railing.", "subject": "large cooling unit module with two fan stacks", "box": [1127, 618, 1440, 789]},
+    "matrix-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Public kiosk with a large glowing screen, Renraku mark.", "subject": "freestanding public data kiosk with a large screen", "box": [19, 851, 135, 1029]},
+    "cable-conduit": {"kind": "prop", "type": "conduit", "subject": "wall-mounted trunk of red and black cable conduits", "box": [153, 860, 355, 1028]},
+    "power-cabinet": {"kind": "prop", "type": "power-cabinet", "subject": "backup power cabinet with warning signs", "box": [360, 869, 509, 1030]},
+    "security-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: glazed booth with a beacon, Renraku livery.", "subject": "glazed prefab security booth with a beacon", "box": [517, 837, 690, 1031]},
+    "delivery-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey strapped crate with the Renraku mark.", "subject": "strapped hard delivery crate", "box": [690, 915, 827, 1029]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Renraku Matrix Node panel with red light bars.", "subject": "wall-mounted corporate sign reading Renraku Matrix Node B-14", "box": [826, 875, 1000, 984]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Renraku B-14 pylon.", "subject": "freestanding corporate pylon sign reading Renraku B-14", "box": [1004, 844, 1091, 1027]},
+    "comms-array": {"kind": "prop", "type": "comms-array", "subject": "rooftop mast with a large dish, a small dish and antennas", "box": [1101, 836, 1288, 1028]},
+    "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1302, 863, 1439, 1020]}
+  }
+}

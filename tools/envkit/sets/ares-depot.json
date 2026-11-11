@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "02_ares_security_services_depot.png",
+    "sha256": "fb18307f34388352b8cccf1328a6678807cb128d9a51c672d5296460ee109494",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "fortified corporate security depot with a guard tower and a fenced yard", "box": [0, 96, 900, 535]},
+    "building-front": {"kind": "building", "subject": "front elevation of a fortified corporate security depot", "box": [887, 126, 1252, 287]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a fortified corporate security depot", "box": [900, 305, 1255, 498]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Straight security desk under a lit canopy with planters, Ares livery.", "subject": "corporate security reception desk under a lit canopy", "box": [6, 624, 269, 798]},
+    "surveillance-console": {"kind": "prop", "type": "console-desk", "variant": "Six-screen surveillance wall over a console desk, with a chair.", "subject": "surveillance console of six screens with a desk and a chair", "box": [276, 634, 464, 795]},
+    "equipment-lockers": {"kind": "prop", "type": "locker", "variant": "Branding: three-door lockers with the Ares red band and emblem.", "subject": "row of three steel equipment lockers with a red band", "box": [472, 631, 625, 793]},
+    "armory-rack": {"kind": "prop", "type": "weapon-rack", "subject": "armoured weapon storage cabinet holding rifles", "box": [639, 622, 801, 796]},
+    "watch-booth": {"kind": "prop", "type": "guard-booth", "variant": "Glazed octagonal watch booth on an armoured base, with a floodlight.", "subject": "glazed octagonal guard booth on an armoured base", "box": [810, 621, 976, 795]},
+    "vehicle-gate": {"kind": "prop", "type": "vehicle-gate", "subject": "armoured sliding vehicle gate between two pillars", "box": [986, 628, 1248, 790]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "variant": "Chain-link panel with barbed wire on striped concrete footings, no tarps.", "subject": "chain-link perimeter fence section with barbed wire on concrete footings", "box": [1255, 622, 1443, 792]},
+    "concrete-barrier": {"kind": "prop", "type": "concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [9, 925, 189, 1024]},
+    "checkpoint-terminal": {"kind": "prop", "type": "access-terminal", "subject": "freestanding checkpoint terminal with a palm scanner", "box": [196, 856, 302, 1025]},
+    "drone-dock": {"kind": "prop", "type": "drone-dock", "subject": "drone docking post of four pillars over a lit landing pad", "box": [320, 854, 476, 1025]},
+    "turret": {"kind": "prop", "type": "turret", "subject": "automated gun turret on a pedestal", "box": [492, 862, 645, 1025]},
+    "gear-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: black case with the Ares emblem.", "subject": "black hard equipment case with a red emblem", "box": [658, 908, 845, 1021]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: Ares Security Services Depot pylon.", "subject": "freestanding corporate pylon sign reading Ares Security Services Depot", "box": [864, 846, 972, 1034]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: dark Ares Macrotechnology panel sign with a light bar.", "subject": "wall-mounted corporate sign panel reading Ares Macrotechnology", "box": [983, 866, 1177, 1021]},
+    "rooftop-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Large unit with pipes, a dish and antennas.", "subject": "rooftop air-conditioning and communications unit with a dish", "box": [1178, 855, 1445, 1026]}
+  }
+}
