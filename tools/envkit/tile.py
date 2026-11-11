@@ -194,7 +194,8 @@ def walkmesh(found, row, column):
     first_row, first_column = row * CELLS, column * CELLS; xs, ys = lines(found, row, column); cell = SIZE / CELLS
 
     def lift(y, x):
-        """The rim of the slab is the ramp onto it: a corner on the slab's edge is on the ground, one RAMP cells in is up, and so is one on a crest."""
+        """The rim of the slab is the ramp onto it: a corner on the slab's edge is on the ground, one RAMP cells in
+        is up, and so is one on a crest."""
         around = [(r, c) for r in (first_row + y - 1, first_row + y) for c in (first_column + x - 1, first_column + x) if 0 <= r < rows and 0 <= c < columns]
         least = min(int(depth[cell]) for cell in around) if len(around) == 4 else 0
         return found['slab'] if least and any(crest[cell] for cell in around) else found['slab'] * min(least, RAMP) / RAMP
