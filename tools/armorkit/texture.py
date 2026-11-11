@@ -38,9 +38,12 @@ BEND = 1.2  # how much lighter a raised edge and darker a crease gets, per unit 
 SLOPE = 0.35  # how much darker a texel gets as the fine surface tilts away from the simplified one
 BROAD = ((1, 1.0), (4, 0.6))  # the bend is taken across this many texels each way, with this weight: sharp edges and broad folds
 RELIEF_SHADE = (0.72, 1.2)  # the least and the most the relief changes a shade by
+CAP_CLOTH = 0.25  # a part that shows the outfit's commonest material on this share of its own texels has a cap of it
 KINDS = ('cloth', 'leather', 'metal')  # the kinds of material the game tints, two colour channels each
-SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'leather': ('forearm', 'hand', 'shin', 'foot'),
-          'metal': ('pelvis', 'thigh', 'shin', 'foot')}  # the slots a garment is worn on that takes its kind's second channel
+SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thigh', 'shin', 'foot'),
+          'leather': ('shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')}
+# the slots a garment is worn on that takes its kind's second channel. Leather takes it on every limb: with forearms, hands,
+# shins and feet only, the straps of an upper-arm guard and a knee pad were coloured with the vest and the forearm's with the gloves
 TURN_LIMIT = 0.35  # the most one turn counts for: a jump in the map (a dropped reading beside a kept one) is not an edge that sharp
 
 
@@ -281,8 +284,8 @@ def channels(kinds):
 
     The game tints six channels, two of each kind, and an outfit is to use them all. One that shows one
     material of a kind has both of that kind's channels for it: its garments worn on the slots of `SECOND`
-    take the second (`worn_second`), so that trousers are coloured apart from the shirt, boots and gloves from
-    the vest, leg plates from arm plates. Where the colours show two materials of a kind, each has a channel
+    take the second (`worn_second`), so that trousers are coloured apart from the shirt, leg plates from arm
+    plates, and boots, gloves and the straps on arms and legs from the vest. Where the colours show two materials of a kind, each has a channel
     to itself, the commoner the first. A third of a kind has no channel and is an error."""
     kinds = list(kinds)
     require(kinds and all(kind in KINDS for kind in kinds), f'A material is one of {KINDS}')
@@ -309,7 +312,9 @@ def worn_second(positions, faces, materials, slots, kinds, second=SECOND):
 
     A texel is of the material its own colour shows, so along a patch's edge texels of one material lie on
     faces of the other. A face therefore answers for every material: for one it is not of as a patch of that
-    material beside it does, and where there is none as its own patch's slot would. A material whose patches
+    material beside it does, and where there is none as the slot the face itself is on would. (Not as its own
+    patch's slot would: a strap too thin to have faces of its own lies on a sleeve, and the sleeve's shirt is
+    worn on the chest, so the strap was coloured with the vest.) A material whose patches
     would all take the second channel takes the first: an outfit with one garment of a kind is coloured by
     that kind's first channel."""
     positions, faces, materials = np.asarray(positions, float), np.asarray(faces, int), np.asarray(materials, int)
@@ -327,7 +332,9 @@ def worn_second(positions, faces, materials, slots, kinds, second=SECOND):
     np.add.at(tally, (member, slot), area)
     home = tally.argmax(axis=1)[member]  # per face, the slot its patch is worn on
     listed = np.array([[name in second[kind] for name in names] for kind in kinds])  # (material, slot)
-    flags = listed[:, home].T.copy()
+    flags = listed[:, slot].T.copy()  # a material a face is not of: as the slot the face is on says, unless a patch of it is beside
+    read = materials >= 0
+    flags[read, materials[read]] = listed[materials[read], home[read]]  # its own material: as the slot its patch is worn on
     for face, other in ((a, b), (b, a)):
         differ = (materials[face] != materials[other]) & (materials[other] >= 0)
         flags[face[differ], materials[other[differ]]] = listed[materials[other[differ]], home[other[differ]]]
@@ -356,7 +363,7 @@ def added_second(vertices, faces, added, flags):
         known[target] = True
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -374,7 +381,15 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     the outfit's commonest material, the first of `found`, at `MIDDLE`: the cloth the outfit is made of. Left
     as read, a sleeve's closing was a vest's colour, most of its edge being cut through the vest, and the
     closings between the thighs were as dark as the crease at the crotch. The texels of a limb's `overlaid`
-    faces are flagged with them and drawn the same way."""
+    faces are flagged with them and drawn the same way.
+
+    `cap` flags the texels of the part's cap (the faces reported as `CAP`). A cap repeats its rim's colours
+    toward its pole, and shows in the gap a bent joint opens. Where the rim runs through two materials, a
+    sleeve and the guard strapped over it, the cap was streaked with both. It is of one material: the
+    outfit's commonest if the part shows that on `CAP_CLOTH` of its own texels or more, else the one most of
+    the part shows, so a sleeve's cap is cloth and a glove's stays leather. Its texels read as that material
+    keep their shades, the creases of the cloth the rim runs through; the others get the mean of those
+    shades."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
     require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
@@ -390,6 +405,13 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
     plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
     material[plain], shade[plain] = 0, MIDDLE
+    dome = covered & np.asarray(cap, bool) & ~plain if cap is not None else plain & False
+    if dome.any():
+        own = np.bincount(material[covered & ~plain & ~dome], minlength=1)
+        first = 0 if own[0] >= CAP_CLOTH * own.sum() else int(own.argmax())
+        same = dome & (material == first)
+        shade[dome & ~same] = shade[same].mean() if same.any() else MIDDLE
+        material[dome] = first
     other = np.zeros(covered.shape, int)
     if second is not None:
         second = np.asarray(second, bool)
