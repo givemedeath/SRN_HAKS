@@ -1,0 +1,22 @@
+{
+  "sheet": {
+    "file": "01_stuffer_shack_convenience_store.png",
+    "sha256": "41ad546d01b717c9478cef4f91ab8c5efec6a2944e3204cab931a1498a0d4959",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "single-storey convenience store", "box": [0, 96, 975, 600]},
+    "building-front": {"kind": "building", "subject": "front elevation of a single-storey convenience store", "box": [950, 138, 1250, 296]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a single-storey convenience store", "box": [940, 328, 1250, 496]},
+    "vending-machine": {"kind": "prop", "subject": "vending machine", "box": [28, 616, 212, 830]},
+    "atm-kiosk": {"kind": "prop", "subject": "ATM kiosk", "box": [236, 622, 384, 834]},
+    "snack-rack": {"kind": "prop", "subject": "stocked snack display rack", "box": [398, 622, 566, 834]},
+    "drink-case": {"kind": "prop", "subject": "refrigerated drink display case", "box": [578, 612, 802, 834]},
+    "trash-can": {"kind": "prop", "subject": "outdoor trash can", "box": [816, 656, 952, 834], "notes": "It is old and heavily used: dirt streaks, scuffs, dents, chipped paint and rust spots all over, as in the source."},
+    "recycle-bin": {"kind": "prop", "subject": "outdoor recycling bin", "box": [958, 666, 1098, 834], "notes": "It is old and heavily used: dirt streaks, scuffs, dents, chipped paint and rust spots all over, as in the source."},
+    "security-camera": {"kind": "prop", "subject": "wall-mounted security camera", "box": [1252, 622, 1444, 822]},
+    "sandwich-board": {"kind": "prop", "subject": "folding sandwich-board sign", "box": [36, 872, 204, 1040]},
+    "rooftop-hvac": {"kind": "prop", "subject": "rooftop air-conditioning unit", "box": [452, 886, 734, 1040], "notes": "It is old and heavily used: dirt streaks, scuffs, dents, chipped paint and rust spots all over, as in the source."},
+    "street-clutter": {"kind": "prop", "subject": "pile of street rubbish", "box": [1212, 896, 1444, 1040]}
+  }
+}

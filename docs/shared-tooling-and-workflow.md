@@ -37,11 +37,12 @@ explicit callers while enforcing the same location and byte checks. There is no
 sibling-worktree search or fallback to a different version.
 
 The portable inventory pins Neverwinter utilities 2.1.2, NWNArmory 1.3.4,
-Neverblender 4.1.0 source files, and the existing vendored executables. Generated
+cleanmodels 4.17.5 (Windows; used by `tools/armorkit`), Neverblender 4.1.0 source
+files, and the existing vendored executables. Generated
 Python caches are excluded from addon identity; added or modified source files
 fail verification. Machine paths belong only in ignored local bindings. Ordinary
 repository and item-import builds resolve Neverwinter utilities without requiring
-Blender, NWNArmory or a Python installation.
+Blender, NWNArmory, cleanmodels or a Python installation.
 
 ```powershell
 Import-Module ./tools/SrnTools.psm1
@@ -61,8 +62,8 @@ is reused unchanged, including with `Force`. A failed stage leaves an existing
 package untouched; invalid replaced installations are retained under shared
 `staging/replaced-*` for diagnosis. Abandoned stages are never adopted.
 
-NWNArmory and Neverblender remain manual installs. Resolution prints the required
-version and destination when missing. It never downloads these tools. Python,
+NWNArmory, cleanmodels and Neverblender remain manual installs. Resolution prints
+the lock's installation text for the tool when it is missing. It never downloads these tools. Python,
 Blender and NWN remain explicit installed runtimes with recorded actual hashes;
 the Windows Store Python shim is rejected.
 

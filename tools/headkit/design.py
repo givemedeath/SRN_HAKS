@@ -135,10 +135,24 @@ def _references(graph, references):
     graph['22']['inputs']['conditioning'] = cond
 
 
+def _qwen_references(graph, references):
+    """Image edit on the same Qwen 2.1 weights: TextEncodeQwenImage21 shows each reference to the text encoder and, with the
+    VAE wired, splices it into the sequence as a latent. Its latent output then takes the first reference's size, which the
+    node asks for because any other size shifts the edit. ComfyUI names the autogrow sockets `images.image_N`."""
+    require(len(references) <= MAX_REFERENCES, f'At most {MAX_REFERENCES} reference images')
+    if not references:
+        return
+    graph['6']['inputs']['vae'] = ['10', 0]
+    for i, ref in enumerate(references):
+        key = str(100 + i)
+        graph[key] = {'class_type': 'LoadImage', 'inputs': {'image': ref}}
+        graph['6']['inputs'][f'images.image_{i + 1}'] = [key, 0]
+
+
 def _validated(graph):
     for node in graph.values():
         for key, value in node['inputs'].items():
-            if key in ('image', 'images', 'pixels') and node['class_type'] not in ('LoadImage', 'LoadImageMask'):
+            if (key in ('image', 'images', 'pixels') or key.startswith('images.')) and node['class_type'] not in ('LoadImage', 'LoadImageMask'):
                 require(isinstance(value, list), 'IMAGE socket must reference an image output')
             if isinstance(value, list) and len(value) == 2:
                 require(isinstance(value[0], str) and value[0] in graph and type(value[1]) is int, 'Dangling graph link')
@@ -161,16 +175,17 @@ def design_model_pins(local, profile):
 
 
 def compile_design(prompt, references, seed, batch, prefix, *, profile=DEFAULT_PROFILE):
-    """Compile the selected fixed design profile; Flux supports references and Qwen is text-only."""
+    """Compile the selected fixed design profile. Both take reference images: Flux as chained ReferenceLatent nodes, Qwen
+    as image-edit inputs of its text encoder (no references leaves Qwen a plain text-to-image graph)."""
     require(profile in PROFILES, 'Unknown design profile')
     if profile == 'qwen21-int8-v1':
-        require(not references, 'Qwen design profile currently supports text-only proposals')
         _check_inputs(prompt, seed, batch, prefix, references)
         graph = read(TEMPLATES / 'qwen21-design.json')
         graph['6']['inputs']['prompt'] = prompt
         graph['13']['inputs']['seed'] = seed
         graph['47']['inputs']['amount'] = batch
         graph['9']['inputs']['filename_prefix'] = prefix
+        _qwen_references(graph, references)
         return _validated(graph)
     graph = read(TEMPLATES / 'flux2-design.json')
     _common(graph, prompt, seed, batch, prefix, references)

@@ -42,7 +42,7 @@ Windows users may instead run `Verify.cmd`, `BuildTlk.cmd`, and `BuildHaks.cmd`.
 
 Useful categories include `srn_2da`, `srn_ui`, `srn_shader`, `srn_palette`, `srn_sound`, `srn_music`, `srn_load`, `srn_portrait`, `srn_fx`, `srn_creature`, `srn_item`, `srn_weapon`, `srn_placeable`, `srn_door`, body-part packs such as `srn_pt_chest`, and tilesets named `srn_t_<short-name>`.
 
-All `.2da` resources belong in the single `srn_2da` HAK. Existing EE rows are preserved; imported global rows may be relocated only through a reviewed, reproducible profile allocation recorded in `docs/imports/*-global-row-allocations.json`. The project intentionally does not impose an aggregate HAK size cap. Individual resources should remain at or below 15 MiB; reviewed exceptions must be recorded in `PROVENANCE.md` and must remain below GitHub's file-size limit.
+All `.2da` resources belong in the single `srn_2da` HAK. Existing EE rows are preserved; imported global rows may be relocated only through a reviewed, reproducible profile allocation recorded in `docs/imports/*-global-row-allocations.json`. Rows of `placeables.2da` and tiles or groups of a tileset that the project adds itself are recorded in [`docs/additions/catalog.json`](docs/additions/README.md), which repository verification checks against the packs. Lit envkit models ship with what a script needs to put their lights out; [`docs/envkit/lights.md`](docs/envkit/lights.md) says how. The project intentionally does not impose an aggregate HAK size cap. Individual resources should remain at or below 15 MiB; reviewed exceptions must be recorded in `PROVENANCE.md` and must remain below GitHub's file-size limit.
 
 ### Shared TLK
 
@@ -157,6 +157,7 @@ For production workflows, pipelines, and manifests, see:
 
 - [Tools & Infrastructure](./tools/README.md): Shared development tools, CI test impact analysis, build scripts, toolchain verification, and pipeline launchers.
   - [Headbatch](./tools/headbatch/README.md): Multi-head batch orchestration, GPU inference pipeline, stage progression, submission budgeting, and client trial module builder.
+  - [Armorkit](./tools/armorkit/README.md): Modular armor and clothing parts: part registry, `parts_*.2da` table generation, measured seam contract and head envelopes, and isolated game-client fixtures.
   - [Headkit](./tools/headkit/README.md): Character head creation, fitting, UV unwrapping, texturing, quality gate verification, and NWN native model compilation toolkit.
   - [Heads Pipeline](./tools/heads/README.md): Head production pipeline, landmark fitting, neck closure/taper auditing, and PBR/PLT material generation across a 200-head roster and 7 acceptance gates.
   - [Itemkit](./tools/itemkit/README.md): Single-image 3D generation, fitting, UV atlasing, texture baking, shadow proxy generation, inspection fixtures, and native equipment packaging for Neverwinter Nights: Enhanced Edition.

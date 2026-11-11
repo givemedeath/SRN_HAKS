@@ -1,0 +1,10 @@
+node dummy ek_ss_camera_pwk_use01
+  parent ek_ss_camera_pwk
+  position 0 0.58141 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_ss_camera_pwk_use02
+  parent ek_ss_camera_pwk
+  position 0 -0.58141 0
+  orientation 0 1 0 0
+endnode
