@@ -401,8 +401,10 @@ class Runner:
         require(isinstance(notes, str) and notes.strip(), 'Chain review notes required: they are filed with every automatic approval')
         for index, stage in enumerate(stages):
             for parent in DEPENDENCIES[stage]:
-                require(parent in stages[:index] or parent in self.state.get('reviews', {}),
-                        f'Chain stage {stage} needs {parent} earlier in the chain or already reviewed')
+                if parent in stages[:index]: continue
+                review = self._current_review(parent) if parent in self.state.get('stages', {}) else None
+                require(review is not None and review['decision'] == 'approved',
+                        f'Chain stage {stage} needs {parent} earlier in the chain or already reviewed and approved')
         done = []
         for index, stage in enumerate(stages):
             started = time.monotonic(); row = {'stage': stage, 'reviewed': False}; done.append(row)

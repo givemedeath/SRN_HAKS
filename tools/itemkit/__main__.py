@@ -111,13 +111,13 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         directory = Path(local['comfyCustomNodes'])/'srn_headkit'
         pins += [pin(p) for p in sorted(directory.glob('*.py'))]
         if (directory/'source-roots.json').exists(): pins.append(pin(directory/'source-roots.json'))
+    documents = [(path, read(path)) for path in extra]
     if run and (Path(run)/'state.json').exists():
         state = read(Path(run)/'state.json')  # Mutable state is output, not an immutable consumed asset.
-        rebuild = any(isinstance(read(path), dict) and read(path).get('kind') == 'fixture-inputs' for path in extra)
+        rebuild = any(isinstance(document, dict) and document.get('kind') == 'fixture-inputs' for _, document in documents)
         pins += run_receipt_pins(state, stage, historical_code={row['path'] for row in code_pins()} if rebuild else None)
-    for path in extra:
+    for path, document in documents:
         row = pin(path); pins.append(row)
-        document = read(path)
         if isinstance(document, dict):
             if 'observations' in document: pins += evidence_pins(path)
             if document.get('kind') == 'fixture-inputs':

@@ -61,9 +61,15 @@ def pack_needs(data,test):
     return sorted({pack for path in seen for pack in data.get('packReferences',{}).get(path,[])})
 
 def catalog(repo=REPO):
+    ignored=ignored_prefixes(repo)
+    # Local ignored state (output/, workspace files, scratch helpers) exists only here: cataloguing it, or a literal
+    # resolving to it, would make this machine's catalog differ from CI's.
+    def local_only(p):
+        try:return bool(ignored) and p.relative_to(repo).as_posix().startswith(ignored)
+        except ValueError:return False
     all_files=sorted(p for p in (repo/'tools').rglob('*') if p.is_file()
                      and not set(p.relative_to(repo).parts)&EXCLUDED
-                     and not any(part.endswith('.egg-info') for part in p.relative_to(repo).parts))
+                     and not any(part.endswith('.egg-info') for part in p.relative_to(repo).parts) and not local_only(p))
     files=[p for p in all_files if p.suffix=='.py'];file_set=set(files)
     qualified={p:import_root(p)[1] for p in files}
     in_package={p:(p.parent/'__init__.py').is_file() for p in files}
@@ -71,15 +77,9 @@ def catalog(repo=REPO):
     for p in files:by_leaf.setdefault(p.parent.name if p.name=='__init__.py' else p.stem,[]).append(p)
     absolute={}
     literal_index={}
-    for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files)]:literal_index.setdefault(p.name,[]).append(p)
+    for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files) and not local_only(m)]:literal_index.setdefault(p.name,[]).append(p)
     pack_names=set(packs(repo))
-    ignored=ignored_prefixes(repo)
-    # Local ignored state (output/, workspace files) exists only here: a literal resolving to it would make this
-    # machine's catalog differ from CI's.
-    def present(p):
-        if not p.is_file():return False
-        try:return not (ignored and p.relative_to(repo).as_posix().startswith(ignored))
-        except ValueError:return True
+    present=lambda p:p.is_file() and not local_only(p)
     config=repo/CONFIG
     # The selector's own tests name helper paths as data; those strings are not reads of the helpers.
     data_only=set(json.loads(config.read_text(encoding='utf-8')).get('literalsAreData',[])) if config.is_file() else set()

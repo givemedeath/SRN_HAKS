@@ -109,6 +109,8 @@ class ObliqueReviewTests(unittest.TestCase):
             self.assertEqual(condition(folder, Path(tmp), 'x')['keyedSha256'], first['keyedSha256'])        # measuring again is safe
             with self.assertRaisesRegex(ValueError, 'keyed detail and clay hashes'):
                 condition(folder, Path(tmp), 'x', notes="user's words", keyed_sha256=['0' * 64, '0' * 64])
+            image[0, 0] = 0; Image.fromarray(image).save(folder/'clay-original.png')          # a replaced clay is never conditioned
+            with self.assertRaisesRegex(ValueError, 'original images changed'): condition(folder, Path(tmp), 'x')
 
 
 class TextureCheckTests(unittest.TestCase):
@@ -189,6 +191,22 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             with mock.patch.object(d, 'chain', side_effect=OSError('disk')):          # any error is that item's, not the batch's
                 self.assertIn('disk', d.batch(['a:fit-v1'], ['fit'])['items'][0]['failed'])
             with self.assertRaisesRegex(SystemExit, 'ID:SUFFIX'): d.batch(['sr4-club', 'a:fit-v1'], ['fit'])
+
+    def test_a_fit_rerun_reuses_its_measured_candidate(self):
+        from tools.itemkit.drive import Driver, sha
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); working, donor = root/'w.glb', root/'d.glb'
+            working.write_bytes(b'w'); donor.write_bytes(b'd')
+            self.assertIsNone(d._measured_candidate('x', 'fit-v1-measure', working, donor, {}))
+            (root/'h').mkdir(); (root/'h/x.fit-v1-measure.asset.json').write_text('{}', encoding='utf-8')
+            gen = root/'h/generated/x/fit-v1-measure'; gen.mkdir(parents=True)
+            (gen/'fit-data.json').write_text(json.dumps({'working': sha(working), 'donor': sha(donor), 'overrides': {'gripCentre': .5}}), encoding='utf-8')
+            for n, digest in ((1, 'old'), (2, 'new')):
+                folder = root/f'x/run-fit-v1-measure/measure-{n}/worker'; folder.mkdir(parents=True)
+                (folder/'measurement.json').write_text(json.dumps({'measurementDigest': digest, 'departure': True, 'nativeLength': .7,
+                                                                   'gripLength': .18, 'preview': {}}), encoding='utf-8')
+            self.assertEqual(d._measured_candidate('x', 'fit-v1-measure', working, donor, {'gripCentre': .5})['measurementDigest'], 'new')
+            with self.assertRaisesRegex(SystemExit, 'other inputs'): d._measured_candidate('x', 'fit-v1-measure', working, donor, {})
 
     def test_batch_stages_are_one_comma_list_so_items_can_follow(self):
         import argparse

@@ -476,7 +476,8 @@ fitted item over the stock carrier's part boxes, the standard grip cylinder at t
 digest is the one the fit stage checks, so a departure review can bind it before the first fit attempt. `drive fit`
 does this automatically: when the measured fit departs and no digest is given, it writes `<DST>-measure` and runs the
 preview. It writes `<DST>` with the digest bound only when `--authority` carries the user's words approving the
-departure; without them it stops after the preview with `departureNeedsAuthority`. `drive preview ID SUFFIX`
+departure; without them it stops after the preview with `departureNeedsAuthority`, and the re-run with `--authority`
+reuses that candidate and its newest measurement (it refuses if the working shell, donor or overrides differ). `drive preview ID SUFFIX`
 runs only the measure. Measured on the Club: about 2 minutes, the same digest as the wave-1 fit.
 
 ### Rebuilding a fixture

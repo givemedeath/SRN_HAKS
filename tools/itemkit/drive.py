@@ -204,8 +204,10 @@ class Driver:
     def textured(self, design, attempt, src, notes, straight=None):
         """Approved clay -> appearance (with the 200K donor) -> donor manifest -> CPU colour bake -> textured views."""
         if not notes.strip(): raise SystemExit("--notes must quote the user's clay approval")
+        collection = self.ws.items/design/f'geometry-{attempt}/job/collection.json'
+        if not collection.exists(): raise SystemExit(f'{design}: geometry {attempt} was never collected')
         if not self.manifest(design, 'geometry-approved-v1').exists(): self.approve_geometry(design, attempt, src, 'geometry-approved-v1', notes)
-        collected = read(self.ws.items/design/f'geometry-{attempt}/job/collection.json')
+        collected = read(collection)
         glb = next(o['sha256'] for o in collected['outputs'] if o['path'].endswith('.glb'))
         if read(self.manifest(design, 'geometry-approved-v1'))['approval']['generatedGeometry']['geometryRawSha256'] != glb:
             raise SystemExit(f'geometry-approved-v1 binds another attempt than {attempt}: this chain continues only one approved clay')
@@ -303,9 +305,11 @@ class Driver:
         if measure_only: return summary
         words = authority or overrides.get('uniformAuthority')
         if data['departurePending'] and not overrides.get('departureDigest'):
-            candidate, _ = fit_manifest.write(self.ws.handoff, design, src, dst+'-measure', working, donor, overrides, notes_authority=authority)
-            self._approve_donor(candidate, donor_review)
-            measurement = self.preview(design, dst+'-measure')
+            measurement = self._measured_candidate(design, dst+'-measure', working, donor, overrides)
+            if measurement is None:
+                candidate, _ = fit_manifest.write(self.ws.handoff, design, src, dst+'-measure', working, donor, overrides, notes_authority=authority)
+                self._approve_donor(candidate, donor_review)
+                measurement = self.preview(design, dst+'-measure')
             overrides['departureDigest'] = measurement['measurementDigest']; summary['measure'] = measurement
         if overrides.get('departureDigest') and not words:
             # The grip departure is an approval: it is bound only with the user's own words (--authority).
@@ -323,15 +327,30 @@ class Driver:
             m['approval'][role] = {'decision': 'approved', 'sha256': m['inputs'][role]['sha256'], 'notes': words}
         Path(path).write_text(json.dumps(m, indent=2), encoding='utf-8')
 
+    def _measured_candidate(self, design, suffix, working, donor, overrides):
+        """The worker measurement of an existing `<DST>-measure` candidate made from these same inputs, else None.
+
+        A fit that stopped for the user's departure authority is re-run with --authority; it reuses the candidate
+        (and its newest measurement) instead of failing on the existing manifest."""
+        if not self.manifest(design, suffix).exists(): return None
+        record = read(self.ws.handoff/'generated'/design/suffix/'fit-data.json')
+        if (record['working'], record['donor'], record['overrides']) != (sha(working), sha(donor), json.loads(json.dumps(overrides))):
+            raise SystemExit(f'{design}.{suffix} was measured from other inputs: choose a new DST')
+        done = sorted(self.run_dir(design, suffix).glob('measure-*/worker/measurement.json'), key=lambda p: int(p.parts[-3].split('-')[1]))
+        return self._measurement(done[-1]) if done else self.preview(design, suffix)
+
+    def _measurement(self, path):
+        result = read(path)
+        return {'measurementDigest': result['measurementDigest'], 'departure': result['departure'], 'nativeLength': round(result['nativeLength'], 4),
+                'gripLength': round(result['gripLength'], 4), 'preview': {k: v['path'] for k, v in result['preview'].items()}}
+
     def preview(self, design, suffix):
         """The fit worker's measure-only pass on a manifest: grip digest, native length and two preview images."""
         m = self.manifest(design, suffix); run = self.run_dir(design, suffix); n = 1
         while (run/f'measure-{n}').exists(): n += 1
         self.launch(design, run, 'measure-fit', ['--manifest', m, '--run', run, '--stage', 'fit'],
                     ['measure-fit', '--manifest', m, '--run', run, '--output', run/f'measure-{n}'])
-        result = read(run/f'measure-{n}/worker/measurement.json')
-        return {'measurementDigest': result['measurementDigest'], 'departure': result['departure'], 'nativeLength': round(result['nativeLength'], 4),
-                'gripLength': round(result['gripLength'], 4), 'preview': {k: v['path'] for k, v in result['preview'].items()}}
+        return self._measurement(run/f'measure-{n}/worker/measurement.json')
 
     # -- fixtures -------------------------------------------------------------------------------------------------
     def fixture_inputs(self, design, suffix, name):
@@ -344,7 +363,8 @@ class Driver:
         # The review HAKs are built once and shared (the bindings pin them); everything a document pins of its own lives in
         # its own folder, so a later document never rewrites bytes an earlier one pinned.
         shared = self.ws.handoff/'fixture-v3'; shared.mkdir(exist_ok=True)
-        own = f'fixture-inputs/{design}.{name}'; folder = self.ws.handoff/own; folder.mkdir(parents=True)
+        # No document pins this folder yet (doc_path does not exist), so a failed earlier attempt's files may be replaced.
+        own = f'fixture-inputs/{design}.{name}'; folder = self.ws.handoff/own; folder.mkdir(parents=True, exist_ok=True)
         tests = self.ws.path(fx.get('testModules', REPO/'test-modules/weapon-waves')); packs = self.ws.path(fx.get('packs', REPO/'output'))
         haks = {}
         for hak in ('sw_reviewenv', 'sw_f7motion'):
@@ -356,17 +376,18 @@ class Driver:
         stack = read(contract/read(profile)['native']['stack']['path']); (layer,) = [l for l in stack['layers'] if l.get('name') == 'private-floor-template']
         with tempfile.TemporaryDirectory(prefix='fixture-template-') as tmp:
             for row in layer['resources']: shutil.copyfile(contract/row['file']['path'], Path(tmp)/row['resource'])
-            template = folder/'fixture-template.mod'
+            template = folder/'fixture-template.mod'; template.unlink(missing_ok=True)
             subprocess.run([str(erf), '-c', '-e', 'MOD', '-f', str(template), tmp], check=True)
         copies = [(tests/'module/sr_it_male.utc', 'sr_it_male.utc'), (tests/'module/sr_it_female.utc', 'sr_it_female.utc'),
                   (contract/'stock/nwscript.nss', 'nwscript.nss')]
         comparisons = fx.get('comparisons', ['../../srn_weapon/sr_cfs.uti', '../../srn_weapon/sr_cougar.uti'])
-        copies += [(self.ws.path(c), f'comparison-{Path(c).name}') for c in comparisons]
+        # Indexed names: two comparisons may share a file name (the fixture takes each one's resref from its own tag).
+        copies += [(self.ws.path(c), f'comparison{i}-{Path(c).name}') for i, c in enumerate(comparisons)]
         for source, target in copies: shutil.copyfile(source, folder/target)
         rel = lambda n: {'path': f'{own}/{n}', 'sha256': sha(folder/n)}
         inputs = {'fixtureTemplate': rel('fixture-template.mod'), 'maleCreature': rel('sr_it_male.utc'), 'femaleCreature': rel('sr_it_female.utc'),
                   'nwscript': rel('nwscript.nss')}
-        for i, c in enumerate(comparisons): inputs['comparisonBlueprint'+(str(i) if i else '')] = rel(f'comparison-{Path(c).name}')
+        for i, c in enumerate(comparisons): inputs['comparisonBlueprint'+(str(i) if i else '')] = rel(f'comparison{i}-{Path(c).name}')
         # The HAK pins travel in the document, not the bindings: every processing receipt pins the bindings file, so
         # editing it would make the native chain a rebuild starts from stale.
         doc = write_new(doc_path, {'kind': 'fixture-inputs', 'inputs': inputs, 'fixtureHaks': haks})

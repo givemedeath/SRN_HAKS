@@ -79,11 +79,14 @@ def measure_pair(folder):
         iou, landmarks, edges, worst_landmark, worst_edge = registration(masks)
         measured = {'keying': keyed, 'iou': iou, 'landmarks': landmarks, 'edgeMeasurements': edges, 'worstLandmarkPixels': worst_landmark,
                     'worstEdgePixels': worst_edge, 'size': [width, height],
-                    'detailSha256': sha(work/'detail-keyed.png'), 'claySha256': sha(work/'clay-keyed.png')}
+                    'detailSha256': sha(work/'detail-keyed.png'), 'claySha256': sha(work/'clay-keyed.png'),
+                    'originalSha256': {role: sha(folder/f'{role}-original.png') for role in ('detail', 'clay')}}
         (work/'pair-measurement.json').write_text(json.dumps(measured, indent=2), encoding='utf-8')
     measured = json.loads((work/'pair-measurement.json').read_text(encoding='utf-8'))
     require(sha(work/'detail-keyed.png') == measured['detailSha256'] and sha(work/'clay-keyed.png') == measured['claySha256'],
             'Keyed images changed since they were measured')
+    require(measured.get('originalSha256') == {role: sha(folder/f'{role}-original.png') for role in ('detail', 'clay')},
+            'The original images changed since they were keyed: regenerate into a fresh design folder')
     return work, measured
 
 

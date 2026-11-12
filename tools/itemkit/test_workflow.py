@@ -187,7 +187,9 @@ class ChainTests(unittest.TestCase):
     """Runner.chain orders, approves and stops; the stages themselves are exercised elsewhere."""
     def runner(self, reviews=(), fail=None):
         from tools.itemkit.runner import Runner
-        runner = object.__new__(Runner); runner.state = {'stages': {}, 'reviews': {name: {} for name in reviews}}; calls = []
+        runner = object.__new__(Runner); calls = []
+        runner.state = {'stages': {name: {} for name in reviews}, 'reviews': {name: {} for name in reviews}}
+        runner._current_review = lambda stage: {'decision': 'approved'} if stage in reviews else None
         def execute(stage):
             calls.append(('run', stage))
             if stage == fail: raise ValueError('gate failed')
@@ -228,3 +230,7 @@ class ChainTests(unittest.TestCase):
         self.assertEqual(calls, [])                                   # nothing runs when the plan is refused
         resumed, calls = self.runner(reviews=('render', 'shadow', 'bake'))
         resumed.chain(['export', 'native'], 'notes'); self.assertEqual([c[1] for c in calls if c[0] == 'run'], ['export', 'native'])
+        rejected, calls = self.runner(reviews=('render', 'shadow', 'bake'))
+        rejected._current_review = lambda stage: {'decision': 'rejected' if stage == 'render' else 'approved'}
+        with self.assertRaisesRegex(ValueError, 'needs render'): rejected.chain(['export', 'native'], 'notes')
+        self.assertEqual(calls, [])                                   # refused before anything runs
