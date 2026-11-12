@@ -12,7 +12,7 @@
     "loading-console": {"kind": "prop", "type": "access-terminal", "variant": "Sloped standing control console with hazard stripes.", "subject": "standing loading control console with a screen", "box": [298, 683, 421, 832]},
     "tool-lockers": {"kind": "prop", "type": "locker", "variant": "Bank of four heavy steel lockers.", "unbranded": true, "subject": "row of four heavy steel tool lockers", "box": [439, 684, 624, 832]},
     "crate-set": {"kind": "prop", "type": "hard-case", "variant": "Branding: black and yellow cases with Saeder-Krupp marks.", "subject": "group of three black and yellow hard cases", "box": [635, 697, 833, 830]},
-    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "same": "night-bazaar/pallet-stack", "subject": "pallets of wrapped and strapped boxes", "box": [852, 691, 1063, 834]},
+    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "subject": "pallets of wrapped and strapped boxes", "box": [852, 691, 1063, 834]},
     "shipping-container": {"kind": "prop", "type": "shipping-container", "unbranded": true, "subject": "steel shipping container with hazard stripes", "box": [1082, 681, 1434, 832]},
     "yard-gate": {"kind": "prop", "type": "vehicle-gate", "variant": "Branding: sliding plate gate with the Saeder-Krupp mark between beacon posts.", "subject": "sliding steel yard gate between two beacon posts", "box": [10, 883, 250, 1032]},
     "forklift": {"kind": "prop", "type": "forklift", "unbranded": true, "subject": "yellow forklift truck", "box": [240, 900, 422, 1038]},
