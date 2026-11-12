@@ -128,6 +128,43 @@ class ConvertTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'thinner'):
             convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-1, -1, 0], [1, 1, 1]], 'pitch': 0.1, 'wire': 0.2}])
 
+    def test_a_pattern_is_smoothed_off_a_surface_and_its_tones_are_left(self):
+        """The Ares Depot's wall came back with its fence's chain-link painted on it (seen in the client, 2026-11-11)."""
+        from PIL import Image
+        vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
+        points, _, texture, _, _ = convert.fit(vertices, normals, uvs, 2.0)  # 1 wide, 2 tall: 64 texels to the metre across, 32 up
+        stripes = np.zeros((64, 64, 3), np.uint8); stripes[:] = (200, 200, 200); stripes[:, ::4] = (40, 40, 40)  # a dark line every sixteenth of a metre
+        smoothed, flat = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1}])
+        self.assertEqual(smoothed.mode, 'RGB'); pixels = np.asarray(smoothed).astype(int); lower, upper = pixels[40:, 8:56, 0], pixels[:28]
+        np.testing.assert_array_equal(upper, stripes[:28])  # outside the box nothing changes
+        self.assertLess(int(lower.max() - lower.min()), 12); self.assertLess(abs(float(lower.mean()) - 160), 8)  # the lines are gone, the tone is theirs and the wall's
+        self.assertTrue(np.asarray(flat)[40:].all()); self.assertFalse(np.asarray(flat)[:28].any())  # and the relief that drew them is levelled
+        toward, _ = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1, 'colour': [100, 110, 120]}])
+        np.testing.assert_allclose(np.asarray(toward)[40:, 8:56].reshape(-1, 3).mean(0), [100, 110, 120], atol=3)
+
+    def test_a_fence_is_hung_as_sheets_that_show_a_wire_picture_of_their_own(self):
+        """The same fence's frames came back empty. A sheet is real faces, seen through between its wires. The wires are
+        not drawn on the model's own colour picture: an alpha channel there doubled the depot's, to 22 MB (2026-11-12)."""
+        fences = [{'from': [0.0, 0.0], 'to': [2.0, 0.0], 'z': [1.0, 2.0], 'pitch': 0.09, 'wire': 0.016}]
+        wire = convert.sheets(fences); vertices, normals, uvs, faces, image = (wire[key] for key in ('vertices', 'normals', 'uvs', 'faces', 'image'))
+        links = round(wire['period'] / (0.09 * np.sqrt(2))); self.assertGreaterEqual(links, 1); self.assertAlmostEqual(wire['period'], links * 0.09 * np.sqrt(2))
+        self.assertGreaterEqual(0.016 / wire['period'] * image.width, convert.WIRE_TEXELS)  # a wire keeps its pixels
+        across, up = int(np.ceil(2.0 / wire['period'])), int(np.ceil(1.0 / wire['period']))
+        self.assertEqual((len(faces), len(vertices)), (across * up * 4, across * up * 8))  # two faces a square, each way
+        np.testing.assert_allclose(vertices.min(0), [0.0, 0.0, 1.0]); np.testing.assert_allclose(vertices.max(0), [2.0, 0.0, 2.0])
+        self.assertTrue(((uvs >= 0) & (uvs <= 1 + 1e-9)).all()); np.testing.assert_allclose(uvs[:4], [[0, 0], [1, 0], [1, 1], [0, 1]])  # a whole square shows the whole picture
+        out = np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])[:, 1]
+        self.assertEqual((int((out > 0).sum()), int((out < 0).sum())), (len(faces) // 2, len(faces) // 2))  # seen from both sides
+        np.testing.assert_allclose(np.abs(normals[:, 1]), 1.0)
+        pixels = np.asarray(image); self.assertEqual((image.mode, image.size), ('RGBA', (convert.WIRE_PICTURE, convert.WIRE_PICTURE)))
+        self.assertTrue((pixels[..., :3] == convert.WIRE).all()); gaps = float((pixels[..., 3] == 0).mean()); self.assertGreater(gaps, 0.4); self.assertLess(gaps, 0.8)
+        text = convert.model_text('ek_test', np.zeros((3, 3)), np.tile([0, 0, 1.0], (3, 1)), np.zeros((3, 2)), np.array([[0, 1, 2]]), wire=wire)
+        self.assertIn('node trimesh ek_test_w0', text); self.assertIn('  bitmap ek_test_w\n', text); self.assertEqual(text.count('  bitmap ek_test\n'), 1)
+        with self.assertRaisesRegex(ValueError, 'share one wire mesh'):
+            convert.sheets(fences + [{**fences[0], 'wire': 0.02}])
+        with self.assertRaisesRegex(ValueError, 'cannot be drawn'):
+            convert.sheets([{**fences[0], 'wire': 0.001}])
+
     def test_zero_normals_are_rebuilt_from_the_faces(self):
         vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; normals = np.array([[0, 1, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0]], float)
         fixed, count = convert.repair_normals(vertices, normals, np.array(WALL['faces']))

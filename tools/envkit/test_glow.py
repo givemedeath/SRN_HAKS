@@ -144,6 +144,11 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'tone': 0}, 'tone is 0.2 to 2')
             refused({'source': 'meshy/x', 'height': 1.0, 'paint': [{'box': [[0, 0, 0], [1, 1, 1]], 'colour': [0, 0, 300]}]}, 'three 0-255 values')
             refused({'source': 'meshy/x', 'height': 1.0, 'mesh': [{'box': [[0, 0, 0], [1, 1, 1]], 'pitch': 0.05, 'wire': 0.05}]}, 'thinner wire')
+            refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 5}]}, 'radius of 0.01 to 1')
+            sheet = {'from': [0, 0], 'to': [2, 0], 'z': [1, 2], 'pitch': 0.09, 'wire': 0.016}
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [2, 1]}]}, 'between two heights')
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'to': [0, 0]}]}, 'from one point to another')
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [sheet, {**sheet, 'wire': 0.02}]}, 'share one wire mesh')
             tiles = {'ground': 'pavement', 'group': 'Long', 'label': 'Long', 'sets': {'dgt04': 'Concrete'}}
             # A building is scaled to its door before its tiles are counted: a door says how tall its leaf came out.
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58}}}, 'states its leaf')
@@ -157,6 +162,7 @@ class GlowTests(unittest.TestCase):
                 convert.load_models(long_name)
         ares = convert.load_models(folder / 'ares-depot-game.json')
         self.assertEqual(ares['ek_ad_turret']['turn'], 90); self.assertEqual(len(ares['ek_ad_fence']['mesh']), 2); self.assertIn('paint', ares['ek_ad_depot'])
+        self.assertEqual((len(ares['ek_ad_depot']['smooth']), len(ares['ek_ad_depot']['fence'])), (4, 6))  # its perimeter fence, and the wall behind
         self.assertEqual((ares['ek_ad_depot']['tiles']['door']['leaf'], models['ek_ss_shack']['tiles']['door']['leaf']), (2.1, 2.1))
 
 

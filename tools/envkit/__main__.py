@@ -65,7 +65,7 @@ def command_reference(args):
 
 def _retouching(model):
     """What a game set says of turning a model and retouching its colour, as `convert.shape` takes it."""
-    return {key: model[key] for key in ('turn', 'tone', 'paint', 'mesh') if key in model}
+    return {key: model[key] for key in ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence') if key in model}
 
 
 def command_game(args):

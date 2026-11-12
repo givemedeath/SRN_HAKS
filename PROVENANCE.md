@@ -404,7 +404,8 @@ lettering was not legible and is painted over in the sign's own black, leaving t
 Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes
 and scaled; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow map and a halo sheet
 were made from its own colour for the roof sign and the tower windows; the mesh was shared out over nine tiles
-(14,919 to 27,982 faces each) with a ground square, a map picture and two main lights each; everything above
+(14,919 to 28,138 faces each, with the fence's sheets) with a ground square, a map picture and two main lights
+each; everything above
 5.2 metres carries `tilefade`; and a walkmesh was generated from its shape (442 to 826 faces a tile, where the
 stock tiles of these two tilesets have at most 500). The north-east tile has a door record of type 58, the
 invisible transition door, at the personnel door beside the vehicle door. The four corner tiles have path node
@@ -452,10 +453,25 @@ Toolset leaves it, and a wooden door there linked back to it brought them out in
 notice), and both groups' door records were written again in both tilesets; their tiles came out of the
 rebuild byte for byte the same.
 
-Not checked: the corrected records as the Toolset and the client read them from the packs (the user put
-client runs on hold before they were written), and the hidden top with the setting on "near the character".
-Known: the model's perimeter fence has no mesh in its frames. Its chain-link is painted on the building wall
-behind them, which shows when the fence is seen from an angle (the user, in the client, 2026-11-11).
+The model's perimeter fence came back with nothing in its frames and its chain-link painted on the building
+wall behind them, which showed when the fence was seen from an angle (the user, in the client, 2026-11-11).
+On 2026-11-12 the fence was given its mesh and the wall was cleared, with no new generation. Six upright
+sheets were hung in the frames (west, east, and the four short runs to the front and rear walls; 840 faces
+over six of the nine tiles), cut into squares 0.76 metres a side that each show the whole of one wire
+picture, `ek_ad_depot_w` (128 pixels, DXT5, 22 KB, drawn by `tools/envkit`), see-through between the wires.
+The wires have a picture of their own because drawing them on the building's colour picture gave that an
+alpha channel and doubled it, to 22 MB, over this repository's limit for one resource; it stays as it was,
+11 MB with no alpha. The wall and walkway behind each run, from 1.75 to 4.3 metres up, were blurred over
+0.12 metres and their relief levelled, which takes the painted mesh off and leaves a plain, soft grey
+(`smooth` and `fence` in the game set; `convert.retouch`, `convert.sheets`). The tiles' walkmeshes, path
+nodes, lights and door record came out the same; the area-map pictures changed slightly with the colour.
+Looked at in plain software pictures of the finished model from each corner and along the east and west
+sides: the sheets stand in their frames from pillar to pillar and the wall behind shows no mesh.
+
+Not checked: any of the 2026-11-12 work in the client or the Toolset (the user put client runs on hold): the
+corrected door records as read from the packs; the fence sheets, by day and by night, which are the first
+tile parts here to show a picture with an alpha channel and no material file; and the hidden top with the
+setting on "near the character".
 
 ## Ares Depot props (`srn_placeable`, `srn_2da`; 2026-11-11)
 

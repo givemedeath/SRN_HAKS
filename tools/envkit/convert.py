@@ -24,6 +24,9 @@ TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row a
 NON_WALK = 7
 RETOUCH = 2048  # pixels: the finest map of places a colour picture is retouched by
 WIRE = (118, 122, 126)  # galvanised steel
+# A fence's wires are drawn on a small picture of their own, which its sheets repeat: its width in pixels, and the least
+# pixels across a wire that still draw one.
+WIRE_PICTURE, WIRE_TEXELS = 128, 2.5
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
@@ -247,8 +250,9 @@ def card_normal_line(card):
     return f'    {x:g} {y:g} {z:g}'
 
 
-def model_text(name, vertices, normals, uvs, faces, cards=None):
-    """The ASCII model. `cards` are a halo's sheets (`glow.halo`), four corners each, all showing `name`_h. That
+def model_text(name, vertices, normals, uvs, faces, cards=None, wire=None):
+    """The ASCII model. `wire` is a fence's sheets (`sheets`), which show `name`_w, a plain picture with gaps.
+    `cards` are a halo's sheets (`glow.halo`), four corners each, all showing `name`_h. That
     texture's TXI makes the game add them to what is behind. They take no light (ambient and diffuse are black) and show
     their picture through the glow slot of their own material file, so they are as bright by night as by day. (A
     `selfillumcolor` line would do the same, but the compiled model then fails the read-back check, which knows no such
@@ -264,6 +268,13 @@ def model_text(name, vertices, normals, uvs, faces, cards=None):
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in vertices[used].tolist()]
         lines += [f'  tverts {len(used)}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in uvs[used].tolist()]
         lines += [f'  normals {len(used)}'] + [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in normals[used].tolist()]
+        lines += [f'  faces {len(part)}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in part.tolist()] + ['endnode']
+    for number, (used, part) in enumerate(split(wire['faces']) if wire else []):
+        lines += [f'node trimesh {name}_w{number}', f'  parent {name}', '  ambient 1 1 1', '  diffuse 1 1 1', '  specular 0 0 0',
+                  '  shininess 1', f'  bitmap {name}_w', '  render 1', '  shadow 0', f'  verts {len(used)}']
+        lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in wire['vertices'][used].tolist()]
+        lines += [f'  tverts {len(used)}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in wire['uvs'][used].tolist()]
+        lines += [f'  normals {len(used)}'] + [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in wire['normals'][used].tolist()]
         lines += [f'  faces {len(part)}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in part.tolist()] + ['endnode']
     for number, card in enumerate(cards or []):
         lines += [f'node trimesh {name}_halo{number}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
@@ -330,7 +341,53 @@ def _compress(image, target, mode, size, crunch, *, data):
     return target
 
 
-def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), mesh=(), size=RETOUCH):
+def _blur(values, radius):
+    """`values` (rows, columns, ...) blurred over about `radius` texels: three box blurs, near enough a Gaussian. Beyond
+    the picture's edge there is nothing, so a blur of a mask says how much of each texel's neighbourhood was counted."""
+    width = max(int(round(radius)), 1)
+    for _ in range(3):
+        for axis in (0, 1):
+            pad = [(width + 1, width) if at == axis else (0, 0) for at in range(values.ndim)]
+            total = np.cumsum(np.pad(values, pad), axis); count = values.shape[axis]
+            values = (np.take(total, np.arange(2 * width + 1, 2 * width + 1 + count), axis) - np.take(total, np.arange(count), axis)) / (2 * width + 1)
+    return values
+
+
+def sheets(fences, size=WIRE_PICTURE):
+    """Chain-link sheets hung between a fence's posts: {vertices, normals, uvs, faces, image}, a mesh of its own.
+
+    fences: [{from: [x, y], to: [x, y], z: [low, high], pitch, wire, colour}] on the finished model; a sheet stands
+    upright from one point to the other and is seen from both sides. A generator leaves a fence's frames empty and
+    paints the mesh on whatever stands behind (the Ares Depot's perimeter, seen from an angle in the client,
+    2026-11-11). The wires are drawn on `image`, a small picture of their own that is see-through between them, as
+    many links of the pattern as leave a wire its pixels; the model's colour picture keeps its size and stays opaque
+    (with an alpha channel the depot's, at 4096 pixels, was 22 MB). Each sheet is cut into squares one picture across,
+    so a tile group can share them out among its tiles."""
+    from PIL import Image
+    first = fences[0]; pitch, wire, colour = first['pitch'], first['wire'], list(first.get('colour', WIRE))
+    require(all((one['pitch'], one['wire'], list(one.get('colour', WIRE))) == (pitch, wire, colour) for one in fences), 'The fences of a model share one wire mesh')
+    link = pitch * np.sqrt(2)  # the pattern repeats every `link` metres along and up
+    links = int(wire * size / (WIRE_TEXELS * link)); require(links >= 1, f'A wire this thin cannot be drawn on a picture of {size} pixels')
+    period = links * link; at = (np.arange(size) + 0.5) / size * period; along, up = np.meshgrid(at, at)
+    drawn = (np.mod((along + up) / np.sqrt(2), pitch) < wire) | (np.mod((along - up) / np.sqrt(2), pitch) < wire)
+    pixels = np.empty((size, size, 4), np.uint8); pixels[..., :3] = colour; pixels[..., 3] = drawn * 255  # the wire's colour under the gaps too
+    vertices, normals, uvs, faces = [], [], [], []
+    for one in fences:
+        start, end = np.asarray(one['from'], float), np.asarray(one['to'], float); low, high = (float(value) for value in one['z'])
+        length = float(np.linalg.norm(end - start)); ahead = (end - start) / length; out = np.array([ahead[1], -ahead[0], 0.0])
+        for i in range(int(np.ceil(length / period - 1e-9))):
+            for j in range(int(np.ceil((high - low) / period - 1e-9))):
+                s0, z0 = i * period, low + j * period; s1, z1 = min(length, s0 + period), min(high, z0 + period)
+                corners = [(s0, z0), (s1, z0), (s1, z1), (s0, z1)]
+                place = [[*(start + ahead * s), z] for s, z in corners]; spot = [[(s - s0) / period, (z - z0) / period] for s, z in corners]
+                for way, order in ((out, ((0, 1, 2), (0, 2, 3))), (-out, ((0, 2, 1), (0, 3, 2)))):  # a face each way, each with its own normals
+                    base = len(vertices); vertices += place; normals += [way.tolist()] * 4; uvs += spot
+                    faces += [[base + a, base + b, base + c] for a, b, c in order]
+    return {'vertices': np.array(vertices), 'normals': np.array(normals), 'uvs': np.array(uvs), 'faces': np.array(faces), 'image': Image.fromarray(pixels, 'RGBA'),
+            'period': period}
+
+
+def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh=(), size=RETOUCH):
     """(colour, flat): a model's colour picture as it ships, and where its relief is to be flattened (or None).
 
     `tone` multiplies the whole picture (a model that came back paler than its reference). `paint` covers what a
@@ -338,27 +395,47 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), mesh=(), size=R
     chain-link fence: [{box, pitch, wire, colour}], the texels within the box in the wire's colour and see-through
     between the wires (`glow.wires`), which gives the picture an alpha channel. Boxes are in metres on the finished
     model, as a lit part's are. A generator cannot make a mesh that is seen through (the depot's fence came back as
-    solid smeared panels, 2026-11-11); its posts, rails and base are kept and only the panels are redrawn."""
+    solid smeared panels, 2026-11-11); its posts, rails and base are kept and only the panels are redrawn.
+
+    `smooth` takes a pattern off a surface and leaves its tones: [{box, radius, colour}], the texels within the box
+    blurred over `radius` metres among themselves, then brought to `colour` on average if one is given, and their
+    relief levelled (a wall the generator painted a fence's mesh on)."""
     from PIL import Image
     from . import glow
-    colour = np.asarray(image.convert('RGB'), float) / 255; alpha = flat = None
+    colour = np.asarray(image.convert('RGB'), np.float32) / 255; alpha = flat = None; grain = min(size, image.width)
     if tone is not None:
         colour = np.clip(colour * tone, 0, 1)
-    if paint or mesh:
-        where, covered = glow.position_map(vertices, uvs, faces, min(size, image.width))
+    if smooth or mesh:
+        flat = np.zeros(colour.shape[:2], bool)
+    if mesh:
+        alpha = np.ones(colour.shape[:2], bool)
+    if paint or smooth or mesh:
+        where, covered = glow.position_map(vertices, uvs, faces, grain)
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
             colour[full(glow.inside(where, covered, part['box']))] = np.asarray(part['colour'], float) / 255
-        if mesh:
-            alpha, flat = np.ones(colour.shape[:2], bool), np.zeros(colour.shape[:2], bool)
+        for part in smooth:
+            chosen = glow.inside(where, covered, part['box'])
+            if not chosen.any():
+                continue
+            beside = chosen[:, 1:] & chosen[:, :-1]  # how far apart on the model two texels side by side are
+            step = float(np.median(np.linalg.norm(where[:, 1:][beside] - where[:, :-1][beside], axis=1))) if beside.any() else 0.0
+            small = np.asarray(Image.fromarray((colour * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
+            reach = part['radius'] / max(step, 1e-6)
+            blurred = _blur(small * chosen[..., None], reach) / np.maximum(_blur(chosen.astype(np.float32), reach), 1e-6)[..., None]
+            if 'colour' in part:
+                blurred = blurred * (np.asarray(part['colour'], np.float32) / 255 / np.maximum(blurred[chosen].mean(0), 1e-6))
+            wide = np.asarray(Image.fromarray((np.clip(blurred, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
+            chosen = full(chosen); colour[chosen] = wide[chosen]; flat |= chosen
         for part in mesh:
             panel = glow.inside(where, covered, part['box']); wire = full(panel & glow.wires(where, part['pitch'], part['wire'])); panel = full(panel)
             colour[panel] = np.asarray(part.get('colour', WIRE), float) / 255  # under the gaps too: a filtered edge then blends wire with wire
             alpha &= ~panel | wire; flat |= panel
     picture = (colour * 255).round().astype(np.uint8)
+    level = Image.fromarray(flat) if flat is not None else None
     if alpha is None:
-        return Image.fromarray(picture), None
-    return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), Image.fromarray(flat)
+        return Image.fromarray(picture), level
+    return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), level
 
 
 def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None):
@@ -385,10 +462,11 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base
 
 
 def load_models(path):
-    """The game models of a set: {name: {source, height, colour, signTilt, lift, turn, tone, paint, mesh, lit, halo,
-    tiles}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
+    """The game models of a set: {name: {source, height, colour, signTilt, lift, turn, tone, paint, smooth, mesh,
+    fence, lit, halo, tiles}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
     turns it that many degrees counter-clockwise seen from above, where its front came back facing a side; boxes are
-    on the model as turned. `tone`, `paint` and `mesh` retouch its colour picture (`retouch`). `source` is the generated
+    on the model as turned. `tone`, `paint`, `smooth` and `mesh` retouch its colour picture (`retouch`); `fence` hangs
+    chain-link sheets between its fence posts, with a picture of their own (`sheets`). `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
@@ -402,7 +480,7 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'mesh', 'lit', 'halo', 'tiles', 'placeable'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'lit', 'halo', 'tiles', 'placeable'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -416,6 +494,16 @@ def load_models(path):
             require(isinstance(part, dict) and {'box', 'pitch', 'wire'} <= set(part) <= {'part', 'box', 'pitch', 'wire', 'colour'} and box(part)
                     and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
                     'A wire mesh needs a box, a pitch of at most a metre and a thinner wire: ' + name)
+        for part in model.get('smooth', []):
+            require(isinstance(part, dict) and {'box', 'radius'} <= set(part) <= {'part', 'box', 'radius', 'colour'} and box(part) and number(part['radius'])
+                    and 0.01 <= part['radius'] <= 1 and shade(part.get('colour', [0, 0, 0])), 'A smoothed part needs a box and a radius of 0.01 to 1 metres: ' + name)
+        pair = lambda value: np.asarray(value, float).shape == (2,)
+        for part in model.get('fence', []):
+            require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
+                    and pair(part['from']) and pair(part['to']) and pair(part['z']) and part['z'][0] < part['z'][1] and list(part['from']) != list(part['to'])
+                    and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
+                    'A fence runs from one point to another between two heights, with a pitch of at most a metre and a thinner wire: ' + name)
+        require(len({(part['pitch'], part['wire'], tuple(part.get('colour', WIRE))) for part in model.get('fence', [])}) <= 1, 'The fences of a model share one wire mesh: ' + name)
         require(isinstance(model.get('lift', 0), (int, float)) and 0 <= model.get('lift', 0) <= 20, 'A model is lifted by 0 to 20 metres: ' + name)
         source = Path(model['source'])
         require(not source.is_absolute() and '..' not in source.parts and ':' not in model['source'], 'Model source is a folder under the output root: ' + name)
@@ -503,11 +591,11 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
-          mesh=None):
+          smooth=None, mesh=None, fence=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
-    illumination, card, colour, flat}. `turn` turns it about the vertical before anything is measured on it; `tone`,
-    `paint` and `mesh` give `colour` and `flat`, its colour picture retouched and where its relief is levelled
-    (`retouch`; both None for a model left as generated). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
+    illumination, card, colour, flat, wire}. `turn` turns it about the vertical before anything is measured on it; `tone`,
+    `paint`, `smooth` and `mesh` give `colour` and `flat`, its colour picture retouched and where its relief is levelled
+    (`retouch`; both None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
     map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`)."""
     vertices, normals, uvs, faces = read_glb(model); card = None
@@ -531,12 +619,12 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
     shown = flat = None
-    if tone is not None or paint or mesh:
+    if tone is not None or paint or smooth or mesh:
         from PIL import Image
         with Image.open(maps['base_color']) as picture:
-            shown, flat = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), mesh=mesh or ())
+            shown, flat = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), smooth=smooth or (), mesh=mesh or ())
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
-            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat}
+            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'wire': sheets(fence) if fence else None}
 
 
 def skin(name, maps, folder, crunch, made, *, colour=1024):
@@ -550,6 +638,9 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
                          'texture4 null', f'texture5 {name}_h']
         (folder / f'{name}_h.mtr').write_text('\n'.join(card_material) + '\n', encoding='cp1252', newline='\n')
         (folder / f'{name}_h.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
+    if made.get('wire'):  # a plain picture, see-through between the wires: it needs no material file
+        require(len(name) + 2 <= NAME_LENGTH, 'A model with a fence leaves two characters of its name for the wires: ' + name)
+        files.append(_compress(made['wire']['image'], folder / f'{name}_w.dds', '-DXT5', made['wire']['image'].width, crunch, data=False))
     if illumination is not None:
         files += lights_out(name, folder, crunch, bool(card))
     return files
@@ -559,7 +650,7 @@ def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
             'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
-            'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'seeThrough': made.get('flat') is not None,
+            'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 
@@ -569,7 +660,7 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_ti
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     made = shape(model, maps, height=height, colour=colour, sign_tilt=sign_tilt, **keywords)
     vertices, card = made['vertices'], made['card']
-    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None),
+    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire']),
                                         encoding='cp1252', newline='\n')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
     return measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt)

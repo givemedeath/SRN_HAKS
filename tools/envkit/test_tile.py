@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from . import glow, tile
+from . import convert, glow, tile
 
 BOX = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
 
@@ -318,6 +318,24 @@ class TileTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
 
+
+    def test_a_fence_is_shared_out_among_the_tiles_it_stands_in_and_shows_its_own_picture(self):
+        import tempfile
+        from pathlib import Path
+        vertices, faces = scene(box((-9, -4, 0), (9, 4, 0.2)), box((-8, -3, 0.2), (8, 3, 3)))  # a building two tiles wide
+        wire = convert.sheets([{'from': [-8.5, 3.5], 'to': [8.5, 3.5], 'z': [0.2, 2.0], 'pitch': 0.09, 'wire': 0.016}])
+        made = {'vertices': vertices, 'normals': np.tile([0.0, 0, 1], (len(vertices), 1)), 'uvs': np.zeros((len(vertices), 2)), 'faces': faces, 'card': None, 'wire': wire}
+        bare = {**made, 'wire': None}
+        with tempfile.TemporaryDirectory() as scratch:
+            fenced = tile.group('ek_long', made, Path(scratch) / 'a', ground='pavement'); plain = tile.group('ek_long', bare, Path(scratch) / 'b', ground='pavement')
+            self.assertEqual((fenced['rows'], fenced['columns']), (1, 2))
+            more = [one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
+            self.assertEqual(sum(more), len(wire['faces'])); self.assertTrue(all(count > 0 for count in more))  # every square in one tile, some in each
+            self.assertEqual([one['walkFaces'] for one in fenced['tiles']], [one['walkFaces'] for one in plain['tiles']])  # the walkmesh does not know the sheets
+            for one in fenced['tiles']:
+                text = (Path(scratch) / 'a' / (one['model'] + '.mdl')).read_text(encoding='cp1252')
+                self.assertIn('  bitmap ek_long_w\n', text); self.assertIn('  bitmap ek_long\n', text)
+                self.assertNotIn('ek_long_w', (Path(scratch) / 'b' / (one['model'] + '.mdl')).read_text(encoding='cp1252'))
 
     def test_a_door_hook_is_drawn_out_onto_open_ground_and_turned_as_the_set_file_turns_doors(self):
         """The Ares Depot's hook lay on its door leaf, inside the wall's closed ground, turned by the way the door faces:

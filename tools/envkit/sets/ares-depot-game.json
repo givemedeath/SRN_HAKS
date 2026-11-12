@@ -2,6 +2,18 @@
   "models": {
     "ek_ad_depot": {"source": "meshy/models/ares-building-a1-remesh2", "height": 12.35, "colour": 4096, "paint": [
       {"part": "illegible small lettering of the rear sign", "box": [[-3.38, -8.19, 5.551], [1.17, -7.41, 5.98]], "colour": [14, 15, 17]}
+    ], "smooth": [
+      {"part": "chain-link painted on the east wall behind the fence", "box": [[8.0, -8.5, 1.75], [10.95, 8.3, 4.3]], "radius": 0.12},
+      {"part": "chain-link painted on the west wall behind the fence", "box": [[-10.95, -8.5, 1.75], [-8.5, 8.3, 4.3]], "radius": 0.12},
+      {"part": "chain-link painted on the wall behind the north-west fence", "box": [[-8.5, 6.9, 1.75], [-5.3, 8.3, 4.3]], "radius": 0.12},
+      {"part": "chain-link painted on the wall behind the south-west fence", "box": [[-8.5, -8.5, 1.75], [-5.3, -6.8, 4.3]], "radius": 0.12}
+    ], "fence": [
+      {"part": "west fence", "from": [-11.13, -8.66], "to": [-11.13, 8.44], "z": [1.7, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "east fence", "from": [11.14, -8.65], "to": [11.14, 8.42], "z": [1.6, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "north-west fence", "from": [-11.13, 8.44], "to": [-5.45, 8.44], "z": [1.7, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "south-west fence", "from": [-11.13, -8.66], "to": [-5.45, -8.66], "z": [1.7, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "north-east fence", "from": [8.6, 8.42], "to": [11.14, 8.42], "z": [1.6, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "south-east fence", "from": [8.6, -8.65], "to": [11.14, -8.65], "z": [1.6, 3.45], "pitch": 0.09, "wire": 0.016}
     ], "lit": [
       {"part": "roof sign", "box": [[-8.58, 6.24, 5.655], [3.835, 10.53, 7.605]], "gain": 0.8},
       {"part": "tower windows", "box": [[5.72, -1.3, 7.085], [11.7, 10.53, 8.255]], "gain": 2.0, "saturation": 0.3}
