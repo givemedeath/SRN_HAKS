@@ -714,6 +714,7 @@ def read_field(field, levels, points):
 TURN = 75.0  # degrees the fine surface may turn from the simplified one; past that the reading is of another surface nearby
 MADE = 0.2  # a face this much smaller on the generated mesh than its part's faces are on average was made by the split
 FLAT = (0.5, 0.5, 1.0)  # the colour of a texel with no relief
+ROUGHNESS = 0.8  # of an outfit's own surface, as a constant in its material file or as the texels of a roughness map
 MATERIAL = 'renderhint NormalTangents\ntexture1 {}\nparameter float Roughness {:g}\nparameter float Specularity 0.04\nparameter float Metallicness 0.001\n'
 # with a roughness map: the constant is 0, or it overrides the map (docs/phenotype-body-material-process.md)
 MAPPED = 'renderhint NormalTangents\ntexture1 {}\nparameter float Roughness 0\nparameter float Specularity 0.04\nparameter float Metallicness 0.001\ntexture3 {}\n'
@@ -827,7 +828,7 @@ def halved(image):
     return image[:rows, :columns].reshape(rows // 2, 2, columns // 2, 2, -1).mean(axis=(1, 3))
 
 
-def write_relief(folder, model, image, roughness=0.8, rough=None):
+def write_relief(folder, model, image, roughness=ROUGHNESS, rough=None):
     """Write a part's normal map as `<model>n.tga` and the material file `<model>.mtr` that binds it; returns the map's name.
 
     The material file is named like the model's texture, so the game applies it to that part, and leaves out

@@ -111,7 +111,11 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}
+    left = {name for slot in document.get('bare', []) for name in registry.SLOTS[slot]['tokens']}
     for name, (pv, pf, pc) in result.items():
+        if name in left:  # the body's: what the outfit has there is cut off on the joint's plane, and no map is made of it
+            say(f'{name}: left to the body, {len(pf)} faces of the outfit cut off')
+            continue
         role = roles(name, made[name])
         of_face = np.where(origins[name] >= 0, mats[np.maximum(origins[name], 0)], -1)  # per face: its material, -1 for what the split made
         bare = (of_face >= 0) & ~np.isin(of_face, metals)  # a face that is no plate's shows no plate
@@ -156,7 +160,8 @@ def bared(parts, document, body_pack, body_textures, body, bones, say=lambda *_:
     body's own part beside the outfit's in a slot it shares with the body's skin (`skin`, `bodyskin.worn`)."""
     parts = dict(parts)
     for name in [name for slot in document.get('bare', []) for name in registry.SLOTS[slot]['tokens'] if name in parts]:
-        say(f'{name}: left to the body, {len(parts.pop(name)["f"])} faces of the outfit cut off')
+        gone = parts.pop(name)
+        say(f'{name}: left to the body, {len(gone["f"])} faces of the outfit cut off')
     for slot in document.get('skin', []):
         for name in registry.SLOTS[slot]['tokens']:
             if name in parts:

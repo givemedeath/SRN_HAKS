@@ -19,13 +19,13 @@ import numpy as np
 
 from tools.headkit import native_reader
 
-from . import export, registry, seams
+from . import export, measure, registry, seams, texture
 from .registry import require
 
 BAND = 0.04  # the arm is kept this far up under the sleeve's hem: what a look up the sleeve can reach
 SECTORS = 16  # the hem is found in this many directions round the arm
-ROUGH = 0.8  # the roughness of the outfit's own surface, as `texture.write_relief` gives a part without a map
-EDGE = 2  # texels the body's textures are continued past their quarter, into the two quarters nothing lies in
+APART = 0.015  # the outfit's surface in one direction, parted by more than this along the bone, is two pieces
+TOP = 0.5  # a piece that begins within this share of the bone from its start comes down from the shoulder: a sleeve
 KEYS = ('skin', 'skin_at', 'skin_tint', 'skin_rough')  # what a part with skin holds beside a baked part's keys
 
 
@@ -73,15 +73,21 @@ def body_part(pack, textures, body, token, bones, number=1):
             'relief': relief, 'rough': image((textures / (bound['rough'] + '.tga')).read_bytes())[:, :, 0]}
 
 
-def shown(vertices, faces, cover, start, end, band=BAND, sectors=SECTORS):
+def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
     """Per face of a body part, whether it is kept beside the outfit's: False where the outfit hides it.
 
-    `cover` holds the points of the outfit's own surface on the part, `start` and `end` the part's bone. In
-    each of `sectors` directions round the bone the outfit reaches some way along it, a sleeve to its hem; a
-    vertex of the body is hidden where it lies more than `band` short of the least the outfit reaches in its
-    own direction and the two beside it, and a face where all three of its vertices are. The band is what
-    is seen up a sleeve that stands a centimetre off the arm."""
-    start, axis = np.asarray(start, float), seams.unit(np.asarray(end, float) - np.asarray(start, float))
+    `cover` and `own` are the vertices and faces of the outfit's own surface on the part, `start` and `end`
+    the part's bone. In each of `sectors` directions round the bone the outfit covers stretches of it, its
+    pieces: a stretch ends where more than `APART` of the bone has none of the outfit. A piece hides the
+    body under it but for `band` at each end, which is what is seen up a sleeve that stands a centimetre
+    off the arm. A piece that begins within `TOP` of the bone hides all above it too: it is the sleeve, come
+    down from the shoulder under the outfit's other parts, which part it there in places. A band or a pad below the hem is
+    another piece, and the skin between the two is seen: the first build took the farthest point of the
+    outfit for the hem and hid it. A vertex of the body is hidden where the outfit hides it in its own
+    direction and the two beside it, and a face where all three of its vertices are."""
+    start, axis = np.asarray(start, float), np.asarray(end, float) - np.asarray(start, float)
+    length = float(np.linalg.norm(axis))
+    axis = seams.unit(axis)
     u, w = seams.frame(axis)
 
     def round_bone(points):
@@ -89,12 +95,29 @@ def shown(vertices, faces, cover, start, end, band=BAND, sectors=SECTORS):
         turn = np.arctan2(relative @ w, relative @ u)
         return relative @ axis, np.floor((turn + np.pi) / (2 * np.pi) * sectors).astype(int) % sectors
 
-    along, sector = round_bone(cover)
-    hem = np.full(sectors, -np.inf)
-    np.maximum.at(hem, sector, along)
-    reach = np.minimum(hem, np.minimum(np.roll(hem, 1), np.roll(hem, -1)))
+    used, own = np.unique(np.asarray(own, int).reshape(-1, 3), return_inverse=True)
+    along, sector = round_bone(measure.surface_points(np.asarray(cover, float).reshape(-1, 3)[used], own.reshape(-1, 3), APART / 3))
+    pieces = [[] for _ in range(sectors)]  # per direction, the stretches of the bone the outfit covers: (from, to)
+    for k in range(sectors):
+        mine = np.sort(along[sector == k])
+        if len(mine):
+            parted = np.flatnonzero(np.diff(mine) > APART)
+            pieces[k] = list(zip(mine[np.concatenate([[0], parted + 1])], mine[np.concatenate([parted, [len(mine) - 1]])]))
+
+    def under(k, at):
+        """Whether the outfit hides the body in direction `k`, per place `at` along the bone."""
+        hidden = np.zeros(len(at), bool)
+        for top, bottom in pieces[k % sectors]:
+            top = -np.inf if top <= TOP * length else top + band
+            hidden |= (at > top) & (at < bottom - band)
+        return hidden
+
     along, sector = round_bone(vertices)
-    return ~(along < reach[sector] - band)[np.asarray(faces, int)].all(axis=1)
+    hidden = np.zeros(len(along), bool)
+    for k in range(sectors):
+        mine = sector == k
+        hidden[mine] = under(k, along[mine]) & under(k - 1, along[mine]) & under(k + 1, along[mine])
+    return ~hidden[np.asarray(faces, int)].all(axis=1)
 
 
 def resized(image, side, kind='mean'):
@@ -132,32 +155,34 @@ def worn(part, skin, start, end, limit=1024):
     cannot. Beside a baked part's keys the result holds `skin`, per face, whether it is the body's;
     `skin_at`, per texel, whether it is of the body's textures; `skin_tint`, the body's shade and layer
     there; and `skin_rough`, the roughness of every texel, the body's map there and the outfit's own
-    elsewhere. The body's faces are no closing's or cap's and of no material: `added`, `domed` and `trimmed`
+    (`texture.ROUGHNESS`) elsewhere. The body's faces are no closing's or cap's and of no material: `added`, `domed` and `trimmed`
     say so, and their vertices have no place on the generated mesh (`src`, zero)."""
     size = len(part['rgb'])
     side = min(2 * size, limit)
     half = side // 2
-    kept = shown(skin['v'], skin['f'], part['v'][np.unique(part['f'][~part['added']])], start, end)
+    kept = shown(skin['v'], skin['f'], part['v'], part['f'][~part['added']], start, end)
     require(kept.any(), 'The outfit hides all of the body part: it needs no skin')
     used, faces = np.unique(skin['f'][kept], return_inverse=True)
     faces = faces.reshape(-1, 3) + len(part['v'])
     count = len(faces)
 
     def laid(mine, theirs, fill, kind='mean'):
-        """A map of the part's: the outfit's in the first quarter, the body's in the last and a little past it."""
+        """A map of the part's: the outfit's in the first quarter, the body's in the last, and its edge texels
+        run on through the two quarters nothing lies in. A smaller copy of the map the client makes, however
+        small, then mixes nothing into the skin's edge but skin."""
         mine = np.asarray(mine)
         whole = np.full((side, side) + mine.shape[2:], fill, dtype=np.result_type(mine.dtype, np.asarray(fill).dtype))
         whole[:half, :half] = resized(mine, half, kind)
         if theirs is not None:
             block = resized(theirs, half, kind).reshape((half, half) + mine.shape[2:])
             whole[half:, half:] = block
-            whole[half - EDGE:half, half:] = block[:1]
-            whole[half:, half - EDGE:half] = block[:, :1]
+            whole[:half, half:] = block[:1]
+            whole[half:, :half] = block[:, :1]
         return whole
 
     flags = lambda mine: laid(np.asarray(mine, float), None, 0.0) > 0.5
-    skin_at = np.zeros((side, side), bool)
-    skin_at[half:, half - EDGE:], skin_at[half - EDGE:half, half:] = True, True
+    skin_at = np.ones((side, side), bool)
+    skin_at[:half, :half] = False
     tint = laid(np.zeros((size, size, 2), np.uint8), None, 0)
     tint[..., 0] = np.round(laid(np.zeros((size, size)), skin['tint'][..., 0].astype(float), 0.0))
     tint[..., 1] = laid(np.zeros((size, size), np.uint8), skin['tint'][..., 1], 0, 'pick')
@@ -170,4 +195,4 @@ def worn(part, skin, start, end, limit=1024):
             **{key: np.concatenate([part[key], np.zeros(count, bool)]) for key in ('added', 'domed')},
             'trimmed': np.concatenate([part['trimmed'], np.full(count, -1)]),
             'skin': np.concatenate([np.zeros(len(part['f']), bool), np.ones(count, bool)]), 'skin_at': skin_at, 'skin_tint': tint,
-            'skin_rough': np.clip(np.round(laid(np.full((size, size), ROUGH), skin['rough'], ROUGH) * 255), 0, 255).astype(np.uint8)}
+            'skin_rough': np.clip(np.round(laid(np.full((size, size), texture.ROUGHNESS), skin['rough'], texture.ROUGHNESS) * 255), 0, 255).astype(np.uint8)}

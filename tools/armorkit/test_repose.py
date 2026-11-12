@@ -82,6 +82,16 @@ def sleeves_only(x, z):
     return bare(x, z) and not (z < 1.0 and abs(abs(x) - ARM(z)) < 0.07 and abs(abs(x) - LEG(z)) >= 0.07)
 
 
+def guarded(x, z):
+    """As `inside`, with a guard standing off each shoulder, above the armpit: beside the torso and no sleeve."""
+    return inside(x, z) or (1.50 <= z < 1.58 and 0.09 < abs(x) - ARM(z) < 0.13)
+
+
+def parted(x, z):
+    """As `inside`, with each arm parted by a thin stretch of nothing: a strap's width, and no bare forearm."""
+    return inside(x, z) and not (1.20 <= z < 1.24 and abs(x) > 0.19)
+
+
 def doll(cell=0.02, depth=0.08, inside=inside):
     """A flat figure with shared vertices and no open edge: every cell of a grid that `inside` takes, extruded front
     to back, with a wall wherever a taken cell borders a free one. It is one surface from the feet to the collar,
@@ -182,6 +192,22 @@ class JointTests(unittest.TestCase):
         self.assertGreater(len(gloves), 10)
         self.assertLess((gloves[-1, 0] - SHIFT[2]) / SCALE, 1.02)  # the glove, from its upper end down
         self.assertEqual(len(repose.past(self.marks, -1, repose.centreline(self.marks, -1, self.marks['armpit'] - 0.005 * self.marks['height'], 'arm'))), 0)
+
+    def test_a_guard_standing_off_the_shoulder_does_not_move_the_armpit_above_it(self):
+        v, faces = doll(inside=guarded)
+        here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
+        self.assertAlmostEqual((marks['armpit'] - SHIFT[2]) / SCALE, ARMPIT, delta=0.03)  # the arms joined the torso below the guard
+        for side in 'lr':
+            for joint in ('shoulder', 'elbow', 'wrist'):
+                self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), 0.01, (joint, side))
+
+    def test_an_arm_parted_by_a_thin_stretch_is_followed_through_it_as_a_whole_arm(self):
+        v, faces = doll(inside=parted)
+        here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
+        self.assertAlmostEqual((marks['armpit'] - SHIFT[2]) / SCALE, ARMPIT, delta=0.03)
+        for side in 'lr':  # no glove's joints: the shoulder as the whole arm's, the elbow on the arm and not on a sleeve's line
+            for joint, most in (('shoulder', 0.01), ('elbow', 0.03), ('wrist', 0.03), ('tip', 0.01)):
+                self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), most, (joint, side))
 
     def test_a_short_sleeve_without_a_glove_beyond_it_is_refused(self):
         v, faces = doll(inside=sleeves_only)

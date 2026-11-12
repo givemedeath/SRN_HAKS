@@ -23,7 +23,9 @@ BIG, FINE = 0.15, 0.05  # a section curve counts as torso, arm or leg from this 
 NECK = 0.45  # the neck starts where the torso's curve is narrower than this share of its widest above the armpits
 STEP_LIMIT = 0.05  # a limb is followed to the next section's curve only within this share of the height
 SLEEVE = 4  # sections in a row with something beside the torso, above a stretch with nothing: a short sleeve over a bare arm
-ARM = 0.75  # an outfit's arm, shoulder to fingertips, is at least this share of the body's
+JOINED = 1.15  # above a short sleeve the torso's curve is at least this much wider than beside it: the sleeves have joined it
+GAP = 0.05  # a glove lies at least this share of the height below its sleeve's hem: less is a section missing from a whole arm
+ARM = 0.6  # an outfit's arm, as far as it is followed, is at least this share of the body's from shoulder to fingertips
 STRAY = 0.008  # a sleeve's ring lies this share of the height from the line through the others at most, or it is left out
 ROUND, WIDE = 0.06, 0.45  # a short sleeve's ring has its middle within this share of the height of the line through its glove,
 # and is no longer round than this share: a loose sleeve, and never the torso
@@ -92,8 +94,11 @@ def landmarks(vertices, faces):
     so the sections between have nothing beside the torso either; they are below the lowest one that has. An
     arm bare between a short sleeve and a glove has nothing beside the torso along the forearm either, and the
     first build of such an outfit put its armpit just above the gloves without a word: the armpit is above
-    the highest stretch of `SLEEVE` sections that have something beside the torso. `torso(curve)` says whether
-    a curve crosses the middle; `big` and `fine` hold the sections' curves above the two size limits."""
+    a stretch of `SLEEVE` sections that have something beside the torso, where the torso's curve is `JOINED`
+    wider above that stretch than in it. That is a sleeve joining the torso. A shoulder guard that stands
+    off above the armpit has something beside the torso too, and the torso is no wider above it: the arms
+    joined it lower down. `torso(curve)` says whether a curve crosses the middle; `big` and `fine` hold the
+    sections' curves above the two size limits."""
     vertices = np.asarray(vertices, float)
     floor, top = float(vertices[:, 2].min()), float(vertices[:, 2].max())
     height = top - floor
@@ -109,13 +114,14 @@ def landmarks(vertices, faces):
     beside = [any(not torso(curve) for curve in row) for row in big]
     hands = next((i for i in range(crotch + 1, LEVELS) if beside[i]), LEVELS)
     armpit = next((i for i in range(max(hands, crotch + LEVELS // 10), LEVELS - 4) if all(alone[i:i + 4])), None)
+    width = [max((curve['hi'][0] - curve['lo'][0] for curve in row if torso(curve)), default=0.0) for row in big]
     while armpit is not None:
         sleeve = next((i for i in range(armpit + 4, LEVELS - SLEEVE) if all(beside[i:i + SLEEVE])), None)
-        if sleeve is None:
+        above = None if sleeve is None else next((i for i in range(sleeve + SLEEVE, LEVELS - 4) if all(alone[i:i + 4])), None)
+        if above is None or max(width[above:above + 4]) < JOINED * max(width[sleeve:sleeve + SLEEVE]):
             break
-        armpit = next((i for i in range(sleeve + SLEEVE, LEVELS - 4) if all(alone[i:i + 4])), None)
+        armpit = above
     require(armpit is not None, 'No armpit found: the arms must hang clear of the torso and join it at the shoulders')
-    width = [max((curve['hi'][0] - curve['lo'][0] for curve in row if torso(curve)), default=0.0) for row in big]
     neck = next((i for i in range(armpit + 3, LEVELS) if width[i] < NECK * max(width[armpit:])), None)
     require(neck is not None, 'No neck found: the outfit must narrow to a collar above the shoulders')
     return {'floor': floor, 'top': top, 'crotch': float(levels[crotch]), 'armpit': float(levels[armpit]), 'neck': float(levels[neck]),
@@ -191,7 +197,8 @@ def rings(vertices, faces, start, toward, height):
     `toward` is a first guess at a point inside the sleeve, `start` one inside the glove, or the other way round. Sections are taken across that line every 1% of
     the outfit's `height` round the guess, and a closed curve counts when its middle lies within `ROUND` of
     the line and it is no longer round than `WIDE`: the sleeve where it is a tube, between its hem and the
-    armpit, where it joins the torso's curve. Empty when no section there is a ring."""
+    armpit, where it joins the torso's curve. Of several such curves in one section the nearest the line is
+    taken: a thigh beside a hanging hand is a ring too. Empty when no section there is a ring."""
     axis = seams.unit(toward - start)
     u, v = seams.frame(axis)
     found = []
@@ -201,13 +208,17 @@ def rings(vertices, faces, start, toward, height):
         if not len(segments):
             continue
         curve, ids = split.curves(segments)
+        here = []
         for label in np.unique(curve):
             mine, ends = segments[curve == label], ids[curve == label]
             length = np.linalg.norm(mine[:, 1] - mine[:, 0], axis=1)
             middle = ((mine[:, 0] + mine[:, 1]) / 2 * length[:, None]).sum(axis=0) / max(length.sum(), 1e-12)
             closed = (np.bincount(np.unique(ends, return_inverse=True)[1].ravel()) == 2).all()
             if closed and np.linalg.norm(middle) < ROUND * height and FINE * height < length.sum() < WIDE * height:
-                found.append(point + middle[0] * u + middle[1] * v)
+                here.append(middle)
+        if here:
+            middle = min(here, key=np.linalg.norm)
+            found.append(point + middle[0] * u + middle[1] * v)
     return np.array(found).reshape(-1, 3)
 
 
@@ -215,20 +226,21 @@ def through(points, toward, height):
     """(point, direction) of the straight line through a sleeve's ring middles, pointing down the arm, `toward` its glove.
 
     A ring that takes in a fold or a pocket has its middle off the others': middles farther than `STRAY` from
-    the line are left out and the line is laid again. With fewer than three rings on it, the line is the one
-    from their middle to `toward`."""
+    the line are left out and the line is laid again, as long as two are left on it. `toward` only says
+    which way is down the arm: the line from the sleeve to the glove is a bent arm's chord, and no stand-in
+    for the sleeve's own. One ring gives no line and is refused."""
     points, toward = np.asarray(points, float), np.asarray(toward, float)
+    require(len(points) >= 2, 'A sleeve gives the line of its arm from two rings on')
     kept = points
     for _ in range(3):
-        if len(kept) < 3:
-            break
         middle = kept.mean(axis=0)
         along = np.linalg.svd(kept - middle)[2][0]
         off = np.linalg.norm((points - middle) - ((points - middle) @ along)[:, None] * along, axis=1)
-        kept = points[off < STRAY * height]
-    if len(kept) < 3:
-        return points.mean(axis=0), seams.unit(toward - points.mean(axis=0))
-    return middle, along * np.sign((toward - middle) @ along)
+        fewer = points[off < STRAY * height]
+        if len(fewer) < 2 or len(fewer) == len(kept):
+            break
+        kept = fewer
+    return middle, along * (1.0 if (toward - middle) @ along >= 0 else -1.0)
 
 
 def at(line, z):
@@ -286,8 +298,11 @@ def outfit_joints(vertices, faces, body):
     the elbow where the upper arm and the forearm on to the wrist are as long as the body's are to each
     other. Level sections do not give that line: they cut a hem aslant, and on the first such outfit their
     middles lay 6 cm toward the armpit. Nor does the line from the glove to the sleeve: an arm is bent a
-    little at the elbow, and a trough cut along that line left the sleeve on the torso. An arm that ends short of the body's by more than `ARM` allows is refused: a sleeve
-    with no glove beyond it has no wrist to find, and its hem was taken for a hand."""
+    little at the elbow, and a trough cut along that line left the sleeve on the torso. A glove lies `GAP`
+    or more below its sleeve: what `past` finds nearer is the rest of a whole arm that a thin section
+    parted, and the arm is followed on through it as a whole one. An arm that ends short of the body's by more than `ARM` allows is
+    refused: a sleeve with no glove beyond it has no wrist to find, and its hem was taken for a hand. A long
+    sleeve followed to the wrist only, its fingers apart, is three quarters of the body's arm and passes."""
     vertices = np.asarray(vertices, float)
     marks = landmarks(vertices, faces)
     knots = [0.0, body['crotch'], body['neck'][2]], [marks['floor'], marks['crotch'], marks['neck']]
@@ -315,7 +330,8 @@ def outfit_joints(vertices, faces, body):
         height = level(body['shoulder' + side][2])
         shoulder = np.array([np.polyval(np.polyfit(upper[:, 0], upper[:, 1], 1), height), np.polyval(np.polyfit(upper[:, 0], upper[:, 2], 1), height), height])
         glove, straight = past(marks, sign, arm), None
-        if len(glove) >= 3:
+        glove = glove if len(glove) >= 3 else glove[:0]
+        if len(glove) and arm[0, 0] - glove[-1, 0] > GAP * marks['height']:
             start, sleeve = (np.average(rows[:, [1, 2, 0]], axis=0, weights=rows[:, 3]) for rows in (glove, arm))
             for _ in range(2):
                 found = rings(vertices, faces, start, sleeve, marks['height'])
@@ -323,16 +339,18 @@ def outfit_joints(vertices, faces, body):
                 sleeve = found.mean(axis=0)
                 found = rings(vertices, faces, sleeve, start, marks['height'])
                 start = found.mean(axis=0) if len(found) else start
-            middle, straight = through(rings(vertices, faces, start, sleeve, marks['height']), start, marks['height'])
+            tube = rings(vertices, faces, start, sleeve, marks['height'])
+            require(len(tube) >= 2, f'The {"left" if sign < 0 else "right"} sleeve is a tube for too short a way to give the line of its arm')
+            middle, straight = through(tube, start, marks['height'])
             require(straight[2] < -0.2, f'The {"left" if sign < 0 else "right"} sleeve does not point down the arm')
             shoulder = middle + straight * (height - middle[2]) / straight[2]
-            arm = np.concatenate([glove, arm])
+        arm = np.concatenate([glove, arm])
         path = np.concatenate([shoulder[None], arm[::-1][:, [1, 2, 0]]])  # from the shoulder down the arm
         girth = np.concatenate([[arm[-1, 3]], arm[::-1, 3]])
         arc = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(path, axis=0), axis=1))])
         require(arc[-1] * scale >= ARM * (body['upper'] + body['fore'] + body['hand']),
-                f'The {"left" if sign < 0 else "right"} arm ends {arc[-1] * scale * 100:.0f} cm from the shoulder, short of a hand: '
-                'an arm bare below a short sleeve needs a glove on the line of that sleeve')
+                f'The {"left" if sign < 0 else "right"} arm ends {arc[-1] * scale * 100:.0f} cm from the shoulder, short of a wrist: '
+                'an arm bare below a short sleeve needs a glove beyond that sleeve')
         end = np.flatnonzero(arc > 0.8 * arc[-1])
         palm = end[np.argmax(girth[end])]
         window = np.flatnonzero((arc <= arc[palm]) & (arc > arc[palm] - 0.14 * arc[-1]))

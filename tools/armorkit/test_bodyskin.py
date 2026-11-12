@@ -70,16 +70,29 @@ class BodySkinTests(unittest.TestCase):
     def test_what_a_sleeve_hides_of_the_arm_is_left_out_but_for_a_band_under_its_hem(self):
         own = arm()
         start, end = (0, 0, 1.5), (0, 0, 1.2)
-        sleeve = tube(start, (0, 0, 1.35), 0.07, around=24, along=8)[0]  # down to 15 cm from the shoulder
-        kept = bodyskin.shown(own['v'], own['f'], sleeve, start, end, band=0.04)
+        sleeve = tube(start, (0, 0, 1.35), 0.07, around=24, along=8)[:2]  # down to 15 cm from the shoulder
+        kept = bodyskin.shown(own['v'], own['f'], *sleeve, start, end, band=0.04)
         top = own['v'][own['f']][:, :, 2].max(axis=1)  # a face's highest corner
         self.assertTrue(kept[top < 1.39 - 1e-6].all())  # from 11 cm down, all of the arm
         self.assertFalse(kept[top > 1.42].any())
         self.assertTrue(0.3 < kept.mean() < 0.8)
         # a hem that hangs lower on one side hides no more than its highest reach there and beside it
-        slanted = np.concatenate([sleeve, tube((0.07, 0, 1.35), (0.07, 0, 1.25), 0.005, around=4, along=4)[0]])
-        self.assertTrue(np.array_equal(bodyskin.shown(own['v'], own['f'], slanted, start, end, band=0.04), kept))
-        self.assertTrue(bodyskin.shown(own['v'], own['f'], np.zeros((0, 3)), start, end).all())  # no sleeve: the whole arm
+        def with_piece(top, bottom):
+            piece = tube((0.07, 0, top), (0.07, 0, bottom), 0.005, around=4, along=4)[:2]
+            return np.concatenate([sleeve[0], piece[0]]), np.concatenate([sleeve[1], piece[1] + len(sleeve[0])])
+
+        self.assertTrue(np.array_equal(bodyskin.shown(own['v'], own['f'], *with_piece(1.35, 1.25), start, end, band=0.04), kept))
+        # a band farther down the arm is no part of the sleeve: the skin between the two is seen, and under the band too
+        band_only = tube((0, 0, 1.3), (0, 0, 1.22), 0.07, around=24, along=4)[:2]
+        banded = np.concatenate([sleeve[0], band_only[0]]), np.concatenate([sleeve[1], band_only[1] + len(sleeve[0])])
+        self.assertTrue(np.array_equal(bodyskin.shown(own['v'], own['f'], *banded, start, end, band=0.04), kept))
+        self.assertTrue(bodyskin.shown(own['v'], own['f'], *band_only, start, end).all())  # and with no sleeve above it hides nothing
+        wide = tube((0, 0, 1.32), (0, 0, 1.2), 0.07, around=24, along=6)[:2]  # a guard of 12 cm hides its middle, 4 cm from either end
+        top = own['v'][own['f']][:, :, 2].max(axis=1)
+        low = own['v'][own['f']][:, :, 2].min(axis=1)
+        under = bodyskin.shown(own['v'], own['f'], *wide, start, end, band=0.04)
+        self.assertTrue(under[(top > 1.29) | (low < 1.23)].all() and not under[(top < 1.28 - 1e-6) & (low > 1.24 + 1e-6)].any())
+        self.assertTrue(bodyskin.shown(own['v'], own['f'], np.zeros((0, 3)), np.zeros((0, 3), int), start, end).all())  # no sleeve: the whole arm
 
     def test_a_texture_is_made_smaller_by_its_kind_and_larger_by_repeating(self):
         grey = np.arange(16.0).reshape(4, 4)
@@ -118,11 +131,13 @@ class BodySkinTests(unittest.TestCase):
         self.assertTrue(np.allclose(both['relief'][4:, 4:], bodyskin.resized(own['relief'], 4, 'normal')))
         self.assertTrue(np.array_equal(both['relief'][:4, :4], mine['relief']))
         self.assertTrue(np.allclose(both['skin_rough'][4:, 4:] / 255, bodyskin.resized(own['rough'], 4), atol=1 / 255))
-        self.assertTrue((both['skin_rough'][:4, :4] == round(bodyskin.ROUGH * 255)).all())
-        # and run on a little into the two quarters nothing lies in, never into the outfit's
+        self.assertTrue((both['skin_rough'][:4, :4] == round(texture.ROUGHNESS * 255)).all())
+        # and their edges run on through the two quarters nothing lies in, never into the outfit's
         at = both['skin_at']
-        self.assertTrue(at[4:, 4:].all() and at[4:, 4 - bodyskin.EDGE:4].all() and at[4 - bodyskin.EDGE:4, 4:].all() and not at[:4, :4].any())
-        self.assertTrue(np.array_equal(both['skin_tint'][3, 4:], both['skin_tint'][4, 4:]) and np.array_equal(both['skin_tint'][4:, 3], both['skin_tint'][4:, 4]))
+        self.assertTrue(at[4:].all() and at[:, 4:].all() and not at[:4, :4].any())
+        for key in ('skin_tint', 'relief', 'skin_rough'):
+            self.assertTrue(all(np.array_equal(both[key][row, 4:], both[key][4, 4:]) for row in range(4)), key)
+            self.assertTrue(all(np.array_equal(both[key][4:, column], both[key][4:, 4]) for column in range(4)), key)
         for key in ('added', 'domed'):
             self.assertFalse(both[key][skin].any())
         self.assertTrue((both['trimmed'][skin] == -1).all() and len(both['src']) == len(both['v']))
