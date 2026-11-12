@@ -4693,7 +4693,7 @@ class DesignTests(Temporary):
         # Every design test must stay offline: any real HTTP attempt fails the test.
         guard=patch('urllib.request.urlopen',side_effect=AssertionError('network contact in a design test'));guard.start();self.addCleanup(guard.stop)
         # The fakes stand for a controlled ComfyUI; proving a server is test_shared_comfy's job.
-        proven=patch('headkit.shared_comfy.live',return_value={});proven.start();self.addCleanup(proven.stop)
+        proven=patch('headkit.shared_comfy.proven',return_value={'identity':{},'approval':None});proven.start();self.addCleanup(proven.stop)
         recheck=patch('headkit.shared_comfy.recheck');self.recheck=recheck.start();self.addCleanup(recheck.stop)
         sleep=patch('headkit.design.time.sleep');sleep.start();self.addCleanup(sleep.stop)
         self.local={'comfyUrl':'http://127.0.0.1:8188','comfyInput':str(self.root/'comfy-in'),'comfyOutput':str(self.root/'comfy-out')}

@@ -157,7 +157,7 @@ class MakeTests(unittest.TestCase):
         from PIL import Image
         self.folder = tempfile.TemporaryDirectory(); self.addCleanup(self.folder.cleanup); self.root = Path(self.folder.name)
         # The fake stands for a controlled ComfyUI; the GPU lease lives in this test's own tools root.
-        for patcher in (mock.patch('tools.headkit.shared_comfy.live', return_value={}),
+        for patcher in (mock.patch('tools.headkit.shared_comfy.proven', return_value={'identity': {}, 'approval': None}),
                         mock.patch('tools.headkit.shared_comfy.recheck'),
                         mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.root / 'tools')})):
             patcher.start(); self.addCleanup(patcher.stop)

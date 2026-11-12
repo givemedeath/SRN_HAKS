@@ -69,7 +69,7 @@ the Windows Store Python shim is rejected.
 
 ## Shared ComfyUI
 
-All sessions and the user share one ComfyUI on one GPU. Every toolkit submits through `tools/headkit/shared_comfy.py`: host GPU lease (`<tools root>/locks/gpu-<index>`), idle queue, proven server. The proof is frozen at dispatch (`frozen`) and rechecked before any output is accepted (`recheck`): same server process, still matching the approval it ran under. A ComfyUI the toolkit did not start (Comfy Desktop) is usable only while it matches the snapshot the user approved, published in `<tools root>/comfy/shared-comfy.json`. Never start, stop or restart a shared server from a driver. Capture, approval and status: `docs/heads/head-generation-toolkit.md`, "Shared Comfy Desktop (attested)".
+All sessions and the user share one ComfyUI on one GPU. Every toolkit submits through `tools/headkit/shared_comfy.py`: host GPU lease (`<tools root>/locks/gpu-<index>`), idle queue, proven server. The slot yields its dispatch proof (`proven`: the identity and the one approval it matched), rechecked before any output is accepted (`recheck`): same server process, still matching the approval it ran under. A ComfyUI the toolkit did not start (Comfy Desktop) is usable only while it matches the snapshot the user approved, published in `<tools root>/comfy/shared-comfy.json`. Never start, stop or restart a shared server from a driver. Capture, approval and status: `docs/heads/head-generation-toolkit.md`, "Shared Comfy Desktop (attested)".
 
 ## Adopting the infrastructure
 

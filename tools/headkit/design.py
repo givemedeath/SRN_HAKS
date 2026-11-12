@@ -210,8 +210,7 @@ def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=Fal
     require(0 <= deadline <= 21600, 'Design deadline must be 0-21600 s')
     record['queue'] = {'deadline': deadline, 'front': bool(front)}
     from . import shared_comfy
-    with shared_comfy.slot(client, local) as identity:  # GPU lease, idle queue, proven server (approved if shared; `local` binding first)
-        proof = shared_comfy.frozen(identity, local)
+    with shared_comfy.slot(client, local) as proof:  # GPU lease, idle queue, proven server (approved if shared; `local` binding first)
         response = client.request('/prompt', dict({'prompt': graph, 'client_id': token}, **({'front': True} if front else {})))
     require(isinstance(response, dict) and response.get('prompt_id') and not response.get('node_errors'),
             'ComfyUI rejected the design request: ' + json.dumps(response)[:2000])

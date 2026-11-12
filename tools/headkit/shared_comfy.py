@@ -38,12 +38,22 @@ def _key(path):
     return os.path.normcase(str(Path(path).resolve()))
 
 
+def _held(key):
+    """'thread' when this thread holds the lease, 'inherited' when a parent process does (it set LEASE_ENV with its
+    pid before starting this one), else None. Another thread of the holding process sees its own pid there: not a
+    hold of its own, so it waits for the mutex like any other submitter."""
+    if key in getattr(_STATE, 'leases', ()): return 'thread'
+    marker = os.environ.get(LEASE_ENV, '')
+    holder, _, pid = marker.rpartition('|')
+    return 'inherited' if holder == key and pid.isdigit() and int(pid) != os.getpid() else None
+
+
 @contextmanager
 def gpu_lease(index=0, root=None, *, limit=WAIT_SECONDS, poll=5.0, say=print, sleep=None):
-    """Hold the host GPU lease, waiting up to `limit` seconds for another holder to let it go. Nested or inherited
-    holds (a child of the launcher that holds it) pass straight through."""
+    """Hold the host GPU lease, waiting up to `limit` seconds for another holder to let it go. Nested holds on this
+    thread and inherited holds (a child of the launcher that holds it) pass straight through."""
     path = lease_path(index, root); key = _key(path); sleep = sleep or time.sleep
-    if os.environ.get(LEASE_ENV) == key:
+    if _held(key):
         yield path; return
     started = time.monotonic(); told = False
     while True:
@@ -54,25 +64,32 @@ def gpu_lease(index=0, root=None, *, limit=WAIT_SECONDS, poll=5.0, say=print, sl
             require(time.monotonic() - started < limit, f'The shared GPU stayed leased for {limit} s; nothing submitted')
             if not told and say: say(f'waiting for the shared GPU lease ({path}): another session is submitting', flush=True); told = True
             sleep(poll)
-    previous = os.environ.get(LEASE_ENV); os.environ[LEASE_ENV] = key
+    previous = os.environ.get(LEASE_ENV); os.environ[LEASE_ENV] = f'{key}|{os.getpid()}'
+    leases = _STATE.__dict__.setdefault('leases', set()); leases.add(key)
     try:
         yield path
     finally:
+        leases.discard(key)
         if previous is None: os.environ.pop(LEASE_ENV, None)
         else: os.environ[LEASE_ENV] = previous
         held.__exit__(None, None, None)
 
 
+def proven(fetch, local=None, root=None):
+    """The dispatch proof a submitter keeps for `recheck`: the server's validated live identity and, for an attested
+    server, the one approval it was checked against, read once (a later registry approval does not apply to a job
+    already running). Refused unless the server is controlled or matches that approval."""
+    from .source_inventory import validate_comfy_runtime
+    identity = validate_comfy_runtime(fetch('/headkit/runtime-identity'))
+    if not attestation.attested(identity): return {'identity': identity, 'approval': None}
+    binding = attestation.approval(local, root)
+    attestation.check(identity, {'comfyAttestation': binding})
+    return {'identity': identity, 'approval': binding}
+
+
 def live(fetch, local=None, root=None):
     """The server's validated live identity, refused unless it is controlled or matches the approved snapshot."""
-    from .source_inventory import validate_comfy_runtime
-    return attestation.check(validate_comfy_runtime(fetch('/headkit/runtime-identity')), local, root)
-
-
-def frozen(identity, local=None, root=None):
-    """What a submitter keeps from its dispatch proof: the identity, and for an attested server the exact approval
-    it was proven against (a later registry approval does not apply to a job already running)."""
-    return {'identity': identity, 'approval': attestation.approval(local, root) if attestation.attested(identity) else None}
+    return proven(fetch, local, root)['identity']
 
 
 def recheck(fetch, proof):
@@ -103,16 +120,17 @@ def wait_idle(fetch, *, limit=WAIT_SECONDS, poll=15.0, say=print, sleep=None):
 
 @contextmanager
 def slot(client, local=None, *, prove=True, index=0, root=None, limit=WAIT_SECONDS, poll=15.0, say=print, sleep=None):
-    """Lease, prove, wait for idle; submit inside. `prove=False` only where the caller proves the identity itself
-    inside the slot (headkit's dispatch verification)."""
+    """Lease, wait for idle, prove; submit inside. Yields the dispatch proof (`proven`) to pass to `recheck` before
+    outputs are accepted. `prove=False` only where the caller proves the identity itself inside the slot (headkit's
+    dispatch verification); it yields None."""
     fetch = getattr(client, 'request', None) or client.call
     with gpu_lease(index, root, limit=limit, say=say, sleep=sleep):
         wait_idle(fetch, limit=limit, poll=poll, say=say, sleep=sleep)
         # Proven after the wait, which can be long: the server may have restarted or changed meanwhile.
-        identity = live(fetch, local, root) if prove else None
+        proof = proven(fetch, local, root) if prove else None
         _STATE.depth = getattr(_STATE, 'depth', 0) + 1
         try:
-            yield identity
+            yield proof
         finally:
             _STATE.depth -= 1
 
@@ -122,7 +140,7 @@ def holding():
     return getattr(_STATE, 'depth', 0) > 0
 
 
-def status(client, local=None, root=None):
+def status(client, local=None, root=None, index=0):
     """What a person or a driver checks first: the registry, whether the live server matches it, the queue and lease."""
     out = {'endpoint': client.url, 'registry': attestation.published(root)}
     try:
@@ -132,7 +150,10 @@ def status(client, local=None, root=None):
         out['server'] = f'refused: {exc}'
     try: out['queueIdle'] = idle(client.request)
     except Exception as exc: out['queueIdle'] = f'unreachable: {exc}'
-    try:
-        with gpu_lease(0, root, limit=0, say=None): out['lease'] = 'free'
-    except ValueError: out['lease'] = 'held by another session'
+    mine = _held(_key(lease_path(index, root)))
+    if mine: out['lease'] = f'held by this session ({mine})'
+    else:
+        try:
+            with gpu_lease(index, root, limit=0, say=None): out['lease'] = 'free'
+        except ValueError: out['lease'] = 'held by another session'
     return out

@@ -52,8 +52,8 @@ def export_settings(graph, settings):
 
 
 def enter(lease, client):
-    """Wait in the shared_comfy.slot (kept open by `lease`) and freeze what it proved, for `run` to recheck."""
-    return shared_comfy.frozen(lease.enter_context(shared_comfy.slot(client)))
+    """Wait in the shared_comfy.slot (kept open by `lease`); its dispatch proof is what `run` rechecks."""
+    return lease.enter_context(shared_comfy.slot(client))
 
 
 def run(client, url, graph, token, folder, lease, proof, deadline=DEADLINE, poll=POLL):

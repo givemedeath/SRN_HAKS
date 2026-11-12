@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
@@ -56,7 +57,7 @@ class SharedComfyTests(unittest.TestCase):
         live = identity(self.root/'desktop'); self.approve(live)
         client, naps = Fake(live, busy=2), []
         with shared_comfy.slot(client, sleep=naps.append, say=None) as proven:
-            self.assertIs(proven, live); client.request('/prompt')
+            self.assertEqual(proven, {'identity': live, 'approval': attestation.published()['attestation']}); client.request('/prompt')
         self.assertEqual(client.posted, [True]); self.assertEqual(len(naps), 2); self.assertFalse(shared_comfy.holding())
         with self.assertRaisesRegex(ValueError, 'shared_comfy.slot'): Client('http://127.0.0.1:9').request('/prompt', {})
         with self.assertRaisesRegex(ValueError, 'stayed busy'):
@@ -81,8 +82,21 @@ class SharedComfyTests(unittest.TestCase):
             with shared_comfy.gpu_lease(0, self.root, limit=0, say=None): pass
         holder.kill(); holder.wait()
         with shared_comfy.gpu_lease(0, self.root, say=None):
-            self.assertEqual(os.environ[shared_comfy.LEASE_ENV], os.path.normcase(str(path.resolve())))
-            with shared_comfy.gpu_lease(0, self.root, limit=0, say=None): pass        # nested or a child: no wait
+            self.assertEqual(os.environ[shared_comfy.LEASE_ENV], f'{os.path.normcase(str(path.resolve()))}|{os.getpid()}')
+            with shared_comfy.gpu_lease(0, self.root, limit=0, say=None): pass        # nested on this thread: no wait
+            self.assertEqual(shared_comfy.status(Fake(identity(self.root/'desktop')), root=self.root)['lease'], 'held by this session (thread)')
+            refused = []
+            def other():  # another thread of this process holds nothing of its own: it waits like any submitter
+                try:
+                    with shared_comfy.gpu_lease(0, self.root, limit=0, say=None): pass
+                except ValueError as exc: refused.append(str(exc))
+            worker = threading.Thread(target=other); worker.start(); worker.join()
+            self.assertEqual(len(refused), 1); self.assertIn('stayed leased', refused[0])
+            child = subprocess.run([sys.executable, '-c', 'import sys;sys.path.insert(0,sys.argv[1]);'
+                                    'from headkit.shared_comfy import gpu_lease;'
+                                    'cm=gpu_lease(0,sys.argv[2],limit=0,say=None);cm.__enter__();print("inherited")',
+                                    str(Path(__file__).resolve().parents[1]), str(self.root)], capture_output=True, text=True)
+            self.assertEqual(child.stdout.strip(), 'inherited', child.stderr)  # a child of the holder passes through
         self.assertNotIn(shared_comfy.LEASE_ENV, os.environ)
 
     def test_a_design_job_is_held_to_its_own_attestation_binding_first(self):
@@ -98,14 +112,14 @@ class SharedComfyTests(unittest.TestCase):
 
     def test_a_job_is_rechecked_against_the_proof_frozen_at_dispatch(self):
         live = identity(self.root/'desktop'); approved = self.approve(live)['binding']
-        proof = shared_comfy.frozen(shared_comfy.live(Fake(live).request), {})
+        proof = shared_comfy.proven(Fake(live).request, {})
         self.assertEqual(proof['approval'], approved)
         self.assertIs(shared_comfy.recheck(Fake(live).request, proof), live)
         restarted = dict(live, session=dict(live['session'], pid=2))
         with self.assertRaisesRegex(ValueError, 'restarted during the job'): shared_comfy.recheck(Fake(restarted).request, proof)
         changed = dict(live, files=[{'path': 'C:/site/torch/__init__.py', 'sha256': '9' * 64}])
         with self.assertRaisesRegex(ValueError, 'differs from its approved snapshot'): shared_comfy.recheck(Fake(changed).request, proof)
-        controlled = identity(self.root/'desktop', mode=None); proof = shared_comfy.frozen(controlled)
+        controlled = identity(self.root/'desktop', mode=None); proof = shared_comfy.proven(Fake(controlled).request)
         self.assertIsNone(proof['approval'])
         with self.assertRaisesRegex(ValueError, 'runtime files changed'):
             shared_comfy.recheck(Fake(dict(controlled, files=changed['files'])).request, proof)

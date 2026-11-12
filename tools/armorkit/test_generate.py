@@ -61,7 +61,7 @@ class GenerateTests(unittest.TestCase):
         self.work = Path(self.temporary.name).resolve()
         # The fakes stand for a controlled ComfyUI; the GPU lease lives in this test's own tools root.
         self.recheck = mock.patch('tools.headkit.shared_comfy.recheck')
-        for patcher in (mock.patch('tools.headkit.shared_comfy.live', return_value={'proven': 'at dispatch'}),
+        for patcher in (mock.patch('tools.headkit.shared_comfy.proven', return_value={'identity': {'proven': 'at dispatch'}, 'approval': None}),
                         mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.work / 'tools')})):
             patcher.start(); self.addCleanup(patcher.stop)
         self.recheck = self.recheck.start(); self.addCleanup(mock.patch.stopall)
