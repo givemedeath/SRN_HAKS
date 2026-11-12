@@ -180,9 +180,12 @@ def submit(ledger, key, asset, operation, arguments, folder, *, run=run_cli):
     except NotSent:
         ledger.release(key); raise
     error = response.get('error') if isinstance(response.get('error'), dict) else {}
-    if code != 0 and error.get('http_status') in REFUSED:  # Meshy answered, and the answer was no: nothing was created
+    result = response.get('result') if isinstance(response.get('result'), dict) else {}
+    rejected = (result.get('submission') or {}).get('state') == 'rejected'  # the CLI remembers a refused operation id
+    if code != 0 and (error.get('http_status') in REFUSED or rejected):  # the answer was no: nothing was created
         ledger.release(key)
-        raise ValueError(f'Meshy refused {key}: {error.get("message")}')
+        raise ValueError(f'Meshy refused {key}' + ('; the CLI will not send this key again, so use a new one' if rejected else '')
+                         + f': {error.get("message")}')
     task = task_fields(response)['id'] if code == 0 else None
     ledger.update(key, state='submitted' if task else 'uncertain', taskId=task)
     require(task, 'Submission uncertain; check the Meshy task list before any retry of ' + key)

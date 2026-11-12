@@ -118,6 +118,13 @@ class MeshyTests(unittest.TestCase):
             meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=full)
         self.assertEqual((meshy.Ledger(self.ledger.path).data['entries'], self.ledger.committed()), ([], 0))
 
+        def remembered(arguments, folder):  # the CLI keeps a refused operation id and answers for Meshy the next time
+            return 1, {'ok': False, 'result': {'submission': {'state': 'rejected', 'task_id': None}, 'task': None},
+                       'error': {'code': 'operation_conflict', 'http_status': None, 'message': 'already rejected'}}
+        with self.assertRaisesRegex(ValueError, 'use a new one'):
+            meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=remembered)
+        self.assertEqual(self.ledger.committed(), 0)
+
     def test_a_call_refused_before_it_is_sent_gives_its_reservation_back(self):
         def refuse(arguments, folder):
             raise meshy.NotSent('npm not found')
