@@ -252,6 +252,7 @@
     "tools/envkit/test_glow.py": [
       "tools/envkit/convert.py",
       "tools/envkit/glow.py",
+      "tools/envkit/sets/ares-depot-game.json",
       "tools/envkit/sets/stuffer-shack-game.json"
     ],
     "tools/envkit/test_local.py": [
