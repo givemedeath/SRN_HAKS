@@ -233,6 +233,16 @@ def two_sided(points, normals, uvs, faces, tilt, *, gap=0.02):
             np.concatenate([kept, kept + len(used)]))
 
 
+def scatter(vertices, faces, spacing=0.04, seed=0, *, sources=False):
+    """Points spread evenly over the mesh's surface, about `spacing` apart: upright faces show as well as level ones,
+    which a view from above would miss. With `sources`, also each point's face and its weights on that face's corners."""
+    corners = vertices[faces]; area = np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1) / 2
+    count = np.maximum(1, np.ceil(area / spacing ** 2).astype(int)); pick = np.repeat(np.arange(len(faces)), count)
+    weights = np.random.default_rng(seed).dirichlet((1, 1, 1), len(pick))
+    points = (corners[pick] * weights[:, :, None]).sum(1)
+    return (points, pick, weights) if sources else points
+
+
 def split(faces, limit=NODE_VERTICES):
     """Face runs whose vertices each fit one mesh node: [(old vertex indices, faces renumbered to them)]."""
     parts, start = [], 0
@@ -694,6 +704,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
     require(not halo or lit, 'A halo spreads the lit parts: name them')
     require(not lit or illumination is None, 'Give the lit parts or a glow map, not both')
+    wire = None
+    if fence:  # before the long work on the pictures: a fence that is refused is refused in the first seconds
+        _hung(vertices, faces, fence); wire = sheets(fence)
     shown = flat = plain = placed = None; retouched = tone is not None or paint or smooth or mesh
     if lit or retouched:
         from PIL import Image
@@ -711,18 +724,15 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         where, covered, toward = placed; shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
-    if fence:
-        _hung(vertices, faces, fence)
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
-            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': sheets(fence) if fence else None}
+            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire}
 
 
 def _hung(vertices, faces, fences):
     """Refuse a fence either end of which is at no part of the model. A fence hangs between its posts, and its ends are
     stated on the finished model, turned and lifted; one measured before a turn would pass every check of its heights
     and be built hanging in the air (the wall sign's lit boxes went wrong the same way, 2026-11-12)."""
-    from . import tile
-    surface = tile.scatter(vertices, faces, spacing=FENCE_NEAR / 3)  # places all over the model: a post's flat side may have no corner near
+    surface = scatter(vertices, faces, spacing=FENCE_NEAR / 3)  # places all over the model: a post's flat side may have no corner near
     for one in fences:
         low, high = (float(value) for value in one['z'])
         level = surface[(surface[:, 2] >= low - FENCE_NEAR) & (surface[:, 2] <= high + FENCE_NEAR)][:, :2]

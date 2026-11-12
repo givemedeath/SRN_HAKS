@@ -86,14 +86,7 @@ def layout(vertices):
     return rows, columns, middle - np.array([columns, rows]) * SIZE / 2
 
 
-def scatter(vertices, faces, spacing=0.04, seed=0, *, sources=False):
-    """Points spread evenly over the mesh's surface, about `spacing` apart: upright faces show as well as level ones,
-    which a view from above would miss. With `sources`, also each point's face and its weights on that face's corners."""
-    corners = vertices[faces]; area = np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1) / 2
-    count = np.maximum(1, np.ceil(area / spacing ** 2).astype(int)); pick = np.repeat(np.arange(len(faces)), count)
-    weights = np.random.default_rng(seed).dirichlet((1, 1, 1), len(pick))
-    points = (corners[pick] * weights[:, :, None]).sum(1)
-    return (points, pick, weights) if sources else points
+scatter = convert.scatter  # a mesh's surface as points: `convert` has it, for what it checks on a model before any tile is cut
 
 
 def minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground):

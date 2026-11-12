@@ -217,8 +217,7 @@
       "docs/additions/catalog.json"
     ],
     "tools/envkit/convert.py": [
-      "tools/envkit/glow.py",
-      "tools/envkit/tile.py"
+      "tools/envkit/glow.py"
     ],
     "tools/envkit/glow.py": [],
     "tools/envkit/local.py": [

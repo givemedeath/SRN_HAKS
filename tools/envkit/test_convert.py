@@ -207,6 +207,10 @@ class ConvertTests(unittest.TestCase):
         self.assertGreater(len(convert.shape(model, maps, height=2.0, fence=[sheet])['wire']['faces']), 0)
         with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):  # measured before a turn: it would hang beside the wall
             convert.shape(model, maps, height=2.0, fence=[{**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
+        with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as placed:  # and it is said before the long work on the pictures
+            with self.assertRaisesRegex(ValueError, 'hangs between posts'):
+                convert.shape(model, maps, height=2.0, lit=whole, paint=cover, fence=[{**sheet, 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
+        self.assertEqual(placed.call_count, 0)
 
     def test_a_fence_is_hung_as_sheets_that_show_a_wire_picture_of_their_own(self):
         """The same fence's frames came back empty. A sheet is real faces, seen through between its wires. The wires are
