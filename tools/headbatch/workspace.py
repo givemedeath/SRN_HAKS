@@ -163,6 +163,8 @@ class Workspace:
             # GPU lease and read the same shared ComfyUI registry (headkit.shared_comfy) as the launch that holds it.
             # (shared_tools.tools_root resolves an explicit root exactly so, then checks it; the launcher checks it.)
             environment['SRN_TOOLS_ROOT'] = str(Path(self.data['toolsRoot']).expanduser().resolve())
+        # And its GPU: children submit under the same gpu-<index> lease (headkit.shared_comfy.gpu_index).
+        environment['SRN_GPU_INDEX'] = str(self.data.get('comfy', {}).get('gpuIndex', 0))
         path = ([str(TOOLS)] if tools else [])+(self.package_paths() if packages else [])
         if path:
             environment['PYTHONPATH'] = os.pathsep.join(path)

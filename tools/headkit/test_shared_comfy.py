@@ -70,6 +70,18 @@ class SharedComfyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'launch arguments changed'):
             with shared_comfy.slot(Fake(changed), say=None): self.fail('a drifted server got a slot')
 
+    def test_a_child_leases_the_gpu_its_launcher_names(self):
+        self.assertEqual(shared_comfy.lease_path(root=self.root).name, 'gpu-0')
+        with mock.patch.dict(os.environ, {shared_comfy.INDEX_ENV: '1'}):
+            self.assertEqual(shared_comfy.lease_path(root=self.root).name, 'gpu-1')
+            self.assertEqual(shared_comfy.lease_path(0, self.root).name, 'gpu-0')    # an explicit index wins
+            with shared_comfy.gpu_lease(1, self.root, say=None):                    # the launcher's hold on gpu-1
+                with shared_comfy.slot(Fake(identity(self.root/'desktop', mode=None)), root=self.root, say=None) as proof:
+                    self.assertIsNotNone(proof)                                     # nested on gpu-1: no second lease
+                    self.assertEqual(shared_comfy.status(Fake({}), root=self.root)['lease'], 'held by this session (thread)')
+        with mock.patch.dict(os.environ, {shared_comfy.INDEX_ENV: 'x'}), self.assertRaisesRegex(ValueError, 'SRN_GPU_INDEX'):
+            shared_comfy.lease_path(root=self.root)
+
     def test_a_marker_left_by_an_ended_or_released_owner_is_not_a_hold(self):
         key = os.path.normcase(str(shared_comfy.lease_path(0, self.root).resolve()))
         dead = int(subprocess.run([sys.executable, '-c', 'import os;print(os.getpid())'], capture_output=True, text=True).stdout)

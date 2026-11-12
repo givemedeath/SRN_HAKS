@@ -24,13 +24,25 @@ from . import attestation
 from .common import require
 from .gpu_lock import locked
 
+INDEX_ENV = 'SRN_GPU_INDEX'  # the GPU a launcher's children submit to (headbatch: the workspace's comfy.gpuIndex)
 LEASE_ENV = 'SRN_GPU_LEASE'  # the lease a launcher holds for the job it started (headbatch), so its child need not wait
 WAIT_SECONDS = 2700
 _STATE = threading.local()
 
 
-def lease_path(index=0, root=None):
+def gpu_index(index=None):
+    """The GPU a submission leases: the explicit index, else SRN_GPU_INDEX (a headbatch launcher passes its
+    workspace's comfy.gpuIndex to its children, so they take the lease it holds), else 0."""
+    if index is None:
+        value = os.environ.get(INDEX_ENV, '0')
+        require(value.isdigit(), f'{INDEX_ENV} must be a nonnegative integer')
+        index = int(value)
     require(type(index) is int and index >= 0, 'GPU index must be a nonnegative integer')
+    return index
+
+
+def lease_path(index=None, root=None):
+    index = gpu_index(index)
     return Path(root or attestation.tools_root())/'locks'/f'gpu-{index}'
 
 
@@ -71,7 +83,7 @@ def _alive(pid):
 
 
 @contextmanager
-def gpu_lease(index=0, root=None, *, limit=WAIT_SECONDS, poll=5.0, say=print, sleep=None):
+def gpu_lease(index=None, root=None, *, limit=WAIT_SECONDS, poll=5.0, say=print, sleep=None):
     """Hold the host GPU lease, waiting up to `limit` seconds for another holder to let it go. Nested holds on this
     thread pass straight through, and so does an inherited hold (a child of the launcher that holds it) while its
     owner still runs and the mutex is still taken; a marker left by an owner that ended or let go is not trusted, and
@@ -148,7 +160,7 @@ def wait_idle(fetch, *, limit=WAIT_SECONDS, poll=15.0, say=print, sleep=None):
 
 
 @contextmanager
-def slot(client, local=None, *, prove=True, index=0, root=None, limit=WAIT_SECONDS, poll=15.0, say=print, sleep=None):
+def slot(client, local=None, *, prove=True, index=None, root=None, limit=WAIT_SECONDS, poll=15.0, say=print, sleep=None):
     """Lease, wait for idle, prove; submit inside. Yields the dispatch proof (`proven`) to pass to `recheck` before
     outputs are accepted. `prove=False` only where the caller proves the identity itself inside the slot (headkit's
     dispatch verification); it yields None."""
@@ -169,7 +181,7 @@ def holding():
     return getattr(_STATE, 'depth', 0) > 0
 
 
-def status(client, local=None, root=None, index=0):
+def status(client, local=None, root=None, index=None):
     """What a person or a driver checks first: the registry, whether the live server matches it, the queue and lease."""
     out = {'endpoint': client.url, 'registry': attestation.published(root)}
     try:

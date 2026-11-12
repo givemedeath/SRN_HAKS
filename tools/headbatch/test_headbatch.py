@@ -381,6 +381,9 @@ class WorkspaceTests(Base):
             self.assertEqual(environment['SRN_TOOLS_ROOT'], str(own.resolve()))
             self.assertEqual(Path(environment['SRN_TOOLS_ROOT']), bound.tools_root())
             self.assertEqual(unbound.python_environment()['SRN_TOOLS_ROOT'], str(self.root/'elsewhere'))  # none set: unchanged
+        second = Workspace(self.workspace.root, {**data, 'comfy': {**data.get('comfy', {}), 'gpuIndex': 1}})
+        self.assertEqual(second.python_environment()['SRN_GPU_INDEX'], '1')  # children lease the launcher's GPU
+        self.assertEqual(unbound.python_environment()['SRN_GPU_INDEX'], str(data.get('comfy', {}).get('gpuIndex', 0)))
 
 
 class Guards(Base):
