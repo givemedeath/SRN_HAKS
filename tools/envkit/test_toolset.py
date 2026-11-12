@@ -55,6 +55,9 @@ class ToolsetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'The built packs are needed.*srn_t_dgt04.*srn.tlk'):
             toolset.prepare(self.root / 'fresh', built)
         self.assertFalse((self.root / 'fresh').exists())
+        with self.assertRaisesRegex(ValueError, 'linked through cmd'):  # cmd would cut the path at the ampersand
+            toolset.prepare(self.root / 'R&D' / 'user', built)
+        self.assertFalse((self.root / 'R&D').exists())
 
     @unittest.skipUnless(os.name == 'nt', 'junctions are made with mklink')
     def test_retiring_takes_the_junction_away_and_leaves_the_packs(self):

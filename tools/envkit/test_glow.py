@@ -171,10 +171,22 @@ class GlowTests(unittest.TestCase):
             cube = [[0, 0, 0], [1, 1, 1]]; door = {'at': [0, 1, 0.2], 'type': 58, 'leaf': 2.1}
             for stated in ({'lit': [{'box': cube}]}, {'paint': [{'box': cube, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': cube, 'radius': 0.1}]},
                            {'mesh': [{'box': cube, 'pitch': 0.09, 'wire': 0.016}]}, {'fence': [sheet]}, {'close': [{'corners': [[0, 0, 0], [1, 0, 0], [0, 0, 1]]}]}, {'tiles': {**tiles, 'door': door}}, {'tiles': {**tiles, 'fade': 3.0}}):
-                refused({'source': 'meshy/x', 'height': 9.5, **stated}, 'says the height it had when they were measured')
-                refused({'source': 'meshy/x', 'height': 9.5, 'measuredAt': 12.35, **stated}, 'measured with the model 12.35 metres tall and it is now 9.5')
+                refused({'source': 'meshy/x', 'height': 9.5, **stated}, 'says how it stood when they were measured')
+                refused({'source': 'meshy/x', 'height': 9.5, 'measuredAt': 12.35, **stated}, 'measured with the model at height 12.35 and it is now at height 9.5')
                 path = Path(scratch) / 'measured.json'; path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, **stated}}}), encoding='utf-8')
                 self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], 9.5)
+            # The boxes are on the model as lifted, turned and tilted: a model that states one of those says it with the
+            # height, and a lift or turn changed since has them measured again.
+            hung = {'source': 'meshy/x', 'height': 1.6, 'lift': 2.4, 'lit': [{'box': [[-1, 0, 2.5], [1, 1, 3.9]]}]}
+            refused(hung, r'measuredAt: \{"height": 1.6, "lift": 2.4\}'); refused({**hung, 'measuredAt': 1.6}, 'at height 1.6 and it is now at height 1.6, lift 2.4')
+            refused({**hung, 'measuredAt': {'height': 1.6, 'lift': 2.0}}, 'at height 1.6, lift 2.0 and it is now at height 1.6, lift 2.4')
+            refused({**hung, 'measuredAt': {'height': 1.6, 'lift': 2.4, 'turn': 90}}, 'turn 90 and it is now at height 1.6, lift 2.4'); refused({**hung, 'measuredAt': 'yes'}, 'model at "yes"')
+            turned = {'source': 'meshy/x', 'height': 1.8, 'turn': 90, 'signTilt': 15.0, 'lit': [{'box': cube}]}
+            refused({**turned, 'measuredAt': {'height': 1.8, 'turn': 90}}, 'it is now at height 1.8, turn 90, signTilt 15.0')
+            for stood in (hung, turned):
+                at = {key: stood[key] for key in ('height', 'lift', 'turn', 'signTilt') if key in stood}
+                path = Path(scratch) / 'stood.json'; path.write_text(json.dumps({'models': {'ek_x': {**stood, 'measuredAt': at}}}), encoding='utf-8')
+                self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], at)
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes
             # A tile group is built standing on the ground: a lift would move its boxes and not the building.
             refused({'source': 'meshy/x', 'height': 9.5, 'lift': 2, 'tiles': tiles}, 'takes no lift')
@@ -186,8 +198,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(ares['ek_ad_turret']['turn'], 90); self.assertEqual(len(ares['ek_ad_fence']['mesh']), 2); self.assertIn('paint', ares['ek_ad_depot'])
         self.assertEqual((len(ares['ek_ad_depot']['smooth']), len(ares['ek_ad_depot']['fence'])), (4, 6))  # its perimeter fence, and the wall behind
         self.assertEqual((ares['ek_ad_depot']['tiles']['door']['leaf'], models['ek_ss_shack']['tiles']['door']['leaf']), (2.1, 2.1))
-        for model in (ares['ek_ad_depot'], ares['ek_ad_sign'], ares['ek_ad_fence'], models['ek_ss_shack'], models['ek_ss_vending']):
+        for model in (ares['ek_ad_depot'], ares['ek_ad_fence'], models['ek_ss_shack'], models['ek_ss_vending']):
             self.assertEqual(model['measuredAt'], model['height'])
+        self.assertEqual((ares['ek_ad_sign']['measuredAt'], ares['ek_ad_turret']['measuredAt']), ({'height': 1.6, 'lift': 2.4}, {'height': 1.8, 'turn': 90}))  # hung, and turned
         self.assertNotIn('measuredAt', ares['ek_ad_crate'])  # nothing is measured on it
 
 
