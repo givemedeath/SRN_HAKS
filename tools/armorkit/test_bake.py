@@ -208,6 +208,15 @@ class BakeTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'bake the outfit again'):
                     bake.run(brief, Path(folder) / 'out', 'bodies', 332, kept=Path(folder) / 'kept')
             self.assertEqual(bake.declared(Path(folder) / 'kept'), {'bare': {'forearm'}, 'skin': set()})
+            # parts kept for the brief's own slots are tinted again
+            bake.store({'chest': part(), 'bicepl': skin}, Path(folder) / 'kept', document)
+            with mock.patch.object(bake, 'tints', mock.Mock(side_effect=RuntimeError('tinted'))):
+                with self.assertRaisesRegex(RuntimeError, 'tinted'):
+                    bake.run(document, Path(folder) / 'out', 'bodies', 332, kept=Path(folder) / 'kept')
+            listed = json.loads((Path(folder) / 'kept' / bake.KEPT).read_text(encoding='utf-8'))
+            (Path(folder) / 'kept' / bake.KEPT).write_text(json.dumps({**listed, 'skin': 'bicep'}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'no list of baked parts'):  # the slots are checked with the list
+                bake.declared(Path(folder) / 'kept')
             bake.store({'chest': part()}, Path(folder) / 'kept')  # stored without its brief, or before the list held the slots: none
             self.assertEqual(bake.declared(Path(folder) / 'kept'), {'bare': set(), 'skin': set()})
 

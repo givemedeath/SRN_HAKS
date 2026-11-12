@@ -198,24 +198,30 @@ def store(parts, folder, document=None):
                                encoding='utf-8', newline='\n')
 
 
+def listing(folder):
+    """The list `store` wrote in `folder`, checked: its `parts`, and its `bare` and `skin` slots, none for parts
+    kept before the list held them."""
+    folder = Path(folder)
+    require((folder / KEPT).is_file(), f'{folder} holds no baked parts: it has no {KEPT}')
+    listed = json.loads((folder / KEPT).read_text(encoding='utf-8'))
+    named = lambda value: isinstance(value, list) and all(isinstance(name, str) for name in value)
+    require(isinstance(listed, dict) and listed.get('kind') == KEPT_KIND and listed.get('schemaVersion') == 1
+            and named(listed.get('parts')) and listed['parts'] and all(named(listed.get(key, [])) for key in ('bare', 'skin')),
+            f'{folder / KEPT} is no list of baked parts')
+    return {'parts': listed['parts'], **{key: listed.get(key, []) for key in ('bare', 'skin')}}
+
+
 def declared(folder):
     """{'bare': slots, 'skin': slots}: what the brief the parts in `folder` were baked from left to the body and
-    shared with its skin (`store`); none for parts kept before the list held them."""
-    listed = json.loads((Path(folder) / KEPT).read_text(encoding='utf-8'))
-    slots = {key: listed.get(key, []) for key in ('bare', 'skin')}
-    require(all(isinstance(value, list) and all(isinstance(slot, str) for slot in value) for value in slots.values()),
-            f'{Path(folder) / KEPT} names its slots as lists')
-    return {key: set(value) for key, value in slots.items()}
+    shared with its skin (`store`)."""
+    listed = listing(folder)
+    return {key: set(listed[key]) for key in ('bare', 'skin')}
 
 
 def stored(folder):
     """The parts `store` last kept in `folder`: those its list names, and no other file there."""
     folder = Path(folder)
-    require((folder / KEPT).is_file(), f'{folder} holds no baked parts: it has no {KEPT}')
-    listed = json.loads((folder / KEPT).read_text(encoding='utf-8'))
-    require(isinstance(listed, dict) and listed.get('kind') == KEPT_KIND and listed.get('schemaVersion') == 1
-            and isinstance(listed.get('parts'), list) and listed['parts'] and all(isinstance(name, str) for name in listed['parts']),
-            f'{folder / KEPT} is no list of baked parts')
+    listed = listing(folder)
     require(all((folder / (name + '.npz')).is_file() for name in listed['parts']), f'{folder} lacks a part its {KEPT} lists')
     parts = {name: dict(np.load(folder / (name + '.npz'))) for name in listed['parts']}
     require(all(set(KEYS) <= set(part) for part in parts.values()), f'{folder} holds a file that is no baked part')
@@ -348,10 +354,11 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
         if kept is not None:
             store(parts, kept, document)
     else:
-        parts, bones = stored(kept), measure.body(body_pack, body)[0]
+        parts = stored(kept)
         require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')}
                 and not left_to_body(document) & set(parts) and {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
+        bones = measure.body(body_pack, body)[0]
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
