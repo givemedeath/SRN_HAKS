@@ -84,6 +84,12 @@ class HaftedFitTests(unittest.TestCase):
         self.assertAlmostEqual(data['nativeLength'], .76, delta=.01)
         self.assertTrue(data['departurePending'])            # 'x' is not this measurement's digest: the worker would refuse it too
 
+    def test_a_hafted_contract_without_stock_bounds_is_refused_clearly(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.club(); family = {**self.family, 'native': {k: x for k, x in self.family['native'].items() if k not in ('stockSpan', 'dimensions')}}
+        with self.assertRaisesRegex(ValueError, 'needs stockSpan or dimensions'):
+            measure({}, family, {'positions': gltf(v), 'faces': f}, {'targetLength': .6}, self.standard)
+
     def test_a_hafted_shape_check_skips_the_blade_and_guard_limits(self):
         from tools.itemkit.straightness import assess
         metrics = {'bendPctOfLength': .2, 'twistDegrees': 1, 'bladeDepthToWidth': 1.0, 'guardSectionRatio': 4.0}
@@ -154,6 +160,18 @@ class ContractBudgetTests(unittest.TestCase):
         for total in (7500, 9000, 17000, 22500):
             b = allocation(total); self.assertEqual(sum(p['visible'] for p in b['parts'].values()), total)
             self.assertEqual(b['shadow'], 500)
+
+
+class CopyCheckedTests(unittest.TestCase):
+    def test_a_truncated_copy_is_replaced_and_a_wrong_source_refused(self):
+        import hashlib
+        from tools.itemkit.drive import copy_checked
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp)/'out.glb'; source.write_bytes(b'complete'); expected = hashlib.sha256(b'complete').hexdigest()
+            target = Path(tmp)/'handoff/donor.glb'; target.parent.mkdir(); target.write_bytes(b'comp')      # an interrupted copy
+            self.assertTrue(copy_checked(source, target, expected)); self.assertEqual(target.read_bytes(), b'complete')
+            self.assertFalse(copy_checked(source, Path(tmp)/'handoff/other.glb', '0' * 64))
+            self.assertFalse((Path(tmp)/'handoff/other.glb').exists()); self.assertFalse((Path(tmp)/'handoff/other.glb.partial').exists())
 
 
 class HistoricalCodeTests(unittest.TestCase):

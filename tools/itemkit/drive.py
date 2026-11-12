@@ -53,6 +53,18 @@ def sha(path):
 def read(path): return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
+def copy_checked(source, target, expected):
+    """Copy `source` to `target` unless an exact copy is there; True when `target` then has the `expected` hash.
+
+    The copy lands beside the target and is moved into place, so an interrupted copy never leaves a truncated file
+    that a later call would accept by its name; a target with another hash is such a broken copy and is replaced."""
+    target = Path(target); target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists() and sha(target) == expected: return True
+    partial = target.with_name(target.name+'.partial'); shutil.copyfile(source, partial)
+    if sha(partial) != expected: partial.unlink(); return False
+    partial.replace(target); return True
+
+
 def write_new(path, data):
     path = Path(path)
     if path.exists(): raise SystemExit(f'{path.name} exists: choose a new suffix (manifests are immutable)')
@@ -108,15 +120,17 @@ class Driver:
             try: urllib.request.urlopen(url+'/system_stats', timeout=3); return True
             except OSError: return False
         def gpu():
-            out = subprocess.run(['nvidia-smi', '--query-gpu=memory.used,utilization.gpu', '--format=csv,noheader,nounits'],
-                                 capture_output=True, text=True).stdout.split(',')
-            return int(out[0]), int(out[1])
+            # One line per GPU; the busiest one decides.
+            rows = [line.split(',') for line in subprocess.run(['nvidia-smi', '--query-gpu=memory.used,utilization.gpu', '--format=csv,noheader,nounits'],
+                                                                 capture_output=True, text=True).stdout.splitlines() if line.strip()]
+            return max(int(r[0]) for r in rows), max(int(r[1]) for r in rows)
         if action == 'status': return {'comfy': 'up' if up() else 'down', 'gpuMiB_util': gpu()}
         if action == 'start':
             if up(): raise SystemExit('ComfyUI already answers: not starting a second one')
             used, util = gpu()
             if not os.environ.get('ALLOW_BUSY') and (used >= 5000 or util >= 40): raise SystemExit(f'GPU busy ({used} MiB, {util}%): not starting')
-            c = self.ws.data['comfy']; n = len(list(self.ws.runtime.glob('comfy-run-*.log'))) + 1
+            c = self.ws.data['comfy']; n = 1
+            while (self.ws.runtime/f'comfy-run-{n}.log').exists() or (self.ws.runtime/f'comfy-run-{n}.json').exists(): n += 1
             log = self.ws.runtime/f'comfy-run-{n}.log'
             with open(log, 'w') as handle:     # the child keeps its own copy of the handle
                 process = subprocess.Popen([str(self.ws.path(c['python'])), '-I', '-B', str(self.ws.path(c['startup'])), '--config',
@@ -133,7 +147,14 @@ class Driver:
             raise SystemExit(f'ComfyUI did not come up; see {log}')
         if action == 'stop':
             if not pidfile.exists(): return {'comfy': 'no PID file: nothing this driver started'}
-            pid = int(pidfile.read_text()); subprocess.run(['taskkill', '/PID', str(pid), '/T', '/F'], capture_output=True); pidfile.unlink()
+            pid = int(pidfile.read_text())
+            # A PID outlives its process: kill it only while it is still the startup script this driver launched.
+            startup = Path(self.ws.path(self.ws.data['comfy']['startup'])).name.lower()
+            line = subprocess.run(['powershell', '-NoProfile', '-Command', f'(Get-CimInstance Win32_Process -Filter "ProcessId={pid}").CommandLine'],
+                                  capture_output=True, text=True).stdout.strip().lower()
+            if startup not in line:
+                pidfile.unlink(); return {'comfy': f'PID {pid} is no longer the ComfyUI this driver started: nothing stopped, stale PID file removed'}
+            subprocess.run(['taskkill', '/PID', str(pid), '/T', '/F'], capture_output=True); pidfile.unlink()
             time.sleep(3)
             if up(): raise SystemExit('ComfyUI still answering after stopping the process this driver started')
             return {'comfy': 'stopped', 'pid': pid}
@@ -176,9 +197,8 @@ class Driver:
         (glb,), (npz,) = [o for o in c['outputs'] if o['path'].endswith('.glb')], [o for o in c['outputs'] if o['path'].endswith('.npz')]
         m = read(self.manifest(design, src))
         for role, o, name in (('geometryRaw', glb, 'geometry-raw.glb'), ('shape', npz, 'shape.npz')):
-            target = self.ws.handoff/'generated'/design/f'geometry-{attempt}'/name; target.parent.mkdir(parents=True, exist_ok=True)
-            if not target.exists(): shutil.copyfile(o['path'], target)
-            if sha(target) != o['sha256']: raise SystemExit(f'{role} copy differs from the collected output')
+            target = self.ws.handoff/'generated'/design/f'geometry-{attempt}'/name
+            if not copy_checked(o['path'], target, o['sha256']): raise SystemExit(f'{role} copy differs from the collected output')
             m['inputs'][role] = {'path': target.relative_to(self.ws.handoff).as_posix(), 'sha256': o['sha256']}
         m['approval']['generatedGeometry'] = {'decision': 'approved', 'geometryRawSha256': glb['sha256'], 'shapeSha256': npz['sha256'], 'notes': notes}
         return str(write_new(self.manifest(design, dst), m))
@@ -190,9 +210,8 @@ class Driver:
         by = {Path(o['path']).name: o for o in c['outputs']}; m = read(self.manifest(design, src))
         if by['node-961_00001.glb']['sha256'] != m['inputs']['geometryRaw']['sha256']: raise SystemExit('Appearance ran on another shape')
         for role, node, name in (('geometryDonor', 'node-922_00001.glb', 'donor-200k-768.glb'), ('field', 'node-962_00001.npz', 'appearance-field.npz')):
-            o = by[node]; target = self.ws.handoff/'generated'/design/f'appearance-{attempt}'/name; target.parent.mkdir(parents=True, exist_ok=True)
-            if not target.exists(): shutil.copyfile(o['path'], target)
-            if sha(target) != o['sha256']: raise SystemExit(role+' copy differs')
+            o = by[node]; target = self.ws.handoff/'generated'/design/f'appearance-{attempt}'/name
+            if not copy_checked(o['path'], target, o['sha256']): raise SystemExit(role+' copy differs')
             m['inputs'][role] = {'path': target.relative_to(self.ws.handoff).as_posix(), 'sha256': o['sha256']}
         with np.load(self.ws.handoff/m['inputs']['field']['path']) as z: lo, hi = float(z['attrs'].min()), float(z['attrs'].max())
         if not (-.05 <= lo and hi <= 1.065): raise SystemExit(f'Appearance field out of the decoder range: {lo}..{hi}')

@@ -128,9 +128,13 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     require(target or (two_hand and not hafted), 'The contract has no measured stock length: give targetLength')
     if hafted:
         # Scale to the overall length, then put the hand at the stock carrier's own fraction of its length.
+        require(stock_length(native) or 'gripCentre' in overrides,
+                'A hafted fit places the hand by the stock carrier: the contract needs stockSpan or dimensions, or give gripCentre')
         s = target / L
-        lo = native['stockSpan'][0] if 'stockSpan' in native else native['dimensions']['b']['meshes'][0]['bounds'][0][1]
-        centre_fraction = float(overrides.get('gripCentre', (origin[1] - lo) / stock_length(native)))
+        if 'gripCentre' in overrides: centre_fraction = float(overrides['gripCentre'])
+        else:
+            lo = native['stockSpan'][0] if 'stockSpan' in native else native['dimensions']['b']['meshes'][0]['bounds'][0][1]
+            centre_fraction = (origin[1] - lo) / stock_length(native)
         half = grip_length / (s * L) / 2
         centre_fraction = min(max(centre_fraction, marks['pommelEnd'] + half), marks['bladeStart'] - half) \
             if marks['bladeStart'] - marks['pommelEnd'] > 2 * half else (marks['pommelEnd'] + marks['bladeStart']) / 2
@@ -217,9 +221,13 @@ def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *
     handoff = Path(handoff); m = json.loads((handoff/f'{design}.{src}.asset.json').read_text(encoding='utf-8'))
     family = json.loads((handoff/m['familyProfile']['path']).read_text(encoding='utf-8'))
     out = handoff/f'{design}.{dst}.asset.json'; require(not out.exists(), 'Manifest exists: '+out.name)
+    # A grip departure is an approval: it is bound only with the user's own words.
+    require(not (overrides or {}).get('departureDigest') or notes_authority or (overrides or {}).get('uniformAuthority'),
+            "Binding a grip departure needs the user's own words (notes_authority or uniformAuthority)")
     # `measured`: this caller's own measure() of the same shell and overrides, so it is not taken twice.
     data = measured if measured is not None else measure(m, family, mesh(working_path), overrides)
-    gen = handoff/'generated'/design/dst; gen.mkdir(parents=True, exist_ok=False)
+    # Only the manifest pins these files and it does not exist yet, so a failed earlier write's copies are replaced.
+    gen = handoff/'generated'/design/dst; gen.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(donor_path, gen/'textured-donor.glb'); shutil.copyfile(working_path, gen/'working-shell.glb')
     if not (handoff/'weapon-grip-standard-v1.json').exists(): shutil.copyfile(STANDARD, handoff/'weapon-grip-standard-v1.json')
     record = {k: v for k, v in data.items() if k not in ('gripReport',)}
@@ -238,12 +246,12 @@ def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *
     if overrides and overrides.get('departureDigest'):
         d = report.get('midpointRelativeDifferences', {})
         m['fit']['gripDeparture'] = {'decision': 'approved', 'measurementDigest': overrides['departureDigest'],
-                                     'notes': (f"{notes_authority or overrides.get('uniformAuthority') or 'Automatic fit'}. Measured by the fit worker: "
+                                     'notes': (f"{notes_authority or overrides.get('uniformAuthority')}. Measured by the fit worker: "
                                                f"against the approved midpoint section this grip is {d.get('depth', 0) * 100:+.1f}% in depth and "
                                                f"{d.get('visibleFaceWidth', 0) * 100:+.1f}% in face width. Bound so the fit can run; the visual "
                                                "hand-fit review on both Human bodies is still required.")}
         if data['sizingAuthority'] == 'midpoint-depth-two-hand' and (ROUTES[family['family']].shape == 'hafted' or 'targetLength' in overrides):
             m['fit']['gripDeparture']['depthDepartureApproved'] = True
-    m['processing'].update({'joinY': data['joinY'], 'thicknessProbes': data['thicknessProbes'], **PROCESSING})
+    m.setdefault('processing', {}).update({'joinY': data['joinY'], 'thicknessProbes': data['thicknessProbes'], **PROCESSING})
     out.write_text(json.dumps(m, indent=2), encoding='utf-8')
     return out, data
