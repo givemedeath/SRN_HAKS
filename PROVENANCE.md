@@ -294,6 +294,8 @@ and stayed there, and one sent from the north-east to the south side went round 
 left unchecked above were checked the same day. In the client, in both tilesets, the area map showed the four
 pictures in place, the roof in the middle of its dark ground, north up. In the Toolset, in Suburbs, painting
 the group made one door by itself, of type 58, at the storefront and facing out, as the saved area records.
+(That record read right and was wrong, as the Ares Depot's showed when its door was first used; it was written
+again on 2026-11-11: see the Ares Depot tile group.)
 The rebuild moved each tile's first main light with the finer survey, by about 0.15 metres on three tiles and
 1.2 metres on the north-east one; a coloured main light was looked at again in the client at night and lit the
 ground and the walls on every side. The area map was also looked at zoomed in, at its full 32 pixels a tile.
@@ -377,6 +379,187 @@ the Standard tab listed the blueprints under their categories, and a painted tra
 saved with their rows, names and static settings.
 
 The rows, tiles and groups this project adds are listed in `docs/additions/catalog.json`.
+
+## Ares Depot tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
+
+The second envkit building: a fortified corporate security depot with a guard tower, a vehicle door and a fenced
+yard, 12.35 metres to the top of its masts, as a 3 by 3 tile group, `Ares_Depot`, offered in D20 Modern Exterior
+(`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its nine tile records are appended to each set file
+(`dgt04` tiles 438-446, group 58; `udp1` tiles 680-688, group 107) and the group is listed under Groups in each
+palette as `Ares Depot 3x3`. No existing tile or group number changes. The nine tile models (`ek_ad_depot_t00`
+to `_t22`, compiled), their walkmeshes, area-map pictures (`ek_ad_depot_m00` to `_m22`), the shared
+material and its maps (`ek_ad_depot` colour, `_n`, `_s`, `_r`, glow `_i`, halo `_h`) and the lights-out material
+(`ek_ad_depot_o`) live in `srn_t_common`.
+
+Origin: the concept sheet `02_ares_security_services_depot.png` was supplied by the SRN project operator (an
+OpenAI-generated sheet from the operator's own brief). Its building views were redrawn locally with Qwen-Image
+2.1 as plain references, and the 3D model was generated from those references by the operator's Meshy account
+through the pinned `meshy-cli@0.4.0`, then remeshed by Meshy to 177,859 triangles under the 200,000-triangle
+budget the operator set for larger buildings on 2026-11-11 (a first remesh to 88,454 triangles was set aside).
+Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry above records.
+The name and emblem on the signs are those of a fictional corporation of the Shadowrun setting, as the concept
+sheet drew them. Meshy added a second sign to the rear wall that the references do not show; its small
+lettering was not legible and is painted over in the sign's own black, leaving the name and the emblem.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes
+and scaled; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow map and a halo sheet
+were made from its own colour for the roof sign and the tower windows; the mesh was shared out over nine tiles
+(14,919 to 28,138 faces each, with the fence's sheets) with a ground square, a map picture and two main lights
+each; everything above
+5.2 metres carries `tilefade`; and a walkmesh was generated from its shape (442 to 826 faces a tile, where the
+stock tiles of these two tilesets have at most 500). The north-east tile has a door record of type 58, the
+invisible transition door, at the personnel door beside the vehicle door. The four corner tiles have path node
+`A`, the four between them `I` (each open to the three sides away from the building), and the middle tile, all
+building, `T`. The Meshy source, the full-detail spare, the references and the client captures stay in ignored
+`output/envkit/`.
+
+The group was first built at 9.5 metres on 2 by 2 tiles, the height at which the building filled four tiles.
+That build was checked in the client and the Toolset and never published. Seen with a character at its door it
+was too small: the door leaf measured about 1.6 metres against a figure of about 1.8. The operator chose 1.3
+times that size on 2026-11-11, which makes the leaf about 2.1 metres by 0.98, and the 2 by 2 group was taken out
+of the set files, palettes, pack and catalog and this one put in under the tile and group numbers it had freed.
+Two things found on the first build stand. Its path nodes were first worked out with the kerbs between the
+fence and the tile edge, half to three quarters of a metre wide, counted as ways through, and two of four
+walkers sent from the far corners stopped short; a side now joins another only through ground a metre square
+can stand on. And its first night look had a white wall beside the tower glowing and the tower windows dark;
+the lit parts were restated, the tower windows by their colour.
+
+Checked in the game client on 2026-11-11, as the 3 by 3 group. In a Modern Exterior area: by day from all four
+sides and from above, with four walkers from the far corners of the area reaching the personnel door, the rear
+and both sides, and the figure at the door standing under the top of its leaf; by night, where the roof sign
+and the tower windows were lit and the rest was not; with `SetTextureOverride` as `docs/envkit/lights.md` gives
+it, which put the lights and their halo out for the player and brought them back; with the player free and the
+client's second-storey setting on always, where everything above 5.2 metres was hidden under the black lid; and
+on the area map, which showed the nine pictures in place. In a Suburbs area by day: the same four walkers
+reached their spots. Checked in the Toolset the same day, from the built packs: both palettes list
+`Ares Depot 3x3` under Groups; painting it laid the nine tiles in order with no turn, as the saved areas
+record, changed no other tile in Modern Exterior and repainted the sixteen tiles around it as asphalt edges and
+corners in Suburbs; and in each it made one door by itself, of type 58, at the personnel door.
+
+Checked further the same day, the group turned before painting and its door used as a transition. In the
+Toolset, in Modern Exterior, the group was turned a quarter turn while it was pending (a right-click) and
+painted: the saved area has the nine tiles turned together, no other tile changed, and the door moved and
+turned with them. In the client, from that saved module, four walkers from the far corners reached the door,
+the rear and both sides of the turned building. The door was then given an area transition to a waypoint in
+the module's other area and clicked. The player walked up to it and nothing happened, and the blue plane the
+game draws on a transition under the pointer stood out of the wall at a right angle. The door record was wrong
+twice over, as `tools/envkit` wrote it, and the Stuffer Shack's with it: it was turned by the way the door
+faces, where the set file wants that plus 90 degrees; and it lay on the door leaf, inside the ground the wall
+closes, where no character can stand. With the saved door corrected by hand (turned a quarter turn, drawn 0.6
+metres out of the wall) a click took the player to the other area, with the door's click script blank as the
+Toolset leaves it, and a wooden door there linked back to it brought them out in front of the depot's door.
+`tile.doorstep` now turns a hook and draws it out to open ground (the depot's by 0.625 metres, the shack's by
+0.25), `convert.load_models` refuses a hook of any type but 58 (the user's rule of 2026-11-11, until further
+notice), and both groups' door records were written again in both tilesets; their tiles came out of the
+rebuild byte for byte the same.
+
+The model's perimeter fence came back with nothing in its frames and its chain-link painted on the building
+wall behind them, which showed when the fence was seen from an angle (the user, in the client, 2026-11-11).
+On 2026-11-12 the fence was given its mesh and the wall was cleared, with no new generation. Six upright
+sheets were hung in the frames (west, east, and the four short runs to the front and rear walls; 840 faces
+over six of the nine tiles), cut into squares 0.76 metres a side that each show the whole of one wire
+picture, `ek_ad_depot_w` (128 pixels, DXT5, 22 KB, drawn by `tools/envkit`), see-through between the wires.
+The wires have a picture of their own because drawing them on the building's colour picture gave that an
+alpha channel and doubled it, to 22 MB, over this repository's limit for one resource; it stays as it was,
+11 MB with no alpha. The wall and walkway behind each run, from 1.75 to 4.3 metres up, were blurred over
+0.12 metres and their relief levelled, which takes the painted mesh off and leaves a plain, soft grey
+(`smooth` and `fence` in the game set; `convert.retouch`, `convert.sheets`). The tiles' walkmeshes, path
+nodes, lights and door record came out the same; the area-map pictures changed slightly with the colour.
+Looked at in plain software pictures of the finished model from each corner and along the east and west
+sides: the sheets stand in their frames from pillar to pillar and the wall behind shows no mesh.
+
+Checked in the game client and the Toolset on 2026-11-12, once the user let client runs go on. The fence, in a
+Modern Exterior area from the rebuilt tiles: by day, each run seen close and slantwise from outside, both long
+sides, all four corners and from above, shows wire mesh in its frames that the wall, the walkway and the far
+fence are seen through, and no mesh on the wall behind; by night under the tiles' main lights the mesh takes
+the light as the frames do. The sheets are the first tile parts here to show a picture with an alpha channel
+and no material file, and the client draws them see-through as they are. The hidden top: with the client's
+second-storey setting on its default (1, never) the top stays whatever the camera does; on 0 the top stays
+while the player is seen clear of the building, at the door, beside it or far off, and goes under the black
+lid when the building stands between the camera and the player; 2 (always) was checked on 2026-11-11. The
+door, from the built packs: the Toolset, painting `Ares Depot 3x3` straight in Modern Exterior, made one door
+of type 58 at the hook the set file now gives (0.625 metres out from the leaf, turned 180 degrees) and
+changed no other tile; in the client, with only an area transition set on that door, the blue plane under
+the pointer lay flat over the door's face, one click took the player to the waypoint in the other area, and
+a wooden door there linked back brought them out standing on the step in front of the depot's door, 0.8
+metres from the hook.
+
+The first smoothing took the painted mesh off the wall's colour and relief only. The generator had put the
+same mesh into the roughness and metallic maps of those texels, where it was left to catch a glancing light
+(found measuring the maps in review, 2026-11-12: neighbouring texels differed by 3.8 and 4.3 of 255 there,
+against 0.6 in the smoothed colour). `convert.textures` now smooths those two maps over the same texels and
+reach, and the specular map is made from the smoothed metal; the differences fell to 0.3 and 0.4. Only the
+group's roughness and specular maps changed in the rebuild. Seen again in the client by day and by night,
+slantwise along the east and west fences: nothing looks different from the first check.
+
+A third review on 2026-11-12 changed how the same work is done, and the group was built once more. Each
+smoothed part is now worked on within its own texels and their margin instead of over the whole picture, and
+parts are kept apart in the roughness and metallic maps as they were in the colour; the glow map is made from
+the colour picture as retouched; the fence's sheets close the ground under them in the walk survey; and a
+fence's ends, a door's measurements and the height of the ground under a door's hook are checked. For this
+building none of that changes what is seen or walked: the models, walkmeshes, path nodes and door record came
+out byte for byte the same, and the colour, roughness, specular, glow and halo pictures and five area-map
+pictures differ slightly (the colour in 0.1 per cent of its texels, where smoothed parts meet; the glow in
+0.001 per cent). Seen again in the client by day and by night from the same ten viewpoints: nothing looks
+different from the checks before.
+
+Not checked: the Stuffer Shack's corrected door record, which was rewritten by the same code and not painted
+or clicked again; and either group's door in the Suburbs tileset.
+
+## Ares Depot props (`srn_placeable`, `srn_2da`; 2026-11-11)
+
+Fifteen envkit props from the same concept sheet as the Ares Depot tile group join `srn_placeable`, each with a
+row appended to `srn_2da/placeables.2da` (22750-22764, labelled `[envkit]Ares Depot, ...`): reception desk
+`ek_ad_desk`, surveillance console `ek_ad_console`, equipment lockers `ek_ad_lockers`, armory rack
+`ek_ad_armory`, watch booth `ek_ad_booth`, vehicle gate `ek_ad_gate`, concrete barrier `ek_ad_barrier`,
+checkpoint terminal `ek_ad_terminal`, drone dock `ek_ad_dronedk`, turret `ek_ad_turret`, gear crate
+`ek_ad_crate`, pylon sign `ek_ad_pylon`, wall sign `ek_ad_sign`, rooftop unit `ek_ad_rooftop` and fence section
+`ek_ad_fence`. No existing row
+changes. Each prop is a compiled model, a collision file, a material file and its maps (colour 1024 or 2048, the
+other maps at half that), and a blueprint named as its model, offered through the pack's `placeablepalstd.itp`
+under the Modern Exterior and Modern Interior categories.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a
+plain reference, then generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` at 1,623
+to 12,051 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's
+entry above records). No third-party mesh or texture was used. The references for the equipment
+lockers, armory rack, checkpoint terminal, drone dock and turret were drawn without the fictional corporation's
+name and emblem; the other props keep what the sheet drew on them.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's
+axes and scaled to a stated height, and its textures were recompressed. The wall sign hangs 2.4 metres above
+the spot it is placed on. Ten props (all but the lockers, barrier, crate, rooftop unit and fence) have a glow map
+for their lit parts, nine of those a halo sheet as well, and a lights-out material (`<name>_o`) as
+`docs/envkit/lights.md` describes; their blueprints are not static, so that a script can reach them. Three
+props were retouched after the first client check. The turret came back with its barrel along the model's side
+and is turned a quarter turn, so that it points to the front. The rooftop unit's colour is multiplied by 0.8:
+it matched its own pale reference and stood out nearly white beside the others by day. Meshy made the fence's
+chain-link mesh two solid smeared panels; its posts, rails, barbed wire and concrete base are kept, and the two
+panels are redrawn by place on the model as a diamond mesh of 16 millimetre wire 90 millimetres apart, seen
+through between the wires (the colour map of this one prop has an alpha channel, DXT5), with the relief map
+levelled there. The right half of its concrete base still carries a smeared hazard marking. The mesh was first
+laid by each texel's x + y, which put the wires on the two faces of a panel out of step by the panel's
+thickness; since 2026-11-12 it is laid along the way each panel runs, so one face's wires stand behind the
+other's (only the colour map's alpha changed; seen in the client by day, square, slantwise and close, with a
+barrier behind it seen through the mesh).
+
+Checked in the game client on 2026-11-11: by day and by night with their lights on, from the converted files
+that were copied into the pack; the fence, turret and rooftop unit again by day after their retouching, from
+front, back and side, with a figure behind the fence seen through its mesh from both faces; and by night from
+the pack's files, where `ReplaceObjectTexture` put the lights of all ten lit props out and brought them back.
+Checked in the Toolset the same day, from the built packs: the Standard tab lists the fifteen blueprints under
+their Modern Exterior and Modern Interior categories, and a painted fence section and turret were saved with
+their rows and names, the fence static and the turret not.
+
+The wall sign was first published dark. Its lit parts were boxed where the model stood before it was hung 2.4
+metres up, so the boxes held none of it: its glow map was black and it had no halo, and the night check above,
+which looked at the ten lit props together, did not catch it (found reading the glow map in review,
+2026-11-12). The boxes were moved up with the model and the sign converted again: its glow map and model
+changed and it gained a halo sheet (`ek_ad_sign_h`); its row, blueprint and other maps are as they were.
+`tools/envkit` now refuses a lit, painted, smoothed or wire-mesh box that holds none of the model, and a set
+whose box or fence lies wholly above or below its model. Checked in the game client the same day, from the
+pack's files, by night beside the pylon sign: the sign's face and light bar are lit with a soft halo, go dark
+with `ReplaceObjectTexture` and come back.
 
 ## MDRNEE placeable import (2026-09-11)
 

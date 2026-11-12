@@ -63,7 +63,7 @@ class CommandTests(unittest.TestCase):
             given('Shop, Bin')
             (repo / 'tables' / 'placeables.2da').write_bytes(TABLE.encode('cp1252'))
             (built / 'compiled' / 'ek_a.mdl').write_bytes(b'compiled')
-            files = {name: name.encode() for name in ('ek_a.mtr', 'ek_a.pwk', 'ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr', 'ek_a_s.dds', convert.HALO_OUT + '.mtr')}
+            files = {name: name.encode() for name in ('ek_a.mtr', 'ek_a.pwk', 'ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr', 'ek_a_s.dds', 'ek_a_w.dds', convert.HALO_OUT + '.mtr')}
             for name, content in files.items():
                 (built / 'source' / name).write_bytes(content)
             listed = repo / 'docs' / 'catalog.json'
@@ -91,12 +91,13 @@ class CommandTests(unittest.TestCase):
             self.assertTrue((dark / (convert.HALO_OUT + '.mtr')).is_file()); self.assertFalse((pack / (convert.HALO_OUT + '.mtr')).exists())  # the shared dark halo has one home
             self.assertEqual((repo / 'tables' / 'placeables.2da').read_bytes().count(b'ek_a'), 1)  # one row, however often it is converted
             self.assertEqual((pack / 'ek_a.mdl').read_bytes(), b'compiled'); self.assertTrue((pack / 'ek_a_o.mtr').is_file())
-            lit = ('ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr')
-            for name in lit:  # built again with no lit parts
+            self.assertTrue((pack / 'ek_a_w.dds').is_file())  # its fence's wire picture, shipped with it
+            lit = ('ek_a_i.dds', 'ek_a_o.mtr', 'ek_a_o.dds', 'ek_a_h.mtr', 'ek_a_w.dds')
+            for name in lit:  # built again with no lit parts and no fence
                 (built / 'source' / name).unlink()
-            self.assertEqual(run()['removed'], ['ek_a_i.dds', 'ek_a_o.dds', 'ek_a_o.mtr', 'ek_a_h.mtr'])
+            self.assertEqual(run()['removed'], ['ek_a_i.dds', 'ek_a_o.dds', 'ek_a_o.mtr', 'ek_a_h.mtr', 'ek_a_w.dds'])
             self.assertNotIn('lights', catalog.load(listed)['placeables'][0])
-            # Its light files leave the pack with its lights: a glow map left behind would read as a lit model.
+            # Its light files leave the pack with its lights, and its wire picture with its fence: a glow map left behind would read as a lit model.
             self.assertFalse(any((pack / name).exists() for name in lit)); self.assertTrue((pack / 'ek_a_s.dds').is_file())
 
 

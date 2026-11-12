@@ -100,6 +100,141 @@ class ConvertTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not a two-sided sign'):
             convert.two_sided(front, normals[:8], uvs[:8], faces, 15.0)
 
+    def test_a_model_whose_front_came_back_facing_a_side_is_turned(self):
+        from PIL import Image
+        model = glb(self.root / 'wall.glb', **WALL); Image.new('RGB', (8, 8), (200, 100, 50)).save(self.root / 'colour.png')
+        made = convert.shape(model, {'base_color': self.root / 'colour.png'}, height=2.0, turn=90)
+        np.testing.assert_allclose(made['normals'], [[-1, 0, 0]] * 4, atol=1e-9)  # counter-clockwise seen from above: the front now faces -X
+        np.testing.assert_allclose(made['vertices'].max(0) - made['vertices'].min(0), [0, 1.0, 2.0], atol=1e-9)
+        np.testing.assert_allclose(made['vertices'].mean(0)[:2], [0, 0], atol=1e-9)  # still centred on its spot
+        self.assertIsNone(made['colour']); self.assertIsNone(made['flat'])  # nothing retouched: the picture ships as generated
+
+    def test_a_colour_picture_is_toned_painted_and_given_a_wire_mesh_by_place_on_the_model(self):
+        from PIL import Image
+        vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
+        points, _, texture, _, _ = convert.fit(vertices, normals, uvs, 2.0)  # 1 wide (x -0.5 to 0.5), 2 tall, the picture across the whole of it
+        picture = Image.new('RGB', (64, 64), (200, 100, 50))
+        toned, flat, _ = convert.retouch(picture, points, texture, faces, tone=0.5)
+        self.assertEqual(toned.mode, 'RGB'); self.assertIsNone(flat); self.assertEqual(toned.getpixel((5, 5)), (100, 50, 25))
+        painted, flat, _ = convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3]}])
+        self.assertIsNone(flat); self.assertEqual(painted.getpixel((32, 8)), (1, 2, 3)); self.assertEqual(painted.getpixel((32, 56)), (200, 100, 50))  # the top half only
+        meshed, flat, plain = convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'pitch': 0.25, 'wire': 0.05}])
+        self.assertEqual(meshed.mode, 'RGBA'); pixels = np.asarray(meshed); lower, upper = pixels[36:], pixels[:28]
+        self.assertTrue((upper[..., 3] == 255).all()); np.testing.assert_array_equal(upper[0, 0, :3], [200, 100, 50])  # outside the panel nothing changes
+        gaps = float((lower[..., 3] == 0).mean()); self.assertGreater(gaps, 0.4); self.assertLess(gaps, 0.8)  # wires a fifth of the pitch, crossing
+        self.assertTrue((lower[..., :3] == convert.WIRE).all())  # the wire's colour under the gaps too, so a filtered edge has no fringe
+        self.assertTrue(np.asarray(flat)[40:].all()); self.assertFalse(np.asarray(flat)[:28].any())  # the panel's relief is levelled
+        self.assertIsNone(plain)  # a wire mesh smooths nothing: the other maps of its panel stay as they are
+        row = np.asarray(meshed)[60, :, 3]; self.assertGreaterEqual(int((np.diff(row.astype(int)) != 0).sum()), 6)  # wires and gaps alternate along it
+        with self.assertRaisesRegex(ValueError, 'thinner'):
+            convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-1, -1, 0], [1, 1, 1]], 'pitch': 0.1, 'wire': 0.2}])
+        # The pattern is laid along the way the panel runs. Laid by x + y it was out of step on the two faces of a panel
+        # by the panel's thickness, and a panel across the corner of a yard would have had level stripes for diamonds.
+        from . import glow
+        along = np.linspace(0, 2, 400); faces_apart = np.array([[x, y, 1.0] for x in along for y in (-0.02, 0.02)])
+        np.testing.assert_array_equal(convert._run(faces_apart), [1.0, 0.0])  # along the axis exactly, whichever face a texel is on
+        slant = np.array([[x, -x, 1.0] for x in along / np.sqrt(2)]); ahead = convert._run(slant)
+        np.testing.assert_allclose(ahead, [np.sqrt(0.5), -np.sqrt(0.5)], atol=1e-9); up = np.linspace(0, 1, 400)
+        diamonds = glow.wires((slant[:, :2] @ ahead)[:, None], up[None, :], 0.25, 0.05); straight = glow.wires(along[:, None], up[None, :], 0.25, 0.05)
+        self.assertGreater(float((diamonds == straight).mean()), 0.99)  # the diagonal panel shows what a panel along X shows
+        self.assertTrue(diamonds.any(1).all() and (~diamonds).any(1).all())  # wires and gaps along every line of it: no stripes
+        corner = np.array([[x, 0.0, 1.0] for x in along] + [[0.0, y, 1.0] for y in along])
+        with self.assertRaisesRegex(ValueError, 'one flat panel'):  # two panels round a corner are two parts
+            convert._run(corner)
+
+    def test_a_pattern_is_smoothed_off_a_surface_and_its_tones_are_left(self):
+        """The Ares Depot's wall came back with its fence's chain-link painted on it (seen in the client, 2026-11-11)."""
+        from PIL import Image
+        vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
+        points, _, texture, _, _ = convert.fit(vertices, normals, uvs, 2.0)  # 1 wide, 2 tall: 64 texels to the metre across, 32 up
+        stripes = np.zeros((64, 64, 3), np.uint8); stripes[:] = (200, 200, 200); stripes[:, ::4] = (40, 40, 40)  # a dark line every sixteenth of a metre
+        smoothed, flat, plain = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1}])
+        self.assertEqual(smoothed.mode, 'RGB'); pixels = np.asarray(smoothed).astype(int); lower, upper = pixels[40:, 8:56, 0], pixels[:28]
+        np.testing.assert_array_equal(upper, stripes[:28])  # outside the box nothing changes
+        self.assertLess(int(lower.max() - lower.min()), 12); self.assertLess(abs(float(lower.mean()) - 160), 8)  # the lines are gone, the tone is theirs and the wall's
+        self.assertTrue(np.asarray(flat)[40:].all()); self.assertFalse(np.asarray(flat)[:28].any())  # and the relief that drew them is levelled
+        # The generator drew the same lines into the roughness and the metal: they go from those maps over the same reach.
+        (chosen, reach), = plain; self.assertTrue(chosen[40:].all()); self.assertFalse(chosen[:28].any()); self.assertGreaterEqual(reach, 1)
+        lined = stripes[..., 0] / 255; level = convert._levelled(lined, plain)
+        np.testing.assert_array_equal(level[:28], lined[:28]); self.assertLess(float(np.ptp(level[40:, 8:56])), 12 / 255); self.assertGreater(float(np.ptp(lined[40:, 8:56])), 0.5)
+        toward, _, _ = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1, 'colour': [100, 110, 120]}])
+        np.testing.assert_allclose(np.asarray(toward)[40:, 8:56].reshape(-1, 3).mean(0), [100, 110, 120], atol=3)
+        # A box that holds none of the model is a mistake in the set, not a part to pass over.
+        off = [[-0.6, -0.1, 5.0], [0.6, 0.1, 6.0]]
+        for retouching in ({'paint': [{'box': off, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': off, 'radius': 0.1}]}, {'mesh': [{'box': off, 'pitch': 0.09, 'wire': 0.016}]}):
+            with self.assertRaisesRegex(ValueError, 'holds none of the model'):
+                convert.retouch(Image.fromarray(stripes), points, texture, faces, **retouching)
+        # One column of texels has no neighbour to measure a step by: the blur's reach stays within the picture.
+        from unittest import mock
+        with mock.patch.object(convert, '_blur', wraps=convert._blur) as blur:
+            convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[0.001, -0.1, -0.1], [0.0155, 0.1, 1.0]], 'radius': 0.1}])
+        self.assertTrue(blur.call_args_list); self.assertTrue(all(call.args[1] <= 64 / 8 for call in blur.call_args_list))
+        # Each part is smoothed among its own texels, in the colour and in the other maps alike: two parts side by side
+        # with the same reach do not run into each other.
+        halves = np.zeros((64, 64, 3), np.uint8); halves[:, :32] = (40, 40, 40); halves[:, 32:] = (200, 200, 200)
+        sides = [{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'radius': 0.2}, {'box': [[0.0, -0.1, -0.1], [0.6, 0.1, 2.1]], 'radius': 0.2}]
+        apart, _, parts = convert.retouch(Image.fromarray(halves), points, texture, faces, smooth=sides)
+        self.assertEqual((len(parts), parts[0][1]), (2, parts[1][1])); np.testing.assert_array_equal(np.asarray(apart), halves)
+        np.testing.assert_allclose(convert._levelled(halves[..., 0] / 255, parts), halves[..., 0] / 255, atol=1 / 255)
+        # Only the texels the blur can reach are worked on, and the answer is the whole picture's.
+        field = np.random.default_rng(0).random((96, 96)).astype(np.float32); patch = np.zeros((96, 96), bool); patch[40:50, 60:70] = True
+        whole = convert._blur(field * patch, 2) / np.maximum(convert._blur(patch.astype(np.float32), 2), 1e-6)
+        with mock.patch.object(convert, '_blur', wraps=convert._blur) as blur:
+            box, soft, near = convert._soften(field, patch, 2)
+        self.assertTrue(near[patch[box]].all()); np.testing.assert_allclose(soft[near], whole[box][near], atol=1e-5)
+        self.assertTrue(all(max(call.args[0].shape[:2]) <= 10 + 2 * 7 for call in blur.call_args_list))  # ten texels and three reaches and one round them
+        # A part's tones are carried past its own texels, so the picture enlarged has them at the part's edge: a dark
+        # neighbour on the texture does not show through as a fringe.
+        island = np.zeros((64, 64, 3), np.uint8); island[:, 32:] = (200, 200, 200)  # black to the left of the wall's right half
+        edge, _, _ = convert.retouch(Image.fromarray(island).resize((128, 128), Image.NEAREST), points, texture, faces, size=64, smooth=[sides[1]])
+        self.assertEqual(int(np.asarray(edge)[:, 64:].min()), 200); self.assertEqual(int(np.asarray(edge)[:, :64].max()), 0)
+
+    def test_the_glow_is_of_the_picture_as_it_ships_and_a_fence_ends_at_the_model(self):
+        """Found in review, 2026-11-12: the glow map was made from the picture as generated, so what `paint` covered by
+        day still shone by night; and a fence was checked for its heights only."""
+        from PIL import Image
+        from unittest import mock
+        from . import glow
+        model = glb(self.root / 'wall.glb', **WALL); Image.new('RGB', (512, 512), (250, 240, 230)).save(self.root / 'colour.png')
+        maps = {'base_color': self.root / 'colour.png'}; whole = [{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 2.1]]}]
+        cover = [{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'colour': [0, 0, 0]}]  # an invented logo on the lower half, painted out
+        with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as placed:
+            made = convert.shape(model, maps, height=2.0, lit=whole, paint=cover)
+        shine = np.asarray(made['illumination']); self.assertEqual(shine.shape[:2], (512, 512))
+        self.assertGreater(int(shine[:200].min()), 200); self.assertEqual(int(shine[300:].max()), 0)  # dark by night too
+        self.assertEqual(placed.call_count, 1)  # the glow's map of places serves the retouching: both are 512 texels across
+        sheet = {'from': [-0.5, 0.0], 'to': [0.5, 0.0], 'z': [0.5, 1.5], 'pitch': 0.09, 'wire': 0.016}
+        self.assertGreater(len(convert.shape(model, maps, height=2.0, fence=[sheet])['wire']['faces']), 0)
+        with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):  # measured before a turn: it would hang beside the wall
+            convert.shape(model, maps, height=2.0, fence=[{**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
+        with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as placed:  # and it is said before the long work on the pictures
+            with self.assertRaisesRegex(ValueError, 'hangs between posts'):
+                convert.shape(model, maps, height=2.0, lit=whole, paint=cover, fence=[{**sheet, 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
+        self.assertEqual(placed.call_count, 0)
+
+    def test_a_fence_is_hung_as_sheets_that_show_a_wire_picture_of_their_own(self):
+        """The same fence's frames came back empty. A sheet is real faces, seen through between its wires. The wires are
+        not drawn on the model's own colour picture: an alpha channel there doubled the depot's, to 22 MB (2026-11-12)."""
+        fences = [{'from': [0.0, 0.0], 'to': [2.0, 0.0], 'z': [1.0, 2.0], 'pitch': 0.09, 'wire': 0.016}]
+        wire = convert.sheets(fences); vertices, normals, uvs, faces, image = (wire[key] for key in ('vertices', 'normals', 'uvs', 'faces', 'image'))
+        links = round(wire['period'] / (0.09 * np.sqrt(2))); self.assertGreaterEqual(links, 1); self.assertAlmostEqual(wire['period'], links * 0.09 * np.sqrt(2))
+        self.assertGreaterEqual(0.016 / wire['period'] * image.width, convert.WIRE_TEXELS)  # a wire keeps its pixels
+        across, up = int(np.ceil(2.0 / wire['period'])), int(np.ceil(1.0 / wire['period']))
+        self.assertEqual((len(faces), len(vertices)), (across * up * 4, across * up * 8))  # two faces a square, each way
+        np.testing.assert_allclose(vertices.min(0), [0.0, 0.0, 1.0]); np.testing.assert_allclose(vertices.max(0), [2.0, 0.0, 2.0])
+        self.assertTrue(((uvs >= 0) & (uvs <= 1 + 1e-9)).all()); np.testing.assert_allclose(uvs[:4], [[0, 0], [1, 0], [1, 1], [0, 1]])  # a whole square shows the whole picture
+        out = np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])[:, 1]
+        self.assertEqual((int((out > 0).sum()), int((out < 0).sum())), (len(faces) // 2, len(faces) // 2))  # seen from both sides
+        np.testing.assert_allclose(np.abs(normals[:, 1]), 1.0)
+        pixels = np.asarray(image); self.assertEqual((image.mode, image.size), ('RGBA', (convert.WIRE_PICTURE, convert.WIRE_PICTURE)))
+        self.assertTrue((pixels[..., :3] == convert.WIRE).all()); gaps = float((pixels[..., 3] == 0).mean()); self.assertGreater(gaps, 0.4); self.assertLess(gaps, 0.8)
+        text = convert.model_text('ek_test', np.zeros((3, 3)), np.tile([0, 0, 1.0], (3, 1)), np.zeros((3, 2)), np.array([[0, 1, 2]]), wire=wire)
+        self.assertIn('node trimesh ek_test_w0', text); self.assertIn('  bitmap ek_test_w\n', text); self.assertEqual(text.count('  bitmap ek_test\n'), 1)
+        with self.assertRaisesRegex(ValueError, 'share one wire mesh'):
+            convert.sheets(fences + [{**fences[0], 'wire': 0.02}])
+        with self.assertRaisesRegex(ValueError, 'cannot be drawn'):
+            convert.sheets([{**fences[0], 'wire': 0.001}])
+
     def test_zero_normals_are_rebuilt_from_the_faces(self):
         vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; normals = np.array([[0, 1, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0]], float)
         fixed, count = convert.repair_normals(vertices, normals, np.array(WALL['faces']))
