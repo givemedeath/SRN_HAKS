@@ -293,7 +293,13 @@ def fit(posed, weight, there, parts, clearance=CLEARANCE):
     outside the outfit, the outfit is scaled out from the bone by a factor that is evened over neighbouring
     directions and heights, so its relief keeps its shape; a vertex still inside after that is set
     `clearance / 2` outside the body. Vertices move only by the share they follow each bone. `report` maps a
-    bone to its largest factor and the number of vertices set outside one by one."""
+    bone to its largest factor and the number of vertices set outside one by one.
+
+    One by one, the body is as wide as the narrowest of a vertex's own ring and the rings next to it along
+    the bone. A ring holds the body's largest radius in it, and where the body's surface turns across the
+    bone (the top of a shoulder) that is the shoulder's width for a vertex lying on the slope above it: set
+    outside that, it went centimetres out sideways, away from the vertices beside it, and folded the cloth
+    between them."""
     posed = np.asarray(posed, float)
     rng = np.random.default_rng(0)
     result, used, report = np.zeros_like(posed), np.zeros(len(posed)), {}
@@ -328,7 +334,9 @@ def fit(posed, weight, there, parts, clearance=CLEARANCE):
             padded = np.pad(factor, ((1, 1), (0, 0)), mode='edge')
             factor = np.maximum(sum(np.roll(padded[1 + dr:rings + 1 + dr], dc, axis=1) for dr in (-1, 0, 1) for dc in (-1, 0, 1)) / 9, 1.0)
         grown = r * np.where(beside, factor[ring, sector], 1.0)
-        least = np.where(beside & (body[ring, sector] > 0), body[ring, sector] + clearance / 2, 0.0)
+        along_bone = np.pad(np.where(body > 0, body, np.inf), ((1, 1), (0, 0)), constant_values=np.inf)
+        level = np.minimum(np.minimum(along_bone[:-2], along_bone[2:]), along_bone[1:-1])  # the body's width, a ring either way
+        least = np.where(beside & (body[ring, sector] > 0), level[ring, sector] + clearance / 2, 0.0)
         relative = posed[mine] - origin
         along = (relative @ axis)[:, None] * axis
         moved = origin + along + (relative - along) * (np.maximum(grown, least) / np.maximum(r, 1e-9))[:, None]
