@@ -10,7 +10,7 @@ import uuid
 import numpy as np
 from PIL import Image
 from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
-from .contracts import all_pins, code_pins, source_version, manifest, family, evidence_pins, stage_roles
+from .contracts import all_pins, code_pins, is_code_path, source_version, manifest, family, evidence_pins, stage_roles
 from .geometry import corner_hash
 from .routes import PACKAGED_FIREARMS, ROUTES, needs_grip_standard
 from .verification import VerificationPass
@@ -82,7 +82,7 @@ class Runner:
         receipt = audit.receipts[stage]
         # A historical audit (rebuild_fixture) checks the receipt's recorded code version instead of today's code bytes.
         historical = getattr(audit, 'historical_code', None)
-        audit.verify([row for row in receipt['inputs'] if historical is None or row['path'] not in historical]+receipt['outputs'])
+        audit.verify([row for row in receipt['inputs'] if historical is None or not historical(row['path'])]+receipt['outputs'])
         require(receipt['state'] == 'complete', 'Stage failed: '+stage)
         if stage == 'client' and self.evidence is not None:
             require(pin(self.evidence) in receipt['inputs'], 'Client review evidence changed')
@@ -344,7 +344,7 @@ class Runner:
         row = self.state['stages'].get('native'); require(row is not None, 'Stage not completed: native')
         verify([row]); recorded = read(row['path'])['codeVersion']
         audit = VerificationPass(); audit.code_version = recorded
-        audit.historical_code = {row['path'] for row in code_pins()}      # source files: identified by the recorded version
+        audit.historical_code = is_code_path()      # source files, even since-deleted ones: identified by the recorded version
         native = self.result('native', _audit=audit)
         fixture_inputs = Path(fixture_inputs).resolve(); extra = read(fixture_inputs)
         require(extra.get('kind') == 'fixture-inputs' and fixture_inputs.parent == self.manifest_path.parent,

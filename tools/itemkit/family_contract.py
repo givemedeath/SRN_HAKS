@@ -101,7 +101,9 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     table = next(row['file']['path'] for l in stack['layers'] for row in l['resources'] if row['resource'].lower() == 'baseitems.2da')
     row = twoda((target/table).read_text(encoding='utf-8-sig'))[str(route.carrier.base_item)]
     footprint = [int(row['InvSlotWidth']) * 32, int(row['InvSlotHeight']) * 32]
-    canvases = {p: list(Image.open(folder/f'i{cls}_{p}_011.tga').size) for p in 'bmt'}
+    canvases = {}
+    for p in 'bmt':
+        with Image.open(folder/f'i{cls}_{p}_011.tga') as icon: canvases[p] = list(icon.size)
     icons = {'iconDimensions': dict.fromkeys('bmt', footprint)}
     if any(c != footprint for c in canvases.values()): icons['iconCanvasDimensions'] = canvases
     base_family = json.loads(next(source.glob('family-*.json')).read_text(encoding='utf-8'))
@@ -130,14 +132,18 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
                            'productionStackApproved': False, 'stack': {'path': stack_path.name, 'sha256': sha(stack_path)}})
     name = design.rsplit('-', 1)[0][4:] if design.startswith('sr4-') else design
     path = target/f'family-{name}.json'; require(not path.exists(), path.name+' exists in this wave')
-    with verification_pass('family-contract-'+design):
-        path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
-        _, resources = native_contract(path, profile)
-        slot = reserve(profile, {n.lower() for n in resources} | sibling_models(target, path, cls))
-        profile['resources']['appearanceIndex'] = slot['modelIndex']; path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
-        family(path, validate_native=True)
+    out = handoff/f'{design}.{wave}-contract.asset.json'; require(not out.exists(), out.name+' exists')
+    try:
+        with verification_pass('family-contract-'+design):
+            path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
+            _, resources = native_contract(path, profile)
+            slot = reserve(profile, {n.lower() for n in resources} | sibling_models(target, path, cls))
+            profile['resources']['appearanceIndex'] = slot['modelIndex']; path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
+            family(path, validate_native=True)
+    except BaseException:
+        path.unlink(missing_ok=True)     # nothing pins a contract that never validated: a fixed rerun starts clean
+        raise
     manifest = json.loads((handoff/f'{design}.asset.json').read_text(encoding='utf-8'))
     manifest['familyProfile'] = {'path': path.relative_to(handoff).as_posix(), 'sha256': sha(path)}
-    out = handoff/f'{design}.{wave}-contract.asset.json'; require(not out.exists(), out.name+' exists')
     out.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     return {'family': str(path), 'manifest': str(out), 'carrier': carrier, 'budget': budget, 'slot': slot['modelIndex']}

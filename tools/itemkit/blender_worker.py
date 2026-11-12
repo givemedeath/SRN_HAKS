@@ -281,8 +281,11 @@ def fit_preview(cfg, working, out):
     if 'stockSpan' in native:
         lo, hi = native['stockSpan']; wire_box('stock', (-.03, lo, -.03), (.03, hi, .03))
     origin = np.asarray(native['gripOrigin'], float)
-    bpy.ops.mesh.primitive_cylinder_add(radius=.0165, depth=float(native['gripLength']), location=tuple(origin), rotation=(np.pi / 2, 0, 0))
+    bpy.ops.mesh.primitive_cylinder_add(radius=1, depth=float(native['gripLength']), location=tuple(origin), rotation=(np.pi / 2, 0, 0))
     grip = bpy.context.object; grip.name = 'grip-span'; grip.color = (1, .55, .1, 1); objects.append(grip)
+    # The span shows the bound standard's own midpoint section (depth on X, visible face on Z after the turn onto +Y).
+    section = read(cfg['gripStandard'])['targetMidpointSection'] if cfg.get('gripStandard') else {'depth': .033, 'visibleFaceWidth': .033}
+    grip.scale = (section['depth'] / 2, section['visibleFaceWidth'] / 2, 1)
     v, _ = arrays(working); low = float(v[:, 1].min())
     bpy.ops.mesh.primitive_cube_add(location=(.07, low + .05, .07)); bar = bpy.context.object; bar.scale = (.004, .05, .004)
     bar.color = (1, 1, 1, 1); objects.append(bar)
@@ -311,9 +314,10 @@ def fit(cfg, out):
         require(pin(cfg.get('workingSource',cfg['source']))['sha256'] == cfg['family']['native']['motion']['working']['sha256'],
                 'Crossbow fit source differs from its qualified moving mesh')
     matrix = similarity_matrix(cfg['fit'], pin(cfg['source'])['sha256'])
+    from tools.itemkit.grip import GripDeparture
     try: matrix, grip_report = grip_fit(cfg, matrix, working)
-    except Exception as exc:
-        if hasattr(exc, 'report'): write(out/'grip-measurement.json', exc.report, fresh=True)
+    except GripDeparture as exc:
+        write(out/'grip-measurement.json', exc.report, fresh=True)
         raise
     donor_fit = apply_fit(donor, matrix, out/'donor-fit-normals.npz')
     if working != donor:

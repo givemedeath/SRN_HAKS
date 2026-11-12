@@ -32,7 +32,7 @@ class Workspace:
         chosen = Path(path or os.environ.get(ENVIRONMENT) or DEFAULT).resolve()
         if chosen.is_dir(): chosen = chosen/'workspace.json'
         try: data = json.loads(chosen.read_text(encoding='utf-8-sig'))
-        except OSError as error:
+        except (OSError, json.JSONDecodeError) as error:
             raise WorkspaceError(f'Cannot read item workspace {chosen}: {error} (see tools/itemkit/workspace.example.json)') from error
         if data.get('kind') != 'srn-item-workspace' or data.get('schemaVersion') != 1:
             raise WorkspaceError(f'{chosen} is not a schema 1 srn-item-workspace')

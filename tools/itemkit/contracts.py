@@ -353,6 +353,15 @@ def code_pins():
     return head_pins() + [pin(p) for p in files]
 
 
+def is_code_path():
+    """A test for toolkit source-file paths, by folder and kind rather than by today's file list.
+
+    A historical receipt may pin a source file that has since been deleted or renamed; it is still code, identified
+    by the receipt's recorded code version, not a data input to verify by its bytes."""
+    roots = {str(Path(row['path']).parent) for row in code_pins()}
+    return lambda path: Path(path).suffix in ('.py', '.json') and str(Path(path).parent) in roots
+
+
 def source_version():
     return digest({Path(p['path']).relative_to(ROOT).as_posix(): p['sha256'] for p in code_pins()})
 

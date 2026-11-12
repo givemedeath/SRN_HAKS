@@ -44,7 +44,7 @@ def sheet(folder, size=480):
     from PIL import Image, ImageDraw
     folder = Path(folder); canvas = Image.new('RGB', (size * 4, size * 2), (20, 20, 20))
     for index, name in enumerate(VIEWS):
-        image = Image.open(folder/f'{name}.png').convert('RGB').resize((size, size), Image.LANCZOS)
+        with Image.open(folder/f'{name}.png') as view: image = view.convert('RGB').resize((size, size), Image.LANCZOS)
         ImageDraw.Draw(image).text((8, 8), name, fill=(255, 220, 120)); canvas.paste(image, ((index % 4) * size, (index // 4) * size))
     canvas.save(folder/'sheet.png'); return folder/'sheet.png'
 

@@ -375,7 +375,10 @@ class Driver:
         haks = {}
         for hak in ('sw_reviewenv', 'sw_f7motion'):
             target = shared/f'{hak}.hak'
-            if not target.exists(): subprocess.run([str(erf), '-c', '-e', 'HAK', '-f', str(target), str(tests/'haks'/hak)], check=True)
+            if not target.exists():
+                # Built beside the target and moved into place: an interrupted build never leaves a HAK later documents pin.
+                partial = target.with_suffix('.partial.hak'); partial.unlink(missing_ok=True)
+                subprocess.run([str(erf), '-c', '-e', 'HAK', '-f', str(partial), str(tests/'haks'/hak)], check=True); partial.replace(target)
             haks[hak] = {'path': str(target), 'sha256': sha(target)}
         for hak in ('srn_weapon', 'srn_body_tex', 'srn_body', 'srn_2da'): haks[hak] = {'path': str(packs/f'{hak}.hak'), 'sha256': sha(packs/f'{hak}.hak')}
         profile = self.ws.handoff/read(self.manifest(design, suffix))['familyProfile']['path']; contract = profile.parent
@@ -408,7 +411,10 @@ class Driver:
         self.launch(design, run, 'refixture', ['--manifest', m, '--run', run, '--stage', 'fixture', '--extra', doc],
                     ['refixture', '--manifest', m, '--run', run, '--fixture-inputs', doc, '--output', run/f'refixture-{n}'])
         result = {'fixture': str(run/f'refixture-{n}/fixture')}
-        if capture: result['capture'] = self.capture(run/f'refixture-{n}/fixture', run/f'refixture-{n}/captures-1')
+        if capture:
+            k = 1
+            while (run/f'refixture-{n}/captures-{k}').exists(): k += 1
+            result['capture'] = self.capture(run/f'refixture-{n}/fixture', run/f'refixture-{n}/captures-{k}')
         return result
 
     def capture(self, fixture, output):

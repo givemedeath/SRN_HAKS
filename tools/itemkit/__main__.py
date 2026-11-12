@@ -6,7 +6,7 @@ import shutil
 import sys
 from tools.headkit import comfy
 from tools.headkit.common import asset, bindings, launched, pin, read, require, verify, write, python_package_pins, verification_pass
-from .contracts import all_pins, code_pins, family, manifest, source_version, evidence_pins,stage_roles
+from .contracts import all_pins, code_pins, family, is_code_path, manifest, source_version, evidence_pins,stage_roles
 from .generation import request_stage, shared_ledger, initialize_trial, set_trial_limit
 
 
@@ -116,7 +116,7 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
     if run and (Path(run)/'state.json').exists():
         state = read(Path(run)/'state.json')  # Mutable state is output, not an immutable consumed asset.
         rebuild = any(isinstance(document, dict) and document.get('kind') == 'fixture-inputs' for _, document in documents)
-        pins += run_receipt_pins(state, stage, historical_code={row['path'] for row in code_pins()} if rebuild else None)
+        pins += run_receipt_pins(state, stage, historical_code=is_code_path() if rebuild else None)
     for path, document in documents:
         row = pin(path); pins.append(row)
         if isinstance(document, dict):
@@ -152,7 +152,7 @@ def run_receipt_pins(state, stage=None, *, historical_code=None):
         try:
             verify([row]); receipt = read(row['path'])
             rows = [row]+receipt['inputs']+receipt['outputs']+([state['reviews'][name]] if name in state.get('reviews', {}) else [])
-            if historical_code is not None: rows = [r for r in rows if r['path'] not in historical_code]
+            if historical_code is not None: rows = [r for r in rows if not historical_code(r['path'])]
             verify(rows)
         except (KeyError, OSError, ValueError): pending += DEPENDENCIES.get(name, ()); continue
         # Follow the recorded and current dependency graph, as Runner.result does.

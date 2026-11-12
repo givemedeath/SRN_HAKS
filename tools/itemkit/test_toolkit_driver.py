@@ -156,6 +156,15 @@ class ContractBudgetTests(unittest.TestCase):
             self.assertEqual(b['shadow'], 500)
 
 
+class HistoricalCodeTests(unittest.TestCase):
+    def test_a_deleted_source_file_is_still_code_and_data_is_not(self):
+        from tools.itemkit.contracts import code_pins, is_code_path
+        test = is_code_path(); folder = Path(code_pins()[-1]['path']).parent
+        self.assertTrue(test(str(folder/'since_deleted_helper.py')))
+        self.assertFalse(test(str(Path(tempfile.gettempdir())/'manifest.json')))
+        self.assertFalse(test(str(folder/'notes.txt')))
+
+
 class ResourceStemTests(unittest.TestCase):
     def test_designs_sharing_an_id_suffix_get_distinct_resource_names(self):
         import hashlib
