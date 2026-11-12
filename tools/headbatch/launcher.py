@@ -99,12 +99,11 @@ def gpu_host_lease(workspace):
 def gpu_lock(workspace):
     """One GPU job at a time: designs behind Pixal jobs time out or run out of memory. It is the host lease every
     toolkit submits under (headkit.shared_comfy), held until the launch ends; its children inherit the hold."""
-    from shared_tools import tools_root
-    root,_=tools_root(REPO,workspace.data.get('toolsRoot'))
     index=workspace.data.get('comfy',{}).get('gpuIndex',0)
     if type(index) is not int or index<0:
         raise guards.Refused('GPU index must be a nonnegative integer')
-    return gpu_lease(index, root, limit=float('inf'), poll=LOCK_POLL_SECONDS, say=None)
+    # Children get this root as SRN_TOOLS_ROOT (Workspace.python_environment): same lease, same registry.
+    return gpu_lease(index, workspace.tools_root(), limit=float('inf'), poll=LOCK_POLL_SECONDS, say=None)
 
 
 def launch(workspace, output, inputs, arguments, environment=None):

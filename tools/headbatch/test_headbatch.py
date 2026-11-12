@@ -371,6 +371,17 @@ class WorkspaceTests(Base):
         self.assertNotIn('caller', bound['PYTHONPATH'])
         self.assertIn('lib', bound['PYTHONPATH'])
 
+    def test_children_use_the_workspaces_own_tools_root(self):
+        # The launcher holds the GPU lease under this root; its children must take the same lease and registry.
+        own = self.root/'own-tools'; own.mkdir()
+        data = {key: value for key, value in self.workspace.data.items() if key != 'toolsRoot'}
+        bound, unbound = Workspace(self.workspace.root, {**data, 'toolsRoot': str(own)}), Workspace(self.workspace.root, data)
+        with unittest.mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.root/'elsewhere')}):
+            environment = bound.python_environment()
+            self.assertEqual(environment['SRN_TOOLS_ROOT'], str(own.resolve()))
+            self.assertEqual(Path(environment['SRN_TOOLS_ROOT']), bound.tools_root())
+            self.assertEqual(unbound.python_environment()['SRN_TOOLS_ROOT'], str(self.root/'elsewhere'))  # none set: unchanged
+
 
 class Guards(Base):
     def test_stray_bytecode_goes_and_other_unpinned_files_refuse(self):

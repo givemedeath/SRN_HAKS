@@ -803,7 +803,8 @@
       "tools/heads/build_head_trial.py"
     ],
     "tools/headbatch/workspace.py": [
-      "tools/headbatch/races.json"
+      "tools/headbatch/races.json",
+      "tools/shared_tools.py"
     ],
     "tools/headkit/__init__.py": [],
     "tools/headkit/__main__.py": [
