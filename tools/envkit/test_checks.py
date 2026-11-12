@@ -88,6 +88,16 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([shot['label'] for shot in near], ['near-door', 'near-front', 'near-side', 'far', 'behind', 'behind-side'])
         self.assertIn('SetCutsceneMode(pc,FALSE)', near[0]['run']); self.assertFalse(any('run' in shot for shot in near[1:]))  # the player is freed once: upper storeys hide only outside cutscene mode
         doorless = checks.group_shots(2, 2, None, 'near'); self.assertEqual(doorless[0]['label'], 'near-front'); self.assertIn('run', doorless[0])
+        east = checks.group_shots(3, 2, [1.0, 9.0], 'day', facing=0.0)[9]  # a door that opens east is seen from the east
+        self.assertEqual((east['stand'], east['facing']), ([48.2, 49.0], 180.0))
+
+    def test_a_groups_door_is_found_where_the_tiles_put_it_not_where_the_model_did(self):
+        # The Saeder-Krupp yard: 3 by 3, its door on the north middle tile. The game set had it at (2.78, 3.68) on the
+        # model, whose origin lay 7 metres from the middle of the tiles, cut about the fence far out in front.
+        tiles = [{'column': column, 'row': row, 'doors': []} for row in range(3) for column in range(3)]
+        tiles[7]['doors'] = [{'type': 58, 'x': 1.31, 'y': 0.74, 'z': 0.55, 'orientation': 180.0}]
+        self.assertEqual([round(value, 2) for value in checks.laid_door({'columns': 3, 'rows': 3, 'tiles': tiles})], [1.31, 10.74])
+        self.assertIsNone(checks.laid_door({'columns': 2, 'rows': 2, 'tiles': tiles[:4]}))
 
     def test_a_group_is_laid_with_the_packs_tiles_only_where_the_pack_holds_this_build(self):
         text = '[TILE0]\r\nModel=tdg01_a01_01\r\n[TILE1]\r\nModel=ek_hall_t00\r\nWalkMesh=msb01\r\n[TILE1DOOR0]\r\nType=58\r\n[TILE2]\r\nModel=ek_hall_t01\r\n[TILE3]\r\nModel=ek_shop_t00\r\n'

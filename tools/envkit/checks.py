@@ -157,15 +157,29 @@ def lights(game, repo, base, name, models_path, built, *, pack='srn_placeable'):
     return _run(game, record, base / 'fixtures' / name)
 
 
-def group_shots(columns, rows, door, mode, *, column0=3, row0=3):
+def laid_door(made):
+    """The middle of the foot of a built group's door from the group's middle, (x, y), or None: from the tiles' own door
+    records (`tiles`' report), each on its tile's middle. Not the game set's place of it on the model: the tiles are cut
+    about what the group holds, and that need not be centred on the model's origin. The Saeder-Krupp yard's fence
+    stands far out in front, and its door lay 7 metres from where the model put it (2026-11-12)."""
+    found = [(one['column'], one['row'], door) for one in made['tiles'] for door in one.get('doors', [])]
+    if not found:
+        return None
+    column, row, door = found[0]
+    return [(column + 0.5 - made['columns'] / 2) * TILE + door['x'], (row + 0.5 - made['rows'] / 2) * TILE + door['y']]
+
+
+def group_shots(columns, rows, door, mode, *, column0=3, row0=3, facing=90.0):
     """The views of a tile group laid with its south-west tile at (column0, row0): {label, stand, facing, distance,
-    pitch, height}. `door` is the middle of its door's foot from the group's middle, or None. By `day` and `night` the
-    group is seen from the front, at its door, slantwise along each side from just inside its edge, at two corners and
-    from above; `near` frees the player (the first shot's `run`) at the door, off it, far from it and behind it."""
+    pitch, height}. `door` is the middle of its door's foot from the group's middle (`laid_door`), or None; `facing`
+    the way out of it, in degrees. By `day` and `night` the group is seen from the front, at its door, slantwise along
+    each side from just inside its edge, at two corners and from above; `near` frees the player (the first shot's `run`)
+    at the door, off it, far from it and behind it."""
     hx, hy = columns * TILE / 2, rows * TILE / 2; cx, cy = column0 * TILE + hx, row0 * TILE + hy; reach = max(hx, hy)
     view = lambda label, x, y, facing, distance, pitch, height=2.2: {'label': label, 'stand': [cx + x, cy + y], 'facing': facing, 'distance': distance, 'pitch': pitch, 'height': height}
     front = view('front', 0.0, hy, 270, 2.5 * reach, 62, 1.5)
-    at_door = [view('door', door[0], door[1] + 2.2, 270, 12.0, 66, 1.5)] if door is not None else []
+    out = math.radians(facing); step = [round(2.2 * math.cos(out), 6), round(2.2 * math.sin(out), 6)]
+    at_door = [view('door', door[0] + step[0], door[1] + step[1], (facing + 180.0) % 360.0, 12.0, 66, 1.5)] if door is not None else []
     if mode == 'near':
         free = 'SetCutsceneMode(pc,FALSE); ExploreAreaForPlayer(GetArea(pc),pc,TRUE);'
         shots = [*at_door, {**front, 'label': 'near-front'}, view('near-side', hx - 2.0, 0.0, 180, 2.0 * reach, 60, 1.5),
@@ -242,8 +256,8 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     for path in [*(folder / 'shared').iterdir(), *(folder / 'source').glob('*.tga')]:
         shutil.copyfile(path, resources / path.name)
     from_pack(repo / 'srn_placeable', scale_prop, resources)  # something of a known size in the corner of the area
-    door = (models[model]['tiles'].get('door') or {}).get('at'); night = mode == 'night'
-    shots = group_shots(made['columns'], made['rows'], door[:2] if door else None, mode, column0=column0, row0=row0)
+    door, night = laid_door(made), mode == 'night'
+    shots = group_shots(made['columns'], made['rows'], door, mode, column0=column0, row0=row0, facing=float((models[model]['tiles'].get('door') or {}).get('facing', 90.0)))
     record = fixture.build(name, resources, [{'model': scale_prop, 'position': [3.0, 3.0], 'bearing': 0.0, 'static': True}], shots, base / 'fixtures' / name, game,
                            repo / 'srn_2da/placeables.2da', night=night, size=size, hold=6.0,
                            ground={'tileset': tileset, 'fill': FILL[tileset], 'tiles': laid, 'lights': {spot: [11, 0] for spot in laid} if night else {}})

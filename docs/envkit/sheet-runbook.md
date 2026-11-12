@@ -136,6 +136,14 @@ player to show which storeys the client hides. `lights` takes the lit props from
 them out and on again by script. Look for the roof and upper storey from above, the door, and every lit part
 going out and coming back.
 
+Two checks of the group have no command yet and are built the way `checks.group` builds its area, with
+`prop_fixture.build`'s `people` and a shot's one line of `run`: walkers sent from the far corners of the area to
+the door, to both sides and onto any ground with few ways in (a fenced yard), their places logged every shot, in
+both tilesets (`tile.py` says why); and by night the group's lights put out and on again with
+`convert.blackout_script` for every lit model of the group, its own and its parts'. Take the places from the
+built tiles (`checks.laid_door`, the walkmeshes), not from the model: the tiles are cut about what the group
+holds.
+
 Then write the sheet's section of `PROVENANCE.md` (what was generated, by what, what was retouched, what was
 checked and what was left as generated), rebuild the affected packs and run repository verification.
 
@@ -162,15 +170,22 @@ By computer use (access is asked for `nwtoolset.exe` by that name):
 - The palette trees ignore simulated clicks on their expanders. `-Do reach -Index 1 -Root 1 -Child <n>` opens
   Groups and selects its n-th item; `-Do expand -Index <tree>` lists a tree.
 - Check the name of the selected group before painting: neighbouring rows are easy to hit.
-- The pending tile under the cursor is the group's bottom-left. A right-click turns it.
-- The mouse wheel zooms the area view; the zoom buttons do nothing.
+- The pending tile under the cursor is the group's bottom-left. A right-click turns it a quarter, anticlockwise,
+  and the tile under the cursor turns with the group: after a half turn it is the top-right.
+- The palette's object buttons ignore simulated clicks too: `-Do tab -Index 5` shows the placeables, `-Do tab
+  -Index 9` the tiles again, and `-Do path -Index 1 -Path <category>/<subcategory>/<n>` selects a blueprint.
+- The mouse wheel zooms the area view while the view has the focus; the zoom buttons do nothing.
 - Leave the start point's corner tile alone: the Toolset refuses to save with the start on a tile painted over.
-- Save with ctrl+s, then judge by `saved`, not by the screen: it lists the group tiles laid and the doors the
-  Toolset made at the hooks (appearance 58).
+- Save with File > Save (ctrl+s did nothing, 2026-11-12), then judge by `saved`, not by the screen: it lists the
+  group tiles laid, the doors the Toolset made at the hooks (appearance 58) and the envkit props placed, each
+  with its `placeables.2da` row, name and static setting.
+
+Paint the group straight in one toolset folder and turned in another (a quarter turn in one tileset and a half
+in the other), and place a few of the sheet's props, lit and static, from both categories.
 
 `check doors` gives each of those doors an area transition to a waypoint in front of the next and starts the
 client with the player free in front of the first. Someone clicks each door in turn while it logs where the
-player is; `stages` in what it prints is each place the player came to.
+player is; `stages` in what it prints is each place the player came to. Run it on both folders.
 
 ## A new sheet, and a review of the sets
 

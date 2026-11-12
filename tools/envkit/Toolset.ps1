@@ -18,6 +18,9 @@ selected with tree-view messages. Trees are counted among the frame's visible on
                                 (Features, Groups and Terrain are the palette's top items, in that order)
   -Do path  -Index <tree> -Path <a/b/c>
                                 walk down the tree by item numbers, expanding on the way, then show and select the last
+  -Do tab   -Index <n>          press the palette's n-th object button (0 creatures, 1 doors, 2 encounters, 3 items,
+                                4 merchants, 5 placeables, 6 sounds, 7 triggers, 8 waypoints, 9 the tiles button above
+                                them); simulated clicks on them do nothing (2026-11-12), so the press is posted
 #>
 param([string]$Do = 'list', [string]$Class = '', [int]$Index = 0, [int]$Root = 0, [int]$Child = 0, [string]$Path = '')
 Add-Type @'
@@ -40,6 +43,7 @@ public static class Tw {
   [DllImport("user32.dll")] public static extern void keybd_event(byte k, byte s, uint f, UIntPtr e);
   [DllImport("user32.dll")] public static extern bool MoveWindow(IntPtr h, int x, int y, int w, int t, bool r);
   [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+  [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
   [StructLayout(LayoutKind.Sequential)] public struct RECT { public int L, T, R, B; }
   public static string Cls(IntPtr h) { var s = new StringBuilder(256); GetClassName(h, s, 256); return s.ToString(); }
   public static string Txt(IntPtr h) { var s = new StringBuilder(256); GetWindowText(h, s, 256); return s.ToString(); }
@@ -108,5 +112,24 @@ switch ($Do) {
     # Nothing selected would leave whatever was selected before pending, and the next click would paint that.
     if ($kid -eq [IntPtr]::Zero) { throw "no child $Child under top item $Root`: it has $all" }
     [void][Tw]::SendMessage($tree, 0x1114, [IntPtr]0, $kid); [void][Tw]::SendMessage($tree, 0x110B, [IntPtr]9, $kid)  # TVM_ENSUREVISIBLE, TVM_SELECTITEM caret
+  }
+  'tab' {
+    # the palette's object buttons: the toolbar of TfraMainPalette, its buttons side by side across its width
+    $w = $tops | Where-Object { [Tw]::Cls($_) -eq 'TfrmFrame' -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1
+    $palette = [Tw]::Kids($w) | Where-Object { [Tw]::Cls($_) -eq 'TfraMainPalette' -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1
+    if (-not $palette) { throw 'no palette: open an area first' }
+    $bar = [Tw]::Kids($palette) | Where-Object { [Tw]::Cls($_) -eq 'TToolBar' -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1
+    if (-not $bar) { throw 'no toolbar on the palette' }
+    if ($Index -lt 0 -or $Index -gt 9) { throw 'the palette has nine object buttons, 0 to 8, and the tiles button, 9' }
+    $r = New-Object Tw+RECT; [void][Tw]::GetWindowRect($bar, [ref]$r); $x = [int](($r.R - $r.L) * ($Index + 0.5) / 9); $y = [int](($r.B - $r.T) / 2)
+    if ($Index -eq 9) {  # the tiles button stands alone at the left of the palette's top panel, above the toolbar
+      $p = New-Object Tw+RECT; [void][Tw]::GetWindowRect($palette, [ref]$p)
+      $bar = [Tw]::Kids($palette) | Where-Object { $k = New-Object Tw+RECT; [void][Tw]::GetWindowRect($_, [ref]$k); [Tw]::Cls($_) -eq 'TPanel' -and $k.T -eq $p.T -and $k.B -gt $r.T } | Select-Object -First 1
+      if (-not $bar) { throw 'no top panel on the palette' }
+      $x = 12; $y = 12
+    }
+    $at = [IntPtr](($y -shl 16) -bor $x)
+    foreach ($m in 0x0200, 0x0201, 0x0202) { [void][Tw]::PostMessage($bar, $m, [IntPtr]([int]($m -eq 0x0201)), $at); Start-Sleep -Milliseconds 100 }  # move, down, up
+    Describe $bar; "pressed button $Index at $x,$y"
   }
 }

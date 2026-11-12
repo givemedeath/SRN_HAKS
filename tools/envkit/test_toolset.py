@@ -10,11 +10,14 @@ from tools.armorkit.client_fixture import field
 from . import toolset
 
 
-def area(tileset, width, tiles, doors=()):
+def area(tileset, width, tiles, doors=(), props=()):
     are = {'Tileset': field('resref', tileset), 'Width': field('int', width), 'Height': field('int', len(tiles) // width),
            'Tile_List': field('list', [{'Tile_ID': field('int', tile), 'Tile_Orientation': field('int', turn)} for tile, turn in tiles])}
     return are, {'Door List': field('list', [{'Appearance': field('dword', 58), 'X': field('float', x), 'Y': field('float', y), 'Bearing': field('float', -3.14),
-                                              'Tag': field('cexostring', 'Door'), 'Locked': field('byte', 0)} for x, y in doors])}
+                                              'Tag': field('cexostring', 'Door'), 'Locked': field('byte', 0)} for x, y in doors]),
+                 'Placeable List': field('list', [{'TemplateResRef': field('resref', resref), 'Appearance': field('dword', row), 'Static': field('byte', static),
+                                                   'Tag': field('cexostring', resref), 'X': field('float', 1.0),
+                                                   'LocName': {'type': 'cexolocstring', 'value': {'0': name}}} for resref, row, static, name in props])}
 
 
 class ToolsetTests(unittest.TestCase):
@@ -37,7 +40,12 @@ class ToolsetTests(unittest.TestCase):
 
     def test_a_saved_module_is_read_for_the_group_tiles_laid_and_the_doors_made(self):
         tiles = [(0, 0)] * 16; tiles[5], tiles[6], tiles[9] = (201, 1), (202, 1), (7, 2)  # the Toolset repaints the tiles round a group
-        told = toolset.report({'ektdg_a': area('dgt04', 4, tiles, doors=[(15.0, 20.0)]), 'ektud_a': area('udp1', 4, [(52, 0)] * 16)}, {'dgt04': 200, 'udp1': None})
+        props = [('ek_sk_gate', 22771, 0, 'Saeder-Krupp Yard, Vehicle Gate'), ('ek_sk_fence', 22774, 1, 'Saeder-Krupp Yard, Fence Section'), ('plc_chair', 5, 1, 'Chair')]
+        told = toolset.report({'ektdg_a': area('dgt04', 4, tiles, doors=[(15.0, 20.0)], props=props), 'ektud_a': area('udp1', 4, [(52, 0)] * 16)}, {'dgt04': 200, 'udp1': None})
+        self.assertEqual(told['ektdg_a']['placeables'], [  # envkit props only, each with what its blueprint gave it
+            {'TemplateResRef': 'ek_sk_gate', 'Appearance': 22771, 'Static': 0, 'Tag': 'ek_sk_gate', 'name': 'Saeder-Krupp Yard, Vehicle Gate'},
+            {'TemplateResRef': 'ek_sk_fence', 'Appearance': 22774, 'Static': 1, 'Tag': 'ek_sk_fence', 'name': 'Saeder-Krupp Yard, Fence Section'}])
+        self.assertEqual(told['ektud_a']['placeables'], [])
         self.assertEqual(told['ektdg_a']['groupTiles'], [{'tile': 201, 'column': 1, 'row': 1, 'turn': 1}, {'tile': 202, 'column': 2, 'row': 1, 'turn': 1}])
         self.assertEqual((told['ektdg_a']['otherTiles'], told['ektdg_a']['size']), ({0: 13, 7: 1}, [4, 4]))
         self.assertEqual(told['ektdg_a']['doors'], [{'Appearance': 58, 'X': 15.0, 'Y': 20.0, 'Bearing': -3.14, 'Tag': 'Door'}])

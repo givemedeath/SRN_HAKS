@@ -639,8 +639,14 @@ whole in every other view and in the models. Painted in the Toolset the same day
 in a Suburbs area, the group laid its nine tiles in order with no turn, and in each area made one door by
 itself, of type 58, at the service door; in the Suburbs area the Toolset also repainted the sixteen tiles
 around the group. With the two Toolset-saved areas' doors chained in the client, clicking the service door in
-each took the player to the other area, where the group stood at its door as painted. Not yet checked: walkers
-sent to the door, and its lights put out by `SetTextureOverride`.
+each took the player to the other area, where the group stood at its door as painted. Painted again turned, a
+quarter turn in Modern Exterior and a half turn in Suburbs, the nine tiles turned together into their places and
+the door moved and turned with them, and in the client its two doors took the player across and back again.
+Four walkers sent from the far corners of a 90-metre area reached the service door, the yard inside the fence
+(round the fence's ends) and both sides of the building, in a Modern Exterior area by night and a Suburbs area by
+day. By night `SetTextureOverride`, as `docs/envkit/lights.md` gives it, for the group's own model and the four
+of its parts that are lit, put out the sign's glow, the pole lamps, the floodlights and the stack light and
+brought them back; the sign's white lettering stays readable unlit, as paint.
 
 ## Saeder-Krupp Yard props (`srn_placeable`, `srn_2da`; 2026-11-12)
 
@@ -676,7 +682,10 @@ against 2.44 metres for a real one, and was left as generated.
 
 Checked in the game client on 2026-11-12: by day from front, back and side with a figure for scale, from the
 converted files; and by night from the pack's files, where `ReplaceObjectTexture` put the lights of the seven
-lit props out and brought them back. Not yet checked in the Toolset.
+lit props out and brought them back. Checked in the Toolset the same day, from the built packs: the Standard
+palette lists the eight outdoor props under Modern Exterior and the six others under Modern Interior, and a
+vehicle gate, wall sign, security booth, fence section, office desk and crate set painted from it were saved with
+their rows, names and tags, the fence and crates static and the four lit ones not.
 
 ## MDRNEE placeable import (2026-09-11)
 
