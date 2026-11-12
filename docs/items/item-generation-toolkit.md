@@ -520,6 +520,12 @@ stock carrier's length or a chosen `targetLength`, and places the hand at the ca
 hafted fits use `usable-length-round` and always stop for a digest-bound departure review; two-hand fits use the
 uniform two-hand rule.
 
+The fit frame's long axis is measured, but which way its width axis points is arbitrary. A head that has a blade on
+one side and a spike on the other (the tomahawk) can come out facing backwards in the hand. Look at it in the
+client, then refit with `"turnAboutAxis": true` in the overrides. This turns the fit half a turn about the long
+axis (native Y), so the edge and back swap sides. The landmarks, scale and grip measurements stay the same, but
+earlier bake patches name faces by their corners and must be measured again.
+
 `drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
 carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer
 (in a per-carrier `stack-<class>.json`, so the wave's `stack.json` and earlier contracts keep their pinned bytes),

@@ -77,6 +77,17 @@ class HaftedFitTests(unittest.TestCase):
             data = measure({}, self.family, {'positions': gltf(v @ turn.T), 'faces': f}, {}, self.standard)
             self.assertAlmostEqual(data['nativeLength'], .6, delta=.01, msg=f'{degrees} degrees')
 
+    def test_a_half_turn_about_the_axis_swaps_the_sides_and_keeps_the_fit(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.club(); v = v.copy(); v[:, 0] += np.where((v[:, 1] > .8) & (v[:, 0] > 0), .03, 0)   # a one-sided blade
+        plain = measure({}, self.family, {'positions': gltf(v), 'faces': f}, {}, self.standard)
+        turned = measure({}, self.family, {'positions': gltf(v), 'faces': f}, {'turnAboutAxis': True}, self.standard)
+        self.assertEqual(plain['landmarks'], turned['landmarks'])
+        self.assertAlmostEqual(plain['nativeLength'], turned['nativeLength'], places=9)
+        P, T = np.asarray(plain['matrix']), np.asarray(turned['matrix'])
+        np.testing.assert_allclose(T[:3, :3], np.diag([-1., 1., -1.]) @ P[:3, :3], atol=1e-9)   # 180 degrees about native Y
+        self.assertGreater(np.linalg.det(T[:3, :3]), 0)
+
     def test_a_chosen_length_and_a_bound_digest(self):
         from tools.itemkit.fit_manifest import measure
         v, f = self.club()

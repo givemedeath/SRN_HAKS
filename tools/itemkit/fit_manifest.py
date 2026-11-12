@@ -122,6 +122,8 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     mean, U, q = _frame(b); N = st.SLICES; L = float(np.ptp(q[:, 0]))
     hafted = name in HAFTED_FAMILIES
     method, q, U, marks = (hafted_landmarks if hafted else bladed_landmarks)(q, U, overrides)
+    if overrides.get('turnAboutAxis'):        # the frame's width sign is arbitrary: a reviewed half-turn about the long axis
+        q = q * [1, -1, -1]; U = U * [1, -1, -1]   # swaps the edge/blade side and keeps the frame right-handed
     centres, mid, extent, wide, _ = st._sections(q); t0 = float(q[:, 0].min()); known = ~np.isnan(extent[:, 0])
     auto = dict(marks); two_hand = route.hold == 'two'
     target = float(overrides['targetLength']) if 'targetLength' in overrides else stock_length(native)
