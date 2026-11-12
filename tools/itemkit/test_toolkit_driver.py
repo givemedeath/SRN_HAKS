@@ -306,19 +306,23 @@ class ResourceStemTests(unittest.TestCase):
 
 
 class SiblingSlotTests(unittest.TestCase):
-    def test_a_second_design_on_the_same_carrier_sees_the_first_ones_slot(self):
+    def test_a_second_design_on_the_same_carrier_sees_the_first_ones_slot_in_any_wave(self):
         from tools.itemkit.family_contract import sibling_models
         from tools.itemkit.contracts import reserve
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            def profile(name, cls, index=None):
+            def profile(wave, name, cls, index=None):
                 data = {'family': 'club', 'nativePackaging': 'enabled', 'native': {'itemClass': cls},
                         'resources': {'texturePrefix': 'sr' + name, **({'appearanceIndex': index} if index else {})}}
-                (root/f'family-{name}.json').write_text(json.dumps(data), encoding='utf-8'); return data
-            profile('one', 'wblcl', 1); profile('axe', 'waxhn', 2); mine = profile('two', 'wblcl')
-            taken = sibling_models(root, root/'family-two.json', 'wblcl')
-            self.assertIn('wblcl_b_011.mdl', taken); self.assertFalse(any(n.startswith('waxhn') for n in taken))
-            self.assertEqual(reserve(mine, taken)['modelIndex'], 2)
+                (root/wave).mkdir(exist_ok=True)
+                (root/wave/f'family-{name}.json').write_text(json.dumps(data), encoding='utf-8'); return data
+            # An earlier wave's unpublished design holds slot 1, this wave's sibling slot 2.
+            profile('wave-1', 'one', 'wblcl', 1); profile('wave-2', 'axe', 'waxhn', 3); profile('wave-2', 'three', 'wblcl', 2)
+            mine = profile('wave-2', 'two', 'wblcl')
+            taken = sibling_models(root, root/'wave-2/family-two.json', 'wblcl')
+            self.assertIn('wblcl_b_011.mdl', taken); self.assertIn('wblcl_b_021.mdl', taken)
+            self.assertFalse(any(n.startswith('waxhn') for n in taken))
+            self.assertEqual(reserve(mine, taken)['modelIndex'], 3)
 
 
 class FixtureCarryTests(unittest.TestCase):
@@ -345,6 +349,27 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertIn(str((root/'bank').resolve()), ws.environment()['PYTHONPATH'])
             (root/'workspace.json').write_text('{"kind": "other"}', encoding='utf-8')
             with self.assertRaises(WorkspaceError): Workspace.load(root/'workspace.json')
+
+    def test_colour_geometry_meshes_from_the_detail_image_with_a_quoted_waiver(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Driver(self.workspace(Path(tmp))); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            pin = lambda n: {'path': f'inputs/{n}.png', 'sha256': n * 8}
+            for name, family in (('bat', 'greatsword'), ('knife', 'dagger')):
+                (h/f'family-{name}.json').write_text(json.dumps({'family': family}), encoding='utf-8')
+                (h/f'{name}.c.asset.json').write_text(json.dumps({
+                    'conditioning': 'clay-detail-v1', 'familyProfile': {'path': f'family-{name}.json'}, 'approval': {},
+                    'inputs': {'reference': pin('r'), 'detail': pin('d'), 'geometry': pin('g'), 'foregroundMask': pin('f'),
+                               'geometryForegroundMask': pin('m'), 'mask': pin('m')}}), encoding='utf-8')
+            with self.assertRaises(SystemExit): d.colour_geometry('bat', 'c', 'x', ' ')
+            m = json.loads(Path(d.colour_geometry('bat', 'c', 'colour', 'mesh it from the colour image')).read_text(encoding='utf-8'))
+            self.assertEqual(m['conditioning'], 'detailed-v1')
+            self.assertEqual((m['inputs']['geometry'], m['inputs']['mask']), (pin('d'), pin('f')))
+            self.assertEqual(m['approval']['referenceView'], {'view': 'side', 'decision': 'approved', 'sideViewWaiver': True,
+                                                              'notes': 'mesh it from the colour image'})
+            knife = json.loads(Path(d.colour_geometry('knife', 'c', 'colour', 'words')).read_text(encoding='utf-8'))
+            self.assertNotIn('referenceView', knife['approval'])          # a short design needs no long-weapon waiver
+            with self.assertRaises(SystemExit): d.colour_geometry('bat', 'colour', 'again', 'words')   # already colour
 
     def test_batch_runs_items_side_by_side_and_keeps_failures(self):
         from tools.itemkit.drive import Driver
