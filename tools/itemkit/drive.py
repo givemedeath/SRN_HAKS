@@ -222,11 +222,15 @@ class Driver:
         run = self.run_dir(design, 'donor-v1')
         if not list(run.rglob('textured-donor.glb')): self.stage(design, 'donor-v1', 'donor')
         donor = next(run.rglob('textured-donor.glb'))
+        family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
         for kind, name in (('straighten', 'straightened'), ('thin', 'thinned')):
-            mapping = Path(straight)/f'{"straighten" if kind == "straighten" else "thin"}-map.npz' if straight else None
+            mapping = Path(straight)/f'{kind}-map.npz' if straight else None
             if mapping and mapping.exists():
                 out = self.ws.items/design/f'donor-v1-{name}'
-                if not (out/f'{name}.glb').exists(): self.python('-m', 'tools.itemkit.straightness', kind, donor, out, '--map', mapping)
+                if out.exists() and not (out/f'{name}.glb').exists():
+                    raise SystemExit(f'{out} holds an unfinished {kind} run: move it aside first')
+                if not out.exists():
+                    self.python('-m', 'tools.itemkit.straightness', kind, donor, out, '--map', mapping, *(('--family', family) if kind == 'straighten' else ()))
                 donor = out/f'{name}.glb'
         return {'texturedDonor': str(donor), 'views': self.views(donor, donor.parent/'textured-views', textured=True)}
 

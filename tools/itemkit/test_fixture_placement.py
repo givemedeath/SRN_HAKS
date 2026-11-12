@@ -161,6 +161,28 @@ class ScriptedShotTests(unittest.TestCase):
             draft = json.loads((root/'captures/evidence-draft.json').read_text(encoding='utf-8'))
             self.assertEqual(draft['observations'], [])                         # the stale frame is kept but never filed
 
+    def test_a_shot_already_superseded_in_its_read_is_not_captured(self):
+        import json
+        from tools.headkit.common import pin
+        from tools.itemkit import client_capture
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); user = root/'user'; (user/'override').mkdir(parents=True)
+            for name in ('m.mod', 'h.hak'): (root/name).write_bytes(b'x')
+            (root/'fixture.json').write_text(json.dumps({'module': pin(root/'m.mod'), 'hak': pin(root/'h.hak'), 'fixtureHaks': [],
+                                                         'userDirectory': str(user)}), encoding='utf-8')
+            both = ['ITEMKIT_SHOT shot=1 target=sr_it_male check=idle step=3 valid=1',
+                    'ITEMKIT_SHOT shot=2 target=sr_it_male check=walk step=4 valid=1']; reads = []
+            def log_lines(_, prefix):
+                reads.append(1); return [] if len(reads) < 2 else both if len(reads) < 4 else both + [client_capture.DONE]
+            taken = []; grab = lambda pid, path: (taken.append(Path(path).name), Path(path).write_bytes(b'png'))
+            process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
+            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), \
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.capture', side_effect=grab):
+                result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
+            self.assertEqual([(s['shot'], s['captures'], s.get('rejected')) for s in result['shots']],
+                             [(1, [], 'next shot began'), (2, ['human-male-walk-02-0.png'], None)])
+            self.assertEqual(taken, ['human-male-walk-02-0.png'])
+
     def test_contact_sheets_leave_out_rejected_bursts(self):
         import json
         from PIL import Image

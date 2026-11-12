@@ -63,7 +63,7 @@ def outliers(image, mapped, *, window=WINDOW, smooth=SMOOTH, spread=SPREAD, floo
                       'elongation': float(max(height, width) / max(1, min(height, width))),
                       'meanResidual': float(means[index - 1])})
     blobs.sort(key=lambda b: -b['area'])
-    keep = np.isin(labels, [i for i, a in enumerate(areas) if i and a >= minimum_area])
+    big = areas >= minimum_area; big[0] = False; keep = big[labels]
     return {'advisory': True, 'size': list(mapped.shape), 'islandsChecked': checked, 'flaggedTexels': int(keep.sum()),
             'blobCount': len(blobs), 'blobs': blobs[:20],
             'settings': {'window': window, 'smooth': smooth, 'spread': spread, 'floor': floor, 'edge': edge, 'minimumArea': minimum_area}}, keep

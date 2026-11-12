@@ -73,7 +73,9 @@ def measure_pair(folder):
     if not (work/'pair-measurement.json').exists():
         require(not work.exists(), 'An unfinished conditioning folder exists; regenerate into a fresh design folder'); work.mkdir()
         keyed = {role: key(folder/f'{role}-original.png', work/f'{role}-keyed.png') for role in ('detail', 'clay')}
-        masks = {role: np.asarray(Image.open(work/f'{role}-keyed.png'))[..., 3] >= 128 for role in keyed}
+        masks = {}
+        for role in keyed:
+            with Image.open(work/f'{role}-keyed.png') as image: masks[role] = np.asarray(image)[..., 3] >= 128
         require(masks['detail'].shape == masks['clay'].shape, 'Colour and clay images differ in size')
         height, width = masks['detail'].shape
         iou, landmarks, edges, worst_landmark, worst_edge = registration(masks)
@@ -114,6 +116,7 @@ def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=N
     require(list(keyed_sha256 or ()) == [measured['detailSha256'], measured['claySha256']],
             'The review must name the keyed detail and clay hashes it looked at')
     require(not (work/'conditioned').exists(), 'Conditioning already ran for this pair; regenerate into a fresh design folder')
+    out = handoff/f'{design_id}.oblique-v1.asset.json'; require(not out.exists(), out.name+' exists')   # before anything is written
     notes = (f'{notes.strip()} Measured: angled colour/clay pair from the Codex built-in image tool (prompts in PROMPTS.md), alpha keyed '
              f'from the plain white background, largest component kept, enclosed holes filled: {json.dumps(keyed)}. Mask IoU {iou:.4f}.')
     evidence = {'actualImagesViewed': True, 'pairMasksVisuallyReviewed': True, 'intentionalOpeningsReviewed': True, 'thinMembersReviewed': True,
@@ -143,7 +146,6 @@ def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=N
     manifest['approval']['referenceView'] = {'view': 'oblique', 'decision': 'approved', 'notes': notes}
     manifest['camera'] = {'reviewed': False, 'fovDegrees': None}
     manifest['notes'] = manifest['notes'] + ' Oblique-v1: angled reference pair replaces the side view; camera FOV requires recalibration.'
-    out = handoff/f'{design_id}.oblique-v1.asset.json'; require(not out.exists(), out.name+' exists')
     out.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     from tools.itemkit.contracts import manifest as load_manifest
     from tools.itemkit.conditioning import require_conditioning_review

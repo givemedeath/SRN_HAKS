@@ -126,6 +126,10 @@ class ObliqueReviewTests(unittest.TestCase):
             self.assertEqual(condition(folder, Path(tmp), 'x')['keyedSha256'], first['keyedSha256'])        # measuring again is safe
             with self.assertRaisesRegex(ValueError, 'keyed detail and clay hashes'):
                 condition(folder, Path(tmp), 'x', notes="user's words", keyed_sha256=['0' * 64, '0' * 64])
+            (Path(tmp)/'x.oblique-v1.asset.json').write_text('{}', encoding='utf-8')     # refused before anything is conditioned
+            with self.assertRaisesRegex(ValueError, 'oblique-v1.asset.json exists'):
+                condition(folder, Path(tmp), 'x', notes="user's words", keyed_sha256=first['keyedSha256'])
+            self.assertFalse((folder/'conditioning-v1/conditioned').exists()); (Path(tmp)/'x.oblique-v1.asset.json').unlink()
             image[0, 0] = 0; Image.fromarray(image).save(folder/'clay-original.png')          # a replaced clay is never conditioned
             with self.assertRaisesRegex(ValueError, 'original images changed'): condition(folder, Path(tmp), 'x')
 

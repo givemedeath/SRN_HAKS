@@ -370,7 +370,8 @@ Long thin weapons (`shortsword`, `longsword`, `greatsword`, `staff`) need
 `side` with `sideViewWaiver: true` and review notes. After each collected clay run
 `python -m tools.itemkit.straightness check MESH.glb --family F`; bend, twist and
 guard-skew flags are advisory and go to the reviewer with the views. A bowed but
-otherwise correct clay can be unbent with `straighten MESH.glb OUT_DIR`; review
+otherwise correct clay can be unbent with `straighten MESH.glb OUT_DIR [--family F]`
+(the family picks the limits its result is assessed against, as in `check`); review
 the straightened views like a generated attempt. Appearance and the source bake
 stay in the generated frame, so re-apply the saved map with `--map` to the
 textured donor and working shell before fitting. See the wave-1 section of

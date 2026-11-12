@@ -100,8 +100,12 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
                 time.sleep(.05)          # a short poll keeps the hold deadline below close to the shot's real firing time
                 require(process.poll() is None, 'The client exited before the fixture finished')
                 read_at = time.monotonic(); lines = client.log_lines(user, PREFIX)
-                for row in shot_rows(lines[seen:]):
+                rows = shot_rows(lines[seen:])
+                for index, row in enumerate(rows):
                     body = BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
+                    if index < len(rows) - 1:
+                        # A later shot is already in this read: this one's view is gone, and capturing it would spend the live shot's hold.
+                        shots.append({**row, 'body': body, 'captures': [], 'rejected': 'next shot began'}); continue
                     # The shot fired after the previous log read, and the camera is free for the next one SHOT_HOLD after
                     # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
                     hold_ends = previous_read + SHOT_HOLD

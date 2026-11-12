@@ -93,17 +93,20 @@ def _apply_pass(p, table):
     return np.column_stack([np.interp(t, centres, arc) + (offset * tt).sum(1), (offset * a1).sum(1), (offset * a2).sum(1)])
 
 
-def turn_normals(transform, points, normals):
+def turn_normals(transform, points, normals, scale):
     """Normals carried through any smooth position map: the inverse-transpose of its full local Jacobian.
 
     The Jacobian is measured by central differences of `transform` itself, so every term of the map (a varying
     unbend frame and arc speed, a fading end-cap shear, a thinning ramp on a sloped mid-plane) is included without
-    a hand-derived formula for each."""
+    a hand-derived formula for each. `scale` is the map's own length, so the step does not depend on which points
+    are passed."""
     points = np.asarray(points, float); normals = np.asarray(normals, float)
-    step = 1e-6 * max(float(np.ptp(points, axis=0).max()), 1e-9); J = np.empty((len(points), 3, 3))
+    _require(np.isfinite(scale) and scale > 0, 'The map needs a positive length'); step = 1e-6 * float(scale)
+    J = np.empty((len(points), 3, 3))
     for i in range(3):
         d = np.zeros(3); d[i] = step; J[:, :, i] = (transform(points + d) - transform(points - d)) / (2 * step)
-    turned = np.linalg.solve(np.transpose(J, (0, 2, 1)), normals[..., None])[..., 0]
+    try: turned = np.linalg.solve(np.transpose(J, (0, 2, 1)), normals[..., None])[..., 0]
+    except np.linalg.LinAlgError: _require(False, 'The map collapses a direction: its normals are undefined')
     length = np.linalg.norm(turned, axis=1); _require(np.all(length > 0) and np.isfinite(length).all(), 'Degenerate normal after the map')
     return turned / length[:, None]
 
@@ -162,7 +165,8 @@ def apply_map(positions, mapping, normals=None):
         p = _apply_ends(p, mapping.get('ends', ())); p[:, 0] -= float(mapping['shift'])      # maps saved before end squaring have none
         return p @ axes.T + mean
     moved = transform(positions)
-    return moved if normals is None else (moved, turn_normals(transform, positions, normals))
+    if normals is None: return moved
+    return moved, turn_normals(transform, positions, normals, np.ptp(mapping['tables'][0][:, 0]))
 
 
 def save_map(path, mapping):
@@ -285,7 +289,7 @@ def apply_thin(positions, mapping, normals=None):
         p[:, k] = c + (p[:, k] - c) * g; return p @ axes.T + mean
     moved = transform(positions)
     # The ramp and a sloped mid-plane shear depth along the length: normals take the map's full Jacobian.
-    return moved if normals is None else (moved, turn_normals(transform, positions, normals))
+    return moved if normals is None else (moved, turn_normals(transform, positions, normals, np.ptp(centres)))
 
 
 def load_thin(path):
@@ -364,8 +368,10 @@ def _replace(document, buffer, index, values):
     if 'max' in accessor: accessor['max'] = target.max(0).tolist()
 
 
-def straighten(source, output, map_path=None):
-    """Write OUTPUT/straightened.glb (+ map and report). Indices, UVs, materials and textures are carried byte for byte."""
+def straighten(source, output, map_path=None, family=None):
+    """Write OUTPUT/straightened.glb (+ map and report). Indices, UVs, materials and textures are carried byte for byte.
+
+    `family` selects the limits the result is assessed against, as in `check` (a hafted family has no blade metrics)."""
     from tools.headkit.common import pin, write
     from tools.headkit.gltf import encode, load, arrays
     source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
@@ -393,7 +399,8 @@ def straighten(source, output, map_path=None):
               'trianglesUnchanged': True, 'attributesOtherThanPositionAndNormalExact': True,
               'method': 'two-axis centreline unbend, rotation-minimising frame, guard slices excluded; cross-sections rigid',
               'visualReviewRequired': True}
-    result['assessmentAfter'] = assess(result['after'])
+    result['assessmentAfter'] = assess(result['after'], family=family)
+    if family is not None: result['family'] = family
     write(output / 'straighten.json', result, fresh=True); return result
 
 
@@ -401,6 +408,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0]); commands = parser.add_subparsers(dest='command', required=True)
     c = commands.add_parser('check'); c.add_argument('mesh', type=Path); c.add_argument('--output', type=Path); c.add_argument('--family')
     c = commands.add_parser('straighten'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c.add_argument('--family')
     c = commands.add_parser('thin'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--ratio', type=float, help='target blade depth-to-width ratio'); c.add_argument('--factor', type=float, help='explicit depth factor (default 0.5)')
     a = parser.parse_args(argv)
@@ -414,7 +422,7 @@ def main(argv=None):
         if a.output is not None:
             with a.output.open('x', encoding='utf-8') as stream: json.dump(result, stream, indent=2)
         print(json.dumps(result, indent=2)); return 0
-    result = straighten(a.mesh, a.output, a.map)
+    result = straighten(a.mesh, a.output, a.map, a.family)
     print(json.dumps({k: result[k] for k in ('output', 'map', 'maximumVertexMove', 'surfaceAreaRatio', 'assessmentAfter')}, indent=2)); return 0
 
 

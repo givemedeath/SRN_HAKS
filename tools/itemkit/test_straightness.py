@@ -98,7 +98,7 @@ class EndCapNormalTests(unittest.TestCase):
         rng = np.random.default_rng(1); grid = rng.uniform([-.1, -.03, -.02], [.1, .03, .02], (500, 3))
         for normal, tangents in ((np.array([0., 0., 1.]), ((1., 0, 0), (0, 1., 0))), (np.array([0., 1., 0.]), ((1., 0, 0), (0, 0, 1.)))):
             cap = lambda points: s._apply_ends(points, ends)
-            moved, turned = cap(grid), s.turn_normals(cap, grid, np.tile(normal, (len(grid), 1)))
+            moved, turned = cap(grid), s.turn_normals(cap, grid, np.tile(normal, (len(grid), 1)), .2)
             for t in tangents:                                         # the face through each point spanned by these two directions
                 ahead = cap(grid + 1e-6 * np.asarray(t))
                 along = (ahead - moved) / 1e-6; along /= np.linalg.norm(along, axis=1)[:, None]
