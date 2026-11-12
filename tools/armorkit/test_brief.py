@@ -1,5 +1,6 @@
 """A brief says what an outfit is made of before its image is made, and the bake is sorted by it."""
 import copy
+import hashlib
 import json
 import tempfile
 import unittest
@@ -15,10 +16,10 @@ GREY, TAN, BLUE, SAGE = [128, 128, 128], [196, 160, 110], [150, 180, 220], [150,
 
 def document(*materials):
     rows = materials or (('fabric', 'cloth', GREY), ('gear', 'leather', TAN), ('plates', 'metal', BLUE))
-    return {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'pads': ['l', 'r'],
+    return {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'pads': ['l', 'r'], 'construction': max(brief.CONSTRUCTIONS),
             'materials': [{'name': name, 'kind': kind, 'colour': colour, 'look': name.upper() + ' look', 'wears': f'the {name} things.'}
                           for name, kind, colour in rows],
-            'prompt': 'An outfit.\n\n' + brief.MARK + '\n\nPlain white background.'}
+            'prompt': 'An outfit.\n\n' + brief.MARK + '\n\n' + brief.BUILT + '\n\nPlain white background.'}
 
 
 def shown(*colours):
@@ -63,12 +64,30 @@ class BriefTests(unittest.TestCase):
         given = document()
         text = brief.prompt(given)
         self.assertEqual(text, 'An outfit.\n\nThree clearly different colours, each one flat and matte:\n1. FABRIC look: the fabric things.\n'
-                               '2. GEAR look: the gear things.\n3. PLATES look: the plates things.\n\nPlain white background.')
+                               '2. GEAR look: the gear things.\n3. PLATES look: the plates things.\n\n'
+                               + brief.CONSTRUCTIONS[given['construction']] + '\n\nPlain white background.')
         self.assertNotIn(brief.MARK, text)
+        self.assertNotIn(brief.BUILT, text)
         self.assertTrue(brief.colours(document(('fabric', 'cloth', GREY))).startswith('One colour, flat and matte:\n1. FABRIC look'))
         self.assertTrue(brief.colours(document(*[(str(k), texture.KINDS[k % 3], GREY) for k in range(6)])).startswith('Six clearly'))
         with self.assertRaises(ValueError):  # a brief that does not hold up is not prompted from
             brief.prompt({**given, 'materials': []})
+
+    def test_a_brief_names_the_construction_paragraph_its_prompt_holds(self):
+        given = document()
+        plain = {key: value for key, value in given.items() if key != 'construction'}  # as briefs were before the rules
+        plain['prompt'] = plain['prompt'].replace(brief.BUILT + '\n\n', '')
+        self.assertEqual(brief.composed(brief.validate(plain)), 'An outfit.\n\n' + brief.colours(plain) + '\n\nPlain white background.')
+        for wrong in ({**given, 'construction': 0}, {**given, 'construction': True}, {**given, 'construction': '1'},
+                      {**given, 'prompt': plain['prompt']}, {**plain, 'prompt': given['prompt']},  # the paragraph named and not placed, placed and not named
+                      {**given, 'prompt': given['prompt'] + brief.BUILT}):
+            with self.assertRaises(ValueError):
+                brief.validate(wrong)
+        text = brief.CONSTRUCTIONS[1]
+        for said in ('one solid, simple shape', 'at most one guard', 'below the shoulder', 'round the middle', 'ends well short of the armpits'):
+            self.assertIn(said, text)
+        # a sealed folder's prompt is written from this paragraph, so it is never edited: a change is a new version
+        self.assertEqual(hashlib.sha256(text.encode('utf-8')).hexdigest(), 'cec94d401f7e9ec5cde8db9d626737b5453282f4959cc7b0f0d6c10785a92990')
 
     def test_materials_drawn_too_alike_are_not_prompted_for(self):
         # the first outfit's cloth and plates: a neutral grey and a pale blue-grey

@@ -1,4 +1,5 @@
-"""The credit cap holds across paid calls, and only a triangle-bounded model at or under 100k is taken off Meshy."""
+"""The credit cap holds across paid calls, and only a triangle-bounded model at or under its ceiling (100k, or 200k for a
+remeshed building) is taken off Meshy."""
 import json
 import struct
 import tempfile
@@ -55,7 +56,9 @@ class MeshyTests(unittest.TestCase):
         remesh = meshy.remesh_arguments('task-1', 100000)
         self.assertEqual(remesh[remesh.index('--target-polycount') + 1], '92000')  # asks low: a remesh overshoots
         with self.assertRaisesRegex(ValueError, 'ceiling'):
-            meshy.remesh_arguments('task-1', 150000)
+            meshy.remesh_arguments('task-1', 250000)
+        large = meshy.remesh_arguments('task-1', 200000)  # a larger building may have 200k
+        self.assertEqual(large[large.index('--target-polycount') + 1], '184000')
         building = meshy.building_arguments([self.image, self.image, self.image])
         self.assertNotIn('--target-polycount', building)
         with self.assertRaisesRegex(ValueError, 'one to four'):
@@ -72,6 +75,15 @@ class MeshyTests(unittest.TestCase):
         self.assertEqual(len(run.calls), before)  # refused before anything was sent
         with self.assertRaisesRegex(ValueError, 'already used'):
             meshy.submit(self.ledger, 'a', 'vending', 'remesh', meshy.remesh_arguments('task-a', 9000), self.root / 'work', run=run)
+
+    def test_the_cap_is_raised_with_the_approval_it_rests_on_and_never_lowered(self):
+        self.ledger.raise_cap(120, 'user 2026-11-12: cap raised to cover the yard', today='2026-11-12')
+        again = meshy.Ledger(self.ledger.path)
+        self.assertEqual((again.data['cap'], again.data['raises']), (120, [{'from': 50, 'to': 120, 'reason': 'user 2026-11-12: cap raised to cover the yard', 'date': '2026-11-12'}]))
+        for cap, reason, said in ((120, 'again', 'a raise goes above it'), (90, 'less', 'a raise goes above it'), (200, ' ', 'the approval it rests on'), (200.5, 'half', 'the approval it rests on')):
+            with self.assertRaisesRegex(ValueError, said):
+                again.raise_cap(cap, reason)
+        self.assertEqual(meshy.Ledger(self.ledger.path).data['cap'], 120)
 
     def test_a_ledger_held_during_a_wait_does_not_drop_entries_added_meanwhile(self):
         run = FakeMeshy()
@@ -110,6 +122,20 @@ class MeshyTests(unittest.TestCase):
             meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work',
                          run=FakeMeshy(answer=False))
         self.assertEqual((self.ledger.entry('a')['state'], self.ledger.committed()), ('uncertain', 15))
+
+    def test_a_submission_meshy_refuses_gives_its_reservation_back(self):
+        def full(arguments, folder):  # the plan's queue is full: Meshy answers, and creates nothing
+            return 1, {'ok': False, 'error': {'http_status': 429, 'message': 'NoMorePendingTasks'}}
+        with self.assertRaisesRegex(ValueError, 'Meshy refused a: NoMorePendingTasks'):
+            meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=full)
+        self.assertEqual((meshy.Ledger(self.ledger.path).data['entries'], self.ledger.committed()), ([], 0))
+
+        def remembered(arguments, folder):  # the CLI keeps a refused operation id and answers for Meshy the next time
+            return 1, {'ok': False, 'result': {'submission': {'state': 'rejected', 'task_id': None}, 'task': None},
+                       'error': {'code': 'operation_conflict', 'http_status': None, 'message': 'already rejected'}}
+        with self.assertRaisesRegex(ValueError, 'use a new one'):
+            meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=remembered)
+        self.assertEqual(self.ledger.committed(), 0)
 
     def test_a_call_refused_before_it_is_sent_gives_its_reservation_back(self):
         def refuse(arguments, folder):
@@ -151,6 +177,19 @@ class MeshyTests(unittest.TestCase):
         counts = meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm', run=run)
         self.assertEqual(list(counts.values()), [91000]); self.assertIs(self.ledger.entry('rm')['accepted'], True)
         self.assertEqual(self.ledger.committed(), 35)
+        run.triangle_counts = (150000, 31000)  # a remesh asked to stay under 100k is held to it, though a larger building's may pass it
+        with self.assertRaisesRegex(ValueError, 'exceeds 100000'):
+            meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm-large', run=run)
+        self.assertIs(self.ledger.entry('rm')['accepted'], False)
+        meshy.submit(self.ledger, 'rm2', 'shack', 'remesh', meshy.remesh_arguments(task, 200000), self.root / 'work', run=run)
+        meshy.wait(self.ledger, 'rm2', self.root / 'work', run=run)
+        self.assertIs(meshy.download(self.ledger, 'rm2', self.root / 'work', self.root / 'bank-rm2', run=run) and self.ledger.entry('rm2')['accepted'], True)
+        run.triangle_counts = (190000, 31000)
+        with self.assertRaisesRegex(ValueError, 'exceeds 200000'):
+            meshy.download(self.ledger, 'rm2', self.root / 'work', self.root / 'bank-rm2-over', run=run)
+        self.assertEqual([meshy._ceiling({'operation': 'remesh', 'arguments': meshy.remesh_arguments(task, asked)}) for asked in (60000, 100000, 123457, 200000)],
+                         [100000, 100000, 123457, 200000])
+        self.assertEqual(meshy._ceiling({'operation': 'prop', 'arguments': []}), 100000)
         with self.assertRaisesRegex(ValueError, 'already a reduced model'):
             meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'master-rm', master=True, run=run)
 

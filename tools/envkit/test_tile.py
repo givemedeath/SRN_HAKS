@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from . import glow, tile
+from . import convert, glow, tile
 
 BOX = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
 
@@ -304,7 +304,9 @@ class TileTests(unittest.TestCase):
             report = tile.group('ek_shop', made, scratch, ground='pavement', colour=np.full((2, 2, 3), 0.5), fade=2.0,
                                 door={'at': [0.0, 1.0, 0.2], 'facing': 90.0, 'type': 58})
             one = report['tiles'][0]
-            self.assertEqual((one['image'], one['lights'], one['doors']), ('ek_shop_m00', 2, [{'type': 58, 'x': 0.0, 'y': 1.0, 'z': 0.2, 'orientation': 90.0}]))
+            # The door is stated on the wall, looking north: its hook is drawn out to where a character can stand, and turned
+            # as the set file turns a door (one that looks north is turned 180).
+            self.assertEqual((one['image'], one['lights'], one['doors']), ('ek_shop_m00', 2, [{'type': 58, 'x': 0.0, 'y': 1.75, 'z': 0.2, 'orientation': 180.0, 'drawnOut': 0.75}]))
             self.assertTrue(0 < one['fadingFaces'] < one['faces']); self.assertEqual(report['fade'], 2.0)
             self.assertEqual(one['path'], {'node': 'A', 'turn': 0, 'exits': 'NWSE', 'offPath': 0}); self.assertEqual(report['notes'], [])
             with Image.open(Path(scratch) / 'ek_shop_m00.tga') as picture:
@@ -316,6 +318,47 @@ class TileTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
 
+
+    def test_a_fence_is_shared_out_among_the_tiles_it_stands_in_and_shows_its_own_picture(self):
+        import tempfile
+        from pathlib import Path
+        vertices, faces = scene(box((-9, -4, 0), (9, 4, 0.2)), box((-8, -3, 0.2), (8, 3, 3)))  # a building two tiles wide
+        wire = convert.sheets([{'from': [-8.5, 3.5], 'to': [8.5, 3.5], 'z': [0.2, 2.0], 'pitch': 0.09, 'wire': 0.016}])
+        made = {'vertices': vertices, 'normals': np.tile([0.0, 0, 1], (len(vertices), 1)), 'uvs': np.zeros((len(vertices), 2)), 'faces': faces, 'card': None, 'wire': wire}
+        bare = {**made, 'wire': None}
+        with tempfile.TemporaryDirectory() as scratch:
+            fenced = tile.group('ek_long', made, Path(scratch) / 'a', ground='pavement'); plain = tile.group('ek_long', bare, Path(scratch) / 'b', ground='pavement')
+            self.assertEqual((fenced['rows'], fenced['columns']), (1, 2))
+            more = [one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
+            self.assertEqual(sum(more), len(wire['faces'])); self.assertTrue(all(count > 0 for count in more))  # every square in one tile, some in each
+            # A fence closes the ground it stands on, though its sheets are no part of the model's mesh: a generator leaves
+            # the frames empty, and without the sheets the walkmesh between two posts would be open (review, 2026-11-12).
+            rows, columns, corner = tile.layout(vertices); under = lambda found: found['material'][int((3.5 - corner[1]) / CELL + 1e-6), 8:-8]
+            self.assertTrue((under(tile.survey(vertices, faces, rows, columns, corner)) == tile.STONE).all())
+            self.assertTrue((under(tile.survey(vertices, faces, rows, columns, corner, barrier=(wire['vertices'], wire['faces']))) == tile.NONWALK).all())  # closed, and seen through
+            self.assertNotEqual([one['walkFaces'] for one in fenced['tiles']], [one['walkFaces'] for one in plain['tiles']])
+            faded = tile.group('ek_long', made, Path(scratch) / 'c', ground='pavement', fade=1.0); unfenced = tile.group('ek_long', bare, Path(scratch) / 'd', ground='pavement', fade=1.0)
+            hidden = [one['fadingFaces'] - other['fadingFaces'] for one, other in zip(faded['tiles'], unfenced['tiles'])]
+            self.assertTrue(all(0 < count < extra for count, extra in zip(hidden, more)))  # the squares above the fade height are counted as hidden too
+            for one in fenced['tiles']:
+                text = (Path(scratch) / 'a' / (one['model'] + '.mdl')).read_text(encoding='cp1252')
+                self.assertIn('  bitmap ek_long_w\n', text); self.assertIn('  bitmap ek_long\n', text)
+                self.assertNotIn('ek_long_w', (Path(scratch) / 'b' / (one['model'] + '.mdl')).read_text(encoding='cp1252'))
+
+    def test_a_door_hook_is_drawn_out_onto_open_ground_and_turned_as_the_set_file_turns_doors(self):
+        """The Ares Depot's hook lay on its door leaf, inside the wall's closed ground, turned by the way the door faces:
+        the invisible door stood out of the wall at a right angle and a player sent to it never arrived (client, 2026-11-11)."""
+        vertices, faces = SHOP; rows, columns, corner = tile.layout(vertices); found = tile.survey(vertices, faces, rows, columns, corner)
+        self.assertEqual(tile.doorstep(found, corner, [0.0, 1.0, 0.2], 90.0), ((0.0, 1.75, 0.2), 180.0, 0.75))  # north wall
+        self.assertEqual(tile.doorstep(found, corner, [-3.0, 0.0, 0.2], 180.0), ((-3.5, 0.0, 0.2), 270.0, 0.5))  # west wall
+        spot, _, drawn = tile.doorstep(found, corner, [0.0, 1.0, 0.2], 90.0)
+        near = np.floor((np.array(spot[:2]) + [[-tile.DOOR_SIDE, -tile.DOOR_ROOM], [tile.DOOR_SIDE, tile.DOOR_ROOM]] - corner) / CELL).astype(int)
+        self.assertTrue((found['material'][near[0, 1]:near[1, 1] + 1, near[0, 0]:near[1, 0] + 1] == tile.STONE).all())
+        with self.assertRaisesRegex(ValueError, 'no open ground'):  # a door in the middle of the building
+            tile.doorstep(found, corner, [0.0, -1.5, 0.2], 90.0)
+        # The hook keeps the height of the door's foot: drawn out from a door on a high sill it would hang over the ground.
+        with self.assertRaisesRegex(ValueError, 'on a sill or steps'):
+            tile.doorstep(found, corner, [0.0, 1.0, 1.2], 90.0)
     def test_a_strip_of_slab_too_narrow_for_the_ramp_is_still_climbed(self):
         # Strips six metres long and 0.2 high across one tile. One a metre wide has no cell deeper than the ramp, so no line but its own
         # edge: it is up over its middle half metre all the same, climbed over the quarter metre either side.
@@ -364,6 +407,15 @@ class TileTests(unittest.TestCase):
         material = np.full((tile.CELLS, tile.CELLS), tile.STONE)
         material[:, 36:] = tile.OBSCURING; material[20:22] = tile.OBSCURING; material[:20, 10:12] = tile.OBSCURING
         self.assertEqual(tile.path_node({'material': material}, 0, 0), {'node': 'Y', 'turn': 0, 'exits': 'NS', 'offPath': 200})
+
+    def test_a_strip_too_narrow_to_stand_in_joins_nothing(self):
+        # A building fills the tile but for a metre and a half along the north and half a metre down the east. The north leaves by
+        # the west and the east; the east strip is no way south (the Ares Depot's walkers stopped at such a corner, 2026-11-11).
+        material = np.full((tile.CELLS, tile.CELLS), tile.OBSCURING)
+        material[34:] = tile.STONE; material[:, 38:] = tile.STONE
+        self.assertEqual(tile.path_node({'material': material}, 0, 0)['exits'], 'NWE')
+        material[:, 34:] = tile.STONE  # a metre and a half down the east is a way south
+        self.assertEqual(tile.path_node({'material': material}, 0, 0)['exits'], 'NWSE')
 
     def test_a_tiles_record_names_its_picture_lights_and_doors_and_a_door_block_follows_it(self):
         made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}, 'lights': 2,

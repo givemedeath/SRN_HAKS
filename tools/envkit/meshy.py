@@ -3,14 +3,16 @@
 Two routes. A prop is generated in smart-topology mode, which builds low-poly parts to a triangle target. A building is
 generated in full detail from up to four views and then remeshed inside Meshy to a target. Only a model whose triangle
 count was bounded that way becomes a working model (user rule, 2026-11-10: lean on Meshy's remesh, nothing over 100k
-into the pipeline unless it has to). The full-detail result, which runs to millions of triangles, can be fetched only
+into the pipeline unless it has to; raised to 200k for larger buildings, 2026-11-11). The full-detail result, which runs to millions of triangles, can be fetched only
 as a master: a spare kept apart from the working model.
 
 Every paid call is reserved in the ledger before it is sent, so a crash between sending and recording leaves the credits
 counted, not lost track of. Every change to the ledger is made under a lock shared by all processes, so two calls at
 once cannot both pass the cap or drop each other's entry."""
 import contextlib
+import datetime
 import json
+import math
 import re
 import shutil
 import struct
@@ -25,9 +27,14 @@ PRICES = {'prop': 15, 'building': 30, 'remesh': 5}  # docs.meshy.ai/en/api/prici
 RESOURCE = {'prop': 'image-to-3d', 'building': 'multi-image-to-3d', 'remesh': 'remesh'}
 BOUNDED = {'prop', 'remesh'}  # the operations whose result has a triangle target
 MAX_TRIANGLES = 100000
+BUILDING_TRIANGLES = 200000  # a remeshed building (user, 2026-11-11: "raise our poly budget for larger buildings to 200k")
 PROP_TRIANGLES = (100, 15000)  # smart-topology's own range
 REMESH_HEADROOM = 0.92  # a remesh lands a little over its target: the robe trial asked for 100,000 and got 103,196
 KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
+# Answers that mean the task was not created: no credential, no credits, not allowed, queue full. The Ares Depot run
+# (2026-11-11) hit the plan's ten queued tasks; the eleventh came back 429 and had been left counted as uncertain.
+REFUSED = (401, 402, 403, 429)
+QUEUE = 10  # the tasks Meshy holds for this plan at once: the next is refused, and the CLI never sends a refused key again
 IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
 
 
@@ -98,6 +105,16 @@ class Ledger:
             self.data['entries'].append(row); self.save()
         return row
 
+    def raise_cap(self, cap, reason, *, today=None):
+        """Raise the cap, keeping what it was, when it changed and why: the cap is the spending the user has approved,
+        so a raise states their approval. It is never lowered here, nor raised without a reason."""
+        require(type(cap) is int and isinstance(reason, str) and reason.strip(), 'A raise states the new cap and the approval it rests on')
+        with self.changing():
+            require(cap > self.data['cap'], f'The cap is {self.data["cap"]} already: a raise goes above it')
+            self.data.setdefault('raises', []).append({'from': self.data['cap'], 'to': cap, 'reason': reason.strip(),
+                                                       'date': today or datetime.date.today().isoformat()})
+            self.data['cap'] = cap; self.save()
+
     def update(self, key, **fields):
         with self.changing():
             self.entry(key).update(fields); self.save()
@@ -135,10 +152,37 @@ def building_arguments(images, resolution='4k'):
 
 def remesh_arguments(task, triangles):
     """`triangles` is the ceiling wanted; the request asks for a little less because a remesh overshoots."""
-    require(type(triangles) is int and 100 <= triangles <= MAX_TRIANGLES, f'A remesh ceiling is 100-{MAX_TRIANGLES} triangles')
+    require(type(triangles) is int and 100 <= triangles <= BUILDING_TRIANGLES, f'A remesh ceiling is 100-{BUILDING_TRIANGLES} triangles')
     require(isinstance(task, str) and task, 'Remesh the generation task by its id')
-    return ['--input-task-id', task, '--topology', 'triangle', '--target-polycount', str(int(triangles * REMESH_HEADROOM)),
+    return ['--input-task-id', task, '--topology', 'triangle', '--target-polycount', str(remesh_target(triangles)),
             '--target-formats', 'glb']
+
+
+def remesh_target(triangles):
+    """The polycount a remesh is asked for, to land at or under `triangles`."""
+    return int(triangles * REMESH_HEADROOM)
+
+
+def sent_images(row):
+    """The file names of the reference images a ledger entry's call was sent with, or None where it had none (a
+    remesh). Names, not paths: an output root may have moved since."""
+    sent = row.get('arguments') or []
+    for flag in ('--image-url', '--image-urls'):
+        if flag in sent[:-1]:
+            return [Path(path).name for path in sent[sent.index(flag) + 1].split(',')]
+    return None
+
+
+def sent_target(row):
+    """The polycount a ledger entry's call was sent with, or None where it had none (a building's generation)."""
+    sent = row.get('arguments') or []
+    return int(sent[sent.index('--target-polycount') + 1]) if '--target-polycount' in sent[:-1] else None
+
+
+def sent_source(row):
+    """The task a ledger entry's remesh was made from, or None where the call was no remesh."""
+    sent = row.get('arguments') or []
+    return sent[sent.index('--input-task-id') + 1] if '--input-task-id' in sent[:-1] else None
 
 
 def run_cli(arguments, folder):
@@ -176,6 +220,13 @@ def submit(ledger, key, asset, operation, arguments, folder, *, run=run_cli):
                              folder / key / 'create')
     except NotSent:
         ledger.release(key); raise
+    error = response.get('error') if isinstance(response.get('error'), dict) else {}
+    result = response.get('result') if isinstance(response.get('result'), dict) else {}
+    rejected = (result.get('submission') or {}).get('state') == 'rejected'  # the CLI remembers a refused operation id
+    if code != 0 and (error.get('http_status') in REFUSED or rejected):  # the answer was no: nothing was created
+        ledger.release(key)
+        raise ValueError(f'Meshy refused {key}' + ('; the CLI will not send this key again, so use a new one' if rejected else '')
+                         + f': {error.get("message")}')
     task = task_fields(response)['id'] if code == 0 else None
     ledger.update(key, state='submitted' if task else 'uncertain', taskId=task)
     require(task, 'Submission uncertain; check the Meshy task list before any retry of ' + key)
@@ -212,6 +263,16 @@ def triangles(glb):
     return total
 
 
+def _ceiling(row):
+    """The most triangles a working model of this ledger entry has. A remesh is held to the ceiling it was asked for
+    where that is over the common one: only a remesh sent for a larger building's budget may come back that large."""
+    target = sent_target(row)
+    if row['operation'] != 'remesh' or target is None:
+        return MAX_TRIANGLES
+    asked = math.ceil(target / REMESH_HEADROOM - 1e-9)  # the least ceiling that sends this target
+    return max(MAX_TRIANGLES, min(BUILDING_TRIANGLES, asked))
+
+
 def download(ledger, key, folder, bank, *, master=False, run=run_cli):
     """Fetch a finished model. A working model comes from a bounded operation and must be at or under the ceiling.
 
@@ -232,7 +293,7 @@ def download(ledger, key, folder, bank, *, master=False, run=run_cli):
         shutil.rmtree(bank, ignore_errors=True)  # what came down is no model, and would stand in the way of the retry
         raise ValueError('Download incomplete: ' + key)
     counts = {str(path): triangles(path) for path in models}
-    accepted = bool(master) or max(counts.values()) <= MAX_TRIANGLES  # the ledger says so, so the folder is not taken for a working model
+    ceiling = _ceiling(row); accepted = bool(master) or max(counts.values()) <= ceiling  # the ledger says so, so the folder is not taken for a working model
     ledger.update(key, downloaded=str(bank), triangles=counts, master=bool(master), accepted=accepted)
-    require(accepted, f'Model exceeds {MAX_TRIANGLES} triangles and is not a working model: {counts}')
+    require(accepted, f'Model exceeds {ceiling} triangles and is not a working model: {counts}')
     return counts

@@ -65,6 +65,19 @@ class GeometryTests(unittest.TestCase):
         # and it is lit along its own facing, evenly: the edge is a crease
         self.assertTrue(np.allclose(n[np.unique(f[added])], (0, 0, 1)))
         self.assertTrue(np.allclose(np.linalg.norm(n, axis=1), 1.0))
+        # a cap rounds the surface on past its edge: it keeps the edge's vertices and their normals, and its own are lit by its faces
+        v, f, n = export.added_normals(vertices, faces, added, carried, domed=added)
+        self.assertTrue(np.array_equal(f, faces) and np.array_equal(v, vertices))
+        self.assertTrue(np.array_equal(n[:16], carried[:16]) and np.allclose(n[16:], (0, 0, 1)))
+        # a part with a cap and a closing: only the closing's edge is a crease
+        for flags in (True, added[:1], added[:-1]):  # not one flag per face: refused, not spread over the faces
+            with self.assertRaises(ValueError):
+                export.added_normals(vertices, faces, added, carried, domed=flags)
+        v, f, n = export.added_normals(vertices, faces, added, carried, domed=np.arange(24) >= 20)
+        self.assertEqual(len(v), 24 + 5)  # the four closing faces' five vertices on the rim
+        self.assertTrue(np.array_equal(f[~added], faces[~added]) and np.array_equal(f[20:], faces[20:]))
+        self.assertFalse(np.isin(f[16:20], f[~added]).any())
+        self.assertTrue(np.allclose(n[np.unique(f[16:20])], (0, 0, 1)) and np.array_equal(n[:16], carried[:16]))
         # a part with nothing added is left as it is
         v, f, n = export.added_normals(vertices[:16], faces[:16], np.zeros(16, bool), carried[:16])
         self.assertTrue(np.array_equal(v, vertices[:16]) and np.array_equal(f, faces[:16]) and np.array_equal(n, carried[:16]))

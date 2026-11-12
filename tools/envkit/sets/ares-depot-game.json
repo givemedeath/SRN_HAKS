@@ -1,0 +1,84 @@
+{
+  "models": {
+    "ek_ad_depot": {"source": "meshy/models/ares-building-a1-remesh2", "height": 12.35, "measuredAt": 12.35, "colour": 4096, "paint": [
+      {"part": "illegible small lettering of the rear sign", "box": [[-3.38, -8.19, 5.551], [1.17, -7.41, 5.98]], "colour": [14, 15, 17]}
+    ], "smooth": [
+      {"part": "chain-link painted on the east wall behind the fence", "box": [[8.0, -8.5, 1.75], [10.95, 8.3, 4.3]], "radius": 0.12},
+      {"part": "chain-link painted on the west wall behind the fence", "box": [[-10.95, -8.5, 1.75], [-8.5, 8.3, 4.3]], "radius": 0.12},
+      {"part": "chain-link painted on the wall behind the north-west fence", "box": [[-8.5, 6.9, 1.75], [-5.3, 8.3, 4.3]], "radius": 0.12},
+      {"part": "chain-link painted on the wall behind the south-west fence", "box": [[-8.5, -8.5, 1.75], [-5.3, -6.8, 4.3]], "radius": 0.12}
+    ], "fence": [
+      {"part": "west fence", "from": [-11.13, -8.66], "to": [-11.13, 8.44], "z": [1.7, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "east fence", "from": [11.14, -8.65], "to": [11.14, 8.42], "z": [1.6, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "north-west fence", "from": [-11.13, 8.44], "to": [-5.45, 8.44], "z": [1.7, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "south-west fence", "from": [-11.13, -8.66], "to": [-5.45, -8.66], "z": [1.7, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "north-east fence", "from": [8.6, 8.42], "to": [11.14, 8.42], "z": [1.6, 3.45], "pitch": 0.09, "wire": 0.016},
+      {"part": "south-east fence", "from": [8.6, -8.65], "to": [11.14, -8.65], "z": [1.6, 3.45], "pitch": 0.09, "wire": 0.016}
+    ], "lit": [
+      {"part": "roof sign", "box": [[-8.58, 6.24, 5.655], [3.835, 10.53, 7.605]], "gain": 0.8},
+      {"part": "tower windows", "box": [[5.72, -1.3, 7.085], [11.7, 10.53, 8.255]], "gain": 2.0, "saturation": 0.3}
+    ], "halo": {"reach": 0.52, "strength": 0.5, "least": 0.5},
+      "tiles": {"ground": "pavement", "group": "Ares_Depot", "label": "Ares Depot 3x3", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 5.2, "door": {"at": [6.37, 8.385, 0.325], "facing": 90.0, "type": 58, "leaf": 2.1}}},
+    "ek_ad_desk": {"source": "meshy/models/ares-reception-desk-a1", "height": 2.6, "measuredAt": 2.6, "colour": 2048, "lit": [
+      {"part": "canopy lights", "box": [[-2.1, -1.1, 2.2], [2.1, 1.1, 2.45]], "value": 0.8},
+      {"part": "red light bar", "box": [[-1.45, 0.0, 0.3], [-1.05, 1.1, 0.85]], "gain": 1.5, "saturation": 0.6, "value": 0.5},
+      {"part": "back sign", "box": [[-1.6, -1.1, 1.5], [1.6, 1.1, 2.2]], "gain": 0.4}
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Reception Desk", "sound": 28, "category": 174}},
+    "ek_ad_console": {"source": "meshy/models/ares-surveillance-console-a1", "height": 2.1, "measuredAt": 2.1, "colour": 2048, "lit": [
+      {"part": "screens", "box": [[-1.42, -0.8, 0.97], [1.42, 0.8, 2.02]], "gain": 1.0, "saturation": 0.2, "value": 0.25},
+      {"part": "controls", "box": [[-1.42, -0.8, 0.72], [1.42, 0.8, 0.97]], "gain": 1.2, "saturation": 0.45, "value": 0.4}
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Surveillance Console", "sound": 28, "category": 165}},
+    "ek_ad_lockers": {"source": "meshy/models/ares-equipment-lockers-a1", "height": 1.9, "colour": 1024, "placeable": {"label": "Ares Depot, Equipment Lockers", "sound": 28, "category": 164}},
+    "ek_ad_armory": {"source": "meshy/models/ares-armory-rack-a1", "height": 2.1, "measuredAt": 2.1, "colour": 2048, "lit": [
+      {"part": "strip lights", "box": [[-0.55, -0.6, 0.4], [0.55, 0.6, 1.95]], "value": 0.75},
+      {"part": "lock panel", "box": [[-0.78, 0.0, 0.95], [-0.5, 0.6, 1.3]], "gain": 1.5, "saturation": 0.5, "value": 0.4}
+    ], "halo": {"reach": 0.12, "strength": 0.4}, "placeable": {"label": "Ares Depot, Armory Rack", "sound": 28, "category": 204}},
+    "ek_ad_booth": {"source": "meshy/models/ares-watch-booth-a1", "height": 3.2, "measuredAt": 3.2, "colour": 2048, "lit": [
+      {"part": "windows", "box": [[-1.61, -1.26, 1.05], [1.61, 1.26, 2.0]], "gain": 0.35},
+      {"part": "floodlight", "box": [[-1.61, -1.3, 2.7], [-1.0, 1.3, 3.2]], "value": 0.8}
+    ], "halo": {"reach": 0.2, "strength": 0.4}, "placeable": {"label": "Ares Depot, Watch Booth", "sound": 28, "category": 161}},
+    "ek_ad_gate": {"source": "meshy/models/ares-vehicle-gate-a1", "height": 2.8, "measuredAt": 2.8, "colour": 2048, "lit": [
+      {"part": "left red lamp", "box": [[2.1, -0.6, 1.95], [2.5, 0.6, 2.35]], "gain": 1.5, "saturation": 0.6, "value": 0.5},
+      {"part": "right red lamp", "box": [[-2.5, -0.6, 1.95], [-2.1, 0.6, 2.35]], "gain": 1.5, "saturation": 0.6, "value": 0.5},
+      {"part": "left top light", "box": [[2.0, -0.6, 2.5], [2.63, 0.6, 2.8]], "value": 0.75},
+      {"part": "right top light", "box": [[-2.63, -0.6, 2.5], [-2.0, 0.6, 2.8]], "value": 0.75}
+    ], "halo": {"reach": 0.15, "strength": 0.45}, "placeable": {"label": "Ares Depot, Vehicle Gate", "sound": 28, "category": 159}},
+    "ek_ad_fence": {"source": "meshy/models/ares-fence-section-a1", "height": 2.8, "measuredAt": 2.8, "colour": 2048, "mesh": [
+      {"part": "left panel", "box": [[0.15, -0.24, 0.83], [1.76, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016, "colour": [88, 88, 85]},
+      {"part": "right panel", "box": [[-1.76, -0.24, 0.83], [-0.15, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016, "colour": [88, 88, 85]}
+    ], "smooth": [
+      {"part": "smeared marking, front of the right base", "box": [[-1.72, 0.0, 0.08], [-0.14, 0.24, 0.72]], "radius": 0.3, "tint": 22},
+      {"part": "smeared marking, back of the left base", "box": [[0.14, -0.24, 0.08], [1.72, 0.0, 0.72]], "radius": 0.3, "tint": 12},
+      {"part": "stripe never drawn under the closed wedge", "box": [[1.19, 0.05, 0.08], [1.72, 0.24, 0.7]], "radius": 0.3, "tint": 22},
+      {"part": "that stripe's upper corner", "box": [[1.03, 0.05, 0.39], [1.19, 0.24, 0.7]], "radius": 0.3, "tint": 22}
+    ], "close": [
+      {"part": "wedge in the front of the left base", "corners": [[0.14, 0.152, 0.239], [1.706, 0.152, 0.243], [1.544, 0.118, 0.58]]}
+    ], "placeable": {"label": "Ares Depot, Fence Section", "sound": 28, "category": 159}},
+    "ek_ad_barrier": {"source": "meshy/models/ares-concrete-barrier-a1", "height": 0.95, "colour": 1024, "placeable": {"label": "Ares Depot, Concrete Barrier", "sound": 26, "category": 158}},
+    "ek_ad_terminal": {"source": "meshy/models/ares-checkpoint-terminal-a1", "height": 1.6, "measuredAt": 1.6, "colour": 1024, "lit": [
+      {"part": "screen", "box": [[-0.22, 0.0, 1.02], [0.22, 0.4, 1.34]], "gain": 1.5, "saturation": 0.3},
+      {"part": "scanner", "box": [[-0.14, 0.0, 0.74], [0.14, 0.4, 0.88]], "gain": 1.5, "value": 0.5},
+      {"part": "top lamp", "box": [[-0.28, -0.4, 1.47], [0.28, 0.4, 1.6]], "value": 0.75}
+    ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Ares Depot, Checkpoint Terminal", "sound": 28, "category": 165}},
+    "ek_ad_dronedk": {"source": "meshy/models/ares-drone-dock-a1", "height": 2.6, "measuredAt": 2.6, "colour": 2048, "lit": [
+      {"part": "left pillar lamp", "box": [[0.95, -1.1, 1.75], [1.29, 1.1, 2.1]], "value": 0.7},
+      {"part": "right pillar lamp", "box": [[-1.29, -1.1, 1.75], [-0.95, 1.1, 2.1]], "value": 0.7},
+      {"part": "pillar strips", "box": [[-1.29, -1.1, 0.85], [1.29, 1.1, 1.55]], "gain": 1.5, "saturation": 0.45, "value": 0.4},
+      {"part": "arm strip", "box": [[-0.6, -1.1, 1.85], [0.6, 1.1, 2.0]], "saturation": 0.3, "value": 0.5},
+      {"part": "landing pad", "box": [[-0.75, -0.6, 0.25], [0.75, 0.6, 0.6]], "gain": 1.2, "saturation": 0.5, "value": 0.4}
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Drone Dock", "sound": 28, "category": 161}},
+    "ek_ad_turret": {"source": "meshy/models/ares-turret-a2", "height": 1.8, "measuredAt": 1.8, "turn": 90, "colour": 1024, "lit": [
+      {"part": "sensor eye", "box": [[-0.3, 0.5, 1.4], [0.3, 0.9, 1.7]], "gain": 2.0, "saturation": 0.6, "value": 0.5}
+    ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Ares Depot, Turret", "sound": 28, "category": 199}},
+    "ek_ad_crate": {"source": "meshy/models/ares-gear-crate-a1", "height": 0.6, "colour": 1024, "placeable": {"label": "Ares Depot, Gear Crate", "sound": 27, "category": 164}},
+    "ek_ad_pylon": {"source": "meshy/models/ares-pylon-sign-a1", "height": 3.0, "measuredAt": 3.0, "colour": 2048, "lit": [
+      {"part": "light bar", "box": [[-0.6, -0.5, 2.78], [0.6, 0.5, 2.95]], "value": 0.8},
+      {"part": "sign face", "box": [[-0.75, 0.0, 0.15], [0.75, 0.5, 2.75]], "gain": 0.3}
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Pylon Sign", "sound": 28, "category": 156}},
+    "ek_ad_sign": {"source": "meshy/models/ares-wall-sign-a1", "height": 1.6, "measuredAt": 1.6, "lift": 2.4, "colour": 2048, "lit": [
+      {"part": "light bar", "box": [[-0.9, -0.2, 3.85], [0.9, 0.2, 4.0]], "value": 0.45},
+      {"part": "sign face", "box": [[-1.8, 0.0, 2.95], [1.8, 0.2, 3.82]], "gain": 0.3}
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Wall Sign", "sound": 27, "category": 156}},
+    "ek_ad_rooftop": {"source": "meshy/models/ares-rooftop-unit-a1", "height": 2.2, "tone": 0.8, "colour": 2048, "placeable": {"label": "Ares Depot, Rooftop Unit", "sound": 28, "category": 161}}
+  }
+}

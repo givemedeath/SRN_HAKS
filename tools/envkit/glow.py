@@ -50,6 +50,34 @@ def position_map(points, uvs, faces, size, *, facing=False):
     return (where, covered, toward) if facing else (where, covered)
 
 
+def inside(where, covered, box):
+    """Which texels show a place within `box`, two corners in metres on the finished model."""
+    low, high = (np.asarray(corner, float) for corner in box)
+    require(low.shape == high.shape == (3,) and (high > low).all(), 'A box runs from its low corner to its high corner')
+    return covered & (where >= low).all(-1) & (where <= high).all(-1)
+
+
+def held(where, covered, part, what):
+    """`inside`, for the box of a part a game set names: a box that holds none of the model is refused. The Ares
+    Depot's wall sign was lifted 2.4 metres and its lit boxes were given where it stood before the lift; they held
+    nothing, the conversion passed, and the sign shipped with a black glow map (found in review, 2026-11-12)."""
+    found = inside(where, covered, part['box'])
+    require(found.any(), f'The box of a {what} part holds none of the model; boxes are on the finished model, turned and lifted: '
+            + str(part.get('part', part['box'])))
+    return found
+
+
+def wires(along, up, pitch, wire):
+    """Which places lie on the wires of a chain-link mesh hung upright: two sets of wires `wire` metres thick, leaning
+    either way, `pitch` metres apart. `along` and `up` are each place's metres along the way the mesh runs and its
+    height. Laid by place on a model, the pattern runs unbroken over the islands of the texture; measured along the
+    panel's own run it is the same on both faces of the panel, so one face's wires stand behind the other's. (Laid by
+    x + y, as it first was, the two faces of the fence section were out of step by the panel's thickness, and a panel
+    not along X or Y would have had its pattern squashed or flattened to stripes.)"""
+    require(0 < wire < pitch, 'A wire is thinner than the gap between wires')
+    return (np.mod((along + up) / np.sqrt(2), pitch) < wire) | (np.mod((along - up) / np.sqrt(2), pitch) < wire)
+
+
 def glow(base, where, covered, regions):
     """The glow map, 0-1, the shape of `base` (0-1 colour at the position map's size).
 
@@ -62,10 +90,8 @@ def glow(base, where, covered, regions):
     vivid = (brightest - dullest) / np.maximum(brightest, 1e-6); lit = np.zeros_like(base)
     passing = lambda values, floor: 1.0 if floor <= 0 else np.clip((values - floor + 0.05) / 0.15, 0, 1)
     for region in regions:
-        low, high = (np.asarray(corner, float) for corner in region['box'])
-        require((high > low).all(), 'A glow box runs from its low corner to its high corner')
-        inside = covered & (where >= low).all(-1) & (where <= high).all(-1)
-        share = inside * passing(vivid, region.get('saturation', 0.0)) * passing(brightest, region.get('value', 0.0)) * region.get('gain', 1.0)
+        share = held(where, covered, region, 'lit') * passing(vivid, region.get('saturation', 0.0)) * passing(brightest, region.get('value', 0.0)) * region.get('gain', 1.0)
+        require(share.any(), 'A lit part lights nothing: none of what its box holds is as vivid or as bright as it asks: ' + str(region.get('part', region['box'])))
         lit = np.maximum(lit, base * share[..., None])
     return np.clip(lit, 0, 1)
 

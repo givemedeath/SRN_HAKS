@@ -49,7 +49,7 @@ def vertex_normals(vertices, faces, weld=WELD):
     return np.where(np.any(normal != 0, axis=1)[:, None], normal, (0.0, 0.0, 1.0))
 
 
-def added_normals(vertices, faces, added, normals, *others, weld=WELD):
+def added_normals(vertices, faces, added, normals, *others, weld=WELD, domed=None):
     """A part whose added faces (its closings and caps, flagged in `added`) are lit as surfaces of their own:
     (vertices, faces, normals, *others).
 
@@ -58,22 +58,32 @@ def added_normals(vertices, faces, added, normals, *others, weld=WELD):
     stand across the closing and not on it, a closing is shaded round like the sleeve it closes and shows as a
     folded fan. The added faces therefore get vertices of their own, those on the edge repeated, with the
     normals of the added faces alone (`vertex_normals`): the edge is a crease, and the closing is evenly lit.
-    `others` are arrays with a row per vertex (texture coordinates), repeated alike."""
+    `others` are arrays with a row per vertex (texture coordinates), repeated alike.
+
+    `domed` flags the added faces that round a surface on past its edge, a cap's: their edge is no crease.
+    They keep the edge's vertices and its normals, and only their own vertices are lit by their own faces:
+    creased at its rim, the top of a thigh that a crouch turns out of the pelvis was lit as a lid set on the
+    trouser leg."""
     vertices, faces, normals = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(normals, float)
     added = np.asarray(added, bool)
     require(added.shape == (len(faces),) and len(normals) == len(vertices), 'One flag per face and one normal per vertex are required')
+    require(domed is None or np.shape(domed) == (len(faces),), 'One flag per face is required')
+    domed = np.zeros(len(faces), bool) if domed is None else np.asarray(domed, bool) & added
     if not added.any():
         return (vertices, faces, normals, *[np.asarray(other) for other in others])
-    used = np.unique(faces[added])
-    shared = used[np.isin(used, faces[~added])]  # on the edge: the outfit's own faces use them too
+    own, flat = faces[~added], added & ~domed
+    used = np.unique(faces[flat])
+    shared = used[np.isin(used, faces[~flat])]  # on the edge: the outfit's own faces, or a cap's, use them too
     remap = np.arange(len(vertices))
     remap[shared] = len(vertices) + np.arange(len(shared))
     faces = faces.copy()
-    faces[added] = remap[faces[added]]
+    faces[flat] = remap[faces[flat]]
     grown = lambda rows: np.concatenate([rows, rows[shared]])
     vertices, normals = grown(vertices), grown(normals)
-    mine = np.unique(faces[added])
-    normals[mine] = vertex_normals(vertices, faces[added], weld)[mine]
+    mine = np.unique(faces[flat])
+    normals[mine] = vertex_normals(vertices, faces[flat], weld)[mine]
+    mine = np.setdiff1d(faces[domed], own)  # a cap's own vertices: its rim keeps the edge's normals
+    normals[mine] = vertex_normals(vertices, faces[domed], weld)[mine]
     return (vertices, faces, normals, *[grown(np.asarray(other)) for other in others])
 
 

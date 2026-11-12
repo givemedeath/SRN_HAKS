@@ -36,6 +36,10 @@ class GlowTests(unittest.TestCase):
         np.testing.assert_allclose(both[0, 0], [0.9, 0.1, 0.1]); np.testing.assert_allclose(both[0, 31], [0.15, 0.15, 0.15])
         with self.assertRaisesRegex(ValueError, 'low corner'):
             glow.glow(base, where, covered, [{'box': [[1, 0, 0], [0, 1, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'lights nothing.*dim lamp'):  # nor does a part none of whose texels pass its own tests
+            glow.glow(base, where, covered, [{**sign, 'part': 'dim lamp', 'value': 0.99, 'saturation': 0.99}])
+        with self.assertRaisesRegex(ValueError, 'holds none of the model.*high sign'):  # a box off the model lights nothing, and says so
+            glow.glow(base, where, covered, [sign, {'part': 'high sign', 'box': [[-2.5, 0.5, 5.0], [2.5, 1.5, 6.0]]}])
 
     def test_the_halo_is_a_card_in_front_that_fades_away_from_the_glow_one_for_each_depth(self):
         where, covered = glow.position_map(POINTS, UVS, FACES, 64)
@@ -140,11 +144,51 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'halo': {'reach': 0.2}}, 'needs lit parts')
             refused({'source': 'meshy/x', 'height': 1.0, 'lit': [{'box': [[0, 0], [1, 1]]}]}, 'two corners')
             refused({'source': 'meshy/x', 'height': 1.0, 'lift': -1}, 'lifted by 0 to 20')
+            refused({'source': 'meshy/x', 'height': 1.0, 'turn': 270}, 'turned by -180 to 180')
+            refused({'source': 'meshy/x', 'height': 1.0, 'tone': 0}, 'tone is 0.2 to 2')
+            refused({'source': 'meshy/x', 'height': 1.0, 'paint': [{'box': [[0, 0, 0], [1, 1, 1]], 'colour': [0, 0, 300]}]}, 'three 0-255 values')
+            refused({'source': 'meshy/x', 'height': 1.0, 'mesh': [{'box': [[0, 0, 0], [1, 1, 1]], 'pitch': 0.05, 'wire': 0.05}]}, 'thinner wire')
+            refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 5}]}, 'radius of 0.01 to 1')
+            refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 0}]}, 'taken off by its tint')
+            refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 20, 'colour': [1, 2, 3]}]}, 'keeps its own colour')
+            refused({'source': 'meshy/x', 'height': 1.0, 'close': [{'corners': [[0, 0, 0], [1, 1, 1]]}]}, 'needs three corners')
+            sheet = {'from': [0, 0], 'to': [2, 0], 'z': [1, 2], 'pitch': 0.09, 'wire': 0.016}
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [2, 1]}]}, 'between two heights')
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'to': [0, 0]}]}, 'from one point to another')
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [sheet, {**sheet, 'wire': 0.02}]}, 'share one wire mesh')
+            # Boxes are on the model as lifted: the Ares wall sign's were left where it stood before its lift, and it shipped dark.
+            refused({'source': 'meshy/x', 'height': 1.6, 'lift': 2.4, 'lit': [{'box': [[-1, 0, 0.55], [1, 1, 1.42]]}]}, 'wholly above or below')
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [1.5, 2]}]}, 'wholly above or below')
             tiles = {'ground': 'pavement', 'group': 'Long', 'label': 'Long', 'sets': {'dgt04': 'Concrete'}}
+            # A building is scaled to its door before its tiles are counted: a door says how tall its leaf came out.
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58}}}, 'states its leaf')
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58, 'leaf': 1.6}}}, 'scale the building to its door')
+            # Every building's hook is the door with no model of its own: a visible door type, or none stated, is refused.
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 117, 'leaf': 2.1}}}, 'invisible transition door')
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'leaf': 2.1}}}, 'invisible transition door')
+            # Every box, fence, door and fade height is a measurement of the model at one height: a model that states any
+            # says the height it had then, and one made taller or lower since has them measured again.
+            cube = [[0, 0, 0], [1, 1, 1]]; door = {'at': [0, 1, 0.2], 'type': 58, 'leaf': 2.1}
+            for stated in ({'lit': [{'box': cube}]}, {'paint': [{'box': cube, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': cube, 'radius': 0.1}]},
+                           {'mesh': [{'box': cube, 'pitch': 0.09, 'wire': 0.016}]}, {'fence': [sheet]}, {'close': [{'corners': [[0, 0, 0], [1, 0, 0], [0, 0, 1]]}]}, {'tiles': {**tiles, 'door': door}}, {'tiles': {**tiles, 'fade': 3.0}}):
+                refused({'source': 'meshy/x', 'height': 9.5, **stated}, 'says the height it had when they were measured')
+                refused({'source': 'meshy/x', 'height': 9.5, 'measuredAt': 12.35, **stated}, 'measured with the model 12.35 metres tall and it is now 9.5')
+                path = Path(scratch) / 'measured.json'; path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, **stated}}}), encoding='utf-8')
+                self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], 9.5)
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes
+            # A tile group is built standing on the ground: a lift would move its boxes and not the building.
+            refused({'source': 'meshy/x', 'height': 9.5, 'lift': 2, 'tiles': tiles}, 'takes no lift')
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped
             long_name.write_text(json.dumps({'models': {'ek_thirteen_c': {'source': 'meshy/x', 'height': 1.0, 'tiles': tiles}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'at most 12'):
                 convert.load_models(long_name)
+        ares = convert.load_models(folder / 'ares-depot-game.json')
+        self.assertEqual(ares['ek_ad_turret']['turn'], 90); self.assertEqual(len(ares['ek_ad_fence']['mesh']), 2); self.assertIn('paint', ares['ek_ad_depot'])
+        self.assertEqual((len(ares['ek_ad_depot']['smooth']), len(ares['ek_ad_depot']['fence'])), (4, 6))  # its perimeter fence, and the wall behind
+        self.assertEqual((ares['ek_ad_depot']['tiles']['door']['leaf'], models['ek_ss_shack']['tiles']['door']['leaf']), (2.1, 2.1))
+        for model in (ares['ek_ad_depot'], ares['ek_ad_sign'], ares['ek_ad_fence'], models['ek_ss_shack'], models['ek_ss_vending']):
+            self.assertEqual(model['measuredAt'], model['height'])
+        self.assertNotIn('measuredAt', ares['ek_ad_crate'])  # nothing is measured on it
 
 
 if __name__ == '__main__':

@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_ad_dronedk
+texture1 ek_ad_dronedk_n
+texture2 ek_ad_dronedk_s
+texture3 ek_ad_dronedk_r
+texture4 null
+texture5 ek_ad_dronedk_i
