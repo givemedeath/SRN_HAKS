@@ -195,6 +195,24 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == 201).all())  # the outfit's, where the caller has it
         self.assertTrue(np.array_equal(shades[~closing], plain_shades[~closing]))
 
+    def test_a_trims_texels_are_drawn_in_the_material_it_was_given_at_their_own_shade(self):
+        channels = ['cloth1', 'leather1', 'metal1']
+        colour = np.zeros((8, 8, 3)); covered = np.ones((8, 8), bool)
+        colour[:, :4], colour[:, 4:] = TAN, PLATE
+        colour[5:, 4:] = np.array(PLATE) * 0.8
+        trim = np.full((8, 8), -1)
+        trim[4:, 2:6] = 0  # the faces of a frame, and what they cover of the leather beside it
+        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels, speck=0)
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, trim=trim)
+        frame = np.zeros((8, 8), bool); frame[4:, 4:6] = True
+        self.assertTrue((plain_layers[frame] == export.LAYERS['metal1']).all() and (layers[frame] == export.LAYERS['cloth1']).all())
+        self.assertTrue(np.array_equal(layers[~frame], plain_layers[~frame]))  # only what shows a metal changes
+        self.assertTrue(np.array_equal(shades, plain_shades))
+        with self.assertRaises(ValueError):
+            texture.tint_maps(colour, covered, self.found, channels, speck=0, trim=trim[:4])
+        with self.assertRaises(ValueError):
+            texture.tint_maps(colour, covered, self.found, channels, speck=0, trim=np.full((8, 8), 3))
+
     def test_what_the_split_made_is_as_light_as_the_parts_own_cloth_where_nothing_shades_it(self):
         channels = ['cloth1', 'leather1', 'metal1']
         # a part of cloth, a third of it in the shade of a fold, with a closing and a cap of plate and of cloth
@@ -444,6 +462,113 @@ class MaterialTests(unittest.TestCase):
                 texture.tint_maps(colour, covered, self.found, channels, second=given)
         with self.assertRaises(ValueError):
             texture.tint_maps(colour, covered, self.found, [('cloth1', 'cloth2'), ('leather1',), ('metal1', 'metal2')])
+
+
+def sheet(columns, rows, cell=0.01):
+    """A flat sheet of square cells, two faces to a cell: vertices, faces, and the cell (column, row) of each face."""
+    xs, ys = np.meshgrid(np.arange(columns + 1), np.arange(rows + 1), indexing='ij')
+    points = np.stack([xs.ravel() * cell, np.zeros(xs.size), ys.ravel() * cell], axis=1)
+    at = lambda i, j: i * (rows + 1) + j
+    faces, cells = [], []
+    for i in range(columns):
+        for j in range(rows):
+            faces += [(at(i, j), at(i + 1, j), at(i + 1, j + 1)), (at(i, j), at(i + 1, j + 1), at(i, j + 1))]
+            cells += [(i, j), (i, j)]
+    return points, np.array(faces), np.array(cells)
+
+
+class TrimTests(unittest.TestCase):
+    CLOTH, METAL, LEATHER = 0, 1, 2
+
+    def setUp(self):
+        # a sheet a metre tall: a plate 12 cm square, a frame a centimetre wide round a tab of cloth, a line of piping
+        # between cloth and leather, and a strap of leather a centimetre wide
+        self.v, self.f, cells = sheet(40, 100)
+        i, j = cells.T
+        self.plate = (i >= 4) & (i < 16) & (j >= 60) & (j < 72)
+        ring = (i >= 22) & (i < 30) & (j >= 60) & (j < 68)
+        self.frame = ring & ~((i >= 23) & (i < 29) & (j >= 61) & (j < 67))
+        self.leather = ((i >= 4) & (i < 30) & (j >= 20) & (j < 30)) | ((i == 34) & (j >= 10) & (j < 90))
+        self.piping = (i >= 4) & (i < 30) & (j == 30)
+        self.tooth = np.zeros(len(self.f), bool)
+        self.tooth[np.flatnonzero((i == 16) & (j == 65))[0]] = True  # half a cell standing out of the plate's side
+        self.materials = np.where(self.leather, self.LEATHER, np.where(self.plate | self.frame | self.piping | self.tooth, self.METAL, self.CLOTH))
+
+    def test_a_plate_stays_and_a_frame_a_face_wide_goes_to_what_it_lies_on(self):
+        out = texture.trimmed(self.v, self.f, self.materials, [self.METAL])
+        self.assertGreaterEqual((out[self.plate] == self.METAL).mean(), 0.98)  # all but a corner's face
+        self.assertTrue((out[self.frame] == self.CLOTH).all())
+        self.assertTrue((out[self.tooth] == self.CLOTH).all())
+        self.assertTrue(np.isin(out[self.piping], (self.CLOTH, self.LEATHER)).all())
+        self.assertTrue((out[self.piping] == self.LEATHER).any() and (out[self.piping] == self.CLOTH).any())  # from both sides
+        other = ~(self.plate | self.frame | self.piping | self.tooth)
+        self.assertTrue(np.array_equal(out[other], self.materials[other]))  # a strap of leather as narrow is no trim
+        self.assertTrue(np.array_equal(self.materials, np.where(self.leather, self.LEATHER, np.where(other, self.CLOTH, self.METAL))))  # not changed in place
+
+    def test_only_the_metals_named_are_trimmed(self):
+        self.assertTrue(np.array_equal(texture.trimmed(self.v, self.f, self.materials, []), self.materials))
+        out = texture.trimmed(self.v, self.f, self.materials, [self.LEATHER])
+        self.assertTrue((out[self.frame] == self.METAL).all())
+        strap = self.leather & (self.v[self.f].mean(axis=1)[:, 0] > 0.33)
+        self.assertTrue((out[strap] != self.LEATHER).all() and (out[self.leather & ~strap] == self.LEATHER).mean() > 0.98)
+
+    def test_a_face_is_off_the_plates_where_neither_it_nor_a_face_beside_it_is_metal(self):
+        v, f, cells = sheet(6, 1)
+        materials = np.where(cells[:, 0] == 2, self.METAL, self.CLOTH)
+        materials[cells[:, 0] == 5] = -1  # what the split made
+        off = texture.off_plate(v, f, materials, [self.METAL])
+        self.assertFalse(off[cells[:, 0] == 2].any())
+        self.assertEqual(np.flatnonzero(~off & (cells[:, 0] != 2)).tolist(), [2, 7])  # the one face of each cell next to it that shares an edge with it
+        self.assertTrue(texture.off_plate(v, f, materials, []).all())
+        with self.assertRaises(ValueError):
+            texture.off_plate(v, f, materials[:-1], [self.METAL])
+
+    def test_an_outfit_all_of_one_metal_keeps_it(self):
+        v, f, _ = sheet(2, 2)
+        self.assertTrue((texture.trimmed(v, f, np.ones(len(f), int), [1]) == 1).all())
+        with self.assertRaises(ValueError):
+            texture.trimmed(v, f, np.ones(len(f) - 1, int), [1])
+
+
+class UnderTests(unittest.TestCase):
+    def test_a_caps_own_vertices_are_matched_to_the_cloth_they_lie_under(self):
+        split = texture.split
+        # a part: one own face, a cap of two faces on its edge, a closing
+        points = np.array([(0, 0, 0), (1, 0, 0), (0, 1, 0), (1, 1, 0.2), (2, 1, 0.2), (0, -1, 0)], float)
+        faces = np.array([(0, 1, 2), (1, 3, 2), (1, 4, 3), (0, 5, 1)])
+        made = np.array([split.OWN, split.CAP, split.CAP, split.CLOSING])
+        outfit = np.array([(1, 1, 0.21), (1, 1, 0.5), (2, 1, 0.6), (5, 5, 5)], float)
+        only, near = texture.under(points, faces, made, outfit, [False, True, True, True])
+        self.assertEqual(only.tolist(), [3, 4])  # not the edge's vertices, which the part's own face uses
+        self.assertEqual(near.tolist(), [1, 2])  # the nearest is the belt's, and is not cloth
+        only, near = texture.under(points, faces, made, outfit, [True] * 4)
+        self.assertEqual(near.tolist(), [0, 2])
+        outfit[1] = (1, 1, 3.0)  # the cloth over the cap is out of reach of its edge: the next
+        self.assertEqual(texture.under(points, faces, made, outfit, [False, True, True, True], reach=1.5)[1].tolist(), [2, 2])
+        self.assertEqual(texture.under(points, faces, made, outfit, [False, True, False, True], reach=1.5)[1].tolist(), [1, 1])  # none within reach: any
+        only, near = texture.under(points, faces, made, outfit, [True] * 4, kind=split.CLOSING)
+        self.assertEqual((only.tolist(), near.tolist()), ([5], [0]))
+        only, near = texture.under(points, faces, made, outfit, [True] * 4, kind=(split.CAP, split.CLOSING))
+        self.assertEqual(only.tolist(), [3, 4, 5])
+        only, near = texture.under(points, faces[:1], made[:1], outfit, [False] * 4)
+        self.assertEqual((len(only), len(near)), (0, 0))  # no cap
+        with self.assertRaises(ValueError):
+            texture.under(points, faces, made, outfit, [False] * 4)
+        with self.assertRaises(ValueError):
+            texture.under(points, faces, made[:2], outfit, [True] * 4)
+
+
+class SoftMapTests(unittest.TestCase):
+    def test_colours_are_read_at_the_vertices_and_spread_evenly_between_them(self):
+        positions = np.array([(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)], float)
+        read = lambda points: (np.stack([points[:, 0] ** 2, points[:, 1], np.full(len(points), 0.5)], axis=1), np.zeros(len(points), bool))
+        soft = texture.soft_map(SQUARE, FACES, positions, read, 16)
+        sharp, covered, _ = texture.colour_map(SQUARE, FACES, positions, read, 16)
+        self.assertTrue(covered.all())
+        self.assertTrue(np.allclose(soft[..., 1:], sharp[..., 1:], atol=1e-9))  # what is even between the vertices is as it was
+        across = np.sqrt(sharp[..., 0])  # how far across each texel lies
+        self.assertTrue(np.allclose(soft[..., 0], across, atol=1e-9))  # and the rest is, now, too
+        self.assertGreater(np.abs(soft[..., 0] - sharp[..., 0]).max(), 0.2)
 
 
 class FieldTests(unittest.TestCase):

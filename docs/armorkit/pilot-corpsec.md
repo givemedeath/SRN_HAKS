@@ -108,10 +108,21 @@ colour on the sleeves, four texels across or less, are drawn as the sleeve. What
 caps) is drawn at the cloth's lit shade, not its middle shade, and a cap is lit as the surface it rounds off:
 the tops of the thighs stood out of the seat as darker flat patches, standing and in every crouch. A thigh's
 cap starts a little inside its rim, the crotch strip ends in a point, and flat closings carry no relief.
-Left as they are: the tab under each shoulder pad is grey in a frame of the plates' colour because the
-reference draws it so; with an arm lifted overhead the chest's edge round the armhole, where the pad was cut
-off along face edges, shows as a ragged edge of cloth; and a forearm that turns about its own length opens
-a slit beside the elbow pad's cap. Walking and combat are not in the captures. The accent and
+
+A second round took up what that one left, with walking, running and unarmed combat added to the captures
+(fifteen actors, four views each). The reference draws a grey tab in a frame of the plates' colour under each
+shoulder pad. At 12,000 faces the frame was a band one to three faces wide: part of it joined the pad and
+went to the shoulder part as a strip hanging down the arm, and the pad was cut out along the teeth of its
+outline, which left the chest's edge round the armhole ragged under a lifted arm. A line of metal too narrow
+to be a plate is now trim and is given to the cloth it lies on, before the outfit is cut; and a face with no
+plate beside it in its own part shows no plate colour, which took the specks a pad left on the sleeve under
+its edge. The walk showed the tops of the thighs again: flat pale patches in the crotch at every step, the
+thigh's cap on the leg swinging forward and the pelvis's lid in front of the leg swinging back. A thigh's cap,
+its inner wall and the pelvis's lids are now shaded as the cloth round them, vertex by vertex. Left as they
+are: the reference's elbow guard is two plates with a strap between them, and a bent arm shows the sleeve
+between the two as a wedge; plate colour within the faces along a plate's own outline stays, so the upper
+edge of an elbow plate is uneven; and where a thigh's top leaves the pelvis its outline against the
+trousers' folds is jagged. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in

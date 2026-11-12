@@ -971,7 +971,7 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
     return v, f, t, owner, names, origin, cuts, sleeves, between, limit
 
 
-def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None):
+def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -985,7 +985,9 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     `made`, if a dict is given, is filled with what made each face of each part, in the order of its faces:
     `OWN` for the outfit's own surface, `CLOSING` and `CAP` for what the split added, `WALL` for a thigh's
     closing toward the other leg, `PADDED` for the faces of a cap that grew from a pad's rim, and `GUSSET` for
-    the surface between the legs that the pelvis repeats under the thighs (`gusset`). `sleeves` is what `troughs`
+    the surface between the legs that the pelvis repeats under the thighs (`gusset`). `origins`, if a dict is
+    given, is filled alike with the face of `faces` each face of a part was cut from, -1 for what the split
+    added or repeated. `sleeves` is what `troughs`
     found on this mesh in the pose it came in. A shoulder pad found with them is a shoulder part (`assign`),
     closed underneath across its own outline. The outfit has no surface under a pad: the chest is closed where
     the pad lay on it, rounded out from the shoulder plane as the shoulder under the pad, and the upper arm is
@@ -1042,6 +1044,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         if not len(mine):
             continue
         pv, pf, pt, closed, kinds = v, mine, t, np.zeros((0, 3)), [np.full(len(mine), OWN)]
+        own = len(mine)
         for seam, facing in closings:  # closed first: an under part's cap then grows from a closed rim
             if name in facing:
                 more = seam_fill(pv, pt, pf, len(pv), seam, *facing[name])
@@ -1075,4 +1078,6 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         result[name] = compact(pv, pf, pt)
         if made is not None:
             made[name] = np.concatenate(kinds)
+        if origins is not None:
+            origins[name] = np.concatenate([np.asarray(origin)[owner == index], np.full(len(pf) - own, -1)])
     return result

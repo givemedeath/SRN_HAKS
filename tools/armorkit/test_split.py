@@ -228,8 +228,15 @@ class SplitTests(unittest.TestCase):
         self.v, self.f, self.t = figure()
 
     def test_every_part_is_cut_out_and_the_surface_is_kept(self):
-        made = {}
-        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, made=made)
+        made, origins = {}, {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, made=made, origins=origins)
+        for name, (points, faces, _) in parts.items():  # the face of the outfit each face of a part was cut from
+            own = made[name] == split.OWN
+            self.assertEqual(len(origins[name]), len(faces))
+            self.assertTrue(np.array_equal(origins[name] >= 0, own))
+            source = self.v[self.f[origins[name][own]]]
+            reach = np.linalg.norm(source - source.mean(axis=1, keepdims=True), axis=2).max(axis=1)
+            self.assertTrue((np.linalg.norm(points[faces[own]].mean(axis=1) - source.mean(axis=1), axis=1) <= reach + 1e-9).all())
         self.assertEqual(set(parts), TOKENS)
         self.assertAlmostEqual(sum(area(p, f[made[name] == split.OWN]) for name, (p, f, _) in parts.items()), area(self.v, self.f), places=6)
         added = {name for name in parts if (made[name] != split.OWN).any()}
