@@ -101,6 +101,7 @@
     "tools/armorkit/test_bake.py": [
       "tools/armorkit/bake.py",
       "tools/armorkit/export.py",
+      "tools/armorkit/measure.py",
       "tools/armorkit/split.py"
     ],
     "tools/armorkit/test_brief.py": [
@@ -5111,6 +5112,9 @@
   },
   "unresolved": [],
   "packReferences": {
+    "tools/armorkit/test_bake.py": [
+      "srn_body"
+    ],
     "tools/armorkit/test_cli.py": [
       "srn_armor",
       "srn_body"
