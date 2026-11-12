@@ -68,14 +68,14 @@ class SheetTests(unittest.TestCase):
         plan = self.plan(); fake = FakeMeshy(); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
         sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)
         told = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
-        self.assertEqual(told, {'failed': [], 'downloaded': ['yd-desk-a1', 'yd-gate-a2', 'yd-building-a1', 'yd-building-a1-remesh']})
+        self.assertEqual(told, {'failed': [], 'downloaded': ['yd-desk-a1', 'yd-gate-a2', 'yd-building-a1', 'yd-building-a1-remesh'], 'unsent': []})
         self.assertTrue((self.models / 'yd-desk-a1' / 'model.glb').is_file()); self.assertTrue((self.masters / 'yd-building-a1' / 'model.glb').is_file())
         self.assertTrue((self.models / 'yd-building-a1-remesh' / 'model.glb').is_file()); self.assertFalse((self.models / 'yd-building-a1').exists())  # the full generation is never the game model
         remesh = next(call for call in fake.calls if call[0] == 'remesh' and call[1] == 'create')
         self.assertEqual(remesh[remesh.index('--target-polycount') + 1], str(int(200000 * meshy.REMESH_HEADROOM)))
         self.assertEqual(set(sheet.status(ledger, plan)['calls'].values()), {'succeeded'}); self.assertEqual(sheet.cost(ledger, plan), 0)
         calls = len(fake.calls); again = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
-        self.assertEqual((again, len(fake.calls)), ({'failed': [], 'downloaded': []}, calls))  # run again, it finds nothing to do
+        self.assertEqual((again, len(fake.calls)), ({'failed': [], 'downloaded': [], 'unsent': []}, calls))  # run again, it finds nothing to do
 
     def test_one_failed_model_does_not_stop_the_rest(self):
         plan = self.plan(building=None); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
@@ -87,8 +87,27 @@ class SheetTests(unittest.TestCase):
                 return super().__call__(arguments, folder)
 
         told = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=OneFails(), say=self.say)
-        self.assertEqual(told, {'failed': ['yd-desk-a1'], 'downloaded': ['yd-gate-a2']})
+        self.assertEqual(told, {'failed': ['yd-desk-a1'], 'downloaded': ['yd-gate-a2'], 'unsent': []})
         self.assertIn('FAILED', next(row['error'] for row in self.said if row.get('error')))
+        # Run again, the model that failed is still told: a sheet with a model missing never reads as complete.
+        again = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=FakeMeshy(), say=self.say)
+        self.assertEqual(again, {'failed': ['yd-desk-a1'], 'downloaded': [], 'unsent': []}); self.assertEqual(self.said[-1], {'key': 'yd-desk-a1', 'error': 'yd-desk-a1 is failed'})
+        # A model that came back over its ceiling is left where it landed, and is not taken for collected because it is there.
+        ledger.update('yd-gate-a2', accepted=False)
+        over = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=FakeMeshy(), say=self.say)
+        self.assertEqual(over['failed'], ['yd-desk-a1', 'yd-gate-a2']); self.assertIn('over its triangle ceiling', self.said[-1]['error'])
+
+    def test_a_remesh_that_fails_is_told_under_its_own_key(self):
+        plan = self.plan(props={}); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
+        sheet.submit(ledger, plan, self.selected, self.work, run=FakeMeshy(), say=self.say)
+
+        class RemeshFails(FakeMeshy):
+            def __call__(self, arguments, folder):
+                self.status = 'FAILED' if arguments[1] == 'wait' and arguments[2] == 'task-yd-building-a1-remesh' else 'SUCCEEDED'
+                return super().__call__(arguments, folder)
+
+        told = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=RemeshFails(), say=self.say)
+        self.assertEqual(told, {'failed': ['yd-building-a1-remesh'], 'downloaded': ['yd-building-a1'], 'unsent': []})  # the generation is paid for and kept: a new remesh key is all it needs
 
     def test_the_plan_the_ares_depot_was_run_from_reads(self):
         plan = sheet.load_plan(Path(__file__).with_name('sets') / 'ares-depot-meshy.json')

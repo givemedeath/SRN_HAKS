@@ -102,20 +102,30 @@ def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
 def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print):
     """Wait for whatever is still running and download what has finished: each prop into `models/<key>`, the
     building's full generation into `masters/<key>` and its remesh into `models/<remesh key>`. One call that failed
-    does not stop the rest. Returns {failed: [keys], downloaded: [keys]}."""
-    work, models, masters = Path(work), Path(models), Path(masters); failed, downloaded = [], []
+    does not stop the rest. Returns {failed: [keys], downloaded: [keys], unsent: [keys]}: `failed` is every call that
+    has not ended in a working model, whether it failed now or in an earlier run, under the key that failed (the
+    remesh's own, for a remesh), and `unsent` what `submit` has still to send."""
+    work, models, masters = Path(work), Path(models), Path(masters); failed, downloaded, unsent = [], [], []
     for folder in (work, models, masters):
         folder.mkdir(parents=True, exist_ok=True)
     report = lambda **fields: say(json.dumps(fields), flush=True)
 
     def finished(key):
+        """Whether the call has succeeded, waited for if it is running. One not sent yet is told as unsent; any other
+        end is an error, in this run as in the one it ended in."""
         if state(ledger, key) in WAITING:
             report(key=key, **meshy.wait(ledger, key, work, run=run))
-        return state(ledger, key) == 'succeeded'
+        now = state(ledger, key)
+        if now is None:
+            unsent.append(key); return False
+        require(now == 'succeeded', f'{key} is {now}')
+        return True
 
     def fetched(key, bank, master=False):
-        if not bank.exists():
-            report(key=key, **{'master' if master else 'downloaded': meshy.download(ledger, key, work, bank, master=master, run=run)}); downloaded.append(key)
+        if bank.exists():  # `download` leaves a model that came back over its ceiling where it landed, and says so in the ledger
+            require(ledger.entry(key).get('accepted') is not False, f'{key} is over its triangle ceiling and is no working model: {bank}')
+            return
+        report(key=key, **{'master' if master else 'downloaded': meshy.download(ledger, key, work, bank, master=master, run=run)}); downloaded.append(key)
 
     for row in plan['props'].values():
         try:
@@ -125,18 +135,18 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
             failed.append(row['key']); report(key=row['key'], error=str(error))
     building = plan['building']
     if building:
+        key = building['key']
         try:
-            if finished(building['key']):
-                fetched(building['key'], masters / building['key'], master=True)
-                if state(ledger, building['remesh']) is None:
-                    task = ledger.entry(building['key'])['taskId']
-                    report(key=building['remesh'], task=meshy.submit(ledger, building['remesh'], 'building', 'remesh',
-                                                                     meshy.remesh_arguments(task, building['triangles']), work, run=run))
-                if finished(building['remesh']):
-                    fetched(building['remesh'], models / building['remesh'])
+            if finished(key):
+                fetched(key, masters / key, master=True)
+                task = ledger.entry(key)['taskId']; key = building['remesh']  # what fails from here on is the remesh
+                if state(ledger, key) is None:
+                    report(key=key, task=meshy.submit(ledger, key, 'building', 'remesh', meshy.remesh_arguments(task, building['triangles']), work, run=run))
+                if finished(key):
+                    fetched(key, models / key)
         except ValueError as error:
-            failed.append(building['key']); report(key=building['key'], error=str(error))
-    return {'failed': failed, 'downloaded': downloaded}
+            failed.append(key); report(key=key, error=str(error))
+    return {'failed': failed, 'downloaded': downloaded, 'unsent': unsent}
 
 
 def status(ledger, plan):
