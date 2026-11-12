@@ -21,7 +21,7 @@ import shutil
 from pathlib import Path
 import numpy as np
 from tools.headkit.common import ROOT, require
-from .autofit import clear_cut, grip_start_for_length
+from .autofit import _runs, clear_cut, grip_start_for_length
 from .geometry import transform
 from .routes import HAFTED_FAMILIES, ROUTES
 from . import straightness as st
@@ -36,11 +36,6 @@ PROCESSING = {'cageExtrusion': .006, 'maxRayDistance': .012, 'uvPackingPaddings'
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def _runs(mask):
-    index = np.flatnonzero(mask)
-    return [r for r in np.split(index, np.flatnonzero(np.diff(index) > 1) + 1) if len(r)]
 
 
 def gltf_to_blender(positions):

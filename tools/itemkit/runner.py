@@ -269,7 +269,8 @@ class Runner:
                                                palettes=self.data['processing'].get('materialPalettes',())))
                 from .texture_check import SIZE, check_bake
                 if str(SIZE) in result['maps']:     # advisory: a person looks at the flagged blobs; never a gate
-                    result['textureOutliers'] = check_bake(result['maps'][str(SIZE)]['path'], result['masks']['path'], folder/'texture-check')
+                    try: result['textureOutliers'] = check_bake(result['maps'][str(SIZE)]['path'], result['masks']['path'], folder/'texture-check')
+                    except Exception as exc: result['textureOutliers'] = {'advisory': True, 'error': f'{type(exc).__name__}: {exc}'}
             return result
         if stage == 'render':
             return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'],
@@ -375,6 +376,13 @@ class Runner:
         write(target, result, fresh=True); self.state['reviews'][stage] = pin(target); write(self.state_path, self.state)
         return result
 
+    def _current_review(self, stage):
+        """The filed review of the stage's current receipt, or None when it has none (or it reviews an older attempt)."""
+        decision = self.state.get('reviews', {}).get(stage)
+        if decision is None: return None
+        verify([decision]); decision = read(decision['path'])
+        return decision if decision['stageReceipt'] == self.state['stages'][stage] else None
+
     def chain(self, stages, notes, *, progress=None):
         """Run consecutive stages in this one verified launch, approving each but the last on its numerical gates.
 
@@ -395,11 +403,15 @@ class Runner:
         done = []
         for index, stage in enumerate(stages):
             started = time.monotonic(); row = {'stage': stage, 'reviewed': False}; done.append(row)
-            try: row['reused'] = self.execute(stage)['reused']
+            try:
+                row['reused'] = self.execute(stage)['reused']
+                if index < len(stages) - 1:
+                    existing = self._current_review(stage) if row['reused'] else None
+                    # A reused stage keeps the review a person already filed for that exact receipt; a rejection stops here.
+                    require(existing is None or existing['decision'] == 'approved', f'Chain stage {stage} was rejected on review')
+                    if existing is None: self.review(stage, 'approved', notes)
+                    row['reviewed'] = True
             finally: row['seconds'] = round(time.monotonic() - started, 1)
-            if index < len(stages) - 1:
-                self.review(stage, 'approved', notes); row['reviewed'] = True
-            row['seconds'] = round(time.monotonic() - started, 1)
             if progress is not None: progress(row)
         return {'stages': done, 'unreviewed': stages[-1], 'productionAccepted': False}
 

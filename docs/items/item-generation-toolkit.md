@@ -469,8 +469,9 @@ false`) and writes `measurement.json`: the departure flag, the worker's own `mea
 native length, fitted bounds and two x-ray previews (`fit-preview-broad-face.png`, `fit-preview-edge.png`) of the
 fitted item over the stock carrier's part boxes, the standard grip cylinder at the grip origin and a 10 cm bar. The
 digest is the one the fit stage checks, so a departure review can bind it before the first fit attempt. `drive fit`
-does this automatically: when the measured fit departs and no digest is given, it writes `<DST>-measure`, runs the
-preview and writes `<DST>` with the digest bound (still under the review authority given). `drive preview ID SUFFIX`
+does this automatically: when the measured fit departs and no digest is given, it writes `<DST>-measure` and runs the
+preview. It writes `<DST>` with the digest bound only when `--authority` carries the user's words approving the
+departure; without them it stops after the preview with `departureNeedsAuthority`. `drive preview ID SUFFIX`
 runs only the measure. Measured on the Club: about 2 minutes, the same digest as the wave-1 fit.
 
 ### Rebuilding a fixture
@@ -480,7 +481,8 @@ runs only the measure. Measured on the Club: about 2 minutes, the same digest as
 builds only a fresh fixture from the run's existing native result after fixture code changes, instead of rerunning
 the chain. It verifies the native chain at the code version it was recorded with (the receipts' `codeVersion`; their
 own source-file pins are not rechecked against today's files) and takes the fixture's own inputs from a `kind: fixture-inputs` document beside
-the manifests (`drive fixture-inputs` writes one). The receipt is `kind: fixture-rebuild`, never a pipeline stage and
+the manifests (`drive fixture-inputs` writes one, with its pinned files in its own `fixture-inputs/<ID>.<NAME>/` folder
+so a later document never rewrites them). The receipt is `kind: fixture-rebuild`, never a pipeline stage and
 never client-stage eligible: a release still needs the full chain at the current code. About 2 minutes against
 15 for a chain.
 
@@ -494,7 +496,8 @@ Two Club fits ran side by side in about 2 minutes on 2026-11-11.
 
 The bake stage adds an advisory `textureOutliers` block (`texture_check.check_bake`): per UV island, a
 31-pixel median background, a smoothed residual and connected blobs above a contrast floor are flagged with a
-heatmap. It found the Club's grip squiggle (3 blobs) and nothing on plain grain. It never fails the stage; a person
+heatmap. It found the Club's grip squiggle (3 blobs) and nothing on plain grain. It never fails the stage (an error in
+the check is recorded in the block instead); a person
 looks at the heatmap. `python -m tools.itemkit.texture_check BAKE_ATTEMPT` runs it on an existing bake.
 
 ### Clubs, axes and polearms
@@ -507,10 +510,11 @@ hafted fits use `usable-length-round` and always stop for a digest-bound departu
 uniform two-hand rule.
 
 `drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
-carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer,
+carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer
+(in a per-carrier `stack-<class>.json`, so the wave's `stack.json` and earlier contracts keep their pinned bytes),
 measures the stock grip origin and span (`carrier.py`, from the binary models' triangle sections), sets the icon size
 from `baseitems.2da`, allocates the visible budget from `budget-policy.json` by stock length (7,500 at 0.5 m to 22,500
-at 1.6 m and over) and reserves resources. The grip origin is measured, not reviewed in a hand: the first design on a
+at 1.6 m and over) and reserves resources, skipping slots the wave's other contracts on the same carrier pinned. The grip origin is measured, not reviewed in a hand: the first design on a
 new carrier carries the both-body hand-fit review that confirms it.
 
 ## Native and geometry contracts

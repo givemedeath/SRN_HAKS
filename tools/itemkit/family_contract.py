@@ -58,6 +58,18 @@ def extract_stock(game, item_class, target):
     return rows
 
 
+def sibling_models(wave_folder, own, item_class):
+    """Model and icon names the wave's other contracts on this carrier already pinned: not yet in any stack, still taken."""
+    from .contracts import model_names
+    taken = set()
+    for path in Path(wave_folder).glob('family-*.json'):
+        if path == own: continue
+        other = json.loads(path.read_text(encoding='utf-8')); index = other.get('resources', {}).get('appearanceIndex')
+        if index is None or other.get('native', {}).get('itemClass') != item_class: continue
+        for name in model_names(other, index).values(): taken |= {name.lower()+'.mdl', 'i'+name.lower()+'.tga'}
+    return taken
+
+
 def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     from .carrier import assemble, decode_stock, measure
     from .contracts import family, native_contract, reserve
@@ -68,14 +80,18 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
         shutil.copytree(source, target)
         for old in target.glob('family*.json'): old.unlink()
     cls = route.carrier.item_class; folder = target/'stack-resources'/cls
-    stack_path = target/'stack.json'; stack = json.loads(stack_path.read_text(encoding='utf-8'))
-    layer = f'installed-stock-{cls}-donors'
-    if not any(l.get('name') == layer for l in stack['layers']):
-        game = ws.setting('nwnRoot'); require(game, 'Workspace needs nwnRoot to extract the stock carrier')
-        rows = extract_stock(game, cls, folder)
-        for row in rows: row['file']['path'] = Path(row['file']['path']).relative_to(target).as_posix()
-        stack['layers'].insert(2, {'name': layer, 'resources': rows})
+    # Each carrier gets its own stack file: the wave's stack.json is never rewritten, so a family contracted earlier
+    # in the wave keeps the stack bytes it pins.
+    stack_path = target/f'stack-{cls}.json'
+    if not stack_path.exists():
+        stack = json.loads((target/'stack.json').read_text(encoding='utf-8')); layer = f'installed-stock-{cls}-donors'
+        if not any(l.get('name') == layer for l in stack['layers']):
+            game = ws.setting('nwnRoot'); require(game, 'Workspace needs nwnRoot to extract the stock carrier')
+            rows = extract_stock(game, cls, folder)
+            for row in rows: row['file']['path'] = Path(row['file']['path']).relative_to(target).as_posix()
+            stack['layers'].insert(2, {'name': layer, 'resources': rows})
         stack_path.write_text(json.dumps(stack, indent=2), encoding='utf-8')
+    stack = json.loads(stack_path.read_text(encoding='utf-8'))
     standard = json.loads((ROOT/'docs/items/weapon-grip-standard-v1.json').read_text(encoding='utf-8'))
     positions, faces = assemble([decode_stock(folder/f'{cls}_{p}_011.mdl') for p in 'bmt'])
     carrier = measure(positions, faces, standard['usableLength'], route.hold)
@@ -110,12 +126,13 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
                                                 'Grip dimensions use the approved Cougar standard. The first design fitted on this carrier carries '
                                                 'the both-body hand-fit review that confirms the origin.'),
                            'baseitemsSha256': base_family['native']['baseitemsSha256'], 'reviewed': True,
-                           'productionStackApproved': False, 'stack': {'path': 'stack.json', 'sha256': sha(stack_path)}})
+                           'productionStackApproved': False, 'stack': {'path': stack_path.name, 'sha256': sha(stack_path)}})
     name = design.rsplit('-', 1)[0][4:] if design.startswith('sr4-') else design
     path = target/f'family-{name}.json'; require(not path.exists(), path.name+' exists in this wave')
     with verification_pass('family-contract-'+design):
         path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
-        _, resources = native_contract(path, profile); slot = reserve(profile, {n.lower() for n in resources})
+        _, resources = native_contract(path, profile)
+        slot = reserve(profile, {n.lower() for n in resources} | sibling_models(target, path, cls))
         profile['resources']['appearanceIndex'] = slot['modelIndex']; path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
         family(path, validate_native=True)
     manifest = json.loads((handoff/f'{design}.asset.json').read_text(encoding='utf-8'))

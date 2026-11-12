@@ -103,6 +103,22 @@ class ContractBudgetTests(unittest.TestCase):
             self.assertEqual(b['shadow'], 500)
 
 
+class SiblingSlotTests(unittest.TestCase):
+    def test_a_second_design_on_the_same_carrier_sees_the_first_ones_slot(self):
+        from tools.itemkit.family_contract import sibling_models
+        from tools.itemkit.contracts import reserve
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def profile(name, cls, index=None):
+                data = {'family': 'club', 'nativePackaging': 'enabled', 'native': {'itemClass': cls},
+                        'resources': {'texturePrefix': 'sr' + name, **({'appearanceIndex': index} if index else {})}}
+                (root/f'family-{name}.json').write_text(json.dumps(data), encoding='utf-8'); return data
+            profile('one', 'wblcl', 1); profile('axe', 'waxhn', 2); mine = profile('two', 'wblcl')
+            taken = sibling_models(root, root/'family-two.json', 'wblcl')
+            self.assertIn('wblcl_b_011.mdl', taken); self.assertFalse(any(n.startswith('waxhn') for n in taken))
+            self.assertEqual(reserve(mine, taken)['modelIndex'], 2)
+
+
 class FixtureCarryTests(unittest.TestCase):
     def test_two_handers_are_framed_at_the_shoulder(self):
         from tools.itemkit.fixture import carry_for
@@ -140,6 +156,9 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertEqual([r['design'] for r in result['items']], ['a', 'bad', 'c'])
             self.assertIn('failed', result['items'][1]); self.assertEqual(result['items'][2]['suffix'], 'fit-v2')
             with self.assertRaises(SystemExit): d.batch(['a:x'], ['fit'], jobs=4)
+            with mock.patch.object(d, 'chain', side_effect=OSError('disk')):          # any error is that item's, not the batch's
+                self.assertIn('disk', d.batch(['a:fit-v1'], ['fit'])['items'][0]['failed'])
+            with self.assertRaisesRegex(SystemExit, 'ID:SUFFIX'): d.batch(['sr4-club', 'a:fit-v1'], ['fit'])
 
     def test_batch_stages_are_one_comma_list_so_items_can_follow(self):
         import argparse

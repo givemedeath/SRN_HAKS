@@ -206,6 +206,14 @@ class ChainTests(unittest.TestCase):
                          [('fit', True, True), ('reduce', True, False), ('unwrap', False, False)])
         self.assertEqual(result['unreviewed'], 'unwrap'); self.assertFalse(result['productionAccepted']); self.assertEqual(len(seen), 3)
 
+    def test_a_reused_stage_keeps_the_review_a_person_filed(self):
+        runner, calls = self.runner(); runner._current_review = lambda stage: {'decision': 'approved', 'notes': "user's words"}
+        result = runner.chain(['fit', 'reduce'], 'notes')
+        self.assertEqual(calls, [('run', 'fit'), ('run', 'reduce')]); self.assertTrue(result['stages'][0]['reviewed'])
+        runner, calls = self.runner(); runner._current_review = lambda stage: {'decision': 'rejected'}
+        with self.assertRaisesRegex(ValueError, 'rejected on review'): runner.chain(['fit', 'reduce'], 'notes')
+        self.assertEqual(calls, [('run', 'fit')])               # never overwritten by an automatic approval
+
     def test_chain_stops_at_a_failed_stage_and_reviews_nothing_after_it(self):
         runner, calls = self.runner(fail='reduce')
         with self.assertRaisesRegex(ValueError, 'gate failed'): runner.chain(['fit', 'reduce', 'unwrap'], 'notes')

@@ -116,16 +116,20 @@ class Driver:
             used, util = gpu()
             if not os.environ.get('ALLOW_BUSY') and (used >= 5000 or util >= 40): raise SystemExit(f'GPU busy ({used} MiB, {util}%): not starting')
             c = self.ws.data['comfy']; n = len(list(self.ws.runtime.glob('comfy-run-*.log'))) + 1
-            log = open(self.ws.runtime/f'comfy-run-{n}.log', 'w')
-            process = subprocess.Popen([str(self.ws.path(c['python'])), '-I', '-B', str(self.ws.path(c['startup'])), '--config',
-                                        str(self.ws.path(c['config'])), '--receipt', str(self.ws.runtime/f'comfy-run-{n}.json')],
-                                       stdout=log, stderr=subprocess.STDOUT, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+            log = self.ws.runtime/f'comfy-run-{n}.log'
+            with open(log, 'w') as handle:     # the child keeps its own copy of the handle
+                process = subprocess.Popen([str(self.ws.path(c['python'])), '-I', '-B', str(self.ws.path(c['startup'])), '--config',
+                                            str(self.ws.path(c['config'])), '--receipt', str(self.ws.runtime/f'comfy-run-{n}.json')],
+                                           stdout=handle, stderr=subprocess.STDOUT, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
             pidfile.write_text(str(process.pid))
             for _ in range(90):
                 if up(): return {'comfy': 'up', 'pid': process.pid, 'run': n}
                 if process.poll() is not None: break
                 time.sleep(5)
-            raise SystemExit('ComfyUI did not come up; see '+log.name)
+            # Stop what this call started and forget its PID: a stale PID file could later name an unrelated process.
+            if process.poll() is None: subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], capture_output=True)
+            pidfile.unlink(missing_ok=True)
+            raise SystemExit(f'ComfyUI did not come up; see {log}')
         if action == 'stop':
             if not pidfile.exists(): return {'comfy': 'no PID file: nothing this driver started'}
             pid = int(pidfile.read_text()); subprocess.run(['taskkill', '/PID', str(pid), '/T', '/F'], capture_output=True); pidfile.unlink()
@@ -201,6 +205,10 @@ class Driver:
         """Approved clay -> appearance (with the 200K donor) -> donor manifest -> CPU colour bake -> textured views."""
         if not notes.strip(): raise SystemExit("--notes must quote the user's clay approval")
         if not self.manifest(design, 'geometry-approved-v1').exists(): self.approve_geometry(design, attempt, src, 'geometry-approved-v1', notes)
+        collected = read(self.ws.items/design/f'geometry-{attempt}/job/collection.json')
+        glb = next(o['sha256'] for o in collected['outputs'] if o['path'].endswith('.glb'))
+        if read(self.manifest(design, 'geometry-approved-v1'))['approval']['generatedGeometry']['geometryRawSha256'] != glb:
+            raise SystemExit(f'geometry-approved-v1 binds another attempt than {attempt}: this chain continues only one approved clay')
         if not (self.ws.items/design/'appearance-a1/job/collection.json').exists():
             self.comfy('start')
             try: self.gen(design, 'appearance', 'geometry-approved-v1')
@@ -270,12 +278,15 @@ class Driver:
     def batch(self, items, stages, jobs=2):
         """Chains for several designs at once (at most MAX_JOBS); each item's log stays in its own run folder."""
         if not 1 <= jobs <= MAX_JOBS: raise SystemExit(f'--jobs is 1..{MAX_JOBS}')
-        def one(item):
-            design, suffix = item.split(':')
+        pairs = [item.split(':') for item in items]
+        bad = [item for item, pair in zip(items, pairs) if len(pair) != 2 or not all(pair)]
+        if bad: raise SystemExit(f'batch items are ID:SUFFIX, not {bad}')
+        def one(pair):
+            design, suffix = pair
             try: return self.chain(design, suffix, stages)
-            except SystemExit as error: return {'design': design, 'suffix': suffix, 'failed': str(error)[-800:]}
+            except (SystemExit, Exception) as error: return {'design': design, 'suffix': suffix, 'failed': str(error)[-800:]}
         started = time.monotonic()
-        with ThreadPoolExecutor(max_workers=jobs) as pool: results = list(pool.map(one, items))
+        with ThreadPoolExecutor(max_workers=jobs) as pool: results = list(pool.map(one, pairs))
         return {'jobs': jobs, 'seconds': round(time.monotonic() - started), 'items': results}
 
     def fit(self, design, src, dst, working, donor, overrides=None, *, measure_only=False, donor_review=None, authority=None):
@@ -288,17 +299,21 @@ class Driver:
         summary = {k: data[k] for k in ('method', 'landmarks', 'scale', 'nativeLength', 'stockLength', 'joinY', 'sizingAuthority', 'departurePending')}
         summary['probeThickness'] = [round(p['measuredThickness'], 4) for p in data['thicknessProbes']]
         if measure_only: return summary
+        words = authority or overrides.get('uniformAuthority')
         if data['departurePending'] and not overrides.get('departureDigest'):
             candidate, _ = fit_manifest.write(self.ws.handoff, design, src, dst+'-measure', working, donor, overrides, notes_authority=authority)
-            self._approve_donor(candidate, donor_review, rewrite=True)
+            self._approve_donor(candidate, donor_review)
             measurement = self.preview(design, dst+'-measure')
             overrides['departureDigest'] = measurement['measurementDigest']; summary['measure'] = measurement
+        if overrides.get('departureDigest') and not words:
+            # The grip departure is an approval: it is bound only with the user's own words (--authority).
+            summary['departureNeedsAuthority'] = True; return summary
         out, data = fit_manifest.write(self.ws.handoff, design, src, dst, working, donor, overrides, notes_authority=authority)
-        self._approve_donor(out, donor_review, rewrite=True)
+        self._approve_donor(out, donor_review)
         summary.update(manifest=str(out), departureDigest=overrides.get('departureDigest'))
         return summary
 
-    def _approve_donor(self, path, words, rewrite=False):
+    def _approve_donor(self, path, words):
         """Bind the user's review of the exact textured donor and working shell, when they gave one."""
         if not words: return
         m = read(path)
@@ -322,31 +337,35 @@ class Driver:
         document beside the manifests; also writes the fixture HAK bindings when this runtime has none yet."""
         fx = self.ws.data.get('fixture', {}); erf = self.ws.setting('erf')
         if not erf: raise SystemExit('Workspace needs erf')
-        folder = self.ws.handoff/'fixture-v3'; folder.mkdir(exist_ok=True)
+        doc_path = self.ws.handoff/f'{design}.{name}.fixture-inputs.json'
+        if doc_path.exists(): raise SystemExit(f'{doc_path.name} exists: choose a new name (fixture inputs are immutable)')
+        # The review HAKs are built once and shared (the bindings pin them); everything a document pins of its own lives in
+        # its own folder, so a later document never rewrites bytes an earlier one pinned.
+        shared = self.ws.handoff/'fixture-v3'; shared.mkdir(exist_ok=True)
+        own = f'fixture-inputs/{design}.{name}'; folder = self.ws.handoff/own; folder.mkdir(parents=True)
         tests = self.ws.path(fx.get('testModules', REPO/'test-modules/weapon-waves')); packs = self.ws.path(fx.get('packs', REPO/'output'))
         haks = {}
         for hak in ('sw_reviewenv', 'sw_f7motion'):
-            target = folder/f'{hak}.hak'
+            target = shared/f'{hak}.hak'
             if not target.exists(): subprocess.run([str(erf), '-c', '-e', 'HAK', '-f', str(target), str(tests/'haks'/hak)], check=True)
             haks[hak] = {'path': str(target), 'sha256': sha(target)}
         for hak in ('srn_weapon', 'srn_body_tex', 'srn_body', 'srn_2da'): haks[hak] = {'path': str(packs/f'{hak}.hak'), 'sha256': sha(packs/f'{hak}.hak')}
-        contract = self.ws.handoff/Path(read(self.manifest(design, suffix))['familyProfile']['path']).parent
-        stack = read(contract/'stack.json'); (layer,) = [l for l in stack['layers'] if l.get('name') == 'private-floor-template']
+        profile = self.ws.handoff/read(self.manifest(design, suffix))['familyProfile']['path']; contract = profile.parent
+        stack = read(contract/read(profile)['native']['stack']['path']); (layer,) = [l for l in stack['layers'] if l.get('name') == 'private-floor-template']
         with tempfile.TemporaryDirectory(prefix='fixture-template-') as tmp:
             for row in layer['resources']: shutil.copyfile(contract/row['file']['path'], Path(tmp)/row['resource'])
             template = folder/'fixture-template.mod'
-            if template.exists(): template.unlink()
             subprocess.run([str(erf), '-c', '-e', 'MOD', '-f', str(template), tmp], check=True)
         copies = [(tests/'module/sr_it_male.utc', 'sr_it_male.utc'), (tests/'module/sr_it_female.utc', 'sr_it_female.utc'),
                   (contract/'stock/nwscript.nss', 'nwscript.nss')]
         comparisons = fx.get('comparisons', ['../../srn_weapon/sr_cfs.uti', '../../srn_weapon/sr_cougar.uti'])
         copies += [(self.ws.path(c), f'comparison-{Path(c).name}') for c in comparisons]
         for source, target in copies: shutil.copyfile(source, folder/target)
-        rel = lambda n: {'path': f'fixture-v3/{n}', 'sha256': sha(folder/n)}
+        rel = lambda n: {'path': f'{own}/{n}', 'sha256': sha(folder/n)}
         inputs = {'fixtureTemplate': rel('fixture-template.mod'), 'maleCreature': rel('sr_it_male.utc'), 'femaleCreature': rel('sr_it_female.utc'),
                   'nwscript': rel('nwscript.nss')}
         for i, c in enumerate(comparisons): inputs['comparisonBlueprint'+(str(i) if i else '')] = rel(f'comparison-{Path(c).name}')
-        doc = write_new(self.ws.handoff/f'{design}.{name}.fixture-inputs.json', {'kind': 'fixture-inputs', 'inputs': inputs})
+        doc = write_new(doc_path, {'kind': 'fixture-inputs', 'inputs': inputs})
         bindings = self.ws.bindings()
         if 'fixtureHaks' not in read(bindings):
             b = read(bindings); b['fixtureHaks'] = haks; bindings.write_text(json.dumps(b, indent=2), encoding='utf-8')
