@@ -70,7 +70,7 @@ class ViewTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'An eye'):
                 view.eye(text)
         told = view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye('front=0,4,1,0,0,1')], size=(160, 100))
-        self.assertEqual(([Path(path).name for path in told['pictures']], told['faces']), (['ek_wall-front.png'], {'front': 2}))
+        self.assertEqual(([Path(path).name for path in told['pictures']], told['faces']), (['ek_wall-eye-front.png'], {'front': 2}))  # named apart from ek_wall-side0.png
         with Image.open(told['pictures'][0]) as picture:
             self.assertEqual(picture.size, (160, 100)); colours = {colour for _, colour in picture.convert('RGB').getcolors(1 << 20)}
         self.assertTrue({(10, 20, 30), (200, 180, 160), (40, 44, 52)} <= colours)  # the set's paint, the picture as generated, and nothing behind them
@@ -79,6 +79,15 @@ class ViewTests(unittest.TestCase):
                 view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye(text) for text in eyes], size=(160, 100))
         with self.assertRaisesRegex(ValueError, 'No such model'):
             view.perspective(self.models, self.root, 'ek_other', self.root / 'eyes', [view.eye('front=0,-4,1,0,0,1')])
+        # Close to the wall and looking along it, a corner of each face is behind the eye: the faces are cut there, not dropped.
+        along = view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye('along=0,0.2,1,0.4,0,1')], size=(160, 100))
+        with Image.open(along['pictures'][0]) as picture:
+            colours = {colour for _, colour in picture.convert('RGB').getcolors(1 << 20)}
+        self.assertEqual(along['faces'], {'along': 2}); self.assertIn((200, 180, 160), colours)
+        import numpy as np
+        cut = view._in_front(np.array([[0.0, 0.0, 1.0, 0.0, 0.0], [1.0, 0.0, 1.0, 1.0, 0.0], [0.0, 0.0, -1.0, 0.0, 1.0]]))  # one corner behind: a quad, as two triangles
+        self.assertEqual(len(cut), 2); self.assertTrue(all((triangle[:, 2] >= view.NEAR - 1e-9).all() for triangle in cut))
+        self.assertEqual(view._in_front(np.array([[0.0, 0.0, -1.0, 0, 0], [1.0, 0.0, -1.0, 0, 0], [0.0, 1.0, -2.0, 0, 0]])), [])  # all of it behind
 
     def test_a_generated_model_is_drawn_before_any_game_set_states_it(self):
         told = view.raw(self.root / 'meshy' / 'wall', 3.0, self.root / 'raw', sides=(0,), fine=128)

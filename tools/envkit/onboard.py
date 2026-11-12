@@ -67,8 +67,9 @@ def _open(sheets, sheet):
         return image.convert('RGB')
 
 
-def _fitted(image, wide, high):
-    scale = min(wide / image.width, high / image.height, 1.0) if wide else high / image.height
+def _fitted(image, wide, high, enlarge=False):
+    """The image scaled to lie within `wide` by `high`: made smaller to fit and, with `enlarge`, larger to fill."""
+    scale = min(wide / image.width, high / image.height); scale = scale if enlarge else min(scale, 1.0)
     return image.resize((max(1, int(image.width * scale)), max(1, int(image.height * scale))))
 
 
@@ -166,7 +167,7 @@ def write_sets(spec, sheets, sets):
         require(current is not None and len(parts) in (5, 6), 'A line is name | type | relation | subject | box [| notes], under its block: ' + line)
         current['rows'].append(parts)
     require(blocks, 'The spec states no set: ' + str(spec)); texts = {}
-    taken = {data['sheet']['file']: name for name, data in concept_sets(sets).items()}
+    taken = {data['sheet'].get('file'): name for name, data in concept_sets(sets).items() if isinstance(data['sheet'], dict)}
     for name, block in blocks.items():
         require(reference.NAME.fullmatch(name) is not None and not (sets / f'{name}.json').exists(), f'{name} is no new set name: an existing set is changed with revise')
         found = sorted(sheets.glob(block['number'] + '_*.png')); require(len(found) == 1, f'{name}: one sheet starts {block["number"]}_ and {len(found)} were found in {sheets}')
@@ -247,6 +248,7 @@ def revise(decisions, sets):
                 elif action == '!':
                     asset['unbranded'] = True
                 else:
+                    require(action[:1] in ('=', '~'), f'No such action as `{action}` (=set/asset, ~text, ~!text, ^, !, type name, box x0 y0 x1 y1): {key}')
                     asset.pop('same', None); asset.pop('variant', None)
                     if action.startswith('=') or action.lstrip('~').startswith(reference.BRANDING):  # neither is drawn unbranded
                         asset.pop('unbranded', None)
@@ -304,9 +306,10 @@ def overlay(sets, sheets, prefix):
 
 def audit(sets, sheets):
     """What a reading of the sets would not catch, as {finding: [rows]}: a set the kit would refuse (told, and not
-    audited further), a sheet that is missing, changed or in two sets, a sheet without a set, a key stated twice, a tiny box, prop boxes that overlap by more than a tenth of the
-    smaller (told `noted` where either says so in its notes), text that is untidy or not in the form of the rest, a
-    brand word in a prop that is neither a sign nor a branding variant, and the types only one prop has."""
+    audited further), a sheet that is missing, changed or in two sets, a sheet without a set, a key stated twice, a
+    tiny box, prop boxes that overlap by more than a tenth of the smaller (told `noted` where either says so in its
+    notes), text that is untidy or not in the form of the rest, a brand word in a prop that is neither a sign nor a
+    branding variant, and the types only one prop has."""
     from PIL import Image
     sets, sheets = Path(sets), Path(sheets); out = collections.defaultdict(list); seen, props, refused = collections.defaultdict(list), {}, set()
     brand = re.compile(r'\b(' + BRANDS + r')\b')
@@ -386,7 +389,7 @@ def type_page(sets, sheets, output, types):
                 if name not in images:
                     images[name] = _open(sheets, data['sheet'])
                 state = 'B' if asset.get('variant', '').startswith(reference.BRANDING) else 'V' if 'variant' in asset else 'O'
-                cells.append((f'{name[:16]}/{asset_name[:16]} {state}', _fitted(images[name].crop(tuple(asset['box'])), None, 130)))
+                cells.append((f'{name[:16]}/{asset_name[:16]} {state}', _fitted(images[name].crop(tuple(asset['box'])), 1400, 130, enlarge=True)))  # one height to compare at, but never off the page
         require(len(cells) > before, 'No made prop is of type ' + kind)
     width, x, y, places = 1500, 4, 4, []
     for label, crop in cells:

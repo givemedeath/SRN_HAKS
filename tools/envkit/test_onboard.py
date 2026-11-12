@@ -68,6 +68,11 @@ class OnboardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'dock2: 08_the_dock.png is the sheet of dock already'):  # and so it is within one spec
             onboard.write_sets(self.spec, self.sheets, self.sets)
         self.assertEqual(sorted(path.name for path in self.sets.glob('*.json')), ['yard-game.json', 'yard.json'])
+        (self.sets / 'bare.json').write_text('{"sheet": null, "assets": {}}', encoding='utf-8')  # a set that is there and cannot be read
+        self.spec.write_text('@ dock 08\nbuilding-hero | B | | dock shed | 96 56 524 364\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'Sheet needs a bare file name'):  # refused by the kit's check of the folder, not by a crash on the way to it
+            onboard.write_sets(self.spec, self.sheets, self.sets)
+        self.assertFalse((self.sets / 'dock.json').exists())
 
     def test_a_spec_the_kit_would_not_accept_writes_nothing(self):
         onboard.write_sets(self.spec, self.sheets, self.sets)
@@ -96,7 +101,7 @@ class OnboardTests(unittest.TestCase):
         self.assertEqual(onboard.revise(self.decide('# nothing\n'), self.sets), [])
         for said, text in (('No such asset', 'dock/crane | !\n'), ('Type console-desk needs one original', 'dock/desk | ^\n'), ('decided once', 'dock/desk | !\ndock/desk | ^\n'),
                            ('has it already', '+ dock/desk | console-desk | =yard/desk | dock desk | 76 516 204 644\n'), ('its box alone', 'dock/building-hero | !\n'),
-                           ('A rename is', '* console-desk\n'), ('starts with set/asset', 'desk | !\n'), ('Crop box is outside', 'dock/desk | box 76 516 204 900\n')):
+                           ('A rename is', '* console-desk\n'), ('No such action as `bx 1 2 3 4`', 'dock/desk | bx 1 2 3 4\n'), ('starts with set/asset', 'desk | !\n'), ('Crop box is outside', 'dock/desk | box 76 516 204 900\n')):
             with self.assertRaisesRegex(ValueError, said):
                 onboard.revise(self.decide('yard/gate | box 290 510 470 650\n' + text), self.sets)  # the good decision beside it is not written either
             self.assertEqual({path.name: path.read_bytes() for path in self.sets.glob('*.json')}, before, said)
@@ -161,6 +166,12 @@ class OnboardTests(unittest.TestCase):
                      lambda: onboard.type_page(self.sets, self.sheets, out / 'again.png', ['vehicle-gate']), lambda: onboard.same_pages(self.sets, self.sheets, str(out / 'again'))):
             with self.assertRaisesRegex(ValueError, 'Concept sheet differs from the set: 07_the_yard.png'):
                 call()
+
+    def test_a_crop_is_scaled_to_its_cell(self):
+        fitted = lambda size, *limits, **more: onboard._fitted(Image.new('RGB', size), *limits, **more).size
+        self.assertEqual(fitted((600, 300), 150, 150), (150, 75)); self.assertEqual(fitted((50, 40), 150, 150), (50, 40))  # made smaller to fit, never larger
+        self.assertEqual(fitted((50, 40), 1400, 130, enlarge=True), (162, 130))  # the types page compares at one height
+        self.assertEqual(fitted((600, 20), 1400, 130, enlarge=True), (1400, 46))  # but a wide, low crop stays on the page
 
     def test_the_commands_say_what_they_need(self):
         from argparse import Namespace

@@ -92,11 +92,28 @@ def eye(text):
     return label, np.array(values[:3]), np.array(values[3:6]), fov, reach
 
 
+NEAR = 0.05  # metres in front of the eye at which a face is cut
+
+
+def _in_front(corners):
+    """A triangle cut at the near plane: the triangles of what lies in front of it. `corners` is three rows of (across,
+    up, depth, u, v) in the eye's space."""
+    kept = []
+    for index in range(3):
+        here, there = corners[index], corners[(index + 1) % 3]
+        if here[2] >= NEAR:
+            kept.append(here)
+        if (here[2] >= NEAR) != (there[2] >= NEAR):
+            kept.append(here + (NEAR - here[2]) / (there[2] - here[2]) * (there - here))
+    return [np.array([kept[0], kept[index], kept[index + 1]]) for index in range(1, len(kept) - 1)]
+
+
 def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
-    """Pictures `<name>-<label>.png` of a game set's model as it will ship (retouched, closed, with its fence sheets)
-    from stated eyes (`eye`): its picture alone, nearest face in front, see-through where the picture is, and a face seen from
-    behind not drawn, as the game leaves it. Drawn in
-    software a face at a time, so `reach` keeps a large model to what is about the target. Returns {pictures, faces}."""
+    """Pictures `<name>-eye-<label>.png` of a game set's model as it will ship (retouched, closed, with its fence
+    sheets) from stated eyes (`eye`): its picture alone, nearest face in front, see-through where the picture is, and a
+    face seen from behind not drawn, as the game leaves it. A
+    face that passes the eye is cut just in front of it. Drawn in software a face at a time, so `reach` keeps a large
+    model to what is about the target. Returns {pictures, faces}, the faces drawn for each eye."""
     from PIL import Image
     require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
     maps = {'base_color': source / 'texture_0_base_color.png'}; require(eyes, 'Give an eye at least')
@@ -113,32 +130,34 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
         ahead = target - at; ahead = ahead / np.linalg.norm(ahead); right = np.cross(ahead, [0.0, 0.0, 1.0])
         require(np.linalg.norm(right) > 1e-6, f'The eye {label} looks straight up or down: move it a little to the side'); right /= np.linalg.norm(right); up = np.cross(right, ahead)
         rel = points - at; depth = rel @ ahead; focal = high / 2 / np.tan(np.radians(fov) / 2)
-        sx = wide / 2 + (rel @ right) / np.maximum(depth, 1e-6) * focal; sy = high / 2 - (rel @ up) / np.maximum(depth, 1e-6) * focal
+        eyed = np.column_stack([rel @ right, rel @ up, depth, uvs])  # each vertex in the eye's space, with its place on the picture
         # The game draws a face from the side its corners run counter-clockwise on, and nothing from behind: so does this. A
         # fence's sheets have a face each way for that reason (`convert.sheets`), and a wall seen from inside is not there.
         corner = points[faces]; front = (np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]) * (at - corner[:, 0])).sum(1) > 0
-        near = (np.linalg.norm(points[faces].mean(1) - target, axis=1) < reach) & (depth[faces] > 0.3).all(1) & front
+        shown = (np.linalg.norm(points[faces].mean(1) - target, axis=1) < reach) & (depth[faces] >= NEAR).any(1) & front
         image = np.zeros((high, wide, 3), np.uint8); image[:] = (40, 44, 52); buffer = np.full((high, wide), np.inf)
-        for number in np.flatnonzero(near):
-            face = faces[number]; a, b, c = np.stack([sx[face], sy[face]], 1)
-            low = np.maximum(np.floor(np.minimum(np.minimum(a, b), c)).astype(int), 0); top = np.minimum(np.ceil(np.maximum(np.maximum(a, b), c)).astype(int), [wide - 1, high - 1])
-            span = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
-            if (top < low).any() or abs(span) < 1e-9:
-                continue
-            xs, ys = np.meshgrid(np.arange(low[0], top[0] + 1) + 0.5, np.arange(low[1], top[1] + 1) + 0.5)
-            second = ((xs - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (ys - a[1])) / span; third = ((b[0] - a[0]) * (ys - a[1]) - (xs - a[0]) * (b[1] - a[1])) / span
-            first = 1 - second - third; inside = (first >= 0) & (second >= 0) & (third >= 0)
-            if not inside.any():
-                continue
-            weight = np.stack([first, second, third], -1)[inside] / depth[face]; z = 1 / weight.sum(-1); weight = weight * z[:, None]  # perspective-correct
-            if number >= own:
-                spot = (weight @ uvs[face] * len(links)).astype(int) % len(links); texel = links[spot[:, 1], spot[:, 0]]
-            else:
-                spot = np.clip((weight @ uvs[face] * [texture.shape[1], texture.shape[0]]).astype(int), 0, [texture.shape[1] - 1, texture.shape[0] - 1]); texel = texture[spot[:, 1], spot[:, 0]]
-            py, px = (ys[inside] - 0.5).astype(int), (xs[inside] - 0.5).astype(int); keep = (texel[:, 3] >= 128) & (z < buffer[py, px])
-            image[py[keep], px[keep]] = texel[keep, :3]; buffer[py[keep], px[keep]] = z[keep]
+        for number in np.flatnonzero(shown):
+            for corners in _in_front(eyed[faces[number]]):
+                away = corners[:, 2]; a, b, c = np.stack([wide / 2 + corners[:, 0] / away * focal, high / 2 - corners[:, 1] / away * focal], 1)
+                low = np.maximum(np.floor(np.minimum(np.minimum(a, b), c)).astype(int), 0); top = np.minimum(np.ceil(np.maximum(np.maximum(a, b), c)).astype(int), [wide - 1, high - 1])
+                span = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
+                if (top < low).any() or abs(span) < 1e-9:
+                    continue
+                xs, ys = np.meshgrid(np.arange(low[0], top[0] + 1) + 0.5, np.arange(low[1], top[1] + 1) + 0.5)
+                second = ((xs - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (ys - a[1])) / span; third = ((b[0] - a[0]) * (ys - a[1]) - (xs - a[0]) * (b[1] - a[1])) / span
+                first = 1 - second - third; inside = (first >= 0) & (second >= 0) & (third >= 0)
+                if not inside.any():
+                    continue
+                weight = np.stack([first, second, third], -1)[inside] / away; z = 1 / weight.sum(-1); spot = (weight * z[:, None]) @ corners[:, 3:]  # perspective-correct
+                if number >= own:
+                    spot = (spot * len(links)).astype(int) % len(links); texel = links[spot[:, 1], spot[:, 0]]
+                else:
+                    spot = np.clip((spot * [texture.shape[1], texture.shape[0]]).astype(int), 0, [texture.shape[1] - 1, texture.shape[0] - 1]); texel = texture[spot[:, 1], spot[:, 0]]
+                py, px = (ys[inside] - 0.5).astype(int), (xs[inside] - 0.5).astype(int); keep = (texel[:, 3] >= 128) & (z < buffer[py, px])
+                image[py[keep], px[keep]] = texel[keep, :3]; buffer[py[keep], px[keep]] = z[keep]
         require(np.isfinite(buffer).any(), f'Nothing of {name} is seen from the eye {label}')
-        path = output / f'{name}-{label}.png'; Image.fromarray(image).save(path); report['pictures'].append(str(path)); report['faces'][label] = int(near.sum())
+        # 2. named apart from the square-on views (`<name>-side<n>.png`), whatever the label
+        path = output / f'{name}-eye-{label}.png'; Image.fromarray(image).save(path); report['pictures'].append(str(path)); report['faces'][label] = int(shown.sum())
     return report
 
 
