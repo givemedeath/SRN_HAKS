@@ -59,9 +59,9 @@ $tops = [Tw]::Top([uint32]$process.Id)
 function Describe($h) { $r = New-Object Tw+RECT; [void][Tw]::GetWindowRect($h, [ref]$r); '{0} class={1} visible={2} rect={3},{4},{5},{6} text="{7}"' -f $h, [Tw]::Cls($h), [Tw]::IsWindowVisible($h), $r.L, $r.T, $r.R, $r.B, [Tw]::Txt($h) }
 switch ($Do) {
   'list' { foreach ($h in $tops) { if ([Tw]::IsWindowVisible($h)) { Describe $h } } }
-  'kids' { $w = $tops | Where-Object { [Tw]::Cls($_) -eq $Class -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1; foreach ($k in [Tw]::Kids($w)) { if ([Tw]::IsWindowVisible($k)) { Describe $k } } }
+  'kids' { $w = $tops | Where-Object { [Tw]::Cls($_) -eq $Class -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1; if (-not $w) { throw "no visible $Class" }; foreach ($k in [Tw]::Kids($w)) { if ([Tw]::IsWindowVisible($k)) { Describe $k } } }
   'front' { $w = $tops | Where-Object { [Tw]::Cls($_) -eq $Class -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1; if (-not $w) { throw "no visible $Class" }; [Tw]::Front($w); Describe $w; 'foreground=' + [Tw]::GetForegroundWindow() }
-  'move' { $w = $tops | Where-Object { [Tw]::Cls($_) -eq $Class -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1; [void][Tw]::MoveWindow($w, 60, 40, 2100, 1250, $true); Describe $w }
+  'move' { $w = $tops | Where-Object { [Tw]::Cls($_) -eq $Class -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1; if (-not $w) { throw "no visible $Class" }; [void][Tw]::MoveWindow($w, 60, 40, 2100, 1250, $true); Describe $w }
   'expand' {
     # expand every item of the Index-th visible tree in the frame, as its expanders ignore simulated clicks
     $w = $tops | Where-Object { [Tw]::Cls($_) -eq 'TfrmFrame' -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1
@@ -78,6 +78,7 @@ switch ($Do) {
     $w = $tops | Where-Object { [Tw]::Cls($_) -eq 'TfrmFrame' -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1
     $trees = @([Tw]::Kids($w) | Where-Object { [Tw]::Cls($_) -like '*TreeView*' -and [Tw]::IsWindowVisible($_) })
     $n = 0; foreach ($t in $trees) { "tree $n : " + (Describe $t); $n++ }
+    if ($Index -lt 0 -or $Index -ge $trees.Count) { throw "no tree $Index`: the frame shows $($trees.Count)" }
     $tree = $trees[$Index]; $item = [Tw]::SendMessage($tree, 0x110A, [IntPtr]0, [IntPtr]0); $steps = @($Path -split '/' | ForEach-Object { [int]$_ })
     for ($depth = 0; $depth -lt $steps.Count; $depth++) {
       $all = 0; $walk = $item; while ($walk -ne [IntPtr]::Zero) { $all++; $walk = [Tw]::SendMessage($tree, 0x110A, [IntPtr]1, $walk) }

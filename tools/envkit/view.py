@@ -21,6 +21,7 @@ def contact(run, output, columns=3):
     run = Path(run); crop_width, side, pad, label = 200, 300, 8, 16; cells = []
     for path in sorted(run.glob('*-b0.png')):
         name = path.name.rsplit('-s', 1)[0]
+        require((run / 'crops' / f'{name}.png').is_file(), f'{path.name} has no crop beside it: crops/{name}.png is not in {run}')
         cell = Image.new('RGB', (crop_width + side + pad * 3, side + label + pad), (255, 255, 255))
         with Image.open(run / 'crops' / f'{name}.png') as crop, Image.open(path) as drawn:
             crop = crop.convert('RGB'); crop.thumbnail((crop_width, side)); drawn = drawn.convert('RGB'); drawn.thumbnail((side, side))

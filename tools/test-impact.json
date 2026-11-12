@@ -296,6 +296,7 @@
       "tools/envkit/sets/stuffer-shack.json"
     ],
     "tools/envkit/test_sheet.py": [
+      "tools/envkit/__main__.py",
       "tools/envkit/meshy.py",
       "tools/envkit/sets/ares-depot-meshy.json",
       "tools/envkit/sheet.py",
@@ -313,6 +314,7 @@
       "tools/envkit/toolset.py"
     ],
     "tools/envkit/test_view.py": [
+      "tools/envkit/__main__.py",
       "tools/envkit/test_convert.py",
       "tools/envkit/view.py"
     ],

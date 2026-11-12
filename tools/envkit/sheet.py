@@ -27,7 +27,9 @@ QUEUED = (*WAITING, 'uncertain')  # what may be holding a place in Meshy's queue
 
 def load_plan(path):
     """The plan at `path`, checked against the set it names (the set file beside it), with every key worked out:
-    {set, prefix, props: {asset: {triangles, key}}, building: {views, triangles, key, remesh} or None}."""
+    {set, prefix, props: {asset: {triangles, key}}, building: {views, triangles, key, remesh} or None, unplanned}.
+    `unplanned` names what the set holds that the plan makes nothing of: props that no other sheet's model serves,
+    and the building's views where the plan has no building. Leaving one out is allowed, and `status` says so."""
     path = Path(path); plan = json.loads(path.read_text(encoding='utf-8'))
     require(isinstance(plan, dict) and {'set', 'prefix', 'props'} <= set(plan) <= {'set', 'prefix', 'props', 'building'}, 'A plan names its set, a prefix and its props')
     require(isinstance(plan['prefix'], str) and PREFIX.fullmatch(plan['prefix']) is not None, 'A plan\'s prefix is 2 to 12 lowercase letters and digits')
@@ -56,7 +58,9 @@ def load_plan(path):
     keys = [row['key'] for row in props.values()] + ([building['key'], building['remesh']] if building else [])
     require(all(isinstance(key, str) and meshy.KEY.fullmatch(key) is not None for key in keys), 'Ledger keys are lowercase letters, digits and hyphens')
     require(len(set(keys)) == len(keys), 'Each call of a plan has its own ledger key')
-    return {'set': plan['set'], 'prefix': prefix, 'props': props, 'building': building}
+    unplanned = sorted(name for name, asset in assets.items() if (asset['kind'] == 'prop' and 'same' not in asset and name not in props)
+                       or (asset['kind'] == 'building' and building is None))
+    return {'set': plan['set'], 'prefix': prefix, 'props': props, 'building': building, 'unplanned': unplanned}
 
 
 def image(selected, name):
@@ -85,7 +89,9 @@ def cost(ledger, plan):
 def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
     """Send every prop and the building that the ledger does not hold yet. Every reference is found before anything is
     sent, and the whole of what is unsent must fit under the cap, so a sheet is not left half submitted for want of an
-    image or of credits. No more is sent than Meshy's queue has room for, counting every call of the ledger that has
+    image or of credits. A call the ledger holds already is not sent again, and is refused if it was sent with another
+    reference than the one selected now: the model it made is not of this reference, and a new key in the plan sends
+    this one. No more is sent than Meshy's queue has room for, counting every call of the ledger that has
     not finished: the Ares Depot's eleventh call was refused and its key was lost to the CLI (2026-11-11). What is
     held back is said, and goes with the next `submit` after a `collect`. Returns the keys sent."""
     work = Path(work); work.mkdir(parents=True, exist_ok=True); sent = []
@@ -94,11 +100,15 @@ def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
     need = cost(ledger, plan); ledger.load()
     require(ledger.committed() + need <= ledger.data['cap'],
             f'The plan needs {need} more credits and the ledger has {ledger.data["cap"] - ledger.committed()} left under its cap of {ledger.data["cap"]}')
-    calls = [(row['key'], name, 'prop', lambda name=name, row=row: meshy.prop_arguments(pictures[name], row['triangles'])) for name, row in plan['props'].items()]
+    calls = [(row['key'], name, 'prop', [pictures[name]], lambda name=name, row=row: meshy.prop_arguments(pictures[name], row['triangles'])) for name, row in plan['props'].items()]
     if plan['building']:
-        calls.append((plan['building']['key'], 'building', 'building', lambda: meshy.building_arguments(views)))
+        calls.append((plan['building']['key'], 'building', 'building', views, lambda: meshy.building_arguments(views)))
+    for key, _, _, chosen, _ in calls:  # before anything is sent
+        if state(ledger, key) is not None:
+            was, now = meshy.sent_images(ledger.entry(key)), [path.name for path in chosen]
+            require(was is None or was == now, f'{key} was sent with {", ".join(was or [])} and {", ".join(now)} is selected now: give it a new key in the plan')
     held = []
-    for key, asset, operation, arguments in calls:
+    for key, asset, operation, _, arguments in calls:
         if state(ledger, key) is not None:
             continue
         if sum(row['state'] in QUEUED for row in ledger.data['entries']) >= meshy.QUEUE:  # `state` has just read the ledger afresh
@@ -166,8 +176,7 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
 
 def status(ledger, plan):
     """Each call of the plan with the ledger's word on it, and the credits the plan and the ledger stand at."""
-    rows = {row['key']: state(ledger, row['key']) for row in plan['props'].values()}
-    if plan['building']:
-        rows.update({plan['building'][part]: state(ledger, plan['building'][part]) for part in ('key', 'remesh')})
-    ledger.load()
-    return {'calls': rows, 'unsentCredits': cost(ledger, plan), 'cap': ledger.data['cap'], 'committed': ledger.committed()}
+    ledger.load(); held = {row['key']: row['state'] for row in ledger.data['entries']}  # read once: nothing here waits
+    keys = [row['key'] for row in plan['props'].values()] + ([plan['building']['key'], plan['building']['remesh']] if plan['building'] else [])
+    return {'calls': {key: held.get(key) for key in keys}, 'unplanned': plan['unplanned'], 'unsentCredits': cost(ledger, plan), 'cap': ledger.data['cap'],
+            'committed': ledger.committed()}

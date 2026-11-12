@@ -28,6 +28,17 @@ class ViewTests(unittest.TestCase):
         self.assertTrue({(255, 0, 0), (0, 0, 255)} <= colours)
         with self.assertRaisesRegex(ValueError, 'No references'):
             view.contact(self.root / 'meshy', self.root / 'out' / 'none.png')
+        Image.new('RGB', (90, 110), (0, 0, 255)).save(run / 'gate-s101-b0.png')  # drawn in this run from a crop made in another
+        with self.assertRaisesRegex(ValueError, 'gate-s101-b0.png has no crop beside it'):
+            view.contact(run, self.root / 'out' / 'contact.png')
+
+    def test_a_view_is_asked_for_by_name_sides_scale_and_grid(self):
+        from .__main__ import _views
+        self.assertEqual(_views('ek_wall'), ('ek_wall', [0], None, None)); self.assertEqual(_views('ek_wall:02:300:0.25'), ('ek_wall', [0, 2], 300, 0.25))
+        self.assertEqual(_views('ek_wall::300'), ('ek_wall', [0], 300, None))
+        for text in ('ek_wall:front', 'ek_wall:4', 'ek_wall:0:300:0', 'ek_wall:0:0', 'ek_wall:0:big', ':0', 'ek_wall:0:300:0.25:9'):
+            with self.assertRaisesRegex(ValueError, 'A view'):
+                _views(text)
 
     def test_a_game_set_model_is_drawn_as_it_will_ship(self):
         told = view.elevations(self.models, self.root, 'ek_wall', self.root / 'views', fine=128)

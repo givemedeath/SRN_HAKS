@@ -163,6 +163,16 @@ def remesh_target(triangles):
     return int(triangles * REMESH_HEADROOM)
 
 
+def sent_images(row):
+    """The file names of the reference images a ledger entry's call was sent with, or None where it had none (a
+    remesh). Names, not paths: an output root may have moved since."""
+    sent = row.get('arguments') or []
+    for flag in ('--image-url', '--image-urls'):
+        if flag in sent[:-1]:
+            return [Path(path).name for path in sent[sent.index(flag) + 1].split(',')]
+    return None
+
+
 def sent_target(row):
     """The polycount a ledger entry's call was sent with, or None where it had none (a building's generation)."""
     sent = row.get('arguments') or []

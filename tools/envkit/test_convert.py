@@ -214,7 +214,7 @@ class ConvertTests(unittest.TestCase):
         # A box that is mostly marking has the marking's tint for its usual one: the concrete would be taken off and the
         # red spread over it.
         flooded = concrete.copy(); flooded[36:60, 8:56] = (200, 40, 40)
-        with self.assertRaisesRegex(ValueError, 'most of this box is the marking'):
+        with self.assertRaisesRegex(ValueError, 'most of the box is the marking'):
             convert.retouch(Image.fromarray(flooded), points, texture, faces, smooth=[{'box': lower, 'radius': 0.2, 'tint': 30}])
         # A marking on an island of its own, further from the surface than the blur works over, was cut out of the
         # check with the rest of the picture and passed for done with nothing changed (review of PR #124).

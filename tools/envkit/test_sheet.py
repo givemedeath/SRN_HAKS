@@ -37,6 +37,9 @@ class SheetTests(unittest.TestCase):
         self.assertEqual(plan['props'], {'desk': {'triangles': 9000, 'key': 'yd-desk-a1'}, 'gate': {'triangles': 8000, 'key': 'yd-gate-a2'}})  # a refused call goes again under a new key
         self.assertEqual((plan['building']['key'], plan['building']['remesh']), ('yd-building-a1', 'yd-building-a1-remesh'))
         self.assertIsNone(self.plan(building=None)['building'])  # a sheet of props alone
+        # What the set holds and the plan makes nothing of is told: a prop forgotten in the plan is never made otherwise.
+        self.assertEqual(plan['unplanned'], []); self.assertEqual(self.plan(props={'desk': {'triangles': 9000}})['unplanned'], ['gate'])  # the rooftop unit is another sheet's
+        self.assertEqual(self.plan(building=None)['unplanned'], ['building-hero', 'building-rear'])
         for changes, said in (({'props': {'unit': {'triangles': 9000}}}, 'that one serves'), ({'props': {'building-hero': {'triangles': 9000}}}, 'not a prop'),
                               ({'props': {'desk': {'triangles': 90000}}}, 'triangle target'), ({'props': {'desk': {'triangles': 9000, 'key': 'yd-gate-a2'}, 'gate': PLAN['props']['gate']}}, 'its own ledger key'),
                               ({'building': {'views': ['desk'], 'triangles': 100000}}, 'not a building view'),
@@ -116,7 +119,33 @@ class SheetTests(unittest.TestCase):
         self.assertEqual(sheet.submit(ledger, again, self.selected, self.work, run=fake, say=self.say), ['yd-desk-a2'])
         told = sheet.collect(ledger, again, self.work, self.models, self.masters, run=fake, say=self.say)
         self.assertEqual(told, {'failed': [], 'downloaded': ['yd-desk-a2', 'yd-building-a1-remesh2'], 'unsent': []})  # the generation is not paid for again
-        self.assertEqual(set(sheet.status(ledger, again)) , {'calls', 'unsentCredits', 'cap', 'committed'})
+        self.assertEqual(set(sheet.status(ledger, again)), {'calls', 'unplanned', 'unsentCredits', 'cap', 'committed'})
+
+    def test_a_reference_chosen_again_is_not_taken_for_the_one_that_was_sent(self):
+        plan = self.plan(); fake = FakeMeshy(); ledger = meshy.Ledger.create(self.root / 'ledger.json', 200)
+        sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)
+        (self.selected / 'desk-s101-b0.png').rename(self.selected / 'desk-s202-b0.png')  # the model was poor: another seed's image is chosen
+        calls = len(fake.calls)
+        with self.assertRaisesRegex(ValueError, 'yd-desk-a1 was sent with desk-s101-b0.png and desk-s202-b0.png is selected now: give it a new key'):
+            sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)
+        self.assertEqual(len(fake.calls), calls)
+        again = self.plan(props={**PLAN['props'], 'desk': {'triangles': 9000, 'key': 'yd-desk-a2'}})
+        self.assertEqual(sheet.submit(ledger, again, self.selected, self.work, run=fake, say=self.say), ['yd-desk-a2'])
+        (self.selected / 'building-rear-s101-b0.png').rename(self.selected / 'building-rear-s303-b0.png')  # a building's views are its references
+        with self.assertRaisesRegex(ValueError, 'yd-building-a1 was sent with building-hero-s101-b0.png, building-rear-s101-b0.png and'):
+            sheet.submit(ledger, again, self.selected, self.work, run=fake, say=self.say)
+
+    def test_a_collect_with_calls_that_failed_does_not_end_as_a_good_one(self):
+        from argparse import Namespace
+        from . import __main__ as command
+        plan = self.sets / 'yard-meshy.json'; self.plan(); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
+        asked = Namespace(action='collect', plan=str(plan), ledger=str(ledger.path), root=str(self.root))
+        with mock.patch.object(sheet, 'collect', return_value={'failed': ['yd-gate-a2'], 'downloaded': [], 'unsent': []}), mock.patch('builtins.print'), \
+                self.assertRaisesRegex(ValueError, 'no working model: yd-gate-a2'):
+            command.command_sheet(asked)
+        with mock.patch.object(sheet, 'collect', return_value={'failed': [], 'downloaded': [], 'unsent': ['yd-desk-a1']}), mock.patch('builtins.print') as said:
+            command.command_sheet(asked)  # what is only unsent is no failure
+        self.assertIn('unsentCredits', said.call_args_list[-1].args[0])
 
     def test_a_remesh_that_fails_is_told_under_its_own_key(self):
         plan = self.plan(props={}); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)

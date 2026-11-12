@@ -12,6 +12,7 @@ grid to read a game set's boxes from, `check` looks at props, lights, a tile gro
 `toolset` prepares and reads back a Toolset check of tile groups."""
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -163,18 +164,23 @@ def command_contact(args):
 def command_sheet(args):
     from . import meshy, sheet
     plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger); root = Path(args.root); work = root / 'meshy' / 'work'
+    failed = []
     if args.action == 'submit':
         print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work)}))
     elif args.action == 'collect':
-        print(json.dumps(sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters')))
+        made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))
     print(json.dumps(sheet.status(ledger, plan), indent=1))
+    require(not failed, 'Calls of the plan have no working model: ' + ', '.join(failed))  # after the status, so that a failed collect does not end as a good one
 
 
 def _views(text):
     """name[:sides[:scale[:grid]]] as (name, sides, scale, grid): sides are digits, 0 the front."""
-    parts = text.split(':'); require(1 <= len(parts) <= 4 and parts[0], 'A view is name[:sides[:scale[:grid]]]: ' + text)
-    return (parts[0], [int(side) for side in (parts[1] if len(parts) > 1 and parts[1] else '0')],
-            int(parts[2]) if len(parts) > 2 and parts[2] else None, float(parts[3]) if len(parts) > 3 and parts[3] else None)
+    parts = text.split(':'); parts += [''] * (4 - len(parts)); number = re.compile(r'\d+(\.\d+)?')
+    require(len(parts) == 4 and parts[0] and re.fullmatch('[0-3]*', parts[1]) and re.fullmatch(r'\d*', parts[2]) and (not parts[3] or number.fullmatch(parts[3])),
+            'A view is name[:sides[:scale[:grid]]], the sides digits 0 to 3, the scale whole pixels to the metre and the grid metres: ' + text)
+    scale, grid = int(parts[2] or 0), float(parts[3] or 0)
+    require((not parts[2] or scale > 0) and (not parts[3] or grid > 0), 'A view\'s scale and grid are more than nothing: ' + text)
+    return parts[0], [int(side) for side in parts[1] or '0'], scale or None, grid or None
 
 
 def command_view(args):
@@ -199,15 +205,15 @@ def command_check(args):
     missing = ['--' + name for name in needs if not getattr(args, name)]
     require(not missing, f'envkit check {args.kind} needs ' + ', '.join(missing))
     require(args.kind == 'lights' or len(args.built) == 1, 'One built folder is checked at a time')
-    modes = {'props': ('day', 'night'), 'lights': ('day',), 'group': ('day', 'night', 'near')}[args.kind]  # lights are always seen by night: no mode is given
-    require(args.mode in modes, f'envkit check {args.kind} has no --mode {args.mode}' + ('' if args.kind == 'lights' else ': ' + ' or '.join(modes)))
+    modes = {'props': ('day', 'night'), 'lights': ('night',), 'group': ('day', 'night', 'near')}[args.kind]; mode = args.mode or modes[0]
+    require(mode in modes, f'envkit check {args.kind} has no --mode {mode}: ' + ' or '.join(modes))
     if args.kind == 'props':
-        made = checks.props(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model, night=args.mode == 'night')
+        made = checks.props(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model, night=mode == 'night')
     elif args.kind == 'lights':
         made = checks.lights(args.game, args.repo, args.root, args.name, args.models, args.built)
     else:
         require(len(args.model) == 1, 'One tile group is checked at a time')
-        made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, args.mode, second_storey=args.second_storey)
+        made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, mode, second_storey=args.second_storey)
     print(json.dumps(made))
 
 
@@ -284,7 +290,7 @@ def main(argv=None):
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root: fixtures/<name> is written")
     sub.add_argument('--name', help='a new fixture name, a lowercase resref of at most 11 characters'); sub.add_argument('--built', action='append', default=[], help='the folder `game` or `tiles` built into (lights: repeatable, the first that holds a model serves)')
     sub.add_argument('--model', action='append', default=[]); sub.add_argument('--tileset', choices=['dgt04', 'udp1'])
-    sub.add_argument('--mode', choices=['day', 'night', 'near'], default='day'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
+    sub.add_argument('--mode', choices=['day', 'night', 'near'], help='props: day (default) or night; group: day (default), night or near; lights are seen by night'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
     sub.add_argument('--user', help='doors: the Toolset user folder'); sub.add_argument('--output', help='doors: a fresh folder for captures')
     sub.add_argument('--ticks', type=int, default=150, help='doors: how long the player is watched, two seconds a tick')
     sub.set_defaults(run=command_check)

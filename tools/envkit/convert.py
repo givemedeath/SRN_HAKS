@@ -519,7 +519,8 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
     relief levelled (a wall the generator painted a fence's mesh on); `plain` has `textures` take the pattern off the
     roughness and the metal too. With `tint` in place of `colour` it takes a tinted marking off and leaves the surface,
     grain and all: only the texels whose tint (their colour less its own grey) is more than `tint` levels (0-255) from
-    the box's usual tint change, each to the rest of the box blurred over `radius` (the smeared red marking on the
+    the box's usual tint change, each to the rest of the box blurred over `radius`. The surface is most of the box and
+    the less tinted of the two; a box that is mostly marking, or a plain marking on a tinted surface, is refused (the smeared red marking on the
     concrete base of the Ares fence section, which smoothing the whole face left a plain panel beside weathered ones,
     2026-11-12)."""
     from PIL import Image
@@ -555,10 +556,13 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
                     require(bool(marked.any()) and bool((chosen & ~marked).any()), 'A marking is tinted texels on a surface that is not: the box holds '
                             + ('nothing but tint' if marked.any() else 'no tint') + ' (' + str(part.get('part', 'smoothed')) + ')')
                     # The box's usual tint is taken for the surface's. In a box that is mostly marking it is the marking's,
-                    # and the surface would be what is taken off: so the marking must be the more tinted of the two.
+                    # and the surface would be what is taken off. Which of the two is the marking cannot be told from
+                    # their shares, so it is told by tint: the marking is the more tinted, and a plain marking on a
+                    # tinted surface is not taken off this way.
                     strength = np.abs(tint).max(-1)
-                    require(float(strength[marked].mean()) > float(strength[chosen & ~marked].mean()), 'A marking is more tinted than the surface it lies on: most of this '
-                            'box is the marking, so widen it to hold more of the surface (' + str(part.get('part', 'smoothed')) + ')')
+                    require(float(strength[marked].mean()) > float(strength[chosen & ~marked].mean()), 'A marking is more tinted than the surface it lies on, and here '
+                            'what would be taken off is the less tinted: either most of the box is the marking (widen it to hold more of the surface), or the marking '
+                            'is a plain one on a tinted surface, which tint does not take off (' + str(part.get('part', 'smoothed')) + ')')
                     plain[index] = (chosen & ~marked, reach, marked)
             small, done = _spread(small, [(chosen, reach, part.get('colour'), *marked) for (chosen, reach, *marked), part in zip(plain, smooth)])
             wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255

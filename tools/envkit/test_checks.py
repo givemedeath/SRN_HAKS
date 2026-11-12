@@ -1,6 +1,7 @@
 """The client checks' layouts are worked out from each model's size; the client itself is not started here."""
 import math
 import unittest
+from unittest import mock
 
 from tools.armorkit.client_fixture import field, gff_float
 
@@ -66,8 +67,12 @@ class CheckTests(unittest.TestCase):
         asked = dict(game='game', repo='.', models='set.json', root='root', name='ekt1', built=['built'], model=['ek_desk'], tileset=None, second_storey='0')
         with self.assertRaisesRegex(ValueError, 'check props has no --mode near: day or night'):
             command.command_check(Namespace(kind='props', mode='near', **asked))
-        with self.assertRaisesRegex(ValueError, 'check lights has no --mode night'):  # lights are always seen by night
-            command.command_check(Namespace(kind='lights', mode='night', **asked))
+        with self.assertRaisesRegex(ValueError, 'check lights has no --mode near: night'):  # the lights check is the night check
+            command.command_check(Namespace(kind='lights', mode='near', **asked))
+        with mock.patch.object(checks, 'lights', return_value={}) as lights, mock.patch.object(checks, 'props', return_value={}) as props, mock.patch('builtins.print'):
+            command.command_check(Namespace(kind='lights', mode='night', **asked)); command.command_check(Namespace(kind='lights', mode=None, **asked))
+            command.command_check(Namespace(kind='props', mode=None, **asked)); command.command_check(Namespace(kind='props', mode='night', **asked))
+        self.assertEqual(lights.call_count, 2); self.assertEqual([call.kwargs['night'] for call in props.call_args_list], [False, True])
 
     def test_a_tile_group_is_seen_from_its_front_its_door_and_along_its_sides(self):
         shots = checks.group_shots(3, 2, [1.0, 9.0], 'day')
