@@ -271,6 +271,7 @@
       "tools/armorkit/client_fixture.py",
       "tools/envkit/convert.py",
       "tools/envkit/prop_fixture.py",
+      "tools/envkit/tile.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/convert.py": [
@@ -351,6 +352,7 @@
       "tools/envkit/placeables.py"
     ],
     "tools/envkit/test_reference.py": [
+      "tools/envkit/__main__.py",
       "tools/envkit/reference.py",
       "tools/envkit/sets/stuffer-shack.json"
     ],
