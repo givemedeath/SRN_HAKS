@@ -168,11 +168,19 @@ class MeshyTests(unittest.TestCase):
         counts = meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm', run=run)
         self.assertEqual(list(counts.values()), [91000]); self.assertIs(self.ledger.entry('rm')['accepted'], True)
         self.assertEqual(self.ledger.committed(), 35)
-        run.triangle_counts = (150000, 31000)  # a remeshed building may pass 100k, up to 200k
-        self.assertIs(meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm-large', run=run) and self.ledger.entry('rm')['accepted'], True)
+        run.triangle_counts = (150000, 31000)  # a remesh asked to stay under 100k is held to it, though a larger building's may pass it
+        with self.assertRaisesRegex(ValueError, 'exceeds 100000'):
+            meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm-large', run=run)
+        self.assertIs(self.ledger.entry('rm')['accepted'], False)
+        meshy.submit(self.ledger, 'rm2', 'shack', 'remesh', meshy.remesh_arguments(task, 200000), self.root / 'work', run=run)
+        meshy.wait(self.ledger, 'rm2', self.root / 'work', run=run)
+        self.assertIs(meshy.download(self.ledger, 'rm2', self.root / 'work', self.root / 'bank-rm2', run=run) and self.ledger.entry('rm2')['accepted'], True)
         run.triangle_counts = (190000, 31000)
         with self.assertRaisesRegex(ValueError, 'exceeds 200000'):
-            meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm-over', run=run)
+            meshy.download(self.ledger, 'rm2', self.root / 'work', self.root / 'bank-rm2-over', run=run)
+        self.assertEqual([meshy._ceiling({'operation': 'remesh', 'arguments': meshy.remesh_arguments(task, asked)}) for asked in (60000, 100000, 123457, 200000)],
+                         [100000, 100000, 123457, 200000])
+        self.assertEqual(meshy._ceiling({'operation': 'prop', 'arguments': []}), 100000)
         with self.assertRaisesRegex(ValueError, 'already a reduced model'):
             meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'master-rm', master=True, run=run)
 

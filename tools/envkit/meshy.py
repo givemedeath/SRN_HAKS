@@ -224,6 +224,16 @@ def triangles(glb):
     return total
 
 
+def _ceiling(row):
+    """The most triangles a working model of this ledger entry has. A remesh is held to the ceiling it was asked for
+    where that is over the common one: only a remesh sent for a larger building's budget may come back that large."""
+    ceiling = CEILING.get(row['operation'], MAX_TRIANGLES); sent = row.get('arguments') or []
+    if row['operation'] != 'remesh' or '--target-polycount' not in sent[:-1]:
+        return min(ceiling, MAX_TRIANGLES)
+    asked = -int(-(int(sent[sent.index('--target-polycount') + 1]) / REMESH_HEADROOM - 1e-9) // 1)  # the least ceiling that sends this target
+    return max(MAX_TRIANGLES, min(ceiling, asked))
+
+
 def download(ledger, key, folder, bank, *, master=False, run=run_cli):
     """Fetch a finished model. A working model comes from a bounded operation and must be at or under the ceiling.
 
@@ -244,7 +254,7 @@ def download(ledger, key, folder, bank, *, master=False, run=run_cli):
         shutil.rmtree(bank, ignore_errors=True)  # what came down is no model, and would stand in the way of the retry
         raise ValueError('Download incomplete: ' + key)
     counts = {str(path): triangles(path) for path in models}
-    ceiling = CEILING.get(row['operation'], MAX_TRIANGLES); accepted = bool(master) or max(counts.values()) <= ceiling  # the ledger says so, so the folder is not taken for a working model
+    ceiling = _ceiling(row); accepted = bool(master) or max(counts.values()) <= ceiling  # the ledger says so, so the folder is not taken for a working model
     ledger.update(key, downloaded=str(bank), triangles=counts, master=bool(master), accepted=accepted)
     require(accepted, f'Model exceeds {ceiling} triangles and is not a working model: {counts}')
     return counts

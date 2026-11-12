@@ -371,17 +371,19 @@
    "model": "ek_ad_sign",
    "label": "[envkit]Ares Depot, Wall Sign",
    "pack": "srn_placeable",
-   "lights": {
-    "lit": "ek_ad_sign",
-    "out": "ek_ad_sign_o",
-    "glow": "ek_ad_sign_i"
-   },
    "madeBy": "envkit",
    "source": "tools/envkit/sets/ares-depot-game.json",
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_sign",
-   "category": 156
+   "category": 156,
+   "lights": {
+    "lit": "ek_ad_sign",
+    "out": "ek_ad_sign_o",
+    "glow": "ek_ad_sign_i",
+    "halo": "ek_ad_sign_h",
+    "dark": "ek_off"
+   }
   },
   {
    "row": 22763,

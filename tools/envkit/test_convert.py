@@ -141,6 +141,16 @@ class ConvertTests(unittest.TestCase):
         self.assertTrue(np.asarray(flat)[40:].all()); self.assertFalse(np.asarray(flat)[:28].any())  # and the relief that drew them is levelled
         toward, _ = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1, 'colour': [100, 110, 120]}])
         np.testing.assert_allclose(np.asarray(toward)[40:, 8:56].reshape(-1, 3).mean(0), [100, 110, 120], atol=3)
+        # A box that holds none of the model is a mistake in the set, not a part to pass over.
+        off = [[-0.6, -0.1, 5.0], [0.6, 0.1, 6.0]]
+        for retouching in ({'paint': [{'box': off, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': off, 'radius': 0.1}]}, {'mesh': [{'box': off, 'pitch': 0.09, 'wire': 0.016}]}):
+            with self.assertRaisesRegex(ValueError, 'holds none of the model'):
+                convert.retouch(Image.fromarray(stripes), points, texture, faces, **retouching)
+        # One column of texels has no neighbour to measure a step by: the blur's reach stays within the picture.
+        from unittest import mock
+        with mock.patch.object(convert, '_blur', wraps=convert._blur) as blur:
+            convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[0.001, -0.1, -0.1], [0.0155, 0.1, 1.0]], 'radius': 0.1}])
+        self.assertTrue(blur.call_args_list); self.assertTrue(all(call.args[1] <= 64 / 8 for call in blur.call_args_list))
 
     def test_a_fence_is_hung_as_sheets_that_show_a_wire_picture_of_their_own(self):
         """The same fence's frames came back empty. A sheet is real faces, seen through between its wires. The wires are

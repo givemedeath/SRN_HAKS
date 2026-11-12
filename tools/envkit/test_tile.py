@@ -332,6 +332,9 @@ class TileTests(unittest.TestCase):
             more = [one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
             self.assertEqual(sum(more), len(wire['faces'])); self.assertTrue(all(count > 0 for count in more))  # every square in one tile, some in each
             self.assertEqual([one['walkFaces'] for one in fenced['tiles']], [one['walkFaces'] for one in plain['tiles']])  # the walkmesh does not know the sheets
+            faded = tile.group('ek_long', made, Path(scratch) / 'c', ground='pavement', fade=1.0); unfenced = tile.group('ek_long', bare, Path(scratch) / 'd', ground='pavement', fade=1.0)
+            hidden = [one['fadingFaces'] - other['fadingFaces'] for one, other in zip(faded['tiles'], unfenced['tiles'])]
+            self.assertTrue(all(0 < count < extra for count, extra in zip(hidden, more)))  # the squares above the fade height are counted as hidden too
             for one in fenced['tiles']:
                 text = (Path(scratch) / 'a' / (one['model'] + '.mdl')).read_text(encoding='cp1252')
                 self.assertIn('  bitmap ek_long_w\n', text); self.assertIn('  bitmap ek_long\n', text)

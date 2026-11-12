@@ -413,22 +413,22 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
         where, covered = glow.position_map(vertices, uvs, faces, grain)
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
-            colour[full(glow.inside(where, covered, part['box']))] = np.asarray(part['colour'], float) / 255
+            colour[full(glow.held(where, covered, part, 'painted'))] = np.asarray(part['colour'], float) / 255
         for part in smooth:
-            chosen = glow.inside(where, covered, part['box'])
-            if not chosen.any():
-                continue
+            chosen = glow.held(where, covered, part, 'smoothed')
             beside = chosen[:, 1:] & chosen[:, :-1]  # how far apart on the model two texels side by side are
             step = float(np.median(np.linalg.norm(where[:, 1:][beside] - where[:, :-1][beside], axis=1))) if beside.any() else 0.0
             small = np.asarray(Image.fromarray((colour * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
-            reach = part['radius'] / max(step, 1e-6)
+            # No two texels side by side, or all at one place, leaves no step to measure by: the reach then stops at an
+            # eighth of the picture, where an unbounded one would pad the blur by a hundred thousand texels.
+            reach = min(part['radius'] / max(step, 1e-6), grain / 8)
             blurred = _blur(small * chosen[..., None], reach) / np.maximum(_blur(chosen.astype(np.float32), reach), 1e-6)[..., None]
             if 'colour' in part:
                 blurred = blurred * (np.asarray(part['colour'], np.float32) / 255 / np.maximum(blurred[chosen].mean(0), 1e-6))
             wide = np.asarray(Image.fromarray((np.clip(blurred, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
             chosen = full(chosen); colour[chosen] = wide[chosen]; flat |= chosen
         for part in mesh:
-            panel = glow.inside(where, covered, part['box']); wire = full(panel & glow.wires(where, part['pitch'], part['wire'])); panel = full(panel)
+            panel = glow.held(where, covered, part, 'wire mesh'); wire = full(panel & glow.wires(where, part['pitch'], part['wire'])); panel = full(panel)
             colour[panel] = np.asarray(part.get('colour', WIRE), float) / 255  # under the gaps too: a filtered edge then blends wire with wire
             alpha &= ~panel | wire; flat |= panel
     picture = (colour * 255).round().astype(np.uint8)
@@ -511,6 +511,12 @@ def load_models(path):
         for region in model.get('lit', []):
             require(isinstance(region, dict) and 'box' in region and set(region) <= {'part', 'box', 'gain', 'saturation', 'value'}
                     and np.asarray(region['box'], float).shape == (2, 3), 'A lit part needs a box of two corners: ' + name)
+        # A box is on the finished model, which stands from its lift to its lift and its height. The Ares Depot's wall
+        # sign, lifted 2.4 metres, had its lit boxes where it stood before the lift and shipped dark (review, 2026-11-12).
+        foot, head = model.get('lift', 0), model.get('lift', 0) + model['height']
+        spans = [np.asarray(part['box'], float)[:, 2] for key in ('lit', 'paint', 'smooth', 'mesh') for part in model.get(key, [])]
+        require(all(high > foot and low < head for low, high in spans + [part['z'] for part in model.get('fence', [])]),
+                f'A box or fence lies wholly above or below the model, which stands from {foot} to {head} metres up: {name}')
         require(set(model.get('halo', {})) <= {'reach', 'strength', 'core', 'least'} and ('halo' not in model or model.get('lit')),
                 'A halo takes reach, strength, core and least, and needs lit parts: ' + name)
         placed = model.get('placeable')
@@ -638,8 +644,7 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
                          'texture4 null', f'texture5 {name}_h']
         (folder / f'{name}_h.mtr').write_text('\n'.join(card_material) + '\n', encoding='cp1252', newline='\n')
         (folder / f'{name}_h.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
-    if made.get('wire'):  # a plain picture, see-through between the wires: it needs no material file
-        require(len(name) + 2 <= NAME_LENGTH, 'A model with a fence leaves two characters of its name for the wires: ' + name)
+    if made.get('wire'):  # a plain picture, see-through between the wires: it needs no material file; _w is a suffix like the maps'
         files.append(_compress(made['wire']['image'], folder / f'{name}_w.dds', '-DXT5', made['wire']['image'].width, crunch, data=False))
     if illumination is not None:
         files += lights_out(name, folder, crunch, bool(card))

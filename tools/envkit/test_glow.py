@@ -36,6 +36,8 @@ class GlowTests(unittest.TestCase):
         np.testing.assert_allclose(both[0, 0], [0.9, 0.1, 0.1]); np.testing.assert_allclose(both[0, 31], [0.15, 0.15, 0.15])
         with self.assertRaisesRegex(ValueError, 'low corner'):
             glow.glow(base, where, covered, [{'box': [[1, 0, 0], [0, 1, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'holds none of the model.*high sign'):  # a box off the model lights nothing, and says so
+            glow.glow(base, where, covered, [sign, {'part': 'high sign', 'box': [[-2.5, 0.5, 5.0], [2.5, 1.5, 6.0]]}])
 
     def test_the_halo_is_a_card_in_front_that_fades_away_from_the_glow_one_for_each_depth(self):
         where, covered = glow.position_map(POINTS, UVS, FACES, 64)
@@ -149,6 +151,9 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [2, 1]}]}, 'between two heights')
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'to': [0, 0]}]}, 'from one point to another')
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [sheet, {**sheet, 'wire': 0.02}]}, 'share one wire mesh')
+            # Boxes are on the model as lifted: the Ares wall sign's were left where it stood before its lift, and it shipped dark.
+            refused({'source': 'meshy/x', 'height': 1.6, 'lift': 2.4, 'lit': [{'box': [[-1, 0, 0.55], [1, 1, 1.42]]}]}, 'wholly above or below')
+            refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [1.5, 2]}]}, 'wholly above or below')
             tiles = {'ground': 'pavement', 'group': 'Long', 'label': 'Long', 'sets': {'dgt04': 'Concrete'}}
             # A building is scaled to its door before its tiles are counted: a door says how tall its leaf came out.
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58}}}, 'states its leaf')

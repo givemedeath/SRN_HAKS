@@ -514,7 +514,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     wire = made.get('wire')
     if wire is not None:
         wire_middle = wire['vertices'][wire['faces']].mean(1); wire_tile = np.clip(((wire_middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
-        wire_high = wire_middle[:, 2] >= fade if fade is not None else np.zeros(len(wire_middle), bool); wire_home = np.ones(len(wire_middle), bool)
+        wire_high = wire_middle[:, 2] >= fade if fade is not None else np.zeros(len(wire_middle), bool)
     if door is not None:
         spot, orientation, drawn = doorstep(found, corner, door['at'], float(door.get('facing', 0.0)))
         at = np.asarray(spot, float); cell = np.clip(((at[:2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
@@ -529,12 +529,13 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 if chosen.any():
                     used, local = np.unique(faces[chosen], return_inverse=True)
                     parts.append((vertices[used] - centre, normals[used], uvs[used], local.reshape(-1, 3), hidden))
-            fenced = 0
+            fenced = fenced_high = 0
             if wire is not None:  # a fence's sheets, shared out as the building is: each square to the tile its middle lies in
-                for chosen, hidden in ((wire_home & ~wire_high, False), (wire_home & wire_high, True)):
-                    chosen = chosen & (wire_tile[:, 0] == column) & (wire_tile[:, 1] == row)
+                wire_here = (wire_tile[:, 0] == column) & (wire_tile[:, 1] == row)
+                fenced, fenced_high = int(wire_here.sum()), int((wire_here & wire_high).sum())
+                for chosen, hidden in ((wire_here & ~wire_high, False), (wire_here & wire_high, True)):
                     if chosen.any():
-                        used, local = np.unique(wire['faces'][chosen], return_inverse=True); fenced += int(chosen.sum())
+                        used, local = np.unique(wire['faces'][chosen], return_inverse=True)
                         parts.append((wire['vertices'][used] - centre, wire['normals'][used], wire['uvs'][used], local.reshape(-1, 3), hidden, f'{name}_w'))
             walk = walkmesh(found, row, column); lights = light_places(found, row, column)
             halos = cards.get((row, column), [])
@@ -542,7 +543,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                               cap=lid(found, row, column) if fade is not None else ())
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
-            one = {'model': model, 'row': row, 'column': column, 'faces': int(here.sum()) + fenced, 'fadingFaces': int((here & high).sum()), 'walkFaces': int(len(walk[1])),
+            one = {'model': model, 'row': row, 'column': column, 'faces': int(here.sum()) + fenced, 'fadingFaces': int((here & high).sum()) + fenced_high, 'walkFaces': int(len(walk[1])),
                    'path': path_node(found, row, column), 'lights': len(lights), 'doors': []}
             if one['path']['offPath']:
                 notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no exit of the tile reaches; a walk from another tile is not planned onto them')

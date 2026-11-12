@@ -57,6 +57,16 @@ def inside(where, covered, box):
     return covered & (where >= low).all(-1) & (where <= high).all(-1)
 
 
+def held(where, covered, part, what):
+    """`inside`, for the box of a part a game set names: a box that holds none of the model is refused. The Ares
+    Depot's wall sign was lifted 2.4 metres and its lit boxes were given where it stood before the lift; they held
+    nothing, the conversion passed, and the sign shipped with a black glow map (found in review, 2026-11-12)."""
+    found = inside(where, covered, part['box'])
+    require(found.any(), f'The box of a {what} part holds none of the model; boxes are on the finished model, turned and lifted: '
+            + str(part.get('part', part['box'])))
+    return found
+
+
 def wires(where, pitch, wire):
     """Which texels lie on the wires of a chain-link mesh hung upright along X or Y: two sets of wires `wire` metres
     thick, leaning either way, `pitch` metres apart. The pattern is laid by place on the model, so it runs unbroken
@@ -78,7 +88,7 @@ def glow(base, where, covered, regions):
     vivid = (brightest - dullest) / np.maximum(brightest, 1e-6); lit = np.zeros_like(base)
     passing = lambda values, floor: 1.0 if floor <= 0 else np.clip((values - floor + 0.05) / 0.15, 0, 1)
     for region in regions:
-        share = inside(where, covered, region['box']) * passing(vivid, region.get('saturation', 0.0)) * passing(brightest, region.get('value', 0.0)) * region.get('gain', 1.0)
+        share = held(where, covered, region, 'lit') * passing(vivid, region.get('saturation', 0.0)) * passing(brightest, region.get('value', 0.0)) * region.get('gain', 1.0)
         lit = np.maximum(lit, base * share[..., None])
     return np.clip(lit, 0, 1)
 

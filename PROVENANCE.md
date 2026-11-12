@@ -510,7 +510,7 @@ name and emblem; the other props keep what the sheet drew on them.
 Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's
 axes and scaled to a stated height, and its textures were recompressed. The wall sign hangs 2.4 metres above
 the spot it is placed on. Ten props (all but the lockers, barrier, crate, rooftop unit and fence) have a glow map
-for their lit parts, eight of those a halo sheet as well, and a lights-out material (`<name>_o`) as
+for their lit parts, nine of those a halo sheet as well, and a lights-out material (`<name>_o`) as
 `docs/envkit/lights.md` describes; their blueprints are not static, so that a script can reach them. Three
 props were retouched after the first client check. The turret came back with its barrel along the model's side
 and is turned a quarter turn, so that it points to the front. The rooftop unit's colour is multiplied by 0.8:
@@ -527,6 +527,16 @@ the pack's files, where `ReplaceObjectTexture` put the lights of all ten lit pro
 Checked in the Toolset the same day, from the built packs: the Standard tab lists the fifteen blueprints under
 their Modern Exterior and Modern Interior categories, and a painted fence section and turret were saved with
 their rows and names, the fence static and the turret not.
+
+The wall sign was first published dark. Its lit parts were boxed where the model stood before it was hung 2.4
+metres up, so the boxes held none of it: its glow map was black and it had no halo, and the night check above,
+which looked at the ten lit props together, did not catch it (found reading the glow map in review,
+2026-11-12). The boxes were moved up with the model and the sign converted again: its glow map and model
+changed and it gained a halo sheet (`ek_ad_sign_h`); its row, blueprint and other maps are as they were.
+`tools/envkit` now refuses a lit, painted, smoothed or wire-mesh box that holds none of the model, and a set
+whose box or fence lies wholly above or below its model. Checked in the game client the same day, from the
+pack's files, by night beside the pylon sign: the sign's face and light bar are lit with a soft halo, go dark
+with `ReplaceObjectTexture` and come back.
 
 ## MDRNEE placeable import (2026-09-11)
 

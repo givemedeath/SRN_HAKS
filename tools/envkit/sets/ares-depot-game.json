@@ -69,8 +69,8 @@
       {"part": "sign face", "box": [[-0.75, 0.0, 0.15], [0.75, 0.5, 2.75]], "gain": 0.3}
     ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Pylon Sign", "sound": 28, "category": 156}},
     "ek_ad_sign": {"source": "meshy/models/ares-wall-sign-a1", "height": 1.6, "lift": 2.4, "colour": 2048, "lit": [
-      {"part": "light bar", "box": [[-0.9, -0.2, 1.45], [0.9, 0.2, 1.6]], "value": 0.45},
-      {"part": "sign face", "box": [[-1.8, 0.0, 0.55], [1.8, 0.2, 1.42]], "gain": 0.3}
+      {"part": "light bar", "box": [[-0.9, -0.2, 3.85], [0.9, 0.2, 4.0]], "value": 0.45},
+      {"part": "sign face", "box": [[-1.8, 0.0, 2.95], [1.8, 0.2, 3.82]], "gain": 0.3}
     ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Wall Sign", "sound": 27, "category": 156}},
     "ek_ad_rooftop": {"source": "meshy/models/ares-rooftop-unit-a1", "height": 2.2, "tone": 0.8, "colour": 2048, "placeable": {"label": "Ares Depot, Rooftop Unit", "sound": 28, "category": 161}}
   }
