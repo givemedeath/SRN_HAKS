@@ -51,8 +51,23 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([shot['label'] for shot in shots if 'run' in shot], ['row0-out', 'row0-on-again'])  # the script runs once, before the first row's shot
         with self.assertRaisesRegex(ValueError, 'no lit props'):
             checks.rows_of_lights({'ek_crate': MODELS['ek_crate']}, SIZES, {}, set())
-        with self.assertRaisesRegex(ValueError, 'twenty at most'):
-            checks.rows_of_lights({f'ek_l{index}': MODELS['ek_desk'] for index in range(21)}, {}, {}, set())
+        crowd = {f'ek_l{index}': MODELS['ek_desk'] for index in range(21)}
+        with self.assertRaisesRegex(ValueError, 'four rows at most'):
+            checks.rows_of_lights(crowd, {name: [1.0, 1.0, 1.0] for name in crowd}, {name: 'OBJECT_SELF' for name in crowd}, set())
+        # Wide props stand fewer to a row: a row ends where its view does.
+        wide = {name: [12.0, 1.0, 3.0] for name in many}
+        props, shots, _ = checks.rows_of_lights(many, wide, {name: 'OBJECT_SELF' for name in many}, set())
+        self.assertEqual([sum(one['position'][1] == y for one in props) for y in (62.0, 46.0, 30.0, 14.0)], [2, 2, 2, 1]); self.assertEqual(len(shots), 12)
+        self.assertLessEqual(max(one['position'][0] + 6.0 for one in props), checks.ROW_END)
+
+    def test_a_check_refuses_a_mode_it_does_not_run(self):
+        from argparse import Namespace
+        from . import __main__ as command
+        asked = dict(game='game', repo='.', models='set.json', root='root', name='ekt1', built=['built'], model=['ek_desk'], tileset=None, second_storey='0')
+        with self.assertRaisesRegex(ValueError, 'check props has no --mode near: day or night'):
+            command.command_check(Namespace(kind='props', mode='near', **asked))
+        with self.assertRaisesRegex(ValueError, 'check lights has no --mode night'):  # lights are always seen by night
+            command.command_check(Namespace(kind='lights', mode='night', **asked))
 
     def test_a_tile_group_is_seen_from_its_front_its_door_and_along_its_sides(self):
         shots = checks.group_shots(3, 2, [1.0, 9.0], 'day')

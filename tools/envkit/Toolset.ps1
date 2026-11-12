@@ -93,15 +93,19 @@ switch ($Do) {
     $w = $tops | Where-Object { [Tw]::Cls($_) -eq 'TfrmFrame' -and [Tw]::IsWindowVisible($_) } | Select-Object -First 1
     $trees = @([Tw]::Kids($w) | Where-Object { [Tw]::Cls($_) -like '*TreeView*' -and [Tw]::IsWindowVisible($_) })
     $n = 0; foreach ($t in $trees) { "tree $n : " + (Describe $t); $n++ }
+    if ($Index -lt 0 -or $Index -ge $trees.Count) { throw "no tree $Index`: the frame shows $($trees.Count)" }
     $tree = $trees[$Index]; $item = [Tw]::SendMessage($tree, 0x110A, [IntPtr]0, [IntPtr]0)
     $roots = @(); while ($item -ne [IntPtr]::Zero) { $roots += $item; $item = [Tw]::SendMessage($tree, 0x110A, [IntPtr]1, $item) }  # TVGN_NEXT
     "roots: " + $roots.Count
+    if ($Root -lt 0 -or $Root -ge $roots.Count) { throw "no top item $Root in tree $Index`: it has $($roots.Count)" }
     foreach ($r in $roots) { [void][Tw]::SendMessage($tree, 0x1102, [IntPtr]1, $r) }  # collapse all
     [void][Tw]::SendMessage($tree, 0x1102, [IntPtr]2, $roots[$Root])
     $kid = [Tw]::SendMessage($tree, 0x110A, [IntPtr]4, $roots[$Root]); $count = 0; $all = 0  # TVGN_CHILD
     $walk = $kid; while ($walk -ne [IntPtr]::Zero) { $all++; $walk = [Tw]::SendMessage($tree, 0x110A, [IntPtr]1, $walk) }
     while ($count -lt $Child -and $kid -ne [IntPtr]::Zero) { $kid = [Tw]::SendMessage($tree, 0x110A, [IntPtr]1, $kid); $count++ }
     "children: $all; reached child $count"
-    if ($kid -ne [IntPtr]::Zero) { [void][Tw]::SendMessage($tree, 0x1114, [IntPtr]0, $kid); [void][Tw]::SendMessage($tree, 0x110B, [IntPtr]9, $kid) }  # TVM_ENSUREVISIBLE, TVM_SELECTITEM caret
+    # Nothing selected would leave whatever was selected before pending, and the next click would paint that.
+    if ($kid -eq [IntPtr]::Zero) { throw "no child $Child under top item $Root`: it has $all" }
+    [void][Tw]::SendMessage($tree, 0x1114, [IntPtr]0, $kid); [void][Tw]::SendMessage($tree, 0x110B, [IntPtr]9, $kid)  # TVM_ENSUREVISIBLE, TVM_SELECTITEM caret
   }
 }

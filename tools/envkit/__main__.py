@@ -70,7 +70,8 @@ def command_reference(args):
 
 def _retouching(model):
     """What a game set says of turning a model and retouching its colour, as `convert.shape` takes it."""
-    return {key: model[key] for key in ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close') if key in model}
+    from . import convert
+    return {key: model[key] for key in convert.RETOUCHING if key in model}
 
 
 def command_game(args):
@@ -198,6 +199,8 @@ def command_check(args):
     missing = ['--' + name for name in needs if not getattr(args, name)]
     require(not missing, f'envkit check {args.kind} needs ' + ', '.join(missing))
     require(args.kind == 'lights' or len(args.built) == 1, 'One built folder is checked at a time')
+    modes = {'props': ('day', 'night'), 'lights': ('day',), 'group': ('day', 'night', 'near')}[args.kind]  # lights are always seen by night: no mode is given
+    require(args.mode in modes, f'envkit check {args.kind} has no --mode {args.mode}' + ('' if args.kind == 'lights' else ': ' + ' or '.join(modes)))
     if args.kind == 'props':
         made = checks.props(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model, night=args.mode == 'night')
     elif args.kind == 'lights':

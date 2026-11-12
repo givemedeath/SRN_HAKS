@@ -263,6 +263,7 @@
     ],
     "tools/envkit/test_checks.py": [
       "tools/armorkit/client_fixture.py",
+      "tools/envkit/__main__.py",
       "tools/envkit/checks.py",
       "tools/envkit/prop_fixture.py"
     ],

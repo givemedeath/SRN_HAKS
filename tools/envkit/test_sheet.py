@@ -39,7 +39,9 @@ class SheetTests(unittest.TestCase):
         self.assertIsNone(self.plan(building=None)['building'])  # a sheet of props alone
         for changes, said in (({'props': {'unit': {'triangles': 9000}}}, 'that one serves'), ({'props': {'building-hero': {'triangles': 9000}}}, 'not a prop'),
                               ({'props': {'desk': {'triangles': 90000}}}, 'triangle target'), ({'props': {'desk': {'triangles': 9000, 'key': 'yd-gate-a2'}, 'gate': PLAN['props']['gate']}}, 'its own ledger key'),
-                              ({'building': {'views': ['desk'], 'triangles': 100000}}, 'not a building view'), ({'building': {'views': ['building-hero'], 'triangles': 300000}}, 'at most 200000'),
+                              ({'building': {'views': ['desk'], 'triangles': 100000}}, 'not a building view'),
+                              ({'building': {'views': ['building-hero', 'building-hero'], 'triangles': 100000}}, 'each once'), ({'building': {'views': [['building-hero']], 'triangles': 100000}}, 'each once'),
+                              ({'building': {'views': ['building-hero'], 'triangles': 300000}}, 'at most 200000'),
                               ({'prefix': 'Yard Works'}, 'prefix')):
             with self.assertRaisesRegex(ValueError, said):
                 self.plan(**changes)
@@ -99,6 +101,22 @@ class SheetTests(unittest.TestCase):
         ledger.update('yd-gate-a2', accepted=False)
         over = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=FakeMeshy(), say=self.say)
         self.assertEqual(over['failed'], ['yd-desk-a1', 'yd-gate-a2']); self.assertIn('over its triangle ceiling', self.said[-1]['error'])
+
+    def test_a_target_changed_in_the_plan_is_not_taken_for_the_one_that_was_sent(self):
+        """The building budget went from 100,000 to 200,000 after the Ares Depot's remesh: the key that had succeeded
+        was the smaller model, and a new key sent the larger (2026-11-11)."""
+        plan = self.plan(); fake = FakeMeshy(); ledger = meshy.Ledger.create(self.root / 'ledger.json', 200)
+        sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)
+        sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
+        changed = self.plan(props={**PLAN['props'], 'desk': {'triangles': 12000}}, building={**PLAN['building'], 'triangles': 100000})
+        calls = len(fake.calls); told = sheet.collect(ledger, changed, self.work, self.models, self.masters, run=fake, say=self.say)
+        self.assertEqual((told, len(fake.calls)), ({'failed': ['yd-desk-a1', 'yd-building-a1-remesh'], 'downloaded': [], 'unsent': []}, calls))
+        self.assertEqual(self.said[-1]['error'], 'yd-building-a1-remesh was sent for 184000 triangles and the plan now asks 92000: give it a new key in the plan')
+        again = self.plan(props={**PLAN['props'], 'desk': {'triangles': 12000, 'key': 'yd-desk-a2'}}, building={**PLAN['building'], 'triangles': 100000, 'remesh': 'yd-building-a1-remesh2'})
+        self.assertEqual(sheet.submit(ledger, again, self.selected, self.work, run=fake, say=self.say), ['yd-desk-a2'])
+        told = sheet.collect(ledger, again, self.work, self.models, self.masters, run=fake, say=self.say)
+        self.assertEqual(told, {'failed': [], 'downloaded': ['yd-desk-a2', 'yd-building-a1-remesh2'], 'unsent': []})  # the generation is not paid for again
+        self.assertEqual(set(sheet.status(ledger, again)) , {'calls', 'unsentCredits', 'cap', 'committed'})
 
     def test_a_remesh_that_fails_is_told_under_its_own_key(self):
         plan = self.plan(props={}); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)

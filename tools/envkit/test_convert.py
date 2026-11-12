@@ -211,6 +211,11 @@ class ConvertTests(unittest.TestCase):
             convert.retouch(Image.fromarray(concrete), points, texture, faces, smooth=[{'box': lower, 'radius': 0.2, 'tint': 30}])
         with self.assertRaisesRegex(ValueError, 'further from any'):  # and a marking is filled from within its radius, or not at all
             convert.retouch(Image.fromarray(smeared), points, texture, faces, smooth=[{'box': lower, 'radius': 0.02, 'tint': 30}])
+        # A box that is mostly marking has the marking's tint for its usual one: the concrete would be taken off and the
+        # red spread over it.
+        flooded = concrete.copy(); flooded[36:60, 8:56] = (200, 40, 40)
+        with self.assertRaisesRegex(ValueError, 'most of this box is the marking'):
+            convert.retouch(Image.fromarray(flooded), points, texture, faces, smooth=[{'box': lower, 'radius': 0.2, 'tint': 30}])
         # A marking on an island of its own, further from the surface than the blur works over, was cut out of the
         # check with the rest of the picture and passed for done with nothing changed (review of PR #124).
         picture = np.full((64, 64), 0.5, np.float32); surface = np.zeros((64, 64), bool); surface[2:10, 2:10] = True
@@ -239,6 +244,13 @@ class ConvertTests(unittest.TestCase):
             convert.closed(vertices, normals, uvs, faces, [{'corners': [[0, 0, 0], [1, 0, 0], [1, 0, 1]]}])
         with self.assertRaisesRegex(ValueError, 'apart from one another'):
             convert.closed(vertices, normals, uvs, faces, [{'corners': [[0, 0, 0], [0, 0, 1], [0, 0, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'already has a face'):  # stated twice, the second would lie over the first
+            convert.closed(vertices, normals, uvs, faces, stated * 2)
+        # At a seam of the picture each place has two vertices, and the face the model has there may use the others: a
+        # second face over it would flicker against it.
+        seam = np.vstack([vertices, vertices[:3]]); island = np.vstack([uvs, [[9.0, 9.0], [9.1, 9.0], [9.1, 9.1]]])
+        with self.assertRaisesRegex(ValueError, 'already has a face'):
+            convert.closed(seam, np.vstack([normals, normals[:3]]), island, faces, [{'corners': [[0, 0, 0], [1, 0, 0], [1, 0, 1]]}])
         # A model is closed as it is shaped, on the finished model: a face it has already is refused there too.
         model = glb(self.root / 'wall.glb', **WALL); Image.new('RGB', (64, 64), (128, 128, 128)).save(self.root / 'grey.png')
         shaped = convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0)

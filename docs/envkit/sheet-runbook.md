@@ -41,15 +41,16 @@ envkit sheet submit  --plan ... --ledger <ledger> --root <root>
 envkit sheet collect --plan ... --ledger <ledger> --root <root>
 ```
 
-`status` says what the sheet's unsent calls cost against what the cap has left. Raise the cap only on the
+`status` says what the sheet's unsent calls cost (`unsentCredits`) against what the cap has left. Raise the cap only on the
 user's word, and say so in the reason. `submit` finds every reference and checks the whole of what is unsent
 against the cap before it sends anything; a call already in the ledger is not sent again. Meshy holds ten
 tasks at once, so `submit` sends what the queue has room for and says which calls it held back: run `collect`,
-then `submit` again, until `status` shows nothing unsent. `collect` waits for each call, downloads the models to
+then `submit` again, until `collect` lists nothing `unsent`. `collect` waits for each call, downloads the models to
 `<root>/meshy/models/<key>`, keeps the building's full generation in `<root>/meshy/masters/<key>` and remeshes
 it to the plan's triangles. One failed model does not stop the rest, and `failed` lists it on every run until it
 is dealt with. The CLI never sends a key twice, so a call that failed or was refused goes again under a new key
-in the plan (`"key": "<prefix>-<asset>-a2"`; for a failed remesh, the building's `"remesh"` key alone).
+in the plan (`"key": "<prefix>-<asset>-a2"`; for a failed remesh, the building's `"remesh"` key alone). A
+triangle target changed in the plan needs a new key too: `collect` refuses a call that was sent for another.
 
 ## 3. The game set
 
@@ -72,24 +73,19 @@ envkit game  --models ... --root <root> --output <root>/game<n>  [--model <name>
 envkit tiles --models ... --root <root> --output <root>/tiles<n> --model <building>
 ```
 
-## 4. In the client
+## 4. Props in the client
 
-Each check builds a throwaway module and user folder under `<root>/fixtures/<name>` (a new name every run) and
-captures the views. It waits while another game client runs and never closes it.
+Each client check builds a throwaway module and user folder under `<root>/fixtures/<name>` (a new name every
+run) and captures the views. It waits while another game client runs and never closes it.
 
 ```
-envkit check props  --game <game> --models ... --root <root> --name <name> --built <root>/game<n> --model <a> --model <b> [--mode night]
-envkit check group  --game <game> --models ... --root <root> --name <name> --built <root>/tiles<n> --model <building> --tileset dgt04 [--mode night|near]
-envkit check lights --game <game> --models ... --root <root> --name <name> --built <root>/game<n> [--built <root>/game<m>]
+envkit check props --game <game> --models ... --root <root> --name <name> --built <root>/game<n> --model <a> --model <b> [--mode night]
 ```
 
-`props` shows each prop from the front, the back and the side with a figure for scale and one behind it. `group`
-needs the group installed first (the tile numbers are the pack's); `near` frees the player to show which
-storeys the client hides. `lights` takes the lit props from the pack, by night, and puts them out and on again
-by script, so it follows `placeables`.
-
-Look for: scale against the figure, holes and see-through faces, smeared markings, wires and thin members,
-what glows by night, the roof and upper storey from above, and the door.
+Each prop is shown from the front, the back and the side with a figure for scale and one behind it, straight
+from the converted folder: nothing is in the packs yet. Look for scale against the figure, holes and see-through
+faces, smeared markings, wires and thin members, and what glows by night. Correct the game set and convert
+again until they hold.
 
 ## 5. Into the packs
 
@@ -99,10 +95,23 @@ envkit placeables --models ... --built <root>/game<n> --provenance "<section>"
 envkit blueprints --models ... --game <game>
 ```
 
+## 6. The group and the lights in the client
+
+```
+envkit check group  --game <game> --models ... --root <root> --name <name> --built <root>/tiles<n> --model <building> --tileset dgt04 [--mode night|near]
+envkit check lights --game <game> --models ... --root <root> --name <name> --built <root>/game<n> [--built <root>/game<m>]
+```
+
+Both read the packs, so they follow step 5. `group` lays the pack's tile numbers with the built models, and
+refuses where the pack holds another build: a building built again is installed again first. `near` frees the
+player to show which storeys the client hides. `lights` takes the lit props from the pack, by night, and puts
+them out and on again by script. Look for the roof and upper storey from above, the door, and every lit part
+going out and coming back.
+
 Then write the sheet's section of `PROVENANCE.md` (what was generated, by what, what was retouched, what was
 checked and what was left as generated), rebuild the affected packs and run repository verification.
 
-## 6. In the Toolset
+## 7. In the Toolset
 
 Painting the group in the Toolset is the only proof that a builder can.
 

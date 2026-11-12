@@ -34,6 +34,7 @@ DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
 MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
+RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close')  # what of a game set `shape` takes to turn, close and retouch a model
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -118,7 +119,7 @@ def closed(vertices, normals, uvs, faces, parts):
     taken, so that the face is drawn with the picture round the hole. It faces the way its corners' normals do.
     No vertex is added, so nothing else of the model changes."""
     from itertools import product
-    faces = np.asarray(faces); added = []; held = {tuple(sorted(face)) for face in faces.tolist()}
+    faces = np.asarray(faces); first = len(faces)
     for part in parts:
         label = str(part.get('part', 'closing face')); stands = []
         for corner in np.asarray(part['corners'], float):
@@ -129,11 +130,14 @@ def closed(vertices, normals, uvs, faces, parts):
         a, b, c = (int(index) for index in min(product(*stands), key=around))
         across = np.cross(vertices[b] - vertices[a], vertices[c] - vertices[a])
         require(float(np.linalg.norm(across)) > 1e-6, f'A closing face has three corners apart from one another ({label})')
-        require(tuple(sorted((a, b, c))) not in held, f'The model already has a face between these corners ({label})')
+        # A face on these three places, through whichever of the vertices that stand at each: at a seam of the picture
+        # the model's own face may use the other vertex of every pair.
+        there = np.logical_and.reduce([np.isin(faces, stand).any(1) for stand in stands])
+        require(not bool(there.any()), f'The model already has a face between these corners ({label})')
         if float(across @ (normals[a] + normals[b] + normals[c])) < 0:
             b, c = c, b
-        added.append([a, b, c]); held.add(tuple(sorted((a, b, c))))
-    return np.vstack([faces, np.asarray(added, faces.dtype)]) if added else faces
+        faces = np.vstack([faces, np.asarray([[a, b, c]], faces.dtype)])
+    return faces
 
 
 def square_up(points, limit=45.0, step=0.25):
@@ -550,6 +554,11 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
                     marked = chosen & (_blur(marked.astype(np.float32), 1) > 0.02)
                     require(bool(marked.any()) and bool((chosen & ~marked).any()), 'A marking is tinted texels on a surface that is not: the box holds '
                             + ('nothing but tint' if marked.any() else 'no tint') + ' (' + str(part.get('part', 'smoothed')) + ')')
+                    # The box's usual tint is taken for the surface's. In a box that is mostly marking it is the marking's,
+                    # and the surface would be what is taken off: so the marking must be the more tinted of the two.
+                    strength = np.abs(tint).max(-1)
+                    require(float(strength[marked].mean()) > float(strength[chosen & ~marked].mean()), 'A marking is more tinted than the surface it lies on: most of this '
+                            'box is the marking, so widen it to hold more of the surface (' + str(part.get('part', 'smoothed')) + ')')
                     plain[index] = (chosen & ~marked, reach, marked)
             small, done = _spread(small, [(chosen, reach, part.get('colour'), *marked) for (chosen, reach, *marked), part in zip(plain, smooth)])
             wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255

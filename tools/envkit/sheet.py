@@ -45,7 +45,8 @@ def load_plan(path):
     building = plan.get('building')
     if building is not None:
         require(isinstance(building, dict) and {'views', 'triangles'} <= set(building) <= {'views', 'triangles', 'key', 'remesh'}
-                and isinstance(building['views'], list) and 1 <= len(building['views']) <= 4, 'A building states one to four views and the triangles it is remeshed to')
+                and isinstance(building['views'], list) and 1 <= len(building['views']) <= 4 and all(isinstance(name, str) for name in building['views'])
+                and len(set(building['views'])) == len(building['views']), 'A building states one to four views, each once, and the triangles it is remeshed to')
         for name in building['views']:
             require(name in assets and assets[name]['kind'] == 'building', f'{name} is not a building view of {plan["set"]}')
         require(type(building['triangles']) is int and 1000 <= building['triangles'] <= meshy.BUILDING_TRIANGLES,
@@ -120,9 +121,13 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
         folder.mkdir(parents=True, exist_ok=True)
     report = lambda **fields: say(json.dumps(fields), flush=True)
 
-    def finished(key):
+    def finished(key, target=None):
         """Whether the call has succeeded, waited for if it is running. One not sent yet is told as unsent; any other
-        end is an error, in this run as in the one it ended in."""
+        end is an error, in this run as in the one it ended in. So is a call that was sent for another polycount than
+        the plan now gives it (`target`): the ledger's model is then not the plan's, and a new key sends the plan's."""
+        if state(ledger, key) is not None:
+            asked = meshy.sent_target(ledger.entry(key))
+            require(target is None or asked == target, f'{key} was sent for {asked} triangles and the plan now asks {target}: give it a new key in the plan')
         if state(ledger, key) in WAITING:
             report(key=key, **meshy.wait(ledger, key, work, run=run))
         now = state(ledger, key)
@@ -139,7 +144,7 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
 
     for row in plan['props'].values():
         try:
-            if finished(row['key']):
+            if finished(row['key'], row['triangles']):
                 fetched(row['key'], models / row['key'])
         except ValueError as error:
             failed.append(row['key']); report(key=row['key'], error=str(error))
@@ -152,7 +157,7 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
                 task = ledger.entry(key)['taskId']; key = building['remesh']  # what fails from here on is the remesh
                 if state(ledger, key) is None:
                     report(key=key, task=meshy.submit(ledger, key, 'building', 'remesh', meshy.remesh_arguments(task, building['triangles']), work, run=run))
-                if finished(key):
+                if finished(key, meshy.remesh_target(building['triangles'])):
                     fetched(key, models / key)
         except ValueError as error:
             failed.append(key); report(key=key, error=str(error))
@@ -165,4 +170,4 @@ def status(ledger, plan):
     if plan['building']:
         rows.update({plan['building'][part]: state(ledger, plan['building'][part]) for part in ('key', 'remesh')})
     ledger.load()
-    return {'calls': rows, 'unsent': cost(ledger, plan), 'cap': ledger.data['cap'], 'committed': ledger.committed()}
+    return {'calls': rows, 'unsentCredits': cost(ledger, plan), 'cap': ledger.data['cap'], 'committed': ledger.committed()}

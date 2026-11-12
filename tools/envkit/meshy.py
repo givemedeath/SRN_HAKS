@@ -154,8 +154,19 @@ def remesh_arguments(task, triangles):
     """`triangles` is the ceiling wanted; the request asks for a little less because a remesh overshoots."""
     require(type(triangles) is int and 100 <= triangles <= BUILDING_TRIANGLES, f'A remesh ceiling is 100-{BUILDING_TRIANGLES} triangles')
     require(isinstance(task, str) and task, 'Remesh the generation task by its id')
-    return ['--input-task-id', task, '--topology', 'triangle', '--target-polycount', str(int(triangles * REMESH_HEADROOM)),
+    return ['--input-task-id', task, '--topology', 'triangle', '--target-polycount', str(remesh_target(triangles)),
             '--target-formats', 'glb']
+
+
+def remesh_target(triangles):
+    """The polycount a remesh is asked for, to land at or under `triangles`."""
+    return int(triangles * REMESH_HEADROOM)
+
+
+def sent_target(row):
+    """The polycount a ledger entry's call was sent with, or None where it had none (a building's generation)."""
+    sent = row.get('arguments') or []
+    return int(sent[sent.index('--target-polycount') + 1]) if '--target-polycount' in sent[:-1] else None
 
 
 def run_cli(arguments, folder):

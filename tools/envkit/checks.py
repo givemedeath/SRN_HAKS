@@ -25,7 +25,8 @@ from . import convert, prop_fixture as fixture, require
 FILL = {'dgt04': 0, 'udp1': 58}  # the plain tile each tileset's check area is laid with
 TILE = 10.0
 GAP = 6.0  # metres between props in a row
-ROW = 5  # lit props to a row, so that a row fits one view
+ROW = 5  # lit props to a row at most
+ROW_END = 52.0  # how far along x a row of lit props may reach and still be held by its view, metres
 STEP = 3.5  # how far in front of a door the player is put, metres
 MAPS = ('.mtr', '.pwk', '.dds', '.txi')
 
@@ -100,12 +101,17 @@ def lit_props(models):
 
 
 def rows_of_lights(models, sizes, tags, halos):
-    """(props, shots, people) for the lit props of a game set in rows of `ROW`, by night: every row with its lights on,
-    then put out by script, then on again. tags: {model: script expression for the placed object}; halos: the models
-    that have a halo sheet."""
+    """(props, shots, people) for the lit props of a game set in rows, by night: every row with its lights on, then
+    put out by script, then on again. A row holds `ROW` props at most and ends where its view does (`ROW_END`), so
+    wide props stand fewer to a row. tags: {model: script expression for the placed object}; halos: the models that
+    have a halo sheet."""
     lit = lit_props(models)
-    require(lit, 'The game set has no lit props'); rows = [lit[index:index + ROW] for index in range(0, len(lit), ROW)]
-    require(len(rows) <= 4, 'More lit props than one check area holds: twenty at most')
+    require(lit, 'The game set has no lit props'); rows, x = [[]], 10.0
+    for model in lit:
+        if rows[-1] and (len(rows[-1]) == ROW or x + sizes[model][0] > ROW_END):
+            rows.append([]); x = 10.0
+        rows[-1].append(model); x += sizes[model][0] + 3.5
+    require(len(rows) <= 4, 'More lit props than one check area holds: four rows at most')
     props, people = [], []
     for index, row in enumerate(rows):
         y = 62.0 - 16.0 * index; x = 10.0

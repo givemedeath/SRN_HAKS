@@ -12,7 +12,6 @@ import numpy as np
 
 from . import convert, glow, require
 
-RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'close')  # what of a game set changes the model or its colour picture
 
 
 def contact(run, output, columns=3):
@@ -65,7 +64,7 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
     require(not lit or model.get('lit'), name + ' states no lit parts')
     maps = {'base_color': source / 'texture_0_base_color.png'}
     made = convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
-                         **{key: model[key] for key in RETOUCHING if key in model})
+                         **{key: model[key] for key in convert.RETOUCHING if key in model and key != 'fence'})  # a fence's sheets have a picture of their own
     with Image.open(maps['base_color']) as generated:
         picture = made['colour'] or generated.copy()
     return _drawn(made['vertices'], made['uvs'], made['faces'], picture, output, name, sides, scale, grid, fine, model['lit'] if lit else None)
