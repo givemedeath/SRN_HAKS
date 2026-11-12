@@ -1575,6 +1575,10 @@
       "tools/itemkit/routes.py",
       "tools/itemkit/transfer.py"
     ],
+    "tools/itemkit/carrier.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/native_reader.py"
+    ],
     "tools/itemkit/client_capture.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
@@ -1617,6 +1621,28 @@
       "tools/itemkit/source_atlas.py",
       "tools/itemkit/transfer.py"
     ],
+    "tools/itemkit/drive.py": [
+      "tools/headkit/gltf.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/autofit.py",
+      "tools/itemkit/client_capture.py",
+      "tools/itemkit/family_contract.py",
+      "tools/itemkit/fit_manifest.py",
+      "tools/itemkit/oblique.py",
+      "tools/itemkit/preview_views.py",
+      "tools/itemkit/run_itemkit.py",
+      "tools/itemkit/workspace.py",
+      "tools/phenotypes/launch_shared_tool.py"
+    ],
+    "tools/itemkit/family_contract.py": [
+      "docs/items/weapon-grip-standard-v1.json",
+      "tools/headkit/common.py",
+      "tools/itemkit/budget-policy.json",
+      "tools/itemkit/carrier.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/routes.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
     "tools/itemkit/firearm_fx_pilot.py": [
       "tools/Invoke-NwnMdlComp.ps1",
       "tools/itemkit/__init__.py",
@@ -1657,6 +1683,16 @@
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py"
     ],
+    "tools/itemkit/fit_manifest.py": [
+      "docs/items/weapon-grip-standard-v1.json",
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/itemkit/autofit.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/grip.py",
+      "tools/itemkit/routes.py",
+      "tools/itemkit/straightness.py"
+    ],
     "tools/itemkit/fixture.py": [
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
@@ -1696,6 +1732,13 @@
     "tools/itemkit/native_stack.py": [
       "tools/headkit/common.py"
     ],
+    "tools/itemkit/oblique.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/conditioning.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/reference_conditioning.py"
+    ],
     "tools/itemkit/onehand_fire_motion.py": [
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/native_motion.py"
@@ -1712,6 +1755,7 @@
       "tools/itemkit/atlas.py",
       "tools/itemkit/geometry.py"
     ],
+    "tools/itemkit/preview_views.py": [],
     "tools/itemkit/recovery.py": [
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py"
@@ -1720,6 +1764,7 @@
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py"
     ],
+    "tools/itemkit/reference_conditioning.py": [],
     "tools/itemkit/resize.py": [
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py",
@@ -1746,6 +1791,7 @@
       "tools/itemkit/reduction.py",
       "tools/itemkit/routes.py",
       "tools/itemkit/shadow.py",
+      "tools/itemkit/texture_check.py",
       "tools/itemkit/textures.py",
       "tools/itemkit/verification.py",
       "tools/phenotypes/launch_shared_tool.py"
@@ -1941,6 +1987,9 @@
     "tools/itemkit/test_reduction.py": [
       "tools/itemkit/reduction.py"
     ],
+    "tools/itemkit/test_reference_conditioning.py": [
+      "tools/itemkit/reference_conditioning.py"
+    ],
     "tools/itemkit/test_review.py": [
       "tools/headkit/common.py",
       "tools/itemkit/review.py"
@@ -1994,6 +2043,15 @@
       "tools/itemkit/contracts.py",
       "tools/itemkit/test_itemkit.py"
     ],
+    "tools/itemkit/test_toolkit_driver.py": [
+      "tools/itemkit/carrier.py",
+      "tools/itemkit/drive.py",
+      "tools/itemkit/family_contract.py",
+      "tools/itemkit/fit_manifest.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/texture_check.py",
+      "tools/itemkit/workspace.py"
+    ],
     "tools/itemkit/test_trial_policy.py": [
       "tools/headkit/common.py",
       "tools/headkit/generation.py",
@@ -2012,6 +2070,9 @@
       "tools/itemkit/test_itemkit.py",
       "tools/itemkit/verification.py"
     ],
+    "tools/itemkit/texture_check.py": [
+      "tools/headkit/common.py"
+    ],
     "tools/itemkit/textures.py": [
       "tools/headkit/common.py",
       "tools/headkit/textures.py"
@@ -2022,6 +2083,9 @@
     ],
     "tools/itemkit/verification.py": [
       "tools/headkit/common.py"
+    ],
+    "tools/itemkit/workspace.py": [
+      "output/itemkit/workspace.json"
     ],
     "tools/phenomorpher/finalize_runtime.py": [
       "tools/phenotypes/finalize_shared_tool_migration.py",
@@ -5066,6 +5130,12 @@
       "srn_body_tex",
       "srn_weapon"
     ],
+    "tools/itemkit/drive.py": [
+      "srn_2da",
+      "srn_body",
+      "srn_body_tex",
+      "srn_weapon"
+    ],
     "tools/itemkit/firearm_fx_pilot.py": [
       "srn_body",
       "srn_weapon"
@@ -5231,6 +5301,7 @@
     "tools/itemkit/test_preflight.py",
     "tools/itemkit/test_recovery.py",
     "tools/itemkit/test_reduction.py",
+    "tools/itemkit/test_reference_conditioning.py",
     "tools/itemkit/test_review.py",
     "tools/itemkit/test_rigged_contracts.py",
     "tools/itemkit/test_routes.py",
@@ -5241,6 +5312,7 @@
     "tools/itemkit/test_staff.py",
     "tools/itemkit/test_straightness.py",
     "tools/itemkit/test_thrown.py",
+    "tools/itemkit/test_toolkit_driver.py",
     "tools/itemkit/test_trial_policy.py",
     "tools/itemkit/test_workflow.py",
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",

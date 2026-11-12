@@ -113,12 +113,14 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         if (directory/'source-roots.json').exists(): pins.append(pin(directory/'source-roots.json'))
     if run and (Path(run)/'state.json').exists():
         state = read(Path(run)/'state.json')  # Mutable state is output, not an immutable consumed asset.
-        pins += run_receipt_pins(state, stage)
+        rebuild = any(isinstance(read(path), dict) and read(path).get('kind') == 'fixture-inputs' for path in extra)
+        pins += run_receipt_pins(state, stage, historical_code={row['path'] for row in code_pins()} if rebuild else None)
     for path in extra:
         row = pin(path); pins.append(row)
         document = read(path)
         if isinstance(document, dict):
             if 'observations' in document: pins += evidence_pins(path)
+            if document.get('kind') == 'fixture-inputs': pins += [asset(path, row) for row in document['inputs'].values()]
             prepared = document.get('prepared', document)
             if 'prompt' in prepared: pins += prepared.get('inputs', [])
     verify(pins)
@@ -130,11 +132,13 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
     return sorted({row['path'] for row in pins})
 
 
-def run_receipt_pins(state, stage=None):
+def run_receipt_pins(state, stage=None, *, historical_code=None):
     """Current receipts a resume consumes: the stage's ancestors, or every stage when unscoped.
 
     Superseded or stale attempts stay historical receipts, not launch inputs, so a
     corrected helper or replaced output can still reach the runner's recomputation.
+    `historical_code` (a fixture rebuild) leaves the receipts' own source-file pins out: those receipts are
+    identified by their recorded code version, and their data inputs and outputs are still consumed.
     """
     from .runner import DEPENDENCIES
     pending = list(state['stages']) if stage is None else list(DEPENDENCIES.get(stage, ()))
@@ -146,6 +150,7 @@ def run_receipt_pins(state, stage=None):
         try:
             verify([row]); receipt = read(row['path'])
             rows = [row]+receipt['inputs']+receipt['outputs']+([state['reviews'][name]] if name in state.get('reviews', {}) else [])
+            if historical_code is not None: rows = [r for r in rows if r['path'] not in historical_code]
             verify(rows)
         except (KeyError, OSError, ValueError): pending += DEPENDENCIES.get(name, ()); continue
         # Follow the recorded and current dependency graph, as Runner.result does.
@@ -225,6 +230,10 @@ def main():
     c = commands.add_parser('chain', help='run consecutive stages in one verified launch; all but the last are approved on their gates')
     for key in ('manifest', 'bindings', 'run'): c.add_argument('--'+key, type=Path, required=True)
     c.add_argument('--stages', nargs='+', required=True); c.add_argument('--notes', required=True)
+    c = commands.add_parser('measure-fit', help="the fit worker's measure-only pass: grip measurement, digest and preview, no stage attempt")
+    for key in ('manifest', 'bindings', 'run', 'output'): c.add_argument('--'+key, type=Path, required=True)
+    c = commands.add_parser('refixture', help="a new fixture from the run's reviewed native package, without re-running earlier stages")
+    for key in ('manifest', 'bindings', 'run', 'fixture-inputs', 'output'): c.add_argument('--'+key, type=Path, required=True)
     c = commands.add_parser('preflight'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--probe', action='store_true')
     c.add_argument('--scope', choices=['generation', 'processing'], default='processing')
@@ -322,6 +331,11 @@ def main():
         with comfy.locked(a.run/'runner'):
             runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, package_pins=package_pins)
             result = runner.chain(a.stages, a.notes, progress=lambda row: print(json.dumps(row), file=sys.stderr, flush=True))
+    elif a.command in ('measure-fit', 'refixture'):
+        from .runner import Runner
+        with comfy.locked(a.run/'runner'):
+            runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, package_pins=package_pins)
+            result = runner.measure_fit(a.output) if a.command == 'measure-fit' else runner.rebuild_fixture(a.fixture_inputs, a.output)
     elif a.command in ('prepare', 'run', 'resume', 'review', 'status'):
         from .runner import Runner
         if a.command == 'status': result = Runner(a.manifest, a.bindings, a.run).status()

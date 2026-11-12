@@ -209,6 +209,99 @@ def measure(objects, config, kind='visible'):
 RAW_GLTF_TO_BLENDER = np.array([[1,0,0,0],[0,0,-1,0],[0,1,0,0],[0,0,0,1]], float)
 
 
+def grip_fit(cfg, matrix, working):
+    """The measured grip correction of the fit stage: (final matrix, grip report or None). Raises GripDeparture."""
+    grip_report = None
+    if cfg.get('gripStandard'):
+        from tools.itemkit.grip import calibration, one_hand_round, two_hand_uniform
+        standard=read(cfg['gripStandard'])
+        thickness_fit = (cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
+                         and cfg['fit'].get('sizingAuthority')=='midpoint-depth')
+        two_hand_fit = cfg['fit'].get('sizingAuthority')=='midpoint-depth-two-hand'
+        if two_hand_fit:
+            route=ROUTES[cfg['family']['family']]
+            require(route.hold=='two' and route.carrier is not None and cfg['family']['native']['baseItem']==route.carrier.base_item,
+                    'Explicit two-handed carrier required for the length departure')
+            require(pin(cfg['gripStandard']) in cfg['inputs'],'Bind the exact approved melee standard')
+        if not thickness_fit and not two_hand_fit:
+            require(abs(cfg['family']['native']['gripLength']-standard['usableLength'])<1e-9,
+                    'Native target length differs from the approved grip standard')
+        mv,mf=arrays(working)
+        if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
+            from tools.itemkit.firearm_grip import measured_fit
+            matrix,grip_report=measured_fit(mv,mf,cfg['fit'],pin(cfg['source'])['sha256'],
+                pin(cfg.get('workingSource',cfg['source']))['sha256'],standard,cfg['family']['native']['gripOrigin'])
+        elif two_hand_fit:
+            matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],
+                                                standard,cfg['fit'].get('gripDeparture'))
+        elif cfg['fit'].get('sizingAuthority')=='usable-length-round':
+            matrix,grip_report=one_hand_round(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
+        else:
+            matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
+    return matrix, grip_report
+
+
+def fit_measure(cfg, out):
+    """Measure-only fit: the exact grip measurement the fit stage takes, and a preview, with no fitted parts.
+
+    A grip that departs from the approved section is refused by the fit stage until a review binds the fit worker's
+    own measurement digest; this pass returns that digest without spending a fit attempt. The preview places the
+    fitted working shell at the native hand beside the stock carrier's part bounds and the approved grip span.
+    """
+    from tools.itemkit.grip import GripDeparture
+    reset(); working = import_source(cfg.get('workingSource', cfg['source']), 'working-source')
+    matrix = similarity_matrix(cfg['fit'], pin(cfg['source'])['sha256'])
+    try: final, report = grip_fit(cfg, matrix, working); departure = False
+    except GripDeparture as exc: report = exc.report; final = np.asarray(report.get('fitMatrix', matrix), float); departure = True
+    final = np.asarray(final, float); apply_fit(working, final)
+    native = cfg['family']['native']; ends = transform(np.asarray(cfg['fit']['gripEndpoints'], float), final)
+    v, _ = arrays(working); length = float(np.ptp(v[:, 1]))
+    result = {'measureOnly': True, 'gripReport': report, 'departure': departure,
+              'measurementDigest': (report or {}).get('measurementDigest'), 'fitMatrix': final.tolist(),
+              'nativeLength': length, 'fittedBounds': [v.min(0).tolist(), v.max(0).tolist()],
+              'gripLength': float(np.linalg.norm(ends[1] - ends[0])),
+              'gripCentreOffset': float(np.linalg.norm(ends.mean(0) - np.asarray(native['gripOrigin']))),
+              'preview': fit_preview(cfg, working, out)}
+    write(out/'measurement.json', result, fresh=True)
+    return result
+
+
+def fit_preview(cfg, working, out):
+    """Two orthographic workbench views of the fitted shell at native scale: the stock carrier's part boxes in
+    wireframe (blue), the approved grip span as a cylinder at the native grip origin (orange) and a vertical 10 cm
+    scale bar (white) beside the butt."""
+    native = cfg['family']['native']; scene = bpy.context.scene; objects = [working]
+    def wire_box(name, lo, hi):
+        lo, hi = np.asarray(lo, float), np.asarray(hi, float)
+        bpy.ops.mesh.primitive_cube_add(location=tuple((lo + hi) / 2)); box = bpy.context.object; box.name = name
+        box.scale = tuple(np.maximum((hi - lo) / 2, 1e-4)); box.color = (.2, .7, 1, 1)
+        modifier = box.modifiers.new('wire', 'WIREFRAME'); modifier.thickness = .005; objects.append(box)
+    for part, row in (native.get('dimensions') or {}).items():
+        wire_box('stock_'+part, *row['meshes'][0]['bounds'])
+    if 'stockSpan' in native:
+        lo, hi = native['stockSpan']; wire_box('stock', (-.03, lo, -.03), (.03, hi, .03))
+    origin = np.asarray(native['gripOrigin'], float)
+    bpy.ops.mesh.primitive_cylinder_add(radius=.0165, depth=float(native['gripLength']), location=tuple(origin), rotation=(np.pi / 2, 0, 0))
+    grip = bpy.context.object; grip.name = 'grip-span'; grip.color = (1, .55, .1, 1); objects.append(grip)
+    v, _ = arrays(working); low = float(v[:, 1].min())
+    bpy.ops.mesh.primitive_cube_add(location=(.07, low + .05, .07)); bar = bpy.context.object; bar.scale = (.004, .05, .004)
+    bar.color = (1, 1, 1, 1); objects.append(bar)
+    scene.render.engine = 'BLENDER_WORKBENCH'; scene.display.shading.light = 'STUDIO'; scene.display.shading.color_type = 'OBJECT'
+    scene.display.shading.show_xray = True; scene.display.shading.xray_alpha = .6
+    working.color = (.8, .8, .82, 1)
+    scene.render.resolution_x, scene.render.resolution_y = 700, 1400; scene.render.image_settings.file_format = 'PNG'
+    scene.render.threads_mode = 'FIXED'; scene.render.threads = 4
+    lo, hi = world_bounds(objects); centre = (lo + hi) / 2; extent = float(np.max(hi - lo))
+    bpy.ops.object.camera_add(); camera = bpy.context.object; scene.camera = camera
+    camera.data.type = 'ORTHO'; camera.data.ortho_scale = extent * 1.08
+    frames = {}
+    for name, direction in (('broad-face', (1, 0, 0)), ('edge', (0, 0, 1))):
+        camera.location = Vector(tuple(centre + np.asarray(direction) * extent * 3))
+        camera.rotation_euler = Matrix(camera_basis(np.asarray(camera.location), centre, (0, 1, 0)).tolist()).to_euler()
+        scene.render.filepath = str(out/f'fit-preview-{name}.png'); render_still(); frames[name] = pin(out/f'fit-preview-{name}.png')
+    return frames
+
+
 def fit(cfg, out):
     reset(); donor = import_source(cfg['source'], 'donor')
     # Measure the retained working mesh before transformation. Re-importing a
@@ -218,36 +311,10 @@ def fit(cfg, out):
         require(pin(cfg.get('workingSource',cfg['source']))['sha256'] == cfg['family']['native']['motion']['working']['sha256'],
                 'Crossbow fit source differs from its qualified moving mesh')
     matrix = similarity_matrix(cfg['fit'], pin(cfg['source'])['sha256'])
-    grip_report = None
-    if cfg.get('gripStandard'):
-        from tools.itemkit.grip import GripDeparture, calibration, one_hand_round, two_hand_uniform
-        standard=read(cfg['gripStandard'])
-        thickness_fit = (cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
-                         and cfg['fit'].get('sizingAuthority')=='midpoint-depth')
-        two_hand_fit = cfg['fit'].get('sizingAuthority')=='midpoint-depth-two-hand'
-        if two_hand_fit:
-            require(cfg['family']['family']=='greatsword' and cfg['family']['native']['baseItem']==13,
-                    'Explicit two-handed sword carrier required for the length departure')
-            require(pin(cfg['gripStandard']) in cfg['inputs'],'Bind the exact approved melee standard')
-        if not thickness_fit and not two_hand_fit:
-            require(abs(cfg['family']['native']['gripLength']-standard['usableLength'])<1e-9,
-                    'Native target length differs from the approved grip standard')
-        mv,mf=arrays(working)
-        try:
-            if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
-                from tools.itemkit.firearm_grip import measured_fit
-                matrix,grip_report=measured_fit(mv,mf,cfg['fit'],pin(cfg['source'])['sha256'],
-                    pin(cfg.get('workingSource',cfg['source']))['sha256'],standard,cfg['family']['native']['gripOrigin'])
-            elif two_hand_fit:
-                matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],
-                                                    standard,cfg['fit'].get('gripDeparture'))
-            elif cfg['fit'].get('sizingAuthority')=='usable-length-round':
-                matrix,grip_report=one_hand_round(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
-            else:
-                matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
-        except GripDeparture as exc:
-            write(out/'grip-measurement.json',exc.report,fresh=True)
-            raise
+    try: matrix, grip_report = grip_fit(cfg, matrix, working)
+    except Exception as exc:
+        if hasattr(exc, 'report'): write(out/'grip-measurement.json', exc.report, fresh=True)
+        raise
     donor_fit = apply_fit(donor, matrix, out/'donor-fit-normals.npz')
     if working != donor:
         working_fit = apply_fit(working, matrix, out/'working-fit-normals.npz')
@@ -888,7 +955,7 @@ def main():
     args = parser.parse_args(sys.argv[sys.argv.index('--')+1:]); cfg = read(args.config)
     verify(cfg['inputs']); output = Path(cfg['output']); output.mkdir(parents=True, exist_ok=False)
     started = time.monotonic()
-    actions = {'fit': fit, 'reduce': reduce, 'uv-arrays': uv_arrays, 'unwrap': unwrap, 'finish': finish, 'bake': bake,
+    actions = {'fit': fit, 'fit-measure': fit_measure, 'reduce': reduce, 'uv-arrays': uv_arrays, 'unwrap': unwrap, 'finish': finish, 'bake': bake,
                'preflight-transfer':preflight, 'recover-bake':recover_bake,
                'shadow': lambda c, o: reduce(c, o, shadow=True), 'render': render,
                'inspect': lambda c, o: render(c, o, source=True), 'export-arrays': export_arrays,

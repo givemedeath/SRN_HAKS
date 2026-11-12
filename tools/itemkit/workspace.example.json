@@ -1,0 +1,33 @@
+{
+  "kind": "srn-item-workspace",
+  "schemaVersion": 1,
+  "python": "<workspace Python>/python.exe",
+  "pythonPath": [
+    "<shared tools root>/itemkit-python-v1",
+    "<shared tools root>/libigl-2.6.3",
+    "<shared tools root>/xatlas-0.0.11",
+    "<shared tools root>/pymeshlab-2025.7.post1"
+  ],
+  "blender": "<Blender 4.0>/blender.exe",
+  "nwnRoot": "<NWN:EE install folder>",
+  "erf": "<shared tools root>/neverwinter/<version>/windows-x64/nwn_erf.exe",
+  "codex": "<Codex CLI>/codex.exe",
+  "runtime": "runtime-v2",
+  "bindings": "bindings-v3.json",
+  "generationBindings": "bindings-v2.json",
+  "handoff": "catalog-generation-handoff-v1",
+  "items": ".",
+  "references": "wave1-oblique-references",
+  "comfy": {
+    "url": "http://127.0.0.1:8188",
+    "python": "<ComfyUI venv>/Scripts/python.exe",
+    "startup": "<ComfyUI custom nodes>/srn_headkit/managed_startup.py",
+    "config": "runtime-v2/startup-v2/startup.json",
+    "output": "<ComfyUI output folder>"
+  },
+  "fixture": {
+    "testModules": "../../test-modules/weapon-waves",
+    "packs": "..",
+    "comparisons": ["../../srn_weapon/sr_cfs.uti", "../../srn_weapon/sr_cougar.uti"]
+  }
+}

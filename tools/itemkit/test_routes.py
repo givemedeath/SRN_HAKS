@@ -3,7 +3,8 @@ import unittest
 from .contracts import PARTS
 from .firearms import SLOTS
 from .parts import active_parts
-from .routes import GRIP_BOUND_FAMILIES, PACKAGED_FIREARMS, RIGGED_NATIVE_FAMILIES, ROUTES, WHOLE_NATIVE_FAMILIES, needs_grip_standard
+from .routes import (GRIP_BOUND_FAMILIES, HAFTED_FAMILIES, PACKAGED_FIREARMS, RIGGED_NATIVE_FAMILIES, ROUTES, TWO_HAND_FAMILIES,
+                     WHOLE_NATIVE_FAMILIES, needs_grip_standard)
 
 
 class RouteTableTests(unittest.TestCase):
@@ -11,7 +12,19 @@ class RouteTableTests(unittest.TestCase):
         self.assertEqual(set(WHOLE_NATIVE_FAMILIES),{'firearm-sling','firearm-crossbow','crossbow'})
         self.assertEqual(set(PACKAGED_FIREARMS),{'firearm-sling','firearm-crossbow'})
         self.assertEqual(set(RIGGED_NATIVE_FAMILIES),{'bow','whip'})
-        self.assertEqual(set(GRIP_BOUND_FAMILIES),{'shortsword','dagger','longsword','greatsword',*WHOLE_NATIVE_FAMILIES})
+        self.assertEqual(set(HAFTED_FAMILIES),{'club','handaxe','battleaxe','greataxe','halberd','scythe','spear'})
+        self.assertEqual(set(GRIP_BOUND_FAMILIES),{'shortsword','dagger','longsword','greatsword',*HAFTED_FAMILIES,*WHOLE_NATIVE_FAMILIES})
+        self.assertEqual(set(TWO_HAND_FAMILIES),{'greatsword','greataxe','halberd','scythe'})
+
+    def test_hafted_carriers_are_the_installed_base_items(self):
+        # baseitems.2da rows: Club 28 WBlCl, Handaxe 38 WAxHn, Battleaxe 2 WAxBt, Greataxe 18 WAxGr, Halberd 10 WPlHb,
+        # Scythe 55 WPlSc, Shortspear 58 WPlSs. Two-handers are the rows without the left-hand slot (0x1C010).
+        rows = {'club': (28, 'wblcl'), 'handaxe': (38, 'waxhn'), 'battleaxe': (2, 'waxbt'), 'greataxe': (18, 'waxgr'),
+                'halberd': (10, 'wplhb'), 'scythe': (55, 'wplsc'), 'spear': (58, 'wplss')}
+        for name, (base, item_class) in rows.items():
+            with self.subTest(family=name):
+                carrier = ROUTES[name].carrier; self.assertEqual((carrier.base_item, carrier.item_class), (base, item_class))
+                self.assertEqual(ROUTES[name].carry == 'shoulder', ROUTES[name].hold == 'two')
 
     def test_two_hand_fit_needs_the_grip_standard_on_every_family(self):
         self.assertTrue(needs_grip_standard('dagger',{}))

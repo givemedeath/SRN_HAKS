@@ -57,6 +57,23 @@ def evidence_draft(shots, log_name, checks=CHECKS):
     return {'observations': rows, 'missing': missing, 'reviewRequired': True}
 
 
+def contact_sheets(captures, columns=4, size=(480, 270)):
+    """One sheet per body from the middle frame of every shot, labelled with its check and shot number."""
+    from PIL import Image, ImageDraw
+    captures = Path(captures); sheets = {}
+    for _, body in SHOT_ACTORS:
+        files = sorted(captures.glob(f'{body}-*-1.png'), key=lambda f: int(f.stem.split('-')[-2]))
+        if not files: continue
+        width, height = size; rows = (len(files) + columns - 1) // columns
+        sheet = Image.new('RGB', (width * columns, height * rows), (20, 20, 20))
+        for index, path in enumerate(files):
+            image = Image.open(path).convert('RGB').resize(size)
+            ImageDraw.Draw(image).text((6, 6), path.stem[len(body) + 1:-2], fill=(255, 230, 120))
+            sheet.paste(image, ((index % columns) * width, (index // columns) * height))
+        target = captures/f'sheet-{body}.jpg'; sheet.save(target, quality=90); sheets[body] = str(target)
+    return sheets
+
+
 def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP, settle=SETTLE):
     from tools.armorkit import client
     fixture_dir = Path(fixture_dir); captures = Path(captures)
@@ -119,7 +136,8 @@ def main(argv=None):
     result = run(a.nwn_root, a.fixture, a.captures, timeout=a.timeout)
     rejected = [shot['shot'] for shot in result['shots'] if shot.get('rejected')]
     print(json.dumps({'captures': str(a.captures), 'shots': len(result['shots']), 'expected': result['shotsExpected'],
-                      'rejected': rejected, 'equipped': result['equipped'], 'failures': result['failures']}, indent=2))
+                      'rejected': rejected, 'equipped': result['equipped'], 'failures': result['failures'],
+                      'sheets': contact_sheets(a.captures)}, indent=2))
     return 0
 
 

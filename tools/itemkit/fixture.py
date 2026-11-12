@@ -142,6 +142,11 @@ SHOULDER_SHOTS = tuple((step, delay, check, 225 if close else facing, 1.5 if clo
                         1.35 if close else 1.3)
                        for step, delay, check, facing, distance, pitch, height in SHOTS for close in [distance < 2])
 SHOT_CARRY = {'hip': SHOTS, 'shoulder': SHOULDER_SHOTS}
+
+
+def carry_for(base_item):
+    """Scripted-shot framing for a native base item: its route's carry, hip for anything without a carrier route."""
+    return next((route.carry for route in ROUTES.values() if route.carrier and route.carrier.base_item == base_item), 'hip')
 SHOT_WAITS = 6   # a shot that finds the camera in use waits up to 2.4 s for it before leaving itself to the next cycle
 SHOT_BARE = 30   # the motion sequence's own unequip of armour and gloves does not always complete; the later, idle steps start bare
 SHOT_ACTORS = (('sr_it_male', 'human-male'), ('sr_it_female', 'human-female'))
@@ -375,7 +380,7 @@ def build(manifest_path, manifest, native, local, output):
     # actors are now visible at entry; leave the player's camera under their control.
     script = entry_script(item_name, comparisons, '' if previous == 'sr_it_setup' else previous,
                           equipment_slot='left' if native.get('kind') == 'shield-native-package' else 'right',
-                          carry='shoulder' if native.get('baseItem') == ROUTES['greatsword'].carrier.base_item else 'hip')
+                          carry=carry_for(native.get('baseItem')))
     script_path = resources/'sr_it_enter.nss'; script_path.write_text(script, encoding='ascii')
     include = output/'includes'; include.mkdir()
     shutil.copyfile(inputs[3]['path'], include/'nwscript.nss')

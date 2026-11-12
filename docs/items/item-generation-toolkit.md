@@ -431,13 +431,87 @@ captures are saved after each `ITEMKIT_SHOT` line. A shot that finds the camera 
 so a run lasts five to nine minutes.
 
 The greatsword carrier rests on the shoulder, so its fixture uses `fixture.SHOULDER_SHOTS`: the same moments framed
-higher and a metre further off, with the close-ups aimed at the chest where the hand is. Other carries (staff, bow)
-still use the hip framing until their own is measured.
+higher and a metre further off, with the close-ups aimed at the chest where the hand is. The framing follows the
+route's `carry` (`fixture.carry_for`): the greataxe, halberd and scythe carriers are also shouldered. Other carries
+(staff, bow) still use the hip framing until their own is measured.
 
 `capture.json` records the shots and equip lines. `evidence-draft.json` groups the pictures by body and required
 check with `result: "unreviewed"` and lists any check without a picture. It is material for the client evidence, not
 the evidence: a person still looks, judges and writes the review. The fixture area keeps only the two review actors;
-the template's idle lineup is left out.
+the template's idle lineup is left out. The driver also writes one contact sheet per body (`sheet-<body>.jpg`, the
+middle frame of every shot).
+
+## Item workspace and driver
+
+`tools/itemkit/drive.py` runs every wave step as one command; it replaces the per-wave driver scripts that lived
+outside the repository (wave-1's `wave.py`, `auto_fit.py`, `condition_oblique.py`, `views.py`). Machine paths live in
+an ignored item workspace, found from `--workspace`, then `$SRN_ITEM_WORKSPACE`, then `output/itemkit/workspace.json`.
+Start from `tools/itemkit/workspace.example.json`; relative paths resolve against the workspace file. `bindings` is
+the processing binding and `generationBindings` the generation one, both inside `runtime`.
+
+    python -m tools.itemkit.drive gen ID geometry --manifest calibrated-v2          # one GPU job through the ledger
+    python -m tools.itemkit.drive fit ID SRC DST WORKING.glb DONOR.glb --overrides O.json --donor-review "user's words"
+    python -m tools.itemkit.drive batch ID:SUFFIX ID:SUFFIX --stages fit,reduce,unwrap,finish,bake,shadow,render --jobs 2
+    python -m tools.itemkit.drive refixture ID SUFFIX NAME --capture
+    python -m tools.itemkit.drive contract greataxe ID --wave NAME
+
+Every processing command goes through `run_itemkit.py inputs` and the verified shared-tool launcher, exactly as a
+hand-typed run. Nothing in the driver approves a design: approvals it writes quote words passed in `--notes` or
+`--donor-review`, and `batch` and `chain` approve intermediate stages only as numerical passes.
+`python -m tools.itemkit.drive --help` lists every command.
+
+### Measure-only fit and fit preview
+
+    run_itemkit.py measure-fit --manifest M --bindings B --run RUN --output RUN/measure-N
+
+runs the fit worker's grip measurement without spending a fit attempt (`kind: fit-measurement`, `stageAttempt:
+false`) and writes `measurement.json`: the departure flag, the worker's own `measurementDigest`, the fit matrix,
+native length, fitted bounds and two x-ray previews (`fit-preview-broad-face.png`, `fit-preview-edge.png`) of the
+fitted item over the stock carrier's part boxes, the standard grip cylinder at the grip origin and a 10 cm bar. The
+digest is the one the fit stage checks, so a departure review can bind it before the first fit attempt. `drive fit`
+does this automatically: when the measured fit departs and no digest is given, it writes `<DST>-measure`, runs the
+preview and writes `<DST>` with the digest bound (still under the review authority given). `drive preview ID SUFFIX`
+runs only the measure. Measured on the Club: about 2 minutes, the same digest as the wave-1 fit.
+
+### Rebuilding a fixture
+
+    run_itemkit.py refixture --manifest M --bindings B --run RUN --fixture-inputs DOC --output RUN/refixture-N
+
+builds only a fresh fixture from the run's existing native result after fixture code changes, instead of rerunning
+the chain. It verifies the native chain at the code version it was recorded with (the receipts' `codeVersion`; their
+own source-file pins are not rechecked against today's files) and takes the fixture's own inputs from a `kind: fixture-inputs` document beside
+the manifests (`drive fixture-inputs` writes one). The receipt is `kind: fixture-rebuild`, never a pipeline stage and
+never client-stage eligible: a release still needs the full chain at the current code. About 2 minutes against
+15 for a chain.
+
+### Parallel processing
+
+`drive batch` runs one chain per item, at most three at once (the per-part run concurrency rule), each Blender
+rendering on four threads. Items are independent: a failed item is recorded with its error and the rest continue.
+Two Club fits ran side by side in about 2 minutes on 2026-11-11.
+
+### Texture outliers
+
+The bake stage adds an advisory `textureOutliers` block (`texture_check.check_bake`): per UV island, a
+31-pixel median background, a smoothed residual and connected blobs above a contrast floor are flagged with a
+heatmap. It found the Club's grip squiggle (3 blobs) and nothing on plain grain. It never fails the stage; a person
+looks at the heatmap. `python -m tools.itemkit.texture_check BAKE_ATTEMPT` runs it on an existing bake.
+
+### Clubs, axes and polearms
+
+The composite melee routes add `club` (28), `handaxe` (38), `battleaxe` (2), `spear` (58), and the two-handed,
+shouldered `greataxe` (18), `halberd` (10) and `scythe` (55), all on their installed carriers with the Cougar grip
+standard. They are `shape: hafted`: the fit finds the head as the widest end (turned to +Y), scales uniformly to the
+stock carrier's length or a chosen `targetLength`, and places the hand at the carrier's measured grip origin. One-hand
+hafted fits use `usable-length-round` and always stop for a digest-bound departure review; two-hand fits use the
+uniform two-hand rule.
+
+`drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
+carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer,
+measures the stock grip origin and span (`carrier.py`, from the binary models' triangle sections), sets the icon size
+from `baseitems.2da`, allocates the visible budget from `budget-policy.json` by stock length (7,500 at 0.5 m to 22,500
+at 1.6 m and over) and reserves resources. The grip origin is measured, not reviewed in a hand: the first design on a
+new carrier carries the both-body hand-fit review that confirms it.
 
 ## Native and geometry contracts
 

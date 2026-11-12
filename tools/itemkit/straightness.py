@@ -23,7 +23,8 @@ LIMITS = {'bendPctOfLength': 1.5, 'twistDegrees': 12.0, 'guardSkewDegrees': 6.0,
           'bladeDepthToWidth': .5,       # wave 1: the Sword at 0.40 was accepted, the Claymore at 0.65 was called too thick
           'splitBladeSlices': 2}         # gross delamination only; a hairline edge split still needs the end-on views
 THIN_FACTOR = .5
-LONG_FAMILIES =('shortsword', 'longsword', 'greatsword', 'staff')
+LONG_FAMILIES =('shortsword', 'longsword', 'greatsword', 'staff', 'club', 'handaxe', 'battleaxe', 'greataxe', 'halberd',
+                'scythe', 'spear')
 _KERNEL = np.exp(-.5 * (np.arange(-18, 19) / SMOOTHING_SIGMA) ** 2); _KERNEL /= _KERNEL.sum()
 
 
