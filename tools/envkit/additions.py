@@ -46,6 +46,19 @@ def _unlit(pack, name, built, models):
     return [path.name for path in gone]
 
 
+def _dropped_parts(pack, name, kept, models):
+    """Remove from a pack the pictures of the models a group placed when it was installed before and no longer places
+    (`convert.part_textures` names them `name`p1 to p9), and return their names: a group built again with fewer parts
+    would leave a part's maps behind, and a glow map among them would read as lit with no lights recorded."""
+    from .convert import MAX_PARTS
+    gone = [path for index in range(1, MAX_PARTS + 1) if (stem := f'{name}p{index}') not in kept and stem not in models
+            for path in sorted(Path(pack).glob(stem + '*')) if path.suffix in ('.mtr', '.dds', '.txi', '.tga')
+            and (path.stem == stem or path.stem.startswith(stem + '_'))]
+    for path in gone:
+        path.unlink()
+    return [path.name for path in gone]
+
+
 def _entry(old, core, origin, what):
     """An entry for the catalog: one already there keeps what it says of its origin; a new one must name its
     PROVENANCE.md section."""
@@ -86,6 +99,7 @@ def command_install(args):
     # The lights-out set goes with the tiles as it goes with a placeable: one standard for whoever scripts them.
     copied += [shutil.copyfile(path, _home(args, path)) for path in sorted((built / 'shared').iterdir())]
     removed = [name for texture in [args.model, *made.get('parts', {}).values()] for name in _unlit(shared, texture, built / 'shared', models)]
+    removed += _dropped_parts(shared, args.model, set(made.get('parts', {}).values()), models)
     placed = {name: tile.commit(one) for name, one in prepared.items()}
     catalog.save(record, data)
     print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed}), flush=True)

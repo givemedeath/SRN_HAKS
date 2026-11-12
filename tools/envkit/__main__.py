@@ -147,25 +147,9 @@ def command_tiles(args):
             part, part_maps, part_colour = shapes[name]
             files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
             placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
-        # a model placed twice is two meshes of one texture: joined, so that each texture is one model of the group
-        merged = {}
-        for texture, part, part_colour in placed:
-            if texture in merged:
-                was = merged[texture][0]; count = len(was['vertices'])
-                joined = {**was, 'vertices': np.vstack([was['vertices'], part['vertices']]), 'normals': np.vstack([was['normals'], part['normals']]),
-                          'uvs': np.vstack([was['uvs'], part['uvs']]), 'faces': np.vstack([was['faces'], part['faces'] + count])}
-                if was.get('wire'):
-                    wire_count = len(was['wire']['vertices'])
-                    joined['wire'] = {**was['wire'], **{key: np.vstack([was['wire'][key], part['wire'][key]]) for key in ('vertices', 'normals', 'uvs')},
-                                      'faces': np.vstack([was['wire']['faces'], np.asarray(part['wire']['faces']) + wire_count])}
-                if was.get('card'):
-                    joined['card'] = was['card']._replace(cards=was['card'].cards + part['card'].cards, light=list(was['card'].light) + list(part['card'].light))
-                merged[texture] = (joined, part_colour)
-            else:
-                merged[texture] = (part, part_colour)
         report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'),
                             ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
-                            parts=[(texture, part, part_colour) for texture, (part, part_colour) in merged.items()])
+                            parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
         report['parts'] = textures; report['buildingTriangles'] = built
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})

@@ -155,7 +155,8 @@ class SetTests(unittest.TestCase):
         for change, message in ((lambda a: a.update(cut={'from': 'trash-can', 'box': [0, 0, 6, 4]}), 'another, whole, view'),
                                 (lambda a: a.update(cut={'from': 'building-left', 'box': [0, 0, 6, 4]}), 'another, whole, view'),
                                 (lambda a: a.update(cut={'from': whole, 'box': [6, 0, 6, 4]}), 'its box in pixels'),
-                                (lambda a: a.update(cut={'from': whole}), 'another, whole, view')):
+                                (lambda a: a.update(cut={'from': whole}), 'another, whole, view'),
+                                (lambda a: a.update(cut={'from': [whole], 'box': [0, 0, 6, 4]}), 'another, whole, view')):
             data = copy.deepcopy(good); change(data['assets']['building-left'])
             with self.assertRaisesRegex(ValueError, message):
                 reference.load_set(self.write(data))

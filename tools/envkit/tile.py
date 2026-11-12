@@ -508,6 +508,30 @@ def doorstep(found, corner, at, facing):
     require(False, f'The door has no open ground within {DOOR_REACH} metres in front of it: a player could not reach it')
 
 
+def join(meshes, keys=('vertices', 'normals', 'uvs', 'faces')):
+    """Meshes joined into one: their points stacked, and each one's faces moved past the points of those before it."""
+    starts = np.cumsum([0, *(len(one['vertices']) for one in meshes[:-1])])
+    # Only the faces are moved: adding nothing to the rest would still turn their -0.0 into 0.0, and the tiles written with them.
+    return {key: np.vstack([np.asarray(one[key]) + start if key == 'faces' else one[key] for one, start in zip(meshes, starts)]) for key in keys}
+
+
+def merge_parts(parts):
+    """A group's parts, (texture, finished model, colour), with those of one texture joined into one model: a model
+    placed more than once (the yard's five fence sections) is one model of the group, with its sheets and halo cards."""
+    found = {}
+    for texture, one, colour in parts:
+        found.setdefault(texture, ([], colour))[0].append(one)
+    merged = []
+    for texture, (ones, colour) in found.items():
+        whole = {**ones[0], **join(ones)} if len(ones) > 1 else ones[0]
+        if len(ones) > 1 and ones[0].get('wire'):
+            whole['wire'] = {**ones[0]['wire'], **join([one['wire'] for one in ones])}
+        if len(ones) > 1 and ones[0].get('card'):
+            whole['card'] = ones[0]['card']._replace(cards=[card for one in ones for card in one['card'].cards], light=[light for one in ones for light in one['card'].light])
+        merged.append((texture, whole, colour))
+    return merged
+
+
 def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=()):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
@@ -518,14 +542,15 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     over `ground_colour`. fade: the height in metres above which the building may be hidden. door: {at: [x, y, z],
     facing, type} on the finished model; it becomes a door record of the tile its hook lies in (`doorstep`). parts: the
     other models of the group as (texture, finished model placed in the group's space, colour), each drawn with its own
-    picture, halo and fence sheets, and with the building one ground to walk on, cut into the same tiles."""
+    picture, halo and fence sheets, and with the building one ground to walk on, cut into the same tiles; a model placed
+    more than once comes once for each place, and they are joined (`merge_parts`)."""
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
-    meshes = [(name, made, colour), *parts]; require(len({texture for texture, _, _ in meshes}) == len(meshes), 'Each model of a group has a texture of its own')
-    joined = lambda key, of: (np.vstack([one[key] + (sum(len(other['vertices']) for other in of[:index]) if key == 'faces' else 0) for index, one in enumerate(of)]))
-    shaped = [one for _, one, _ in meshes]; vertices, faces = joined('vertices', shaped), joined('faces', shaped)
+    parts = merge_parts(parts); meshes = [(name, made, colour), *parts]
+    require(len({texture for texture, _, _ in meshes}) == len(meshes), "A part of a group shows a texture of its own, not the group's")
+    shaped = [one for _, one, _ in meshes]; whole = join(shaped, ('vertices', 'faces')); vertices, faces = whole['vertices'], whole['faces']
     wires = [(texture, one['wire']) for texture, one, _ in meshes if one.get('wire') is not None]
-    barrier = (joined('vertices', [wire for _, wire in wires]), joined('faces', [wire for _, wire in wires])) if wires else None
+    barrier = tuple(join([wire for _, wire in wires], ('vertices', 'faces')).values()) if wires else None
     rows, columns, corner = layout(vertices); found = survey(vertices, faces, rows, columns, corner, barrier=barrier)
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
 

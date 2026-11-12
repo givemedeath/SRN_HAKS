@@ -199,6 +199,7 @@ class GlowTests(unittest.TestCase):
                 return convert.load_models(path)
             self.assertEqual(len(group_of({'model': 'ek_crate', 'at': [8, 0, 0.2]}, {'model': 'ek_crate', 'at': [8, 2, 0.2], 'turn': 90})['ek_x']['tiles']['parts']), 2)
             for parts, message in (([{'model': 'ek_crate', 'at': [8, 0]}], 'turned 0, 90'), ([{'model': 'ek_crate', 'at': [8, 0, 0], 'turn': 45}], 'turned 0, 90'),
+                                   ([{'model': 'ek_crate', 'at': ['8', 0, 0]}], 'turned 0, 90'), ([{'model': 'ek_crate', 'at': [True, 0, 0]}], 'turned 0, 90'),
                                    ([{'model': 'ek_gone', 'at': [8, 0, 0]}], 'another model of the set'), ([{'model': 'ek_x', 'at': [8, 0, 0]}], 'another model of the set')):
                 with self.assertRaisesRegex(ValueError, message):
                     group_of(*parts)

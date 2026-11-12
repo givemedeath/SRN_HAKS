@@ -703,9 +703,10 @@ def load_models(path):
         # A halo card and a fence's sheets stand along x or along y, and are cut at the tile lines along that (`tile.share_cards`):
         # a part turned by other than a quarter would leave them across the cut.
         require(isinstance(parts, list) and all(isinstance(part, dict) and {'model', 'at'} <= set(part) <= {'model', 'at', 'turn'} and isinstance(part['model'], str)
-                                                and np.asarray(part['at'], float).shape == (3,) and part.get('turn', 0) in (0, 90, 180, 270) for part in parts),
+                                                and isinstance(part['at'], list) and len(part['at']) == 3 and all(number(value) for value in part['at'])
+                                                and part.get('turn', 0) in (0, 90, 180, 270) for part in parts),
                 'A part of a group is {model, at: [x, y, z], turn}, turned 0, 90, 180 or 270 degrees: ' + name)
-        require(len(part_textures(name, parts)) <= 9, 'A group has at most nine models placed in it: ' + name)
+        require(len(part_textures(name, parts)) <= MAX_PARTS, f'A group has at most {MAX_PARTS} models placed in it: ' + name)
         # Every box, fence, door and fade height is a measurement, and a measurement is of the model as it stood: at
         # one height, and lifted, turned and tilted as it then was. A typed door leaf would go on passing after its
         # building was made taller or lower, and a lit box would go on holding some of the model and lighting the wrong
@@ -727,6 +728,9 @@ def load_models(path):
             require(other is not None and part['model'] != name and not other.get('tiles'),
                     f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
     return data['models']
+
+
+MAX_PARTS = 9  # models placed in one group: `<group>p1` to `p9`, which the repository check looks for
 
 
 def part_textures(name, parts):

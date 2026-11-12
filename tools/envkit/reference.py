@@ -73,7 +73,7 @@ def load_set(path):
                 'Asset needs kind, subject and box: ' + name)
         require(asset['kind'] == 'prop' or not KIN & set(asset), 'Only props have a type: ' + name)
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
-            cut = asset['cut']; whole = data['assets'].get(cut.get('from')) if isinstance(cut, dict) else None
+            cut = asset['cut']; whole = data['assets'].get(cut['from']) if isinstance(cut, dict) and isinstance(cut.get('from'), str) else None
             require(asset['kind'] == 'building' and isinstance(cut, dict) and set(cut) == {'from', 'box'} and whole is not None
                     and whole['kind'] == 'building' and 'cut' not in whole, 'A cut is a building view drawn from another, whole, view of the set: ' + name)
             require(isinstance(cut['box'], list) and len(cut['box']) == 4 and all(type(v) is int for v in cut['box'])

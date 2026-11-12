@@ -371,6 +371,13 @@ class TileTests(unittest.TestCase):
             self.assertEqual(found['material'][int((0 - corner[1]) / CELL), int((8 - corner[0]) / CELL)], tile.NONWALK)  # the crate is walked round
             with self.assertRaisesRegex(ValueError, 'texture of its own'):
                 tile.group('ek_yard', building, Path(scratch) / 'again', ground='pavement', parts=[('ek_yard', crate_there, None)])
+            # A model placed twice comes once for each place and is joined into one model of the group, halo cards and all.
+            second = convert.place(lamp, [-8.0, 2.0, 0.2], 90)
+            joined, = tile.merge_parts([('ek_yardp2', lamp_there, None), ('ek_yardp2', second, None)])
+            self.assertEqual((len(joined[1]['vertices']), len(joined[1]['card'].cards)), (2 * len(lamp['vertices']), 2))
+            np.testing.assert_array_equal(joined[1]['faces'][len(BOX):], lamp['faces'] + len(lamp['vertices']))
+            twice = tile.group('ek_yard', building, Path(scratch) / 'twice', ground='pavement', parts=[('ek_yardp2', lamp_there, None), ('ek_yardp2', second, None)])
+            self.assertEqual(sum(one['faces'] for one in twice['tiles']), len(faces) + 2 * len(BOX))
 
     def test_a_door_hook_is_drawn_out_onto_open_ground_and_turned_as_the_set_file_turns_doors(self):
         """The Ares Depot's hook lay on its door leaf, inside the wall's closed ground, turned by the way the door faces:
@@ -526,6 +533,13 @@ class TileTests(unittest.TestCase):
                 (built / 'shared' / name).unlink()
             self.assertEqual(sorted(run()['removed']), sorted(lit))
             self.assertNotIn('lights', catalog.load(listed)['tileGroups'][0]); self.assertFalse(any((pack / name).exists() for name in lit))
+            # A part the group placed when it was installed before, and places no longer, takes its pictures with it.
+            dropped = ('ek_testp2.mtr', 'ek_testp2.dds', 'ek_testp2_n.dds', 'ek_testp2_i.dds')
+            for name in (*dropped, 'ek_testp1.dds'):
+                (pack / name).write_bytes(b'old')
+            (built / 'report.json').write_text(json.dumps({**made, 'parts': {'ek_crate': 'ek_testp1'}}), encoding='utf-8'); (built / 'shared' / 'ek_testp1.dds').write_bytes(b'new')
+            self.assertEqual(sorted(run()['removed']), sorted(dropped))
+            self.assertEqual((pack / 'ek_testp1.dds').read_bytes(), b'new'); self.assertFalse(any((pack / name).exists() for name in dropped))
 
     def test_the_palette_offers_the_group_among_the_groups_once(self):
         document = {'MAIN': {'value': [{'ID': {'value': 0}, 'LIST': {'value': []}}, {'ID': {'value': 1}, 'LIST': {'value': []}}]}}
