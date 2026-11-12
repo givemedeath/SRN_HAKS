@@ -408,6 +408,223 @@
    "added": "2026-11-11",
    "blueprint": "ek_ad_fence",
    "category": 159
+  },
+  {
+   "row": 22765,
+   "model": "ek_sk_desk",
+   "label": "[envkit]Saeder-Krupp Yard, Office Desk",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_sk_desk",
+    "out": "ek_sk_desk_o",
+    "glow": "ek_sk_desk_i",
+    "halo": "ek_sk_desk_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_desk",
+   "category": 174
+  },
+  {
+   "row": 22766,
+   "model": "ek_sk_console",
+   "label": "[envkit]Saeder-Krupp Yard, Loading Console",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_sk_console",
+    "out": "ek_sk_console_o",
+    "glow": "ek_sk_console_i",
+    "halo": "ek_sk_console_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_console",
+   "category": 165
+  },
+  {
+   "row": 22767,
+   "model": "ek_sk_lockers",
+   "label": "[envkit]Saeder-Krupp Yard, Tool Lockers",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_lockers",
+   "category": 164
+  },
+  {
+   "row": 22768,
+   "model": "ek_sk_crates",
+   "label": "[envkit]Saeder-Krupp Yard, Crate Set",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_crates",
+   "category": 164
+  },
+  {
+   "row": 22769,
+   "model": "ek_sk_pallets",
+   "label": "[envkit]Saeder-Krupp Yard, Pallet Stack",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_pallets",
+   "category": 164
+  },
+  {
+   "row": 22770,
+   "model": "ek_sk_cont",
+   "label": "[envkit]Saeder-Krupp Yard, Shipping Container",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_cont",
+   "category": 164
+  },
+  {
+   "row": 22771,
+   "model": "ek_sk_gate",
+   "label": "[envkit]Saeder-Krupp Yard, Vehicle Gate",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_sk_gate",
+    "out": "ek_sk_gate_o",
+    "glow": "ek_sk_gate_i",
+    "halo": "ek_sk_gate_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_gate",
+   "category": 159
+  },
+  {
+   "row": 22772,
+   "model": "ek_sk_forklift",
+   "label": "[envkit]Saeder-Krupp Yard, Forklift",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_forklift",
+   "category": 161
+  },
+  {
+   "row": 22773,
+   "model": "ek_sk_fuel",
+   "label": "[envkit]Saeder-Krupp Yard, Fuel Dispenser",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_sk_fuel",
+    "out": "ek_sk_fuel_o",
+    "glow": "ek_sk_fuel_i",
+    "halo": "ek_sk_fuel_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_fuel",
+   "category": 161
+  },
+  {
+   "row": 22774,
+   "model": "ek_sk_fence",
+   "label": "[envkit]Saeder-Krupp Yard, Fence Section",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_fence",
+   "category": 159
+  },
+  {
+   "row": 22775,
+   "model": "ek_sk_booth",
+   "label": "[envkit]Saeder-Krupp Yard, Security Booth",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_sk_booth",
+    "out": "ek_sk_booth_o",
+    "glow": "ek_sk_booth_i",
+    "halo": "ek_sk_booth_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_booth",
+   "category": 161
+  },
+  {
+   "row": 22776,
+   "model": "ek_sk_sign",
+   "label": "[envkit]Saeder-Krupp Yard, Wall Sign",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_sk_sign",
+    "out": "ek_sk_sign_o",
+    "glow": "ek_sk_sign_i",
+    "halo": "ek_sk_sign_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_sign",
+   "category": 156
+  },
+  {
+   "row": 22777,
+   "model": "ek_sk_pylon",
+   "label": "[envkit]Saeder-Krupp Yard, Pylon Sign",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_sk_pylon",
+    "out": "ek_sk_pylon_o",
+    "glow": "ek_sk_pylon_i",
+    "halo": "ek_sk_pylon_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_pylon",
+   "category": 156
+  },
+  {
+   "row": 22778,
+   "model": "ek_sk_barrier",
+   "label": "[envkit]Saeder-Krupp Yard, Utility Barrier",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard props",
+   "added": "2026-11-12",
+   "blueprint": "ek_sk_barrier",
+   "category": 158
   }
  ],
  "tileGroups": [
@@ -576,6 +793,76 @@
    }
   },
   {
+   "tileset": "dgt04",
+   "group": 59,
+   "name": "SK_Yard",
+   "label": "Saeder-Krupp Yard 3x3",
+   "rows": 3,
+   "columns": 3,
+   "tiles": [
+    447,
+    448,
+    449,
+    450,
+    451,
+    452,
+    453,
+    454,
+    455
+   ],
+   "models": [
+    "ek_sk_yard_t00",
+    "ek_sk_yard_t01",
+    "ek_sk_yard_t02",
+    "ek_sk_yard_t10",
+    "ek_sk_yard_t11",
+    "ek_sk_yard_t12",
+    "ek_sk_yard_t20",
+    "ek_sk_yard_t21",
+    "ek_sk_yard_t22"
+   ],
+   "pack": "srn_t_common",
+   "lights": [
+    {
+     "lit": "ek_sk_yard",
+     "out": "ek_sk_yard_o",
+     "glow": "ek_sk_yard_i"
+    },
+    {
+     "lit": "ek_sk_yardp1",
+     "out": "ek_sk_yardp1_o",
+     "glow": "ek_sk_yardp1_i",
+     "halo": "ek_sk_yardp1_h",
+     "dark": "ek_off"
+    },
+    {
+     "lit": "ek_sk_yardp3",
+     "out": "ek_sk_yardp3_o",
+     "glow": "ek_sk_yardp3_i",
+     "halo": "ek_sk_yardp3_h",
+     "dark": "ek_off"
+    },
+    {
+     "lit": "ek_sk_yardp4",
+     "out": "ek_sk_yardp4_o",
+     "glow": "ek_sk_yardp4_i",
+     "halo": "ek_sk_yardp4_h",
+     "dark": "ek_off"
+    },
+    {
+     "lit": "ek_sk_yardp6",
+     "out": "ek_sk_yardp6_o",
+     "glow": "ek_sk_yardp6_i",
+     "halo": "ek_sk_yardp6_h",
+     "dark": "ek_off"
+    }
+   ],
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard tile group",
+   "added": "2026-11-12"
+  },
+  {
    "tileset": "udp1",
    "group": 106,
    "name": "Stuffer_Shack",
@@ -648,6 +935,76 @@
     "halo": "ek_ad_depot_h",
     "dark": "ek_off"
    }
+  },
+  {
+   "tileset": "udp1",
+   "group": 108,
+   "name": "SK_Yard",
+   "label": "Saeder-Krupp Yard 3x3",
+   "rows": 3,
+   "columns": 3,
+   "tiles": [
+    689,
+    690,
+    691,
+    692,
+    693,
+    694,
+    695,
+    696,
+    697
+   ],
+   "models": [
+    "ek_sk_yard_t00",
+    "ek_sk_yard_t01",
+    "ek_sk_yard_t02",
+    "ek_sk_yard_t10",
+    "ek_sk_yard_t11",
+    "ek_sk_yard_t12",
+    "ek_sk_yard_t20",
+    "ek_sk_yard_t21",
+    "ek_sk_yard_t22"
+   ],
+   "pack": "srn_t_common",
+   "lights": [
+    {
+     "lit": "ek_sk_yard",
+     "out": "ek_sk_yard_o",
+     "glow": "ek_sk_yard_i"
+    },
+    {
+     "lit": "ek_sk_yardp1",
+     "out": "ek_sk_yardp1_o",
+     "glow": "ek_sk_yardp1_i",
+     "halo": "ek_sk_yardp1_h",
+     "dark": "ek_off"
+    },
+    {
+     "lit": "ek_sk_yardp3",
+     "out": "ek_sk_yardp3_o",
+     "glow": "ek_sk_yardp3_i",
+     "halo": "ek_sk_yardp3_h",
+     "dark": "ek_off"
+    },
+    {
+     "lit": "ek_sk_yardp4",
+     "out": "ek_sk_yardp4_o",
+     "glow": "ek_sk_yardp4_i",
+     "halo": "ek_sk_yardp4_h",
+     "dark": "ek_off"
+    },
+    {
+     "lit": "ek_sk_yardp6",
+     "out": "ek_sk_yardp6_o",
+     "glow": "ek_sk_yardp6_i",
+     "halo": "ek_sk_yardp6_h",
+     "dark": "ek_off"
+    }
+   ],
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard tile group",
+   "added": "2026-11-12"
   }
  ]
 }

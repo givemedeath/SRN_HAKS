@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_sk_yardp3
+texture1 ek_sk_yardp3_n
+texture2 ek_sk_yardp3_s
+texture3 ek_sk_yardp3_r
+texture4 null
+texture5 ek_sk_yardp3_i

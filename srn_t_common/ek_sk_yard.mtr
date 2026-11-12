@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_sk_yard
+texture1 ek_sk_yard_n
+texture2 ek_sk_yard_s
+texture3 ek_sk_yard_r
+texture4 null
+texture5 ek_sk_yard_i

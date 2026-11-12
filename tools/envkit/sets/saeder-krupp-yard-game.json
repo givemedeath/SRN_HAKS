@@ -1,5 +1,36 @@
 {
   "models": {
+    "ek_sk_yard": {"source": "meshy/models/sk-building-centre-a1-remesh2", "height": 9.6, "measuredAt": 9.6, "colour": 4096, "lit": [
+      {"part": "corner pole lamp", "box": [[5.2, 0.0, 7.8], [5.9, 4.2, 8.35]], "value": 0.8}
+    ], "halo": {"reach": 0.3, "strength": 0.4},
+      "tiles": {"ground": "pavement", "group": "SK_Yard", "label": "Saeder-Krupp Yard 3x3", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 5.0,
+        "door": {"at": [2.78, 3.68, 0.55], "facing": 90.0, "type": 58, "leaf": 2.15},
+        "parts": [
+          {"model": "ek_sk_yardcf", "at": [0.0, -5.53, 0.0], "turn": 180},
+          {"model": "ek_sk_yardwf", "at": [-8.72, -7.63, 0.0], "turn": 180},
+          {"model": "ek_sk_yardw", "at": [-8.79, -3.84, 0.0]},
+          {"model": "ek_sk_yarde", "at": [9.8, -3.22, 0.0], "turn": 180},
+          {"model": "ek_sk_fence", "at": [-9.1, -20.0, 0.0], "turn": 180}, {"model": "ek_sk_fence", "at": [-5.1, -20.0, 0.0], "turn": 180}, {"model": "ek_sk_fence", "at": [-1.1, -20.0, 0.0], "turn": 180},
+          {"model": "ek_sk_gate", "at": [3.9, -20.0, 0.0], "turn": 180},
+          {"model": "ek_sk_fence", "at": [8.9, -20.0, 0.0], "turn": 180}, {"model": "ek_sk_fence", "at": [12.9, -20.0, 0.0], "turn": 180},
+          {"model": "ek_sk_barrier", "at": [1.6, -17.2, 0.0], "turn": 90}, {"model": "ek_sk_barrier", "at": [6.2, -17.2, 0.0], "turn": 90},
+          {"model": "ek_sk_pallets", "at": [8.0, -14.2, 0.0]}, {"model": "ek_sk_pallets", "at": [10.3, -14.4, 0.0], "turn": 90},
+          {"model": "ek_sk_crates", "at": [12.3, -16.0, 0.0]}, {"model": "ek_sk_crates", "at": [7.2, -16.6, 0.0], "turn": 90}
+        ]}},
+    "ek_sk_yardcf": {"source": "meshy/models/sk-building-centrefront-a1-remesh2", "height": 9.25, "measuredAt": 9.25, "colour": 4096, "lit": [
+      {"part": "Saeder-Krupp sign", "box": [[-5.0, 2.5, 4.2], [5.4, 3.1, 5.9]], "gain": 0.5, "value": 0.6},
+      {"part": "lamps over the docks", "box": [[-4.0, 2.6, 2.85], [4.8, 3.1, 3.2]], "value": 0.55},
+      {"part": "corner pole lamp", "box": [[5.2, 0.8, 7.6], [6.25, 2.45, 8.1]], "value": 0.75}
+    ], "halo": {"reach": 0.3, "strength": 0.4}},
+    "ek_sk_yardwf": {"source": "meshy/models/sk-building-westfront-a1-remesh", "height": 11.5, "colour": 4096},
+    "ek_sk_yardw": {"source": "meshy/models/sk-building-west-a1-remesh", "height": 11.4, "measuredAt": 11.4, "colour": 4096, "lit": [
+      {"part": "lamp over the service door", "box": [[0.35, 1.4, 2.5], [1.25, 2.2, 2.85]], "value": 0.75},
+      {"part": "mast floodlight", "box": [[-1.7, -2.7, 10.85], [-0.2, -0.35, 11.4]], "value": 0.8}
+    ], "halo": {"reach": 0.3, "strength": 0.4}},
+    "ek_sk_yarde": {"source": "meshy/models/sk-building-east-a1-remesh2", "height": 11.2, "measuredAt": 11.2, "colour": 4096, "lit": [
+      {"part": "roof floodlight", "box": [[-3.5, -5.1, 8.7], [-2.0, -3.1, 9.3]], "value": 0.75},
+      {"part": "red light on the stack", "box": [[0.2, -5.8, 10.85], [0.7, -5.3, 11.2]], "gain": 1.5, "saturation": 0.5, "value": 0.35}
+    ], "halo": {"reach": 0.3, "strength": 0.4}},
     "ek_sk_desk": {"source": "meshy/models/sk-office-desk-a1", "height": 1.8, "measuredAt": 1.8, "colour": 2048, "lit": [
       {"part": "screens", "box": [[-1.05, -1.07, 0.92], [0.65, -0.2, 1.32]], "gain": 1.0, "saturation": 0.2, "value": 0.25},
       {"part": "hood strip lights", "box": [[-1.15, -1.07, 1.5], [1.25, -0.2, 1.8]], "value": 0.8}
