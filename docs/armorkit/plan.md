@@ -189,7 +189,8 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
    `tools/armorkit/brief.py`): every material with its kind (cloth, leather or metal), the flat colour it is
    drawn in and what is made of it, at most two of a kind, in clearly different hues. The colour paragraph of
    the image prompt is written from that file, and the bake sorts the outfit into the six channels by it. The
-   prompt also carries the construction rules (revision 2026-11-12 below), and no new folder is sealed without them. No
+   prompt also carries the construction rules (revision 2026-11-12 below), and no new folder is sealed without them. The
+   brief also names the slots the outfit leaves to the body and those where the body's skin shows beside it. No
    reference image is made without one: the reference folder is sealed with the brief
    (`python -m tools.armorkit brief BRIEF --seal FOLDER`, or `image` to make the image locally), every image
    made from it is registered there, and a geometry or appearance job is posted only for an image that
@@ -544,3 +545,14 @@ Order agreed with the user on 2026-11-12, after the pilot: the bake as one track
 that exist (`python -m tools.armorkit bake`); these rules; the next corporate security tier at the 30,000
 budget, exported at about 17,000 faces; then the better of the two outfits through the female cuts, the 18
 race versions and publication; then the belt, the logo badge and the respirator.
+
+## Revision 2026-11-12: short sleeves carry the body's skin (user decision)
+
+The second outfit, Facility Security, has short sleeves and gloves, the forearm between them bare. Two ways to
+build the sleeve were put to the user: as a shoulder part riding on the upper arm, the bare arm left as the
+body's own part, or on the upper-arm slot with the body's skin copied into that part. The user chose the copy:
+it keeps the shoulder slot free for the logo brassard, and shorts and other clothing of Phase 2 that shows
+skin have no spare slot to ride on. The forearm slot gets no part, and the upper-arm part is the sleeve and
+the body's own arm with its textures (`tools/armorkit/bodyskin.py`). The brief names both
+(`"bare": ["forearm"], "skin": ["bicep"]`). Built and tested on the Site Guard's mesh with its forearms taken
+out; not yet seen in the client.

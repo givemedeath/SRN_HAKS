@@ -11,7 +11,7 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, export, measure, split
+from . import bake, bodyskin, export, measure, split
 
 
 def part(faces=1, size=4):
@@ -132,6 +132,47 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(bake.gates(parts, models, resources)['failures'],
                              ['pmh0_chest332: no tint texture', 'pmh0_chest332: its material file names pmh0_chest332n, which is not there',
                               'pmh0_pelvis332: no material file'])
+
+    def test_a_slot_left_to_the_body_gets_no_part_and_a_shared_one_the_bodys_skin(self):
+        from .test_bodyskin import arm
+        bone = lambda *place: np.block([[np.eye(3), np.array(place, float)[:, None]], [np.zeros((1, 3)), np.ones((1, 1))]])
+        bones = {'torso_g': np.eye(4), 'lbicep_g': bone(0, 0, 1.5), 'lforearm_g': bone(0, 0, 1.2), 'lhand_g': bone(0, 0, 0.9)}
+        parts = {'chest': part(), 'bicepl': part(), 'forel': part(3), 'handl': part()}
+        document, said = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}, []
+        with mock.patch.object(bodyskin, 'body_part', lambda pack, maps, body, name, rig: arm()):
+            out = bake.bared(parts, document, 'pack', 'maps', 'pmh0', bones, say=said.append)
+            self.assertEqual(bake.bared(parts, {'model': 'outfit', 'materials': []}, 'pack', None, 'pmh0', bones), parts)  # a brief that names neither
+        self.assertEqual((sorted(out), sorted(parts)), (['bicepl', 'chest', 'handl'], ['bicepl', 'chest', 'forel', 'handl']))
+        self.assertEqual(said[0], 'forel: left to the body, 3 faces of the outfit cut off')
+        arm_part = out['bicepl']
+        self.assertEqual((int(arm_part['skin'].sum()), len(arm_part['rgb']), 'skin' in out['chest']), (len(arm()['f']), 8, False))
+        with tempfile.TemporaryDirectory() as folder:
+            bake.store(out, Path(folder) / 'kept')  # kept with what the skin adds, and read back with it
+            back = bake.stored(Path(folder) / 'kept')
+            self.assertTrue(all(np.array_equal(back['bicepl'][key], arm_part[key]) for key in bake.KEYS + bodyskin.KEYS))
+            self.assertEqual(set(back['chest']), set(bake.KEYS))
+            # the tint: the body's own shade and skin layer on its texels, the outfit's elsewhere
+            cloth = (np.full((8, 8), 170), np.full((8, 8), export.LAYERS['cloth1']))
+            shades, layers = bodyskin.tinted(arm_part, cloth)
+            at = arm_part['skin_at']
+            self.assertTrue((layers[at] == export.LAYERS['skin']).all() and (layers[~at] == export.LAYERS['cloth1']).all())
+            self.assertTrue(np.array_equal(shades[at], arm_part['skin_tint'][..., 0][at]) and (shades[~at] == 170).all())
+            self.assertIs(bodyskin.tinted(out['chest'], cloth), cloth)
+            # written: its normal map whole, and its roughness as a map the material binds
+            tinted = {name: bodyskin.tinted(one, (np.full(one['covered'].shape, 170), np.full(one['covered'].shape, export.LAYERS['cloth1'])))
+                      for name, one in out.items()}
+            models = bake.write(folder, out, tinted, bones, 'pmh0', 332)
+            resources = Path(folder) / 'resources'
+            self.assertEqual(bodyskin.image((resources / 'pmh0_bicepl332n.tga').read_bytes()).shape, (8, 8, 3))
+            self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (2, 2, 3))  # at half size, as before
+            rough = bodyskin.image((resources / 'pmh0_bicepl332r.tga').read_bytes())[..., 0]
+            self.assertTrue(np.allclose(rough, arm_part['skin_rough'] / 255, atol=1 / 255))
+            self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r'})
+            self.assertIn('Roughness 0\n', (resources / 'pmh0_bicepl332.mtr').read_text())
+            self.assertFalse((resources / 'pmh0_chest332r.tga').exists())
+            self.assertTrue(bake.gates(out, models, resources)['passed'])
+            (resources / 'pmh0_bicepl332r.tga').unlink()
+            self.assertEqual(bake.gates(out, models, resources)['failures'], ['pmh0_bicepl332: its material file names pmh0_bicepl332r, which is not there'])
 
     def test_a_run_compiles_the_models_it_wrote_and_no_others(self):
         with tempfile.TemporaryDirectory() as folder:

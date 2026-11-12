@@ -3,6 +3,12 @@
  "kind": "srn-armorkit-brief",
  "model": "corpsec-facility-male",
  "pads": [],
+ "bare": [
+  "forearm"
+ ],
+ "skin": [
+  "bicep"
+ ],
  "construction": 1,
  "materials": [
   {

@@ -16,6 +16,7 @@
       "tools/armorkit/tables.py"
     ],
     "tools/armorkit/bake.py": [
+      "tools/armorkit/bodyskin.py",
       "tools/armorkit/brief.py",
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
@@ -26,6 +27,13 @@
       "tools/armorkit/texture.py",
       "tools/headkit/__init__.py",
       "tools/headkit/gltf.py"
+    ],
+    "tools/armorkit/bodyskin.py": [
+      "tools/armorkit/export.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/native_reader.py"
     ],
     "tools/armorkit/brief.py": [
       "tools/armorkit/registry.py",
@@ -100,9 +108,19 @@
     ],
     "tools/armorkit/test_bake.py": [
       "tools/armorkit/bake.py",
+      "tools/armorkit/bodyskin.py",
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
-      "tools/armorkit/split.py"
+      "tools/armorkit/split.py",
+      "tools/armorkit/test_bodyskin.py"
+    ],
+    "tools/armorkit/test_bodyskin.py": [
+      "tools/armorkit/bodyskin.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/test_bake.py",
+      "tools/armorkit/test_split.py",
+      "tools/armorkit/texture.py"
     ],
     "tools/armorkit/test_brief.py": [
       "tools/armorkit/brief.py",
@@ -5316,6 +5334,7 @@
   },
   "tests": [
     "tools/armorkit/test_bake.py",
+    "tools/armorkit/test_bodyskin.py",
     "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
