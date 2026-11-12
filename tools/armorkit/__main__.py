@@ -1,5 +1,6 @@
-"""Command line for the armorkit foundation: registry, parts tables, measurements, outfit briefs and client fixtures."""
+"""Command line for the armorkit foundation: registry, parts tables, measurements, outfit briefs, bakes and client fixtures."""
 import argparse
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -99,6 +100,27 @@ def command_admit(args):
     print(json.dumps({'model': document['model'], 'folder': str(folder)}))
 
 
+def layout_library(folder):
+    """The layout library `texture.layout` unwraps with, loaded from the folder that holds it."""
+    registry.require(Path(folder).is_dir(), f'{folder} is no folder: --xatlas names the one that holds the layout library')
+    sys.path.insert(0, str(Path(folder)))
+    return importlib.import_module('xatlas')
+
+
+def command_bake(args):
+    from . import bake, brief
+    sources = (args.mesh, args.colours, args.raw, args.xatlas)
+    registry.require(all(sources) or (args.kept and not any(sources)),
+                     'bake needs --mesh, --colours, --raw and --xatlas together, or --kept alone to tint stored parts again')
+    record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
+                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=args.tier,
+                      packs=args.pack, game=args.nwn_root, resources=args.resources,
+                      say=lambda *words: print(*words, file=sys.stderr, flush=True))
+    print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
+    if not record['gates']['passed']:
+        sys.exit(1)
+
+
 def command_fixture(args):
     from . import client
     from . import client_fixture as fixture
@@ -153,6 +175,18 @@ def main(argv=None):
     p = commands.add_parser('admit', help='check that an image comes from a sealed brief before it is taken further')
     p.add_argument('image'); p.add_argument('--root', required=True, help='folder searched for sealed reference folders')
     p.set_defaults(handler=command_admit)
+    p = commands.add_parser('bake', help='bake a generated outfit into the parts a body wears, and check what was written')
+    p.add_argument('brief'); p.add_argument('output'); p.add_argument('--number', type=int, required=True, help='the part number the models are written as')
+    p.add_argument('--body-pack', required=True, help="folder holding the body's models"); p.add_argument('--body', default='pmh0')
+    p.add_argument('--tier', type=int, default=2, choices=registry.TIERS, help='the seam tier the outfit is cut at')
+    p.add_argument('--mesh', help='the exported mesh'); p.add_argument('--colours', help='the saved colour field of the appearance job')
+    p.add_argument('--raw', help="the generator's own high-detail mesh, for the normal maps")
+    p.add_argument('--xatlas', help='folder holding the layout library (from the local runtime binding)')
+    p.add_argument('--kept', help='folder the baked parts are kept in; without --mesh they are tinted and written again from it')
+    p.add_argument('--pack', action='append', default=[], help='pack folder whose model names the outfit may not take')
+    p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
+    p.add_argument('--resources', action='append', default=[], help='folder the compiler looks animations up in')
+    p.set_defaults(handler=command_bake)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)
     p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')

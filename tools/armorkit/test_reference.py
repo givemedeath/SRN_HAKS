@@ -120,6 +120,18 @@ class ReferenceTests(unittest.TestCase):
             brief.seal(other, folder)
         self.assertEqual(brief.sealed(folder)[0], self.given)
 
+    def test_a_new_folder_is_sealed_only_with_the_current_construction_rules(self):
+        plain = {key: value for key, value in self.given.items() if key != 'construction'}
+        plain['prompt'] = plain['prompt'].replace(brief.BUILT + '\n\n', '')
+        with self.assertRaises(ValueError):
+            brief.seal(plain, self.root / 'new')
+        self.assertFalse((self.root / 'new').exists())
+        folder = self.root / 'old'  # a folder sealed before the rules keeps its prompt, and its images are still taken further
+        folder.mkdir()
+        brief._seal(folder, plain, False)
+        (folder / brief.PROMPT).write_text(brief.prompt(plain) + '\n', encoding='utf-8')
+        self.assertEqual(brief.sealed(folder), (plain, brief.prompt(plain)))
+
     def test_an_outfit_made_before_its_brief_is_taken_in_as_it_is(self):
         given = brief.load(SITEGUARD)
         folder = self.root / 'reference-old'
