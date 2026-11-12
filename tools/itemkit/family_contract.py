@@ -105,7 +105,8 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     icons = {'iconDimensions': dict.fromkeys('bmt', footprint)}
     if any(c != footprint for c in canvases.values()): icons['iconCanvasDimensions'] = canvases
     base_family = json.loads(next(source.glob('family-*.json')).read_text(encoding='utf-8'))
-    stem = 'sr' + design.rsplit('-', 1)[1][:8]
+    from .contracts import resource_stem
+    stem = resource_stem(design)          # the intake's identity, from the whole ID: a shared suffix never shares names
     budget = allocation(visible or visible_budget(carrier['length']))
     profile = {k: base_family[k] for k in ('schemaVersion', 'kind', 'materialRoute', 'bakeSize', 'runtimeTextureSize')}
     draft = json.loads((handoff/f'{design}.family.json').read_text(encoding='utf-8'))

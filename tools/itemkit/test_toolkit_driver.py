@@ -152,6 +152,15 @@ class ContractBudgetTests(unittest.TestCase):
             self.assertEqual(b['shadow'], 500)
 
 
+class ResourceStemTests(unittest.TestCase):
+    def test_designs_sharing_an_id_suffix_get_distinct_resource_names(self):
+        import hashlib
+        from tools.itemkit.contracts import resource_stem, resref
+        a, b = resource_stem('red-club-v1'), resource_stem('blue-axe-v1')
+        self.assertNotEqual(a, b); resref(a + 'h'); resref(a + 'm')
+        self.assertEqual(a, 'sr' + hashlib.sha256(b'red-club-v1').hexdigest()[:8])      # the intake's own identity
+
+
 class SiblingSlotTests(unittest.TestCase):
     def test_a_second_design_on_the_same_carrier_sees_the_first_ones_slot(self):
         from tools.itemkit.family_contract import sibling_models

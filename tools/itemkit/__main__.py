@@ -16,7 +16,7 @@ COUGAR_INTAKE_IDS = ('cougar-fineblade-longblade', 'cougar-fineblade-longsword',
 
 
 def intake(reference, output, design_id='cougar-fineblade-longblade', family_name='shortsword'):
-    import hashlib, re
+    import re
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', design_id), 'Safe item ID required')
     require(family_name in ('shortsword', 'dagger', 'longsword', 'firearm-sling'), 'Supported intake family required')
     if family_name == 'firearm-sling':
@@ -44,7 +44,8 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
             'module':'sr_cfs_test','displayName':'Cougar Fineblade Longsword'}
     if design_id not in COUGAR_INTAKE_IDS:
         # The Cougar names are shipped identities, never defaults for a new design.
-        stem = 'sr'+hashlib.sha256(design_id.encode()).hexdigest()[:8]
+        from .contracts import resource_stem
+        stem = resource_stem(design_id)
         profile_data['resources'] = {'texturePrefix':stem,'blueprint':stem,'hak':stem+'h','module':stem+'m',
                                      'displayName':design_id.replace('-',' ').title()}
     write(output/'family.json', profile_data, fresh=True)

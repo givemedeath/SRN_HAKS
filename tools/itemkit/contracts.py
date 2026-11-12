@@ -18,6 +18,14 @@ def resref(value):
     return value
 
 
+def resource_stem(design_id):
+    """The new design's resource identity (texture prefix, blueprint, HAK and module stem), from its whole ID.
+
+    Hashing the complete ID keeps two designs apart even when they share an ID suffix (`red-club-v1`, `blue-axe-v1`)."""
+    import hashlib
+    return 'sr' + hashlib.sha256(design_id.encode()).hexdigest()[:8]
+
+
 def integer(value, low, high, label):
     require(type(value) is int and low <= value <= high, 'Invalid ' + label)
     return value
