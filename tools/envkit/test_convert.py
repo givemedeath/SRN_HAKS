@@ -211,6 +211,15 @@ class ConvertTests(unittest.TestCase):
             convert.retouch(Image.fromarray(concrete), points, texture, faces, smooth=[{'box': lower, 'radius': 0.2, 'tint': 30}])
         with self.assertRaisesRegex(ValueError, 'further from any'):  # and a marking is filled from within its radius, or not at all
             convert.retouch(Image.fromarray(smeared), points, texture, faces, smooth=[{'box': lower, 'radius': 0.02, 'tint': 30}])
+        # A marking on an island of its own, further from the surface than the blur works over, was cut out of the
+        # check with the rest of the picture and passed for done with nothing changed (review of PR #124).
+        picture = np.full((64, 64), 0.5, np.float32); surface = np.zeros((64, 64), bool); surface[2:10, 2:10] = True
+        island = np.zeros((64, 64), bool); island[50:54, 50:54] = True; picture[island] = 1.0
+        with self.assertRaisesRegex(ValueError, 'further from any'):
+            convert._spread(picture, [(surface, 2.0, None, island)])
+        beside = np.zeros((64, 64), bool); beside[10:12, 4:8] = True; picture[beside] = 1.0
+        spread, done = convert._spread(picture, [(surface, 2.0, None, beside)])
+        self.assertLess(float(np.abs(spread[beside] - 0.5).max()), 1e-5); np.testing.assert_array_equal(done, beside); self.assertEqual(float(spread[island].min()), 1.0)
 
     def test_a_hole_is_closed_between_the_models_own_vertices(self):
         """The Ares fence section came back with a wedge of its concrete base open to the ground behind it (seen in

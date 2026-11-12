@@ -420,7 +420,9 @@ def _spread(small, parts):
     for chosen, reach, toward, *marked in parts:
         box, soft, near = _soften(small, chosen, reach); here = chosen[box]
         if marked:
-            here = marked[0][box]; require(bool(near[here].all()), 'A marking is filled from the surface about it, within its radius: this one lies further from any')
+            reached = np.zeros(chosen.shape, bool); reached[box] = near  # of the whole picture: a marking on an island of its own lies outside the box
+            require(bool(reached[marked[0]].all()), 'A marking is filled from the surface about it, within its radius: this one lies further from any')
+            here = marked[0][box]
             small[box][here] = soft[here]; edged[box][here] = soft[here]; done |= marked[0]
             continue
         if toward is not None:
