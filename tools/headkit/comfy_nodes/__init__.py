@@ -81,7 +81,10 @@ else:
                         raise ValueError('Controlled Comfy session changed; prepare again')
                 with audit.phase('runtime-files'):
                     current = capture_runtime_identity(folder_paths, _STARTUP_COMFY_SOURCE_INVENTORY, session=session)
-                    if not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
+                    # An attested server keeps loading after the adapter (later custom nodes, the server, Manager),
+                    # so its import-time census is no baseline: the client compares each fresh census with the
+                    # approved snapshot and lists any difference (headkit/attestation.py).
+                    if _STARTUP_SESSION.get('mode') != 'attested' and not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
                         raise ValueError('Comfy server runtime files changed after the adapter loaded')
         except Exception:
             logging.getLogger(__name__).exception('Headkit live runtime verification failed; dispatch remains blocked')
@@ -94,6 +97,12 @@ else:
         # Submission and completion use the full runtime-identity endpoint.
         if _STARTUP_RUNTIME_IDENTITY is None:
             return web.json_response({'verified': False}, status=409)
+        if _STARTUP_SESSION.get('mode') == 'attested':
+            # No import-time baseline stands for an attested server: plan against its verified current identity.
+            response = await verify_headkit_runtime_identity(request)
+            if response.status != 200: return response
+            return web.json_response({'kind': 'preparation-baseline-v1', 'runtimeIdentity': json.loads(response.body),
+                                      'requiresFreshDispatch': True})
         return web.json_response({'kind': 'preparation-baseline-v1',
             'runtimeIdentity': _STARTUP_RUNTIME_IDENTITY, 'requiresFreshDispatch': True})
 

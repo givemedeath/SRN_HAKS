@@ -2007,5 +2007,39 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                             and node.value.args[0].id == 'current'
                             for node in ast.walk(handler)))
 
+    def test_an_attested_server_reports_its_fresh_census_on_both_identity_routes(self):
+        # Desktop keeps importing after the adapter loads (later nodes, the server, Manager): its import-time census
+        # grew by 59 files before the first request and the request was refused. The client compares with the approval.
+        from headkit.comfy_nodes.verification import HEAVY_VERIFICATION_LOCK, verification_pass
+        source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'
+        tree = ast.parse(source.read_text(encoding='utf-8'))
+        handlers = [node for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef)
+                    and node.name in ('verify_headkit_runtime_identity', 'headkit_preparation_identity')]
+        for node in handlers: node.decorator_list = []
+        grown = {'files': ['startup', 'later']}
+
+        class Response:
+            def __init__(self, value, status=200, headers=None):
+                self.status, self.body = status, json.dumps(value).encode()
+        session = {'id': 's', 'mode': 'attested'}
+        namespace = {'_STARTUP_RUNTIME_IDENTITY': {'files': ['startup']}, '_STARTUP_SESSION': session,
+                     '_STARTUP_COMFY_SOURCE_INVENTORY': {'files': []}, 'HEAVY_VERIFICATION_LOCK': HEAVY_VERIFICATION_LOCK,
+                     'verification_pass': verification_pass, 'attested_context': Mock(return_value=session),
+                     'attested_inventory': Mock(return_value={'files': []}), 'same_inventory': Mock(return_value=True),
+                     'session_context': Mock(side_effect=AssertionError('no controlled session')),
+                     'capture_runtime_identity': Mock(return_value=grown), 'same_runtime_environment': Mock(return_value=False),
+                     'web': types.SimpleNamespace(json_response=Response), 'json': json, 'logging': Mock(), 'folder_paths': None}
+        exec(compile(ast.Module(body=handlers, type_ignores=[]), str(source), 'exec'), namespace)
+        identity = asyncio.run(namespace['verify_headkit_runtime_identity'](None))
+        self.assertEqual((identity.status, json.loads(identity.body)), (200, grown))
+        planned = asyncio.run(namespace['headkit_preparation_identity'](None))
+        self.assertEqual(json.loads(planned.body)['runtimeIdentity'], grown)
+        namespace['same_inventory'].return_value = False                          # a node changed: refused
+        self.assertEqual(asyncio.run(namespace['headkit_preparation_identity'](None)).status, 409)
+        session.pop('mode')                                                       # a controlled session still compares
+        namespace['session_context'].side_effect = None; namespace['session_context'].return_value = (session, {})
+        self.assertEqual(asyncio.run(namespace['verify_headkit_runtime_identity'](None)).status, 409)
+
+
 if __name__ == '__main__':
     unittest.main()
