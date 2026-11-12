@@ -1,7 +1,9 @@
 """A building becomes tiles: its walkmesh closes what stands in the way, and its records join a set file untouched."""
 import unittest
+from pathlib import Path
 
 import numpy as np
+from PIL import Image
 
 from . import convert, glow, tile
 
@@ -431,8 +433,35 @@ class TileTests(unittest.TestCase):
         made = {'vertices': vertices, 'normals': np.tile([0.0, 0, 1], (len(vertices), 1)), 'uvs': np.zeros((len(vertices), 2)), 'faces': faces, 'card': None}
         with tempfile.TemporaryDirectory() as scratch:
             report = tile.group('ek_yard', made, scratch, ground='pavement')
+            roomy = tile.read_walk(Path(scratch) / tile.WALK_PICTURE)  # and its walk picture beside the tiles, a pixel a cell
         self.assertEqual((report['rows'], report['columns'], len(report['notes'])), (1, 2, 1))
         self.assertRegex(report['notes'][0], r'^ek_yard_t00: \d{3} walk cells that no exit of the tile reaches')
+        self.assertEqual((roomy.shape, bool(roomy[0, 0]), bool(roomy[20, 40])), ((tile.CELLS, 2 * tile.CELLS), True, False))  # the yard's east wall at x 0.2
+
+    def test_a_walk_picture_reads_back_as_the_ground_with_room_to_stand_on(self):
+        import tempfile
+        material = np.full((8, 12), tile.STONE); material[2:6, 3:6] = tile.OBSCURING; material[1, 8] = tile.NONWALK
+        roomy = np.zeros(material.shape, bool); roomy[:, :2] = True
+        picture = tile.walk_picture({'material': material, 'roomy': roomy})
+        self.assertEqual((picture.size, picture.getpixel((0, 0)), picture.getpixel((4, 3)), picture.getpixel((8, 6)), picture.getpixel((11, 0))),
+                         ((12, 8), tile.WALK_COLOURS['roomy'], tile.WALK_COLOURS['building'], tile.WALK_COLOURS['closed'], tile.WALK_COLOURS['narrow']))  # north up
+        with tempfile.TemporaryDirectory() as scratch:
+            picture.save(Path(scratch) / 'walk.png'); self.assertTrue((tile.read_walk(Path(scratch) / 'walk.png') == roomy).all())
+            Image.new('RGB', (12, 8), (1, 2, 3)).save(Path(scratch) / 'other.png')
+            with self.assertRaisesRegex(ValueError, 'not a walk picture'):
+                tile.read_walk(Path(scratch) / 'other.png')
+
+    def test_walkers_are_sent_to_each_side_of_what_stands_in_the_middle_and_into_a_yard_with_one_way_in(self):
+        # Three tiles square, a walled yard in the middle, its walls a metre thick, its only way in a gap two metres wide high in the east wall.
+        roomy = np.ones((120, 120), bool); roomy[20:100, 20:100] = False; roomy[24:96, 24:96] = True; roomy[88:96, 96:100] = True
+        targets = tile.walk_targets(roomy)
+        self.assertEqual({label: at for label, at in targets.items() if label != 'pocket'},
+                         {'south': (15.125, 4.375), 'north': (15.125, 25.625), 'west': (4.375, 15.125), 'east': (25.625, 15.125)})  # half a metre short of the walls
+        x, y = targets['pocket']; self.assertTrue(6.0 < x < 10.0 and 6.0 < y < 10.0, targets['pocket'])  # the yard's corner furthest round from the gap
+        roomy[88:96, 96:100] = False  # walled in: the yard is no walk at all
+        self.assertNotIn('pocket', tile.walk_targets(roomy))
+        open_ground = np.ones((120, 120), bool); self.assertEqual(tile.walk_targets(open_ground), {})  # nothing across the middle, nothing round
+        open_ground[0, 60] = False; self.assertNotIn('south', tile.walk_targets(open_ground))  # an edge closed where a side's walker would come in
 
     def test_of_nodes_that_say_as_much_the_one_that_reaches_most_ground_is_taken(self):
         # One tile, shut on the east, with three grounds that do not join: a large one north, a small one south-west, a middling one south-east.

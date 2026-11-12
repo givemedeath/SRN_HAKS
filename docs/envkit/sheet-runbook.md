@@ -19,12 +19,15 @@ the game install folder (the one holding `data/`). Everything under `output/` is
 
 ```
 envkit crops     --set tools/envkit/sets/<sheet>.json --sheets <sheets> --output <root>/references/<run>
-envkit reference --set ... --sheets <sheets> --output <root>/references/<run> --bindings <root>/references/bindings.json [--asset <a>] [--seed <n>]
+envkit reference --set ... --sheets <sheets> --output <root>/references/<run> --bindings <root>/references/bindings.json [--asset <a>] [--seed <n>] [--wait <seconds>]
 envkit contact   --references <root>/references/<run> --output <root>/references/<run>-contact.png
 ```
 
 `reference` draws each asset alone on a plain ground with the local image model on the bound ComfyUI. Start a
-job only when Comfy's queue is empty, one at a time: the process is shared. `contact` puts each reference beside
+job only when Comfy's queue is empty, one at a time: the process is shared. Without `--wait` a busy queue is refused
+and the first failure stops the run; with `--wait <seconds>` the run waits up to that long for the queue to empty
+before each asset, says which assets failed or were passed over, makes the rest, and fails at the end if any were
+not made. `contact` puts each reference beside
 its crop; read it for a changed shape, lost parts, and branding that should not be there. Draw an asset again
 with another seed where it fails. Copy the chosen image of each asset to `<root>/references/selected/` under the
 name it has (`<asset>-s<seed>-b0.png`): exactly one for each asset the plan names.
@@ -60,12 +63,13 @@ the plan makes nothing of.
 ## 3. The game set
 
 ```
-envkit view --source <root>/meshy/models/<key> --height <metres> --model 0123 --output <root>/view
+envkit view --source <root>/meshy/models/<key> --height <metres> [--source <key2> --height <metres> ...] --model 01 --output <root>/view [--page <root>/view/all.png]
 envkit view --models tools/envkit/sets/<sheet>-game.json --root <root> --model <name>:02:300:0.25 [--lit] --output <root>/view
 ```
 
-The first draws a generated model square on from each side with a metre grid, before the game set names it;
-the second draws a model as its game set makes it. Read the boxes of lit parts, paint, smoothing, mesh panels,
+The first draws generated models square on from each side with a metre grid, before the game set names them, each
+at a first guess of its height (`--source` and `--height` repeat in pairs); `--page` also puts every model drawn on
+one page, to compare the props of a sheet at a glance. The second draws a model as its game set makes it. Read the boxes of lit parts, paint, smoothing, mesh panels,
 fences and the door from the grid, in metres on the finished model, and state `measuredAt`: the height they
 were read at, or `{"height": ..., "lift": ...}` with each of `lift`, `turn` and `signTilt` the model states,
 since the boxes are on the model as lifted, turned and tilted. Change any of them and the set is refused until
@@ -126,23 +130,22 @@ envkit blueprints --models ... --game <game>
 ## 6. The group and the lights in the client
 
 ```
-envkit check group  --game <game> --models ... --root <root> --name <name> --built <root>/tiles<n> --model <building> --tileset dgt04 [--mode night|near]
+envkit check group  --game <game> --models ... --root <root> --name <name> --built <root>/tiles<n> --model <building> --tileset dgt04 [--mode night|near|walk]
 envkit check lights --game <game> --models ... --root <root> --name <name> --built <root>/game<n> [--built <root>/game<m>]
 ```
 
 Both read the packs, so they follow step 5. `group` lays the pack's tile numbers with the built models, and
 refuses where the pack holds another build: a building built again is installed again first. `near` frees the
-player to show which storeys the client hides. `lights` takes the lit props from the pack, by night, and puts
-them out and on again by script. Look for the roof and upper storey from above, the door, and every lit part
-going out and coming back.
-
-Two checks of the group have no command yet and are built the way `checks.group` builds its area, with
-`prop_fixture.build`'s `people` and a shot's one line of `run`: walkers sent from the far corners of the area to
-the door, to both sides and onto any ground with few ways in (a fenced yard), their places logged every shot, in
-both tilesets (`tile.py` says why); and by night the group's lights put out and on again with
-`convert.blackout_script` for every lit model of the group, its own and its parts'. Take the places from the
-built tiles (`checks.laid_door`, the walkmeshes), not from the model: the tiles are cut about what the group
-holds.
+player to show which storeys the client hides; `night` also puts out every lit model of the group, its own and its
+parts', and brings them back (`out`, `out-behind`, `lit-again`). `walk` sends walkers from the far corners of the
+area to the door, to each side of the building and onto the ground a walk must go furthest round to reach (a fenced
+yard), with one more onto that ground from the next tile out, and logs where they are every shot; it refuses the
+group if a walker stops more than a metre short, after writing `captures/walks.json`. The walkers' targets come
+from `walk.png`, which `tiles` writes beside the tile sources (a pixel a walk cell, north up: green ground with
+room to stand on, dark green ground too narrow for that, red the building, orange the lesser things in the way); a
+group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). `lights`
+takes the lit props from the pack, by night, and puts them out and on again by script. Look for the roof and upper
+storey from above, the door, and every lit part going out and coming back.
 
 Then write the sheet's section of `PROVENANCE.md` (what was generated, by what, what was retouched, what was
 checked and what was left as generated), rebuild the affected packs and run repository verification.
@@ -245,6 +248,11 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   `envkit view --models ... --root <root> --model <name> --eye <label>=ex,ey,ez,tx,ty,tz[,fov[,reach]] --output <scratch>`
   draws the model as it will ship, fence sheets and all, from an eye at `ex,ey,ez` looking at `tx,ty,tz`, in
   metres on the finished model. `--eye` repeats.
+- **The parts of a group do not line up** (fronts, parapets, a piece's height against its neighbour's). Draw the
+  group from far off through a long lens, the eye level with its target, with `--grid 0.5`: a line every half metre
+  on the upright plane through the target, labelled each metre in x or y and z
+  (`--eye front=0,70,7,0,0,7,16,200 --grid 0.5`). Read heights off the grid for what stands on that plane; what
+  stands nearer the eye is drawn larger.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

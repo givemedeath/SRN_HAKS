@@ -4,7 +4,9 @@
 with a figure beside it for scale and one behind it to be seen through anything see-through. `lights` stands the lit
 props of a game set as the pack holds them, by night, and puts their lights out and on again by script. `group` lays
 a built tile group in an area of one of its tilesets and looks at it from the front, at its door, and along and over
-its sides; its `near` mode frees the player with the client hiding upper storeys near the character. `doors` takes a
+its sides; its `near` mode frees the player with the client hiding upper storeys near the character, its `night` mode
+puts the group's lights out for everyone and on again, and its `walk` mode sends walkers across the area to the door,
+round the building and into any yard with few ways in, and refuses the group if one stops short. `doors` takes a
 module saved by the Toolset with tile groups painted in it (`toolset`), gives each door the Toolset made an area
 transition to a waypoint in front of the next, and logs where the player is while someone clicks the doors.
 
@@ -20,7 +22,7 @@ from pathlib import Path
 from tools.armorkit import client
 from tools.armorkit.client_fixture import field, gff_float
 
-from . import convert, prop_fixture as fixture, require
+from . import convert, prop_fixture as fixture, require, tile
 
 FILL = {'dgt04': 0, 'udp1': 58}  # the plain tile each tileset's check area is laid with
 TILE = 10.0
@@ -29,6 +31,11 @@ ROW = 5  # lit props to a row at most
 ROW_END = 52.0  # how far along x a row of lit props may reach and still be held by its view, metres
 STEP = 3.5  # how far in front of a door the player is put, metres
 MAPS = ('.mtr', '.pwk', '.dds', '.txi')
+REACHED = 1.0  # metres from its target a walker may stop and still have arrived
+WALK_START = 5.0  # metres in from the check area's corners that walkers set out from
+WALK_STAGES = 6  # shots after the one that sends the walkers, each logging where they are
+WALK_HOLD = 8.0  # seconds a walk shot is held: six of them take a walker some 90 metres
+DOOR_OUT = 1.2  # metres out of its door a walker is sent to
 
 
 def wait_for_clients(limit=1500.0, *, running=client.running, sleep=time.sleep):
@@ -194,6 +201,78 @@ def group_shots(columns, rows, door, mode, *, column0=3, row0=3, facing=90.0):
             view('east-above', hx - 1.0, 0.0, 180, 1.5 * reach, 45, 1.5)]
 
 
+def blackout_shots(columns, rows, lit, *, column0=3, row0=3):
+    """Shots that put a group's lights out for everyone and bring them back (`convert.blackout_script`): out, seen from
+    the south; still out, seen from the north; and on again there. lit: [(texture, halo)], the lit models of the group
+    (`convert.lights`). The Saeder-Krupp yard's lamps and screens were put out so, 2026-11-12."""
+    if not lit:
+        return []
+    hx, hy = columns * TILE / 2, rows * TILE / 2; cx, cy = column0 * TILE + hx, row0 * TILE + hy; reach = max(hx, hy)
+    script = lambda on: ''.join(convert.blackout_script(texture, 'pc', on, halo) for texture, halo in lit)
+    south = {'stand': [cx, cy - 0.5 * hy], 'facing': 90, 'distance': 2.5 * reach, 'pitch': 62, 'height': 1.5}
+    north = {**south, 'stand': [cx, cy + 0.7 * hy], 'facing': 270}
+    return [{**south, 'label': 'out', 'run': script(False)}, {**north, 'label': 'out-behind'}, {**north, 'label': 'lit-again', 'run': script(True)}]
+
+
+def walk_plan(columns, rows, door, facing, targets, *, column0=3, row0=3, size=9):
+    """The walkers of a group's walk check, [{label, start: [x, y], target: [x, y]}] in the check area. `targets` are
+    `tile.walk_targets` (from the group's south-west corner), and DOOR_OUT in front of the door is one more (`door` from
+    the group's middle, as `laid_door` gives it; `facing` the way out of it, degrees). Each gets a walker from the
+    corner of the area furthest from it, four tiles away and more; walkers that share a corner stand apart along it.
+    Ground a walk must go round to reach (`pocket`) gets a second walker from the middle of the next tile out, nearest
+    it: a short walk into a yard has failed where long ones arrived (`tile`'s docstring)."""
+    west, south = column0 * TILE, row0 * TILE; wide, high = columns * TILE, rows * TILE; goals = {}
+    if door is not None:
+        out = math.radians(facing)
+        goals['door'] = (west + wide / 2 + door[0] + DOOR_OUT * math.cos(out), south + high / 2 + door[1] + DOOR_OUT * math.sin(out))
+    goals.update({label: (west + x, south + y) for label, (x, y) in targets.items()})
+    far = size * TILE - WALK_START; corners = [(WALK_START, WALK_START), (far, WALK_START), (far, far), (WALK_START, far)]
+    used, walkers = {}, []
+
+    def place(label, start, goal):
+        walkers.append({'label': label, 'start': [round(start[0], 3), round(start[1], 3)], 'target': [round(goal[0], 3), round(goal[1], 3)]})
+    for label, goal in goals.items():
+        corner = max(corners, key=lambda one: math.dist(one, goal)); count = used.get(corner, 0); used[corner] = count + 1
+        place(label, (corner[0] + 1.5 * count * (1 if corner[0] < far else -1), corner[1]), goal)
+    if 'pocket' in targets:
+        x, y = targets['pocket']
+        side = min((x, 'west'), (wide - x, 'east'), (y, 'south'), (high - y, 'north'))[1]
+        start = {'west': (-TILE / 2, y), 'east': (wide + TILE / 2, y), 'south': (x, -TILE / 2), 'north': (x, high + TILE / 2)}[side]
+        place('pocket-near', (west + start[0], south + start[1]), goals['pocket'])
+    return walkers
+
+
+def walk_shots(columns, rows, walkers, name, *, column0=3, row0=3, size=9):
+    """The shots of a walk check: one from above that sends every walker (the fixture's people, `name`_h<index>, stood at
+    their starts) running to its target and logs where each is, WALK_STAGES more that log them again as they go, and
+    one at each target. The Saeder-Krupp yard's four walkers were sent so, 2026-11-12."""
+    hx, hy = columns * TILE / 2, rows * TILE / 2
+    above = {'stand': [column0 * TILE + hx, row0 * TILE + hy], 'facing': 90, 'distance': round(0.65 * size * TILE, 1), 'pitch': 25, 'height': 1.0}
+
+    def log(stage):
+        return ''.join(f'{{ vector at=GetPosition(GetObjectByTag("{name}_h{index}")); WriteTimestampedLogEntry("{fixture.LOG_PREFIX} walker={index} stage={stage} '
+                       f'x="+FloatToString(at.x,7,3)+" y="+FloatToString(at.y,7,3)); }}' for index in range(len(walkers)))
+    go = ''.join(f'AssignCommand(GetObjectByTag("{name}_h{index}"),ActionMoveToLocation(Location(GetArea(pc),Vector({one["target"][0]:.3f},{one["target"][1]:.3f},0.0),0.0),TRUE));'
+                 for index, one in enumerate(walkers))
+    return [{**above, 'label': 'go', 'run': go + log(0)}, *({**above, 'label': f'w{stage}', 'run': log(stage)} for stage in range(1, WALK_STAGES + 1)),
+            *({'label': 'at-' + one['label'], 'stand': one['target'], 'facing': 90, 'distance': 12.0, 'pitch': 62, 'height': 1.5} for one in walkers)]
+
+
+def walks(lines, walkers):
+    """Where each walker of a walk check ended, read off its log: [{label, start, target, stage, at, short}], `short`
+    the metres it stopped from its target. A walker the log never placed is refused: no line is no result."""
+    last = {}
+    for values in map(client.parse_line, lines):
+        if 'walker' in values and 'stage' in values:  # FloatToString pads with spaces, which float() takes
+            last[int(values['walker'])] = (int(values['stage']), float(values['x']), float(values['y']))
+    found = []
+    for index, one in enumerate(walkers):
+        require(index in last, f'The log never placed walker {one["label"]}: did the walk shots run?')
+        stage, x, y = last[index]
+        found.append({**one, 'stage': stage, 'at': [x, y], 'short': round(math.dist((x, y), one['target']), 2)})
+    return found
+
+
 def _tile_field(set_text, number, field):
     """The value of one field of a tile's section of a set file, or None: whatever its line endings."""
     parts = set_text.split(f'[TILE{number}]', 1)
@@ -242,12 +321,17 @@ def laid_tiles(set_text, tileset, model, tiles, column0, row0):
 
 def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=9, scale_prop='ek_ss_vending'):
     """A built tile group (`tiles`' folder) laid in an area of `tileset`, which must hold it already (`install`): the
-    tile numbers are the pack's, the models and walkmeshes the built ones. mode: day, night or near."""
-    require(tileset in FILL, 'A check area is laid in ' + ' or '.join(FILL)); require(mode in ('day', 'night', 'near'), 'mode is day, night or near')
+    tile numbers are the pack's, the models and walkmeshes the built ones. mode: day, night (with its lights put out
+    and on again), near or walk (`walk_plan`; refused if a walker stops more than REACHED metres short, after its
+    captures and `walks.json` are written)."""
+    require(tileset in FILL, 'A check area is laid in ' + ' or '.join(FILL)); require(mode in ('day', 'night', 'near', 'walk'), 'mode is day, night, near or walk')
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path)
     require(model in models and models[model].get('tiles'), model + ' is not a tile group of the game set')
     resources = _fresh(base, name)
-    text = _ground(repo, tileset, resources); folder = Path(built) / model; made = json.loads((folder / 'report.json').read_text(encoding='utf-8'))
+    folder = Path(built) / model; made = json.loads((folder / 'report.json').read_text(encoding='utf-8'))
+    walk_picture = folder / 'source' / tile.WALK_PICTURE
+    require(mode != 'walk' or walk_picture.is_file(), f'{folder} has no {tile.WALK_PICTURE}, which picks where walkers go: build the group again')
+    text = _ground(repo, tileset, resources)
     column0 = row0 = 3; laid = laid_tiles(text, tileset, model, made['tiles'], column0, row0)
     require(max(made['columns'], made['rows']) + column0 + 1 <= size, 'The group does not fit the check area')
     for one in made['tiles']:
@@ -256,13 +340,27 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     for path in [*(folder / 'shared').iterdir(), *(folder / 'source').glob('*.tga')]:
         shutil.copyfile(path, resources / path.name)
     from_pack(repo / 'srn_placeable', scale_prop, resources)  # something of a known size in the corner of the area
-    door, night = laid_door(made), mode == 'night'
-    shots = group_shots(made['columns'], made['rows'], door, mode, column0=column0, row0=row0, facing=float((models[model]['tiles'].get('door') or {}).get('facing', 90.0)))
+    door, night = laid_door(made), mode == 'night'; facing = float((models[model]['tiles'].get('door') or {}).get('facing', 90.0)); people, walkers = [], []
+    if mode == 'walk':
+        walkers = walk_plan(made['columns'], made['rows'], door, facing, tile.walk_targets(tile.read_walk(walk_picture)), column0=column0, row0=row0, size=size)
+        shots = walk_shots(made['columns'], made['rows'], walkers, name, column0=column0, row0=row0, size=size); people = [{'position': one['start'], 'facing': 0.0} for one in walkers]
+    else:
+        shots = group_shots(made['columns'], made['rows'], door, mode, column0=column0, row0=row0, facing=facing)
+    if night:
+        lit = [(texture, 'halo' in found) for texture in [model, *made.get('parts', {}).values()] if (found := convert.lights(texture, folder / 'shared'))]
+        shots += blackout_shots(made['columns'], made['rows'], lit, column0=column0, row0=row0)
     record = fixture.build(name, resources, [{'model': scale_prop, 'position': [3.0, 3.0], 'bearing': 0.0, 'static': True}], shots, base / 'fixtures' / name, game,
-                           repo / 'srn_2da/placeables.2da', night=night, size=size, hold=6.0,
+                           repo / 'srn_2da/placeables.2da', people=people, night=night, size=size, hold=WALK_HOLD if walkers else 6.0,
                            ground={'tileset': tileset, 'fill': FILL[tileset], 'tiles': laid, 'lights': {spot: [11, 0] for spot in laid} if night else {}})
     extra = f'[graphics.second-story-tiles]\nmode = {second_storey}\n' if mode == 'near' else ''
-    return _run(game, record, base / 'fixtures' / name, extra_settings=extra)
+    result = _run(game, record, base / 'fixtures' / name, extra_settings=extra)
+    if walkers:
+        captures = base / 'fixtures' / name / 'captures'
+        result['walkers'] = walks(json.loads((captures / 'run.json').read_text(encoding='utf-8'))['lines'], walkers)
+        (captures / 'walks.json').write_text(json.dumps(result['walkers'], indent=1), encoding='utf-8')
+        short = [f'{one["label"]} stopped {one["short"]} m short of {one["target"]}' for one in result['walkers'] if one['short'] > REACHED]
+        require(not short, 'Walkers did not arrive: ' + '; '.join(short) + f'. See {captures}')
+    return result
 
 
 def chained(doors, *, step=STEP):

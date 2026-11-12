@@ -66,15 +66,31 @@ def command_reference(args):
     data = reference.load_set(args.set); sheet = reference.resolve_sheet(args.sheets, data['sheet'])
     unknown = [name for name in args.asset if name not in data['assets']]
     require(not unknown, 'Unknown assets: ' + ', '.join(unknown))
-    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output)
-    for name in args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]:  # a same is not made
+    names = args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]  # a same is not made
+    for name in names:
         asset = data['assets'][name]
         require('cut' not in asset or args.selected, f'{name} is cut from the chosen reference of {asset.get("cut", {}).get("from")}: give --selected')
-        source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
-        text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
-        result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
+    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
+    for name in names:
+        # With --wait the run waits for the shared queue before each asset, and an asset that fails is said and passed
+        # over, so that one busy spell or lost poll does not stop the rest; the run fails at the end. Without it the
+        # first failure stops the run, and a busy queue is refused at once.
+        if args.wait and not reference.wait_for_queue(client, args.wait):
+            missed.append(name); print(json.dumps({'asset': name, 'state': 'skipped', 'error': f'ComfyUI was still busy after {args.wait} seconds; nothing submitted'}), flush=True)
+            continue
+        asset = data['assets'][name]
+        try:
+            source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
+            text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
+            result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
+        except Exception as failure:
+            if not args.wait:
+                raise
+            missed.append(name); print(json.dumps({'asset': name, 'state': 'failed', 'error': str(failure)}), flush=True)
+            continue
         print(json.dumps({'asset': name, 'state': result['state'], 'outputs': result['outputs'],
                           'elapsedSeconds': result['elapsedSeconds']}), flush=True)
+    require(not missed, f'{len(missed)} of {len(names)} assets were not made: ' + ', '.join(missed))
 
 
 def _retouching(model):
@@ -210,23 +226,32 @@ def _views(text):
 
 def command_view(args):
     from . import convert, view
-    require(bool(args.models) != bool(args.source), 'Give a game set (--models, --root, --model) or one generated model (--source, --height)')
+    require(bool(args.models) != bool(args.source), 'Give a game set (--models, --root, --model) or generated models (--source, --height)')
+    drawn = []  # (name, pictures) of each model, for the page
     if args.source:
-        require(args.height, 'A generated model is stood at --height metres')
-        require(not args.lit and not args.root and not args.eye and len(args.model) <= 1,
+        require(len(args.height) == len(args.source), 'Each generated model is stood at a height: give a --height in metres for each --source')
+        require(not args.lit and not args.root and not args.eye and args.grid is None and len(args.model) <= 1,
                 'A generated model has no set to give it lit boxes: it is drawn from --source, --height and one --model of its sides (0123)')
         _, sides, scale, grid = _views('raw:' + (args.model[0] if args.model else '0'))
-        print(json.dumps(view.raw(args.source, args.height, args.output, sides=sides, scale=scale, grid=grid)))
-        return
-    require(args.root and args.model, 'A game set is drawn with --root and --model'); models = convert.load_models(args.models)
-    if args.eye:  # from stated eyes, in place of the square-on views
-        require(not args.lit and all(':' not in name for name in args.model), 'With --eye a model is named alone, and its lit parts are not shown')
-        eyes = [view.eye(text) for text in args.eye]; require(len({label for label, *_ in eyes}) == len(eyes), 'Each eye has a label of its own')
-        for name in args.model:
-            print(json.dumps({'model': name, **view.perspective(models, args.root, name, args.output, eyes)}), flush=True)
-        return
-    for name, sides, scale, grid in map(_views, args.model):
-        print(json.dumps({'model': name, **view.elevations(models, args.root, name, args.output, sides=sides, scale=scale, grid=grid, lit=args.lit)}), flush=True)
+        for source, height in zip(args.source, args.height):
+            told = view.raw(source, height, args.output, sides=sides, scale=scale, grid=grid); drawn.append((Path(source).name, told['pictures']))
+            print(json.dumps({'source': source, **told}), flush=True)
+    else:
+        require(args.root and args.model, 'A game set is drawn with --root and --model')
+        require(args.grid is None or args.eye, 'A square-on view takes its grid in --model name:sides:scale:grid; --grid is for --eye views')
+        models = convert.load_models(args.models)
+        if args.eye:  # from stated eyes, in place of the square-on views
+            require(not args.lit and all(':' not in name for name in args.model), 'With --eye a model is named alone, and its lit parts are not shown')
+            eyes = [view.eye(text) for text in args.eye]; require(len({label for label, *_ in eyes}) == len(eyes), 'Each eye has a label of its own')
+            for name in args.model:
+                told = view.perspective(models, args.root, name, args.output, eyes, grid=args.grid); drawn.append((name, told['pictures']))
+                print(json.dumps({'model': name, **told}), flush=True)
+        else:
+            for name, sides, scale, grid in map(_views, args.model):
+                told = view.elevations(models, args.root, name, args.output, sides=sides, scale=scale, grid=grid, lit=args.lit); drawn.append((name, told['pictures']))
+                print(json.dumps({'model': name, **told}), flush=True)
+    if args.page:
+        print(json.dumps({'page': args.page, 'models': view.page(drawn, args.page)}), flush=True)
 
 
 def command_onboard(args):
@@ -277,7 +302,7 @@ def command_check(args):
     missing = ['--' + name for name in needs if not getattr(args, name)]
     require(not missing, f'envkit check {args.kind} needs ' + ', '.join(missing))
     require(args.kind == 'lights' or len(args.built) == 1, 'One built folder is checked at a time')
-    modes = {'props': ('day', 'night'), 'lights': ('night',), 'group': ('day', 'night', 'near')}[args.kind]; mode = args.mode or modes[0]
+    modes = {'props': ('day', 'night'), 'lights': ('night',), 'group': ('day', 'night', 'near', 'walk')}[args.kind]; mode = args.mode or modes[0]
     require(mode in modes, f'envkit check {args.kind} has no --mode {mode}: ' + ' or '.join(modes))
     if args.kind == 'props':
         made = checks.props(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model, night=mode == 'night')
@@ -352,10 +377,13 @@ def main(argv=None):
     sub.set_defaults(run=command_sheet)
     sub = commands.add_parser('view', help='a model seen square on with a metre grid, to read a game set\'s boxes from')
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root")
-    sub.add_argument('--source', help='instead of a game set: one generated model folder'); sub.add_argument('--height', type=float)
+    sub.add_argument('--source', action='append', default=[], help='instead of a game set: a generated model folder (repeatable, each with a --height)')
+    sub.add_argument('--height', type=float, action='append', default=[], help='with --source: the height in metres it is stood at, one for each --source in order')
     sub.add_argument('--model', action='append', default=[], help='name[:sides[:scale[:grid]]], sides as digits (0 front, 1, 2 back, 3); with --source, the sides alone')
     sub.add_argument('--lit', action='store_true', help='show what the lit boxes light, and count what each holds and lights'); sub.add_argument('--output', required=True)
     sub.add_argument('--eye', action='append', default=[], help='instead of square on: label=ex,ey,ez,tx,ty,tz[,fov[,reach]], the eye and what it looks at in metres on the model (repeatable)')
+    sub.add_argument('--grid', type=float, help='with --eye: a measuring grid this many metres apart on the upright plane through each target; the eyes level with their targets')
+    sub.add_argument('--page', help='also one picture of every model drawn, side by side under their names')
     sub.set_defaults(run=command_view)
     sets = str(Path(__file__).with_name('sets'))
     sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')
@@ -377,7 +405,7 @@ def main(argv=None):
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root: fixtures/<name> is written")
     sub.add_argument('--name', help='a new fixture name, a lowercase resref of at most 11 characters'); sub.add_argument('--built', action='append', default=[], help='the folder `game` or `tiles` built into (lights: repeatable, the first that holds a model serves)')
     sub.add_argument('--model', action='append', default=[]); sub.add_argument('--tileset', choices=['dgt04', 'udp1'])
-    sub.add_argument('--mode', choices=['day', 'night', 'near'], help='props: day (default) or night; group: day (default), night or near; lights are seen by night'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
+    sub.add_argument('--mode', choices=['day', 'night', 'near', 'walk'], help='props: day (default) or night; group: day (default), night (lights put out and on again), near or walk (walkers sent across the area; refused if one stops short); lights are seen by night'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
     sub.add_argument('--user', help='doors: the Toolset user folder'); sub.add_argument('--output', help='doors: a fresh folder for captures')
     sub.add_argument('--ticks', type=int, default=150, help='doors: how long the player is watched, two seconds a tick')
     sub.set_defaults(run=command_check)
@@ -401,6 +429,7 @@ def main(argv=None):
     sub.add_argument('--url', default='http://127.0.0.1:8188')
     sub.add_argument('--seed', type=int, default=101)
     sub.add_argument('--deadline', type=int, default=2400)
+    sub.add_argument('--wait', type=int, default=0, help='seconds to wait for the shared ComfyUI queue to empty before each asset; an asset that fails is passed over and the run fails at the end')
     args = parser.parse_args(argv)
     args.run(args)
 

@@ -8,7 +8,11 @@ set's lit boxes light, in its own colour, and dims the rest blue, and counts for
 holds and the texels it lights: a box that holds much and lights nothing is on the wrong part of the model. A generated
 model that is in no game set yet is drawn as it came back, at a stated height (`raw`). `perspective` draws the model
 as it will ship from a stated eye, fence sheets and all, where a square-on view does not show what is wrong: inside a
-hole, under an overhang, through a fence. These were one-off scripts for the Ares Depot (2026-11-11)."""
+hole, under an overhang, through a fence; with a `grid` it measures off what it shows, a line a stated distance
+apart on the upright plane through what the eye looks at (the Saeder-Krupp yard's fronts were lined up by such a grid
+through a long lens, 2026-11-12). `page` puts the pictures of many models on one page, to compare them at a glance.
+These were one-off scripts for the Ares Depot (2026-11-11)."""
+import math
 from pathlib import Path
 
 import numpy as np
@@ -78,6 +82,34 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
     return _drawn(made['vertices'], made['uvs'], made['faces'], picture, output, name, sides, scale, grid, fine, model['lit'] if lit else None)
 
 
+def page(drawn, output, *, columns=2, high=300, widest=2400):
+    """One picture of many models: each model's pictures side by side `high` pixels tall (narrower where they would
+    be wider than `widest` together) under its name, `columns` models to a row. drawn: [(name, [picture paths])], as
+    `elevations`, `raw` and `perspective` report them. Returns the number of models shown."""
+    from PIL import Image, ImageDraw
+    require(drawn and all(pictures for _, pictures in drawn), 'A page shows one picture at least of each model')
+    require(type(columns) is int and columns > 0, 'A page has one column at least')
+    label, pad, cells = 16, 10, []
+    for name, pictures in drawn:
+        shown = []
+        for path in pictures:
+            with Image.open(path) as picture:
+                shown.append(picture.convert('RGB').resize((max(1, round(picture.width * high / picture.height)), high)))
+        gaps = pad * (len(shown) - 1); across = sum(one.width for one in shown)
+        if across + gaps > widest:
+            shrink = max(widest - gaps, len(shown)) / across; shown = [one.resize((max(1, round(one.width * shrink)), max(1, round(high * shrink)))) for one in shown]
+        cells.append((name, shown))
+    wide = max(sum(one.width for one in shown) + pad * (len(shown) - 1) for _, shown in cells) + 2 * pad; tall = high + label + pad
+    sheet = Image.new('RGB', (columns * wide, -(-len(cells) // columns) * tall), (255, 255, 255)); draw = ImageDraw.Draw(sheet)
+    for index, (name, shown) in enumerate(cells):
+        x, y = index % columns * wide + pad, index // columns * tall
+        draw.text((x, y + 2), name, fill=(0, 0, 0))
+        for one in shown:
+            sheet.paste(one, (x, y + label)); x += one.width + pad
+    Path(output).parent.mkdir(parents=True, exist_ok=True); sheet.save(output)
+    return len(cells)
+
+
 def eye(text):
     """label=ex,ey,ez,tx,ty,tz[,fov[,reach]] as (label, eye, target, fov, reach): where the eye is and what it looks at,
     in metres on the finished model, the angle of view in degrees and how far from the target a face is still drawn."""
@@ -108,15 +140,43 @@ def _in_front(corners):
     return [np.array([kept[0], kept[index], kept[index + 1]]) for index in range(1, len(kept) - 1)]
 
 
-def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
+def _measure(picture, at, target, right, focal, grid):
+    """Draw on `picture` a line every `grid` metres of the upright plane through `target`, square to a level eye at
+    `at`, labelled each whole metre in the model's own x or y (whichever runs more nearly across the picture) and z.
+    Returns the pixels to a metre on that plane: what stands nearer the eye is drawn larger, what stands further smaller."""
+    from PIL import ImageDraw
+    wide, high = picture.size; ppm = focal / float(np.linalg.norm(target - at)); draw = ImageDraw.Draw(picture)
+    axis = int(np.argmax(np.abs(right[:2]))); across = float(right[axis])  # metres of that axis to a metre across the picture
+
+    def values(middle, half):
+        return [number * grid for number in range(math.ceil((middle - half) / grid - 1e-9), math.floor((middle + half) / grid + 1e-9) + 1)]
+    for value in values(float(target[axis]), wide / 2 / ppm * abs(across)):
+        place, whole = round(wide / 2 + (value - target[axis]) / across * ppm), abs(value - round(value)) < 1e-6  # on the nearest pixel
+        draw.line([(place, 0), (place, high)], fill=(0, 255, 0) if whole else (0, 110, 0))
+        if whole:
+            draw.text((place + 2, 2), f'{"xy"[axis]}{round(value)}', fill=(0, 255, 0))
+    for value in values(float(target[2]), high / 2 / ppm):
+        place, whole = round(high / 2 - (value - target[2]) * ppm), abs(value - round(value)) < 1e-6
+        draw.line([(0, place), (wide, place)], fill=(0, 255, 0) if whole else (0, 110, 0))
+        if whole:
+            draw.text((2, place + 2), f'z{round(value)}', fill=(0, 255, 0))
+    return ppm
+
+
+def perspective(models, root, name, output, eyes, *, size=(1280, 800), grid=None):
     """Pictures `<name>-eye-<label>.png` of a game set's model as it will ship (retouched, closed, with its fence
     sheets) from stated eyes (`eye`): its picture alone, nearest face in front, see-through where the picture is, and a
     face seen from behind not drawn, as the game leaves it. A
     face that passes the eye is cut just in front of it. Drawn in software a face at a time, so `reach` keeps a large
-    model to what is about the target. A tile group is drawn with the models placed in it (`tiles.parts`). Returns
-    {pictures, faces}, the faces drawn for each eye."""
+    model to what is about the target. A tile group is drawn with the models placed in it (`tiles.parts`). `grid`,
+    metres, draws a measuring grid on the upright plane through each eye's target (`_measure`); each eye must then be
+    level with its target. Returns {pictures, faces}, the faces drawn for each eye, and with a grid `pixelsPerMetre`
+    on each eye's plane."""
     from PIL import Image
     require(name in models, 'No such model in the game set: ' + name); require(eyes, 'Give an eye at least')
+    require(grid is None or grid > 0, 'A measuring grid is more than nothing apart')
+    level = [label for label, at, target, *_ in eyes if abs(at[2] - target[2]) > 1e-6]
+    require(grid is None or not level, 'A measuring grid is drawn for an eye level with its target: give ' + ', '.join(level) + ' its target\'s height')
     meshes = []  # (points, uvs, faces, picture, repeated): each picture with the faces that show it
 
     shaped = {}  # each model shaped once, however often it is placed
@@ -170,7 +230,10 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
                 image[py[keep], px[keep]] = texel[keep, :3]; buffer[py[keep], px[keep]] = z[keep]
         require(np.isfinite(buffer).any(), f'Nothing of {name} is seen from the eye {label}')
         # 2. named apart from the square-on views (`<name>-side<n>.png`), whatever the label
-        path = output / f'{name}-eye-{label}.png'; Image.fromarray(image).save(path); report['pictures'].append(str(path)); report['faces'][label] = int(shown.sum())
+        path = output / f'{name}-eye-{label}.png'; picture = Image.fromarray(image)
+        if grid is not None:
+            report.setdefault('pixelsPerMetre', {})[label] = round(_measure(picture, at, target, right, focal, grid), 3)
+        picture.save(path); report['pictures'].append(str(path)); report['faces'][label] = int(shown.sum())
     return report
 
 

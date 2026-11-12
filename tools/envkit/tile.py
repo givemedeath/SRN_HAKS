@@ -532,6 +532,76 @@ def merge_parts(parts):
     return merged
 
 
+WALK_PICTURE = 'walk.png'  # beside a group's tile sources: its walk cells, a pixel each, north up
+WALK_COLOURS = {'roomy': (60, 170, 60), 'narrow': (25, 85, 25), 'building': (170, 40, 40), 'closed': (205, 125, 40)}
+POCKET = 5.0  # metres further than straight in that a walk must go round before ground counts as hard to reach
+BACK_OFF = 2  # cells a side's walker stands off what stops it coming in
+
+
+def walk_picture(found):
+    """A group's walk cells as one picture, a pixel a cell and north up: ground with room to stand on (`_roomy`), ground
+    too narrow for that, the building where it stands at eye height, and the lesser things in the way. It shows where a
+    character can go, and the walkers of `checks.group` are sent by it (the Saeder-Krupp yard's were picked from one
+    drawn by hand, 2026-11-12)."""
+    from PIL import Image
+    material = found['material']; picture = np.zeros((*material.shape, 3), np.uint8)
+    picture[material == STONE] = WALK_COLOURS['narrow']; picture[found['roomy']] = WALK_COLOURS['roomy']
+    picture[material == OBSCURING] = WALK_COLOURS['building']; picture[material == NONWALK] = WALK_COLOURS['closed']
+    return Image.fromarray(picture[::-1])
+
+
+def read_walk(path):
+    """The cells of a group's walk picture (`walk_picture`) a character has room to stand on, [row, column] from the
+    south-west."""
+    from PIL import Image
+    with Image.open(path) as image:
+        picture = np.asarray(image.convert('RGB'))[::-1]
+    known = np.zeros(picture.shape[:2], bool)
+    for colour in WALK_COLOURS.values():
+        known |= (picture == colour).all(-1)
+    require(known.all(), f'{path} is not a walk picture')
+    return (picture == WALK_COLOURS['roomy']).all(-1)
+
+
+def walk_targets(roomy):
+    """Where walkers are sent in a group, {label: (x, y)} in metres from its south-west corner. On each side the ground
+    a walker reaches last coming straight in from the middle of the group's edge, BACK_OFF cells short of what stops it
+    (the building, a fence): none where nothing stands across the middle from that side, or where the edge is closed.
+    And `pocket`: the ground a walk must go furthest round to reach, where that is more than POCKET metres further
+    than straight in from the nearest edge: a yard with few ways in, which short walks reach and long ones may not
+    (this module's docstring). Walks go over ground with room to stand on, eight ways, as the game's are planned."""
+    import heapq
+    rows, columns = roomy.shape; step = SIZE / CELLS; targets = {}
+    lines = {'south': [(row, columns // 2) for row in range(rows)], 'north': [(row, columns // 2) for row in range(rows - 1, -1, -1)],
+             'west': [(rows // 2, column) for column in range(columns)], 'east': [(rows // 2, column) for column in range(columns - 1, -1, -1)]}
+    for label, cells in lines.items():
+        open_run = next((index for index, cell in enumerate(cells) if not roomy[cell]), None)
+        if open_run:  # None: nothing stands across; 0: the edge itself is closed
+            row, column = cells[max(open_run - 1 - BACK_OFF, 0)]; targets[label] = ((column + 0.5) * step, (row + 0.5) * step)
+    far = np.full(roomy.shape, np.inf); queue = []
+    for row in range(rows):
+        for column in range(columns):
+            if roomy[row, column] and (row in (0, rows - 1) or column in (0, columns - 1)):
+                far[row, column] = 0.0; queue.append((0.0, row, column))
+    heapq.heapify(queue)
+    while queue:
+        cost, row, column = heapq.heappop(queue)
+        if cost > far[row, column]:
+            continue
+        for down, along in ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)):
+            near = (row + down, column + along)
+            if 0 <= near[0] < rows and 0 <= near[1] < columns and roomy[near]:
+                reach = cost + (1.4142 if down and along else 1.0)
+                if reach < far[near]:
+                    far[near] = reach; heapq.heappush(queue, (reach, *near))
+    row_index, column_index = np.indices(roomy.shape)
+    straight = np.minimum.reduce([row_index, rows - 1 - row_index, column_index, columns - 1 - column_index]).astype(float)
+    detour = np.where(np.isfinite(far), far - straight, -np.inf) * step
+    if detour.max() > POCKET:
+        row, column = map(int, np.unravel_index(int(np.argmax(detour)), detour.shape)); targets['pocket'] = ((column + 0.5) * step, (row + 0.5) * step)
+    return targets
+
+
 def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=()):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
@@ -603,6 +673,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 x, y, z = (at - centre).round(2).tolist()
                 one['doors'].append({'type': int(door['type']), 'x': x, 'y': y, 'z': z, 'orientation': orientation, 'drawnOut': drawn})
             tiles.append(one)
+    walk_picture(found).save(folder / WALK_PICTURE)
     return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles, 'notes': notes}
 
 
