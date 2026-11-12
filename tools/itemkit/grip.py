@@ -5,8 +5,8 @@ from .geometry import transform
 
 
 class GripDeparture(ValueError):
-    def __init__(self, report):
-        super().__init__('Grip width/depth departs from standard; review the retained measurement instead of distorting the pistol')
+    def __init__(self, report, message=None):
+        super().__init__(message or 'Grip width/depth departs from standard; review the retained measurement instead of distorting the pistol')
         self.report = report
 
 
@@ -89,8 +89,6 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None
     # The approved depth is the default authority. A design whose round, thick grip would make a two-hander shorter
     # than a one-hander (wave-1 Claymore: 0.98 m by depth) may depart only through an explicit, digest-bound review.
     depth_departs=abs(mid['depth']/target['depth']-1)>=.01
-    require(not depth_departs or (review or {}).get('depthDepartureApproved') is True,
-            'Two-hand grip must match approved midpoint thickness')
     report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':m.tolist(),
             'sizingAuthority':'midpoint-depth-two-hand','usableLength':float(length),'nativeGripOrigin':origin.tolist(),
             'measuredFittedSections':sections,'midpointRelativeDifferences':{
@@ -98,6 +96,11 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None
                 'usableLength':float(length)/standard['usableLength']-1},
             'proportionsAndAnglesPreserved':True,'bothBodyVisualReviewRequired':True}
     report['measurementDigest']=digest(report)
+    # An unapproved depth departure is refused like any other, but with its measurement retained: the measure-only
+    # pass needs this digest before anyone can approve the departure.
+    if depth_departs and (review or {}).get('depthDepartureApproved') is not True:
+        report['depthDepartureApproved']=False
+        raise GripDeparture(report,'Two-hand grip must match approved midpoint thickness unless a review of this measurement approves the depth departure')
     # Length is the intended departure; width over 5% needs the same bound review as firearms.
     if depth_departs or abs(report['midpointRelativeDifferences']['visibleFaceWidth'])>.05:bind_departure(report,review)
     return m,report

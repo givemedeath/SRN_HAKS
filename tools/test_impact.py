@@ -38,6 +38,12 @@ def committed_packs(repo):
     result=subprocess.run(['git','-C',str(repo),'ls-tree','-d','--name-only','HEAD'],capture_output=True,text=True)
     return {n for n in result.stdout.splitlines() if re.fullmatch(r'srn_[a-z0-9_]+',n)} if not result.returncode else set()
 
+def ignored_prefixes(repo):
+    """Git-ignored paths (folders end in /) on this machine; never in a clean checkout, so never a catalog edge."""
+    if not (repo/'.git').exists():return ()
+    result=subprocess.run(['git','-C',str(repo),'ls-files','--others','--ignored','--exclude-standard','--directory'],capture_output=True,text=True)
+    return tuple(result.stdout.splitlines()) if not result.returncode else ()
+
 def packs(repo):
     """Pack folders on disk or in HEAD, so a sparse checkout catalogs the same pack names as a full one."""
     return sorted({p.name for p in repo.iterdir() if p.is_dir() and re.fullmatch(r'srn_[a-z0-9_]+',p.name)}|committed_packs(repo))
@@ -67,6 +73,13 @@ def catalog(repo=REPO):
     literal_index={}
     for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files)]:literal_index.setdefault(p.name,[]).append(p)
     pack_names=set(packs(repo))
+    ignored=ignored_prefixes(repo)
+    # Local ignored state (output/, workspace files) exists only here: a literal resolving to it would make this
+    # machine's catalog differ from CI's.
+    def present(p):
+        if not p.is_file():return False
+        try:return not (ignored and p.relative_to(repo).as_posix().startswith(ignored))
+        except ValueError:return True
     config=repo/CONFIG
     # The selector's own tests name helper paths as data; those strings are not reads of the helpers.
     data_only=set(json.loads(config.read_text(encoding='utf-8')).get('literalsAreData',[])) if config.is_file() else set()
@@ -104,9 +117,9 @@ def catalog(repo=REPO):
                 # Match unique tracked literals, including helper launches, with_name configs and read documents.
                 literal=Path(node.value.replace('\\','/').lstrip('/'));qualified_path=repo/literal;relative=path.parent/literal
                 if len(literal.parts)<=1 and literal.name.lower() in GENERIC_LITERALS:matches=[]
-                elif qualified_path.is_file():matches=[qualified_path]
-                elif relative.is_file():matches=[relative]
-                elif (path.parent/literal.name).is_file():matches=[path.parent/literal.name]
+                elif present(qualified_path):matches=[qualified_path]
+                elif present(relative):matches=[relative]
+                elif present(path.parent/literal.name):matches=[path.parent/literal.name]
                 elif len(literal.parts)>1:
                     suffix='/'+literal.as_posix().removeprefix('./')
                     matches=[p for p in literal_index.get(literal.name,[]) if p.as_posix().endswith(suffix)]

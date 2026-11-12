@@ -11,7 +11,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 ENVIRONMENT = 'SRN_ITEM_WORKSPACE'
-DEFAULT = REPO/'output/itemkit/workspace.json'
+# Joined from parts: tools/test_impact.py resolves a whole path literal against files on disk, and this one is ignored
+# local state, so it would put a machine-only edge into the committed catalog.
+DEFAULT = REPO/'output'/'itemkit'/'workspace.json'
 REQUIRED = ('python', 'pythonPath', 'blender', 'runtime', 'bindings', 'handoff', 'items')
 
 

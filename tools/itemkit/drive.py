@@ -3,7 +3,7 @@
     python -m tools.itemkit.drive [--workspace FILE] COMMAND ...
 
 Generation (one GPU job at a time, through the shared ledger; ComfyUI only when this driver started it):
-    comfy start|stop|status          image DESIGN colour|clay        condition DESIGN ID
+    comfy start|stop|status          image DESIGN colour|clay        condition DESIGN ID [--notes "user's words" --keyed D,C]
     gen ID STAGE [--manifest SUFFIX] [--attempt aN]                    calibrated ID FOV [--source SUFFIX]
     approve-geometry ID ATTEMPT SRC DST --notes "user's words"          textured ID ATTEMPT SRC --notes ... [--straight DIR]
 Processing (CPU, through the verified launcher):
@@ -250,9 +250,11 @@ class Driver:
         if done.returncode or not (folder/target).exists(): raise SystemExit(f'Codex image failed; see {run/"codex.log"}')
         return {'image': str(folder/target), 'run': str(run)}
 
-    def condition(self, design, did, source='wave1-v2-contract'):
+    def condition(self, design, did, source='wave1-v2-contract', notes=None, keyed=None):
+        """Without --notes: key and measure the pair, then stop for review. With the user's words and the keyed hashes: condition."""
         from tools.itemkit.oblique import condition
-        return condition(self.ws.setting('references')/design, self.ws.handoff, did, source)
+        return condition(self.ws.setting('references')/design, self.ws.handoff, did, source, notes=notes,
+                         keyed_sha256=keyed.split(',') if keyed else None)
 
     # -- processing -----------------------------------------------------------------------------------------------
     def stage(self, design, suffix, stage):
@@ -431,6 +433,7 @@ def main(argv=None):
     s = c.add_parser('comfy'); s.add_argument('action', choices=['start', 'stop', 'status'])
     s = c.add_parser('image'); s.add_argument('design'); s.add_argument('kind', choices=['colour', 'clay'])
     s = c.add_parser('condition'); s.add_argument('design'); s.add_argument('id'); s.add_argument('--source', default='wave1-v2-contract')
+    s.add_argument('--notes', help="the user's review of the keyed pair"); s.add_argument('--keyed', help='DETAIL_SHA,CLAY_SHA from the first call')
     s = c.add_parser('gen'); s.add_argument('id'); s.add_argument('stage', choices=['calibrate', 'geometry', 'appearance', 'export'])
     s.add_argument('--manifest', required=True, help='manifest suffix'); s.add_argument('--attempt', default='a1')
     s = c.add_parser('calibrated'); s.add_argument('id'); s.add_argument('fov', type=float); s.add_argument('--source', default='wave1-v2-contract')
@@ -453,7 +456,7 @@ def main(argv=None):
     s = c.add_parser('decimate'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--faces', type=int, default=30000)
     a = p.parse_args(argv); d = Driver(Workspace.load(a.workspace))
     result = {
-        'comfy': lambda: d.comfy(a.action), 'image': lambda: d.image(a.design, a.kind), 'condition': lambda: d.condition(a.design, a.id, a.source),
+        'comfy': lambda: d.comfy(a.action), 'image': lambda: d.image(a.design, a.kind), 'condition': lambda: d.condition(a.design, a.id, a.source, a.notes, a.keyed),
         'gen': lambda: d.gen(a.id, a.stage, a.manifest, a.attempt), 'calibrated': lambda: d.calibrated(a.id, a.fov, a.source),
         'approve-geometry': lambda: d.approve_geometry(a.id, a.attempt, a.src, a.dst, a.notes),
         'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight),

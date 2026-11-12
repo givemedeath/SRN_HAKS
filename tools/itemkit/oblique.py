@@ -6,8 +6,9 @@ component, enclosed highlight holes filled: only for designs without intended op
 outlines overlay, and runs the archived pair conditioning (`reference_conditioning.prepare`, route
 preserve-reviewed-pair-alpha). A pair that does not overlay is regenerated, never conditioned.
 
-The manifest's background and pair approvals record the measured evidence and say the pair is not yet user-approved;
-the geometry stage still needs its own camera calibration.
+Two phases: the first keys and measures and stops for a person to look at the keyed pair; the second, given the
+user's words and the two keyed-image hashes, conditions the pair and writes the background, pair and view approvals
+with those words. The geometry stage still needs its own camera calibration.
 """
 import hashlib
 import json
@@ -66,24 +67,54 @@ def registration(masks):
     return iou, landmarks, edges, float(worst_landmark), float(worst_edge)
 
 
-def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=None):
+def measure_pair(folder):
+    """Key both images into `conditioning-v1/` and measure their registration (the first, review-free phase)."""
+    folder = Path(folder); work = folder/'conditioning-v1'
+    if not (work/'pair-measurement.json').exists():
+        require(not work.exists(), 'An unfinished conditioning folder exists; regenerate into a fresh design folder'); work.mkdir()
+        keyed = {role: key(folder/f'{role}-original.png', work/f'{role}-keyed.png') for role in ('detail', 'clay')}
+        masks = {role: np.asarray(Image.open(work/f'{role}-keyed.png'))[..., 3] >= 128 for role in keyed}
+        require(masks['detail'].shape == masks['clay'].shape, 'Colour and clay images differ in size')
+        height, width = masks['detail'].shape
+        iou, landmarks, edges, worst_landmark, worst_edge = registration(masks)
+        measured = {'keying': keyed, 'iou': iou, 'landmarks': landmarks, 'edgeMeasurements': edges, 'worstLandmarkPixels': worst_landmark,
+                    'worstEdgePixels': worst_edge, 'size': [width, height],
+                    'detailSha256': sha(work/'detail-keyed.png'), 'claySha256': sha(work/'clay-keyed.png')}
+        (work/'pair-measurement.json').write_text(json.dumps(measured, indent=2), encoding='utf-8')
+    measured = json.loads((work/'pair-measurement.json').read_text(encoding='utf-8'))
+    require(sha(work/'detail-keyed.png') == measured['detailSha256'] and sha(work/'clay-keyed.png') == measured['claySha256'],
+            'Keyed images changed since they were measured')
+    return work, measured
+
+
+def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=None, keyed_sha256=None):
+    """Key and measure the pair; with the user's review of the keyed images, condition it and write the manifest.
+
+    The first call (no `notes`) only keys and measures and returns the keyed image hashes for a person to look at: keying
+    keeps the largest component and fills enclosed holes, so whether intentional openings and thin members survived is
+    a visual judgement the overlap numbers cannot make. The second call passes `notes` (the user's own words about
+    the keyed images) and `keyed_sha256` = [detail, clay] hashes from the first call, which binds the review to those
+    exact files before any approval is written."""
     from tools.itemkit import reference_conditioning as rc
-    folder = Path(folder); handoff = Path(handoff); work = folder/'conditioning-v1'
-    require(not work.exists(), 'Conditioning already ran for this pair; regenerate into a fresh design folder'); work.mkdir()
-    keyed = {role: key(folder/f'{role}-original.png', work/f'{role}-keyed.png') for role in ('detail', 'clay')}
-    masks = {role: np.asarray(Image.open(work/f'{role}-keyed.png'))[..., 3] >= 128 for role in keyed}
-    require(masks['detail'].shape == masks['clay'].shape, 'Colour and clay images differ in size')
-    height, width = masks['detail'].shape
-    iou, landmarks, edges, worst_landmark, worst_edge = registration(masks)
+    folder = Path(folder); handoff = Path(handoff)
+    work, measured = measure_pair(folder)
+    keyed, iou, landmarks, edges = measured['keying'], measured['iou'], measured['landmarks'], measured['edgeMeasurements']
+    width, height = measured['size']; worst_landmark, worst_edge = measured['worstLandmarkPixels'], measured['worstEdgePixels']
     # Hard gates: limits scale with the image size.
     require(iou >= .95, f'Colour/clay mask overlap {iou:.3f} is below 0.95: regenerate the clay from the colour image')
     require(worst_landmark <= .01 * max(width, height) and worst_edge <= .006 * max(width, height), 'Colour/clay outlines are misaligned: regenerate the clay')
     require(all(v['droppedPixels'] <= .002 * width * height for v in keyed.values()), 'Background keying dropped a large second object')
-    notes = notes or (f'Angled colour/clay pair from the Codex built-in image tool (prompts in PROMPTS.md). Alpha keyed from the plain white '
-                      f'background; largest component kept, enclosed highlight holes filled (no intended openings): {json.dumps(keyed)}. '
-                      f'Mask IoU {iou:.4f}. Landmarks are mask extremes measured independently on each image. Not user-approved yet.')
+    if not (isinstance(notes, str) and notes.strip()):
+        return {'reviewRequired': True, 'detail': str(work/'detail-keyed.png'), 'clay': str(work/'clay-keyed.png'),
+                'keyedSha256': [measured['detailSha256'], measured['claySha256']], 'keying': keyed, 'iou': iou,
+                'worstLandmarkPixels': worst_landmark, 'worstEdgePixels': worst_edge}
+    require(list(keyed_sha256 or ()) == [measured['detailSha256'], measured['claySha256']],
+            'The review must name the keyed detail and clay hashes it looked at')
+    require(not (work/'conditioned').exists(), 'Conditioning already ran for this pair; regenerate into a fresh design folder')
+    notes = (f'{notes.strip()} Measured: angled colour/clay pair from the Codex built-in image tool (prompts in PROMPTS.md), alpha keyed '
+             f'from the plain white background, largest component kept, enclosed holes filled: {json.dumps(keyed)}. Mask IoU {iou:.4f}.')
     evidence = {'actualImagesViewed': True, 'pairMasksVisuallyReviewed': True, 'intentionalOpeningsReviewed': True, 'thinMembersReviewed': True,
-                'detailSha256': sha(work/'detail-keyed.png'), 'claySha256': sha(work/'clay-keyed.png'), 'landmarks': landmarks,
+                'detailSha256': measured['detailSha256'], 'claySha256': measured['claySha256'], 'landmarks': landmarks,
                 'edgeMeasurements': edges, 'notes': notes}
     (work/'registration.json').write_text(json.dumps(evidence, indent=2), encoding='utf-8')
     spec = {'designId': design_id, 'canvasSize': 2048, 'paddingPixels': 102, 'sourceAlphaFloor': 16, 'route': 'preserve-reviewed-pair-alpha',

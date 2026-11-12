@@ -81,6 +81,36 @@ class HaftedFitTests(unittest.TestCase):
         self.assertGreater(np.asarray(data['fittedBounds'])[1][1], .3)
 
 
+class TwoHandDepthTests(unittest.TestCase):
+    def test_an_unapproved_depth_departure_keeps_its_measurement(self):
+        from tools.itemkit.fit_manifest import STANDARD
+        from tools.itemkit.grip import GripDeparture, two_hand_uniform
+        standard = json.loads(STANDARD.read_text(encoding='utf-8')); depth = standard['targetMidpointSection']['depth']
+        rows = [(y, depth) for y in np.arange(-.3, .3001, .004)]           # a round grip twice the approved depth
+        v, f = lathe(rows, sides=64); ends = [[0, -.1, 0], [0, .1, 0]]
+        with self.assertRaises(GripDeparture) as caught: two_hand_uniform(v, f, np.eye(4), ends, [0, 0, 0], standard)
+        report = caught.exception.report; self.assertFalse(report['depthDepartureApproved']); self.assertTrue(report['measurementDigest'])
+        with self.assertRaises(GripDeparture) as again:                  # approved depth, but no review of this digest yet
+            two_hand_uniform(v, f, np.eye(4), ends, [0, 0, 0], standard, {'depthDepartureApproved': True})
+        self.assertEqual(again.exception.report['measurementDigest'], report['measurementDigest'])
+
+
+class ObliqueReviewTests(unittest.TestCase):
+    def test_the_pair_is_only_conditioned_with_a_review_of_the_keyed_hashes(self):
+        from PIL import Image
+        from tools.itemkit.oblique import condition
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)/'design'; folder.mkdir()
+            image = np.full((256, 256, 3), 255, np.uint8)
+            for i in range(40, 216): image[256 - i - 6:256 - i + 6, i - 6:i + 6] = (90, 70, 60)     # a diagonal bar
+            for role in ('detail', 'clay'): Image.fromarray(image).save(folder/f'{role}-original.png')
+            first = condition(folder, Path(tmp), 'x')
+            self.assertTrue(first['reviewRequired']); self.assertFalse((folder/'conditioning-v1/conditioned').exists())
+            self.assertEqual(condition(folder, Path(tmp), 'x')['keyedSha256'], first['keyedSha256'])        # measuring again is safe
+            with self.assertRaisesRegex(ValueError, 'keyed detail and clay hashes'):
+                condition(folder, Path(tmp), 'x', notes="user's words", keyed_sha256=['0' * 64, '0' * 64])
+
+
 class TextureCheckTests(unittest.TestCase):
     def test_a_stroke_on_grain_is_found_and_grain_alone_is_not(self):
         from tools.itemkit.texture_check import outliers

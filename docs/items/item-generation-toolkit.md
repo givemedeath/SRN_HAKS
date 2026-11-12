@@ -460,6 +460,11 @@ hand-typed run. Nothing in the driver approves a design: approvals it writes quo
 `--donor-review`, and `batch` and `chain` approve intermediate stages only as numerical passes.
 `python -m tools.itemkit.drive --help` lists every command.
 
+`drive condition DESIGN ID` keys and measures an angled colour/clay pair and stops: keying fills enclosed holes and
+drops secondary components, so whether openings and thin members survived needs a person's look at the keyed
+images. Running it again with `--notes "user's words" --keyed DETAIL_SHA,CLAY_SHA` (the hashes the first call
+printed) conditions the pair and writes the approvals with those words.
+
 ### Measure-only fit and fit preview
 
     run_itemkit.py measure-fit --manifest M --bindings B --run RUN --output RUN/measure-N

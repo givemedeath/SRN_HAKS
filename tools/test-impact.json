@@ -2051,6 +2051,8 @@
       "tools/itemkit/family_contract.py",
       "tools/itemkit/fit_manifest.py",
       "tools/itemkit/fixture.py",
+      "tools/itemkit/grip.py",
+      "tools/itemkit/oblique.py",
       "tools/itemkit/texture_check.py",
       "tools/itemkit/workspace.py"
     ],
@@ -2086,9 +2088,7 @@
     "tools/itemkit/verification.py": [
       "tools/headkit/common.py"
     ],
-    "tools/itemkit/workspace.py": [
-      "output/itemkit/workspace.json"
-    ],
+    "tools/itemkit/workspace.py": [],
     "tools/phenomorpher/finalize_runtime.py": [
       "tools/phenotypes/finalize_shared_tool_migration.py",
       "tools/phenotypes/launch_hash_cache.py",
