@@ -167,6 +167,18 @@ class OnboardTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Concept sheet differs from the set: 07_the_yard.png'):
                 call()
 
+    def test_every_row_of_reuses_starts_with_the_prop_they_reuse(self):
+        reuses = [f'yard/copy-{number}' for number in range(16)]; rows = onboard.reuse_rows('dock/desk', reuses)
+        self.assertEqual([len(row) for row in rows], [onboard.ROW, onboard.ROW, 3]); self.assertTrue(all(row[0] == 'dock/desk' for row in rows))
+        self.assertEqual([key for row in rows for key in row[1:]], reuses)  # each reuse once, in order
+        self.assertEqual(onboard.reuse_rows('dock/desk', reuses[:7]), [['dock/desk', *reuses[:7]]]); self.assertEqual(onboard.reuse_rows('dock/desk', []), [])
+        shipped = onboard.concept_sets(Path(__file__).with_name('sets')); counts = {}
+        for name, data in shipped.items():
+            for asset in data['assets'].values():
+                if 'same' in asset:
+                    counts[asset['same']] = counts.get(asset['same'], 0) + 1
+        self.assertGreaterEqual(max(counts.values()), onboard.ROW)  # the shipped sets have rows that run on
+
     def test_a_crop_is_scaled_to_its_cell(self):
         fitted = lambda size, *limits, **more: onboard._fitted(Image.new('RGB', size), *limits, **more).size
         self.assertEqual(fitted((600, 300), 150, 150), (150, 75)); self.assertEqual(fitted((50, 40), 150, 150), (50, 40))  # made smaller to fit, never larger

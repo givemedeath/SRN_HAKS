@@ -409,9 +409,20 @@ def type_page(sets, sheets, output, types):
     return sum(crop is not None for _, crop in cells)
 
 
+ROW = 8  # crops to a row of the reuse pages
+
+
+def reuse_rows(target, reuses):
+    """The rows of the reuse pages for one made prop: each starts with it, then as many of the props that reuse it as
+    the row has room for. A row that runs on starts with it again, so that what is judged is beside what it is judged
+    against, whichever page it lands on (Codex on PR #127, 2026-11-12: the shipped sets have two props reused eight
+    times and more)."""
+    return [[target, *reuses[start:start + ROW - 1]] for start in range(0, len(reuses), ROW - 1)]
+
+
 def same_pages(sets, sheets, prefix, only=()):
     """Each reused prop beside the prop it reuses, to judge that they are alike: a row starts with the made prop (red
-    frame) and goes on with every prop that says it is the same. `only` limits the rows to props of those sets, made or
+    frame) and goes on with props that say they are the same, as many rows as they fill (`reuse_rows`). `only` limits the rows to props of those sets, made or
     reusing. Pages `<prefix>-NN.png`. Returns {targets, reuses, pages}."""
     from PIL import Image, ImageDraw
     props, images = {}, {}
@@ -432,7 +443,7 @@ def same_pages(sets, sheets, prefix, only=()):
         groups = {target: keys for target, keys in groups.items() if {key.split('/')[0] for key in [target, *keys]} & set(only)}
     require(groups, 'No prop reuses another' + (' in ' + ', '.join(only) if only else '')); rows, pages = [], []
     for target in sorted(groups, key=lambda key: (props[key][2]['type'], key)):
-        keys = [target] + groups[target]; rows += [(target, keys[start:start + 8]) for start in range(0, len(keys), 8)]
+        rows += [(target, keys) for keys in reuse_rows(target, groups[target])]
     Path(prefix).parent.mkdir(parents=True, exist_ok=True)
     for start in range(0, len(rows), 11):
         page = rows[start:start + 11]; sheet = Image.new('RGB', (1500, 124 * len(page)), (255, 255, 255)); draw = ImageDraw.Draw(sheet)
