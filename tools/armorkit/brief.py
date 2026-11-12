@@ -24,6 +24,12 @@ A brief is a JSON document:
 generated outfit shows instead, recorded once it is known to have drifted. `pads` names the sides the outfit is
 designed with a shoulder pad on (`repose.onto_body`, `padded`). `prompt` is the image prompt with `{materials}`
 where its colour paragraph goes.
+
+`"construction": 1` and `{construction}` in the prompt add the paragraph that says how an outfit is built so
+that it can be cut into parts (`CONSTRUCTIONS`). What the first worn outfit took longest to put right was
+drawn into its reference image: frames and piping of metal a face wide, a guard in two plates across an
+elbow, a shoulder guard over the sleeve's seam, straps along the joints. No new reference folder is sealed
+without the current paragraph (`seal`); a folder sealed before keeps the prompt it was sealed with.
 """
 import hashlib
 import json
@@ -37,11 +43,25 @@ from .registry import require
 
 KIND = 'srn-armorkit-brief'
 MARK = '{materials}'
+BUILT = '{construction}'
+# The paragraph of an image prompt that says how an outfit is built, by version. A sealed folder's prompt is
+# written from the version its brief names, so a paragraph is never edited: a change is a new version.
+CONSTRUCTIONS = {1: '\n'.join((
+    'Construction, how this outfit is built. It will be cut into separate parts at the shoulders, elbows, wrists, waist, hips, knees and ankles:',
+    '1. Every hard plate or guard is one solid, simple shape at least as wide as a hand, in its own colour all over. '
+    'Nothing thin is drawn in a plate\'s colour: no frames, outlines, piping, trim lines or small tabs on the cloth.',
+    '2. An elbow or a knee has at most one guard: a single one-piece shell centred on the joint. '
+    'No guard is two plates with a strap or a gap between them.',
+    '3. A shoulder guard sits on the outside of the upper arm, below the shoulder. '
+    'The top of the shoulder and the seam where the sleeve joins the body are plain cloth with nothing lying over them.',
+    '4. Every strap and band goes round the middle of an upper arm, a forearm, a thigh or a shin. '
+    'No strap runs along or across a shoulder, an elbow, a wrist, the waist, a hip, a knee or an ankle.',
+    '5. Nothing worn on the torso touches the arms: a vest or a carrier is narrow at the sides and ends well short of the armpits.'))}
 COUNTS = ('One', 'Two', 'Three', 'Four', 'Five', 'Six')
 APART = 30.0  # the least two materials' colours may differ by in a prompt, in `texture.tone`'s space. The first outfit's
 # cloth and plates were asked for 10 apart and its cloth came out 21 from what was asked: they could be told only by guessing
 MARGIN = 5.0  # the best way of matching the outfit's materials to the brief's beats the next by this much, or it is refused
-KEYS = {'schemaVersion', 'kind', 'model', 'pads', 'materials', 'prompt'}
+KEYS = {'schemaVersion', 'kind', 'model', 'pads', 'materials', 'prompt', 'construction'}
 MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown'}
 SEAL, SEAL_KIND, PROMPT = 'brief-seal.json', 'srn-armorkit-brief-seal', 'PROMPT.txt'
 
@@ -55,6 +75,11 @@ def validate(document):
     require(text(document['model']), 'A brief names its model')
     require(text(document['prompt']) and document['prompt'].count(MARK) == 1,
             f'The prompt holds {MARK} once, where its colour paragraph goes')
+    version = document.get('construction')
+    require(version is None or (isinstance(version, int) and not isinstance(version, bool) and version in CONSTRUCTIONS),
+            f'The construction paragraph is one of versions {sorted(CONSTRUCTIONS)}')
+    require(document['prompt'].count(BUILT) == (0 if version is None else 1),
+            f'The prompt holds {BUILT} once where the brief names a construction version, and not without one')
     pads = document.get('pads', [])
     require(isinstance(pads, list) and set(pads) <= {'l', 'r'} and len(set(pads)) == len(pads), 'Pads are on the l or r side')
     materials = document['materials']
@@ -104,7 +129,8 @@ def prompt(brief):
 
 def composed(brief):
     """The brief's prompt as written out, whatever its colours: what `prompt` returns once it has checked them."""
-    return brief['prompt'].replace(MARK, colours(brief))
+    text = brief['prompt'].replace(MARK, colours(brief))
+    return text.replace(BUILT, CONSTRUCTIONS[brief['construction']]) if 'construction' in brief else text
 
 
 def _seal(folder, brief, adopted):
@@ -123,9 +149,12 @@ def seal(brief, folder):
     """Seal a reference folder with its brief and return the image prompt, which is written there as PROMPT.txt.
 
     The prompt is the brief's (`prompt`), so a brief that does not hold, or one with materials drawn too alike,
-    seals nothing. Images made from the prompt are registered in the folder (`register`); only those are taken
-    further (`admit`)."""
+    seals nothing. Neither does one without the current construction paragraph: a new image is drawn to
+    the rules the outfits before it taught. Images made from the prompt are registered in the folder
+    (`register`); only those are taken further (`admit`)."""
     text = prompt(brief)
+    require(brief.get('construction') == max(CONSTRUCTIONS),
+            f'A new reference image is drawn to the construction rules: give the brief "construction": {max(CONSTRUCTIONS)} and {BUILT} in its prompt')
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     _seal(folder, brief, False)
