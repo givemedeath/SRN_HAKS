@@ -537,14 +537,13 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     rests were pale flecks in the shadow there. The texels of a limb's `overlaid` faces are flagged with
     them and drawn the same way.
 
-    `shadow` flags the closing's texels that lie in an armhole: an upper arm's closings and its cap, which
-    the caller flags as a closing there. They are drawn at `ARMHOLE_SHADE` of that shade, and no darker than
-    the darkest shade a texel may get. The game stands a
-    body with its arms turned a little out of the pose the outfit was cut in, the sleeve's rim then stands
-    off the chest's edge on one side, and what closes the sleeve shows in the gap between the two: as a
-    pale strip at the shade of the sleeve's lit shoulder, and as the shadow under the chest's edge at this
-    one. Drawing the cap in from its rim does not close the gap: at half the rim's width a quarter less of
-    it showed.
+    `shadow` flags the closing's texels that lie in an armhole: an upper arm's closings (`bake.ARMHOLE`).
+    They are drawn at `ARMHOLE_SHADE` of that shade, and no darker than the darkest shade a texel may get.
+    The game stands a body with its arms turned a little out of the pose the outfit was cut in, the
+    sleeve's rim then stands off the chest's edge on one side, and what closes the sleeve shows in the gap
+    between the two: as a pale strip at the shade of the sleeve's lit shoulder, and as the shadow under the
+    chest's edge at this one. The sleeve's cap shows there too; drawing it in from its rim does not close
+    the gap (at half the rim's width a quarter less of it showed), and `bake.roles` says how it is drawn.
 
     `cap` flags the texels of the part's cap (the faces reported as `CAP`). A cap repeats its rim's colours
     toward its pole, and shows in the gap a bent joint opens: it is what its rim is, the pad over a knee and

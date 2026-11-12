@@ -188,7 +188,8 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
    registry. For each model to generate, write its brief file (`tools/armorkit/briefs/`, format in
    `tools/armorkit/brief.py`): every material with its kind (cloth, leather or metal), the flat colour it is
    drawn in and what is made of it, at most two of a kind, in clearly different hues. The colour paragraph of
-   the image prompt is written from that file, and the bake sorts the outfit into the six channels by it. No
+   the image prompt is written from that file, and the bake sorts the outfit into the six channels by it. The
+   prompt also carries the construction rules (revision 2026-11-12 below), and no new folder is sealed without them. No
    reference image is made without one: the reference folder is sealed with the brief
    (`python -m tools.armorkit brief BRIEF --seal FOLDER`, or `image` to make the image locally), every image
    made from it is registered there, and a geometry or appearance job is posted only for an image that
@@ -197,7 +198,9 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
    The same pair on the Human female for each separate female cut. Review before generating.
 3. **Generate** the source on the local engine, recorded in the ledger (`python -m tools.armorkit generate`:
    calibrate, geometry, export, appearance). At most five geometry attempts per model.
-4. **Split** on the Human male body with planar joint cuts and the overlap ends for each tier.
+4. **Split** on the Human male body with planar joint cuts and the overlap ends for each tier. Steps 4 to 6
+   and the gates of step 8 that exist are one command for a generated outfit: `python -m tools.armorkit bake`
+   (`tools/armorkit/bake.py`).
 5. **Fit** around the unchanged body: clearance, no body edits.
 6. **Materials.** Label regions to channels, write the PLT and material file, mark skin regions, place badges.
 7. **Skinned pieces** (hoods, bandoliers, skirts that need it): weights, then compile with cleanmodels.
@@ -511,3 +514,33 @@ in the Phase 0 revision.
   at the waist by 1.5–2.8 cm a side, which is mild in the client and hidden by a matching pelvis piece. Fit
   male chests measure 4.5–7.5 cm inside the body at the front at the waist, which has not been looked at in
   the client. No change is made to that pack here.
+
+## Revision 2026-11-12: construction rules in every image prompt, and the order after the pilot
+
+The first worn outfit, siteguard-male, took three polishing rounds after its first build
+([pilot-corpsec.md](pilot-corpsec.md)). Most of what they put right was drawn into the reference image and
+could not be seen as a fault there. A brief's prompt now carries a fixed paragraph of construction rules
+(`tools/armorkit/brief.py`, `CONSTRUCTIONS`), and a new reference folder is sealed only with the current one:
+
+1. Every hard plate or guard is one solid shape at least a hand wide, and nothing thin is drawn in a plate's
+   colour. The reference drew a tab of cloth in a frame of the plates' colour under each shoulder pad, and
+   piping on the pockets: at 12,000 faces a frame is one to three faces wide, part of it went to the shoulder
+   part and hung down the arm, and the pad was cut out along the teeth of its outline.
+2. An elbow or a knee has at most one guard, a single shell centred on the joint. The reference's elbow
+   guard is two plates with a strap between them, and a bent arm still shows the sleeve between the two.
+3. A shoulder guard sits on the upper arm below the shoulder, with the top of the shoulder and the sleeve's
+   seam left plain. A pad over the seam needed a part of its own, a dome on the chest under it and a lid on
+   the shoulder plane, and the armpit round it was the last thing to be put right.
+4. Straps go round the middle of a limb segment, never along or across a joint. A strap on a joint line is
+   cut in two and repeated on the cap, where it showed as a triangle of webbing beside the knee.
+5. Nothing worn on the torso touches the arms. Where a vest lay against a sleeve the generated outfit had one
+   surface there, and the sleeve showed the vest's colour once the arm lifted.
+
+These are rules for the image, not gates: an image that breaks one is caught at the reference review, where
+it costs nothing yet. The pads a brief lists (`pads`) stay for an outfit that is drawn with shoulder pads on
+purpose.
+
+Order agreed with the user on 2026-11-12, after the pilot: the bake as one tracked command with the gates
+that exist (`python -m tools.armorkit bake`); these rules; the next corporate security tier at the 30,000
+budget, exported at about 17,000 faces; then the better of the two outfits through the female cuts, the 18
+race versions and publication; then the belt, the logo badge and the respirator.
