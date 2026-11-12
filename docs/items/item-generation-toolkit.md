@@ -429,7 +429,10 @@ which refuses to start while any client is running and stops only the one it sta
 camera is attached to each Human actor at stated moments of the existing motion sequence (four sides, hand close-up,
 shadow, unequipped and re-equipped, walk, run, two attack frames, shield, off-hand, armour and gloves). Three window
 captures are saved after each `ITEMKIT_SHOT` line. A shot that finds the camera in use is taken on the next cycle,
-so a run lasts five to nine minutes.
+so a run lasts five to nine minutes. A burst that may show another shot's view is kept on disk but marked `rejected`
+in `capture.json` and left out of the evidence draft and the contact sheets: a shot already followed by the next
+one in the same log read is not captured at all ('next shot began'), and a burst that ended after the shot's hold
+is 'burst overran the shot hold'. Its check is then listed as missing.
 
 The greatsword carrier rests on the shoulder, so its fixture uses `fixture.SHOULDER_SHOTS`: the same moments framed
 higher and a metre further off, with the close-ups aimed at the chest where the hand is. The framing follows the

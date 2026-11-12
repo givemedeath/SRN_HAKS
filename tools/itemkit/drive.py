@@ -4,10 +4,10 @@
 
 Generation (one GPU job at a time, through the shared ledger; ComfyUI only when this driver started it):
     comfy start|stop|status          image DESIGN colour|clay        condition DESIGN ID [--notes "user's words" --keyed D,C]
-    gen ID STAGE [--manifest SUFFIX] [--attempt aN]                    calibrated ID FOV [--source SUFFIX]
+    gen ID STAGE --manifest SUFFIX [--attempt aN]                      calibrated ID FOV [--source SUFFIX]
     approve-geometry ID ATTEMPT SRC DST --notes "user's words"          textured ID ATTEMPT SRC --notes ... [--straight DIR]
 Processing (CPU, through the verified launcher):
-    fit ID SRC DST WORKING DONOR [--overrides JSON] [--measure-only] [--donor-review "user's words"]
+    fit ID SRC DST WORKING DONOR [--overrides JSON] [--measure-only] [--donor-review "user's words"] [--authority "user's words"]
     preview ID SUFFIX                 stage ID SUFFIX STAGE           review ID SUFFIX STAGE approved|rejected NOTES
     chain ID SUFFIX STAGE...          batch ID:SUFFIX... --stages S,S,... [--jobs N]
 Fixtures and in-game capture:
@@ -20,7 +20,6 @@ Nothing here approves a design: every approval a command records quotes words th
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
-import glob
 import hashlib
 import json
 import os
@@ -244,8 +243,11 @@ class Driver:
             self.donor_manifest(design, 'geometry-approved-v1', 'donor-v1', 'Automated chain: 200K/768 UDF donor and colour field from the appearance job '
                                 'on the approved clay (raw mesh hash checked identical). Visual review of the textured result is still required.')
         run = self.run_dir(design, 'donor-v1')
-        if not list(run.rglob('textured-donor.glb')): self.stage(design, 'donor-v1', 'donor')
-        donor = next(run.rglob('textured-donor.glb'))
+        # The donor of the attempt the run's state records: attempt folders are not ordered, and an older or failed
+        # attempt may hold a textured-donor.glb too.
+        recorded = lambda: (read(run/'state.json')['stages'].get('donor') if (run/'state.json').exists() else None)
+        if recorded() is None: self.stage(design, 'donor-v1', 'donor')
+        donor = next(Path(recorded()['path']).parent.rglob('textured-donor.glb'))
         family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
         for kind, name in (('straighten', 'straightened'), ('thin', 'thinned')):
             mapping = Path(straight)/f'{kind}-map.npz' if straight else None
@@ -273,7 +275,9 @@ class Driver:
                   f'and the image prompt below used verbatim.\nThen copy the generated PNG into the current directory as {target}. Do not create, edit '
                   f'or delete any other file, do not post-process the image, and do not make a second image. Reply with the saved path only.\n\n'
                   f'IMAGE PROMPT:\n{blocks[["colour", "clay"].index(kind)]}')
-        n = len(list(folder.glob(f'run-{kind}-*'))) + 1; run = folder/f'run-{kind}-{n}'; run.mkdir()
+        n = 1
+        while (folder/f'run-{kind}-{n}').exists(): n += 1
+        run = folder/f'run-{kind}-{n}'; run.mkdir()
         (run/'prompt.txt').write_text(prompt, encoding='utf-8')
         with open(run/'prompt.txt', encoding='utf-8') as stdin, open(run/'codex.log', 'w', encoding='utf-8') as log:
             done = subprocess.run([str(codex), 'exec', '--skip-git-repo-check', '-s', 'workspace-write', '-C', str(folder), '-i', str(folder/source),
@@ -446,8 +450,8 @@ class Driver:
         if not nwn: raise SystemExit('Workspace needs nwnRoot')
         done = self.python('-m', 'tools.itemkit.client_capture', fixture, output, '--nwn-root', nwn, check=False)
         if done.returncode: raise SystemExit(f'Capture failed:\n{(done.stdout or "")[-800:]}{(done.stderr or "")[-800:]}')
-        from tools.itemkit.client_capture import contact_sheets
-        return {'result': json.loads(done.stdout[done.stdout.index('{'):]), 'sheets': contact_sheets(output)}
+        result = json.loads(done.stdout[done.stdout.index('{'):])      # the capture run already made the contact sheets
+        return {'result': result, 'sheets': result['sheets']}
 
     # -- families and helpers -------------------------------------------------------------------------------------
     def contract(self, family, design, wave, visible=None):

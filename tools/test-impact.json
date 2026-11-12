@@ -1626,7 +1626,6 @@
       "tools/headkit/gltf.py",
       "tools/itemkit/__init__.py",
       "tools/itemkit/autofit.py",
-      "tools/itemkit/client_capture.py",
       "tools/itemkit/family_contract.py",
       "tools/itemkit/fit_manifest.py",
       "tools/itemkit/oblique.py",
