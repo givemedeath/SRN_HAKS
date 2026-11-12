@@ -6,7 +6,6 @@ Outputs are proposals for human review: nothing here approves a reference or spe
 import hashlib
 import json
 import re
-import time
 import uuid
 from pathlib import Path
 
@@ -16,7 +15,6 @@ PROFILE = 'qwen21-int8-v1'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
 KIN = {'type', 'same', 'variant', 'unbranded'}
 BRANDING = 'Branding:'
-QUEUE_LOOK = 30.0  # seconds between looks at the shared ComfyUI's queue while a run waits for it
 CUT_MARGIN = 0.08  # of the longer side: the white set round a piece of a building before it is redrawn
 # Type names that turned out to mean a type already in use (review of 2026-11-11). Two names for one kind of prop hide
 # its repeats from the register, so a retired name is refused with the name to use.
@@ -161,20 +159,6 @@ def source(data, name, sheet, selected, output):
         framed.paste(piece, (margin, margin))
     framed.save(output)
     return output
-
-
-def wait_for_queue(client, limit, *, sleep=time.sleep, clock=time.monotonic):
-    """Wait up to `limit` seconds for the shared ComfyUI's queue to empty, looking every QUEUE_LOOK seconds; returns
-    whether it did. Another job may still come in before ours: `make` looks again and refuses then. The Saeder-Krupp
-    yard's references were made one asset at a time so, while other kits used the same queue (2026-11-12)."""
-    deadline = clock() + limit
-    while True:
-        queue = client.request('/queue')
-        if not queue.get('queue_running') and not queue.get('queue_pending'):
-            return True
-        if clock() >= deadline:
-            return False
-        sleep(min(QUEUE_LOOK, max(deadline - clock(), 0.0)))
 
 
 def make(client, local, bindings_path, name, text, reference, seed, output, *, batch=1, deadline=2400):

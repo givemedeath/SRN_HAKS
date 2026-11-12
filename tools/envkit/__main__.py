@@ -72,19 +72,16 @@ def command_reference(args):
         require('cut' not in asset or args.selected, f'{name} is cut from the chosen reference of {asset.get("cut", {}).get("from")}: give --selected')
     local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
     for name in names:
-        # With --wait the run waits for the shared queue before each asset, and an asset that fails is said and passed
-        # over, so that one busy spell or lost poll does not stop the rest; the run fails at the end. Without it the
-        # first failure stops the run, and a busy queue is refused at once.
-        if args.wait and not reference.wait_for_queue(client, args.wait):
-            missed.append(name); print(json.dumps({'asset': name, 'state': 'skipped', 'error': f'ComfyUI was still busy after {args.wait} seconds; nothing submitted'}), flush=True)
-            continue
+        # Each job waits for the shared ComfyUI (`reference.make`). With --keep-going an asset that fails is said and
+        # passed over, so that one long busy spell or lost poll does not stop the rest, and the run fails at the end;
+        # without it the first failure stops the run.
         asset = data['assets'][name]
         try:
             source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
             text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
             result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         except Exception as failure:
-            if not args.wait:
+            if not args.keep_going:
                 raise
             missed.append(name); print(json.dumps({'asset': name, 'state': 'failed', 'error': str(failure)}), flush=True)
             continue
@@ -429,7 +426,7 @@ def main(argv=None):
     sub.add_argument('--url', default='http://127.0.0.1:8188')
     sub.add_argument('--seed', type=int, default=101)
     sub.add_argument('--deadline', type=int, default=2400)
-    sub.add_argument('--wait', type=int, default=0, help='seconds to wait for the shared ComfyUI queue to empty before each asset; an asset that fails is passed over and the run fails at the end')
+    sub.add_argument('--keep-going', action='store_true', help='pass over an asset that fails and make the rest; the run fails at the end')
     args = parser.parse_args(argv)
     args.run(args)
 

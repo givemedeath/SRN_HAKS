@@ -213,15 +213,7 @@ class MakeTests(unittest.TestCase):
                 reference.make(client, self.local, self.bindings, 'crate', 'redraw', self.sheet, 7, self.root / 'refs')
         self.assertEqual(set(client.routes) - {'/upload/image'}, {'/queue'})
 
-    def test_a_run_may_wait_for_the_shared_queue_and_pass_over_an_asset_that_fails(self):
-        client = FakeClient(self.local['comfyOutput'], busy=True); slept = []; now = [0.0]
-        clock = lambda: now[0]
-        def sleep(seconds):
-            slept.append(seconds); now[0] += seconds; client.busy = now[0] < 60
-        self.assertTrue(reference.wait_for_queue(client, 300, sleep=sleep, clock=clock)); self.assertEqual((slept, client.routes), ([30.0, 30.0], ['/queue'] * 3))
-        client.busy, now[0], slept[:] = True, 0.0, []
-        self.assertFalse(reference.wait_for_queue(client, 45, sleep=lambda seconds: (slept.append(seconds), now.__setitem__(0, now[0] + seconds)), clock=clock))
-        self.assertEqual(slept, [30.0, 15.0])  # no look past the limit
+    def test_a_run_may_pass_over_an_asset_that_fails_and_make_the_rest(self):
         from argparse import Namespace
         from unittest import mock
         from . import __main__ as command
@@ -229,19 +221,19 @@ class MakeTests(unittest.TestCase):
 
         def made(client, local, bindings, name, *rest, **more):
             if name == 'bin':
-                raise ValueError('ComfyUI is busy; nothing submitted')  # another job came in between the wait and ours
+                raise ValueError('The shared ComfyUI queue stayed busy for 2700 s; nothing submitted')
             return {'state': 'complete', 'outputs': [name + '.png'], 'elapsedSeconds': 1.0}
         asked = dict(set='set.json', sheets='sheets', asset=[], bindings=str(self.bindings), url='http://127.0.0.1:8188', output=str(self.root / 'refs'), selected=None, seed=7, deadline=60)
         with mock.patch.object(reference, 'load_set', return_value=data), mock.patch.object(reference, 'resolve_sheet'), mock.patch.object(reference, 'source'), \
-                mock.patch.object(reference, 'make', side_effect=made) as make, mock.patch.object(reference, 'wait_for_queue', side_effect=[True, True, False]), \
-                mock.patch('tools.headkit.comfy.Client'), mock.patch('builtins.print') as said:
-            with self.assertRaisesRegex(ValueError, '2 of 3 assets were not made: bin, lamp'):
-                command.command_reference(Namespace(wait=300, **asked))
+                mock.patch.object(reference, 'make', side_effect=made) as make, mock.patch('tools.headkit.comfy.Client'), mock.patch('builtins.print') as said:
+            with self.assertRaisesRegex(ValueError, '1 of 3 assets were not made: bin'):
+                command.command_reference(Namespace(keep_going=True, **asked))
             told = [json.loads(call.args[0]) for call in said.call_args_list]
-            self.assertEqual([(one['asset'], one['state']) for one in told], [('crate', 'complete'), ('bin', 'failed'), ('lamp', 'skipped')])
+            self.assertEqual([(one['asset'], one['state']) for one in told], [('crate', 'complete'), ('bin', 'failed'), ('lamp', 'complete')])
+            self.assertIn('stayed busy', told[1]['error'])
             make.reset_mock()
-            with self.assertRaisesRegex(ValueError, 'busy'):  # without --wait the first failure stops the run
-                command.command_reference(Namespace(wait=0, **asked))
+            with self.assertRaisesRegex(ValueError, 'stayed busy'):  # without --keep-going the first failure stops the run
+                command.command_reference(Namespace(keep_going=False, **asked))
             self.assertEqual([call.args[3] for call in make.call_args_list], ['crate', 'bin'])
 
 

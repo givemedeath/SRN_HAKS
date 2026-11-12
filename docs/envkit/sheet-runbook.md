@@ -19,15 +19,14 @@ the game install folder (the one holding `data/`). Everything under `output/` is
 
 ```
 envkit crops     --set tools/envkit/sets/<sheet>.json --sheets <sheets> --output <root>/references/<run>
-envkit reference --set ... --sheets <sheets> --output <root>/references/<run> --bindings <root>/references/bindings.json [--asset <a>] [--seed <n>] [--wait <seconds>]
+envkit reference --set ... --sheets <sheets> --output <root>/references/<run> --bindings <root>/references/bindings.json [--asset <a>] [--seed <n>] [--keep-going]
 envkit contact   --references <root>/references/<run> --output <root>/references/<run>-contact.png
 ```
 
-`reference` draws each asset alone on a plain ground with the local image model on the bound ComfyUI. Start a
-job only when Comfy's queue is empty, one at a time: the process is shared. Without `--wait` a busy queue is refused
-and the first failure stops the run; with `--wait <seconds>` the run waits up to that long for the queue to empty
-before each asset, says which assets failed or were passed over, makes the rest, and fails at the end if any were
-not made. `contact` puts each reference beside
+`reference` draws each asset alone on a plain ground with the local image model on the bound ComfyUI. The process is
+shared: each job waits for the GPU lease and an empty queue (`headkit.shared_comfy.slot`), one at a time, and leaves
+other sessions' jobs alone. The first failure stops the run; with `--keep-going` an asset that fails is said and
+passed over, the rest are made, and the run fails at the end. `contact` puts each reference beside
 its crop; read it for a changed shape, lost parts, and branding that should not be there. Draw an asset again
 with another seed where it fails. Copy the chosen image of each asset to `<root>/references/selected/` under the
 name it has (`<asset>-s<seed>-b0.png`): exactly one for each asset the plan names.
