@@ -487,7 +487,8 @@ builds only a fresh fixture from the run's existing native result after fixture 
 the chain. It verifies the native chain at the code version it was recorded with (the receipts' `codeVersion`; their
 own source-file pins are not rechecked against today's files) and takes the fixture's own inputs from a `kind: fixture-inputs` document beside
 the manifests (`drive fixture-inputs` writes one, with its pinned files in its own `fixture-inputs/<ID>.<NAME>/` folder
-so a later document never rewrites them). The receipt is `kind: fixture-rebuild`, never a pipeline stage and
+so a later document never rewrites them; it also carries the fixture HAK pins, so the processing bindings every
+native receipt pins are never edited). The receipt is `kind: fixture-rebuild`, never a pipeline stage and
 never client-stage eligible: a release still needs the full chain at the current code. About 2 minutes against
 15 for a chain.
 

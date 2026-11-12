@@ -120,7 +120,8 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         document = read(path)
         if isinstance(document, dict):
             if 'observations' in document: pins += evidence_pins(path)
-            if document.get('kind') == 'fixture-inputs': pins += [asset(path, row) for row in document['inputs'].values()]
+            if document.get('kind') == 'fixture-inputs':
+                pins += [asset(path, row) for row in document['inputs'].values()]+list(document.get('fixtureHaks', {}).values())
             prepared = document.get('prepared', document)
             if 'prompt' in prepared: pins += prepared.get('inputs', [])
     verify(pins)

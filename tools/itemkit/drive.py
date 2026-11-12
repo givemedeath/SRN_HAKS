@@ -335,8 +335,8 @@ class Driver:
 
     # -- fixtures -------------------------------------------------------------------------------------------------
     def fixture_inputs(self, design, suffix, name):
-        """The fixture's own inputs (template module, both Human reviewers, nwscript, comparisons) as a fixture-inputs
-        document beside the manifests; also writes the fixture HAK bindings when this runtime has none yet."""
+        """The fixture's own inputs (template module, both Human reviewers, nwscript, comparisons) and the fixture HAK pins
+        as a fixture-inputs document beside the manifests. The processing bindings are never modified."""
         fx = self.ws.data.get('fixture', {}); erf = self.ws.setting('erf')
         if not erf: raise SystemExit('Workspace needs erf')
         doc_path = self.ws.handoff/f'{design}.{name}.fixture-inputs.json'
@@ -367,10 +367,9 @@ class Driver:
         inputs = {'fixtureTemplate': rel('fixture-template.mod'), 'maleCreature': rel('sr_it_male.utc'), 'femaleCreature': rel('sr_it_female.utc'),
                   'nwscript': rel('nwscript.nss')}
         for i, c in enumerate(comparisons): inputs['comparisonBlueprint'+(str(i) if i else '')] = rel(f'comparison-{Path(c).name}')
-        doc = write_new(doc_path, {'kind': 'fixture-inputs', 'inputs': inputs})
-        bindings = self.ws.bindings()
-        if 'fixtureHaks' not in read(bindings):
-            b = read(bindings); b['fixtureHaks'] = haks; bindings.write_text(json.dumps(b, indent=2), encoding='utf-8')
+        # The HAK pins travel in the document, not the bindings: every processing receipt pins the bindings file, so
+        # editing it would make the native chain a rebuild starts from stale.
+        doc = write_new(doc_path, {'kind': 'fixture-inputs', 'inputs': inputs, 'fixtureHaks': haks})
         return {'fixtureInputs': str(doc), 'haks': {k: v['sha256'][:10] for k, v in haks.items()}}
 
     def refixture(self, design, suffix, name, capture=False):

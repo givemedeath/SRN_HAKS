@@ -353,11 +353,14 @@ class Runner:
         require(set(extra['inputs']) and all(key in allowed or key.startswith('comparisonBlueprint') for key in extra['inputs']),
                 'Fixture inputs only')
         data = {**self.data, 'inputs': {**self.data['inputs'], **extra['inputs']}}
+        # Fixture HAKs may come with the document, so the bindings the native receipts pin stay untouched.
+        local = {**self.local, 'fixtureHaks': extra['fixtureHaks']} if 'fixtureHaks' in extra else self.local
+        require(isinstance(local.get('fixtureHaks', {}), dict), 'Fixture HAK pins are a name -> pin map')
         inputs = [pin(fixture_inputs)]+[asset(fixture_inputs, value) for value in extra['inputs'].values()]+code_pins()+[pin(self.bindings_path)]
-        inputs += list(self.local.get('fixtureHaks', {}).values())+list(self.local.get('comparisonHaks', {}).values())
+        inputs += list(local.get('fixtureHaks', {}).values())+list(local.get('comparisonHaks', {}).values())
         inputs += [row]+audit.receipts['native']['outputs']
         verify(inputs); output = Path(output).resolve(); require(not output.exists(), 'Use a fresh fixture folder'); output.mkdir(parents=True)
-        started = time.monotonic(); result = build(fixture_inputs, data, native, self.local, output/'fixture')
+        started = time.monotonic(); result = build(fixture_inputs, data, native, local, output/'fixture')
         verify(inputs, fresh=True)
         receipt = {'kind': 'fixture-rebuild', 'state': 'complete', 'manifestHash': digest(self.data), 'nativeReceipt': row,
                    'nativeCodeVersion': recorded, 'codeVersion': source_version(), 'runtimeIdentity': self.runtime,
