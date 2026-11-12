@@ -72,6 +72,19 @@ class EndTests(unittest.TestCase):
         moved = ends.end(both['v'], self.point, self.normal, rim, self.envelope, self.body, True, 0.1)
         self.assertTrue(np.allclose(radial(moved)[0][len(forearm['v']):], 0.035))
 
+    def test_the_body_ring_is_read_in_the_contracts_directions(self):
+        # the contract's directions start at angle zero; a ring wider in one of them floors the drawing in there
+        body = self.body.copy()
+        body[4] = 0.06
+        forearm, lining = arm(0.25, 0.6, 0.1), arm(0.25, 0.6, 0.055)
+        both = np.concatenate([forearm['v'], lining['v']])
+        rim = ends.ring(forearm['v'], forearm['f'], self.point, self.normal, True)
+        moved = ends.end(both, self.point, self.normal, rim, body + 0.025, body, True, 0.1)
+        u, v = seams.frame(self.normal)
+        relative = both - self.point
+        floor = np.minimum(radial(both)[0], seams.around(body, np.arctan2(relative @ v, relative @ u)))
+        self.assertGreater((radial(moved)[0] - floor).min(), -1e-9)
+
 
 class ShapedTests(unittest.TestCase):
     def test_shaped_ends_pass_the_seam_gate_where_the_cut_outfit_did_not(self):

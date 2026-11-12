@@ -131,7 +131,8 @@ def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=N
     r = np.linalg.norm(radial, axis=1)
     angle = np.arctan2(radial @ v, radial @ u) % (2 * np.pi)
     R, T = _around(rim, angle), target(envelope, angle, under, span=span)
-    body = np.minimum(_around(np.asarray(body_ring, float), angle), T)  # nothing is drawn in past the body ring
+    # nothing is drawn in past the body ring, given in the contract's directions as the envelope is (`seams.around`)
+    body = np.minimum(seams.around(body_ring, angle), T)
     grown = r * T / R
     drawn = np.where(r <= body, r, body + (r - body) * (T - body) / np.maximum(R - body, 1e-9))
     new = np.where(r >= R, r + (T - R), np.where(T >= R, grown, drawn))
