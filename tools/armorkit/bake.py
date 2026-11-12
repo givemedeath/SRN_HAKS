@@ -179,19 +179,33 @@ def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *
     return parts
 
 
-def store(parts, folder):
+def store(parts, folder, document=None):
     """Keep `bake`'s parts in `folder`, a file per part, for `stored`.
 
     The parts are listed in `baked.json`, written last: a folder used again for an outfit with fewer parts
     still holds the files of the parts it no longer has, and read by what lies in it, a second tint gave
     the new outfit the old one's shoulder pads. The list is taken away first, so a store that stops halfway
-    leaves nothing `stored` would read."""
+    leaves nothing `stored` would read. With it are the slots `document`, the brief the parts were baked
+    from, leaves to the body and shares with its skin (`declared`): the parts alone do not show a slot left
+    to the body that the brief no longer leaves, since that slot has no part either way."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / KEPT).unlink(missing_ok=True)
     for name, part in parts.items():
         np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS + tuple(key for key in bodyskin.KEYS if key in part)})
-    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts)}, indent=1) + '\n', encoding='utf-8', newline='\n')
+    slots = {key: sorted((document or {}).get(key, [])) for key in ('bare', 'skin')}
+    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts), **slots}, indent=1) + '\n',
+                               encoding='utf-8', newline='\n')
+
+
+def declared(folder):
+    """{'bare': slots, 'skin': slots}: what the brief the parts in `folder` were baked from left to the body and
+    shared with its skin (`store`); none for parts kept before the list held them."""
+    listed = json.loads((Path(folder) / KEPT).read_text(encoding='utf-8'))
+    slots = {key: listed.get(key, []) for key in ('bare', 'skin')}
+    require(all(isinstance(value, list) and all(isinstance(slot, str) for slot in value) for value in slots.values()),
+            f'{Path(folder) / KEPT} names its slots as lists')
+    return {key: set(value) for key, value in slots.items()}
 
 
 def stored(folder):
@@ -332,10 +346,11 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     if mesh is not None:
         parts, bones = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures)
         if kept is not None:
-            store(parts, kept)
+            store(parts, kept, document)
     else:
         parts, bones = stored(kept), measure.body(body_pack, body)[0]
-        require(not left_to_body(document) & set(parts) and {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts),
+        require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')}
+                and not left_to_body(document) & set(parts) and {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)

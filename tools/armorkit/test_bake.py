@@ -196,15 +196,20 @@ class BakeTests(unittest.TestCase):
     def test_kept_parts_baked_for_other_slots_left_to_the_body_or_its_skin_are_refused(self):
         skin = dict(part(), skin=np.zeros(1, bool))
         document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
-        cases = (({'chest': part(), 'forel': part()}, document),  # a part the brief now leaves to the body
-                 ({'chest': part(), 'bicepl': part()}, document),  # an upper arm without the skin the brief now shows
-                 ({'chest': part(), 'bicepl': skin}, {'model': 'outfit', 'materials': []}))  # and with it, where the brief shows none
+        plain = {'model': 'outfit', 'materials': []}
+        cases = (({'chest': part(), 'forel': part()}, None, document),  # a part the brief now leaves to the body
+                 ({'chest': part(), 'bicepl': part()}, None, document),  # an upper arm without the skin the brief now shows
+                 ({'chest': part(), 'bicepl': skin}, None, plain),  # and with it, where the brief shows none
+                 ({'chest': part()}, {**plain, 'bare': ['forearm']}, plain))  # no forearm, left to the body by the brief baked from and no longer
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
                 mock.patch.object(bake, 'tints', lambda parts, document: self.fail('tinted')):
-            for parts, brief in cases:
-                bake.store(parts, Path(folder) / 'kept')
+            for parts, baked_from, brief in cases:
+                bake.store(parts, Path(folder) / 'kept', baked_from)
                 with self.assertRaisesRegex(ValueError, 'bake the outfit again'):
                     bake.run(brief, Path(folder) / 'out', 'bodies', 332, kept=Path(folder) / 'kept')
+            self.assertEqual(bake.declared(Path(folder) / 'kept'), {'bare': {'forearm'}, 'skin': set()})
+            bake.store({'chest': part()}, Path(folder) / 'kept')  # stored without its brief, or before the list held the slots: none
+            self.assertEqual(bake.declared(Path(folder) / 'kept'), {'bare': set(), 'skin': set()})
 
     def test_a_run_is_a_fresh_bake_or_a_second_tint_of_kept_parts(self):
         document = {'model': 'outfit', 'materials': []}
