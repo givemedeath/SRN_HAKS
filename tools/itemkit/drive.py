@@ -85,7 +85,8 @@ class Driver:
         """List the consumed inputs, then run one run_itemkit command through the verified shared-tool launcher."""
         run = Path(run); run.mkdir(parents=True, exist_ok=True); rt = self.ws.runtime
         bindings = self.ws.bindings(kind); n = 1
-        while (run/f'launch-{name}-{n}').exists(): n += 1
+        # A launch that failed early may leave its input listing without a launch folder: skip both.
+        while (run/f'launch-{name}-{n}').exists() or (run/f'inputs-{name}-{n}.json').exists(): n += 1
         listing = run/f'inputs-{name}-{n}.json'
         self.python('tools/itemkit/run_itemkit.py', 'inputs', '--bindings', bindings, *inputs_args, '--output', listing)
         out = run/f'launch-{name}-{n}'
@@ -307,7 +308,8 @@ class Driver:
         if data['departurePending'] and not overrides.get('departureDigest'):
             measurement = self._measured_candidate(design, dst+'-measure', working, donor, overrides)
             if measurement is None:
-                candidate, _ = fit_manifest.write(self.ws.handoff, design, src, dst+'-measure', working, donor, overrides, notes_authority=authority)
+                candidate, _ = fit_manifest.write(self.ws.handoff, design, src, dst+'-measure', working, donor, overrides,
+                                                  notes_authority=authority, measured=data)     # same shell and overrides
                 self._approve_donor(candidate, donor_review)
                 measurement = self.preview(design, dst+'-measure')
             overrides['departureDigest'] = measurement['measurementDigest']; summary['measure'] = measurement

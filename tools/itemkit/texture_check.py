@@ -46,19 +46,22 @@ def outliers(image, mapped, *, window=WINDOW, smooth=SMOOTH, spread=SPREAD, floo
     residual = ndimage.gaussian_filter(value - ndimage.median_filter(value, size=window, mode='nearest'), smooth)
     inner = ndimage.binary_erosion(mapped, iterations=edge); islands, count = ndimage.label(mapped)
     flagged = np.zeros(mapped.shape, bool); checked = 0
-    for island in range(1, count + 1):
-        region = inner & (islands == island)
+    # Each island is judged inside its own bounding box, not by a full-map comparison per island.
+    for island, box in enumerate(ndimage.find_objects(islands), start=1):
+        if box is None: continue
+        region = inner[box] & (islands[box] == island)
         if region.sum() < MINIMUM_ISLAND: continue
-        r = residual[region]; deviation = float(np.median(np.abs(r - np.median(r)))) * 1.4826 + 1e-6
-        flagged |= region & (np.abs(residual) > max(spread * deviation, floor)); checked += 1
-    labels, _ = ndimage.label(flagged, structure=np.ones((3, 3))); areas = np.bincount(labels.ravel())
+        r = residual[box][region]; deviation = float(np.median(np.abs(r - np.median(r)))) * 1.4826 + 1e-6
+        flagged[box] |= region & (np.abs(residual[box]) > max(spread * deviation, floor)); checked += 1
+    labels, count = ndimage.label(flagged, structure=np.ones((3, 3))); areas = np.bincount(labels.ravel())
+    means = ndimage.mean(residual, labels, np.arange(1, count + 1)) if count else []
     blobs = []
     for index, box in enumerate(ndimage.find_objects(labels), start=1):
         if box is None or areas[index] < minimum_area: continue
         height, width = box[0].stop - box[0].start, box[1].stop - box[1].start
         blobs.append({'area': int(areas[index]), 'bounds': [box[1].start, box[0].start, box[1].stop, box[0].stop],
                       'elongation': float(max(height, width) / max(1, min(height, width))),
-                      'meanResidual': float(residual[labels == index].mean())})
+                      'meanResidual': float(means[index - 1])})
     blobs.sort(key=lambda b: -b['area'])
     keep = np.isin(labels, [i for i, a in enumerate(areas) if i and a >= minimum_area])
     return {'advisory': True, 'size': list(mapped.shape), 'islandsChecked': checked, 'flaggedTexels': int(keep.sum()),

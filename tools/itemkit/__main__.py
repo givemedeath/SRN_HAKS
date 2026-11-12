@@ -325,6 +325,7 @@ def main():
     elif a.command == 'preflight': result = preflight(a.manifest, a.bindings, a.probe, a.scope)
     elif a.command == 'inputs':
         require(not (a.stage and a.stages), 'Give --stage or --stages, not both')
+        require(not (a.stages and a.extra), '--extra belongs to a single --stage listing; a chain consumes no extra documents')
         paths = chain_inputs(a.manifest, a.bindings, a.run, a.stages) if a.stages else consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage)
         write(a.output, paths, fresh=True)
         result = {'inputs': str(a.output), 'count': len(paths)}

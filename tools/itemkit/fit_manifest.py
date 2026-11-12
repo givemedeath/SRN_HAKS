@@ -207,7 +207,7 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
             'depthRuleLength': rule_length, 'fittedBounds': [fb.min(0).round(4).tolist(), fb.max(0).round(4).tolist()]}
 
 
-def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *, notes_authority=None):
+def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *, notes_authority=None, measured=None):
     """Measure and write `<design>.<dst>.asset.json` with the working shell and textured donor copied into the handoff.
 
     The textured donor and working mesh approvals are not written here: they record a person's review of those exact
@@ -217,7 +217,8 @@ def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *
     handoff = Path(handoff); m = json.loads((handoff/f'{design}.{src}.asset.json').read_text(encoding='utf-8'))
     family = json.loads((handoff/m['familyProfile']['path']).read_text(encoding='utf-8'))
     out = handoff/f'{design}.{dst}.asset.json'; require(not out.exists(), 'Manifest exists: '+out.name)
-    data = measure(m, family, mesh(working_path), overrides)
+    # `measured`: this caller's own measure() of the same shell and overrides, so it is not taken twice.
+    data = measured if measured is not None else measure(m, family, mesh(working_path), overrides)
     gen = handoff/'generated'/design/dst; gen.mkdir(parents=True, exist_ok=False)
     shutil.copyfile(donor_path, gen/'textured-donor.glb'); shutil.copyfile(working_path, gen/'working-shell.glb')
     if not (handoff/'weapon-grip-standard-v1.json').exists(): shutil.copyfile(STANDARD, handoff/'weapon-grip-standard-v1.json')

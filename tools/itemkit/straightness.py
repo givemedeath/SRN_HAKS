@@ -84,16 +84,28 @@ def _measure_pass(p):
     return table, float(100 * np.ptp(mid, axis=0).max() / np.ptp(p[:, 0]))
 
 
-def _apply_pass(p, table, vectors=None):
+def _apply_pass(p, table):
     centres, curve, tangent, n1, n2 = table[:, 0], table[:, 1:4], table[:, 4:7], table[:, 7:10], table[:, 10:13]
     speed, arc = table[:, 13], table[:, 14]
     at = lambda rows, t: np.stack([np.interp(t, centres, rows[:, j]) for j in range(3)], 1)
     t = p[:, 0]; t = t + ((p - at(curve, t)) * at(tangent, t)).sum(1) / np.interp(t, centres, speed)   # foot of the normal
     offset = p - at(curve, t); tt, a1, a2 = at(tangent, t), at(n1, t), at(n2, t)
-    moved = np.column_stack([np.interp(t, centres, arc) + (offset * tt).sum(1), (offset * a1).sum(1), (offset * a2).sum(1)])
-    if vectors is not None:
-        vectors = np.column_stack([(vectors * tt).sum(1), (vectors * a1).sum(1), (vectors * a2).sum(1)])
-    return moved, vectors
+    return np.column_stack([np.interp(t, centres, arc) + (offset * tt).sum(1), (offset * a1).sum(1), (offset * a2).sum(1)])
+
+
+def turn_normals(transform, points, normals):
+    """Normals carried through any smooth position map: the inverse-transpose of its full local Jacobian.
+
+    The Jacobian is measured by central differences of `transform` itself, so every term of the map (a varying
+    unbend frame and arc speed, a fading end-cap shear, a thinning ramp on a sloped mid-plane) is included without
+    a hand-derived formula for each."""
+    points = np.asarray(points, float); normals = np.asarray(normals, float)
+    step = 1e-6 * max(float(np.ptp(points, axis=0).max()), 1e-9); J = np.empty((len(points), 3, 3))
+    for i in range(3):
+        d = np.zeros(3); d[i] = step; J[:, :, i] = (transform(points + d) - transform(points - d)) / (2 * step)
+    turned = np.linalg.solve(np.transpose(J, (0, 2, 1)), normals[..., None])[..., 0]
+    length = np.linalg.norm(turned, axis=1); _require(np.all(length > 0) and np.isfinite(length).all(), 'Degenerate normal after the map')
+    return turned / length[:, None]
 
 
 def _fit_ends(p):
@@ -119,20 +131,13 @@ def _fit_ends(p):
     return np.array(rows, float).reshape(-1, 7)
 
 
-def _apply_ends(p, ends, vectors=None):
+def _apply_ends(p, ends):
     """Shear each tilted flat cap square, fading the correction out over one section size along the shaft."""
     p = p.copy()
     for end, y, z, a, b, reach, _ in ends:
         u = np.clip(1 - np.abs(p[:, 0] - end) / reach, 0, 1); w = u * u * (3 - 2 * u)
-        h = a * (p[:, 1] - y) + b * (p[:, 2] - z)
-        # dw/dx inside the fade (the clamp is flat outside it): the shear x' = x - w(x) h also stretches along x.
-        dw = np.where((u > 0) & (u < 1), 6 * u * (1 - u) * -np.sign(p[:, 0] - end) / reach, 0.)
-        p[:, 0] -= w * h
-        if vectors is not None:
-            # Inverse-transpose of the full Jacobian (row 0 = [1 - w'h, -wa, -wb]): solve J^T m = n.
-            first = vectors[:, 0] / (1 - dw * h)
-            vectors = np.column_stack([first, vectors[:, 1] + w * a * first, vectors[:, 2] + w * b * first])
-    return p, vectors
+        p[:, 0] -= w * (a * (p[:, 1] - y) + b * (p[:, 2] - z))
+    return p
 
 
 def fit_map(positions):
@@ -140,24 +145,24 @@ def fit_map(positions):
     positions = np.asarray(positions, float); mean, axes = principal_frame(positions)
     start = (positions - mean) @ axes; p = start; tables = []; history = []
     for _ in range(MAX_PASSES):
-        table, deviation = _measure_pass(p); p, _ = _apply_pass(p, table); tables.append(table); history.append(deviation)
+        table, deviation = _measure_pass(p); p = _apply_pass(p, table); tables.append(table); history.append(deviation)
         if deviation < CONVERGED_PCT: break
-    ends = _fit_ends(p); p, _ = _apply_ends(p, ends)
+    ends = _fit_ends(p); p = _apply_ends(p, ends)
     shift = float((p[:, 0].max() + p[:, 0].min()) / 2 - (start[:, 0].max() + start[:, 0].min()) / 2)
     return {'mean': mean, 'axes': axes, 'tables': np.array(tables), 'shift': np.array(shift), 'ends': ends}, history
 
 
 def apply_map(positions, mapping, normals=None):
-    """Apply a saved map unchanged. Optional direction vectors (normals) are turned with their cross-section."""
+    """Apply a saved map unchanged. Optional normals take the inverse-transpose of the map's local Jacobian."""
     positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']
     _require(positions.ndim == 2 and positions.shape[1] == 3 and np.isfinite(positions).all(), 'Finite positions required')
-    p = (positions - mean) @ axes; v = None if normals is None else np.asarray(normals, float) @ axes
-    for table in mapping['tables']: p, v = _apply_pass(p, table, v)
-    p, v = _apply_ends(p, mapping.get('ends', ()), v)                 # maps saved before end squaring have none
-    p[:, 0] -= float(mapping['shift']); moved = p @ axes.T + mean
-    if v is None: return moved
-    v = v @ axes.T; length = np.linalg.norm(v, axis=1); _require(np.all(length > 0), 'Degenerate normal after straightening')
-    return moved, v / length[:, None]
+    def transform(points):
+        p = (points - mean) @ axes
+        for table in mapping['tables']: p = _apply_pass(p, table)
+        p = _apply_ends(p, mapping.get('ends', ())); p[:, 0] -= float(mapping['shift'])      # maps saved before end squaring have none
+        return p @ axes.T + mean
+    moved = transform(positions)
+    return moved if normals is None else (moved, turn_normals(transform, positions, normals))
 
 
 def save_map(path, mapping):
@@ -181,7 +186,7 @@ def measure(positions):
     mean, axes = mapping['mean'], mapping['axes']; start = (positions - mean) @ axes
     extents = np.ptp(start, axis=0); length = float(extents[0])
     p = start
-    for table in mapping['tables']: p, _ = _apply_pass(p, table)
+    for table in mapping['tables']: p = _apply_pass(p, table)
     centres, mid, extent, wide, members = _sections(p)
     # Twist: direction of each flat cross-section's broad axis, followed along the unbent length.
     angles = []; where = []
@@ -274,18 +279,13 @@ def fit_thin(positions, target_ratio=None, factor=None):
 
 def apply_thin(positions, mapping, normals=None):
     positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']; k = int(mapping['axis'])
-    centres, plane, gain = mapping['table'].T; p = (positions - mean) @ axes; x = p[:, 0].copy(); depth = p[:, k].copy()
-    g = np.interp(x, centres, gain); c = np.interp(x, centres, plane); p[:, k] = c + (depth - c) * g
-    moved = p @ axes.T + mean
-    if normals is None: return moved
-    # d(depth')/dx = c'(1 - g) + (depth - c) g': the ramp and a varying mid-plane shear depth along the length, so
-    # normals take the inverse-transpose of the full Jacobian (row k = [s, ..., g]): n_k /= g and n_0 -= s / g * n_k.
-    def slope(values):
-        index = np.clip(np.searchsorted(centres, x) - 1, 0, len(centres) - 2); rate = np.diff(values) / np.diff(centres)
-        return np.where((x < centres[0]) | (x > centres[-1]), 0., rate[index])     # interp is flat outside the table
-    s = slope(plane) * (1 - g) + (depth - c) * slope(gain)
-    v = np.asarray(normals, float) @ axes; v[:, 0] -= s / g * v[:, k]; v[:, k] /= g; v = v @ axes.T
-    return moved, v / np.linalg.norm(v, axis=1)[:, None]
+    centres, plane, gain = mapping['table'].T
+    def transform(points):
+        p = (points - mean) @ axes; g = np.interp(p[:, 0], centres, gain); c = np.interp(p[:, 0], centres, plane)
+        p[:, k] = c + (p[:, k] - c) * g; return p @ axes.T + mean
+    moved = transform(positions)
+    # The ramp and a sloped mid-plane shear depth along the length: normals take the map's full Jacobian.
+    return moved if normals is None else (moved, turn_normals(transform, positions, normals))
 
 
 def load_thin(path):

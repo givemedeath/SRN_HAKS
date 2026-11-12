@@ -97,12 +97,24 @@ class EndCapNormalTests(unittest.TestCase):
         ends = np.array([[0., 0., 0., np.tan(np.radians(22)), .1, .08, 0.]])
         rng = np.random.default_rng(1); grid = rng.uniform([-.1, -.03, -.02], [.1, .03, .02], (500, 3))
         for normal, tangents in ((np.array([0., 0., 1.]), ((1., 0, 0), (0, 1., 0))), (np.array([0., 1., 0.]), ((1., 0, 0), (0, 0, 1.)))):
-            moved, turned = s._apply_ends(grid, ends, np.tile(normal, (len(grid), 1)))
+            cap = lambda points: s._apply_ends(points, ends)
+            moved, turned = cap(grid), s.turn_normals(cap, grid, np.tile(normal, (len(grid), 1)))
             for t in tangents:                                         # the face through each point spanned by these two directions
-                ahead, _ = s._apply_ends(grid + 1e-6 * np.asarray(t), ends)
+                ahead = cap(grid + 1e-6 * np.asarray(t))
                 along = (ahead - moved) / 1e-6; along /= np.linalg.norm(along, axis=1)[:, None]
                 unit = turned / np.linalg.norm(turned, axis=1)[:, None]
                 self.assertLess(np.abs((unit * along).sum(1)).max(), 1e-4)
+
+
+class UnbendNormalTests(unittest.TestCase):
+    def test_unbent_normals_stay_perpendicular_to_any_carried_face(self):
+        mapping, _ = s.fit_map(sword(bow=.04)); rng = np.random.default_rng(2)
+        points = sword(bow=.04)[::40]; normals = rng.normal(size=(len(points), 3)); normals /= np.linalg.norm(normals, axis=1)[:, None]
+        moved, turned = s.apply_map(points, mapping, normals)
+        for _ in range(2):                                             # two directions inside each point's own face
+            t = np.cross(normals, rng.normal(size=(len(points), 3))); t /= np.linalg.norm(t, axis=1)[:, None]
+            along = (s.apply_map(points + 1e-6 * t, mapping) - moved) / 1e-6; along /= np.linalg.norm(along, axis=1)[:, None]
+            self.assertLess(np.abs((turned * along).sum(1)).max(), 1e-4)
 
 
 class ThinNormalTests(unittest.TestCase):
