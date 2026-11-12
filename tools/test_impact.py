@@ -38,6 +38,14 @@ def committed_packs(repo):
     result=subprocess.run(['git','-C',str(repo),'ls-tree','-d','--name-only','HEAD'],capture_output=True,text=True)
     return {n for n in result.stdout.splitlines() if re.fullmatch(r'srn_[a-z0-9_]+',n)} if not result.returncode else set()
 
+def ignored_prefixes(repo):
+    """Git-ignored paths (folders end in /) on this machine; never in a clean checkout, so never a catalog edge."""
+    if not (repo/'.git').exists():return ()
+    # -z: raw NUL-separated paths; the text form quotes and escapes unusual names, which would then never match.
+    result=subprocess.run(['git','-C',str(repo),'ls-files','-z','--others','--ignored','--exclude-standard','--directory'],
+                          capture_output=True,text=True,encoding='utf-8')
+    return tuple(p for p in result.stdout.split('\0') if p) if not result.returncode else ()
+
 def packs(repo):
     """Pack folders on disk or in HEAD, so a sparse checkout catalogs the same pack names as a full one."""
     return sorted({p.name for p in repo.iterdir() if p.is_dir() and re.fullmatch(r'srn_[a-z0-9_]+',p.name)}|committed_packs(repo))
@@ -55,9 +63,15 @@ def pack_needs(data,test):
     return sorted({pack for path in seen for pack in data.get('packReferences',{}).get(path,[])})
 
 def catalog(repo=REPO):
+    ignored=ignored_prefixes(repo)
+    # Local ignored state (output/, workspace files, scratch helpers) exists only here: cataloguing it, or a literal
+    # resolving to it, would make this machine's catalog differ from CI's.
+    def local_only(p):
+        try:return bool(ignored) and p.relative_to(repo).as_posix().startswith(ignored)
+        except ValueError:return False
     all_files=sorted(p for p in (repo/'tools').rglob('*') if p.is_file()
                      and not set(p.relative_to(repo).parts)&EXCLUDED
-                     and not any(part.endswith('.egg-info') for part in p.relative_to(repo).parts))
+                     and not any(part.endswith('.egg-info') for part in p.relative_to(repo).parts) and not local_only(p))
     files=[p for p in all_files if p.suffix=='.py'];file_set=set(files)
     qualified={p:import_root(p)[1] for p in files}
     in_package={p:(p.parent/'__init__.py').is_file() for p in files}
@@ -65,8 +79,9 @@ def catalog(repo=REPO):
     for p in files:by_leaf.setdefault(p.parent.name if p.name=='__init__.py' else p.stem,[]).append(p)
     absolute={}
     literal_index={}
-    for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files)]:literal_index.setdefault(p.name,[]).append(p)
+    for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files) and not local_only(m)]:literal_index.setdefault(p.name,[]).append(p)
     pack_names=set(packs(repo))
+    present=lambda p:p.is_file() and not local_only(p)
     config=repo/CONFIG
     # The selector's own tests name helper paths as data; those strings are not reads of the helpers.
     data_only=set(json.loads(config.read_text(encoding='utf-8')).get('literalsAreData',[])) if config.is_file() else set()
@@ -104,9 +119,9 @@ def catalog(repo=REPO):
                 # Match unique tracked literals, including helper launches, with_name configs and read documents.
                 literal=Path(node.value.replace('\\','/').lstrip('/'));qualified_path=repo/literal;relative=path.parent/literal
                 if len(literal.parts)<=1 and literal.name.lower() in GENERIC_LITERALS:matches=[]
-                elif qualified_path.is_file():matches=[qualified_path]
-                elif relative.is_file():matches=[relative]
-                elif (path.parent/literal.name).is_file():matches=[path.parent/literal.name]
+                elif present(qualified_path):matches=[qualified_path]
+                elif present(relative):matches=[relative]
+                elif present(path.parent/literal.name):matches=[path.parent/literal.name]
                 elif len(literal.parts)>1:
                     suffix='/'+literal.as_posix().removeprefix('./')
                     matches=[p for p in literal_index.get(literal.name,[]) if p.as_posix().endswith(suffix)]

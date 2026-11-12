@@ -143,8 +143,8 @@ class FirearmPackageTests(unittest.TestCase):
     def test_placeholder_budget_included_before_output(self):
         target = self.root/'over-budget.npz'
         with np.load(self.spec['variants'][0]['arrays']['path']) as data:
-            np.savez(target, positions=np.tile(data['positions'], (2499, 1, 1)),
-                     normals=np.tile(data['normals'], (2499, 1, 1)), uv=np.tile(data['uv'], (2499, 1, 1)),
+            np.savez(target, positions=np.tile(data['positions'], (3749, 1, 1)),
+                     normals=np.tile(data['normals'], (3749, 1, 1)), uv=np.tile(data['uv'], (3749, 1, 1)),
                      shadowVertices=data['shadowVertices'], shadowFaces=data['shadowFaces'])
         self.spec['variants'][0]['arrays'] = pin(target)
         with self.assertRaisesRegex(ValueError, 'Complete firearm'): self.prepare()
