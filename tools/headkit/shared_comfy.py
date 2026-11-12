@@ -45,25 +45,54 @@ def _held(key):
     if key in getattr(_STATE, 'leases', ()): return 'thread'
     marker = os.environ.get(LEASE_ENV, '')
     holder, _, pid = marker.rpartition('|')
-    return 'inherited' if holder == key and pid.isdigit() and int(pid) != os.getpid() else None
+    return 'inherited' if holder == key and pid.isdigit() and int(pid) != os.getpid() and _alive(int(pid)) else None
+
+
+def _alive(pid):
+    """Whether process `pid` is still running (on Windows without signalling it: os.kill would terminate it)."""
+    if os.name != 'nt':
+        try: os.kill(pid, 0)
+        except ProcessLookupError: return False
+        except PermissionError: return True
+        return True
+    import ctypes
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel32.OpenProcess.restype = ctypes.c_void_p
+    kernel32.OpenProcess.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_uint]
+    kernel32.GetExitCodeProcess.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint)]
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    handle = kernel32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+    if not handle: return ctypes.get_last_error() == 5  # access denied: it exists
+    try:
+        code = ctypes.c_uint()
+        return bool(kernel32.GetExitCodeProcess(handle, ctypes.byref(code))) and code.value == 259  # STILL_ACTIVE
+    finally:
+        kernel32.CloseHandle(handle)
 
 
 @contextmanager
 def gpu_lease(index=0, root=None, *, limit=WAIT_SECONDS, poll=5.0, say=print, sleep=None):
     """Hold the host GPU lease, waiting up to `limit` seconds for another holder to let it go. Nested holds on this
-    thread and inherited holds (a child of the launcher that holds it) pass straight through."""
+    thread pass straight through, and so does an inherited hold (a child of the launcher that holds it) while its
+    owner still runs and the mutex is still taken; a marker left by an owner that ended or let go is not trusted, and
+    the lease is taken normally."""
     path = lease_path(index, root); key = _key(path); sleep = sleep or time.sleep
-    if _held(key):
+    state = _held(key)
+    if state == 'thread':
         yield path; return
-    started = time.monotonic(); told = False
+    started = time.monotonic(); told = False; inherited = False
     while True:
         held = locked(path)
         try:
             held.__enter__(); break
         except FileExistsError:
+            if state == 'inherited':  # the owner runs and the mutex is taken: the hold this process was started under
+                inherited = True; break
             require(time.monotonic() - started < limit, f'The shared GPU stayed leased for {limit} s; nothing submitted')
             if not told and say: say(f'waiting for the shared GPU lease ({path}): another session is submitting', flush=True); told = True
             sleep(poll)
+    if inherited:
+        yield path; return
     previous = os.environ.get(LEASE_ENV); os.environ[LEASE_ENV] = f'{key}|{os.getpid()}'
     leases = _STATE.__dict__.setdefault('leases', set()); leases.add(key)
     try:

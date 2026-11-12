@@ -70,6 +70,23 @@ class SharedComfyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'launch arguments changed'):
             with shared_comfy.slot(Fake(changed), say=None): self.fail('a drifted server got a slot')
 
+    def test_a_marker_left_by_an_ended_or_released_owner_is_not_a_hold(self):
+        key = os.path.normcase(str(shared_comfy.lease_path(0, self.root).resolve()))
+        dead = int(subprocess.run([sys.executable, '-c', 'import os;print(os.getpid())'], capture_output=True, text=True).stdout)
+        self.assertFalse(shared_comfy._alive(dead)); self.assertTrue(shared_comfy._alive(os.getppid()))
+        # The launcher died (its mutex went with it), or still runs but has let the lease go: take it normally.
+        for owner in (dead, os.getppid()):
+            with self.subTest(owner=owner), mock.patch.dict(os.environ, {shared_comfy.LEASE_ENV: f'{key}|{owner}'}):
+                with shared_comfy.gpu_lease(0, self.root, limit=0, say=None):
+                    self.assertEqual(os.environ[shared_comfy.LEASE_ENV], f'{key}|{os.getpid()}')  # held here, for real
+                    other = subprocess.run([sys.executable, '-c', 'import sys;sys.path[:0]=sys.argv[1:2];'
+                                            'from headkit.shared_comfy import gpu_lease\n'
+                                            'try:\n with gpu_lease(0,sys.argv[2],limit=0,say=None): print("took it")\n'
+                                            'except ValueError: print("refused")',
+                                            str(Path(__file__).resolve().parents[1]), str(self.root)], capture_output=True, text=True,
+                                           env={k: v for k, v in os.environ.items() if k != shared_comfy.LEASE_ENV})
+                    self.assertEqual(other.stdout.strip(), 'refused', other.stderr)
+
     def test_the_lease_excludes_other_processes_and_passes_to_children_of_its_holder(self):
         path = shared_comfy.lease_path(0, self.root)
         holder = subprocess.Popen([sys.executable, '-c', 'import sys,time;sys.path[:0]=sys.argv[1:2];'
