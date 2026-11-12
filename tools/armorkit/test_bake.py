@@ -7,10 +7,11 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
-from . import bake, export, split
+from . import bake, export, measure, split
 
 
 def part(faces=1, size=4):
@@ -64,7 +65,21 @@ class BakeTests(unittest.TestCase):
                 self.assertTrue(all(np.array_equal(back[name][key], parts[name][key]) for key in bake.KEYS))
             with self.assertRaises(ValueError):
                 bake.stored(Path(folder) / 'nothing')
-            np.savez(Path(folder) / 'kept' / 'shinl.npz', v=np.zeros((3, 3)))  # not a part
+            # the folder used again for an outfit with fewer parts: the pelvis's file is still there, and is not read
+            bake.store({'chest': part(2)}, Path(folder) / 'kept')
+            self.assertTrue((Path(folder) / 'kept' / 'pelvis.npz').is_file())
+            again = bake.stored(Path(folder) / 'kept')
+            self.assertEqual((list(again), len(again['chest']['f'])), (['chest'], 2))
+            np.savez(Path(folder) / 'kept' / 'shinl.npz', v=np.zeros((3, 3)))  # a file of another kind beside them is not a part
+            self.assertEqual(list(bake.stored(Path(folder) / 'kept')), ['chest'])
+            listing = Path(folder) / 'kept' / bake.KEPT
+            listing.write_text(json.dumps({'schemaVersion': 1, 'kind': bake.KEPT_KIND, 'parts': ['chest', 'shinl']}))  # listed, and no part
+            with self.assertRaises(ValueError):
+                bake.stored(Path(folder) / 'kept')
+            listing.write_text(json.dumps({'schemaVersion': 1, 'kind': bake.KEPT_KIND, 'parts': ['chest', 'forel']}))  # listed, and not there
+            with self.assertRaises(ValueError):
+                bake.stored(Path(folder) / 'kept')
+            listing.unlink()  # files without a list: a store that stopped halfway, or a folder of something else
             with self.assertRaises(ValueError):
                 bake.stored(Path(folder) / 'kept')
 
@@ -117,6 +132,24 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(bake.gates(parts, models, resources)['failures'],
                              ['pmh0_chest332: no tint texture', 'pmh0_chest332: its material file names pmh0_chest332n, which is not there',
                               'pmh0_pelvis332: no material file'])
+
+    def test_a_run_compiles_the_models_it_wrote_and_no_others(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output, parts, compiled = Path(folder) / 'out', {'chest': part(), 'pelvis': part()}, []
+            bake.store(parts, Path(folder) / 'kept')
+            (output / 'ascii').mkdir(parents=True)
+            (output / 'ascii' / 'pmh0_chest331.mdl').write_text('')  # an earlier run's, under another number
+            (output / 'ascii' / 'pmh0_shol332.mdl').write_text('')  # and a part this outfit does not have
+            tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
+            with mock.patch.object(bake, 'tints', lambda parts, document: (tinted, {'materials': []})), \
+                    mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}, {})), \
+                    mock.patch.object(export, 'compile_models', lambda sources, into, **given: compiled.append((sources, into, given)) or sources):
+                record = bake.run({'model': 'outfit', 'materials': []}, output, 'bodies', 332, kept=Path(folder) / 'kept', game='game', resources=['srn_body'])
+            self.assertEqual(compiled, [([output / 'ascii' / 'pmh0_chest332.mdl', output / 'ascii' / 'pmh0_pelvis332.mdl'], output / 'resources',
+                                         {'game': 'game', 'resources': ['srn_body']})])
+            self.assertEqual((record['compiled'], record['models'], record['gates']['passed']),
+                             (2, {'chest': 'pmh0_chest332', 'pelvis': 'pmh0_pelvis332'}, True))
+            self.assertEqual(json.loads((output / 'bake.json').read_text(encoding='utf-8')), record)
 
     def test_a_run_is_a_fresh_bake_or_a_second_tint_of_kept_parts(self):
         document = {'model': 'outfit', 'materials': []}

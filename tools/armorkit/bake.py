@@ -29,6 +29,7 @@ BUDGET = {'chest': 6000, 'slot': 2250, 'outfit': 30000, 'texture': 1024}  # tria
 NOT_BUILT = ('seam contract: each end against its tier\'s overlap and envelope', 'clearance: no body surface showing at rest',
              'no holes or detached pieces')  # gates of docs/armorkit/plan.md that `gates` does not check yet
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'src', 'trimmed')  # what `store` keeps of a part
+KEPT, KEPT_KIND = 'baked.json', 'srn-armorkit-baked-parts'  # the list of the parts `store` kept, and its kind
 
 
 def roles(name, made):
@@ -145,17 +146,31 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
 
 
 def store(parts, folder):
-    """Keep `bake`'s parts in `folder`, a file per part, for `stored`."""
+    """Keep `bake`'s parts in `folder`, a file per part, for `stored`.
+
+    The parts are listed in `baked.json`, written last: a folder used again for an outfit with fewer parts
+    still holds the files of the parts it no longer has, and read by what lies in it, a second tint gave
+    the new outfit the old one's shoulder pads. The list is taken away first, so a store that stops halfway
+    leaves nothing `stored` would read."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
+    (folder / KEPT).unlink(missing_ok=True)
     for name, part in parts.items():
         np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS})
+    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts)}, indent=1) + '\n', encoding='utf-8', newline='\n')
 
 
 def stored(folder):
-    """The parts `store` kept in `folder`."""
-    parts = {path.stem: dict(np.load(path)) for path in sorted(Path(folder).glob('*.npz'))}
-    require(parts and all(set(KEYS) <= set(part) for part in parts.values()), f'{folder} holds no baked parts')
+    """The parts `store` last kept in `folder`: those its list names, and no other file there."""
+    folder = Path(folder)
+    require((folder / KEPT).is_file(), f'{folder} holds no baked parts: it has no {KEPT}')
+    listed = json.loads((folder / KEPT).read_text(encoding='utf-8'))
+    require(isinstance(listed, dict) and listed.get('kind') == KEPT_KIND and listed.get('schemaVersion') == 1
+            and isinstance(listed.get('parts'), list) and listed['parts'] and all(isinstance(name, str) for name in listed['parts']),
+            f'{folder / KEPT} is no list of baked parts')
+    require(all((folder / (name + '.npz')).is_file() for name in listed['parts']), f'{folder} lacks a part its {KEPT} lists')
+    parts = {name: dict(np.load(folder / (name + '.npz'))) for name in listed['parts']}
+    require(all(set(KEYS) <= set(part) for part in parts.values()), f'{folder} holds a file that is no baked part')
     return parts
 
 
@@ -268,7 +283,9 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     With `mesh`, `colours`, `raw` and `xatlas` the outfit is baked (`bake`) and, where `kept` names a folder,
     stored there; without them the parts stored in `kept` are tinted and written again. `packs` are the pack
     folders a model's name may not clash with. With `game`, the game's install folder, the models are
-    compiled into `<output>/resources` (`export.compile_models`, with `resources` to look animations up in)."""
+    compiled into `<output>/resources` (`export.compile_models`, with `resources` to look animations up in):
+    the models of this run and no other. An output folder used before still holds the models written then,
+    under another number or for parts the outfit no longer has, and they are neither in the record nor gated."""
     fresh = [mesh, colours, raw, xatlas]
     require(all(given is not None for given in fresh) or (kept is not None and all(given is None for given in fresh)),
             'Bake an outfit from its mesh, colour field, raw mesh and the layout library, or tint the parts kept in a folder again')
@@ -283,7 +300,8 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
               'gates': gates(parts, models, Path(output) / 'resources', packs)}
     if game is not None:
-        compiled = export.compile_models(sorted((Path(output) / 'ascii').glob('*.mdl')), Path(output) / 'resources', game=game, resources=list(resources))
+        compiled = export.compile_models(sorted(Path(output) / 'ascii' / (model + '.mdl') for model in models.values()),
+                                         Path(output) / 'resources', game=game, resources=list(resources))
         record['compiled'] = len(compiled)
     (Path(output) / 'bake.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
     return record
