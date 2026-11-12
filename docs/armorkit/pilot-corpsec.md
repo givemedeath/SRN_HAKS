@@ -122,7 +122,18 @@ its inner wall and the pelvis's lids are now shaded as the cloth round them, ver
 are: the reference's elbow guard is two plates with a strap between them, and a bent arm shows the sleeve
 between the two as a wedge; a plate's outline now runs along face edges where its colour ran past them,
 in short straight runs; and where a thigh's top leaves the pelvis its outline against the trousers' folds is
-jagged. The accent and
+jagged.
+
+A third round took the armpits. Three things showed there. On top of each shoulder, under the pad, the fit
+had set a few vertices of the cloth 3 to 6 cm out sideways (`repose.fit` measured the body ring by ring
+about the chest's bone, and a ring at the top of a shoulder holds its full width): the faces round them
+stood up as spikes when the arm lifted the pad. The upper arm's cap, two wings beside the pad, came through
+the chest in front of the pad and behind it as slivers while the body stood; it now starts a fifth inside
+its rim. And the closings in the armpit were drawn at the cloth's lit shade, pale in the crease; they now
+take their edge's shade. The first two are checked on the mesh and in renders of it only: the game client
+was not run for this round. Left as it is: with the arm lifted, the chest's armhole is closed by a dome
+under the pad over a flat fan in the armpit, with a step between the two, and the fan shows behind the
+sleeve as a dark wedge. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in

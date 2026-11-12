@@ -553,6 +553,20 @@ class SleeveTests(unittest.TestCase):
         loose = open_edges(capped[1], capped[0])
         self.assertFalse(self.on(capped[0][loose], ('shoulder', 'l')).all(axis=1).any())  # the whole rim is taken up
 
+    def test_the_sleeves_cap_starts_inside_its_rim(self):
+        made = {}
+        sleeve, faces, _ = split.split(self.v, self.f, self.t, JOINTS, RADII, {('shoulder', 'l'): 0.05}, made=made)['bicepl']
+        point, normal = self.planes[('shoulder', 'l')]
+        normal = seams.unit(normal)
+        cap = np.setdiff1d(faces[made['bicepl'] == split.CAP], faces[made['bicepl'] != split.CAP])  # the cap's own vertices
+        rim = np.intersect1d(faces[made['bicepl'] == split.CAP], faces[made['bicepl'] != split.CAP])
+        across = lambda points: np.linalg.norm((points - point) - ((points - point) @ normal)[:, None] * normal, axis=1)
+        past = -((sleeve[cap] - point) @ normal)
+        first = cap[past < 2 * split.TUCK_RISE * 0.05]  # the ring the cap steps in on, hardly past the plane
+        self.assertEqual(len(first), len(rim))
+        self.assertTrue(np.allclose(np.sort(across(sleeve[first])), np.sort((1 - split.SHOULDER_TUCK) * across(sleeve[rim]))))
+        self.assertLess(across(sleeve[cap]).max(), (1 - split.SHOULDER_TUCK) * across(sleeve[rim]).max() + 1e-9)  # and nowhere wider
+
     def test_the_split_tells_what_made_each_face(self):
         made = {}
         parts = split.split(self.v, self.f, self.t, JOINTS, RADII, {('shoulder', 'l'): 0.05}, made=made)

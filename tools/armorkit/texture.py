@@ -498,10 +498,12 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     `closing` flags the texels of the part's closings (`face_texels` of the faces `split.split` reports as
     `CLOSING`). A closing has no surface of its own on the generated outfit; its colours are those of its
     edge, which runs along creases and through whatever lies over the limb where it left the torso. It gets
-    the outfit's commonest material, the first of `found`, at its lit shade: the cloth the outfit is made of. Left
-    as read, a sleeve's closing was a vest's colour, most of its edge being cut through the vest, and the
-    closings between the thighs were as dark as the crease at the crotch. The texels of a limb's `overlaid`
-    faces are flagged with them and drawn the same way.
+    the outfit's commonest material, the first of `found`: the cloth the outfit is made of. Left as read, a
+    sleeve's closing was a vest's colour, most of its edge being cut through the vest. Its shade is its
+    edge's, evened out over the closing, and no lighter than the cloth's lit shade: a closing lies in the
+    crease it was cut along, and at the lit shade the slivers of one that stand in an armpit as the body
+    rests were pale flecks in the shadow there. The texels of a limb's `overlaid` faces are flagged with
+    them and drawn the same way.
 
     `cap` flags the texels of the part's cap (the faces reported as `CAP`). A cap repeats its rim's colours
     toward its pole, and shows in the gap a bent joint opens: it is what its rim is, the pad over a knee and
@@ -570,7 +572,10 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     def even(k):  # the one shade what the split made gets, in material k
         mine = worn & (material == k)
         return float(lit[k]) if lit is not None else float(np.percentile(shade[mine], LIT)) if mine.any() else float(MIDDLE)
-    material[plain], shade[plain] = 0, even(0)
+    if plain.any():  # as dark as the edge it grew from, evened out, and no lighter than the cloth's open surface
+        reach = max(1, covered.shape[0] // CAP_STREAK)
+        local = smooth(np.where(plain, shade, 0.0), reach) / np.maximum(smooth(plain, reach), 1e-9)
+        material[plain], shade[plain] = 0, np.minimum(local, even(0))[plain]
     if padded is not None and (dome & np.asarray(padded, bool)).any():
         beside = dome & ~np.asarray(padded, bool)
         material[beside], shade[beside] = 0, even(0)

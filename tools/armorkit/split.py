@@ -46,6 +46,8 @@ GUSSET_CORNER = 1.0  # its lower corners are cut off this share of its half widt
 GUSSET_UNDER = 0.004  # and holds it this far under the thighs' own, which cover it as the body stands
 HIP_TUCK = 0.1  # a thigh's cap starts this share of its rim's width inside the rim: turned out as the game stands a body, a cap as wide as its rim came through the pelvis along the hip line
 HIP_STEPS = 4  # and is built from this many rings, the first of them the step in
+SHOULDER_TUCK = 0.2  # an upper arm's cap starts this share inside its rim: beside a shoulder pad the rim is two arcs, and a cap as wide came through the chest in front of the pad and behind it
+TUCKS = {'hip': HIP_TUCK, 'shoulder': SHOULDER_TUCK}  # by joint: how far inside its rim the under part's cap starts
 TUCK_RISE = 0.06  # the ring a tucked cap steps in on stands this share of the cap's depth past the plane
 PAD_RINGS = 3  # rings the chest's closing under a shoulder pad is built from: it is the shoulder that shows when the pad lifts off
 PAD_SEED = 0.03  # a shoulder pad is looked for on the faces this near the line from the shoulder joint straight out, away from the torso
@@ -1068,7 +1070,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
                 more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown,
                            **({'full': full, 'hinge': np.cross(opens - (opens @ across) * across, -across), 'steps': GUARD_STEPS} if full.any() else {}),
-                           **({'tuck': HIP_TUCK, 'steps': HIP_STEPS} if joint == 'hip' else {}))
+                           **({'tuck': TUCKS[joint], 'steps': HIP_STEPS} if joint in TUCKS else {}))
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 kinds.append(np.where(full[np.asarray(grown, int)], PADDED, CAP))
         if name == 'pelvis':  # last: its edges are no opening to close

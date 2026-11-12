@@ -175,7 +175,7 @@ class MaterialTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             texture.tint_maps(colour, covered, self.found, ['cloth1', 'leather1', 'no such channel'])
 
-    def test_a_closing_is_drawn_in_the_outfits_commonest_material_at_its_lit_shade(self):
+    def test_a_closing_is_drawn_in_the_outfits_commonest_material_as_dark_as_its_edge(self):
         fabric = int(texture.labels(np.array([FABRIC]), self.found['tones'])[0])
         self.assertEqual(fabric, 0)  # most of the outfit's texels: the first material
         channels = ['cloth1', 'leather1', 'metal1']
@@ -189,11 +189,23 @@ class MaterialTests(unittest.TestCase):
         plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels, speck=0)
         self.assertTrue((plain_layers[closing] != export.LAYERS['cloth1']).all() and (plain_shades[closing] < texture.MIDDLE - 30).all())
         shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0)
-        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())  # a part with no cloth of its own
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all())  # a part with no cloth of its own
+        self.assertTrue(np.array_equal(shades[closing], plain_shades[closing]))  # the crease it was cut along
         self.assertTrue(np.array_equal(layers[~closing], plain_layers[~closing]) and np.array_equal(shades[~closing], plain_shades[~closing]))
         shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, lit=(201, 150, 140))
-        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == 201).all())  # the outfit's, where the caller has it
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and np.array_equal(shades[closing], plain_shades[closing]))
         self.assertTrue(np.array_equal(shades[~closing], plain_shades[~closing]))
+        # an edge lighter than the cloth's open surface: no lighter than that
+        dim = int(plain_shades[closing].max()) - 20
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, lit=(dim, 150, 140))
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == dim).all())
+        # and evened out: half the closing read twice as dark is one shade between the two, not two
+        colour[2, 1:3] = np.array(TAN) * 0.3
+        halves = texture.tint_maps(colour, covered, self.found, channels, speck=0)[0]
+        self.assertGreater(int(halves[3, 1]) - int(halves[2, 1]), 20)
+        shades, _ = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0)
+        self.assertEqual(len(set(shades[closing].tolist())), 1)
+        self.assertTrue(halves[2, 1] < shades[2, 1] < halves[3, 1])
 
     def test_a_metal_is_drawn_on_its_own_faces_only_and_elsewhere_as_the_faces_material(self):
         channels = ['cloth1', 'leather1', 'metal1']
@@ -311,7 +323,7 @@ class MaterialTests(unittest.TestCase):
         # where a closing is flagged too, it is the closing's
         closing = np.zeros((256, 256), bool); closing[64:192, 160:192] = True
         shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, closing=closing, cap=cap, lit=lit)
-        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == 201).all())
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] <= 201).all())
         self.assertTrue((layers[pad & ~closing] == export.LAYERS['metal1']).all())
 
     def test_what_the_torso_wears_over_a_limb_is_found_by_its_reaching_the_cut(self):
