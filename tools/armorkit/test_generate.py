@@ -60,9 +60,11 @@ class GenerateTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.work = Path(self.temporary.name).resolve()
         # The fakes stand for a controlled ComfyUI; the GPU lease lives in this test's own tools root.
-        for patcher in (mock.patch('tools.headkit.shared_comfy.live', return_value={}),
+        self.recheck = mock.patch('tools.headkit.shared_comfy.recheck')
+        for patcher in (mock.patch('tools.headkit.shared_comfy.live', return_value={'proven': 'at dispatch'}),
                         mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.work / 'tools')})):
             patcher.start(); self.addCleanup(patcher.stop)
+        self.recheck = self.recheck.start(); self.addCleanup(mock.patch.stopall)
         self.folder = self.work / 'outfit' / 'reference-1'
         brief.seal(document(), self.folder)
         self.image = self.folder / 'image.png'
@@ -121,6 +123,21 @@ class GenerateTests(unittest.TestCase):
         self.engine.status = 'error'
         generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')
         self.assertEqual([row['state'] for row in self.ledger()], ['complete', 'failed'])
+
+    def test_no_output_is_kept_from_a_server_that_changed_during_the_job(self):
+        done = generate.appearance(self.work, 'outfit', self.image, 36.6, self.image, 'models')
+        # what was proven at dispatch is rechecked before the files are fetched
+        self.assertEqual(self.recheck.call_args.args[1], {'identity': {'proven': 'at dispatch'}, 'approval': None})
+        self.assertEqual(done['files'], ['node-12_00001_.png'])
+        self.recheck.side_effect = ValueError('ComfyUI restarted during the job; its outputs are not accepted')
+        with self.assertRaisesRegex(ValueError, 'restarted during the job'):
+            generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')
+        row = self.ledger()[0]
+        self.assertEqual(row['state'], 'submitted')  # counted, with no known outcome: reconciled by a person
+        self.assertIn('restarted', row['error'])
+        folder = self.work / row['folder']
+        self.assertTrue((folder / 'history.json').is_file())
+        self.assertFalse((folder / 'node-12_00001_.png').exists())
 
     def test_a_model_gets_five_attempts_earlier_ones_included(self):
         earlier = [{'attempt': k + 1, 'token': str(k), 'state': 'complete'} for k in range(3)]

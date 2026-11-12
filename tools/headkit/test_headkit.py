@@ -4694,6 +4694,7 @@ class DesignTests(Temporary):
         guard=patch('urllib.request.urlopen',side_effect=AssertionError('network contact in a design test'));guard.start();self.addCleanup(guard.stop)
         # The fakes stand for a controlled ComfyUI; proving a server is test_shared_comfy's job.
         proven=patch('headkit.shared_comfy.live',return_value={});proven.start();self.addCleanup(proven.stop)
+        recheck=patch('headkit.shared_comfy.recheck');self.recheck=recheck.start();self.addCleanup(recheck.stop)
         sleep=patch('headkit.design.time.sleep');sleep.start();self.addCleanup(sleep.stop)
         self.local={'comfyUrl':'http://127.0.0.1:8188','comfyInput':str(self.root/'comfy-in'),'comfyOutput':str(self.root/'comfy-out')}
         self.bindings=self.root/'bindings.json';write(self.bindings,self.bindings_data(**self.local))
@@ -4716,6 +4717,13 @@ class DesignTests(Temporary):
         return client,design.inpaint(client,self.local,self.bindings,self.spec,options.pop('design',None) or self.head(),
                                      'dark brown',11,2,self.root/'neck',**options)
 
+    def test_a_design_job_is_rechecked_before_its_outputs_are_accepted(self):
+        from headkit import design
+        client,_=self.generate()
+        self.assertEqual(self.recheck.call_args.args,(client.request,{'identity':{},'approval':None}))
+        self.recheck.side_effect=ValueError('ComfyUI restarted during the job; its outputs are not accepted')
+        with self.assertRaisesRegex(ValueError,'restarted during the job'):self.generate(output='second')
+        self.assertFalse((self.root/'second').exists() and any((self.root/'second').glob('*.png')))
     def test_design_graph_wires_batch_references_and_fixed_controls(self):
         from headkit.design import compile_design,FIXED
         g=compile_design('prompt',['headkit-design/t/r0.png','headkit-design/t/r1.png'],5,3,'headkit-design/t/troll-a-s5')

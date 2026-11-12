@@ -209,8 +209,9 @@ def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=Fal
     of pending ones; a running prompt still finishes first)."""
     require(0 <= deadline <= 21600, 'Design deadline must be 0-21600 s')
     record['queue'] = {'deadline': deadline, 'front': bool(front)}
-    from .shared_comfy import slot
-    with slot(client, local):  # GPU lease, idle queue, proven server (approved if shared; `local` binding first)
+    from . import shared_comfy
+    with shared_comfy.slot(client, local) as identity:  # GPU lease, idle queue, proven server (approved if shared; `local` binding first)
+        proof = shared_comfy.frozen(identity, local)
         response = client.request('/prompt', dict({'prompt': graph, 'client_id': token}, **({'front': True} if front else {})))
     require(isinstance(response, dict) and response.get('prompt_id') and not response.get('node_errors'),
             'ComfyUI rejected the design request: ' + json.dumps(response)[:2000])
@@ -222,6 +223,7 @@ def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=Fal
         time.sleep(poll)
     status = entry.get('status', {})
     require(status.get('status_str') != 'error', 'ComfyUI design job failed: ' + json.dumps(status)[:3000])
+    shared_comfy.recheck(client.request, proof)  # the server that ran it is still the one proven at dispatch
     return entry
 
 
