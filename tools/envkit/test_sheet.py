@@ -147,6 +147,24 @@ class SheetTests(unittest.TestCase):
             command.command_sheet(asked)  # what is only unsent is no failure
         self.assertIn('unsentCredits', said.call_args_list[-1].args[0])
 
+    def test_a_remesh_of_an_earlier_generation_is_not_kept_for_the_new_one(self):
+        """A building generated again under a new key with its remesh key left as it was: the ledger's remesh is the
+        old building's, at the polycount the plan asks (Codex on PR #124, 2026-11-12)."""
+        first = {**PLAN['building'], 'remesh': 'yd-building-remesh'}; fake = FakeMeshy(); ledger = meshy.Ledger.create(self.root / 'ledger.json', 200)
+        plan = self.plan(props={}, building=first)
+        sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say); sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
+        self.assertEqual(meshy.sent_source(ledger.entry('yd-building-remesh')), 'task-yd-building-a1'); self.assertIsNone(meshy.sent_source(ledger.entry('yd-building-a1')))
+        again = self.plan(props={}, building={**first, 'key': 'yd-building-a2'})
+        self.assertEqual(sheet.submit(ledger, again, self.selected, self.work, run=fake, say=self.say), ['yd-building-a2'])
+        told = sheet.collect(ledger, again, self.work, self.models, self.masters, run=fake, say=self.say)
+        self.assertEqual(told, {'failed': ['yd-building-remesh'], 'downloaded': ['yd-building-a2'], 'unsent': []})  # the new master is kept; the old working model is not passed for the new
+        self.assertEqual(self.said[-1]['error'], 'yd-building-remesh was made from another generation (task task-yd-building-a1) than yd-building-a2 (task task-yd-building-a2): '
+                         'give the remesh a new key in the plan')
+        renamed = self.plan(props={}, building={**first, 'key': 'yd-building-a2', 'remesh': 'yd-building-remesh2'})
+        told = sheet.collect(ledger, renamed, self.work, self.models, self.masters, run=fake, say=self.say)
+        self.assertEqual(told, {'failed': [], 'downloaded': ['yd-building-remesh2'], 'unsent': []})
+        self.assertEqual(meshy.sent_source(ledger.entry('yd-building-remesh2')), 'task-yd-building-a2')
+
     def test_the_remesh_does_not_wait_for_the_master_nor_fail_with_it(self):
         plan = self.plan(props={}); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
         sheet.submit(ledger, plan, self.selected, self.work, run=FakeMeshy(), say=self.say)

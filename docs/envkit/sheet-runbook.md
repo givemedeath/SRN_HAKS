@@ -51,7 +51,9 @@ it to the plan's triangles. One failed model does not stop the rest, and `failed
 is dealt with. The CLI never sends a key twice, so a call that failed or was refused goes again under a new key
 in the plan (`"key": "<prefix>-<asset>-a2"`; for a failed remesh, the building's `"remesh"` key alone). A
 triangle target changed in the plan, or another reference selected, needs a new key too: `collect` refuses a
-call that was sent for another target and `submit` one that was sent with another reference. `collect` ends
+call that was sent for another target and `submit` one that was sent with another reference. A building
+generated again under a new key needs a new `"remesh"` key with it: `collect` refuses a remesh that was made
+from an earlier generation. `collect` ends
 in an error while any call has no working model, and `status` lists as `unplanned` whatever the set holds that
 the plan makes nothing of.
 

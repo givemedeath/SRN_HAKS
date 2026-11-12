@@ -123,7 +123,7 @@ def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
 def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print):
     """Wait for whatever is still running and download what has finished: each prop into `models/<key>`, the
     building's full generation into `masters/<key>` and its remesh into `models/<remesh key>`. One call that failed
-    does not stop the rest. Returns {failed: [keys], downloaded: [keys], unsent: [keys]}: `failed` is every call that
+    does not stop the rest, and a remesh the ledger holds from another generation than the plan's is refused. Returns {failed: [keys], downloaded: [keys], unsent: [keys]}: `failed` is every call that
     has not ended in a working model, whether it failed now or in an earlier run, under the key that failed (the
     remesh's own, for a remesh), and `unsent` what `submit` has still to send."""
     work, models, masters = Path(work), Path(models), Path(masters); failed, downloaded, unsent = [], [], []
@@ -170,6 +170,10 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
                     fetched(generation, masters / generation, master=True)
                 except ValueError as error:
                     failed.append(generation); report(key=generation, error=str(error))
+                # A building generated again under a new key and a remesh key left as it was: the ledger's remesh is the
+                # earlier generation's, at the right polycount, and would be kept for this one's working model.
+                source = meshy.sent_source(ledger.entry(key))
+                require(source == task, f'{key} was made from another generation (task {source}) than {generation} (task {task}): give the remesh a new key in the plan')
                 if finished(key, meshy.remesh_target(building['triangles'])):
                     fetched(key, models / key)
         except ValueError as error:

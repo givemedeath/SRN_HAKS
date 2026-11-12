@@ -179,6 +179,12 @@ def sent_target(row):
     return int(sent[sent.index('--target-polycount') + 1]) if '--target-polycount' in sent[:-1] else None
 
 
+def sent_source(row):
+    """The task a ledger entry's remesh was made from, or None where the call was no remesh."""
+    sent = row.get('arguments') or []
+    return sent[sent.index('--input-task-id') + 1] if '--input-task-id' in sent[:-1] else None
+
+
 def run_cli(arguments, folder):
     """(exit code, parsed stdout). The launcher is an npm .cmd shim, which cmd.exe re-parses: text it would rewrite is refused."""
     if any(set('\r\n"%&|<>^') & set(value) for value in arguments):
