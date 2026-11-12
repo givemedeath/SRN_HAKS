@@ -100,6 +100,24 @@ class ContractTests(Fixture):
             fit,reduce=(pin(self.root/(stage+'-input'))['path'] for stage in ('fit','reduce'))
             self.assertIn(fit,paths);self.assertNotIn(reduce,paths)
             self.assertNotIn(reduce,consumed_inputs(self.path,self.local,run=run))
+    def test_a_fixture_inputs_document_replaces_the_manifest_fixture_roles_and_haks(self):
+        (self.root/'old-template.mod').write_bytes(b'rewritten')
+        stale={'path':str(self.root/'old-template.mod'),'sha256':'0'*64}       # rewritten since the manifest pinned it
+        template=self.root/'fixture-template.mod';template.write_bytes(b'template')
+        doc=self.root/'x.fixture-inputs.json'
+        write(doc,{'kind':'fixture-inputs','inputs':{'fixtureTemplate':{'path':template.name,'sha256':pin(template)['sha256']}},'fixtureHaks':{}})
+        local={'fixtureHaks':{'old':stale}}
+        scoped=[]
+        def all_pins(path,roles=None,native=True):
+            scoped.append(roles); return [stale] if roles and 'fixtureTemplate' in roles else []
+        with patch('tools.itemkit.__main__.bindings',return_value=local), \
+             patch('tools.itemkit.__main__.python_package_pins',return_value=[]), \
+             patch('tools.itemkit.__main__.all_pins',side_effect=all_pins), \
+             patch('tools.itemkit.__main__.code_pins',return_value=[]):
+            paths=consumed_inputs(self.path,self.local,extra=[doc],stage='fixture')
+            self.assertNotIn('fixtureTemplate',scoped[-1]);self.assertIn(str(template.resolve()),[str(Path(p).resolve()) for p in paths])
+            self.assertNotIn(stale['path'],paths)
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):consumed_inputs(self.path,self.local,stage='fixture')   # without the document
     def test_consumed_pins_reject_conflicts_before_deduplication(self):
         dependency=self.root/'dependency';dependency.write_bytes(b'bound bytes');expected=pin(dependency)
         with patch('tools.itemkit.__main__.bindings',return_value={}), \

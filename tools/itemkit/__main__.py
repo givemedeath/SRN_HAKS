@@ -92,7 +92,12 @@ def consumed_pins(manifest_path, bindings_path, run=None, extra=(),stage=None):
 
 def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None, *, as_pins=False):
     local = bindings(bindings_path)
+    documents = [(path, read(path)) for path in extra]
+    fixture_docs = [document for _, document in documents if isinstance(document, dict) and document.get('kind') == 'fixture-inputs']
     roles=None if stage is None else ({'exportSource'} if stage=='export' and run is None else stage_roles(stage))
+    if fixture_docs and roles is not None:
+        # A fixture rebuild takes its fixture inputs from the document, never the manifest's own (they may be stale).
+        roles = roles - {role for document in fixture_docs for role in document['inputs']}
     pins = all_pins(manifest_path,roles=roles,native=stage is None or (run is not None and stage in ('fit','export')))+code_pins()+[pin(bindings_path)]+python_package_pins(local)
     for key in ('toolchain', 'migrationReceipt'):
         if key in local: pins.append(pin(local[key]))
@@ -106,17 +111,17 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
     # legacy input enumeration remains conservative.
     pins += (list(models.values()) if stage is None else [])+([] if cpu else local.get('comfySources', []))
     if stage in ('fixture','client') or stage is None:
-        pins += list(local.get('fixtureHaks', {}).values())+list(local.get('comparisonHaks',{}).values())
+        # Fixture HAK pins that come with a fixture-inputs document replace the bindings' own, as in Runner.rebuild_fixture.
+        if not any('fixtureHaks' in document for document in fixture_docs): pins += list(local.get('fixtureHaks', {}).values())
+        pins += list(local.get('comparisonHaks',{}).values())
     for row in local.get('libraries', {}).values(): pins += row['files']
     if not cpu and local.get('comfyCustomNodes'):
         directory = Path(local['comfyCustomNodes'])/'srn_headkit'
         pins += [pin(p) for p in sorted(directory.glob('*.py'))]
         if (directory/'source-roots.json').exists(): pins.append(pin(directory/'source-roots.json'))
-    documents = [(path, read(path)) for path in extra]
     if run and (Path(run)/'state.json').exists():
         state = read(Path(run)/'state.json')  # Mutable state is output, not an immutable consumed asset.
-        rebuild = any(isinstance(document, dict) and document.get('kind') == 'fixture-inputs' for _, document in documents)
-        pins += run_receipt_pins(state, stage, historical_code=is_code_path() if rebuild else None)
+        pins += run_receipt_pins(state, stage, historical_code=is_code_path() if fixture_docs else None)
     for path, document in documents:
         row = pin(path); pins.append(row)
         if isinstance(document, dict):
