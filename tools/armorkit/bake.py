@@ -335,8 +335,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
             store(parts, kept)
     else:
         parts, bones = stored(kept), measure.body(body_pack, body)[0]
-        require(not left_to_body(document) & set(parts)
-                and all(('skin' in part) == (name in shared_with_body(document)) for name, part in parts.items()),
+        require(not left_to_body(document) & set(parts) and {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)

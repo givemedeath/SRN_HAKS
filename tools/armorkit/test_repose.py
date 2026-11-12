@@ -92,6 +92,11 @@ def parted(x, z):
     return inside(x, z) and not (1.20 <= z < 1.24 and abs(x) > 0.19)
 
 
+def cuffed(x, z):
+    """As `inside`, with each sleeve's cuff stopping just short of the glove, above the wrist: a whole arm."""
+    return inside(x, z) and not (0.98 <= z < 1.00 and abs(x) > 0.19)
+
+
 def holstered(x, z):
     """As `inside`, with a holster on each thigh below the hand and farther out than the fingers: no glove."""
     return inside(x, z) or (0.55 <= z < 0.62 and 0.52 < abs(x) < 0.60)
@@ -212,6 +217,13 @@ class JointTests(unittest.TestCase):
         self.assertAlmostEqual((marks['armpit'] - SHIFT[2]) / SCALE, ARMPIT, delta=0.03)
         for side in 'lr':  # no glove's joints: the shoulder as the whole arm's, the elbow on the arm and not on a sleeve's line
             for joint, most in (('shoulder', 0.01), ('elbow', 0.03), ('wrist', 0.03), ('tip', 0.01)):
+                self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), most, (joint, side))
+
+    def test_an_arm_whose_cuff_stops_short_of_its_glove_is_followed_on_into_the_hand(self):
+        v, faces = doll(inside=cuffed)
+        here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
+        for side in 'lr':
+            for joint, most in (('shoulder', 0.01), ('elbow', 0.02), ('wrist', 0.03), ('tip', 0.01)):
                 self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), most, (joint, side))
 
     def test_what_hangs_below_a_whole_arms_fingers_is_no_glove(self):

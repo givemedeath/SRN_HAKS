@@ -8,8 +8,9 @@ material file its model names (docs/phenotype-body-material-process.md).
 
 The part's textures are as large a side as the body's, and as twice the outfit's, to at most `limit`. The
 outfit's own lie in the quarter that starts at texture coordinate 0, and the body's whole textures in the
-quarter that ends at 1, at half their size when the body's are at the limit. The body's texture coordinates are only halved and moved, never laid out again: a normal map
-is read in the frame its coordinates span, and turned or sheared it would light the skin from another side.
+quarter that ends at 1, at half their size or more. The body's texture coordinates are only halved and moved,
+never laid out again: a normal map is read in the frame its coordinates span, and turned or sheared it would
+light the skin from another side.
 
 What the sleeve hides of the arm is left out (`shown`): the two together would be over a part's budget.
 """
@@ -84,8 +85,8 @@ def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
     off the arm. A piece that begins within `TOP` of the bone hides all above it too: it is the sleeve, come
     down from the shoulder under the outfit's other parts. Taken from the outfit's own faces only, the sleeve
     was parted near the shoulder and the bound had to be half the bone, so a band in the upper half was taken
-    for the sleeve. A band or a pad below the hem is another piece, and the skin between the two is seen: the first build took the farthest point of the
-    outfit for the hem and hid it. A vertex of the body is hidden where the outfit hides it in its own
+    for the sleeve. A band or a pad below the hem is another piece, and the skin between the two is seen:
+    the first build took the farthest point of the outfit for the hem and hid it. A vertex of the body is hidden where the outfit hides it in its own
     direction and the two beside it, and a face where all three of its vertices are."""
     start, axis = np.asarray(start, float), np.asarray(end, float) - np.asarray(start, float)
     length = float(np.linalg.norm(axis))
@@ -153,13 +154,14 @@ def worn(part, skin, start, end, limit=1024):
     """A baked part (`bake.bake`) with the body's skin part beside the outfit's surface, where the outfit shows it.
 
     `skin` is the body's part (`body_part`), `start` and `end` the part's bone. The maps are as large a side
-    as the body's and as twice the outfit's, up to `limit`: the body's are then at half their size at most,
+    as the body's and as twice the outfit's, up to `limit`: the body's are then at half their size or more,
     whatever size the sleeve was laid out at, and the outfit's keep their texels or more, or are halved
-    where the limit leaves no room. Beside a baked part's keys the result holds `skin`, per face, whether it is the body's;
-    `skin_at`, per texel, whether it is of the body's textures; `skin_tint`, the body's shade and layer
-    there; and `skin_rough`, the roughness of every texel, the body's map there and the outfit's own
-    (`texture.ROUGHNESS`) elsewhere. The body's faces are no closing's or cap's and of no material: `added`, `domed` and `trimmed`
-    say so, and their vertices have no place on the generated mesh (`src`, zero)."""
+    where the limit leaves no room. Beside a baked part's keys the result holds `skin`, per face, whether it
+    is the body's; `skin_at`, per texel, whether it is of the body's textures; `skin_tint`, the body's shade
+    and layer there; and `skin_rough`, the roughness of every texel, the body's map there and the outfit's
+    own (`texture.ROUGHNESS`) elsewhere. The body's faces are no closing's or cap's and of no material:
+    `added`, `domed` and `trimmed` say so, and their vertices have no place on the generated mesh (`src`,
+    zero)."""
     size = len(part['rgb'])
     side = min(max(2 * size, len(skin['tint'])), limit)
     half = side // 2

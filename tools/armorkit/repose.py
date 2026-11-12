@@ -300,10 +300,10 @@ def outfit_joints(vertices, faces, body):
     middles lay 6 cm toward the armpit. Nor does the line from the glove to the sleeve: an arm is bent a
     little at the elbow, and a trough cut along that line left the sleeve on the torso. A glove lies `GAP`
     or more below its sleeve: what `past` finds nearer, and no farther across than a step along a limb, is
-    the rest of a whole arm that a thin section parted, and the arm is followed on through it as a whole one.
-    A glove is looked for only beyond an arm too short to be whole, shorter than `ARM` of the body's from
-    shoulder to fingertips: below a whole arm's fingers, a boot or a holster farther out than they are was
-    taken for one. An arm still that short is refused: a sleeve with no glove beyond it has no wrist to
+    the rest of an arm that a thin section parted, a cuff stopping short of a glove, and the arm is followed
+    on through it as a whole one. A glove that far below is taken only beyond an arm too short to be whole,
+    shorter than `ARM` of the body's from shoulder to fingertips: below a whole arm's fingers, a boot or a
+    holster farther out than they are was taken for one. An arm still that short is refused: a sleeve with no glove beyond it has no wrist to
     find, and its hem was taken for a hand. A long sleeve followed to the wrist only, its fingers apart, is
     three quarters of the body's arm and passes. `marks` also holds the outfit's `scale` to the body, neck
     height over neck height."""
@@ -335,12 +335,12 @@ def outfit_joints(vertices, faces, body):
         require(len(upper) >= 2, f'The {"left" if sign < 0 else "right"} arm leaves the torso too far below the other to place its shoulder')
         height = level(body['shoulder' + side][2])
         shoulder = np.array([np.polyval(np.polyfit(upper[:, 0], upper[:, 1], 1), height), np.polyval(np.polyfit(upper[:, 0], upper[:, 2], 1), height), height])
-        glove, straight = (past(marks, sign, arm) if followed(shoulder, arm) < whole else arm[:0]), None
-        glove = glove if len(glove) >= 3 else glove[:0]
-        if len(glove) and arm[0, 0] - glove[-1, 0] <= GAP * marks['height'] \
-                and np.linalg.norm(glove[-1, 1:3] - arm[0, 1:3]) > STEP_LIMIT * marks['height']:
-            glove = glove[:0]  # just below the arm's end but off to one side: not the rest of the arm
-        if len(glove) and arm[0, 0] - glove[-1, 0] > GAP * marks['height']:
+        glove, straight = past(marks, sign, arm), None
+        apart = len(glove) >= 3 and arm[0, 0] - glove[-1, 0] > GAP * marks['height']  # a bare forearm between
+        rest = len(glove) >= 3 and not apart and np.linalg.norm(glove[-1, 1:3] - arm[0, 1:3]) <= STEP_LIMIT * marks['height']
+        apart = apart and followed(shoulder, arm) < whole  # below a whole arm, a boot or a holster
+        glove = glove if apart or rest else glove[:0]
+        if apart:
             start, sleeve = (np.average(rows[:, [1, 2, 0]], axis=0, weights=rows[:, 3]) for rows in (glove, arm))
             for _ in range(2):
                 found = rings(vertices, faces, start, sleeve, marks['height'])
