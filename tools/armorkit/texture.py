@@ -40,6 +40,7 @@ BROAD = ((1, 1.0), (4, 0.6))  # the bend is taken across this many texels each w
 RELIEF_SHADE = (0.72, 1.2)  # the least and the most the relief changes a shade by
 WHITE = np.array((25.0, 0.0, 0.0))  # white, as `tone` has it
 PALE = 0.8  # how far toward white a material's highlights run: all the way, every material would claim a white texel alike
+SAME_LINE = 6.0  # a lighter material whose shaded tone lies this near another's line toward white is that one made lighter and nothing else
 SPECK = 4  # a line or a speck of one material this many texels across or less, in another, is drawn as that other: a pocket's piping, a fleck
 LIT = 75  # the percentile of a material's shades that is its evenly lit surface: its creases and folds are darker, and pull the middle down
 TRIM_WIDTH = 0.012  # of the outfit's height: a plate has faces this far in from its outline, and a strip of metal with none is trim
@@ -213,11 +214,27 @@ def labels(colours, tones):
     once, and on the way to white it passes nearer a grey cloth's tone than its own. The middle of a blue
     arm guard was read as cloth, inside a rim of blue. So a colour is measured to the line from each
     material's tone toward white, `PALE` of the way along: a pale blue is a blue plate's highlight, and a
-    pale warm grey is still the cloth's."""
+    pale warm grey is still the cloth's.
+
+    A lighter material whose shaded texels lie on another's line is that one made lighter and nothing
+    else (charcoal cloth and pale grey plates): every colour between the two was the darker one's
+    highlight, and a pale plate kept only what was lighter than its tone. It is told by its tone, shaded
+    halfway down to the darker one's lightness, lying within `SAME_LINE` of the line; a pale grey is not a
+    blue plate's rival, though every line ends near it. A colour the darker of two such materials would
+    get goes to the one of them whose tone it is nearer."""
     value, tones = tone(colours), np.asarray(tones, float)
     toward = WHITE - tones
-    along = np.clip(np.einsum('nmk,mk->nm', value[:, None] - tones[None], toward) / np.maximum((toward ** 2).sum(axis=1), 1e-12), 0.0, PALE)
-    return np.argmin(np.linalg.norm(value[:, None] - (tones[None] + along[:, :, None] * toward[None]), axis=2), axis=1)
+    length = np.maximum((toward ** 2).sum(axis=1), 1e-12)
+    along = np.clip(np.einsum('nmk,mk->nm', value[:, None] - tones[None], toward) / length, 0.0, PALE)
+    found = np.argmin(np.linalg.norm(value[:, None] - (tones[None] + along[:, :, None] * toward[None]), axis=2), axis=1)
+    shaded = np.repeat(tones[:, None], len(tones), axis=1)  # [j, m]: tone j, shaded halfway down to m's lightness
+    shaded[:, :, 0] = (tones[:, None, 0] + tones[None, :, 0]) / 2
+    share = np.clip(np.einsum('jmk,mk->jm', shaded - tones[None], toward) / length, 0.0, 1.0)
+    lighter = (tones[:, None, 0] > tones[None, :, 0]) & (np.linalg.norm(shaded - (tones[None] + share[:, :, None] * toward[None]), axis=2) < SAME_LINE)
+    if lighter.any():
+        rival = lighter[:, found].T | (np.arange(len(tones))[None] == found[:, None])  # [colour, material]: its own, and those on its line
+        found = np.argmin(np.where(rival, np.linalg.norm(value[:, None] - tones[None], axis=2), np.inf), axis=1)
+    return found
 
 
 def face_texels(uvs, faces, chosen, size):
@@ -583,7 +600,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     if trim is not None:
         trim = np.asarray(trim, int)
         require(trim.shape == covered.shape and trim.max() < len(pairs), 'A material per texel, or -1, is required')
-        swap = covered & (trim >= 0) & np.array([pair[0].startswith('metal') for pair in pairs])[material]
+        metal = np.array([pair[0].startswith('metal') for pair in pairs])
+        swap = covered & (trim >= 0) & metal[material]
         material[swap] = trim[swap]
     for name, flags in (('shadow', shadow), ('padded', padded)):
         require(flags is None or np.shape(flags) == covered.shape, f'`{name}` is one flag per texel')
@@ -595,7 +613,7 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     most = np.argmax(votes, axis=0)
     moved = worn & (most != material)
     if trim is not None:  # a face that is no metal's gets none back from the texels round it
-        moved &= ~((trim >= 0) & np.array([pair[0].startswith('metal') for pair in pairs])[most])
+        moved &= ~((trim >= 0) & metal[most])
     for k in np.unique(most[moved]):
         mine = moved & (most == k)
         shade[mine] = (smooth(np.where(worn & (material == k), shade, 0.0), speck) / np.maximum(votes[k], 1e-9))[mine]

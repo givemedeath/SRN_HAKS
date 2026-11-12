@@ -45,9 +45,9 @@ GUSSET_BELOW = 0.0  # and what lies this far below the lowest point of the cut: 
 GUSSET_CORNER = 1.0  # its lower corners are cut off this share of its half width, to a point: square, it hangs between parted legs as a flap
 GUSSET_UNDER = 0.004  # and holds it this far under the thighs' own, which cover it as the body stands
 HIP_TUCK = 0.1  # a thigh's cap starts this share of its rim's width inside the rim: turned out as the game stands a body, a cap as wide as its rim came through the pelvis along the hip line
-HIP_STEPS = 4  # and is built from this many rings, the first of them the step in
 SHOULDER_TUCK = 0.2  # an upper arm's cap starts this share inside its rim: beside a shoulder pad the rim is two arcs, and a cap as wide came through the chest in front of the pad and behind it
 TUCKS = {'hip': HIP_TUCK, 'shoulder': SHOULDER_TUCK}  # by joint: how far inside its rim the under part's cap starts
+TUCK_STEPS = 4  # a tucked cap is built from this many rings, the first of them the step in
 TUCK_RISE = 0.06  # the ring a tucked cap steps in on stands this share of the cap's depth past the plane
 PAD_RINGS = 3  # rings the chest's closing under a shoulder pad is built from: it is the shoulder that shows when the pad lifts off
 PAD_SEED = 0.03  # a shoulder pad is looked for on the faces this near the line from the shoulder joint straight out, away from the torso
@@ -1068,7 +1068,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 if pads.get(name, (None,))[0] == (joint, side):
                     full[:len(mine)] = pads[name][1][owner == index]
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
-                options = {'tuck': TUCKS[joint], 'steps': HIP_STEPS} if joint in TUCKS else {}
+                options = {'tuck': TUCKS[joint], 'steps': TUCK_STEPS} if joint in TUCKS else {}
                 if full.any():  # a pad's rim is carried round the hinge in its own number of rings, tucked or not
                     options.update(full=full, hinge=np.cross(opens - (opens @ across) * across, -across), steps=GUARD_STEPS)
                 more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown, **options)

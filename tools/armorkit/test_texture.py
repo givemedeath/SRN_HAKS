@@ -106,6 +106,18 @@ class MaterialTests(unittest.TestCase):
         nearest = np.argmin(np.linalg.norm(texture.tone(washed)[:, None] - found['tones'][None], axis=2), axis=1)
         self.assertEqual(nearest.tolist(), [order[0]])
 
+    def test_a_lighter_material_of_the_same_hue_is_not_the_darker_ones_highlight(self):
+        # charcoal cloth and pale grey plates: the plates' tone lies on the cloth's line toward white
+        grey = lambda *shares: np.array([(share,) * 3 for share in shares])
+        dark, light = texture.tone(grey(0.16, 0.88))
+        self.assertGreater(np.linalg.norm(light - dark), 14.0)  # far enough apart to be found as two (`materials`, `apart`)
+        probe = grey(0.10, 0.16, 0.24, 0.35, 0.65, 0.75, 0.82, 0.88, 0.95)  # the cloth and its highlights, then the plates shaded and lit
+        for tones, want in ((np.array([dark, light]), [0, 0, 0, 0, 1, 1, 1, 1, 1]), (np.array([light, dark]), [1, 1, 1, 1, 0, 0, 0, 0, 0])):
+            self.assertEqual(texture.labels(probe, tones).tolist(), want)
+        blue = texture.tone(np.array([(0.36, 0.52, 0.61)]))[0]  # a material off that line keeps its highlights
+        washed = np.array([tuple(np.array((0.36, 0.52, 0.61)) + 0.5 * (0.86 - np.array((0.36, 0.52, 0.61))))])
+        self.assertEqual(texture.labels(np.concatenate([probe, washed]), np.array([dark, light, blue])).tolist(), [0, 0, 0, 0, 1, 1, 1, 1, 1, 2])
+
     def test_a_mesh_face_is_of_the_material_most_of_its_readings_show(self):
         # a strip of 40 cells along x, two faces each; the colour at a point is fabric, from x = 2 tan, from x = 3 plate
         positions = np.array([(x, y, 0.0) for x in np.linspace(0, 4, 41) for y in (0.0, 0.1)])
