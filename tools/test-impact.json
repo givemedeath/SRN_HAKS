@@ -285,7 +285,8 @@
     ],
     "tools/envkit/study.py": [
       "tools/armorkit/__init__.py",
-      "tools/armorkit/toolchain.py"
+      "tools/armorkit/toolchain.py",
+      "tools/envkit/tile.py"
     ],
     "tools/envkit/test_catalog.py": [
       "tools/envkit/blueprints.py",

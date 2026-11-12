@@ -61,6 +61,13 @@ class OnboardTests(unittest.TestCase):
         self.assertEqual(len(text.splitlines()), 6 + 3 + 3); self.assertEqual(text, onboard.layout(data['sheet'], data['assets']))  # one asset to a line
         with self.assertRaisesRegex(ValueError, 'yard is no new set name'):  # a set that is there is changed with revise
             onboard.write_sets(self.spec, self.sheets, self.sets)
+        self.spec.write_text('@ yard2 07\nbuilding-hero | B | | the same warehouse | 96 56 524 364\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'yard2: 07_the_yard.png is the sheet of yard already'):  # under another name, it is the same sheet
+            onboard.write_sets(self.spec, self.sheets, self.sets)
+        self.spec.write_text('@ dock 08\nbuilding-hero | B | | dock shed | 96 56 524 364\n@ dock2 08\nbuilding-hero | B | | dock shed | 96 56 524 364\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'dock2: 08_the_dock.png is the sheet of dock already'):  # and so it is within one spec
+            onboard.write_sets(self.spec, self.sheets, self.sets)
+        self.assertEqual(sorted(path.name for path in self.sets.glob('*.json')), ['yard-game.json', 'yard.json'])
 
     def test_a_spec_the_kit_would_not_accept_writes_nothing(self):
         onboard.write_sets(self.spec, self.sheets, self.sets)
@@ -120,10 +127,15 @@ class OnboardTests(unittest.TestCase):
         (self.sets / 'yard.json').write_text(onboard.layout(data['sheet'], assets).replace('"kind": "prop", "type": "yard-lamp"', '"kind": "building", "kind": "prop", "type": "yard-lamp"'), encoding='utf-8')
         sheet(self.sheets / '07_the_yard.png', {'hall': [100, 60, 520, 300]})  # the sheet was drawn again
         found = onboard.audit(self.sets, self.sheets)['findings']
-        self.assertEqual(found['sheet differs from the set'], ['yard']); self.assertEqual(found['no building-hero'], ['yard']); self.assertEqual(found['key stated twice'], ['kind'])
+        self.assertEqual(found['sheet differs from the set'], ['yard']); self.assertEqual(found['no building-hero'], ['yard']); self.assertEqual(found['key stated twice'], ['yard: kind'])
         self.assertEqual(found['tiny box'], ['yard/desk 128x24']); self.assertEqual(found['prop boxes overlap'], ['yard: desk / gate 81% NO NOTE'])
         self.assertEqual(found['subject form'], ['yard/desk: Ares office desk.']); self.assertEqual(found['brand word in an unbranded prop'], ['yard/desk [console-desk] subject: Ares office desk.'])
         self.assertEqual(found['untidy text'], ["yard/lamp subject: 'pole  lamp'"]); self.assertEqual(found['no full stop'], ['yard/lamp notes: Tall']); self.assertEqual(found['same with notes'], ['yard/lamp: Tall'])
+        del assets['lamp']['box']; (self.sets / 'yard.json').write_text(onboard.layout(data['sheet'], assets), encoding='utf-8')  # a set the kit cannot read
+        (self.sets / 'dock.json').write_text(onboard.layout({**data['sheet'], 'file': '08_the_dock.png'}, {'building-hero': {'kind': 'building', 'subject': 'dock shed', 'box': [96, 56, 524, 364]}}), encoding='utf-8')
+        found = onboard.audit(self.sets, self.sheets)
+        self.assertEqual((found['sets'], found['findings']['set refused']), (1, ['yard: Asset needs kind, subject and box: lamp']))  # told, and the other set is still audited
+        self.assertEqual(found['findings']['hero without notes'], ['dock']); self.assertNotIn('sheets without a set', found['findings'])  # the refused set's sheet is not told as one without a set
 
     def test_the_pictures_of_a_review_are_drawn(self):
         onboard.write_sets(self.spec, self.sheets, self.sets); out = self.root / 'out'
@@ -144,6 +156,11 @@ class OnboardTests(unittest.TestCase):
                            ('Concept sheet not found', lambda: onboard.crops_page(self.sets / 'yard.json', self.root / 'out', out / 'none.png'))):
             with self.assertRaisesRegex(ValueError, said):
                 call()
+        sheet(self.sheets / '07_the_yard.png', {'hall': [100, 60, 520, 300]})  # drawn again under its name: the set's boxes are on the drawing before
+        for call in (lambda: onboard.crops_page(self.sets / 'yard.json', self.sheets, out / 'again.png'), lambda: onboard.overlay(self.sets, self.sheets, str(out / 'again')),
+                     lambda: onboard.type_page(self.sets, self.sheets, out / 'again.png', ['vehicle-gate']), lambda: onboard.same_pages(self.sets, self.sheets, str(out / 'again'))):
+            with self.assertRaisesRegex(ValueError, 'Concept sheet differs from the set: 07_the_yard.png'):
+                call()
 
     def test_the_commands_say_what_they_need(self):
         from argparse import Namespace
@@ -152,6 +169,14 @@ class OnboardTests(unittest.TestCase):
         for action, said in (('boxes', '--sheet, --output'), ('sets', '--spec, --sheets'), ('types', '--sheets, --output, --type'), ('revise', '--decisions')):
             with self.assertRaisesRegex(ValueError, f'onboard {action} needs {said}'):
                 command.command_onboard(Namespace(action=action, **blank))
+        for action, given, said in (('audit', dict(sheets='s', only=['yard']), '--only'), ('revise', dict(decisions='d', sheets='s', split=0), '--sheets, --split'),
+                                    ('crops', dict(set='x', sheets='s', output='o', type=['desk']), '--type')):
+            with self.assertRaisesRegex(ValueError, f'onboard {action} does not take {said}'):  # what it would ignore is refused
+                command.command_onboard(Namespace(action=action, **{**blank, **given}))
+        for action, given, said in (('pathnodes', dict(tileset=['dgt04'], tile=[3], output=None), 'takes --packs and --tileset alone'),
+                                    ('tiles', dict(tileset=['dgt04', 'udp1'], tile=[3], output='o'), 'reads one --tileset'), ('tiles', dict(tileset=['dgt04'], tile=[], output='o'), 'needs --tile')):
+            with self.assertRaisesRegex(ValueError, said):
+                command.command_study(Namespace(action=action, packs=str(self.root), **given))
 
 
 if __name__ == '__main__':

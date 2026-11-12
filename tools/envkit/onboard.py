@@ -63,8 +63,7 @@ def _accepted(sets, texts):
 
 def _open(sheets, sheet):
     from PIL import Image
-    path = Path(sheets) / sheet['file']; require(path.is_file(), 'Concept sheet not found: ' + str(path))
-    with Image.open(path) as image:
+    with Image.open(reference.resolve_sheet(sheets, sheet)) as image:  # by name, and only at the hash the set records: its boxes are on that drawing
         return image.convert('RGB')
 
 
@@ -167,9 +166,11 @@ def write_sets(spec, sheets, sets):
         require(current is not None and len(parts) in (5, 6), 'A line is name | type | relation | subject | box [| notes], under its block: ' + line)
         current['rows'].append(parts)
     require(blocks, 'The spec states no set: ' + str(spec)); texts = {}
+    taken = {data['sheet']['file']: name for name, data in concept_sets(sets).items()}
     for name, block in blocks.items():
         require(reference.NAME.fullmatch(name) is not None and not (sets / f'{name}.json').exists(), f'{name} is no new set name: an existing set is changed with revise')
         found = sorted(sheets.glob(block['number'] + '_*.png')); require(len(found) == 1, f'{name}: one sheet starts {block["number"]}_ and {len(found)} were found in {sheets}')
+        require(found[0].name not in taken, f'{name}: {found[0].name} is the sheet of {taken.get(found[0].name)} already, and a sheet has one set'); taken[found[0].name] = name
         with Image.open(found[0]) as image:
             size = list(image.size)
         assets = {}
@@ -302,21 +303,29 @@ def overlay(sets, sheets, prefix):
 
 
 def audit(sets, sheets):
-    """What a reading of the sets would not catch, as {finding: [rows]}: a sheet that is missing, changed or in two
-    sets, a sheet without a set, a key stated twice, a tiny box, prop boxes that overlap by more than a tenth of the
+    """What a reading of the sets would not catch, as {finding: [rows]}: a set the kit would refuse (told, and not
+    audited further), a sheet that is missing, changed or in two sets, a sheet without a set, a key stated twice, a tiny box, prop boxes that overlap by more than a tenth of the
     smaller (told `noted` where either says so in its notes), text that is untidy or not in the form of the rest, a
     brand word in a prop that is neither a sign nor a branding variant, and the types only one prop has."""
     from PIL import Image
-    sets, sheets = Path(sets), Path(sheets); out = collections.defaultdict(list); seen, props = collections.defaultdict(list), {}
+    sets, sheets = Path(sets), Path(sheets); out = collections.defaultdict(list); seen, props, refused = collections.defaultdict(list), {}, set()
     brand = re.compile(r'\b(' + BRANDS + r')\b')
 
     def pairs(items):
-        keys = [key for key, _ in items]; out['key stated twice'] += sorted({key for key in keys if keys.count(key) > 1})
+        keys = [key for key, _ in items]; twice.update(key for key in keys if keys.count(key) > 1)
         return dict(items)
 
     for path in sorted(sets.glob('*.json')):
-        data = json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=pairs)
-        if 'sheet' not in data:
+        twice = set(); data = json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=pairs)
+        if not isinstance(data, dict) or 'sheet' not in data:
+            continue
+        out['key stated twice'] += [f'{path.stem}: {key}' for key in sorted(twice)]
+        try:  # what follows reads a set as the kit does: one it would refuse is told, and the rest are still audited
+            reference.load_set(path)
+        except (ValueError, KeyError, TypeError) as error:
+            out['set refused'].append(f'{path.stem}: {error!r}' if not isinstance(error, ValueError) else f'{path.stem}: {error}')
+            if isinstance(data['sheet'], dict) and isinstance(data['sheet'].get('file'), str):
+                refused.add(data['sheet']['file'])  # its sheet has a set, such as it is
             continue
         name, sheet = path.stem, data['sheet']; seen[sheet['file']].append(name); file = sheets / sheet['file']
         if not file.is_file():
@@ -358,7 +367,7 @@ def audit(sets, sheets):
                     noted = 'noted' if 'notes' in assets[first] or 'notes' in assets[second] else 'NO NOTE'
                     out['prop boxes overlap'].append(f'{name}: {first} / {second} {round(100 * wide * high / small)}% {noted}')
     out['sheet in two sets'] += [f'{file}: {", ".join(names)}' for file, names in seen.items() if len(names) > 1]
-    out['sheets without a set'] += sorted(path.name for path in sheets.glob('*.png') if path.name not in seen)
+    out['sheets without a set'] += sorted(path.name for path in sheets.glob('*.png') if path.name not in seen and path.name not in refused)
     types = collections.Counter(asset['type'] for asset in props.values()); out['types of one prop'] += sorted(kind for kind, count in types.items() if count == 1)
     return {'sets': sum(len(names) for names in seen.values()), 'props': len(props), 'findings': {title: rows for title, rows in out.items() if rows}}
 

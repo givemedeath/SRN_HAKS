@@ -214,6 +214,9 @@ def command_onboard(args):
     needs = {'boxes': ('sheet', 'output'), 'sets': ('spec', 'sheets'), 'crops': ('set', 'sheets', 'output'), 'overlay': ('sheets', 'output'), 'audit': ('sheets',),
              'types': ('sheets', 'output', 'type'), 'same': ('sheets', 'output'), 'revise': ('decisions',)}[args.action]
     missing = [name for name in needs if not getattr(args, name)]; require(not missing, f'onboard {args.action} needs ' + ', '.join('--' + name for name in missing))
+    takes = needs + {'boxes': ('split',), 'same': ('only',)}.get(args.action, ())
+    extra = [name for name in ('sheets', 'sheet', 'split', 'spec', 'set', 'type', 'only', 'decisions', 'output') if getattr(args, name) not in (None, []) and name not in takes]
+    require(not extra, f'onboard {args.action} does not take ' + ', '.join('--' + name for name in extra))
     if args.action == 'boxes':
         told = onboard.propose(args.sheet, args.output, args.split)
     elif args.action == 'sets':
@@ -236,9 +239,10 @@ def command_onboard(args):
 def command_study(args):
     from . import study
     if args.action == 'pathnodes':
+        require(not args.tile and not args.output, 'study pathnodes takes --packs and --tileset alone')
         print(json.dumps(study.path_nodes(args.packs, args.tileset), indent=1))
         return
-    require(args.tile and args.output, 'study tiles needs --tile and --output')
+    require(args.tile and args.output and len(args.tileset) == 1, 'study tiles needs --tile and --output, and reads one --tileset')
     for row in study.tiles(args.packs, args.tileset[0], args.tile, args.output):
         print(json.dumps(row), flush=True)
 

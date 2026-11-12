@@ -174,7 +174,7 @@ set). A spec names them, one block a sheet:
 ```
 @ <sheet> NN
 building-hero | B | | corrugated warehouse with a loading dock | 96 56 524 364 | Ignore the caption.
-desk | console-desk | =ares-depot/checkpoint-terminal | office desk | 76 516 204 644
+terminal | access-terminal | =ares-depot/checkpoint-terminal | freestanding access terminal | 76 516 204 644
 gate | vehicle-gate | ~Branding: Gate with the yard's name. | sliding yard gate | 296 516 464 644
 ```
 

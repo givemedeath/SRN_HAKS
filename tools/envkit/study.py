@@ -16,7 +16,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import require
+from . import require, tile
 
 # letter: the exits a path node gives a tile at Orientation 0, as (x, y, region), the tile's middle at (0, 0) and +y
 # north (nwn.wiki's table). Exits of one region are joined by a walk across the tile; exits of two are not.
@@ -73,6 +73,8 @@ def records(text):
 
 
 def _resource(packs, tileset, name):
+    """A tile's file in its tileset's pack or the shared one. The packs' files are lowercase; a set file's names are not always."""
+    name = name.lower()
     return next((folder / name for folder in (Path(packs) / f'srn_t_{tileset}', Path(packs) / 'srn_t_common') if (folder / name).is_file()), None)
 
 
@@ -102,21 +104,6 @@ def walkable(wok):
     return grid
 
 
-def _masses(grid):
-    """The grid's walkable samples numbered by the ground they are joined to, from 1."""
-    out = np.zeros(grid.shape, int); count = 0
-    for start in zip(*np.nonzero(grid)):
-        if out[start]:
-            continue
-        count += 1; out[start] = count; stack = [start]
-        while stack:
-            row, column = stack.pop()
-            for near in ((row + 1, column), (row - 1, column), (row, column + 1), (row, column - 1)):
-                if 0 <= near[0] < CELLS and 0 <= near[1] < CELLS and grid[near] and not out[near]:
-                    out[near] = count; stack.append(near)
-    return out
-
-
 def turned(exits, degrees, sense):
     """A node's exits on a tile turned by its Orientation, counter-clockwise (`ccw`) or clockwise (`cw`)."""
     out = []
@@ -129,7 +116,7 @@ def turned(exits, degrees, sense):
 
 def judge(grid, exits):
     """(exits on walkable ground, exits, pairs of exits rightly joined or apart, pairs) of a tile's node on its ground."""
-    mass = _masses(grid); at = []
+    mass, _ = tile._masses(grid); at = []  # the walkable samples numbered by the ground they are joined to
     for x, y, region in exits:
         row, column = (min(CELLS - 1, max(0, int((value + 5) * CELLS / 10 - (value == 5)))) for value in (y, x))
         near = mass[max(0, row - 1):row + 2, max(0, column - 1):column + 2]; found = near[near > 0]

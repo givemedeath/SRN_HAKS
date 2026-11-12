@@ -16,7 +16,7 @@ Count=4
 Model=tst01_a01
 PathNode=L
 Orientation=0
-ImageMap2D=mi_a01
+ImageMap2D=MI_a01
 
 [TILE1]
 Model=tst01_a02
@@ -107,16 +107,22 @@ class StudyTests(unittest.TestCase):
 
     def test_tiles_are_decompiled_and_told_with_their_records(self):
         (self.packs / 'srn_t_tst01' / 'tst01_a01.mdl').write_bytes(b'binary')
-        tool = self.packs / 'tool.py'; tool.write_text('import sys\nopen(sys.argv[-1], "w").write("node dummy t\\n  parent NULL\\n")\n', encoding='utf-8')
-        launcher = self.packs / ('tool.cmd' if __import__('os').name == 'nt' else 'tool.sh')
-        launcher.write_text(('@"%s" "%s" %%*\n' if launcher.suffix == '.cmd' else '#!/bin/sh\nexec "%s" "%s" "$@"\n') % (__import__('sys').executable, tool), encoding='utf-8'); launcher.chmod(0o755)
+        import os
+        import sys
+
+        def tool(name, code):
+            script = self.packs / f'{name}.py'; script.write_text(code, encoding='utf-8'); launcher = self.packs / (f'{name}.cmd' if os.name == 'nt' else f'{name}.sh')
+            launcher.write_text(('@"%s" "%s" %%*\n' if launcher.suffix == '.cmd' else '#!/bin/sh\nexec "%s" "%s" "$@"\n') % (sys.executable, script), encoding='utf-8'); launcher.chmod(0o755)
+            return launcher
+
+        launcher = tool('tool', 'import sys\nopen(sys.argv[-1], "w").write("node dummy t\\n  parent NULL\\n")\n')
         rows = study.tiles(self.packs, 'tst01', [0, 1], self.packs / 'out', tool=launcher)
-        self.assertEqual(rows[0]['record'], {'Model': 'tst01_a01', 'Doors': None, 'MainLight1': None, 'SourceLight1': None, 'AnimLoop1': None, 'PathNode': 'L', 'Orientation': '0', 'ImageMap2D': 'mi_a01'})
+        self.assertEqual(rows[0]['record'], {'Model': 'tst01_a01', 'Doors': None, 'MainLight1': None, 'SourceLight1': None, 'AnimLoop1': None, 'PathNode': 'L', 'Orientation': '0', 'ImageMap2D': 'MI_a01'})
         self.assertEqual((rows[0]['lines'], rows[0]['minimap']), (['node dummy t', '    parent NULL'], {'file': 'mi_a01.tga', 'size': [16, 16], 'bits': 24, 'type': 0}))
         self.assertEqual((rows[1]['doors'], rows[1]['error'], 'minimap' in rows[1]), ([{'Type': '58', 'X': '0.0'}], 'model not in the packs', False))
         self.assertTrue((self.packs / 'out' / 'tst01_a01.mdl').is_file())
-        for code in ('import sys\nsys.exit("no such model")\n', 'import sys\nopen(sys.argv[-1], "w").write("node dummy t\\n")\nsys.exit(1)\n'):
-            tool.write_text(code, encoding='utf-8'); (row,) = study.tiles(self.packs, 'tst01', [0], self.packs / 'out', tool=launcher)  # the model the run before left is not this run's
+        for failing in (tool('none', 'import sys\nsys.exit("no such model")\n'), tool('half', 'import sys\nopen(sys.argv[-1], "w").write("node dummy t\\n")\nsys.exit(1)\n')):
+            (row,) = study.tiles(self.packs, 'tst01', [0], self.packs / 'out', tool=failing)  # the model the run before left is not this run's
             self.assertNotIn('lines', row); self.assertIn('decompile failed', row['error'])
         with self.assertRaisesRegex(ValueError, 'tst01 has no tile 9'):
             study.tiles(self.packs, 'tst01', [0, 9], self.packs / 'out', tool=launcher)
