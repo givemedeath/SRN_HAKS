@@ -155,6 +155,14 @@ class StaffSectionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'would flatten this staff'):
                 fit_manifest.measure({}, self.family, {'positions': self.v, 'faces': self.f}, self.overrides, self.standard)
 
+    def test_a_thickness_probe_tolerance_follows_its_section(self):
+        # Thin edges keep 2.5 mm; a thick section gets 5% of its thickness (the wave-1 Spear's collar, 2026-11-12).
+        from tools.itemkit.fit_manifest import PROBE_SAMPLE_FRACTION, measure
+        data = measure({}, self.family, {'positions': self.v, 'faces': self.f}, self.overrides, self.standard)
+        self.assertTrue(data['thicknessProbes'])
+        for probe in data['thicknessProbes']:
+            self.assertAlmostEqual(probe['maximumSampleError'], max(.0025, PROBE_SAMPLE_FRACTION * probe['measuredThickness']))
+
 
 class TwoHandDepthTests(unittest.TestCase):
     def test_an_unapproved_depth_departure_keeps_its_measurement(self):

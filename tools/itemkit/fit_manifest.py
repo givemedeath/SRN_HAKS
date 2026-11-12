@@ -31,6 +31,7 @@ from . import straightness as st
 
 STANDARD = ROOT/'docs/items/weapon-grip-standard-v1.json'
 LANDMARKS = ('pommelEnd', 'gripStart', 'gripEnd', 'bladeStart')
+PROBE_SAMPLE_FRACTION = .05      # a thickness probe's sample tolerance, as a fraction of its section (2.5 mm at least)
 # Processing settings the Vibro Sword needed before it passed (fit-v5, 2026-11-05): plain reduction moved the part joins.
 PROCESSING = {'cageExtrusion': .006, 'maxRayDistance': .012, 'uvPackingPaddings': [8, 12, 16], 'constrainedReduction': True,
               'uvCoordinateScale': 1000, 'missCorrection': {'method': 'nearest-finished-donor', 'maximumDistance': .003,
@@ -216,8 +217,10 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
             top = cand[q[cand, 2] > c[1]]; hi_i = top[np.argmin(np.hypot(q[top, 0] - q[lo_i, 0], q[top, 1] - q[lo_i, 1]))]
         pts = [b[lo_i].tolist(), b[hi_i].tolist()]; fit = transform(np.array(pts), F); t = float(np.linalg.norm(fit[1] - fit[0]))
         require(t > .0008, f'Section thinner than 0.8 mm at station {k}')
+        # The sample tolerance follows the section: 2.5 mm protects a thin edge, but a coarse shadow of a thick round
+        # collar (the wave-1 Spear's 11 cm, 2026-11-12) is several millimetres off its surface without thinning at all.
         probes.append({'name': f'blade-section-{k}', 'sourcePoints': pts, 'points': fit.tolist(), 'measuredThickness': t,
-                       'minimum': t / 2, 'maximumSampleError': .0025})
+                       'minimum': t / 2, 'maximumSampleError': max(.0025, PROBE_SAMPLE_FRACTION * t)})
     return {'family': name, 'method': method, 'automaticLandmarks': auto, 'overrides': overrides, 'landmarks': marks,
             'gripEndpoints': [A.tolist(), B.tolist()], 'matrix': M.tolist(), 'fitMatrix': np.asarray(F).tolist(), 'scale': float(s),
             'usableSourceLength': usable, 'joinY': joins, 'joinClearance': [c[1] for c in cleared], 'thicknessProbes': probes,
