@@ -76,6 +76,15 @@ class MeshyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'already used'):
             meshy.submit(self.ledger, 'a', 'vending', 'remesh', meshy.remesh_arguments('task-a', 9000), self.root / 'work', run=run)
 
+    def test_the_cap_is_raised_with_the_approval_it_rests_on_and_never_lowered(self):
+        self.ledger.raise_cap(120, 'user 2026-11-12: cap raised to cover the yard', today='2026-11-12')
+        again = meshy.Ledger(self.ledger.path)
+        self.assertEqual((again.data['cap'], again.data['raises']), (120, [{'from': 50, 'to': 120, 'reason': 'user 2026-11-12: cap raised to cover the yard', 'date': '2026-11-12'}]))
+        for cap, reason, said in ((120, 'again', 'a raise goes above it'), (90, 'less', 'a raise goes above it'), (200, ' ', 'the approval it rests on'), (200.5, 'half', 'the approval it rests on')):
+            with self.assertRaisesRegex(ValueError, said):
+                again.raise_cap(cap, reason)
+        self.assertEqual(meshy.Ledger(self.ledger.path).data['cap'], 120)
+
     def test_a_ledger_held_during_a_wait_does_not_drop_entries_added_meanwhile(self):
         run = FakeMeshy()
         held = meshy.Ledger(self.ledger.path)

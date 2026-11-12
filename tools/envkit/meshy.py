@@ -10,6 +10,7 @@ Every paid call is reserved in the ledger before it is sent, so a crash between 
 counted, not lost track of. Every change to the ledger is made under a lock shared by all processes, so two calls at
 once cannot both pass the cap or drop each other's entry."""
 import contextlib
+import datetime
 import json
 import math
 import re
@@ -102,6 +103,16 @@ class Ledger:
                    'credits': None, 'arguments': arguments}
             self.data['entries'].append(row); self.save()
         return row
+
+    def raise_cap(self, cap, reason, *, today=None):
+        """Raise the cap, keeping what it was, when it changed and why: the cap is the spending the user has approved,
+        so a raise states their approval. It is never lowered here, nor raised without a reason."""
+        require(type(cap) is int and isinstance(reason, str) and reason.strip(), 'A raise states the new cap and the approval it rests on')
+        with self.changing():
+            require(cap > self.data['cap'], f'The cap is {self.data["cap"]} already: a raise goes above it')
+            self.data.setdefault('raises', []).append({'from': self.data['cap'], 'to': cap, 'reason': reason.strip(),
+                                                       'date': today or datetime.date.today().isoformat()})
+            self.data['cap'] = cap; self.save()
 
     def update(self, key, **fields):
         with self.changing():
