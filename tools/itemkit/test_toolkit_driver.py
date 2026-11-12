@@ -162,6 +162,41 @@ class ContractBudgetTests(unittest.TestCase):
             self.assertEqual(b['shadow'], 500)
 
 
+class ComfyStopTests(unittest.TestCase):
+    """comfy stop kills only the ComfyUI this driver started, and never forgets one that may still run."""
+    def stop(self, command_line, *, query_fails=False, answering=False):
+        import subprocess, types
+        from unittest.mock import patch
+        from tools.itemkit.drive import Driver
+        tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup); runtime = Path(tmp.name)
+        (runtime/'comfy.pid').write_text('4242')
+        ws = types.SimpleNamespace(runtime=runtime, path=Path, data={'comfy': {'url': 'http://127.0.0.1:1', 'startup': 'x/srn_headkit/managed_startup.py'}})
+        killed = []
+        def run(command, **_):
+            if command[0] == 'taskkill': killed.append(command[2]); return subprocess.CompletedProcess(command, 0, '', '')
+            return subprocess.CompletedProcess(command, 1 if query_fails else 0, command_line, 'CIM failed' if query_fails else '')
+        def urlopen(*_, **__):
+            if answering: return None
+            raise OSError('refused')
+        with patch('subprocess.run', side_effect=run), patch('urllib.request.urlopen', side_effect=urlopen), patch('time.sleep'):
+            try: result = Driver(ws).comfy('stop')
+            except SystemExit as error: result = error
+        return result, killed, (runtime/'comfy.pid').exists()
+
+    def test_the_managed_startup_is_stopped(self):
+        result, killed, kept = self.stop(r'"python.exe" -I -B C:\nodes\srn_headkit\managed_startup.py --config c.json')
+        self.assertEqual(killed, ['4242']); self.assertFalse(kept); self.assertEqual(result['comfy'], 'stopped')
+
+    def test_a_reused_pid_is_never_killed(self):
+        result, killed, kept = self.stop('"C:\\Program Files\\Editor\\editor.exe"')
+        self.assertEqual(killed, []); self.assertFalse(kept); self.assertIn('stale PID file removed', result['comfy'])
+
+    def test_a_failed_query_or_a_still_answering_comfy_keeps_the_pid_file(self):
+        for kwargs in ({'query_fails': True}, {'answering': True}):
+            result, killed, kept = self.stop('"C:\\Program Files\\Editor\\editor.exe"', **kwargs)
+            self.assertIsInstance(result, SystemExit); self.assertEqual(killed, []); self.assertTrue(kept)
+
+
 class CopyCheckedTests(unittest.TestCase):
     def test_a_truncated_copy_is_replaced_and_a_wrong_source_refused(self):
         import hashlib

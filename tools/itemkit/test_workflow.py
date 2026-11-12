@@ -217,9 +217,10 @@ class ChainTests(unittest.TestCase):
         self.assertEqual(calls, [('run', 'fit')])               # never overwritten by an automatic approval
 
     def test_chain_stops_at_a_failed_stage_and_reviews_nothing_after_it(self):
-        runner, calls = self.runner(fail='reduce')
-        with self.assertRaisesRegex(ValueError, 'gate failed'): runner.chain(['fit', 'reduce', 'unwrap'], 'notes')
+        runner, calls = self.runner(fail='reduce'); seen = []
+        with self.assertRaisesRegex(ValueError, 'gate failed'): runner.chain(['fit', 'reduce', 'unwrap'], 'notes', progress=seen.append)
         self.assertEqual(calls, [('run', 'fit'), ('review', 'fit', 'approved', 'notes'), ('run', 'reduce')])
+        self.assertEqual([(row['stage'], row.get('failed', False)) for row in seen], [('fit', False), ('reduce', True)])   # the failure reports itself
 
     def test_chain_refuses_gaps_the_client_stage_and_empty_notes(self):
         runner, calls = self.runner()

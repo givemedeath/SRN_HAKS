@@ -408,6 +408,7 @@ class Runner:
         done = []
         for index, stage in enumerate(stages):
             started = time.monotonic(); row = {'stage': stage, 'reviewed': False}; done.append(row)
+            row['failed'] = True       # cleared on success: the failing stage still reports itself
             try:
                 row['reused'] = self.execute(stage)['reused']
                 if index < len(stages) - 1:
@@ -416,8 +417,10 @@ class Runner:
                     require(existing is None or existing['decision'] == 'approved', f'Chain stage {stage} was rejected on review')
                     if existing is None: self.review(stage, 'approved', notes)
                     row['reviewed'] = True
-            finally: row['seconds'] = round(time.monotonic() - started, 1)
-            if progress is not None: progress(row)
+                del row['failed']
+            finally:
+                row['seconds'] = round(time.monotonic() - started, 1)
+                if progress is not None: progress(row)
         return {'stages': done, 'unreviewed': stages[-1], 'productionAccepted': False}
 
     def status(self):

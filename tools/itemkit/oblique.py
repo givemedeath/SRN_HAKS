@@ -30,9 +30,9 @@ def pin(path): return {'path': str(Path(path).resolve()), 'sha256': sha(path)}
 def key(source, target):
     """RGBA cut-out of the largest non-white component; edge colour from the nearest solid pixel."""
     from scipy import ndimage
-    rgb = np.asarray(Image.open(source).convert('RGB')).astype(np.int32)
+    with Image.open(source) as image: rgb = np.asarray(image.convert('RGB')).astype(np.int32)
     solid = (255 - rgb.min(2)) > 18
-    labels, count = ndimage.label(solid); sizes = ndimage.sum(solid, labels, range(1, count + 1))
+    labels, count = ndimage.label(solid); require(count > 0, f'No object on the white background of {Path(source).name}'); sizes = ndimage.sum(solid, labels, range(1, count + 1))
     solid = labels == (1 + int(np.argmax(sizes)))
     filled = ndimage.binary_fill_holes(solid); holes = int(filled.sum() - solid.sum())
     core = ndimage.binary_erosion(filled, iterations=1)                       # drop the white-blended antialias ring
@@ -60,7 +60,9 @@ def registration(masks):
     for i, t in enumerate((.35, .5, .65, .8, .92)):
         s = lo + (hi - lo) * t
         for side, f in (('upper', np.min), ('lower', np.max)):
-            e = [f(b[np.abs(a - s) < 1.5]) for a, b in ((ad, bd), (ac, bc))]
+            bands = [b[np.abs(a - s) < 1.5] for a, b in ((ad, bd), (ac, bc))]
+            require(all(len(band) for band in bands), f'Colour/clay outlines differ at section {i + 1}: regenerate the clay')
+            e = [f(band) for band in bands]
             edges.append({'name': f'section-{i + 1}-{side}-edge', 'offsetPixels': float(e[0] - e[1])})
     worst_landmark = max(np.hypot((l['detail'][0] - l['clay'][0]) * width, (l['detail'][1] - l['clay'][1]) * height) for l in landmarks)
     worst_edge = max(abs(e['offsetPixels']) for e in edges)
@@ -117,6 +119,7 @@ def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=N
             'The review must name the keyed detail and clay hashes it looked at')
     require(not (work/'conditioned').exists(), 'Conditioning already ran for this pair; regenerate into a fresh design folder')
     out = handoff/f'{design_id}.oblique-v1.asset.json'; require(not out.exists(), out.name+' exists')   # before anything is written
+    manifest = json.loads((handoff/f'{design_id}.{source}.asset.json').read_text(encoding='utf-8'))   # read before conditioning runs
     notes = (f'{notes.strip()} Measured: angled colour/clay pair from the Codex built-in image tool (prompts in PROMPTS.md), alpha keyed '
              f'from the plain white background, largest component kept, enclosed holes filled: {json.dumps(keyed)}. Mask IoU {iou:.4f}.')
     evidence = {'actualImagesViewed': True, 'pairMasksVisuallyReviewed': True, 'intentionalOpeningsReviewed': True, 'thinMembersReviewed': True,
@@ -129,7 +132,6 @@ def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=N
             'sourceKeying': {'method': 'largest-component-holes-filled', **keyed}}
     (work/'conditioning-spec.json').write_text(json.dumps(spec, indent=2), encoding='utf-8')
     result = rc.prepare(work/'conditioning-spec.json', work/'conditioned')
-    manifest = json.loads((handoff/f'{design_id}.{source}.asset.json').read_text(encoding='utf-8'))
     for role, name in ROLES.items():
         digest = sha(work/'conditioned'/name); target = handoff/'inputs'/f'{digest}.png'; target.parent.mkdir(exist_ok=True)
         if not target.exists(): shutil.copy(work/'conditioned'/name, target)
@@ -145,12 +147,16 @@ def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=N
     manifest['landmarks'] = [{'name': r['name'], 'pixel': [r['detail'][0] * width, r['detail'][1] * height]} for r in landmarks]
     manifest['approval']['referenceView'] = {'view': 'oblique', 'decision': 'approved', 'notes': notes}
     manifest['camera'] = {'reviewed': False, 'fovDegrees': None}
-    manifest['notes'] = manifest['notes'] + ' Oblique-v1: angled reference pair replaces the side view; camera FOV requires recalibration.'
+    manifest['notes'] = manifest.get('notes', '') + ' Oblique-v1: angled reference pair replaces the side view; camera FOV requires recalibration.'
     out.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     from tools.itemkit.contracts import manifest as load_manifest
     from tools.itemkit.conditioning import require_conditioning_review
     from tools.headkit.common import verification_pass
-    with verification_pass('oblique-'+design_id):
-        report = require_conditioning_review(out, load_manifest(out, validate_native=True))
+    try:
+        with verification_pass('oblique-'+design_id):
+            report = require_conditioning_review(out, load_manifest(out, validate_native=True))
+    except BaseException:
+        out.unlink(missing_ok=True)      # its approvals stand only for a pair that passed its review: never leave it behind
+        raise
     return {'manifest': str(out), 'iou': iou, 'worstLandmarkPixels': worst_landmark, 'worstEdgePixels': worst_edge,
             'fringe': {k: v.get('resamplingFringePixels') for k, v in report.items()}}
