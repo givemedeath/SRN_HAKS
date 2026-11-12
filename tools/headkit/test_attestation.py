@@ -88,6 +88,21 @@ class AttestationTests(unittest.TestCase):
             (self.root/'approved.json').write_text(json.dumps(approved), encoding='utf-8')
             with self.assertRaises(ValueError): comfy.verify_comfy_runtime(Client(live), prepared)
 
+    def test_a_request_is_held_to_the_approval_it_was_prepared_with_not_a_later_registry_one(self):
+        from headkit import comfy
+        live = identity(self.root); chosen = self.approved(live)['comfyAttestation']
+        prepared = {'comfyRuntimeIdentity': live, 'comfySourceInventory': live['comfySourceInventory'], 'comfyAttestation': chosen}
+        # Another session publishes an approval of a different server: this request still names its own.
+        other = identity(self.root/'elsewhere', argv=['main.py', '--port', '8189'])
+        attestation.capture(Client(other), self.root/'other.json')
+        attestation.approve(Client(other), self.root/'other.json', 'Approve the other one', self.root/'other-approved.json')
+        with self.assertRaisesRegex(ValueError, 'differs from its approved snapshot'): attestation.check(live)  # registry moved on
+        with mock.patch.object(comfy, 'validate_comfy_runtime', side_effect=lambda value, *a, **k: value):
+            self.assertEqual(comfy.verify_comfy_runtime(Client(live), prepared), live)
+            changed = identity(self.root, argv=['main.py', '--port', '8188', '--lowvram'])
+            with self.assertRaisesRegex(ValueError, 'launch arguments changed'):
+                comfy.verify_comfy_runtime(Client(changed), dict(prepared, comfyRuntimeIdentity=changed))
+
 
 if __name__ == '__main__':
     unittest.main()

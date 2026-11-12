@@ -265,10 +265,14 @@ def verify_comfy_runtime(client, prepared, restarted=False):
             'Running ComfyUI Python/Torch/CUDA runtime differs from the prepared request; prepare again')
     from .attestation import attested, check
     if attested(actual):
-        # The approval bound at preparation still has to name the server at dispatch and completion.
-        binding=prepared.get('bindings')
-        require(isinstance(binding,dict),'An attested ComfyUI needs the prepared bindings and their approved snapshot')
-        verify([binding]);check(actual,read(binding['path']))
+        # The approval chosen at preparation still has to name the server at dispatch and completion; a registry
+        # update since then does not apply to this request.
+        chosen=prepared.get('comfyAttestation')
+        if chosen is not None:check(actual,{'comfyAttestation':chosen})
+        else:  # requests prepared before the approval was carried in them: their bindings, else the registry
+            binding=prepared.get('bindings')
+            require(isinstance(binding,dict),'An attested ComfyUI needs the prepared bindings and their approved snapshot')
+            verify([binding]);check(actual,read(binding['path']))
     return actual
 
 

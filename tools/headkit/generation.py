@@ -123,9 +123,12 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     if comfy_runtime['session'].get('mode')=='attested':
         # A shared ComfyUI another program started: its launch record stands where the startup configuration would,
         # and the request pins the approved snapshot that names exactly this identity.
+        # The approval is chosen once, here, and carried in the request: dispatch and completion hold the job to it,
+        # not to whatever the shared registry publishes later.
         from .attestation import approval, check
-        check(comfy_runtime,local);pins.append(approval(local))
+        attestation=approval(local);check(comfy_runtime,{'comfyAttestation':attestation});pins.append(attestation)
     else:
+        attestation=None
         require(comfy_runtime['session']['configuration']==pin(local['comfyStartupConfig']),
                 'Controlled startup configuration differs from local bindings')
     pins.append(comfy_runtime['session']['configuration'])
@@ -182,6 +185,7 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
             'loaderModels':models}
     result['outputNamespace']=namespace
     result['runtimeVerification']='server-owned'
+    if attestation is not None:result['comfyAttestation']=attestation
     if model_verification is not None:
         result['modelVerification']=model_verification
         result['modelInputs']=model_inputs
