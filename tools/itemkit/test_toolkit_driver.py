@@ -74,6 +74,13 @@ class HaftedFitTests(unittest.TestCase):
         self.assertAlmostEqual(data['nativeLength'], .76, delta=.01)
         self.assertTrue(data['departurePending'])            # 'x' is not this measurement's digest: the worker would refuse it too
 
+    def test_a_hafted_shape_check_skips_the_blade_and_guard_limits(self):
+        from tools.itemkit.straightness import assess
+        metrics = {'bendPctOfLength': .2, 'twistDegrees': 1, 'bladeDepthToWidth': 1.0, 'guardSectionRatio': 4.0}
+        self.assertEqual({f['metric'] for f in assess(metrics)['flags']}, {'bladeDepthToWidth', 'guardSectionRatio'})
+        self.assertEqual(assess(metrics, family='club')['flags'], [])                  # a round handle and a wide head are design
+        self.assertTrue(assess({**metrics, 'bendPctOfLength': 3.}, family='halberd')['flags'])   # a bent haft is still flagged
+
     def test_head_at_the_low_end_is_turned_up(self):
         from tools.itemkit.fit_manifest import measure
         v, f = self.club(); v = v * [1, -1, 1]; f = f[:, ::-1]

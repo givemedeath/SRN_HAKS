@@ -41,8 +41,10 @@ def committed_packs(repo):
 def ignored_prefixes(repo):
     """Git-ignored paths (folders end in /) on this machine; never in a clean checkout, so never a catalog edge."""
     if not (repo/'.git').exists():return ()
-    result=subprocess.run(['git','-C',str(repo),'ls-files','--others','--ignored','--exclude-standard','--directory'],capture_output=True,text=True)
-    return tuple(result.stdout.splitlines()) if not result.returncode else ()
+    # -z: raw NUL-separated paths; the text form quotes and escapes unusual names, which would then never match.
+    result=subprocess.run(['git','-C',str(repo),'ls-files','-z','--others','--ignored','--exclude-standard','--directory'],
+                          capture_output=True,text=True,encoding='utf-8')
+    return tuple(p for p in result.stdout.split('\0') if p) if not result.returncode else ()
 
 def packs(repo):
     """Pack folders on disk or in HEAD, so a sparse checkout catalogs the same pack names as a full one."""

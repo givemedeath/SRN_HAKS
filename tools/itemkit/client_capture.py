@@ -61,13 +61,16 @@ def contact_sheets(captures, columns=4, size=(480, 270)):
     """One sheet per body from the middle frame of every shot, labelled with its check and shot number."""
     from PIL import Image, ImageDraw
     captures = Path(captures); sheets = {}
+    # A rejected burst is kept on disk but never shown as its check: it may show another shot's view.
+    record = captures/'capture.json'
+    rejected = {name for shot in (read(record)['shots'] if record.is_file() else []) if shot.get('rejected') for name in shot['captures']}
     for _, body in SHOT_ACTORS:
-        files = sorted(captures.glob(f'{body}-*-1.png'), key=lambda f: int(f.stem.split('-')[-2]))
+        files = sorted((f for f in captures.glob(f'{body}-*-1.png') if f.name not in rejected), key=lambda f: int(f.stem.split('-')[-2]))
         if not files: continue
         width, height = size; rows = (len(files) + columns - 1) // columns
         sheet = Image.new('RGB', (width * columns, height * rows), (20, 20, 20))
         for index, path in enumerate(files):
-            image = Image.open(path).convert('RGB').resize(size)
+            with Image.open(path) as source: image = source.convert('RGB').resize(size)
             ImageDraw.Draw(image).text((6, 6), path.stem[len(body) + 1:-2], fill=(255, 230, 120))
             sheet.paste(image, ((index % columns) * width, (index // columns) * height))
         target = captures/f'sheet-{body}.jpg'; sheet.save(target, quality=90); sheets[body] = str(target)

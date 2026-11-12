@@ -193,9 +193,8 @@ def prepare(spec_path, output):
         artifacts[role] = {kind: pins.pin(output / name) for kind, name in [
             ('foregroundNative', role + '-foreground-native.png'), ('conditioning', role + '-conditioning-2048.png'),
             ('mask', role + '-mask-2048.png'), ('rgba', role + '-rgba-2048.png'), ('preview', role + '-teal-review.png')]}
-    a = Image.open(artifacts['detail']['preview']['path'])
-    b = Image.open(artifacts['clay']['preview']['path'])
-    Image.blend(a, b, .5).save(output / 'paired-overlay-review.png')
+    with Image.open(artifacts['detail']['preview']['path']) as a, Image.open(artifacts['clay']['preview']['path']) as b:
+        Image.blend(a, b, .5).save(output / 'paired-overlay-review.png')
     # A fresh post-execution pass catches changes even when timestamps are restored.
     after = Pins()
     for row in [spec['detail'], spec['clay'], spec['registrationEvidence'], *spec.get('sourceDependencies', [])]:
@@ -209,7 +208,9 @@ def prepare(spec_path, output):
                             'resizedDimensions': resized, 'commonOffset': offset, 'independentCropping': False},
               'registration': measured, 'sourceMaskTopology': source_topology, 'outputMaskTopology': output_topology,
               'conditionedPairedLandmarks': output_landmarks,
+              # This step discards and fills nothing; keying before it (an oblique pair) may have, and says so here.
               'rawRgbPreservedInNativeForegroundCopies': True, 'componentsDiscarded': 0, 'holesFilled': 0,
+              'sourceKeying': spec.get('sourceKeying'),
               'premultipliedColorBoundedByResampledAlpha': True,
               'artifacts': artifacts, 'overlay': pins.pin(output / 'paired-overlay-review.png'),
               'inputsFreshBeforeAndAfter': True, 'visualParentReviewRequired': True,

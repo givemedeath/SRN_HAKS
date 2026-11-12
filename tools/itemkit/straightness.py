@@ -323,9 +323,17 @@ def thin(source, output, map_path=None, target_ratio=None, factor=None):
     write(output / 'thin.json', result, fresh=True); return result
 
 
-def assess(metrics, limits=None):
-    """Advisory flags against the review limits; an unmeasurable quantity is reported, not flagged."""
+BLADE_METRICS = ('guardSkewDegrees', 'guardSectionRatio', 'bladeDepthToWidth', 'splitBladeSlices')
+
+
+def assess(metrics, limits=None, family=None):
+    """Advisory flags against the review limits; an unmeasurable quantity is reported, not flagged.
+
+    A hafted family (club, axe, polearm) has no guard or blade: its wide head would read as a slab guard and its
+    round handle as a thick blade, so only the bend and twist limits apply to it."""
+    from .routes import HAFTED_FAMILIES
     limits = dict(LIMITS, **(limits or {})); flags = []
+    if family in HAFTED_FAMILIES: limits = {k: v for k, v in limits.items() if k not in BLADE_METRICS}
     for name, limit in limits.items():
         value = metrics.get(name)
         if value is not None and value > limit: flags.append({'metric': name, 'value': value, 'limit': limit})
@@ -395,7 +403,7 @@ def main(argv=None):
         print(json.dumps({k: result[k] for k in ('output', 'map', 'fit', 'maximumVertexMove', 'outlineExtentsUnchanged', 'assessmentAfter')}, indent=2)); return 0
     if a.command == 'check':
         from tools.headkit.gltf import positions as read_positions
-        metrics = measure(read_positions(a.mesh)[0]); result = {'mesh': str(a.mesh), 'metrics': metrics, 'assessment': assess(metrics)}
+        metrics = measure(read_positions(a.mesh)[0]); result = {'mesh': str(a.mesh), 'metrics': metrics, 'assessment': assess(metrics, family=a.family)}
         if a.family is not None: result['family'] = a.family; result['longFamily'] = a.family in LONG_FAMILIES
         if a.output is not None:
             with a.output.open('x', encoding='utf-8') as stream: json.dump(result, stream, indent=2)

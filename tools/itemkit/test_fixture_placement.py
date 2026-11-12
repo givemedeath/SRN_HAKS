@@ -161,6 +161,20 @@ class ScriptedShotTests(unittest.TestCase):
             draft = json.loads((root/'captures/evidence-draft.json').read_text(encoding='utf-8'))
             self.assertEqual(draft['observations'], [])                         # the stale frame is kept but never filed
 
+    def test_contact_sheets_leave_out_rejected_bursts(self):
+        import json
+        from PIL import Image
+        from tools.itemkit.client_capture import contact_sheets
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for shot in (1, 2): Image.new('RGB', (8, 8)).save(root/f'human-male-idle-{shot:02d}-1.png')
+            shots = [{'shot': 1, 'captures': ['human-male-idle-01-1.png']},
+                     {'shot': 2, 'captures': ['human-male-idle-02-1.png'], 'rejected': 'next shot began'}]
+            (root/'capture.json').write_text(json.dumps({'shots': shots}), encoding='utf-8')
+            sheets = contact_sheets(root, columns=4, size=(8, 8))
+            with Image.open(sheets['human-male']) as sheet: self.assertEqual(sheet.size, (32, 8))
+            (root/'capture.json').unlink(); self.assertIn('human-male', contact_sheets(root))     # no record: every burst
+
     def test_shoulder_carry_frames_the_same_moments_higher_and_further(self):
         from tools.itemkit.fixture import SHOTS, SHOULDER_SHOTS, shot_script
         self.assertEqual([row[:3] for row in SHOULDER_SHOTS], [row[:3] for row in SHOTS])     # same steps, times and checks

@@ -122,7 +122,8 @@ def condition(folder, handoff, design_id, source='wave1-v2-contract', *, notes=N
     (work/'registration.json').write_text(json.dumps(evidence, indent=2), encoding='utf-8')
     spec = {'designId': design_id, 'canvasSize': 2048, 'paddingPixels': 102, 'sourceAlphaFloor': 16, 'route': 'preserve-reviewed-pair-alpha',
             'detail': pin(work/'detail-keyed.png'), 'clay': pin(work/'clay-keyed.png'), 'registrationEvidence': pin(work/'registration.json'),
-            'provenanceRawSources': {'detail': pin(folder/'detail-original.png'), 'clay': pin(folder/'clay-original.png')}}
+            'provenanceRawSources': {'detail': pin(folder/'detail-original.png'), 'clay': pin(folder/'clay-original.png')},
+            'sourceKeying': {'method': 'largest-component-holes-filled', **keyed}}
     (work/'conditioning-spec.json').write_text(json.dumps(spec, indent=2), encoding='utf-8')
     result = rc.prepare(work/'conditioning-spec.json', work/'conditioned')
     manifest = json.loads((handoff/f'{design_id}.{source}.asset.json').read_text(encoding='utf-8'))

@@ -1854,7 +1854,8 @@
     ],
     "tools/itemkit/straightness.py": [
       "tools/headkit/common.py",
-      "tools/headkit/gltf.py"
+      "tools/headkit/gltf.py",
+      "tools/itemkit/routes.py"
     ],
     "tools/itemkit/test_anim_chain_probe.py": [
       "tools/itemkit/__init__.py",
@@ -2055,6 +2056,7 @@
       "tools/itemkit/fixture.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/oblique.py",
+      "tools/itemkit/straightness.py",
       "tools/itemkit/texture_check.py",
       "tools/itemkit/workspace.py"
     ],
