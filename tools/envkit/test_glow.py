@@ -206,6 +206,9 @@ class GlowTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'no tile group itself'):
                 group_of({'model': 'ek_crate', 'at': [8, 0, 0]}, crate={'source': 'meshy/c', 'height': 9.5, 'tiles': tiles})
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}, 'says how it stood')
+            stated_none = Path(scratch) / 'none.json'  # a model that states no tiles in so many words is no group
+            stated_none.write_text(json.dumps({'models': {'ek_n': {'source': 'meshy/n', 'height': 1.0, 'tiles': None}}}), encoding='utf-8')
+            self.assertIsNone(convert.load_models(stated_none)['ek_n']['tiles'])
             self.assertEqual(convert.part_textures('ek_sk_yard', [{'model': 'ek_b'}, {'model': 'ek_a'}, {'model': 'ek_b'}]), {'ek_b': 'ek_sk_yardp1', 'ek_a': 'ek_sk_yardp2'})
             # A building in pieces is held to the building budget together, each piece as often as it is placed; a placeable placed
             # in the group is a prop, held to its own target (the Saeder-Krupp yard, five pieces, 2026-11-12).

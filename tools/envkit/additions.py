@@ -49,10 +49,14 @@ def _unlit(pack, name, built, models):
 def _dropped_parts(pack, name, kept, models):
     """Remove from a pack the pictures of the models a group placed when it was installed before and no longer places
     (`convert.part_textures` names them `name`p1 to p9), and return their names: a group built again with fewer parts
-    would leave a part's maps behind, and a glow map among them would read as lit with no lights recorded."""
+    would leave a part's maps behind, and a glow map among them would read as lit with no lights recorded. A part is
+    drawn inside the group's tiles and has no model of its own, so a name with a model in the pack (a placeable or a
+    group of another set that happens to be called so) is somebody else's and is left alone."""
     from .convert import MAX_PARTS
+    pack = Path(pack)
     gone = [path for index in range(1, MAX_PARTS + 1) if (stem := f'{name}p{index}') not in kept and stem not in models
-            for path in sorted(Path(pack).glob(stem + '*')) if path.suffix in ('.mtr', '.dds', '.txi', '.tga')
+            and not (pack / f'{stem}.mdl').is_file() and not (pack / f'{stem}_t00.mdl').is_file()
+            for path in sorted(pack.glob(stem + '*')) if path.suffix in ('.mtr', '.dds', '.txi', '.tga')
             and (path.stem == stem or path.stem.startswith(stem + '_'))]
     for path in gone:
         path.unlink()

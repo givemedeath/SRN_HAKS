@@ -723,7 +723,7 @@ def load_models(path):
                 f'The boxes, fences, door and fade height of a model were measured with the model at {told(stated) if isinstance(stated, dict) else json.dumps(stated)} '
                 f'and it is now at {told(stands)}: measure them again on the model as it is, and say so in measuredAt: ' + name)
     for name, model in data['models'].items():
-        for part in model.get('tiles', {}).get('parts', []):
+        for part in (model.get('tiles') or {}).get('parts', []):
             other = data['models'].get(part['model'])
             require(other is not None and part['model'] != name and not other.get('tiles'),
                     f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')

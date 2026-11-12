@@ -227,11 +227,14 @@ try {
         if (-not $named) {
             # A group lists the lights of each lit material its tiles show: its own, and each model's placed in it.
             $listed = @(@($lights) | Where-Object { $_ } | ForEach-Object { [string]$_.lit })
-            foreach ($stem in @($material) + @(1..9 | ForEach-Object { "${material}p$_" })) {
+            # Each part's stem is found in the pack, however many parts a group may hold (convert.MAX_PARTS).
+            $partStems = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot $entry.pack) -Filter "${material}p*_i.dds" -File -ErrorAction SilentlyContinue |
+                ForEach-Object { $_.Name.Substring(0, $_.Name.Length - 6) } | Where-Object { $_ -cmatch "^$([regex]::Escape($material))p\d+$" })
+            foreach ($stem in @($material) + $partStems) {
                 if ((& $packFile $entry.pack "${stem}_i.dds") -and $listed -cnotcontains $stem) { Add-ValidationError "$what has a glow map ($($entry.pack)/${stem}_i.dds) and no lights in the additions catalog." }
             }
             foreach ($one in @(@($lights) | Where-Object { $_ })) {
-                if ([string]$one.lit -cnotmatch "^$([regex]::Escape($material))(p\d)?$") { Add-ValidationError "The lights of $what name $($one.lit), which is not a material of the group." }
+                if ([string]$one.lit -cnotmatch "^$([regex]::Escape($material))(p\d+)?$") { Add-ValidationError "The lights of $what name $($one.lit), which is not a material of the group." }
                 & $checkOne $entry ([string]$one.lit) $one $what
             }
             return

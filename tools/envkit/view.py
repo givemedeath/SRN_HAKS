@@ -119,16 +119,21 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
     require(name in models, 'No such model in the game set: ' + name); require(eyes, 'Give an eye at least')
     meshes = []  # (points, uvs, faces, picture, repeated): each picture with the faces that show it
 
+    shaped = {}  # each model shaped once, however often it is placed
+
     def add(one, at=(0.0, 0.0, 0.0), turn=0):
-        model = models[one]; source = Path(root) / model['source']; maps = {'base_color': source / 'texture_0_base_color.png'}
-        made = convert.place(convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
-                                           **{key: model[key] for key in convert.RETOUCHING if key in model}), at, turn)
-        with Image.open(maps['base_color']) as generated:
-            meshes.append((made['vertices'], made['uvs'], np.asarray(made['faces']), np.asarray((made['colour'] or generated).convert('RGBA')), False))
+        if one not in shaped:
+            model = models[one]; source = Path(root) / model['source']; maps = {'base_color': source / 'texture_0_base_color.png'}
+            finished = convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
+                                     **{key: model[key] for key in convert.RETOUCHING if key in model})
+            with Image.open(maps['base_color']) as generated:
+                shaped[one] = (finished, np.asarray((finished['colour'] or generated).convert('RGBA')))
+        finished, picture = shaped[one]; made = convert.place(finished, at, turn)
+        meshes.append((made['vertices'], made['uvs'], np.asarray(made['faces']), picture, False))
         if made['wire']:  # the fence's sheets show a picture of their own, repeated
             wire = made['wire']; meshes.append((wire['vertices'], wire['uvs'], np.asarray(wire['faces']), np.asarray(wire['image'].convert('RGBA')), True))
     add(name)
-    for part in models[name].get('tiles', {}).get('parts', []):
+    for part in (models[name].get('tiles') or {}).get('parts', []):
         add(part['model'], part['at'], part.get('turn', 0))
     points = np.vstack([mesh[0] for mesh in meshes]); uvs = np.vstack([mesh[1] for mesh in meshes]); starts = np.cumsum([0] + [len(mesh[0]) for mesh in meshes])
     faces = np.vstack([mesh[2] + start for mesh, start in zip(meshes, starts)]); owner = np.concatenate([np.full(len(mesh[2]), index) for index, mesh in enumerate(meshes)])

@@ -535,11 +535,13 @@ class TileTests(unittest.TestCase):
             self.assertNotIn('lights', catalog.load(listed)['tileGroups'][0]); self.assertFalse(any((pack / name).exists() for name in lit))
             # A part the group placed when it was installed before, and places no longer, takes its pictures with it.
             dropped = ('ek_testp2.mtr', 'ek_testp2.dds', 'ek_testp2_n.dds', 'ek_testp2_i.dds')
-            for name in (*dropped, 'ek_testp1.dds'):
+            others = ('ek_testp3.dds', 'ek_testp3_t00.mdl')  # another set's group that happens to be called so keeps its maps
+            for name in (*dropped, *others, 'ek_testp1.dds'):
                 (pack / name).write_bytes(b'old')
             (built / 'report.json').write_text(json.dumps({**made, 'parts': {'ek_crate': 'ek_testp1'}}), encoding='utf-8'); (built / 'shared' / 'ek_testp1.dds').write_bytes(b'new')
             self.assertEqual(sorted(run()['removed']), sorted(dropped))
             self.assertEqual((pack / 'ek_testp1.dds').read_bytes(), b'new'); self.assertFalse(any((pack / name).exists() for name in dropped))
+            self.assertTrue(all((pack / name).exists() for name in others))
 
     def test_the_palette_offers_the_group_among_the_groups_once(self):
         document = {'MAIN': {'value': [{'ID': {'value': 0}, 'LIST': {'value': []}}, {'ID': {'value': 1}, 'LIST': {'value': []}}]}}
