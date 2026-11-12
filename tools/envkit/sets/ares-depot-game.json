@@ -44,8 +44,11 @@
       {"part": "right top light", "box": [[-2.63, -0.6, 2.5], [-2.0, 0.6, 2.8]], "value": 0.75}
     ], "halo": {"reach": 0.15, "strength": 0.45}, "placeable": {"label": "Ares Depot, Vehicle Gate", "sound": 28, "category": 159}},
     "ek_ad_fence": {"source": "meshy/models/ares-fence-section-a1", "height": 2.8, "measuredAt": 2.8, "colour": 2048, "mesh": [
-      {"part": "left panel", "box": [[0.15, -0.24, 0.83], [1.76, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016},
-      {"part": "right panel", "box": [[-1.76, -0.24, 0.83], [-0.15, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016}
+      {"part": "left panel", "box": [[0.15, -0.24, 0.83], [1.76, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016, "colour": [88, 88, 85]},
+      {"part": "right panel", "box": [[-1.76, -0.24, 0.83], [-0.15, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016, "colour": [88, 88, 85]}
+    ], "smooth": [
+      {"part": "smeared marking, front of the right base", "box": [[-1.72, 0.0, 0.08], [-0.14, 0.24, 0.72]], "radius": 0.3, "tint": 22},
+      {"part": "smeared marking, back of the left base", "box": [[0.14, -0.24, 0.08], [1.72, 0.0, 0.72]], "radius": 0.3, "tint": 12}
     ], "placeable": {"label": "Ares Depot, Fence Section", "sound": 28, "category": 159}},
     "ek_ad_barrier": {"source": "meshy/models/ares-concrete-barrier-a1", "height": 0.95, "colour": 1024, "placeable": {"label": "Ares Depot, Concrete Barrier", "sound": 26, "category": 158}},
     "ek_ad_terminal": {"source": "meshy/models/ares-checkpoint-terminal-a1", "height": 1.6, "measuredAt": 1.6, "colour": 1024, "lit": [

@@ -503,8 +503,13 @@ pictures differ slightly (the colour in 0.1 per cent of its texels, where smooth
 0.001 per cent). Seen again in the client by day and by night from the same ten viewpoints: nothing looks
 different from the checks before.
 
-Not checked: the Stuffer Shack's corrected door record, which was rewritten by the same code and not painted
-or clicked again; and either group's door in the Suburbs tileset.
+The Stuffer Shack's corrected door record, and both groups' doors in the Suburbs tileset, were checked in the
+Toolset and the game client later on 2026-11-12, from the built packs. The Stuffer Shack was painted in a Modern
+Exterior area, and the Stuffer Shack and the Ares Depot in a Suburbs area; the Toolset made a door of type 58
+at each hook as it was painted and saved the three (the shack's 0.18 metres up, the depot's 0.32). Each door
+was then given an area transition to a waypoint in front of the next and nothing else of it was changed, and
+in the client a click on each door took the player on: from the shack in Modern Exterior to the shack in
+Suburbs, from there to the depot, and from the depot back to the first.
 
 ## Ares Depot props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
@@ -537,7 +542,16 @@ it matched its own pale reference and stood out nearly white beside the others b
 chain-link mesh two solid smeared panels; its posts, rails, barbed wire and concrete base are kept, and the two
 panels are redrawn by place on the model as a diamond mesh of 16 millimetre wire 90 millimetres apart, seen
 through between the wires (the colour map of this one prop has an alpha channel, DXT5), with the relief map
-levelled there. The right half of its concrete base still carries a smeared hazard marking. The mesh was first
+levelled there. Its concrete base came back with a smeared red hazard marking on the right half of its front
+and a fainter one on the right half of its back. On 2026-11-12 both were taken off by their tint, with no new
+generation (`smooth` with `tint` in the game set: only the reddened texels change, each to the concrete about
+it, and the rest of the face keeps its weathering; smoothing the whole face was tried first and left a plain
+panel beside weathered ones), and the mesh's wires were given the posts' tone (88, 88, 85; at 118, 122, 126
+they read lighter than the posts). The prop's colour, relief, roughness and specular maps changed and its model
+did not. Seen in the client the same day from the converted files that were copied into the pack, by day, from
+front and back, square and close on each half of the base. Left as generated: on the front of the base's left
+half the model itself has a wedge-shaped hole in its hazard stripes, through which the ground shows, and on
+the back the stripes are blurred at one corner; closing the hole takes new faces, not a retouch. The mesh was first
 laid by each texel's x + y, which put the wires on the two faces of a panel out of step by the panel's
 thickness; since 2026-11-12 it is laid along the way each panel runs, so one face's wires stand behind the
 other's (only the colour map's alpha changed; seen in the client by day, square, slantwise and close, with a

@@ -382,12 +382,19 @@ def _soften(values, chosen, reach):
 
 def _spread(small, parts):
     """(picture, texels): `small`, a picture at the retouching's grain, with each part smoothed among its own texels
-    in turn, and all the parts' texels together. parts: [(texels, reach, colour)], the colour (0-255) what the part is
-    brought to on average, or None. Each part's tones are carried a little past its texels where no part lies, so
-    that the picture enlarged has the part's own tones at its edge and not its neighbour's on the texture."""
+    in turn, and all the texels that changed together. parts: [(texels, reach, colour)], the colour (0-255) what the
+    part is brought to on average, or None. Each part's tones are carried a little past its texels where no part lies,
+    so that the picture enlarged has the part's own tones at its edge and not its neighbour's on the texture.
+
+    A part of four, (texels, reach, None, marked), is a marking taken off a surface: its `texels` are the surface left
+    as it is, and only the `marked` ones change, each to the surface about it blurred over the reach."""
     small = small.copy(); edged = small.copy(); done = np.zeros(small.shape[:2], bool)
-    for chosen, reach, toward in parts:
+    for chosen, reach, toward, *marked in parts:
         box, soft, near = _soften(small, chosen, reach); here = chosen[box]
+        if marked:
+            here = marked[0][box]; require(bool(near[here].all()), 'A marking is filled from the surface about it, within its radius: this one lies further from any')
+            small[box][here] = soft[here]; edged[box][here] = soft[here]; done |= marked[0]
+            continue
         if toward is not None:
             soft = soft * (np.asarray(toward, np.float32) / 255 / np.maximum(soft[here].mean(0), 1e-6))
         small[box][here] = soft[here]  # what the next part sees
@@ -397,13 +404,13 @@ def _spread(small, parts):
 
 def _levelled(values, plain):
     """A grey map (0-1) with what `retouch` smoothed off the colour picture smoothed off it too: `plain` is each
-    smoothed part's texels and its reach among them, as the colour was smoothed. The generator that painted the Ares
+    smoothed part's texels and its reach among them (and its marked texels, for a marking), as the colour was smoothed. The generator that painted the Ares
     Depot's fence on the wall behind it put the same mesh into the wall's roughness and metallic, which the colour's
     smoothing left there to catch the light (2026-11-12)."""
     from PIL import Image
     grain = plain[0][0].shape[0]; size = values.shape[::-1]
     small = np.asarray(Image.fromarray((values * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
-    small, done = _spread(small, [(chosen, reach, None) for chosen, reach in plain])
+    small, done = _spread(small, [(chosen, reach, None, *marked) for chosen, reach, *marked in plain])
     wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(size, Image.BILINEAR), float) / 255
     marked = np.asarray(Image.fromarray(done).resize(size, Image.NEAREST)); values = values.copy(); values[marked] = wide[marked]
     return values
@@ -461,8 +468,8 @@ def sheets(fences, size=WIRE_PICTURE):
 
 def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh=(), size=RETOUCH, placed=None):
     """(colour, flat, plain): a model's colour picture as it ships, where its relief is to be flattened, and where its
-    other maps are to be smoothed as its colour was: [(texels, reach in texels)] for each smoothed part, at the
-    retouching's own grain (the last two, or None). `placed` is the model's position map at that grain
+    other maps are to be smoothed as its colour was: [(texels, reach in texels)] for each smoothed part, with its marked
+    texels third for a marking, at the retouching's own grain (the last two, or None). `placed` is the model's position map at that grain
     (`glow.position_map`: where, covered), for a caller that has made one already.
 
     `tone` multiplies the whole picture (a model that came back paler than its reference). `paint` covers what a
@@ -476,7 +483,11 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
     `smooth` takes a pattern off a surface and leaves its tones: [{box, radius, colour}], the texels within the box
     blurred over `radius` metres among themselves, then brought to `colour` on average if one is given, and their
     relief levelled (a wall the generator painted a fence's mesh on); `plain` has `textures` take the pattern off the
-    roughness and the metal too."""
+    roughness and the metal too. With `tint` in place of `colour` it takes a tinted marking off and leaves the surface,
+    grain and all: only the texels whose tint (their colour less its own grey) is more than `tint` levels (0-255) from
+    the box's usual tint change, each to the rest of the box blurred over `radius` (the smeared red marking on the
+    concrete base of the Ares fence section, which smoothing the whole face left a plain panel beside weathered ones,
+    2026-11-12)."""
     from PIL import Image
     from . import glow
     colour = np.asarray(image.convert('RGB'), np.float32) / 255; alpha = flat = None; grain = min(size, image.width)
@@ -502,7 +513,15 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
             plain.append((chosen, max(int(round(min(part['radius'] / max(step, 1e-6), grain / 8))), 1)))
         if smooth:  # the picture is brought to the grain once, each part is smoothed there in turn, and it is brought back once
             small = np.asarray(Image.fromarray((colour * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
-            small, done = _spread(small, [(chosen, reach, part.get('colour')) for (chosen, reach), part in zip(plain, smooth)])
+            for index, part in enumerate(smooth):
+                if 'tint' in part:  # a marking: the tinted texels, and three texels round them for their soft edge
+                    chosen, reach = plain[index]; tint = small - small.mean(-1, keepdims=True)
+                    marked = chosen & (np.abs(tint - np.median(tint[chosen], 0)).max(-1) * 255 > part['tint'])
+                    marked = chosen & (_blur(marked.astype(np.float32), 1) > 0.02)
+                    require(bool(marked.any()) and bool((chosen & ~marked).any()), 'A marking is tinted texels on a surface that is not: the box holds '
+                            + ('nothing but tint' if marked.any() else 'no tint') + ' (' + str(part.get('part', 'smoothed')) + ')')
+                    plain[index] = (chosen & ~marked, reach, marked)
+            small, done = _spread(small, [(chosen, reach, part.get('colour'), *marked) for (chosen, reach, *marked), part in zip(plain, smooth)])
             wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
             done = full(done); colour[done] = wide[done]; flat |= done
         for part in mesh:
@@ -577,8 +596,10 @@ def load_models(path):
                     and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
                     'A wire mesh needs a box, a pitch of at most a metre and a thinner wire: ' + name)
         for part in model.get('smooth', []):
-            require(isinstance(part, dict) and {'box', 'radius'} <= set(part) <= {'part', 'box', 'radius', 'colour'} and box(part) and number(part['radius'])
+            require(isinstance(part, dict) and {'box', 'radius'} <= set(part) <= {'part', 'box', 'radius', 'colour', 'tint'} and box(part) and number(part['radius'])
                     and 0.01 <= part['radius'] <= 1 and shade(part.get('colour', [0, 0, 0])), 'A smoothed part needs a box and a radius of 0.01 to 1 metres: ' + name)
+            require('tint' not in part or (number(part['tint']) and 1 <= part['tint'] <= 255 and 'colour' not in part),
+                    'A marking is taken off by its tint, 1 to 255 levels from the surface\'s, and the surface keeps its own colour: ' + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}

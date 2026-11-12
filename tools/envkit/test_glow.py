@@ -149,6 +149,8 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'paint': [{'box': [[0, 0, 0], [1, 1, 1]], 'colour': [0, 0, 300]}]}, 'three 0-255 values')
             refused({'source': 'meshy/x', 'height': 1.0, 'mesh': [{'box': [[0, 0, 0], [1, 1, 1]], 'pitch': 0.05, 'wire': 0.05}]}, 'thinner wire')
             refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 5}]}, 'radius of 0.01 to 1')
+            refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 0}]}, 'taken off by its tint')
+            refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 20, 'colour': [1, 2, 3]}]}, 'keeps its own colour')
             sheet = {'from': [0, 0], 'to': [2, 0], 'z': [1, 2], 'pitch': 0.09, 'wire': 0.016}
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [2, 1]}]}, 'between two heights')
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'to': [0, 0]}]}, 'from one point to another')
