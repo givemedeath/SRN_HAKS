@@ -151,6 +151,24 @@ def _sampled(segments, directions, limit, step):
         yield sectors(points, directions)[keep], distance[keep], np.arctan2(points[keep, 1], points[keep, 0])
 
 
+def surface_points(vertices, faces, step):
+    """Points on every triangle no more than `step` apart, vertices included.
+
+    Binning vertices alone misses every cell a triangle crosses without a vertex in it."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    longest = np.max(np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2), axis=1)
+    counts = np.maximum(1, np.ceil(longest / step).astype(int))
+    points = [np.asarray(vertices, float)]
+    for count in np.unique(counts):
+        if count == 1:
+            continue
+        i, j = np.meshgrid(np.arange(count + 1), np.arange(count + 1), indexing='ij')
+        inside = i + j <= count
+        weights = np.stack([count - i[inside] - j[inside], i[inside], j[inside]], axis=1) / count
+        points.append(np.einsum('mk,nkd->nmd', weights, corners[counts == count]).reshape(-1, 3))
+    return np.concatenate(points)
+
+
 def extent(vertices, point, normal):
     """Signed range of the mesh along the normal, measured from the plane."""
     height = (np.asarray(vertices, float) - point) @ unit(normal)

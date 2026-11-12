@@ -33,7 +33,8 @@ directions. Direction 0 is the in-plane axis nearest body +X on both sides, so a
 mirrored, not the same list; the ring is taken on both skin parts at the plane and 1 cm to each side, because
 some skin parts end exactly on the plane. At the neck, shoulder and hip the plane also cuts the torso, so only
 the limb's (or neck's) own ring counts, and a torso piece cannot be measured there by a plane section: its neck
-hole, armholes and leg holes need a measure of their own (not built yet).
+hole, armholes and leg holes need a measure of their own (not built yet). The bake cuts an outfit's hips where the body's own pelvis
+ends, not on the plane (`split.seated`), so its thigh's end at the plane is the leg, not half of the seat.
 
 **Tier envelopes.** A tier's envelope is the body ring pushed out by a fixed offset: tier 0 (skin-tight)
 0.4 cm, tier 1 (cloth) 1.2 cm, tier 2 (padded or armored) 2.5 cm, tier 3 (heavy) 5 cm. An under end must stay

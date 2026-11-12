@@ -13,6 +13,26 @@ HEAD_PACK = REPO / 'srn_head'
 ENVELOPES = Path(__file__).with_name('head-envelopes.json')
 
 
+class SeatTests(unittest.TestCase):
+    def test_the_seat_is_how_far_the_pelvis_runs_past_the_hip_plane_per_direction(self):
+        # a thigh 8 cm round straight down from the joint, in a pelvis 11 cm round whose lower edge dips 3 cm toward +x
+        around, along = 96, 40
+        angle = 2 * np.pi * np.arange(around) / around
+        pelvis = [(0.11 * np.cos(a), 0.11 * np.sin(a), z) for z in np.linspace(0.3, 0.0, along + 1) for a in angle]
+        pelvis = np.array(pelvis)
+        pelvis[:, 2] -= (0.07 + 0.03 * np.cos(angle))[np.arange(len(pelvis)) % around] * (pelvis[:, 2] == 0.0)
+        faces = [(i * around + k, i * around + (k + 1) % around, (i + 1) * around + k) for i in range(along) for k in range(around)]
+        faces += [(i * around + (k + 1) % around, (i + 1) * around + (k + 1) % around, (i + 1) * around + k) for i in range(along) for k in range(around)]
+        thigh = np.array([(0.08 * np.cos(a), 0.08 * np.sin(a), z) for z in (0.06, -0.5) for a in angle])
+        legs = [(k, (k + 1) % around, around + k) for k in range(around)] + [((k + 1) % around, around + (k + 1) % around, around + k) for k in range(around)]
+        parts = {'pelvis': (pelvis, np.array(faces)), 'legl': (thigh, np.array(legs))}
+        reach = measure.seat(parts, np.zeros(3), (0, 0, -1.0), 'l')
+        a, _ = seams.frame((0, 0, -1.0))  # direction k of the seat at k turns over 64 from the frame's first axis, here +x
+        self.assertEqual(len(reach), measure.SEAT_DIRECTIONS)
+        expected = 0.07 + 0.03 * np.cos(2 * np.pi * np.arange(64) / 64) * a[0]
+        self.assertTrue(np.allclose(reach, expected, atol=0.002), np.round(reach - expected, 4))
+
+
 class MeasuredContractTests(unittest.TestCase):
     def test_contract_planes_and_rings_match_the_locked_human_bodies(self):
         contract = seams.load_contract()

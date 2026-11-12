@@ -586,3 +586,19 @@ On the Site Guard both ends at those ten joints now meet tier 2. The upper arms 
 thighs at the hips still fail: the plane cuts through the armpit and the crotch, and the section there holds
 the torso wall, not an end. The user asked for better ways to slice those junctions to be evaluated rather
 than to shape them as they are cut. Until then every generated outfit still fails the gate there.
+
+## Revision 2026-11-12: the hips are cut on the body's seat line (user decision)
+
+Three ways of slicing the shoulders and hips were compared on the Site Guard: the hip plane as before, the
+plane with the ends drawn in like the tubes (it broke the seat at rest and still fell short of the overlap),
+and a cut where the body's own skin parts meet. The user chose the last, hips first. The body's pelvis is cut
+like briefs, 6.8 to 8.2 cm past the hip planes on the Human male; the bake now cuts the trousers on that line
+(`tools/armorkit/split.py`, `seated`), so the seat stays on the pelvis, the pelvis is closed across each leg
+hole there, and each thigh gets an end grown from its rim to just inside the tier's envelope at the plane and
+a dome as deep as the overlap, held inside the seat through the contract's design bend.
+
+The Site Guard's thighs now meet tier 2 at the hips; only the shoulders fail the seam gate. At rest the outfit
+looks as generated. In a stride the seat stays put and the thigh's end shows under it, as the body's own does;
+a quarter less of what the split made shows than with the plane cut. The overlap the contract asks at a torso
+opening (11.9 cm at the hip, a dome one envelope radius deep) is still the tube rule; the body's own thigh runs
+6.9 cm past the plane. The shoulders are next; the client has not seen the seat cut yet.
