@@ -555,4 +555,4 @@ it keeps the shoulder slot free for the logo brassard, and shorts and other clot
 skin have no spare slot to ride on. The forearm slot gets no part, and the upper-arm part is the sleeve and
 the body's own arm with its textures (`tools/armorkit/bodyskin.py`). The brief names both
 (`"bare": ["forearm"], "skin": ["bicep"]`). Built and tested on the Site Guard's mesh with its forearms taken
-out; not yet seen in the client.
+out, and seen in the client beside the body's own arm: the copied skin is not told from it.
