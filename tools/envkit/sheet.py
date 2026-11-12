@@ -67,9 +67,11 @@ def load_plan(path):
     stated = plan.get('pieces', {})
     require(isinstance(stated, dict) and all(isinstance(name, str) and reference.NAME.fullmatch(name) is not None for name in stated),
             "A plan's pieces are {piece: {views, triangles}}, each named by a safe ID")
+    # Each piece is remeshed within the building budget. What the pieces come to together is counted where the building
+    # is put together (`envkit tiles`, `convert.building_triangles`): a piece generated again from one view stands beside
+    # the one it mends, and only what the group places counts. The yard's west and centre pieces came back from two views
+    # with plain fronts and faithful rears; their fronts were generated again from the front view alone (2026-11-12).
     pieces = {name: made(row, f'{prefix}-building-{name}-a1', 'piece') for name, row in stated.items()}
-    require(sum(row['triangles'] for row in pieces.values()) <= meshy.BUILDING_TRIANGLES,
-            f'The pieces of a building are remeshed to at most {meshy.BUILDING_TRIANGLES} triangles together')
     keys = [row['key'] for row in props.values()] + [key for row in buildings({'building': building, 'pieces': pieces}) for key in (row['key'], row['remesh'])]
     require(all(isinstance(key, str) and meshy.KEY.fullmatch(key) is not None for key in keys), 'Ledger keys are lowercase letters, digits and hyphens')
     require(len(set(keys)) == len(keys), 'Each call of a plan has its own ledger key')

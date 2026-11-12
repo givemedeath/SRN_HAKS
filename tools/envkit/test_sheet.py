@@ -93,7 +93,7 @@ class SheetTests(unittest.TestCase):
                          [('building-west', 'yd-building-west-a1', 'yd-building-west-a1-remesh'), ('building-east', 'yd-building-east-a1', 'yd-building-east-a1-remesh')])
         self.assertEqual(plan['unplanned'], [])  # each view is made into a piece
         self.assertEqual(self.plan(building=None, pieces={'west': pieces['west']})['unplanned'], ['building-rear'])
-        for changes, said in (({'pieces': {**pieces, 'east': {'views': ['building-rear'], 'triangles': 130000}}}, 'together'),
+        for changes, said in (({'pieces': {**pieces, 'east': {'views': ['building-rear'], 'triangles': 230000}}}, 'at most 200000'),
                               ({'pieces': {'West Wing': pieces['west']}}, 'safe ID'), ({'pieces': {'west': {'views': ['desk'], 'triangles': 9000}}}, 'not a building view'),
                               ({'pieces': {'west': {**pieces['west'], 'key': 'yd-desk-a1'}}}, 'its own ledger key')):
             with self.assertRaisesRegex(ValueError, said):

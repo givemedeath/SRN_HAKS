@@ -82,7 +82,14 @@ texels a metre, against about 190 on a prop). Such a building is made in pieces 
 are set assets with a `cut` (`{"from": "<whole view>", "box": [x0, y0, x1, y1]}`, in pixels of that view's chosen
 reference), drawn by `envkit reference --selected <root>/references/selected`, set on white so that a cut edge is
 redrawn as the end of a block, and generated under the plan's `pieces` (`{"<piece>": {"views": [...], "triangles":
-n}}`, all of them together within the building budget). The pieces keep the one drawing's proportions and colours.
+n}}`). The pieces keep the one drawing's proportions and colours.
+
+Given a front and a rear view of differing outlines, Meshy makes one face faithfully and the other plain (the yard's
+west and centre pieces: faithful rears, plain fronts). Generate the plain face again from its own view alone as a
+piece of its own and stand the two back to back in the group, each one's plain wall inside the other. Scale each pair
+to one width and the building by its door; line the fronts up by their parapets. `envkit tiles` holds the group's
+own model and every placed model that is no placeable to the building budget together; to come within it, give a
+piece a lower `triangles` and a new `remesh` key (5 credits: the generation is remeshed again).
 
 The group is the concept's whole scene, not one mesh: the game set's `tiles.parts` places other models of the set
 in it (`{"model": ..., "at": [x, y, z], "turn": 0|90|180|270}`, in metres on the group's own model), each drawn

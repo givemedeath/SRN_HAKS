@@ -737,6 +737,16 @@ def part_textures(name, parts):
     return {model: f'{name}p{index}' for index, model in enumerate(order, 1)}
 
 
+def building_triangles(models, name, triangles):
+    """Triangles of the building a tile group shows, held to the building budget: those of the group's own model and of
+    every model placed in it that is no placeable, as often as it is placed. `triangles` is each model's count. A
+    building made in pieces is several models (the Saeder-Krupp yard: five, 2026-11-12), and a piece generated again
+    from one view stands beside the one it mends, so the budget is counted on what the group places. A placeable placed
+    in the group (a fence, a crate) is a prop, held to its own target."""
+    parts = models[name]['tiles'].get('parts', [])
+    return triangles[name] + sum(triangles[part['model']] for part in parts if not models[part['model']].get('placeable'))
+
+
 def place(made, at, turn=0):
     """A finished model (`shape`) turned `turn` degrees about the vertical, counter-clockwise seen from above, and moved
     to `at`: its vertices, normals, fence sheets and halo cards; its pictures are its own as they were."""

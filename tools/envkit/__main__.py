@@ -118,7 +118,7 @@ def command_tiles(args):
     """Build a model's tile group: tile models (compiled), walkmeshes, area-map pictures and the shared material and maps."""
     import numpy as np
     from PIL import Image
-    from . import convert, tile
+    from . import convert, meshy, tile
     models = convert.load_models(args.models)
     require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
     model = models[args.model]; tiles = model['tiles']
@@ -136,9 +136,15 @@ def command_tiles(args):
         return made, maps, colour
     with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
         made, maps, colour = shaped(args.model); textures = convert.part_textures(args.model, tiles.get('parts', [])); placed, crunch = [], _crunch()
+        counts = {args.model: len(made['faces'])}; shapes = {}
+        for name in textures:  # each model placed in the group, shaped once; the building is counted before anything is written
+            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces'])
+        built = convert.building_triangles(models, args.model, counts)
+        require(built <= meshy.BUILDING_TRIANGLES, f'The building of {args.model} is {built} triangles, its own and those of the models placed in it that are '
+                f'no placeables: more than the building budget of {meshy.BUILDING_TRIANGLES}; remesh its pieces lower')
         files = convert.skin(args.model, maps, folder / 'shared', crunch, made, colour=model.get('colour', 1024))
         for name, texture in textures.items():  # each model placed in the group, once for its pictures, then where it stands
-            part, part_maps, part_colour = shaped(name)
+            part, part_maps, part_colour = shapes[name]
             files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
             placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
         # a model placed twice is two meshes of one texture: joined, so that each texture is one model of the group
@@ -161,7 +167,7 @@ def command_tiles(args):
                             ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
                             parts=[(texture, part, part_colour) for texture, (part, part_colour) in merged.items()])
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
-        report['parts'] = textures
+        report['parts'] = textures; report['buildingTriangles'] = built
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
