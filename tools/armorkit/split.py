@@ -1068,9 +1068,10 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 if pads.get(name, (None,))[0] == (joint, side):
                     full[:len(mine)] = pads[name][1][owner == index]
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
-                more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown,
-                           **({'full': full, 'hinge': np.cross(opens - (opens @ across) * across, -across), 'steps': GUARD_STEPS} if full.any() else {}),
-                           **({'tuck': TUCKS[joint], 'steps': HIP_STEPS} if joint in TUCKS else {}))
+                options = {'tuck': TUCKS[joint], 'steps': HIP_STEPS} if joint in TUCKS else {}
+                if full.any():  # a pad's rim is carried round the hinge in its own number of rings, tucked or not
+                    options.update(full=full, hinge=np.cross(opens - (opens @ across) * across, -across), steps=GUARD_STEPS)
+                more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown, **options)
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 kinds.append(np.where(full[np.asarray(grown, int)], PADDED, CAP))
         if name == 'pelvis':  # last: its edges are no opening to close

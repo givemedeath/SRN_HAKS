@@ -67,8 +67,8 @@ def added_normals(vertices, faces, added, normals, *others, weld=WELD, domed=Non
     vertices, faces, normals = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(normals, float)
     added = np.asarray(added, bool)
     require(added.shape == (len(faces),) and len(normals) == len(vertices), 'One flag per face and one normal per vertex are required')
+    require(domed is None or np.shape(domed) == (len(faces),), 'One flag per face is required')
     domed = np.zeros(len(faces), bool) if domed is None else np.asarray(domed, bool) & added
-    require(domed.shape == (len(faces),), 'One flag per face is required')
     if not added.any():
         return (vertices, faces, normals, *[np.asarray(other) for other in others])
     own, flat = faces[~added], added & ~domed

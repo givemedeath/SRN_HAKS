@@ -212,6 +212,12 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all())
         self.assertTrue(np.allclose(dark[2:4, 2], texture.ARMHOLE_SHADE * shades[2:4, 2].astype(float), atol=1))
         self.assertTrue(np.array_equal(dark[~(closing & shadow)], shades[~(closing & shadow)]))
+        # and no darker than the darkest shade a texel may get
+        low = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, shadow=shadow, lit=(40, 150, 140))[0]
+        self.assertTrue((low[closing & shadow] == texture.SHADES[0]).all() and (low[closing & ~shadow] == 40).all())
+        for wrong in ({'shadow': shadow[:4]}, {'padded': shadow[:, :4]}, {'lit': (201, 150)}):  # not a flag per texel, or a shade per material
+            with self.assertRaises(ValueError):
+                texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, **wrong)
 
     def test_a_metal_is_drawn_on_its_own_faces_only_and_elsewhere_as_the_faces_material(self):
         channels = ['cloth1', 'leather1', 'metal1']

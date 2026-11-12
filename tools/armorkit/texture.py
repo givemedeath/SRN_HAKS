@@ -47,6 +47,7 @@ UNDER_REACH = 0.05  # metres from its edge that what the split made finds the cl
 TRIM_LEAST = 0.03  # a patch of metal less than this share of the outfit's largest is trim too, whatever its shape
 CAP_STREAK = 64  # on a cap, a streak of one material narrower than a texture's side over this is taken out
 ARMHOLE_SHADE = 0.55  # what closes an upper arm at the shoulder is drawn this share of its shade: it lies in the armhole's shadow
+ROWS = 256  # points measured against a set of others at a time: the whole table of an outfit's faces against each other is gigabytes
 KINDS = ('cloth', 'leather', 'metal')  # the kinds of material the game tints, two colour channels each
 SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thigh', 'shin', 'foot'),
           'leather': ('shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')}
@@ -253,6 +254,17 @@ def mesh_materials(positions, faces, read, count):
     return tally.argmax(axis=1), found
 
 
+def nearest(points, targets, rows=ROWS):
+    """(index, distance) of the nearest of `targets` for each of `points`, `rows` of them at a time."""
+    points, targets = np.asarray(points, float).reshape(-1, 3), np.asarray(targets, float).reshape(-1, 3)
+    index, far = np.zeros(len(points), int), np.zeros(len(points))
+    for start in range(0, len(points), rows):
+        apart = ((points[start:start + rows, None] - targets[None]) ** 2).sum(axis=2)
+        index[start:start + rows] = apart.argmin(axis=1)
+        far[start:start + rows] = np.sqrt(apart.min(axis=1))
+    return index, far
+
+
 def trimmed(vertices, faces, materials, metals):
     """The material per face of an outfit's mesh (`mesh_materials`), its metal trims given to what they lie on.
 
@@ -279,16 +291,19 @@ def trimmed(vertices, faces, materials, metals):
         if not mine.any() or not len(edge):
             continue
         # the outline: the edge each such pair of faces shares, as its two ends
-        ends = np.array([v[f[a][np.isin(weld[f[a]], weld[f[b]])]][:2] for a, b in edge if np.isin(weld[f[a]], weld[f[b]]).sum() >= 2])
+        common = [np.isin(weld[f[a]], weld[f[b]]) for a, b in edge]
+        ends = np.array([v[f[a][on]][:2] for (a, _), on in zip(edge, common) if on.sum() >= 2])
         own = np.flatnonzero(mine)
         along = ends[:, 1] - ends[:, 0]
-        share = np.clip(np.einsum('nek,ek->ne', centre[own][:, None] - ends[None, :, 0], along) / np.maximum((along ** 2).sum(axis=1), 1e-18), 0.0, 1.0)
-        far = np.linalg.norm(centre[own][:, None] - (ends[None, :, 0] + share[:, :, None] * along[None]), axis=2).min(axis=1)
+        length, far = np.maximum((along ** 2).sum(axis=1), 1e-18), np.zeros(len(own))
+        for start in range(0, len(own), ROWS):
+            off = centre[own[start:start + ROWS], None] - ends[None, :, 0]
+            share = np.clip(np.einsum('nek,ek->ne', off, along) / length, 0.0, 1.0)
+            far[start:start + ROWS] = np.linalg.norm(off - share[:, :, None] * along[None], axis=2).min(axis=1)
         inside = own[far >= width]
         kept = np.zeros(len(f), bool)
         if len(inside):
-            reach = np.linalg.norm(centre[own][:, None] - centre[inside][None], axis=2).min(axis=1)
-            kept[own[reach <= width + np.sqrt(area[own])]] = True
+            kept[own[nearest(centre[own], centre[inside])[1] <= width + np.sqrt(area[own])]] = True
         _, patch = np.unique(mesh_ops.union_find(len(f), pairs[kept[pairs].all(axis=1)].tolist()), return_inverse=True)
         size = np.bincount(patch, weights=np.where(kept, area, 0.0))
         kept &= size[patch] >= TRIM_LEAST * size.max()
@@ -343,10 +358,9 @@ def under(vertices, faces, made, outfit, cloth, kind=split.CAP, reach=UNDER_REAC
     require(cloth.any(), 'The outfit has no vertex the cap may lie under')
     allowed, edge = np.flatnonzero(cloth), v[np.intersect1d(f[meant], f[~meant])]
     if len(edge):
-        close = np.array([((edge - point) ** 2).sum(axis=1).min() <= reach ** 2 for point in outfit[allowed]])
+        close = nearest(outfit[allowed], edge)[1] <= reach
         allowed = allowed[close] if close.any() else allowed
-    near = np.array([allowed[np.argmin(((outfit[allowed] - point) ** 2).sum(axis=1))] for point in v[only]], int)
-    return only, near
+    return only, allowed[nearest(v[only], outfit[allowed])[0]]
 
 
 def edge_materials(material, closing, least=0.25):
@@ -507,7 +521,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     them and drawn the same way.
 
     `shadow` flags the closing's texels that lie in an armhole: an upper arm's closings and its cap, which
-    the caller flags as a closing there. They are drawn at `ARMHOLE_SHADE` of that shade. The game stands a
+    the caller flags as a closing there. They are drawn at `ARMHOLE_SHADE` of that shade, and no darker than
+    the darkest shade a texel may get. The game stands a
     body with its arms turned a little out of the pose the outfit was cut in, the sleeve's rim then stands
     off the chest's edge on one side, and what closes the sleeve shows in the gap between the two: as a
     pale strip at the shade of the sleeve's lit shoulder, and as the shadow under the chest's edge at this
@@ -533,7 +548,9 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     On the part's own surface, a line or a speck of one material `speck` texels across or less, in another,
     is drawn as that other, at the shade of that material's texels round it: most of the texels within
     `speck` decide. A generator pipes a sleeve pocket in the plates' colour and flecks a sleeve with it;
-    worn, that is a patch of cloth in a wire of metal, and mottling.
+    worn, that is a patch of cloth in a wire of metal, and mottling. The texels of every chart within
+    `speck` decide alike: keep it no wider than the charts stand apart (`PAD`, `layout`), or a narrow chart
+    is outvoted by the one laid out beside it.
 
     `trim` holds, for the texels of the faces that are no metal's (as `trimmed` left them), the material
     of their face, and -1 elsewhere. A texel there that shows a metal is drawn in that material, at its own
@@ -568,6 +585,9 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         require(trim.shape == covered.shape and trim.max() < len(pairs), 'A material per texel, or -1, is required')
         swap = covered & (trim >= 0) & np.array([pair[0].startswith('metal') for pair in pairs])[material]
         material[swap] = trim[swap]
+    for name, flags in (('shadow', shadow), ('padded', padded)):
+        require(flags is None or np.shape(flags) == covered.shape, f'`{name}` is one flag per texel')
+    require(lit is None or len(lit) == len(pairs), 'A lit shade per material is required')
     plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
     dome = covered & np.asarray(cap, bool) & ~plain if cap is not None else plain & False
     worn = covered & ~plain & ~dome  # the part's own surface
@@ -589,7 +609,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         local = smooth(np.where(plain, shade, 0.0), reach) / np.maximum(smooth(plain, reach), 1e-9)
         material[plain], shade[plain] = 0, np.minimum(local, even(0))[plain]
         if shadow is not None:
-            shade[plain & np.asarray(shadow, bool)] *= ARMHOLE_SHADE
+            dark = plain & np.asarray(shadow, bool)
+            shade[dark] = np.maximum(shade[dark] * ARMHOLE_SHADE, SHADES[0])
     if padded is not None and (dome & np.asarray(padded, bool)).any():
         beside = dome & ~np.asarray(padded, bool)
         material[beside], shade[beside] = 0, even(0)

@@ -70,6 +70,9 @@ class GeometryTests(unittest.TestCase):
         self.assertTrue(np.array_equal(f, faces) and np.array_equal(v, vertices))
         self.assertTrue(np.array_equal(n[:16], carried[:16]) and np.allclose(n[16:], (0, 0, 1)))
         # a part with a cap and a closing: only the closing's edge is a crease
+        for flags in (True, added[:1], added[:-1]):  # not one flag per face: refused, not spread over the faces
+            with self.assertRaises(ValueError):
+                export.added_normals(vertices, faces, added, carried, domed=flags)
         v, f, n = export.added_normals(vertices, faces, added, carried, domed=np.arange(24) >= 20)
         self.assertEqual(len(v), 24 + 5)  # the four closing faces' five vertices on the rim
         self.assertTrue(np.array_equal(f[~added], faces[~added]) and np.array_equal(f[20:], faces[20:]))
