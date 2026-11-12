@@ -15,6 +15,7 @@ PROFILE = 'qwen21-int8-v1'
 NAME = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
 KIN = {'type', 'same', 'variant', 'unbranded'}
 BRANDING = 'Branding:'
+CUT_MARGIN = 0.08  # of the longer side: the white set round a piece of a building before it is redrawn
 # Type names that turned out to mean a type already in use (review of 2026-11-11). Two names for one kind of prop hide
 # its repeats from the register, so a retired name is refused with the name to use.
 RETIRED = {'atm': 'pay-kiosk', 'crate-stack': 'pallet-stack', 'cyberware-cabinet': 'storage-cabinet', 'desk-terminal': 'console-desk',
@@ -68,9 +69,15 @@ def load_set(path):
     require(isinstance(data['assets'], dict) and data['assets'], 'A set needs assets')
     for name, asset in data['assets'].items():
         require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
-        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', *KIN},
+        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', *KIN},
                 'Asset needs kind, subject and box: ' + name)
         require(asset['kind'] == 'prop' or not KIN & set(asset), 'Only props have a type: ' + name)
+        if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
+            cut = asset['cut']; whole = data['assets'].get(cut.get('from')) if isinstance(cut, dict) else None
+            require(asset['kind'] == 'building' and isinstance(cut, dict) and set(cut) == {'from', 'box'} and whole is not None
+                    and whole['kind'] == 'building' and 'cut' not in whole, 'A cut is a building view drawn from another, whole, view of the set: ' + name)
+            require(isinstance(cut['box'], list) and len(cut['box']) == 4 and all(type(v) is int for v in cut['box'])
+                    and 0 <= cut['box'][0] < cut['box'][2] and 0 <= cut['box'][1] < cut['box'][3], 'A cut states its box in pixels of that view\'s reference: ' + name)
         prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
         if asset['kind'] == 'prop':
             require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)
@@ -130,7 +137,27 @@ def crop(sheet_path, box, output):
     from PIL import Image
     output = Path(output); output.parent.mkdir(parents=True, exist_ok=True)
     with Image.open(sheet_path) as image:
+        require(box[2] <= image.width and box[3] <= image.height, f'The box {box} runs off {Path(sheet_path).name} ({image.width} x {image.height})')
         image.convert('RGB').crop(tuple(box)).save(output)
+    return output
+
+
+def source(data, name, sheet, selected, output):
+    """The picture an asset is redrawn from, written to `output`: its box on the sheet, or for a cut (a piece of a
+    building too large for one generator texture, user 2026-11-12) its box on the chosen reference of the whole view,
+    so that the pieces keep the one drawing's proportions and colours between them."""
+    asset = data['assets'][name]
+    if 'cut' not in asset:
+        return crop(sheet, asset['box'], output)
+    from PIL import Image
+    from .sheet import image
+    output = crop(image(selected, asset['cut']['from']), asset['cut']['box'], output)
+    # Set on white with a margin all round: a wall running off the picture was redrawn running off it, where the cut was
+    # to be closed (two of the yard's six pieces on their first seed, 2026-11-12).
+    with Image.open(output) as piece:
+        margin = round(max(piece.size) * CUT_MARGIN); framed = Image.new('RGB', (piece.width + 2 * margin, piece.height + 2 * margin), 'white')
+        framed.paste(piece, (margin, margin))
+    framed.save(output)
     return output
 
 

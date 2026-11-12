@@ -75,6 +75,20 @@ what a surface looks like is settled in the client, not here.
 Size a building by its door: scale it until the door leaf is about 2.1 m, then choose the tile group's size.
 Its door hook is door type 58. Screens and signs are lit.
 
+### A building in pieces, and a group of several models
+
+A generation gets one 4K texture, which spreads thin over a large building (the yard at its door's size: 47
+texels a metre, against about 190 on a prop). Such a building is made in pieces (user, 2026-11-12): each piece's views
+are set assets with a `cut` (`{"from": "<whole view>", "box": [x0, y0, x1, y1]}`, in pixels of that view's chosen
+reference), drawn by `envkit reference --selected <root>/references/selected`, set on white so that a cut edge is
+redrawn as the end of a block, and generated under the plan's `pieces` (`{"<piece>": {"views": [...], "triangles":
+n}}`, all of them together within the building budget). The pieces keep the one drawing's proportions and colours.
+
+The group is the concept's whole scene, not one mesh: the game set's `tiles.parts` places other models of the set
+in it (`{"model": ..., "at": [x, y, z], "turn": 0|90|180|270}`, in metres on the group's own model), each drawn
+with its own picture under the group's names (`<group>p1`, ...), cut into the same tiles and walked round. A prop
+of the sheet stays a placeable as well.
+
 ```
 envkit game  --models ... --root <root> --output <root>/game<n>  [--model <name>]
 envkit tiles --models ... --root <root> --output <root>/tiles<n> --model <building>

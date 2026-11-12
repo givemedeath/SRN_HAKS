@@ -113,18 +113,25 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
     sheets) from stated eyes (`eye`): its picture alone, nearest face in front, see-through where the picture is, and a
     face seen from behind not drawn, as the game leaves it. A
     face that passes the eye is cut just in front of it. Drawn in software a face at a time, so `reach` keeps a large
-    model to what is about the target. Returns {pictures, faces}, the faces drawn for each eye."""
+    model to what is about the target. A tile group is drawn with the models placed in it (`tiles.parts`). Returns
+    {pictures, faces}, the faces drawn for each eye."""
     from PIL import Image
-    require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
-    maps = {'base_color': source / 'texture_0_base_color.png'}; require(eyes, 'Give an eye at least')
-    made = convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
-                         **{key: model[key] for key in convert.RETOUCHING if key in model})
-    with Image.open(maps['base_color']) as generated:
-        texture = np.asarray((made['colour'] or generated).convert('RGBA'))
-    points, uvs, faces = made['vertices'], made['uvs'], made['faces']; own = len(faces); links = None
-    if made['wire']:  # the fence's sheets show a picture of their own, repeated
-        wire = made['wire']; faces = np.vstack([faces, np.asarray(wire['faces']) + len(points)]); points = np.vstack([points, wire['vertices']])
-        uvs = np.vstack([uvs, wire['uvs']]); links = np.asarray(wire['image'].convert('RGBA'))
+    require(name in models, 'No such model in the game set: ' + name); require(eyes, 'Give an eye at least')
+    meshes = []  # (points, uvs, faces, picture, repeated): each picture with the faces that show it
+
+    def add(one, at=(0.0, 0.0, 0.0), turn=0):
+        model = models[one]; source = Path(root) / model['source']; maps = {'base_color': source / 'texture_0_base_color.png'}
+        made = convert.place(convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
+                                           **{key: model[key] for key in convert.RETOUCHING if key in model}), at, turn)
+        with Image.open(maps['base_color']) as generated:
+            meshes.append((made['vertices'], made['uvs'], np.asarray(made['faces']), np.asarray((made['colour'] or generated).convert('RGBA')), False))
+        if made['wire']:  # the fence's sheets show a picture of their own, repeated
+            wire = made['wire']; meshes.append((wire['vertices'], wire['uvs'], np.asarray(wire['faces']), np.asarray(wire['image'].convert('RGBA')), True))
+    add(name)
+    for part in models[name].get('tiles', {}).get('parts', []):
+        add(part['model'], part['at'], part.get('turn', 0))
+    points = np.vstack([mesh[0] for mesh in meshes]); uvs = np.vstack([mesh[1] for mesh in meshes]); starts = np.cumsum([0] + [len(mesh[0]) for mesh in meshes])
+    faces = np.vstack([mesh[2] + start for mesh, start in zip(meshes, starts)]); owner = np.concatenate([np.full(len(mesh[2]), index) for index, mesh in enumerate(meshes)])
     wide, high = size; output = Path(output); output.mkdir(parents=True, exist_ok=True); report = {'pictures': [], 'faces': {}}
     for label, at, target, fov, reach in eyes:
         ahead = target - at; ahead = ahead / np.linalg.norm(ahead); right = np.cross(ahead, [0.0, 0.0, 1.0])
@@ -149,8 +156,9 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
                 if not inside.any():
                     continue
                 weight = np.stack([first, second, third], -1)[inside] / away; z = 1 / weight.sum(-1); spot = (weight * z[:, None]) @ corners[:, 3:]  # perspective-correct
-                if number >= own:
-                    spot = (spot * len(links)).astype(int) % len(links); texel = links[spot[:, 1], spot[:, 0]]
+                _, _, _, texture, repeated = meshes[owner[number]]
+                if repeated:
+                    spot = (spot * len(texture)).astype(int) % len(texture); texel = texture[spot[:, 1], spot[:, 0]]
                 else:
                     spot = np.clip((spot * [texture.shape[1], texture.shape[0]]).astype(int), 0, [texture.shape[1] - 1, texture.shape[0] - 1]); texel = texture[spot[:, 1], spot[:, 0]]
                 py, px = (ys[inside] - 0.5).astype(int), (xs[inside] - 0.5).astype(int); keep = (texel[:, 3] >= 128) & (z < buffer[py, px])

@@ -345,6 +345,33 @@ class TileTests(unittest.TestCase):
                 self.assertIn('  bitmap ek_long_w\n', text); self.assertIn('  bitmap ek_long\n', text)
                 self.assertNotIn('ek_long_w', (Path(scratch) / 'b' / (one['model'] + '.mdl')).read_text(encoding='cp1252'))
 
+    def test_a_group_holds_other_models_placed_in_it_each_with_its_own_picture(self):
+        """User, 2026-11-12: the concept's whole scene is the group, and it need not be one mesh. A model placed in the
+        group is cut into its tiles with its own picture, halo and fence, and closes the ground it stands on."""
+        import tempfile
+        from pathlib import Path
+        vertices, faces = scene(box((-4, -3, 0), (4, 3, 0.2)), box((-3, -2, 0.2), (3, 1, 3)))  # a building two tiles wide, with what is placed
+        flat = lambda points, triangles, **more: {'vertices': points, 'normals': np.tile([0.0, 0, 1], (len(points), 1)), 'uvs': np.zeros((len(points), 2)),
+                                                  'faces': triangles, 'card': None, 'wire': None, **more}
+        building = flat(vertices, faces)
+        crate = flat(*box((-0.5, -0.5, 0), (0.5, 0.5, 1.0)))
+        card = [((0.4, -0.52, 0.2), (0.0, 1.0)), ((-0.4, -0.52, 0.2), (1.0, 1.0)), ((-0.4, -0.52, 0.8), (1.0, 0.0)), ((0.4, -0.52, 0.8), (0.0, 0.0))]
+        lamp = flat(*box((-0.2, -0.5, 0), (0.2, 0.5, 1.0)), card=glow.Halo(None, [card], [None]))
+        crate_there = convert.place(crate, [8.0, 0.0, 0.2]); lamp_there = convert.place(lamp, [-8.0, 0.0, 0.2], 90)
+        np.testing.assert_allclose(lamp_there['card'].cards[0][0][0], (-7.48, 0.4, 0.4))  # turned a quarter: its card faces east now
+        with tempfile.TemporaryDirectory() as scratch:
+            report = tile.group('ek_yard', building, Path(scratch), ground='pavement', parts=[('ek_yardp1', crate_there, None), ('ek_yardp2', lamp_there, None)])
+            self.assertEqual((report['rows'], report['columns']), (1, 2))  # the group grew to hold what is placed in it
+            texts = [(Path(scratch) / f'{one["model"]}.mdl').read_text(encoding='cp1252') for one in report['tiles']]
+            self.assertIn('  bitmap ek_yardp2\n', texts[0]); self.assertIn('  bitmap ek_yardp2_h\n', texts[0]); self.assertNotIn('ek_yardp1', texts[0])
+            self.assertIn('  bitmap ek_yardp1\n', texts[1]); self.assertIn('  bitmap ek_yard\n', texts[0] + texts[1])
+            self.assertEqual(sum(one['faces'] for one in report['tiles']), len(faces) + 2 * len(BOX))
+            rows, columns, corner = tile.layout(np.vstack([vertices, crate_there['vertices'], lamp_there['vertices']]))
+            found = tile.survey(np.vstack([vertices, crate_there['vertices']]), np.vstack([faces, crate['faces'] + len(vertices)]), rows, columns, corner)
+            self.assertEqual(found['material'][int((0 - corner[1]) / CELL), int((8 - corner[0]) / CELL)], tile.NONWALK)  # the crate is walked round
+            with self.assertRaisesRegex(ValueError, 'texture of its own'):
+                tile.group('ek_yard', building, Path(scratch) / 'again', ground='pavement', parts=[('ek_yard', crate_there, None)])
+
     def test_a_door_hook_is_drawn_out_onto_open_ground_and_turned_as_the_set_file_turns_doors(self):
         """The Ares Depot's hook lay on its door leaf, inside the wall's closed ground, turned by the way the door faces:
         the invisible door stood out of the wall at a right angle and a player sent to it never arrived (client, 2026-11-11)."""

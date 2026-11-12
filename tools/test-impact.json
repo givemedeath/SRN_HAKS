@@ -276,6 +276,7 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/reference.py": [
+      "tools/envkit/sheet.py",
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],

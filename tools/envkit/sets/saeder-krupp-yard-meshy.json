@@ -17,5 +17,8 @@
     "pylon-sign": {"triangles": 3000},
     "utility-barrier": {"triangles": 3000}
   },
-  "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 200000}
+  "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 200000},
+  "pieces": {"west": {"views": ["building-west-front", "building-west-rear"], "triangles": 40000},
+    "centre": {"views": ["building-centre-front", "building-centre-rear"], "triangles": 80000},
+    "east": {"views": ["building-east-front", "building-east-rear"], "triangles": 80000}}
 }

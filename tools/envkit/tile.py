@@ -89,19 +89,24 @@ def layout(vertices):
 scatter = convert.scatter  # a mesh's surface as points: `convert` has it, for what it checks on a model before any tile is cut
 
 
-def minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground):
+def minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground, *, more=()):
     """{(row, column): (MINIMAP, MINIMAP, 3) picture, 0-1}: each tile seen from straight above, north at the top, as
-    the area map shows it. `colour` is the model's colour texture (0-1, any size); `ground` the colour round the model."""
-    points, pick, weights = scatter(vertices, faces, spacing=SIZE / MINIMAP / 3, sources=True)
-    size = np.array([colour.shape[1], colour.shape[0]])
-    texel = np.clip(((uvs[faces[pick]] * weights[:, :, None]).sum(1) * size).astype(int), 0, size - 1)
+    the area map shows it. `colour` is the model's colour texture (0-1, any size); `ground` the colour round the model;
+    `more` the other models of the group as (vertices, uvs, faces, colour), each seen with its own picture."""
+    found = []
+    for mesh_vertices, mesh_uvs, mesh_faces, mesh_colour in [(vertices, uvs, faces, colour), *more]:
+        points, pick, weights = scatter(mesh_vertices, mesh_faces, spacing=SIZE / MINIMAP / 3, sources=True)
+        size = np.array([mesh_colour.shape[1], mesh_colour.shape[0]])
+        texel = np.clip(((mesh_uvs[mesh_faces[pick]] * weights[:, :, None]).sum(1) * size).astype(int), 0, size - 1)
+        found.append((points, mesh_colour[texel[:, 1], texel[:, 0]]))
+    points = np.vstack([points for points, _ in found]); shades = np.vstack([shades for _, shades in found])
     across = np.array([columns, rows]) * MINIMAP
     place = np.clip(((points[:, :2] - corner) / SIZE * MINIMAP).astype(int), 0, across - 1)
     picture = np.tile(np.asarray(ground, float), (across[1], across[0], 1)); count = np.zeros((across[1], across[0]))
     # What shows from above is the highest thing in each pixel: the mean colour of the points in its top 30 cm.
     top = np.full((across[1], across[0]), -np.inf); np.maximum.at(top, (place[:, 1], place[:, 0]), points[:, 2])
     upper = points[:, 2] >= top[place[:, 1], place[:, 0]] - 0.3
-    total = np.zeros_like(picture); np.add.at(total, (place[upper, 1], place[upper, 0]), colour[texel[upper, 1], texel[upper, 0]])
+    total = np.zeros_like(picture); np.add.at(total, (place[upper, 1], place[upper, 0]), shades[upper])
     np.add.at(count, (place[upper, 1], place[upper, 0]), 1)
     picture[count > 0] = total[count > 0] / count[count > 0, None]
     return {(row, column): picture[row * MINIMAP:(row + 1) * MINIMAP, column * MINIMAP:(column + 1) * MINIMAP][::-1]
@@ -388,14 +393,15 @@ def _level_cut(card, height, light=None):
     return [([card[0], card[1], right, left], False), ([left, right, card[2], card[3]], True)]
 
 
-def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=None, cap=(), card_light=None):
+def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=None, cap=(), card_light=None, card_bitmaps=None):
     """One tile's ASCII model. parts: [(vertices, normals, uvs, faces)] of the building, in the tile's space; a fifth
     value, true, marks a part the game may hide (`tilefade`), and a sixth names the picture a part shows where that is not
     `material` (a fence's sheets). ground: the texture of the ten-metre square under it, laid
     twice across the tile as the plain tiles lay theirs. lights: the places of its main lights. fade: the height above
     which things may be hidden; a halo card whose light is above it goes with them, and one with light on both sides of
     it is cut there (`_level_cut`). card_light: each card's light, as `glow.halo` gives it; without it no card is cut. cap: the
-    lid drawn at that height only while they are hidden ([(x0, y0, x1, y1)]), so the building is not seen hollow."""
+    lid drawn at that height only while they are hidden ([(x0, y0, x1, y1)]), so the building is not seen hollow.
+    card_bitmaps: the halo picture each card shows, where a group's models each have their own (`material`_h else)."""
     require(len(name) <= 16 and name == name.lower() and name.replace('_', '').isalnum(), 'A tile model name is a lowercase resref: ' + name)
     lines = ['#MAXMODEL ASCII', f'newmodel {name}', f'setsupermodel {name} null', 'classification TILE', 'setanimationscale 1.0',
              f'beginmodelgeom {name}', f'node dummy {name}', '  parent null', 'endnode']
@@ -414,10 +420,12 @@ def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=No
             lines += [f'  normals {len(used)}'] + [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in normals[used].tolist()]
             lines += [f'  faces {len(part)}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in part.tolist()] + ['endnode']
     require(card_light is None or len(card_light) == len(cards), 'Each halo card has its own light, or none has')
-    cut = [piece for card, light in zip(cards, card_light or [None] * len(cards)) for piece in _level_cut(card, fade, light)]; cards = [card for card, _ in cut]
-    for index, (card, above) in enumerate(cut):
+    bitmaps = card_bitmaps or [f'{material}_h'] * len(cards); require(len(bitmaps) == len(cards), 'Each halo card shows one picture')
+    cut = [(piece, bitmap) for card, light, bitmap in zip(cards, card_light or [None] * len(cards), bitmaps) for piece in _level_cut(card, fade, light)]
+    cards = [card for (card, _), _ in cut]
+    for index, ((card, above), bitmap) in enumerate(cut):
         lines += [f'node trimesh {name}_halo{index}', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
-                  f'  bitmap {material}_h', '  render 1', '  shadow 0', '  rotatetexture 0', f'  tilefade {1 if above else 0}', '  transparencyhint 1', '  alpha 1', '  verts 4']
+                  f'  bitmap {bitmap}', '  render 1', '  shadow 0', '  rotatetexture 0', f'  tilefade {1 if above else 0}', '  transparencyhint 1', '  alpha 1', '  verts 4']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
         lines += ['  normals 4'] + [convert.card_normal_line(card)] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
     if cap:  # `tilefade 2`: drawn only while the parts above it are hidden
@@ -500,7 +508,7 @@ def doorstep(found, corner, at, facing):
     require(False, f'The door has no open ground within {DOOR_REACH} metres in front of it: a player could not reach it')
 
 
-def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None):
+def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=()):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
     in the set file's order. notes: what to look at before the group is installed, in words: ground no exit of its tile
@@ -508,20 +516,31 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
 
     colour: the model's colour texture (0-1 array); with it each tile gets its picture for the area map, `image`, drawn
     over `ground_colour`. fade: the height in metres above which the building may be hidden. door: {at: [x, y, z],
-    facing, type} on the finished model; it becomes a door record of the tile its hook lies in (`doorstep`)."""
+    facing, type} on the finished model; it becomes a door record of the tile its hook lies in (`doorstep`). parts: the
+    other models of the group as (texture, finished model placed in the group's space, colour), each drawn with its own
+    picture, halo and fence sheets, and with the building one ground to walk on, cut into the same tiles."""
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
-    vertices, normals, uvs, faces = made['vertices'], made['normals'], made['uvs'], made['faces']
-    wire = made.get('wire')
-    rows, columns, corner = layout(vertices); found = survey(vertices, faces, rows, columns, corner, barrier=(wire['vertices'], wire['faces']) if wire is not None else None)
+    meshes = [(name, made, colour), *parts]; require(len({texture for texture, _, _ in meshes}) == len(meshes), 'Each model of a group has a texture of its own')
+    joined = lambda key, of: (np.vstack([one[key] + (sum(len(other['vertices']) for other in of[:index]) if key == 'faces' else 0) for index, one in enumerate(of)]))
+    shaped = [one for _, one, _ in meshes]; vertices, faces = joined('vertices', shaped), joined('faces', shaped)
+    wires = [(texture, one['wire']) for texture, one, _ in meshes if one.get('wire') is not None]
+    barrier = (joined('vertices', [wire for _, wire in wires]), joined('faces', [wire for _, wire in wires])) if wires else None
+    rows, columns, corner = layout(vertices); found = survey(vertices, faces, rows, columns, corner, barrier=barrier)
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
-    middle = vertices[faces].mean(1); home = np.clip(((middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
-    high = middle[:, 2] >= fade if fade is not None else np.zeros(len(faces), bool)
-    cards = share_cards(made['card'].cards, rows, columns, corner, made['card'].light) if made['card'] else {}; tiles, notes = [], []
-    pictures = minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground_colour) if colour is not None else {}
-    if wire is not None:
-        wire_middle = wire['vertices'][wire['faces']].mean(1); wire_tile = np.clip(((wire_middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
-        wire_high = wire_middle[:, 2] >= fade if fade is not None else np.zeros(len(wire_middle), bool)
+
+    def shared(points, polygons):  # each face's tile, by its middle, and whether it is above the fade height
+        middle = points[polygons].mean(1)
+        return np.clip(((middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1]), (middle[:, 2] >= fade if fade is not None else np.zeros(len(polygons), bool))
+    homes = [shared(one['vertices'], one['faces']) for one in shaped]; wire_homes = [shared(wire['vertices'], wire['faces']) for _, wire in wires]
+    cards = {}
+    for texture, one, _ in meshes:
+        for spot, held in (share_cards(one['card'].cards, rows, columns, corner, one['card'].light) if one['card'] else {}).items():
+            cards.setdefault(spot, []).extend((card, light, f'{texture}_h') for card, light in held)
+    tiles, notes = [], []
+    pictures = (minimaps(made['vertices'], made['uvs'], made['faces'], colour, rows, columns, corner, ground_colour,
+                         more=[(one['vertices'], one['uvs'], one['faces'], shade) for _, one, shade in parts])
+                if colour is not None and all(shade is not None for _, _, shade in parts) else {})
     if door is not None:
         spot, orientation, drawn = doorstep(found, corner, door['at'], float(door.get('facing', 0.0)))
         at = np.asarray(spot, float); cell = np.clip(((at[:2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
@@ -531,26 +550,21 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     for row in range(rows):
         for column in range(columns):
             model = f'{name}_t{row}{column}'; centre = np.array([corner[0] + (column + 0.5) * SIZE, corner[1] + (row + 0.5) * SIZE, 0.0])
-            here = (home[:, 0] == column) & (home[:, 1] == row); parts = []
-            for chosen, hidden in ((here & ~high, False), (here & high, True)):
-                if chosen.any():
-                    used, local = np.unique(faces[chosen], return_inverse=True)
-                    parts.append((vertices[used] - centre, normals[used], uvs[used], local.reshape(-1, 3), hidden))
-            fenced = fenced_high = 0
-            if wire is not None:  # a fence's sheets, shared out as the building is: each square to the tile its middle lies in
-                wire_here = (wire_tile[:, 0] == column) & (wire_tile[:, 1] == row)
-                fenced, fenced_high = int(wire_here.sum()), int((wire_here & wire_high).sum())
-                for chosen, hidden in ((wire_here & ~wire_high, False), (wire_here & wire_high, True)):
+            shown = []; counts = {'faces': 0, 'fading': 0}
+            # Each model's faces, and each fence's sheets, shared out to the tile their middles lie in, with that model's picture.
+            for (texture, one, _), (home, high) in [*zip(meshes, homes), *zip([(f'{texture}_w', wire, None) for texture, wire in wires], wire_homes)]:
+                here = (home[:, 0] == column) & (home[:, 1] == row); counts['faces'] += int(here.sum()); counts['fading'] += int((here & high).sum())
+                for chosen, hidden in ((here & ~high, False), (here & high, True)):
                     if chosen.any():
-                        used, local = np.unique(wire['faces'][chosen], return_inverse=True)
-                        parts.append((wire['vertices'][used] - centre, wire['normals'][used], wire['uvs'][used], local.reshape(-1, 3), hidden, f'{name}_w'))
+                        used, local = np.unique(one['faces'][chosen], return_inverse=True)
+                        shown.append((one['vertices'][used] - centre, one['normals'][used], one['uvs'][used], local.reshape(-1, 3), hidden, texture))
             walk = walkmesh(found, row, column); lights = light_places(found, row, column)
             halos = cards.get((row, column), [])
-            text = model_text(model, parts, name, ground, [card for card, _ in halos], walk, lights=lights, fade=fade, card_light=[light for _, light in halos],
-                              cap=lid(found, row, column) if fade is not None else ())
+            text = model_text(model, shown, name, ground, [card for card, _, _ in halos], walk, lights=lights, fade=fade, card_light=[light for _, light, _ in halos],
+                              card_bitmaps=[bitmap for _, _, bitmap in halos], cap=lid(found, row, column) if fade is not None else ())
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
-            one = {'model': model, 'row': row, 'column': column, 'faces': int(here.sum()) + fenced, 'fadingFaces': int((here & high).sum()) + fenced_high, 'walkFaces': int(len(walk[1])),
+            one = {'model': model, 'row': row, 'column': column, 'faces': counts['faces'], 'fadingFaces': counts['fading'], 'walkFaces': int(len(walk[1])),
                    'path': path_node(found, row, column), 'lights': len(lights), 'doors': []}
             if one['path']['offPath']:
                 notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no exit of the tile reaches; a walk from another tile is not planned onto them')

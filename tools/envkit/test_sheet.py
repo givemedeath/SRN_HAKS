@@ -85,6 +85,29 @@ class SheetTests(unittest.TestCase):
         calls = len(fake.calls); again = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
         self.assertEqual((again, len(fake.calls)), ({'failed': [], 'downloaded': [], 'unsent': []}, calls))  # run again, it finds nothing to do
 
+    def test_a_building_in_pieces_sends_each_piece_and_remeshes_each_within_the_budget(self):
+        """User, 2026-11-12: a building too large for one 4K texture is made in pieces, each a generation of its own."""
+        pieces = {'west': {'views': ['building-hero'], 'triangles': 80000}, 'east': {'views': ['building-rear'], 'triangles': 120000}}
+        plan = self.plan(building=None, pieces=pieces)
+        self.assertEqual([(row['name'], row['key'], row['remesh']) for row in sheet.buildings(plan)],
+                         [('building-west', 'yd-building-west-a1', 'yd-building-west-a1-remesh'), ('building-east', 'yd-building-east-a1', 'yd-building-east-a1-remesh')])
+        self.assertEqual(plan['unplanned'], [])  # each view is made into a piece
+        self.assertEqual(self.plan(building=None, pieces={'west': pieces['west']})['unplanned'], ['building-rear'])
+        for changes, said in (({'pieces': {**pieces, 'east': {'views': ['building-rear'], 'triangles': 130000}}}, 'together'),
+                              ({'pieces': {'West Wing': pieces['west']}}, 'safe ID'), ({'pieces': {'west': {'views': ['desk'], 'triangles': 9000}}}, 'not a building view'),
+                              ({'pieces': {'west': {**pieces['west'], 'key': 'yd-desk-a1'}}}, 'its own ledger key')):
+            with self.assertRaisesRegex(ValueError, said):
+                self.plan(building=None, **changes)
+        fake = FakeMeshy(); ledger = meshy.Ledger.create(self.root / 'ledger.json', 200)
+        self.assertEqual(sheet.cost(ledger, plan), 15 + 15 + 2 * (30 + 5))
+        self.assertEqual(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say), ['yd-desk-a1', 'yd-gate-a2', 'yd-building-west-a1', 'yd-building-east-a1'])
+        told = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
+        self.assertEqual(told['failed'], []); self.assertTrue((self.masters / 'yd-building-east-a1' / 'model.glb').is_file())
+        self.assertTrue((self.models / 'yd-building-west-a1-remesh' / 'model.glb').is_file())
+        targets = [call[call.index('--target-polycount') + 1] for call in fake.calls if call[0] == 'remesh' and call[1] == 'create']
+        self.assertEqual(sorted(targets), sorted(str(int(count * meshy.REMESH_HEADROOM)) for count in (80000, 120000)))
+        self.assertEqual({row['asset'] for row in ledger.data['entries'] if row['key'].startswith('yd-building')}, {'building-west', 'building-east'})
+
     def test_one_failed_model_does_not_stop_the_rest(self):
         plan = self.plan(building=None); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
         sheet.submit(ledger, plan, self.selected, self.work, run=FakeMeshy(), say=self.say)

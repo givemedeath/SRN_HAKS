@@ -75,7 +75,9 @@ def command_install(args):
         core = {'tileset': name, 'group': number, 'name': tiles['group'], 'label': tiles['label'], 'rows': made['rows'], 'columns': made['columns'],
                 'tiles': [first + index for index in range(len(made['tiles']))], 'models': [one['model'] for one in made['tiles']], 'pack': args.pack}
         require(name in data['baseline']['tilesets'], f'The catalog has no baseline for {name}: add its imported tile and group counts first')
-        catalog.put_group(data, _entry(old, _lit(old, core, convert.lights(args.model, built / 'shared')), origin, f'{tiles["group"]} in {name}'))
+        # Each lit material the tiles show: the group's own and each placed model's; one is stated alone, as before parts were.
+        lit = [found for texture in [args.model, *made.get('parts', {}).values()] if (found := convert.lights(texture, built / 'shared'))]
+        catalog.put_group(data, _entry(old, _lit(old, core, lit[0] if len(lit) == 1 else lit), origin, f'{tiles["group"]} in {name}'))
     copied = []
     for one in made['tiles']:
         copied += [shutil.copyfile(built / 'compiled' / f'{one["model"]}.mdl', shared / f'{one["model"]}.mdl'),
@@ -83,7 +85,7 @@ def command_install(args):
     copied += [shutil.copyfile(path, shared / path.name) for path in sorted((built / 'source').glob('*.tga'))]  # area-map pictures and the lid's texture
     # The lights-out set goes with the tiles as it goes with a placeable: one standard for whoever scripts them.
     copied += [shutil.copyfile(path, _home(args, path)) for path in sorted((built / 'shared').iterdir())]
-    removed = _unlit(shared, args.model, built / 'shared', models)
+    removed = [name for texture in [args.model, *made.get('parts', {}).values()] for name in _unlit(shared, texture, built / 'shared', models)]
     placed = {name: tile.commit(one) for name, one in prepared.items()}
     catalog.save(record, data)
     print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed}), flush=True)

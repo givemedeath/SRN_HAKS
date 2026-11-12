@@ -618,6 +618,9 @@ def load_models(path):
     way it looks out in degrees from east towards north (90 is north), its row of doortypes.2da, which is the invisible
     transition door's, and `leaf`, the height in metres of the door leaf as measured on the finished model, which must
     be a door a character fits; `tile.doorstep` draws the hook out onto open ground and turns it). A tile group takes no `lift`.
+    A group may be made of several models (user, 2026-11-12: the concept's whole scene is the group, "that doesn't
+    mean we have to generate it as one single mesh"): `parts` places other models of the set in it, each
+    {model, at: [x, y, z], turn} in metres on this one and turned a quarter at a time, with a texture of its own (`part_textures`).
     `measuredAt` is how the model stood when its boxes, fences, door and fade height were measured: its height, or
     {height, lift, turn, signTilt} with each of the three the model states. A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
@@ -677,7 +680,7 @@ def load_models(path):
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
-        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door'} and isinstance(tiles['sets'], dict) and tiles['sets']
+        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
@@ -696,13 +699,20 @@ def load_models(path):
                 f'A door states its leaf, measured on the finished model, {DOOR_LEAF[0]} to {DOOR_LEAF[1]} metres tall; scale the building to its door first: ' + name)
         fade = (tiles or {}).get('fade')
         require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
+        parts = (tiles or {}).get('parts', [])
+        # A halo card and a fence's sheets stand along x or along y, and are cut at the tile lines along that (`tile.share_cards`):
+        # a part turned by other than a quarter would leave them across the cut.
+        require(isinstance(parts, list) and all(isinstance(part, dict) and {'model', 'at'} <= set(part) <= {'model', 'at', 'turn'} and isinstance(part['model'], str)
+                                                and np.asarray(part['at'], float).shape == (3,) and part.get('turn', 0) in (0, 90, 180, 270) for part in parts),
+                'A part of a group is {model, at: [x, y, z], turn}, turned 0, 90, 180 or 270 degrees: ' + name)
+        require(len(part_textures(name, parts)) <= 9, 'A group has at most nine models placed in it: ' + name)
         # Every box, fence, door and fade height is a measurement, and a measurement is of the model as it stood: at
         # one height, and lifted, turned and tilted as it then was. A typed door leaf would go on passing after its
         # building was made taller or lower, and a lit box would go on holding some of the model and lighting the wrong
         # part of it (found in review, 2026-11-12); so would the boxes of a sign hung at another lift or turned since
         # they were read. So a model that states any measurement says how it stood when they were made, and standing
         # otherwise they are made again.
-        measured = any(model.get(key) for key in MEASURED) or door is not None or fade is not None
+        measured = any(model.get(key) for key in MEASURED) or door is not None or fade is not None or bool(parts)
         stands = {'height': model['height'], **{key: model[key] for key in PLACING if key in model}}
         told = lambda at: ', '.join(f'{key} {value}' for key, value in at.items())
         require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says how it stood when they were measured '
@@ -711,7 +721,37 @@ def load_models(path):
         require('measuredAt' not in model or (isinstance(stated, dict) and all(number(value) for value in stated.values()) and stated == stands),
                 f'The boxes, fences, door and fade height of a model were measured with the model at {told(stated) if isinstance(stated, dict) else json.dumps(stated)} '
                 f'and it is now at {told(stands)}: measure them again on the model as it is, and say so in measuredAt: ' + name)
+    for name, model in data['models'].items():
+        for part in model.get('tiles', {}).get('parts', []):
+            other = data['models'].get(part['model'])
+            require(other is not None and part['model'] != name and not other.get('tiles'),
+                    f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
     return data['models']
+
+
+def part_textures(name, parts):
+    """{model: texture} of the models placed in the group `name`: `name`p1, p2 and so on in the order they first come,
+    one texture to a model however often it is placed. A model placed in a group is drawn there with its own picture
+    under a name of the group's, so the group's pack holds all it shows and no file is in two packs."""
+    order = list(dict.fromkeys(part['model'] for part in parts))
+    return {model: f'{name}p{index}' for index, model in enumerate(order, 1)}
+
+
+def place(made, at, turn=0):
+    """A finished model (`shape`) turned `turn` degrees about the vertical, counter-clockwise seen from above, and moved
+    to `at`: its vertices, normals, fence sheets and halo cards; its pictures are its own as they were."""
+    import math
+    from . import glow
+    cos, sin = (round(math.cos(math.radians(turn))), round(math.sin(math.radians(turn)))) if turn % 90 == 0 else (math.cos(math.radians(turn)), math.sin(math.radians(turn)))
+    spin = np.array([[cos, -sin, 0.0], [sin, cos, 0.0], [0.0, 0.0, 1.0]]); shift = np.asarray(at, float)
+    moved = lambda points: np.asarray(points, float) @ spin.T + shift
+    placed = {**made, 'vertices': moved(made['vertices']), 'normals': np.asarray(made['normals'], float) @ spin.T}
+    if made.get('wire'):
+        placed['wire'] = {**made['wire'], 'vertices': moved(made['wire']['vertices']), 'normals': np.asarray(made['wire']['normals'], float) @ spin.T}
+    if made.get('card'):
+        card = made['card']
+        placed['card'] = glow.Halo(card.image, [[(tuple(moved(point).tolist()), uv) for point, uv in corners] for corners in card.cards], card.light)
+    return placed
 
 
 HALO_OUT = 'ek_off'  # one for every model: a black sheet added to the picture adds nothing

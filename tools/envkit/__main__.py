@@ -46,7 +46,9 @@ def _crunch():
 
 def command_crops(args):
     data = reference.load_set(args.set); sheet = reference.resolve_sheet(args.sheets, data['sheet'])
-    rows = {name: str(reference.crop(sheet, asset['box'], Path(args.output) / f'{name}.png'))
+    # A cut is shown as it will be redrawn where the chosen references are given, else by its box on the sheet.
+    rows = {name: str(reference.source(data, name, sheet, args.selected, Path(args.output) / f'{name}.png') if args.selected
+                      else reference.crop(sheet, asset['box'], Path(args.output) / f'{name}.png'))
             for name, asset in data['assets'].items() if (name in args.asset if args.asset else 'same' not in asset)}
     print(json.dumps(rows, indent=1))
 
@@ -67,7 +69,8 @@ def command_reference(args):
     local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output)
     for name in args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]:  # a same is not made
         asset = data['assets'][name]
-        source = reference.crop(sheet, asset['box'], output / 'crops' / f'{name}.png')
+        require('cut' not in asset or args.selected, f'{name} is cut from the chosen reference of {asset.get("cut", {}).get("from")}: give --selected')
+        source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
         text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
         result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         print(json.dumps({'asset': name, 'state': result['state'], 'outputs': result['outputs'],
@@ -118,20 +121,47 @@ def command_tiles(args):
     from . import convert, tile
     models = convert.load_models(args.models)
     require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
-    model = models[args.model]; source, maps = _generated(args.root, model)
-    with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
-        made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
-                             lit=model.get('lit'), halo=model.get('halo'), **_retouching(model))
-        tiles = model['tiles']
-        if made['colour'] is not None:  # the picture as retouched, which `skin` still has to write
+    model = models[args.model]; tiles = model['tiles']
+
+    def shaped(name):
+        """A model of the set as finished, its maps and its picture for the area map (as retouched, which `skin` still has to write)."""
+        one = models[name]; source, maps = _generated(args.root, one)
+        made = convert.shape(source / 'model.glb', maps, height=one['height'], colour=one.get('colour', 1024), sign_tilt=one.get('signTilt'),
+                             lit=one.get('lit'), halo=one.get('halo'), lift=one.get('lift', 0.0), **_retouching(one))
+        if made['colour'] is not None:
             colour = np.asarray(made['colour'].convert('RGB').resize((512, 512)), float) / 255
         else:
             with Image.open(maps['base_color']) as image:
                 colour = np.asarray(image.convert('RGB').resize((512, 512)), float) / 255
+        return made, maps, colour
+    with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
+        made, maps, colour = shaped(args.model); textures = convert.part_textures(args.model, tiles.get('parts', [])); placed, crunch = [], _crunch()
+        files = convert.skin(args.model, maps, folder / 'shared', crunch, made, colour=model.get('colour', 1024))
+        for name, texture in textures.items():  # each model placed in the group, once for its pictures, then where it stands
+            part, part_maps, part_colour = shaped(name)
+            files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
+            placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
+        # a model placed twice is two meshes of one texture: joined, so that each texture is one model of the group
+        merged = {}
+        for texture, part, part_colour in placed:
+            if texture in merged:
+                was = merged[texture][0]; count = len(was['vertices'])
+                joined = {**was, 'vertices': np.vstack([was['vertices'], part['vertices']]), 'normals': np.vstack([was['normals'], part['normals']]),
+                          'uvs': np.vstack([was['uvs'], part['uvs']]), 'faces': np.vstack([was['faces'], part['faces'] + count])}
+                if was.get('wire'):
+                    wire_count = len(was['wire']['vertices'])
+                    joined['wire'] = {**was['wire'], **{key: np.vstack([was['wire'][key], part['wire'][key]]) for key in ('vertices', 'normals', 'uvs')},
+                                      'faces': np.vstack([was['wire']['faces'], np.asarray(part['wire']['faces']) + wire_count])}
+                if was.get('card'):
+                    joined['card'] = was['card']._replace(cards=was['card'].cards + part['card'].cards, light=list(was['card'].light) + list(part['card'].light))
+                merged[texture] = (joined, part_colour)
+            else:
+                merged[texture] = (part, part_colour)
         report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'),
-                            ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']))
+                            ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
+                            parts=[(texture, part, part_colour) for texture, (part, part_colour) in merged.items()])
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
-        files = convert.skin(args.model, maps, folder / 'shared', _crunch(), made, colour=model.get('colour', 1024))
+        report['parts'] = textures
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
@@ -374,6 +404,7 @@ def main(argv=None):
         sub.add_argument('--sheets', required=True, help='folder holding the concept sheets')
         sub.add_argument('--output', required=True)
         sub.add_argument('--asset', action='append', default=[], help='limit to these assets (repeatable)')
+        sub.add_argument('--selected', help='folder of the chosen references, which the pieces of a building (cut) are drawn from')
         sub.set_defaults(run=run)
     sub = parsers['reference']
     sub.add_argument('--bindings', required=True, help='local JSON with absolute comfyInput and comfyOutput')

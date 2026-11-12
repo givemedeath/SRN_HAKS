@@ -190,6 +190,22 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes
             # A tile group is built standing on the ground: a lift would move its boxes and not the building.
             refused({'source': 'meshy/x', 'height': 9.5, 'lift': 2, 'tiles': tiles}, 'takes no lift')
+            # A group may hold other models of the set, each placed in metres on it and turned a quarter at a time
+            # (user, 2026-11-12); where they stand is a measurement too.
+            def group_of(*parts, crate=None):
+                path = Path(scratch) / 'group.json'
+                path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, 'tiles': {**tiles, 'parts': list(parts)}},
+                                                       'ek_crate': crate or {'source': 'meshy/c', 'height': 1.0}}}), encoding='utf-8')
+                return convert.load_models(path)
+            self.assertEqual(len(group_of({'model': 'ek_crate', 'at': [8, 0, 0.2]}, {'model': 'ek_crate', 'at': [8, 2, 0.2], 'turn': 90})['ek_x']['tiles']['parts']), 2)
+            for parts, message in (([{'model': 'ek_crate', 'at': [8, 0]}], 'turned 0, 90'), ([{'model': 'ek_crate', 'at': [8, 0, 0], 'turn': 45}], 'turned 0, 90'),
+                                   ([{'model': 'ek_gone', 'at': [8, 0, 0]}], 'another model of the set'), ([{'model': 'ek_x', 'at': [8, 0, 0]}], 'another model of the set')):
+                with self.assertRaisesRegex(ValueError, message):
+                    group_of(*parts)
+            with self.assertRaisesRegex(ValueError, 'no tile group itself'):
+                group_of({'model': 'ek_crate', 'at': [8, 0, 0]}, crate={'source': 'meshy/c', 'height': 9.5, 'tiles': tiles})
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}, 'says how it stood')
+            self.assertEqual(convert.part_textures('ek_sk_yard', [{'model': 'ek_b'}, {'model': 'ek_a'}, {'model': 'ek_b'}]), {'ek_b': 'ek_sk_yardp1', 'ek_a': 'ek_sk_yardp2'})
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped
             long_name.write_text(json.dumps({'models': {'ek_thirteen_c': {'source': 'meshy/x', 'height': 1.0, 'tiles': tiles}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'at most 12'):

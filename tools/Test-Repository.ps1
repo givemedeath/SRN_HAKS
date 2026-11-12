@@ -222,13 +222,28 @@ try {
     $packFolders = @(Get-ChildItem -LiteralPath $repoRoot -Directory -Filter 'srn_*' | ForEach-Object { $_.Name })
     $packFile = { param($pack, $name) Test-Path -LiteralPath (Join-Path $repoRoot (Join-Path $pack $name)) -PathType Leaf }
     $checkLights = {
-        param($entry, $material, $what, [bool]$named)  # $named: the entry's model is its material; a group's tiles only share one
+        param($entry, $material, $what, [bool]$named)  # $named: the entry's model is its material; a group's tiles have its own and its parts' (<group>p<n>)
         $lights = if ($entry.PSObject.Properties['lights']) { $entry.lights } else { $null }
+        if (-not $named) {
+            # A group lists the lights of each lit material its tiles show: its own, and each model's placed in it.
+            $listed = @(@($lights) | Where-Object { $_ } | ForEach-Object { [string]$_.lit })
+            foreach ($stem in @($material) + @(1..9 | ForEach-Object { "${material}p$_" })) {
+                if ((& $packFile $entry.pack "${stem}_i.dds") -and $listed -cnotcontains $stem) { Add-ValidationError "$what has a glow map ($($entry.pack)/${stem}_i.dds) and no lights in the additions catalog." }
+            }
+            foreach ($one in @(@($lights) | Where-Object { $_ })) {
+                if ([string]$one.lit -cnotmatch "^$([regex]::Escape($material))(p\d)?$") { Add-ValidationError "The lights of $what name $($one.lit), which is not a material of the group." }
+                & $checkOne $entry ([string]$one.lit) $one $what
+            }
+            return
+        }
         if (-not $lights) {
             if (& $packFile $entry.pack "${material}_i.dds") { Add-ValidationError "$what has a glow map ($($entry.pack)/${material}_i.dds) and no lights in the additions catalog." }
             return
         }
-        if (-not $named) { $material = [string]$lights.lit }  # a group's own entry says which material its tiles share
+        & $checkOne $entry $material $lights $what
+    }
+    $checkOne = {
+        param($entry, $material, $lights, $what)  # one lit material's lights-out set, as docs/envkit/lights.md has it
         if ([string]$lights.lit -cne $material -or [string]$lights.out -cne "${material}_o" -or [string]$lights.glow -cne "${material}_i") { Add-ValidationError "The lights of $what do not follow its material $material." }
         $needed = @("$($lights.lit).mtr", "$($lights.out).mtr", "$($lights.out).dds", "$($lights.glow).dds")
         if ($lights.PSObject.Properties['halo']) { $needed += "$($lights.halo).mtr", "$($lights.halo).dds", "$($lights.halo).txi" }
