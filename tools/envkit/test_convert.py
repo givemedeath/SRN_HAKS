@@ -189,6 +189,75 @@ class ConvertTests(unittest.TestCase):
         edge, _, _ = convert.retouch(Image.fromarray(island).resize((128, 128), Image.NEAREST), points, texture, faces, size=64, smooth=[sides[1]])
         self.assertEqual(int(np.asarray(edge)[:, 64:].min()), 200); self.assertEqual(int(np.asarray(edge)[:, :64].max()), 0)
 
+    def test_a_tinted_marking_is_taken_off_a_surface_and_its_grain_is_left(self):
+        """The Ares fence section's concrete base came back with a smeared red marking on it; smoothing the whole face
+        took the concrete's weathering off with it and left a plain panel beside weathered ones (seen in the client,
+        2026-11-12)."""
+        from PIL import Image
+        vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
+        points, _, texture, _, _ = convert.fit(vertices, normals, uvs, 2.0)  # 1 wide, 2 tall: 64 texels to the metre across, 32 up
+        grain = np.random.default_rng(1).integers(150, 200, (64, 64), dtype=np.uint8); concrete = np.repeat(grain[..., None], 3, 2)
+        smeared = concrete.copy(); smeared[44:54, 20:44] = (200, 40, 40); lower = [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]]
+        cleaned, flat, plain = convert.retouch(Image.fromarray(smeared), points, texture, faces, smooth=[{'box': lower, 'radius': 0.2, 'tint': 30}])
+        pixels = np.asarray(cleaned).astype(int); about = np.ones((64, 64), bool); about[41:57, 17:47] = False  # the marking and the three texels round it
+        np.testing.assert_array_equal(pixels[about], concrete[about])  # the surface keeps every texel of its grain, in the box and out of it
+        patch = pixels[44:54, 20:44]; self.assertLess(int(np.abs(patch - patch.mean(-1, keepdims=True)).max()), 2)  # no tint is left where it was
+        self.assertLess(abs(float(patch.mean()) - 175), 12)  # and what is there is the concrete about it
+        self.assertTrue(np.asarray(flat)[44:54, 20:44].all()); self.assertFalse(np.asarray(flat)[about].any())
+        (surface, reach, marked), = plain; self.assertTrue(marked[44:54, 20:44].all()); self.assertFalse(marked[about].any()); self.assertFalse((surface & marked).any())
+        lined = grain / 255; lined[48] = 0.0; level = convert._levelled(lined, plain)  # the marking's line in the roughness goes with it, and no other
+        self.assertGreater(float(level[48, 20:44].min()), 0.5); np.testing.assert_array_equal(level[about], lined[about])
+        with self.assertRaisesRegex(ValueError, 'no tint'):  # a box with no marking in it is a mistake in the set
+            convert.retouch(Image.fromarray(concrete), points, texture, faces, smooth=[{'box': lower, 'radius': 0.2, 'tint': 30}])
+        with self.assertRaisesRegex(ValueError, 'further from any'):  # and a marking is filled from within its radius, or not at all
+            convert.retouch(Image.fromarray(smeared), points, texture, faces, smooth=[{'box': lower, 'radius': 0.02, 'tint': 30}])
+        # A box that is mostly marking has the marking's tint for its usual one: the concrete would be taken off and the
+        # red spread over it.
+        flooded = concrete.copy(); flooded[36:60, 8:56] = (200, 40, 40)
+        with self.assertRaisesRegex(ValueError, 'most of the box is the marking'):
+            convert.retouch(Image.fromarray(flooded), points, texture, faces, smooth=[{'box': lower, 'radius': 0.2, 'tint': 30}])
+        # A marking on an island of its own, further from the surface than the blur works over, was cut out of the
+        # check with the rest of the picture and passed for done with nothing changed (review of PR #124).
+        picture = np.full((64, 64), 0.5, np.float32); surface = np.zeros((64, 64), bool); surface[2:10, 2:10] = True
+        island = np.zeros((64, 64), bool); island[50:54, 50:54] = True; picture[island] = 1.0
+        with self.assertRaisesRegex(ValueError, 'further from any'):
+            convert._spread(picture, [(surface, 2.0, None, island)])
+        beside = np.zeros((64, 64), bool); beside[10:12, 4:8] = True; picture[beside] = 1.0
+        spread, done = convert._spread(picture, [(surface, 2.0, None, beside)])
+        self.assertLess(float(np.abs(spread[beside] - 0.5).max()), 1e-5); np.testing.assert_array_equal(done, beside); self.assertEqual(float(spread[island].min()), 1.0)
+
+    def test_a_hole_is_closed_between_the_models_own_vertices(self):
+        """The Ares fence section came back with a wedge of its concrete base open to the ground behind it (seen in
+        the client, 2026-11-12)."""
+        from unittest import mock
+        from PIL import Image
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1], [0, 0, 1]], float)  # a square wall with half of it missing
+        normals = np.array([[0, -1, 0]] * 5, float); faces = np.array([[0, 1, 2]])
+        uvs = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [5, 5]], float)  # the last stands where the fourth does, on another island of the picture
+        stated = [{'part': 'upper half', 'corners': [[0.0, 0.0, 0.005], [0.0, 0.0, 1.0], [1.0, 0.004, 1.0]]}]
+        whole = convert.closed(vertices, normals, uvs, faces, stated)
+        np.testing.assert_array_equal(whole, [[0, 1, 2], [0, 2, 3]])  # the model's own vertices, the picture round the hole, and the wall's facing
+        np.testing.assert_array_equal(np.cross(vertices[2] - vertices[0], vertices[3] - vertices[0]) > 0, [False, False, False])
+        with self.assertRaisesRegex(ValueError, 'none lies within'):  # a corner in the air is a mistake in the set
+            convert.closed(vertices, normals, uvs, faces, [{'corners': [[0, 0, 0], [0, 0, 1], [1, 0.5, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'already has a face'):
+            convert.closed(vertices, normals, uvs, faces, [{'corners': [[0, 0, 0], [1, 0, 0], [1, 0, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'apart from one another'):
+            convert.closed(vertices, normals, uvs, faces, [{'corners': [[0, 0, 0], [0, 0, 1], [0, 0, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'already has a face'):  # stated twice, the second would lie over the first
+            convert.closed(vertices, normals, uvs, faces, stated * 2)
+        # At a seam of the picture each place has two vertices, and the face the model has there may use the others: a
+        # second face over it would flicker against it.
+        seam = np.vstack([vertices, vertices[:3]]); island = np.vstack([uvs, [[9.0, 9.0], [9.1, 9.0], [9.1, 9.1]]])
+        with self.assertRaisesRegex(ValueError, 'already has a face'):
+            convert.closed(seam, np.vstack([normals, normals[:3]]), island, faces, [{'corners': [[0, 0, 0], [1, 0, 0], [1, 0, 1]]}])
+        # A model is closed as it is shaped, on the finished model: a face it has already is refused there too.
+        model = glb(self.root / 'wall.glb', **WALL); Image.new('RGB', (64, 64), (128, 128, 128)).save(self.root / 'grey.png')
+        shaped = convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0)
+        with mock.patch.object(convert, 'closed', wraps=convert.closed) as closing, self.assertRaisesRegex(ValueError, 'already has a face'):
+            convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0, close=[{'corners': shaped['vertices'][shaped['faces'][0]].tolist()}])
+        closing.assert_called_once()
+
     def test_the_glow_is_of_the_picture_as_it_ships_and_a_fence_ends_at_the_model(self):
         """Found in review, 2026-11-12: the glow map was made from the picture as generated, so what `paint` covered by
         day still shone by night; and a fence was checked for its heights only."""

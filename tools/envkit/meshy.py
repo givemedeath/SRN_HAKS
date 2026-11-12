@@ -10,6 +10,7 @@ Every paid call is reserved in the ledger before it is sent, so a crash between 
 counted, not lost track of. Every change to the ledger is made under a lock shared by all processes, so two calls at
 once cannot both pass the cap or drop each other's entry."""
 import contextlib
+import datetime
 import json
 import math
 import re
@@ -33,6 +34,7 @@ KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
 # Answers that mean the task was not created: no credential, no credits, not allowed, queue full. The Ares Depot run
 # (2026-11-11) hit the plan's ten queued tasks; the eleventh came back 429 and had been left counted as uncertain.
 REFUSED = (401, 402, 403, 429)
+QUEUE = 10  # the tasks Meshy holds for this plan at once: the next is refused, and the CLI never sends a refused key again
 IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
 
 
@@ -103,6 +105,16 @@ class Ledger:
             self.data['entries'].append(row); self.save()
         return row
 
+    def raise_cap(self, cap, reason, *, today=None):
+        """Raise the cap, keeping what it was, when it changed and why: the cap is the spending the user has approved,
+        so a raise states their approval. It is never lowered here, nor raised without a reason."""
+        require(type(cap) is int and isinstance(reason, str) and reason.strip(), 'A raise states the new cap and the approval it rests on')
+        with self.changing():
+            require(cap > self.data['cap'], f'The cap is {self.data["cap"]} already: a raise goes above it')
+            self.data.setdefault('raises', []).append({'from': self.data['cap'], 'to': cap, 'reason': reason.strip(),
+                                                       'date': today or datetime.date.today().isoformat()})
+            self.data['cap'] = cap; self.save()
+
     def update(self, key, **fields):
         with self.changing():
             self.entry(key).update(fields); self.save()
@@ -142,8 +154,35 @@ def remesh_arguments(task, triangles):
     """`triangles` is the ceiling wanted; the request asks for a little less because a remesh overshoots."""
     require(type(triangles) is int and 100 <= triangles <= BUILDING_TRIANGLES, f'A remesh ceiling is 100-{BUILDING_TRIANGLES} triangles')
     require(isinstance(task, str) and task, 'Remesh the generation task by its id')
-    return ['--input-task-id', task, '--topology', 'triangle', '--target-polycount', str(int(triangles * REMESH_HEADROOM)),
+    return ['--input-task-id', task, '--topology', 'triangle', '--target-polycount', str(remesh_target(triangles)),
             '--target-formats', 'glb']
+
+
+def remesh_target(triangles):
+    """The polycount a remesh is asked for, to land at or under `triangles`."""
+    return int(triangles * REMESH_HEADROOM)
+
+
+def sent_images(row):
+    """The file names of the reference images a ledger entry's call was sent with, or None where it had none (a
+    remesh). Names, not paths: an output root may have moved since."""
+    sent = row.get('arguments') or []
+    for flag in ('--image-url', '--image-urls'):
+        if flag in sent[:-1]:
+            return [Path(path).name for path in sent[sent.index(flag) + 1].split(',')]
+    return None
+
+
+def sent_target(row):
+    """The polycount a ledger entry's call was sent with, or None where it had none (a building's generation)."""
+    sent = row.get('arguments') or []
+    return int(sent[sent.index('--target-polycount') + 1]) if '--target-polycount' in sent[:-1] else None
+
+
+def sent_source(row):
+    """The task a ledger entry's remesh was made from, or None where the call was no remesh."""
+    sent = row.get('arguments') or []
+    return sent[sent.index('--input-task-id') + 1] if '--input-task-id' in sent[:-1] else None
 
 
 def run_cli(arguments, folder):
@@ -227,10 +266,10 @@ def triangles(glb):
 def _ceiling(row):
     """The most triangles a working model of this ledger entry has. A remesh is held to the ceiling it was asked for
     where that is over the common one: only a remesh sent for a larger building's budget may come back that large."""
-    sent = row.get('arguments') or []
-    if row['operation'] != 'remesh' or '--target-polycount' not in sent[:-1]:
+    target = sent_target(row)
+    if row['operation'] != 'remesh' or target is None:
         return MAX_TRIANGLES
-    asked = math.ceil(int(sent[sent.index('--target-polycount') + 1]) / REMESH_HEADROOM - 1e-9)  # the least ceiling that sends this target
+    asked = math.ceil(target / REMESH_HEADROOM - 1e-9)  # the least ceiling that sends this target
     return max(MAX_TRIANGLES, min(BUILDING_TRIANGLES, asked))
 
 
