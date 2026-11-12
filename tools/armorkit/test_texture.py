@@ -226,6 +226,10 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((plain_layers[frame] == export.LAYERS['metal1']).all() and (layers[frame] == export.LAYERS['cloth1']).all())
         self.assertTrue(np.array_equal(layers[~frame], plain_layers[~frame]))  # only what shows a metal changes
         self.assertTrue(np.array_equal(shades, plain_shades))
+        # with most of the texels round it a plate's, a texel of those faces is still not drawn as the plate
+        voted = texture.tint_maps(colour, covered, self.found, channels, speck=1, trim=trim)[1]
+        self.assertTrue((voted[frame] == export.LAYERS['cloth1']).all())
+        self.assertTrue((voted[:4, 4:] == export.LAYERS['metal1']).all() and (voted[:, 6:] == export.LAYERS['metal1']).all())
         with self.assertRaises(ValueError):
             texture.tint_maps(colour, covered, self.found, channels, speck=0, trim=trim[:4])
         with self.assertRaises(ValueError):

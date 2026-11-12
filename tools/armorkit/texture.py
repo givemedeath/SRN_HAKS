@@ -537,7 +537,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
 
     `trim` holds, for the texels of the faces that are no metal's (as `trimmed` left them), the material
     of their face, and -1 elsewhere. A texel there that shows a metal is drawn in that material, at its own
-    shade: a plate is drawn on its own faces and nowhere else. The colours of a frame one face wide are
+    shade: a plate is drawn on its own faces and nowhere else, and the vote within `speck` does not give
+    such a texel to a metal either, however much of one lies round it. The colours of a frame one face wide are
     still on its faces; the colour of a plate runs over its outline into the faces beside it, in blots
     and tails, and a shoulder pad that goes whole to the shoulder part along its faces' edges
     (`split.pad`) left that on the sleeve, where the arm carried it out from under the pad.
@@ -573,6 +574,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     votes = np.stack([smooth(worn & (material == k), speck) for k in range(len(pairs))])
     most = np.argmax(votes, axis=0)
     moved = worn & (most != material)
+    if trim is not None:  # a face that is no metal's gets none back from the texels round it
+        moved &= ~((trim >= 0) & np.array([pair[0].startswith('metal') for pair in pairs])[most])
     for k in np.unique(most[moved]):
         mine = moved & (most == k)
         shade[mine] = (smooth(np.where(worn & (material == k), shade, 0.0), speck) / np.maximum(votes[k], 1e-9))[mine]
