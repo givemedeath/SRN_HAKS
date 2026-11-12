@@ -635,8 +635,12 @@ lamps over the docks, the pole lamps, the floodlights, the lamp over the annex d
 lit and the rest was not; and with the player free, where everything above 5.0 metres was hidden under the
 black lid. Seen from the south with the player inside the fence, the client cut the fence away about the
 player's line of sight, as it cuts the lid away in the free views here and in the Ares Depot's; the fence is
-whole in every other view and in the models. Not yet checked: the group in a Suburbs area, walkers sent to the
-door, its lights put out by `SetTextureOverride`, and painting it in the Toolset.
+whole in every other view and in the models. Painted in the Toolset the same day, in a Modern Exterior area and
+in a Suburbs area, the group laid its nine tiles in order with no turn, and in each area made one door by
+itself, of type 58, at the service door; in the Suburbs area the Toolset also repainted the sixteen tiles
+around the group. With the two Toolset-saved areas' doors chained in the client, clicking the service door in
+each took the player to the other area, where the group stood at its door as painted. Not yet checked: walkers
+sent to the door, and its lights put out by `SetTextureOverride`.
 
 ## Saeder-Krupp Yard props (`srn_placeable`, `srn_2da`; 2026-11-12)
 
