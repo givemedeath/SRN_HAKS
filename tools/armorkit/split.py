@@ -710,7 +710,8 @@ def compact(vertices, faces, uvs):
     return vertices[used], remap[faces], uvs[used]
 
 
-def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS, lean=LEAN, full=None, hinge=None, grown=None, tuck=0.0):
+def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS, lean=LEAN, full=None, hinge=None, grown=None, tuck=0.0,
+        bounded=True):
     """A rounded end past the joint plane for an under part: (vertices, uvs, faces) to add to it.
 
     `faces` are the part's faces. Its rim is the edges it has on the plane within `limit`, each on one face
@@ -720,6 +721,8 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     rim point deeper than that point is far from the centre: every cap point then stays within its rim
     point's distance of the centre however the joint turns, so the cap does not leave an over part as wide
     as the rim, and it shows in the gap that opens on the other side of the bend (seams.minimum_overlap).
+    Not `bounded`, every rim point runs the whole `depth` deep: an end brought to the contract's envelope
+    (`ends`) stands in an over part opened as wide, and the contract asks the whole overlap of it.
     `lean` draws the cap in a little more than a dome from the start, because the over part often narrows
     just past the plane.
 
@@ -754,7 +757,7 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     slot = np.full(len(vertices), -1, int); slot[rim] = np.arange(len(rim))
     domed = steps - 1 if tuck and steps > 1 else steps
     angles = np.radians(CAP_TOP * np.arange(1, domed + 1) / domed)
-    deep = np.minimum(depth, np.linalg.norm(flat[rim], axis=1))[:, None]
+    deep = (np.minimum(depth, np.linalg.norm(flat[rim], axis=1)) if bounded else np.full(len(rim), float(depth)))[:, None]
     wide = 1.0 - (tuck if domed < steps else 0.0)
     rings = [point + flat[rim] * wide - normal * (deep * TUCK_RISE)] if domed < steps else []
     rings += [point + flat[rim] * (wide * np.cos(a) * (1.0 - lean * np.sin(a))) - normal * (deep * np.sin(a)) for a in angles]
@@ -979,7 +982,8 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
     return v, f, t, owner, names, origin, cuts, sleeves, between, limit
 
 
-def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None):
+def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None,
+          shape=None, deep=()):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -1009,7 +1013,12 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     it, and stood out behind a bent elbow like a paddle. The under part's cap carries the pad's rim round
     the joint's hinge instead (`cap`, `full`), in `GUARD_STEPS` rings, and fills the gap a bend opens between
     the two halves out to their cut edges; `made` reports those faces as `PADDED`, the rest of that cap as
-    `CAP`. A knee's gap opens in front and an elbow's behind, about the axis across the limb."""
+    `CAP`. A knee's gap opens in front and an elbow's behind, about the axis across the limb.
+
+    `shape`, if given, is called on each part after its closings and lids and before its caps, as
+    `shape(name, vertices, faces, uvs, origin)` with the part's own faces first in `faces` and `origin` the face
+    of `faces` given here each of those was cut from; it returns the part's (vertices, uvs), which the caps
+    then grow from (`ends.shaper`). At the joints `deep` names a cap is not `bounded`."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
@@ -1051,23 +1060,25 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         mine = f[owner == index]
         if not len(mine):
             continue
-        pv, pf, pt, closed, kinds = v, mine, t, np.zeros((0, 3)), [np.full(len(mine), OWN)]
+        pv, pf, pt, closed, kinds = v, mine, t, np.zeros(0, int), [np.full(len(mine), OWN)]
         own = len(mine)
         for seam, facing in closings:  # closed first: an under part's cap then grows from a closed rim
             if name in facing:
                 more = seam_fill(pv, pt, pf, len(pv), seam, *facing[name])
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
-                closed = np.concatenate([closed, more[0]])
+                closed = np.concatenate([closed, len(pv) - len(more[0]) + np.arange(len(more[0]))])  # where the closing's vertices are
                 kinds.append(np.full(len(more[2]), WALL if seam is between else CLOSING))
         for joint, side in [key[1:] for key in lids if key[0] == name]:
             more = lid(pv, pt, pf, len(pv), cuts[(joint, side)][0], seams.unit(cuts[(joint, side)][1]), limit[(joint, side)] + WELD)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
+        if shape is not None:
+            pv, pt = shape(name, pv, pf, pt, np.asarray(origin)[owner == index])
         for (joint, side), depth in overlaps.items():
             if depth and (joint, side) not in whole and token(seams.JOINTS[joint]['under'], side) == name:
                 point, normal = cuts[(joint, side)]
                 # a rounded closing carries the part's rim on the plane out past the plane's own reach
-                away = closed - point
+                away = pv[closed] - point
                 away = away - (away @ seams.unit(normal))[:, None] * seams.unit(normal)
                 reach_here = max([limit[(joint, side)]] + (np.linalg.norm(away, axis=1) + WELD).tolist())
                 full, grown, across = np.zeros(len(pf), bool), [], seams.unit(normal)
@@ -1075,6 +1086,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                     full[:len(mine)] = pads[name][1][owner == index]
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
                 options = {'tuck': TUCKS[joint], 'steps': TUCK_STEPS} if joint in TUCKS else {}
+                options['bounded'] = joint not in deep
                 if full.any():  # a pad's rim is carried round the hinge in its own number of rings, tucked or not
                     options.update(full=full, hinge=np.cross(opens - (opens @ across) * across, -across), steps=GUARD_STEPS)
                 more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown, **options)

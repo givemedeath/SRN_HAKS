@@ -18,6 +18,7 @@
     "tools/armorkit/bake.py": [
       "tools/armorkit/bodyskin.py",
       "tools/armorkit/brief.py",
+      "tools/armorkit/ends.py",
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
       "tools/armorkit/registry.py",
@@ -49,6 +50,10 @@
     "tools/armorkit/client_fixture.py": [
       "tools/armorkit/registry.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/armorkit/ends.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py"
     ],
     "tools/armorkit/export.py": [
       "tools/armorkit/registry.py",
@@ -151,6 +156,12 @@
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/test_ends.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/ends.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/test_bake.py"
     ],
     "tools/armorkit/test_export.py": [
       "tools/armorkit/export.py",
@@ -5411,6 +5422,7 @@
     "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
+    "tools/armorkit/test_ends.py",
     "tools/armorkit/test_export.py",
     "tools/armorkit/test_generate.py",
     "tools/armorkit/test_measure.py",

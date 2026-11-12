@@ -217,6 +217,15 @@ class CapTests(unittest.TestCase):
         self.assertTrue(np.allclose(ring, np.minimum(self.DEPTH, reach)))  # each rim point's own depth
         self.assertTrue(np.allclose(-rings[-1][:, 2], reach.min()))  # the pole: the least of them
 
+    def test_a_cap_not_bounded_runs_the_whole_depth_from_every_rim_point(self):
+        self.v = self.v * (0.4, 1.0, 1.0)  # an oval rim: narrower on two sides than the depth
+        points = split.cap(self.v, self.t, self.under, len(self.v), self.point, self.normal, self.DEPTH, 1.0, bounded=False)[0]
+        rim = np.unique(self.under)
+        rim = rim[np.abs(self.v[rim, 2] - 0.4) < 1e-9]
+        rings = points.reshape(split.CAP_STEPS, len(rim), 3) - self.point
+        ring = -rings[-2][:, 2] / np.sin(np.radians(split.CAP_TOP * (split.CAP_STEPS - 1) / split.CAP_STEPS))
+        self.assertTrue(np.allclose(ring, self.DEPTH) and np.allclose(-rings[-1][:, 2], self.DEPTH))
+
     def test_a_cap_grows_only_from_under_side_faces_within_the_planes_reach(self):
         self.assertEqual(len(self.cap(faces=self.over)[2]), 0)
         self.assertEqual(len(self.cap(limit=0.01)[2]), 0)
@@ -283,6 +292,38 @@ class SplitTests(unittest.TestCase):
         for bad in ({('ankle', 'l'): 0.0}, {('ankle', 'x'): 0.1}):
             with self.assertRaises(ValueError):
                 split.split(v, f, t, JOINTS, RADII, reaches=bad)
+
+    def test_a_shape_hook_moves_each_part_before_its_cap_grows_and_deep_joints_cap_the_whole_overlap(self):
+        overlaps = {('elbow', side): 0.09 for side in 'lr'}  # deeper than the forearm is wide (5 cm)
+        calls, made = [], {}
+
+        def shape(name, vertices, faces, uvs, origin):
+            calls.append((name, len(origin), len(faces)))
+            if name != 'forel':
+                return vertices, uvs
+            moved = np.array(vertices, float)
+            used = np.unique(faces)
+            moved[used, 1] += 0.01  # the forearm a centimetre forward
+            return moved, uvs
+
+        point, normal = split.planes({k: np.array(p, float) for k, p in JOINTS.items()})[('elbow', 'l')]
+        depth = lambda parts, name: -((parts[name][0] - point) @ normal).min()
+        plain = split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps)
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps, made=made, shape=shape, deep=('elbow',))
+        self.assertEqual(sorted(call[0] for call in calls), sorted(parts))
+        self.assertTrue(all(own <= count for _, own, count in calls))  # the part's own faces first, then what closes it
+        self.assertLess(depth(plain, 'forel'), 0.05 + 1e-6)  # bounded: no deeper than the rim is wide
+        self.assertAlmostEqual(depth(parts, 'forel'), 0.09, places=6)
+        def rim(found, kinds):  # the y of the cap's rim on the plane, and of the rest of it
+            cap = found['forel'][0][np.unique(found['forel'][1][kinds == split.CAP])]
+            on = np.abs((cap - point) @ normal) < 1e-9
+            return cap[on, 1].mean(), cap[~on, 1].mean()
+        first = {}
+        split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps, made=first, deep=('elbow',))
+        before, after = rim(split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps, deep=('elbow',)), first['forel']), rim(parts, made['forel'])
+        self.assertAlmostEqual(after[0] - before[0], 0.01, places=6)  # grown from the moved rim
+        self.assertTrue(0.0 < after[1] - before[1] < 0.01)  # and drawn in to the joint's axis, which did not move
+        self.assertTrue(np.allclose(parts['forer'][0][:, 1].mean(), plain['forer'][0][:, 1].mean()))
 
     def test_a_joint_left_whole_keeps_its_surface_on_the_part_beside_it(self):
         made = {}

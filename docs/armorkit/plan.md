@@ -573,3 +573,16 @@ only record the tier each end meets. The Site Guard fails at every joint at tier
 ends stand 1.3 to 3.2 cm inside it. Within one outfit the ends meet, since the split cuts them from one
 surface; the contract is what lets parts of different outfits mix. No step of the bake shapes the ends to the
 contract yet, so every generated outfit fails this gate until one does.
+
+## Revision 2026-11-12: the bake shapes tube ends to the seam contract (user decision)
+
+Before the gates go out, the user asked for the ends to be shaped. The split now brings every end at the
+elbows, wrists, waist, knees and ankles to its tier's envelope before the caps grow (`tools/armorkit/ends.py`):
+an under end just inside the envelope, an over end just outside it, held 1.2 cm from the plane and blended
+back into the outfit's own surface in one slope. Caps at those joints run the whole overlap. A knee or elbow
+guard is not shaped and, as the user chose, its faces are not measured by the gate.
+
+On the Site Guard both ends at those ten joints now meet tier 2. The upper arms at the shoulders and the
+thighs at the hips still fail: the plane cuts through the armpit and the crotch, and the section there holds
+the torso wall, not an end. The user asked for better ways to slice those junctions to be evaluated rather
+than to shape them as they are cut. Until then every generated outfit still fails the gate there.

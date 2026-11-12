@@ -46,7 +46,7 @@ each tier's numbers and refuses to load when they disagree with its own body rin
 `radius x tan(angle)` when the joint swings; past 45 degrees a rounded end one radius deep covers every angle.
 The swing used is the 95th percentile over every clip the body plays, with twist about the limb left out
 (twist turns the under end inside the over end without opening the seam). The continued end tapers in one
-slope, with no shelf.
+slope, with no shelf. The bake shapes the elbow, wrist, waist, knee and ankle ends to their envelope (`tools/armorkit/ends.py`).
 
 ## Numbers
 

@@ -19,6 +19,7 @@ from tools.headkit import gltf
 from tools.robes import mesh_ops
 
 from . import bodyskin, brief, export, measure, registry, repose, seams, split, texture
+from . import ends as shaping  # `ends` here is the seam gate
 from .registry import require
 
 ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED)  # what the split made: it has no surface of its own on the generated outfit
@@ -34,10 +35,12 @@ NOT_BUILT = (SEAM, 'clearance: no body surface showing at rest',
 INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear of the cut that made it
 REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
 STEP = 0.003  # an under end's surface is sampled this densely to tell how far past its plane it runs
+AXIS = 0.015  # past the plane, what lies this near the joint's axis closes the end in every direction: a cap's pole
 HOLE = 0.005  # an opening of the generated outfit this long round or longer, at the body's size, is a hole
 DEBRIS = 0.001  # square metres: a separate piece of the generated outfit smaller than this that touches nothing else is debris
 TOUCH = 0.002  # a piece of the generated outfit this near the rest of it touches it
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'src', 'trimmed')  # what `store` keeps of a part
+OPTIONAL = ('pad',)  # and what it keeps when a part has it: parts kept before it existed have none
 KEPT, KEPT_KIND = 'baked.json', 'srn-armorkit-baked-parts'  # the list of the parts `store` kept, and its kind
 
 
@@ -120,7 +123,8 @@ def ends(parts, bones, body, tier, contract=None):
     body `body`: (report, failures), or None when the contract has no rings of that body.
 
     At each joint plane, for the parts of both its slots: the under end's section at the plane must lie inside
-    the tier's envelope in all 16 directions, and in each direction it is found in the end must run past the
+    the tier's envelope in all 16 directions, the envelope read straight from one direction's radius to the next
+    (`seams.standoff`), and in each direction it is found in the end must run past the
     plane, into the over part, by the tier's minimum overlap; the over end's section `INSIDE` short of the
     plane must stand at least as far out as the envelope in each direction it is found in, which also tells it
     is open. The chest at the neck and shoulders and the pelvis at the hips are not measured: the plane cuts the
@@ -142,18 +146,20 @@ def ends(parts, bones, body, tier, contract=None):
             letter, paired = ('l', None) if side == 'c' else (side, side)
             point, normal = seams.plane(bones, joint, letter)
             envelope = {t: np.array(seams.envelope(contract, joint, body, t, paired)) for t in registry.TIERS}
+            offset = {t: contract['tierOffsets'][str(t)] for t in registry.TIERS}
+            ring = envelope[0] - offset[0]
             overlap = {t: seams.overlap(contract, joint, body, t) for t in registry.TIERS}
             limit = REACH * envelope[registry.TIERS[-1]].max()
             row = {}
             under, over = (split.token(spec[key], letter) for key in ('under', 'over'))
             if under in parts:
                 vertices, faces, shared = _outfit(parts[under])
-                widest = seams.ring(seams.section(vertices, faces, point, normal), limit=limit)
-                found = widest > 0
+                widest = seams.standoff(seams.section(vertices, faces, point, normal), ring, limit=limit)[0]
+                found = ~np.isnan(widest)
                 if found.any():
-                    past = _past(vertices, faces, point, normal, limit)[found]
-                    fits = [t for t in registry.TIERS if (widest[found] <= envelope[t][found]).all() and (past >= overlap[t]).all()]
-                    outside = widest[found] - envelope[tier][found]
+                    past = _past(*_outfit(parts[under], pads=True)[:2], point, normal, limit)[found]  # a pad's cap runs past the plane too
+                    fits = [t for t in registry.TIERS if (widest[found] <= offset[t]).all() and (past >= overlap[t]).all()]
+                    outside = widest[found] - offset[tier]
                     row['under'] = {'part': under, 'tier': fits[0] if fits else None, 'outside': round(float(outside.max()), 4),
                                     'past': round(float(past.min()), 4), 'overlap': round(float(overlap[tier]), 4)}
                     if (outside > 0).any():
@@ -167,11 +173,11 @@ def ends(parts, bones, body, tier, contract=None):
                     failures.append(f'{under} does not reach the {joint} plane')
             if over in parts and joint not in measure.TORSO_OPENINGS:
                 vertices, faces, shared = _outfit(parts[over])
-                nearest = seams.inner_ring(seams.section(vertices, faces, point - INSIDE * normal, normal), limit=limit)
+                nearest = seams.standoff(seams.section(vertices, faces, point - INSIDE * normal, normal), ring, limit=limit)[1]
                 found = ~np.isnan(nearest)
                 if found.any():
-                    opens = [t for t in registry.TIERS if (nearest[found] >= envelope[t][found]).all()]
-                    inside = envelope[tier][found] - nearest[found]
+                    opens = [t for t in registry.TIERS if (nearest[found] >= offset[t]).all()]
+                    inside = offset[tier] - nearest[found]
                     row['over'] = {'part': over, 'tier': opens[-1] if opens else None, 'inside': round(float(inside.max()), 4)}
                     if (inside > 0).any():
                         failures.append(f'{over} at the {joint}: up to {inside.max() * 100:.1f} cm inside the tier {tier} envelope, '
@@ -183,14 +189,20 @@ def ends(parts, bones, body, tier, contract=None):
     return report, failures
 
 
-def _outfit(part):
-    """(vertices, faces, shared) of the outfit's own faces of a part: the body's skin beside them left out."""
-    skin = part.get('skin')
-    return part['v'], (part['f'] if skin is None else part['f'][~np.asarray(skin, bool)]), skin is not None
+def _outfit(part, pads=False):
+    """(vertices, faces, shared) of the outfit's faces of a part: the body's skin beside them left out, and with
+    `pads` false a pad over the joint (`pad`) too."""
+    keep = np.ones(len(part['f']), bool)
+    for key in ('skin',) if pads else ('skin', 'pad'):
+        if key in part:
+            keep &= ~np.asarray(part[key], bool)
+    return part['v'], part['f'][keep], 'skin' in part
 
 
 def _past(vertices, faces, point, normal, limit):
-    """Per direction about a joint, how far a part runs past the plane against its normal, within `limit` of the centre."""
+    """Per direction about a joint, how far a part runs past the plane against its normal, within `limit` of the centre.
+    What lies within `AXIS` of the axis counts in every direction: a cap closes on one pole there, and the faces
+    round it fall in whichever direction their points happen to lie."""
     height = (np.asarray(vertices, float) - point) @ normal
     faces = faces[height[faces].min(axis=1) < 0]
     depth = np.zeros(seams.DIRECTIONS)
@@ -201,9 +213,11 @@ def _past(vertices, faces, point, normal, limit):
     height = points @ normal
     u, v = seams.frame(normal)
     flat = np.stack([points @ u, points @ v], axis=1)
-    keep = (height < 0) & (np.linalg.norm(flat, axis=1) <= limit)
+    radius = np.linalg.norm(flat, axis=1)
+    keep = (height < 0) & (radius <= limit)
     np.maximum.at(depth, seams.sectors(flat[keep]), -height[keep])
-    return depth
+    pole = keep & (radius <= AXIS)
+    return np.maximum(depth, -height[pole].min()) if pole.any() else depth
 
 
 def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None):
@@ -248,7 +262,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     joints = {name: matrix[:3, 3] for name, matrix in bones.items()}
     keys = [(joint, side) for joint in seams.JOINTS for side in seams.sides(joint)]
     radii = {key: float(np.max(seams.envelope(contract, key[0], body, tier, None if key[1] == 'c' else key[1]))) for key in keys}
-    overlaps = {key: float(seams.overlap(contract, key[0], body, tier)) for key in keys}
+    overlaps = {key: float(seams.overlap(contract, key[0], body, tier)) + (shaping.DEEPER if key[0] in shaping.TUBES else 0.0) for key in keys}
     # the posed normals, and the positions and normals on the generated mesh, ride through the cut
     columns = np.concatenate([export.vertex_normals(v, f), in_field, export.vertex_normals(in_field, f)], axis=1)
     made, origins = {}, {}
@@ -257,7 +271,8 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
               for flags in [split.guard(v, f, mats, joints, joint, side)] if flags is not None}
     say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
     result = split.split(v, f, columns, joints, radii, overlaps, reaches=split.reaches(v, f, joints, radii, sleeves=carried['sleeves']),
-                         whole={('neck', 'c')}, made=made, sleeves=carried['sleeves'], guards=guards, origins=origins)
+                         whole={('neck', 'c')}, made=made, sleeves=carried['sleeves'], guards=guards, origins=origins,
+                         shape=shaping.shaper(bones, contract, body, tier, guards), deep=shaping.TUBES)
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}
@@ -267,6 +282,9 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
             say(f'{name}: left to the body, {len(pf)} faces of the outfit cut off')
             continue
         role = roles(name, made[name])
+        pad = made[name] == split.PADDED  # a pad over a joint, both its halves and the cap carried round under them: the seam gate leaves it out
+        for flags in guards.values():
+            pad |= (origins[name] >= 0) & np.asarray(flags, bool)[np.maximum(origins[name], 0)]
         of_face = np.where(origins[name] >= 0, mats[np.maximum(origins[name], 0)], -1)  # per face: its material, -1 for what the split made
         bare = (of_face >= 0) & ~np.isin(of_face, metals)  # a face that is no plate's shows no plate
         if role['under'].any():  # the cloth of the part's commonest material, where the outfit shows that colour
@@ -288,7 +306,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         relief, _, lost = texture.normal_map(uv, pf, pc[:, 3:6], unit(pc[:, 6:9]), pv, read_fine, size, added=role['added'])
         parts[name] = {'v': pv, 'f': pf, 'uv': uv, 'n': unit(pc[:, :3]), 'rgb': rgb, 'covered': covered, 'relief': relief,
                        **{key: texture.face_texels(uv, pf, role[key], size) for key in ('closing', 'cap', 'padded')},
-                       'added': role['added'], 'domed': role['domed'], 'src': pc[:, 3:6], 'trimmed': np.where(bare, brief_of[of_face], -1)}
+                       'added': role['added'], 'domed': role['domed'], 'src': pc[:, 3:6], 'trimmed': np.where(bare, brief_of[of_face], -1), 'pad': pad}
         say(f'{name}: {size} px, {len(pf)} faces, covered {covered.mean():.0%}, no colour {missed}, no normal {lost}')
     # what the torso wears over a sleeve is drawn as the sleeve's cloth, with the sleeve's closings
     if 'chest' in parts:
@@ -342,7 +360,7 @@ def store(parts, folder, document=None):
     folder.mkdir(parents=True, exist_ok=True)
     (folder / KEPT).unlink(missing_ok=True)
     for name, part in parts.items():
-        np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS + tuple(key for key in bodyskin.KEYS if key in part)})
+        np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS + tuple(key for key in OPTIONAL + bodyskin.KEYS if key in part)})
     slots = {key: sorted((document or {}).get(key, [])) for key in ('bare', 'skin')}
     (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts), **slots}, indent=1) + '\n',
                                encoding='utf-8', newline='\n')
