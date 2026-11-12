@@ -374,7 +374,11 @@ def sleeve(vertices, faces, joints, side, padded=False, above=3 * SLEEVE_STEP):
 
     Returns the seam's `point`, `normal`, `radius` and `bounds`, its `walls` (each with the same four), the
     `depth` of the armpit below the shoulder plane, and the `reach` the shoulder plane needs to cut across the
-    trough."""
+    trough.
+
+    The first sections may have no curve round the arm's line: an outfit's shoulder joint is an estimate, and
+    that of an arm bare below a short sleeve lay 2 cm outside the shoulder's surface. They are passed over,
+    for a quarter of the upper arm at most; taken for the arm's end, they left the sleeve on the torso."""
     start, end = (np.asarray(joints[side + name], float) for name in ('bicep_g', 'forearm_g'))
     other = np.asarray(joints[('r' if side == 'l' else 'l') + 'bicep_g'], float)
     length = float(np.linalg.norm(end - start))
@@ -388,7 +392,9 @@ def sleeve(vertices, faces, joints, side, padded=False, above=3 * SLEEVE_STEP):
     for depth in np.arange(0.0, length, SLEEVE_STEP):
         points = round_origin(seams.section(vertices, faces, start + depth * axis, axis))
         if not len(points):
-            break  # the arm has ended
+            if fused or depth > length / 4:
+                break  # the arm has ended
+            continue  # the joint lies just outside the outfit's shoulder: no curve runs round the arm's line yet
         if (points @ toward).max() > SLEEVE_FUSED * -(points @ toward).min():
             if armpit is None:
                 fused.append(points)

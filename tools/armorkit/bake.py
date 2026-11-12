@@ -17,7 +17,7 @@ import numpy as np
 
 from tools.headkit import gltf
 
-from . import brief, export, measure, registry, repose, seams, split, texture
+from . import bodyskin, brief, export, measure, registry, repose, seams, split, texture
 from .registry import require
 
 ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED)  # what the split made: it has no surface of its own on the generated outfit
@@ -59,7 +59,7 @@ def to_field(points):
     return np.stack([-points[:, 0], points[:, 2], points[:, 1]], axis=1)
 
 
-def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None):
+def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None):
     """(parts, bones): a generated outfit as the parts body `body` wears, each with its maps.
 
     `document` is the outfit's brief (`brief.load`), `mesh` its exported mesh, `colours` its saved colour
@@ -69,8 +69,14 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     and relief per texel (`rgb`, `covered`, `relief`), the texels `tint_maps` is told about (`closing`, `cap`,
     `padded`), flags per face (`added`, `domed`), the brief's material of each face that is no plate's
     (`trimmed`, -1 elsewhere) and where each vertex lies on the generated mesh (`src`). `bones` is the body's
-    rig. `say` is told how each stage went."""
+    rig. `say` is told how each stage went.
+
+    A slot the brief leaves to the body (`bare`) gets no part: what the outfit has there, a glove's cuff
+    past the wrist, is cut off on the joint's plane. In a slot the brief shares with the body's skin
+    (`skin`) the part also holds the body's own part where the outfit shows it, with its textures
+    (`bodyskin.worn`); `body_textures` is the folder of the body's material files and maps."""
     count = len(document['materials'])
+    require(not document.get('skin') or body_textures is not None, "An outfit that shows the body's skin on a part needs the folder of the body's textures")
     bones, skin = measure.body(body_pack, body)
     source, faces = repose.load(mesh)
     field, levels = texture.open_field(colours)
@@ -105,7 +111,11 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}
+    left = left_to_body(document)
     for name, (pv, pf, pc) in result.items():
+        if name in left:  # the body's: what the outfit has there is cut off on the joint's plane, and no map is made of it
+            say(f'{name}: left to the body, {len(pf)} faces of the outfit cut off')
+            continue
         role = roles(name, made[name])
         of_face = np.where(origins[name] >= 0, mats[np.maximum(origins[name], 0)], -1)  # per face: its material, -1 for what the split made
         bare = (of_face >= 0) & ~np.isin(of_face, metals)  # a face that is no plate's shows no plate
@@ -142,32 +152,76 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 shows = texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], first, size)
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
-    return parts, bones
+    return skinned(parts, document, body_pack, body_textures, body, bones, say), bones
 
 
-def store(parts, folder):
+def left_to_body(document):
+    """The parts of the slots the brief leaves to the body (`bare`): `bake` makes none of them."""
+    return {name for slot in document.get('bare', []) for name in registry.SLOTS[slot]['tokens']}
+
+
+def shared_with_body(document):
+    """The parts of the slots the brief shares with the body's skin (`skin`)."""
+    return {name for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens']}
+
+
+def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None):
+    """The baked parts with the body's own part beside the outfit's in each slot the brief shares with the
+    body's skin (`skin`, `bodyskin.worn`)."""
+    parts = dict(parts)
+    for slot in document.get('skin', []):
+        for name in registry.SLOTS[slot]['tokens']:
+            if name in parts:
+                own = bodyskin.body_part(body_pack, body_textures, body, name, bones)
+                start, end = (np.asarray(bones[end.format(name[-1])], float)[:3, 3] for end in split.BONE_ENDS[slot])
+                parts[name] = bodyskin.worn(parts[name], own, start, end, BUDGET['texture'])
+                say(f'{name}: {int(parts[name]["skin"].sum())} of the body\'s {len(own["f"])} faces beside the outfit\'s, {len(parts[name]["rgb"])} px')
+    return parts
+
+
+def store(parts, folder, document=None):
     """Keep `bake`'s parts in `folder`, a file per part, for `stored`.
 
     The parts are listed in `baked.json`, written last: a folder used again for an outfit with fewer parts
     still holds the files of the parts it no longer has, and read by what lies in it, a second tint gave
     the new outfit the old one's shoulder pads. The list is taken away first, so a store that stops halfway
-    leaves nothing `stored` would read."""
+    leaves nothing `stored` would read. With it are the slots `document`, the brief the parts were baked
+    from, leaves to the body and shares with its skin (`declared`): the parts alone do not show a slot left
+    to the body that the brief no longer leaves, since that slot has no part either way."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / KEPT).unlink(missing_ok=True)
     for name, part in parts.items():
-        np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS})
-    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts)}, indent=1) + '\n', encoding='utf-8', newline='\n')
+        np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS + tuple(key for key in bodyskin.KEYS if key in part)})
+    slots = {key: sorted((document or {}).get(key, [])) for key in ('bare', 'skin')}
+    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts), **slots}, indent=1) + '\n',
+                               encoding='utf-8', newline='\n')
+
+
+def listing(folder):
+    """The list `store` wrote in `folder`, checked: its `parts`, and its `bare` and `skin` slots, none for parts
+    kept before the list held them."""
+    folder = Path(folder)
+    require((folder / KEPT).is_file(), f'{folder} holds no baked parts: it has no {KEPT}')
+    listed = json.loads((folder / KEPT).read_text(encoding='utf-8'))
+    named = lambda value: isinstance(value, list) and all(isinstance(name, str) for name in value)
+    require(isinstance(listed, dict) and listed.get('kind') == KEPT_KIND and listed.get('schemaVersion') == 1
+            and named(listed.get('parts')) and listed['parts'] and all(named(listed.get(key, [])) for key in ('bare', 'skin')),
+            f'{folder / KEPT} is no list of baked parts')
+    return {'parts': listed['parts'], **{key: listed.get(key, []) for key in ('bare', 'skin')}}
+
+
+def declared(folder):
+    """{'bare': slots, 'skin': slots}: what the brief the parts in `folder` were baked from left to the body and
+    shared with its skin (`store`)."""
+    listed = listing(folder)
+    return {key: set(listed[key]) for key in ('bare', 'skin')}
 
 
 def stored(folder):
     """The parts `store` last kept in `folder`: those its list names, and no other file there."""
     folder = Path(folder)
-    require((folder / KEPT).is_file(), f'{folder} holds no baked parts: it has no {KEPT}')
-    listed = json.loads((folder / KEPT).read_text(encoding='utf-8'))
-    require(isinstance(listed, dict) and listed.get('kind') == KEPT_KIND and listed.get('schemaVersion') == 1
-            and isinstance(listed.get('parts'), list) and listed['parts'] and all(isinstance(name, str) for name in listed['parts']),
-            f'{folder / KEPT} is no list of baked parts')
+    listed = listing(folder)
     require(all((folder / (name + '.npz')).is_file() for name in listed['parts']), f'{folder} lacks a part its {KEPT} lists')
     parts = {name: dict(np.load(folder / (name + '.npz'))) for name in listed['parts']}
     require(all(set(KEYS) <= set(part) for part in parts.values()), f'{folder} holds a file that is no baked part')
@@ -192,7 +246,7 @@ def tints(parts, document, speck=texture.SPECK):
     kinds = [material['kind'] for material in worn]
     channel = texture.channels(kinds)  # two channels per material: its garments are told apart by where they are worn
     slot_of = {token: slot for slot in SLOTS for token in registry.SLOTS[slot]['tokens']}
-    own = {name: ~part['added'] for name, part in parts.items()}
+    own = {name: ~part['added'] & ~part.get('skin', np.zeros(len(part['f']), bool)) for name, part in parts.items()}  # the outfit's own surface: not the split's, not the body's
     start = np.cumsum([0] + [len(part['src']) for part in parts.values()])
     seen = {name: texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], found, size(part)) for name, part in parts.items()}
     second = texture.worn_second(np.concatenate([part['src'] for part in parts.values()]),
@@ -215,6 +269,7 @@ def tints(parts, document, speck=texture.SPECK):
                                          charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
                                          cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
                                          shadow=part['closing'] if name in ARMHOLE else None, speck=speck)
+        tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1)}
                             for k, material in enumerate(worn)]}
@@ -235,7 +290,10 @@ def write(folder, parts, tinted, bones, body, number):
         # closings and caps are lit as surfaces of their own
         v, f, n, uv = export.added_normals(part['v'], part['f'], part['added'], part['n'], part['uv'], domed=part['domed'])
         models[name] = export.write_part(ascii_dir, body, name, number, (v, f, uv, n), bones, tinted[name])
-        texture.write_relief(resources, models[name], texture.halved(part['relief']))
+        if 'skin_at' in part:  # the body's normal map is already at half its size or less, and its roughness is a map
+            texture.write_relief(resources, models[name], part['relief'], rough=part['skin_rough'] / 255)
+        else:
+            texture.write_relief(resources, models[name], texture.halved(part['relief']))
         shutil.copyfile(ascii_dir / (models[name] + '.plt'), resources / (models[name] + '.plt'))
     return models
 
@@ -277,11 +335,13 @@ def gates(parts, models, resources, packs=()):
 
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
-        packs=(), game=None, resources=(), say=lambda *_: None):
+        packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None):
     """Bake one outfit into `output` and check it: the record, also written as `<output>/bake.json`.
 
     With `mesh`, `colours`, `raw` and `xatlas` the outfit is baked (`bake`) and, where `kept` names a folder,
-    stored there; without them the parts stored in `kept` are tinted and written again. `packs` are the pack
+    stored there; without them the parts stored in `kept` are tinted and written again, if they were baked
+    with the slots the brief leaves to the body or shares with its skin. `body_textures` is
+    the folder of the body's material files and maps, for a brief that shows the body's skin. `packs` are the pack
     folders a model's name may not clash with. With `game`, the game's install folder, the models are
     compiled into `<output>/resources` (`export.compile_models`, with `resources` to look animations up in):
     the models of this run and no other. An output folder used before still holds the models written then,
@@ -290,11 +350,15 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     require(all(given is not None for given in fresh) or (kept is not None and all(given is None for given in fresh)),
             'Bake an outfit from its mesh, colour field, raw mesh and the layout library, or tint the parts kept in a folder again')
     if mesh is not None:
-        parts, bones = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say)
+        parts, bones = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures)
         if kept is not None:
-            store(parts, kept)
+            store(parts, kept, document)
     else:
-        parts, bones = stored(kept), measure.body(body_pack, body)[0]
+        parts = stored(kept)
+        require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')}
+                and not left_to_body(document) & set(parts) and {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts),
+                f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
+        bones = measure.body(body_pack, body)[0]
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
