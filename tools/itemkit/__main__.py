@@ -32,14 +32,14 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
     profile_data['allowedAssemblies'] = [dict.fromkeys(('b','m','t'), design_id)]
     if family_name == 'dagger':
         profile_data['sourceExport'] = {'remeshResolution':768,'targetFaceCount':200000,'signMode':'udf'}
-        profile_data['budgets'] = {'visible':5000,'shadow':500,'parts':{
-            'b':{'visible':800,'shadow':100},'m':{'visible':1400,'shadow':100},'t':{'visible':2800,'shadow':300}}}
+        profile_data['budgets'] = {'visible':7500,'shadow':500,'parts':{
+            'b':{'visible':1200,'shadow':100},'m':{'visible':2100,'shadow':100},'t':{'visible':4200,'shadow':300}}}
         profile_data['resources'] = {'texturePrefix':'sr_cfk','blueprint':'sr_cfk','hak':'srn_cfk_test',
             'module':'sr_cfk_test','displayName':'Cougar Fineblade Knife'}
     if family_name == 'longsword':
         profile_data['sourceExport'] = {'remeshResolution':768,'targetFaceCount':200000,'signMode':'udf'}
-        profile_data['budgets'] = {'visible':12000,'shadow':500,'parts':{
-            'b':{'visible':1200,'shadow':100},'m':{'visible':2300,'shadow':100},'t':{'visible':8500,'shadow':300}}}
+        profile_data['budgets'] = {'visible':18000,'shadow':500,'parts':{
+            'b':{'visible':1800,'shadow':100},'m':{'visible':3450,'shadow':100},'t':{'visible':12750,'shadow':300}}}
         profile_data['resources'] = {'texturePrefix':'sr_cfs','blueprint':'sr_cfs','hak':'srn_cfs_test',
             'module':'sr_cfs_test','displayName':'Cougar Fineblade Longsword'}
     if design_id not in COUGAR_INTAKE_IDS:

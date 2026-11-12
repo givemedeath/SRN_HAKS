@@ -111,7 +111,7 @@ class DaggerTests(Fixture):
     def test_longsword_intake_contract_and_comparison_scope(self):
         intake(self.root/'reference.png',self.root/'long','cougar-fineblade-longsword','longsword')
         profile=read(self.root/'long/family.json')
-        self.assertEqual(profile['budgets']['visible'],12000)
+        self.assertEqual(profile['budgets']['visible'],18000)
         self.assertEqual(profile['sourceExport']['signMode'],'udf')
         self.assertEqual(profile['resources']['blueprint'],'sr_cfs')
         self.native();table=self.path.parent/'stack/base/baseitems.2da'
@@ -150,7 +150,7 @@ class DaggerTests(Fixture):
         intake(self.root/'reference.png',self.root/'knife','cougar-fineblade-knife','dagger')
         data=read(self.root/'knife/asset.json');family=read(self.root/'knife/family.json')
         self.assertEqual(data['id'],'cougar-fineblade-knife');self.assertEqual(family['family'],'dagger')
-        self.assertEqual(sum(x['visible'] for x in family['budgets']['parts'].values()),5000)
+        self.assertEqual(sum(x['visible'] for x in family['budgets']['parts'].values()),7500)
 
 
 class GripTests(unittest.TestCase):

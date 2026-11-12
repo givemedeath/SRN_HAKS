@@ -7,7 +7,7 @@ import hashlib
 import re
 
 from tools.headkit.common import require
-from .contracts import integer, resref, twoda
+from .contracts import FIXED_ROUTE_BUDGET, integer, resref, twoda
 
 
 SLOTS = {'pistol': 'b', 'smg': 'm', 'rifle': 't'}
@@ -203,10 +203,10 @@ def validate_assembly(allocation, variant, counts):
     require(set(counts) == set(PART_FIELDS), 'All active parts must be counted')
     for p, values in counts.items():
         require(set(values) == {'visible', 'shadow'}, 'Visible and shadow counts required')
-        integer(values['visible'], 4, 10000, 'visible triangles')
-        integer(values['shadow'], 0, 500, 'shadow triangles')
+        integer(values['visible'], 4, FIXED_ROUTE_BUDGET['visible'], 'visible triangles')
+        integer(values['shadow'], 0, FIXED_ROUTE_BUDGET['shadow'], 'shadow triangles')
         if p != slot:
             require(values == {'visible': 4, 'shadow': 0}, 'Placeholder must be four triangles with no shadow')
-    require(sum(x['visible'] for x in counts.values()) <= 10000, 'Complete firearm visible budget exceeded')
-    require(sum(x['shadow'] for x in counts.values()) <= 500, 'Complete firearm shadow budget exceeded')
+    require(sum(x['visible'] for x in counts.values()) <= FIXED_ROUTE_BUDGET['visible'], 'Complete firearm visible budget exceeded')
+    require(sum(x['shadow'] for x in counts.values()) <= FIXED_ROUTE_BUDGET['shadow'], 'Complete firearm shadow budget exceeded')
     return True

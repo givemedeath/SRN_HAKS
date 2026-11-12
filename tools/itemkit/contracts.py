@@ -7,6 +7,9 @@ from .routes import MULTIPART as PARTS, ROUTES, whole_shield
 BASELINE = 'e607a617c273828a37d8fc56dd43d7d8a0070844'
 GENERATION = {'preset': 'pixal-single-v1', 'shapeResolution': 1536, 'shapeCFG': 12,
               'textureCFG': 1, 'textureSteps': 12}
+# Whole-item cap for the firearm and shield routes. The user raised every visible budget by 50% on 2026-11-11
+# (10000 -> 15000); shadow budgets are unchanged. Profiles under the cap, such as the shipped 10000 ones, stay valid.
+FIXED_ROUTE_BUDGET = {'visible': 15000, 'shadow': 500}
 
 
 def resref(value):
@@ -76,7 +79,8 @@ def family(path, *, validate_native=True):
                 and data['firearm']['subtype'] in SLOTS, 'Explicit supported firearm slot required')
         firearm_slot = SLOTS[data['firearm']['subtype']]
     if firearm_slot or shield:
-        require(budgets['visible'] == 10000 and budgets['shadow'] == 500, 'This route has a 10000/500 budget')
+        require(budgets['visible'] <= FIXED_ROUTE_BUDGET['visible'] and budgets['shadow'] == FIXED_ROUTE_BUDGET['shadow'],
+                'This route has a {visible}/{shadow} budget'.format(**FIXED_ROUTE_BUDGET))
     require(set(budgets) == {'visible', 'shadow', 'parts'}, 'Explicit whole-object and per-part budgets required')
     for kind in ('visible', 'shadow'):
         integer(budgets[kind], 4, 200000, kind + ' assembly budget')

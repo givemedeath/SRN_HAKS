@@ -485,30 +485,35 @@ assembly, including all parts, hardware and caps:
 
 | Item category | Preliminary visible target | Selection |
 |---|---:|---|
-| Melee weapons | 5,000–15,000 | Length and overall size |
-| Firearms | 10,000–25,000 | Size and type: pistol, SMG, rifle |
+| Melee weapons | 7,500–22,500 | Length and overall size |
+| Firearms | 15,000–37,500 | Size and type: pistol, SMG, rifle |
+
+The user raised every visible budget by 50% on 2026-11-11 (the ranges were 5,000–15,000
+and 10,000–25,000). Shadow budgets did not change. Items already processed keep their
+counts; one takes the larger budget only when it is reprocessed under a fresh profile.
 
 These ranges are adjustable starting targets. Choose an exact cap and per-part
 allocation in each fresh family profile; the range maximum is not an automatic
-target for every model. The Cougar profile starts at 5,000 visible triangles,
-preserving the previous part proportions. Its shadow budgets remain unchanged:
+target for every model. The portable Cougar starting profile is 7,500 visible
+triangles in the previous part proportions. Its shadow budgets remain unchanged:
 
 | Part | Preliminary visible cap | Shadow triangles |
 |---|---:|---:|
-| Blade/guard (`t`) | 3,125 | 300 |
-| Grip (`m`) | 1,125 | 100 |
-| Pommel (`b`) | 750 | 100 |
-| Complete assembly | 5,000 | 500 |
+| Blade/guard (`t`) | 4,688 | 300 |
+| Grip (`m`) | 1,687 | 100 |
+| Pommel (`b`) | 1,125 | 100 |
+| Complete assembly | 7,500 | 500 |
 
-These are portable starting allocations. The measured Cougar production family
+These are portable starting allocations. The shipped, measured Cougar production family
 reallocates the same 5K whole-item cap to pommel 1,200, grip 1,375 and blade/guard
 2,425, fitting the actual natural boundaries. Its visible result is 1,174/1,360/2,422.
 The selected closed shadow result is 96/96/296. Its explicit `shadowPommel`
 projected-loop method retains the measured opening with a variable-thickness,
 96-triangle closed silhouette; it does not change visible geometry.
 
-The current pistol trial uses a 10,000 visible / 500 shadow whole-item cap, including
-its active hidden placeholders. SMG/rifle slot reservations exist; no subtype size
+The firearm and shield routes cap the whole item at 15,000 visible / 500 shadow
+(`contracts.FIXED_ROUTE_BUDGET`; 10,000 before 2026-11-11), including active hidden
+placeholders. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
 thresholds or shadow budget increases have been established. Preserve historical profiles and receipts;
 derive a fresh profile/manifest for future processing. New targets confer no geometry,
 native, client or production approval.

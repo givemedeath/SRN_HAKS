@@ -15,8 +15,8 @@ def intake_pistol(reference, output, design_id):
                'nativePackaging': 'blocked', 'materialRoute': 'diffuse', 'bakeSize': 4096,
                'runtimeTextureSize': 1024, 'firearm': {'subtype': 'pistol'},
                'sourceExport': {'remeshResolution': 768, 'targetFaceCount': 200000, 'signMode': 'udf'},
-               'budgets': {'visible': 10000, 'shadow': 500, 'parts': {
-                   'b': {'visible': 9992, 'shadow': 500}, 'm': {'visible': 4, 'shadow': 0},
+               'budgets': {'visible': 15000, 'shadow': 500, 'parts': {
+                   'b': {'visible': 14992, 'shadow': 500}, 'm': {'visible': 4, 'shadow': 0},
                    't': {'visible': 4, 'shadow': 0}}},
                'allowedAssemblies': [{'b': design_id, 'm': 'hidden-placeholder', 't': 'hidden-placeholder'}],
                'notes': 'Complete pistol occupies bottom. Native packaging requires the separate verified firearm adapter; reference intake grants no fit or client approval.'}
