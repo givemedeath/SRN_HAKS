@@ -220,7 +220,9 @@ Automatic, per part:
 * Triangle and texture budgets.
 * Texture closure: the PLT and material file exist and every referenced map resolves.
 * Seam contract: each end meets its tier's overlap and envelope against the body joint.
-* Clearance: no body surface showing through at rest; no holes or detached pieces.
+* Clearance: no body surface showing through at rest; no holes or detached pieces. Holes and detached pieces
+  are checked on the generated outfit before it is cut (`bake.surface`): an opening 0.5 cm round or more, or a
+  piece under 10 cm² standing apart from the rest, fails.
 * Skin checks from cleanmodels: no unbound vertices, at most four influences, every bone in the skeleton.
 * All 20 body versions exist, and their table rows exist.
 * Headgear clears its race's head envelope.

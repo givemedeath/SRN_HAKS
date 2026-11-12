@@ -26,7 +26,8 @@
       "tools/armorkit/split.py",
       "tools/armorkit/texture.py",
       "tools/headkit/__init__.py",
-      "tools/headkit/gltf.py"
+      "tools/headkit/gltf.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/bodyskin.py": [
       "tools/armorkit/export.py",

@@ -14,6 +14,19 @@ import numpy as np
 from . import bake, bodyskin, export, measure, split
 
 
+def box(centre=(0.0, 0.0, 0.0), side=0.1):
+    """A closed cube: (vertices, faces), wound outward."""
+    v = (np.array([(x, y, z) for x in (0, 1) for y in (0, 1) for z in (0, 1)], float) - 0.5) * side + centre
+    f = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+    return v, f
+
+
+def joined(*meshes):
+    """Meshes as one: (vertices, faces)."""
+    base = np.cumsum([0] + [len(v) for v, _ in meshes])
+    return np.concatenate([v for v, _ in meshes]), np.concatenate([f + b for (_, f), b in zip(meshes, base)])
+
+
 def part(faces=1, size=4):
     """A baked part of `faces` triangles with flat maps of `size` texels a side."""
     v = np.array([(0.0, 0.0, 0.0), (0.1, 0.0, 0.0), (0.0, 0.1, 0.0)])
@@ -98,6 +111,21 @@ class BakeTests(unittest.TestCase):
             shades, layers = export.read_tint((Path(folder) / 'resources' / 'pmh0_chest332.plt').read_bytes())
             self.assertTrue((shades == 170).all() and (layers == export.LAYERS['cloth1']).all())
 
+    def test_holes_and_crumbs_of_the_generated_outfit_are_found_and_separate_pieces_are_not_faults(self):
+        v, f = box(side=0.1)
+        self.assertEqual(bake.surface(v, f), {'holes': [], 'debris': [], 'pieces': 1})
+        seamed = f.copy()
+        seamed[:2] = np.where(f[:2] < 4, f[:2] + 8, f[:2])  # a texture seam: two faces on their own copies of four vertices
+        self.assertEqual(bake.surface(np.concatenate([v, v[:4]]), seamed), {'holes': [], 'debris': [], 'pieces': 1})
+        self.assertTrue(np.allclose(bake.surface(v, f[1:])['holes'], [0.2 + 0.1 * np.sqrt(2)]))  # one face gone: an opening round its edges
+        pin = box((0.0, 0.0, 0.05), 0.001)  # an opening under `HOLE` round, on a crumb set into the surface
+        self.assertEqual(bake.surface(*joined((v, f), (pin[0], pin[1][1:]))), {'holes': [], 'debris': [], 'pieces': 2})
+        crumb, pad, sunk = box((0.1, 0.0, 0.0), 0.01), box((0.085, 0.0, 0.0), 0.05), box((0.05, 0.0, 0.0), 0.01)
+        found = bake.surface(*joined((v, f), crumb))
+        self.assertTrue(found['holes'] == [] and found['pieces'] == 2 and np.allclose(found['debris'], [6 * 0.01 ** 2]))
+        self.assertEqual(bake.surface(*joined((v, f), pad))['debris'], [])  # a pad standing off the rest is a piece, not debris
+        self.assertEqual(bake.surface(*joined((v, f), sunk))['debris'], [])  # a crumb set into the rest touches it
+
     def test_the_gates_tell_budgets_names_and_missing_textures(self):
         with tempfile.TemporaryDirectory() as folder:
             parts = {'chest': part(), 'pelvis': part()}
@@ -108,6 +136,13 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(report['texels'], {'chest': 4, 'pelvis': 4})
             self.assertEqual(report['notBuilt'], list(bake.NOT_BUILT))  # a pass here is not the plan's
             json.dumps(report)
+            # with what the generated outfit holds of holes and debris, those are gated too
+            clean, faulty = {'holes': [], 'debris': [], 'pieces': 1}, {'holes': [0.012], 'debris': [0.0004], 'pieces': 2}
+            report = bake.gates(parts, models, resources, whole=clean)
+            self.assertEqual((report['passed'], report['surface'], bake.WHOLE in report['notBuilt']), (True, clean, False))
+            self.assertEqual(bake.gates(parts, models, resources, whole=faulty)['failures'],
+                             ['the generated outfit: an opening 1.2 cm round', 'the generated outfit: a piece of 4.0 cm² standing apart from the rest'])
+            json.dumps(bake.gates(parts, models, resources, whole=faulty))
             # budgets: a chest may have more triangles than another part, and the outfit has a budget of its own
             fat = {'chest': part(bake.BUDGET['chest']), 'pelvis': part(bake.BUDGET['slot'])}
             self.assertTrue(bake.gates(fat, models, resources)['passed'])
