@@ -89,6 +89,14 @@ class BriefTests(unittest.TestCase):
         # a sealed folder's prompt is written from this paragraph, so it is never edited: a change is a new version
         self.assertEqual(hashlib.sha256(text.encode('utf-8')).hexdigest(), 'cec94d401f7e9ec5cde8db9d626737b5453282f4959cc7b0f0d6c10785a92990')
 
+    def test_a_brief_names_the_slots_it_leaves_to_the_body_and_those_it_shares_with_its_skin(self):
+        given = {**document(), 'bare': ['forearm'], 'skin': ['bicep']}
+        self.assertEqual(brief.validate(given), given)
+        self.assertEqual(brief.composed(given), brief.composed(document()))  # a fact for the bake: the prompt's words are the prompt's
+        for wrong in ({'bare': ['bicep']}, {'skin': ['forearm']}, {'bare': 'forearm'}, {'bare': ['forearm', 'forearm']}, {'skin': [1]}, {'skin': ['chest']}):
+            with self.assertRaises(ValueError):
+                brief.validate({**document(), **wrong})
+
     def test_materials_drawn_too_alike_are_not_prompted_for(self):
         # the first outfit's cloth and plates: a neutral grey and a pale blue-grey
         alike = document(('fabric', 'cloth', GREY), ('gear', 'leather', TAN), ('plates', 'metal', [170, 180, 190]))
