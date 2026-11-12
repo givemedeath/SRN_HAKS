@@ -1,4 +1,5 @@
-"""The credit cap holds across paid calls, and only a triangle-bounded model at or under 100k is taken off Meshy."""
+"""The credit cap holds across paid calls, and only a triangle-bounded model at or under its ceiling (100k, or 200k for a
+remeshed building) is taken off Meshy."""
 import json
 import struct
 import tempfile
@@ -55,7 +56,9 @@ class MeshyTests(unittest.TestCase):
         remesh = meshy.remesh_arguments('task-1', 100000)
         self.assertEqual(remesh[remesh.index('--target-polycount') + 1], '92000')  # asks low: a remesh overshoots
         with self.assertRaisesRegex(ValueError, 'ceiling'):
-            meshy.remesh_arguments('task-1', 150000)
+            meshy.remesh_arguments('task-1', 250000)
+        large = meshy.remesh_arguments('task-1', 200000)  # a larger building may have 200k
+        self.assertEqual(large[large.index('--target-polycount') + 1], '184000')
         building = meshy.building_arguments([self.image, self.image, self.image])
         self.assertNotIn('--target-polycount', building)
         with self.assertRaisesRegex(ValueError, 'one to four'):
@@ -165,6 +168,11 @@ class MeshyTests(unittest.TestCase):
         counts = meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm', run=run)
         self.assertEqual(list(counts.values()), [91000]); self.assertIs(self.ledger.entry('rm')['accepted'], True)
         self.assertEqual(self.ledger.committed(), 35)
+        run.triangle_counts = (150000, 31000)  # a remeshed building may pass 100k, up to 200k
+        self.assertIs(meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm-large', run=run) and self.ledger.entry('rm')['accepted'], True)
+        run.triangle_counts = (190000, 31000)
+        with self.assertRaisesRegex(ValueError, 'exceeds 200000'):
+            meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'bank-rm-over', run=run)
         with self.assertRaisesRegex(ValueError, 'already a reduced model'):
             meshy.download(self.ledger, 'rm', self.root / 'work', self.root / 'master-rm', master=True, run=run)
 
