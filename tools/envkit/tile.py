@@ -280,6 +280,22 @@ def light_places(found, row, column):
     return [(float(first[0]), float(first[1]), LIGHT_HEIGHT), (0.0, 0.0, max(found['roof'] + 1.5, LIGHT_HEIGHT))]
 
 
+def _roomy(walk, room=None):
+    """The walk cells a character has room to stand on: those in some block of walk cells a metre square, all of it the
+    group's own: a kerb at the group's edge is no way through it, however open the next tile. A strip narrower than
+    that joins nothing: the Ares Depot's first nodes took a
+    strip of half to three quarters of a metre down its east side for a way through, and walkers sent round it from
+    four tiles away stopped at the corner or never set out (client, 2026-11-11)."""
+    room = EXIT if room is None else room
+    padded = np.pad(walk, room, constant_values=False)
+    block = np.lib.stride_tricks.sliding_window_view(padded, (room, room)).all((-1, -2))
+    wide = np.zeros_like(padded)
+    for down in range(room):
+        for along in range(room):
+            wide[down:down + block.shape[0], along:along + block.shape[1]] |= block
+    return wide[room:-room, room:-room]
+
+
 def path_node(found, row, column):
     """One tile's path node: {node, turn, exits, offPath}.
 
@@ -291,16 +307,17 @@ def path_node(found, row, column):
     and joins no two that the tile's ground does not join; of those it is the one with the most exits, then the most of
     them joined, then the most ground reached. So what it gets wrong, where no letter fits, is a way left unsaid, never
     a way through a wall.
-    exits: the sides the node leaves by, of N, W, S, E. offPath: the walk cells of the tile that no exit reaches: ground
-    a walk from another tile will not be planned onto."""
+    Only ground with room to stand on counts, as an opening or as a way between two (`_roomy`).
+    exits: the sides the node leaves by, of N, W, S, E. offPath: the cells of the tile with room to stand on that no
+    exit reaches: ground a walk from another tile will not be planned onto."""
     material = found['material']; rows, columns = material.shape; r0, c0 = row * CELLS, column * CELLS
-    walk = material[r0:r0 + CELLS, c0:c0 + CELLS] == STONE; masses, _ = _masses(walk); along = slice(None)
+    roomy = _roomy(material == STONE); walk = roomy[r0:r0 + CELLS, c0:c0 + CELLS]; masses, _ = _masses(walk); along = slice(None)
     inside = {'N': (CELLS - 1, along), 'S': (0, along), 'W': (along, 0), 'E': (along, CELLS - 1)}
     beyond = {'N': (r0 + CELLS, slice(c0, c0 + CELLS)), 'S': (r0 - 1, slice(c0, c0 + CELLS)), 'W': (slice(r0, r0 + CELLS), c0 - 1), 'E': (slice(r0, r0 + CELLS), c0 + CELLS)}
     region = {}
     for side in 'NWSE':
         at = beyond[side]; line, limit = (at[0], rows) if side in 'NS' else (at[1], columns)
-        clear = walk[inside[side]] & (material[at] == STONE if 0 <= line < limit else True)
+        clear = walk[inside[side]] & (roomy[at] if 0 <= line < limit else True)
         edges = np.flatnonzero(np.diff(np.concatenate([[0], clear.astype(int), [0]]))).tolist()  # where each open stretch starts and ends
         # (how far the opening lies from the side's middle, its first cell), of the openings wide enough
         ways = [(max(start - CELLS / 2, CELLS / 2 - end, 0), start) for start, end in zip(edges[::2], edges[1::2]) if end - start >= EXIT]

@@ -365,6 +365,15 @@ class TileTests(unittest.TestCase):
         material[:, 36:] = tile.OBSCURING; material[20:22] = tile.OBSCURING; material[:20, 10:12] = tile.OBSCURING
         self.assertEqual(tile.path_node({'material': material}, 0, 0), {'node': 'Y', 'turn': 0, 'exits': 'NS', 'offPath': 200})
 
+    def test_a_strip_too_narrow_to_stand_in_joins_nothing(self):
+        # A building fills the tile but for a metre and a half along the north and half a metre down the east. The north leaves by
+        # the west and the east; the east strip is no way south (the Ares Depot's walkers stopped at such a corner, 2026-11-11).
+        material = np.full((tile.CELLS, tile.CELLS), tile.OBSCURING)
+        material[34:] = tile.STONE; material[:, 38:] = tile.STONE
+        self.assertEqual(tile.path_node({'material': material}, 0, 0)['exits'], 'NWE')
+        material[:, 34:] = tile.STONE  # a metre and a half down the east is a way south
+        self.assertEqual(tile.path_node({'material': material}, 0, 0)['exits'], 'NWSE')
+
     def test_a_tiles_record_names_its_picture_lights_and_doors_and_a_door_block_follows_it(self):
         made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}, 'lights': 2,
                                                     'image': f'ek_test_m{row}{column}', 'doors': [{'type': 58, 'x': 4.75, 'y': -1.1, 'z': 0.18, 'orientation': 90.0}] if (row, column) == (1, 0) else []}
