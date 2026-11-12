@@ -549,9 +549,15 @@ it, and the rest of the face keeps its weathering; smoothing the whole face was 
 panel beside weathered ones), and the mesh's wires were given the posts' tone (88, 88, 85; at 118, 122, 126
 they read lighter than the posts). The prop's colour, relief, roughness and specular maps changed and its model
 did not. Seen in the client the same day from the converted files that were copied into the pack, by day, from
-front and back, square and close on each half of the base. Left as generated: on the front of the base's left
-half the model itself has a wedge-shaped hole in its hazard stripes, through which the ground shows, and on
-the back the stripes are blurred at one corner; closing the hole takes new faces, not a retouch. The mesh was first
+front and back, square and close on each half of the base. The model also came back with a hole: on the front
+of the base's left half two of its faces lie over each other and leave a wedge between them open, through
+which the ground showed. The same day it was closed with one face between three of the model's own vertices,
+drawn with their own places on the picture (`close` in the game set; `convert.closed`); the model gained that
+face and no vertex. The picture under the wedge had never been drawn on by the generator and held a broken
+piece of the left hazard stripe, so that stripe was taken off by its tint as the smears were: the front of the
+left half now shows two stripes where the back shows three, with a paler patch where the third was. Seen in
+the client again from the same viewpoints. Left as generated: on the back the stripes are blurred at one
+corner. The mesh was first
 laid by each texel's x + y, which put the wires on the two faces of a panel out of step by the panel's
 thickness; since 2026-11-12 it is laid along the way each panel runs, so one face's wires stand behind the
 other's (only the colour map's alpha changed; seen in the client by day, square, slantwise and close, with a

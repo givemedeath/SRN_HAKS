@@ -32,7 +32,8 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -106,6 +107,33 @@ def repair_normals(vertices, normals, faces):
         normals[bad] = summed[bad]; lengths = np.linalg.norm(normals, axis=1)
         normals[lengths < 1e-12] = (0.0, 0.0, 1.0); lengths = np.linalg.norm(normals, axis=1)
     return normals / lengths[:, None], int(bad.sum())
+
+
+def closed(vertices, normals, uvs, faces, parts):
+    """`faces` with one more for each of `parts` ([{corners: three points in metres on the finished model}]): a hole a
+    generator left in a surface, closed between three of the model's own vertices. The Ares fence section came back
+    with two faces of its concrete base lying over each other and a wedge between them open to the ground behind
+    (seen in the client, 2026-11-12). Each corner is the vertex nearest the stated point, within `CLOSE_NEAR`; where
+    several stand at one place (a seam of the picture), those whose places on the picture lie nearest together are
+    taken, so that the face is drawn with the picture round the hole. It faces the way its corners' normals do.
+    No vertex is added, so nothing else of the model changes."""
+    from itertools import product
+    faces = np.asarray(faces); added = []; held = {tuple(sorted(face)) for face in faces.tolist()}
+    for part in parts:
+        label = str(part.get('part', 'closing face')); stands = []
+        for corner in np.asarray(part['corners'], float):
+            away = np.linalg.norm(vertices - corner, axis=1); nearest = int(away.argmin())
+            require(away[nearest] <= CLOSE_NEAR, f'A closing face stands on the model\'s own vertices: none lies within {CLOSE_NEAR} metres of {corner.tolist()} ({label})')
+            stands.append(np.flatnonzero(np.linalg.norm(vertices - vertices[nearest], axis=1) < 1e-4))
+        around = lambda chosen: sum(float(np.linalg.norm(uvs[chosen[a]] - uvs[chosen[b]])) for a, b in ((0, 1), (1, 2), (2, 0)))
+        a, b, c = (int(index) for index in min(product(*stands), key=around))
+        across = np.cross(vertices[b] - vertices[a], vertices[c] - vertices[a])
+        require(float(np.linalg.norm(across)) > 1e-6, f'A closing face has three corners apart from one another ({label})')
+        require(tuple(sorted((a, b, c))) not in held, f'The model already has a face between these corners ({label})')
+        if float(across @ (normals[a] + normals[b] + normals[c])) < 0:
+            b, c = c, b
+        added.append([a, b, c]); held.add(tuple(sorted((a, b, c))))
+    return np.vstack([faces, np.asarray(added, faces.dtype)]) if added else faces
 
 
 def square_up(points, limit=45.0, step=0.25):
@@ -562,10 +590,11 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base
 
 def load_models(path):
     """The game models of a set: {name: {source, height, colour, signTilt, lift, turn, tone, paint, smooth, mesh,
-    fence, lit, halo, tiles, measuredAt}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
+    fence, close, lit, halo, tiles, measuredAt}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
     turns it that many degrees counter-clockwise seen from above, where its front came back facing a side; boxes are
     on the model as turned. `tone`, `paint`, `smooth` and `mesh` retouch its colour picture (`retouch`); `fence` hangs
-    chain-link sheets between its fence posts, with a picture of their own (`sheets`). `source` is the generated
+    chain-link sheets between its fence posts, with a picture of their own (`sheets`); `close` closes a hole in it
+    with a face between three of its own vertices (`closed`). `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
@@ -581,7 +610,7 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -600,6 +629,10 @@ def load_models(path):
                     and 0.01 <= part['radius'] <= 1 and shade(part.get('colour', [0, 0, 0])), 'A smoothed part needs a box and a radius of 0.01 to 1 metres: ' + name)
             require('tint' not in part or (number(part['tint']) and 1 <= part['tint'] <= 255 and 'colour' not in part),
                     'A marking is taken off by its tint, 1 to 255 levels from the surface\'s, and the surface keeps its own colour: ' + name)
+        for part in model.get('close', []):
+            require(isinstance(part, dict) and {'corners'} <= set(part) <= {'part', 'corners'} and isinstance(part['corners'], list) and len(part['corners']) == 3
+                    and all(isinstance(corner, list) and len(corner) == 3 and all(number(value) for value in corner) for corner in part['corners']),
+                    'A closing face needs three corners, each a point in metres on the finished model: ' + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
@@ -712,9 +745,10 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
-          smooth=None, mesh=None, fence=None):
+          smooth=None, mesh=None, fence=None, close=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
-    illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `tone`,
+    illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `close`
+    closes holes in it with faces between its own vertices (`closed`), before its pictures are worked on; `tone`,
     `paint`, `smooth` and `mesh` give `colour`, `flat` and `plain`: its colour picture retouched, where its relief is levelled and
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
@@ -729,6 +763,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         vertices, _ = stand(vertices, height)
     normals, repaired = repair_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
+    if close:
+        faces = closed(vertices, normals, uvs, faces, close)
     require(not halo or lit, 'A halo spreads the lit parts: name them')
     require(not lit or illumination is None, 'Give the lit parts or a glow map, not both')
     wire = None
