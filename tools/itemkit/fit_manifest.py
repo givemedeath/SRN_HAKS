@@ -183,8 +183,12 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     probes = []
     for k, f in enumerate((.15, .4, .65, .85)):
         fs = marks['bladeStart'] + f * (1 - marks['bladeStart']); ts = at(fs); j = int(np.clip((ts - t0) / L * N, 0, N - 1))
-        c = mid[j]; half_width = np.nanmax(extent[j]) / 2
-        cand = np.flatnonzero((np.abs(q[:, 0] - ts) < .004 * L) & (np.abs(q[:, 1] - c[0]) < .12 * half_width))
+        c = mid[j]; half_width = np.nanmax(extent[j]) / 2; station = np.abs(q[:, 0] - ts) < .004 * L
+        # Widen the band beside the centre line until it holds a surface: how many vertices of a coarse round shell
+        # fall in a narrow band depends on how the mesh happens to be rotated about its long axis.
+        for band in (.12, .25, .4):
+            cand = np.flatnonzero(station & (np.abs(q[:, 1] - c[0]) < band * half_width))
+            if len(cand) > 10: break
         require(len(cand) > 10, f'No surface for the thickness probe at {f}')
         lo_i = cand[np.argmin(q[cand, 2])]
         near = cand[(np.abs(q[cand, 0] - q[lo_i, 0]) < .003 * L) & (np.abs(q[cand, 1] - q[lo_i, 1]) < .003 * L)]

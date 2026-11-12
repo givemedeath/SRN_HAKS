@@ -67,6 +67,16 @@ class HaftedFitTests(unittest.TestCase):
         self.assertLess(data['joinY'][0], data['joinY'][1])
         self.assertLess(abs(data['landmarks']['gripStart'] + data['landmarks']['gripEnd'] - 2 * (-.04 + .2) / .6), .02)
 
+    def test_the_fit_does_not_depend_on_the_mesh_rotation_about_its_axis(self):
+        # A round haft leaves the principal frame free to turn about the long axis (another numpy picks another turn);
+        # the thickness probes must find the surface whatever it is.
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.club()
+        for degrees in range(0, 180, 15):
+            a = np.radians(degrees); turn = np.array([[np.cos(a), 0, np.sin(a)], [0, 1, 0], [-np.sin(a), 0, np.cos(a)]])
+            data = measure({}, self.family, {'positions': gltf(v @ turn.T), 'faces': f}, {}, self.standard)
+            self.assertAlmostEqual(data['nativeLength'], .6, delta=.01, msg=f'{degrees} degrees')
+
     def test_a_chosen_length_and_a_bound_digest(self):
         from tools.itemkit.fit_manifest import measure
         v, f = self.club()
