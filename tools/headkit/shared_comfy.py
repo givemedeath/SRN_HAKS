@@ -5,11 +5,11 @@ controlled session a driver started). Every submission, from any toolkit, goes t
 
 1. take the host GPU lease, a crash-safe named mutex at `<tools root>/locks/gpu-<index>` that headbatch already
    takes for its GPU launches, so no two submitters ever look at the queue at the same moment;
-2. prove the server: its live identity, and for a server the toolkit did not start, the approved snapshot
-   (the toolkit's own `comfyAttestation` binding, else the one the shared registry publishes);
-3. wait for an idle queue: another session's job, or the user's, finishes first and is never touched;
+2. wait for an idle queue: another session's job, or the user's, finishes first and is never touched;
+3. prove the server, after the wait: its live identity, and for a server the toolkit did not start, the approved
+   snapshot (the toolkit's own `comfyAttestation` binding, else the one the shared registry publishes);
 4. submit while still holding the lease. The job is in the queue before the lease is released, so the next
-   submitter waits for it in step 3.
+   submitter waits for it in step 2.
 
 The lease is not held while a job runs; jobs are collected and rechecked by their own toolkit. Drivers never start,
 stop or restart a shared server. `headkit.comfy.Client` refuses a `/prompt` sent outside a slot.
@@ -89,8 +89,9 @@ def slot(client, local=None, *, prove=True, index=0, root=None, limit=WAIT_SECON
     inside the slot (headkit's dispatch verification)."""
     fetch = getattr(client, 'request', None) or client.call
     with gpu_lease(index, root, limit=limit, say=say, sleep=sleep):
-        identity = live(fetch, local, root) if prove else None
         wait_idle(fetch, limit=limit, poll=poll, say=say, sleep=sleep)
+        # Proven after the wait, which can be long: the server may have restarted or changed meanwhile.
+        identity = live(fetch, local, root) if prove else None
         _STATE.depth = getattr(_STATE, 'depth', 0) + 1
         try:
             yield identity

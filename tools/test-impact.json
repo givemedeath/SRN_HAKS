@@ -1253,6 +1253,7 @@
       "tools/headkit/__init__.py",
       "tools/headkit/attestation.py",
       "tools/headkit/comfy.py",
+      "tools/headkit/design.py",
       "tools/headkit/shared_comfy.py",
       "tools/headkit/test_attestation.py"
     ],

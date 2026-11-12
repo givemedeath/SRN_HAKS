@@ -24,6 +24,7 @@ class Fake:
             return {'queue_running': [[0, 'other']] if self.busy >= 0 else [], 'queue_pending': []}
         if route == '/prompt':
             self.posted.append(shared_comfy.holding()); return {'prompt_id': 'p'}
+        if route == '/history/p': return {'p': {'outputs': {}, 'status': {'completed': True, 'status_str': 'success'}}}
         raise AssertionError(route)
 
 
@@ -60,6 +61,10 @@ class SharedComfyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'shared_comfy.slot'): Client('http://127.0.0.1:9').request('/prompt', {})
         with self.assertRaisesRegex(ValueError, 'stayed busy'):
             with shared_comfy.slot(Fake(live, busy=99), limit=0, sleep=lambda s: None, say=None): pass
+        relaunched = Fake(live, busy=1)                                           # Desktop restarts during the wait
+        def restart(seconds): relaunched.live = identity(self.root/'desktop', argv=['main.py', '--restarted'])
+        with self.assertRaisesRegex(ValueError, 'launch arguments changed'):
+            with shared_comfy.slot(relaunched, sleep=restart, say=None): self.fail('proven before the wait only')
         changed = identity(self.root/'desktop', argv=['main.py', '--lowvram'])  # relaunched with other arguments
         with self.assertRaisesRegex(ValueError, 'launch arguments changed'):
             with shared_comfy.slot(Fake(changed), say=None): self.fail('a drifted server got a slot')
@@ -79,6 +84,17 @@ class SharedComfyTests(unittest.TestCase):
             self.assertEqual(os.environ[shared_comfy.LEASE_ENV], os.path.normcase(str(path.resolve())))
             with shared_comfy.gpu_lease(0, self.root, limit=0, say=None): pass        # nested or a child: no wait
         self.assertNotIn(shared_comfy.LEASE_ENV, os.environ)
+
+    def test_a_design_job_is_held_to_its_own_attestation_binding_first(self):
+        from headkit import design
+        live = identity(self.root/'desktop'); client = Fake(live)
+        captured = attestation.capture(client)['snapshot']
+        own = attestation.approve(client, captured, 'Approve for this design only', publish=False)['binding']
+        self.assertIsNone(attestation.published())
+        with self.assertRaisesRegex(ValueError, 'no approved snapshot is published'):
+            design.dispatch(client, {}, 't', {}, poll=0)
+        design.dispatch(client, {}, 't', {}, poll=0, local={'comfyAttestation': own})
+        self.assertEqual(client.posted, [True])
 
     def test_status_reports_instead_of_raising(self):
         live = identity(self.root/'desktop')
