@@ -163,10 +163,16 @@ class GlowTests(unittest.TestCase):
             # Every building's hook is the door with no model of its own: a visible door type, or none stated, is refused.
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 117, 'leaf': 2.1}}}, 'invisible transition door')
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'leaf': 2.1}}}, 'invisible transition door')
-            # A leaf is a measurement of the model at one height: a building made taller or lower has its door measured again.
-            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58, 'leaf': 2.1}}}, 'measuredAt')
-            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58, 'leaf': 2.1, 'measuredAt': 12.35}}},
-                    'measure the door again on the model 9.5 metres tall')
+            # Every box, fence, door and fade height is a measurement of the model at one height: a model that states any
+            # says the height it had then, and one made taller or lower since has them measured again.
+            cube = [[0, 0, 0], [1, 1, 1]]; door = {'at': [0, 1, 0.2], 'type': 58, 'leaf': 2.1}
+            for stated in ({'lit': [{'box': cube}]}, {'paint': [{'box': cube, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': cube, 'radius': 0.1}]},
+                           {'mesh': [{'box': cube, 'pitch': 0.09, 'wire': 0.016}]}, {'fence': [sheet]}, {'tiles': {**tiles, 'door': door}}, {'tiles': {**tiles, 'fade': 3.0}}):
+                refused({'source': 'meshy/x', 'height': 9.5, **stated}, 'says the height it had when they were measured')
+                refused({'source': 'meshy/x', 'height': 9.5, 'measuredAt': 12.35, **stated}, 'measured with the model 12.35 metres tall and it is now 9.5')
+                path = Path(scratch) / 'measured.json'; path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, **stated}}}), encoding='utf-8')
+                self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], 9.5)
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'needs the place it stands at')  # the model says it, not the door
             # A tile group is built standing on the ground: a lift would move its boxes and not the building.
             refused({'source': 'meshy/x', 'height': 9.5, 'lift': 2, 'tiles': tiles}, 'takes no lift')
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped
@@ -177,8 +183,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(ares['ek_ad_turret']['turn'], 90); self.assertEqual(len(ares['ek_ad_fence']['mesh']), 2); self.assertIn('paint', ares['ek_ad_depot'])
         self.assertEqual((len(ares['ek_ad_depot']['smooth']), len(ares['ek_ad_depot']['fence'])), (4, 6))  # its perimeter fence, and the wall behind
         self.assertEqual((ares['ek_ad_depot']['tiles']['door']['leaf'], models['ek_ss_shack']['tiles']['door']['leaf']), (2.1, 2.1))
-        for model in (ares['ek_ad_depot'], models['ek_ss_shack']):
-            self.assertEqual(model['tiles']['door']['measuredAt'], model['height'])
+        for model in (ares['ek_ad_depot'], ares['ek_ad_sign'], ares['ek_ad_fence'], models['ek_ss_shack'], models['ek_ss_vending']):
+            self.assertEqual(model['measuredAt'], model['height'])
+        self.assertNotIn('measuredAt', ares['ek_ad_crate'])  # nothing is measured on it
 
 
 if __name__ == '__main__':

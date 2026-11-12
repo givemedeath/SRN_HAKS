@@ -32,6 +32,7 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
+MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -542,25 +543,26 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base
 
 def load_models(path):
     """The game models of a set: {name: {source, height, colour, signTilt, lift, turn, tone, paint, smooth, mesh,
-    fence, lit, halo, tiles}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
+    fence, lit, halo, tiles, measuredAt}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
     turns it that many degrees counter-clockwise seen from above, where its front came back facing a side; boxes are
     on the model as turned. `tone`, `paint`, `smooth` and `mesh` retouch its colour picture (`retouch`); `fence` hangs
     chain-link sheets between its fence posts, with a picture of their own (`sheets`). `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
-    hide it, and `door` ({at: [x, y, z], facing, type, leaf, measuredAt}: the middle of the foot of a door on the finished model, the
+    hide it, and `door` ({at: [x, y, z], facing, type, leaf}: the middle of the foot of a door on the finished model, the
     way it looks out in degrees from east towards north (90 is north), its row of doortypes.2da, which is the invisible
-    transition door's, `leaf`, the height in metres of the door leaf as measured on the finished model, which must
-    be a door a character fits, and `measuredAt`, the height the model had when the door was measured, which must be
-    its height still; `tile.doorstep` draws the hook out onto open ground and turns it). A tile group takes no `lift`. `placeable` gives it a row in the placeables table: its label
+    transition door's, and `leaf`, the height in metres of the door leaf as measured on the finished model, which must
+    be a door a character fits; `tile.doorstep` draws the hook out onto open ground and turns it). A tile group takes no `lift`.
+    `measuredAt` is the height the model had when its boxes, fences, door and fade height were measured: a model that
+    states any of them states it, and it must be the model's height still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
     under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'lit', 'halo', 'tiles', 'placeable'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -611,7 +613,7 @@ def load_models(path):
         # A tile group stands on the ground: `tiles` builds it there, and a lift would only move its boxes off it.
         require(tiles is None or not model.get('lift'), 'A tile group stands on the ground and takes no lift: ' + name)
         door = (tiles or {}).get('door')
-        require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf', 'measuredAt'} and np.asarray(door['at'], float).shape == (3,)),
+        require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf'} and np.asarray(door['at'], float).shape == (3,)),
                 'A door needs the place it stands at: ' + name)
         require(door is None or number(door.get('facing', 0.0)), 'A door faces a number of degrees: ' + name)
         # The building's own modelled door is what is seen; the hook is the door that has no model of its own.
@@ -620,14 +622,18 @@ def load_models(path):
         # tiles and its door leaf came out 1.6 metres, lower than the character standing at it (client, 2026-11-11).
         require(door is None or (number(door.get('leaf')) and DOOR_LEAF[0] <= door['leaf'] <= DOOR_LEAF[1]),
                 f'A door states its leaf, measured on the finished model, {DOOR_LEAF[0]} to {DOOR_LEAF[1]} metres tall; scale the building to its door first: ' + name)
-        # The leaf and the door's place are measurements, and a measurement is of the model at one height. A typed
-        # leaf would go on passing after its building was made taller or lower (found in review, 2026-11-12): so the
-        # door says the height its model had when it was measured, and a model of another height has its door measured again.
-        require(door is None or (number(door.get('measuredAt')) and door['measuredAt'] == model['height']),
-                f'A door says the height its model had when its place and leaf were measured (measuredAt), and that is the height of the model now; '
-                f'measure the door again on the model {model["height"]} metres tall: ' + name)
         fade = (tiles or {}).get('fade')
         require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
+        # Every box, fence, door and fade height is a measurement, and a measurement is of the model at one height. A
+        # typed door leaf would go on passing after its building was made taller or lower, and a lit box would go on
+        # holding some of the model and lighting the wrong part of it (found in review, 2026-11-12): so a model that
+        # states any measurement says the height it had when they were made, and at another height they are made again.
+        measured = any(model.get(key) for key in MEASURED) or door is not None or fade is not None
+        require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says the height it had when they '
+                f'were measured (measuredAt: {model["height"]}, if they were measured on the model as it is now): ' + name)
+        require('measuredAt' not in model or (number(model['measuredAt']) and model['measuredAt'] == model['height']),
+                f'The boxes, fences, door and fade height of a model were measured with the model {model.get("measuredAt")} metres tall and it is now '
+                f'{model["height"]}: measure them again on the model as it is, and say so in measuredAt: ' + name)
     return data['models']
 
 
