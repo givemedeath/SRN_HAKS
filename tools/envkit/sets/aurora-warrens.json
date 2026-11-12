@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "24_aurora_warrens_apartment_complex.png",
+    "sha256": "ad7ba5b2497a8829c1b3ef8d4b9086971dd571227f0ce7944d2376dc4b9858ec",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "stacked scrap-built tenement block with balconies, a caged stair tower and rooftop shacks", "box": [0, 14, 860, 555], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a stacked scrap-built tenement block", "box": [851, 123, 1216, 325]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a scrap-built tenement block", "box": [870, 344, 1222, 521]},
+    "entry-kiosk": {"kind": "prop", "type": "shack", "subject": "small corrugated-roof entry shack with a door and mailboxes", "box": [4, 634, 236, 812]},
+    "stairwell-cage": {"kind": "prop", "type": "stair-module", "variant": "Caged two-flight stairwell tower section.", "subject": "caged steel stairwell tower section", "box": [240, 624, 400, 813]},
+    "balcony-segment": {"kind": "prop", "type": "balcony-segment", "subject": "tenement balcony walkway segment with railings and hanging laundry", "box": [404, 647, 659, 814]},
+    "utility-generator": {"kind": "prop", "type": "generator", "variant": "Large yellow enclosed generator with cables and graffiti.", "subject": "large yellow enclosed utility generator", "box": [659, 687, 847, 814]},
+    "water-tank": {"kind": "prop", "type": "water-tank", "subject": "rusted rooftop water tank on a steel frame", "box": [853, 618, 993, 812]},
+    "rooftop-shack": {"kind": "prop", "type": "shack", "variant": "Corrugated rooftop shack with a tarp, an antenna and pallets.", "subject": "corrugated rooftop shack with a tarp", "box": [998, 647, 1247, 810]},
+    "barricade": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire on striped footings", "box": [1246, 651, 1448, 812]},
+    "scrap-barrier": {"kind": "prop", "type": "scrap-barrier", "subject": "improvised barrier of scrap sheet, planks and pallets", "box": [4, 893, 218, 1027]},
+    "bodega-counter": {"kind": "prop", "type": "market-stall", "variant": "Bodega counter kiosk with a neon sign, a fridge and stocked shelves.", "subject": "small bodega counter kiosk with a neon sign", "box": [221, 867, 469, 1027]},
+    "laundry-rack": {"kind": "prop", "type": "laundry-line", "subject": "laundry line between two poles with baskets", "box": [474, 877, 653, 1024]},
+    "trash-pile": {"kind": "prop", "type": "street-clutter", "variant": "Rubbish bags with a dented bin, boxes and a pallet.", "subject": "pile of rubbish bags with a dented bin and a pallet", "box": [655, 899, 886, 1023]},
+    "graffiti-wall": {"kind": "prop", "type": "graffiti-wall", "subject": "concrete wall slab covered in gang graffiti", "box": [892, 878, 1086, 1025]},
+    "light-pole": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin floodlight on a pole", "box": [1116, 862, 1197, 1026]},
+    "crate-stack": {"kind": "prop", "type": "pallet-stack", "variant": "Wooden crates, plastic crates and a tarp on pallets.", "subject": "pallets of wooden crates under a tarp", "box": [1215, 883, 1445, 1028]}
+  }
+}

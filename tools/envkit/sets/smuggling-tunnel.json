@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "55_intersector_smuggling_tunnel.png",
+    "sha256": "b366b1e12b70ae6fddfe7015c2848843e8168125989faa52a87805105c47cf4a",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "arched concrete service tunnel with a side access door, pipe runs and a sealed gate at the far end", "box": [5, 95, 795, 548], "notes": "Remove the crates, the barrel and all text."},
+    "tunnel-section": {"kind": "building", "subject": "longitudinal section of an arched concrete service tunnel", "box": [810, 135, 1240, 240]},
+    "tunnel-profile": {"kind": "building", "subject": "cross section of an arched concrete service tunnel", "box": [818, 258, 990, 398]},
+    "alcove-section": {"kind": "building", "subject": "section of a storage alcove off a service tunnel", "box": [1008, 275, 1244, 398]},
+    "tunnel-arch": {"kind": "prop", "type": "tunnel-segment", "subject": "curved concrete tunnel lining segment", "box": [8, 888, 130, 1018]},
+    "pipe-bundle": {"kind": "prop", "type": "conduit", "variant": "Stack of four rusty pipes on brackets.", "subject": "stack of four rusty pipes on brackets", "box": [130, 903, 260, 1002]},
+    "ladder": {"kind": "prop", "type": "ladder", "subject": "yellow steel ladder segment", "box": [264, 891, 321, 1016]},
+    "sealed-gate": {"kind": "prop", "type": "dock-door", "variant": "Riveted checkpoint gate lettered CHK-03 with red lamps and hazard stripes.", "subject": "riveted checkpoint gate with red lamps", "box": [330, 897, 479, 1018]},
+    "service-door": {"kind": "prop", "type": "door", "variant": "Rusted riveted door with a cage lamp in a steel frame.", "subject": "rusted riveted service door in a steel frame", "box": [484, 897, 558, 1015]},
+    "cache-crates": {"kind": "prop", "type": "hard-case", "variant": "Olive, grey and yellow cases with warning triangles.", "subject": "cluster of olive, grey and yellow cases", "box": [559, 917, 658, 1015]},
+    "stash-locker": {"kind": "prop", "type": "locker", "variant": "Mesh-fronted contraband cage locker with hazard labels.", "subject": "mesh-fronted cage locker", "box": [657, 888, 752, 1016]},
+    "generator": {"kind": "prop", "type": "generator", "same": "utility-hub/generator-cabinet", "subject": "yellow enclosed generator", "box": [752, 916, 866, 1015]},
+    "cable-trunk": {"kind": "prop", "type": "conduit", "variant": "Cable tray rack with junction boxes.", "subject": "cable tray rack with junction boxes", "box": [866, 907, 966, 1015]},
+    "floodlight": {"kind": "prop", "type": "floodlight", "variant": "Twin work lights on a yellow tripod.", "subject": "twin work lights on a yellow tripod", "box": [965, 883, 1044, 1016]},
+    "maintenance-cart": {"kind": "prop", "type": "tool-chest", "variant": "Hand cart with a red tool box and cases.", "subject": "hand cart with a red tool box", "box": [1040, 925, 1145, 1014]},
+    "drain-grate": {"kind": "prop", "type": "trench-cover", "variant": "Square rusted drain grate.", "subject": "square rusted drain grate", "box": [1145, 950, 1238, 1014]},
+    "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1228, 893, 1320, 1012], "notes": "Ignore the grate edge at the lower left."},
+    "direction-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Rusted Sector B and Sector A direction plate.", "subject": "rusted direction plate reading Sector B and Sector A", "box": [1326, 907, 1443, 997]}
+  }
+}

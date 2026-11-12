@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "09_horizon_media_studio.png",
+    "sha256": "3173288220ae039aac56e70c62035809bd28ef23f0e8a98b7b9d28d0793438cc",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "curved glass media studio with a rooftop billboard and a loading annex", "box": [0, 14, 890, 555], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a curved glass media studio with a rooftop billboard", "box": [865, 114, 1247, 315]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a media studio with a loading door", "box": [890, 348, 1255, 532]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved silver desk with magenta light and orchids, Horizon livery.", "subject": "curved silver reception desk with magenta lighting", "box": [6, 639, 294, 822]},
+    "holo-podium": {"kind": "prop", "type": "holo-podium", "subject": "presentation podium projecting a hologram panel", "box": [308, 645, 416, 822]},
+    "editing-console": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "video editing console of six screens with a chair", "box": [432, 648, 674, 822]},
+    "light-rig": {"kind": "prop", "type": "light-rig", "subject": "studio light rig of four lamps on a wheeled stand", "box": [670, 629, 818, 822]},
+    "studio-camera": {"kind": "prop", "type": "studio-camera", "unbranded": true, "subject": "broadcast camera on a tripod", "box": [844, 640, 970, 822]},
+    "green-screen": {"kind": "prop", "type": "green-screen", "subject": "green screen on a truss frame with lamps", "box": [988, 634, 1234, 815]},
+    "drone-dock": {"kind": "prop", "type": "drone-dock", "variant": "Round dock with a hovering camera drone.", "unbranded": true, "subject": "round drone dock with a hovering camera drone", "box": [1237, 649, 1440, 815]},
+    "stanchions": {"kind": "prop", "type": "stanchions", "subject": "pair of chrome queue stanchions with a rope", "box": [13, 908, 184, 1033]},
+    "road-case": {"kind": "prop", "type": "hard-case", "variant": "Branding: wheeled black road case with the Horizon mark.", "subject": "wheeled black equipment road case", "box": [196, 900, 354, 1032]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: white Horizon panel sign.", "subject": "wall-mounted corporate sign reading Horizon", "box": [363, 903, 577, 1018]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: magenta Horizon pylon.", "subject": "freestanding pylon sign reading Horizon", "box": [580, 864, 686, 1034]},
+    "access-kiosk": {"kind": "prop", "type": "access-terminal", "variant": "Slim white angular credential kiosk.", "unbranded": true, "subject": "slim credential access kiosk", "box": [709, 894, 812, 1032]},
+    "billboard": {"kind": "prop", "type": "billboard", "subject": "rooftop billboard on a truss with floodlights reading Horizon", "box": [837, 876, 1097, 1034]},
+    "service-door": {"kind": "prop", "type": "door", "same": "nabs-studio/service-door", "subject": "grey service door in a wall section with a keypad", "box": [1115, 880, 1247, 1034]},
+    "display-plinth": {"kind": "prop", "type": "display-case", "variant": "Glass cube on a lit plinth showing a product.", "subject": "glass display cube on a lit plinth", "box": [1277, 880, 1423, 1033]}
+  }
+}

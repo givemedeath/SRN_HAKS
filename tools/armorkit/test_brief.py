@@ -115,6 +115,14 @@ class BriefTests(unittest.TestCase):
             brief.prompt(given)
         self.assertIn('MEDIUM NEUTRAL GREY cloth', brief.colours(given))
 
+    def test_the_first_outfits_second_brief_asks_for_colours_that_can_be_told_apart(self):
+        first, second = brief.load(SITEGUARD), brief.load(SITEGUARD.with_name('corpsec-siteguard-male-2.json'))
+        self.assertEqual(second['model'], first['model'])
+        self.assertEqual([(material['name'], material['kind']) for material in second['materials']],
+                         [(material['name'], material['kind']) for material in first['materials']])
+        self.assertEqual(second['pads'], first['pads'])
+        self.assertIn('BRIGHT LIGHT SKY BLUE hard plastic', brief.prompt(second))  # written: no two materials are drawn too alike
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -178,6 +178,30 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())
         self.assertTrue(np.array_equal(layers[~closing], plain_layers[~closing]) and np.array_equal(shades[~closing], plain_shades[~closing]))
 
+    def test_a_cap_is_drawn_in_one_material(self):
+        channels = ['cloth1', 'leather1', 'metal1']
+        # a glove's cap repeats its rim: tan, dark where the rim is creased, with a streak of the plate strapped over it
+        colour = np.zeros((8, 8, 3)); covered = np.ones((8, 8), bool)
+        colour[:], colour[:, 7] = TAN, FABRIC
+        cap = np.zeros((8, 8), bool); cap[2:6, 0:4] = True
+        colour[2:6, 0], colour[2:6, 1] = PLATE, np.array(TAN) * 0.6
+        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels)
+        self.assertEqual(sorted(set(plain_layers[cap].tolist())), sorted([export.LAYERS['leather1'], export.LAYERS['metal1']]))
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, cap=cap)
+        self.assertTrue((layers[cap] == export.LAYERS['leather1']).all())  # leather, as most of the glove: it shows a sixth of cloth
+        tan = cap & (plain_layers == export.LAYERS['leather1'])
+        self.assertTrue(np.array_equal(shades[tan], plain_shades[tan]) and shades[tan].min() < texture.MIDDLE - 30)  # its creases kept
+        self.assertTrue((np.abs(shades[cap & ~tan] - plain_shades[tan].mean()) <= 0.5).all())  # the plate's streak: tan of the cap's mean shade
+        self.assertTrue(np.array_equal(layers[~cap], plain_layers[~cap]) and np.array_equal(shades[~cap], plain_shades[~cap]))
+        # a part that shows the outfit's cloth on a quarter of its own texels has a cap of cloth, however its rim reads
+        sleeve = colour.copy(); sleeve[:, 5:] = FABRIC
+        shades, layers = texture.tint_maps(sleeve, covered, self.found, channels, cap=cap)
+        self.assertTrue((layers[cap] == export.LAYERS['cloth1']).all() and (shades[cap] == texture.MIDDLE).all())  # none of it read as cloth
+        # where a closing is flagged too, it is the closing's
+        closing = np.zeros((8, 8), bool); closing[2:4, 0:4] = True
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, cap=cap)
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (layers[cap & ~closing] == export.LAYERS['leather1']).all())
+
     def test_what_the_torso_wears_over_a_limb_is_found_by_its_reaching_the_cut(self):
         # a strip of five squares along x, two faces each, and a closing on its left end (vertices of its own)
         v = np.array([(x, y, 0) for x in range(6) for y in (0, 1)] + [(0, 0, 0), (0, 1, 0), (-1, 0.5, 0)], float)
@@ -238,8 +262,9 @@ class MaterialTests(unittest.TestCase):
         self.assertEqual(flags[materials == leather, leather].tolist(), [False, False, True, True])
         # cloth showing on the vest's faces is the trousers' on the face beside them and the shirt's on the other
         self.assertEqual(flags[4:6, cloth].tolist(), [True, False])
-        # leather showing on cloth is the vest's or the boots' beside it, and elsewhere what the cloth's own slot says
-        self.assertEqual(flags[materials == cloth, leather].tolist(), [False] * 8 + [True, False])
+        # leather showing on cloth is the vest's or the boots' beside it, and elsewhere what the slot the face is on says:
+        # on the chest part the vest's, on the thighs leather worn on a leg
+        self.assertEqual(flags[materials == cloth, leather].tolist(), [False] * 6 + [True] * 4)
         # a face no material was read for answers as its neighbours and its own slot do
         unread = materials.copy(); unread[13] = -1
         self.assertEqual(texture.worn_second(v, f, unread, slots, ['cloth', 'leather'])[13].tolist(), [True, True])
@@ -252,6 +277,24 @@ class MaterialTests(unittest.TestCase):
         for given, kinds in ((materials[:-1], ['cloth', 'leather']), (materials, ['cloth']), (materials, ['cloth', 'silk'])):
             with self.assertRaises(ValueError):
                 texture.worn_second(v, f, given, slots, kinds)
+
+    def test_every_strap_on_a_limb_is_coloured_with_the_gloves_and_boots(self):
+        # a vest, then down one side: a strap on the upper arm, one on the forearm, a glove; one on the thigh, a boot.
+        # Cloth lies between them all, so each is a patch of its own
+        v, f = self.strip(11)
+        cloth, leather = 0, 1
+        materials = np.repeat([leather, cloth, leather, cloth, leather, cloth, leather, cloth, leather, cloth, leather], 2)
+        slots = np.repeat(['chest', 'chest', 'bicep', 'bicep', 'forearm', 'forearm', 'hand', 'thigh', 'thigh', 'shin', 'foot'], 2)
+        flags = texture.worn_second(v, f, materials, slots, ['cloth', 'leather'])
+        self.assertEqual(flags[materials == leather, leather][::2].tolist(), [False, True, True, True, True, True])
+        self.assertEqual(set(texture.SECOND['leather']), {'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot'})
+        # a strap too thin to have faces of its own shows on the sleeve's faces. The sleeve is the shirt's, worn on the
+        # chest, but the strap is where the face is: on the forearm
+        v, f = self.strip(5)
+        thin = texture.worn_second(v, f, np.repeat([leather, cloth, cloth, cloth, cloth], 2),
+                                   np.repeat(['chest', 'chest', 'chest', 'forearm', 'forearm'], 2), ['cloth', 'leather'])
+        self.assertFalse(thin[:, cloth].any())  # one shirt, on the first cloth channel throughout
+        self.assertEqual(thin[:, leather].tolist(), [False] * 6 + [True] * 4)
 
     def test_what_the_split_added_takes_the_channel_of_the_edge_it_grew_from(self):
         v, f = self.strip(2)

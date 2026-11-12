@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "38_eagle_security_private_precinct.png",
+    "sha256": "efd9aa0de3f931688f6d498da6c73aa375457df3b43b3c56464919663b6fc348",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "compact fortified grey security precinct with a glazed upper office, a hardened entry and a vehicle gate", "box": [0, 14, 925, 530], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a compact fortified security precinct", "box": [892, 125, 1220, 274]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a compact fortified security precinct", "box": [925, 300, 1222, 465]},
+    "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: grey desk under a canopy with the Eagle Security emblem wall.", "subject": "grey reception desk under a canopy with an emblem wall", "box": [5, 624, 275, 800]},
+    "console-wall": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "monitoring console of six screens with a desk and a chair", "box": [276, 631, 488, 803]},
+    "armory-rack": {"kind": "prop", "type": "weapon-rack", "same": "zdf-command/armory-rack", "subject": "open armoury rack of rifles and ammunition boxes", "box": [492, 620, 677, 802]},
+    "evidence-locker": {"kind": "prop", "type": "locker", "variant": "Bank of six secure compartment lockers.", "unbranded": true, "subject": "bank of six secure steel lockers", "box": [686, 631, 854, 800]},
+    "cell-door": {"kind": "prop", "type": "cell-door", "variant": "Solid door with a barred window lettered INT-1 and a keypad.", "subject": "solid holding cell door with a barred window", "box": [868, 628, 1000, 801]},
+    "checkpoint-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: octagonal booth with a roof floodlight and the Eagle emblem.", "subject": "octagonal checkpoint booth with a roof floodlight", "box": [1014, 616, 1186, 803]},
+    "barrier-gate": {"kind": "prop", "type": "gate-arm", "variant": "Arm between two hazard-striped posts with red lamps.", "subject": "barrier arm between two hazard-striped posts", "box": [1187, 684, 1444, 799]},
+    "bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "pair of yellow bollards", "box": [20, 869, 159, 1023]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: dark Eagle Security panel with a top lamp.", "subject": "wall-mounted sign reading Eagle Security", "box": [170, 870, 434, 1028]},
+    "side-door": {"kind": "prop", "type": "door", "same": "evo-clinic/security-door", "subject": "steel security door with a keypad", "box": [458, 855, 586, 1022]},
+    "camera-mast": {"kind": "prop", "type": "security-camera", "same": "denver-nexus/camera-post", "subject": "security camera on a pole with a junction box", "box": [637, 848, 756, 1024]},
+    "weapons-case": {"kind": "prop", "type": "hard-case", "variant": "Branding: long black weapons case with the Eagle emblem.", "subject": "long black weapons case", "box": [766, 898, 994, 1023]},
+    "gear-bench": {"kind": "prop", "type": "gear-bench", "subject": "open gear bay with armour vests, helmets and boots over a bench", "box": [1004, 855, 1223, 1024]},
+    "service-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Three-door grey service cabinet with a high-voltage mark.", "subject": "three-door grey service cabinet", "box": [1241, 860, 1421, 1025]}
+  }
+}

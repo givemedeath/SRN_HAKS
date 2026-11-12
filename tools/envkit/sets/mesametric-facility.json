@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "39_mesametric_industrial_vehicle_and_drone_facility.png",
+    "sha256": "09ee94d19b0b19d71316e23da7a8e784eb9ae77058f706b597cf89455bb9b627",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "grey industrial vehicle plant with two open maintenance bays, a control tower and a silo", "box": [0, 105, 1075, 450], "notes": "Remove the people, the vehicles, the fence, the barriers, the sky, the mountains, the skyline and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a grey industrial vehicle plant with two bays and a control tower", "box": [58, 478, 535, 600]},
+    "building-yard": {"kind": "building", "subject": "yard elevation of a grey industrial vehicle plant with loading doors and silos", "box": [552, 485, 1062, 600]},
+    "utility-truck": {"kind": "prop", "type": "utility-truck", "subject": "white and yellow service truck", "box": [5, 926, 166, 1018]},
+    "work-drone": {"kind": "prop", "type": "excavator", "subject": "tracked yellow excavator work drone", "box": [170, 903, 330, 1018]},
+    "tool-cabinet": {"kind": "prop", "type": "tool-chest", "same": "street-doc/tool-cabinet", "subject": "red rolling tool chest", "box": [332, 931, 405, 1015]},
+    "engine-hoist": {"kind": "prop", "type": "engine-hoist", "subject": "red workshop engine hoist with a chain", "box": [408, 922, 490, 1020]},
+    "parts-rack": {"kind": "prop", "type": "shelf-unit", "variant": "Steel pallet rack of parts bins and boxes.", "subject": "steel pallet rack of parts bins", "box": [489, 916, 582, 1017]},
+    "welding-station": {"kind": "prop", "type": "welding-station", "subject": "welding bench with gas bottles and a red screen", "box": [584, 924, 708, 1015]},
+    "forklift": {"kind": "prop", "type": "forklift", "same": "saeder-krupp-yard/forklift", "subject": "yellow forklift truck", "box": [712, 918, 811, 1021]},
+    "cargo-pallet": {"kind": "prop", "type": "pallet-stack", "variant": "Pallet of shrink-wrapped grey cartons.", "subject": "pallet of shrink-wrapped grey cartons", "box": [812, 956, 886, 1015]},
+    "security-fence": {"kind": "prop", "type": "fence-section", "same": "hub-access/razor-fence", "subject": "chain-link fence panel with barbed wire", "box": [886, 914, 968, 1016]},
+    "shutter-door": {"kind": "prop", "type": "dock-door", "variant": "Roll-up shutter in a steel frame with a top lamp and a striped sill.", "subject": "industrial roll-up shutter door in a steel frame", "box": [972, 920, 1072, 1017]},
+    "control-console": {"kind": "prop", "type": "console-desk", "variant": "Standing two-screen line control console.", "subject": "standing two-screen control console", "box": [1076, 933, 1167, 1017]},
+    "floodlight-mast": {"kind": "prop", "type": "floodlight", "variant": "Mobile floodlight mast on a yellow generator trailer.", "subject": "mobile floodlight mast on a generator trailer", "box": [1169, 893, 1263, 1020]},
+    "fuel-drums": {"kind": "prop", "type": "fuel-drums", "subject": "four red and yellow fuel drums on a pallet", "box": [1267, 935, 1377, 1017]},
+    "safety-bollards": {"kind": "prop", "type": "bollard", "same": "shiawase-substation/bollards", "subject": "pair of yellow bollards", "box": [1382, 935, 1437, 1014]}
+  }
+}

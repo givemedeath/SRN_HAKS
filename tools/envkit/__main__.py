@@ -1,5 +1,6 @@
-"""Command line for envkit, in the order a set goes through it. `crops` writes every crop of a set for a look and
-`reference` redraws assets on the bound ComfyUI; `meshy` makes paid models under the ledger's cap; `game` converts
+"""Command line for envkit, in the order a set goes through it. `props` lists the props of every onboarded sheet by
+type and refuses a duplicate nobody declared; `crops` writes every crop of a set for a look and `reference` redraws
+assets on the bound ComfyUI; `meshy` makes paid models under the ledger's cap; `game` converts
 generated models to compiled placeables, `placeables` puts them in the pack and the table and `blueprints` gives
 them blueprints a builder can paint; `tiles` builds a model as a tile group and `install` puts that group in the shared
 pack and its tilesets. Whatever is added to the table or a tileset is entered in the additions catalog, which
@@ -35,8 +36,16 @@ def _crunch():
 def command_crops(args):
     data = reference.load_set(args.set); sheet = reference.resolve_sheet(args.sheets, data['sheet'])
     rows = {name: str(reference.crop(sheet, asset['box'], Path(args.output) / f'{name}.png'))
-            for name, asset in data['assets'].items() if not args.asset or name in args.asset}
+            for name, asset in data['assets'].items() if (name in args.asset if args.asset else 'same' not in asset)}
     print(json.dumps(rows, indent=1))
+
+
+def command_props(args):
+    """The props of every onboarded sheet by type; fails when a type is shared without saying same or variant."""
+    found = reference.register(args.sets)
+    for kind, rows in found['types'].items():
+        print(kind + ': ' + ' '.join(rows['original'] + ['variant ' + key for key in rows['variant']] + ['same ' + key for key in rows['same']]))
+    print(f"{found['make']} to make, {found['reuse']} reused")
 
 
 def command_reference(args):
@@ -45,10 +54,10 @@ def command_reference(args):
     unknown = [name for name in args.asset if name not in data['assets']]
     require(not unknown, 'Unknown assets: ' + ', '.join(unknown))
     local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output)
-    for name in args.asset or list(data['assets']):
+    for name in args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]:  # a same is not made
         asset = data['assets'][name]
         source = reference.crop(sheet, asset['box'], output / 'crops' / f'{name}.png')
-        text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''))
+        text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
         result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         print(json.dumps({'asset': name, 'state': result['state'], 'outputs': result['outputs'],
                           'elapsedSeconds': result['elapsedSeconds']}), flush=True)
@@ -172,6 +181,8 @@ def main(argv=None):
     sub.add_argument('--models', required=True); sub.add_argument('--game', required=True, help='the game install folder (the one holding data/)')
     sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_placeable'); sub.add_argument('--catalog', default=CATALOG)
     sub.set_defaults(run=additions.command_blueprints)
+    sub = commands.add_parser('props', help='the props of every onboarded sheet by type; refuses undeclared duplicates')
+    sub.add_argument('--sets', default=str(Path(__file__).with_name('sets'))); sub.set_defaults(run=command_props)
     parsers = {}
     for name, run in (('crops', command_crops), ('reference', command_reference)):
         sub = parsers[name] = commands.add_parser(name)

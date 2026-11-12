@@ -1,0 +1,27 @@
+{
+  "sheet": {
+    "file": "18_ucas_sector_border_checkpoint.png",
+    "sha256": "fd0ddc93237bf6767e36c25a1ff4ffac8a7cd950b0b950954980117b12c49d9b",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "grey and navy border checkpoint with an office block, vehicle lanes under a canopy and inspection booths", "box": [0, 14, 905, 560], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a grey and navy border checkpoint", "box": [865, 150, 1251, 286]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a grey and navy border checkpoint", "box": [868, 330, 1253, 490]},
+    "customs-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: navy immigration desk under a canopy, UCAS livery.", "subject": "immigration and customs desk under a canopy", "box": [14, 642, 268, 812]},
+    "inspection-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: glazed lane booth with cameras, UCAS mark.", "subject": "glazed lane inspection booth", "box": [277, 640, 428, 812]},
+    "scanner-arch": {"kind": "prop", "type": "scanner-arch", "same": "wuxing-terminal/scanner-arch", "subject": "cargo scanner arch over a conveyor with a control terminal", "box": [431, 643, 674, 812]},
+    "screening-gate": {"kind": "prop", "type": "turnstile", "variant": "Three turnstiles under a Pedestrian Screening gantry.", "subject": "pedestrian screening gate of three turnstiles under a sign gantry", "box": [677, 644, 868, 812]},
+    "barrier-arm": {"kind": "prop", "type": "gate-arm", "same": "pcc-customs/gate-arm", "subject": "boom gate arm on a post", "box": [879, 693, 1065, 812]},
+    "jersey-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [1067, 697, 1244, 812]},
+    "inspection-table": {"kind": "prop", "type": "workbench", "variant": "Plain steel inspection table with trays and a case beneath.", "subject": "plain steel inspection table with trays", "box": [1255, 689, 1441, 812]},
+    "passport-kiosk": {"kind": "prop", "type": "access-terminal", "same": "ares-depot/checkpoint-terminal", "subject": "self-service passport kiosk", "box": [28, 864, 134, 1032]},
+    "checkpoint-terminal": {"kind": "prop", "type": "console-desk", "same": "ares-depot/surveillance-console", "subject": "operations console of six screens with a desk and a chair", "box": [160, 876, 371, 1033]},
+    "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: UCAS Border Control directory pylon.", "subject": "freestanding directory pylon sign reading UCAS Border Control", "box": [384, 848, 494, 1034]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: navy UCAS Sector Checkpoint panel.", "subject": "wall-mounted sign reading UCAS Denver FRFZ Sector Checkpoint", "box": [493, 913, 651, 1011]},
+    "guard-booth": {"kind": "prop", "type": "guard-booth", "variant": "Branding: small square booth with an amber beacon, UCAS mark.", "subject": "small square prefabricated guard booth", "box": [663, 877, 806, 1031]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "same": "ares-depot/fence-section", "subject": "chain-link fence section with razor wire on striped footings", "box": [817, 889, 1004, 1030]},
+    "lane-gantry": {"kind": "prop", "type": "lane-gantry", "subject": "overhead lane-sign gantry with three lit lane signs", "box": [1004, 879, 1272, 1030]},
+    "crate-stack": {"kind": "prop", "type": "hard-case", "variant": "Branding: grey and tan cases with the UCAS mark.", "subject": "stack of four hard service cases", "box": [1271, 906, 1445, 1027]}
+  }
+}

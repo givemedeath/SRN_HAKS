@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "34_deep_utility_maintenance_hub.png",
+    "sha256": "9d647f2e744d03344e3eaf802a37af2b08ddfb1f4572ae09664f16a981e313e7",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "semi-buried concrete utility bunker with a recessed bulkhead door, heavy pipe runs and a control annexe", "box": [0, 14, 870, 530], "notes": "Remove the title banner and all text outside the building."},
+    "building-front": {"kind": "building", "subject": "front elevation of a semi-buried concrete utility bunker", "box": [853, 102, 1251, 285]},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a semi-buried concrete utility bunker", "box": [860, 315, 1251, 495]},
+    "bulkhead-door": {"kind": "prop", "type": "dock-door", "variant": "Heavy bulkhead door lettered U-01 in an angled frame with red lamps.", "subject": "heavy bulkhead door in an angled frame with red lamps", "box": [8, 625, 299, 812]},
+    "maintenance-locker": {"kind": "prop", "type": "locker", "same": "street-doc/staff-locker", "subject": "double grey steel locker", "box": [310, 633, 430, 812]},
+    "cable-trunk": {"kind": "prop", "type": "conduit", "variant": "Trunk of grey, red and yellow cables turning a corner with a junction box.", "subject": "trunk of cables turning a corner with a junction box", "box": [447, 640, 650, 812], "notes": "Ignore the hatch edge at the lower right."},
+    "ladder-hatch": {"kind": "prop", "type": "floor-hatch", "variant": "Round open hatch with a ladder cage.", "subject": "open floor hatch with a ladder cage", "box": [628, 645, 828, 812], "notes": "Ignore the cable ends at the upper left."},
+    "pump-unit": {"kind": "prop", "type": "pump-unit", "variant": "Single large pump with red pipes and a control box on a skid.", "subject": "large pump with red pipes on a skid", "box": [836, 635, 1098, 812]},
+    "hazard-barrier": {"kind": "prop", "type": "concrete-barrier", "same": "ares-depot/concrete-barrier", "subject": "concrete road barrier with red hazard stripes", "box": [1105, 694, 1294, 808]},
+    "utility-kiosk": {"kind": "prop", "type": "access-terminal", "same": "saeder-krupp-yard/loading-console", "subject": "bulky utility terminal kiosk", "box": [1303, 618, 1432, 812]},
+    "wall-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: Denver FRFZ Utility Maintenance Hub panel with a yellow direction strip.", "subject": "wall-mounted sign reading Denver FRFZ Utility Maintenance Hub", "box": [16, 886, 257, 1028]},
+    "generator-cabinet": {"kind": "prop", "type": "generator", "variant": "Yellow and grey enclosed generator with a control screen.", "subject": "yellow and grey enclosed generator cabinet", "box": [274, 880, 487, 1027]},
+    "exterior-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [510, 873, 638, 1030]},
+    "vent-unit": {"kind": "prop", "type": "rooftop-unit", "variant": "Louvred exhaust stack on a striped base.", "unbranded": true, "subject": "louvred exhaust vent unit", "box": [648, 868, 868, 1031]},
+    "service-crate": {"kind": "prop", "type": "hard-case", "variant": "Branding: single grey strapped case with the Denver FRFZ mark.", "subject": "single grey strapped hard case", "box": [878, 909, 1067, 1029]},
+    "floodlight-pole": {"kind": "prop", "type": "floodlight", "variant": "Four-lamp cluster on a pole with a control box.", "subject": "four-lamp floodlight cluster on a pole", "box": [1079, 851, 1174, 1031]},
+    "fence-section": {"kind": "prop", "type": "fence-section", "variant": "Razor-wire panel on a kerb with a yellow guard rail.", "subject": "chain-link fence section with razor wire and a yellow guard rail", "box": [1192, 892, 1445, 1032]}
+  }
+}

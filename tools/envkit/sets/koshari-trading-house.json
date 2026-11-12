@@ -1,0 +1,24 @@
+{
+  "sheet": {
+    "file": "45_koshari_pueblo_sector_front.png",
+    "sha256": "de61e4388c18a7cc4d96b730052dd5b3ee23afd6f91acaec20df0f805e1e7242",
+    "size": [1536, 1024]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "stepped adobe trading house with painted Pueblo bands, a thunderbird banner over heavy doors and rooftop antennas", "box": [0, 0, 1105, 445], "notes": "Remove the vehicle, the guards, the people, the sky, the mountains, the skyline and all text."},
+    "building-front": {"kind": "building", "subject": "front elevation of a stepped adobe trading house", "box": [1120, 25, 1525, 112]},
+    "building-side": {"kind": "building", "subject": "side elevation of a stepped adobe trading house", "box": [1120, 130, 1525, 205]},
+    "building-rear": {"kind": "building", "subject": "rear logistics elevation of a stepped adobe trading house", "box": [1120, 222, 1525, 297]},
+    "hanging-banner": {"kind": "prop", "type": "banner-set", "variant": "Branding: single thunderbird banner on a wooden stand.", "subject": "single woven banner with a thunderbird on a wooden stand", "box": [18, 852, 92, 984]},
+    "ceramic-vessels": {"kind": "prop", "type": "ceramic-pots", "variant": "Three painted Pueblo pots.", "subject": "group of three painted Pueblo pots", "box": [103, 866, 188, 982]},
+    "woven-textiles": {"kind": "prop", "type": "wall-hanging", "variant": "Red woven Pueblo rug on a wooden rack.", "subject": "red woven rug on a wooden rack", "box": [192, 868, 272, 982]},
+    "planter": {"kind": "prop", "type": "planter", "variant": "Stone block planter with an agave.", "subject": "stone block planter with an agave", "box": [278, 862, 374, 984]},
+    "stone-bench": {"kind": "prop", "type": "bench", "variant": "Carved sandstone bench.", "subject": "carved sandstone bench", "box": [378, 895, 470, 982]},
+    "secure-door": {"kind": "prop", "type": "door", "variant": "Heavy wooden double door with a painted Pueblo diamond in a steel frame.", "subject": "heavy wooden double door with a painted diamond in a steel frame", "box": [470, 842, 606, 984]},
+    "cargo-crates": {"kind": "prop", "type": "hard-case", "variant": "Three unmarked tan and grey cases.", "subject": "stack of three tan and grey cargo cases", "box": [610, 876, 704, 980]},
+    "trade-terminal": {"kind": "prop", "type": "access-terminal", "variant": "Dark console terminal with a tilted trade screen.", "subject": "dark console terminal with a tilted screen", "box": [706, 866, 792, 982]},
+    "comms-rack": {"kind": "prop", "type": "server-rack", "variant": "Open rack of radio and network gear with amber lights.", "subject": "open rack of radio and network gear", "box": [803, 852, 872, 982]},
+    "security-camera": {"kind": "prop", "type": "security-camera", "same": "denver-nexus/camera-post", "subject": "security camera on a short post", "box": [882, 860, 944, 978]},
+    "bollard-light": {"kind": "prop", "type": "bollard", "variant": "Stone bollard with a lantern top.", "subject": "stone bollard with a lantern top", "box": [954, 852, 1004, 978]}
+  }
+}
