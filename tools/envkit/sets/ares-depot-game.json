@@ -67,7 +67,7 @@
       {"part": "arm strip", "box": [[-0.6, -1.1, 1.85], [0.6, 1.1, 2.0]], "saturation": 0.3, "value": 0.5},
       {"part": "landing pad", "box": [[-0.75, -0.6, 0.25], [0.75, 0.6, 0.6]], "gain": 1.2, "saturation": 0.5, "value": 0.4}
     ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Drone Dock", "sound": 28, "category": 161}},
-    "ek_ad_turret": {"source": "meshy/models/ares-turret-a2", "height": 1.8, "measuredAt": 1.8, "turn": 90, "colour": 1024, "lit": [
+    "ek_ad_turret": {"source": "meshy/models/ares-turret-a2", "height": 1.8, "measuredAt": {"height": 1.8, "turn": 90}, "turn": 90, "colour": 1024, "lit": [
       {"part": "sensor eye", "box": [[-0.3, 0.5, 1.4], [0.3, 0.9, 1.7]], "gain": 2.0, "saturation": 0.6, "value": 0.5}
     ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Ares Depot, Turret", "sound": 28, "category": 199}},
     "ek_ad_crate": {"source": "meshy/models/ares-gear-crate-a1", "height": 0.6, "colour": 1024, "placeable": {"label": "Ares Depot, Gear Crate", "sound": 27, "category": 164}},
@@ -75,7 +75,7 @@
       {"part": "light bar", "box": [[-0.6, -0.5, 2.78], [0.6, 0.5, 2.95]], "value": 0.8},
       {"part": "sign face", "box": [[-0.75, 0.0, 0.15], [0.75, 0.5, 2.75]], "gain": 0.3}
     ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Pylon Sign", "sound": 28, "category": 156}},
-    "ek_ad_sign": {"source": "meshy/models/ares-wall-sign-a1", "height": 1.6, "measuredAt": 1.6, "lift": 2.4, "colour": 2048, "lit": [
+    "ek_ad_sign": {"source": "meshy/models/ares-wall-sign-a1", "height": 1.6, "measuredAt": {"height": 1.6, "lift": 2.4}, "lift": 2.4, "colour": 2048, "lit": [
       {"part": "light bar", "box": [[-0.9, -0.2, 3.85], [0.9, 0.2, 4.0]], "value": 0.45},
       {"part": "sign face", "box": [[-1.8, 0.0, 2.95], [1.8, 0.2, 3.82]], "gain": 0.3}
     ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Wall Sign", "sound": 27, "category": 156}},

@@ -9,7 +9,12 @@ repository verification (tools/Test-Repository.ps1) checks against the packs.
 A whole sheet is run with the commands beside those (docs/envkit/sheet-runbook.md): `contact` shows a reference run
 against its crops, `sheet` sends a sheet's plan through Meshy and collects it, `view` draws a model square on with a
 grid to read a game set's boxes from, `check` looks at props, lights, a tile group and doors in the game client, and
-`toolset` prepares and reads back a Toolset check of tile groups."""
+`toolset` prepares and reads back a Toolset check of tile groups.
+
+Two commands stand beside a sheet's run. `onboard` brings a new concept sheet into the kit and reviews the sets
+against each other: boxes proposed on the sheet, set files written from a spec, pictures of the boxes, the reused
+props and the props of a type, a mechanical audit, and the decisions of a review applied. `study` reads the stock
+tiles of a tileset, for a question about how the engine wants a tile made."""
 import argparse
 import json
 import re
@@ -187,12 +192,59 @@ def command_view(args):
     from . import convert, view
     require(bool(args.models) != bool(args.source), 'Give a game set (--models, --root, --model) or one generated model (--source, --height)')
     if args.source:
-        require(args.height, 'A generated model is stood at --height metres'); _, sides, scale, grid = _views('raw:' + (args.model[0] if args.model else '0'))
+        require(args.height, 'A generated model is stood at --height metres')
+        require(not args.lit and not args.root and not args.eye and len(args.model) <= 1,
+                'A generated model has no set to give it lit boxes: it is drawn from --source, --height and one --model of its sides (0123)')
+        _, sides, scale, grid = _views('raw:' + (args.model[0] if args.model else '0'))
         print(json.dumps(view.raw(args.source, args.height, args.output, sides=sides, scale=scale, grid=grid)))
         return
     require(args.root and args.model, 'A game set is drawn with --root and --model'); models = convert.load_models(args.models)
+    if args.eye:  # from stated eyes, in place of the square-on views
+        require(not args.lit and all(':' not in name for name in args.model), 'With --eye a model is named alone, and its lit parts are not shown')
+        eyes = [view.eye(text) for text in args.eye]; require(len({label for label, *_ in eyes}) == len(eyes), 'Each eye has a label of its own')
+        for name in args.model:
+            print(json.dumps({'model': name, **view.perspective(models, args.root, name, args.output, eyes)}), flush=True)
+        return
     for name, sides, scale, grid in map(_views, args.model):
         print(json.dumps({'model': name, **view.elevations(models, args.root, name, args.output, sides=sides, scale=scale, grid=grid, lit=args.lit)}), flush=True)
+
+
+def command_onboard(args):
+    from . import onboard
+    needs = {'boxes': ('sheet', 'output'), 'sets': ('spec', 'sheets'), 'crops': ('set', 'sheets', 'output'), 'overlay': ('sheets', 'output'), 'audit': ('sheets',),
+             'types': ('sheets', 'output', 'type'), 'same': ('sheets', 'output'), 'revise': ('decisions',)}[args.action]
+    missing = [name for name in needs if not getattr(args, name)]; require(not missing, f'onboard {args.action} needs ' + ', '.join('--' + name for name in missing))
+    takes = needs + {'boxes': ('split',), 'same': ('only',)}.get(args.action, ())
+    extra = [name for name in ('sheets', 'sheet', 'split', 'spec', 'set', 'type', 'only', 'decisions', 'output') if getattr(args, name) not in (None, []) and name not in takes]
+    require(not extra, f'onboard {args.action} does not take ' + ', '.join('--' + name for name in extra))
+    if args.action == 'boxes':
+        told = onboard.propose(args.sheet, args.output, args.split)
+    elif args.action == 'sets':
+        told = onboard.write_sets(args.spec, args.sheets, args.sets)
+    elif args.action == 'crops':
+        told = {'crops': onboard.crops_page(args.set, args.sheets, args.output)}
+    elif args.action == 'overlay':
+        told = {'pages': onboard.overlay(args.sets, args.sheets, args.output)}
+    elif args.action == 'audit':
+        told = onboard.audit(args.sets, args.sheets)
+    elif args.action == 'types':
+        told = {'props': onboard.type_page(args.sets, args.sheets, args.output, args.type)}
+    elif args.action == 'same':
+        told = onboard.same_pages(args.sets, args.sheets, args.output, only=args.only)
+    else:
+        told = {'changed': onboard.revise(args.decisions, args.sets)}
+    print(json.dumps(told, indent=1))
+
+
+def command_study(args):
+    from . import study
+    if args.action == 'pathnodes':
+        require(not args.tile and not args.output, 'study pathnodes takes --packs and --tileset alone')
+        print(json.dumps(study.path_nodes(args.packs, args.tileset), indent=1))
+        return
+    require(args.tile and args.output and len(args.tileset) == 1, 'study tiles needs --tile and --output, and reads one --tileset')
+    for row in study.tiles(args.packs, args.tileset[0], args.tile, args.output):
+        print(json.dumps(row), flush=True)
 
 
 def command_check(args):
@@ -282,8 +334,23 @@ def main(argv=None):
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root")
     sub.add_argument('--source', help='instead of a game set: one generated model folder'); sub.add_argument('--height', type=float)
     sub.add_argument('--model', action='append', default=[], help='name[:sides[:scale[:grid]]], sides as digits (0 front, 1, 2 back, 3); with --source, the sides alone')
-    sub.add_argument('--lit', action='store_true', help='show what the lit boxes light'); sub.add_argument('--output', required=True)
+    sub.add_argument('--lit', action='store_true', help='show what the lit boxes light, and count what each holds and lights'); sub.add_argument('--output', required=True)
+    sub.add_argument('--eye', action='append', default=[], help='instead of square on: label=ex,ey,ez,tx,ty,tz[,fov[,reach]], the eye and what it looks at in metres on the model (repeatable)')
     sub.set_defaults(run=command_view)
+    sets = str(Path(__file__).with_name('sets'))
+    sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')
+    sub.add_argument('action', choices=['boxes', 'sets', 'crops', 'overlay', 'audit', 'types', 'same', 'revise'])
+    sub.add_argument('--sets', default=sets, help='the folder of set files'); sub.add_argument('--sheets', help='the folder holding the concept sheets')
+    sub.add_argument('--sheet', help='boxes: the sheet to find drawings on'); sub.add_argument('--split', type=int, help='boxes: the row the prop set starts at')
+    sub.add_argument('--spec', help='sets: the spec naming each box'); sub.add_argument('--set', help='crops: the set file')
+    sub.add_argument('--type', action='append', default=[], help='types: a prop type (repeatable)'); sub.add_argument('--only', action='append', default=[], help='same: only rows with a prop of this set (repeatable)')
+    sub.add_argument('--decisions', help='revise: the decisions of a review'); sub.add_argument('--output', help='the picture to write, or for overlay and same the start of its pages\' names')
+    sub.set_defaults(run=command_onboard)
+    sub = commands.add_parser('study', help='read the stock tiles of a tileset in the packs')
+    sub.add_argument('action', choices=['pathnodes', 'tiles']); sub.add_argument('--packs', default=str(Path(__file__).resolve().parents[2]), help='the folder holding srn_t_<tileset> and srn_t_common')
+    sub.add_argument('--tileset', action='append', required=True, help='a tileset name, as in srn_t_<name> (pathnodes: repeatable)')
+    sub.add_argument('--tile', action='append', type=int, default=[], help='tiles: a tile number of the set file (repeatable)'); sub.add_argument('--output', help='tiles: a folder for the decompiled models')
+    sub.set_defaults(run=command_study)
     sub = commands.add_parser('check', help='look at props, lights, a tile group or doors in the game client')
     sub.add_argument('kind', choices=['props', 'lights', 'group', 'doors'])
     sub.add_argument('--game', required=True, help='the game install folder (the one holding data/)'); sub.add_argument('--repo', default='.')

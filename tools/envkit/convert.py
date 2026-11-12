@@ -34,6 +34,7 @@ DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
 MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
+PLACING = ('lift', 'turn', 'signTilt')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned and tilted
 RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close')  # what of a game set `shape` takes to turn, close and retouch a model
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
@@ -617,8 +618,9 @@ def load_models(path):
     way it looks out in degrees from east towards north (90 is north), its row of doortypes.2da, which is the invisible
     transition door's, and `leaf`, the height in metres of the door leaf as measured on the finished model, which must
     be a door a character fits; `tile.doorstep` draws the hook out onto open ground and turns it). A tile group takes no `lift`.
-    `measuredAt` is the height the model had when its boxes, fences, door and fade height were measured: a model that
-    states any of them states it, and it must be the model's height still. `placeable` gives it a row in the placeables table: its label
+    `measuredAt` is how the model stood when its boxes, fences, door and fade height were measured: its height, or
+    {height, lift, turn, signTilt} with each of the three the model states. A model that states any measurement states
+    it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
     under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
@@ -694,16 +696,21 @@ def load_models(path):
                 f'A door states its leaf, measured on the finished model, {DOOR_LEAF[0]} to {DOOR_LEAF[1]} metres tall; scale the building to its door first: ' + name)
         fade = (tiles or {}).get('fade')
         require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
-        # Every box, fence, door and fade height is a measurement, and a measurement is of the model at one height. A
-        # typed door leaf would go on passing after its building was made taller or lower, and a lit box would go on
-        # holding some of the model and lighting the wrong part of it (found in review, 2026-11-12): so a model that
-        # states any measurement says the height it had when they were made, and at another height they are made again.
+        # Every box, fence, door and fade height is a measurement, and a measurement is of the model as it stood: at
+        # one height, and lifted, turned and tilted as it then was. A typed door leaf would go on passing after its
+        # building was made taller or lower, and a lit box would go on holding some of the model and lighting the wrong
+        # part of it (found in review, 2026-11-12); so would the boxes of a sign hung at another lift or turned since
+        # they were read. So a model that states any measurement says how it stood when they were made, and standing
+        # otherwise they are made again.
         measured = any(model.get(key) for key in MEASURED) or door is not None or fade is not None
-        require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says the height it had when they '
-                f'were measured (measuredAt: {model["height"]}, if they were measured on the model as it is now): ' + name)
-        require('measuredAt' not in model or (number(model['measuredAt']) and model['measuredAt'] == model['height']),
-                f'The boxes, fences, door and fade height of a model were measured with the model {model.get("measuredAt")} metres tall and it is now '
-                f'{model["height"]}: measure them again on the model as it is, and say so in measuredAt: ' + name)
+        stands = {'height': model['height'], **{key: model[key] for key in PLACING if key in model}}
+        told = lambda at: ', '.join(f'{key} {value}' for key, value in at.items())
+        require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says how it stood when they were measured '
+                f'(measuredAt: {json.dumps(stands if len(stands) > 1 else model["height"])}, if they were measured on the model as it is now): ' + name)
+        stated = model.get('measuredAt'); stated = {'height': stated} if number(stated) else stated
+        require('measuredAt' not in model or (isinstance(stated, dict) and all(number(value) for value in stated.values()) and stated == stands),
+                f'The boxes, fences, door and fade height of a model were measured with the model at {told(stated) if isinstance(stated, dict) else json.dumps(stated)} '
+                f'and it is now at {told(stands)}: measure them again on the model as it is, and say so in measuredAt: ' + name)
     return data['models']
 
 
