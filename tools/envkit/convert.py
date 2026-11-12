@@ -353,6 +353,27 @@ def _blur(values, radius):
     return values
 
 
+def _soften(values, chosen, reach):
+    """`values` (rows, columns) or (rows, columns, channels) blurred over `reach` texels among the `chosen` texels
+    alone: what lies outside them gives nothing and takes nothing."""
+    count = np.maximum(_blur(chosen.astype(np.float32), reach), 1e-6)
+    return _blur(values * chosen, reach) / count if values.ndim == 2 else _blur(values * chosen[..., None], reach) / count[..., None]
+
+
+def _levelled(values, plain):
+    """A grey map (0-1, square) with what `retouch` smoothed off the colour picture smoothed off it too, each texel over
+    the reach `plain` gives it. The generator that painted the Ares Depot's fence on the wall behind it put the same
+    mesh into the wall's roughness and metallic, which the colour's smoothing left there to catch the light (2026-11-12)."""
+    from PIL import Image
+    reach = np.asarray(plain); grain = reach.shape[0]; size = values.shape[::-1]
+    small = np.asarray(Image.fromarray((values * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
+    for width in np.unique(reach[reach > 0]).tolist():
+        chosen = reach == width; small[chosen] = _soften(small, chosen, width)[chosen]
+    wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(size, Image.BILINEAR), float) / 255
+    marked = np.asarray(Image.fromarray(reach > 0).resize(size, Image.NEAREST)); values = values.copy(); values[marked] = wide[marked]
+    return values
+
+
 def sheets(fences, size=WIRE_PICTURE):
     """Chain-link sheets hung between a fence's posts: {vertices, normals, uvs, faces, image}, a mesh of its own.
 
@@ -368,8 +389,9 @@ def sheets(fences, size=WIRE_PICTURE):
     require(all((one['pitch'], one['wire'], list(one.get('colour', WIRE))) == (pitch, wire, colour) for one in fences), 'The fences of a model share one wire mesh')
     link = pitch * np.sqrt(2)  # the pattern repeats every `link` metres along and up
     links = int(wire * size / (WIRE_TEXELS * link)); require(links >= 1, f'A wire this thin cannot be drawn on a picture of {size} pixels')
+    from . import glow
     period = links * link; at = (np.arange(size) + 0.5) / size * period; along, up = np.meshgrid(at, at)
-    drawn = (np.mod((along + up) / np.sqrt(2), pitch) < wire) | (np.mod((along - up) / np.sqrt(2), pitch) < wire)
+    drawn = glow.wires(np.dstack([along, np.zeros_like(along), up]), pitch, wire)  # the pattern a `mesh` panel is painted with
     pixels = np.empty((size, size, 4), np.uint8); pixels[..., :3] = colour; pixels[..., 3] = drawn * 255  # the wire's colour under the gaps too
     vertices, normals, uvs, faces = [], [], [], []
     for one in fences:
@@ -388,7 +410,8 @@ def sheets(fences, size=WIRE_PICTURE):
 
 
 def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh=(), size=RETOUCH):
-    """(colour, flat): a model's colour picture as it ships, and where its relief is to be flattened (or None).
+    """(colour, flat, plain): a model's colour picture as it ships, where its relief is to be flattened, and where its
+    other maps are to be smoothed as its colour was, each texel's value the reach in texels (the last two, or None).
 
     `tone` multiplies the whole picture (a model that came back paler than its reference). `paint` covers what a
     generator invented: [{box, colour}], every texel within the box in one colour (0-255). `mesh` makes a panel a
@@ -399,10 +422,12 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
 
     `smooth` takes a pattern off a surface and leaves its tones: [{box, radius, colour}], the texels within the box
     blurred over `radius` metres among themselves, then brought to `colour` on average if one is given, and their
-    relief levelled (a wall the generator painted a fence's mesh on)."""
+    relief levelled (a wall the generator painted a fence's mesh on); `plain` has `textures` take the pattern off the
+    roughness and the metal too."""
     from PIL import Image
     from . import glow
     colour = np.asarray(image.convert('RGB'), np.float32) / 255; alpha = flat = None; grain = min(size, image.width)
+    plain = np.zeros((grain, grain), np.uint8) if smooth else None
     if tone is not None:
         colour = np.clip(colour * tone, 0, 1)
     if smooth or mesh:
@@ -421,8 +446,8 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
             small = np.asarray(Image.fromarray((colour * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
             # No two texels side by side, or all at one place, leaves no step to measure by: the reach then stops at an
             # eighth of the picture, where an unbounded one would pad the blur by a hundred thousand texels.
-            reach = min(part['radius'] / max(step, 1e-6), grain / 8)
-            blurred = _blur(small * chosen[..., None], reach) / np.maximum(_blur(chosen.astype(np.float32), reach), 1e-6)[..., None]
+            reach = int(np.clip(round(min(part['radius'] / max(step, 1e-6), grain / 8)), 1, 255))
+            blurred = _soften(small, chosen, reach); plain[chosen] = reach
             if 'colour' in part:
                 blurred = blurred * (np.asarray(part['colour'], np.float32) / 255 / np.maximum(blurred[chosen].mean(0), 1e-6))
             wide = np.asarray(Image.fromarray((np.clip(blurred, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
@@ -432,23 +457,24 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
             colour[panel] = np.asarray(part.get('colour', WIRE), float) / 255  # under the gaps too: a filtered edge then blends wire with wire
             alpha &= ~panel | wire; flat |= panel
     picture = (colour * 255).round().astype(np.uint8)
-    level = Image.fromarray(flat) if flat is not None else None
+    level = Image.fromarray(flat) if flat is not None else None; plain = Image.fromarray(plain) if plain is not None else None
     if alpha is None:
-        return Image.fromarray(picture), level
-    return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), level
+        return Image.fromarray(picture), level, plain
+    return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), level, plain
 
 
-def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None):
+def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None, plain=None):
     """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half.
     `base` is the colour picture retouched (`retouch`); with an alpha channel it is stored with one. `flat` marks where
-    the relief map is levelled."""
+    the relief map is levelled, `plain` where the roughness and the metal are smoothed as the colour was (`_levelled`)."""
     from PIL import Image
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); half = max(colour // 2, 256)
     shown = base if base is not None else Image.open(maps['base_color']).convert('RGB')
     base = shown.convert('RGB'); relief = Image.open(maps['normal']).convert('RGB')
     if flat is not None:
         relief.paste((128, 128, 255), mask=flat.resize(relief.size, Image.NEAREST))
-    grey = lambda key: np.asarray(Image.open(maps[key]).convert('L').resize(base.size), float) / 255
+    read = lambda key: np.asarray(Image.open(maps[key]).convert('L').resize(base.size), float) / 255
+    grey = read if plain is None else lambda key: _levelled(read(key), plain)
     shine = np.clip(specular(np.asarray(base, float) / 255, grey('metallic')), 0, 1)
     channel = lambda values: Image.fromarray(np.repeat((values * 255).round().astype(np.uint8)[..., None], 4, axis=2), 'RGBA')
     written = [_compress(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, crunch, data=False),
@@ -599,9 +625,9 @@ def blackout_script(name, player, on, halo=True):
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
           smooth=None, mesh=None, fence=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
-    illumination, card, colour, flat, wire}. `turn` turns it about the vertical before anything is measured on it; `tone`,
-    `paint`, `smooth` and `mesh` give `colour` and `flat`, its colour picture retouched and where its relief is levelled
-    (`retouch`; both None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
+    illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `tone`,
+    `paint`, `smooth` and `mesh` give `colour`, `flat` and `plain`: its colour picture retouched, where its relief is levelled and
+    where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
     map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`)."""
     vertices, normals, uvs, faces = read_glb(model); card = None
@@ -624,20 +650,20 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         where, covered, toward = glow.position_map(vertices, uvs, faces, size, facing=True); shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
-    shown = flat = None
+    shown = flat = plain = None
     if tone is not None or paint or smooth or mesh:
         from PIL import Image
         with Image.open(maps['base_color']) as picture:
-            shown, flat = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), smooth=smooth or (), mesh=mesh or ())
+            shown, flat, plain = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), smooth=smooth or (), mesh=mesh or ())
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
-            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'wire': sheets(fence) if fence else None}
+            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': sheets(fence) if fence else None}
 
 
 def skin(name, maps, folder, crunch, made, *, colour=1024):
     """Write the model's material file and maps, its halo's and its lights-out set into `folder`; returns the textures."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); illumination, card = made['illumination'], made['card']
     (folder / f'{name}.mtr').write_text(material_text(name, illumination is not None), encoding='cp1252', newline='\n')
-    files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination, base=made.get('colour'), flat=made.get('flat'))
+    files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination, base=made.get('colour'), flat=made.get('flat'), plain=made.get('plain'))
     if card:
         files.append(_compress(card.image, folder / f'{name}_h.dds', '-DXT1', 512, crunch, data=False))
         card_material = ['renderhint NormalAndSpecMapped', '', f'texture0 {name}_h', 'texture1 null', 'texture2 null', 'texture3 null',
@@ -655,7 +681,7 @@ def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
             'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
-            'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
+            'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'turn': made.get('turn', 0.0), 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 

@@ -36,6 +36,8 @@ class GlowTests(unittest.TestCase):
         np.testing.assert_allclose(both[0, 0], [0.9, 0.1, 0.1]); np.testing.assert_allclose(both[0, 31], [0.15, 0.15, 0.15])
         with self.assertRaisesRegex(ValueError, 'low corner'):
             glow.glow(base, where, covered, [{'box': [[1, 0, 0], [0, 1, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'lights nothing.*dim lamp'):  # nor does a part none of whose texels pass its own tests
+            glow.glow(base, where, covered, [{**sign, 'part': 'dim lamp', 'value': 0.99, 'saturation': 0.99}])
         with self.assertRaisesRegex(ValueError, 'holds none of the model.*high sign'):  # a box off the model lights nothing, and says so
             glow.glow(base, where, covered, [sign, {'part': 'high sign', 'box': [[-2.5, 0.5, 5.0], [2.5, 1.5, 6.0]]}])
 

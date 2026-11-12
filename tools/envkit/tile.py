@@ -188,7 +188,7 @@ def survey(vertices, faces, rows, columns, corner):
     lines = (sorted({column * CELLS for column in range(columns + 1)} | {int(x) for x in np.flatnonzero((kind[:, 1:] != kind[:, :-1]).any(0)) + 1}),
              sorted({row * CELLS for row in range(rows + 1)} | {int(y) for y in np.flatnonzero((kind[1:] != kind[:-1]).any(1)) + 1}))
     return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint, 'lines': lines, 'depth': depth,
-            'crest': crest}
+            'crest': crest, 'roomy': _roomy(material == STONE)}
 
 
 def lines(found, row, column):
@@ -321,7 +321,7 @@ def path_node(found, row, column):
     exits: the sides the node leaves by, of N, W, S, E. offPath: the cells of the tile with room to stand on that no
     exit reaches: ground a walk from another tile will not be planned onto."""
     material = found['material']; rows, columns = material.shape; r0, c0 = row * CELLS, column * CELLS
-    roomy = _roomy(material == STONE); walk = roomy[r0:r0 + CELLS, c0:c0 + CELLS]; masses, _ = _masses(walk); along = slice(None)
+    roomy = found['roomy'] if 'roomy' in found else _roomy(material == STONE); walk = roomy[r0:r0 + CELLS, c0:c0 + CELLS]; masses, _ = _masses(walk); along = slice(None)
     inside = {'N': (CELLS - 1, along), 'S': (0, along), 'W': (along, 0), 'E': (along, CELLS - 1)}
     beyond = {'N': (r0 + CELLS, slice(c0, c0 + CELLS)), 'S': (r0 - 1, slice(c0, c0 + CELLS)), 'W': (slice(r0, r0 + CELLS), c0 - 1), 'E': (slice(r0, r0 + CELLS), c0 + CELLS)}
     region = {}

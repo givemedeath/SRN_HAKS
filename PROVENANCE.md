@@ -484,6 +484,14 @@ the pointer lay flat over the door's face, one click took the player to the wayp
 a wooden door there linked back brought them out standing on the step in front of the depot's door, 0.8
 metres from the hook.
 
+The first smoothing took the painted mesh off the wall's colour and relief only. The generator had put the
+same mesh into the roughness and metallic maps of those texels, where it was left to catch a glancing light
+(found measuring the maps in review, 2026-11-12: neighbouring texels differed by 3.8 and 4.3 of 255 there,
+against 0.6 in the smoothed colour). `convert.textures` now smooths those two maps over the same texels and
+reach, and the specular map is made from the smoothed metal; the differences fell to 0.3 and 0.4. Only the
+group's roughness and specular maps changed in the rebuild. Seen again in the client by day and by night,
+slantwise along the east and west fences: nothing looks different from the first check.
+
 Not checked: the Stuffer Shack's corrected door record, which was rewritten by the same code and not painted
 or clicked again; and either group's door in the Suburbs tileset.
 

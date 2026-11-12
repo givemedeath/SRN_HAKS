@@ -89,6 +89,7 @@ def glow(base, where, covered, regions):
     passing = lambda values, floor: 1.0 if floor <= 0 else np.clip((values - floor + 0.05) / 0.15, 0, 1)
     for region in regions:
         share = held(where, covered, region, 'lit') * passing(vivid, region.get('saturation', 0.0)) * passing(brightest, region.get('value', 0.0)) * region.get('gain', 1.0)
+        require(share.any(), 'A lit part lights nothing: none of what its box holds is as vivid or as bright as it asks: ' + str(region.get('part', region['box'])))
         lit = np.maximum(lit, base * share[..., None])
     return np.clip(lit, 0, 1)
 

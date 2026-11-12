@@ -11,6 +11,7 @@ counted, not lost track of. Every change to the ledger is made under a lock shar
 once cannot both pass the cap or drop each other's entry."""
 import contextlib
 import json
+import math
 import re
 import shutil
 import struct
@@ -230,7 +231,7 @@ def _ceiling(row):
     ceiling = CEILING.get(row['operation'], MAX_TRIANGLES); sent = row.get('arguments') or []
     if row['operation'] != 'remesh' or '--target-polycount' not in sent[:-1]:
         return min(ceiling, MAX_TRIANGLES)
-    asked = -int(-(int(sent[sent.index('--target-polycount') + 1]) / REMESH_HEADROOM - 1e-9) // 1)  # the least ceiling that sends this target
+    asked = math.ceil(int(sent[sent.index('--target-polycount') + 1]) / REMESH_HEADROOM - 1e-9)  # the least ceiling that sends this target
     return max(MAX_TRIANGLES, min(ceiling, asked))
 
 
