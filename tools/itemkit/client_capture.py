@@ -92,13 +92,16 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
     try:
         process = client.start(nwn_root, user, module)
         try:
-            deadline = time.monotonic() + timeout
+            deadline = time.monotonic() + timeout; previous_read = time.monotonic()
             while time.monotonic() < deadline and not finished:
-                time.sleep(.2)
+                time.sleep(.05)          # a short poll keeps the hold deadline below close to the shot's real firing time
                 require(process.poll() is None, 'The client exited before the fixture finished')
-                lines = client.log_lines(user, PREFIX)
+                read_at = time.monotonic(); lines = client.log_lines(user, PREFIX)
                 for row in shot_rows(lines[seen:]):
                     body = BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
+                    # The shot fired after the previous log read, and the camera is free for the next one SHOT_HOLD after
+                    # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
+                    hold_ends = previous_read + SHOT_HOLD
                     time.sleep(settle); names = []
                     for frame in range(frames):
                         name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"
@@ -106,8 +109,10 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
                         if frame < frames - 1: time.sleep(gap)
                     # A burst that ran into the next shot shows the wrong thing: keep the files, never file them.
                     newest = shot_rows(client.log_lines(user, PREFIX))[-1]['shot']
-                    shots.append({**row, 'body': body, 'captures': names, **({'rejected': 'next shot began'} if newest != row['shot'] else {})})
-                seen = len(lines); finished = DONE in lines
+                    rejected = ('next shot began' if newest != row['shot'] else
+                                'burst overran the shot hold' if time.monotonic() > hold_ends else None)
+                    shots.append({**row, 'body': body, 'captures': names, **({'rejected': rejected} if rejected else {})})
+                seen = len(lines); finished = DONE in lines; previous_read = read_at
         finally:
             client.stop(process)
     finally:

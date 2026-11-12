@@ -57,7 +57,9 @@ class AutofitTests(unittest.TestCase):
         np.testing.assert_allclose(out[:, :2], fat[:, :2], atol=2e-5)                              # length and width unchanged
         tip = fat[:, 0] > .3; np.testing.assert_allclose(out[tip, 2], fat[tip, 2] * report['depthFactor'], atol=5e-5)
         normals = np.tile([0., 0., 1.], (len(fat), 1)); _, turned = s.apply_thin(fat, mapping, normals)
-        np.testing.assert_allclose(turned, normals, atol=2e-3)                                    # a face normal along depth keeps its direction
+        # A depth face keeps its direction where the gain is constant; across the guard-blend ramp the thinned face
+        # slopes along the length, so its normal tilts with it (test_straightness checks that it stays perpendicular).
+        flat = hilt | tip; np.testing.assert_allclose(turned[flat], normals[flat], atol=2e-3)
         with self.assertRaisesRegex(ValueError, 'No cross-guard'): s.fit_thin(fat[(fat[:, 0] > .02)], .2)
         with self.assertRaisesRegex(ValueError, 'target'): s.fit_thin(fat, .9)
         halved = s.fit_thin(fat)[1]; self.assertEqual(halved['depthFactor'], .5)                  # the reviewed default

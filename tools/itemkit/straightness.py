@@ -268,11 +268,17 @@ def fit_thin(positions, target_ratio=None, factor=None):
 
 def apply_thin(positions, mapping, normals=None):
     positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']; k = int(mapping['axis'])
-    centres, plane, gain = mapping['table'].T; p = (positions - mean) @ axes
-    g = np.interp(p[:, 0], centres, gain); c = np.interp(p[:, 0], centres, plane); p[:, k] = c + (p[:, k] - c) * g
+    centres, plane, gain = mapping['table'].T; p = (positions - mean) @ axes; x = p[:, 0].copy(); depth = p[:, k].copy()
+    g = np.interp(x, centres, gain); c = np.interp(x, centres, plane); p[:, k] = c + (depth - c) * g
     moved = p @ axes.T + mean
     if normals is None: return moved
-    v = np.asarray(normals, float) @ axes; v[:, k] /= g; v = v @ axes.T        # inverse-transpose of the depth scale
+    # d(depth')/dx = c'(1 - g) + (depth - c) g': the ramp and a varying mid-plane shear depth along the length, so
+    # normals take the inverse-transpose of the full Jacobian (row k = [s, ..., g]): n_k /= g and n_0 -= s / g * n_k.
+    def slope(values):
+        index = np.clip(np.searchsorted(centres, x) - 1, 0, len(centres) - 2); rate = np.diff(values) / np.diff(centres)
+        return np.where((x < centres[0]) | (x > centres[-1]), 0., rate[index])     # interp is flat outside the table
+    s = slope(plane) * (1 - g) + (depth - c) * slope(gain)
+    v = np.asarray(normals, float) @ axes; v[:, 0] -= s / g * v[:, k]; v[:, k] /= g; v = v @ axes.T
     return moved, v / np.linalg.norm(v, axis=1)[:, None]
 
 

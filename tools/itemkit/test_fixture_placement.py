@@ -139,6 +139,28 @@ class ScriptedShotTests(unittest.TestCase):
                                             {'body': 'human-female', 'check': 'walk'}])
         self.assertTrue(draft['reviewRequired'])
 
+    def test_a_burst_that_overruns_the_shot_hold_is_never_filed(self):
+        import json, time
+        from tools.headkit.common import pin
+        from tools.itemkit import client_capture
+        from tools.itemkit.fixture import SHOT_HOLD
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); user = root/'user'; (user/'override').mkdir(parents=True)
+            for name in ('m.mod', 'h.hak'): (root/name).write_bytes(b'x')
+            (root/'fixture.json').write_text(json.dumps({'module': pin(root/'m.mod'), 'hak': pin(root/'h.hak'), 'fixtureHaks': [],
+                                                         'userDirectory': str(user)}), encoding='utf-8')
+            shot = ['ITEMKIT_SHOT shot=1 target=sr_it_male check=idle step=3 valid=1']; reads = []
+            def log_lines(_, prefix):
+                reads.append(1); return [] if len(reads) < 3 else shot if len(reads) < 6 else shot + [client_capture.DONE]
+            slow = lambda pid, path: (time.sleep(SHOT_HOLD + .1), Path(path).write_bytes(b'png'))   # a stalled window capture
+            process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
+            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), \
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.capture', side_effect=slow):
+                result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
+            self.assertEqual(result['shots'][0]['rejected'], 'burst overran the shot hold')
+            draft = json.loads((root/'captures/evidence-draft.json').read_text(encoding='utf-8'))
+            self.assertEqual(draft['observations'], [])                         # the stale frame is kept but never filed
+
     def test_shoulder_carry_frames_the_same_moments_higher_and_further(self):
         from tools.itemkit.fixture import SHOTS, SHOULDER_SHOTS, shot_script
         self.assertEqual([row[:3] for row in SHOULDER_SHOTS], [row[:3] for row in SHOTS])     # same steps, times and checks

@@ -91,6 +91,19 @@ class StraightnessTests(unittest.TestCase):
             with self.assertRaises(FileExistsError): s.straighten(source, folder/'out')
 
 
+class ThinNormalTests(unittest.TestCase):
+    def test_thinned_normals_stay_perpendicular_through_the_ramp_and_a_sloped_mid_plane(self):
+        centres = np.linspace(0, 1, s.SLICES); gain = np.clip(1.5 - centres * 2, .5, 1)       # ramps from 1 to 0.5
+        mapping = {'mean': np.zeros(3), 'axes': np.eye(3), 'axis': np.array(2),
+                   'table': np.column_stack([centres, .05 * centres, gain])}                 # mid-plane slopes along X
+        x = np.linspace(.05, .95, 400); surface = lambda x: np.column_stack([x, np.zeros_like(x), .1 + .3 * x])   # a tilted face
+        normals = np.tile(np.array([-.3, 0, 1]) / np.hypot(.3, 1), (len(x), 1))
+        moved, turned = s.apply_thin(surface(x), mapping, normals); ahead = s.apply_thin(surface(x + 1e-6), mapping)
+        along = (ahead - moved) / 1e-6; along /= np.linalg.norm(along, axis=1)[:, None]
+        self.assertLess(np.abs((turned * along).sum(1)).max(), 1e-4)          # perpendicular to the moved surface
+        self.assertTrue(np.allclose(turned[:, 1], 0))                           # the width direction is untouched
+
+
 if __name__ == '__main__':
     unittest.main()
 
