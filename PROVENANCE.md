@@ -381,11 +381,11 @@ The rows, tiles and groups this project adds are listed in `docs/additions/catal
 ## Ares Depot tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-11)
 
 The second envkit building: a fortified corporate security depot with a guard tower, a vehicle door and a fenced
-yard, 9.5 metres to the top of its masts, as a 2 by 2 tile group, `Ares_Depot`, offered in D20 Modern Exterior
-(`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its four tile records are appended to each set file
-(`dgt04` tiles 438-441, group 58; `udp1` tiles 680-683, group 107) and the group is listed under Groups in each
-palette as `Ares Depot 2x2`. No existing tile or group number changes. The four tile models (`ek_ad_depot_t00`,
-`_t01`, `_t10`, `_t11`, compiled), their walkmeshes, area-map pictures (`ek_ad_depot_m00` to `_m11`), the shared
+yard, 12.35 metres to the top of its masts, as a 3 by 3 tile group, `Ares_Depot`, offered in D20 Modern Exterior
+(`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its nine tile records are appended to each set file
+(`dgt04` tiles 438-446, group 58; `udp1` tiles 680-688, group 107) and the group is listed under Groups in each
+palette as `Ares Depot 3x3`. No existing tile or group number changes. The nine tile models (`ek_ad_depot_t00`
+to `_t22`, compiled), their walkmeshes, area-map pictures (`ek_ad_depot_m00` to `_m22`), the shared
 material and its maps (`ek_ad_depot` colour, `_n`, `_s`, `_r`, glow `_i`, halo `_h`) and the lights-out material
 (`ek_ad_depot_o`) live in `srn_t_common`.
 
@@ -401,30 +401,39 @@ lettering was not legible and is painted over in the sign's own black, leaving t
 
 Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes
 and scaled; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow map and a halo sheet
-were made from its own colour for the roof sign and the tower windows; the mesh was shared out over four tiles
-(34,579 to 56,753 faces each) with a ground square, a map picture and two main lights each; everything above 4
-metres carries `tilefade`; and a walkmesh was generated from its shape (1,050 to 1,556 faces a tile, where the
+were made from its own colour for the roof sign and the tower windows; the mesh was shared out over nine tiles
+(14,919 to 27,982 faces each) with a ground square, a map picture and two main lights each; everything above
+5.2 metres carries `tilefade`; and a walkmesh was generated from its shape (442 to 826 faces a tile, where the
 stock tiles of these two tilesets have at most 500). The north-east tile has a door record of type 58, the
-invisible transition door, at the personnel door beside the vehicle door. The path nodes are `I` 90, `U` 270, `I` 270 and `U` 90. They were first worked out
-with the kerbs between the fence and the tile edge, half to three quarters of a metre wide, counted as ways
-through, and two of four walkers sent from the far corners of the area stopped short; a side now joins another
-only through ground a metre square can stand on, and with that all four reached their spots before the vehicle
-door, behind the building and on either side of it. The Meshy source, the full-detail spare, the references and
-the client captures stay in ignored `output/envkit/`.
+invisible transition door, at the personnel door beside the vehicle door. The four corner tiles have path node
+`A`, the four between them `I` (each open to the three sides away from the building), and the middle tile, all
+building, `T`. The Meshy source, the full-detail spare, the references and the client captures stay in ignored
+`output/envkit/`.
 
-Checked in the game client on 2026-11-11. In a Modern Exterior area: by day from all four sides and from above
-with the walkers above; by night, where the roof sign and the tower windows were lit and the rest was not (a
-first night look had a white wall beside the tower glowing and the tower windows dark; the lit parts were
-restated and the tiles rebuilt); with `SetTextureOverride` as `docs/envkit/lights.md` gives it, which put the
-lights and their halo out for the player and brought them back; with the player free and the client's
-second-storey setting on always, where everything above 4 metres was hidden under the black lid; and on the
-area map, which showed the four pictures in place. In a Suburbs area by day: seen from all four sides, with four
-walkers from the far corners reaching the personnel door, the rear and both sides. Checked in the Toolset the
-same day, from the built packs: both palettes list `Ares Depot 2x2` under Groups; painting it laid the four
-tiles in order with no turn, as the saved areas record, changed no other tile in Modern Exterior and repainted
-the twelve tiles around it as asphalt edges and corners in Suburbs; and in each it made one door by itself, of
-type 58, at the personnel door and facing out. Not checked: the group turned before painting, the door used as
-a transition in the client, and the hidden top with the setting on "near the character".
+The group was first built at 9.5 metres on 2 by 2 tiles, the height at which the building filled four tiles.
+That build was checked in the client and the Toolset and never published. Seen with a character at its door it
+was too small: the door leaf measured about 1.6 metres against a figure of about 1.8. The operator chose 1.3
+times that size on 2026-11-11, which makes the leaf about 2.1 metres by 0.98, and the 2 by 2 group was taken out
+of the set files, palettes, pack and catalog and this one put in under the tile and group numbers it had freed.
+Two things found on the first build stand. Its path nodes were first worked out with the kerbs between the
+fence and the tile edge, half to three quarters of a metre wide, counted as ways through, and two of four
+walkers sent from the far corners stopped short; a side now joins another only through ground a metre square
+can stand on. And its first night look had a white wall beside the tower glowing and the tower windows dark;
+the lit parts were restated, the tower windows by their colour.
+
+Checked in the game client on 2026-11-11, as the 3 by 3 group. In a Modern Exterior area: by day from all four
+sides and from above, with four walkers from the far corners of the area reaching the personnel door, the rear
+and both sides, and the figure at the door standing under the top of its leaf; by night, where the roof sign
+and the tower windows were lit and the rest was not; with `SetTextureOverride` as `docs/envkit/lights.md` gives
+it, which put the lights and their halo out for the player and brought them back; with the player free and the
+client's second-storey setting on always, where everything above 5.2 metres was hidden under the black lid; and
+on the area map, which showed the nine pictures in place. In a Suburbs area by day: the same four walkers
+reached their spots. Checked in the Toolset the same day, from the built packs: both palettes list
+`Ares Depot 3x3` under Groups; painting it laid the nine tiles in order with no turn, as the saved areas
+record, changed no other tile in Modern Exterior and repainted the sixteen tiles around it as asphalt edges and
+corners in Suburbs; and in each it made one door by itself, of type 58, at the personnel door and facing out.
+Not checked: the group turned before painting, the door used as a transition in the client, and the hidden top
+with the setting on "near the character".
 
 ## Ares Depot props (`srn_placeable`, `srn_2da`; 2026-11-11)
 

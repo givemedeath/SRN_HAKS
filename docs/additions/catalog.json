@@ -535,33 +535,43 @@
    "tileset": "dgt04",
    "group": 58,
    "name": "Ares_Depot",
-   "label": "Ares Depot 2x2",
-   "rows": 2,
-   "columns": 2,
+   "label": "Ares Depot 3x3",
+   "rows": 3,
+   "columns": 3,
    "tiles": [
     438,
     439,
     440,
-    441
+    441,
+    442,
+    443,
+    444,
+    445,
+    446
    ],
    "models": [
     "ek_ad_depot_t00",
     "ek_ad_depot_t01",
+    "ek_ad_depot_t02",
     "ek_ad_depot_t10",
-    "ek_ad_depot_t11"
+    "ek_ad_depot_t11",
+    "ek_ad_depot_t12",
+    "ek_ad_depot_t20",
+    "ek_ad_depot_t21",
+    "ek_ad_depot_t22"
    ],
    "pack": "srn_t_common",
-   "madeBy": "envkit",
-   "source": "tools/envkit/sets/ares-depot-game.json",
-   "provenance": "Ares Depot tile group",
-   "added": "2026-11-11",
    "lights": {
     "lit": "ek_ad_depot",
     "out": "ek_ad_depot_o",
     "glow": "ek_ad_depot_i",
     "halo": "ek_ad_depot_h",
     "dark": "ek_off"
-   }
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ares-depot-game.json",
+   "provenance": "Ares Depot tile group",
+   "added": "2026-11-11"
   },
   {
    "tileset": "udp1",
@@ -599,33 +609,43 @@
    "tileset": "udp1",
    "group": 107,
    "name": "Ares_Depot",
-   "label": "Ares Depot 2x2",
-   "rows": 2,
-   "columns": 2,
+   "label": "Ares Depot 3x3",
+   "rows": 3,
+   "columns": 3,
    "tiles": [
     680,
     681,
     682,
-    683
+    683,
+    684,
+    685,
+    686,
+    687,
+    688
    ],
    "models": [
     "ek_ad_depot_t00",
     "ek_ad_depot_t01",
+    "ek_ad_depot_t02",
     "ek_ad_depot_t10",
-    "ek_ad_depot_t11"
+    "ek_ad_depot_t11",
+    "ek_ad_depot_t12",
+    "ek_ad_depot_t20",
+    "ek_ad_depot_t21",
+    "ek_ad_depot_t22"
    ],
    "pack": "srn_t_common",
-   "madeBy": "envkit",
-   "source": "tools/envkit/sets/ares-depot-game.json",
-   "provenance": "Ares Depot tile group",
-   "added": "2026-11-11",
    "lights": {
     "lit": "ek_ad_depot",
     "out": "ek_ad_depot_o",
     "glow": "ek_ad_depot_i",
     "halo": "ek_ad_depot_h",
     "dark": "ek_off"
-   }
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ares-depot-game.json",
+   "provenance": "Ares Depot tile group",
+   "added": "2026-11-11"
   }
  ]
 }
