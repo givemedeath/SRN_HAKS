@@ -27,6 +27,7 @@ WIRE = (118, 122, 126)  # galvanised steel
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
+DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
 def _accessor(document, binary, index):
@@ -391,9 +392,10 @@ def load_models(path):
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
-    hide it, and `door` ({at: [x, y, z], facing, type, leaf}: where a door stands on the finished model, the way it faces in
-    degrees, its row of doortypes.2da, and `leaf`, the height in metres of the door leaf as measured on the finished
-    model, which must be a door a character fits); `placeable` gives it a row in the placeables table: its label
+    hide it, and `door` ({at: [x, y, z], facing, type, leaf}: the middle of the foot of a door on the finished model, the
+    way it looks out in degrees from east towards north (90 is north), its row of doortypes.2da, which is the invisible
+    transition door's, and `leaf`, the height in metres of the door leaf as measured on the finished model, which must
+    be a door a character fits; `tile.doorstep` draws the hook out onto open ground and turns it); `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
     under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
@@ -436,6 +438,8 @@ def load_models(path):
         require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf'} and np.asarray(door['at'], float).shape == (3,)
                                  and type(door.get('type', 0)) is int and door.get('type', 0) >= 0), 'A door needs the place it stands at: ' + name)
         require(door is None or number(door.get('facing', 0.0)), 'A door faces a number of degrees: ' + name)
+        # The building's own modelled door is what is seen; the hook is the door that has no model of its own.
+        require(door is None or door.get('type') == DOOR_TYPE, f'The door hook of a building is the invisible transition door, type {DOOR_TYPE}: ' + name)
         # A building is sized by its door, never by the tiles it would fill: the Ares Depot was first scaled to fit 2 by 2
         # tiles and its door leaf came out 1.6 metres, lower than the character standing at it (client, 2026-11-11).
         require(door is None or (number(door.get('leaf')) and DOOR_LEAF[0] <= door['leaf'] <= DOOR_LEAF[1]),

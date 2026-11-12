@@ -21735,9 +21735,9 @@ ImageMap2D=ek_ss_shack_m10
 [TILE678DOOR0]
 Type=58
 X=4.75
-Y=-1.1
+Y=-0.85
 Z=0.18
-Orientation=90.0
+Orientation=180.0
 
 [TILE679]
 Model=ek_ss_shack_t11
@@ -22042,9 +22042,9 @@ ImageMap2D=ek_ad_depot_m22
 [TILE688DOOR0]
 Type=58
 X=-3.63
-Y=-1.62
+Y=-0.99
 Z=0.32
-Orientation=90.0
+Orientation=180.0
 
 [GROUPS]
 Count=108

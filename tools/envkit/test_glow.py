@@ -148,6 +148,9 @@ class GlowTests(unittest.TestCase):
             # A building is scaled to its door before its tiles are counted: a door says how tall its leaf came out.
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58}}}, 'states its leaf')
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 58, 'leaf': 1.6}}}, 'scale the building to its door')
+            # Every building's hook is the door with no model of its own: a visible door type, or none stated, is refused.
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'type': 117, 'leaf': 2.1}}}, 'invisible transition door')
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {'at': [0, 1, 0.2], 'leaf': 2.1}}}, 'invisible transition door')
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped
             long_name.write_text(json.dumps({'models': {'ek_thirteen_c': {'source': 'meshy/x', 'height': 1.0, 'tiles': tiles}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'at most 12'):

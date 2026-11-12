@@ -561,17 +561,17 @@
     "ek_ad_depot_t22"
    ],
    "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ares-depot-game.json",
+   "provenance": "Ares Depot tile group",
+   "added": "2026-11-11",
    "lights": {
     "lit": "ek_ad_depot",
     "out": "ek_ad_depot_o",
     "glow": "ek_ad_depot_i",
     "halo": "ek_ad_depot_h",
     "dark": "ek_off"
-   },
-   "madeBy": "envkit",
-   "source": "tools/envkit/sets/ares-depot-game.json",
-   "provenance": "Ares Depot tile group",
-   "added": "2026-11-11"
+   }
   },
   {
    "tileset": "udp1",
@@ -635,17 +635,17 @@
     "ek_ad_depot_t22"
    ],
    "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ares-depot-game.json",
+   "provenance": "Ares Depot tile group",
+   "added": "2026-11-11",
    "lights": {
     "lit": "ek_ad_depot",
     "out": "ek_ad_depot_o",
     "glow": "ek_ad_depot_i",
     "halo": "ek_ad_depot_h",
     "dark": "ek_off"
-   },
-   "madeBy": "envkit",
-   "source": "tools/envkit/sets/ares-depot-game.json",
-   "provenance": "Ares Depot tile group",
-   "added": "2026-11-11"
+   }
   }
  ]
 }

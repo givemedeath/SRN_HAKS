@@ -30,7 +30,12 @@ the node its own ground gives it, so a group can be of any size (`path_node`). A
 short walk. The Stuffer Shack's first nodes were turned half a turn wrong, and walks of a tile or two round it still
 arrived; only walkers from four tiles away stopped short. Yet a walk of 7.5 metres into a walled yard failed from the
 next tile while the yard's side was not an exit. So a new group is checked in the client with walkers sent from four
-tiles away and more, and from the next tile onto any ground that has one way in. `group` notes ground no exit reaches."""
+tiles away and more, and from the next tile onto any ground that has one way in. `group` notes ground no exit reaches.
+
+A door's record reads right long before the door works. The Ares Depot's hook was read back from the Toolset's saved
+area twice, at its place and with a bearing, before anyone used it: in the client the invisible door stood out of the
+wall at a right angle and a click on it took the player nowhere (`doorstep`). So a new group's door is given an area
+transition and clicked in the client, there and back, with the group painted turned as well as straight."""
 import json
 import re
 import subprocess
@@ -62,6 +67,11 @@ WALK_FACES = 500  # the most walk faces of any stock tile of Modern Exterior and
 # A lit patch of fewer square metres than LIT does not say where a halo card goes: the least patch `glow.halo` gives a card to.
 # A light must reach FOOT metres past the hiding height to count on that side of it too: less is its foot, or its head.
 LIT, FOOT = 0.05, 0.25
+# A door's hook lies where a character can stand: with ROOM metres of open ground before and behind it and SIDE metres
+# to either hand (a doorway between bollards is not much wider), found within REACH metres out from the door. The Ares
+# Depot's first hook lay on its door leaf, in the closed ground of the wall: the player walked up to the door and nothing
+# happened; drawn 0.6 metres out, the same door took them through (client, 2026-11-11).
+DOOR_ROOM, DOOR_SIDE, DOOR_REACH = 0.4, 0.3, 2.0
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
              'BottomRightHeight', 'Top', 'Right', 'Bottom', 'Left', 'MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1',
              'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds', 'PathNode', 'Orientation', 'VisibilityNode', 'VisibilityOrientation', 'ImageMap2D')
@@ -460,6 +470,28 @@ def share_cards(cards, rows, columns, corner, card_light=None):
     return shared
 
 
+def doorstep(found, corner, at, facing):
+    """Where a door's hook goes, and how it is turned: ((x, y, z), the set file's orientation, metres drawn out).
+
+    `at` is the middle of the door's foot on the finished model and `facing` the way the door looks out, in degrees
+    from east towards north (90 is north). The hook is drawn out along that way to the first spot with open ground all
+    round it, since a player uses a door by walking to its hook and a hook in closed ground is never reached. The set
+    file turns a door from the model's own lie, which is across x and looking south: a door that looks north is turned
+    180, one that looks west 270. (Seen in the client on 2026-11-11: at the facing itself the invisible door stood
+    out of the wall at a right angle; at facing + 90 it lay in the doorway and a player sent to it from another area
+    arrived outside, in front of it.)"""
+    import math
+    material = found['material']; rows, columns = material.shape; cell = SIZE / CELLS
+    out = np.array([math.cos(math.radians(facing)), math.sin(math.radians(facing))]); start = np.asarray(at[:2], float)
+    room = DOOR_SIDE + (DOOR_ROOM - DOOR_SIDE) * np.abs(out)  # the open ground asked for, along x and along y
+    for step in range(int(DOOR_REACH / (cell / 2)) + 1):
+        point = start + out * step * cell / 2
+        low = np.floor((point - room - corner) / cell).astype(int); high = np.floor((point + room - corner) / cell).astype(int)
+        if (low >= 0).all() and high[0] < columns and high[1] < rows and (material[low[1]:high[1] + 1, low[0]:high[0] + 1] == STONE).all():
+            return (round(float(point[0]), 3), round(float(point[1]), 3), float(at[2])), float((facing + 90.0) % 360.0), round(step * cell / 2, 3)
+    require(False, f'The door has no open ground within {DOOR_REACH} metres in front of it: a player could not reach it')
+
+
 def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
@@ -468,7 +500,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
 
     colour: the model's colour texture (0-1 array); with it each tile gets its picture for the area map, `image`, drawn
     over `ground_colour`. fade: the height in metres above which the building may be hidden. door: {at: [x, y, z],
-    facing, type} on the finished model; it becomes a door record of the tile it stands in."""
+    facing, type} on the finished model; it becomes a door record of the tile its hook lies in (`doorstep`)."""
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     vertices, normals, uvs, faces = made['vertices'], made['normals'], made['uvs'], made['faces']
@@ -479,7 +511,8 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     cards = share_cards(made['card'].cards, rows, columns, corner, made['card'].light) if made['card'] else {}; tiles, notes = [], []
     pictures = minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground_colour) if colour is not None else {}
     if door is not None:
-        at = np.asarray(door['at'], float); cell = np.clip(((at[:2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
+        spot, orientation, drawn = doorstep(found, corner, door['at'], float(door.get('facing', 0.0)))
+        at = np.asarray(spot, float); cell = np.clip(((at[:2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
     if fade is not None:
         from PIL import Image
         Image.new('RGB', (4, 4)).save(folder / f'{CAP}.tga')
@@ -509,7 +542,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 Image.fromarray((np.clip(pictures[(row, column)], 0, 1) * 255).round().astype(np.uint8)).save(folder / f'{one["image"]}.tga')
             if door is not None and (cell == [column, row]).all():
                 x, y, z = (at - centre).round(2).tolist()
-                one['doors'].append({'type': int(door.get('type', 0)), 'x': x, 'y': y, 'z': z, 'orientation': float(door.get('facing', 0.0))})
+                one['doors'].append({'type': int(door.get('type', 0)), 'x': x, 'y': y, 'z': z, 'orientation': orientation, 'drawnOut': drawn})
             tiles.append(one)
     return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles, 'notes': notes}
 

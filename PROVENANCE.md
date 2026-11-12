@@ -294,6 +294,8 @@ and stayed there, and one sent from the north-east to the south side went round 
 left unchecked above were checked the same day. In the client, in both tilesets, the area map showed the four
 pictures in place, the roof in the middle of its dark ground, north up. In the Toolset, in Suburbs, painting
 the group made one door by itself, of type 58, at the storefront and facing out, as the saved area records.
+(That record read right and was wrong, as the Ares Depot's showed when its door was first used; it was written
+again on 2026-11-11: see the Ares Depot tile group.)
 The rebuild moved each tile's first main light with the finer survey, by about 0.15 metres on three tiles and
 1.2 metres on the north-east one; a coloured main light was looked at again in the client at night and lit the
 ground and the walls on every side. The area map was also looked at zoomed in, at its full 32 pixels a tile.
@@ -431,9 +433,29 @@ on the area map, which showed the nine pictures in place. In a Suburbs area by d
 reached their spots. Checked in the Toolset the same day, from the built packs: both palettes list
 `Ares Depot 3x3` under Groups; painting it laid the nine tiles in order with no turn, as the saved areas
 record, changed no other tile in Modern Exterior and repainted the sixteen tiles around it as asphalt edges and
-corners in Suburbs; and in each it made one door by itself, of type 58, at the personnel door and facing out.
-Not checked: the group turned before painting, the door used as a transition in the client, and the hidden top
-with the setting on "near the character".
+corners in Suburbs; and in each it made one door by itself, of type 58, at the personnel door.
+
+Checked further the same day, the group turned before painting and its door used as a transition. In the
+Toolset, in Modern Exterior, the group was turned a quarter turn while it was pending (a right-click) and
+painted: the saved area has the nine tiles turned together, no other tile changed, and the door moved and
+turned with them. In the client, from that saved module, four walkers from the far corners reached the door,
+the rear and both sides of the turned building. The door was then given an area transition to a waypoint in
+the module's other area and clicked. The player walked up to it and nothing happened, and the blue plane the
+game draws on a transition under the pointer stood out of the wall at a right angle. The door record was wrong
+twice over, as `tools/envkit` wrote it, and the Stuffer Shack's with it: it was turned by the way the door
+faces, where the set file wants that plus 90 degrees; and it lay on the door leaf, inside the ground the wall
+closes, where no character can stand. With the saved door corrected by hand (turned a quarter turn, drawn 0.6
+metres out of the wall) a click took the player to the other area, with the door's click script blank as the
+Toolset leaves it, and a wooden door there linked back to it brought them out in front of the depot's door.
+`tile.doorstep` now turns a hook and draws it out to open ground (the depot's by 0.625 metres, the shack's by
+0.25), `convert.load_models` refuses a hook of any type but 58 (the user's rule of 2026-11-11, until further
+notice), and both groups' door records were written again in both tilesets; their tiles came out of the
+rebuild byte for byte the same.
+
+Not checked: the corrected records as the Toolset and the client read them from the packs (the user put
+client runs on hold before they were written), and the hidden top with the setting on "near the character".
+Known: the model's perimeter fence has no mesh in its frames. Its chain-link is painted on the building wall
+behind them, which shows when the fence is seen from an angle (the user, in the client, 2026-11-11).
 
 ## Ares Depot props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
