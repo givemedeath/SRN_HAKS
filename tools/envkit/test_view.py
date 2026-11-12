@@ -52,6 +52,10 @@ class ViewTests(unittest.TestCase):
         self.assertIn((10, 20, 30), colours); self.assertIn((200, 180, 160), colours)  # the set's paint and the picture as generated
         lit = view.elevations(self.models, self.root, 'ek_wall', self.root / 'lit', fine=128, lit=True)
         self.assertGreater(lit['litShare'], 0.3); self.assertLess(lit['litShare'], 0.7)  # the upper half is lit
+        (part,) = lit['litParts']; self.assertEqual(part['part'], None); self.assertGreater(part['held'], 0); self.assertEqual(part['lit'], part['held'])  # what its box holds, it lights
+        dark = {**self.models['ek_wall'], 'paint': [{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 2.1]], 'colour': [0, 0, 0]}], 'lit': [{'part': 'sign', 'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]]}]}
+        (part,) = view.elevations({'ek_wall': dark}, self.root, 'ek_wall', self.root / 'dark', fine=128, lit=True)['litParts']
+        self.assertEqual((part['part'], part['lit']), ('sign', 0)); self.assertGreater(part['held'], 0)  # a box on a part with nothing to light is told
         with self.assertRaisesRegex(ValueError, 'states no lit parts'):
             view.elevations(self.models, self.root, 'ek_plain', self.root / 'lit', lit=True)
         with self.assertRaisesRegex(ValueError, 'No such model'):
@@ -59,13 +63,30 @@ class ViewTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'A side is'):
             view.elevations(self.models, self.root, 'ek_plain', self.root / 'views', sides=(4,), fine=128)
 
+    def test_a_model_is_drawn_from_a_stated_eye(self):
+        self.assertEqual([value if isinstance(value, (str, float)) else value.tolist() for value in view.eye('front=0,-4,1,0,0,1')], ['front', [0.0, -4.0, 1.0], [0.0, 0.0, 1.0], 50.0, 14.0])
+        self.assertEqual(view.eye('a-1=0,-4,1,0,0,1,60,3')[3:], (60.0, 3.0)); self.assertEqual(view.eye('a=0,-4,1,0,0,1,60')[3:], (60.0, 14.0))
+        for text in ('front', 'front=0,-4,1', '=0,-4,1,0,0,1', 'front=0,-4,1,0,0,x', 'front=0,0,1,0,0,1', 'front=0,-4,1,0,0,1,0', 'front=0,-4,1,0,0,1,50,0', 'front=0,-4,1,0,0,1,50,3,9'):
+            with self.assertRaisesRegex(ValueError, 'An eye'):
+                view.eye(text)
+        told = view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye('front=0,-4,1,0,0,1')], size=(160, 100))
+        self.assertEqual(([Path(path).name for path in told['pictures']], told['faces']), (['ek_wall-front.png'], {'front': 2}))
+        with Image.open(told['pictures'][0]) as picture:
+            self.assertEqual(picture.size, (160, 100)); colours = {colour for _, colour in picture.convert('RGB').getcolors(1 << 20)}
+        self.assertTrue({(10, 20, 30), (200, 180, 160), (40, 44, 52)} <= colours)  # the set's paint, the picture as generated, and nothing behind them
+        for said, eyes in (('Nothing of ek_wall is seen from the eye away', ['away=0,-4,1,0,-8,1']), ('looks straight up or down', ['down=0,0,9,0,0,1']), ('Give an eye', [])):
+            with self.assertRaisesRegex(ValueError, said):
+                view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye(text) for text in eyes], size=(160, 100))
+        with self.assertRaisesRegex(ValueError, 'No such model'):
+            view.perspective(self.models, self.root, 'ek_other', self.root / 'eyes', [view.eye('front=0,-4,1,0,0,1')])
+
     def test_a_generated_model_is_drawn_before_any_game_set_states_it(self):
         told = view.raw(self.root / 'meshy' / 'wall', 3.0, self.root / 'raw', sides=(0,), fine=128)
         self.assertEqual(told['bounds'][1][2], 3.0); self.assertTrue(Path(told['pictures'][0]).is_file()); self.assertEqual(Path(told['pictures'][0]).name, 'wall-side0.png')
         from argparse import Namespace
         from . import __main__ as command
-        asked = dict(models=None, source=str(self.root / 'meshy' / 'wall'), height=3.0, output=str(self.root / 'raw2'), root=None)
-        for more in (dict(model=['0'], lit=True), dict(model=['0', '2'], lit=False), dict(model=['0'], lit=False, root='root')):
+        asked = dict(models=None, source=str(self.root / 'meshy' / 'wall'), height=3.0, output=str(self.root / 'raw2'), root=None, eye=[])
+        for more in (dict(model=['0'], lit=True), dict(model=['0', '2'], lit=False), dict(model=['0'], lit=False, root='root'), dict(model=['0'], lit=False, eye=['front=0,-4,1,0,0,1'])):
             with self.assertRaisesRegex(ValueError, 'has no set to give it lit boxes'):  # what it would ignore is refused
                 command.command_view(Namespace(**{**asked, **more}))
 

@@ -151,7 +151,71 @@ By computer use (access is asked for `nwtoolset.exe` by that name):
 client with the player free in front of the first. Someone clicks each door in turn while it logs where the
 player is; `stages` in what it prints is each place the player came to.
 
+## A new sheet, and a review of the sets
+
+All 55 FRFZ sheets have a set file. A sheet that comes later is brought in with `onboard`, and the same
+commands review the sets against each other when props are to be reused. `<sheets>` is the folder holding the
+concept sheets, each named `NN_<what>.png`.
+
+```
+envkit onboard boxes   --sheet <sheets>/NN_<what>.png --output <scratch>/boxes.png [--split <row>]
+envkit onboard sets    --spec <scratch>/spec.txt --sheets <sheets>
+envkit onboard crops   --set tools/envkit/sets/<sheet>.json --sheets <sheets> --output <scratch>/crops.png
+envkit onboard overlay --sheets <sheets> --output <scratch>/overlay
+envkit onboard audit   --sheets <sheets>
+envkit onboard types   --sheets <sheets> --output <scratch>/types.png --type <type> [--type <type>]
+envkit onboard same    --sheets <sheets> --output <scratch>/same [--only <sheet>]
+envkit onboard revise  --decisions <scratch>/decisions.txt
+```
+
+`boxes` proposes a numbered box round each thing drawn on the sheet (T for the building views, P for the prop
+set). A spec names them, one block a sheet:
+
+```
+@ <sheet> NN
+building-hero | B | | corrugated warehouse with a loading dock | 96 56 524 364 | Ignore the caption.
+desk | console-desk | =ares-depot/checkpoint-terminal | office desk | 76 516 204 644
+gate | vehicle-gate | ~Branding: Gate with the yard's name. | sliding yard gate | 296 516 464 644
+```
+
+The third field is empty for the original of its type, `=set/asset` for a prop another sheet's model serves,
+`~what differs` for a variant and `~!what differs` for a variant drawn unbranded. `sets` writes the set files
+and refuses a spec the kit would not accept with the sets already there (a type shared without saying so, a box
+off the sheet); a set that exists is not written over. `crops` shows each name on its crop, `overlay` every
+sheet with its boxes on it, `audit` what a reading would not catch (the sheet changed, boxes overlapping, a
+brand word in a prop that is no sign), `types` the made props of a type side by side and `same` each reused
+prop beside the one it reuses. What a review decides goes in a decisions file and `revise` applies it, all of
+it or none:
+
+```
+<sheet>/<asset> | =set/asset            the same as that prop
+<sheet>/<asset> | ~what differs         a variant (~! drawn unbranded)
+<sheet>/<asset> | ^                     the original of its type
+<sheet>/<asset> | !                     drawn unbranded
+<sheet>/<asset> | type <name>           another type
+<sheet>/<asset> | box x0 y0 x1 y1       another crop box
++ <sheet>/<asset> | <type> | <relation> | <subject> | x0 y0 x1 y1     a prop the set missed
+* <old-type> > <new-type>               a type renamed in every set
+```
+
+Several actions on one line apply in order (`... | ^ | type yard-gate`).
+
+## When something looks wrong
+
+- **A lit part does not light.** `envkit view ... --lit` counts for each lit part the texels its box holds and
+  the texels it lights (`litParts`). A box that holds much and lights nothing is on the wrong part of the
+  model, or on a part too dark to shine.
+- **A square-on view does not show it** (inside a hole, under an overhang, through a fence).
+  `envkit view --models ... --root <root> --model <name> --eye <label>=ex,ey,ez,tx,ty,tz[,fov[,reach]] --output <scratch>`
+  draws the model as it will ship, fence sheets and all, from an eye at `ex,ey,ez` looking at `tx,ty,tz`, in
+  metres on the finished model. `--eye` repeats.
+- **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
+  --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
+  `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,
+  turning each by its Orientation both ways; run it before a group goes into a tileset whose tiles were not
+  looked at.
+
 ## Tests
 
-`python -B -m unittest discover -s tools/envkit -p "test_*.py" -t .` covers the plan, the ledger, the pictures
-and the layouts of the checks. The client and the Toolset themselves are not started by the tests.
+`python -B -m unittest discover -s tools/envkit -p "test_*.py" -t .` covers the plan, the ledger, the pictures,
+the set files `onboard` writes and the layouts of the checks. The client and the Toolset themselves are not started by the tests.

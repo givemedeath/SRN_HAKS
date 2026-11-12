@@ -4,8 +4,11 @@ a model seen square on from its sides with a metre grid, to read the boxes of a 
 A game set states lit parts, painted and smoothed parts, wire mesh panels, fences, closing faces and a door in metres
 on the finished model. `elevations` draws that model as it will ship (turned, hung and retouched as its set says so
 far) with a line every half or quarter metre labelled in the model's own x or y and z; with `lit` it shows what the
-set's lit boxes light, in its own colour, and dims the rest blue. A generated model that is in no game set yet is
-drawn as it came back, at a stated height (`raw`). These were one-off scripts for the Ares Depot (2026-11-11)."""
+set's lit boxes light, in its own colour, and dims the rest blue, and counts for each lit part the texels its box
+holds and the texels it lights: a box that holds much and lights nothing is on the wrong part of the model. A generated
+model that is in no game set yet is drawn as it came back, at a stated height (`raw`). `perspective` draws the model
+as it will ship from a stated eye, fence sheets and all, where a square-on view does not show what is wrong: inside a
+hole, under an overhang, through a fence. These were one-off scripts for the Ares Depot (2026-11-11)."""
 from pathlib import Path
 
 import numpy as np
@@ -46,6 +49,8 @@ def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, 
     if lit is not None:
         shine = glow.glow(base, where, covered, lit)
         report['litShare'] = round(float((shine.max(-1) > 0.02).sum() / max(covered.sum(), 1)), 3)
+        report['litParts'] = [{'part': region.get('part'), 'held': int(glow.inside(where, covered, region['box']).sum()),
+                               'lit': int((glow.glow(base, where, covered, [region]).max(-1) > 0.02).sum())} for region in lit]
         base = np.where(shine.max(-1, keepdims=True) > 0.02, np.maximum(shine, 0.1), base * 0.35 * [0.6, 0.7, 1.0])
     extent = float(max(points.max(0) - points.min(0))); pixels = scale or max(int(1400 / extent), 1); output = Path(output); output.mkdir(parents=True, exist_ok=True)
     for side in sides:
@@ -59,7 +64,9 @@ def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, 
 
 def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None, fine=2048, lit=False):
     """Pictures `<name>-side<n>.png` of a game set's model as it will ship, with a grid. `models` is the loaded game
-    set and `root` its output root. `lit` shows what its lit boxes light. Returns {bounds, pictures, litShare}."""
+    set and `root` its output root. `lit` shows what its lit boxes light. Returns {bounds, pictures, litShare,
+    litParts}, the last two with `lit`: the share of the model's texels that are lit, and for each lit part the texels
+    its box holds and the texels it lights."""
     from PIL import Image
     require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
     require(not lit or model.get('lit'), name + ' states no lit parts')
@@ -69,6 +76,66 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
     with Image.open(maps['base_color']) as generated:
         picture = made['colour'] or generated.copy()
     return _drawn(made['vertices'], made['uvs'], made['faces'], picture, output, name, sides, scale, grid, fine, model['lit'] if lit else None)
+
+
+def eye(text):
+    """label=ex,ey,ez,tx,ty,tz[,fov[,reach]] as (label, eye, target, fov, reach): where the eye is and what it looks at,
+    in metres on the finished model, the angle of view in degrees and how far from the target a face is still drawn."""
+    label, _, numbers = text.partition('=')
+    try:
+        values = [float(value) for value in numbers.split(',')]
+    except ValueError:
+        values = []
+    require(label.replace('-', '').isalnum() and 6 <= len(values) <= 8, 'An eye is label=ex,ey,ez,tx,ty,tz[,fov[,reach]]: ' + text)
+    fov, reach = (values[6:] + [50.0, 14.0][len(values) - 6:])
+    require(values[:3] != values[3:6] and 1 <= fov <= 150 and reach > 0, 'An eye looks at another place than its own, through 1 to 150 degrees: ' + text)
+    return label, np.array(values[:3]), np.array(values[3:6]), fov, reach
+
+
+def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
+    """Pictures `<name>-<label>.png` of a game set's model as it will ship (retouched, closed, with its fence sheets)
+    from stated eyes (`eye`): its picture alone, nearest face in front, see-through where the picture is. Drawn in
+    software a face at a time, so `reach` keeps a large model to what is about the target. Returns {pictures, faces}."""
+    from PIL import Image
+    require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
+    maps = {'base_color': source / 'texture_0_base_color.png'}; require(eyes, 'Give an eye at least')
+    made = convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
+                         **{key: model[key] for key in convert.RETOUCHING if key in model})
+    with Image.open(maps['base_color']) as generated:
+        texture = np.asarray((made['colour'] or generated).convert('RGBA'))
+    points, uvs, faces = made['vertices'], made['uvs'], made['faces']; own = len(faces); links = None
+    if made['wire']:  # the fence's sheets show a picture of their own, repeated
+        wire = made['wire']; faces = np.vstack([faces, np.asarray(wire['faces']) + len(points)]); points = np.vstack([points, wire['vertices']])
+        uvs = np.vstack([uvs, wire['uvs']]); links = np.asarray(wire['image'].convert('RGBA'))
+    wide, high = size; output = Path(output); output.mkdir(parents=True, exist_ok=True); report = {'pictures': [], 'faces': {}}
+    for label, at, target, fov, reach in eyes:
+        ahead = target - at; ahead = ahead / np.linalg.norm(ahead); right = np.cross(ahead, [0.0, 0.0, 1.0])
+        require(np.linalg.norm(right) > 1e-6, f'The eye {label} looks straight up or down: move it a little to the side'); right /= np.linalg.norm(right); up = np.cross(right, ahead)
+        rel = points - at; depth = rel @ ahead; focal = high / 2 / np.tan(np.radians(fov) / 2)
+        sx = wide / 2 + (rel @ right) / np.maximum(depth, 1e-6) * focal; sy = high / 2 - (rel @ up) / np.maximum(depth, 1e-6) * focal
+        near = (np.linalg.norm(points[faces].mean(1) - target, axis=1) < reach) & (depth[faces] > 0.3).all(1)
+        image = np.zeros((high, wide, 3), np.uint8); image[:] = (40, 44, 52); buffer = np.full((high, wide), np.inf)
+        for number in np.flatnonzero(near):
+            face = faces[number]; a, b, c = np.stack([sx[face], sy[face]], 1)
+            low = np.maximum(np.floor(np.minimum(np.minimum(a, b), c)).astype(int), 0); top = np.minimum(np.ceil(np.maximum(np.maximum(a, b), c)).astype(int), [wide - 1, high - 1])
+            span = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
+            if (top < low).any() or abs(span) < 1e-9:
+                continue
+            xs, ys = np.meshgrid(np.arange(low[0], top[0] + 1) + 0.5, np.arange(low[1], top[1] + 1) + 0.5)
+            second = ((xs - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (ys - a[1])) / span; third = ((b[0] - a[0]) * (ys - a[1]) - (xs - a[0]) * (b[1] - a[1])) / span
+            first = 1 - second - third; inside = (first >= 0) & (second >= 0) & (third >= 0)
+            if not inside.any():
+                continue
+            weight = np.stack([first, second, third], -1)[inside] / depth[face]; z = 1 / weight.sum(-1); weight = weight * z[:, None]  # perspective-correct
+            if number >= own:
+                spot = (weight @ uvs[face] * len(links)).astype(int) % len(links); texel = links[spot[:, 1], spot[:, 0]]
+            else:
+                spot = np.clip((weight @ uvs[face] * [texture.shape[1], texture.shape[0]]).astype(int), 0, [texture.shape[1] - 1, texture.shape[0] - 1]); texel = texture[spot[:, 1], spot[:, 0]]
+            py, px = (ys[inside] - 0.5).astype(int), (xs[inside] - 0.5).astype(int); keep = (texel[:, 3] >= 128) & (z < buffer[py, px])
+            image[py[keep], px[keep]] = texel[keep, :3]; buffer[py[keep], px[keep]] = z[keep]
+        require(np.isfinite(buffer).any(), f'Nothing of {name} is seen from the eye {label}')
+        path = output / f'{name}-{label}.png'; Image.fromarray(image).save(path); report['pictures'].append(str(path)); report['faces'][label] = int(near.sum())
+    return report
 
 
 def raw(source, height, output, *, name=None, sides=(0,), scale=None, grid=None, fine=2048):
