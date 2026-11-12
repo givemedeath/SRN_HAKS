@@ -168,6 +168,17 @@ class CapTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build(full=full)
 
+    def test_a_tucked_cap_steps_in_from_its_rim_just_past_the_plane(self):
+        plain = split.cap(self.v, self.t, self.under, len(self.v), self.point, self.normal, self.DEPTH, 1.0, steps=3)
+        points, _, faces = split.cap(self.v, self.t, self.under, len(self.v), self.point, self.normal, self.DEPTH, 1.0, steps=4, tuck=0.1)
+        count = len(points) // 4
+        self.assertEqual((len(plain[0]) // 3, len(faces)), (count, 7 * count))
+        rings = (points - self.point).reshape(4, count, 3)
+        rim = np.linalg.norm((plain[0] - self.point).reshape(3, count, 3)[0][:, :2], axis=1) / (np.cos(np.pi / 6) * (1 - split.LEAN * 0.5))
+        self.assertTrue(np.allclose(np.linalg.norm(rings[0][:, :2], axis=1), 0.9 * rim))  # a tenth of the way in
+        self.assertTrue(np.allclose(rings[0][:, 2], -split.TUCK_RISE * self.DEPTH))  # and hardly past the plane
+        self.assertTrue(np.allclose(rings[1:], 0.9 * (plain[0] - self.point).reshape(3, count, 3) * (1, 1, 1 / 0.9)))  # then the dome, as much narrower
+
     def test_a_cap_is_joined_to_the_rim_and_lies_inside_its_dome(self):
         points, uvs, faces = self.cap()
         rim = int((np.abs(self.v[np.unique(self.under)][:, 2] - 0.4) < 1e-9).sum())
@@ -942,12 +953,13 @@ class CrotchTests(unittest.TestCase):
         # the cut's line reaches down to z = -0.10 (0.15 from its point, the sheet standing 0.1 in front of it)
         self.assertEqual(more_f.min(), 100)
         strip = more_f - 100
-        self.assertAlmostEqual(area(more_v, strip), 2 * split.GUSSET_WIDTH * (0.10 + split.GUSSET_BELOW), places=9)
+        corner = split.GUSSET_CORNER * split.GUSSET_WIDTH  # its two lower corners are cut off at 45 degrees
+        self.assertAlmostEqual(area(more_v, strip), 2 * split.GUSSET_WIDTH * (0.10 + split.GUSSET_BELOW) - corner ** 2, places=9)
         self.assertTrue(np.allclose(more_v[:, 1], 0.1 - split.GUSSET_UNDER))  # under the surface it repeats
         self.assertTrue(np.all(normals(more_v, strip)[:, 1] > 0))  # and facing as it does
         self.assertTrue(np.allclose(more_t, more_v[:, [0, 2]] * 3.0))  # with its columns
         wide = split.gusset(v, t, f, 0, seam, width=0.1, below=0.05)
-        self.assertAlmostEqual(area(wide[0], wide[2]), 0.2 * 0.15, places=9)
+        self.assertAlmostEqual(area(wide[0], wide[2]), 0.2 * 0.15 - (split.GUSSET_CORNER * 0.1) ** 2, places=9)
         # legs nothing joins have no point on the cut, and no strip
         apart = v + (0.02, 0, 0)
         self.assertEqual([len(part) for part in split.gusset(apart, t, f, 0, seam)], [0, 0, 0])

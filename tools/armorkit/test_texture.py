@@ -92,6 +92,20 @@ class MaterialTests(unittest.TestCase):
         creases = np.array([FABRIC, TAN, PLATE]) * 0.55
         self.assertEqual(texture.labels(creases, self.found['tones']).tolist(), order)
 
+    def test_a_materials_highlight_is_still_that_material(self):
+        # a warm grey cloth, tan gear and a sky-blue plate, as the second Site Guard was generated
+        cloth, gear, plate = (0.36, 0.34, 0.31), (0.56, 0.40, 0.27), (0.36, 0.52, 0.61)
+        rng = np.random.default_rng(5)
+        found = texture.materials(np.concatenate([shaded(cloth, 6000, rng), shaded(gear, 2500, rng), shaded(plate, 1500, rng)]), 3)
+        order = texture.labels(np.array([cloth, gear, plate]), found['tones']).tolist()
+        self.assertEqual(sorted(order), [0, 1, 2])
+        pale = lambda colour, share: tuple(np.asarray(colour) + share * (0.86 - np.asarray(colour)))  # toward a near white
+        for share in (0.2, 0.4, 0.55, 0.65):  # where a plate catches the light it is paler: lighter and less blue at once
+            self.assertEqual(texture.labels(np.array([pale(cloth, share), pale(gear, share), pale(plate, share)]), found['tones']).tolist(), order, share)
+        washed = np.array([pale(plate, 0.65)])  # measured to the tones alone, this one is the cloth's
+        nearest = np.argmin(np.linalg.norm(texture.tone(washed)[:, None] - found['tones'][None], axis=2), axis=1)
+        self.assertEqual(nearest.tolist(), [order[0]])
+
     def test_a_mesh_face_is_of_the_material_most_of_its_readings_show(self):
         # a strip of 40 cells along x, two faces each; the colour at a point is fabric, from x = 2 tan, from x = 3 plate
         positions = np.array([(x, y, 0.0) for x in np.linspace(0, 4, 41) for y in (0.0, 0.1)])
@@ -148,7 +162,7 @@ class MaterialTests(unittest.TestCase):
         colour[:, :3], covered[:, :3] = TAN, True
         colour[0, 0], colour[1, 0] = np.array(TAN) * 1.1, np.array(TAN) * 0.8
         colour[:, 3], covered[:, 3] = PLATE, True
-        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=1)
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=1, speck=0)
         self.assertTrue((layers[:, :3] == export.LAYERS['leather1']).all() and (layers[:, 3:5] == export.LAYERS['metal1']).all())
         self.assertTrue((layers[:, 5:] == export.LAYERS[channels[0]]).all())  # beyond the spread: the first channel
         middle = texture.MIDDLE * (np.array(TAN) @ texture.LIGHT) / self.found['light'][which[1]]
@@ -161,7 +175,7 @@ class MaterialTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             texture.tint_maps(colour, covered, self.found, ['cloth1', 'leather1', 'no such channel'])
 
-    def test_a_closing_is_drawn_in_the_outfits_commonest_material_at_its_middle_shade(self):
+    def test_a_closing_is_drawn_in_the_outfits_commonest_material_at_its_lit_shade(self):
         fabric = int(texture.labels(np.array([FABRIC]), self.found['tones'])[0])
         self.assertEqual(fabric, 0)  # most of the outfit's texels: the first material
         channels = ['cloth1', 'leather1', 'metal1']
@@ -172,11 +186,60 @@ class MaterialTests(unittest.TestCase):
         closing = texture.face_texels(SQUARE * 0.25 + (0.125, 0.25), FACES, [True, True], 8)
         self.assertTrue(np.array_equal(np.argwhere(closing), [(2, 1), (2, 2), (3, 1), (3, 2)]))
         self.assertFalse(texture.face_texels(SQUARE * 0.25 + (0.125, 0.25), FACES, [False, False], 8).any())
-        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels)
+        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels, speck=0)
         self.assertTrue((plain_layers[closing] != export.LAYERS['cloth1']).all() and (plain_shades[closing] < texture.MIDDLE - 30).all())
-        shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing)
-        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0)
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())  # a part with no cloth of its own
         self.assertTrue(np.array_equal(layers[~closing], plain_layers[~closing]) and np.array_equal(shades[~closing], plain_shades[~closing]))
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, lit=(201, 150, 140))
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == 201).all())  # the outfit's, where the caller has it
+        self.assertTrue(np.array_equal(shades[~closing], plain_shades[~closing]))
+
+    def test_what_the_split_made_is_as_light_as_the_parts_own_cloth_where_nothing_shades_it(self):
+        channels = ['cloth1', 'leather1', 'metal1']
+        # a part of cloth, a third of it in the shade of a fold, with a closing and a cap of plate and of cloth
+        colour = np.zeros((64, 64, 3)); covered = np.ones((64, 64), bool)
+        colour[:] = FABRIC
+        colour[:20] = np.array(FABRIC) * 0.7
+        closing = np.zeros((64, 64), bool); closing[40:, :20] = True
+        cap = np.zeros((64, 64), bool); cap[40:, 30:] = True
+        colour[40:, 30:46] = np.array(FABRIC) * 0.6
+        colour[40:, 46:] = PLATE
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, closing=closing, cap=cap)
+        own = ~closing & ~cap
+        flat = np.percentile(shades[own], texture.LIT)
+        self.assertGreater(flat, np.median(shades[own]) - 1e-9)
+        self.assertGreater(flat, shades[:20].max() + 30)  # the fold is darker than that
+        cloth = cap.copy(); cloth[:, 46:] = False
+        self.assertTrue((np.abs(shades[closing] - flat) <= 0.5).all() and (np.abs(shades[cloth] - flat) <= 0.5).all())
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (layers[cloth] == export.LAYERS['cloth1']).all())
+        self.assertTrue((layers[cap & ~cloth] == export.LAYERS['metal1']).all() and (shades[cap & ~cloth] == texture.MIDDLE).all())  # the part has no plate of its own
+        # the outfit's own shades, per material
+        every = np.concatenate([colour[own], np.tile(np.array(PLATE) * 1.1, (500, 1)), np.tile(np.array(PLATE) * 0.8, (500, 1)), np.tile(PLATE, (2000, 1))])
+        lit = texture.lit_shades(every, self.found)
+        self.assertEqual(lit.shape, (3,))
+        self.assertAlmostEqual(lit[0], flat, delta=1.0)
+        self.assertAlmostEqual(lit[2], texture.MIDDLE * (np.array(PLATE) @ texture.LIGHT) / self.found['light'][2], delta=1.0)
+        self.assertEqual(lit[1], texture.MIDDLE)  # a material the colours show none of
+
+    def test_a_line_of_one_material_in_another_is_drawn_as_that_other(self):
+        channels = ['cloth1', 'leather1', 'metal1']
+        colour = np.zeros((64, 64, 3)); covered = np.ones((64, 64), bool)
+        colour[:] = FABRIC
+        colour[:, 40:] = np.array(FABRIC) * 0.8
+        colour[10:50, 20:23] = PLATE  # piping three texels wide
+        colour[30:32, 50:52] = PLATE  # a fleck, in the darker cloth
+        colour[:, :10] = TAN  # a strap ten texels wide
+        line = np.zeros((64, 64), bool); line[10:50, 20:23] = True; line[30:32, 50:52] = True
+        as_read = texture.tint_maps(colour, covered, self.found, channels, pad=0, speck=0)
+        self.assertTrue((as_read[1][line] == export.LAYERS['metal1']).all())
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0)
+        self.assertTrue((layers[line] == export.LAYERS['cloth1']).all())
+        self.assertTrue((np.abs(shades[10:50, 20:23] - as_read[0][0, 30]) <= 1).all())  # at the shade of the cloth round it
+        self.assertTrue((np.abs(shades[30:32, 50:52] - as_read[0][0, 60]) <= 1).all())
+        self.assertTrue(np.array_equal(layers[~line], as_read[1][~line]) and np.array_equal(shades[~line], as_read[0][~line]))  # the strap stays
+        wide = colour.copy(); wide[10:50, 20:32] = PLATE  # twelve texels: a plate
+        self.assertTrue((texture.tint_maps(wide, covered, self.found, channels, pad=0)[1][12:48, 21:31] == export.LAYERS['metal1']).all())
 
     def test_beside_a_pad_a_cap_is_the_outfits_cloth(self):
         channels = ['cloth1', 'leather1', 'metal1']
@@ -189,16 +252,17 @@ class MaterialTests(unittest.TestCase):
         colour[64:184, 80:84] = np.array(FABRIC) * 0.6
         padded = np.zeros((256, 256), bool); padded[64:184, 144:184] = True
         strap = np.zeros((256, 256), bool); strap[64:184, 104:144] = True
-        as_read = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap)
+        lit = (201, 150, 140)
+        as_read = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, lit=lit)
         self.assertTrue((as_read[1][strap] == export.LAYERS['leather1']).all())  # wide enough to be no streak
-        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, padded=padded)
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, padded=padded, lit=lit)
         cloth = cap & (as_read[1] == export.LAYERS['cloth1'])
         self.assertTrue((layers[strap] == export.LAYERS['cloth1']).all())
-        self.assertTrue((np.abs(shades[strap] - as_read[0][cloth].mean()) <= 0.5).all())  # at the mean shade of the cap's cloth
-        self.assertTrue(np.array_equal(shades[cloth], as_read[0][cloth]) and shades[cloth].min() < texture.MIDDLE - 30)  # its creases kept
-        self.assertTrue((layers[padded] == export.LAYERS['metal1']).all() and np.array_equal(shades[padded], as_read[0][padded]))
+        self.assertTrue((shades[strap] == 201).all())  # at the cloth's lit shade
+        self.assertTrue((shades[cloth] == 201).all())  # and so is what was read as cloth
+        self.assertTrue((layers[padded] == export.LAYERS['metal1']).all() and (shades[padded] == 140).all())
         self.assertTrue(np.array_equal(layers[~cap], as_read[1][~cap]) and np.array_equal(shades[~cap], as_read[0][~cap]))
-        none = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, padded=np.zeros((256, 256), bool))
+        none = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, padded=np.zeros((256, 256), bool), lit=lit)
         self.assertTrue(np.array_equal(none[0], as_read[0]) and np.array_equal(none[1], as_read[1]))  # a cap with no pad is as it was
 
     def test_a_cap_keeps_its_rims_materials_without_their_streaks(self):
@@ -211,23 +275,25 @@ class MaterialTests(unittest.TestCase):
         colour[64:192, 64:128], colour[64:192, 128:192] = FABRIC, PLATE
         colour[64:192, 80:84] = np.array(FABRIC) * 0.6
         colour[64:192, 100:102] = PLATE
-        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels, pad=0)
+        lit = (201, 150, 140)
+        plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, speck=0)
         streak = np.zeros((256, 256), bool); streak[64:192, 100:102] = True
         self.assertTrue((plain_layers[streak] == export.LAYERS['metal1']).all())
-        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap)
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, cap=cap, lit=lit)
         self.assertTrue((layers[streak] == export.LAYERS['cloth1']).all())  # the streak is the cloth round it
         cloth = cap & (plain_layers == export.LAYERS['cloth1'])
-        self.assertTrue((np.abs(shades[streak] - plain_shades[cloth].mean()) <= 0.5).all())  # at the mean shade of the cap's cloth
-        self.assertTrue(np.array_equal(shades[cloth], plain_shades[cloth]) and shades[cloth].min() < texture.MIDDLE - 30)  # its creases kept
+        self.assertTrue((shades[streak] == 201).all())  # at the cloth's lit shade
+        self.assertLess(plain_shades[cloth].min(), texture.MIDDLE - 30)  # the rim's crease, repeated as a stripe
+        self.assertTrue((shades[cloth] == 201).all())  # is gone: one shade to a material
         pad = np.zeros((256, 256), bool); pad[64:192, 128:192] = True
-        self.assertTrue((layers[pad] == export.LAYERS['metal1']).all() and np.array_equal(shades[pad], plain_shades[pad]))  # the pad stays
+        self.assertTrue((layers[pad] == export.LAYERS['metal1']).all() and (shades[pad] == 140).all())  # the pad stays
         self.assertTrue(np.array_equal(layers[~cap], plain_layers[~cap]) and np.array_equal(shades[~cap], plain_shades[~cap]))
         # what lies round the cap has no say in it: tan on every side, and none on the cap
         self.assertNotIn(export.LAYERS['leather1'], layers[cap])
         # where a closing is flagged too, it is the closing's
         closing = np.zeros((256, 256), bool); closing[64:192, 160:192] = True
-        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, closing=closing, cap=cap)
-        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == texture.MIDDLE).all())
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, closing=closing, cap=cap, lit=lit)
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == 201).all())
         self.assertTrue((layers[pad & ~closing] == export.LAYERS['metal1']).all())
 
     def test_what_the_torso_wears_over_a_limb_is_found_by_its_reaching_the_cut(self):
@@ -353,20 +419,20 @@ class MaterialTests(unittest.TestCase):
         second = np.zeros((8, 8, 3), bool)
         second[:4, :, tan] = True  # the upper rows are a garment that takes the leather's second channel
         second[2:, :, fabric] = True
-        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, second=second)
+        shades, layers = texture.tint_maps(colour, covered, self.found, channels, pad=0, second=second, speck=0)
         self.assertTrue((layers[:4, :4] == export.LAYERS['leather2']).all() and (layers[4:, :4] == export.LAYERS['leather1']).all())
         self.assertTrue((layers[:2, 4:7] == export.LAYERS['cloth1']).all() and (layers[2:, 4:7] == export.LAYERS['cloth2']).all())
         self.assertTrue((layers[:, 7] == export.LAYERS['cloth1']).all())  # not covered and not spread into: the first channel
         # without the flags every material is on its first channel, the shades the same
-        plain_shades, plain = texture.tint_maps(colour, covered, self.found, channels, pad=0)
+        plain_shades, plain = texture.tint_maps(colour, covered, self.found, channels, pad=0, speck=0)
         self.assertTrue(np.array_equal(plain_shades, shades))
         self.assertEqual(sorted(np.unique(plain).tolist()), sorted([export.LAYERS['cloth1'], export.LAYERS['leather1']]))
         # a closing is the outfit's cloth, in the channel the cloth has there
         closing = np.zeros((8, 8), bool); closing[:, 0] = True
-        closed = texture.tint_maps(colour, covered, self.found, channels, pad=0, second=second, closing=closing)[1]
+        closed = texture.tint_maps(colour, covered, self.found, channels, pad=0, second=second, closing=closing, speck=0)[1]
         self.assertTrue((closed[:2, 0] == export.LAYERS['cloth1']).all() and (closed[2:, 0] == export.LAYERS['cloth2']).all())
         # spread, a chart's edge takes its channel outward with it
-        spread = texture.tint_maps(colour, covered, self.found, channels, second=second)[1]
+        spread = texture.tint_maps(colour, covered, self.found, channels, second=second, speck=0)[1]
         self.assertTrue((spread[:2, 7] == export.LAYERS['cloth1']).all() and (spread[2:, 7] == export.LAYERS['cloth2']).all())
         # the flags of faces, a row of them per face, laid out per texel
         rows = texture.face_texels(SQUARE, FACES, [[True, False, True], [False, True, True]], 8)
@@ -431,7 +497,8 @@ class ReliefTests(unittest.TestCase):
 
     def bake(self, normal, **options):
         posed = options.pop('posed', self.POSITIONS * 1.8)
-        return texture.normal_map(SQUARE, FACES, options.pop('positions', self.POSITIONS), self.NORMALS, posed, self.reads(normal, **options), 8)
+        added = options.pop('added', None)
+        return texture.normal_map(SQUARE, FACES, options.pop('positions', self.POSITIONS), self.NORMALS, posed, self.reads(normal, **options), 8, added=added)
 
     def test_a_fine_surface_tilted_along_u_or_v_shows_in_red_or_green(self):
         tilt = np.radians(30)
@@ -455,6 +522,13 @@ class ReliefTests(unittest.TestCase):
         rows, columns = np.mgrid[0:8, 0:8]
         self.assertTrue(np.allclose(image[columns < rows], texture.FLAT))  # the half the second face covers
         self.assertTrue(np.allclose(image[columns > rows], [0.75, 0.5, 0.933], atol=1e-3))
+        # a flat closing spans its opening from rim to rim and is as large there as worn: only its flag tells it
+        whole = self.bake((0.5, 0, 0.866))[0]
+        self.assertTrue(np.allclose(whole[columns < rows], [0.75, 0.5, 0.933], atol=1e-3))
+        flagged = self.bake((0.5, 0, 0.866), added=np.array([False, True]))[0]
+        self.assertTrue(np.allclose(flagged[columns < rows], texture.FLAT) and np.allclose(flagged[columns > rows], [0.75, 0.5, 0.933], atol=1e-3))
+        with self.assertRaises(ValueError):
+            self.bake((0.5, 0, 0.866), added=np.array([True]))
 
     def test_the_directions_of_a_high_detail_mesh_are_read_whatever_its_winding(self):
         # a sheet of small triangles tilted 20 degrees about y, every other one wound backwards

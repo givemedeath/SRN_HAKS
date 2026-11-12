@@ -99,7 +99,19 @@ The knee and elbow pads are cut in two on their joint planes, and sitting, the u
 along the top of the thigh with trousers showing between the halves. Giving the whole pad to the shin or the
 forearm was tried and taken back: it swung off the thigh at any bend and stood out behind a bent elbow. The
 shin's and the forearm's caps now carry the pad's rim round the joint's hinge, in the pad's material, so the
-gap a bend opens between the two halves is filled out to their cut edges. The accent and
+gap a bend opens between the two halves is filled out to their cut edges.
+
+A polishing round followed a review of the build in the client (eleven poses, four views each). The arm
+plates were grey in the middle with a rim of their colour: a plate that catches the light is paler and less
+coloured, and was read as cloth; a highlight is now still its material. Piping and flecks of the plates'
+colour on the sleeves, four texels across or less, are drawn as the sleeve. What the split makes (closings,
+caps) is drawn at the cloth's lit shade, not its middle shade, and a cap is lit as the surface it rounds off:
+the tops of the thighs stood out of the seat as darker flat patches, standing and in every crouch. A thigh's
+cap starts a little inside its rim, the crotch strip ends in a point, and flat closings carry no relief.
+Left as they are: the tab under each shoulder pad is grey in a frame of the plates' colour because the
+reference draws it so; with an arm lifted overhead the chest's edge round the armhole, where the pad was cut
+off along face edges, shows as a ragged edge of cloth; and a forearm that turns about its own length opens
+a slit beside the elbow pad's cap. Walking and combat are not in the captures. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in

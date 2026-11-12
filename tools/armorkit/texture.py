@@ -38,6 +38,10 @@ BEND = 1.2  # how much lighter a raised edge and darker a crease gets, per unit 
 SLOPE = 0.35  # how much darker a texel gets as the fine surface tilts away from the simplified one
 BROAD = ((1, 1.0), (4, 0.6))  # the bend is taken across this many texels each way, with this weight: sharp edges and broad folds
 RELIEF_SHADE = (0.72, 1.2)  # the least and the most the relief changes a shade by
+WHITE = np.array((25.0, 0.0, 0.0))  # white, as `tone` has it
+PALE = 0.8  # how far toward white a material's highlights run: all the way, every material would claim a white texel alike
+SPECK = 4  # a line or a speck of one material this many texels across or less, in another, is drawn as that other: a pocket's piping, a fleck
+LIT = 75  # the percentile of a material's shades that is its evenly lit surface: its creases and folds are darker, and pull the middle down
 CAP_STREAK = 64  # on a cap, a streak of one material narrower than a texture's side over this is taken out
 KINDS = ('cloth', 'leather', 'metal')  # the kinds of material the game tints, two colour channels each
 SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thigh', 'shin', 'foot'),
@@ -198,8 +202,17 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
 
 
 def labels(colours, tones):
-    """The material of each colour: the nearest of the materials' `tones`."""
-    return np.argmin(np.linalg.norm(tone(colours)[:, None] - np.asarray(tones, float)[None], axis=2), axis=1)
+    """The material of each colour: the one whose `tones` it is nearest, or whose highlight.
+
+    A generated colour is lit: where a plate catches the light it is paler, lighter and less coloured at
+    once, and on the way to white it passes nearer a grey cloth's tone than its own. The middle of a blue
+    arm guard was read as cloth, inside a rim of blue. So a colour is measured to the line from each
+    material's tone toward white, `PALE` of the way along: a pale blue is a blue plate's highlight, and a
+    pale warm grey is still the cloth's."""
+    value, tones = tone(colours), np.asarray(tones, float)
+    toward = WHITE - tones
+    along = np.clip(np.einsum('nmk,mk->nm', value[:, None] - tones[None], toward) / np.maximum((toward ** 2).sum(axis=1), 1e-12), 0.0, PALE)
+    return np.argmin(np.linalg.norm(value[:, None] - (tones[None] + along[:, :, None] * toward[None]), axis=2), axis=1)
 
 
 def face_texels(uvs, faces, chosen, size):
@@ -363,7 +376,15 @@ def added_second(vertices, faces, added, flags):
         known[target] = True
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None):
+def lit_shades(colours, found):
+    """The shade of each material's evenly lit surface, from the colours of the outfit's own texels (`tint_maps`, `lit`)."""
+    colours = np.asarray(colours, float).reshape(-1, 3)
+    material = labels(colours, found['tones'])
+    shade = np.clip(MIDDLE * (colours @ LIGHT) / np.maximum(found['light'][material], 1e-6), *SHADES)
+    return np.array([np.percentile(shade[material == k], LIT) if (material == k).any() else float(MIDDLE) for k in range(len(found['tones']))])
+
+
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -378,7 +399,7 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     `closing` flags the texels of the part's closings (`face_texels` of the faces `split.split` reports as
     `CLOSING`). A closing has no surface of its own on the generated outfit; its colours are those of its
     edge, which runs along creases and through whatever lies over the limb where it left the torso. It gets
-    the outfit's commonest material, the first of `found`, at `MIDDLE`: the cloth the outfit is made of. Left
+    the outfit's commonest material, the first of `found`, at its lit shade: the cloth the outfit is made of. Left
     as read, a sleeve's closing was a vest's colour, most of its edge being cut through the vest, and the
     closings between the thighs were as dark as the crease at the crotch. The texels of a limb's `overlaid`
     faces are flagged with them and drawn the same way.
@@ -387,17 +408,30 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     toward its pole, and shows in the gap a bent joint opens: it is what its rim is, the pad over a knee and
     the trousers behind it. Where the rim runs in and out of two materials, a sleeve and the edge of the
     guard strapped over it, the cap was streaked with both. Each of its texels takes the material most of
-    the cap's texels show within a texture's side over `CAP_STREAK` of it: a streak goes, a pad stays. A
-    texel that changes material gets the mean shade of the cap's texels that were read as that material;
-    the others keep their shades. A thigh's closing toward the other leg (`split.WALL`) is flagged with its
+    the cap's texels show within a texture's side over `CAP_STREAK` of it: a streak goes, a pad stays. All
+    the cap's texels of one material then get one shade, its lit shade. The rim's light and dark
+    were repeated toward the pole with its colours, a stripe to each face, and the top of a thigh that a
+    crouch turns out of the pelvis was a fan of flat facets; evenly shaded, it is lit round by its normals.
+
+    `lit[k]` is the shade of material k where nothing shades it (`lit_shades` of the whole outfit); without
+    it, the `LIT` percentile of the part's own texels of the material, or `MIDDLE` where it has none. What
+    the split made has no shading of its own and gets this shade. The middle shade is too dark for it: a
+    generated colour is darker in every crease and fold, and at the middle shade, let alone its rim's mean
+    (a rim lies in the crease of its joint), the top of a thigh stood out of the seat of the trousers as a
+    darker patch with straight edges.
+
+    On the part's own surface, a line or a speck of one material `speck` texels across or less, in another,
+    is drawn as that other, at the shade of that material's texels round it: most of the texels within
+    `speck` decide. A generator pipes a sleeve pocket in the plates' colour and flecks a sleeve with it;
+    worn, that is a patch of cloth in a wire of metal, and mottling.
+    A thigh's closing toward the other leg (`split.WALL`) is flagged with its
     cap, not as a closing: its rim is the trousers' own, and drawn as that it does not stand out beside the
     crotch.
 
     `padded` flags the texels of a cap that grew from a pad's rim (the faces reported as `PADDED`). On a cap
     that has any, the others are the limb beside the pad, and are drawn as the outfit's cloth, the first of
     `found`: a pad's strap runs round the joint along the rim, and read as its rim the side of a knee's cap
-    was a flat triangle of webbing in the gap the bend opens. A texel read as cloth keeps its shade; the
-    others get the mean shade of those."""
+    was a flat triangle of webbing in the gap the bend opens."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
     require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
@@ -412,20 +446,29 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         ratio = np.maximum(factor, 1.0) * np.minimum(ratio, np.minimum(factor, 1.0) * np.maximum(ratio, 1.0))
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
     plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
-    material[plain], shade[plain] = 0, MIDDLE
     dome = covered & np.asarray(cap, bool) & ~plain if cap is not None else plain & False
+    worn = covered & ~plain & ~dome  # the part's own surface
+    votes = np.stack([smooth(worn & (material == k), speck) for k in range(len(pairs))])
+    most = np.argmax(votes, axis=0)
+    moved = worn & (most != material)
+    for k in np.unique(most[moved]):
+        mine = moved & (most == k)
+        shade[mine] = (smooth(np.where(worn & (material == k), shade, 0.0), speck) / np.maximum(votes[k], 1e-9))[mine]
+    material[moved] = most[moved]
+
+    def even(k):  # the one shade what the split made gets, in material k
+        mine = worn & (material == k)
+        return float(lit[k]) if lit is not None else float(np.percentile(shade[mine], LIT)) if mine.any() else float(MIDDLE)
+    material[plain], shade[plain] = 0, even(0)
     if padded is not None and (dome & np.asarray(padded, bool)).any():
         beside = dome & ~np.asarray(padded, bool)
-        read = beside & (material == 0)
-        shade[beside & ~read] = shade[read].mean() if read.any() else MIDDLE
-        material[beside] = 0
+        material[beside], shade[beside] = 0, even(0)
         dome = dome & ~beside
     if dome.any():
         reach = max(1, covered.shape[0] // CAP_STREAK)
         settled = np.argmax([smooth(dome & (material == k), reach) for k in range(len(pairs))], axis=0)
         for k in np.unique(settled[dome]):
-            turned, read = dome & (settled == k) & (material != k), dome & (material == k)
-            shade[turned] = shade[read].mean() if read.any() else MIDDLE
+            shade[dome & (settled == k)] = even(k)
         material[dome] = settled[dome]
     other = np.zeros(covered.shape, int)
     if second is not None:
@@ -551,7 +594,7 @@ def fine_normals(values, low, turn=TURN):
     return np.where((np.abs(along) > np.cos(np.radians(turn)))[:, None], fine, low)
 
 
-def normal_map(uvs, faces, positions, normals, posed, read, size, pad=PAD + 2):
+def normal_map(uvs, faces, positions, normals, posed, read, size, pad=PAD + 2, added=None):
     """(image, covered, missed): a part's normal map, (size, size, 3) in 0-1, rows running down from v = 0.
 
     `positions` and `normals` are the part's vertices and unit normals on the generated mesh, `posed` its
@@ -560,7 +603,10 @@ def normal_map(uvs, faces, positions, normals, posed, read, size, pad=PAD + 2):
     outward. That frame is taken on the generated mesh, where the fine surface is, and holds on the worn
     part, which was bent and widened but not sheared much. A cap or a closing was made by the split and has no
     surface of its own on the generated mesh (its vertices repeat its rim's): it stays flat, as does a texel
-    nothing was read for."""
+    nothing was read for. `added` flags the faces the split made (`split.split`, `made`: all but `OWN` and
+    `GUSSET`). Without it they are told by being much smaller on the generated mesh than worn, which holds for
+    a cap and a rounded closing but not for a flat one: a lid or a wall spans its opening from rim to rim, is
+    as large there as worn, and was given the relief of whatever lies inside the limb at that place."""
     uvs, faces = np.asarray(uvs, float), np.asarray(faces, int)
     positions, normals, posed = (np.asarray(rows, float) for rows in (positions, normals, posed))
     owner, weight = raster(uvs, faces, size)
@@ -572,6 +618,9 @@ def normal_map(uvs, faces, positions, normals, posed, read, size, pad=PAD + 2):
     p, t, q = positions[faces], uvs[faces], posed[faces]
     area = lambda corners: np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1)
     made = area(p) < MADE * area(q) * (area(p).sum() / max(area(q).sum(), 1e-30))
+    if added is not None:
+        require(np.shape(added) == (len(faces),), 'One flag per face is required')
+        made = made | np.asarray(added, bool)
     fine = np.where((np.asarray(missed, bool) | made[owner[covered]])[:, None], low, fine_normals(values, low))
     e1, e2, d1, d2 = p[:, 1] - p[:, 0], p[:, 2] - p[:, 0], t[:, 1] - t[:, 0], t[:, 2] - t[:, 0]
     det = d1[:, 0] * d2[:, 1] - d2[:, 0] * d1[:, 1]

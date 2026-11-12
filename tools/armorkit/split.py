@@ -41,8 +41,12 @@ SLEEVE_ROOM = 0.003  # the sleeve seam stands this far inside the sleeve's inner
 SLEEVE_WALL = 0.01  # the walls in front of the arm and behind it stand this far outside the sleeve
 SLEEVE_ARMPIT = 0.03  # the sleeve's inner side is taken over this far below the armpit
 GUSSET_WIDTH = 0.05  # the pelvis repeats the surface this near the cut between the legs: a thigh turned out 20 degrees opens the crotch 3.5 cm
-GUSSET_BELOW = 0.01  # and what lies this far below the lowest point of the cut: farther, the strip is the insides of two trouser legs
+GUSSET_BELOW = 0.0  # and what lies this far below the lowest point of the cut: farther, the strip is the insides of two trouser legs
+GUSSET_CORNER = 1.0  # its lower corners are cut off this share of its half width, to a point: square, it hangs between parted legs as a flap
 GUSSET_UNDER = 0.004  # and holds it this far under the thighs' own, which cover it as the body stands
+HIP_TUCK = 0.1  # a thigh's cap starts this share of its rim's width inside the rim: turned out as the game stands a body, a cap as wide as its rim came through the pelvis along the hip line
+HIP_STEPS = 4  # and is built from this many rings, the first of them the step in
+TUCK_RISE = 0.06  # the ring a tucked cap steps in on stands this share of the cap's depth past the plane
 PAD_RINGS = 3  # rings the chest's closing under a shoulder pad is built from: it is the shoulder that shows when the pad lifts off
 PAD_SEED = 0.03  # a shoulder pad is looked for on the faces this near the line from the shoulder joint straight out, away from the torso
 PAD_REACH = 0.8  # a shoulder pad lies within this share of the upper arm's length of the shoulder joint: what reaches farther is the sleeve
@@ -698,7 +702,7 @@ def compact(vertices, faces, uvs):
     return vertices[used], remap[faces], uvs[used]
 
 
-def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS, lean=LEAN, full=None, hinge=None, grown=None):
+def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS, lean=LEAN, full=None, hinge=None, grown=None, tuck=0.0):
     """A rounded end past the joint plane for an under part: (vertices, uvs, faces) to add to it.
 
     `faces` are the part's faces. Its rim is the edges it has on the plane within `limit`, each on one face
@@ -719,7 +723,11 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     far or less, the over part's half of the pad ends where one of those rings is, whatever the outline of
     the pad. It is drawn `GUARD_TUCK` nearer the hinge on the way, under the pad's own surface. A knee and an
     elbow bend one way only, so what is carried round does not come out on the other side. `grown`, if a
-    list is given, is filled with the face of `faces` each added face grew from."""
+    list is given, is filled with the face of `faces` each added face grew from.
+
+    With `tuck`, the first ring is the rim drawn in by that share just past the plane, and the dome goes on
+    from there: a part that turns about its own length as well (a thigh) has a rim that is not round, and a
+    cap as wide as the rim came out through the over part beside the plane."""
     relative = vertices - point
     height = relative @ normal
     flat = relative - height[:, None] * normal
@@ -736,9 +744,12 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
         return np.zeros((0, 3)), np.zeros((0, uvs.shape[1])), np.zeros((0, 3), int)
     rim = np.unique(edges)
     slot = np.full(len(vertices), -1, int); slot[rim] = np.arange(len(rim))
-    angles = np.radians(CAP_TOP * np.arange(1, steps + 1) / steps)
+    domed = steps - 1 if tuck and steps > 1 else steps
+    angles = np.radians(CAP_TOP * np.arange(1, domed + 1) / domed)
     deep = np.minimum(depth, np.linalg.norm(flat[rim], axis=1))[:, None]
-    rings = [point + flat[rim] * (np.cos(a) * (1.0 - lean * np.sin(a))) - normal * (deep * np.sin(a)) for a in angles]
+    wide = 1.0 - (tuck if domed < steps else 0.0)
+    rings = [point + flat[rim] * wide - normal * (deep * TUCK_RISE)] if domed < steps else []
+    rings += [point + flat[rim] * (wide * np.cos(a) * (1.0 - lean * np.sin(a))) - normal * (deep * np.sin(a)) for a in angles]
     # the pole: one point, held once per rim point so each keeps its texture coordinates, and no deeper than the
     # nearest rim point is far from the centre
     rings[-1] = np.tile(point - normal * deep.min(), (len(rim), 1))
@@ -822,7 +833,9 @@ def gusset(vertices, uvs, faces, base, seam, width=GUSSET_WIDTH, below=GUSSET_BE
     cut (`point`, `normal`, `radius`, and `down`, the way the legs leave the hips in its plane). What they have
     within `width` of the cut's plane, and no farther down than the line they were cut along reaches, with
     `below` to spare, is cut out of a copy of them and repeated `under` inside the surface, along its normals: a strip from the front of the crotch
-    round to the seat, which the thighs cover as the body stands and uncover as they turn. Its vertices keep
+    round to the seat, which the thighs cover as the body stands and uncover as they turn. Its two lower
+    corners are cut off at 45 degrees, `GUSSET_CORNER` of its half width in: left square, it hung between
+    the parted legs as a flap with corners. Its vertices keep
     the columns of those they repeat, and so that surface's colours. Legs nothing joins have no point on the
     cut, and no strip."""
     none = np.zeros((0, 3)), np.zeros((0, uvs.shape[1])), np.zeros((0, 3), int)
@@ -832,8 +845,10 @@ def gusset(vertices, uvs, faces, base, seam, width=GUSSET_WIDTH, below=GUSSET_BE
         return none
     down = seam['down']
     v, f, t = compact(vertices, faces, uvs)
+    low = ((line - seam['point']) @ down).max() + below
     walls = [(seam['point'] + width * seam['normal'], seam['normal']), (seam['point'] - width * seam['normal'], -seam['normal']),
-             (seam['point'] + (((line - seam['point']) @ down).max() + below) * down, down)]
+             (seam['point'] + low * down, down)]
+    walls += [(seam['point'] + low * down + way * (1.0 - GUSSET_CORNER) * width * seam['normal'], seams.unit(down + way * seam['normal'])) for way in (1.0, -1.0)]
     for point, normal in walls:
         v, f, t, _ = cut(v, f, t, point, normal)
     centres = v[f].mean(axis=1)
@@ -1049,7 +1064,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                     full[:len(mine)] = pads[name][1][owner == index]
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
                 more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown,
-                           **({'full': full, 'hinge': np.cross(opens - (opens @ across) * across, -across), 'steps': GUARD_STEPS} if full.any() else {}))
+                           **({'full': full, 'hinge': np.cross(opens - (opens @ across) * across, -across), 'steps': GUARD_STEPS} if full.any() else {}),
+                           **({'tuck': HIP_TUCK, 'steps': HIP_STEPS} if joint == 'hip' else {}))
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 kinds.append(np.where(full[np.asarray(grown, int)], PADDED, CAP))
         if name == 'pelvis':  # last: its edges are no opening to close
