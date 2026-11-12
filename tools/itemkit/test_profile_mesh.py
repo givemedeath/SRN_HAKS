@@ -35,5 +35,20 @@ class ProfileMeshTests(unittest.TestCase):
             self.assertTrue((Path(tmp)/'out/textured.glb').exists())
 
 
+    def test_a_round_bat_on_black_with_its_mask_stays_round_end_to_end(self):
+        image = Image.new('RGB', (600, 200), 'black'); mask = Image.new('L', (600, 200), 0)
+        for target, fill in ((ImageDraw.Draw(image), (200, 150, 90)), (ImageDraw.Draw(mask), 255)):
+            target.polygon([(20, 94), (300, 92), (580, 80), (580, 120), (300, 108), (20, 106)], fill=fill)   # handle to barrel
+            target.ellipse([10, 88, 30, 112], fill=fill)                                                     # knob
+        with tempfile.TemporaryDirectory() as tmp:
+            image.save(Path(tmp)/'side.png'); mask.save(Path(tmp)/'mask.png')
+            result = pm.build(Path(tmp)/'side.png', Path(tmp)/'out', .9, voxel=.003, mask_path=Path(tmp)/'mask.png', round_only=True)
+            self.assertTrue(result['topology']['closedWound']); self.assertFalse(result['hooks'])
+            length, height, depth = result['extents']
+            self.assertAlmostEqual(length, .9, delta=.02)
+            self.assertAlmostEqual(depth, height, delta=.1 * height)           # the barrel is round, not a flat head
+            self.assertAlmostEqual(height, 41 * result['metresPerPixel'], delta=.1 * height)
+
+
 if __name__ == '__main__':
     unittest.main()

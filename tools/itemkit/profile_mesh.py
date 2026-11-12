@@ -1,6 +1,7 @@
 """Build a simple long weapon's mesh straight from its colour side view: no generated geometry.
 
     python -m tools.itemkit.profile_mesh SIDE_VIEW.png OUTPUT_DIR --length METRES [--blade-depth 0.3] [--hook-px 6]
+                                         [--mask FOREGROUND.png] [--round]
 
 For a design made of round parts on one axis (shaft, sockets, butt cap), a flat head and thin flat hooks, a generated
 mesh only adds risk: from a side-on view it invents depth (the wave-1 Spear's head came back bent 90 degrees). This
@@ -29,10 +30,17 @@ from tools.headkit.common import pin, require, write
 BACKGROUND = 18          # a pixel is object when it is this much darker than white in some channel
 
 
-def outline(image):
-    """(mask, top, bottom, first, last): the filled silhouette and its per-column extents in pixels."""
+def outline(image, foreground=None):
+    """(mask, top, bottom, first, last): the filled silhouette and its per-column extents in pixels.
+
+    Without `foreground` the object is keyed off a white background; a catalog detail image sits on black beside its
+    reviewed foreground mask, which is then the silhouette."""
     from scipy import ndimage
-    rgb = np.asarray(image.convert('RGB')).astype(np.int32); solid = (255 - rgb.min(2)) > BACKGROUND
+    if foreground is not None:
+        solid = np.asarray(foreground.convert('L')) >= 128
+        require(solid.shape == (image.height, image.width), 'The foreground mask must match the image')
+    else:
+        rgb = np.asarray(image.convert('RGB')).astype(np.int32); solid = (255 - rgb.min(2)) > BACKGROUND
     labels, count = ndimage.label(solid); require(count > 0, 'No object on the white background')
     sizes = ndimage.sum(solid, labels, range(1, count + 1)); mask = ndimage.binary_fill_holes(labels == 1 + int(np.argmax(sizes)))
     columns = np.flatnonzero(mask.any(0)); first, last = int(columns[0]), int(columns[-1])
@@ -42,8 +50,10 @@ def outline(image):
     return mask, top, bottom, first, last
 
 
-def layout(mask, top, bottom, first, last):
-    """Axis row, shaft radius, head start and head base half-width, all in pixels, measured from the outline."""
+def layout(mask, top, bottom, first, last, round_only=False):
+    """Axis row, shaft radius, head start and head base half-width, all in pixels, measured from the outline.
+
+    `round_only`: the whole design is round in section (a bat, a baton, a plain staff): no flat head."""
     span = last - first; centre_cols = np.arange(first + int(.2 * span), first + int(.7 * span))
     axis = float(np.median((top[centre_cols] + bottom[centre_cols]) / 2))
     half = np.maximum(axis - top, bottom - axis)          # NaN outside the object
@@ -52,6 +62,10 @@ def layout(mask, top, bottom, first, last):
     from scipy import ndimage
     inside = np.isfinite(half); half[inside] = ndimage.median_filter(half[inside], size=5, mode='nearest')
     shaft = float(np.median(half[centre_cols]))
+    if round_only:
+        # Steps and tapers stay; the revolved outline would ring on whole-pixel steps along a long gentle taper.
+        half[first:last + 1] = ndimage.gaussian_filter1d(half[first:last + 1], 1., mode='nearest')
+        return {'axisRow': axis, 'shaftHalfWidth': shaft, 'headStart': int(last + 1), 'headBaseHalfWidth': float(np.nanmax(half))}, half
     # The head runs from where the outline narrows steadily to the tip: walk back from the tip while it keeps widening.
     x = last; tolerance = 1.0
     while x - 1 > first + .5 * span and half[x - 1] >= half[x] - tolerance and half[x - 1] <= half[x] + 6: x -= 1
@@ -76,6 +90,7 @@ def distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, v
     X, Y, Z = xs[:, None, None], ys[None, :, None], zs[None, None, :]
     body_end = (head - first) * scale
     body = np.maximum(np.sqrt(Y ** 2 + Z ** 2) - radius[:, None, None], np.maximum(-X, X - body_end))
+    if head > last: return body.astype(np.float32), (xs, ys, zs), False          # round only: no head, no hooks
     # At least a voxel deep, so the thin point is not lost long before its outline ends.
     w = np.maximum(width, 1e-6)[:, None, None]; d = np.maximum(blade_depth * w, voxel)
     blade = (np.abs(Y) * d + np.abs(Z) * w - w * d) / np.sqrt(w ** 2 + d ** 2)
@@ -151,7 +166,7 @@ def diffuse(image, mask, path, size=4096):
     return path
 
 
-def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None):
+def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, mask_path=None, round_only=False):
     from PIL import Image
     from tools.headkit.gltf import write_mesh
     from .donor import embed_diffuse
@@ -159,8 +174,11 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None):
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     require(length > 0 and 0 < blade_depth <= 1 and hook_px > 0, 'Positive length, blade depth and hook thickness required')
     with Image.open(image_path) as image:
-        image.load(); mask, top, bottom, first, last = outline(image)
-        plan, half = layout(mask, top, bottom, first, last)
+        image.load()
+        if mask_path:
+            with Image.open(mask_path) as foreground: foreground.load(); mask, top, bottom, first, last = outline(image, foreground)
+        else: mask, top, bottom, first, last = outline(image)
+        plan, half = layout(mask, top, bottom, first, last, round_only)
         scale = length / (last + 1 - first); voxel = voxel or max(scale * .75, .0008)
         field, (xs, ys, zs), hooked = distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, voxel)
         v, f = surface_nets(field, (xs[0], ys[0], zs[0]), voxel)
@@ -181,9 +199,11 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None):
               'bladeDepthRatio': blade_depth, 'hookThicknessPixels': hook_px, 'layout': plan, 'hooks': hooked,
               'columns': [first, last], 'vertices': len(v), 'triangles': len(f), 'topology': report,
               'extents': (v.max(0) - v.min(0)).tolist(), 'mesh': pin(output/'mesh.glb'), 'textured': textured,
-              'method': 'outline revolved about the axis up to the head, diamond-section head, flat hooks; one signed '
-                        'distance union meshed by surface nets; side-view colour projected as the diffuse',
-              'reviewRequired': True}
+              'method': ('whole outline revolved about the axis' if round_only else
+                         'outline revolved about the axis up to the head, diamond-section head, flat hooks') +
+                        '; one signed distance union meshed by surface nets; side-view colour projected as the diffuse',
+              'roundOnly': round_only, 'reviewRequired': True}
+    if mask_path: result['foregroundMask'] = pin(mask_path)
     write(output/'profile-mesh.json', result, fresh=True)
     return result
 
@@ -193,8 +213,12 @@ def main(argv=None):
     parser.add_argument('image', type=Path); parser.add_argument('output', type=Path)
     parser.add_argument('--length', type=float, required=True, help='overall length in metres (the fit rescales it later)')
     parser.add_argument('--blade-depth', type=float, default=.3); parser.add_argument('--hook-px', type=float, default=6)
-    parser.add_argument('--voxel', type=float); a = parser.parse_args(argv)
-    result = build(a.image, a.output, a.length, blade_depth=a.blade_depth, hook_px=a.hook_px, voxel=a.voxel)
+    parser.add_argument('--voxel', type=float)
+    parser.add_argument('--mask', type=Path, help='the reviewed foreground mask of an image on black (catalog detail images)')
+    parser.add_argument('--round', dest='round_only', action='store_true', help='round in section end to end: no flat head or hooks')
+    a = parser.parse_args(argv)
+    result = build(a.image, a.output, a.length, blade_depth=a.blade_depth, hook_px=a.hook_px, voxel=a.voxel,
+                   mask_path=a.mask, round_only=a.round_only)
     print(json.dumps({k: result[k] for k in ('layout', 'vertices', 'triangles', 'extents', 'voxel')}, indent=1)); return 0
 
 
