@@ -30,6 +30,11 @@ that it can be cut into parts (`CONSTRUCTIONS`). What the first worn outfit took
 drawn into its reference image: frames and piping of metal a face wide, a guard in two plates across an
 elbow, a shoulder guard over the sleeve's seam, straps along the joints. No new reference folder is sealed
 without the current paragraph (`seal`); a folder sealed before keeps the prompt it was sealed with.
+
+`bare` names the slots the outfit leaves to the body, and `skin` those where it covers the body only in part
+and the body's skin shows beside it (`bake.bake`): `"bare": ["forearm"], "skin": ["bicep"]` for a shirt with
+short sleeves and gloves. They are a fact about the outfit as it is drawn, so they are in the brief the
+image is made from, and only what the bake can build is taken (`BARE`, `SKIN`).
 """
 import hashlib
 import json
@@ -61,7 +66,8 @@ COUNTS = ('One', 'Two', 'Three', 'Four', 'Five', 'Six')
 APART = 30.0  # the least two materials' colours may differ by in a prompt, in `texture.tone`'s space. The first outfit's
 # cloth and plates were asked for 10 apart and its cloth came out 21 from what was asked: they could be told only by guessing
 MARGIN = 5.0  # the best way of matching the outfit's materials to the brief's beats the next by this much, or it is refused
-KEYS = {'schemaVersion', 'kind', 'model', 'pads', 'materials', 'prompt', 'construction'}
+KEYS = {'schemaVersion', 'kind', 'model', 'pads', 'materials', 'prompt', 'construction', 'bare', 'skin'}
+BARE, SKIN = ('forearm',), ('bicep',)  # the slots an outfit may leave to the body, and those it may share with the body's skin
 MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown'}
 SEAL, SEAL_KIND, PROMPT = 'brief-seal.json', 'srn-armorkit-brief-seal', 'PROMPT.txt'
 
@@ -80,6 +86,10 @@ def validate(document):
             f'The construction paragraph is one of versions {sorted(CONSTRUCTIONS)}')
     require(document['prompt'].count(BUILT) == (0 if version is None else 1),
             f'The prompt holds {BUILT} once where the brief names a construction version, and not without one')
+    for key, slots in (('bare', BARE), ('skin', SKIN)):
+        listed = document.get(key, [])
+        require(isinstance(listed, list) and all(isinstance(slot, str) for slot in listed) and set(listed) <= set(slots)
+                and len(set(listed)) == len(listed), f'{key} lists slots, each once, of {list(slots)}: what the bake can build')
     pads = document.get('pads', [])
     require(isinstance(pads, list) and set(pads) <= {'l', 'r'} and len(set(pads)) == len(pads), 'Pads are on the l or r side')
     materials = document['materials']

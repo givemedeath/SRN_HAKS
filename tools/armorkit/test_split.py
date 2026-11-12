@@ -490,6 +490,14 @@ class SleeveTests(unittest.TestCase):
         self.assertIsNone(split.sleeve(self.v, self.f, JOINTS, 'r'))  # there is no right arm
         self.assertIsNone(split.sleeve(*figure()[:2], JOINTS, 'l'))  # tubes: the arm is its own surface
 
+    def test_a_shoulder_joint_just_outside_the_outfit_still_finds_its_sleeve(self):
+        shoulder, axis = self.arm
+        seam = split.sleeve(self.v, self.f, JOINTS, 'l')
+        # an outfit's joint is an estimate: 9 cm back along the arm it stands above the shoulder's surface
+        out = split.sleeve(self.v, self.f, {**JOINTS, 'lbicep_g': tuple(shoulder - 0.09 * axis)}, 'l')
+        self.assertAlmostEqual(out['depth'], seam['depth'] + 0.09, delta=0.011)
+        self.assertIsNone(split.sleeve(self.v, self.f, {**JOINTS, 'lbicep_g': tuple(shoulder - 0.2 * axis)}, 'l'))  # too far out to be this arm's
+
     def test_the_sleeve_is_cut_off_along_the_arm_and_both_openings_are_closed(self):
         seam = split.sleeve(self.v, self.f, JOINTS, 'l')
         parts = split.split(self.v, self.f, self.t, JOINTS, RADII)
