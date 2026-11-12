@@ -115,8 +115,11 @@
       "tools/armorkit/bodyskin.py",
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
       "tools/armorkit/split.py",
-      "tools/armorkit/test_bodyskin.py"
+      "tools/armorkit/test_bodyskin.py",
+      "tools/armorkit/test_split.py"
     ],
     "tools/armorkit/test_bodyskin.py": [
       "tools/armorkit/bodyskin.py",

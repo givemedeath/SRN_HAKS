@@ -39,6 +39,18 @@ class GeometryTests(unittest.TestCase):
         self.assertTrue(np.all(seams.ring(segments, limit=0.01) == 0))
         self.assertEqual(len(seams.section(vertices, faces, np.array([0, 0, 0.5]), (0, 0, 1))), 0)
 
+    def test_inner_ring_is_how_far_open_a_section_stands_and_nan_where_it_has_none(self):
+        vertices, faces = tube(0.05, -0.1, 0.1)
+        inner = seams.inner_ring(seams.section(vertices, faces, np.zeros(3), (0, 0, 1)))
+        self.assertTrue(np.allclose(inner, 0.05, atol=2e-4))
+        half = faces[(vertices[faces][:, :, 1] >= -1e-9).all(axis=1)]  # the tube's half on +Y
+        inner = seams.inner_ring(seams.section(vertices, half, np.array([0.0, 0.01, 0.0]), (0, 0, 1)))
+        self.assertTrue(np.isnan(inner[10:15]).all() and not np.isnan(inner[:10]).any())  # of 16: none below the centre, 1 cm off the cut edge
+        self.assertAlmostEqual(inner[4], 0.04, places=3)
+        plugged = np.concatenate([vertices, tube(0.01, -0.1, 0.1)[0]]), np.concatenate([faces, tube(0.01, -0.1, 0.1)[1] + len(vertices)])
+        self.assertTrue(np.allclose(seams.inner_ring(seams.section(*plugged, np.zeros(3), (0, 0, 1))), 0.01, atol=2e-4))  # a closed end stands open nowhere
+        self.assertTrue(np.isnan(seams.inner_ring(seams.section(*plugged, np.zeros(3), (0, 0, 1)), limit=0.005)).all())
+
     def test_ring_is_measured_about_the_joint_centre_and_fills_sparse_meshes(self):
         vertices, faces = tube(0.05, -0.1, 0.1, sides=6)
         ring = seams.ring(seams.section(vertices, faces, np.array([0.02, 0.0, 0.0]), (0, 0, 1)))

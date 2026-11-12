@@ -115,13 +115,28 @@ def ring(segments, directions=DIRECTIONS, limit=None, step=0.002):
     Segments are sampled every `step` metres so sparse meshes still fill their sectors; `limit` drops
     anything farther from the centre (the far side of a part the plane also cuts)."""
     radii = np.zeros(directions)
+    for sector, distance in _sampled(segments, directions, limit, step):
+        np.maximum.at(radii, sector, distance)
+    return radii
+
+
+def inner_ring(segments, directions=DIRECTIONS, limit=None, step=0.002):
+    """Least radial distance of the section in each angular sector about the joint centre; nan where it is absent:
+    how far open an over end stands. Sampled and limited as `ring`."""
+    radii = np.full(directions, np.inf)
+    for sector, distance in _sampled(segments, directions, limit, step):
+        np.minimum.at(radii, sector, distance)
+    return np.where(np.isinf(radii), np.nan, radii)
+
+
+def _sampled(segments, directions, limit, step):
+    """Per segment: (sector, distance from the centre) of points along it no more than `step` apart, within `limit`."""
     for start, end in np.asarray(segments, float).reshape(-1, 2, 2):
         count = max(2, int(np.linalg.norm(end - start) / step) + 2)
         points = start + np.linspace(0, 1, count)[:, None] * (end - start)
         distance = np.linalg.norm(points, axis=1)
         keep = distance <= limit if limit is not None else np.ones(count, bool)
-        np.maximum.at(radii, sectors(points, directions)[keep], distance[keep])
-    return radii
+        yield sectors(points, directions)[keep], distance[keep]
 
 
 def extent(vertices, point, normal):

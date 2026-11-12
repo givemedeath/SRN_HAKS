@@ -28,8 +28,12 @@ ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
 BUDGET = {'chest': 6000, 'slot': 2250, 'outfit': 30000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
 WHOLE = 'no holes or detached pieces'  # the gate `surface` answers, on the generated outfit as the bake is given it
-NOT_BUILT = ('seam contract: each end against its tier\'s overlap and envelope', 'clearance: no body surface showing at rest',
-             WHOLE)  # gates of docs/armorkit/plan.md that `gates` does not check, WHOLE but on a fresh bake
+SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the gate `ends` answers, on a body the contract measured
+NOT_BUILT = (SEAM, 'clearance: no body surface showing at rest',
+             WHOLE)  # gates of docs/armorkit/plan.md that `gates` does not check: WHOLE but on a fresh bake, SEAM but on a measured body
+INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear of the cut that made it
+REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
+STEP = 0.003  # an under end's surface is sampled this densely to tell how far past its plane it runs
 HOLE = 0.005  # an opening of the generated outfit this long round or longer, at the body's size, is a hole
 DEBRIS = 0.001  # square metres: a separate piece of the generated outfit smaller than this that touches nothing else is debris
 TOUCH = 0.002  # a piece of the generated outfit this near the rest of it touches it
@@ -109,6 +113,97 @@ def surface(vertices, faces):
             continue
         debris.append(float(sizes[label]))
     return {'holes': [hole for hole in holes if hole >= HOLE], 'debris': sorted(debris, reverse=True), 'pieces': int(len(labels))}
+
+
+def ends(parts, bones, body, tier, contract=None):
+    """How each end of a baked outfit meets the seam contract (docs/armorkit/seam-contract.md) at tier `tier` on
+    body `body`: (report, failures), or None when the contract has no rings of that body.
+
+    At each joint plane, for the parts of both its slots: the under end's section at the plane must lie inside
+    the tier's envelope in all 16 directions, and in each direction it is found in the end must run past the
+    plane, into the over part, by the tier's minimum overlap; the over end's section `INSIDE` short of the
+    plane must stand at least as far out as the envelope in each direction it is found in, which also tells it
+    is open. The chest at the neck and shoulders and the pelvis at the hips are not measured: the plane cuts the
+    torso wall there, not a tube (`measure.TORSO_OPENINGS`). A part with no face at its plane does not reach
+    its joint and fails, unless it shares its slot with the body's skin: the body's own part ends there then.
+    Only the outfit's faces are measured, never the body's skin beside them.
+
+    The report holds per joint and side the part at each end, the tier it meets (the least an under end fits,
+    the greatest an over end opens to; None for none), and in metres how far the under end stands outside
+    the envelope at most (`outside`, negative inside) and runs past the plane at least (`past`, against
+    `overlap`), and how far the over end stands inside it at most (`inside`, negative outside)."""
+    contract = seams.load_contract() if contract is None else contract
+    if any(body not in contract['joints'][joint]['bodies'] for joint in seams.JOINTS):
+        return None
+    report, failures = {}, []
+    for joint, spec in seams.JOINTS.items():
+        report[joint] = {}
+        for side in seams.sides(joint):
+            letter, paired = ('l', None) if side == 'c' else (side, side)
+            point, normal = seams.plane(bones, joint, letter)
+            envelope = {t: np.array(seams.envelope(contract, joint, body, t, paired)) for t in registry.TIERS}
+            overlap = {t: seams.overlap(contract, joint, body, t) for t in registry.TIERS}
+            limit = REACH * envelope[registry.TIERS[-1]].max()
+            row = {}
+            under, over = (split.token(spec[key], letter) for key in ('under', 'over'))
+            if under in parts:
+                vertices, faces, shared = _outfit(parts[under])
+                widest = seams.ring(seams.section(vertices, faces, point, normal), limit=limit)
+                found = widest > 0
+                if found.any():
+                    past = _past(vertices, faces, point, normal, limit)[found]
+                    fits = [t for t in registry.TIERS if (widest[found] <= envelope[t][found]).all() and (past >= overlap[t]).all()]
+                    outside = widest[found] - envelope[tier][found]
+                    row['under'] = {'part': under, 'tier': fits[0] if fits else None, 'outside': round(float(outside.max()), 4),
+                                    'past': round(float(past.min()), 4), 'overlap': round(float(overlap[tier]), 4)}
+                    if (outside > 0).any():
+                        failures.append(f'{under} at the {joint}: up to {outside.max() * 100:.1f} cm outside the tier {tier} envelope, '
+                                        f'in {int((outside > 0).sum())} of {seams.DIRECTIONS} directions')
+                    if (past < overlap[tier]).any():
+                        failures.append(f'{under} at the {joint}: {past.min() * 100:.1f} cm past the plane, short of the tier {tier} '
+                                        f'overlap of {overlap[tier] * 100:.1f} cm')
+                elif not shared:
+                    row['under'] = {'part': under, 'tier': None}
+                    failures.append(f'{under} does not reach the {joint} plane')
+            if over in parts and joint not in measure.TORSO_OPENINGS:
+                vertices, faces, shared = _outfit(parts[over])
+                nearest = seams.inner_ring(seams.section(vertices, faces, point - INSIDE * normal, normal), limit=limit)
+                found = ~np.isnan(nearest)
+                if found.any():
+                    opens = [t for t in registry.TIERS if (nearest[found] >= envelope[t][found]).all()]
+                    inside = envelope[tier][found] - nearest[found]
+                    row['over'] = {'part': over, 'tier': opens[-1] if opens else None, 'inside': round(float(inside.max()), 4)}
+                    if (inside > 0).any():
+                        failures.append(f'{over} at the {joint}: up to {inside.max() * 100:.1f} cm inside the tier {tier} envelope, '
+                                        f'in {int((inside > 0).sum())} of {seams.DIRECTIONS} directions')
+                elif not shared:
+                    row['over'] = {'part': over, 'tier': None}
+                    failures.append(f'{over} does not reach the {joint} plane')
+            report[joint][side] = row
+    return report, failures
+
+
+def _outfit(part):
+    """(vertices, faces, shared) of the outfit's own faces of a part: the body's skin beside them left out."""
+    skin = part.get('skin')
+    return part['v'], (part['f'] if skin is None else part['f'][~np.asarray(skin, bool)]), skin is not None
+
+
+def _past(vertices, faces, point, normal, limit):
+    """Per direction about a joint, how far a part runs past the plane against its normal, within `limit` of the centre."""
+    height = (np.asarray(vertices, float) - point) @ normal
+    faces = faces[height[faces].min(axis=1) < 0]
+    depth = np.zeros(seams.DIRECTIONS)
+    if not len(faces):
+        return depth
+    used, inside = np.unique(faces, return_inverse=True)
+    points = measure.surface_points(np.asarray(vertices, float)[used], inside.reshape(-1, 3), STEP) - point
+    height = points @ normal
+    u, v = seams.frame(normal)
+    flat = np.stack([points @ u, points @ v], axis=1)
+    keep = (height < 0) & (np.linalg.norm(flat, axis=1) <= limit)
+    np.maximum.at(depth, seams.sectors(flat[keep]), -height[keep])
+    return depth
 
 
 def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None):
@@ -353,7 +448,7 @@ def write(folder, parts, tinted, bones, body, number):
     return models
 
 
-def gates(parts, models, resources, packs=(), whole=None):
+def gates(parts, models, resources, packs=(), whole=None, joined=None):
     """The automatic gates of docs/armorkit/plan.md that can be checked on one written outfit: a report.
 
     Budgets: the triangles of each part, the chest's own and the whole outfit's, and the texels a side of
@@ -363,7 +458,9 @@ def gates(parts, models, resources, packs=(), whole=None):
     lists what did not pass, `notBuilt` the gates of the plan this does not check yet: a pass here is not
     the plan's. With `whole`, what `surface` found on the generated outfit, a hole of `HOLE` or more round
     and a crumb of debris fail too, and the report holds it as `surface`; parts tinted again from a kept
-    folder come without it, and that gate stays under `notBuilt`."""
+    folder come without it, and that gate stays under `notBuilt`. With `joined`, what `ends` found, each end
+    that misses the seam contract fails, and the report holds it as `seams`; on a body the contract has no
+    rings of, that gate stays under `notBuilt`."""
     resources, failures = Path(resources), []
     faces = {name: int(len(part['f'])) for name, part in parts.items()}
     for name, number in faces.items():
@@ -390,9 +487,13 @@ def gates(parts, models, resources, packs=(), whole=None):
     if whole is not None:
         failures += [f'the generated outfit: an opening {hole * 100:.1f} cm round' for hole in whole['holes']]
         failures += [f'the generated outfit: a piece of {piece * 1e4:.1f} cm² standing apart from the rest' for piece in whole['debris']]
+    if joined is not None:
+        failures += joined[1]
+    checked = {WHOLE: whole is not None, SEAM: joined is not None}
     return {'passed': not failures, 'failures': failures, 'triangles': {**faces, 'outfit': sum(faces.values())},
             'texels': {name: int(len(part['rgb'])) for name, part in parts.items()},
-            **({} if whole is None else {'surface': whole}), 'notBuilt': [gate for gate in NOT_BUILT if whole is None or gate != WHOLE]}
+            **({} if whole is None else {'surface': whole}), **({} if joined is None else {'seams': joined[0]}),
+            'notBuilt': [gate for gate in NOT_BUILT if not checked.get(gate)]}
 
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
@@ -423,7 +524,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
-              'gates': gates(parts, models, Path(output) / 'resources', packs, whole)}
+              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier))}
     if game is not None:
         compiled = export.compile_models(sorted(Path(output) / 'ascii' / (model + '.mdl') for model in models.values()),
                                          Path(output) / 'resources', game=game, resources=list(resources))

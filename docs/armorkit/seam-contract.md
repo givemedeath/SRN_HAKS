@@ -38,7 +38,7 @@ hole, armholes and leg holes need a measure of their own (not built yet).
 **Tier envelopes.** A tier's envelope is the body ring pushed out by a fixed offset: tier 0 (skin-tight)
 0.4 cm, tier 1 (cloth) 1.2 cm, tier 2 (padded or armored) 2.5 cm, tier 3 (heavy) 5 cm. An under end must stay
 inside its tier's envelope at the plane; an over end must be open and at least as wide as its tier's envelope.
-The "envelope radius" in the table is the largest of the 16 directions; the gate uses all 16. The file stores
+The "envelope radius" in the table is the largest of the 16 directions; the gate (`bake.ends`) uses all 16. The file stores
 each tier's numbers and refuses to load when they disagree with its own body rings, tier offsets and swing.
 
 **Minimum overlap.** The under end continues past the plane, into the over part, by at least

@@ -220,9 +220,7 @@ Automatic, per part:
 * Triangle and texture budgets.
 * Texture closure: the PLT and material file exist and every referenced map resolves.
 * Seam contract: each end meets its tier's overlap and envelope against the body joint.
-* Clearance: no body surface showing through at rest; no holes or detached pieces. Holes and detached pieces
-  are checked on the generated outfit before it is cut (`bake.surface`): an opening 0.5 cm round or more, or a
-  piece under 10 cm² standing apart from the rest, fails.
+* Clearance: no body surface showing through at rest; no holes or detached pieces.
 * Skin checks from cleanmodels: no unbound vertices, at most four influences, every bone in the skeleton.
 * All 20 body versions exist, and their table rows exist.
 * Headgear clears its race's head envelope.
@@ -558,3 +556,20 @@ skin have no spare slot to ride on. The forearm slot gets no part, and the upper
 the body's own arm with its textures (`tools/armorkit/bodyskin.py`). The brief names both
 (`"bare": ["forearm"], "skin": ["bicep"]`). Built and tested on the Site Guard's mesh with its forearms taken
 out, and seen in the client beside the body's own arm: the copied skin is not told from it.
+
+## Revision 2026-11-12: the bake gates holes and the seam contract (user decision)
+
+The bake's report (`tools/armorkit/bake.py`, `gates`) now checks two more of the gates above. Holes and
+detached pieces are checked on the generated outfit before it is cut (`surface`): an opening 0.5 cm round or
+more, or a piece under 10 cm² standing apart from the rest, fails. The seam contract is checked on every end
+the outfit has at a joint (`ends`), on the two bodies the contract measured: an under end inside its tier's
+envelope at the plane in all 16 directions and past the plane by the tier's minimum overlap in each direction
+it is found in, an over end at least as wide as the envelope just short of the plane. The torso's neck hole,
+armholes and leg holes are still not measured; clearance over the body is still not checked.
+
+Asked how to treat an outfit whose ends miss its tier, the user chose to fail it per the contract rather than
+only record the tier each end meets. The Site Guard fails at every joint at tier 2: its under ends stand up to
+8.9 cm outside the envelope and run short of the overlap at the shoulders, wrists, hips and ankles, its over
+ends stand 1.3 to 3.2 cm inside it. Within one outfit the ends meet, since the split cuts them from one
+surface; the contract is what lets parts of different outfits mix. No step of the bake shapes the ends to the
+contract yet, so every generated outfit fails this gate until one does.
