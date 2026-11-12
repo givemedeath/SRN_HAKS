@@ -28,6 +28,9 @@ MAX_TRIANGLES = 100000
 PROP_TRIANGLES = (100, 15000)  # smart-topology's own range
 REMESH_HEADROOM = 0.92  # a remesh lands a little over its target: the robe trial asked for 100,000 and got 103,196
 KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
+# Answers that mean the task was not created: no credential, no credits, not allowed, queue full. The Ares Depot run
+# (2026-11-11) hit the plan's ten queued tasks; the eleventh came back 429 and had been left counted as uncertain.
+REFUSED = (401, 402, 403, 429)
 IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
 
 
@@ -176,6 +179,10 @@ def submit(ledger, key, asset, operation, arguments, folder, *, run=run_cli):
                              folder / key / 'create')
     except NotSent:
         ledger.release(key); raise
+    error = response.get('error') if isinstance(response.get('error'), dict) else {}
+    if code != 0 and error.get('http_status') in REFUSED:  # Meshy answered, and the answer was no: nothing was created
+        ledger.release(key)
+        raise ValueError(f'Meshy refused {key}: {error.get("message")}')
     task = task_fields(response)['id'] if code == 0 else None
     ledger.update(key, state='submitted' if task else 'uncertain', taskId=task)
     require(task, 'Submission uncertain; check the Meshy task list before any retry of ' + key)

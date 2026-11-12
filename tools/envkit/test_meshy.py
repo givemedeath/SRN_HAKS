@@ -111,6 +111,13 @@ class MeshyTests(unittest.TestCase):
                          run=FakeMeshy(answer=False))
         self.assertEqual((self.ledger.entry('a')['state'], self.ledger.committed()), ('uncertain', 15))
 
+    def test_a_submission_meshy_refuses_gives_its_reservation_back(self):
+        def full(arguments, folder):  # the plan's queue is full: Meshy answers, and creates nothing
+            return 1, {'ok': False, 'error': {'http_status': 429, 'message': 'NoMorePendingTasks'}}
+        with self.assertRaisesRegex(ValueError, 'Meshy refused a: NoMorePendingTasks'):
+            meshy.submit(self.ledger, 'a', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=full)
+        self.assertEqual((meshy.Ledger(self.ledger.path).data['entries'], self.ledger.committed()), ([], 0))
+
     def test_a_call_refused_before_it_is_sent_gives_its_reservation_back(self):
         def refuse(arguments, folder):
             raise meshy.NotSent('npm not found')
