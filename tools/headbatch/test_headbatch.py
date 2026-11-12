@@ -2464,6 +2464,15 @@ class ConditioningContracts(Base):
         with self.assertRaisesRegex(BudgetExceeded,'unavailable'):budget.check()
 
 class DeliveryAndRetryContracts(Base):
+    def test_a_gpu_submission_proves_the_server_with_the_heads_own_bindings(self):
+        class Probe(gpu_job.Comfy):
+            def free(self): pass
+            def call(self, route, data=None, *, timeout=5): return {'prompt_id': 'p'}
+            def wait(self, prompt_id): return prompt_id
+        comfy = Probe('http://127.0.0.1:8188', self.root); comfy.local = {'comfyAttestation': {'path': 'x', 'sha256': 'y'}}
+        self.assertEqual(comfy.submit({}), 'p')
+        self.assertIs(gpu_job.live.call_args.args[1], comfy.local)
+
     def test_oom_attempt_keeps_its_own_history_and_charges_both_submissions(self):
         server=GpuJob.Server(self.root,polls=[
             {'p1':{'status':{'completed':False,'status_str':'error','messages':['out of memory']},'outputs':{}}},

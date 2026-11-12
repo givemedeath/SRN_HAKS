@@ -45,6 +45,7 @@ class Comfy:
         self.root = root
         self.budget = None
         self.unresolved = None
+        self.local = None  # the head's bindings: its own comfyAttestation comes before the shared registry
 
     def send(self, route, data=None, *, timeout=5):
         body = None if data is None else json.dumps(data).encode()
@@ -114,7 +115,7 @@ class Comfy:
     def submit(self, graph, before_prompt=lambda: None):
         # Free cached models first (applied between prompts): the card is shared with the desktop, so a decode can run out on cache alone.
         # The launcher holds the host GPU lease (headkit.shared_comfy); the server must still be controlled or approved.
-        live(lambda route: self.call(route, timeout=300))
+        live(lambda route: self.call(route, timeout=300), self.local)
         if self.budget:self.budget.check()
         self.free()
         if self.budget:self.budget.admit_prompt()
@@ -398,6 +399,8 @@ def main():
     gpu = head/'gpu'
     comfy = Comfy(args.comfy_url, args.comfy_root)
     comfy.unresolved = gpu/'UNRECONCILED'
+    if (head/'bindings.json').is_file():  # pinned by the launcher for this run
+        comfy.local = json.loads((head/'bindings.json').read_text(encoding='utf-8'))
     if comfy.unresolved.exists():
         raise SystemExit('Unreconciled GPU submission; inspect its prompt ID before resuming')
     if args.resources:
