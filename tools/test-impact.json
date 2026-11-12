@@ -136,7 +136,8 @@
     "tools/armorkit/test_generate.py": [
       "tools/armorkit/brief.py",
       "tools/armorkit/generate.py",
-      "tools/armorkit/test_brief.py"
+      "tools/armorkit/test_brief.py",
+      "tools/headkit/shared_comfy.py"
     ],
     "tools/armorkit/test_measure.py": [
       "tools/armorkit/head-envelopes.json",
