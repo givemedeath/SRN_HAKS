@@ -195,13 +195,13 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all() and (shades[closing] == 201).all())  # the outfit's, where the caller has it
         self.assertTrue(np.array_equal(shades[~closing], plain_shades[~closing]))
 
-    def test_a_trims_texels_are_drawn_in_the_material_it_was_given_at_their_own_shade(self):
+    def test_a_metal_is_drawn_on_its_own_faces_only_and_elsewhere_as_the_faces_material(self):
         channels = ['cloth1', 'leather1', 'metal1']
         colour = np.zeros((8, 8, 3)); covered = np.ones((8, 8), bool)
         colour[:, :4], colour[:, 4:] = TAN, PLATE
         colour[5:, 4:] = np.array(PLATE) * 0.8
         trim = np.full((8, 8), -1)
-        trim[4:, 2:6] = 0  # the faces of a frame, and what they cover of the leather beside it
+        trim[4:, 2:6] = 0  # faces of cloth: a frame's, those beside a plate, and what they cover of the leather
         plain_shades, plain_layers = texture.tint_maps(colour, covered, self.found, channels, speck=0)
         shades, layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, trim=trim)
         frame = np.zeros((8, 8), bool); frame[4:, 4:6] = True
@@ -511,17 +511,6 @@ class TrimTests(unittest.TestCase):
         self.assertTrue((out[self.frame] == self.METAL).all())
         strap = self.leather & (self.v[self.f].mean(axis=1)[:, 0] > 0.33)
         self.assertTrue((out[strap] != self.LEATHER).all() and (out[self.leather & ~strap] == self.LEATHER).mean() > 0.98)
-
-    def test_a_face_is_off_the_plates_where_neither_it_nor_a_face_beside_it_is_metal(self):
-        v, f, cells = sheet(6, 1)
-        materials = np.where(cells[:, 0] == 2, self.METAL, self.CLOTH)
-        materials[cells[:, 0] == 5] = -1  # what the split made
-        off = texture.off_plate(v, f, materials, [self.METAL])
-        self.assertFalse(off[cells[:, 0] == 2].any())
-        self.assertEqual(np.flatnonzero(~off & (cells[:, 0] != 2)).tolist(), [2, 7])  # the one face of each cell next to it that shares an edge with it
-        self.assertTrue(texture.off_plate(v, f, materials, []).all())
-        with self.assertRaises(ValueError):
-            texture.off_plate(v, f, materials[:-1], [self.METAL])
 
     def test_an_outfit_all_of_one_metal_keeps_it(self):
         v, f, _ = sheet(2, 2)

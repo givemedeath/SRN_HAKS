@@ -265,7 +265,7 @@ def trimmed(vertices, faces, materials, metals):
 
     Worn, a frame was a band of metal round a patch of sleeve, a strip of it went to the shoulder part with
     the pad it touched and hung down the arm from it, and a pad was cut out along its teeth. `tint_maps`
-    draws a trim's texels accordingly (`trim`)."""
+    draws the texels of every face that is then no metal's accordingly (`trim`)."""
     v, f, materials = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(materials, int)
     require(materials.shape == (len(f),), 'One material per face is required')
     pairs, out = split.beside(v, f), materials.copy()
@@ -305,25 +305,6 @@ def trimmed(vertices, faces, materials, metals):
             left[near[:, 0]] = False
         out[left] = np.bincount(materials[~mine], minlength=1).argmax() if (~mine).any() else metal
     return out
-
-
-def off_plate(vertices, faces, materials, metals):
-    """One flag per face of a part: it is of none of `metals`, and no face beside it is.
-
-    `materials` is the material per face as `trimmed` left it, anything else (-1) for the faces the split
-    made. The colour of a plate ends within the faces along its outline, so a face beside a plate's shows
-    some of it, and rightly. A face farther off shows a metal only as a line too narrow to make a face
-    its own, or as what a pad left behind: a shoulder pad goes whole to the shoulder part along its faces'
-    edges (`split.pad`), and the colour that ran over them stayed on the sleeve as specks of plate under
-    the pad's edge, which the arm then carried out from under it. `tint_maps` draws the texels of these
-    faces accordingly (`trim`)."""
-    v, f, materials = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(materials, int)
-    require(materials.shape == (len(f),), 'One material per face is required')
-    near, pairs = np.isin(materials, list(metals)), split.beside(v, f)
-    plate = near.copy()
-    near[pairs[plate[pairs[:, 1]], 0]] = True
-    near[pairs[plate[pairs[:, 0]], 1]] = True
-    return ~near
 
 
 def soft_map(uvs, faces, positions, read, size):
@@ -543,10 +524,12 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     `speck` decide. A generator pipes a sleeve pocket in the plates' colour and flecks a sleeve with it;
     worn, that is a patch of cloth in a wire of metal, and mottling.
 
-    `trim` holds, for the texels of the faces that are no plate's, the material of their face, and -1
-    elsewhere: the faces `trimmed` took from a metal, with the material it gave them, and those away from
-    every plate (`off_plate`). A texel there that shows a metal is drawn in that material, at its own
-    shade: the colours of a frame one face wide are still on its faces.
+    `trim` holds, for the texels of the faces that are no metal's (as `trimmed` left them), the material
+    of their face, and -1 elsewhere. A texel there that shows a metal is drawn in that material, at its own
+    shade: a plate is drawn on its own faces and nowhere else. The colours of a frame one face wide are
+    still on its faces; the colour of a plate runs over its outline into the faces beside it, in blots
+    and tails, and a shoulder pad that goes whole to the shoulder part along its faces' edges
+    (`split.pad`) left that on the sleeve, where the arm carried it out from under the pad.
     A thigh's closing toward the other leg (`split.WALL`) is flagged with its
     cap, not as a closing: its rim is the trousers' own, and drawn as that it does not stand out beside the
     crotch.
