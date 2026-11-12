@@ -1,8 +1,8 @@
 {
   "models": {
     "ek_ad_depot": {"source": "meshy/models/ares-building-a1-remesh2", "height": 9.5, "colour": 4096, "lit": [
-      {"part": "roof sign", "box": [[-6.6, 0.0, 4.35], [3.6, 8.1, 5.85]], "gain": 0.8},
-      {"part": "tower windows", "box": [[4.4, -1.0, 5.45], [9.0, 8.1, 6.35]], "gain": 0.35}
+      {"part": "roof sign", "box": [[-6.6, 4.8, 4.35], [2.95, 8.1, 5.85]], "gain": 0.8},
+      {"part": "tower windows", "box": [[4.4, -1.0, 5.45], [9.0, 8.1, 6.35]], "gain": 2.0, "saturation": 0.3}
     ], "halo": {"reach": 0.4, "strength": 0.5, "least": 0.5},
       "tiles": {"ground": "pavement", "group": "Ares_Depot", "label": "Ares Depot 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.0}},
     "ek_ad_desk": {"source": "meshy/models/ares-reception-desk-a1", "height": 2.6, "colour": 2048, "lit": [

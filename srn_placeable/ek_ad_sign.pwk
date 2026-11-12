@@ -1,0 +1,10 @@
+node dummy ek_ad_sign_pwk_use01
+  parent ek_ad_sign_pwk
+  position 0 0.60741 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_ad_sign_pwk_use02
+  parent ek_ad_sign_pwk
+  position 0 -0.60741 0
+  orientation 0 1 0 0
+endnode
