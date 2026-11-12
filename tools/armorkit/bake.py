@@ -39,6 +39,7 @@ AXIS = 0.015  # past the plane, what lies this near the joint's axis closes the 
 HOLE = 0.005  # an opening of the generated outfit this long round or longer, at the body's size, is a hole
 DEBRIS = 0.001  # square metres: a separate piece of the generated outfit smaller than this that touches nothing else is debris
 TOUCH = 0.002  # a piece of the generated outfit this near the rest of it touches it
+POINT = 1e-6  # metres: two corners of a triangle this near are one point, and the model compiler drops the triangle
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'src', 'trimmed')  # what `store` keeps of a part
 OPTIONAL = ('pad',)  # and what it keeps when a part has it: parts kept before it existed have none
 KEPT, KEPT_KIND = 'baked.json', 'srn-armorkit-baked-parts'  # the list of the parts `store` kept, and its kind
@@ -187,6 +188,13 @@ def ends(parts, bones, body, tier, contract=None):
                     failures.append(f'{over} does not reach the {joint} plane')
             report[joint][side] = row
     return report, failures
+
+
+def _collapsed(vertices, faces):
+    """How many of the triangles `faces` have two corners within `POINT` of each other."""
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces, int).reshape(-1, 3)
+    sides = [np.linalg.norm(vertices[faces[:, i]] - vertices[faces[:, (i + 1) % 3]], axis=1) for i in range(3)]
+    return int((np.min(sides, axis=0) < POINT).sum()) if len(faces) else 0
 
 
 def _outfit(part, pads=False):
@@ -479,7 +487,7 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None):
     """The automatic gates of docs/armorkit/plan.md that can be checked on one written outfit: a report.
 
     Budgets: the triangles of each part, the chest's own and the whole outfit's, and the texels a side of
-    each texture (`BUDGET`). Names: no model of the outfit is one a pack in `packs` already holds (their
+    each texture (`BUDGET`), and no triangle with two corners at one point (`POINT`). Names: no model of the outfit is one a pack in `packs` already holds (their
     length is checked as they are made, `registry.model_name`). Texture closure: every model has its tint
     texture and its material file in `resources`, and the map the material file names is there. `failures`
     lists what did not pass, `notBuilt` the gates of the plan this does not check yet: a pass here is not
@@ -499,6 +507,9 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None):
     for name, part in parts.items():
         if len(part['rgb']) > BUDGET['texture']:
             failures.append(f'{name}: a texture of {len(part["rgb"])} texels a side, over the budget of {BUDGET["texture"]}')
+        collapsed = _collapsed(part['v'], part['f'])
+        if collapsed:  # the seam gate would still measure them, though nothing of them shows or compiles
+            failures.append(f'{name}: {collapsed} triangles with two corners at one point, which the model compiler drops')
     for name, model in models.items():
         for pack in packs:
             if (Path(pack) / (model + '.mdl')).exists():

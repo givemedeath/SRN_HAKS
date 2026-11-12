@@ -230,6 +230,12 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(failures, [f'the outfit: {14 * bake.BUDGET["slot"]} triangles, over the budget of {bake.BUDGET["outfit"]}'])
             wide = {'chest': part(size=2 * bake.BUDGET['texture'])}
             self.assertIn('over the budget of 1024', bake.gates(wide, {}, resources)['failures'][0])
+            # a triangle with two corners at one point, which the model compiler would drop
+            pinched = part(2)
+            pinched['v'] = np.concatenate([pinched['v'], pinched['v'][2:] + bake.POINT / 2])
+            pinched['f'] = np.array([[0, 1, 2], [1, 2, 3]])
+            self.assertEqual(bake.gates({'chest': part(), 'pelvis': pinched}, models, resources)['failures'],
+                             ['pelvis: 1 triangles with two corners at one point, which the model compiler drops'])
             # a name a pack already holds
             (Path(folder) / 'pack').mkdir()
             (Path(folder) / 'pack' / 'pmh0_pelvis332.mdl').write_text('')

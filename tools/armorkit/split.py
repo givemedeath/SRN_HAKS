@@ -1014,28 +1014,35 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
         swings.append((np.cross(normal, seams.unit(out - (out @ normal) * normal)), (bend / 2, bend)))
     turns = [np.eye(3)] + [rotation(axis, degrees) for axis, angles in swings for degrees in angles if degrees]
 
-    def fits(points):
-        """Whether each point stands `gap` inside the over part's surface in every pose."""
+    def inside(points, turned):
+        """Whether each point stands `gap` inside the over part's surface with the limb turned by `turned`."""
+        moved = (points - point) @ turned.T
+        level = moved @ normal
+        row = np.floor(level / SEAT_ROW).astype(int) - first
+        within = (row >= 0) & (row < least.shape[1])
+        spin = np.floor((np.arctan2(moved @ b, moved @ a) % (2 * np.pi)) / (2 * np.pi / SEAT_BINS)).astype(int) % SEAT_BINS
+        bound = np.where(within, near[spin, np.clip(row, 0, least.shape[1] - 1)], np.inf)
+        return np.linalg.norm(moved - level[:, None] * normal, axis=1) <= bound - gap
+
+    def fits(points, held):
+        """Whether each point stands inside in every pose it is held in (`held`, per pose and point)."""
         good = np.ones(len(points), bool)
-        for turned in turns:
-            moved = (points - point) @ turned.T
-            level = moved @ normal
-            row = np.floor(level / SEAT_ROW).astype(int) - first
-            inside = (row >= 0) & (row < least.shape[1])
-            spin = np.floor((np.arctan2(moved @ b, moved @ a) % (2 * np.pi)) / (2 * np.pi / SEAT_BINS)).astype(int) % SEAT_BINS
-            bound = np.where(inside, near[spin, np.clip(row, 0, least.shape[1] - 1)], np.inf)
-            good &= np.linalg.norm(moved - level[:, None] * normal, axis=1) <= bound - gap
+        for turned, mine in zip(turns, held):
+            good &= ~mine | inside(points, turned)
         return good
 
     out = np.cos(turn)[:, None] * a + np.sin(turn)[:, None] * b
     placed = []
     for radius, level in rings:
         at = lambda share: point + (share * radius)[:, None] * out + level[:, None] * normal
+        # Turned, a point on the axis leaves it as far as its height times the turn's sine: drawn in, a point is
+        # held only in the poses its place on the axis fits in. As the body stands it always is.
+        held = [np.ones(len(rim), bool)] + [inside(at(np.zeros(len(rim))), turned) for turned in turns[1:]]
         low, high = np.zeros(len(rim)), np.ones(len(rim))
-        whole = fits(at(high))
+        whole = fits(at(high), held)
         for _ in range(SEAT_HALVINGS):  # the largest share of its radius each point keeps and still fits
             middle = (low + high) / 2
-            good = fits(at(middle))
+            good = fits(at(middle), held)
             low, high = np.where(good, middle, low), np.where(good, high, middle)
         placed.append(at(np.where(whole, 1.0, low)))
     placed.append(np.tile(point - depth * normal, (len(rim), 1)))  # the pole, held once per rim point for its columns

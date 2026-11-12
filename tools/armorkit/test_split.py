@@ -1253,15 +1253,23 @@ class ArmTests(unittest.TestCase):
         wall = np.array([(-0.055, -0.03, 0.0), (-0.055, 0.03, 0.0), (-0.055, 0.03, 0.15), (-0.055, -0.03, 0.15)]), np.array([(0, 1, 2), (0, 2, 3)])
         lean = np.cross(normal, (1.0, 0.0, 0.0))  # turned about this, the arm leans toward +x and its end toward the wall
 
-        def through(out, degrees):  # points of the end, but its pole, in the wall once the arm leans
-            grown, _, _ = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, wall, 60.0,
-                                         out=np.array(out))
-            grown = grown[np.linalg.norm(grown[:, :2], axis=1) > 1e-9]
+        def through(out, degrees, deepest=np.inf):  # points of the end, but its pole, in the wall once the arm leans
+            grown, _, faces = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, wall,
+                                             60.0, out=np.array(out))
+            corners = np.concatenate([v, grown])[faces]
+            sides = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2)
+            self.assertGreater(sides.min(), 1e-6)  # nothing drawn in so far that two corners of a face are one point
+            grown = grown[(np.linalg.norm(grown[:, :2], axis=1) > 1e-9) & (grown[:, 2] <= deepest)]
             moved = grown @ split.rotation(lean, degrees).T
             return int(((moved[:, 0] < -0.055) & (np.abs(moved[:, 1]) < 0.03) & (moved[:, 2] > 0)).sum())
 
+        self.assertEqual(through((1.0, 0.0, 0.0), 30), 0)  # turned out: every point's place on the axis stays inside the wall
+        # all of the bend: a point on the axis 8 cm deep leaves it by 6.9 cm, past the wall; drawn in toward the axis,
+        # the points are held only as deep as their place on the axis is
+        holds = (0.055 - split.SEAT_GAP) / np.sin(np.radians(60))
+        self.assertEqual(through((1.0, 0.0, 0.0), 60, holds - 1e-3), 0)
+        self.assertGreater(through((1.0, 0.0, 0.0), 60), 0)
         for degrees in (30, 60):
-            self.assertEqual(through((1.0, 0.0, 0.0), degrees), 0)  # turned out, as far as the bend
             self.assertGreater(through((-1.0, 0.0, 0.0), degrees), 0)  # turned in across the torso: not held
         # the over part is read from its faces only: the split hands it the whole outfit's vertices, the limb's own among them
         grown = lambda over: split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, over, 60.0,
