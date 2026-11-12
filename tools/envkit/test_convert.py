@@ -100,6 +100,34 @@ class ConvertTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not a two-sided sign'):
             convert.two_sided(front, normals[:8], uvs[:8], faces, 15.0)
 
+    def test_a_model_whose_front_came_back_facing_a_side_is_turned(self):
+        from PIL import Image
+        model = glb(self.root / 'wall.glb', **WALL); Image.new('RGB', (8, 8), (200, 100, 50)).save(self.root / 'colour.png')
+        made = convert.shape(model, {'base_color': self.root / 'colour.png'}, height=2.0, turn=90)
+        np.testing.assert_allclose(made['normals'], [[-1, 0, 0]] * 4, atol=1e-9)  # counter-clockwise seen from above: the front now faces -X
+        np.testing.assert_allclose(made['vertices'].max(0) - made['vertices'].min(0), [0, 1.0, 2.0], atol=1e-9)
+        np.testing.assert_allclose(made['vertices'].mean(0)[:2], [0, 0], atol=1e-9)  # still centred on its spot
+        self.assertIsNone(made['colour']); self.assertIsNone(made['flat'])  # nothing retouched: the picture ships as generated
+
+    def test_a_colour_picture_is_toned_painted_and_given_a_wire_mesh_by_place_on_the_model(self):
+        from PIL import Image
+        vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
+        points, _, texture, _, _ = convert.fit(vertices, normals, uvs, 2.0)  # 1 wide (x -0.5 to 0.5), 2 tall, the picture across the whole of it
+        picture = Image.new('RGB', (64, 64), (200, 100, 50))
+        toned, flat = convert.retouch(picture, points, texture, faces, tone=0.5)
+        self.assertEqual(toned.mode, 'RGB'); self.assertIsNone(flat); self.assertEqual(toned.getpixel((5, 5)), (100, 50, 25))
+        painted, flat = convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3]}])
+        self.assertIsNone(flat); self.assertEqual(painted.getpixel((32, 8)), (1, 2, 3)); self.assertEqual(painted.getpixel((32, 56)), (200, 100, 50))  # the top half only
+        meshed, flat = convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'pitch': 0.25, 'wire': 0.05}])
+        self.assertEqual(meshed.mode, 'RGBA'); pixels = np.asarray(meshed); lower, upper = pixels[36:], pixels[:28]
+        self.assertTrue((upper[..., 3] == 255).all()); np.testing.assert_array_equal(upper[0, 0, :3], [200, 100, 50])  # outside the panel nothing changes
+        gaps = float((lower[..., 3] == 0).mean()); self.assertGreater(gaps, 0.4); self.assertLess(gaps, 0.8)  # wires a fifth of the pitch, crossing
+        self.assertTrue((lower[..., :3] == convert.WIRE).all())  # the wire's colour under the gaps too, so a filtered edge has no fringe
+        self.assertTrue(np.asarray(flat)[40:].all()); self.assertFalse(np.asarray(flat)[:28].any())  # the panel's relief is levelled
+        row = np.asarray(meshed)[60, :, 3]; self.assertGreaterEqual(int((np.diff(row.astype(int)) != 0).sum()), 6)  # wires and gaps alternate along it
+        with self.assertRaisesRegex(ValueError, 'thinner'):
+            convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-1, -1, 0], [1, 1, 1]], 'pitch': 0.1, 'wire': 0.2}])
+
     def test_zero_normals_are_rebuilt_from_the_faces(self):
         vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; normals = np.array([[0, 1, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0]], float)
         fixed, count = convert.repair_normals(vertices, normals, np.array(WALL['faces']))

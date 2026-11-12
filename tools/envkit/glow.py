@@ -50,6 +50,22 @@ def position_map(points, uvs, faces, size, *, facing=False):
     return (where, covered, toward) if facing else (where, covered)
 
 
+def inside(where, covered, box):
+    """Which texels show a place within `box`, two corners in metres on the finished model."""
+    low, high = (np.asarray(corner, float) for corner in box)
+    require(low.shape == high.shape == (3,) and (high > low).all(), 'A box runs from its low corner to its high corner')
+    return covered & (where >= low).all(-1) & (where <= high).all(-1)
+
+
+def wires(where, pitch, wire):
+    """Which texels lie on the wires of a chain-link mesh hung upright along X or Y: two sets of wires `wire` metres
+    thick, leaning either way, `pitch` metres apart. The pattern is laid by place on the model, so it runs unbroken
+    over the islands of the texture and matches on both faces of a panel."""
+    require(0 < wire < pitch, 'A wire is thinner than the gap between wires')
+    along, up = where[..., 0] + where[..., 1], where[..., 2]
+    return (np.mod((along + up) / np.sqrt(2), pitch) < wire) | (np.mod((along - up) / np.sqrt(2), pitch) < wire)
+
+
 def glow(base, where, covered, regions):
     """The glow map, 0-1, the shape of `base` (0-1 colour at the position map's size).
 
@@ -62,10 +78,7 @@ def glow(base, where, covered, regions):
     vivid = (brightest - dullest) / np.maximum(brightest, 1e-6); lit = np.zeros_like(base)
     passing = lambda values, floor: 1.0 if floor <= 0 else np.clip((values - floor + 0.05) / 0.15, 0, 1)
     for region in regions:
-        low, high = (np.asarray(corner, float) for corner in region['box'])
-        require((high > low).all(), 'A glow box runs from its low corner to its high corner')
-        inside = covered & (where >= low).all(-1) & (where <= high).all(-1)
-        share = inside * passing(vivid, region.get('saturation', 0.0)) * passing(brightest, region.get('value', 0.0)) * region.get('gain', 1.0)
+        share = inside(where, covered, region['box']) * passing(vivid, region.get('saturation', 0.0)) * passing(brightest, region.get('value', 0.0)) * region.get('gain', 1.0)
         lit = np.maximum(lit, base * share[..., None])
     return np.clip(lit, 0, 1)
 

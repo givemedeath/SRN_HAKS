@@ -63,6 +63,11 @@ def command_reference(args):
                           'elapsedSeconds': result['elapsedSeconds']}), flush=True)
 
 
+def _retouching(model):
+    """What a game set says of turning a model and retouching its colour, as `convert.shape` takes it."""
+    return {key: model[key] for key in ('turn', 'tone', 'paint', 'mesh') if key in model}
+
+
 def command_game(args):
     """Convert generated models to compiled game placeables, as the game set states them."""
     from tools.armorkit import export
@@ -76,7 +81,7 @@ def command_game(args):
         with fresh(output / name) as folder:  # a model that fails leaves nothing in the way of the next attempt
             report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
                                        colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'),
-                                       lift=model.get('lift', 0.0))
+                                       lift=model.get('lift', 0.0), **_retouching(model))
             report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
             (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(report), flush=True)
@@ -104,10 +109,13 @@ def command_tiles(args):
     model = models[args.model]; source, maps = _generated(args.root, model)
     with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
         made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
-                             lit=model.get('lit'), halo=model.get('halo'))
+                             lit=model.get('lit'), halo=model.get('halo'), **_retouching(model))
         tiles = model['tiles']
-        with Image.open(maps['base_color']) as image:
-            colour = np.asarray(image.convert('RGB').resize((512, 512)), float) / 255
+        if made['colour'] is not None:  # the picture as retouched, which `skin` still has to write
+            colour = np.asarray(made['colour'].convert('RGB').resize((512, 512)), float) / 255
+        else:
+            with Image.open(maps['base_color']) as image:
+                colour = np.asarray(image.convert('RGB').resize((512, 512)), float) / 255
         report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'),
                             ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']))
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')

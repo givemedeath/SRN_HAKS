@@ -22,6 +22,8 @@ NODE_VERTICES = 60000  # a compiled mesh node indexes its vertices with 16 bits
 NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character suffix
 TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row and column
 NON_WALK = 7
+RETOUCH = 2048  # pixels: the finest map of places a colour picture is retouched by
+WIRE = (118, 122, 126)  # galvanised steel
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 
@@ -326,16 +328,52 @@ def _compress(image, target, mode, size, crunch, *, data):
     return target
 
 
-def textures(name, maps, folder, crunch, *, colour=1024, illumination=None):
-    """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half."""
+def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), mesh=(), size=RETOUCH):
+    """(colour, flat): a model's colour picture as it ships, and where its relief is to be flattened (or None).
+
+    `tone` multiplies the whole picture (a model that came back paler than its reference). `paint` covers what a
+    generator invented: [{box, colour}], every texel within the box in one colour (0-255). `mesh` makes a panel a
+    chain-link fence: [{box, pitch, wire, colour}], the texels within the box in the wire's colour and see-through
+    between the wires (`glow.wires`), which gives the picture an alpha channel. Boxes are in metres on the finished
+    model, as a lit part's are. A generator cannot make a mesh that is seen through (the depot's fence came back as
+    solid smeared panels, 2026-11-11); its posts, rails and base are kept and only the panels are redrawn."""
+    from PIL import Image
+    from . import glow
+    colour = np.asarray(image.convert('RGB'), float) / 255; alpha = flat = None
+    if tone is not None:
+        colour = np.clip(colour * tone, 0, 1)
+    if paint or mesh:
+        where, covered = glow.position_map(vertices, uvs, faces, min(size, image.width))
+        full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
+        for part in paint:
+            colour[full(glow.inside(where, covered, part['box']))] = np.asarray(part['colour'], float) / 255
+        if mesh:
+            alpha, flat = np.ones(colour.shape[:2], bool), np.zeros(colour.shape[:2], bool)
+        for part in mesh:
+            panel = glow.inside(where, covered, part['box']); wire = full(panel & glow.wires(where, part['pitch'], part['wire'])); panel = full(panel)
+            colour[panel] = np.asarray(part.get('colour', WIRE), float) / 255  # under the gaps too: a filtered edge then blends wire with wire
+            alpha &= ~panel | wire; flat |= panel
+    picture = (colour * 255).round().astype(np.uint8)
+    if alpha is None:
+        return Image.fromarray(picture), None
+    return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), Image.fromarray(flat)
+
+
+def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None):
+    """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half.
+    `base` is the colour picture retouched (`retouch`); with an alpha channel it is stored with one. `flat` marks where
+    the relief map is levelled."""
     from PIL import Image
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); half = max(colour // 2, 256)
-    base = Image.open(maps['base_color']).convert('RGB')
+    shown = base if base is not None else Image.open(maps['base_color']).convert('RGB')
+    base = shown.convert('RGB'); relief = Image.open(maps['normal']).convert('RGB')
+    if flat is not None:
+        relief.paste((128, 128, 255), mask=flat.resize(relief.size, Image.NEAREST))
     grey = lambda key: np.asarray(Image.open(maps[key]).convert('L').resize(base.size), float) / 255
     shine = np.clip(specular(np.asarray(base, float) / 255, grey('metallic')), 0, 1)
     channel = lambda values: Image.fromarray(np.repeat((values * 255).round().astype(np.uint8)[..., None], 4, axis=2), 'RGBA')
-    written = [_compress(base, folder / f'{name}.dds', '-DXT1', colour, crunch, data=False),
-               _compress(Image.open(maps['normal']).convert('RGB'), folder / f'{name}_n.dds', '-DXN', half, crunch, data=True),
+    written = [_compress(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, crunch, data=False),
+               _compress(relief, folder / f'{name}_n.dds', '-DXN', half, crunch, data=True),
                _compress(channel(shine), folder / f'{name}_s.dds', '-DXT5A', half, crunch, data=True),
                _compress(channel(grey('roughness')), folder / f'{name}_r.dds', '-DXT5A', half, crunch, data=True)]
     if illumination is not None:  # a path or an image; mostly black, so half size like the other maps
@@ -345,8 +383,10 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None):
 
 
 def load_models(path):
-    """The game models of a set: {name: {source, height, colour, signTilt, lift, lit, halo, tiles}}. `lift` hangs the
-    model that many metres above the ground it is placed on (a camera on a wall). `source` is the generated
+    """The game models of a set: {name: {source, height, colour, signTilt, lift, turn, tone, paint, mesh, lit, halo,
+    tiles}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
+    turns it that many degrees counter-clockwise seen from above, where its front came back facing a side; boxes are
+    on the model as turned. `tone`, `paint` and `mesh` retouch its colour picture (`retouch`). `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
@@ -358,7 +398,20 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'lit', 'halo', 'tiles', 'placeable'}, 'Model needs source and height: ' + name)
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'mesh', 'lit', 'halo', 'tiles', 'placeable'},
+                'Model needs source and height: ' + name)
+        number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
+        box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
+        require(number(model.get('turn', 0)) and -180 <= model.get('turn', 0) <= 180, 'A model is turned by -180 to 180 degrees: ' + name)
+        require(number(model.get('tone', 1)) and 0.2 <= model.get('tone', 1) <= 2, 'A tone is 0.2 to 2 times the colour: ' + name)
+        shade = lambda value: isinstance(value, list) and len(value) == 3 and all(type(part) is int and 0 <= part <= 255 for part in value)
+        for part in model.get('paint', []):
+            require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour'} and box(part) and shade(part['colour']),
+                    'A painted part needs a box and a colour of three 0-255 values: ' + name)
+        for part in model.get('mesh', []):
+            require(isinstance(part, dict) and {'box', 'pitch', 'wire'} <= set(part) <= {'part', 'box', 'pitch', 'wire', 'colour'} and box(part)
+                    and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
+                    'A wire mesh needs a box, a pitch of at most a metre and a thinner wire: ' + name)
         require(isinstance(model.get('lift', 0), (int, float)) and 0 <= model.get('lift', 0) <= 20, 'A model is lifted by 0 to 20 metres: ' + name)
         source = Path(model['source'])
         require(not source.is_absolute() and '..' not in source.parts and ':' not in model['source'], 'Model source is a folder under the output root: ' + name)
@@ -380,7 +433,6 @@ def load_models(path):
         door = (tiles or {}).get('door')
         require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type'} and np.asarray(door['at'], float).shape == (3,)
                                  and type(door.get('type', 0)) is int and door.get('type', 0) >= 0), 'A door needs the place it stands at: ' + name)
-        number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         require(door is None or number(door.get('facing', 0.0)), 'A door faces a number of degrees: ' + name)
         fade = (tiles or {}).get('fade')
         require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
@@ -440,9 +492,12 @@ def blackout_script(name, player, on, halo=True):
     return ''.join(f'SetTextureOverride("{old}","{"" if on else new}",{player});' for old, new in swaps)
 
 
-def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0):
+def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
+          mesh=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
-    illumination, card}. `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
+    illumination, card, colour, flat}. `turn` turns it about the vertical before anything is measured on it; `tone`,
+    `paint` and `mesh` give `colour` and `flat`, its colour picture retouched and where its relief is levelled
+    (`retouch`; both None for a model left as generated). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
     map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`)."""
     vertices, normals, uvs, faces = read_glb(model); card = None
@@ -450,6 +505,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if sign_tilt is not None:
         vertices, normals, uvs, faces = two_sided(vertices, normals, uvs, faces, sign_tilt)
         vertices, again = stand(vertices, height); scale *= again
+    if turn:
+        spin = _turn(float(turn), 0.0, 0.0); vertices, normals = vertices @ spin.T, normals @ spin.T
+        vertices, _ = stand(vertices, height)
     normals, repaired = repair_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
     require(not halo or lit, 'A halo spreads the lit parts: name them')
@@ -462,15 +520,20 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         where, covered, toward = glow.position_map(vertices, uvs, faces, size, facing=True); shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
+    shown = flat = None
+    if tone is not None or paint or mesh:
+        from PIL import Image
+        with Image.open(maps['base_color']) as picture:
+            shown, flat = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), mesh=mesh or ())
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
-            'illumination': illumination, 'card': card}
+            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat}
 
 
 def skin(name, maps, folder, crunch, made, *, colour=1024):
     """Write the model's material file and maps, its halo's and its lights-out set into `folder`; returns the textures."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); illumination, card = made['illumination'], made['card']
     (folder / f'{name}.mtr').write_text(material_text(name, illumination is not None), encoding='cp1252', newline='\n')
-    files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination)
+    files = textures(name, maps, folder, crunch, colour=colour, illumination=illumination, base=made.get('colour'), flat=made.get('flat'))
     if card:
         files.append(_compress(card.image, folder / f'{name}_h.dds', '-DXT1', 512, crunch, data=False))
         card_material = ['renderhint NormalAndSpecMapped', '', f'texture0 {name}_h', 'texture1 null', 'texture2 null', 'texture3 null',
@@ -486,15 +549,15 @@ def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
             'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
-            'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]},
+            'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'seeThrough': made.get('flat') is not None,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0):
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_tilt=None, **keywords):
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. The keywords are
     `shape`'s. A model lifted clear of a standing character's head gets no block to walk into."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
-    made = shape(model, maps, height=height, colour=colour, illumination=illumination, sign_tilt=sign_tilt, lit=lit, halo=halo, lift=lift)
+    made = shape(model, maps, height=height, colour=colour, sign_tilt=sign_tilt, **keywords)
     vertices, card = made['vertices'], made['card']
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None),
                                         encoding='cp1252', newline='\n')
