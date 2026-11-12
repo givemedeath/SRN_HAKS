@@ -1,6 +1,7 @@
 """Source jobs are posted only for images that come from a brief, and geometry attempts are counted."""
 import itertools
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -198,6 +199,17 @@ class GenerateTests(unittest.TestCase):
             generate.geometry(self.work, 'other', self.image, 36.6, 'models')
         self.engine.lost = False
         self.assertEqual(generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')['attempt'], 2)
+
+    def test_the_gpu_lease_is_let_go_once_the_job_is_queued(self):
+        from tools.headkit.shared_comfy import gpu_lease
+        free = []
+
+        def probe():  # another session, while this job runs: the lease is free, so it queues behind the job
+            other = {key: value for key, value in os.environ.items() if key != 'SRN_GPU_LEASE'}  # no inherited hold
+            with mock.patch.dict('os.environ', other, clear=True), gpu_lease(0, limit=0, say=None): free.append(True)
+        self.engine.meanwhile = probe
+        generate.calibrate(self.work, 'outfit', self.image, 'models')
+        self.assertEqual(free, [True])
 
     def test_a_busy_engine_is_left_alone_and_nothing_is_counted(self):
         self.engine.busy = True

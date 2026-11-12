@@ -18,13 +18,13 @@ A work folder holds one folder per model, and a model's jobs are numbered folder
 import json
 import time
 import uuid
-from contextlib import ExitStack, nullcontext
+from contextlib import ExitStack
 from pathlib import Path
 
 from tools.headkit import comfy, common
 from tools.headkit.comfy_nodes.model_resolution import bind_loader_models, model_choices, path_identity
 from tools.headkit.gpu_lock import locked
-from tools.headkit.shared_comfy import holding, slot
+from tools.headkit.shared_comfy import slot
 from tools.headkit.reference_background import analyze_reference
 
 from . import brief, reference
@@ -52,16 +52,14 @@ def export_settings(graph, settings):
     return apply_export_settings(graph, settings)
 
 
-def engine(url):
-    """The engine's client. Submission waits in shared_comfy.slot for the GPU lease and an idle queue; other jobs are left alone."""
-    return comfy.Client(url)
-
-
-def run(client, url, graph, token, folder, deadline=DEADLINE, poll=POLL):
+def run(client, url, graph, token, folder, lease, deadline=DEADLINE, poll=POLL):
     """Post one job and wait for it: (prompt id, history entry, names of the files fetched into `folder`,
-    seconds). A job is posted once and never again."""
-    with nullcontext() if holding() else slot(client):
+    seconds). A job is posted once and never again. `lease` holds the shared_comfy.slot the caller waited in; it is
+    let go once the job is queued, so other sessions queue behind the job instead of waiting on the GPU lease."""
+    try:
         response = client.request('/prompt', {'prompt': graph, 'client_id': token})
+    finally:
+        lease.close()
     require(isinstance(response, dict) and response.get('prompt_id') and not response.get('node_errors'),
             'The engine refused the job: ' + json.dumps(response)[:2000])
     prompt_id = response['prompt_id']
@@ -134,15 +132,16 @@ def calibrate(work, model, image, models, url=reference.URL):
     what a geometry or appearance job is given, and are registered with the image's brief."""
     image = Path(image).resolve()
     document, sealed = brief.admit(image, Path(work) / model)
-    client = engine(url)
-    with slot(client):  # GPU lease and an idle queue before any job folder exists
+    client = comfy.Client(url)
+    with ExitStack() as lease:
+        lease.enter_context(slot(client))  # GPU lease and an idle queue before any job folder exists
         work, folder, token, prefix = job(work, model, 'calibrate')
         record = started('calibrate', model, token, image, document)
         decision = analyze_reference(image)
         staged = reference.upload(url, image, 'reference.png', prefix)
         graph, pins = bound(comfy.compile_graph('calibrate', PROFILE, {'geometry': staged, 'detail': staged, 'mask': staged}, prefix, background=decision), models)
         record.update(background={key: decision[key] for key in ('route', 'reason', 'size')}, models=pins)
-        done = run(client, url, graph, token, folder)
+        done = run(client, url, graph, token, folder, lease)
         record['previews'] = {key: value.get('text') for key, value in done[1].get('outputs', {}).items() if 'text' in value}
         brief.register(sealed, *[folder / name for name in done[2] if name.lower().endswith('.png')])
         return finished(folder, record, done)
@@ -168,7 +167,10 @@ def geometry(work, model, image, fov, models, url=reference.URL):
     spelling of it cannot start a second history."""
     image = Path(image).resolve()
     document, _ = brief.admit(image, named(work, model))
-    with ExitStack() as held:
+    client = comfy.Client(url)
+    with ExitStack() as lease, ExitStack() as held:
+        # The GPU lease and an idle queue first: the ledger is held only while an attempt is recorded and run.
+        lease.enter_context(slot(client))
         try:
             held.enter_context(locked(Path(work).resolve() / LEDGER))
         except FileExistsError:
@@ -177,8 +179,6 @@ def geometry(work, model, image, fov, models, url=reference.URL):
         rows = ledger['models'].setdefault(model, [])
         require(not any(row['state'] in OUTSTANDING for row in rows), f'An earlier attempt on {model} has no known outcome: reconcile it first')
         require(len(rows) < MAXIMUM, f'{model} has had its {MAXIMUM} geometry attempts')
-        client = engine(url)
-        held.enter_context(slot(client))  # wait for the GPU and the queue before the attempt is recorded
         work, folder, token, prefix = job(work, model, 'geometry')
         save = lambda: common.write(work / LEDGER, ledger)  # whole or not at all: a write cut short leaves the last one
         record = started('geometry', model, token, image, document)
@@ -193,7 +193,7 @@ def geometry(work, model, image, fov, models, url=reference.URL):
         row['state'] = 'submitted'
         save()
         try:
-            done = run(client, url, graph, token, folder)
+            done = run(client, url, graph, token, folder, lease)
         except Exception as error:
             row['error'] = str(error)[:500]
             save()
@@ -208,8 +208,9 @@ def appearance(work, model, image, fov, shape, models, url=reference.URL):
     image, shape = Path(image).resolve(), Path(shape).resolve()
     document, _ = brief.admit(image, Path(work) / model)
     require(shape.is_file(), f'{shape} is not a saved shape')
-    client = engine(url)
-    with slot(client):  # GPU lease and an idle queue before any job folder exists
+    client = comfy.Client(url)
+    with ExitStack() as lease:
+        lease.enter_context(slot(client))  # GPU lease and an idle queue before any job folder exists
         work, folder, token, prefix = job(work, model, 'appearance')
         record = started('appearance', model, token, image, document)
         pin = {'path': str(shape), 'sha256': brief.digest(shape)}
@@ -217,7 +218,7 @@ def appearance(work, model, image, fov, shape, models, url=reference.URL):
         graph, pins = bound(comfy.compile_graph('appearance', PROFILE, {'detail': staged}, prefix, fov=fov, shape=pin), models)
         record.update(fov=fov, shape=pin, models=pins)
         (folder / 'graph.json').write_text(json.dumps(graph, indent=1), encoding='utf-8')
-        return finished(folder, record, run(client, url, graph, token, folder))
+        return finished(folder, record, run(client, url, graph, token, folder, lease))
 
 
 def export(work, model, mesh, faces, fill=None, url=reference.URL):
@@ -226,8 +227,9 @@ def export(work, model, mesh, faces, fill=None, url=reference.URL):
     work, mesh = Path(work).resolve(), Path(mesh).resolve()
     require(mesh.is_file() and mesh.is_relative_to(work / model), f'{mesh} is not a mesh of {model}')
     require(isinstance(faces, int) and faces > 0, 'The number of faces is a whole number')
-    client = engine(url)
-    with slot(client):  # GPU lease and an idle queue before any job folder exists
+    client = comfy.Client(url)
+    with ExitStack() as lease:
+        lease.enter_context(slot(client))  # GPU lease and an idle queue before any job folder exists
         work, folder, token, prefix = job(work, model, 'export')
         settings = {'remeshResolution': 768, 'targetFaceCount': faces}
         if fill is not None:
@@ -236,4 +238,4 @@ def export(work, model, mesh, faces, fill=None, url=reference.URL):
         graph = export_settings(comfy.compile_graph('export', PROFILE, {}, prefix, source=pin), settings)
         record = {'stage': 'export', 'model': model, 'token': token, 'route': 'direct, unguarded', 'settings': settings, 'source': pin}
         (folder / 'graph.json').write_text(json.dumps(graph, indent=1), encoding='utf-8')
-        return finished(folder, record, run(client, url, graph, token, folder))
+        return finished(folder, record, run(client, url, graph, token, folder, lease))

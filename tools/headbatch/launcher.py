@@ -23,7 +23,7 @@ GPU_JOB = Path(__file__).with_name('gpu_job.py')
 FINISHED_STAGES = ('export', 'native')  # the spooler or a person takes these on; a render waits for its review (RUNBOOK 63)
 LOCK_POLL_SECONDS = 2
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
-GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'gpu_lock', 'shared_comfy', 'attestation', 'common', 'gltf', 'occiput', 'source_inventory', 'diagnostics', 'rays'))
+GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'gpu_lock', 'shared_comfy', 'attestation', 'common', 'gltf', 'occiput', 'source_inventory', 'diagnostics', 'rays'))+('tools/shared_tools.py',)
 DESIGN_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('run_headkit', '__init__', '__main__', 'common', 'comfy', 'gpu_lock', 'shared_comfy', 'attestation', 'design', 'source_inventory'))+('tools/shared_tools.py',)
 DEFAULT_GPU_STAGES = 'calibrate,geometry,appearance'
 
