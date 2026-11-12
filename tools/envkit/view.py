@@ -94,7 +94,8 @@ def eye(text):
 
 def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
     """Pictures `<name>-<label>.png` of a game set's model as it will ship (retouched, closed, with its fence sheets)
-    from stated eyes (`eye`): its picture alone, nearest face in front, see-through where the picture is. Drawn in
+    from stated eyes (`eye`): its picture alone, nearest face in front, see-through where the picture is, and a face seen from
+    behind not drawn, as the game leaves it. Drawn in
     software a face at a time, so `reach` keeps a large model to what is about the target. Returns {pictures, faces}."""
     from PIL import Image
     require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
@@ -113,7 +114,10 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800)):
         require(np.linalg.norm(right) > 1e-6, f'The eye {label} looks straight up or down: move it a little to the side'); right /= np.linalg.norm(right); up = np.cross(right, ahead)
         rel = points - at; depth = rel @ ahead; focal = high / 2 / np.tan(np.radians(fov) / 2)
         sx = wide / 2 + (rel @ right) / np.maximum(depth, 1e-6) * focal; sy = high / 2 - (rel @ up) / np.maximum(depth, 1e-6) * focal
-        near = (np.linalg.norm(points[faces].mean(1) - target, axis=1) < reach) & (depth[faces] > 0.3).all(1)
+        # The game draws a face from the side its corners run counter-clockwise on, and nothing from behind: so does this. A
+        # fence's sheets have a face each way for that reason (`convert.sheets`), and a wall seen from inside is not there.
+        corner = points[faces]; front = (np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]) * (at - corner[:, 0])).sum(1) > 0
+        near = (np.linalg.norm(points[faces].mean(1) - target, axis=1) < reach) & (depth[faces] > 0.3).all(1) & front
         image = np.zeros((high, wide, 3), np.uint8); image[:] = (40, 44, 52); buffer = np.full((high, wide), np.inf)
         for number in np.flatnonzero(near):
             face = faces[number]; a, b, c = np.stack([sx[face], sy[face]], 1)

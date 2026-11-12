@@ -69,12 +69,12 @@ class ViewTests(unittest.TestCase):
         for text in ('front', 'front=0,-4,1', '=0,-4,1,0,0,1', 'front=0,-4,1,0,0,x', 'front=0,0,1,0,0,1', 'front=0,-4,1,0,0,1,0', 'front=0,-4,1,0,0,1,50,0', 'front=0,-4,1,0,0,1,50,3,9'):
             with self.assertRaisesRegex(ValueError, 'An eye'):
                 view.eye(text)
-        told = view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye('front=0,-4,1,0,0,1')], size=(160, 100))
+        told = view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye('front=0,4,1,0,0,1')], size=(160, 100))
         self.assertEqual(([Path(path).name for path in told['pictures']], told['faces']), (['ek_wall-front.png'], {'front': 2}))
         with Image.open(told['pictures'][0]) as picture:
             self.assertEqual(picture.size, (160, 100)); colours = {colour for _, colour in picture.convert('RGB').getcolors(1 << 20)}
         self.assertTrue({(10, 20, 30), (200, 180, 160), (40, 44, 52)} <= colours)  # the set's paint, the picture as generated, and nothing behind them
-        for said, eyes in (('Nothing of ek_wall is seen from the eye away', ['away=0,-4,1,0,-8,1']), ('looks straight up or down', ['down=0,0,9,0,0,1']), ('Give an eye', [])):
+        for said, eyes in (('Nothing of ek_wall is seen from the eye away', ['away=0,4,1,0,8,1']), ('Nothing of ek_wall is seen from the eye behind', ['behind=0,-4,1,0,0,1']), ('looks straight up or down', ['down=0,0,9,0,0,1']), ('Give an eye', [])):
             with self.assertRaisesRegex(ValueError, said):
                 view.perspective(self.models, self.root, 'ek_wall', self.root / 'eyes', [view.eye(text) for text in eyes], size=(160, 100))
         with self.assertRaisesRegex(ValueError, 'No such model'):

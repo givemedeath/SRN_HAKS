@@ -186,8 +186,9 @@ def tiles(packs, tileset, numbers, output, *, tool=None):
         if source is None:
             row['error'] = 'model not in the packs'
         else:
+            target.unlink(missing_ok=True)  # what an earlier run left is not what this one made
             result = subprocess.run([str(tool), 'decompile', '--overwrite', str(source), str(target)], capture_output=True, text=True)
-            if target.is_file():
+            if result.returncode == 0 and target.is_file():
                 row['lines'] = told(target.read_text(encoding='cp1252', errors='replace'))
             else:
                 row['error'] = 'decompile failed: ' + (result.stdout + result.stderr)[-300:]

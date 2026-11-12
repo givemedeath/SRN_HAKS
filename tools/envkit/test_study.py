@@ -114,6 +114,10 @@ class StudyTests(unittest.TestCase):
         self.assertEqual(rows[0]['record'], {'Model': 'tst01_a01', 'Doors': None, 'MainLight1': None, 'SourceLight1': None, 'AnimLoop1': None, 'PathNode': 'L', 'Orientation': '0', 'ImageMap2D': 'mi_a01'})
         self.assertEqual((rows[0]['lines'], rows[0]['minimap']), (['node dummy t', '    parent NULL'], {'file': 'mi_a01.tga', 'size': [16, 16], 'bits': 24, 'type': 0}))
         self.assertEqual((rows[1]['doors'], rows[1]['error'], 'minimap' in rows[1]), ([{'Type': '58', 'X': '0.0'}], 'model not in the packs', False))
+        self.assertTrue((self.packs / 'out' / 'tst01_a01.mdl').is_file())
+        for code in ('import sys\nsys.exit("no such model")\n', 'import sys\nopen(sys.argv[-1], "w").write("node dummy t\\n")\nsys.exit(1)\n'):
+            tool.write_text(code, encoding='utf-8'); (row,) = study.tiles(self.packs, 'tst01', [0], self.packs / 'out', tool=launcher)  # the model the run before left is not this run's
+            self.assertNotIn('lines', row); self.assertIn('decompile failed', row['error'])
         with self.assertRaisesRegex(ValueError, 'tst01 has no tile 9'):
             study.tiles(self.packs, 'tst01', [0, 9], self.packs / 'out', tool=launcher)
 
