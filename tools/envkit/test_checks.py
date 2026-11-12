@@ -69,6 +69,17 @@ class CheckTests(unittest.TestCase):
         self.assertIn('SetCutsceneMode(pc,FALSE)', near[0]['run']); self.assertFalse(any('run' in shot for shot in near[1:]))  # the player is freed once: upper storeys hide only outside cutscene mode
         doorless = checks.group_shots(2, 2, None, 'near'); self.assertEqual(doorless[0]['label'], 'near-front'); self.assertIn('run', doorless[0])
 
+    def test_a_group_is_laid_with_the_packs_tiles_only_where_the_pack_holds_this_build(self):
+        text = '[TILE0]\r\nModel=tdg01_a01_01\r\n[TILE1]\r\nModel=ek_hall_t00\r\nWalkMesh=msb01\r\n[TILE1DOOR0]\r\nType=58\r\n[TILE2]\r\nModel=ek_hall_t01\r\n[TILE3]\r\nModel=ek_shop_t00\r\n'
+        tiles = [{'model': 'ek_hall_t00', 'column': 0, 'row': 0}, {'model': 'ek_hall_t01', 'column': 1, 'row': 0}]
+        self.assertEqual(checks.laid_tiles(text, 'dgt04', 'ek_hall', tiles, 3, 3), {(3, 3): 1, (4, 3): 2})
+        with self.assertRaisesRegex(ValueError, 'install the group first'):
+            checks.laid_tiles(text, 'dgt04', 'ek_yard', tiles, 3, 3)
+        with self.assertRaisesRegex(ValueError, 'another build of ek_hall: its tile 3 is ek_shop_t00, not ek_hall_t02'):  # built again as three tiles, not installed again
+            checks.laid_tiles(text, 'dgt04', 'ek_hall', [*tiles, {'model': 'ek_hall_t02', 'column': 2, 'row': 0}], 3, 3)
+        with self.assertRaisesRegex(ValueError, 'its tile 3 is None'):
+            checks.laid_tiles(text.split('[TILE3]')[0], 'dgt04', 'ek_hall', [*tiles, {'model': 'ek_hall_t02', 'column': 2, 'row': 0}], 3, 3)
+
     def test_doors_are_chained_through_waypoints_in_front_of_them(self):
         walk = [('ektdg_a', door(45.0, 50.0)), ('ektdg_a', door(20.0, 30.0, bearing=-math.pi / 2)), ('ektud_a', door(40.0, 40.0))]
         waypoints = checks.chained(walk)
@@ -84,9 +95,10 @@ class CheckTests(unittest.TestCase):
             checks.chained(walk[:1])
 
     def test_the_watch_logs_where_the_player_is_and_the_stages_are_read_back(self):
-        script = checks.watch_script(3, (45.0, 53.5), 270.0, 20, 8.0)
+        script = checks.watch_script(3, 270.0, 20, 8.0)
         self.assertIn('Probe("ek_d1"); Probe("ek_d2"); Probe("ek_d3");', script); self.assertIn('if(n>=20)', script)
-        self.assertIn('Vector(45.000,53.500,0.0),270.0', script); self.assertIn('DelayCommand(8.0,Place(pc))', script); script.encode('ascii')
+        self.assertIn('JumpToLocation(GetLocation(GetWaypointByTag("ek_w1")))', script)  # the first door's waypoint, in whichever area it is
+        self.assertIn('DelayCommand(8.0,Place(pc))', script); script.encode('ascii')
         prefix = prop_fixture.LOG_PREFIX
         lines = [f'{prefix} enter', f'{prefix} probe=ek_d1 valid=1 doorarea=ektdg_a target=ek_w2 targetarea=ektdg_a z= 0.000',
                  f'{prefix} watch=0 area=ektdg_a x= 45.000 y= 53.500 z=  0.000', f'{prefix} watch=1 area=ektdg_a x= 45.100 y= 53.400 z=  0.000',

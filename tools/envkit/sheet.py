@@ -10,8 +10,9 @@ with its triangle target, and the building's views and the ceiling it is remeshe
 A prop's key is `<prefix>-<asset>-a1` and the building's `<prefix>-building-a1`, its remesh that with `-remesh`,
 unless the plan says otherwise (`key`, `remesh`): Meshy's CLI never sends a key twice, so a call that was refused
 goes again under a new one, and the plan is where that is written down. `submit` sends whatever the ledger does not
-hold yet; `collect` waits for each, downloads the props, keeps the building's full generation as a master, remeshes it
-and downloads that. Both are safe to run again. This was a one-off script for the Stuffer Shack and the Ares Depot
+hold yet, as far as Meshy's queue has room (`meshy.QUEUE`); `collect` waits for each, downloads the props, keeps the
+building's full generation as a master, remeshes it and downloads that. Both are safe to run again, and a sheet of
+more calls than the queue holds is run by turns: submit, collect, submit, collect. This was a one-off script for the Stuffer Shack and the Ares Depot
 (2026-11-10, 2026-11-11) and is here so that the next sheet is run from the repository."""
 import json
 import re
@@ -21,6 +22,7 @@ from . import meshy, reference, require
 
 PREFIX = re.compile(r'[a-z0-9]{2,12}')
 WAITING = ('submitted', 'pending', 'in_progress')
+QUEUED = (*WAITING, 'uncertain')  # what may be holding a place in Meshy's queue
 
 
 def load_plan(path):
@@ -58,7 +60,8 @@ def load_plan(path):
 
 def image(selected, name):
     """The one reference image chosen for an asset: `<name>-s<seed>-b0.png` in the folder of selected references."""
-    found = sorted(Path(selected).glob(name + '-s*-b0.png'))
+    named = re.compile(re.escape(name) + r'-s\d+-b0\.png')  # `fence-s*` alone would take fence-section's image too
+    found = sorted(path for path in Path(selected).glob(name + '-s*-b0.png') if named.fullmatch(path.name))
     require(len(found) == 1, f'One selected reference is needed for {name}; found {len(found)} in {selected}')
     return found[0]
 
@@ -81,21 +84,28 @@ def cost(ledger, plan):
 def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
     """Send every prop and the building that the ledger does not hold yet. Every reference is found before anything is
     sent, and the whole of what is unsent must fit under the cap, so a sheet is not left half submitted for want of an
-    image or of credits. Returns the keys sent."""
+    image or of credits. No more is sent than Meshy's queue has room for, counting every call of the ledger that has
+    not finished: the Ares Depot's eleventh call was refused and its key was lost to the CLI (2026-11-11). What is
+    held back is said, and goes with the next `submit` after a `collect`. Returns the keys sent."""
     work = Path(work); work.mkdir(parents=True, exist_ok=True); sent = []
     pictures = {name: image(selected, name) for name in plan['props']}
     views = [image(selected, name) for name in plan['building']['views']] if plan['building'] else []
     need = cost(ledger, plan); ledger.load()
     require(ledger.committed() + need <= ledger.data['cap'],
             f'The plan needs {need} more credits and the ledger has {ledger.data["cap"] - ledger.committed()} left under its cap of {ledger.data["cap"]}')
-    for name, row in plan['props'].items():
-        if state(ledger, row['key']) is None:
-            task = meshy.submit(ledger, row['key'], name, 'prop', meshy.prop_arguments(pictures[name], row['triangles']), work, run=run)
-            sent.append(row['key']); say(json.dumps({'key': row['key'], 'task': task}), flush=True)
-    if plan['building'] and state(ledger, plan['building']['key']) is None:
-        key = plan['building']['key']
-        task = meshy.submit(ledger, key, 'building', 'building', meshy.building_arguments(views), work, run=run)
+    calls = [(row['key'], name, 'prop', lambda name=name, row=row: meshy.prop_arguments(pictures[name], row['triangles'])) for name, row in plan['props'].items()]
+    if plan['building']:
+        calls.append((plan['building']['key'], 'building', 'building', lambda: meshy.building_arguments(views)))
+    held = []
+    for key, asset, operation, arguments in calls:
+        if state(ledger, key) is not None:
+            continue
+        if sum(row['state'] in QUEUED for row in ledger.data['entries']) >= meshy.QUEUE:  # `state` has just read the ledger afresh
+            held.append(key); continue
+        task = meshy.submit(ledger, key, asset, operation, arguments(), work, run=run)
         sent.append(key); say(json.dumps({'key': key, 'task': task}), flush=True)
+    if held:
+        say(json.dumps({'held': held, 'why': f'Meshy holds {meshy.QUEUE} tasks at once: collect, then submit again'}), flush=True)
     return sent
 
 

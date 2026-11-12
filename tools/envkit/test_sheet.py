@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from . import meshy, sheet
 from .test_meshy import FakeMeshy
@@ -59,6 +60,8 @@ class SheetTests(unittest.TestCase):
         (self.selected / 'gate-s101-b0.png').unlink(); fresh = meshy.Ledger.create(self.root / 'fresh.json', 100)
         with self.assertRaisesRegex(ValueError, 'One selected reference is needed for gate'):
             sheet.submit(fresh, plan, self.selected, self.work, run=fake, say=self.say)
+        (self.selected / 'desk-shelf-s101-b0.png').write_bytes(b'png')  # another asset's image, whose name begins as this one's does
+        self.assertEqual(sheet.image(self.selected, 'desk').name, 'desk-s101-b0.png')
         (self.selected / 'desk-s102-b0.png').write_bytes(b'png')
         with self.assertRaisesRegex(ValueError, 'needed for desk; found 2'):
             sheet.image(self.selected, 'desk')
@@ -108,6 +111,18 @@ class SheetTests(unittest.TestCase):
 
         told = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=RemeshFails(), say=self.say)
         self.assertEqual(told, {'failed': ['yd-building-a1-remesh'], 'downloaded': ['yd-building-a1'], 'unsent': []})  # the generation is paid for and kept: a new remesh key is all it needs
+
+    def test_no_more_is_sent_than_meshys_queue_holds(self):
+        """The Ares Depot's eleventh call was refused for a full queue, and the CLI never sends a refused key again
+        (2026-11-11)."""
+        plan = self.plan(); fake = FakeMeshy(); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
+        with mock.patch.object(meshy, 'QUEUE', 2):
+            self.assertEqual(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say), ['yd-desk-a1', 'yd-gate-a2'])
+            self.assertEqual(self.said[-1]['held'], ['yd-building-a1']); self.assertEqual(len(fake.calls), 2)
+            self.assertEqual(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say), [])  # the queue is still full
+            told = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
+            self.assertEqual(told, {'failed': [], 'downloaded': ['yd-desk-a1', 'yd-gate-a2'], 'unsent': ['yd-building-a1']})
+            self.assertEqual(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say), ['yd-building-a1'])  # what finished has left the queue
 
     def test_the_plan_the_ares_depot_was_run_from_reads(self):
         plan = sheet.load_plan(Path(__file__).with_name('sets') / 'ares-depot-meshy.json')

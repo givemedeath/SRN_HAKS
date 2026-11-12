@@ -34,6 +34,7 @@ KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
 # Answers that mean the task was not created: no credential, no credits, not allowed, queue full. The Ares Depot run
 # (2026-11-11) hit the plan's ten queued tasks; the eleventh came back 429 and had been left counted as uncertain.
 REFUSED = (401, 402, 403, 429)
+QUEUE = 10  # the tasks Meshy holds for this plan at once: the next is refused, and the CLI never sends a refused key again
 IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
 
 

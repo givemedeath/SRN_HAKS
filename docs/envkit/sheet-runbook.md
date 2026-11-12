@@ -43,11 +43,13 @@ envkit sheet collect --plan ... --ledger <ledger> --root <root>
 
 `status` says what the sheet's unsent calls cost against what the cap has left. Raise the cap only on the
 user's word, and say so in the reason. `submit` finds every reference and checks the whole of what is unsent
-against the cap before it sends anything; a call already in the ledger is not sent again. Meshy queues ten
-tasks: a call refused for a full queue is released, and `submit` run again sends it. `collect` waits for each
-call, downloads the models to `<root>/meshy/models/<key>`, keeps the building's full generation in
-`<root>/meshy/masters/<key>` and remeshes it to the plan's triangles. One failed model does not stop the rest;
-give it a new key in the plan (`"key": "<prefix>-<asset>-a2"`) to send it again.
+against the cap before it sends anything; a call already in the ledger is not sent again. Meshy holds ten
+tasks at once, so `submit` sends what the queue has room for and says which calls it held back: run `collect`,
+then `submit` again, until `status` shows nothing unsent. `collect` waits for each call, downloads the models to
+`<root>/meshy/models/<key>`, keeps the building's full generation in `<root>/meshy/masters/<key>` and remeshes
+it to the plan's triangles. One failed model does not stop the rest, and `failed` lists it on every run until it
+is dealt with. The CLI never sends a key twice, so a call that failed or was refused goes again under a new key
+in the plan (`"key": "<prefix>-<asset>-a2"`; for a failed remesh, the building's `"remesh"` key alone).
 
 ## 3. The game set
 

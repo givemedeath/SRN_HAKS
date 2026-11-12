@@ -94,11 +94,16 @@ def props(game, repo, base, name, models_path, built, wanted, *, night=False):
     return _run(game, record, base / 'fixtures' / name)
 
 
+def lit_props(models):
+    """The lit props of a game set, in the order the lights check stands and tags them."""
+    return [model for model, stated in models.items() if stated.get('lit') and stated.get('placeable')]
+
+
 def rows_of_lights(models, sizes, tags, halos):
     """(props, shots, people) for the lit props of a game set in rows of `ROW`, by night: every row with its lights on,
     then put out by script, then on again. tags: {model: script expression for the placed object}; halos: the models
     that have a halo sheet."""
-    lit = [model for model, stated in models.items() if stated.get('lit') and stated.get('placeable')]
+    lit = lit_props(models)
     require(lit, 'The game set has no lit props'); rows = [lit[index:index + ROW] for index in range(0, len(lit), ROW)]
     require(len(rows) <= 4, 'More lit props than one check area holds: twenty at most')
     props, people = [], []
@@ -122,7 +127,7 @@ def lights(game, repo, base, name, models_path, built, *, pack='srn_placeable'):
     """The lit props of a game set as the pack holds them, by night: lit, put out by script, and on again. `built` (the
     folders `game` converted into, the first that holds a model serving) is read for their sizes only."""
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path); pack = repo / pack
-    lit = [model for model, stated in models.items() if stated.get('lit') and stated.get('placeable')]
+    lit = lit_props(models)
     resources = base / 'fixtures' / f'{name}-resources'; resources.mkdir(parents=True, exist_ok=True)
     for path in pack.glob('ek_off*'):  # the dark halo the lights-out set swaps in
         shutil.copyfile(path, resources / path.name)
@@ -181,6 +186,21 @@ def _ground(repo, tileset, resources):
     return text
 
 
+def laid_tiles(set_text, tileset, model, tiles, column0, row0):
+    """{(column, row): tile number} for a built group laid with its south-west tile at (column0, row0), from the
+    tileset's set file. The numbers are the pack's, so the pack must hold this very build: the tiles `tiles` (the
+    built report's) in the same order from the group's first. A group built again with another split and not installed
+    again would be laid with the old tiles, some of them not its own."""
+    require(f'Model={model}_t00' in set_text, f'{tileset} does not hold {model} yet: install the group first')
+    first = int(set_text[:set_text.index(f'Model={model}_t00')].rsplit('[TILE', 1)[1].split(']')[0]); laid = {}
+    for index, one in enumerate(tiles):
+        block = set_text.split(f'[TILE{first + index}]', 1)
+        held = block[1].split('[', 1)[0].split('Model=', 1)[-1].split()[0] if len(block) == 2 and 'Model=' in block[1].split('[', 1)[0] else None
+        require(held == one['model'], f'{tileset} holds another build of {model}: its tile {first + index} is {held}, not {one["model"]}; install the group again')
+        laid[(column0 + one['column'], row0 + one['row'])] = first + index
+    return laid
+
+
 def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=9, scale_prop='ek_ss_vending'):
     """A built tile group (`tiles`' folder) laid in an area of `tileset`, which must hold it already (`install`): the
     tile numbers are the pack's, the models and walkmeshes the built ones. mode: day, night or near."""
@@ -189,11 +209,9 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     require(model in models and models[model].get('tiles'), model + ' is not a tile group of the game set')
     resources = base / 'fixtures' / f'{name}-resources'; resources.mkdir(parents=True)
     text = _ground(repo, tileset, resources); folder = Path(built) / model; made = json.loads((folder / 'report.json').read_text(encoding='utf-8'))
-    require(f'Model={model}_t00' in text, f'{tileset} does not hold {model} yet: install the group first')
-    first = int(text[:text.index(f'Model={model}_t00')].rsplit('[TILE', 1)[1].split(']')[0]); column0 = row0 = 3; laid = {}
+    column0 = row0 = 3; laid = laid_tiles(text, tileset, model, made['tiles'], column0, row0)
     require(max(made['columns'], made['rows']) + column0 + 1 <= size, 'The group does not fit the check area')
-    for index, one in enumerate(made['tiles']):
-        laid[(column0 + one['column'], row0 + one['row'])] = first + index
+    for one in made['tiles']:
         shutil.copyfile(folder / 'compiled' / f'{one["model"]}.mdl', resources / f'{one["model"]}.mdl')
         shutil.copyfile(folder / 'source' / f'{one["model"]}.wok', resources / f'{one["model"]}.wok')
     for path in [*(folder / 'shared').iterdir(), *(folder / 'source').glob('*.tga')]:
@@ -227,9 +245,10 @@ def chained(doors, *, step=STEP):
     return waypoints
 
 
-def watch_script(count, start, facing, ticks, begin):
-    """The module's entry script: the player stood free at `start`, each door probed, and their place logged every two
-    seconds for `ticks` ticks."""
+def watch_script(count, facing, ticks, begin):
+    """The module's entry script: the player stood free at the first door's waypoint, in whichever area that is (the
+    module's entry area need not be one with a door), each door probed, and their place logged every two seconds for
+    `ticks` ticks."""
     probes = ' '.join(f'Probe("ek_d{index + 1}");' for index in range(count))
     return f'''void Watch(object pc,int n) {{
   object a=GetArea(pc); vector at=GetPosition(pc);
@@ -242,7 +261,7 @@ void Probe(string tag) {{
   WriteTimestampedLogEntry("{fixture.LOG_PREFIX} probe="+tag+" valid="+IntToString(GetIsObjectValid(d))+" doorarea="+GetTag(GetArea(d))+" target="+GetTag(t)+" targetarea="+GetTag(GetArea(t))+" z="+FloatToString(at.z,6,3));
 }}
 void Place(object pc) {{
-  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetArea(pc),Vector({start[0]:.3f},{start[1]:.3f},0.0),{facing:.1f})));
+  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(GetLocation(GetWaypointByTag("ek_w1"))));
   SetCameraHeight(pc,1.5); AssignCommand(pc,SetCameraFacing({facing + 30.0:.1f},9.0,68.0,CAMERA_TRANSITION_TYPE_SNAP));
   {probes}
   DelayCommand(2.0,Watch(pc,0));
@@ -294,9 +313,9 @@ def doors(game, user, captures, *, module='ektool', name='ekdoors', ticks=150):
     waypoints = chained(walk)
     for area in areas:
         gits[area]['WaypointList']['value'] = gits[area]['WaypointList']['value'] + waypoints.get(area, []); write(area + '.git', gits[area])
-    first = waypoints[walk[0][0]][0]; start = (first['XPosition']['value'], first['YPosition']['value'])
+    first = waypoints[walk[0][0]][0]
     facing = math.degrees(math.atan2(first['YOrientation']['value'], first['XOrientation']['value'])) % 360
-    script = work / 'module' / (name + '_en.nss'); script.write_text(watch_script(len(walk), start, facing, ticks, fixture.START), encoding='ascii', newline='\n')
+    script = work / 'module' / (name + '_en.nss'); script.write_text(watch_script(len(walk), facing, ticks, fixture.START), encoding='ascii', newline='\n')
     run([tool('nwn_script_comp'), '--root', game, '--userdirectory', user, '--no-ovr', script])
     require(script.with_suffix('.ncs').is_file(), 'The entry script did not compile'); script.unlink()
     ifo['Mod_OnClientEntr'] = field('resref', name + '_en'); write('module.ifo', ifo)

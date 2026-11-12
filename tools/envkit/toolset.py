@@ -77,11 +77,12 @@ def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None
     for folder in (user / 'modules', user / 'tlk', work / 'json', work / 'module'):
         folder.mkdir(parents=True)
     shutil.copyfile(built / f'{tlk}.tlk', user / 'tlk' / f'{tlk}.tlk')
-    subprocess.run(['cmd', '/c', 'mklink', '/J', str(user / 'hak'), str(built)], check=True, capture_output=True)
     for name, document in documents(tilesets, haks, tlk).items():
         path = work / 'json' / (name + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', work / 'module' / name])
     module = user / 'modules' / f'{MODULE}.mod'; run('nwn_erf', ['-c', '-f', module, '-e', 'MOD', work / 'module'])
+    # Last, so that a prepare that failed leaves a folder with no junction in it: deleting that folder deletes nothing else.
+    subprocess.run(['cmd', '/c', 'mklink', '/J', str(user / 'hak'), str(built)], check=True, capture_output=True)
     launch = [str(Path(game) / 'bin' / 'win32' / 'nwtoolset.exe'), '-userdirectory', str(user)] if game else None
     return {'module': str(module), 'user': str(user), 'launch': launch}
 
