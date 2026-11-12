@@ -69,6 +69,19 @@ def held_out(x, z):
     return x < 0.29 if z < NECK else x < 0.06
 
 
+HEM = 1.30  # where a short sleeve ends: three quarters of the way from the shoulder to the elbow
+
+
+def bare(x, z):
+    """As `inside`, with nothing of the arms between a short sleeve's hem and a glove: the forearms there are the body's."""
+    return inside(x, z) and not (1.0 <= z < HEM and abs(x) > 0.19)
+
+
+def sleeves_only(x, z):
+    """As `bare`, without the gloves: nothing of the arms below the sleeves' hems."""
+    return bare(x, z) and not (z < 1.0 and abs(abs(x) - ARM(z)) < 0.07 and abs(abs(x) - LEG(z)) >= 0.07)
+
+
 def doll(cell=0.02, depth=0.08, inside=inside):
     """A flat figure with shared vertices and no open edge: every cell of a grid that `inside` takes, extruded front
     to back, with a wall wherever a taken cell borders a free one. It is one surface from the feet to the collar,
@@ -155,6 +168,25 @@ class JointTests(unittest.TestCase):
         marks = repose.landmarks(vertices, faces)
         self.assertAlmostEqual(marks['armpit'], ARMPIT, delta=0.03)  # nothing is beside the torso from 0.9 to 1.2 either
         self.assertAlmostEqual(marks['crotch'], CROTCH, delta=0.03)
+
+    def test_an_arm_bare_between_a_short_sleeve_and_a_glove_has_its_joints_where_the_whole_arm_has(self):
+        v, faces = doll(inside=bare)
+        vertices = v * SCALE + SHIFT
+        here, marks = repose.outfit_joints(vertices, faces, self.there)
+        self.assertAlmostEqual((marks['armpit'] - SHIFT[2]) / SCALE, ARMPIT, delta=0.03)  # and not just above the gloves
+        for side in 'lr':
+            for joint, most in (('shoulder', 0.03), ('elbow', 0.04), ('wrist', 0.03), ('tip', 0.01)):
+                apart = float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side])))
+                self.assertLess(apart, most, (joint, side))
+        gloves = repose.past(marks, -1, repose.centreline(marks, -1, marks['armpit'] - 0.005 * marks['height'], 'arm'))
+        self.assertGreater(len(gloves), 10)
+        self.assertLess((gloves[-1, 0] - SHIFT[2]) / SCALE, 1.02)  # the glove, from its upper end down
+        self.assertEqual(len(repose.past(self.marks, -1, repose.centreline(self.marks, -1, self.marks['armpit'] - 0.005 * self.marks['height'], 'arm'))), 0)
+
+    def test_a_short_sleeve_without_a_glove_beyond_it_is_refused(self):
+        v, faces = doll(inside=sleeves_only)
+        with self.assertRaisesRegex(ValueError, 'needs a glove'):
+            repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
 
     def test_an_outfit_without_separate_legs_or_arms_is_refused(self):
         block = join(tube((0, 0, 0), (0, 0, 1.7), 0.2))
