@@ -1,6 +1,6 @@
 {
   "models": {
-    "ek_ad_depot": {"source": "meshy/models/ares-building-a1-remesh", "height": 9.5, "colour": 4096, "lit": [
+    "ek_ad_depot": {"source": "meshy/models/ares-building-a1-remesh2", "height": 9.5, "colour": 4096, "lit": [
       {"part": "roof sign", "box": [[-6.6, 0.0, 4.35], [3.6, 8.1, 5.85]], "gain": 0.8},
       {"part": "tower windows", "box": [[4.4, -1.0, 5.45], [9.0, 8.1, 6.35]], "gain": 0.35}
     ], "halo": {"reach": 0.4, "strength": 0.5, "least": 0.5},
