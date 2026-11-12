@@ -1973,6 +1973,19 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
             with patch.dict(sys.modules, {attested.SESSION_MODULE: types.ModuleType('session')}):
                 with self.assertRaisesRegex(ValueError, 'controlled session'): attested.attested_session(folders)
 
+    def test_attested_census_covers_the_installer_declared_dependency_roots(self):
+        from headkit.comfy_nodes import attested
+        with tempfile.TemporaryDirectory() as tmp:
+            core, kernels = Path(tmp).resolve()/'core', Path(tmp).resolve()/'site/comfy_kitchen'
+            core.mkdir(); kernels.mkdir(parents=True); snapshot = Path(tmp)/'source-roots.json'
+            folders = types.SimpleNamespace(base_path=str(core))
+            self.assertEqual(attested.attested_roots(core, snapshot), [core])            # no installer record: core only
+            snapshot.write_text(json.dumps({'inventory': {'roots': [str(core), str(kernels)]}}), encoding='utf-8')
+            with patch.object(attested, 'capture_inventory', side_effect=lambda c, roots: (c, roots)):
+                self.assertEqual(attested.attested_inventory(folders, snapshot), (core, [core, kernels]))
+            snapshot.write_text(json.dumps({'inventory': {'roots': [str(kernels), str(core)]}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'core first'): attested.attested_roots(core, snapshot)
+
     def test_runtime_endpoint_returns_the_live_deployment_identity(self):
         source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'
         tree = ast.parse(source.read_text(encoding='utf-8'))

@@ -57,7 +57,23 @@ def attested_context(folder_paths, session):
     return dict(session)
 
 
-def attested_inventory(folder_paths):
-    """The source census of the running ComfyUI: its core and every custom node inside it."""
+SOURCE_ROOTS = Path(__file__).resolve().parent/'source-roots.json'
+
+
+def attested_roots(core, snapshot=None):
+    """The source roots the installer declared (`headkit install-nodes` writes them from the bindings): the core
+    first, then dependency roots such as the site-packages folder that holds compiled kernels. The census is
+    taken fresh over them; the approved snapshot pins both the roots and every file."""
+    snapshot = SOURCE_ROOTS if snapshot is None else Path(snapshot)
+    if not snapshot.is_file(): return [core]
+    inventory = json.loads(snapshot.read_text(encoding='utf-8')).get('inventory') or {}
+    roots = [Path(root).resolve(strict=True) for root in inventory.get('roots') or []]
+    require(roots and roots[0] == core and len(set(roots)) == len(roots),
+            'The installed source-roots.json must list this ComfyUI core first; reinstall the adapter')
+    return roots
+
+
+def attested_inventory(folder_paths, snapshot=None):
+    """The source census of the running ComfyUI: its core, every custom node inside it and the declared dependency roots."""
     core = Path(folder_paths.base_path).resolve(strict=True)
-    return capture_inventory(core, [core])
+    return capture_inventory(core, attested_roots(core, snapshot))
