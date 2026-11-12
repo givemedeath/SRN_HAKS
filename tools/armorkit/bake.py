@@ -111,7 +111,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}
-    left = {name for slot in document.get('bare', []) for name in registry.SLOTS[slot]['tokens']}
+    left = left_to_body(document)
     for name, (pv, pf, pc) in result.items():
         if name in left:  # the body's: what the outfit has there is cut off on the joint's plane, and no map is made of it
             say(f'{name}: left to the body, {len(pf)} faces of the outfit cut off')
@@ -152,16 +152,23 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 shows = texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], first, size)
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
-    return bared(parts, document, body_pack, body_textures, body, bones, say), bones
+    return skinned(parts, document, body_pack, body_textures, body, bones, say), bones
 
 
-def bared(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None):
-    """The baked parts as the brief gives slots to the body: none for a slot it leaves to it (`bare`), and the
-    body's own part beside the outfit's in a slot it shares with the body's skin (`skin`, `bodyskin.worn`)."""
+def left_to_body(document):
+    """The parts of the slots the brief leaves to the body (`bare`): `bake` makes none of them."""
+    return {name for slot in document.get('bare', []) for name in registry.SLOTS[slot]['tokens']}
+
+
+def shared_with_body(document):
+    """The parts of the slots the brief shares with the body's skin (`skin`)."""
+    return {name for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens']}
+
+
+def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None):
+    """The baked parts with the body's own part beside the outfit's in each slot the brief shares with the
+    body's skin (`skin`, `bodyskin.worn`)."""
     parts = dict(parts)
-    for name in [name for slot in document.get('bare', []) for name in registry.SLOTS[slot]['tokens'] if name in parts]:
-        gone = parts.pop(name)
-        say(f'{name}: left to the body, {len(gone["f"])} faces of the outfit cut off')
     for slot in document.get('skin', []):
         for name in registry.SLOTS[slot]['tokens']:
             if name in parts:
@@ -312,7 +319,8 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     """Bake one outfit into `output` and check it: the record, also written as `<output>/bake.json`.
 
     With `mesh`, `colours`, `raw` and `xatlas` the outfit is baked (`bake`) and, where `kept` names a folder,
-    stored there; without them the parts stored in `kept` are tinted and written again. `body_textures` is
+    stored there; without them the parts stored in `kept` are tinted and written again, if they were baked
+    with the slots the brief leaves to the body or shares with its skin. `body_textures` is
     the folder of the body's material files and maps, for a brief that shows the body's skin. `packs` are the pack
     folders a model's name may not clash with. With `game`, the game's install folder, the models are
     compiled into `<output>/resources` (`export.compile_models`, with `resources` to look animations up in):
@@ -327,6 +335,9 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
             store(parts, kept)
     else:
         parts, bones = stored(kept), measure.body(body_pack, body)[0]
+        require(not left_to_body(document) & set(parts)
+                and all(('skin' in part) == (name in shared_with_body(document)) for name, part in parts.items()),
+                f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,

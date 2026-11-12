@@ -87,6 +87,12 @@ class BodySkinTests(unittest.TestCase):
         banded = np.concatenate([sleeve[0], band_only[0]]), np.concatenate([sleeve[1], band_only[1] + len(sleeve[0])])
         self.assertTrue(np.array_equal(bodyskin.shown(own['v'], own['f'], *banded, start, end, band=0.04), kept))
         self.assertTrue(bodyskin.shown(own['v'], own['f'], *band_only, start, end).all())  # and with no sleeve above it hides nothing
+        high = tube(start, (0, 0, 1.42), 0.07, around=24, along=4)[:2]  # a sleeve to a quarter of the arm, and a band in its upper half
+        upper = tube((0, 0, 1.37), (0, 0, 1.33), 0.07, around=24, along=2)[:2]
+        both = np.concatenate([high[0], upper[0]]), np.concatenate([high[1], upper[1] + len(high[0])])
+        alone, low = bodyskin.shown(own['v'], own['f'], *high, start, end, band=0.01), own['v'][own['f']][:, :, 2].min(axis=1)
+        self.assertTrue(alone[(low > 1.37 - 1e-6) & (top < 1.42 + 1e-6)].all())  # the skin between hem and band is seen
+        self.assertTrue(np.array_equal(bodyskin.shown(own['v'], own['f'], *both, start, end, band=0.01), alone))
         wide = tube((0, 0, 1.32), (0, 0, 1.2), 0.07, around=24, along=6)[:2]  # a guard of 12 cm hides its middle, 4 cm from either end
         top = own['v'][own['f']][:, :, 2].max(axis=1)
         low = own['v'][own['f']][:, :, 2].min(axis=1)
@@ -141,6 +147,13 @@ class BodySkinTests(unittest.TestCase):
         for key in ('added', 'domed'):
             self.assertFalse(both[key][skin].any())
         self.assertTrue((both['trimmed'][skin] == -1).all() and len(both['src']) == len(both['v']))
+
+    def test_the_skin_keeps_half_the_bodys_texels_whatever_size_the_sleeve_was_laid_out_at(self):
+        mine, own, both = self.worn(size=2)  # a sleeve at 2 texels a side, the body's arm at 8
+        self.assertEqual(len(both['rgb']), 8)
+        self.assertTrue(np.array_equal(both['skin_tint'][4:, 4:, 0], np.round(bodyskin.resized(own['tint'][..., 0], 4)).astype(np.uint8)))
+        self.assertTrue(np.array_equal(both['rgb'][:4, :4], bodyskin.resized(mine['rgb'], 4)))  # the sleeve's texels repeated
+        self.assertTrue(np.allclose(both['uv'][:3], mine['uv'] / 2))
 
     def test_at_the_largest_texture_the_outfits_maps_are_halved_to_make_room(self):
         mine, own, both = self.worn(size=8, limit=8)

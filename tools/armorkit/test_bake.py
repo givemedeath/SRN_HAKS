@@ -137,13 +137,14 @@ class BakeTests(unittest.TestCase):
         from .test_bodyskin import arm
         bone = lambda *place: np.block([[np.eye(3), np.array(place, float)[:, None]], [np.zeros((1, 3)), np.ones((1, 1))]])
         bones = {'torso_g': np.eye(4), 'lbicep_g': bone(0, 0, 1.5), 'lforearm_g': bone(0, 0, 1.2), 'lhand_g': bone(0, 0, 0.9)}
-        parts = {'chest': part(), 'bicepl': part(), 'forel': part(3), 'handl': part()}
+        parts = {'chest': part(), 'bicepl': part(), 'handl': part()}
         document, said = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}, []
+        self.assertEqual((bake.left_to_body(document), bake.shared_with_body(document)), ({'forel', 'forer'}, {'bicepl', 'bicepr'}))
         with mock.patch.object(bodyskin, 'body_part', lambda pack, maps, body, name, rig: arm()):
-            out = bake.bared(parts, document, 'pack', 'maps', 'pmh0', bones, say=said.append)
-            self.assertEqual(bake.bared(parts, {'model': 'outfit', 'materials': []}, 'pack', None, 'pmh0', bones), parts)  # a brief that names neither
-        self.assertEqual((sorted(out), sorted(parts)), (['bicepl', 'chest', 'handl'], ['bicepl', 'chest', 'forel', 'handl']))
-        self.assertEqual(said[0], 'forel: left to the body, 3 faces of the outfit cut off')
+            out = bake.skinned(parts, document, 'pack', 'maps', 'pmh0', bones, say=said.append)
+            self.assertEqual(bake.skinned(parts, {'model': 'outfit', 'materials': []}, 'pack', None, 'pmh0', bones), parts)  # a brief that names neither
+        self.assertEqual(sorted(out), ['bicepl', 'chest', 'handl'])
+        self.assertTrue(said[0].startswith("bicepl: 384 of the body's 384 faces"), said)
         arm_part = out['bicepl']
         self.assertEqual((int(arm_part['skin'].sum()), len(arm_part['rgb']), 'skin' in out['chest']), (len(arm()['f']), 8, False))
         with tempfile.TemporaryDirectory() as folder:
@@ -191,6 +192,19 @@ class BakeTests(unittest.TestCase):
             self.assertEqual((record['compiled'], record['models'], record['gates']['passed']),
                              (2, {'chest': 'pmh0_chest332', 'pelvis': 'pmh0_pelvis332'}, True))
             self.assertEqual(json.loads((output / 'bake.json').read_text(encoding='utf-8')), record)
+
+    def test_kept_parts_baked_for_other_slots_left_to_the_body_or_its_skin_are_refused(self):
+        skin = dict(part(), skin=np.zeros(1, bool))
+        document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
+        cases = (({'chest': part(), 'forel': part()}, document),  # a part the brief now leaves to the body
+                 ({'chest': part(), 'bicepl': part()}, document),  # an upper arm without the skin the brief now shows
+                 ({'chest': part(), 'bicepl': skin}, {'model': 'outfit', 'materials': []}))  # and with it, where the brief shows none
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
+                mock.patch.object(bake, 'tints', lambda parts, document: self.fail('tinted')):
+            for parts, brief in cases:
+                bake.store(parts, Path(folder) / 'kept')
+                with self.assertRaisesRegex(ValueError, 'bake the outfit again'):
+                    bake.run(brief, Path(folder) / 'out', 'bodies', 332, kept=Path(folder) / 'kept')
 
     def test_a_run_is_a_fresh_bake_or_a_second_tint_of_kept_parts(self):
         document = {'model': 'outfit', 'materials': []}

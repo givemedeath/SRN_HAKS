@@ -92,6 +92,11 @@ def parted(x, z):
     return inside(x, z) and not (1.20 <= z < 1.24 and abs(x) > 0.19)
 
 
+def holstered(x, z):
+    """As `inside`, with a holster on each thigh below the hand and farther out than the fingers: no glove."""
+    return inside(x, z) or (0.55 <= z < 0.62 and 0.52 < abs(x) < 0.60)
+
+
 def doll(cell=0.02, depth=0.08, inside=inside):
     """A flat figure with shared vertices and no open edge: every cell of a grid that `inside` takes, extruded front
     to back, with a wall wherever a taken cell borders a free one. It is one surface from the feet to the collar,
@@ -208,6 +213,14 @@ class JointTests(unittest.TestCase):
         for side in 'lr':  # no glove's joints: the shoulder as the whole arm's, the elbow on the arm and not on a sleeve's line
             for joint, most in (('shoulder', 0.01), ('elbow', 0.03), ('wrist', 0.03), ('tip', 0.01)):
                 self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), most, (joint, side))
+
+    def test_what_hangs_below_a_whole_arms_fingers_is_no_glove(self):
+        v, faces = doll(inside=holstered)
+        here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
+        for side in 'lr':
+            for joint in ('shoulder', 'elbow', 'wrist', 'tip'):
+                self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), 0.01, (joint, side))
+        self.assertAlmostEqual(marks['scale'], 1 / SCALE, delta=0.02)  # the outfit's scale to the body, kept with its landmarks
 
     def test_a_short_sleeve_without_a_glove_beyond_it_is_refused(self):
         v, faces = doll(inside=sleeves_only)

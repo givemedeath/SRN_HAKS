@@ -299,10 +299,14 @@ def outfit_joints(vertices, faces, body):
     other. Level sections do not give that line: they cut a hem aslant, and on the first such outfit their
     middles lay 6 cm toward the armpit. Nor does the line from the glove to the sleeve: an arm is bent a
     little at the elbow, and a trough cut along that line left the sleeve on the torso. A glove lies `GAP`
-    or more below its sleeve: what `past` finds nearer is the rest of a whole arm that a thin section
-    parted, and the arm is followed on through it as a whole one. An arm that ends short of the body's by more than `ARM` allows is
-    refused: a sleeve with no glove beyond it has no wrist to find, and its hem was taken for a hand. A long
-    sleeve followed to the wrist only, its fingers apart, is three quarters of the body's arm and passes."""
+    or more below its sleeve: what `past` finds nearer, and no farther across than a step along a limb, is
+    the rest of a whole arm that a thin section parted, and the arm is followed on through it as a whole one.
+    A glove is looked for only beyond an arm too short to be whole, shorter than `ARM` of the body's from
+    shoulder to fingertips: below a whole arm's fingers, a boot or a holster farther out than they are was
+    taken for one. An arm still that short is refused: a sleeve with no glove beyond it has no wrist to
+    find, and its hem was taken for a hand. A long sleeve followed to the wrist only, its fingers apart, is
+    three quarters of the body's arm and passes. `marks` also holds the outfit's `scale` to the body, neck
+    height over neck height."""
     vertices = np.asarray(vertices, float)
     marks = landmarks(vertices, faces)
     knots = [0.0, body['crotch'], body['neck'][2]], [marks['floor'], marks['crotch'], marks['neck']]
@@ -312,7 +316,9 @@ def outfit_joints(vertices, faces, body):
             return knots[1][2] + (z - knots[0][2]) * (knots[1][2] - knots[1][1]) / (knots[0][2] - knots[0][1])
         return float(np.interp(z, *knots))
 
-    scale = body['neck'][2] / (marks['neck'] - marks['floor'])
+    marks['scale'] = scale = float(body['neck'][2] / (marks['neck'] - marks['floor']))
+    whole = ARM * (body['upper'] + body['fore'] + body['hand'])  # the least an arm is long, followed from the shoulder
+    followed = lambda start, rows: float(np.linalg.norm(np.diff(np.concatenate([start[None], rows[::-1][:, [1, 2, 0]]]), axis=0), axis=1).sum()) * scale
     joints = {'waist': central(marks, level(body['waist'][2])), 'neck': central(marks, marks['neck'])}
     joints['top'] = joints['neck'] + np.array([0.0, 0.0, marks['top'] - marks['neck']])
     for sign, side in ((-1, 'l'), (1, 'r')):
@@ -329,8 +335,11 @@ def outfit_joints(vertices, faces, body):
         require(len(upper) >= 2, f'The {"left" if sign < 0 else "right"} arm leaves the torso too far below the other to place its shoulder')
         height = level(body['shoulder' + side][2])
         shoulder = np.array([np.polyval(np.polyfit(upper[:, 0], upper[:, 1], 1), height), np.polyval(np.polyfit(upper[:, 0], upper[:, 2], 1), height), height])
-        glove, straight = past(marks, sign, arm), None
+        glove, straight = (past(marks, sign, arm) if followed(shoulder, arm) < whole else arm[:0]), None
         glove = glove if len(glove) >= 3 else glove[:0]
+        if len(glove) and arm[0, 0] - glove[-1, 0] <= GAP * marks['height'] \
+                and np.linalg.norm(glove[-1, 1:3] - arm[0, 1:3]) > STEP_LIMIT * marks['height']:
+            glove = glove[:0]  # just below the arm's end but off to one side: not the rest of the arm
         if len(glove) and arm[0, 0] - glove[-1, 0] > GAP * marks['height']:
             start, sleeve = (np.average(rows[:, [1, 2, 0]], axis=0, weights=rows[:, 3]) for rows in (glove, arm))
             for _ in range(2):
@@ -348,7 +357,7 @@ def outfit_joints(vertices, faces, body):
         path = np.concatenate([shoulder[None], arm[::-1][:, [1, 2, 0]]])  # from the shoulder down the arm
         girth = np.concatenate([[arm[-1, 3]], arm[::-1, 3]])
         arc = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(path, axis=0), axis=1))])
-        require(arc[-1] * scale >= ARM * (body['upper'] + body['fore'] + body['hand']),
+        require(arc[-1] * scale >= whole,
                 f'The {"left" if sign < 0 else "right"} arm ends {arc[-1] * scale * 100:.0f} cm from the shoulder, short of a wrist: '
                 'an arm bare below a short sleeve needs a glove beyond that sleeve')
         end = np.flatnonzero(arc > 0.8 * arc[-1])
@@ -533,7 +542,7 @@ def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE, materials=None
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     there = body_joints(bones, parts)
     here, marks = outfit_joints(vertices, faces, there)
-    scale = float(there['neck'][2] / (marks['neck'] - marks['floor']))
+    scale = marks['scale']
     arms = {side + bone: here[joint + side] * scale for side in 'lr' for bone, joint in (('bicep_g', 'shoulder'), ('forearm_g', 'elbow'))}
     cut, faces, _, origin, sleeves = split.troughs(vertices * scale, faces, np.zeros((len(vertices), 0)), arms, materials, padded)
     vertices = np.concatenate([vertices, cut[len(vertices):] / scale])
