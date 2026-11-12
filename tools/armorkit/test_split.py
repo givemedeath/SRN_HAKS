@@ -1263,6 +1263,11 @@ class ArmTests(unittest.TestCase):
         for degrees in (30, 60):
             self.assertEqual(through((1.0, 0.0, 0.0), degrees), 0)  # turned out, as far as the bend
             self.assertGreater(through((-1.0, 0.0, 0.0), degrees), 0)  # turned in across the torso: not held
+        # the over part is read from its faces only: the split hands it the whole outfit's vertices, the limb's own among them
+        grown = lambda over: split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, over, 60.0,
+                                            out=np.array((1.0, 0.0, 0.0)))[0]
+        stray = (np.concatenate([wall[0], v]), wall[1])  # the limb's vertices beside the wall's, no face of the wall using them
+        self.assertTrue(np.array_equal(grown(stray), grown(wall)))
 
     def test_inputs_are_checked(self):
         with self.assertRaises(ValueError):

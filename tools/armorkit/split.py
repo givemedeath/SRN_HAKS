@@ -993,7 +993,9 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     rings = [(r + (end - r) * smooth(k / steps), h * (1 - k / steps)) for k in range(1, steps + 1)]
     rings += [(end * np.cos(phi), np.full(len(rim), -depth * np.sin(phi))) for phi in np.radians(90.0 * np.arange(1, dome) / dome)]
     # the pelvis's own surface, nearest the joint's axis per direction and height
-    sample = seams.surface_points(*over, SEAT_SAMPLE) - point
+    # only the points of its faces: `over` may hold the whole outfit's vertices, the limb's own among them
+    used, local = np.unique(np.asarray(over[1], int), return_inverse=True)
+    sample = seams.surface_points(np.asarray(over[0], float)[used], local.reshape(-1, 3), SEAT_SAMPLE) - point
     along = sample @ normal
     rows = np.floor(along / SEAT_ROW).astype(int)
     first = rows.min() - 1

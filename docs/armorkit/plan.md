@@ -621,3 +621,8 @@ the contract's overlap at a torso opening is still the tube rule, which a padles
 for (contract version 3, user decision). In the client the seat cut showed no holes, and sitting the seat
 stays whole over the thighs. The shoulder cut is checked offline only (gate and renders): the user paused all
 client use on 2026-11-12, so the game has not shown it yet.
+
+A review of the pull request found that the ends were held inside every vertex the split holds, not only the
+pelvis's or chest's: the trousers' own points pinched the thigh's end. Read from the over part's faces only,
+the shoulders are unchanged and the thigh's end is fuller; at the hips a ninth less of what the split made
+shows than with the plane cut, not the quarter measured before.
