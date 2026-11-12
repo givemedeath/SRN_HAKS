@@ -34,6 +34,24 @@ def generation_manifest(path, *, roles=None):
     return data
 
 
+def require_reference_view(data, family_name):
+    """Long thin weapons need a depth-revealing reference before a geometry attempt is spent.
+
+    A flat side-on single view fixes the outline but leaves depth to invention: wave 1 (2026-11-10) bowed,
+    twisted or thickened four of five long designs, and a new seed did not help. An oblique matched pair is
+    the default; a side view needs its own explicit reviewed waiver.
+    """
+    from .straightness import LONG_FAMILIES
+    if family_name not in LONG_FAMILIES: return None
+    review = data.get('approval', {}).get('referenceView', {})
+    require(isinstance(review, dict) and review.get('view') in ('oblique', 'side') and review.get('decision') == 'approved'
+            and isinstance(review.get('notes'), str) and bool(review['notes'].strip()),
+            'Long weapons need approval.referenceView: an approved oblique reference pair, or an explicit reviewed side-view waiver')
+    require(review['view'] == 'oblique' or review.get('sideViewWaiver') is True,
+            'A flat side-on reference for a long weapon needs sideViewWaiver: change the revealing view rather than spending seeds')
+    return review['view']
+
+
 def export_settings(profile, stage, working_shell=False):
     require(type(working_shell) is bool, 'Explicit working-shell flag required')
     require(not working_shell or stage == 'export', 'Working-shell option is export-only')
@@ -60,6 +78,7 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime, comfy
                 'Import the reviewed normalized calibration image for both geometry and appearance')
         require_conditioning_review(manifest_path,data)
     profile = family(asset(manifest_path, data['familyProfile'])['path'],validate_native=False)
+    if stage == 'geometry': require_reference_view(data, profile['family'])
     return prepare_request(manifest_path, bindings_path, stage, output, runtime=runtime,
                            comfy_runtime=comfy_runtime, manifest_reader=lambda p:generation_manifest(p,roles=roles),
                            extra_pins=all_pins(manifest_path,roles=roles,native=False)+code_pins(), namespace='itemkit',

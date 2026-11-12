@@ -5,13 +5,13 @@
   "scope": "complete visible item assembly, including all parts, caps and hardware",
   "categories": {
     "melee": {
-      "minimum": 5000,
-      "maximum": 15000,
+      "minimum": 7500,
+      "maximum": 22500,
       "selection": "Choose by length and overall size; smaller weapons start near the lower end."
     },
     "firearm": {
-      "minimum": 10000,
-      "maximum": 25000,
+      "minimum": 15000,
+      "maximum": 37500,
       "selection": "Choose by overall size and type, including pistol, SMG and rifle; smaller firearms start near the lower end."
     }
   },
@@ -19,6 +19,7 @@
     "These are adjustable starting targets, not final performance-qualified limits.",
     "Select an exact per-model cap and part allocation in a fresh family profile before processing.",
     "Shadow budgets are separate and unchanged by this policy.",
-    "Native resource contracts, supported assemblies and client validation remain required; the firearm trial cap is enforced at 10000 visible / 500 shadow until a larger cap is qualified."
+    "Native resource contracts, supported assemblies and client validation remain required; the firearm and shield route cap is enforced at 15000 visible / 500 shadow (contracts.FIXED_ROUTE_BUDGET) until a larger cap is qualified.",
+    "2026-11-11: the user raised every visible budget by 50% (melee 5000-15000 -> 7500-22500, firearm 10000-25000 -> 15000-37500, fixed route cap 10000 -> 15000). Items already processed keep their counts until they are reprocessed under a new profile."
   ]
 }

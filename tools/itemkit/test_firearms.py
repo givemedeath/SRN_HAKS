@@ -137,7 +137,7 @@ class FirearmTests(unittest.TestCase):
 
     def test_complete_budget_and_exact_assembly(self):
         a = self.allocation(); v = a['variants'][0]
-        counts = {'b': {'visible': 9992, 'shadow': 500},
+        counts = {'b': {'visible': 14992, 'shadow': 500},     # the 15000 cap of 2026-11-11
                   'm': {'visible': 4, 'shadow': 0}, 't': {'visible': 4, 'shadow': 0}}
         self.assertTrue(f.validate_assembly(a, v, counts))
         counts['b']['visible'] += 1

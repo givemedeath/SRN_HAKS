@@ -10,7 +10,7 @@ import uuid
 import numpy as np
 from PIL import Image
 from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
-from .contracts import all_pins, code_pins, source_version, manifest, family, evidence_pins, stage_roles
+from .contracts import all_pins, code_pins, is_code_path, source_version, manifest, family, evidence_pins, stage_roles
 from .geometry import corner_hash
 from .routes import PACKAGED_FIREARMS, ROUTES, needs_grip_standard
 from .verification import VerificationPass
@@ -79,7 +79,10 @@ class Runner:
         row = self.state['stages'].get(stage); require(row is not None, 'Stage not completed: '+stage)
         audit.verify([row])
         if stage not in audit.receipts: audit.receipts[stage] = read(row['path'])
-        receipt = audit.receipts[stage]; audit.verify(receipt['inputs']+receipt['outputs'])
+        receipt = audit.receipts[stage]
+        # A historical audit (rebuild_fixture) checks the receipt's recorded code version instead of today's code bytes.
+        historical = getattr(audit, 'historical_code', None)
+        audit.verify([row for row in receipt['inputs'] if historical is None or not historical(row['path'])]+receipt['outputs'])
         require(receipt['state'] == 'complete', 'Stage failed: '+stage)
         if stage == 'client' and self.evidence is not None:
             require(pin(self.evidence) in receipt['inputs'], 'Client review evidence changed')
@@ -159,11 +162,12 @@ class Runner:
         verify([self.local['blender']])
         if stage=='bake' and self.data.get('processing',{}).get('donorFinish'):
             values.setdefault('reference',self.input('reference'))
-        if stage=='fit' and 'gripStandard' in self.data['inputs']:
+        if stage in ('fit', 'fit-measure') and 'gripStandard' in self.data['inputs']:
             values['gripStandard'] = self.input('gripStandard')
         config = {'stage': stage, 'family': self.family, 'fit': self.data.get('fit', {}),
                   'processing': self.data.get('processing', {}),'render':self.data.get('render',{}), 'output': str(folder/'worker'), **values}
-        config['inputs'] = all_pins(self.manifest_path,roles=stage_roles(stage),native=stage=='fit')+code_pins()+[self.local['blender']]
+        roles_stage = 'fit' if stage == 'fit-measure' else stage
+        config['inputs'] = all_pins(self.manifest_path,roles=stage_roles(roles_stage),native=roles_stage=='fit')+code_pins()+[self.local['blender']]
         config['inputs'] += [pin(values[key]) for key in ('source', 'workingSource', 'scene', 'texture', 'reference', 'atlas', 'gripStandard') if key in values]
         for key in ('shadowCandidates', 'visibleCandidates'):
             if key in values: config['inputs'] += [row['arrays'] for row in values[key].values()]
@@ -263,6 +267,10 @@ class Runner:
                 from .textures import finish_bake
                 result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures',
                                                palettes=self.data['processing'].get('materialPalettes',())))
+                from .texture_check import SIZE, check_bake
+                if str(SIZE) in result['maps']:     # advisory: a person looks at the flagged blobs; never a gate
+                    try: result['textureOutliers'] = check_bake(result['maps'][str(SIZE)]['path'], result['masks']['path'], folder/'texture-check')
+                    except Exception as exc: result['textureOutliers'] = {'advisory': True, 'error': f'{type(exc).__name__}: {exc}'}
             return result
         if stage == 'render':
             return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'],
@@ -302,6 +310,66 @@ class Runner:
             return validate_evidence(self.evidence, parent_result('fixture'))
         raise ValueError('Unsupported stage')
 
+    def measure_fit(self, output):
+        """The fit worker's measure-only pass: its own grip measurement, digest and a fit preview, no stage attempt.
+
+        A one-hand round grip, or a two-hand grip whose depth departs, is refused by the fit stage until a review is
+        bound to the worker's measurement digest. Measuring in-process gives the same numbers but not the same digest
+        (Blender's float32 mesh), so the old route spent a failed fit attempt to learn it. This runs the same grip code
+        on the same imported working mesh and writes `measurement.json` and two preview images; nothing is approved."""
+        require(self.runtime is not None, 'Measuring requires the verified shared-tool launcher')
+        require(self.family['nativePackaging'] == 'enabled', 'Fitting requires a measured native contract')
+        output = Path(output).resolve(); require(not output.exists(), 'Use a fresh measurement folder'); output.mkdir(parents=True)
+        values = {'source': self.input('texturedDonor')}
+        if 'workingMesh' in self.data['inputs']: values['workingSource'] = self.input('workingMesh')
+        started = time.monotonic(); result = self.worker('fit-measure', output, **values)
+        receipt = {'kind': 'fit-measurement', 'manifestHash': digest(self.data), 'bindingsHash': digest(self.local),
+                   'codeVersion': source_version(), 'runtimeIdentity': self.runtime, 'elapsedSeconds': time.monotonic() - started,
+                   'outputs': [pin(p) for p in sorted(output.rglob('*')) if p.is_file()], 'result': result,
+                   'stageAttempt': False, 'approved': False, 'productionAccepted': False}
+        write(output/'receipt.json', receipt, fresh=True)
+        return result
+
+    def rebuild_fixture(self, fixture_inputs, output):
+        """A new private fixture from this run's reviewed native package, without re-running the stages before it.
+
+        Every toolkit change makes the run's earlier stages stale (their receipts carry the code version), so a
+        fixture change used to cost a full fit-to-fixture rerun. Here the native chain is verified byte for byte, with
+        its manifest, reviews and dependency graph, at the code version it was built with, and only the fixture is
+        built with the current code. The fixture's own inputs come from `fixture_inputs` (a `fixture-inputs` document
+        beside the manifest), so the manifest and the native receipts stay valid. The result is review evidence for
+        the in-game capture; it is not the pipeline's fixture stage and cannot feed the client stage."""
+        from .fixture import build
+        require(self.runtime is not None, 'Fixture builds require the verified shared-tool launcher')
+        row = self.state['stages'].get('native'); require(row is not None, 'Stage not completed: native')
+        verify([row]); recorded = read(row['path'])['codeVersion']
+        audit = VerificationPass(); audit.code_version = recorded
+        audit.historical_code = is_code_path()      # source files, even since-deleted ones: identified by the recorded version
+        native = self.result('native', _audit=audit)
+        fixture_inputs = Path(fixture_inputs).resolve(); extra = read(fixture_inputs)
+        require(extra.get('kind') == 'fixture-inputs' and fixture_inputs.parent == self.manifest_path.parent,
+                'A fixture-inputs document beside the manifest required')
+        allowed = stage_roles('fixture')
+        require(set(extra['inputs']) and all(key in allowed or key.startswith('comparisonBlueprint') for key in extra['inputs']),
+                'Fixture inputs only')
+        data = {**self.data, 'inputs': {**self.data['inputs'], **extra['inputs']}}
+        # Fixture HAKs may come with the document, so the bindings the native receipts pin stay untouched.
+        local = {**self.local, 'fixtureHaks': extra['fixtureHaks']} if 'fixtureHaks' in extra else self.local
+        require(isinstance(local.get('fixtureHaks', {}), dict), 'Fixture HAK pins are a name -> pin map')
+        inputs = [pin(fixture_inputs)]+[asset(fixture_inputs, value) for value in extra['inputs'].values()]+code_pins()+[pin(self.bindings_path)]
+        inputs += list(local.get('fixtureHaks', {}).values())+list(local.get('comparisonHaks', {}).values())
+        inputs += [row]+audit.receipts['native']['outputs']
+        verify(inputs); output = Path(output).resolve(); require(not output.exists(), 'Use a fresh fixture folder'); output.mkdir(parents=True)
+        started = time.monotonic(); result = build(fixture_inputs, data, native, local, output/'fixture')
+        verify(inputs, fresh=True)
+        receipt = {'kind': 'fixture-rebuild', 'state': 'complete', 'manifestHash': digest(self.data), 'nativeReceipt': row,
+                   'nativeCodeVersion': recorded, 'codeVersion': source_version(), 'runtimeIdentity': self.runtime,
+                   'inputs': inputs, 'outputs': [pin(p) for p in sorted((output/'fixture').rglob('*')) if p.is_file()],
+                   'elapsedSeconds': time.monotonic() - started, 'result': result, 'pipelineStage': False,
+                   'clientStageEligible': False, 'productionAccepted': False}
+        write(output/'receipt.json', receipt, fresh=True)
+        return result
+
     def review(self, stage, decision, notes):
         require(self.runtime is not None, 'Review writes require the verified launcher')
         require(decision in ('approved', 'rejected') and notes.strip(), 'Explicit decision and review notes required')
@@ -310,6 +378,50 @@ class Runner:
         result = {'stageReceipt': self.state['stages'][stage], 'decision': decision, 'notes': notes, 'productionAccepted': False}
         write(target, result, fresh=True); self.state['reviews'][stage] = pin(target); write(self.state_path, self.state)
         return result
+
+    def _current_review(self, stage):
+        """The filed review of the stage's current receipt, or None when it has none (or it reviews an older attempt)."""
+        decision = self.state.get('reviews', {}).get(stage)
+        if decision is None: return None
+        verify([decision]); decision = read(decision['path'])
+        return decision if decision['stageReceipt'] == self.state['stages'][stage] else None
+
+    def chain(self, stages, notes, *, progress=None):
+        """Run consecutive stages in this one verified launch, approving each but the last on its numerical gates.
+
+        A stage launched on its own pays for the launcher's input freeze, the input listing and a review launch each
+        time; that bookkeeping was about three quarters of a measured 41-minute run. Here they are paid once for the
+        chain. Nothing inside a stage is relaxed: every stage still takes its own fresh verification passes, writes
+        its own attempt and receipt, and a failure stops the chain where it happened. The last stage is left
+        unreviewed so that a person looks at it before anything consumes it. `client` is never chained: it needs
+        reviewed evidence."""
+        stages = list(stages)
+        require(stages and len(set(stages)) == len(stages) and all(stage in DEPENDENCIES and stage != 'client' for stage in stages),
+                'A chain is distinct processing stages, without the client stage')
+        require(isinstance(notes, str) and notes.strip(), 'Chain review notes required: they are filed with every automatic approval')
+        for index, stage in enumerate(stages):
+            for parent in DEPENDENCIES[stage]:
+                if parent in stages[:index]: continue
+                review = self._current_review(parent) if parent in self.state.get('stages', {}) else None
+                require(review is not None and review['decision'] == 'approved',
+                        f'Chain stage {stage} needs {parent} earlier in the chain or already reviewed and approved')
+        done = []
+        for index, stage in enumerate(stages):
+            started = time.monotonic(); row = {'stage': stage, 'reviewed': False}; done.append(row)
+            row['failed'] = True       # cleared on success: the failing stage still reports itself
+            try:
+                row['reused'] = self.execute(stage)['reused']
+                if index < len(stages) - 1:
+                    existing = self._current_review(stage) if row['reused'] else None
+                    # A reused stage keeps the review a person already filed for that exact receipt; a rejection stops here.
+                    require(existing is None or existing['decision'] == 'approved', f'Chain stage {stage} was rejected on review')
+                    if existing is None: self.review(stage, 'approved', notes)
+                    row['reviewed'] = True
+                del row['failed']
+            finally:
+                row['seconds'] = round(time.monotonic() - started, 1)
+                if progress is not None: progress(row)
+        return {'stages': done, 'unreviewed': stages[-1], 'productionAccepted': False}
 
     def status(self):
         result = {}; audit = VerificationPass()

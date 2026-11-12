@@ -363,6 +363,171 @@ Use the native length axis as camera up for icons, and check each alpha footprin
 and the assembled icon; a numerical render success cannot detect a cropped part.
 Keep a textured fitted scene and a final visible GLB alongside the native files.
 
+## Long-weapon straightness
+
+Long thin weapons (`shortsword`, `longsword`, `greatsword`, `staff`) need
+`approval.referenceView` before a geometry request: an approved `oblique` pair, or
+`side` with `sideViewWaiver: true` and review notes. After each collected clay run
+`python -m tools.itemkit.straightness check MESH.glb --family F`; bend, twist and
+guard-skew flags are advisory and go to the reviewer with the views. A bowed but
+otherwise correct clay can be unbent with `straighten MESH.glb OUT_DIR [--family F]`
+(the family picks the limits its result is assessed against, as in `check`); review
+the straightened views like a generated attempt. Appearance and the source bake
+stay in the generated frame, so re-apply the saved map with `--map` to the
+textured donor and working shell before fitting. See the wave-1 section of
+`four-weapon-lessons.md` for calibration and limits.
+
+The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
+(`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default
+(`--factor` or `--ratio` to choose); it runs after straightening and its map carries
+to the donor and shell the same way. `tools/itemkit/autofit.py` measures the fit
+inputs from a straight shell: landmarks, a grip span sized to the stock carrier
+length, vertex-free part cuts and a 40,000-triangle working shell. These measure
+and never approve; hand-fit review on both Human bodies is unchanged.
+
+Straightening also squares flat end caps that are tilted off the long axis (0.5 to
+30 degrees), such as a club's pommel and head; the correction is stored in the
+map's `ends` and carries to the donor and shell with the rest. A blade point or a
+rounded butt is not a flat cap and is left alone.
+
+A one-hand weapon with a round grip can keep its section round: set
+`fit.sizingAuthority` to `usable-length-round`. The fit then applies one transverse
+scale so the grip's midpoint diameter equals the approved face width, instead of
+scaling depth and width separately. The depth departs from the standard by
+construction, so the fit always stops until `fit.gripDeparture` carries an approved
+review with the digest from the worker's retained `grip-measurement.json`. See the
+Club continuation in `four-weapon-lessons.md`.
+
+## Chained stages
+
+Consecutive processing stages can run in one verified launch:
+
+    python tools/itemkit/run_itemkit.py inputs --manifest M --bindings B --run RUN --stages fit reduce ... native --output LIST
+    python tools/phenotypes/launch_shared_tool.py ... --input-path-list LIST -- tools/itemkit/run_itemkit.py chain         --manifest M --bindings B --run RUN --stages fit reduce ... native --notes "..."
+
+`chain` runs each stage as `run` would and approves every stage but the last with the given notes, which must say what
+the approval rests on (the numerical gates). The last stage is left unreviewed for a person. It refuses a plan with a
+missing parent, a repeated stage or the `client` stage before running anything, and a failed stage stops the chain.
+Each stage still takes its own fresh verification passes and writes its own attempt and receipt; only the launcher's
+input freeze, the input listing and the per-stage review launches are paid once instead of per stage.
+
+Measured on the wave-1 Club (2026-11-11, fit through native, same inputs): about 37 minutes stage by stage, about 13
+minutes chained. Triangle counts were identical and the baked texture differed from a stage-by-stage run by at most
+one colour level, the same as two stage-by-stage runs differ from each other. Roughly half of the chained time is
+still verification inside the stages. End a chain at `render` when the look has not been reviewed yet.
+
+## Unattended client capture
+
+A built fixture can be photographed without anyone driving the client:
+
+    python -m tools.itemkit.client_capture FIXTURE_DIR CAPTURES --nwn-root GAME_INSTALL
+
+`FIXTURE_DIR` holds the fixture stage's `fixture.json`. The fixture's entry script carries a dormant shot sequence
+(`fixture.SHOTS`): the driver switches it on with a 2DA in the fixture's own override folder, so the module bytes are
+the same for an interactive look and a capture run. It then starts the client through `tools/armorkit/client.py`,
+which refuses to start while any client is running and stops only the one it started. The player is hidden; the
+camera is attached to each Human actor at stated moments of the existing motion sequence (four sides, hand close-up,
+shadow, unequipped and re-equipped, walk, run, two attack frames, shield, off-hand, armour and gloves). Three window
+captures are saved after each `ITEMKIT_SHOT` line. A shot that finds the camera in use is taken on the next cycle,
+so a run lasts five to nine minutes. A burst that may show another shot's view is kept on disk but marked `rejected`
+in `capture.json` and left out of the evidence draft and the contact sheets: a shot already followed by the next
+one in the same log read is not captured at all ('next shot began'), and a burst that ended after the shot's hold
+is 'burst overran the shot hold'. Its check is then listed as missing.
+
+The greatsword carrier rests on the shoulder, so its fixture uses `fixture.SHOULDER_SHOTS`: the same moments framed
+higher and a metre further off, with the close-ups aimed at the chest where the hand is. The framing follows the
+route's `carry` (`fixture.carry_for`): the greataxe, halberd and scythe carriers are also shouldered. Other carries
+(staff, bow) still use the hip framing until their own is measured.
+
+`capture.json` records the shots and equip lines. `evidence-draft.json` groups the pictures by body and required
+check with `result: "unreviewed"` and lists any check without a picture. It is material for the client evidence, not
+the evidence: a person still looks, judges and writes the review. The fixture area keeps only the two review actors;
+the template's idle lineup is left out. The driver also writes one contact sheet per body (`sheet-<body>.jpg`, the
+middle frame of every shot).
+
+## Item workspace and driver
+
+`tools/itemkit/drive.py` runs every wave step as one command; it replaces the per-wave driver scripts that lived
+outside the repository (wave-1's `wave.py`, `auto_fit.py`, `condition_oblique.py`, `views.py`). Machine paths live in
+an ignored item workspace, found from `--workspace`, then `$SRN_ITEM_WORKSPACE`, then `output/itemkit/workspace.json`.
+Start from `tools/itemkit/workspace.example.json`; relative paths resolve against the workspace file. `bindings` is
+the processing binding and `generationBindings` the generation one, both inside `runtime`.
+
+    python -m tools.itemkit.drive gen ID geometry --manifest calibrated-v2          # one GPU job through the ledger
+    python -m tools.itemkit.drive fit ID SRC DST WORKING.glb DONOR.glb --overrides O.json --donor-review "user's words"
+    python -m tools.itemkit.drive batch ID:SUFFIX ID:SUFFIX --stages fit,reduce,unwrap,finish,bake,shadow,render --jobs 2
+    python -m tools.itemkit.drive refixture ID SUFFIX NAME --capture
+    python -m tools.itemkit.drive contract greataxe ID --wave NAME
+
+Every processing command goes through `run_itemkit.py inputs` and the verified shared-tool launcher, exactly as a
+hand-typed run. Nothing in the driver approves a design: approvals it writes quote words passed in `--notes` or
+`--donor-review`, and `batch` and `chain` approve intermediate stages only as numerical passes.
+`python -m tools.itemkit.drive --help` lists every command.
+
+`drive condition DESIGN ID` keys and measures an angled colour/clay pair and stops: keying fills enclosed holes and
+drops secondary components, so whether openings and thin members survived needs a person's look at the keyed
+images. Running it again with `--notes "user's words" --keyed DETAIL_SHA,CLAY_SHA` (the hashes the first call
+printed) conditions the pair and writes the approvals with those words.
+
+### Measure-only fit and fit preview
+
+    run_itemkit.py measure-fit --manifest M --bindings B --run RUN --output RUN/measure-N
+
+runs the fit worker's grip measurement without spending a fit attempt (`kind: fit-measurement`, `stageAttempt:
+false`) and writes `measurement.json`: the departure flag, the worker's own `measurementDigest`, the fit matrix,
+native length, fitted bounds and two x-ray previews (`fit-preview-broad-face.png`, `fit-preview-edge.png`) of the
+fitted item over the stock carrier's part boxes, the standard grip cylinder at the grip origin and a 10 cm bar. The
+digest is the one the fit stage checks, so a departure review can bind it before the first fit attempt. `drive fit`
+does this automatically: when the measured fit departs and no digest is given, it writes `<DST>-measure` and runs the
+preview. It writes `<DST>` with the digest bound only when `--authority` carries the user's words approving the
+departure; without them it stops after the preview with `departureNeedsAuthority`, and the re-run with `--authority`
+reuses that candidate and its newest measurement (it refuses if the working shell, donor or overrides differ). `drive preview ID SUFFIX`
+runs only the measure. Measured on the Club: about 2 minutes, the same digest as the wave-1 fit.
+
+### Rebuilding a fixture
+
+    run_itemkit.py refixture --manifest M --bindings B --run RUN --fixture-inputs DOC --output RUN/refixture-N
+
+builds only a fresh fixture from the run's existing native result after fixture code changes, instead of rerunning
+the chain. It verifies the native chain at the code version it was recorded with (the receipts' `codeVersion`; their
+own source-file pins are not rechecked against today's files) and takes the fixture's own inputs from a `kind: fixture-inputs` document beside
+the manifests (`drive fixture-inputs` writes one, with its pinned files in its own `fixture-inputs/<ID>.<NAME>/` folder
+so a later document never rewrites them; it also carries the fixture HAK pins, so the processing bindings every
+native receipt pins are never edited). The receipt is `kind: fixture-rebuild`, never a pipeline stage and
+never client-stage eligible: a release still needs the full chain at the current code. About 2 minutes against
+15 for a chain.
+
+### Parallel processing
+
+`drive batch` runs one chain per item, at most three at once (the per-part run concurrency rule), each Blender
+rendering on four threads. Items are independent: a failed item is recorded with its error and the rest continue.
+Two Club fits ran side by side in about 2 minutes on 2026-11-11.
+
+### Texture outliers
+
+The bake stage adds an advisory `textureOutliers` block (`texture_check.check_bake`): per UV island, a
+31-pixel median background, a smoothed residual and connected blobs above a contrast floor are flagged with a
+heatmap. It found the Club's grip squiggle (3 blobs) and nothing on plain grain. It never fails the stage (an error in
+the check is recorded in the block instead); a person
+looks at the heatmap. `python -m tools.itemkit.texture_check BAKE_ATTEMPT` runs it on an existing bake.
+
+### Clubs, axes and polearms
+
+The composite melee routes add `club` (28), `handaxe` (38), `battleaxe` (2), `spear` (58), and the two-handed,
+shouldered `greataxe` (18), `halberd` (10) and `scythe` (55), all on their installed carriers with the Cougar grip
+standard. They are `shape: hafted`: the fit finds the head as the widest end (turned to +Y), scales uniformly to the
+stock carrier's length or a chosen `targetLength`, and places the hand at the carrier's measured grip origin. One-hand
+hafted fits use `usable-length-round` and always stop for a digest-bound departure review; two-hand fits use the
+uniform two-hand rule.
+
+`drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
+carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer
+(in a per-carrier `stack-<class>.json`, so the wave's `stack.json` and earlier contracts keep their pinned bytes),
+measures the stock grip origin and span (`carrier.py`, from the binary models' triangle sections), sets the icon size
+from `baseitems.2da`, allocates the visible budget from `budget-policy.json` by stock length (7,500 at 0.5 m to 22,500
+at 1.6 m and over) and reserves resources, skipping slots the wave's other contracts on the same carrier pinned. The grip origin is measured, not reviewed in a hand: the first design on a
+new carrier carries the both-body hand-fit review that confirms it.
+
 ## Native and geometry contracts
 
 The supplied profile remains `pending-contract` until the actual effective content
@@ -409,30 +574,35 @@ assembly, including all parts, hardware and caps:
 
 | Item category | Preliminary visible target | Selection |
 |---|---:|---|
-| Melee weapons | 5,000–15,000 | Length and overall size |
-| Firearms | 10,000–25,000 | Size and type: pistol, SMG, rifle |
+| Melee weapons | 7,500–22,500 | Length and overall size |
+| Firearms | 15,000–37,500 | Size and type: pistol, SMG, rifle |
+
+The user raised every visible budget by 50% on 2026-11-11 (the ranges were 5,000–15,000
+and 10,000–25,000). Shadow budgets did not change. Items already processed keep their
+counts; one takes the larger budget only when it is reprocessed under a fresh profile.
 
 These ranges are adjustable starting targets. Choose an exact cap and per-part
 allocation in each fresh family profile; the range maximum is not an automatic
-target for every model. The Cougar profile starts at 5,000 visible triangles,
-preserving the previous part proportions. Its shadow budgets remain unchanged:
+target for every model. The portable Cougar starting profile is 7,500 visible
+triangles in the previous part proportions. Its shadow budgets remain unchanged:
 
 | Part | Preliminary visible cap | Shadow triangles |
 |---|---:|---:|
-| Blade/guard (`t`) | 3,125 | 300 |
-| Grip (`m`) | 1,125 | 100 |
-| Pommel (`b`) | 750 | 100 |
-| Complete assembly | 5,000 | 500 |
+| Blade/guard (`t`) | 4,688 | 300 |
+| Grip (`m`) | 1,687 | 100 |
+| Pommel (`b`) | 1,125 | 100 |
+| Complete assembly | 7,500 | 500 |
 
-These are portable starting allocations. The measured Cougar production family
+These are portable starting allocations. The shipped, measured Cougar production family
 reallocates the same 5K whole-item cap to pommel 1,200, grip 1,375 and blade/guard
 2,425, fitting the actual natural boundaries. Its visible result is 1,174/1,360/2,422.
 The selected closed shadow result is 96/96/296. Its explicit `shadowPommel`
 projected-loop method retains the measured opening with a variable-thickness,
 96-triangle closed silhouette; it does not change visible geometry.
 
-The current pistol trial uses a 10,000 visible / 500 shadow whole-item cap, including
-its active hidden placeholders. SMG/rifle slot reservations exist; no subtype size
+The firearm and shield routes cap the whole item at 15,000 visible / 500 shadow
+(`contracts.FIXED_ROUTE_BUDGET`; 10,000 before 2026-11-11), including active hidden
+placeholders. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
 thresholds or shadow budget increases have been established. Preserve historical profiles and receipts;
 derive a fresh profile/manifest for future processing. New targets confer no geometry,
 native, client or production approval.

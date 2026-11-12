@@ -1,4 +1,5 @@
 """Portable design contracts; native facts must come from a pinned content stack."""
+import os
 from pathlib import Path
 import re
 from tools.headkit.common import ROOT, asset, digest, pin, read, require, verify
@@ -7,12 +8,23 @@ from .routes import MULTIPART as PARTS, ROUTES, whole_shield
 BASELINE = 'e607a617c273828a37d8fc56dd43d7d8a0070844'
 GENERATION = {'preset': 'pixal-single-v1', 'shapeResolution': 1536, 'shapeCFG': 12,
               'textureCFG': 1, 'textureSteps': 12}
+# Whole-item cap for the firearm and shield routes. The user raised every visible budget by 50% on 2026-11-11
+# (10000 -> 15000); shadow budgets are unchanged. Profiles under the cap, such as the shipped 10000 ones, stay valid.
+FIXED_ROUTE_BUDGET = {'visible': 15000, 'shadow': 500}
 
 
 def resref(value):
     require(isinstance(value, str) and re.fullmatch(r'[a-z][a-z0-9_]{0,15}', value),
             'NWN resref must be lowercase and at most 16 characters')
     return value
+
+
+def resource_stem(design_id):
+    """The new design's resource identity (texture prefix, blueprint, HAK and module stem), from its whole ID.
+
+    Hashing the complete ID keeps two designs apart even when they share an ID suffix (`red-club-v1`, `blue-axe-v1`)."""
+    import hashlib
+    return 'sr' + hashlib.sha256(design_id.encode()).hexdigest()[:8]
 
 
 def integer(value, low, high, label):
@@ -58,9 +70,11 @@ def family(path, *, validate_native=True):
         require(data.get('sourceExport') == {'remeshResolution':768, 'targetFaceCount':200000, 'signMode':'udf'},
                 'Catalog generation uses the qualified 200K UDF donor route')
     settings=data.get('resources', {})
-    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName'}, 'Unsupported resource identity')
+    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName','appearanceIndex'}, 'Unsupported resource identity')
     for key in ('texturePrefix','hak','module','blueprint'):
         if key in settings: resref(settings[key])
+    # Designs sharing a carrier in one wave pin distinct slots; first-free would hand each the same one.
+    if 'appearanceIndex' in settings: integer(settings['appearanceIndex'], 1, 25, 'appearance index')
     if 'texturePrefix' in settings: require(len(settings['texturePrefix'])<=13,'Texture prefix leaves no appearance suffix')
     if data['family'] == 'shield' and not shield or route.subtypes is None and 'firearm' not in data:
         require(data['nativePackaging'] == 'blocked', 'Shield and unqualified Sling native adapters are deferred')
@@ -74,7 +88,8 @@ def family(path, *, validate_native=True):
                 and data['firearm']['subtype'] in SLOTS, 'Explicit supported firearm slot required')
         firearm_slot = SLOTS[data['firearm']['subtype']]
     if firearm_slot or shield:
-        require(budgets['visible'] == 10000 and budgets['shadow'] == 500, 'This route has a 10000/500 budget')
+        require(budgets['visible'] <= FIXED_ROUTE_BUDGET['visible'] and budgets['shadow'] == FIXED_ROUTE_BUDGET['shadow'],
+                'This route has a {visible}/{shadow} budget'.format(**FIXED_ROUTE_BUDGET))
     require(set(budgets) == {'visible', 'shadow', 'parts'}, 'Explicit whole-object and per-part budgets required')
     for kind in ('visible', 'shadow'):
         integer(budgets[kind], 4, 200000, kind + ' assembly budget')
@@ -337,6 +352,20 @@ def code_pins():
     files = [p for p in sorted(Path(__file__).parent.rglob('*')) if p.is_file()
              and p.suffix in ('.py', '.json') and '__pycache__' not in p.parts]
     return head_pins() + [pin(p) for p in files]
+
+
+def is_code_path():
+    """A test for toolkit source-file paths: today's code files, and since-deleted ones in the same folders.
+
+    A historical receipt may pin a source file that has since been deleted or renamed; it is still code, identified
+    by the receipt's recorded code version, not a data input to verify by its bytes. A file that still exists and is
+    not code today is verified as data: the code folders also hold documents a receipt may consume."""
+    rows = code_pins(); current = {os.path.normcase(str(Path(row['path']))) for row in rows}
+    roots = {os.path.normcase(str(Path(row['path']).parent)) for row in rows}
+    def test(path):
+        path = Path(path); key = os.path.normcase(str(path))
+        return key in current or (path.suffix in ('.py', '.json') and os.path.normcase(str(path.parent)) in roots and not path.exists())
+    return test
 
 
 def source_version():
