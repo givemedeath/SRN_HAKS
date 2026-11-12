@@ -71,6 +71,8 @@ def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None
     folder where the game install folder is given."""
     user, built = Path(user).resolve(), Path(built).resolve()
     require(not user.exists(), 'A fresh user folder is required: ' + str(user))
+    # The junction is made by cmd's mklink, and cmd rewrites these in what it is handed: refused before anything is made.
+    require(not set('"%&|<>^') & set(str(user) + str(built)), 'The user folder and the built packs are linked through cmd, so their paths cannot hold " % & | < > ^')
     missing = [name for name in haks if not (built / f'{name}.hak').is_file()] + ([] if (built / f'{tlk}.tlk').is_file() else [tlk + '.tlk'])
     require(not missing, f'The built packs are needed in {built}: ' + ', '.join(missing))
     work = user.parent / (user.name + '-work'); shutil.rmtree(work, ignore_errors=True); run = _tools()

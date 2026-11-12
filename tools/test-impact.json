@@ -220,8 +220,10 @@
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
       "tools/envkit/meshy.py",
+      "tools/envkit/onboard.py",
       "tools/envkit/reference.py",
       "tools/envkit/sheet.py",
+      "tools/envkit/study.py",
       "tools/envkit/tile.py",
       "tools/envkit/toolset.py",
       "tools/envkit/view.py",
@@ -261,6 +263,9 @@
     "tools/envkit/meshy.py": [
       "tools/headkit/gpu_lock.py"
     ],
+    "tools/envkit/onboard.py": [
+      "tools/envkit/reference.py"
+    ],
     "tools/envkit/placeables.py": [],
     "tools/envkit/preview_blender.py": [],
     "tools/envkit/prop_fixture.py": [
@@ -278,6 +283,11 @@
     "tools/envkit/sheet.py": [
       "tools/envkit/meshy.py",
       "tools/envkit/reference.py"
+    ],
+    "tools/envkit/study.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/toolchain.py",
+      "tools/envkit/tile.py"
     ],
     "tools/envkit/test_catalog.py": [
       "tools/envkit/blueprints.py",
@@ -307,6 +317,11 @@
       "tools/envkit/meshy.py",
       "tools/headkit/gpu_lock.py"
     ],
+    "tools/envkit/test_onboard.py": [
+      "tools/envkit/__main__.py",
+      "tools/envkit/onboard.py",
+      "tools/envkit/reference.py"
+    ],
     "tools/envkit/test_placeables.py": [
       "tools/envkit/additions.py",
       "tools/envkit/catalog.py",
@@ -323,6 +338,9 @@
       "tools/envkit/sets/ares-depot-meshy.json",
       "tools/envkit/sheet.py",
       "tools/envkit/test_meshy.py"
+    ],
+    "tools/envkit/test_study.py": [
+      "tools/envkit/study.py"
     ],
     "tools/envkit/test_tile.py": [
       "tools/envkit/additions.py",
@@ -5226,6 +5244,12 @@
       "srn_placeable",
       "srn_t_common"
     ],
+    "tools/envkit/study.py": [
+      "srn_t_common"
+    ],
+    "tools/envkit/test_study.py": [
+      "srn_t_common"
+    ],
     "tools/envkit/test_toolset.py": [
       "srn_2da",
       "srn_t_dgt04"
@@ -5377,9 +5401,11 @@
     "tools/envkit/test_glow.py",
     "tools/envkit/test_local.py",
     "tools/envkit/test_meshy.py",
+    "tools/envkit/test_onboard.py",
     "tools/envkit/test_placeables.py",
     "tools/envkit/test_reference.py",
     "tools/envkit/test_sheet.py",
+    "tools/envkit/test_study.py",
     "tools/envkit/test_tile.py",
     "tools/envkit/test_toolset.py",
     "tools/envkit/test_view.py",
