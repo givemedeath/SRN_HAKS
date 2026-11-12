@@ -33,6 +33,36 @@ class SeatTests(unittest.TestCase):
         self.assertTrue(np.allclose(reach, expected, atol=0.002), np.round(reach - expected, 4))
 
 
+class ArmholeTests(unittest.TestCase):
+    def test_the_armhole_is_where_the_arm_comes_out_of_the_chest_per_direction(self):
+        # an arm 5 cm round straight down from the joint, up into a chest whose underside rises 2.5 cm toward -x
+        around = 64
+        angle = 2 * np.pi * np.arange(around) / around
+        levels = np.arange(0.08, -0.3001, -0.005)
+        arm = np.array([(0.05 * np.cos(a), 0.05 * np.sin(a), z) for z in levels for a in angle] + [(0, 0, levels[0]), (0, 0, levels[-1])])
+        rows = len(levels)
+        faces = [(i * around + k, (i + 1) * around + k, i * around + (k + 1) % around) for i in range(rows - 1) for k in range(around)]
+        faces += [(i * around + (k + 1) % around, (i + 1) * around + k, (i + 1) * around + (k + 1) % around) for i in range(rows - 1) for k in range(around)]
+        top, bottom = rows * around, rows * around + 1
+        faces += [(top, k, (k + 1) % around) for k in range(around)] + [(bottom, (rows - 1) * around + (k + 1) % around, (rows - 1) * around + k) for k in range(around)]
+        corners = [(x, y, 0.4 if high else 0.02 + 0.5 * x) for high in (False, True) for y in (-0.3, 0.3) for x in (-0.3, 0.3)]
+        box = [(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)]
+        parts = {'chest': (np.array(corners, float), np.array(box)), 'bicepl': (arm, np.array(faces))}
+        line = measure.armhole(parts, np.zeros(3), (0, 0, -1.0), 'l')
+        a, _ = seams.frame((0, 0, -1.0))  # direction k at k turns over 64 from the frame's first axis, here +x
+        self.assertEqual(len(line), measure.SEAT_DIRECTIONS)
+        # the arm shows below the chest: its highest such point is 2 cm, and 2.5 cm more toward +x, above the plane
+        expected = -(0.02 + 0.025 * np.cos(2 * np.pi * np.arange(64) / 64) * a[0])
+        self.assertTrue(np.allclose(line, expected, atol=0.006), np.round(line - expected, 4))
+        self.assertGreater(np.ptp(line), 0.04)
+
+    def test_the_winding_number_tells_inside_from_outside(self):
+        corners = np.array([(x, y, z) for z in (0.0, 1.0) for y in (0.0, 1.0) for x in (0.0, 1.0)], float)
+        box = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+        wound = measure.winding(np.array([(0.5, 0.5, 0.5), (0.1, 0.9, 0.2), (1.5, 0.5, 0.5), (0.5, 0.5, -0.01)]), corners, box)
+        self.assertTrue(np.allclose(np.abs(wound), (1, 1, 0, 0), atol=1e-9))
+
+
 class MeasuredContractTests(unittest.TestCase):
     def test_contract_planes_and_rings_match_the_locked_human_bodies(self):
         contract = seams.load_contract()

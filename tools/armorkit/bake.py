@@ -266,7 +266,11 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     seat = {('hip', side): {'reach': measure.seat(skin, *seams.plane(bones, 'hip', side), side),
                             'ring': np.asarray(seams.envelope(contract, 'hip', body, tier, side), float) - shaping.MARGIN,
                             'bend': float(contract['joints']['hip']['bodies'][body]['bend'][contract['designBend']])} for side in 'lr'}
-    overlaps = {key: float(seams.overlap(contract, key[0], body, tier)) + (shaping.DEEPER if key[0] in shaping.TUBES or key in seat else 0.0)
+    # the upper arm leaves the chest where the body's own does, and ends just inside its envelope
+    arms = {('shoulder', side): {'line': measure.armhole(skin, *seams.plane(bones, 'shoulder', side), side),
+                                 'ring': np.asarray(seams.envelope(contract, 'shoulder', body, tier, side), float) - shaping.MARGIN,
+                                 'bend': float(contract['joints']['shoulder']['bodies'][body]['bend'][contract['designBend']])} for side in 'lr'}
+    overlaps = {key: float(seams.overlap(contract, key[0], body, tier)) + (shaping.DEEPER if key[0] in shaping.TUBES or key in seat or key in arms else 0.0)
                 for key in keys}
     # the posed normals, and the positions and normals on the generated mesh, ride through the cut
     columns = np.concatenate([export.vertex_normals(v, f), in_field, export.vertex_normals(in_field, f)], axis=1)
@@ -277,7 +281,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
     result = split.split(v, f, columns, joints, radii, overlaps, reaches=split.reaches(v, f, joints, radii, sleeves=carried['sleeves']),
                          whole={('neck', 'c')}, made=made, sleeves=carried['sleeves'], guards=guards, origins=origins,
-                         shape=shaping.shaper(bones, contract, body, tier, guards), deep=shaping.TUBES, seat=seat)
+                         shape=shaping.shaper(bones, contract, body, tier, guards), deep=shaping.TUBES, seat=seat, arms=arms)
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}

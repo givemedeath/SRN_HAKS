@@ -66,6 +66,8 @@ SEAT_SAMPLE = 0.004  # the pelvis's surface is read at points this far apart
 SEAT_BINS, SEAT_ROW = 64, 0.01  # and per 64th of a turn round the thigh and per centimetre along it
 SEAT_ROUND = 0.75  # a piece of the rim is the thigh's opening when it comes round this share of the turn: a pocket's edge does not
 SEAT_HALVINGS = 8  # how finely the end is drawn in to stay inside the pelvis as the thigh turns
+ARM_OPENING = 0.5  # an upper arm's opening at the shoulder lies within this share of the way to the elbow
+ARM_FLOOR = 0.02  # an upper arm is cut no nearer its shoulder plane than this: its end needs the room to come in to the envelope
 
 
 def token(slot, side):
@@ -879,30 +881,77 @@ def seated(vertices, faces, uvs, owner, origin, names, cuts, between, seat):
     value = np.where(across < 0, lines.get('l', far), lines.get('r', far))
     if len(lines) == 2:
         value = np.where(np.abs(across) < WELD, (lines['l'] + lines['r']) / 2, value)
-    value[np.abs(value) < EPSILON] = 0.0
-    mine = np.isin(owner, thighs)
+    return handed(v, f, t, owner, origin, np.isin(owner, thighs), value, names.index('pelvis'))
+
+
+def handed(vertices, faces, uvs, owner, origin, mine, value, to):
+    """The faces flagged `mine` cut where `value`, per vertex, is zero, and what lies at or below zero given to
+    part `to`: (vertices, faces, uvs, owner, origin, on), `on` flagging the vertices on the line."""
+    v, f, t = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
+    value = np.where(np.abs(value) < EPSILON, 0.0, value)
     count = len(v)
     v, cut_faces, t, o = cut(v, f[mine], t, None, None, height=value)
     on = np.concatenate([value == 0, np.ones(len(v) - count, bool)])
     level = np.concatenate([value, np.zeros(len(v) - count)])
     moved = level[cut_faces].max(axis=1) <= 0
-    return (v, np.concatenate([f[~mine], cut_faces]), t,
-            np.concatenate([owner[~mine], np.where(moved, names.index('pelvis'), owner[mine][o])]),
+    return (v, np.concatenate([f[~mine], cut_faces]), t, np.concatenate([owner[~mine], np.where(moved, to, owner[mine][o])]),
             np.concatenate([origin[~mine], origin[mine][o]]), on)
 
 
-def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, bend=0.0, steps=SEAT_STEPS, dome=SEAT_DOME, gap=SEAT_GAP):
-    """A thigh's end, grown from its rim on the seat line (`seated`): (vertices, uvs, faces) to add, numbered from
-    `base`.
+def armholed(vertices, faces, uvs, owner, origin, names, cuts, arms, floor=ARM_FLOOR):
+    """The upper arms' faces that the body's own chest covers, given to the chest: (vertices, faces, uvs, owner,
+    origin, on).
 
-    The rim is the part's edges with both points `on` the line, each on one face only, in pieces that come
-    round the joint (`SEAT_ROUND`): a pocket's edge crossing the line is left as it is. Every rim point runs in
+    The body's skin parts overlap at the shoulder, and the line its upper arm comes out of the chest on runs
+    over the shoulder before the plane and down to the armpit past it (`measure.armhole`). `arms` maps a side
+    to that line, per direction round the joint as `seated` reads a seat. Each upper arm's faces are cut on
+    it, but never nearer the plane than `floor`, and what lies before it goes to the chest: the sleeve's top
+    where it runs into the torso at the armpit, and the slivers of sleeve between a shoulder pad and the
+    torso. The arm's own surface then stays off the plane, and its end comes in to the envelope there
+    (`seat_end`). `on` flags the vertices on the lines."""
+    v, f, t = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
+    owner, origin, on = np.asarray(owner, int), np.asarray(origin, int), np.zeros(len(v), bool)
+    if 'chest' not in names:
+        return v, f, t, owner, origin, on
+    for side, line in arms.items():
+        if token('bicep', side) not in names:
+            continue
+        point, normal = np.asarray(cuts[('shoulder', side)][0], float), seams.unit(cuts[('shoulder', side)][1])
+        a, b = seams.frame(normal)
+        relative = v - point
+        value = relative @ normal - np.maximum(seams.around(line, np.arctan2(relative @ b, relative @ a)), floor)
+        count = len(v)
+        v, f, t, owner, origin, more = handed(v, f, t, owner, origin, owner == names.index(token('bicep', side)), value, names.index('chest'))
+        on = np.concatenate([on, np.zeros(len(v) - count, bool)]) | more
+    return v, f, t, owner, origin, on
+
+
+def arm_opening(vertices, cuts, side, limit=np.inf):
+    """Flags of the points in an arm's opening at the shoulder: from the plane on, as far as `ARM_OPENING` of the
+    way to the elbow, and within `limit` of the joint's axis."""
+    point, normal = np.asarray(cuts[('shoulder', side)][0], float), seams.unit(cuts[('shoulder', side)][1])
+    relative = np.asarray(vertices, float) - point
+    height = relative @ normal
+    down = ARM_OPENING * ((np.asarray(cuts[('elbow', side)][0], float) - point) @ normal)
+    return (height > -WELD) & (height < down) & (np.linalg.norm(relative - height[:, None] * normal, axis=1) <= limit)
+
+
+def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, bend=0.0, out=None, steps=SEAT_STEPS, dome=SEAT_DOME,
+             gap=SEAT_GAP):
+    """A thigh's end, grown from its rim on the seat line (`seated`), or an upper arm's from its opening at the
+    shoulder (`split`, `arms`): (vertices, uvs, faces) to add, numbered from `base`.
+
+    The rim is the part's edges with both points `on` the line (or for an arm in its opening, `arm_opening`), each
+    on one face only, in pieces that come round the joint (`SEAT_ROUND`): a pocket's edge crossing the line is
+    left as it is. Every rim point runs in
     `steps` rings to the hip plane, drawn in there to `ring`, the end's radius per direction read straight
     between its directions (never out), in one slope; then on a dome `depth` past the plane in `dome` rings,
-    the last its pole on the joint's axis. Every point of it stands `gap` inside the pelvis's own surface `over`
-    (vertices, faces), read per direction round the thigh and height along it, as the body stands and with the
+    the last its pole on the joint's axis. Every point of it stands `gap` inside the over part's surface `over`
+    (vertices, faces), read per direction round the limb and height along it, as the body stands and with the
     thigh turned about the joint forward and back by half of `bend` degrees and all of it, and in and out by a
-    quarter and half of it: bounded at rest only, its sides came through the seat in a stride. Each point is drawn in toward the
+    quarter and half of it: bounded at rest only, its sides came through the seat in a stride. Given `out`, the
+    way from the torso to the joint, the limb is an arm: it turns forward and back as a thigh does, and out from
+    the torso by half and all of `bend`, never in across it. Each point is drawn in toward the
     axis, at its height, as far as that takes; the pole stays, as deep as the seam contract asks. The seat covers
     the end as the body stands, and turned the end fills what the thigh leaves of the leg hole. Each new vertex
     keeps the columns of the rim point it grew from; the faces wind as the cap's (`cap`)."""
@@ -955,11 +1004,16 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     column = np.floor((turn % (2 * np.pi)) / (2 * np.pi / SEAT_BINS)).astype(int) % SEAT_BINS
     forward = seams.unit(np.array((0.0, 1.0, 0.0)) - normal[1] * normal)
     across = np.cross(normal, forward)
-    turns = [np.eye(3)] + [rotation(axis, degrees) for axis, limit in ((across, bend), (forward, bend / 2))
-                            for degrees in sorted({limit / 2, limit}) if degrees > 0 for degrees in (degrees, -degrees)]
+    swings = [(across, (bend / 2, bend, -bend / 2, -bend))]
+    if out is None:  # a thigh, in and out
+        swings.append((forward, (bend / 4, bend / 2, -bend / 4, -bend / 2)))
+    else:  # an arm, out from the torso: turned about this axis the limb leans toward `out`
+        out = np.asarray(out, float)
+        swings.append((np.cross(normal, seams.unit(out - (out @ normal) * normal)), (bend / 2, bend)))
+    turns = [np.eye(3)] + [rotation(axis, degrees) for axis, angles in swings for degrees in angles if degrees]
 
     def fits(points):
-        """Whether each point stands `gap` inside the pelvis's own surface in every pose."""
+        """Whether each point stands `gap` inside the over part's surface in every pose."""
         good = np.ones(len(points), bool)
         for turned in turns:
             moved = (points - point) @ turned.T
@@ -1149,7 +1203,7 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
 
 
 def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None,
-          shape=None, deep=(), seat=None):
+          shape=None, deep=(), seat=None, arms=None):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -1191,17 +1245,36 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     the plane, and may give `bend`, the degrees the thigh turns that its end is to stay inside the pelvis
     through. What the body's pelvis covers then goes to the pelvis (`seated`), which is closed across each leg
     hole on that line (`lid`), and the thigh's end is grown from its rim there instead of a cap (`seat_end`),
-    as deep past the plane as `overlaps` says; `made` reports its faces as `CAP`."""
+    as deep past the plane as `overlaps` says; `made` reports its faces as `CAP`.
+
+    `arms` maps a shoulder, ('shoulder', side), to `line`, where the body's upper arm comes out of its chest
+    per direction round the joint (`measure.armhole`), and `ring` and `bend` as a seat does. What of the upper
+    arm lies before that line, and before `ARM_FLOOR` past the plane, goes to the chest (`armholed`), which is
+    closed across each armhole: every line it has open from the plane to `ARM_OPENING` of the way to the elbow,
+    the sleeve it took and the closings along it (`lid`). The upper arm gets one end grown from its whole opening at the shoulder
+    (`seat_end`, within `ARM_OPENING` of the way to the elbow): where the sleeve was cut on that line, parted
+    from the torso and from its pad. It stands instead of a closing along each of those cuts and a cap on the
+    plane: rounded out toward the chest, those closings stood up to 9 cm outside the seam contract's envelope
+    beside a shoulder pad. The end is held inside the chest's own surface and its closings, with the arm turned
+    forward, back and out from the torso."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
     seat = dict(seat or {})
     require(all(key in (('hip', 'l'), ('hip', 'r')) and key not in set(whole) and {'reach', 'ring'} <= set(entry) for key, entry in seat.items()),
             'A seat is a hip by joint and side, with how far the pelvis reaches past it and the ring its thigh ends at')
+    arms = dict(arms or {})
+    require(all(key in (('shoulder', 'l'), ('shoulder', 'r')) and {'line', 'ring'} <= set(entry) for key, entry in arms.items()),
+            'An arm is a shoulder by joint and side, with the line the body\'s arm leaves its chest on and the ring its upper arm ends at')
     v, f, t, owner, names, origin, cuts, sleeves, between, limit = assign(vertices, faces, uvs, joints, radii, reach, reaches, whole, sleeves)
+    if 'chest' not in names or not np.any(owner == names.index('chest')):
+        arms = {}  # no chest to hold an arm's end: its openings are closed and capped on the plane
     on_seat = np.zeros(len(v), bool)
     if seat:
         v, f, t, owner, origin, on_seat = seated(v, f, t, owner, origin, names, cuts, between, {key[1]: entry['reach'] for key, entry in seat.items()})
+    if arms:
+        v, f, t, owner, origin, _ = armholed(v, f, t, owner, origin, names, cuts, {key[1]: entry['line'] for key, entry in arms.items()})
+        on_seat = np.concatenate([on_seat, np.zeros(len(v) - len(on_seat), bool)])
     # The cuts off the joint planes, each with the parts it leaves open and the way their closing faces: a
     # sleeve seam opens the sleeve and the chest, and where it cut a stray bridge near the elbow, the forearm and
     # the pelvis; the cut between the legs opens the two thighs toward each other wherever trousers joined them
@@ -1216,13 +1289,13 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         if 'on' in found:  # cut in the pose the outfit came in: the trough's three planes, and the pad's outline
             trough = {**found, 'on': found['on'][:3], 'normals': found['normals'][:3]}
             outline = {**found, 'on': found['on'][3:], 'normals': found['normals'][3:]}
-        closings.append((trough, {token('bicep', side): (1.0, rim('shoulder', side)), token('forearm', side): (1.0, None),
-                                  'chest': (-1.0, None), 'pelvis': (-1.0, None)}))
+        arm = {} if ('shoulder', side) in arms else {token('bicep', side): (1.0, rim('shoulder', side))}  # or its end closes it
+        closings.append((trough, {**arm, token('forearm', side): (1.0, None), 'chest': (-1.0, None), 'pelvis': (-1.0, None)}))
         if outline is not None:
-            if np.any(outline['on']):  # a pad was cut off: the chest is open on the shoulder plane as wide as it lay
+            if np.any(outline['on']) and ('shoulder', side) not in arms:  # a pad was cut off: the chest is open on the shoulder plane as wide as it lay
                 lids.append(('chest', 'shoulder', side))
-            closings.append((outline, {token('shoulder', side): (1.0, None), token('bicep', side): (1.0, None),
-                                       'chest': (-1.0, rim('shoulder', side), PAD_RINGS)}))
+            arm = {} if ('shoulder', side) in arms else {token('bicep', side): (1.0, None)}
+            closings.append((outline, {token('shoulder', side): (1.0, None), **arm, 'chest': (-1.0, rim('shoulder', side), PAD_RINGS)}))
     closings.append((between, {token('thigh', 'l'): (1.0, None), token('thigh', 'r'): (-1.0, None)}))
     pads = {}  # per under part with a pad over its joint: the joint, and the pad's flags on the cut faces
     for key, flags in (guards or {}).items():
@@ -1235,8 +1308,10 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     lids += [('pelvis', 'hip', side) for side in 'lr' if ('hip', side) not in whole and ('hip', side) not in seat]
     legs = f[np.isin(owner, [names.index(token('thigh', side)) for side in 'lr' if token('thigh', side) in names])]
     seat_over = (v, f[owner == names.index('pelvis')]) if seat and 'pelvis' in names else None  # the pelvis's own surface
+    arm_over = None  # the chest's own surface and its closings, which an upper arm's end stays inside
     result = {}
-    for index, name in enumerate(names):
+    for index in sorted(range(len(names)), key=lambda index: names[index] != 'chest'):  # the chest first
+        name = names[index]
         mine = f[owner == index]
         if not len(mine):
             continue
@@ -1248,12 +1323,19 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 closed = np.concatenate([closed, len(pv) - len(more[0]) + np.arange(len(more[0]))])  # where the closing's vertices are
                 kinds.append(np.full(len(more[2]), WALL if seam is between else CLOSING))
+        if name == 'chest':
+            arm_over = (pv, pf)
         for joint, side in [key[1:] for key in lids if key[0] == name]:
             more = lid(pv, pt, pf, len(pv), cuts[(joint, side)][0], seams.unit(cuts[(joint, side)][1]), limit[(joint, side)] + WELD)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
-        if name == 'pelvis' and seat:  # open round each thigh on the seat line
+        if name == 'pelvis' and on_seat.any():  # open round each thigh on the seat line
             more = lid(pv, pt, pf, len(pv), None, None, None, on=np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]))
+            pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
+            kinds.append(np.full(len(more[2]), CLOSING))
+        if name == 'chest' and arms:  # open round each arm, from the plane down the sleeve it took and its closings
+            zone = np.any([arm_opening(pv, cuts, side, limit[('shoulder', side)] + WELD) for _, side in arms], axis=0)
+            more = lid(pv, pt, pf, len(pv), None, None, None, on=zone)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
         if shape is not None:
@@ -1264,6 +1346,14 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                     more = seat_end(pv, pt, pf, len(pv), cuts[(joint, side)][0], cuts[(joint, side)][1],
                                     np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]), seat[(joint, side)]['ring'], depth, seat_over,
                                     seat[(joint, side)].get('bend', 0.0))
+                    pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
+                    kinds.append(np.full(len(more[2]), CAP))
+            elif depth and (joint, side) in arms:
+                if token('bicep', side) == name:
+                    point, normal = cuts[(joint, side)]
+                    middle = (np.asarray(joints['lbicep_g'], float) + np.asarray(joints['rbicep_g'], float)) / 2
+                    more = seat_end(pv, pt, pf, len(pv), point, normal, arm_opening(pv, cuts, side), arms[(joint, side)]['ring'], depth, arm_over,
+                                    arms[(joint, side)].get('bend', 0.0), out=np.asarray(point, float) - middle)
                     pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                     kinds.append(np.full(len(more[2]), CAP))
             elif depth and (joint, side) not in whole and token(seams.JOINTS[joint]['under'], side) == name:
@@ -1292,4 +1382,4 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
             made[name] = np.concatenate(kinds)
         if origins is not None:
             origins[name] = np.concatenate([np.asarray(origin)[owner == index], np.full(len(pf) - own, -1)])
-    return result
+    return {name: result[name] for name in names if name in result}

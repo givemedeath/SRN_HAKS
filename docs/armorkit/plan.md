@@ -602,3 +602,22 @@ looks as generated. In a stride the seat stays put and the thigh's end shows und
 a quarter less of what the split made shows than with the plane cut. The overlap the contract asks at a torso
 opening (11.9 cm at the hip, a dome one envelope radius deep) is still the tube rule; the body's own thigh runs
 6.9 cm past the plane. The shoulders are next; the client has not seen the seat cut yet.
+
+## Revision 2026-11-12: the shoulders are cut on the body's armhole (user decision)
+
+The user asked for the shoulders before the pull request. The body's upper arm comes out of its chest over
+the shoulder up to 6 cm before the shoulder plane and at the armpit up to 15 cm past it, where the arm hangs
+inside the torso's side (`tools/armorkit/measure.py`, `armhole`). The bake now cuts the upper arms on that
+line, but only past the plane and never nearer it than 2 cm (`split.armholed`): over the shoulder the body's
+arm holds the deltoid, and an outfit's deltoid is often its shoulder pad, or vest panels beside it that
+belong to the torso. The chest takes the sleeve's top at the armpit and the slivers of sleeve beside the pad,
+and is closed across each armhole; each upper arm gets one end grown from its whole opening, in to the
+envelope at the plane and on to the overlap, held inside the chest with the arm turned forward, back and out.
+
+Every end of the Site Guard now meets tier 2: the upper arms 1.1 and 1.6 cm inside the envelope and 9.6 cm
+past the plane. At rest the outfit looks as generated; in motion a fifth less of what the split made shows at
+the shoulders than with the plane cut. The pole of the arm's end stands 9.6 cm into the chest under the pad;
+the contract's overlap at a torso opening is still the tube rule, which a padless shoulder may not have room
+for (contract version 3, user decision). In the client the seat cut showed no holes, and sitting the seat
+stays whole over the thighs. The shoulder cut is checked offline only (gate and renders): the user paused all
+client use on 2026-11-12, so the game has not shown it yet.

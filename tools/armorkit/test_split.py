@@ -1183,6 +1183,94 @@ class SeatTests(unittest.TestCase):
             split.cut(v, np.array([[0, 1, 2]]), v[:, :2], None, None, radius=0.1, height=np.zeros(3))
 
 
+class ArmTests(unittest.TestCase):
+    """The armhole cut (`arms`): the body's arm leaves its chest 6 cm past the shoulder plane toward the torso
+    and 3 cm before it elsewhere, on a torso and sleeve that are one surface down to the armpit."""
+    RING, DEPTH = 0.06, 0.05
+
+    def setUp(self):
+        self.v, self.f, self.t = fused()
+        self.planes = split.planes(JOINTS)
+        self.point, normal = self.planes[('shoulder', 'l')]
+        self.normal = seams.unit(normal)
+        turn = 2 * np.pi * np.arange(64) / 64
+        self.line = np.where(np.cos(turn) > 0.5, 0.06, -0.03)  # direction 0 is +x, toward the torso
+        self.overlaps = {('shoulder', 'l'): self.DEPTH}
+        self.arms = {('shoulder', 'l'): {'line': self.line, 'ring': np.full(16, self.RING), 'bend': 0.0}}
+        self.made = {}
+        self.parts = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, made=self.made, arms=self.arms)
+
+    def height(self, points):
+        return (points - self.point) @ self.normal
+
+    def on(self, points, key):
+        point, normal = self.planes[key]
+        return np.abs((points - point) @ seams.unit(normal)) < 1e-6
+
+    def test_what_the_bodys_chest_covers_of_the_arm_goes_to_the_chest(self):
+        points, faces, _ = self.parts['bicepl']
+        used = points[np.unique(faces[self.made['bicepl'] == split.OWN])]
+        a, b = seams.frame(self.normal)
+        relative = used - self.point
+        line = np.maximum(seams.around(self.line, np.arctan2(relative @ b, relative @ a)), split.ARM_FLOOR)
+        self.assertGreater((self.height(used) - line).min(), -1e-3)  # the sleeve past the line only, read straight between directions
+        self.assertGreater(self.height(used).min(), split.ARM_FLOOR - 1e-9)  # and never nearer the plane than the floor
+        chest, chest_faces, _ = self.parts['chest']
+        took = chest[np.unique(chest_faces[self.made['chest'] == split.OWN])]
+        self.assertGreater(self.height(took[took[:, 0] < -0.16]).max(), 0.04)  # the sleeve's top toward the torso is the chest's
+        # nothing of the outfit is lost or doubled
+        plain = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, made=plain)
+        own = lambda parts, made: sum(area(parts[name][0], parts[name][1][made[name] == split.OWN]) for name in ('chest', 'bicepl'))
+        self.assertAlmostEqual(own(self.parts, self.made), own(parts, plain), places=9)
+
+    def test_the_upper_arm_has_one_end_inside_its_ring_and_past_the_plane(self):
+        points, faces, _ = self.parts['bicepl']
+        kinds = self.made['bicepl']
+        self.assertNotIn(split.CLOSING, kinds)  # no closing along the sleeve's cuts: the end closes them all
+        end = points[np.unique(faces[kinds == split.CAP])]
+        height = self.height(end)
+        radius = np.linalg.norm(end - self.point - height[:, None] * self.normal, axis=1)
+        self.assertTrue(np.all(radius[np.abs(height) < 1e-9] <= self.RING + 1e-9))
+        self.assertAlmostEqual(height.min(), -self.DEPTH, places=9)
+        loose = open_edges(faces, points)
+        self.assertTrue(len(loose))
+        self.assertTrue(self.on(points[loose], ('elbow', 'l')).all())  # open at the elbow only
+
+    def test_the_chest_is_closed_round_the_arm(self):
+        points, faces, _ = self.parts['chest']
+        loose = open_edges(faces, points)
+        self.assertTrue(len(loose))
+        self.assertTrue(self.on(points[loose], ('waist', 'c')).all())  # open at the waist only
+        plain = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps)['chest']
+        loose = open_edges(plain[1], plain[0])
+        self.assertTrue(self.on(plain[0][loose], ('shoulder', 'l')).all(axis=1).any())  # cut on the plane, it stood open there
+
+    def test_an_arms_end_is_held_inside_what_it_turns_out_toward_and_not_across_the_torso(self):
+        # an arm hanging down -z, its end 8 cm deep, and a wall of the over part 5.5 cm to its -x side above the joint
+        normal, point = np.array((0.0, 0.0, -1.0)), np.zeros(3)
+        v, f, t = tube((0, 0, -0.03), (0, 0, -0.2), 0.05, around=32, along=6)
+        wall = np.array([(-0.055, -0.03, 0.0), (-0.055, 0.03, 0.0), (-0.055, 0.03, 0.15), (-0.055, -0.03, 0.15)]), np.array([(0, 1, 2), (0, 2, 3)])
+        lean = np.cross(normal, (1.0, 0.0, 0.0))  # turned about this, the arm leans toward +x and its end toward the wall
+
+        def through(out, degrees):  # points of the end, but its pole, in the wall once the arm leans
+            grown, _, _ = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, wall, 60.0,
+                                         out=np.array(out))
+            grown = grown[np.linalg.norm(grown[:, :2], axis=1) > 1e-9]
+            moved = grown @ split.rotation(lean, degrees).T
+            return int(((moved[:, 0] < -0.055) & (np.abs(moved[:, 1]) < 0.03) & (moved[:, 2] > 0)).sum())
+
+        for degrees in (30, 60):
+            self.assertEqual(through((1.0, 0.0, 0.0), degrees), 0)  # turned out, as far as the bend
+            self.assertGreater(through((-1.0, 0.0, 0.0), degrees), 0)  # turned in across the torso: not held
+
+    def test_inputs_are_checked(self):
+        with self.assertRaises(ValueError):
+            split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, arms={('hip', 'l'): self.arms[('shoulder', 'l')]})
+        with self.assertRaises(ValueError):
+            split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, arms={('shoulder', 'l'): {'ring': np.full(16, self.RING)}})
+
+
 def padded_leg(low=0.09, high=0.09):
     """A torso and a left leg that is one tube from hip to ankle, with a pad over the knee: (vertices, faces,
     uvs, materials). The pad is material 1 on the leg's front, `high` above the knee joint and `low` below it."""

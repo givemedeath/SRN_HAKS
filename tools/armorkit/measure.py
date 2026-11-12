@@ -27,6 +27,9 @@ SURFACE_STEP = 0.003  # head surfaces are sampled at least this densely before t
 SEAT_DIRECTIONS = 64  # the line the pelvis's skin ends on round a thigh is read in this many directions
 SEAT_EVEN = 5  # and evened over this many of them, so that a cut along it runs smoothly
 SEAT_STEP = 0.004  # the pelvis's skin is sampled this densely
+ARMHOLE_STEP = 0.006  # the upper arm's skin is sampled this densely where it leaves the chest
+ARMHOLE_HEIGHT = 0.2  # and this far to either side of the shoulder plane
+WINDING_CHUNK = 64  # points whose winding number is read at once
 
 
 def token(slot, side):
@@ -114,6 +117,57 @@ def seat(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EVEN,
     half = even // 2
     wrapped = np.concatenate([reach[-half:], reach, reach[:half]]) if half else reach
     return np.convolve(wrapped, np.ones(even) / even, mode='valid')
+
+
+def armhole(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EVEN, step=ARMHOLE_STEP):
+    """How far past a shoulder plane, down the arm, the body's upper arm comes out of its chest, per direction
+    round the joint (negative before the plane).
+
+    The body's skin parts overlap at the shoulder: the upper arm holds the whole deltoid and runs up inside the
+    chest, and the chest's own end runs down inside the arm. Where the arm shows is the body's armhole: over
+    the shoulder it lies up to 6 cm before the plane, and at the armpit, where the arm hangs inside the torso's
+    side, 6 to 15 cm past it on the Human male. A point of the arm's skin shows where it is outside the chest
+    (`winding`). Directions are those of `seams.frame` about the plane, as `seat`; the arm counts as far from
+    the joint as `OVER_LIMIT` body-ring radii and `ARMHOLE_HEIGHT` to either side of the plane. Directions
+    with none of it are read across from their neighbours, and every direction is evened with the `even`
+    round it."""
+    normal = seams.unit(normal)
+    ring = joint_ring(parts, point, normal, 'shoulder', side)
+    points = surface_points(*skin(parts, 'bicep', side), step)
+    relative = points - point
+    height = relative @ normal
+    a, b = seams.frame(normal)
+    flat = relative - height[:, None] * normal
+    near = (np.linalg.norm(flat, axis=1) < OVER_LIMIT * ring.max()) & (np.abs(height) < ARMHOLE_HEIGHT)
+    shows = near.copy()
+    shows[near] = np.abs(winding(points[near], *skin(parts, 'chest', 'c'))) < 0.5
+    angle = np.arctan2(relative[shows] @ b, relative[shows] @ a) % (2 * math.pi)
+    sector = np.floor(angle / (2 * math.pi / directions) + 0.5).astype(int) % directions
+    line = np.full(directions, np.inf)
+    np.minimum.at(line, sector, height[shows])
+    known = np.isfinite(line)
+    require(known.sum() >= directions // 2, f"shoulder {side}: the body's upper arm does not come out of the chest round the joint")
+    index = np.arange(directions)
+    line = np.interp(index, index[known], line[known], period=directions)
+    half = even // 2
+    wrapped = np.concatenate([line[-half:], line, line[:half]]) if half else line
+    return np.convolve(wrapped, np.ones(even) / even, mode='valid')
+
+
+def winding(points, vertices, faces, chunk=WINDING_CHUNK):
+    """The winding number of a closed surface about each point: 1 inside it, 0 outside (the solid angle its
+    triangles fill, as seen from the point, over a whole sphere's)."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    points = np.asarray(points, float)
+    out = np.empty(len(points))
+    for start in range(0, len(points), chunk):
+        a, b, c = (corners[None, :, k] - points[start:start + chunk, None] for k in range(3))
+        la, lb, lc = (np.linalg.norm(x, axis=2) for x in (a, b, c))
+        dot = lambda x, y: np.einsum('pfi,pfi->pf', x, y)
+        det = dot(a, np.cross(b, c))
+        below = la * lb * lc + dot(a, b) * lc + dot(b, c) * la + dot(c, a) * lb
+        out[start:start + chunk] = np.arctan2(det, below).sum(axis=1) / (2 * math.pi)
+    return out
 
 
 def joints(bones, parts):
