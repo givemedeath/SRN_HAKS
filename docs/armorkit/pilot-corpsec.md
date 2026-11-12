@@ -131,12 +131,21 @@ stood up as spikes when the arm lifted the pad. The upper arm's cap, two wings b
 the chest in front of the pad and behind it as slivers while the body stood; it now starts a fifth inside
 its rim. And the closings in the armpit were drawn at the cloth's lit shade, pale in the crease; they now
 take their edge's shade. In the client the spikes were gone and one thing was left: a pale strip in front
-of each armpit as the figure stood. It is the top of the sleeve. The pose the outfit is cut in hides it
-entirely, and the game's idle stance turns the arm a few degrees out of that pose, which lifts the sleeve's
-rim off the chest's edge on one side. Drawing the cap in farther did not close that gap, nor did setting
-it under the chest's surface; what closes an upper arm at the shoulder is now drawn in the armhole's
-shadow, and in the client the strip reads as the crease it lies in while the figure stands. With the arm
-lifted the same faces show in the armpit as dark shards, where they were grey. Left as it is: with the arm lifted, the chest's
+of each armpit as the figure stood. It is what closes the sleeve at the shoulder, its closings and its
+cap. The pose the outfit is cut in hides most of it, and the game's idle stance turns the arm a few degrees
+out of that pose, which lifts the sleeve's rim off the chest's edge on one side. Drawing the cap in farther
+did not close that gap, nor did setting it under the chest's surface; the upper arm's closings are now
+drawn in the armhole's shadow, and in the client the strip reads as the crease it lies in while the figure
+stands. With the arm lifted the same faces show in the armpit as dark shards, where they were grey.
+
+A correction to that account, found when the bake was made a tracked command (`tools/armorkit/bake.py`):
+this paragraph first said the strip was the top of the sleeve, its cap, and that the cap was darkened with
+the closings. The bake that was looked at in the client darkened the closings only; a later line of the
+bake script had taken the cap out of them, and it was drawn as read, its rim's colours carried to its
+pole. Measured offline at six degrees, up to 9 cm2 of the closings and up to 10 of the cap show. The marked
+capture that pointed to the cap drew caps at shade 0 and closings at 255, and the client draws the top of
+the shade range black as well, so it may not have told the two apart. The tracked bake keeps what was
+seen; the cap darkened with the closings has not been tried in the client. Left as it is: with the arm lifted, the chest's
 armhole is closed by a dome under the pad over a flat fan in the armpit, with a step between the two; the
 sleeve's closed inner side shows under a lifted arm as a flat face; and the fan shows behind the sleeve as
 a dark wedge. The accent and

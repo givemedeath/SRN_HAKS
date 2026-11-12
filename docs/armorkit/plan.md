@@ -197,7 +197,9 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
    The same pair on the Human female for each separate female cut. Review before generating.
 3. **Generate** the source on the local engine, recorded in the ledger (`python -m tools.armorkit generate`:
    calibrate, geometry, export, appearance). At most five geometry attempts per model.
-4. **Split** on the Human male body with planar joint cuts and the overlap ends for each tier.
+4. **Split** on the Human male body with planar joint cuts and the overlap ends for each tier. Steps 4 to 6
+   and the gates of step 8 that exist are one command for a generated outfit: `python -m tools.armorkit bake`
+   (`tools/armorkit/bake.py`).
 5. **Fit** around the unchanged body: clearance, no body edits.
 6. **Materials.** Label regions to channels, write the PLT and material file, mark skin regions, place badges.
 7. **Skinned pieces** (hoods, bandoliers, skirts that need it): weights, then compile with cleanmodels.

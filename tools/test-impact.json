@@ -3,6 +3,7 @@
   "dependencies": {
     "tools/armorkit/__init__.py": [],
     "tools/armorkit/__main__.py": [
+      "tools/armorkit/bake.py",
       "tools/armorkit/brief.py",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
@@ -13,6 +14,18 @@
       "tools/armorkit/registry.py",
       "tools/armorkit/seam-contract.json",
       "tools/armorkit/tables.py"
+    ],
+    "tools/armorkit/bake.py": [
+      "tools/armorkit/brief.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/repose.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/split.py",
+      "tools/armorkit/texture.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/gltf.py"
     ],
     "tools/armorkit/brief.py": [
       "tools/armorkit/registry.py",
@@ -85,6 +98,11 @@
     "tools/armorkit/tables.py": [
       "tools/armorkit/registry.py"
     ],
+    "tools/armorkit/test_bake.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/split.py"
+    ],
     "tools/armorkit/test_brief.py": [
       "tools/armorkit/brief.py",
       "tools/armorkit/briefs/corpsec-siteguard-male-2.json",
@@ -93,7 +111,9 @@
     ],
     "tools/armorkit/test_cli.py": [
       "tools/armorkit/__main__.py",
+      "tools/armorkit/bake.py",
       "tools/armorkit/brief.py",
+      "tools/armorkit/briefs/corpsec-siteguard-male-2.json",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/examples/registry.json",
@@ -5091,6 +5111,10 @@
   },
   "unresolved": [],
   "packReferences": {
+    "tools/armorkit/test_cli.py": [
+      "srn_armor",
+      "srn_body"
+    ],
     "tools/armorkit/test_measure.py": [
       "srn_body",
       "srn_head"
@@ -5223,6 +5247,7 @@
     ]
   },
   "tests": [
+    "tools/armorkit/test_bake.py",
     "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
