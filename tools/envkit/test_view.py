@@ -88,6 +88,15 @@ class ViewTests(unittest.TestCase):
         cut = view._in_front(np.array([[0.0, 0.0, 1.0, 0.0, 0.0], [1.0, 0.0, 1.0, 1.0, 0.0], [0.0, 0.0, -1.0, 0.0, 1.0]]))  # one corner behind: a quad, as two triangles
         self.assertEqual(len(cut), 2); self.assertTrue(all((triangle[:, 2] >= view.NEAR - 1e-9).all() for triangle in cut))
         self.assertEqual(view._in_front(np.array([[0.0, 0.0, -1.0, 0, 0], [1.0, 0.0, -1.0, 0, 0], [0.0, 1.0, -2.0, 0, 0]])), [])  # all of it behind
+        # A tile group is drawn with the models placed in it, each with its own picture (2026-11-12).
+        other = self.root / 'meshy' / 'blue'; other.mkdir(parents=True); glb(other / 'model.glb', **WALL)
+        Image.new('RGB', (64, 64), (0, 0, 255)).save(other / 'texture_0_base_color.png')
+        group = {**self.models, 'ek_blue': {'source': 'meshy/blue', 'height': 2.0},
+                 'ek_yard': {'source': 'meshy/wall', 'height': 2.0, 'tiles': {'parts': [{'model': 'ek_blue', 'at': [1.5, 0.0, 0.0]}]}}}
+        both = view.perspective(group, self.root, 'ek_yard', self.root / 'eyes', [view.eye('front=0.75,6,1,0.75,0,1')], size=(160, 100))
+        with Image.open(both['pictures'][0]) as picture:
+            colours = {colour for _, colour in picture.convert('RGB').getcolors(1 << 20)}
+        self.assertEqual(both['faces'], {'front': 4}); self.assertTrue({(200, 180, 160), (0, 0, 255)} <= colours)
 
     def test_a_generated_model_is_drawn_before_any_game_set_states_it(self):
         told = view.raw(self.root / 'meshy' / 'wall', 3.0, self.root / 'raw', sides=(0,), fine=128)
