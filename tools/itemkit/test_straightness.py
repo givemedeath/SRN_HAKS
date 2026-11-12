@@ -91,6 +91,20 @@ class StraightnessTests(unittest.TestCase):
             with self.assertRaises(FileExistsError): s.straighten(source, folder/'out')
 
 
+class EndCapNormalTests(unittest.TestCase):
+    def test_squared_cap_normals_stay_perpendicular_through_the_fade(self):
+        # A 22-degree cap tilt faded over 8 cm: the shear depends on x, so it also stretches along the length.
+        ends = np.array([[0., 0., 0., np.tan(np.radians(22)), .1, .08, 0.]])
+        rng = np.random.default_rng(1); grid = rng.uniform([-.1, -.03, -.02], [.1, .03, .02], (500, 3))
+        for normal, tangents in ((np.array([0., 0., 1.]), ((1., 0, 0), (0, 1., 0))), (np.array([0., 1., 0.]), ((1., 0, 0), (0, 0, 1.)))):
+            moved, turned = s._apply_ends(grid, ends, np.tile(normal, (len(grid), 1)))
+            for t in tangents:                                         # the face through each point spanned by these two directions
+                ahead, _ = s._apply_ends(grid + 1e-6 * np.asarray(t), ends)
+                along = (ahead - moved) / 1e-6; along /= np.linalg.norm(along, axis=1)[:, None]
+                unit = turned / np.linalg.norm(turned, axis=1)[:, None]
+                self.assertLess(np.abs((unit * along).sum(1)).max(), 1e-4)
+
+
 class ThinNormalTests(unittest.TestCase):
     def test_thinned_normals_stay_perpendicular_through_the_ramp_and_a_sloped_mid_plane(self):
         centres = np.linspace(0, 1, s.SLICES); gain = np.clip(1.5 - centres * 2, .5, 1)       # ramps from 1 to 0.5

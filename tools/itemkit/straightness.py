@@ -123,9 +123,15 @@ def _apply_ends(p, ends, vectors=None):
     """Shear each tilted flat cap square, fading the correction out over one section size along the shaft."""
     p = p.copy()
     for end, y, z, a, b, reach, _ in ends:
-        w = np.clip(1 - np.abs(p[:, 0] - end) / reach, 0, 1); w = w * w * (3 - 2 * w)
-        p[:, 0] -= w * (a * (p[:, 1] - y) + b * (p[:, 2] - z))
-        if vectors is not None: vectors = np.column_stack([vectors[:, 0], vectors[:, 1] + w * a * vectors[:, 0], vectors[:, 2] + w * b * vectors[:, 0]])
+        u = np.clip(1 - np.abs(p[:, 0] - end) / reach, 0, 1); w = u * u * (3 - 2 * u)
+        h = a * (p[:, 1] - y) + b * (p[:, 2] - z)
+        # dw/dx inside the fade (the clamp is flat outside it): the shear x' = x - w(x) h also stretches along x.
+        dw = np.where((u > 0) & (u < 1), 6 * u * (1 - u) * -np.sign(p[:, 0] - end) / reach, 0.)
+        p[:, 0] -= w * h
+        if vectors is not None:
+            # Inverse-transpose of the full Jacobian (row 0 = [1 - w'h, -wa, -wb]): solve J^T m = n.
+            first = vectors[:, 0] / (1 - dw * h)
+            vectors = np.column_stack([first, vectors[:, 1] + w * a * first, vectors[:, 2] + w * b * first])
     return p, vectors
 
 
