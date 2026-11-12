@@ -1,0 +1,43 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-armorkit-brief",
+ "model": "corpsec-facility-male",
+ "pads": [],
+ "construction": 1,
+ "materials": [
+  {
+   "name": "fabric",
+   "kind": "cloth",
+   "colour": [
+    128,
+    128,
+    128
+   ],
+   "look": "MEDIUM NEUTRAL GREY cloth",
+   "wears": "the short-sleeved uniform shirt and the cargo trousers with thigh pockets. The sleeves are short and loose and end halfway down the upper arm. Plain trousers waistband with no belt, shirt tucked in. The trouser legs are tucked into the boots."
+  },
+  {
+   "name": "gear",
+   "kind": "leather",
+   "colour": [
+    196,
+    160,
+    110
+   ],
+   "look": "WARM TAN, like khaki canvas and tan leather",
+   "wears": "the soft fabric plate carrier vest, the row of pouches across the stomach, and the lace-up combat boots, which are tan suede with tan soles and tan laces and end a hand above the ankle. The vest is soft fabric, the same tan as the pouches; its two shoulder straps lie close to the collar, well inside the sleeve seams; it is narrow at the sides and ends well short of the armpits, with no pouches on its sides. Also tan: the two straps that hold each shin guard on. Each one is a broad flat band of tan webbing that goes right round the shin, the same tan as the vest, with a plain tan buckle. No strap is grey, blue or dark. Nothing in the outfit is black or dark."
+  },
+  {
+   "name": "plates",
+   "kind": "metal",
+   "colour": [
+    120,
+    170,
+    230
+   ],
+   "look": "BRIGHT LIGHT SKY BLUE hard plastic, a saturated baby blue (hex #78AAE6), clearly coloured and as light as the tan",
+   "wears": "the rigid knee pads and shin guards, and nothing else. Each knee pad is one rounded shell centred on the knee, fixed to the trouser leg with no strap. Each shin guard is one long shell on the front of the shin: it starts below the knee pad, with a clear band of grey cloth showing between the two, and ends above the top of the boot. Every guard and pad is plainly sky blue, with no grey in it: not a pale blue-grey, and not a dark or royal blue. Only the hard shells are blue; the straps that hold the shin guards on are tan. Nothing above the knees is blue: there are no shoulder, arm or chest plates."
+  }
+ ],
+ "prompt": "Product image of one security uniform for a near-future corporate facility guard, standing in an A-pose. Show the clothing and gear only, as an empty outfit on an invisible mannequin: headless and armless. The collar is an empty opening, each short sleeve ends in an empty opening, and there is nothing inside the outfit. No arms, no hands, no gloves and no skin anywhere in the image.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two short sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, exactly as they would sit on straight arms lifted sideways. Each sleeve ends halfway between the shoulder and the elbow in a straight clean hem, and beyond the hem there is only white background. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit. The sleeves do not touch the vest anywhere, and the whole underside of each sleeve from armpit to hem is visible against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe grey cloth is clearly greyer and darker than the tan gear, and the tan gear is clearly browner than the cloth. The blue plates are clearly bluer and lighter than the grey cloth, which has no blue in it. Every part of the outfit is one of these three colours and nothing is in between: a strap is tan, never a grey-blue.\n\n{construction}\n\nSmooth clean surfaces like a painted sculpt: plain colour on every part, clean and new with no dirt or wear, matte plastic, smooth cloth with only large soft folds, simple chunky shapes, clean edges between parts.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from sleeve hem to sleeve hem with margin on all sides, plain white background."
+}
