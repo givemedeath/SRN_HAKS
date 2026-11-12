@@ -153,10 +153,11 @@ class ScriptedShotTests(unittest.TestCase):
     def test_reviewed_item_is_rearmed_after_the_off_hand_steps_and_never_cleared(self):
         from tools.itemkit.fixture import shot_script
         script = entry_script('sr_blade')
-        self.assertIn('if(n==22) DelayCommand(5.0,ItkRearm(t));', script)
+        self.assertIn('if(n==22) DelayCommand(1.0,ItkRearm(t));', script)                 # well before the armour of step 23
+        self.assertIn('INVENTORY_SLOT_RIGHTHAND!=INVENTORY_SLOT_LEFTHAND) DelayCommand(5.0,ItkClear(t,INVENTORY_SLOT_LEFTHAND));', script)
         self.assertIn('GetTag(o)!="sr_blade") DestroyObject(o);', script)                  # the reviewed item is never destroyed
         self.assertIn('ActionEquipItem(item,INVENTORY_SLOT_RIGHTHAND)', script); self.assertNotIn('ITEM_RESREF', script)
         shield = entry_script('sr_shield', equipment_slot='left')
         self.assertIn('ActionEquipItem(item,INVENTORY_SLOT_LEFTHAND));\n}', shield)
-        self.assertIn('if(INVENTORY_SLOT_LEFTHAND!=INVENTORY_SLOT_LEFTHAND)', shield)     # a shield keeps its own hand
+        self.assertIn('if(n==22 && INVENTORY_SLOT_LEFTHAND!=INVENTORY_SLOT_LEFTHAND)', shield)   # a shield keeps its own hand
         with self.assertRaisesRegex(ValueError, 'equipment slot'): shot_script(slot='both')

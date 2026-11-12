@@ -196,16 +196,18 @@ void ItkBare(object t) {
   ItkClear(t,INVENTORY_SLOT_LEFTHAND);
 }
 void ItkRearm(object t) {
-  if(INVENTORY_SLOT_@SLOT@!=INVENTORY_SLOT_LEFTHAND) ItkClear(t,INVENTORY_SLOT_LEFTHAND);
-  ItkClear(t,INVENTORY_SLOT_@SLOT@);
   object item=GetItemPossessedBy(t,"ITEM_RESREF");
-  if(GetIsObjectValid(item) && GetItemInSlot(INVENTORY_SLOT_@SLOT@,t)!=item) AssignCommand(t,ActionEquipItem(item,INVENTORY_SLOT_@SLOT@));
+  if(!GetIsObjectValid(item) || GetItemInSlot(INVENTORY_SLOT_@SLOT@,t)==item) return;
+  ItkClear(t,INVENTORY_SLOT_@SLOT@);
+  AssignCommand(t,ClearAllActions(TRUE)); AssignCommand(t,ActionEquipItem(item,INVENTORY_SLOT_@SLOT@));
 }
 void ItkPlan(object pc,object t,int base,int n) {
   if(n==@BARE@) ItkBare(t);
+  // A two-handed weapon was put away for the shield and a stock weapon took its hand: give the reviewed one back early
+  // in the step, so the equip is over before the armour of step 23 is put on (an equip still running stops the armour).
+  if(n==22) DelayCommand(1.0,ItkRearm(t));
   // The armour of step 23 did not go on while an off-hand weapon was still being put away: take that weapon out first.
-  // A two-handed weapon was put away for the shield and a stock weapon took its hand: give the reviewed one back.
-  if(n==22) DelayCommand(5.0,ItkRearm(t));
+  if(n==22 && INVENTORY_SLOT_@SLOT@!=INVENTORY_SLOT_LEFTHAND) DelayCommand(5.0,ItkClear(t,INVENTORY_SLOT_LEFTHAND));
 @PLAN@
 }
 void ItkWatch(object pc) {
