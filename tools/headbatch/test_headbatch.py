@@ -39,6 +39,11 @@ class Base(unittest.TestCase):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
         self.root = Path(folder.name).resolve()  # the Windows runner's temp path is an 8.3 short name
+        # The fakes stand for a controlled ComfyUI; proving a server is headkit.shared_comfy's own test.
+        for patcher in (unittest.mock.patch.object(gpu_job, 'proven', return_value={'identity': {}, 'approval': None}),
+                        unittest.mock.patch.object(gpu_job, 'recheck', return_value={}),
+                        unittest.mock.patch.dict(os.environ, {'SRN_TOOLS_ROOT': str(self.root/'shared-tools')})):
+            patcher.start(); self.addCleanup(patcher.stop)
         packages = self.root/'packages'
         packages.mkdir()
         write(self.root/'head-bindings.json', {'pythonPackages': {'directory': str(packages), 'files': []}, 'libraries': {'igl': {'directory': 'lib'}}})
@@ -365,6 +370,20 @@ class WorkspaceTests(Base):
         self.assertEqual(plain['PYTHONDONTWRITEBYTECODE'], '1')
         self.assertNotIn('caller', bound['PYTHONPATH'])
         self.assertIn('lib', bound['PYTHONPATH'])
+
+    def test_children_use_the_workspaces_own_tools_root(self):
+        # The launcher holds the GPU lease under this root; its children must take the same lease and registry.
+        own = self.root/'own-tools'; own.mkdir()
+        data = {key: value for key, value in self.workspace.data.items() if key != 'toolsRoot'}
+        bound, unbound = Workspace(self.workspace.root, {**data, 'toolsRoot': str(own)}), Workspace(self.workspace.root, data)
+        with unittest.mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.root/'elsewhere')}):
+            environment = bound.python_environment()
+            self.assertEqual(environment['SRN_TOOLS_ROOT'], str(own.resolve()))
+            self.assertEqual(Path(environment['SRN_TOOLS_ROOT']), bound.tools_root())
+            self.assertEqual(unbound.python_environment()['SRN_TOOLS_ROOT'], str(self.root/'elsewhere'))  # none set: unchanged
+        second = Workspace(self.workspace.root, {**data, 'comfy': {**data.get('comfy', {}), 'gpuIndex': 1}})
+        self.assertEqual(second.python_environment()['SRN_GPU_INDEX'], '1')  # children lease the launcher's GPU
+        self.assertEqual(unbound.python_environment()['SRN_GPU_INDEX'], str(data.get('comfy', {}).get('gpuIndex', 0)))
 
 
 class Guards(Base):
@@ -2460,6 +2479,18 @@ class ConditioningContracts(Base):
         with self.assertRaisesRegex(BudgetExceeded,'unavailable'):budget.check()
 
 class DeliveryAndRetryContracts(Base):
+    def test_a_gpu_submission_proves_the_server_with_the_heads_own_bindings(self):
+        class Probe(gpu_job.Comfy):
+            def free(self): pass
+            def call(self, route, data=None, *, timeout=5): return {'prompt_id': 'p'}
+            def wait(self, prompt_id): return prompt_id
+        comfy = Probe('http://127.0.0.1:8188', self.root); comfy.local = {'comfyAttestation': {'path': 'x', 'sha256': 'y'}}
+        self.assertEqual(comfy.submit({}), 'p')
+        self.assertIs(gpu_job.proven.call_args.args[1], comfy.local)
+        self.assertEqual(gpu_job.recheck.call_args.args[1], {'identity': {}, 'approval': None})  # rechecked before outputs count
+        gpu_job.recheck.side_effect = ValueError('ComfyUI restarted during the job')
+        with self.assertRaisesRegex(ValueError, 'restarted'): comfy.submit({})
+
     def test_oom_attempt_keeps_its_own_history_and_charges_both_submissions(self):
         server=GpuJob.Server(self.root,polls=[
             {'p1':{'status':{'completed':False,'status_str':'error','messages':['out of memory']},'outputs':{}}},

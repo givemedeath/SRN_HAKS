@@ -118,7 +118,7 @@ def make(client, local, name, reference, seed, triangles, output, *, texture=204
     record = {'asset': name, 'seed': seed, 'triangles': triangles, 'token': token, 'graph': graph}
     try:
         try:
-            design.dispatch(client, graph, token, record, deadline=deadline)
+            design.dispatch(client, graph, token, record, deadline=deadline, local=local)
         except urllib.error.HTTPError as error:  # the server's reason for refusing a graph is in the response body
             raise ValueError('ComfyUI refused the job: ' + error.read().decode('utf-8', 'replace')[:3000]) from error
         made = Path(local['comfyOutput']) / SUBFOLDER / token

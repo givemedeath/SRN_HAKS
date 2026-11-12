@@ -1,5 +1,7 @@
 """Source jobs are posted only for images that come from a brief, and geometry attempts are counted."""
+import itertools
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -28,6 +30,8 @@ class Engine:
                 return {'node_errors': {'1': 'bad'}}
             self.posted.append(data)
             return {'prompt_id': f'job-{len(self.posted)}'}
+        if route == '/queue':  # the shared gate waits for an idle queue before anything is recorded or posted
+            return {'queue_running': [[0, 'another session']] if self.busy else [], 'queue_pending': []}
         if self.lost:
             raise ConnectionError('the engine went away')
         if self.meanwhile:
@@ -55,6 +59,12 @@ class GenerateTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.work = Path(self.temporary.name).resolve()
+        # The fakes stand for a controlled ComfyUI; the GPU lease lives in this test's own tools root.
+        self.recheck = mock.patch('tools.headkit.shared_comfy.recheck')
+        for patcher in (mock.patch('tools.headkit.shared_comfy.proven', return_value={'identity': {'proven': 'at dispatch'}, 'approval': None}),
+                        mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.work / 'tools')})):
+            patcher.start(); self.addCleanup(patcher.stop)
+        self.recheck = self.recheck.start(); self.addCleanup(mock.patch.stopall)
         self.folder = self.work / 'outfit' / 'reference-1'
         brief.seal(document(), self.folder)
         self.image = self.folder / 'image.png'
@@ -113,6 +123,21 @@ class GenerateTests(unittest.TestCase):
         self.engine.status = 'error'
         generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')
         self.assertEqual([row['state'] for row in self.ledger()], ['complete', 'failed'])
+
+    def test_no_output_is_kept_from_a_server_that_changed_during_the_job(self):
+        done = generate.appearance(self.work, 'outfit', self.image, 36.6, self.image, 'models')
+        # what was proven at dispatch is rechecked before the files are fetched
+        self.assertEqual(self.recheck.call_args.args[1], {'identity': {'proven': 'at dispatch'}, 'approval': None})
+        self.assertEqual(done['files'], ['node-12_00001_.png'])
+        self.recheck.side_effect = ValueError('ComfyUI restarted during the job; its outputs are not accepted')
+        with self.assertRaisesRegex(ValueError, 'restarted during the job'):
+            generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')
+        row = self.ledger()[0]
+        self.assertEqual(row['state'], 'submitted')  # counted, with no known outcome: reconciled by a person
+        self.assertIn('restarted', row['error'])
+        folder = self.work / row['folder']
+        self.assertTrue((folder / 'history.json').is_file())
+        self.assertFalse((folder / 'node-12_00001_.png').exists())
 
     def test_a_model_gets_five_attempts_earlier_ones_included(self):
         earlier = [{'attempt': k + 1, 'token': str(k), 'state': 'complete'} for k in range(3)]
@@ -192,8 +217,22 @@ class GenerateTests(unittest.TestCase):
         self.engine.lost = False
         self.assertEqual(generate.geometry(self.work, 'outfit', self.image, 36.6, 'models')['attempt'], 2)
 
+    def test_the_gpu_lease_is_let_go_once_the_job_is_queued(self):
+        from tools.headkit.shared_comfy import gpu_lease
+        free = []
+
+        def probe():  # another session, while this job runs: the lease is free, so it queues behind the job
+            other = {key: value for key, value in os.environ.items() if key != 'SRN_GPU_LEASE'}  # no inherited hold
+            with mock.patch.dict('os.environ', other, clear=True), gpu_lease(0, limit=0, say=None): free.append(True)
+        self.engine.meanwhile = probe
+        generate.calibrate(self.work, 'outfit', self.image, 'models')
+        self.assertEqual(free, [True])
+
     def test_a_busy_engine_is_left_alone_and_nothing_is_counted(self):
         self.engine.busy = True
+        waited = mock.patch('tools.headkit.shared_comfy.time.monotonic', side_effect=itertools.count(0, 1000))
+        waited.start(); self.addCleanup(waited.stop)
+        napping = mock.patch('tools.headkit.shared_comfy.time.sleep'); napping.start(); self.addCleanup(napping.stop)
         calls = (lambda: generate.calibrate(self.work, 'outfit', self.image, 'models'),
                  lambda: generate.geometry(self.work, 'outfit', self.image, 36.6, 'models'),
                  lambda: generate.appearance(self.work, 'outfit', self.image, 36.6, self.image, 'models'),

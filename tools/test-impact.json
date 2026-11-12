@@ -69,7 +69,8 @@
       "tools/headkit/common.py",
       "tools/headkit/generation.py",
       "tools/headkit/gpu_lock.py",
-      "tools/headkit/reference_background.py"
+      "tools/headkit/reference_background.py",
+      "tools/headkit/shared_comfy.py"
     ],
     "tools/armorkit/measure.py": [
       "tools/armorkit/registry.py",
@@ -155,7 +156,8 @@
     "tools/armorkit/test_generate.py": [
       "tools/armorkit/brief.py",
       "tools/armorkit/generate.py",
-      "tools/armorkit/test_brief.py"
+      "tools/armorkit/test_brief.py",
+      "tools/headkit/shared_comfy.py"
     ],
     "tools/armorkit/test_measure.py": [
       "tools/armorkit/head-envelopes.json",
@@ -420,7 +422,8 @@
       "tools/headbatch/resource_budget.py",
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
-      "tools/headkit/occiput.py"
+      "tools/headkit/occiput.py",
+      "tools/headkit/shared_comfy.py"
     ],
     "tools/headbatch/guards.py": [
       "tools/headbatch/gpu_job.py",
@@ -453,6 +456,7 @@
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/headkit/run_headkit.py",
+      "tools/headkit/shared_comfy.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/shared_tools.py"
     ],
@@ -799,10 +803,12 @@
       "tools/heads/build_head_trial.py"
     ],
     "tools/headbatch/workspace.py": [
-      "tools/headbatch/races.json"
+      "tools/headbatch/races.json",
+      "tools/shared_tools.py"
     ],
     "tools/headkit/__init__.py": [],
     "tools/headkit/__main__.py": [
+      "tools/headkit/attestation.py",
       "tools/headkit/comfy.py",
       "tools/headkit/comfy_nodes/managed_startup.py",
       "tools/headkit/common.py",
@@ -815,8 +821,14 @@
       "tools/headkit/preview.py",
       "tools/headkit/replay.py",
       "tools/headkit/runner.py",
+      "tools/headkit/shared_comfy.py",
       "tools/headkit/source_inventory.py",
       "tools/headkit/stock-shades.json"
+    ],
+    "tools/headkit/attestation.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/source_inventory.py",
+      "tools/shared_tools.py"
     ],
     "tools/headkit/benchmark_verification.py": [],
     "tools/headkit/blender_render.py": [
@@ -838,6 +850,7 @@
     ],
     "tools/headkit/colour.py": [],
     "tools/headkit/comfy.py": [
+      "tools/headkit/attestation.py",
       "tools/headkit/checkpoints.json",
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/common.py",
@@ -845,15 +858,22 @@
       "tools/headkit/gpu_lock.py",
       "tools/headkit/model_contract.py",
       "tools/headkit/reference_background.py",
+      "tools/headkit/shared_comfy.py",
       "tools/headkit/source_inventory.py"
     ],
     "tools/headkit/comfy_nodes/__init__.py": [
+      "tools/headkit/comfy_nodes/attested.py",
       "tools/headkit/comfy_nodes/managed_startup.py",
       "tools/headkit/comfy_nodes/model_resolution.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/runtime_identity.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py",
       "tools/headkit/comfy_nodes/verification.py",
       "tools/headkit/comfy_nodes/verified_loaders.py"
+    ],
+    "tools/headkit/comfy_nodes/attested.py": [
+      "tools/headkit/comfy_nodes/managed_startup.py",
+      "tools/headkit/comfy_nodes/source_snapshot.py"
     ],
     "tools/headkit/comfy_nodes/gltf.py": [],
     "tools/headkit/comfy_nodes/managed_startup.py": [
@@ -919,6 +939,7 @@
     "tools/headkit/design.py": [
       "tools/headkit/common.py",
       "tools/headkit/images.py",
+      "tools/headkit/shared_comfy.py",
       "tools/headkit/templates/flux2-design.json",
       "tools/headkit/templates/flux2-inpaint.json",
       "tools/headkit/templates/qwen21-design.json"
@@ -950,6 +971,7 @@
       "tools/headkit/gltf.py"
     ],
     "tools/headkit/generation.py": [
+      "tools/headkit/attestation.py",
       "tools/headkit/checkpoints.json",
       "tools/headkit/comfy.py",
       "tools/headkit/comfy_nodes/model_resolution.py",
@@ -1140,6 +1162,12 @@
       "tools/headkit/gltf.py",
       "tools/headkit/rays.py"
     ],
+    "tools/headkit/shared_comfy.py": [
+      "tools/headkit/attestation.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gpu_lock.py",
+      "tools/headkit/source_inventory.py"
+    ],
     "tools/headkit/skin_seams.py": [
       "tools/headkit/common.py",
       "tools/headkit/quality.py",
@@ -1158,6 +1186,12 @@
       "tools/headkit/palette.py",
       "tools/headkit/uv.py"
     ],
+    "tools/headkit/test_attestation.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/attestation.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/common.py"
+    ],
     "tools/headkit/test_brow_edges.py": [
       "tools/headkit/brow_edges.py",
       "tools/headkit/face_masks.py",
@@ -1165,6 +1199,7 @@
     ],
     "tools/headkit/test_comfy_runtime_snapshot.py": [
       "tools/headkit/comfy_nodes/__init__.py",
+      "tools/headkit/comfy_nodes/attested.py",
       "tools/headkit/comfy_nodes/nodes.py",
       "tools/headkit/comfy_nodes/runtime_identity.py",
       "tools/headkit/comfy_nodes/source_snapshot.py",
@@ -1323,6 +1358,14 @@
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/headkit/render_device.py"
+    ],
+    "tools/headkit/test_shared_comfy.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/attestation.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/design.py",
+      "tools/headkit/shared_comfy.py",
+      "tools/headkit/test_attestation.py"
     ],
     "tools/headkit/test_skin_seams.py": [
       "tools/headkit/skin_seams.py"
@@ -5394,6 +5437,7 @@
     "tools/headbatch/test_material_evidence.py",
     "tools/headbatch/test_process_contracts.py",
     "tools/headbatch/test_trial_settings.py",
+    "tools/headkit/test_attestation.py",
     "tools/headkit/test_brow_edges.py",
     "tools/headkit/test_comfy_runtime_snapshot.py",
     "tools/headkit/test_comfy_transport.py",
@@ -5410,6 +5454,7 @@
     "tools/headkit/test_process_quality.py",
     "tools/headkit/test_reference_background.py",
     "tools/headkit/test_render_device.py",
+    "tools/headkit/test_shared_comfy.py",
     "tools/headkit/test_skin_seams.py",
     "tools/headkit/test_verification_performance.py",
     "tools/headkit/test_verified_startup.py",
