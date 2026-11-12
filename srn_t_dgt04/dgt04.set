@@ -13157,13 +13157,20 @@ SourceLight2=0
 AnimLoop1=0
 AnimLoop2=0
 AnimLoop3=0
-Doors=0
+Doors=1
 Sounds=0
 PathNode=U
 Orientation=90
 VisibilityNode=U
 VisibilityOrientation=90
 ImageMap2D=ek_ad_depot_m11
+
+[TILE441DOOR0]
+Type=58
+X=-0.1
+Y=1.45
+Z=0.25
+Orientation=90.0
 
 [GROUPS]
 Count=59

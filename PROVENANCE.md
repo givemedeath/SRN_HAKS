@@ -397,35 +397,44 @@ budget the operator set for larger buildings on 2026-11-11 (a first remesh to 88
 Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry above records.
 The name and emblem on the signs are those of a fictional corporation of the Shadowrun setting, as the concept
 sheet drew them. Meshy added a second sign to the rear wall that the references do not show; its small
-lettering is not legible.
+lettering was not legible and is painted over in the sign's own black, leaving the name and the emblem.
 
 Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes
 and scaled; its textures were recompressed (colour 4096 DXT1, the other maps 2048); a glow map and a halo sheet
 were made from its own colour for the roof sign and the tower windows; the mesh was shared out over four tiles
 (34,579 to 56,753 faces each) with a ground square, a map picture and two main lights each; everything above 4
 metres carries `tilefade`; and a walkmesh was generated from its shape (1,050 to 1,556 faces a tile, where the
-stock tiles of these two tilesets have at most 500). The group has no door record: the model's doors are shut
-and nothing lies behind them. The path nodes are `I` 90, `U` 270, `I` 270 and `U` 90. They were first worked out
+stock tiles of these two tilesets have at most 500). The north-east tile has a door record of type 58, the
+invisible transition door, at the personnel door beside the vehicle door. The path nodes are `I` 90, `U` 270, `I` 270 and `U` 90. They were first worked out
 with the kerbs between the fence and the tile edge, half to three quarters of a metre wide, counted as ways
 through, and two of four walkers sent from the far corners of the area stopped short; a side now joins another
 only through ground a metre square can stand on, and with that all four reached their spots before the vehicle
 door, behind the building and on either side of it. The Meshy source, the full-detail spare, the references and
 the client captures stay in ignored `output/envkit/`.
 
-Checked in the game client in a Modern Exterior area on 2026-11-11, by day from all four sides and from above
-with the walkers above, and by night, where the roof sign and the tower windows were lit and the rest was not
-(a first night look had a white wall beside the tower glowing and the tower windows dark; the lit parts were
-restated and the tiles rebuilt before the group was committed). Not checked: the group in a Suburbs area, the area map, the hidden top with the player free, the lights-out
-material in the client, and anything in the Toolset.
+Checked in the game client on 2026-11-11. In a Modern Exterior area: by day from all four sides and from above
+with the walkers above; by night, where the roof sign and the tower windows were lit and the rest was not (a
+first night look had a white wall beside the tower glowing and the tower windows dark; the lit parts were
+restated and the tiles rebuilt); with `SetTextureOverride` as `docs/envkit/lights.md` gives it, which put the
+lights and their halo out for the player and brought them back; with the player free and the client's
+second-storey setting on always, where everything above 4 metres was hidden under the black lid; and on the
+area map, which showed the four pictures in place. In a Suburbs area by day: seen from all four sides, with four
+walkers from the far corners reaching the personnel door, the rear and both sides. Checked in the Toolset the
+same day, from the built packs: both palettes list `Ares Depot 2x2` under Groups; painting it laid the four
+tiles in order with no turn, as the saved areas record, changed no other tile in Modern Exterior and repainted
+the twelve tiles around it as asphalt edges and corners in Suburbs; and in each it made one door by itself, of
+type 58, at the personnel door and facing out. Not checked: the group turned before painting, the door used as
+a transition in the client, and the hidden top with the setting on "near the character".
 
 ## Ares Depot props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
-Fourteen envkit props from the same concept sheet as the Ares Depot tile group join `srn_placeable`, each with a
-row appended to `srn_2da/placeables.2da` (22750-22763, labelled `[envkit]Ares Depot, ...`): reception desk
+Fifteen envkit props from the same concept sheet as the Ares Depot tile group join `srn_placeable`, each with a
+row appended to `srn_2da/placeables.2da` (22750-22764, labelled `[envkit]Ares Depot, ...`): reception desk
 `ek_ad_desk`, surveillance console `ek_ad_console`, equipment lockers `ek_ad_lockers`, armory rack
 `ek_ad_armory`, watch booth `ek_ad_booth`, vehicle gate `ek_ad_gate`, concrete barrier `ek_ad_barrier`,
 checkpoint terminal `ek_ad_terminal`, drone dock `ek_ad_dronedk`, turret `ek_ad_turret`, gear crate
-`ek_ad_crate`, pylon sign `ek_ad_pylon`, wall sign `ek_ad_sign` and rooftop unit `ek_ad_rooftop`. No existing row
+`ek_ad_crate`, pylon sign `ek_ad_pylon`, wall sign `ek_ad_sign`, rooftop unit `ek_ad_rooftop` and fence section
+`ek_ad_fence`. No existing row
 changes. Each prop is a compiled model, a collision file, a material file and its maps (colour 1024 or 2048, the
 other maps at half that), and a blueprint named as its model, offered through the pack's `placeablepalstd.itp`
 under the Modern Exterior and Modern Interior categories.
@@ -435,21 +444,28 @@ plain reference, then generated by the operator's Meshy account through the pinn
 to 12,051 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's
 entry above records). No third-party mesh or texture was used. The references for the equipment
 lockers, armory rack, checkpoint terminal, drone dock and turret were drawn without the fictional corporation's
-name and emblem; the other props keep what the sheet drew on them. The sheet's
-fence section is not among them: Meshy made its chain-link mesh a solid panel, and it is left to be built
-another way.
+name and emblem; the other props keep what the sheet drew on them.
 
 Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's
 axes and scaled to a stated height, and its textures were recompressed. The wall sign hangs 2.4 metres above
-the spot it is placed on. Ten props (all but the lockers, barrier, crate and rooftop unit) have a glow map for
-their lit parts, eight of those a halo sheet as well, and a lights-out material (`<name>_o`) as
-`docs/envkit/lights.md` describes; their blueprints are not static, so that a script can reach them. Known
-shortcomings as shipped: the rooftop unit's colour came out nearly white, and the turret's barrel points to the
-side of the model rather than its front.
+the spot it is placed on. Ten props (all but the lockers, barrier, crate, rooftop unit and fence) have a glow map
+for their lit parts, eight of those a halo sheet as well, and a lights-out material (`<name>_o`) as
+`docs/envkit/lights.md` describes; their blueprints are not static, so that a script can reach them. Three
+props were retouched after the first client check. The turret came back with its barrel along the model's side
+and is turned a quarter turn, so that it points to the front. The rooftop unit's colour is multiplied by 0.8:
+it matched its own pale reference and stood out nearly white beside the others by day. Meshy made the fence's
+chain-link mesh two solid smeared panels; its posts, rails, barbed wire and concrete base are kept, and the two
+panels are redrawn by place on the model as a diamond mesh of 16 millimetre wire 90 millimetres apart, seen
+through between the wires (the colour map of this one prop has an alpha channel, DXT5), with the relief map
+levelled there. The right half of its concrete base still carries a smeared hazard marking.
 
-Checked in the game client on 2026-11-11 by day and by night with their lights on, from the converted files
-that were copied into the pack. Not checked: their lights put out, and the blueprints and palette in the
-Toolset.
+Checked in the game client on 2026-11-11: by day and by night with their lights on, from the converted files
+that were copied into the pack; the fence, turret and rooftop unit again by day after their retouching, from
+front, back and side, with a figure behind the fence seen through its mesh from both faces; and by night from
+the pack's files, where `ReplaceObjectTexture` put the lights of all ten lit props out and brought them back.
+Checked in the Toolset the same day, from the built packs: the Standard tab lists the fifteen blueprints under
+their Modern Exterior and Modern Interior categories, and a painted fence section and turret were saved with
+their rows and names, the fence static and the turret not.
 
 ## MDRNEE placeable import (2026-09-11)
 

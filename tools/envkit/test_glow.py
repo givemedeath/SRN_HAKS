@@ -140,11 +140,17 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'halo': {'reach': 0.2}}, 'needs lit parts')
             refused({'source': 'meshy/x', 'height': 1.0, 'lit': [{'box': [[0, 0], [1, 1]]}]}, 'two corners')
             refused({'source': 'meshy/x', 'height': 1.0, 'lift': -1}, 'lifted by 0 to 20')
+            refused({'source': 'meshy/x', 'height': 1.0, 'turn': 270}, 'turned by -180 to 180')
+            refused({'source': 'meshy/x', 'height': 1.0, 'tone': 0}, 'tone is 0.2 to 2')
+            refused({'source': 'meshy/x', 'height': 1.0, 'paint': [{'box': [[0, 0, 0], [1, 1, 1]], 'colour': [0, 0, 300]}]}, 'three 0-255 values')
+            refused({'source': 'meshy/x', 'height': 1.0, 'mesh': [{'box': [[0, 0, 0], [1, 1, 1]], 'pitch': 0.05, 'wire': 0.05}]}, 'thinner wire')
             tiles = {'ground': 'pavement', 'group': 'Long', 'label': 'Long', 'sets': {'dgt04': 'Concrete'}}
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped
             long_name.write_text(json.dumps({'models': {'ek_thirteen_c': {'source': 'meshy/x', 'height': 1.0, 'tiles': tiles}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'at most 12'):
                 convert.load_models(long_name)
+        ares = convert.load_models(folder / 'ares-depot-game.json')
+        self.assertEqual(ares['ek_ad_turret']['turn'], 90); self.assertEqual(len(ares['ek_ad_fence']['mesh']), 2); self.assertIn('paint', ares['ek_ad_depot'])
 
 
 if __name__ == '__main__':

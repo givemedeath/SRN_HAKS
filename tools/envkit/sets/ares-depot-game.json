@@ -1,10 +1,12 @@
 {
   "models": {
-    "ek_ad_depot": {"source": "meshy/models/ares-building-a1-remesh2", "height": 9.5, "colour": 4096, "lit": [
+    "ek_ad_depot": {"source": "meshy/models/ares-building-a1-remesh2", "height": 9.5, "colour": 4096, "paint": [
+      {"part": "illegible small lettering of the rear sign", "box": [[-2.6, -6.3, 4.27], [0.9, -5.7, 4.6]], "colour": [14, 15, 17]}
+    ], "lit": [
       {"part": "roof sign", "box": [[-6.6, 4.8, 4.35], [2.95, 8.1, 5.85]], "gain": 0.8},
       {"part": "tower windows", "box": [[4.4, -1.0, 5.45], [9.0, 8.1, 6.35]], "gain": 2.0, "saturation": 0.3}
     ], "halo": {"reach": 0.4, "strength": 0.5, "least": 0.5},
-      "tiles": {"ground": "pavement", "group": "Ares_Depot", "label": "Ares Depot 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.0}},
+      "tiles": {"ground": "pavement", "group": "Ares_Depot", "label": "Ares Depot 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.0, "door": {"at": [4.9, 6.45, 0.25], "facing": 90.0, "type": 58}}},
     "ek_ad_desk": {"source": "meshy/models/ares-reception-desk-a1", "height": 2.6, "colour": 2048, "lit": [
       {"part": "canopy lights", "box": [[-2.1, -1.1, 2.2], [2.1, 1.1, 2.45]], "value": 0.8},
       {"part": "red light bar", "box": [[-1.45, 0.0, 0.3], [-1.05, 1.1, 0.85]], "gain": 1.5, "saturation": 0.6, "value": 0.5},
@@ -29,6 +31,10 @@
       {"part": "left top light", "box": [[2.0, -0.6, 2.5], [2.63, 0.6, 2.8]], "value": 0.75},
       {"part": "right top light", "box": [[-2.63, -0.6, 2.5], [-2.0, 0.6, 2.8]], "value": 0.75}
     ], "halo": {"reach": 0.15, "strength": 0.45}, "placeable": {"label": "Ares Depot, Vehicle Gate", "sound": 28, "category": 159}},
+    "ek_ad_fence": {"source": "meshy/models/ares-fence-section-a1", "height": 2.8, "colour": 2048, "mesh": [
+      {"part": "left panel", "box": [[0.15, -0.24, 0.83], [1.76, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016},
+      {"part": "right panel", "box": [[-1.76, -0.24, 0.83], [-0.15, 0.24, 2.02]], "pitch": 0.09, "wire": 0.016}
+    ], "placeable": {"label": "Ares Depot, Fence Section", "sound": 28, "category": 159}},
     "ek_ad_barrier": {"source": "meshy/models/ares-concrete-barrier-a1", "height": 0.95, "colour": 1024, "placeable": {"label": "Ares Depot, Concrete Barrier", "sound": 26, "category": 158}},
     "ek_ad_terminal": {"source": "meshy/models/ares-checkpoint-terminal-a1", "height": 1.6, "colour": 1024, "lit": [
       {"part": "screen", "box": [[-0.22, 0.0, 1.02], [0.22, 0.4, 1.34]], "gain": 1.5, "saturation": 0.3},
@@ -42,8 +48,8 @@
       {"part": "arm strip", "box": [[-0.6, -1.1, 1.85], [0.6, 1.1, 2.0]], "saturation": 0.3, "value": 0.5},
       {"part": "landing pad", "box": [[-0.75, -0.6, 0.25], [0.75, 0.6, 0.6]], "gain": 1.2, "saturation": 0.5, "value": 0.4}
     ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Drone Dock", "sound": 28, "category": 161}},
-    "ek_ad_turret": {"source": "meshy/models/ares-turret-a2", "height": 1.8, "colour": 1024, "lit": [
-      {"part": "sensor eye", "box": [[0.5, -0.3, 1.4], [0.9, 0.3, 1.7]], "gain": 2.0, "saturation": 0.6, "value": 0.5}
+    "ek_ad_turret": {"source": "meshy/models/ares-turret-a2", "height": 1.8, "turn": 90, "colour": 1024, "lit": [
+      {"part": "sensor eye", "box": [[-0.3, 0.5, 1.4], [0.3, 0.9, 1.7]], "gain": 2.0, "saturation": 0.6, "value": 0.5}
     ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Ares Depot, Turret", "sound": 28, "category": 199}},
     "ek_ad_crate": {"source": "meshy/models/ares-gear-crate-a1", "height": 0.6, "colour": 1024, "placeable": {"label": "Ares Depot, Gear Crate", "sound": 27, "category": 164}},
     "ek_ad_pylon": {"source": "meshy/models/ares-pylon-sign-a1", "height": 3.0, "colour": 2048, "lit": [
@@ -54,6 +60,6 @@
       {"part": "light bar", "box": [[-0.9, -0.2, 1.45], [0.9, 0.2, 1.6]], "value": 0.45},
       {"part": "sign face", "box": [[-1.8, 0.0, 0.55], [1.8, 0.2, 1.42]], "gain": 0.3}
     ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Wall Sign", "sound": 27, "category": 156}},
-    "ek_ad_rooftop": {"source": "meshy/models/ares-rooftop-unit-a1", "height": 2.2, "colour": 2048, "placeable": {"label": "Ares Depot, Rooftop Unit", "sound": 28, "category": 161}}
+    "ek_ad_rooftop": {"source": "meshy/models/ares-rooftop-unit-a1", "height": 2.2, "tone": 0.8, "colour": 2048, "placeable": {"label": "Ares Depot, Rooftop Unit", "sound": 28, "category": 161}}
   }
 }

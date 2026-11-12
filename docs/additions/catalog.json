@@ -323,17 +323,17 @@
    "model": "ek_ad_turret",
    "label": "[envkit]Ares Depot, Turret",
    "pack": "srn_placeable",
-   "lights": {
-    "lit": "ek_ad_turret",
-    "out": "ek_ad_turret_o",
-    "glow": "ek_ad_turret_i"
-   },
    "madeBy": "envkit",
    "source": "tools/envkit/sets/ares-depot-game.json",
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_turret",
-   "category": 199
+   "category": 199,
+   "lights": {
+    "lit": "ek_ad_turret",
+    "out": "ek_ad_turret_o",
+    "glow": "ek_ad_turret_i"
+   }
   },
   {
    "row": 22760,
@@ -394,6 +394,18 @@
    "added": "2026-11-11",
    "blueprint": "ek_ad_rooftop",
    "category": 161
+  },
+  {
+   "row": 22764,
+   "model": "ek_ad_fence",
+   "label": "[envkit]Ares Depot, Fence Section",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ares-depot-game.json",
+   "provenance": "Ares Depot props",
+   "added": "2026-11-11",
+   "blueprint": "ek_ad_fence",
+   "category": 159
   }
  ],
  "tileGroups": [
