@@ -93,6 +93,25 @@ review from multiple angles. Numeric success never grants visual approval. The
 retained pistol test produced a separate 484-triangle candidate in about 0.5 s;
 its approved 468-triangle shadow was not replaced.
 
+### Quadric shadow proxy
+
+A silhouette cannot serve a part whose section varies around its axis: a head
+that is wider off-centre than along a thickness probe puts any projected outline
+outside the probe (the 1.90 m stun staff measured 4.4 mm against the 2.5 mm
+sample bound). Blender's plain collapse, the default shadow, has no probe
+awareness and loses those samples at small budgets.
+
+`{"method": "quadric"}` collapses the part's own closed surface to its shadow
+budget with a topology- and normal-preserving quadric (bound pymeshlab, run by
+the CPU runner like the silhouette builder). Faces within `probeRadius` (default
+6 mm) of every thickness-probe end stay as they are, so probes measure the source
+surface itself; they may use at most half the budget. Each `qualityThresholds`
+value (default `[.3, .5, .1]`) is one bounded attempt; the first that stays
+closed, within budget, within `maximumDistance` (default 6 mm, at most 20 mm) of
+the source and passes every protected probe is installed. The staff head went from
+13,790 triangles to 296 of its 300 with residuals of 0-0.6 mm and a 5.6 mm worst
+distance. Visual review of the shadow is still required.
+
 ## Recover a completed bake without repeating it
 
 Whenever a bake has projection misses, before attempting correction it now writes:

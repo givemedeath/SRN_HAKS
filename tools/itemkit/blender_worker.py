@@ -380,7 +380,7 @@ def reduce(cfg, out, shadow=False):
             swap_mesh(obj,'constrained-visible-'+part,cp,cf,smooth=True)
         proxy = cfg['processing'].get('shadowProxies', {}).get(part)
         if shadow and proxy:
-            require(proxy.get('method') == 'projected-silhouette', 'Unknown shadow proxy method')
+            require(proxy.get('method') in ('projected-silhouette', 'quadric'), 'Unknown shadow proxy method')
             source_p,source_f=arrays(obj)
             candidate=cfg.get('shadowCandidates',{}).get(part)
             require(candidate is not None and candidate['arrays'] in cfg['inputs'], 'Declare the checked CPU shadow candidate')
