@@ -111,7 +111,7 @@ class DaggerTests(Fixture):
     def test_longsword_intake_contract_and_comparison_scope(self):
         intake(self.root/'reference.png',self.root/'long','cougar-fineblade-longsword','longsword')
         profile=read(self.root/'long/family.json')
-        self.assertEqual(profile['budgets']['visible'],12000)
+        self.assertEqual(profile['budgets']['visible'],18000)
         self.assertEqual(profile['sourceExport']['signMode'],'udf')
         self.assertEqual(profile['resources']['blueprint'],'sr_cfs')
         self.native();table=self.path.parent/'stack/base/baseitems.2da'
@@ -150,7 +150,7 @@ class DaggerTests(Fixture):
         intake(self.root/'reference.png',self.root/'knife','cougar-fineblade-knife','dagger')
         data=read(self.root/'knife/asset.json');family=read(self.root/'knife/family.json')
         self.assertEqual(data['id'],'cougar-fineblade-knife');self.assertEqual(family['family'],'dagger')
-        self.assertEqual(sum(x['visible'] for x in family['budgets']['parts'].values()),5000)
+        self.assertEqual(sum(x['visible'] for x in family['budgets']['parts'].values()),7500)
 
 
 class GripTests(unittest.TestCase):
@@ -181,3 +181,57 @@ class GripTests(unittest.TestCase):
         np.testing.assert_allclose(section_dimensions(out,f,0),[.03,.05]);np.testing.assert_array_equal(v[:,1],out[:,1])
 
 if __name__=='__main__':unittest.main()
+
+
+class ChainTests(unittest.TestCase):
+    """Runner.chain orders, approves and stops; the stages themselves are exercised elsewhere."""
+    def runner(self, reviews=(), fail=None):
+        from tools.itemkit.runner import Runner
+        runner = object.__new__(Runner); calls = []
+        runner.state = {'stages': {name: {} for name in reviews}, 'reviews': {name: {} for name in reviews}}
+        runner._current_review = lambda stage: {'decision': 'approved'} if stage in reviews else None
+        def execute(stage):
+            calls.append(('run', stage))
+            if stage == fail: raise ValueError('gate failed')
+            return {'reused': stage == 'fit', 'result': {}}
+        def review(stage, decision, notes):
+            calls.append(('review', stage, decision, notes)); runner.state['reviews'][stage] = {}
+        runner.execute = execute; runner.review = review
+        return runner, calls
+
+    def test_chain_approves_every_stage_but_the_last(self):
+        runner, calls = self.runner(); seen = []
+        result = runner.chain(['fit', 'reduce', 'unwrap'], 'numerical pass only', progress=seen.append)
+        self.assertEqual(calls, [('run', 'fit'), ('review', 'fit', 'approved', 'numerical pass only'), ('run', 'reduce'),
+                                 ('review', 'reduce', 'approved', 'numerical pass only'), ('run', 'unwrap')])
+        self.assertEqual([(row['stage'], row['reviewed'], row['reused']) for row in result['stages']],
+                         [('fit', True, True), ('reduce', True, False), ('unwrap', False, False)])
+        self.assertEqual(result['unreviewed'], 'unwrap'); self.assertFalse(result['productionAccepted']); self.assertEqual(len(seen), 3)
+
+    def test_a_reused_stage_keeps_the_review_a_person_filed(self):
+        runner, calls = self.runner(); runner._current_review = lambda stage: {'decision': 'approved', 'notes': "user's words"}
+        result = runner.chain(['fit', 'reduce'], 'notes')
+        self.assertEqual(calls, [('run', 'fit'), ('run', 'reduce')]); self.assertTrue(result['stages'][0]['reviewed'])
+        runner, calls = self.runner(); runner._current_review = lambda stage: {'decision': 'rejected'}
+        with self.assertRaisesRegex(ValueError, 'rejected on review'): runner.chain(['fit', 'reduce'], 'notes')
+        self.assertEqual(calls, [('run', 'fit')])               # never overwritten by an automatic approval
+
+    def test_chain_stops_at_a_failed_stage_and_reviews_nothing_after_it(self):
+        runner, calls = self.runner(fail='reduce'); seen = []
+        with self.assertRaisesRegex(ValueError, 'gate failed'): runner.chain(['fit', 'reduce', 'unwrap'], 'notes', progress=seen.append)
+        self.assertEqual(calls, [('run', 'fit'), ('review', 'fit', 'approved', 'notes'), ('run', 'reduce')])
+        self.assertEqual([(row['stage'], row.get('failed', False)) for row in seen], [('fit', False), ('reduce', True)])   # the failure reports itself
+
+    def test_chain_refuses_gaps_the_client_stage_and_empty_notes(self):
+        runner, calls = self.runner()
+        for stages, message in ((['reduce', 'unwrap'], 'needs fit'), (['fit', 'unwrap'], 'needs reduce'), (['fixture', 'client'], 'without the client'),
+                                (['fit', 'fit'], 'distinct'), ([], 'distinct')):
+            with self.assertRaisesRegex(ValueError, message): runner.chain(stages, 'notes')
+        with self.assertRaisesRegex(ValueError, 'notes required'): runner.chain(['fit'], ' ')
+        self.assertEqual(calls, [])                                   # nothing runs when the plan is refused
+        resumed, calls = self.runner(reviews=('render', 'shadow', 'bake'))
+        resumed.chain(['export', 'native'], 'notes'); self.assertEqual([c[1] for c in calls if c[0] == 'run'], ['export', 'native'])
+        rejected, calls = self.runner(reviews=('render', 'shadow', 'bake'))
+        rejected._current_review = lambda stage: {'decision': 'rejected' if stage == 'render' else 'approved'}
+        with self.assertRaisesRegex(ValueError, 'needs render'): rejected.chain(['export', 'native'], 'notes')
+        self.assertEqual(calls, [])                                   # refused before anything runs

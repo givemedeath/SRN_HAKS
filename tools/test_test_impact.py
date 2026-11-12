@@ -55,6 +55,17 @@ class PackageImpactTests(unittest.TestCase):
             self.assertNotIn('tools/first/build/core.py',data['dependencies'])
             self.assertEqual(data['unresolved'],[])
 
+    def test_a_literal_naming_git_ignored_local_state_is_not_an_edge(self):
+        # A machine-only file (the item workspace under output/) once made the local catalog differ from CI's.
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);subprocess.run(['git','init','-q',str(root)],check=True)
+            write(root,{'.gitignore':'output/\ntools/scratch_*.py\nnotes/\n','output/state.json':'{}','tools/config.json':'{}',
+                        'tools/scratch_probe.py':'import reader','notes/local.md':'',
+                        'tools/reader.py':"STATE='output/state.json'\nCONFIG='tools/config.json'\nNOTES='local.md'"})
+            data=catalog(root)
+            self.assertEqual(data['dependencies']['tools/reader.py'],['tools/config.json'])
+            self.assertNotIn('tools/scratch_probe.py',data['dependencies'])      # an ignored helper is not catalogued either
+
     def test_from_package_import_submodule_retains_transitive_edge(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)

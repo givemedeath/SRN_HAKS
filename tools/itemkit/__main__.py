@@ -3,9 +3,10 @@ import argparse
 import json
 from pathlib import Path
 import shutil
+import sys
 from tools.headkit import comfy
 from tools.headkit.common import asset, bindings, launched, pin, read, require, verify, write, python_package_pins, verification_pass
-from .contracts import all_pins, code_pins, family, manifest, source_version, evidence_pins,stage_roles
+from .contracts import all_pins, code_pins, family, is_code_path, manifest, source_version, evidence_pins,stage_roles
 from .generation import request_stage, shared_ledger, initialize_trial, set_trial_limit
 
 
@@ -15,7 +16,7 @@ COUGAR_INTAKE_IDS = ('cougar-fineblade-longblade', 'cougar-fineblade-longsword',
 
 
 def intake(reference, output, design_id='cougar-fineblade-longblade', family_name='shortsword'):
-    import hashlib, re
+    import re
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', design_id), 'Safe item ID required')
     require(family_name in ('shortsword', 'dagger', 'longsword', 'firearm-sling'), 'Supported intake family required')
     if family_name == 'firearm-sling':
@@ -31,19 +32,20 @@ def intake(reference, output, design_id='cougar-fineblade-longblade', family_nam
     profile_data['allowedAssemblies'] = [dict.fromkeys(('b','m','t'), design_id)]
     if family_name == 'dagger':
         profile_data['sourceExport'] = {'remeshResolution':768,'targetFaceCount':200000,'signMode':'udf'}
-        profile_data['budgets'] = {'visible':5000,'shadow':500,'parts':{
-            'b':{'visible':800,'shadow':100},'m':{'visible':1400,'shadow':100},'t':{'visible':2800,'shadow':300}}}
+        profile_data['budgets'] = {'visible':7500,'shadow':500,'parts':{
+            'b':{'visible':1200,'shadow':100},'m':{'visible':2100,'shadow':100},'t':{'visible':4200,'shadow':300}}}
         profile_data['resources'] = {'texturePrefix':'sr_cfk','blueprint':'sr_cfk','hak':'srn_cfk_test',
             'module':'sr_cfk_test','displayName':'Cougar Fineblade Knife'}
     if family_name == 'longsword':
         profile_data['sourceExport'] = {'remeshResolution':768,'targetFaceCount':200000,'signMode':'udf'}
-        profile_data['budgets'] = {'visible':12000,'shadow':500,'parts':{
-            'b':{'visible':1200,'shadow':100},'m':{'visible':2300,'shadow':100},'t':{'visible':8500,'shadow':300}}}
+        profile_data['budgets'] = {'visible':18000,'shadow':500,'parts':{
+            'b':{'visible':1800,'shadow':100},'m':{'visible':3450,'shadow':100},'t':{'visible':12750,'shadow':300}}}
         profile_data['resources'] = {'texturePrefix':'sr_cfs','blueprint':'sr_cfs','hak':'srn_cfs_test',
             'module':'sr_cfs_test','displayName':'Cougar Fineblade Longsword'}
     if design_id not in COUGAR_INTAKE_IDS:
         # The Cougar names are shipped identities, never defaults for a new design.
-        stem = 'sr'+hashlib.sha256(design_id.encode()).hexdigest()[:8]
+        from .contracts import resource_stem
+        stem = resource_stem(design_id)
         profile_data['resources'] = {'texturePrefix':stem,'blueprint':stem,'hak':stem+'h','module':stem+'m',
                                      'displayName':design_id.replace('-',' ').title()}
     write(output/'family.json', profile_data, fresh=True)
@@ -75,6 +77,13 @@ def consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None)
         return _consumed_inputs(manifest_path, bindings_path, run, extra, stage)
 
 
+def chain_inputs(manifest_path, bindings_path, run, stages):
+    """Every file a chain of stages consumes from outside itself, each read once."""
+    require(run is not None and stages, 'A chain names its run folder and stages')
+    with verification_pass('item-consumed-inputs'):
+        return sorted({path for stage in stages for path in _consumed_inputs(manifest_path, bindings_path, run, (), stage)})
+
+
 def consumed_pins(manifest_path, bindings_path, run=None, extra=(),stage=None):
     """Return verified pins directly instead of making callers hash paths again."""
     with verification_pass('item-consumed-inputs'):
@@ -103,14 +112,17 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         directory = Path(local['comfyCustomNodes'])/'srn_headkit'
         pins += [pin(p) for p in sorted(directory.glob('*.py'))]
         if (directory/'source-roots.json').exists(): pins.append(pin(directory/'source-roots.json'))
+    documents = [(path, read(path)) for path in extra]
     if run and (Path(run)/'state.json').exists():
         state = read(Path(run)/'state.json')  # Mutable state is output, not an immutable consumed asset.
-        pins += run_receipt_pins(state, stage)
-    for path in extra:
+        rebuild = any(isinstance(document, dict) and document.get('kind') == 'fixture-inputs' for _, document in documents)
+        pins += run_receipt_pins(state, stage, historical_code=is_code_path() if rebuild else None)
+    for path, document in documents:
         row = pin(path); pins.append(row)
-        document = read(path)
         if isinstance(document, dict):
             if 'observations' in document: pins += evidence_pins(path)
+            if document.get('kind') == 'fixture-inputs':
+                pins += [asset(path, row) for row in document['inputs'].values()]+list(document.get('fixtureHaks', {}).values())
             prepared = document.get('prepared', document)
             if 'prompt' in prepared: pins += prepared.get('inputs', [])
     verify(pins)
@@ -122,11 +134,13 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
     return sorted({row['path'] for row in pins})
 
 
-def run_receipt_pins(state, stage=None):
+def run_receipt_pins(state, stage=None, *, historical_code=None):
     """Current receipts a resume consumes: the stage's ancestors, or every stage when unscoped.
 
     Superseded or stale attempts stay historical receipts, not launch inputs, so a
     corrected helper or replaced output can still reach the runner's recomputation.
+    `historical_code` (a fixture rebuild) leaves the receipts' own source-file pins out: those receipts are
+    identified by their recorded code version, and their data inputs and outputs are still consumed.
     """
     from .runner import DEPENDENCIES
     pending = list(state['stages']) if stage is None else list(DEPENDENCIES.get(stage, ()))
@@ -138,6 +152,7 @@ def run_receipt_pins(state, stage=None):
         try:
             verify([row]); receipt = read(row['path'])
             rows = [row]+receipt['inputs']+receipt['outputs']+([state['reviews'][name]] if name in state.get('reviews', {}) else [])
+            if historical_code is not None: rows = [r for r in rows if not historical_code(r['path'])]
             verify(rows)
         except (KeyError, OSError, ValueError): pending += DEPENDENCIES.get(name, ()); continue
         # Follow the recorded and current dependency graph, as Runner.result does.
@@ -214,12 +229,20 @@ def main():
         if name in ('run', 'resume'): c.add_argument('--evidence', type=Path)
         if name == 'review':
             c.add_argument('--decision', choices=['approved', 'rejected'], required=True); c.add_argument('--notes', required=True)
+    c = commands.add_parser('chain', help='run consecutive stages in one verified launch; all but the last are approved on their gates')
+    for key in ('manifest', 'bindings', 'run'): c.add_argument('--'+key, type=Path, required=True)
+    c.add_argument('--stages', nargs='+', required=True); c.add_argument('--notes', required=True)
+    c = commands.add_parser('measure-fit', help="the fit worker's measure-only pass: grip measurement, digest and preview, no stage attempt")
+    for key in ('manifest', 'bindings', 'run', 'output'): c.add_argument('--'+key, type=Path, required=True)
+    c = commands.add_parser('refixture', help="a new fixture from the run's reviewed native package, without re-running earlier stages")
+    for key in ('manifest', 'bindings', 'run', 'fixture-inputs', 'output'): c.add_argument('--'+key, type=Path, required=True)
     c = commands.add_parser('preflight'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--probe', action='store_true')
     c.add_argument('--scope', choices=['generation', 'processing'], default='processing')
     c = commands.add_parser('inputs'); c.add_argument('--manifest', type=Path, required=True)
     c.add_argument('--bindings', type=Path, required=True); c.add_argument('--run', type=Path)
     c.add_argument('--stage',choices=GENERATION_STAGES+PROCESSING_STAGES)
+    c.add_argument('--stages', nargs='+', choices=PROCESSING_STAGES+('export',), help='every input a chain of these stages consumes')
     c.add_argument('--extra', type=Path, action='append', default=[]); c.add_argument('--output', type=Path, required=True)
     c = commands.add_parser('request')
     for key in ('manifest', 'bindings', 'output'): c.add_argument('--'+key, type=Path, required=True)
@@ -301,8 +324,21 @@ def main():
         result=set_trial_limit(shared_ledger(local), local['itemTrialId'], a.maximum, a.evidence, a.output)
     elif a.command == 'preflight': result = preflight(a.manifest, a.bindings, a.probe, a.scope)
     elif a.command == 'inputs':
-        paths = consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage); write(a.output, paths, fresh=True)
+        require(not (a.stage and a.stages), 'Give --stage or --stages, not both')
+        require(not (a.stages and a.extra), '--extra belongs to a single --stage listing; a chain consumes no extra documents')
+        paths = chain_inputs(a.manifest, a.bindings, a.run, a.stages) if a.stages else consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage)
+        write(a.output, paths, fresh=True)
         result = {'inputs': str(a.output), 'count': len(paths)}
+    elif a.command == 'chain':
+        from .runner import Runner
+        with comfy.locked(a.run/'runner'):
+            runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, package_pins=package_pins)
+            result = runner.chain(a.stages, a.notes, progress=lambda row: print(json.dumps(row), file=sys.stderr, flush=True))
+    elif a.command in ('measure-fit', 'refixture'):
+        from .runner import Runner
+        with comfy.locked(a.run/'runner'):
+            runner = Runner(a.manifest, a.bindings, a.run, runtime=runtime, package_pins=package_pins)
+            result = runner.measure_fit(a.output) if a.command == 'measure-fit' else runner.rebuild_fixture(a.fixture_inputs, a.output)
     elif a.command in ('prepare', 'run', 'resume', 'review', 'status'):
         from .runner import Runner
         if a.command == 'status': result = Runner(a.manifest, a.bindings, a.run).status()

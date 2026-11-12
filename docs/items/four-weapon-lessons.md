@@ -290,3 +290,86 @@ original-frame donor. Native triangles9988/216, strict UV/gutter/source gates
 unchanged. Small internal part-cut offsets can avoid source-vertex coincidences;
 Staff required85/109micron shifts, preserving the entire external shape.
 Do not regenerate geometry or repeat completed target work for these cut errors.
+
+Melee wave 1: long weapons bow and twist (2026-11-10)
+
+Five designs, flat side-on single-view references. Only the short knife came out
+usable on attempt 1. The Sword's guard became a deep slab, the Claymore's blade
+twisted, the Club bowed and the Spear's head bent about 90 degrees into depth.
+A second seed fixed only the Claymore. This repeats the 2026-11-03 Staff lesson
+above, which was not read before the second seed was spent.
+
+An oblique matched pair fixed invented part depth (Sword guard and hilt on
+attempt 3) but not the bow along the length: the blade still curved in depth
+like a sabre. The bow is a habit of the model with long thin objects, not a
+reference fault, so a further seed or view does not remove it.
+
+Guards now in the toolkit:
+
+| Mistake | Guard |
+| --- | --- |
+| Geometry attempt spent on a long weapon from a flat side view | `request --stage geometry` refuses a `shortsword`, `longsword`, `greatsword` or `staff` manifest without `approval.referenceView` (`view: oblique`, or `view: side` with `sideViewWaiver: true` and review notes). |
+| Bent or twisted clay reaches review unnoticed | `python -m tools.itemkit.straightness check MESH.glb --family F` reports centreline bend, blade twist and guard skew against advisory limits (1.5% of length, 12 degrees, 6 degrees). Run it on every collected clay; a flag goes to the reviewer with the views. |
+| Seeds spent on a bow that seeds do not fix | `python -m tools.itemkit.straightness straighten MESH.glb OUT_DIR` unbends about the smoothed centreline. Cross-sections move and turn rigidly; triangles, UVs and textures are carried exactly. |
+| Straightened clay and its colour drift apart | Appearance and the source bake stay in the generated frame. Re-apply the saved map (`--map OUT_DIR/straighten-map.npz`) unchanged to the textured donor and the working shell, then bind those in a fresh fitting manifest. |
+
+Calibration on the ten wave-1 clays: every bowed mesh measured 2.3% to 18.6%
+bend, the twisted Claymore 31.9 degrees of twist, and the two acceptable
+results (Claymore attempt 2, straightened Sword) passed. The check does not
+detect an invented thick part such as the slab guard; end-on views still need a
+close look. Its midline assumes a roughly symmetric section, so an asymmetric
+knife reads as bent and the limits are advisory outside the long families.
+
+Straightening is a geometry change after generation. It needs the same user
+clay review as a generated attempt, on the straightened views, and the review
+record names the generated source, the map hash and the straightened mesh hash.
+
+Melee wave 1 follow-up: thickness, size and fitting (2026-11-10)
+
+| Mistake | Guard |
+| --- | --- |
+| Invented slab or plate guard passes the straightness check | `check` reports `guardSectionRatio`; above 2.5 is flagged (wave-1 slabs 3.1 and 3.6, bar guards 1.1 to 1.3). |
+| Blade far too thick for its width | `check` reports `bladeDepthToWidth`; above 0.5 is flagged. The Sword at 0.40 was accepted, the Claymore at 0.65 was called too thick. |
+| Thick blade sent back for a new seed | `python -m tools.itemkit.straightness thin MESH.glb OUT_DIR [--factor F \| --ratio R]` scales only the blade's depth about its mid-plane; guard, grip, pommel, width and length are untouched. The default halves the blade: on the Claymore the user rejected a 0.22 target as too thin and chose half. Thin after straightening, review the thinned views, and re-apply the saved map (`--map`) to the textured donor and working shell. |
+| Weapon overscaled by a strict pommel-to-guard hand span | `autofit.grip_start_for_length` extends the hand span into the pommel so the weapon matches the stock carrier's length. The Sword came out 1.26 m, was sent back, and was accepted at 1.10 m. |
+| Part cut lands on mesh vertices and the part fails its closed-solid check | `autofit.clear_cut` moves each cut up to 0.3 mm to the plane farthest from any vertex. |
+| Cut rims of a 200K shell exceed the per-part triangle budgets | `autofit.thin_shell` collapses the closed working shell to 40,000 triangles (same genus, within 0.25% of the length) before fitting. |
+| Hand-picked grip endpoints, joins and probes per design | `autofit.landmarks` finds pommel, grip, guard and blade from a straight shell, by cross-guard or, for a knife, by the thin blade run. |
+
+`splitBladeSlices` only catches gross delamination: the Claymore's hairline edge split near the tip scored 1 and was
+not flagged, so end-on views still decide. Halving the blade also closed that split visually.
+
+Two-hand sizing departure (2026-11-10): sized by the approved midpoint depth, the wave-1 Claymore's round, thick
+grip made it 0.98 m, shorter than the 1.10 m one-handed Sword. The user chose about 1.45 m instead. The two-hand
+fit still refuses any depth departure by default; it now accepts one only when `fit.gripDeparture` carries
+`depthDepartureApproved: true` and the digest of that exact measurement, taken from the fit worker's own retained
+`grip-measurement.json` (an offline measurement differs in float rounding and will not match). The both-body visual
+hand-fit review is unchanged and still required.
+
+### Club continuation — 2026-11-11
+
+The wave-1 Club (a round club on the longsword carrier) reached an approved in-game result at 0.76 m on geometry
+attempt 3 of 5, from an oblique reference pair. It exposed four gaps, each now closed in the tools:
+
+| What went wrong | Guard now in place |
+| --- | --- |
+| Straightening a bent thick shaft hooked and sheared its end caps: slices near the ends cut the caps obliquely, so the measured centreline curled | `straightness._midline` ignores the last section depth at each end and continues the adjacent interior line (a synthetic bent club went from 2.1% residual bend and 17% section error to 0.16%). |
+| The generated pommel cap was flat but tilted 23 degrees (head cap 8); a 0.6%-of-length slab fit read it as 3.5 | The straightening map now carries `ends`: flat caps tilted 0.5 to 30 degrees are sheared square over one section size. Flatness is a plane fit to the cap's outward envelope within 2% of the section size, so blade points and rounded butts are left alone. Older maps without `ends` still load. |
+| The one-hand transverse grip correction scales depth and width separately; it turned the round club into a 4 x 6.5 cm oval and amplified the cap tilt | `fit.sizingAuthority: usable-length-round` (`grip.one_hand_round`) applies one transverse scale so the midpoint diameter equals the approved face width. It refuses a section that is not round within 10% and always requires a `fit.gripDeparture` bound to the worker's measurement digest. |
+| A strictly uniform fit (no transverse scale) left a 7.3 cm handle on a 0.76 m club | Not offered as a route. Check the fitted section in `grip-measurement.json`, not the pre-correction `sourceSection`, before quoting a handle size. |
+
+The Club's grip is 4.9 cm round: face width on standard, depth +65%. The Human male hand closes around it in game.
+The Human female was seen only mid-swing, so the both-body hand-fit review for this departure is half done.
+
+Fit-driver notes for designs without a blade or cross-guard: `auto_fit.py` cannot find landmarks on a round club.
+Name the striking end and all four landmarks by measurement (`bladeAtLowEnd`, `pommelEnd`, `gripStart`, `gripEnd`,
+`bladeStart`), read from the width profile along the straightened shell. The thickness probes fall back to the
+nearest far-side vertex when a sparse thick shaft has none straight above. The round route needs two fit passes, like
+the two-hand departure: the first stops at the departure gate and retains the measurement, the second binds its digest.
+
+Other points from this run:
+
+- A fit manifest must carry `approval.texturedDonor` and `approval.workingMesh` for its exact inputs before the fit
+  stage; a failed first attempt leaves its run folder unusable, so correct the manifest under a new suffix.
+- A fixture manifest is a new manifest, so the whole CPU pipeline reruns under it (about 30 minutes for one weapon).
+- The appearance job left a pale squiggle on the grip texture. It is not noticeable at game distance and is unfixed.

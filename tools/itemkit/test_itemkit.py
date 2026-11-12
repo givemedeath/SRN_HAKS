@@ -188,6 +188,12 @@ class ContractTests(Fixture):
         _, resources = self.native(); resources['WSWSS_T_021.MDL'] = {}
         self.assertEqual(contracts.reserve(self.profile, resources)['modelIndex'], 3)
         with self.assertRaisesRegex(ValueError, 'collision-free'): contracts.reserve(self.profile, resources, 1)
+    def test_pinned_appearance_index_is_validated(self):
+        for bad in (0, 26, '3', True):
+            self.profile['resources'] = {'appearanceIndex': bad}; write(self.profile_path, self.profile)
+            with self.assertRaisesRegex(ValueError, 'appearance index'): contracts.family(self.profile_path, validate_native=False)
+        self.profile['resources'] = {'appearanceIndex': 4}; write(self.profile_path, self.profile)
+        self.assertEqual(contracts.family(self.profile_path, validate_native=False)['resources']['appearanceIndex'], 4)
     def test_complete_effective_stack_required(self):
         self.native(); self.profile['native']['baseitemsSha256'] = '0'*64
         with self.assertRaisesRegex(ValueError, 'baseitems'): contracts.native_contract(self.profile_path, self.profile)

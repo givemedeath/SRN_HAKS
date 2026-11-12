@@ -69,6 +69,13 @@ class PlacementTests(unittest.TestCase):
             self.assertTrue(all(row[k] == v for k, v in source.items() if not k.startswith('__')))
         self.assertEqual(self.actors, before); self.assertEqual(self.git['Creature List']['value'], [])
 
+    def test_template_lineup_is_left_out_of_the_review_area(self):
+        git = copy.deepcopy(self.git)
+        git['Creature List']['value'] = [{'__struct_id': 4, 'Tag': field('cexostring', 'sw1_m%d' % i)} for i in range(30)]
+        rows = place_review_actors(git, self.area, self.ifo, self.actors)['Creature List']['value']
+        self.assertEqual([r['Tag']['value'] for r in rows], [a['Tag']['value'] for a in self.actors])
+        self.assertEqual(len(git['Creature List']['value']), 30)                      # the caller's document is not changed
+
     def test_collision_and_outside_area_rejected(self):
         result = place_review_actors(self.git, self.area, self.ifo, self.actors)
         with self.assertRaisesRegex(ValueError, 'collision'):
@@ -104,3 +111,111 @@ class PlacementTests(unittest.TestCase):
 
 
 if __name__ == '__main__': unittest.main()
+
+
+class ScriptedShotTests(unittest.TestCase):
+    def test_entry_script_carries_a_dormant_shot_sequence_for_every_check(self):
+        from tools.itemkit.fixture import CHECKS, SHOTS, SHOT_TOGGLE, shot_script
+        script = entry_script('sr_blade')
+        self.assertIn('Get2DAString("' + SHOT_TOGGLE + '","On",0)!="1") return;', script)   # nothing changes without the toggle
+        self.assertIn('ItkBegin(pc,male,female);', script); self.assertNotIn('@', script)
+        self.assertIn('DURATION_TYPE_PERMANENT', script)                                    # placeholders touch nothing else
+        self.assertEqual(script.count(',ItkTry(pc,t,base+'), len(SHOTS)); self.assertIn('<' + str(2 * len(SHOTS)) + ')', script)
+        self.assertEqual({row[2] for row in SHOTS}, set(CHECKS))
+        with self.assertRaisesRegex(ValueError, 'every melee client check'): shot_script(SHOTS[:-2])
+        with self.assertRaisesRegex(ValueError, 'time to aim'): shot_script(SHOTS + ((26, 3.0, 'gloves-armor', 0, 3, 80, 1),))
+        with self.assertRaisesRegex(ValueError, 'inside its own'): shot_script(SHOTS + ((30, 5.9, 'idle', 0, 3, 80, 1),))
+
+    def test_capture_evidence_is_grouped_unreviewed_and_names_what_is_missing(self):
+        from tools.itemkit.client_capture import evidence_draft, shot_rows
+        rows = shot_rows(['ITEMKIT_READY area=a', 'ITEMKIT_SHOT shot=4 target=sr_it_male check=idle step=3 valid=1',
+                          'ITEMKIT_SHOT shot=20 target=sr_it_female check=idle step=3 valid=0'])
+        self.assertEqual([(r['shot'], r['step'], r['valid']) for r in rows], [(4, 3, True), (20, 3, False)])
+        shots = [{**rows[0], 'captures': ['a.png', 'b.png']}, {**rows[1], 'captures': ['c.png'], 'rejected': 'next shot began'}]
+        draft = evidence_draft(shots, 'log.txt', checks=('idle', 'walk'))
+        self.assertEqual(draft['observations'], [{'body': 'human-male', 'check': 'idle', 'result': 'unreviewed', 'reviewedBy': '',
+                                                  'notes': '', 'screenshots': ['a.png', 'b.png'], 'logs': ['log.txt']}])
+        self.assertEqual(draft['missing'], [{'body': 'human-male', 'check': 'walk'}, {'body': 'human-female', 'check': 'idle'},
+                                            {'body': 'human-female', 'check': 'walk'}])
+        self.assertTrue(draft['reviewRequired'])
+
+    def test_a_burst_that_overruns_the_shot_hold_is_never_filed(self):
+        import json, time
+        from tools.headkit.common import pin
+        from tools.itemkit import client_capture
+        from tools.itemkit.fixture import SHOT_HOLD
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); user = root/'user'; (user/'override').mkdir(parents=True)
+            for name in ('m.mod', 'h.hak'): (root/name).write_bytes(b'x')
+            (root/'fixture.json').write_text(json.dumps({'module': pin(root/'m.mod'), 'hak': pin(root/'h.hak'), 'fixtureHaks': [],
+                                                         'userDirectory': str(user)}), encoding='utf-8')
+            shot = ['ITEMKIT_SHOT shot=1 target=sr_it_male check=idle step=3 valid=1']; reads = []
+            def log_lines(_, prefix):
+                reads.append(1); return [] if len(reads) < 3 else shot if len(reads) < 6 else shot + [client_capture.DONE]
+            slow = lambda pid, path: (time.sleep(SHOT_HOLD + .1), Path(path).write_bytes(b'png'))   # a stalled window capture
+            process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
+            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), \
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.capture', side_effect=slow):
+                result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
+            self.assertEqual(result['shots'][0]['rejected'], 'burst overran the shot hold')
+            draft = json.loads((root/'captures/evidence-draft.json').read_text(encoding='utf-8'))
+            self.assertEqual(draft['observations'], [])                         # the stale frame is kept but never filed
+
+    def test_a_shot_already_superseded_in_its_read_is_not_captured(self):
+        import json
+        from tools.headkit.common import pin
+        from tools.itemkit import client_capture
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); user = root/'user'; (user/'override').mkdir(parents=True)
+            for name in ('m.mod', 'h.hak'): (root/name).write_bytes(b'x')
+            (root/'fixture.json').write_text(json.dumps({'module': pin(root/'m.mod'), 'hak': pin(root/'h.hak'), 'fixtureHaks': [],
+                                                         'userDirectory': str(user)}), encoding='utf-8')
+            both = ['ITEMKIT_SHOT shot=1 target=sr_it_male check=idle step=3 valid=1',
+                    'ITEMKIT_SHOT shot=2 target=sr_it_male check=walk step=4 valid=1']; reads = []
+            def log_lines(_, prefix):
+                reads.append(1); return [] if len(reads) < 2 else both if len(reads) < 4 else both + [client_capture.DONE]
+            taken = []; grab = lambda pid, path: (taken.append(Path(path).name), Path(path).write_bytes(b'png'))
+            process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
+            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), \
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.capture', side_effect=grab):
+                result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
+            self.assertEqual([(s['shot'], s['captures'], s.get('rejected')) for s in result['shots']],
+                             [(1, [], 'next shot began'), (2, ['human-male-walk-02-0.png'], None)])
+            self.assertEqual(taken, ['human-male-walk-02-0.png'])
+
+    def test_contact_sheets_leave_out_rejected_bursts(self):
+        import json
+        from PIL import Image
+        from tools.itemkit.client_capture import contact_sheets
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for shot in (1, 2): Image.new('RGB', (8, 8)).save(root/f'human-male-idle-{shot:02d}-1.png')
+            shots = [{'shot': 1, 'captures': ['human-male-idle-01-1.png']},
+                     {'shot': 2, 'captures': ['human-male-idle-02-1.png'], 'rejected': 'next shot began'}]
+            (root/'capture.json').write_text(json.dumps({'shots': shots}), encoding='utf-8')
+            sheets = contact_sheets(root, columns=4, size=(8, 8))
+            with Image.open(sheets['human-male']) as sheet: self.assertEqual(sheet.size, (32, 8))
+            (root/'capture.json').unlink(); self.assertIn('human-male', contact_sheets(root))     # no record: every burst
+
+    def test_shoulder_carry_frames_the_same_moments_higher_and_further(self):
+        from tools.itemkit.fixture import SHOTS, SHOULDER_SHOTS, shot_script
+        self.assertEqual([row[:3] for row in SHOULDER_SHOTS], [row[:3] for row in SHOTS])     # same steps, times and checks
+        for hip, shoulder in zip(SHOTS, SHOULDER_SHOTS):
+            if hip[4] < 2: self.assertEqual(shoulder[3:], (225, 1.5, hip[5], 1.35))            # close-ups aim at the chest
+            else: self.assertEqual(shoulder[3:], (hip[3], round(hip[4] + 1.0, 1), hip[5], 1.3))
+        shoulder = entry_script('sr_blade', carry='shoulder'); self.assertNotEqual(shoulder, entry_script('sr_blade'))
+        self.assertIn(',225.0,1.5,85.0,1.35));', shoulder); self.assertNotIn(',1.4,85.0,0.95));', shoulder)
+        self.assertIn(',1.4,85.0,0.95));', shot_script())
+        with self.assertRaisesRegex(ValueError, 'Unknown carry'): entry_script('sr_blade', carry='back')
+
+    def test_reviewed_item_is_rearmed_after_the_off_hand_steps_and_never_cleared(self):
+        from tools.itemkit.fixture import shot_script
+        script = entry_script('sr_blade')
+        self.assertIn('if(n==22) DelayCommand(1.0,ItkRearm(t));', script)                 # well before the armour of step 23
+        self.assertIn('INVENTORY_SLOT_RIGHTHAND!=INVENTORY_SLOT_LEFTHAND) DelayCommand(5.0,ItkClear(t,INVENTORY_SLOT_LEFTHAND));', script)
+        self.assertIn('GetTag(o)!="sr_blade") DestroyObject(o);', script)                  # the reviewed item is never destroyed
+        self.assertIn('ActionEquipItem(item,INVENTORY_SLOT_RIGHTHAND)', script); self.assertNotIn('ITEM_RESREF', script)
+        shield = entry_script('sr_shield', equipment_slot='left')
+        self.assertIn('ActionEquipItem(item,INVENTORY_SLOT_LEFTHAND));\n}', shield)
+        self.assertIn('if(n==22 && INVENTORY_SLOT_LEFTHAND!=INVENTORY_SLOT_LEFTHAND)', shield)   # a shield keeps its own hand
+        with self.assertRaisesRegex(ValueError, 'equipment slot'): shot_script(slot='both')
