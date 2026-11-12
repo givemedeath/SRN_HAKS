@@ -46,6 +46,7 @@ TRIM_WIDTH = 0.012  # of the outfit's height: a plate has faces this far in from
 UNDER_REACH = 0.05  # metres from its edge that what the split made finds the cloth it lies under: the cloth round the opening, not the belt above it
 TRIM_LEAST = 0.03  # a patch of metal less than this share of the outfit's largest is trim too, whatever its shape
 CAP_STREAK = 64  # on a cap, a streak of one material narrower than a texture's side over this is taken out
+ARMHOLE_SHADE = 0.55  # what closes an upper arm at the shoulder is drawn this share of its shade: it lies in the armhole's shadow
 KINDS = ('cloth', 'leather', 'metal')  # the kinds of material the game tints, two colour channels each
 SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thigh', 'shin', 'foot'),
           'leather': ('shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')}
@@ -483,7 +484,7 @@ def lit_shades(colours, found):
     return np.array([np.percentile(shade[material == k], LIT) if (material == k).any() else float(MIDDLE) for k in range(len(found['tones']))])
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -504,6 +505,14 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     crease it was cut along, and at the lit shade the slivers of one that stand in an armpit as the body
     rests were pale flecks in the shadow there. The texels of a limb's `overlaid` faces are flagged with
     them and drawn the same way.
+
+    `shadow` flags the closing's texels that lie in an armhole: an upper arm's closings and its cap, which
+    the caller flags as a closing there. They are drawn at `ARMHOLE_SHADE` of that shade. The game stands a
+    body with its arms turned a little out of the pose the outfit was cut in, the sleeve's rim then stands
+    off the chest's edge on one side, and what closes the sleeve shows in the gap between the two: as a
+    pale strip at the shade of the sleeve's lit shoulder, and as the shadow under the chest's edge at this
+    one. Drawing the cap in from its rim does not close the gap: at half the rim's width a quarter less of
+    it showed.
 
     `cap` flags the texels of the part's cap (the faces reported as `CAP`). A cap repeats its rim's colours
     toward its pole, and shows in the gap a bent joint opens: it is what its rim is, the pad over a knee and
@@ -576,6 +585,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         reach = max(1, covered.shape[0] // CAP_STREAK)
         local = smooth(np.where(plain, shade, 0.0), reach) / np.maximum(smooth(plain, reach), 1e-9)
         material[plain], shade[plain] = 0, np.minimum(local, even(0))[plain]
+        if shadow is not None:
+            shade[plain & np.asarray(shadow, bool)] *= ARMHOLE_SHADE
     if padded is not None and (dome & np.asarray(padded, bool)).any():
         beside = dome & ~np.asarray(padded, bool)
         material[beside], shade[beside] = 0, even(0)

@@ -206,6 +206,12 @@ class MaterialTests(unittest.TestCase):
         shades, _ = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0)
         self.assertEqual(len(set(shades[closing].tolist())), 1)
         self.assertTrue(halves[2, 1] < shades[2, 1] < halves[3, 1])
+        # in an armhole's shadow: darker by a set share, the closing's texels only
+        shadow = np.zeros((8, 8), bool); shadow[2:6, 2] = True
+        dark, layers = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, shadow=shadow)
+        self.assertTrue((layers[closing] == export.LAYERS['cloth1']).all())
+        self.assertTrue(np.allclose(dark[2:4, 2], texture.ARMHOLE_SHADE * shades[2:4, 2].astype(float), atol=1))
+        self.assertTrue(np.array_equal(dark[~(closing & shadow)], shades[~(closing & shadow)]))
 
     def test_a_metal_is_drawn_on_its_own_faces_only_and_elsewhere_as_the_faces_material(self):
         channels = ['cloth1', 'leather1', 'metal1']

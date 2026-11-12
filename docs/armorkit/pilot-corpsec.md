@@ -130,10 +130,16 @@ about the chest's bone, and a ring at the top of a shoulder holds its full width
 stood up as spikes when the arm lifted the pad. The upper arm's cap, two wings beside the pad, came through
 the chest in front of the pad and behind it as slivers while the body stood; it now starts a fifth inside
 its rim. And the closings in the armpit were drawn at the cloth's lit shade, pale in the crease; they now
-take their edge's shade. The first two are checked on the mesh and in renders of it only: the game client
-was not run for this round. Left as it is: with the arm lifted, the chest's armhole is closed by a dome
-under the pad over a flat fan in the armpit, with a step between the two, and the fan shows behind the
-sleeve as a dark wedge. The accent and
+take their edge's shade. In the client the spikes were gone and one thing was left: a pale strip in front
+of each armpit as the figure stood. It is the top of the sleeve. The pose the outfit is cut in hides it
+entirely, and the game's idle stance turns the arm a few degrees out of that pose, which lifts the sleeve's
+rim off the chest's edge on one side. Drawing the cap in farther did not close that gap, nor did setting
+it under the chest's surface; what closes an upper arm at the shoulder is now drawn in the armhole's
+shadow, and in the client the strip reads as the crease it lies in while the figure stands. With the arm
+lifted the same faces show in the armpit as dark shards, where they were grey. Left as it is: with the arm lifted, the chest's
+armhole is closed by a dome under the pad over a flat fan in the armpit, with a step between the two; the
+sleeve's closed inner side shows under a lifted arm as a flat face; and the fan shows behind the sleeve as
+a dark wedge. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in
