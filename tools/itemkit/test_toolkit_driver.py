@@ -181,6 +181,10 @@ class HistoricalCodeTests(unittest.TestCase):
         self.assertTrue(test(str(folder/'since_deleted_helper.py')))
         self.assertFalse(test(str(Path(tempfile.gettempdir())/'manifest.json')))
         self.assertFalse(test(str(folder/'notes.txt')))
+        self.assertTrue(test(code_pins()[-1]['path']))                                   # today's code
+        with tempfile.NamedTemporaryFile(suffix='.json', dir=folder, delete=False) as data: pass   # an existing document in a code folder
+        try: self.assertFalse(test(data.name))
+        finally: Path(data.name).unlink()
 
 
 class ResourceStemTests(unittest.TestCase):

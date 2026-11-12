@@ -109,7 +109,9 @@ class Driver:
         stdout = (out/'stdout.log').read_text(encoding='utf-8', errors='replace') if (out/'stdout.log').exists() else ''
         stderr = (out/'stderr.log').read_text(encoding='utf-8', errors='replace') if (out/'stderr.log').exists() else ''
         if done.returncode:
-            raise SystemExit(f'{design}: {command[0]} failed (exit {done.returncode}); {out}\n{stderr[-1500:]}')
+            # The launcher may fail before it writes its logs (stale migration, bad toolchain): then its own output says why.
+            detail = stderr or f'{done.stdout or ""}{done.stderr or ""}'
+            raise SystemExit(f'{design}: {command[0]} failed (exit {done.returncode}); {out}\n{detail[-1500:]}')
         return stdout, stderr, out
 
     # -- generation -----------------------------------------------------------------------------------------------
@@ -150,9 +152,12 @@ class Driver:
             pid = int(pidfile.read_text())
             # A PID outlives its process: kill it only while it is still the startup script this driver launched.
             startup = Path(self.ws.path(self.ws.data['comfy']['startup'])).name.lower()
-            line = subprocess.run(['powershell', '-NoProfile', '-Command', f'(Get-CimInstance Win32_Process -Filter "ProcessId={pid}").CommandLine'],
-                                  capture_output=True, text=True).stdout.strip().lower()
-            if startup not in line:
+            query = subprocess.run(['powershell', '-NoProfile', '-Command', f'(Get-CimInstance Win32_Process -Filter "ProcessId={pid}").CommandLine'],
+                                   capture_output=True, text=True)
+            # A failed query says nothing about the process: keep the PID file rather than forget a running ComfyUI.
+            if query.returncode: raise SystemExit(f'Could not read the command line of PID {pid}: {query.stderr.strip()[-300:]}')
+            if startup not in query.stdout.strip().lower():
+                if up(): raise SystemExit(f'PID {pid} is not the ComfyUI this driver started, yet ComfyUI answers: stop it yourself')
                 pidfile.unlink(); return {'comfy': f'PID {pid} is no longer the ComfyUI this driver started: nothing stopped, stale PID file removed'}
             subprocess.run(['taskkill', '/PID', str(pid), '/T', '/F'], capture_output=True); pidfile.unlink()
             time.sleep(3)
@@ -462,10 +467,12 @@ class Driver:
         bounds = next((line for line in done.stdout.splitlines() if line.startswith('bounds')), '')
         return {'sheet': str(sheet(output)), 'bounds': bounds}
 
-    def decimate(self, source, target, faces=30000):
+    def decimate(self, source, target, faces=None):
         from tools.headkit.gltf import mesh, write_mesh
-        from tools.itemkit.autofit import thin_shell
+        from tools.itemkit.autofit import WORKING_SHELL_TRIANGLES, thin_shell
         import pymeshlab, igl, numpy as np
+        if Path(target).exists(): raise SystemExit(f'{target} exists: choose a new output (a working shell may be pinned)')
+        faces = faces or WORKING_SHELL_TRIANGLES
         m = mesh(source); v, f, report = thin_shell(m['positions'], m['faces'], pymeshlab, faces,
                                                     distances=lambda points, vv, ff: np.sqrt(igl.point_mesh_squared_distance(points, vv, ff)[0]))
         write_mesh(target, v, f); return {**report, 'output': str(target), 'sha256': sha(target)}
@@ -504,7 +511,7 @@ def main(argv=None):
     s = c.add_parser('capture'); s.add_argument('fixture'); s.add_argument('output')
     s = c.add_parser('contract'); s.add_argument('family'); s.add_argument('id'); s.add_argument('--wave', required=True); s.add_argument('--visible', type=int)
     s = c.add_parser('views'); s.add_argument('glb'); s.add_argument('output'); s.add_argument('--textured', action='store_true')
-    s = c.add_parser('decimate'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--faces', type=int, default=30000)
+    s = c.add_parser('decimate'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--faces', type=int, help='default: the 40,000-triangle working shell')
     a = p.parse_args(argv); d = Driver(Workspace.load(a.workspace))
     result = {
         'comfy': lambda: d.comfy(a.action), 'image': lambda: d.image(a.design, a.kind), 'condition': lambda: d.condition(a.design, a.id, a.source, a.notes, a.keyed),

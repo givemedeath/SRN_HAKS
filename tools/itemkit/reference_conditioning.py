@@ -44,6 +44,12 @@ class Pins:
         require(self.pin(path)['sha256'] == row['sha256'], 'Stale consumed input: ' + str(path))
 
 
+def consumed_rows(spec):
+    """Every pinned file the spec names, its raw provenance sources included: each is checked before and after."""
+    return [spec['detail'], spec['clay'], spec['registrationEvidence'], *spec.get('sourceDependencies', []),
+            *spec.get('provenanceRawSources', {}).values()]
+
+
 def save(path, data):
     with Path(path).open('x', encoding='utf-8', newline='\n') as output:
         json.dump(data, output, indent=2, allow_nan=False)
@@ -107,7 +113,7 @@ def prepare(spec_path, output):
             'Explicit mask-transfer or independently reviewed alpha route required')
     transfer = route == 'replace-invalid-clay-alpha-from-registered-detail'
     pins = Pins()
-    for row in [spec['detail'], spec['clay'], spec['registrationEvidence'], *spec.get('sourceDependencies', [])]:
+    for row in consumed_rows(spec):
         pins.check(row)
     size = spec.get('canvasSize', 2048)
     require(type(size) is int and size == 2048, 'This preparation emits a 2048 square canvas')
@@ -197,7 +203,7 @@ def prepare(spec_path, output):
         Image.blend(a, b, .5).save(output / 'paired-overlay-review.png')
     # A fresh post-execution pass catches changes even when timestamps are restored.
     after = Pins()
-    for row in [spec['detail'], spec['clay'], spec['registrationEvidence'], *spec.get('sourceDependencies', [])]:
+    for row in consumed_rows(spec):
         after.check(row)
     result = {'kind': 'cpu-paired-reference-conditioning-candidate', 'spec': pins.pin(spec_path),
               'helper': pins.pin(__file__), 'rawSources': {'detail': spec['detail'], 'clay': spec['clay']},
@@ -232,7 +238,7 @@ def main():
     frozen = {os.path.normcase(str(Path(path).resolve())): digest for path, digest in snapshot['files'].items()}
     spec = read(args.spec)
     consumed = [args.spec.resolve(), Path(__file__).resolve()] + [Path(p['path']).resolve() for p in
-                [spec['detail'], spec['clay'], spec['registrationEvidence'], *spec.get('sourceDependencies', [])]]
+                consumed_rows(spec)]
     declared = Pins()
     for path in consumed:
         key = os.path.normcase(str(path))

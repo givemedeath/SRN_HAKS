@@ -1,4 +1,5 @@
 """Portable design contracts; native facts must come from a pinned content stack."""
+import os
 from pathlib import Path
 import re
 from tools.headkit.common import ROOT, asset, digest, pin, read, require, verify
@@ -354,12 +355,17 @@ def code_pins():
 
 
 def is_code_path():
-    """A test for toolkit source-file paths, by folder and kind rather than by today's file list.
+    """A test for toolkit source-file paths: today's code files, and since-deleted ones in the same folders.
 
     A historical receipt may pin a source file that has since been deleted or renamed; it is still code, identified
-    by the receipt's recorded code version, not a data input to verify by its bytes."""
-    roots = {str(Path(row['path']).parent) for row in code_pins()}
-    return lambda path: Path(path).suffix in ('.py', '.json') and str(Path(path).parent) in roots
+    by the receipt's recorded code version, not a data input to verify by its bytes. A file that still exists and is
+    not code today is verified as data: the code folders also hold documents a receipt may consume."""
+    rows = code_pins(); current = {os.path.normcase(str(Path(row['path']))) for row in rows}
+    roots = {os.path.normcase(str(Path(row['path']).parent)) for row in rows}
+    def test(path):
+        path = Path(path); key = os.path.normcase(str(path))
+        return key in current or (path.suffix in ('.py', '.json') and os.path.normcase(str(path.parent)) in roots and not path.exists())
+    return test
 
 
 def source_version():
