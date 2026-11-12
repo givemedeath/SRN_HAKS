@@ -147,8 +147,10 @@ SHOT_BARE = 30   # the motion sequence's own unequip of armour and gloves does n
 SHOT_ACTORS = (('sr_it_male', 'human-male'), ('sr_it_female', 'human-female'))
 
 
-def shot_script(shots=SHOTS):
+def shot_script(shots=SHOTS, slot='right'):
     """NWScript for the scripted shots: dormant unless the toggle 2DA is present.
+
+    `ITEM_RESREF` in the result is the reviewed item, filled in by `entry_script`; `slot` is the hand it is worn in.
 
     The motion heartbeat already walks each actor through equip, walk, run, attacks, shield, off-hand and armour in
     6-second steps. A watcher follows each actor's step and, at a stated time into a step, attaches the hidden
@@ -156,6 +158,7 @@ def shot_script(shots=SHOTS):
     half a cycle behind the male so the two are rarely wanted at once. Armour, gloves and the off hand are removed
     outright at step 30, so the next cycle's bare-hand shots are bare; a shot that finds the camera in use waits
     briefly and is otherwise left for the next cycle, and `ITEMKIT_SHOTS done` is logged when every shot has been taken once."""
+    require(slot in ('right', 'left'), 'Unsupported fixture equipment slot')
     require(shots and {row[2] for row in shots} == set(CHECKS), 'Scripted shots must cover every melee client check')
     by_step = {}
     for step, delay, *_ in shots:
@@ -185,14 +188,24 @@ void ItkTry(object pc,object t,int id,string check,int n,float facing,float dist
   AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));
   DelayCommand(@LEAD@,ItkFire(pc,t,id,check,n));
 }
+void ItkClear(object t,int slot) {
+  object o=GetItemInSlot(slot,t); if(GetIsObjectValid(o) && GetTag(o)!="ITEM_RESREF") DestroyObject(o);
+}
 void ItkBare(object t) {
   DestroyObject(GetItemInSlot(INVENTORY_SLOT_CHEST,t)); DestroyObject(GetItemInSlot(INVENTORY_SLOT_ARMS,t));
-  DestroyObject(GetItemInSlot(INVENTORY_SLOT_LEFTHAND,t));
+  ItkClear(t,INVENTORY_SLOT_LEFTHAND);
+}
+void ItkRearm(object t) {
+  if(INVENTORY_SLOT_@SLOT@!=INVENTORY_SLOT_LEFTHAND) ItkClear(t,INVENTORY_SLOT_LEFTHAND);
+  ItkClear(t,INVENTORY_SLOT_@SLOT@);
+  object item=GetItemPossessedBy(t,"ITEM_RESREF");
+  if(GetIsObjectValid(item) && GetItemInSlot(INVENTORY_SLOT_@SLOT@,t)!=item) AssignCommand(t,ActionEquipItem(item,INVENTORY_SLOT_@SLOT@));
 }
 void ItkPlan(object pc,object t,int base,int n) {
   if(n==@BARE@) ItkBare(t);
   // The armour of step 23 did not go on while an off-hand weapon was still being put away: take that weapon out first.
-  if(n==22) DelayCommand(5.0,DestroyObject(GetItemInSlot(INVENTORY_SLOT_LEFTHAND,t)));
+  // A two-handed weapon was put away for the shield and a stock weapon took its hand: give the reviewed one back.
+  if(n==22) DelayCommand(5.0,ItkRearm(t));
 @PLAN@
 }
 void ItkWatch(object pc) {
@@ -214,7 +227,7 @@ void ItkBegin(object pc,object male,object female) {
   WriteTimestampedLogEntry("ITEMKIT_SHOTS enter total="+IntToString(@TOTAL@));
   DelayCommand(4.0,ItkWatch(pc));
 }
-'''.replace('@PLAN@', chr(10).join(plan)).replace('@TOTAL@', str(total)).replace('@BARE@', str(SHOT_BARE)).replace('@WAITS@', str(SHOT_WAITS)).replace('@PER@', str(len(shots))).replace(
+'''.replace('@SLOT@', slot.upper() + 'HAND').replace('@PLAN@', chr(10).join(plan)).replace('@TOTAL@', str(total)).replace('@BARE@', str(SHOT_BARE)).replace('@WAITS@', str(SHOT_WAITS)).replace('@PER@', str(len(shots))).replace(
         '@HOLD@', f'{SHOT_HOLD:.1f}').replace('@LEAD@', f'{SHOT_LEAD:.1f}').replace('@OFFSET@', str(SHOT_OFFSET)).replace(
         '@LAST@', str(SHOT_CYCLE - 1)).replace('@TOGGLE@', SHOT_TOGGLE).replace('@FEMALE@', SHOT_ACTORS[1][0]).replace('@MALE@', SHOT_ACTORS[0][0])
 
@@ -263,7 +276,7 @@ void main() {
 }'''
     if equipment_slot == 'left':
         script = script.replace('INVENTORY_SLOT_RIGHTHAND', 'INVENTORY_SLOT_LEFTHAND').replace(' right=', ' left=')
-    return (shot_script(SHOT_CARRY[carry]) + script).replace('ITEM_RESREF', item_name).replace('COMPARISON',
+    return (shot_script(SHOT_CARRY[carry], equipment_slot) + script).replace('ITEM_RESREF', item_name).replace('COMPARISON',
         '\n  '.join('if(!GetIsObjectValid(GetItemPossessedBy(pc,"'+name+'"))) CreateItemOnObject("'+name+'",pc);' for name in comparisons)).replace('PRIOR',
         'ExecuteScript("'+previous+'",GetModule());' if previous else '')
 
