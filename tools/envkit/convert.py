@@ -119,7 +119,7 @@ def closed(vertices, normals, uvs, faces, parts):
     taken, so that the face is drawn with the picture round the hole. It faces the way its corners' normals do.
     No vertex is added, so nothing else of the model changes."""
     from itertools import product
-    faces = np.asarray(faces); first = len(faces)
+    faces = np.asarray(faces)
     for part in parts:
         label = str(part.get('part', 'closing face')); stands = []
         for corner in np.asarray(part['corners'], float):
@@ -682,6 +682,7 @@ def load_models(path):
         # A tile group stands on the ground: `tiles` builds it there, and a lift would only move its boxes off it.
         require(tiles is None or not model.get('lift'), 'A tile group stands on the ground and takes no lift: ' + name)
         door = (tiles or {}).get('door')
+        require(not (isinstance(door, dict) and 'measuredAt' in door), 'measuredAt is stated on the model, beside its height, and covers its door: take it off the door of ' + name)
         require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf'} and np.asarray(door['at'], float).shape == (3,)),
                 'A door needs the place it stands at: ' + name)
         require(door is None or number(door.get('facing', 0.0)), 'A door faces a number of degrees: ' + name)

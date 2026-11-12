@@ -125,6 +125,28 @@ class CheckTests(unittest.TestCase):
                  f'{prefix} watch=2 area= x=  0.000 y=  0.000 z=  0.000',  # between areas the player is nowhere
                  f'{prefix} watch=3 area=ektud_a x= 40.000 y= 43.500 z=  0.000', f'{prefix} done']
         self.assertEqual(checks.stages(lines), [(0, 'ektdg_a', 45.0, 53.5), (3, 'ektud_a', 40.0, 43.5)])
+        # A walk that did not run, did not end, or has a door that leads nowhere is no result.
+        self.assertEqual(checks.walked(lines, 1), {'probes': [{'door': 'ek_d1', 'target': 'ek_w2', 'area': 'ektdg_a'}], 'stages': checks.stages(lines)})
+        for told, count, said in (([], 1, 'never ran its entry script'), (lines[:-1], 1, 'did not finish'), (lines, 2, '2 doors were to be probed and 1 were'),
+                                  ([lines[0], f'{prefix} probe=ek_d1 valid=1 doorarea=ektdg_a target= targetarea= z= 0.000', lines[-1]], 1, 'ek_d1 leads nowhere'),
+                                  ([lines[0], f'{prefix} probe=ek_d1 valid=0 doorarea= target= targetarea= z= 0.000', lines[-1]], 1, 'ek_d1 leads nowhere')):
+            with self.assertRaisesRegex(ValueError, said):
+                checks.walked(told, count)
+
+    def test_a_check_is_built_into_fresh_folders_and_reads_a_set_file_whatever_its_line_endings(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as scratch:
+            base = Path(scratch); resources = checks._fresh(base, 'ekt1'); self.assertTrue(resources.is_dir())
+            with self.assertRaisesRegex(ValueError, 'ekt1 was used before'):  # before anything is copied over the earlier run
+                checks._fresh(base, 'ekt1')
+            (base / 'fixtures' / 'ekt2').mkdir()
+            with self.assertRaisesRegex(ValueError, 'ekt2 was used before'):
+                checks._fresh(base, 'ekt2')
+        for ending in ('\r\n', '\n'):
+            text = ending.join(['[TILE0]', 'Model=tdg01_a01_01', 'ImageMap2D=MI_dg_a01', '[TILE1]', 'Model=ek_hall_t00', '[TILE1DOOR0]', 'Type=58', ''])
+            self.assertEqual((checks._tile_field(text, 0, 'Model'), checks._tile_field(text, 0, 'ImageMap2D'), checks._tile_field(text, 1, 'Model')), ('tdg01_a01_01', 'MI_dg_a01', 'ek_hall_t00'))
+            self.assertIsNone(checks._tile_field(text, 1, 'ImageMap2D')); self.assertIsNone(checks._tile_field(text, 2, 'Model'))  # not the door section's, and no such tile
 
 
 if __name__ == '__main__':

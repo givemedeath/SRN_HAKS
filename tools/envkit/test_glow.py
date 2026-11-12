@@ -175,7 +175,7 @@ class GlowTests(unittest.TestCase):
                 refused({'source': 'meshy/x', 'height': 9.5, 'measuredAt': 12.35, **stated}, 'measured with the model 12.35 metres tall and it is now 9.5')
                 path = Path(scratch) / 'measured.json'; path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, **stated}}}), encoding='utf-8')
                 self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], 9.5)
-            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'needs the place it stands at')  # the model says it, not the door
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes
             # A tile group is built standing on the ground: a lift would move its boxes and not the building.
             refused({'source': 'meshy/x', 'height': 9.5, 'lift': 2, 'tiles': tiles}, 'takes no lift')
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped

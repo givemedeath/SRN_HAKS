@@ -260,10 +260,10 @@ def triangles(glb):
 def _ceiling(row):
     """The most triangles a working model of this ledger entry has. A remesh is held to the ceiling it was asked for
     where that is over the common one: only a remesh sent for a larger building's budget may come back that large."""
-    sent = row.get('arguments') or []
-    if row['operation'] != 'remesh' or '--target-polycount' not in sent[:-1]:
+    target = sent_target(row)
+    if row['operation'] != 'remesh' or target is None:
         return MAX_TRIANGLES
-    asked = math.ceil(int(sent[sent.index('--target-polycount') + 1]) / REMESH_HEADROOM - 1e-9)  # the least ceiling that sends this target
+    asked = math.ceil(target / REMESH_HEADROOM - 1e-9)  # the least ceiling that sends this target
     return max(MAX_TRIANGLES, min(BUILDING_TRIANGLES, asked))
 
 

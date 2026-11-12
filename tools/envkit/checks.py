@@ -77,6 +77,14 @@ def row_of_props(models, sizes, wanted, *, x=12.0, y=40.0):
     return props, shots, people
 
 
+def _fresh(base, name):
+    """The resources folder of a new check `name` under `base`: a name used before is refused before anything is copied."""
+    folder, resources = base / 'fixtures' / name, base / 'fixtures' / f'{name}-resources'
+    require(not folder.exists() and not resources.exists(), f'A check is built into fresh folders: {name} was used before under {base / "fixtures"}; give it a new --name')
+    resources.mkdir(parents=True)
+    return resources
+
+
 def _run(game, record, folder, **more):
     wait_for_clients(); captures = Path(folder) / 'captures'
     result = fixture.run(game, record, captures, **more)
@@ -88,7 +96,7 @@ def props(game, repo, base, name, models_path, built, wanted, *, night=False):
     """Converted props from `built` (the folder `game` converted into) in the client. The fixture and its captures go to
     `base/fixtures/<name>`."""
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path)
-    resources = base / 'fixtures' / f'{name}-resources'
+    resources = _fresh(base, name)
     sizes = {model: stage(built, model, resources) for model in wanted}
     placed, shots, people = row_of_props(models, sizes, wanted)
     record = fixture.build(name, resources, placed, shots, base / 'fixtures' / name, game, repo / 'srn_2da/placeables.2da', people=people, night=night)
@@ -134,7 +142,7 @@ def lights(game, repo, base, name, models_path, built, *, pack='srn_placeable'):
     folders `game` converted into, the first that holds a model serving) is read for their sizes only."""
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path); pack = repo / pack
     lit = lit_props(models)
-    resources = base / 'fixtures' / f'{name}-resources'; resources.mkdir(parents=True, exist_ok=True)
+    resources = _fresh(base, name)
     for path in pack.glob('ek_off*'):  # the dark halo the lights-out set swaps in
         shutil.copyfile(path, resources / path.name)
     sizes = {}
@@ -172,6 +180,16 @@ def group_shots(columns, rows, door, mode, *, column0=3, row0=3):
             view('east-above', hx - 1.0, 0.0, 180, 1.5 * reach, 45, 1.5)]
 
 
+def _tile_field(set_text, number, field):
+    """The value of one field of a tile's section of a set file, or None: whatever its line endings."""
+    parts = set_text.split(f'[TILE{number}]', 1)
+    for line in parts[1].split('[', 1)[0].splitlines() if len(parts) == 2 else ():
+        key, _, value = line.partition('=')
+        if key.strip() == field:
+            return value.strip()
+    return None
+
+
 def _ground(repo, tileset, resources):
     """Stage the tileset's set file, palette and plain tile with its textures, and the shared tile pack's envkit files."""
     pack, common = repo / f'srn_t_{tileset}', repo / 'srn_t_common'; fill = FILL[tileset]
@@ -181,9 +199,11 @@ def _ground(repo, tileset, resources):
         shutil.copyfile(path, resources / path.name)
     for path in (pack / f'{tileset}.set', pack / f'{tileset}palstd.itp'):
         shutil.copyfile(path, resources / path.name)
-    text = (pack / f'{tileset}.set').read_bytes().decode('cp1252'); block = text.split(f'[TILE{fill}]')[1]
-    plain = block.split('Model=')[1].split('\r')[0]; picture = block.split('ImageMap2D=')[1].split('\r')[0].lower()
-    source = next(folder / f'{plain}.mdl' for folder in (pack, common) if (folder / f'{plain}.mdl').is_file())
+    text = (pack / f'{tileset}.set').read_bytes().decode('cp1252')
+    plain, picture = _tile_field(text, fill, 'Model'), _tile_field(text, fill, 'ImageMap2D')
+    found = [folder / f'{plain}.mdl' for folder in (pack, common) if plain and (folder / f'{plain}.mdl').is_file()]
+    require(found and picture, f'{tileset} has no plain tile {fill} with a model in its pack to lay the check area with')
+    source, picture = found[0], picture.lower()
     bitmaps = {line.split()[1].lower() for line in source.read_text(encoding='cp1252').splitlines() if line.strip().startswith('bitmap') and line.split()[1].lower() != 'null'}
     for folder in (pack, common):
         for one in (plain, picture, 'pavement', *bitmaps):
@@ -200,8 +220,7 @@ def laid_tiles(set_text, tileset, model, tiles, column0, row0):
     require(f'Model={model}_t00' in set_text, f'{tileset} does not hold {model} yet: install the group first')
     first = int(set_text[:set_text.index(f'Model={model}_t00')].rsplit('[TILE', 1)[1].split(']')[0]); laid = {}
     for index, one in enumerate(tiles):
-        block = set_text.split(f'[TILE{first + index}]', 1)
-        held = block[1].split('[', 1)[0].split('Model=', 1)[-1].split()[0] if len(block) == 2 and 'Model=' in block[1].split('[', 1)[0] else None
+        held = _tile_field(set_text, first + index, 'Model')
         require(held == one['model'], f'{tileset} holds another build of {model}: its tile {first + index} is {held}, not {one["model"]}; install the group again')
         laid[(column0 + one['column'], row0 + one['row'])] = first + index
     return laid
@@ -213,7 +232,7 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     require(tileset in FILL, 'A check area is laid in ' + ' or '.join(FILL)); require(mode in ('day', 'night', 'near'), 'mode is day, night or near')
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path)
     require(model in models and models[model].get('tiles'), model + ' is not a tile group of the game set')
-    resources = base / 'fixtures' / f'{name}-resources'; resources.mkdir(parents=True)
+    resources = _fresh(base, name)
     text = _ground(repo, tileset, resources); folder = Path(built) / model; made = json.loads((folder / 'report.json').read_text(encoding='utf-8'))
     column0 = row0 = 3; laid = laid_tiles(text, tileset, model, made['tiles'], column0, row0)
     require(max(made['columns'], made['rows']) + column0 + 1 <= size, 'The group does not fit the check area')
@@ -295,13 +314,29 @@ def stages(lines):
     return seen
 
 
+def walked(lines, count):
+    """What a door walk's log says: {probes: [{door, target, area}], stages}. A walk that never began or never ended, a
+    door that was not probed, and a door whose transition leads nowhere are refused: an empty answer is no result."""
+    prefix = fixture.LOG_PREFIX
+    require(f'{prefix} enter' in lines, 'The module never ran its entry script: are the packs there (a retired user folder has no hak), and did the client load it?')
+    require(f'{prefix} done' in lines, 'The watch did not finish: the client was closed or the module stopped before its last tick')
+    probes = [values for values in map(client.parse_line, lines) if 'probe' in values]
+    require(len(probes) == count, f'{count} doors were to be probed and {len(probes)} were')
+    for values in probes:
+        require(values.get('valid') == '1' and values.get('target', '').strip(), f'The door {values["probe"]} leads nowhere: its transition has no target')
+    return {'probes': [{'door': values['probe'], 'target': values['target'].strip(), 'area': values.get('targetarea', '').strip()} for values in probes], 'stages': stages(lines)}
+
+
 def doors(game, user, captures, *, module='ektool', name='ekdoors', ticks=150):
     """Run the Toolset-saved module `user/modules/<module>.mod` with its doors chained (`chained`), the player free in
     front of the first. Somebody clicks each door while this logs where the player is and captures the window at every
     change of area and every ten seconds. The module's entry area's doors come first, each area's from west to east.
-    Returns {doors, stages, captures}."""
+    Returns {doors, probes, stages, captures} (`walked`)."""
     from tools.phenotypes import tool_runtime
     game, user, captures = Path(game), Path(user).resolve(), Path(captures).resolve()
+    require((user / 'modules' / f'{module}.mod').is_file(), f'No module the Toolset saved in {user}: {module}.mod')
+    require((user / 'hak').is_dir(), f'{user} has no hak folder: the module cannot load its packs (a retired folder is prepared again)')
+    require(not captures.exists(), 'The captures go to a fresh folder: ' + str(captures))
     work = user.parent / (name + '-work'); shutil.rmtree(work, ignore_errors=True); (work / 'module').mkdir(parents=True); captures.mkdir(parents=True)
     tool = lambda which: str(tool_runtime.tool(which))
     run = lambda arguments, **more: subprocess.run([str(value) for value in arguments], check=True, capture_output=True, **more)
@@ -349,4 +384,4 @@ def doors(game, user, captures, *, module='ektool', name='ekdoors', ticks=150):
     finally:
         client.stop(process)
     (captures / 'run.json').write_text(json.dumps({'lines': lines, 'captures': taken}, indent=1), encoding='utf-8')
-    return {'doors': len(walk), 'stages': stages(lines), 'captures': len(taken)}
+    return {'doors': len(walk), **walked(lines, len(walk)), 'captures': len(taken)}  # after the log is kept: a walk that is refused can still be read

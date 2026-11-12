@@ -147,6 +147,23 @@ class SheetTests(unittest.TestCase):
             command.command_sheet(asked)  # what is only unsent is no failure
         self.assertIn('unsentCredits', said.call_args_list[-1].args[0])
 
+    def test_the_remesh_does_not_wait_for_the_master_nor_fail_with_it(self):
+        plan = self.plan(props={}); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
+        sheet.submit(ledger, plan, self.selected, self.work, run=FakeMeshy(), say=self.say)
+
+        class MasterFails(FakeMeshy):
+            def __call__(self, arguments, folder):
+                if arguments[0] == 'download' and 'yd-building-a1-remesh' not in arguments[arguments.index('--output-dir') + 1]:
+                    self.calls.append(arguments); return 1, {}
+                return super().__call__(arguments, folder)
+
+        fake = MasterFails(); told = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=fake, say=self.say)
+        self.assertEqual(told, {'failed': ['yd-building-a1'], 'downloaded': ['yd-building-a1-remesh'], 'unsent': []})  # the working model is there; the spare is told as missing
+        order = [call[0] if call[0] == 'download' else f'{call[0]} {call[1]}' for call in fake.calls]
+        self.assertLess(order.index('remesh create'), order.index('download'))  # the remesh runs while the master comes down
+        again = sheet.collect(ledger, plan, self.work, self.models, self.masters, run=FakeMeshy(), say=self.say)
+        self.assertEqual(again, {'failed': [], 'downloaded': ['yd-building-a1'], 'unsent': []})  # run again, the master alone is fetched
+
     def test_a_remesh_that_fails_is_told_under_its_own_key(self):
         plan = self.plan(props={}); ledger = meshy.Ledger.create(self.root / 'ledger.json', 100)
         sheet.submit(ledger, plan, self.selected, self.work, run=FakeMeshy(), say=self.say)

@@ -60,7 +60,6 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
     """Pictures `<name>-side<n>.png` of a game set's model as it will ship, with a grid. `models` is the loaded game
     set and `root` its output root. `lit` shows what its lit boxes light. Returns {bounds, pictures, litShare}."""
     from PIL import Image
-    Image.MAX_IMAGE_PIXELS = None
     require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
     require(not lit or model.get('lit'), name + ' states no lit parts')
     maps = {'base_color': source / 'texture_0_base_color.png'}
@@ -74,7 +73,6 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
 def raw(source, height, output, *, name=None, sides=(0,), scale=None, grid=None, fine=2048):
     """Pictures of a generated model as it came back, stood at `height` metres: for a model no game set states yet."""
     from PIL import Image
-    Image.MAX_IMAGE_PIXELS = None
     source = Path(source); vertices, normals, uvs, faces = convert.read_glb(source / 'model.glb')
     points, _, uvs, _, angles = convert.fit(vertices, normals, uvs, height, faces=faces)
     with Image.open(source / 'texture_0_base_color.png') as generated:

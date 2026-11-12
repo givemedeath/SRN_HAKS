@@ -160,13 +160,16 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
             failed.append(row['key']); report(key=row['key'], error=str(error))
     building = plan['building']
     if building:
-        key = building['key']
+        key = generation = building['key']
         try:
             if finished(key):
-                fetched(key, masters / key, master=True)
                 task = ledger.entry(key)['taskId']; key = building['remesh']  # what fails from here on is the remesh
                 if state(ledger, key) is None:
                     report(key=key, task=meshy.submit(ledger, key, 'building', 'remesh', meshy.remesh_arguments(task, building['triangles']), work, run=run))
+                try:  # the master comes down while the remesh runs, and the working model does not depend on it
+                    fetched(generation, masters / generation, master=True)
+                except ValueError as error:
+                    failed.append(generation); report(key=generation, error=str(error))
                 if finished(key, meshy.remesh_target(building['triangles'])):
                     fetched(key, models / key)
         except ValueError as error:
