@@ -1,10 +1,12 @@
 """Reference sets name real crops, prompts ask for an isolated unlit-spill view, and a busy server is left alone."""
 import copy
 import importlib.util
+import itertools
 import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from . import reference
 
@@ -178,6 +180,11 @@ class MakeTests(unittest.TestCase):
     def setUp(self):
         from PIL import Image
         self.folder = tempfile.TemporaryDirectory(); self.addCleanup(self.folder.cleanup); self.root = Path(self.folder.name)
+        # The fake stands for a controlled ComfyUI; the GPU lease lives in this test's own tools root.
+        for patcher in (mock.patch('tools.headkit.shared_comfy.proven', return_value={'identity': {}, 'approval': None}),
+                        mock.patch('tools.headkit.shared_comfy.recheck'),
+                        mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.root / 'tools')})):
+            patcher.start(); self.addCleanup(patcher.stop)
         self.local = {'comfyInput': str(self.root / 'in'), 'comfyOutput': str(self.root / 'out')}
         self.bindings = self.root / 'bindings.json'; self.bindings.write_text(json.dumps(self.local), encoding='utf-8')
         self.sheet = self.root / 'sheet.png'; Image.new('RGB', (64, 48), (10, 120, 200)).save(self.sheet)
@@ -199,11 +206,12 @@ class MakeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Receipt already exists'):
             reference.make(client, self.local, self.bindings, 'crate', 'redraw', source, 7, self.root / 'refs')
 
-    def test_a_busy_server_gets_no_job(self):
+    def test_a_busy_server_is_waited_for_and_gets_no_job_while_busy(self):
         client = FakeClient(self.local['comfyOutput'], busy=True)
-        with self.assertRaisesRegex(ValueError, 'busy'):
-            reference.make(client, self.local, self.bindings, 'crate', 'redraw', self.sheet, 7, self.root / 'refs')
-        self.assertEqual(client.routes, ['/queue'])
+        with mock.patch('tools.headkit.shared_comfy.time.sleep'),                 mock.patch('tools.headkit.shared_comfy.time.monotonic', side_effect=itertools.count(0, 1000)):
+            with self.assertRaisesRegex(ValueError, 'stayed busy'):
+                reference.make(client, self.local, self.bindings, 'crate', 'redraw', self.sheet, 7, self.root / 'refs')
+        self.assertEqual(set(client.routes) - {'/upload/image'}, {'/queue'})
 
 
 if __name__ == '__main__':

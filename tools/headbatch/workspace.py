@@ -148,10 +148,23 @@ class Workspace:
                 found.append(directory)
         return found
 
+    def tools_root(self):
+        """The shared tools root: the workspace's `toolsRoot`, else SRN_TOOLS_ROOT, else the primary checkout's .tools."""
+        if str(TOOLS) not in sys.path: sys.path.insert(0, str(TOOLS))
+        from shared_tools import tools_root
+        return tools_root(REPO, self.data.get('toolsRoot'))[0]
+
     def python_environment(self, *, packages=False, tools=False):
         """Launches inherit no PYTHONPATH: Blender stages would import the caller's numpy (RUNBOOK 107)."""
         environment = {key: value for key, value in os.environ.items() if key != 'PYTHONPATH'}
         environment.update(PYTHONDONTWRITEBYTECODE='1', SRN_LAUNCH_HASH_CACHE=str(self.hash_cache))
+        if self.data.get('toolsRoot'):
+            # The workspace's own tools root, resolved as the launcher resolves it: its children then take the same
+            # GPU lease and read the same shared ComfyUI registry (headkit.shared_comfy) as the launch that holds it.
+            # (shared_tools.tools_root resolves an explicit root exactly so, then checks it; the launcher checks it.)
+            environment['SRN_TOOLS_ROOT'] = str(Path(self.data['toolsRoot']).expanduser().resolve())
+        # And its GPU: children submit under the same gpu-<index> lease (headkit.shared_comfy.gpu_index).
+        environment['SRN_GPU_INDEX'] = str(self.data.get('comfy', {}).get('gpuIndex', 0))
         path = ([str(TOOLS)] if tools else [])+(self.package_paths() if packages else [])
         if path:
             environment['PYTHONPATH'] = os.pathsep.join(path)

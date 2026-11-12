@@ -428,7 +428,9 @@ class ControlledStartupTests(unittest.TestCase):
         namespace={'session_context':Mock(return_value=(session,config)),'folder_paths':types.SimpleNamespace(base_path=str(self.core)),
                    'capture_runtime_identity':Mock(return_value={'files':[]}),
                    'HEAVY_VERIFICATION_LOCK':HEAVY_VERIFICATION_LOCK,'verification_pass':verification_pass,
-                   'logging':Mock(),'json':json,'__name__':'adapter_fixture','loaded_source_code':Mock(return_value=[])}
+                   'logging':Mock(),'json':json,'__name__':'adapter_fixture','loaded_source_code':Mock(return_value=[]),
+                   # A controlled launch: the attested path must not be taken, even when the session check fails.
+                   'unmanaged':Mock(return_value=False),'_capture_attested':Mock(side_effect=AssertionError('attested fallback'))}
         exec(compile(ast.Module(body=[helper],type_ignores=[]),str(source),'exec'),namespace)
         namespace['loaded_source_code'].side_effect=AssertionError('retired census invoked')
         self.assertEqual(namespace['_capture_startup'](),(self.inventory,session,{'files':[]}))

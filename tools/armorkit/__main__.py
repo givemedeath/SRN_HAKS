@@ -114,7 +114,7 @@ def command_bake(args):
                      'bake needs --mesh, --colours, --raw and --xatlas together, or --kept alone to tint stored parts again')
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
                       xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=args.tier,
-                      packs=args.pack, game=args.nwn_root, resources=args.resources,
+                      packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
                       say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
     if not record['gates']['passed']:
@@ -179,6 +179,7 @@ def main(argv=None):
     p.add_argument('brief'); p.add_argument('output'); p.add_argument('--number', type=int, required=True, help='the part number the models are written as')
     p.add_argument('--body-pack', required=True, help="folder holding the body's models"); p.add_argument('--body', default='pmh0')
     p.add_argument('--tier', type=int, default=2, choices=registry.TIERS, help='the seam tier the outfit is cut at')
+    p.add_argument('--body-textures', help="folder holding the body's material files and maps, for an outfit that shows the body's skin")
     p.add_argument('--mesh', help='the exported mesh'); p.add_argument('--colours', help='the saved colour field of the appearance job')
     p.add_argument('--raw', help="the generator's own high-detail mesh, for the normal maps")
     p.add_argument('--xatlas', help='folder holding the layout library (from the local runtime binding)')

@@ -18,6 +18,7 @@ from .source_inventory import request_sources,verify_sources,validate_comfy_runt
 TEMPLATES = Path(__file__).parent / 'templates'
 MULTIVIEW_VIEWS=('Front','Left','Back','Right')
 from .gpu_lock import locked
+from .shared_comfy import holding, slot
 
 
 def compile_graph(stage, profile, images, prefix, *, fov=None, shape=None, source=None,background=None):
@@ -98,6 +99,8 @@ class Client:
         self.verification_metrics=[]
 
     def request(self, route, data=None):
+        # Every toolkit submits through shared_comfy.slot: GPU lease, proven server, idle queue.
+        require(route != '/prompt' or holding(), 'Submit to ComfyUI through headkit.shared_comfy.slot')
         payload = None if data is None else json.dumps(data,allow_nan=False).encode()
         request = urllib.request.Request(self.url + route, data=payload, headers={'Content-Type':'application/json'})
         # Both verification endpoints read large immutable byte inventories.
@@ -129,14 +132,16 @@ def preparation_runtime(client, local):
     verify_comfy_runtime under the submission lock or after execution. Legacy
     callers retain their full preparation check.
     """
+    from .attestation import check
     mode=local.get('comfyPreparationVerification')
     require(mode in (None,'dispatch-gated-baseline-v1'),'Unsupported Comfy preparation verification')
-    if mode is None:return client.request('/headkit/runtime-identity')
+    if mode is None:return check(client.request('/headkit/runtime-identity'),local)
     baseline=client.request('/headkit/preparation-identity')
     require(isinstance(baseline,dict)and set(baseline)=={'kind','runtimeIdentity','requiresFreshDispatch'}
             and baseline['kind']=='preparation-baseline-v1'and baseline['requiresFreshDispatch']is True,
             'Preparation baseline cannot establish a live verification pass')
-    return baseline['runtimeIdentity']
+    # A shared ComfyUI another program started is usable only as the identity a person approved.
+    return check(baseline['runtimeIdentity'],local)
 
 
 
@@ -258,6 +263,16 @@ def verify_comfy_runtime(client, prepared, restarted=False):
     actual=validate_comfy_runtime(actual,expected['coveredSourceRoots'],prepared.get('comfySourceInventory'))
     require(_same_deployment(actual,expected) if restarted else actual==expected,
             'Running ComfyUI Python/Torch/CUDA runtime differs from the prepared request; prepare again')
+    from .attestation import attested, check
+    if attested(actual):
+        # The approval chosen at preparation still has to name the server at dispatch and completion; a registry
+        # update since then does not apply to this request.
+        chosen=prepared.get('comfyAttestation')
+        if chosen is not None:check(actual,{'comfyAttestation':chosen})
+        else:  # requests prepared before the approval was carried in them: their bindings, else the registry
+            binding=prepared.get('bindings')
+            require(isinstance(binding,dict),'An attested ComfyUI needs the prepared bindings and their approved snapshot')
+            verify([binding]);check(actual,read(binding['path']))
     return actual
 
 
@@ -269,7 +284,8 @@ def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_
         verify(prepared['inputs']);request_sources(prepared)
     graph = prepared['prompt']; info = client.request('/object_info')
     require(all(n['class_type'] in info for n in graph.values()), 'Install/restart missing nodes before dispatch')
-    with locked(ledger):
+    # The slot waits for the GPU lease and an idle queue; the dispatch verification below proves the server.
+    with slot(client, prove=False), locked(ledger):
         state = read(ledger)
         require(not any(j['state'] in ('intent','submitted','timed-out') for j in state['jobs']), 'Reconcile the outstanding job first')
         require(client.idle(), 'Shared queue is busy; leave its jobs untouched')
