@@ -331,7 +331,12 @@ class TileTests(unittest.TestCase):
             self.assertEqual((fenced['rows'], fenced['columns']), (1, 2))
             more = [one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
             self.assertEqual(sum(more), len(wire['faces'])); self.assertTrue(all(count > 0 for count in more))  # every square in one tile, some in each
-            self.assertEqual([one['walkFaces'] for one in fenced['tiles']], [one['walkFaces'] for one in plain['tiles']])  # the walkmesh does not know the sheets
+            # A fence closes the ground it stands on, though its sheets are no part of the model's mesh: a generator leaves
+            # the frames empty, and without the sheets the walkmesh between two posts would be open (review, 2026-11-12).
+            rows, columns, corner = tile.layout(vertices); under = lambda found: found['material'][int((3.5 - corner[1]) / CELL + 1e-6), 8:-8]
+            self.assertTrue((under(tile.survey(vertices, faces, rows, columns, corner)) == tile.STONE).all())
+            self.assertTrue((under(tile.survey(vertices, faces, rows, columns, corner, barrier=(wire['vertices'], wire['faces']))) == tile.NONWALK).all())  # closed, and seen through
+            self.assertNotEqual([one['walkFaces'] for one in fenced['tiles']], [one['walkFaces'] for one in plain['tiles']])
             faded = tile.group('ek_long', made, Path(scratch) / 'c', ground='pavement', fade=1.0); unfenced = tile.group('ek_long', bare, Path(scratch) / 'd', ground='pavement', fade=1.0)
             hidden = [one['fadingFaces'] - other['fadingFaces'] for one, other in zip(faded['tiles'], unfenced['tiles'])]
             self.assertTrue(all(0 < count < extra for count, extra in zip(hidden, more)))  # the squares above the fade height are counted as hidden too
@@ -351,6 +356,9 @@ class TileTests(unittest.TestCase):
         self.assertTrue((found['material'][near[0, 1]:near[1, 1] + 1, near[0, 0]:near[1, 0] + 1] == tile.STONE).all())
         with self.assertRaisesRegex(ValueError, 'no open ground'):  # a door in the middle of the building
             tile.doorstep(found, corner, [0.0, -1.5, 0.2], 90.0)
+        # The hook keeps the height of the door's foot: drawn out from a door on a high sill it would hang over the ground.
+        with self.assertRaisesRegex(ValueError, 'on a sill or steps'):
+            tile.doorstep(found, corner, [0.0, 1.0, 1.2], 90.0)
     def test_a_strip_of_slab_too_narrow_for_the_ramp_is_still_climbed(self):
         # Strips six metres long and 0.2 high across one tile. One a metre wide has no cell deeper than the ramp, so no line but its own
         # edge: it is up over its middle half metre all the same, climbed over the quarter metre either side.

@@ -27,7 +27,6 @@ RESOURCE = {'prop': 'image-to-3d', 'building': 'multi-image-to-3d', 'remesh': 'r
 BOUNDED = {'prop', 'remesh'}  # the operations whose result has a triangle target
 MAX_TRIANGLES = 100000
 BUILDING_TRIANGLES = 200000  # a remeshed building (user, 2026-11-11: "raise our poly budget for larger buildings to 200k")
-CEILING = {'prop': MAX_TRIANGLES, 'remesh': BUILDING_TRIANGLES}  # the most triangles a working model of each bounded operation has
 PROP_TRIANGLES = (100, 15000)  # smart-topology's own range
 REMESH_HEADROOM = 0.92  # a remesh lands a little over its target: the robe trial asked for 100,000 and got 103,196
 KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
@@ -228,11 +227,11 @@ def triangles(glb):
 def _ceiling(row):
     """The most triangles a working model of this ledger entry has. A remesh is held to the ceiling it was asked for
     where that is over the common one: only a remesh sent for a larger building's budget may come back that large."""
-    ceiling = CEILING.get(row['operation'], MAX_TRIANGLES); sent = row.get('arguments') or []
+    sent = row.get('arguments') or []
     if row['operation'] != 'remesh' or '--target-polycount' not in sent[:-1]:
-        return min(ceiling, MAX_TRIANGLES)
+        return MAX_TRIANGLES
     asked = math.ceil(int(sent[sent.index('--target-polycount') + 1]) / REMESH_HEADROOM - 1e-9)  # the least ceiling that sends this target
-    return max(MAX_TRIANGLES, min(ceiling, asked))
+    return max(MAX_TRIANGLES, min(BUILDING_TRIANGLES, asked))
 
 
 def download(ledger, key, folder, bank, *, master=False, run=run_cli):

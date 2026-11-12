@@ -72,6 +72,7 @@ LIT, FOOT = 0.05, 0.25
 # Depot's first hook lay on its door leaf, in the closed ground of the wall: the player walked up to the door and nothing
 # happened; drawn 0.6 metres out, the same door took them through (client, 2026-11-11).
 DOOR_ROOM, DOOR_SIDE, DOOR_REACH = 0.4, 0.3, 2.0
+DOOR_STEP = KNEE  # metres: how far in height the ground under a drawn-out hook may lie from the door's foot (the depot's is 0.33)
 TILE_KEYS = ('Model', 'WalkMesh', 'TopLeft', 'TopLeftHeight', 'TopRight', 'TopRightHeight', 'BottomLeft', 'BottomLeftHeight', 'BottomRight',
              'BottomRightHeight', 'Top', 'Right', 'Bottom', 'Left', 'MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1',
              'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds', 'PathNode', 'Orientation', 'VisibilityNode', 'VisibilityOrientation', 'ImageMap2D')
@@ -141,8 +142,10 @@ def _masses(closed):
     return labels, count
 
 
-def survey(vertices, faces, rows, columns, corner):
+def survey(vertices, faces, rows, columns, corner, barrier=None):
     """The group's walk cells, [row, column] from the south-west: {material, raised, depth, crest, slab, roof, footprint, lines}.
+    `barrier` is (vertices, faces) of what stands in the way without being part of the model's mesh: a fence's sheets
+    (`convert.sheets`), which close the ground they stand on as a wall would and hide nothing behind them.
 
     material: Stone where one can walk, Obscuring for the building where it stands at eye height, Nonwalk for the
     lesser things in the way and for the parts of the building's mass that are lower than that.
@@ -160,6 +163,9 @@ def survey(vertices, faces, rows, columns, corner):
     place = np.clip(((points[:, :2] - corner) / step + 1e-6).astype(int), 0, across - 1)
     standing = (points[:, 2] > KNEE) & (points[:, 2] < HEAD)
     solid = np.zeros((across[1], across[0]), bool); solid[place[standing, 1], place[standing, 0]] = True
+    if barrier is not None:  # a generator leaves a fence's frames empty: without its sheets the ground between the posts would be open
+        fence = scatter(*barrier); fence = fence[(fence[:, 2] > KNEE) & (fence[:, 2] < HEAD)]
+        spot = np.clip(((fence[:, :2] - corner) / step + 1e-6).astype(int), 0, across - 1); solid[spot[:, 1], spot[:, 0]] = True
     solid = ~_outside(~solid)  # what the walls enclose is closed too
     looking = (points[:, 2] > EYE) & (points[:, 2] < HEAD)
     tall = np.zeros(solid.shape, bool); tall[place[looking, 1], place[looking, 0]] = True
@@ -488,7 +494,15 @@ def doorstep(found, corner, at, facing):
     for step in range(int(DOOR_REACH / (cell / 2)) + 1):
         point = start + out * step * cell / 2
         low = np.floor((point - room - corner) / cell).astype(int); high = np.floor((point + room - corner) / cell).astype(int)
-        if (low >= 0).all() and high[0] < columns and high[1] < rows and (material[low[1]:high[1] + 1, low[0]:high[0] + 1] == STONE).all():
+        patch = (slice(low[1], high[1] + 1), slice(low[0], high[0] + 1))
+        if (low >= 0).all() and high[0] < columns and high[1] < rows and (material[patch] == STONE).all():
+            # The hook keeps the height of the door's foot, which both buildings so far have within a step of the ground
+            # in front of them. Drawn out from a door on a high sill or at the head of steps it would hang in the air,
+            # and no such door has been tried in the client: it is refused until one is.
+            ground = found['slab'] * np.where(found['crest'][patch], RAMP, np.minimum(found['depth'][patch], RAMP)) / RAMP
+            apart = max(float(at[2]) - float(ground.min()), float(ground.max()) - float(at[2]))
+            require(apart <= DOOR_STEP, f"The ground the door's hook is drawn out to lies {apart:.2f} metres from the door's foot in height, more than the "
+                    f'{DOOR_STEP} a hook has been seen to work at: a door on a sill or steps needs the height of its hook settled in the client first')
             return (round(float(point[0]), 3), round(float(point[1]), 3), float(at[2])), float((facing + 90.0) % 360.0), round(step * cell / 2, 3)
     require(False, f'The door has no open ground within {DOOR_REACH} metres in front of it: a player could not reach it')
 
@@ -505,13 +519,13 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     vertices, normals, uvs, faces = made['vertices'], made['normals'], made['uvs'], made['faces']
-    rows, columns, corner = layout(vertices); found = survey(vertices, faces, rows, columns, corner)
+    wire = made.get('wire')
+    rows, columns, corner = layout(vertices); found = survey(vertices, faces, rows, columns, corner, barrier=(wire['vertices'], wire['faces']) if wire is not None else None)
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
     middle = vertices[faces].mean(1); home = np.clip(((middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
     high = middle[:, 2] >= fade if fade is not None else np.zeros(len(faces), bool)
     cards = share_cards(made['card'].cards, rows, columns, corner, made['card'].light) if made['card'] else {}; tiles, notes = [], []
     pictures = minimaps(vertices, uvs, faces, colour, rows, columns, corner, ground_colour) if colour is not None else {}
-    wire = made.get('wire')
     if wire is not None:
         wire_middle = wire['vertices'][wire['faces']].mean(1); wire_tile = np.clip(((wire_middle[:, :2] - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])
         wire_high = wire_middle[:, 2] >= fade if fade is not None else np.zeros(len(wire_middle), bool)
@@ -555,7 +569,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 Image.fromarray((np.clip(pictures[(row, column)], 0, 1) * 255).round().astype(np.uint8)).save(folder / f'{one["image"]}.tga')
             if door is not None and (cell == [column, row]).all():
                 x, y, z = (at - centre).round(2).tolist()
-                one['doors'].append({'type': int(door.get('type', 0)), 'x': x, 'y': y, 'z': z, 'orientation': orientation, 'drawnOut': drawn})
+                one['doors'].append({'type': int(door['type']), 'x': x, 'y': y, 'z': z, 'orientation': orientation, 'drawnOut': drawn})
             tiles.append(one)
     return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles, 'notes': notes}
 

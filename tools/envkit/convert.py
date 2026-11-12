@@ -27,6 +27,8 @@ WIRE = (118, 122, 126)  # galvanised steel
 # A fence's wires are drawn on a small picture of their own, which its sheets repeat: its width in pixels, and the least
 # pixels across a wire that still draw one.
 WIRE_PICTURE, WIRE_TEXELS = 128, 2.5
+PANEL_DEPTH = 0.6  # metres: the most a `mesh` box's texels may lie apart across the panel's run and still be one flat panel
+FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model must lie, since a fence hangs between its posts
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
@@ -354,24 +356,61 @@ def _blur(values, radius):
 
 
 def _soften(values, chosen, reach):
-    """`values` (rows, columns) or (rows, columns, channels) blurred over `reach` texels among the `chosen` texels
-    alone: what lies outside them gives nothing and takes nothing."""
-    count = np.maximum(_blur(chosen.astype(np.float32), reach), 1e-6)
-    return _blur(values * chosen, reach) / count if values.ndim == 2 else _blur(values * chosen[..., None], reach) / count[..., None]
+    """(box, soft, near): `values` (rows, columns) or (rows, columns, channels) blurred over `reach` texels among the
+    `chosen` texels alone, which take nothing from what lies outside them. Only the texels the blur can reach are
+    worked on: `box`, the chosen ones' own rows and columns and three reaches round them, which is as far as three box
+    blurs carry anything out and back. `soft` is that box blurred, and `near` where in it the blur reached: the chosen
+    texels and a margin past them, onto which their tones are carried."""
+    rows, columns = np.flatnonzero(chosen.any(1)), np.flatnonzero(chosen.any(0)); pad = 3 * max(int(round(reach)), 1) + 1
+    box = (slice(max(int(rows[0]) - pad, 0), int(rows[-1]) + pad + 1), slice(max(int(columns[0]) - pad, 0), int(columns[-1]) + pad + 1))
+    mask = chosen[box].astype(np.float32); share = _blur(mask, reach); count = np.maximum(share, 1e-6)
+    if values.ndim == 3:
+        mask, count = mask[..., None], count[..., None]
+    return box, _blur(values[box] * mask, reach) / count, share > 1e-3
+
+
+def _spread(small, parts):
+    """(picture, texels): `small`, a picture at the retouching's grain, with each part smoothed among its own texels
+    in turn, and all the parts' texels together. parts: [(texels, reach, colour)], the colour (0-255) what the part is
+    brought to on average, or None. Each part's tones are carried a little past its texels where no part lies, so
+    that the picture enlarged has the part's own tones at its edge and not its neighbour's on the texture."""
+    small = small.copy(); edged = small.copy(); done = np.zeros(small.shape[:2], bool)
+    for chosen, reach, toward in parts:
+        box, soft, near = _soften(small, chosen, reach); here = chosen[box]
+        if toward is not None:
+            soft = soft * (np.asarray(toward, np.float32) / 255 / np.maximum(soft[here].mean(0), 1e-6))
+        small[box][here] = soft[here]  # what the next part sees
+        over = (near & ~done[box]) | here; edged[box][over] = soft[over]; done |= chosen
+    return edged, done
 
 
 def _levelled(values, plain):
-    """A grey map (0-1, square) with what `retouch` smoothed off the colour picture smoothed off it too, each texel over
-    the reach `plain` gives it. The generator that painted the Ares Depot's fence on the wall behind it put the same
-    mesh into the wall's roughness and metallic, which the colour's smoothing left there to catch the light (2026-11-12)."""
+    """A grey map (0-1) with what `retouch` smoothed off the colour picture smoothed off it too: `plain` is each
+    smoothed part's texels and its reach among them, as the colour was smoothed. The generator that painted the Ares
+    Depot's fence on the wall behind it put the same mesh into the wall's roughness and metallic, which the colour's
+    smoothing left there to catch the light (2026-11-12)."""
     from PIL import Image
-    reach = np.asarray(plain); grain = reach.shape[0]; size = values.shape[::-1]
+    grain = plain[0][0].shape[0]; size = values.shape[::-1]
     small = np.asarray(Image.fromarray((values * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
-    for width in np.unique(reach[reach > 0]).tolist():
-        chosen = reach == width; small[chosen] = _soften(small, chosen, width)[chosen]
+    small, done = _spread(small, [(chosen, reach, None) for chosen, reach in plain])
     wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(size, Image.BILINEAR), float) / 255
-    marked = np.asarray(Image.fromarray(reach > 0).resize(size, Image.NEAREST)); values = values.copy(); values[marked] = wide[marked]
+    marked = np.asarray(Image.fromarray(done).resize(size, Image.NEAREST)); values = values.copy(); values[marked] = wide[marked]
     return values
+
+
+def _run(places):
+    """The way a flat upright panel runs, a unit (x, y), from the places of its texels: the line they lie along seen
+    from above. A panel within a degree of an axis runs along it exactly, so its pattern does not creep."""
+    flat = np.asarray(places, float)[:, :2]; flat = flat - flat.mean(0)
+    require(len(flat) > 1 and float(np.abs(flat).max()) > 1e-6, 'A wire mesh panel has a length to run along')
+    ahead = np.linalg.eigh(flat.T @ flat)[1][:, -1]
+    if ahead[0] < -1e-9 or (abs(ahead[0]) <= 1e-9 and ahead[1] < 0):  # towards +x, or +y for a panel along Y: one way for both faces
+        ahead = -ahead
+    if float(np.abs(ahead).max()) >= np.cos(np.radians(1.0)):
+        ahead = (np.abs(ahead) == np.abs(ahead).max()).astype(float)
+    across = flat @ np.array([-ahead[1], ahead[0]])
+    require(float(np.ptp(across)) <= PANEL_DEPTH, f'A wire mesh box holds one flat panel: what this one holds is {float(np.ptp(across)):.2f} metres deep across its run')
+    return ahead
 
 
 def sheets(fences, size=WIRE_PICTURE):
@@ -391,7 +430,7 @@ def sheets(fences, size=WIRE_PICTURE):
     links = int(wire * size / (WIRE_TEXELS * link)); require(links >= 1, f'A wire this thin cannot be drawn on a picture of {size} pixels')
     from . import glow
     period = links * link; at = (np.arange(size) + 0.5) / size * period; along, up = np.meshgrid(at, at)
-    drawn = glow.wires(np.dstack([along, np.zeros_like(along), up]), pitch, wire)  # the pattern a `mesh` panel is painted with
+    drawn = glow.wires(along, up, pitch, wire)  # the pattern a `mesh` panel is painted with
     pixels = np.empty((size, size, 4), np.uint8); pixels[..., :3] = colour; pixels[..., 3] = drawn * 255  # the wire's colour under the gaps too
     vertices, normals, uvs, faces = [], [], [], []
     for one in fences:
@@ -409,14 +448,17 @@ def sheets(fences, size=WIRE_PICTURE):
             'period': period}
 
 
-def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh=(), size=RETOUCH):
+def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh=(), size=RETOUCH, placed=None):
     """(colour, flat, plain): a model's colour picture as it ships, where its relief is to be flattened, and where its
-    other maps are to be smoothed as its colour was, each texel's value the reach in texels (the last two, or None).
+    other maps are to be smoothed as its colour was: [(texels, reach in texels)] for each smoothed part, at the
+    retouching's own grain (the last two, or None). `placed` is the model's position map at that grain
+    (`glow.position_map`: where, covered), for a caller that has made one already.
 
     `tone` multiplies the whole picture (a model that came back paler than its reference). `paint` covers what a
     generator invented: [{box, colour}], every texel within the box in one colour (0-255). `mesh` makes a panel a
     chain-link fence: [{box, pitch, wire, colour}], the texels within the box in the wire's colour and see-through
-    between the wires (`glow.wires`), which gives the picture an alpha channel. Boxes are in metres on the finished
+    between the wires (`glow.wires`), which gives the picture an alpha channel; the pattern is laid along the way the
+    panel runs (`_run`), whichever way that is. Boxes are in metres on the finished
     model, as a lit part's are. A generator cannot make a mesh that is seen through (the depot's fence came back as
     solid smeared panels, 2026-11-11); its posts, rails and base are kept and only the panels are redrawn.
 
@@ -427,7 +469,7 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
     from PIL import Image
     from . import glow
     colour = np.asarray(image.convert('RGB'), np.float32) / 255; alpha = flat = None; grain = min(size, image.width)
-    plain = np.zeros((grain, grain), np.uint8) if smooth else None
+    plain = [] if smooth else None
     if tone is not None:
         colour = np.clip(colour * tone, 0, 1)
     if smooth or mesh:
@@ -435,7 +477,8 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
     if mesh:
         alpha = np.ones(colour.shape[:2], bool)
     if paint or smooth or mesh:
-        where, covered = glow.position_map(vertices, uvs, faces, grain)
+        where, covered = placed if placed is not None else glow.position_map(vertices, uvs, faces, grain)
+        require(covered.shape == (grain, grain), f'The position map handed to the retouching is {grain} texels across')
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
             colour[full(glow.held(where, covered, part, 'painted'))] = np.asarray(part['colour'], float) / 255
@@ -443,21 +486,21 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
             chosen = glow.held(where, covered, part, 'smoothed')
             beside = chosen[:, 1:] & chosen[:, :-1]  # how far apart on the model two texels side by side are
             step = float(np.median(np.linalg.norm(where[:, 1:][beside] - where[:, :-1][beside], axis=1))) if beside.any() else 0.0
-            small = np.asarray(Image.fromarray((colour * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
             # No two texels side by side, or all at one place, leaves no step to measure by: the reach then stops at an
             # eighth of the picture, where an unbounded one would pad the blur by a hundred thousand texels.
-            reach = int(np.clip(round(min(part['radius'] / max(step, 1e-6), grain / 8)), 1, 255))
-            blurred = _soften(small, chosen, reach); plain[chosen] = reach
-            if 'colour' in part:
-                blurred = blurred * (np.asarray(part['colour'], np.float32) / 255 / np.maximum(blurred[chosen].mean(0), 1e-6))
-            wide = np.asarray(Image.fromarray((np.clip(blurred, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
-            chosen = full(chosen); colour[chosen] = wide[chosen]; flat |= chosen
+            plain.append((chosen, max(int(round(min(part['radius'] / max(step, 1e-6), grain / 8))), 1)))
+        if smooth:  # the picture is brought to the grain once, each part is smoothed there in turn, and it is brought back once
+            small = np.asarray(Image.fromarray((colour * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
+            small, done = _spread(small, [(chosen, reach, part.get('colour')) for (chosen, reach), part in zip(plain, smooth)])
+            wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
+            done = full(done); colour[done] = wide[done]; flat |= done
         for part in mesh:
-            panel = glow.held(where, covered, part, 'wire mesh'); wire = full(panel & glow.wires(where, part['pitch'], part['wire'])); panel = full(panel)
+            panel = glow.held(where, covered, part, 'wire mesh'); ahead = _run(where[panel])
+            wire = full(panel & glow.wires(where[..., :2] @ ahead, where[..., 2], part['pitch'], part['wire'])); panel = full(panel)
             colour[panel] = np.asarray(part.get('colour', WIRE), float) / 255  # under the gaps too: a filtered edge then blends wire with wire
             alpha &= ~panel | wire; flat |= panel
     picture = (colour * 255).round().astype(np.uint8)
-    level = Image.fromarray(flat) if flat is not None else None; plain = Image.fromarray(plain) if plain is not None else None
+    level = Image.fromarray(flat) if flat is not None else None
     if alpha is None:
         return Image.fromarray(picture), level, plain
     return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), level, plain
@@ -466,7 +509,7 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
 def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None, plain=None):
     """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half.
     `base` is the colour picture retouched (`retouch`); with an alpha channel it is stored with one. `flat` marks where
-    the relief map is levelled, `plain` where the roughness and the metal are smoothed as the colour was (`_levelled`)."""
+    the relief map is levelled, `plain` the parts whose roughness and metal are smoothed as the colour was (`_levelled`)."""
     from PIL import Image
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); half = max(colour // 2, 256)
     shown = base if base is not None else Image.open(maps['base_color']).convert('RGB')
@@ -496,10 +539,11 @@ def load_models(path):
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
-    hide it, and `door` ({at: [x, y, z], facing, type, leaf}: the middle of the foot of a door on the finished model, the
+    hide it, and `door` ({at: [x, y, z], facing, type, leaf, measuredAt}: the middle of the foot of a door on the finished model, the
     way it looks out in degrees from east towards north (90 is north), its row of doortypes.2da, which is the invisible
-    transition door's, and `leaf`, the height in metres of the door leaf as measured on the finished model, which must
-    be a door a character fits; `tile.doorstep` draws the hook out onto open ground and turns it); `placeable` gives it a row in the placeables table: its label
+    transition door's, `leaf`, the height in metres of the door leaf as measured on the finished model, which must
+    be a door a character fits, and `measuredAt`, the height the model had when the door was measured, which must be
+    its height still; `tile.doorstep` draws the hook out onto open ground and turns it). A tile group takes no `lift`. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
     under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
@@ -554,9 +598,11 @@ def load_models(path):
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
+        # A tile group stands on the ground: `tiles` builds it there, and a lift would only move its boxes off it.
+        require(tiles is None or not model.get('lift'), 'A tile group stands on the ground and takes no lift: ' + name)
         door = (tiles or {}).get('door')
-        require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf'} and np.asarray(door['at'], float).shape == (3,)
-                                 and type(door.get('type', 0)) is int and door.get('type', 0) >= 0), 'A door needs the place it stands at: ' + name)
+        require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf', 'measuredAt'} and np.asarray(door['at'], float).shape == (3,)),
+                'A door needs the place it stands at: ' + name)
         require(door is None or number(door.get('facing', 0.0)), 'A door faces a number of degrees: ' + name)
         # The building's own modelled door is what is seen; the hook is the door that has no model of its own.
         require(door is None or door.get('type') == DOOR_TYPE, f'The door hook of a building is the invisible transition door, type {DOOR_TYPE}: ' + name)
@@ -564,6 +610,12 @@ def load_models(path):
         # tiles and its door leaf came out 1.6 metres, lower than the character standing at it (client, 2026-11-11).
         require(door is None or (number(door.get('leaf')) and DOOR_LEAF[0] <= door['leaf'] <= DOOR_LEAF[1]),
                 f'A door states its leaf, measured on the finished model, {DOOR_LEAF[0]} to {DOOR_LEAF[1]} metres tall; scale the building to its door first: ' + name)
+        # The leaf and the door's place are measurements, and a measurement is of the model at one height. A typed
+        # leaf would go on passing after its building was made taller or lower (found in review, 2026-11-12): so the
+        # door says the height its model had when it was measured, and a model of another height has its door measured again.
+        require(door is None or (number(door.get('measuredAt')) and door['measuredAt'] == model['height']),
+                f'A door says the height its model had when its place and leaf were measured (measuredAt), and that is the height of the model now; '
+                f'measure the door again on the model {model["height"]} metres tall: ' + name)
         fade = (tiles or {}).get('fade')
         require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
     return data['models']
@@ -641,22 +693,43 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     normals, repaired = repair_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
     require(not halo or lit, 'A halo spreads the lit parts: name them')
-    if lit:
-        require(illumination is None, 'Give the lit parts or a glow map, not both')
+    require(not lit or illumination is None, 'Give the lit parts or a glow map, not both')
+    shown = flat = plain = placed = None; retouched = tone is not None or paint or smooth or mesh
+    if lit or retouched:
         from PIL import Image
         from . import glow
-        size = max(colour // 2, 256)
-        base = np.asarray(Image.open(maps['base_color']).convert('RGB').resize((size, size)), float) / 255
-        where, covered, toward = glow.position_map(vertices, uvs, faces, size, facing=True); shine = glow.glow(base, where, covered, lit)
+    if lit:
+        size = max(colour // 2, 256); placed = glow.position_map(vertices, uvs, faces, size, facing=True)
+    if retouched:
+        with Image.open(maps['base_color']) as picture:
+            same = placed is not None and size == min(RETOUCH, picture.width)  # the glow's map of places serves the retouching where their sizes agree
+            shown, flat, plain = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), smooth=smooth or (), mesh=mesh or (),
+                                         placed=placed[:2] if same else None)
+    if lit:  # by the picture as it ships: what was painted over or toned down does not shine through by night as it was
+        with Image.open(maps['base_color']) as picture:
+            base = np.asarray((shown if shown is not None else picture).convert('RGB').resize((size, size)), float) / 255
+        where, covered, toward = placed; shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
-    shown = flat = plain = None
-    if tone is not None or paint or smooth or mesh:
-        from PIL import Image
-        with Image.open(maps['base_color']) as picture:
-            shown, flat, plain = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), smooth=smooth or (), mesh=mesh or ())
+    if fence:
+        _hung(vertices, faces, fence)
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': sheets(fence) if fence else None}
+
+
+def _hung(vertices, faces, fences):
+    """Refuse a fence either end of which is at no part of the model. A fence hangs between its posts, and its ends are
+    stated on the finished model, turned and lifted; one measured before a turn would pass every check of its heights
+    and be built hanging in the air (the wall sign's lit boxes went wrong the same way, 2026-11-12)."""
+    from . import tile
+    surface = tile.scatter(vertices, faces, spacing=FENCE_NEAR / 3)  # places all over the model: a post's flat side may have no corner near
+    for one in fences:
+        low, high = (float(value) for value in one['z'])
+        level = surface[(surface[:, 2] >= low - FENCE_NEAR) & (surface[:, 2] <= high + FENCE_NEAR)][:, :2]
+        for end in (one['from'], one['to']):
+            away = float(np.linalg.norm(level - np.asarray(end, float), axis=1).min()) if len(level) else float('inf')
+            require(away <= FENCE_NEAR, f'A fence hangs between posts of the model, and no part of the model lies within {FENCE_NEAR} metres of its end at {list(end)} '
+                    f'between its heights (the nearest is {away:.2f} away); fences are on the finished model, turned and lifted: ' + str(one.get('part', '')))
 
 
 def skin(name, maps, folder, crunch, made, *, colour=1024):

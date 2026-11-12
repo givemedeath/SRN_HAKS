@@ -67,12 +67,14 @@ def held(where, covered, part, what):
     return found
 
 
-def wires(where, pitch, wire):
-    """Which texels lie on the wires of a chain-link mesh hung upright along X or Y: two sets of wires `wire` metres
-    thick, leaning either way, `pitch` metres apart. The pattern is laid by place on the model, so it runs unbroken
-    over the islands of the texture and matches on both faces of a panel."""
+def wires(along, up, pitch, wire):
+    """Which places lie on the wires of a chain-link mesh hung upright: two sets of wires `wire` metres thick, leaning
+    either way, `pitch` metres apart. `along` and `up` are each place's metres along the way the mesh runs and its
+    height. Laid by place on a model, the pattern runs unbroken over the islands of the texture; measured along the
+    panel's own run it is the same on both faces of the panel, so one face's wires stand behind the other's. (Laid by
+    x + y, as it first was, the two faces of the fence section were out of step by the panel's thickness, and a panel
+    not along X or Y would have had its pattern squashed or flattened to stripes.)"""
     require(0 < wire < pitch, 'A wire is thinner than the gap between wires')
-    along, up = where[..., 0] + where[..., 1], where[..., 2]
     return (np.mod((along + up) / np.sqrt(2), pitch) < wire) | (np.mod((along - up) / np.sqrt(2), pitch) < wire)
 
 

@@ -492,6 +492,17 @@ reach, and the specular map is made from the smoothed metal; the differences fel
 group's roughness and specular maps changed in the rebuild. Seen again in the client by day and by night,
 slantwise along the east and west fences: nothing looks different from the first check.
 
+A third review on 2026-11-12 changed how the same work is done, and the group was built once more. Each
+smoothed part is now worked on within its own texels and their margin instead of over the whole picture, and
+parts are kept apart in the roughness and metallic maps as they were in the colour; the glow map is made from
+the colour picture as retouched; the fence's sheets close the ground under them in the walk survey; and a
+fence's ends, a door's measurements and the height of the ground under a door's hook are checked. For this
+building none of that changes what is seen or walked: the models, walkmeshes, path nodes and door record came
+out byte for byte the same, and the colour, roughness, specular, glow and halo pictures and five area-map
+pictures differ slightly (the colour in 0.1 per cent of its texels, where smoothed parts meet; the glow in
+0.001 per cent). Seen again in the client by day and by night from the same ten viewpoints: nothing looks
+different from the checks before.
+
 Not checked: the Stuffer Shack's corrected door record, which was rewritten by the same code and not painted
 or clicked again; and either group's door in the Suburbs tileset.
 
@@ -526,7 +537,11 @@ it matched its own pale reference and stood out nearly white beside the others b
 chain-link mesh two solid smeared panels; its posts, rails, barbed wire and concrete base are kept, and the two
 panels are redrawn by place on the model as a diamond mesh of 16 millimetre wire 90 millimetres apart, seen
 through between the wires (the colour map of this one prop has an alpha channel, DXT5), with the relief map
-levelled there. The right half of its concrete base still carries a smeared hazard marking.
+levelled there. The right half of its concrete base still carries a smeared hazard marking. The mesh was first
+laid by each texel's x + y, which put the wires on the two faces of a panel out of step by the panel's
+thickness; since 2026-11-12 it is laid along the way each panel runs, so one face's wires stand behind the
+other's (only the colour map's alpha changed; seen in the client by day, square, slantwise and close, with a
+barrier behind it seen through the mesh).
 
 Checked in the game client on 2026-11-11: by day and by night with their lights on, from the converted files
 that were copied into the pack; the fence, turret and rooftop unit again by day after their retouching, from
