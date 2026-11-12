@@ -475,7 +475,8 @@ class Driver:
 
     def views(self, glb, output, textured=False):
         """Eight orthographic Blender views and a contact sheet (clay, or the textured donor's colour)."""
-        output = Path(output)
+        # Absolute paths: Blender resolves a relative render path against its own drive root, not this folder.
+        glb = Path(glb).resolve(); output = Path(output).resolve()
         # Blender's own Python: a workspace PYTHONPATH would load the bank's numpy into it and break the glTF importer.
         env = {k: v for k, v in os.environ.items() if k not in ('PYTHONPATH', 'PYTHONHOME')}
         done = subprocess.run([str(self.ws.blender), '-b', '--factory-startup', '--python-exit-code', '1', '-P',
