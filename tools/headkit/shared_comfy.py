@@ -69,6 +69,24 @@ def live(fetch, local=None, root=None):
     return attestation.check(validate_comfy_runtime(fetch('/headkit/runtime-identity')), local, root)
 
 
+def frozen(identity, local=None, root=None):
+    """What a submitter keeps from its dispatch proof: the identity, and for an attested server the exact approval
+    it was proven against (a later registry approval does not apply to a job already running)."""
+    return {'identity': identity, 'approval': attestation.approval(local, root) if attestation.attested(identity) else None}
+
+
+def recheck(fetch, proof):
+    """Before outputs are accepted: the same server process, still matching the approval frozen at dispatch (or, for
+    a controlled session, the same runtime files)."""
+    from .source_inventory import validate_comfy_runtime
+    current = validate_comfy_runtime(fetch('/headkit/runtime-identity')); before = proof['identity']
+    require(current['session']['id'] == before['session']['id'] and current['session']['pid'] == before['session']['pid'],
+            'ComfyUI restarted during the job; its outputs are not accepted')
+    if proof['approval'] is not None: attestation.check(current, {'comfyAttestation': proof['approval']})
+    else: require(current['files'] == before['files'], 'ComfyUI runtime files changed during the job; its outputs are not accepted')
+    return current
+
+
 def idle(fetch):
     queue = fetch('/queue')
     require(isinstance(queue, dict), 'ComfyUI returned no queue')

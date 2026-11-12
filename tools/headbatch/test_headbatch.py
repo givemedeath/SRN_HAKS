@@ -41,6 +41,8 @@ class Base(unittest.TestCase):
         self.root = Path(folder.name).resolve()  # the Windows runner's temp path is an 8.3 short name
         # The fakes stand for a controlled ComfyUI; proving a server is headkit.shared_comfy's own test.
         for patcher in (unittest.mock.patch.object(gpu_job, 'live', return_value={}),
+                        unittest.mock.patch.object(gpu_job, 'frozen', side_effect=lambda identity, local=None: {'identity': identity, 'approval': None}),
+                        unittest.mock.patch.object(gpu_job, 'recheck', return_value={}),
                         unittest.mock.patch.dict(os.environ, {'SRN_TOOLS_ROOT': str(self.root/'shared-tools')})):
             patcher.start(); self.addCleanup(patcher.stop)
         packages = self.root/'packages'
@@ -2472,6 +2474,9 @@ class DeliveryAndRetryContracts(Base):
         comfy = Probe('http://127.0.0.1:8188', self.root); comfy.local = {'comfyAttestation': {'path': 'x', 'sha256': 'y'}}
         self.assertEqual(comfy.submit({}), 'p')
         self.assertIs(gpu_job.live.call_args.args[1], comfy.local)
+        self.assertEqual(gpu_job.recheck.call_args.args[1], {'identity': {}, 'approval': None})  # rechecked before outputs count
+        gpu_job.recheck.side_effect = ValueError('ComfyUI restarted during the job')
+        with self.assertRaisesRegex(ValueError, 'restarted'): comfy.submit({})
 
     def test_oom_attempt_keeps_its_own_history_and_charges_both_submissions(self):
         server=GpuJob.Server(self.root,polls=[

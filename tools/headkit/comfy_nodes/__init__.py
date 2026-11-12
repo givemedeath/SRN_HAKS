@@ -81,10 +81,15 @@ else:
                         raise ValueError('Controlled Comfy session changed; prepare again')
                 with audit.phase('runtime-files'):
                     current = capture_runtime_identity(folder_paths, _STARTUP_COMFY_SOURCE_INVENTORY, session=session)
-                    # An attested server keeps loading after the adapter (later custom nodes, the server, Manager),
-                    # so its import-time census is no baseline: the client compares each fresh census with the
-                    # approved snapshot and lists any difference (headkit/attestation.py).
-                    if _STARTUP_SESSION.get('mode') != 'attested' and not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
+                    if _STARTUP_SESSION.get('mode') == 'attested':
+                        # An attested server keeps loading after the adapter (later custom nodes, the server, Manager),
+                        # so its census may grow; the client compares each fresh census with the approved snapshot
+                        # (headkit/attestation.py). A file that was there at startup may not change or go: the process
+                        # may still run its old bytes, and an approval must describe what executes. Restart instead.
+                        now = {row['path']: row['sha256'] for row in current['files']}
+                        if any(now.get(row['path']) != row['sha256'] for row in _STARTUP_RUNTIME_IDENTITY['files']):
+                            raise ValueError('Comfy runtime files present at startup changed or went; restart ComfyUI')
+                    elif not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
                         raise ValueError('Comfy server runtime files changed after the adapter loaded')
         except Exception:
             logging.getLogger(__name__).exception('Headkit live runtime verification failed; dispatch remains blocked')

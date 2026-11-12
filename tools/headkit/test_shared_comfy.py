@@ -96,6 +96,20 @@ class SharedComfyTests(unittest.TestCase):
         design.dispatch(client, {}, 't', {}, poll=0, local={'comfyAttestation': own})
         self.assertEqual(client.posted, [True])
 
+    def test_a_job_is_rechecked_against_the_proof_frozen_at_dispatch(self):
+        live = identity(self.root/'desktop'); approved = self.approve(live)['binding']
+        proof = shared_comfy.frozen(shared_comfy.live(Fake(live).request), {})
+        self.assertEqual(proof['approval'], approved)
+        self.assertIs(shared_comfy.recheck(Fake(live).request, proof), live)
+        restarted = dict(live, session=dict(live['session'], pid=2))
+        with self.assertRaisesRegex(ValueError, 'restarted during the job'): shared_comfy.recheck(Fake(restarted).request, proof)
+        changed = dict(live, files=[{'path': 'C:/site/torch/__init__.py', 'sha256': '9' * 64}])
+        with self.assertRaisesRegex(ValueError, 'differs from its approved snapshot'): shared_comfy.recheck(Fake(changed).request, proof)
+        controlled = identity(self.root/'desktop', mode=None); proof = shared_comfy.frozen(controlled)
+        self.assertIsNone(proof['approval'])
+        with self.assertRaisesRegex(ValueError, 'runtime files changed'):
+            shared_comfy.recheck(Fake(dict(controlled, files=changed['files'])).request, proof)
+
     def test_status_reports_instead_of_raising(self):
         live = identity(self.root/'desktop')
         report = shared_comfy.status(Fake(live), root=self.root)

@@ -2016,13 +2016,14 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         handlers = [node for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef)
                     and node.name in ('verify_headkit_runtime_identity', 'headkit_preparation_identity')]
         for node in handlers: node.decorator_list = []
-        grown = {'files': ['startup', 'later']}
+        startup_row, later_row = {'path': 'C:/site/a.py', 'sha256': 'a' * 64}, {'path': 'C:/site/b.py', 'sha256': 'b' * 64}
+        grown = {'files': [startup_row, later_row]}
 
         class Response:
             def __init__(self, value, status=200, headers=None):
                 self.status, self.body = status, json.dumps(value).encode()
         session = {'id': 's', 'mode': 'attested'}
-        namespace = {'_STARTUP_RUNTIME_IDENTITY': {'files': ['startup']}, '_STARTUP_SESSION': session,
+        namespace = {'_STARTUP_RUNTIME_IDENTITY': {'files': [startup_row]}, '_STARTUP_SESSION': session,
                      '_STARTUP_COMFY_SOURCE_INVENTORY': {'files': []}, 'HEAVY_VERIFICATION_LOCK': HEAVY_VERIFICATION_LOCK,
                      'verification_pass': verification_pass, 'attested_context': Mock(return_value=session),
                      'attested_inventory': Mock(return_value={'files': []}), 'same_inventory': Mock(return_value=True),
@@ -2034,6 +2035,12 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual((identity.status, json.loads(identity.body)), (200, grown))
         planned = asyncio.run(namespace['headkit_preparation_identity'](None))
         self.assertEqual(json.loads(planned.body)['runtimeIdentity'], grown)
+        # A package updated under the running server: the process may still run the old bytes. Refused.
+        namespace['capture_runtime_identity'].return_value = {'files': [dict(startup_row, sha256='c' * 64), later_row]}
+        self.assertEqual(asyncio.run(namespace['verify_headkit_runtime_identity'](None)).status, 409)
+        namespace['capture_runtime_identity'].return_value = {'files': [later_row]}   # or removed
+        self.assertEqual(asyncio.run(namespace['verify_headkit_runtime_identity'](None)).status, 409)
+        namespace['capture_runtime_identity'].return_value = grown
         namespace['same_inventory'].return_value = False                          # a node changed: refused
         self.assertEqual(asyncio.run(namespace['headkit_preparation_identity'](None)).status, 409)
         session.pop('mode')                                                       # a controlled session still compares
