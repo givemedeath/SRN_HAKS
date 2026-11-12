@@ -22,7 +22,28 @@ else:
 
     NODE_CLASS_MAPPINGS.update(verified_loader_mappings(comfy_core_nodes.NODE_CLASS_MAPPINGS, folder_paths))
 
+    from .attested import attested_context, attested_inventory, attested_session, unmanaged
+    from .source_snapshot import same_inventory
+
+    def _capture_attested():
+        # A ComfyUI another program started (Comfy Desktop): record what it runs; the client compares it with an
+        # approved snapshot. A failed controlled session never falls back to this.
+        try:
+            with HEAVY_VERIFICATION_LOCK, verification_pass('server-startup-attested') as audit:
+                with audit.phase('launch'):
+                    session = attested_session(folder_paths)
+                with audit.phase('deployment'):
+                    inventory = attested_inventory(folder_paths)
+                with audit.phase('runtime-files'):
+                    identity = capture_runtime_identity(folder_paths, inventory, session=session)
+            return inventory, session, identity
+        except Exception:
+            logging.getLogger(__name__).exception('Headkit attested baseline capture failed; dispatch remains blocked')
+            return None, None, None
+
     def _capture_startup():
+        if unmanaged():
+            return _capture_attested()
         try:
             with HEAVY_VERIFICATION_LOCK, verification_pass('server-startup') as audit:
                 with audit.phase('deployment'):
@@ -49,12 +70,26 @@ else:
                 raise ValueError('Use a new controlled Comfy session; leave other sessions untouched')
             with HEAVY_VERIFICATION_LOCK, verification_pass('server-request') as audit:
                 with audit.phase('deployment'):
-                    session, config = session_context(folder_paths.base_path)
+                    if _STARTUP_SESSION.get('mode') == 'attested':
+                        # No frozen deployment to re-verify: the census itself must still match what was loaded.
+                        session = attested_context(folder_paths, _STARTUP_SESSION)
+                        if not same_inventory(attested_inventory(folder_paths), _STARTUP_COMFY_SOURCE_INVENTORY):
+                            raise ValueError('Comfy source files changed after the adapter loaded; restart ComfyUI')
+                    else:
+                        session, config = session_context(folder_paths.base_path)
                     if session != _STARTUP_SESSION:
                         raise ValueError('Controlled Comfy session changed; prepare again')
                 with audit.phase('runtime-files'):
                     current = capture_runtime_identity(folder_paths, _STARTUP_COMFY_SOURCE_INVENTORY, session=session)
-                    if not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
+                    if _STARTUP_SESSION.get('mode') == 'attested':
+                        # An attested server keeps loading after the adapter (later custom nodes, the server, Manager),
+                        # so its census may grow; the client compares each fresh census with the approved snapshot
+                        # (headkit/attestation.py). A file that was there at startup may not change or go: the process
+                        # may still run its old bytes, and an approval must describe what executes. Restart instead.
+                        now = {row['path']: row['sha256'] for row in current['files']}
+                        if any(now.get(row['path']) != row['sha256'] for row in _STARTUP_RUNTIME_IDENTITY['files']):
+                            raise ValueError('Comfy runtime files present at startup changed or went; restart ComfyUI')
+                    elif not same_runtime_environment(current, _STARTUP_RUNTIME_IDENTITY):
                         raise ValueError('Comfy server runtime files changed after the adapter loaded')
         except Exception:
             logging.getLogger(__name__).exception('Headkit live runtime verification failed; dispatch remains blocked')
@@ -67,6 +102,12 @@ else:
         # Submission and completion use the full runtime-identity endpoint.
         if _STARTUP_RUNTIME_IDENTITY is None:
             return web.json_response({'verified': False}, status=409)
+        if _STARTUP_SESSION.get('mode') == 'attested':
+            # No import-time baseline stands for an attested server: plan against its verified current identity.
+            response = await verify_headkit_runtime_identity(request)
+            if response.status != 200: return response
+            return web.json_response({'kind': 'preparation-baseline-v1', 'runtimeIdentity': json.loads(response.body),
+                                      'requiresFreshDispatch': True})
         return web.json_response({'kind': 'preparation-baseline-v1',
             'runtimeIdentity': _STARTUP_RUNTIME_IDENTITY, 'requiresFreshDispatch': True})
 

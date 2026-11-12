@@ -126,6 +126,13 @@ class Driver:
                                                                  capture_output=True, text=True).stdout.splitlines() if line.strip()]
             return max(int(r[0]) for r in rows), max(int(r[1]) for r in rows)
         if action == 'status': return {'comfy': 'up' if up() else 'down', 'gpuMiB_util': gpu()}
+        if self.ws.data['comfy'].get('shared'):
+            # A shared ComfyUI (Comfy Desktop, attested): other sessions and the user queue into it, so this driver
+            # never starts or stops it. Every request checks its identity against the bound approved snapshot.
+            if action == 'start':
+                if not up(): raise SystemExit('The shared ComfyUI is not running: start Comfy Desktop')
+                return {'comfy': 'shared', 'url': url}
+            if action == 'stop': return {'comfy': 'shared: left running for the other sessions and the user'}
         if action == 'start':
             if up(): raise SystemExit('ComfyUI already answers: not starting a second one')
             used, util = gpu()
@@ -171,6 +178,7 @@ class Driver:
         flags = {'appearance': ['--appearance-donor'], 'export': ['--working-shell']}.get(stage, [])
         common = ['--manifest', manifest, '--stage', stage]
         self.launch(design, run, 'request', common, ['request', '--manifest', manifest, '--stage', stage, '--output', run/'request', *flags], kind='generation')
+        # submit waits in headkit.shared_comfy.slot for the GPU lease and an idle queue, before any ledger record.
         out, _, _ = self.launch(design, run, 'submit', [*common, '--extra', run/'request'],
                                 ['submit', '--request', run/'request', '--output', run/'job'], kind='generation')
         token = re.search(r'"token": "([0-9a-f]+)"', out); token = token and token.group(1)

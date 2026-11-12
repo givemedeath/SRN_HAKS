@@ -89,10 +89,10 @@ class MatteTests(unittest.TestCase):
             def request(self, path):
                 return {'queue_running': [], 'queue_pending': []}
 
-        def timed_out(client, graph, token, record, deadline):
+        def timed_out(client, graph, token, record, deadline, **options):
             record['promptId'] = 'p-1'; raise ValueError('The job did not finish in time')
 
-        def finished(client, graph, token, record, deadline):
+        def finished(client, graph, token, record, deadline, **options):
             made = self.root / 'out' / local.SUBFOLDER / token; made.mkdir(parents=True)
             for name in ('model_00001_.glb', *(f'{kind}_00001_.png' for kind in local.MAPS)):
                 (made / name).write_bytes(b'x')

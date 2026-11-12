@@ -46,6 +46,7 @@ Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`
 - `CURRENT_PASS`: Thread/context-local variable storing the active `VerificationPass` instance.
 - `STANDARD_MODEL_FIELDS`, `VERIFIED_LOADER_TYPES`, `MODEL_PIN_FIELDS`: Dictionaries defining loader node wrapping specifications.
 - `KEYS`: Set of required dictionary keys for Pixal shape latent transport.
+- `attested_session(folder_paths)`, `attested_context(folder_paths, session)`, `attested_inventory(folder_paths)`: Attested mode for a server another program started: writes and re-proves the launch record (`<user dir>/headkit/headkit-attested-launch.json`) and captures the core/custom-node source census.
 - HTTP Routes (registered on ComfyUI `PromptServer`):
   - `GET /headkit/runtime-identity`: Endpoint returning runtime verification audit reports and active file pins.
   - `GET /headkit/preparation-identity`: Endpoint returning planning runtime baseline identity.
@@ -58,7 +59,8 @@ Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`
 - `[runtime_identity:capture_runtime_identity]` Symlinks and Windows reparse directory/file junctions are strictly prohibited in runtime and source trees.
 - `[managed_startup:session_context]` Process must run under pinned Python with isolated flags (`-I -B`). Controlled listen host is restricted strictly to loopback `127.0.0.1`.
 - `[verification:VerificationPass]` Verification passes are isolated boundaries; pass cannot be reopened or queried once closed. Source retention buffer is capped at 32 MiB total and 1 MiB per file.
-- `[managed_startup / runtime_identity]` Frozen deployment membership and file hashes, declared runtime files and controlled session must match on startup, request and exit checks. Hot reload and attachment to an unmanaged server are unsupported. The retired object/AST census does not define the production contract.
+- `[managed_startup / runtime_identity]` Frozen deployment membership and file hashes, declared runtime files and controlled session must match on startup, request and exit checks. Hot reload is unsupported. The retired object/AST census does not define the production contract.
+- `[attested]` A server with no controlled session (Comfy Desktop) reports an attested identity: launch record, source census and runtime census, re-proved on every runtime-identity request. It is usable only through an approved snapshot (`tools/headkit/attestation.py`); a failed controlled session never falls back to it.
 
 ## Side Effects
 - `[transport:write]` Creates new NPZ archive with shape latent arrays and metadata; fails if destination file exists (`'xb'` mode).

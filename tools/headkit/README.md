@@ -25,6 +25,8 @@ Comprehensive generation, processing, fitting, UV unwrapping, texturing, quality
   - `submit(client, graph)`: Submits prompt to ComfyUI server under shared GPU lock (`comfy.py`).
   - `collect(client, prompt_id)`: Retrieves execution output files from ComfyUI server (`comfy.py`).
   - `locked(lock_path)`: Context manager acquiring local GPU/ledger file mutex (`gpu_lock.py`).
+  - `slot(client, local=None, *, prove=True)`: The one way any toolkit submits to ComfyUI: host GPU lease, proven server, idle queue (`shared_comfy.py`). `gpu_lease`, `live`, `wait_idle`, `status` are its parts.
+  - `capture(client)`, `approve(client, snapshot, notes)`, `check(identity, local=None)`, `approval(local=None)`: Approved snapshots of a shared ComfyUI another program started, published in `<tools root>/comfy/shared-comfy.json` (`attestation.py`).
   - `prepare_request(manifest, paths, config)`: Constructs generation request parameters and model bindings (`generation.py`).
   - `compile_design(spec, prompt, template)`: Compiles Flux/Qwen design prompt and generation workflow (`design.py`).
   - `compile_inpaint(spec, prompt, guide, template)`: Compiles face inpainting workflow graph (`design.py`).
@@ -96,6 +98,8 @@ Comprehensive generation, processing, fitting, UV unwrapping, texturing, quality
 ## Side Effects
 - `[runner:Runner.run]` Executes pipeline stages, writing stage receipts, modified GLB/OBJ models, 1024x1024 TGA/PNG textures, and diagnostic JSON reports to the designated output directories.
 - `[gpu_lock:locked]` Creates and locks filesystem mutex files (`gpu.lock` / ledger files) to coordinate access to local GPU resources.
+- `[shared_comfy:slot]` Holds `<tools root>/locks/gpu-<index>` while proving the server and waiting for an idle queue; sets `SRN_GPU_LEASE` for children while held. `comfy.Client` refuses `/prompt` outside a slot.
+- `[attestation:approve]` Writes the approved snapshot under `<tools root>/comfy/approved/` and replaces the shared registry `<tools root>/comfy/shared-comfy.json`.
 - `[comfy:submit]` Dispatches HTTP POST requests to local ComfyUI server at `http://127.0.0.1:<port>` and writes received latent NPZ and image files to disk.
 - `[blender_render:render]` Spawns Blender subprocesses in headless background mode (`blender -b`) using 4 Cycles render threads to write multi-view diagnostic PNG renders.
 - `[native:prepare]` Spawns MDL compiler tools / NeverBlender scripts writing compiled binary `.mdl` and `.wok` models to workspace directories.

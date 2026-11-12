@@ -203,13 +203,15 @@ def compile_inpaint(prompt, design, mask, seed, batch, prefix):
     return _validated(graph)
 
 
-def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=False):
+def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=False, local=None):
     """POST once and poll /history until the prompt finishes. Never retries or resubmits. `deadline` (seconds) counts
     queue time too: on a ComfyUI shared with Pixal jobs, raise it or submit with `front` (ComfyUI queues the prompt ahead
     of pending ones; a running prompt still finishes first)."""
     require(0 <= deadline <= 21600, 'Design deadline must be 0-21600 s')
     record['queue'] = {'deadline': deadline, 'front': bool(front)}
-    response = client.request('/prompt', dict({'prompt': graph, 'client_id': token}, **({'front': True} if front else {})))
+    from . import shared_comfy
+    with shared_comfy.slot(client, local) as proof:  # GPU lease, idle queue, proven server (approved if shared; `local` binding first)
+        response = client.request('/prompt', dict({'prompt': graph, 'client_id': token}, **({'front': True} if front else {})))
     require(isinstance(response, dict) and response.get('prompt_id') and not response.get('node_errors'),
             'ComfyUI rejected the design request: ' + json.dumps(response)[:2000])
     record['promptId'] = prompt_id = response['prompt_id']; started = time.monotonic()
@@ -220,6 +222,7 @@ def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=Fal
         time.sleep(poll)
     status = entry.get('status', {})
     require(status.get('status_str') != 'error', 'ComfyUI design job failed: ' + json.dumps(status)[:3000])
+    shared_comfy.recheck(client.request, proof)  # the server that ran it is still the one proven at dispatch
     return entry
 
 
@@ -259,7 +262,7 @@ def _execute(client, local, bindings_path, graph, receipt, sources, output, base
             row = {'source': pin(source), 'staged': pin(target), 'comfyImage': f'{SUBFOLDER}/{receipt["token"]}/{name}'}
             require(row['source']['sha256'] == row['staged']['sha256'], 'Staged copy differs from its source'); staged[name] = row
         receipt['staged'] = staged; started = time.monotonic()
-        entry = dispatch(client, graph, receipt['token'], receipt, **(queue or {}))
+        entry = dispatch(client, graph, receipt['token'], receipt, local=local, **(queue or {}))
         receipt['elapsedSeconds'] = round(time.monotonic() - started, 1)
         comfy_outputs = [pin(path) for path in collect_images(entry, local['comfyOutput'], receipt['outputPrefix'], batch)]
         outputs = []
