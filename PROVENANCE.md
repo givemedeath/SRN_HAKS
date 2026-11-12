@@ -468,10 +468,24 @@ nodes, lights and door record came out the same; the area-map pictures changed s
 Looked at in plain software pictures of the finished model from each corner and along the east and west
 sides: the sheets stand in their frames from pillar to pillar and the wall behind shows no mesh.
 
-Not checked: any of the 2026-11-12 work in the client or the Toolset (the user put client runs on hold): the
-corrected door records as read from the packs; the fence sheets, by day and by night, which are the first
-tile parts here to show a picture with an alpha channel and no material file; and the hidden top with the
-setting on "near the character".
+Checked in the game client and the Toolset on 2026-11-12, once the user let client runs go on. The fence, in a
+Modern Exterior area from the rebuilt tiles: by day, each run seen close and slantwise from outside, both long
+sides, all four corners and from above, shows wire mesh in its frames that the wall, the walkway and the far
+fence are seen through, and no mesh on the wall behind; by night under the tiles' main lights the mesh takes
+the light as the frames do. The sheets are the first tile parts here to show a picture with an alpha channel
+and no material file, and the client draws them see-through as they are. The hidden top: with the client's
+second-storey setting on its default (1, never) the top stays whatever the camera does; on 0 the top stays
+while the player is seen clear of the building, at the door, beside it or far off, and goes under the black
+lid when the building stands between the camera and the player; 2 (always) was checked on 2026-11-11. The
+door, from the built packs: the Toolset, painting `Ares Depot 3x3` straight in Modern Exterior, made one door
+of type 58 at the hook the set file now gives (0.625 metres out from the leaf, turned 180 degrees) and
+changed no other tile; in the client, with only an area transition set on that door, the blue plane under
+the pointer lay flat over the door's face, one click took the player to the waypoint in the other area, and
+a wooden door there linked back brought them out standing on the step in front of the depot's door, 0.8
+metres from the hook.
+
+Not checked: the Stuffer Shack's corrected door record, which was rewritten by the same code and not painted
+or clicked again; and either group's door in the Suburbs tileset.
 
 ## Ares Depot props (`srn_placeable`, `srn_2da`; 2026-11-11)
 
