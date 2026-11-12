@@ -246,6 +246,10 @@ def main():
     p.add_argument('--regions',type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('startup-config');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
+    # A shared ComfyUI another program started (Comfy Desktop): capture its attested identity for review, then
+    # approve that exact capture with the reviewer's words (attestation.py).
+    p=sub.add_parser('comfy-attest');p.add_argument('action',choices=['capture','approve']);p.add_argument('--url',required=True)
+    p.add_argument('--output',required=True,type=Path);p.add_argument('--snapshot',type=Path);p.add_argument('--notes')
     # Direct-dispatch Flux.2 design proposals (see design.py): unguarded, for human review only.
     p=sub.add_parser('design');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--spec',required=True,type=Path)
     p.add_argument('--head',required=True);p.add_argument('--seed',required=True,type=int);p.add_argument('--batch',type=int,default=1)
@@ -266,7 +270,7 @@ def main():
     p.add_argument('mdl',nargs='+',type=Path);p.add_argument('--exclude-lower',type=float,default=.25)
     p=sub.add_parser('check-occiput',help='Read-only open-back-of-skull check on raw Pixal GLBs (see occiput.py)');p.add_argument('glb',nargs='+',type=Path)
     a=parser.parse_args()
-    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput','fit-references','batch','shade-reference') else None
+    runtime=launched(getattr(a,'bindings',None)) if a.command not in ('status','inputs','check-occiput','fit-references','batch','shade-reference','comfy-attest') else None
     if a.command in ('prepare','run','resume','status','review','chain'):
         from .runner import Runner
         if a.command=='status':result=Runner(a.manifest,a.bindings,a.run).status()
@@ -319,6 +323,13 @@ def main():
             result=design.inpaint(client,local,a.bindings,a.spec,a.design,a.skin,a.seed,a.batch,a.output,cut=a.cut,lift=a.lift,name=a.name,
                                   runtime=runtime,carve=carve,queue={'deadline':a.deadline,'front':a.front})
     elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
+    elif a.command=='comfy-attest':
+        from . import attestation
+        client=comfy.Client(a.url)
+        if a.action=='capture':result=attestation.capture(client,a.output)
+        else:
+            require(a.snapshot and a.notes,'approve needs --snapshot and --notes with the reviewer\'s words')
+            result=attestation.approve(client,a.snapshot,a.notes,a.output)
     elif a.command=='shade-reference':
         from .palette import shade_reference_entry
         data=read(a.references);require(a.name not in data['references'],'Reference name already used: '+a.name)

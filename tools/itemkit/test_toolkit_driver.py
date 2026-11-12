@@ -191,6 +191,24 @@ class ComfyStopTests(unittest.TestCase):
         result, killed, kept = self.stop('"C:\\Program Files\\Editor\\editor.exe"')
         self.assertEqual(killed, []); self.assertFalse(kept); self.assertIn('stale PID file removed', result['comfy'])
 
+    def test_a_shared_comfy_is_never_started_or_stopped_and_its_queue_is_waited_for(self):
+        import io, types
+        from tools.itemkit.drive import Driver
+        ws = types.SimpleNamespace(runtime=Path('.'), path=Path, data={'comfy': {'url': 'http://127.0.0.1:1', 'shared': True}})
+        d = Driver(ws)
+        with mock.patch('urllib.request.urlopen', side_effect=OSError('down')), \
+                mock.patch('subprocess.Popen', side_effect=AssertionError('a shared ComfyUI is never started')), \
+                mock.patch('subprocess.run', side_effect=AssertionError('or killed')):
+            self.assertIn('left running', d.comfy('stop')['comfy'])
+            with self.assertRaisesRegex(SystemExit, 'start Comfy Desktop'): d.comfy('start')
+        with mock.patch('urllib.request.urlopen', return_value=io.BytesIO(b'{}')): self.assertEqual(d.comfy('start')['comfy'], 'shared')
+        queues = [b'{"queue_running": [[0, "someone else"]], "queue_pending": []}', b'{"queue_running": [], "queue_pending": []}']
+        with mock.patch('urllib.request.urlopen', side_effect=lambda *a, **k: io.BytesIO(queues.pop(0))), mock.patch('time.sleep') as slept:
+            d.wait_idle(); self.assertEqual(slept.call_count, 1)
+        with mock.patch('urllib.request.urlopen', side_effect=lambda *a, **k: io.BytesIO(b'{"queue_pending": [1]}')), \
+                mock.patch('time.sleep'), mock.patch('time.monotonic', side_effect=[0, 0, 3000]):
+            with self.assertRaisesRegex(SystemExit, 'stayed busy'): d.wait_idle()
+
     def test_a_failed_query_or_a_still_answering_comfy_keeps_the_pid_file(self):
         for kwargs in ({'query_fails': True}, {'answering': True}):
             result, killed, kept = self.stop('"C:\\Program Files\\Editor\\editor.exe"', **kwargs)

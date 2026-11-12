@@ -2,6 +2,8 @@
 import ast
 import asyncio
 import functools
+import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -1923,7 +1925,8 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
                      'logging': types.SimpleNamespace(getLogger=Mock(return_value=logger)), 'folder_paths': folders,
                      'session_context': Mock(return_value=(managed_session,{'inventory':inventory,'runtime':{'files':[]}})),
                      'loaded_source_code': Mock(side_effect=AssertionError('retired census must not run')),
-                     'capture_runtime_identity': Mock(return_value=identity)}
+                     'capture_runtime_identity': Mock(return_value=identity), 'unmanaged': Mock(return_value=False),
+                     '_capture_attested': Mock(side_effect=AssertionError('a controlled session never falls back to attested mode'))}
         exec(compile(ast.Module(body=[helper], type_ignores=[]), str(source), 'exec'), namespace)
         self.assertEqual(namespace['_capture_startup'](), (inventory, managed_session, identity))
         namespace['loaded_source_code'].assert_not_called()
@@ -1933,6 +1936,42 @@ class ComfyRuntimeSnapshotTests(unittest.TestCase):
         namespace['session_context'].side_effect = OSError('missing inventory')
         self.assertEqual(namespace['_capture_startup'](), (None, None, None))
         self.assertEqual(logger.exception.call_count, 2)
+
+    def test_an_unmanaged_server_captures_an_attested_baseline(self):
+        source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'
+        tree = ast.parse(source.read_bytes())
+        helpers = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and node.name in ('_capture_startup', '_capture_attested')]
+        inventory, session, identity = {'roots': ['core']}, {'mode': 'attested'}, {'fingerprint': 'f'}
+        folders = types.SimpleNamespace(base_path='core'); logger = Mock()
+        from headkit.comfy_nodes.verification import HEAVY_VERIFICATION_LOCK,verification_pass
+        namespace = {'Path': Path, '__name__': 'adapter_fixture', 'HEAVY_VERIFICATION_LOCK': HEAVY_VERIFICATION_LOCK,
+                     'verification_pass': verification_pass, 'logging': types.SimpleNamespace(getLogger=Mock(return_value=logger)),
+                     'folder_paths': folders, 'unmanaged': Mock(return_value=True),
+                     'session_context': Mock(side_effect=AssertionError('no controlled session to check')),
+                     'attested_session': Mock(return_value=session), 'attested_inventory': Mock(return_value=inventory),
+                     'capture_runtime_identity': Mock(return_value=identity)}
+        exec(compile(ast.Module(body=helpers, type_ignores=[]), str(source), 'exec'), namespace)
+        self.assertEqual(namespace['_capture_startup'](), (inventory, session, identity))
+        namespace['capture_runtime_identity'].assert_called_once_with(folders, inventory, session=session)
+        namespace['attested_inventory'].side_effect = OSError('unreadable node')
+        self.assertEqual(namespace['_capture_startup'](), (None, None, None))           # blocked, never half-captured
+
+    def test_attested_launch_record_is_stable_and_rechecked(self):
+        from headkit.comfy_nodes import attested
+        with tempfile.TemporaryDirectory() as tmp:
+            folders = types.SimpleNamespace(base_path=tmp, get_user_directory=lambda: str(Path(tmp)/'user'))
+            with patch.dict(sys.modules, {}), patch.dict(os.environ, {'PYTHONHOME': 'x'}, clear=False):
+                sys.modules.pop(attested.SESSION_MODULE, None)
+                first = attested.attested_session(folders); again = attested.attested_session(folders)
+                self.assertEqual(first['mode'], 'attested'); self.assertNotEqual(first['id'], again['id'])
+                self.assertEqual(first['configuration'], again['configuration'])       # same launch, same record bytes
+                self.assertEqual(attested.attested_context(folders, first)['pid'], os.getpid())
+                record = json.loads(Path(first['configuration']['path']).read_text(encoding='utf-8'))
+                self.assertNotIn('pid', record); self.assertEqual(record['environment']['PYTHONHOME'], 'x')
+                os.environ['PYTHONHOME'] = 'y'
+                with self.assertRaisesRegex(ValueError, 'environment changed'): attested.attested_context(folders, first)
+            with patch.dict(sys.modules, {attested.SESSION_MODULE: types.ModuleType('session')}):
+                with self.assertRaisesRegex(ValueError, 'controlled session'): attested.attested_session(folders)
 
     def test_runtime_endpoint_returns_the_live_deployment_identity(self):
         source = Path(__file__).parent / 'comfy_nodes' / '__init__.py'

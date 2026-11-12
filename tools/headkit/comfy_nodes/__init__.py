@@ -22,7 +22,28 @@ else:
 
     NODE_CLASS_MAPPINGS.update(verified_loader_mappings(comfy_core_nodes.NODE_CLASS_MAPPINGS, folder_paths))
 
+    from .attested import attested_context, attested_inventory, attested_session, unmanaged
+    from .source_snapshot import same_inventory
+
+    def _capture_attested():
+        # A ComfyUI another program started (Comfy Desktop): record what it runs; the client compares it with an
+        # approved snapshot. A failed controlled session never falls back to this.
+        try:
+            with HEAVY_VERIFICATION_LOCK, verification_pass('server-startup-attested') as audit:
+                with audit.phase('launch'):
+                    session = attested_session(folder_paths)
+                with audit.phase('deployment'):
+                    inventory = attested_inventory(folder_paths)
+                with audit.phase('runtime-files'):
+                    identity = capture_runtime_identity(folder_paths, inventory, session=session)
+            return inventory, session, identity
+        except Exception:
+            logging.getLogger(__name__).exception('Headkit attested baseline capture failed; dispatch remains blocked')
+            return None, None, None
+
     def _capture_startup():
+        if unmanaged():
+            return _capture_attested()
         try:
             with HEAVY_VERIFICATION_LOCK, verification_pass('server-startup') as audit:
                 with audit.phase('deployment'):
@@ -49,7 +70,13 @@ else:
                 raise ValueError('Use a new controlled Comfy session; leave other sessions untouched')
             with HEAVY_VERIFICATION_LOCK, verification_pass('server-request') as audit:
                 with audit.phase('deployment'):
-                    session, config = session_context(folder_paths.base_path)
+                    if _STARTUP_SESSION.get('mode') == 'attested':
+                        # No frozen deployment to re-verify: the census itself must still match what was loaded.
+                        session = attested_context(folder_paths, _STARTUP_SESSION)
+                        if not same_inventory(attested_inventory(folder_paths), _STARTUP_COMFY_SOURCE_INVENTORY):
+                            raise ValueError('Comfy source files changed after the adapter loaded; restart ComfyUI')
+                    else:
+                        session, config = session_context(folder_paths.base_path)
                     if session != _STARTUP_SESSION:
                         raise ValueError('Controlled Comfy session changed; prepare again')
                 with audit.phase('runtime-files'):

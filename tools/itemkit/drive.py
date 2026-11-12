@@ -126,6 +126,13 @@ class Driver:
                                                                  capture_output=True, text=True).stdout.splitlines() if line.strip()]
             return max(int(r[0]) for r in rows), max(int(r[1]) for r in rows)
         if action == 'status': return {'comfy': 'up' if up() else 'down', 'gpuMiB_util': gpu()}
+        if self.ws.data['comfy'].get('shared'):
+            # A shared ComfyUI (Comfy Desktop, attested): other sessions and the user queue into it, so this driver
+            # never starts or stops it. Every request checks its identity against the bound approved snapshot.
+            if action == 'start':
+                if not up(): raise SystemExit('The shared ComfyUI is not running: start Comfy Desktop')
+                return {'comfy': 'shared', 'url': url}
+            if action == 'stop': return {'comfy': 'shared: left running for the other sessions and the user'}
         if action == 'start':
             if up(): raise SystemExit('ComfyUI already answers: not starting a second one')
             used, util = gpu()
@@ -164,6 +171,17 @@ class Driver:
             return {'comfy': 'stopped', 'pid': pid}
         raise SystemExit('comfy start|stop|status')
 
+    def wait_idle(self, limit=2700, poll=15):
+        """A shared queue may be running another session's or the user's job: wait for it instead of failing the
+        submission, which refuses a busy queue (and leaves no ledger record when it does)."""
+        import urllib.request
+        url = self.ws.data['comfy']['url']; started = time.monotonic()
+        while True:
+            with urllib.request.urlopen(url+'/queue', timeout=10) as response: queue = json.loads(response.read())
+            if not queue.get('queue_running') and not queue.get('queue_pending'): return
+            if time.monotonic() - started > limit: raise SystemExit('The shared ComfyUI queue stayed busy for 45 minutes: try again later')
+            time.sleep(poll)
+
     def gen(self, design, stage, suffix, attempt='a1'):
         """request -> submit -> collect for one generation stage; geometry also gets a shape check and clay views."""
         manifest = self.manifest(design, suffix); run = self.ws.items/design/f'{stage}-{attempt}'
@@ -171,6 +189,7 @@ class Driver:
         flags = {'appearance': ['--appearance-donor'], 'export': ['--working-shell']}.get(stage, [])
         common = ['--manifest', manifest, '--stage', stage]
         self.launch(design, run, 'request', common, ['request', '--manifest', manifest, '--stage', stage, '--output', run/'request', *flags], kind='generation')
+        if self.ws.data['comfy'].get('shared'): self.wait_idle()
         out, _, _ = self.launch(design, run, 'submit', [*common, '--extra', run/'request'],
                                 ['submit', '--request', run/'request', '--output', run/'job'], kind='generation')
         token = re.search(r'"token": "([0-9a-f]+)"', out); token = token and token.group(1)

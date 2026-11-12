@@ -96,7 +96,11 @@ def validate_comfy_runtime(identity, source_roots=None, source_inventory=None):
             and isinstance(value,str) and re.fullmatch(r'[0-9a-f]{64}',value) for path,value in source_by_path.items()),
             'Live Comfy source snapshot contains malformed file pins')
     session=identity['session']
-    require(isinstance(session,dict) and set(session)=={'id','pid','configuration','settingsSha256'}
+    # An attested session (a ComfyUI another program started) adds mode='attested'; the client then also needs an
+    # approved snapshot of exactly this identity (attestation.py).
+    require(isinstance(session,dict) and (set(session)=={'id','pid','configuration','settingsSha256'}
+                                          or (set(session)=={'id','pid','configuration','settingsSha256','mode'}
+                                              and session['mode']=='attested'))
             and isinstance(session['id'],str) and re.fullmatch(r'[0-9a-f]{32}',session['id'])
             and type(session['pid']) is int and session['pid']>0
             and isinstance(session['settingsSha256'],str) and re.fullmatch(r'[0-9a-f]{64}',session['settingsSha256']),

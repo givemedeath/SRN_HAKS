@@ -120,8 +120,14 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     # an unsent plan; legacy preparation additionally requests the full check.
     # Do not make the client/launcher reread that environment themselves.
     pins+=inventory['files']
-    require(comfy_runtime['session']['configuration']==pin(local['comfyStartupConfig']),
-            'Controlled startup configuration differs from local bindings')
+    if comfy_runtime['session'].get('mode')=='attested':
+        # A shared ComfyUI another program started: its launch record stands where the startup configuration would,
+        # and the request pins the approved snapshot that names exactly this identity.
+        from .attestation import check
+        check(comfy_runtime,local);pins.append(local['comfyAttestation'])
+    else:
+        require(comfy_runtime['session']['configuration']==pin(local['comfyStartupConfig']),
+                'Controlled startup configuration differs from local bindings')
     pins.append(comfy_runtime['session']['configuration'])
     adapter=Path(local['comfyCustomNodes'])/'srn_headkit'
     source_config=adapter/'source-roots.json'

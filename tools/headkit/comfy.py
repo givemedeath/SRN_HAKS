@@ -129,14 +129,16 @@ def preparation_runtime(client, local):
     verify_comfy_runtime under the submission lock or after execution. Legacy
     callers retain their full preparation check.
     """
+    from .attestation import check
     mode=local.get('comfyPreparationVerification')
     require(mode in (None,'dispatch-gated-baseline-v1'),'Unsupported Comfy preparation verification')
-    if mode is None:return client.request('/headkit/runtime-identity')
+    if mode is None:return check(client.request('/headkit/runtime-identity'),local)
     baseline=client.request('/headkit/preparation-identity')
     require(isinstance(baseline,dict)and set(baseline)=={'kind','runtimeIdentity','requiresFreshDispatch'}
             and baseline['kind']=='preparation-baseline-v1'and baseline['requiresFreshDispatch']is True,
             'Preparation baseline cannot establish a live verification pass')
-    return baseline['runtimeIdentity']
+    # A shared ComfyUI another program started is usable only as the identity a person approved.
+    return check(baseline['runtimeIdentity'],local)
 
 
 
@@ -258,6 +260,12 @@ def verify_comfy_runtime(client, prepared, restarted=False):
     actual=validate_comfy_runtime(actual,expected['coveredSourceRoots'],prepared.get('comfySourceInventory'))
     require(_same_deployment(actual,expected) if restarted else actual==expected,
             'Running ComfyUI Python/Torch/CUDA runtime differs from the prepared request; prepare again')
+    from .attestation import attested, check
+    if attested(actual):
+        # The approval bound at preparation still has to name the server at dispatch and completion.
+        binding=prepared.get('bindings')
+        require(isinstance(binding,dict),'An attested ComfyUI needs the prepared bindings and their approved snapshot')
+        verify([binding]);check(actual,read(binding['path']))
     return actual
 
 
