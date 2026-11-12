@@ -7,18 +7,54 @@ submission and collection must then report exactly that identity, so a job's rec
 anything changes (a node installed or updated through Manager, a different model folder, other launch arguments),
 jobs are refused with a list of the differences until a new snapshot is approved.
 
-    python -m tools.headkit comfy-attest capture --url URL --output SNAPSHOT.json
-    python -m tools.headkit comfy-attest approve SNAPSHOT.json --url URL --notes "the user's words" --output APPROVED.json
+    python tools/headkit/run_headkit.py comfy-attest capture --url URL
+    python tools/headkit/run_headkit.py comfy-attest approve --snapshot CAPTURE.json --notes "the user's words"
+    python tools/headkit/run_headkit.py comfy-attest status
 
-Bind the approved file in the generation bindings as `comfyAttestation` ({path, sha256}). Nothing here approves:
-`approve` records the words of the person who reviewed the capture's summary, and only if the live server still
-reports the captured identity.
+Captures and approvals live in the shared tools root (`<tools root>/comfy/`), beside the registry
+(`shared-comfy.json`) that names the current approval and its endpoint. Every toolkit and session reads that
+registry (shared_comfy.py), so one approval serves them all; a `comfyAttestation` binding ({path, sha256}) in a
+toolkit's own bindings takes precedence. Nothing here approves: `approve` records the words of the person who
+reviewed the capture's summary, and only if the live server still reports the captured identity.
 """
 import json
 from pathlib import Path
-from .common import pin, read, require, verify, write
+import time
+from .common import pin, read, require, sha, verify, write
 
 KIND = 'comfy-attestation-v1'
+REGISTRY_KIND = 'shared-comfy-v1'
+
+
+def tools_root(explicit=None):
+    try: from tools.shared_tools import tools_root as find
+    except ImportError: from shared_tools import tools_root as find
+    return find(None, explicit)[0]
+
+
+def folder(root=None):
+    return Path(root or tools_root())/'comfy'
+
+
+def published(root=None):
+    """The registry every toolkit reads: {kind, endpoint, attestation pin, approvedUtc}, or None before any approval."""
+    path = folder(root)/'shared-comfy.json'
+    if not path.is_file(): return None
+    entry = read(path)
+    require(isinstance(entry, dict) and entry.get('kind') == REGISTRY_KIND and isinstance(entry.get('attestation'), dict),
+            f'{path} is not a shared ComfyUI registry')
+    return entry
+
+
+def approval(local=None, root=None):
+    """The approved snapshot that applies: the toolkit's own `comfyAttestation` binding, else the shared registry's."""
+    binding = (local or {}).get('comfyAttestation')
+    if binding is None:
+        entry = published(root); binding = entry and entry['attestation']
+    require(isinstance(binding, dict) and set(binding) == {'path', 'sha256'},
+            'This ComfyUI was not started by the toolkit and no approved snapshot is published: '
+            'run comfy-attest capture, then have the user approve it')
+    return binding
 
 
 def attested(identity):
@@ -59,12 +95,11 @@ def differences(approved, current, limit=8):
     return out or ['identity differs']
 
 
-def check(identity, local):
-    """Refuse an attested identity unless the bound approved snapshot names exactly it. A controlled one passes through."""
+def check(identity, local=None, root=None):
+    """Refuse an attested identity unless the approved snapshot that applies (approval) names exactly it. A
+    controlled one passes through."""
     if not attested(identity): return identity
-    binding = local.get('comfyAttestation')
-    require(isinstance(binding, dict) and set(binding) == {'path', 'sha256'},
-            'This ComfyUI was not started by the toolkit: bind an approved attestation (comfy-attest) as comfyAttestation')
+    binding = approval(local, root)
     verify([binding]); snapshot = read(binding['path'])
     require(snapshot.get('kind') == KIND and snapshot.get('decision') == 'approved' and str(snapshot.get('notes', '')).strip(),
             'The bound ComfyUI attestation is not an approved snapshot')
@@ -86,17 +121,19 @@ def summary(snapshot):
             'launchArguments': identity['launch']['argv'], 'launchEnvironment': sorted(identity['launch']['environment'])}
 
 
-def capture(client, output):
+def capture(client, output=None, root=None):
     from .source_inventory import validate_comfy_runtime
     identity = validate_comfy_runtime(client.request('/headkit/runtime-identity'))
     require(attested(identity), 'This ComfyUI is a controlled session: it needs no attestation')
     snapshot = {'kind': KIND, 'schemaVersion': 1, 'decision': 'pending-review', 'endpoint': client.url, 'identity': stable(identity)}
+    output = output or folder(root)/'captures'/f"capture-{time.strftime('%Y%m%d-%H%M%S')}.json"
     write(output, snapshot, fresh=True)
     return {'snapshot': str(output), 'summary': summary(snapshot)}
 
 
-def approve(client, snapshot_path, notes, output):
-    """Approve a reviewed capture, only while the live server still reports exactly the captured identity."""
+def approve(client, snapshot_path, notes, output=None, root=None, publish=True):
+    """Approve a reviewed capture, only while the live server still reports exactly the captured identity, and
+    publish it as the shared registry's current approval."""
     from .source_inventory import validate_comfy_runtime
     require(notes.strip(), "Approval records the reviewer's own words")
     snapshot = read(snapshot_path)
@@ -106,5 +143,11 @@ def approve(client, snapshot_path, notes, output):
     current = stable(live)
     if current != snapshot['identity']:
         raise ValueError('The live ComfyUI changed since the capture; capture again. ' + '; '.join(differences(snapshot['identity'], current)))
+    output = output or folder(root)/'approved'/f"approved-{sha(snapshot_path)[:12]}.json"
     write(output, {**snapshot, 'decision': 'approved', 'notes': notes, 'capture': pin(snapshot_path)}, fresh=True)
-    return {'approved': str(output), 'binding': pin(output)}
+    result = {'approved': str(output), 'binding': pin(output)}
+    if publish:
+        entry = {'kind': REGISTRY_KIND, 'endpoint': snapshot['endpoint'], 'attestation': result['binding'],
+                 'approvedUtc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+        write(folder(root)/'shared-comfy.json', entry); result['published'] = str(folder(root)/'shared-comfy.json')
+    return result

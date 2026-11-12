@@ -1,4 +1,5 @@
 """Source jobs are posted only for images that come from a brief, and geometry attempts are counted."""
+import itertools
 import json
 import tempfile
 import unittest
@@ -28,6 +29,8 @@ class Engine:
                 return {'node_errors': {'1': 'bad'}}
             self.posted.append(data)
             return {'prompt_id': f'job-{len(self.posted)}'}
+        if route == '/queue':  # the shared gate waits for an idle queue before anything is recorded or posted
+            return {'queue_running': [[0, 'another session']] if self.busy else [], 'queue_pending': []}
         if self.lost:
             raise ConnectionError('the engine went away')
         if self.meanwhile:
@@ -55,6 +58,10 @@ class GenerateTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.work = Path(self.temporary.name).resolve()
+        # The fakes stand for a controlled ComfyUI; the GPU lease lives in this test's own tools root.
+        for patcher in (mock.patch('tools.headkit.shared_comfy.live', return_value={}),
+                        mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.work / 'tools')})):
+            patcher.start(); self.addCleanup(patcher.stop)
         self.folder = self.work / 'outfit' / 'reference-1'
         brief.seal(document(), self.folder)
         self.image = self.folder / 'image.png'
@@ -194,6 +201,9 @@ class GenerateTests(unittest.TestCase):
 
     def test_a_busy_engine_is_left_alone_and_nothing_is_counted(self):
         self.engine.busy = True
+        waited = mock.patch('tools.headkit.shared_comfy.time.monotonic', side_effect=itertools.count(0, 1000))
+        waited.start(); self.addCleanup(waited.stop)
+        napping = mock.patch('tools.headkit.shared_comfy.time.sleep'); napping.start(); self.addCleanup(napping.stop)
         calls = (lambda: generate.calibrate(self.work, 'outfit', self.image, 'models'),
                  lambda: generate.geometry(self.work, 'outfit', self.image, 36.6, 'models'),
                  lambda: generate.appearance(self.work, 'outfit', self.image, 36.6, self.image, 'models'),

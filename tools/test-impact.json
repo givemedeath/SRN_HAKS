@@ -46,7 +46,8 @@
       "tools/headkit/common.py",
       "tools/headkit/generation.py",
       "tools/headkit/gpu_lock.py",
-      "tools/headkit/reference_background.py"
+      "tools/headkit/reference_background.py",
+      "tools/headkit/shared_comfy.py"
     ],
     "tools/armorkit/measure.py": [
       "tools/armorkit/registry.py",
@@ -312,7 +313,8 @@
       "tools/headbatch/resource_budget.py",
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
-      "tools/headkit/occiput.py"
+      "tools/headkit/occiput.py",
+      "tools/headkit/shared_comfy.py"
     ],
     "tools/headbatch/guards.py": [
       "tools/headbatch/gpu_job.py",
@@ -345,6 +347,7 @@
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/headkit/run_headkit.py",
+      "tools/headkit/shared_comfy.py",
       "tools/phenotypes/launch_shared_tool.py",
       "tools/shared_tools.py"
     ],
@@ -708,12 +711,14 @@
       "tools/headkit/preview.py",
       "tools/headkit/replay.py",
       "tools/headkit/runner.py",
+      "tools/headkit/shared_comfy.py",
       "tools/headkit/source_inventory.py",
       "tools/headkit/stock-shades.json"
     ],
     "tools/headkit/attestation.py": [
       "tools/headkit/common.py",
-      "tools/headkit/source_inventory.py"
+      "tools/headkit/source_inventory.py",
+      "tools/shared_tools.py"
     ],
     "tools/headkit/benchmark_verification.py": [],
     "tools/headkit/blender_render.py": [
@@ -743,6 +748,7 @@
       "tools/headkit/gpu_lock.py",
       "tools/headkit/model_contract.py",
       "tools/headkit/reference_background.py",
+      "tools/headkit/shared_comfy.py",
       "tools/headkit/source_inventory.py"
     ],
     "tools/headkit/comfy_nodes/__init__.py": [
@@ -823,6 +829,7 @@
     "tools/headkit/design.py": [
       "tools/headkit/common.py",
       "tools/headkit/images.py",
+      "tools/headkit/shared_comfy.py",
       "tools/headkit/templates/flux2-design.json",
       "tools/headkit/templates/flux2-inpaint.json",
       "tools/headkit/templates/qwen21-design.json"
@@ -1045,6 +1052,12 @@
       "tools/headkit/gltf.py",
       "tools/headkit/rays.py"
     ],
+    "tools/headkit/shared_comfy.py": [
+      "tools/headkit/attestation.py",
+      "tools/headkit/common.py",
+      "tools/headkit/gpu_lock.py",
+      "tools/headkit/source_inventory.py"
+    ],
     "tools/headkit/skin_seams.py": [
       "tools/headkit/common.py",
       "tools/headkit/quality.py",
@@ -1235,6 +1248,13 @@
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/headkit/render_device.py"
+    ],
+    "tools/headkit/test_shared_comfy.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/attestation.py",
+      "tools/headkit/comfy.py",
+      "tools/headkit/shared_comfy.py",
+      "tools/headkit/test_attestation.py"
     ],
     "tools/headkit/test_skin_seams.py": [
       "tools/headkit/skin_seams.py"
@@ -5285,6 +5305,7 @@
     "tools/headkit/test_process_quality.py",
     "tools/headkit/test_reference_background.py",
     "tools/headkit/test_render_device.py",
+    "tools/headkit/test_shared_comfy.py",
     "tools/headkit/test_skin_seams.py",
     "tools/headkit/test_verification_performance.py",
     "tools/headkit/test_verified_startup.py",

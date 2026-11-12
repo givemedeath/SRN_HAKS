@@ -123,8 +123,8 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     if comfy_runtime['session'].get('mode')=='attested':
         # A shared ComfyUI another program started: its launch record stands where the startup configuration would,
         # and the request pins the approved snapshot that names exactly this identity.
-        from .attestation import check
-        check(comfy_runtime,local);pins.append(local['comfyAttestation'])
+        from .attestation import approval, check
+        check(comfy_runtime,local);pins.append(approval(local))
     else:
         require(comfy_runtime['session']['configuration']==pin(local['comfyStartupConfig']),
                 'Controlled startup configuration differs from local bindings')

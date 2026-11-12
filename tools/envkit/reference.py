@@ -135,11 +135,10 @@ def crop(sheet_path, box, output):
 
 
 def make(client, local, bindings_path, name, text, reference, seed, output, *, batch=1, deadline=2400):
-    """One edit job on the bound local ComfyUI. The server may be shared, so a busy queue refuses instead of waiting."""
+    """One edit job on the bound local ComfyUI. Submission waits in headkit.shared_comfy.slot for the GPU lease and an
+    idle queue, so another session's job finishes first and is left alone."""
     from tools.headkit import design
     require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + str(name))
-    queue = client.request('/queue')
-    require(not queue.get('queue_running') and not queue.get('queue_pending'), 'ComfyUI is busy; nothing submitted')
     reference = Path(reference); token = uuid.uuid4().hex; base = f'{name}-s{seed}'
     staged = 'reference-0' + reference.suffix.lower()
     require(not (Path(output) / f'{base}.json').exists(), 'Receipt already exists; use another seed or output folder')

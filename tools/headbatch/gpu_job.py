@@ -18,6 +18,7 @@ import urllib.request
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from headkit.comfy import MULTIVIEW_VIEWS, compile_graph  # noqa: E402
 from headkit.common import sha, write, pin, verify  # noqa: E402
+from headkit.shared_comfy import live  # noqa: E402
 from resource_budget import Budget, Watchdog
 import gpu_contract
 
@@ -112,6 +113,8 @@ class Comfy:
 
     def submit(self, graph, before_prompt=lambda: None):
         # Free cached models first (applied between prompts): the card is shared with the desktop, so a decode can run out on cache alone.
+        # The launcher holds the host GPU lease (headkit.shared_comfy); the server must still be controlled or approved.
+        live(lambda route: self.call(route, timeout=300))
         if self.budget:self.budget.check()
         self.free()
         if self.budget:self.budget.admit_prompt()

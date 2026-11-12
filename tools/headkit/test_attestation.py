@@ -34,6 +34,8 @@ class AttestationTests(unittest.TestCase):
         # validate_comfy_runtime is the existing schema gate; these tests are about the approval around it.
         patcher = mock.patch('headkit.source_inventory.validate_comfy_runtime', side_effect=lambda value, *a, **k: value)
         patcher.start(); self.addCleanup(patcher.stop); self.addCleanup(self.tmp.cleanup)
+        # Approvals publish to the shared registry: keep it in the test folder, never the real tools root.
+        tools = mock.patch.dict('os.environ', {'SRN_TOOLS_ROOT': str(self.root/'tools')}); tools.start(); self.addCleanup(tools.stop)
 
     def approved(self, live, notes='Approve this Desktop'):
         client = Client(live)
@@ -61,7 +63,7 @@ class AttestationTests(unittest.TestCase):
 
     def test_unbound_or_unapproved_snapshots_refuse_and_controlled_sessions_pass(self):
         live = identity(self.root)
-        with self.assertRaisesRegex(ValueError, 'bind an approved attestation'): attestation.check(live, {})
+        with self.assertRaisesRegex(ValueError, 'no approved snapshot is published'): attestation.check(live, {})
         attestation.capture(Client(live), self.root/'capture.json')
         with self.assertRaisesRegex(ValueError, 'not an approved snapshot'):
             attestation.check(live, {'comfyAttestation': pin(self.root/'capture.json')})

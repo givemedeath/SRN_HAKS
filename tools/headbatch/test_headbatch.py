@@ -39,6 +39,10 @@ class Base(unittest.TestCase):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
         self.root = Path(folder.name).resolve()  # the Windows runner's temp path is an 8.3 short name
+        # The fakes stand for a controlled ComfyUI; proving a server is headkit.shared_comfy's own test.
+        for patcher in (unittest.mock.patch.object(gpu_job, 'live', return_value={}),
+                        unittest.mock.patch.dict(os.environ, {'SRN_TOOLS_ROOT': str(self.root/'shared-tools')})):
+            patcher.start(); self.addCleanup(patcher.stop)
         packages = self.root/'packages'
         packages.mkdir()
         write(self.root/'head-bindings.json', {'pythonPackages': {'directory': str(packages), 'files': []}, 'libraries': {'igl': {'directory': 'lib'}}})

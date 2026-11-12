@@ -28,6 +28,8 @@ from headkit.runner import Runner
 class Temporary(unittest.TestCase):
     def setUp(self):
         self.directory=tempfile.TemporaryDirectory();self.root=Path(self.directory.name)
+        # The host GPU lease and the shared ComfyUI registry (shared_comfy) live in this test's own tools root.
+        tools=patch.dict(os.environ,{'SRN_TOOLS_ROOT':str(self.root/'shared-tools')});tools.start();self.addCleanup(tools.stop)
     def tearDown(self):self.directory.cleanup()
     def file(self,name,text='fixture'):
         path=self.root/name;path.write_text(text);return path
@@ -110,7 +112,7 @@ class ClientTransportTests(unittest.TestCase):
         for route, expected in [('/headkit/runtime-identity', 300),
                                 ('/headkit/verify-loader-models', 300),
                                 ('/queue', 30), ('/prompt', 30)]:
-            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened:
+            with self.subTest(route=route), patch.object(comfy.urllib.request, 'urlopen') as opened,                     patch.object(comfy, 'holding', return_value=True):  # a /prompt is only sent inside a slot
                 opened.return_value.__enter__.return_value.read.return_value = b'{"verified":true}'
                 self.assertEqual(client.request(route), {'verified': True})
                 self.assertEqual(opened.call_args.kwargs['timeout'], expected)
@@ -4609,6 +4611,7 @@ class FakeDesignClient:
         self.url='http://127.0.0.1:8188';self.output=Path(output);self.status=status;self.polls=polls;self.subfolder=subfolder
         self.reject=reject;self.routes=[];self.images=[]
     def request(self,route,data=None):
+        if route=='/queue':return {'queue_running':[],'queue_pending':[]}  # the shared gate's idle check (shared_comfy.slot)
         self.routes.append(route)
         if route=='/prompt':
             if self.reject:return {'error':'invalid prompt','node_errors':{'13':'bad'}}
@@ -4689,6 +4692,8 @@ class DesignTests(Temporary):
         super().setUp()
         # Every design test must stay offline: any real HTTP attempt fails the test.
         guard=patch('urllib.request.urlopen',side_effect=AssertionError('network contact in a design test'));guard.start();self.addCleanup(guard.stop)
+        # The fakes stand for a controlled ComfyUI; proving a server is test_shared_comfy's job.
+        proven=patch('headkit.shared_comfy.live',return_value={});proven.start();self.addCleanup(proven.stop)
         sleep=patch('headkit.design.time.sleep');sleep.start();self.addCleanup(sleep.stop)
         self.local={'comfyUrl':'http://127.0.0.1:8188','comfyInput':str(self.root/'comfy-in'),'comfyOutput':str(self.root/'comfy-out')}
         self.bindings=self.root/'bindings.json';write(self.bindings,self.bindings_data(**self.local))
@@ -4840,7 +4845,7 @@ class DesignTests(Temporary):
         # A design behind Pixal jobs on a shared ComfyUI hit the fixed 2700 s deadline (troll batch v2).
         from headkit.design import dispatch,compile_design
         client=FakeDesignClient(self.local['comfyOutput']);sent=[];request=client.request
-        client.request=lambda route,data=None:(sent.append(data) or request(route,data))
+        client.request=lambda route,data=None:((route=='/prompt' and sent.append(data)) or request(route,data))
         record={};dispatch(client,compile_design('p',[],1,1,'headkit-design/t/x'),'t',record,deadline=7200,front=True)
         self.assertTrue(sent[0]['front']);self.assertEqual(record['queue'],{'deadline':7200,'front':True})
         record={};sent.clear();dispatch(client,compile_design('p',[],1,1,'headkit-design/t/y'),'t',record)

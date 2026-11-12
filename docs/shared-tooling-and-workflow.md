@@ -67,6 +67,10 @@ the lock's installation text for the tool when it is missing. It never downloads
 Blender and NWN remain explicit installed runtimes with recorded actual hashes;
 the Windows Store Python shim is rejected.
 
+## Shared ComfyUI
+
+All sessions and the user share one ComfyUI on one GPU. Every toolkit submits through `tools/headkit/shared_comfy.py`: host GPU lease (`<tools root>/locks/gpu-<index>`), proven server, idle queue. A ComfyUI the toolkit did not start (Comfy Desktop) is usable only while it matches the snapshot the user approved, published in `<tools root>/comfy/shared-comfy.json`. Never start, stop or restart a shared server from a driver. Capture, approval and status: `docs/heads/head-generation-toolkit.md`, "Shared Comfy Desktop (attested)".
+
 ## Adopting the infrastructure
 
 Adoption happens independently in each active target session after it takes this

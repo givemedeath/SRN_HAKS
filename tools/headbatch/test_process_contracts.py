@@ -61,9 +61,10 @@ class Contracts(fixtures.Base):
         self.assertEqual(gpu_contract.stages('geometry,appearance'),['geometry','appearance'])
     def test_two_workspaces_share_the_device_lock(self):
         other=Workspace(self.root/'other',dict(self.workspace.data))
-        with patch.object(launcher,'lock',side_effect=lambda fn:fn()) as lock:
+        # The device lock is the host GPU lease every toolkit submits under (headkit.shared_comfy).
+        with patch.object(launcher,'gpu_lease',side_effect=lambda index,root,**options:(index,root)):
             left=launcher.gpu_lock(self.workspace);right=launcher.gpu_lock(other)
-        self.assertEqual(left,right);self.assertIn('shared-tools',str(left[0]))
+        self.assertEqual(left,right);self.assertIn('shared-tools',str(left[1]))
     def test_ram_floor_cannot_be_removed_or_lowered(self):
         for gates in ({'1':0},{'2':float('nan')},{'9':10}):
             with self.subTest(gates=gates),self.assertRaises(ValueError):

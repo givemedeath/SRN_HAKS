@@ -18,6 +18,7 @@ from .source_inventory import request_sources,verify_sources,validate_comfy_runt
 TEMPLATES = Path(__file__).parent / 'templates'
 MULTIVIEW_VIEWS=('Front','Left','Back','Right')
 from .gpu_lock import locked
+from .shared_comfy import holding, slot
 
 
 def compile_graph(stage, profile, images, prefix, *, fov=None, shape=None, source=None,background=None):
@@ -98,6 +99,8 @@ class Client:
         self.verification_metrics=[]
 
     def request(self, route, data=None):
+        # Every toolkit submits through shared_comfy.slot: GPU lease, proven server, idle queue.
+        require(route != '/prompt' or holding(), 'Submit to ComfyUI through headkit.shared_comfy.slot')
         payload = None if data is None else json.dumps(data,allow_nan=False).encode()
         request = urllib.request.Request(self.url + route, data=payload, headers={'Content-Type':'application/json'})
         # Both verification endpoints read large immutable byte inventories.
@@ -277,7 +280,8 @@ def submit(client, ledger, prepared, output, *, runtime_identity=None, bindings_
         verify(prepared['inputs']);request_sources(prepared)
     graph = prepared['prompt']; info = client.request('/object_info')
     require(all(n['class_type'] in info for n in graph.values()), 'Install/restart missing nodes before dispatch')
-    with locked(ledger):
+    # The slot waits for the GPU lease and an idle queue; the dispatch verification below proves the server.
+    with slot(client, prove=False), locked(ledger):
         state = read(ledger)
         require(not any(j['state'] in ('intent','submitted','timed-out') for j in state['jobs']), 'Reconcile the outstanding job first')
         require(client.idle(), 'Shared queue is busy; leave its jobs untouched')

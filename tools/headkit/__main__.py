@@ -248,8 +248,9 @@ def main():
     p=sub.add_parser('install-nodes');p.add_argument('--destination',required=True,type=Path);p.add_argument('--bindings',required=True,type=Path)
     # A shared ComfyUI another program started (Comfy Desktop): capture its attested identity for review, then
     # approve that exact capture with the reviewer's words (attestation.py).
-    p=sub.add_parser('comfy-attest');p.add_argument('action',choices=['capture','approve']);p.add_argument('--url',required=True)
-    p.add_argument('--output',required=True,type=Path);p.add_argument('--snapshot',type=Path);p.add_argument('--notes')
+    # Captures, approvals and the registry every toolkit reads default to <tools root>/comfy (shared_comfy.py).
+    p=sub.add_parser('comfy-attest');p.add_argument('action',choices=['capture','approve','status']);p.add_argument('--url',default='http://127.0.0.1:8188')
+    p.add_argument('--output',type=Path);p.add_argument('--snapshot',type=Path);p.add_argument('--notes')
     # Direct-dispatch Flux.2 design proposals (see design.py): unguarded, for human review only.
     p=sub.add_parser('design');p.add_argument('--bindings',required=True,type=Path);p.add_argument('--spec',required=True,type=Path)
     p.add_argument('--head',required=True);p.add_argument('--seed',required=True,type=int);p.add_argument('--batch',type=int,default=1)
@@ -325,11 +326,13 @@ def main():
     elif a.command=='install-nodes':result=install_nodes(a.destination,bindings(a.bindings))
     elif a.command=='comfy-attest':
         from . import attestation
+        from .shared_comfy import status
         client=comfy.Client(a.url)
         if a.action=='capture':result=attestation.capture(client,a.output)
+        elif a.action=='status':result=status(client)
         else:
             require(a.snapshot and a.notes,'approve needs --snapshot and --notes with the reviewer\'s words')
-            result=attestation.approve(client,a.snapshot,a.notes,a.output)
+            result=attestation.approve(comfy.Client(read(a.snapshot)['endpoint']),a.snapshot,a.notes,a.output)
     elif a.command=='shade-reference':
         from .palette import shade_reference_entry
         data=read(a.references);require(a.name not in data['references'],'Reference name already used: '+a.name)

@@ -209,7 +209,9 @@ def dispatch(client, graph, token, record, *, poll=3.0, deadline=2700, front=Fal
     of pending ones; a running prompt still finishes first)."""
     require(0 <= deadline <= 21600, 'Design deadline must be 0-21600 s')
     record['queue'] = {'deadline': deadline, 'front': bool(front)}
-    response = client.request('/prompt', dict({'prompt': graph, 'client_id': token}, **({'front': True} if front else {})))
+    from .shared_comfy import slot
+    with slot(client):  # GPU lease, proven server (approved if shared), idle queue
+        response = client.request('/prompt', dict({'prompt': graph, 'client_id': token}, **({'front': True} if front else {})))
     require(isinstance(response, dict) and response.get('prompt_id') and not response.get('node_errors'),
             'ComfyUI rejected the design request: ' + json.dumps(response)[:2000])
     record['promptId'] = prompt_id = response['prompt_id']; started = time.monotonic()

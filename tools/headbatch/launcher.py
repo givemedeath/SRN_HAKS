@@ -14,6 +14,7 @@ import gpu_contract
 import guards
 from head_files import complete, current, decision, write_json, sha
 from headkit.comfy import locked
+from headkit.shared_comfy import gpu_lease
 from workspace import PYTHON, REPO, TOOLS
 
 HEADKIT = TOOLS/'headkit'
@@ -22,8 +23,8 @@ GPU_JOB = Path(__file__).with_name('gpu_job.py')
 FINISHED_STAGES = ('export', 'native')  # the spooler or a person takes these on; a render waits for its review (RUNBOOK 63)
 LOCK_POLL_SECONDS = 2
 # Only what each job imports: a toolkit edit elsewhere must not invalidate a GPU or design launch in flight (RUNBOOK 40).
-GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'gpu_lock', 'common', 'gltf', 'occiput', 'source_inventory', 'diagnostics', 'rays'))
-DESIGN_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('run_headkit', '__init__', '__main__', 'common', 'comfy', 'gpu_lock', 'design', 'source_inventory'))
+GPU_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('__init__', 'comfy', 'gpu_lock', 'shared_comfy', 'attestation', 'common', 'gltf', 'occiput', 'source_inventory', 'diagnostics', 'rays'))
+DESIGN_MODULES = tuple(f'tools/headkit/{name}.py' for name in ('run_headkit', '__init__', '__main__', 'common', 'comfy', 'gpu_lock', 'shared_comfy', 'attestation', 'design', 'source_inventory'))+('tools/shared_tools.py',)
 DEFAULT_GPU_STAGES = 'calibrate,geometry,appearance'
 
 
@@ -96,13 +97,14 @@ def gpu_host_lease(workspace):
 
 
 def gpu_lock(workspace):
-    """One GPU job at a time: designs behind Pixal jobs time out or run out of memory."""
+    """One GPU job at a time: designs behind Pixal jobs time out or run out of memory. It is the host lease every
+    toolkit submits under (headkit.shared_comfy), held until the launch ends; its children inherit the hold."""
     from shared_tools import tools_root
     root,_=tools_root(REPO,workspace.data.get('toolsRoot'))
     index=workspace.data.get('comfy',{}).get('gpuIndex',0)
     if type(index) is not int or index<0:
         raise guards.Refused('GPU index must be a nonnegative integer')
-    return lock(lambda: [root/'locks'/f'gpu-{index}'])
+    return gpu_lease(index, root, limit=float('inf'), poll=LOCK_POLL_SECONDS, say=None)
 
 
 def launch(workspace, output, inputs, arguments, environment=None):
