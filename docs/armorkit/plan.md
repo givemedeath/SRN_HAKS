@@ -619,10 +619,25 @@ past the plane. At rest the outfit looks as generated; in motion a fifth less of
 the shoulders than with the plane cut. The pole of the arm's end stands 9.6 cm into the chest under the pad;
 the contract's overlap at a torso opening is still the tube rule, which a padless shoulder may not have room
 for (contract version 3, user decision). In the client the seat cut showed no holes, and sitting the seat
-stays whole over the thighs. The shoulder cut is checked offline only (gate and renders): the user paused all
-client use on 2026-11-12, so the game has not shown it yet.
+stays whole over the thighs.
 
 A review of the pull request found that the ends were held inside every vertex the split holds, not only the
 pelvis's or chest's: the trousers' own points pinched the thigh's end. Read from the over part's faces only,
 the shoulders are unchanged and the thigh's end is fuller; at the hips a ninth less of what the split made
 shows than with the plane cut, not the quarter measured before.
+
+Compiling the bake for the client found the arms' ends collapsed. Held inside the chest with the arm turned
+out the whole 101 degree bend, which no radius can do for a point on the arm's axis (turned, it leaves the
+axis by its depth times the turn's sine), every point deeper than 5 cm had been drawn onto the axis: past
+there the end was a needle of faces with no area, which the seam gate counted as 9.6 cm past the plane and
+the model compiler dropped (268 of the left upper arm's 1,490). Each point is now held only in the poses its
+place on the axis fits in, and the gates fail a part with a triangle whose corners meet. The gate's numbers
+are unchanged; the end is a dome again.
+
+In the client (Human male; standing, arms up, arms forward, sitting, crouching and talking; the shoulders
+close up, beside the same outfit cut on the shoulder plane) the armhole cut is nowhere worse and is cleaner
+with the arm forward (fewer grey shards under the lifted pad) and crouching (the plane cut's jagged shards at
+the shoulder are gone). With the arms up, seen from the side, both cuts show green pad shards and flat grey
+pieces in the open armhole: that is not the cut, and it is still to fix. Crouching, the thighs' grown ends
+show behind the seat as flat grey shapes without the cloth's texture, as in the first client check of the
+seat cut.
