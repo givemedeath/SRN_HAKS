@@ -430,6 +430,10 @@ shadow, unequipped and re-equipped, walk, run, two attack frames, shield, off-ha
 captures are saved after each `ITEMKIT_SHOT` line. A shot that finds the camera in use is taken on the next cycle,
 so a run lasts five to nine minutes.
 
+The greatsword carrier rests on the shoulder, so its fixture uses `fixture.SHOULDER_SHOTS`: the same moments framed
+higher and a metre further off, with the close-ups aimed at the chest where the hand is. Other carries (staff, bow)
+still use the hip framing until their own is measured.
+
 `capture.json` records the shots and equip lines. `evidence-draft.json` groups the pictures by body and required
 check with `result: "unreviewed"` and lists any check without a picture. It is material for the client evidence, not
 the evidence: a person still looks, judges and writes the review. The fixture area keeps only the two review actors;

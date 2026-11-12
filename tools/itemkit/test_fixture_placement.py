@@ -138,3 +138,14 @@ class ScriptedShotTests(unittest.TestCase):
         self.assertEqual(draft['missing'], [{'body': 'human-male', 'check': 'walk'}, {'body': 'human-female', 'check': 'idle'},
                                             {'body': 'human-female', 'check': 'walk'}])
         self.assertTrue(draft['reviewRequired'])
+
+    def test_shoulder_carry_frames_the_same_moments_higher_and_further(self):
+        from tools.itemkit.fixture import SHOTS, SHOULDER_SHOTS, shot_script
+        self.assertEqual([row[:3] for row in SHOULDER_SHOTS], [row[:3] for row in SHOTS])     # same steps, times and checks
+        for hip, shoulder in zip(SHOTS, SHOULDER_SHOTS):
+            if hip[4] < 2: self.assertEqual(shoulder[3:], (225, 1.5, hip[5], 1.35))            # close-ups aim at the chest
+            else: self.assertEqual(shoulder[3:], (hip[3], round(hip[4] + 1.0, 1), hip[5], 1.3))
+        shoulder = entry_script('sr_blade', carry='shoulder'); self.assertNotEqual(shoulder, entry_script('sr_blade'))
+        self.assertIn(',225.0,1.5,85.0,1.35));', shoulder); self.assertNotIn(',1.4,85.0,0.95));', shoulder)
+        self.assertIn(',1.4,85.0,0.95));', shot_script())
+        with self.assertRaisesRegex(ValueError, 'Unknown carry'): entry_script('sr_blade', carry='back')

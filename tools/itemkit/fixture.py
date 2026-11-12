@@ -6,7 +6,7 @@ import shutil
 import struct
 import subprocess
 from tools.headkit.common import asset, pin, read, require, verify, write
-from .routes import PACKAGED_FIREARMS
+from .routes import PACKAGED_FIREARMS, ROUTES
 
 CHECKS = ('front-rear-sides', 'idle', 'walk', 'run', 'equip-unequip', 'attacks', 'shadows',
           'gloves-armor', 'shield-offhand')
@@ -136,6 +136,12 @@ SHOTS = ((1, 2.0, 'front-rear-sides', 270, 3.2, 80, 1.0), (1, 5.0, 'front-rear-s
          (11, 3.0, 'attacks', 180, 3.0, 82, 1.1), (12, 2.5, 'attacks', 225, 2.6, 82, 1.1),
          (16, 3.0, 'shield-offhand', 225, 3.0, 82, 1.1), (20, 3.5, 'shield-offhand', 315, 3.0, 82, 1.1),
          (25, 5.4, 'gloves-armor', 225, 2.8, 82, 1.1), (26, 5.0, 'gloves-armor', 180, 1.4, 85, 0.95))
+# A two-handed sword rests on the right shoulder: the hand is at chest height and the blade stands a metre above the
+# head, so the same moments are framed higher, from further off, and the close-ups aim at the chest, not the hip.
+SHOULDER_SHOTS = tuple((step, delay, check, 225 if close else facing, 1.5 if close else round(distance + 1.0, 1), pitch,
+                        1.35 if close else 1.3)
+                       for step, delay, check, facing, distance, pitch, height in SHOTS for close in [distance < 2])
+SHOT_CARRY = {'hip': SHOTS, 'shoulder': SHOULDER_SHOTS}
 SHOT_WAITS = 6   # a shot that finds the camera in use waits up to 2.4 s for it before leaving itself to the next cycle
 SHOT_BARE = 30   # the motion sequence's own unequip of armour and gloves does not always complete; the later, idle steps start bare
 SHOT_ACTORS = (('sr_it_male', 'human-male'), ('sr_it_female', 'human-female'))
@@ -213,10 +219,11 @@ void ItkBegin(object pc,object male,object female) {
         '@LAST@', str(SHOT_CYCLE - 1)).replace('@TOGGLE@', SHOT_TOGGLE).replace('@FEMALE@', SHOT_ACTORS[1][0]).replace('@MALE@', SHOT_ACTORS[0][0])
 
 
-def entry_script(item_name, comparison=False, previous='', *, equipment_slot='right'):
+def entry_script(item_name, comparison=False, previous='', *, equipment_slot='right', carry='hip'):
     from .contracts import resref
     resref(item_name)
     require(equipment_slot in ('right', 'left'), 'Unsupported fixture equipment slot')
+    require(carry in SHOT_CARRY, 'Unknown carry for the scripted shots')
     comparisons = tuple(comparison or ())
     require(len(set(comparisons)) == len(comparisons) and item_name not in comparisons, 'Comparison blueprint collision')
     for name in comparisons: resref(name)
@@ -256,7 +263,7 @@ void main() {
 }'''
     if equipment_slot == 'left':
         script = script.replace('INVENTORY_SLOT_RIGHTHAND', 'INVENTORY_SLOT_LEFTHAND').replace(' right=', ' left=')
-    return (shot_script() + script).replace('ITEM_RESREF', item_name).replace('COMPARISON',
+    return (shot_script(SHOT_CARRY[carry]) + script).replace('ITEM_RESREF', item_name).replace('COMPARISON',
         '\n  '.join('if(!GetIsObjectValid(GetItemPossessedBy(pc,"'+name+'"))) CreateItemOnObject("'+name+'",pc);' for name in comparisons)).replace('PRIOR',
         'ExecuteScript("'+previous+'",GetModule());' if previous else '')
 
@@ -352,7 +359,8 @@ def build(manifest_path, manifest, native, local, output):
     # The old item fixture's setup script attaches the player's camera. Review
     # actors are now visible at entry; leave the player's camera under their control.
     script = entry_script(item_name, comparisons, '' if previous == 'sr_it_setup' else previous,
-                          equipment_slot='left' if native.get('kind') == 'shield-native-package' else 'right')
+                          equipment_slot='left' if native.get('kind') == 'shield-native-package' else 'right',
+                          carry='shoulder' if native.get('baseItem') == ROUTES['greatsword'].carrier.base_item else 'hip')
     script_path = resources/'sr_it_enter.nss'; script_path.write_text(script, encoding='ascii')
     include = output/'includes'; include.mkdir()
     shutil.copyfile(inputs[3]['path'], include/'nwscript.nss')
