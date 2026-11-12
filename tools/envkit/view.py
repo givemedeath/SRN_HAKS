@@ -18,6 +18,7 @@ def contact(run, output, columns=3):
     """One picture of a reference run: each `<asset>-s<seed>-b0.png` of the folder beside `crops/<asset>.png`, the
     crop of the sheet it was drawn from. Returns the number of references shown."""
     from PIL import Image, ImageDraw
+    require(type(columns) is int and columns > 0, 'A contact picture has one column at least')
     run = Path(run); crop_width, side, pad, label = 200, 300, 8, 16; cells = []
     for path in sorted(run.glob('*-b0.png')):
         name = path.name.rsplit('-s', 1)[0]

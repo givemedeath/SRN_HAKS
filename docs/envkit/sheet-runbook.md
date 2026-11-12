@@ -66,8 +66,10 @@ envkit view --models tools/envkit/sets/<sheet>-game.json --root <root> --model <
 
 The first draws a generated model square on from each side with a metre grid, before the game set names it;
 the second draws a model as its game set makes it. Read the boxes of lit parts, paint, smoothing, mesh panels,
-fences and the door from the grid, in metres on the finished model, and state `measuredAt` (the height they
-were read at). `--lit` shows what the lit boxes light. The drawing lets deeper faces show through nearer ones:
+fences and the door from the grid, in metres on the finished model, and state `measuredAt`: the height they
+were read at, or `{"height": ..., "lift": ...}` with each of `lift`, `turn` and `signTilt` the model states,
+since the boxes are on the model as lifted, turned and tilted. Change any of them and the set is refused until
+the boxes are read again. `--lit` shows what the lit boxes light. The drawing lets deeper faces show through nearer ones:
 what a surface looks like is settled in the client, not here.
 
 Size a building by its door: scale it until the door leaf is about 2.1 m, then choose the tile group's size.

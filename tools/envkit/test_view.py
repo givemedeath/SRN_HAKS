@@ -28,6 +28,8 @@ class ViewTests(unittest.TestCase):
         self.assertTrue({(255, 0, 0), (0, 0, 255)} <= colours)
         with self.assertRaisesRegex(ValueError, 'No references'):
             view.contact(self.root / 'meshy', self.root / 'out' / 'none.png')
+        with self.assertRaisesRegex(ValueError, 'one column at least'):
+            view.contact(run, self.root / 'out' / 'contact.png', columns=0)
         Image.new('RGB', (90, 110), (0, 0, 255)).save(run / 'gate-s101-b0.png')  # drawn in this run from a crop made in another
         with self.assertRaisesRegex(ValueError, 'gate-s101-b0.png has no crop beside it'):
             view.contact(run, self.root / 'out' / 'contact.png')
@@ -60,6 +62,12 @@ class ViewTests(unittest.TestCase):
     def test_a_generated_model_is_drawn_before_any_game_set_states_it(self):
         told = view.raw(self.root / 'meshy' / 'wall', 3.0, self.root / 'raw', sides=(0,), fine=128)
         self.assertEqual(told['bounds'][1][2], 3.0); self.assertTrue(Path(told['pictures'][0]).is_file()); self.assertEqual(Path(told['pictures'][0]).name, 'wall-side0.png')
+        from argparse import Namespace
+        from . import __main__ as command
+        asked = dict(models=None, source=str(self.root / 'meshy' / 'wall'), height=3.0, output=str(self.root / 'raw2'), root=None)
+        for more in (dict(model=['0'], lit=True), dict(model=['0', '2'], lit=False), dict(model=['0'], lit=False, root='root')):
+            with self.assertRaisesRegex(ValueError, 'has no set to give it lit boxes'):  # what it would ignore is refused
+                command.command_view(Namespace(**{**asked, **more}))
 
 
 if __name__ == '__main__':

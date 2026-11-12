@@ -187,7 +187,9 @@ def command_view(args):
     from . import convert, view
     require(bool(args.models) != bool(args.source), 'Give a game set (--models, --root, --model) or one generated model (--source, --height)')
     if args.source:
-        require(args.height, 'A generated model is stood at --height metres'); _, sides, scale, grid = _views('raw:' + (args.model[0] if args.model else '0'))
+        require(args.height, 'A generated model is stood at --height metres')
+        require(not args.lit and not args.root and len(args.model) <= 1, 'A generated model has no set to give it lit boxes: it is drawn from --source, --height and one --model of its sides (0123)')
+        _, sides, scale, grid = _views('raw:' + (args.model[0] if args.model else '0'))
         print(json.dumps(view.raw(args.source, args.height, args.output, sides=sides, scale=scale, grid=grid)))
         return
     require(args.root and args.model, 'A game set is drawn with --root and --model'); models = convert.load_models(args.models)
