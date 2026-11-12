@@ -92,7 +92,63 @@ In the client the crotch then showed two flat plain patches with a black hole ab
 when the body sat or crouched. The game stands a body with its thighs turned out, which opens the cut between
 the legs at the front; the patches were the thighs' flat inner walls and the hole the pelvis, open on both hip
 planes. The pelvis is now closed on both planes and repeats a strip of the trousers along the crotch, just
-under the thighs. The caps at the shoulders, streaked with sleeve and guard, are drawn in one material. The accent and
+under the thighs. A cap keeps the materials its rim shows without their streaks, so the knee between the two
+halves of its pad is the pad, and the thighs' inner walls are drawn as the trousers they close.
+
+The knee and elbow pads are cut in two on their joint planes, and sitting, the upper half of a knee pad lay
+along the top of the thigh with trousers showing between the halves. Giving the whole pad to the shin or the
+forearm was tried and taken back: it swung off the thigh at any bend and stood out behind a bent elbow. The
+shin's and the forearm's caps now carry the pad's rim round the joint's hinge, in the pad's material, so the
+gap a bend opens between the two halves is filled out to their cut edges.
+
+A polishing round followed a review of the build in the client (eleven poses, four views each). The arm
+plates were grey in the middle with a rim of their colour: a plate that catches the light is paler and less
+coloured, and was read as cloth; a highlight is now still its material. Piping and flecks of the plates'
+colour on the sleeves, four texels across or less, are drawn as the sleeve. What the split makes (closings,
+caps) is drawn at the cloth's lit shade, not its middle shade, and a cap is lit as the surface it rounds off:
+the tops of the thighs stood out of the seat as darker flat patches, standing and in every crouch. A thigh's
+cap starts a little inside its rim, the crotch strip ends in a point, and flat closings carry no relief.
+
+A second round took up what that one left, with walking, running and unarmed combat added to the captures
+(fifteen actors, four views each). The reference draws a grey tab in a frame of the plates' colour under each
+shoulder pad. At 12,000 faces the frame was a band one to three faces wide: part of it joined the pad and
+went to the shoulder part as a strip hanging down the arm, and the pad was cut out along the teeth of its
+outline, which left the chest's edge round the armhole ragged under a lifted arm. A line of metal too narrow
+to be a plate is now trim and is given to the cloth it lies on, before the outfit is cut; and a plate is
+drawn on its own faces and nowhere else, which took the specks a pad left on the sleeve under its edge and
+the blots and tails along the elbow plates' outlines. The walk showed the tops of the thighs again: flat pale patches in the crotch at every step, the
+thigh's cap on the leg swinging forward and the pelvis's lid in front of the leg swinging back. A thigh's cap,
+its inner wall and the pelvis's lids are now shaded as the cloth round them, vertex by vertex. Left as they
+are: the reference's elbow guard is two plates with a strap between them, and a bent arm shows the sleeve
+between the two as a wedge; a plate's outline now runs along face edges where its colour ran past them,
+in short straight runs; and where a thigh's top leaves the pelvis its outline against the trousers' folds is
+jagged.
+
+A third round took the armpits. Three things showed there. On top of each shoulder, under the pad, the fit
+had set a few vertices of the cloth 3 to 6 cm out sideways (`repose.fit` measured the body ring by ring
+about the chest's bone, and a ring at the top of a shoulder holds its full width): the faces round them
+stood up as spikes when the arm lifted the pad. The upper arm's cap, two wings beside the pad, came through
+the chest in front of the pad and behind it as slivers while the body stood; it now starts a fifth inside
+its rim. And the closings in the armpit were drawn at the cloth's lit shade, pale in the crease; they now
+take their edge's shade. In the client the spikes were gone and one thing was left: a pale strip in front
+of each armpit as the figure stood. It is what closes the sleeve at the shoulder, its closings and its
+cap. The pose the outfit is cut in hides most of it, and the game's idle stance turns the arm a few degrees
+out of that pose, which lifts the sleeve's rim off the chest's edge on one side. Drawing the cap in farther
+did not close that gap, nor did setting it under the chest's surface; the upper arm's closings are now
+drawn in the armhole's shadow, and in the client the strip reads as the crease it lies in while the figure
+stands. With the arm lifted the same faces show in the armpit as dark shards, where they were grey.
+
+A correction to that account, found when the bake was made a tracked command (`tools/armorkit/bake.py`):
+this paragraph first said the strip was the top of the sleeve, its cap, and that the cap was darkened with
+the closings. The bake that was looked at in the client darkened the closings only; a later line of the
+bake script had taken the cap out of them, and it was drawn as read, its rim's colours carried to its
+pole. Measured offline at six degrees, up to 9 cm2 of the closings and up to 10 of the cap show. The marked
+capture that pointed to the cap drew caps at shade 0 and closings at 255, and the client draws the top of
+the shade range black as well, so it may not have told the two apart. The tracked bake keeps what was
+seen; the cap darkened with the closings has not been tried in the client. Left as it is: with the arm lifted, the chest's
+armhole is closed by a dome under the pad over a flat fan in the armpit, with a step between the two; the
+sleeve's closed inner side shows under a lifted arm as a flat face; and the fan shows behind the sleeve as
+a dark wedge. The accent and
 hardware uses in the table need materials of their own in a reference (two of a kind) and are not built.
 
 Each corporation is a palette over these channels plus one cell of the logo strip. The five logos are not in

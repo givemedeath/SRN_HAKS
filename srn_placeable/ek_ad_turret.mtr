@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_ad_turret
+texture1 ek_ad_turret_n
+texture2 ek_ad_turret_s
+texture3 ek_ad_turret_r
+texture4 null
+texture5 ek_ad_turret_i

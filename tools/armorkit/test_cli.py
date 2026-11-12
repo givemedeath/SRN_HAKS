@@ -31,7 +31,7 @@ class CommandLineTests(unittest.TestCase):
 
     def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
         from . import brief
-        given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK,
+        given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK + ' ' + brief.BUILT, 'construction': 1,
                  'materials': [{'name': 'fabric', 'kind': 'cloth', 'colour': [128, 128, 128], 'look': 'GREY cloth', 'wears': 'the shirt.'},
                                {'name': 'plates', 'kind': 'metal', 'colour': [150, 180, 220], 'look': 'PALE BLUE plastic', 'wears': 'the guards.'}]}
         with tempfile.TemporaryDirectory() as folder:
@@ -83,6 +83,29 @@ class CommandLineTests(unittest.TestCase):
                                  ('geometry', ('work', 'outfit', 'image.png', 36.5, 'models', url)),
                                  ('appearance', ('work', 'outfit', 'image.png', 36.5, 'shape.npz', 'models', url)),
                                  ('export', ('work', 'outfit', 'mesh.glb', 12000, 0.5, url))])
+
+    def test_bake_routes_a_fresh_bake_and_a_second_tint_and_fails_on_a_gate(self):
+        from . import bake
+        calls, brief_file = [], Path(__file__).with_name('briefs') / 'corpsec-siteguard-male-2.json'
+        report = lambda passed: (lambda document, output, pack, number, **given: calls.append((document['model'], output, pack, number, given))
+                                 or {'model': document['model'], 'number': number, 'models': {}, 'gates': {'passed': passed, 'failures': []}})
+        with mock.patch.object(bake, 'run', report(True)), mock.patch.object(cli, 'layout_library', lambda folder: 'library of ' + folder):
+            got = run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--mesh', 'mesh.glb', '--colours', 'field.npz', '--raw', 'raw.glb',
+                      '--xatlas', 'layout', '--kept', 'kept', '--pack', 'srn_body', '--pack', 'srn_armor')
+            run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', 'kept', '--tier', 1)
+            for wrong in (('--mesh', 'mesh.glb'), ('--mesh', 'mesh.glb', '--colours', 'field.npz', '--raw', 'raw.glb'), (),
+                          ('--kept', 'kept', '--xatlas', 'layout')):  # half a bake, nothing to bake or tint, and both at once
+                with self.assertRaises(ValueError):
+                    run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', *wrong)
+        self.assertEqual(got['gates']['passed'], True)
+        self.assertEqual([call[:4] for call in calls], [('corpsec-siteguard-male', 'out', 'bodies', 332)] * 2)
+        fresh, again = (call[4] for call in calls)
+        self.assertEqual((fresh['mesh'], fresh['colours'], fresh['raw'], fresh['xatlas'], fresh['kept'], fresh['packs'], fresh['tier']),
+                         ('mesh.glb', 'field.npz', 'raw.glb', 'library of layout', 'kept', ['srn_body', 'srn_armor'], 2))
+        self.assertEqual((again['mesh'], again['xatlas'], again['kept'], again['tier'], again['game']), (None, None, 'kept', 1, None))
+        with mock.patch.object(bake, 'run', report(False)), self.assertRaises(SystemExit) as stopped:
+            run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', 'kept')
+        self.assertEqual(stopped.exception.code, 1)
 
     def fixture_run(self, *flags):
         """Run the fixture command with the builder and the client replaced; return what each was called with."""

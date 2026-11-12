@@ -321,6 +321,21 @@ class FitTests(unittest.TestCase):
         self.assertTrue(np.allclose(fitted, sleeve))
         self.assertEqual(report['thighl'], (1.0, 0))
 
+    def test_a_vertex_beside_a_shelf_of_the_body_is_not_set_out_as_far_as_the_shelf(self):
+        # a thigh twice as wide above a shelf across the bone as below it, like a chest at the top of its shoulder
+        hip, knee = self.there['hipl'], self.there['kneel']
+        shelf = hip + (0, 0, -0.23)
+        parts = dict(self.parts, legl=join(tube(hip, shelf, 0.12), tube(shelf, knee, 0.06))[:2])
+        sleeve = tube(hip + (0, 0, -0.02), knee + (0, 0, 0.02), 0.2, around=48, along=40)[0]
+        low = np.array([hip + (0.08, 0, -0.235), hip + (0.08, 0, -0.10)])  # just under the shelf, and well up in the wide half
+        posed = np.concatenate([sleeve, low])
+        fitted, report = repose.fit(posed, self.follow(len(posed), 'thighl'), self.there, parts)
+        self.assertTrue(np.allclose(fitted[:len(sleeve)], sleeve))
+        self.assertTrue(np.allclose(fitted[-2], low[0]))  # outside the body where it stands: the shelf a ring up has no say
+        self.assertGreater(self.radius(fitted[-1:])[0], 0.1159 + repose.CLEARANCE / 2 - 1e-9)  # inside it: set outside
+        self.assertTrue(np.allclose(fitted[-1, 2], low[1, 2]))
+        self.assertEqual(report['thighl'], (1.0, 1))
+
     def test_the_widening_keeps_the_outfits_relief(self):
         sleeve = tube(self.there['hipl'] + (0, 0, -0.05), self.there['kneel'] + (0, 0, 0.05), 0.05, around=96)[0]
         ridge = np.arange(len(sleeve)) % 96 == 0  # a seam down one side, raised 1 cm
