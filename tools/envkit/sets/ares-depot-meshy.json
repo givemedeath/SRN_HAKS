@@ -1,0 +1,22 @@
+{
+  "set": "ares-depot",
+  "prefix": "ares",
+  "props": {
+    "reception-desk": {"triangles": 12000},
+    "surveillance-console": {"triangles": 12000},
+    "equipment-lockers": {"triangles": 5000},
+    "armory-rack": {"triangles": 10000},
+    "watch-booth": {"triangles": 10000},
+    "vehicle-gate": {"triangles": 8000},
+    "fence-section": {"triangles": 12000},
+    "concrete-barrier": {"triangles": 3000},
+    "checkpoint-terminal": {"triangles": 5000},
+    "drone-dock": {"triangles": 8000},
+    "turret": {"triangles": 8000, "key": "ares-turret-a2"},
+    "gear-crate": {"triangles": 4000},
+    "pylon-sign": {"triangles": 3000},
+    "wall-sign": {"triangles": 2000},
+    "rooftop-unit": {"triangles": 12000}
+  },
+  "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 200000, "remesh": "ares-building-a1-remesh2"}
+}

@@ -4,9 +4,15 @@ assets on the bound ComfyUI; `meshy` makes paid models under the ledger's cap; `
 generated models to compiled placeables, `placeables` puts them in the pack and the table and `blueprints` gives
 them blueprints a builder can paint; `tiles` builds a model as a tile group and `install` puts that group in the shared
 pack and its tilesets. Whatever is added to the table or a tileset is entered in the additions catalog, which
-repository verification (tools/Test-Repository.ps1) checks against the packs."""
+repository verification (tools/Test-Repository.ps1) checks against the packs.
+
+A whole sheet is run with the commands beside those (docs/envkit/sheet-runbook.md): `contact` shows a reference run
+against its crops, `sheet` sends a sheet's plan through Meshy and collects it, `view` draws a model square on with a
+grid to read a game set's boxes from, `check` looks at props, lights, a tile group and doors in the game client, and
+`toolset` prepares and reads back a Toolset check of tile groups."""
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -17,7 +23,7 @@ if __package__ in (None, ''):
 from . import additions, fresh, local, reference, require
 
 CATALOG = 'docs/additions/catalog.json'  # catalog.PATH, said here so that asking for help imports nothing
-MESHY_NEEDS = {'init': ('cap',), 'prop': ('key', 'image', 'triangles', 'work'), 'building': ('key', 'image', 'work'),
+MESHY_NEEDS = {'init': ('cap',), 'cap': ('cap', 'reason'), 'prop': ('key', 'image', 'triangles', 'work'), 'building': ('key', 'image', 'work'),
                'remesh': ('key', 'source', 'triangles', 'work'), 'wait': ('key', 'work'), 'download': ('key', 'work', 'bank'),
                'master': ('key', 'work', 'bank')}
 
@@ -65,7 +71,8 @@ def command_reference(args):
 
 def _retouching(model):
     """What a game set says of turning a model and retouching its colour, as `convert.shape` takes it."""
-    return {key: model[key] for key in ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence') if key in model}
+    from . import convert
+    return {key: model[key] for key in convert.RETOUCHING if key in model}
 
 
 def command_game(args):
@@ -134,7 +141,9 @@ def command_meshy(args):
     if args.action == 'init':
         meshy.Ledger.create(args.ledger, args.cap)
     ledger = meshy.Ledger(args.ledger)
-    if args.action in ('prop', 'building', 'remesh'):
+    if args.action == 'cap':
+        ledger.raise_cap(args.cap, args.reason)
+    elif args.action in ('prop', 'building', 'remesh'):
         arguments = (meshy.prop_arguments(args.image[0], args.triangles) if args.action == 'prop' else
                      meshy.building_arguments(args.image) if args.action == 'building' else
                      meshy.remesh_arguments(ledger.entry(args.source)['taskId'], args.triangles))
@@ -147,13 +156,85 @@ def command_meshy(args):
     print(json.dumps({'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
 
 
+def command_contact(args):
+    from . import view
+    print(json.dumps({'references': view.contact(args.references, args.output, args.columns), 'picture': args.output}))
+
+
+def command_sheet(args):
+    from . import meshy, sheet
+    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger); root = Path(args.root); work = root / 'meshy' / 'work'
+    failed = []
+    if args.action == 'submit':
+        print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work)}))
+    elif args.action == 'collect':
+        made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))
+    print(json.dumps(sheet.status(ledger, plan), indent=1))
+    require(not failed, 'Calls of the plan have no working model: ' + ', '.join(failed))  # after the status, so that a failed collect does not end as a good one
+
+
+def _views(text):
+    """name[:sides[:scale[:grid]]] as (name, sides, scale, grid): sides are digits, 0 the front."""
+    parts = text.split(':'); parts += [''] * (4 - len(parts)); number = re.compile(r'\d+(\.\d+)?')
+    require(len(parts) == 4 and parts[0] and re.fullmatch('[0-3]*', parts[1]) and re.fullmatch(r'\d*', parts[2]) and (not parts[3] or number.fullmatch(parts[3])),
+            'A view is name[:sides[:scale[:grid]]], the sides digits 0 to 3, the scale whole pixels to the metre and the grid metres: ' + text)
+    scale, grid = int(parts[2] or 0), float(parts[3] or 0)
+    require((not parts[2] or scale > 0) and (not parts[3] or grid > 0), 'A view\'s scale and grid are more than nothing: ' + text)
+    return parts[0], [int(side) for side in parts[1] or '0'], scale or None, grid or None
+
+
+def command_view(args):
+    from . import convert, view
+    require(bool(args.models) != bool(args.source), 'Give a game set (--models, --root, --model) or one generated model (--source, --height)')
+    if args.source:
+        require(args.height, 'A generated model is stood at --height metres'); _, sides, scale, grid = _views('raw:' + (args.model[0] if args.model else '0'))
+        print(json.dumps(view.raw(args.source, args.height, args.output, sides=sides, scale=scale, grid=grid)))
+        return
+    require(args.root and args.model, 'A game set is drawn with --root and --model'); models = convert.load_models(args.models)
+    for name, sides, scale, grid in map(_views, args.model):
+        print(json.dumps({'model': name, **view.elevations(models, args.root, name, args.output, sides=sides, scale=scale, grid=grid, lit=args.lit)}), flush=True)
+
+
+def command_check(args):
+    from . import checks
+    if args.kind == 'doors':
+        require(args.user and args.output, 'check doors needs --user (the Toolset user folder) and --output (a fresh folder for captures)')
+        print(json.dumps(checks.doors(args.game, args.user, args.output, ticks=args.ticks)))
+        return
+    needs = {'props': ('models', 'root', 'name', 'built', 'model'), 'lights': ('models', 'root', 'name', 'built'), 'group': ('models', 'root', 'name', 'built', 'model', 'tileset')}[args.kind]
+    missing = ['--' + name for name in needs if not getattr(args, name)]
+    require(not missing, f'envkit check {args.kind} needs ' + ', '.join(missing))
+    require(args.kind == 'lights' or len(args.built) == 1, 'One built folder is checked at a time')
+    modes = {'props': ('day', 'night'), 'lights': ('night',), 'group': ('day', 'night', 'near')}[args.kind]; mode = args.mode or modes[0]
+    require(mode in modes, f'envkit check {args.kind} has no --mode {mode}: ' + ' or '.join(modes))
+    if args.kind == 'props':
+        made = checks.props(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model, night=mode == 'night')
+    elif args.kind == 'lights':
+        made = checks.lights(args.game, args.repo, args.root, args.name, args.models, args.built)
+    else:
+        require(len(args.model) == 1, 'One tile group is checked at a time')
+        made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, mode, second_storey=args.second_storey)
+    print(json.dumps(made))
+
+
+def command_toolset(args):
+    from . import toolset
+    if args.action == 'prepare':
+        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or tuple(toolset.AREAS), game=args.game)
+    elif args.action == 'saved':
+        made = toolset.saved(Path(args.user) / 'modules' / f'{toolset.MODULE}.mod', args.repo)
+    else:
+        made = {'junctionRemoved': toolset.retire(args.user)}
+    print(json.dumps(made, indent=1))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='envkit')
     commands = parser.add_subparsers(dest='command', required=True)
     sub = commands.add_parser('meshy', help='paid Meshy calls under the ledger cap')
-    sub.add_argument('action', choices=['init', 'status', 'prop', 'building', 'remesh', 'wait', 'download', 'master'])
+    sub.add_argument('action', choices=['init', 'status', 'cap', 'prop', 'building', 'remesh', 'wait', 'download', 'master'])
     sub.add_argument('--ledger', required=True)
-    sub.add_argument('--cap', type=int)
+    sub.add_argument('--cap', type=int); sub.add_argument('--reason', help='cap: the approval a raise rests on, in a few words')
     sub.add_argument('--key', help='ledger key of this call')
     sub.add_argument('--asset')
     sub.add_argument('--image', action='append', default=[], help='reference image (repeat for building views)')
@@ -189,6 +270,34 @@ def main(argv=None):
     sub.add_argument('--models', required=True); sub.add_argument('--game', required=True, help='the game install folder (the one holding data/)')
     sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_placeable'); sub.add_argument('--catalog', default=CATALOG)
     sub.set_defaults(run=additions.command_blueprints)
+    sub = commands.add_parser('contact', help='one picture of a reference run, each reference beside its crop')
+    sub.add_argument('--references', required=True, help='a reference run folder, with its crops folder'); sub.add_argument('--output', required=True, help='the picture to write')
+    sub.add_argument('--columns', type=int, default=3); sub.set_defaults(run=command_contact)
+    sub = commands.add_parser('sheet', help="a sheet's models through Meshy, as its plan states them")
+    sub.add_argument('action', choices=['status', 'submit', 'collect'])
+    sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', required=True)
+    sub.add_argument('--root', required=True, help="the sheet's output root: references/selected is read, meshy/ is written")
+    sub.set_defaults(run=command_sheet)
+    sub = commands.add_parser('view', help='a model seen square on with a metre grid, to read a game set\'s boxes from')
+    sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root")
+    sub.add_argument('--source', help='instead of a game set: one generated model folder'); sub.add_argument('--height', type=float)
+    sub.add_argument('--model', action='append', default=[], help='name[:sides[:scale[:grid]]], sides as digits (0 front, 1, 2 back, 3); with --source, the sides alone')
+    sub.add_argument('--lit', action='store_true', help='show what the lit boxes light'); sub.add_argument('--output', required=True)
+    sub.set_defaults(run=command_view)
+    sub = commands.add_parser('check', help='look at props, lights, a tile group or doors in the game client')
+    sub.add_argument('kind', choices=['props', 'lights', 'group', 'doors'])
+    sub.add_argument('--game', required=True, help='the game install folder (the one holding data/)'); sub.add_argument('--repo', default='.')
+    sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root: fixtures/<name> is written")
+    sub.add_argument('--name', help='a new fixture name, a lowercase resref of at most 11 characters'); sub.add_argument('--built', action='append', default=[], help='the folder `game` or `tiles` built into (lights: repeatable, the first that holds a model serves)')
+    sub.add_argument('--model', action='append', default=[]); sub.add_argument('--tileset', choices=['dgt04', 'udp1'])
+    sub.add_argument('--mode', choices=['day', 'night', 'near'], help='props: day (default) or night; group: day (default), night or near; lights are seen by night'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
+    sub.add_argument('--user', help='doors: the Toolset user folder'); sub.add_argument('--output', help='doors: a fresh folder for captures')
+    sub.add_argument('--ticks', type=int, default=150, help='doors: how long the player is watched, two seconds a tick')
+    sub.set_defaults(run=command_check)
+    sub = commands.add_parser('toolset', help='prepare a Toolset check of tile groups, read what it saved, retire it')
+    sub.add_argument('action', choices=['prepare', 'saved', 'retire']); sub.add_argument('--user', required=True, help='the Toolset user folder (fresh for prepare)')
+    sub.add_argument('--repo', default='.'); sub.add_argument('--game', help='prepare: the game install folder, to say how the Toolset is started')
+    sub.add_argument('--tileset', action='append', default=[], choices=['dgt04', 'udp1']); sub.set_defaults(run=command_toolset)
     sub = commands.add_parser('props', help='the props of every onboarded sheet by type; refuses undeclared duplicates')
     sub.add_argument('--sets', default=str(Path(__file__).with_name('sets'))); sub.set_defaults(run=command_props)
     parsers = {}

@@ -194,11 +194,15 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/export.py",
       "tools/envkit/additions.py",
+      "tools/envkit/checks.py",
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
       "tools/envkit/meshy.py",
       "tools/envkit/reference.py",
+      "tools/envkit/sheet.py",
       "tools/envkit/tile.py",
+      "tools/envkit/toolset.py",
+      "tools/envkit/view.py",
       "tools/headkit/comfy.py",
       "tools/shared_tools.py"
     ],
@@ -215,6 +219,14 @@
     ],
     "tools/envkit/catalog.py": [
       "docs/additions/catalog.json"
+    ],
+    "tools/envkit/checks.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/envkit/convert.py",
+      "tools/envkit/prop_fixture.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/convert.py": [
       "tools/envkit/glow.py"
@@ -241,9 +253,19 @@
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],
+    "tools/envkit/sheet.py": [
+      "tools/envkit/meshy.py",
+      "tools/envkit/reference.py"
+    ],
     "tools/envkit/test_catalog.py": [
       "tools/envkit/blueprints.py",
       "tools/envkit/catalog.py"
+    ],
+    "tools/envkit/test_checks.py": [
+      "tools/armorkit/client_fixture.py",
+      "tools/envkit/__main__.py",
+      "tools/envkit/checks.py",
+      "tools/envkit/prop_fixture.py"
     ],
     "tools/envkit/test_convert.py": [
       "tools/envkit/convert.py",
@@ -273,6 +295,13 @@
       "tools/envkit/reference.py",
       "tools/envkit/sets/stuffer-shack.json"
     ],
+    "tools/envkit/test_sheet.py": [
+      "tools/envkit/__main__.py",
+      "tools/envkit/meshy.py",
+      "tools/envkit/sets/ares-depot-meshy.json",
+      "tools/envkit/sheet.py",
+      "tools/envkit/test_meshy.py"
+    ],
     "tools/envkit/test_tile.py": [
       "tools/envkit/additions.py",
       "tools/envkit/catalog.py",
@@ -280,11 +309,29 @@
       "tools/envkit/glow.py",
       "tools/envkit/tile.py"
     ],
+    "tools/envkit/test_toolset.py": [
+      "tools/armorkit/client_fixture.py",
+      "tools/envkit/toolset.py"
+    ],
+    "tools/envkit/test_view.py": [
+      "tools/envkit/__main__.py",
+      "tools/envkit/test_convert.py",
+      "tools/envkit/view.py"
+    ],
     "tools/envkit/tile.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/toolchain.py",
       "tools/envkit/convert.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/toolset.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/view.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/glow.py"
     ],
     "tools/headbatch/__init__.py": [],
     "tools/headbatch/client_trial.py": [
@@ -5105,6 +5152,23 @@
       "srn_placeable",
       "srn_t_common"
     ],
+    "tools/envkit/checks.py": [
+      "srn_2da",
+      "srn_placeable",
+      "srn_t_common"
+    ],
+    "tools/envkit/test_toolset.py": [
+      "srn_2da",
+      "srn_t_dgt04"
+    ],
+    "tools/envkit/toolset.py": [
+      "srn_2da",
+      "srn_door",
+      "srn_placeable",
+      "srn_t_common",
+      "srn_t_dgt04",
+      "srn_t_udp1"
+    ],
     "tools/heads/build_head_fixture.py": [
       "srn_body",
       "srn_head"
@@ -5238,13 +5302,17 @@
     "tools/armorkit/test_texture.py",
     "tools/armorkit/test_toolchain.py",
     "tools/envkit/test_catalog.py",
+    "tools/envkit/test_checks.py",
     "tools/envkit/test_convert.py",
     "tools/envkit/test_glow.py",
     "tools/envkit/test_local.py",
     "tools/envkit/test_meshy.py",
     "tools/envkit/test_placeables.py",
     "tools/envkit/test_reference.py",
+    "tools/envkit/test_sheet.py",
     "tools/envkit/test_tile.py",
+    "tools/envkit/test_toolset.py",
+    "tools/envkit/test_view.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",
