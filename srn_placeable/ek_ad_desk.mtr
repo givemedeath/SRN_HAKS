@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_ad_desk
+texture1 ek_ad_desk_n
+texture2 ek_ad_desk_s
+texture3 ek_ad_desk_r
+texture4 null
+texture5 ek_ad_desk_i

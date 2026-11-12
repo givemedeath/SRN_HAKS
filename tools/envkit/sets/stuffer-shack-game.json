@@ -14,7 +14,7 @@
       {"part": "east window glass", "box": [[4.8, -4.3, 1.2], [6.2, -3.1, 2.75]], "gain": 0.35},
       {"part": "east window goods", "box": [[4.8, -4.3, 1.2], [6.2, -3.1, 2.75]], "gain": 1.0, "saturation": 0.12}
     ], "halo": {"reach": 0.4, "strength": 0.55, "least": 0.5},
-      "tiles": {"ground": "pavement", "group": "Stuffer_Shack", "label": "Stuffer Shack 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 3.0, "door": {"at": [-0.25, 3.9, 0.18], "facing": 90.0, "type": 58}}},
+      "tiles": {"ground": "pavement", "group": "Stuffer_Shack", "label": "Stuffer Shack 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 3.0, "door": {"at": [-0.25, 3.9, 0.18], "facing": 90.0, "type": 58, "leaf": 2.1, "measuredAt": 5.6}}},
     "ek_ss_vending": {"source": "meshy/models/vending-machine-a1", "height": 1.83, "colour": 2048, "lit": [
       {"part": "display", "box": [[-0.22, 0.2, 0.46], [0.47, 0.59, 1.42]], "gain": 1.0},
       {"part": "price screen", "box": [[-0.47, 0.4, 1.25], [-0.28, 0.59, 1.36]], "gain": 1.5}
