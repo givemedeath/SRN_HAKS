@@ -126,6 +126,15 @@ in it (`{"model": ..., "at": [x, y, z], "turn": 0|90|180|270}`, in metres on the
 with its own picture under the group's names (`<group>p1`, ...), cut into the same tiles and walked round. A prop
 of the sheet stays a placeable as well.
 
+A sheet's buildings can be both: each its own group, for a builder to place alone, and together one large group of
+the whole site, which paints a district in one go (user, 2026-11-13: the rail yard's depot is 6 by 6 tiles, its
+warehouse, dock warehouse, control tower, office and service bay with the platform, crane, boxcar and containers). A
+part is never a group itself, so a building in both has a second entry of the same source and height without
+`tiles` (`ek_rf_towerx`), and its standalone group and the site's must agree on that height. A group places at most
+nine different models. No model may be named like another's file (its maps' `_n`, `_s`, `_r`, `_i`, `_o`, `_h`,
+a group's `_t` tiles and `p` parts): the set is refused, since one would write over the other in the pack.
+`envkit view --models ... --model <site> --eye ...` draws the whole site with its parts before it is cut into tiles.
+
 ```
 envkit game  --models ... --root <root> --output <root>/game<n>  [--model <name>]
 envkit tiles --models ... --root <root> --output <root>/tiles<n> --model <building>

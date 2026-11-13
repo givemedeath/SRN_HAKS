@@ -21,6 +21,7 @@ TO_GAME = np.array([[-1.0, 0, 0], [0, 0, 1.0], [0, 1.0, 0]])  # a rotation: glTF
 NODE_VERTICES = 60000  # a compiled mesh node indexes its vertices with 16 bits
 NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character suffix
 TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row and column
+MAP_SUFFIXES = ('_n', '_s', '_r', '_i', '_o', '_h')  # a model's other pictures: relief, shine, roughness, glow, lights out, halo
 NON_WALK = 7
 RETOUCH = 2048  # pixels: the finest map of places a colour picture is retouched by
 SLAT_GROOVE, SLAT_SHADE = 0.15, 0.3  # of a slat's pitch, each side of the joint, that darkens towards it; how much darker the joint is
@@ -846,6 +847,17 @@ def load_models(path):
             other = data['models'].get(part['model'])
             require(other is not None and part['model'] != name and not other.get('tiles'),
                     f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
+    # Every file a model ships is named from its own name: its pictures with a suffix (`MAP_SUFFIXES`), a group's tiles
+    # with _t and the tile, the models placed in it with p and a number. A model named like one of those would write
+    # over it in the pack: the rail yard's first copy of its office for the depot's group was ek_rf_admin_s, the name
+    # of the office's own shine map (2026-11-13).
+    names = set(data['models'])
+    for name, model in data['models'].items():
+        taken = {name + suffix for suffix in MAP_SUFFIXES}
+        if model.get('tiles'):
+            taken |= set(part_textures(name, model['tiles'].get('parts', [])).values())
+        clash = sorted(names & taken) + sorted(other for other in names if model.get('tiles') and other.startswith(name + '_t'))
+        require(not clash, f'A model is named like a file of {name}, which it would write over: ' + ', '.join(clash))
     return data['models']
 
 

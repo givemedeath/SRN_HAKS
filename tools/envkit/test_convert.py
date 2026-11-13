@@ -354,6 +354,18 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(turned, 2); np.testing.assert_allclose(fixed, right, atol=1e-9)
         self.assertEqual(convert.turn_normals(vertices, right, faces)[1], 0)  # a model drawn right is left alone
 
+    def test_a_model_named_like_a_file_of_another_is_refused(self):
+        """The rail yard (2026-11-13): a copy of the office named ek_rf_admin_s would have written over its shine map."""
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        for clash in ('ek_x_s', 'ek_x_n', 'ek_x_h', 'ek_x_t00', 'ek_xp1'):
+            models = {'ek_x': {'source': 'meshy/x', 'height': 3.0, 'measuredAt': 3.0, 'tiles': {**group, 'parts': [{'model': 'ek_y', 'at': [5, 0, 0]}]}},
+                      'ek_y': {'source': 'meshy/y', 'height': 1.0}, clash: {'source': 'meshy/x', 'height': 3.0}}
+            path = self.root / 'set.json'; path.write_text(json.dumps({'models': models}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'named like a file of ek_x'):
+                convert.load_models(path)
+        models['ek_xs'] = models.pop(clash); path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIn('ek_xs', convert.load_models(path))
+
     def test_a_face_seen_from_behind_is_turned_round(self):
         """The rail yard (2026-11-13): faces wound inward were holes onto whatever stood behind them."""
         corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
