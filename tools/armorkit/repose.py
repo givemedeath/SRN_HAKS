@@ -22,6 +22,7 @@ LEVELS = 240  # horizontal sections taken through the outfit
 BIG, FINE = 0.15, 0.05  # a section curve counts as torso, arm or leg from this share of the outfit's height round; a wrist from this
 NECK = 0.45  # the neck starts where the torso's curve is narrower than this share of its widest above the armpits
 STEP_LIMIT = 0.05  # a limb is followed to the next section's curve only within this share of the height
+FEW = 3  # sections a limb is followed for at least: fewer is a sliver
 SLEEVE = 4  # sections in a row with something beside the torso, above a stretch with nothing: a short sleeve over a bare arm
 JOINED = 1.15  # above a short sleeve the torso's curve is at least this much wider than beside it: the sleeves have joined it
 GAP = 0.05  # a glove lies at least this share of the height below its sleeve's hem: less is a section missing from a whole arm
@@ -134,8 +135,11 @@ def centreline(marks, side, top, limb):
 
     `side` is -1 for the left, +1 for the right. A `leg` starts at the curve nearest the middle, an `arm` at the
     outermost one; the walk ends where the next section has no curve close to the last one, so an arm is not
-    followed into the leg beside the hand. Rows run upward."""
-    rows, last = [], None
+    followed into the leg beside the hand. A walk that ends before `FEW` sections is a sliver and starts again
+    below it, once, within `STEP_LIMIT`: the top of a loose short sleeve, cut apart from the torso for a
+    section or two above where the sleeve joins it (Facility Security, 2026-11-13: the armpit was found above
+    that join and the arm was its one section). Rows run upward."""
+    rows, last, dropped = [], None, None
     for index in range(len(marks['levels']) - 1, -1, -1):
         z = marks['levels'][index]
         if z > top:
@@ -144,6 +148,11 @@ def centreline(marks, side, top, limb):
                 if not marks['torso'](curve) and (curve['centre'][0] - marks['middle']) * side > 0]
         if not mine:
             if last is None:
+                if dropped is not None and z < dropped - STEP_LIMIT * marks['height']:
+                    break
+                continue
+            if len(rows) < FEW and dropped is None:
+                dropped, rows, last = rows[-1][0], [], None
                 continue
             break
         if last is None:
@@ -155,7 +164,7 @@ def centreline(marks, side, top, limb):
                 break
         last = pick['centre']
         rows.append((z, pick['centre'][0], pick['centre'][1], pick['perimeter']))
-    require(len(rows) >= 3, f'No {limb} found on the {"left" if side < 0 else "right"}')
+    require(len(rows) >= FEW, f'No {limb} found on the {"left" if side < 0 else "right"}')
     return np.array(rows[::-1])
 
 
@@ -225,21 +234,23 @@ def rings(vertices, faces, start, toward, height):
 def through(points, toward, height):
     """(point, direction) of the straight line through a sleeve's ring middles, pointing down the arm, `toward` its glove.
 
-    A ring that takes in a fold or a pocket has its middle off the others': middles farther than `STRAY` from
-    the line are left out and the line is laid again, as long as two are left on it. `toward` only says
-    which way is down the arm: the line from the sleeve to the glove is a bent arm's chord, and no stand-in
-    for the sleeve's own. One ring gives no line and is refused."""
+    A ring that takes in a fold or a pocket, or a hem cut aslant, has its middle off the others': the farthest
+    middle, while it lies farther than `STRAY` from the line, is left out and the line laid again, as long as
+    two are left on it. One at a time: two hem rings on one side tilt the line through all of them toward
+    themselves, and leaving out everything far from that line kept one of them and dropped good rings
+    (Facility Security, 2026-11-13: the sleeve lay 17 degrees below level instead of 38, and its shoulder
+    4 cm inside the body's). `toward` only says which way is down the arm: the line from the sleeve to the
+    glove is a bent arm's chord, and no stand-in for the sleeve's own. One ring gives no line and is refused."""
     points, toward = np.asarray(points, float), np.asarray(toward, float)
     require(len(points) >= 2, 'A sleeve gives the line of its arm from two rings on')
     kept = points
-    for _ in range(3):
+    while True:
         middle = kept.mean(axis=0)
         along = np.linalg.svd(kept - middle)[2][0]
-        off = np.linalg.norm((points - middle) - ((points - middle) @ along)[:, None] * along, axis=1)
-        fewer = points[off < STRAY * height]
-        if len(fewer) < 2 or len(fewer) == len(kept):
+        off = np.linalg.norm((kept - middle) - ((kept - middle) @ along)[:, None] * along, axis=1)
+        if len(kept) <= 2 or off.max() < STRAY * height:
             break
-        kept = fewer
+        kept = np.delete(kept, np.argmax(off), axis=0)
     return middle, along * (1.0 if (toward - middle) @ along >= 0 else -1.0)
 
 

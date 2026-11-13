@@ -97,6 +97,12 @@ def cuffed(x, z):
     return inside(x, z) and not (0.98 <= z < 1.00 and abs(x) > 0.19)
 
 
+def notched(x, z):
+    """As `bare`, with a notch cut into each shoulder just above the armpit: the top of a loose short sleeve stands
+    apart from the torso there for a section, a sliver above where the sleeve joins it."""
+    return bare(x, z) and not (ARMPIT + 0.02 <= z < ARMPIT + 0.04 and 0.17 <= abs(x) < 0.19)
+
+
 def holstered(x, z):
     """As `inside`, with a holster on each thigh below the hand and farther out than the fingers: no glove."""
     return inside(x, z) or (0.55 <= z < 0.62 and 0.52 < abs(x) < 0.60)
@@ -202,6 +208,27 @@ class JointTests(unittest.TestCase):
         self.assertGreater(len(gloves), 10)
         self.assertLess((gloves[-1, 0] - SHIFT[2]) / SCALE, 1.02)  # the glove, from its upper end down
         self.assertEqual(len(repose.past(self.marks, -1, repose.centreline(self.marks, -1, self.marks['armpit'] - 0.005 * self.marks['height'], 'arm'))), 0)
+
+    def test_a_sliver_of_sleeve_above_the_armpit_is_passed_over_and_the_arm_found_below_it(self):
+        v, faces = doll(inside=notched)  # the walk from the sliver ended after one section, and no arm was found
+        here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
+        for side in 'lr':  # as the bare arm's, without the notch
+            for joint, most in (('shoulder', 0.03), ('elbow', 0.04), ('wrist', 0.03), ('tip', 0.01)):
+                self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), most, (joint, side))
+
+    def test_a_sleeves_line_leaves_out_its_hem_rings_one_at_a_time(self):
+        # The ring middles of Facility Security's left sleeve, as shares of its height: two at the hem, cut aslant,
+        # then seven along the sleeve up to the armpit. All far rings left out at once kept the second hem ring
+        # and laid the sleeve 17 degrees below level.
+        rings = np.array([[-0.216, -0.194, 0.842], [-0.206, -0.182, 0.84], [-0.191, -0.164, 0.83], [-0.183, -0.164, 0.836],
+                          [-0.175, -0.164, 0.842], [-0.167, -0.164, 0.848], [-0.159, -0.165, 0.855], [-0.151, -0.165, 0.861],
+                          [-0.143, -0.165, 0.868]])
+        sleeve = seams.unit(np.linalg.svd(rings[2:] - rings[2:].mean(axis=0))[2][0])
+        middle, along = repose.through(rings, rings[0] + (0, 0, -0.1), 1.0)
+        self.assertGreater(abs(float(along @ sleeve)), 0.999)
+        self.assertAlmostEqual(float(np.degrees(np.arcsin(-along[2]))), 38.3, delta=1.0)  # pointing down the arm
+        with self.assertRaises(ValueError):
+            repose.through(rings[:1], rings[0], 1.0)
 
     def test_a_guard_standing_off_the_shoulder_does_not_move_the_armpit_above_it(self):
         v, faces = doll(inside=guarded)
