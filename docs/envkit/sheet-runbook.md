@@ -264,7 +264,7 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
   `walk.png` shows which.
 - **Something the generator stood on the floor leaves too narrow a way** (orange on `walk.png` where a character
-  must pass, or a `tiles` note of walk cells no exit reaches). A path needs a metre clear. Take the thing away with
+  must pass, or a `tiles` note of walk cells no walk is planned onto). A path needs a metre clear. Take the thing away with
   `clear`: `{"part": ..., "box": ...}` on the finished model takes every face whose middle lies in the box. Start the
   box a couple of centimetres above the floor, so the floor stays and what stands on it goes, and draw the place again:
   marks the thing left painted on the floor stay. A box that takes nothing is refused.

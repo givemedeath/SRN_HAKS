@@ -316,6 +316,9 @@ class TileTests(unittest.TestCase):
             self.assertEqual((one['image'], one['lights'], one['doors']), ('ek_shop_m00', 2, [{'type': 58, 'x': 0.0, 'y': 1.75, 'z': 0.2, 'orientation': 180.0, 'drawnOut': 0.75}]))
             self.assertTrue(0 < one['fadingFaces'] < one['faces']); self.assertEqual(report['fade'], 2.0)
             self.assertEqual(one['path'], {'node': 'U', 'turn': 90, 'exits': 'NWSE', 'offPath': 0}); self.assertEqual(report['notes'], [])  # as `nodes` gives the shop
+            # A node stated in the game set ({"t<row><column>": ...}) is the tile's.
+            stated = tile.group('ek_shop', made, Path(scratch) / 'stated', ground='pavement', nodes={'t00': {'node': 'A', 'turn': 0}})
+            self.assertEqual(stated['tiles'][0]['path'], {'node': 'A', 'turn': 0, 'exits': 'NWSE', 'offPath': 0})
             with Image.open(Path(scratch) / 'ek_shop_m00.tga') as picture:
                 self.assertEqual((picture.size, picture.mode), ((tile.MINIMAP, tile.MINIMAP), 'RGB'))
             self.assertTrue((Path(scratch) / 'ek_black.tga').is_file())
@@ -473,7 +476,7 @@ class TileTests(unittest.TestCase):
             report = tile.group('ek_yard', made, scratch, ground='pavement')
             roomy = tile.read_walk(Path(scratch) / tile.WALK_PICTURE)  # and its walk picture beside the tiles, a pixel a cell
         self.assertEqual((report['rows'], report['columns'], len(report['notes'])), (1, 2, 1))
-        self.assertRegex(report['notes'][0], r'^ek_yard_t00: \d{3} walk cells that no exit of the tile reaches')
+        self.assertRegex(report['notes'][0], r'^ek_yard_t00: \d{3} walk cells that no walk from round the group is planned onto')
         self.assertEqual((roomy.shape, bool(roomy[0, 0]), bool(roomy[20, 40])), ((tile.CELLS, 2 * tile.CELLS), True, False))  # the yard's east wall at x 0.2
 
     def test_a_walk_picture_reads_back_as_the_ground_with_room_to_stand_on(self):

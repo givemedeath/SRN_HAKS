@@ -369,6 +369,11 @@ def _roomy(walk, room=None):
     return wide[room:-room, room:-room]
 
 
+def _turned(parts, quarter):
+    """A letter's parts (PATH_NODES) turned counter-clockwise by `quarter` quarters."""
+    return [''.join('NWSE'[('NWSE'.index(side) + quarter) % 4] for side in part) for part in parts]
+
+
 def _sees(walk, one, other, aside=None):
     """Whether a character can walk between two cells of a tile over walk cells without going more than `aside` cells
     (ASIDE) off the straight line between them."""
@@ -390,7 +395,7 @@ def path_node(found, row, column):
     2026-11-11). Where a side opens onto two grounds of the tile that do not join, the opening nearest its middle
     counts. Two exits are joined only where a walk between their openings, over ground with room to stand on, stays
     within ASIDE of the straight way: the engine walks a character from one to the other, and gives up a walk whose
-    route goes round a wall (REACH). The node chosen has no exit that is not one and joins no two that are not joined;
+    route goes round a wall (ASIDE). The node chosen has no exit that is not one and joins no two that are not joined;
     of those it is the one with the most exits, then the most of them joined, then the most ground reached. So what it
     gets wrong, where no letter fits, is a way left unsaid, never a way through a wall. A group takes its tiles' nodes
     together (`path_nodes`), and a walk check in the client can still show a tile needs another (`stated`).
@@ -423,7 +428,7 @@ def _options(found, row, column):
     options = []
     for letter, parts in PATH_NODES.items():
         for quarter in range(4):
-            turned = [''.join('NWSE'[('NWSE'.index(side) + quarter) % 4] for side in part) for part in parts]; exits = ''.join(turned)
+            turned = _turned(parts, quarter); exits = ''.join(turned)
             if any(side not in region for side in exits) or not all(joined[frozenset((one, other))] for part in turned
                                                                   for at, one in enumerate(part) for other in part[at + 1:]):
                 continue
@@ -447,11 +452,13 @@ def path_nodes(found, rows, columns, stated=None):
     target instead: the yard's walkers to its door gave up while the door's tile split its north ground between two
     regions, and to its bay while the apron's tile joined only its south side to the bay's (client, 2026-11-12)."""
     tiles = {(row, column): _options(found, row, column) for row in range(rows) for column in range(columns)}
+    for tile in tiles.values():  # the walk cells of each mass, so a choice's reach is a sum
+        labels, counts = np.unique(tile['masses'][tile['walk']], return_counts=True); tile['size'] = dict(zip(labels.tolist(), counts.tolist()))
     for (row, column), (letter, turn) in (stated or {}).items():
         require((row, column) in tiles, f'A stated path node is for a tile of the group: t{row}{column}')
         require(letter in PATH_NODES and turn in (0, 90, 180, 270), f'A stated path node is a letter of PATH_NODES turned 0, 90, 180 or 270: t{row}{column}')
         tile = tiles[(row, column)]
-        turned = [''.join('NWSE'[('NWSE'.index(side) + turn // 90) % 4] for side in part) for part in PATH_NODES[letter]]; exits = ''.join(turned)
+        turned = _turned(PATH_NODES[letter], turn // 90); exits = ''.join(turned)
         require(all(side in tile['region'] for side in exits), f'A stated path node leaves t{row}{column} only by sides open there: {letter} {turn} leaves by {exits}')
         reached = int((tile['walk'] & np.isin(tile['masses'], [tile['region'][side] for side in exits])).sum())
         tile['options'] = [((len(exits), 0, reached), letter, turn, exits, turned)]
@@ -475,11 +482,8 @@ def path_nodes(found, rows, columns, stated=None):
                     for other, part_there in enumerate(parts.get(there, ())):
                         if facing in part_there:
                             parent[find((row, column, index))] = find((*there, other))
-        reached = {}
-        for key, tile in tiles.items():
-            masses = [tile['region'][side] for index, part in enumerate(parts[key]) for side in part if find((*key, index)) == find('round')]
-            reached[key] = int((tile['walk'] & np.isin(tile['masses'], masses)).sum())
-        return reached
+        return {key: sum(tile['size'].get(mass, 0) for mass in {tile['region'][side] for index, part in enumerate(parts[key]) for side in part
+                                                                 if find((*key, index)) == find('round')}) for key, tile in tiles.items()}
 
     def value():
         return sum(planned().values()), -sum(chosen.values())
@@ -820,7 +824,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
             one = {'model': model, 'row': row, 'column': column, 'faces': counts['faces'], 'fadingFaces': counts['fading'], 'walkFaces': int(len(walk[1])),
                    'path': nodes[(row, column)], 'lights': len(lights), 'doors': []}
             if one['path']['offPath']:
-                notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no exit of the tile reaches; a walk from another tile is not planned onto them')
+                notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no walk from round the group is planned onto (`path_nodes`)')
             if one['walkFaces'] > WALK_FACES:
                 notes.append(f'{model}: {one["walkFaces"]} walk faces, where no stock tile has more than {WALK_FACES}')
             if (row, column) in pictures:
