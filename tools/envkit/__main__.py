@@ -70,7 +70,8 @@ def command_reference(args):
     names = args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]  # a same is not made
     for name in names:
         asset = data['assets'][name]
-        require('cut' not in asset or args.selected, f'{name} is cut from the chosen reference of {asset.get("cut", {}).get("from")}: give --selected')
+        drawn = asset.get('cut') or asset.get('turn')
+        require(not drawn or args.selected, f'{name} is drawn from the chosen reference of {(drawn or {}).get("from")}: give --selected')
     local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
     for name in names:
         # Each job waits for the shared ComfyUI (`reference.make`). With --keep-going an asset that fails is said and
@@ -79,7 +80,7 @@ def command_reference(args):
         asset = data['assets'][name]
         try:
             source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
-            text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
+            text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset))
             result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         except Exception as failure:
             if not args.keep_going:

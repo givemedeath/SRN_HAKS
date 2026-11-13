@@ -19,7 +19,7 @@ from pathlib import Path
 
 from . import reference, require
 
-ORDER = ('kind', 'type', 'same', 'variant', 'unbranded', 'subject', 'box', 'cut', 'notes')
+ORDER = ('kind', 'type', 'same', 'variant', 'unbranded', 'subject', 'box', 'cut', 'turn', 'notes')
 # The names a sheet's own lettering uses: outside a sign, a prop that needs one is a branding variant (`reference.register`).
 BRANDS = ('Ares|Mitsuhama|Renraku|Saeder|Shiawase|Evo|Wuxing|Horizon|NeoNET|DocWagon|Aztechnology|Lone Star|Knight Errant|PCC|ZDF|'
           'Council|UCAS|CAS|Sioux|Spiritech|Apex|Hargreaves|NABS|Ghostwalker|GridGuide|Denver Water|RTG|Chavez|Eagle|Mesametric|'

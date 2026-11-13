@@ -31,6 +31,12 @@ its crop; read it for a changed shape, lost parts, and branding that should not 
 with another seed where it fails. Copy the chosen image of each asset to `<root>/references/selected/` under the
 name it has (`<asset>-s<seed>-b0.png`): exactly one for each asset the plan names.
 
+A generic sheet's building view takes `"unbranded": true` in the set: it is drawn without company or place names,
+keeping generic words such as FREIGHT (the rail yard, user 2026-11-12). Name a sign's text in the subject so the model
+need not guess its letters. A view the sheet does not draw, or draws of another building, is turned from the chosen
+reference of one it does: `"turn": {"from": "<view>", "to": "<what it is seen from>"}`, drawn with `--selected` like a
+cut (the rail yard's rear, whose corner view showed another building than its front, user 2026-11-13).
+
 ## 2. Meshy
 
 The ledger (`output/envkit/stuffer-shack/meshy/ledger.json`, shared by every sheet) holds the cap, which is the

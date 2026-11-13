@@ -173,6 +173,33 @@ class SetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'runs off'):
             reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'left.png')
 
+    def test_a_view_the_sheet_does_not_draw_is_turned_from_the_chosen_reference_of_one_it_does(self):
+        """User, 2026-11-13: the rail yard's corner view drew another building than its front ("fix the warehouse back
+        view"), so its back is drawn from the front's chosen reference, seen from behind."""
+        from PIL import Image
+        good = json.loads(SET.read_text(encoding='utf-8')); whole = next(name for name, asset in good['assets'].items() if asset['kind'] == 'building')
+        good['assets']['building-back'] = {'kind': 'building', 'unbranded': True, 'subject': 'shop', 'box': [0, 0, 10, 10], 'turn': {'from': whole, 'to': 'the back'}}
+        data = reference.load_set(self.write(good)); selected = self.root / 'selected'; selected.mkdir()
+        Image.new('RGB', (100, 40), 'red').save(selected / f'{whole}-s101-b0.png')
+        with Image.open(reference.source(data, 'building-back', None, selected, self.root / 'back.png')) as back:
+            margin = round(100 * reference.CUT_MARGIN)  # the whole reference, set on white
+            self.assertEqual(back.size, (100 + 2 * margin, 40 + 2 * margin)); self.assertEqual(back.getpixel((margin, margin)), (255, 0, 0))
+        text = reference.prompt('building', 'shop', unbranded=True, turn='the back')
+        self.assertIn('Show this same shop seen from the back', text); self.assertNotIn('viewing angle', text)
+        self.assertIn('leave off every company name', text.lower()); self.assertIn('pavement slab', text); self.assertIn('do not clean or repaint', text)
+        self.assertNotIn('company name', reference.prompt('building', 'shop', turn='the back'))
+        for change, message in ((lambda a: a.update(turn={'from': 'trash-can', 'to': 'the back'}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': 'building-back', 'to': 'the back'}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': whole}), 'another, whole, view'),
+                                (lambda a: a.update(cut={'from': whole, 'box': [0, 0, 6, 4]}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': whole, 'to': 'the back\nand the side'}), 'one line')):
+            data = copy.deepcopy(good); change(data['assets']['building-back'])
+            with self.assertRaisesRegex(ValueError, message):
+                reference.load_set(self.write(data))
+        data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': 'building-back', 'box': [0, 0, 6, 4]}}
+        with self.assertRaisesRegex(ValueError, 'another, whole, view'):  # nor is a turned view cut
+            reference.load_set(self.write(data))
+
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):
         sheet = {'file': 'sheet.png', 'sha256': 'a' * 64, 'size': [4, 4]}
         with self.assertRaisesRegex(ValueError, 'not found'):
