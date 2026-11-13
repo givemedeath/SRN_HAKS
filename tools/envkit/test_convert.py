@@ -345,6 +345,15 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(count, 2); np.testing.assert_allclose(np.linalg.norm(fixed, axis=1), 1.0)
         np.testing.assert_allclose(fixed[1], [0, 1, 0], atol=1e-9)
 
+    def test_a_normal_that_points_against_its_faces_is_turned_round(self):
+        """The rail yard's boxcar (2026-11-13): a sixth of it carried normals against its winding and shaded dark."""
+        vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; faces = np.array(WALL['faces'])
+        right = convert.repair_normals(vertices, np.zeros((len(vertices), 3)), faces)[0]
+        wrong = right.copy(); wrong[[0, 2]] *= -1
+        fixed, turned = convert.turn_normals(vertices, wrong, faces)
+        self.assertEqual(turned, 2); np.testing.assert_allclose(fixed, right, atol=1e-9)
+        self.assertEqual(convert.turn_normals(vertices, right, faces)[1], 0)  # a model drawn right is left alone
+
     def test_a_mesh_too_big_for_one_node_is_cut_into_nodes_that_keep_every_face(self):
         faces = np.arange(300).reshape(-1, 3)  # 100 triangles sharing no vertex
         parts = convert.split(faces, limit=90)

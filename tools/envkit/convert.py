@@ -103,13 +103,28 @@ def repair_normals(vertices, normals, faces):
     model cannot hold; those take the area-weighted normal of their own faces, or straight up where they have no area."""
     normals = np.array(normals, float); lengths = np.linalg.norm(normals, axis=1); bad = lengths < 1e-6
     if bad.any():
-        of_face = np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])
-        summed = np.zeros_like(normals)
-        for corner in range(3):
-            np.add.at(summed, faces[:, corner], of_face)
+        summed = _of_faces(vertices, faces)
         normals[bad] = summed[bad]; lengths = np.linalg.norm(normals, axis=1)
         normals[lengths < 1e-12] = (0.0, 0.0, 1.0); lengths = np.linalg.norm(normals, axis=1)
     return normals / lengths[:, None], int(bad.sum())
+
+
+def _of_faces(vertices, faces):
+    """Each vertex's area-weighted sum of its faces' normals, by their winding."""
+    of_face = np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])
+    summed = np.zeros((len(vertices), 3))
+    for corner in range(3):
+        np.add.at(summed, faces[:, corner], of_face)
+    return summed
+
+
+def turn_normals(vertices, normals, faces):
+    """(normals, turned): a shading normal that points against its faces' winding turned round. The game draws a face
+    by its winding and lights it by its normals, so such a face shades dark in daylight: about a sixth of the rail yard's
+    boxcar did, on both of its generations (2026-11-13)."""
+    normals = np.array(normals, float); against = (normals * _of_faces(vertices, faces)).sum(1) < 0
+    normals[against] *= -1
+    return normals, int(against.sum())
 
 
 def closed(vertices, normals, uvs, faces, parts):
@@ -885,7 +900,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if turn:
         spin = _turn(float(turn), 0.0, 0.0); vertices, normals = vertices @ spin.T, normals @ spin.T
         vertices, _ = stand(vertices, height)
-    normals, repaired = repair_normals(vertices, normals, faces)
+    normals, repaired = repair_normals(vertices, normals, faces); normals, turned = turn_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
     if clear:
         vertices, normals, uvs, faces = cleared(vertices, normals, uvs, faces, clear)
@@ -913,7 +928,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         where, covered, toward = placed; shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
-    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
+    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire}
 
 
@@ -952,7 +967,7 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
 def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
-            'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
+            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
             'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'turn': made.get('turn', 0.0), 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
