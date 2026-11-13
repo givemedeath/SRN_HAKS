@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 67,
-      "sha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
+      "resources": 85,
+      "sha256": "1d636d5777f3392efa90b005776a59048d959e5741f421367559a4b317f4ce8c",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 17,
-    "NPCs": 34,
+    "pairs": 26,
+    "NPCs": 52,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -54,6 +54,29 @@
       ],
       "moduleSha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
       "note": "The Vibro sword and Predator IV pairs were added to this module. In this module's client the selector staged both pairs (static inspection) and both Human bodies held the weapon; the 60-second attack tests were not run. Both items were also viewed in the client on both Human bodies in their own itemkit fixtures. The 15-pair approval above refers to the earlier module bytes."
+    },
+    "extension2": {
+      "date": "2026-11-13",
+      "addedPairs": 5,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "knife and bat look good",
+        "baton looks good",
+        "staff looks good",
+        "tomahawk looks good too"
+      ],
+      "moduleSha256": "ab1faf9cf7f264034bbb97b963ca7aa6cf3a15a8d3062368ca42e44dd874ad43",
+      "note": "Ceramic Knife, Extendable Baton, Tomahawk, Baseball Bat and Stun Staff pairs were added to this module (sw5_, southern row). They were not run in this module's client; each item was viewed in the client on both Human bodies in its own itemkit fixture. Earlier approvals above refer to the earlier module bytes."
+    },
+    "extension3": {
+      "date": "2026-11-13",
+      "addedPairs": 4,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Yes, keep it"
+      ],
+      "moduleSha256": "1d636d5777f3392efa90b005776a59048d959e5741f421367559a4b317f4ce8c",
+      "note": "Survival Knife, Sword, Club and Claymore pairs were added to this module (sw6_, southern row). They were not run in this module's client; each item was viewed in the client in its own itemkit fixture and kept by the user. Earlier approvals above refer to the earlier module bytes."
     }
   }
 }
