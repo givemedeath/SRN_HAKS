@@ -167,7 +167,7 @@ def maxrange_needs(repo, packages):
     header, rows = crm.parse_2da((repo/BASEITEMS).read_text(encoding='latin-1'))
     needs = {}
     for p in packages:
-        current = int(rows[p.base_item]['MaxRange'])
+        current = int(rows[p.base_item]['MaxRange'])            # plan() has checked every base item is a row
         if p.appearance > max(current, needs.get(p.base_item, (0, 0))[1]): needs[p.base_item] = (current, p.appearance)
     return needs
 
@@ -221,6 +221,7 @@ def plan_pairs(creatures, packages, area_width):
     """New reviewer tags and positions: groups of up to five after the last group, continuing the southern row."""
     groups = groups_of(c['Tag']['value'] for c in creatures)
     row = [c['XPosition']['value'] for c in creatures if REVIEWER.match(c['Tag']['value']) and c['YPosition']['value'] == ROW_Y['m']]
+    require(row, f'No male reviewer stands in the southern row (y {ROW_Y["m"]}) to continue from')
     x = max(row) + ROW_STEP; number = len(groups) + 1; pairs = []
     for start in range(0, len(packages), GROUP_SIZE):
         # c.nss and sw_review.nss read a reviewer's group as GetStringLeft(tag, 4): one digit, sw1_ to sw9_.
@@ -417,6 +418,8 @@ def plan(repo, items):
     require(not clashes, f'Already in srn_weapon or listed twice: {clashes}')
     require(not known & {p.item for p in packages}, f'Already published: {sorted(known & {p.item for p in packages})}')
     _, rows = crm.parse_2da((repo/BASEITEMS).read_text(encoding='latin-1'))
+    missing = [p.item for p in packages if p.base_item not in rows]
+    require(not missing, f'Base items not in {BASEITEMS.as_posix()}: {missing}')
     ranged = [p.item for p in packages if rows[p.base_item].get('RangedWeapon', '****') != '****']
     # The reviewer equip lines are melee lines (right hand, no ammunition); bows and firearms need theirs written by hand.
     require(not ranged, f'Ranged weapons are not published by this command: {ranged}')

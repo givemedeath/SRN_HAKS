@@ -48,7 +48,7 @@ def _closed(vertices, faces, what):
 
 
 def shell_from_donor(vertices, faces, *, voxel=.001, faces_target=200000, dilate=1, erode=0, sigma=.8, taubin=5,
-                     minimum_component=1000, maximum_voxels=200_000_000):
+                     minimum_component=1000, maximum_voxels=50_000_000):     # about 1.2 GB of float64 grid coordinates
     """A closed exterior shell around the donor surface: rasterise it into voxels, dilate, flood-fill the outside,
     smooth the solid, marching cubes, clean, Taubin-smooth and decimate. The dilation pushes the surface outward by
     about `dilate` voxels; `erode` takes voxels back off the solid. Holes narrower than the dilation close."""

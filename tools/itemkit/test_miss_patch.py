@@ -48,6 +48,17 @@ class ScreenAndMeasureTests(unittest.TestCase):
         self.assertEqual(M.screen(self.corners, self.caps, self.v*1.2, self.f)['visibleFaces'], len(self.f) - 5)
         with self.assertRaisesRegex(ValueError, 'Bounded'): M.screen(self.corners, self.caps, self.v, self.f, distance=.01)
 
+    def test_a_reviewed_patch_for_this_target_covers_its_near_faces(self):
+        caps = np.zeros(len(self.f), bool); reversed_donor = self.f[:, ::-1]
+        patch = {'faces': [3, 4], 'maximumDistance': .002, 'targetCornerHash': corner_hash(self.corners)}
+        result = M.screen(self.corners, caps, self.v, reversed_donor, patch=patch)
+        self.assertEqual((result['coveredByPatch'], result['patchMatchesTarget']), ([3, 4], True))
+        self.assertEqual(len(result['failedFaces']), len(self.f) - 2)
+        stale = M.screen(self.corners, caps, self.v, reversed_donor, patch={**patch, 'targetCornerHash': 'other'})
+        self.assertEqual((stale['coveredByPatch'], stale['patchMatchesTarget'], len(stale['failedFaces'])), ([], False, len(self.f)))
+        far = M.screen(self.corners, caps, self.v*1.2, self.f, patch=patch)              # 10 mm: beyond the patch distance
+        self.assertEqual(far['coveredByPatch'], [])
+
     def test_measure_reports_distances_texels_and_the_target_hashes(self):
         uv = planar_uv(self.corners); donor = self.v*1.02                  # 1 mm outside at the 50 mm radius
         result = M.measure(self.corners, uv, [3, 40], donor, self.f, 1024, 400000)
@@ -59,6 +70,7 @@ class ScreenAndMeasureTests(unittest.TestCase):
         self.assertEqual(result['cornerHash'], corner_hash(self.corners))
         self.assertEqual(result['targetHash'], target_hash(self.corners, uv))
         self.assertAlmostEqual(result['textureFraction'], result['texels']/400000)
+        with self.assertRaisesRegex(ValueError, 'outside this'): M.measure(self.corners, uv, [len(self.f)], donor, self.f, 1024, 1)
 
     def test_measure_run_refuses_a_report_from_another_target(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -70,6 +82,8 @@ class ScreenAndMeasureTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'different target'): M.measure_run(run, 'unused.glb', report)
             report.write_text(json.dumps({'size': 1024, 'donorSampling': {'failedFaces': []}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'no failed faces'): M.measure_run(run, 'unused.glb', report)
+            with self.assertRaisesRegex(ValueError, 'one report, or explicit faces'): M.measure_run(run, 'unused.glb', report, faces=[3])
+            with self.assertRaisesRegex(ValueError, 'Donor unused.glb not found'): M.measure_run(run, 'unused.glb', faces=[3])   # faces alone reach the donor
             retry = run/'unwrap/attempt-2/atlas'; retry.mkdir(parents=True)
             np.savez(retry/'final-atlas.npz', whole_positions=self.v, whole_faces=self.f, whole_hiddenCaps=self.caps, whole_uv=uv)
             with self.assertRaisesRegex(ValueError, '2 unwrap arrays.*--arrays'): M.run_target(run)   # never a guess between attempts
@@ -104,6 +118,13 @@ class PatchTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'nearest-finished-donor'): M.add_patch({'processing': {}}, self.corners, [3], .002, 'R.')
         with self.assertRaisesRegex(ValueError, 'bounded face/surface scope'):
             M.add_patch(MANIFEST, self.corners, list(range(40)), .002, 'Reviewed.')
+
+    def test_an_existing_patch_is_replaced_only_on_request(self):
+        patched = M.add_patch(MANIFEST, self.corners, [3, 7], .002, 'First review.')
+        with self.assertRaisesRegex(ValueError, 'already has a reviewed patch for 2 faces'):
+            M.add_patch(patched, self.corners, [9], .002, 'Second review.')
+        again = M.add_patch(patched, self.corners, [3, 7, 9], .002, 'Both reviews.', replace=True)
+        self.assertEqual(again['processing']['missCorrection']['unorientedSourcePatch']['faces'], [3, 7, 9])
 
 
 if __name__ == '__main__':

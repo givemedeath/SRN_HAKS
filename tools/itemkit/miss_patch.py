@@ -81,8 +81,11 @@ def _normals(triangles):
     return n / length[:, None]
 
 
-def screen(corners, caps, donor_vertices, donor_faces, *, distance=.003, alignment=.5):
-    """Visible faces whose centroid has no donor triangle within `distance` facing within `alignment` (the preflight)."""
+def screen(corners, caps, donor_vertices, donor_faces, *, distance=.003, alignment=.5, patch=None):
+    """Visible faces whose centroid has no donor triangle within `distance` facing within `alignment` (the preflight).
+
+    A reviewed `patch` for this exact target covers its faces whose nearest donor surface lies within its distance, as
+    in the preflight; those are listed apart. A patch for other geometry covers nothing and is reported as stale."""
     import igl
     from scipy.spatial import cKDTree
     require(0 < distance <= PATCH_SCOPE['distance'] and .5 <= alignment <= 1, 'Bounded donor screen policy required')
@@ -95,15 +98,25 @@ def screen(corners, caps, donor_vertices, donor_faces, *, distance=.003, alignme
     for face, point, normal, near in zip(visible, points, normals, tree.query_ball_point(points, distance + reach)):
         ids = np.asarray(near, np.int64); ids = ids[donor_normals[ids] @ normal >= alignment]
         if not (len(ids) and igl.point_mesh_squared_distance(point[None], dv, df[ids])[0][0] <= distance**2): failed.append(int(face))
-    return {'sample': 'visible-face-centroids', 'visibleFaces': int(len(visible)), 'failedFaces': failed,
-            'policyDistance': distance, 'minimumNormalAlignment': alignment, 'continuousSurfaceProof': False}
+    result = {'sample': 'visible-face-centroids', 'visibleFaces': int(len(visible)), 'policyDistance': distance,
+              'minimumNormalAlignment': alignment, 'continuousSurfaceProof': False}
+    covered = []
+    if patch:
+        result['patchMatchesTarget'] = patch.get('targetCornerHash') == corner_hash(corners)
+        if result['patchMatchesTarget']:
+            allowed = set(patch['faces']); candidates = [f for f in failed if f in allowed]
+            if candidates:
+                near = np.sqrt(igl.point_mesh_squared_distance(corners[candidates].mean(1), dv, df)[0])
+                covered = [f for f, d in zip(candidates, near) if d <= patch['maximumDistance']]
+    return {**result, 'failedFaces': [f for f in failed if f not in set(covered)], 'coveredByPatch': covered}
 
 
 def measure(corners, uv, faces, donor_vertices, donor_faces, size, mapped_texels):
     """Per reported face: centroid and sampled distance to the donor, nearest facing and mapped texels at `size`."""
     import igl
-    require(faces and len(set(faces)) == len(faces), 'Faces to measure required')
     corners = np.asarray(corners, float); uv = np.asarray(uv, float)
+    require(faces and len(set(faces)) == len(faces), 'Faces to measure required')
+    require(all(0 <= int(f) < len(corners) for f in faces), f'Faces outside this {len(corners)}-face target')
     dv = np.asarray(donor_vertices, float); df = np.asarray(donor_faces, np.int64); donor_normals = _normals(dv[df])
     rows = []
     for face in faces:
@@ -120,23 +133,27 @@ def measure(corners, uv, faces, donor_vertices, donor_faces, size, mapped_texels
             'cornerHash': corner_hash(corners), 'targetHash': target_hash(corners, uv)}
 
 
-def measure_run(run, donor_glb, report, arrays=None, fit=None):
-    """`measure` on a run, for the faces of a bake `preflight.json` or `donor-miss-diagnostic.json`."""
-    report = Path(report); data = json.loads(report.read_text(encoding='utf-8'))
-    faces = data.get('donorSampling', {}).get('failedFaces'); require(faces, f'{report.name}: no failed faces')
+def measure_run(run, donor_glb, report=None, arrays=None, fit=None, faces=None, size=1024):
+    """`measure` on a run, for the faces of a bake `preflight.json` or `donor-miss-diagnostic.json`, or for explicit
+    faces (for example those `screen` found before any bake)."""
+    require((report is None) != (faces is None), 'Measure the faces of one report, or explicit faces')
+    data = {}
+    if report is not None:
+        report = Path(report); data = json.loads(report.read_text(encoding='utf-8'))
+        faces = data.get('donorSampling', {}).get('failedFaces'); require(faces, f'{report.name}: no failed faces')
     target = run_target(run, arrays); require(target['uv'] is not None, f"{run}: the unwrap atlas is needed to measure a patch")
     if data.get('targetHash'):
         require(data['targetHash'] == target_hash(target['corners'], target['uv']),
                 f'{report.name} belongs to a different target than {target["source"]}')
-    size = data.get('size') or 1024; mapped = data.get('raster', {}).get('mappedTexels')
-    if mapped is None:                         # a miss diagnostic: count mapped texels of visible faces at the preflight size
+    size = data.get('size') or size; mapped = data.get('raster', {}).get('mappedTexels')
+    if mapped is None:                         # a miss diagnostic or explicit faces: mapped texels of visible faces at `size`
         mapped = int(round(float(_uv_area(target['uv'][~target['hiddenCaps']]).sum()) * size * size))
     dv, df = fitted_donor(run, donor_glb, fit)
-    return {**measure(target['corners'], target['uv'], faces, dv, df, size, mapped), 'report': str(report), 'size': size,
-            'target': target['source']}
+    return {**measure(target['corners'], target['uv'], faces, dv, df, size, mapped), 'report': str(report) if report else None,
+            'size': size, 'target': target['source']}
 
 
-def add_patch(manifest, corners, faces, distance, notes, user_approval=None):
+def add_patch(manifest, corners, faces, distance, notes, user_approval=None, replace=False):
     """A copy of a fit manifest with a reviewed unoriented-source colour patch for exactly `faces` of this target.
 
     The patch may reach 3 mm and 0.01% of the mapped texels, or 3.25 mm and 0.05% when it quotes the user's approval.
@@ -148,6 +165,9 @@ def add_patch(manifest, corners, faces, distance, notes, user_approval=None):
     require(isinstance(policy, dict) and policy.get('method') == 'nearest-finished-donor',
             'The manifest needs its nearest-finished-donor miss correction before a patch')
     require(isinstance(notes, str) and notes.strip(), "A patch quotes its review (--notes)")
+    existing = policy.get('unorientedSourcePatch')
+    require(not existing or replace, f'The manifest already has a reviewed patch for {len(existing["faces"]) if existing else 0} faces: '
+            'list them in the new faces with a review that covers them, then pass --replace')
     patch = {'faces': sorted(int(f) for f in faces), 'maximumDistance': float(distance), 'reviewed': True,
              'targetCornerHash': corner_hash(corners), 'notes': notes.strip()}
     if user_approval is not None:

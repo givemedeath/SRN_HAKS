@@ -175,19 +175,21 @@ The driver repeats the bake preflight's donor test on CPU and prepares a reviewe
 found before unwrap finishing and Cycles (`tools/itemkit/miss_patch.py`):
 
 ```text
-python -m tools.itemkit.drive screen ID SUFFIX DONOR_GLB [--distance 0.003 --alignment 0.5]
-python -m tools.itemkit.drive patch-measure ID SUFFIX DONOR_GLB <preflight.json | donor-miss-diagnostic.json>
-python -m tools.itemkit.drive patch-add ID SUFFIX NEW_SUFFIX --faces F,F,... --distance M --notes "review" [--user-approval "user's words"]
+python -m tools.itemkit.drive screen ID SUFFIX DONOR_GLB [--distance M --alignment A]
+python -m tools.itemkit.drive patch-measure ID SUFFIX DONOR_GLB <preflight.json | donor-miss-diagnostic.json | --faces F,F,...>
+python -m tools.itemkit.drive patch-add ID SUFFIX NEW_SUFFIX --faces F,F,... --distance M --notes "review" [--user-approval "user's words"] [--replace]
 ```
 
 - **`screen`** joins the run's unwrap arrays (the final atlas, else the extract's `uv-source.npz`) in native part
   order. A run with several unwrap or fit attempts is refused until `--arrays` or `--fit` names the one to use; the
   commands never guess between attempts. It moves the textured donor through the fit's `rawToNativeMatrix` and fails every visible face whose
   centroid has no donor triangle within the distance that faces within the alignment, as `transfer_preflight` does.
-  It is the same centroid early warning, not a surface proof. On the stun staff's fit-v38 it flagged 1 of 21,976
-  faces in about 10 s, and that face is inside the reviewed patch.
-- **`patch-measure`** takes the failed faces of a bake report. It refuses a report whose `targetHash` belongs to another
-  target. For each face it records the centroid and sampled maximum distance to the fitted donor (45 points), the
+  The bounds are the manifest's `maximumDistance` and `minimumNormalAlignment` unless the options override them. A
+  reviewed patch in the manifest covers its faces as in the preflight (`coveredByPatch`), and only when its corner hash
+  matches this target (`patchMatchesTarget`). It is the same centroid early warning, not a surface proof. On the stun
+  staff's fit-v38 it found 1 of 21,976 faces in about 10 s, face 2364, which that manifest's reviewed patch covers.
+- **`patch-measure`** takes the failed faces of a bake report, or `--faces` (for example `screen`'s `failedFaces`
+  before any bake). It refuses a report whose `targetHash` belongs to another target. For each face it records the centroid and sampled maximum distance to the fitted donor (45 points), the
   nearest donor facing and the mapped texels. It also gives the total texel fraction, a suggested patch distance
   (the sampled maximum rounded up to 0.01 mm) and the target's corner hash.
 - **`patch-add`** writes a new manifest with `processing.missCorrection.unorientedSourcePatch` for exactly those faces,
@@ -195,7 +197,8 @@ python -m tools.itemkit.drive patch-add ID SUFFIX NEW_SUFFIX --faces F,F,... --d
   It raises `maximumUnorientedDistance` to the patch distance when that is above the policy's bound (2.1 mm by
   default), since the worker caps the patch there. The scope is 3 mm and 0.01% of the mapped texels, or 3.25 mm and
   0.05% with `--user-approval` quoting the user's own words. The patch is checked with `validate_texture_patch` before
-  it is written, and the worker checks it again when it bakes. Rebuilt from the staff's fit-v38 atlas, the command
+  it is written, and the worker checks it again when it bakes. A manifest that already has a reviewed patch is refused
+  unless `--replace` is given; list the earlier faces again, with a note that covers both reviews. Rebuilt from the staff's fit-v38 atlas, the command
   reproduces that manifest's reviewed policy exactly.
 
 None of these approves a patch. The user reviews the measured faces, the note quotes that review, and the baked
@@ -215,8 +218,8 @@ python -m tools.itemkit.drive remesh-shell IN.glb OUT.glb EDGE [--taubin N]
 
 - **`shell-from-donor`** rasterises the donor surface into voxels. It dilates them, flood-fills the outside, smooths
   the solid, runs marching cubes, cleans the result, Taubin-smooths it and decimates to the face target. The shell
-  sits about one dilation outside the donor, and holes narrower than the dilation close. It refuses grids over 200M
-  voxels.
+  sits about one dilation outside the donor, and holes narrower than the dilation close. It refuses grids over 50M
+  voxels (about 1.2 GB of grid coordinates alone); use a larger voxel for a bigger donor.
 - **`drop-specks`** removes components under the volume fraction of the largest one. It reports the closed state
   rather than requiring it.
 - **`repair-shell`** cuts rings of faces around every vertex whose faces do not form one fan (the topology check's

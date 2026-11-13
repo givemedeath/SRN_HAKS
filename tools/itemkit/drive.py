@@ -510,22 +510,29 @@ class Driver:
         except publish.PublishError as error: raise SystemExit(f'Publication refused: {error}')
 
     # -- bake misses and shell recovery (tools.itemkit.miss_patch, tools.itemkit.shell_repair) ---------------------
-    def screen(self, design, suffix, donor, distance=.003, alignment=.5, arrays=None, fit=None):
-        """The bake preflight's donor test on the run's reduced target, before unwrap finishes or Cycles runs."""
+    def screen(self, design, suffix, donor, distance=None, alignment=None, arrays=None, fit=None):
+        """The bake preflight's donor test on the run's reduced target, before unwrap finishes or Cycles runs, with the
+        manifest's miss-correction bounds and reviewed patch unless --distance/--alignment override them."""
         from tools.itemkit import miss_patch
+        manifest = self.manifest(design, suffix)
+        policy = read(manifest)['processing'].get('missCorrection', {}) if manifest.exists() else {}
+        distance = distance if distance is not None else policy.get('maximumDistance', .003)
+        alignment = alignment if alignment is not None else policy.get('minimumNormalAlignment', .5)
         run = self.run_dir(design, suffix); target = miss_patch.run_target(run, arrays); dv, df = miss_patch.fitted_donor(run, donor, fit)
-        result = miss_patch.screen(target['corners'], target['hiddenCaps'], dv, df, distance=distance, alignment=alignment)
+        result = miss_patch.screen(target['corners'], target['hiddenCaps'], dv, df, distance=distance, alignment=alignment,
+                                   patch=policy.get('unorientedSourcePatch'))
         return {**result, 'failedCount': len(result['failedFaces']), 'target': target['source'], 'donor': str(donor), 'donorSha256': sha(donor)}
 
-    def patch_measure(self, design, suffix, donor, report, arrays=None, fit=None):
+    def patch_measure(self, design, suffix, donor, report=None, arrays=None, fit=None, faces=None):
         from tools.itemkit import miss_patch
-        return miss_patch.measure_run(self.run_dir(design, suffix), donor, report, arrays, fit)
+        return miss_patch.measure_run(self.run_dir(design, suffix), donor, report, arrays, fit, faces)
 
-    def patch_add(self, design, suffix, new_suffix, faces, distance, notes, user_approval=None, arrays=None):
+    def patch_add(self, design, suffix, new_suffix, faces, distance, notes, user_approval=None, arrays=None, replace=False):
         """A new manifest with a reviewed colour patch for exactly these faces of the run's target (see miss_patch)."""
         from tools.itemkit import miss_patch
         target = miss_patch.run_target(self.run_dir(design, suffix), arrays)
-        manifest = miss_patch.add_patch(read(self.manifest(design, suffix)), target['corners'], faces, distance, notes, user_approval)
+        manifest = miss_patch.add_patch(read(self.manifest(design, suffix)), target['corners'], faces, distance, notes, user_approval,
+                                        replace=replace)
         path = write_new(self.manifest(design, new_suffix), manifest)
         patch = manifest['processing']['missCorrection']['unorientedSourcePatch']
         return {'manifest': str(path), 'sha256': sha(path), 'target': target['source'], 'patch': patch,
@@ -581,12 +588,17 @@ def main(argv=None):
     s.add_argument('--statement', action='append', default=[], help="the user's approval, verbatim (repeat for several)")
     s.add_argument('--review', required=True); s.add_argument('--date'); s.add_argument('--dry-run', action='store_true')
     s = c.add_parser('screen'); [s.add_argument(k) for k in ('id', 'suffix', 'donor')]
-    s.add_argument('--distance', type=float, default=.003); s.add_argument('--alignment', type=float, default=.5)
+    s.add_argument('--distance', type=float, help="default: the manifest's maximumDistance (0.003)")
+    s.add_argument('--alignment', type=float, help="default: the manifest's minimumNormalAlignment (0.5)")
     s.add_argument('--arrays', help='unwrap arrays when the run has several attempts'); s.add_argument('--fit', help='fit result.json, likewise')
-    s = c.add_parser('patch-measure'); [s.add_argument(k) for k in ('id', 'suffix', 'donor', 'report')]
+    face_list = lambda t: [int(x) for x in t.split(',') if x]
+    s = c.add_parser('patch-measure'); [s.add_argument(k) for k in ('id', 'suffix', 'donor')]
+    s.add_argument('report', nargs='?', help='a bake preflight.json or donor-miss-diagnostic.json')
+    s.add_argument('--faces', type=face_list, help='instead of a report, e.g. the failedFaces of screen')
     s.add_argument('--arrays'); s.add_argument('--fit')
     s = c.add_parser('patch-add'); [s.add_argument(k) for k in ('id', 'suffix', 'new_suffix')]; s.add_argument('--arrays')
-    s.add_argument('--faces', required=True, type=lambda t: [int(x) for x in t.split(',') if x])
+    s.add_argument('--replace', action='store_true', help="replace the manifest's existing reviewed patch")
+    s.add_argument('--faces', required=True, type=face_list)
     s.add_argument('--distance', type=float, required=True, help='metres, from patch-measure'); s.add_argument('--notes', required=True)
     s.add_argument('--user-approval', help="the user's own words approving the extended 3.25 mm / 0.05%% scope")
     s = c.add_parser('shell-from-donor'); s.add_argument('source'); s.add_argument('target')
@@ -612,8 +624,8 @@ def main(argv=None):
         'decimate': lambda: d.decimate(a.source, a.target, a.faces),
         'publish': lambda: d.publish(a.items, a.statement, a.review, a.date, a.dry_run),
         'screen': lambda: d.screen(a.id, a.suffix, a.donor, a.distance, a.alignment, a.arrays, a.fit),
-        'patch-measure': lambda: d.patch_measure(a.id, a.suffix, a.donor, a.report, a.arrays, a.fit),
-        'patch-add': lambda: d.patch_add(a.id, a.suffix, a.new_suffix, a.faces, a.distance, a.notes, a.user_approval, a.arrays),
+        'patch-measure': lambda: d.patch_measure(a.id, a.suffix, a.donor, a.report, a.arrays, a.fit, a.faces),
+        'patch-add': lambda: d.patch_add(a.id, a.suffix, a.new_suffix, a.faces, a.distance, a.notes, a.user_approval, a.arrays, a.replace),
         'shell-from-donor': lambda: d.shell('shell_from_donor', a.source, a.target, voxel=a.voxel, faces_target=a.faces,
                                             dilate=a.dilate, erode=a.erode, sigma=a.sigma, taubin=a.taubin),
         'drop-specks': lambda: d.shell('drop_specks', a.source, a.target, fraction=a.fraction),
