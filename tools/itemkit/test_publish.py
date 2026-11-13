@@ -5,6 +5,7 @@ import struct
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools.itemkit import publish as P
 
@@ -90,6 +91,8 @@ class TableTests(unittest.TestCase):
 
     def test_a_wider_number_takes_the_padding_after_it(self):
         self.assertEqual(P.extend_maxrange(TABLE, {22: (100, 1111)}), TABLE.replace(b'dagger       100 ', b'dagger       1111'))
+        tight = TABLE.replace(b'100        WSwDg', b'100 WSwDg')            # one separator space: nothing to take
+        with self.assertRaisesRegex(P.PublishError, 'no padding'): P.extend_maxrange(tight, {22: (100, 1111)})
 
 
 class PlanTests(unittest.TestCase):
@@ -106,6 +109,26 @@ class PlanTests(unittest.TestCase):
             self.assertEqual(result['maxRange'], {'22': {'before': 100, 'after': 111}})
             self.assertEqual({p: p.read_bytes() for p in Path(folder).rglob('*') if p.is_file()}, before)
             with self.assertRaisesRegex(P.PublishError, "user's words"): P.publish(repo, [('knife', run)], [], 'Seen.', None, dry_run=True)
+
+    def test_a_failed_publication_puts_the_tree_back(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = make_run(Path(folder)); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
+            (repo/P.MODULE).mkdir(parents=True); (repo/P.MODULE/'c.nss').write_bytes(b'kept')
+            before = {p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}
+
+            def fail(repo, packages, tools, work):            # after the copy, table and record writes
+                (repo/P.MODULE/'sw2_m0.utc').write_bytes(b'new'); (repo/P.MODULE/'c.nss').write_bytes(b'changed')
+                raise RuntimeError('compile failed')
+            with mock.patch.object(P, 'Tools', lambda repo, nwn: None), mock.patch.object(P, 'update_publication', lambda *a: None), \
+                 mock.patch.object(P, 'add_reviewers', fail):
+                with self.assertRaisesRegex(RuntimeError, 'compile failed'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn')
+            self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
+
+    def test_ranged_weapons_are_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = make_repo(Path(folder))
+            (repo/P.BASEITEMS).write_bytes(TABLE.replace(b'ItemClass\n', b'ItemClass   RangedWeapon\n').replace(b'WSwDg\n', b'WSwDg       20\n'))
+            with self.assertRaisesRegex(P.PublishError, 'Ranged weapons'): P.plan(repo, [('knife', make_run(Path(folder)))])
 
 
 class ReviewerTests(unittest.TestCase):
@@ -128,6 +151,8 @@ class ReviewerTests(unittest.TestCase):
         self.assertEqual([(p['prefix'], p['index']) for p in pairs], [('sw2_', i) for i in range(5)] + [('sw3_', 0), ('sw3_', 1)])
         self.assertEqual([p['x'] for p in pairs[:2]], [12.0, 15.5])
         with self.assertRaisesRegex(P.PublishError, 'No room'): P.plan_pairs(self.creatures, packages, 30.0)
+        nine = [creature(f'sw{n}_{s}0', 1.0 + n, P.ROW_Y[s]) for n in range(1, 10) for s in 'mf']
+        with self.assertRaisesRegex(P.PublishError, 'sw1_ to sw9_'): P.plan_pairs(nine, packages[:1], 80.0)
 
     def test_reviewer_copy_changes_only_identity_and_position(self):
         copy = P.reviewer(self.creatures[0], 'sw2_f0', 'Test Knife', 'f', 12.0)

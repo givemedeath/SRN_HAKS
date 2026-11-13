@@ -186,10 +186,14 @@ For each item, the command:
    (`sw7_`, `sw8_`, ...). They continue the southern row 3.5 m apart and are copied from the last group's first pair
    with only tag, name and position changed. The command also adds the equip lines to `sw2_enter.nss` and regenerates
    `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. It stops
-   if the row has no room left in the area.
+   if the row has no room left in the area, or past group `sw9_`, since the selector reads a group from the first four
+   characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
    built archive holds exactly its source files, refreshes the release validation, the module manifest and the module
    validation (a new `extension` entry, not run in the client), and regenerates the combat release manifest.
+
+If any step fails, the command puts every tracked file it touched back as it was and removes the files it added, then
+reports the error. Archives already built in `output/` may then be stale; rebuild them before using them.
 
 A reproduction from the commit before melee waves 1 and 2 (`a07d2dc0`) gave `srn_weapon`, `srn_2da`, the module
 reviewers, the GIT, the scripts and the item and resource records byte-identical to the hand-made publication. Only

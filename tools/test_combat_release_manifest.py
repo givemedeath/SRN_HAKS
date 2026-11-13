@@ -110,7 +110,7 @@ class RepositoryManifestTests(unittest.TestCase):
         expected.remove('sra84e4660gl')
         self.assertEqual(len(actors),2*len(expected))   # one male and one female reviewer per published finish
         self.assertEqual(len(placed),len(actors))
-        bindings=re.findall(r'Equip\("(sw\d_[mf][0-4])","([^"]+)"',
+        bindings=re.findall(r'Equip\("(sw\d+_[mf][0-4])","([^"]+)"',
                             (module/'sw2_enter.nss').read_text())
         self.assertEqual(len(bindings),len(actors))
         self.assertEqual({tag for tag,_ in bindings},set(actors))
@@ -118,9 +118,10 @@ class RepositoryManifestTests(unittest.TestCase):
         for tag,resref in bindings:
             by_item.setdefault(resref,[]).append(actors[tag]['Gender'])
             self.assertEqual(actors[tag]['ScriptDialogue'],'sw_review')
-            if tag.startswith(('sw3_','sw4_','sw5_','sw6_')):
+            group,sex=re.match(r'sw(\d+)_([mf])',tag).groups()
+            if int(group)>=3:   # sw3_ onward (every group tools.itemkit.publish adds) has templates copied from sw2_
                 self.assertEqual(crm.parse_gff((module/(tag+'.utc')).read_bytes()),actors[tag])
-                reference=crm.parse_gff((module/('sw2_'+tag[4]+'0.utc')).read_bytes())
+                reference=crm.parse_gff((module/('sw2_'+sex+'0.utc')).read_bytes())
                 for field in ('Appearance_Type','Phenotype','Appearance_Head','BodyPart_Torso'):
                     self.assertEqual(actors[tag][field],reference[field])
         self.assertEqual(set(by_item),expected)

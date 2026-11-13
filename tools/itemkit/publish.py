@@ -80,10 +80,10 @@ def number_word(n):
     return TENS[tens - 2] + ('-' + WORDS[ones] if ones else '')
 
 
-def read_erf(path):
-    """{(resref, type): bytes} of a HAK/MOD/ERF V1.0 archive."""
-    data = Path(path).read_bytes()
-    require(len(data) >= 160 and data[4:8] == b'V1.0', f'Not an ERF V1.0 archive: {path}')
+def read_erf(source):
+    """{(resref, type): bytes} of a HAK/MOD/ERF V1.0 archive (a path or its bytes)."""
+    data = source if isinstance(source, bytes) else Path(source).read_bytes()
+    require(len(data) >= 160 and data[4:8] == b'V1.0', f'Not an ERF V1.0 archive: {source if not isinstance(source, bytes) else "bytes"}')
     count = struct.unpack_from('<I', data, 16)[0]; keys, resources = struct.unpack_from('<II', data, 24)
     out = {}
     for i in range(count):
@@ -116,9 +116,7 @@ class Package:
     hak: Path
     module: Path
     files: dict = field(default_factory=dict)     # srn_weapon file name -> (bytes, source archive)
-
-    @property
-    def archives(self): return {self.hak.name: sha(self.hak.read_bytes()), self.module.name: sha(self.module.read_bytes())}
+    archives: dict = field(default_factory=dict)  # source archive name -> sha256, hashed once by survey
 
 
 def one(paths, what):
@@ -133,11 +131,14 @@ def survey(item, run):
     native_path = one(run.glob('native/attempt-*/native/native.json'), f'native.json under {run}')
     native = json.loads(native_path.read_text(encoding='utf-8'))
     hak = native_path.parent/Path(native['hak']['path']).name
-    require(hak.is_file() and sha(hak.read_bytes()) == native['hak']['sha256'], f'{item}: native HAK missing or changed: {hak}')
+    require(hak.is_file(), f'{item}: native HAK missing: {hak}')
+    hak_bytes = hak.read_bytes()
+    require(sha(hak_bytes) == native['hak']['sha256'], f'{item}: native HAK missing or changed: {hak}')
     modules = sorted(run.glob('fixture/attempt-*/fixture/userdir/modules/*.mod')) or sorted(run.glob('refixture-*/fixture/userdir/modules/*.mod'))
     module = one(modules, f'fixture module under {run}')
     blueprint = native['identity']['blueprint']
-    uti = read_erf(module).get((blueprint, 2025))
+    module_bytes = module.read_bytes()
+    uti = read_erf(module_bytes).get((blueprint, 2025))
     require(uti is not None, f'{item}: {module.name} has no blueprint {blueprint}.uti')
     fields = crm.parse_gff(uti)
     models = native['allocation']['models']
@@ -145,8 +146,9 @@ def survey(item, run):
     require(fields.get('BaseItem') == native['baseItem'], f'{item}: blueprint base item {fields.get("BaseItem")} != package {native["baseItem"]}')
     require(len(set(parts)) == 1 and all(fields.get(f'ModelPart{i}') == parts[0] for i in (1, 2, 3)),
             f'{item}: blueprint model parts do not match the package models {models}')
-    package = Package(item, run, native['identity']['displayName'], blueprint, native['baseItem'], parts[0], hak, module)
-    for (resref, kind), body in read_erf(hak).items():
+    package = Package(item, run, native['identity']['displayName'], blueprint, native['baseItem'], parts[0], hak, module,
+                      archives={hak.name: sha(hak_bytes), module.name: sha(module_bytes)})
+    for (resref, kind), body in read_erf(hak_bytes).items():
         require(kind in EXT, f'{item}: unexpected resource type {kind} in {hak.name}')
         package.files[f'{resref}.{EXT[kind]}'] = (body, hak.name)
     package.files[f'{blueprint}.uti'] = (uti, module.name)
@@ -179,10 +181,10 @@ def extend_maxrange(table, needs):
         require(int(line[start:end]) == current, f'Row {row} MaxRange changed while publishing')
         new = str(required).encode(); width = end - start
         if len(new) <= width: line = line[:start] + new + b' '*(width - len(new)) + line[end:]
-        else:
-            require(line[end:end + len(new) - width].strip() == b'' and len(line[end:]) > len(new) - width,
-                    f'Row {row}: no padding to widen MaxRange to {required}')
-            line = line[:start] + new + line[end + len(new) - width:]
+        else:                                         # take padding after the token, keeping at least one space before the next
+            extra = len(new) - width
+            require(line[end:end + extra + 1] == b' '*(extra + 1), f'Row {row}: no padding to widen MaxRange to {required}')
+            line = line[:start] + new + line[end + extra:]
         lines[index] = line
     return b'\n'.join(lines)
 
@@ -221,6 +223,8 @@ def plan_pairs(creatures, packages, area_width):
     row = [c['XPosition']['value'] for c in creatures if REVIEWER.match(c['Tag']['value']) and c['YPosition']['value'] == ROW_Y['m']]
     x = max(row) + ROW_STEP; number = len(groups) + 1; pairs = []
     for start in range(0, len(packages), GROUP_SIZE):
+        # c.nss and sw_review.nss read a reviewer's group as GetStringLeft(tag, 4): one digit, sw1_ to sw9_.
+        require(number <= 9, f'Reviewer group sw{number}_ is past what the module selector can read (sw1_ to sw9_)')
         for index, package in enumerate(packages[start:start + GROUP_SIZE]):
             require(x <= area_width - ROW_STEP, f'No room left in the southern row for {package.item} (x {x})')
             pairs.append({'package': package, 'prefix': f'sw{number}_', 'index': index, 'x': x}); x += ROW_STEP
@@ -241,9 +245,11 @@ def enter_script(text, pairs, total):
     """sw2_enter.nss with the new blueprints given to the player, the new reviewers equipped and the pair count updated."""
     eol = '\r\n' if '\r\n' in text else '\n'      # the module scripts are stored -text with CRLF; keep the file's own endings
     lines = text.split(eol)
-    give = next(i for i, l in enumerate(lines) if re.match(r'CreateItemOnObject\("[^"]+",pc\);SetLocalInt\(pc,"SW2_ITEMS"', l))
+    give = next((i for i, l in enumerate(lines) if re.match(r'CreateItemOnObject\("[^"]+",pc\);SetLocalInt\(pc,"SW2_ITEMS"', l)), None)
+    require(give is not None, 'sw2_enter.nss: the line that gives the player the last item and sets SW2_ITEMS was not found')
     lines[give:give] = [f'CreateItemOnObject("{p["package"].blueprint}",pc);' for p in pairs]
-    tell = max(i for i, l in enumerate(lines) if l.startswith('Equip("')) + 1
+    equips = [i for i, l in enumerate(lines) if l.startswith('Equip("')]
+    require(equips, 'sw2_enter.nss: no reviewer Equip lines were found'); tell = equips[-1] + 1
     lines[tell:tell] = [f'Equip("{p["prefix"]}{s}{p["index"]}","{p["package"].blueprint}",INVENTORY_SLOT_RIGHTHAND,0);' for p in pairs for s in 'mf']
     text = eol.join(lines)
     text, count = re.subn(r'SendMessageToPC\(pc,"[A-Za-z-]+ weapon/finish NPC pairs',
@@ -388,10 +394,11 @@ def update_records(repo, packages, needs, statements, tags, total, today):
         if entry['archive'] == MODULE_ARCHIVE: entry.update(built[MODULE_ARCHIVE])
     validation['reviewers'].update(pairs=total, NPCs=2*total)
     approval = validation['clientApproval']
-    key = 'extension' + str(sum(1 for k in approval if re.fullmatch(r'extension\d*', k)) + 1)
+    numbers = [int(m[1] or 1) for m in (re.fullmatch(r'extension(\d*)', k) for k in approval) if m]   # 'extension' is the first
+    key = 'extension' + str(max(numbers, default=0) + 1)
     approval[key] = {'date': today, 'addedPairs': len(tags)//2, 'status': 'items-approved-from-private-itemkit-fixtures',
                      'statements': statements, 'moduleSha256': module_hash,
-                     'note': f'{", ".join(p.name for p in packages)} reviewer pairs were added ({", ".join(sorted({t[:4] for t in tags}))}). '
+                     'note': f'{", ".join(p.name for p in packages)} reviewer pairs were added ({", ".join(sorted({t.split("_")[0] + "_" for t in tags}))}). '
                              "They were not run in this module's client; each item was reviewed in its own itemkit fixture."}
     dump(path, validation, ascii_only)
     done = subprocess.run([sys.executable, '-B', 'tools/combat_release_manifest.py'], cwd=repo, capture_output=True, text=True)
@@ -409,6 +416,10 @@ def plan(repo, items):
     clashes = sorted({n for n in names if n in published} | {n for n in names if names.count(n) > 1})
     require(not clashes, f'Already in srn_weapon or listed twice: {clashes}')
     require(not known & {p.item for p in packages}, f'Already published: {sorted(known & {p.item for p in packages})}')
+    _, rows = crm.parse_2da((repo/BASEITEMS).read_text(encoding='latin-1'))
+    ranged = [p.item for p in packages if rows[p.base_item].get('RangedWeapon', '****') != '****']
+    # The reviewer equip lines are melee lines (right hand, no ammunition); bows and firearms need theirs written by hand.
+    require(not ranged, f'Ranged weapons are not published by this command: {ranged}')
     return packages, maxrange_needs(repo, packages)
 
 
@@ -421,17 +432,39 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
                'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()}}
     if dry_run: return {'dryRun': True, **summary}
     tools = Tools(repo, nwn_root)
-    for p in packages:
-        for name, (body, _) in p.files.items(): (repo/WEAPONS/name).write_bytes(body)
-    if needs: (repo/BASEITEMS).write_bytes(extend_maxrange((repo/BASEITEMS).read_bytes(), needs))
-    policy = (f'{", ".join(p.name for p in packages)}: blueprints and resources byte-identical to the approved itemkit packages'
-              + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change') + '.')
-    update_publication(repo, packages, needs, statements, review, policy)
-    with tempfile.TemporaryDirectory() as work:
-        tags, total = add_reviewers(repo, packages, tools, work)
-    rebuild(repo, tools)
-    built = update_records(repo, packages, needs, statements, tags, total, today)
+    restore = snapshot(repo, packages)
+    try:
+        for p in packages:
+            for name, (body, _) in p.files.items(): (repo/WEAPONS/name).write_bytes(body)
+        if needs: (repo/BASEITEMS).write_bytes(extend_maxrange((repo/BASEITEMS).read_bytes(), needs))
+        policy = (f'{", ".join(p.name for p in packages)}: blueprints and resources byte-identical to the approved itemkit packages'
+                  + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change') + '.')
+        update_publication(repo, packages, needs, statements, review, policy)
+        with tempfile.TemporaryDirectory() as work:
+            tags, total = add_reviewers(repo, packages, tools, work)
+        rebuild(repo, tools)
+        built = update_records(repo, packages, needs, statements, tags, total, today)
+    except BaseException:
+        restore(); raise                          # the tracked tree is back as it was; built archives in output/ may be stale
     return {**summary, 'reviewers': tags, 'pairs': total, 'built': built}
+
+
+def snapshot(repo, packages):
+    """A function that puts every tracked file a publication touches back as it is now, and removes the files it adds."""
+    records = [PUBLICATION, RELEASE_VALIDATION, BASEITEMS, MODULE_ROOT/'manifest.json', MODULE_ROOT/'validation.json',
+               crm.JSON_OUT, crm.MD_OUT]
+    saved = {repo/p: (repo/p).read_bytes() for p in records if (repo/p).is_file()}
+    module = repo/MODULE
+    if module.is_dir(): saved.update({f: f.read_bytes() for f in module.iterdir() if f.is_file()})
+    created = [repo/WEAPONS/name for p in packages for name in p.files]
+
+    def restore():
+        for f in created: f.unlink(missing_ok=True)
+        if module.is_dir():
+            for f in module.iterdir():
+                if f.is_file() and f not in saved: f.unlink()
+        for f, body in saved.items(): f.write_bytes(body)
+    return restore
 
 
 def parse_item(text):
