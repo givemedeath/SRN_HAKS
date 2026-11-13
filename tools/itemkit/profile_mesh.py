@@ -31,6 +31,7 @@ from tools.headkit.common import pin, require, write
 BACKGROUND = 18          # a pixel is object when it is this much darker than white in some channel
 OPENING_SPECK_PX = 16    # an enclosed region is a speck when it is under this many pixels...
 OPENING_MIN_METRES = .001  # ...and under a millimetre across at the image's scale
+DROPPED_LISTED = 20      # the largest left-out pieces listed by size in the result
 
 
 def region_sizes(mask):
@@ -55,9 +56,11 @@ def outline(image, foreground=None):
         rgb = np.asarray(image.convert('RGB')).astype(np.int32); solid = (255 - rgb.min(2)) > BACKGROUND
     labels, count = ndimage.label(solid); require(count > 0, 'No object on the background')
     sizes = ndimage.sum(solid, labels, range(1, count + 1)); keep = int(np.argmax(sizes)); component = labels == 1 + keep
-    mask = ndimage.binary_fill_holes(component)
-    found = {'enclosed': region_sizes(mask & ~component),
-             'dropped': sorted((int(s) for k, s in enumerate(sizes) if k != keep), reverse=True)}
+    mask = ndimage.binary_fill_holes(component); filled = mask & ~component
+    # A piece lying inside a hole is filled over with it: it counts in the hole's area, not as a piece left out.
+    inside = set(np.unique(labels[filled]).tolist()) - {0}
+    dropped = sorted((int(s) for k, s in enumerate(sizes) if k != keep and k + 1 not in inside), reverse=True)
+    found = {'enclosed': region_sizes(filled), 'dropped': dropped}
     columns = np.flatnonzero(mask.any(0)); first, last = int(columns[0]), int(columns[-1])
     top = np.full(mask.shape[1], np.nan); bottom = np.full(mask.shape[1], np.nan)
     for x in columns:
@@ -190,7 +193,7 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, 
     from PIL import Image
     require(length > 0 and 0 < blade_depth <= 1 and hook_px > 0, 'Positive length, blade depth and hook thickness required')
     require(fill_openings is None or fill_openings.strip(), "--fill-openings must quote the reviewer's words")
-    output = Path(output); require(not output.exists(), f'{output} exists')
+    output = Path(output); require(not output.exists(), f'{output} exists'); created = False
     try:
         with Image.open(image_path) as image:
             image.load()
@@ -203,11 +206,12 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, 
             require(not openings or fill_openings,
                     f'The silhouette encloses {len(openings)} region(s) (largest {openings[0] if openings else 0} px) that meshing '
                     'would fill: keep them through another route, or give --fill-openings with the review that they are not openings')
-            output.mkdir(parents=True)
+            output.mkdir(parents=True); created = True
             return _mesh(image, image_path, output, length, mask, top, bottom, first, last, found, scale, blade_depth, hook_px,
                          voxel, mask_path, round_only, fill_openings)
     except BaseException:
-        if output.exists(): shutil.rmtree(output)        # nothing half-built is left to block a corrected rerun
+        # Nothing half-built is left to block a corrected rerun; a folder this call did not create is never touched.
+        if created: shutil.rmtree(output, ignore_errors=True)
         raise
 
 
@@ -244,7 +248,9 @@ def _mesh(image, image_path, output, length, mask, top, bottom, first, last, fou
     if mask_path: result['foregroundMask'] = pin(mask_path)
     # Every filled region and every dropped piece is recorded, specks included: nothing changes the outline unseen.
     if found['enclosed']: result['filledRegions'] = {'count': len(found['enclosed']), 'pixels': found['enclosed'], 'review': fill_openings}
-    if found['dropped']: result['droppedComponents'] = {'count': len(found['dropped']), 'pixels': found['dropped']}
+    if found['dropped']:                 # noise can be thousands of specks: the largest pieces and the totals
+        result['droppedComponents'] = {'count': len(found['dropped']), 'totalPixels': sum(found['dropped']),
+                                       'largestPixels': found['dropped'][:DROPPED_LISTED]}
     write(output/'profile-mesh.json', result, fresh=True)
     return result
 

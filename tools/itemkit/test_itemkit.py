@@ -117,6 +117,8 @@ class ContractTests(Fixture):
             paths=consumed_inputs(self.path,self.local,extra=[doc],stage='fixture')
             self.assertNotIn('fixtureTemplate',scoped[-1]);self.assertIn(str(template.resolve()),[str(Path(p).resolve()) for p in paths])
             self.assertNotIn(stale['path'],paths)
+            consumed_inputs(self.path,self.local,extra=[doc])                       # no stage: every role but the replaced ones
+            self.assertIsInstance(scoped[-1],set);self.assertNotIn('fixtureTemplate',scoped[-1])
             with self.assertRaisesRegex(ValueError,'Stale file pin'):consumed_inputs(self.path,self.local,stage='fixture')   # without the document
     def test_consumed_pins_reject_conflicts_before_deduplication(self):
         dependency=self.root/'dependency';dependency.write_bytes(b'bound bytes');expected=pin(dependency)

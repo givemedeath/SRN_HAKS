@@ -40,6 +40,7 @@ class ProfileMeshTests(unittest.TestCase):
         draw.rectangle([20, 94, 470, 106], fill=(30, 30, 30))
         draw.polygon([(470, 70), (580, 100), (470, 130)], fill=(150, 150, 160))
         draw.ellipse([485, 92, 501, 108], fill='white')                              # a hole through the head
+        draw.rectangle([492, 99, 494, 101], fill=(30, 30, 30))                       # a separate dot inside the hole
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp)/'side.png'; image.save(source)
             with self.assertRaisesRegex(ValueError, 'encloses 1 region'): pm.build(source, Path(tmp)/'out', 1.2, voxel=.003)
@@ -47,6 +48,7 @@ class ProfileMeshTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'reviewer'): pm.build(source, Path(tmp)/'out', 1.2, voxel=.003, fill_openings=' ')
             result = pm.build(source, Path(tmp)/'out', 1.2, voxel=.003, fill_openings='a highlight, not a hole')
             self.assertEqual(result['filledRegions']['count'], 1); self.assertEqual(result['filledRegions']['review'], 'a highlight, not a hole')
+            self.assertNotIn('droppedComponents', result)                     # the dot is filled over with its hole, not left out
 
     def test_a_few_pixel_hole_is_an_opening_when_it_is_a_millimetre_across(self):
         image = Image.new('RGB', (600, 200), 'white'); draw = ImageDraw.Draw(image)
@@ -57,7 +59,7 @@ class ProfileMeshTests(unittest.TestCase):
             source = Path(tmp)/'side.png'; image.save(source)
             result = pm.build(source, Path(tmp)/'small', .06, voxel=.0003)            # 0.1 mm/px: the speck is recorded only
             self.assertEqual(result['filledRegions'], {'count': 1, 'pixels': [4], 'review': None})
-            self.assertEqual(result['droppedComponents'], {'count': 1, 'pixels': [121]})
+            self.assertEqual(result['droppedComponents'], {'count': 1, 'totalPixels': 121, 'largestPixels': [121]})
             with self.assertRaisesRegex(ValueError, 'encloses 1 region'):          # 2.2 mm/px: the same 4 px is 2.5 mm across
                 pm.build(source, Path(tmp)/'large', 1.3, voxel=.003)
 
@@ -67,6 +69,9 @@ class ProfileMeshTests(unittest.TestCase):
             source = Path(tmp)/'side.png'; image.save(source)
             with self.assertRaisesRegex(ValueError, 'No head wider'): pm.build(source, Path(tmp)/'out', 1.2, voxel=.003)
             self.assertFalse((Path(tmp)/'out').exists())
+            (Path(tmp)/'taken').mkdir(); (Path(tmp)/'taken/keep.txt').write_text('mine')
+            with self.assertRaisesRegex(ValueError, 'exists'): pm.build(source, Path(tmp)/'taken', 1.2, voxel=.003, round_only=True)
+            self.assertTrue((Path(tmp)/'taken/keep.txt').exists())                # a folder this call did not make is untouched
             self.assertTrue(pm.build(source, Path(tmp)/'out', 1.2, voxel=.003, round_only=True)['topology']['closedWound'])
 
     def test_a_round_bat_on_black_with_its_mask_stays_round_end_to_end(self):

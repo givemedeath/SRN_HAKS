@@ -96,9 +96,11 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
     fixture_docs = [document for _, document in documents if isinstance(document, dict) and document.get('kind') == 'fixture-inputs']
     require(all(isinstance(document.get('inputs'), dict) for document in fixture_docs), 'A fixture-inputs document needs an inputs map')
     roles=None if stage is None else ({'exportSource'} if stage=='export' and run is None else stage_roles(stage))
-    if fixture_docs and roles is not None:
-        # A fixture rebuild takes its fixture inputs from the document, never the manifest's own (they may be stale).
-        roles = roles - {role for document in fixture_docs for role in document['inputs']}
+    if fixture_docs:
+        # A fixture rebuild takes its fixture inputs from the document, never the manifest's own (they may be stale);
+        # with no stage that is every manifest role but the replaced ones.
+        replaced = {role for document in fixture_docs for role in document['inputs']}
+        roles = (set(read(manifest_path)['inputs']) if roles is None else set(roles)) - replaced
     pins = all_pins(manifest_path,roles=roles,native=stage is None or (run is not None and stage in ('fit','export')))+code_pins()+[pin(bindings_path)]+python_package_pins(local)
     for key in ('toolchain', 'migrationReceipt'):
         if key in local: pins.append(pin(local[key]))
