@@ -92,7 +92,7 @@ def load_set(path):
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
             cut = asset['cut']; whole = data['assets'].get(cut['from']) if isinstance(cut, dict) and isinstance(cut.get('from'), str) else None
             require(asset['kind'] == 'building' and isinstance(cut, dict) and set(cut) == {'from', 'box'} and whole is not None
-                    and whole['kind'] == 'building' and not {'cut', 'turn'} & set(whole), 'A cut is a building view drawn from another, whole, view of the set: ' + name)
+                    and whole['kind'] == 'building' and 'cut' not in whole, 'A cut is a building view drawn from another, whole, view of the set: ' + name)
             require(isinstance(cut['box'], list) and len(cut['box']) == 4 and all(type(v) is int for v in cut['box'])
                     and 0 <= cut['box'][0] < cut['box'][2] and 0 <= cut['box'][1] < cut['box'][3], 'A cut states its box in pixels of that view\'s reference: ' + name)
         if 'turn' in asset:  # a view the sheet does not draw, turned from another view's chosen reference (TURNED)

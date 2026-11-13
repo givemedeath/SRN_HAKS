@@ -196,8 +196,11 @@ class SetTests(unittest.TestCase):
             data = copy.deepcopy(good); change(data['assets']['building-back'])
             with self.assertRaisesRegex(ValueError, message):
                 reference.load_set(self.write(data))
+        # A turned view is whole, so a piece may be cut from it (the rail yard's rear piece), but not turned again.
         data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': 'building-back', 'box': [0, 0, 6, 4]}}
-        with self.assertRaisesRegex(ValueError, 'another, whole, view'):  # nor is a turned view cut
+        self.assertIn('building-left', reference.load_set(self.write(data))['assets'])
+        data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'turn': {'from': 'building-back', 'to': 'the left'}}
+        with self.assertRaisesRegex(ValueError, 'another, whole, view'):
             reference.load_set(self.write(data))
 
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):
