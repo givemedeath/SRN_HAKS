@@ -31,6 +31,12 @@ class SeatTests(unittest.TestCase):
         self.assertEqual(len(reach), measure.SEAT_DIRECTIONS)
         expected = 0.07 + 0.03 * np.cos(2 * np.pi * np.arange(64) / 64) * a[0]
         self.assertTrue(np.allclose(reach, expected, atol=0.002), np.round(reach - expected, 4))
+        # evened over an odd number of directions round each, gaps read across; never an even number, which has no centre
+        line = np.array([0.0, np.nan, 2.0, 3.0, 4.0, np.nan])
+        self.assertTrue(np.allclose(measure._evened(line, 1), [0.0, 1.0, 2.0, 3.0, 4.0, 2.0]))
+        self.assertTrue(np.allclose(measure._evened(line, 3), [1.0, 1.0, 2.0, 3.0, 3.0, 2.0]))
+        with self.assertRaises(ValueError):
+            measure._evened(line, 4)
 
 
 class ArmholeTests(unittest.TestCase):

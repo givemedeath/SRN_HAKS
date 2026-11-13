@@ -110,13 +110,8 @@ def seat(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EVEN,
     sector = np.floor(angle / (2 * math.pi / directions) + 0.5).astype(int) % directions
     reach = np.full(directions, -np.inf)
     np.maximum.at(reach, sector, height[near])
-    known = np.isfinite(reach)
-    require(known.sum() >= directions // 2, f"hip {side}: the body's pelvis does not come round the thigh")
-    index = np.arange(directions)
-    reach = np.interp(index, index[known], reach[known], period=directions)
-    half = even // 2
-    wrapped = np.concatenate([reach[-half:], reach, reach[:half]]) if half else reach
-    return np.convolve(wrapped, np.ones(even) / even, mode='valid')
+    require(np.isfinite(reach).sum() >= directions // 2, f"hip {side}: the body's pelvis does not come round the thigh")
+    return _evened(reach, even)
 
 
 def armhole(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EVEN, step=ARMHOLE_STEP):
@@ -145,12 +140,19 @@ def armhole(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EV
     sector = np.floor(angle / (2 * math.pi / directions) + 0.5).astype(int) % directions
     line = np.full(directions, np.inf)
     np.minimum.at(line, sector, height[shows])
-    known = np.isfinite(line)
-    require(known.sum() >= directions // 2, f"shoulder {side}: the body's upper arm does not come out of the chest round the joint")
-    index = np.arange(directions)
-    line = np.interp(index, index[known], line[known], period=directions)
+    require(np.isfinite(line).sum() >= directions // 2, f"shoulder {side}: the body's upper arm does not come out of the chest round the joint")
+    return _evened(line, even)
+
+
+def _evened(values, even):
+    """A line given per direction round a joint, the directions it has no value in (not finite) read across from
+    their neighbours, and each direction the mean of the `even` round it, an odd number centred on it."""
+    require(even >= 1 and even % 2 == 1, 'A line is evened over an odd number of directions, centred on each')
+    known = np.isfinite(values)
+    index = np.arange(len(values))
+    values = np.interp(index, index[known], values[known], period=len(values))
     half = even // 2
-    wrapped = np.concatenate([line[-half:], line, line[:half]]) if half else line
+    wrapped = np.concatenate([values[len(values) - half:], values, values[:half]])
     return np.convolve(wrapped, np.ones(even) / even, mode='valid')
 
 

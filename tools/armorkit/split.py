@@ -892,8 +892,9 @@ def handed(vertices, faces, uvs, owner, origin, mine, value, to):
     value = np.where(np.abs(value) < EPSILON, 0.0, value)
     count = len(v)
     v, cut_faces, t, o = cut(v, f[mine], t, None, None, height=value)
-    on = np.concatenate([value == 0, np.ones(len(v) - count, bool)])
     level = np.concatenate([value, np.zeros(len(v) - count)])
+    on = np.zeros(len(v), bool)  # only the faces cut: another part's vertex at zero is on no line of these
+    on[np.unique(cut_faces)] = level[np.unique(cut_faces)] == 0
     moved = level[cut_faces].max(axis=1) <= 0
     return (v, np.concatenate([f[~mine], cut_faces]), t, np.concatenate([owner[~mine], np.where(moved, to, owner[mine][o])]),
             np.concatenate([origin[~mine], origin[mine][o]]), on)
@@ -1071,10 +1072,10 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
             good &= ~mine | inside(points, turned)
         return good
 
-    out = np.cos(turn)[:, None] * a + np.sin(turn)[:, None] * b
+    radial = np.cos(turn)[:, None] * a + np.sin(turn)[:, None] * b  # per rim point, its way out from the axis
     placed = []
     for radius, level in rings:
-        at = lambda share: point + (share * radius)[:, None] * out + level[:, None] * normal
+        at = lambda share: point + (share * radius)[:, None] * radial + level[:, None] * normal
         # Turned, a point on the axis leaves it as far as its height times the turn's sine: drawn in, a point is
         # held only in the poses its place on the axis fits in. As the body stands it always is.
         held = [np.ones(len(rim), bool)] + [inside(at(np.zeros(len(rim))), turned) for turned in turns[1:]]

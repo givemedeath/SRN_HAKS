@@ -510,7 +510,7 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None):
     for name, part in parts.items():
         if len(part['rgb']) > BUDGET['texture']:
             failures.append(f'{name}: a texture of {len(part["rgb"])} texels a side, over the budget of {BUDGET["texture"]}')
-        collapsed = _collapsed(part['v'], part['f'])
+        collapsed = _collapsed(*_outfit(part, pads=True)[:2])  # the outfit's faces: the body's skin beside them is the body's
         if collapsed:  # the seam gate would still measure them, though nothing of them shows or compiles
             failures.append(f'{name}: {collapsed} triangles with two corners at one point, which the model compiler drops')
     for name, model in models.items():

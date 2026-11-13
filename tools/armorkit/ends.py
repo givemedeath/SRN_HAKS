@@ -49,12 +49,9 @@ def _sampled(vertices, faces, point, normal):
 
 
 def _around(values, angles):
-    """Values given at the centres of len(values) equal directions, read at `angles` along straight lines."""
-    count = len(values)
-    x = np.asarray(angles) / (2 * np.pi / count) - 0.5
-    low = np.floor(x).astype(int)
-    t = x - low
-    return values[low % count] * (1 - t) + values[(low + 1) % count] * t
+    """Values given at the centres of len(values) equal directions (`ring`'s bins), read at `angles` along
+    straight lines: `seams.around`, whose directions start a half bin earlier."""
+    return seams.around(values, np.asarray(angles, float) - np.pi / len(values))
 
 
 def ring(vertices, faces, point, normal, under):

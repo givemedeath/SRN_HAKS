@@ -1134,6 +1134,17 @@ class SeatTests(unittest.TestCase):
             rim = {edge for edge in grown if edge[::-1] in cloth}
             self.assertTrue(rim and not rim & cloth and not {edge[::-1] for edge in rim} & grown, side)
 
+    def test_a_cut_along_values_flags_only_the_line_through_the_faces_it_cut(self):
+        # part 0, one triangle across value zero; part 1, a triangle with a vertex of its own at zero
+        v = np.array([(0, 0, 0), (2, 0, 0), (0, 2, 0), (5, 0, 0), (6, 0, 0), (5, 1, 0)], float)
+        f = np.array([(0, 1, 2), (3, 4, 5)])
+        value = np.array([-1.0, 1.0, 1.0, 0.0, 1.0, 1.0])
+        nv, nf, _, owner, origin, on = split.handed(v, f, np.zeros((6, 2)), np.array([0, 1]), np.arange(2), np.array([True, False]), value, 2)
+        self.assertFalse(on[:len(v)].any())  # part 1's vertex at zero lies on no line of the faces cut
+        self.assertTrue(on[len(v):].all() and len(nv) == len(v) + 2)
+        self.assertEqual(sorted(owner.tolist()), [0, 0, 1, 2])  # what lies at or below zero goes to part 2
+        self.assertTrue(np.array_equal(np.sort(origin), [0, 0, 0, 1]))
+
     def test_the_end_stays_inside_the_seat_as_the_thigh_turns(self):
         point, normal = self.planes[('hip', 'l')]
         normal = seams.unit(normal)
