@@ -419,6 +419,15 @@ class OpeningProbeTests(unittest.TestCase):
         narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
         with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
 
+    def test_matching_backs_up_so_every_reference_gets_a_hole(self):
+        from tools.itemkit import opening_probes as op
+        hole = lambda fraction, clearance, tag: {'fraction': fraction, 'clearance': clearance, 'hits': 0, 'start': tag, 'end': tag}
+        found = [hole(.20, .004, 'wide'), hole(.23, .002, 'narrow')]
+        # "a" prefers the wide hole, but only the wide hole is near "b": greedy order would leave "b" without one
+        probes = op.match([('a', .22), ('b', .18)], found)
+        self.assertEqual([(p['name'], p['start']) for p in probes], [('a', 'narrow'), ('b', 'wide')])
+        with self.assertRaisesRegex(ValueError, 'fewer clear through-holes'): op.match([('a', .2), ('b', .21), ('c', .22)], found)
+
 
 class FixtureCarryTests(unittest.TestCase):
     def test_two_handers_are_framed_at_the_shoulder(self):
@@ -467,6 +476,20 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertEqual(knife['approval']['colourGeometry'], {'decision': 'approved', 'geometrySha256': 'dddddddd', 'notes': 'words'})
             with self.assertRaises(SystemExit): d.colour_geometry('bat', 'colour', 'again', 'words')   # already colour
 
+    def test_a_contract_folder_a_design_still_builds_on_is_not_retired(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Driver(self.workspace(Path(tmp))); h = d.ws.handoff; (h/'contracts/old').mkdir(parents=True)
+            (h/'contracts/old/family-axe.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            pinned = json.dumps({'familyProfile': {'path': 'contracts/old/family-axe.json'}})
+            (h/'axe.old-contract.asset.json').write_text(pinned, encoding='utf-8')      # the folder's own contract manifest
+            (h/'axe.calibrated-v1.asset.json').write_text(pinned, encoding='utf-8')     # a design built on past it
+            with self.assertRaisesRegex(SystemExit, r'1 manifest\(s\) build on, e\.g\. axe\.calibrated-v1'):
+                d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')
+            self.assertFalse((h/'contracts/old/retired.json').exists())
+            (h/'axe.calibrated-v1.asset.json').unlink()
+            self.assertEqual(d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')['contracts'], ['family-axe.json'])
+
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
         import hashlib
         from tools.itemkit.drive import Driver
@@ -474,16 +497,25 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
             job = root/'knife/appearance-a1/job'; job.mkdir(parents=True); digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
             (job/'node-961_00001.glb').write_bytes(b'raw'); (job/'node-922_00001.glb').write_bytes(b'donor')
+            def field(attrs):
+                np.savez(job/'node-962_00001.npz', attrs=attrs)
+                (job/'collection.json').write_text(json.dumps({'state': 'complete', 'outputs': [
+                    {'path': str(p), 'sha256': digest(p)} for p in sorted(job.glob('node-*'))]}), encoding='utf-8')
             attrs = np.full((1000, 3), .5); attrs[:3] = -.2; attrs[3:5] = 1.12                # 5 of 1000 samples overshoot
-            np.savez(job/'node-962_00001.npz', attrs=attrs)
-            (job/'collection.json').write_text(json.dumps({'state': 'complete', 'outputs': [
-                {'path': str(p), 'sha256': digest(p)} for p in sorted(job.glob('node-*'))]}), encoding='utf-8')
+            field(attrs)
             (h/'knife.src.asset.json').write_text(json.dumps({'inputs': {'geometryRaw': {'sha256': digest(job/'node-961_00001.glb')}},
                                                               'approval': {}, 'processing': {}}), encoding='utf-8')
-            with self.assertRaisesRegex(SystemExit, r'-0\.2000\.\.1\.1200 lies outside .*\(5 of 1000 .* --field-range -0\.2,1\.12$'):
+            with self.assertRaisesRegex(SystemExit, r'-0\.2000\.\.1\.1200 lies outside .*\(5 of 1000 .* --field-range -0\.2 1\.12$') as caught:
                 d.donor_manifest('knife', 'src', 'donor-v1', 'words')
+            from tools.itemkit.drive import parser
+            suggested = str(caught.exception).rsplit('--field-range ', 1)[1].split()   # the suggestion parses as typed
+            self.assertEqual(parser().parse_args(['textured', 'knife', 'a1', 'src', '--notes', 'n', '--field-range', *suggested]).field_range, [-.2, 1.12])
             with self.assertRaisesRegex(SystemExit, 'lies outside'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.1, 1.2))
             with self.assertRaisesRegex(SystemExit, 'within'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.3, 1.2))
+            field(np.full((1000, 3), .5))                                                      # a field the decoder takes as it is
+            with self.assertRaisesRegex(SystemExit, 'no reviewed --field-range is needed'):
+                d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.2, 1.12))
+            field(attrs)
             m = json.loads(Path(d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.2, 1.12))).read_text(encoding='utf-8'))
             field = m['inputs']['field']['sha256']
             self.assertEqual(m['processing']['sourceFieldPolicy'], {'allowDecoderOvershoot': True, 'fieldSha256': field, 'minimum': -.2, 'maximum': 1.12})

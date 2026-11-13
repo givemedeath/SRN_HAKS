@@ -59,11 +59,12 @@ def holes(vertices, faces, axis):
     labels, count = ndimage.label(~covered)
     border = set(np.unique(np.r_[labels[0], labels[-1], labels[:, 0], labels[:, -1]]).tolist())
     found = []
-    for k in range(1, count + 1):
-        if k in border: continue
-        region = labels == k; area = float(region.sum() * RESOLUTION ** 2)
+    for k, box in enumerate(ndimage.find_objects(labels), 1):
+        if box is None or k in border: continue
+        region = np.pad(labels[box] == k, 1); area = float(region.sum() * RESOLUTION ** 2)   # padded: the EDT sees its edge
         if area < MIN_HOLE_AREA: continue
         depth = ndimage.distance_transform_edt(region); i, j = np.unravel_index(np.argmax(depth), depth.shape)
+        i += box[0].start - 1; j += box[1].start - 1
         start = np.zeros(3); start[1] = lo[0] + (i + .5) * RESOLUTION; start[other] = lo[1] + (j + .5) * RESOLUTION
         end = start.copy(); start[axis] = vertices[:, axis].min() - .01; end[axis] = vertices[:, axis].max() + .01
         found.append({'axis': 'xyz'[axis], 'area': area, 'clearance': float(depth.max() * RESOLUTION), 'y': float(start[1]),
@@ -85,21 +86,29 @@ def reference_fractions(manifest, handoff):
 
 
 def match(references, found):
-    """[{name, start, end}]: for each reference, the clear unused hole within tolerance with the most clearance.
+    """[{name, start, end}]: a distinct clear hole within tolerance for every reference, each preferring the most clearance.
 
-    The reference may be measured from either end of the weapon. A reference with no clear hole is refused."""
-    probes, used = [], set()
+    The reference may be measured from either end of the weapon. References take holes in order, most clearance
+    first, backing up when a later one would be left without a hole. A reference with no clear hole is refused."""
+    candidates = []
     for name, fraction in references:
-        best = None
-        for flip in (False, True):
-            target = 1 - fraction if flip else fraction
-            for k, hole in enumerate(found):
-                if k in used or hole['hits'] or hole['clearance'] < MIN_CLEARANCE: continue
-                if abs(target - hole['fraction']) <= MATCH_TOLERANCE and (best is None or hole['clearance'] > best[0]): best = (hole['clearance'], k)
-        require(best is not None, f'No clear through-hole matches {name} (fraction {fraction:.3f}): it closed or is too narrow; '
+        near = [k for k, hole in enumerate(found) if not hole['hits'] and hole['clearance'] >= MIN_CLEARANCE
+                and min(abs(fraction - hole['fraction']), abs(1 - fraction - hole['fraction'])) <= MATCH_TOLERANCE]
+        require(near, f'No clear through-hole matches {name} (fraction {fraction:.3f}): it closed or is too narrow; '
                 'drop it as a real hole with the user, or rebuild the shell')
-        used.add(best[1]); probes.append({'name': name, 'start': found[best[1]]['start'], 'end': found[best[1]]['end']})
-    return probes
+        candidates.append(sorted(near, key=lambda k: -found[k]['clearance']))
+
+    def assign(i, used):
+        if i == len(candidates): return []
+        for k in candidates[i]:
+            if k in used: continue
+            rest = assign(i + 1, used | {k})
+            if rest is not None: return [k] + rest
+        return None
+    chosen = assign(0, frozenset())
+    require(chosen is not None, f'{len(references)} reference openings share fewer clear through-holes than they need: '
+            'drop the extra ones with the user, or rebuild the shell')
+    return [{'name': name, 'start': found[k]['start'], 'end': found[k]['end']} for (name, _), k in zip(references, chosen)]
 
 
 def measure(manifest, family, handoff):

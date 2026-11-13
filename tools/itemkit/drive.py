@@ -7,7 +7,7 @@ Generation (one GPU job at a time, through the shared ledger; ComfyUI only when 
     gen ID STAGE --manifest SUFFIX [--attempt aN]                      calibrated ID FOV [--source SUFFIX]
     colour-geometry ID SRC DST --notes "user's words"   (geometry from the colour detail image, not the clay)
     approve-geometry ID ATTEMPT SRC DST --notes "user's words"
-    textured ID ATTEMPT SRC --notes ... [--straight DIR] [--field-range LO,HI]
+    textured ID ATTEMPT SRC --notes ... [--straight DIR] [--field-range LO HI]
 Processing (CPU, through the verified launcher):
     fit ID SRC DST WORKING DONOR [--overrides JSON] [--measure-only] [--donor-review "user's words"] [--authority "user's words"]
     opening-probes ID SUFFIX [--write NEW_SUFFIX]   (measured probes for the reviewed openings, from the fitted shell)
@@ -266,10 +266,12 @@ class Driver:
         low, high = DECODER_RANGE if field_range is None else (float(field_range[0]), float(field_range[1]))
         if not (low <= lo and hi <= high):
             # Rounded out to the hundredth (after removing float noise: 1.12 * 100 is 112.00000000000001).
-            suggest = (f'{min(DECODER_RANGE[0], np.floor(round(lo * 100, 6)) / 100):g},'
+            suggest = (f'{min(DECODER_RANGE[0], np.floor(round(lo * 100, 6)) / 100):g} '
                        f'{max(DECODER_RANGE[1], np.ceil(round(hi * 100, 6)) / 100):g}')
             raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} lies outside {low:g}..{high:g} ({outside} of {total} samples outside '
                              f'the decoder range): review the textured result and rerun with --field-range {suggest}')
+        if field_range is not None and (low, high) != DECODER_RANGE and DECODER_RANGE[0] <= lo and hi <= DECODER_RANGE[1]:
+            raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} fits the decoder range: no reviewed --field-range is needed')
         field_sha = m['inputs']['field']['sha256']
         policy = {'allowDecoderOvershoot': True, 'fieldSha256': field_sha, 'minimum': low, 'maximum': high}
         try: field_policy(policy, field_sha)
@@ -535,10 +537,20 @@ class Driver:
         return build(self.ws, family, design, wave, visible=visible, base=base or BASE)
 
     def retire_contracts(self, folder, reason, today=None):
-        """Retire an abandoned or test contract folder (under the handoff) so its slots are free (family_contract.retire)."""
+        """Retire an abandoned or test contract folder (under the handoff) so its slots are free (family_contract.retire).
+
+        Refused while any design has gone past its contract manifest on one of the folder's contracts: freeing a slot
+        an unpublished design still holds would let the next contract take it."""
         import datetime
         from tools.itemkit.family_contract import retire
-        return retire(self.ws.handoff/folder, reason, today or datetime.date.today().isoformat())
+        target = (self.ws.handoff/folder).resolve(); name = target.name; live = []
+        for path in sorted(self.ws.handoff.glob('*.asset.json')):
+            if path.name.endswith(f'.{name}-contract.asset.json'): continue
+            try: profile = read(path).get('familyProfile', {}).get('path')
+            except (OSError, ValueError): continue
+            if profile and (self.ws.handoff/profile).resolve().parent == target: live.append(path.name)
+        if live: raise SystemExit(f'{folder} still holds contracts that {len(live)} manifest(s) build on, e.g. {live[0]}: not retired')
+        return retire(target, reason, today or datetime.date.today().isoformat())
 
     def views(self, glb, output, textured=False):
         """Eight orthographic Blender views and a contact sheet (clay, or the textured donor's colour)."""
@@ -624,7 +636,7 @@ def stage_list(text):
     return stages
 
 
-def main(argv=None):
+def parser():
     p = argparse.ArgumentParser(description=__doc__.split('\n')[0], formatter_class=argparse.RawDescriptionHelpFormatter, epilog=__doc__)
     p.add_argument('--workspace'); c = p.add_subparsers(dest='command', required=True)
     s = c.add_parser('comfy'); s.add_argument('action', choices=['start', 'stop', 'status'])
@@ -637,8 +649,9 @@ def main(argv=None):
     s = c.add_parser('calibrated'); s.add_argument('id'); s.add_argument('fov', type=float); s.add_argument('--source', default='wave1-v2-contract')
     s = c.add_parser('approve-geometry'); [s.add_argument(k) for k in ('id', 'attempt', 'src', 'dst')]; s.add_argument('--notes', required=True)
     s = c.add_parser('textured'); [s.add_argument(k) for k in ('id', 'attempt', 'src')]; s.add_argument('--notes', required=True); s.add_argument('--straight')
-    s.add_argument('--field-range', type=lambda t: tuple(float(x) for x in t.split(',')),
-                   help='LO,HI: the colour field\'s reviewed range when it overshoots the decoder (the refusal suggests one)')
+    # Two numbers, not "LO,HI": argparse takes "-0.22,1.13" for an option, while a lone "-0.22" reads as a number.
+    s.add_argument('--field-range', nargs=2, type=float, metavar=('LO', 'HI'),
+                   help="the colour field's reviewed range when it overshoots the decoder (the refusal suggests one)")
     s = c.add_parser('fit'); [s.add_argument(k) for k in ('id', 'src', 'dst', 'working', 'donor')]
     s.add_argument('--overrides'); s.add_argument('--measure-only', action='store_true'); s.add_argument('--donor-review'); s.add_argument('--authority')
     s = c.add_parser('opening-probes'); s.add_argument('id'); s.add_argument('suffix'); s.add_argument('--write', help='new manifest suffix')
@@ -683,7 +696,11 @@ def main(argv=None):
     s = c.add_parser('repair-shell'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--rings', type=int, default=2)
     s = c.add_parser('remesh-shell'); s.add_argument('source'); s.add_argument('target'); s.add_argument('edge', type=float)
     s.add_argument('--taubin', type=int, default=0)
-    a = p.parse_args(argv); d = Driver(Workspace.load(a.workspace))
+    return p
+
+
+def main(argv=None):
+    a = parser().parse_args(argv); d = Driver(Workspace.load(a.workspace))
     commands = {
         'comfy': lambda: d.comfy(a.action), 'image': lambda: d.image(a.design, a.kind), 'condition': lambda: d.condition(a.design, a.id, a.source, a.notes, a.keyed),
         'gen': lambda: d.gen(a.id, a.stage, a.manifest, a.attempt), 'calibrated': lambda: d.calibrated(a.id, a.fov, a.source),
