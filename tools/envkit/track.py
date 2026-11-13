@@ -5,8 +5,9 @@ A generator draws track a little crooked and to no gauge, and pieces laid end to
 tracks run straight through its tiles on their row centres and on into the tiles beside it (user, 2026-11-13: "is it
 possible to incorporate the train tracks?"). So the piece is exact: its rails GAUGE metres apart between their heads,
 a sleeper every PITCH metres from half a pitch in, and every map seamless along the track, so that pieces laid end to
-end are one track. It is low, its rail tops HEIGHT metres up, under the knee, and a group lays it underfoot (the game
-set's `underfoot`): the walkmesh runs flat across it, and it may run off the group's edges.
+end are one track; and a merge brings a second track into the first, as a passing loop's ends do. It is low, its rail
+tops HEIGHT metres up, under the knee, and a group lays it underfoot (the game set's `underfoot`): the walkmesh runs
+flat across it, and it may run off the group's edges.
 
 Measures are in metres in the game's frame: x along the track, y across it, z up."""
 import hashlib
@@ -26,6 +27,12 @@ SLEEPER_FOOT, SLEEPER_TOP = BED - 0.01, BED + 0.06
 HEIGHT = SLEEPER_TOP + RAIL
 LENGTH = 10.0  # a tile's side: a piece to a tile, laid on its row or column centre
 SEGMENT = LENGTH / 2  # the maps repeat along the track every SEGMENT metres
+# A merge brings a track on the next row into the through track: OFFSET metres across in LENGTH metres, three tiles,
+# on curves of RADIUS metres with a straight between (user, 2026-11-13: "can you make the tracks merge" at both ends of
+# the depot). A main line's turnouts are far gentler; at the game's scale this reads as a yard's crossover. Each end
+# of it runs straight for LEAD metres, so that it meets straight track, and the two tracks share long sleepers until
+# their centre lines are SHARED metres apart.
+MERGE_OFFSET, MERGE_LENGTH, MERGE_RADIUS, LEAD, SHARED = 10.0, 30.0, 15.0, 1.5, 3.2
 SIZE = 2048
 # Bands of the maps, in rows from the top: the ballast's cross-section, two sleeper tops, the sleepers' sides and ends,
 # the rail's polished top, its rusted sides and its foot. The rest is plain concrete.
@@ -36,18 +43,18 @@ STONE = 16  # pixels to a ballast stone's cell: about four centimetres
 
 
 def rails():
-    """The y of each rail's middle."""
+    """The y of each rail's middle, across its track."""
     middle = GAUGE / 2 + HEAD / 2
     return (-middle, middle)
 
 
 def sleepers():
-    """The x of each sleeper's middle on a piece centred on x = 0."""
+    """The x of each sleeper's middle on a straight piece centred on x = 0."""
     return [-LENGTH / 2 + PITCH * (index + 0.5) for index in range(round(LENGTH / PITCH))]
 
 
 def _bed():
-    """[(y, z, distance over the bed's surface from its south foot)] of the ballast's cross-section, and that distance across."""
+    """[(y, z, distance over the bed's surface from its right-hand foot)] of the ballast's cross-section, and that distance across."""
     slope = float(np.hypot(BED_BASE - BED_TOP, BED))
     return [(-BED_BASE, 0.0, 0.0), (-BED_TOP, BED, slope), (BED_TOP, BED, slope + 2 * BED_TOP), (BED_BASE, 0.0, 2 * slope + 2 * BED_TOP)], 2 * slope + 2 * BED_TOP
 
@@ -69,51 +76,167 @@ class _Mesh:
         forward = np.cross(corners[1] - corners[0], corners[2] - corners[0]) @ facing > 0
         self.faces += ([[start, start + 1, start + 2], [start, start + 2, start + 3]] if forward else [[start, start + 2, start + 1], [start, start + 3, start + 2]])
 
-    def strip(self, band, ends, low, high, facing, across=(0.0, 1.0)):
-        """A face along the track from x `ends[0]` to `ends[1]`, between the (y, z) points `low` and `high`, its band's
-        texture running along it from u = 0 to 1 and across it from `across[0]` to `across[1]`."""
-        (x0, x1), (y0, z0), (y1, z1) = ends, low, high
-        self.quad([(x0, y0, z0), (x1, y0, z0), (x1, y1, z1), (x0, y1, z1)],
-                  [(0.0, _v(band, across[0])), (1.0, _v(band, across[0])), (1.0, _v(band, across[1])), (0.0, _v(band, across[1]))], facing)
+    def arrays(self):
+        return np.array(self.vertices), np.array(self.normals), np.array(self.uvs), np.array(self.faces)
+
+
+def path(start, heading, pieces, *, step=0.5):
+    """[(s, x, y, heading)] along a track's centre line from `start` (x, y) heading `heading` (radians from +x towards
+    +y), through `pieces`: ('line', length) or ('arc', radius, turn), the turn in radians, to the left where it is more
+    than 0. Each multiple of SEGMENT metres along it is a sample, where its maps start again, and an arc is sampled
+    every `step` metres."""
+    samples = [(0.0, float(start[0]), float(start[1]), float(heading))]
+    for piece in pieces:
+        s, x, y, h = samples[-1]
+        if piece[0] == 'line':
+            length = float(piece[1]); at = lambda d: (x + d * np.cos(h), y + d * np.sin(h), h)
+            marks = set()
+        else:
+            radius, turn = float(piece[1]), float(piece[2]); length = radius * abs(turn); side = np.sign(turn)
+            middle = (x - side * radius * np.sin(h), y + side * radius * np.cos(h))
+            at = lambda d: (middle[0] + side * radius * np.sin(h + side * d / radius), middle[1] - side * radius * np.cos(h + side * d / radius), h + side * d / radius)
+            marks = set(np.arange(step, length - 1e-6, step).tolist())
+        require(length > 0, 'A piece of track has a length')
+        marks |= {SEGMENT * count - s for count in range(int(s // SEGMENT) + 1, int((s + length) // SEGMENT) + 1)} | {length}
+        for d in sorted(mark for mark in marks if 1e-6 < mark <= length + 1e-9):
+            samples.append((s + d, *at(d)))
+    return samples
+
+
+def _place(sample, lateral, z):
+    """A point `lateral` metres to the left of a sample of the centre line, `z` metres up."""
+    _, x, y, h = sample
+    return (x - lateral * np.sin(h), y + lateral * np.cos(h), z)
+
+
+def _sweep(made, line, band, low, high, facing, across=(0.0, 1.0), start=0):
+    """A face swept along `line` from its sample `start`: between the (lateral, z) points `low` and `high`, facing
+    (lateral, up) as the track turns, its band's texture running along it, a whole picture to SEGMENT metres, and
+    across it from `across[0]` to `across[1]`."""
+    for one, two in zip(line[start:], line[start + 1:]):
+        count = np.floor(one[0] / SEGMENT + 1e-9); u0, u1 = one[0] / SEGMENT - count, two[0] / SEGMENT - count
+        middle = (one[3] + two[3]) / 2; normal = (-facing[0] * np.sin(middle), facing[0] * np.cos(middle), facing[1])
+        made.quad([_place(one, *low), _place(two, *low), _place(two, *high), _place(one, *high)],
+                  [(u0, _v(band, across[0])), (u1, _v(band, across[0])), (u1, _v(band, across[1])), (u0, _v(band, across[1]))], normal)
+
+
+def _end(made, sample, outward, bed):
+    """The track's end at `sample`, closed: the bed's cross-section and each rail's, facing along it (`outward` +1) or back."""
+    _, _, _, h = sample; facing = (outward * np.cos(h), outward * np.sin(h), 0.0); top = BED_TOP
+    made.quad([_place(sample, -BED_BASE, 0.0), _place(sample, BED_BASE, 0.0), _place(sample, top, bed), _place(sample, -top, bed)],
+              [(0.0, _v('ballast', 0.0)), (0.0, _v('ballast', 1.0)), (0.03, _v('ballast', 0.9)), (0.03, _v('ballast', 0.1))], facing)
+    foot, web, head = SLEEPER_TOP + FOOT_DEPTH, SLEEPER_TOP + RAIL - HEAD_DEPTH, SLEEPER_TOP + RAIL
+    for middle in rails():
+        for low, high, width, a, b in ((SLEEPER_TOP, foot, FOOT, 0.0, 0.12), (foot, web, WEB, 0.12, 0.62), (web, head, HEAD, 0.62, 1.0)):
+            made.quad([_place(sample, middle - width / 2, low), _place(sample, middle + width / 2, low), _place(sample, middle + width / 2, high), _place(sample, middle - width / 2, high)],
+                      [(0.0, _v('railSide', a)), (0.02, _v('railSide', a)), (0.02, _v('railSide', b)), (0.0, _v('railSide', b))], facing)
+
+
+def _sleeper(made, sample, index, reach=(-SLEEPER_LENGTH / 2, SLEEPER_LENGTH / 2), foot=SLEEPER_FOOT):
+    """A sleeper square across the track at `sample`, from `reach[0]` to `reach[1]` metres left of its centre line. Its
+    top is the sleeper picture over the track's own 2.6 metres and plain concrete past them, where it carries a
+    turnout's other track."""
+    _, x, y, h = sample; along, left = np.array([np.cos(h), np.sin(h), 0.0]), np.array([-np.sin(h), np.cos(h), 0.0])
+    half = SLEEPER_WIDTH / 2; point = lambda forward, lateral, z: np.array([x, y, z]) + forward * along + lateral * left
+    top = 'sleeperB' if index % 3 == 1 else 'sleeperA'; low, high = reach; own = (max(low, -SLEEPER_LENGTH / 2), min(high, SLEEPER_LENGTH / 2))
+    for start, stop in ((low, own[0]), own, (own[1], high)):
+        if stop - start > 1e-6:
+            plain = (start, stop) != own; u = (lambda lateral: 0.15 * (lateral - start) / (stop - start)) if plain else (lambda lateral: (lateral + SLEEPER_LENGTH / 2) / SLEEPER_LENGTH)
+            made.quad([point(-half, start, SLEEPER_TOP), point(half, start, SLEEPER_TOP), point(half, stop, SLEEPER_TOP), point(-half, stop, SLEEPER_TOP)],
+                      [(u(start), _v(top, 0.0)), (u(start), _v(top, 1.0)), (u(stop), _v(top, 1.0)), (u(stop), _v(top, 0.0))], (0, 0, 1))
+    down = lambda z: (SLEEPER_TOP - z) / (SLEEPER_TOP - foot); span = lambda lateral: (lateral - low) / (high - low)
+    for side in (-1, 1):
+        made.quad([point(side * half, low, foot), point(side * half, high, foot), point(side * half, high, SLEEPER_TOP), point(side * half, low, SLEEPER_TOP)],
+                  [(span(low), _v('sleeperSide', down(foot))), (span(high), _v('sleeperSide', down(foot))), (span(high), _v('sleeperSide', 0.0)), (span(low), _v('sleeperSide', 0.0))], side * along)
+        lateral = low if side < 0 else high
+        made.quad([point(-half, lateral, foot), point(half, lateral, foot), point(half, lateral, SLEEPER_TOP), point(-half, lateral, SLEEPER_TOP)],
+                  [(0.0, _v('sleeperEnd', 1.0)), (1.0, _v('sleeperEnd', 1.0)), (1.0, _v('sleeperEnd', 0.0)), (0.0, _v('sleeperEnd', 0.0))], side * left)
+
+
+def _rails(made, line, start=0):
+    """Both rails along `line` from its sample `start`, but for the underside of the head, which no camera above the ground sees."""
+    foot, web, head = SLEEPER_TOP + FOOT_DEPTH, SLEEPER_TOP + RAIL - HEAD_DEPTH, SLEEPER_TOP + RAIL
+    for middle in rails():
+        _sweep(made, line, 'railTop', (middle - HEAD / 2, head), (middle + HEAD / 2, head), (0, 1), start=start)
+        for side in (-1, 1):  # from the head down; the side band runs from the foot (0) to the head (1)
+            _sweep(made, line, 'railSide', (middle + side * HEAD / 2, web), (middle + side * HEAD / 2, head), (side, 0), (0.62, 1.0), start)
+            _sweep(made, line, 'railSide', (middle + side * WEB / 2, foot), (middle + side * WEB / 2, web), (side, 0), (0.12, 0.62), start)
+            _sweep(made, line, 'railSide', (middle + side * FOOT / 2, SLEEPER_TOP), (middle + side * FOOT / 2, foot), (side, 0), (0.0, 0.12), start)
+            _sweep(made, line, 'railFoot', (middle + side * WEB / 2, foot), (middle + side * FOOT / 2, foot), (0, 1), start=start)
+
+
+def _ballast(made, line, bed=BED):
+    """The ballast bed along `line`, its top `bed` metres up."""
+    profile, across = _bed(); scale = bed / BED  # a lower bed is as wide, and less steep
+    for (y0, z0, d0), (y1, z1, d1) in zip(profile, profile[1:]):
+        _sweep(made, line, 'ballast', (y0, z0 * scale), (y1, z1 * scale), ((z0 - z1) * scale, y1 - y0), (d0 / across, d1 / across))
+
+
+def _at(line, distance):
+    """The sample of `line` interpolated `distance` metres along it."""
+    s = np.array([one[0] for one in line]); index = int(np.clip(np.searchsorted(s, distance) - 1, 0, len(line) - 2))
+    one, two = line[index], line[index + 1]; part = (distance - one[0]) / (two[0] - one[0])
+    return (distance, *(np.array(one[1:]) + part * (np.array(two[1:]) - np.array(one[1:]))))
+
+
+def _pitches(line):
+    """Where the sleepers of `line` lie: PITCH metres apart from half a pitch in."""
+    return [_at(line, PITCH * (index + 0.5)) for index in range(int(line[-1][0] / PITCH + 1e-9))]
 
 
 def mesh():
-    """(vertices, normals, uvs, faces) of one piece, centred on x = y = 0 and standing on z = 0. Each face is flat, its
-    corners its own. The faces that look down, the rail head's underside and every floor, are left out: no camera
-    above the ground sees them."""
-    made = _Mesh(); bed, across = _bed(); foot, web, head = SLEEPER_TOP + FOOT_DEPTH, SLEEPER_TOP + RAIL - HEAD_DEPTH, SLEEPER_TOP + RAIL
-    for start in np.arange(-LENGTH / 2, LENGTH / 2 - 1e-9, SEGMENT):
-        ends = (start, start + SEGMENT)
-        for (y0, z0, d0), (y1, z1, d1) in zip(bed, bed[1:]):
-            made.strip('ballast', ends, (y0, z0), (y1, z1), (0.0, z0 - z1, y1 - y0), (d0 / across, d1 / across))
-        for middle in rails():
-            made.strip('railTop', ends, (middle - HEAD / 2, head), (middle + HEAD / 2, head), (0, 0, 1))
-            for side in (-1, 1):  # from the head down; the side band runs from the foot (0) to the head (1)
-                made.strip('railSide', ends, (middle + side * HEAD / 2, web), (middle + side * HEAD / 2, head), (0, side, 0), (0.62, 1.0))
-                made.strip('railSide', ends, (middle + side * WEB / 2, foot), (middle + side * WEB / 2, web), (0, side, 0), (0.12, 0.62))
-                made.strip('railSide', ends, (middle + side * FOOT / 2, SLEEPER_TOP), (middle + side * FOOT / 2, foot), (0, side, 0), (0.0, 0.12))
-                made.strip('railFoot', ends, (middle + side * WEB / 2, foot), (middle + side * FOOT / 2, foot), (0, 0, 1))
-    for end in (-1, 1):  # the piece's ends, closed where the track stops: the bed's cross-section and each rail's
-        x = end * LENGTH / 2
-        made.quad([(x, -BED_BASE, 0.0), (x, BED_BASE, 0.0), (x, BED_TOP, BED), (x, -BED_TOP, BED)],
-                  [(0.0, _v('ballast', 0.0)), (0.0, _v('ballast', 1.0)), (0.03, _v('ballast', 0.9)), (0.03, _v('ballast', 0.1))], (end, 0, 0))
-        for middle in rails():
-            for low, high, width, a, b in ((SLEEPER_TOP, foot, FOOT, 0.0, 0.12), (foot, web, WEB, 0.12, 0.62), (web, head, HEAD, 0.62, 1.0)):
-                made.quad([(x, middle - width / 2, low), (x, middle + width / 2, low), (x, middle + width / 2, high), (x, middle - width / 2, high)],
-                          [(0.0, _v('railSide', a)), (0.02, _v('railSide', a)), (0.02, _v('railSide', b)), (0.0, _v('railSide', b))], (end, 0, 0))
-    half, length = SLEEPER_WIDTH / 2, SLEEPER_LENGTH / 2
-    for index, x in enumerate(sleepers()):
-        x0, x1, top = x - half, x + half, 'sleeperB' if index % 3 == 1 else 'sleeperA'
-        down = lambda z: (SLEEPER_TOP - z) / (SLEEPER_TOP - SLEEPER_FOOT)
-        made.quad([(x0, -length, SLEEPER_TOP), (x1, -length, SLEEPER_TOP), (x1, length, SLEEPER_TOP), (x0, length, SLEEPER_TOP)],
-                  [(0.0, _v(top, 0.0)), (0.0, _v(top, 1.0)), (1.0, _v(top, 1.0)), (1.0, _v(top, 0.0))], (0, 0, 1))
-        for side, at in ((-1, x0), (1, x1)):
-            made.quad([(at, -length, SLEEPER_FOOT), (at, length, SLEEPER_FOOT), (at, length, SLEEPER_TOP), (at, -length, SLEEPER_TOP)],
-                      [(0.0, _v('sleeperSide', down(SLEEPER_FOOT))), (1.0, _v('sleeperSide', down(SLEEPER_FOOT))), (1.0, _v('sleeperSide', 0.0)), (0.0, _v('sleeperSide', 0.0))], (side, 0, 0))
-        for side in (-1, 1):
-            made.quad([(x0, side * length, SLEEPER_FOOT), (x1, side * length, SLEEPER_FOOT), (x1, side * length, SLEEPER_TOP), (x0, side * length, SLEEPER_TOP)],
-                      [(0.0, _v('sleeperEnd', 1.0)), (1.0, _v('sleeperEnd', 1.0)), (1.0, _v('sleeperEnd', 0.0)), (0.0, _v('sleeperEnd', 0.0))], (0, side, 0))
-    return np.array(made.vertices), np.array(made.normals), np.array(made.uvs), np.array(made.faces)
+    """(vertices, normals, uvs, faces) of a straight piece LENGTH metres long, centred on x = y = 0 and standing on
+    z = 0. Each face is flat, its corners its own. The faces that look down, the rail head's underside and every floor,
+    are left out: no camera above the ground sees them."""
+    made = _Mesh(); line = path((-LENGTH / 2, 0.0), 0.0, [('line', LENGTH)])
+    _ballast(made, line); _rails(made, line); _end(made, line[0], -1, BED); _end(made, line[-1], 1, BED)
+    for index, sample in enumerate(_pitches(line)):
+        _sleeper(made, sample, index)
+    return made.arrays()
+
+
+def merging(offset=MERGE_OFFSET, length=MERGE_LENGTH, radius=MERGE_RADIUS):
+    """The pieces of a merge's other track, from its switch LEAD metres in from the west end: a curve off to the left,
+    a straight across, and a curve back, so that it runs `offset` metres to the left of the through track for the last
+    LEAD metres of the piece's `length`; and the angle it crosses at (radians). The angle is the least that fits the
+    curves of `radius` metres into the length."""
+    room = length - 2 * LEAD; rise = lambda angle: 2 * radius * (1 - np.cos(angle))
+    reach = lambda angle: 2 * radius * np.sin(angle) + (offset - rise(angle)) / np.tan(angle)
+    steepest = np.arccos(1 - offset / (2 * radius)) if offset < 4 * radius else np.pi / 2
+    require(0 < offset and reach(steepest) <= room, f'A merge of {offset} metres needs more than {length} metres at a {radius} metre radius')
+    low, high = 1e-4, steepest
+    for _ in range(100):  # the reach shortens as the angle grows
+        middle = (low + high) / 2; low, high = (middle, high) if reach(middle) > room else (low, middle)
+    angle = high; across = (offset - rise(angle)) / np.sin(angle)
+    return [('arc', radius, angle), *([('line', across)] if across > 1e-6 else []), ('arc', radius, -angle), ('line', LEAD)], float(angle)
+
+
+def merge_mesh(offset=MERGE_OFFSET, length=MERGE_LENGTH, radius=MERGE_RADIUS):
+    """(vertices, normals, uvs, faces) of a merge: a through track `length` metres long on y = 0, centred on x = 0, and
+    from its switch another that curves off to the left and runs on beside it `offset` metres away. The other track's
+    bed lies a little under the through track's, so the two never share a surface; its rails start where they have
+    drawn clear of the through track's (the switch blades); its inner rail crosses the through track's left rail at
+    the frog. Where the two tracks are too close for sleepers of their own, the through track's are drawn out under
+    both."""
+    made = _Mesh(); through = path((-length / 2, 0.0), 0.0, [('line', length)])
+    pieces, _ = merging(offset, length, radius); other = path((-length / 2 + LEAD, 0.0), 0.0, pieces)
+    _ballast(made, through); _rails(made, through); _end(made, through[0], -1, BED); _end(made, through[-1], 1, BED)
+    lower = BED - 0.015; _ballast(made, other, lower); _end(made, other[-1], 1, lower)
+    clear = next(index for index, sample in enumerate(other) if sample[2] >= HEAD)
+    _rails(made, other, clear)
+    beside = lambda x: float(np.interp(x, [sample[1] for sample in other], [sample[2] for sample in other], left=-np.inf, right=-np.inf))
+    shared = []  # (x, reach) of the through track's drawn-out sleepers
+    for index, sample in enumerate(_pitches(through)):
+        apart = beside(sample[1]); reach = apart + SLEEPER_LENGTH / 2 if 0 <= apart < SHARED else SLEEPER_LENGTH / 2
+        _sleeper(made, sample, index, (-SLEEPER_LENGTH / 2, reach)); shared += [(sample[1], reach)] if reach > SLEEPER_LENGTH / 2 else []
+    for index, sample in enumerate(_pitches(other)):
+        _, x, y, h = sample
+        corners = [(x + forward * np.cos(h) - lateral * np.sin(h), y + forward * np.sin(h) + lateral * np.cos(h))
+                   for forward in (-SLEEPER_WIDTH / 2, SLEEPER_WIDTH / 2) for lateral in (-SLEEPER_LENGTH / 2, SLEEPER_LENGTH / 2)]
+        under = any(abs(cx - at) < SLEEPER_WIDTH / 2 + 0.05 and cy < reach + 0.05 for cx, cy in corners for at, reach in shared)
+        if y >= SHARED and not under:  # one sleeper never stands in another
+            _sleeper(made, sample, index, foot=lower - 0.01)
+    return made.arrays()
 
 
 def _noise(rows, columns, rng, across, along=None):
@@ -228,17 +351,21 @@ def write_glb(path, vertices, normals, uvs, faces):
                            + struct.pack('<II', len(binary), 0x004E4942) + binary)
 
 
-def build(output, seed=0):
-    """Write a straight piece into the fresh folder `output`: model.glb, its maps as `texture_0_<map>.png` (`local.MAPS`)
-    and track.json, which records its measures, its seed and each file's hash. Returns that record."""
+def build(output, seed=0, kind='straight'):
+    """Write a piece of `kind`, 'straight' (`mesh`) or 'merge' (`merge_mesh`), into the fresh folder `output`:
+    model.glb, its maps as `texture_0_<map>.png` (`local.MAPS`) and track.json, which records its measures, its seed
+    and each file's hash. Returns that record."""
     from PIL import Image
     require(isinstance(seed, int) and seed >= 0, 'A seed is a whole number from 0')
+    require(kind in ('straight', 'merge'), 'A piece of track is straight or a merge: ' + str(kind))
     with fresh(output) as folder:
-        write_glb(folder / 'model.glb', *mesh())
-        for kind, picture in maps(seed).items():
-            require(kind in local.MAPS, 'An unknown map: ' + kind)
-            Image.fromarray((picture * 255).round().astype(np.uint8)).save(folder / f'texture_0_{kind}.png')
-        record = {'schemaVersion': 1, 'kind': 'envkit-track', 'seed': seed, 'length': LENGTH, 'height': HEIGHT, 'gauge': GAUGE, 'pitch': PITCH,
+        write_glb(folder / 'model.glb', *(mesh() if kind == 'straight' else merge_mesh()))
+        for name, picture in maps(seed).items():
+            require(name in local.MAPS, 'An unknown map: ' + name)
+            Image.fromarray((picture * 255).round().astype(np.uint8)).save(folder / f'texture_0_{name}.png')
+        shape = ({'length': LENGTH} if kind == 'straight' else
+                 {'length': MERGE_LENGTH, 'offset': MERGE_OFFSET, 'radius': MERGE_RADIUS, 'angle': round(float(np.degrees(merging()[1])), 3)})
+        record = {'schemaVersion': 1, 'kind': 'envkit-track', 'piece': kind, 'seed': seed, **shape, 'height': HEIGHT, 'gauge': GAUGE, 'pitch': PITCH,
                   'width': 2 * BED_BASE, 'files': {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(folder.iterdir())}}
         (folder / 'track.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
     return record

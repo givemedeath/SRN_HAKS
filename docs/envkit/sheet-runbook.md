@@ -127,17 +127,26 @@ with its own picture under the group's names (`<group>p1`, ...), cut into the sa
 of the sheet stays a placeable as well.
 
 A sheet's buildings can be both: each its own group, for a builder to place alone, and together one large group of
-the whole site, which paints a district in one go (user, 2026-11-13: the rail yard's depot is 6 by 8 tiles, its
+the whole site, which paints a district in one go (user, 2026-11-13: the rail yard's depot is 8 by 8 tiles, its
 warehouse, dock warehouse, control tower, office and service bay with the platform, crane and two tracks).
 Containers, light towers and rolling stock are props, placed by the builder, not parts of the site. A site with
 rails is laid out round its tracks (user: the first layout did not lend itself to "realistic track placement and
 train movement"): each track straight through the whole group and out at both edges, on a tile row's centre so track
 tiles beside the group meet it, with 1.93 metres either side of its centre clear up to 5.2 metres; a platform's edge
-1.7 metres from its track's centre; a crane's runway along the tracks, its legs outside their corridors, and clear
+1.7 metres from its track's centre, and the platform clear of the buildings, since a deck 1.28 metres up meets
+no door of theirs (user: the depot's platform, laid across its warehouse's dock apron and half its gable, was "not
+working out with the warehouse building"; it now stands beside the warehouse, its stairs towards the warehouse's
+door, two metres off); a crane's runway along the tracks, its legs outside their corridors, and clear
 of buildings all the way across (user: "there would be nowhere for the crane to move here"). The track is built, not
 generated: `envkit track` writes a 10 metre straight piece of standard-gauge track on ballast as a model folder
 (rails 1.435 metres apart, a sleeper every 0.625 metres, every map seamless along it, 0.31 metres high), and the
-game set lays it `underfoot` as a part, one piece on each tile of the row, centred on the tile's column. A part laid
+game set lays it `underfoot` as a part, one piece on each tile of the row, centred on the tile's column.
+`envkit track --piece merge` writes a 30 metre merge, three tiles: a through track with a switch 1.5 metres in, from
+which a second track curves off on 15 metre curves, crosses at 27 degrees and runs on beside it 10 metres away, on
+the next row (user: "can you make the tracks merge" at both ends of the depot). A main line's turnouts are far
+gentler; at the game's scale it reads as a yard crossover. The two tracks share long sleepers until they are 3.2
+metres apart. Laid at both ends of two tracks, turned half round at the far end, it makes a passing loop with one
+track out at each end, each on its row's centre; the crane then travels between the switches. A part laid
 underfoot is drawn but not surveyed, so the ground is walked flat across it and it may run off the group's edges,
 where a raised slab is refused; it stands no higher than the knee. A
 part is never a group itself, so a building in both has a second entry of the same source and height without
@@ -147,7 +156,7 @@ a group's `_t` tiles and `p` parts): the set is refused, since one would write o
 `envkit view --models ... --model <site> --eye ...` draws the whole site with its parts before it is cut into tiles.
 
 ```
-envkit track --output <root>/track/straight-s<seed>  [--seed <seed>]
+envkit track --output <root>/track/<piece>-s<seed>  [--piece straight|merge] [--seed <seed>]
 envkit game  --models ... --root <root> --output <root>/game<n>  [--model <name>]
 envkit tiles --models ... --root <root> --output <root>/tiles<n> --model <building>
 ```
