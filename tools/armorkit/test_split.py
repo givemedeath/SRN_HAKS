@@ -1362,6 +1362,24 @@ class KneeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             split.guard(self.v, self.f, self.materials[:-1], JOINTS, 'knee', 'l')
 
+    def test_a_knee_pads_rim_the_trim_gave_to_the_trousers_is_the_pads(self):
+        pad = self.materials == 1
+        pairs = split.beside(self.v, self.f)
+        touching = pairs[pad[pairs].sum(axis=1) == 1]
+        rim = np.zeros(len(self.f), bool)
+        rim[touching[~pad[touching]]] = True  # read as the pad's plates, painted as the trousers by the trim
+        read = (pad | rim).astype(int)
+        self.assertTrue(np.array_equal(split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'l', read=read), pad | rim))
+        self.assertTrue(np.array_equal(split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'l'), pad))  # told nothing else, the rim is the trousers'
+        centre = self.v[self.f].mean(axis=1) - JOINTS['lshin_g']
+        apart = (centre[:, 1] < -0.03) & (np.abs(centre[:, 2]) < 0.05) & (np.abs(centre[:, 0]) < 0.1)  # read as plates behind the knee, joined to nothing of the pad's
+        self.assertTrue(apart.any() and not (apart & (pad | rim)).any())
+        self.assertTrue(np.array_equal(split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'l', read=read | apart), pad | rim))
+        line = (centre[:, 1] > 0.02) & (np.abs(centre[:, 0]) < 0.015) & (centre[:, 2] > 0) & (centre[:, 2] < 0.3)
+        self.assertTrue(np.array_equal(split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'l', read=read | line), pad))  # a band running up the thigh with it is no rim
+        with self.assertRaises(ValueError):
+            split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'l', read=read[:-1])
+
     def test_a_knee_pad_is_cut_on_the_plane_and_the_shins_cap_carries_its_rim_round_the_knee(self):
         pad, depth = self.materials == 1, {('knee', 'l'): 0.04}
         height = lambda points: (points - self.point) @ self.normal  # past the plane on the shin's side

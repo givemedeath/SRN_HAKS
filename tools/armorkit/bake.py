@@ -293,9 +293,9 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 for key in keys}
     # the posed normals, and the positions and normals on the generated mesh, ride through the cut
     columns = np.concatenate([export.vertex_normals(v, f), in_field, export.vertex_normals(in_field, f)], axis=1)
-    mats = kinds[carried['origin']]
+    mats, read_as = kinds[carried['origin']], as_read[carried['origin']]
     guards = {(joint, side): flags for joint in split.GUARDS for side in 'lr'
-              for flags in [split.guard(v, f, mats, joints, joint, side)] if flags is not None}
+              for flags in [split.guard(v, f, mats, joints, joint, side, read=read_as)] if flags is not None}
     say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
     given = {'vertices': v, 'faces': f, 'columns': columns, 'joints': joints, 'radii': radii, 'overlaps': overlaps,
              'reaches': split.reaches(v, f, joints, radii, sleeves=carried['sleeves']), 'sleeves': carried['sleeves'], 'guards': guards,

@@ -600,7 +600,7 @@ def patch(v, f, materials, seed, fits):
     return found | (np.isin(rest, islands) & ~found)
 
 
-def guard(vertices, faces, materials, joints, joint, side):
+def guard(vertices, faces, materials, joints, joint, side, read=None):
     """The faces of the pad over one knee or elbow, one flag per face, or None where the joint shows none.
 
     A pad is one patch of one material over the joint, as a shoulder pad is over the shoulder (`pad`): the
@@ -610,9 +610,17 @@ def guard(vertices, faces, materials, joints, joint, side):
     it may run on as a guard along the shin or the forearm: on one outfit the left elbow pad was one patch
     with its forearm guard and the right one was not. A patch of less than `GUARD_LEAST` is a strap's end or
     a face read wrongly, and no pad. `split` rounds the under part's cap out as a ball under such a pad
-    (`guards`)."""
+    (`guards`).
+
+    `read` holds the material per face as the colours were read before `texture.trimmed` gave each line of
+    metal too narrow for a plate to what it lies on. Faces read as the pad's material that the trim gave away
+    and that join the pad through each other are its rim, and the pad's too, unless pad and rim together
+    reach farther up the limb than a pad may: Facility Security's knee pads were drawn with a band of their
+    plates' colour round their outline, the trim painted it as the trousers, and on the left knee that band,
+    standing as far out as the pad, was measured as the shin's end, 1.2 cm outside its envelope (2026-11-13)."""
     v, f, materials = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(materials)
     require(materials.shape == (len(f),), 'One material per face is required')
+    require(read is None or np.shape(read) == (len(f),), 'One material per face is required as read')
     require(joint in GUARDS and side in ('l', 'r'), f'A pad is told over one of {sorted(GUARDS)}, on the l or r side')
     above, at, below = (np.asarray(joints[side + name], float) for name in GUARDS[joint])
     axis = seams.unit(below - above)
@@ -628,8 +636,20 @@ def guard(vertices, faces, materials, joints, joint, side):
             seed = np.flatnonzero(near)[np.argmax((centre @ way)[near])]
             found = patch(v, f, materials, seed, fits)
             if found is not None:
-                return found
+                return found if read is None else rimmed(v, f, materials, np.asarray(read), found, materials[seed], fits)
     return None
+
+
+def rimmed(v, f, materials, read, found, own, fits):
+    """A pad (`found`, of material `own`) with the faces `read` as its material that the trim gave to what they
+    lie on and that join it through each other (`guard`); the pad alone unless the two together still `fits`."""
+    away = (read == own) & (materials != own) & ~found
+    if not away.any():
+        return found
+    pairs = beside(v, f)
+    label = np.asarray(mesh_ops.union_find(len(f), pairs[(found | away)[pairs].all(axis=1)].tolist()))
+    rim = away & np.isin(label, label[found])
+    return found | rim if fits(found | rim) else found
 
 
 def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
