@@ -365,6 +365,46 @@
       "sourceArchive": "sr0eabace5h.hak",
       "status": "user-approved",
       "family": "F2"
+    },
+    {
+      "id": "sr4-vibro-blades-knife-9604aa44b5",
+      "name": "Vibro Blades Knife",
+      "blueprints": [
+        "sr42aae67c"
+      ],
+      "sourceArchive": "sr42aae67ch.hak",
+      "status": "user-approved",
+      "family": "F1"
+    },
+    {
+      "id": "sr4-rapier-c89da3d7df",
+      "name": "Rapier",
+      "blueprints": [
+        "sr84ad1333"
+      ],
+      "sourceArchive": "sr84ad1333h.hak",
+      "status": "user-approved",
+      "family": "F2"
+    },
+    {
+      "id": "sr4-combat-axe-3870814348",
+      "name": "Combat Axe",
+      "blueprints": [
+        "sr9849b566"
+      ],
+      "sourceArchive": "sr9849b566h.hak",
+      "status": "user-approved",
+      "family": "F4"
+    },
+    {
+      "id": "sr4-spear-2febc2a88a",
+      "name": "Spear",
+      "blueprints": [
+        "sr2febc2a8"
+      ],
+      "sourceArchive": "sr2febc2a8h.hak",
+      "status": "user-approved",
+      "family": "F5"
     }
   ],
   "resources": [
@@ -1629,7 +1669,7 @@
     },
     {
       "path": "srn_2da/baseitems.2da",
-      "sha256": "8c8db4529b46a13d7ba2eefa7a7ba48fdbf90dcb7feb620181574a91c77ed8d8",
+      "sha256": "7d17ecfe9646024cdf93b99e22b9849d7fc71d4400b9cfd9c1a398da986c1bb7",
       "bytes": 133484,
       "resourceType": 2017,
       "item": "colt-l36-pistol",
@@ -2547,6 +2587,326 @@
       "sha256": "06e341de840bb37ee2b07ece556ac83fb48907d0cdafe90780a959066854ba3f",
       "bytes": 730,
       "resourceType": 2025
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67ch.hak",
+      "sourceResource": "iwswdg_b_121.tga",
+      "approvedSourceSha256": "8fb435b1211d250f98827d30bd5d5a9177a88b1329476800e4b26f20f1fa8575",
+      "path": "srn_weapon/iwswdg_b_121.tga",
+      "sha256": "8fb435b1211d250f98827d30bd5d5a9177a88b1329476800e4b26f20f1fa8575",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67ch.hak",
+      "sourceResource": "iwswdg_m_121.tga",
+      "approvedSourceSha256": "7e62b26b0a4e25d0147558e682f7e77a49bc11fb1e4c8041a4a0e443d3ca85d8",
+      "path": "srn_weapon/iwswdg_m_121.tga",
+      "sha256": "7e62b26b0a4e25d0147558e682f7e77a49bc11fb1e4c8041a4a0e443d3ca85d8",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67ch.hak",
+      "sourceResource": "iwswdg_t_121.tga",
+      "approvedSourceSha256": "b7fbb8b591105df245f1fcf3deb613116c29b7b8d85e8c3d1c360ac67cb06723",
+      "path": "srn_weapon/iwswdg_t_121.tga",
+      "sha256": "b7fbb8b591105df245f1fcf3deb613116c29b7b8d85e8c3d1c360ac67cb06723",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67ch.hak",
+      "sourceResource": "sr42aae67c_12.tga",
+      "approvedSourceSha256": "d7f8aa8eac55d8140dd6ce464ead4ca7b8b79c0fd2ffc1c2b21126542e0aebe1",
+      "path": "srn_weapon/sr42aae67c_12.tga",
+      "sha256": "d7f8aa8eac55d8140dd6ce464ead4ca7b8b79c0fd2ffc1c2b21126542e0aebe1",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67ch.hak",
+      "sourceResource": "wswdg_b_121.mdl",
+      "approvedSourceSha256": "29568329b2d3737e4ff8702471fd75fa900667ba87ce71ae0d39d432f4c7dd8c",
+      "path": "srn_weapon/wswdg_b_121.mdl",
+      "sha256": "29568329b2d3737e4ff8702471fd75fa900667ba87ce71ae0d39d432f4c7dd8c",
+      "bytes": 87220,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67ch.hak",
+      "sourceResource": "wswdg_m_121.mdl",
+      "approvedSourceSha256": "8ef92d9636fdc5b1ad183d01be92ba7d1633bdafeb9cbdc4525fec0e24de5e58",
+      "path": "srn_weapon/wswdg_m_121.mdl",
+      "sha256": "8ef92d9636fdc5b1ad183d01be92ba7d1633bdafeb9cbdc4525fec0e24de5e58",
+      "bytes": 142580,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67ch.hak",
+      "sourceResource": "wswdg_t_121.mdl",
+      "approvedSourceSha256": "28f9be6ee583ea2aca305560b8c8e96a1d8386b721bf77bf95761634765e80f9",
+      "path": "srn_weapon/wswdg_t_121.mdl",
+      "sha256": "28f9be6ee583ea2aca305560b8c8e96a1d8386b721bf77bf95761634765e80f9",
+      "bytes": 450764,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-vibro-blades-knife-9604aa44b5",
+      "sourceArchive": "sr42aae67cm.mod",
+      "sourceResource": "sr42aae67c.uti",
+      "approvedSourceSha256": "04d9dc7c37ae3a84aa1ead159efa2ac7cf0108053b8243237e2a4b8b3a70edd6",
+      "path": "srn_weapon/sr42aae67c.uti",
+      "sha256": "04d9dc7c37ae3a84aa1ead159efa2ac7cf0108053b8243237e2a4b8b3a70edd6",
+      "bytes": 744,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333h.hak",
+      "sourceResource": "iwswls_b_191.tga",
+      "approvedSourceSha256": "2df315d7e9e666cdf9883dd0be48c356fe019b61fd7b0d5b3dfefe4f8c6a83cd",
+      "path": "srn_weapon/iwswls_b_191.tga",
+      "sha256": "2df315d7e9e666cdf9883dd0be48c356fe019b61fd7b0d5b3dfefe4f8c6a83cd",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333h.hak",
+      "sourceResource": "iwswls_m_191.tga",
+      "approvedSourceSha256": "f487ee9982127d55361c668d7160889dacfdb1d4a7d863a57dc527665f53e333",
+      "path": "srn_weapon/iwswls_m_191.tga",
+      "sha256": "f487ee9982127d55361c668d7160889dacfdb1d4a7d863a57dc527665f53e333",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333h.hak",
+      "sourceResource": "iwswls_t_191.tga",
+      "approvedSourceSha256": "5afe5f243ed06537067241e2bf9f47c8920a3cd00bdef9e3ef170f0df1aee380",
+      "path": "srn_weapon/iwswls_t_191.tga",
+      "sha256": "5afe5f243ed06537067241e2bf9f47c8920a3cd00bdef9e3ef170f0df1aee380",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333h.hak",
+      "sourceResource": "sr84ad1333_19.tga",
+      "approvedSourceSha256": "373b40d7a112fb37025b2481e7a8973ba256c691cd88280530e0affcdf6a86be",
+      "path": "srn_weapon/sr84ad1333_19.tga",
+      "sha256": "373b40d7a112fb37025b2481e7a8973ba256c691cd88280530e0affcdf6a86be",
+      "bytes": 12582956,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333h.hak",
+      "sourceResource": "wswls_b_191.mdl",
+      "approvedSourceSha256": "eeb3e30c193588f88571dc62471221680e6fbb0b64c566297028d196917e840b",
+      "path": "srn_weapon/wswls_b_191.mdl",
+      "sha256": "eeb3e30c193588f88571dc62471221680e6fbb0b64c566297028d196917e840b",
+      "bytes": 104972,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333h.hak",
+      "sourceResource": "wswls_m_191.mdl",
+      "approvedSourceSha256": "5dd79d11ede19e02a2e0bf81b0a5efb6f7f9093f183eae28ea2de1a4b14d35df",
+      "path": "srn_weapon/wswls_m_191.mdl",
+      "sha256": "5dd79d11ede19e02a2e0bf81b0a5efb6f7f9093f183eae28ea2de1a4b14d35df",
+      "bytes": 245132,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333h.hak",
+      "sourceResource": "wswls_t_191.mdl",
+      "approvedSourceSha256": "3a4b8634a994bcf8d4d62aba09200b42e723b29654433cf88fed1df862fc5b8e",
+      "path": "srn_weapon/wswls_t_191.mdl",
+      "sha256": "3a4b8634a994bcf8d4d62aba09200b42e723b29654433cf88fed1df862fc5b8e",
+      "bytes": 808316,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-rapier-c89da3d7df",
+      "sourceArchive": "sr84ad1333m.mod",
+      "sourceResource": "sr84ad1333.uti",
+      "approvedSourceSha256": "dc2eb870ec4f65250f92bfb9a8a78f150e6a31632445a0078a3867f08fa577a4",
+      "path": "srn_weapon/sr84ad1333.uti",
+      "sha256": "dc2eb870ec4f65250f92bfb9a8a78f150e6a31632445a0078a3867f08fa577a4",
+      "bytes": 732,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566h.hak",
+      "sourceResource": "iwswgs_b_101.tga",
+      "approvedSourceSha256": "f17b5f46565d420ef782dc10358dbe1bcb92efe7bdb72874563673813e4ac20f",
+      "path": "srn_weapon/iwswgs_b_101.tga",
+      "sha256": "f17b5f46565d420ef782dc10358dbe1bcb92efe7bdb72874563673813e4ac20f",
+      "bytes": 65580,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566h.hak",
+      "sourceResource": "iwswgs_m_101.tga",
+      "approvedSourceSha256": "20bc1f3ca01916e622fae79a4579f514c19603d4b4a9ecc196492635b9b875e0",
+      "path": "srn_weapon/iwswgs_m_101.tga",
+      "sha256": "20bc1f3ca01916e622fae79a4579f514c19603d4b4a9ecc196492635b9b875e0",
+      "bytes": 65580,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566h.hak",
+      "sourceResource": "iwswgs_t_101.tga",
+      "approvedSourceSha256": "146bf58f5d2a2bec75232d6723662e6ba78360956256d7dda1db81e67d063fb6",
+      "path": "srn_weapon/iwswgs_t_101.tga",
+      "sha256": "146bf58f5d2a2bec75232d6723662e6ba78360956256d7dda1db81e67d063fb6",
+      "bytes": 65580,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566h.hak",
+      "sourceResource": "sr9849b566_10.tga",
+      "approvedSourceSha256": "e2292d2668bb445df47dfb062cb6048b6395fb7661b63afc2f0db5f667042cb7",
+      "path": "srn_weapon/sr9849b566_10.tga",
+      "sha256": "e2292d2668bb445df47dfb062cb6048b6395fb7661b63afc2f0db5f667042cb7",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566h.hak",
+      "sourceResource": "wswgs_b_101.mdl",
+      "approvedSourceSha256": "25ba8e2a604dd37873b9452593e6e84102ae7c210db1acd5633bb5eda9f3aa29",
+      "path": "srn_weapon/wswgs_b_101.mdl",
+      "sha256": "25ba8e2a604dd37873b9452593e6e84102ae7c210db1acd5633bb5eda9f3aa29",
+      "bytes": 113916,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566h.hak",
+      "sourceResource": "wswgs_m_101.mdl",
+      "approvedSourceSha256": "549f43a17ac688f7f74f39670230b826e8cdb57faf725af5d85149ac2b8937e6",
+      "path": "srn_weapon/wswgs_m_101.mdl",
+      "sha256": "549f43a17ac688f7f74f39670230b826e8cdb57faf725af5d85149ac2b8937e6",
+      "bytes": 267224,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566h.hak",
+      "sourceResource": "wswgs_t_101.mdl",
+      "approvedSourceSha256": "4e6273062c0fcc364f7dfb34673857bb48bd55ccaff4324b79109d8f23f25527",
+      "path": "srn_weapon/wswgs_t_101.mdl",
+      "sha256": "4e6273062c0fcc364f7dfb34673857bb48bd55ccaff4324b79109d8f23f25527",
+      "bytes": 968364,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-combat-axe-3870814348",
+      "sourceArchive": "sr9849b566m.mod",
+      "sourceResource": "sr9849b566.uti",
+      "approvedSourceSha256": "8456d676beaf3f1af0ee8e8516700de54a296c5a8ae340ae6f9afcb4f7beed8a",
+      "path": "srn_weapon/sr9849b566.uti",
+      "sha256": "8456d676beaf3f1af0ee8e8516700de54a296c5a8ae340ae6f9afcb4f7beed8a",
+      "bytes": 736,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8h.hak",
+      "sourceResource": "iwdbqs_b_071.tga",
+      "approvedSourceSha256": "cc7ac4b97556187ce06d4fefaf337002200b488935551078a11ab038b75aaa6e",
+      "path": "srn_weapon/iwdbqs_b_071.tga",
+      "sha256": "cc7ac4b97556187ce06d4fefaf337002200b488935551078a11ab038b75aaa6e",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8h.hak",
+      "sourceResource": "iwdbqs_m_071.tga",
+      "approvedSourceSha256": "915703c1e40092bd62d13188c803de3b4673c4b4ebf40eb4fc2613eeda8034ce",
+      "path": "srn_weapon/iwdbqs_m_071.tga",
+      "sha256": "915703c1e40092bd62d13188c803de3b4673c4b4ebf40eb4fc2613eeda8034ce",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8h.hak",
+      "sourceResource": "iwdbqs_t_071.tga",
+      "approvedSourceSha256": "94f241bbdbf15070a271479a4c87fb031990b9840df2c239270188e8ac012974",
+      "path": "srn_weapon/iwdbqs_t_071.tga",
+      "sha256": "94f241bbdbf15070a271479a4c87fb031990b9840df2c239270188e8ac012974",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8h.hak",
+      "sourceResource": "sr2febc2a8_07.tga",
+      "approvedSourceSha256": "e9412e62544421fbdc815620642b6694490a799d9171e54799a84a5907d7da73",
+      "path": "srn_weapon/sr2febc2a8_07.tga",
+      "sha256": "e9412e62544421fbdc815620642b6694490a799d9171e54799a84a5907d7da73",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8h.hak",
+      "sourceResource": "wdbqs_b_071.mdl",
+      "approvedSourceSha256": "2a5d3746c02346940e2323d8c5b0220e22327806225cc88aa5f2e85f370b418f",
+      "path": "srn_weapon/wdbqs_b_071.mdl",
+      "sha256": "2a5d3746c02346940e2323d8c5b0220e22327806225cc88aa5f2e85f370b418f",
+      "bytes": 147736,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8h.hak",
+      "sourceResource": "wdbqs_m_071.mdl",
+      "approvedSourceSha256": "348fa270233ae98dc937ed21662170e63aaa3ea448600414eccb1b388a6452ef",
+      "path": "srn_weapon/wdbqs_m_071.mdl",
+      "sha256": "348fa270233ae98dc937ed21662170e63aaa3ea448600414eccb1b388a6452ef",
+      "bytes": 149240,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8h.hak",
+      "sourceResource": "wdbqs_t_071.mdl",
+      "approvedSourceSha256": "0cb9fed24e8bf713e052f67d6852049c11b8d18053538af079ed1cfa9be5560c",
+      "path": "srn_weapon/wdbqs_t_071.mdl",
+      "sha256": "0cb9fed24e8bf713e052f67d6852049c11b8d18053538af079ed1cfa9be5560c",
+      "bytes": 494132,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-spear-2febc2a88a",
+      "sourceArchive": "sr2febc2a8m.mod",
+      "sourceResource": "sr2febc2a8.uti",
+      "approvedSourceSha256": "865bf43d61e6dc8982a26b2cb8b3a00d27dd961023809ed66d4d94d06b0a0f06",
+      "path": "srn_weapon/sr2febc2a8.uti",
+      "sha256": "865bf43d61e6dc8982a26b2cb8b3a00d27dd961023809ed66d4d94d06b0a0f06",
+      "bytes": 731,
+      "resourceType": 2025
     }
   ],
   "sharedResourceItems": [
@@ -2594,7 +2954,15 @@
     "srf91fc563h.hak": "2e65dd383a709dab74d5550298e411300e4a3551104978238dbfcf76c3716c08",
     "srf91fc563m.mod": "5bb868171421c47eb84e48b6f70cef63bc0e108d3b688bba89e116690513f116",
     "sr0eabace5h.hak": "9b735ad51ddb6b67554c7a7eb5413a6bd7db9636687cf992361d89acbe061ac9",
-    "sr0eabace5m.mod": "aff2989a704a30a52c3eb0fe4d1be46c018bb41185b4f4cb6a45474c07795285"
+    "sr0eabace5m.mod": "aff2989a704a30a52c3eb0fe4d1be46c018bb41185b4f4cb6a45474c07795285",
+    "sr42aae67ch.hak": "93d75934f1713ffc0e326df2a67b39218095c42449f12834dd748fbb90ed3932",
+    "sr42aae67cm.mod": "a38c599170d9adcfb798bfb1ef66cfb11b2d2ce722b0f03516199335f7e12416",
+    "sr84ad1333h.hak": "2410b88067722a8692eecb85e76a42b24a593b2f20278d97246f245f08ee4cc7",
+    "sr84ad1333m.mod": "226647e6d0789d6dcef5b9a7fe295dd6e703d17c7394f868920d77fa54857935",
+    "sr9849b566h.hak": "7953d3be0f6f08f3e3279b62a15470a86c999e5b28df57fc2729e36d17f35906",
+    "sr9849b566m.mod": "27e6edbd826097bb071031c917d363b16ee07b30064863c7a71359b1689931cf",
+    "sr2febc2a8h.hak": "d25abc21202e3e9317ba918b0d770d118e29df64fb6b77d066004afa0c529984",
+    "sr2febc2a8m.mod": "a00696c90f6c1e521cfc9a4df1b3e0c852d0c8e864358897bcdc98410444dcfb"
   },
   "approvalEvidence": {
     "completedWeaponsSha256": "28da1b6dbcde332078ec2468f5a292d2c89f13735c7a1a2ff7ef1b0d803d8e38",
@@ -2618,7 +2986,9 @@
       "Yes, publish them",
       "Yes, keep it",
       "should also add the wave 1 weapons to that PR if they haven't been published yet.",
-      "Hand fit is fine"
+      "Hand fit is fine",
+      "Approve all three",
+      "With wave 3"
     ]
   },
   "displayTable": {
@@ -2635,22 +3005,22 @@
     },
     "intentionalOverride": true,
     "originalSha256": "3fbdcd012b55f0b869c6324cc7d4ece44ed63a78f00e7889e7acefac28c8fdf4",
-    "overrideSha256": "8c8db4529b46a13d7ba2eefa7a7ba48fdbf90dcb7feb620181574a91c77ed8d8",
+    "overrideSha256": "7d17ecfe9646024cdf93b99e22b9849d7fc71d4400b9cfd9c1a398da986c1bb7",
     "resource": "baseitems.2da",
     "unrelatedBytesPreserved": true,
     "ordinarySlingCompatibility": "Not newly client-qualified; changes the whole Sling family"
   },
-  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance. Melee wave 1: Survival Knife (F1/row 22, 091), Sword (F2/row 1, 131), Club (F2, 141) and Claymore (F4/row 13, 081) were viewed in the NWN:EE client from their private itemkit fixtures; the user kept each (\"Yes, keep it\"; for the Sword this was its 1.10 m size). Not production acceptance. The Claymore and Club grip-depth departures were hand-fit reviewed on both Human bodies from scripted idle captures of rebuilds of the same fits (Claymore run-fixture-v5 refixture-2 captures-2, Club run-fixture-v2 captures-1); user: \"Hand fit is fine\".",
+  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance. Melee wave 1: Survival Knife (F1/row 22, 091), Sword (F2/row 1, 131), Club (F2, 141) and Claymore (F4/row 13, 081) were viewed in the NWN:EE client from their private itemkit fixtures; the user kept each (\"Yes, keep it\"; for the Sword this was its 1.10 m size). Not production acceptance. The Claymore and Club grip-depth departures were hand-fit reviewed on both Human bodies from scripted idle captures of rebuilds of the same fits (Claymore run-fixture-v5 refixture-2 captures-2, Club run-fixture-v2 captures-1); user: \"Hand fit is fine\". Melee wave 3 (Vibro Knife, Rapier, Combat Axe) and the Spear were look-approved by the user from unattended in-client captures on both shipped Human bodies (2026-11-13); not production acceptance.",
   "smgOnHold": false,
   "productionDeploymentPerformed": false,
-  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker. The four wave-1 melee blueprints and resources are byte-identical to the native packages and fixture modules of the runs the user approved; no table change.",
+  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker. The four wave-1 melee blueprints and resources are byte-identical to the native packages and fixture modules of the runs the user approved; no table change. Vibro Blades Knife, Rapier, Combat Axe, Spear: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 181->191; row 13 MaxRange 100->101; row 22 MaxRange 111->121.",
   "additionalDisplayRows": [
     {
       "baseItem": 1,
       "changes": {
         "MaxRange": {
           "before": "100",
-          "after": "181"
+          "after": "191"
         }
       }
     },
@@ -2659,7 +3029,16 @@
       "changes": {
         "MaxRange": {
           "before": "100",
-          "after": "111"
+          "after": "121"
+        }
+      }
+    },
+    {
+      "baseItem": 13,
+      "changes": {
+        "MaxRange": {
+          "before": "100",
+          "after": "101"
         }
       }
     }
