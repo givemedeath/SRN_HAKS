@@ -642,8 +642,9 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     placed there cuts the torso's flank as well. The bend carries the cut along as vertices of the surface.
 
     With `materials`, a material per face, a shoulder pad on such an arm is found too (`pad`) and parted from
-    the rest along its own outline, the edges where its material ends: `split` gives it to a shoulder part,
-    which rides on the arm. Cut out by planes wide enough to hold it instead, the pad took what the torso wears
+    the rest along its own outline, the edges where its material ends: `split` gives what of it lies past the
+    shoulder plane to a shoulder part, which rides on the arm, and what lies before it, over the top of the
+    shoulder, to the chest (`topped`). Cut out by planes wide enough to hold it instead, the pad took what the torso wears
     round it along, and the torso ended a hand's width short of its own shoulder. `padded` names the sides the
     outfit is designed with a shoulder pad on: one that shows none there is refused. A pad of the sleeve's own
     material cannot be told from the sleeve, and would be cut in two on the shoulder plane without a word, its
@@ -898,6 +899,45 @@ def handed(vertices, faces, uvs, owner, origin, mine, value, to):
             np.concatenate([origin[~mine], origin[mine][o]]), on)
 
 
+def topped(vertices, faces, uvs, owner, origin, names, cuts, sleeves, limit):
+    """Each shoulder pad cut on its shoulder plane, and what of it lies before the plane, over the top of the
+    shoulder, given to the chest: (vertices, faces, uvs, owner, origin, sides), `sides` those cut.
+
+    The shoulder slot's bone is the upper arm's child: a pad turns as far as the arm. Overhead, as the Human
+    male's conjure2 holds it (145 degrees), what of a pad lay over the top of the shoulder swung forward and down
+    into the chest and showed there in shards; in the clips that lift the arms only those points went in. Below
+    the plane the pad still rides on the arm. The cut's points on the pad's outline (`sleeves`, the outline's
+    flags, which this extends) are on the outline too, so the closings along it end on the plane; `limit` is
+    widened to the cut, where the chest and the pad's half on the arm are closed (`lid`)."""
+    v, f, t = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
+    owner, origin, sides = np.asarray(owner, int), np.asarray(origin, int), []
+    for side, found in sleeves.items():
+        name = token('shoulder', side)
+        if 'on' not in found or name not in names or 'chest' not in names:
+            continue
+        mine = owner == names.index(name)
+        point, normal = np.asarray(cuts[('shoulder', side)][0], float), seams.unit(cuts[('shoulder', side)][1])
+        height = (v - point) @ normal
+        if not mine.any() or (height[f[mine]] > EPSILON).all():
+            continue  # all of it on the arm's side
+        outline = np.asarray(found['on'][3], bool)
+        edges = np.concatenate([f[mine][:, [0, 1]], f[mine][:, [1, 2]], f[mine][:, [2, 0]]])
+        edges = edges[outline[edges].all(axis=1)]
+        count = len(v)
+        v, f, t, owner, origin, line = handed(v, f, t, owner, origin, mine, height, names.index('chest'))
+        start, run = v[edges[:, 0]], v[edges[:, 1]] - v[edges[:, 0]]
+        share = np.clip(np.einsum('nkd,kd->nk', v[count:, None] - start[None], run) / np.maximum((run * run).sum(axis=1), 1e-24), 0.0, 1.0)
+        apart = np.linalg.norm(start[None] + share[..., None] * run[None] - v[count:, None], axis=2)
+        found['on'] = [np.concatenate([np.asarray(row, bool), np.zeros(len(v) - len(row), bool)]) for row in found['on']]
+        found['on'][3][count:] |= (apart < WELD).any(axis=1) if len(edges) else False
+        relative = v[line] - point
+        if len(relative):
+            limit[('shoulder', side)] = max(limit[('shoulder', side)],
+                                            float(np.linalg.norm(relative - (relative @ normal)[:, None] * normal, axis=1).max()) + WELD)
+        sides.append(side)
+    return v, f, t, owner, origin, sides
+
+
 def armholed(vertices, faces, uvs, owner, origin, names, cuts, arms, floor=ARM_FLOOR):
     """The upper arms' faces that the body's own chest covers, given to the chest: (vertices, faces, uvs, owner,
     origin, on).
@@ -1110,8 +1150,9 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
     `sleeves` is what `troughs` found on this mesh in the pose it came in, the vertices and faces unchanged
     since but for where they stand: the sleeves are then parted along those cuts. Without it a fused sleeve's
     trough is found and cut on the mesh as it stands here. A shoulder pad `troughs` found goes whole to that
-    side's shoulder part, whichever side of the shoulder plane its faces lie on: it then rides on the arm, as
-    the shoulder slot's bone does.
+    side's shoulder part here, whichever side of the shoulder plane its faces lie on, and `split` gives what of
+    it lies before the plane back to the chest (`topped`): the rest rides on the arm, as the shoulder slot's
+    bone does.
 
     Returns (vertices, faces, uvs, owner, names, origin, cuts, sleeves, between, limit): `owner[i]` indexes
     `names`, `origin[i]` is the face of the mesh given that face i was cut from, `cuts` maps (joint, side) to
@@ -1229,11 +1270,13 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     the surface between the legs that the pelvis repeats under the thighs (`gusset`). `origins`, if a dict is
     given, is filled alike with the face of `faces` each face of a part was cut from, -1 for what the split
     added or repeated. `sleeves` is what `troughs`
-    found on this mesh in the pose it came in. A shoulder pad found with them is a shoulder part (`assign`),
-    closed underneath across its own outline. The outfit has no surface under a pad: the chest is closed where
-    the pad lay on it, rounded out from the shoulder plane as the shoulder under the pad, and the upper arm is
-    closed flat under it, where the pad always covers it. What is then left open of the chest on the shoulder
-    plane is closed too (`lid`). The pelvis is closed on both hip planes, and repeats the surface along the cut
+    found on this mesh in the pose it came in. A shoulder pad found with them is a shoulder part (`assign`)
+    as far as it lies past the shoulder plane, and the chest's before it (`topped`); the shoulder part is closed
+    underneath across its own outline and on the plane. The outfit has no surface under a pad: the upper arm is
+    closed flat under it, where the pad always covers it, and the chest where the pad's part lay on it. A pad
+    the plane cuts leaves the chest open on the plane and, in the armpit, past it: that is closed as one round
+    the arm (`arm_opening`, `lid`). A pad past the plane alone leaves it open along its outline, closed rounded
+    out from the plane as the shoulder under the pad, and what is then left open on the plane is closed too. The pelvis is closed on both hip planes, and repeats the surface along the cut
     between the legs under the thighs (`gusset`).
 
     `guards` maps (joint, side), a knee or an elbow, to the flags of its pad's faces on the mesh given
@@ -1278,6 +1321,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     v, f, t, owner, names, origin, cuts, sleeves, between, limit = assign(vertices, faces, uvs, joints, radii, reach, reaches, whole, sleeves)
     if 'chest' not in names or not np.any(owner == names.index('chest')):
         arms = {}  # no chest to hold an arm's end: its openings are closed and capped on the plane
+    v, f, t, owner, origin, halved = topped(v, f, t, owner, origin, names, cuts, sleeves, limit)
     on_seat = np.zeros(len(v), bool)
     if seat:
         v, f, t, owner, origin, on_seat = seated(v, f, t, owner, origin, names, cuts, between, {key[1]: entry['reach'] for key, entry in seat.items()})
@@ -1301,10 +1345,14 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
         arm = {} if ('shoulder', side) in arms else {token('bicep', side): (1.0, rim('shoulder', side))}  # or its end closes it
         closings.append((trough, {**arm, token('forearm', side): (1.0, None), 'chest': (-1.0, None), 'pelvis': (-1.0, None)}))
         if outline is not None:
-            if np.any(outline['on']) and ('shoulder', side) not in arms:  # a pad was cut off: the chest is open on the shoulder plane as wide as it lay
+            alone = ('shoulder', side) not in arms
+            if np.any(outline['on']) and alone and side not in halved:  # a pad was cut off: the chest is open on the shoulder plane as wide as it lay
                 lids.append(('chest', 'shoulder', side))
-            arm = {} if ('shoulder', side) in arms else {token('bicep', side): (1.0, None)}
-            closings.append((outline, {token('shoulder', side): (1.0, None), **arm, 'chest': (-1.0, rim('shoulder', side), PAD_RINGS)}))
+            arm = {token('bicep', side): (1.0, None)} if alone else {}
+            # a pad halved, the chest is open where its half on the arm lay, on the plane and past it in the armpit:
+            # closed as one, round the arm (below), as the chest round an arm's end is
+            chest = {} if alone and side in halved else {'chest': (-1.0, rim('shoulder', side), PAD_RINGS)}
+            closings.append((outline, {token('shoulder', side): (1.0, None), **arm, **chest}))
     closings.append((between, {token('thigh', 'l'): (1.0, None), token('thigh', 'r'): (-1.0, None)}))
     pads = {}  # per under part with a pad over its joint: the joint, and the pad's flags on the cut faces
     for key, flags in (guards or {}).items():
@@ -1315,6 +1363,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     # with nothing under them. A thigh stands in each opening only as the body stands; turned (a stride, a seat), it
     # leaves the opening, and the crotch hung there as a loose sheet with the inside of the pelvis behind it.
     lids += [('pelvis', 'hip', side) for side in 'lr' if ('hip', side) not in whole and ('hip', side) not in seat]
+    lids += [(token('shoulder', side), 'shoulder', side) for side in halved]  # a pad's half on the arm, open where the chest's half went
+    opened = [side for _, side in arms] + [side for side in halved if ('shoulder', side) not in arms]
     legs = f[np.isin(owner, [names.index(token('thigh', side)) for side in 'lr' if token('thigh', side) in names])]
     seat_over = (v, f[owner == names.index('pelvis')]) if seat and 'pelvis' in names else None  # the pelvis's own surface
     arm_over = None  # the chest's own surface and its closings, which an upper arm's end stays inside
@@ -1342,8 +1392,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
             more = lid(pv, pt, pf, len(pv), None, None, None, on=np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]))
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
-        if name == 'chest' and arms:  # open round each arm, from the plane down the sleeve it took and its closings
-            zone = np.any([arm_opening(pv, cuts, side, limit[('shoulder', side)] + WELD) for _, side in arms], axis=0)
+        if name == 'chest' and opened:  # open round each arm, from the plane down the sleeve it took and its closings
+            zone = np.any([arm_opening(pv, cuts, side, limit[('shoulder', side)] + WELD) for side in opened], axis=0)
             more = lid(pv, pt, pf, len(pv), None, None, None, on=zone)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))

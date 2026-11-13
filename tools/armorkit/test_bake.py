@@ -85,6 +85,9 @@ class BakeTests(unittest.TestCase):
         self.assertEqual(flags('pelvis', 'under'), [False, True, False, False, False, False])
         self.assertFalse(any(flags('pelvis', 'closing')))
         self.assertEqual(flags('pelvis', 'cap'), [False, False, True, False, True, True])
+        # and the chest's closings round each arm, which a lifted arm shows
+        self.assertEqual(flags('chest', 'under'), [False, True, False, False, False, False])
+        self.assertFalse(any(flags('chest', 'closing')))
         # an upper arm's cap is neither a cap nor a closing: it is drawn as read, as the first outfit was seen
         for name in bake.ARMHOLE:
             self.assertEqual(flags(name, 'closing'), [False, True, False, False, False, False])

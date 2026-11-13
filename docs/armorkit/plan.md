@@ -641,3 +641,15 @@ the shoulder are gone). With the arms up, seen from the side, both cuts show gre
 pieces in the open armhole: that is not the cut, and it is still to fix. Crouching, the thighs' grown ends
 show behind the seat as flat grey shapes without the cloth's texture, as in the first client check of the
 seat cut.
+
+The green shards with the arms up were the shoulder pad. The shoulder slot's bone is the upper arm's child,
+and the pad went whole to it: at conjure2's 145 degrees what of it lay over the top of the shoulder swung
+forward and down into the chest (57 and 56 of the pads' 174 and 175 points inside the vest; with no shoulder
+part in the client the shards were gone). The flat grey pieces were the chest's lid in the armhole, a fan
+drawn from its rim in the pad's and the sleeve's colours. Given the choice (cloning the shoulder's surface
+under the pad, or splitting the pad), the user chose the split: the pad is cut on the shoulder plane, the
+half over the top of the shoulder stays on the chest, and the half past it rides on the arm (8 and 1 of the
+84 and 80 points left in the vest overhead). The chest's closings round each arm are shaded as the cloth
+round them. In the client the shards are gone from the arms-up views and the armhole shows cloth; the pad
+shows its cut when the arm moves (forward, crouching, talking), as the choice said it would, and standing it
+shows a faint line across the pad where the chest's texture meets the shoulder part's.

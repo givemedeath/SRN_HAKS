@@ -802,32 +802,38 @@ class SleeveTests(unittest.TestCase):
             self.assertTrue(found['on'][3].any() and np.array_equal(found['on'][3], held[0] & held[1]))
             # it stays one edge through the bend: only on the trough has the torso vertices of its own
             self.assertFalse((found['torso'] & ~found['on'][:3].any(axis=0)).any())
-            made = {}
-            parts = split.split(v, f, t, JOINTS, RADII, made=made, sleeves=sleeves)
+            made, origins = {}, {}
+            parts = split.split(v, f, t, JOINTS, RADII, made=made, origins=origins, sleeves=sleeves)
             self.assertEqual(set(parts) - set(plain), {'shol'})
             padded = {name: tuple(round(area(points, part[made[name] == kind]), 6) for kind in (split.OWN, split.CLOSING))
                       for name, (points, part, _) in parts.items()}
-            # the pad goes whole to the shoulder part, from both sides of the shoulder plane, and nothing else does
-            self.assertAlmostEqual(padded['shol'][0], area(self.v, self.f[materials == 1]), places=6)
-            self.assertLess(padded['chest'][0], plain['chest'][0])
+            # the pad past the shoulder plane goes to the shoulder part, which rides on the arm; what of it lies
+            # before the plane, over the top of the shoulder, stays on the chest, and nothing else moves
+            point, normal = self.planes[('shoulder', 'l')]
+            pad, faces, _ = parts['shol']
+            own = pad[np.unique(faces[made['shol'] == split.OWN])]
+            self.assertGreater(((own - point) @ seams.unit(normal)).min(), -1e-9)
+            past = split.cut(self.v, self.f[materials == 1], self.t, point, normal)
+            centres = past[0][past[1]].mean(axis=1)
+            beyond = past[1][(centres - point) @ seams.unit(normal) > 0]
+            self.assertAlmostEqual(padded['shol'][0], area(past[0], beyond), places=6)
+            self.assertLess(padded['shol'][0], area(self.v, self.f[materials == 1]) - 1e-4)
             self.assertLess(padded['bicepl'][0], plain['bicepl'][0])
             self.assertAlmostEqual(padded['chest'][0] + padded['bicepl'][0] + padded['shol'][0], plain['chest'][0] + plain['bicepl'][0], places=5)
             self.assertEqual({name: found for name, found in padded.items() if name not in ('chest', 'bicepl', 'shol')},
                              {name: found for name, found in plain.items() if name not in ('chest', 'bicepl')})
-            # it is closed underneath, across its own outline; the chest and the upper arm are closed where it lay
-            pad, faces, _ = parts['shol']
+            # it is closed underneath, across its own outline and the plane; the chest and the upper arm are closed where it lay
             self.assertEqual(len(open_edges(faces, pad)), 0)
             self.assertGreater(padded['chest'][1], plain['chest'][1])
             self.assertGreater(padded['bicepl'][1], plain['bicepl'][1])
-            # the chest's closing there is the shoulder under the pad: rounded out from the shoulder plane, toward
-            # the arm, and nowhere farther from the joint than the pad's outline on that plane
+            # the chest keeps the pad before the plane, over the top of the shoulder, and is closed only on the plane
             chest, faces, _ = parts['chest']
-            point, normal = self.planes[('shoulder', 'l')]
+            kept = (made['chest'] == split.OWN) & (origins['chest'] >= 0)
+            kept[kept] = found['pad'][origins['chest'][kept]]
+            before = past[1][(centres - point) @ seams.unit(normal) <= 0]
+            self.assertAlmostEqual(area(chest, faces[kept]), area(past[0], before), places=6)
             closing = chest[np.unique(faces[made['chest'] == split.CLOSING])]
-            above = closing[(closing - point) @ seams.unit(normal) < -1e-6]
-            edge = v[found['on'][3]]
-            self.assertTrue(len(above))
-            self.assertLess(np.linalg.norm(above - self.arm[0], axis=1).max(), np.linalg.norm(edge - self.arm[0], axis=1).max() + 1e-6)
+            self.assertFalse(((closing - point) @ seams.unit(normal) < -1e-6).any())
             # and nothing is left open on the shoulder plane, where the lifted arm no longer fills the chest's opening
             unit = seams.unit(normal)
             on = np.abs((chest - point) @ unit) < 1e-6

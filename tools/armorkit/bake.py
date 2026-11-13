@@ -24,7 +24,8 @@ from .registry import require
 
 ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED)  # what the split made: it has no surface of its own on the generated outfit
 DOMED = (split.CAP, split.PADDED)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
-UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelvis': (split.CLOSING,)}  # shaded as the cloth round them (`texture.under`)
+UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelvis': (split.CLOSING,),
+         'chest': (split.CLOSING,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
 BUDGET = {'chest': 6000, 'slot': 2250, 'outfit': 30000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
@@ -50,8 +51,10 @@ def roles(name, made):
 
     `added` are the faces the split made, `domed` those of them that are not creased at their rim. Of the
     added faces, `under` are shaded as the cloth they lie under, vertex by vertex (`texture.under`): a
-    thigh's cap and its wall toward the other leg, and the pelvis's lids, of which a stride shows a hand's
-    breadth. `closing`, `cap` and `padded` are `texture.tint_maps`' flags of the same names for the rest: a
+    thigh's cap and its wall toward the other leg, the pelvis's lids, of which a stride shows a hand's
+    breadth, and the chest's closings round each arm, which a lifted arm shows: drawn from their rims, they
+    were fans of streaks in the pad's and the sleeve's colours (the Site Guard with its arms up, in the
+    client). `closing`, `cap` and `padded` are `texture.tint_maps`' flags of the same names for the rest: a
     thigh's wall goes with its cap where it is not `under`.
 
     An upper arm's cap is none of these and is drawn as it was read, its rim's colours carried to its pole.
@@ -330,7 +333,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
         chest = parts['chest']
         seen = np.where(chest['covered'], texture.labels(chest['rgb'].reshape(-1, 3), first['tones']).reshape(chest['covered'].shape), -1)
-        others = texture.edge_materials(seen, chest['closing'])
+        others = texture.edge_materials(seen, texture.face_texels(chest['uv'], chest['f'], made['chest'] == split.CLOSING, len(chest['rgb'])))
         for name in ARMHOLE:
             if name in parts:
                 part, size = parts[name], len(parts[name]['rgb'])
