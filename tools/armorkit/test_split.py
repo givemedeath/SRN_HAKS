@@ -792,7 +792,7 @@ class SleeveTests(unittest.TestCase):
         plain = self.own(self.v, self.f, self.t)
         for outer in (False, True):  # a pad all round the shoulder, and one on the arm's outer side alone
             materials = self.patch(outer=outer)
-            v, f, t, origin, sleeves = split.troughs(self.v, self.f, self.t, JOINTS, materials)
+            v, f, t, origin, sleeves = split.troughs(self.v, self.f, self.t, JOINTS, materials, padded='l')
             found = sleeves['l']
             self.assertTrue(np.array_equal(found['pad'], (materials == 1)[origin]))
             self.assertAlmostEqual(area(v, f[found['pad']]), area(self.v, self.f[materials == 1]), places=9)
@@ -891,6 +891,15 @@ class SleeveTests(unittest.TestCase):
         self.assertEqual(split.troughs(v, f, t, JOINTS, patch)[4], {})
         with self.assertRaises(ValueError):
             split.troughs(v, f, t, JOINTS, patch, padded='l')
+        with self.assertRaises(ValueError):
+            split.troughs(self.v, self.f, self.t, JOINTS, materials[:-1])
+
+    def test_no_pad_is_looked_for_on_a_side_designed_without_one(self):
+        # a short sleeve of a material of its own reads as a pad: the outfit has none there, and the sleeve stays whole
+        materials = self.patch()
+        found = split.troughs(self.v, self.f, self.t, JOINTS, materials)[4]['l']
+        self.assertFalse(found['pad'].any() or found['on'][3].any())
+        self.assertEqual(found['inside'].sum(), split.troughs(self.v, self.f, self.t, JOINTS)[4]['l']['inside'].sum())
 
     def test_under_a_shoulder_pad_the_walls_are_measured_right_under_the_armpit(self):
         # the shoulder stands 3 cm farther out front and back than the arm does under the armpit

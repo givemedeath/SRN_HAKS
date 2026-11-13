@@ -393,7 +393,7 @@ class ReposeTests(unittest.TestCase):
         materials = np.zeros(len(self.faces), int)
         for side in 'lr':
             materials[np.linalg.norm(centre - self.result['joints']['shoulder' + side], axis=1) < 0.07 * SCALE] = 1
-        result = repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials)
+        result = repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials, padded='lr')
         self.assertTrue(np.array_equal(np.any([found['pad'] for found in result['sleeves'].values()], axis=0), (materials == 1)[result['origin']]))
         for side, found in result['sleeves'].items():
             self.assertTrue(found['pad'].any() and found['on'][3].any())

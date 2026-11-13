@@ -641,14 +641,17 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     alone. At rest the sleeve lies against the torso's side again, pressed into it by the fit, and a trough
     placed there cuts the torso's flank as well. The bend carries the cut along as vertices of the surface.
 
-    With `materials`, a material per face, a shoulder pad on such an arm is found too (`pad`) and parted from
+    With `materials`, a material per face, a shoulder pad on an arm `padded` names is found too (`pad`) and parted from
     the rest along its own outline, the edges where its material ends: `split` gives what of it lies past the
     shoulder plane to a shoulder part, which rides on the arm, and what lies before it, over the top of the
     shoulder, to the chest (`topped`). Cut out by planes wide enough to hold it instead, the pad took what the torso wears
     round it along, and the torso ended a hand's width short of its own shoulder. `padded` names the sides the
     outfit is designed with a shoulder pad on: one that shows none there is refused. A pad of the sleeve's own
     material cannot be told from the sleeve, and would be cut in two on the shoulder plane without a word, its
-    upper half left on the chest when the arm lifts.
+    upper half left on the chest when the arm lifts. On a side `padded` does not name no pad is looked for:
+    Facility Security's short right sleeve, a patch of cloth within a pad's reach of the shoulder, was taken
+    for one, went whole to a shoulder part, and left nothing of the sleeve to go with the arm (2026-11-13).
+    Shoulder pads are made apart from the outfit now, and the brief says which sides have one.
 
     `joints` holds the shoulder and elbow joints as `lbicep_g`, `lforearm_g` and so on, in the mesh's space and in
     metres. `origin[i]` is the face that new face i was cut from. `sleeves` maps a side with a fused sleeve to
@@ -665,7 +668,8 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     v, f, t = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
     origin, found = np.arange(len(f)), {}
     require(set(padded) <= {'l', 'r'} and (materials is not None or not padded), 'Pads are expected on the l or r side, and told by materials')
-    pads = {side: None if materials is None else pad(v, f, materials, joints, side) for side in 'lr'}
+    require(materials is None or np.shape(materials) == (len(f),), 'One material per face is required')
+    pads = {side: pad(v, f, materials, joints, side) if side in padded else None for side in 'lr'}
     for side in 'lr':
         seam = sleeve(v, f, joints, side, padded=pads[side] is not None, above=SLEEVE_ABOVE)
         require(side not in padded or (seam is not None and pads[side] is not None),
