@@ -441,16 +441,14 @@ class OpeningProbeTests(unittest.TestCase):
             review = {'decision': 'approved', 'measurementDigest': 'blender', 'notes': 'user: 1.00 m'}
             manifest = {'inputs': {'workingMesh': {'path': 'w.glb'}, 'gripStandard': {'path': 'std.json'}},
                         'fit': {'matrix': np.eye(4).tolist(), 'gripDeparture': review}}
-            calls = []
-            def fit(family, fit, standard, b, f, M):
-                calls.append(fit['gripDeparture']['measurementDigest'])
-                if fit['gripDeparture']['measurementDigest'] != 'numpy': raise GripDeparture({'measurementDigest': 'numpy'})
-                return np.eye(4) * 2, {}
+            family = {'family': 'club', 'native': {'gripOrigin': [0, 0, 0]}}
+            departure = GripDeparture({'measurementDigest': 'numpy', 'fitMatrix': (np.eye(4) * 2).tolist()})
             with mock.patch('tools.headkit.gltf.load', return_value=(None, None, None)), mock.patch('tools.headkit.gltf.arrays', return_value=(np.zeros((3, 3)), [[0, 1, 2]], None)), \
-                    mock.patch('tools.itemkit.grip.melee_fit', side_effect=fit):
-                self.assertEqual(op.placement(manifest, {}, h)[2][0, 0], 2); self.assertEqual(calls, ['blender', 'numpy'])
+                    mock.patch('tools.itemkit.grip.melee_fit', side_effect=departure) as fit:
+                self.assertEqual(op.placement(manifest, family, h)[2][0, 0], 2); self.assertEqual(fit.call_count, 1)   # measured once
                 manifest['fit']['gripDeparture'] = {**review, 'decision': 'rejected'}
-                with self.assertRaisesRegex(ValueError, 'without an approved review'): op.placement(manifest, {}, h)
+                with self.assertRaisesRegex(ValueError, 'without an approved review'): op.placement(manifest, family, h)
+                with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.placement({'inputs': {}}, family, h)   # checked here too
         with self.assertRaisesRegex(ValueError, 'geometryForegroundMask'):
             op.reference_fractions({'inputs': {}, 'openings': [{'name': 'x', 'referenceBounds': [0, 0, 1, 1]}]}, '.')
 
