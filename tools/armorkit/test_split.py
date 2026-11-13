@@ -1299,6 +1299,8 @@ class ArmTests(unittest.TestCase):
             split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, arms={('hip', 'l'): self.arms[('shoulder', 'l')]})
         with self.assertRaises(ValueError):
             split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, arms={('shoulder', 'l'): {'ring': np.full(16, self.RING)}})
+        with self.assertRaises(ValueError):  # a shoulder left whole is not cut on the body's armhole either
+            split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, whole={('shoulder', 'l')}, arms=self.arms)
 
 
 def padded_leg(low=0.09, high=0.09):

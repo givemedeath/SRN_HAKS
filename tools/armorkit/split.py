@@ -1317,7 +1317,7 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     require(all(key in (('hip', 'l'), ('hip', 'r')) and key not in set(whole) and {'reach', 'ring'} <= set(entry) for key, entry in seat.items()),
             'A seat is a hip by joint and side, with how far the pelvis reaches past it and the ring its thigh ends at')
     arms = dict(arms or {})
-    require(all(key in (('shoulder', 'l'), ('shoulder', 'r')) and {'line', 'ring'} <= set(entry) for key, entry in arms.items()),
+    require(all(key in (('shoulder', 'l'), ('shoulder', 'r')) and key not in set(whole) and {'line', 'ring'} <= set(entry) for key, entry in arms.items()),
             'An arm is a shoulder by joint and side, with the line the body\'s arm leaves its chest on and the ring its upper arm ends at')
     v, f, t, owner, names, origin, cuts, sleeves, between, limit = assign(vertices, faces, uvs, joints, radii, reach, reaches, whole, sleeves)
     if 'chest' not in names or not np.any(owner == names.index('chest')):

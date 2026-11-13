@@ -61,12 +61,18 @@ class ArmholeTests(unittest.TestCase):
         expected = -(0.02 + 0.025 * np.cos(2 * np.pi * np.arange(64) / 64) * a[0])
         self.assertTrue(np.allclose(line, expected, atol=0.006), np.round(line - expected, 4))
         self.assertGreater(np.ptp(line), 0.04)
+        with self.assertRaises(ValueError):  # an open chest has no inside to tell the arm out of
+            measure.armhole({**parts, 'chest': (np.array(corners, float), np.array(box[:-1]))}, np.zeros(3), (0, 0, -1.0), 'l')
 
     def test_the_winding_number_tells_inside_from_outside(self):
         corners = np.array([(x, y, z) for z in (0.0, 1.0) for y in (0.0, 1.0) for x in (0.0, 1.0)], float)
         box = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
         wound = measure.winding(np.array([(0.5, 0.5, 0.5), (0.1, 0.9, 0.2), (1.5, 0.5, 0.5), (0.5, 0.5, -0.01)]), corners, box)
         self.assertTrue(np.allclose(np.abs(wound), (1, 1, 0, 0), atol=1e-9))
+        # it means that only of a closed surface, and `armhole` asks for one
+        self.assertTrue(measure.closed(corners, box))
+        self.assertFalse(measure.closed(corners, box[:-1]))
+        self.assertFalse(measure.closed(corners, box[:0]))
 
 
 class MeasuredContractTests(unittest.TestCase):

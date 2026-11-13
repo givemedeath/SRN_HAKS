@@ -134,8 +134,10 @@ def armhole(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EV
     a, b = seams.frame(normal)
     flat = relative - height[:, None] * normal
     near = (np.linalg.norm(flat, axis=1) < OVER_LIMIT * ring.max()) & (np.abs(height) < ARMHOLE_HEIGHT)
+    chest = skin(parts, 'chest', 'c')
+    require(closed(*chest), "The body's chest skin is open: its winding number does not tell inside from outside")
     shows = near.copy()
-    shows[near] = np.abs(winding(points[near], *skin(parts, 'chest', 'c'))) < 0.5
+    shows[near] = np.abs(winding(points[near], *chest)) < 0.5
     angle = np.arctan2(relative[shows] @ b, relative[shows] @ a) % (2 * math.pi)
     sector = np.floor(angle / (2 * math.pi / directions) + 0.5).astype(int) % directions
     line = np.full(directions, np.inf)
@@ -154,6 +156,17 @@ def _evened(values, even):
     half = even // 2
     wrapped = np.concatenate([values[len(values) - half:], values, values[:half]])
     return np.convolve(wrapped, np.ones(even) / even, mode='valid')
+
+
+def closed(vertices, faces, weld=1e-5):
+    """Whether a surface has no edge on one face only, vertices within `weld` of each other being one point."""
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces, int).reshape(-1, 3)
+    _, point = np.unique(np.round(vertices / weld).astype(np.int64), axis=0, return_inverse=True)
+    point = point.reshape(-1)[faces]
+    edges = np.sort(np.concatenate([point[:, [0, 1]], point[:, [1, 2]], point[:, [2, 0]]]), axis=1)
+    edges = edges[edges[:, 0] != edges[:, 1]]
+    _, count = np.unique(edges, axis=0, return_counts=True)
+    return bool(len(edges)) and not (count == 1).any()
 
 
 def winding(points, vertices, faces, chunk=WINDING_CHUNK):
