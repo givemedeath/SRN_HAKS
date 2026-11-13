@@ -348,6 +348,60 @@ class BakeTests(unittest.TestCase):
                 bake.run(document, 'out', 'bodies', 332, **wrong)
 
 
+class BudgetTests(unittest.TestCase):
+    """A part over its triangle budget, cut down after the split."""
+
+    def setUp(self):
+        from .test_split import JOINTS, RADII
+        self.joints = {name: np.array(p, float) for name, p in JOINTS.items()}
+        self.radii = RADII
+        # a thigh: a fine tube from the hip to the knee, open at the hip and capped by a fan past the knee
+        hip, knee = self.joints['lthigh_g'], self.joints['lshin_g']
+        v, f, t = tube(hip, knee + (0, 0, -0.03), 0.07, around=24, along=40)
+        pole = len(v)
+        v = np.concatenate([v, [knee + (0, 0, -0.06)]])
+        last = 40 * 24 + np.arange(24)
+        cap = np.array([(pole, last[(k + 1) % 24], last[k]) for k in range(24)])
+        self.v, self.f = v, np.concatenate([f, cap])
+        self.columns = np.c_[v, np.arange(len(v))]  # a vertex's columns ride with it
+        self.made = np.r_[np.full(len(f), split.OWN), np.full(len(cap), split.CAP)]
+        self.origin = np.r_[np.arange(len(f)), np.full(len(cap), -1)]
+
+    def run_budget(self, budget, beside=None, left=()):
+        made, origins = {'legl': self.made.copy()}, {'legl': self.origin.copy()}
+        with mock.patch.dict(bake.BUDGET, {'slot': budget}):
+            out = bake.within_budget({'legl': (self.v, self.f, self.columns)}, made, origins, self.joints, self.radii, beside, left)
+        return out['legl'], made['legl'], origins['legl']
+
+    def test_a_part_over_its_budget_is_cut_down_and_what_the_split_made_and_its_ends_stay(self):
+        (pv, pf, pc), made, origin = self.run_budget(1200)
+        self.assertLessEqual(len(pf), 1200)
+        self.assertEqual((len(made), len(origin)), (len(pf), len(pf)))
+        self.assertTrue(np.array_equal(pv, self.v[pc[:, 3].astype(int)]))  # each vertex kept with its own columns, where it was
+        self.assertEqual(int((made == split.CAP).sum()), 24)  # the cap whole
+        kept = set(pc[:, 3].astype(int).tolist())
+        knee_point, knee_normal = split.planes(self.joints)[('knee', 'l')]
+        near = np.abs((self.v - knee_point) @ seams.unit(knee_normal)) < bake.END_BAND
+        self.assertTrue(set(np.flatnonzero(near).tolist()) <= kept)  # the end the seam contract measures
+        self.assertTrue(set(np.flatnonzero(self.v[:, 2] > self.joints['lthigh_g'][2] - 1e-9).tolist()) <= kept)  # the open rim
+        self.assertTrue(np.array_equal(origin[made == split.OWN], np.sort(origin[made == split.OWN])))  # faces kept in their order
+
+    def test_a_part_within_its_budget_or_left_to_the_body_is_not_touched(self):
+        for budget, left in ((len(self.f), ()), (100, ('legl',))):
+            (pv, pf, pc), made, origin = self.run_budget(budget, left=left)
+            self.assertTrue(pv is self.v and pf is self.f and np.array_equal(made, self.made))
+
+    def test_the_bodys_skin_beside_a_part_counts_against_its_budget(self):
+        counted = []
+
+        def beside(vertices, faces):
+            counted.append(len(faces))
+            return 300  # the body's own faces the part will hold
+        (pv, pf, pc), _, _ = self.run_budget(1200, {'legl': beside})
+        self.assertLessEqual(len(pf), 900)
+        self.assertGreaterEqual(len(counted), 2)  # counted again on the part cut down
+
+
 class SplitCaptureTests(unittest.TestCase):
     def test_what_the_split_is_given_is_kept_as_it_was(self):
         given = {'vertices': np.arange(12.0).reshape(4, 3), 'faces': np.array([(0, 1, 2), (0, 2, 3)]),
