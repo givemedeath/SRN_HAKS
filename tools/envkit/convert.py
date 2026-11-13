@@ -35,8 +35,8 @@ DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
 MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
-PLACING = ('lift', 'turn', 'signTilt')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned and tilted
-RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+PLACING = ('lift', 'turn', 'signTilt', 'length')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted and stretched
+RETOUCHING = ('turn', 'length', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what of a game set `shape` takes to turn, clear, close and retouch a model
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -116,6 +116,50 @@ def _of_faces(vertices, faces):
     for corner in range(3):
         np.add.at(summed, faces[:, corner], of_face)
     return summed
+
+
+SIGHT_CELLS = 256  # pixels along a model's longest side when it is looked at from all round (`seen`)
+SIGHT_CELL = 0.01  # metres: the smallest pixel
+SIGHT_VIEWS = 64  # how many ways it is looked at
+
+
+def seen(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
+    """(front, back, whole): how many pixels of each face are the first thing seen of the model from outside, from its
+    front (the side its corners run counter-clockwise on) and from behind, and how many it would fill were nothing in front of it. It is looked at from `views` ways spread evenly over
+    the sky, down to a little below the horizon (the game never looks up from under the ground), each a picture of
+    `cells` pixels along its longest side. Each face is laid down as spots, four to a pixel on average and at least one,
+    so a sliver costs no more than its area; the spot nearest the eye wins its pixel."""
+    corner = np.asarray(vertices, float)[np.asarray(faces)]; size = max(float(np.ptp(corner.reshape(-1, 3), 0).max()) / cells, SIGHT_CELL)
+    of_face = np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]); twice = np.linalg.norm(of_face, axis=1)
+    unit = of_face / np.maximum(twice, 1e-12)[:, None]
+    owner = np.repeat(np.arange(len(corner)), np.maximum(np.random.default_rng(0).poisson(twice * 2 / size ** 2), 1))
+    a, b = np.random.default_rng(1).random((2, len(owner))); fold = a + b > 1; a[fold], b[fold] = 1 - a[fold], 1 - b[fold]
+    mine = corner[owner]; spots = mine[:, 0] + a[:, None] * (mine[:, 1] - mine[:, 0]) + b[:, None] * (mine[:, 2] - mine[:, 0])
+    golden = np.pi * (3 - np.sqrt(5)); rise = np.linspace(1, -0.15, views); round_ = np.sqrt(1 - rise ** 2); turn = golden * np.arange(views)
+    front, back, whole = np.zeros(len(corner)), np.zeros(len(corner)), np.zeros(len(corner))
+    for eye in np.stack([round_ * np.cos(turn), round_ * np.sin(turn), rise], 1):
+        right = np.cross(eye, [0.0, 0.0, 1.0]) if abs(eye[2]) < 0.99 else np.array([1.0, 0.0, 0.0]); right /= np.linalg.norm(right); up = np.cross(right, eye)
+        across, down = np.floor(spots @ right / size).astype(np.int64), np.floor(spots @ up / size).astype(np.int64)
+        pixel = (across - across.min()) * (down.max() - down.min() + 1) + (down - down.min())
+        order = np.lexsort((-(spots @ eye), pixel)); first = order[np.r_[True, pixel[order][1:] != pixel[order][:-1]]]
+        winner = owner[first]; toward = unit[winner] @ eye
+        np.add.at(front, winner[toward > 0.1], 1); np.add.at(back, winner[toward < -0.1], 1)
+        slant = np.abs(unit @ eye); whole += np.where(slant > 0.1, twice / 2 * slant / size ** 2, 0)
+    return front, back, whole
+
+
+def turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
+    """(faces, turned): a face seen from outside mostly from behind (`seen`: more than twice as much, at least three
+    pixels and a fifth of all it would show were nothing in front of it) turned round. The fifth keeps a face hidden
+    behind another from being judged by the few pixels where the spots of the face in front miss. The game draws a face only from the side its corners run counter-clockwise on, so such a face
+    is a hole onto whatever is behind it. From 2% to a quarter of the surface of each of the rail yard's and depot's 25
+    generated models was wound so (2026-11-13), on surfaces otherwise wound right and in folds of them. A face judged by
+    which side of it is open air instead turned the inner skins of thin double walls outward. A sheet seen from both
+    sides (a sign, a fence) and a face never seen (the inside of a wall) are left as they are. Run before `turn_normals`,
+    which then turns only the normals that point against a face wound right."""
+    front, back, whole = seen(vertices, faces, cells, views); wrong = (back > 2 * front) & (back >= 3) & (back >= whole / 5); faces = np.array(faces)
+    faces[wrong] = faces[wrong][:, [0, 2, 1]]
+    return faces, int(wrong.sum())
 
 
 def turn_normals(vertices, normals, faces):
@@ -253,6 +297,18 @@ def stand(points, height):
     low, high = points.min(0), points.max(0)
     scale = height / (high[2] - low[2])
     return (points - np.array([(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, low[2]])) * scale, scale
+
+
+def stretched(points, normals, length):
+    """(points, normals): the model, centred over the origin, drawn out or drawn in along the longer side of its footprint
+    to `length` metres, its height and width kept, its normals following (by the inverse of the stretch, then made
+    whole again). Generated shipping containers came out a third to a half short of their 20 and 40 feet at their
+    true height (rail freight yard, 2026-11-13), and scaling by height alone cannot mend a thing's proportions."""
+    span = np.ptp(points[:, :2], axis=0); axis = int(span.argmax())
+    require(length > 0 and span[axis] > 0, 'A length is a number of metres along a model that has one')
+    factor = np.ones(3); factor[axis] = length / span[axis]
+    normals = np.asarray(normals, float) / factor
+    return points * factor, normals / np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12)
 
 
 def two_sided(points, normals, uvs, faces, tilt, *, gap=0.02):
@@ -674,7 +730,8 @@ def load_models(path):
     mean we have to generate it as one single mesh"): `parts` places other models of the set in it, each
     {model, at: [x, y, z], turn} in metres on this one and turned a quarter at a time, with a texture of its own (`part_textures`).
     `measuredAt` is how the model stood when its boxes, fences, door and fade height were measured: its height, or
-    {height, lift, turn, signTilt} with each of the three the model states. A model that states any measurement states
+    {height, lift, turn, signTilt, length} with each of the four the model states. `length` draws the model out (or in)
+    along the longer side of its footprint to that many metres, its height and width kept (`stretched`). A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
     under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
@@ -682,11 +739,12 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
         require(number(model.get('turn', 0)) and -180 <= model.get('turn', 0) <= 180, 'A model is turned by -180 to 180 degrees: ' + name)
+        require('length' not in model or (number(model['length']) and 0 < model['length'] <= 100), 'A length is 0 to 100 metres along the model: ' + name)
         require(number(model.get('tone', 1)) and 0.2 <= model.get('tone', 1) <= 2, 'A tone is 0.2 to 2 times the colour: ' + name)
         shade = lambda value: isinstance(value, list) and len(value) == 3 and all(type(part) is int and 0 <= part <= 255 for part in value)
         for part in model.get('paint', []):
@@ -882,7 +940,7 @@ def blackout_script(name, player, on, halo=True):
     return ''.join(f'SetTextureOverride("{old}","{"" if on else new}",{player});' for old, new in swaps)
 
 
-def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
+def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, tone=None, paint=None,
           smooth=None, mesh=None, fence=None, close=None, clear=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
@@ -900,6 +958,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if turn:
         spin = _turn(float(turn), 0.0, 0.0); vertices, normals = vertices @ spin.T, normals @ spin.T
         vertices, _ = stand(vertices, height)
+    if length is not None:  # after the turn, so the side drawn out is the one that runs longest as the model stands
+        vertices, normals = stretched(vertices, normals, float(length))
+    faces, faces_turned = turn_faces(vertices, faces)
     normals, repaired = repair_normals(vertices, normals, faces); normals, turned = turn_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
     if clear:
@@ -928,7 +989,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         where, covered, toward = placed; shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
-    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned,
+    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire}
 
 
@@ -967,7 +1028,7 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
 def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
-            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
+            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'turnedFaces': made['facesTurned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
             'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'turn': made.get('turn', 0.0), 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 

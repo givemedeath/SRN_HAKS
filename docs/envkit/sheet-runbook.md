@@ -89,10 +89,18 @@ The first draws generated models square on from each side with a metre grid, bef
 at a first guess of its height (`--source` and `--height` repeat in pairs); `--page` also puts every model drawn on
 one page, to compare the props of a sheet at a glance. The second draws a model as its game set makes it. Read the boxes of lit parts, paint, smoothing, mesh panels,
 fences and the door from the grid, in metres on the finished model, and state `measuredAt`: the height they
-were read at, or `{"height": ..., "lift": ...}` with each of `lift`, `turn` and `signTilt` the model states,
-since the boxes are on the model as lifted, turned and tilted. Change any of them and the set is refused until
+were read at, or `{"height": ..., "lift": ...}` with each of `lift`, `turn`, `signTilt` and `length` the model states,
+since the boxes are on the model as lifted, turned, tilted and drawn out. Change any of them and the set is refused until
 the boxes are read again. `--lit` shows what the lit boxes light. The drawing lets deeper faces show through nearer ones:
-what a surface looks like is settled in the client, not here.
+what a surface looks like is settled in the client, not here. `--eye` draws it in perspective as the game does, a face
+only from its front: a hole there is a hole in the game.
+
+A model scaled to its height can still come out the wrong length (the rail yard's 20 ft container came out 3.5 m long
+at its 2.6 m height): `length` draws it out along the longer side of its footprint to that many metres, its height and
+width kept. Every model is looked at from all round and above as it is converted, and a face seen mostly from behind
+is turned round (`turnedFaces` in the report): from 2% to a quarter of each of the rail yard's 25 Meshy models was
+wound inside out, a hole in the game. A hole with nothing in it at all is closed with `close`, three of the model's own
+vertices a face, read from `envkit view --eye`.
 
 Size a building by its door: scale it until the door leaf is about 2.1 m, then choose the tile group's size.
 Its door hook is door type 58. Screens and signs are lit.

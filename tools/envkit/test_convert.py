@@ -354,6 +354,38 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(turned, 2); np.testing.assert_allclose(fixed, right, atol=1e-9)
         self.assertEqual(convert.turn_normals(vertices, right, faces)[1], 0)  # a model drawn right is left alone
 
+    def test_a_face_seen_from_behind_is_turned_round(self):
+        """The rail yard (2026-11-13): faces wound inward were holes onto whatever stood behind them."""
+        corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
+        cube = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        quick = {'cells': 32, 'views': 24}; front, back, whole = convert.seen(corners, cube, **quick)
+        # drawn right all round: seen from the front, but for the few pixels where a near face's spots miss and the far side shows
+        self.assertTrue((front > 0).all()); self.assertLess(back.sum(), 0.05 * front.sum()); self.assertEqual(convert.turn_faces(corners, cube, **quick)[1], 0)
+        self.assertLess(abs(front.sum() / whole.sum() - 0.5), 0.1)  # of all it would show, half is in front of the rest
+        inside_out = cube.copy(); inside_out[[2, 3, 10, 11]] = inside_out[[2, 3, 10, 11]][:, [0, 2, 1]]
+        fixed, turned = convert.turn_faces(corners, inside_out, **quick)
+        self.assertEqual(turned, 4); np.testing.assert_array_equal(fixed, cube)
+        # A liner wound inward, a few centimetres inside the skin, is never seen and stays as it is: judged by the open
+        # air on either side, the first attempt turned such liners outward.
+        liner = np.vstack([corners, (corners - 0.5) * 0.97 + 0.5]); walls = np.vstack([cube, (cube + 8)[:, [0, 2, 1]]])
+        self.assertEqual(convert.turn_faces(liner, walls, **quick)[1], 0)
+        # A sheet seen from both sides is a sign or a fence: it is not the eye's to say which way it faces.
+        sheet = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float)
+        for faces in ([[0, 1, 2], [0, 2, 3]], [[0, 2, 1], [0, 3, 2]]):
+            self.assertEqual(convert.turn_faces(sheet, np.array(faces), **quick)[1], 0)
+
+    def test_a_model_is_drawn_out_along_its_longer_side_to_a_length(self):
+        """The rail yard's shipping containers (2026-11-13) came out a third to a half short at their true height."""
+        box = np.array([[x, y, z] for x in (-1.75, 1.75) for y in (-1.2, 1.2) for z in (0, 2.6)], float)
+        slant = np.tile(np.array([1.0, 0.0, 1.0]) / np.sqrt(2), (8, 1))
+        points, normals = convert.stretched(box, slant, 6.06)
+        np.testing.assert_allclose(np.ptp(points, axis=0), [6.06, 2.4, 2.6]); np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0)
+        self.assertLess(normals[0, 0], normals[0, 2])  # a surface drawn out leans less along the stretch: its normal turns away from it
+        points, _ = convert.stretched(box[:, [1, 0, 2]], slant, 6.06)  # the longer side along the other axis is the one drawn out
+        np.testing.assert_allclose(np.ptp(points, axis=0), [2.4, 6.06, 2.6])
+        with self.assertRaisesRegex(ValueError, 'A length is a number of metres'):
+            convert.stretched(box, slant, 0)
+
     def test_a_mesh_too_big_for_one_node_is_cut_into_nodes_that_keep_every_face(self):
         faces = np.arange(300).reshape(-1, 3)  # 100 triangles sharing no vertex
         parts = convert.split(faces, limit=90)

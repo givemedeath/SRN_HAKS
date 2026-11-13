@@ -1,0 +1,8 @@
+{
+  "models": {
+    "ek_rd_front": {"source": "meshy/models/rfd-building-front-a1-remesh", "height": 9.0, "colour": 4096},
+    "ek_rd_rear": {"source": "meshy/models/rfd-building-rear-a1-remesh", "height": 9.0, "colour": 4096},
+    "ek_rd_platform": {"source": "meshy/models/rfd-loading-platform-a1", "height": 5.0, "colour": 2048, "placeable": {"label": "Rail Freight Depot, Loading Platform", "sound": 26, "category": 161}},
+    "ek_rd_crane": {"source": "meshy/models/rfd-gantry-crane-a1", "height": 12.0, "colour": 2048, "placeable": {"label": "Rail Freight Depot, Gantry Crane", "sound": 28, "category": 161}}
+  }
+}

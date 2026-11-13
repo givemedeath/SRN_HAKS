@@ -1,0 +1,27 @@
+{
+  "models": {
+    "ek_rf_tower": {"source": "meshy/models/rf-building-tower-a1-remesh", "height": 10.0, "colour": 4096},
+    "ek_rf_admin": {"source": "meshy/models/rf-building-office-a2-remesh", "height": 4.8, "colour": 4096},
+    "ek_rf_bay": {"source": "meshy/models/rf-building-bay-a1-remesh", "height": 7.5, "colour": 4096},
+    "ek_rf_switcher": {"source": "meshy/models/rf-switcher-a1", "height": 4.6, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Switcher Locomotive", "sound": 28, "category": 161}},
+    "ek_rf_boxcar": {"source": "meshy/models/rf-boxcar-a2", "height": 4.6, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Boxcar", "sound": 28, "category": 161}},
+    "ek_rf_tankcar": {"source": "meshy/models/rf-tank-car-a1", "height": 4.4, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Tank Car", "sound": 28, "category": 161}},
+    "ek_rf_flatcar": {"source": "meshy/models/rf-flatcar-a1", "height": 3.2, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Flatcar", "sound": 28, "category": 161}},
+    "ek_rf_dock": {"source": "meshy/models/rf-loading-dock-a1", "height": 4.8, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Loading Dock", "sound": 26, "category": 161}},
+    "ek_rf_shed": {"source": "meshy/models/rf-transfer-shed-a1", "height": 5.5, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Transfer Shed", "sound": 28, "category": 161}},
+    "ek_rf_walkway": {"source": "meshy/models/rf-walkway-a1", "height": 3.2, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Walkway", "sound": 28, "category": 161}},
+    "ek_rf_stairs": {"source": "meshy/models/rf-stair-tower-a1", "height": 4.5, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Stair Tower", "sound": 28, "category": 161}},
+    "ek_rf_office": {"source": "meshy/models/rf-office-module-a1", "height": 3.0, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Office Module", "sound": 28, "category": 161}},
+    "ek_rf_cont20": {"source": "meshy/models/rf-container-20ft-a1", "height": 2.6, "length": 6.06, "measuredAt": {"height": 2.6, "length": 6.06}, "colour": 2048, "close": [
+      {"part": "door end, lower panel left", "corners": [[2.958, -0.991, 1.024], [2.94, 1.156, 0.162], [2.958, -0.112, 1.028]]},
+      {"part": "door end, lower panel middle", "corners": [[2.958, -0.112, 1.028], [2.94, 1.156, 0.162], [2.958, 0.102, 1.026]]}], "placeable": {"label": "Rail Freight Yard, Container, 20 ft", "sound": 28, "category": 164}},
+    "ek_rf_cont40": {"source": "meshy/models/rf-container-40ft-a1", "height": 2.6, "length": 12.19, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Container, 40 ft", "sound": 28, "category": 164}},
+    "ek_rf_crates": {"source": "meshy/models/rf-crates-pallets-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Crates on Pallets", "sound": 27, "category": 164}},
+    "ek_rf_drums": {"source": "meshy/models/rf-drums-a1", "height": 0.9, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Hazmat Drums", "sound": 28, "category": 164}},
+    "ek_rf_reel": {"source": "meshy/models/rf-cable-reel-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Cable Reel", "sound": 27, "category": 164}},
+    "ek_rf_pipes": {"source": "meshy/models/rf-pipe-stack-a1", "height": 1.1, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pipe Stack", "sound": 28, "category": 164}},
+    "ek_rf_jack": {"source": "meshy/models/rf-pallet-jack-a1", "height": 1.25, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pallet Jack", "sound": 28, "category": 161}},
+    "ek_rf_light": {"source": "meshy/models/rf-light-tower-a1", "height": 7.5, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Light Tower", "sound": 28, "category": 161}},
+    "ek_rf_dumpster": {"source": "meshy/models/rf-dumpster-a1", "height": 1.8, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Dumpster", "sound": 28, "category": 158}}
+  }
+}

@@ -188,8 +188,13 @@ class GlowTests(unittest.TestCase):
             refused({**hung, 'measuredAt': {'height': 1.6, 'lift': 2.4, 'turn': 90}}, 'turn 90 and it is now at height 1.6, lift 2.4'); refused({**hung, 'measuredAt': 'yes'}, 'model at "yes"')
             turned = {'source': 'meshy/x', 'height': 1.8, 'turn': 90, 'signTilt': 15.0, 'lit': [{'box': cube}]}
             refused({**turned, 'measuredAt': {'height': 1.8, 'turn': 90}}, 'it is now at height 1.8, turn 90, signTilt 15.0')
-            for stood in (hung, turned):
-                at = {key: stood[key] for key in ('height', 'lift', 'turn', 'signTilt') if key in stood}
+            # A model drawn out to a length has its boxes on it as drawn out (the rail yard's containers, 2026-11-13).
+            long = {'source': 'meshy/x', 'height': 2.6, 'length': 12.2, 'lit': [{'box': cube}]}
+            refused({**long, 'measuredAt': 2.6}, 'at height 2.6 and it is now at height 2.6, length 12.2')
+            for wrong in (0, -1, 'long', True, 101):
+                refused({'source': 'meshy/x', 'height': 2.6, 'length': wrong}, 'A length is 0 to 100 metres')
+            for stood in (hung, turned, long):
+                at = {key: stood[key] for key in ('height', 'lift', 'turn', 'signTilt', 'length') if key in stood}
                 path = Path(scratch) / 'stood.json'; path.write_text(json.dumps({'models': {'ek_x': {**stood, 'measuredAt': at}}}), encoding='utf-8')
                 self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], at)
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes
