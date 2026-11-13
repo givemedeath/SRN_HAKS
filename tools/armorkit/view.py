@@ -175,7 +175,7 @@ def views(parts_path, output, body_pack, body='pmh0', folders=(), clip=None, sha
     from . import measure
     require(all(name in DIRECTIONS for name in directions), f'Views look from {sorted(DIRECTIONS)}')
     parts = load(parts_path)
-    bones = measure.body(body_pack, body)[0]
+    bones = {} if focus == 'body' else measure.body(body_pack, body)[0]  # only a preset frames on a bone
     time = None
     if clip is not None:
         rest, moved, time = pose(body_pack, body, folders, clip, share)

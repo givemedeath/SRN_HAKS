@@ -382,11 +382,17 @@ class SplitCaptureTests(unittest.TestCase):
         result = {'chest': (pinched, np.array([(0, 1, 2)]), np.zeros((3, 9))), 'handl': (pinched, np.array([(0, 1, 2)]), np.zeros((3, 9)))}
         made = {'chest': np.array([split.OWN]), 'handl': np.array([split.OWN])}
         origins = {'chest': np.array([0]), 'handl': np.array([0])}
-        given = {'guards': {}, 'bones': {}, 'body': 'pmh0', 'tier': 2, 'left': ['handl']}
+        given = {'guards': {}, 'bones': {}, 'body': 'pmh0', 'tier': 2, 'left': ['handl'], 'shared': ['chest']}
+        measured = []
+        def ends(parts, bones, body, tier, contract):
+            measured.append(parts)
+            return {'elbow': {}}, ['forel does not reach the elbow plane']
         with mock.patch.object(bake, 'kept_split', lambda path: given), mock.patch.object(bake, 'cut', lambda kept, contract: (result, made, origins)), \
-                mock.patch.object(bake, 'ends', lambda parts, bones, body, tier, contract: ({'elbow': {}}, ['forel does not reach the elbow plane'])):
+                mock.patch.object(bake, 'ends', ends):
             parts, report = bake.resplit('kept.npz')
         self.assertEqual(set(parts), {'chest'})  # the hand is the body's
+        # a part sharing its slot with the body's skin is measured as the bake measures it: it may end short of its joint
+        self.assertTrue('skin' in measured[0]['chest'] and not measured[0]['chest']['skin'].any())
         self.assertEqual(report['triangles'], {'chest': 1})
         self.assertEqual(report['collapsed'], {'chest': 1})
         self.assertEqual(report['seams'], {'elbow': {}})

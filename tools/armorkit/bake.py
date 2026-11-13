@@ -297,7 +297,8 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
     given = {'vertices': v, 'faces': f, 'columns': columns, 'joints': joints, 'radii': radii, 'overlaps': overlaps,
              'reaches': split.reaches(v, f, joints, radii, sleeves=carried['sleeves']), 'sleeves': carried['sleeves'], 'guards': guards,
-             'seat': seat, 'arms': arms, 'bones': bones, 'body': body, 'tier': tier, 'left': sorted(left_to_body(document))}
+             'seat': seat, 'arms': arms, 'bones': bones, 'body': body, 'tier': tier, 'left': sorted(left_to_body(document)),
+             'shared': sorted(shared_with_body(document))}
     if capture is not None:
         keep_split(given, capture)
         say('split inputs kept in', capture)
@@ -399,9 +400,11 @@ def resplit(capture, contract=None):
     began = time.monotonic()
     result, made, origins = cut(given, contract)
     seconds = time.monotonic() - began
-    left = set(given.get('left', ()))
+    left, shared = set(given.get('left', ())), set(given.get('shared', ()))
     parts = {name: {'v': pv, 'f': pf, 'made': made[name], 'pad': pad_flags(made[name], origins[name], given['guards'])}
              for name, (pv, pf, _) in result.items() if name not in left}
+    for name in shared & set(parts):  # a part that shares its slot with the body's skin ends where the body's part does (`ends`)
+        parts[name]['skin'] = np.zeros(len(parts[name]['f']), bool)
     collapsed = {name: _collapsed(part['v'], part['f']) for name, part in parts.items()}
     failures = [f'{name}: {count} triangles with two corners at one point, which the model compiler drops' for name, count in collapsed.items() if count]
     joined = ends(parts, given['bones'], given['body'], given['tier'], contract)

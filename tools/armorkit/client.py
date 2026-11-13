@@ -46,8 +46,9 @@ def wait_free(timeout, poll=5.0, calm=2):
     while quiet < calm:
         quiet = 0 if running() else quiet + 1
         if quiet < calm:
-            require(time.monotonic() + poll <= deadline, f'A game client was still running after {timeout:.0f} s; it is not ours to close')
-            time.sleep(poll)
+            left = deadline - time.monotonic()
+            require(left > 0, f'No game client stayed closed for {calm} checks within {timeout:.0f} s; another session\'s client is not ours to close')
+            time.sleep(min(poll, left))
 
 
 def log_lines(user_directory, prefix=LOG_PREFIX):

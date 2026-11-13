@@ -76,6 +76,9 @@ class ViewTests(unittest.TestCase):
             np.savez(Path(folder) / 'other.npz', chest__v=v)
             with self.assertRaises(ValueError):  # not a re-split's parts
                 view.load(Path(folder) / 'other.npz')
+            # framed on the parts alone, at rest, the view needs no body
+            record = view.views(path, Path(folder) / 'sheet.png', Path(folder) / 'no-body', focus='body', directions=('front',), size=40)
+            self.assertEqual((record['parts'], record['clip']), (1, None))
 
     def test_a_sheet_has_a_tile_per_view_and_the_legend(self):
         images = [np.full((40, 40, 3), value, np.uint8) for value in (0, 100, 200, 250)]

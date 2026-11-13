@@ -76,6 +76,12 @@ class PosesTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     poses.spec(bake_output, root / f'check{number}', table, [], **options)
                 self.assertFalse((root / f'check{number}').exists())
+            partial = root / 'partial'  # a stock table missing: refused before the folder is made
+            partial.mkdir()
+            (partial / 'parts_chest.2da').write_bytes((table / 'parts_chest.2da').read_bytes())
+            with self.assertRaises(OSError):
+                poses.spec(root / 'ok', root / 'check-partial', partial, [])
+            self.assertFalse((root / 'check-partial').exists())
             (root / 'used').mkdir()
             with self.assertRaises(ValueError):  # a fresh folder only
                 poses.spec(root / 'ok', root / 'used', table, [])
@@ -90,6 +96,10 @@ class PosesTests(unittest.TestCase):
         with mock.patch.object(client, 'running', lambda: next(seen)), mock.patch.object(client.time, 'sleep', lambda seconds: None):
             client.wait_free(100.0)
         self.assertEqual(list(seen), [])
+        slept = []
+        with mock.patch.object(client, 'running', lambda: []), mock.patch.object(client.time, 'sleep', slept.append):
+            client.wait_free(3.0)  # a wait shorter than a poll: no client, so it is free once checked twice
+        self.assertTrue(len(slept) == 1 and slept[0] <= 3.0)
         clock = iter(range(0, 1000, 5))
         with mock.patch.object(client, 'running', lambda: [7]), mock.patch.object(client.time, 'sleep', lambda seconds: None), \
                 mock.patch.object(client.time, 'monotonic', lambda: float(next(clock))):

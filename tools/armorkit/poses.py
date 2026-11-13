@@ -76,15 +76,15 @@ def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), 
     without = tuple(dict.fromkeys(without))
     require(all(slot in slots for slot in without), f'An actor can go without only a slot the outfit fills: {", ".join(slots)}')
     require(not output.exists(), f'The client check is built into a fresh folder; this one exists: {output}')
+    checked = entries(slots, record['number'], record['tier'])  # everything is checked and read before the folder is made
+    given = {table: (Path(stock) / (table + '.2da')).read_bytes().decode('cp1252') for table in registry.TABLES}
+    live = {table: text for table, text in tables.generate_all(given, checked).items() if tables.check(table, text, checked, given[table])['live']}
     resources = output / 'resources'
     resources.mkdir(parents=True)
     for path in (bake_output / 'resources').iterdir():
         shutil.copyfile(path, resources / path.name)
-    checked = entries(slots, record['number'], record['tier'])
-    given = {table: (Path(stock) / (table + '.2da')).read_bytes().decode('cp1252') for table in registry.TABLES}
-    for table, text in tables.generate_all(given, checked).items():
-        if tables.check(table, text, checked, given[table])['live']:
-            (resources / (table + '.2da')).write_bytes(text.encode('cp1252'))
+    for table, text in live.items():
+        (resources / (table + '.2da')).write_bytes(text.encode('cp1252'))
     worn = {slot: record['number'] for slot in slots}
     wardrobes = [('', worn)] + ([(', without ' + ' and '.join(without), {slot: n for slot, n in worn.items() if slot not in without})] if without else [])
     camera = PRESETS[preset]
