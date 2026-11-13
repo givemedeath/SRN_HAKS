@@ -82,7 +82,7 @@ class SharedComfyTests(unittest.TestCase):
                 return super().request(route, data)
         live = identity(self.root/'desktop'); self.approve(live)
         for error in (TimeoutError('timed out'), socket.timeout('timed out'), urllib.error.URLError(TimeoutError('timed out')),
-                      ConnectionResetError('reset')):
+                      ConnectionResetError('reset'), urllib.error.URLError(ConnectionAbortedError('aborted'))):
             client, naps, said = Slow(live, 2, error), [], []
             with shared_comfy.slot(client, sleep=naps.append, say=lambda text, **_: said.append(text)): client.request('/prompt')
             self.assertEqual((client.posted, len(naps)), ([True], 2))

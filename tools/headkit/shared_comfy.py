@@ -158,7 +158,8 @@ def slow(exc):
     An HTTP error or a refused connection is not slow."""
     if isinstance(exc, urllib.error.HTTPError): return False
     if isinstance(exc, urllib.error.URLError): exc = exc.reason
-    return isinstance(exc, (TimeoutError, ConnectionResetError))  # socket.timeout is TimeoutError
+    # socket.timeout is TimeoutError; Windows reports a connection the server dropped as aborted (WinError 10053)
+    return isinstance(exc, (TimeoutError, ConnectionResetError, ConnectionAbortedError))
 
 
 WAITING = {'busy': ('The shared ComfyUI queue stayed busy for {limit} s; nothing submitted',
