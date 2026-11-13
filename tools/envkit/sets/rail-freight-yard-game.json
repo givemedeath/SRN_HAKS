@@ -1,19 +1,18 @@
 {
   "models": {
     "ek_rf_depot": {"source": "meshy/models/rfd-building-front-a1-remesh", "height": 7.2, "measuredAt": 7.2, "colour": 4096,
-      "tiles": {"ground": "pavement", "group": "RF_Depot", "label": "Rail Freight Depot 6x6", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.5,
+      "tiles": {"ground": "pavement", "group": "RF_Depot", "label": "Rail Freight Depot 6x7", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.5,
         "door": {"at": [-4.84, 9.19, 0.186], "facing": 90.0, "type": 58, "leaf": 2.2},
         "parts": [
-          {"model": "ek_rd_platform", "at": [10.0, -2.0, 0.0], "turn": 270},
-          {"model": "ek_rf_boxcar", "at": [15.1, -2.0, 0.0], "turn": 90},
-          {"model": "ek_rd_crane", "at": [-19.5, -4.0, 0.0]},
-          {"model": "ek_rf_cont40", "at": [-23.0, -4.0, 0.0], "turn": 90}, {"model": "ek_rf_cont40", "at": [-23.0, -4.0, 2.6], "turn": 90},
-          {"model": "ek_rf_cont40", "at": [-19.8, -4.0, 0.0], "turn": 90},
-          {"model": "ek_rf_cont20", "at": [-16.6, -6.5, 0.0], "turn": 90}, {"model": "ek_rf_cont20", "at": [-16.6, -0.2, 0.0], "turn": 90},
-          {"model": "ek_rd_rearx", "at": [-19.5, -20.0, 0.0]},
-          {"model": "ek_rf_towerx", "at": [-19.5, 13.0, 0.0]},
-          {"model": "ek_rf_adminx", "at": [15.5, 21.0, 0.0]},
-          {"model": "ek_rf_bayx", "at": [16.0, -24.5, 0.0]}
+          {"model": "ek_rd_platform", "at": [9.7, 12.51, 0.0], "turn": 180},
+          {"model": "ek_rd_crane", "at": [0.0, 30.72, 0.0], "turn": 90},
+          {"model": "ek_rf_cont40", "at": [0.0, 31.0, 0.0]},
+          {"model": "ek_rf_cont20", "at": [-3.1, 33.9, 0.0]}, {"model": "ek_rf_cont20", "at": [3.1, 33.9, 0.0]}, {"model": "ek_rf_cont20", "at": [3.1, 33.9, 2.6]},
+          {"model": "ek_rf_towerx", "at": [-16.0, 41.0, 0.0]},
+          {"model": "ek_rd_rearx", "at": [19.3, 35.9, 0.0]},
+          {"model": "ek_rf_adminx", "at": [-17.0, -1.0, 0.0]},
+          {"model": "ek_rf_bayx", "at": [17.0, -7.21, 0.0]},
+          {"model": "ek_rf_light", "at": [-9.0, 31.8, 0.0]}, {"model": "ek_rf_light", "at": [8.0, 45.0, 0.0]}, {"model": "ek_rf_light", "at": [12.0, 5.0, 0.0]}
         ]}},
     "ek_rf_tower": {"source": "meshy/models/rf-building-tower-a1-remesh", "height": 11.8, "measuredAt": 11.8, "colour": 4096,
       "tiles": {"ground": "pavement", "group": "RF_Tower", "label": "Rail Freight Control Tower 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 6.0,

@@ -127,8 +127,13 @@ with its own picture under the group's names (`<group>p1`, ...), cut into the sa
 of the sheet stays a placeable as well.
 
 A sheet's buildings can be both: each its own group, for a builder to place alone, and together one large group of
-the whole site, which paints a district in one go (user, 2026-11-13: the rail yard's depot is 6 by 6 tiles, its
-warehouse, dock warehouse, control tower, office and service bay with the platform, crane, boxcar and containers). A
+the whole site, which paints a district in one go (user, 2026-11-13: the rail yard's depot is 6 by 7 tiles, its
+warehouse, dock warehouse, control tower, office and service bay with the platform, crane, containers and light
+towers). A site with rails is laid out round its tracks (user: the first layout did not lend itself to "realistic
+track placement and train movement"): each track straight through the whole group and out at both edges, on a tile
+row's centre so track tiles beside the group meet it, with 1.93 metres either side of its centre clear up to 5.2
+metres; a platform's edge 1.7 metres from its track's centre; a crane's runway along the tracks, its legs outside
+their corridors and its hook over the stacks, not the track. Rolling stock stays a placeable, put on the track. A
 part is never a group itself, so a building in both has a second entry of the same source and height without
 `tiles` (`ek_rf_towerx`), and its standalone group and the site's must agree on that height. A group places at most
 nine different models. No model may be named like another's file (its maps' `_n`, `_s`, `_r`, `_i`, `_o`, `_h`,
