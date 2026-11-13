@@ -24,7 +24,10 @@ The user asked for rotation and uniform scaling, used again for every refit wher
   on the other body decides each part. The cap a bake grew past an under end's plane is scaled about the
   joint's axis as that end's ring was (`capped`): where the end was drawn in, shaping left the cap as wide as
   the scales made it, and a glove's cap stood at the Human female's forearm skin as a band above the cuff
-  (2026-11-13). A thigh's end at the hip, a dome grown on the body's seat, is no tube
+  (2026-11-13). Where the part across the joint is the body's own skin (`bare`), the cap is then held
+  `UNDER_SKIN` inside the other body's part there (`under_skin`): her forearm is flatter above the wrist than
+  the ring at the plane says, and drawn in with its rim the cap still showed through it in patches. A thigh's
+  end at the hip, a dome grown on the body's seat, is no tube
   and is left as the scales leave it: shaped as one, its dome flared into a lip that stood out through the
   pelvis (2026-11-13).
 
@@ -39,6 +42,7 @@ from . import bodyskin, ends, registry, repose, seams
 from .registry import require
 
 UNIFORM = 0.05  # a part is scaled the same every way where its scales along and across its axis differ by this share or less
+UNDER_SKIN = 0.002  # a cap under the body's own skin (a glove's under a bare forearm) stands at least this far inside it
 
 
 def token_of(slot, letter):
@@ -143,13 +147,30 @@ def capped(before, after, faces, measured, part_ends):
     return out
 
 
+def under_skin(vertices, point, normal, skin, gap=UNDER_SKIN):
+    """`vertices` with what lies past the plane (`point`, unit `normal` toward the part) held `gap` inside the
+    body's own surface `skin` (vertices, faces): a vertex standing less far inside it, as read along the normal
+    of the skin's nearest vertex, is moved in along that normal."""
+    out = np.array(vertices, float)
+    past = np.flatnonzero((out - point) @ normal < 0)
+    skin_v = np.asarray(skin[0], float)
+    if not len(past) or not len(skin_v):
+        return out
+    skin_n = ends.normals(skin_v, np.asarray(skin[1], int))
+    nearest = np.argmin(np.linalg.norm(out[past][:, None] - skin_v[None], axis=2), axis=1)
+    standing = ((out[past] - skin_v[nearest]) * skin_n[nearest]).sum(axis=1)  # how far outside the skin, inside negative
+    out[past] -= np.maximum(standing + gap, 0.0)[:, None] * skin_n[nearest]
+    return out
+
+
 def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2, bare=()):
     """(parts, report): baked parts (`bake.stored`) carried from the body `source` to the body `target`, each a
     (rig, parts by token) pair as `measure.body` gives them. `names` limits the parts carried; the rest are
     left out. Each part's vertices and normals are carried by its `placement`; with `contract` and `bodies`,
     the two bodies' names, its scale across follows the contract's body rings and its ends at the tube joints
     are brought to tier `tier`'s envelopes on the target (`ends.shaped`; a pad's
-    faces, `pad`, are no part of a ring), skin-tight at the joints `bare` names (`ends.ends_of`). Nothing else
+    faces, `pad`, are no part of a ring), skin-tight at the joints `bare` names (`ends.ends_of`) with the cap
+    there held inside the target body's own part across the joint (`under_skin`). Nothing else
     about a part changes. `report` maps a part to its turn in degrees and its scales along and across."""
     names = list(parts) if names is None else list(names)
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
@@ -167,6 +188,12 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
             if part_ends:
                 measured = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
                 shaped = capped(v, ends.shaped(v, f, measured, part_ends), f, measured, part_ends)
+                for joint, side in bare:  # under the body's own skin: its part across the joint on the other body
+                    letter = 'l' if side == 'c' else side
+                    over = token_of(seams.JOINTS[joint]['over'], letter)
+                    if token_of(seams.JOINTS[joint]['under'], letter) == name and over in target[1]:
+                        point, normal = seams.plane(target[0], joint, letter)
+                        shaped = under_skin(shaped, np.asarray(point, float), seams.unit(normal), target[1][over][:2])
                 n = n + ends.normals(shaped, f) - ends.normals(v, f)
                 n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
                 v = shaped

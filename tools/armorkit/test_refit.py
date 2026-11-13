@@ -109,6 +109,13 @@ class RefitTests(unittest.TestCase):
         rim, past = radius[np.abs(out['forel']['v'][:, 0] - 0.3) < 1e-9][:len(forearm['v'])].max(), radius[len(forearm['v']):][cap['v'][:, 0] < 0.3]
         self.assertLess(rim, 0.045)  # the end is drawn in to the envelope
         self.assertTrue(np.allclose(past / rim, 0.7, atol=0.01))  # the cap as far inside it as before
+        # where the upper arm is left to the body, the cap stays inside the other body's own upper arm, 3 cm round
+        skin = arm(0.0, 0.3, 0.03)
+        out, _ = refit.refit({'forel': piece}, (rig(), {}), (rig(), {'bicepl': (skin['v'], skin['f'])}), contract=contract(ring=0.04),
+                             bodies=('test', 'test'), tier=0, bare={('elbow', 'l')})
+        past = np.linalg.norm(out['forel']['v'][len(forearm['v']):][cap['v'][:, 0] < 0.3][:, 1:], axis=1)
+        self.assertLess(past.max(), 0.03 - refit.UNDER_SKIN + 1e-3)
+        self.assertGreater(past.min(), 0.02)  # moved in to the skin, not onto the axis
 
     def test_the_command_keeps_the_refit_parts_with_the_slots_the_brief_gave(self):
         with tempfile.TemporaryDirectory() as folder:
