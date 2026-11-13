@@ -10,6 +10,8 @@ from tools.headkit.common import pin,verify,write,digest
 
 
 METHODS=('projected-silhouette','quadric')
+# Barycentric samples of every shadow triangle (corners, edges and interior, 28 per triangle) for the surface bound.
+SURFACE_SAMPLES=np.array([(i/6,j/6,1-i/6-j/6) for i in range(7) for j in range(7-i)])
 
 
 def build_candidates(source, profile, processing, output, *, meshlab=None, igl=None):
@@ -55,6 +57,11 @@ def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *
     require(topology(p,f)['closedWound'], 'A quadric shadow needs a closed outward source part')
     limit=settings.get('maximumDistance',.006);qualities=settings.get('qualityThresholds',[.3,.5,.1])
     require(type(limit) in (int,float) and 0<limit<=.02, 'Bounded quadric shadow distance required')
+    # Vertices stay near the source, but a large triangle between them can cut across a curve or bridge a recess, so
+    # the surface itself (vertices and triangle interiors) has its own, looser bound: the 300-triangle staff head
+    # measured 5.6-7.8 mm at its vertices and 15-20 mm across its triangles.
+    surface_limit=settings.get('maximumSurfaceDistance',.025)
+    require(type(surface_limit) in (int,float) and limit<=surface_limit<=.04, 'Bounded quadric shadow surface distance required')
     require(isinstance(qualities,list) and 1<=len(qualities)<=5 and all(type(q) in (int,float) and 0<=q<=1 for q in qualities),
             'Bounded quadric quality thresholds required')
     # Faces around each thickness-probe end are kept as they are (like the visible reduction's seam band), so the
@@ -88,16 +95,20 @@ def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *
             require(len(t)<=budget and report['closedWound'],'Invalid shadow topology/budget')
             distance=float(np.sqrt(igl.point_mesh_squared_distance(v,p,f.astype(np.int64))[0]).max());row['maximumDistance']=distance
             require(distance<=limit,'Quadric shadow left the source surface')
+            interior=np.einsum('bk,tkd->tbd',SURFACE_SAMPLES,v[t]).reshape(-1,3)
+            surface=float(np.sqrt(igl.point_mesh_squared_distance(interior,p,f.astype(np.int64))[0]).max());row['surfaceDistance']=surface
+            require(surface<=surface_limit,'Quadric shadow triangles cut away from the source surface')
             # The other direction is recorded for the visual review, not gated: a shadow simplifies by design, but a
             # large gap points at a fin or spike the collapse removed.
             gap=float(np.sqrt(igl.point_mesh_squared_distance(p,v,t)[0]).max());row['sourceToShadowDistance']=gap
             opening=protected_checks(v,t,processing)
-            accepted=(v,t,report,opening,distance,gap);break
+            accepted=(v,t,report,opening,distance,surface,gap);break
         except ValueError as exc:row['error']=str(exc)
     if diagnostics is not None:write(diagnostics/'attempts.json',attempts,fresh=True)
     require(accepted is not None, 'Quadric shadow failed acceptance checks: '+str(attempts))
-    v,t,report,opening,distance,gap=accepted
-    return v,t,{'attempts':attempts,'topology':report,'openings':opening,'maximumSourceDistance':distance,'maximumSourceGap':gap,
+    v,t,report,opening,distance,surface,gap=accepted
+    return v,t,{'attempts':attempts,'topology':report,'openings':opening,'maximumSourceDistance':distance,
+        'maximumSurfaceDistance':surface,'maximumSourceGap':gap,
         'probeProtectedFaces':int(protected.sum()),'method':'quadric','visualReviewRequired':True,'visibleGeometryUnchanged':True}
 
 

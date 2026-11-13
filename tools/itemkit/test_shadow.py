@@ -52,6 +52,11 @@ class QuadricShadowTests(unittest.TestCase):
         self.assertLessEqual(report['openings']['thickness'][0]['maximumSampleError'],.0005)
         self.assertLessEqual(report['maximumSourceDistance'],.006)
         self.assertGreaterEqual(report['maximumSourceGap'],0)                    # the reverse direction, recorded for review
+        vertex,surface=report['maximumSourceDistance'],report['maximumSurfaceDistance'];self.assertGreater(surface,vertex)
+        # Triangle interiors are bounded too: a bound between the vertex and surface deviation passes the vertices only.
+        bound=(vertex+surface)/2;settings={'method':'quadric','maximumDistance':bound,'maximumSurfaceDistance':bound}
+        with self.assertRaisesRegex(ValueError,'triangles cut away'):
+            quadric_proxy(p,f,{'thicknessProbes':[probe]},120,settings,self.meshlab,self.igl)
 
     def test_quadric_candidate_binds_its_policy_and_needs_its_libraries(self):
         p,f=tube();settings={'method':'quadric'}

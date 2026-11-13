@@ -67,8 +67,8 @@ HAFTED_FAMILIES = tuple(name for name, route in ROUTES.items() if route.shape ==
 
 
 def needs_grip_standard(family, fit):
-    """Grip-bound families and any midpoint-depth two-hand fit size from the approved grip."""
-    return family in GRIP_BOUND_FAMILIES or fit.get('sizingAuthority') == 'midpoint-depth-two-hand'
+    """Grip-bound families and any midpoint-depth two-hand or transverse-uniform fit size from the approved grip."""
+    return family in GRIP_BOUND_FAMILIES or fit.get('sizingAuthority') in ('midpoint-depth-two-hand', 'midpoint-depth-uniform')
 
 
 def whole_shield(data):
