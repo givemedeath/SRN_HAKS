@@ -1,5 +1,6 @@
 """The promoted wave tooling: carrier measurement, hafted fits, texture outliers, contracts budgets and the driver."""
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -418,6 +419,9 @@ class OpeningProbeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('lanyard', .5)], found)
         narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
         with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
+        self.assertEqual(op.reference_fractions({'inputs': {}}, '.'), [])                 # no reviewed openings, nothing to place
+        with self.assertRaisesRegex(ValueError, 'geometryForegroundMask'):
+            op.reference_fractions({'inputs': {}, 'openings': [{'name': 'x', 'referenceBounds': [0, 0, 1, 1]}]}, '.')
 
     def test_matching_backs_up_so_every_reference_gets_a_hole(self):
         from tools.itemkit import opening_probes as op
@@ -493,11 +497,32 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             pinned = json.dumps({'familyProfile': {'path': 'contracts/old/family-axe.json'}})
             (h/'axe.old-contract.asset.json').write_text(pinned, encoding='utf-8')      # the folder's own contract manifest
             (h/'axe.calibrated-v1.asset.json').write_text(pinned, encoding='utf-8')     # a design built on past it
-            with self.assertRaisesRegex(SystemExit, r'1 manifest\(s\) build on, e\.g\. axe\.calibrated-v1'):
+            with self.assertRaisesRegex(SystemExit, r'1 current manifest\(s\) build on, e\.g\. axe\.calibrated-v1'):
                 d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')
             self.assertFalse((h/'contracts/old/retired.json').exists())
-            (h/'axe.calibrated-v1.asset.json').unlink()
+            # a later profile elsewhere without a contract there is not a move: the axe still holds its slot
+            (h/'loose.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            (h/'axe.loose-v1.asset.json').write_text(json.dumps({'familyProfile': {'path': 'loose.json'}}), encoding='utf-8')
+            with self.assertRaisesRegex(SystemExit, 'not retired'): d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')
+            # re-contracted in another wave, its newest manifest on that contract: it has moved on
+            (h/'contracts/new').mkdir(); (h/'contracts/new/family-axe.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            (h/'axe.new-contract.asset.json').write_text(json.dumps({'familyProfile': {'path': 'contracts/new/family-axe.json'}}), encoding='utf-8')
+            for k, name in enumerate(('old-contract', 'calibrated-v1', 'loose-v1', 'new-contract')):
+                os.utime(h/f'axe.{name}.asset.json', (1e9 + k, 1e9 + k))
             self.assertEqual(d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')['contracts'], ['family-axe.json'])
+
+    def test_textured_refuses_a_field_range_an_existing_donor_manifest_does_not_hold(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            for stage in ('geometry', 'appearance'):
+                (root/f'knife/{stage}-a1/job').mkdir(parents=True)
+                (root/f'knife/{stage}-a1/job/collection.json').write_text(json.dumps({'outputs': [{'path': 'raw.glb', 'sha256': 'g'}]}), encoding='utf-8')
+            (h/'knife.geometry-approved-v1.asset.json').write_text(json.dumps({'approval': {'generatedGeometry': {'geometryRawSha256': 'g'}}}), encoding='utf-8')
+            (h/'knife.donor-v1.asset.json').write_text(json.dumps({'processing': {'sourceFieldPolicy': {'minimum': -.05, 'maximum': 1.065}}}), encoding='utf-8')
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'binds only a new donor manifest'):
+                d.textured('knife', 'a1', 'src', 'approved', field_range=[-.22, 1.13])
+            stage.assert_not_called()
 
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
         import hashlib
@@ -526,6 +551,8 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             low, high = (float(x) for x in str(caught.exception).rsplit('--field-range ', 1)[1].split())
             float32 = Path(d.donor_manifest('knife', 'src', 'donor-f32', 'words', field_range=(low, high)))
             self.assertEqual(json.loads(float32.read_text(encoding='utf-8'))['processing']['sourceFieldPolicy']['minimum'], -.21)
+            far = attrs.copy(); far[5] = 1.3; field(far)            # past donor.py's reviewed limits: no range can take it
+            with self.assertRaisesRegex(SystemExit, 'regenerate the appearance'): d.donor_manifest('knife', 'src', 'donor-far', 'words')
             field(np.full((1000, 3), .5))                                                      # a field the decoder takes as it is
             with self.assertRaisesRegex(SystemExit, 'no reviewed --field-range is needed'):
                 d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.2, 1.12))

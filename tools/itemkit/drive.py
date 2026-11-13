@@ -269,7 +269,12 @@ class Driver:
             # further where that lands inside the measured value (float32 -0.2 is -0.20000000298), so the rerun passes.
             s_lo = np.floor(round(lo * 100, 6)) / 100; s_lo -= .01 * (s_lo > lo)
             s_hi = np.ceil(round(hi * 100, 6)) / 100; s_hi += .01 * (s_hi < hi)
-            suggest = f'{round(min(DECODER_RANGE[0], s_lo), 2):g} {round(max(DECODER_RANGE[1], s_hi), 2):g}'
+            s_lo, s_hi = round(float(min(DECODER_RANGE[0], s_lo)), 2), round(float(max(DECODER_RANGE[1], s_hi)), 2); suggest = f'{s_lo:g} {s_hi:g}'
+            try: field_policy({'allowDecoderOvershoot': True, 'fieldSha256': m['inputs']['field']['sha256'], 'minimum': s_lo, 'maximum': s_hi},
+                              m['inputs']['field']['sha256'])
+            except ValueError as error:                     # no reviewed range can take it: the bake would refuse any
+                raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} overshoots past what a reviewed range may allow '
+                                 f'({outside} of {total} samples outside the decoder range; {error}): regenerate the appearance')
             raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} lies outside {low:g}..{high:g} ({outside} of {total} samples outside '
                              f'the decoder range): review the textured result and rerun with --field-range {suggest}')
         if field_range is not None and (low, high) != DECODER_RANGE and DECODER_RANGE[0] <= lo and hi <= DECODER_RANGE[1]:
@@ -304,7 +309,12 @@ class Driver:
             self.comfy('start')
             try: self.gen(design, 'appearance', 'geometry-approved-v1')
             finally: self.comfy('stop')
-        if not self.manifest(design, 'donor-v1').exists():
+        if self.manifest(design, 'donor-v1').exists():
+            policy = read(self.manifest(design, 'donor-v1'))['processing']['sourceFieldPolicy']
+            if field_range is not None and [policy['minimum'], policy['maximum']] != [float(x) for x in field_range]:
+                raise SystemExit(f"donor-v1 exists with the field range {policy['minimum']:g}..{policy['maximum']:g}: "
+                                 '--field-range binds only a new donor manifest (manifests are immutable)')
+        else:
             self.donor_manifest(design, 'geometry-approved-v1', 'donor-v1', 'Automated chain: 200K/768 UDF donor and colour field from the appearance job '
                                 'on the approved clay (raw mesh hash checked identical). Visual review of the textured result is still required.',
                                 field_range=field_range)
@@ -423,6 +433,7 @@ class Driver:
         """The fitted shell's through-holes against the manifest's reviewed openings; with `new`, a manifest with the
         matched probes in processing.openingProbes (tools.itemkit.opening_probes)."""
         from tools.itemkit import opening_probes as op
+        if new and self.manifest(design, new).exists(): raise SystemExit(f'{self.manifest(design, new).name} exists: choose a new suffix')
         m = read(self.manifest(design, suffix)); family = read(self.ws.handoff/m['familyProfile']['path'])
         data = op.measure(m, family, self.ws.handoff)
         result = {'nativeLength': data['nativeLength'], 'references': data['references'],
@@ -541,17 +552,23 @@ class Driver:
     def retire_contracts(self, folder, reason, today=None):
         """Retire an abandoned or test contract folder (under the handoff) so its slots are free (family_contract.retire).
 
-        Refused while any design has gone past its contract manifest on one of the folder's contracts: freeing a slot
-        an unpublished design still holds would let the next contract take it."""
+        Refused while a design's current work (its newest manifest) still builds past its contract manifest on one of
+        the folder's contracts: freeing a slot an unpublished design still holds would let the next contract take it.
+        A design re-contracted in another folder, whose newest manifest is on that contract, has moved on (manifests are
+        immutable, so its old ones stay) and does not hold the retirement up."""
         import datetime
         from tools.itemkit.family_contract import retire
-        target = (self.ws.handoff/folder).resolve(); name = target.name; live = []
-        for path in sorted(self.ws.handoff.glob('*.asset.json')):
-            if path.name.endswith(f'.{name}-contract.asset.json'): continue
+        target = (self.ws.handoff/folder).resolve(); own = f'.{target.name}-contract.asset.json'; pins = {}
+        for path in self.ws.handoff.glob('*.asset.json'):
             try: profile = read(path).get('familyProfile', {}).get('path')
-            except (OSError, ValueError): continue
-            if profile and (self.ws.handoff/profile).resolve().parent == target: live.append(path.name)
-        if live: raise SystemExit(f'{folder} still holds contracts that {len(live)} manifest(s) build on, e.g. {live[0]}: not retired')
+            except (OSError, ValueError, AttributeError): continue
+            if profile: pins.setdefault(path.name.split('.')[0], []).append((path.stat().st_mtime, path.name, (self.ws.handoff/profile).resolve().parent))
+        def moved_on(design, rows):
+            newest = max(rows)[2]
+            return newest != target and (self.ws.handoff/f'{design}.{newest.name}-contract.asset.json').exists()
+        live = sorted(name for design, rows in pins.items() if not moved_on(design, rows)
+                      for _, name, parent in rows if parent == target and not name.endswith(own))
+        if live: raise SystemExit(f'{folder} still holds contracts that {len(live)} current manifest(s) build on, e.g. {live[0]}: not retired')
         return retire(target, reason, today or datetime.date.today().isoformat())
 
     def views(self, glb, output, textured=False):
@@ -730,7 +747,7 @@ def main(argv=None):
     }
     try: result = commands[a.command]()
     except ValueError as error:                       # a refused publication, screen or patch is a message, not a traceback
-        if a.command not in ('publish', 'screen', 'patch-measure', 'patch-add', 'opening-probes'): raise
+        if a.command not in ('publish', 'screen', 'patch-measure', 'patch-add', 'opening-probes', 'retire-contracts'): raise
         raise SystemExit(f'{a.command}: {error}')
     print(json.dumps(result, indent=1, default=str))
     return 0

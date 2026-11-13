@@ -75,11 +75,14 @@ def holes(vertices, faces, axis):
 def reference_fractions(manifest, handoff):
     """[(name, fraction)]: each reviewed opening's position along the long axis of the reference foreground mask."""
     from PIL import Image
+    openings = manifest.get('openings') or []
+    if not openings: return []
+    require('geometryForegroundMask' in manifest.get('inputs', {}), 'Reviewed openings need the geometryForegroundMask they were measured on')
     mask = np.array(Image.open(Path(handoff)/manifest['inputs']['geometryForegroundMask']['path']).convert('L')) > 127
     ys, xs = np.nonzero(mask); points = np.c_[xs, ys].astype(float); centre = points.mean(0)
     axis = np.linalg.svd(points - centre, full_matrices=False)[2][0]; t = (points - centre) @ axis; lo, hi = t.min(), t.max()
     rows = []
-    for opening in manifest['openings']:
+    for opening in openings:
         x0, y0, x1, y1 = opening['referenceBounds']
         rows.append((opening['name'], float(((np.array([(x0 + x1) / 2, (y0 + y1) / 2]) - centre) @ axis - lo) / (hi - lo))))
     return rows
