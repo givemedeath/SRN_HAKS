@@ -80,8 +80,11 @@ def command_reference(args):
         asset = data['assets'][name]
         try:
             source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
-            text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset))
-            result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
+            if asset.get('drawn'):
+                result = reference.as_drawn(name, source, args.seed, output)
+            else:
+                text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset))
+                result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         except Exception as failure:
             if not args.keep_going:
                 raise

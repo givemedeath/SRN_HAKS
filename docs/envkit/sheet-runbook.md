@@ -42,6 +42,14 @@ first, its box in the flipped picture). Mirror only a reference without letterin
 pieces, check that each side wall is the same material in every piece that shows it, that the dock doors match, and
 that nothing large (a trailer, a skip) stands in front of the doors: the generator fuses it into the wall.
 
+Images that are already clean references on white (made apart from the concept sheets, one object to an image) come
+in as a sheet of their own: compose them on white into `<sheets>/NNb_<what>.png`, give the set a box round each and
+`"drawn": true`, and `reference` takes each crop as it is, with a receipt naming its hash, and sends nothing to ComfyUI.
+The rail freight depot (`56b_rail_freight_depot.png`, 2026-11-13) is the first: four images the operator generated
+with ChatGPT from one shared design, a warehouse front and rear, a loading platform and a gantry crane, which replaced
+the yard sheet's warehouse. Prompt such a set piece by piece in one conversation, after an overview, with the shared
+dimensions and materials in every prompt and each view's handedness named (which wall is on which side).
+
 ## 2. Meshy
 
 The ledger (`output/envkit/stuffer-shack/meshy/ledger.json`, shared by every sheet) holds the cap, which is the

@@ -1,5 +1,6 @@
 """Reference sets name real crops, prompts ask for an isolated unlit-spill view, and a busy server is left alone."""
 import copy
+import hashlib
 import importlib.util
 import itertools
 import json
@@ -210,6 +211,27 @@ class SetTests(unittest.TestCase):
         self.assertIn('building-left', reference.load_set(self.write(data))['assets'])
         data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'turn': {'from': 'building-back', 'to': 'the left'}}
         with self.assertRaisesRegex(ValueError, 'another, whole, view'):
+            reference.load_set(self.write(data))
+
+    def test_a_drawn_crop_is_taken_as_its_reference(self):
+        """User, 2026-11-13: the rail freight depot came as four clean images on white, so each crop is its reference."""
+        from PIL import Image
+        good = json.loads(SET.read_text(encoding='utf-8')); good['assets']['trash-can']['drawn'] = True
+        self.assertTrue(reference.load_set(self.write(good))['assets']['trash-can']['drawn'])
+        crop = self.root / 'crop.png'; Image.new('RGB', (8, 6), 'blue').save(crop)
+        receipt = reference.as_drawn('trash-can', crop, 0, self.root / 'run')
+        self.assertEqual((self.root / 'run' / 'trash-can-s0-b0.png').read_bytes(), crop.read_bytes())
+        self.assertEqual((receipt['drawn'], receipt['state'], receipt['source']['sha256']), (True, 'complete', hashlib.sha256(crop.read_bytes()).hexdigest()))
+        self.assertEqual(json.loads((self.root / 'run' / 'trash-can-s0.json').read_text(encoding='utf-8')), receipt)
+        with self.assertRaisesRegex(ValueError, 'Receipt already exists'):
+            reference.as_drawn('trash-can', crop, 0, self.root / 'run')
+        whole = next(name for name, asset in good['assets'].items() if asset['kind'] == 'building')
+        for change in ({'drawn': False}, {'drawn': 'yes'}):
+            data = copy.deepcopy(good); data['assets']['trash-can'].update(change)
+            with self.assertRaisesRegex(ValueError, 'drawn is true'):
+                reference.load_set(self.write(data))
+        data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'drawn': True, 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': whole, 'box': [0, 0, 6, 4]}}
+        with self.assertRaisesRegex(ValueError, 'neither cut nor turned'):
             reference.load_set(self.write(data))
 
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):

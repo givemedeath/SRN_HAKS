@@ -22,9 +22,6 @@
     "dumpster": {"triangles": 4000}
   },
   "pieces": {
-    "front": {"views": ["warehouse-front-half"], "triangles": 50000},
-    "rear": {"views": ["warehouse-rear-half"], "triangles": 50000},
-    "wing": {"views": ["warehouse-wing"], "triangles": 30000},
     "tower": {"views": ["control-tower"], "triangles": 30000},
     "office": {"views": ["admin-office"], "triangles": 30000},
     "bay": {"views": ["warehouse-bay"], "triangles": 30000}

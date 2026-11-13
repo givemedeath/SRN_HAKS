@@ -86,7 +86,7 @@ def load_set(path):
     require(isinstance(data['assets'], dict) and data['assets'], 'A set needs assets')
     for name, asset in data['assets'].items():
         require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
-        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', 'turn', *KIN},
+        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', 'turn', 'drawn', *KIN},
                 'Asset needs kind, subject and box: ' + name)
         require(asset['kind'] == 'prop' or not (KIN - {'unbranded'}) & set(asset), 'Only props have a type: ' + name)
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
@@ -102,6 +102,10 @@ def load_set(path):
             turn = asset['turn']; whole = data['assets'].get(turn['from']) if isinstance(turn, dict) and isinstance(turn.get('from'), str) else None
             require(asset['kind'] == 'building' and 'cut' not in asset and isinstance(turn, dict) and set(turn) == {'from', 'to'} and whole is not None
                     and whole['kind'] == 'building' and not {'cut', 'turn'} & set(whole), 'A turn is a building view drawn from another, whole, view of the set: ' + name)
+        # A drawn asset's crop is already a clean reference on white (the rail freight depot's four images, user
+        # 2026-11-13), so it is taken as it is (`as_drawn`) and never redrawn.
+        require(asset.get('drawn', True) is True and not ('drawn' in asset and {'cut', 'turn'} & set(asset)),
+                'drawn is true, for a crop that is already a reference, and is neither cut nor turned: ' + name)
         prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), turned(asset))
         if asset['kind'] == 'prop':
             require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)
@@ -195,6 +199,21 @@ def source(data, name, sheet, selected, output):
     framed.paste(piece, (margin, margin))
     output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); framed.save(output)
     return output
+
+
+def as_drawn(name, reference, seed, output):
+    """A drawn asset's crop taken as its reference: written as `<name>-s<seed>-b0.png` beside a receipt that names the crop
+    by its hash, as `make` writes an edit's, so it is selected the same way. Nothing is sent to ComfyUI."""
+    import shutil
+    require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + str(name))
+    output = Path(output); base = f'{name}-s{seed}'
+    require(not (output / f'{base}.json').exists(), 'Receipt already exists; use another seed or output folder')
+    output.mkdir(parents=True, exist_ok=True); picture = output / f'{base}-b0.png'; shutil.copyfile(reference, picture)
+    receipt = {'schemaVersion': 1, 'kind': 'envkit-reference', 'asset': name, 'drawn': True, 'seed': seed, 'state': 'complete',
+               'source': {'name': Path(reference).name, 'sha256': hashlib.sha256(Path(reference).read_bytes()).hexdigest()},
+               'outputs': [str(picture)], 'elapsedSeconds': 0.0}
+    (output / f'{base}.json').write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8')
+    return receipt
 
 
 def make(client, local, bindings_path, name, text, reference, seed, output, *, batch=1, deadline=2400):
