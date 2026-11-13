@@ -352,6 +352,21 @@ class GeometryTests(unittest.TestCase):
             with self.assertRaises(ValueError):validate_texture_patch(corners,qualified,maximum_distance=bound)
         with self.assertRaisesRegex(ValueError,'different target'):
             validate_texture_patch(changed,qualified,maximum_distance=.00293)
+    def test_a_larger_texture_patch_needs_the_users_approval(self):
+        import hashlib
+        from .transfer import validate_texture_patch,patch_distance_bound
+        v,f=self.tetra();corners=np.tile(v[f],(10,1,1)).astype('<f8')
+        wide={'reviewed':True,'notes':'Measured staff misses','targetCornerHash':hashlib.sha256(corners.tobytes()).hexdigest(),
+              'maximumDistance':.0032,'maximumTextureFraction':.0005,'faces':[0]}
+        with self.assertRaises(ValueError):validate_texture_patch(corners,wide,maximum_distance=.0032)
+        approved={**wide,'userApproval':'User in chat: "Raise the patch cap"'}
+        self.assertEqual(validate_texture_patch(corners,approved,maximum_distance=.0032),{0})
+        for changes,bound in (({'maximumTextureFraction':.0006},.0032),({'maximumDistance':.0033},.0033),({'userApproval':' '},.0032)):
+            with self.assertRaises(ValueError):validate_texture_patch(corners,{**approved,**changes},maximum_distance=bound)
+        policy={'maximumDistance':.003,'maximumUnorientedDistance':.0032}
+        self.assertEqual(patch_distance_bound({**policy,'unorientedSourcePatch':approved}),.0032)
+        self.assertEqual(patch_distance_bound({**policy,'unorientedSourcePatch':wide}),.003)       # unapproved: transfer distance
+        self.assertEqual(patch_distance_bound({'maximumDistance':.002}),.002)                      # a tightened policy still binds
     def test_colour_range_normalization_is_bounded_and_recorded(self):
         from .textures import normalize_source_colour
         values=np.array([[-1e-6,1.0000068,.5]],np.float32);normalized,report=normalize_source_colour(values)

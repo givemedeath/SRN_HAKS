@@ -24,6 +24,13 @@ holes or certify that generic decimation will fail.
   0.5 normal alignment; an explicitly configured correction policy may tighten
   these. Existing exact-geometry reviewed patch exceptions remain bounded.
 
+A reviewed `unorientedSourcePatch` fills the listed faces with colour only, from the nearest donor surface whichever
+way it faces. It may reach the policy's `maximumUnorientedDistance` (default 2.1 mm, at most the 3 mm transfer
+distance) and cover at most 0.01% of the mapped texels. A patch that quotes the user's own approval in `userApproval`
+may reach 3.2 mm and 0.05% instead. The 1.90 m stun staff at its chosen 41 x 49 mm grip needed that: 212 missed
+texels lay up to 3.11 mm from a generated donor that is inside-out in spots (user, 2026-11-12, "Raise the patch cap").
+Neither form changes geometry, and both still need the lit and unlit visual review.
+
 The report is saved as `preflight.json` before a failed gate stops the bake.
 Centroid sampling is an early warning, not a continuous surface proof or a
 replacement for actual visible-miss classification. The same check is available
