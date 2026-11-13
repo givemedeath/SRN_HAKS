@@ -91,7 +91,10 @@ def load_set(path):
         require(asset['kind'] == 'prop' or not (KIN - {'unbranded'}) & set(asset), 'Only props have a type: ' + name)
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
             cut = asset['cut']; whole = data['assets'].get(cut['from']) if isinstance(cut, dict) and isinstance(cut.get('from'), str) else None
-            require(asset['kind'] == 'building' and isinstance(cut, dict) and set(cut) == {'from', 'box'} and whole is not None
+            # `mirror` flips the chosen reference left to right first (user, 2026-11-13: the rail yard's rear was drawn
+            # turned the wrong way, its detailed side on the wing's side; a reference without lettering can be mirrored).
+            require(asset['kind'] == 'building' and isinstance(cut, dict) and {'from', 'box'} <= set(cut) <= {'from', 'box', 'mirror'}
+                    and cut.get('mirror', True) is True and whole is not None
                     and whole['kind'] == 'building' and 'cut' not in whole, 'A cut is a building view drawn from another, whole, view of the set: ' + name)
             require(isinstance(cut['box'], list) and len(cut['box']) == 4 and all(type(v) is int for v in cut['box'])
                     and 0 <= cut['box'][0] < cut['box'][2] and 0 <= cut['box'][1] < cut['box'][3], 'A cut states its box in pixels of that view\'s reference: ' + name)
@@ -178,16 +181,19 @@ def source(data, name, sheet, selected, output):
         return crop(sheet, asset['box'], output)
     from PIL import Image
     from .sheet import image
-    picture = image(selected, (asset.get('cut') or asset['turn'])['from'])
-    with Image.open(picture) as whole:
-        box = asset['cut']['box'] if 'cut' in asset else [0, 0, whole.width, whole.height]
-    output = crop(picture, box, output)
+    drawn = asset.get('cut') or asset['turn']; picture = image(selected, drawn['from'])
+    with Image.open(picture) as opened:
+        whole = opened.convert('RGB')
+    if drawn.get('mirror'):
+        whole = whole.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    box = asset['cut']['box'] if 'cut' in asset else [0, 0, whole.width, whole.height]
+    require(box[2] <= whole.width and box[3] <= whole.height, f'The box {box} runs off {Path(picture).name} ({whole.width} x {whole.height})')
+    piece = whole.crop(tuple(box))
     # Set on white with a margin all round: a wall running off the picture was redrawn running off it, where the cut was
     # to be closed (two of the yard's six pieces on their first seed, 2026-11-12).
-    with Image.open(output) as piece:
-        margin = round(max(piece.size) * CUT_MARGIN); framed = Image.new('RGB', (piece.width + 2 * margin, piece.height + 2 * margin), 'white')
-        framed.paste(piece, (margin, margin))
-    framed.save(output)
+    margin = round(max(piece.size) * CUT_MARGIN); framed = Image.new('RGB', (piece.width + 2 * margin, piece.height + 2 * margin), 'white')
+    framed.paste(piece, (margin, margin))
+    output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); framed.save(output)
     return output
 
 

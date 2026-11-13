@@ -35,7 +35,12 @@ A generic sheet's building view takes `"unbranded": true` in the set: it is draw
 keeping generic words such as FREIGHT (the rail yard, user 2026-11-12). Name a sign's text in the subject so the model
 need not guess its letters. A view the sheet does not draw, or draws of another building, is turned from the chosen
 reference of one it does: `"turn": {"from": "<view>", "to": "<what it is seen from>"}`, drawn with `--selected` like a
-cut (the rail yard's rear, whose corner view showed another building than its front, user 2026-11-13).
+cut (the rail yard's rear, whose corner view showed another building than its front, user 2026-11-13)). The model
+tends to draw a turned rear with the gable on the left whichever corner it is asked for; work out which side that puts
+the detailed wall on, and where it is the wrong one, cut with `"mirror": true` (the reference flipped left to right
+first, its box in the flipped picture). Mirror only a reference without lettering. Before generating a building's
+pieces, check that each side wall is the same material in every piece that shows it, that the dock doors match, and
+that nothing large (a trailer, a skip) stands in front of the doors: the generator fuses it into the wall.
 
 ## 2. Meshy
 

@@ -172,6 +172,15 @@ class SetTests(unittest.TestCase):
         data = copy.deepcopy(good); data['assets']['building-left']['cut']['box'] = [0, 0, 120, 40]
         with self.assertRaisesRegex(ValueError, 'runs off'):
             reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'left.png')
+        # A mirrored cut flips the chosen reference left to right first, and its box is in the flipped picture.
+        picture = Image.new('RGB', (100, 40), 'red'); picture.paste((0, 0, 255), (0, 0, 10, 40)); picture.save(selected / f'{whole}-s101-b0.png')
+        data = copy.deepcopy(good); data['assets']['building-left']['cut'].update(box=[90, 0, 100, 40], mirror=True)
+        with Image.open(reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'mirrored.png')) as cut:
+            margin = round(40 * reference.CUT_MARGIN); self.assertEqual(cut.getpixel((margin + 5, margin + 20)), (0, 0, 255))
+        for wrong in (False, 'yes'):
+            data['assets']['building-left']['cut']['mirror'] = wrong
+            with self.assertRaisesRegex(ValueError, 'another, whole, view'):
+                reference.load_set(self.write(data))
 
     def test_a_view_the_sheet_does_not_draw_is_turned_from_the_chosen_reference_of_one_it_does(self):
         """User, 2026-11-13: the rail yard's corner view drew another building than its front ("fix the warehouse back
