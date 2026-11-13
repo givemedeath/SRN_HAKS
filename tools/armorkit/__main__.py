@@ -131,6 +131,12 @@ def command_split(args):
         sys.exit(1)
 
 
+def command_refit(args):
+    from . import refit
+    names = [name.strip() for name in args.parts.split(',')] if args.parts else None
+    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names)))
+
+
 def command_render(args):
     from . import view
     directions = tuple(name.strip() for name in args.views.split(',')) if args.views else tuple(view.DIRECTIONS)
@@ -222,6 +228,12 @@ def main(argv=None):
     p.add_argument('capture', help='the file `bake --capture` wrote')
     p.add_argument('--output', help='.npz file to write the parts to, for `render`')
     p.set_defaults(handler=command_split)
+    p = commands.add_parser('refit', help="carry a bake's kept parts to another body by a rotation and a uniform scale each")
+    p.add_argument('kept', help='the folder `bake --kept` kept the parts in'); p.add_argument('output', help='the folder the refit parts are kept in')
+    p.add_argument('--body-pack', required=True, help="folder holding both bodies' models")
+    p.add_argument('--from', dest='source', default='pmh0'); p.add_argument('--to', dest='target', required=True)
+    p.add_argument('--parts', help='comma-separated parts to carry (default all; a part holding the body\'s skin is refused)')
+    p.set_defaults(handler=command_refit)
     p = commands.add_parser('render', help="draw an outfit's parts offline, at rest or posed by one of the body's clips")
     p.add_argument('parts', help='the .npz `split --output` wrote, or a folder `bake --kept` kept parts in')
     p.add_argument('output', help='the image to write the views to')

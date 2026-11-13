@@ -12,6 +12,7 @@
       "tools/armorkit/measure.py",
       "tools/armorkit/poses.py",
       "tools/armorkit/reference.py",
+      "tools/armorkit/refit.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/seam-contract.json",
       "tools/armorkit/tables.py",
@@ -105,6 +106,15 @@
       "tools/headkit/__init__.py",
       "tools/headkit/comfy.py",
       "tools/headkit/design.py"
+    ],
+    "tools/armorkit/refit.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/bodyskin.py",
+      "tools/armorkit/ends.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/repose.py",
+      "tools/armorkit/seams.py"
     ],
     "tools/armorkit/registry.py": [],
     "tools/armorkit/repose.py": [
@@ -208,6 +218,11 @@
       "tools/armorkit/brief.py",
       "tools/armorkit/reference.py",
       "tools/armorkit/test_brief.py"
+    ],
+    "tools/armorkit/test_refit.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/refit.py",
+      "tools/armorkit/test_bake.py"
     ],
     "tools/armorkit/test_registry.py": [
       "tools/armorkit/examples/registry.json",
@@ -5531,6 +5546,7 @@
     "tools/armorkit/test_poses.py",
     "tools/armorkit/test_reduce.py",
     "tools/armorkit/test_reference.py",
+    "tools/armorkit/test_refit.py",
     "tools/armorkit/test_registry.py",
     "tools/armorkit/test_repose.py",
     "tools/armorkit/test_seams.py",

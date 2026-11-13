@@ -29,6 +29,11 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(got['parts'], len(handoff['parts']))
         self.assertEqual(handoff['kind'], registry.KIND + '-handoff')
 
+    def test_refit_carries_kept_parts_to_another_body(self):
+        with mock.patch('tools.armorkit.refit.run', return_value={'handl': {'degrees': 1.5}}) as call:
+            self.assertEqual(run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--parts', 'handl, footl'), {'handl': {'degrees': 1.5}})
+        call.assert_called_once_with('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'])
+
     def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
         from . import brief
         given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK + ' ' + brief.BUILT, 'construction': max(brief.CONSTRUCTIONS),
