@@ -214,7 +214,9 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         near = cand[(np.abs(q[cand, 0] - q[lo_i, 0]) < .003 * L) & (np.abs(q[cand, 1] - q[lo_i, 1]) < .003 * L)]
         hi_i = near[np.argmax(q[near, 2])]
         if q[hi_i, 2] - q[lo_i, 2] < .2 * np.nanmin(extent[j]):          # sparse thick shaft: nearest vertex on the far side
-            top = cand[q[cand, 2] > c[1]]; hi_i = top[np.argmin(np.hypot(q[top, 0] - q[lo_i, 0], q[top, 1] - q[lo_i, 1]))]
+            top = cand[q[cand, 2] > c[1]]
+            # A band with no vertex past the section centre (a thin rapier blade, 2026-11-13) keeps the near pair.
+            if len(top): hi_i = top[np.argmin(np.hypot(q[top, 0] - q[lo_i, 0], q[top, 1] - q[lo_i, 1]))]
         pts = [b[lo_i].tolist(), b[hi_i].tolist()]; fit = transform(np.array(pts), F); t = float(np.linalg.norm(fit[1] - fit[0]))
         require(t > .0008, f'Section thinner than 0.8 mm at station {k}')
         # The sample tolerance follows the section: 2.5 mm protects a thin edge, but a coarse shadow of a thick round
