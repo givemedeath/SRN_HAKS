@@ -20,15 +20,16 @@ def gff(kind, fields):
     return header + struct.pack('<3I', 0xFFFFFFFF, 0, len(fields)) + entries + labels + indices
 
 
-def erf(kind, entries):
-    """An ERF V1.0 archive of {(resref, type): bytes}."""
+def erf(kind, entries, reverse=False):
+    """An ERF V1.0 archive of {(resref, type): bytes}; `reverse` stores the resource table in the opposite key order."""
     count = len(entries); keys = 160; resources = keys + 24*count; data = resources + 8*count
     header = kind + b'V1.0' + struct.pack('<8I', 0, 0, count, 0, keys, resources, 0, 0) + struct.pack('<I', 0xFFFFFFFF) + b'\0'*116
-    key, table, body = b'', b'', b''
+    key, table, body = b'', [b''] * count, b''
     for i, ((resref, rtype), payload) in enumerate(entries.items()):
-        key += resref.encode('ascii').ljust(16, b'\0') + struct.pack('<IHH', i, rtype, 0)
-        table += struct.pack('<II', data + len(body), len(payload)); body += payload
-    return header + key + table + body
+        resource = count - 1 - i if reverse else i
+        key += resref.encode('ascii').ljust(16, b'\0') + struct.pack('<IHH', resource, rtype, 0)
+        table[resource] = struct.pack('<II', data + len(body), len(payload)); body += payload
+    return header + key + b''.join(table) + body
 
 
 TABLE = (b'2DA V2.0\n\n     label        MaxRange   ItemClass\n'
@@ -62,6 +63,13 @@ def make_repo(root, existing=()):
 def creature(tag, x, y):
     return {'Tag': {'value': tag}, 'TemplateResRef': {'value': tag}, 'FirstName': {'value': {'0': 'x'}},
             'XPosition': {'value': x}, 'YPosition': {'value': y}}
+
+
+class ArchiveTests(unittest.TestCase):
+    def test_payloads_follow_each_keys_resource_id(self):
+        entries = {('model', 2002): b'mdl bytes', ('image', 3): b'tga bytes'}
+        for reverse in (False, True):
+            self.assertEqual(P.read_erf(erf(b'HAK ', entries, reverse=reverse)), entries)
 
 
 class SurveyTests(unittest.TestCase):
@@ -120,8 +128,21 @@ class PlanTests(unittest.TestCase):
                 (repo/P.MODULE/'sw2_m0.utc').write_bytes(b'new'); (repo/P.MODULE/'c.nss').write_bytes(b'changed')
                 raise RuntimeError('compile failed')
             with mock.patch.object(P, 'Tools', lambda repo, nwn: None), mock.patch.object(P, 'update_publication', lambda *a: None), \
-                 mock.patch.object(P, 'add_reviewers', fail):
+                 mock.patch.object(P, 'reviewer_plan', lambda repo, packages: ([], [])), mock.patch.object(P, 'add_reviewers', fail):
                 with self.assertRaisesRegex(RuntimeError, 'compile failed'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn')
+            self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
+
+    def test_no_room_for_reviewers_is_refused_before_any_write(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = make_run(Path(folder)); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
+            (repo/P.MODULE).mkdir(parents=True); (repo/P.MODULE/'sr_it_floor.git').write_bytes(b'git'); (repo/P.MODULE/'sr_it_floor.are').write_bytes(b'are')
+            area = {b'git': {'Creature List': [{'Tag': f'sw1_{s}0', 'XPosition': 25.0, 'YPosition': P.ROW_Y[s]} for s in 'mf']},
+                    b'are': {'Width': 3}}                                   # a 30 m area already full at x 25
+            before = {p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}
+            real = P.crm.parse_gff
+            with mock.patch.object(P.crm, 'parse_gff', lambda data: area.get(data) or real(data)), mock.patch.object(P, 'Tools', lambda repo, nwn: None):
+                with self.assertRaisesRegex(P.PublishError, 'No room'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn', dry_run=True)
+                with self.assertRaisesRegex(P.PublishError, 'No room'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn')
             self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
 
     def test_ranged_weapons_are_refused(self):

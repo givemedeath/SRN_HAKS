@@ -87,8 +87,9 @@ def read_erf(source):
     count = struct.unpack_from('<I', data, 16)[0]; keys, resources = struct.unpack_from('<II', data, 24)
     out = {}
     for i in range(count):
-        resref, _, kind = struct.unpack_from('<16sIH', data, keys + 24*i)
-        offset, size = struct.unpack_from('<II', data, resources + 8*i)
+        resref, resource, kind = struct.unpack_from('<16sIH', data, keys + 24*i)
+        require(resource < count, f'ERF key {i} names resource {resource} of {count}')
+        offset, size = struct.unpack_from('<II', data, resources + 8*resource)     # the key's own resource ID, not its position
         out[(resref.rstrip(b'\0').decode('ascii').lower(), kind)] = data[offset:offset + size]
     return out
 
@@ -232,6 +233,14 @@ def plan_pairs(creatures, packages, area_width):
             pairs.append({'package': package, 'prefix': f'sw{number}_', 'index': index, 'x': x}); x += ROW_STEP
         number += 1
     return groups, pairs
+
+
+def reviewer_plan(repo, packages):
+    """plan_pairs on the module as it stands, read with the repository's own GFF reader: no tool and no write needed."""
+    module = repo/MODULE; git = module/'sr_it_floor.git'
+    require(git.is_file(), f'No comparison module area at {git}')
+    creatures = [{k: {'value': c[k]} for k in ('Tag', 'XPosition', 'YPosition')} for c in crm.parse_gff(git.read_bytes())['Creature List']]
+    return plan_pairs(creatures, packages, crm.parse_gff((module/'sr_it_floor.are').read_bytes())['Width']*TILE)
 
 
 def reviewer(template, tag, name, sex, x):
@@ -437,6 +446,9 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
     summary = {'items': [{'id': p.item, 'name': p.name, 'blueprint': p.blueprint, 'baseItem': p.base_item, 'appearance': p.appearance,
                           'files': sorted(p.files)} for p in packages],
                'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()}}
+    # Room for the reviewers is checked before anything is written (a dry run without the module skips it).
+    if not dry_run or (repo/MODULE).is_dir():
+        summary['plannedReviewers'] = [f'{p["prefix"]}{s}{p["index"]}' for p in reviewer_plan(repo, packages)[1] for s in 'mf']
     if dry_run: return {'dryRun': True, **summary}
     tools = Tools(repo, nwn_root)
     restore = snapshot(repo, packages)
