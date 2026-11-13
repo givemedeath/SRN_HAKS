@@ -55,6 +55,7 @@ PAD_SEED = 0.03  # a shoulder pad is looked for on the faces this near the line 
 PAD_REACH = 0.8  # a shoulder pad lies within this share of the upper arm's length of the shoulder joint: what reaches farther is the sleeve
 GUARD_REACH = 0.5  # a knee or elbow pad reaches up the limb no more than this share of the bone above its joint: what reaches farther is a sleeve or a trouser leg
 GUARD_LEAST = 0.003  # square metres a pad is at least
+GUARD_OFF = 0.2  # metres: a knee or elbow pad lies this near its limb's bones everywhere, or it is the torso's (`guard`)
 GUARD_STEPS = 5  # rings the cap under a knee or elbow pad is built from: four across the gap a bend opens, and the pole
 GUARD_SWEEP = 110.0  # degrees about the joint's hinge the pad's rim is carried through: a seat bends a knee 90
 GUARD_TUCK = 0.05  # and how much nearer the hinge it is drawn on the way, to stay under the pad's own surface
@@ -609,8 +610,11 @@ def guard(vertices, faces, materials, joints, joint, side, read=None):
     than `GUARD_REACH` of the bone above the joint; a sleeve or a trouser leg reaches farther. Down the limb
     it may run on as a guard along the shin or the forearm: on one outfit the left elbow pad was one patch
     with its forearm guard and the right one was not. A patch of less than `GUARD_LEAST` is a strap's end or
-    a face read wrongly, and no pad. `split` rounds the under part's cap out as a ball under such a pad
-    (`guards`).
+    a face read wrongly, and no pad. Every face of a pad lies within `GUARD_OFF` of the bones above and below
+    its joint: on the Human female the arms hang against the torso, the line straight back from each elbow met
+    the vest, and the vest went to the left upper arm as its elbow pad (Facility Security, 2026-11-13: its
+    faces up to 44 cm from the arm; the knee pads, 9 to 12 cm from the leg). `split` rounds the under part's
+    cap out as a ball under such a pad (`guards`).
 
     `read` holds the material per face as the colours were read before `texture.trimmed` gave each line of
     metal too narrow for a plate to what it lies on. Faces read as the pad's material that the trim gave away
@@ -627,7 +631,9 @@ def guard(vertices, faces, materials, joints, joint, side, read=None):
     ways = [(0.0, 1.0, 0.0)] if joint == 'knee' else [(0.0, -1.0, 0.0), at - np.asarray(joints[('r' if side == 'l' else 'l') + GUARDS[joint][1]], float)]
     centre = v[f].mean(axis=1) - at
     area = 0.5 * np.linalg.norm(np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]]), axis=1)
-    fits = lambda found: (centre[found] @ axis).min() >= -GUARD_REACH * np.linalg.norm(at - above) and area[found].sum() >= GUARD_LEAST
+    off = np.minimum(*(off_segment(centre, start - at, end - at) for start, end in ((above, at), (at, below))))
+    fits = lambda found: ((centre[found] @ axis).min() >= -GUARD_REACH * np.linalg.norm(at - above) and area[found].sum() >= GUARD_LEAST
+                          and off[found].max() <= GUARD_OFF)
     for way in ways:
         way = np.asarray(way, float)
         way = seams.unit(way - (way @ axis) * axis)
@@ -638,6 +644,13 @@ def guard(vertices, faces, materials, joints, joint, side, read=None):
             if found is not None:
                 return found if read is None else rimmed(v, f, materials, np.asarray(read), found, materials[seed], fits)
     return None
+
+
+def off_segment(points, start, end):
+    """How far each of `points` lies from the segment from `start` to `end`."""
+    run = end - start
+    share = np.clip((points - start) @ run / max(float(run @ run), 1e-12), 0.0, 1.0)
+    return np.linalg.norm(points - (start + share[:, None] * run), axis=1)
 
 
 def rimmed(v, f, materials, read, found, own, fits):

@@ -1362,6 +1362,19 @@ class KneeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             split.guard(self.v, self.f, self.materials[:-1], JOINTS, 'knee', 'l')
 
+    def test_an_elbow_pad_lies_on_the_arm_and_the_torso_behind_an_elbow_is_none(self):
+        def panel(x0, x1, y=-0.07, z0=1.2, z1=1.3, steps=12):  # a flat panel of one material straight back from the left elbow
+            xs, zs = np.linspace(x0, x1, steps), np.linspace(z0, z1, steps)
+            v = np.array([(x, y, z) for z in zs for x in xs])
+            cells = [(i * steps + j, i * steps + j + 1, (i + 1) * steps + j + 1) for i in range(steps - 1) for j in range(steps - 1)]
+            cells += [(i * steps + j, (i + 1) * steps + j + 1, (i + 1) * steps + j) for i in range(steps - 1) for j in range(steps - 1)]
+            return v, np.array(cells)
+        v, f = panel(-0.36, -0.26)
+        self.assertTrue(split.guard(v, f, np.ones(len(f), int), JOINTS, 'elbow', 'l').all())
+        v, f = panel(-0.75, -0.28)  # reaching 45 cm off the arm: the torso, which a female body's arm hangs against
+        self.assertGreater(split.off_segment(v - JOINTS['lforearm_g'], np.zeros(3), np.subtract(JOINTS['lhand_g'], JOINTS['lforearm_g'])).max(), split.GUARD_OFF)
+        self.assertIsNone(split.guard(v, f, np.ones(len(f), int), JOINTS, 'elbow', 'l'))
+
     def test_a_knee_pads_rim_the_trim_gave_to_the_trousers_is_the_pads(self):
         pad = self.materials == 1
         pairs = split.beside(self.v, self.f)
