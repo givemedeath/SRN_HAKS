@@ -26,6 +26,7 @@ CAP_TOP = 90.0  # degrees of its dome a cap covers: all of it. Short of the pole
 LEAN = 0.3  # how much more than a dome a cap draws in as it leaves the plane, to clear an over part that narrows there
 OWN, CLOSING, CAP, GUSSET, WALL, PADDED = 0, 1, 2, 3, 4, 5  # what made a face of a part: the outfit's own surface, or the split (`split`, `made`)
 WELD = 1e-5  # vertices this close are one point when pieces are traced (models repeat vertices at texture seams)
+POINT = 1e-6  # metres: two corners of a triangle this near are one point, and the model compiler drops the triangle
 RIVAL = 0.35  # a piece whose second choice won this share of its area is two parts welded together: it is traced again unwelded
 FREE_END = 0.12  # how far the bone of a neck, hand or foot runs on past its joint
 HIPS_EVEN = 0.01  # the line the two hip planes meet in lies this near the middle between the hip joints, or the body is refused
@@ -999,7 +1000,10 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     the torso by half and all of `bend`, never in across it. Each point is drawn in toward the
     axis, at its height, as far as that takes; the pole stays, as deep as the seam contract asks. The seat covers
     the end as the body stands, and turned the end fills what the thigh leaves of the leg hole. Each new vertex
-    keeps the columns of the rim point it grew from; the faces wind as the cap's (`cap`)."""
+    keeps the columns of the rim point it grew from; the faces wind as the cap's (`cap`). Where two rim points
+    beside each other are both drawn onto the axis at one height, the face between them has two corners at
+    one `POINT` and no area, and is left out: the model compiler drops it, and Facility Security's left upper
+    arm compiled to 16 faces fewer than it was written with (2026-11-13)."""
     none = np.zeros((0, 3)), np.zeros((0, uvs.shape[1])), np.zeros((0, 3), int)
     point, normal, on = np.asarray(point, float), seams.unit(normal), np.asarray(on, bool)
     if not on.any():
@@ -1097,7 +1101,10 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     nearer, farther = index[:-1], index[1:]
     added = np.concatenate([np.stack([nearer[:, finish], nearer[:, start], farther[:, start]], axis=2).reshape(-1, 3),
                             np.stack([nearer[:-1, finish], farther[:-1, start], farther[:-1, finish]], axis=2).reshape(-1, 3)])
-    return np.concatenate(placed), np.tile(uvs[rim], (total, 1)), added
+    grown = np.concatenate(placed)
+    corners = np.where((added < base)[..., None], vertices[np.minimum(added, len(vertices) - 1)], grown[np.maximum(added - base, 0)])
+    sides = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2)
+    return grown, np.tile(uvs[rim], (total, 1)), added[sides.min(axis=1) >= POINT]
 
 
 def rotation(axis, degrees):

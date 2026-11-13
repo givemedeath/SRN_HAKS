@@ -1303,6 +1303,20 @@ class ArmTests(unittest.TestCase):
         stray = (np.concatenate([wall[0], v]), wall[1])  # the limb's vertices beside the wall's, no face of the wall using them
         self.assertTrue(np.array_equal(grown(stray), grown(wall)))
 
+    def test_an_end_drawn_onto_its_axis_has_no_face_with_two_corners_at_one_point(self):
+        # an arm hanging down -z, its end 8 cm deep, inside an over part 3 mm round the axis: every point of the end
+        # is drawn onto the axis (it fits nowhere `SEAT_GAP` inside), and a face between two of them has no area
+        normal, point = np.array((0.0, 0.0, -1.0)), np.zeros(3)
+        v, f, t = tube((0, 0, -0.03), (0, 0, -0.2), 0.05, around=32, along=6)
+        narrow = tube((0, 0, 0.15), (0, 0, -0.15), 0.003, around=16, along=8)[:2]
+        grown, _, faces = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, narrow)
+        drawn = np.linalg.norm(grown[:, :2], axis=1) < 1e-9
+        self.assertTrue(drawn.all())
+        corners = np.concatenate([v, grown])[faces]
+        sides = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2)
+        self.assertGreaterEqual(sides.min(), split.POINT)
+        self.assertEqual(len(faces), 32)  # a cone from the rim to the axis, closed: one face per rim edge
+
     def test_inputs_are_checked(self):
         with self.assertRaises(ValueError):
             split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, arms={('hip', 'l'): self.arms[('shoulder', 'l')]})
