@@ -11,6 +11,7 @@ result, so `tints` and `write` can be run again on it. `gates` checks what was w
 gives the split (`keep_split`), so that the split alone runs again on it in seconds with the code as it stands
 (`resplit`), for work on the cut.
 """
+import functools
 import json
 import shutil
 import time
@@ -21,17 +22,19 @@ import numpy as np
 from tools.headkit import gltf
 from tools.robes import mesh_ops
 
-from . import bodyskin, brief, export, measure, registry, repose, seams, split, texture
+from . import bodyskin, brief, export, measure, reduce, registry, repose, seams, split, texture
 from . import ends as shaping  # `ends` here is the seam gate
 from .registry import require
 
 ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED)  # what the split made: it has no surface of its own on the generated outfit
 DOMED = (split.CAP, split.PADDED)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
 UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelvis': (split.CLOSING,),
-         'chest': (split.CLOSING,)}  # shaded as the cloth round them (`texture.under`)
+         'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
 BUDGET = {'chest': 6000, 'slot': 2250, 'outfit': 30000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
+END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
+SKIN_ROUNDS = 3  # a part sharing its slot with the body's skin is reduced again at most this often, as the skin beside it is counted anew
 WHOLE = 'no holes or detached pieces'  # the gate `surface` answers, on the generated outfit as the bake is given it
 SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the gate `ends` answers, on a body the contract measured
 NOT_BUILT = (SEAM, 'clearance: no body surface showing at rest',
@@ -43,7 +46,7 @@ AXIS = 0.015  # past the plane, what lies this near the joint's axis closes the 
 HOLE = 0.005  # an opening of the generated outfit this long round or longer, at the body's size, is a hole
 DEBRIS = 0.001  # square metres: a separate piece of the generated outfit smaller than this that touches nothing else is debris
 TOUCH = 0.002  # a piece of the generated outfit this near the rest of it touches it
-POINT = 1e-6  # metres: two corners of a triangle this near are one point, and the model compiler drops the triangle
+POINT = split.POINT  # metres: two corners of a triangle this near are one point, and the model compiler drops the triangle
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'src', 'trimmed')  # what `store` keeps of a part
 OPTIONAL = ('pad',)  # and what it keeps when a part has it: parts kept before it existed have none
 KEPT, KEPT_KIND = 'baked.json', 'srn-armorkit-baked-parts'  # the list of the parts `store` kept, and its kind
@@ -59,7 +62,8 @@ def roles(name, made):
     thigh's cap and its wall toward the other leg, the pelvis's lids, of which a stride shows a hand's
     breadth, and the chest's closings round each arm, which a lifted arm shows: drawn from their rims, they
     were fans of streaks in the pad's and the sleeve's colours (the Site Guard with its arms up, in the
-    client). `closing`, `cap` and `padded` are `texture.tint_maps`' flags of the same names for the rest: a
+    client). So is a glove's cap, which a bare forearm shows at the cuff and a bent wrist shows more of:
+    drawn flat, it was a pale band round the wrist (Facility Security, in the client). `closing`, `cap` and `padded` are `texture.tint_maps`' flags of the same names for the rest: a
     thigh's wall goes with its cap where it is not `under`.
 
     An upper arm's cap is none of these and is drawn as it was read, its rim's colours carried to its pole.
@@ -291,9 +295,9 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 for key in keys}
     # the posed normals, and the positions and normals on the generated mesh, ride through the cut
     columns = np.concatenate([export.vertex_normals(v, f), in_field, export.vertex_normals(in_field, f)], axis=1)
-    mats = kinds[carried['origin']]
+    mats, read_as = kinds[carried['origin']], as_read[carried['origin']]
     guards = {(joint, side): flags for joint in split.GUARDS for side in 'lr'
-              for flags in [split.guard(v, f, mats, joints, joint, side)] if flags is not None}
+              for flags in [split.guard(v, f, mats, joints, joint, side, read=read_as)] if flags is not None}
     say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
     given = {'vertices': v, 'faces': f, 'columns': columns, 'joints': joints, 'radii': radii, 'overlaps': overlaps,
              'reaches': split.reaches(v, f, joints, radii, sleeves=carried['sleeves']), 'sleeves': carried['sleeves'], 'guards': guards,
@@ -303,6 +307,10 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         keep_split(given, capture)
         say('split inputs kept in', capture)
     result, made, origins = cut(given, contract)
+    own_part = functools.lru_cache(maxsize=None)(lambda name: bodyskin.body_part(body_pack, body_textures, body, name, bones))  # read once a bake
+    beside = {name: lambda pv, pf, slot=slot, name=name: skin_beside(own_part(name), bones, slot, name, pv, pf)
+              for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens'] if name in result}
+    result = within_budget(result, made, origins, given['joints'], given['radii'], beside, left_to_body(document), say)
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}
@@ -348,20 +356,86 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 shows = texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], first, size)
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
-    return skinned(parts, document, body_pack, body_textures, body, bones, say), bones, whole
+    return skinned(parts, document, body_pack, body_textures, body, bones, say, own_part), bones, whole
 
 
 def cut(given, contract=None):
     """The split as a bake runs it, on what `bake` gives it (`keep_split`): (parts, made, origins) as `split.split`
     returns them and fills them in. Each end at a tube joint is shaped to the contract (`ends.shaper`), the hips
-    are cut on the body's seat and the shoulders on its armhole, and the neck is left whole."""
+    are cut on the body's seat and the shoulders on its armhole, and the neck is left whole. An end under a
+    slot the brief leaves to the body lies on the body's skin and is shaped skin-tight (`ends.BARE`), its cap
+    stepping in under the skin at the plane (`ends.TUCK`)."""
     contract = seams.load_contract() if contract is None else contract
     made, origins = {}, {}
+    bare = bare_joints(given)
     result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
                          reaches=given['reaches'], whole={('neck', 'c')}, made=made, sleeves=given['sleeves'], guards=given['guards'],
-                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards']),
-                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'])
+                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare})
     return result, made, origins
+
+
+def bare_joints(given):
+    """The (joint, side) pairs of the shaped joints (`ends.TUBES`) whose over slot the brief leaves to the body
+    (`given['left']`): an end under one lies on the body's own skin."""
+    left = set(given.get('left', ()))
+    return {(joint, side) for joint in shaping.TUBES for side in seams.sides(joint)
+            if split.token(seams.JOINTS[joint]['over'], 'l' if side == 'c' else side) in left}
+
+
+def skin_beside(own, bones, slot, name, vertices, faces):
+    """How many faces of the body's own part `name` (`own`, `bodyskin.body_part`) `bodyskin.worn` keeps beside
+    an outfit's part (`vertices`, `faces`) in a slot the brief shares with the body's skin."""
+    start, end = (np.asarray(bones[end.format(name[-1])], float)[:3, 3] for end in split.BONE_ENDS[slot])
+    return int(bodyskin.shown(own['v'], own['f'], vertices, faces, start, end).sum())
+
+
+def within_budget(result, made, origins, joints, radii, beside=None, left=(), say=lambda *_: None):
+    """The split's parts (`cut`), each part over its triangle budget (`BUDGET`) brought under it (`reduce`).
+
+    `made` and `origins` are the split's flags per face of each part and are cut down to the faces kept.
+    Nothing the split made (closings, caps, walls, gussets) loses a vertex, nor the outfit within `END_BAND`
+    of a joint's plane, where the seam contract measures its ends; inside a cap a vertex may go where the
+    rest cannot reach the budget, but none on the cap's rim. `beside[name](vertices, faces)` counts the body's
+    own faces a part in a slot shared with the body's skin will hold (`skin_beside`): they count against its
+    budget, and the part is reduced again until the two fit. Parts in `left` (the body's) are not reduced.
+    Facility Security, exported at 17,000 faces, was worn at 29,396 triangles, within the whole outfit's
+    budget, with seven parts over theirs: the legs carry the cargo pockets, straps and guards (2026-11-13)."""
+    beside, out, planes = beside or {}, {}, None
+    for name, (pv, pf, pc) in result.items():
+        budget = BUDGET['chest'] if name == 'chest' else BUDGET['slot']
+        count = beside.get(name, lambda *_: 0)
+        held = 0 if name in left else count(pv, pf)  # the body's faces beside the part as it stands, counted anew as it is cut down
+        if name in left or len(pf) + held <= budget:
+            out[name] = (pv, pf, pc)
+            continue
+        own = np.zeros(len(pv), bool)
+        own[pf[made[name] == split.OWN].ravel()] = True
+        added = np.zeros(len(pv), bool)
+        added[pf[made[name] != split.OWN].ravel()] = True
+        capped = np.zeros(len(pv), bool)
+        capped[pf[made[name] == split.CAP].ravel()] = True
+        capped &= ~own & ~np.isin(np.arange(len(pv)), pf[(made[name] != split.CAP) & (made[name] != split.OWN)].ravel())
+        planes = split.planes(joints) if planes is None else planes
+        near = np.zeros(len(pv), bool)
+        for key, (point, normal) in planes.items():
+            unit = seams.unit(normal)
+            along = (pv - point) @ unit
+            near |= (np.abs(along) < END_BAND) & (np.linalg.norm((pv - point) - along[:, None] * unit, axis=1) < 2 * radii[key])
+        before, kept, faces, which = len(pf), np.arange(len(pv)), pf, np.arange(len(pf))
+        for locked in (added | near, (added & ~capped) | (near & own)):
+            for _ in range(SKIN_ROUNDS):
+                if len(faces) + held <= budget:
+                    break
+                again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, locked[kept])
+                kept, which = kept[again], which[inner]
+                held = count(pv[kept], faces)
+            if len(faces) + held <= budget:
+                break
+        made[name], origins[name] = made[name][which], origins[name][which]
+        out[name] = (pv[kept], faces, pc[kept])
+        say(f'{name}: reduced from {before} to {len(faces)} faces for its budget of {budget}')
+    return out
 
 
 def pad_flags(made, origins, guards):
@@ -399,8 +473,9 @@ def resplit(capture, contract=None):
     given = kept_split(capture)
     began = time.monotonic()
     result, made, origins = cut(given, contract)
-    seconds = time.monotonic() - began
     left, shared = set(given.get('left', ())), set(given.get('shared', ()))
+    result = within_budget(result, made, origins, given.get('joints'), given.get('radii'), left=left)  # the body's skin beside a part is not counted here
+    seconds = time.monotonic() - began
     parts = {name: {'v': pv, 'f': pf, 'made': made[name], 'pad': pad_flags(made[name], origins[name], given['guards'])}
              for name, (pv, pf, _) in result.items() if name not in left}
     for name in shared & set(parts):  # a part that shares its slot with the body's skin ends where the body's part does (`ends`)
@@ -461,14 +536,14 @@ def shared_with_body(document):
     return {name for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens']}
 
 
-def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None):
+def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None):
     """The baked parts with the body's own part beside the outfit's in each slot the brief shares with the
-    body's skin (`skin`, `bodyskin.worn`)."""
+    body's skin (`skin`, `bodyskin.worn`). `own_part(name)`, if given, is the body's part as already read."""
     parts = dict(parts)
     for slot in document.get('skin', []):
         for name in registry.SLOTS[slot]['tokens']:
             if name in parts:
-                own = bodyskin.body_part(body_pack, body_textures, body, name, bones)
+                own = own_part(name) if own_part else bodyskin.body_part(body_pack, body_textures, body, name, bones)
                 start, end = (np.asarray(bones[end.format(name[-1])], float)[:3, 3] for end in split.BONE_ENDS[slot])
                 parts[name] = bodyskin.worn(parts[name], own, start, end, BUDGET['texture'])
                 say(f'{name}: {int(parts[name]["skin"].sum())} of the body\'s {len(own["f"])} faces beside the outfit\'s, {len(parts[name]["rgb"])} px')

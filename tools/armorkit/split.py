@@ -26,6 +26,7 @@ CAP_TOP = 90.0  # degrees of its dome a cap covers: all of it. Short of the pole
 LEAN = 0.3  # how much more than a dome a cap draws in as it leaves the plane, to clear an over part that narrows there
 OWN, CLOSING, CAP, GUSSET, WALL, PADDED = 0, 1, 2, 3, 4, 5  # what made a face of a part: the outfit's own surface, or the split (`split`, `made`)
 WELD = 1e-5  # vertices this close are one point when pieces are traced (models repeat vertices at texture seams)
+POINT = 1e-6  # metres: two corners of a triangle this near are one point, and the model compiler drops the triangle
 RIVAL = 0.35  # a piece whose second choice won this share of its area is two parts welded together: it is traced again unwelded
 FREE_END = 0.12  # how far the bone of a neck, hand or foot runs on past its joint
 HIPS_EVEN = 0.01  # the line the two hip planes meet in lies this near the middle between the hip joints, or the body is refused
@@ -599,7 +600,7 @@ def patch(v, f, materials, seed, fits):
     return found | (np.isin(rest, islands) & ~found)
 
 
-def guard(vertices, faces, materials, joints, joint, side):
+def guard(vertices, faces, materials, joints, joint, side, read=None):
     """The faces of the pad over one knee or elbow, one flag per face, or None where the joint shows none.
 
     A pad is one patch of one material over the joint, as a shoulder pad is over the shoulder (`pad`): the
@@ -609,9 +610,17 @@ def guard(vertices, faces, materials, joints, joint, side):
     it may run on as a guard along the shin or the forearm: on one outfit the left elbow pad was one patch
     with its forearm guard and the right one was not. A patch of less than `GUARD_LEAST` is a strap's end or
     a face read wrongly, and no pad. `split` rounds the under part's cap out as a ball under such a pad
-    (`guards`)."""
+    (`guards`).
+
+    `read` holds the material per face as the colours were read before `texture.trimmed` gave each line of
+    metal too narrow for a plate to what it lies on. Faces read as the pad's material that the trim gave away
+    and that join the pad through each other are its rim, and the pad's too, unless pad and rim together
+    reach farther up the limb than a pad may: Facility Security's knee pads were drawn with a band of their
+    plates' colour round their outline, the trim painted it as the trousers, and on the left knee that band,
+    standing as far out as the pad, was measured as the shin's end, 1.2 cm outside its envelope (2026-11-13)."""
     v, f, materials = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(materials)
     require(materials.shape == (len(f),), 'One material per face is required')
+    require(read is None or np.shape(read) == (len(f),), 'One material per face is required as read')
     require(joint in GUARDS and side in ('l', 'r'), f'A pad is told over one of {sorted(GUARDS)}, on the l or r side')
     above, at, below = (np.asarray(joints[side + name], float) for name in GUARDS[joint])
     axis = seams.unit(below - above)
@@ -627,8 +636,20 @@ def guard(vertices, faces, materials, joints, joint, side):
             seed = np.flatnonzero(near)[np.argmax((centre @ way)[near])]
             found = patch(v, f, materials, seed, fits)
             if found is not None:
-                return found
+                return found if read is None else rimmed(v, f, materials, np.asarray(read), found, materials[seed], fits)
     return None
+
+
+def rimmed(v, f, materials, read, found, own, fits):
+    """A pad (`found`, of material `own`) with the faces `read` as its material that the trim gave to what they
+    lie on and that join it through each other (`guard`); the pad alone unless the two together still `fits`."""
+    away = (read == own) & (materials != own) & ~found
+    if not away.any():
+        return found
+    pairs = beside(v, f)
+    label = np.asarray(mesh_ops.union_find(len(f), pairs[(found | away)[pairs].all(axis=1)].tolist()))
+    rim = away & np.isin(label, label[found])
+    return found | rim if fits(found | rim) else found
 
 
 def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
@@ -641,14 +662,17 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     alone. At rest the sleeve lies against the torso's side again, pressed into it by the fit, and a trough
     placed there cuts the torso's flank as well. The bend carries the cut along as vertices of the surface.
 
-    With `materials`, a material per face, a shoulder pad on such an arm is found too (`pad`) and parted from
+    With `materials`, a material per face, a shoulder pad on an arm `padded` names is found too (`pad`) and parted from
     the rest along its own outline, the edges where its material ends: `split` gives what of it lies past the
     shoulder plane to a shoulder part, which rides on the arm, and what lies before it, over the top of the
     shoulder, to the chest (`topped`). Cut out by planes wide enough to hold it instead, the pad took what the torso wears
     round it along, and the torso ended a hand's width short of its own shoulder. `padded` names the sides the
     outfit is designed with a shoulder pad on: one that shows none there is refused. A pad of the sleeve's own
     material cannot be told from the sleeve, and would be cut in two on the shoulder plane without a word, its
-    upper half left on the chest when the arm lifts.
+    upper half left on the chest when the arm lifts. On a side `padded` does not name no pad is looked for:
+    Facility Security's short right sleeve, a patch of cloth within a pad's reach of the shoulder, was taken
+    for one, went whole to a shoulder part, and left nothing of the sleeve to go with the arm (2026-11-13).
+    Shoulder pads are made apart from the outfit now, and the brief says which sides have one.
 
     `joints` holds the shoulder and elbow joints as `lbicep_g`, `lforearm_g` and so on, in the mesh's space and in
     metres. `origin[i]` is the face that new face i was cut from. `sleeves` maps a side with a fused sleeve to
@@ -665,7 +689,8 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     v, f, t = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
     origin, found = np.arange(len(f)), {}
     require(set(padded) <= {'l', 'r'} and (materials is not None or not padded), 'Pads are expected on the l or r side, and told by materials')
-    pads = {side: None if materials is None else pad(v, f, materials, joints, side) for side in 'lr'}
+    require(materials is None or np.shape(materials) == (len(f),), 'One material per face is required')
+    pads = {side: pad(v, f, materials, joints, side) if side in padded else None for side in 'lr'}
     for side in 'lr':
         seam = sleeve(v, f, joints, side, padded=pads[side] is not None, above=SLEEVE_ABOVE)
         require(side not in padded or (seam is not None and pads[side] is not None),
@@ -995,7 +1020,10 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     the torso by half and all of `bend`, never in across it. Each point is drawn in toward the
     axis, at its height, as far as that takes; the pole stays, as deep as the seam contract asks. The seat covers
     the end as the body stands, and turned the end fills what the thigh leaves of the leg hole. Each new vertex
-    keeps the columns of the rim point it grew from; the faces wind as the cap's (`cap`)."""
+    keeps the columns of the rim point it grew from; the faces wind as the cap's (`cap`). Where two rim points
+    beside each other are both drawn onto the axis at one height, the face between them has two corners at
+    one `POINT` and no area, and is left out: the model compiler drops it, and Facility Security's left upper
+    arm compiled to 16 faces fewer than it was written with (2026-11-13)."""
     none = np.zeros((0, 3)), np.zeros((0, uvs.shape[1])), np.zeros((0, 3), int)
     point, normal, on = np.asarray(point, float), seams.unit(normal), np.asarray(on, bool)
     if not on.any():
@@ -1093,7 +1121,10 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     nearer, farther = index[:-1], index[1:]
     added = np.concatenate([np.stack([nearer[:, finish], nearer[:, start], farther[:, start]], axis=2).reshape(-1, 3),
                             np.stack([nearer[:-1, finish], farther[:-1, start], farther[:-1, finish]], axis=2).reshape(-1, 3)])
-    return np.concatenate(placed), np.tile(uvs[rim], (total, 1)), added
+    grown = np.concatenate(placed)
+    corners = np.where((added < base)[..., None], vertices[np.minimum(added, len(vertices) - 1)], grown[np.maximum(added - base, 0)])
+    sides = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2)
+    return grown, np.tile(uvs[rim], (total, 1)), added[sides.min(axis=1) >= POINT]
 
 
 def rotation(axis, degrees):
@@ -1254,7 +1285,7 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
 
 
 def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None,
-          shape=None, deep=(), seat=None, arms=None):
+          shape=None, deep=(), seat=None, arms=None, tucks=None):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -1291,7 +1322,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     `shape`, if given, is called on each part after its closings and lids and before its caps, as
     `shape(name, vertices, faces, uvs, origin)` with the part's own faces first in `faces` and `origin` the face
     of `faces` given here each of those was cut from; it returns the part's (vertices, uvs), which the caps
-    then grow from (`ends.shaper`). At the joints `deep` names a cap is not `bounded`.
+    then grow from (`ends.shaper`). At the joints `deep` names a cap is not `bounded`. `tucks` maps a (joint,
+    side) to the share inside its rim an under part's cap starts there (`cap`'s `tuck`), over `TUCKS`.
 
     `seat` maps a hip, ('hip', side), to `reach`, how far the body's pelvis runs past that hip plane down the
     thigh per direction (`measure.seat`), and `ring`, the radius per direction the thigh's end stands at on
@@ -1426,7 +1458,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 if pads.get(name, (None,))[0] == (joint, side):
                     full[:len(mine)] = pads[name][1][owner == index]
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
-                options = {'tuck': TUCKS[joint], 'steps': TUCK_STEPS} if joint in TUCKS else {}
+                tuck = (tucks or {}).get((joint, side), TUCKS.get(joint))
+                options = {'tuck': tuck, 'steps': TUCK_STEPS} if tuck else {}
                 options['bounded'] = joint not in deep
                 if full.any():  # a pad's rim is carried round the hinge in its own number of rings, tucked or not
                     options.update(full=full, hinge=np.cross(opens - (opens @ across) * across, -across), steps=GUARD_STEPS)
