@@ -99,7 +99,7 @@
   "tools/itemkit/test_native_stack.py": 0.85,
   "tools/itemkit/test_onehand_fire_motion.py": 0.001,
   "tools/itemkit/test_preflight.py": 0.01,
-  "tools/itemkit/test_profile_mesh.py": 3.76,
+  "tools/itemkit/test_profile_mesh.py": 3.97,
   "tools/itemkit/test_publish.py": 0.54,
   "tools/itemkit/test_recovery.py": 0.19,
   "tools/itemkit/test_reduction.py": 0.004,
