@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 86,
-      "sha256": "4c62cf7a16e03b9b37c2037347050cf0d15da893c9772631aee3fad1a954a2b5",
+      "resources": 94,
+      "sha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 26,
-    "NPCs": 52,
+    "pairs": 30,
+    "NPCs": 60,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -77,6 +77,18 @@
       ],
       "moduleSha256": "4c62cf7a16e03b9b37c2037347050cf0d15da893c9772631aee3fad1a954a2b5",
       "note": "Survival Knife, Sword, Club and Claymore pairs were added to this module (sw6_, southern row). They were not run in this module's client; each item was viewed in the client in its own itemkit fixture and kept by the user. Earlier approvals above refer to the earlier module bytes."
+    },
+    "extension4": {
+      "date": "2026-11-13",
+      "addedPairs": 4,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Approve all three",
+        "Yes, keep it",
+        "With wave 3"
+      ],
+      "moduleSha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
+      "note": "Vibro Blades Knife, Rapier, Combat Axe, Spear reviewer pairs were added (sw7_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
     }
   }
 }
