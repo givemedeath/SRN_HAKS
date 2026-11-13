@@ -185,6 +185,16 @@ class BladeFaceFrameTests(unittest.TestCase):
             self.assertGreater(np.ptp(blade[:, 1]), 4 * np.ptp(blade[:, 2]), handle_depth)
             self.assertAlmostEqual(abs(U[2, 1]), 1, places=3); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
 
+    def test_a_flat_axe_head_on_a_thick_haft_faces_the_width_axis(self):
+        from tools.itemkit import fit_manifest as fm
+        haft, _ = lathe([(y, .03) for y in np.linspace(-.4, .45, 340)], sides=48, depth=2.5)     # thicker than it is tall
+        head, _ = lathe([(y, .15) for y in np.linspace(.45, .6, 60)], sides=48, depth=.1)         # broad along Blender Z
+        _, U0, q0 = fm._frame(np.concatenate([haft, head]))
+        method, q, U, _ = fm.hafted_landmarks(q0, U0, {'headAtLowEnd': bool(U0[1, 0] < 0)})
+        self.assertEqual(method, 'hafted-head')
+        top = q[q[:, 0] > np.percentile(q[:, 0], 90)]
+        self.assertGreater(np.ptp(top[:, 1]), 4 * np.ptp(top[:, 2])); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
+
     def test_a_round_blade_keeps_the_principal_frame(self):
         from tools.itemkit import fit_manifest as fm
         bat, _ = lathe([(y, .03) for y in np.linspace(-.4, .6, 400)], sides=48)
@@ -352,6 +362,25 @@ class SiblingSlotTests(unittest.TestCase):
             self.assertFalse(any(n.startswith('waxhn') for n in taken))
             self.assertEqual(reserve(mine, taken)['modelIndex'], 3)
 
+    def test_a_retired_contract_folder_gives_its_slots_back(self):
+        from tools.itemkit.family_contract import retire, retired, sibling_models
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for wave, name, index in (('abandoned', 'old', 1), ('live', 'kept', 2), ('live', 'mine', None)):
+                (root/wave).mkdir(exist_ok=True)
+                (root/wave/f'family-{name}.json').write_text(json.dumps({'family': 'club', 'nativePackaging': 'enabled',
+                                                                         'native': {'itemClass': 'wblcl'}, 'resources': {
+                    'texturePrefix': 'sr' + name, **({'appearanceIndex': index} if index else {})}}), encoding='utf-8')
+            mine = root/'live/family-mine.json'
+            self.assertIn('wblcl_b_011.mdl', sibling_models(root, mine, 'wblcl'))
+            with self.assertRaisesRegex(ValueError, 'reason'): retire(root/'abandoned', ' ', '2026-11-13')
+            record = retire(root/'abandoned', 'slots collided with wave 1', '2026-11-13')
+            self.assertEqual(record['contracts'], ['family-old.json']); self.assertEqual(retired(root/'abandoned')['date'], '2026-11-13')
+            taken = sibling_models(root, mine, 'wblcl')
+            self.assertNotIn('wblcl_b_011.mdl', taken); self.assertIn('wblcl_b_021.mdl', taken)
+            with self.assertRaisesRegex(ValueError, 'already retired'): retire(root/'abandoned', 'again', '2026-11-13')
+            with self.assertRaisesRegex(ValueError, 'no family contracts'): retire(root/'missing', 'why', '2026-11-13')
+
     def test_a_base_contracts_reviewed_grip_origin_is_kept_and_disagreement_refused(self):
         from tools.itemkit.family_contract import base_grip_origin
         with tempfile.TemporaryDirectory() as tmp:
@@ -364,6 +393,31 @@ class SiblingSlotTests(unittest.TestCase):
             self.assertIsNone(base_grip_origin(base, 'wswdg'))                     # no reviewed contact: measure the carrier
             contract('bat', 'wswgs', [0, -.0712, 0])                               # a fresh-measured contact that disagrees
             with self.assertRaisesRegex(ValueError, 'different grip origins'): base_grip_origin(base, 'wswgs')
+
+
+class OpeningProbeTests(unittest.TestCase):
+    def plate(self):
+        """A 100 x 60 mm plate across x with a 20 mm square through-hole centred 70 mm along its length (y)."""
+        ys, zs = [0, .06, .08, .1], [0, .02, .04, .06]; v = []; f = []
+        for i in range(3):
+            for j in range(3):
+                if (i, j) == (1, 1): continue
+                k = len(v); v += [[0, ys[i], zs[j]], [0, ys[i + 1], zs[j]], [0, ys[i + 1], zs[j + 1]], [0, ys[i], zs[j + 1]]]
+                f += [[k, k + 1, k + 2], [k, k + 2, k + 3]]
+        return np.array(v, float), np.array(f)
+
+    def test_a_through_hole_is_found_and_matched_from_either_end(self):
+        from tools.itemkit import opening_probes as op
+        v, f = self.plate(); found = op.holes(v, f, 0)
+        self.assertEqual(len(found), 1); hole = found[0]
+        self.assertEqual(hole['hits'], 0); self.assertAlmostEqual(hole['clearance'], .01, delta=.001)
+        self.assertAlmostEqual(hole['area'], .0004, delta=.00005); hole['fraction'] = hole['y'] / .1
+        self.assertAlmostEqual(hole['fraction'], .7, delta=.01)
+        probe, = op.match([('lanyard', .3)], found)                              # the reference measured from the other end
+        self.assertEqual((probe['name'], probe['start'], probe['end']), ('lanyard', hole['start'], hole['end']))
+        with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('lanyard', .5)], found)
+        narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
+        with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
 
 
 class FixtureCarryTests(unittest.TestCase):
@@ -412,6 +466,28 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertNotIn('referenceView', knife['approval'])          # a short design needs no long-weapon waiver
             self.assertEqual(knife['approval']['colourGeometry'], {'decision': 'approved', 'geometrySha256': 'dddddddd', 'notes': 'words'})
             with self.assertRaises(SystemExit): d.colour_geometry('bat', 'colour', 'again', 'words')   # already colour
+
+    def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
+        import hashlib
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            job = root/'knife/appearance-a1/job'; job.mkdir(parents=True); digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+            (job/'node-961_00001.glb').write_bytes(b'raw'); (job/'node-922_00001.glb').write_bytes(b'donor')
+            attrs = np.full((1000, 3), .5); attrs[:3] = -.2; attrs[3:5] = 1.12                # 5 of 1000 samples overshoot
+            np.savez(job/'node-962_00001.npz', attrs=attrs)
+            (job/'collection.json').write_text(json.dumps({'state': 'complete', 'outputs': [
+                {'path': str(p), 'sha256': digest(p)} for p in sorted(job.glob('node-*'))]}), encoding='utf-8')
+            (h/'knife.src.asset.json').write_text(json.dumps({'inputs': {'geometryRaw': {'sha256': digest(job/'node-961_00001.glb')}},
+                                                              'approval': {}, 'processing': {}}), encoding='utf-8')
+            with self.assertRaisesRegex(SystemExit, r'-0\.2000\.\.1\.1200 lies outside .*\(5 of 1000 .* --field-range -0\.2,1\.12$'):
+                d.donor_manifest('knife', 'src', 'donor-v1', 'words')
+            with self.assertRaisesRegex(SystemExit, 'lies outside'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.1, 1.2))
+            with self.assertRaisesRegex(SystemExit, 'within'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.3, 1.2))
+            m = json.loads(Path(d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.2, 1.12))).read_text(encoding='utf-8'))
+            field = m['inputs']['field']['sha256']
+            self.assertEqual(m['processing']['sourceFieldPolicy'], {'allowDecoderOvershoot': True, 'fieldSha256': field, 'minimum': -.2, 'maximum': 1.12})
+            self.assertIn('5 of 1000 samples (0.500%)', m['approval']['sourceDonor']['notes'])
 
     def test_batch_runs_items_side_by_side_and_keeps_failures(self):
         from tools.itemkit.drive import Driver

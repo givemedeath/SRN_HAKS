@@ -1840,10 +1840,12 @@
       "tools/headkit/gltf.py",
       "tools/itemkit/__init__.py",
       "tools/itemkit/autofit.py",
+      "tools/itemkit/donor.py",
       "tools/itemkit/family_contract.py",
       "tools/itemkit/fit_manifest.py",
       "tools/itemkit/miss_patch.py",
       "tools/itemkit/oblique.py",
+      "tools/itemkit/opening_probes.py",
       "tools/itemkit/preview_views.py",
       "tools/itemkit/publish.py",
       "tools/itemkit/run_itemkit.py",
@@ -1967,6 +1969,13 @@
     "tools/itemkit/onehand_fire_motion.py": [
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
+    "tools/itemkit/opening_probes.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/itemkit/fit_manifest.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/grip.py"
     ],
     "tools/itemkit/parts.py": [
       "tools/headkit/common.py",
@@ -2321,6 +2330,7 @@
       "tools/itemkit/fixture.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/oblique.py",
+      "tools/itemkit/opening_probes.py",
       "tools/itemkit/routes.py",
       "tools/itemkit/straightness.py",
       "tools/itemkit/texture_check.py",

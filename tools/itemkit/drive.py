@@ -6,15 +6,18 @@ Generation (one GPU job at a time, through the shared ledger; ComfyUI only when 
     comfy start|stop|status          image DESIGN colour|clay        condition DESIGN ID [--notes "user's words" --keyed D,C]
     gen ID STAGE --manifest SUFFIX [--attempt aN]                      calibrated ID FOV [--source SUFFIX]
     colour-geometry ID SRC DST --notes "user's words"   (geometry from the colour detail image, not the clay)
-    approve-geometry ID ATTEMPT SRC DST --notes "user's words"          textured ID ATTEMPT SRC --notes ... [--straight DIR]
+    approve-geometry ID ATTEMPT SRC DST --notes "user's words"
+    textured ID ATTEMPT SRC --notes ... [--straight DIR] [--field-range LO,HI]
 Processing (CPU, through the verified launcher):
     fit ID SRC DST WORKING DONOR [--overrides JSON] [--measure-only] [--donor-review "user's words"] [--authority "user's words"]
+    opening-probes ID SUFFIX [--write NEW_SUFFIX]   (measured probes for the reviewed openings, from the fitted shell)
     preview ID SUFFIX                 stage ID SUFFIX STAGE           review ID SUFFIX STAGE approved|rejected NOTES
     chain ID SUFFIX STAGE...          batch ID:SUFFIX... --stages S,S,... [--jobs N]
 Fixtures and in-game capture:
     fixture-inputs ID SUFFIX NAME     refixture ID SUFFIX NAME [--capture]       capture FIXTURE_DIR OUTPUT
 Families:
     contract FAMILY ID --wave NAME [--visible N] [--base FOLDER]   views GLB OUTPUT [--textured]   decimate IN OUT [--faces N]
+    retire-contracts FOLDER --reason TEXT   (an abandoned or test contract folder gives its appearance slots back)
 Publication (tools/itemkit/publish.py; docs/items/approved-weapons-release.md):
     publish ID:SUFFIX... --statement "user's words"... --review TEXT [--date YYYY-MM-DD] [--dry-run]
 Bake misses and shell recovery (CPU; docs/items/early-checks-and-recovery.md):
@@ -48,6 +51,7 @@ PROCESSING = ('fit', 'reduce', 'unwrap', 'finish', 'bake', 'shadow', 'render', '
 CHAIN_NOTES = ('Automated chain {date}: this stage passed every numerical gate of the pipeline on this manifest. Numerical pass only; '
                'visible quality is reviewed at the render and in-hand stages before any acceptance.')
 MAX_JOBS = 3          # independent per-item processing runs at once (user, 2026-10-07); each Blender renders on 4 threads
+DECODER_RANGE = (-.05, 1.065)   # the appearance decoder's colour-field range; a wider one is reviewed (donor_manifest)
 
 
 def sha(path):
@@ -239,8 +243,15 @@ class Driver:
         m['approval']['generatedGeometry'] = {'decision': 'approved', 'geometryRawSha256': glb['sha256'], 'shapeSha256': npz['sha256'], 'notes': notes}
         return str(write_new(self.manifest(design, dst), m))
 
-    def donor_manifest(self, design, src, dst, notes, attempt='a1'):
+    def donor_manifest(self, design, src, dst, notes, attempt='a1', field_range=None):
+        """The donor manifest: the appearance job's 200K donor and colour field, with the field's reviewed value range.
+
+        The decoder range is -0.05..1.065. A field that overshoots it slightly (decoder overshoot the bake clamps; the
+        wave-3 Vibro Knife's -0.216..1.121, 433 of 1.58M samples, 2026-11-13) is refused with its measured range; a rerun
+        with `field_range` (LO, HI) that contains it binds that range to the field's hash, within donor.py's limits.
+        The textured views still need the user's look."""
         import numpy as np
+        from tools.itemkit.donor import field_policy
         c = read(self.ws.items/design/f'appearance-{attempt}/job/collection.json')
         if c['state'] != 'complete': raise SystemExit('Appearance job not complete')
         by = {Path(o['path']).name: o for o in c['outputs']}; m = read(self.manifest(design, src))
@@ -249,16 +260,34 @@ class Driver:
             o = by[node]; target = self.ws.handoff/'generated'/design/f'appearance-{attempt}'/name
             if not copy_checked(o['path'], target, o['sha256']): raise SystemExit(role+' copy differs')
             m['inputs'][role] = {'path': target.relative_to(self.ws.handoff).as_posix(), 'sha256': o['sha256']}
-        with np.load(self.ws.handoff/m['inputs']['field']['path']) as z: lo, hi = float(z['attrs'].min()), float(z['attrs'].max())
-        if not (-.05 <= lo and hi <= 1.065): raise SystemExit(f'Appearance field out of the decoder range: {lo}..{hi}')
+        with np.load(self.ws.handoff/m['inputs']['field']['path']) as z:
+            attrs = z['attrs']; lo, hi = float(attrs.min()), float(attrs.max())
+            outside = int(((attrs < DECODER_RANGE[0]) | (attrs > DECODER_RANGE[1])).any(1).sum()); total = len(attrs)
+        low, high = DECODER_RANGE if field_range is None else (float(field_range[0]), float(field_range[1]))
+        if not (low <= lo and hi <= high):
+            # Rounded out to the hundredth (after removing float noise: 1.12 * 100 is 112.00000000000001).
+            suggest = (f'{min(DECODER_RANGE[0], np.floor(round(lo * 100, 6)) / 100):g},'
+                       f'{max(DECODER_RANGE[1], np.ceil(round(hi * 100, 6)) / 100):g}')
+            raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} lies outside {low:g}..{high:g} ({outside} of {total} samples outside '
+                             f'the decoder range): review the textured result and rerun with --field-range {suggest}')
+        field_sha = m['inputs']['field']['sha256']
+        policy = {'allowDecoderOvershoot': True, 'fieldSha256': field_sha, 'minimum': low, 'maximum': high}
+        try: field_policy(policy, field_sha)
+        except ValueError as error: raise SystemExit(f'--field-range {low:g},{high:g}: {error}')
+        measured = f' Field value range measured {lo:.4f}..{hi:.4f}.'
+        if (low, high) != DECODER_RANGE:
+            measured += (f' {outside} of {total} samples ({100 * outside / total:.3f}%) lie outside the decoder range '
+                         f'{DECODER_RANGE[0]}..{DECODER_RANGE[1]}; the reviewed range {low:g}..{high:g} lets the bake clamp them.')
         m['approval']['sourceDonor'] = {'decision': 'approved', 'geometryDonorSha256': m['inputs']['geometryDonor']['sha256'],
-                                        'fieldSha256': m['inputs']['field']['sha256'], 'notes': notes + f' Field value range measured {lo:.4f}..{hi:.4f}.'}
+                                        'fieldSha256': field_sha, 'notes': notes + measured}
         m['processing']['sourceDonorTopologyPolicy'] = 'sampling-surface-v1'
-        m['processing']['sourceFieldPolicy'] = {'allowDecoderOvershoot': True, 'fieldSha256': m['inputs']['field']['sha256'], 'minimum': -.05, 'maximum': 1.065}
+        m['processing']['sourceFieldPolicy'] = policy
         return str(write_new(self.manifest(design, dst), m))
 
-    def textured(self, design, attempt, src, notes, straight=None):
-        """Approved clay -> appearance (with the 200K donor) -> donor manifest -> CPU colour bake -> textured views."""
+    def textured(self, design, attempt, src, notes, straight=None, field_range=None):
+        """Approved clay -> appearance (with the 200K donor) -> donor manifest -> CPU colour bake -> textured views.
+
+        `field_range` (LO, HI): the colour field's reviewed value range when it overshoots the decoder (donor_manifest)."""
         if not notes.strip(): raise SystemExit("--notes must quote the user's clay approval")
         collection = self.ws.items/design/f'geometry-{attempt}/job/collection.json'
         if not collection.exists(): raise SystemExit(f'{design}: geometry {attempt} was never collected')
@@ -273,7 +302,8 @@ class Driver:
             finally: self.comfy('stop')
         if not self.manifest(design, 'donor-v1').exists():
             self.donor_manifest(design, 'geometry-approved-v1', 'donor-v1', 'Automated chain: 200K/768 UDF donor and colour field from the appearance job '
-                                'on the approved clay (raw mesh hash checked identical). Visual review of the textured result is still required.')
+                                'on the approved clay (raw mesh hash checked identical). Visual review of the textured result is still required.',
+                                field_range=field_range)
         run = self.run_dir(design, 'donor-v1')
         # The donor of the attempt the run's state records: attempt folders are not ordered, and an older or failed
         # attempt may hold a textured-donor.glb too.
@@ -385,6 +415,20 @@ class Driver:
         summary.update(manifest=str(out), departureDigest=overrides.get('departureDigest'))
         return summary
 
+    def opening_probes(self, design, suffix, new=None):
+        """The fitted shell's through-holes against the manifest's reviewed openings; with `new`, a manifest with the
+        matched probes in processing.openingProbes (tools.itemkit.opening_probes)."""
+        from tools.itemkit import opening_probes as op
+        m = read(self.manifest(design, suffix)); family = read(self.ws.handoff/m['familyProfile']['path'])
+        data = op.measure(m, family, self.ws.handoff)
+        result = {'nativeLength': data['nativeLength'], 'references': data['references'],
+                  'holes': [{k: hole[k] for k in ('axis', 'area', 'clearance', 'fraction', 'hits')} for hole in data['holes']]}
+        if new:
+            probes = op.match(data['references'], data['holes'])
+            m.setdefault('processing', {})['openingProbes'] = probes
+            result.update(manifest=str(write_new(self.manifest(design, new), m)), probes=len(probes))
+        return result
+
     def _approve_donor(self, path, words):
         """Bind the user's review of the exact textured donor and working shell, when they gave one."""
         if not words: return
@@ -490,6 +534,12 @@ class Driver:
         from tools.itemkit.family_contract import BASE, build
         return build(self.ws, family, design, wave, visible=visible, base=base or BASE)
 
+    def retire_contracts(self, folder, reason, today=None):
+        """Retire an abandoned or test contract folder (under the handoff) so its slots are free (family_contract.retire)."""
+        import datetime
+        from tools.itemkit.family_contract import retire
+        return retire(self.ws.handoff/folder, reason, today or datetime.date.today().isoformat())
+
     def views(self, glb, output, textured=False):
         """Eight orthographic Blender views and a contact sheet (clay, or the textured donor's colour)."""
         # Absolute paths: Blender resolves a relative render path against its own drive root, not this folder.
@@ -587,8 +637,11 @@ def main(argv=None):
     s = c.add_parser('calibrated'); s.add_argument('id'); s.add_argument('fov', type=float); s.add_argument('--source', default='wave1-v2-contract')
     s = c.add_parser('approve-geometry'); [s.add_argument(k) for k in ('id', 'attempt', 'src', 'dst')]; s.add_argument('--notes', required=True)
     s = c.add_parser('textured'); [s.add_argument(k) for k in ('id', 'attempt', 'src')]; s.add_argument('--notes', required=True); s.add_argument('--straight')
+    s.add_argument('--field-range', type=lambda t: tuple(float(x) for x in t.split(',')),
+                   help='LO,HI: the colour field\'s reviewed range when it overshoots the decoder (the refusal suggests one)')
     s = c.add_parser('fit'); [s.add_argument(k) for k in ('id', 'src', 'dst', 'working', 'donor')]
     s.add_argument('--overrides'); s.add_argument('--measure-only', action='store_true'); s.add_argument('--donor-review'); s.add_argument('--authority')
+    s = c.add_parser('opening-probes'); s.add_argument('id'); s.add_argument('suffix'); s.add_argument('--write', help='new manifest suffix')
     s = c.add_parser('preview'); s.add_argument('id'); s.add_argument('suffix')
     s = c.add_parser('stage'); s.add_argument('id'); s.add_argument('suffix'); s.add_argument('stage')
     s = c.add_parser('review'); [s.add_argument(k) for k in ('id', 'suffix', 'stage')]; s.add_argument('decision', choices=['approved', 'rejected']); s.add_argument('notes')
@@ -601,6 +654,8 @@ def main(argv=None):
     s = c.add_parser('capture'); s.add_argument('fixture'); s.add_argument('output')
     s = c.add_parser('contract'); s.add_argument('family'); s.add_argument('id'); s.add_argument('--wave', required=True); s.add_argument('--visible', type=int)
     s.add_argument('--base', help='the measured contract folder to start from, e.g. contracts/wave1-v2 (its reviewed hand contacts carry over)')
+    s = c.add_parser('retire-contracts'); s.add_argument('folder', help='under the handoff, e.g. contracts/melee-wave2-v1')
+    s.add_argument('--reason', required=True)
     s = c.add_parser('views'); s.add_argument('glb'); s.add_argument('output'); s.add_argument('--textured', action='store_true')
     s = c.add_parser('decimate'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--faces', type=int, help='default: the 40,000-triangle working shell')
     s = c.add_parser('publish'); s.add_argument('items', nargs='+', help='ID:SUFFIX of each client-reviewed run')
@@ -634,13 +689,15 @@ def main(argv=None):
         'gen': lambda: d.gen(a.id, a.stage, a.manifest, a.attempt), 'calibrated': lambda: d.calibrated(a.id, a.fov, a.source),
         'colour-geometry': lambda: d.colour_geometry(a.id, a.src, a.dst, a.notes),
         'approve-geometry': lambda: d.approve_geometry(a.id, a.attempt, a.src, a.dst, a.notes),
-        'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight),
+        'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight, a.field_range),
         'fit': lambda: d.fit(a.id, a.src, a.dst, a.working, a.donor, a.overrides, measure_only=a.measure_only, donor_review=a.donor_review, authority=a.authority),
+        'opening-probes': lambda: d.opening_probes(a.id, a.suffix, a.write),
         'preview': lambda: d.preview(a.id, a.suffix), 'stage': lambda: d.stage(a.id, a.suffix, a.stage),
         'review': lambda: d.review(a.id, a.suffix, a.stage, a.decision, a.notes), 'chain': lambda: d.chain(a.id, a.suffix, a.stages),
         'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
         'refixture': lambda: d.refixture(a.id, a.suffix, a.name, a.capture), 'capture': lambda: d.capture(a.fixture, a.output),
         'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible, a.base), 'views': lambda: d.views(a.glb, a.output, a.textured),
+        'retire-contracts': lambda: d.retire_contracts(a.folder, a.reason),
         'decimate': lambda: d.decimate(a.source, a.target, a.faces),
         'publish': lambda: d.publish(a.items, a.statement, a.review, a.date, a.dry_run),
         'screen': lambda: d.screen(a.id, a.suffix, a.donor, a.distance, a.alignment, a.arrays, a.fit),
@@ -654,7 +711,7 @@ def main(argv=None):
     }
     try: result = commands[a.command]()
     except ValueError as error:                       # a refused publication, screen or patch is a message, not a traceback
-        if a.command not in ('publish', 'screen', 'patch-measure', 'patch-add'): raise
+        if a.command not in ('publish', 'screen', 'patch-measure', 'patch-add', 'opening-probes'): raise
         raise SystemExit(f'{a.command}: {error}')
     print(json.dumps(result, indent=1, default=str))
     return 0
