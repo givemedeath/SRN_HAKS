@@ -169,6 +169,65 @@ derivation and review the resulting 1K diffuse. Recovery does not overwrite a
 failed runner receipt or mark a visual review approved. Bind the recovered result
 explicitly in the continuation checkpoint before downstream work.
 
+## Screening donor misses and measuring a colour patch
+
+The driver repeats the bake preflight's donor test on CPU and prepares a reviewed patch, so a fit that cannot bake is
+found before unwrap finishing and Cycles (`tools/itemkit/miss_patch.py`):
+
+```text
+python -m tools.itemkit.drive screen ID SUFFIX DONOR_GLB [--distance 0.003 --alignment 0.5]
+python -m tools.itemkit.drive patch-measure ID SUFFIX DONOR_GLB <preflight.json | donor-miss-diagnostic.json>
+python -m tools.itemkit.drive patch-add ID SUFFIX NEW_SUFFIX --faces F,F,... --distance M --notes "review" [--user-approval "user's words"]
+```
+
+- **`screen`** joins the run's unwrap arrays (the final atlas, else the extract's `uv-source.npz`) in native part
+  order. A run with several unwrap or fit attempts is refused until `--arrays` or `--fit` names the one to use; the
+  commands never guess between attempts. It moves the textured donor through the fit's `rawToNativeMatrix` and fails every visible face whose
+  centroid has no donor triangle within the distance that faces within the alignment, as `transfer_preflight` does.
+  It is the same centroid early warning, not a surface proof. On the stun staff's fit-v38 it flagged 1 of 21,976
+  faces in about 10 s, and that face is inside the reviewed patch.
+- **`patch-measure`** takes the failed faces of a bake report. It refuses a report whose `targetHash` belongs to another
+  target. For each face it records the centroid and sampled maximum distance to the fitted donor (45 points), the
+  nearest donor facing and the mapped texels. It also gives the total texel fraction, a suggested patch distance
+  (the sampled maximum rounded up to 0.01 mm) and the target's corner hash.
+- **`patch-add`** writes a new manifest with `processing.missCorrection.unorientedSourcePatch` for exactly those faces,
+  bound to the run's corner hash. It needs the manifest's existing `nearest-finished-donor` policy and a review note.
+  It raises `maximumUnorientedDistance` to the patch distance when that is above the policy's bound (2.1 mm by
+  default), since the worker caps the patch there. The scope is 3 mm and 0.01% of the mapped texels, or 3.25 mm and
+  0.05% with `--user-approval` quoting the user's own words. The patch is checked with `validate_texture_patch` before
+  it is written, and the worker checks it again when it bakes. Rebuilt from the staff's fit-v38 atlas, the command
+  reproduces that manifest's reviewed policy exactly.
+
+None of these approves a patch. The user reviews the measured faces, the note quotes that review, and the baked
+colour still needs the lit and unlit review.
+
+## Repairing a working shell
+
+When a generated or donor-derived working shell is not one closed outward solid, these write a new GLB and refuse
+(writing nothing) when the result fails the same `topology` check the pipeline uses (`tools/itemkit/shell_repair.py`):
+
+```text
+python -m tools.itemkit.drive shell-from-donor IN.glb OUT.glb [--voxel 0.001 --faces 200000 --dilate 1 --erode 0 --sigma 0.8 --taubin 5]
+python -m tools.itemkit.drive drop-specks IN.glb OUT.glb [--fraction 1e-6]
+python -m tools.itemkit.drive repair-shell IN.glb OUT.glb [--rings 2]
+python -m tools.itemkit.drive remesh-shell IN.glb OUT.glb EDGE [--taubin N]
+```
+
+- **`shell-from-donor`** rasterises the donor surface into voxels. It dilates them, flood-fills the outside, smooths
+  the solid, runs marching cubes, cleans the result, Taubin-smooths it and decimates to the face target. The shell
+  sits about one dilation outside the donor, and holes narrower than the dilation close. It refuses grids over 200M
+  voxels.
+- **`drop-specks`** removes components under the volume fraction of the largest one. It reports the closed state
+  rather than requiring it.
+- **`repair-shell`** cuts rings of faces around every vertex whose faces do not form one fan (the topology check's
+  vertex links) and every edge used more than twice. It then closes the holes. A shell without such spots is returned
+  unchanged.
+- **`remesh-shell`** remeshes to an even edge length in native units. It must keep the shell closed and outward at
+  the same genus, with no degenerate triangles.
+
+Each reports topology before and after and the volume ratio. A repaired shell is a new working mesh, so pin it in a
+new manifest and review it like any other; these commands do not change an existing manifest or run.
+
 ## Validation scope
 
 New focused regressions cover invalid geometry, blocked openings, UV defects,

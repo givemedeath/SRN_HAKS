@@ -1833,10 +1833,12 @@
       "tools/itemkit/autofit.py",
       "tools/itemkit/family_contract.py",
       "tools/itemkit/fit_manifest.py",
+      "tools/itemkit/miss_patch.py",
       "tools/itemkit/oblique.py",
       "tools/itemkit/preview_views.py",
       "tools/itemkit/publish.py",
       "tools/itemkit/run_itemkit.py",
+      "tools/itemkit/shell_repair.py",
       "tools/itemkit/workspace.py",
       "tools/phenotypes/launch_shared_tool.py"
     ],
@@ -1922,6 +1924,13 @@
     "tools/itemkit/grip.py": [
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py"
+    ],
+    "tools/itemkit/miss_patch.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/preflight.py",
+      "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/native.py": [
       "tools/headkit/common.py",
@@ -2013,6 +2022,10 @@
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/parts.py"
+    ],
+    "tools/itemkit/shell_repair.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/geometry.py"
     ],
     "tools/itemkit/shield_native.py": [
       "tools/headkit/common.py",
@@ -2183,6 +2196,13 @@
     "tools/itemkit/test_material_palette.py": [
       "tools/itemkit/textures.py"
     ],
+    "tools/itemkit/test_miss_patch.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/miss_patch.py",
+      "tools/itemkit/preflight.py",
+      "tools/itemkit/test_shell_repair.py"
+    ],
     "tools/itemkit/test_native_stack.py": [
       "tools/headkit/common.py",
       "tools/itemkit/__init__.py",
@@ -2231,6 +2251,11 @@
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/shadow.py"
+    ],
+    "tools/itemkit/test_shell_repair.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/shell_repair.py"
     ],
     "tools/itemkit/test_shield_native.py": [
       "tools/headkit/common.py",
@@ -5576,6 +5601,7 @@
     "tools/itemkit/test_greatsword.py",
     "tools/itemkit/test_itemkit.py",
     "tools/itemkit/test_material_palette.py",
+    "tools/itemkit/test_miss_patch.py",
     "tools/itemkit/test_native_stack.py",
     "tools/itemkit/test_onehand_fire_motion.py",
     "tools/itemkit/test_preflight.py",
@@ -5587,6 +5613,7 @@
     "tools/itemkit/test_rigged_contracts.py",
     "tools/itemkit/test_routes.py",
     "tools/itemkit/test_shadow.py",
+    "tools/itemkit/test_shell_repair.py",
     "tools/itemkit/test_shield_native.py",
     "tools/itemkit/test_skinned_native.py",
     "tools/itemkit/test_source_atlas.py",

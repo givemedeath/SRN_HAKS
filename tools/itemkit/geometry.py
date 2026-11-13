@@ -50,18 +50,41 @@ def camera_basis(location,target,up):
     return np.column_stack([right,vertical,-forward])
 
 
+def weld(vertices, faces):
+    """Exact coordinate duplicates merged for audits: (unique positions, faces into them)."""
+    unique, ids = np.unique(np.asarray(vertices, float), axis=0, return_inverse=True)
+    return unique, ids.ravel()[np.asarray(faces)]
+
+
+def invalid_vertex_links(faces, count):
+    """Welded vertices whose faces do not form one fan: surfaces touching at a point, or an edge used more than twice."""
+    links = [[] for _ in range(count)]
+    for a, b, c in np.asarray(faces).tolist():
+        links[a].append((b,c)); links[b].append((c,a)); links[c].append((a,b))
+    invalid = []
+    for vertex, rows in enumerate(links):
+        if not rows: continue
+        neighbors={}
+        for a,b in rows:
+            neighbors.setdefault(a,[]).append(b); neighbors.setdefault(b,[]).append(a)
+        if any(len(values)!=2 for values in neighbors.values()): invalid.append(vertex); continue
+        visited=set(); pending=[next(iter(neighbors))]
+        while pending:
+            node=pending.pop()
+            if node in visited: continue
+            visited.add(node); pending.extend(value for value in neighbors[node] if value not in visited)
+        if len(visited)!=len(neighbors): invalid.append(vertex)
+    return invalid
+
+
 def topology(vertices, faces):
     vertices, faces = np.asarray(vertices, float), np.asarray(faces)
     require(vertices.ndim == 2 and vertices.shape[1] == 3 and np.isfinite(vertices).all(), 'Finite vertices required')
     require(faces.ndim == 2 and faces.shape[1] == 3 and np.issubdtype(faces.dtype, np.integer)
             and len(faces) and faces.min() >= 0 and faces.max() < len(vertices), 'Valid triangles required')
     # Weld exact coordinate duplicates for audits, without changing authored geometry or UV seams.
-    unique, ids = np.unique(vertices, axis=0, return_inverse=True)
-    f = ids[faces]; p = unique[f]
+    unique, f = weld(vertices, faces); p = unique[f]
     area = np.linalg.norm(np.cross(p[:, 1]-p[:, 0], p[:, 2]-p[:, 0]), axis=1)
-    links = [[] for _ in unique]
-    for a, b, c in f.tolist():
-        links[a].append((b,c)); links[b].append((c,a)); links[c].append((a,b))
     directed = np.concatenate((f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]])).astype(np.int64)
     keys = directed.min(1)*len(unique)+directed.max(1)
     _, edge_ids, uses = np.unique(keys, return_inverse=True, return_counts=True)
@@ -69,19 +92,7 @@ def topology(vertices, faces):
     boundary = int(np.count_nonzero(uses == 1))
     nonmanifold = int(np.count_nonzero(uses > 2))
     winding = int(np.count_nonzero((uses == 2) & (turning != 0)))
-    invalid_links=0
-    for rows in links:
-        if not rows: continue
-        neighbors={}
-        for a,b in rows:
-            neighbors.setdefault(a,[]).append(b); neighbors.setdefault(b,[]).append(a)
-        if any(len(values)!=2 for values in neighbors.values()): invalid_links+=1; continue
-        visited=set(); pending=[next(iter(neighbors))]
-        while pending:
-            node=pending.pop()
-            if node in visited: continue
-            visited.add(node); pending.extend(value for value in neighbors[node] if value not in visited)
-        if len(visited)!=len(neighbors): invalid_links+=1
+    invalid_links=len(invalid_vertex_links(f, len(unique)))
     per_face_volume = np.einsum('ij,ij->i', p[:, 0], np.cross(p[:, 1], p[:, 2]))/6
     parent = list(range(len(unique)))
     def root(i):

@@ -16,6 +16,11 @@ Families:
     contract FAMILY ID --wave NAME [--visible N]       views GLB OUTPUT [--textured]       decimate IN OUT [--faces N]
 Publication (tools/itemkit/publish.py; docs/items/approved-weapons-release.md):
     publish ID:SUFFIX... --statement "user's words"... --review TEXT [--date YYYY-MM-DD] [--dry-run]
+Bake misses and shell recovery (CPU; docs/items/early-checks-and-recovery.md):
+    screen ID SUFFIX DONOR [--distance M --alignment A]     patch-measure ID SUFFIX DONOR REPORT
+    patch-add ID SUFFIX NEW_SUFFIX --faces F,F,... --distance M --notes "review" [--user-approval "user's words"]
+    shell-from-donor IN OUT [--voxel M --faces N --dilate N --erode N --sigma S --taubin N]
+    drop-specks IN OUT        repair-shell IN OUT [--rings N]        remesh-shell IN OUT EDGE [--taubin N]
 
 Nothing here approves a design: every approval a command records quotes words the user gave (`--notes`,
 `--donor-review`, `--statement`), and automatic chain approvals say they are numerical passes only.
@@ -504,6 +509,39 @@ class Driver:
         try: return publish.publish(REPO, runs, statements, review, nwn, today=today, dry_run=dry_run)
         except publish.PublishError as error: raise SystemExit(f'Publication refused: {error}')
 
+    # -- bake misses and shell recovery (tools.itemkit.miss_patch, tools.itemkit.shell_repair) ---------------------
+    def screen(self, design, suffix, donor, distance=.003, alignment=.5, arrays=None, fit=None):
+        """The bake preflight's donor test on the run's reduced target, before unwrap finishes or Cycles runs."""
+        from tools.itemkit import miss_patch
+        run = self.run_dir(design, suffix); target = miss_patch.run_target(run, arrays); dv, df = miss_patch.fitted_donor(run, donor, fit)
+        result = miss_patch.screen(target['corners'], target['hiddenCaps'], dv, df, distance=distance, alignment=alignment)
+        return {**result, 'failedCount': len(result['failedFaces']), 'target': target['source'], 'donor': str(donor), 'donorSha256': sha(donor)}
+
+    def patch_measure(self, design, suffix, donor, report, arrays=None, fit=None):
+        from tools.itemkit import miss_patch
+        return miss_patch.measure_run(self.run_dir(design, suffix), donor, report, arrays, fit)
+
+    def patch_add(self, design, suffix, new_suffix, faces, distance, notes, user_approval=None, arrays=None):
+        """A new manifest with a reviewed colour patch for exactly these faces of the run's target (see miss_patch)."""
+        from tools.itemkit import miss_patch
+        target = miss_patch.run_target(self.run_dir(design, suffix), arrays)
+        manifest = miss_patch.add_patch(read(self.manifest(design, suffix)), target['corners'], faces, distance, notes, user_approval)
+        path = write_new(self.manifest(design, new_suffix), manifest)
+        patch = manifest['processing']['missCorrection']['unorientedSourcePatch']
+        return {'manifest': str(path), 'sha256': sha(path), 'target': target['source'], 'patch': patch,
+                'maximumUnorientedDistance': manifest['processing']['missCorrection'].get('maximumUnorientedDistance')}
+
+    def shell(self, operation, source, target, *arguments, **settings):
+        """One shell_repair operation from a GLB to a new GLB; a failed check writes nothing."""
+        from tools.headkit.gltf import mesh, write_mesh
+        from tools.itemkit import shell_repair
+        if Path(target).exists(): raise SystemExit(f'{target} exists: choose a new output (a working shell may be pinned)')
+        m = mesh(source)
+        try: v, f, report = getattr(shell_repair, operation)(m['positions'], m['faces'], *arguments, **settings)
+        except ValueError as error: raise SystemExit(f'{operation}: {error}')
+        write_mesh(target, v, f)
+        return {**report, 'source': str(source), 'sourceSha256': sha(source), 'output': str(target), 'sha256': sha(target)}
+
 
 def stage_list(text):
     stages = [s for s in text.split(',') if s]
@@ -542,8 +580,25 @@ def main(argv=None):
     s = c.add_parser('publish'); s.add_argument('items', nargs='+', help='ID:SUFFIX of each client-reviewed run')
     s.add_argument('--statement', action='append', default=[], help="the user's approval, verbatim (repeat for several)")
     s.add_argument('--review', required=True); s.add_argument('--date'); s.add_argument('--dry-run', action='store_true')
+    s = c.add_parser('screen'); [s.add_argument(k) for k in ('id', 'suffix', 'donor')]
+    s.add_argument('--distance', type=float, default=.003); s.add_argument('--alignment', type=float, default=.5)
+    s.add_argument('--arrays', help='unwrap arrays when the run has several attempts'); s.add_argument('--fit', help='fit result.json, likewise')
+    s = c.add_parser('patch-measure'); [s.add_argument(k) for k in ('id', 'suffix', 'donor', 'report')]
+    s.add_argument('--arrays'); s.add_argument('--fit')
+    s = c.add_parser('patch-add'); [s.add_argument(k) for k in ('id', 'suffix', 'new_suffix')]; s.add_argument('--arrays')
+    s.add_argument('--faces', required=True, type=lambda t: [int(x) for x in t.split(',') if x])
+    s.add_argument('--distance', type=float, required=True, help='metres, from patch-measure'); s.add_argument('--notes', required=True)
+    s.add_argument('--user-approval', help="the user's own words approving the extended 3.25 mm / 0.05%% scope")
+    s = c.add_parser('shell-from-donor'); s.add_argument('source'); s.add_argument('target')
+    s.add_argument('--voxel', type=float, default=.001); s.add_argument('--faces', type=int, default=200000)
+    s.add_argument('--dilate', type=int, default=1); s.add_argument('--erode', type=int, default=0)
+    s.add_argument('--sigma', type=float, default=.8); s.add_argument('--taubin', type=int, default=5)
+    s = c.add_parser('drop-specks'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--fraction', type=float, default=1e-6)
+    s = c.add_parser('repair-shell'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--rings', type=int, default=2)
+    s = c.add_parser('remesh-shell'); s.add_argument('source'); s.add_argument('target'); s.add_argument('edge', type=float)
+    s.add_argument('--taubin', type=int, default=0)
     a = p.parse_args(argv); d = Driver(Workspace.load(a.workspace))
-    result = {
+    commands = {
         'comfy': lambda: d.comfy(a.action), 'image': lambda: d.image(a.design, a.kind), 'condition': lambda: d.condition(a.design, a.id, a.source, a.notes, a.keyed),
         'gen': lambda: d.gen(a.id, a.stage, a.manifest, a.attempt), 'calibrated': lambda: d.calibrated(a.id, a.fov, a.source),
         'approve-geometry': lambda: d.approve_geometry(a.id, a.attempt, a.src, a.dst, a.notes),
@@ -556,7 +611,19 @@ def main(argv=None):
         'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible), 'views': lambda: d.views(a.glb, a.output, a.textured),
         'decimate': lambda: d.decimate(a.source, a.target, a.faces),
         'publish': lambda: d.publish(a.items, a.statement, a.review, a.date, a.dry_run),
-    }[a.command]()
+        'screen': lambda: d.screen(a.id, a.suffix, a.donor, a.distance, a.alignment, a.arrays, a.fit),
+        'patch-measure': lambda: d.patch_measure(a.id, a.suffix, a.donor, a.report, a.arrays, a.fit),
+        'patch-add': lambda: d.patch_add(a.id, a.suffix, a.new_suffix, a.faces, a.distance, a.notes, a.user_approval, a.arrays),
+        'shell-from-donor': lambda: d.shell('shell_from_donor', a.source, a.target, voxel=a.voxel, faces_target=a.faces,
+                                            dilate=a.dilate, erode=a.erode, sigma=a.sigma, taubin=a.taubin),
+        'drop-specks': lambda: d.shell('drop_specks', a.source, a.target, fraction=a.fraction),
+        'repair-shell': lambda: d.shell('repair_nonmanifold', a.source, a.target, rings=a.rings),
+        'remesh-shell': lambda: d.shell('remesh', a.source, a.target, a.edge, taubin=a.taubin),
+    }
+    try: result = commands[a.command]()
+    except ValueError as error:                       # a refused screen or patch is a message, not a traceback
+        if a.command not in ('screen', 'patch-measure', 'patch-add'): raise
+        raise SystemExit(f'{a.command}: {error}')
     print(json.dumps(result, indent=1, default=str))
     return 0
 
