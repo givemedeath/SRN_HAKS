@@ -100,11 +100,18 @@ class SetTests(unittest.TestCase):
         self.assertIn('leave off every company logo', text); self.assertNotIn('markings', text)
         self.assertIn('Hazard stripes', text); self.assertIn('do not clean or repaint', text)
         self.assertIn('markings', reference.prompt('prop', 'access kiosk'))
-        with self.assertRaisesRegex(ValueError, 'Only a prop'):
-            reference.prompt('building', 'depot', unbranded=True)
+        # A generic sheet's building keeps its slab and generic words, without company or place names.
+        building = reference.prompt('building', 'depot with a RAIL FREIGHT sign', unbranded=True)
+        self.assertIn('leave off every company name, place name and logo', building); self.assertNotIn('signage', building)
+        self.assertIn('FREIGHT', building); self.assertIn('pavement slab', building); self.assertIn('do not clean or repaint', building)
+        self.assertIn('signage', reference.prompt('building', 'depot'))
         good = json.loads(SET.read_text(encoding='utf-8'))
-        good['assets']['trash-can']['unbranded'] = True
-        self.assertTrue(reference.load_set(self.write(good))['assets']['trash-can']['unbranded'])
+        good['assets']['trash-can']['unbranded'] = True; good['assets']['building-front']['unbranded'] = True
+        drawn = reference.load_set(self.write(good))['assets']
+        self.assertTrue(drawn['trash-can']['unbranded'] and drawn['building-front']['unbranded'])
+        data = copy.deepcopy(good); data['assets']['building-front']['type'] = 'shop'
+        with self.assertRaisesRegex(ValueError, 'Only props have a type'):
+            reference.load_set(self.write(data))
         for change in ({'same': 'shop/bin'}, {'variant': 'Branding: red bin with the shop emblem.'}):  # nothing made; the mark is wanted
             data = copy.deepcopy(good); data['assets']['trash-can'].update(change)
             with self.assertRaisesRegex(ValueError, 'unbranded is for a prop that is made'):

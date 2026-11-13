@@ -22,6 +22,10 @@ RETIRED = {'atm': 'pay-kiosk', 'crate-stack': 'pallet-stack', 'cyberware-cabinet
            'drink-case': 'fridge', 'floor-cache': 'floor-hatch', 'folding-table': 'table-and-chairs', 'freezer': 'fridge',
            'goods-rack': 'shelf-unit', 'junction-box': 'power-cabinet', 'ladder-hatch': 'floor-hatch', 'recycle-bin': 'trash-can',
            'secure-door': 'door', 'service-door': 'door', 'stash-cabinet': 'storage-cabinet', 'waiting-seats': 'bench'}
+# The props drawn against the walls and the pavement slab under them stay on the building (user, 2026-11-10: the props
+# make dressing areas faster; "we should keep the slab").
+SLAB = ('Keep the pavement slab the building stands on, and the fixtures and street furniture on it, such as bollards, bins '
+        'and rubbish bags, exactly where they are. Remove the road beyond the slab, the puddles, the reflections and the loose litter.')
 LEAD = {
     'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
@@ -31,12 +35,12 @@ LEAD = {
                  'Keep exactly the same design, colours, proportions and viewing angle, but leave off every company logo, '
                  'emblem and brand name. Hazard stripes, warning signs and plain labels stay.',
     'building': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
-                'Keep exactly the same architecture, colours, proportions, signage and viewing angle. '
-                # The props drawn against the walls and the pavement slab under them stay on the building (user,
-                # 2026-11-10: the props make dressing areas faster; "we should keep the slab").
-                'Keep the pavement slab the building stands on, and the fixtures and street furniture on it, such as '
-                'bollards, bins and rubbish bags, exactly where they are. Remove the road beyond the slab, the puddles, '
-                'the reflections and the loose litter.',
+                'Keep exactly the same architecture, colours, proportions, signage and viewing angle. ' + SLAB,
+    # A generic sheet's building (user, 2026-11-12: the rail yard "is meant to be generic rail freight yard"; "words like
+    # Freight and relevant symbols are ok"). The subject states what a sign says, so the model need not guess its letters.
+    'unbranded-building': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
+                          'Keep exactly the same architecture, colours, proportions and viewing angle, but leave off every '
+                          'company name, place name and logo. Generic words such as FREIGHT and plain symbols may stay. ' + SLAB,
 }
 # Left to itself the edit tidies: the first Stuffer Shack pass came back with near-white walls (user, 2026-11-10: "it does
 # look too clean"). The wear is part of the design, so every prompt asks for it by name.
@@ -53,8 +57,8 @@ def prompt(kind, subject, notes='', unbranded=False):
     require(kind in ('prop', 'building'), 'Asset kind must be one of: building, prop')
     require(isinstance(subject, str) and subject.strip() and '\n' not in subject, 'Subject must be one line of text')
     require(isinstance(notes, str), 'Notes must be text')
-    require(unbranded is False or unbranded is True and kind == 'prop', 'Only a prop is drawn unbranded')
-    lead = LEAD['unbranded' if unbranded else kind]
+    require(unbranded is False or unbranded is True, 'unbranded is true or false')
+    lead = LEAD[('unbranded' if kind == 'prop' else 'unbranded-building') if unbranded else kind]
     return ' '.join(part for part in (lead.format(subject=subject.strip()), WEAR, notes.strip(), RULES) if part)
 
 
@@ -71,7 +75,7 @@ def load_set(path):
         require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
         require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', *KIN},
                 'Asset needs kind, subject and box: ' + name)
-        require(asset['kind'] == 'prop' or not KIN & set(asset), 'Only props have a type: ' + name)
+        require(asset['kind'] == 'prop' or not (KIN - {'unbranded'}) & set(asset), 'Only props have a type: ' + name)
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
             cut = asset['cut']; whole = data['assets'].get(cut['from']) if isinstance(cut, dict) and isinstance(cut.get('from'), str) else None
             require(asset['kind'] == 'building' and isinstance(cut, dict) and set(cut) == {'from', 'box'} and whole is not None
