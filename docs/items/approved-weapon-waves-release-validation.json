@@ -41,8 +41,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 67,
-      "sha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
+      "resources": 77,
+      "sha256": "ab1faf9cf7f264034bbb97b963ca7aa6cf3a15a8d3062368ca42e44dd874ad43",
       "exactPayload": true
     }
   ],
@@ -233,7 +233,7 @@
     ],
     "payloadsByteIdenticalToNativePackages": true,
     "rebuiltArchivesPayloadExact": true,
-    "comparisonModuleChanged": false,
-    "archiveHashNote": "srn_weapon.hak and srn_2da.hak were rebuilt for this update and every payload compared with its source file; sw_weapon_w2.mod, sw_f7motion and sw_reviewenv are unchanged historical records. The five items were client-reviewed in their private itemkit fixtures, not in the comparison module."
+    "comparisonModuleChanged": true,
+    "archiveHashNote": "srn_weapon.hak, srn_2da.hak and sw_weapon_w2.mod were rebuilt for this update and every payload compared with its source file; sw_f7motion and sw_reviewenv are unchanged historical records. The comparison module gained five reviewer pairs (sw5_) that were not run in its client; each item was client-reviewed in its own private itemkit fixture."
   }
 }

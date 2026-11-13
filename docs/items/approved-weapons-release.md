@@ -126,9 +126,10 @@ about its axis so the blade faces forward. These fit records stay with the priva
 
 Table changes are appearance-picker extensions only: F1 `MaxRange` 100 to 111 and F2 `MaxRange` 121 to 181. F4 (091)
 and F5 (081) already fall inside their ranges. No gameplay, price or item-property field changes. Like the earlier
-itemkit blueprints, these keep the fixture description text and have zero cost and no item properties. These items have
-no reviewer pairs in the comparison module below. They were reviewed only in their own scripted fixtures, which is not
-production animation or exhaustive equipment acceptance.
+itemkit blueprints, these keep the fixture description text and have zero cost and no item properties. The comparison
+module below gained a male/female reviewer pair for each (`sw5_`), but those pairs have not been run in its client. The
+items were reviewed in their own scripted fixtures, which is not production animation or exhaustive equipment
+acceptance.
 
 ## Separate comparison module
 
