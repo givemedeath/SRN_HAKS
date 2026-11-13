@@ -118,6 +118,7 @@ def repair_nonmanifold(vertices, faces, *, rings=2, maximum_hole=200):
     ring = np.zeros(len(unique), bool); ring[list(bad)] = True
     for _ in range(rings): ring[np.unique(w[ring[w].any(1)])] = True
     drop = ring[w].any(1)
+    require(not drop.all(), f'Removing {rings} rings around {len(bad)} bad vertices leaves no faces: try fewer --rings')
     ms = _meshset(unique, w[~drop]); ms.meshing_remove_unreferenced_vertices()
     ms.meshing_close_holes(maxholesize=maximum_hole, newfaceselected=False)
     ov, of = _arrays(ms); after = _closed(ov, of, 'Repaired shell')

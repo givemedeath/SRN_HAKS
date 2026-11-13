@@ -142,7 +142,8 @@ def survey(item, run):
     require(uti is not None, f'{item}: {module.name} has no blueprint {blueprint}.uti')
     fields = crm.parse_gff(uti)
     models = native['allocation']['models']
-    parts = [int(models[p].rsplit('_', 1)[1]) for p in ('b', 'm', 't') if p in models]
+    require(set(models) == {'b', 'm', 't'}, f'{item}: this command publishes three-part (b/m/t) weapons; the package has {sorted(models)}')
+    parts = [int(models[p].rsplit('_', 1)[1]) for p in ('b', 'm', 't')]
     require(fields.get('BaseItem') == native['baseItem'], f'{item}: blueprint base item {fields.get("BaseItem")} != package {native["baseItem"]}')
     require(len(set(parts)) == 1 and all(fields.get(f'ModelPart{i}') == parts[0] for i in (1, 2, 3)),
             f'{item}: blueprint model parts do not match the package models {models}')
@@ -423,6 +424,9 @@ def plan(repo, items):
     ranged = [p.item for p in packages if rows[p.base_item].get('RangedWeapon', '****') != '****']
     # The reviewer equip lines are melee lines (right hand, no ammunition); bows and firearms need theirs written by hand.
     require(not ranged, f'Ranged weapons are not published by this command: {ranged}')
+    slots = {p.item: rows[p.base_item].get('EquipableSlots', '****') for p in packages}
+    left = [item for item, value in slots.items() if value != '****' and not int(value, 16) & 0x10]
+    require(not left, f'Items that cannot go in the right hand are not published by this command: {left}')   # 0x10: right hand
     return packages, maxrange_needs(repo, packages)
 
 

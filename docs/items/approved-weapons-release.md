@@ -188,6 +188,7 @@ For each item, the command:
    `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. It stops
    if the row has no room left in the area, or past group `sw9_`, since the selector reads a group from the first four
    characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
+   So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
    built archive holds exactly its source files, refreshes the release validation, the module manifest and the module
    validation (a new `extension` entry, not run in the client), and regenerates the combat release manifest.

@@ -130,6 +130,17 @@ class PlanTests(unittest.TestCase):
             (repo/P.BASEITEMS).write_bytes(TABLE.replace(b'ItemClass\n', b'ItemClass   RangedWeapon\n').replace(b'WSwDg\n', b'WSwDg       20\n'))
             with self.assertRaisesRegex(P.PublishError, 'Ranged weapons'): P.plan(repo, [('knife', make_run(Path(folder)))])
 
+    def test_items_outside_the_right_hand_or_three_parts_are_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = make_repo(Path(folder))
+            (repo/P.BASEITEMS).write_bytes(TABLE.replace(b'ItemClass\n', b'ItemClass   EquipableSlots\n').replace(b'WSwDg\n', b'WSwDg       0x00020\n'))
+            with self.assertRaisesRegex(P.PublishError, 'right hand'): P.plan(repo, [('knife', make_run(Path(folder)))])
+        with tempfile.TemporaryDirectory() as folder:
+            run = make_run(Path(folder)); native = next(run.glob('native/attempt-*/native/native.json'))
+            record = json.loads(native.read_text(encoding='utf-8')); record['allocation']['models'] = {'whole': 'ashlw_014'}
+            native.write_text(json.dumps(record), encoding='utf-8')
+            with self.assertRaisesRegex(P.PublishError, r"three-part \(b/m/t\) weapons; the package has \['whole'\]"): P.survey('shield', run)
+
 
 class ReviewerTests(unittest.TestCase):
     def setUp(self):

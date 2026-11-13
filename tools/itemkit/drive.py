@@ -506,8 +506,7 @@ class Driver:
             design, _, suffix = entry.partition(':')
             if not suffix: raise SystemExit(f'{entry}: expected ID:SUFFIX')
             runs.append((design, self.run_dir(design, suffix)))
-        try: return publish.publish(REPO, runs, statements, review, nwn, today=today, dry_run=dry_run)
-        except publish.PublishError as error: raise SystemExit(f'Publication refused: {error}')
+        return publish.publish(REPO, runs, statements, review, nwn, today=today, dry_run=dry_run)
 
     # -- bake misses and shell recovery (tools.itemkit.miss_patch, tools.itemkit.shell_repair) ---------------------
     def screen(self, design, suffix, donor, distance=None, alignment=None, arrays=None, fit=None):
@@ -633,8 +632,8 @@ def main(argv=None):
         'remesh-shell': lambda: d.shell('remesh', a.source, a.target, a.edge, taubin=a.taubin),
     }
     try: result = commands[a.command]()
-    except ValueError as error:                       # a refused screen or patch is a message, not a traceback
-        if a.command not in ('screen', 'patch-measure', 'patch-add'): raise
+    except ValueError as error:                       # a refused publication, screen or patch is a message, not a traceback
+        if a.command not in ('publish', 'screen', 'patch-measure', 'patch-add'): raise
         raise SystemExit(f'{a.command}: {error}')
     print(json.dumps(result, indent=1, default=str))
     return 0

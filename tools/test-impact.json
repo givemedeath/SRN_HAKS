@@ -2253,7 +2253,9 @@
       "tools/itemkit/shadow.py"
     ],
     "tools/itemkit/test_shell_repair.py": [
+      "tools/headkit/gltf.py",
       "tools/itemkit/__init__.py",
+      "tools/itemkit/drive.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/shell_repair.py"
     ],

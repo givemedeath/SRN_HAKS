@@ -80,5 +80,37 @@ class ShellRepairTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'voxels exceed'): self.repair.shell_from_donor(v, f, voxel=.002, maximum_voxels=1000)
 
 
+class DriverWiringTests(unittest.TestCase):
+    """The drive subcommands reach their functions with the right arguments, write new files only, and refuse cleanly."""
+    def setUp(self):
+        try:
+            import pymeshlab, igl, scipy  # noqa: F401
+        except ImportError: self.skipTest('pymeshlab, igl and scipy not on the path (itemkit PYTHONPATH)')
+
+    def run_drive(self, *argv):
+        import contextlib, io, json
+        from unittest import mock
+        from tools.itemkit import drive
+        out = io.StringIO()
+        with mock.patch.object(drive.Workspace, 'load', return_value=None), contextlib.redirect_stdout(out):
+            drive.main(list(argv))
+        return json.loads(out.getvalue())
+
+    def test_shell_commands_write_a_new_glb_and_refuse_an_existing_one(self):
+        import tempfile
+        from pathlib import Path
+        from tools.headkit.gltf import write_mesh
+        with tempfile.TemporaryDirectory() as folder:
+            source, specks, even = (str(Path(folder)/n) for n in ('in.glb', 'specks.glb', 'even.glb'))
+            write_mesh(source, *joined(sphere(), sphere(radius=1e-4, centre=(.2, 0, 0))))
+            self.assertEqual(self.run_drive('drop-specks', source, specks)['kept'], 1)
+            result = self.run_drive('remesh-shell', specks, even, '0.008', '--taubin', '1')
+            self.assertEqual((result['edge'], result['taubin'], result['after']['closedWound']), (.008, 1, True))
+            with self.assertRaisesRegex(SystemExit, 'exists'): self.run_drive('repair-shell', source, even)
+            opened = str(Path(folder)/'open.glb'); v, f = sphere(); write_mesh(opened, v, f[:-3])
+            with self.assertRaisesRegex(SystemExit, 'remesh: Remesh input'): self.run_drive('remesh-shell', opened, str(Path(folder)/'x.glb'), '0.008')
+            self.assertFalse((Path(folder)/'x.glb').exists())
+
+
 if __name__ == '__main__':
     unittest.main()
