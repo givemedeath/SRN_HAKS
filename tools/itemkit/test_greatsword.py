@@ -99,3 +99,10 @@ class GreatswordTests(Fixture):
         self.assertAlmostEqual(actual[0,0],actual[2,2]);self.assertEqual(actual[1,1],1)
         squashed=m.copy();squashed[0,0]=.5
         with self.assertRaisesRegex(ValueError,'uniform fit'):transverse_uniform(p,f,squashed,[0,0,0],standard,review)
+        # A thicker staff (user, 2026-11-12): the face width meets the standard instead, still one scale.
+        width=standard['targetMidpointSection']['visibleFaceWidth']
+        with self.assertRaises(GripDeparture) as caught:transverse_uniform(p,f,m,[0,0,0],standard,basis='visibleFaceWidth')
+        r=caught.exception.report;mid=r['measuredFittedSections'][2];self.assertEqual(r['sectionBasis'],'visibleFaceWidth')
+        self.assertAlmostEqual(mid['visibleFaceWidth'],width,delta=.0005);self.assertAlmostEqual(mid['visibleFaceWidth']/mid['depth'],1.2,delta=.02)
+        self.assertNotEqual(r['measurementDigest'],review['measurementDigest'])                  # the basis is part of what was reviewed
+        with self.assertRaisesRegex(ValueError,'basis'):transverse_uniform(p,f,m,[0,0,0],standard,review,basis='length')

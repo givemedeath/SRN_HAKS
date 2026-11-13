@@ -137,6 +137,11 @@ class StaffSectionTests(unittest.TestCase):
         depth, width = self.section(data)
         self.assertAlmostEqual(depth, self.standard['targetMidpointSection']['depth'], delta=.001)
         self.assertAlmostEqual(width / depth, 1.2, delta=.03)                            # not 50/30 = 1.67 (the hilt section)
+        thick = measure({}, self.family, {'positions': self.v, 'faces': self.f}, {**self.overrides, 'sectionBasis': 'visibleFaceWidth'},
+                        self.standard)
+        depth, width = self.section(thick)
+        self.assertAlmostEqual(width, self.standard['targetMidpointSection']['visibleFaceWidth'], delta=.001)
+        self.assertAlmostEqual(width / depth, 1.2, delta=.03)
 
     def test_the_hilt_calibration_is_refused_where_it_would_flatten_a_shaft(self):
         from tools.itemkit import fit_manifest

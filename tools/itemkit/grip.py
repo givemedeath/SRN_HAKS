@@ -106,14 +106,16 @@ def two_hand_uniform(vertices,faces,matrix,endpoints,origin,standard,review=None
     return m,report
 
 
-def transverse_uniform(vertices,faces,matrix,origin,standard,review=None):
-    """Thin a long shaft to the approved grip depth with one scale on both transverse axes.
+def transverse_uniform(vertices,faces,matrix,origin,standard,review=None,basis='depth'):
+    """Thin a long shaft to one approved grip dimension with one scale on both transverse axes.
 
     The per-axis hilt calibration sets depth and face width separately, which flattens a shaft that is not shaped like
     the reference hilt: the 1.90 m stun staff (a 1.2:1 shaft) came out 1.7:1, scaled 0.40 on one axis and 0.56 on the
-    other. Here the length stays as fitted, the midpoint depth meets the standard and the section keeps its own
-    proportions, so the face width departs by construction and needs a review bound to this exact measurement.
+    other. Here the length stays as fitted, the midpoint `basis` dimension ('depth', or 'visibleFaceWidth' for a
+    thicker shaft) meets the standard and the section keeps its own proportions, so the other dimension departs by
+    construction and needs a review bound to this exact measurement.
     """
+    require(basis in ('depth','visibleFaceWidth'),'Section basis must be depth or visibleFaceWidth')
     require(standard.get('id')=='cougar-approved-grip-v1'
             and standard.get('approval',{}).get('gripSizingApproved') is True,'Approved melee grip reference required')
     m=np.asarray(matrix,float);origin=np.asarray(origin,float)
@@ -122,12 +124,12 @@ def transverse_uniform(vertices,faces,matrix,origin,standard,review=None):
     require(np.linalg.det(m[:3,:3])>0 and np.allclose(gram,np.eye(3)*gram[0,0],atol=1e-12,rtol=1e-7),
             'A transverse-uniform grip starts from a uniform fit')
     measured=section_dimensions(transform(vertices,m),faces,origin[1]);target=standard['targetMidpointSection']
-    k=float(target['depth']/measured[0]);require(np.isfinite(k) and k>0,'Positive grip calibration required')
+    k=float(target[basis]/measured[0 if basis=='depth' else 1]);require(np.isfinite(k) and k>0,'Positive grip calibration required')
     correction=np.eye(4);correction[:3,:3]=np.diag([k,1.,k]);correction[:3,3]=origin-origin*[k,1.,k];result=correction@m
     sections=reference_sections(transform(vertices,result),faces,standard,origin[1],standard['usableLength'])
     mid=next(r for r in sections if r['fractionFromPommel']==.5)
     report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':result.tolist(),
-            'sizingAuthority':'midpoint-depth-uniform','usableLength':float(standard['usableLength']),'nativeGripOrigin':origin.tolist(),
+            'sizingAuthority':'midpoint-depth-uniform','sectionBasis':basis,'usableLength':float(standard['usableLength']),'nativeGripOrigin':origin.tolist(),
             'sourceSection':measured.tolist(),'transverseScale':[k,1.,k],'measuredFittedSections':sections,'midpointRelativeDifferences':{
                 'depth':mid['depth']/target['depth']-1,'visibleFaceWidth':mid['visibleFaceWidth']/target['visibleFaceWidth']-1},
             'sectionProportionsPreserved':True,'bothBodyVisualReviewRequired':True}

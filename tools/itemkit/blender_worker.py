@@ -237,7 +237,8 @@ def grip_fit(cfg, matrix, working):
         elif cfg['fit'].get('sizingAuthority')=='usable-length-round':
             matrix,grip_report=one_hand_round(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
         elif cfg['fit'].get('sizingAuthority')=='midpoint-depth-uniform':
-            matrix,grip_report=transverse_uniform(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
+            matrix,grip_report=transverse_uniform(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'),
+                                                  cfg['fit'].get('sectionBasis','depth'))
         else:
             matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
     return matrix, grip_report

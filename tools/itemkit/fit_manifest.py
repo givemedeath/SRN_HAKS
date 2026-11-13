@@ -178,7 +178,8 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         elif hafted or overrides.get('uniform'):
             authority = 'usable-length-round'; F, report = one_hand_round(b, faces, M, origin, standard, review())
         elif route.section == 'uniform':
-            authority = 'midpoint-depth-uniform'; F, report = transverse_uniform(b, faces, M, origin, standard, review())
+            authority = 'midpoint-depth-uniform'
+            F, report = transverse_uniform(b, faces, M, origin, standard, review(), overrides.get('sectionBasis', 'depth'))
         else:
             F, report = calibration(b, faces, M, origin, standard)
             sx, _, sz = report['transverseScale']; flatten = max(sx, sz) / min(sx, sz) - 1
@@ -253,6 +254,7 @@ def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *
                          f"native length {data['nativeLength']:.3f} m (stock carrier {data['stockLength'] or 0:.3f} m). "
                          f"Landmarks {marks}; overrides {over}."}
     if data['sizingAuthority']: m['fit']['sizingAuthority'] = data['sizingAuthority']
+    if (overrides or {}).get('sectionBasis'): m['fit']['sectionBasis'] = overrides['sectionBasis']
     report = data['gripReport'] or {}
     if overrides and overrides.get('departureDigest'):
         d = report.get('midpointRelativeDifferences', {})
