@@ -103,8 +103,11 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     # contact, the Claymore's in-game approval): it outranks a fresh measurement of the stock parts.
     known = [f['native'] for f in (json.loads(p.read_text(encoding='utf-8')) for p in sorted(source.glob('family-*.json')))
              if f.get('native', {}).get('itemClass', '').lower() == cls]
-    origin_note = ('Grip origin kept from the base contract\'s reviewed contact on this carrier. ' if known else
-                   'The first design fitted on this carrier carries the both-body hand-fit review that confirms the origin. ')
+    require(all(np.allclose(k['gripOrigin'], known[0]['gripOrigin']) for k in known),
+            f'The base contract holds different grip origins for {cls}: choose the reviewed one with --base')
+    measured = 'Stock span' if known else 'Grip origin and stock span'
+    origin_note = ('Grip origin kept from the base contract\'s reviewed contact on this carrier.' if known else
+                   'The first design fitted on this carrier carries the both-body hand-fit review that confirms the origin.')
     if known: carrier['gripOrigin'] = known[0]['gripOrigin']
     from PIL import Image
     from .contracts import twoda
@@ -134,9 +137,9 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
                            'stockSpan': carrier['span'], 'axes': {'width': 'Z', 'length': '+Y'},
                            'partAssignments': ({'b': 'butt', 'm': 'grip', 't': 'haft and head'} if route.shape == 'hafted'
                                                else {'b': 'pommel', 'm': 'grip', 't': 'blade and guard'}),
-                           'measurementNotes': (f'Grip origin and stock span measured from the installed {cls} parts by tools/itemkit/carrier.py '
+                           'measurementNotes': (f'{measured} measured from the installed {cls} parts by tools/itemkit/carrier.py '
                                                 f'({carrier["method"]}, handle run {carrier["handleRun"][0]:.3f}..{carrier["handleRun"][1]:.3f} m). '
-                                                'Grip dimensions use the approved Cougar standard. ' + origin_note.strip()),
+                                                'Grip dimensions use the approved Cougar standard. ' + origin_note),
                            'baseitemsSha256': base_family['native']['baseitemsSha256'], 'reviewed': True,
                            'productionStackApproved': False, 'stack': {'path': stack_path.name, 'sha256': sha(stack_path)}})
     name = design.rsplit('-', 1)[0][4:] if design.startswith('sr4-') else design

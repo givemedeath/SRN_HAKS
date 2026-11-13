@@ -212,6 +212,8 @@ class Driver:
         m = read(self.manifest(design, src)); inputs = m['inputs']
         if m.get('conditioning') != 'clay-detail-v1': raise SystemExit(f'{design}.{src} is not a clay/detail manifest')
         m['conditioning'] = 'detailed-v1'; inputs['geometry'] = inputs['detail']; inputs['mask'] = inputs['foregroundMask']
+        # Every family keeps the user's words for the changed geometry source, not only those needing the waiver.
+        m['approval']['colourGeometry'] = {'decision': 'approved', 'geometrySha256': inputs['detail']['sha256'], 'notes': notes}
         if read(self.ws.handoff/m['familyProfile']['path'])['family'] in LONG_FAMILIES:
             m['approval']['referenceView'] = {'view': 'side', 'decision': 'approved', 'sideViewWaiver': True, 'notes': notes}
         return str(write_new(self.manifest(design, dst), m))

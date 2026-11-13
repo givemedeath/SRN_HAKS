@@ -81,10 +81,12 @@ def distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, v
     from scipy import ndimage
     axis, head, base = plan['axisRow'], plan['headStart'], plan['headBaseHalfWidth']
     reach = float(np.nanmax(half)) * scale; pad = 4 * voxel
-    xs = np.arange(-pad, (last + 1 - first) * scale + pad, voxel); ys = np.arange(-reach - pad, reach + pad, voxel)
-    depth = max(base * scale, hook_px * scale) + pad; zs = np.arange(-depth, depth + voxel / 2, voxel)
-    px = xs / scale + first                                                      # image column of each grid x
-    profile = lambda values: np.interp(px, np.arange(len(values)), np.nan_to_num(values))
+    # Single precision throughout: a 2.2 m spear at sub-millimetre voxels is tens of millions of cells per grid.
+    xs = np.arange(-pad, (last + 1 - first) * scale + pad, voxel, dtype=np.float32)
+    ys = np.arange(-reach - pad, reach + pad, voxel, dtype=np.float32)
+    depth = max(base * scale, hook_px * scale) + pad; zs = np.arange(-depth, depth + voxel / 2, voxel, dtype=np.float32)
+    px = xs / np.float32(scale) + np.float32(first)                              # image column of each grid x
+    profile = lambda values: np.interp(px, np.arange(len(values)), np.nan_to_num(values)).astype(np.float32)
     radius = profile(np.where(np.arange(len(half)) < head, np.minimum(half, base), 0)) * scale
     width = profile(np.where(np.arange(len(half)) >= head, half, 0)) * scale
     X, Y, Z = xs[:, None, None], ys[None, :, None], zs[None, None, :]
@@ -104,7 +106,7 @@ def distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, v
         plane = (ndimage.distance_transform_edt(~hooks) - ndimage.distance_transform_edt(hooks)) * scale
         sample = ndimage.map_coordinates(plane, [np.clip(axis - ys / scale, 0, mask.shape[0] - 1)[None, :].repeat(len(xs), 0),
                                                 np.clip(px, 0, mask.shape[1] - 1)[:, None].repeat(len(ys), 1)], order=1)
-        plate = np.maximum(sample[:, :, None], np.abs(Z) - hook_px * scale / 2)
+        plate = np.maximum(sample.astype(np.float32)[:, :, None], np.abs(Z) - np.float32(hook_px * scale / 2))
         field = np.minimum(field, plate)
     return field.astype(np.float32), (xs, ys, zs), bool(hooks.any())
 
@@ -171,8 +173,8 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, 
     from tools.headkit.gltf import write_mesh
     from .donor import embed_diffuse
     from .geometry import topology
-    output = Path(output); output.mkdir(parents=True, exist_ok=False)
     require(length > 0 and 0 < blade_depth <= 1 and hook_px > 0, 'Positive length, blade depth and hook thickness required')
+    output = Path(output); output.mkdir(parents=True, exist_ok=False)     # after validation: a bad call leaves no folder
     with Image.open(image_path) as image:
         image.load()
         if mask_path:

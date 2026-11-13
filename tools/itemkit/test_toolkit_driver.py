@@ -397,6 +397,7 @@ class WorkspaceAndDriverTests(unittest.TestCase):
                                                               'notes': 'mesh it from the colour image'})
             knife = json.loads(Path(d.colour_geometry('knife', 'c', 'colour', 'words')).read_text(encoding='utf-8'))
             self.assertNotIn('referenceView', knife['approval'])          # a short design needs no long-weapon waiver
+            self.assertEqual(knife['approval']['colourGeometry'], {'decision': 'approved', 'geometrySha256': 'dddddddd', 'notes': 'words'})
             with self.assertRaises(SystemExit): d.colour_geometry('bat', 'colour', 'again', 'words')   # already colour
 
     def test_batch_runs_items_side_by_side_and_keeps_failures(self):
