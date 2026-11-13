@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 77,
-      "sha256": "ab1faf9cf7f264034bbb97b963ca7aa6cf3a15a8d3062368ca42e44dd874ad43",
+      "resources": 85,
+      "sha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 22,
-    "NPCs": 44,
+    "pairs": 26,
+    "NPCs": 52,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -65,8 +65,18 @@
         "staff looks good",
         "tomahawk looks good too"
       ],
-      "moduleSha256": "ab1faf9cf7f264034bbb97b963ca7aa6cf3a15a8d3062368ca42e44dd874ad43",
+      "moduleSha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
       "note": "Ceramic Knife, Extendable Baton, Tomahawk, Baseball Bat and Stun Staff pairs were added to this module (sw5_, southern row). They were not run in this module's client; each item was viewed in the client on both Human bodies in its own itemkit fixture. Earlier approvals above refer to the earlier module bytes."
+    },
+    "extension3": {
+      "date": "2026-11-13",
+      "addedPairs": 4,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Yes, keep it"
+      ],
+      "moduleSha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
+      "note": "Survival Knife, Sword, Club and Claymore pairs were added to this module (sw6_, southern row). They were not run in this module's client; each item was viewed in the client in its own itemkit fixture and kept by the user. Earlier approvals above refer to the earlier module bytes."
     }
   }
 }

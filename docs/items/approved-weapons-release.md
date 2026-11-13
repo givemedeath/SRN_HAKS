@@ -7,16 +7,16 @@ Build the normal release through the existing pack builder:
 ```
 
 `srn_weapon` contains the approved models, runtime diffuse maps, inventory icons
-and twenty-three builder blueprints for twenty-one weapon designs. `srn_2da` supplies
+and twenty-seven builder blueprints for twenty-five weapon designs. `srn_2da` supplies
 the native carrier table. No custom TLK is required. The inventory and resource
 hashes are in `approved-weapons-v1.json`; the generated combat release manifest
 describes the complete resource closure.
 
 | Family | BaseItem / ItemClass | Released designs |
 |---|---|---|
-| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Ceramic Knife |
-| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Extendable Baton; Tomahawk |
-| F4 | 13 / WSwGs | Katana; Baseball Bat |
+| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Survival Knife; Ceramic Knife |
+| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Sword; Club; Extendable Baton; Tomahawk |
+| F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat |
 | F5 | 50 / WDbQs | Staff; Stun Staff |
 | F6 | 111 / WWhip | Whip |
 | F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV |
@@ -102,6 +102,29 @@ or exhaustive equipment acceptance. The comparison module below gained a
 reviewer pair for each, with the Predator included in the test-only F7 motion
 mapping. In this module's client the selector stages both new pairs and both
 bodies hold the weapon (static inspection); their 60-second attack tests were not run.
+
+## Melee wave 1 (2026-11-13)
+
+Four designs from the first melee wave, published with wave 2 below. Each package is the exact bytes of the native HAK,
+and each blueprint the exact bytes from the fixture module, of the run the user approved in the NWN:EE client ("Yes,
+keep it" for each). Hashes are in `approved-weapons-v1.json`. The Spear is not included: only its clay is approved.
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Survival Knife | F1 / row 22 | `sr1243dd1a` | `wswdg_*_091`, diffuse `sr1243dd1a_09` | 0.47 m |
+| Sword | F2 / row 1 | `sr47885d5d` | `wswls_*_131`, diffuse `sr47885d5d_13` | 1.10 m |
+| Club | F2 / row 1 | `sr0eabace5` | `wswls_*_141`, diffuse `sr0eabace5_14` | 0.76 m |
+| Claymore | F4 / row 13 | `srf91fc563` | `wswgs_*_081`, diffuse `srf91fc563_08` | 1.45 m |
+
+The Sword was generated bowed and straightened along its centreline; the Club was straightened, its end caps squared and
+its handle kept round. The Claymore blade was thinned to half its generated depth, and the user chose its 1.45 m length
+over the 0.98 m the hand-depth rule gives. All four use the Cougar melee grip standard, with the recorded departures for
+the round Club handle and the thick Claymore grip. The Sword's in-game approval was of its shortened 1.10 m size.
+
+The user's in-game checks did not cover every case. There was no close view of the Claymore hand fit and no two-hand
+grip or attack frame. The Club's female hand fit and the Knife's male close view and attack frame were not seen either.
+None of these was requested as a change. All four appearance numbers already fall inside their rows' `MaxRange`, so wave
+1 needs no table change. The comparison module gained a reviewer pair for each (`sw6_`), not run in its client.
 
 ## Melee wave 2 (2026-11-13)
 

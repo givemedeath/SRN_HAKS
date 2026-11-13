@@ -30,15 +30,16 @@ Use a separate NWN user directory. Supply the released `srn_weapon.hak` and
 `srn_2da.hak`, the existing `srn_body.hak` and `srn_body_tex.hak`, plus the two
 fixture HAKs built above. The module IFO records the priority order. It starts
 on Cougar Knife pair 11; click the male reviewer for the next pair or the female
-for a 60-second action test. There are twenty-two distinct male/female NPC pairs:
+for a 60-second action test. There are twenty-six distinct male/female NPC pairs:
 the ten Wave 1/2 designs, all three Cougar blades, both Colt finishes, the Vibro
-Blades Sword, the Ares Predator IV and the five melee wave 2 designs (Ceramic
-Knife, Extendable Baton, Tomahawk, Baseball Bat, Stun Staff). The Cougar, Colt,
-Vibro, Predator and melee wave 2 pairs occupy the southern row and are included in
-the full selector cycle. The Vibro and Predator pairs were added 2026-11-05. In
-this module's client the selector stages both pairs and both bodies hold the
-weapon (static inspection); their 60-second attack tests were not run. The five
-melee wave 2 pairs (`sw5_`) were added 2026-11-13 and have not been run in this
+Blades Sword, the Ares Predator IV, the five melee wave 2 designs (Ceramic Knife,
+Extendable Baton, Tomahawk, Baseball Bat, Stun Staff) and the four melee wave 1
+designs (Survival Knife, Sword, Club, Claymore). The Cougar, Colt, Vibro, Predator
+and melee pairs occupy the southern row and are included in the full selector
+cycle. The Vibro and Predator pairs were added 2026-11-05. In this module's client
+the selector stages both pairs and both bodies hold the weapon (static
+inspection); their 60-second attack tests were not run. The melee wave 2 (`sw5_`)
+and wave 1 (`sw6_`) pairs were added 2026-11-13 and have not been run in this
 module's client. Each was reviewed in its own itemkit fixture instead. Both
 shipped Human bodies are represented for every weapon/finish.
 Launching and client controls remain manual.

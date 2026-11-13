@@ -325,6 +325,46 @@
       "sourceArchive": "sr05afd23eh.hak",
       "status": "user-approved",
       "family": "F5"
+    },
+    {
+      "id": "sr4-survival-knife-1243dd1af8",
+      "name": "Survival Knife",
+      "blueprints": [
+        "sr1243dd1a"
+      ],
+      "sourceArchive": "sr1243dd1ah.hak",
+      "status": "user-approved",
+      "family": "F1"
+    },
+    {
+      "id": "sr4-sword-47885d5d1a",
+      "name": "Sword",
+      "blueprints": [
+        "sr47885d5d"
+      ],
+      "sourceArchive": "sr47885d5dh.hak",
+      "status": "user-approved",
+      "family": "F2"
+    },
+    {
+      "id": "sr4-claymore-f91fc563dc",
+      "name": "Claymore",
+      "blueprints": [
+        "srf91fc563"
+      ],
+      "sourceArchive": "srf91fc563h.hak",
+      "status": "user-approved",
+      "family": "F4"
+    },
+    {
+      "id": "sr4-club-0eabace56a",
+      "name": "Club",
+      "blueprints": [
+        "sr0eabace5"
+      ],
+      "sourceArchive": "sr0eabace5h.hak",
+      "status": "user-approved",
+      "family": "F2"
     }
   ],
   "resources": [
@@ -2187,6 +2227,326 @@
       "sha256": "44ee3a03288174d004e03d890b5d8f338ef5466fd466acbe3d8f91753a9a5783",
       "bytes": 736,
       "resourceType": 2025
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1ah.hak",
+      "sourceResource": "iwswdg_b_091.tga",
+      "approvedSourceSha256": "1bcb45d87ba3687a9bc93d5686412d2ba4a804b5633f8be9020435921d4d79ff",
+      "path": "srn_weapon/iwswdg_b_091.tga",
+      "sha256": "1bcb45d87ba3687a9bc93d5686412d2ba4a804b5633f8be9020435921d4d79ff",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1ah.hak",
+      "sourceResource": "iwswdg_m_091.tga",
+      "approvedSourceSha256": "d24842f915e08a34ba93e2f95121904bb9bd2515cc3b4e34dbb9f5e9d1054ce8",
+      "path": "srn_weapon/iwswdg_m_091.tga",
+      "sha256": "d24842f915e08a34ba93e2f95121904bb9bd2515cc3b4e34dbb9f5e9d1054ce8",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1ah.hak",
+      "sourceResource": "iwswdg_t_091.tga",
+      "approvedSourceSha256": "09df5bc300b00f2c1c27d037b4e0b388a1c2b398e83c8745c9cbf66aba8ceb58",
+      "path": "srn_weapon/iwswdg_t_091.tga",
+      "sha256": "09df5bc300b00f2c1c27d037b4e0b388a1c2b398e83c8745c9cbf66aba8ceb58",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1ah.hak",
+      "sourceResource": "sr1243dd1a_09.tga",
+      "approvedSourceSha256": "3532b9baf47611bd2846ee3e155ea4430872b47eba52fa20f910082fcfe3eab2",
+      "path": "srn_weapon/sr1243dd1a_09.tga",
+      "sha256": "3532b9baf47611bd2846ee3e155ea4430872b47eba52fa20f910082fcfe3eab2",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1ah.hak",
+      "sourceResource": "wswdg_b_091.mdl",
+      "approvedSourceSha256": "9c20964eb4beb291e8b0c789be61a8ed312d262a04ed1009ad79887607941777",
+      "path": "srn_weapon/wswdg_b_091.mdl",
+      "sha256": "9c20964eb4beb291e8b0c789be61a8ed312d262a04ed1009ad79887607941777",
+      "bytes": 67620,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1ah.hak",
+      "sourceResource": "wswdg_m_091.mdl",
+      "approvedSourceSha256": "8b1b9d41e3f3f632dd329e4840f2d91d00745fae4dd9f87e6ad0e75d13a55b45",
+      "path": "srn_weapon/wswdg_m_091.mdl",
+      "sha256": "8b1b9d41e3f3f632dd329e4840f2d91d00745fae4dd9f87e6ad0e75d13a55b45",
+      "bytes": 169884,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1ah.hak",
+      "sourceResource": "wswdg_t_091.mdl",
+      "approvedSourceSha256": "8f4a67469098cccf1639d5d640d6f70133174712e12999ba9145d25c87586d30",
+      "path": "srn_weapon/wswdg_t_091.mdl",
+      "sha256": "8f4a67469098cccf1639d5d640d6f70133174712e12999ba9145d25c87586d30",
+      "bytes": 200916,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-survival-knife-1243dd1af8",
+      "sourceArchive": "sr1243dd1am.mod",
+      "sourceResource": "sr1243dd1a.uti",
+      "approvedSourceSha256": "3dace4a48d192e48bc883d4680428252196ec58e13e5e762997895a20fbc98c0",
+      "path": "srn_weapon/sr1243dd1a.uti",
+      "sha256": "3dace4a48d192e48bc883d4680428252196ec58e13e5e762997895a20fbc98c0",
+      "bytes": 740,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dh.hak",
+      "sourceResource": "iwswls_b_131.tga",
+      "approvedSourceSha256": "faa0bbc218304298d5de258011d489ab3a8f6d25185aff8ef93d0bf2b2ce58ce",
+      "path": "srn_weapon/iwswls_b_131.tga",
+      "sha256": "faa0bbc218304298d5de258011d489ab3a8f6d25185aff8ef93d0bf2b2ce58ce",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dh.hak",
+      "sourceResource": "iwswls_m_131.tga",
+      "approvedSourceSha256": "eeda5fb9f6b53e5a2c29e497f4c7e00be5349e05a7cb910b0f8c09d410e1af46",
+      "path": "srn_weapon/iwswls_m_131.tga",
+      "sha256": "eeda5fb9f6b53e5a2c29e497f4c7e00be5349e05a7cb910b0f8c09d410e1af46",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dh.hak",
+      "sourceResource": "iwswls_t_131.tga",
+      "approvedSourceSha256": "867b515c873c085033298b043477c95ed2cce46a6f8e32d61e57e181d22ebc13",
+      "path": "srn_weapon/iwswls_t_131.tga",
+      "sha256": "867b515c873c085033298b043477c95ed2cce46a6f8e32d61e57e181d22ebc13",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dh.hak",
+      "sourceResource": "sr47885d5d_13.tga",
+      "approvedSourceSha256": "2f2bef26603b21387eac4ebee4d2c409180a6c7ed30059b8c59cf92e46b10c1e",
+      "path": "srn_weapon/sr47885d5d_13.tga",
+      "sha256": "2f2bef26603b21387eac4ebee4d2c409180a6c7ed30059b8c59cf92e46b10c1e",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dh.hak",
+      "sourceResource": "wswls_b_131.mdl",
+      "approvedSourceSha256": "249ed81bf300082333f5c123d1c813ae83836ec2b192353b8409269ebf9c8273",
+      "path": "srn_weapon/wswls_b_131.mdl",
+      "sha256": "249ed81bf300082333f5c123d1c813ae83836ec2b192353b8409269ebf9c8273",
+      "bytes": 91740,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dh.hak",
+      "sourceResource": "wswls_m_131.mdl",
+      "approvedSourceSha256": "e32e90742a34bdfad96eb43a65751299b3ef4827a98f2e8f08ff8f0b7dc393b5",
+      "path": "srn_weapon/wswls_m_131.mdl",
+      "sha256": "e32e90742a34bdfad96eb43a65751299b3ef4827a98f2e8f08ff8f0b7dc393b5",
+      "bytes": 135052,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dh.hak",
+      "sourceResource": "wswls_t_131.mdl",
+      "approvedSourceSha256": "c3ba1336030c5dad144b38c05e187f10259934da7f59ca9d41fda8f8c832e274",
+      "path": "srn_weapon/wswls_t_131.mdl",
+      "sha256": "c3ba1336030c5dad144b38c05e187f10259934da7f59ca9d41fda8f8c832e274",
+      "bytes": 480348,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-sword-47885d5d1a",
+      "sourceArchive": "sr47885d5dm.mod",
+      "sourceResource": "sr47885d5d.uti",
+      "approvedSourceSha256": "038734f3c49a5d10fbc70a3551896e59ef90ba053da97d2d08be74f720c0076d",
+      "path": "srn_weapon/sr47885d5d.uti",
+      "sha256": "038734f3c49a5d10fbc70a3551896e59ef90ba053da97d2d08be74f720c0076d",
+      "bytes": 731,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563h.hak",
+      "sourceResource": "iwswgs_b_081.tga",
+      "approvedSourceSha256": "08c12584341faab30687515a9c15789bb5147ece9226162ea24f01b36a169d00",
+      "path": "srn_weapon/iwswgs_b_081.tga",
+      "sha256": "08c12584341faab30687515a9c15789bb5147ece9226162ea24f01b36a169d00",
+      "bytes": 65580,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563h.hak",
+      "sourceResource": "iwswgs_m_081.tga",
+      "approvedSourceSha256": "7e6bde5cd4c9cc6df8f3149f834997b896451a5642f1795992a477367a3b9705",
+      "path": "srn_weapon/iwswgs_m_081.tga",
+      "sha256": "7e6bde5cd4c9cc6df8f3149f834997b896451a5642f1795992a477367a3b9705",
+      "bytes": 65580,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563h.hak",
+      "sourceResource": "iwswgs_t_081.tga",
+      "approvedSourceSha256": "8d0471d44b6ffb7cb79caaadae22b94ba1cb9c429d252fe04a9b284f1cf49154",
+      "path": "srn_weapon/iwswgs_t_081.tga",
+      "sha256": "8d0471d44b6ffb7cb79caaadae22b94ba1cb9c429d252fe04a9b284f1cf49154",
+      "bytes": 65580,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563h.hak",
+      "sourceResource": "srf91fc563_08.tga",
+      "approvedSourceSha256": "8eed66310995c93dafe2bffffa73dc9b583a004c258e9a29fbf34f1a55ae2b4b",
+      "path": "srn_weapon/srf91fc563_08.tga",
+      "sha256": "8eed66310995c93dafe2bffffa73dc9b583a004c258e9a29fbf34f1a55ae2b4b",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563h.hak",
+      "sourceResource": "wswgs_b_081.mdl",
+      "approvedSourceSha256": "5132b294181c3036ca0d9dff515015bd0d4fa2ede5b844a0219ea664e3acc622",
+      "path": "srn_weapon/wswgs_b_081.mdl",
+      "sha256": "5132b294181c3036ca0d9dff515015bd0d4fa2ede5b844a0219ea664e3acc622",
+      "bytes": 90364,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563h.hak",
+      "sourceResource": "wswgs_m_081.mdl",
+      "approvedSourceSha256": "0e3f3e0b84ec1ece546f189975c9187f6fdcd6d5304ee737e47b2eb373a84d9f",
+      "path": "srn_weapon/wswgs_m_081.mdl",
+      "sha256": "0e3f3e0b84ec1ece546f189975c9187f6fdcd6d5304ee737e47b2eb373a84d9f",
+      "bytes": 158756,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563h.hak",
+      "sourceResource": "wswgs_t_081.mdl",
+      "approvedSourceSha256": "dae063573c47a79fcef8ac23eea2e025dd72cbd46f0aaab6c190fce48705b729",
+      "path": "srn_weapon/wswgs_t_081.mdl",
+      "sha256": "dae063573c47a79fcef8ac23eea2e025dd72cbd46f0aaab6c190fce48705b729",
+      "bytes": 562500,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-claymore-f91fc563dc",
+      "sourceArchive": "srf91fc563m.mod",
+      "sourceResource": "srf91fc563.uti",
+      "approvedSourceSha256": "aaa12562d175a2376cecc159b8614ae900d9319ded7ae6a338f1dbd37b4daff5",
+      "path": "srn_weapon/srf91fc563.uti",
+      "sha256": "aaa12562d175a2376cecc159b8614ae900d9319ded7ae6a338f1dbd37b4daff5",
+      "bytes": 734,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5h.hak",
+      "sourceResource": "iwswls_b_141.tga",
+      "approvedSourceSha256": "71deb5f46dbff53ec37e8c6090786f771ebbf6224df6e3ed07102a7af41b0be0",
+      "path": "srn_weapon/iwswls_b_141.tga",
+      "sha256": "71deb5f46dbff53ec37e8c6090786f771ebbf6224df6e3ed07102a7af41b0be0",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5h.hak",
+      "sourceResource": "iwswls_m_141.tga",
+      "approvedSourceSha256": "cb7a31a95516679d168b7a1d0e206c1d1c7bc31221594d71de4363c4a8975ab3",
+      "path": "srn_weapon/iwswls_m_141.tga",
+      "sha256": "cb7a31a95516679d168b7a1d0e206c1d1c7bc31221594d71de4363c4a8975ab3",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5h.hak",
+      "sourceResource": "iwswls_t_141.tga",
+      "approvedSourceSha256": "aba5a17f5b698ee20274cea49825e75ed021944d0e3e01d62944342dde225c55",
+      "path": "srn_weapon/iwswls_t_141.tga",
+      "sha256": "aba5a17f5b698ee20274cea49825e75ed021944d0e3e01d62944342dde225c55",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5h.hak",
+      "sourceResource": "sr0eabace5_14.tga",
+      "approvedSourceSha256": "593f976b165b54119d0df215a483f112177d8ccdcfbacef3cfb3b30818f618c7",
+      "path": "srn_weapon/sr0eabace5_14.tga",
+      "sha256": "593f976b165b54119d0df215a483f112177d8ccdcfbacef3cfb3b30818f618c7",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5h.hak",
+      "sourceResource": "wswls_b_141.mdl",
+      "approvedSourceSha256": "a22dc05800b9d3e5c360439916fa3cbae09c79a6fe8e1a5d5e18821c42151810",
+      "path": "srn_weapon/wswls_b_141.mdl",
+      "sha256": "a22dc05800b9d3e5c360439916fa3cbae09c79a6fe8e1a5d5e18821c42151810",
+      "bytes": 70076,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5h.hak",
+      "sourceResource": "wswls_m_141.mdl",
+      "approvedSourceSha256": "a5c08b0bcb4947591547501660c4c246f245a650af1f80feaac58c9a8f056512",
+      "path": "srn_weapon/wswls_m_141.mdl",
+      "sha256": "a5c08b0bcb4947591547501660c4c246f245a650af1f80feaac58c9a8f056512",
+      "bytes": 101468,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5h.hak",
+      "sourceResource": "wswls_t_141.mdl",
+      "approvedSourceSha256": "18bcdd34f9d722828d925fd3b7eacb1e8b0f82dee5a5cbcd1cde117d33db62bb",
+      "path": "srn_weapon/wswls_t_141.mdl",
+      "sha256": "18bcdd34f9d722828d925fd3b7eacb1e8b0f82dee5a5cbcd1cde117d33db62bb",
+      "bytes": 281388,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-club-0eabace56a",
+      "sourceArchive": "sr0eabace5m.mod",
+      "sourceResource": "sr0eabace5.uti",
+      "approvedSourceSha256": "06e341de840bb37ee2b07ece556ac83fb48907d0cdafe90780a959066854ba3f",
+      "path": "srn_weapon/sr0eabace5.uti",
+      "sha256": "06e341de840bb37ee2b07ece556ac83fb48907d0cdafe90780a959066854ba3f",
+      "bytes": 730,
+      "resourceType": 2025
     }
   ],
   "sharedResourceItems": [
@@ -2226,7 +2586,15 @@
     "sr1d8f6e60h.hak": "6f76b078706f4de6c5c606da4424315058560eb12e9b45e73d501f6e409c5d7b",
     "sr1d8f6e60m.mod": "93103c9f3b55b9f14cf263424290ce021cd18d0025377be0535aeec69e7558ea",
     "sr05afd23eh.hak": "c1018dc82f86985041a667289d8091e11cbd7e798a523239b2c3f1a861ee9ecc",
-    "sr05afd23em.mod": "3f2c00bfd506edc79c174c01aa1210ae50415dd25a9865944e4ac2afcf1d548f"
+    "sr05afd23em.mod": "3f2c00bfd506edc79c174c01aa1210ae50415dd25a9865944e4ac2afcf1d548f",
+    "sr1243dd1ah.hak": "b09fb4a1c40ce6f7e523e8aec7e753f06120ba04a2405dd862b937ee02a8f7a3",
+    "sr1243dd1am.mod": "bab2997ad0fcb7fdb8c05825ce2c7c16001a4604d6eb081094f1f655576111ec",
+    "sr47885d5dh.hak": "a29f9182408b2bf90046f425eba76ac772c994af2caa46bbe441137e2d89d557",
+    "sr47885d5dm.mod": "bfb8b3e31542c04d30a4a2009e75797f617bf51dfd3db84cbef0e8389a01534e",
+    "srf91fc563h.hak": "2e65dd383a709dab74d5550298e411300e4a3551104978238dbfcf76c3716c08",
+    "srf91fc563m.mod": "5bb868171421c47eb84e48b6f70cef63bc0e108d3b688bba89e116690513f116",
+    "sr0eabace5h.hak": "9b735ad51ddb6b67554c7a7eb5413a6bd7db9636687cf992361d89acbe061ac9",
+    "sr0eabace5m.mod": "aff2989a704a30a52c3eb0fe4d1be46c018bb41185b4f4cb6a45474c07795285"
   },
   "approvalEvidence": {
     "completedWeaponsSha256": "28da1b6dbcde332078ec2468f5a292d2c89f13735c7a1a2ff7ef1b0d803d8e38",
@@ -2247,7 +2615,9 @@
       "baton looks good",
       "staff looks good",
       "tomahawk looks good too",
-      "Yes, publish them"
+      "Yes, publish them",
+      "Yes, keep it",
+      "should also add the wave 1 weapons to that PR if they haven't been published yet."
     ]
   },
   "displayTable": {
@@ -2269,10 +2639,10 @@
     "unrelatedBytesPreserved": true,
     "ordinarySlingCompatibility": "Not newly client-qualified; changes the whole Sling family"
   },
-  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance.",
+  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance. Melee wave 1: Survival Knife (F1/row 22, 091), Sword (F2/row 1, 131), Club (F2, 141) and Claymore (F4/row 13, 081) were viewed in the NWN:EE client from their private itemkit fixtures; the user kept each (\"Yes, keep it\"; for the Sword this was its 1.10 m size). Not production acceptance.",
   "smgOnHold": false,
   "productionDeploymentPerformed": false,
-  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker.",
+  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker. The four wave-1 melee blueprints and resources are byte-identical to the native packages and fixture modules of the runs the user approved; no table change.",
   "additionalDisplayRows": [
     {
       "baseItem": 1,

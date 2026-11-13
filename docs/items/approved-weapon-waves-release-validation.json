@@ -3,12 +3,12 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
-  "weaponDesigns": 21,
-  "blueprints": 23,
-  "weaponResources": 189,
-  "publicationPins": 190,
-  "modelsDecoded": 72,
-  "imagesChecked": 94,
+  "weaponDesigns": 25,
+  "blueprints": 27,
+  "weaponResources": 221,
+  "publicationPins": 222,
+  "modelsDecoded": 84,
+  "imagesChecked": 110,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -17,8 +17,8 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 189,
-      "sha256": "311b3cf60b7e70d6e8549edf6102e0ebc287b6f7ae7ab2e7a7e386d574e0d9ec",
+      "resources": 221,
+      "sha256": "818c3f83521281c81bc2f54271ca7ef7977eaa8ca16b4535d4a4b72d387012e8",
       "exactPayload": true
     },
     {
@@ -41,8 +41,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 77,
-      "sha256": "ab1faf9cf7f264034bbb97b963ca7aa6cf3a15a8d3062368ca42e44dd874ad43",
+      "resources": 85,
+      "sha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
       "exactPayload": true
     }
   ],
@@ -235,5 +235,20 @@
     "rebuiltArchivesPayloadExact": true,
     "comparisonModuleChanged": true,
     "archiveHashNote": "srn_weapon.hak, srn_2da.hak and sw_weapon_w2.mod were rebuilt for this update and every payload compared with its source file; sw_f7motion and sw_reviewenv are unchanged historical records. The comparison module gained five reviewer pairs (sw5_) that were not run in its client; each item was client-reviewed in its own private itemkit fixture."
+  },
+  "addedMeleeWave1": {
+    "date": "2026-11-13",
+    "items": [
+      "sr4-survival-knife-1243dd1af8",
+      "sr4-sword-47885d5d1a",
+      "sr4-club-0eabace56a",
+      "sr4-claymore-f91fc563dc"
+    ],
+    "payloadsByteIdenticalToNativePackages": true,
+    "rebuiltArchivesPayloadExact": true,
+    "comparisonModuleChanged": true,
+    "baseitemTableChanged": false,
+    "sourceRuns": "The native packages and fixture modules of the runs the user approved in game (Survival Knife run-fixture-v2, Sword run-fixture-v3, Claymore run-fixture-v1, Club run-fixture-v1).",
+    "archiveHashNote": "srn_weapon.hak and sw_weapon_w2.mod were rebuilt together with the melee wave 2 update; srn_2da.hak is unchanged by wave 1. The four sw6_ comparison pairs were not run in that module's client."
   }
 }
