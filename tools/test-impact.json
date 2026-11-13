@@ -10,14 +10,17 @@
       "tools/armorkit/generate.py",
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
+      "tools/armorkit/poses.py",
       "tools/armorkit/reference.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/seam-contract.json",
-      "tools/armorkit/tables.py"
+      "tools/armorkit/tables.py",
+      "tools/armorkit/view.py"
     ],
     "tools/armorkit/bake.py": [
       "tools/armorkit/bodyskin.py",
       "tools/armorkit/brief.py",
+      "tools/armorkit/ends.py",
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
       "tools/armorkit/registry.py",
@@ -26,7 +29,8 @@
       "tools/armorkit/split.py",
       "tools/armorkit/texture.py",
       "tools/headkit/__init__.py",
-      "tools/headkit/gltf.py"
+      "tools/headkit/gltf.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/bodyskin.py": [
       "tools/armorkit/export.py",
@@ -48,6 +52,10 @@
     "tools/armorkit/client_fixture.py": [
       "tools/armorkit/registry.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/armorkit/ends.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py"
     ],
     "tools/armorkit/export.py": [
       "tools/armorkit/registry.py",
@@ -80,6 +88,12 @@
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
+    "tools/armorkit/poses.py": [
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/tables.py"
     ],
     "tools/armorkit/reference.py": [
       "tools/armorkit/brief.py",
@@ -114,8 +128,11 @@
       "tools/armorkit/bodyskin.py",
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
       "tools/armorkit/split.py",
-      "tools/armorkit/test_bodyskin.py"
+      "tools/armorkit/test_bodyskin.py",
+      "tools/armorkit/test_split.py"
     ],
     "tools/armorkit/test_bodyskin.py": [
       "tools/armorkit/bodyskin.py",
@@ -140,13 +157,21 @@
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/examples/registry.json",
       "tools/armorkit/generate.py",
+      "tools/armorkit/poses.py",
       "tools/armorkit/reference.py",
-      "tools/armorkit/registry.py"
+      "tools/armorkit/registry.py",
+      "tools/armorkit/view.py"
     ],
     "tools/armorkit/test_client_fixture.py": [
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/registry.py"
+    ],
+    "tools/armorkit/test_ends.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/ends.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/test_bake.py"
     ],
     "tools/armorkit/test_export.py": [
       "tools/armorkit/export.py",
@@ -163,6 +188,12 @@
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
       "tools/armorkit/seams.py"
+    ],
+    "tools/armorkit/test_poses.py": [
+      "tools/armorkit/client.py",
+      "tools/armorkit/poses.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/test_tables.py"
     ],
     "tools/armorkit/test_reference.py": [
       "tools/armorkit/brief.py",
@@ -204,6 +235,15 @@
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
     ],
+    "tools/armorkit/test_view.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/split.py",
+      "tools/armorkit/view.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
+    ],
     "tools/armorkit/texture.py": [
       "tools/armorkit/export.py",
       "tools/armorkit/registry.py",
@@ -214,6 +254,16 @@
     ],
     "tools/armorkit/toolchain.py": [
       "tools/shared_tools.py"
+    ],
+    "tools/armorkit/view.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/split.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
     ],
     "tools/ci_result.py": [],
     "tools/ci_scope.py": [
@@ -271,6 +321,7 @@
       "tools/armorkit/client_fixture.py",
       "tools/envkit/convert.py",
       "tools/envkit/prop_fixture.py",
+      "tools/envkit/tile.py",
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/convert.py": [
@@ -298,6 +349,7 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/reference.py": [
+      "tools/envkit/sheet.py",
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],
@@ -350,6 +402,7 @@
       "tools/envkit/placeables.py"
     ],
     "tools/envkit/test_reference.py": [
+      "tools/envkit/__main__.py",
       "tools/envkit/reference.py",
       "tools/envkit/sets/stuffer-shack.json"
     ],
@@ -392,7 +445,8 @@
     ],
     "tools/envkit/view.py": [
       "tools/envkit/convert.py",
-      "tools/envkit/glow.py"
+      "tools/envkit/glow.py",
+      "tools/envkit/tile.py"
     ],
     "tools/headbatch/__init__.py": [],
     "tools/headbatch/client_trial.py": [
@@ -5251,6 +5305,9 @@
       "srn_body",
       "srn_head"
     ],
+    "tools/armorkit/test_poses.py": [
+      "srn_body"
+    ],
     "tools/combat_release_manifest.py": [
       "srn_2da",
       "srn_tlk",
@@ -5407,9 +5464,11 @@
     "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
+    "tools/armorkit/test_ends.py",
     "tools/armorkit/test_export.py",
     "tools/armorkit/test_generate.py",
     "tools/armorkit/test_measure.py",
+    "tools/armorkit/test_poses.py",
     "tools/armorkit/test_reference.py",
     "tools/armorkit/test_registry.py",
     "tools/armorkit/test_repose.py",
@@ -5418,6 +5477,7 @@
     "tools/armorkit/test_tables.py",
     "tools/armorkit/test_texture.py",
     "tools/armorkit/test_toolchain.py",
+    "tools/armorkit/test_view.py",
     "tools/envkit/test_catalog.py",
     "tools/envkit/test_checks.py",
     "tools/envkit/test_convert.py",

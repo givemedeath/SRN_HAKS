@@ -3,6 +3,8 @@ import math
 import unittest
 from unittest import mock
 
+import numpy as np
+
 from tools.armorkit.client_fixture import field, gff_float
 
 from . import checks, prop_fixture
@@ -88,6 +90,80 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([shot['label'] for shot in near], ['near-door', 'near-front', 'near-side', 'far', 'behind', 'behind-side'])
         self.assertIn('SetCutsceneMode(pc,FALSE)', near[0]['run']); self.assertFalse(any('run' in shot for shot in near[1:]))  # the player is freed once: upper storeys hide only outside cutscene mode
         doorless = checks.group_shots(2, 2, None, 'near'); self.assertEqual(doorless[0]['label'], 'near-front'); self.assertIn('run', doorless[0])
+        east = checks.group_shots(3, 2, [1.0, 9.0], 'day', facing=0.0)[9]  # a door that opens east is seen from the east
+        self.assertEqual((east['stand'], east['facing']), ([48.2, 49.0], 180.0))
+
+    def test_a_groups_door_is_found_where_the_tiles_put_it_not_where_the_model_did(self):
+        # The Saeder-Krupp yard: 3 by 3, its door on the north middle tile. The game set had it at (2.78, 3.68) on the
+        # model, whose origin lay 7 metres from the middle of the tiles, cut about the fence far out in front.
+        tiles = [{'column': column, 'row': row, 'doors': []} for row in range(3) for column in range(3)]
+        tiles[7]['doors'] = [{'type': 58, 'x': 1.31, 'y': 0.74, 'z': 0.55, 'orientation': 180.0}]
+        self.assertEqual([round(value, 2) for value in checks.laid_door({'columns': 3, 'rows': 3, 'tiles': tiles})], [1.31, 10.74])
+        self.assertIsNone(checks.laid_door({'columns': 2, 'rows': 2, 'tiles': tiles[:4]}))
+
+    def test_walkers_set_out_from_the_far_corners_for_the_door_round_the_group_and_into_its_yard(self):
+        # The Saeder-Krupp yard, 3 by 3 from tile (3, 3), its door on the north middle tile and opening north; a target
+        # south of the building and a yard with few ways in, each from the group's south-west corner.
+        walkers = checks.walk_plan(3, 3, [1.31, 10.74], 90.0, {'south': (15.0, 4.0), 'pocket': (10.0, 6.0)})
+        self.assertEqual(walkers, [{'label': 'door', 'start': [5.0, 5.0], 'target': [46.31, 56.94]},  # 1.2 m out of the door, as the yard's walker was sent
+                                   {'label': 'south', 'start': [85.0, 85.0], 'target': [45.0, 34.0]},
+                                   {'label': 'pocket', 'start': [83.5, 85.0], 'target': [40.0, 36.0]},  # the same far corner, a step along it
+                                   {'label': 'pocket-near', 'start': [40.0, 25.0], 'target': [40.0, 36.0]}])  # and from the next tile out, south of it
+        self.assertEqual([one['label'] for one in checks.walk_plan(2, 2, None, 90.0, {})], [])
+        shots = checks.walk_shots(3, 3, walkers, 'skwalk')
+        self.assertEqual([shot['label'] for shot in shots], ['go', 'w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'at-door', 'at-south', 'at-pocket', 'at-pocket-near'])
+        self.assertEqual((shots[0]['run'].count('ActionMoveToLocation('), shots[0]['run'].count('EffectCutsceneGhost()')), (4, 4)); self.assertIn('Vector(46.310,56.940,0.0)', shots[0]['run'])
+        self.assertIn('GetObjectByTag("skwalk_h3")', shots[6]['run']); self.assertIn('walker=3 stage=6', shots[6]['run'])  # tagged as the fixture tags its people
+        prop_fixture.enter_script(shots, hold=checks.WALK_HOLD)  # each shot's script is one line
+        lines = ['ENVKIT enter shots=11', 'ENVKIT walker=0 stage=0 x=  5.000 y=  5.000', 'ENVKIT walker=0 stage=6 x= 46.100 y= 56.800',
+                 'ENVKIT walker=1 stage=6 x= 50.000 y= 34.000', 'ENVKIT shot=6 target=w6 valid=1']
+        found = checks.walks(lines, walkers[:2])
+        self.assertEqual([(one['stage'], one['at'], one['short']) for one in found], [(6, [46.1, 56.8], 0.25), (6, [50.0, 34.0], 5.0)])
+        with self.assertRaisesRegex(ValueError, 'never placed walker pocket'):
+            checks.walks(lines, walkers[:3])
+
+    def test_a_groups_lights_are_put_out_for_everyone_and_on_again(self):
+        shots = checks.blackout_shots(3, 3, [('ek_sk_yard', False), ('ek_sk_yardp1', True)])
+        self.assertEqual([shot['label'] for shot in shots], ['out', 'out-behind', 'lit-again'])
+        self.assertEqual(shots[0]['run'], 'SetTextureOverride("ek_sk_yard_i","ek_sk_yard_o",pc);SetTextureOverride("ek_sk_yardp1_i","ek_sk_yardp1_o",pc);'
+                                          'SetTextureOverride("ek_sk_yardp1_h","ek_off",pc);')
+        self.assertIn('SetTextureOverride("ek_sk_yard_i","",pc);', shots[2]['run']); self.assertNotIn('run', shots[1])
+        self.assertEqual((shots[0]['stand'], shots[0]['facing'], shots[1]['stand'], shots[1]['facing']), ([45.0, 37.5], 90, [45.0, 55.5], 270))
+        self.assertEqual(checks.blackout_shots(3, 3, []), [])
+
+    def test_a_walk_check_needs_the_walk_picture_of_its_build(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as scratch:
+            built = Path(scratch) / 'tiles1' / 'ek_yard'; built.mkdir(parents=True)
+            (built / 'report.json').write_text(json.dumps({'columns': 1, 'rows': 1, 'tiles': []}), encoding='utf-8')
+            with mock.patch.object(checks.convert, 'load_models', return_value={'ek_yard': {'tiles': {'ground': 'pavement'}}}):
+                with self.assertRaisesRegex(ValueError, 'has no walk.png, which picks where walkers go: build the group again'):
+                    checks.group('game', scratch, scratch, 'ekwalk', 'set.json', Path(scratch) / 'tiles1', 'ek_yard', 'dgt04', 'walk')
+        from argparse import Namespace
+        from . import __main__ as command
+        asked = dict(game='game', repo='.', models='set.json', root='root', name='ekt1', built=['built'], model=['ek_yard'], tileset='dgt04', second_storey='0')
+        with mock.patch.object(checks, 'group', return_value={}) as group, mock.patch('builtins.print'):
+            command.command_check(Namespace(kind='group', mode='walk', target=['bay=22,23.5', 'apron=23.0,11'], **asked))
+        self.assertEqual((group.call_args.args[-1], group.call_args.kwargs['targets']), ('walk', {'bay': (22.0, 23.5), 'apron': (23.0, 11.0)}))
+        # A target must lie on ground with room to stand on in walk.png: one in a wall or off the group is a typo, not a lost way.
+        roomy = np.zeros((40, 40), bool); roomy[:, :20] = True
+        checks.own_targets(roomy, {'yard': (4.9, 9.9)}, {})
+        for wrong in ({'wall': (5.1, 2.0)}, {'off': (-0.1, 2.0)}, {'beyond': (2.0, 10.0)}):
+            with self.assertRaisesRegex(ValueError, 'not on ground with room to stand on in walk.png'):
+                checks.own_targets(roomy, wrong, {})
+        # Nor may it take a label the check gives: `pocket` brings a second walker of its own even where walk.png finds none.
+        for label, chosen in (('north', {'north': (1.0, 1.0)}), ('door', {}), ('pocket', {}), ('pocket-near', {})):
+            with self.assertRaisesRegex(ValueError, 'takes a label of its own: ' + label):
+                checks.own_targets(roomy, {label: (4.9, 9.9)}, chosen)
+        with self.assertRaisesRegex(ValueError, 'A --target is a place a group walk check sends a walker'):  # not dropped from another check
+            command.command_check(Namespace(kind='props', mode='day', target=['bay=1,2'], **asked))
+        for wrong in (['bay=22'], ['Bay=1,2'], ['bay=1,2', 'bay=3,4'], ['bay=x,2'], ['bay=inf,2'], ['bay=1,nan']):
+            with self.assertRaisesRegex(ValueError, 'A target is label=x,y'):
+                command.command_check(Namespace(kind='group', mode='walk', target=wrong, **asked))
+        with self.assertRaisesRegex(ValueError, 'give them with --mode walk'):
+            checks.group('game', '.', '.', 'ekwalk', 'set.json', 'built', 'ek_yard', 'dgt04', 'day', targets={'bay': (1.0, 2.0)})
 
     def test_a_group_is_laid_with_the_packs_tiles_only_where_the_pack_holds_this_build(self):
         text = '[TILE0]\r\nModel=tdg01_a01_01\r\n[TILE1]\r\nModel=ek_hall_t00\r\nWalkMesh=msb01\r\n[TILE1DOOR0]\r\nType=58\r\n[TILE2]\r\nModel=ek_hall_t01\r\n[TILE3]\r\nModel=ek_shop_t00\r\n'

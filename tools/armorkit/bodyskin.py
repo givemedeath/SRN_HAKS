@@ -197,7 +197,7 @@ def worn(part, skin, start, end, limit=1024):
             'rgb': laid(part['rgb'], None, 0.5), 'covered': flags(part['covered']),
             'relief': laid(part['relief'], skin['relief'], np.array([0.5, 0.5, 1.0]), 'normal'),
             **{key: flags(part[key]) for key in ('closing', 'cap', 'padded')},
-            **{key: np.concatenate([part[key], np.zeros(count, bool)]) for key in ('added', 'domed')},
+            **{key: np.concatenate([part[key], np.zeros(count, bool)]) for key in ('added', 'domed', 'pad') if key in part},
             'trimmed': np.concatenate([part['trimmed'], np.full(count, -1)]),
             'skin': np.concatenate([np.zeros(len(part['f']), bool), np.ones(count, bool)]), 'skin_at': skin_at, 'skin_tint': tint,
             'skin_rough': np.clip(np.round(laid(np.full((size, size), texture.ROUGHNESS), skin['rough'], texture.ROUGHNESS) * 255), 0, 255).astype(np.uint8)}

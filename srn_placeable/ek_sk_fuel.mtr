@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_sk_fuel
+texture1 ek_sk_fuel_n
+texture2 ek_sk_fuel_s
+texture3 ek_sk_fuel_r
+texture4 null
+texture5 ek_sk_fuel_i

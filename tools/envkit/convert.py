@@ -23,6 +23,7 @@ NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character s
 TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row and column
 NON_WALK = 7
 RETOUCH = 2048  # pixels: the finest map of places a colour picture is retouched by
+SLAT_GROOVE, SLAT_SHADE = 0.15, 0.3  # of a slat's pitch, each side of the joint, that darkens towards it; how much darker the joint is
 WIRE = (118, 122, 126)  # galvanised steel
 # A fence's wires are drawn on a small picture of their own, which its sheets repeat: its width in pixels, and the least
 # pixels across a wire that still draw one.
@@ -32,10 +33,10 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 PLACING = ('lift', 'turn', 'signTilt')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned and tilted
-RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close')  # what of a game set `shape` takes to turn, close and retouch a model
+RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what of a game set `shape` takes to turn, clear, close and retouch a model
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -139,6 +140,23 @@ def closed(vertices, normals, uvs, faces, parts):
             b, c = c, b
         faces = np.vstack([faces, np.asarray([[a, b, c]], faces.dtype)])
     return faces
+
+
+def cleared(vertices, normals, uvs, faces, parts):
+    """The model without what the generator stood where a walk must pass: the faces whose middle lies in one of `parts`
+    ([{box: two corners in metres on the finished model}]) taken away, and the vertices no face uses any more. The
+    Saeder-Krupp yard's loading bay came back with a railed-off square on its floor, under a metre from the vehicle
+    beside it: too narrow a way into the back of the bay (user, 2026-11-12: "going to need to be able to get through
+    this gap"). A box above the floor takes what stands on it and leaves the floor. A box that takes nothing is
+    refused: it is a mistake in the set. Returns (vertices, normals, uvs, faces)."""
+    faces = np.asarray(faces); middle = vertices[faces].mean(1); kept = np.ones(len(faces), bool)
+    for part in parts:
+        low, high = np.sort(np.asarray(part['box'], float), axis=0)
+        inside = np.all((middle >= low) & (middle <= high), axis=1)
+        require(bool((inside & kept).any()), f"A cleared box takes no face of the model away ({part.get('part', 'cleared part')})")
+        kept &= ~inside
+    used, local = np.unique(faces[kept], return_inverse=True)
+    return vertices[used], normals[used], uvs[used], local.reshape(-1, 3)
 
 
 def square_up(points, limit=45.0, step=0.25):
@@ -523,7 +541,10 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
     the box's usual tint change, each to the rest of the box blurred over `radius`. The surface is most of the box and
     the less tinted of the two; a box that is mostly marking, or a plain marking on a tinted surface, is refused (the smeared red marking on the
     concrete base of the Ares fence section, which smoothing the whole face left a plain panel beside weathered ones,
-    2026-11-12)."""
+    2026-11-12). With `slats`, metres, the smoothed surface is drawn again as a roller door's slats, a joint every `slats`
+    metres up the model, darkened over SLAT_GROOVE of the pitch each side by up to SLAT_SHADE: a generator draws slats
+    finer than its texels as a wavy moiré (the Saeder-Krupp yard's dock doors L-01 and L-02, user, 2026-11-12). A pitch is
+    refused under four texels, where the joints would alias again."""
     from PIL import Image
     from . import glow
     colour = np.asarray(image.convert('RGB'), np.float32) / 255; alpha = flat = None; grain = min(size, image.width)
@@ -540,6 +561,7 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
             colour[full(glow.held(where, covered, part, 'painted'))] = np.asarray(part['colour'], float) / 255
+        rise = None
         for part in smooth:
             chosen = glow.held(where, covered, part, 'smoothed')
             beside = chosen[:, 1:] & chosen[:, :-1]  # how far apart on the model two texels side by side are
@@ -547,6 +569,12 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
             # No two texels side by side, or all at one place, leaves no step to measure by: the reach then stops at an
             # eighth of the picture, where an unbounded one would pad the blur by a hundred thousand texels.
             plain.append((chosen, max(int(round(min(part['radius'] / max(step, 1e-6), grain / 8))), 1)))
+            if 'slats' in part:  # the height a texel spans, at the picture's own size, where the slats are drawn
+                if rise is None:
+                    rise = np.hypot(*np.gradient(where[..., 2]))
+                drawn = float(np.median(rise[chosen])) * grain / image.width
+                require(part['slats'] >= 4 * drawn, f"Slats {part['slats']} metres apart are under four texels of {drawn:.3f} metres in height "
+                        f"each: the joints would alias as the generator's did ({part.get('part', 'smoothed')})")
         if smooth:  # the picture is brought to the grain once, each part is smoothed there in turn, and it is brought back once
             small = np.asarray(Image.fromarray((colour * 255).round().astype(np.uint8)).resize((grain, grain), Image.BOX), np.float32) / 255
             for index, part in enumerate(smooth):
@@ -568,6 +596,15 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
             small, done = _spread(small, [(chosen, reach, part.get('colour'), *marked) for (chosen, reach, *marked), part in zip(plain, smooth)])
             wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
             done = full(done); colour[done] = wide[done]; flat |= done
+            if any('slats' in part for part in smooth):  # the joints by the model's own height, read at the picture's size
+                # Read as covered texels only: the empty texels round an island hold 0, which a plain resize blends into its edge.
+                up = lambda values: np.asarray(Image.fromarray(values.astype(np.float32), 'F').resize(image.size, Image.BILINEAR), np.float32)
+                height = up(where[..., 2] * covered) / np.maximum(up(covered), 1e-6); joints = np.zeros(height.shape, np.float32)
+                for (chosen, *_), part in zip(plain, smooth):
+                    if 'slats' in part:  # where two boxes of a door meet, a texel is darkened once
+                        texels = full(chosen); phase = (height[texels] / part['slats']) % 1.0
+                        joints[texels] = np.maximum(joints[texels], np.clip(1 - np.minimum(phase, 1 - phase) / SLAT_GROOVE, 0, 1))
+                colour *= (1 - SLAT_SHADE * joints)[..., None]
         for part in mesh:
             panel = glow.held(where, covered, part, 'wire mesh'); ahead = _run(where[panel])
             wire = full(panel & glow.wires(where[..., :2] @ ahead, where[..., 2], part['pitch'], part['wire'])); panel = full(panel)
@@ -606,11 +643,11 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base
 
 def load_models(path):
     """The game models of a set: {name: {source, height, colour, signTilt, lift, turn, tone, paint, smooth, mesh,
-    fence, close, lit, halo, tiles, measuredAt}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
+    fence, close, clear, lit, halo, tiles, measuredAt}}. `lift` hangs the model that many metres above the ground it is placed on (a camera on a wall). `turn`
     turns it that many degrees counter-clockwise seen from above, where its front came back facing a side; boxes are
     on the model as turned. `tone`, `paint`, `smooth` and `mesh` retouch its colour picture (`retouch`); `fence` hangs
     chain-link sheets between its fence posts, with a picture of their own (`sheets`); `close` closes a hole in it
-    with a face between three of its own vertices (`closed`). `source` is the generated
+    with a face between three of its own vertices (`closed`); `clear` takes away what stands in its boxes (`cleared`). `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
@@ -618,6 +655,9 @@ def load_models(path):
     way it looks out in degrees from east towards north (90 is north), its row of doortypes.2da, which is the invisible
     transition door's, and `leaf`, the height in metres of the door leaf as measured on the finished model, which must
     be a door a character fits; `tile.doorstep` draws the hook out onto open ground and turns it). A tile group takes no `lift`.
+    A group may be made of several models (user, 2026-11-12: the concept's whole scene is the group, "that doesn't
+    mean we have to generate it as one single mesh"): `parts` places other models of the set in it, each
+    {model, at: [x, y, z], turn} in metres on this one and turned a quarter at a time, with a texture of its own (`part_textures`).
     `measuredAt` is how the model stood when its boxes, fences, door and fade height were measured: its height, or
     {height, lift, turn, signTilt} with each of the three the model states. A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
@@ -627,7 +667,7 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -642,14 +682,18 @@ def load_models(path):
                     and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
                     'A wire mesh needs a box, a pitch of at most a metre and a thinner wire: ' + name)
         for part in model.get('smooth', []):
-            require(isinstance(part, dict) and {'box', 'radius'} <= set(part) <= {'part', 'box', 'radius', 'colour', 'tint'} and box(part) and number(part['radius'])
+            require(isinstance(part, dict) and {'box', 'radius'} <= set(part) <= {'part', 'box', 'radius', 'colour', 'tint', 'slats'} and box(part) and number(part['radius'])
                     and 0.01 <= part['radius'] <= 1 and shade(part.get('colour', [0, 0, 0])), 'A smoothed part needs a box and a radius of 0.01 to 1 metres: ' + name)
+            require('slats' not in part or (number(part['slats']) and 0.02 <= part['slats'] <= 0.5 and 'tint' not in part),
+                    "A roller door's slats are 0.02 to 0.5 metres apart, drawn on a smoothed surface, not on a marking taken off: " + name)
             require('tint' not in part or (number(part['tint']) and 1 <= part['tint'] <= 255 and 'colour' not in part),
                     'A marking is taken off by its tint, 1 to 255 levels from the surface\'s, and the surface keeps its own colour: ' + name)
         for part in model.get('close', []):
             require(isinstance(part, dict) and {'corners'} <= set(part) <= {'part', 'corners'} and isinstance(part['corners'], list) and len(part['corners']) == 3
                     and all(isinstance(corner, list) and len(corner) == 3 and all(number(value) for value in corner) for corner in part['corners']),
                     'A closing face needs three corners, each a point in metres on the finished model: ' + name)
+        for part in model.get('clear', []):
+            require(isinstance(part, dict) and {'box'} <= set(part) <= {'part', 'box'} and box(part), 'A cleared part is a box: ' + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
@@ -667,7 +711,7 @@ def load_models(path):
         # A box is on the finished model, which stands from its lift to its lift and its height. The Ares Depot's wall
         # sign, lifted 2.4 metres, had its lit boxes where it stood before the lift and shipped dark (review, 2026-11-12).
         foot, head = model.get('lift', 0), model.get('lift', 0) + model['height']
-        spans = [np.asarray(part['box'], float)[:, 2] for key in ('lit', 'paint', 'smooth', 'mesh') for part in model.get(key, [])]
+        spans = [np.asarray(part['box'], float)[:, 2] for key in ('lit', 'paint', 'smooth', 'mesh', 'clear') for part in model.get(key, [])]
         require(all(high > foot and low < head for low, high in spans + [part['z'] for part in model.get('fence', [])]),
                 f'A box or fence lies wholly above or below the model, which stands from {foot} to {head} metres up: {name}')
         require(set(model.get('halo', {})) <= {'reach', 'strength', 'core', 'least'} and ('halo' not in model or model.get('lit')),
@@ -677,7 +721,7 @@ def load_models(path):
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
-        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door'} and isinstance(tiles['sets'], dict) and tiles['sets']
+        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
@@ -696,13 +740,26 @@ def load_models(path):
                 f'A door states its leaf, measured on the finished model, {DOOR_LEAF[0]} to {DOOR_LEAF[1]} metres tall; scale the building to its door first: ' + name)
         fade = (tiles or {}).get('fade')
         require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
+        nodes = (tiles or {}).get('nodes', {})
+        require(isinstance(nodes, dict) and all(isinstance(key, str) and len(key) == 3 and key[0] == 't' and key[1:].isdigit() and isinstance(value, dict)
+                                                and set(value) == {'node', 'turn'} and isinstance(value['node'], str) and len(value['node']) == 1
+                                                and value['turn'] in (0, 90, 180, 270) for key, value in nodes.items()),
+                'A stated path node is {"t<row><column>": {"node": letter, "turn": 0, 90, 180 or 270}}: ' + name)
+        parts = (tiles or {}).get('parts', [])
+        # A halo card and a fence's sheets stand along x or along y, and are cut at the tile lines along that (`tile.share_cards`):
+        # a part turned by other than a quarter would leave them across the cut.
+        require(isinstance(parts, list) and all(isinstance(part, dict) and {'model', 'at'} <= set(part) <= {'model', 'at', 'turn'} and isinstance(part['model'], str)
+                                                and isinstance(part['at'], list) and len(part['at']) == 3 and all(number(value) for value in part['at'])
+                                                and part.get('turn', 0) in (0, 90, 180, 270) for part in parts),
+                'A part of a group is {model, at: [x, y, z], turn}, turned 0, 90, 180 or 270 degrees: ' + name)
+        require(len(part_textures(name, parts)) <= MAX_PARTS, f'A group has at most {MAX_PARTS} models placed in it: ' + name)
         # Every box, fence, door and fade height is a measurement, and a measurement is of the model as it stood: at
         # one height, and lifted, turned and tilted as it then was. A typed door leaf would go on passing after its
         # building was made taller or lower, and a lit box would go on holding some of the model and lighting the wrong
         # part of it (found in review, 2026-11-12); so would the boxes of a sign hung at another lift or turned since
         # they were read. So a model that states any measurement says how it stood when they were made, and standing
         # otherwise they are made again.
-        measured = any(model.get(key) for key in MEASURED) or door is not None or fade is not None
+        measured = any(model.get(key) for key in MEASURED) or door is not None or fade is not None or bool(parts)
         stands = {'height': model['height'], **{key: model[key] for key in PLACING if key in model}}
         told = lambda at: ', '.join(f'{key} {value}' for key, value in at.items())
         require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says how it stood when they were measured '
@@ -711,7 +768,50 @@ def load_models(path):
         require('measuredAt' not in model or (isinstance(stated, dict) and all(number(value) for value in stated.values()) and stated == stands),
                 f'The boxes, fences, door and fade height of a model were measured with the model at {told(stated) if isinstance(stated, dict) else json.dumps(stated)} '
                 f'and it is now at {told(stands)}: measure them again on the model as it is, and say so in measuredAt: ' + name)
+    for name, model in data['models'].items():
+        for part in (model.get('tiles') or {}).get('parts', []):
+            other = data['models'].get(part['model'])
+            require(other is not None and part['model'] != name and not other.get('tiles'),
+                    f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
     return data['models']
+
+
+MAX_PARTS = 9  # models placed in one group: `<group>p1` to `p9`, which the repository check looks for
+
+
+def part_textures(name, parts):
+    """{model: texture} of the models placed in the group `name`: `name`p1, p2 and so on in the order they first come,
+    one texture to a model however often it is placed. A model placed in a group is drawn there with its own picture
+    under a name of the group's, so the group's pack holds all it shows and no file is in two packs."""
+    order = list(dict.fromkeys(part['model'] for part in parts))
+    return {model: f'{name}p{index}' for index, model in enumerate(order, 1)}
+
+
+def building_triangles(models, name, triangles):
+    """Triangles of the building a tile group shows, held to the building budget: those of the group's own model and of
+    every model placed in it that is no placeable, as often as it is placed. `triangles` is each model's count. A
+    building made in pieces is several models (the Saeder-Krupp yard: five, 2026-11-12), and a piece generated again
+    from one view stands beside the one it mends, so the budget is counted on what the group places. A placeable placed
+    in the group (a fence, a crate) is a prop, held to its own target."""
+    parts = models[name]['tiles'].get('parts', [])
+    return triangles[name] + sum(triangles[part['model']] for part in parts if not models[part['model']].get('placeable'))
+
+
+def place(made, at, turn=0):
+    """A finished model (`shape`) turned `turn` degrees about the vertical, counter-clockwise seen from above, and moved
+    to `at`: its vertices, normals, fence sheets and halo cards; its pictures are its own as they were."""
+    import math
+    from . import glow
+    cos, sin = (round(math.cos(math.radians(turn))), round(math.sin(math.radians(turn)))) if turn % 90 == 0 else (math.cos(math.radians(turn)), math.sin(math.radians(turn)))
+    spin = np.array([[cos, -sin, 0.0], [sin, cos, 0.0], [0.0, 0.0, 1.0]]); shift = np.asarray(at, float)
+    moved = lambda points: np.asarray(points, float) @ spin.T + shift
+    placed = {**made, 'vertices': moved(made['vertices']), 'normals': np.asarray(made['normals'], float) @ spin.T}
+    if made.get('wire'):
+        placed['wire'] = {**made['wire'], 'vertices': moved(made['wire']['vertices']), 'normals': np.asarray(made['wire']['normals'], float) @ spin.T}
+    if made.get('card'):
+        card = made['card']
+        placed['card'] = glow.Halo(card.image, [[(tuple(moved(point).tolist()), uv) for point, uv in corners] for corners in card.cards], card.light)
+    return placed
 
 
 HALO_OUT = 'ek_off'  # one for every model: a black sheet added to the picture adds nothing
@@ -768,10 +868,11 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
-          smooth=None, mesh=None, fence=None, close=None):
+          smooth=None, mesh=None, fence=None, close=None, clear=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
-    illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `close`
-    closes holes in it with faces between its own vertices (`closed`), before its pictures are worked on; `tone`,
+    illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
+    takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
+    (`closed`), in that order, before its pictures are worked on; `tone`,
     `paint`, `smooth` and `mesh` give `colour`, `flat` and `plain`: its colour picture retouched, where its relief is levelled and
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
@@ -786,6 +887,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         vertices, _ = stand(vertices, height)
     normals, repaired = repair_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
+    if clear:
+        vertices, normals, uvs, faces = cleared(vertices, normals, uvs, faces, clear)
     if close:
         faces = closed(vertices, normals, uvs, faces, close)
     require(not halo or lit, 'A halo spreads the lit parts: name them')

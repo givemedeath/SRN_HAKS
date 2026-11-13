@@ -21,6 +21,6 @@
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "subject": "freestanding pylon sign reading FRFZ Night Bazaar with a neon side panel", "box": [638, 858, 803, 1035]},
     "trash-pile": {"kind": "prop", "type": "street-clutter", "same": "stuffer-shack/street-clutter", "subject": "pile of rubbish bags and cardboard", "box": [801, 913, 1003, 1035]},
     "fence-segment": {"kind": "prop", "type": "fence-section", "subject": "chain-link fence segment topped with razor wire on concrete blocks", "box": [1005, 873, 1237, 1038]},
-    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "subject": "pallet of strapped boxes and wrapped cargo", "box": [1242, 876, 1444, 1035]}
+    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "same": "saeder-krupp-yard/pallet-stack", "subject": "pallet of strapped boxes and wrapped cargo", "box": [1242, 876, 1444, 1035]}
   }
 }

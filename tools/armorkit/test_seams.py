@@ -39,6 +39,33 @@ class GeometryTests(unittest.TestCase):
         self.assertTrue(np.all(seams.ring(segments, limit=0.01) == 0))
         self.assertEqual(len(seams.section(vertices, faces, np.array([0, 0, 0.5]), (0, 0, 1))), 0)
 
+    def test_a_ring_is_read_straight_between_its_directions(self):
+        ring = np.arange(seams.DIRECTIONS, dtype=float)
+        step = 2 * math.pi / seams.DIRECTIONS
+        self.assertTrue(np.allclose(seams.around(ring, np.arange(seams.DIRECTIONS) * step), ring))
+        self.assertAlmostEqual(float(seams.around(ring, 2.5 * step)), 2.5)
+        self.assertAlmostEqual(float(seams.around(ring, 15.5 * step)), 7.5)  # from the last direction round to the first
+        self.assertAlmostEqual(float(seams.around(ring, -0.5 * step)), 7.5)
+
+    def test_standoff_is_how_far_a_section_stands_off_the_body_ring_and_nan_where_it_has_none(self):
+        vertices, faces = tube(0.05, -0.1, 0.1)
+        body = np.full(seams.DIRECTIONS, 0.04)
+        farthest, nearest = seams.standoff(seams.section(vertices, faces, np.zeros(3), (0, 0, 1)), body)
+        self.assertTrue(np.allclose(farthest, 0.01, atol=2e-4) and np.allclose(nearest, 0.01, atol=3e-4))
+        bumpy = body.copy()
+        bumpy[4] = 0.06  # read straight from 4 cm to 6 cm and back: the section stands 1 cm off at the neighbours' centres, 1 cm in at its own
+        farthest, nearest = seams.standoff(seams.section(vertices, faces, np.zeros(3), (0, 0, 1)), bumpy)
+        self.assertAlmostEqual(nearest[4], -0.01, places=3)
+        self.assertAlmostEqual(farthest[4], 0.0, places=3)  # at its edges, halfway to the neighbours
+        half = faces[(vertices[faces][:, :, 1] >= -1e-9).all(axis=1)]  # the tube's half on +Y
+        farthest, nearest = seams.standoff(seams.section(vertices, half, np.array([0.0, 0.01, 0.0]), (0, 0, 1)), body)
+        self.assertTrue(np.isnan(nearest[10:15]).all() and not np.isnan(nearest[:10]).any())  # of 16: none below the centre, 1 cm off the cut edge
+        self.assertAlmostEqual(nearest[4], 0.0, places=3)
+        plugged = np.concatenate([vertices, tube(0.01, -0.1, 0.1)[0]]), np.concatenate([faces, tube(0.01, -0.1, 0.1)[1] + len(vertices)])
+        nearest = seams.standoff(seams.section(*plugged, np.zeros(3), (0, 0, 1)), body)[1]
+        self.assertTrue(np.allclose(nearest, -0.03, atol=2e-4))  # a closed end stands in the body ring, open nowhere
+        self.assertTrue(np.isnan(seams.standoff(seams.section(*plugged, np.zeros(3), (0, 0, 1)), body, limit=0.005)[1]).all())
+
     def test_ring_is_measured_about_the_joint_centre_and_fills_sparse_meshes(self):
         vertices, faces = tube(0.05, -0.1, 0.1, sides=6)
         ring = seams.ring(seams.section(vertices, faces, np.array([0.02, 0.0, 0.0]), (0, 0, 1)))

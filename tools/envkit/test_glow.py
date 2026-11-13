@@ -152,6 +152,11 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 0}]}, 'taken off by its tint')
             refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 20, 'colour': [1, 2, 3]}]}, 'keeps its own colour')
             refused({'source': 'meshy/x', 'height': 1.0, 'close': [{'corners': [[0, 0, 0], [1, 1, 1]]}]}, 'needs three corners')
+            refused({'source': 'meshy/x', 'height': 1.0, 'clear': [{'box': [[0, 0, 0]]}]}, 'A cleared part is a box')
+            refused({'source': 'meshy/x', 'height': 1.0, 'clear': [{'box': [[0, 0, 2], [1, 1, 3]]}]}, 'wholly above or below')
+            group = {'ground': 'pavement', 'group': 'X', 'label': 'X', 'sets': {'dgt04': 'Concrete'}}
+            refused({'source': 'meshy/x', 'height': 1.0, 'tiles': {**group, 'nodes': {'t12': {'node': 'A', 'turn': 45}}}}, 'A stated path node is')
+            refused({'source': 'meshy/x', 'height': 1.0, 'tiles': {**group, 'nodes': {'12': {'node': 'A', 'turn': 0}}}}, 'A stated path node is')
             sheet = {'from': [0, 0], 'to': [2, 0], 'z': [1, 2], 'pitch': 0.09, 'wire': 0.016}
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [2, 1]}]}, 'between two heights')
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'to': [0, 0]}]}, 'from one point to another')
@@ -170,7 +175,7 @@ class GlowTests(unittest.TestCase):
             # says the height it had then, and one made taller or lower since has them measured again.
             cube = [[0, 0, 0], [1, 1, 1]]; door = {'at': [0, 1, 0.2], 'type': 58, 'leaf': 2.1}
             for stated in ({'lit': [{'box': cube}]}, {'paint': [{'box': cube, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': cube, 'radius': 0.1}]},
-                           {'mesh': [{'box': cube, 'pitch': 0.09, 'wire': 0.016}]}, {'fence': [sheet]}, {'close': [{'corners': [[0, 0, 0], [1, 0, 0], [0, 0, 1]]}]}, {'tiles': {**tiles, 'door': door}}, {'tiles': {**tiles, 'fade': 3.0}}):
+                           {'mesh': [{'box': cube, 'pitch': 0.09, 'wire': 0.016}]}, {'fence': [sheet]}, {'close': [{'corners': [[0, 0, 0], [1, 0, 0], [0, 0, 1]]}]}, {'clear': [{'box': cube}]}, {'tiles': {**tiles, 'door': door}}, {'tiles': {**tiles, 'fade': 3.0}}):
                 refused({'source': 'meshy/x', 'height': 9.5, **stated}, 'says how it stood when they were measured')
                 refused({'source': 'meshy/x', 'height': 9.5, 'measuredAt': 12.35, **stated}, 'measured with the model at height 12.35 and it is now at height 9.5')
                 path = Path(scratch) / 'measured.json'; path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, **stated}}}), encoding='utf-8')
@@ -190,6 +195,30 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes
             # A tile group is built standing on the ground: a lift would move its boxes and not the building.
             refused({'source': 'meshy/x', 'height': 9.5, 'lift': 2, 'tiles': tiles}, 'takes no lift')
+            # A group may hold other models of the set, each placed in metres on it and turned a quarter at a time
+            # (user, 2026-11-12); where they stand is a measurement too.
+            def group_of(*parts, crate=None):
+                path = Path(scratch) / 'group.json'
+                path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, 'tiles': {**tiles, 'parts': list(parts)}},
+                                                       'ek_crate': crate or {'source': 'meshy/c', 'height': 1.0}}}), encoding='utf-8')
+                return convert.load_models(path)
+            self.assertEqual(len(group_of({'model': 'ek_crate', 'at': [8, 0, 0.2]}, {'model': 'ek_crate', 'at': [8, 2, 0.2], 'turn': 90})['ek_x']['tiles']['parts']), 2)
+            for parts, message in (([{'model': 'ek_crate', 'at': [8, 0]}], 'turned 0, 90'), ([{'model': 'ek_crate', 'at': [8, 0, 0], 'turn': 45}], 'turned 0, 90'),
+                                   ([{'model': 'ek_crate', 'at': ['8', 0, 0]}], 'turned 0, 90'), ([{'model': 'ek_crate', 'at': [True, 0, 0]}], 'turned 0, 90'),
+                                   ([{'model': 'ek_gone', 'at': [8, 0, 0]}], 'another model of the set'), ([{'model': 'ek_x', 'at': [8, 0, 0]}], 'another model of the set')):
+                with self.assertRaisesRegex(ValueError, message):
+                    group_of(*parts)
+            with self.assertRaisesRegex(ValueError, 'no tile group itself'):
+                group_of({'model': 'ek_crate', 'at': [8, 0, 0]}, crate={'source': 'meshy/c', 'height': 9.5, 'tiles': tiles})
+            refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}, 'says how it stood')
+            stated_none = Path(scratch) / 'none.json'  # a model that states no tiles in so many words is no group
+            stated_none.write_text(json.dumps({'models': {'ek_n': {'source': 'meshy/n', 'height': 1.0, 'tiles': None}}}), encoding='utf-8')
+            self.assertIsNone(convert.load_models(stated_none)['ek_n']['tiles'])
+            self.assertEqual(convert.part_textures('ek_sk_yard', [{'model': 'ek_b'}, {'model': 'ek_a'}, {'model': 'ek_b'}]), {'ek_b': 'ek_sk_yardp1', 'ek_a': 'ek_sk_yardp2'})
+            # A building in pieces is held to the building budget together, each piece as often as it is placed; a placeable placed
+            # in the group is a prop, held to its own target (the Saeder-Krupp yard, five pieces, 2026-11-12).
+            pieces = {'ek_x': {'tiles': {'parts': [{'model': 'ek_wing'}, {'model': 'ek_wing'}, {'model': 'ek_crate'}]}}, 'ek_wing': {}, 'ek_crate': {'placeable': {'label': 'Crate', 'sound': 1}}}
+            self.assertEqual(convert.building_triangles(pieces, 'ek_x', {'ek_x': 1000, 'ek_wing': 300, 'ek_crate': 50}), 1600)
             long_name = Path(scratch) / 'long.json'  # said when the set is read, not after the model has been shaped
             long_name.write_text(json.dumps({'models': {'ek_thirteen_c': {'source': 'meshy/x', 'height': 1.0, 'tiles': tiles}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'at most 12'):

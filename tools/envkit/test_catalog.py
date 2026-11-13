@@ -58,6 +58,14 @@ class CatalogTests(unittest.TestCase):
             path.write_text(json.dumps({**again, 'placeables': [{**PLACED, 'lights': {**lights, 'halo': 'ek_a_h'}}]}), encoding='utf-8')  # a halo with nothing to darken it
             with self.assertRaisesRegex(ValueError, 'lights name its material'):
                 catalog.load(path)
+            # A group whose tiles show several lit materials, its own and its parts' (2026-11-12), lists each; a placeable never does.
+            several = [{'lit': 'ek_shop', 'out': 'ek_shop_o', 'glow': 'ek_shop_i'}, {'lit': 'ek_shopp1', 'out': 'ek_shopp1_o', 'glow': 'ek_shopp1_i'}]
+            path.write_text(json.dumps({**again, 'tileGroups': [{**GROUP, 'lights': several}]}), encoding='utf-8')
+            self.assertEqual(catalog.load(path)['tileGroups'][0]['lights'], several)
+            for entries in ({**again, 'tileGroups': [{**GROUP, 'lights': [several[0], several[0]]}]}, {**again, 'placeables': [{**PLACED, 'lights': several}]}):
+                path.write_text(json.dumps(entries), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, 'lights name its material'):
+                    catalog.load(path)
             path.write_text(json.dumps({**again, 'baseline': {'placeables': again['baseline']['placeables']}}), encoding='utf-8')  # the tilesets left out
             with self.assertRaisesRegex(ValueError, 'baseline has placeables and tilesets'):
                 catalog.load(path)

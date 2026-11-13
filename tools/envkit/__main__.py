@@ -17,6 +17,7 @@ props and the props of a type, a mechanical audit, and the decisions of a review
 tiles of a tileset, for a question about how the engine wants a tile made."""
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -46,7 +47,9 @@ def _crunch():
 
 def command_crops(args):
     data = reference.load_set(args.set); sheet = reference.resolve_sheet(args.sheets, data['sheet'])
-    rows = {name: str(reference.crop(sheet, asset['box'], Path(args.output) / f'{name}.png'))
+    # A cut is shown as it will be redrawn where the chosen references are given, else by its box on the sheet.
+    rows = {name: str(reference.source(data, name, sheet, args.selected, Path(args.output) / f'{name}.png') if args.selected
+                      else reference.crop(sheet, asset['box'], Path(args.output) / f'{name}.png'))
             for name, asset in data['assets'].items() if (name in args.asset if args.asset else 'same' not in asset)}
     print(json.dumps(rows, indent=1))
 
@@ -64,14 +67,28 @@ def command_reference(args):
     data = reference.load_set(args.set); sheet = reference.resolve_sheet(args.sheets, data['sheet'])
     unknown = [name for name in args.asset if name not in data['assets']]
     require(not unknown, 'Unknown assets: ' + ', '.join(unknown))
-    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output)
-    for name in args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]:  # a same is not made
+    names = args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]  # a same is not made
+    for name in names:
         asset = data['assets'][name]
-        source = reference.crop(sheet, asset['box'], output / 'crops' / f'{name}.png')
-        text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
-        result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
+        require('cut' not in asset or args.selected, f'{name} is cut from the chosen reference of {asset.get("cut", {}).get("from")}: give --selected')
+    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
+    for name in names:
+        # Each job waits for the shared ComfyUI (`reference.make`). With --keep-going an asset that fails is said and
+        # passed over, so that one long busy spell or lost poll does not stop the rest, and the run fails at the end;
+        # without it the first failure stops the run.
+        asset = data['assets'][name]
+        try:
+            source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
+            text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
+            result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
+        except Exception as failure:
+            if not args.keep_going:
+                raise
+            missed.append(name); print(json.dumps({'asset': name, 'state': 'failed', 'error': str(failure)}), flush=True)
+            continue
         print(json.dumps({'asset': name, 'state': result['state'], 'outputs': result['outputs'],
                           'elapsedSeconds': result['elapsedSeconds']}), flush=True)
+    require(not missed, f'{len(missed)} of {len(names)} assets were not made: ' + ', '.join(missed))
 
 
 def _retouching(model):
@@ -115,23 +132,40 @@ def command_tiles(args):
     """Build a model's tile group: tile models (compiled), walkmeshes, area-map pictures and the shared material and maps."""
     import numpy as np
     from PIL import Image
-    from . import convert, tile
+    from . import convert, meshy, tile
     models = convert.load_models(args.models)
     require(args.model in models and models[args.model].get('tiles'), 'The game set gives this model no tiles: ' + args.model)
-    model = models[args.model]; source, maps = _generated(args.root, model)
-    with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
-        made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'),
-                             lit=model.get('lit'), halo=model.get('halo'), **_retouching(model))
-        tiles = model['tiles']
-        if made['colour'] is not None:  # the picture as retouched, which `skin` still has to write
+    model = models[args.model]; tiles = model['tiles']
+
+    def shaped(name):
+        """A model of the set as finished, its maps and its picture for the area map (as retouched, which `skin` still has to write)."""
+        one = models[name]; source, maps = _generated(args.root, one)
+        made = convert.shape(source / 'model.glb', maps, height=one['height'], colour=one.get('colour', 1024), sign_tilt=one.get('signTilt'),
+                             lit=one.get('lit'), halo=one.get('halo'), lift=one.get('lift', 0.0), **_retouching(one))
+        if made['colour'] is not None:
             colour = np.asarray(made['colour'].convert('RGB').resize((512, 512)), float) / 255
         else:
             with Image.open(maps['base_color']) as image:
                 colour = np.asarray(image.convert('RGB').resize((512, 512)), float) / 255
-        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'),
-                            ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']))
+        return made, maps, colour
+    with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
+        made, maps, colour = shaped(args.model); textures = convert.part_textures(args.model, tiles.get('parts', [])); placed, crunch = [], _crunch()
+        counts = {args.model: len(made['faces'])}; shapes = {}
+        for name in textures:  # each model placed in the group, shaped once; the building is counted before anything is written
+            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces'])
+        built = convert.building_triangles(models, args.model, counts)
+        require(built <= meshy.BUILDING_TRIANGLES, f'The building of {args.model} is {built} triangles, its own and those of the models placed in it that are '
+                f'no placeables: more than the building budget of {meshy.BUILDING_TRIANGLES}; remesh its pieces lower')
+        files = convert.skin(args.model, maps, folder / 'shared', crunch, made, colour=model.get('colour', 1024))
+        for name, texture in textures.items():  # each model placed in the group, once for its pictures, then where it stands
+            part, part_maps, part_colour = shapes[name]
+            files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
+            placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
+        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'),
+                            ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
+                            parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
-        files = convert.skin(args.model, maps, folder / 'shared', _crunch(), made, colour=model.get('colour', 1024))
+        report['parts'] = textures; report['buildingTriangles'] = built
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
@@ -190,23 +224,32 @@ def _views(text):
 
 def command_view(args):
     from . import convert, view
-    require(bool(args.models) != bool(args.source), 'Give a game set (--models, --root, --model) or one generated model (--source, --height)')
+    require(bool(args.models) != bool(args.source), 'Give a game set (--models, --root, --model) or generated models (--source, --height)')
+    drawn = []  # (name, pictures) of each model, for the page
     if args.source:
-        require(args.height, 'A generated model is stood at --height metres')
-        require(not args.lit and not args.root and not args.eye and len(args.model) <= 1,
+        require(len(args.height) == len(args.source), 'Each generated model is stood at a height: give a --height in metres for each --source')
+        require(not args.lit and not args.root and not args.eye and args.grid is None and len(args.model) <= 1,
                 'A generated model has no set to give it lit boxes: it is drawn from --source, --height and one --model of its sides (0123)')
         _, sides, scale, grid = _views('raw:' + (args.model[0] if args.model else '0'))
-        print(json.dumps(view.raw(args.source, args.height, args.output, sides=sides, scale=scale, grid=grid)))
-        return
-    require(args.root and args.model, 'A game set is drawn with --root and --model'); models = convert.load_models(args.models)
-    if args.eye:  # from stated eyes, in place of the square-on views
-        require(not args.lit and all(':' not in name for name in args.model), 'With --eye a model is named alone, and its lit parts are not shown')
-        eyes = [view.eye(text) for text in args.eye]; require(len({label for label, *_ in eyes}) == len(eyes), 'Each eye has a label of its own')
-        for name in args.model:
-            print(json.dumps({'model': name, **view.perspective(models, args.root, name, args.output, eyes)}), flush=True)
-        return
-    for name, sides, scale, grid in map(_views, args.model):
-        print(json.dumps({'model': name, **view.elevations(models, args.root, name, args.output, sides=sides, scale=scale, grid=grid, lit=args.lit)}), flush=True)
+        for source, height in zip(args.source, args.height):
+            told = view.raw(source, height, args.output, sides=sides, scale=scale, grid=grid); drawn.append((Path(source).name, told['pictures']))
+            print(json.dumps({'source': source, **told}), flush=True)
+    else:
+        require(args.root and args.model, 'A game set is drawn with --root and --model')
+        require(args.grid is None or args.eye, 'A square-on view takes its grid in --model name:sides:scale:grid; --grid is for --eye views')
+        models = convert.load_models(args.models)
+        if args.eye:  # from stated eyes, in place of the square-on views
+            require(not args.lit and all(':' not in name for name in args.model), 'With --eye a model is named alone, and its lit parts are not shown')
+            eyes = [view.eye(text) for text in args.eye]; require(len({label for label, *_ in eyes}) == len(eyes), 'Each eye has a label of its own')
+            for name in args.model:
+                told = view.perspective(models, args.root, name, args.output, eyes, grid=args.grid); drawn.append((name, told['pictures']))
+                print(json.dumps({'model': name, **told}), flush=True)
+        else:
+            for name, sides, scale, grid in map(_views, args.model):
+                told = view.elevations(models, args.root, name, args.output, sides=sides, scale=scale, grid=grid, lit=args.lit); drawn.append((name, told['pictures']))
+                print(json.dumps({'model': name, **told}), flush=True)
+    if args.page:
+        print(json.dumps({'page': args.page, 'models': view.page(drawn, args.page)}), flush=True)
 
 
 def command_onboard(args):
@@ -257,15 +300,25 @@ def command_check(args):
     missing = ['--' + name for name in needs if not getattr(args, name)]
     require(not missing, f'envkit check {args.kind} needs ' + ', '.join(missing))
     require(args.kind == 'lights' or len(args.built) == 1, 'One built folder is checked at a time')
-    modes = {'props': ('day', 'night'), 'lights': ('night',), 'group': ('day', 'night', 'near')}[args.kind]; mode = args.mode or modes[0]
+    modes = {'props': ('day', 'night'), 'lights': ('night',), 'group': ('day', 'night', 'near', 'walk')}[args.kind]; mode = args.mode or modes[0]
     require(mode in modes, f'envkit check {args.kind} has no --mode {mode}: ' + ' or '.join(modes))
+    require(not getattr(args, 'target', None) or args.kind == 'group', 'A --target is a place a group walk check sends a walker: check group --mode walk')
     if args.kind == 'props':
         made = checks.props(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model, night=mode == 'night')
     elif args.kind == 'lights':
         made = checks.lights(args.game, args.repo, args.root, args.name, args.models, args.built)
     else:
         require(len(args.model) == 1, 'One tile group is checked at a time')
-        made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, mode, second_storey=args.second_storey)
+        targets = {}
+        for text in args.target:
+            label, _, place = text.partition('=')
+            try:
+                x, y = (float(value) for value in place.split(','))
+            except ValueError:
+                x = y = None
+            require(re.fullmatch('[a-z][a-z0-9-]*', label) and x is not None and math.isfinite(x) and math.isfinite(y) and label not in targets, "A target is label=x,y, in metres from the group's south-west corner, each label its own: " + text)
+            targets[label] = (x, y)
+        made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, mode, second_storey=args.second_storey, targets=targets)
     print(json.dumps(made))
 
 
@@ -332,10 +385,13 @@ def main(argv=None):
     sub.set_defaults(run=command_sheet)
     sub = commands.add_parser('view', help='a model seen square on with a metre grid, to read a game set\'s boxes from')
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root")
-    sub.add_argument('--source', help='instead of a game set: one generated model folder'); sub.add_argument('--height', type=float)
+    sub.add_argument('--source', action='append', default=[], help='instead of a game set: a generated model folder (repeatable, each with a --height)')
+    sub.add_argument('--height', type=float, action='append', default=[], help='with --source: the height in metres it is stood at, one for each --source in order')
     sub.add_argument('--model', action='append', default=[], help='name[:sides[:scale[:grid]]], sides as digits (0 front, 1, 2 back, 3); with --source, the sides alone')
     sub.add_argument('--lit', action='store_true', help='show what the lit boxes light, and count what each holds and lights'); sub.add_argument('--output', required=True)
     sub.add_argument('--eye', action='append', default=[], help='instead of square on: label=ex,ey,ez,tx,ty,tz[,fov[,reach]], the eye and what it looks at in metres on the model (repeatable)')
+    sub.add_argument('--grid', type=float, help='with --eye: a measuring grid this many metres apart on the upright plane through each target; the eyes level with their targets')
+    sub.add_argument('--page', help='also one picture of every model drawn, side by side under their names')
     sub.set_defaults(run=command_view)
     sets = str(Path(__file__).with_name('sets'))
     sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')
@@ -357,7 +413,8 @@ def main(argv=None):
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root: fixtures/<name> is written")
     sub.add_argument('--name', help='a new fixture name, a lowercase resref of at most 11 characters'); sub.add_argument('--built', action='append', default=[], help='the folder `game` or `tiles` built into (lights: repeatable, the first that holds a model serves)')
     sub.add_argument('--model', action='append', default=[]); sub.add_argument('--tileset', choices=['dgt04', 'udp1'])
-    sub.add_argument('--mode', choices=['day', 'night', 'near'], help='props: day (default) or night; group: day (default), night or near; lights are seen by night'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
+    sub.add_argument('--mode', choices=['day', 'night', 'near', 'walk'], help='props: day (default) or night; group: day (default), night (lights put out and on again), near or walk (walkers sent across the area; refused if one stops short); lights are seen by night'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
+    sub.add_argument('--target', action='append', default=[], help="group --mode walk: label=x,y, another place to send a walker, in metres from the group's south-west corner as walk.png shows it (repeatable)")
     sub.add_argument('--user', help='doors: the Toolset user folder'); sub.add_argument('--output', help='doors: a fresh folder for captures')
     sub.add_argument('--ticks', type=int, default=150, help='doors: how long the player is watched, two seconds a tick')
     sub.set_defaults(run=command_check)
@@ -374,12 +431,14 @@ def main(argv=None):
         sub.add_argument('--sheets', required=True, help='folder holding the concept sheets')
         sub.add_argument('--output', required=True)
         sub.add_argument('--asset', action='append', default=[], help='limit to these assets (repeatable)')
+        sub.add_argument('--selected', help='folder of the chosen references, which the pieces of a building (cut) are drawn from')
         sub.set_defaults(run=run)
     sub = parsers['reference']
     sub.add_argument('--bindings', required=True, help='local JSON with absolute comfyInput and comfyOutput')
     sub.add_argument('--url', default='http://127.0.0.1:8188')
     sub.add_argument('--seed', type=int, default=101)
     sub.add_argument('--deadline', type=int, default=2400)
+    sub.add_argument('--keep-going', action='store_true', help='pass over an asset that fails and make the rest; the run fails at the end')
     args = parser.parse_args(argv)
     args.run(args)
 

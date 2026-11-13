@@ -115,13 +115,58 @@ def ring(segments, directions=DIRECTIONS, limit=None, step=0.002):
     Segments are sampled every `step` metres so sparse meshes still fill their sectors; `limit` drops
     anything farther from the centre (the far side of a part the plane also cuts)."""
     radii = np.zeros(directions)
+    for sector, distance, _ in _sampled(segments, directions, limit, step):
+        np.maximum.at(radii, sector, distance)
+    return radii
+
+
+def around(values, angles):
+    """A ring given in its directions (`ring`), read at `angles` straight from one direction's radius to the next."""
+    values = np.asarray(values, float)
+    x = (np.asarray(angles, float) % (2 * math.pi)) / (2 * math.pi / len(values))
+    low = np.floor(x).astype(int)
+    t = x - low
+    return values[low % len(values)] * (1 - t) + values[(low + 1) % len(values)] * t
+
+
+def standoff(segments, body_ring, limit=None, step=0.002):
+    """Per direction, how far the section stands off the body ring read straight between its directions
+    (`around`): (farthest, nearest), nan where the section has no point. Sampled and limited as `ring`."""
+    count = len(body_ring)
+    farthest, nearest = np.full(count, -np.inf), np.full(count, np.inf)
+    for sector, distance, angle in _sampled(segments, count, limit, step):
+        off = distance - around(body_ring, angle)
+        np.maximum.at(farthest, sector, off)
+        np.minimum.at(nearest, sector, off)
+    return np.where(np.isinf(farthest), np.nan, farthest), np.where(np.isinf(nearest), np.nan, nearest)
+
+
+def _sampled(segments, directions, limit, step):
+    """Per segment: (sector, distance from the centre, angle) of points along it no more than `step` apart, within `limit`."""
     for start, end in np.asarray(segments, float).reshape(-1, 2, 2):
         count = max(2, int(np.linalg.norm(end - start) / step) + 2)
         points = start + np.linspace(0, 1, count)[:, None] * (end - start)
         distance = np.linalg.norm(points, axis=1)
         keep = distance <= limit if limit is not None else np.ones(count, bool)
-        np.maximum.at(radii, sectors(points, directions)[keep], distance[keep])
-    return radii
+        yield sectors(points, directions)[keep], distance[keep], np.arctan2(points[keep, 1], points[keep, 0])
+
+
+def surface_points(vertices, faces, step):
+    """Points on every triangle no more than `step` apart, vertices included.
+
+    Binning vertices alone misses every cell a triangle crosses without a vertex in it."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    longest = np.max(np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2), axis=1)
+    counts = np.maximum(1, np.ceil(longest / step).astype(int))
+    points = [np.asarray(vertices, float)]
+    for count in np.unique(counts):
+        if count == 1:
+            continue
+        i, j = np.meshgrid(np.arange(count + 1), np.arange(count + 1), indexing='ij')
+        inside = i + j <= count
+        weights = np.stack([count - i[inside] - j[inside], i[inside], j[inside]], axis=1) / count
+        points.append(np.einsum('mk,nkd->nmd', weights, corners[counts == count]).reshape(-1, 3))
+    return np.concatenate(points)
 
 
 def extent(vertices, point, normal):

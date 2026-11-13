@@ -18,7 +18,9 @@ For a model whose material is `<name>`:
 | `ek_off.mtr`, `.dds`, `.txi` | the dark halo: one black additive sheet shared by every model, in `srn_placeable` only |
 
 `<name>` is the model's own name for a placeable (`ek_ss_vending`). For a tile group it is the name the tiles
-share, without the `_t00` that numbers them (`ek_ss_shack`).
+share, without the `_t00` that numbers them (`ek_ss_shack`). A group made of several models (a building in
+pieces, a yard's fence and booth placed with it) has a material for each: its own, and `<group>p1`, `<group>p2`
+and so on for the models placed in it, each with its own set of these files where it is lit.
 
 The files are in the model's pack: `srn_placeable` for placeables, `srn_t_common` for tile groups. A model with
 no lit parts has none of them.
@@ -32,7 +34,8 @@ names to use:
 "lights": {"lit": "ek_ss_vending", "out": "ek_ss_vending_o", "glow": "ek_ss_vending_i", "halo": "ek_ss_vending_h", "dark": "ek_off"}
 ```
 
-`halo` and `dark` are absent for a model without a halo. Repository verification holds the catalog and the packs
+`halo` and `dark` are absent for a model without a halo. A group with more than one lit material has a list of
+these objects, one for each, and a blackout of the group swaps each. Repository verification holds the catalog and the packs
 together: a model with a glow map and no `lights`, or `lights` whose files are missing, fails it.
 
 ## One object: `ReplaceObjectTexture`

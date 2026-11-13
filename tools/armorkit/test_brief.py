@@ -12,11 +12,12 @@ from . import brief, texture
 
 SITEGUARD = Path(__file__).with_name('briefs') / 'corpsec-siteguard-male.json'
 GREY, TAN, BLUE, SAGE = [128, 128, 128], [196, 160, 110], [150, 180, 220], [150, 190, 150]
+PINNED_2 = '60743c77617114b4797affd2331e951dd21be749d28bca46f17c842504f8294a'  # construction version 2, never edited
 
 
 def document(*materials):
     rows = materials or (('fabric', 'cloth', GREY), ('gear', 'leather', TAN), ('plates', 'metal', BLUE))
-    return {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'pads': ['l', 'r'], 'construction': max(brief.CONSTRUCTIONS),
+    return {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'pads': [], 'construction': max(brief.CONSTRUCTIONS),
             'materials': [{'name': name, 'kind': kind, 'colour': colour, 'look': name.upper() + ' look', 'wears': f'the {name} things.'}
                           for name, kind, colour in rows],
             'prompt': 'An outfit.\n\n' + brief.MARK + '\n\n' + brief.BUILT + '\n\nPlain white background.'}
@@ -88,6 +89,24 @@ class BriefTests(unittest.TestCase):
             self.assertIn(said, text)
         # a sealed folder's prompt is written from this paragraph, so it is never edited: a change is a new version
         self.assertEqual(hashlib.sha256(text.encode('utf-8')).hexdigest(), 'cec94d401f7e9ec5cde8db9d626737b5453282f4959cc7b0f0d6c10785a92990')
+
+    def test_the_second_construction_draws_no_shoulder_pads(self):
+        first, second = (brief.CONSTRUCTIONS[version].split('\n') for version in (1, 2))
+        changed = [k for k in range(len(first)) if first[k] != second[k]]
+        self.assertEqual((len(second), changed), (len(first), [3]))  # only the shoulder rule
+        self.assertTrue(second[3].startswith('3. Nothing is worn on the shoulders: no shoulder pad, pauldron or guard'))
+        self.assertNotIn('shoulder guard sits', brief.CONSTRUCTIONS[2])
+        self.assertEqual(max(brief.CONSTRUCTIONS), brief.PADLESS)
+        self.assertEqual(hashlib.sha256(brief.CONSTRUCTIONS[2].encode('utf-8')).hexdigest(), PINNED_2)
+        # a brief drawn to it lists no pads; one drawn before, or before the rules, may
+        with self.assertRaises(ValueError) as refused:
+            brief.validate({**document(), 'pads': ['l', 'r']})
+        self.assertIn('no shoulder pads', str(refused.exception))
+        earlier = {**document(), 'pads': ['l', 'r'], 'construction': 1}
+        self.assertEqual(brief.validate(earlier)['pads'], ['l', 'r'])
+        with self.assertRaises(ValueError):  # and seals no new folder
+            with tempfile.TemporaryDirectory() as folder:
+                brief.seal(earlier, Path(folder) / 'new')
 
     def test_a_brief_names_the_slots_it_leaves_to_the_body_and_those_it_shares_with_its_skin(self):
         given = {**document(), 'bare': ['forearm'], 'skin': ['bicep']}

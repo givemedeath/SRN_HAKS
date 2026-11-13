@@ -1,0 +1,10 @@
+node dummy ek_sk_sign_pwk_use01
+  parent ek_sk_sign_pwk
+  position 0 0.56857 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_sk_sign_pwk_use02
+  parent ek_sk_sign_pwk
+  position 0 -0.56857 0
+  orientation 0 1 0 0
+endnode

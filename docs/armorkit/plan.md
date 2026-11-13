@@ -556,3 +556,116 @@ skin have no spare slot to ride on. The forearm slot gets no part, and the upper
 the body's own arm with its textures (`tools/armorkit/bodyskin.py`). The brief names both
 (`"bare": ["forearm"], "skin": ["bicep"]`). Built and tested on the Site Guard's mesh with its forearms taken
 out, and seen in the client beside the body's own arm: the copied skin is not told from it.
+
+## Revision 2026-11-12: the bake gates holes and the seam contract (user decision)
+
+The bake's report (`tools/armorkit/bake.py`, `gates`) now checks two more of the gates above. Holes and
+detached pieces are checked on the generated outfit before it is cut (`surface`): an opening 0.5 cm round or
+more, or a piece under 10 cm² standing apart from the rest, fails. The seam contract is checked on every end
+the outfit has at a joint (`ends`), on the two bodies the contract measured: an under end inside its tier's
+envelope at the plane in all 16 directions and past the plane by the tier's minimum overlap in each direction
+it is found in, an over end at least as wide as the envelope just short of the plane. The torso's neck hole,
+armholes and leg holes are still not measured; clearance over the body is still not checked.
+
+Asked how to treat an outfit whose ends miss its tier, the user chose to fail it per the contract rather than
+only record the tier each end meets. The Site Guard fails at every joint at tier 2: its under ends stand up to
+8.9 cm outside the envelope and run short of the overlap at the shoulders, wrists, hips and ankles, its over
+ends stand 1.3 to 3.2 cm inside it. Within one outfit the ends meet, since the split cuts them from one
+surface; the contract is what lets parts of different outfits mix. No step of the bake shapes the ends to the
+contract yet, so every generated outfit fails this gate until one does.
+
+## Revision 2026-11-12: the bake shapes tube ends to the seam contract (user decision)
+
+Before the gates go out, the user asked for the ends to be shaped. The split now brings every end at the
+elbows, wrists, waist, knees and ankles to its tier's envelope before the caps grow (`tools/armorkit/ends.py`):
+an under end just inside the envelope, an over end just outside it, held 1.2 cm from the plane and blended
+back into the outfit's own surface in one slope. Caps at those joints run the whole overlap. A knee or elbow
+guard is not shaped and, as the user chose, its faces are not measured by the gate.
+
+On the Site Guard both ends at those ten joints now meet tier 2. The upper arms at the shoulders and the
+thighs at the hips still fail: the plane cuts through the armpit and the crotch, and the section there holds
+the torso wall, not an end. The user asked for better ways to slice those junctions to be evaluated rather
+than to shape them as they are cut. Until then every generated outfit still fails the gate there.
+
+## Revision 2026-11-12: the hips are cut on the body's seat line (user decision)
+
+Three ways of slicing the shoulders and hips were compared on the Site Guard: the hip plane as before, the
+plane with the ends drawn in like the tubes (it broke the seat at rest and still fell short of the overlap),
+and a cut where the body's own skin parts meet. The user chose the last, hips first. The body's pelvis is cut
+like briefs, 6.8 to 8.2 cm past the hip planes on the Human male; the bake now cuts the trousers on that line
+(`tools/armorkit/split.py`, `seated`), so the seat stays on the pelvis, the pelvis is closed across each leg
+hole there, and each thigh gets an end grown from its rim to just inside the tier's envelope at the plane and
+a dome as deep as the overlap, held inside the seat through the contract's design bend.
+
+The Site Guard's thighs now meet tier 2 at the hips; only the shoulders fail the seam gate. At rest the outfit
+looks as generated. In a stride the seat stays put and the thigh's end shows under it, as the body's own does;
+a quarter less of what the split made shows than with the plane cut. The overlap the contract asks at a torso
+opening (11.9 cm at the hip, a dome one envelope radius deep) is still the tube rule; the body's own thigh runs
+6.9 cm past the plane. The shoulders are next; the client has not seen the seat cut yet.
+
+## Revision 2026-11-12: the shoulders are cut on the body's armhole (user decision)
+
+The user asked for the shoulders before the pull request. The body's upper arm comes out of its chest over
+the shoulder up to 6 cm before the shoulder plane and at the armpit up to 15 cm past it, where the arm hangs
+inside the torso's side (`tools/armorkit/measure.py`, `armhole`). The bake now cuts the upper arms on that
+line, but only past the plane and never nearer it than 2 cm (`split.armholed`): over the shoulder the body's
+arm holds the deltoid, and an outfit's deltoid is often its shoulder pad, or vest panels beside it that
+belong to the torso. The chest takes the sleeve's top at the armpit and the slivers of sleeve beside the pad,
+and is closed across each armhole; each upper arm gets one end grown from its whole opening, in to the
+envelope at the plane and on to the overlap, held inside the chest with the arm turned forward, back and out.
+
+Every end of the Site Guard now meets tier 2: the upper arms 1.1 and 1.6 cm inside the envelope and 9.6 cm
+past the plane. At rest the outfit looks as generated; in motion a fifth less of what the split made shows at
+the shoulders than with the plane cut. The pole of the arm's end stands 9.6 cm into the chest under the pad;
+the contract's overlap at a torso opening is still the tube rule, which a padless shoulder may not have room
+for (contract version 3, user decision). In the client the seat cut showed no holes, and sitting the seat
+stays whole over the thighs.
+
+A review of the pull request found that the ends were held inside every vertex the split holds, not only the
+pelvis's or chest's: the trousers' own points pinched the thigh's end. Read from the over part's faces only,
+the shoulders are unchanged and the thigh's end is fuller; at the hips a ninth less of what the split made
+shows than with the plane cut, not the quarter measured before.
+
+Compiling the bake for the client found the arms' ends collapsed. Held inside the chest with the arm turned
+out the whole 101 degree bend, which no radius can do for a point on the arm's axis (turned, it leaves the
+axis by its depth times the turn's sine), every point deeper than 5 cm had been drawn onto the axis: past
+there the end was a needle of faces with no area, which the seam gate counted as 9.6 cm past the plane and
+the model compiler dropped (268 of the left upper arm's 1,490). Each point is now held only in the poses its
+place on the axis fits in, and the gates fail a part with a triangle whose corners meet. The gate's numbers
+are unchanged; the end is a dome again.
+
+In the client (Human male; standing, arms up, arms forward, sitting, crouching and talking; the shoulders
+close up, beside the same outfit cut on the shoulder plane) the armhole cut is nowhere worse and is cleaner
+with the arm forward (fewer grey shards under the lifted pad) and crouching (the plane cut's jagged shards at
+the shoulder are gone). With the arms up, seen from the side, both cuts show green pad shards and flat grey
+pieces in the open armhole: that is not the cut, and it is still to fix. Crouching, the thighs' grown ends
+show behind the seat as flat grey shapes without the cloth's texture, as in the first client check of the
+seat cut.
+
+The green shards with the arms up were the shoulder pad. The shoulder slot's bone is the upper arm's child,
+and the pad went whole to it: at conjure2's 145 degrees what of it lay over the top of the shoulder swung
+forward and down into the chest (57 and 56 of the pads' 174 and 175 points inside the vest; with no shoulder
+part in the client the shards were gone). The flat grey pieces were the chest's lid in the armhole, a fan
+drawn from its rim in the pad's and the sleeve's colours. Given the choice (cloning the shoulder's surface
+under the pad, or splitting the pad), the user chose the split: the pad is cut on the shoulder plane, the
+half over the top of the shoulder stays on the chest, and the half past it rides on the arm (8 and 1 of the
+84 and 80 points left in the vest overhead). The chest's closings round each arm are shaded as the cloth
+round them. In the client the shards are gone from the arms-up views and the armhole shows cloth; the pad
+shows its cut when the arm moves (forward, crouching, talking), as the choice said it would, and standing it
+shows a faint line across the pad where the chest's texture meets the shoulder part's.
+
+## Revision 2026-11-12: shoulder pads are made apart from the outfit (user decision)
+
+Seen in the client pose check of the Site Guard (`python -m tools.armorkit poses`, shoulders preset), the pad
+cut from the outfit costs three ways: its top stays on the chest and parts from the rest when the arm moves,
+the chest under it shows pale patches in every pose because the generated outfit has no surface of its own
+there, and the pad split, its shard fixes and the line across it exist only because the pad came with the
+outfit. The user decided that future outfits are generated without shoulder pads, and that a shoulder pad is
+made as its own item: one closed pad, mirrored for the other side, fitted onto the body's shoulder and worn
+whole on the shoulder slot, so that any pad can go with any outfit.
+
+The outfit's construction rules are at version 2 (`tools/armorkit/brief.py`, `CONSTRUCTIONS`): rule 3 now
+says nothing is worn on the shoulders, no new reference folder is sealed with version 1, and a brief of
+version 2 lists no `pads`. Still to build: the pad needs its own brief and a fitting step that places and scales it on the shoulder bone, with its
+clearance over the upper arm checked with the arms up and forward (`python -m tools.armorkit render`) before
+the client. The Site Guard keeps its pads, and the pad split stays for an outfit generated with them.

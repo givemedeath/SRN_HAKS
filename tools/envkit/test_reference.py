@@ -142,6 +142,30 @@ class SetTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, message):
                 reference.load_set(self.write(data))
 
+    def test_a_piece_of_a_building_is_cut_from_the_chosen_reference_of_its_whole_view(self):
+        """User, 2026-11-12: a building too large for one 4K texture is made in pieces; each piece's view is drawn from the
+        one chosen reference of the whole, so the pieces keep its proportions and colours between them."""
+        from PIL import Image
+        good = json.loads(SET.read_text(encoding='utf-8')); whole = next(name for name, asset in good['assets'].items() if asset['kind'] == 'building')
+        good['assets']['building-left'] = {'kind': 'building', 'subject': 'left half of the shop', 'box': [0, 0, 10, 10], 'cut': {'from': whole, 'box': [0, 0, 60, 40]}}
+        data = reference.load_set(self.write(good)); selected = self.root / 'selected'; selected.mkdir()
+        Image.new('RGB', (100, 40), 'red').save(selected / f'{whole}-s101-b0.png')
+        with Image.open(reference.source(data, 'building-left', None, selected, self.root / 'left.png')) as cut:
+            margin = round(60 * reference.CUT_MARGIN)  # set on white, so that its cut edges read as the ends of a block
+            self.assertEqual(cut.size, (60 + 2 * margin, 40 + 2 * margin)); self.assertEqual(cut.getpixel((0, 0)), (255, 255, 255))
+            self.assertEqual(cut.getpixel((margin, margin)), (255, 0, 0))
+        for change, message in ((lambda a: a.update(cut={'from': 'trash-can', 'box': [0, 0, 6, 4]}), 'another, whole, view'),
+                                (lambda a: a.update(cut={'from': 'building-left', 'box': [0, 0, 6, 4]}), 'another, whole, view'),
+                                (lambda a: a.update(cut={'from': whole, 'box': [6, 0, 6, 4]}), 'its box in pixels'),
+                                (lambda a: a.update(cut={'from': whole}), 'another, whole, view'),
+                                (lambda a: a.update(cut={'from': [whole], 'box': [0, 0, 6, 4]}), 'another, whole, view')):
+            data = copy.deepcopy(good); change(data['assets']['building-left'])
+            with self.assertRaisesRegex(ValueError, message):
+                reference.load_set(self.write(data))
+        data = copy.deepcopy(good); data['assets']['building-left']['cut']['box'] = [0, 0, 120, 40]
+        with self.assertRaisesRegex(ValueError, 'runs off'):
+            reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'left.png')
+
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):
         sheet = {'file': 'sheet.png', 'sha256': 'a' * 64, 'size': [4, 4]}
         with self.assertRaisesRegex(ValueError, 'not found'):
@@ -188,6 +212,29 @@ class MakeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'stayed busy'):
                 reference.make(client, self.local, self.bindings, 'crate', 'redraw', self.sheet, 7, self.root / 'refs')
         self.assertEqual(set(client.routes) - {'/upload/image'}, {'/queue'})
+
+    def test_a_run_may_pass_over_an_asset_that_fails_and_make_the_rest(self):
+        from argparse import Namespace
+        from unittest import mock
+        from . import __main__ as command
+        data = {'sheet': 'sheet.png', 'assets': {name: {'kind': 'prop', 'subject': name} for name in ('crate', 'bin', 'lamp')}}
+
+        def made(client, local, bindings, name, *rest, **more):
+            if name == 'bin':
+                raise ValueError('The shared ComfyUI queue stayed busy for 2700 s; nothing submitted')
+            return {'state': 'complete', 'outputs': [name + '.png'], 'elapsedSeconds': 1.0}
+        asked = dict(set='set.json', sheets='sheets', asset=[], bindings=str(self.bindings), url='http://127.0.0.1:8188', output=str(self.root / 'refs'), selected=None, seed=7, deadline=60)
+        with mock.patch.object(reference, 'load_set', return_value=data), mock.patch.object(reference, 'resolve_sheet'), mock.patch.object(reference, 'source'), \
+                mock.patch.object(reference, 'make', side_effect=made) as make, mock.patch('tools.headkit.comfy.Client'), mock.patch('builtins.print') as said:
+            with self.assertRaisesRegex(ValueError, '1 of 3 assets were not made: bin'):
+                command.command_reference(Namespace(keep_going=True, **asked))
+            told = [json.loads(call.args[0]) for call in said.call_args_list]
+            self.assertEqual([(one['asset'], one['state']) for one in told], [('crate', 'complete'), ('bin', 'failed'), ('lamp', 'complete')])
+            self.assertIn('stayed busy', told[1]['error'])
+            make.reset_mock()
+            with self.assertRaisesRegex(ValueError, 'stayed busy'):  # without --keep-going the first failure stops the run
+                command.command_reference(Namespace(keep_going=False, **asked))
+            self.assertEqual([call.args[3] for call in make.call_args_list], ['crate', 'bin'])
 
 
 if __name__ == '__main__':

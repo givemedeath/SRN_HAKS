@@ -7,8 +7,14 @@ with its triangle target, and the building's views and the ceiling it is remeshe
      "props": {"reception-desk": {"triangles": 12000}, "turret": {"triangles": 8000, "key": "ares-turret-a2"}},
      "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 200000}}
 
-A prop's key is `<prefix>-<asset>-a1` and the building's `<prefix>-building-a1`, its remesh that with `-remesh`,
-unless the plan says otherwise (`key`, `remesh`): Meshy's CLI never sends a key twice, so a call that was refused
+A building too large for the one 4K texture a generation gets is made in pieces instead (user, 2026-11-12: "split these
+larger buildings up into multiple 4k parts"), each a generation of its own from its own views, and the triangles of the
+pieces together keep to the building budget:
+
+     "pieces": {"west": {"views": ["building-west-front", "building-west-rear"], "triangles": 50000}, "centre": {...}}
+
+A prop's key is `<prefix>-<asset>-a1`, the building's `<prefix>-building-a1` and a piece's `<prefix>-building-<piece>-a1`,
+each remesh that with `-remesh`, unless the plan says otherwise (`key`, `remesh`): Meshy's CLI never sends a key twice, so a call that was refused
 goes again under a new one, and the plan is where that is written down. `submit` sends whatever the ledger does not
 hold yet, as far as Meshy's queue has room (`meshy.QUEUE`); `collect` waits for each, downloads the props, keeps the
 building's full generation as a master, remeshes it and downloads that. Both are safe to run again, and a sheet of
@@ -27,11 +33,12 @@ QUEUED = (*WAITING, 'uncertain')  # what may be holding a place in Meshy's queue
 
 def load_plan(path):
     """The plan at `path`, checked against the set it names (the set file beside it), with every key worked out:
-    {set, prefix, props: {asset: {triangles, key}}, building: {views, triangles, key, remesh} or None, unplanned}.
-    `unplanned` names what the set holds that the plan makes nothing of: props that no other sheet's model serves,
-    and the building's views where the plan has no building. Leaving one out is allowed, and `status` says so."""
+    {set, prefix, props: {asset: {triangles, key}}, building: {views, triangles, key, remesh} or None,
+    pieces: {piece: {views, triangles, key, remesh}}, unplanned}. `unplanned` names what the set holds that the plan
+    makes nothing of: props that no other sheet's model serves, and building views that neither the building nor a
+    piece is made from. Leaving one out is allowed, and `status` says so."""
     path = Path(path); plan = json.loads(path.read_text(encoding='utf-8'))
-    require(isinstance(plan, dict) and {'set', 'prefix', 'props'} <= set(plan) <= {'set', 'prefix', 'props', 'building'}, 'A plan names its set, a prefix and its props')
+    require(isinstance(plan, dict) and {'set', 'prefix', 'props'} <= set(plan) <= {'set', 'prefix', 'props', 'building', 'pieces'}, 'A plan names its set, a prefix and its props')
     require(isinstance(plan['prefix'], str) and PREFIX.fullmatch(plan['prefix']) is not None, 'A plan\'s prefix is 2 to 12 lowercase letters and digits')
     require(isinstance(plan['set'], str) and reference.NAME.fullmatch(plan['set']) is not None, 'A plan names its set by its file name: ' + str(plan['set']))
     assets = reference.load_set(path.with_name(plan['set'] + '.json'))['assets']; prefix = plan['prefix']; props = {}
@@ -44,23 +51,41 @@ def load_plan(path):
                 and meshy.PROP_TRIANGLES[0] <= stated['triangles'] <= meshy.PROP_TRIANGLES[1],
                 f'A prop states a triangle target of {meshy.PROP_TRIANGLES[0]} to {meshy.PROP_TRIANGLES[1]}: {name}')
         props[name] = {'triangles': stated['triangles'], 'key': stated.get('key', f'{prefix}-{name}-a1')}
+    def made(stated, key, what):
+        require(isinstance(stated, dict) and {'views', 'triangles'} <= set(stated) <= {'views', 'triangles', 'key', 'remesh'}
+                and isinstance(stated['views'], list) and 1 <= len(stated['views']) <= 4 and all(isinstance(name, str) for name in stated['views'])
+                and len(set(stated['views'])) == len(stated['views']), f'A {what} states one to four views, each once, and the triangles it is remeshed to')
+        for name in stated['views']:
+            require(name in assets and assets[name]['kind'] == 'building', f'{name} is not a building view of {plan["set"]}')
+        require(type(stated['triangles']) is int and 1000 <= stated['triangles'] <= meshy.BUILDING_TRIANGLES,
+                f'A {what} is remeshed to at most {meshy.BUILDING_TRIANGLES} triangles')
+        key = stated.get('key', key)
+        return {'views': list(stated['views']), 'triangles': stated['triangles'], 'key': key, 'remesh': stated.get('remesh', key + '-remesh')}
     building = plan.get('building')
     if building is not None:
-        require(isinstance(building, dict) and {'views', 'triangles'} <= set(building) <= {'views', 'triangles', 'key', 'remesh'}
-                and isinstance(building['views'], list) and 1 <= len(building['views']) <= 4 and all(isinstance(name, str) for name in building['views'])
-                and len(set(building['views'])) == len(building['views']), 'A building states one to four views, each once, and the triangles it is remeshed to')
-        for name in building['views']:
-            require(name in assets and assets[name]['kind'] == 'building', f'{name} is not a building view of {plan["set"]}')
-        require(type(building['triangles']) is int and 1000 <= building['triangles'] <= meshy.BUILDING_TRIANGLES,
-                f'A building is remeshed to at most {meshy.BUILDING_TRIANGLES} triangles')
-        key = building.get('key', f'{prefix}-building-a1')
-        building = {'views': list(building['views']), 'triangles': building['triangles'], 'key': key, 'remesh': building.get('remesh', key + '-remesh')}
-    keys = [row['key'] for row in props.values()] + ([building['key'], building['remesh']] if building else [])
+        building = made(building, f'{prefix}-building-a1', 'building')
+    stated = plan.get('pieces', {})
+    require(isinstance(stated, dict) and all(isinstance(name, str) and reference.NAME.fullmatch(name) is not None for name in stated),
+            "A plan's pieces are {piece: {views, triangles}}, each named by a safe ID")
+    # Each piece is remeshed within the building budget. What the pieces come to together is counted where the building
+    # is put together (`envkit tiles`, `convert.building_triangles`): a piece generated again from one view stands beside
+    # the one it mends, and only what the group places counts. The yard's west and centre pieces came back from two views
+    # with plain fronts and faithful rears; their fronts were generated again from the front view alone (2026-11-12).
+    pieces = {name: made(row, f'{prefix}-building-{name}-a1', 'piece') for name, row in stated.items()}
+    keys = [row['key'] for row in props.values()] + [key for row in buildings({'building': building, 'pieces': pieces}) for key in (row['key'], row['remesh'])]
     require(all(isinstance(key, str) and meshy.KEY.fullmatch(key) is not None for key in keys), 'Ledger keys are lowercase letters, digits and hyphens')
     require(len(set(keys)) == len(keys), 'Each call of a plan has its own ledger key')
+    viewed = {name for row in buildings({'building': building, 'pieces': pieces}) for name in row['views']}
     unplanned = sorted(name for name, asset in assets.items() if (asset['kind'] == 'prop' and 'same' not in asset and name not in props)
-                       or (asset['kind'] == 'building' and building is None))
-    return {'set': plan['set'], 'prefix': prefix, 'props': props, 'building': building, 'unplanned': unplanned}
+                       or (asset['kind'] == 'building' and name not in viewed))
+    return {'set': plan['set'], 'prefix': prefix, 'props': props, 'building': building, 'pieces': pieces, 'unplanned': unplanned}
+
+
+def buildings(plan):
+    """The plan's generated buildings in order, each {name, views, triangles, key, remesh}: the building as `building`,
+    then each piece as `building-<piece>`, the name its ledger entries are made under."""
+    return ([{'name': 'building', **plan['building']}] if plan.get('building') else []) + [
+        {'name': f'building-{name}', **row} for name, row in plan.get('pieces', {}).items()]
 
 
 def image(selected, name):
@@ -81,8 +106,8 @@ def cost(ledger, plan):
     """Credits the plan's unsent calls will reserve: its props and building not yet in the ledger, and the remesh."""
     ledger.load(); held = {row['key'] for row in ledger.data['entries']}
     calls = [('prop', row['key']) for row in plan['props'].values()]
-    if plan['building']:
-        calls += [('building', plan['building']['key']), ('remesh', plan['building']['remesh'])]
+    for row in buildings(plan):
+        calls += [('building', row['key']), ('remesh', row['remesh'])]
     return sum(meshy.PRICES[operation] for operation, key in calls if key not in held)
 
 
@@ -96,13 +121,13 @@ def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
     held back is said, and goes with the next `submit` after a `collect`. Returns the keys sent."""
     work = Path(work); work.mkdir(parents=True, exist_ok=True); sent = []
     pictures = {name: image(selected, name) for name in plan['props']}
-    views = [image(selected, name) for name in plan['building']['views']] if plan['building'] else []
+    views = {row['key']: [image(selected, name) for name in row['views']] for row in buildings(plan)}
     need = cost(ledger, plan); ledger.load()
     require(ledger.committed() + need <= ledger.data['cap'],
             f'The plan needs {need} more credits and the ledger has {ledger.data["cap"] - ledger.committed()} left under its cap of {ledger.data["cap"]}')
     calls = [(row['key'], name, 'prop', [pictures[name]], lambda name=name, row=row: meshy.prop_arguments(pictures[name], row['triangles'])) for name, row in plan['props'].items()]
-    if plan['building']:
-        calls.append((plan['building']['key'], 'building', 'building', views, lambda: meshy.building_arguments(views)))
+    for row in buildings(plan):
+        calls.append((row['key'], row['name'], 'building', views[row['key']], lambda key=row['key']: meshy.building_arguments(views[key])))
     for key, _, _, chosen, _ in calls:  # before anything is sent
         if state(ledger, key) is not None:
             was, now = meshy.sent_images(ledger.entry(key)), [path.name for path in chosen]
@@ -158,14 +183,13 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
                 fetched(row['key'], models / row['key'])
         except ValueError as error:
             failed.append(row['key']); report(key=row['key'], error=str(error))
-    building = plan['building']
-    if building:
+    for building in buildings(plan):
         key = generation = building['key']
         try:
             if finished(key):
                 task = ledger.entry(key)['taskId']; key = building['remesh']  # what fails from here on is the remesh
                 if state(ledger, key) is None:
-                    report(key=key, task=meshy.submit(ledger, key, 'building', 'remesh', meshy.remesh_arguments(task, building['triangles']), work, run=run))
+                    report(key=key, task=meshy.submit(ledger, key, building['name'], 'remesh', meshy.remesh_arguments(task, building['triangles']), work, run=run))
                 try:  # the master comes down while the remesh runs, and the working model does not depend on it
                     fetched(generation, masters / generation, master=True)
                 except ValueError as error:
@@ -184,6 +208,6 @@ def collect(ledger, plan, work, models, masters, *, run=meshy.run_cli, say=print
 def status(ledger, plan):
     """Each call of the plan with the ledger's word on it, and the credits the plan and the ledger stand at."""
     ledger.load(); held = {row['key']: row['state'] for row in ledger.data['entries']}  # read once: nothing here waits
-    keys = [row['key'] for row in plan['props'].values()] + ([plan['building']['key'], plan['building']['remesh']] if plan['building'] else [])
+    keys = [row['key'] for row in plan['props'].values()] + [key for row in buildings(plan) for key in (row['key'], row['remesh'])]
     return {'calls': {key: held.get(key) for key in keys}, 'unplanned': plan['unplanned'], 'unsentCredits': cost(ledger, plan), 'cap': ledger.data['cap'],
             'committed': ledger.committed()}
