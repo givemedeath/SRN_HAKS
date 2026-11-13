@@ -31,7 +31,7 @@ from tools.headkit.common import pin, require, write
 BACKGROUND = 18          # a pixel is object when it is this much darker than white in some channel
 OPENING_SPECK_PX = 16    # an enclosed region is a speck when it is under this many pixels...
 OPENING_MIN_METRES = .001  # ...and under a millimetre across at the image's scale
-DROPPED_LISTED = 20      # the largest left-out pieces listed by size in the result
+LISTED_REGIONS = 20      # the largest filled regions and left-out pieces listed by size in the result
 
 
 def region_sizes(mask):
@@ -246,11 +246,11 @@ def _mesh(image, image_path, output, length, mask, top, bottom, first, last, fou
                         '; one signed distance union meshed by surface nets; side-view colour projected as the diffuse',
               'roundOnly': round_only, 'reviewRequired': True}
     if mask_path: result['foregroundMask'] = pin(mask_path)
-    # Every filled region and every dropped piece is recorded, specks included: nothing changes the outline unseen.
-    if found['enclosed']: result['filledRegions'] = {'count': len(found['enclosed']), 'pixels': found['enclosed'], 'review': fill_openings}
-    if found['dropped']:                 # noise can be thousands of specks: the largest pieces and the totals
-        result['droppedComponents'] = {'count': len(found['dropped']), 'totalPixels': sum(found['dropped']),
-                                       'largestPixels': found['dropped'][:DROPPED_LISTED]}
+    # Every filled region and every dropped piece is counted, specks included: nothing changes the outline unseen. Noise
+    # can be thousands of specks, so each record lists the largest and the totals.
+    summary = lambda sizes: {'count': len(sizes), 'totalPixels': sum(sizes), 'largestPixels': sizes[:LISTED_REGIONS]}
+    if found['enclosed']: result['filledRegions'] = {**summary(found['enclosed']), 'review': fill_openings}
+    if found['dropped']: result['droppedComponents'] = summary(found['dropped'])
     write(output/'profile-mesh.json', result, fresh=True)
     return result
 

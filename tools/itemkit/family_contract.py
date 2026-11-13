@@ -73,6 +73,19 @@ def sibling_models(contracts, own, item_class):
     return taken
 
 
+def base_grip_origin(source, item_class):
+    """The grip origin the base contracts already hold for this carrier, or None.
+
+    A hand contact a base contract holds was reviewed in the hand (the Staff's installed contact, the Claymore's
+    in-game approval): it outranks a fresh measurement of the stock parts (wave 2's first Bat contract measured
+    -0.0712 against the reviewed -0.0630, 2026-11-12). Base contracts that disagree are refused, not picked by name."""
+    known = [f['native']['gripOrigin'] for f in (json.loads(p.read_text(encoding='utf-8')) for p in sorted(Path(source).glob('family-*.json')))
+             if f.get('native', {}).get('itemClass', '').lower() == item_class.lower()]
+    require(all(np.allclose(k, known[0]) for k in known),
+            f'The base contract holds different grip origins for {item_class}: choose the reviewed one with --base')
+    return known[0] if known else None
+
+
 def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     from .carrier import assemble, decode_stock, measure
     from .contracts import family, native_contract, reserve
@@ -99,16 +112,11 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     positions, faces = assemble([decode_stock(folder/f'{cls}_{p}_011.mdl') for p in 'bmt'])
     carrier = measure(positions, faces, standard['usableLength'], route.hold)
     grip_length = standard['usableLength'] if route.hold == 'one' else TWO_HAND_SPAN
-    # A hand contact the base contract already holds for this carrier was reviewed in the hand (the Staff's installed
-    # contact, the Claymore's in-game approval): it outranks a fresh measurement of the stock parts.
-    known = [f['native'] for f in (json.loads(p.read_text(encoding='utf-8')) for p in sorted(source.glob('family-*.json')))
-             if f.get('native', {}).get('itemClass', '').lower() == cls]
-    require(all(np.allclose(k['gripOrigin'], known[0]['gripOrigin']) for k in known),
-            f'The base contract holds different grip origins for {cls}: choose the reviewed one with --base')
+    known = base_grip_origin(source, cls)
     measured = 'Stock span' if known else 'Grip origin and stock span'
     origin_note = ('Grip origin kept from the base contract\'s reviewed contact on this carrier.' if known else
                    'The first design fitted on this carrier carries the both-body hand-fit review that confirms the origin.')
-    if known: carrier['gripOrigin'] = known[0]['gripOrigin']
+    if known: carrier['gripOrigin'] = known
     from PIL import Image
     from .contracts import twoda
     table = next(row['file']['path'] for l in stack['layers'] for row in l['resources'] if row['resource'].lower() == 'baseitems.2da')

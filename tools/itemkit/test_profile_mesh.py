@@ -58,7 +58,7 @@ class ProfileMeshTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp)/'side.png'; image.save(source)
             result = pm.build(source, Path(tmp)/'small', .06, voxel=.0003)            # 0.1 mm/px: the speck is recorded only
-            self.assertEqual(result['filledRegions'], {'count': 1, 'pixels': [4], 'review': None})
+            self.assertEqual(result['filledRegions'], {'count': 1, 'totalPixels': 4, 'largestPixels': [4], 'review': None})
             self.assertEqual(result['droppedComponents'], {'count': 1, 'totalPixels': 121, 'largestPixels': [121]})
             with self.assertRaisesRegex(ValueError, 'encloses 1 region'):          # 2.2 mm/px: the same 4 px is 2.5 mm across
                 pm.build(source, Path(tmp)/'large', 1.3, voxel=.003)

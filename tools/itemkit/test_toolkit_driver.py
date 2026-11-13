@@ -352,6 +352,19 @@ class SiblingSlotTests(unittest.TestCase):
             self.assertFalse(any(n.startswith('waxhn') for n in taken))
             self.assertEqual(reserve(mine, taken)['modelIndex'], 3)
 
+    def test_a_base_contracts_reviewed_grip_origin_is_kept_and_disagreement_refused(self):
+        from tools.itemkit.family_contract import base_grip_origin
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            def contract(name, cls, origin):
+                (base/f'family-{name}.json').write_text(json.dumps({'native': {'itemClass': cls, 'gripOrigin': origin}}), encoding='utf-8')
+            contract('claymore', 'wswgs', [0, -.0630, 0]); contract('sword', 'wswls', [0, -.0307, 0])
+            self.assertEqual(base_grip_origin(base, 'wswgs'), [0, -.0630, 0])
+            self.assertEqual(base_grip_origin(base, 'WSwGs'), [0, -.0630, 0])
+            self.assertIsNone(base_grip_origin(base, 'wswdg'))                     # no reviewed contact: measure the carrier
+            contract('bat', 'wswgs', [0, -.0712, 0])                               # a fresh-measured contact that disagrees
+            with self.assertRaisesRegex(ValueError, 'different grip origins'): base_grip_origin(base, 'wswgs')
+
 
 class FixtureCarryTests(unittest.TestCase):
     def test_two_handers_are_framed_at_the_shoulder(self):
