@@ -52,6 +52,22 @@ class ViewTests(unittest.TestCase):
         self.assertTrue(np.allclose(out['bicepl']['v'], [(0.2, 0.1, 1.4)]))  # turned about the joint
         self.assertTrue(np.allclose(out['robe']['v'], parts['robe']['v']))
 
+    def test_a_clip_is_sampled_at_its_share_of_the_clips_duration(self):
+        from unittest import mock
+        from tools.phenomorpher.phenomorpher.engine import anim_library, native_motion
+        from . import measure
+        # keys bunched at the start: halfway through the list of key times is not halfway through the clip
+        keys = {'controls': {20: {'times': np.array([0.0, 0.1, 0.2, 2.0]), 'values': np.zeros((4, 4))}}}
+        models = {'pmh0': {'nodes': {}}, 'a_ba': {'clips': {'conjure2': {'length': 2.0, 'nodes': {'torso_g': keys}}}}}
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'pmh0.mdl').write_bytes(b'model')
+            with mock.patch.object(measure, 'animation_models', lambda body, blob, folders: (models, None, ['pmh0', 'a_ba'])), \
+                    mock.patch.object(measure, 'ancestors', lambda nodes, names: {}), \
+                    mock.patch.object(anim_library, 'effective', lambda chain, models: {'conjure2': {'owner': 'a_ba'}}), \
+                    mock.patch.object(native_motion, 'sample', lambda nodes, animated=None, time=0: {'at': time}):
+                rest, moved, time = view.pose(folder, 'pmh0', [], 'conjure2', 0.5)
+        self.assertEqual((rest, moved, time), ({'at': 0}, {'at': 1.0}, 1.0))
+
     def test_a_view_is_framed_on_a_bone_or_on_everything(self):
         bones = {'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}
         bones['torso_g'][:3, 3] = (0.0, 0.0, 1.1)

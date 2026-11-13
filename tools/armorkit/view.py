@@ -72,9 +72,8 @@ def pose(body_pack, body, folders, clip, share=0.5):
     rest = native_motion.sample(nodes)
     owner = owners[clip]['owner']
     animated = {(body if node == owner else node): keys for node, keys in models[owner]['clips'][clip]['nodes'].items()}
-    times = native_motion.sample_times(models[owner]['clips'][clip])
-    time = times[min(len(times) - 1, int(round(share * (len(times) - 1))))]
-    return rest, native_motion.sample(nodes, animated, time), float(time)
+    time = share * float(models[owner]['clips'][clip]['length'])  # of the clip's duration: its keys need not be evenly spaced
+    return rest, native_motion.sample(nodes, animated, time), time
 
 
 def posed(parts, rest, moved):
