@@ -157,11 +157,52 @@ module below gained a male/female reviewer pair for each (`sw5_`), but those pai
 items were reviewed in their own scripted fixtures, which is not production animation or exhaustive equipment
 acceptance.
 
+## Publishing a client-approved design
+
+`tools/itemkit/publish.py` publishes designs the user has approved in the client. It replaces the ad-hoc scripts the
+melee waves used. Run it through the item driver, which takes the runs and the NWN:EE install from the item workspace:
+
+```powershell
+python -m tools.itemkit.drive publish sr4-ceramic-knife-7f77d5dd6c:fit-v1 sr4-baseball-bat-202ef7e755:fit-v1 `
+  --statement 'knife and bat look good' --statement 'Yes, publish them' --review 'Melee wave 2 reviewed in the client.' --dry-run
+```
+
+Use `python -m tools.itemkit.publish ITEM=RUN_DIR ... --nwn-root DIR` for run folders outside the workspace. Each
+`--statement` is the user's approval in their own words. The command never records an approval it was not given, and
+never grants production acceptance. `--dry-run` surveys and plans without writing anything.
+
+For each item, the command:
+
+1. **Surveys the package.** It takes the run's `native.json` and the HAK beside it, and checks the HAK's recorded hash.
+   It reads the blueprint UTI from the run's fixture module, or from the latest refixture when there is no first
+   fixture. It refuses the item if the UTI's base item or model parts disagree with the package.
+2. **Refuses collisions.** Any file name already in `srn_weapon`, any name listed twice, and any item already in
+   `approved-weapons-v1.json` stop the whole run before anything is written.
+3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. Each is recorded in
+   `approved-weapons-v1.json` with its source archive and hash. The item's family is taken from the grouping plan.
+4. **Extends the table only when needed.** If an appearance number is above its row's `MaxRange`, only that token in
+   `srn_2da/baseitems.2da` changes. A longer number takes the padding after it, and no other byte of the table moves.
+5. **Adds reviewers.** It adds a male and a female reviewer per item to `test-modules/weapon-waves` in groups of five
+   (`sw7_`, `sw8_`, ...). They continue the southern row 3.5 m apart and are copied from the last group's first pair
+   with only tag, name and position changed. The command also adds the equip lines to `sw2_enter.nss` and regenerates
+   `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. It stops
+   if the row has no room left in the area.
+6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
+   built archive holds exactly its source files, refreshes the release validation, the module manifest and the module
+   validation (a new `extension` entry, not run in the client), and regenerates the combat release manifest.
+
+A reproduction from the commit before melee waves 1 and 2 (`a07d2dc0`) gave `srn_weapon`, `srn_2da`, the module
+reviewers, the GIT, the scripts and the item and resource records byte-identical to the hand-made publication. Only
+the summary text, the statement list and the release validation's `additions` layout differ. Check new reviewers in
+the client before calling an extension reviewed.
+
 ## Separate comparison module
 
 `test-modules/weapon-waves` contains the review module and two fixture-only HAKs.
 It depends on the normal weapon/table packs and existing shipped Human body packs.
-It carries no duplicate released weapon blueprints. The original approval captures
+It carries no duplicate released weapon blueprints. The reviewer selector in `c.nss` and `sw_review.nss` reads its
+pair groups from the generated `sw_pairs.nss`; `test_combat_release_manifest.py` checks that table against the placed
+reviewers. The original approval captures
 are retained; grouping migration and test-hook changes have native/package
 validation and are not presented as a new client acceptance. No deployment or
 automatic game-client launch is performed by this PR.

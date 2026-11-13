@@ -1835,6 +1835,7 @@
       "tools/itemkit/fit_manifest.py",
       "tools/itemkit/oblique.py",
       "tools/itemkit/preview_views.py",
+      "tools/itemkit/publish.py",
       "tools/itemkit/run_itemkit.py",
       "tools/itemkit/workspace.py",
       "tools/phenotypes/launch_shared_tool.py"
@@ -1961,6 +1962,13 @@
       "tools/itemkit/geometry.py"
     ],
     "tools/itemkit/preview_views.py": [],
+    "tools/itemkit/publish.py": [
+      "docs/items/approved-weapon-waves-release-validation.json",
+      "docs/items/approved-weapons-v1.json",
+      "tools/combat_release_manifest.py",
+      "tools/phenomorpher/validation.json",
+      "tools/shared_tools.py"
+    ],
     "tools/itemkit/recovery.py": [
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py"
@@ -2187,6 +2195,10 @@
     ],
     "tools/itemkit/test_preflight.py": [
       "tools/itemkit/preflight.py"
+    ],
+    "tools/itemkit/test_publish.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/publish.py"
     ],
     "tools/itemkit/test_recovery.py": [
       "tools/headkit/common.py",
@@ -5272,7 +5284,9 @@
       "docs/shared-tool-validation.json"
     ],
     "tools/test_combat_release_manifest.py": [
-      "tools/combat_release_manifest.py"
+      "tools/combat_release_manifest.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/publish.py"
     ],
     "tools/test_impact.py": [
       "tools/ci-scope.json",
@@ -5388,6 +5402,10 @@
     "tools/itemkit/native_stack.py": [
       "srn_body"
     ],
+    "tools/itemkit/publish.py": [
+      "srn_2da",
+      "srn_weapon"
+    ],
     "tools/itemkit/test_combat_clip_pilot.py": [
       "srn_body"
     ],
@@ -5397,6 +5415,10 @@
     ],
     "tools/itemkit/test_native_stack.py": [
       "srn_body"
+    ],
+    "tools/itemkit/test_publish.py": [
+      "srn_2da",
+      "srn_weapon"
     ],
     "tools/phenomorpher/phenomorpher/engine/body_sweep.py": [
       "srn_body"
@@ -5557,6 +5579,7 @@
     "tools/itemkit/test_native_stack.py",
     "tools/itemkit/test_onehand_fire_motion.py",
     "tools/itemkit/test_preflight.py",
+    "tools/itemkit/test_publish.py",
     "tools/itemkit/test_recovery.py",
     "tools/itemkit/test_reduction.py",
     "tools/itemkit/test_reference_conditioning.py",

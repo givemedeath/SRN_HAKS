@@ -126,6 +126,17 @@ class RepositoryManifestTests(unittest.TestCase):
         self.assertEqual(set(by_item),expected)
         self.assertTrue(all(sorted(genders)==[0,1] for genders in by_item.values()))
 
+    def test_selector_table_matches_the_placed_reviewers(self):
+        # c.nss and sw_review.nss take the pair groups from the generated include; it must follow the placed reviewers.
+        from tools.itemkit import publish
+        module=crm.ROOT/'test-modules/weapon-waves/module'
+        tags=[actor['Tag'] for actor in crm.parse_gff((module/'sr_it_floor.git').read_bytes())['Creature List']]
+        self.assertEqual((module/'sw_pairs.nss').read_text(encoding='ascii'),publish.pairs_include(publish.groups_of(tags)))
+        for script in ('c.nss','sw_review.nss'):
+            source=(module/script).read_text(encoding='ascii')
+            self.assertIn('#include "sw_pairs"',source)
+            self.assertIsNone(re.search(r'"sw\d_"',source),script)
+
     def test_longblade_alias_changes_only_model_identity(self):
         publication=json.loads((crm.ROOT/crm.PUBLICATION).read_text(encoding='utf-8'))
         item=next(i for i in publication['items'] if i['id']=='cougar-fineblade-longblade')

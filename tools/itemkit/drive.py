@@ -14,9 +14,11 @@ Fixtures and in-game capture:
     fixture-inputs ID SUFFIX NAME     refixture ID SUFFIX NAME [--capture]       capture FIXTURE_DIR OUTPUT
 Families:
     contract FAMILY ID --wave NAME [--visible N]       views GLB OUTPUT [--textured]       decimate IN OUT [--faces N]
+Publication (tools/itemkit/publish.py; docs/items/approved-weapons-release.md):
+    publish ID:SUFFIX... --statement "user's words"... --review TEXT [--date YYYY-MM-DD] [--dry-run]
 
 Nothing here approves a design: every approval a command records quotes words the user gave (`--notes`,
-`--donor-review`), and automatic chain approvals say they are numerical passes only.
+`--donor-review`, `--statement`), and automatic chain approvals say they are numerical passes only.
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
@@ -489,6 +491,19 @@ class Driver:
                                                     distances=lambda points, vv, ff: np.sqrt(igl.point_mesh_squared_distance(points, vv, ff)[0]))
         write_mesh(target, v, f); return {**report, 'output': str(target), 'sha256': sha(target)}
 
+    def publish(self, items, statements, review, today=None, dry_run=False):
+        """Publish client-reviewed packages into srn_weapon and the comparison module (tools.itemkit.publish)."""
+        from tools.itemkit import publish
+        nwn = self.ws.setting('nwnRoot')
+        if not (nwn or dry_run): raise SystemExit('Workspace needs nwnRoot')
+        runs = []
+        for entry in items:
+            design, _, suffix = entry.partition(':')
+            if not suffix: raise SystemExit(f'{entry}: expected ID:SUFFIX')
+            runs.append((design, self.run_dir(design, suffix)))
+        try: return publish.publish(REPO, runs, statements, review, nwn, today=today, dry_run=dry_run)
+        except publish.PublishError as error: raise SystemExit(f'Publication refused: {error}')
+
 
 def stage_list(text):
     stages = [s for s in text.split(',') if s]
@@ -524,6 +539,9 @@ def main(argv=None):
     s = c.add_parser('contract'); s.add_argument('family'); s.add_argument('id'); s.add_argument('--wave', required=True); s.add_argument('--visible', type=int)
     s = c.add_parser('views'); s.add_argument('glb'); s.add_argument('output'); s.add_argument('--textured', action='store_true')
     s = c.add_parser('decimate'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--faces', type=int, help='default: the 40,000-triangle working shell')
+    s = c.add_parser('publish'); s.add_argument('items', nargs='+', help='ID:SUFFIX of each client-reviewed run')
+    s.add_argument('--statement', action='append', default=[], help="the user's approval, verbatim (repeat for several)")
+    s.add_argument('--review', required=True); s.add_argument('--date'); s.add_argument('--dry-run', action='store_true')
     a = p.parse_args(argv); d = Driver(Workspace.load(a.workspace))
     result = {
         'comfy': lambda: d.comfy(a.action), 'image': lambda: d.image(a.design, a.kind), 'condition': lambda: d.condition(a.design, a.id, a.source, a.notes, a.keyed),
@@ -537,6 +555,7 @@ def main(argv=None):
         'refixture': lambda: d.refixture(a.id, a.suffix, a.name, a.capture), 'capture': lambda: d.capture(a.fixture, a.output),
         'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible), 'views': lambda: d.views(a.glb, a.output, a.textured),
         'decimate': lambda: d.decimate(a.source, a.target, a.faces),
+        'publish': lambda: d.publish(a.items, a.statement, a.review, a.date, a.dry_run),
     }[a.command]()
     print(json.dumps(result, indent=1, default=str))
     return 0
