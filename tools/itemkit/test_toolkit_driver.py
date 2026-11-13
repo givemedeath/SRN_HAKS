@@ -419,6 +419,10 @@ class OpeningProbeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('lanyard', .5)], found)
         narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
         with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
+        with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.fitted_shell({'inputs': {}}, {'native': {}}, '.')
+        with self.assertRaisesRegex(ValueError, 'gripEndpoints'):
+            op.fitted_shell({'inputs': {'workingMesh': {}}, 'fit': {'matrix': [], 'sizingAuthority': 'midpoint-depth-two-hand'}},
+                            {'native': {'gripOrigin': [0, 0, 0]}}, '.')
         self.assertEqual(op.reference_fractions({'inputs': {}}, '.'), [])                 # no reviewed openings, nothing to place
         with self.assertRaisesRegex(ValueError, 'geometryForegroundMask'):
             op.reference_fractions({'inputs': {}, 'openings': [{'name': 'x', 'referenceBounds': [0, 0, 1, 1]}]}, '.')
@@ -500,6 +504,7 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, r'1 current manifest\(s\) build on, e\.g\. axe\.calibrated-v1'):
                 d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')
             self.assertFalse((h/'contracts/old/retired.json').exists())
+            with self.assertRaisesRegex(SystemExit, 'not a contract folder'): d.retire_contracts('.', 'typo', '2026-11-13')
             # a later profile elsewhere without a contract there is not a move: the axe still holds its slot
             (h/'loose.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
             (h/'axe.loose-v1.asset.json').write_text(json.dumps({'familyProfile': {'path': 'loose.json'}}), encoding='utf-8')

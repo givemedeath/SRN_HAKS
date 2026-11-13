@@ -6,8 +6,9 @@ A reference opening (`openings`, measured on the reviewed image) is kept only wh
 segment through it that crosses no surface. This places the working shell exactly as the fit stage will (similarity
 and the measured grip correction), projects it along each transverse axis onto a 0.5 mm grid, and takes the
 background regions the silhouette encloses as through-holes. Each hole's deepest point gives a probe along the view
-axis. Holes are matched to the reference openings by their position along the weapon's long axis, measured from either
-end, within 3% of the length; a hole needs 1.5 mm of clearance, since a narrower gap closes in reduction (the wave-3
+axis. Holes are matched to the reference openings by their position along the weapon's long axis, within 3% of the
+length, the whole set measured from one end or the other (the reference image's axis has no set direction); a hole
+needs 1.5 mm of clearance, since a narrower gap closes in reduction (the wave-3
 Vibro Knife's 2 mm lanyard hole closed in every reduced shell, 2026-11-13).
 """
 import json
@@ -28,7 +29,10 @@ def fitted_shell(manifest, family, handoff):
     from tools.headkit.gltf import arrays, load
     from . import grip
     from .fit_manifest import gltf_to_blender
-    handoff = Path(handoff); fit = manifest['fit']
+    handoff = Path(handoff); fit = manifest.get('fit') or {}
+    require('matrix' in fit and 'workingMesh' in manifest.get('inputs', {}) and 'gripOrigin' in family.get('native', {}),
+            'Opening probes need a fit manifest (fit.matrix, inputs.workingMesh) on a measured contract (native.gripOrigin)')
+    require(fit.get('sizingAuthority') != 'midpoint-depth-two-hand' or 'gripEndpoints' in fit, 'A two-hand fit needs its fit.gripEndpoints')
     v, f, _ = arrays(*load((handoff/manifest['inputs']['workingMesh']['path']).read_bytes()))
     b = gltf_to_blender(v); f = np.asarray(f); M = np.asarray(fit['matrix'], float); origin = family['native']['gripOrigin']
     if 'gripStandard' in manifest['inputs']:

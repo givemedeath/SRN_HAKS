@@ -115,7 +115,7 @@
   "tools/itemkit/test_staff.py": 0.388,
   "tools/itemkit/test_straightness.py": 4.4,
   "tools/itemkit/test_thrown.py": 0.339,
-  "tools/itemkit/test_toolkit_driver.py": 5.47,
+  "tools/itemkit/test_toolkit_driver.py": 12.04,
   "tools/itemkit/test_trial_policy.py": 0.17,
   "tools/itemkit/test_workflow.py": 0.59,
   "tools/phenomorpher/phenomorpher/engine/test_anim_library.py": 0.71,

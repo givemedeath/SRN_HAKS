@@ -263,6 +263,8 @@ class Driver:
         with np.load(self.ws.handoff/m['inputs']['field']['path']) as z:
             attrs = z['attrs']; lo, hi = float(attrs.min()), float(attrs.max())
             outside = int(((attrs < DECODER_RANGE[0]) | (attrs > DECODER_RANGE[1])).any(1).sum()); total = len(attrs)
+        field_sha = m['inputs']['field']['sha256']
+        policy_for = lambda a, b: {'allowDecoderOvershoot': True, 'fieldSha256': field_sha, 'minimum': a, 'maximum': b}
         low, high = DECODER_RANGE if field_range is None else (float(field_range[0]), float(field_range[1]))
         if not (low <= lo and hi <= high):
             # Rounded out to the hundredth after removing float noise (1.12 * 100 is 112.00000000000001), then a step
@@ -270,8 +272,7 @@ class Driver:
             s_lo = np.floor(round(lo * 100, 6)) / 100; s_lo -= .01 * (s_lo > lo)
             s_hi = np.ceil(round(hi * 100, 6)) / 100; s_hi += .01 * (s_hi < hi)
             s_lo, s_hi = round(float(min(DECODER_RANGE[0], s_lo)), 2), round(float(max(DECODER_RANGE[1], s_hi)), 2); suggest = f'{s_lo:g} {s_hi:g}'
-            try: field_policy({'allowDecoderOvershoot': True, 'fieldSha256': m['inputs']['field']['sha256'], 'minimum': s_lo, 'maximum': s_hi},
-                              m['inputs']['field']['sha256'])
+            try: field_policy(policy_for(s_lo, s_hi), field_sha)
             except ValueError as error:                     # no reviewed range can take it: the bake would refuse any
                 raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} overshoots past what a reviewed range may allow '
                                  f'({outside} of {total} samples outside the decoder range; {error}): regenerate the appearance')
@@ -279,8 +280,7 @@ class Driver:
                              f'the decoder range): review the textured result and rerun with --field-range {suggest}')
         if field_range is not None and (low, high) != DECODER_RANGE and DECODER_RANGE[0] <= lo and hi <= DECODER_RANGE[1]:
             raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} fits the decoder range: no reviewed --field-range is needed')
-        field_sha = m['inputs']['field']['sha256']
-        policy = {'allowDecoderOvershoot': True, 'fieldSha256': field_sha, 'minimum': low, 'maximum': high}
+        policy = policy_for(low, high)
         try: field_policy(policy, field_sha)
         except ValueError as error: raise SystemExit(f'--field-range {low:g} {high:g}: {error}')
         measured = f' Field value range measured {lo:.4f}..{hi:.4f}.'
@@ -559,6 +559,8 @@ class Driver:
         import datetime
         from tools.itemkit.family_contract import retire
         target = (self.ws.handoff/folder).resolve(); own = f'.{target.name}-contract.asset.json'; pins = {}
+        if target.parent != (self.ws.handoff/'contracts').resolve():      # sibling_models scans only contracts/<wave>/
+            raise SystemExit(f'{folder} is not a contract folder (contracts/<wave> under the handoff)')
         for path in self.ws.handoff.glob('*.asset.json'):
             try: profile = read(path).get('familyProfile', {}).get('path')
             except (OSError, ValueError, AttributeError): continue
