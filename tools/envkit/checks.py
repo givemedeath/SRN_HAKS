@@ -376,7 +376,7 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     from_pack(repo / 'srn_placeable', scale_prop, resources)  # something of a known size in the corner of the area
     door, night = laid_door(made), mode == 'night'; facing = float((models[model]['tiles'].get('door') or {}).get('facing', 90.0)); people, walkers = [], []
     if mode == 'walk':
-        roomy = tile.read_walk(walk_picture); chosen = tile.walk_targets(roomy)
+        roomy = tile.read_walk(walk_picture); chosen = tile.walk_targets(roomy, tile.read_walk(walk_picture, planned=True))
         own_targets(roomy, targets or {}, chosen); chosen.update(targets or {})
         walkers = walk_plan(made['columns'], made['rows'], door, facing, chosen, column0=column0, row0=row0, size=size)
         shots = walk_shots(made['columns'], made['rows'], walkers, name, column0=column0, row0=row0, size=size); people = [{'position': one['start'], 'facing': 0.0} for one in walkers]

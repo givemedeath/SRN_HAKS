@@ -178,10 +178,17 @@ def _decks(points, place, standing, shape):
     labels, count = _masses((lowest <= PLATFORM) & (top - lowest < FLAT)); deck = np.zeros(shape); stairs = np.zeros(shape)
     sizes = np.bincount(labels.ravel(), minlength=count + 1)[1:] * (SIZE / CELLS / FINE) ** 2
     for index in np.flatnonzero(sizes >= DECK_AREA):
-        member = labels == index + 1; height = float(np.median(lowest[member]))
+        member = labels == index + 1
+        if (deck[member] > 0).any():
+            continue  # a bay of a platform already found from another
+        height = float(np.median(lowest[member]))
         near = np.pad(member, 1); near = member | near[:-2, 1:-1] | near[2:, 1:-1] | near[1:-1, :-2] | near[1:-1, 2:]
         floor = member | (near & (top > 0) & (top <= height + FLAT))
         if height > DECK:
+            # A platform's top is every sample level with it that joins it: the depot's is cut into five bays by seams a
+            # few centimetres proud, and its edge faces stand between its bays and the head of its stairs.
+            joined, _ = _masses(floor | (np.abs(surface - height) <= FLAT))
+            floor = np.isin(joined, np.unique(joined[floor])) & (joined > 0)
             way = _stairs(surface, floor, height)
             if not way.any():
                 continue  # too high to step onto, and nothing leads up: in the way, as a crate is
@@ -239,8 +246,8 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     round each crest, and at each deck's edge and RAMP cells inside it.
     deck: the height of the deck a walk cell lies on, 0 off any (`_decks`); deckDepth: how many cells it lies inside
     the deck's edge where that meets lower open ground, counted to one past RAMP, closed cells and stairs counting as
-    deck. stairs: the height of the stairs a walk cell lies on, 0 off any; a deck higher than DECK has its edge closed
-    for RAMP cells where it meets lower open ground, and its stairs where they stand past the knee beside it."""
+    deck. stairs: the height of the stairs a walk cell lies on, 0 off any; a deck higher than DECK has its outer cell
+    closed where it meets lower open ground, and its stairs where they stand past the knee beside it."""
     points = scatter(vertices, faces); across = np.array([columns, rows]) * CELLS * FINE; step = SIZE / CELLS / FINE
     # A face that lies on the boundary between two samples falls to the far side of it, all of it: left to rounding its
     # points fall on either side by chance, and the outline they draw is ragged.
@@ -269,17 +276,19 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
         footprint = tall & np.repeat(np.repeat(material == OBSCURING, FINE, 0), FINE, 1)
     require(not (closed[0].any() or closed[-1].any() or closed[:, 0].any() or closed[:, -1].any()) and not (raised[0].any() or raised[-1].any() or raised[:, 0].any() or raised[:, -1].any()),
             'The model reaches the edge of its tiles: the group leaves no ground around it')
-    on_deck = cells(decks > 0) > 0.5
+    # A cell is on the deck or its stairs where most of it is either, and on whichever has more of it: a cell at the head
+    # of the stairs, half each, is neither lower ground nor in the way.
+    up = cells((decks > 0) | (stairs > 0)) > 0.5; on_deck = up & (cells(decks > 0) >= cells(stairs > 0))
     # Its height is its samples' own, not their mean: a mean over part of a cell comes out an ulp off, and a level of its own
     # would draw more walkmesh lines along the deck's rim.
     deck = np.where(on_deck & ~closed, decks.reshape(rows * CELLS, FINE, columns * CELLS, FINE).max((1, 3)), 0.0)
-    stair = np.where((cells(stairs > 0) > 0.5) & ~closed, cells(stairs) / np.maximum(cells(stairs > 0), 1e-9), 0.0)
-    # A deck too high to step onto is climbed only by its stairs: its edge is closed where it meets lower open ground,
-    # and so are its stairs where they stand past the knee beside it, so no walk steps off either.
-    lower = ~closed & (deck == 0) & (stair == 0); beside = [lower]
-    for _ in range(RAMP):
-        wide = np.pad(beside[-1], 1); beside.append(beside[-1] | wide[:-2, 1:-1] | wide[2:, 1:-1] | wide[1:-1, :-2] | wide[1:-1, 2:])
-    edge = ((deck > DECK) & beside[RAMP]) | ((stair > KNEE) & beside[1])
+    stair = np.where(up & ~on_deck & ~closed, cells(stairs) / np.maximum(cells(stairs > 0), 1e-9), 0.0)
+    # A deck too high to step onto is climbed only by its stairs: its outer cell is closed where it meets lower open
+    # ground, and so are its stairs where they stand past the knee beside it, so no walk steps off either. One cell, not
+    # RAMP: the depot's platform has a post at the head of its stairs, and half a metre closed left less than a metre
+    # either side of it.
+    lower = ~closed & (deck == 0) & (stair == 0); wide = np.pad(lower, 1)
+    edge = ((deck > DECK) | (stair > KNEE)) & (lower | wide[:-2, 1:-1] | wide[2:, 1:-1] | wide[1:-1, :-2] | wide[1:-1, 2:])
     material[edge] = NONWALK; closed = closed | edge
     # Ground with no room to stand on is closed too: the engine plans a walk through any walk face, and a character
     # cannot pass a gap under a metre. The Saeder-Krupp yard's walkers went for the half-metre gaps between its fence
@@ -332,6 +341,8 @@ def walkmesh(found, row, column):
         heights = [float(deck[cell]) for cell in around if deck[cell] > 0] if deck is not None else []
         if not heights or len(around) < 4:
             return ground
+        if min(heights) > DECK:  # a deck climbed only by its stairs is at its height right to its closed edge
+            return min(heights)
         # On a deck: up from the ground at its edge to its height RAMP cells in (`survey`)
         return ground + (min(heights) - ground) * min(min(int(deck_depth[cell]) for cell in around), RAMP) / RAMP
     vertices = [[x * cell - SIZE / 2, y * cell - SIZE / 2, lift(y, x)] for y in ys for x in xs]
@@ -530,7 +541,7 @@ def cut_off(nodes):
     return [(*key, part) for key, turned in sorted(parts.items()) for index, part in enumerate(turned) if (*key, index) not in out]
 
 
-def path_nodes(found, rows, columns, stated=None):
+def path_nodes(found, rows, columns, stated=None, *, unplanned=False):
     """Each tile's path node, {(row, column): {node, turn, exits, offPath}}, chosen for the group as a whole: of the
     nodes each tile's ground allows (`path_node`), the ones that let a walk from the ground round the group be planned
     onto the most of its ground, then the ones that leave the fewest exits cut off from every way out (`cut_off`), then
@@ -540,7 +551,8 @@ def path_nodes(found, rows, columns, stated=None):
     reaches all their ground by their other sides, but the engine takes a target by that side for the side's own, and
     gives up the walk. The rail freight depot's walkers to its warehouse door and to its crane's north leg, both on the
     line between its middle columns, walked straight at them and stopped against the loading platform (client,
-    2026-11-13). offPath: the ground of the tile no walk from round the group is planned onto.
+    2026-11-13). offPath: the ground of the tile no walk from round the group is planned onto. With `unplanned`,
+    returns (nodes, those cells of the group's), [row, column] from the south-west.
 
     `stated` ({(row, column): (letter, turn)}) gives tiles the nodes a walk check in the client has shown walks need,
     where the engine does not walk as these rules expect; the others are chosen round them. A stated node leaves its
@@ -588,8 +600,15 @@ def path_nodes(found, rows, columns, stated=None):
     while any(better([key]) for key in tiles) or any(better(list(pair)) for pair in pairs):
         pass
     reached = planned()[0]
-    return {key: {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int(tile['walk'].sum()) - reached[key]}
+    if unplanned:
+        parts = {key: tile['options'][chosen[key]][4] for key, tile in tiles.items()}; out = _ways_out(parts)
+        cells = np.zeros((rows * CELLS, columns * CELLS), bool)
+        for key, tile in tiles.items():
+            masses = [tile['region'][side] for index, part in enumerate(parts[key]) for side in part if (*key, index) in out]
+            cells[key[0] * CELLS:(key[0] + 1) * CELLS, key[1] * CELLS:(key[1] + 1) * CELLS] = tile['walk'] & ~np.isin(tile['masses'], masses)
+    nodes = {key: {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int(tile['walk'].sum()) - reached[key]}
             for key, tile in tiles.items() for _, letter, turn, exits, _ in [tile['options'][chosen[key]]]}
+    return (nodes, cells) if unplanned else nodes
 
 
 def _daylight(name, halos):
@@ -776,12 +795,12 @@ def merge_parts(parts):
 
 
 WALK_PICTURE = 'walk.png'  # beside a group's tile sources: its walk cells, a pixel each, north up
-WALK_COLOURS = {'roomy': (60, 170, 60), 'narrow': (25, 85, 25), 'building': (170, 40, 40), 'closed': (205, 125, 40)}
+WALK_COLOURS = {'roomy': (60, 170, 60), 'narrow': (25, 85, 25), 'building': (170, 40, 40), 'closed': (205, 125, 40), 'unplanned': (150, 215, 150)}
 POCKET = 5.0  # metres further than straight in that a walk must go round before ground counts as hard to reach
 BACK_OFF = 2  # cells a side's walker stands off what stops it coming in
 
 
-def walk_picture(found):
+def walk_picture(found, unplanned=None):
     """A group's walk cells as one picture, a pixel a cell and north up: ground with room to stand on (`_roomy`), ground
     too narrow for that (which `survey` closes now; a picture of a survey before that has it), the building where it
     stands at eye height, and the lesser things in the way. It shows where a
@@ -790,11 +809,13 @@ def walk_picture(found):
     from PIL import Image
     material = found['material']; picture = np.zeros((*material.shape, 3), np.uint8)
     picture[material == STONE] = WALK_COLOURS['narrow']; picture[found['roomy']] = WALK_COLOURS['roomy']
+    if unplanned is not None:  # pale: ground with room that no walk from round the group is planned onto (`path_nodes`)
+        picture[found['roomy'] & unplanned] = WALK_COLOURS['unplanned']
     picture[material == OBSCURING] = WALK_COLOURS['building']; picture[material == NONWALK] = WALK_COLOURS['closed']
     return Image.fromarray(picture[::-1])
 
 
-def read_walk(path):
+def read_walk(path, planned=False):
     """The cells of a group's walk picture (`walk_picture`) a character has room to stand on, [row, column] from the
     south-west."""
     from PIL import Image
@@ -804,16 +825,19 @@ def read_walk(path):
     for colour in WALK_COLOURS.values():
         known |= (picture == colour).all(-1)
     require(known.all(), f'{path} is not a walk picture')
-    return (picture == WALK_COLOURS['roomy']).all(-1)
+    roomy = (picture == WALK_COLOURS['roomy']).all(-1)
+    return roomy if planned else roomy | (picture == WALK_COLOURS['unplanned']).all(-1)
 
 
-def walk_targets(roomy):
+def walk_targets(roomy, planned=None):
     """Where walkers are sent in a group, {label: (x, y)} in metres from its south-west corner. On each side the ground
     a walker reaches last coming straight in from the middle of the group's edge, BACK_OFF cells short of what stops it
     (the building, a fence): none where nothing stands across the middle from that side, or where the edge is closed.
     And `pocket`: the ground a walk must go furthest round to reach, where that is more than POCKET metres further
     than straight in from the nearest edge: a yard with few ways in, which short walks reach and long ones may not
-    (this module's docstring). Walks go over ground with room to stand on, eight ways, as the game's are planned."""
+    (this module's docstring). Walks go over ground with room to stand on, eight ways, as the game's are planned.
+    planned: the ground walks from round the group are planned onto (`read_walk`), where the pocket is sought: the rail
+    freight depot's platform, reached only by its stairs at one end, is no tile's exit, and long walks to it give up."""
     import heapq
     rows, columns = roomy.shape; step = SIZE / CELLS; targets = {}
     lines = {'south': [(row, columns // 2) for row in range(rows)], 'north': [(row, columns // 2) for row in range(rows - 1, -1, -1)],
@@ -841,6 +865,8 @@ def walk_targets(roomy):
     row_index, column_index = np.indices(roomy.shape)
     straight = np.minimum.reduce([row_index, rows - 1 - row_index, column_index, columns - 1 - column_index]).astype(float)
     detour = np.where(np.isfinite(far), far - straight, -np.inf) * step
+    if planned is not None:  # ground no walk is planned onto (`path_nodes`) is reached only by short walks: no long walk is sent there
+        detour = np.where(planned, detour, -np.inf)
     if detour.max() > POCKET:
         row, column = map(int, np.unravel_index(int(np.argmax(detour)), detour.shape)); targets['pocket'] = ((column + 0.5) * step, (row + 0.5) * step)
     return targets
@@ -891,7 +917,8 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     if fade is not None:
         from PIL import Image
         Image.new('RGB', (4, 4)).save(folder / f'{CAP}.tga')
-    nodes = path_nodes(found, rows, columns, {(int(key[1]), int(key[2])): (value['node'], value['turn']) for key, value in (nodes or {}).items()})
+    nodes, unplanned = path_nodes(found, rows, columns, {(int(key[1]), int(key[2])): (value['node'], value['turn']) for key, value in (nodes or {}).items()},
+                                  unplanned=True)
     for row in range(rows):
         for column in range(columns):
             model = f'{name}_t{row}{column}'; centre = np.array([corner[0] + (column + 0.5) * SIZE, corner[1] + (row + 0.5) * SIZE, 0.0])
@@ -925,7 +952,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 x, y, z = (at - centre).round(2).tolist()
                 one['doors'].append({'type': int(door['type']), 'x': x, 'y': y, 'z': z, 'orientation': orientation, 'drawnOut': drawn})
             tiles.append(one)
-    walk_picture(found).save(folder / WALK_PICTURE)
+    walk_picture(found, unplanned).save(folder / WALK_PICTURE)
     return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles, 'notes': notes}
 
 
