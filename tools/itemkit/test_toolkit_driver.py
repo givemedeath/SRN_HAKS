@@ -77,6 +77,21 @@ class HaftedFitTests(unittest.TestCase):
             data = measure({}, self.family, {'positions': gltf(v @ turn.T), 'faces': f}, {}, self.standard)
             self.assertAlmostEqual(data['nativeLength'], .6, delta=.01, msg=f'{degrees} degrees')
 
+    def test_a_half_turn_about_the_axis_swaps_the_sides_and_keeps_the_fit(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.club(); v = v.copy(); v[:, 0] += np.where((v[:, 1] > .8) & (v[:, 0] > 0), .03, 0)   # a one-sided blade
+        plain = measure({}, self.family, {'positions': gltf(v), 'faces': f}, {}, self.standard)
+        turned = measure({}, self.family, {'positions': gltf(v), 'faces': f}, {'turnAboutAxis': True}, self.standard)
+        self.assertEqual(plain['landmarks'], turned['landmarks'])
+        self.assertAlmostEqual(plain['nativeLength'], turned['nativeLength'], places=9)
+        P, T = np.asarray(plain['matrix']), np.asarray(turned['matrix'])
+        np.testing.assert_allclose(T[:3, :3], np.diag([-1., 1., -1.]) @ P[:3, :3], atol=1e-9)   # 180 degrees about native Y
+        self.assertGreater(np.linalg.det(T[:3, :3]), 0)
+        with self.assertRaisesRegex(ValueError, 'true or false'):
+            measure({}, self.family, {'positions': gltf(v), 'faces': f}, {'turnAboutAxis': 'false'}, self.standard)
+        with self.assertRaisesRegex(ValueError, 'sectionBasis applies only'):                      # a club is hafted, not a staff
+            measure({}, self.family, {'positions': gltf(v), 'faces': f}, {'sectionBasis': 'visibleFaceWidth'}, self.standard)
+
     def test_a_chosen_length_and_a_bound_digest(self):
         from tools.itemkit.fit_manifest import measure
         v, f = self.club()
@@ -102,6 +117,43 @@ class HaftedFitTests(unittest.TestCase):
         v, f = self.club(); v = v * [1, -1, 1]; f = f[:, ::-1]
         data = measure({}, self.family, {'positions': gltf(v), 'faces': f}, {}, self.standard)
         self.assertGreater(np.asarray(data['fittedBounds'])[1][1], .3)
+
+
+class StaffSectionTests(unittest.TestCase):
+    """The stun staff was flattened by the per-axis hilt calibration (user, 2026-11-12): a staff keeps its own section."""
+    def setUp(self):
+        from tools.itemkit.fit_manifest import STANDARD
+        self.standard = json.loads(STANDARD.read_text(encoding='utf-8'))
+        self.family = {'family': 'staff', 'native': {'gripOrigin': [0, 0, 0], 'gripLength': self.standard['usableLength']}}
+        rows = [(y, .022) for y in np.linspace(0, 1, 250)]
+        v, self.f = lathe(rows, sides=96, depth=1 / 1.2)                                  # a 1.2:1 shaft, thick for a hand
+        self.v = gltf(v); self.overrides = {'bladeAtLowEnd': False, 'pommelEnd': .2, 'gripStart': .32, 'gripEnd': .41,
+                                            'bladeStart': .68, 'sizeToLength': False,       # the stun staff's own overrides
+                                            'targetLength': 1.9}
+
+    def section(self, data):
+        mid = data['gripReport']['measuredFittedSections'][2]; return mid['depth'], mid['visibleFaceWidth']
+
+    def test_a_staff_is_thinned_evenly_to_the_grip_depth(self):
+        from tools.itemkit.fit_manifest import measure
+        data = measure({}, self.family, {'positions': self.v, 'faces': self.f}, self.overrides, self.standard)
+        self.assertEqual(data['sizingAuthority'], 'midpoint-depth-uniform'); self.assertTrue(data['departurePending'])
+        depth, width = self.section(data)
+        self.assertAlmostEqual(depth, self.standard['targetMidpointSection']['depth'], delta=.001)
+        self.assertAlmostEqual(width / depth, 1.2, delta=.03)                            # not 50/30 = 1.67 (the hilt section)
+        thick = measure({}, self.family, {'positions': self.v, 'faces': self.f}, {**self.overrides, 'sectionBasis': 'visibleFaceWidth'},
+                        self.standard)
+        depth, width = self.section(thick)
+        self.assertAlmostEqual(width, self.standard['targetMidpointSection']['visibleFaceWidth'], delta=.001)
+        self.assertAlmostEqual(width / depth, 1.2, delta=.03)
+
+    def test_the_hilt_calibration_is_refused_where_it_would_flatten_a_shaft(self):
+        from tools.itemkit import fit_manifest
+        from tools.itemkit.routes import ROUTES
+        hilt = ROUTES['staff']._replace(section='calibrated')
+        with mock.patch.dict(fit_manifest.ROUTES, {'staff': hilt}):
+            with self.assertRaisesRegex(ValueError, 'would flatten this staff'):
+                fit_manifest.measure({}, self.family, {'positions': self.v, 'faces': self.f}, self.overrides, self.standard)
 
 
 class TwoHandDepthTests(unittest.TestCase):
