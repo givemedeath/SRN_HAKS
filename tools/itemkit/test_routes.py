@@ -30,6 +30,7 @@ class RouteTableTests(unittest.TestCase):
         self.assertTrue(needs_grip_standard('dagger',{}))
         self.assertFalse(needs_grip_standard('staff',{}))
         self.assertTrue(needs_grip_standard('staff',{'sizingAuthority':'midpoint-depth-two-hand'}))
+        self.assertTrue(needs_grip_standard('staff',{'sizingAuthority':'midpoint-depth-uniform'}))   # the even staff rule
 
     def test_every_route_is_internally_consistent(self):
         for name,route in ROUTES.items():

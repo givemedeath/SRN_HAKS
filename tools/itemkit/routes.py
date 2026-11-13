@@ -25,6 +25,7 @@ class Route(NamedTuple):
     hold: str = 'one'  # 'two' for a weapon held in both hands: sized uniformly, never by the one-hand usable length.
     carry: str = 'hip'  # Scripted fixture framing: 'shoulder' for a long two-hander resting on the right shoulder.
     shape: str = 'bladed'  # 'hafted' for a club, axe or polearm: a long handle with the mass at one end and no guard.
+    section: str = 'calibrated'  # 'uniform': one transverse scale to the grip depth, so a shaft keeps its own section.
 
 
 ROUTES = {
@@ -45,7 +46,8 @@ ROUTES = {
     'scythe': Route('composite', carrier=Carrier(55, 'wplsc', 'Scythe'), grip_bound=True, shape='hafted',
                     hold='two', carry='shoulder'),
     'spear': Route('composite', carrier=Carrier(58, 'wplss', 'Shortspear'), grip_bound=True, shape='hafted'),
-    'staff': Route('composite', carrier=Carrier(50, 'wdbqs', 'Staff', [32,128])),
+    # A staff is one long shaft, not a hilt: the per-axis hilt calibration flattened the stun staff (user, 2026-11-12).
+    'staff': Route('composite', carrier=Carrier(50, 'wdbqs', 'Staff', [32,128]), section='uniform'),
     'throwing-knife': Route('composite', carrier=Carrier(63, 'wthax', 'thrown', [32,64], wield='11')),
     'bow': Route('rigged', ('m',), Carrier(8, 'wbwln', 'rigged', [64,128], wield='5'), hidden_slots=True),
     'whip': Route('rigged', ('m',), Carrier(111, 'wwhip', 'rigged', [64,64], wield='****'), hidden_slots=True),
@@ -65,8 +67,8 @@ HAFTED_FAMILIES = tuple(name for name, route in ROUTES.items() if route.shape ==
 
 
 def needs_grip_standard(family, fit):
-    """Grip-bound families and any midpoint-depth two-hand fit size from the approved grip."""
-    return family in GRIP_BOUND_FAMILIES or fit.get('sizingAuthority') == 'midpoint-depth-two-hand'
+    """Grip-bound families and any midpoint-depth two-hand or transverse-uniform fit size from the approved grip."""
+    return family in GRIP_BOUND_FAMILIES or fit.get('sizingAuthority') in ('midpoint-depth-two-hand', 'midpoint-depth-uniform')
 
 
 def whole_shield(data):
