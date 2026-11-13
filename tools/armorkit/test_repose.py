@@ -103,6 +103,11 @@ def notched(x, z):
     return bare(x, z) and not (ARMPIT + 0.02 <= z < ARMPIT + 0.04 and 0.17 <= abs(x) < 0.19)
 
 
+def thumbed(x, z):
+    """As `inside`, with a thumb standing out from the outer side of each palm: drawn flat, palm to the front."""
+    return inside(x, z) or (0.86 <= z < 0.92 and 0.06 <= abs(x) - ARM(z) < 0.15)
+
+
 def holstered(x, z):
     """As `inside`, with a holster on each thigh below the hand and farther out than the fingers: no glove."""
     return inside(x, z) or (0.55 <= z < 0.62 and 0.52 < abs(x) < 0.60)
@@ -301,6 +306,31 @@ class ReposeTests(unittest.TestCase):
                 self.assertLess(error, 0.05, f'{joint}{side} {again[joint + side]} {self.there[joint + side]}')
         # the arms hang beside the body now, and the legs stand under the hips
         self.assertLess(np.abs(self.result['vertices'][:, 0]).max(), 0.45)
+
+    def test_a_flat_glove_drawn_palm_forward_is_turned_till_its_thumb_lies_forward(self):
+        v, faces = doll(depth=0.03, inside=thumbed)  # a flat hand, its thumb out to the side
+        thumb = (v[:, 2] > 0.865) & (v[:, 2] < 0.915) & (np.abs(v[:, 0]) - ARM(v[:, 2]) > 0.075)
+        posed = repose.onto_body(v * SCALE + SHIFT, faces, self.bones, self.parts)['posed']
+        for sign, side in ((-1, 'l'), (1, 'r')):
+            wrist, tip = self.there['wrist' + side], self.there['tip' + side]
+            axis = seams.unit(tip - wrist)
+            mine = posed[:len(v)][thumb & (np.sign(v[:, 0]) == sign)] - wrist
+            out = seams.unit((mine - (mine @ axis)[:, None] * axis).mean(axis=0))
+            self.assertGreater(out[1], 0.9, side)  # forward, as the body's thumb is, and not out to the side
+
+    def test_a_hand_is_turned_only_where_a_thumb_stands_out(self):
+        wrist, tip = np.zeros(3), np.array([0.0, 0.0, -0.18])
+        palm = np.array([(x, y, z) for x in np.linspace(-0.045, 0.045, 10) for y in (-0.01, 0.01) for z in np.linspace(-0.02, -0.18, 17)])
+        self.assertEqual(repose.thumb_turn(palm, wrist, tip), 0.0)  # a mitten: no thumb tells which way it faces
+        thumb = np.array([(x, y, z) for x in np.linspace(0.05, 0.10, 6) for y in (-0.01, 0.01) for z in (-0.06, -0.08)])
+        gloved = np.concatenate([palm, thumb])
+        angle = repose.thumb_turn(gloved, wrist, tip)
+        self.assertAlmostEqual(abs(angle), np.pi / 2, delta=0.1)
+        turned = repose.turned(thumb, wrist, seams.unit(tip - wrist), angle)
+        self.assertGreater(turned[:, 1].mean(), 0.06)  # the thumb, out along +x, now forward
+        np.testing.assert_allclose(np.linalg.norm(turned[:, :2], axis=1), np.linalg.norm(thumb[:, :2], axis=1))
+        mirrored = gloved * (-1, 1, 1)  # the other hand
+        self.assertAlmostEqual(repose.thumb_turn(mirrored, wrist, tip), -angle, delta=1e-6)
 
     def test_a_leg_pressed_past_the_middle_comes_back_to_its_own_side(self):
         there = {'hipl': np.array([-0.1, 0.0, 1.0]), 'hipr': np.array([0.1, 0.0, 1.0]), 'hips': np.array([0.0, 0.0, 1.0])}

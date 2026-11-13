@@ -44,6 +44,8 @@ THICK = {'pelvis': 0.115, 'torso': 0.115, 'neck': 0.05, 'thigh': 0.055, 'shin': 
          'fore': 0.036, 'hand': 0.03}
 BLEND = 0.45  # a vertex also follows a bone this much farther away (in thicknesses) than its nearest, fading to nothing
 SMOOTHING = 6  # passes that even the bone weights out over the surface, so no bone boundary tears it
+THUMB = 1.3  # a glove's thumb side reaches at least this much farther from the middle of its flat than the other side
+GLOVE = 20  # faces of an outfit that follow a hand, at least, for a glove to be turned
 # The body part the outfit is fitted round, per bone. Hands and feet are not fitted: gloves and boots replace the
 # body's closed fists and bare toes, and widening a boot round the toes turns it into a flipper.
 SKIN = {'pelvis': 'pelvis', 'torso': 'chest', 'neck': 'neck', 'thigh': 'leg', 'shin': 'shin', 'upper': 'bicep', 'fore': 'fore'}
@@ -398,6 +400,37 @@ def turn(a, b):
     return np.eye(3) + skew + skew @ skew / (1 + dot)
 
 
+def turned(points, origin, axis, angle):
+    """Points turned about the line through `origin` along unit `axis` by `angle` in radians, one or one per point."""
+    points = np.asarray(points, float)
+    angle = np.broadcast_to(np.asarray(angle, float), (len(points),))[:, None]
+    relative = points - origin
+    return origin + relative * np.cos(angle) + np.cross(axis, relative) * np.sin(angle) + axis * (relative @ axis)[:, None] * (1 - np.cos(angle))
+
+
+def thumb_turn(points, wrist, tip):
+    """The angle in radians a glove's `points` turn about the hand bone from `wrist` to `tip` to lie as the body's
+    hand does, or 0 where no thumb stands out.
+
+    The bodies hang their hands palm to thigh, the thumb forward (+y, the way they face). Across the bone a
+    glove is widest across the palm and the thumb, and its thumb's side reaches `THUMB` or more farther from
+    the bone than the other side does: the glove's own wrist and fingertips, which the bone runs through, lie
+    on its middle, and the middle of its points does not (a large thumb drew it 3 cm aside). A flat glove from
+    a front-view image hangs palm forward or back, and a fist or a mitten has no thumb to tell which way it
+    faces: it is not turned."""
+    axis = seams.unit(np.asarray(tip, float) - wrist)
+    relative = np.asarray(points, float) - wrist
+    across = relative - (relative @ axis)[:, None] * axis
+    wide = np.linalg.svd(across - across.mean(axis=0), full_matrices=False)[2][0]
+    reach = across @ wide
+    out, back = float(np.percentile(reach, 99.5)), float(-np.percentile(reach, 0.5))
+    if min(out, back) <= 0 or max(out, back) < THUMB * min(out, back):
+        return 0.0
+    thumb = wide * (1.0 if out > back else -1.0)
+    forward = seams.unit(np.array([0.0, 1.0, 0.0]) - axis[1] * axis)
+    return math.atan2(float(np.cross(thumb, forward) @ axis), float(thumb @ forward))
+
+
 def repose(vertices, faces, here, there, scale, height, free=None):
     """(vertices, weights): the outfit with each of its bones carried onto the body's.
 
@@ -406,7 +439,12 @@ def repose(vertices, faces, here, there, scale, height, free=None):
     bone to the body's length and scales it across by `scale`. A vertex follows the bones it is nearest to,
     counted in each bone's own thickness; `weights[bone, vertex]` is evened out over the surface so that
     joints bend smoothly. `free[bone, vertex]`, if given, says which bones a vertex may follow at all: the
-    torso's edge of a sleeve cut follows no bone of that arm, and the evening carries that into the torso."""
+    torso's edge of a sleeve cut follows no bone of that arm, and the evening carries that into the torso.
+
+    A bone turned the shortest way keeps its twist, and a glove that came flat, palm to the camera, hung palm
+    forward round the body's fist (Facility Security, 2026-11-13). Each hand is also turned about its bone till
+    its thumb lies forward (`thumb_turn`), and the forearm by a share of that growing from the elbow to the
+    wrist, as a forearm turns a hand, so the cuff between them is not wrung."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     moved, distance = [], []
     for name, start, end in BONES:
@@ -432,7 +470,18 @@ def repose(vertices, faces, here, there, scale, height, free=None):
         around = np.array([np.bincount(edges[:, 0], weights=row[edges[:, 1]], minlength=len(vertices)) for row in weight])
         weight = np.where(free, 0.5 * weight + 0.5 * around / count, 0.0)
     weight /= weight.sum(axis=0)
-    return np.einsum('bv,bvk->vk', weight, np.array(moved)), weight
+    moved, names = np.array(moved), [bone[0] for bone in BONES]
+    for side in 'lr':
+        hand, fore = names.index('hand' + side), names.index('fore' + side)
+        held = faces[(weight[hand][faces] > 0.5).all(axis=1)]
+        if len(held) < GLOVE:
+            continue
+        wrist, elbow = there['wrist' + side], there['elbow' + side]
+        angle = thumb_turn(surface(moved[hand], held, 4000, np.random.default_rng(0)), wrist, there['tip' + side])
+        moved[hand] = turned(moved[hand], wrist, seams.unit(there['tip' + side] - wrist), angle)
+        axis, length = seams.unit(wrist - elbow), float(np.linalg.norm(wrist - elbow))
+        moved[fore] = turned(moved[fore], elbow, axis, angle * np.clip((moved[fore] - elbow) @ axis / length, 0.0, 1.0))
+    return np.einsum('bv,bvk->vk', weight, moved), weight
 
 
 def surface(vertices, faces, count, rng):
