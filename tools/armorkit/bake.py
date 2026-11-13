@@ -7,10 +7,13 @@ siteguard-male, in the game client (docs/armorkit/pilot-corpsec.md), and the fun
 say what "the caller" flags; this is that caller.
 
 `bake` reads the generated colours and relief into every part, which takes minutes; `store` and `stored` keep its
-result, so `tints` and `write` can be run again on it. `gates` checks what was written.
+result, so `tints` and `write` can be run again on it. `gates` checks what was written. `bake` can also keep what it
+gives the split (`keep_split`), so that the split alone runs again on it in seconds with the code as it stands
+(`resplit`), for work on the cut.
 """
 import json
 import shutil
+import time
 from pathlib import Path
 
 import numpy as np
@@ -44,6 +47,8 @@ POINT = 1e-6  # metres: two corners of a triangle this near are one point, and t
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'src', 'trimmed')  # what `store` keeps of a part
 OPTIONAL = ('pad',)  # and what it keeps when a part has it: parts kept before it existed have none
 KEPT, KEPT_KIND = 'baked.json', 'srn-armorkit-baked-parts'  # the list of the parts `store` kept, and its kind
+SPLIT_KIND = 'srn-armorkit-split-inputs'  # what `keep_split` writes: what a bake gave the split
+WORN_KIND = 'srn-armorkit-split-parts'  # what `keep_parts` writes: the parts the split made, unbaked
 
 
 def roles(name, made):
@@ -231,7 +236,7 @@ def _past(vertices, faces, point, normal, limit):
     return np.maximum(depth, -height[pole].min()) if pole.any() else depth
 
 
-def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None):
+def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None, capture=None):
     """(parts, bones, whole): a generated outfit as the parts body `body` wears, each with its maps, and what
     it holds of holes and detached pieces (`surface`, at the body's size).
 
@@ -247,7 +252,8 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     A slot the brief leaves to the body (`bare`) gets no part: what the outfit has there, a glove's cuff
     past the wrist, is cut off on the joint's plane. In a slot the brief shares with the body's skin
     (`skin`) the part also holds the body's own part where the outfit shows it, with its textures
-    (`bodyskin.worn`); `body_textures` is the folder of the body's material files and maps."""
+    (`bodyskin.worn`); `body_textures` is the folder of the body's material files and maps. With `capture`, a file
+    path, what the split is given is kept there too (`keep_split`)."""
     count = len(document['materials'])
     require(not document.get('skin') or body_textures is not None, "An outfit that shows the body's skin on a part needs the folder of the body's textures")
     bones, skin = measure.body(body_pack, body)
@@ -285,14 +291,17 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 for key in keys}
     # the posed normals, and the positions and normals on the generated mesh, ride through the cut
     columns = np.concatenate([export.vertex_normals(v, f), in_field, export.vertex_normals(in_field, f)], axis=1)
-    made, origins = {}, {}
     mats = kinds[carried['origin']]
     guards = {(joint, side): flags for joint in split.GUARDS for side in 'lr'
               for flags in [split.guard(v, f, mats, joints, joint, side)] if flags is not None}
     say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
-    result = split.split(v, f, columns, joints, radii, overlaps, reaches=split.reaches(v, f, joints, radii, sleeves=carried['sleeves']),
-                         whole={('neck', 'c')}, made=made, sleeves=carried['sleeves'], guards=guards, origins=origins,
-                         shape=shaping.shaper(bones, contract, body, tier, guards), deep=shaping.TUBES, seat=seat, arms=arms)
+    given = {'vertices': v, 'faces': f, 'columns': columns, 'joints': joints, 'radii': radii, 'overlaps': overlaps,
+             'reaches': split.reaches(v, f, joints, radii, sleeves=carried['sleeves']), 'sleeves': carried['sleeves'], 'guards': guards,
+             'seat': seat, 'arms': arms, 'bones': bones, 'body': body, 'tier': tier, 'left': sorted(left_to_body(document))}
+    if capture is not None:
+        keep_split(given, capture)
+        say('split inputs kept in', capture)
+    result, made, origins = cut(given, contract)
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}
@@ -302,9 +311,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
             say(f'{name}: left to the body, {len(pf)} faces of the outfit cut off')
             continue
         role = roles(name, made[name])
-        pad = made[name] == split.PADDED  # a pad over a joint, both its halves and the cap carried round under them: the seam gate leaves it out
-        for flags in guards.values():
-            pad |= (origins[name] >= 0) & np.asarray(flags, bool)[np.maximum(origins[name], 0)]
+        pad = pad_flags(made[name], origins[name], guards)  # the seam gate leaves a pad over a joint out
         of_face = np.where(origins[name] >= 0, mats[np.maximum(origins[name], 0)], -1)  # per face: its material, -1 for what the split made
         bare = (of_face >= 0) & ~np.isin(of_face, metals)  # a face that is no plate's shows no plate
         if role['under'].any():  # the cloth of the part's commonest material, where the outfit shows that colour
@@ -341,6 +348,104 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
     return skinned(parts, document, body_pack, body_textures, body, bones, say), bones, whole
+
+
+def cut(given, contract=None):
+    """The split as a bake runs it, on what `bake` gives it (`keep_split`): (parts, made, origins) as `split.split`
+    returns them and fills them in. Each end at a tube joint is shaped to the contract (`ends.shaper`), the hips
+    are cut on the body's seat and the shoulders on its armhole, and the neck is left whole."""
+    contract = seams.load_contract() if contract is None else contract
+    made, origins = {}, {}
+    result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
+                         reaches=given['reaches'], whole={('neck', 'c')}, made=made, sleeves=given['sleeves'], guards=given['guards'],
+                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards']),
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'])
+    return result, made, origins
+
+
+def pad_flags(made, origins, guards):
+    """Per face of a part, whether it is a pad over a joint: what the split carried round under one (`PADDED`)
+    and the faces cut from a pad's own (`guards`, flags per face of the mesh split). The seam gate leaves
+    them out."""
+    pad = np.asarray(made) == split.PADDED
+    for flags in guards.values():
+        pad |= (np.asarray(origins) >= 0) & np.asarray(flags, bool)[np.maximum(origins, 0)]
+    return pad
+
+
+def keep_split(given, path):
+    """Write what a bake gave the split (`cut`) to `path`, one .npz file with no pickled objects in it."""
+    arrays = {}
+    skeleton = _flat(given, arrays)
+    np.savez_compressed(path, kind=np.array(SPLIT_KIND), skeleton=np.array(json.dumps(skeleton)), **arrays)
+    return path
+
+
+def kept_split(path):
+    """What `keep_split` wrote, as it was given."""
+    with np.load(path, allow_pickle=False) as data:
+        require('kind' in data and str(data['kind']) == SPLIT_KIND, f'{path} holds no split inputs kept by a bake')
+        return _unflat(json.loads(str(data['skeleton'])), data)
+
+
+def resplit(capture, contract=None):
+    """The split run again with the code as it stands on what a bake kept (`keep_split`), in seconds where the bake
+    takes minutes: (parts, report). `parts` maps each part a bake would bake (none the brief leaves to the body)
+    to its `v`, `f`, `made` (what made each face: `split.OWN`, `split.CLOSING` and so on) and `pad` (`pad_flags`).
+    The report holds the seconds the split took, the triangles of each part, those with two corners at one
+    point (`gates`), and the seam contract's measure of every end (`ends`, `seams`) with its `failures`. Nothing
+    is laid out, coloured or written: the gates of a written outfit are `run`'s."""
+    given = kept_split(capture)
+    began = time.monotonic()
+    result, made, origins = cut(given, contract)
+    seconds = time.monotonic() - began
+    left = set(given.get('left', ()))
+    parts = {name: {'v': pv, 'f': pf, 'made': made[name], 'pad': pad_flags(made[name], origins[name], given['guards'])}
+             for name, (pv, pf, _) in result.items() if name not in left}
+    collapsed = {name: _collapsed(part['v'], part['f']) for name, part in parts.items()}
+    failures = [f'{name}: {count} triangles with two corners at one point, which the model compiler drops' for name, count in collapsed.items() if count]
+    joined = ends(parts, given['bones'], given['body'], given['tier'], contract)
+    report = {'seconds': round(seconds, 2), 'triangles': {name: int(len(part['f'])) for name, part in parts.items()},
+              'collapsed': {name: count for name, count in collapsed.items() if count},
+              'seams': None if joined is None else joined[0], 'failures': failures + ([] if joined is None else joined[1])}
+    return parts, report
+
+
+def keep_parts(parts, path):
+    """Write the parts `resplit` made to one .npz file: `<part>__v`, `<part>__f`, `<part>__made` and `<part>__pad`."""
+    np.savez_compressed(path, kind=np.array(WORN_KIND), **{f'{name}__{key}': part[key] for name, part in parts.items()
+                                                           for key in ('v', 'f', 'made', 'pad')})
+    return path
+
+
+def _flat(value, arrays):
+    """`value` as JSON, its arrays put in `arrays` under names of their own; tuples, sets and keys that are not
+    strings are kept as what they were."""
+    if isinstance(value, np.ndarray):
+        name = f'a{len(arrays)}'
+        arrays[name] = value
+        return {'array': name}
+    if isinstance(value, dict):
+        return {'dict': [[_flat(key, arrays), _flat(item, arrays)] for key, item in value.items()]}
+    if isinstance(value, (list, tuple, set, frozenset)):
+        kind = 'list' if isinstance(value, list) else 'tuple' if isinstance(value, tuple) else 'set'
+        return {kind: [_flat(item, arrays) for item in (sorted(value, key=repr) if kind == 'set' else value)]}
+    if isinstance(value, np.generic):
+        value = value.item()
+    require(value is None or isinstance(value, (bool, int, float, str)), f'Split inputs hold a {type(value).__name__}, which is not kept')
+    return {'value': value}
+
+
+def _unflat(skeleton, arrays):
+    (kind, value), = skeleton.items()
+    if kind == 'array':
+        return np.asarray(arrays[value])
+    if kind == 'dict':
+        return {_unflat(key, arrays): _unflat(item, arrays) for key, item in value}
+    if kind in ('list', 'tuple', 'set'):
+        items = [_unflat(item, arrays) for item in value]
+        return items if kind == 'list' else tuple(items) if kind == 'tuple' else set(items)
+    return value
 
 
 def left_to_body(document):
@@ -538,7 +643,7 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None):
 
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
-        packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None):
+        packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None, capture=None):
     """Bake one outfit into `output` and check it: the record, also written as `<output>/bake.json`.
 
     With `mesh`, `colours`, `raw` and `xatlas` the outfit is baked (`bake`) and, where `kept` names a folder,
@@ -548,12 +653,14 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     folders a model's name may not clash with. With `game`, the game's install folder, the models are
     compiled into `<output>/resources` (`export.compile_models`, with `resources` to look animations up in):
     the models of this run and no other. An output folder used before still holds the models written then,
-    under another number or for parts the outfit no longer has, and they are neither in the record nor gated."""
+    under another number or for parts the outfit no longer has, and they are neither in the record nor gated.
+    `capture`, with a fresh bake, is the file what the split is given is kept in (`keep_split`, `resplit`)."""
     fresh = [mesh, colours, raw, xatlas]
+    require(capture is None or mesh is not None, 'Split inputs are kept from a fresh bake: parts tinted again are split already')
     require(all(given is not None for given in fresh) or (kept is not None and all(given is None for given in fresh)),
             'Bake an outfit from its mesh, colour field, raw mesh and the layout library, or tint the parts kept in a folder again')
     if mesh is not None:
-        parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures)
+        parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture)
         if kept is not None:
             store(parts, kept, document)
     else:

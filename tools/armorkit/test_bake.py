@@ -348,5 +348,53 @@ class BakeTests(unittest.TestCase):
                 bake.run(document, 'out', 'bodies', 332, **wrong)
 
 
+class SplitCaptureTests(unittest.TestCase):
+    def test_what_the_split_is_given_is_kept_as_it_was(self):
+        given = {'vertices': np.arange(12.0).reshape(4, 3), 'faces': np.array([(0, 1, 2), (0, 2, 3)]),
+                 'radii': {('shoulder', 'l'): 0.12, ('waist', 'c'): np.float64(0.2)},
+                 'sleeves': {'l': {'on': np.zeros((4, 4), bool), 'normals': [np.ones(3), -np.ones(3)], 'reach': 0.3}},
+                 'whole': {('neck', 'c')}, 'left': ['handl'], 'body': 'pmh0', 'tier': np.int64(2), 'none': None, 'flag': True}
+        with tempfile.TemporaryDirectory() as folder:
+            path = bake.keep_split(given, Path(folder) / 'split.npz')
+            kept = bake.kept_split(path)
+            self.assertEqual(set(kept), set(given))
+            self.assertTrue(np.array_equal(kept['vertices'], given['vertices']) and kept['faces'].dtype == given['faces'].dtype)
+            self.assertEqual(kept['radii'], {('shoulder', 'l'): 0.12, ('waist', 'c'): 0.2})  # tuple keys stay tuples
+            self.assertEqual(kept['sleeves']['l']['on'].dtype, bool)
+            self.assertTrue(isinstance(kept['sleeves']['l']['normals'], list) and np.array_equal(kept['sleeves']['l']['normals'][1], -np.ones(3)))
+            self.assertEqual((kept['whole'], kept['left'], kept['body'], kept['tier'], kept['none'], kept['flag']),
+                             ({('neck', 'c')}, ['handl'], 'pmh0', 2, None, True))
+            np.savez(Path(folder) / 'other.npz', vertices=given['vertices'])
+            with self.assertRaises(ValueError):  # not what a bake kept
+                bake.kept_split(Path(folder) / 'other.npz')
+            with self.assertRaises(ValueError):  # nothing is kept that would need pickling to read back
+                bake.keep_split({'shape': object()}, Path(folder) / 'bad.npz')
+
+    def test_a_pad_is_what_was_carried_round_under_one_and_what_was_cut_from_its_faces(self):
+        made = np.array([split.OWN, split.PADDED, split.OWN, split.CLOSING])
+        origins = np.array([0, -1, 2, -1])
+        guards = {('elbow', 'l'): np.array([False, False, True])}
+        self.assertEqual(bake.pad_flags(made, origins, guards).tolist(), [False, True, True, False])
+        self.assertEqual(bake.pad_flags(made, origins, {}).tolist(), [False, True, False, False])
+
+    def test_a_split_run_again_reports_its_parts_and_their_ends_and_leaves_out_the_bodys(self):
+        pinched = np.array([(0.0, 0.0, 0.0), (bake.POINT / 2, 0.0, 0.0), (0.0, 1.0, 0.0)])
+        result = {'chest': (pinched, np.array([(0, 1, 2)]), np.zeros((3, 9))), 'handl': (pinched, np.array([(0, 1, 2)]), np.zeros((3, 9)))}
+        made = {'chest': np.array([split.OWN]), 'handl': np.array([split.OWN])}
+        origins = {'chest': np.array([0]), 'handl': np.array([0])}
+        given = {'guards': {}, 'bones': {}, 'body': 'pmh0', 'tier': 2, 'left': ['handl']}
+        with mock.patch.object(bake, 'kept_split', lambda path: given), mock.patch.object(bake, 'cut', lambda kept, contract: (result, made, origins)), \
+                mock.patch.object(bake, 'ends', lambda parts, bones, body, tier, contract: ({'elbow': {}}, ['forel does not reach the elbow plane'])):
+            parts, report = bake.resplit('kept.npz')
+        self.assertEqual(set(parts), {'chest'})  # the hand is the body's
+        self.assertEqual(report['triangles'], {'chest': 1})
+        self.assertEqual(report['collapsed'], {'chest': 1})
+        self.assertEqual(report['seams'], {'elbow': {}})
+        self.assertEqual(report['failures'], ['chest: 1 triangles with two corners at one point, which the model compiler drops',
+                                              'forel does not reach the elbow plane'])
+        with self.assertRaises(ValueError):  # parts tinted again were split long ago
+            bake.run({'model': 'x'}, 'out', 'bodies', 332, kept='kept', capture='split.npz')
+
+
 if __name__ == '__main__':
     unittest.main()

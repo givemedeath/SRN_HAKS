@@ -115,10 +115,39 @@ def command_bake(args):
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
                       xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=args.tier,
                       packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
-                      say=lambda *words: print(*words, file=sys.stderr, flush=True))
+                      capture=args.capture, say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
     if not record['gates']['passed']:
         sys.exit(1)
+
+
+def command_split(args):
+    from . import bake
+    parts, report = bake.resplit(args.capture)
+    if args.output:
+        bake.keep_parts(parts, args.output)
+    print(json.dumps(report))
+    if report['failures']:
+        sys.exit(1)
+
+
+def command_render(args):
+    from . import view
+    directions = tuple(name.strip() for name in args.views.split(',')) if args.views else tuple(view.DIRECTIONS)
+    print(json.dumps(view.views(args.parts, args.output, args.body_pack, args.body, args.animations, args.clip, args.time,
+                                args.focus, directions, args.size)))
+
+
+def command_poses(args):
+    from . import client, poses
+    spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
+                              colours=json.loads(args.colours) if args.colours else None)
+    record = poses.build(spec, labels, args.output, args.nwn_root)
+    if args.run:
+        if args.wait:
+            client.wait_free(args.wait)
+        record['evidence'] = poses.run(args.nwn_root, record, labels, args.output, settle=args.settle)
+    print(json.dumps({key: record[key] for key in ('module', 'shots', 'evidence') if key in record}))
 
 
 def command_fixture(args):
@@ -187,7 +216,38 @@ def main(argv=None):
     p.add_argument('--pack', action='append', default=[], help='pack folder whose model names the outfit may not take')
     p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
     p.add_argument('--resources', action='append', default=[], help='folder the compiler looks animations up in')
+    p.add_argument('--capture', help='file to keep what the split is given in, for `split` to run it again')
     p.set_defaults(handler=command_bake)
+    p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
+    p.add_argument('capture', help='the file `bake --capture` wrote')
+    p.add_argument('--output', help='.npz file to write the parts to, for `render`')
+    p.set_defaults(handler=command_split)
+    p = commands.add_parser('render', help="draw an outfit's parts offline, at rest or posed by one of the body's clips")
+    p.add_argument('parts', help='the .npz `split --output` wrote, or a folder `bake --kept` kept parts in')
+    p.add_argument('output', help='the image to write the views to')
+    p.add_argument('--body-pack', required=True, help="folder holding the body's models"); p.add_argument('--body', default='pmh0')
+    p.add_argument('--animations', action='append', default=[],
+                   help='folder of extracted stock animation models the body inherits (game data, outside the repository); needed with --clip')
+    p.add_argument('--clip', help='the clip to pose the parts by, as the game names it (conjure2: arms up)')
+    p.add_argument('--time', type=float, default=0.5, help='how far through the clip, from 0 to 1')
+    p.add_argument('--focus', default='shoulders', choices=('shoulders', 'hips', 'body'))
+    p.add_argument('--views', help='comma-separated: left, right, front, back, left front, right back (default all)')
+    p.add_argument('--size', type=int, default=520, help='pixels a side of each view')
+    p.set_defaults(handler=command_render)
+    p = commands.add_parser('poses', help='build the client check of a baked outfit in six poses, and optionally run it')
+    p.add_argument('bake', help='the output folder of a bake compiled with --nwn-root')
+    p.add_argument('output', help='a fresh folder for the fixture, its captures and the sheet')
+    p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')
+    p.add_argument('--stock', required=True, help='folder of the stock parts tables the outfit is added to')
+    p.add_argument('--hak', action='append', default=[], required=True, help='built pack the fixture loads, highest priority first')
+    p.add_argument('--tlk', help='talk table the fixture loads')
+    p.add_argument('--preset', default='body', choices=('body', 'shoulders'), help='where the camera looks')
+    p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
+    p.add_argument('--colours', help='JSON of the six armour colour channels, e.g. {"cloth1": 22}')
+    p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
+    p.add_argument('--wait', type=float, help='seconds to wait for another session\'s client to close first')
+    p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')
+    p.set_defaults(handler=command_poses)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)
     p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')
