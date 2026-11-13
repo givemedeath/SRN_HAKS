@@ -664,8 +664,8 @@ outfit. The user decided that future outfits are generated without shoulder pads
 made as its own item: one closed pad, mirrored for the other side, fitted onto the body's shoulder and worn
 whole on the shoulder slot, so that any pad can go with any outfit.
 
-Still to build: the outfit's construction rules (`tools/armorkit/brief.py`, `CONSTRUCTIONS`, rule 3) and the
-brief's `pads` describe an outfit drawn with pads on, and change before the next reference folder is sealed;
-the pad needs its own brief and a fitting step that places and scales it on the shoulder bone, with its
+The outfit's construction rules are at version 2 (`tools/armorkit/brief.py`, `CONSTRUCTIONS`): rule 3 now
+says nothing is worn on the shoulders, no new reference folder is sealed with version 1, and a brief of
+version 2 lists no `pads`. Still to build: the pad needs its own brief and a fitting step that places and scales it on the shoulder bone, with its
 clearance over the upper arm checked with the arms up and forward (`python -m tools.armorkit render`) before
 the client. The Site Guard keeps its pads, and the pad split stays for an outfit generated with them.
