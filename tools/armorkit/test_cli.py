@@ -31,7 +31,7 @@ class CommandLineTests(unittest.TestCase):
 
     def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
         from . import brief
-        given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK + ' ' + brief.BUILT, 'construction': 1,
+        given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK + ' ' + brief.BUILT, 'construction': max(brief.CONSTRUCTIONS),
                  'materials': [{'name': 'fabric', 'kind': 'cloth', 'colour': [128, 128, 128], 'look': 'GREY cloth', 'wears': 'the shirt.'},
                                {'name': 'plates', 'kind': 'metal', 'colour': [150, 180, 220], 'look': 'PALE BLUE plastic', 'wears': 'the guards.'}]}
         with tempfile.TemporaryDirectory() as folder:
@@ -123,6 +123,45 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(set(self.fixture_run()), {'build'})
         self.assertEqual(self.fixture_run('--run')['run'], {'timeout': None, 'settle': 1.5})
         self.assertEqual(self.fixture_run('--run', '--timeout', '600', '--settle', '1.2')['run'], {'timeout': 600.0, 'settle': 1.2})
+
+    def test_a_split_runs_again_on_what_a_bake_kept_and_fails_on_a_gate(self):
+        from . import bake
+        calls = {}
+        report = lambda failures: (lambda capture: calls.setdefault('capture', capture) and ({'chest': {}}, {'failures': failures}))
+        with mock.patch.object(bake, 'resplit', report([])), mock.patch.object(bake, 'keep_parts', lambda parts, path: calls.setdefault('parts', path)):
+            self.assertEqual(run('split', 'kept.npz', '--output', 'parts.npz'), {'failures': []})
+        self.assertEqual((calls['capture'], calls['parts']), ('kept.npz', 'parts.npz'))
+        with mock.patch.object(bake, 'resplit', report(['chest: short'])), self.assertRaises(SystemExit) as stopped:
+            run('split', 'kept.npz')
+        self.assertEqual(stopped.exception.code, 1)
+        given = []
+        with mock.patch.object(bake, 'run', lambda *args, **options: given.append(options) or {'gates': {'passed': True}}), \
+                mock.patch.object(cli, 'layout_library', lambda folder: folder):
+            run('bake', Path(__file__).with_name('briefs') / 'corpsec-siteguard-male-2.json', 'out', '--number', 332, '--body-pack', 'bodies',
+                '--mesh', 'm', '--colours', 'c', '--raw', 'r', '--xatlas', 'x', '--capture', 'split.npz')
+        self.assertEqual(given[0]['capture'], 'split.npz')
+
+    def test_render_and_poses_route_their_options(self):
+        from . import poses, view
+        calls = {}
+        with mock.patch.object(view, 'views', lambda *given: calls.setdefault('views', given) and {'output': 'sheet.png'}):
+            run('render', 'parts.npz', 'sheet.png', '--body-pack', 'bodies', '--animations', 'stock', '--clip', 'conjure2', '--views', 'left, front')
+            run('render', 'kept', 'rest.png', '--body-pack', 'bodies', '--focus', 'body')
+        self.assertEqual(calls['views'], ('parts.npz', 'sheet.png', 'bodies', 'pmh0', ['stock'], 'conjure2', 0.5, 'shoulders', ('left', 'front'), 520))
+        layout = {'labels': [], 'columns': 4}
+        steps = []
+        with mock.patch.object(poses, 'spec', lambda *given, **options: steps.append(('spec', given, options)) or ({'name': 'ak_poses'}, layout)), \
+                mock.patch.object(poses, 'build', lambda *given: steps.append(('build', given)) or {'module': 'm', 'shots': 0}), \
+                mock.patch.object(poses, 'run', lambda *given, **options: steps.append(('run', given, options)) or {'captures': []}), \
+                mock.patch.object(client, 'wait_free', lambda seconds: steps.append(('wait', seconds))):
+            got = run('poses', 'bake', 'check', '--nwn-root', 'game', '--stock', 'stock', '--hak', 'a.hak', '--hak', 'b.hak',
+                      '--preset', 'shoulders', '--without', 'shoulder', '--colours', '{"cloth1": 10}', '--run', '--wait', 600)
+            run('poses', 'bake', 'check', '--nwn-root', 'game', '--stock', 'stock', '--hak', 'a.hak')
+        self.assertEqual(got, {'module': 'm', 'shots': 0, 'evidence': {'captures': []}})
+        self.assertEqual(steps[0], ('spec', ('bake', 'check', 'stock', ['a.hak', 'b.hak']),
+                                    {'tlk': None, 'preset': 'shoulders', 'without': ['shoulder'], 'colours': {'cloth1': 10}}))
+        self.assertEqual([step[0] for step in steps], ['spec', 'build', 'wait', 'run', 'spec', 'build'])  # waits only to run, runs only when asked
+        self.assertEqual((steps[3][1][0], steps[3][1][1]['module'], *steps[3][1][2:], steps[3][2]), ('game', 'm', layout, 'check', {'settle': 1.2}))
 
     def test_measuring_seams_needs_the_animation_models(self):
         for flags in ((), ('--only', 'seams')):

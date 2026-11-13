@@ -653,3 +653,19 @@ half over the top of the shoulder stays on the chest, and the half past it rides
 round them. In the client the shards are gone from the arms-up views and the armhole shows cloth; the pad
 shows its cut when the arm moves (forward, crouching, talking), as the choice said it would, and standing it
 shows a faint line across the pad where the chest's texture meets the shoulder part's.
+
+## Revision 2026-11-12: shoulder pads are made apart from the outfit (user decision)
+
+Seen in the client pose check of the Site Guard (`python -m tools.armorkit poses`, shoulders preset), the pad
+cut from the outfit costs three ways: its top stays on the chest and parts from the rest when the arm moves,
+the chest under it shows pale patches in every pose because the generated outfit has no surface of its own
+there, and the pad split, its shard fixes and the line across it exist only because the pad came with the
+outfit. The user decided that future outfits are generated without shoulder pads, and that a shoulder pad is
+made as its own item: one closed pad, mirrored for the other side, fitted onto the body's shoulder and worn
+whole on the shoulder slot, so that any pad can go with any outfit.
+
+The outfit's construction rules are at version 2 (`tools/armorkit/brief.py`, `CONSTRUCTIONS`): rule 3 now
+says nothing is worn on the shoulders, no new reference folder is sealed with version 1, and a brief of
+version 2 lists no `pads`. Still to build: the pad needs its own brief and a fitting step that places and scales it on the shoulder bone, with its
+clearance over the upper arm checked with the arms up and forward (`python -m tools.armorkit render`) before
+the client. The Site Guard keeps its pads, and the pad split stays for an outfit generated with them.

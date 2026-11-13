@@ -21,15 +21,17 @@ A brief is a JSON document:
      "prompt": "... {materials} ..."}
 
 `colour` is the flat colour the prompt's words (`look`) ask for, 0-255. `shown`, optional, is the colour the
-generated outfit shows instead, recorded once it is known to have drifted. `pads` names the sides the outfit is
-designed with a shoulder pad on (`repose.onto_body`, `padded`). `prompt` is the image prompt with `{materials}`
+generated outfit shows instead, recorded once it is known to have drifted. `pads` names the sides an outfit
+drawn before construction version 2 has a shoulder pad on (`repose.onto_body`, `padded`). `prompt` is the image prompt with `{materials}`
 where its colour paragraph goes.
 
-`"construction": 1` and `{construction}` in the prompt add the paragraph that says how an outfit is built so
+`"construction": 2` and `{construction}` in the prompt add the paragraph that says how an outfit is built so
 that it can be cut into parts (`CONSTRUCTIONS`). What the first worn outfit took longest to put right was
 drawn into its reference image: frames and piping of metal a face wide, a guard in two plates across an
-elbow, a shoulder guard over the sleeve's seam, straps along the joints. No new reference folder is sealed
-without the current paragraph (`seal`); a folder sealed before keeps the prompt it was sealed with.
+elbow, a shoulder guard over the sleeve's seam, straps along the joints. Version 1 put a shoulder guard on the
+upper arm below the shoulder; version 2 draws no shoulder pads at all, which are made apart from the outfit
+(docs/armorkit/plan.md), and a brief of it lists no `pads`. No new reference folder is sealed without the
+current paragraph (`seal`); a folder sealed before keeps the prompt it was sealed with.
 
 `bare` names the slots the outfit leaves to the body, and `skin` those where it covers the body only in part
 and the body's skin shows beside it (`bake.bake`): `"bare": ["forearm"], "skin": ["bicep"]` for a shirt with
@@ -51,7 +53,7 @@ MARK = '{materials}'
 BUILT = '{construction}'
 # The paragraph of an image prompt that says how an outfit is built, by version. A sealed folder's prompt is
 # written from the version its brief names, so a paragraph is never edited: a change is a new version.
-CONSTRUCTIONS = {1: '\n'.join((
+_RULES = (
     'Construction, how this outfit is built. It will be cut into separate parts at the shoulders, elbows, wrists, waist, hips, knees and ankles:',
     '1. Every hard plate or guard is one solid, simple shape at least as wide as a hand, in its own colour all over. '
     'Nothing thin is drawn in a plate\'s colour: no frames, outlines, piping, trim lines or small tabs on the cloth.',
@@ -61,7 +63,12 @@ CONSTRUCTIONS = {1: '\n'.join((
     'The top of the shoulder and the seam where the sleeve joins the body are plain cloth with nothing lying over them.',
     '4. Every strap and band goes round the middle of an upper arm, a forearm, a thigh or a shin. '
     'No strap runs along or across a shoulder, an elbow, a wrist, the waist, a hip, a knee or an ankle.',
-    '5. Nothing worn on the torso touches the arms: a vest or a carrier is narrow at the sides and ends well short of the armpits.'))}
+    '5. Nothing worn on the torso touches the arms: a vest or a carrier is narrow at the sides and ends well short of the armpits.')
+# version 2: no shoulder pads, which are made apart from the outfit (user decision 2026-11-12)
+UNPADDED = ('3. Nothing is worn on the shoulders: no shoulder pad, pauldron or guard over the shoulder or the top of the upper arm; '
+            'those are made separately. The top of the shoulder and the seam where the sleeve joins the body are plain, with nothing lying over them.')
+CONSTRUCTIONS = {1: '\n'.join(_RULES), 2: '\n'.join(_RULES[:3] + (UNPADDED,) + _RULES[4:])}
+PADLESS = 2  # the first version drawn without shoulder pads: a brief of it lists no `pads`
 COUNTS = ('One', 'Two', 'Three', 'Four', 'Five', 'Six')
 APART = 30.0  # the least two materials' colours may differ by in a prompt, in `texture.tone`'s space. The first outfit's
 # cloth and plates were asked for 10 apart and its cloth came out 21 from what was asked: they could be told only by guessing
@@ -92,6 +99,8 @@ def validate(document):
                 and len(set(listed)) == len(listed), f'{key} lists slots, each once, of {list(slots)}: what the bake can build')
     pads = document.get('pads', [])
     require(isinstance(pads, list) and set(pads) <= {'l', 'r'} and len(set(pads)) == len(pads), 'Pads are on the l or r side')
+    require(not pads or version is None or version < PADLESS,
+            f'An outfit drawn to construction {PADLESS} or later has no shoulder pads: they are made apart from it')
     materials = document['materials']
     require(isinstance(materials, list) and 1 <= len(materials) <= len(COUNTS), 'A brief lists one to six materials')
     colour = lambda value: (isinstance(value, list) and len(value) == 3
