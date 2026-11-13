@@ -210,9 +210,14 @@ class ReviewerTests(unittest.TestCase):
         self.assertEqual((pairs[5]['prefix'], pairs[5]['x'], pairs[5]['y']), ('sw9_', 75.0, {'m': sm, 'f': sf}))   # one fits south
         record = P.reviewer(placed[0], 'sw8_f0', 'Item 0', 'f', pairs[0]['x'], pairs[0]['y']['f'])
         self.assertEqual((record['XPosition']['value'], record['YPosition']['value']), (22.5, af))
+        # an object in the sw1_ row's way sends the group on to the sw2_ row; an area too short for it refuses
+        _, pairs = P.plan_pairs(placed, packages[:5], 80.0, 80.0, obstacles=[(30.0, af)])
+        self.assertEqual({(p['x'], p['y']['m']) for p in pairs}, {(22.5 + 3.5 * i, bm) for i in range(5)})
+        self.assertEqual(P.plan_pairs(placed, packages[:5], 80.0, 80.0, obstacles=[(30.0, af + 3.0)])[1][0]['y']['m'], am)   # 3 m off: clear
+        with self.assertRaisesRegex(P.PublishError, 'No room'): P.plan_pairs(placed, packages[:5], 80.0, 25.0, obstacles=[(30.0, af)])
 
     def test_reviewer_copy_changes_only_identity_and_position(self):
-        copy = P.reviewer(self.creatures[0], 'sw2_f0', 'Test Knife', 'f', 12.0)
+        copy = P.reviewer(self.creatures[0], 'sw2_f0', 'Test Knife', 'f', 12.0, P.ROW_Y['f'])
         self.assertEqual((copy['Tag']['value'], copy['TemplateResRef']['value'], copy['FirstName']['value'], copy['YPosition']['value']),
                          ('sw2_f0', 'sw2_f0', {'0': 'Test Knife / female'}, 9.0))
         self.assertEqual(self.creatures[0]['Tag']['value'], 'sw1_m0')
