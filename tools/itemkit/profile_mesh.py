@@ -19,6 +19,7 @@ mesh without texture is `mesh.glb`. Nothing here approves the shape: the clay vi
 import argparse
 import json
 from pathlib import Path
+import shutil
 import sys
 import numpy as np
 
@@ -28,21 +29,20 @@ if __package__ in (None, ''):
 from tools.headkit.common import pin, require, write
 
 BACKGROUND = 18          # a pixel is object when it is this much darker than white in some channel
-OPENING_SPECK_PX = 16    # enclosed regions smaller than this are antialias specks, not openings
+OPENING_SPECK_PX = 16    # an enclosed region is a speck when it is under this many pixels...
+OPENING_MIN_METRES = .001  # ...and under a millimetre across at the image's scale
 
 
-def enclosed_regions(component):
-    """Pixel areas of the background regions the silhouette encloses, largest first (antialias specks left out)."""
+def region_sizes(mask):
+    """Pixel areas of the connected regions of a boolean image, largest first."""
     from scipy import ndimage
-    holes = ndimage.binary_fill_holes(component) & ~component
-    labels, count = ndimage.label(holes)
-    sizes = ndimage.sum(holes, labels, range(1, count + 1)) if count else []
-    return sorted((int(s) for s in sizes if s >= OPENING_SPECK_PX), reverse=True)
+    labels, count = ndimage.label(mask)
+    return sorted((int(s) for s in ndimage.sum(mask, labels, range(1, count + 1))), reverse=True) if count else []
 
 
 def outline(image, foreground=None):
-    """(mask, top, bottom, first, last, enclosed): the filled silhouette, its per-column extents in pixels and the
-    areas of the enclosed regions the fill closed.
+    """(mask, top, bottom, first, last, found): the filled silhouette, its per-column extents in pixels, and `found`:
+    the areas of the enclosed regions the fill closed ('enclosed') and of the smaller pieces left out ('dropped').
 
     Without `foreground` the object is keyed off a white background; a catalog detail image sits on black beside its
     reviewed foreground mask, which is then the silhouette. Revolving and extruding the outline cannot keep an opening,
@@ -54,13 +54,15 @@ def outline(image, foreground=None):
     else:
         rgb = np.asarray(image.convert('RGB')).astype(np.int32); solid = (255 - rgb.min(2)) > BACKGROUND
     labels, count = ndimage.label(solid); require(count > 0, 'No object on the background')
-    sizes = ndimage.sum(solid, labels, range(1, count + 1)); component = labels == 1 + int(np.argmax(sizes))
-    enclosed = enclosed_regions(component); mask = ndimage.binary_fill_holes(component)
+    sizes = ndimage.sum(solid, labels, range(1, count + 1)); keep = int(np.argmax(sizes)); component = labels == 1 + keep
+    mask = ndimage.binary_fill_holes(component)
+    found = {'enclosed': region_sizes(mask & ~component),
+             'dropped': sorted((int(s) for k, s in enumerate(sizes) if k != keep), reverse=True)}
     columns = np.flatnonzero(mask.any(0)); first, last = int(columns[0]), int(columns[-1])
     top = np.full(mask.shape[1], np.nan); bottom = np.full(mask.shape[1], np.nan)
     for x in columns:
         rows = np.flatnonzero(mask[:, x]); top[x], bottom[x] = rows[0], rows[-1] + 1
-    return mask, top, bottom, first, last, enclosed
+    return mask, top, bottom, first, last, found
 
 
 def layout(mask, top, bottom, first, last, round_only=False):
@@ -186,36 +188,50 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, 
     """`fill_openings`: the reviewer's words that the regions the silhouette encloses are not openings to keep (keyed
     highlights, say). Without them an enclosed region stops the build: this mesher cannot keep an opening."""
     from PIL import Image
+    require(length > 0 and 0 < blade_depth <= 1 and hook_px > 0, 'Positive length, blade depth and hook thickness required')
+    require(fill_openings is None or fill_openings.strip(), "--fill-openings must quote the reviewer's words")
+    output = Path(output); require(not output.exists(), f'{output} exists')
+    try:
+        with Image.open(image_path) as image:
+            image.load()
+            if mask_path:
+                with Image.open(mask_path) as foreground: foreground.load(); mask, top, bottom, first, last, found = outline(image, foreground)
+            else: mask, top, bottom, first, last, found = outline(image)
+            scale = length / (last + 1 - first); enclosed = found['enclosed']
+            # A region is a speck only when it is both a few pixels and under a millimetre across at this scale.
+            openings = [s for s in enclosed if s >= OPENING_SPECK_PX or 2 * np.sqrt(s / np.pi) * scale >= OPENING_MIN_METRES]
+            require(not openings or fill_openings,
+                    f'The silhouette encloses {len(openings)} region(s) (largest {openings[0] if openings else 0} px) that meshing '
+                    'would fill: keep them through another route, or give --fill-openings with the review that they are not openings')
+            output.mkdir(parents=True)
+            return _mesh(image, image_path, output, length, mask, top, bottom, first, last, found, scale, blade_depth, hook_px,
+                         voxel, mask_path, round_only, fill_openings)
+    except BaseException:
+        if output.exists(): shutil.rmtree(output)        # nothing half-built is left to block a corrected rerun
+        raise
+
+
+def _mesh(image, image_path, output, length, mask, top, bottom, first, last, found, scale, blade_depth, hook_px, voxel,
+          mask_path, round_only, fill_openings):
     from tools.headkit.gltf import write_mesh
     from .donor import embed_diffuse
     from .geometry import topology
-    require(length > 0 and 0 < blade_depth <= 1 and hook_px > 0, 'Positive length, blade depth and hook thickness required')
-    require(fill_openings is None or fill_openings.strip(), "--fill-openings must quote the reviewer's words")
-    with Image.open(image_path) as image:
-        image.load()
-        if mask_path:
-            with Image.open(mask_path) as foreground: foreground.load(); mask, top, bottom, first, last, enclosed = outline(image, foreground)
-        else: mask, top, bottom, first, last, enclosed = outline(image)
-        require(not enclosed or fill_openings,
-                f'The silhouette encloses {len(enclosed)} region(s) (largest {enclosed[0] if enclosed else 0} px) that meshing '
-                'would fill: keep them through another route, or give --fill-openings with the review that they are not openings')
-        output = Path(output); output.mkdir(parents=True, exist_ok=False)     # after validation: a bad call leaves no folder
-        plan, half = layout(mask, top, bottom, first, last, round_only)
-        scale = length / (last + 1 - first); voxel = voxel or max(scale * .75, .0008)
-        field, (xs, ys, zs), hooked = distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, voxel)
-        v, f = surface_nets(field, (xs[0], ys[0], zs[0]), voxel)
-        report = topology(v, f)
-        require(report['closedWound'], 'The meshed outline is not one closed outward solid')
-        # glTF frame: the long axis on +X, image up on +Y, depth on Z. UVs project the side view. A small shear by depth
-        # (under a pixel across the whole part) keeps faces seen edge-on from the side, such as the end caps, from
-        # collapsing to zero UV area, which a textured donor may not have.
-        depth_px = v[:, 2] / scale
-        u = ((v[:, 0] / scale + first) + .02 * depth_px + .5) / mask.shape[1]
-        w = ((plan['axisRow'] - v[:, 1] / scale) + .013 * depth_px + .5) / mask.shape[0]
-        normals = vertex_normals(v, f)
-        write_mesh(output/'mesh.glb', v, f, normals=normals)
-        write_mesh(output/'uv.glb', v, f, uv=np.clip(np.c_[u, w], 0, 1)[f], normals=normals)
-        texture = diffuse(image, mask, output/'diffuse-4096.png')
+    plan, half = layout(mask, top, bottom, first, last, round_only)
+    voxel = voxel or max(scale * .75, .0008)
+    field, (xs, ys, zs), hooked = distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, voxel)
+    v, f = surface_nets(field, (xs[0], ys[0], zs[0]), voxel)
+    report = topology(v, f)
+    require(report['closedWound'], 'The meshed outline is not one closed outward solid')
+    # glTF frame: the long axis on +X, image up on +Y, depth on Z. UVs project the side view. A small shear by depth
+    # (under a pixel across the whole part) keeps faces seen edge-on from the side, such as the end caps, from
+    # collapsing to zero UV area, which a textured donor may not have.
+    depth_px = v[:, 2] / scale
+    u = ((v[:, 0] / scale + first) + .02 * depth_px + .5) / mask.shape[1]
+    w = ((plan['axisRow'] - v[:, 1] / scale) + .013 * depth_px + .5) / mask.shape[0]
+    normals = vertex_normals(v, f)
+    write_mesh(output/'mesh.glb', v, f, normals=normals)
+    write_mesh(output/'uv.glb', v, f, uv=np.clip(np.c_[u, w], 0, 1)[f], normals=normals)
+    texture = diffuse(image, mask, output/'diffuse-4096.png')
     textured = embed_diffuse(output/'uv.glb', texture, output/'textured.glb'); (output/'uv.glb').unlink()
     result = {'kind': 'profile-mesh', 'source': pin(image_path), 'lengthMetres': length, 'metresPerPixel': scale, 'voxel': voxel,
               'bladeDepthRatio': blade_depth, 'hookThicknessPixels': hook_px, 'layout': plan, 'hooks': hooked,
@@ -226,7 +242,9 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, 
                         '; one signed distance union meshed by surface nets; side-view colour projected as the diffuse',
               'roundOnly': round_only, 'reviewRequired': True}
     if mask_path: result['foregroundMask'] = pin(mask_path)
-    if enclosed: result['filledRegions'] = {'count': len(enclosed), 'pixels': enclosed, 'review': fill_openings}
+    # Every filled region and every dropped piece is recorded, specks included: nothing changes the outline unseen.
+    if found['enclosed']: result['filledRegions'] = {'count': len(found['enclosed']), 'pixels': found['enclosed'], 'review': fill_openings}
+    if found['dropped']: result['droppedComponents'] = {'count': len(found['dropped']), 'pixels': found['dropped']}
     write(output/'profile-mesh.json', result, fresh=True)
     return result
 

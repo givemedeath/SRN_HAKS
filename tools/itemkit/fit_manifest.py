@@ -232,9 +232,10 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         hi_i = near[np.argmax(q[near, 2])]
         if q[hi_i, 2] - q[lo_i, 2] < .2 * np.nanmin(extent[j]):          # sparse thick shaft: nearest vertex on the far side
             top = cand[q[cand, 2] > c[1]]
-            # A narrow band with no vertex past the section centre (a thin rapier blade, 2026-11-13) looks across the
-            # whole station for the far side; only a station with no far-side vertex at all keeps the near pair.
-            if not len(top): top = np.flatnonzero(station & (q[:, 2] > c[1]))
+            # A narrow band with no vertex past the section centre (a thin rapier blade, 2026-11-13) looks in the widest
+            # band for the far side (never out at the edge, where a diagonal would overstate the section); only a band
+            # with no far-side vertex at all keeps the near pair.
+            if not len(top): top = np.flatnonzero(station & (np.abs(q[:, 1] - c[0]) < .4 * half_width) & (q[:, 2] > c[1]))
             if len(top): hi_i = top[np.argmin(np.hypot(q[top, 0] - q[lo_i, 0], q[top, 1] - q[lo_i, 1]))]
         pts = [b[lo_i].tolist(), b[hi_i].tolist()]; fit = transform(np.array(pts), F); t = float(np.linalg.norm(fit[1] - fit[0]))
         require(t > .0008, f'Section thinner than 0.8 mm at station {k}')

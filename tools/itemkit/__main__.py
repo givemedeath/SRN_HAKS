@@ -94,6 +94,7 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
     local = bindings(bindings_path)
     documents = [(path, read(path)) for path in extra]
     fixture_docs = [document for _, document in documents if isinstance(document, dict) and document.get('kind') == 'fixture-inputs']
+    require(all(isinstance(document.get('inputs'), dict) for document in fixture_docs), 'A fixture-inputs document needs an inputs map')
     roles=None if stage is None else ({'exportSource'} if stage=='export' and run is None else stage_roles(stage))
     if fixture_docs and roles is not None:
         # A fixture rebuild takes its fixture inputs from the document, never the manifest's own (they may be stale).
