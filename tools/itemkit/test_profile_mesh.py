@@ -35,6 +35,19 @@ class ProfileMeshTests(unittest.TestCase):
             self.assertTrue((Path(tmp)/'out/textured.glb').exists())
 
 
+    def test_an_enclosed_opening_stops_the_build_unless_a_review_says_to_fill_it(self):
+        image = Image.new('RGB', (600, 200), 'white'); draw = ImageDraw.Draw(image)
+        draw.rectangle([20, 94, 470, 106], fill=(30, 30, 30))
+        draw.polygon([(470, 70), (580, 100), (470, 130)], fill=(150, 150, 160))
+        draw.ellipse([485, 92, 501, 108], fill='white')                              # a hole through the head
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp)/'side.png'; image.save(source)
+            with self.assertRaisesRegex(ValueError, 'encloses 1 region'): pm.build(source, Path(tmp)/'out', 1.2, voxel=.003)
+            self.assertFalse((Path(tmp)/'out').exists())                             # a refused build leaves no folder
+            with self.assertRaisesRegex(ValueError, 'reviewer'): pm.build(source, Path(tmp)/'out', 1.2, voxel=.003, fill_openings=' ')
+            result = pm.build(source, Path(tmp)/'out', 1.2, voxel=.003, fill_openings='a highlight, not a hole')
+            self.assertEqual(result['filledRegions']['count'], 1); self.assertEqual(result['filledRegions']['review'], 'a highlight, not a hole')
+
     def test_a_round_bat_on_black_with_its_mask_stays_round_end_to_end(self):
         image = Image.new('RGB', (600, 200), 'black'); mask = Image.new('L', (600, 200), 0)
         for target, fill in ((ImageDraw.Draw(image), (200, 150, 90)), (ImageDraw.Draw(mask), 255)):

@@ -1,7 +1,7 @@
 """Build a simple long weapon's mesh straight from its colour side view: no generated geometry.
 
     python -m tools.itemkit.profile_mesh SIDE_VIEW.png OUTPUT_DIR --length METRES [--blade-depth 0.3] [--hook-px 6]
-                                         [--mask FOREGROUND.png] [--round]
+                                         [--mask FOREGROUND.png] [--round] [--fill-openings "reviewer's words"]
 
 For a design made of round parts on one axis (shaft, sockets, butt cap), a flat head and thin flat hooks, a generated
 mesh only adds risk: from a side-on view it invents depth (the wave-1 Spear's head came back bent 90 degrees). This
@@ -28,26 +28,39 @@ if __package__ in (None, ''):
 from tools.headkit.common import pin, require, write
 
 BACKGROUND = 18          # a pixel is object when it is this much darker than white in some channel
+OPENING_SPECK_PX = 16    # enclosed regions smaller than this are antialias specks, not openings
+
+
+def enclosed_regions(component):
+    """Pixel areas of the background regions the silhouette encloses, largest first (antialias specks left out)."""
+    from scipy import ndimage
+    holes = ndimage.binary_fill_holes(component) & ~component
+    labels, count = ndimage.label(holes)
+    sizes = ndimage.sum(holes, labels, range(1, count + 1)) if count else []
+    return sorted((int(s) for s in sizes if s >= OPENING_SPECK_PX), reverse=True)
 
 
 def outline(image, foreground=None):
-    """(mask, top, bottom, first, last): the filled silhouette and its per-column extents in pixels.
+    """(mask, top, bottom, first, last, enclosed): the filled silhouette, its per-column extents in pixels and the
+    areas of the enclosed regions the fill closed.
 
     Without `foreground` the object is keyed off a white background; a catalog detail image sits on black beside its
-    reviewed foreground mask, which is then the silhouette."""
+    reviewed foreground mask, which is then the silhouette. Revolving and extruding the outline cannot keep an opening,
+    so every enclosed region is filled; build() refuses that unless a reviewer has said the fill is right."""
     from scipy import ndimage
     if foreground is not None:
         solid = np.asarray(foreground.convert('L')) >= 128
         require(solid.shape == (image.height, image.width), 'The foreground mask must match the image')
     else:
         rgb = np.asarray(image.convert('RGB')).astype(np.int32); solid = (255 - rgb.min(2)) > BACKGROUND
-    labels, count = ndimage.label(solid); require(count > 0, 'No object on the white background')
-    sizes = ndimage.sum(solid, labels, range(1, count + 1)); mask = ndimage.binary_fill_holes(labels == 1 + int(np.argmax(sizes)))
+    labels, count = ndimage.label(solid); require(count > 0, 'No object on the background')
+    sizes = ndimage.sum(solid, labels, range(1, count + 1)); component = labels == 1 + int(np.argmax(sizes))
+    enclosed = enclosed_regions(component); mask = ndimage.binary_fill_holes(component)
     columns = np.flatnonzero(mask.any(0)); first, last = int(columns[0]), int(columns[-1])
     top = np.full(mask.shape[1], np.nan); bottom = np.full(mask.shape[1], np.nan)
     for x in columns:
         rows = np.flatnonzero(mask[:, x]); top[x], bottom[x] = rows[0], rows[-1] + 1
-    return mask, top, bottom, first, last
+    return mask, top, bottom, first, last, enclosed
 
 
 def layout(mask, top, bottom, first, last, round_only=False):
@@ -168,18 +181,25 @@ def diffuse(image, mask, path, size=4096):
     return path
 
 
-def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, mask_path=None, round_only=False):
+def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, mask_path=None, round_only=False,
+          fill_openings=None):
+    """`fill_openings`: the reviewer's words that the regions the silhouette encloses are not openings to keep (keyed
+    highlights, say). Without them an enclosed region stops the build: this mesher cannot keep an opening."""
     from PIL import Image
     from tools.headkit.gltf import write_mesh
     from .donor import embed_diffuse
     from .geometry import topology
     require(length > 0 and 0 < blade_depth <= 1 and hook_px > 0, 'Positive length, blade depth and hook thickness required')
-    output = Path(output); output.mkdir(parents=True, exist_ok=False)     # after validation: a bad call leaves no folder
+    require(fill_openings is None or fill_openings.strip(), "--fill-openings must quote the reviewer's words")
     with Image.open(image_path) as image:
         image.load()
         if mask_path:
-            with Image.open(mask_path) as foreground: foreground.load(); mask, top, bottom, first, last = outline(image, foreground)
-        else: mask, top, bottom, first, last = outline(image)
+            with Image.open(mask_path) as foreground: foreground.load(); mask, top, bottom, first, last, enclosed = outline(image, foreground)
+        else: mask, top, bottom, first, last, enclosed = outline(image)
+        require(not enclosed or fill_openings,
+                f'The silhouette encloses {len(enclosed)} region(s) (largest {enclosed[0] if enclosed else 0} px) that meshing '
+                'would fill: keep them through another route, or give --fill-openings with the review that they are not openings')
+        output = Path(output); output.mkdir(parents=True, exist_ok=False)     # after validation: a bad call leaves no folder
         plan, half = layout(mask, top, bottom, first, last, round_only)
         scale = length / (last + 1 - first); voxel = voxel or max(scale * .75, .0008)
         field, (xs, ys, zs), hooked = distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, voxel)
@@ -206,6 +226,7 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, 
                         '; one signed distance union meshed by surface nets; side-view colour projected as the diffuse',
               'roundOnly': round_only, 'reviewRequired': True}
     if mask_path: result['foregroundMask'] = pin(mask_path)
+    if enclosed: result['filledRegions'] = {'count': len(enclosed), 'pixels': enclosed, 'review': fill_openings}
     write(output/'profile-mesh.json', result, fresh=True)
     return result
 
@@ -218,9 +239,10 @@ def main(argv=None):
     parser.add_argument('--voxel', type=float)
     parser.add_argument('--mask', type=Path, help='the reviewed foreground mask of an image on black (catalog detail images)')
     parser.add_argument('--round', dest='round_only', action='store_true', help='round in section end to end: no flat head or hooks')
+    parser.add_argument('--fill-openings', help="the reviewer's words that the enclosed regions are not openings to keep")
     a = parser.parse_args(argv)
     result = build(a.image, a.output, a.length, blade_depth=a.blade_depth, hook_px=a.hook_px, voxel=a.voxel,
-                   mask_path=a.mask, round_only=a.round_only)
+                   mask_path=a.mask, round_only=a.round_only, fill_openings=a.fill_openings)
     print(json.dumps({k: result[k] for k in ('layout', 'vertices', 'triangles', 'extents', 'voxel')}, indent=1)); return 0
 
 
