@@ -24,6 +24,12 @@ OVER_LIMIT = 1.6  # the over part's ring counts only this many under-ring radii 
 TORSO_OPENINGS = ('neck', 'shoulder', 'hip')
 SLICE = 0.02
 SURFACE_STEP = 0.003  # head surfaces are sampled at least this densely before they are binned
+SEAT_DIRECTIONS = 64  # the line the pelvis's skin ends on round a thigh is read in this many directions
+SEAT_EVEN = 5  # and evened over this many of them, so that a cut along it runs smoothly
+SEAT_STEP = 0.004  # the pelvis's skin is sampled this densely
+ARMHOLE_STEP = 0.006  # the upper arm's skin is sampled this densely where it leaves the chest
+ARMHOLE_HEIGHT = 0.2  # and this far to either side of the shoulder plane
+WINDING_CHUNK = 64  # points whose winding number is read at once
 
 
 def token(slot, side):
@@ -80,6 +86,103 @@ def joint_ring(parts, point, normal, joint, side='l'):
     limit = OVER_LIMIT * inner.max()
     outer = np.max([part_ring(skin(parts, spec['over'], side), point, normal, offset, limit) for offset in (0.0, -GUARD)], axis=0)
     return np.maximum(inner, outer)
+
+
+def seat(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EVEN, step=SEAT_STEP):
+    """How far the body's pelvis runs past a hip plane down its thigh, per direction round the joint.
+
+    The body's skin parts do not meet on the hip plane: the pelvis is cut like briefs, round the seat to the
+    fold under the buttock and down to the crotch, 6 to 9 cm below the plane on the Human male, and the thigh
+    runs up inside it. An outfit cut on the plane gives its thigh half of the trousers' seat, which no other
+    pelvis has room for; cut on this line instead (`split.seated`), the seat stays on the pelvis, as the
+    body's own. Directions are those of `seams.frame` about the plane, direction k at k turns over
+    `directions`; the pelvis counts as far from the joint as `OVER_LIMIT` body-ring radii. Directions with
+    none of it are read across from their neighbours, and every direction is evened with the `even` round it."""
+    normal = seams.unit(normal)
+    ring = joint_ring(parts, point, normal, 'hip', side)
+    points = surface_points(*skin(parts, 'pelvis', 'c'), step)
+    relative = points - point
+    height = relative @ normal
+    a, b = seams.frame(normal)
+    flat = relative - height[:, None] * normal
+    near = np.linalg.norm(flat, axis=1) < OVER_LIMIT * ring.max()
+    angle = np.arctan2(relative[near] @ b, relative[near] @ a) % (2 * math.pi)
+    sector = np.floor(angle / (2 * math.pi / directions) + 0.5).astype(int) % directions
+    reach = np.full(directions, -np.inf)
+    np.maximum.at(reach, sector, height[near])
+    require(np.isfinite(reach).sum() >= directions // 2, f"hip {side}: the body's pelvis does not come round the thigh")
+    return _evened(reach, even)
+
+
+def armhole(parts, point, normal, side, directions=SEAT_DIRECTIONS, even=SEAT_EVEN, step=ARMHOLE_STEP):
+    """How far past a shoulder plane, down the arm, the body's upper arm comes out of its chest, per direction
+    round the joint (negative before the plane).
+
+    The body's skin parts overlap at the shoulder: the upper arm holds the whole deltoid and runs up inside the
+    chest, and the chest's own end runs down inside the arm. Where the arm shows is the body's armhole: over
+    the shoulder it lies up to 6 cm before the plane, and at the armpit, where the arm hangs inside the torso's
+    side, 6 to 15 cm past it on the Human male. A point of the arm's skin shows where it is outside the chest
+    (`winding`). Directions are those of `seams.frame` about the plane, as `seat`; the arm counts as far from
+    the joint as `OVER_LIMIT` body-ring radii and `ARMHOLE_HEIGHT` to either side of the plane. Directions
+    with none of it are read across from their neighbours, and every direction is evened with the `even`
+    round it."""
+    normal = seams.unit(normal)
+    ring = joint_ring(parts, point, normal, 'shoulder', side)
+    points = surface_points(*skin(parts, 'bicep', side), step)
+    relative = points - point
+    height = relative @ normal
+    a, b = seams.frame(normal)
+    flat = relative - height[:, None] * normal
+    near = (np.linalg.norm(flat, axis=1) < OVER_LIMIT * ring.max()) & (np.abs(height) < ARMHOLE_HEIGHT)
+    chest = skin(parts, 'chest', 'c')
+    require(closed(*chest), "The body's chest skin is open: its winding number does not tell inside from outside")
+    shows = near.copy()
+    shows[near] = np.abs(winding(points[near], *chest)) < 0.5
+    angle = np.arctan2(relative[shows] @ b, relative[shows] @ a) % (2 * math.pi)
+    sector = np.floor(angle / (2 * math.pi / directions) + 0.5).astype(int) % directions
+    line = np.full(directions, np.inf)
+    np.minimum.at(line, sector, height[shows])
+    require(np.isfinite(line).sum() >= directions // 2, f"shoulder {side}: the body's upper arm does not come out of the chest round the joint")
+    return _evened(line, even)
+
+
+def _evened(values, even):
+    """A line given per direction round a joint, the directions it has no value in (not finite) read across from
+    their neighbours, and each direction the mean of the `even` round it, an odd number centred on it."""
+    require(even >= 1 and even % 2 == 1, 'A line is evened over an odd number of directions, centred on each')
+    known = np.isfinite(values)
+    index = np.arange(len(values))
+    values = np.interp(index, index[known], values[known], period=len(values))
+    half = even // 2
+    wrapped = np.concatenate([values[len(values) - half:], values, values[:half]])
+    return np.convolve(wrapped, np.ones(even) / even, mode='valid')
+
+
+def closed(vertices, faces, weld=1e-5):
+    """Whether a surface has no edge on one face only, vertices within `weld` of each other being one point."""
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces, int).reshape(-1, 3)
+    _, point = np.unique(np.round(vertices / weld).astype(np.int64), axis=0, return_inverse=True)
+    point = point.reshape(-1)[faces]
+    edges = np.sort(np.concatenate([point[:, [0, 1]], point[:, [1, 2]], point[:, [2, 0]]]), axis=1)
+    edges = edges[edges[:, 0] != edges[:, 1]]
+    _, count = np.unique(edges, axis=0, return_counts=True)
+    return bool(len(edges)) and not (count == 1).any()
+
+
+def winding(points, vertices, faces, chunk=WINDING_CHUNK):
+    """The winding number of a closed surface about each point: 1 inside it, 0 outside (the solid angle its
+    triangles fill, as seen from the point, over a whole sphere's)."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    points = np.asarray(points, float)
+    out = np.empty(len(points))
+    for start in range(0, len(points), chunk):
+        a, b, c = (corners[None, :, k] - points[start:start + chunk, None] for k in range(3))
+        la, lb, lc = (np.linalg.norm(x, axis=2) for x in (a, b, c))
+        dot = lambda x, y: np.einsum('pfi,pfi->pf', x, y)
+        det = dot(a, np.cross(b, c))
+        below = la * lb * lc + dot(a, b) * lc + dot(b, c) * la + dot(c, a) * lb
+        out[start:start + chunk] = np.arctan2(det, below).sum(axis=1) / (2 * math.pi)
+    return out
 
 
 def joints(bones, parts):
@@ -178,21 +281,8 @@ def clearance(part, slot, bones, parts, joint, side='l'):
 
 
 def surface_points(vertices, faces, step=SURFACE_STEP):
-    """Points on every triangle no more than `step` apart, vertices included.
-
-    Binning vertices alone misses every cell a triangle crosses without a vertex in it."""
-    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
-    longest = np.max(np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2), axis=1)
-    counts = np.maximum(1, np.ceil(longest / step).astype(int))
-    points = [np.asarray(vertices, float)]
-    for count in np.unique(counts):
-        if count == 1:
-            continue
-        i, j = np.meshgrid(np.arange(count + 1), np.arange(count + 1), indexing='ij')
-        inside = i + j <= count
-        weights = np.stack([count - i[inside] - j[inside], i[inside], j[inside]], axis=1) / count
-        points.append(np.einsum('mk,nkd->nmd', weights, corners[counts == count]).reshape(-1, 3))
-    return np.concatenate(points)
+    """Points on every triangle no more than `step` apart, vertices included (`seams.surface_points`)."""
+    return seams.surface_points(vertices, faces, step)
 
 
 def head_envelope(folder, prefix):

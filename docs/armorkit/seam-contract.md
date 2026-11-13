@@ -33,12 +33,14 @@ directions. Direction 0 is the in-plane axis nearest body +X on both sides, so a
 mirrored, not the same list; the ring is taken on both skin parts at the plane and 1 cm to each side, because
 some skin parts end exactly on the plane. At the neck, shoulder and hip the plane also cuts the torso, so only
 the limb's (or neck's) own ring counts, and a torso piece cannot be measured there by a plane section: its neck
-hole, armholes and leg holes need a measure of their own (not built yet).
+hole, armholes and leg holes need a measure of their own (not built yet). The bake cuts an outfit's hips where the body's own pelvis
+ends, not on the plane (`split.seated`), so its thigh's end at the plane is the leg, not half of the seat. It cuts the upper arms where
+the body's arm comes out of its chest, past the plane only (`split.armholed`), and grows one end from each arm's whole opening there.
 
 **Tier envelopes.** A tier's envelope is the body ring pushed out by a fixed offset: tier 0 (skin-tight)
 0.4 cm, tier 1 (cloth) 1.2 cm, tier 2 (padded or armored) 2.5 cm, tier 3 (heavy) 5 cm. An under end must stay
 inside its tier's envelope at the plane; an over end must be open and at least as wide as its tier's envelope.
-The "envelope radius" in the table is the largest of the 16 directions; the gate uses all 16. The file stores
+The "envelope radius" in the table is the largest of the 16 directions; the gate (`bake.ends`) uses all 16. The file stores
 each tier's numbers and refuses to load when they disagree with its own body rings, tier offsets and swing.
 
 **Minimum overlap.** The under end continues past the plane, into the over part, by at least
@@ -46,7 +48,7 @@ each tier's numbers and refuses to load when they disagree with its own body rin
 `radius x tan(angle)` when the joint swings; past 45 degrees a rounded end one radius deep covers every angle.
 The swing used is the 95th percentile over every clip the body plays, with twist about the limb left out
 (twist turns the under end inside the over end without opening the seam). The continued end tapers in one
-slope, with no shelf.
+slope, with no shelf. The bake shapes the elbow, wrist, waist, knee and ankle ends to their envelope (`tools/armorkit/ends.py`).
 
 ## Numbers
 
