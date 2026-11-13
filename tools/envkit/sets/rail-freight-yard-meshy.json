@@ -1,0 +1,30 @@
+{
+  "set": "rail-freight-yard",
+  "prefix": "rf",
+  "props": {
+    "switcher": {"triangles": 12000},
+    "boxcar": {"triangles": 10000},
+    "tank-car": {"triangles": 10000},
+    "flatcar": {"triangles": 12000},
+    "loading-dock": {"triangles": 6000},
+    "transfer-shed": {"triangles": 6000},
+    "walkway": {"triangles": 6000},
+    "stair-tower": {"triangles": 10000},
+    "office-module": {"triangles": 8000},
+    "shipping-containers": {"triangles": 8000},
+    "crates-pallets": {"triangles": 6000},
+    "drums": {"triangles": 5000},
+    "cable-reel": {"triangles": 4000},
+    "pipe-stack": {"triangles": 4000},
+    "pallet-jack": {"triangles": 4000},
+    "light-tower": {"triangles": 6000},
+    "dumpster": {"triangles": 4000}
+  },
+  "building": {"views": ["building-front", "warehouse-corner"], "triangles": 200000},
+  "pieces": {
+    "shop": {"views": ["maintenance-shop"], "triangles": 50000},
+    "tower": {"views": ["control-tower"], "triangles": 30000},
+    "office": {"views": ["admin-office"], "triangles": 30000},
+    "bay": {"views": ["warehouse-bay"], "triangles": 30000}
+  }
+}
