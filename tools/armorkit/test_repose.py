@@ -549,6 +549,9 @@ class FitTests(unittest.TestCase):
         self.assertTrue(np.allclose((fitted[tips] - wrist) @ axis, (flat[tips] - wrist) @ axis))  # not bent along the bone
         few = self.open_hand()[0][:repose.GLOVE - 1]
         self.assertTrue(np.allclose(repose.gloved(few, self.follow(len(few), 'handl'), self.there, self.parts)[0], few))
+        # given the outfit's faces, a glove is what holds `GLOVE` faces, as `repose` counts the gloves it turns
+        scrap = np.array([(0, 1, 2)] * (repose.GLOVE - 1))
+        self.assertTrue(np.allclose(repose.gloved(glove, weight, self.there, self.parts, scrap)[0], glove))
 
     def test_a_glove_stands_outside_the_forearm_where_the_forearm_runs_on_past_the_wrist(self):
         wrist, elbow = self.there['wristl'], self.there['elbowl']

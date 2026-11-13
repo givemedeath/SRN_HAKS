@@ -11,6 +11,7 @@ result, so `tints` and `write` can be run again on it. `gates` checks what was w
 gives the split (`keep_split`), so that the split alone runs again on it in seconds with the code as it stands
 (`resplit`), for work on the cut.
 """
+import functools
 import json
 import shutil
 import time
@@ -306,7 +307,8 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         keep_split(given, capture)
         say('split inputs kept in', capture)
     result, made, origins = cut(given, contract)
-    beside = {name: lambda pv, pf, slot=slot, name=name: skin_beside(body_pack, body_textures, body, bones, slot, name, pv, pf)
+    own_part = functools.lru_cache(maxsize=None)(lambda name: bodyskin.body_part(body_pack, body_textures, body, name, bones))  # read once a bake
+    beside = {name: lambda pv, pf, slot=slot, name=name: skin_beside(own_part(name), bones, slot, name, pv, pf)
               for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens'] if name in result}
     result = within_budget(result, made, origins, given['joints'], given['radii'], beside, left_to_body(document), say)
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
@@ -354,7 +356,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 shows = texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], first, size)
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
-    return skinned(parts, document, body_pack, body_textures, body, bones, say), bones, whole
+    return skinned(parts, document, body_pack, body_textures, body, bones, say, own_part), bones, whole
 
 
 def cut(given, contract=None):
@@ -381,10 +383,9 @@ def bare_joints(given):
             if split.token(seams.JOINTS[joint]['over'], 'l' if side == 'c' else side) in left}
 
 
-def skin_beside(body_pack, body_textures, body, bones, slot, name, vertices, faces):
-    """How many faces of the body's own part `name` `bodyskin.worn` keeps beside an outfit's part (`vertices`,
-    `faces`) in a slot the brief shares with the body's skin."""
-    own = bodyskin.body_part(body_pack, body_textures, body, name, bones)
+def skin_beside(own, bones, slot, name, vertices, faces):
+    """How many faces of the body's own part `name` (`own`, `bodyskin.body_part`) `bodyskin.worn` keeps beside
+    an outfit's part (`vertices`, `faces`) in a slot the brief shares with the body's skin."""
     start, end = (np.asarray(bones[end.format(name[-1])], float)[:3, 3] for end in split.BONE_ENDS[slot])
     return int(bodyskin.shown(own['v'], own['f'], vertices, faces, start, end).sum())
 
@@ -403,7 +404,9 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
     beside, out, planes = beside or {}, {}, None
     for name, (pv, pf, pc) in result.items():
         budget = BUDGET['chest'] if name == 'chest' else BUDGET['slot']
-        if name in left or len(pf) + (beside[name](pv, pf) if name in beside else 0) <= budget:
+        count = beside.get(name, lambda *_: 0)
+        held = 0 if name in left else count(pv, pf)  # the body's faces beside the part as it stands, counted anew as it is cut down
+        if name in left or len(pf) + held <= budget:
             out[name] = (pv, pf, pc)
             continue
         own = np.zeros(len(pv), bool)
@@ -422,12 +425,12 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
         before, kept, faces, which = len(pf), np.arange(len(pv)), pf, np.arange(len(pf))
         for locked in (added | near, (added & ~capped) | (near & own)):
             for _ in range(SKIN_ROUNDS):
-                target = budget - (beside[name](pv[kept], faces) if name in beside else 0)
-                if len(faces) <= target:
+                if len(faces) + held <= budget:
                     break
-                again, faces, inner = reduce.reduce(pv[kept], faces, target, locked[kept])
+                again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, locked[kept])
                 kept, which = kept[again], which[inner]
-            if len(faces) + (beside[name](pv[kept], faces) if name in beside else 0) <= budget:
+                held = count(pv[kept], faces)
+            if len(faces) + held <= budget:
                 break
         made[name], origins[name] = made[name][which], origins[name][which]
         out[name] = (pv[kept], faces, pc[kept])
@@ -533,14 +536,14 @@ def shared_with_body(document):
     return {name for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens']}
 
 
-def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None):
+def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None):
     """The baked parts with the body's own part beside the outfit's in each slot the brief shares with the
-    body's skin (`skin`, `bodyskin.worn`)."""
+    body's skin (`skin`, `bodyskin.worn`). `own_part(name)`, if given, is the body's part as already read."""
     parts = dict(parts)
     for slot in document.get('skin', []):
         for name in registry.SLOTS[slot]['tokens']:
             if name in parts:
-                own = bodyskin.body_part(body_pack, body_textures, body, name, bones)
+                own = own_part(name) if own_part else bodyskin.body_part(body_pack, body_textures, body, name, bones)
                 start, end = (np.asarray(bones[end.format(name[-1])], float)[:3, 3] for end in split.BONE_ENDS[slot])
                 parts[name] = bodyskin.worn(parts[name], own, start, end, BUDGET['texture'])
                 say(f'{name}: {int(parts[name]["skin"].sum())} of the body\'s {len(own["f"])} faces beside the outfit\'s, {len(parts[name]["rgb"])} px')

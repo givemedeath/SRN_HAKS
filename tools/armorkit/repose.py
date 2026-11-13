@@ -562,7 +562,7 @@ def fit(posed, weight, there, parts, clearance=CLEARANCE):
     return result + (1 - used)[:, None] * posed, report
 
 
-def gloved(posed, weight, there, parts):
+def gloved(posed, weight, there, parts, faces=None):
     """(vertices, report): each glove's fingers bent toward its palm, and the glove drawn in to the body's hand.
 
     A generated glove is an open hand, its fingers spread and its thumb out, as the figure was drawn with its
@@ -581,7 +581,8 @@ def gloved(posed, weight, there, parts):
     its width, and the rings past them are held to the ring beside them. Rings are evened with their
     neighbours, so the glove does not step from one to the next. A vertex moves by the share it follows the
     hand, and is then kept outside the forearm's skin where that runs on into the hand (`outside_forearm`). `report` maps a hand bone to its narrowest share across and its knuckles' height, None where no glove
-    follows it."""
+    follows it: with the outfit's `faces`, `GLOVE` faces held by the hand, as `repose` counts the gloves it
+    turns; without them, `GLOVE` points."""
     posed = np.array(posed, float)
     names = [bone[0] for bone in BONES]
     rng = np.random.default_rng(0)
@@ -589,7 +590,7 @@ def gloved(posed, weight, there, parts):
     for side in 'lr':
         share = weight[names.index('hand' + side)]
         mine, held = np.flatnonzero(share > 0), share > 0.5
-        if held.sum() < GLOVE:
+        if (held.sum() if faces is None else held[np.asarray(faces, int)].all(axis=1).sum()) < GLOVE:
             report['hand' + side] = None
             continue
         wrist = there['wrist' + side]
@@ -738,7 +739,7 @@ def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE, materials=None
         free[np.ix_(arm, np.flatnonzero(found['torso']))] = False
     posed, weight = repose(vertices, faces, here, there, scale, marks['height'], free)
     fitted, report = fit(posed, weight, there, parts, clearance)
-    fitted, gloves = gloved(fitted, weight, there, parts)
+    fitted, gloves = gloved(fitted, weight, there, parts, faces)
     follows = lambda kinds: weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) in kinds]].sum(axis=0)
     fitted = apart(fitted, np.where(vertices[:, 0] < marks['middle'], -1.0, 1.0), follows(('thigh', 'shin', 'foot')), there)
     fitted = grounded(fitted, follows(('foot',)))

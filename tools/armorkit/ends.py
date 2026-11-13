@@ -111,7 +111,9 @@ def target(envelope, angles, under, margin=MARGIN, span=None, skin=False):
     skin: a glove's cuff of few vertices, drawn in by it, lay 4 mm inside a bare forearm between them."""
     value = seams.around(envelope, angles)
     sag = 0.0 if span is None else 1 - np.cos(np.minimum(span[np.floor(np.asarray(angles) / (2 * np.pi / BINS)).astype(int) % BINS], WIDEST) / 2)
-    return value * (1 - sag) - margin if under and not skin else value * (1 + sag) - margin if under else value * (1 + sag) + margin
+    if under and not skin:
+        return value * (1 - sag) - margin
+    return value * (1 + sag) + (-margin if under else margin)
 
 
 def smooth(t):
