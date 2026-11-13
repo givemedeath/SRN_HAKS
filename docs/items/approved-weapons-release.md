@@ -7,17 +7,17 @@ Build the normal release through the existing pack builder:
 ```
 
 `srn_weapon` contains the approved models, runtime diffuse maps, inventory icons
-and eighteen builder blueprints for sixteen weapon designs. `srn_2da` supplies
+and twenty-three builder blueprints for twenty-one weapon designs. `srn_2da` supplies
 the native carrier table. No custom TLK is required. The inventory and resource
 hashes are in `approved-weapons-v1.json`; the generated combat release manifest
 describes the complete resource closure.
 
 | Family | BaseItem / ItemClass | Released designs |
 |---|---|---|
-| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade |
-| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword |
-| F4 | 13 / WSwGs | Katana |
-| F5 | 50 / WDbQs | Staff |
+| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Ceramic Knife |
+| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Extendable Baton; Tomahawk |
+| F4 | 13 / WSwGs | Katana; Baseball Bat |
+| F5 | 50 / WDbQs | Staff; Stun Staff |
 | F6 | 111 / WWhip | Whip |
 | F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV |
 | F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow |
@@ -44,7 +44,7 @@ The smaller Knife remains F1 / row 22. The full-sized Cougar Longsword remains
 F2 / row 1. Both Colt finishes already use F7 / row 61; their native blueprints,
 models, textures, appearance addresses and fit remain unchanged. F2's MaxRange
 display field is extended from 100 to 111 so its already-approved 101 and 111
-addresses are selectable (later 121 for the Vibro sword, see below). All other
+addresses are selectable (later 121 for the Vibro sword and 181 for melee wave 2, see below). All other
 table bytes remain unchanged.
 
 The Crossbow diffuse is published under the name its approved compiled model
@@ -102,6 +102,33 @@ or exhaustive equipment acceptance. The comparison module below gained a
 reviewer pair for each, with the Predator included in the test-only F7 motion
 mapping. In this module's client the selector stages both new pairs and both
 bodies hold the weapon (static inspection); their 60-second attack tests were not run.
+
+## Melee wave 2 (2026-11-13)
+
+Five more SR4 catalog designs went through the same itemkit pipeline. Geometry came from the colour detail image
+through the shared ComfyUI. Each package is the exact bytes of its reviewed native HAK; each blueprint is the exact
+bytes from its private fixture module. Hashes are in `approved-weapons-v1.json`. The user approved each after seeing it
+in the NWN:EE client on both shipped Human bodies ("knife and bat look good", "baton looks good", "staff looks good",
+"tomahawk looks good too"), then asked for publication ("Yes, publish them").
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Ceramic Knife | F1 / row 22 | `srd6342080` | `wswdg_*_111`, diffuse `srd6342080_11` | 0.40 m |
+| Extendable Baton | F2 / row 1 | `srd1aaa8cd` | `wswls_*_171`, diffuse `srd1aaa8cd_17` | 0.65 m |
+| Tomahawk | F2 / row 1 | `sre99544ae` | `wswls_*_181`, diffuse `sre99544ae_18` | 0.55 m |
+| Baseball Bat | F4 / row 13 | `sr1d8f6e60` | `wswgs_*_091`, diffuse `sr1d8f6e60_09` | 0.95 m |
+| Stun Staff | F5 / row 50 | `sr05afd23e` | `wdbqs_*_081`, diffuse `sr05afd23e_08` | 1.90 m |
+
+The knife and the sword-family pieces are sized from the Cougar melee grip standard. The baton and tomahawk keep a round
+handle, the bat uses the two-hand uniform fit, and the staff is thinned evenly to a user-chosen 41 × 49 mm grip. The
+staff bakes with a reviewed colour-only patch that the user approved in chat. The tomahawk is turned half a revolution
+about its axis so the blade faces forward. These fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only: F1 `MaxRange` 100 to 111 and F2 `MaxRange` 121 to 181. F4 (091)
+and F5 (081) already fall inside their ranges. No gameplay, price or item-property field changes. Like the earlier
+itemkit blueprints, these keep the fixture description text and have zero cost and no item properties. These items have
+no reviewer pairs in the comparison module below. They were reviewed only in their own scripted fixtures, which is not
+production animation or exhaustive equipment acceptance.
 
 ## Separate comparison module
 

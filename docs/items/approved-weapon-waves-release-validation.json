@@ -3,12 +3,12 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
-  "weaponDesigns": 16,
-  "blueprints": 18,
-  "weaponResources": 148,
-  "publicationPins": 149,
-  "modelsDecoded": 57,
-  "imagesChecked": 73,
+  "weaponDesigns": 21,
+  "blueprints": 23,
+  "weaponResources": 189,
+  "publicationPins": 190,
+  "modelsDecoded": 72,
+  "imagesChecked": 94,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -17,14 +17,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 148,
-      "sha256": "aee1706033e608d0ccb16acec78471e3f303796f618332a6e30310c8a82f963c",
+      "resources": 189,
+      "sha256": "311b3cf60b7e70d6e8549edf6102e0ebc287b6f7ae7ab2e7a7e386d574e0d9ec",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
       "resources": 22,
-      "sha256": "0971e4050d4c238bed83f8e550e2a358e5c6c769e1c0030eb3cce4ba8334b028",
+      "sha256": "df9b0c86394c3e5dbf37931985c306525db6b83ed7e62c1fc367c6753757cde1",
       "exactPayload": true
     },
     {
@@ -86,7 +86,13 @@
     "1": {
       "MaxRange": [
         "100",
-        "121"
+        "181"
+      ]
+    },
+    "22": {
+      "MaxRange": [
+        "100",
+        "111"
       ]
     },
     "61": {
@@ -215,5 +221,19 @@
     "payloadsByteIdenticalToNativePackages": true,
     "rebuiltArchivesPayloadExact": true,
     "archiveHashNote": "srn_weapon.hak, srn_2da.hak and sw_weapon_w2.mod were rebuilt for this update; the sw_f7motion and sw_reviewenv entries above are unchanged historical records."
+  },
+  "addedMeleeWave2": {
+    "date": "2026-11-13",
+    "items": [
+      "sr4-ceramic-knife-7f77d5dd6c",
+      "sr4-extendable-baton-aa91d3d2e3",
+      "sr4-tomahawk-707e3f392c",
+      "sr4-baseball-bat-202ef7e755",
+      "sr4-stun-staff-00af501c83"
+    ],
+    "payloadsByteIdenticalToNativePackages": true,
+    "rebuiltArchivesPayloadExact": true,
+    "comparisonModuleChanged": false,
+    "archiveHashNote": "srn_weapon.hak and srn_2da.hak were rebuilt for this update and every payload compared with its source file; sw_weapon_w2.mod, sw_f7motion and sw_reviewenv are unchanged historical records. The five items were client-reviewed in their private itemkit fixtures, not in the comparison module."
   }
 }
