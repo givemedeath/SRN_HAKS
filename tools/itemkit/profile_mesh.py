@@ -41,6 +41,31 @@ def region_sizes(mask):
     return sorted((int(s) for s in ndimage.sum(mask, labels, range(1, count + 1))), reverse=True) if count else []
 
 
+def is_opening(pixels, scale):
+    """A region is a speck only when it is both a few pixels and under a millimetre across at this scale."""
+    return pixels >= OPENING_SPECK_PX or 2 * np.sqrt(pixels / np.pi) * scale >= OPENING_MIN_METRES
+
+
+def added_regions(mask, top, bottom, field, grids, first, axis, scale):
+    """(spanned, mirrored): pixel areas, largest first, of the side-view regions the solid covers but the outline does
+    not, inside each column's own extent and beyond it.
+
+    The solid is built from each column's extent about the axis, so it spans whatever lies between: a slot open to the
+    outline (a forked tip, a notch) is filled without being an enclosed hole ('spanned'). A one-sided feature is also
+    mirrored about the axis by the round body ('mirrored'): that is how this mesher builds round parts, and the clay
+    review sees it. Strips a pixel or two wide along the outline are voxel rounding and are opened away."""
+    from scipy import ndimage
+    xs, ys, _ = grids; silhouette = field.min(axis=2) < 0                       # [x, y] seen from the side
+    i = np.rint(((np.arange(mask.shape[1]) - first) * scale - xs[0]) / (xs[1] - xs[0])).astype(int)
+    j = np.rint(((axis - (np.arange(mask.shape[0]) + .5)) * scale - ys[0]) / (ys[1] - ys[0])).astype(int)
+    vi = (i >= 0) & (i < len(xs)); vj = (j >= 0) & (j < len(ys))
+    built = np.zeros(mask.shape, bool); built[np.ix_(vj, vi)] = silhouette[np.ix_(i[vi], j[vj])].T
+    added = ndimage.binary_opening(built & ~mask, structure=np.ones((3, 3), bool))
+    rows = np.arange(mask.shape[0])[:, None]
+    within = (rows >= np.nan_to_num(top, nan=np.inf)[None, :]) & (rows < np.nan_to_num(bottom, nan=-np.inf)[None, :])
+    return region_sizes(added & within), region_sizes(added & ~within)
+
+
 def outline(image, foreground=None):
     """(mask, top, bottom, first, last, found): the filled silhouette, its per-column extents in pixels, and `found`:
     the areas of the enclosed regions the fill closed ('enclosed') and of the smaller pieces left out ('dropped').
@@ -201,8 +226,7 @@ def build(image_path, output, length, *, blade_depth=.3, hook_px=6, voxel=None, 
                 with Image.open(mask_path) as foreground: foreground.load(); mask, top, bottom, first, last, found = outline(image, foreground)
             else: mask, top, bottom, first, last, found = outline(image)
             scale = length / (last + 1 - first); enclosed = found['enclosed']
-            # A region is a speck only when it is both a few pixels and under a millimetre across at this scale.
-            openings = [s for s in enclosed if s >= OPENING_SPECK_PX or 2 * np.sqrt(s / np.pi) * scale >= OPENING_MIN_METRES]
+            openings = [s for s in enclosed if is_opening(s, scale)]
             require(not openings or fill_openings,
                     f'The silhouette encloses {len(openings)} region(s) (largest {openings[0] if openings else 0} px) that meshing '
                     'would fill: keep them through another route, or give --fill-openings with the review that they are not openings')
@@ -223,6 +247,11 @@ def _mesh(image, image_path, output, length, mask, top, bottom, first, last, fou
     plan, half = layout(mask, top, bottom, first, last, round_only)
     voxel = voxel or max(scale * .75, .0008)
     field, (xs, ys, zs), hooked = distance_field(mask, half, plan, first, last, scale, blade_depth, hook_px, voxel)
+    spanned, mirrored = added_regions(mask, top, bottom, field, (xs, ys, zs), first, plan['axisRow'], scale)
+    slots = [s for s in spanned if is_opening(s, scale)]
+    require(not slots or fill_openings,
+            f'The solid fills {len(slots)} slot(s) or notch(es) the outline leaves open (largest {slots[0] if slots else 0} px): '
+            'keep them through another route, or give --fill-openings with the review that the filled material is right')
     v, f = surface_nets(field, (xs[0], ys[0], zs[0]), voxel)
     report = topology(v, f)
     require(report['closedWound'], 'The meshed outline is not one closed outward solid')
@@ -251,6 +280,8 @@ def _mesh(image, image_path, output, length, mask, top, bottom, first, last, fou
     summary = lambda sizes: {'count': len(sizes), 'totalPixels': sum(sizes), 'largestPixels': sizes[:LISTED_REGIONS]}
     if found['enclosed']: result['filledRegions'] = {**summary(found['enclosed']), 'review': fill_openings}
     if found['dropped']: result['droppedComponents'] = summary(found['dropped'])
+    if spanned: result['filledSlots'] = {**summary(spanned), 'review': fill_openings}
+    if mirrored: result['mirroredRegions'] = summary(mirrored)
     write(output/'profile-mesh.json', result, fresh=True)
     return result
 

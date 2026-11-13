@@ -50,6 +50,18 @@ class ProfileMeshTests(unittest.TestCase):
             self.assertEqual(result['filledRegions']['count'], 1); self.assertEqual(result['filledRegions']['review'], 'a highlight, not a hole')
             self.assertNotIn('droppedComponents', result)                     # the dot is filled over with its hole, not left out
 
+    def test_a_slot_open_to_the_tip_stops_the_build_unless_a_review_says_to_fill_it(self):
+        image = Image.new('RGB', (600, 200), 'white'); draw = ImageDraw.Draw(image)
+        draw.rectangle([20, 94, 470, 106], fill=(30, 30, 30)); draw.polygon([(470, 70), (580, 100), (470, 130)], fill=(150, 150, 160))
+        draw.polygon([(510, 100), (585, 92), (585, 108)], fill='white')               # a fork: a slot cut in from the tip
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp)/'side.png'; image.save(source)
+            with self.assertRaisesRegex(ValueError, r'fills 1 slot'): pm.build(source, Path(tmp)/'out', 1.2, voxel=.003)
+            self.assertFalse((Path(tmp)/'out').exists())
+            result = pm.build(source, Path(tmp)/'out', 1.2, voxel=.003, fill_openings='fill the fork')
+            self.assertEqual(result['filledSlots']['count'], 1); self.assertEqual(result['filledSlots']['review'], 'fill the fork')
+            self.assertNotIn('filledRegions', result)                                # open to the tip: not an enclosed hole
+
     def test_a_few_pixel_hole_is_an_opening_when_it_is_a_millimetre_across(self):
         image = Image.new('RGB', (600, 200), 'white'); draw = ImageDraw.Draw(image)
         draw.rectangle([20, 94, 470, 106], fill=(30, 30, 30)); draw.polygon([(470, 70), (580, 100), (470, 130)], fill=(150, 150, 160))
