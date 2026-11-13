@@ -21,7 +21,10 @@ The user asked for rotation and uniform scaling, used again for every refit wher
   her foot, which stands on its toes, lies farther from her ankle than his.
 * The ends at the tube joints are then drawn in or spread out to the other body's envelopes as a bake shapes
   them (`ends.shaped`), a smooth slope with no shelf over the last `ends.LONGEST` at most, and the seam gate
-  on the other body decides each part. A thigh's end at the hip, a dome grown on the body's seat, is no tube
+  on the other body decides each part. The cap a bake grew past an under end's plane is scaled about the
+  joint's axis as that end's ring was (`capped`): where the end was drawn in, shaping left the cap as wide as
+  the scales made it, and a glove's cap stood at the Human female's forearm skin as a band above the cuff
+  (2026-11-13). A thigh's end at the hip, a dome grown on the body's seat, is no tube
   and is left as the scales leave it: shaped as one, its dome flared into a lip that stood out through the
   pelvis (2026-11-13).
 
@@ -116,6 +119,30 @@ def placement(token, source, target, contract=None, names=None):
     return scale * rotation, aim - scale * rotation @ joint, {'along': round(scale, 4), 'across': round(scale, 4)}
 
 
+def capped(before, after, faces, measured, part_ends):
+    """`after`, a part's vertices with its ends shaped (`ends.shaped`), with what lies past each under end's
+    plane, its cap, scaled about the joint's axis in each direction as the end's ring was (`ends.ring`, read
+    on the faces `measured` flags) from `before`, where that draws it in farther than the shaping did: the cap
+    stays as far inside its rim as the bake grew it. Where an end is spread out, the shaping grows its cap
+    with it already."""
+    before, out, mine = np.asarray(before, float), np.array(after, float), np.asarray(faces, int)[np.asarray(measured, bool)]
+    for point, normal, _, _, under, _ in part_ends:
+        old, new = (ends.ring(points, mine, point, normal, True) for points in (before, out)) if under else (None, None)
+        if old is None or new is None:
+            continue
+        u, w = seams.frame(normal)
+        relative = before - point
+        height = relative @ normal
+        radial = relative - height[:, None] * normal
+        past = height < 0
+        angle = np.arctan2(radial[past] @ w, radial[past] @ u) % (2 * np.pi)
+        ratio = seams.around(new / np.maximum(old, 1e-9), angle - np.pi / len(old))  # read at the bins' centres, as `ends` reads a ring
+        shaped = np.linalg.norm((out[past] - point) - ((out[past] - point) @ normal)[:, None] * normal, axis=1)
+        ratio = np.minimum(ratio, shaped / np.maximum(np.linalg.norm(radial[past], axis=1), 1e-12))
+        out[past] = point + height[past, None] * normal + radial[past] * ratio[:, None]
+    return out
+
+
 def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2, bare=()):
     """(parts, report): baked parts (`bake.stored`) carried from the body `source` to the body `target`, each a
     (rig, parts by token) pair as `measure.body` gives them. `names` limits the parts carried; the rest are
@@ -139,7 +166,7 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
             part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, bare=bare)
             if part_ends:
                 measured = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
-                shaped = ends.shaped(v, f, measured, part_ends)
+                shaped = capped(v, ends.shaped(v, f, measured, part_ends), f, measured, part_ends)
                 n = n + ends.normals(shaped, f) - ends.normals(v, f)
                 n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
                 v = shaped

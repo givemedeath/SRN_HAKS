@@ -931,6 +931,24 @@ class SleeveTests(unittest.TestCase):
         self.assertGreater(here['bicepl'][0], came['bicepl'][0] + 0.005)
         self.assertLess(here['chest'][0], carried['chest'][0] - 0.005)
 
+    def test_what_the_torso_wears_beside_the_arm_stays_the_torsos_when_the_bend_lays_the_arm_over_it(self):
+        # a pouch on the flank, a surface of its own: where the outfit came in, it stands clear of the arm
+        pouch = tube((-0.155, 0, 1.30), (-0.155, 0, 1.40), 0.02, along=4)
+        v, f, t, origin, sleeves = split.troughs(*join((self.v, self.f, self.t), pouch), JOINTS)
+        mine = origin >= len(self.f)
+        self.assertEqual(sleeves['l']['arm'].shape, (len(f),))
+        start, axis = self.arm
+        self.assertTrue(sleeves['l']['arm'][sleeves['l']['inside'] & ((v[f].mean(axis=1) - start) @ axis >= 0)].all())  # the sleeve is
+        self.assertFalse(sleeves['l']['arm'][mine].any())  # the pouch is not
+        # bent onto a body whose arm hangs against its side, the pouch now lies inside the upper arm
+        pressed = v.copy()
+        pressed[len(self.v):len(self.v) + len(pouch[0]), 0] -= 0.08
+        given = self.own(pressed, f, t, sleeves=sleeves)
+        found = self.own(pressed, f, t, sleeves={side: {key: value for key, value in flags.items() if key != 'arm'} for side, flags in sleeves.items()})
+        size = area(pressed, f[mine])
+        self.assertAlmostEqual(found['bicepl'][0] - given['bicepl'][0], size, places=5)  # told only where it lies, it went with the arm
+        self.assertAlmostEqual(given['chest'][0] - found['chest'][0], size, places=5)
+
     def test_a_sleeve_fused_down_to_the_elbow_is_refused(self):
         v, f, _ = fused(armpit=1.10)
         with self.assertRaises(ValueError):

@@ -98,6 +98,18 @@ class RefitTests(unittest.TestCase):
         normals /= np.linalg.norm(normals, axis=1, keepdims=True)
         self.assertTrue(np.allclose(normals, piece['n']))  # a tube's radial normals stay radial when it is narrowed
 
+    def test_a_cap_past_an_end_drawn_in_stays_as_far_inside_its_rim(self):
+        # a forearm 5 cm round under the elbow plane (x = 0.3), its cap past the plane 3.5 cm round: drawn in to a
+        # 4 cm body ring at tier 0, the cap is drawn in with it
+        forearm, cap = arm(0.3, 0.55, 0.05), arm(0.27, 0.3, 0.035)
+        piece = {**part(), 'v': np.concatenate([forearm['v'], cap['v']]), 'f': np.concatenate([forearm['f'], cap['f'] + len(forearm['v'])])}
+        piece['n'] = np.c_[np.zeros(len(piece['v'])), piece['v'][:, 1:] / np.linalg.norm(piece['v'][:, 1:], axis=1, keepdims=True)]
+        out, _ = refit.refit({'forel': piece}, (rig(), {}), (rig(), {}), contract=contract(ring=0.04), bodies=('test', 'test'), tier=0)
+        radius = np.linalg.norm(out['forel']['v'][:, 1:], axis=1)
+        rim, past = radius[np.abs(out['forel']['v'][:, 0] - 0.3) < 1e-9][:len(forearm['v'])].max(), radius[len(forearm['v']):][cap['v'][:, 0] < 0.3]
+        self.assertLess(rim, 0.045)  # the end is drawn in to the envelope
+        self.assertTrue(np.allclose(past / rim, 0.7, atol=0.01))  # the cap as far inside it as before
+
     def test_the_command_keeps_the_refit_parts_with_the_slots_the_brief_gave(self):
         with tempfile.TemporaryDirectory() as folder:
             kept, out = Path(folder) / 'kept', Path(folder) / 'out'

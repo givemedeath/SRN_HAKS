@@ -11,6 +11,8 @@ a shoulder pad on it along its own outline, for a shoulder part. At each
 joint the under part also gets a rounded cap past the plane, grown from its own rim: turned about the joint,
 the cap stays inside the over part and fills the gap that opens (docs/armorkit/plan.md, "Seam rules").
 """
+from itertools import combinations
+
 import numpy as np
 
 from tools.robes import mesh_ops
@@ -298,8 +300,9 @@ def pieces(vertices, faces, cuts, welded=True):
     return mesh_ops.union_find(len(faces), zip(face[:-1][same].tolist(), face[1:][same].tolist()))
 
 
-def owners(vertices, faces, parts, cuts):
-    """The index into `parts` each face goes to: its piece's choice by area.
+def owners(vertices, faces, parts, cuts, apart=()):
+    """The index into `parts` each face goes to: its piece's choice by area. `apart` holds (flags, regions)
+    pairs: the faces flagged are classified among those regions alone, some of `parts` (`assign`).
 
     A piece with one clear choice goes to it whole, however much of it lies past a plane that only grazes it.
     Two limbs that touch at a few coinciding vertices trace as one piece that votes for both about equally;
@@ -307,10 +310,13 @@ def owners(vertices, faces, parts, cuts):
     piece that still votes for two parts then, and holds most of what votes for its second choice anywhere, is
     one surface no cut parts (two trouser legs pressed through each other below the cut between them): it is
     refused, since its first choice would get both parts. The few faces of a weld itself go where they vote."""
-    vote = classify(vertices[faces].mean(axis=1), parts)
+    centres, names = vertices[faces].mean(axis=1), list(parts)
+    vote = classify(centres, parts)
+    for flags, fewer in apart:
+        flags = np.asarray(flags, bool)
+        vote[flags] = np.array([names.index(name) for name in fewer], int)[classify(centres[flags], fewer)]
     a, b, c = (vertices[faces[:, i]] for i in range(3))
     weight = np.linalg.norm(np.cross(b - a, c - a), axis=1)
-    names = list(parts)
 
     def choose(piece):
         _, piece = np.unique(piece, return_inverse=True)
@@ -690,8 +696,10 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     `joints` holds the shoulder and elbow joints as `lbicep_g`, `lforearm_g` and so on, in the mesh's space and in
     metres. `origin[i]` is the face that new face i was cut from. `sleeves` maps a side with a fused sleeve to
     `on`, four rows of flags for the vertices on the seam, on each wall and on the pad's outline, `inside`, per
-    face, whether it lies in the trough, from a little above the shoulder joint down to the elbow, and `pad`,
-    per face, whether it is the pad's; `assign` takes it with the bent mesh.
+    face, whether it lies in the trough, from a little above the shoulder joint down to the elbow, `pad`,
+    per face, whether it is the pad's, and `arm`, per face, whether it is the arm's: its pad and what the cuts
+    leave joined to its trough from the shoulder joint down. `assign` takes it with the bent mesh: a face
+    that is not the arm's is placed as if that shoulder were not cut.
 
     Along the trough's cuts the torso gets vertices of its own, at the same places: `torso` flags them. The
     bend can then keep the torso's edge of an armhole where the torso is, while the sleeve's edge goes with
@@ -754,6 +762,7 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
                 other['on'] = np.concatenate([other['on'], other['on'][:, twice]], axis=1)
         for side, found in sleeves.items():
             found['torso'] = np.zeros(len(v), bool); found['torso'][own[side]] = True
+            found['arm'] = below[side]
     return v, f, t, origin, sleeves
 
 
@@ -1224,7 +1233,8 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
         # here; the flags ride through the cuts below beside the texture coordinates: a new vertex on an edge
         # between two vertices of a cut lies on that cut.
         require(set(carried) <= {'l', 'r'} and all(np.shape(found['on']) == (4, len(v)) and np.shape(found['inside']) == (len(f),)
-                                                    and np.shape(found.get('pad', found['inside'])) == (len(f),) for found in carried.values()),
+                                                    and all(np.shape(found.get(key, found['inside'])) == (len(f),) for key in ('pad', 'arm'))
+                                                    for found in carried.values()),
                 'Sleeves cut in another pose come with flags for this mesh: four per vertex and one per face')
         sleeves = {}
         for side, found in carried.items():
@@ -1279,8 +1289,20 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
             sleeves[side]['on'] = [flags[:, 4 * index + plane] for plane in range(4)]
             walls += sleeves[side]['on']
     parts = regions(joints, radii, reach, reaches, whole)
-    owner = owners(v, f, parts, [(point, seams.unit(normal), limit[key]) for key, (point, normal) in cuts.items() if key not in whole] + walls)
     names = list(parts)
+    # Bent onto a body whose arms hang against its sides, the upper arm lies over what the torso wears beside it:
+    # the Human female's vest, a ring round her torso, lay inside both upper arms, and its two sides went one to
+    # each. Only what the trough found to be the arm, where the arm stood clear, is the upper arm's: for the rest
+    # that shoulder is a joint left whole, and its surface stays on the chest across it.
+    other = {side: ~np.asarray(found['arm'], bool)[origin] for side, found in (carried or {}).items() if 'arm' in found}
+    apart = []
+    for count in range(1, len(other) + 1):
+        for sides in combinations(sorted(other), count):
+            flags = np.ones(len(f), bool)
+            for side, flagged in other.items():
+                flags &= flagged if side in sides else ~flagged
+            apart.append((flags, regions(joints, radii, reach, reaches, set(whole) | {('shoulder', side) for side in sides})))
+    owner = owners(v, f, parts, [(point, seams.unit(normal), limit[key]) for key, (point, normal) in cuts.items() if key not in whole] + walls, apart)
     for side, found in (carried or {}).items():
         # The trough was cut so that the sleeve goes with the arm. Where its cuts and the shoulder plane leave a strip
         # that still joins sleeve and torso, they are one piece and the chest, the larger, takes it all: the arm then
