@@ -7,17 +7,17 @@ Build the normal release through the existing pack builder:
 ```
 
 `srn_weapon` contains the approved models, runtime diffuse maps, inventory icons
-and twenty-seven builder blueprints for twenty-five weapon designs. `srn_2da` supplies
+and thirty-one builder blueprints for twenty-nine weapon designs. `srn_2da` supplies
 the native carrier table. No custom TLK is required. The inventory and resource
 hashes are in `approved-weapons-v1.json`; the generated combat release manifest
 describes the complete resource closure.
 
 | Family | BaseItem / ItemClass | Released designs |
 |---|---|---|
-| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Survival Knife; Ceramic Knife |
-| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Sword; Club; Extendable Baton; Tomahawk |
-| F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat |
-| F5 | 50 / WDbQs | Staff; Stun Staff |
+| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Survival Knife; Ceramic Knife; Vibro Blades — Knife |
+| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Sword; Club; Extendable Baton; Tomahawk; Rapier |
+| F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat; Combat Axe |
+| F5 | 50 / WDbQs | Staff; Stun Staff; Spear |
 | F6 | 111 / WWhip | Whip |
 | F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV |
 | F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow |
@@ -157,6 +157,41 @@ module below gained a male/female reviewer pair for each (`sw5_`), but those pai
 items were reviewed in their own scripted fixtures, which is not production animation or exhaustive equipment
 acceptance.
 
+## Melee wave 3 and the Spear (2026-11-13)
+
+Wave 3 adds three SR4 catalog designs through the same pipeline: geometry comes from the colour detail image through
+the shared ComfyUI. It also adds the wave-1 Spear, which was meshed from its colour side view with
+`tools/itemkit/profile_mesh.py` and not generated. All four went in through `drive publish`. Each package is the exact
+bytes of its reviewed native HAK, and each blueprint is the exact bytes from its private fixture module. Hashes are in
+`approved-weapons-v1.json`. The user approved them after seeing unattended in-client captures on both shipped Human
+bodies: "Approve all three" for wave 3, and "Yes, keep it" for the Spear, which publishes "With wave 3".
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Vibro Blades — Knife | F1 / row 22 | `sr42aae67c` | `wswdg_*_121`, diffuse `sr42aae67c_12` | 0.43 m |
+| Rapier | F2 / row 1 | `sr84ad1333` | `wswls_*_191`, diffuse `sr84ad1333_19` | 1.10 m |
+| Combat Axe | F4 / row 13 | `sr9849b566` | `wswgs_*_101`, diffuse `sr9849b566_10` | 1.00 m |
+| Spear | F5 / row 50 | `sr2febc2a8` | `wdbqs_*_071`, diffuse `sr2febc2a8_07` | 2.20 m |
+
+- **Vibro Knife:** sized from the Cougar melee grip standard. It was refitted after the user reported it looked wrong:
+  the first fit had turned it a quarter about its long axis, so the blade showed its edge. Its lanyard hole is colour
+  only ("Drop it").
+- **Rapier:** uses a 2048 runtime texture, which the user chose.
+- **Combat Axe:** carried as a two-hand greatsword. Its round haft is a user-authorised departure from the grip
+  standard.
+- **Spear:** kept at the stock Staff length. Its head is a flat blade, with no depth from the side view.
+
+The fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only:
+
+- F1 `MaxRange` 111 to 121
+- F2 `MaxRange` 181 to 191
+- F4 `MaxRange` 100 to 101
+
+F5 (071) already falls inside its range. No gameplay, price or item-property field changes. The comparison module
+gained a male/female reviewer pair for each (`sw7_`), but those pairs have not been run in its client.
+
 ## Publishing a client-approved design
 
 `tools/itemkit/publish.py` publishes designs the user has approved in the client. It replaces the ad-hoc scripts the
@@ -187,7 +222,7 @@ For each item, the command:
    with only tag, name and position changed. The command also adds the equip lines to `sw2_enter.nss` and regenerates
    `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. Before
    anything is written (and in `--dry-run`, as `plannedReviewers`) it refuses if the row has no room left in the area
-   (five more pairs fit after `sw6_`), or past group `sw9_`, since the selector reads a group from the first four
+   (one more pair fits after `sw7_`), or past group `sw9_`, since the selector reads a group from the first four
    characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
