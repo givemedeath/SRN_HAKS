@@ -70,6 +70,30 @@ class SharedComfyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'launch arguments changed'):
             with shared_comfy.slot(Fake(changed), say=None): self.fail('a drifted server got a slot')
 
+    def test_a_queue_slow_to_answer_is_waited_for_and_a_refusal_is_not(self):
+        import socket
+        import urllib.error
+        class Slow(Fake):  # the queue read times out `slow` times, as Desktop's can for a while after a job
+            def __init__(self, live, slow, error):
+                super().__init__(live); self.slow, self.error = slow, error
+            def request(self, route, data=None):
+                if route == '/queue' and self.slow > 0:
+                    self.slow -= 1; raise self.error
+                return super().request(route, data)
+        live = identity(self.root/'desktop'); self.approve(live)
+        for error in (TimeoutError('timed out'), socket.timeout('timed out'), urllib.error.URLError(TimeoutError('timed out')),
+                      ConnectionResetError('reset'), urllib.error.URLError(ConnectionAbortedError('aborted'))):
+            client, naps, said = Slow(live, 2, error), [], []
+            with shared_comfy.slot(client, sleep=naps.append, say=lambda text, **_: said.append(text)): client.request('/prompt')
+            self.assertEqual((client.posted, len(naps)), ([True], 2))
+            self.assertEqual(said, ['the shared ComfyUI is slow to answer its queue: waiting'])  # told once
+        with self.assertRaisesRegex(ValueError, 'did not answer its queue'):  # still a deadline
+            with shared_comfy.slot(Slow(live, 99, TimeoutError()), limit=0, sleep=lambda s: None, say=None): pass
+        for refusal in (urllib.error.HTTPError('http://127.0.0.1:8188/queue', 500, 'error', {}, None),
+                        urllib.error.URLError(ConnectionRefusedError('refused'))):  # a server that errs or is gone fails at once
+            with self.assertRaises(urllib.error.URLError):
+                with shared_comfy.slot(Slow(live, 1, refusal), sleep=lambda s: self.fail('waited'), say=None): pass
+
     def test_a_child_leases_the_gpu_its_launcher_names(self):
         self.assertEqual(shared_comfy.lease_path(root=self.root).name, 'gpu-0')
         with mock.patch.dict(os.environ, {shared_comfy.INDEX_ENV: '1'}):

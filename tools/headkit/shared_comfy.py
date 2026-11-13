@@ -5,7 +5,8 @@ controlled session a driver started). Every submission, from any toolkit, goes t
 
 1. take the host GPU lease, a crash-safe named mutex at `<tools root>/locks/gpu-<index>` that headbatch already
    takes for its GPU launches, so no two submitters ever look at the queue at the same moment;
-2. wait for an idle queue: another session's job, or the user's, finishes first and is never touched;
+2. wait for an idle queue: another session's job, or the user's, finishes first and is never touched. A queue read
+   that times out counts as busy: right after a job the server can take more than the transport's 30 s to answer;
 3. prove the server, after the wait: its live identity, and for a server the toolkit did not start, the approved
    snapshot (the toolkit's own `comfyAttestation` binding, else the one the shared registry publishes);
 4. submit while still holding the lease. The job is in the queue before the lease is released, so the next
@@ -19,6 +20,7 @@ import os
 from pathlib import Path
 import threading
 import time
+import urllib.error
 
 from . import attestation
 from .common import require
@@ -151,11 +153,34 @@ def idle(fetch):
     return not queue.get('queue_running') and not queue.get('queue_pending')
 
 
+def slow(exc):
+    """A queue read that timed out or was cut off: the server is busy, as it can be for a while after a job, not gone.
+    An HTTP error or a refused connection is not slow."""
+    if isinstance(exc, urllib.error.HTTPError): return False
+    if isinstance(exc, urllib.error.URLError): exc = exc.reason
+    # socket.timeout is TimeoutError; Windows reports a connection the server dropped as aborted (WinError 10053)
+    return isinstance(exc, (TimeoutError, ConnectionResetError, ConnectionAbortedError))
+
+
+WAITING = {'busy': ('The shared ComfyUI queue stayed busy for {limit} s; nothing submitted',
+                    'waiting for the shared ComfyUI queue to empty: its jobs are left alone'),
+           'slow': ('The shared ComfyUI did not answer its queue for {limit} s; nothing submitted',
+                    'the shared ComfyUI is slow to answer its queue: waiting')}
+
+
 def wait_idle(fetch, *, limit=WAIT_SECONDS, poll=15.0, say=print, sleep=None):
-    started = time.monotonic(); told = False; sleep = sleep or time.sleep
-    while not idle(fetch):
-        require(time.monotonic() - started < limit, f'The shared ComfyUI queue stayed busy for {limit} s; nothing submitted')
-        if not told and say: say('waiting for the shared ComfyUI queue to empty: its jobs are left alone', flush=True); told = True
+    """Wait until the queue is empty, at most `limit` seconds. A queue read that times out counts as busy (`slow`)."""
+    started = time.monotonic(); told = set(); sleep = sleep or time.sleep
+    while True:
+        try:
+            if idle(fetch): return
+            why = 'busy'
+        except Exception as exc:
+            if not slow(exc): raise
+            why = 'slow'
+        failure, notice = WAITING[why]
+        require(time.monotonic() - started < limit, failure.format(limit=limit))
+        if why not in told and say: say(notice, flush=True); told.add(why)
         sleep(poll)
 
 
