@@ -7,8 +7,8 @@ from .geometry import corner_hash
 PATCH_SCOPE={'distance':.003,'textureFraction':.0001}
 # A larger colour-only patch needs the user's own approval, quoted in the patch: the 1.90 m stun staff at its chosen
 # 41 x 49 mm grip had 212 missed texels (0.045%) up to 3.11 mm from an inside-out generated donor (user, 2026-11-12:
-# "Raise the patch cap").
-EXTENDED_PATCH_SCOPE={'distance':.0032,'textureFraction':.0005}
+# "Raise the patch cap"; one texel then measured 3.203 mm: "Allow 3.25 mm").
+EXTENDED_PATCH_SCOPE={'distance':.00325,'textureFraction':.0005}
 
 
 def patch_scope(patch):

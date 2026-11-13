@@ -361,6 +361,7 @@ class GeometryTests(unittest.TestCase):
         with self.assertRaises(ValueError):validate_texture_patch(corners,wide,maximum_distance=.0032)
         approved={**wide,'userApproval':'User in chat: "Raise the patch cap"'}
         self.assertEqual(validate_texture_patch(corners,approved,maximum_distance=.0032),{0})
+        self.assertEqual(validate_texture_patch(corners,{**approved,'maximumDistance':.00325},maximum_distance=.00325),{0})
         for changes,bound in (({'maximumTextureFraction':.0006},.0032),({'maximumDistance':.0033},.0033),({'userApproval':' '},.0032)):
             with self.assertRaises(ValueError):validate_texture_patch(corners,{**approved,**changes},maximum_distance=bound)
         policy={'maximumDistance':.003,'maximumUnorientedDistance':.0032}
