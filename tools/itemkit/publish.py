@@ -53,7 +53,12 @@ SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
 EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti'}
 TYPE = {v: k for k, v in EXT.items()}
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
-ROW_Y = {'m': 5.0, 'f': 9.0}   # the southern row of the comparison area
+# Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_
+# rows, which hold five pairs each and have room for more. New groups fill them in this order (user, 2026-11-13:
+# "Fill sw1_/sw2_ rows" once the southern row was full).
+ROWS = ((5.0, 9.0), (15.0, 19.0), (27.0, 31.0))
+ROW_Y = {'m': ROWS[0][0], 'f': ROWS[0][1]}   # the southern row
+ROW_START = 5.0
 ROW_STEP = 3.5
 TILE = 10.0
 REVIEWER = re.compile(r'^sw(\d+)_([mf])([0-4])$')
@@ -223,17 +228,26 @@ def pairs_include(groups):
 
 
 def plan_pairs(creatures, packages, area_width):
-    """New reviewer tags and positions: groups of up to five after the last group, continuing the southern row."""
+    """New reviewer tags and positions: groups of up to five after the last group. Each group stands together in the
+    first row (ROWS order) with room for all of it, after that row's last reviewer."""
     groups = groups_of(c['Tag']['value'] for c in creatures)
-    row = [c['XPosition']['value'] for c in creatures if REVIEWER.match(c['Tag']['value']) and c['YPosition']['value'] == ROW_Y['m']]
-    require(row, f'No male reviewer stands in the southern row (y {ROW_Y["m"]}) to continue from')
-    x = max(row) + ROW_STEP; number = len(groups) + 1; pairs = []
+    placed = [c for c in creatures if REVIEWER.match(c['Tag']['value'])]
+    require(placed, 'No reviewers are placed in the comparison area to continue from')
+    free = {}
+    for male, female in ROWS:
+        xs = [c['XPosition']['value'] for c in placed if c['YPosition']['value'] == male]
+        free[male, female] = max(xs) + ROW_STEP if xs else ROW_START
+    number = len(groups) + 1; pairs = []
     for start in range(0, len(packages), GROUP_SIZE):
         # c.nss and sw_review.nss read a reviewer's group as GetStringLeft(tag, 4): one digit, sw1_ to sw9_.
         require(number <= 9, f'Reviewer group sw{number}_ is past what the module selector can read (sw1_ to sw9_)')
-        for index, package in enumerate(packages[start:start + GROUP_SIZE]):
-            require(x <= area_width - ROW_STEP, f'No room left in the southern row for {package.item} (x {x})')
-            pairs.append({'package': package, 'prefix': f'sw{number}_', 'index': index, 'x': x}); x += ROW_STEP
+        group = packages[start:start + GROUP_SIZE]
+        row = next((r for r in ROWS if free[r] + ROW_STEP * (len(group) - 1) <= area_width - ROW_STEP), None)
+        require(row is not None, f'No room left in the comparison rows for {len(group)} reviewer pairs from {group[0].item}')
+        for index, package in enumerate(group):
+            pairs.append({'package': package, 'prefix': f'sw{number}_', 'index': index, 'x': free[row],
+                          'y': {'m': row[0], 'f': row[1]}})
+            free[row] += ROW_STEP
         number += 1
     return groups, pairs
 
@@ -246,12 +260,12 @@ def reviewer_plan(repo, packages):
     return plan_pairs(creatures, packages, crm.parse_gff((module/'sr_it_floor.are').read_bytes())['Width']*TILE)
 
 
-def reviewer(template, tag, name, sex, x):
+def reviewer(template, tag, name, sex, x, y=None):
     """A template/instance copy for one reviewer: tag, resref, name and position change, nothing else."""
     record = copy.deepcopy(template)
     record['Tag']['value'] = tag; record['TemplateResRef']['value'] = tag
     record['FirstName']['value'] = {'0': f'{name} / {"male" if sex == "m" else "female"}'}
-    record['XPosition']['value'] = x; record['YPosition']['value'] = ROW_Y[sex]
+    record['XPosition']['value'] = x; record['YPosition']['value'] = ROW_Y[sex] if y is None else y
     return record
 
 
@@ -308,8 +322,8 @@ def add_reviewers(repo, planned, tools, work):
         for s in 'mf':
             tag = f'{p["prefix"]}{s}{p["index"]}'
             require(tag not in placed and not (module/f'{tag}.utc').exists(), f'Reviewer {tag} already exists')
-            tools.to_gff(reviewer(templates[s], tag, p['package'].name, s, p['x']), module/f'{tag}.utc', work)
-            creatures.append(reviewer(placed[f'{last}{s}0'], tag, p['package'].name, s, p['x']))
+            tools.to_gff(reviewer(templates[s], tag, p['package'].name, s, p['x'], p['y'][s]), module/f'{tag}.utc', work)
+            creatures.append(reviewer(placed[f'{last}{s}0'], tag, p['package'].name, s, p['x'], p['y'][s]))
     tools.to_gff(git, module/'sr_it_floor.git', work)
     groups = groups_of(c['Tag']['value'] for c in creatures); total = sum(n for _, n in groups)
     (module/PAIRS_INCLUDE).write_bytes(pairs_include(groups).encode('ascii'))
