@@ -144,6 +144,7 @@
     ],
     "tools/armorkit/test_brief.py": [
       "tools/armorkit/brief.py",
+      "tools/armorkit/briefs/corpsec-facility-male.json",
       "tools/armorkit/briefs/corpsec-siteguard-male-2.json",
       "tools/armorkit/briefs/corpsec-siteguard-male.json",
       "tools/armorkit/texture.py"
