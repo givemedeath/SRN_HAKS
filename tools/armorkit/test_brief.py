@@ -13,6 +13,7 @@ from . import brief, texture
 SITEGUARD = Path(__file__).with_name('briefs') / 'corpsec-siteguard-male.json'
 GREY, TAN, BLUE, SAGE = [128, 128, 128], [196, 160, 110], [150, 180, 220], [150, 190, 150]
 PINNED_2 = '60743c77617114b4797affd2331e951dd21be749d28bca46f17c842504f8294a'  # construction version 2, never edited
+PINNED_3 = '483b80a220815801bac2080b803692360c87a681a4d5523ed5b321c143916f90'  # and version 3
 
 
 def document(*materials):
@@ -96,7 +97,7 @@ class BriefTests(unittest.TestCase):
         self.assertEqual((len(second), changed), (len(first), [3]))  # only the shoulder rule
         self.assertTrue(second[3].startswith('3. Nothing is worn on the shoulders: no shoulder pad, pauldron or guard'))
         self.assertNotIn('shoulder guard sits', brief.CONSTRUCTIONS[2])
-        self.assertEqual(max(brief.CONSTRUCTIONS), brief.PADLESS)
+        self.assertTrue(all(version >= brief.PADLESS for version in brief.CONSTRUCTIONS if version > 2))
         self.assertEqual(hashlib.sha256(brief.CONSTRUCTIONS[2].encode('utf-8')).hexdigest(), PINNED_2)
         # a brief drawn to it lists no pads; one drawn before, or before the rules, may
         with self.assertRaises(ValueError) as refused:
@@ -107,6 +108,19 @@ class BriefTests(unittest.TestCase):
         with self.assertRaises(ValueError):  # and seals no new folder
             with tempfile.TemporaryDirectory() as folder:
                 brief.seal(earlier, Path(folder) / 'new')
+
+    def test_the_third_construction_names_no_piece_or_place_to_forbid_it(self):
+        # two images drawn to version 2 put guards on the forearms and straps round the thighs: what it named
+        text = brief.CONSTRUCTIONS[3]
+        self.assertEqual(max(brief.CONSTRUCTIONS), 3)
+        self.assertEqual(len(text.split('\n')), len(brief.CONSTRUCTIONS[2].split('\n')))  # the same five rules
+        for named in ('elbow', 'forearm', 'upper arm', 'thigh', 'shin', 'knee', 'wrist', 'ankle', 'hip', 'pauldron', 'shoulder pad', 'vest', 'carrier',
+                      'no ', 'not ', 'nothing', 'never'):
+            self.assertNotIn(named, text.lower())
+        for said in ('one solid, simple shape', 'single one-piece shell', 'plain, smooth cloth', 'round the middle of a limb', 'well short of the armpits'):
+            self.assertIn(said, text)
+        self.assertEqual(hashlib.sha256(text.encode('utf-8')).hexdigest(), PINNED_3)
+        self.assertEqual(brief.load(SITEGUARD.with_name('corpsec-facility-male.json'))['construction'], 3)
 
     def test_a_brief_names_the_slots_it_leaves_to_the_body_and_those_it_shares_with_its_skin(self):
         given = {**document(), 'bare': ['forearm'], 'skin': ['bicep']}
