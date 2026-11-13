@@ -1,4 +1,5 @@
 #include "sr_f7_inc"
+#include "sw_pairs"
 void Report(object o) {
  object r=GetItemInSlot(INVENTORY_SLOT_RIGHTHAND,o);object l=GetItemInSlot(INVENTORY_SLOT_LEFTHAND,o);object a=GetItemInSlot(INVENTORY_SLOT_ARROWS,o);
  WriteTimestampedLogEntry("SW2_FIXED_EQUIP tag="+GetTag(o)+" gender="+IntToString(GetGender(o))+" torso="+IntToString(GetCreatureBodyPart(CREATURE_PART_TORSO,o))+" head="+IntToString(GetCreatureBodyPart(CREATURE_PART_HEAD,o))+" exotic="+IntToString(GetHasFeat(FEAT_WEAPON_PROFICIENCY_EXOTIC,o))+" right="+GetResRef(r)+" base="+IntToString(GetBaseItemType(r))+" left="+GetResRef(l)+" arrows="+IntToString(GetItemStackSize(a))+" heldStack="+IntToString(GetItemStackSize(r)));
@@ -68,23 +69,24 @@ void main() {
  if(!GetIsObjectValid(area)){DelayCommand(1.0,ExecuteScript("c",m));return;}
  if(stage==0) {
   int count=0;object o=GetFirstObjectInArea(area,OBJECT_TYPE_CREATURE);
-  while(GetIsObjectValid(o)){string t=GetTag(o);if(GetStringLeft(t,4)=="sw1_"||GetStringLeft(t,4)=="sw2_"||GetStringLeft(t,4)=="sw3_"||GetStringLeft(t,4)=="sw4_"||GetStringLeft(t,4)=="sw5_"||GetStringLeft(t,4)=="sw6_"){Report(o);count++;}o=GetNextObjectInArea(area,OBJECT_TYPE_CREATURE);}
+  while(GetIsObjectValid(o)){string t=GetTag(o);if(SwGroupStart(GetStringLeft(t,4))>=0){Report(o);count++;}o=GetNextObjectInArea(area,OBJECT_TYPE_CREATURE);}
   WriteTimestampedLogEntry("SW2_FIXED_START reviewers="+IntToString(count)+" thrown="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sr2273b8c")))+" arrows="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sw2_arrow"))));stage=11;
  }
- if(stage>=1&&stage<=52) {
-  int pair=(stage-1)%26;int index=pair%5;string prefix="sw1_";if(pair>=5)prefix="sw2_";if(pair>=10)prefix="sw3_";if(pair>=15)prefix="sw4_";if(pair>=17){prefix="sw5_";index=pair-17;}if(pair>=22){prefix="sw6_";index=pair-22;}
+ int pairs=SwPairCount();
+ if(stage>=1&&stage<=2*pairs) {
+  int pair=(stage-1)%pairs;string prefix=SwPairPrefix(pair);int index=pair-SwGroupStart(prefix);
   object male=GetObjectByTag(prefix+"m"+IntToString(index));object female=GetObjectByTag(prefix+"f"+IntToString(index));Arrange(male,female,pc,pair);Report(male);Report(female);
-  if(stage>26 && pair==4){DelayCommand(0.5,ShieldProbe(male));DelayCommand(0.5,ShieldProbe(female));}
-  if(stage>26) {
+  if(stage>pairs && pair==4){DelayCommand(0.5,ShieldProbe(male));DelayCommand(0.5,ShieldProbe(female));}
+  if(stage>pairs) {
  if(pair==3){}
 
    DelayCommand(15.0,AssignCommand(pc,SetCameraFacing(45.0,7.0,65.0)));
    DelayCommand(35.0,AssignCommand(pc,SetCameraFacing(135.0,7.0,65.0)));
    DelayCommand(61.0,AssignCommand(pc,SetCameraFacing(90.0,5.5,65.0)));
   }
-  if(stage<=26){SendMessageToPC(pc,"Static inspection "+IntToString(pair+1)+"/26");WriteTimestampedLogEntry("SW2_FIXED_VIEW pair="+IntToString(pair+1));}
-  else if(pair!=4) {DelayCommand(0.5,Attack(male));DelayCommand(0.5,Attack(female));SendMessageToPC(pc,"Actual engine attack test "+IntToString(pair+1)+"/26;60second bounded visual action.");}
+  if(stage<=pairs){SendMessageToPC(pc,"Static inspection "+IntToString(pair+1)+"/"+IntToString(pairs));WriteTimestampedLogEntry("SW2_FIXED_VIEW pair="+IntToString(pair+1));}
+  else if(pair!=4) {DelayCommand(0.5,Attack(male));DelayCommand(0.5,Attack(female));SendMessageToPC(pc,"Actual engine attack test "+IntToString(pair+1)+"/"+IntToString(pairs)+";60second bounded visual action.");}
  }
- if(stage>52){SendMessageToPC(pc,"Inspection sequence complete. Client visual and attack outcomes remain individually recorded.");}
+ if(stage>2*pairs){SendMessageToPC(pc,"Inspection sequence complete. Client visual and attack outcomes remain individually recorded.");}
  SetLocalInt(m,"SW2_FIXED_STAGE",stage+1);
 }

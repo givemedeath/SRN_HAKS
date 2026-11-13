@@ -42,8 +42,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 85,
-      "sha256": "1d636d5777f3392efa90b005776a59048d959e5741f421367559a4b317f4ce8c",
+      "resources": 86,
+      "sha256": "4c62cf7a16e03b9b37c2037347050cf0d15da893c9772631aee3fad1a954a2b5",
       "exactPayload": true
     }
   ],
