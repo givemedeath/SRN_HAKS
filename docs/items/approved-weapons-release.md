@@ -218,11 +218,14 @@ For each item, the command:
 4. **Extends the table only when needed.** If an appearance number is above its row's `MaxRange`, only that token in
    `srn_2da/baseitems.2da` changes. A longer number takes the padding after it, and no other byte of the table moves.
 5. **Adds reviewers.** It adds a male and a female reviewer per item to `test-modules/weapon-waves` in groups of five
-   (`sw7_`, `sw8_`, ...). They continue the southern row 3.5 m apart and are copied from the last group's first pair
-   with only tag, name and position changed. The command also adds the equip lines to `sw2_enter.nss` and regenerates
+   (`sw8_`, `sw9_`). Each group stands together, 3.5 m apart, after the last reviewer of the first row with room for
+   all of it: the southern row (`sw3_` to `sw7_`, y 5/9, one more pair fits), then the `sw1_` row (y 15/19) and the
+   `sw2_` row (y 27/31), with room for ten more pairs each after their five (user, 2026-11-13: "Fill sw1_/sw2_
+   rows"). Reviewers are copied from the last group's first pair with only tag, name and position changed. The command
+   also adds the equip lines to `sw2_enter.nss` and regenerates
    `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. Before
-   anything is written (and in `--dry-run`, as `plannedReviewers`) it refuses if the row has no room left in the area
-   (one more pair fits after `sw7_`), or past group `sw9_`, since the selector reads a group from the first four
+   anything is written (and in `--dry-run`, as `plannedReviewers`) it refuses if no row has room for a group, or past
+   group `sw9_`, since the selector reads a group from the first four
    characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
