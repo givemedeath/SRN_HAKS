@@ -131,6 +131,45 @@ class CheckTests(unittest.TestCase):
         self.assertEqual((shots[0]['stand'], shots[0]['facing'], shots[1]['stand'], shots[1]['facing']), ([45.0, 37.5], 90, [45.0, 55.5], 270))
         self.assertEqual(checks.blackout_shots(3, 3, []), [])
 
+    def test_a_capture_made_after_its_shot_has_passed_is_refused_not_mislabelled(self):
+        """The rail freight depot (2026-11-13): the client stalled for twenty seconds on the sixth shot, and the last view
+        was captured five times under five names."""
+        import tempfile
+        from pathlib import Path
+        self.assertIsNone(prop_fixture.late(100, 103.0, 6.0)); self.assertEqual(prop_fixture.late(100, 123.0, 6.0), 23.0)
+        self.assertIsNone(prop_fixture.late(86399, 3.0, 6.0)); self.assertIsNone(prop_fixture.late(None, 500.0, 6.0))  # past midnight; no stamp
+        with tempfile.TemporaryDirectory() as scratch:
+            user = Path(scratch) / 'user'; (user / 'logs').mkdir(parents=True); captures = Path(scratch) / 'captures'; captures.mkdir()
+            record = {'userDirectory': str(user), 'module': 'ekx.mod', 'start': 1.0, 'hold': 6.0, 'shots': ['a', 'b']}
+
+            def shoot(pid, path):
+                Path(path).write_bytes(b'png'); return path
+
+            def go(stamps):
+                (user / 'logs' / 'nwclientLog1.txt').write_text(''.join(f'[Fri Nov 13 {stamp}] {line}' + chr(10) for stamp, line in zip(
+                    stamps, ['ENVKIT shot=0 target=a valid=1', 'ENVKIT shot=1 target=b valid=1', 'ENVKIT done'])), encoding='cp1252')
+                process = mock.Mock(pid=7); process.poll.return_value = None
+                with mock.patch.object(prop_fixture.client, 'start', return_value=process), mock.patch.object(prop_fixture.client, 'stop'), \
+                        mock.patch.object(prop_fixture, 'capture', side_effect=shoot), mock.patch.object(prop_fixture.time, 'sleep'), \
+                        mock.patch.object(prop_fixture, 'clock', return_value=13 * 3600 + 58 * 60 + 25.0):
+                    return prop_fixture.run('game', record, captures)
+            self.assertEqual(len(go(['13:58:21', '13:58:23', '13:58:24'])['captures']), 2)
+            for path in captures.iterdir():
+                path.unlink()
+            with self.assertRaisesRegex(ValueError, r'show a later view: a \(25 s\)'):
+                go(['13:58:00', '13:58:22', '13:58:24'])
+            self.assertEqual(sorted(path.name for path in captures.iterdir()), ['shot-00-a-late.png', 'shot-01-b.png'])
+
+    def test_a_check_area_holds_the_group_with_ground_all_round(self):
+        """The rail freight depot, 8 by 8 (2026-11-13), did not fit the area of 9 tiles that held the 3 by 3 groups."""
+        self.assertEqual([checks.area_size(3, 3), checks.area_size(2, 3), checks.area_size(8, 8), checks.area_size(8, 5)], [9, 9, 14, 14])
+        for columns, rows in ((1, 1), (3, 3), (8, 8), (12, 7)):
+            size = checks.area_size(columns, rows)
+            self.assertLessEqual(max(columns, rows) + checks.MARGIN + 1, size)  # as the check requires
+            self.assertGreaterEqual(size - max(columns, rows) - checks.MARGIN, checks.MARGIN)  # ground beyond the far side too
+        # A walker from a far corner has as long to arrive for each metre of a larger area.
+        self.assertEqual(checks.walk_hold(9), checks.WALK_HOLD); self.assertAlmostEqual(checks.walk_hold(14) / 14, checks.WALK_HOLD / 9)
+
     def test_a_walk_check_needs_the_walk_picture_of_its_build(self):
         import json
         import tempfile

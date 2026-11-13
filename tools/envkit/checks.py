@@ -35,6 +35,7 @@ REACHED = 1.0  # metres from its target a walker may stop and still have arrived
 WALK_START = 5.0  # metres in from the check area's corners that walkers set out from
 WALK_STAGES = 6  # shots after the one that sends the walkers, each logging where they are
 WALK_HOLD = 8.0  # seconds a walk shot is held: six of them take a walker some 90 metres
+AREA, MARGIN = 9, 3  # tiles across a check area at least, and of plain ground round the group on every side
 DOOR_OUT = 1.2  # metres out of its door a walker is sent to
 
 
@@ -174,6 +175,19 @@ def laid_door(made):
         return None
     column, row, door = found[0]
     return [(column + 0.5 - made['columns'] / 2) * TILE + door['x'], (row + 0.5 - made['rows'] / 2) * TILE + door['y']]
+
+
+def area_size(columns, rows):
+    """Tiles across the square check area of a group of `columns` by `rows`: AREA, or as many as hold the group with
+    MARGIN tiles of ground on every side. The rail freight depot is 8 by 8 (2026-11-13), and the area of 9 that held
+    the Saeder-Krupp yard's 3 by 3 refused it."""
+    return max(AREA, max(columns, rows) + 2 * MARGIN)
+
+
+def walk_hold(size):
+    """Seconds each walk shot is held in an area `size` tiles across: WALK_HOLD, and longer in a larger area, whose far
+    corners lie further from the targets (the rail freight depot's area is 14 tiles, 2026-11-13)."""
+    return WALK_HOLD * max(1.0, size / AREA)
 
 
 def group_shots(columns, rows, door, mode, *, column0=3, row0=3, facing=90.0):
@@ -336,13 +350,13 @@ def laid_tiles(set_text, tileset, model, tiles, column0, row0):
     return laid
 
 
-def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=9, scale_prop='ek_ss_vending', targets=None):
+def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=None, scale_prop='ek_ss_vending', targets=None):
     """A built tile group (`tiles`' folder) laid in an area of `tileset`, which must hold it already (`install`): the
     tile numbers are the pack's, the models and walkmeshes the built ones. mode: day, night (with its lights put out
     and on again), near or walk (`walk_plan`; refused if a walker stops more than REACHED metres short, after its
     captures and `walks.json` are written). targets: {label: (x, y)} more places a walk sends walkers to, in metres from
     the group's south-west corner as `walk.png` shows them (the Saeder-Krupp yard's bay, which no automatic target
-    reaches)."""
+    reaches). size: tiles across the area, by default as many as hold the group (`area_size`)."""
     require(tileset in FILL, 'A check area is laid in ' + ' or '.join(FILL)); require(mode in ('day', 'night', 'near', 'walk'), 'mode is day, night, near or walk')
     require(not targets or mode == 'walk', 'Targets are where a walk check sends walkers: give them with --mode walk')
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path)
@@ -352,7 +366,7 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     walk_picture = folder / 'source' / tile.WALK_PICTURE
     require(mode != 'walk' or walk_picture.is_file(), f'{folder} has no {tile.WALK_PICTURE}, which picks where walkers go: build the group again')
     text = _ground(repo, tileset, resources)
-    column0 = row0 = 3; laid = laid_tiles(text, tileset, model, made['tiles'], column0, row0)
+    column0 = row0 = MARGIN; laid = laid_tiles(text, tileset, model, made['tiles'], column0, row0); size = size or area_size(made['columns'], made['rows'])
     require(max(made['columns'], made['rows']) + column0 + 1 <= size, 'The group does not fit the check area')
     for one in made['tiles']:
         shutil.copyfile(folder / 'compiled' / f'{one["model"]}.mdl', resources / f'{one["model"]}.mdl')
@@ -372,7 +386,7 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
         lit = [(texture, 'halo' in found) for texture in [model, *made.get('parts', {}).values()] if (found := convert.lights(texture, folder / 'shared'))]
         shots += blackout_shots(made['columns'], made['rows'], lit, column0=column0, row0=row0)
     record = fixture.build(name, resources, [{'model': scale_prop, 'position': [3.0, 3.0], 'bearing': 0.0, 'static': True}], shots, base / 'fixtures' / name, game,
-                           repo / 'srn_2da/placeables.2da', people=people, night=night, size=size, hold=WALK_HOLD if walkers else 6.0,
+                           repo / 'srn_2da/placeables.2da', people=people, night=night, size=size, hold=walk_hold(size) if walkers else 6.0,
                            ground={'tileset': tileset, 'fill': FILL[tileset], 'tiles': laid, 'lights': {spot: [11, 0] for spot in laid} if night else {}})
     extra = f'[graphics.second-story-tiles]\nmode = {second_storey}\n' if mode == 'near' else ''
     result = _run(game, record, base / 'fixtures' / name, extra_settings=extra)

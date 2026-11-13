@@ -164,29 +164,72 @@ def capture(pid, path):
         return client.capture(pid, path)
 
 
+# The client stamps its log to the second. A capture made later after its shot's line than the shot is held, less
+# the margin a capture needs and that second, shows the next shot's view: the rail freight depot's client stalled for
+# twenty seconds on its sixth shot, and its check took the last view five times under five names (2026-11-13).
+STAMPED = re.compile(r'^\[\w{3} \w{3} +\d+ (\d\d):(\d\d):(\d\d)\]\s*')
+DAY = 86400.0
+
+
+def stamped_lines(user_directory, prefix=LOG_PREFIX):
+    """[(seconds after midnight its line was stamped, or None, line)] of the fixture's lines in the client log."""
+    path = Path(user_directory) / 'logs' / 'nwclientLog1.txt'
+    if not path.is_file():
+        return []
+    found = []
+    for line in path.read_text(encoding='cp1252', errors='replace').splitlines():
+        stamp = STAMPED.match(line.strip()); text = client.STAMP.sub('', line.strip())
+        if text.startswith(prefix):
+            found.append((int(stamp[1]) * 3600 + int(stamp[2]) * 60 + int(stamp[3]) if stamp else None, text))
+    return found
+
+
+def clock():
+    """Seconds after local midnight now, as the client stamps its log."""
+    now = time.localtime(); return now.tm_hour * 3600 + now.tm_min * 60 + now.tm_sec + time.time() % 1
+
+
+def late(stamp, now, hold):
+    """How many seconds after its shot's line a capture made `now` came, where that is too late for the shot's view
+    still to be on screen; None where it is in time, or the line bore no stamp."""
+    if stamp is None:
+        return None
+    lag = (now - stamp) % DAY
+    return lag if lag > hold - client.MARGIN + 1.0 else None
+
+
 def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings=''):
-    """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and captures."""
+    """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and
+    captures. A capture made too late for its shot (`late`) is kept as `<name>-late.png`, and the run is refused once the
+    fixture has finished."""
     user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
     # Every run states its own settings, so none are left over from the run before.
     (user / 'settings.tml').write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
     process = client.start(nwn_root, user, Path(record['module']).stem, width=width, height=height)
-    shots, seen = [], 0
+    shots, seen, missed = [], 0, []
     try:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             time.sleep(client.POLL)
             require(process.poll() is None, 'The client exited before the fixture finished')
-            lines = client.log_lines(user, LOG_PREFIX)
-            for line in lines[seen:]:
+            lines = stamped_lines(user, LOG_PREFIX)
+            for stamp, line in lines[seen:]:
                 values = client.parse_line(line)
                 if 'shot' in values and 'target' in values:
                     time.sleep(settle)
-                    shots.append(str(capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png')))
+                    path = Path(capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png'))
+                    lag = late(stamp, clock(), record['hold'])
+                    if lag is None:
+                        shots.append(str(path))
+                    else:
+                        path.replace(path.with_name(path.stem + '-late.png')); missed.append(f'{values["target"]} ({lag:.0f} s)')
             seen = len(lines)
-            if f'{LOG_PREFIX} done' in lines:
+            if f'{LOG_PREFIX} done' in [line for _, line in lines]:
                 break
         else:
             raise ValueError('The fixture did not finish within the timeout')
+        require(not missed, f'Captures came after their shot had passed and show a later view: {", ".join(missed)}. The client '
+                f'stalled (loading what came into view) or its log came late; the captures are kept as -late.png in {captures}. Run the check again')
         return {'lines': client.log_lines(user, LOG_PREFIX), 'captures': shots}
     finally:
         client.stop(process)

@@ -468,6 +468,26 @@ class TileTests(unittest.TestCase):
         plain = tile.survey(*SHOP, 1, 1, corner)  # a group with no deck: nothing changes
         self.assertEqual((float(plain['deck'].max()), plain['lines']), (0.0, tile.survey(*SHOP, 1, 1, corner)['lines']))
 
+    def test_a_platform_too_high_to_step_onto_is_walked_on_where_stairs_lead_up_to_it(self):
+        """User, 2026-11-13: "the stairs up onto platform, and the platform itself should be walkable" (the rail freight
+        depot's loading platform, 1.2 metres high with five steps at one end)."""
+        corner = np.array([-5.0, -5.0]); platform = box((-2, -1, 0), (4, 2, 1.2))
+        steps = [box((-2 - 0.3 * (4 - index), -0.5, 0), (-2, 1.5, 0.24 * (index + 1))) for index in range(4)]  # 0.24 risers, 0.3 treads
+        at = lambda x, y: (int((y + 5) / CELL), int((x + 5) / CELL))
+        found = tile.survey(*scene(platform, *steps), 1, 1, corner); material = found['material']
+        self.assertEqual([int(material[at(x, y)]) for x, y in ((1.0, 0.5), (-2.6, 0.5), (1.0, 1.9), (3.9, 0.5), (1.0, -0.9), (-1.9, -0.8))],
+                         [tile.STONE, tile.STONE, tile.NONWALK, tile.NONWALK, tile.NONWALK, tile.NONWALK])  # deck and stairs open; its edge closed
+        vertices, flat, _ = floor(found)
+        height = lambda x, y: round(float(ground(vertices, flat, x, y)[0]), 3)
+        climb = [height(x, 0.5) for x in (-3.6, -3.1, -2.8, -2.5, -2.2, -1.5, 1.0)]
+        self.assertLess(climb[0], 0.24); self.assertEqual((climb[-2], climb[-1]), (1.2, 1.2)); self.assertEqual(climb, sorted(climb))  # up the stairs onto the deck
+        self.assertTrue(all(ground(vertices, flat, x, 0.5)[1] == tile.STONE for x in (-3.1, -2.5, -1.5)))
+        roomy = found['roomy']; self.assertTrue(roomy[at(1.0, 0.5)] and roomy[at(-2.6, 0.5)])
+        labels, _ = tile._masses(roomy); self.assertEqual(labels[at(1.0, 0.5)], labels[at(-4.5, -4.5)])  # one ground, by the stairs
+        # Without the stairs, or with only a bench beside it, it stands in the way as before.
+        for beside in ((), (box((-3, -0.5, 0), (-2, 1.5, 0.6)),)):
+            self.assertEqual(int(tile.survey(*scene(platform, *beside), 1, 1, corner)['material'][at(1.0, 0.5)]), tile.NONWALK)
+
     def test_a_halo_as_glow_makes_it_is_shared_and_cut_by_its_own_light(self):
         # A wall facing front, 4 wide and 2 tall, with a wide window low on it and a small sign above, towards +x: one card, as `glow.halo` makes it.
         points = np.array([[2.0, 1.0, 0.0], [-2.0, 1.0, 0.0], [-2.0, 1.0, 2.0], [2.0, 1.0, 2.0]]); uvs = np.array([[0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]])
@@ -572,6 +592,19 @@ class TileTests(unittest.TestCase):
                                 ({(0, 0): ('Q', 0)}, 'a letter of PATH_NODES')):
             with self.assertRaisesRegex(ValueError, message):
                 tile.path_nodes(found, 2, 1, stated)
+
+    def test_no_exit_is_left_cut_off_where_a_building_stands_across_a_tile_line(self):
+        # Two tiles side by side, a building across the line between them in their north halves, as the rail freight depot's warehouse and
+        # crane stand across the line between its middle columns. Each tile alone can leave the shared side by itself (U) or its north side
+        # (U turned): both reach all its ground. Left alone on both, the shared side joins nothing but itself, and the walker sent to the
+        # target there, straight in from the middle of the group's south edge, walked straight at it and stopped short (client, 2026-11-13).
+        material = np.full((tile.CELLS, 2 * tile.CELLS), tile.STONE); material[26:, 14:66] = tile.OBSCURING
+        found = {'material': material}
+        self.assertEqual([tile.path_node(found, 0, column)['node'] + str(tile.path_node(found, 0, column)['turn']) for column in (0, 1)], ['U180', 'U0'])
+        self.assertEqual(tile.cut_off({(0, column): tile.path_node(found, 0, column) for column in (0, 1)}), [(0, 0, 'E'), (0, 1, 'W')])
+        nodes = tile.path_nodes(found, 1, 2)
+        self.assertEqual(tile.cut_off(nodes), []); self.assertEqual({key: (one['node'], one['turn']) for key, one in nodes.items()}, {(0, 0): ('U', 270), (0, 1): ('U', 0)})
+        self.assertEqual(tile.walk_targets(tile._roomy(material == tile.STONE))['south'], (10.125, 5.875))  # on the line, by the shared side
 
     def test_a_tiles_record_names_its_picture_lights_and_doors_and_a_door_block_follows_it(self):
         made = {'rows': 2, 'columns': 2, 'tiles': [{'model': f'ek_test_t{row}{column}', 'row': row, 'column': column, 'path': {'node': 'H', 'turn': 0}, 'lights': 2,

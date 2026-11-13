@@ -201,7 +201,11 @@ from `walk.png`, which `tiles` writes beside the tile sources (a pixel a walk ce
 room to stand on, red the building, orange the lesser things in the way and ground too narrow to stand on, which
 `tiles` closes: a walk would be planned through a gap no character fits, as it was through the gaps between the
 Saeder-Krupp yard's fence sections; dark green in a picture built before 2026-11-12); a
-group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). `lights`
+group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). The check
+area is 9 tiles across, or as many as hold the group with 3 tiles of ground round it (`checks.area_size`: the 8 by 8
+depot's is 14), and a walk shot is held longer in a larger area (`checks.walk_hold`). A capture made after its
+shot has passed shows the next view under the wrong name: the depot's client stalled 20 seconds and its log came
+late. Such captures are kept as `-late.png` and the check is refused; run it again. `lights`
 takes the lit props from the pack, by night, and puts them out and on again by script. Look for the roof and upper
 storey from above, the door, and every lit part going out and coming back.
 
@@ -319,7 +323,12 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   either side), and read the boxes off the texture rather than by eye. A pitch under four texels is refused.
 - **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
   0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
-  `walk.png` shows which.
+  `walk.png` shows which. A floor up to 1.5 m high (`tile.PLATFORM`), a loading platform, is walked on where stairs
+  lead up to it: steps no taller than 0.35 m down to the ground, no steeper than 1.25 rise over run overall
+  (`tile.RISER`, `STAIR`). The walkmesh climbs the stairs, and the platform's edge is closed elsewhere, so no walk
+  steps off it (user: "the stairs up onto platform, and the platform itself should be walkable", the rail freight
+  depot, 2026-11-13). Without stairs it stays closed. A platform across a tile line is walked by short walks; the
+  path nodes cannot say a way along it from tile to tile, so a far walk onto it can give up.
 - **Something the generator stood on the floor leaves too narrow a way** (orange on `walk.png` where a character
   must pass, or a `tiles` note of walk cells no walk is planned onto). A path needs a metre clear. Take the thing away with
   `clear`: `{"part": ..., "box": ...}` on the finished model takes every face whose middle lies in the box. Start the
@@ -332,7 +341,11 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   `tiles` states a side as an exit only where it opens within 3 m of its middle (`tile.REACH`), joins two exits only
   where a walk between them stays within 2 m of the straight way (`tile.ASIDE`), and chooses the group's nodes
   together so walks reach the most ground (`tile.path_nodes`; the report gives each tile's node, and as `offPath` the
-  ground no walk is planned onto). Where walkers still give up, try other nodes for the tiles they were bound for:
+  ground no walk is planned onto). The engine takes a target by a side for that side's own: of nodes that reach as
+  much, `tiles` takes those that leave no exit cut off from every way out, and notes any it cannot (`tile.cut_off`).
+  The rail freight depot's walkers to its warehouse door and its crane's north leg, on the line between its middle
+  columns where both tiles had left their shared side alone, walked straight at them (2026-11-13). Where walkers
+  still give up, try other nodes for the tiles they were bound for:
   edit `PathNode` and `Orientation` of those tiles in the installed set files (copy them aside first), rerun the walk
   check, and state what works under `tiles.nodes` in the game set (`{"t12": {"node": "A", "turn": 0}}`). Then
   rebuild and install. The Saeder-Krupp yard states three this way. A short walk into ground with one far way in

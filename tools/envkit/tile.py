@@ -19,7 +19,8 @@ onto it over the slab's outermost half metre. A strip of slab too narrow for tha
 a metre to a metre wide, is climbed over its outer quarter metre instead; a narrower one is left on the ground.
 A deck, a broad flat floor raised past the knee (the Saeder-Krupp yard's loading bay and its apron stand on one 0.55
 metres high), is walked on at its own height and climbed over its outer half metre where it meets lower open ground;
-what stands on it is closed as on the ground (`_decks`). Ground with no room to stand on, where no metre-square block
+what stands on it is closed as on the ground (`_decks`). A deck too high to step onto, a loading platform, is walked on
+where stairs lead up to it, and climbed only by them: its edge is closed elsewhere (`_stairs`). Ground with no room to stand on, where no metre-square block
 of open cells reaches (a gap between fence sections, a notch in a wall), is closed as well: a walk is not planned
 through it.
 
@@ -67,6 +68,11 @@ KNEE, EYE, HEAD, STEP = 0.45, 1.4, 2.2, 0.05
 # benches and barriers are smaller, and the Saeder-Krupp yard's bay floor is 68 (user, 2026-11-12: "more area on the
 # pavement and in the bay should be walkable").
 DECK, DECK_AREA, FLAT = 0.75, 9.0, 0.06
+# A floor higher than DECK, up to PLATFORM, is a deck only where stairs lead up to it: steps no taller than RISER from its
+# edge down to the ground, no steeper overall than STAIR, rise over run. The rail freight depot's loading platform is
+# 1.2 metres high with five steps at one end (user, 2026-11-13: "the stairs up onto platform, and the platform itself
+# should be walkable"); a platform with no stairs stays in the way.
+PLATFORM, RISER, STAIR = 1.5, 0.35, 1.25
 # The engine's path nodes whose exits are a tile's four sides, each as the sides its regions join at no turn
 # (N, W, S, E; +y is north). A turn is counter-clockwise, in quarters. From the engine's table as nwn.wiki's page on
 # tile path nodes gives it, checked against the walkmeshes of the 1,091 stock tiles of Modern Exterior and Suburbs on
@@ -161,18 +167,58 @@ def _masses(closed):
 
 
 def _decks(points, place, standing, shape):
-    """The height of the deck each survey sample lies on, 0 off any deck: a flat floor between the knee and DECK of
-    DECK_AREA at least, and its rim, the samples beside it where the mesh stands no higher than the deck (its edge
-    face, from the ground up). What stands on a deck rises past it, and is not part of it."""
+    """(deck, stairs): the height of the deck each survey sample lies on, 0 off any deck, and of the stairs up to one,
+    0 off any. A deck is a flat floor past the knee of DECK_AREA at least, and its rim, the samples beside it where the
+    mesh stands no higher than the deck (its edge face, from the ground up); one higher than DECK is a deck only where
+    stairs lead up to it (`_stairs`). What stands on a deck rises past it, and is not part of it."""
     lowest = np.full(shape, np.inf); top = np.zeros(shape); spot = (place[standing, 1], place[standing, 0])
     np.minimum.at(lowest, spot, points[standing, 2]); np.maximum.at(top, spot, points[standing, 2])
-    labels, count = _masses((lowest <= DECK) & (top - lowest < FLAT)); deck = np.zeros(shape)
+    surface = np.zeros(shape); under = points[:, 2] < HEAD  # the top of what is there, the ground's foot of a step included
+    np.maximum.at(surface, (place[under, 1], place[under, 0]), points[under, 2])
+    labels, count = _masses((lowest <= PLATFORM) & (top - lowest < FLAT)); deck = np.zeros(shape); stairs = np.zeros(shape)
     sizes = np.bincount(labels.ravel(), minlength=count + 1)[1:] * (SIZE / CELLS / FINE) ** 2
     for index in np.flatnonzero(sizes >= DECK_AREA):
         member = labels == index + 1; height = float(np.median(lowest[member]))
         near = np.pad(member, 1); near = member | near[:-2, 1:-1] | near[2:, 1:-1] | near[1:-1, :-2] | near[1:-1, 2:]
-        deck[member | (near & (top > 0) & (top <= height + FLAT))] = height
-    return deck
+        floor = member | (near & (top > 0) & (top <= height + FLAT))
+        if height > DECK:
+            way = _stairs(surface, floor, height)
+            if not way.any():
+                continue  # too high to step onto, and nothing leads up: in the way, as a crate is
+            stairs[way] = surface[way]
+        deck[floor] = height
+    return deck, stairs
+
+
+def _stairs(surface, floor, height):
+    """The survey samples of the stairs up to a deck `height` high whose samples are `floor`, False off them: from the
+    deck's edge outwards, samples each no higher than the one before and at most RISER below it, down to where they
+    meet the ground (STEP). A flight counts where it covers a square metre and comes down to the ground no steeper than
+    STAIR, rise over run, from the deck's edge to its foot: a bench beside a platform drops too far at once to be a
+    step, and a slope that meets the ground right at the edge is too steep."""
+    from collections import deque
+    step = SIZE / CELLS / FINE; reach = np.full(surface.shape, -1); queue = deque()
+    for at in zip(*np.nonzero(floor)):
+        reach[at] = 0; queue.append(at)
+    rows, columns = surface.shape
+    while queue:
+        row, column = queue.popleft()
+        for near in ((row + 1, column), (row - 1, column), (row, column + 1), (row, column - 1)):
+            if 0 <= near[0] < rows and 0 <= near[1] < columns and reach[near] < 0 and STEP < surface[near] < height - FLAT / 2 \
+                    and surface[row, column] - RISER <= surface[near] <= surface[row, column] + FLAT:
+                reach[near] = reach[row, column] + 1; queue.append(near)
+    way = reach > 0; flights, count = _masses(way); found = np.zeros(surface.shape, bool)
+    padded = np.pad(surface, 1, constant_values=np.inf); off = np.pad(floor | way, 1, constant_values=True)
+    meets = np.zeros(surface.shape, bool)  # a sample of the stairs beside the ground
+    for down, along in ((0, 1), (2, 1), (1, 0), (1, 2)):
+        beside = padded[down:down + rows, along:along + columns]; taken = off[down:down + rows, along:along + columns]
+        meets |= (beside <= STEP) & ~taken
+    gentle = meets & (height - surface <= STAIR * reach * step)  # a foot the flight comes down to no steeper than STAIR
+    for flight in range(1, count + 1):
+        member = flights == flight
+        if member.sum() * step ** 2 >= 1.0 and (member & gentle).any():
+            found |= member
+    return found
 
 
 def survey(vertices, faces, rows, columns, corner, barrier=None):
@@ -192,14 +238,16 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     edges, wherever the cells on either side differ anywhere along the line, RAMP cells inside the slab's edge, and
     round each crest, and at each deck's edge and RAMP cells inside it.
     deck: the height of the deck a walk cell lies on, 0 off any (`_decks`); deckDepth: how many cells it lies inside
-    the deck's edge where that meets lower open ground, counted to one past RAMP, closed cells counting as deck."""
+    the deck's edge where that meets lower open ground, counted to one past RAMP, closed cells and stairs counting as
+    deck. stairs: the height of the stairs a walk cell lies on, 0 off any; a deck higher than DECK has its edge closed
+    for RAMP cells where it meets lower open ground, and its stairs where they stand past the knee beside it."""
     points = scatter(vertices, faces); across = np.array([columns, rows]) * CELLS * FINE; step = SIZE / CELLS / FINE
     # A face that lies on the boundary between two samples falls to the far side of it, all of it: left to rounding its
     # points fall on either side by chance, and the outline they draw is ragged.
     place = np.clip(((points[:, :2] - corner) / step + 1e-6).astype(int), 0, across - 1)
     standing = (points[:, 2] > KNEE) & (points[:, 2] < HEAD)
     solid = np.zeros((across[1], across[0]), bool); solid[place[standing, 1], place[standing, 0]] = True
-    decks = _decks(points, place, standing, solid.shape); solid &= decks == 0  # a deck is floor, not something in the way
+    decks, stairs = _decks(points, place, standing, solid.shape); solid &= (decks == 0) & (stairs == 0)  # a deck is floor, not something in the way, and its stairs too
     if barrier is not None:  # a generator leaves a fence's frames empty: without its sheets the ground between the posts would be open
         fence = scatter(*barrier); fence = fence[(fence[:, 2] > KNEE) & (fence[:, 2] < HEAD)]
         spot = np.clip(((fence[:, :2] - corner) / step + 1e-6).astype(int), 0, across - 1); solid[spot[:, 1], spot[:, 0]] = True
@@ -209,7 +257,7 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     tall = ~_outside(~tall)
     low = np.zeros(solid.shape); under = points[:, 2] <= KNEE
     np.maximum.at(low, (place[under, 1], place[under, 0]), points[under, 2])
-    rim = (low > STEP) & (decks == 0)  # a deck's edge rises past the knee too, but it is no slab
+    rim = (low > STEP) & (decks == 0) & (stairs == 0)  # a deck's edge rises past the knee too, but it is no slab, nor are its stairs
     on_slab = ~_outside(~rim)  # and what the slab's rim encloses stands on it
     slab = float(np.median(low[rim])) if rim.any() else 0.0
     cells = lambda fine: fine.reshape(rows * CELLS, FINE, columns * CELLS, FINE).mean((1, 3))
@@ -221,6 +269,18 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
         footprint = tall & np.repeat(np.repeat(material == OBSCURING, FINE, 0), FINE, 1)
     require(not (closed[0].any() or closed[-1].any() or closed[:, 0].any() or closed[:, -1].any()) and not (raised[0].any() or raised[-1].any() or raised[:, 0].any() or raised[:, -1].any()),
             'The model reaches the edge of its tiles: the group leaves no ground around it')
+    on_deck = cells(decks > 0) > 0.5
+    # Its height is its samples' own, not their mean: a mean over part of a cell comes out an ulp off, and a level of its own
+    # would draw more walkmesh lines along the deck's rim.
+    deck = np.where(on_deck & ~closed, decks.reshape(rows * CELLS, FINE, columns * CELLS, FINE).max((1, 3)), 0.0)
+    stair = np.where((cells(stairs > 0) > 0.5) & ~closed, cells(stairs) / np.maximum(cells(stairs > 0), 1e-9), 0.0)
+    # A deck too high to step onto is climbed only by its stairs: its edge is closed where it meets lower open ground,
+    # and so are its stairs where they stand past the knee beside it, so no walk steps off either.
+    lower = ~closed & (deck == 0) & (stair == 0); beside = [lower]
+    for _ in range(RAMP):
+        wide = np.pad(beside[-1], 1); beside.append(beside[-1] | wide[:-2, 1:-1] | wide[2:, 1:-1] | wide[1:-1, :-2] | wide[1:-1, 2:])
+    edge = ((deck > DECK) & beside[RAMP]) | ((stair > KNEE) & beside[1])
+    material[edge] = NONWALK; closed = closed | edge
     # Ground with no room to stand on is closed too: the engine plans a walk through any walk face, and a character
     # cannot pass a gap under a metre. The Saeder-Krupp yard's walkers went for the half-metre gaps between its fence
     # sections, and stopped at the fence (client, both tilesets, 2026-11-12; Codex review of PR 129).
@@ -232,20 +292,18 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     # would be drawn flat on the ground with the slab standing through it.
     wide = np.pad(depth, RAMP); tall_cells, wide_cells = depth.shape; reach = range(2 * RAMP + 1)
     crest = (depth > 1) & (depth == np.max([wide[dy:dy + tall_cells, dx:dx + wide_cells] for dy in reach for dx in reach], axis=0)) & (depth <= RAMP)
-    on_deck = cells(decks > 0) > 0.5
-    # Its height is its samples' own, not their mean: a mean over part of a cell comes out an ulp off, and a level of its own
-    # would draw more walkmesh lines along the deck's rim.
-    deck = np.where(on_deck & ~closed, decks.reshape(rows * CELLS, FINE, columns * CELLS, FINE).max((1, 3)), 0.0)
-    inner = (deck > 0) | closed; deck_depth = inner.astype(int)
+    deck[closed] = 0.0; stair[closed] = 0.0
+    inner = (deck > 0) | closed | (stair > 0); deck_depth = inner.astype(int)
     for _ in range(RAMP):  # as the slab's depth, but only open ground off the deck is its edge: a wall on it is not
         wide = np.pad(inner, 1); inner = inner & wide[:-2, 1:-1] & wide[2:, 1:-1] & wide[1:-1, :-2] & wide[1:-1, 2:]; deck_depth += inner
     levels = np.unique(deck[deck > 0]); level = (np.searchsorted(levels, deck) + 1) * (deck > 0)  # each deck's height its own kind
     kind = material * 8 + raised * 4 + (depth > RAMP) * 2 + crest  # past the ramp, and on a crest, the walkmesh has reached the slab's height
     kind = kind + 64 * (level * 2 + (deck > 0) * (deck_depth > RAMP))  # and on a deck, past its ramp, the deck's
+    kind = kind + 1024 * np.round(stair / STEP).astype(int)  # and on stairs, a line wherever they rise
     lines = (sorted({column * CELLS for column in range(columns + 1)} | {int(x) for x in np.flatnonzero((kind[:, 1:] != kind[:, :-1]).any(0)) + 1}),
              sorted({row * CELLS for row in range(rows + 1)} | {int(y) for y in np.flatnonzero((kind[1:] != kind[:-1]).any(1)) + 1}))
     return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint, 'lines': lines, 'depth': depth,
-            'crest': crest, 'roomy': _roomy(material == STONE), 'deck': deck, 'deckDepth': deck_depth}
+            'crest': crest, 'roomy': _roomy(material == STONE), 'deck': deck, 'deckDepth': deck_depth, 'stairs': stair}
 
 
 def lines(found, row, column):
@@ -258,7 +316,7 @@ def walkmesh(found, row, column):
     each box of the tile's grid lines, the floor's vertices first. Between two lines the cells are all alike, on both
     sides of every line, so a box has one material and one neighbour on each side."""
     material, depth, crest = found['material'], found['depth'], found['crest']; rows, columns = material.shape
-    deck, deck_depth = found.get('deck'), found.get('deckDepth')
+    deck, deck_depth, stairs = found.get('deck'), found.get('deckDepth'), found.get('stairs')
     first_row, first_column = row * CELLS, column * CELLS; xs, ys = lines(found, row, column); cell = SIZE / CELLS
 
     def lift(y, x):
@@ -267,6 +325,10 @@ def walkmesh(found, row, column):
         around = [(r, c) for r in (first_row + y - 1, first_row + y) for c in (first_column + x - 1, first_column + x) if 0 <= r < rows and 0 <= c < columns]
         least = min(int(depth[cell]) for cell in around) if len(around) == 4 else 0
         ground = found['slab'] if least and any(crest[cell] for cell in around) else found['slab'] * min(least, RAMP) / RAMP
+        if stairs is not None and len(around) == 4 and any(stairs[cell] > 0 for cell in around):
+            # On stairs: the mean of the open cells round the corner, each at the height of its stairs, its deck or the ground
+            return float(np.mean([float(stairs[cell]) if stairs[cell] > 0 else float(deck[cell]) if deck[cell] > 0 else ground
+                                  for cell in around if material[cell] == STONE]))
         heights = [float(deck[cell]) for cell in around if deck[cell] > 0] if deck is not None else []
         if not heights or len(around) < 4:
             return ground
@@ -438,12 +500,47 @@ def _options(found, row, column):
     return {'walk': walk, 'masses': masses, 'region': region, 'options': options}
 
 
+def _ways_out(parts):
+    """Of the tiles' node parts, {(row, column): [part, ...]} as `_turned` gives them, those a walk from the ground round
+    the group can be planned through: {(row, column, index)}. A side joins the part of the next tile that leaves by the
+    facing side, and a side on the group's edge joins the ground round it."""
+    parent = {}
+
+    def find(at):
+        while parent.setdefault(at, at) != at:
+            at = parent[at]
+        return at
+    beyond = {'N': (1, 0, 'S'), 'S': (-1, 0, 'N'), 'W': (0, -1, 'E'), 'E': (0, 1, 'W')}
+    for (row, column), turned in parts.items():
+        for index, part in enumerate(turned):
+            for side in part:
+                down, along, facing = beyond[side]; there = (row + down, column + along)
+                if there not in parts:
+                    parent[find((row, column, index))] = find('round')
+                for other, part_there in enumerate(parts.get(there, ())):
+                    if facing in part_there:
+                        parent[find((row, column, index))] = find((*there, other))
+    return {(*key, index) for key, turned in parts.items() for index in range(len(turned)) if find((*key, index)) == find('round')}
+
+
+def cut_off(nodes):
+    """The exits of a group's path nodes ({(row, column): {node, turn, ...}}) that lead nowhere a walk from round the
+    group comes: [(row, column, sides)], each a node part no way out joins (`_ways_out`)."""
+    parts = {key: _turned(PATH_NODES[one['node']], one['turn'] // 90) for key, one in nodes.items()}; out = _ways_out(parts)
+    return [(*key, part) for key, turned in sorted(parts.items()) for index, part in enumerate(turned) if (*key, index) not in out]
+
+
 def path_nodes(found, rows, columns, stated=None):
     """Each tile's path node, {(row, column): {node, turn, exits, offPath}}, chosen for the group as a whole: of the
     nodes each tile's ground allows (`path_node`), the ones that let a walk from the ground round the group be planned
-    onto the most of its ground, then the ones the tiles would take alone. A tile's own best can leave ground no walk
-    reaches: the Saeder-Krupp yard's apron tile alone would have left its north side, the bay's only way out, joined to
-    nothing (2026-11-12). offPath: the ground of the tile no walk from round the group is planned onto.
+    onto the most of its ground, then the ones that leave the fewest exits cut off from every way out (`cut_off`), then
+    the ones the tiles would take alone. A tile's own best can leave ground no walk reaches: the Saeder-Krupp yard's
+    apron tile alone would have left its north side, the bay's only way out, joined to nothing (2026-11-12). And two
+    tiles can each leave alone the side they share where a building stands across the line between them: the walk
+    reaches all their ground by their other sides, but the engine takes a target by that side for the side's own, and
+    gives up the walk. The rail freight depot's walkers to its warehouse door and to its crane's north leg, both on the
+    line between its middle columns, walked straight at them and stopped against the loading platform (client,
+    2026-11-13). offPath: the ground of the tile no walk from round the group is planned onto.
 
     `stated` ({(row, column): (letter, turn)}) gives tiles the nodes a walk check in the client has shown walks need,
     where the engine does not walk as these rules expect; the others are chosen round them. A stated node leaves its
@@ -462,30 +559,17 @@ def path_nodes(found, rows, columns, stated=None):
         reached = sum(tile['size'].get(mass, 0) for mass in {tile['region'][side] for side in exits})
         tile['options'] = [((len(exits), 0, reached), letter, turn, exits, turned)]
     chosen = dict.fromkeys(tiles, 0)
-    beyond = {'N': (1, 0, 'S'), 'S': (-1, 0, 'N'), 'W': (0, -1, 'E'), 'E': (0, 1, 'W')}
 
     def planned():
-        parent = {}
-
-        def find(at):
-            while parent.setdefault(at, at) != at:
-                at = parent[at]
-            return at
-        parts = {key: tile['options'][chosen[key]][4] for key, tile in tiles.items()}
-        for (row, column), turned in parts.items():
-            for index, part in enumerate(turned):
-                for side in part:
-                    down, along, facing = beyond[side]; there = (row + down, column + along)
-                    if there not in tiles:
-                        parent[find((row, column, index))] = find('round')
-                    for other, part_there in enumerate(parts.get(there, ())):
-                        if facing in part_there:
-                            parent[find((row, column, index))] = find((*there, other))
-        return {key: sum(tile['size'].get(mass, 0) for mass in {tile['region'][side] for index, part in enumerate(parts[key]) for side in part
-                                                                 if find((*key, index)) == find('round')}) for key, tile in tiles.items()}
+        """({(row, column): the walk cells a walk from round the group is planned onto}, how many parts are cut off)."""
+        parts = {key: tile['options'][chosen[key]][4] for key, tile in tiles.items()}; out = _ways_out(parts)
+        return ({key: sum(tile['size'].get(mass, 0) for mass in {tile['region'][side] for index, part in enumerate(parts[key]) for side in part
+                                                                  if (*key, index) in out}) for key, tile in tiles.items()},
+                sum(len(turned) for turned in parts.values()) - len(out))
 
     def value():
-        return sum(planned().values()), -sum(chosen.values())
+        reached, cut = planned()
+        return sum(reached.values()), -cut, -sum(chosen.values())
     def better(keys):
         """Try every choice for these tiles together; keep the best if it beats what there is."""
         nonlocal best
@@ -503,7 +587,7 @@ def path_nodes(found, rows, columns, stated=None):
     pairs = [(key, (key[0] + down, key[1] + along)) for key in tiles for down, along in ((1, 0), (0, 1)) if (key[0] + down, key[1] + along) in tiles]
     while any(better([key]) for key in tiles) or any(better(list(pair)) for pair in pairs):
         pass
-    reached = planned()
+    reached = planned()[0]
     return {key: {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int(tile['walk'].sum()) - reached[key]}
             for key, tile in tiles.items() for _, letter, turn, exits, _ in [tile['options'][chosen[key]]]}
 
@@ -829,6 +913,8 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                    'path': nodes[(row, column)], 'lights': len(lights), 'doors': []}
             if one['path']['offPath']:
                 notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no walk from round the group is planned onto (`path_nodes`)')
+            for sides in [sides for at_row, at_column, sides in cut_off(nodes) if (at_row, at_column) == (row, column)]:
+                notes.append(f'{model}: its path node leaves by {sides} to nowhere a walk from round the group comes (`cut_off`): a target by that side is not reached')
             if one['walkFaces'] > WALK_FACES:
                 notes.append(f'{model}: {one["walkFaces"]} walk faces, where no stock tile has more than {WALK_FACES}')
             if (row, column) in pictures:
