@@ -265,9 +265,11 @@ class Driver:
             outside = int(((attrs < DECODER_RANGE[0]) | (attrs > DECODER_RANGE[1])).any(1).sum()); total = len(attrs)
         low, high = DECODER_RANGE if field_range is None else (float(field_range[0]), float(field_range[1]))
         if not (low <= lo and hi <= high):
-            # Rounded out to the hundredth (after removing float noise: 1.12 * 100 is 112.00000000000001).
-            suggest = (f'{min(DECODER_RANGE[0], np.floor(round(lo * 100, 6)) / 100):g} '
-                       f'{max(DECODER_RANGE[1], np.ceil(round(hi * 100, 6)) / 100):g}')
+            # Rounded out to the hundredth after removing float noise (1.12 * 100 is 112.00000000000001), then a step
+            # further where that lands inside the measured value (float32 -0.2 is -0.20000000298), so the rerun passes.
+            s_lo = np.floor(round(lo * 100, 6)) / 100; s_lo -= .01 * (s_lo > lo)
+            s_hi = np.ceil(round(hi * 100, 6)) / 100; s_hi += .01 * (s_hi < hi)
+            suggest = f'{round(min(DECODER_RANGE[0], s_lo), 2):g} {round(max(DECODER_RANGE[1], s_hi), 2):g}'
             raise SystemExit(f'Appearance field {lo:.4f}..{hi:.4f} lies outside {low:g}..{high:g} ({outside} of {total} samples outside '
                              f'the decoder range): review the textured result and rerun with --field-range {suggest}')
         if field_range is not None and (low, high) != DECODER_RANGE and DECODER_RANGE[0] <= lo and hi <= DECODER_RANGE[1]:
@@ -275,7 +277,7 @@ class Driver:
         field_sha = m['inputs']['field']['sha256']
         policy = {'allowDecoderOvershoot': True, 'fieldSha256': field_sha, 'minimum': low, 'maximum': high}
         try: field_policy(policy, field_sha)
-        except ValueError as error: raise SystemExit(f'--field-range {low:g},{high:g}: {error}')
+        except ValueError as error: raise SystemExit(f'--field-range {low:g} {high:g}: {error}')
         measured = f' Field value range measured {lo:.4f}..{hi:.4f}.'
         if (low, high) != DECODER_RANGE:
             measured += (f' {outside} of {total} samples ({100 * outside / total:.3f}%) lie outside the decoder range '

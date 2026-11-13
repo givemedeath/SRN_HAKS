@@ -426,7 +426,16 @@ class OpeningProbeTests(unittest.TestCase):
         # "a" prefers the wide hole, but only the wide hole is near "b": greedy order would leave "b" without one
         probes = op.match([('a', .22), ('b', .18)], found)
         self.assertEqual([(p['name'], p['start']) for p in probes], [('a', 'narrow'), ('b', 'wide')])
-        with self.assertRaisesRegex(ValueError, 'fewer clear through-holes'): op.match([('a', .2), ('b', .21), ('c', .22)], found)
+        with self.assertRaisesRegex(ValueError, 'distinct clear'): op.match([('a', .2), ('b', .21), ('c', .22)], found)
+
+    def test_all_references_are_matched_from_the_same_end(self):
+        from tools.itemkit import opening_probes as op
+        hole = lambda fraction, tag: {'fraction': fraction, 'clearance': .004, 'hits': 0, 'start': tag, 'end': tag}
+        found = [hole(.2, 'near'), hole(.3, 'far')]
+        # .2 fits unflipped and .7 only flipped: no one end places both, so the lost opening is not certified
+        with self.assertRaisesRegex(ValueError, 'No single end'): op.match([('a', .2), ('b', .7)], found)
+        probes = op.match([('a', .8), ('b', .7)], found)                         # both measured from the other end
+        self.assertEqual([p['start'] for p in probes], ['near', 'far'])
 
 
 class FixtureCarryTests(unittest.TestCase):
@@ -512,6 +521,11 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertEqual(parser().parse_args(['textured', 'knife', 'a1', 'src', '--notes', 'n', '--field-range', *suggested]).field_range, [-.2, 1.12])
             with self.assertRaisesRegex(SystemExit, 'lies outside'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.1, 1.2))
             with self.assertRaisesRegex(SystemExit, 'within'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.3, 1.2))
+            field(attrs.astype(np.float32))                       # float32 -0.2 lies just below -0.2: the suggestion steps out
+            with self.assertRaisesRegex(SystemExit, r'--field-range -0\.21 1\.13$') as caught: d.donor_manifest('knife', 'src', 'donor-v1', 'words')
+            low, high = (float(x) for x in str(caught.exception).rsplit('--field-range ', 1)[1].split())
+            float32 = Path(d.donor_manifest('knife', 'src', 'donor-f32', 'words', field_range=(low, high)))
+            self.assertEqual(json.loads(float32.read_text(encoding='utf-8'))['processing']['sourceFieldPolicy']['minimum'], -.21)
             field(np.full((1000, 3), .5))                                                      # a field the decoder takes as it is
             with self.assertRaisesRegex(SystemExit, 'no reviewed --field-range is needed'):
                 d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.2, 1.12))

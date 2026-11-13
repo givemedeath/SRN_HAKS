@@ -88,26 +88,32 @@ def reference_fractions(manifest, handoff):
 def match(references, found):
     """[{name, start, end}]: a distinct clear hole within tolerance for every reference, each preferring the most clearance.
 
-    The reference may be measured from either end of the weapon. References take holes in order, most clearance
-    first, backing up when a later one would be left without a hole. A reference with no clear hole is refused."""
-    candidates = []
+    The references were all measured on one axis of the reference image, so the whole set is matched from one end of
+    the weapon or the other, never each from its own end; when both fit, the closer one wins. References take holes in
+    order, most clearance first, backing up when a later one would be left without a hole. A reference with no clear
+    hole from either end is refused, as is a set no single end can place."""
+    clear = [k for k, hole in enumerate(found) if not hole['hits'] and hole['clearance'] >= MIN_CLEARANCE]
+    near = lambda target: sorted((k for k in clear if abs(target - found[k]['fraction']) <= MATCH_TOLERANCE),
+                                 key=lambda k: -found[k]['clearance'])
     for name, fraction in references:
-        near = [k for k, hole in enumerate(found) if not hole['hits'] and hole['clearance'] >= MIN_CLEARANCE
-                and min(abs(fraction - hole['fraction']), abs(1 - fraction - hole['fraction'])) <= MATCH_TOLERANCE]
-        require(near, f'No clear through-hole matches {name} (fraction {fraction:.3f}): it closed or is too narrow; '
-                'drop it as a real hole with the user, or rebuild the shell')
-        candidates.append(sorted(near, key=lambda k: -found[k]['clearance']))
+        require(near(fraction) or near(1 - fraction), f'No clear through-hole matches {name} (fraction {fraction:.3f}): it closed '
+                'or is too narrow; drop it as a real hole with the user, or rebuild the shell')
 
-    def assign(i, used):
+    def assign(candidates, i=0, used=frozenset()):
         if i == len(candidates): return []
         for k in candidates[i]:
             if k in used: continue
-            rest = assign(i + 1, used | {k})
+            rest = assign(candidates, i + 1, used | {k})
             if rest is not None: return [k] + rest
         return None
-    chosen = assign(0, frozenset())
-    require(chosen is not None, f'{len(references)} reference openings share fewer clear through-holes than they need: '
-            'drop the extra ones with the user, or rebuild the shell')
+    options = []
+    for flip in (False, True):
+        targets = [1 - fraction if flip else fraction for _, fraction in references]
+        chosen = assign([near(t) for t in targets])
+        if chosen is not None: options.append((sum(abs(t - found[k]['fraction']) for t, k in zip(targets, chosen)), chosen))
+    require(options, f'No single end of the weapon places all {len(references)} reference openings on distinct clear '
+            'through-holes: drop the missing ones with the user, or rebuild the shell')
+    chosen = min(options, key=lambda option: option[0])[1]
     return [{'name': name, 'start': found[k]['start'], 'end': found[k]['end']} for (name, _), k in zip(references, chosen)]
 
 
