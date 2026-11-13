@@ -57,8 +57,11 @@ def _sections(p):
     return centres, mid, extent, wide, members
 
 
-def _midline(p):
-    centres, mid, extent, wide, _ = _sections(p); mid = mid.copy(); mid[wide] = np.nan
+def _midline(p, whole=False):
+    # Wide sections (a cross-guard) are skipped by default; `whole` follows them too, for a hafted head that must line up
+    # with its haft (the wave-4 Mace head sat about 2 degrees off a straight haft).
+    centres, mid, extent, wide, _ = _sections(p); mid = mid.copy()
+    if not whole: mid[wide] = np.nan
     # A slice near either end of a bent thick shaft cuts its end cap obliquely, so its midpoint is off the axis and
     # would hook the centreline. Within about one section width of each end, continue the adjacent interior line.
     step = centres[1] - centres[0]; margin = int(np.ceil(.75 * np.nanmedian(extent.min(1)) / step))    # thin blades bow in depth: little is hidden
@@ -71,8 +74,8 @@ def _midline(p):
     return centres, line
 
 
-def _measure_pass(p):
-    centres, mid = _midline(p)
+def _measure_pass(p, whole=False):
+    centres, mid = _midline(p, whole)
     smooth = np.stack([np.convolve(np.pad(mid[:, j], 18, mode='edge'), _KERNEL, mode='valid') for j in (0, 1)], 1)
     curve = np.column_stack([centres, smooth]); slope = np.gradient(curve, centres, axis=0)
     speed = np.linalg.norm(slope, axis=1); tangent = slope / speed[:, None]
@@ -143,12 +146,14 @@ def _apply_ends(p, ends):
     return p
 
 
-def fit_map(positions):
-    """Measure the unbend map of a mesh. Returns (map, per-pass midline range in % of length)."""
+def fit_map(positions, whole=False):
+    """Measure the unbend map of a mesh. Returns (map, per-pass midline range in % of length).
+
+    `whole` also follows the wide sections (a hafted head) instead of bridging over them."""
     positions = np.asarray(positions, float); mean, axes = principal_frame(positions)
     start = (positions - mean) @ axes; p = start; tables = []; history = []
     for _ in range(MAX_PASSES):
-        table, deviation = _measure_pass(p); p = _apply_pass(p, table); tables.append(table); history.append(deviation)
+        table, deviation = _measure_pass(p, whole); p = _apply_pass(p, table); tables.append(table); history.append(deviation)
         if deviation < CONVERGED_PCT: break
     ends = _fit_ends(p); p = _apply_ends(p, ends)
     shift = float((p[:, 0].max() + p[:, 0].min()) / 2 - (start[:, 0].max() + start[:, 0].min()) / 2)
@@ -368,16 +373,18 @@ def _replace(document, buffer, index, values):
     if 'max' in accessor: accessor['max'] = target.max(0).tolist()
 
 
-def straighten(source, output, map_path=None, family=None):
+def straighten(source, output, map_path=None, family=None, whole=False):
     """Write OUTPUT/straightened.glb (+ map and report). Indices, UVs, materials and textures are carried byte for byte.
 
-    `family` selects the limits the result is assessed against, as in `check` (a hafted family has no blade metrics)."""
+    `family` selects the limits the result is assessed against, as in `check` (a hafted family has no blade metrics).
+    `whole` straightens through wide sections too (a hafted head); a saved map already carries that choice."""
+    _require(not (whole and map_path is not None), '--whole applies when measuring a map, not when re-applying a saved one')
     from tools.headkit.common import pin, write
     from tools.headkit.gltf import encode, load, arrays
     source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
     source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
     if map_path is None:
-        mapping, history = fit_map(positions); map_path = output / 'straighten-map.npz'; save_map(map_path, mapping); mode = 'measured'
+        mapping, history = fit_map(positions, whole); map_path = output / 'straighten-map.npz'; save_map(map_path, mapping); mode = 'measured'
     else:
         mapping, history, mode = load_map(map_path), None, 'applied'
     normals = attributes.get('NORMAL'); buffer = bytearray(binary)
@@ -397,7 +404,9 @@ def straighten(source, output, map_path=None, family=None):
               'maximumVertexMove': float(np.linalg.norm(moved - positions, axis=1).max()),
               'surfaceAreaRatio': float(area.sum() / before_area.sum()),
               'trianglesUnchanged': True, 'attributesOtherThanPositionAndNormalExact': True,
-              'method': 'two-axis centreline unbend, rotation-minimising frame, guard slices excluded; cross-sections rigid',
+              'method': 'two-axis centreline unbend, rotation-minimising frame, '
+                        + ('wide (head) slices followed' if whole else 'guard slices excluded' if mode == 'measured' else 'saved map')
+                        + '; cross-sections rigid',
               'visualReviewRequired': True}
     result['assessmentAfter'] = assess(result['after'], family=family)
     if family is not None: result['family'] = family
@@ -408,7 +417,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0]); commands = parser.add_subparsers(dest='command', required=True)
     c = commands.add_parser('check'); c.add_argument('mesh', type=Path); c.add_argument('--output', type=Path); c.add_argument('--family')
     c = commands.add_parser('straighten'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
-    c.add_argument('--family')
+    c.add_argument('--family'); c.add_argument('--whole', action='store_true', help='also straighten through wide sections (a hafted head)')
     c = commands.add_parser('thin'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--ratio', type=float, help='target blade depth-to-width ratio'); c.add_argument('--factor', type=float, help='explicit depth factor (default 0.5)')
     a = parser.parse_args(argv)
@@ -422,7 +431,7 @@ def main(argv=None):
         if a.output is not None:
             with a.output.open('x', encoding='utf-8') as stream: json.dump(result, stream, indent=2)
         print(json.dumps(result, indent=2)); return 0
-    result = straighten(a.mesh, a.output, a.map, a.family)
+    result = straighten(a.mesh, a.output, a.map, a.family, a.whole)
     print(json.dumps({k: result[k] for k in ('output', 'map', 'maximumVertexMove', 'surfaceAreaRatio', 'assessmentAfter')}, indent=2)); return 0
 
 

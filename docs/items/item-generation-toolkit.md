@@ -371,7 +371,9 @@ Long thin weapons (`shortsword`, `longsword`, `greatsword`, `staff`) need
 `python -m tools.itemkit.straightness check MESH.glb --family F`; bend, twist and
 guard-skew flags are advisory and go to the reviewer with the views. A bowed but
 otherwise correct clay can be unbent with `straighten MESH.glb OUT_DIR [--family F]`
-(the family picks the limits its result is assessed against, as in `check`); review
+(the family picks the limits its result is assessed against, as in `check`). It
+bridges wide sections such as a cross-guard; add `--whole` to straighten through
+them when a hafted head is cocked on its haft (the saved map keeps that choice). Review
 the straightened views like a generated attempt. Appearance and the source bake
 stay in the generated frame, so re-apply the saved map with `--map` to the
 textured donor and working shell before fitting. See the wave-1 section of
