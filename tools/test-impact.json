@@ -1935,7 +1935,8 @@
     ],
     "tools/itemkit/grip.py": [
       "tools/headkit/common.py",
-      "tools/itemkit/geometry.py"
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/routes.py"
     ],
     "tools/itemkit/miss_patch.py": [
       "tools/headkit/common.py",
@@ -1975,7 +1976,8 @@
       "tools/headkit/gltf.py",
       "tools/itemkit/fit_manifest.py",
       "tools/itemkit/geometry.py",
-      "tools/itemkit/grip.py"
+      "tools/itemkit/grip.py",
+      "tools/itemkit/routes.py"
     ],
     "tools/itemkit/parts.py": [
       "tools/headkit/common.py",

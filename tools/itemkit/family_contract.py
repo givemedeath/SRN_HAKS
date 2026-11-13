@@ -88,9 +88,9 @@ def sibling_models(contracts, own, item_class):
     Only one wave's folder was searched at first: wave 2's first contracts (2026-11-12) took the very slots the
     unpublished wave-1 weapons hold on the same carriers. A retired folder (an abandoned wave, a test) holds none."""
     from .contracts import model_names
-    taken = set()
+    taken = set(); live = {folder: retired(folder) is None for folder in Path(contracts).iterdir() if folder.is_dir()}
     for path in Path(contracts).glob('*/family-*.json'):
-        if path == own or retired(path.parent): continue
+        if path == own or not live[path.parent]: continue
         other = json.loads(path.read_text(encoding='utf-8')); index = other.get('resources', {}).get('appearanceIndex')
         if index is None or other.get('native', {}).get('itemClass') != item_class: continue
         for name in model_names(other, index).values(): taken |= {name.lower()+'.mdl', 'i'+name.lower()+'.tga'}

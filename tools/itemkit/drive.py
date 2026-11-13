@@ -434,7 +434,9 @@ class Driver:
         matched probes in processing.openingProbes (tools.itemkit.opening_probes)."""
         from tools.itemkit import opening_probes as op
         if new and self.manifest(design, new).exists(): raise SystemExit(f'{self.manifest(design, new).name} exists: choose a new suffix')
-        m = read(self.manifest(design, suffix)); family = read(self.ws.handoff/m['familyProfile']['path'])
+        m = read(self.manifest(design, suffix))
+        if 'path' not in m.get('familyProfile', {}): raise SystemExit(f'{design}.{suffix} pins no family contract: probe a fit manifest')
+        family = read(self.ws.handoff/m['familyProfile']['path'])
         data = op.measure(m, family, self.ws.handoff)
         result = {'nativeLength': data['nativeLength'], 'references': data['references'],
                   'holes': [{k: hole[k] for k in ('axis', 'area', 'clearance', 'fraction', 'hits')} for hole in data['holes']]}

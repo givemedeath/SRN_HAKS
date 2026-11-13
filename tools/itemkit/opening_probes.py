@@ -25,27 +25,39 @@ MATCH_TOLERANCE = .03       # of the length, between a reference opening and a h
 
 
 def fitted_shell(manifest, family, handoff):
-    """(vertices, faces) of the working shell placed as the fit stage places it (blender_worker.grip_fit)."""
-    from tools.headkit.gltf import arrays, load
-    from . import grip
-    from .fit_manifest import gltf_to_blender
+    """(vertices, faces) of the working shell placed as the fit stage places it (grip.melee_fit, as blender_worker.grip_fit)."""
+    from .routes import WHOLE_NATIVE_FAMILIES
     handoff = Path(handoff); fit = manifest.get('fit') or {}
+    require(family.get('family') not in WHOLE_NATIVE_FAMILIES, 'Opening probes place melee shells only: a firearm is fitted by firearm_grip')
     require('matrix' in fit and 'workingMesh' in manifest.get('inputs', {}) and 'gripOrigin' in family.get('native', {}),
             'Opening probes need a fit manifest (fit.matrix, inputs.workingMesh) on a measured contract (native.gripOrigin)')
     require(fit.get('sizingAuthority') != 'midpoint-depth-two-hand' or 'gripEndpoints' in fit, 'A two-hand fit needs its fit.gripEndpoints')
+    b, f, M = placement(manifest, family, handoff)
+    return b @ M[:3, :3].T + M[:3, 3], f
+
+
+def placement(manifest, family, handoff):
+    """(vertices, faces, matrix): the working shell in Blender axes and the fit stage's final matrix.
+
+    A grip departure is approved for the fit stage's own measurement, taken on Blender's import of the shell, so its
+    digest never matches this NumPy re-measurement. The probes only need the placement: the fit's approved review is
+    carried over to it here, and the fit stage still checks the real binding before anything is built."""
+    from tools.headkit.gltf import arrays, load
+    from .fit_manifest import gltf_to_blender
+    from .grip import GripDeparture, melee_fit
+    handoff = Path(handoff); fit = manifest['fit']
     v, f, _ = arrays(*load((handoff/manifest['inputs']['workingMesh']['path']).read_bytes()))
-    b = gltf_to_blender(v); f = np.asarray(f); M = np.asarray(fit['matrix'], float); origin = family['native']['gripOrigin']
+    b = gltf_to_blender(v); f = np.asarray(f); M = np.asarray(fit['matrix'], float)
     if 'gripStandard' in manifest['inputs']:
         standard = json.loads((handoff/manifest['inputs']['gripStandard']['path']).read_text(encoding='utf-8'))
-        authority, review = fit.get('sizingAuthority'), fit.get('gripDeparture')
-        if authority is None: M, _ = grip.calibration(b, f, M, origin, standard)
-        elif authority == 'midpoint-depth-two-hand': M, _ = grip.two_hand_uniform(b, f, M, fit['gripEndpoints'], origin, standard, review)
-        elif authority == 'usable-length-round': M, _ = grip.one_hand_round(b, f, M, origin, standard, review)
-        elif authority == 'midpoint-depth-uniform':
-            M, _ = grip.transverse_uniform(b, f, M, origin, standard, review, fit.get('sectionBasis', 'depth'))
-        else: raise ValueError(f'Sizing authority {authority} is not placed here')
-    M = np.asarray(M, float)
-    return b @ M[:3, :3].T + M[:3, 3], f
+        try: M, _ = melee_fit(family, fit, standard, b, f, M)
+        except GripDeparture as departure:
+            review = fit.get('gripDeparture') or {}
+            require(review.get('decision') == 'approved' and str(review.get('notes', '')).strip(),
+                    'The fit departs from the grip standard without an approved review: refit it first')
+            remeasured = {**fit, 'gripDeparture': {**review, 'measurementDigest': departure.report['measurementDigest']}}
+            M, _ = melee_fit(family, remeasured, standard, b, f, M)
+    return b, f, np.asarray(M, float)
 
 
 def holes(vertices, faces, axis):

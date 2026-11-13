@@ -420,10 +420,37 @@ class OpeningProbeTests(unittest.TestCase):
         narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
         with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
         with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.fitted_shell({'inputs': {}}, {'native': {}}, '.')
+        from tools.itemkit.grip import melee_fit
+        from tools.itemkit.routes import WHOLE_NATIVE_FAMILIES
+        with self.assertRaisesRegex(ValueError, 'firearm'): op.fitted_shell({}, {'family': WHOLE_NATIVE_FAMILIES[0]}, '.')
+        staff = {'family': 'staff', 'native': {'gripLength': .1, 'gripOrigin': [0, 0, 0]}}
+        # the fit stage's own refusals, shared: a uniform staff is never calibrated, and grip length binds the standard
+        with self.assertRaisesRegex(ValueError, 'never sized by the per-axis hilt calibration'): melee_fit(staff, {}, {'usableLength': .1}, None, None, None)
+        with self.assertRaisesRegex(ValueError, 'differs from the approved grip standard'): melee_fit(staff, {}, {'usableLength': .2}, None, None, None)
+        with self.assertRaisesRegex(ValueError, 'whole-native'): melee_fit({'family': WHOLE_NATIVE_FAMILIES[0], 'native': {}}, {}, {}, None, None, None)
         with self.assertRaisesRegex(ValueError, 'gripEndpoints'):
             op.fitted_shell({'inputs': {'workingMesh': {}}, 'fit': {'matrix': [], 'sizingAuthority': 'midpoint-depth-two-hand'}},
                             {'native': {'gripOrigin': [0, 0, 0]}}, '.')
         self.assertEqual(op.reference_fractions({'inputs': {}}, '.'), [])                 # no reviewed openings, nothing to place
+
+    def test_an_approved_departure_is_placed_though_its_digest_is_blenders(self):
+        from tools.itemkit import opening_probes as op
+        from tools.itemkit.grip import GripDeparture
+        with tempfile.TemporaryDirectory() as tmp:
+            h = Path(tmp); (h/'w.glb').write_bytes(b'mesh'); (h/'std.json').write_text('{}', encoding='utf-8')
+            review = {'decision': 'approved', 'measurementDigest': 'blender', 'notes': 'user: 1.00 m'}
+            manifest = {'inputs': {'workingMesh': {'path': 'w.glb'}, 'gripStandard': {'path': 'std.json'}},
+                        'fit': {'matrix': np.eye(4).tolist(), 'gripDeparture': review}}
+            calls = []
+            def fit(family, fit, standard, b, f, M):
+                calls.append(fit['gripDeparture']['measurementDigest'])
+                if fit['gripDeparture']['measurementDigest'] != 'numpy': raise GripDeparture({'measurementDigest': 'numpy'})
+                return np.eye(4) * 2, {}
+            with mock.patch('tools.headkit.gltf.load', return_value=(None, None, None)), mock.patch('tools.headkit.gltf.arrays', return_value=(np.zeros((3, 3)), [[0, 1, 2]], None)), \
+                    mock.patch('tools.itemkit.grip.melee_fit', side_effect=fit):
+                self.assertEqual(op.placement(manifest, {}, h)[2][0, 0], 2); self.assertEqual(calls, ['blender', 'numpy'])
+                manifest['fit']['gripDeparture'] = {**review, 'decision': 'rejected'}
+                with self.assertRaisesRegex(ValueError, 'without an approved review'): op.placement(manifest, {}, h)
         with self.assertRaisesRegex(ValueError, 'geometryForegroundMask'):
             op.reference_fractions({'inputs': {}, 'openings': [{'name': 'x', 'referenceBounds': [0, 0, 1, 1]}]}, '.')
 

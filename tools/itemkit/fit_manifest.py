@@ -127,7 +127,8 @@ def hafted_landmarks(q, U, overrides):
     butt = int(bulge[-1]) + 1 if len(bulge) else 0
     marks = {'pommelEnd': butt / N, 'gripStart': butt / N, 'gripEnd': head_start / N, 'bladeStart': head_start / N}
     # A flat head (an axe blade, a cleaver) gets the same check as a blade: a haft thicker than the head is tall can
-    # turn the principal frame a quarter round. A round head or a tapering club is left alone.
+    # turn the principal frame a quarter round. A round head or a round tapering club is left alone; a flat one (a
+    # paddle) turns like a flat head.
     q, U = _blade_broad_face(q, U, extent, float(overrides.get('bladeStart', marks['bladeStart'])))
     return 'hafted-head' if len(head) else 'hafted-taper', q, U, marks
 
