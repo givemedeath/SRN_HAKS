@@ -145,14 +145,30 @@ class PlanTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             run = make_run(Path(folder)); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
             (repo/P.MODULE).mkdir(parents=True); (repo/P.MODULE/'sr_it_floor.git').write_bytes(b'git'); (repo/P.MODULE/'sr_it_floor.are').write_bytes(b'are')
-            area = {b'git': {'Creature List': [{'Tag': f'sw1_{s}0', 'XPosition': 25.0, 'YPosition': P.ROW_Y[s]} for s in 'mf']},
-                    b'are': {'Width': 3}}                                   # a 30 m area already full at x 25
+            area = {b'git': {'Creature List': [{'Tag': f'sw{n + 1}_{s}0', 'XPosition': 25.0, 'YPosition': row[0 if s == 'm' else 1]}
+                                               for n, row in enumerate(P.ROWS) for s in 'mf']},
+                    b'are': {'Width': 3}}                                   # a 30 m area, every row already full at x 25
             before = {p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}
             real = P.crm.parse_gff
             with mock.patch.object(P.crm, 'parse_gff', lambda data: area.get(data) or real(data)), mock.patch.object(P, 'Tools', lambda repo, nwn: None):
                 with self.assertRaisesRegex(P.PublishError, 'No room'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn', dry_run=True)
                 with self.assertRaisesRegex(P.PublishError, 'No room'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn')
             self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
+
+    def test_the_reviewer_plan_reads_the_areas_other_objects_and_size(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder); (repo/P.MODULE).mkdir(parents=True)
+            (repo/P.MODULE/'sr_it_floor.git').write_bytes(b'git'); (repo/P.MODULE/'sr_it_floor.are').write_bytes(b'are')
+            south = {'m': P.ROWS[0][0], 'f': P.ROWS[0][1]}
+            area = {b'git': {'Creature List': [{'Tag': f'sw1_{s}0', 'XPosition': 5.0, 'YPosition': south[s]} for s in 'mf'],
+                             'Placeable List': [{'Tag': 'crate', 'X': 8.5, 'Y': south['f']}]},   # on the next southern spot
+                    b'are': {'Width': 8, 'Height': 8}}
+            packages = [P.Package('i', Path('.'), 'Item', 'bp', 1, 111, Path('h'), Path('m'))]
+            with mock.patch.object(P.crm, 'parse_gff', lambda data: area[data]):
+                pair, = P.reviewer_plan(repo, packages)[1]
+                self.assertEqual((pair['x'], pair['y']), (P.ROW_START, {'m': P.ROWS[1][0], 'f': P.ROWS[1][1]}))   # crate: next row
+                area[b'are']['Height'] = 2                                         # 20 m: only the southern row is inside
+                with self.assertRaisesRegex(P.PublishError, 'No room'): P.reviewer_plan(repo, packages)
 
     def test_ranged_weapons_are_refused(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -191,12 +207,34 @@ class ReviewerTests(unittest.TestCase):
         self.assertEqual(groups, [('sw1_', 2)])
         self.assertEqual([(p['prefix'], p['index']) for p in pairs], [('sw2_', i) for i in range(5)] + [('sw3_', 0), ('sw3_', 1)])
         self.assertEqual([p['x'] for p in pairs[:2]], [12.0, 15.5])
-        with self.assertRaisesRegex(P.PublishError, 'No room'): P.plan_pairs(self.creatures, packages, 30.0)
+        with self.assertRaisesRegex(P.PublishError, 'No room'): P.plan_pairs(self.creatures, packages, 15.0)   # no row takes five
         nine = [creature(f'sw{n}_{s}0', 1.0 + n, P.ROW_Y[s]) for n in range(1, 10) for s in 'mf']
         with self.assertRaisesRegex(P.PublishError, 'sw1_ to sw9_'): P.plan_pairs(nine, packages[:1], 80.0)
 
+    def test_a_group_goes_whole_into_the_first_row_with_room(self):
+        # The module as of 2026-11-13: the southern row has sw3_..sw7_ (20 pairs to x 71.5), sw1_ and sw2_ rows five each.
+        (sm, sf), (am, af), (bm, bf) = P.ROWS; placed = []
+        for g in range(3, 8):
+            placed += [creature(f'sw{g}_{s}{i}', 5.0 + 3.5 * (4 * (g - 3) + i), sm if s == 'm' else sf) for s in 'mf' for i in range(4)]
+        placed += [creature(f'sw1_{s}{i}', 5.0 + 3.5 * i, am if s == 'm' else af) for s in 'mf' for i in range(5)]
+        placed += [creature(f'sw2_{s}{i}', 5.0 + 3.5 * i, bm if s == 'm' else bf) for s in 'mf' for i in range(5)]
+        packages = [P.Package(f'i{n}', Path('.'), f'Item {n}', f'bp{n}', 1, 111, Path('h'), Path('m')) for n in range(6)]
+        _, pairs = P.plan_pairs(placed, packages, 80.0)
+        # five do not fit in the southern row's one spot: sw8_ goes whole to the sw1_ row after its five
+        self.assertEqual([(p['prefix'], p['x'], p['y']['m']) for p in pairs[:5]], [('sw8_', 22.5 + 3.5 * i, am) for i in range(5)])
+        self.assertEqual((pairs[5]['prefix'], pairs[5]['x'], pairs[5]['y']), ('sw9_', 75.0, {'m': sm, 'f': sf}))   # one fits south
+        record = P.reviewer(placed[0], 'sw8_f0', 'Item 0', 'f', pairs[0]['x'], pairs[0]['y']['f'])
+        self.assertEqual((record['XPosition']['value'], record['YPosition']['value']), (22.5, af))
+        # an object in the sw1_ row's way sends the group on to the sw2_ row; an area too short for it refuses
+        _, pairs = P.plan_pairs(placed, packages[:5], 80.0, 80.0, obstacles=[(30.0, af)])
+        self.assertEqual({(p['x'], p['y']['m']) for p in pairs}, {(22.5 + 3.5 * i, bm) for i in range(5)})
+        self.assertEqual(P.plan_pairs(placed, packages[:5], 80.0, 80.0, obstacles=[(30.0, af + 3.0)])[1][0]['y']['m'], am)   # 3 m off: clear
+        moved = [creature('sw1_f4', 40.0, af) if c['Tag']['value'] == 'sw1_f4' else c for c in placed]   # female line runs further
+        self.assertEqual(P.plan_pairs(moved, packages[:5], 80.0)[1][0]['x'], 43.5)
+        with self.assertRaisesRegex(P.PublishError, 'No room'): P.plan_pairs(placed, packages[:5], 80.0, 25.0, obstacles=[(30.0, af)])
+
     def test_reviewer_copy_changes_only_identity_and_position(self):
-        copy = P.reviewer(self.creatures[0], 'sw2_f0', 'Test Knife', 'f', 12.0)
+        copy = P.reviewer(self.creatures[0], 'sw2_f0', 'Test Knife', 'f', 12.0, P.ROW_Y['f'])
         self.assertEqual((copy['Tag']['value'], copy['TemplateResRef']['value'], copy['FirstName']['value'], copy['YPosition']['value']),
                          ('sw2_f0', 'sw2_f0', {'0': 'Test Knife / female'}, 9.0))
         self.assertEqual(self.creatures[0]['Tag']['value'], 'sw1_m0')
