@@ -36,6 +36,21 @@ def running():
     return [int(row.split('","')[1]) for row in rows if row.lower().startswith('"' + PROCESS)]
 
 
+def wait_free(timeout, poll=5.0, calm=2):
+    """Wait until no game client has run for `calm` polls in a row, `poll` seconds apart, at most `timeout` seconds.
+
+    Other sessions share the machine and start their own clients; one that closes may be followed at once by the
+    next, so a single empty poll is not enough. A client that is still running then is not ours, and the run is
+    refused (`start`) rather than the client closed."""
+    deadline, quiet = time.monotonic() + timeout, 0
+    while quiet < calm:
+        quiet = 0 if running() else quiet + 1
+        if quiet < calm:
+            left = deadline - time.monotonic()
+            require(left > 0, f'No game client stayed closed for {calm} checks within {timeout:.0f} s; another session\'s client is not ours to close')
+            time.sleep(min(poll, left))
+
+
 def log_lines(user_directory, prefix=LOG_PREFIX):
     """The fixture's evidence lines from the client log, timestamps removed, in order."""
     path = Path(user_directory) / 'logs' / 'nwclientLog1.txt'
