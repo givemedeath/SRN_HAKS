@@ -3,7 +3,7 @@
   "prefix": "rf",
   "props": {
     "switcher": {"triangles": 12000},
-    "boxcar": {"triangles": 10000},
+    "boxcar": {"triangles": 10000, "key": "rf-boxcar-a2"},
     "tank-car": {"triangles": 10000},
     "flatcar": {"triangles": 12000},
     "loading-dock": {"triangles": 6000},
@@ -23,7 +23,7 @@
   },
   "pieces": {
     "tower": {"views": ["control-tower"], "triangles": 30000},
-    "office": {"views": ["admin-office"], "triangles": 30000},
+    "office": {"views": ["admin-office"], "triangles": 30000, "key": "rf-building-office-a2", "remesh": "rf-building-office-a2-remesh"},
     "bay": {"views": ["warehouse-bay"], "triangles": 30000}
   }
 }
