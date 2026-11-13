@@ -4,12 +4,35 @@ from tools.headkit.common import require
 from .geometry import corner_hash
 
 
+PATCH_SCOPE={'distance':.003,'textureFraction':.0001}
+# A larger colour-only patch needs the user's own approval, quoted in the patch: the 1.90 m stun staff at its chosen
+# 41 x 49 mm grip had 212 missed texels (0.045%) up to 3.11 mm from an inside-out generated donor (user, 2026-11-12:
+# "Raise the patch cap"; one texel then measured 3.203 mm: "Allow 3.25 mm").
+EXTENDED_PATCH_SCOPE={'distance':.00325,'textureFraction':.0005}
+
+
+def patch_scope(patch):
+    approval=(patch or {}).get('userApproval')
+    return EXTENDED_PATCH_SCOPE if isinstance(approval,str) and approval.strip() else PATCH_SCOPE
+
+
+def patch_distance_bound(policy):
+    """The unoriented patch distance: the policy's maximumUnorientedDistance (default 2.1 mm), within the transfer
+    distance unless the patch carries a user approval for the extended scope. A policy that tightens its transfer
+    distance below the 3 mm default binds every patch, approved or not."""
+    unoriented=policy.get('maximumUnorientedDistance',.0021);maximum=policy.get('maximumDistance',PATCH_SCOPE['distance'])
+    if patch_scope(policy.get('unorientedSourcePatch')) is EXTENDED_PATCH_SCOPE and maximum>=PATCH_SCOPE['distance']:return unoriented
+    return min(maximum,unoriented)
+
+
 def validate_texture_patch(corners,patch,*,maximum_distance=.0021):
     require(patch.get('reviewed') is True and patch.get('notes','').strip(),'Review the exact bounded donor texture patch')
     corners=np.asarray(corners,dtype='<f8')
     require(corner_hash(corners)==patch['targetCornerHash'],'Texture patch belongs to different target geometry')
-    require(0<maximum_distance<=.003,'Texture patch qualification exceeds the global transfer distance')
-    require(0<patch['maximumDistance']<=maximum_distance and 0<patch['maximumTextureFraction']<=.0001,'Texture patch exceeds its measured local scope')
+    scope=patch_scope(patch)
+    require(0<maximum_distance<=scope['distance'],'Texture patch qualification exceeds the global transfer distance')
+    require(0<patch['maximumDistance']<=maximum_distance and 0<patch['maximumTextureFraction']<=scope['textureFraction'],
+            'Texture patch exceeds its measured local scope')
     faces=patch['faces'];require(faces and all(type(i) is int and 0<=i<len(corners) for i in faces) and len(set(faces))==len(faces),'Invalid texture patch face scope')
     area=np.linalg.norm(np.cross(corners[:,1]-corners[:,0],corners[:,2]-corners[:,0]),axis=1)
     require(len(faces)<len(corners)*.03 and area[faces].sum()<area.sum()*.03,'Texture patch exceeds bounded face/surface scope')

@@ -9,8 +9,14 @@ from pathlib import Path
 from tools.headkit.common import pin,verify,write,digest
 
 
-def build_candidates(source, profile, processing, output):
-    """Build in bundled Python, keeping SciPy out of Blender's separate ABI."""
+METHODS=('projected-silhouette','quadric')
+# Barycentric samples of every shadow triangle (corners, edges and interior, 28 per triangle) for the surface bound.
+SURFACE_SAMPLES=np.array([(i/6,j/6,1-i/6-j/6) for i in range(7) for j in range(7-i)])
+
+
+def build_candidates(source, profile, processing, output, *, meshlab=None, igl=None):
+    """Build in bundled Python, keeping SciPy out of Blender's separate ABI. A `quadric` proxy also needs the bound
+    pymeshlab and igl modules (the runner passes its pinned libraries)."""
     from .parts import active_parts
     bound=pin(source);root=Path(output);root.mkdir(parents=True,exist_ok=False)
     settings=processing.get('shadowProxies',{})
@@ -18,20 +24,92 @@ def build_candidates(source, profile, processing, output):
     candidates={}
     with np.load(source,allow_pickle=False) as data:
         for part,policy in settings.items():
-            require(policy.get('method')=='projected-silhouette','Unknown shadow proxy method')
+            require(policy.get('method') in METHODS,'Unknown shadow proxy method')
             p=data[part+'_positions'];f=data[part+'_faces']
             budget=profile['budgets']['parts'][part]['shadow'];probes=processing.get('openingProbes',[])
             protected={'openingProbes':probes}
             # Probes are measured on the assembly; `parts` scopes one to the parts it touches.
             thickness=[row for row in processing.get('thicknessProbes',[]) if part in row.get('parts',[part])]
             if thickness:protected['thicknessProbes']=thickness
-            v,t,checks=silhouette_proxy(p,f,protected,budget,policy,diagnostics=root/(part+'-attempts'))
+            if policy['method']=='quadric':
+                v,t,checks=quadric_proxy(p,f,protected,budget,policy,meshlab,igl,diagnostics=root/(part+'-attempts'))
+            else:
+                v,t,checks=silhouette_proxy(p,f,protected,budget,policy,diagnostics=root/(part+'-attempts'))
             target=root/(part+'.npz');np.savez_compressed(target,positions=v,faces=t)
             candidates[part]={'arrays':pin(target),'sourceCornerHash':corner_hash(p[f]),
                               'policyHash':digest({'settings':policy,**protected,'budget':budget}),
                               'checks':checks,'visualReviewRequired':True}
     verify([bound], fresh=True);write(root/'result.json',{'source':bound,'candidates':candidates},fresh=True)
     return candidates
+
+
+def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *, diagnostics=None):
+    """The part's own closed surface collapsed to its shadow budget by a topology- and normal-preserving quadric, for
+    parts whose cross-section varies around the axis (a projected silhouette there overstates the thickness probes).
+    Each quality threshold is one bounded attempt; the first that stays closed, within budget and within
+    `maximumDistance` of the source and keeps every protected probe is accepted. Blender's plain collapse, the
+    default shadow, has none of these checks until the assembly is measured."""
+    require(meshlab is not None and igl is not None, 'A quadric shadow needs the bound pymeshlab and igl')
+    p=np.asarray(vertices,float);f=np.asarray(faces)
+    require(p.ndim==2 and p.shape[1]==3 and np.isfinite(p).all(), 'Finite shadow source required')
+    require(f.ndim==2 and f.shape[1]==3 and np.issubdtype(f.dtype,np.integer) and len(f) and f.min()>=0 and f.max()<len(p), 'Valid shadow triangles required')
+    require(type(budget) is int and 12<=budget<=500, 'Bounded per-part shadow budget required')
+    require(topology(p,f)['closedWound'], 'A quadric shadow needs a closed outward source part')
+    limit=settings.get('maximumDistance',.006);qualities=settings.get('qualityThresholds',[.3,.5,.1])
+    require(type(limit) in (int,float) and 0<limit<=.02, 'Bounded quadric shadow distance required')
+    # Vertices stay near the source, but a large triangle between them can cut across a curve or bridge a recess, so
+    # the surface itself (vertices and triangle interiors) has its own, looser bound: the 300-triangle staff head
+    # measured 5.6-7.8 mm at its vertices and 15-20 mm across its triangles.
+    surface_limit=settings.get('maximumSurfaceDistance',.025)
+    require(type(surface_limit) in (int,float) and limit<=surface_limit<=.04, 'Bounded quadric shadow surface distance required')
+    require(isinstance(qualities,list) and 1<=len(qualities)<=5 and all(type(q) in (int,float) and 0<=q<=1 for q in qualities),
+            'Bounded quadric quality thresholds required')
+    # Faces around each thickness-probe end are kept as they are (like the visible reduction's seam band), so the
+    # probes measure the source surface itself; the collapse spends the rest of the budget elsewhere.
+    radius=settings.get('probeRadius',.006);require(type(radius) in (int,float) and 0<=radius<=.02, 'Bounded probe protection radius required')
+    ends=np.asarray([point for row in processing.get('thicknessProbes',[]) for point in row['points']],float).reshape(-1,3)
+    centres=p[f].mean(1);protected=np.zeros(len(f),bool)
+    for end in ends:protected|=np.linalg.norm(centres-end,axis=1)<=radius
+    require(int(protected.sum())<=budget//2, 'Protected probe faces alone use half the shadow budget')
+    if diagnostics is not None:diagnostics=Path(diagnostics);diagnostics.mkdir(parents=True,exist_ok=False)
+    attempts=[];accepted=None
+    for quality in qualities:
+        # The selected-face collapse counts only the selected faces; a protected patch's rim can leave it a few over,
+        # so the target steps down by the overshoot (at most three bounded passes).
+        target=budget-4-int(protected.sum());t=None
+        for _ in range(3):
+            if target<4:break                                   # recorded below; the next threshold still gets its try
+            ms=meshlab.MeshSet();ms.add_mesh(meshlab.Mesh(p,f.astype(np.int32),f_scalar_array=(~protected).astype(float)))
+            ms.meshing_remove_duplicate_vertices();ms.compute_selection_by_scalar_per_face(minq=.5,maxq=1.,inclusive=True)
+            ms.meshing_decimation_quadric_edge_collapse(targetfacenum=target,selected=True,preservetopology=True,preserveboundary=True,
+                                                        preservenormal=True,planarquadric=True,qualitythr=float(quality))
+            ms.meshing_remove_unreferenced_vertices();m=ms.current_mesh();v=m.vertex_matrix();t=m.face_matrix().astype(np.int64)
+            if len(t)<=budget:break
+            target-=len(t)-budget
+        if t is None:
+            attempts.append({'qualityThreshold':quality,'error':'Protected probe faces leave no shadow budget to collapse'});continue
+        report=topology(v,t);row={'qualityThreshold':quality,'triangles':len(t),'closedWound':report['closedWound'],'topology':report}
+        attempts.append(row)
+        if diagnostics is not None:np.savez_compressed(diagnostics/f'quality-{quality}.npz',positions=v,faces=t)
+        try:
+            require(len(t)<=budget and report['closedWound'],'Invalid shadow topology/budget')
+            distance=float(np.sqrt(igl.point_mesh_squared_distance(v,p,f.astype(np.int64))[0]).max());row['maximumDistance']=distance
+            require(distance<=limit,'Quadric shadow left the source surface')
+            interior=np.einsum('bk,tkd->tbd',SURFACE_SAMPLES,v[t]).reshape(-1,3)
+            surface=float(np.sqrt(igl.point_mesh_squared_distance(interior,p,f.astype(np.int64))[0]).max());row['surfaceDistance']=surface
+            require(surface<=surface_limit,'Quadric shadow triangles cut away from the source surface')
+            # The other direction is recorded for the visual review, not gated: a shadow simplifies by design, but a
+            # large gap points at a fin or spike the collapse removed.
+            gap=float(np.sqrt(igl.point_mesh_squared_distance(p,v,t)[0]).max());row['sourceToShadowDistance']=gap
+            opening=protected_checks(v,t,processing)
+            accepted=(v,t,report,opening,distance,surface,gap);break
+        except ValueError as exc:row['error']=str(exc)
+    if diagnostics is not None:write(diagnostics/'attempts.json',attempts,fresh=True)
+    require(accepted is not None, 'Quadric shadow failed acceptance checks: '+str(attempts))
+    v,t,report,opening,distance,surface,gap=accepted
+    return v,t,{'attempts':attempts,'topology':report,'openings':opening,'maximumSourceDistance':distance,
+        'maximumSurfaceDistance':surface,'maximumSourceGap':gap,
+        'probeProtectedFaces':int(protected.sum()),'method':'quadric','visualReviewRequired':True,'visibleGeometryUnchanged':True}
 
 
 def cross2(a,b):

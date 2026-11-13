@@ -24,6 +24,14 @@ holes or certify that generic decimation will fail.
   0.5 normal alignment; an explicitly configured correction policy may tighten
   these. Existing exact-geometry reviewed patch exceptions remain bounded.
 
+A reviewed `unorientedSourcePatch` fills the listed faces with colour only, from the nearest donor surface whichever
+way it faces. It may reach the policy's `maximumUnorientedDistance` (default 2.1 mm, at most the 3 mm transfer
+distance) and cover at most 0.01% of the mapped texels. A patch that quotes the user's own approval in `userApproval`
+may reach 3.25 mm and 0.05% instead. The 1.90 m stun staff at its chosen 41 x 49 mm grip needed that: about 220
+missed texels lay up to 3.203 mm from a generated donor that is inside-out in spots (user, 2026-11-12, "Raise the patch
+cap", then "Allow 3.25 mm").
+Neither form changes geometry, and both still need the lit and unlit visual review.
+
 The report is saved as `preflight.json` before a failed gate stops the bake.
 Centroid sampling is an early warning, not a continuous surface proof or a
 replacement for actual visible-miss classification. The same check is available
@@ -92,6 +100,31 @@ Angled bores, overlapping structures and thin members still need probes and visu
 review from multiple angles. Numeric success never grants visual approval. The
 retained pistol test produced a separate 484-triangle candidate in about 0.5 s;
 its approved 468-triangle shadow was not replaced.
+
+### Quadric shadow proxy
+
+A silhouette cannot serve a part whose section varies around its axis: a head
+that is wider off-centre than along a thickness probe puts any projected outline
+outside the probe (the 1.90 m stun staff measured 4.4 mm against the 2.5 mm
+sample bound). Blender's plain collapse, the default shadow, has no probe
+awareness and loses those samples at small budgets.
+
+`{"method": "quadric"}` collapses the part's own closed surface to its shadow
+budget with a topology- and normal-preserving quadric (bound pymeshlab, run by
+the CPU runner like the silhouette builder). Faces within `probeRadius` (default
+6 mm) of every thickness-probe end stay as they are, so probes measure the source
+surface itself; they may use at most half the budget. Each `qualityThresholds`
+value (default `[.3, .5, .1]`) is one bounded attempt; the first that stays
+closed, within budget, within `maximumDistance` (default 6 mm, at most 20 mm) of
+the source and passes every protected probe is installed. The staff head went from
+13,790 triangles to 296 of its 300 with residuals of 0-0.6 mm and a 5.6 mm worst
+distance. The vertices alone can stay close to the source while the large triangles between them cut across a
+curve or bridge a recess. So the shadow surface, sampled at 28 points per triangle, has its own looser bound:
+`maximumSurfaceDistance` defaults to 25 mm, with a 40 mm limit. The staff head measured 5.6-7.8 mm at its vertices and
+15-20 mm across its triangles. The reverse gap, from the source to the shadow, is recorded as `maximumSourceGap` but
+not gated. A large
+gap points at a fin or spike that the collapse removed, so check those parts in the visual review of the shadow,
+which is still required.
 
 ## Recover a completed bake without repeating it
 

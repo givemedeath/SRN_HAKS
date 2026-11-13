@@ -2252,6 +2252,7 @@
       "tools/itemkit/test_itemkit.py"
     ],
     "tools/itemkit/test_toolkit_driver.py": [
+      "tools/itemkit/__init__.py",
       "tools/itemkit/carrier.py",
       "tools/itemkit/contracts.py",
       "tools/itemkit/drive.py",
@@ -2260,6 +2261,7 @@
       "tools/itemkit/fixture.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/oblique.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/straightness.py",
       "tools/itemkit/texture_check.py",
       "tools/itemkit/workspace.py"

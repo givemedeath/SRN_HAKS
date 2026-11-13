@@ -262,7 +262,10 @@ class Runner:
             result = self.worker(stage, folder, **values)
             if stage=='reduce' and self.data.get('processing',{}).get('shadowProxies'):
                 from .shadow import build_candidates
-                result['shadowPreflight']=build_candidates(result['shadowSource']['path'],self.family,self.data['processing'],folder/'shadow-preflight')
+                quadric=any(row.get('method')=='quadric' for row in self.data['processing']['shadowProxies'].values())
+                libraries={'meshlab':library(self.local,'pymeshlab'),'igl':library(self.local,'igl')} if quadric else {}
+                result['shadowPreflight']=build_candidates(result['shadowSource']['path'],self.family,self.data['processing'],
+                                                           folder/'shadow-preflight',**libraries)
             if stage == 'bake':
                 from .textures import finish_bake
                 result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures',

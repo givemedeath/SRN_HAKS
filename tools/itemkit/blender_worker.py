@@ -18,7 +18,7 @@ from tools.headkit.common import pin, read, require, verify, write,digest
 from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
 from tools.itemkit.geometry import corner_hash, similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
-from tools.itemkit.transfer import finished_colour,validate_texture_patch
+from tools.itemkit.transfer import finished_colour,patch_distance_bound,validate_texture_patch
 from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, grip_render_part, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 from tools.itemkit.reduction import rims
 from tools.itemkit.routes import ROUTES
@@ -213,7 +213,7 @@ def grip_fit(cfg, matrix, working):
     """The measured grip correction of the fit stage: (final matrix, grip report or None). Raises GripDeparture."""
     grip_report = None
     if cfg.get('gripStandard'):
-        from tools.itemkit.grip import calibration, one_hand_round, two_hand_uniform
+        from tools.itemkit.grip import calibration, one_hand_round, transverse_uniform, two_hand_uniform
         standard=read(cfg['gripStandard'])
         thickness_fit = (cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
                          and cfg['fit'].get('sizingAuthority')=='midpoint-depth')
@@ -236,7 +236,14 @@ def grip_fit(cfg, matrix, working):
                                                 standard,cfg['fit'].get('gripDeparture'))
         elif cfg['fit'].get('sizingAuthority')=='usable-length-round':
             matrix,grip_report=one_hand_round(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
+        elif cfg['fit'].get('sizingAuthority')=='midpoint-depth-uniform':
+            require(ROUTES[cfg['family']['family']].section=='uniform','midpoint-depth-uniform needs a section="uniform" route')
+            matrix,grip_report=transverse_uniform(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'),
+                                                  cfg['fit'].get('sectionBasis','depth'))
         else:
+            # A staff manifest from before section="uniform" would rebuild the flattened staff (user, 2026-11-12).
+            require(ROUTES[cfg['family']['family']].section!='uniform',
+                    'A section="uniform" route is never sized by the per-axis hilt calibration; refit it')
             matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
     return matrix, grip_report
 
@@ -380,7 +387,7 @@ def reduce(cfg, out, shadow=False):
             swap_mesh(obj,'constrained-visible-'+part,cp,cf,smooth=True)
         proxy = cfg['processing'].get('shadowProxies', {}).get(part)
         if shadow and proxy:
-            require(proxy.get('method') == 'projected-silhouette', 'Unknown shadow proxy method')
+            require(proxy.get('method') in ('projected-silhouette', 'quadric'), 'Unknown shadow proxy method')
             source_p,source_f=arrays(obj)
             candidate=cfg.get('shadowCandidates',{}).get(part)
             require(candidate is not None and candidate['arrays'] in cfg['inputs'], 'Declare the checked CPU shadow candidate')
@@ -585,7 +592,7 @@ def transfer_preflight(cfg, out, donor, low):
     require(0<maximum<=.003 and .5<=alignment<=1, 'Bounded preflight donor policy required')
     patch=policy.get('unorientedSourcePatch');allowed=set()
     if patch:
-        allowed=validate_texture_patch(p[f],patch,maximum_distance=min(maximum,policy.get('maximumUnorientedDistance',.0021)))
+        allowed=validate_texture_patch(p[f],patch,maximum_distance=patch_distance_bound(policy))
     failed=[];distances=[]
     for index in np.flatnonzero(~caps):
         triangle=p[f[index]];normal=np.cross(triangle[1]-triangle[0],triangle[2]-triangle[0]);length=np.linalg.norm(normal)
@@ -763,7 +770,7 @@ def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     dp,df=arrays(donor);bvh=BVHTree.FromPolygons([Vector(row) for row in dp],df.tolist(),all_triangles=True)
     patch=policy.get('unorientedSourcePatch');patch_faces=set()
     if patch:
-        patch_faces=validate_texture_patch(p[f],patch,maximum_distance=min(maximum,policy.get('maximumUnorientedDistance',.0021)))
+        patch_faces=validate_texture_patch(p[f],patch,maximum_distance=patch_distance_bound(policy))
     locations=[];sources=[];distances=[];dots=[];unoriented=[];failed_faces=[]
     for face,point,normal in zip(ids,points,normals):
         candidates=[row for row in bvh.find_nearest_range(Vector(point),maximum) if np.dot(row[1],normal)>=alignment]
