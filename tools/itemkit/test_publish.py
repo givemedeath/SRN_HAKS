@@ -155,6 +155,21 @@ class PlanTests(unittest.TestCase):
                 with self.assertRaisesRegex(P.PublishError, 'No room'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn')
             self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
 
+    def test_the_reviewer_plan_reads_the_areas_other_objects_and_size(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder); (repo/P.MODULE).mkdir(parents=True)
+            (repo/P.MODULE/'sr_it_floor.git').write_bytes(b'git'); (repo/P.MODULE/'sr_it_floor.are').write_bytes(b'are')
+            south = {'m': P.ROWS[0][0], 'f': P.ROWS[0][1]}
+            area = {b'git': {'Creature List': [{'Tag': f'sw1_{s}0', 'XPosition': 5.0, 'YPosition': south[s]} for s in 'mf'],
+                             'Placeable List': [{'Tag': 'crate', 'X': 8.5, 'Y': south['f']}]},   # on the next southern spot
+                    b'are': {'Width': 8, 'Height': 8}}
+            packages = [P.Package('i', Path('.'), 'Item', 'bp', 1, 111, Path('h'), Path('m'))]
+            with mock.patch.object(P.crm, 'parse_gff', lambda data: area[data]):
+                pair, = P.reviewer_plan(repo, packages)[1]
+                self.assertEqual((pair['x'], pair['y']), (P.ROW_START, {'m': P.ROWS[1][0], 'f': P.ROWS[1][1]}))   # crate: next row
+                area[b'are']['Height'] = 2                                         # 20 m: only the southern row is inside
+                with self.assertRaisesRegex(P.PublishError, 'No room'): P.reviewer_plan(repo, packages)
+
     def test_ranged_weapons_are_refused(self):
         with tempfile.TemporaryDirectory() as folder:
             repo = make_repo(Path(folder))
@@ -214,6 +229,8 @@ class ReviewerTests(unittest.TestCase):
         _, pairs = P.plan_pairs(placed, packages[:5], 80.0, 80.0, obstacles=[(30.0, af)])
         self.assertEqual({(p['x'], p['y']['m']) for p in pairs}, {(22.5 + 3.5 * i, bm) for i in range(5)})
         self.assertEqual(P.plan_pairs(placed, packages[:5], 80.0, 80.0, obstacles=[(30.0, af + 3.0)])[1][0]['y']['m'], am)   # 3 m off: clear
+        moved = [creature('sw1_f4', 40.0, af) if c['Tag']['value'] == 'sw1_f4' else c for c in placed]   # female line runs further
+        self.assertEqual(P.plan_pairs(moved, packages[:5], 80.0)[1][0]['x'], 43.5)
         with self.assertRaisesRegex(P.PublishError, 'No room'): P.plan_pairs(placed, packages[:5], 80.0, 25.0, obstacles=[(30.0, af)])
 
     def test_reviewer_copy_changes_only_identity_and_position(self):

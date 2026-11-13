@@ -238,7 +238,7 @@ def plan_pairs(creatures, packages, area_width, area_height=None, obstacles=()):
     require(placed, 'No reviewers are placed in the comparison area to continue from')
     free = {}
     for male, female in ROWS:
-        xs = [c['XPosition']['value'] for c in placed if c['YPosition']['value'] == male]
+        xs = [c['XPosition']['value'] for c in placed if c['YPosition']['value'] in (male, female)]   # either line
         free[male, female] = max(xs) + ROW_STEP if xs else ROW_START
     clear = lambda x, y: all(math.hypot(x - ox, y - oy) >= ROW_STEP / 2 for ox, oy in obstacles)
     def fits(row, size):
