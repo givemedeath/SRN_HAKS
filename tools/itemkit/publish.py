@@ -170,6 +170,9 @@ def maxrange_needs(repo, packages):
     needs = {}
     for p in packages:
         current = int(rows[p.base_item]['MaxRange'])            # plan() has checked every base item is a row
+        minimum = rows[p.base_item].get('MinRange', '****')
+        require(minimum == '****' or p.appearance >= int(minimum),
+                f'{p.item}: appearance {p.appearance} is below row {p.base_item} MinRange {minimum}')
         if p.appearance > max(current, needs.get(p.base_item, (0, 0))[1]): needs[p.base_item] = (current, p.appearance)
     return needs
 
@@ -292,12 +295,12 @@ class Tools:
             self.run('script_comp', '--root', self.nwn_root, '--userdirectory', user, '--no-ovr', '-d', '.', '-c', *scripts, cwd=folder)
 
 
-def add_reviewers(repo, packages, tools, work):
-    """Reviewer templates and instances, equip lines and the selector table; returns the new tags and the pair total."""
-    module = repo/MODULE
-    git = tools.to_json(module/'sr_it_floor.git', work); area = crm.parse_gff((module/'sr_it_floor.are').read_bytes())
+def add_reviewers(repo, planned, tools, work):
+    """Reviewer templates and instances, equip lines and the selector table for the layout reviewer_plan checked
+    before any write; returns the new tags and the pair total."""
+    module = repo/MODULE; groups, pairs = planned
+    git = tools.to_json(module/'sr_it_floor.git', work)
     creatures = git['Creature List']['value']
-    groups, pairs = plan_pairs(creatures, packages, area['Width']*TILE)
     last = groups[-1][0]
     templates = {s: tools.to_json(module/f'{last}{s}0.utc', work) for s in 'mf'}
     placed = {c['Tag']['value']: c for c in creatures}
@@ -441,14 +444,18 @@ def plan(repo, items):
 
 def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False):
     repo = Path(repo).resolve(); today = today or Date.today().isoformat()
-    require(statements and review, "Publishing needs the user's words (--statement) and the review sentence (--review)")
+    require(statements and all(isinstance(s, str) and s.strip() for s in statements) and isinstance(review, str) and review.strip(),
+            "Publishing needs the user's words (--statement) and the review sentence (--review)")
+    try: require(Date.fromisoformat(today).isoformat() == today, '')
+    except ValueError: raise PublishError(f'--date {today} is not a YYYY-MM-DD date') from None
     packages, needs = plan(repo, items)
     summary = {'items': [{'id': p.item, 'name': p.name, 'blueprint': p.blueprint, 'baseItem': p.base_item, 'appearance': p.appearance,
                           'files': sorted(p.files)} for p in packages],
                'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()}}
-    # Room for the reviewers is checked before anything is written (a dry run without the module skips it).
-    if not dry_run or (repo/MODULE).is_dir():
-        summary['plannedReviewers'] = [f'{p["prefix"]}{s}{p["index"]}' for p in reviewer_plan(repo, packages)[1] for s in 'mf']
+    # Room for the reviewers is checked before anything is written (a dry run without the module skips it), and this
+    # checked layout is the one add_reviewers writes.
+    planned = reviewer_plan(repo, packages) if not dry_run or (repo/MODULE).is_dir() else None
+    if planned: summary['plannedReviewers'] = [f'{p["prefix"]}{s}{p["index"]}' for p in planned[1] for s in 'mf']
     if dry_run: return {'dryRun': True, **summary}
     tools = Tools(repo, nwn_root)
     restore = snapshot(repo, packages)
@@ -460,7 +467,7 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
                   + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change') + '.')
         update_publication(repo, packages, needs, statements, review, policy)
         with tempfile.TemporaryDirectory() as work:
-            tags, total = add_reviewers(repo, packages, tools, work)
+            tags, total = add_reviewers(repo, planned, tools, work)
         rebuild(repo, tools)
         built = update_records(repo, packages, needs, statements, tags, total, today)
     except BaseException:

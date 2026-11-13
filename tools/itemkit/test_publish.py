@@ -97,6 +97,12 @@ class TableTests(unittest.TestCase):
             self.assertEqual(after, TABLE.replace(b'dagger       100 ', b'dagger       111 '))
             self.assertEqual(len(after), len(TABLE))
 
+    def test_an_appearance_below_minrange_is_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = make_repo(Path(folder))
+            (repo/P.BASEITEMS).write_bytes(TABLE.replace(b'ItemClass\n', b'ItemClass   MinRange\n').replace(b'WSwDg\n', b'WSwDg       120\n'))
+            with self.assertRaisesRegex(P.PublishError, 'below row 22 MinRange 120'): P.plan(repo, [('knife', make_run(Path(folder)))])
+
     def test_a_wider_number_takes_the_padding_after_it(self):
         self.assertEqual(P.extend_maxrange(TABLE, {22: (100, 1111)}), TABLE.replace(b'dagger       100 ', b'dagger       1111'))
         tight = TABLE.replace(b'100        WSwDg', b'100 WSwDg')            # one separator space: nothing to take
@@ -117,6 +123,9 @@ class PlanTests(unittest.TestCase):
             self.assertEqual(result['maxRange'], {'22': {'before': 100, 'after': 111}})
             self.assertEqual({p: p.read_bytes() for p in Path(folder).rglob('*') if p.is_file()}, before)
             with self.assertRaisesRegex(P.PublishError, "user's words"): P.publish(repo, [('knife', run)], [], 'Seen.', None, dry_run=True)
+            with self.assertRaisesRegex(P.PublishError, "user's words"): P.publish(repo, [('knife', run)], ['  '], 'Seen.', None, dry_run=True)
+            with self.assertRaisesRegex(P.PublishError, 'not a YYYY-MM-DD'):
+                P.publish(repo, [('knife', run)], ['ok'], 'Seen.', None, today='13/11/2026', dry_run=True)
 
     def test_a_failed_publication_puts_the_tree_back(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -124,7 +133,7 @@ class PlanTests(unittest.TestCase):
             (repo/P.MODULE).mkdir(parents=True); (repo/P.MODULE/'c.nss').write_bytes(b'kept')
             before = {p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}
 
-            def fail(repo, packages, tools, work):            # after the copy, table and record writes
+            def fail(repo, planned, tools, work):             # after the copy, table and record writes
                 (repo/P.MODULE/'sw2_m0.utc').write_bytes(b'new'); (repo/P.MODULE/'c.nss').write_bytes(b'changed')
                 raise RuntimeError('compile failed')
             with mock.patch.object(P, 'Tools', lambda repo, nwn: None), mock.patch.object(P, 'update_publication', lambda *a: None), \
