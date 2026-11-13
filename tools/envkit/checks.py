@@ -304,6 +304,20 @@ def walks(lines, walkers):
     return found
 
 
+def walled(blocked, at, target, corner):
+    """Whether something in the way (`tile.read_blocked`, [row, column] from the group's south-west corner) lies on the
+    straight line between where a walker stopped and its target, both (x, y) in the check area, `corner` the group's
+    south-west corner there. A walker that stops near its target with a fence between has not arrived: the rail
+    freight depot's walker from the next tile into the service bay's fenced yard stopped against the fence, half a
+    metre from a target just inside it, and passed the check while only the distance counted (client, 2026-11-13)."""
+    step = tile.SIZE / tile.CELLS; (x0, y0), (x1, y1) = at, target; count = max(math.ceil(math.dist(at, target) / (step / 4)), 1)
+    for index in range(count + 1):
+        row = math.floor((y0 + (y1 - y0) * index / count - corner[1]) / step); column = math.floor((x0 + (x1 - x0) * index / count - corner[0]) / step)
+        if 0 <= row < blocked.shape[0] and 0 <= column < blocked.shape[1] and blocked[row, column]:
+            return True
+    return False
+
+
 def _tile_field(set_text, number, field):
     """The value of one field of a tile's section of a set file, or None: whatever its line endings."""
     parts = set_text.split(f'[TILE{number}]', 1)
@@ -353,7 +367,7 @@ def laid_tiles(set_text, tileset, model, tiles, column0, row0):
 def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=None, scale_prop='ek_ss_vending', targets=None):
     """A built tile group (`tiles`' folder) laid in an area of `tileset`, which must hold it already (`install`): the
     tile numbers are the pack's, the models and walkmeshes the built ones. mode: day, night (with its lights put out
-    and on again), near or walk (`walk_plan`; refused if a walker stops more than REACHED metres short, after its
+    and on again), near or walk (`walk_plan`; refused if a walker stops more than REACHED metres short or with something in the way between (`walled`), after its
     captures and `walks.json` are written). targets: {label: (x, y)} more places a walk sends walkers to, in metres from
     the group's south-west corner as `walk.png` shows them (the Saeder-Krupp yard's bay, which no automatic target
     reaches). size: tiles across the area, by default as many as hold the group (`area_size`)."""
@@ -393,8 +407,12 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     if walkers:
         captures = base / 'fixtures' / name / 'captures'
         result['walkers'] = walks(json.loads((captures / 'run.json').read_text(encoding='utf-8'))['lines'], walkers)
+        blocked = tile.read_blocked(walk_picture)
+        for one in result['walkers']:
+            one['walled'] = walled(blocked, one['at'], one['target'], (column0 * TILE, row0 * TILE))
         (captures / 'walks.json').write_text(json.dumps(result['walkers'], indent=1), encoding='utf-8')
-        short = [f'{one["label"]} stopped {one["short"]} m short of {one["target"]}' for one in result['walkers'] if one['short'] > REACHED]
+        short = [f'{one["label"]} stopped {one["short"]} m short of {one["target"]}' + (' with something in the way between' if one['walled'] else '')
+                 for one in result['walkers'] if one['short'] > REACHED or one['walled']]
         require(not short, 'Walkers did not arrive: ' + '; '.join(short) + f'. See {captures}')
     return result
 

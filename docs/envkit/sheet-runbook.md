@@ -146,7 +146,13 @@ which a second track curves off on 15 metre curves, crosses at 27 degrees and ru
 the next row (user: "can you make the tracks merge" at both ends of the depot). A main line's turnouts are far
 gentler; at the game's scale it reads as a yard crossover. The two tracks share long sleepers until they are 3.2
 metres apart. Laid at both ends of two tracks, turned half round at the far end, it makes a passing loop with one
-track out at each end, each on its row's centre; the crane then travels between the switches. A part laid
+track out at each end, each on its row's centre; the crane then travels between the switches.
+`envkit track --piece crane` writes a 10 metre crane runway: two crane rails a metre apart, 0.23 metres high, clipped
+to a concrete ground beam, laid underfoot under each of a gantry crane's legs (user: "i think we need to add the crane
+tracks, we'll need those as a prop anyway and the scene looks weird without it"). A generated crane can come back
+standing on its own short rails (the depot's did, about a metre apart and 0.23 metres high): take them off with a
+`clear` box under each leg, check its wheels are kept, and lay the runway on their line, so the wheels meet the
+built rails. The runway is a placeable too, for cranes a builder places. A part laid
 underfoot is drawn but not surveyed, so the ground is walked flat across it and it may run off the group's edges,
 where a raised slab is refused; it stands no higher than the knee. A
 part is never a group itself, so a building in both has a second entry of the same source and height without
@@ -156,7 +162,7 @@ a group's `_t` tiles and `p` parts): the set is refused, since one would write o
 `envkit view --models ... --model <site> --eye ...` draws the whole site with its parts before it is cut into tiles.
 
 ```
-envkit track --output <root>/track/<piece>-s<seed>  [--piece straight|merge] [--seed <seed>]
+envkit track --output <root>/track/<piece>-s<seed>  [--piece straight|merge|crane] [--seed <seed>]
 envkit game  --models ... --root <root> --output <root>/game<n>  [--model <name>]
 envkit tiles --models ... --root <root> --output <root>/tiles<n> --model <building>
 ```
@@ -198,7 +204,8 @@ area to the door, to each side of the building and onto the ground a walk must g
 yard), with one more onto that ground from the next tile out, and logs where they are every shot; it refuses the
 group if a walker stops more than a metre short, after writing `captures/walks.json`. The walkers' targets come
 from `walk.png`, which `tiles` writes beside the tile sources (a pixel a walk cell, north up: green ground with
-room to stand on, red the building, orange the lesser things in the way and ground too narrow to stand on, which
+room to stand on, pale green ground with room that no walk from round the group is planned onto, red the
+building, orange the lesser things in the way and ground too narrow to stand on, which
 `tiles` closes: a walk would be planned through a gap no character fits, as it was through the gaps between the
 Saeder-Krupp yard's fence sections; dark green in a picture built before 2026-11-12); a
 group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). The check
@@ -327,8 +334,11 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   lead up to it: steps no taller than 0.35 m down to the ground, no steeper than 1.25 rise over run overall
   (`tile.RISER`, `STAIR`). The walkmesh climbs the stairs, and the platform's edge is closed elsewhere, so no walk
   steps off it (user: "the stairs up onto platform, and the platform itself should be walkable", the rail freight
-  depot, 2026-11-13). Without stairs it stays closed. A platform across a tile line is walked by short walks; the
-  path nodes cannot say a way along it from tile to tile, so a far walk onto it can give up.
+  depot, 2026-11-13). Without stairs it stays closed. A platform across a tile line is walked by short walks: no
+  path node can say a way onto it or along it from tile to tile, since every exit lies at a side's middle, off the
+  platform. In the depot a walker went up the stairs from the ground and nine metres along the deck over a tile
+  line; one sent twenty metres along it gave up after eight, and ones sent onto its far end from the ground stopped
+  at its edge. `walk.png` draws such ground pale, and the check sends no long walk there.
 - **Something the generator stood on the floor leaves too narrow a way** (orange on `walk.png` where a character
   must pass, or a `tiles` note of walk cells no walk is planned onto). A path needs a metre clear. Take the thing away with
   `clear`: `{"part": ..., "box": ...}` on the finished model takes every face whose middle lies in the box. Start the
@@ -344,12 +354,26 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   ground no walk is planned onto). The engine takes a target by a side for that side's own: of nodes that reach as
   much, `tiles` takes those that leave no exit cut off from every way out, and notes any it cannot (`tile.cut_off`).
   The rail freight depot's walkers to its warehouse door and its crane's north leg, on the line between its middle
-  columns where both tiles had left their shared side alone, walked straight at them (2026-11-13). Where walkers
-  still give up, try other nodes for the tiles they were bound for:
+  columns where both tiles had left their shared side alone, walked straight at them (2026-11-13). Its south
+  walker, bound for ground by a tile's west side whose east side opened into the service bay's yard, still gave up
+  until that tile was stated without its east side (W, no turn). Where walkers still give up, try other nodes for
+  the tiles they were bound for:
   edit `PathNode` and `Orientation` of those tiles in the installed set files (copy them aside first), rerun the walk
   check, and state what works under `tiles.nodes` in the game set (`{"t12": {"node": "A", "turn": 0}}`). Then
   rebuild and install. The Saeder-Krupp yard states three this way. A short walk into ground with one far way in
-  (`pocket-near`) can still give up where long walks arrive: say so in the provenance.
+  (`pocket-near`) can still give up where long walks arrive: say so in the provenance. A walker that stops near its
+  target with something drawn in the way between (`walk.png`) has not arrived, however near: the depot's walker from
+  the next tile into the service bay's fenced yard stopped against the fence, half a metre from a target just inside
+  it, and passed the check that way until it looked across the gap (`checks.walled`, 2026-11-13).
+- **A walk check that passed fails after a rebuild that changed nothing walkable** (an underfoot part, a `clear`).
+  A rebuild can draw every tile's walkmesh faces a little differently, and a walk the engine can only just plan
+  comes out either way. The depot's crane rails and the crane's own stub rails taken away left `walk.png` the same,
+  yet its walker to the ground beside the crane's north leg then walked straight at it every time, in both tilesets
+  (2026-11-13). The leg's edge lay on the line between two tiles, on the middle of their shared side, where the
+  engine puts the exit between them. Swapping the tiles' walkmeshes back one by one showed it was those two tiles
+  alone. Moved a metre north, clear of the side's middle, it arrived. So run the walk check again after every
+  rebuild, and keep the edge of anything long and heavy that crosses a tile line off the middle of that side by a
+  metre or more where the layout allows.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

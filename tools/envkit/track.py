@@ -7,7 +7,9 @@ possible to incorporate the train tracks?"). So the piece is exact: its rails GA
 a sleeper every PITCH metres from half a pitch in, and every map seamless along the track, so that pieces laid end to
 end are one track; and a merge brings a second track into the first, as a passing loop's ends do. It is low, its rail
 tops HEIGHT metres up, under the knee, and a group lays it underfoot (the game set's `underfoot`): the walkmesh runs
-flat across it, and it may run off the group's edges.
+flat across it, and it may run off the group's edges. A crane runway is built the same way (`crane_mesh`): the pair of
+rails a gantry crane's leg runs on, one runway under each leg (user, 2026-11-13: "i think we need to add the crane
+tracks, we'll need those as a prop anyway and the scene looks weird without it").
 
 Measures are in metres in the game's frame: x along the track, y across it, z up."""
 import hashlib
@@ -33,11 +35,19 @@ SEGMENT = LENGTH / 2  # the maps repeat along the track every SEGMENT metres
 # of it runs straight for LEAD metres, so that it meets straight track, and the two tracks share long sleepers until
 # their centre lines are SHARED metres apart.
 MERGE_OFFSET, MERGE_LENGTH, MERGE_RADIUS, LEAD, SHARED = 10.0, 30.0, 15.0, 1.5, 3.2
+# A crane runway: two heavy crane rails CRANE_GAUGE apart between their middles, each on a steel sole plate and clipped
+# every CRANE_CLIP metres to one concrete ground beam whose top stands a little proud of the pavement. The depot's
+# gantry crane came back with two short rails under each leg, about a metre apart and 0.23 metres high, its wheels on
+# them: the runway carries on from those, which are taken off the crane (its `clear`).
+CRANE_GAUGE, CRANE_BEAM, CRANE_BEAM_TOP = 1.0, 1.4, 0.06  # between the rails' middles; the beam's width, and how far its top stands up
+CRANE_HEAD, CRANE_HEAD_DEPTH, CRANE_WEB, CRANE_FOOT, CRANE_FOOT_DEPTH, CRANE_RAIL = 0.1, 0.045, 0.035, 0.2, 0.025, 0.155
+CRANE_PLATE, CRANE_PLATE_DEPTH, CRANE_CLIP = 0.3, 0.015, 0.5
+CRANE_HEIGHT = CRANE_BEAM_TOP + CRANE_PLATE_DEPTH + CRANE_RAIL
 SIZE = 2048
 # Bands of the maps, in rows from the top: the ballast's cross-section, two sleeper tops, the sleepers' sides and ends,
-# the rail's polished top, its rusted sides and its foot. The rest is plain concrete.
+# the rail's polished top, its rusted sides and its foot, and plain concrete (a crane runway's beam).
 BANDS = {'ballast': (0, 1280), 'sleeperA': (1280, 1408), 'sleeperB': (1408, 1536), 'sleeperSide': (1536, 1600), 'sleeperEnd': (1600, 1632),
-         'railTop': (1664, 1712), 'railSide': (1712, 1904), 'railFoot': (1904, 1952)}
+         'railTop': (1664, 1712), 'railSide': (1712, 1904), 'railFoot': (1904, 1952), 'concrete': (1952, 2048)}
 INSET = 2  # pixels kept off a band's edge, so that a filtered sample stays inside it
 STONE = 16  # pixels to a ballast stone's cell: about four centimetres
 
@@ -192,6 +202,62 @@ def mesh():
     _ballast(made, line); _rails(made, line); _end(made, line[0], -1, BED); _end(made, line[-1], 1, BED)
     for index, sample in enumerate(_pitches(line)):
         _sleeper(made, sample, index)
+    return made.arrays()
+
+
+def _block(made, x0, x1, y0, y1, z0, z1, band, against=0):
+    """A box from x0 to x1 along the track and y0 to y1 across it, from z0 up to z1, but for its floor and the side
+    that stands `against` something (-1 the y0 side, 1 the y1 side): each face in `band`. A clip's side against the
+    rail is inside the rail's foot, and seen, if at all, from behind."""
+    v0, v1 = _v(band, 0.0), _v(band, 1.0)
+    made.quad([(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)], [(0.0, v0), (0.04, v0), (0.04, v1), (0.0, v1)], (0, 0, 1))
+    for y, side in [(y, side) for y, side in ((y0, -1), (y1, 1)) if side != against]:
+        made.quad([(x0, y, z0), (x1, y, z0), (x1, y, z1), (x0, y, z1)], [(0.0, v0), (0.04, v0), (0.04, v1), (0.0, v1)], (0, side, 0))
+    for x, side in ((x0, -1), (x1, 1)):
+        made.quad([(x, y0, z0), (x, y1, z0), (x, y1, z1), (x, y0, z1)], [(0.0, v0), (0.04, v0), (0.04, v1), (0.0, v1)], (side, 0, 0))
+
+
+def crane_rails():
+    """The y of each crane rail's middle, across its runway."""
+    return (-CRANE_GAUGE / 2, CRANE_GAUGE / 2)
+
+
+def crane_clips():
+    """The x of each pair of clips on a crane runway piece centred on x = 0, CRANE_CLIP apart from half a pitch in."""
+    return [-LENGTH / 2 + CRANE_CLIP * (index + 0.5) for index in range(round(LENGTH / CRANE_CLIP))]
+
+
+def crane_mesh():
+    """(vertices, normals, uvs, faces) of a crane runway piece LENGTH metres long, centred on x = y = 0 and standing on
+    z = 0, as `mesh` is: a concrete beam CRANE_BEAM wide whose top stands CRANE_BEAM_TOP up and on it two crane rails
+    (`crane_rails`), each on a sole plate with a clip either side of its foot every CRANE_CLIP metres. The rails' tops
+    are CRANE_HEIGHT up, under the knee, so a group lays it underfoot as it lays track."""
+    made = _Mesh(); line = path((-LENGTH / 2, 0.0), 0.0, [('line', LENGTH)]); half, top = CRANE_BEAM / 2, CRANE_BEAM_TOP
+    plate = top + CRANE_PLATE_DEPTH; foot, web, head = plate + CRANE_FOOT_DEPTH, plate + CRANE_RAIL - CRANE_HEAD_DEPTH, plate + CRANE_RAIL
+    _sweep(made, line, 'concrete', (-half, top), (half, top), (0, 1))
+    for side in (-1, 1):  # the beam's side darkens towards the ground (the band's foot, 1)
+        _sweep(made, line, 'sleeperSide', (side * half, 0.0), (side * half, top), (side, 0), (1.0, 0.0))
+    for middle in crane_rails():
+        _sweep(made, line, 'railFoot', (middle - CRANE_PLATE / 2, plate), (middle + CRANE_PLATE / 2, plate), (0, 1))
+        _sweep(made, line, 'railTop', (middle - CRANE_HEAD / 2, head), (middle + CRANE_HEAD / 2, head), (0, 1))
+        for side in (-1, 1):  # the rail's side band runs from its foot (0) up
+            _sweep(made, line, 'railFoot', (middle + side * CRANE_PLATE / 2, top), (middle + side * CRANE_PLATE / 2, plate), (side, 0), (0.0, 0.3))
+            _sweep(made, line, 'railSide', (middle + side * CRANE_HEAD / 2, web), (middle + side * CRANE_HEAD / 2, head), (side, 0), (0.62, 1.0))
+            _sweep(made, line, 'railSide', (middle + side * CRANE_WEB / 2, foot), (middle + side * CRANE_WEB / 2, web), (side, 0), (0.12, 0.62))
+            _sweep(made, line, 'railSide', (middle + side * CRANE_FOOT / 2, plate), (middle + side * CRANE_FOOT / 2, foot), (side, 0), (0.0, 0.12))
+            _sweep(made, line, 'railFoot', (middle + side * CRANE_WEB / 2, foot), (middle + side * CRANE_FOOT / 2, foot), (0, 1))
+            for x in crane_clips():
+                inner, outer = sorted((middle + side * (CRANE_FOOT / 2 - 0.015), middle + side * CRANE_PLATE / 2))
+                _block(made, x - 0.04, x + 0.04, inner, outer, plate, foot + 0.012, 'railFoot', -side)
+    for sample, outward in ((line[0], -1), (line[-1], 1)):  # each end closed: the beam's cross-section, and each plate's and rail's
+        x = sample[1]; facing = (outward, 0.0, 0.0)
+        sections = [(0.0, 0.0, top, CRANE_BEAM, 'sleeperEnd', 1.0, 0.0)] + [
+            (middle, low, high, width, band, a, b) for middle in crane_rails()
+            for low, high, width, band, a, b in ((top, plate, CRANE_PLATE, 'railFoot', 0.0, 0.3), (plate, foot, CRANE_FOOT, 'railSide', 0.0, 0.12),
+                                                 (foot, web, CRANE_WEB, 'railSide', 0.12, 0.62), (web, head, CRANE_HEAD, 'railSide', 0.62, 1.0))]
+        for middle, low, high, width, band, a, b in sections:
+            made.quad([(x, middle - width / 2, low), (x, middle + width / 2, low), (x, middle + width / 2, high), (x, middle - width / 2, high)],
+                      [(0.0, _v(band, a)), (0.03, _v(band, a)), (0.03, _v(band, b)), (0.0, _v(band, b))], facing)
     return made.arrays()
 
 
@@ -352,20 +418,22 @@ def write_glb(path, vertices, normals, uvs, faces):
 
 
 def build(output, seed=0, kind='straight'):
-    """Write a piece of `kind`, 'straight' (`mesh`) or 'merge' (`merge_mesh`), into the fresh folder `output`:
+    """Write a piece of `kind`, 'straight' (`mesh`), 'merge' (`merge_mesh`) or 'crane' (`crane_mesh`), into the fresh folder `output`:
     model.glb, its maps as `texture_0_<map>.png` (`local.MAPS`) and track.json, which records its measures, its seed
     and each file's hash. Returns that record."""
     from PIL import Image
     require(isinstance(seed, int) and seed >= 0, 'A seed is a whole number from 0')
-    require(kind in ('straight', 'merge'), 'A piece of track is straight or a merge: ' + str(kind))
+    require(kind in ('straight', 'merge', 'crane'), 'A piece of track is straight, a merge or a crane runway: ' + str(kind))
     with fresh(output) as folder:
-        write_glb(folder / 'model.glb', *(mesh() if kind == 'straight' else merge_mesh()))
+        write_glb(folder / 'model.glb', *{'straight': mesh, 'merge': merge_mesh, 'crane': crane_mesh}[kind]())
         for name, picture in maps(seed).items():
             require(name in local.MAPS, 'An unknown map: ' + name)
             Image.fromarray((picture * 255).round().astype(np.uint8)).save(folder / f'texture_0_{name}.png')
-        shape = ({'length': LENGTH} if kind == 'straight' else
-                 {'length': MERGE_LENGTH, 'offset': MERGE_OFFSET, 'radius': MERGE_RADIUS, 'angle': round(float(np.degrees(merging()[1])), 3)})
-        record = {'schemaVersion': 1, 'kind': 'envkit-track', 'piece': kind, 'seed': seed, **shape, 'height': HEIGHT, 'gauge': GAUGE, 'pitch': PITCH,
-                  'width': 2 * BED_BASE, 'files': {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(folder.iterdir())}}
+        laid = {'height': HEIGHT, 'gauge': GAUGE, 'pitch': PITCH, 'width': 2 * BED_BASE}
+        shape = {'straight': {'length': LENGTH, **laid},
+                 'merge': {'length': MERGE_LENGTH, 'offset': MERGE_OFFSET, 'radius': MERGE_RADIUS, 'angle': round(float(np.degrees(merging()[1])), 3), **laid},
+                 'crane': {'length': LENGTH, 'height': CRANE_HEIGHT, 'gauge': CRANE_GAUGE, 'width': CRANE_BEAM, 'clip': CRANE_CLIP}}[kind]
+        record = {'schemaVersion': 1, 'kind': 'envkit-track', 'piece': kind, 'seed': seed, **shape,
+                  'files': {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(folder.iterdir())}}
         (folder / 'track.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
     return record

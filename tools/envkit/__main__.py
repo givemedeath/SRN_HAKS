@@ -404,7 +404,8 @@ def main(argv=None):
     sub.set_defaults(run=command_view)
     sub = commands.add_parser('track', help='a piece of railway track, built to gauge, as a model folder a game set reads')
     sub.add_argument('--output', required=True, help="a fresh folder under the set's output root"); sub.add_argument('--seed', type=int, default=0, help='the seed of its maps')
-    sub.add_argument('--piece', choices=['straight', 'merge'], default='straight', help="a straight 10 m piece, or a 30 m merge of the next row's track into this one")
+    sub.add_argument('--piece', choices=['straight', 'merge', 'crane'], default='straight',
+                     help="a straight 10 m piece, a 30 m merge of the next row's track into this one, or 10 m of a gantry crane's runway rail")
     sub.set_defaults(run=command_track)
     sets = str(Path(__file__).with_name('sets'))
     sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')

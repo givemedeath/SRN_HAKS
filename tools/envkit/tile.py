@@ -829,6 +829,15 @@ def read_walk(path, planned=False):
     return roomy if planned else roomy | (picture == WALK_COLOURS['unplanned']).all(-1)
 
 
+def read_blocked(path):
+    """The cells of a group's walk picture (`walk_picture`) where no one stands: what stands in the way and the closed
+    edge round it, [row, column] from the south-west."""
+    from PIL import Image
+    with Image.open(path) as image:
+        picture = np.asarray(image.convert('RGB'))[::-1]
+    return (picture == WALK_COLOURS['building']).all(-1) | (picture == WALK_COLOURS['closed']).all(-1)
+
+
 def walk_targets(roomy, planned=None):
     """Where walkers are sent in a group, {label: (x, y)} in metres from its south-west corner. On each side the ground
     a walker reaches last coming straight in from the middle of the group's edge, BACK_OFF cells short of what stops it

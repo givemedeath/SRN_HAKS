@@ -56,6 +56,29 @@ class TrackTest(unittest.TestCase):
             area += abs(d) / 2
         self.assertLessEqual((covered > 1).sum() * cell ** 2, 0.002 * area)
 
+    def test_a_crane_runway_is_a_pair_of_rails_on_a_beam_low_enough_to_walk_across(self):
+        """User, 2026-11-13: "i think we need to add the crane tracks, we'll need those as a prop anyway"."""
+        vertices, normals, uvs, faces = track.crane_mesh()
+        np.testing.assert_allclose(vertices.min(0), [-track.LENGTH / 2, -track.CRANE_BEAM / 2, 0.0], atol=1e-9)
+        np.testing.assert_allclose(vertices.max(0), [track.LENGTH / 2, track.CRANE_BEAM / 2, track.CRANE_HEIGHT], atol=1e-9)
+        self.assertLess(track.CRANE_HEIGHT, tile.KNEE)
+        heads = np.unique(vertices[np.isclose(vertices[:, 2], track.CRANE_HEIGHT), 1].round(6))
+        np.testing.assert_allclose(heads, sorted(middle + edge * track.CRANE_HEAD / 2 for middle in track.crane_rails() for edge in (-1, 1)))
+        self.assertAlmostEqual(track.crane_rails()[1] - track.crane_rails()[0], track.CRANE_GAUGE)
+        self.assertAlmostEqual(track.CRANE_HEIGHT, 0.23)  # the height of the rails the depot's crane came back standing on
+        np.testing.assert_allclose(np.diff(track.crane_clips()), track.CRANE_CLIP)
+        self.assertAlmostEqual(track.crane_clips()[0] + track.LENGTH / 2, track.CRANE_CLIP / 2)  # so pieces laid end to end keep the pitch
+        corner = vertices[faces]; turn = np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0])
+        self.assertTrue((np.einsum('ij,ij->i', turn, normals[faces[:, 0]]) > 0).all())
+        self.assertTrue((normals[:, 2] > -1e-9).all()); self.assertTrue((uvs >= 0).all() and (uvs <= 1).all())
+        with tempfile.TemporaryDirectory() as scratch:
+            folder = Path(scratch) / 'crane'; record = track.build(folder, 0, 'crane')
+            self.assertEqual((record['piece'], record['height'], record['width']), ('crane', track.CRANE_HEIGHT, track.CRANE_BEAM))
+            made = convert.shape(folder / 'model.glb', {kind: folder / f'texture_0_{kind}.png' for kind in local.MAPS}, height=track.CRANE_HEIGHT)
+            self.assertAlmostEqual(made['scale'], 1.0, places=6); self.assertEqual((made['facesTurned'], made['repaired'], made['turned']), (0, 0, 0))
+            colour = np.asarray(Image.open(folder / 'texture_0_base_color.png'), float); top, bottom = track.BANDS['concrete']; part = colour[top:bottom]
+            self.assertLess(np.abs(part[:, 0] - part[:, -1]).mean(), 1.5 * np.abs(np.diff(part, axis=1)).mean() + 1)  # the beam's top seamless too
+
     def test_its_maps_are_seamless_along_the_track_and_it_converts_as_it_was_built(self):
         with tempfile.TemporaryDirectory() as scratch:
             folder = Path(scratch) / 'piece'; record = track.build(folder, 3)

@@ -531,6 +531,7 @@ class TileTests(unittest.TestCase):
                          ((12, 8), tile.WALK_COLOURS['roomy'], tile.WALK_COLOURS['building'], tile.WALK_COLOURS['closed'], tile.WALK_COLOURS['narrow']))  # north up
         with tempfile.TemporaryDirectory() as scratch:
             picture.save(Path(scratch) / 'walk.png'); self.assertTrue((tile.read_walk(Path(scratch) / 'walk.png') == roomy).all())
+            self.assertTrue((tile.read_blocked(Path(scratch) / 'walk.png') == (material != tile.STONE)).all())  # what stands in the way and its closed edge
             Image.new('RGB', (12, 8), (1, 2, 3)).save(Path(scratch) / 'other.png')
             with self.assertRaisesRegex(ValueError, 'not a walk picture'):
                 tile.read_walk(Path(scratch) / 'other.png')

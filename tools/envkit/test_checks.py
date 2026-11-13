@@ -121,6 +121,14 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([(one['stage'], one['at'], one['short']) for one in found], [(6, [46.1, 56.8], 0.25), (6, [50.0, 34.0], 5.0)])
         with self.assertRaisesRegex(ValueError, 'never placed walker pocket'):
             checks.walks(lines, walkers[:3])
+        # The depot's walker from the next tile stopped against the bay yard's fence, half a metre from a target just inside
+        # it (2026-11-13): near enough by distance, but across the fence, so not arrived. A group one tile square at (30, 30).
+        blocked = np.zeros((40, 40), bool); blocked[17, 8:] = True  # a fence a quarter metre thick, 4.25 m up, from 2 m east on
+        self.assertTrue(checks.walled(blocked, (35.125, 34.125), (35.125, 34.625), (30.0, 30.0)))
+        self.assertFalse(checks.walled(blocked, (35.125, 34.125), (35.125, 34.625), (40.0, 30.0)))  # the same line, the fence a tile away
+        self.assertFalse(checks.walled(blocked, (35.125, 35.0), (35.125, 35.625), (30.0, 30.0)))  # both inside the yard
+        self.assertFalse(checks.walled(blocked, (31.0, 34.125), (31.0, 34.625), (30.0, 30.0)))  # west of the fence's end
+        self.assertFalse(checks.walled(blocked, (35.125, 34.625), (35.125, 34.625), (30.0, 30.0)))  # on its target
 
     def test_a_groups_lights_are_put_out_for_everyone_and_on_again(self):
         shots = checks.blackout_shots(3, 3, [('ek_sk_yard', False), ('ek_sk_yardp1', True)])

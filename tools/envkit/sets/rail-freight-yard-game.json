@@ -1,11 +1,11 @@
 {
   "models": {
     "ek_rf_depot": {"source": "meshy/models/rfd-building-front-a1-remesh", "height": 7.2, "measuredAt": 7.2, "colour": 4096,
-      "tiles": {"ground": "pavement", "group": "RF_Depot", "label": "Rail Freight Depot 8x8", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.5,
+      "tiles": {"ground": "pavement", "group": "RF_Depot", "label": "Rail Freight Depot 8x8", "nodes": {"t04": {"node": "W", "turn": 0}}, "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.5,
         "door": {"at": [-4.84, 9.19, 0.186], "facing": 90.0, "type": 58, "leaf": 2.2},
         "parts": [
           {"model": "ek_rd_platform", "at": [-22.31, 12.5, 0.0], "turn": 180},
-          {"model": "ek_rd_crane", "at": [0.0, 30.72, 0.0], "turn": 90},
+          {"model": "ek_rd_crane", "at": [0.0, 31.72, 0.0], "turn": 90},
           {"model": "ek_rf_towerx", "at": [-16.0, 51.0, 0.0], "turn": 180},
           {"model": "ek_rd_rearx", "at": [19.3, 47.3, 0.0]},
           {"model": "ek_rf_adminx", "at": [-17.0, -1.0, 0.0]},
@@ -15,7 +15,15 @@
           {"model": "ek_rf_track", "at": [6.23772, 17.20549, 0.0]},
           {"model": "ek_rf_track", "at": [-3.76228, 27.20549, 0.0]},
           {"model": "ek_rf_track", "at": [6.23772, 27.20549, 0.0]},
-          {"model": "ek_rf_merge", "at": [26.23772, 22.20549, 0.0], "turn": 180}
+          {"model": "ek_rf_merge", "at": [26.23772, 22.20549, 0.0], "turn": 180},
+          {"model": "ek_rf_runway", "at": [-12.76228, 23.775, 0.0]},
+          {"model": "ek_rf_runway", "at": [-2.76228, 23.775, 0.0]},
+          {"model": "ek_rf_runway", "at": [7.23772, 23.775, 0.0]},
+          {"model": "ek_rf_runway", "at": [17.23772, 23.775, 0.0]},
+          {"model": "ek_rf_runway", "at": [-12.76228, 39.33, 0.0]},
+          {"model": "ek_rf_runway", "at": [-2.76228, 39.33, 0.0]},
+          {"model": "ek_rf_runway", "at": [7.23772, 39.33, 0.0]},
+          {"model": "ek_rf_runway", "at": [17.23772, 39.33, 0.0]}
         ]}},
     "ek_rf_tower": {"source": "meshy/models/rf-building-tower-a1-remesh", "height": 11.8, "measuredAt": 11.8, "colour": 4096,
       "tiles": {"ground": "pavement", "group": "RF_Tower", "label": "Rail Freight Control Tower 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 6.0,
@@ -35,9 +43,13 @@
     "ek_rf_bayx": {"source": "meshy/models/rf-building-bay-a1-remesh", "height": 7.5, "colour": 4096},
     "ek_rd_rearx": {"source": "meshy/models/rfd-building-rear-a1-remesh", "height": 7.2, "colour": 4096},
     "ek_rd_platform": {"source": "meshy/models/rfd-loading-platform-a1", "height": 5.0, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Loading Platform", "sound": 26, "category": 161}},
-    "ek_rd_crane": {"source": "meshy/models/rfd-gantry-crane-a1", "height": 12.0, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 161}},
+    "ek_rd_crane": {"source": "meshy/models/rfd-gantry-crane-a1", "height": 12.0, "measuredAt": 12.0, "colour": 2048, "clear": [
+      {"part": "west leg's stub rails, carried on by the crane runway", "box": [[-8.9, -6.4, -0.05], [-7.0, 6.4, 0.24]]},
+      {"part": "east leg's stub rails, carried on by the crane runway", "box": [[6.6, -6.4, -0.05], [8.6, 6.4, 0.24]]}
+    ], "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 161}},
     "ek_rf_track": {"source": "track/straight-s0", "height": 0.312, "colour": 2048, "underfoot": true},
     "ek_rf_merge": {"source": "track/merge-s0", "height": 0.312, "colour": 2048, "underfoot": true},
+    "ek_rf_runway": {"source": "track/crane-s1", "height": 0.23, "colour": 2048, "underfoot": true, "placeable": {"label": "Rail Freight Yard, Crane Rail", "sound": 28, "category": 161}},
     "ek_rf_switcher": {"source": "meshy/models/rf-switcher-a1", "height": 4.6, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Switcher Locomotive", "sound": 28, "category": 161}},
     "ek_rf_boxcar": {"source": "meshy/models/rf-boxcar-a2", "height": 4.6, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Boxcar", "sound": 28, "category": 161}},
     "ek_rf_tankcar": {"source": "meshy/models/rf-tank-car-a1", "height": 4.4, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Tank Car", "sound": 28, "category": 161}},
