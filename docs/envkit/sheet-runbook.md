@@ -191,9 +191,11 @@ player is; `stages` in what it prints is each place the player came to. Run it o
 
 ## A new sheet, and a review of the sets
 
-All 55 FRFZ sheets have a set file. A sheet that comes later is brought in with `onboard`, and the same
-commands review the sets against each other when props are to be reused. `<sheets>` is the folder holding the
-concept sheets, each named `NN_<what>.png`.
+All 56 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
+(`56_denver_rail_freight_yard.png`, 2026-11-12) was brought in later with `onboard`, as a sheet that comes later
+is. The same commands review the sets against each other when props are to be reused. `<sheets>` is the folder
+holding the concept sheets, each named `NN_<what>.png`. `boxes` finds drawings on a white sheet; ask for one on
+white if a sheet comes dark (the rail yard's first version was, and half its drawings went unfound).
 
 ```
 envkit onboard boxes   --sheet <sheets>/NN_<what>.png --output <scratch>/boxes.png [--split <row>]
