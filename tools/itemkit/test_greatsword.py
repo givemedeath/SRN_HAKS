@@ -5,7 +5,7 @@ from PIL import Image
 from tools.headkit.common import read,write,pin
 from .test_itemkit import Fixture
 from . import contracts,native
-from .grip import one_hand_round,two_hand_uniform
+from .grip import one_hand_round,transverse_uniform,two_hand_uniform
 from .firearm_native import placeholder_geometry
 
 
@@ -84,3 +84,18 @@ class GreatswordTests(Fixture):
         with self.assertRaisesRegex(ValueError,'uniform fit'):one_hand_round(p,f,squashed,[0,0,0],standard,review)
         oval=p*[1,1,.6]
         with self.assertRaisesRegex(ValueError,'not round'):one_hand_round(oval,f,m,[0,0,0],standard,review)
+
+    def test_a_shaft_is_thinned_to_the_grip_depth_without_flattening(self):
+        # The stun staff: a thick 1.2:1 shaft. One transverse scale meets the approved depth and keeps the ratio.
+        standard=read(Path(__file__).resolve().parents[2]/'docs/items/weapon-grip-standard-v1.json');a=np.arange(32)*2*np.pi/32
+        ring=np.c_[np.cos(a)*.0375,np.zeros(32),np.sin(a)*.045];p=np.concatenate([ring+[0,-.2,0],ring+[0,.2,0]])
+        f=np.array([(i,(i+1)%32,(i+1)%32+32) for i in range(32)]+[(i,(i+1)%32+32,i+32) for i in range(32)]);m=np.eye(4)
+        depth=standard['targetMidpointSection']['depth']
+        with self.assertRaises(GripDeparture) as caught:transverse_uniform(p,f,m,[0,0,0],standard)
+        r=caught.exception.report;mid=r['measuredFittedSections'][2]
+        self.assertAlmostEqual(mid['depth'],depth,delta=.0005);self.assertAlmostEqual(mid['visibleFaceWidth']/mid['depth'],1.2,delta=.02)
+        review={'decision':'approved','measurementDigest':r['measurementDigest'],'notes':'User asked for even thinning'}
+        actual,bound=transverse_uniform(p,f,m,[0,0,0],standard,review);self.assertEqual(bound['departureReview'],review)
+        self.assertAlmostEqual(actual[0,0],actual[2,2]);self.assertEqual(actual[1,1],1)
+        squashed=m.copy();squashed[0,0]=.5
+        with self.assertRaisesRegex(ValueError,'uniform fit'):transverse_uniform(p,f,squashed,[0,0,0],standard,review)

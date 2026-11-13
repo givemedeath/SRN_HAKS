@@ -213,7 +213,7 @@ def grip_fit(cfg, matrix, working):
     """The measured grip correction of the fit stage: (final matrix, grip report or None). Raises GripDeparture."""
     grip_report = None
     if cfg.get('gripStandard'):
-        from tools.itemkit.grip import calibration, one_hand_round, two_hand_uniform
+        from tools.itemkit.grip import calibration, one_hand_round, transverse_uniform, two_hand_uniform
         standard=read(cfg['gripStandard'])
         thickness_fit = (cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
                          and cfg['fit'].get('sizingAuthority')=='midpoint-depth')
@@ -236,6 +236,8 @@ def grip_fit(cfg, matrix, working):
                                                 standard,cfg['fit'].get('gripDeparture'))
         elif cfg['fit'].get('sizingAuthority')=='usable-length-round':
             matrix,grip_report=one_hand_round(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
+        elif cfg['fit'].get('sizingAuthority')=='midpoint-depth-uniform':
+            matrix,grip_report=transverse_uniform(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
         else:
             matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
     return matrix, grip_report

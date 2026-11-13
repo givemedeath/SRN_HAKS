@@ -526,6 +526,14 @@ client, then refit with `"turnAboutAxis": true` in the overrides. This turns the
 axis (native Y), so the edge and back swap sides. The landmarks, scale and grip measurements stay the same, but
 earlier bake patches name faces by their corners and must be measured again.
 
+A staff is one long shaft, not a hilt. The per-axis hilt calibration sizes a hilt's depth and face width separately
+to the Cougar section (30 x 50 mm). On the 1.90 m stun staff, whose shaft is 1.2:1, it scaled one cross axis by 0.40
+and the other by 0.56, so the staff looked flattened from the side (user, 2026-11-12). The `staff` route therefore has
+`section='uniform'` (`midpoint-depth-uniform`, `grip.transverse_uniform`): a single cross-section scale brings the
+grip's midpoint depth to the standard, and the shaft keeps its own proportions. The face width then departs from the
+standard by construction, so it needs a review bound to the measurement digest, like the round one-hand rule. Fitting
+refuses the per-axis calibration on any route that isn't grip-bound if it would flatten the section by more than 10%.
+
 `drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
 carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer
 (in a per-carrier `stack-<class>.json`, so the wave's `stack.json` and earlier contracts keep their pinned bytes),

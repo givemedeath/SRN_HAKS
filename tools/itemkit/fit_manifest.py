@@ -9,6 +9,9 @@ similarity to the native hand, the two part joins and the thin-section probes; i
 - hafted families (club, axes, polearms): butt | grip | haft | head. The design is scaled uniformly to the stock
   carrier's length (or a chosen one) and the hand sits at the same fraction of the length as on the stock carrier.
   One-hand hafts keep a round handle (usable-length-round); two-hand hafts use the two-hand uniform route.
+- a route with `section='uniform'` (the staff) keeps its shaft's own section: one transverse scale meets the approved
+  grip depth (midpoint-depth-uniform). The per-axis hilt calibration is refused on any route that is not grip-bound
+  when it would flatten the section by more than 10%.
 
 `measure()` has no side effects (a measure-only pass, and the numbers a fit preview shows); `write()` copies the
 inputs into the handoff and writes the manifest. A grip that departs from the approved section needs a review bound
@@ -114,7 +117,7 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     `working` is the closed working shell (glTF positions and faces). Returns a dict with the landmarks, the
     similarity `matrix`, `gripEndpoints`, `joinY`, `thicknessProbes`, the grip report and the native length.
     """
-    from .grip import GripDeparture, calibration, one_hand_round, two_hand_uniform
+    from .grip import GripDeparture, calibration, one_hand_round, transverse_uniform, two_hand_uniform
     overrides = dict(overrides or {}); standard = standard or json.loads(STANDARD.read_text(encoding='utf-8'))
     name = family['family']; route = ROUTES[name]; native = family['native']
     origin = np.array(native['gripOrigin'], float); grip_length = float(native['gripLength'])
@@ -174,8 +177,14 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
             authority = 'midpoint-depth-two-hand'; F, report = two_hand_uniform(b, faces, M, [A, B], origin, standard, review())
         elif hafted or overrides.get('uniform'):
             authority = 'usable-length-round'; F, report = one_hand_round(b, faces, M, origin, standard, review())
+        elif route.section == 'uniform':
+            authority = 'midpoint-depth-uniform'; F, report = transverse_uniform(b, faces, M, origin, standard, review())
         else:
             F, report = calibration(b, faces, M, origin, standard)
+            sx, _, sz = report['transverseScale']; flatten = max(sx, sz) / min(sx, sz) - 1
+            require(route.grip_bound or flatten <= .1,
+                    f'The per-axis hilt calibration would flatten this {name} by {flatten * 100:.0f}% '
+                    f'(scales {sx:.3f} and {sz:.3f}); give the route section="uniform" or a reviewed grip rule')
     except GripDeparture as exc:
         report = exc.report; F = np.array(report.get('fitMatrix', M.tolist())); raised = True
     pending = raised          # a departure the fit worker will refuse until a review binds its own measurement digest
