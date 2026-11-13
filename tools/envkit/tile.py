@@ -374,13 +374,12 @@ def _turned(parts, quarter):
     return [''.join('NWSE'[('NWSE'.index(side) + quarter) % 4] for side in part) for part in parts]
 
 
-def _sees(walk, one, other, aside=None):
-    """Whether a character can walk between two cells of a tile over walk cells without going more than `aside` cells
-    (ASIDE) off the straight line between them."""
-    aside = ASIDE if aside is None else aside
+def _sees(walk, one, other):
+    """Whether a character can walk between two cells of a tile over walk cells without going more than ASIDE cells off
+    the straight line between them."""
     rows, columns = np.indices(walk.shape); (y0, x0), (y1, x1) = one, other; dy, dx = y1 - y0, x1 - x0
     along = np.clip(((rows - y0) * dy + (columns - x0) * dx) / max(dy * dy + dx * dx, 1), 0, 1)
-    near = np.hypot(rows - y0 - along * dy, columns - x0 - along * dx) <= aside
+    near = np.hypot(rows - y0 - along * dy, columns - x0 - along * dx) <= ASIDE
     labels, _ = _masses(walk & near)
     return bool(labels[one] and labels[one] == labels[other])
 
@@ -460,7 +459,7 @@ def path_nodes(found, rows, columns, stated=None):
         tile = tiles[(row, column)]
         turned = _turned(PATH_NODES[letter], turn // 90); exits = ''.join(turned)
         require(all(side in tile['region'] for side in exits), f'A stated path node leaves t{row}{column} only by sides open there: {letter} {turn} leaves by {exits}')
-        reached = int((tile['walk'] & np.isin(tile['masses'], [tile['region'][side] for side in exits])).sum())
+        reached = sum(tile['size'].get(mass, 0) for mass in {tile['region'][side] for side in exits})
         tile['options'] = [((len(exits), 0, reached), letter, turn, exits, turned)]
     chosen = dict.fromkeys(tiles, 0)
     beyond = {'N': (1, 0, 'S'), 'S': (-1, 0, 'N'), 'W': (0, -1, 'E'), 'E': (0, 1, 'W')}

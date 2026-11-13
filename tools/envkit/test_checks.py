@@ -149,10 +149,14 @@ class CheckTests(unittest.TestCase):
         self.assertEqual((group.call_args.args[-1], group.call_args.kwargs['targets']), ('walk', {'bay': (22.0, 23.5), 'apron': (23.0, 11.0)}))
         # A target must lie on ground with room to stand on in walk.png: one in a wall or off the group is a typo, not a lost way.
         roomy = np.zeros((40, 40), bool); roomy[:, :20] = True
-        checks.own_targets(roomy, {'yard': (4.9, 9.9)})
+        checks.own_targets(roomy, {'yard': (4.9, 9.9)}, {})
         for wrong in ({'wall': (5.1, 2.0)}, {'off': (-0.1, 2.0)}, {'beyond': (2.0, 10.0)}):
             with self.assertRaisesRegex(ValueError, 'not on ground with room to stand on in walk.png'):
-                checks.own_targets(roomy, wrong)
+                checks.own_targets(roomy, wrong, {})
+        # Nor may it take a label the check gives: `pocket` brings a second walker of its own even where walk.png finds none.
+        for label, chosen in (('north', {'north': (1.0, 1.0)}), ('door', {}), ('pocket', {}), ('pocket-near', {})):
+            with self.assertRaisesRegex(ValueError, 'takes a label of its own: ' + label):
+                checks.own_targets(roomy, {label: (4.9, 9.9)}, chosen)
         with self.assertRaisesRegex(ValueError, 'A --target is a place a group walk check sends a walker'):  # not dropped from another check
             command.command_check(Namespace(kind='props', mode='day', target=['bay=1,2'], **asked))
         for wrong in (['bay=22'], ['Bay=1,2'], ['bay=1,2', 'bay=3,4'], ['bay=x,2'], ['bay=inf,2'], ['bay=1,nan']):

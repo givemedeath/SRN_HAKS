@@ -214,10 +214,13 @@ def blackout_shots(columns, rows, lit, *, column0=3, row0=3):
     return [{**south, 'label': 'out', 'run': script(False)}, {**north, 'label': 'out-behind'}, {**north, 'label': 'lit-again', 'run': script(True)}]
 
 
-def own_targets(roomy, targets):
+def own_targets(roomy, targets, chosen):
     """Refuse a target of a walk check's own (`group`'s targets) that is not on ground with room to stand on in the
     group's walk picture (`tile.read_walk`): a walker sent into a wall or off the group would fail as if the game could
-    not find its way."""
+    not find its way. Nor may one take a label of the walk picture's (`chosen`, `tile.walk_targets`), the door's, or
+    `pocket`'s, which brings a second walker of its own (`walk_plan`) even where the picture finds no pocket."""
+    clash = sorted(set(targets) & {*chosen, 'door', 'pocket', 'pocket-near'})
+    require(not clash, 'A target of your own takes a label of its own: ' + ', '.join(clash))
     step = tile.SIZE / tile.CELLS
     for label, (x, y) in targets.items():
         row, column = math.floor(y / step), math.floor(x / step)
@@ -359,9 +362,8 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     from_pack(repo / 'srn_placeable', scale_prop, resources)  # something of a known size in the corner of the area
     door, night = laid_door(made), mode == 'night'; facing = float((models[model]['tiles'].get('door') or {}).get('facing', 90.0)); people, walkers = [], []
     if mode == 'walk':
-        roomy = tile.read_walk(walk_picture); chosen = tile.walk_targets(roomy); clash = sorted(set(targets or {}) & {*chosen, 'door', 'pocket-near'})
-        require(not clash, 'A target of your own takes a label of its own: ' + ', '.join(clash))
-        own_targets(roomy, targets or {}); chosen.update(targets or {})
+        roomy = tile.read_walk(walk_picture); chosen = tile.walk_targets(roomy)
+        own_targets(roomy, targets or {}, chosen); chosen.update(targets or {})
         walkers = walk_plan(made['columns'], made['rows'], door, facing, chosen, column0=column0, row0=row0, size=size)
         shots = walk_shots(made['columns'], made['rows'], walkers, name, column0=column0, row0=row0, size=size); people = [{'position': one['start'], 'facing': 0.0} for one in walkers]
     else:
