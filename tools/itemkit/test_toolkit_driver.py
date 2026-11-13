@@ -164,6 +164,34 @@ class StaffSectionTests(unittest.TestCase):
             self.assertAlmostEqual(probe['maximumSampleError'], max(.0025, PROBE_SAMPLE_FRACTION * probe['measuredThickness']))
 
 
+class BladeFaceFrameTests(unittest.TestCase):
+    """A handle thicker than it is tall must not turn the blade a quarter round (the wave-3 Vibro Knife, 2026-11-13)."""
+    def knife(self, handle_depth):
+        blade, _ = lathe([(y, .05) for y in np.linspace(0, .6, 240)], sides=48, depth=.1)          # broad along Blender Z
+        handle, _ = lathe([(y, .06) for y in np.linspace(-.4, -.002, 160)], sides=48, depth=handle_depth)
+        return np.concatenate([blade, handle])
+
+    def frame(self, points):
+        from tools.itemkit import fit_manifest as fm
+        _, U, q = fm._frame(points)
+        overrides = {'bladeAtLowEnd': bool(U[1, 0] < 0), 'pommelEnd': .02, 'gripStart': .02, 'gripEnd': .38, 'bladeStart': .41}
+        _, q, U, _ = fm.bladed_landmarks(q, U, overrides)               # the blade (Blender +Y) at the high end
+        return q, U
+
+    def test_the_width_axis_follows_the_blade_face(self):
+        for handle_depth in (.6, 2.2):                                  # a slim handle, and one far thicker than tall
+            q, U = self.frame(self.knife(handle_depth))
+            blade = q[q[:, 0] > np.percentile(q[:, 0], 70)]
+            self.assertGreater(np.ptp(blade[:, 1]), 4 * np.ptp(blade[:, 2]), handle_depth)
+            self.assertAlmostEqual(abs(U[2, 1]), 1, places=3); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
+
+    def test_a_round_blade_keeps_the_principal_frame(self):
+        from tools.itemkit import fit_manifest as fm
+        bat, _ = lathe([(y, .03) for y in np.linspace(-.4, .6, 400)], sides=48)
+        _, U0, q0 = fm._frame(bat); _, U1 = fm._oriented(q0, U0, False); _, U = self.frame(bat)
+        self.assertTrue(np.allclose(U, U1))
+
+
 class TwoHandDepthTests(unittest.TestCase):
     def test_an_unapproved_depth_departure_keeps_its_measurement(self):
         from tools.itemkit.fit_manifest import STANDARD

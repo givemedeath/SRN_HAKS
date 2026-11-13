@@ -93,7 +93,24 @@ def bladed_landmarks(q, U, overrides):
     bulge = np.flatnonzero(width[:len(handle) // 2] > 1.1 * gw)                # pommel: the last clearly wider butt slice
     p1 = max(int(bulge[-1]) + 1 if len(bulge) else 0, int(round(.04 * len(handle))))
     marks = {'pommelEnd': p1 / N, 'gripStart': p1 / N, 'gripEnd': float(g0 / N), 'bladeStart': float((g1 + 1) / N)}
+    q, U = _blade_broad_face(q, U, extent, float(overrides.get('bladeStart', marks['bladeStart'])))
     return method, q, U, marks
+
+
+BROAD_FACE_RATIO = .8
+
+
+def _blade_broad_face(q, U, extent, blade_start):
+    """Turn the frame a quarter about the long axis when the blade's broad face lies on the depth axis.
+
+    The principal frame's width axis is the shape's larger transverse spread. A handle much thicker than it is tall
+    outweighs a long flat blade (the wave-3 Vibro Knife, 2026-11-13): the blade then came out a quarter-turn round in
+    the hand and the grip standard's width went across the handle's thickness. A round or square blade (a bat, a
+    baton, a staff) is left alone."""
+    N = st.SLICES; blade = np.arange(int(blade_start * N), N); blade = blade[~np.isnan(extent[blade, 0])]
+    if len(blade) < 5 or np.median(extent[blade, 0]) >= BROAD_FACE_RATIO * np.median(extent[blade, 1]): return q, U
+    q = np.column_stack([q[:, 0], q[:, 2], -q[:, 1]]); U = np.column_stack([U[:, 0], U[:, 2], -U[:, 1]])
+    return _oriented(q, U, False)
 
 
 def hafted_landmarks(q, U, overrides):
