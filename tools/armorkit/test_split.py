@@ -217,6 +217,15 @@ class CapTests(unittest.TestCase):
         self.assertTrue(np.allclose(ring, np.minimum(self.DEPTH, reach)))  # each rim point's own depth
         self.assertTrue(np.allclose(-rings[-1][:, 2], reach.min()))  # the pole: the least of them
 
+    def test_a_cap_not_bounded_runs_the_whole_depth_from_every_rim_point(self):
+        self.v = self.v * (0.4, 1.0, 1.0)  # an oval rim: narrower on two sides than the depth
+        points = split.cap(self.v, self.t, self.under, len(self.v), self.point, self.normal, self.DEPTH, 1.0, bounded=False)[0]
+        rim = np.unique(self.under)
+        rim = rim[np.abs(self.v[rim, 2] - 0.4) < 1e-9]
+        rings = points.reshape(split.CAP_STEPS, len(rim), 3) - self.point
+        ring = -rings[-2][:, 2] / np.sin(np.radians(split.CAP_TOP * (split.CAP_STEPS - 1) / split.CAP_STEPS))
+        self.assertTrue(np.allclose(ring, self.DEPTH) and np.allclose(-rings[-1][:, 2], self.DEPTH))
+
     def test_a_cap_grows_only_from_under_side_faces_within_the_planes_reach(self):
         self.assertEqual(len(self.cap(faces=self.over)[2]), 0)
         self.assertEqual(len(self.cap(limit=0.01)[2]), 0)
@@ -283,6 +292,38 @@ class SplitTests(unittest.TestCase):
         for bad in ({('ankle', 'l'): 0.0}, {('ankle', 'x'): 0.1}):
             with self.assertRaises(ValueError):
                 split.split(v, f, t, JOINTS, RADII, reaches=bad)
+
+    def test_a_shape_hook_moves_each_part_before_its_cap_grows_and_deep_joints_cap_the_whole_overlap(self):
+        overlaps = {('elbow', side): 0.09 for side in 'lr'}  # deeper than the forearm is wide (5 cm)
+        calls, made = [], {}
+
+        def shape(name, vertices, faces, uvs, origin):
+            calls.append((name, len(origin), len(faces)))
+            if name != 'forel':
+                return vertices, uvs
+            moved = np.array(vertices, float)
+            used = np.unique(faces)
+            moved[used, 1] += 0.01  # the forearm a centimetre forward
+            return moved, uvs
+
+        point, normal = split.planes({k: np.array(p, float) for k, p in JOINTS.items()})[('elbow', 'l')]
+        depth = lambda parts, name: -((parts[name][0] - point) @ normal).min()
+        plain = split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps)
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps, made=made, shape=shape, deep=('elbow',))
+        self.assertEqual(sorted(call[0] for call in calls), sorted(parts))
+        self.assertTrue(all(own <= count for _, own, count in calls))  # the part's own faces first, then what closes it
+        self.assertLess(depth(plain, 'forel'), 0.05 + 1e-6)  # bounded: no deeper than the rim is wide
+        self.assertAlmostEqual(depth(parts, 'forel'), 0.09, places=6)
+        def rim(found, kinds):  # the y of the cap's rim on the plane, and of the rest of it
+            cap = found['forel'][0][np.unique(found['forel'][1][kinds == split.CAP])]
+            on = np.abs((cap - point) @ normal) < 1e-9
+            return cap[on, 1].mean(), cap[~on, 1].mean()
+        first = {}
+        split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps, made=first, deep=('elbow',))
+        before, after = rim(split.split(self.v, self.f, self.t, JOINTS, RADII, overlaps, deep=('elbow',)), first['forel']), rim(parts, made['forel'])
+        self.assertAlmostEqual(after[0] - before[0], 0.01, places=6)  # grown from the moved rim
+        self.assertTrue(0.0 < after[1] - before[1] < 0.01)  # and drawn in to the joint's axis, which did not move
+        self.assertTrue(np.allclose(parts['forer'][0][:, 1].mean(), plain['forer'][0][:, 1].mean()))
 
     def test_a_joint_left_whole_keeps_its_surface_on_the_part_beside_it(self):
         made = {}
@@ -761,32 +802,38 @@ class SleeveTests(unittest.TestCase):
             self.assertTrue(found['on'][3].any() and np.array_equal(found['on'][3], held[0] & held[1]))
             # it stays one edge through the bend: only on the trough has the torso vertices of its own
             self.assertFalse((found['torso'] & ~found['on'][:3].any(axis=0)).any())
-            made = {}
-            parts = split.split(v, f, t, JOINTS, RADII, made=made, sleeves=sleeves)
+            made, origins = {}, {}
+            parts = split.split(v, f, t, JOINTS, RADII, made=made, origins=origins, sleeves=sleeves)
             self.assertEqual(set(parts) - set(plain), {'shol'})
             padded = {name: tuple(round(area(points, part[made[name] == kind]), 6) for kind in (split.OWN, split.CLOSING))
                       for name, (points, part, _) in parts.items()}
-            # the pad goes whole to the shoulder part, from both sides of the shoulder plane, and nothing else does
-            self.assertAlmostEqual(padded['shol'][0], area(self.v, self.f[materials == 1]), places=6)
-            self.assertLess(padded['chest'][0], plain['chest'][0])
+            # the pad past the shoulder plane goes to the shoulder part, which rides on the arm; what of it lies
+            # before the plane, over the top of the shoulder, stays on the chest, and nothing else moves
+            point, normal = self.planes[('shoulder', 'l')]
+            pad, faces, _ = parts['shol']
+            own = pad[np.unique(faces[made['shol'] == split.OWN])]
+            self.assertGreater(((own - point) @ seams.unit(normal)).min(), -1e-9)
+            past = split.cut(self.v, self.f[materials == 1], self.t, point, normal)
+            centres = past[0][past[1]].mean(axis=1)
+            beyond = past[1][(centres - point) @ seams.unit(normal) > 0]
+            self.assertAlmostEqual(padded['shol'][0], area(past[0], beyond), places=6)
+            self.assertLess(padded['shol'][0], area(self.v, self.f[materials == 1]) - 1e-4)
             self.assertLess(padded['bicepl'][0], plain['bicepl'][0])
             self.assertAlmostEqual(padded['chest'][0] + padded['bicepl'][0] + padded['shol'][0], plain['chest'][0] + plain['bicepl'][0], places=5)
             self.assertEqual({name: found for name, found in padded.items() if name not in ('chest', 'bicepl', 'shol')},
                              {name: found for name, found in plain.items() if name not in ('chest', 'bicepl')})
-            # it is closed underneath, across its own outline; the chest and the upper arm are closed where it lay
-            pad, faces, _ = parts['shol']
+            # it is closed underneath, across its own outline and the plane; the chest and the upper arm are closed where it lay
             self.assertEqual(len(open_edges(faces, pad)), 0)
             self.assertGreater(padded['chest'][1], plain['chest'][1])
             self.assertGreater(padded['bicepl'][1], plain['bicepl'][1])
-            # the chest's closing there is the shoulder under the pad: rounded out from the shoulder plane, toward
-            # the arm, and nowhere farther from the joint than the pad's outline on that plane
+            # the chest keeps the pad before the plane, over the top of the shoulder, and is closed only on the plane
             chest, faces, _ = parts['chest']
-            point, normal = self.planes[('shoulder', 'l')]
+            kept = (made['chest'] == split.OWN) & (origins['chest'] >= 0)
+            kept[kept] = found['pad'][origins['chest'][kept]]
+            before = past[1][(centres - point) @ seams.unit(normal) <= 0]
+            self.assertAlmostEqual(area(chest, faces[kept]), area(past[0], before), places=6)
             closing = chest[np.unique(faces[made['chest'] == split.CLOSING])]
-            above = closing[(closing - point) @ seams.unit(normal) < -1e-6]
-            edge = v[found['on'][3]]
-            self.assertTrue(len(above))
-            self.assertLess(np.linalg.norm(above - self.arm[0], axis=1).max(), np.linalg.norm(edge - self.arm[0], axis=1).max() + 1e-6)
+            self.assertFalse(((closing - point) @ seams.unit(normal) < -1e-6).any())
             # and nothing is left open on the shoulder plane, where the lifted arm no longer fills the chest's opening
             unit = seams.unit(normal)
             on = np.abs((chest - point) @ unit) < 1e-6
@@ -1029,6 +1076,231 @@ class CrotchTests(unittest.TestCase):
         self.assertLess(((capped[0] - point) @ seams.unit(normal)).min(), -0.02)  # past the plane, under the pelvis
         loose = open_edges(capped[1], capped[0])
         self.assertFalse(self.on(capped[0][loose], ('hip', 'l')).all(axis=1).any())  # the whole rim is taken up
+
+
+class SeatTests(unittest.TestCase):
+    """The seat cut (`seat`): the body's pelvis reaches 9 cm past each hip plane, below the trousers' crotch."""
+    REACHES = CrotchTests.REACHES
+    REACH, RING, DEPTH = 0.09, 0.06, 0.05
+
+    def setUp(self):
+        self.v, self.f, self.t = trousers()
+        self.planes = split.planes(JOINTS)
+        self.overlaps = {('hip', side): self.DEPTH for side in 'lr'}
+        self.seat = {('hip', side): {'reach': np.full(64, self.REACH), 'ring': np.full(16, self.RING)} for side in 'lr'}
+        self.made = {}
+        self.parts = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, reaches=self.REACHES, made=self.made, seat=self.seat)
+
+    def past(self, points, side):
+        point, normal = self.planes[('hip', side)]
+        return (points - point) @ seams.unit(normal)
+
+    def test_what_the_bodys_pelvis_covers_goes_to_the_pelvis(self):
+        own = lambda parts, made, name: (parts[name][0], parts[name][1][made[name] == split.OWN])
+        cut = {}
+        plain = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, reaches=self.REACHES, made=cut)
+        for side in 'lr':  # a thigh keeps the trousers past the line only
+            points, faces = own(self.parts, self.made, 'leg' + side)
+            self.assertGreater(self.past(points[faces], side).min(), self.REACH - 1e-6, side)
+        points, faces = own(self.parts, self.made, 'pelvis')
+        corners = points[faces]
+        seat = (self.past(corners, 'l').max(axis=1) > 0.01) & (corners[:, :, 0].max(axis=1) < 0)
+        self.assertTrue(seat.any())  # the seat and crotch past the left hip plane are the pelvis's
+        self.assertLess(self.past(corners[seat], 'l').max(), self.REACH + 1e-6)
+        # nothing of the trousers is lost or doubled: what the thighs gave up the pelvis took
+        total = lambda parts, made: sum(area(*own(parts, made, name)) for name in ('pelvis', 'legl', 'legr'))
+        self.assertAlmostEqual(total(self.parts, self.made), total(plain, cut), places=9)
+        self.assertNotIn(split.GUSSET, self.made['pelvis'])  # legs nothing joins past the line: no strip between them
+
+    def test_each_thigh_ends_inside_its_ring_and_the_pelvis_and_past_the_plane(self):
+        for side in 'lr':
+            points, faces, _ = self.parts['leg' + side]
+            end = faces[self.made['leg' + side] == split.CAP]
+            used = points[np.unique(end)]
+            height = self.past(used, side)
+            point, normal = self.planes[('hip', side)]
+            relative = used - point
+            radius = np.linalg.norm(relative - height[:, None] * seams.unit(normal), axis=1)
+            self.assertTrue(np.all(radius[np.abs(height) < 1e-6] <= self.RING + 1e-9), side)  # inside its ring on the plane
+            self.assertAlmostEqual(height.min(), -self.DEPTH, places=9)  # and its pole as deep past it as the overlap
+            above = height < self.REACH - 1e-6  # all but its rim, which is the trousers'
+            self.assertTrue(np.all(np.abs(used[above, 1]) <= 0.06 - split.SEAT_GAP + 1e-9), side)  # inside the seat's front and back
+            loose = open_edges(faces, points)
+            self.assertFalse((np.abs(self.past(points[loose], side) - self.REACH) < 1e-6).all(axis=1).any(), side)  # the rim is taken up
+            # wound as the trousers it grows from (this fixture's are wound both ways): each edge of the rim runs
+            # one way in the trousers and the other in the end
+            directed = lambda chosen: {tuple(edge) for edge in np.concatenate([chosen[:, [0, 1]], chosen[:, [1, 2]], chosen[:, [2, 0]]]).tolist()}
+            cloth, grown = directed(faces[self.made['leg' + side] == split.OWN]), directed(end)
+            rim = {edge for edge in grown if edge[::-1] in cloth}
+            self.assertTrue(rim and not rim & cloth and not {edge[::-1] for edge in rim} & grown, side)
+
+    def test_a_cut_along_values_flags_only_the_line_through_the_faces_it_cut(self):
+        # part 0, one triangle across value zero; part 1, a triangle with a vertex of its own at zero
+        v = np.array([(0, 0, 0), (2, 0, 0), (0, 2, 0), (5, 0, 0), (6, 0, 0), (5, 1, 0)], float)
+        f = np.array([(0, 1, 2), (3, 4, 5)])
+        value = np.array([-1.0, 1.0, 1.0, 0.0, 1.0, 1.0])
+        nv, nf, _, owner, origin, on = split.handed(v, f, np.zeros((6, 2)), np.array([0, 1]), np.arange(2), np.array([True, False]), value, 2)
+        self.assertFalse(on[:len(v)].any())  # part 1's vertex at zero lies on no line of the faces cut
+        self.assertTrue(on[len(v):].all() and len(nv) == len(v) + 2)
+        self.assertEqual(sorted(owner.tolist()), [0, 0, 1, 2])  # what lies at or below zero goes to part 2
+        self.assertTrue(np.array_equal(np.sort(origin), [0, 0, 0, 1]))
+
+    def test_the_end_stays_inside_the_seat_as_the_thigh_turns(self):
+        point, normal = self.planes[('hip', 'l')]
+        normal = seams.unit(normal)
+        across = np.cross(normal, seams.unit(np.array((0.0, 1.0, 0.0)) - normal[1] * normal))
+
+        def poking(bend):  # points of the left thigh's end that come out of the seat's front or back, turned forward and back
+            made = {}
+            seat = {key: {**entry, 'bend': bend} for key, entry in self.seat.items()}
+            points, faces, _ = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, reaches=self.REACHES, made=made, seat=seat)['legl']
+            used = points[np.unique(faces[made['legl'] == split.CAP])]
+            used = used[np.abs((used - point) @ normal - self.REACH) > 1e-6]  # not its rim, which is the trousers'
+            count = 0
+            for degrees in (-60, -30, 30, 60):
+                moved = point + (used - point) @ split.rotation(across, degrees).T
+                height = (moved - point) @ normal
+                count += int((np.abs(moved[(height > -0.25) & (height < self.REACH - 0.01), 1]) > 0.06 + 1e-9).sum())
+            return count
+
+        self.assertGreater(poking(0.0), 0)  # bounded as the body stands only, its sides come through the seat
+        self.assertEqual(poking(60.0), 0)
+
+    def test_the_pelvis_is_closed_across_each_leg_hole_and_not_on_the_planes(self):
+        points, faces, _ = self.parts['pelvis']
+        kinds = self.made['pelvis']
+        loose = open_edges(faces, points)
+        for side in 'lr':
+            self.assertFalse((np.abs(self.past(points[loose], side) - self.REACH) < 1e-6).all(axis=1).any(), side)
+            plane = np.abs(self.past(points, side)) < 1e-6
+            self.assertFalse(((kinds == split.CLOSING) & plane[faces].all(axis=1)).any(), side)
+        self.assertTrue((kinds == split.CLOSING).any())
+
+    def test_a_line_through_the_crotch_cuts_both_thighs_alike_on_the_middle(self):
+        # 5 cm past the planes the trousers are still one surface: the thighs' walls toward each other start there
+        seat = {key: {**entry, 'reach': np.full(64, 0.05)} for key, entry in self.seat.items()}
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, reaches=self.REACHES, made=made, seat=seat)
+        middle = lambda name: parts[name][0][np.unique(parts[name][1][made[name] == split.OWN])]
+        on = [points[np.abs(points[:, 0]) < 1e-9] for points in (middle('pelvis'), middle('legl'), middle('legr'))]
+        self.assertTrue(all(len(found) for found in on))
+        low = [found[:, 2].min() for found in on[1:]]
+        self.assertAlmostEqual(low[0], low[1], places=9)  # the two thighs leave the middle at one height
+        self.assertTrue(all((made['leg' + side] == split.WALL).any() for side in 'lr'))
+        self.assertEqual(sum(area(parts[name][0], parts[name][1][made[name] == split.OWN]) for name in ('pelvis', 'legl', 'legr')),
+                         sum(area(self.parts[name][0], self.parts[name][1][self.made[name] == split.OWN]) for name in ('pelvis', 'legl', 'legr')))
+
+    def test_a_cut_along_values_splits_where_they_change_sign(self):
+        v = np.array([(0, 0, 0), (1, 0, 0), (0, 1, 0)], float)
+        moved, faces, uvs, origin = split.cut(v, np.array([[0, 1, 2]]), v[:, :2], None, None, height=np.array([-1.0, 3.0, 1.0]))
+        self.assertTrue(np.allclose(moved[3:], [(0.25, 0, 0), (0, 0.5, 0)]))
+        self.assertEqual(len(faces), 3)
+        self.assertTrue(np.array_equal(origin, [0, 0, 0]))
+        with self.assertRaises(ValueError):
+            split.cut(v, np.array([[0, 1, 2]]), v[:, :2], None, None, radius=0.1, height=np.zeros(3))
+
+
+class ArmTests(unittest.TestCase):
+    """The armhole cut (`arms`): the body's arm leaves its chest 6 cm past the shoulder plane toward the torso
+    and 3 cm before it elsewhere, on a torso and sleeve that are one surface down to the armpit."""
+    RING, DEPTH = 0.06, 0.05
+
+    def setUp(self):
+        self.v, self.f, self.t = fused()
+        self.planes = split.planes(JOINTS)
+        self.point, normal = self.planes[('shoulder', 'l')]
+        self.normal = seams.unit(normal)
+        turn = 2 * np.pi * np.arange(64) / 64
+        self.line = np.where(np.cos(turn) > 0.5, 0.06, -0.03)  # direction 0 is +x, toward the torso
+        self.overlaps = {('shoulder', 'l'): self.DEPTH}
+        self.arms = {('shoulder', 'l'): {'line': self.line, 'ring': np.full(16, self.RING), 'bend': 0.0}}
+        self.made = {}
+        self.parts = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, made=self.made, arms=self.arms)
+
+    def height(self, points):
+        return (points - self.point) @ self.normal
+
+    def on(self, points, key):
+        point, normal = self.planes[key]
+        return np.abs((points - point) @ seams.unit(normal)) < 1e-6
+
+    def test_what_the_bodys_chest_covers_of_the_arm_goes_to_the_chest(self):
+        points, faces, _ = self.parts['bicepl']
+        used = points[np.unique(faces[self.made['bicepl'] == split.OWN])]
+        a, b = seams.frame(self.normal)
+        relative = used - self.point
+        line = np.maximum(seams.around(self.line, np.arctan2(relative @ b, relative @ a)), split.ARM_FLOOR)
+        self.assertGreater((self.height(used) - line).min(), -1e-3)  # the sleeve past the line only, read straight between directions
+        self.assertGreater(self.height(used).min(), split.ARM_FLOOR - 1e-9)  # and never nearer the plane than the floor
+        chest, chest_faces, _ = self.parts['chest']
+        took = chest[np.unique(chest_faces[self.made['chest'] == split.OWN])]
+        self.assertGreater(self.height(took[took[:, 0] < -0.16]).max(), 0.04)  # the sleeve's top toward the torso is the chest's
+        # nothing of the outfit is lost or doubled
+        plain = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, made=plain)
+        own = lambda parts, made: sum(area(parts[name][0], parts[name][1][made[name] == split.OWN]) for name in ('chest', 'bicepl'))
+        self.assertAlmostEqual(own(self.parts, self.made), own(parts, plain), places=9)
+
+    def test_the_upper_arm_has_one_end_inside_its_ring_and_past_the_plane(self):
+        points, faces, _ = self.parts['bicepl']
+        kinds = self.made['bicepl']
+        self.assertNotIn(split.CLOSING, kinds)  # no closing along the sleeve's cuts: the end closes them all
+        end = points[np.unique(faces[kinds == split.CAP])]
+        height = self.height(end)
+        radius = np.linalg.norm(end - self.point - height[:, None] * self.normal, axis=1)
+        self.assertTrue(np.all(radius[np.abs(height) < 1e-9] <= self.RING + 1e-9))
+        self.assertAlmostEqual(height.min(), -self.DEPTH, places=9)
+        loose = open_edges(faces, points)
+        self.assertTrue(len(loose))
+        self.assertTrue(self.on(points[loose], ('elbow', 'l')).all())  # open at the elbow only
+
+    def test_the_chest_is_closed_round_the_arm(self):
+        points, faces, _ = self.parts['chest']
+        loose = open_edges(faces, points)
+        self.assertTrue(len(loose))
+        self.assertTrue(self.on(points[loose], ('waist', 'c')).all())  # open at the waist only
+        plain = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps)['chest']
+        loose = open_edges(plain[1], plain[0])
+        self.assertTrue(self.on(plain[0][loose], ('shoulder', 'l')).all(axis=1).any())  # cut on the plane, it stood open there
+
+    def test_an_arms_end_is_held_inside_what_it_turns_out_toward_and_not_across_the_torso(self):
+        # an arm hanging down -z, its end 8 cm deep, and a wall of the over part 5.5 cm to its -x side above the joint
+        normal, point = np.array((0.0, 0.0, -1.0)), np.zeros(3)
+        v, f, t = tube((0, 0, -0.03), (0, 0, -0.2), 0.05, around=32, along=6)
+        wall = np.array([(-0.055, -0.03, 0.0), (-0.055, 0.03, 0.0), (-0.055, 0.03, 0.15), (-0.055, -0.03, 0.15)]), np.array([(0, 1, 2), (0, 2, 3)])
+        lean = np.cross(normal, (1.0, 0.0, 0.0))  # turned about this, the arm leans toward +x and its end toward the wall
+
+        def through(out, degrees, deepest=np.inf):  # points of the end, but its pole, in the wall once the arm leans
+            grown, _, faces = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, wall,
+                                             60.0, out=np.array(out))
+            corners = np.concatenate([v, grown])[faces]
+            sides = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2)
+            self.assertGreater(sides.min(), 1e-6)  # nothing drawn in so far that two corners of a face are one point
+            grown = grown[(np.linalg.norm(grown[:, :2], axis=1) > 1e-9) & (grown[:, 2] <= deepest)]
+            moved = grown @ split.rotation(lean, degrees).T
+            return int(((moved[:, 0] < -0.055) & (np.abs(moved[:, 1]) < 0.03) & (moved[:, 2] > 0)).sum())
+
+        self.assertEqual(through((1.0, 0.0, 0.0), 30), 0)  # turned out: every point's place on the axis stays inside the wall
+        # all of the bend: a point on the axis 8 cm deep leaves it by 6.9 cm, past the wall; drawn in toward the axis,
+        # the points are held only as deep as their place on the axis is
+        holds = (0.055 - split.SEAT_GAP) / np.sin(np.radians(60))
+        self.assertEqual(through((1.0, 0.0, 0.0), 60, holds - 1e-3), 0)
+        self.assertGreater(through((1.0, 0.0, 0.0), 60), 0)
+        for degrees in (30, 60):
+            self.assertGreater(through((-1.0, 0.0, 0.0), degrees), 0)  # turned in across the torso: not held
+        # the over part is read from its faces only: the split hands it the whole outfit's vertices, the limb's own among them
+        grown = lambda over: split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, over, 60.0,
+                                            out=np.array((1.0, 0.0, 0.0)))[0]
+        stray = (np.concatenate([wall[0], v]), wall[1])  # the limb's vertices beside the wall's, no face of the wall using them
+        self.assertTrue(np.array_equal(grown(stray), grown(wall)))
+
+    def test_inputs_are_checked(self):
+        with self.assertRaises(ValueError):
+            split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, arms={('hip', 'l'): self.arms[('shoulder', 'l')]})
+        with self.assertRaises(ValueError):
+            split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, arms={('shoulder', 'l'): {'ring': np.full(16, self.RING)}})
+        with self.assertRaises(ValueError):  # a shoulder left whole is not cut on the body's armhole either
+            split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps, whole={('shoulder', 'l')}, arms=self.arms)
 
 
 def padded_leg(low=0.09, high=0.09):
