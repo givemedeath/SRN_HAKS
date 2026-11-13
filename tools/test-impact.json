@@ -237,8 +237,12 @@
     ],
     "tools/armorkit/test_view.py": [
       "tools/armorkit/bake.py",
+      "tools/armorkit/measure.py",
       "tools/armorkit/split.py",
-      "tools/armorkit/view.py"
+      "tools/armorkit/view.py",
+      "tools/phenomorpher/phenomorpher/engine/__init__.py",
+      "tools/phenomorpher/phenomorpher/engine/anim_library.py",
+      "tools/phenomorpher/phenomorpher/engine/native_motion.py"
     ],
     "tools/armorkit/texture.py": [
       "tools/armorkit/export.py",
