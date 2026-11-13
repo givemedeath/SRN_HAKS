@@ -877,6 +877,36 @@ class SleeveTests(unittest.TestCase):
             self.assertEqual([len(part) for part in added], [0, 0, 0])
             self.assertEqual(added[1].shape[1], 2)
 
+    def test_an_opening_closed_as_a_socket_runs_back_into_the_part_and_rounds_in_to_its_axis(self):
+        # a round tube 6 cm across standing on the plane z = 0, open at both ends, its faces outward
+        v, f, t = tube((0, 0, 0), (0, 0, 0.4), 0.06, around=24, along=20)
+        out = normals(v, f)[:, :2] * v[f].mean(axis=1)[:, :2]
+        self.assertTrue(np.all(out.sum(axis=1) > 0))
+        point, normal = np.zeros(3), np.array([0.0, 0, -1])
+        more_v, more_t, more_f = split.lid(v, t, f, len(v), point, normal, 1.0, socket=[(point, normal)])
+        rim = np.flatnonzero(np.abs(v[:, 2]) < 1e-9)
+        self.assertEqual(len(more_v), split.SOCKET_RINGS * len(rim))
+        self.assertTrue(np.array_equal(more_t, np.tile(t[rim], (split.SOCKET_RINGS, 1))))  # each ring drawn as the edge it runs from
+        whole_v, whole_f = np.concatenate([v, more_v]), np.concatenate([f, more_f])
+        self.assertTrue(all((whole_v[edge][:, 2] > 0.4 - 1e-9).all() for edge in open_edges(whole_f, whole_v).tolist()))  # only the far end is open
+        deep = split.SOCKET_DEPTH * 0.06
+        self.assertTrue(np.all((more_v[:, 2] > 1e-9) & (more_v[:, 2] <= deep + 1e-9)))  # back into the tube, no deeper than asked
+        self.assertTrue(np.all(np.linalg.norm(more_v[:, :2], axis=1) < 0.06 - 1e-9))  # inside the tube's wall
+        self.assertTrue(np.allclose(more_v[-len(rim):], (0, 0, deep)))  # its pole, on the axis
+        first = more_v[:len(rim)]  # the first ring runs back from the edge more than it comes in
+        self.assertTrue(np.all(first[:, 2] > 0.06 - np.linalg.norm(first[:, :2], axis=1)))
+        corners = whole_v[more_f]
+        facing = normals(whole_v, more_f)
+        self.assertTrue(np.all(facing[:, 2] < 1e-9))  # out of the tube's open end, as a flat lid does
+        self.assertTrue(np.all((facing[:, :2] * corners.mean(axis=1)[:, :2]).sum(axis=1) < 1e-9))  # and in toward the axis
+        # the part's own surface behind the opening (an end 2 cm up) stops it short of that
+        v, f, t = tube((0, 0, 0), (0, 0, 0.02), 0.06, around=24, along=2)
+        top = len(v)
+        v = np.concatenate([v, [(0, 0, 0.02)]])
+        f = np.concatenate([f, [(top, 48 + k, 48 + (k + 1) % 24) for k in range(24)]])
+        more_v = split.lid(v, np.concatenate([t, t[:1]]), f, len(v), point, normal, 1.0, socket=[(point, normal)])[0]
+        self.assertAlmostEqual(float(more_v[:, 2].max()), 0.02 - split.SOCKET_GAP)
+
     def test_an_outfit_designed_with_a_pad_that_shows_none_is_refused(self):
         materials = self.patch()
         self.assertTrue(split.troughs(self.v, self.f, self.t, JOINTS, materials, padded='l')[4]['l']['pad'].any())
@@ -1028,6 +1058,20 @@ class CrotchTests(unittest.TestCase):
             self.assertTrue(((kinds == split.CLOSING) & self.on(points, ('hip', side))[faces].all(axis=1)).any(), side)
         whole = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES)
         self.assertEqual(len(whole['pelvis'][1]), len(faces))  # the same parts whether or not it is asked what made them
+        # closed by sockets instead, nothing is left open either, and what closes it lies back in the pelvis
+        made = {}
+        points, faces, _ = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES, made=made, sockets=True)['pelvis']
+        kinds = made['pelvis']
+        loose = open_edges(faces[kinds != split.GUSSET], points)
+        socket = np.unique(faces[kinds == split.CLOSING])
+        for side in 'lr':
+            point, normal = self.planes[('hip', side)]
+            self.assertFalse(self.on(points[loose], ('hip', side)).all(axis=1).any(), side)
+            self.assertFalse(((kinds == split.CLOSING) & self.on(points, ('hip', side))[faces].all(axis=1)).any(), side)  # none flat on the plane
+            past = (points[socket] - point) @ seams.unit(normal)
+            self.assertGreater(float(-past.min()), 0.01, side)  # it runs back from the plane into the pelvis
+        self.assertTrue(all(len(whole[name][1]) == len(part[1]) for name, part in
+                            split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES, sockets=True).items() if name != 'pelvis'))
 
     def test_the_pelvis_repeats_the_crotch_under_the_thighs(self):
         made = {}

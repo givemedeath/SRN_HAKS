@@ -34,6 +34,7 @@ ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
 BUDGET = {'chest': 6000, 'slot': 2250, 'outfit': 30000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
 END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
+SOCKETS = False  # whether the torso's lids over the shoulder and hip openings are sockets back into it (`split.split`): on trial, 2026-11-13
 SKIN_ROUNDS = 3  # a part sharing its slot with the body's skin is reduced again at most this often, as the skin beside it is counted anew
 WHOLE = 'no holes or detached pieces'  # the gate `surface` answers, on the generated outfit as the bake is given it
 SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the gate `ends` answers, on a body the contract measured
@@ -379,7 +380,8 @@ def cut(given, contract=None):
     result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
                          reaches=given['reaches'], whole={('neck', 'c')}, made=made, sleeves=given['sleeves'], guards=given['guards'],
                          origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
-                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare})
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare},
+                         sockets=SOCKETS)
     return result, made, origins
 
 
@@ -398,6 +400,17 @@ def skin_beside(own, bones, slot, name, vertices, faces):
     return int(bodyskin.shown(own['v'], own['f'], vertices, faces, start, end).sum())
 
 
+def welded(points, faces, which):
+    """`faces` with the vertices at one place (`POINT`) made one, the first of them, and the faces that leaves
+    with two corners at one point dropped: (faces, which), `which` cut down alike."""
+    group = mesh_ops.weld_ids(points, POINT)
+    first = np.full(int(group.max()) + 1, len(points))
+    np.minimum.at(first, group, np.arange(len(points)))
+    faces = first[group][np.asarray(faces, int)]
+    whole = (faces[:, 0] != faces[:, 1]) & (faces[:, 1] != faces[:, 2]) & (faces[:, 2] != faces[:, 0])
+    return faces[whole], np.asarray(which)[whole]
+
+
 def within_budget(result, made, origins, joints, radii, beside=None, left=(), say=lambda *_: None):
     """The split's parts (`cut`), each part over its triangle budget (`BUDGET`) brought under it (`reduce`).
 
@@ -408,7 +421,13 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
     own faces a part in a slot shared with the body's skin will hold (`skin_beside`): they count against its
     budget, and the part is reduced again until the two fit. Parts in `left` (the body's) are not reduced.
     Facility Security, exported at 17,000 faces, was worn at 29,396 triangles, within the whole outfit's
-    budget, with seven parts over theirs: the legs carry the cargo pockets, straps and guards (2026-11-13)."""
+    budget, with seven parts over theirs: the legs carry the cargo pockets, straps and guards (2026-11-13).
+
+    A part still over its budget then (one cut from a dense mesh, whose closings and caps are as dense as its
+    rims) is reduced as a whole, what the split made too: a point on a joint's plane goes only along its line
+    on the plane, its rim or where its cap meets it, so its ends stay on their planes (`reduce`'s `lines`). Its
+    vertices at one place are made one first (`welded`): a lid's fan has a middle vertex per point of its line.
+    A reduced part keeps no triangle with two corners at one point."""
     beside, out, planes = beside or {}, {}, None
     for name, (pv, pf, pc) in result.items():
         budget = BUDGET['chest'] if name == 'chest' else BUDGET['slot']
@@ -425,21 +444,29 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
         capped[pf[made[name] == split.CAP].ravel()] = True
         capped &= ~own & ~np.isin(np.arange(len(pv)), pf[(made[name] != split.CAP) & (made[name] != split.OWN)].ravel())
         planes = split.planes(joints) if planes is None else planes
-        near = np.zeros(len(pv), bool)
-        for key, (point, normal) in planes.items():
+        near, lines = np.zeros(len(pv), bool), np.zeros(len(pv), np.int64)
+        for bit, (key, (point, normal)) in enumerate(planes.items()):
             unit = seams.unit(normal)
             along = (pv - point) @ unit
-            near |= (np.abs(along) < END_BAND) & (np.linalg.norm((pv - point) - along[:, None] * unit, axis=1) < 2 * radii[key])
+            inside = np.linalg.norm((pv - point) - along[:, None] * unit, axis=1) < 2 * radii[key]
+            near |= (np.abs(along) < END_BAND) & inside
+            lines |= np.where((np.abs(along) < split.WELD) & inside, np.int64(1) << bit, np.int64(0))
         before, kept, faces, which = len(pf), np.arange(len(pv)), pf, np.arange(len(pf))
-        for locked in (added | near, (added & ~capped) | (near & own)):
+        for locked, on in ((added | near, None), ((added & ~capped) | (near & own), None), (None, lines)):
+            if locked is None:  # the split builds one vertex per point of a line where its closings meet: made one, they reduce
+                faces, which = welded(pv[kept], faces, which)
             for _ in range(SKIN_ROUNDS):
                 if len(faces) + held <= budget:
                     break
-                again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, locked[kept])
+                again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, None if locked is None else locked[kept],
+                                                    None if on is None else on[kept])
                 kept, which = kept[again], which[inner]
                 held = count(pv[kept], faces)
             if len(faces) + held <= budget:
                 break
+        corners = pv[kept][faces]
+        whole = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2).min(axis=1) >= POINT  # no area: the compiler drops it
+        faces, which = faces[whole], which[whole]
         made[name], origins[name] = made[name][which], origins[name][which]
         out[name] = (pv[kept], faces, pc[kept])
         say(f'{name}: reduced from {before} to {len(faces)} faces for its budget of {budget}')

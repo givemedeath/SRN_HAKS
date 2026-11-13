@@ -6,7 +6,15 @@ joint's end) is unchanged, and every face that is kept is the face it was with o
 neighbour. The vertex whose loss changes the surface least goes first, as the sum of its squared distances
 from the planes of the faces round both vertices measures it (Garland and Heckbert's quadrics). A step that
 would fold a face over, leave one with no area, part the surface or join two faces that only touched there is
-not taken; nor is one that moves the surface more than `SHIFT` from where the lost vertex was."""
+not taken; nor is one that moves the surface more than `SHIFT` from where the lost vertex was.
+
+A part's rim, where its surface ends, may lose points too when `lines` is given, and so may a line of points
+on a cut inside the surface (where a cap meets the part on a joint's plane): a point is folded into one of the
+two beside it on its rim or its line, where that runs within `RIM_SHIFT` of straight past it, and only into a
+neighbour that lies on every cut it lay on, as the point beyond does. A rim or an end on a joint's plane then
+stays on the plane, and a corner where it turns from one cut onto another stays. A part cut from a dense mesh,
+its closings and caps built on it, was otherwise left with every point of its rims and ends (Facility
+Security from 200,000 faces, 2026-11-13)."""
 import heapq
 
 import numpy as np
@@ -16,6 +24,7 @@ from .registry import require
 SHIFT = 0.004  # metres: a vertex is taken out only where the faces it leaves lie this near it
 FOLD = 0.2  # a face a step changes may turn this far at most: the cosine between its normals before and after
 THIN = 1e-10  # square metres: a face a step leaves smaller than this has no area to speak of
+RIM_SHIFT = 0.002  # metres: a point of a rim is taken out only where the rim left runs this near it
 
 
 def _planes(points, faces):
@@ -27,12 +36,13 @@ def _planes(points, faces):
     return normal, -(normal * a).sum(axis=1), area
 
 
-def reduce(vertices, faces, target, locked=None):
+def reduce(vertices, faces, target, locked=None, lines=None):
     """(kept, faces, which): `vertices` and `faces` with vertices taken out until `target` faces or fewer are
     left, or no step more may be taken. `kept` indexes the vertices given that are left, in order; `faces` are
     the faces left, numbered into `kept`; `which[i]` is the face given that face i is, one of its corners
-    perhaps moved. A vertex `locked` flags stays, and so does every vertex on an edge only one face has (an
-    end, a hole) or more than two have."""
+    perhaps moved. A vertex `locked` flags stays, and so does every vertex on an edge more than two faces have.
+    So does every vertex on an edge only one face has (an end, a hole), unless `lines` gives, per vertex, a bit
+    for each cut it lies on (0 for none): a rim's points may then be taken out along the rim (above)."""
     points, faces = np.asarray(vertices, float), np.asarray(faces, int)
     require(points.ndim == 2 and points.shape[1] == 3 and faces.ndim == 2 and faces.shape[1] == 3, 'Vertices are points and faces triangles')
     require(target >= 0, 'A face budget is zero or more')
@@ -40,7 +50,14 @@ def reduce(vertices, faces, target, locked=None):
     require(stays.shape == (len(points),), 'One lock flag per vertex')
     edges = np.sort(np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]]), axis=1)
     unique, count = np.unique(edges, axis=0, return_counts=True)
-    stays[unique[count != 2].ravel()] = True  # an end, a hole or a fin stays as it is
+    rim = np.zeros(len(points), bool)
+    if lines is None:
+        stays[unique[count != 2].ravel()] = True  # an end, a hole or a fin stays as it is
+    else:
+        lines = np.asarray(lines, np.int64)
+        require(lines.shape == (len(points),), 'One set of cuts per vertex')
+        stays[unique[count > 2].ravel()] = True  # a fin stays as it is
+        rim[unique[count == 1].ravel()] = True
     normal, offset, area = _planes(points, faces)
     plane = np.concatenate([normal, offset[:, None]], axis=1)
     quadric = np.zeros((len(points), 4, 4))
@@ -59,13 +76,44 @@ def reduce(vertices, faces, target, locked=None):
     def neighbours(vertex):
         return {other for index in around[vertex] for other in corners[index] if other != vertex}
 
+    def along_rim(vertex):
+        """The points beside `vertex` on its rim: those it shares an edge with that one face alone has."""
+        uses = {}
+        for index in around[vertex]:
+            for other in corners[index]:
+                if other != vertex:
+                    uses[other] = uses.get(other, 0) + 1
+        return [other for other, number in uses.items() if number == 1]
+
+    def straight(source, sink):
+        """Whether its rim or its line may lose `source` into `sink`: they are beside each other on it, what is
+        left runs within `RIM_SHIFT` of the point, and both ends of that lie on every cut the point lay on."""
+        if lines[source] & ~lines[sink]:
+            return False
+        if rim[source]:
+            beside = along_rim(source)
+        else:  # along its line: the edges where the surface leaves the cuts it lies on (a lid's rim, where a cap meets the part)
+            off = lambda index: any(lines[corner] & lines[source] != lines[source] for corner in corners[index])
+            beside = [other for other in neighbours(source) if lines[other] & lines[source] == lines[source]
+                      and any(off(index) for index in around[source] if other in corners[index])]
+            if not beside:
+                return True  # all round it lies on its cuts (a lid on a joint's plane): it stays on them wherever it goes
+        if len(beside) != 2 or sink not in beside:
+            return False
+        beyond = beside[0] if beside[1] == sink else beside[1]
+        if lines[source] & ~(lines[sink] & lines[beyond]):
+            return False
+        run = points[beyond] - points[sink]
+        share = min(max(float((points[source] - points[sink]) @ run) / max(float(run @ run), 1e-24), 0.0), 1.0)
+        return float(np.linalg.norm(points[sink] + share * run - points[source])) <= RIM_SHIFT
+
     def offer(source, sink):
         if stays[source] or gone[source] or gone[sink]:
             return
         at = np.append(points[sink], 1.0)
         heapq.heappush(heap, (float(at @ (quadric[source] + quadric[sink]) @ at), stamp[source], stamp[sink], source, sink))
 
-    for a, b in unique[count == 2].tolist():
+    for a, b in unique[count <= 2].tolist():  # a rim's edges too: its points stay but where `lines` lets them go
         offer(a, b)
         offer(b, a)
     left = int(alive.sum())
@@ -74,8 +122,9 @@ def reduce(vertices, faces, target, locked=None):
         if gone[source] or gone[sink] or stamp[source] != mark_source or stamp[sink] != mark_sink:
             continue
         shared = [index for index in around[source] if sink in corners[index]]
-        if len(shared) != 2:
-            continue
+        on_line = rim[source] or (lines is not None and lines[source] != 0)
+        if len(shared) != (1 if rim[source] else 2) or (on_line and not straight(source, sink)):
+            continue  # a point of a rim or a cut goes only along it
         opposite = {vertex for index in shared for vertex in corners[index]} - {source, sink}
         if neighbours(source) & neighbours(sink) != opposite:
             continue  # folding them would join two faces that only touch at a vertex there
@@ -102,7 +151,7 @@ def reduce(vertices, faces, target, locked=None):
         around[source] = set()
         gone[source] = True
         quadric[sink] += quadric[source]
-        left -= 2
+        left -= len(shared)
         stamp[sink] += 1  # every step into or out of it costs anew
         for vertex in neighbours(sink):  # and a step here refused before may be taken now
             for other in neighbours(vertex):

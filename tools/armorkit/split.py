@@ -63,6 +63,9 @@ GUARD_SWEEP = 110.0  # degrees about the joint's hinge the pad's rim is carried 
 GUARD_TUCK = 0.05  # and how much nearer the hinge it is drawn on the way, to stay under the pad's own surface
 GUARDS = {'knee': ('thigh_g', 'shin_g', 'foot_g'), 'elbow': ('bicep_g', 'forearm_g', 'hand_g')}  # a joint that may carry a pad: the joints above it, at it and below
 PAD_ISLAND = 0.25  # a patch of another material in or beside a pad, this share of the pad's area or less and touching nothing else, is the pad's
+SOCKET_RINGS = 3  # rings an over part's socket runs back from its opening, the last its pole (`lid`)
+SOCKET_DEPTH = 0.5  # a socket runs back this share of its opening's mean distance from the joint's axis
+SOCKET_GAP = 0.004  # and stops this far short of the part's own surface behind it
 SEAT_STEPS = 3  # rings a thigh's end runs in from its rim on the seat line to the hip plane, the last on the plane
 SEAT_DOME = 3  # rings of its dome past the plane, the last the pole
 SEAT_GAP = 0.004  # the end stands this far inside the pelvis's own surface
@@ -848,7 +851,7 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     return np.concatenate(rings), np.tile(uvs[rim], (steps, 1)), added
 
 
-def lid(vertices, uvs, faces, base, point, normal, limit, on=None):
+def lid(vertices, uvs, faces, base, point, normal, limit, on=None, socket=None, rings=SOCKET_RINGS):
     """Faces that close what a part has open on a joint plane: (vertices, uvs, faces) to add, numbered from `base`.
 
     An over part is open on its joint plane, and the under part stands in the opening and fills it. A chest
@@ -859,7 +862,16 @@ def lid(vertices, uvs, faces, base, point, normal, limit, on=None):
     faces wound against the faces they grow from: the lid then faces the way the surface round it does, out
     of the part. A line that does not come round is closed straight from its end to its start. The under part stands through the lid as it stood in the opening. Each new vertex has the
     texture coordinates of the point of the line it grew from. `on`, if given, flags the points of the lines to
-    close instead of the plane: the pelvis's leg holes on the seat line (`seated`)."""
+    close instead of the plane: the pelvis's leg holes on the seat line (`seated`).
+
+    `socket`, if given, lists the joints as (point, normal) pairs, the normal toward the under part, and each
+    line is closed by a socket back into the part instead of flat: its points run in `rings` rings back from
+    the line on the normal of the joint nearest the line's middle, and in toward that axis on a quarter
+    circle, the last ring its pole. It starts straight back from the line, so the part's surface turns in at
+    its edge and rounds off, and it runs `SOCKET_DEPTH` of the line's mean distance from the axis deep, past
+    the line's deepest point, and stops `SOCKET_GAP` short of the part's own surface on the axis behind it
+    (`room`). Each ring repeats the texture coordinates of the line's points. A flat lid lies on the plane: a
+    bend that turns the under part out of the opening showed it as a shelf across the end of the part."""
     if on is None:
         relative = vertices - point
         height = relative @ normal
@@ -892,12 +904,43 @@ def lid(vertices, uvs, faces, base, point, normal, limit, on=None):
         loose = mine.reshape(-1)[first[uses == 1]].tolist()  # the two points the line has one edge at
         if len(loose) == 2:
             end, begin = loose[::-1] if loose[0] in mine[:, 0] else loose  # the faces' edges run from its start to its end
-            chords.append((end, begin, middle[line == label][0]))
+            chords.append((end, begin, middle[line == label][0], label))
     if chords:
         edges = np.concatenate([edges, [chord[:2] for chord in chords]])
         middle = np.concatenate([middle, [chord[2] for chord in chords]])
-    added = base + np.arange(len(edges))
-    return middle, uvs[edges[:, 0]], np.stack([edges[:, 1], edges[:, 0], added], axis=1)
+        line = np.concatenate([line, [chord[3] for chord in chords]])
+    if socket is None:
+        added = base + np.arange(len(edges))
+        return middle, uvs[edges[:, 0]], np.stack([edges[:, 1], edges[:, 0], added], axis=1)
+    joints = [(np.asarray(where, float), seams.unit(way)) for where, way in socket]
+    require(len(joints) > 0 and rings >= 1, 'A socket runs back on a joint, in one ring or more')
+    rim = np.unique(edges)
+    slot = np.full(len(vertices), -1, int)
+    slot[rim] = np.arange(len(rim))
+    start, back, deep = np.zeros((len(rim), 3)), np.zeros((len(rim), 3)), np.zeros(len(rim))
+    for label in np.unique(line):
+        mine = np.unique(edges[line == label])
+        centre = middle[line == label][0]
+        way = -min(joints, key=lambda joint: float(np.linalg.norm(joint[0] - centre)))[1]  # back into the part
+        behind = (vertices[mine] - centre) @ way
+        begin = centre + way * behind.max()  # level with the line's deepest point
+        across = vertices[mine] - begin
+        across = across - (across @ way)[:, None] * way
+        depth = SOCKET_DEPTH * float(np.linalg.norm(across, axis=1).mean())
+        wall = room(vertices, faces, begin, -way)
+        if wall is not None:
+            depth = min(depth, max(wall - SOCKET_GAP, 0.0))
+        start[slot[mine]], back[slot[mine]], deep[slot[mine]] = begin, way, depth
+    angles = np.radians(90.0 * np.arange(1, rings + 1) / rings)
+    turned = [start + (vertices[rim] - start) * np.cos(a) + back * (deep * np.sin(a))[:, None] for a in angles]
+    turned[-1] = start + back * deep[:, None]  # the pole, once per point of the line
+    index = np.concatenate([rim[None], base + np.arange(rings * len(rim)).reshape(rings, len(rim))])  # [ring, rim point]
+    a, b = slot[edges[:, 0]], slot[edges[:, 1]]  # the part's face runs a to b, so the socket's runs b to a
+    near, far = index[:-1], index[1:]
+    # two faces per edge between rings, one at the pole, where the second would have no area
+    added = np.concatenate([np.stack([near[:, b], near[:, a], far[:, a]], axis=2).reshape(-1, 3),
+                            np.stack([near[:-1, b], far[:-1, a], far[:-1, b]], axis=2).reshape(-1, 3)])
+    return np.concatenate(turned), np.tile(uvs[rim], (rings, 1)), added
 
 
 def seated(vertices, faces, uvs, owner, origin, names, cuts, between, seat):
@@ -1347,7 +1390,7 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
 
 
 def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None,
-          shape=None, deep=(), seat=None, arms=None, tucks=None):
+          shape=None, deep=(), seat=None, arms=None, tucks=None, sockets=False):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -1403,7 +1446,12 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     from the torso and from its pad. It stands instead of a closing along each of those cuts and a cap on the
     plane: rounded out toward the chest, those closings stood up to 9 cm outside the seam contract's envelope
     beside a shoulder pad. The end is held inside the chest's own surface and its closings, with the arm turned
-    forward, back and out from the torso."""
+    forward, back and out from the torso.
+
+    With `sockets`, the chest's and the pelvis's lids over the openings an under part stands in (on the
+    shoulder and hip planes, round each arm and on the seat line) are sockets back into the part (`lid`'s
+    `socket`) instead of flat. A pad's half on the arm stays closed flat: it is a plate, with no room behind
+    its edge."""
     overlaps = overlaps or {}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
@@ -1479,17 +1527,20 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 kinds.append(np.full(len(more[2]), WALL if seam is between else CLOSING))
         if name == 'chest':
             arm_over = (pv, pf)
+        held = lambda joint, sides: [cuts[(joint, side)] for side in sides] if sockets and name in ('chest', 'pelvis') else None
         for joint, side in [key[1:] for key in lids if key[0] == name]:
-            more = lid(pv, pt, pf, len(pv), cuts[(joint, side)][0], seams.unit(cuts[(joint, side)][1]), limit[(joint, side)] + WELD)
+            more = lid(pv, pt, pf, len(pv), cuts[(joint, side)][0], seams.unit(cuts[(joint, side)][1]), limit[(joint, side)] + WELD,
+                       socket=held(joint, side))
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
         if name == 'pelvis' and on_seat.any():  # open round each thigh on the seat line
-            more = lid(pv, pt, pf, len(pv), None, None, None, on=np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]))
+            more = lid(pv, pt, pf, len(pv), None, None, None, on=np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]),
+                       socket=held('hip', [side for _, side in seat]))
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
         if name == 'chest' and opened:  # open round each arm, from the plane down the sleeve it took and its closings
             zone = np.any([arm_opening(pv, cuts, side, limit[('shoulder', side)] + WELD) for side in opened], axis=0)
-            more = lid(pv, pt, pf, len(pv), None, None, None, on=zone)
+            more = lid(pv, pt, pf, len(pv), None, None, None, on=zone, socket=held('shoulder', opened))
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
         if shape is not None:
