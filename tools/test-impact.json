@@ -1848,6 +1848,7 @@
       "tools/itemkit/publish.py",
       "tools/itemkit/run_itemkit.py",
       "tools/itemkit/shell_repair.py",
+      "tools/itemkit/straightness.py",
       "tools/itemkit/workspace.py",
       "tools/phenotypes/launch_shared_tool.py"
     ],
@@ -1980,6 +1981,12 @@
       "tools/itemkit/geometry.py"
     ],
     "tools/itemkit/preview_views.py": [],
+    "tools/itemkit/profile_mesh.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/gltf.py",
+      "tools/itemkit/donor.py",
+      "tools/itemkit/geometry.py"
+    ],
     "tools/itemkit/publish.py": [
       "docs/items/approved-weapon-waves-release-validation.json",
       "docs/items/approved-weapons-v1.json",
@@ -2224,6 +2231,11 @@
     ],
     "tools/itemkit/test_preflight.py": [
       "tools/itemkit/preflight.py"
+    ],
+    "tools/itemkit/test_profile_mesh.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/profile_mesh.py"
     ],
     "tools/itemkit/test_publish.py": [
       "tools/itemkit/__init__.py",
@@ -5617,6 +5629,7 @@
     "tools/itemkit/test_native_stack.py",
     "tools/itemkit/test_onehand_fire_motion.py",
     "tools/itemkit/test_preflight.py",
+    "tools/itemkit/test_profile_mesh.py",
     "tools/itemkit/test_publish.py",
     "tools/itemkit/test_recovery.py",
     "tools/itemkit/test_reduction.py",

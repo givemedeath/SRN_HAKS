@@ -5,6 +5,7 @@
 Generation (one GPU job at a time, through the shared ledger; ComfyUI only when this driver started it):
     comfy start|stop|status          image DESIGN colour|clay        condition DESIGN ID [--notes "user's words" --keyed D,C]
     gen ID STAGE --manifest SUFFIX [--attempt aN]                      calibrated ID FOV [--source SUFFIX]
+    colour-geometry ID SRC DST --notes "user's words"   (geometry from the colour detail image, not the clay)
     approve-geometry ID ATTEMPT SRC DST --notes "user's words"          textured ID ATTEMPT SRC --notes ... [--straight DIR]
 Processing (CPU, through the verified launcher):
     fit ID SRC DST WORKING DONOR [--overrides JSON] [--measure-only] [--donor-review "user's words"] [--authority "user's words"]
@@ -13,7 +14,7 @@ Processing (CPU, through the verified launcher):
 Fixtures and in-game capture:
     fixture-inputs ID SUFFIX NAME     refixture ID SUFFIX NAME [--capture]       capture FIXTURE_DIR OUTPUT
 Families:
-    contract FAMILY ID --wave NAME [--visible N]       views GLB OUTPUT [--textured]       decimate IN OUT [--faces N]
+    contract FAMILY ID --wave NAME [--visible N] [--base FOLDER]   views GLB OUTPUT [--textured]   decimate IN OUT [--faces N]
 Publication (tools/itemkit/publish.py; docs/items/approved-weapons-release.md):
     publish ID:SUFFIX... --statement "user's words"... --review TEXT [--date YYYY-MM-DD] [--dry-run]
 Bake misses and shell recovery (CPU; docs/items/early-checks-and-recovery.md):
@@ -200,6 +201,22 @@ class Driver:
             result['views'] = self.views(glb, self.ws.items/design/f'geometry-{attempt}-views')
             if check.exists(): result['shape'] = read(check)['metrics']
         return result
+
+    def colour_geometry(self, design, src, dst, notes):
+        """A manifest whose geometry comes from the detailed colour image itself (detailed-v1) instead of the clay.
+
+        The clay pair stays pinned and reviewed; only the geometry branch changes. Its background review already binds
+        the colour image and its mask. A long design also gets the side-view waiver, which quotes the user's words."""
+        from tools.itemkit.straightness import LONG_FAMILIES
+        if not notes.strip(): raise SystemExit("--notes must quote the user's direction to mesh from the colour image")
+        m = read(self.manifest(design, src)); inputs = m['inputs']
+        if m.get('conditioning') != 'clay-detail-v1': raise SystemExit(f'{design}.{src} is not a clay/detail manifest')
+        m['conditioning'] = 'detailed-v1'; inputs['geometry'] = inputs['detail']; inputs['mask'] = inputs['foregroundMask']
+        # Every family keeps the user's words for the changed geometry source, not only those needing the waiver.
+        m['approval']['colourGeometry'] = {'decision': 'approved', 'geometrySha256': inputs['detail']['sha256'], 'notes': notes}
+        if read(self.ws.handoff/m['familyProfile']['path'])['family'] in LONG_FAMILIES:
+            m['approval']['referenceView'] = {'view': 'side', 'decision': 'approved', 'sideViewWaiver': True, 'notes': notes}
+        return str(write_new(self.manifest(design, dst), m))
 
     def calibrated(self, design, fov, source='wave1-v2-contract'):
         if not 25 <= fov <= 70: raise SystemExit('A reviewed geometry FOV is between 25 and 70 degrees')
@@ -469,13 +486,14 @@ class Driver:
         return {'result': result, 'sheets': result['sheets']}
 
     # -- families and helpers -------------------------------------------------------------------------------------
-    def contract(self, family, design, wave, visible=None):
-        from tools.itemkit.family_contract import build
-        return build(self.ws, family, design, wave, visible=visible)
+    def contract(self, family, design, wave, visible=None, base=None):
+        from tools.itemkit.family_contract import BASE, build
+        return build(self.ws, family, design, wave, visible=visible, base=base or BASE)
 
     def views(self, glb, output, textured=False):
         """Eight orthographic Blender views and a contact sheet (clay, or the textured donor's colour)."""
-        output = Path(output)
+        # Absolute paths: Blender resolves a relative render path against its own drive root, not this folder.
+        glb = Path(glb).resolve(); output = Path(output).resolve()
         # Blender's own Python: a workspace PYTHONPATH would load the bank's numpy into it and break the glTF importer.
         env = {k: v for k, v in os.environ.items() if k not in ('PYTHONPATH', 'PYTHONHOME')}
         done = subprocess.run([str(self.ws.blender), '-b', '--factory-startup', '--python-exit-code', '1', '-P',
@@ -565,6 +583,7 @@ def main(argv=None):
     s.add_argument('--notes', help="the user's review of the keyed pair"); s.add_argument('--keyed', help='DETAIL_SHA,CLAY_SHA from the first call')
     s = c.add_parser('gen'); s.add_argument('id'); s.add_argument('stage', choices=['calibrate', 'geometry', 'appearance', 'export'])
     s.add_argument('--manifest', required=True, help='manifest suffix'); s.add_argument('--attempt', default='a1')
+    s = c.add_parser('colour-geometry'); [s.add_argument(k) for k in ('id', 'src', 'dst')]; s.add_argument('--notes', required=True)
     s = c.add_parser('calibrated'); s.add_argument('id'); s.add_argument('fov', type=float); s.add_argument('--source', default='wave1-v2-contract')
     s = c.add_parser('approve-geometry'); [s.add_argument(k) for k in ('id', 'attempt', 'src', 'dst')]; s.add_argument('--notes', required=True)
     s = c.add_parser('textured'); [s.add_argument(k) for k in ('id', 'attempt', 'src')]; s.add_argument('--notes', required=True); s.add_argument('--straight')
@@ -581,6 +600,7 @@ def main(argv=None):
     s = c.add_parser('refixture'); [s.add_argument(k) for k in ('id', 'suffix', 'name')]; s.add_argument('--capture', action='store_true')
     s = c.add_parser('capture'); s.add_argument('fixture'); s.add_argument('output')
     s = c.add_parser('contract'); s.add_argument('family'); s.add_argument('id'); s.add_argument('--wave', required=True); s.add_argument('--visible', type=int)
+    s.add_argument('--base', help='the measured contract folder to start from, e.g. contracts/wave1-v2 (its reviewed hand contacts carry over)')
     s = c.add_parser('views'); s.add_argument('glb'); s.add_argument('output'); s.add_argument('--textured', action='store_true')
     s = c.add_parser('decimate'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--faces', type=int, help='default: the 40,000-triangle working shell')
     s = c.add_parser('publish'); s.add_argument('items', nargs='+', help='ID:SUFFIX of each client-reviewed run')
@@ -612,6 +632,7 @@ def main(argv=None):
     commands = {
         'comfy': lambda: d.comfy(a.action), 'image': lambda: d.image(a.design, a.kind), 'condition': lambda: d.condition(a.design, a.id, a.source, a.notes, a.keyed),
         'gen': lambda: d.gen(a.id, a.stage, a.manifest, a.attempt), 'calibrated': lambda: d.calibrated(a.id, a.fov, a.source),
+        'colour-geometry': lambda: d.colour_geometry(a.id, a.src, a.dst, a.notes),
         'approve-geometry': lambda: d.approve_geometry(a.id, a.attempt, a.src, a.dst, a.notes),
         'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight),
         'fit': lambda: d.fit(a.id, a.src, a.dst, a.working, a.donor, a.overrides, measure_only=a.measure_only, donor_review=a.donor_review, authority=a.authority),
@@ -619,7 +640,7 @@ def main(argv=None):
         'review': lambda: d.review(a.id, a.suffix, a.stage, a.decision, a.notes), 'chain': lambda: d.chain(a.id, a.suffix, a.stages),
         'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
         'refixture': lambda: d.refixture(a.id, a.suffix, a.name, a.capture), 'capture': lambda: d.capture(a.fixture, a.output),
-        'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible), 'views': lambda: d.views(a.glb, a.output, a.textured),
+        'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible, a.base), 'views': lambda: d.views(a.glb, a.output, a.textured),
         'decimate': lambda: d.decimate(a.source, a.target, a.faces),
         'publish': lambda: d.publish(a.items, a.statement, a.review, a.date, a.dry_run),
         'screen': lambda: d.screen(a.id, a.suffix, a.donor, a.distance, a.alignment, a.arrays, a.fit),

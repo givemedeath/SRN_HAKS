@@ -58,16 +58,32 @@ def extract_stock(game, item_class, target):
     return rows
 
 
-def sibling_models(wave_folder, own, item_class):
-    """Model and icon names the wave's other contracts on this carrier already pinned: not yet in any stack, still taken."""
+def sibling_models(contracts, own, item_class):
+    """Model and icon names every other contract on this carrier already pinned, in any wave: not yet in any stack, still taken.
+
+    Only one wave's folder was searched at first: wave 2's first contracts (2026-11-12) took the very slots the
+    unpublished wave-1 weapons hold on the same carriers."""
     from .contracts import model_names
     taken = set()
-    for path in Path(wave_folder).glob('family-*.json'):
+    for path in Path(contracts).glob('*/family-*.json'):
         if path == own: continue
         other = json.loads(path.read_text(encoding='utf-8')); index = other.get('resources', {}).get('appearanceIndex')
         if index is None or other.get('native', {}).get('itemClass') != item_class: continue
         for name in model_names(other, index).values(): taken |= {name.lower()+'.mdl', 'i'+name.lower()+'.tga'}
     return taken
+
+
+def base_grip_origin(source, item_class):
+    """The grip origin the base contracts already hold for this carrier, or None.
+
+    A hand contact a base contract holds was reviewed in the hand (the Staff's installed contact, the Claymore's
+    in-game approval): it outranks a fresh measurement of the stock parts (wave 2's first Bat contract measured
+    -0.0712 against the reviewed -0.0630, 2026-11-12). Base contracts that disagree are refused, not picked by name."""
+    known = [f['native']['gripOrigin'] for f in (json.loads(p.read_text(encoding='utf-8')) for p in sorted(Path(source).glob('family-*.json')))
+             if f.get('native', {}).get('itemClass', '').lower() == item_class.lower()]
+    require(all(np.allclose(k, known[0]) for k in known),
+            f'The base contract holds different grip origins for {item_class}: choose the reviewed one with --base')
+    return known[0] if known else None
 
 
 def build(ws, family_name, design, wave, *, visible=None, base=BASE):
@@ -96,6 +112,11 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     positions, faces = assemble([decode_stock(folder/f'{cls}_{p}_011.mdl') for p in 'bmt'])
     carrier = measure(positions, faces, standard['usableLength'], route.hold)
     grip_length = standard['usableLength'] if route.hold == 'one' else TWO_HAND_SPAN
+    known = base_grip_origin(source, cls)
+    measured = 'Stock span' if known else 'Grip origin and stock span'
+    origin_note = ('Grip origin kept from the base contract\'s reviewed contact on this carrier.' if known else
+                   'The first design fitted on this carrier carries the both-body hand-fit review that confirms the origin.')
+    if known: carrier['gripOrigin'] = known
     from PIL import Image
     from .contracts import twoda
     table = next(row['file']['path'] for l in stack['layers'] for row in l['resources'] if row['resource'].lower() == 'baseitems.2da')
@@ -124,10 +145,9 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
                            'stockSpan': carrier['span'], 'axes': {'width': 'Z', 'length': '+Y'},
                            'partAssignments': ({'b': 'butt', 'm': 'grip', 't': 'haft and head'} if route.shape == 'hafted'
                                                else {'b': 'pommel', 'm': 'grip', 't': 'blade and guard'}),
-                           'measurementNotes': (f'Grip origin and stock span measured from the installed {cls} parts by tools/itemkit/carrier.py '
+                           'measurementNotes': (f'{measured} measured from the installed {cls} parts by tools/itemkit/carrier.py '
                                                 f'({carrier["method"]}, handle run {carrier["handleRun"][0]:.3f}..{carrier["handleRun"][1]:.3f} m). '
-                                                'Grip dimensions use the approved Cougar standard. The first design fitted on this carrier carries '
-                                                'the both-body hand-fit review that confirms the origin.'),
+                                                'Grip dimensions use the approved Cougar standard. ' + origin_note),
                            'baseitemsSha256': base_family['native']['baseitemsSha256'], 'reviewed': True,
                            'productionStackApproved': False, 'stack': {'path': stack_path.name, 'sha256': sha(stack_path)}})
     name = design.rsplit('-', 1)[0][4:] if design.startswith('sr4-') else design
@@ -137,7 +157,7 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
         with verification_pass('family-contract-'+design):
             path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
             _, resources = native_contract(path, profile)
-            slot = reserve(profile, {n.lower() for n in resources} | sibling_models(target, path, cls))
+            slot = reserve(profile, {n.lower() for n in resources} | sibling_models(target.parent, path, cls))
             profile['resources']['appearanceIndex'] = slot['modelIndex']; path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
             family(path, validate_native=True)
     except BaseException:
