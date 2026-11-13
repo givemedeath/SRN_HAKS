@@ -122,9 +122,11 @@ its handle kept round. The Claymore blade was thinned to half its generated dept
 over the 0.98 m the hand-depth rule gives. All four use the Cougar melee grip standard, with the recorded departures for
 the round Club handle and the thick Claymore grip. The Sword's in-game approval was of its shortened 1.10 m size.
 
-The user's in-game checks did not cover every case. There was no close view of the Claymore hand fit and no two-hand
-grip or attack frame. The Club's female hand fit and the Knife's male close view and attack frame were not seen either.
-None of these was requested as a change. All four appearance numbers already fall inside their rows' `MaxRange`, so wave
+The original in-game checks missed the Claymore hand close-up and the Club's female hand. Scripted idle captures of
+rebuilds of the same fits show both grips in hand on both Human bodies. The rebuilds differ from the published packages
+by about 30 bytes per model and at most one colour level. The user approved the hand fit from those captures ("Hand fit
+is fine", 2026-11-13). No two-hand Claymore grip or attack frame, and no Knife male close view or attack frame, was
+reviewed. All four appearance numbers already fall inside their rows' `MaxRange`, so wave
 1 needs no table change. The comparison module gained a reviewer pair for each (`sw6_`), not run in its client.
 
 ## Melee wave 2 (2026-11-13)
