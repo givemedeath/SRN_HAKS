@@ -18,10 +18,11 @@ def patch_scope(patch):
 
 def patch_distance_bound(policy):
     """The unoriented patch distance: the policy's maximumUnorientedDistance (default 2.1 mm), within the transfer
-    distance unless the patch carries a user approval for the extended scope."""
-    unoriented=policy.get('maximumUnorientedDistance',.0021)
-    if patch_scope(policy.get('unorientedSourcePatch')) is EXTENDED_PATCH_SCOPE:return unoriented
-    return min(policy.get('maximumDistance',.003),unoriented)
+    distance unless the patch carries a user approval for the extended scope. A policy that tightens its transfer
+    distance below the 3 mm default binds every patch, approved or not."""
+    unoriented=policy.get('maximumUnorientedDistance',.0021);maximum=policy.get('maximumDistance',PATCH_SCOPE['distance'])
+    if patch_scope(policy.get('unorientedSourcePatch')) is EXTENDED_PATCH_SCOPE and maximum>=PATCH_SCOPE['distance']:return unoriented
+    return min(maximum,unoriented)
 
 
 def validate_texture_patch(corners,patch,*,maximum_distance=.0021):

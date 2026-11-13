@@ -368,6 +368,7 @@ class GeometryTests(unittest.TestCase):
         self.assertEqual(patch_distance_bound({**policy,'unorientedSourcePatch':approved}),.0032)
         self.assertEqual(patch_distance_bound({**policy,'unorientedSourcePatch':wide}),.003)       # unapproved: transfer distance
         self.assertEqual(patch_distance_bound({'maximumDistance':.002}),.002)                      # a tightened policy still binds
+        self.assertEqual(patch_distance_bound({**policy,'maximumDistance':.002,'unorientedSourcePatch':approved}),.002)   # approved too
     def test_colour_range_normalization_is_bounded_and_recorded(self):
         from .textures import normalize_source_colour
         values=np.array([[-1e-6,1.0000068,.5]],np.float32);normalized,report=normalize_source_colour(values)

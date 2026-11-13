@@ -87,6 +87,10 @@ class HaftedFitTests(unittest.TestCase):
         P, T = np.asarray(plain['matrix']), np.asarray(turned['matrix'])
         np.testing.assert_allclose(T[:3, :3], np.diag([-1., 1., -1.]) @ P[:3, :3], atol=1e-9)   # 180 degrees about native Y
         self.assertGreater(np.linalg.det(T[:3, :3]), 0)
+        with self.assertRaisesRegex(ValueError, 'true or false'):
+            measure({}, self.family, {'positions': gltf(v), 'faces': f}, {'turnAboutAxis': 'false'}, self.standard)
+        with self.assertRaisesRegex(ValueError, 'sectionBasis applies only'):                      # a club is hafted, not a staff
+            measure({}, self.family, {'positions': gltf(v), 'faces': f}, {'sectionBasis': 'visibleFaceWidth'}, self.standard)
 
     def test_a_chosen_length_and_a_bound_digest(self):
         from tools.itemkit.fit_manifest import measure

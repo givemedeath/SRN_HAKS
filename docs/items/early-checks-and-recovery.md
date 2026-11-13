@@ -118,7 +118,9 @@ value (default `[.3, .5, .1]`) is one bounded attempt; the first that stays
 closed, within budget, within `maximumDistance` (default 6 mm, at most 20 mm) of
 the source and passes every protected probe is installed. The staff head went from
 13,790 triangles to 296 of its 300 with residuals of 0-0.6 mm and a 5.6 mm worst
-distance. Visual review of the shadow is still required.
+distance. The reverse gap, from the source to the shadow, is recorded as `maximumSourceGap` but not gated. A large
+gap points at a fin or spike that the collapse removed, so check those parts in the visual review of the shadow,
+which is still required.
 
 ## Recover a completed bake without repeating it
 

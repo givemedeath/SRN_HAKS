@@ -51,6 +51,7 @@ class QuadricShadowTests(unittest.TestCase):
         self.assertGreater(report['probeProtectedFaces'],0)
         self.assertLessEqual(report['openings']['thickness'][0]['maximumSampleError'],.0005)
         self.assertLessEqual(report['maximumSourceDistance'],.006)
+        self.assertGreaterEqual(report['maximumSourceGap'],0)                    # the reverse direction, recorded for review
 
     def test_quadric_candidate_binds_its_policy_and_needs_its_libraries(self):
         p,f=tube();settings={'method':'quadric'}

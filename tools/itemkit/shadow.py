@@ -69,9 +69,9 @@ def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *
     for quality in qualities:
         # The selected-face collapse counts only the selected faces; a protected patch's rim can leave it a few over,
         # so the target steps down by the overshoot (at most three bounded passes).
-        target=budget-4-int(protected.sum())
+        target=budget-4-int(protected.sum());t=None
         for _ in range(3):
-            require(target>=4, 'Protected probe faces leave no shadow budget to collapse')
+            if target<4:break                                   # recorded below; the next threshold still gets its try
             ms=meshlab.MeshSet();ms.add_mesh(meshlab.Mesh(p,f.astype(np.int32),f_scalar_array=(~protected).astype(float)))
             ms.meshing_remove_duplicate_vertices();ms.compute_selection_by_scalar_per_face(minq=.5,maxq=1.,inclusive=True)
             ms.meshing_decimation_quadric_edge_collapse(targetfacenum=target,selected=True,preservetopology=True,preserveboundary=True,
@@ -79,6 +79,8 @@ def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *
             ms.meshing_remove_unreferenced_vertices();m=ms.current_mesh();v=m.vertex_matrix();t=m.face_matrix().astype(np.int64)
             if len(t)<=budget:break
             target-=len(t)-budget
+        if t is None:
+            attempts.append({'qualityThreshold':quality,'error':'Protected probe faces leave no shadow budget to collapse'});continue
         report=topology(v,t);row={'qualityThreshold':quality,'triangles':len(t),'closedWound':report['closedWound'],'topology':report}
         attempts.append(row)
         if diagnostics is not None:np.savez_compressed(diagnostics/f'quality-{quality}.npz',positions=v,faces=t)
@@ -86,13 +88,16 @@ def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *
             require(len(t)<=budget and report['closedWound'],'Invalid shadow topology/budget')
             distance=float(np.sqrt(igl.point_mesh_squared_distance(v,p,f.astype(np.int64))[0]).max());row['maximumDistance']=distance
             require(distance<=limit,'Quadric shadow left the source surface')
+            # The other direction is recorded for the visual review, not gated: a shadow simplifies by design, but a
+            # large gap points at a fin or spike the collapse removed.
+            gap=float(np.sqrt(igl.point_mesh_squared_distance(p,v,t)[0]).max());row['sourceToShadowDistance']=gap
             opening=protected_checks(v,t,processing)
-            accepted=(v,t,report,opening,distance);break
+            accepted=(v,t,report,opening,distance,gap);break
         except ValueError as exc:row['error']=str(exc)
     if diagnostics is not None:write(diagnostics/'attempts.json',attempts,fresh=True)
     require(accepted is not None, 'Quadric shadow failed acceptance checks: '+str(attempts))
-    v,t,report,opening,distance=accepted
-    return v,t,{'attempts':attempts,'topology':report,'openings':opening,'maximumSourceDistance':distance,
+    v,t,report,opening,distance,gap=accepted
+    return v,t,{'attempts':attempts,'topology':report,'openings':opening,'maximumSourceDistance':distance,'maximumSourceGap':gap,
         'probeProtectedFaces':int(protected.sum()),'method':'quadric','visualReviewRequired':True,'visibleGeometryUnchanged':True}
 
 
