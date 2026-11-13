@@ -4,12 +4,12 @@
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
   "updated": "2026-11-13",
-  "weaponDesigns": 25,
-  "blueprints": 27,
-  "weaponResources": 221,
-  "publicationPins": 222,
-  "modelsDecoded": 84,
-  "imagesChecked": 110,
+  "weaponDesigns": 29,
+  "blueprints": 31,
+  "weaponResources": 253,
+  "publicationPins": 254,
+  "modelsDecoded": 96,
+  "imagesChecked": 126,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -18,14 +18,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 221,
-      "sha256": "818c3f83521281c81bc2f54271ca7ef7977eaa8ca16b4535d4a4b72d387012e8",
+      "resources": 253,
+      "sha256": "7fc97b176d8fbfe7969c40ca92dc24320fd7da17a8a5d675150040f508e99f55",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
       "resources": 22,
-      "sha256": "df9b0c86394c3e5dbf37931985c306525db6b83ed7e62c1fc367c6753757cde1",
+      "sha256": "cf4342665e7c4bb8796fbf359868db07708e7289579aea242e5331ce5c6f5309",
       "exactPayload": true
     },
     {
@@ -42,8 +42,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 86,
-      "sha256": "4c62cf7a16e03b9b37c2037347050cf0d15da893c9772631aee3fad1a954a2b5",
+      "resources": 94,
+      "sha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
       "exactPayload": true
     }
   ],
@@ -87,19 +87,25 @@
     "1": {
       "MaxRange": [
         "100",
-        "181"
+        "191"
       ]
     },
     "22": {
       "MaxRange": [
         "100",
-        "111"
+        "121"
       ]
     },
     "61": {
       "MaxRange": [
         "52",
         "65"
+      ]
+    },
+    "13": {
+      "MaxRange": [
+        "100",
+        "101"
       ]
     }
   },
@@ -251,5 +257,30 @@
     "baseitemTableChanged": false,
     "sourceRuns": "The native packages and fixture modules of the runs the user approved in game (Survival Knife run-fixture-v2, Sword run-fixture-v3, Claymore run-fixture-v1, Club run-fixture-v1).",
     "archiveHashNote": "srn_weapon.hak and sw_weapon_w2.mod were rebuilt together with the melee wave 2 update; srn_2da.hak is unchanged by wave 1. The four sw6_ comparison pairs were not run in that module's client."
-  }
+  },
+  "additions": [
+    {
+      "date": "2026-11-13",
+      "items": [
+        "sr4-vibro-blades-knife-9604aa44b5",
+        "sr4-rapier-c89da3d7df",
+        "sr4-combat-axe-3870814348",
+        "sr4-spear-2febc2a88a"
+      ],
+      "payloadsByteIdenticalToNativePackages": true,
+      "rebuiltArchivesPayloadExact": true,
+      "baseitemTableChanged": true,
+      "comparisonReviewers": [
+        "sw7_m0",
+        "sw7_f0",
+        "sw7_m1",
+        "sw7_f1",
+        "sw7_m2",
+        "sw7_f2",
+        "sw7_m3",
+        "sw7_f3"
+      ],
+      "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
+    }
+  ]
 }
