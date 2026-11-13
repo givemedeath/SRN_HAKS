@@ -237,9 +237,13 @@ def grip_fit(cfg, matrix, working):
         elif cfg['fit'].get('sizingAuthority')=='usable-length-round':
             matrix,grip_report=one_hand_round(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
         elif cfg['fit'].get('sizingAuthority')=='midpoint-depth-uniform':
+            require(ROUTES[cfg['family']['family']].section=='uniform','midpoint-depth-uniform needs a section="uniform" route')
             matrix,grip_report=transverse_uniform(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'),
                                                   cfg['fit'].get('sectionBasis','depth'))
         else:
+            # A staff manifest from before section="uniform" would rebuild the flattened staff (user, 2026-11-12).
+            require(ROUTES[cfg['family']['family']].section!='uniform',
+                    'A section="uniform" route is never sized by the per-axis hilt calibration; refit it')
             matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
     return matrix, grip_report
 
