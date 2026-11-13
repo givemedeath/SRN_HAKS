@@ -27,13 +27,13 @@
   "resources": [
     {
       "path": "test-modules/weapon-waves/module/c.ncs",
-      "sha256": "3e0aaa58fa4813efb14953271f58b15421903f04bcaa05c26874294c56928433",
-      "bytes": 9926
+      "sha256": "3c05bdadecf5c2ccf6312f9077286e8ada6c1115f5338320581e33826ff8953a",
+      "bytes": 9804
     },
     {
       "path": "test-modules/weapon-waves/module/c.nss",
-      "sha256": "529188db2e79d0b0911f0ca9c3828fe89d6e3e7fa4524c35735a13f58031ed54",
-      "bytes": 8901
+      "sha256": "13bb49cee146724b9a1c62ad87d3702a1bf5f301be0a9999e565889f62964dfc",
+      "bytes": 8851
     },
     {
       "path": "test-modules/weapon-waves/module/module.ifo",

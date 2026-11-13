@@ -105,15 +105,15 @@ class RepositoryManifestTests(unittest.TestCase):
         module=crm.ROOT/'test-modules/weapon-waves/module'
         placed=crm.parse_gff((module/'sr_it_floor.git').read_bytes())['Creature List']
         actors={actor['Tag']:actor for actor in placed}
-        self.assertEqual(len(actors),52)
-        self.assertEqual(len(placed),len(actors))
-        bindings=re.findall(r'Equip\("(sw[1-6]_[mf][0-4])","([^"]+)"',
-                            (module/'sw2_enter.nss').read_text())
-        self.assertEqual(len(bindings),len(actors))
-        self.assertEqual({tag for tag,_ in bindings},set(actors))
         expected={bp['resRef'] for item in self.manifest['items'] for bp in item['blueprints']}
         # The launcher is a gameplay entry sharing its AK-98 parent's model.
         expected.remove('sra84e4660gl')
+        self.assertEqual(len(actors),2*len(expected))   # one male and one female reviewer per published finish
+        self.assertEqual(len(placed),len(actors))
+        bindings=re.findall(r'Equip\("(sw\d_[mf][0-4])","([^"]+)"',
+                            (module/'sw2_enter.nss').read_text())
+        self.assertEqual(len(bindings),len(actors))
+        self.assertEqual({tag for tag,_ in bindings},set(actors))
         by_item={}
         for tag,resref in bindings:
             by_item.setdefault(resref,[]).append(actors[tag]['Gender'])

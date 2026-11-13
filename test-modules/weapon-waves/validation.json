@@ -24,7 +24,7 @@
     {
       "archive": "sw_weapon_w2.mod",
       "resources": 85,
-      "sha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
+      "sha256": "1d636d5777f3392efa90b005776a59048d959e5741f421367559a4b317f4ce8c",
       "exactPayload": true
     }
   ],
@@ -65,7 +65,7 @@
         "staff looks good",
         "tomahawk looks good too"
       ],
-      "moduleSha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
+      "moduleSha256": "ab1faf9cf7f264034bbb97b963ca7aa6cf3a15a8d3062368ca42e44dd874ad43",
       "note": "Ceramic Knife, Extendable Baton, Tomahawk, Baseball Bat and Stun Staff pairs were added to this module (sw5_, southern row). They were not run in this module's client; each item was viewed in the client on both Human bodies in its own itemkit fixture. Earlier approvals above refer to the earlier module bytes."
     },
     "extension3": {
@@ -75,7 +75,7 @@
       "statements": [
         "Yes, keep it"
       ],
-      "moduleSha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
+      "moduleSha256": "1d636d5777f3392efa90b005776a59048d959e5741f421367559a4b317f4ce8c",
       "note": "Survival Knife, Sword, Club and Claymore pairs were added to this module (sw6_, southern row). They were not run in this module's client; each item was viewed in the client in its own itemkit fixture and kept by the user. Earlier approvals above refer to the earlier module bytes."
     }
   }

@@ -3,6 +3,7 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
+  "updated": "2026-11-13",
   "weaponDesigns": 25,
   "blueprints": 27,
   "weaponResources": 221,
@@ -42,7 +43,7 @@
     {
       "archive": "sw_weapon_w2.mod",
       "resources": 85,
-      "sha256": "2ee409df729607f26b37ee696a93607e0c2543e9137c303726a2f2d19fdb1bc5",
+      "sha256": "1d636d5777f3392efa90b005776a59048d959e5741f421367559a4b317f4ce8c",
       "exactPayload": true
     }
   ],

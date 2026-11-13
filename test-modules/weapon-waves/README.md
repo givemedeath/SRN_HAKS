@@ -31,7 +31,8 @@ Use a separate NWN user directory. Supply the released `srn_weapon.hak` and
 fixture HAKs built above. The module IFO records the priority order. It starts
 on Cougar Knife pair 11; click the male reviewer for the next pair or the female
 for a 60-second action test. There are twenty-six distinct male/female NPC pairs:
-the ten Wave 1/2 designs, all three Cougar blades, both Colt finishes, the Vibro
+the ten designs of the original weapon waves 1 and 2 (2026-11-03, not the later
+melee waves), all three Cougar blades, both Colt finishes, the Vibro
 Blades Sword, the Ares Predator IV, the five melee wave 2 designs (Ceramic Knife,
 Extendable Baton, Tomahawk, Baseball Bat, Stun Staff) and the four melee wave 1
 designs (Survival Knife, Sword, Club, Claymore). The Cougar, Colt, Vibro, Predator

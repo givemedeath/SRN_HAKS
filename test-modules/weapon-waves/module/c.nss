@@ -72,7 +72,7 @@ void main() {
   WriteTimestampedLogEntry("SW2_FIXED_START reviewers="+IntToString(count)+" thrown="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sr2273b8c")))+" arrows="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sw2_arrow"))));stage=11;
  }
  if(stage>=1&&stage<=52) {
-  int pair=(stage-1)%26;int index=pair%5;float y=17.0;string prefix="sw1_";if(pair>=5){y=29.0;prefix="sw2_";}if(pair>=10){y=7.0;prefix="sw3_";}if(pair>=15){y=7.0;prefix="sw4_";}if(pair>=17){y=7.0;prefix="sw5_";index=pair-17;}if(pair>=22){y=7.0;prefix="sw6_";index=pair-22;}
+  int pair=(stage-1)%26;int index=pair%5;string prefix="sw1_";if(pair>=5)prefix="sw2_";if(pair>=10)prefix="sw3_";if(pair>=15)prefix="sw4_";if(pair>=17){prefix="sw5_";index=pair-17;}if(pair>=22){prefix="sw6_";index=pair-22;}
   object male=GetObjectByTag(prefix+"m"+IntToString(index));object female=GetObjectByTag(prefix+"f"+IntToString(index));Arrange(male,female,pc,pair);Report(male);Report(female);
   if(stage>26 && pair==4){DelayCommand(0.5,ShieldProbe(male));DelayCommand(0.5,ShieldProbe(female));}
   if(stage>26) {

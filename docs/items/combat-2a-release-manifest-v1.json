@@ -11,7 +11,7 @@
   },
   "authorities": {
     "docs/items/approved-weapons-v1.json": "d4e15034a07b47cad107574cdfed07f5c8b47189a1f5b54f7283d22e7c8b64b1",
-    "docs/items/approved-weapon-waves-release-validation.json": "d69b3d63d773893cef89a2658465974603785beac3c2dec2c6b6d5cfc93479ca",
+    "docs/items/approved-weapon-waves-release-validation.json": "bee4ddf7cbb1859692e05eba64d9b9ba707252481e8df7950fcf4c219f480453",
     "docs/items/firearm-grip-standard-v1.json": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2",
     "docs/items/weapon-grip-standard-v1.json": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988",
     "PROVENANCE.md#approved-cougar-blades-and-colt-l36": "section record (srn_weapon, 2026-10-24)"

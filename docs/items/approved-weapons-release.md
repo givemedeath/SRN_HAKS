@@ -105,7 +105,8 @@ bodies hold the weapon (static inspection); their 60-second attack tests were no
 
 ## Melee wave 1 (2026-11-13)
 
-Four designs from the first melee wave, published with wave 2 below. Each package is the exact bytes of the native HAK,
+Four designs from the first melee wave (the 35-design melee plan of 2026-11-09, not the original weapon waves 1 and 2),
+published with wave 2 below. Each package is the exact bytes of the native HAK,
 and each blueprint the exact bytes from the fixture module, of the run the user approved in the NWN:EE client ("Yes,
 keep it" for each). Hashes are in `approved-weapons-v1.json`. The Spear is not included: only its clay is approved.
 
