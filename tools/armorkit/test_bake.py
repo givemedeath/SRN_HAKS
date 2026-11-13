@@ -81,6 +81,10 @@ class BakeTests(unittest.TestCase):
         self.assertEqual(flags('legl', 'under'), [False, False, True, False, True, False])
         self.assertEqual(flags('legl', 'cap'), [False, False, False, False, False, True])
         self.assertEqual(flags('legl', 'closing'), [False, True, False, False, False, False])
+        # a glove's cap at the wrist likewise, which a bare forearm shows at the cuff
+        for name in ('handl', 'handr'):
+            self.assertEqual(flags(name, 'under'), [False, False, True, False, False, False])
+            self.assertEqual(flags(name, 'cap'), [False, False, False, False, True, True])
         # the pelvis's lids likewise, and so not drawn as closings
         self.assertEqual(flags('pelvis', 'under'), [False, True, False, False, False, False])
         self.assertFalse(any(flags('pelvis', 'closing')))

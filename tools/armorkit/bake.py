@@ -28,7 +28,7 @@ from .registry import require
 ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED)  # what the split made: it has no surface of its own on the generated outfit
 DOMED = (split.CAP, split.PADDED)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
 UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelvis': (split.CLOSING,),
-         'chest': (split.CLOSING,)}  # shaded as the cloth round them (`texture.under`)
+         'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
 BUDGET = {'chest': 6000, 'slot': 2250, 'outfit': 30000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
@@ -61,7 +61,8 @@ def roles(name, made):
     thigh's cap and its wall toward the other leg, the pelvis's lids, of which a stride shows a hand's
     breadth, and the chest's closings round each arm, which a lifted arm shows: drawn from their rims, they
     were fans of streaks in the pad's and the sleeve's colours (the Site Guard with its arms up, in the
-    client). `closing`, `cap` and `padded` are `texture.tint_maps`' flags of the same names for the rest: a
+    client). So is a glove's cap, which a bare forearm shows at the cuff and a bent wrist shows more of:
+    drawn flat, it was a pale band round the wrist (Facility Security, in the client). `closing`, `cap` and `padded` are `texture.tint_maps`' flags of the same names for the rest: a
     thigh's wall goes with its cap where it is not `under`.
 
     An upper arm's cap is none of these and is drawn as it was read, its rim's colours carried to its pole.
@@ -359,14 +360,25 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
 def cut(given, contract=None):
     """The split as a bake runs it, on what `bake` gives it (`keep_split`): (parts, made, origins) as `split.split`
     returns them and fills them in. Each end at a tube joint is shaped to the contract (`ends.shaper`), the hips
-    are cut on the body's seat and the shoulders on its armhole, and the neck is left whole."""
+    are cut on the body's seat and the shoulders on its armhole, and the neck is left whole. An end under a
+    slot the brief leaves to the body lies on the body's skin and is shaped skin-tight (`ends.BARE`), its cap
+    stepping in under the skin at the plane (`ends.TUCK`)."""
     contract = seams.load_contract() if contract is None else contract
     made, origins = {}, {}
+    bare = bare_joints(given)
     result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
                          reaches=given['reaches'], whole={('neck', 'c')}, made=made, sleeves=given['sleeves'], guards=given['guards'],
-                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards']),
-                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'])
+                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare})
     return result, made, origins
+
+
+def bare_joints(given):
+    """The (joint, side) pairs of the shaped joints (`ends.TUBES`) whose over slot the brief leaves to the body
+    (`given['left']`): an end under one lies on the body's own skin."""
+    left = set(given.get('left', ()))
+    return {(joint, side) for joint in shaping.TUBES for side in seams.sides(joint)
+            if split.token(seams.JOINTS[joint]['over'], 'l' if side == 'c' else side) in left}
 
 
 def skin_beside(body_pack, body_textures, body, bones, slot, name, vertices, faces):

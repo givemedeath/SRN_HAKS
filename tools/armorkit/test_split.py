@@ -1406,6 +1406,26 @@ class KneeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 split.split(self.v, self.f, self.t, JOINTS, RADII, guards=bad)
 
+    def test_a_cap_told_to_tuck_steps_in_under_its_rim_at_the_plane(self):
+        depth = {('knee', 'l'): 0.04}
+        height = lambda points: (points - self.point) @ self.normal
+        across = lambda points: np.linalg.norm((points - self.point) - height(points)[:, None] * self.normal, axis=1)
+        made = {}
+        plain = split.split(self.v, self.f, self.t, JOINTS, RADII, depth)
+        tucked = split.split(self.v, self.f, self.t, JOINTS, RADII, depth, made=made, tucks={('knee', 'l'): 0.25})
+        for name in tucked:
+            if name != 'shinl':
+                self.assertTrue(np.array_equal(tucked[name][0], plain[name][0]), name)
+        points, faces, _ = tucked['shinl']
+        cap = np.unique(faces[made['shinl'] == split.CAP])
+        rim = across(points[cap][np.abs(height(points[cap])) < 1e-6]).max()
+        first = cap[(height(points[cap]) < -1e-6) & (height(points[cap]) > -0.04 * split.TUCK_RISE - 1e-6)]
+        self.assertTrue(len(first))
+        self.assertTrue(np.allclose(across(points[first]).max(), 0.75 * rim, atol=0.002))  # a quarter in, just past the plane
+        self.assertAlmostEqual(-height(points).min(), 0.04, places=6)  # and as deep as it was asked for
+        # untold, the cap's first ring is a dome's, half its depth past the plane: its faces from the rim run that far out
+        self.assertFalse(((height(plain['shinl'][0]) < -1e-6) & (height(plain['shinl'][0]) > -0.01)).any())
+
     def test_an_elbow_pad_is_found_behind_the_elbow_or_on_its_outer_side(self):
         J = {name: np.array(p, float) for name, p in JOINTS.items()}
         inside = J['lbicep_g'] + 0.06 * seams.unit(J['lbicep_g'] - J['lforearm_g'])

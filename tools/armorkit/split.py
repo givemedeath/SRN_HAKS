@@ -1285,7 +1285,7 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
 
 
 def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None,
-          shape=None, deep=(), seat=None, arms=None):
+          shape=None, deep=(), seat=None, arms=None, tucks=None):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -1322,7 +1322,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     `shape`, if given, is called on each part after its closings and lids and before its caps, as
     `shape(name, vertices, faces, uvs, origin)` with the part's own faces first in `faces` and `origin` the face
     of `faces` given here each of those was cut from; it returns the part's (vertices, uvs), which the caps
-    then grow from (`ends.shaper`). At the joints `deep` names a cap is not `bounded`.
+    then grow from (`ends.shaper`). At the joints `deep` names a cap is not `bounded`. `tucks` maps a (joint,
+    side) to the share inside its rim an under part's cap starts there (`cap`'s `tuck`), over `TUCKS`.
 
     `seat` maps a hip, ('hip', side), to `reach`, how far the body's pelvis runs past that hip plane down the
     thigh per direction (`measure.seat`), and `ring`, the radius per direction the thigh's end stands at on
@@ -1457,7 +1458,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 if pads.get(name, (None,))[0] == (joint, side):
                     full[:len(mine)] = pads[name][1][owner == index]
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
-                options = {'tuck': TUCKS[joint], 'steps': TUCK_STEPS} if joint in TUCKS else {}
+                tuck = (tucks or {}).get((joint, side), TUCKS.get(joint))
+                options = {'tuck': tuck, 'steps': TUCK_STEPS} if tuck else {}
                 options['bounded'] = joint not in deep
                 if full.any():  # a pad's rim is carried round the hinge in its own number of rings, tucked or not
                     options.update(full=full, hinge=np.cross(opens - (opens @ across) * across, -across), steps=GUARD_STEPS)

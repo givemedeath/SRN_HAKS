@@ -29,6 +29,9 @@ MARGIN = 0.0005  # an under end stands this far inside the envelope, an over end
 PLATEAU = 0.012  # the end stands on the envelope this far from the plane before it blends back into the part
 LONGEST = 0.12  # an end blends back over half the part's run on its side of the plane, and no farther than this
 DEEPER = 0.005  # a cap at a tube joint runs this much deeper than the overlap: its surface is read in steps near the pole
+BARE = 0  # the tier an under end is brought to where the body's own skin lies over it: a glove's cuff under a bare forearm
+# stood at the outfit's padded tier, 2.5 cm off the skin, and its cap ran 6 cm up the arm as a band (Facility Security, 2026-11-13)
+TUCK = 0.25  # and its cap starts this share inside its rim, under the skin at once: from the rim, it crossed the skin 1.5 cm up as a grey band
 BINS = 64  # directions about the axis the end's ring is read in
 FAR = 1.3  # what stands this many times farther from the axis than the ring and the envelope moves less, the farther the less
 STEP = 0.002  # the plane section is sampled this densely
@@ -100,13 +103,15 @@ def spread(vertices, faces, point, normal, under, rim):
     return np.maximum(np.maximum(np.roll(widest, 1), widest), np.roll(widest, -1))
 
 
-def target(envelope, angles, under, margin=MARGIN, span=None):
+def target(envelope, angles, under, margin=MARGIN, span=None, skin=False):
     """The envelope at `angles`, read straight from one of its 16 directions' radius to the next as the gate reads
     it (`seams.around`), `margin` inside it for an under end and outside it for an over end, and as much again as
-    an edge of the ring spanning `span` (per direction of `ring`, from `spread`) cuts across or bulges out."""
+    an edge of the ring spanning `span` (per direction of `ring`, from `spread`) cuts across or bulges out. An
+    under end on the body's `skin` (`ends_of`) stands out by that much instead, so that its edges clear the
+    skin: a glove's cuff of few vertices, drawn in by it, lay 4 mm inside a bare forearm between them."""
     value = seams.around(envelope, angles)
     sag = 0.0 if span is None else 1 - np.cos(np.minimum(span[np.floor(np.asarray(angles) / (2 * np.pi / BINS)).astype(int) % BINS], WIDEST) / 2)
-    return value * (1 - sag) - margin if under else value * (1 + sag) + margin
+    return value * (1 - sag) - margin if under and not skin else value * (1 + sag) - margin if under else value * (1 + sag) + margin
 
 
 def smooth(t):
@@ -114,11 +119,12 @@ def smooth(t):
     return t * t * (3 - 2 * t)
 
 
-def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=None, whole=None):
+def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=None, whole=None, skin=False):
     """The vertices of a part with its end at one joint plane brought to the envelope. `rim` is the end's
     `ring`, `envelope` and `body_ring` the contract's 16 directions, `under` whether the part lies on the
     normal's side of the plane, `length` how far from the plane it blends back into the part; what it has past
-    the plane moves whole, and so do the vertices `whole` flags. `span` is the end's `spread`."""
+    the plane moves whole, and so do the vertices `whole` flags. `span` is the end's `spread`, and `skin` says
+    an under end lies on the body's skin (`target`)."""
     vertices = np.asarray(vertices, float)
     normal = seams.unit(normal)
     u, v = seams.frame(normal)
@@ -127,7 +133,7 @@ def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=N
     radial = relative - height[:, None] * normal
     r = np.linalg.norm(radial, axis=1)
     angle = np.arctan2(radial @ v, radial @ u) % (2 * np.pi)
-    R, T = _around(rim, angle), target(envelope, angle, under, span=span)
+    R, T = _around(rim, angle), target(envelope, angle, under, span=span, skin=skin)
     # nothing is drawn in past the body ring, given in the contract's directions as the envelope is (`seams.around`)
     body = np.minimum(seams.around(body_ring, angle), T)
     grown = r * T / R
@@ -154,8 +160,12 @@ def normals(vertices, faces):
     return out / np.maximum(np.linalg.norm(out, axis=1, keepdims=True), 1e-12)
 
 
-def ends_of(name, bones, contract, body, tier, joints=TUBES):
-    """[(point, normal, envelope, body ring, under)] for each end part `name` has at `joints`."""
+def ends_of(name, bones, contract, body, tier, joints=TUBES, bare=()):
+    """[(point, normal, envelope, body ring, under, skin)] for each end part `name` has at `joints`. At a joint
+    and side `bare` names, (joint, side), the over part is the body's own skin: an under end there lies on it
+    (`skin`), and is brought to the skin-tight tier's envelope (`BARE`) whatever the outfit's tier. Its body
+    ring is then the envelope itself: what stands outside the envelope is laid on it, and nothing is drawn in
+    under it, where the skin over it, which the body ring reads only on the plane, showed through."""
     found = []
     for joint in joints:
         spec = seams.JOINTS[joint]
@@ -165,8 +175,11 @@ def ends_of(name, bones, contract, body, tier, joints=TUBES):
                 tokens = registry.SLOTS[spec[key]]['tokens']
                 if name == (tokens[0] if len(tokens) == 1 else tokens['lr'.index(letter)]):
                     point, normal = seams.plane(bones, joint, letter)
-                    envelope = np.asarray(seams.envelope(contract, joint, body, tier, paired), float)
-                    found.append((point, seams.unit(normal), envelope, envelope - contract['tierOffsets'][str(tier)], key == 'under'))
+                    skin = key == 'under' and (joint, side) in bare
+                    level = BARE if skin else tier
+                    envelope = np.asarray(seams.envelope(contract, joint, body, level, paired), float)
+                    found.append((point, seams.unit(normal), envelope, envelope if skin else envelope - contract['tierOffsets'][str(level)],
+                                  key == 'under', skin))
     return found
 
 
@@ -176,7 +189,7 @@ def shaped(vertices, faces, measured, part_ends):
     vertices = np.asarray(vertices, float)
     faces = np.asarray(faces, int)
     mine = faces[np.asarray(measured, bool)]
-    for point, normal, envelope, body_ring, under in part_ends:
+    for point, normal, envelope, body_ring, under, skin in part_ends:
         reach = (vertices - point) @ normal * (1 if under else -1)
         length = min(LONGEST, 0.5 * float(reach[np.unique(faces)].max()))
         band = np.abs(np.asarray(BAND[under]))
@@ -187,19 +200,20 @@ def shaped(vertices, faces, measured, part_ends):
             rim = ring(vertices, mine, point, normal, under)
             if rim is None:
                 break
-            vertices = end(vertices, point, normal, rim, envelope, body_ring, under, length, spread(vertices, mine, point, normal, under, rim), whole)
+            vertices = end(vertices, point, normal, rim, envelope, body_ring, under, length, spread(vertices, mine, point, normal, under, rim), whole, skin)
     return vertices
 
 
-def shaper(bones, contract, body, tier, pads=None, joints=TUBES):
+def shaper(bones, contract, body, tier, pads=None, joints=TUBES, bare=()):
     """The hook `split.split` calls on each part before its caps (`shape`): the part's ends at `joints` brought
     to tier `tier`'s envelope on body `body`, and the vertex normals the first three columns carry turned as the
     surface turned. `pads` maps (joint, side) to the flags of a pad's faces on the outfit (`split.guard`); a
-    pad's faces are no part of a ring, and every other face is, the closings the split made included."""
+    pad's faces are no part of a ring, and every other face is, the closings the split made included. At the
+    joints `bare` names the over part is the body's skin, and the under end is skin-tight (`ends_of`)."""
     flags = [np.asarray(found, bool) for found in (pads or {}).values()]
 
     def shape(name, vertices, faces, columns, origin):
-        part_ends = ends_of(name, bones, contract, body, tier, joints)
+        part_ends = ends_of(name, bones, contract, body, tier, joints, bare)
         if not part_ends:
             return vertices, columns
         faces = np.asarray(faces, int)

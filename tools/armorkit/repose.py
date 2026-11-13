@@ -46,6 +46,13 @@ BLEND = 0.45  # a vertex also follows a bone this much farther away (in thicknes
 SMOOTHING = 6  # passes that even the bone weights out over the surface, so no bone boundary tears it
 THUMB = 1.3  # a glove's thumb side reaches at least this much farther from the middle of its flat than the other side
 GLOVE = 20  # faces of an outfit that follow a hand, at least, for a glove to be turned
+KNUCKLES = 0.55  # a glove's fingers start this share of its length from the wrist
+CURL = math.radians(70)  # and bend toward its palm by this much at their tips, as a hand at rest curls
+PALM = 0.002  # a glove's thumb lies this far to one side of its middle at least, or which side is its palm is not told
+GLOVE_SKIN = 0.004  # a glove drawn in to the body's hand stands this far outside it a side: the seam contract's tier 0
+HAND_RING = 0.01  # glove and hand are compared in rings this tall along the hand bone
+HAND_ENDS = (0.01, 0.02)  # the hand's rings this near its wrist end and its fingertips are its rounded ends: the glove is held to the ring beside them
+NARROWEST = 0.5  # a glove is never drawn in to less than this share of its width
 # The body part the outfit is fitted round, per bone. Hands and feet are not fitted: gloves and boots replace the
 # body's closed fists and bare toes, and widening a boot round the toes turns it into a flipper.
 SKIN = {'pelvis': 'pelvis', 'torso': 'chest', 'neck': 'neck', 'thigh': 'leg', 'shin': 'shin', 'upper': 'bicep', 'fore': 'fore'}
@@ -555,6 +562,124 @@ def fit(posed, weight, there, parts, clearance=CLEARANCE):
     return result + (1 - used)[:, None] * posed, report
 
 
+def gloved(posed, weight, there, parts):
+    """(vertices, report): each glove's fingers bent toward its palm, and the glove drawn in to the body's hand.
+
+    A generated glove is an open hand, its fingers spread and its thumb out, as the figure was drawn with its
+    arms held out; the bodies hang a closed hand at their sides, and the glove takes its place. Facility
+    Security's gloves stood up to 3 cm wider than the body's hands, 3 cm forward of them, and 2 cm past
+    their knuckles, and in the client they were large flat paddles at the ends of the arms (2026-11-13).
+
+    Past `KNUCKLES` of its length from the wrist a glove is bent about the line across its knuckles toward its
+    palm, by `CURL` at its fingertips, as a hand at rest curls. Its palm is the side its thumb lies on, the
+    thumb being what reaches farthest forward (`thumb_turn` turned it there): the bodies hang their hands palm
+    to thigh. A glove whose thumb lies within `PALM` of its middle is not bent. Then, in rings `HAND_RING` tall
+    along the hand bone, the glove is drawn onto the body's hand: across the thumb the middle of each ring
+    onto the hand's, and across the thumb and the palm its width, where wider than the hand's and
+    `GLOVE_SKIN` a side, down to that, never below `NARROWEST` of what it was. Across the palm a ring keeps
+    its middle: there the curl moved it, and set back on the hand's middle the fingertips stood straight again. The hand's rounded ends (`HAND_ENDS`) say nothing of
+    its width, and the rings past them are held to the ring beside them. Rings are evened with their
+    neighbours, so the glove does not step from one to the next. A vertex moves by the share it follows the
+    hand, and is then kept outside the forearm's skin where that runs on into the hand (`outside_forearm`). `report` maps a hand bone to its narrowest share across and its knuckles' height, None where no glove
+    follows it."""
+    posed = np.array(posed, float)
+    names = [bone[0] for bone in BONES]
+    rng = np.random.default_rng(0)
+    report = {}
+    for side in 'lr':
+        share = weight[names.index('hand' + side)]
+        mine, held = np.flatnonzero(share > 0), share > 0.5
+        if held.sum() < GLOVE:
+            report['hand' + side] = None
+            continue
+        wrist = there['wrist' + side]
+        axis = seams.unit(there['tip' + side] - wrist)
+        forward = seams.unit(np.array([0.0, 1.0, 0.0]) - axis[1] * axis)
+        across = np.cross(axis, forward)
+        relative = posed[mine] - wrist
+        h, w, p = relative @ axis, relative @ forward, relative @ across
+        hold = held[mine]
+        thumb = hold & (w >= np.percentile(w[hold], 96))
+        lean = float(p[thumb].mean() - p[hold].mean())
+        length = float(np.percentile(h[hold], 99.5))
+        knuckle = KNUCKLES * length
+        if abs(lean) >= PALM:  # bent about the knuckles' line, the centre of the bend toward the palm
+            palm = math.copysign(1.0, lean)
+            radius = (length - knuckle) / CURL
+            q = np.minimum(palm * p, 0.9 * radius)
+            s = h - knuckle
+            angle = np.clip(s / radius, 0.0, CURL)
+            beyond = np.maximum(s - radius * CURL, 0.0)
+            h, p = (np.where(s > 0, knuckle + (radius - q) * np.sin(angle) + beyond * math.cos(CURL), h),
+                    np.where(s > 0, palm * (radius - (radius - q) * np.cos(angle) + beyond * math.sin(CURL)), p))
+        hand = np.asarray(parts['hand' + side][0], float), np.asarray(parts['hand' + side][1], int)
+        body = surface(hand[0], hand[1], 20000, rng) - wrist
+        body_h = body @ axis
+        centres = np.arange(h[hold].min(), h[hold].max() + HAND_RING, HAND_RING)
+        lookup = np.clip(centres, body_h.min() + HAND_ENDS[0] + HAND_RING / 2, body_h.max() - HAND_ENDS[1] - HAND_RING / 2)
+        narrowest, moved = 1.0, []
+        for values, body_values, centred in ((w, body @ forward, True), (p, body @ across, False)):
+            middle, factor, shift = [], [], []
+            for centre, look in zip(centres, lookup):
+                ring = hold & (np.abs(h - centre) <= HAND_RING / 2)
+                there_ring = np.abs(body_h - look) <= HAND_RING / 2
+                if not ring.any() or not there_ring.any():
+                    middle.append(np.nan); factor.append(np.nan); shift.append(np.nan)
+                    continue
+                low, high = values[ring].min(), values[ring].max()
+                body_low, body_high = body_values[there_ring].min(), body_values[there_ring].max()
+                middle.append((low + high) / 2)
+                factor.append(min(1.0, max(NARROWEST, (body_high - body_low + 2 * GLOVE_SKIN) / max(high - low, 1e-6))))
+                shift.append((body_low + body_high) / 2 - (low + high) / 2 if centred else 0.0)
+            rows = np.array([middle, factor, shift])
+            have = ~np.isnan(rows[0])
+            rows = np.array([np.interp(centres, centres[have], row[have]) for row in rows])
+            for _ in range(2):  # evened with the rings either side
+                padded = np.pad(rows, ((0, 0), (1, 1)), mode='edge')
+                rows = (padded[:, :-2] + padded[:, 1:-1] + padded[:, 2:]) / 3
+            middle, factor, shift = (np.interp(h, centres, row) for row in rows)
+            moved.append(middle + shift + (values - middle) * factor)
+            narrowest = min(narrowest, float(rows[1].min()))
+        new = wrist + h[:, None] * axis + moved[0][:, None] * forward + moved[1][:, None] * across
+        posed[mine] += share[mine, None] * (new - posed[mine])
+        posed[mine] = outside_forearm(posed[mine], wrist, seams.unit(wrist - there['elbow' + side]), parts['fore' + side], rng)
+        report['hand' + side] = (round(narrowest, 3), round(knuckle, 3))
+    return posed, report
+
+
+def outside_forearm(points, wrist, axis, fore, rng):
+    """`points` of a glove set `GLOVE_SKIN` outside the body's forearm (`fore`, its vertices and faces) where that
+    runs on past the wrist into the hand: a forearm left bare is drawn over the glove there, and the glove drawn
+    in to the hand lay inside its end, which showed through the cuff in patches (Facility Security, 2026-11-13).
+    Compared round the forearm's `axis` past the `wrist`, as the seam contract's wrist plane is, in rings
+    `HAND_RING` / 2 tall and `SECTORS` directions, each point against the skin's widest in its own direction and
+    the two beside it."""
+    skin = surface(np.asarray(fore[0], float), np.asarray(fore[1], int), 20000, rng) - wrist
+    along = skin @ axis
+    skin, along = skin[along > 0], along[along > 0]
+    if not len(skin):
+        return points
+    u, v = seams.frame(axis)
+    step = HAND_RING / 2
+    rings = int(math.ceil(along.max() / step))
+    cell = lambda h, a: (np.clip(np.floor(h / step).astype(int), 0, rings - 1), np.floor((a + math.pi) / (2 * math.pi) * SECTORS).astype(int) % SECTORS)
+    radius = lambda rel, h: rel - h[:, None] * axis
+    across = radius(skin, along)
+    widest = np.zeros((rings, SECTORS))
+    np.maximum.at(widest, cell(along, np.arctan2(across @ v, across @ u)), np.linalg.norm(across, axis=1))
+    widest = np.maximum(np.maximum(np.roll(widest, 1, axis=1), widest), np.roll(widest, -1, axis=1))
+    relative = np.asarray(points, float) - wrist
+    h = relative @ axis
+    flat = radius(relative, h)
+    r = np.linalg.norm(flat, axis=1)
+    inside = (h > 0) & (h < rings * step)
+    least = np.zeros(len(points))
+    found = widest[cell(h[inside], np.arctan2(flat[inside] @ v, flat[inside] @ u))]
+    least[inside] = np.where(found > 0, found + GLOVE_SKIN, 0.0)
+    grow = np.where((least > r) & (r > 1e-9), least / np.maximum(r, 1e-9), 1.0)
+    return wrist + h[:, None] * axis + flat * grow[:, None]
+
+
 def apart(vertices, side, legs, there):
     """The vertices with each leg kept on its own side of the middle between the body's hip joints.
 
@@ -594,7 +719,8 @@ def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE, materials=None
     vertices given followed by the new ones on those cuts, and `sleeves` what `split.split` takes to part the
     sleeves there. With `materials`, a material per face (`texture.mesh_materials`), a shoulder pad on such an
     arm is parted along its outline too; `padded` names the sides the outfit is designed with one on, and an
-    outfit that shows none there is refused. The torso's own vertices on those cuts follow no bone of that arm. Each leg is kept on its
+    outfit that shows none there is refused. The torso's own vertices on those cuts follow no bone of that arm.
+    Each glove is curled and drawn in to the body's hand (`gloved`, reported as `gloves`). Each leg is kept on its
     own side of the middle (`apart`), and the soles are set on the ground by the share each vertex follows a
     foot. Also returned: the outfit's own `joints` and `landmarks`,
     its `scale` to the body (neck height over neck height), the bone `weights`, the `posed` vertices before the
@@ -612,8 +738,9 @@ def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE, materials=None
         free[np.ix_(arm, np.flatnonzero(found['torso']))] = False
     posed, weight = repose(vertices, faces, here, there, scale, marks['height'], free)
     fitted, report = fit(posed, weight, there, parts, clearance)
+    fitted, gloves = gloved(fitted, weight, there, parts)
     follows = lambda kinds: weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) in kinds]].sum(axis=0)
     fitted = apart(fitted, np.where(vertices[:, 0] < marks['middle'], -1.0, 1.0), follows(('thigh', 'shin', 'foot')), there)
     fitted = grounded(fitted, follows(('foot',)))
     return {'vertices': fitted, 'faces': faces, 'origin': origin, 'source': vertices, 'sleeves': sleeves, 'joints': here, 'landmarks': marks,
-            'scale': scale, 'weights': weight, 'posed': posed, 'widening': report}
+            'scale': scale, 'weights': weight, 'posed': posed, 'widening': report, 'gloves': gloves}

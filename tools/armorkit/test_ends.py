@@ -116,6 +116,33 @@ class ShapedTests(unittest.TestCase):
         self.assertFalse(np.allclose(turned[:, :3], columns[:, :3]))
         self.assertTrue(np.array_equal(shape('chest', v, f, columns, np.arange(len(f)))[0], v))  # a part with no end at the joints is left
 
+    def test_an_end_under_the_bodys_own_skin_is_brought_skin_tight(self):
+        bones, terms = rig(), contract()
+        forearm = arm(0.25, 0.6, 0.08)
+        columns = np.c_[ends.normals(forearm['v'], forearm['f']), np.zeros((len(forearm['v']), 3))]
+        sides = 1 - np.cos(np.pi / 32)
+        reached = {}
+        for bare in ((), {('elbow', 'l')}):
+            shape = ends.shaper(bones, terms, 'test', 2, joints=('elbow',), bare=bare)
+            r, h = radial(shape('forel', forearm['v'], forearm['f'], columns, np.arange(len(forearm['f'])))[0])
+            reached[bool(bare)] = r[h <= ends.PLATEAU]
+        ring = 0.065 - terms['tierOffsets']['2']  # the body's own outline at the elbow
+        self.assertTrue(np.allclose(reached[False], (ring + terms['tierOffsets']['2']) * (1 - sides) - ends.MARGIN, atol=2e-4))
+        # on the skin, its edges clear the envelope: its vertices stand out by what an edge cuts across
+        self.assertTrue(np.allclose(reached[True], (ring + terms['tierOffsets'][str(ends.BARE)]) * (1 + sides) - ends.MARGIN, atol=2e-4))
+        # the forearm's other end, over the hand at the wrist, and the upper arm's over it at the elbow keep the outfit's tier
+        for name in ('forel', 'bicepl'):
+            told, plain = (ends.ends_of(name, bones, terms, 'test', 2, bare=bare) for bare in ({('elbow', 'l')}, ()))
+            for (_, _, envelope, floor, under, skin), (_, _, before, _, _, _) in zip(told, plain):
+                on_skin = under and name == 'forel'
+                self.assertEqual((np.allclose(envelope, before), skin, np.array_equal(floor, envelope)), (not on_skin, on_skin, on_skin), name)
+
+    def test_the_bake_shapes_skin_tight_the_ends_under_a_slot_left_to_the_body(self):
+        # the forearms over the hands; the pelvis is over the thighs at the hips, which are not shaped (`ends.TUBES`)
+        self.assertEqual(bake.bare_joints({'left': ['forel', 'forer', 'pelvis']}), {('wrist', 'l'), ('wrist', 'r')})
+        self.assertEqual(bake.bare_joints({'left': ['legl']}), {('knee', 'l')})
+        self.assertEqual(bake.bare_joints({}), set())
+
 
 if __name__ == '__main__':
     unittest.main()
