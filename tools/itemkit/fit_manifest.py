@@ -101,12 +101,12 @@ BROAD_FACE_RATIO = .8
 
 
 def _blade_broad_face(q, U, extent, blade_start):
-    """Turn the frame a quarter about the long axis when the blade's broad face lies on the depth axis.
+    """Turn the frame a quarter about the long axis when the blade's (or a hafted head's) broad face lies on the depth axis.
 
     The principal frame's width axis is the shape's larger transverse spread. A handle much thicker than it is tall
     outweighs a long flat blade (the wave-3 Vibro Knife, 2026-11-13): the blade then came out a quarter-turn round in
-    the hand and the grip standard's width went across the handle's thickness. A round or square blade (a bat, a
-    baton, a staff) is left alone."""
+    the hand and the grip standard's width went across the handle's thickness. A round or square blade or head (a bat,
+    a baton, a staff) is left alone."""
     N = st.SLICES; blade = np.arange(int(blade_start * N), N); blade = blade[~np.isnan(extent[blade, 0])]
     if len(blade) < 5 or np.median(extent[blade, 0]) >= BROAD_FACE_RATIO * np.median(extent[blade, 1]): return q, U
     q = np.column_stack([q[:, 0], q[:, 2], -q[:, 1]]); U = np.column_stack([U[:, 0], U[:, 2], -U[:, 1]])
@@ -126,6 +126,10 @@ def hafted_landmarks(q, U, overrides):
     bulge = np.flatnonzero(width[:N // 6] > 1.25 * shaft)                       # a butt knob or cap wider than the haft
     butt = int(bulge[-1]) + 1 if len(bulge) else 0
     marks = {'pommelEnd': butt / N, 'gripStart': butt / N, 'gripEnd': head_start / N, 'bladeStart': head_start / N}
+    # A flat head (an axe blade, a cleaver) gets the same check as a blade: a haft thicker than the head is tall can
+    # turn the principal frame a quarter round. A round head or a round tapering club is left alone; a flat one (a
+    # paddle) turns like a flat head.
+    q, U = _blade_broad_face(q, U, extent, float(overrides.get('bladeStart', marks['bladeStart'])))
     return 'hafted-head' if len(head) else 'hafted-taper', q, U, marks
 
 

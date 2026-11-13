@@ -1,5 +1,6 @@
 """The promoted wave tooling: carrier measurement, hafted fits, texture outliers, contracts budgets and the driver."""
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -185,6 +186,16 @@ class BladeFaceFrameTests(unittest.TestCase):
             self.assertGreater(np.ptp(blade[:, 1]), 4 * np.ptp(blade[:, 2]), handle_depth)
             self.assertAlmostEqual(abs(U[2, 1]), 1, places=3); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
 
+    def test_a_flat_axe_head_on_a_thick_haft_faces_the_width_axis(self):
+        from tools.itemkit import fit_manifest as fm
+        haft, _ = lathe([(y, .03) for y in np.linspace(-.4, .45, 340)], sides=48, depth=2.5)     # thicker than it is tall
+        head, _ = lathe([(y, .15) for y in np.linspace(.45, .6, 60)], sides=48, depth=.1)         # broad along Blender Z
+        _, U0, q0 = fm._frame(np.concatenate([haft, head]))
+        method, q, U, _ = fm.hafted_landmarks(q0, U0, {'headAtLowEnd': bool(U0[1, 0] < 0)})
+        self.assertEqual(method, 'hafted-head')
+        top = q[q[:, 0] > np.percentile(q[:, 0], 90)]
+        self.assertGreater(np.ptp(top[:, 1]), 4 * np.ptp(top[:, 2])); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
+
     def test_a_round_blade_keeps_the_principal_frame(self):
         from tools.itemkit import fit_manifest as fm
         bat, _ = lathe([(y, .03) for y in np.linspace(-.4, .6, 400)], sides=48)
@@ -352,6 +363,25 @@ class SiblingSlotTests(unittest.TestCase):
             self.assertFalse(any(n.startswith('waxhn') for n in taken))
             self.assertEqual(reserve(mine, taken)['modelIndex'], 3)
 
+    def test_a_retired_contract_folder_gives_its_slots_back(self):
+        from tools.itemkit.family_contract import retire, retired, sibling_models
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for wave, name, index in (('abandoned', 'old', 1), ('live', 'kept', 2), ('live', 'mine', None)):
+                (root/wave).mkdir(exist_ok=True)
+                (root/wave/f'family-{name}.json').write_text(json.dumps({'family': 'club', 'nativePackaging': 'enabled',
+                                                                         'native': {'itemClass': 'wblcl'}, 'resources': {
+                    'texturePrefix': 'sr' + name, **({'appearanceIndex': index} if index else {})}}), encoding='utf-8')
+            mine = root/'live/family-mine.json'
+            self.assertIn('wblcl_b_011.mdl', sibling_models(root, mine, 'wblcl'))
+            with self.assertRaisesRegex(ValueError, 'reason'): retire(root/'abandoned', ' ', '2026-11-13')
+            record = retire(root/'abandoned', 'slots collided with wave 1', '2026-11-13')
+            self.assertEqual(record['contracts'], ['family-old.json']); self.assertEqual(retired(root/'abandoned')['date'], '2026-11-13')
+            taken = sibling_models(root, mine, 'wblcl')
+            self.assertNotIn('wblcl_b_011.mdl', taken); self.assertIn('wblcl_b_021.mdl', taken)
+            with self.assertRaisesRegex(ValueError, 'already retired'): retire(root/'abandoned', 'again', '2026-11-13')
+            with self.assertRaisesRegex(ValueError, 'no family contracts'): retire(root/'missing', 'why', '2026-11-13')
+
     def test_a_base_contracts_reviewed_grip_origin_is_kept_and_disagreement_refused(self):
         from tools.itemkit.family_contract import base_grip_origin
         with tempfile.TemporaryDirectory() as tmp:
@@ -364,6 +394,81 @@ class SiblingSlotTests(unittest.TestCase):
             self.assertIsNone(base_grip_origin(base, 'wswdg'))                     # no reviewed contact: measure the carrier
             contract('bat', 'wswgs', [0, -.0712, 0])                               # a fresh-measured contact that disagrees
             with self.assertRaisesRegex(ValueError, 'different grip origins'): base_grip_origin(base, 'wswgs')
+
+
+class OpeningProbeTests(unittest.TestCase):
+    def plate(self):
+        """A 100 x 60 mm plate across x with a 20 mm square through-hole centred 70 mm along its length (y)."""
+        ys, zs = [0, .06, .08, .1], [0, .02, .04, .06]; v = []; f = []
+        for i in range(3):
+            for j in range(3):
+                if (i, j) == (1, 1): continue
+                k = len(v); v += [[0, ys[i], zs[j]], [0, ys[i + 1], zs[j]], [0, ys[i + 1], zs[j + 1]], [0, ys[i], zs[j + 1]]]
+                f += [[k, k + 1, k + 2], [k, k + 2, k + 3]]
+        return np.array(v, float), np.array(f)
+
+    def test_a_through_hole_is_found_and_matched_from_either_end(self):
+        from tools.itemkit import opening_probes as op
+        v, f = self.plate(); found = op.holes(v, f, 0)
+        self.assertEqual(len(found), 1); hole = found[0]
+        self.assertEqual(hole['hits'], 0); self.assertAlmostEqual(hole['clearance'], .01, delta=.001)
+        self.assertAlmostEqual(hole['area'], .0004, delta=.00005); hole['fraction'] = hole['y'] / .1
+        self.assertAlmostEqual(hole['fraction'], .7, delta=.01)
+        probe, = op.match([('lanyard', .3)], found)                              # the reference measured from the other end
+        self.assertEqual((probe['name'], probe['start'], probe['end']), ('lanyard', hole['start'], hole['end']))
+        with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('lanyard', .5)], found)
+        narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
+        with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
+        with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.fitted_shell({'inputs': {}}, {'native': {}}, '.')
+        from tools.itemkit.grip import melee_fit
+        from tools.itemkit.routes import WHOLE_NATIVE_FAMILIES
+        with self.assertRaisesRegex(ValueError, 'firearm'): op.fitted_shell({}, {'family': WHOLE_NATIVE_FAMILIES[0]}, '.')
+        staff = {'family': 'staff', 'native': {'gripLength': .1, 'gripOrigin': [0, 0, 0]}}
+        # the fit stage's own refusals, shared: a uniform staff is never calibrated, and grip length binds the standard
+        with self.assertRaisesRegex(ValueError, 'never sized by the per-axis hilt calibration'): melee_fit(staff, {}, {'usableLength': .1}, None, None, None)
+        with self.assertRaisesRegex(ValueError, 'differs from the approved grip standard'): melee_fit(staff, {}, {'usableLength': .2}, None, None, None)
+        with self.assertRaisesRegex(ValueError, 'whole-native'): melee_fit({'family': WHOLE_NATIVE_FAMILIES[0], 'native': {}}, {}, {}, None, None, None)
+        with self.assertRaisesRegex(ValueError, 'gripEndpoints'):
+            op.fitted_shell({'inputs': {'workingMesh': {}}, 'fit': {'matrix': [], 'sizingAuthority': 'midpoint-depth-two-hand'}},
+                            {'native': {'gripOrigin': [0, 0, 0]}}, '.')
+        self.assertEqual(op.reference_fractions({'inputs': {}}, '.'), [])                 # no reviewed openings, nothing to place
+
+    def test_an_approved_departure_is_placed_though_its_digest_is_blenders(self):
+        from tools.itemkit import opening_probes as op
+        from tools.itemkit.grip import GripDeparture
+        with tempfile.TemporaryDirectory() as tmp:
+            h = Path(tmp); (h/'w.glb').write_bytes(b'mesh'); (h/'std.json').write_text('{}', encoding='utf-8')
+            review = {'decision': 'approved', 'measurementDigest': 'blender', 'notes': 'user: 1.00 m'}
+            manifest = {'inputs': {'workingMesh': {'path': 'w.glb'}, 'gripStandard': {'path': 'std.json'}},
+                        'fit': {'matrix': np.eye(4).tolist(), 'gripDeparture': review}}
+            family = {'family': 'club', 'native': {'gripOrigin': [0, 0, 0]}}
+            departure = GripDeparture({'measurementDigest': 'numpy', 'fitMatrix': (np.eye(4) * 2).tolist()})
+            with mock.patch('tools.headkit.gltf.load', return_value=(None, None, None)), mock.patch('tools.headkit.gltf.arrays', return_value=(np.zeros((3, 3)), [[0, 1, 2]], None)), \
+                    mock.patch('tools.itemkit.grip.melee_fit', side_effect=departure) as fit:
+                self.assertEqual(op.placement(manifest, family, h)[2][0, 0], 2); self.assertEqual(fit.call_count, 1)   # measured once
+                manifest['fit']['gripDeparture'] = {**review, 'decision': 'rejected'}
+                with self.assertRaisesRegex(ValueError, 'without an approved review'): op.placement(manifest, family, h)
+                with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.placement({'inputs': {}}, family, h)   # checked here too
+        with self.assertRaisesRegex(ValueError, 'geometryForegroundMask'):
+            op.reference_fractions({'inputs': {}, 'openings': [{'name': 'x', 'referenceBounds': [0, 0, 1, 1]}]}, '.')
+
+    def test_matching_backs_up_so_every_reference_gets_a_hole(self):
+        from tools.itemkit import opening_probes as op
+        hole = lambda fraction, clearance, tag: {'fraction': fraction, 'clearance': clearance, 'hits': 0, 'start': tag, 'end': tag}
+        found = [hole(.20, .004, 'wide'), hole(.23, .002, 'narrow')]
+        # "a" prefers the wide hole, but only the wide hole is near "b": greedy order would leave "b" without one
+        probes = op.match([('a', .22), ('b', .18)], found)
+        self.assertEqual([(p['name'], p['start']) for p in probes], [('a', 'narrow'), ('b', 'wide')])
+        with self.assertRaisesRegex(ValueError, 'distinct clear'): op.match([('a', .2), ('b', .21), ('c', .22)], found)
+
+    def test_all_references_are_matched_from_the_same_end(self):
+        from tools.itemkit import opening_probes as op
+        hole = lambda fraction, tag: {'fraction': fraction, 'clearance': .004, 'hits': 0, 'start': tag, 'end': tag}
+        found = [hole(.2, 'near'), hole(.3, 'far')]
+        # .2 fits unflipped and .7 only flipped: no one end places both, so the lost opening is not certified
+        with self.assertRaisesRegex(ValueError, 'No single end'): op.match([('a', .2), ('b', .7)], found)
+        probes = op.match([('a', .8), ('b', .7)], found)                         # both measured from the other end
+        self.assertEqual([p['start'] for p in probes], ['near', 'far'])
 
 
 class FixtureCarryTests(unittest.TestCase):
@@ -412,6 +517,80 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertNotIn('referenceView', knife['approval'])          # a short design needs no long-weapon waiver
             self.assertEqual(knife['approval']['colourGeometry'], {'decision': 'approved', 'geometrySha256': 'dddddddd', 'notes': 'words'})
             with self.assertRaises(SystemExit): d.colour_geometry('bat', 'colour', 'again', 'words')   # already colour
+
+    def test_a_contract_folder_a_design_still_builds_on_is_not_retired(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Driver(self.workspace(Path(tmp))); h = d.ws.handoff; (h/'contracts/old').mkdir(parents=True)
+            (h/'contracts/old/family-axe.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            pinned = json.dumps({'familyProfile': {'path': 'contracts/old/family-axe.json'}})
+            (h/'axe.old-contract.asset.json').write_text(pinned, encoding='utf-8')      # the folder's own contract manifest
+            (h/'axe.calibrated-v1.asset.json').write_text(pinned, encoding='utf-8')     # a design built on past it
+            with self.assertRaisesRegex(SystemExit, r'1 current manifest\(s\) build on, e\.g\. axe\.calibrated-v1'):
+                d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')
+            self.assertFalse((h/'contracts/old/retired.json').exists())
+            with self.assertRaisesRegex(SystemExit, 'not a contract folder'): d.retire_contracts('.', 'typo', '2026-11-13')
+            # a later profile elsewhere without a contract there is not a move: the axe still holds its slot
+            (h/'loose.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            (h/'axe.loose-v1.asset.json').write_text(json.dumps({'familyProfile': {'path': 'loose.json'}}), encoding='utf-8')
+            with self.assertRaisesRegex(SystemExit, 'not retired'): d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')
+            # re-contracted in another wave, its newest manifest on that contract: it has moved on
+            (h/'contracts/new').mkdir(); (h/'contracts/new/family-axe.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            (h/'axe.new-contract.asset.json').write_text(json.dumps({'familyProfile': {'path': 'contracts/new/family-axe.json'}}), encoding='utf-8')
+            for k, name in enumerate(('old-contract', 'calibrated-v1', 'loose-v1', 'new-contract')):
+                os.utime(h/f'axe.{name}.asset.json', (1e9 + k, 1e9 + k))
+            self.assertEqual(d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')['contracts'], ['family-axe.json'])
+
+    def test_textured_refuses_a_field_range_an_existing_donor_manifest_does_not_hold(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            for stage in ('geometry', 'appearance'):
+                (root/f'knife/{stage}-a1/job').mkdir(parents=True)
+                (root/f'knife/{stage}-a1/job/collection.json').write_text(json.dumps({'outputs': [{'path': 'raw.glb', 'sha256': 'g'}]}), encoding='utf-8')
+            (h/'knife.geometry-approved-v1.asset.json').write_text(json.dumps({'approval': {'generatedGeometry': {'geometryRawSha256': 'g'}}}), encoding='utf-8')
+            (h/'knife.donor-v1.asset.json').write_text(json.dumps({'processing': {'sourceFieldPolicy': {'minimum': -.05, 'maximum': 1.065}}}), encoding='utf-8')
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'binds only a new donor manifest'):
+                d.textured('knife', 'a1', 'src', 'approved', field_range=[-.22, 1.13])
+            stage.assert_not_called()
+
+    def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
+        import hashlib
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            job = root/'knife/appearance-a1/job'; job.mkdir(parents=True); digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+            (job/'node-961_00001.glb').write_bytes(b'raw'); (job/'node-922_00001.glb').write_bytes(b'donor')
+            def field(attrs):
+                np.savez(job/'node-962_00001.npz', attrs=attrs)
+                (job/'collection.json').write_text(json.dumps({'state': 'complete', 'outputs': [
+                    {'path': str(p), 'sha256': digest(p)} for p in sorted(job.glob('node-*'))]}), encoding='utf-8')
+            attrs = np.full((1000, 3), .5); attrs[:3] = -.2; attrs[3:5] = 1.12                # 5 of 1000 samples overshoot
+            field(attrs)
+            (h/'knife.src.asset.json').write_text(json.dumps({'inputs': {'geometryRaw': {'sha256': digest(job/'node-961_00001.glb')}},
+                                                              'approval': {}, 'processing': {}}), encoding='utf-8')
+            with self.assertRaisesRegex(SystemExit, r'-0\.2000\.\.1\.1200 lies outside .*\(5 of 1000 .* --field-range -0\.2 1\.12$') as caught:
+                d.donor_manifest('knife', 'src', 'donor-v1', 'words')
+            from tools.itemkit.drive import parser
+            suggested = str(caught.exception).rsplit('--field-range ', 1)[1].split()   # the suggestion parses as typed
+            self.assertEqual(parser().parse_args(['textured', 'knife', 'a1', 'src', '--notes', 'n', '--field-range', *suggested]).field_range, [-.2, 1.12])
+            with self.assertRaisesRegex(SystemExit, 'lies outside'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.1, 1.2))
+            with self.assertRaisesRegex(SystemExit, 'within'): d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.3, 1.2))
+            field(attrs.astype(np.float32))                       # float32 -0.2 lies just below -0.2: the suggestion steps out
+            with self.assertRaisesRegex(SystemExit, r'--field-range -0\.21 1\.13$') as caught: d.donor_manifest('knife', 'src', 'donor-v1', 'words')
+            low, high = (float(x) for x in str(caught.exception).rsplit('--field-range ', 1)[1].split())
+            float32 = Path(d.donor_manifest('knife', 'src', 'donor-f32', 'words', field_range=(low, high)))
+            self.assertEqual(json.loads(float32.read_text(encoding='utf-8'))['processing']['sourceFieldPolicy']['minimum'], -.21)
+            far = attrs.copy(); far[5] = 1.3; field(far)            # past donor.py's reviewed limits: no range can take it
+            with self.assertRaisesRegex(SystemExit, 'regenerate the appearance'): d.donor_manifest('knife', 'src', 'donor-far', 'words')
+            field(np.full((1000, 3), .5))                                                      # a field the decoder takes as it is
+            with self.assertRaisesRegex(SystemExit, 'no reviewed --field-range is needed'):
+                d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.2, 1.12))
+            field(attrs)
+            m = json.loads(Path(d.donor_manifest('knife', 'src', 'donor-v1', 'words', field_range=(-.2, 1.12))).read_text(encoding='utf-8'))
+            field = m['inputs']['field']['sha256']
+            self.assertEqual(m['processing']['sourceFieldPolicy'], {'allowDecoderOvershoot': True, 'fieldSha256': field, 'minimum': -.2, 'maximum': 1.12})
+            self.assertIn('5 of 1000 samples (0.500%)', m['approval']['sourceDonor']['notes'])
 
     def test_batch_runs_items_side_by_side_and_keeps_failures(self):
         from tools.itemkit.drive import Driver

@@ -58,15 +58,39 @@ def extract_stock(game, item_class, target):
     return rows
 
 
+RETIRED = 'retired.json'
+
+
+def retired(folder):
+    """The retirement record of a contract folder, or None. A retired folder's contracts hold no slots and are no base."""
+    path = Path(folder)/RETIRED
+    if not path.exists(): return None
+    record = json.loads(path.read_text(encoding='utf-8'))
+    require(isinstance(record.get('reason'), str) and record['reason'].strip() and record.get('date'),
+            f'{path} needs a reason and a date')
+    return record
+
+
+def retire(folder, reason, today):
+    """Mark an abandoned or test contract folder retired, so its appearance slots are free again (sibling_models).
+
+    Its files stay as they are: a manifest that pins one of its contracts still verifies, but nothing new is built on it."""
+    folder = Path(folder); require(folder.is_dir() and any(folder.glob('family-*.json')), f'{folder} holds no family contracts')
+    require(reason.strip(), 'Retiring a contract folder needs the reason'); require(retired(folder) is None, f'{folder} is already retired')
+    record = {'reason': reason, 'date': today, 'contracts': sorted(p.name for p in folder.glob('family-*.json'))}
+    (folder/RETIRED).write_text(json.dumps(record, indent=2), encoding='utf-8')
+    return record
+
+
 def sibling_models(contracts, own, item_class):
     """Model and icon names every other contract on this carrier already pinned, in any wave: not yet in any stack, still taken.
 
     Only one wave's folder was searched at first: wave 2's first contracts (2026-11-12) took the very slots the
-    unpublished wave-1 weapons hold on the same carriers."""
+    unpublished wave-1 weapons hold on the same carriers. A retired folder (an abandoned wave, a test) holds none."""
     from .contracts import model_names
-    taken = set()
+    taken = set(); live = {folder: retired(folder) is None for folder in Path(contracts).iterdir() if folder.is_dir()}
     for path in Path(contracts).glob('*/family-*.json'):
-        if path == own: continue
+        if path == own or not live[path.parent]: continue
         other = json.loads(path.read_text(encoding='utf-8')); index = other.get('resources', {}).get('appearanceIndex')
         if index is None or other.get('native', {}).get('itemClass') != item_class: continue
         for name in model_names(other, index).values(): taken |= {name.lower()+'.mdl', 'i'+name.lower()+'.tga'}
@@ -92,6 +116,8 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     from tools.headkit.common import verification_pass
     route = ROUTES.get(family_name); require(route and route.adapter == 'composite' and route.carrier, 'A composite melee family required')
     handoff = ws.handoff; source = handoff/base; target = handoff/'contracts'/wave
+    for folder, role in ((source, 'base'), (target, 'wave')):
+        require(not retired(folder), f'The {role} contract folder {folder.name} is retired: start from another')
     if not target.exists():
         shutil.copytree(source, target)
         for old in target.glob('family*.json'): old.unlink()
