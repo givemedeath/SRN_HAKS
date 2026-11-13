@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_sk_pylon
+texture1 ek_sk_pylon_n
+texture2 ek_sk_pylon_s
+texture3 ek_sk_pylon_r
+texture4 null
+texture5 null

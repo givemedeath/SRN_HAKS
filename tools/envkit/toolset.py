@@ -32,6 +32,7 @@ TLK = 'srn'
 START = (5.0, 5.0)  # the south-west corner tile
 SIZE = 8
 PLACED = ('Appearance', 'X', 'Y', 'Z', 'Bearing', 'Tag', 'TemplateResRef')
+PROPS = ('TemplateResRef', 'Appearance', 'Static', 'Tag')  # what a placed blueprint must keep of its own
 
 
 def documents(tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, size=SIZE):
@@ -91,8 +92,10 @@ def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None
 
 def report(areas, first_group_tile):
     """What a saved module holds, from its areas' documents: {area: {tileset, size, groupTiles: [{tile, column, row,
-    turn}], doors: [...]}}. areas: {name: (are, git)}; first_group_tile: {tileset: the tile number its envkit groups
-    begin at}, so that the tiles the Toolset repainted round a group are not taken for the group."""
+    turn}], doors: [...], placeables: [{TemplateResRef, Appearance, Static, Tag, name}]}}. areas: {name: (are, git)};
+    first_group_tile: {tileset: the tile number its envkit groups begin at}, so that the tiles the Toolset repainted
+    round a group are not taken for the group. The placeables are the envkit props painted from the palette, each to
+    be held to its blueprint: its row of `placeables.2da`, its name, and static or not."""
     told = {}
     for name, (are, git) in areas.items():
         tileset = are['Tileset']['value']; width = are['Width']['value']; first = first_group_tile.get(tileset)
@@ -101,7 +104,9 @@ def report(areas, first_group_tile):
         told[name] = {'tileset': tileset, 'size': [width, are['Height']['value']], 'groupTiles': tiles,
                       'otherTiles': dict(sorted(Counter(laid['Tile_ID']['value'] for laid in are['Tile_List']['value']
                                                         if first is None or laid['Tile_ID']['value'] < first).items())),
-                      'doors': [{key: door[key]['value'] for key in PLACED if key in door} for door in git['Door List']['value']]}
+                      'doors': [{key: door[key]['value'] for key in PLACED if key in door} for door in git['Door List']['value']],
+                      'placeables': [{**{key: one[key]['value'] for key in PROPS if key in one}, 'name': one.get('LocName', {}).get('value', {}).get('0')}
+                                     for one in git.get('Placeable List', {}).get('value', []) if one['TemplateResRef']['value'].startswith('ek_')]}
     return told
 
 

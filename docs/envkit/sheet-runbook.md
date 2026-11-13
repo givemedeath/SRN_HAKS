@@ -19,12 +19,14 @@ the game install folder (the one holding `data/`). Everything under `output/` is
 
 ```
 envkit crops     --set tools/envkit/sets/<sheet>.json --sheets <sheets> --output <root>/references/<run>
-envkit reference --set ... --sheets <sheets> --output <root>/references/<run> --bindings <root>/references/bindings.json [--asset <a>] [--seed <n>]
+envkit reference --set ... --sheets <sheets> --output <root>/references/<run> --bindings <root>/references/bindings.json [--asset <a>] [--seed <n>] [--keep-going]
 envkit contact   --references <root>/references/<run> --output <root>/references/<run>-contact.png
 ```
 
-`reference` draws each asset alone on a plain ground with the local image model on the bound ComfyUI. Start a
-job only when Comfy's queue is empty, one at a time: the process is shared. `contact` puts each reference beside
+`reference` draws each asset alone on a plain ground with the local image model on the bound ComfyUI. The process is
+shared: each job waits for the GPU lease and an empty queue (`headkit.shared_comfy.slot`), one at a time, and leaves
+other sessions' jobs alone. The first failure stops the run; with `--keep-going` an asset that fails is said and
+passed over, the rest are made, and the run fails at the end. `contact` puts each reference beside
 its crop; read it for a changed shape, lost parts, and branding that should not be there. Draw an asset again
 with another seed where it fails. Copy the chosen image of each asset to `<root>/references/selected/` under the
 name it has (`<asset>-s<seed>-b0.png`): exactly one for each asset the plan names.
@@ -60,12 +62,13 @@ the plan makes nothing of.
 ## 3. The game set
 
 ```
-envkit view --source <root>/meshy/models/<key> --height <metres> --model 0123 --output <root>/view
+envkit view --source <root>/meshy/models/<key> --height <metres> [--source <key2> --height <metres> ...] --model 01 --output <root>/view [--page <root>/view/all.png]
 envkit view --models tools/envkit/sets/<sheet>-game.json --root <root> --model <name>:02:300:0.25 [--lit] --output <root>/view
 ```
 
-The first draws a generated model square on from each side with a metre grid, before the game set names it;
-the second draws a model as its game set makes it. Read the boxes of lit parts, paint, smoothing, mesh panels,
+The first draws generated models square on from each side with a metre grid, before the game set names them, each
+at a first guess of its height (`--source` and `--height` repeat in pairs); `--page` also puts every model drawn on
+one page, to compare the props of a sheet at a glance. The second draws a model as its game set makes it. Read the boxes of lit parts, paint, smoothing, mesh panels,
 fences and the door from the grid, in metres on the finished model, and state `measuredAt`: the height they
 were read at, or `{"height": ..., "lift": ...}` with each of `lift`, `turn` and `signTilt` the model states,
 since the boxes are on the model as lifted, turned and tilted. Change any of them and the set is refused until
@@ -74,6 +77,27 @@ what a surface looks like is settled in the client, not here.
 
 Size a building by its door: scale it until the door leaf is about 2.1 m, then choose the tile group's size.
 Its door hook is door type 58. Screens and signs are lit.
+
+### A building in pieces, and a group of several models
+
+A generation gets one 4K texture, which spreads thin over a large building (the yard at its door's size: 47
+texels a metre, against about 190 on a prop). Such a building is made in pieces (user, 2026-11-12): each piece's views
+are set assets with a `cut` (`{"from": "<whole view>", "box": [x0, y0, x1, y1]}`, in pixels of that view's chosen
+reference), drawn by `envkit reference --selected <root>/references/selected`, set on white so that a cut edge is
+redrawn as the end of a block, and generated under the plan's `pieces` (`{"<piece>": {"views": [...], "triangles":
+n}}`). The pieces keep the one drawing's proportions and colours.
+
+Given a front and a rear view of differing outlines, Meshy makes one face faithfully and the other plain (the yard's
+west and centre pieces: faithful rears, plain fronts). Generate the plain face again from its own view alone as a
+piece of its own and stand the two back to back in the group, each one's plain wall inside the other. Scale each pair
+to one width and the building by its door; line the fronts up by their parapets. `envkit tiles` holds the group's
+own model and every placed model that is no placeable to the building budget together; to come within it, give a
+piece a lower `triangles` and a new `remesh` key (5 credits: the generation is remeshed again).
+
+The group is the concept's whole scene, not one mesh: the game set's `tiles.parts` places other models of the set
+in it (`{"model": ..., "at": [x, y, z], "turn": 0|90|180|270}`, in metres on the group's own model), each drawn
+with its own picture under the group's names (`<group>p1`, ...), cut into the same tiles and walked round. A prop
+of the sheet stays a placeable as well.
 
 ```
 envkit game  --models ... --root <root> --output <root>/game<n>  [--model <name>]
@@ -105,15 +129,24 @@ envkit blueprints --models ... --game <game>
 ## 6. The group and the lights in the client
 
 ```
-envkit check group  --game <game> --models ... --root <root> --name <name> --built <root>/tiles<n> --model <building> --tileset dgt04 [--mode night|near]
+envkit check group  --game <game> --models ... --root <root> --name <name> --built <root>/tiles<n> --model <building> --tileset dgt04 [--mode night|near|walk]
 envkit check lights --game <game> --models ... --root <root> --name <name> --built <root>/game<n> [--built <root>/game<m>]
 ```
 
 Both read the packs, so they follow step 5. `group` lays the pack's tile numbers with the built models, and
 refuses where the pack holds another build: a building built again is installed again first. `near` frees the
-player to show which storeys the client hides. `lights` takes the lit props from the pack, by night, and puts
-them out and on again by script. Look for the roof and upper storey from above, the door, and every lit part
-going out and coming back.
+player to show which storeys the client hides; `night` also puts out every lit model of the group, its own and its
+parts', and brings them back (`out`, `out-behind`, `lit-again`). `walk` sends walkers from the far corners of the
+area to the door, to each side of the building and onto the ground a walk must go furthest round to reach (a fenced
+yard), with one more onto that ground from the next tile out, and logs where they are every shot; it refuses the
+group if a walker stops more than a metre short, after writing `captures/walks.json`. The walkers' targets come
+from `walk.png`, which `tiles` writes beside the tile sources (a pixel a walk cell, north up: green ground with
+room to stand on, red the building, orange the lesser things in the way and ground too narrow to stand on, which
+`tiles` closes: a walk would be planned through a gap no character fits, as it was through the gaps between the
+Saeder-Krupp yard's fence sections; dark green in a picture built before 2026-11-12); a
+group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). `lights`
+takes the lit props from the pack, by night, and puts them out and on again by script. Look for the roof and upper
+storey from above, the door, and every lit part going out and coming back.
 
 Then write the sheet's section of `PROVENANCE.md` (what was generated, by what, what was retouched, what was
 checked and what was left as generated), rebuild the affected packs and run repository verification.
@@ -141,21 +174,30 @@ By computer use (access is asked for `nwtoolset.exe` by that name):
 - The palette trees ignore simulated clicks on their expanders. `-Do reach -Index 1 -Root 1 -Child <n>` opens
   Groups and selects its n-th item; `-Do expand -Index <tree>` lists a tree.
 - Check the name of the selected group before painting: neighbouring rows are easy to hit.
-- The pending tile under the cursor is the group's bottom-left. A right-click turns it.
-- The mouse wheel zooms the area view; the zoom buttons do nothing.
+- The pending tile under the cursor is the group's bottom-left. A right-click turns it a quarter, anticlockwise,
+  and the tile under the cursor turns with the group: after a half turn it is the top-right.
+- The palette's object buttons ignore simulated clicks too: `-Do tab -Index 5` shows the placeables, `-Do tab
+  -Index 9` the tiles again, and `-Do path -Index 1 -Path <category>/<subcategory>/<n>` selects a blueprint.
+- The mouse wheel zooms the area view while the view has the focus; the zoom buttons do nothing.
 - Leave the start point's corner tile alone: the Toolset refuses to save with the start on a tile painted over.
-- Save with ctrl+s, then judge by `saved`, not by the screen: it lists the group tiles laid and the doors the
-  Toolset made at the hooks (appearance 58).
+- Save with File > Save (ctrl+s did nothing, 2026-11-12), then judge by `saved`, not by the screen: it lists the
+  group tiles laid, the doors the Toolset made at the hooks (appearance 58) and the envkit props placed, each
+  with its `placeables.2da` row, name and static setting.
+
+Paint the group straight in one toolset folder and turned in another (a quarter turn in one tileset and a half
+in the other), and place a few of the sheet's props, lit and static, from both categories.
 
 `check doors` gives each of those doors an area transition to a waypoint in front of the next and starts the
 client with the player free in front of the first. Someone clicks each door in turn while it logs where the
-player is; `stages` in what it prints is each place the player came to.
+player is; `stages` in what it prints is each place the player came to. Run it on both folders.
 
 ## A new sheet, and a review of the sets
 
-All 55 FRFZ sheets have a set file. A sheet that comes later is brought in with `onboard`, and the same
-commands review the sets against each other when props are to be reused. `<sheets>` is the folder holding the
-concept sheets, each named `NN_<what>.png`.
+All 56 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
+(`56_denver_rail_freight_yard.png`, 2026-11-12) was brought in later with `onboard`, as a sheet that comes later
+is. The same commands review the sets against each other when props are to be reused. `<sheets>` is the folder
+holding the concept sheets, each named `NN_<what>.png`. `boxes` finds drawings on a white sheet; ask for one on
+white if a sheet comes dark (the rail yard's first version was, and half its drawings went unfound).
 
 ```
 envkit onboard boxes   --sheet <sheets>/NN_<what>.png --output <scratch>/boxes.png [--split <row>]
@@ -209,6 +251,35 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   `envkit view --models ... --root <root> --model <name> --eye <label>=ex,ey,ez,tx,ty,tz[,fov[,reach]] --output <scratch>`
   draws the model as it will ship, fence sheets and all, from an eye at `ex,ey,ez` looking at `tx,ty,tz`, in
   metres on the finished model. `--eye` repeats.
+- **The parts of a group do not line up** (fronts, parapets, a piece's height against its neighbour's). Draw the
+  group from far off through a long lens, the eye level with its target, with `--grid 0.5`: a line every half metre
+  on the upright plane through the target, labelled each metre in x or y and z
+  (`--eye front=0,70,7,0,0,7,16,200 --grid 0.5`). Read heights off the grid for what stands on that plane; what
+  stands nearer the eye is drawn larger.
+- **A roller door, shutter or grille comes back as a wavy moiré.** The generator drew slats finer than its texels.
+  Smooth the door with `slats` as well: `{"part": ..., "box": ..., "radius": 0.08, "slats": 0.12}` takes the pattern
+  off and draws a joint every 0.12 m up the model. Keep lettering out of the boxes (one under it, one over it and one
+  either side), and read the boxes off the texture rather than by eye. A pitch under four texels is refused.
+- **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
+  0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
+  `walk.png` shows which.
+- **Something the generator stood on the floor leaves too narrow a way** (orange on `walk.png` where a character
+  must pass, or a `tiles` note of walk cells no walk is planned onto). A path needs a metre clear. Take the thing away with
+  `clear`: `{"part": ..., "box": ...}` on the finished model takes every face whose middle lies in the box. Start the
+  box a couple of centimetres above the floor, so the floor stays and what stands on it goes, and draw the place again:
+  marks the thing left painted on the floor stay. A box that takes nothing is refused.
+- **A walker walks straight at its target and stops at the first wall** (a walk check's walker stopped on the
+  straight line from where it started). The engine found no route it could follow and gave up. It plans a long walk
+  over the tiles' path nodes, from one exit to the next, each at the middle of a side. It does not go far aside round
+  a wall between two exits, and a target on a tile split into regions can be taken for the wrong region's ground.
+  `tiles` states a side as an exit only where it opens within 3 m of its middle (`tile.REACH`), joins two exits only
+  where a walk between them stays within 2 m of the straight way (`tile.ASIDE`), and chooses the group's nodes
+  together so walks reach the most ground (`tile.path_nodes`; the report gives each tile's node, and as `offPath` the
+  ground no walk is planned onto). Where walkers still give up, try other nodes for the tiles they were bound for:
+  edit `PathNode` and `Orientation` of those tiles in the installed set files (copy them aside first), rerun the walk
+  check, and state what works under `tiles.nodes` in the game set (`{"t12": {"node": "A", "turn": 0}}`). Then
+  rebuild and install. The Saeder-Krupp yard states three this way. A short walk into ground with one far way in
+  (`pocket-near`) can still give up where long walks arrive: say so in the provenance.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

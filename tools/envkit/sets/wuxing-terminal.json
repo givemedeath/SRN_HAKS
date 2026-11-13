@@ -11,7 +11,7 @@
     "customs-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: green customs desk under a canopy, Wuxing livery.", "subject": "customs and receiving desk under a canopy", "box": [8, 629, 256, 804]},
     "scanner-arch": {"kind": "prop", "type": "scanner-arch", "subject": "cargo scanner arch over a conveyor with a control terminal", "box": [260, 634, 451, 804]},
     "warehouse-shelving": {"kind": "prop", "type": "shelf-unit", "variant": "Industrial yellow pallet racking loaded with boxes.", "subject": "industrial pallet racking loaded with boxes", "box": [455, 631, 628, 800]},
-    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "same": "night-bazaar/pallet-stack", "subject": "pallet of boxes and shrink-wrapped cargo", "box": [633, 658, 825, 804]},
+    "pallet-stack": {"kind": "prop", "type": "pallet-stack", "same": "saeder-krupp-yard/pallet-stack", "subject": "pallet of boxes and shrink-wrapped cargo", "box": [633, 658, 825, 804]},
     "rolling-crates": {"kind": "prop", "type": "hard-case", "variant": "Branding: two wheeled cargo crates, grey and green, Wuxing mark.", "subject": "two wheeled cargo crates", "box": [842, 664, 1026, 800]},
     "dock-door": {"kind": "prop", "type": "dock-door", "subject": "loading dock roller door in a wall section marked Bay 2", "box": [1037, 624, 1239, 801]},
     "forklift": {"kind": "prop", "type": "forklift", "same": "saeder-krupp-yard/forklift", "subject": "yellow forklift truck", "box": [1248, 632, 1445, 802]},

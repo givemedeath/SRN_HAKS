@@ -159,6 +159,19 @@ class ConvertTests(unittest.TestCase):
         np.testing.assert_array_equal(level[:28], lined[:28]); self.assertLess(float(np.ptp(level[40:, 8:56])), 12 / 255); self.assertGreater(float(np.ptp(lined[40:, 8:56])), 0.5)
         toward, _, _ = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1, 'colour': [100, 110, 120]}])
         np.testing.assert_allclose(np.asarray(toward)[40:, 8:56].reshape(-1, 3).mean(0), [100, 110, 120], atol=3)
+        # A roller door's slats, which a generator draws as a moiré, are drawn again: a darker joint every quarter metre up.
+        slatted, _, _ = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1, 'slats': 0.25}])
+        column = np.asarray(slatted)[33:, 32, 0].astype(int)  # rows from z 0.97 down to the foot, 32 texels a metre
+        self.assertGreater(int(column.max() - column.min()), column.max() * convert.SLAT_SHADE / 2)  # a joint between texel centres shows part of its shade
+        self.assertEqual(int(np.argmin(column[:16])) % 8, int(np.argmin(column[16:])) % 8)  # the same joint every eight texels
+        np.testing.assert_array_equal(np.asarray(slatted)[:28], stripes[:28])
+        # A door in two boxes that meet: a joint where they overlap is darkened once, as deep as the others.
+        halves = [{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 0.55]], 'radius': 0.1, 'slats': 0.25}, {'box': [[-0.6, -0.1, 0.45], [0.6, 0.1, 1.0]], 'radius': 0.1, 'slats': 0.25}]
+        split, _, _ = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=halves)
+        deepest = [int(np.asarray(split)[row:row + 8, 32, 0].min()) for row in range(33, 57, 8)]
+        self.assertLess(max(deepest) - min(deepest), max(deepest) * convert.SLAT_SHADE / 3)
+        with self.assertRaisesRegex(ValueError, 'under four texels'):  # a joint every texel and a half would alias again
+            convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1, 'slats': 0.05}])
         # A box that holds none of the model is a mistake in the set, not a part to pass over.
         off = [[-0.6, -0.1, 5.0], [0.6, 0.1, 6.0]]
         for retouching in ({'paint': [{'box': off, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': off, 'radius': 0.1}]}, {'mesh': [{'box': off, 'pitch': 0.09, 'wire': 0.016}]}):
@@ -257,6 +270,28 @@ class ConvertTests(unittest.TestCase):
         with mock.patch.object(convert, 'closed', wraps=convert.closed) as closing, self.assertRaisesRegex(ValueError, 'already has a face'):
             convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0, close=[{'corners': shaped['vertices'][shaped['faces'][0]].tolist()}])
         closing.assert_called_once()
+
+    def test_what_stands_in_a_cleared_box_is_taken_away_and_the_floor_stays(self):
+        """The Saeder-Krupp yard's bay had a railed-off square under a metre from the vehicle beside it, too narrow a
+        way into the back of the bay (user, 2026-11-12)."""
+        from PIL import Image
+        floor = [[0, 0, 0], [2, 0, 0], [2, 2, 0], [0, 2, 0]]; post = [[1, 1, 0], [1.1, 1, 0], [1.1, 1, 1], [1, 1, 1]]
+        vertices = np.array(floor + post, float); normals = np.array([[0, 0, 1]] * 4 + [[0, -1, 0]] * 4, float)
+        uvs = np.array([[0, 0], [1, 0], [1, 1], [0, 1]] * 2, float) / [1, 2]; faces = np.array([[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7]])
+        stated = [{'part': 'post', 'box': [[0.5, 0.5, 0.05], [1.5, 1.5, 2.0]]}]
+        kept_vertices, kept_normals, kept_uvs, kept_faces = convert.cleared(vertices, normals, uvs, faces, stated)
+        np.testing.assert_array_equal(kept_faces, [[0, 1, 2], [0, 2, 3]])  # the floor, under the box, stays; the post, with its foot on it, goes
+        np.testing.assert_array_equal(kept_vertices, floor); np.testing.assert_array_equal(kept_normals, normals[:4]); np.testing.assert_array_equal(kept_uvs, uvs[:4])
+        with self.assertRaisesRegex(ValueError, 'takes no face'):  # a box in the air, or one stated twice, is a mistake in the set
+            convert.cleared(vertices, normals, uvs, faces, [{'box': [[5, 5, 0], [6, 6, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'takes no face'):
+            convert.cleared(vertices, normals, uvs, faces, stated * 2)
+        # A model is cleared as it is shaped, on the finished model.
+        model = glb(self.root / 'wall.glb', **WALL); Image.new('RGB', (64, 64), (128, 128, 128)).save(self.root / 'grey.png')
+        whole = convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0)
+        middle = whole['vertices'][whole['faces'][0]].mean(0)
+        less = convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0, clear=[{'box': [(middle - 1e-4).tolist(), (middle + 1e-4).tolist()]}])
+        self.assertEqual(len(less['faces']), len(whole['faces']) - 1)
 
     def test_the_glow_is_of_the_picture_as_it_ships_and_a_fence_ends_at_the_model(self):
         """Found in review, 2026-11-12: the glow map was made from the picture as generated, so what `paint` covered by

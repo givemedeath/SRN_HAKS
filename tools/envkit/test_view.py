@@ -88,16 +88,70 @@ class ViewTests(unittest.TestCase):
         cut = view._in_front(np.array([[0.0, 0.0, 1.0, 0.0, 0.0], [1.0, 0.0, 1.0, 1.0, 0.0], [0.0, 0.0, -1.0, 0.0, 1.0]]))  # one corner behind: a quad, as two triangles
         self.assertEqual(len(cut), 2); self.assertTrue(all((triangle[:, 2] >= view.NEAR - 1e-9).all() for triangle in cut))
         self.assertEqual(view._in_front(np.array([[0.0, 0.0, -1.0, 0, 0], [1.0, 0.0, -1.0, 0, 0], [0.0, 1.0, -2.0, 0, 0]])), [])  # all of it behind
+        # A tile group is drawn with the models placed in it, each with its own picture (2026-11-12).
+        other = self.root / 'meshy' / 'blue'; other.mkdir(parents=True); glb(other / 'model.glb', **WALL)
+        Image.new('RGB', (64, 64), (0, 0, 255)).save(other / 'texture_0_base_color.png')
+        group = {**self.models, 'ek_blue': {'source': 'meshy/blue', 'height': 2.0},
+                 'ek_yard': {'source': 'meshy/wall', 'height': 2.0, 'tiles': {'parts': [{'model': 'ek_blue', 'at': [1.5, 0.0, 0.0]}]}}}
+        both = view.perspective(group, self.root, 'ek_yard', self.root / 'eyes', [view.eye('front=0.75,6,1,0.75,0,1')], size=(160, 100))
+        with Image.open(both['pictures'][0]) as picture:
+            colours = {colour for _, colour in picture.convert('RGB').getcolors(1 << 20)}
+        self.assertEqual(both['faces'], {'front': 4}); self.assertTrue({(200, 180, 160), (0, 0, 255)} <= colours)
+
+    def test_a_view_from_an_eye_measures_off_what_it_shows(self):
+        import math
+        # Level with its target 4 m off, through 50 degrees 100 pixels high: 26.8 pixels to the metre on the wall's plane.
+        told = view.perspective(self.models, self.root, 'ek_wall', self.root / 'grid', [view.eye('front=0,4,1,0,0,1')], size=(160, 100), grid=0.5)
+        self.assertEqual(told['pixelsPerMetre'], {'front': round(50 / math.tan(math.radians(25)) / 4, 3)})
+        with Image.open(told['pictures'][0]) as picture:
+            picture = picture.convert('RGB')
+            # x 0 runs down the middle and z 1 across it, each a whole metre; x 0.5 lies left of the middle, seen from +y.
+            self.assertEqual((picture.getpixel((80, 95)), picture.getpixel((5, 50)), picture.getpixel((67, 95))), ((0, 255, 0), (0, 255, 0), (0, 110, 0)))
+        self.assertNotIn('pixelsPerMetre', view.perspective(self.models, self.root, 'ek_wall', self.root / 'plain', [view.eye('front=0,4,1,0,0,1')], size=(160, 100)))
+        with self.assertRaisesRegex(ValueError, "level with its target: give high its target's height"):
+            view.perspective(self.models, self.root, 'ek_wall', self.root / 'grid', [view.eye('front=0,4,1,0,0,1'), view.eye('high=0,4,2,0,0,1')], size=(160, 100), grid=0.5)
+        with self.assertRaisesRegex(ValueError, 'more than nothing apart'):
+            view.perspective(self.models, self.root, 'ek_wall', self.root / 'grid', [view.eye('front=0,4,1,0,0,1')], size=(160, 100), grid=0.0)
+
+    def test_many_models_are_put_on_one_page(self):
+        for name, size in (('wide', (100, 50)), ('square', (50, 50)), ('tall', (100, 100))):
+            Image.new('RGB', size, (0, 0, 200)).save(self.root / f'{name}.png')
+        page = self.root / 'page' / 'all.png'
+        self.assertEqual(view.page([('a', [self.root / 'wide.png', self.root / 'square.png']), ('b', [self.root / 'tall.png'])], page, high=50), 2)
+        with Image.open(page) as picture:
+            self.assertEqual(picture.size, (2 * (100 + 10 + 50 + 20), 50 + 16 + 10))  # two models to a row, each as wide as the widest
+        view.page([('a', [self.root / 'wide.png', self.root / 'square.png'])], page, high=50, widest=80, columns=1)
+        with Image.open(page) as picture:
+            self.assertEqual(picture.size, (100, 76))  # too wide together: drawn narrower, 50 and 25 pixels and the gap
+        for drawn in ([], [('a', [])]):
+            with self.assertRaisesRegex(ValueError, 'one picture at least'):
+                view.page(drawn, page)
 
     def test_a_generated_model_is_drawn_before_any_game_set_states_it(self):
         told = view.raw(self.root / 'meshy' / 'wall', 3.0, self.root / 'raw', sides=(0,), fine=128)
         self.assertEqual(told['bounds'][1][2], 3.0); self.assertTrue(Path(told['pictures'][0]).is_file()); self.assertEqual(Path(told['pictures'][0]).name, 'wall-side0.png')
         from argparse import Namespace
         from . import __main__ as command
-        asked = dict(models=None, source=str(self.root / 'meshy' / 'wall'), height=3.0, output=str(self.root / 'raw2'), root=None, eye=[])
-        for more in (dict(model=['0'], lit=True), dict(model=['0', '2'], lit=False), dict(model=['0'], lit=False, root='root'), dict(model=['0'], lit=False, eye=['front=0,-4,1,0,0,1'])):
+        asked = dict(models=None, source=[str(self.root / 'meshy' / 'wall')], height=[3.0], output=str(self.root / 'raw2'), root=None, eye=[], grid=None, page=None)
+        for more in (dict(model=['0'], lit=True), dict(model=['0', '2'], lit=False), dict(model=['0'], lit=False, root='root'), dict(model=['0'], lit=False, eye=['front=0,-4,1,0,0,1']),
+                     dict(model=['0'], lit=False, grid=0.5)):
             with self.assertRaisesRegex(ValueError, 'has no set to give it lit boxes'):  # what it would ignore is refused
                 command.command_view(Namespace(**{**asked, **more}))
+        with self.assertRaisesRegex(ValueError, 'give a --height in metres for each --source'):
+            command.command_view(Namespace(**{**asked, 'source': [*asked['source'], str(self.root / 'meshy' / 'wall')], 'model': ['0'], 'lit': False}))
+        # Several generated models at their own heights, each from the front (a wall shows nothing else), and one page of them all.
+        other = self.root / 'meshy' / 'blue'; other.mkdir(parents=True); glb(other / 'model.glb', **WALL)
+        Image.new('RGB', (64, 64), (0, 0, 255)).save(other / 'texture_0_base_color.png')
+        from unittest import mock
+        with mock.patch('builtins.print') as said:
+            command.command_view(Namespace(**{**asked, 'source': [*asked['source'], str(other)], 'height': [3.0, 1.5], 'model': ['0'], 'lit': False,
+                                              'page': str(self.root / 'raw2' / 'all.png')}))
+        import json
+        told = [json.loads(call.args[0]) for call in said.call_args_list]
+        self.assertEqual([(Path(one['source']).name, one['bounds'][1][2]) for one in told[:2]], [('wall', 3.0), ('blue', 1.5)]); self.assertEqual(told[2]['models'], 2)
+        self.assertEqual(sorted(path.name for path in (self.root / 'raw2').iterdir()), ['all.png', 'blue-side0.png', 'wall-side0.png'])
+        with self.assertRaisesRegex(ValueError, '--grid is for --eye views'):
+            command.command_view(Namespace(**{**asked, 'models': 'set.json', 'source': [], 'height': [], 'root': 'root', 'model': ['ek_wall'], 'lit': False, 'grid': 0.5}))
 
 
 if __name__ == '__main__':

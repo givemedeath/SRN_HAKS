@@ -43,9 +43,12 @@ def load(path):
     for entry in data['tileGroups']:
         require(set(entry) >= GROUP_KEYS and set(entry) <= GROUP_KEYS | {'label', 'door', 'lights'} and len(entry['tiles']) == len(entry['models']) == entry['rows'] * entry['columns'],
                 'A tile group entry is incomplete: ' + str(entry.get('name')))
+    one = lambda lights: isinstance(lights, dict) and set(lights) in LIGHT_KEYS and all(isinstance(value, str) and value for value in lights.values())
     for entry in data['placeables'] + data['tileGroups']:
         lights = entry.get('lights')
-        require(lights is None or (isinstance(lights, dict) and set(lights) in LIGHT_KEYS and all(isinstance(value, str) and value for value in lights.values())),
+        # A group whose tiles show several lit materials (its own and its parts', `convert.part_textures`) lists each.
+        several = 'tiles' in entry and isinstance(lights, list) and len(lights) > 1 and all(one(each) for each in lights) and len({each['lit'] for each in lights}) == len(lights)
+        require(lights is None or one(lights) or several,
                 'An entry\'s lights name its material, its lights-out twin and its glow map, and with a halo the halo and its dark sheet: ' + str(entry.get('model', entry.get('name'))))
     numbers = [entry['row'] for entry in data['placeables']] + [(entry['tileset'], entry['group']) for entry in data['tileGroups']]
     twice = sorted({str(number) for number in numbers if numbers.count(number) > 1})

@@ -1,0 +1,26 @@
+{
+  "set": "saeder-krupp-yard",
+  "prefix": "sk",
+  "props": {
+    "office-desk": {"triangles": 12000},
+    "loading-console": {"triangles": 6000},
+    "tool-lockers": {"triangles": 5000},
+    "crate-set": {"triangles": 5000},
+    "pallet-stack": {"triangles": 8000},
+    "shipping-container": {"triangles": 8000},
+    "yard-gate": {"triangles": 8000},
+    "forklift": {"triangles": 12000},
+    "fuel-dispenser": {"triangles": 8000},
+    "fence-section": {"triangles": 12000},
+    "security-booth": {"triangles": 10000},
+    "wall-sign": {"triangles": 2000},
+    "pylon-sign": {"triangles": 3000},
+    "utility-barrier": {"triangles": 3000}
+  },
+  "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 200000},
+  "pieces": {"west": {"views": ["building-west-front", "building-west-rear"], "triangles": 40000},
+    "centre": {"views": ["building-centre-front", "building-centre-rear"], "triangles": 50000, "remesh": "sk-building-centre-a1-remesh2"},
+    "east": {"views": ["building-east-front", "building-east-rear"], "triangles": 50000, "remesh": "sk-building-east-a1-remesh2"},
+    "westfront": {"views": ["building-west-front"], "triangles": 30000},
+    "centrefront": {"views": ["building-centre-front"], "triangles": 40000, "remesh": "sk-building-centrefront-a1-remesh2"}}
+}
