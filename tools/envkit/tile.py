@@ -773,15 +773,20 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     facing, type} on the finished model; it becomes a door record of the tile its hook lies in (`doorstep`). parts: the
     other models of the group as (texture, finished model placed in the group's space, colour), each drawn with its own
     picture, halo and fence sheets, and with the building one ground to walk on, cut into the same tiles; a model placed
-    more than once comes once for each place, and they are joined (`merge_parts`)."""
+    more than once comes once for each place, and they are joined (`merge_parts`). A part marked `underfoot` (railway
+    track) is drawn but not surveyed: the ground is walked flat across it, and it may run off the group's edges, where
+    a raised slab may not. It stands no higher than the knee."""
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     parts = merge_parts(parts); meshes = [(name, made, colour), *parts]
     require(len({texture for texture, _, _ in meshes}) == len(meshes), "A part of a group shows a texture of its own, not the group's")
-    shaped = [one for _, one, _ in meshes]; whole = join(shaped, ('vertices', 'faces')); vertices, faces = whole['vertices'], whole['faces']
+    shaped = [one for _, one, _ in meshes]; vertices = np.vstack([one['vertices'] for one in shaped])
+    laid = [texture for texture, one, _ in parts if one.get('underfoot') and one['vertices'][:, 2].max() > KNEE + 1e-6]
+    require(not laid, f'A part laid underfoot stands no higher than the knee, {KNEE} metres: ' + ', '.join(laid))
+    walked = join([one for one in shaped if not one.get('underfoot')], ('vertices', 'faces'))
     wires = [(texture, one['wire']) for texture, one, _ in meshes if one.get('wire') is not None]
     barrier = tuple(join([wire for _, wire in wires], ('vertices', 'faces')).values()) if wires else None
-    rows, columns, corner = layout(vertices); found = survey(vertices, faces, rows, columns, corner, barrier=barrier)
+    rows, columns, corner = layout(vertices); found = survey(walked['vertices'], walked['faces'], rows, columns, corner, barrier=barrier)
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
 
     def shared(points, polygons):  # each face's tile, by its middle, and whether it is above the fade height

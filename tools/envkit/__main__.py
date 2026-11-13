@@ -156,7 +156,7 @@ def command_tiles(args):
         made, maps, colour = shaped(args.model); textures = convert.part_textures(args.model, tiles.get('parts', [])); placed, crunch = [], _crunch()
         counts = {args.model: len(made['faces'])}; shapes = {}
         for name in textures:  # each model placed in the group, shaped once; the building is counted before anything is written
-            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces'])
+            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces']); shapes[name][0]['underfoot'] = models[name].get('underfoot', False)
         built = convert.building_triangles(models, args.model, counts)
         require(built <= meshy.BUILDING_TRIANGLES, f'The building of {args.model} is {built} triangles, its own and those of the models placed in it that are '
                 f'no placeables: more than the building budget of {meshy.BUILDING_TRIANGLES}; remesh its pieces lower')
@@ -175,6 +175,11 @@ def command_tiles(args):
     print(json.dumps(report), flush=True)
     for note in report['notes']:  # beside the report, which stays the only thing on standard output
         print('note: ' + note, file=sys.stderr, flush=True)
+
+
+def command_track(args):
+    from . import track
+    print(json.dumps(track.build(Path(args.output), args.seed)))
 
 
 def command_meshy(args):
@@ -397,6 +402,9 @@ def main(argv=None):
     sub.add_argument('--grid', type=float, help='with --eye: a measuring grid this many metres apart on the upright plane through each target; the eyes level with their targets')
     sub.add_argument('--page', help='also one picture of every model drawn, side by side under their names')
     sub.set_defaults(run=command_view)
+    sub = commands.add_parser('track', help='a straight piece of railway track, built to gauge, as a model folder a game set reads')
+    sub.add_argument('--output', required=True, help="a fresh folder under the set's output root"); sub.add_argument('--seed', type=int, default=0, help='the seed of its maps')
+    sub.set_defaults(run=command_track)
     sets = str(Path(__file__).with_name('sets'))
     sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')
     sub.add_argument('action', choices=['boxes', 'sets', 'crops', 'overlay', 'audit', 'types', 'same', 'revise'])

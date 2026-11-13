@@ -366,6 +366,18 @@ class ConvertTests(unittest.TestCase):
         models['ek_xs'] = models.pop(clash); path.write_text(json.dumps({'models': models}), encoding='utf-8')
         self.assertIn('ek_xs', convert.load_models(path))
 
+    def test_a_model_laid_underfoot_is_a_part_and_never_a_group(self):
+        """The rail freight depot (2026-11-13): its tracks are parts laid underfoot, walked across and run off its edges."""
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        models = {'ek_x': {'source': 'meshy/x', 'height': 3.0, 'measuredAt': 3.0, 'tiles': {**group, 'parts': [{'model': 'ek_y', 'at': [5, 0, 0]}]}},
+                  'ek_y': {'source': 'track/y', 'height': 0.3, 'underfoot': True}}
+        path = self.root / 'set.json'; path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIs(convert.load_models(path)['ek_y']['underfoot'], True)
+        for change in ({'ek_y': {**models['ek_y'], 'underfoot': False}}, {'ek_y': {**models['ek_y'], 'underfoot': 'yes'}}, {'ek_x': {**models['ek_x'], 'underfoot': True}}):
+            path.write_text(json.dumps({'models': {**models, **change}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'underfoot is true'):
+                convert.load_models(path)
+
     def test_a_face_seen_from_behind_is_turned_round(self):
         """The rail yard (2026-11-13): faces wound inward were holes onto whatever stood behind them."""
         corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)

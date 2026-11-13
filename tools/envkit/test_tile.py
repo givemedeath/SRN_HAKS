@@ -389,6 +389,28 @@ class TileTests(unittest.TestCase):
             twice = tile.group('ek_yard', building, Path(scratch) / 'twice', ground='pavement', parts=[('ek_yardp2', lamp_there, None), ('ek_yardp2', second, None)])
             self.assertEqual(sum(one['faces'] for one in twice['tiles']), len(faces) + 2 * len(BOX))
 
+    def test_a_part_laid_underfoot_is_walked_across_and_may_run_off_the_group(self):
+        """User, 2026-11-13: the rail freight depot's tracks run through it and on into the tiles beside it. Surveyed,
+        a track is a slab that reaches the group's edges, and the group is refused; laid underfoot it is drawn in the
+        tiles and the ground is walked flat across it."""
+        import tempfile
+        vertices, faces = scene(box((-4, -3, 0), (4, 3, 0.2)), box((-3, -2, 0.2), (3, 1, 3)))
+        flat = lambda points, triangles, **more: {'vertices': points, 'normals': np.tile([0.0, 0, 1], (len(points), 1)), 'uvs': np.zeros((len(points), 2)),
+                                                  'faces': triangles, 'card': None, 'wire': None, **more}
+        building, track = flat(vertices, faces), flat(*box((-10, 4.5, 0), (10, 6.1, 0.31)))
+        with tempfile.TemporaryDirectory() as scratch:
+            with self.assertRaisesRegex(ValueError, 'edge of its tiles'):
+                tile.group('ek_yard', building, Path(scratch) / 'a', ground='pavement', parts=[('ek_yardp1', track, None)])
+            laid = tile.group('ek_yard', building, Path(scratch) / 'b', ground='pavement', parts=[('ek_yardp1', {**track, 'underfoot': True}, None)])
+            self.assertEqual((laid['rows'], laid['columns']), (1, 2))  # the group is as long as the track
+            self.assertEqual(sum(one['faces'] for one in laid['tiles']), len(faces) + len(BOX))
+            rows, columns, corner = tile.layout(np.vstack([vertices, track['vertices']]))
+            roomy = tile.read_walk(Path(scratch) / 'b' / tile.WALK_PICTURE)
+            under = slice(int((4.5 - corner[1]) / CELL), int((6.1 - corner[1]) / CELL))
+            self.assertTrue(roomy[under].all())  # all along the track, to both edges of the group
+            with self.assertRaisesRegex(ValueError, 'no higher than the knee'):
+                tile.group('ek_yard', building, Path(scratch) / 'c', ground='pavement', parts=[('ek_yardp1', {**flat(*box((-10, 4.5, 0), (10, 6.1, 0.6))), 'underfoot': True}, None)])
+
     def test_a_door_hook_is_drawn_out_onto_open_ground_and_turned_as_the_set_file_turns_doors(self):
         """The Ares Depot's hook lay on its door leaf, inside the wall's closed ground, turned by the way the door faces:
         the invisible door stood out of the wall at a right angle and a player sent to it never arrived (client, 2026-11-11)."""

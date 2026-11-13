@@ -735,12 +735,14 @@ def load_models(path):
     along the longer side of its footprint to that many metres, its height and width kept (`stretched`). A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
-    under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
+    under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it).
+    `underfoot` (true) lays the model on the ground as railway track is laid (`track`): a group it is placed in is walked
+    flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -795,6 +797,8 @@ def load_models(path):
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
+        require(model.get('underfoot', True) is True and not ('underfoot' in model and tiles),
+                'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
         require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
