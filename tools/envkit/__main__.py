@@ -307,7 +307,16 @@ def command_check(args):
         made = checks.lights(args.game, args.repo, args.root, args.name, args.models, args.built)
     else:
         require(len(args.model) == 1, 'One tile group is checked at a time')
-        made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, mode, second_storey=args.second_storey)
+        targets = {}
+        for text in args.target:
+            label, _, place = text.partition('=')
+            try:
+                x, y = (float(value) for value in place.split(','))
+            except ValueError:
+                x = y = None
+            require(re.fullmatch('[a-z][a-z0-9-]*', label) and x is not None and label not in targets, "A target is label=x,y, in metres from the group's south-west corner, each label its own: " + text)
+            targets[label] = (x, y)
+        made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, mode, second_storey=args.second_storey, targets=targets)
     print(json.dumps(made))
 
 
@@ -403,6 +412,7 @@ def main(argv=None):
     sub.add_argument('--name', help='a new fixture name, a lowercase resref of at most 11 characters'); sub.add_argument('--built', action='append', default=[], help='the folder `game` or `tiles` built into (lights: repeatable, the first that holds a model serves)')
     sub.add_argument('--model', action='append', default=[]); sub.add_argument('--tileset', choices=['dgt04', 'udp1'])
     sub.add_argument('--mode', choices=['day', 'night', 'near', 'walk'], help='props: day (default) or night; group: day (default), night (lights put out and on again), near or walk (walkers sent across the area; refused if one stops short); lights are seen by night'); sub.add_argument('--second-storey', default='0', help='near: the client\'s second-storey setting')
+    sub.add_argument('--target', action='append', default=[], help="group --mode walk: label=x,y, another place to send a walker, in metres from the group's south-west corner as walk.png shows it (repeatable)")
     sub.add_argument('--user', help='doors: the Toolset user folder'); sub.add_argument('--output', help='doors: a fresh folder for captures')
     sub.add_argument('--ticks', type=int, default=150, help='doors: how long the player is watched, two seconds a tick')
     sub.set_defaults(run=command_check)

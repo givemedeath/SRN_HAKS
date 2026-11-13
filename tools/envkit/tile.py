@@ -17,6 +17,9 @@ closed things (bollards, bins) are Nonwalk: in the way, but seen over; so is wha
 reaching eye height, such as bins standing against its wall. Where the mesh has a slab, the walkmesh rises
 onto it over the slab's outermost half metre. A strip of slab too narrow for that, a kerb or a step three quarters of
 a metre to a metre wide, is climbed over its outer quarter metre instead; a narrower one is left on the ground.
+A deck, a broad flat floor raised past the knee (the Saeder-Krupp yard's loading bay and its apron stand on one 0.55
+metres high), is walked on at its own height and climbed over its outer half metre where it meets lower open ground;
+what stands on it is closed as on the ground (`_decks`).
 
 A tile also carries what the stock tiles carry (read off Modern Exterior's and the stock city's tiles, 2026-11-11): a
 32-pixel picture for the area map, two main lights a builder colours in the Toolset, the `day`, `night`, `day2night`
@@ -55,6 +58,10 @@ FINE = 2  # samples across a walk cell
 RAMP = 2  # cells from the slab's edge to its full height: the half metre a character steps up over
 STONE, OBSCURING, NONWALK = 4, 2, 7  # rows of surfacemat.2da
 KNEE, EYE, HEAD, STEP = 0.45, 1.4, 2.2, 0.05
+# A deck is a floor flat to FLAT metres, no higher than DECK and of DECK_AREA square metres at least: the tops of crates,
+# benches and barriers are smaller, and the Saeder-Krupp yard's bay floor is 68 (user, 2026-11-12: "more area on the
+# pavement and in the bay should be walkable").
+DECK, DECK_AREA, FLAT = 0.75, 9.0, 0.06
 # The engine's path nodes whose exits are a tile's four sides, each as the sides its regions join at no turn
 # (N, W, S, E; +y is north). A turn is counter-clockwise, in quarters. From the engine's table as nwn.wiki's page on
 # tile path nodes gives it, checked against the walkmeshes of the 1,091 stock tiles of Modern Exterior and Suburbs on
@@ -140,8 +147,24 @@ def _masses(closed):
     return labels, count
 
 
+def _decks(points, place, standing, shape):
+    """The height of the deck each survey sample lies on, 0 off any deck: a flat floor between the knee and DECK of
+    DECK_AREA at least, and its rim, the samples beside it where the mesh stands no higher than the deck (its edge
+    face, from the ground up). What stands on a deck rises past it, and is not part of it."""
+    lowest = np.full(shape, np.inf); top = np.zeros(shape); spot = (place[standing, 1], place[standing, 0])
+    np.minimum.at(lowest, spot, points[standing, 2]); np.maximum.at(top, spot, points[standing, 2])
+    labels, count = _masses((lowest <= DECK) & (top - lowest < FLAT)); deck = np.zeros(shape)
+    sizes = np.bincount(labels.ravel(), minlength=count + 1)[1:] * (SIZE / CELLS / FINE) ** 2
+    for index in np.flatnonzero(sizes >= DECK_AREA):
+        member = labels == index + 1; height = float(np.median(lowest[member]))
+        near = np.pad(member, 1); near = member | near[:-2, 1:-1] | near[2:, 1:-1] | near[1:-1, :-2] | near[1:-1, 2:]
+        deck[member | (near & (top > 0) & (top <= height + FLAT))] = height
+    return deck
+
+
 def survey(vertices, faces, rows, columns, corner, barrier=None):
-    """The group's walk cells, [row, column] from the south-west: {material, raised, depth, crest, slab, roof, footprint, lines}.
+    """The group's walk cells, [row, column] from the south-west: {material, raised, depth, crest, slab, roof, footprint, lines,
+    deck, deckDepth}.
     `barrier` is (vertices, faces) of what stands in the way without being part of the model's mesh: a fence's sheets
     (`convert.sheets`), which close the ground they stand on as a wall would and hide nothing behind them.
 
@@ -154,13 +177,16 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     no cell past the ramp within RAMP cells of it. The walkmesh is at the slab's height all round such a cell.
     lines: (columns, rows) of the cell boundaries the walkmesh is drawn on, through the whole group: the tiles' own
     edges, wherever the cells on either side differ anywhere along the line, RAMP cells inside the slab's edge, and
-    round each crest."""
+    round each crest, and at each deck's edge and RAMP cells inside it.
+    deck: the height of the deck a walk cell lies on, 0 off any (`_decks`); deckDepth: how many cells it lies inside
+    the deck's edge where that meets lower open ground, counted to one past RAMP, closed cells counting as deck."""
     points = scatter(vertices, faces); across = np.array([columns, rows]) * CELLS * FINE; step = SIZE / CELLS / FINE
     # A face that lies on the boundary between two samples falls to the far side of it, all of it: left to rounding its
     # points fall on either side by chance, and the outline they draw is ragged.
     place = np.clip(((points[:, :2] - corner) / step + 1e-6).astype(int), 0, across - 1)
     standing = (points[:, 2] > KNEE) & (points[:, 2] < HEAD)
     solid = np.zeros((across[1], across[0]), bool); solid[place[standing, 1], place[standing, 0]] = True
+    decks = _decks(points, place, standing, solid.shape); solid &= decks == 0  # a deck is floor, not something in the way
     if barrier is not None:  # a generator leaves a fence's frames empty: without its sheets the ground between the posts would be open
         fence = scatter(*barrier); fence = fence[(fence[:, 2] > KNEE) & (fence[:, 2] < HEAD)]
         spot = np.clip(((fence[:, :2] - corner) / step + 1e-6).astype(int), 0, across - 1); solid[spot[:, 1], spot[:, 0]] = True
@@ -170,8 +196,9 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     tall = ~_outside(~tall)
     low = np.zeros(solid.shape); under = points[:, 2] <= KNEE
     np.maximum.at(low, (place[under, 1], place[under, 0]), points[under, 2])
-    on_slab = ~_outside(~(low > STEP))  # and what the slab's rim encloses stands on it
-    slab = float(np.median(low[low > STEP])) if (low > STEP).any() else 0.0
+    rim = (low > STEP) & (decks == 0)  # a deck's edge rises past the knee too, but it is no slab
+    on_slab = ~_outside(~rim)  # and what the slab's rim encloses stands on it
+    slab = float(np.median(low[rim])) if rim.any() else 0.0
     cells = lambda fine: fine.reshape(rows * CELLS, FINE, columns * CELLS, FINE).mean((1, 3))
     closed = cells(solid) >= 0.25; raised = cells(on_slab) > 0.5
     labels, count = _masses(closed); material = np.full(closed.shape, STONE); footprint = np.zeros_like(solid)
@@ -188,11 +215,18 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     # would be drawn flat on the ground with the slab standing through it.
     wide = np.pad(depth, RAMP); tall_cells, wide_cells = depth.shape; reach = range(2 * RAMP + 1)
     crest = (depth > 1) & (depth == np.max([wide[dy:dy + tall_cells, dx:dx + wide_cells] for dy in reach for dx in reach], axis=0)) & (depth <= RAMP)
+    on_deck = cells(decks > 0) > 0.5
+    deck = np.where(on_deck & ~closed, np.where(on_deck, cells(decks) / np.maximum(cells(decks > 0), 1e-9), 0.0), 0.0)
+    inner = (deck > 0) | closed; deck_depth = inner.astype(int)
+    for _ in range(RAMP):  # as the slab's depth, but only open ground off the deck is its edge: a wall on it is not
+        wide = np.pad(inner, 1); inner = inner & wide[:-2, 1:-1] & wide[2:, 1:-1] & wide[1:-1, :-2] & wide[1:-1, 2:]; deck_depth += inner
+    levels = np.unique(deck[deck > 0]); level = (np.searchsorted(levels, deck) + 1) * (deck > 0)  # each deck's height its own kind
     kind = material * 8 + raised * 4 + (depth > RAMP) * 2 + crest  # past the ramp, and on a crest, the walkmesh has reached the slab's height
+    kind = kind + 64 * (level * 2 + (deck > 0) * (deck_depth > RAMP))  # and on a deck, past its ramp, the deck's
     lines = (sorted({column * CELLS for column in range(columns + 1)} | {int(x) for x in np.flatnonzero((kind[:, 1:] != kind[:, :-1]).any(0)) + 1}),
              sorted({row * CELLS for row in range(rows + 1)} | {int(y) for y in np.flatnonzero((kind[1:] != kind[:-1]).any(1)) + 1}))
     return {'material': material, 'raised': raised, 'slab': slab, 'roof': float(vertices[:, 2].max()), 'footprint': footprint, 'lines': lines, 'depth': depth,
-            'crest': crest, 'roomy': _roomy(material == STONE)}
+            'crest': crest, 'roomy': _roomy(material == STONE), 'deck': deck, 'deckDepth': deck_depth}
 
 
 def lines(found, row, column):
@@ -205,6 +239,7 @@ def walkmesh(found, row, column):
     each box of the tile's grid lines, the floor's vertices first. Between two lines the cells are all alike, on both
     sides of every line, so a box has one material and one neighbour on each side."""
     material, depth, crest = found['material'], found['depth'], found['crest']; rows, columns = material.shape
+    deck, deck_depth = found.get('deck'), found.get('deckDepth')
     first_row, first_column = row * CELLS, column * CELLS; xs, ys = lines(found, row, column); cell = SIZE / CELLS
 
     def lift(y, x):
@@ -212,7 +247,12 @@ def walkmesh(found, row, column):
         is up, and so is one on a crest."""
         around = [(r, c) for r in (first_row + y - 1, first_row + y) for c in (first_column + x - 1, first_column + x) if 0 <= r < rows and 0 <= c < columns]
         least = min(int(depth[cell]) for cell in around) if len(around) == 4 else 0
-        return found['slab'] if least and any(crest[cell] for cell in around) else found['slab'] * min(least, RAMP) / RAMP
+        ground = found['slab'] if least and any(crest[cell] for cell in around) else found['slab'] * min(least, RAMP) / RAMP
+        heights = [float(deck[cell]) for cell in around if deck[cell] > 0] if deck is not None else []
+        if not heights or len(around) < 4:
+            return ground
+        # On a deck: up from the ground at its edge to its height RAMP cells in (`survey`)
+        return ground + (min(heights) - ground) * min(min(int(deck_depth[cell]) for cell in around), RAMP) / RAMP
     vertices = [[x * cell - SIZE / 2, y * cell - SIZE / 2, lift(y, x)] for y in ys for x in xs]
     at = lambda j, i: j * len(xs) + i; faces = []
     walls = lambda r, c: 0 <= r < rows and 0 <= c < columns and material[r, c] == OBSCURING
@@ -501,6 +541,8 @@ def doorstep(found, corner, at, facing):
             # in front of them. Drawn out from a door on a high sill or at the head of steps it would hang in the air,
             # and no such door has been tried in the client: it is refused until one is.
             ground = found['slab'] * np.where(found['crest'][patch], RAMP, np.minimum(found['depth'][patch], RAMP)) / RAMP
+            if found.get('deck') is not None:  # and onto a deck, as `walkmesh` raises it
+                ground = np.where(found['deck'][patch] > 0, ground + (found['deck'][patch] - ground) * np.minimum(found['deckDepth'][patch], RAMP) / RAMP, ground)
             apart = max(float(at[2]) - float(ground.min()), float(ground.max()) - float(at[2]))
             require(apart <= DOOR_STEP, f"The ground the door's hook is drawn out to lies {apart:.2f} metres from the door's foot in height, more than the "
                     f'{DOOR_STEP} a hook has been seen to work at: a door on a sill or steps needs the height of its hook settled in the client first')

@@ -252,6 +252,18 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   on the upright plane through the target, labelled each metre in x or y and z
   (`--eye front=0,70,7,0,0,7,16,200 --grid 0.5`). Read heights off the grid for what stands on that plane; what
   stands nearer the eye is drawn larger.
+- **A roller door, shutter or grille comes back as a wavy moiré.** The generator drew slats finer than its texels.
+  Smooth the door with `slats` as well: `{"part": ..., "box": ..., "radius": 0.08, "slats": 0.12}` takes the pattern
+  off and draws a joint every 0.12 m up the model. Keep lettering out of the boxes (one under it, one over it and one
+  either side), and read the boxes off the texture rather than by eye. A pitch under four texels is refused.
+- **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
+  0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
+  `walk.png` shows which.
+- **Something the generator stood on the floor leaves too narrow a way** (dark green on `walk.png` where a character
+  must pass, or a `tiles` note of walk cells no exit reaches). A path needs a metre clear. Take the thing away with
+  `clear`: `{"part": ..., "box": ...}` on the finished model takes every face whose middle lies in the box. Start the
+  box a couple of centimetres above the floor, so the floor stays and what stands on it goes, and draw the place again:
+  marks the thing left painted on the floor stay. A box that takes nothing is refused.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

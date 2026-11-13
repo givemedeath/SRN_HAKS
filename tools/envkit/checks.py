@@ -245,14 +245,17 @@ def walk_plan(columns, rows, door, facing, targets, *, column0=3, row0=3, size=9
 def walk_shots(columns, rows, walkers, name, *, column0=3, row0=3, size=9):
     """The shots of a walk check: one from above that sends every walker (the fixture's people, `name`_h<index>, stood at
     their starts) running to its target and logs where each is, WALK_STAGES more that log them again as they go, and
-    one at each target. The Saeder-Krupp yard's four walkers were sent so, 2026-11-12."""
+    one at each target. The Saeder-Krupp yard's four walkers were sent so, 2026-11-12. The walkers are ghosts to one
+    another: the yard's first walk check sent two from one corner side by side, and the one that bumped the other gave
+    up after three metres, in both tilesets (2026-11-12). A ghost still keeps to the walkmesh."""
     hx, hy = columns * TILE / 2, rows * TILE / 2
     above = {'stand': [column0 * TILE + hx, row0 * TILE + hy], 'facing': 90, 'distance': round(0.65 * size * TILE, 1), 'pitch': 25, 'height': 1.0}
 
     def log(stage):
         return ''.join(f'{{ vector at=GetPosition(GetObjectByTag("{name}_h{index}")); WriteTimestampedLogEntry("{fixture.LOG_PREFIX} walker={index} stage={stage} '
                        f'x="+FloatToString(at.x,7,3)+" y="+FloatToString(at.y,7,3)); }}' for index in range(len(walkers)))
-    go = ''.join(f'AssignCommand(GetObjectByTag("{name}_h{index}"),ActionMoveToLocation(Location(GetArea(pc),Vector({one["target"][0]:.3f},{one["target"][1]:.3f},0.0),0.0),TRUE));'
+    go = ''.join(f'ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectCutsceneGhost(),GetObjectByTag("{name}_h{index}"));'
+                 f'AssignCommand(GetObjectByTag("{name}_h{index}"),ActionMoveToLocation(Location(GetArea(pc),Vector({one["target"][0]:.3f},{one["target"][1]:.3f},0.0),0.0),TRUE));'
                  for index, one in enumerate(walkers))
     return [{**above, 'label': 'go', 'run': go + log(0)}, *({**above, 'label': f'w{stage}', 'run': log(stage)} for stage in range(1, WALK_STAGES + 1)),
             *({'label': 'at-' + one['label'], 'stand': one['target'], 'facing': 90, 'distance': 12.0, 'pitch': 62, 'height': 1.5} for one in walkers)]
@@ -319,12 +322,15 @@ def laid_tiles(set_text, tileset, model, tiles, column0, row0):
     return laid
 
 
-def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=9, scale_prop='ek_ss_vending'):
+def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=9, scale_prop='ek_ss_vending', targets=None):
     """A built tile group (`tiles`' folder) laid in an area of `tileset`, which must hold it already (`install`): the
     tile numbers are the pack's, the models and walkmeshes the built ones. mode: day, night (with its lights put out
     and on again), near or walk (`walk_plan`; refused if a walker stops more than REACHED metres short, after its
-    captures and `walks.json` are written)."""
+    captures and `walks.json` are written). targets: {label: (x, y)} more places a walk sends walkers to, in metres from
+    the group's south-west corner as `walk.png` shows them (the Saeder-Krupp yard's bay, which no automatic target
+    reaches)."""
     require(tileset in FILL, 'A check area is laid in ' + ' or '.join(FILL)); require(mode in ('day', 'night', 'near', 'walk'), 'mode is day, night, near or walk')
+    require(not targets or mode == 'walk', 'Targets are where a walk check sends walkers: give them with --mode walk')
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path)
     require(model in models and models[model].get('tiles'), model + ' is not a tile group of the game set')
     resources = _fresh(base, name)
@@ -342,7 +348,9 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     from_pack(repo / 'srn_placeable', scale_prop, resources)  # something of a known size in the corner of the area
     door, night = laid_door(made), mode == 'night'; facing = float((models[model]['tiles'].get('door') or {}).get('facing', 90.0)); people, walkers = [], []
     if mode == 'walk':
-        walkers = walk_plan(made['columns'], made['rows'], door, facing, tile.walk_targets(tile.read_walk(walk_picture)), column0=column0, row0=row0, size=size)
+        chosen = tile.walk_targets(tile.read_walk(walk_picture)); clash = sorted(set(targets or {}) & {*chosen, 'door', 'pocket-near'})
+        require(not clash, 'A target of your own takes a label of its own: ' + ', '.join(clash)); chosen.update(targets or {})
+        walkers = walk_plan(made['columns'], made['rows'], door, facing, chosen, column0=column0, row0=row0, size=size)
         shots = walk_shots(made['columns'], made['rows'], walkers, name, column0=column0, row0=row0, size=size); people = [{'position': one['start'], 'facing': 0.0} for one in walkers]
     else:
         shots = group_shots(made['columns'], made['rows'], door, mode, column0=column0, row0=row0, facing=facing)

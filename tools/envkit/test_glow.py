@@ -152,6 +152,8 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 0}]}, 'taken off by its tint')
             refused({'source': 'meshy/x', 'height': 1.0, 'smooth': [{'box': [[0, 0, 0], [1, 1, 1]], 'radius': 0.1, 'tint': 20, 'colour': [1, 2, 3]}]}, 'keeps its own colour')
             refused({'source': 'meshy/x', 'height': 1.0, 'close': [{'corners': [[0, 0, 0], [1, 1, 1]]}]}, 'needs three corners')
+            refused({'source': 'meshy/x', 'height': 1.0, 'clear': [{'box': [[0, 0, 0]]}]}, 'A cleared part is a box')
+            refused({'source': 'meshy/x', 'height': 1.0, 'clear': [{'box': [[0, 0, 2], [1, 1, 3]]}]}, 'wholly above or below')
             sheet = {'from': [0, 0], 'to': [2, 0], 'z': [1, 2], 'pitch': 0.09, 'wire': 0.016}
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [2, 1]}]}, 'between two heights')
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'to': [0, 0]}]}, 'from one point to another')
@@ -170,7 +172,7 @@ class GlowTests(unittest.TestCase):
             # says the height it had then, and one made taller or lower since has them measured again.
             cube = [[0, 0, 0], [1, 1, 1]]; door = {'at': [0, 1, 0.2], 'type': 58, 'leaf': 2.1}
             for stated in ({'lit': [{'box': cube}]}, {'paint': [{'box': cube, 'colour': [1, 2, 3]}]}, {'smooth': [{'box': cube, 'radius': 0.1}]},
-                           {'mesh': [{'box': cube, 'pitch': 0.09, 'wire': 0.016}]}, {'fence': [sheet]}, {'close': [{'corners': [[0, 0, 0], [1, 0, 0], [0, 0, 1]]}]}, {'tiles': {**tiles, 'door': door}}, {'tiles': {**tiles, 'fade': 3.0}}):
+                           {'mesh': [{'box': cube, 'pitch': 0.09, 'wire': 0.016}]}, {'fence': [sheet]}, {'close': [{'corners': [[0, 0, 0], [1, 0, 0], [0, 0, 1]]}]}, {'clear': [{'box': cube}]}, {'tiles': {**tiles, 'door': door}}, {'tiles': {**tiles, 'fade': 3.0}}):
                 refused({'source': 'meshy/x', 'height': 9.5, **stated}, 'says how it stood when they were measured')
                 refused({'source': 'meshy/x', 'height': 9.5, 'measuredAt': 12.35, **stated}, 'measured with the model at height 12.35 and it is now at height 9.5')
                 path = Path(scratch) / 'measured.json'; path.write_text(json.dumps({'models': {'ek_x': {'source': 'meshy/x', 'height': 9.5, 'measuredAt': 9.5, **stated}}}), encoding='utf-8')

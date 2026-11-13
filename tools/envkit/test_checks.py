@@ -110,7 +110,7 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([one['label'] for one in checks.walk_plan(2, 2, None, 90.0, {})], [])
         shots = checks.walk_shots(3, 3, walkers, 'skwalk')
         self.assertEqual([shot['label'] for shot in shots], ['go', 'w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'at-door', 'at-south', 'at-pocket', 'at-pocket-near'])
-        self.assertEqual(shots[0]['run'].count('ActionMoveToLocation('), 4); self.assertIn('Vector(46.310,56.940,0.0)', shots[0]['run'])
+        self.assertEqual((shots[0]['run'].count('ActionMoveToLocation('), shots[0]['run'].count('EffectCutsceneGhost()')), (4, 4)); self.assertIn('Vector(46.310,56.940,0.0)', shots[0]['run'])
         self.assertIn('GetObjectByTag("skwalk_h3")', shots[6]['run']); self.assertIn('walker=3 stage=6', shots[6]['run'])  # tagged as the fixture tags its people
         prop_fixture.enter_script(shots, hold=checks.WALK_HOLD)  # each shot's script is one line
         lines = ['ENVKIT enter shots=11', 'ENVKIT walker=0 stage=0 x=  5.000 y=  5.000', 'ENVKIT walker=0 stage=6 x= 46.100 y= 56.800',
@@ -143,8 +143,13 @@ class CheckTests(unittest.TestCase):
         from . import __main__ as command
         asked = dict(game='game', repo='.', models='set.json', root='root', name='ekt1', built=['built'], model=['ek_yard'], tileset='dgt04', second_storey='0')
         with mock.patch.object(checks, 'group', return_value={}) as group, mock.patch('builtins.print'):
-            command.command_check(Namespace(kind='group', mode='walk', **asked))
-        self.assertEqual(group.call_args.args[-1], 'walk')
+            command.command_check(Namespace(kind='group', mode='walk', target=['bay=22,23.5', 'apron=23.0,11'], **asked))
+        self.assertEqual((group.call_args.args[-1], group.call_args.kwargs['targets']), ('walk', {'bay': (22.0, 23.5), 'apron': (23.0, 11.0)}))
+        for wrong in (['bay=22'], ['Bay=1,2'], ['bay=1,2', 'bay=3,4'], ['bay=x,2']):
+            with self.assertRaisesRegex(ValueError, 'A target is label=x,y'):
+                command.command_check(Namespace(kind='group', mode='walk', target=wrong, **asked))
+        with self.assertRaisesRegex(ValueError, 'give them with --mode walk'):
+            checks.group('game', '.', '.', 'ekwalk', 'set.json', 'built', 'ek_yard', 'dgt04', 'day', targets={'bay': (1.0, 2.0)})
 
     def test_a_group_is_laid_with_the_packs_tiles_only_where_the_pack_holds_this_build(self):
         text = '[TILE0]\r\nModel=tdg01_a01_01\r\n[TILE1]\r\nModel=ek_hall_t00\r\nWalkMesh=msb01\r\n[TILE1DOOR0]\r\nType=58\r\n[TILE2]\r\nModel=ek_hall_t01\r\n[TILE3]\r\nModel=ek_shop_t00\r\n'

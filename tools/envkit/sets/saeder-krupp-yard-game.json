@@ -17,7 +17,20 @@
           {"model": "ek_sk_pallets", "at": [8.0, -14.2, 0.0]}, {"model": "ek_sk_pallets", "at": [10.3, -14.4, 0.0], "turn": 90},
           {"model": "ek_sk_crates", "at": [12.3, -16.0, 0.0]}, {"model": "ek_sk_crates", "at": [7.2, -16.6, 0.0], "turn": 90}
         ]}},
-    "ek_sk_yardcf": {"source": "meshy/models/sk-building-centrefront-a1-remesh2", "height": 9.25, "measuredAt": 9.25, "colour": 4096, "lit": [
+    "ek_sk_yardcf": {"source": "meshy/models/sk-building-centrefront-a1-remesh2", "height": 9.25, "measuredAt": 9.25, "colour": 4096, "smooth": [
+      {"part": "dock door L-01", "box": [[2.93, 2.4, 0.32], [5.22, 2.75, 1.79]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-01", "box": [[2.93, 2.4, 2.39], [5.22, 2.75, 2.6]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-01", "box": [[2.93, 2.4, 1.79], [3.6, 2.75, 2.39]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-01", "box": [[4.84, 2.4, 1.79], [5.22, 2.75, 2.39]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-02", "box": [[-0.85, 2.4, 0.32], [1.42, 2.75, 1.79]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-02", "box": [[-0.85, 2.4, 2.39], [1.42, 2.75, 2.6]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-02", "box": [[-0.85, 2.4, 1.79], [-0.33, 2.75, 2.39]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-02", "box": [[1.03, 2.4, 1.79], [1.42, 2.75, 2.39]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-03", "box": [[-4.51, 2.4, 0.32], [-2.31, 2.75, 1.79]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-03", "box": [[-4.51, 2.4, 2.39], [-2.31, 2.75, 2.6]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-03", "box": [[-4.51, 2.4, 1.79], [-4.06, 2.75, 2.39]], "radius": 0.08, "slats": 0.12},
+      {"part": "dock door L-03", "box": [[-2.68, 2.4, 1.79], [-2.31, 2.75, 2.39]], "radius": 0.08, "slats": 0.12}
+    ], "lit": [
       {"part": "Saeder-Krupp sign", "box": [[-5.0, 2.5, 4.2], [5.4, 3.1, 5.9]], "gain": 0.5, "value": 0.6},
       {"part": "lamps over the docks", "box": [[-4.0, 2.6, 2.85], [4.8, 3.1, 3.2]], "value": 0.55},
       {"part": "corner pole lamp", "box": [[5.2, 0.8, 7.6], [6.25, 2.45, 8.1]], "value": 0.75}
@@ -27,7 +40,9 @@
       {"part": "lamp over the service door", "box": [[0.35, 1.4, 2.5], [1.25, 2.2, 2.85]], "value": 0.75},
       {"part": "mast floodlight", "box": [[-1.7, -2.7, 10.85], [-0.2, -0.35, 11.4]], "value": 0.8}
     ], "halo": {"reach": 0.3, "strength": 0.4}},
-    "ek_sk_yarde": {"source": "meshy/models/sk-building-east-a1-remesh2", "height": 11.2, "measuredAt": 11.2, "colour": 4096, "lit": [
+    "ek_sk_yarde": {"source": "meshy/models/sk-building-east-a1-remesh2", "height": 11.2, "measuredAt": 11.2, "colour": 4096, "clear": [
+      {"part": "railed-off square in the loading bay, and its yellow post", "box": [[0.18, -2.26, 0.58], [2.05, 1.14, 2.0]]}
+    ], "lit": [
       {"part": "roof floodlight", "box": [[-3.5, -5.1, 8.7], [-2.0, -3.1, 9.3]], "value": 0.75},
       {"part": "red light on the stack", "box": [[0.2, -5.8, 10.85], [0.7, -5.3, 11.2]], "gain": 1.5, "saturation": 0.5, "value": 0.35}
     ], "halo": {"reach": 0.3, "strength": 0.4}},

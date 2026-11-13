@@ -405,6 +405,25 @@ class TileTests(unittest.TestCase):
         # A slab wide enough for the ramp has no crest: it is climbed over its outer half metre as before.
         self.assertEqual([round(float(height(-1.0, 1.0, y)), 3) for y in (-0.875, -0.75, -0.5, 0.0)], [0.05, 0.1, 0.2, 0.2])
 
+    def test_a_broad_floor_raised_past_the_knee_is_a_deck_walked_at_its_own_height(self):
+        # A loading bay's floor 0.55 high, six metres by four, the building's wall along its back and a crate on it; south
+        # of it a block as high but under two metres square, and a platform as broad but 0.9 high (the Saeder-Krupp
+        # yard's bay, 2026-11-12).
+        corner = np.array([-5.0, -5.0])
+        found = tile.survey(*scene(box((-3, -2, 0), (3, 2, 0.55)), box((-3, 1.6, 0.55), (3, 2, 3)), box((-3, 2, 0), (3, 4.5, 3)), box((-0.5, -0.5, 0.55), (0.5, 0.5, 1.5)),
+                                   box((-4.6, -4.6, 0), (-3.6, -3.0, 0.55)), box((0.5, -4.6, 0), (4.6, -2.4, 0.9))), 1, 1, corner)
+        at = lambda x, y: (int((y + 5) / CELL), int((x + 5) / CELL)); material = found['material']
+        self.assertEqual([int(material[at(x, y)]) for x, y in ((1.5, 0.0), (-2.0, -1.0), (0.0, 0.0), (0.0, 1.8), (-4.1, -3.8), (2.0, -3.5))],
+                         [tile.STONE, tile.STONE, tile.NONWALK, tile.OBSCURING, tile.NONWALK, tile.NONWALK])  # the deck open; the crate, wall, block and high platform not
+        vertices, flat, _ = floor(found)
+        height = lambda x, y: round(float(ground(vertices, flat, x, y)[0]), 3)
+        self.assertEqual([height(x, 0.0) for x in (-3.3, -3.0, -2.75, -2.5, -1.5, 1.5)], [0.0, 0.0, 0.275, 0.55, 0.55, 0.55])  # up over its outer half metre
+        self.assertEqual((height(0.6, 0.0), height(1.5, 1.45)), (0.55, 0.55))  # beside the crate and up to the wall it keeps its height
+        self.assertFalse(found['raised'][at(1.5, 0.0)])  # its edge is no slab's rim
+        self.assertGreater(float(found['deck'].max()), 0.5); self.assertEqual(int((found['deck'] > 0.8).sum()), 0)
+        plain = tile.survey(*SHOP, 1, 1, corner)  # a group with no deck: nothing changes
+        self.assertEqual((float(plain['deck'].max()), plain['lines']), (0.0, tile.survey(*SHOP, 1, 1, corner)['lines']))
+
     def test_a_halo_as_glow_makes_it_is_shared_and_cut_by_its_own_light(self):
         # A wall facing front, 4 wide and 2 tall, with a wide window low on it and a small sign above, towards +x: one card, as `glow.halo` makes it.
         points = np.array([[2.0, 1.0, 0.0], [-2.0, 1.0, 0.0], [-2.0, 1.0, 2.0], [2.0, 1.0, 2.0]]); uvs = np.array([[0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]])

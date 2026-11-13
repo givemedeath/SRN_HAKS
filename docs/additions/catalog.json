@@ -822,6 +822,10 @@
     "ek_sk_yard_t22"
    ],
    "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard tile group",
+   "added": "2026-11-12",
    "lights": [
     {
      "lit": "ek_sk_yard",
@@ -856,11 +860,7 @@
      "halo": "ek_sk_yardp6_h",
      "dark": "ek_off"
     }
-   ],
-   "madeBy": "envkit",
-   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
-   "provenance": "Saeder-Krupp Yard tile group",
-   "added": "2026-11-12"
+   ]
   },
   {
    "tileset": "udp1",
@@ -966,6 +966,10 @@
     "ek_sk_yard_t22"
    ],
    "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
+   "provenance": "Saeder-Krupp Yard tile group",
+   "added": "2026-11-12",
    "lights": [
     {
      "lit": "ek_sk_yard",
@@ -1000,11 +1004,7 @@
      "halo": "ek_sk_yardp6_h",
      "dark": "ek_off"
     }
-   ],
-   "madeBy": "envkit",
-   "source": "tools/envkit/sets/saeder-krupp-yard-game.json",
-   "provenance": "Saeder-Krupp Yard tile group",
-   "added": "2026-11-12"
+   ]
   }
  ]
 }

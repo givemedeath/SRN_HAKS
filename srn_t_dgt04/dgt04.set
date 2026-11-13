@@ -13466,10 +13466,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=H
-Orientation=0
-VisibilityNode=H
-VisibilityOrientation=0
+PathNode=I
+Orientation=90
+VisibilityNode=I
+VisibilityOrientation=90
 ImageMap2D=ek_sk_yard_m11
 
 [TILE452]
@@ -13496,10 +13496,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=I
-Orientation=180
-VisibilityNode=I
-VisibilityOrientation=180
+PathNode=A
+Orientation=0
+VisibilityNode=A
+VisibilityOrientation=0
 ImageMap2D=ek_sk_yard_m12
 
 [TILE453]
@@ -13593,10 +13593,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=A
-Orientation=0
-VisibilityNode=A
-VisibilityOrientation=0
+PathNode=U
+Orientation=90
+VisibilityNode=U
+VisibilityOrientation=90
 ImageMap2D=ek_sk_yard_m22
 
 [GROUPS]

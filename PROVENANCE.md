@@ -621,11 +621,17 @@ doors: the centre's rear service door, where the door record is, has a leaf of a
 blocks are scaled so that the annex's own door is 2.0 metres, which leaves the tower bay about 2.5 metres above
 the centre's parapet; the east block's crane bay is lined up with the centre front. Glow maps were made from
 the models' own colour for the sign, the lamps over the docks, two pole lamps, two floodlights, the lamp over
-the west annex door and the red light on a stack, and the gate's beacons are lit as on the placeable. Nothing
-else was retouched. The meshes were shared out over nine tiles (6,044 to 65,420 faces each) with a ground
-square, a map picture and two main lights each; everything above 5.0 metres carries `tilefade`; and a walkmesh
-was generated from their shape (1,568 to 2,726 faces a tile, where the stock tiles of these two tilesets have
-at most 500). The north middle tile has a door record of type 58, the invisible transition door, at the service
+the west annex door and the red light on a stack, and the gate's beacons are lit as on the placeable. The
+three dock doors' roller shutters came back as a wavy moiré, slats finer than the picture's texels: their faces
+were smoothed and drawn again with a joint every 0.12 metres, the lettering between them left as generated
+(operator, 2026-11-12). A railed-off square on the crane bay's floor, under a metre from the covered vehicle
+beside it, left too narrow a way into the back of the bay and was taken off the east block (operator,
+2026-11-12); the floor under it stays, with four small marks of its posts' feet painted on it. Nothing else was
+retouched. The meshes were shared out over nine tiles (6,044 to 65,420 faces each) with a ground square, a map
+picture and two main lights each; everything above 5.0 metres carries `tilefade`; and a walkmesh was generated
+from their shape (1,568 to 2,722 faces a tile, where the stock tiles of these two tilesets have at most 500).
+The crane bay's floor and the docks' apron, 0.55 metres up, are walked at their own height and climbed over
+their outer half metre. The north middle tile has a door record of type 58, the invisible transition door, at the service
 door. The Meshy sources, the full-detail spares, the references and the client captures stay in ignored
 `output/envkit/`.
 
@@ -644,7 +650,11 @@ quarter turn in Modern Exterior and a half turn in Suburbs, the nine tiles turne
 the door moved and turned with them, and in the client its two doors took the player across and back again.
 Four walkers sent from the far corners of a 90-metre area reached the service door, the yard inside the fence
 (round the fence's ends) and both sides of the building, in a Modern Exterior area by night and a Suburbs area by
-day. By night `SetTextureOverride`, as `docs/envkit/lights.md` gives it, for the group's own model and the four
+day. Built again with the bay and apron walked at their height and the railed-off square taken away, the walk
+check of the same day, in both areas, sent walkers through the bay's gap to the back of the bay, and to the
+ground before the fence and the building's west and north sides; walkers from the area's south-west corner bound for the service door, the east side,
+the apron and the front of the bay stalled against the outside of the fence instead of going round its west
+end, and one from the east stopped 2.4 metres short of the back of the bay. By night `SetTextureOverride`, as `docs/envkit/lights.md` gives it, for the group's own model and the four
 of its parts that are lit, put out the sign's glow, the pole lamps, the floodlights and the stack light and
 brought them back; the sign's white lettering stays readable unlit, as paint.
 
