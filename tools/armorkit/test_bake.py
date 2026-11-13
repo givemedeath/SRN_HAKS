@@ -203,6 +203,8 @@ class BakeTests(unittest.TestCase):
         closed = {'v': np.concatenate([fit['bicepl']['v'], plug['v']]), 'f': np.concatenate([fit['bicepl']['f'], plug['f'] + len(fit['bicepl']['v'])])}
         self.assertEqual(bake.ends({**fit, 'bicepl': closed}, bones, 'test', 2, terms)[1],
                          ['bicepl at the elbow: up to 6.0 cm inside the tier 2 envelope, in 16 of 16 directions'])
+        socket = {**closed, 'added': np.arange(len(closed['f'])) >= len(fit['bicepl']['f'])}  # what closes it is the split's: not the end
+        self.assertEqual(bake.ends({**fit, 'bicepl': socket}, bones, 'test', 2, terms)[1], [])
         # a part that does not reach its joint, unless the body's own part ends there
         self.assertEqual(bake.ends({**fit, 'forel': arm(0.32, 0.6, 0.06)}, bones, 'test', 2, terms)[1], ['forel does not reach the elbow plane'])
         bracer = arm(0.32, 0.5, 0.06)

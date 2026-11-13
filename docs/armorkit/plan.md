@@ -126,8 +126,10 @@ the registry into `srn_2da`: stock rows unchanged, padded with no gaps, live row
 SR_NWN swaps it per wearer. Logo textures are plain (not tintable) and their names are at most 16 characters.
 This is the accepted exception to "one PLT per part" (decision 13).
 
-**Budgets (starting values, tuned in the pilot).** Chest up to 6,000 triangles, other body slots up to 2,250,
-accessories up to 2,000, a whole worn outfit up to 30,000 (user decision 2026-11-11, raised from the robe
+**Budgets (starting values, tuned in the pilot).** Chest up to 8,000 triangles, other body slots up to 2,900,
+accessories up to 2,000, a whole worn outfit up to 40,000 (user decision 2026-11-13, raised from 30,000 so that
+the rounded ends at every joint fit; a chest and eleven parts at their budgets come to 39,900). Before that
+the chest had 6,000, the other slots 2,250 and the outfit 30,000 (user decision 2026-11-11, raised from the robe
 trial's 20,000 with the body slots in proportion, to make the needed quality easier to reach on the next
 outfit). The split adds about seven tenths to the faces a generated mesh is exported with (closings, caps,
 the crotch strip, faces cut in two): siteguard-male was exported at 12,000 and is worn at 20,704, so an

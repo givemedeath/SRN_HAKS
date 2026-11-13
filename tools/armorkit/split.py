@@ -63,7 +63,10 @@ GUARD_SWEEP = 110.0  # degrees about the joint's hinge the pad's rim is carried 
 GUARD_TUCK = 0.05  # and how much nearer the hinge it is drawn on the way, to stay under the pad's own surface
 GUARDS = {'knee': ('thigh_g', 'shin_g', 'foot_g'), 'elbow': ('bicep_g', 'forearm_g', 'hand_g')}  # a joint that may carry a pad: the joints above it, at it and below
 PAD_ISLAND = 0.25  # a patch of another material in or beside a pad, this share of the pad's area or less and touching nothing else, is the pad's
-SOCKET_RINGS = 3  # rings an over part's socket runs back from its opening, the last its pole (`lid`)
+SOCKET_RINGS = 6  # rings an over part's socket runs back from its opening, the last its pole (`lid`)
+# With sockets (`split`), every under end is built from twice the rings as well: a part cut from the dense mesh
+# is reduced whole afterwards, and at three rings a thigh's end showed as a fan of flat facets under the pelvis
+ROUNDED = {'cap': 6, 'tuck': 7, 'guard': 8, 'seat': 6, 'dome': 6}
 SOCKET_DEPTH = 0.5  # a socket runs back this share of its opening's mean distance from the joint's axis
 SOCKET_GAP = 0.004  # and stops this far short of the part's own surface behind it
 SEAT_STEPS = 3  # rings a thigh's end runs in from its rim on the seat line to the hip plane, the last on the plane
@@ -1451,8 +1454,12 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     With `sockets`, the chest's and the pelvis's lids over the openings an under part stands in (on the
     shoulder and hip planes, round each arm and on the seat line) are sockets back into the part (`lid`'s
     `socket`) instead of flat. A pad's half on the arm stays closed flat: it is a plate, with no room behind
-    its edge."""
+    its edge. Every other over part's opening on its joint's plane (the chest at the waist, an upper arm at
+    the elbow, a forearm at the wrist, a thigh at the knee, a shin at the ankle), open before, gets a socket
+    too, grown from its shaped rim; a pad's half on it is left open. A bend that turned the under part out
+    of a tube showed its inside. Each under end's cap or end is then built from `ROUNDED`'s rings."""
     overlaps = overlaps or {}
+    rings = ROUNDED if sockets else {'cap': CAP_STEPS, 'tuck': TUCK_STEPS, 'guard': GUARD_STEPS, 'seat': SEAT_STEPS, 'dome': SEAT_DOME}
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
     seat = dict(seat or {})
@@ -1545,12 +1552,22 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
             kinds.append(np.full(len(more[2]), CLOSING))
         if shape is not None:
             pv, pt = shape(name, pv, pf, pt, np.asarray(origin)[owner == index])
+        for (joint, side), (point, normal) in cuts.items() if sockets else ():  # each opening over a tube joint, from its shaped rim
+            if joint in ('shoulder', 'hip') or (joint, side) in whole or token(seams.JOINTS[joint]['over'], side) != name:
+                continue
+            here = pf
+            if (joint, side) in (guards or {}):  # a pad over the joint is a plate, with no room behind its edge: left open
+                plate = np.asarray(guards[(joint, side)], bool)[np.asarray(origin)[owner == index]]
+                here = np.concatenate([pf[:own][~plate], pf[own:]])
+            more = lid(pv, pt, here, len(pv), point, seams.unit(normal), limit[(joint, side)] + WELD, socket=[(point, normal)])
+            pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
+            kinds.append(np.full(len(more[2]), CLOSING))
         for (joint, side), depth in overlaps.items():
             if depth and (joint, side) in seat:
                 if token('thigh', side) == name:
                     more = seat_end(pv, pt, pf, len(pv), cuts[(joint, side)][0], cuts[(joint, side)][1],
                                     np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]), seat[(joint, side)]['ring'], depth, seat_over,
-                                    seat[(joint, side)].get('bend', 0.0))
+                                    seat[(joint, side)].get('bend', 0.0), steps=rings['seat'], dome=rings['dome'])
                     pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                     kinds.append(np.full(len(more[2]), CAP))
             elif depth and (joint, side) in arms:
@@ -1558,7 +1575,8 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                     point, normal = cuts[(joint, side)]
                     middle = (np.asarray(joints['lbicep_g'], float) + np.asarray(joints['rbicep_g'], float)) / 2
                     more = seat_end(pv, pt, pf, len(pv), point, normal, arm_opening(pv, cuts, side), arms[(joint, side)]['ring'], depth, arm_over,
-                                    arms[(joint, side)].get('bend', 0.0), out=np.asarray(point, float) - middle)
+                                    arms[(joint, side)].get('bend', 0.0), out=np.asarray(point, float) - middle, steps=rings['seat'],
+                                    dome=rings['dome'])
                     pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                     kinds.append(np.full(len(more[2]), CAP))
             elif depth and (joint, side) not in whole and token(seams.JOINTS[joint]['under'], side) == name:
@@ -1572,10 +1590,10 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                     full[:len(mine)] = pads[name][1][owner == index]
                 opens = np.array((0.0, 1.0 if joint == 'knee' else -1.0, 0.0))  # the side the bend opens the gap on
                 tuck = (tucks or {}).get((joint, side), TUCKS.get(joint))
-                options = {'tuck': tuck, 'steps': TUCK_STEPS} if tuck else {}
+                options = {'tuck': tuck, 'steps': rings['tuck']} if tuck else {'steps': rings['cap']}
                 options['bounded'] = joint not in deep
                 if full.any():  # a pad's rim is carried round the hinge in its own number of rings, tucked or not
-                    options.update(full=full, hinge=np.cross(opens - (opens @ across) * across, -across), steps=GUARD_STEPS)
+                    options.update(full=full, hinge=np.cross(opens - (opens @ across) * across, -across), steps=rings['guard'])
                 more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown, **options)
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 kinds.append(np.where(full[np.asarray(grown, int)], PADDED, CAP))

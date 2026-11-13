@@ -32,7 +32,9 @@ UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelv
          'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
-BUDGET = {'chest': 6000, 'slot': 2250, 'outfit': 30000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
+BUDGET = {'chest': 8000, 'slot': 2900, 'outfit': 40000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
+# (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
+# their budgets come to 39,900)
 END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
 SOCKETS = False  # whether the torso's lids over the shoulder and hip openings are sockets back into it (`split.split`): on trial, 2026-11-13
 SKIN_ROUNDS = 3  # a part sharing its slot with the body's skin is reduced again at most this often, as the skin beside it is counted anew
@@ -194,7 +196,7 @@ def ends(parts, bones, body, tier, contract=None):
                     row['under'] = {'part': under, 'tier': None}
                     failures.append(f'{under} does not reach the {joint} plane')
             if over in parts and joint not in measure.TORSO_OPENINGS:
-                vertices, faces, shared = _outfit(parts[over])
+                vertices, faces, shared = _outfit(parts[over], own=True)
                 nearest = seams.standoff(seams.section(vertices, faces, point - INSIDE * normal, normal), ring, limit=limit)[1]
                 found = ~np.isnan(nearest)
                 if found.any():
@@ -218,11 +220,12 @@ def _collapsed(vertices, faces):
     return int((np.min(sides, axis=0) < POINT).sum()) if len(faces) else 0
 
 
-def _outfit(part, pads=False):
+def _outfit(part, pads=False, own=False):
     """(vertices, faces, shared) of the outfit's faces of a part: the body's skin beside them left out, and with
-    `pads` false a pad over the joint (`pad`) too."""
+    `pads` false a pad over the joint (`pad`) too; with `own`, what the split added as well (`added`): an over
+    end is its own surface, and a socket back into it from its rim (`split.split`'s `sockets`) is none of it."""
     keep = np.ones(len(part['f']), bool)
-    for key in ('skin',) if pads else ('skin', 'pad'):
+    for key in ('skin',) + (() if pads else ('pad',)) + (('added',) if own else ()):
         if key in part:
             keep &= ~np.asarray(part[key], bool)
     return part['v'], part['f'][keep], 'skin' in part
