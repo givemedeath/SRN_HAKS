@@ -3,12 +3,13 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
-  "weaponDesigns": 16,
-  "blueprints": 18,
-  "weaponResources": 148,
-  "publicationPins": 149,
-  "modelsDecoded": 57,
-  "imagesChecked": 73,
+  "updated": "2026-11-13",
+  "weaponDesigns": 25,
+  "blueprints": 27,
+  "weaponResources": 221,
+  "publicationPins": 222,
+  "modelsDecoded": 84,
+  "imagesChecked": 110,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -17,14 +18,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 148,
-      "sha256": "aee1706033e608d0ccb16acec78471e3f303796f618332a6e30310c8a82f963c",
+      "resources": 221,
+      "sha256": "818c3f83521281c81bc2f54271ca7ef7977eaa8ca16b4535d4a4b72d387012e8",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
       "resources": 22,
-      "sha256": "0971e4050d4c238bed83f8e550e2a358e5c6c769e1c0030eb3cce4ba8334b028",
+      "sha256": "df9b0c86394c3e5dbf37931985c306525db6b83ed7e62c1fc367c6753757cde1",
       "exactPayload": true
     },
     {
@@ -41,8 +42,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 67,
-      "sha256": "2e517731062167e25c16a15070c420c91c94f9bfab7f3f25913f6a9dae9586c1",
+      "resources": 86,
+      "sha256": "4c62cf7a16e03b9b37c2037347050cf0d15da893c9772631aee3fad1a954a2b5",
       "exactPayload": true
     }
   ],
@@ -86,7 +87,13 @@
     "1": {
       "MaxRange": [
         "100",
-        "121"
+        "181"
+      ]
+    },
+    "22": {
+      "MaxRange": [
+        "100",
+        "111"
       ]
     },
     "61": {
@@ -215,5 +222,34 @@
     "payloadsByteIdenticalToNativePackages": true,
     "rebuiltArchivesPayloadExact": true,
     "archiveHashNote": "srn_weapon.hak, srn_2da.hak and sw_weapon_w2.mod were rebuilt for this update; the sw_f7motion and sw_reviewenv entries above are unchanged historical records."
+  },
+  "addedMeleeWave2": {
+    "date": "2026-11-13",
+    "items": [
+      "sr4-ceramic-knife-7f77d5dd6c",
+      "sr4-extendable-baton-aa91d3d2e3",
+      "sr4-tomahawk-707e3f392c",
+      "sr4-baseball-bat-202ef7e755",
+      "sr4-stun-staff-00af501c83"
+    ],
+    "payloadsByteIdenticalToNativePackages": true,
+    "rebuiltArchivesPayloadExact": true,
+    "comparisonModuleChanged": true,
+    "archiveHashNote": "srn_weapon.hak, srn_2da.hak and sw_weapon_w2.mod were rebuilt for this update and every payload compared with its source file; sw_f7motion and sw_reviewenv are unchanged historical records. The comparison module gained five reviewer pairs (sw5_) that were not run in its client; each item was client-reviewed in its own private itemkit fixture."
+  },
+  "addedMeleeWave1": {
+    "date": "2026-11-13",
+    "items": [
+      "sr4-survival-knife-1243dd1af8",
+      "sr4-sword-47885d5d1a",
+      "sr4-club-0eabace56a",
+      "sr4-claymore-f91fc563dc"
+    ],
+    "payloadsByteIdenticalToNativePackages": true,
+    "rebuiltArchivesPayloadExact": true,
+    "comparisonModuleChanged": true,
+    "baseitemTableChanged": false,
+    "sourceRuns": "The native packages and fixture modules of the runs the user approved in game (Survival Knife run-fixture-v2, Sword run-fixture-v3, Claymore run-fixture-v1, Club run-fixture-v1).",
+    "archiveHashNote": "srn_weapon.hak and sw_weapon_w2.mod were rebuilt together with the melee wave 2 update; srn_2da.hak is unchanged by wave 1. The four sw6_ comparison pairs were not run in that module's client."
   }
 }
