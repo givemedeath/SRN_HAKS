@@ -629,7 +629,11 @@ beside it, left too narrow a way into the back of the bay and was taken off the 
 2026-11-12); the floor under it stays, with four small marks of its posts' feet painted on it. Nothing else was
 retouched. The meshes were shared out over nine tiles (6,044 to 65,420 faces each) with a ground square, a map
 picture and two main lights each; everything above 5.0 metres carries `tilefade`; and a walkmesh was generated
-from their shape (1,568 to 2,722 faces a tile, where the stock tiles of these two tilesets have at most 500).
+from their shape (1,456 to 2,656 faces a tile, where the stock tiles of these two tilesets have at most 500),
+with ground too narrow to stand on, as between the fence's sections, closed in it. Each tile's path node was chosen
+from its ground for the group as a whole (`tile.path_nodes`); three are stated in the game set (`tiles.nodes`: the
+south-east tile V turned 90, the apron's H turned 270, the door's N), as the walk checks in the client showed walks
+need.
 The crane bay's floor and the docks' apron, 0.55 metres up, are walked at their own height and climbed over
 their outer half metre. The north middle tile has a door record of type 58, the invisible transition door, at the service
 door. The Meshy sources, the full-detail spares, the references and the client captures stay in ignored
@@ -650,11 +654,15 @@ quarter turn in Modern Exterior and a half turn in Suburbs, the nine tiles turne
 the door moved and turned with them, and in the client its two doors took the player across and back again.
 Four walkers sent from the far corners of a 90-metre area reached the service door, the yard inside the fence
 (round the fence's ends) and both sides of the building, in a Modern Exterior area by night and a Suburbs area by
-day. Built again with the bay and apron walked at their height and the railed-off square taken away, the walk
-check of the same day, in both areas, sent walkers through the bay's gap to the back of the bay, and to the
-ground before the fence and the building's west and north sides; walkers from the area's south-west corner bound for the service door, the east side,
-the apron and the front of the bay stalled against the outside of the fence instead of going round its west
-end, and one from the east stopped 2.4 metres short of the back of the bay. By night `SetTextureOverride`, as `docs/envkit/lights.md` gives it, for the group's own model and the four
+day, before the bay and apron were walked at their height. Built again with them walked and the railed-off square
+taken away, walkers bound for the service door, the north and east sides, the apron and the bay gave up their walks
+and walked straight at their targets until the fence or the building stopped them: the engine could not follow the
+routes the tiles' path nodes planned (the old nodes joined ground outside the fence to the yard round its ends, split
+the door's tile in two, and joined the bay to the apron only by the apron's south side). With the nodes chosen and
+stated as above, the walk check of the same day (`envkit check group --mode walk`), in both areas, sent twelve
+walkers from the far corners of the area to the service door, the four sides of the building, the apron, the front,
+gap and back of the bay, the bay's far corner and the ground north of the building at two places, and one from the
+next tile east into the bay's far corner: all thirteen arrived. By night `SetTextureOverride`, as `docs/envkit/lights.md` gives it, for the group's own model and the four
 of its parts that are lit, put out the sign's glow, the pole lamps, the floodlights and the stack light and
 brought them back; the sign's white lettering stays readable unlit, as paint.
 

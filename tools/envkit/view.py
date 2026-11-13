@@ -17,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import convert, glow, require
+from . import convert, glow, require, tile
 
 
 
@@ -75,7 +75,7 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
     require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
     require(not lit or model.get('lit'), name + ' states no lit parts')
     maps = {'base_color': source / 'texture_0_base_color.png'}
-    made = convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
+    made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
                          **{key: model[key] for key in convert.RETOUCHING if key in model and key != 'fence'})  # a fence's sheets have a picture of their own
     with Image.open(maps['base_color']) as generated:
         picture = made['colour'] or generated.copy()
@@ -184,7 +184,7 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800), grid=None
     def add(one, at=(0.0, 0.0, 0.0), turn=0):
         if one not in shaped:
             model = models[one]; source = Path(root) / model['source']; maps = {'base_color': source / 'texture_0_base_color.png'}
-            finished = convert.shape(source / 'model.glb', maps, height=model['height'], lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
+            finished = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
                                      **{key: model[key] for key in convert.RETOUCHING if key in model})
             with Image.open(maps['base_color']) as generated:
                 shaped[one] = (finished, np.asarray((finished['colour'] or generated).convert('RGBA')))
@@ -195,8 +195,8 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800), grid=None
     add(name)
     for part in (models[name].get('tiles') or {}).get('parts', []):
         add(part['model'], part['at'], part.get('turn', 0))
-    points = np.vstack([mesh[0] for mesh in meshes]); uvs = np.vstack([mesh[1] for mesh in meshes]); starts = np.cumsum([0] + [len(mesh[0]) for mesh in meshes])
-    faces = np.vstack([mesh[2] + start for mesh, start in zip(meshes, starts)]); owner = np.concatenate([np.full(len(mesh[2]), index) for index, mesh in enumerate(meshes)])
+    whole = tile.join([{'vertices': mesh[0], 'uvs': mesh[1], 'faces': mesh[2]} for mesh in meshes], ('vertices', 'uvs', 'faces'))
+    points, uvs, faces = whole['vertices'], whole['uvs'], whole['faces']; owner = np.concatenate([np.full(len(mesh[2]), index) for index, mesh in enumerate(meshes)])
     wide, high = size; output = Path(output); output.mkdir(parents=True, exist_ok=True); report = {'pictures': [], 'faces': {}}
     for label, at, target, fov, reach in eyes:
         ahead = target - at; ahead = ahead / np.linalg.norm(ahead); right = np.cross(ahead, [0.0, 0.0, 1.0])

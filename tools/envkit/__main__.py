@@ -17,6 +17,7 @@ props and the props of a type, a mechanical audit, and the decisions of a review
 tiles of a tileset, for a question about how the engine wants a tile made."""
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -160,7 +161,7 @@ def command_tiles(args):
             part, part_maps, part_colour = shapes[name]
             files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
             placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
-        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'),
+        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'),
                             ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
                             parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
@@ -301,6 +302,7 @@ def command_check(args):
     require(args.kind == 'lights' or len(args.built) == 1, 'One built folder is checked at a time')
     modes = {'props': ('day', 'night'), 'lights': ('night',), 'group': ('day', 'night', 'near', 'walk')}[args.kind]; mode = args.mode or modes[0]
     require(mode in modes, f'envkit check {args.kind} has no --mode {mode}: ' + ' or '.join(modes))
+    require(not getattr(args, 'target', None) or args.kind == 'group', 'A --target is a place a group walk check sends a walker: check group --mode walk')
     if args.kind == 'props':
         made = checks.props(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model, night=mode == 'night')
     elif args.kind == 'lights':
@@ -314,7 +316,7 @@ def command_check(args):
                 x, y = (float(value) for value in place.split(','))
             except ValueError:
                 x = y = None
-            require(re.fullmatch('[a-z][a-z0-9-]*', label) and x is not None and label not in targets, "A target is label=x,y, in metres from the group's south-west corner, each label its own: " + text)
+            require(re.fullmatch('[a-z][a-z0-9-]*', label) and x is not None and math.isfinite(x) and math.isfinite(y) and label not in targets, "A target is label=x,y, in metres from the group's south-west corner, each label its own: " + text)
             targets[label] = (x, y)
         made = checks.group(args.game, args.repo, args.root, args.name, args.models, args.built[0], args.model[0], args.tileset, mode, second_storey=args.second_storey, targets=targets)
     print(json.dumps(made))

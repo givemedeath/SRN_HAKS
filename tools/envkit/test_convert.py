@@ -165,6 +165,11 @@ class ConvertTests(unittest.TestCase):
         self.assertGreater(int(column.max() - column.min()), column.max() * convert.SLAT_SHADE / 2)  # a joint between texel centres shows part of its shade
         self.assertEqual(int(np.argmin(column[:16])) % 8, int(np.argmin(column[16:])) % 8)  # the same joint every eight texels
         np.testing.assert_array_equal(np.asarray(slatted)[:28], stripes[:28])
+        # A door in two boxes that meet: a joint where they overlap is darkened once, as deep as the others.
+        halves = [{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 0.55]], 'radius': 0.1, 'slats': 0.25}, {'box': [[-0.6, -0.1, 0.45], [0.6, 0.1, 1.0]], 'radius': 0.1, 'slats': 0.25}]
+        split, _, _ = convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=halves)
+        deepest = [int(np.asarray(split)[row:row + 8, 32, 0].min()) for row in range(33, 57, 8)]
+        self.assertLess(max(deepest) - min(deepest), max(deepest) * convert.SLAT_SHADE / 3)
         with self.assertRaisesRegex(ValueError, 'under four texels'):  # a joint every texel and a half would alias again
             convert.retouch(Image.fromarray(stripes), points, texture, faces, smooth=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'radius': 0.1, 'slats': 0.05}])
         # A box that holds none of the model is a mistake in the set, not a part to pass over.

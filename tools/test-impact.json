@@ -395,7 +395,8 @@
     ],
     "tools/envkit/view.py": [
       "tools/envkit/convert.py",
-      "tools/envkit/glow.py"
+      "tools/envkit/glow.py",
+      "tools/envkit/tile.py"
     ],
     "tools/headbatch/__init__.py": [],
     "tools/headbatch/client_trial.py": [

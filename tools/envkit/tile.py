@@ -19,7 +19,9 @@ onto it over the slab's outermost half metre. A strip of slab too narrow for tha
 a metre to a metre wide, is climbed over its outer quarter metre instead; a narrower one is left on the ground.
 A deck, a broad flat floor raised past the knee (the Saeder-Krupp yard's loading bay and its apron stand on one 0.55
 metres high), is walked on at its own height and climbed over its outer half metre where it meets lower open ground;
-what stands on it is closed as on the ground (`_decks`).
+what stands on it is closed as on the ground (`_decks`). Ground with no room to stand on, where no metre-square block
+of open cells reaches (a gap between fence sections, a notch in a wall), is closed as well: a walk is not planned
+through it.
 
 A tile also carries what the stock tiles carry (read off Modern Exterior's and the stock city's tiles, 2026-11-11): a
 32-pixel picture for the area map, two main lights a builder colours in the Toolset, the `day`, `night`, `day2night`
@@ -28,8 +30,10 @@ night), `tilefade` on what stands above a stated height so the game can hide it 
 door: a line in the set file from which the Toolset makes the door when the tile is painted.
 
 A walk from one tile to another is planned tile to tile, from each tile's path node in the set file: a letter that
-says by which sides the tile can be left and which of those are joined inside it, and a turn. Each tile of a group gets
-the node its own ground gives it, so a group can be of any size (`path_node`). A wrong node does not always show in a
+says by which sides the tile can be left and which of those are joined inside it, and a turn. A group's tiles get the
+nodes their own ground allows, chosen together, so a group can be of any size (`path_node`, `path_nodes`). The engine
+puts each exit at its side's middle and walks a character from one to the next; where it cannot follow a route it
+gives the walk up and walks straight at the target (the Saeder-Krupp yard, 2026-11-12). A wrong node does not always show in a
 short walk. The Stuffer Shack's first nodes were turned half a turn wrong, and walks of a tile or two round it still
 arrived; only walkers from four tiles away stopped short. Yet a walk of 7.5 metres into a walled yard failed from the
 next tile while the yard's side was not an exit. So a new group is checked in the client with walkers sent from four
@@ -39,6 +43,7 @@ A door's record reads right long before the door works. The Ares Depot's hook wa
 area twice, at its place and with a bearing, before anyone used it: in the client the invisible door stood out of the
 wall at a right angle and a click on it took the player nowhere (`doorstep`). So a new group's door is given an area
 transition and clicked in the client, there and back, with the group painted turned as well as straight."""
+import itertools
 import json
 import re
 import subprocess
@@ -70,12 +75,20 @@ DECK, DECK_AREA, FLAT = 0.75, 9.0, 0.06
 PATH_NODES = {'A': ('NWSE',), 'I': ('NWS',), 'H': ('WS',), 'L': ('NS',), 'N': ('N',), 'T': (), 'J': ('WS', 'EN'), 'U': ('W', 'SNE'),
               'X': ('N', 'W'), 'Y': ('N', 'S'), 'V': ('N', 'SE'), 'W': ('N', 'SW'), 'w': ('N', 'W', 'E', 'S')}
 EXIT = 4  # cells of a tile's side that must lie open together for the side to be an exit: a metre
+# The engine's table puts every exit of these letters at the middle of its side (nwn.wiki, tile path nodes) and walks a
+# character from exit to exit. It found an opening 2.75 metres off a side's middle (client, 2026-11-11); one farther
+# than REACH cells is no exit. Where a route joins two exits a walk between cannot follow, the engine gives up the walk
+# and walks straight at the target: the Saeder-Krupp yard's walkers to its apron gave up while the tiles south of it
+# joined the ground outside its fence to the yard round the fence's ends, 3 metres aside, and arrived once those were
+# not joined (client, 2026-11-12). ASIDE is how far aside a joined walk may go.
+REACH = 12
+ASIDE = 8  # cells: two metres
 WALK_FACES = 500  # the most walk faces of any stock tile of Modern Exterior and Suburbs: a tile with more is noted
 # A lit patch of fewer square metres than LIT does not say where a halo card goes: the least patch `glow.halo` gives a card to.
 # A light must reach FOOT metres past the hiding height to count on that side of it too: less is its foot, or its head.
 LIT, FOOT = 0.05, 0.25
 # A door's hook lies where a character can stand: with ROOM metres of open ground before and behind it and SIDE metres
-# to either hand (a doorway between bollards is not much wider), found within REACH metres out from the door. The Ares
+# to either hand (a doorway between bollards is not much wider), found within DOOR_REACH metres out from the door. The Ares
 # Depot's first hook lay on its door leaf, in the closed ground of the wall: the player walked up to the door and nothing
 # happened; drawn 0.6 metres out, the same door took them through (client, 2026-11-11).
 DOOR_ROOM, DOOR_SIDE, DOOR_REACH = 0.4, 0.3, 2.0
@@ -208,6 +221,10 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
         footprint = tall & np.repeat(np.repeat(material == OBSCURING, FINE, 0), FINE, 1)
     require(not (closed[0].any() or closed[-1].any() or closed[:, 0].any() or closed[:, -1].any()) and not (raised[0].any() or raised[-1].any() or raised[:, 0].any() or raised[:, -1].any()),
             'The model reaches the edge of its tiles: the group leaves no ground around it')
+    # Ground with no room to stand on is closed too: the engine plans a walk through any walk face, and a character
+    # cannot pass a gap under a metre. The Saeder-Krupp yard's walkers went for the half-metre gaps between its fence
+    # sections, and stopped at the fence (client, both tilesets, 2026-11-12; Codex review of PR 129).
+    narrow = (material == STONE) & ~_roomy(material == STONE); material[narrow] = NONWALK; closed = closed | narrow
     depth = raised.astype(int); inner = raised
     for _ in range(RAMP):  # a cell is one deeper than the shallowest of the four beside it
         wide = np.pad(inner, 1); inner = inner & wide[:-2, 1:-1] & wide[2:, 1:-1] & wide[1:-1, :-2] & wide[1:-1, 2:]; depth += inner
@@ -216,7 +233,9 @@ def survey(vertices, faces, rows, columns, corner, barrier=None):
     wide = np.pad(depth, RAMP); tall_cells, wide_cells = depth.shape; reach = range(2 * RAMP + 1)
     crest = (depth > 1) & (depth == np.max([wide[dy:dy + tall_cells, dx:dx + wide_cells] for dy in reach for dx in reach], axis=0)) & (depth <= RAMP)
     on_deck = cells(decks > 0) > 0.5
-    deck = np.where(on_deck & ~closed, np.where(on_deck, cells(decks) / np.maximum(cells(decks > 0), 1e-9), 0.0), 0.0)
+    # Its height is its samples' own, not their mean: a mean over part of a cell comes out an ulp off, and a level of its own
+    # would draw more walkmesh lines along the deck's rim.
+    deck = np.where(on_deck & ~closed, decks.reshape(rows * CELLS, FINE, columns * CELLS, FINE).max((1, 3)), 0.0)
     inner = (deck > 0) | closed; deck_depth = inner.astype(int)
     for _ in range(RAMP):  # as the slab's depth, but only open ground off the deck is its edge: a wall on it is not
         wide = np.pad(inner, 1); inner = inner & wide[:-2, 1:-1] & wide[2:, 1:-1] & wide[1:-1, :-2] & wide[1:-1, 2:]; deck_depth += inner
@@ -350,45 +369,140 @@ def _roomy(walk, room=None):
     return wide[room:-room, room:-room]
 
 
-def path_node(found, row, column):
-    """One tile's path node: {node, turn, exits, offPath}.
+def _sees(walk, one, other, aside=None):
+    """Whether a character can walk between two cells of a tile over walk cells without going more than `aside` cells
+    (ASIDE) off the straight line between them."""
+    aside = ASIDE if aside is None else aside
+    rows, columns = np.indices(walk.shape); (y0, x0), (y1, x1) = one, other; dy, dx = y1 - y0, x1 - x0
+    along = np.clip(((rows - y0) * dy + (columns - x0) * dx) / max(dy * dy + dx * dx, 1), 0, 1)
+    near = np.hypot(rows - y0 - along * dy, columns - x0 - along * dx) <= aside
+    labels, _ = _masses(walk & near)
+    return bool(labels[one] and labels[one] == labels[other])
 
-    A side is an exit where the ground is open for a metre anywhere along it, on this tile and on the one beyond
-    (ground is taken to lie beyond the group's own edge): the game finds its own way to the opening, which need not be
-    at the side's middle (a yard entered only by a gap 2.75 metres off the middle of a side was not walked into, from far
-    or from the next tile, until that side was called an exit: client, 2026-11-11). Where a side opens onto two grounds
-    of the tile that do not join, the opening nearest its middle counts. The node chosen has no exit that is not one
-    and joins no two that the tile's ground does not join; of those it is the one with the most exits, then the most of
-    them joined, then the most ground reached. So what it gets wrong, where no letter fits, is a way left unsaid, never
-    a way through a wall.
+
+def path_node(found, row, column):
+    """One tile's path node, as the tile alone would take it: {node, turn, exits, offPath}.
+
+    A side is an exit where the ground is open for a metre within REACH of its middle, on this tile and on the one
+    beyond (ground is taken to lie beyond the group's own edge): the game finds its own way to an opening that is a
+    little off the side's middle, where the engine puts the exit (a yard entered only by a gap 2.75 metres off the
+    middle of a side was not walked into, from far or from the next tile, until that side was called an exit: client,
+    2026-11-11). Where a side opens onto two grounds of the tile that do not join, the opening nearest its middle
+    counts. Two exits are joined only where a walk between their openings, over ground with room to stand on, stays
+    within ASIDE of the straight way: the engine walks a character from one to the other, and gives up a walk whose
+    route goes round a wall (REACH). The node chosen has no exit that is not one and joins no two that are not joined;
+    of those it is the one with the most exits, then the most of them joined, then the most ground reached. So what it
+    gets wrong, where no letter fits, is a way left unsaid, never a way through a wall. A group takes its tiles' nodes
+    together (`path_nodes`), and a walk check in the client can still show a tile needs another (`stated`).
     Only ground with room to stand on counts, as an opening or as a way between two (`_roomy`).
     exits: the sides the node leaves by, of N, W, S, E. offPath: the cells of the tile with room to stand on that no
     exit reaches: ground a walk from another tile will not be planned onto."""
+    tile = _options(found, row, column); (*_, reached), letter, turn, exits, _ = tile['options'][0]
+    return {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int(tile['walk'].sum()) - reached}
+
+
+def _options(found, row, column):
+    """The path nodes one tile's ground allows, its best first (`path_node`): {walk, masses, region, options}, an option
+    (score, letter, turn, exits, the exits joined in each of its parts)."""
     material = found['material']; rows, columns = material.shape; r0, c0 = row * CELLS, column * CELLS
     roomy = found['roomy'] if 'roomy' in found else _roomy(material == STONE); walk = roomy[r0:r0 + CELLS, c0:c0 + CELLS]; masses, _ = _masses(walk); along = slice(None)
     inside = {'N': (CELLS - 1, along), 'S': (0, along), 'W': (along, 0), 'E': (along, CELLS - 1)}
     beyond = {'N': (r0 + CELLS, slice(c0, c0 + CELLS)), 'S': (r0 - 1, slice(c0, c0 + CELLS)), 'W': (slice(r0, r0 + CELLS), c0 - 1), 'E': (slice(r0, r0 + CELLS), c0 + CELLS)}
-    region = {}
+    region, opening = {}, {}
     for side in 'NWSE':
         at = beyond[side]; line, limit = (at[0], rows) if side in 'NS' else (at[1], columns)
         clear = walk[inside[side]] & (roomy[at] if 0 <= line < limit else True)
         edges = np.flatnonzero(np.diff(np.concatenate([[0], clear.astype(int), [0]]))).tolist()  # where each open stretch starts and ends
         # (how far the opening lies from the side's middle, its first cell), of the openings wide enough
-        ways = [(max(start - CELLS / 2, CELLS / 2 - end, 0), start) for start, end in zip(edges[::2], edges[1::2]) if end - start >= EXIT]
-        if ways:
-            region[side] = int(masses[inside[side]][min(ways)[1]])
-    best = None
+        ways = [(max(start - CELLS / 2, CELLS / 2 - end, 0), start, end) for start, end in zip(edges[::2], edges[1::2]) if end - start >= EXIT]
+        if ways and min(ways)[0] <= REACH:
+            _, start, end = min(ways); along_side = min(max(CELLS // 2, start), end - 1)  # its cell nearest the middle
+            region[side] = int(masses[inside[side]][start])
+            opening[side] = (inside[side][0], along_side) if side in 'NS' else (along_side, inside[side][1])
+    joined = {frozenset((one, other)): _sees(walk, opening[one], opening[other]) for one in opening for other in opening if one < other}
+    options = []
     for letter, parts in PATH_NODES.items():
         for quarter in range(4):
             turned = [''.join('NWSE'[('NWSE'.index(side) + quarter) % 4] for side in part) for part in parts]; exits = ''.join(turned)
-            if any(side not in region for side in exits) or any(len({region[side] for side in part}) > 1 for part in turned):
+            if any(side not in region for side in exits) or not all(joined[frozenset((one, other))] for part in turned
+                                                                  for at, one in enumerate(part) for other in part[at + 1:]):
                 continue
             reached = int((walk & np.isin(masses, [region[side] for side in exits])).sum())
             score = (len(exits), sum(len(part) * (len(part) - 1) // 2 for part in turned), reached)
-            if best is None or score > best[0]:
-                best = (score, letter, quarter * 90, exits)
-    (_, _, reached), letter, turn, exits = best  # T, with no exit, fits any tile
-    return {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int(walk.sum()) - reached}
+            options.append((score, letter, quarter * 90, exits, turned))
+    options.sort(key=lambda option: option[0], reverse=True)  # stable: of equals, the first in the table; T, with no exit, fits any tile
+    return {'walk': walk, 'masses': masses, 'region': region, 'options': options}
+
+
+def path_nodes(found, rows, columns, stated=None):
+    """Each tile's path node, {(row, column): {node, turn, exits, offPath}}, chosen for the group as a whole: of the
+    nodes each tile's ground allows (`path_node`), the ones that let a walk from the ground round the group be planned
+    onto the most of its ground, then the ones the tiles would take alone. A tile's own best can leave ground no walk
+    reaches: the Saeder-Krupp yard's apron tile alone would have left its north side, the bay's only way out, joined to
+    nothing (2026-11-12). offPath: the ground of the tile no walk from round the group is planned onto.
+
+    `stated` ({(row, column): (letter, turn)}) gives tiles the nodes a walk check in the client has shown walks need,
+    where the engine does not walk as these rules expect; the others are chosen round them. A stated node leaves its
+    tile only by sides open there. The engine gives up a walk whose route it cannot follow and walks straight at the
+    target instead: the yard's walkers to its door gave up while the door's tile split its north ground between two
+    regions, and to its bay while the apron's tile joined only its south side to the bay's (client, 2026-11-12)."""
+    tiles = {(row, column): _options(found, row, column) for row in range(rows) for column in range(columns)}
+    for (row, column), (letter, turn) in (stated or {}).items():
+        require((row, column) in tiles, f'A stated path node is for a tile of the group: t{row}{column}')
+        require(letter in PATH_NODES and turn in (0, 90, 180, 270), f'A stated path node is a letter of PATH_NODES turned 0, 90, 180 or 270: t{row}{column}')
+        tile = tiles[(row, column)]
+        turned = [''.join('NWSE'[('NWSE'.index(side) + turn // 90) % 4] for side in part) for part in PATH_NODES[letter]]; exits = ''.join(turned)
+        require(all(side in tile['region'] for side in exits), f'A stated path node leaves t{row}{column} only by sides open there: {letter} {turn} leaves by {exits}')
+        reached = int((tile['walk'] & np.isin(tile['masses'], [tile['region'][side] for side in exits])).sum())
+        tile['options'] = [((len(exits), 0, reached), letter, turn, exits, turned)]
+    chosen = dict.fromkeys(tiles, 0)
+    beyond = {'N': (1, 0, 'S'), 'S': (-1, 0, 'N'), 'W': (0, -1, 'E'), 'E': (0, 1, 'W')}
+
+    def planned():
+        parent = {}
+
+        def find(at):
+            while parent.setdefault(at, at) != at:
+                at = parent[at]
+            return at
+        parts = {key: tile['options'][chosen[key]][4] for key, tile in tiles.items()}
+        for (row, column), turned in parts.items():
+            for index, part in enumerate(turned):
+                for side in part:
+                    down, along, facing = beyond[side]; there = (row + down, column + along)
+                    if there not in tiles:
+                        parent[find((row, column, index))] = find('round')
+                    for other, part_there in enumerate(parts.get(there, ())):
+                        if facing in part_there:
+                            parent[find((row, column, index))] = find((*there, other))
+        reached = {}
+        for key, tile in tiles.items():
+            masses = [tile['region'][side] for index, part in enumerate(parts[key]) for side in part if find((*key, index)) == find('round')]
+            reached[key] = int((tile['walk'] & np.isin(tile['masses'], masses)).sum())
+        return reached
+
+    def value():
+        return sum(planned().values()), -sum(chosen.values())
+    def better(keys):
+        """Try every choice for these tiles together; keep the best if it beats what there is."""
+        nonlocal best
+        was = [chosen[key] for key in keys]; found_better = None
+        for indices in itertools.product(*[range(len(tiles[key]['options'])) for key in keys]):
+            chosen.update(zip(keys, indices)); now = value()
+            if now > best:
+                best, found_better = now, indices
+        chosen.update(zip(keys, found_better or was))
+        return found_better is not None
+    best = value()
+    # Each change reaches more, or as much from nodes the tiles would sooner take, so this ends. A way through two
+    # tiles may need both to change at once: the yard's bay is reached only when its apron's tile joins its north side to
+    # its south and the tile south of that joins its north side on.
+    pairs = [(key, (key[0] + down, key[1] + along)) for key in tiles for down, along in ((1, 0), (0, 1)) if (key[0] + down, key[1] + along) in tiles]
+    while any(better([key]) for key in tiles) or any(better(list(pair)) for pair in pairs):
+        pass
+    reached = planned()
+    return {key: {'node': letter, 'turn': turn, 'exits': ''.join(side for side in 'NWSE' if side in exits), 'offPath': int(tile['walk'].sum()) - reached[key]}
+            for key, tile in tiles.items() for _, letter, turn, exits, _ in [tile['options'][chosen[key]]]}
 
 
 def _daylight(name, halos):
@@ -582,7 +696,8 @@ BACK_OFF = 2  # cells a side's walker stands off what stops it coming in
 
 def walk_picture(found):
     """A group's walk cells as one picture, a pixel a cell and north up: ground with room to stand on (`_roomy`), ground
-    too narrow for that, the building where it stands at eye height, and the lesser things in the way. It shows where a
+    too narrow for that (which `survey` closes now; a picture of a survey before that has it), the building where it
+    stands at eye height, and the lesser things in the way. It shows where a
     character can go, and the walkers of `checks.group` are sent by it (the Saeder-Krupp yard's were picked from one
     drawn by hand, 2026-11-12)."""
     from PIL import Image
@@ -644,7 +759,7 @@ def walk_targets(roomy):
     return targets
 
 
-def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=()):
+def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=(), nodes=None):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
     in the set file's order. notes: what to look at before the group is installed, in words: ground no exit of its tile
@@ -684,6 +799,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     if fade is not None:
         from PIL import Image
         Image.new('RGB', (4, 4)).save(folder / f'{CAP}.tga')
+    nodes = path_nodes(found, rows, columns, {(int(key[1]), int(key[2])): (value['node'], value['turn']) for key, value in (nodes or {}).items()})
     for row in range(rows):
         for column in range(columns):
             model = f'{name}_t{row}{column}'; centre = np.array([corner[0] + (column + 0.5) * SIZE, corner[1] + (row + 0.5) * SIZE, 0.0])
@@ -702,7 +818,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
             one = {'model': model, 'row': row, 'column': column, 'faces': counts['faces'], 'fadingFaces': counts['fading'], 'walkFaces': int(len(walk[1])),
-                   'path': path_node(found, row, column), 'lights': len(lights), 'doors': []}
+                   'path': nodes[(row, column)], 'lights': len(lights), 'doors': []}
             if one['path']['offPath']:
                 notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no exit of the tile reaches; a walk from another tile is not planned onto them')
             if one['walkFaces'] > WALK_FACES:

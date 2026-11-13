@@ -3,6 +3,8 @@ import math
 import unittest
 from unittest import mock
 
+import numpy as np
+
 from tools.armorkit.client_fixture import field, gff_float
 
 from . import checks, prop_fixture
@@ -145,7 +147,15 @@ class CheckTests(unittest.TestCase):
         with mock.patch.object(checks, 'group', return_value={}) as group, mock.patch('builtins.print'):
             command.command_check(Namespace(kind='group', mode='walk', target=['bay=22,23.5', 'apron=23.0,11'], **asked))
         self.assertEqual((group.call_args.args[-1], group.call_args.kwargs['targets']), ('walk', {'bay': (22.0, 23.5), 'apron': (23.0, 11.0)}))
-        for wrong in (['bay=22'], ['Bay=1,2'], ['bay=1,2', 'bay=3,4'], ['bay=x,2']):
+        # A target must lie on ground with room to stand on in walk.png: one in a wall or off the group is a typo, not a lost way.
+        roomy = np.zeros((40, 40), bool); roomy[:, :20] = True
+        checks.own_targets(roomy, {'yard': (4.9, 9.9)})
+        for wrong in ({'wall': (5.1, 2.0)}, {'off': (-0.1, 2.0)}, {'beyond': (2.0, 10.0)}):
+            with self.assertRaisesRegex(ValueError, 'not on ground with room to stand on in walk.png'):
+                checks.own_targets(roomy, wrong)
+        with self.assertRaisesRegex(ValueError, 'A --target is a place a group walk check sends a walker'):  # not dropped from another check
+            command.command_check(Namespace(kind='props', mode='day', target=['bay=1,2'], **asked))
+        for wrong in (['bay=22'], ['Bay=1,2'], ['bay=1,2', 'bay=3,4'], ['bay=x,2'], ['bay=inf,2'], ['bay=1,nan']):
             with self.assertRaisesRegex(ValueError, 'A target is label=x,y'):
                 command.command_check(Namespace(kind='group', mode='walk', target=wrong, **asked))
         with self.assertRaisesRegex(ValueError, 'give them with --mode walk'):

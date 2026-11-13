@@ -155,8 +155,8 @@ def cleared(vertices, normals, uvs, faces, parts):
         inside = np.all((middle >= low) & (middle <= high), axis=1)
         require(bool((inside & kept).any()), f"A cleared box takes no face of the model away ({part.get('part', 'cleared part')})")
         kept &= ~inside
-    used = np.unique(faces[kept]); renumber = np.full(len(vertices), -1, faces.dtype); renumber[used] = np.arange(len(used))
-    return vertices[used], normals[used], uvs[used], renumber[faces[kept]]
+    used, local = np.unique(faces[kept], return_inverse=True)
+    return vertices[used], normals[used], uvs[used], local.reshape(-1, 3)
 
 
 def square_up(points, limit=45.0, step=0.25):
@@ -597,12 +597,14 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
             wide = np.asarray(Image.fromarray((np.clip(small, 0, 1) * 255).round().astype(np.uint8)).resize(image.size, Image.BILINEAR), np.float32) / 255
             done = full(done); colour[done] = wide[done]; flat |= done
             if any('slats' in part for part in smooth):  # the joints by the model's own height, read at the picture's size
-                height = np.asarray(Image.fromarray(where[..., 2].astype(np.float32), 'F').resize(image.size, Image.BILINEAR), np.float32)
+                # Read as covered texels only: the empty texels round an island hold 0, which a plain resize blends into its edge.
+                up = lambda values: np.asarray(Image.fromarray(values.astype(np.float32), 'F').resize(image.size, Image.BILINEAR), np.float32)
+                height = up(where[..., 2] * covered) / np.maximum(up(covered), 1e-6); joints = np.zeros(height.shape, np.float32)
                 for (chosen, *_), part in zip(plain, smooth):
-                    if 'slats' in part:
+                    if 'slats' in part:  # where two boxes of a door meet, a texel is darkened once
                         texels = full(chosen); phase = (height[texels] / part['slats']) % 1.0
-                        joint = np.clip(1 - np.minimum(phase, 1 - phase) / SLAT_GROOVE, 0, 1)
-                        colour[texels] *= (1 - SLAT_SHADE * joint)[:, None]
+                        joints[texels] = np.maximum(joints[texels], np.clip(1 - np.minimum(phase, 1 - phase) / SLAT_GROOVE, 0, 1))
+                colour *= (1 - SLAT_SHADE * joints)[..., None]
         for part in mesh:
             panel = glow.held(where, covered, part, 'wire mesh'); ahead = _run(where[panel])
             wire = full(panel & glow.wires(where[..., :2] @ ahead, where[..., 2], part['pitch'], part['wire'])); panel = full(panel)
@@ -719,7 +721,7 @@ def load_models(path):
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
-        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts'} and isinstance(tiles['sets'], dict) and tiles['sets']
+        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
@@ -738,6 +740,11 @@ def load_models(path):
                 f'A door states its leaf, measured on the finished model, {DOOR_LEAF[0]} to {DOOR_LEAF[1]} metres tall; scale the building to its door first: ' + name)
         fade = (tiles or {}).get('fade')
         require(fade is None or (number(fade) and 0 < fade < model['height']), 'The fade height is a number within the model: ' + name)
+        nodes = (tiles or {}).get('nodes', {})
+        require(isinstance(nodes, dict) and all(isinstance(key, str) and len(key) == 3 and key[0] == 't' and key[1:].isdigit() and isinstance(value, dict)
+                                                and set(value) == {'node', 'turn'} and isinstance(value['node'], str) and len(value['node']) == 1
+                                                and value['turn'] in (0, 90, 180, 270) for key, value in nodes.items()),
+                'A stated path node is {"t<row><column>": {"node": letter, "turn": 0, 90, 180 or 270}}: ' + name)
         parts = (tiles or {}).get('parts', [])
         # A halo card and a fence's sheets stand along x or along y, and are cut at the tile lines along that (`tile.share_cards`):
         # a part turned by other than a quarter would leave them across the cut.

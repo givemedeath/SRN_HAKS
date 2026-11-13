@@ -22070,10 +22070,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=A
-Orientation=0
-VisibilityNode=A
-VisibilityOrientation=0
+PathNode=U
+Orientation=90
+VisibilityNode=U
+VisibilityOrientation=90
 ImageMap2D=ek_sk_yard_m00
 
 [TILE690]
@@ -22130,10 +22130,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=A
-Orientation=0
-VisibilityNode=A
-VisibilityOrientation=0
+PathNode=V
+Orientation=90
+VisibilityNode=V
+VisibilityOrientation=90
 ImageMap2D=ek_sk_yard_m02
 
 [TILE692]
@@ -22160,10 +22160,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=A
-Orientation=0
-VisibilityNode=A
-VisibilityOrientation=0
+PathNode=J
+Orientation=90
+VisibilityNode=J
+VisibilityOrientation=90
 ImageMap2D=ek_sk_yard_m10
 
 [TILE693]
@@ -22220,10 +22220,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=A
-Orientation=0
-VisibilityNode=A
-VisibilityOrientation=0
+PathNode=H
+Orientation=270
+VisibilityNode=H
+VisibilityOrientation=270
 ImageMap2D=ek_sk_yard_m12
 
 [TILE695]
@@ -22280,10 +22280,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=1
 Sounds=0
-PathNode=V
-Orientation=90
-VisibilityNode=V
-VisibilityOrientation=90
+PathNode=N
+Orientation=0
+VisibilityNode=N
+VisibilityOrientation=0
 ImageMap2D=ek_sk_yard_m21
 
 [TILE696DOOR0]

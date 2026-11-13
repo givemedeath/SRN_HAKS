@@ -5,6 +5,7 @@
     ], "halo": {"reach": 0.3, "strength": 0.4},
       "tiles": {"ground": "pavement", "group": "SK_Yard", "label": "Saeder-Krupp Yard 3x3", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 5.0,
         "door": {"at": [2.78, 3.68, 0.55], "facing": 90.0, "type": 58, "leaf": 2.15},
+        "nodes": {"t02": {"node": "V", "turn": 90}, "t12": {"node": "H", "turn": 270}, "t21": {"node": "N", "turn": 0}},
         "parts": [
           {"model": "ek_sk_yardcf", "at": [0.0, -5.53, 0.0], "turn": 180},
           {"model": "ek_sk_yardwf", "at": [-8.72, -7.63, 0.0], "turn": 180},

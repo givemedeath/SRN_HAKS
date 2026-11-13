@@ -154,6 +154,9 @@ class GlowTests(unittest.TestCase):
             refused({'source': 'meshy/x', 'height': 1.0, 'close': [{'corners': [[0, 0, 0], [1, 1, 1]]}]}, 'needs three corners')
             refused({'source': 'meshy/x', 'height': 1.0, 'clear': [{'box': [[0, 0, 0]]}]}, 'A cleared part is a box')
             refused({'source': 'meshy/x', 'height': 1.0, 'clear': [{'box': [[0, 0, 2], [1, 1, 3]]}]}, 'wholly above or below')
+            group = {'ground': 'pavement', 'group': 'X', 'label': 'X', 'sets': {'dgt04': 'Concrete'}}
+            refused({'source': 'meshy/x', 'height': 1.0, 'tiles': {**group, 'nodes': {'t12': {'node': 'A', 'turn': 45}}}}, 'A stated path node is')
+            refused({'source': 'meshy/x', 'height': 1.0, 'tiles': {**group, 'nodes': {'12': {'node': 'A', 'turn': 0}}}}, 'A stated path node is')
             sheet = {'from': [0, 0], 'to': [2, 0], 'z': [1, 2], 'pitch': 0.09, 'wire': 0.016}
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'z': [2, 1]}]}, 'between two heights')
             refused({'source': 'meshy/x', 'height': 1.0, 'fence': [{**sheet, 'to': [0, 0]}]}, 'from one point to another')

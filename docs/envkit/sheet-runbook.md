@@ -141,7 +141,9 @@ area to the door, to each side of the building and onto the ground a walk must g
 yard), with one more onto that ground from the next tile out, and logs where they are every shot; it refuses the
 group if a walker stops more than a metre short, after writing `captures/walks.json`. The walkers' targets come
 from `walk.png`, which `tiles` writes beside the tile sources (a pixel a walk cell, north up: green ground with
-room to stand on, dark green ground too narrow for that, red the building, orange the lesser things in the way); a
+room to stand on, red the building, orange the lesser things in the way and ground too narrow to stand on, which
+`tiles` closes: a walk would be planned through a gap no character fits, as it was through the gaps between the
+Saeder-Krupp yard's fence sections; dark green in a picture built before 2026-11-12); a
 group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). `lights`
 takes the lit props from the pack, by night, and puts them out and on again by script. Look for the roof and upper
 storey from above, the door, and every lit part going out and coming back.
@@ -261,11 +263,23 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
 - **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
   0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
   `walk.png` shows which.
-- **Something the generator stood on the floor leaves too narrow a way** (dark green on `walk.png` where a character
+- **Something the generator stood on the floor leaves too narrow a way** (orange on `walk.png` where a character
   must pass, or a `tiles` note of walk cells no exit reaches). A path needs a metre clear. Take the thing away with
   `clear`: `{"part": ..., "box": ...}` on the finished model takes every face whose middle lies in the box. Start the
   box a couple of centimetres above the floor, so the floor stays and what stands on it goes, and draw the place again:
   marks the thing left painted on the floor stay. A box that takes nothing is refused.
+- **A walker walks straight at its target and stops at the first wall** (a walk check's walker stopped on the
+  straight line from where it started). The engine found no route it could follow and gave up. It plans a long walk
+  over the tiles' path nodes, from one exit to the next, each at the middle of a side. It does not go far aside round
+  a wall between two exits, and a target on a tile split into regions can be taken for the wrong region's ground.
+  `tiles` states a side as an exit only where it opens within 3 m of its middle (`tile.REACH`), joins two exits only
+  where a walk between them stays within 2 m of the straight way (`tile.ASIDE`), and chooses the group's nodes
+  together so walks reach the most ground (`tile.path_nodes`; the report gives each tile's node, and as `offPath` the
+  ground no walk is planned onto). Where walkers still give up, try other nodes for the tiles they were bound for:
+  edit `PathNode` and `Orientation` of those tiles in the installed set files (copy them aside first), rerun the walk
+  check, and state what works under `tiles.nodes` in the game set (`{"t12": {"node": "A", "turn": 0}}`). Then
+  rebuild and install. The Saeder-Krupp yard states three this way. A short walk into ground with one far way in
+  (`pocket-near`) can still give up where long walks arrive: say so in the provenance.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,
