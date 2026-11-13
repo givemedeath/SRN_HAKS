@@ -1229,8 +1229,9 @@ class SeatTests(unittest.TestCase):
 
 class ArmTests(unittest.TestCase):
     """The armhole cut (`arms`): the body's arm leaves its chest 6 cm past the shoulder plane toward the torso
-    and 3 cm before it elsewhere, on a torso and sleeve that are one surface down to the armpit."""
-    RING, DEPTH = 0.06, 0.05
+    and 3 cm before it elsewhere, on a torso and sleeve that are one surface down to the armpit. The torso's
+    flat top crosses the arm's axis 5.3 cm past the shoulder plane."""
+    RING, DEPTH = 0.06, 0.04
 
     def setUp(self):
         self.v, self.f, self.t = fused()
@@ -1280,6 +1281,16 @@ class ArmTests(unittest.TestCase):
         loose = open_edges(faces, points)
         self.assertTrue(len(loose))
         self.assertTrue(self.on(points[loose], ('elbow', 'l')).all())  # open at the elbow only
+
+    def test_an_end_runs_no_deeper_than_the_chest_stands_over_the_joint(self):
+        # asked 8 cm deep, the end stops `SEAT_GAP` short of the torso's top, where the arm's axis passes through it
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, {('shoulder', 'l'): 0.08}, made=made, arms=self.arms)
+        top = 0.05 * np.hypot(0.1, 0.27) / 0.27
+        self.assertAlmostEqual(split.room(*parts['chest'][:2], self.point, self.normal), top, places=9)
+        points, faces, _ = parts['bicepl']
+        self.assertAlmostEqual(self.height(points[np.unique(faces[made['bicepl'] == split.CAP])]).min(), -(top - split.SEAT_GAP), places=9)
+        self.assertIsNone(split.room(*tube((0, 0, 0.15), (0, 0, -0.15), 0.003)[:2], np.zeros(3), np.array((0.0, 0.0, -1.0))))  # a sleeve round the axis
 
     def test_the_chest_is_closed_round_the_arm(self):
         points, faces, _ = self.parts['chest']

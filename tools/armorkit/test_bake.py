@@ -160,6 +160,19 @@ class BakeTests(unittest.TestCase):
         self.assertEqual(bake.surface(*joined((v, f), pad))['debris'], [])  # a pad standing off the rest is a piece, not debris
         self.assertEqual(bake.surface(*joined((v, f), sunk))['debris'], [])  # a crumb set into the rest touches it
 
+    def test_an_end_at_a_torso_opening_is_asked_to_run_no_deeper_than_the_torso_stands_over_the_joint(self):
+        bones, terms = rig(), contract(rings={'shoulder': 0.08})
+        short = {'bicepl': arm(-0.025, 0.3, 0.075)}  # 2.5 cm past the shoulder plane, where tier 2 asks 4 cm
+        self.assertEqual(bake.ends(short, bones, 'test', 2, terms)[1],
+                         ['bicepl at the shoulder: 2.5 cm past the plane, short of the tier 2 overlap of 4.0 cm'])
+        # the torso's top crosses the arm's axis 3 cm past the plane: an end runs no deeper than that, less the gaps
+        top = {'v': np.array([(-0.03, -0.2, -0.2), (-0.03, 0.2, -0.2), (-0.03, 0.2, 0.2), (-0.03, -0.2, 0.2)]), 'f': np.array([(0, 1, 2), (0, 2, 3)])}
+        arms = lambda chest: [failure for failure in bake.ends({**short, 'chest': chest}, bones, 'test', 2, terms)[1] if failure.startswith('bicepl')]
+        self.assertEqual(arms(top), [])
+        report = bake.ends({**short, 'chest': top}, bones, 'test', 2, terms)[0]
+        self.assertAlmostEqual(report['shoulder']['l']['under']['overlap'], 0.03 - split.SEAT_GAP - bake.ROOM_SLACK, places=4)
+        self.assertEqual(len(arms(arm(-0.3, 0.0, 0.2))), 1)  # a torso round the axis asks it all
+
     def test_each_end_is_held_to_its_tiers_envelope_and_overlap_at_its_joint(self):
         # the elbow's body ring 4 cm round: tier 2 envelope 6.5 cm, overlap 4 cm; tier 3 overlap 6 cm
         bones, terms = rig(), contract(rings={'shoulder': 0.08, 'wrist': 0.01})

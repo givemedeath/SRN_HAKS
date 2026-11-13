@@ -1024,6 +1024,26 @@ def arm_opening(vertices, cuts, side, limit=np.inf):
     return (height > -WELD) & (height < down) & (np.linalg.norm(relative - height[:, None] * normal, axis=1) <= limit)
 
 
+def room(vertices, faces, point, normal):
+    """How far past the plane (`point`, `normal` toward the under part) the joint's axis first passes through
+    the surface `faces`: as deep as an under part's end can run inside the part over it. None where the axis
+    passes through none of it past the plane, as down the middle of a sleeve."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int).reshape(-1, 3)]
+    way = -seams.unit(normal)
+    first, second = corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]
+    across = np.cross(way, second)
+    det = np.einsum('ij,ij->i', first, across)
+    met = np.abs(det) > 1e-15  # a face the axis runs along is never passed through
+    inverse = np.where(met, 1.0 / np.where(met, det, 1.0), 0.0)
+    start = np.asarray(point, float) - corners[:, 0]
+    u = np.einsum('ij,ij->i', start, across) * inverse
+    turned = np.cross(start, first)
+    w = (turned @ way) * inverse
+    far = np.einsum('ij,ij->i', second, turned) * inverse
+    through = met & (u >= 0) & (w >= 0) & (u + w <= 1) & (far > 0)
+    return float(far[through].min()) if through.any() else None
+
+
 def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, bend=0.0, out=None, steps=SEAT_STEPS, dome=SEAT_DOME,
              gap=SEAT_GAP):
     """A thigh's end, grown from its rim on the seat line (`seated`), or an upper arm's from its opening at the
@@ -1040,7 +1060,10 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     quarter and half of it: bounded at rest only, its sides came through the seat in a stride. Given `out`, the
     way from the torso to the joint, the limb is an arm: it turns forward and back as a thigh does, and out from
     the torso by half and all of `bend`, never in across it. Each point is drawn in toward the
-    axis, at its height, as far as that takes; the pole stays, as deep as the seam contract asks. The seat covers
+    axis, at its height, as far as that takes; the pole stays, as deep as the seam contract asks, or `gap`
+    short of where `over` first crosses the joint's axis past the plane where that is less (`room`): the
+    Human female's shoulder stands 4.5 cm over her shoulder joint in Facility Security, and a pole the
+    contract's 6.7 cm deep came out through the top of her shoulder as a flap (2026-11-13). The seat covers
     the end as the body stands, and turned the end fills what the thigh leaves of the leg hole. Each new vertex
     keeps the columns of the rim point it grew from; the faces wind as the cap's (`cap`). Where two rim points
     beside each other are both drawn onto the axis at one height, the face between them has two corners at
@@ -1080,14 +1103,18 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     r = np.linalg.norm(relative[rim] - height[rim, None] * normal, axis=1)
     h, turn = height[rim], angle[rim]
     end = np.minimum(seams.around(ring, turn), r)
-    smooth = lambda x: x * x * (3 - 2 * x)
-    rings = [(r + (end - r) * smooth(k / steps), h * (1 - k / steps)) for k in range(1, steps + 1)]
-    rings += [(end * np.cos(phi), np.full(len(rim), -depth * np.sin(phi))) for phi in np.radians(90.0 * np.arange(1, dome) / dome)]
     # the pelvis's own surface, nearest the joint's axis per direction and height
     # only the points of its faces: `over` may hold the whole outfit's vertices, the limb's own among them
     used, local = np.unique(np.asarray(over[1], int), return_inverse=True)
     sample = seams.surface_points(np.asarray(over[0], float)[used], local.reshape(-1, 3), SEAT_SAMPLE) - point
     along = sample @ normal
+    deepest = room(over[0], over[1], point, normal)
+    if deepest is not None:
+        require(deepest > 2 * gap, f'The part over this end crosses its axis {deepest * 100:.1f} cm past the plane: no room for the end')
+        depth = min(depth, deepest - gap)
+    smooth = lambda x: x * x * (3 - 2 * x)
+    rings = [(r + (end - r) * smooth(k / steps), h * (1 - k / steps)) for k in range(1, steps + 1)]
+    rings += [(end * np.cos(phi), np.full(len(rim), -depth * np.sin(phi))) for phi in np.radians(90.0 * np.arange(1, dome) / dome)]
     rows = np.floor(along / SEAT_ROW).astype(int)
     first = rows.min() - 1
     least = np.full((SEAT_BINS, rows.max() - first + 2), np.inf)

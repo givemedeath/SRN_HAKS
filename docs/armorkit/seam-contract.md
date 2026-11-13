@@ -49,6 +49,10 @@ each tier's numbers and refuses to load when they disagree with its own body rin
 The swing used is the 95th percentile over every clip the body plays, with twist about the limb left out
 (twist turns the under end inside the over end without opening the seam). The continued end tapers in one
 slope, with no shelf. The bake shapes the elbow, wrist, waist, knee and ankle ends to their envelope (`tools/armorkit/ends.py`).
+At the neck, shoulder and hip the over part is the torso, and an under end runs into it no deeper than the
+outfit's torso first crosses the joint's axis, less 4 mm (`split.room`); the bake's seam gate asks no more there.
+The female shoulder stands less far over its joint than its minimum overlap, even bare, and an upper arm's end
+the full overlap deep came out through the top of her shoulder (Facility Security, 2026-11-13).
 
 ## Numbers
 

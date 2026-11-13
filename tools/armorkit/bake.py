@@ -43,6 +43,8 @@ INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear
 REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
 STEP = 0.003  # an under end's surface is sampled this densely to tell how far past its plane it runs
 AXIS = 0.015  # past the plane, what lies this near the joint's axis closes the end in every direction: a cap's pole
+ROOM_SLACK = 0.005  # at a torso opening an end may stop this much shorter of the torso over its joint than the split stops it:
+# the split reads the torso before its lids, layout and reduction
 HOLE = 0.005  # an opening of the generated outfit this long round or longer, at the body's size, is a hole
 DEBRIS = 0.001  # square metres: a separate piece of the generated outfit smaller than this that touches nothing else is debris
 TOUCH = 0.002  # a piece of the generated outfit this near the rest of it touches it
@@ -141,7 +143,10 @@ def ends(parts, bones, body, tier, contract=None):
     plane, into the over part, by the tier's minimum overlap; the over end's section `INSIDE` short of the
     plane must stand at least as far out as the envelope in each direction it is found in, which also tells it
     is open. The chest at the neck and shoulders and the pelvis at the hips are not measured: the plane cuts the
-    torso wall there, not a tube (`measure.TORSO_OPENINGS`). A part with no face at its plane does not reach
+    torso wall there, not a tube (`measure.TORSO_OPENINGS`), and an under end there is asked to run into the
+    torso no deeper than the torso first crosses the joint's axis, less `split.SEAT_GAP` and `ROOM_SLACK`
+    (`split.room`): the Human female's shoulder stands less far over her shoulder joint than the contract's
+    overlap, even bare. A part with no face at its plane does not reach
     its joint and fails, unless it shares its slot with the body's skin: the body's own part ends there then.
     Only the outfit's faces are measured, never the body's skin beside them.
 
@@ -165,6 +170,9 @@ def ends(parts, bones, body, tier, contract=None):
             limit = REACH * envelope[registry.TIERS[-1]].max()
             row = {}
             under, over = (split.token(spec[key], letter) for key in ('under', 'over'))
+            deepest = split.room(*_outfit(parts[over])[:2], point, normal) if joint in measure.TORSO_OPENINGS and over in parts else None
+            if deepest is not None:  # an end runs into a torso no deeper than the torso stands over the joint (`split.seat_end`)
+                overlap = {t: min(depth, deepest - split.SEAT_GAP - ROOM_SLACK) for t, depth in overlap.items()}
             if under in parts:
                 vertices, faces, shared = _outfit(parts[under])
                 widest = seams.standoff(seams.section(vertices, faces, point, normal), ring, limit=limit)[0]
