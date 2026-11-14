@@ -762,6 +762,22 @@ class GpuJob(Base):
                     launcher.run_gpu(self.workspace, 'elf-male-a', ['--stages', stages, *option])
                 lock.assert_not_called()
 
+    def test_the_workspace_shape_grid_applies_to_every_geometry_launch(self):
+        # RUNBOOK 379: a launch without the flag ran the template's 1536 grid and met the VRAM stop.
+        self.workspace.data['geometryShapeGrid'] = 1024
+        stages = ['calibrate', 'geometry']
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, stages, ['--stages', 'geometry']),
+                         ['--stages', 'geometry', '--shape-grid', '1024'])
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, stages, ['--shape-grid', '1024']), ['--shape-grid', '1024'])
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, ['appearance'], []), [])
+        with self.assertRaisesRegex(guards.Refused, 'differs from the workspace'):
+            launcher.workspace_shape_grid(self.workspace, stages, ['--shape-grid', '1536'])
+        self.workspace.data['geometryShapeGrid'] = 1000
+        with self.assertRaisesRegex(guards.Refused, 'geometryShapeGrid must be'):
+            launcher.workspace_shape_grid(self.workspace, stages, [])
+        del self.workspace.data['geometryShapeGrid']
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, stages, []), [])
+
     def launched_gpu(self, head, stages):
         data=guards.read(self.root/'workspace.json')
         data['comfy']={'url':'http://127.0.0.1:1','root':'comfy'}

@@ -315,6 +315,7 @@ rewritten. Recalibration archives and invalidates the old geometry/appearance.
 For a user-selected lower geometry grid after a memory stop, use
 `run_headbatch.py gpu HEAD --stages geometry --shape-grid 1024 --single-submission`.
 This reuses the verified calibration and changes only the Trellis shape upsample resolution.
+A workspace `geometryShapeGrid` applies that grid to every launch that includes geometry and refuses a different `--shape-grid` (RUNBOOK 379).
 The saved prompt records the grid even on failure. Single-submission mode suppresses both
 the geometry OOM retry and reseed. Review the exact raw sheet before appearance. An open-occiput rejection keeps its own diagnostic sheet. Recover it, if missing, with `review --slot gpuclay HEAD --rejected-geometry geometry-NNNN`. Rejected submissions cannot authorize appearance.
 

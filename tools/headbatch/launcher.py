@@ -287,11 +287,28 @@ def gpu_memory_limits(comfy, profile, stages):
     return limits
 
 
+def workspace_shape_grid(workspace, stages, arguments):
+    """A workspace's chosen Trellis shape grid applies to every geometry launch; a different one is refused.
+    Batch 2's first launch dropped the flag, ran the template's 1536 grid and met the VRAM stop (RUNBOOK 379)."""
+    grid = workspace.data.get('geometryShapeGrid')
+    if grid is None or 'geometry' not in stages:
+        return list(arguments)
+    if type(grid) is not int or grid not in range(1024, 2049, 128):
+        raise guards.Refused('geometryShapeGrid must be one of 1024..2048 in steps of 128')
+    if '--shape-grid' not in arguments:
+        return [*arguments, '--shape-grid', str(grid)]
+    given = arguments[arguments.index('--shape-grid')+1]
+    if given != str(grid):
+        raise guards.Refused(f'--shape-grid {given} differs from the workspace geometryShapeGrid {grid}; change the workspace to change the grid')
+    return list(arguments)
+
+
 def run_gpu(workspace, name, arguments):
     """Calibrate, geometry with its occiput check, and appearance for one head on the workspace's ComfyUI."""
     stages = gpu_contract.stages(arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES)
     if 'geometry' not in stages and ('--shape-grid' in arguments or '--single-submission' in arguments):
         raise guards.Refused('--shape-grid and --single-submission require a geometry stage')
+    arguments = workspace_shape_grid(workspace, stages, arguments)
     head = workspace.head(name)
     comfy = workspace.data.get('comfy')
     with guards.head_locks(workspace, [name]):
