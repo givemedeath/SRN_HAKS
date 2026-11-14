@@ -71,7 +71,7 @@
     "ek_rf_light": {"source": "meshy/models/rf-light-tower-a1", "height": 5.0, "measuredAt": 5.0, "colour": 2048, "lit": [
       {"part": "west lamp heads, their fronts (+y)", "box": [[-1.6, -0.43, 3.33], [-0.33, -0.1, 5.0]], "value": 0.88},
       {"part": "east lamp heads, set back, their fronts (+y)", "box": [[0.33, 0.07, 3.33], [1.6, 0.2, 5.0]], "value": 0.88}
-    ], "halo": {"reach": 0.3, "strength": 0.5}, "placeable": {"label": "Rail Freight Yard, Light Tower", "sound": 28, "category": 161}},
+    ], "halo": {"reach": 0.3, "strength": 0.5}, "placeable": {"label": "Rail Freight Yard, Light Tower", "sound": 28, "category": 161, "light": {"colour": 3, "at": [0.0, 0.5, 4.2]}}},
     "ek_rf_dumpster": {"source": "meshy/models/rf-dumpster-a1", "height": 1.8, "colour": 1024, "inside": true, "placeable": {"label": "Rail Freight Yard, Dumpster", "sound": 28, "category": 158}}
   }
 }

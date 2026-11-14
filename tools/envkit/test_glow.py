@@ -123,6 +123,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(convert.lights_script('ek_test', 'OBJECT_SELF', on=True),
                          'ReplaceObjectTexture(OBJECT_SELF,"ek_test");ReplaceObjectTexture(OBJECT_SELF,"ek_test_h");')
         self.assertNotIn('_h', convert.lights_script('ek_test', 'OBJECT_SELF', on=False, halo=False))
+        # A model whose row casts light also puts that light out and back, and the area's lighting is worked out again.
+        self.assertTrue(convert.lights_script('ek_test', 'oLamp', on=False, light=True).endswith('SetPlaceableIllumination(oLamp,FALSE);RecomputeStaticLighting(GetArea(oLamp));'))
+        self.assertIn('SetPlaceableIllumination(oLamp,TRUE);', convert.lights_script('ek_test', 'oLamp', on=True, light=True))
         # For a tile or static scenery, per player: the glow map and the halo are overridden by name with dark textures.
         self.assertEqual(convert.blackout_script('ek_test', 'oPC', on=False), 'SetTextureOverride("ek_test_i","ek_test_o",oPC);SetTextureOverride("ek_test_h","ek_off",oPC);')
         self.assertEqual(convert.blackout_script('ek_test', 'OBJECT_INVALID', on=True, halo=False), 'SetTextureOverride("ek_test_i","",OBJECT_INVALID);')

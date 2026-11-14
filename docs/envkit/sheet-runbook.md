@@ -407,6 +407,10 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   it and closed sides; the walkers sent onto the deck, by the stairs and from beside it, stopped on the ground at its
   edge. A floor to walk on is a part of a tile group (`tiles.parts`), as the rail freight depot's platform is; as a
   placeable it is scenery to walk round.
+- **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
+  own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
+  its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",
+  2026-11-13). `check lights` puts it out and on with the faces; the ground should go dark and come back.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

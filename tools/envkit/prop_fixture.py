@@ -22,10 +22,11 @@ NL = chr(10)
 LABEL = re.compile(r'[A-Za-z0-9_-]+')
 
 
-def table(stock_text, models):
+def table(stock_text, models, lights=None):
     """The placeables table with a row of its own appended for each model under test, whether or not the table names
-    the model already; returns (text, {model: row number})."""
-    return placeables.register(stock_text, [{'model': model, 'label': model, 'sound': None} for model in models], again=True)
+    the model already, with its light where `lights` ({model: light}) gives one; returns (text, {model: row number})."""
+    lights = lights or {}
+    return placeables.register(stock_text, [{'model': model, 'label': model, 'sound': None, 'light': lights.get(model)} for model in models], again=True)
 
 
 def placed(tag, appearance, position, bearing, static=True):
@@ -82,7 +83,7 @@ def enter_script(shots, start=START, hold=HOLD):
 
 
 def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD, ground=None):
-    """props: [{model, position: [x, y], bearing, static, appearance}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
+    """props: [{model, position: [x, y], bearing, static, appearance, light}] (bearing in radians; light as `placeables.light_values`; tagged `name`_p<index>). people: [{position, facing, height}], stock
     humans for scale. ground: {tileset, fill, tiles: {(column, row): tile}} lays the area with a tileset whose set file is
     among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west;
     its `lights` ({(column, row): [main light 1, main light 2]}) colour those tiles' main lights.
@@ -108,7 +109,8 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Hak resources are lowercase resref files: ' + path.name)
         shutil.copyfile(path, staged / path.name)
     # A prop that names its own row (`appearance`) is placed by it: the table's row for that model is what is under test.
-    text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props if 'appearance' not in prop}))
+    text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props if 'appearance' not in prop}),
+                       {prop['model']: prop['light'] for prop in props if prop.get('light')})
     (staged / 'placeables.2da').write_text(text, encoding='cp1252', newline='')
     if ground is None:
         stock_set = run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '.set']).decode('cp1252')

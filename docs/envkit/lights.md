@@ -57,6 +57,22 @@ void EkLights(object oThing, string sName, int bOn, int bHalo = TRUE)
 - The replacement has to be a material, which is why `<name>_o` exists. Replacing the glow map by its own name
   with this call changes nothing.
 
+## Light cast round a placeable
+
+A glow map lights only the model's own faces. A placeable whose game set gives it a `light` (`{"colour": <row of
+lightcolor.2da>, "at": [x, y, z]}`, metres from the object's origin) also lights the ground and characters round it,
+as the stock lamp post does: its `placeables.2da` row names the colour in `LightColor` and the place in
+`LightOffsetX`, `Y` and `Z`. The rail yard's light tower has one (colour 3, bright white, at its lamp heads). Its
+catalog entry's `lights` are as above; put the cast light out with the faces:
+
+```c
+SetPlaceableIllumination(oThing, bOn);
+RecomputeStaticLighting(GetArea(oThing));
+```
+
+The same object rules hold: not static. Checked in the client on 2026-11-13 by night: the ground round the light
+tower lit, dark when put out with the call above and `EkLights`, and lit again.
+
 ## Everything a player sees: `SetTextureOverride`
 
 For tiles, for static scenery, or for a blackout of every copy at once:

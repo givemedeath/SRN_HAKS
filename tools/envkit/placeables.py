@@ -10,7 +10,8 @@ COLUMNS = ('Label', 'StrRef', 'ModelName', 'LightColor', 'LightOffsetX', 'LightO
            'LowGore', 'Reflection', 'Static')
 TOKEN = re.compile(r'"[^"]*"|\S+')
 PREFIX = '[envkit]'
-RESREF = re.compile(r'[a-z0-9_]{1,16}')  # a model or blueprint name: the game reads these letters alike whatever the code page
+RESREF = re.compile(r'[a-z0-9_]{1,16}')
+LIGHT = slice(4, 8)  # a row's LightColor and LightOffsetX, Y and Z, counting its number as the first value  # a model or blueprint name: the game reads these letters alike whatever the code page
 
 
 def rows(text):
@@ -40,9 +41,41 @@ def register(text, entries, *, again=False):
         sound = entry['sound']
         require(label and '"' not in label and (sound is None or (isinstance(sound, int) and sound >= 0)), 'A placeable needs a label and a sound row: ' + model)
         number += 1; named.add(model); made[model] = number
-        values = [str(number), f'"{PREFIX}{label}"', '****', model, '****', '****', '****', '****', '****' if sound is None else str(sound), '1', '0', '****', '****', '1']
-        line = ''
-        for start, value in zip(spans, values):
-            line = (line.ljust(start) if len(line) < start else line + ' ') + value  # at the column, or one space on where a value ran long
-        lines.append(line.ljust(len(last)))
+        values = [str(number), f'"{PREFIX}{label}"', '****', model, *light_values(entry.get('light')), '****' if sound is None else str(sound), '1', '0', '****', '****', '1']
+        lines.append(_laid(spans, values, len(last)))
     return end.join(lines) + end, made
+
+
+def light_values(light):
+    """The four light values of a row: a light {colour, at} gives its row of lightcolor.2da and where it stands from
+    the object's origin, in metres (x, y, z); None gives none (`****`). A row that names a light colour makes the game
+    light what stands round the object, as the stock lamp post's does; `SetPlaceableIllumination` and
+    `RecomputeStaticLighting` put it out and back on."""
+    if light is None:
+        return ['****'] * 4
+    require(isinstance(light, dict) and set(light) == {'colour', 'at'} and type(light['colour']) is int and 0 <= light['colour'] <= 255
+            and isinstance(light['at'], list) and len(light['at']) == 3 and all(type(v) in (int, float) for v in light['at']),
+            'A light is {colour: a row of lightcolor.2da, at: [x, y, z] metres from the object}')
+    return [str(light['colour']), *(f'{float(v):.4f}' for v in light['at'])]
+
+
+def lights(text, wanted):
+    """(text) with the light values of each model's own row ({model: light or None}) set as given: a model converted
+    again keeps its row, and its light follows the game set. Nothing else of the table changes."""
+    end = '\r\n' if '\r\n' in text else '\n'; lines = text.rstrip('\r\n').split(end); found = rows(text)
+    require(all(model in found for model in wanted), 'These have no row to light: ' + ', '.join(sorted(set(wanted) - set(found))))
+    for index in range(3, len(lines)):
+        tokens = TOKEN.findall(lines[index])
+        if len(tokens) == len(COLUMNS) + 1 and tokens[0].isdigit() and tokens[3].lower() in wanted and found[tokens[3].lower()] == int(tokens[0]):
+            values = list(tokens); values[LIGHT] = light_values(wanted[tokens[3].lower()])
+            if values != tokens:
+                lines[index] = _laid([match.start() for match in TOKEN.finditer(lines[index])], values, len(lines[index]))
+    return end.join(lines) + end
+
+
+def _laid(spans, values, width):
+    """A row with each value at its column, or one space on where the one before ran long."""
+    line = ''
+    for start, value in zip(spans, values):
+        line = (line.ljust(start) if len(line) < start else line + ' ') + value
+    return line.ljust(width)

@@ -335,7 +335,8 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/convert.py": [
-      "tools/envkit/glow.py"
+      "tools/envkit/glow.py",
+      "tools/envkit/placeables.py"
     ],
     "tools/envkit/glow.py": [],
     "tools/envkit/local.py": [

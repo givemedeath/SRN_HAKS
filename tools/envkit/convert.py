@@ -13,7 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import require
+from . import placeables, require
 
 COMPONENT = {5120: 'i1', 5121: 'u1', 5122: '<i2', 5123: '<u2', 5125: '<u4', 5126: '<f4'}
 WIDTH = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}
@@ -771,7 +771,8 @@ def load_models(path):
     along the longer side of its footprint to that many metres, its height and width kept (`stretched`). A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
-    under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it).
+    under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it),
+    and a `light` {colour, at} that lights what stands round it, as a lamp post does (`placeables.light_values`).
     `underfoot` (true) lays the model on the ground as railway track is laid (`track`): a group it is placed in is walked
     flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
@@ -829,9 +830,11 @@ def load_models(path):
         require(set(model.get('halo', {})) <= {'reach', 'strength', 'core', 'least'} and ('halo' not in model or model.get('lit')),
                 'A halo takes reach, strength, core and least, and needs lit parts: ' + name)
         placed = model.get('placeable')
-        require(placed is None or ({'label', 'sound'} <= set(placed) <= {'label', 'sound', 'category', 'static'} and isinstance(placed['label'], str) and placed['label']
+        require(placed is None or ({'label', 'sound'} <= set(placed) <= {'label', 'sound', 'category', 'static', 'light'} and isinstance(placed['label'], str) and placed['label']
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
+        if placed and 'light' in placed:
+            placeables.light_values(placed['light'])
         tiles = model.get('tiles')
         require(model.get('inside', True) is True, 'inside is true, for a box whose openings show what stands behind it: ' + name)
         require(model.get('underfoot', True) is True and not ('underfoot' in model and tiles),
@@ -980,10 +983,12 @@ def lights(name, folder):
     return {**found, 'halo': f'{name}_h', 'dark': HALO_OUT} if (folder / f'{name}_h.mtr').is_file() else found
 
 
-def lights_script(name, target, on, halo=True):
-    """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on."""
+def lights_script(name, target, on, halo=True, light=False):
+    """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on. `light`: its
+    row names a light colour (`placeables.light_values`), which lights what stands round it and is put out with it."""
     swaps = [(name, f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
-    return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps)
+    switch = f'SetPlaceableIllumination({target},{"TRUE" if on else "FALSE"});RecomputeStaticLighting(GetArea({target}));' if light else ''
+    return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps) + switch
 
 
 def blackout_script(name, player, on, halo=True):

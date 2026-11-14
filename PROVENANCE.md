@@ -825,7 +825,9 @@ size and were set again (operator: "resize the office module and light tower"): 
 metres tall, where its walls had stood 2 metres and its doors about 1.7, and the light tower from 7.5 to 5.0 metres,
 where its lamp heads had been nearly 2 metres across. The light tower's four lamp heads glow on
 their front faces: it has a glow map for them, a halo sheet and a lights-out material (`ek_rf_light_o`) as
-`docs/envkit/lights.md` describes, and its blueprint is not static, so that a script can reach it. Meshy drew
+`docs/envkit/lights.md` describes, and its blueprint is not static, so that a script can reach it. It also lights the
+ground round it (operator: "Yes, try it", on whether its lamps cast light): its row names light colour 3 (bright
+white) 4.2 metres up and half a metre in front of its mast, at its lamp heads. Meshy drew
 lenses on the backs of the heads too; those stay unlit. Nothing was retouched. The loading platform is scenery to
 walk round: its collision is a block over its footprint, and the game does not stand characters on a placeable
 (tried in the client on 2026-11-13 with a walkmesh of walkable deck and stairs: walkers sent onto it stopped on the
@@ -834,7 +836,8 @@ ground at its edge; see `docs/envkit/sheet-runbook.md`). The depot group's platf
 Checked in the game client on 2026-11-13, from the converted files, by day from front, back and side with a figure
 for scale (the dock, container, office and light tower again after the changes above); the light tower, office and
 dumpster again by night; and the light tower from the pack's files by night, its
-lamps lit, put out by `ReplaceObjectTexture` and on again. A lighter or darker triangle shows on a flat side of the
+lamps lit, put out by `ReplaceObjectTexture` and on again, and once more with its cast light (the ground round it
+lit, dark when put out by `SetPlaceableIllumination` and `RecomputeStaticLighting`, and lit again). A lighter or darker triangle shows on a flat side of the
 boxcar seen side-on, on either side and with the car turned either way round: the area's sky reflected in its large
 smooth panels, not the model (its maps are even there, and splitting its faces small did not change it). Not yet
 opened in the Toolset.

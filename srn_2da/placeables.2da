@@ -22799,5 +22799,5 @@
  22795     "[envkit]Rail Freight Yard, Cable Reel"                              ****     ek_rf_reel          ****       ****         ****         ****         27           1          0       ****    ****           1      
  22796     "[envkit]Rail Freight Yard, Pipe Stack"                              ****     ek_rf_pipes         ****       ****         ****         ****         28           1          0       ****    ****           1      
  22797     "[envkit]Rail Freight Yard, Pallet Jack"                             ****     ek_rf_jack          ****       ****         ****         ****         28           1          0       ****    ****           1      
- 22798     "[envkit]Rail Freight Yard, Light Tower"                             ****     ek_rf_light         ****       ****         ****         ****         28           1          0       ****    ****           1      
+ 22798     "[envkit]Rail Freight Yard, Light Tower"                             ****     ek_rf_light         3          0.0000       0.5000       4.2000       28           1          0       ****    ****           1      
  22799     "[envkit]Rail Freight Yard, Dumpster"                                ****     ek_rf_dumpster      ****       ****         ****         ****         28           1          0       ****    ****           1      
