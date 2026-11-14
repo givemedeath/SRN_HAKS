@@ -17,15 +17,17 @@ from tools.armorkit.client_fixture import field, gff_float
 from tools.envkit import placeables, require
 
 LOG_PREFIX = 'ENVKIT'
-START, HOLD = 8.0, 4.0
+# A shot is held long enough that a capture after the settle, a poll and a whole second of stamp rounding is in time (`late`).
+START, HOLD = 8.0, 5.0
 NL = chr(10)
 LABEL = re.compile(r'[A-Za-z0-9_-]+')
 
 
-def table(stock_text, models):
+def table(stock_text, models, lights=None):
     """The placeables table with a row of its own appended for each model under test, whether or not the table names
-    the model already; returns (text, {model: row number})."""
-    return placeables.register(stock_text, [{'model': model, 'label': model, 'sound': None} for model in models], again=True)
+    the model already, with its light where `lights` ({model: light}) gives one; returns (text, {model: row number})."""
+    lights = lights or {}
+    return placeables.register(stock_text, [{'model': model, 'label': model, 'sound': None, 'light': lights.get(model)} for model in models], again=True)
 
 
 def placed(tag, appearance, position, bearing, static=True):
@@ -58,6 +60,9 @@ def person(template, tag, position, facing=270.0, height=0.0):
     return c
 
 
+LINE_DELAY = 1.0  # seconds after a shot starts that its log line is written
+
+
 def enter_script(shots, start=START, hold=HOLD):
     """Hide the player, then for each shot stand them at a spot and set the camera: {label, stand: [x, y], facing,
     distance, pitch, height, run}. Facing 90 looks north. `run` is script the shot runs first, to change the scene."""
@@ -72,7 +77,7 @@ def enter_script(shots, start=START, hold=HOLD):
                      f'height={float(shot.get("height", 1.0)):.3f}; label="{shot["label"]}"; {shot.get("run", "")} }}')
     lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetArea(pc),Vector(x,y,0.0),facing)));',
               '  SetCameraHeight(pc,height); AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));',
-              f'  DelayCommand(1.0,WriteTimestampedLogEntry("{LOG_PREFIX} shot="+IntToString(n)+" target="+label+" valid=1"));',
+              f'  DelayCommand({LINE_DELAY:.1f},WriteTimestampedLogEntry("{LOG_PREFIX} shot="+IntToString(n)+" target="+label+" valid=1"));',
               f'  DelayCommand({hold:.1f},Shot(pc,n+1));', '}',
               'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', '  SetCameraLimits(pc,1.0,89.0,0.5,60.0);',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
@@ -82,7 +87,7 @@ def enter_script(shots, start=START, hold=HOLD):
 
 
 def build(name, resources, props, shots, output, nwn_root, stock_table, *, people=(), night=False, size=8, start=START, hold=HOLD, ground=None):
-    """props: [{model, position: [x, y], bearing, static, appearance}] (bearing in radians; tagged `name`_p<index>). people: [{position, facing, height}], stock
+    """props: [{model, position: [x, y], bearing, static, appearance, light}] (bearing in radians; light as `placeables.light_values`; tagged `name`_p<index>). people: [{position, facing, height}], stock
     humans for scale. ground: {tileset, fill, tiles: {(column, row): tile}} lays the area with a tileset whose set file is
     among the resources, instead of the flat stock one: `fill` everywhere but the tiles named, counted from the south-west;
     its `lights` ({(column, row): [main light 1, main light 2]}) colour those tiles' main lights.
@@ -108,7 +113,8 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Hak resources are lowercase resref files: ' + path.name)
         shutil.copyfile(path, staged / path.name)
     # A prop that names its own row (`appearance`) is placed by it: the table's row for that model is what is under test.
-    text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props if 'appearance' not in prop}))
+    text, rows = table(Path(stock_table).read_text(encoding='cp1252'), sorted({prop['model'] for prop in props if 'appearance' not in prop}),
+                       {prop['model']: prop['light'] for prop in props if prop.get('light')})
     (staged / 'placeables.2da').write_text(text, encoding='cp1252', newline='')
     if ground is None:
         stock_set = run('nwn_resman_cat', [*common, client_fixture.TEMPLATE_TILESET + '.set']).decode('cp1252')
@@ -152,41 +158,94 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
     return record
 
 
-def capture(pid, path):
-    """The client window's pixels. A window that opened minimised (someone is using the machine) cannot be grabbed, so
-    it is shown, without taking the focus, and grabbed again."""
+def grab(pid, path):
+    """(the client window's pixels, `clock()` as the grab that made them began). A window that opened minimised (someone
+    is using the machine) cannot be grabbed, so it is shown, without taking the focus, and grabbed again: the time is
+    the second grab's, since the wait before it can carry the grab past its shot (review, 2026-11-14)."""
     try:
-        return client.capture(pid, path)
+        began = clock(); return client.capture(pid, path), began
     except OSError:
         import ctypes
         ctypes.WinDLL('user32').ShowWindow(ctypes.c_void_p(client.window(pid)), 4)  # SW_SHOWNOACTIVATE
         time.sleep(0.7)
-        return client.capture(pid, path)
+        began = clock(); return client.capture(pid, path), began
+
+
+def capture(pid, path):
+    """The client window's pixels (`grab`)."""
+    return grab(pid, path)[0]
+
+
+# The client stamps its log to the second. A capture that may have come after the shot's next view (`late`) is
+# refused: the rail freight depot's client stalled for
+# twenty seconds on its sixth shot, and its check took the last view five times under five names (2026-11-13).
+STAMPED = re.compile(r'^\[\w{3} \w{3} +\d+ (\d\d):(\d\d):(\d\d)\]\s*')
+DAY = 86400.0
+
+
+def stamped_lines(user_directory, prefix=LOG_PREFIX):
+    """[(seconds after midnight its line was stamped, or None, line)] of the fixture's lines in the client log."""
+    path = Path(user_directory) / 'logs' / 'nwclientLog1.txt'
+    if not path.is_file():
+        return []
+    found = []
+    for line in path.read_text(encoding='cp1252', errors='replace').splitlines():
+        stamp = STAMPED.match(line.strip()); text = client.STAMP.sub('', line.strip())
+        if text.startswith(prefix):
+            found.append((int(stamp[1]) * 3600 + int(stamp[2]) * 60 + int(stamp[3]) if stamp else None, text))
+    return found
+
+
+def clock():
+    """Seconds after local midnight now, as the client stamps its log."""
+    now = time.localtime(); return now.tm_hour * 3600 + now.tm_min * 60 + now.tm_sec + time.time() % 1
+
+
+def late(stamp, now, hold):
+    """How many seconds after its shot's line a capture made `now` came, where that is too late for the shot's view
+    still to be on screen; None where it is in time, or the line bore no stamp."""
+    if stamp is None:
+        return None
+    # The line is written LINE_DELAY after its shot starts, so the next view comes hold - LINE_DELAY after it. The stamp
+    # is cut to the whole second, so the line may have come up to a second after it: lag is measured from the stamp,
+    # which only makes it longer, and a capture is late once it may have missed the view (review, 2026-11-14).
+    lag = (now - stamp) % DAY
+    return lag if lag > hold - LINE_DELAY - client.MARGIN else None
 
 
 def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings=''):
-    """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and captures."""
+    """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and
+    captures. A capture made too late for its shot (`late`) is kept as `<name>-late.png`, and the run is refused once the
+    fixture has finished."""
     user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
     # Every run states its own settings, so none are left over from the run before.
     (user / 'settings.tml').write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
     process = client.start(nwn_root, user, Path(record['module']).stem, width=width, height=height)
-    shots, seen = [], 0
+    shots, seen, missed = [], 0, []
     try:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             time.sleep(client.POLL)
             require(process.poll() is None, 'The client exited before the fixture finished')
-            lines = client.log_lines(user, LOG_PREFIX)
-            for line in lines[seen:]:
+            lines = stamped_lines(user, LOG_PREFIX)
+            for stamp, line in lines[seen:]:
                 values = client.parse_line(line)
                 if 'shot' in values and 'target' in values:
                     time.sleep(settle)
-                    shots.append(str(capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png')))
+                    # When the grab that made the picture starts: how long the grab itself takes does not make it late.
+                    path, grabbed = grab(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png'); path = Path(path)
+                    lag = late(stamp, grabbed, record['hold'])
+                    if lag is None:
+                        shots.append(str(path))
+                    else:
+                        path.replace(path.with_name(path.stem + '-late.png')); missed.append(f'{values["target"]} ({lag:.0f} s)')
             seen = len(lines)
-            if f'{LOG_PREFIX} done' in lines:
+            if f'{LOG_PREFIX} done' in [line for _, line in lines]:
                 break
         else:
             raise ValueError('The fixture did not finish within the timeout')
+        require(not missed, f'Captures came after their shot had passed and show a later view: {", ".join(missed)}. The client '
+                f'stalled (loading what came into view) or its log came late; the captures are kept as -late.png in {captures}. Run the check again')
         return {'lines': client.log_lines(user, LOG_PREFIX), 'captures': shots}
     finally:
         client.stop(process)

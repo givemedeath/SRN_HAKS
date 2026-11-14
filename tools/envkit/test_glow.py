@@ -123,6 +123,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(convert.lights_script('ek_test', 'OBJECT_SELF', on=True),
                          'ReplaceObjectTexture(OBJECT_SELF,"ek_test");ReplaceObjectTexture(OBJECT_SELF,"ek_test_h");')
         self.assertNotIn('_h', convert.lights_script('ek_test', 'OBJECT_SELF', on=False, halo=False))
+        # A model whose row casts light also puts that light out and back, and the area's lighting is worked out again.
+        self.assertTrue(convert.lights_script('ek_test', 'oLamp', on=False, light=True).endswith('SetPlaceableIllumination(oLamp,FALSE);RecomputeStaticLighting(GetArea(oLamp));'))
+        self.assertIn('SetPlaceableIllumination(oLamp,TRUE);', convert.lights_script('ek_test', 'oLamp', on=True, light=True))
         # For a tile or static scenery, per player: the glow map and the halo are overridden by name with dark textures.
         self.assertEqual(convert.blackout_script('ek_test', 'oPC', on=False), 'SetTextureOverride("ek_test_i","ek_test_o",oPC);SetTextureOverride("ek_test_h","ek_off",oPC);')
         self.assertEqual(convert.blackout_script('ek_test', 'OBJECT_INVALID', on=True, halo=False), 'SetTextureOverride("ek_test_i","",OBJECT_INVALID);')
@@ -188,8 +191,13 @@ class GlowTests(unittest.TestCase):
             refused({**hung, 'measuredAt': {'height': 1.6, 'lift': 2.4, 'turn': 90}}, 'turn 90 and it is now at height 1.6, lift 2.4'); refused({**hung, 'measuredAt': 'yes'}, 'model at "yes"')
             turned = {'source': 'meshy/x', 'height': 1.8, 'turn': 90, 'signTilt': 15.0, 'lit': [{'box': cube}]}
             refused({**turned, 'measuredAt': {'height': 1.8, 'turn': 90}}, 'it is now at height 1.8, turn 90, signTilt 15.0')
-            for stood in (hung, turned):
-                at = {key: stood[key] for key in ('height', 'lift', 'turn', 'signTilt') if key in stood}
+            # A model drawn out to a length has its boxes on it as drawn out (the rail yard's containers, 2026-11-13).
+            long = {'source': 'meshy/x', 'height': 2.6, 'length': 12.2, 'lit': [{'box': cube}]}
+            refused({**long, 'measuredAt': 2.6}, 'at height 2.6 and it is now at height 2.6, length 12.2')
+            for wrong in (0, -1, 'long', True, 101):
+                refused({'source': 'meshy/x', 'height': 2.6, 'length': wrong}, 'A length is 0 to 100 metres')
+            for stood in (hung, turned, long):
+                at = {key: stood[key] for key in ('height', 'lift', 'turn', 'signTilt', 'length') if key in stood}
                 path = Path(scratch) / 'stood.json'; path.write_text(json.dumps({'models': {'ek_x': {**stood, 'measuredAt': at}}}), encoding='utf-8')
                 self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], at)
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes

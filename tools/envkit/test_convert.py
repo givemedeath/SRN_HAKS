@@ -345,6 +345,230 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(count, 2); np.testing.assert_allclose(np.linalg.norm(fixed, axis=1), 1.0)
         np.testing.assert_allclose(fixed[1], [0, 1, 0], atol=1e-9)
 
+    def test_a_normal_that_points_against_its_faces_is_turned_round(self):
+        """The rail yard's boxcar (2026-11-13): a sixth of it carried normals against its winding and shaded dark."""
+        vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; faces = np.array(WALL['faces'])
+        right = convert.repair_normals(vertices, np.zeros((len(vertices), 3)), faces)[0]
+        wrong = right.copy(); wrong[[0, 2]] *= -1
+        fixed, turned = convert.turn_normals(vertices, wrong, faces)
+        self.assertEqual(turned, 2); np.testing.assert_allclose(fixed, right, atol=1e-9)
+        self.assertEqual(convert.turn_normals(vertices, right, faces)[1], 0)  # a model drawn right is left alone
+
+    def test_a_model_named_like_a_file_of_another_is_refused(self):
+        """The rail yard (2026-11-13): a copy of the office named ek_rf_admin_s would have written over its shine map."""
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        for clash in ('ek_x_s', 'ek_x_n', 'ek_x_h', 'ek_x_t00', 'ek_xp1'):
+            models = {'ek_x': {'source': 'meshy/x', 'height': 3.0, 'measuredAt': 3.0, 'tiles': {**group, 'parts': [{'model': 'ek_y', 'at': [5, 0, 0]}]}},
+                      'ek_y': {'source': 'meshy/y', 'height': 1.0}, clash: {'source': 'meshy/x', 'height': 3.0}}
+            path = self.root / 'set.json'; path.write_text(json.dumps({'models': models}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'named like a file of ek_x'):
+                convert.load_models(path)
+        models['ek_xs'] = models.pop(clash); path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIn('ek_xs', convert.load_models(path))
+        models['ek_x_tower'] = models.pop('ek_xs'); path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIn('ek_x_tower', convert.load_models(path))  # only ek_x_t<row><column> is a tile's name (review, 2026-11-14)
+
+    def test_a_model_laid_underfoot_is_a_part_and_never_a_group(self):
+        """The rail freight depot (2026-11-13): its tracks are parts laid underfoot, walked across and run off its edges."""
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        models = {'ek_x': {'source': 'meshy/x', 'height': 3.0, 'measuredAt': 3.0, 'tiles': {**group, 'parts': [{'model': 'ek_y', 'at': [5, 0, 0]}]}},
+                  'ek_y': {'source': 'track/y', 'height': 0.3, 'underfoot': True}}
+        path = self.root / 'set.json'; path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIs(convert.load_models(path)['ek_y']['underfoot'], True)
+        for change in ({'ek_y': {**models['ek_y'], 'underfoot': False}}, {'ek_y': {**models['ek_y'], 'underfoot': 'yes'}}, {'ek_x': {**models['ek_x'], 'underfoot': True}}):
+            path.write_text(json.dumps({'models': {**models, **change}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'underfoot is true'):
+                convert.load_models(path)
+
+    def test_a_face_seen_from_behind_is_turned_round(self):
+        """The rail yard (2026-11-13): faces wound inward were holes onto whatever stood behind them."""
+        corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
+        cube = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        quick = {'cells': 32, 'views': 24}; front, back, whole = convert.seen(corners, cube, **quick)
+        # drawn right all round: seen from the front, but for the few pixels where a near face's spots miss and the far side shows
+        self.assertTrue((front > 0).all()); self.assertLess(back.sum(), 0.05 * front.sum()); self.assertEqual(convert.turn_faces(corners, cube, **quick)[1], 0)
+        self.assertLess(abs(front.sum() / whole.sum() - 0.5), 0.1)  # of all it would show, half is in front of the rest
+        inside_out = cube.copy(); inside_out[[2, 3, 10, 11]] = inside_out[[2, 3, 10, 11]][:, [0, 2, 1]]
+        fixed, turned = convert.turn_faces(corners, inside_out, **quick)
+        self.assertEqual(turned, 4); np.testing.assert_array_equal(fixed, cube)
+        # A liner wound inward, a few centimetres inside the skin, is never seen and stays as it is: judged by the open
+        # air on either side, the first attempt turned such liners outward.
+        liner = np.vstack([corners, (corners - 0.5) * 0.97 + 0.5]); walls = np.vstack([cube, (cube + 8)[:, [0, 2, 1]]])
+        self.assertEqual(convert.turn_faces(liner, walls, **quick)[1], 0)
+        # A sheet seen from both sides is a sign or a fence: it is not the eye's to say which way it faces.
+        sheet = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float)
+        for faces in ([[0, 1, 2], [0, 2, 3]], [[0, 2, 1], [0, 3, 2]]):
+            self.assertEqual(convert.turn_faces(sheet, np.array(faces), **quick)[1], 0)
+        # A side made of two faces back to back, one drawn outward and one inward on the same plane, stays so: the
+        # inward one ties with the outward one from outside and was turned onto it (the rail yard's models, 2026-11-13).
+        backed = np.vstack([cube, cube[:2][:, [0, 2, 1]]])
+        self.assertEqual(convert.turn_faces(corners, backed, **quick)[1], 0)
+        np.testing.assert_array_equal(convert.back_to_back(corners, backed, np.ones(len(backed), bool)), [True, True] + [False] * 10 + [True, True])
+        # ... but not one a few centimetres inside, nor one wound inward with no face over it.
+        inner = np.vstack([corners, corners + [0.03, 0.0, 0.0]])
+        self.assertFalse(convert.back_to_back(inner, np.vstack([cube, (cube[:2] + 8)[:, [0, 2, 1]]]), np.ones(14, bool))[12:].any())
+        self.assertFalse(convert.back_to_back(corners, inside_out, np.ones(12, bool)).any())
+
+    def test_a_box_drawn_from_outside_only_is_given_backs(self):
+        """The rail yard's dumpster (2026-11-13): through the gaps of its slatted lid the client showed what stood
+        behind it, its far walls not drawn from inside."""
+        corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
+        cube = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        normals = corners - 0.5; uvs = corners[:, :2]
+        points, turned, places, faces = convert.backed(corners, normals, uvs, cube)
+        self.assertEqual((len(points), len(faces)), (16, 24))
+        np.testing.assert_array_equal(points[8:], corners); np.testing.assert_array_equal(turned[8:], -normals); np.testing.assert_array_equal(places[8:], uvs)
+        # each back faces the other way from its face, on the same corners
+        of = lambda f: np.cross(points[f[:, 1]] - points[f[:, 0]], points[f[:, 2]] - points[f[:, 0]])
+        np.testing.assert_allclose(of(faces[12:]), -of(faces[:12]))
+        self.assertTrue((np.einsum('ij,ij->i', of(faces[12:]), turned[faces[12:, 0]]) > 0).all())  # normals agree with the backs' winding
+        # the game set says so with `inside: true`, and nothing else
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for value, ok in ((True, True), (False, False), ('yes', False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 1.0, 'inside': value}}}), encoding='utf-8')
+            if ok:
+                self.assertIs(convert.load_models(path)['ek_x']['inside'], True)
+            else:
+                with self.assertRaisesRegex(ValueError, 'inside is true'):
+                    convert.load_models(path)
+
+    def test_a_cars_trucks_are_drawn_in_to_the_track_and_the_body_is_left_as_it_was(self):
+        """The rail yard's cars (2026-11-13): their wheels stood 0.15 to 0.2 m outside the rails."""
+        points = np.array([[0.0, 0.85, 0.5], [0.0, -0.85, 0.5], [0.0, 1.5, 2.0], [0.0, 0.85, 1.075], [9.0, 0.85, 0.5], [3.075, 0.85, 0.5]])
+        normals = np.tile([0.0, 0.6, 0.8], (len(points), 1))
+        moved, turned = convert.gauged(points, normals, {'spans': [[-3.0, 3.0]], 'top': 1.0, 'back': 0.85})
+        np.testing.assert_allclose(moved[:2, 1], [convert.WHEEL_BACK, -convert.WHEEL_BACK])  # the wheels' backs at gauge, either side
+        np.testing.assert_allclose(moved[[2, 4], 1], [1.5, 0.85])  # the body above and what is beyond the trucks stay
+        self.assertTrue(convert.WHEEL_BACK < moved[3, 1] < 0.85 and convert.WHEEL_BACK < moved[5, 1] < 0.85)  # eased back over the blend
+        np.testing.assert_allclose(moved[:, [0, 2]], points[:, [0, 2]])
+        np.testing.assert_allclose(np.linalg.norm(turned, axis=1), 1.0)
+        self.assertGreater(turned[0, 1], 0.6)  # a surface drawn in across leans its normal further across
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for wheels, ok in (({'spans': [[-3, 3]], 'top': 1.3, 'back': 0.85}, True), ({'spans': [[3, -3]], 'top': 1.3, 'back': 0.85}, False),
+                           ({'spans': [[-3, 3]], 'top': 1.3, 'back': 2.0}, False), ({'spans': [[-3, 3]], 'top': 1.3}, False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'wheels': wheels, 'measuredAt': 4.0}}}), encoding='utf-8')
+            if ok:
+                self.assertEqual(convert.load_models(path)['ek_x']['wheels'], wheels)
+            else:
+                with self.assertRaisesRegex(ValueError, 'wheels are'):
+                    convert.load_models(path)
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'wheels': {'spans': [[-3, 3]], 'top': 1.3, 'back': 0.85}}}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'measuredAt'):
+            convert.load_models(path)  # spans and top are measured on the model as it stands
+
+    def test_a_hole_is_filled_from_its_rim_and_faces_the_way_the_wall_does(self):
+        """The rail yard's crane leg sills and warehouse wall (2026-11-13): holes of 12 to 16 corners."""
+        turns = np.linspace(0, 2 * np.pi, 8, endpoint=False)  # an octagonal hole in a wall of radius 3 facing -y
+        vertices = np.array([[r * np.cos(a), 0.0, r * np.sin(a) + 2] for r in (1, 3) for a in turns], float)
+        normals = np.tile([0.0, -1.0, 0.0], (16, 1)); uvs = np.zeros((16, 2))
+        faces = np.array([face for k in range(8) for face in ([k, (k + 1) % 8, 8 + k], [(k + 1) % 8, 8 + (k + 1) % 8, 8 + k])])
+        before = len(faces)
+        filled = convert.filled(vertices, normals, uvs, faces, [{'part': 'octagon', 'at': [1.0, 0.0, 2.0]}])
+        made = filled[before:]
+        self.assertEqual(len(made), 6)  # an eight-cornered ring takes six faces between its own corners
+        self.assertTrue(set(made.ravel()) <= set(range(8)))
+        across = np.cross(vertices[made[:, 1]] - vertices[made[:, 0]], vertices[made[:, 2]] - vertices[made[:, 0]])
+        self.assertTrue((across[:, 1] < 0).all())  # wound to face -y, as the wall's normals do
+        with self.assertRaisesRegex(ValueError, 'No hole'):  # a point near no rim is a mistake in the set
+            convert.filled(vertices, normals, uvs, faces, [{'at': [0.0, 0.0, 2.0]}])
+
+    def test_only_the_faces_in_a_box_are_given_backs(self):
+        """The rail yard's crane sills (2026-11-13) had faces wound inward."""
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 0, 1], [5, 0, 0], [6, 0, 0], [5, 0, 1]], float)
+        normals = np.tile([0.0, -1.0, 0.0], (6, 1)); uvs = np.zeros((6, 2)); faces = np.array([[0, 1, 2], [3, 4, 5]])
+        v, n, u, f = convert.backed(vertices, normals, uvs, faces, [{'box': [[4, -1, -1], [7, 1, 2]]}])
+        self.assertEqual(len(f), 3); np.testing.assert_array_equal(v[f[2]], vertices[[3, 5, 4]])  # the far face again, wound the other way
+        np.testing.assert_array_equal(n[f[2]], -normals[[3, 5, 4]])
+        self.assertEqual(len(convert.backed(vertices, normals, uvs, faces)[3]), 4)  # without boxes every face is backed
+        with self.assertRaisesRegex(ValueError, 'holds no face'):
+            convert.backed(vertices, normals, uvs, faces, [{'box': [[10, -1, -1], [11, 1, 2]]}])
+
+    def test_a_rod_clears_a_slanted_rail_and_leaves_the_treads_under_it(self):
+        """The rail yard's stair tower (2026-11-13): wavy handrails along its flights."""
+        rail = [[x, 0.0, 1.0 + x] for x in (0.0, 0.1, 2.0, 2.1)]; tread = [[1.0, -0.5, 0.0], [1.2, -0.5, 0.0], [1.2, 0.5, 0.0]]
+        vertices = np.array(rail + tread, float); normals = np.tile([0.0, 0.0, 1.0], (7, 1)); uvs = np.zeros((7, 2))
+        faces = np.array([[0, 1, 2], [1, 3, 2], [4, 5, 6]])
+        _, _, _, kept = convert.cleared(vertices, normals, uvs, faces, [{'from': [0, 0, 1], 'to': [2, 0, 3], 'radius': 0.3}])
+        self.assertEqual(len(kept), 1)  # only the tread is left
+        with self.assertRaisesRegex(ValueError, 'takes no face'):
+            convert.cleared(vertices, normals, uvs, faces, [{'from': [0, 3, 1], 'to': [2, 3, 3], 'radius': 0.3}])
+
+    def test_a_moved_part_is_carried_whole_and_what_tied_it_on_is_taken_away(self):
+        """The rail yard's walkway (2026-11-13): a leg 1.7 m in from its corner."""
+        leg = [[0, 0, 0], [0.1, 0, 0], [0.1, 0, 1]]; deck = [[-1, -1, 2], [3, -1, 2], [3, 1, 2]]
+        vertices = np.array(leg + deck, float); normals = np.tile([0.0, 0.0, 1.0], (6, 1)); uvs = np.arange(12, dtype=float).reshape(6, 2)
+        faces = np.array([[0, 1, 2], [3, 4, 5], [2, 1, 3]])  # the leg, the deck and a brace from the leg's top to the deck
+        v, n, u, f = convert.moved(vertices, normals, uvs, faces, [{'box': [[-0.1, -0.1, -0.1], [0.2, 0.1, 1.1]], 'by': [2, 0, 0]}])
+        self.assertEqual(len(f), 2)  # the brace, torn between box and deck, goes
+        shifted = [face for face in f if v[face][:, 0].min() >= 1.9 and v[face][:, 2].max() <= 1.0]
+        self.assertEqual(len(shifted), 1); np.testing.assert_allclose(sorted(map(tuple, v[shifted[0]])), sorted(map(tuple, np.array(leg) + [2, 0, 0])))
+        self.assertEqual(len(v), 6)  # the leg's old corners are let go
+        with self.assertRaisesRegex(ValueError, 'holds no whole face'):
+            convert.moved(vertices, normals, uvs, faces, [{'box': [[5, 5, 5], [6, 6, 6]], 'by': [1, 0, 0]}])
+
+    def test_built_stairs_and_railings_are_straight_steel_coloured_from_the_model(self):
+        """The rail yard's walkway had no stairs up to its deck, and its stair tower's rails were wavy (2026-11-13)."""
+        members = convert.flight([0, -3, 0], [0, 0, 2.13], 0.9)
+        treads = [m for m in members if m[3] == 'tread']; posts = [m for m in members if m[3] == 'post']
+        rises = 2.13 / (len(treads) + 1)
+        self.assertLessEqual(rises, convert.STEP_RISE); self.assertEqual(len(treads), int(np.ceil(2.13 / convert.STEP_RISE)) - 1)
+        self.assertEqual(sum(m[3] == 'stringer' for m in members), 2)
+        self.assertTrue(all(np.linalg.norm(np.subtract(m[1], m[0])[:2]) <= 1e-9 for m in posts))  # posts stand upright
+        rails = convert.railing([[0, 0, 0], [2.5, 0, 0], [2.5, 1, 0]], height=1.0)
+        self.assertEqual(sum(m[3] == 'rail' for m in rails), 4)  # a top and a mid rail on each leg
+        spots = sorted({tuple(np.round(m[0][:2], 3)) for m in rails if m[3] == 'post'})
+        self.assertIn((0.0, 0.0), spots); self.assertIn((2.5, 0.0), spots); self.assertIn((2.5, 1.0), spots)  # a post at every corner
+        self.assertEqual(len(spots), len(set(spots)))
+        points, normals, faces = convert._bar([0, 0, 0], [1, 0, 0], (0.1, 0.2))
+        self.assertEqual((len(points), len(faces)), (24, 12)); np.testing.assert_allclose(np.ptp(points, axis=0), [1, 0.1, 0.2])
+        across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((across * normals[faces[:, 0]]).sum(1) > 0).all())  # every face wound outward
+        # The colour is the model's picture where `picture` touches it.
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [5, 0, 0], [6, 0, 0], [5, 1, 0]], float)
+        uvs = np.array([[0.1, 0.1]] * 3 + [[0.9, 0.9]] * 3); base = np.array([[0, 1, 2], [3, 4, 5]])
+        np.testing.assert_allclose(convert.picture_at(vertices, uvs, base, [5.2, 0.2, 0.3]), [0.9, 0.9])
+        v, n, u, f = convert.with_built(vertices, np.tile([0.0, 0.0, 1.0], (6, 1)), uvs, base,
+                                        [{'railing': [[0, 0, 0], [1, 0, 0]], 'height': 1.0, 'picture': [0.2, 0.2, 0]},
+                                         {'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2.13], 'width': 0.9}, 'picture': [0.2, 0.2, 0], 'rails': [5.2, 0.2, 0]}])
+        self.assertEqual(len(f), 2 + 12 * (len(convert.railing([[0, 0, 0], [1, 0, 0]], 1.0)) + len(members)))
+        stair_uvs = u[len(u) - 24 * len(members):]; kinds = [m[3] for m in members for _ in range(24)]
+        np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind in ('rail', 'post')]], 0.9)
+        np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind == 'tread']], 0.1)
+
+    def test_a_game_set_states_fills_moves_backs_rods_and_built_parts_on_the_finished_model(self):
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        good = {'fill': [{'part': 'p', 'at': [0, 0, 1]}], 'move': [{'box': [[0, 0, 0], [1, 1, 1]], 'by': [1, 0, 0]}],
+                'inside': [{'box': [[0, 0, 0], [1, 1, 1]]}], 'clear': [{'from': [0, 0, 1], 'to': [1, 0, 2], 'radius': 0.3}],
+                'built': [{'railing': [[0, 0, 1], [1, 0, 1]], 'height': 1.0, 'picture': [0, 0, 1]},
+                          {'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2], 'width': 0.9}, 'picture': [0, 0, 1]}]}
+        for key, value in good.items():
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value, 'measuredAt': 4.0}}}), encoding='utf-8')
+            self.assertEqual(convert.load_models(path)['ek_x'][key], value)
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value}}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'measuredAt'):
+                convert.load_models(path)  # each is measured on the model as it stands
+        for key, value in (('move', [{'box': [[0, 0, 0], [1, 1, 1]]}]), ('fill', [{'at': [0, 0]}]),
+                           ('inside', [{'box': [[0, 0, 5], [1, 1, 6]]}]), ('move', [{'box': [[0, 0, 5], [1, 1, 6]], 'by': [1, 0, 0]}]),  # above the model
+                           ('built', [{'railing': [[0, 0, 1], [1, 0, 1]], 'height': 3.0, 'picture': [0, 0, 1]}]),
+                           ('built', [{'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2]}, 'picture': [0, 0, 1]}]),  # a flight needs its width
+                           ('built', [{'stairs': {'foot': [0, 0, 0], 'top': [0, 0, 2], 'width': 0.9}, 'picture': [0, 0, 1]}]),  # and a run, or it is a ladder
+                           ('built', [{'stairs': {'foot': [0, 0, 0], 'top': [0, 0.25, 2.13], 'width': 0.9}, 'picture': [0, 0, 1]}])):  # nor too steep
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value, 'measuredAt': 4.0}}}), encoding='utf-8')
+            with self.assertRaises(ValueError):
+                convert.load_models(path)
+
+    def test_a_model_is_drawn_out_along_its_longer_side_to_a_length(self):
+        """The rail yard's shipping containers (2026-11-13) came out a third to a half short at their true height."""
+        box = np.array([[x, y, z] for x in (-1.75, 1.75) for y in (-1.2, 1.2) for z in (0, 2.6)], float)
+        slant = np.tile(np.array([1.0, 0.0, 1.0]) / np.sqrt(2), (8, 1))
+        points, normals = convert.stretched(box, slant, 6.06)
+        np.testing.assert_allclose(np.ptp(points, axis=0), [6.06, 2.4, 2.6]); np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0)
+        self.assertLess(normals[0, 0], normals[0, 2])  # a surface drawn out leans less along the stretch: its normal turns away from it
+        points, _ = convert.stretched(box[:, [1, 0, 2]], slant, 6.06)  # the longer side along the other axis is the one drawn out
+        np.testing.assert_allclose(np.ptp(points, axis=0), [2.4, 6.06, 2.6])
+        with self.assertRaisesRegex(ValueError, 'A length is a number of metres'):
+            convert.stretched(box, slant, 0)
+
     def test_a_mesh_too_big_for_one_node_is_cut_into_nodes_that_keep_every_face(self):
         faces = np.arange(300).reshape(-1, 3)  # 100 triangles sharing no vertex
         parts = convert.split(faces, limit=90)
