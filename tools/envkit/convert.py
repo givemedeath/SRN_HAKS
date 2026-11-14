@@ -165,9 +165,11 @@ def back_to_back(vertices, faces, which):
     unit = of_face / np.maximum(twice, 1e-12)[:, None]; found = np.zeros(len(corner), bool)
     first, along, across = corner[:, 0], corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]
     d00, d01, d11 = (along * along).sum(1), (along * across).sum(1), (across * across).sum(1); denominator = d00 * d11 - d01 ** 2
+    low, high = corner.min(1) - BACK_TO_BACK, corner.max(1) + BACK_TO_BACK  # each face's box: only faces whose box holds a point can hold it
     for index in np.flatnonzero(which):
         middle = corner[index].mean(0); points = np.vstack([middle, middle + (corner[index] - middle) * 2 / 3])
-        other = np.flatnonzero((unit @ unit[index] < -0.99) & (denominator > 1e-18))
+        reach = np.all((high >= points.min(0)) & (low <= points.max(0)), axis=1)
+        other = np.flatnonzero(reach & (unit @ unit[index] < -0.99) & (denominator > 1e-18))
         offset = points[None] - first[other][:, None]  # (others, points, 3)
         near = np.abs((offset * unit[other][:, None]).sum(2)) <= BACK_TO_BACK
         d20, d21 = (offset * along[other][:, None]).sum(2), (offset * across[other][:, None]).sum(2)
@@ -1078,8 +1080,9 @@ def load_models(path):
         # A box is on the finished model, which stands from its lift to its lift and its height. The Ares Depot's wall
         # sign, lifted 2.4 metres, had its lit boxes where it stood before the lift and shipped dark (review, 2026-11-12).
         foot, head = model.get('lift', 0), model.get('lift', 0) + model['height']
-        spans = [np.asarray(part['box'] if 'box' in part else [part['from'], part['to']], float)[:, 2]
-                 for key in ('lit', 'paint', 'smooth', 'mesh', 'clear') for part in model.get(key, [])]
+        boxed = [*(part for key in ('lit', 'paint', 'smooth', 'mesh', 'clear', 'move') for part in model.get(key, [])),
+                 *(part for part in (model['inside'] if isinstance(model.get('inside'), list) else []) if isinstance(part, dict) and 'box' in part)]
+        spans = [np.asarray(part['box'] if 'box' in part else [part['from'], part['to']], float)[:, 2] for part in boxed]
         spans = [(min(low, high), max(low, high)) for low, high in spans]
         require(all(high > foot and low < head for low, high in spans + [part['z'] for part in model.get('fence', [])]),
                 f'A box or fence lies wholly above or below the model, which stands from {foot} to {head} metres up: {name}')

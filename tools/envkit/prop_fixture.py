@@ -219,8 +219,9 @@ def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra
                 values = client.parse_line(line)
                 if 'shot' in values and 'target' in values:
                     time.sleep(settle)
+                    grabbed = clock()  # when the grab starts: how long the grab itself takes does not make it late
                     path = Path(capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png'))
-                    lag = late(stamp, clock(), record['hold'])
+                    lag = late(stamp, grabbed, record['hold'])
                     if lag is None:
                         shots.append(str(path))
                     else:

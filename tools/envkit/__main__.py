@@ -70,8 +70,8 @@ def command_reference(args):
     names = args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]  # a same is not made
     for name in names:
         asset = data['assets'][name]
-        drawn = asset.get('cut') or asset.get('turn')
-        require(not drawn or args.selected, f'{name} is drawn from the chosen reference of {(drawn or {}).get("from")}: give --selected')
+        taken = asset.get('cut') or asset.get('turn')  # a view drawn from another's chosen reference
+        require(not taken or args.selected, f'{name} is drawn from the chosen reference of {(taken or {}).get("from")}: give --selected')
     local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
     for name in names:
         # Each job waits for the shared ComfyUI (`reference.make`). With --keep-going an asset that fails is said and

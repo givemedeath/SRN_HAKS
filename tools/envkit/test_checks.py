@@ -129,6 +129,9 @@ class CheckTests(unittest.TestCase):
         self.assertFalse(checks.walled(blocked, (35.125, 35.0), (35.125, 35.625), (30.0, 30.0)))  # both inside the yard
         self.assertFalse(checks.walled(blocked, (31.0, 34.125), (31.0, 34.625), (30.0, 30.0)))  # west of the fence's end
         self.assertFalse(checks.walled(blocked, (35.125, 34.625), (35.125, 34.625), (30.0, 30.0)))  # on its target
+        # A walker stopped on the walk faces' edge, its point a hair into the fence's closed rim, beside its target (review, 2026-11-14)
+        edge = blocked.copy(); edge[:] = False; edge[17, 20] = True
+        self.assertFalse(checks.walled(edge, (35.125, 34.499), (35.625, 34.6), (30.0, 30.0)))
 
     def test_a_groups_lights_are_put_out_for_everyone_and_on_again(self):
         shots = checks.blackout_shots(3, 3, [('ek_sk_yard', False), ('ek_sk_yardp1', True)])

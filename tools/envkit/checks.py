@@ -310,8 +310,10 @@ def walled(blocked, at, target, corner):
     south-west corner there. A walker that stops near its target with a fence between has not arrived: the rail
     freight depot's walker from the next tile into the service bay's fenced yard stopped against the fence, half a
     metre from a target just inside it, and passed the check while only the distance counted (client, 2026-11-13)."""
-    step = tile.SIZE / tile.CELLS; (x0, y0), (x1, y1) = at, target; count = max(math.ceil(math.dist(at, target) / (step / 4)), 1)
+    step = tile.SIZE / tile.CELLS; (x0, y0), (x1, y1) = at, target; length = math.dist(at, target); count = max(math.ceil(length / (step / 4)), 1)
     for index in range(count + 1):
+        if min(index, count - index) * length / count < step / 2:
+            continue  # half a cell round the walker and its target: one stopped at the edge of the walk faces rounds into the closed rim
         row = math.floor((y0 + (y1 - y0) * index / count - corner[1]) / step); column = math.floor((x0 + (x1 - x0) * index / count - corner[0]) / step)
         if 0 <= row < blocked.shape[0] and 0 <= column < blocked.shape[1] and blocked[row, column]:
             return True

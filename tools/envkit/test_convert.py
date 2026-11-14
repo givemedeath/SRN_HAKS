@@ -548,6 +548,7 @@ class ConvertTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'measuredAt'):
                 convert.load_models(path)  # each is measured on the model as it stands
         for key, value in (('move', [{'box': [[0, 0, 0], [1, 1, 1]]}]), ('fill', [{'at': [0, 0]}]),
+                           ('inside', [{'box': [[0, 0, 5], [1, 1, 6]]}]), ('move', [{'box': [[0, 0, 5], [1, 1, 6]], 'by': [1, 0, 0]}]),  # above the model
                            ('built', [{'railing': [[0, 0, 1], [1, 0, 1]], 'height': 3.0, 'picture': [0, 0, 1]}]),
                            ('built', [{'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2]}, 'picture': [0, 0, 1]}]),  # a flight needs its width
                            ('built', [{'stairs': {'foot': [0, 0, 0], 'top': [0, 0, 2], 'width': 0.9}, 'picture': [0, 0, 1]}])):  # and a run, or it is a ladder
