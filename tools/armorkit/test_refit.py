@@ -160,6 +160,18 @@ class RefitTests(unittest.TestCase):
         self.assertLess(past.max(), 0.03 - refit.UNDER_SKIN + 1e-3)
         self.assertGreater(past.min(), 0.02)  # moved in to the skin, not onto the axis
 
+    def test_a_sleeve_is_held_outside_the_other_bodys_arm(self):
+        # a sleeve 3.5 cm round, its end capped 3 cm back past x = 0.05, over an arm 4 cm round
+        sleeve, arm_ = closed(0.05, 0.3, 0.035, near='cap', far=None), closed(0.0, 0.35, 0.04, near=None, far=None)
+        sleeve['n'] = np.zeros_like(sleeve['v'])
+        out = refit.over_skin(sleeve, (arm_['v'], arm_['f']))
+        mine = np.unique(sleeve['f'][~sleeve['added']])
+        self.assertTrue((np.linalg.norm(out['v'][mine][:, 1:], axis=1) >= 0.04 + refit.OVER_SKIN - 1e-6).all())  # held clear of the arm
+        cap = np.setdiff1d(np.unique(sleeve['f'][sleeve['added']]), mine)
+        self.assertTrue(np.array_equal(out['v'][cap], sleeve['v'][cap]))  # what only the cap uses stays as it was
+        clear = closed(0.05, 0.3, 0.05, near=None, far=None)
+        self.assertIs(refit.over_skin(clear, (arm_['v'], arm_['f'])), clear)  # a sleeve clear of the arm is not touched
+
     def test_an_end_carried_under_the_other_bodys_own_part_is_seated_in_it(self):
         # an upper arm 4 cm round, its cap 10 cm back past the shoulder plane (x = 0.05), under a chest that stands
         # 8 cm over the joint, 8 cm round: the cap is drawn in to the chest's room less the gap, and held inside it

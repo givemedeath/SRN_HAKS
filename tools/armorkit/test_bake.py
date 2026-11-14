@@ -248,6 +248,25 @@ class BakeTests(unittest.TestCase):
         self.assertNotIn('over', bake.ends({'chest': arm(-0.3, 0.0, 0.2), 'bicepl': arm(-0.05, 0.3, 0.05)}, bones, 'test', 2, terms)[0]['shoulder']['l'])
         self.assertIsNone(bake.ends(fit, bones, 'pmh0', 2, terms))
 
+    def test_the_bodys_own_skin_beside_a_sleeve_never_stands_out_through_it(self):
+        # the body's upper arm 4 cm round from x = 0.05 to 0.3; a sleeve to x = 0.2, the arm below its hem kept beside it
+        arm_ = closed(0.05, 0.3, 0.04, near=None, far=None)
+
+        def sleeve(radius):
+            cloth = closed(0.05, 0.2, radius, near=None, far=None)
+            below = arm_['f'][arm_['v'][arm_['f']][:, :, 0].min(axis=1) > 0.18]
+            return {'v': np.concatenate([cloth['v'], arm_['v']]), 'f': np.concatenate([cloth['f'], below + len(cloth['v'])]),
+                    'added': np.zeros(len(cloth['f']) + len(below), bool), 'skin': np.arange(len(cloth['f']) + len(below)) >= len(cloth['f'])}
+        own = {'bicepl': (arm_['v'], arm_['f'])}
+        report, failures = bake.through({'bicepl': sleeve(0.05), 'chest': part()}, own)
+        self.assertEqual(failures, [])
+        self.assertAlmostEqual(report['bicepl'], 0.01, places=3)  # a centimetre clear of the arm; a part with no skin is not measured
+        self.assertNotIn('chest', report)
+        report, failures = bake.through({'bicepl': sleeve(0.035)}, own)
+        self.assertAlmostEqual(report['bicepl'], -0.005, places=3)
+        self.assertEqual(failures, ["bicepl: the body's own skin beside it stands up to 0.5 cm out through the outfit over it"])
+        self.assertEqual(bake.gates({'bicepl': part()}, {}, Path('nowhere'), skin=(report, failures))['through'], report)
+
     def test_every_end_is_closed_domed_and_hidden_as_the_body_stands_and_turned(self):
         bones, terms = rig(), {**contract(), 'designBend': 'p95', 'ends': dict(seams.ENDS)}
         for joint in terms['joints'].values():

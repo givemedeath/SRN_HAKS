@@ -47,6 +47,9 @@ from .registry import require
 
 FACE_KEYS = ('f', 'added', 'domed', 'trimmed', 'pad')  # what a kept part holds per face (`bake.KEYS`, `bake.OPTIONAL`)
 UNDER_SKIN = 0.002  # a cap under the body's own skin (a glove's under a bare forearm) stands at least this far inside it
+OVER_SKIN = 0.003  # a sleeve beside the body's own skin in its slot stands at least this far outside the other body's arm
+OVER_ROUNDS = 6  # rings of neighbours a sleeve's push out over the arm is spread to
+OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
 
 
 def token_of(slot, letter):
@@ -196,6 +199,45 @@ def under_skin(vertices, point, normal, skin, gap=UNDER_SKIN, which=None):
     return out
 
 
+def over_skin(part, skin, gap=OVER_SKIN, rounds=OVER_ROUNDS):
+    """`part` with its outfit's own surface held `gap` outside the other body's own part in its slot, `skin`
+    (vertices, faces), where the part shares that slot with the body's skin: a point standing less far
+    outside it, read along the normal of the skin's nearest vertex, is moved out along that normal, and the
+    push spread over `rounds` rings of its neighbours, never less than a point needs, so the cloth moves as
+    one and creases nowhere. What only the split's faces use (a cap, a seat) is not moved. The male's sleeves, scaled by
+    the rings at the shoulder and the elbow, lay up to 2.7 cm inside the Human female's fuller upper arm,
+    and the arm kept below the hem showed through them with her arms raised (Facility Security, 2026-11-13)."""
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    added = np.asarray(part['added'], bool) | np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
+    ids = mesh_ops.weld_ids(v)
+    count = int(ids.max()) + 1
+    first = np.full(count, len(v))
+    np.minimum.at(first, ids, np.arange(len(v)))
+    free = np.zeros(count, bool)
+    free[ids[f[~added].ravel()]] = True  # the rim a cap shares moves with the cloth: at the armpit it runs 15 cm down the arm
+    skin_v = np.asarray(skin[0], float)
+    skin_n = ends.normals(skin_v, np.asarray(skin[1], int))
+    pairs = mesh_ops.edges(f, ids)[0]
+    rows, cols = np.concatenate([pairs[:, 0], pairs[:, 1]]), np.concatenate([pairs[:, 1], pairs[:, 0]])
+    degree = np.maximum(np.bincount(rows, minlength=count), 1)
+    moved = v.copy()
+    for _ in range(OVER_PASSES):  # a point pushed out may find another vertex of the skin nearest, and stand inside it still
+        point = moved[first]
+        nearest = np.argmin(np.linalg.norm(point[:, None] - skin_v[None], axis=2), axis=1)
+        way = skin_n[nearest]
+        need = np.where(free, np.maximum(gap - ((point - skin_v[nearest]) * way).sum(axis=1), 0.0), 0.0)
+        if not need.any():
+            break
+        push = need.copy()
+        for _ in range(rounds):
+            push = np.where(free, np.maximum(need, np.bincount(rows, push[cols], minlength=count) / degree), 0.0)
+        moved = moved + (push[:, None] * way)[ids]
+    if np.array_equal(moved, v):
+        return part
+    n = np.asarray(part['n'], float) + ends.normals(moved, f) - ends.normals(v, f)
+    return {**part, 'v': moved, 'n': n / np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)}
+
+
 def seated(part, point, normal, over, gap=split.SEAT_GAP, others=()):
     """`part`'s vertices with the cap the bake grew past its under end's plane (`point`, unit `normal` toward
     the part) brought into the other body's part over the joint, `over` (vertices, faces of its outfit's own
@@ -313,6 +355,11 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     if bake.shared_with_body(listed) & set(parts):
         require(body_textures is not None, f'{", ".join(sorted(bake.shared_with_body(listed) & set(parts)))} share their slots with the body\'s '
                                            'skin: give the body\'s textures to lay the other body\'s beside them')
+        for name in bake.shared_with_body(listed) & set(parts) & set(goal[1]):
+            held = over_skin(parts[name], goal[1][name][:2])
+            if held is not parts[name]:
+                report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
+                parts[name] = held
         parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0])
     bake.store(parts, output, {key: value for key, value in listed.items() if key != 'parts'})
     return report
