@@ -453,6 +453,11 @@ class PublishTests(Workspace):
         self.assertEqual((by_gate['bodies'], by_gate['bake'], by_gate['records']), (len(TOKENS), len(TOKENS) + 1, 40))
         reasons = {one['model']: one['reason'] for one in report['failures'] if one['gate'] in ('bake', 'records')}
         self.assertIn('the registry has no new part chest 333 on pmh0', reasons['pmh0_chest333'])
+        tiers = self.root / 'tiers.json'
+        tiers.write_text(json.dumps(document(CHEST, PELVIS, {**SHIN, 'tiers': {**SHIN['tiers'], 'ankle': 3}})), encoding='utf-8')
+        uneven = self.publish(shared(), registry=tiers, dry_run=True)
+        self.assertEqual(uneven['failuresByGate'], {'bake': 40})
+        self.assertIn('it was baked at tier 2 and the registry gives shin 6020 ankle tier 3', [one['reason'] for one in uneven['failures']])
         self.assertIn('--record facility-test=FILE', reasons['pfg2 facility-test'])
         self.assertTrue(any('no brief of facility-test' in one['reason'] for one in report['failures']))
 
