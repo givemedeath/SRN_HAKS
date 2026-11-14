@@ -306,6 +306,7 @@
       "tools/envkit/study.py",
       "tools/envkit/tile.py",
       "tools/envkit/toolset.py",
+      "tools/envkit/track.py",
       "tools/envkit/view.py",
       "tools/headkit/comfy.py",
       "tools/shared_tools.py"
@@ -436,6 +437,12 @@
       "tools/armorkit/client_fixture.py",
       "tools/envkit/toolset.py"
     ],
+    "tools/envkit/test_track.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/local.py",
+      "tools/envkit/tile.py",
+      "tools/envkit/track.py"
+    ],
     "tools/envkit/test_view.py": [
       "tools/envkit/__main__.py",
       "tools/envkit/test_convert.py",
@@ -451,6 +458,10 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/client_fixture.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/track.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/local.py"
     ],
     "tools/envkit/view.py": [
       "tools/envkit/convert.py",
@@ -5576,6 +5587,7 @@
     "tools/envkit/test_study.py",
     "tools/envkit/test_tile.py",
     "tools/envkit/test_toolset.py",
+    "tools/envkit/test_track.py",
     "tools/envkit/test_view.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
