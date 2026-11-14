@@ -34,10 +34,12 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 PLACING = ('lift', 'turn', 'signTilt', 'length')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted and stretched
-RETOUCHING = ('turn', 'length', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+RETOUCHING = ('turn', 'length', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a wheelset's backs stand 1.360 m apart on standard gauge (track.GAUGE)
+WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -205,6 +207,23 @@ def backed(vertices, normals, uvs, faces):
     count = len(vertices); faces = np.asarray(faces)
     return (np.vstack([vertices, vertices]), np.vstack([normals, -np.asarray(normals)]), np.vstack([uvs, uvs]),
             np.vstack([faces, faces[:, [0, 2, 1]] + count]))
+
+
+def gauged(vertices, normals, wheels):
+    """The model with its trucks drawn in to the track: in each of `wheels`' spans along the car (x, metres on the
+    finished model) and below its `top`, everything is drawn in across (y) about the car's middle so that the backs of
+    its wheels, measured at `back` metres either side, stand WHEEL_BACK either side as a standard-gauge wheelset's do;
+    it eases back to the car as it was over WHEEL_BLEND past the spans' ends and above the top. A generator draws the
+    wheels under the car's sides: the rail yard's cars had their wheels 0.15 to 0.2 m outside the rails (user: "fix the
+    wheel spacing on the rolling stock", 2026-11-13)."""
+    x, z = vertices[:, 0], vertices[:, 2]; along = np.zeros(len(vertices))
+    for start, end in wheels['spans']:
+        along = np.maximum(along, np.clip(np.minimum(x - start, end - x) / WHEEL_BLEND + 1.0, 0.0, 1.0))
+    weight = along * np.clip((float(wheels['top']) + WHEEL_BLEND - z) / WHEEL_BLEND, 0.0, 1.0)
+    across = 1.0 - weight * (1.0 - WHEEL_BACK / float(wheels['back']))
+    vertices = np.array(vertices, float); vertices[:, 1] *= across
+    normals = np.array(normals, float); normals[:, 1] /= across  # a normal is drawn the other way to its surface
+    return vertices, normals / np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12)
 
 
 def closed(vertices, normals, uvs, faces, parts):
@@ -755,7 +774,10 @@ def load_models(path):
     on the model as turned. `tone`, `paint`, `smooth` and `mesh` retouch its colour picture (`retouch`); `fence` hangs
     chain-link sheets between its fence posts, with a picture of their own (`sheets`); `close` closes a hole in it
     with a face between three of its own vertices (`closed`); `clear` takes away what stands in its boxes (`cleared`); `inside` (true)
-    gives every face a back, for a box with openings drawn from outside only (`backed`). `source` is the generated
+    gives every face a back, for a box with openings drawn from outside only (`backed`); `wheels` ({spans: [[start, end]
+    along x], top, back}, metres on the finished model) draws a railway car's trucks in to standard gauge, `back` being
+    where the backs of its wheels stand either side of its middle as generated (`gauged`); a car lifted by the track's
+    height (`track.HEIGHT`) stands on the rails. `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
@@ -779,7 +801,7 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -836,6 +858,11 @@ def load_models(path):
         if placed and 'light' in placed:
             placeables.light_values(placed['light'])
         tiles = model.get('tiles')
+        wheels = model.get('wheels')
+        require(wheels is None or (isinstance(wheels, dict) and set(wheels) == {'spans', 'top', 'back'} and number(wheels['top']) and wheels['top'] > 0
+                                   and number(wheels['back']) and 0.5 <= wheels['back'] <= 1.5 and isinstance(wheels['spans'], list) and wheels['spans']
+                                   and all(isinstance(span, list) and len(span) == 2 and all(number(v) for v in span) and span[0] < span[1] for span in wheels['spans'])),
+                'wheels are {spans: [[start, end], ...] along x, top, back: 0.5 to 1.5 metres}: ' + name)
         require(model.get('inside', True) is True, 'inside is true, for a box whose openings show what stands behind it: ' + name)
         require(model.get('underfoot', True) is True and not ('underfoot' in model and tiles),
                 'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
@@ -999,11 +1026,11 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, tone=None, paint=None,
-          smooth=None, mesh=None, fence=None, close=None, clear=None, inside=False):
+          smooth=None, mesh=None, fence=None, close=None, clear=None, inside=False, wheels=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
-    (`closed`), in that order, and `inside` then gives every face a back (`backed`), before its pictures are worked on; `tone`,
+    (`closed`), in that order, and `inside` then gives every face a back (`backed`); before them `wheels` draws a car's trucks in to the track (`gauged`), before its pictures are worked on; `tone`,
     `paint`, `smooth` and `mesh` give `colour`, `flat` and `plain`: its colour picture retouched, where its relief is levelled and
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
@@ -1021,6 +1048,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     faces, faces_turned = turn_faces(vertices, faces)
     normals, repaired = repair_normals(vertices, normals, faces); normals, turned = turn_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
+    if wheels:
+        vertices, normals = gauged(vertices, normals, wheels)
     if clear:
         vertices, normals, uvs, faces = cleared(vertices, normals, uvs, faces, clear)
     if close:

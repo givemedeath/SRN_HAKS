@@ -430,6 +430,30 @@ class ConvertTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'inside is true'):
                     convert.load_models(path)
 
+    def test_a_cars_trucks_are_drawn_in_to_the_track_and_the_body_is_left_as_it_was(self):
+        """The rail yard's cars (2026-11-13): their wheels stood 0.15 to 0.2 m outside the rails."""
+        points = np.array([[0.0, 0.85, 0.5], [0.0, -0.85, 0.5], [0.0, 1.5, 2.0], [0.0, 0.85, 1.075], [9.0, 0.85, 0.5], [3.075, 0.85, 0.5]])
+        normals = np.tile([0.0, 0.6, 0.8], (len(points), 1))
+        moved, turned = convert.gauged(points, normals, {'spans': [[-3.0, 3.0]], 'top': 1.0, 'back': 0.85})
+        np.testing.assert_allclose(moved[:2, 1], [convert.WHEEL_BACK, -convert.WHEEL_BACK])  # the wheels' backs at gauge, either side
+        np.testing.assert_allclose(moved[[2, 4], 1], [1.5, 0.85])  # the body above and what is beyond the trucks stay
+        self.assertTrue(convert.WHEEL_BACK < moved[3, 1] < 0.85 and convert.WHEEL_BACK < moved[5, 1] < 0.85)  # eased back over the blend
+        np.testing.assert_allclose(moved[:, [0, 2]], points[:, [0, 2]])
+        np.testing.assert_allclose(np.linalg.norm(turned, axis=1), 1.0)
+        self.assertGreater(turned[0, 1], 0.6)  # a surface drawn in across leans its normal further across
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for wheels, ok in (({'spans': [[-3, 3]], 'top': 1.3, 'back': 0.85}, True), ({'spans': [[3, -3]], 'top': 1.3, 'back': 0.85}, False),
+                           ({'spans': [[-3, 3]], 'top': 1.3, 'back': 2.0}, False), ({'spans': [[-3, 3]], 'top': 1.3}, False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'wheels': wheels, 'measuredAt': 4.0}}}), encoding='utf-8')
+            if ok:
+                self.assertEqual(convert.load_models(path)['ek_x']['wheels'], wheels)
+            else:
+                with self.assertRaisesRegex(ValueError, 'wheels are'):
+                    convert.load_models(path)
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'wheels': {'spans': [[-3, 3]], 'top': 1.3, 'back': 0.85}}}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'measuredAt'):
+            convert.load_models(path)  # spans and top are measured on the model as it stands
+
     def test_a_model_is_drawn_out_along_its_longer_side_to_a_length(self):
         """The rail yard's shipping containers (2026-11-13) came out a third to a half short at their true height."""
         box = np.array([[x, y, z] for x in (-1.75, 1.75) for y in (-1.2, 1.2) for z in (0, 2.6)], float)

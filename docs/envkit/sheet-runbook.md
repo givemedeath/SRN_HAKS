@@ -407,6 +407,13 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   it and closed sides; the walkers sent onto the deck, by the stairs and from beside it, stopped on the ground at its
   edge. A floor to walk on is a part of a tile group (`tiles.parts`), as the rail freight depot's platform is; as a
   placeable it is scenery to walk round.
+- **A railway car's wheels miss the rails, or sink into them.** A generator draws the trucks under the car's sides:
+  the rail yard's four cars had the backs of their wheels 0.75 to 0.9 m either side of their middle, where a
+  standard-gauge wheelset's stand 0.68, so the wheels ran 0.15 to 0.2 m outside the rails; and stood on the ground,
+  they sank the track's height into them (user: "fix the wheel spacing on the rolling stock", 2026-11-13). Read the
+  trucks' spans along the car, the top of the trucks and where the wheels' backs stand, from end views cut through
+  the wheels, and state them as `wheels` (`convert.gauged`); lift the car by `track.HEIGHT` (0.312). Check it on laid
+  track in the client, low along the rails and beside each truck.
 - **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",

@@ -823,7 +823,11 @@ dumpster's slatted lid (operator: "the dumpster has some see through spots"), a 
 an opening under the back of the dock's roller door; each now shows its own inside there. Two came out the wrong
 size and were set again (operator: "resize the office module and light tower"): the office module from 3.0 to 3.9
 metres tall, where its walls had stood 2 metres and its doors about 1.7, and the light tower from 7.5 to 5.0 metres,
-where its lamp heads had been nearly 2 metres across. The light tower's four lamp heads glow on
+where its lamp heads had been nearly 2 metres across. The trucks of the switcher, boxcar, tank car and flatcar were
+drawn in across the track (`wheels`), their wheels having stood 0.15 to 0.2 m outside the rails (operator: "fix the
+wheel spacing on the rolling stock"): below the trucks' tops, each truck by the same measure, so that the backs of its
+wheels stand 0.68 m either side of the car's middle as a standard-gauge wheelset's do, the bodies above as they were.
+The four were lifted 0.312 m, the track's height, to stand on its rails. The light tower's four lamp heads glow on
 their front faces: it has a glow map for them, a halo sheet and a lights-out material (`ek_rf_light_o`) as
 `docs/envkit/lights.md` describes, and its blueprint is not static, so that a script can reach it. It also lights the
 ground round it (operator: "Yes, try it", on whether its lamps cast light): its row names light colour 3 (bright
@@ -837,7 +841,8 @@ Checked in the game client on 2026-11-13, from the converted files, by day from 
 for scale (the dock, container, office and light tower again after the changes above); the light tower, office and
 dumpster again by night; and the light tower from the pack's files by night, its
 lamps lit, put out by `ReplaceObjectTexture` and on again, and once more with its cast light (the ground round it
-lit, dark when put out by `SetPlaceableIllumination` and `RecomputeStaticLighting`, and lit again). A lighter or darker triangle shows on a flat side of the
+lit, dark when put out by `SetPlaceableIllumination` and `RecomputeStaticLighting`, and lit again). The four cars
+were seen again standing on laid track, low along the rails and from the side: their wheels on the rails. A lighter or darker triangle shows on a flat side of the
 boxcar seen side-on, on either side and with the car turned either way round: the area's sky reflected in its large
 smooth panels, not the model (its maps are even there, and splitting its faces small did not change it). Not yet
 opened in the Toolset.
