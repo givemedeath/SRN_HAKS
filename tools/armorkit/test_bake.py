@@ -121,11 +121,23 @@ class BakeTests(unittest.TestCase):
         # and the chest's closings round each arm, which a lifted arm shows
         self.assertEqual(flags('chest', 'under'), [False, True, False, False, False, False])
         self.assertFalse(any(flags('chest', 'closing')))
-        # an upper arm's cap is neither a cap nor a closing: it is drawn as read, as the first outfit was seen
+        # an upper arm's cap is neither a cap nor a closing here: its cap at the shoulder is drawn with the closings when it is tinted
         for name in bake.ARMHOLE:
             self.assertEqual(flags(name, 'closing'), [False, True, False, False, False, False])
             self.assertEqual(flags(name, 'cap'), [False, False, False, False, True, True])
             self.assertFalse(any(flags(name, 'under')))
+
+    def test_an_upper_arms_cap_at_the_shoulder_is_told_from_one_at_its_elbow(self):
+        bones = rig()
+        sleeve = closed(0.02, 0.28, 0.04, near='dome', far='dome')  # along the left arm's bone, a dome at each end
+        added = np.asarray(sleeve['added'], bool)
+        part = {**sleeve, 'domed': added}
+        cap = bake.shoulder_cap('bicepl', part, bones)
+        middle = sleeve['v'][sleeve['f']].mean(axis=1)[:, 0]
+        self.assertTrue(cap.any() and (cap == (added & (middle < 0.15))).all())  # the dome at the shoulder, not the elbow's nor the sleeve
+        skin = cap.copy(); skin[np.flatnonzero(cap)[1:]] = False  # one of its faces is the body's skin beside the outfit
+        self.assertEqual(int(bake.shoulder_cap('bicepl', {**part, 'skin': skin}, bones).sum()), int(cap.sum()) - 1)
+        self.assertFalse(bake.shoulder_cap('bicepl', {**part, 'domed': np.zeros(len(added), bool)}, bones).any())  # a flat closing is no cap
 
     def test_points_go_back_to_the_generated_meshs_axes(self):
         self.assertEqual(bake.to_field(np.array([(1.0, 2.0, 3.0)])).tolist(), [[-1.0, 3.0, 2.0]])
@@ -493,7 +505,7 @@ class BakeTests(unittest.TestCase):
             (output / 'ascii' / 'pmh0_chest331.mdl').write_text('')  # an earlier run's, under another number
             (output / 'ascii' / 'pmh0_shol332.mdl').write_text('')  # and a part this outfit does not have
             tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
-            with mock.patch.object(bake, 'tints', lambda parts, document: (tinted, {'materials': []})), \
+            with mock.patch.object(bake, 'tints', lambda parts, document, bones=None: (tinted, {'materials': []})), \
                     mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}, {})), \
                     mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({'waist': {}}, [])), \
                     mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({'waist': {}}, [])), \
@@ -541,7 +553,7 @@ class BakeTests(unittest.TestCase):
                  ({'chest': part(), 'bicepl': skin}, None, plain),  # and with it, where the brief shows none
                  ({'chest': part()}, {**plain, 'bare': ['forearm']}, plain))  # no forearm, left to the body by the brief baked from and no longer
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
-                mock.patch.object(bake, 'tints', lambda parts, document: self.fail('tinted')):
+                mock.patch.object(bake, 'tints', lambda parts, document, bones=None: self.fail('tinted')):
             for parts, baked_from, brief in cases:
                 bake.store(parts, Path(folder) / 'kept', baked_from)
                 with self.assertRaisesRegex(ValueError, 'bake the outfit again'):

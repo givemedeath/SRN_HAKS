@@ -889,7 +889,13 @@ def relief_shade(image, charts=None, bend=BEND, slope=SLOPE, broad=BROAD, limits
     there, and where it turns inward a crease: the sum of the two turns is the bend. It is taken sharp and,
     smoothed, over a few texels, so that both a stitched edge and a fold show. With `charts` (`chart_map`) a
     texel is compared only with texels of its own chart; without, charts lying a few texels apart would read
-    as bends at each other's edges."""
+    as bends at each other's edges.
+
+    The factor is evened with the four texels beside each texel: a normal read texel by texel flips along
+    the edge of a garment lying on another, where one texel reads the upper surface and the next the lower,
+    and each flip was a light or a dark texel. Along the hem and the collar of Facility Security's vest that
+    was a ragged, flecked edge on a clean generated one (2026-11-14, in the client); a ridge or a crease two
+    texels wide keeps four fifths of its strength."""
     image = np.asarray(image, float)
     lean, out = image[:, :, :2] * 2 - 1, image[:, :, 2] * 2 - 1
     chart = np.zeros(image.shape[:2], int) if charts is None else np.asarray(charts, int)
@@ -901,4 +907,9 @@ def relief_shade(image, charts=None, bend=BEND, slope=SLOPE, broad=BROAD, limits
         for axis, channel in ((1, 0), (0, 1)):  # the lean along u across columns, the lean along v across rows
             turn = (beside(soft[:, :, channel], chart, step, axis) - beside(soft[:, :, channel], chart, -step, axis)) / 2
             total += weight * np.clip(turn, -TURN_LIMIT, TURN_LIMIT)
-    return np.clip(1 + bend * total - slope * (1 - out), *limits)
+    factor = np.clip(1 + bend * total - slope * (1 - out), *limits)
+    even = factor.copy()  # the mean with the four texels beside it, of its own chart
+    for axis in (0, 1):
+        for step in (1, -1):
+            even += beside(factor, chart, step, axis)
+    return even / 5
