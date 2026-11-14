@@ -907,12 +907,16 @@ def declared(folder):
     return {key: set(listed[key]) for key in ('bare', 'skin')}
 
 
-def stored(folder):
-    """The parts `store` last kept in `folder`: those its list names, and no other file there."""
+def stored(folder, names=None):
+    """The parts `store` last kept in `folder`: those its list names, and no other file there; with `names`,
+    only those of them, each of which it must hold."""
     folder = Path(folder)
     listed = listing(folder)
-    require(all((folder / (name + '.npz')).is_file() for name in listed['parts']), f'{folder} lacks a part its {KEPT} lists')
-    parts = {name: dict(np.load(folder / (name + '.npz'))) for name in listed['parts']}
+    names = listed['parts'] if names is None else list(names)
+    require(set(names) <= set(listed['parts']), f'{folder} holds no {", ".join(sorted(set(names) - set(listed["parts"])))}: '
+                                                 f'it holds {", ".join(sorted(listed["parts"]))}')
+    require(all((folder / (name + '.npz')).is_file() for name in names), f'{folder} lacks a part its {KEPT} lists')
+    parts = {name: dict(np.load(folder / (name + '.npz'))) for name in names}
     require(all(set(KEYS) <= set(part) for part in parts.values()), f'{folder} holds a file that is no baked part')
     return parts
 
@@ -930,16 +934,19 @@ def combine(sources, folder, document):
     shares with its skin, for `bake --kept` to tint, write and gate as one. `sources` holds (folder, [part])
     pairs; each part comes from the folder that names it, and once. The Human female's Facility Security was
     her own chest and the male's other parts carried to her (`refit`), two folders tinted as one outfit
-    (2026-11-14). `folder` is a fresh one: kept parts are not written over."""
+    (2026-11-14). `folder` is a fresh one: kept parts are not written over. Each source must have been kept
+    for the brief's own slots (`declared`), as `bake --kept` asks of one folder: a part's ends are shaped by
+    the slots left to the body when it was baked, and its folder's slots are not written over the brief's."""
     folder, parts, origin = Path(folder), {}, {}
-    require(not folder.exists() or not any(folder.iterdir()), f'{folder} is not empty: parts are combined into a fresh folder')
+    slots = {key: set(document.get(key, [])) for key in ('bare', 'skin')}
+    require(not folder.exists() or (folder.is_dir() and not any(folder.iterdir())), f'{folder} is not an empty folder: parts are combined into a fresh one')
     for source, names in sources:
         require(names, f'Name the parts to take from {source}')
-        kept = stored(source)
+        require(declared(source) == slots, f"{source} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake or refit them for it")
         for name in names:
-            require(name in kept, f'{source} holds no {name}: it holds {", ".join(sorted(kept))}')
-            require(name not in parts, f'{name} is named from {origin.get(name)} and from {source}: take each part from one folder')
-            parts[name], origin[name] = kept[name], str(Path(source))
+            require(name not in origin, f'{name} is named from {origin.get(name)} and from {source}: take each part from one folder, once')
+            origin[name] = str(Path(source))
+        parts.update(stored(source, names))
     require(_fits(parts, document), "The parts named are baked for other slots left to the body or shared with its skin than the brief's")
     store(parts, folder, document)
     return origin
