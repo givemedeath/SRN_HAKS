@@ -1,0 +1,35 @@
+node trimesh ek_rf_runway_wg
+  parent ek_rf_runway_pwk
+  position 0 0 0
+  orientation 0 1 0 0
+  verts 8
+    5.00000 0.70000 0.00000
+    -5.00000 0.70000 0.00000
+    -5.00000 -0.70000 0.00000
+    5.00000 -0.70000 0.00000
+    5.00000 0.70000 0.23000
+    -5.00000 0.70000 0.23000
+    -5.00000 -0.70000 0.23000
+    5.00000 -0.70000 0.23000
+  faces 10
+    0 1 5 1 0 0 0 7
+    0 5 4 1 0 0 0 7
+    1 2 6 1 0 0 0 7
+    1 6 5 1 0 0 0 7
+    2 3 7 1 0 0 0 7
+    2 7 6 1 0 0 0 7
+    3 0 4 1 0 0 0 7
+    3 4 7 1 0 0 0 7
+    4 5 6 1 0 0 0 7
+    4 6 7 1 0 0 0 7
+endnode
+node dummy ek_rf_runway_pwk_use01
+  parent ek_rf_runway_pwk
+  position 0 1.20000 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_rf_runway_pwk_use02
+  parent ek_rf_runway_pwk
+  position 0 -1.20000 0
+  orientation 0 1 0 0
+endnode
