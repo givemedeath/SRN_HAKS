@@ -52,7 +52,7 @@ HIDDEN_NEAR = 0.05  # and only within this of the points measured
 HINGES = {'elbow': 1.0, 'knee': -1.0}  # the way along body +Y a hinge's under part swings (`hidden`): a forearm forward, a shin back
 THROUGH = 0.001  # metres: the body's own skin kept beside the outfit may stand this far out through it, no farther (`through`)
 FACING = 1e-5  # square metres: a part may hold this much of faces the client shows a hole at, no more (`facing`): 0.1 cm²
-FACING_PASSES = 3  # times a part's faces are read and turned out (`faced_out`)
+FACING_PASSES = 8  # times at most a part's faces are read and turned out (`faced_out`): it ends with the first read that finds none
 INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear of the cut that made it
 REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
 STEP = 0.003  # an under end's surface is sampled this densely to tell how far past its plane it runs
@@ -479,8 +479,10 @@ def within(bones, name, vertices, faces):
 def faced_out(name, vertices, faces, normals, bones, which=None):
     """(faces, normals, turned): part `name`'s faces with each the client would show a hole at
     (`measure.seen_through`, read among the faces `which` flags: all without it) turned out, the normal of a
-    vertex only such faces use turned with them, and how many were turned. It is read `FACING_PASSES` times
-    at most: a face turned out may bare another. A part's faces are turned as the client sees them and
+    vertex only such faces use turned with them, and how many were turned. It is read until none is found,
+    `FACING_PASSES` times at most: a face turned out may bare another, and a face once turned out is not
+    found again. Read three times and no more, the female's own pelvis was left with two faces a fourth read
+    turned, and its bake failed on them (2026-11-14). A part's faces are turned as the client sees them and
     not as their neighbours are wound: the split winds a closing to be seen from outside, against the lining
     it closes, and made one way with its neighbours it would face into the part."""
     faces, normals = np.asarray(faces, int).copy(), np.asarray(normals, float).copy()

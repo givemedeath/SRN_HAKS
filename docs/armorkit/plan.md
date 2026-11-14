@@ -294,6 +294,42 @@ Notes SR_NWN needs:
 * A logo swap is applied to the wearing creature and reapplied whenever the item is equipped.
 * New chest rows carry no armor value.
 
+## Revision 2026-11-14: the Human pair, what a bake mends and checks, and decisions not yet written down
+
+User decisions from the Facility Security work of 2026-11-13 and 2026-11-14 that still stand and were not in
+this plan:
+
+- Parts are meant to clip into each other (2026-11-13). An end drawn in toward its part's axis and closed is
+  enough in most cases; the domes of the revision above came out of this, and replaced the rounded sockets
+  asked for at both sides of a joint the same evening.
+- The Human female's Facility Security is her own generated chest and the male's other parts carried to her
+  (`refit`, `combine`): his sleeves, because her own shirt had no cloth inside the upper arm, and his pelvis
+  and thighs, by the user's word of 2026-11-14, instead of her own generation's hips. Her own bake is made
+  from a brief of two materials (her generation's knee and shin plates came out pale), and only its chest is
+  used.
+- A client check needs no comparison crops (2026-11-14): the six-pose sheet and its single shots are the
+  evidence, and `poses` makes no crops.
+
+Open: the user was asked what ends the polishing of the female and has not answered. Until there is a stop
+rule, a defect gets one diagnosis and at most one fix round with a client check, and is then put to the user.
+
+What changed in the kit on 2026-11-14 (`tools/armorkit/README.md`, Invariants):
+
+- The slit along the right sleeve's inner seam was a real gap, not faces turned in. The trough's planes cut a
+  slab off the sleeve's inner side, the slab went to the chest, and the sleeve's end at the shoulder was grown
+  from a rim that no longer came round the joint. A slab the trough cuts off a sleeve past the armpit is
+  now the arm's (`split.slabbed`); before the armpit a piece cut off is the torso's, as her vest's shoulders
+  are.
+- A new gate, `facing`, on every bake, `bake --kept`, split and refit: no part may hold faces the client
+  would show a hole at (turned in, bare behind, nothing close under them). A bake and a refit turn such faces
+  out first. Turning a part's faces one way by a flood fill over shared edges was looked at and not done: the
+  split winds a closing against the lining it closes, on purpose.
+- A bake drops crumbs of debris from the generated outfit (10 cm² together at most) and records them, instead
+  of failing on them after the bake: the debris gate still fails on more.
+- A refit reads a sleeve once more after pushing it out over the other body's arm, fails where the skin still
+  stands through it, and reports what is left in `refit.json`.
+
+
 ## Open decisions
 
 None. The eight raised with the draft were settled on 2026-11-09 and are decisions 11–18 above.

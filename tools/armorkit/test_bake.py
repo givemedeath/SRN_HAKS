@@ -233,6 +233,12 @@ class BakeTests(unittest.TestCase):
         which = np.ones(len(inward), bool); which[40] = False
         faces, _, turned = bake.faced_out('bicepl', sleeve['v'], inward, normals, bones, which)
         self.assertTrue(turned == 2 and np.array_equal(faces[40], inward[40]))
+        # a face turned out may bare another: it is read until none is found, each read one face here
+        bared = iter([[3], [4], [40], [7], [9], []])
+        with mock.patch.object(bake.measure, 'seen_through', side_effect=lambda v, f, within: np.isin(np.arange(len(f)), next(bared))):
+            faces, _, turned = bake.faced_out('bicepl', sleeve['v'], sleeve['f'], normals, bones)
+        self.assertEqual(turned, 5)
+        self.assertTrue(np.array_equal(faces[[3, 4, 40, 7, 9]], sleeve['f'][[3, 4, 40, 7, 9]][:, ::-1]) and next(bared, None) is None)
         # the body's own skin beside the outfit is neither read nor counted as what lies under a face
         skin = arm(0.05, 0.3, 0.03)
         worn = {'v': np.concatenate([sleeve['v'], skin['v']]), 'f': np.concatenate([inward, skin['f'][:, ::-1] + len(sleeve['v'])]),

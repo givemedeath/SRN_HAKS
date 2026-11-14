@@ -1004,17 +1004,21 @@ class SleeveTests(unittest.TestCase):
         piece = np.repeat(np.arange(5), 2)
         arms = {'l': piece == 1, 'r': piece == 4}
         on = {'l': np.isin(np.arange(18), (6, 7)), 'r': np.zeros(18, bool)}  # the cut the arm and the slab share
-        out = split.slabbed(faces, piece, 0, arms, on)
+        past = {side: np.ones(10, bool) for side in 'lr'}  # every piece lies past the armpit
+        out = split.slabbed(faces, piece, 0, arms, on, past)
         self.assertEqual(out['l'].tolist(), np.isin(piece, (1, 2)).tolist())  # the slab is the arm's: nothing opens along the cut
         self.assertEqual(out['r'].tolist(), arms['r'].tolist())
         self.assertFalse(arms['l'][piece == 2].any())  # what was given is not written over
         # a piece beside the trough that an arm's own faces do not reach there stays as it was
-        self.assertEqual(split.slabbed(faces, piece, 0, arms, {'l': np.isin(np.arange(18), (8, 9)), 'r': on['r']})['l'].tolist(), arms['l'].tolist())
+        self.assertEqual(split.slabbed(faces, piece, 0, arms, {'l': np.isin(np.arange(18), (8, 9)), 'r': on['r']}, past)['l'].tolist(), arms['l'].tolist())
         # and the torso's piece is the torso's whatever it touches: what the torso wears beside the arm
-        self.assertEqual(split.slabbed(faces, piece, 2, arms, on)['l'].tolist(), arms['l'].tolist())
+        self.assertEqual(split.slabbed(faces, piece, 2, arms, on, past)['l'].tolist(), arms['l'].tolist())
         # a slab between two troughs goes to one arm, the first it lies beside
-        both = split.slabbed(faces, piece, 0, {'l': piece == 1, 'r': piece == 3}, {'l': on['l'], 'r': np.isin(np.arange(18), (8, 9, 10, 11))})
+        both = split.slabbed(faces, piece, 0, {'l': piece == 1, 'r': piece == 3}, {'l': on['l'], 'r': np.isin(np.arange(18), (8, 9, 10, 11))}, past)
         self.assertTrue(both['l'][piece == 2].all() and not both['r'][piece == 2].any())
+        # a piece that reaches before the armpit, by one face, is what the torso wears on the shoulder: a vest's, not the sleeve's
+        high = {'l': np.arange(10) != 5, 'r': past['r']}
+        self.assertEqual(split.slabbed(faces, piece, 0, arms, on, high)['l'].tolist(), arms['l'].tolist())
 
     def test_a_flank_pressed_into_the_sleeve_after_the_cut_stays_the_torsos(self):
         v, f, t, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)
