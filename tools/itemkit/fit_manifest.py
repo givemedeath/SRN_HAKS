@@ -70,7 +70,12 @@ def bladed_landmarks(q, U, overrides):
     N = st.SLICES; centres, mid, extent, wide, _ = st._sections(q)
     known = ~np.isnan(extent[:, 0]); depth = np.where(known, extent.min(1), 0)
     guard = max(_runs(wide), key=len) if wide.any() else None
-    if guard is not None and 5 < guard[0] and guard[-1] < N - 6:
+    found = guard is not None and 5 < guard[0] and guard[-1] < N - 6
+    # A wide head just short of the end (the wave-4 Pole Arm's axe head on its staff) reads as a cross-guard with the
+    # blade on the wrong side. Reviewed landmarks that put the blade on the other side win over that reading.
+    if found and 'bladeAtLowEnd' in overrides and bool(overrides['bladeAtLowEnd']) != (guard[0] > N - 1 - guard[-1]):
+        found = False
+    if found:
         flip = guard[0] > N - 1 - guard[-1]; method = 'cross-guard'          # more length below the guard: blade at the low end
     elif 'bladeAtLowEnd' in overrides:
         require(all(k in overrides for k in LANDMARKS), 'override-ends needs every landmark')

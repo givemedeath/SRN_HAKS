@@ -196,6 +196,20 @@ class BladeFaceFrameTests(unittest.TestCase):
         top = q[q[:, 0] > np.percentile(q[:, 0], 90)]
         self.assertGreater(np.ptp(top[:, 1]), 4 * np.ptp(top[:, 2])); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
 
+    def test_reviewed_landmarks_win_over_a_head_read_as_a_cross_guard(self):
+        from tools.itemkit import fit_manifest as fm
+        haft, _ = lathe([(y, .02) for y in np.linspace(-.6, .6, 480)], sides=48)
+        head, _ = lathe([(y, .12) for y in np.linspace(.3, .5, 80)], sides=48, depth=.1)         # wide, short of the top
+        _, U0, q0 = fm._frame(np.concatenate([haft, head]))
+        top_low = bool(U0[1, 0] < 0)                                    # where Blender +Y (the head) lies in the frame
+        self.assertEqual(fm.bladed_landmarks(q0, U0, {})[0], 'cross-guard')
+        marks = {'pommelEnd': .02, 'gripStart': .1, 'gripEnd': .3, 'bladeStart': .75}
+        method, q, U, _ = fm.bladed_landmarks(q0, U0, {'bladeAtLowEnd': top_low, **marks})
+        self.assertEqual(method, 'override-ends')
+        self.assertGreater(q[np.argmax(np.hypot(q[:, 1], q[:, 2])), 0], 0)            # the head is now at the high end
+        same = fm.bladed_landmarks(q0, U0, {'bladeAtLowEnd': not top_low, **marks})[0]
+        self.assertEqual(same, 'cross-guard')                           # an agreeing override keeps the detected guard
+
     def test_a_round_blade_keeps_the_principal_frame(self):
         from tools.itemkit import fit_manifest as fm
         bat, _ = lathe([(y, .03) for y in np.linspace(-.4, .6, 400)], sides=48)
