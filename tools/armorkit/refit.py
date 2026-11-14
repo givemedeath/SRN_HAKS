@@ -50,6 +50,7 @@ UNDER_SKIN = 0.002  # a cap under the body's own skin (a glove's under a bare fo
 OVER_SKIN = 0.003  # a sleeve beside the body's own skin in its slot stands at least this far outside the other body's arm
 OVER_ROUNDS = 6  # rings of neighbours a sleeve's push out over the arm is spread to
 OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
+OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a farther push fails the refit
 
 
 def token_of(slot, letter):
@@ -199,39 +200,51 @@ def under_skin(vertices, point, normal, skin, gap=UNDER_SKIN, which=None):
     return out
 
 
-def over_skin(part, skin, gap=OVER_SKIN, rounds=OVER_ROUNDS):
-    """`part` with its outfit's own surface held `gap` outside the other body's own part in its slot, `skin`
-    (vertices, faces), where the part shares that slot with the body's skin: a point standing less far
-    outside it, read along the normal of the skin's nearest vertex, is moved out along that normal, and the
-    push spread over `rounds` rings of its neighbours, never less than a point needs, so the cloth moves as
-    one and creases nowhere. What only the split's faces use (a cap, a seat) is not moved. The male's sleeves, scaled by
-    the rings at the shoulder and the elbow, lay up to 2.7 cm inside the Human female's fuller upper arm,
-    and the arm kept below the hem showed through them with her arms raised (Facility Security, 2026-11-13)."""
+def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
+    """`part`, holding the other body's own skin beside the outfit's (`bake.skinned`), with everything drawn
+    over that skin (the sleeve's cloth, and the dome closing it at the armpit) held `gap` outside it. Each
+    vertex of the skin is read along the ray square out from the part's bone (`start` to `end`) through it
+    (`measure.beyond`): where it stands less than `gap` inside, the corners of the face the ray crosses last
+    are pushed out from the bone by the difference, the push spread over `rounds` rings of their
+    neighbours, never less than a point needs, so the cloth moves as one and creases nowhere, and read again
+    until it settles. The skin and a pad are not moved; a push past `OVER_MOST` fails, rather than ship a
+    spike where a fold is read as the outside. The male's sleeves, scaled by the rings at the shoulder and
+    the elbow, lay up to 2.7 cm inside the Human female's fuller upper arm, and the arm kept below the hem
+    showed through them with her arms raised; held clear of her whole arm by the sleeve's cloth alone, her
+    arm still stood up to 9 mm through the dome carried from the male's armpit (Facility Security,
+    2026-11-13)."""
     v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
-    added = np.asarray(part['added'], bool) | np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
+    skin = np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)
+    if not skin.any() or skin.all():
+        return part
+    pad = np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
     ids = mesh_ops.weld_ids(v)
     count = int(ids.max()) + 1
-    first = np.full(count, len(v))
-    np.minimum.at(first, ids, np.arange(len(v)))
     free = np.zeros(count, bool)
-    free[ids[f[~added].ravel()]] = True  # the rim a cap shares moves with the cloth: at the armpit it runs 15 cm down the arm
-    skin_v = np.asarray(skin[0], float)
-    skin_n = ends.normals(skin_v, np.asarray(skin[1], int))
+    free[ids[f[~skin & ~pad].ravel()]] = True
+    free[ids[f[skin].ravel()]] = False
+    cloth, points = f[~skin], np.unique(f[skin])
+    start, axis = np.asarray(start, float), seams.unit(np.asarray(end, float) - np.asarray(start, float))
     pairs = mesh_ops.edges(f, ids)[0]
     rows, cols = np.concatenate([pairs[:, 0], pairs[:, 1]]), np.concatenate([pairs[:, 1], pairs[:, 0]])
     degree = np.maximum(np.bincount(rows, minlength=count), 1)
     moved = v.copy()
-    for _ in range(OVER_PASSES):  # a point pushed out may find another vertex of the skin nearest, and stand inside it still
-        point = moved[first]
-        nearest = np.argmin(np.linalg.norm(point[:, None] - skin_v[None], axis=2), axis=1)
-        way = skin_n[nearest]
-        need = np.where(free, np.maximum(gap - ((point - skin_v[nearest]) * way).sum(axis=1), 0.0), 0.0)
-        if not need.any():
+    for _ in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
+        outside, face = measure.beyond(moved[points], start, axis, moved, cloth)
+        short = np.flatnonzero(face >= 0)
+        short = short[outside[short] > -gap]
+        if not len(short):
             break
+        need = np.zeros(count)
+        np.maximum.at(need, ids[cloth[face[short]]].ravel(), np.repeat(outside[short] + gap, 3))
+        need = np.where(free, need, 0.0)
+        require(need.max() <= OVER_MOST, f'Held outside the body\'s own skin, the outfit would move {need.max() * 100:.1f} cm, '
+                                         f'past {OVER_MOST * 100:.0f} cm: a fold read as its outside, or a body too far from this one')
         push = need.copy()
         for _ in range(rounds):
             push = np.where(free, np.maximum(need, np.bincount(rows, push[cols], minlength=count) / degree), 0.0)
-        moved = moved + (push[:, None] * way)[ids]
+        radial = moved - start - ((moved - start) @ axis)[:, None] * axis
+        moved = moved + push[ids][:, None] * radial / np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-12)
     if np.array_equal(moved, v):
         return part
     n = np.asarray(part['n'], float) + ends.normals(moved, f) - ends.normals(v, f)
@@ -355,11 +368,12 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     if bake.shared_with_body(listed) & set(parts):
         require(body_textures is not None, f'{", ".join(sorted(bake.shared_with_body(listed) & set(parts)))} share their slots with the body\'s '
                                            'skin: give the body\'s textures to lay the other body\'s beside them')
-        for name in bake.shared_with_body(listed) & set(parts) & set(goal[1]):
-            held = over_skin(parts[name], goal[1][name][:2])
+        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0])
+        for name in bake.shared_with_body(listed) & set(parts):
+            slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
+            held = over_skin(parts[name], *(np.asarray(goal[0][bone.format(name[-1])], float)[:3, 3] for bone in split.BONE_ENDS[slot]))
             if held is not parts[name]:
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
                 parts[name] = held
-        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0])
     bake.store(parts, output, {key: value for key, value in listed.items() if key != 'parts'})
     return report

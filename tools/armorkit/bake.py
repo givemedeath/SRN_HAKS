@@ -50,8 +50,7 @@ DOME_SLACK = 0.001  # metres: a dome may stand this much farther past its rim th
 HIDDEN_STEP = 0.003  # a surface is sampled this densely to tell how far a point stands outside it
 HIDDEN_NEAR = 0.05  # and only within this of the points measured
 HINGES = {'elbow': 1.0, 'knee': -1.0}  # the way along body +Y a hinge's under part swings (`hidden`): a forearm forward, a shin back
-THROUGH = 0.002  # metres: the outfit over the body's own skin kept beside it may lie this far inside the body's part, no farther (`through`)
-THROUGH_NEAR = 0.02  # the outfit this near the skin kept beside it is measured: a sleeve's hem and the stretch above it
+THROUGH = 0.001  # metres: the body's own skin kept beside the outfit may stand this far out through it, no farther (`through`)
 INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear of the cut that made it
 REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
 STEP = 0.003  # an under end's surface is sampled this densely to tell how far past its plane it runs
@@ -395,33 +394,31 @@ def hidden(parts, bones, body, contract=None, skin=None, left=()):
     return report, failures
 
 
-def through(parts, skin):
+def through(parts, bones):
     """(report, failures): for each part that holds the body's own skin beside the outfit's (`bodyskin.worn`),
-    how far the outfit's own surface within `THROUGH_NEAR` of that skin stands outside the body's own part
-    in the slot (`skin`, the body's parts as `measure.body` reads them), read along the normal of the part's
-    nearest vertex: its least, in metres, negative where the arm stands out through the sleeve. Less than
-    `-THROUGH` fails. The male's sleeves carried to the Human female lay up to 1.6 cm inside her arm by the
-    skin kept below their hems, which the user saw through them with her arms raised (2026-11-13)."""
+    how far that skin stands out through the rest of the part, everything the client draws over it (a
+    sleeve's cloth, and the dome closing its end), each of its vertices read along the ray square out from
+    the part's bone (`bones`, the rig) through it (`measure.beyond`): its most, in metres, 0 where none of it
+    does. More than `THROUGH` fails. The male's sleeves carried to the Human female lay up to 1.6 cm inside
+    her arm by the skin kept below their hems, which the user saw through them with her arms raised; held
+    clear of it by the sleeve's cloth alone, her arm still stood up to 9 mm through the dome carried from the
+    male's armpit, which the gate, reading the cloth alone too, passed, and the user saw it again
+    (2026-11-13)."""
     report, failures = {}, []
     for name, part in parts.items():
-        if 'skin' not in part or name not in skin:
+        if 'skin' not in part:
             continue
         v, f, kept = np.asarray(part['v'], float), np.asarray(part['f'], int), np.asarray(part['skin'], bool)
-        mine = np.unique(f[~kept & ~np.asarray(part['added'], bool)])
-        theirs = v[np.unique(f[kept])]
-        if not len(mine) or not len(theirs):
+        cloth = f[~kept]
+        if not len(cloth) or not kept.any():
             continue
-        points = v[mine]
-        points = points[np.linalg.norm(points[:, None] - theirs[None], axis=2).min(axis=1) < THROUGH_NEAR]
-        if not len(points):
-            continue
-        body_v, body_f = np.asarray(skin[name][0], float), np.asarray(skin[name][1], int)
-        normals = shaping.normals(body_v, body_f)
-        nearest = np.argmin(np.linalg.norm(points[:, None] - body_v[None], axis=2), axis=1)
-        least = float(((points - body_v[nearest]) * normals[nearest]).sum(axis=1).min())
-        report[name] = round(least, 4)
-        if least < -THROUGH:
-            failures.append(f'{name}: the body\'s own skin beside it stands up to {-least * 100:.1f} cm out through the outfit over it')
+        slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
+        start, end = (np.asarray(bones[bone.format(name[-1])], float)[:3, 3] for bone in split.BONE_ENDS[slot])
+        outside = measure.beyond(v[np.unique(f[kept])], start, seams.unit(end - start), v, cloth)[0]
+        most = max(float(np.nanmax(outside)) if np.isfinite(outside).any() else 0.0, 0.0)
+        report[name] = round(most, 4)
+        if most > THROUGH:
+            failures.append(f'{name}: the body\'s own skin beside it stands up to {most * 100:.1f} cm out through the outfit over it')
     return report, failures
 
 
@@ -1072,7 +1069,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     own = measure.body(body_pack, body)[1]
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
-              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, own))}
+              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, bones))}
     if game is not None:
         compiled = export.compile_models(sorted(Path(output) / 'ascii' / (model + '.mdl') for model in models.values()),
                                          Path(output) / 'resources', game=game, resources=list(resources))

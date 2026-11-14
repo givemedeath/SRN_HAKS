@@ -161,16 +161,33 @@ class RefitTests(unittest.TestCase):
         self.assertGreater(past.min(), 0.02)  # moved in to the skin, not onto the axis
 
     def test_a_sleeve_is_held_outside_the_other_bodys_arm(self):
-        # a sleeve 3.5 cm round, its end capped 3 cm back past x = 0.05, over an arm 4 cm round
-        sleeve, arm_ = closed(0.05, 0.3, 0.035, near='cap', far=None), closed(0.0, 0.35, 0.04, near=None, far=None)
-        sleeve['n'] = np.zeros_like(sleeve['v'])
-        out = refit.over_skin(sleeve, (arm_['v'], arm_['f']))
-        mine = np.unique(sleeve['f'][~sleeve['added']])
-        self.assertTrue((np.linalg.norm(out['v'][mine][:, 1:], axis=1) >= 0.04 + refit.OVER_SKIN - 1e-6).all())  # held clear of the arm
-        cap = np.setdiff1d(np.unique(sleeve['f'][sleeve['added']]), mine)
-        self.assertTrue(np.array_equal(out['v'][cap], sleeve['v'][cap]))  # what only the cap uses stays as it was
-        clear = closed(0.05, 0.3, 0.05, near=None, far=None)
-        self.assertIs(refit.over_skin(clear, (arm_['v'], arm_['f'])), clear)  # a sleeve clear of the arm is not touched
+        # a sleeve to x = 0.3, its end capped 3 cm back past x = 0.05, with the other body's arm 4 cm round kept beside it
+        # from x = 0.18 (the left arm runs along +X from the origin)
+        bones = rig()
+        start, end = bones['lbicep_g'][:3, 3], bones['lforearm_g'][:3, 3]
+
+        def worn(radius, dome=False, fuller=0.04):
+            sleeve, arm_ = closed(0.05, 0.3, radius, near='cap', far=None), closed(0.0, 0.35, fuller, near=None, far=None)
+            below = arm_['f'][arm_['v'][arm_['f']][:, :, 0].min(axis=1) > 0.18]
+            v = np.concatenate([sleeve['v'], arm_['v']])
+            added = np.concatenate([sleeve['added'] | dome, np.zeros(len(below), bool)])
+            return {'v': v, 'n': np.zeros_like(v), 'f': np.concatenate([sleeve['f'], below + len(sleeve['v'])]), 'added': added,
+                    'skin': np.arange(len(added)) >= len(sleeve['f'])}
+        for dome in (False, True):  # the sleeve's own cloth, or a dome closing it, drawn over the arm all the same
+            near = worn(0.035, dome)
+            self.assertNotEqual(bake.through({'bicepl': near}, bones)[1], [])
+            out = refit.over_skin(near, start, end)
+            self.assertEqual(bake.through({'bicepl': out}, bones), ({'bicepl': 0.0}, []))  # held clear of the arm kept beside it
+            skin = np.unique(near['f'][near['skin']])
+            self.assertTrue(np.array_equal(out['v'][skin], near['v'][skin]))  # the arm itself is not moved
+            pushed = np.linalg.norm(out['v'] - near['v'], axis=1)
+            self.assertLessEqual(pushed.max(), 0.04 + refit.OVER_SKIN - 0.035 + 1e-6)  # by no more than it needs
+        clear = worn(0.05)
+        self.assertIs(refit.over_skin(clear, start, end), clear)  # a sleeve clear of the arm is not touched
+        bare = closed(0.05, 0.3, 0.035, near=None, far=None)
+        self.assertIs(refit.over_skin(bare, start, end), bare)  # nor a part with no skin beside it
+        with self.assertRaisesRegex(Exception, 'would move 4.8 cm, past 3 cm'):  # an arm far fuller than the sleeve fails
+            refit.over_skin(worn(0.035, fuller=0.08), start, end)
 
     def test_an_end_carried_under_the_other_bodys_own_part_is_seated_in_it(self):
         # an upper arm 4 cm round, its cap 10 cm back past the shoulder plane (x = 0.05), under a chest that stands

@@ -185,6 +185,41 @@ def winding(points, vertices, faces, chunk=WINDING_CHUNK):
     return out
 
 
+def beyond(points, start, axis, vertices, faces, chunk=WINDING_CHUNK):
+    """(outside, face): for each point, how far it stands outside the surface `faces` along the ray from the
+    line through `start` along unit `axis` square out through it, a bone's axis to a limb: the point's
+    distance from the line less where the ray last crosses the surface, positive where the point lies
+    beyond it, and the face crossed last. NaN and -1 where the ray crosses none of it. The last crossing is
+    what is seen from outside: a fold or a wall of cloth turned in under it lies inside the arm unseen, and
+    read first it pushed a sleeve out 14 cm."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    points, start, axis = np.asarray(points, float), np.asarray(start, float), np.asarray(axis, float)
+    foot = start + ((points - start) @ axis)[:, None] * axis
+    radial = points - foot
+    reach = np.linalg.norm(radial, axis=1)
+    ways = radial / np.maximum(reach, 1e-12)[:, None]
+    first, second = corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]
+    outside, face = np.full(len(points), np.nan), np.full(len(points), -1)
+    for at in range(0, len(points), chunk):
+        way, origin = ways[at:at + chunk], foot[at:at + chunk]
+        across = np.cross(way[:, None], second[None])
+        det = np.einsum('fi,pfi->pf', first, across)
+        met = np.abs(det) > 1e-15
+        inverse = np.where(met, 1.0 / np.where(met, det, 1.0), 0.0)
+        offset = origin[:, None] - corners[None, :, 0]
+        u = np.einsum('pfi,pfi->pf', offset, across) * inverse
+        turned = np.cross(offset, first[None])
+        w = np.einsum('pi,pfi->pf', way, turned) * inverse
+        far = np.einsum('fi,pfi->pf', second, turned) * inverse
+        far = np.where(met & (u >= 0) & (w >= 0) & (u + w <= 1) & (far > 0), far, -np.inf)
+        last = far.argmax(axis=1)
+        hit = np.isfinite(far[np.arange(len(far)), last])
+        rows = np.arange(at, at + len(far))[hit]
+        outside[rows] = reach[rows] - far[hit, last[hit]]
+        face[rows] = last[hit]
+    return outside, face
+
+
 def joints(bones, parts):
     """Per joint and side: plane, body ring and how far each skin part runs past the plane.
 
