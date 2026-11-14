@@ -233,6 +233,13 @@ class BakeTests(unittest.TestCase):
         which = np.ones(len(inward), bool); which[40] = False
         faces, _, turned = bake.faced_out('bicepl', sleeve['v'], inward, normals, bones, which)
         self.assertTrue(turned == 2 and np.array_equal(faces[40], inward[40]))
+        # a part with no bone of two ends is read round its middle, and copies of its vertices (a layout's) do not move it
+        copied = np.concatenate([sleeve['v'], sleeve['v'][:7]])
+        again = sleeve['f'].copy(); again[again < 7] += len(sleeve['v'])
+        again[0] = sleeve['f'][0]  # both a vertex and its copy are used
+        middle = bake.within(bones, 'pelvis', sleeve['v'], sleeve['f'])
+        self.assertTrue(np.allclose(bake.within(bones, 'pelvis', copied, again), middle, atol=1e-9) and middle.shape == (len(again), 3))
+        self.assertFalse(np.allclose(copied[np.unique(again)].mean(axis=0), middle[0], atol=1e-6))  # counted per vertex it would
         # a face turned out may bare another: it is read until none is found, each read one face here
         bared = iter([[3], [4], [40], [7], [9], []])
         with mock.patch.object(bake.measure, 'seen_through', side_effect=lambda v, f, within: np.isin(np.arange(len(f)), next(bared))):

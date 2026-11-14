@@ -52,6 +52,7 @@ HIDDEN_NEAR = 0.05  # and only within this of the points measured
 HINGES = {'elbow': 1.0, 'knee': -1.0}  # the way along body +Y a hinge's under part swings (`hidden`): a forearm forward, a shin back
 THROUGH = 0.001  # metres: the body's own skin kept beside the outfit may stand this far out through it, no farther (`through`)
 FACING = 1e-5  # square metres: a part may hold this much of faces the client shows a hole at, no more (`facing`): 0.1 cm²
+MIDDLE = 1e-5  # metres: vertices this close stand at one place for a part's middle (`within`)
 FACING_PASSES = 8  # times at most a part's faces are read and turned out (`faced_out`): it ends with the first read that finds none
 INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear of the cut that made it
 REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
@@ -464,12 +465,18 @@ def through(parts, bones):
 def within(bones, name, vertices, faces):
     """Per face of part `name`, the point the part lies round there (`measure.seen_through`): the nearest of
     its bone (`split.bone_line`) to the face's middle, or for a part with a bone of one end (the pelvis, a
-    hand, a foot), or on a rig without its bone, the middle of the vertices its faces use."""
+    hand, a foot), or on a rig without its bone, the middle of the places its faces' vertices stand at, each
+    place counted once (`MIDDLE`). Counted per vertex, the middle moved with the copies a texture layout makes
+    of the vertices along its charts' edges: the female's own pelvis had its faces turned out round one middle
+    before the layout and was read by the gate round another 0.8 cm from it, which failed it on two faces
+    lying edge on to both (2026-11-14)."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int).reshape(-1, 3)
     slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
     line = [bone and bone.format(name[-1]) for bone in split.BONE_ENDS.get(slot, (None, None))]
     if None in line or not set(line) <= set(bones) or not len(faces):
-        return np.tile(vertices[np.unique(faces)].mean(axis=0) if len(faces) else np.zeros(3), (len(faces), 1))
+        used = vertices[np.unique(faces)] if len(faces) else np.zeros((1, 3))
+        first = np.unique(np.round(used / MIDDLE), axis=0, return_index=True)[1]  # one vertex per place, as it stands
+        return np.tile(used[first].mean(axis=0), (len(faces), 1))
     start, end = split.bone_line(bones, name)
     axis = end - start
     share = np.clip((vertices[faces].mean(axis=1) - start) @ axis / max(float(axis @ axis), 1e-12), 0.0, 1.0)
@@ -481,8 +488,7 @@ def faced_out(name, vertices, faces, normals, bones, which=None):
     (`measure.seen_through`, read among the faces `which` flags: all without it) turned out, the normal of a
     vertex only such faces use turned with them, and how many were turned. It is read until none is found,
     `FACING_PASSES` times at most: a face turned out may bare another, and a face once turned out is not
-    found again. Read three times and no more, the female's own pelvis was left with two faces a fourth read
-    turned, and its bake failed on them (2026-11-14). A part's faces are turned as the client sees them and
+    found again. A part's faces are turned as the client sees them and
     not as their neighbours are wound: the split winds a closing to be seen from outside, against the lining
     it closes, and made one way with its neighbours it would face into the part."""
     faces, normals = np.asarray(faces, int).copy(), np.asarray(normals, float).copy()
