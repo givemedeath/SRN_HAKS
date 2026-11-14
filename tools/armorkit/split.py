@@ -752,8 +752,8 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     if sleeves:
         # An arm is its pad and what the cuts leave joined to its trough from the shoulder joint down: the
         # sleeve, and past the elbow the forearm and the hand. The torso is the largest piece the cuts leave,
-        # less the arms. A slice the seam cut off a sleeve wider than its trough (an elbow guard) is neither,
-        # and keeps the sleeve's vertices.
+        # less the arms. A slice the seam cut off a sleeve wider than its trough (an elbow guard, a sleeve
+        # fuller below the armpit) is joined to neither across the cut, and is the arm's (`slabbed`).
         rows = [flags for found in sleeves.values() for flags in found['on']]
         for side, found in sleeves.items():
             down = np.flatnonzero(below[side])
@@ -762,7 +762,9 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
             below[side][down[np.isin(joined, np.unique(joined[found['inside'][down]]))]] = True
         _, piece = np.unique(pieces(v, f, rows), return_inverse=True)
         area = np.linalg.norm(np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]]), axis=1)
-        torso = (piece == np.argmax(np.bincount(piece, weights=area))) & ~np.any(list(below.values()), axis=0)
+        largest = np.argmax(np.bincount(piece, weights=area))
+        below = slabbed(f, piece, largest, below, {side: found['on'][:3].any(axis=0) for side, found in sleeves.items()})
+        torso = (piece == largest) & ~np.any(list(below.values()), axis=0)
         f, own = f.copy(), {}
         for side, found in sleeves.items():
             shared = np.zeros((2, len(v)), bool)
@@ -778,6 +780,33 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
             found['torso'] = np.zeros(len(v), bool); found['torso'][own[side]] = True
             found['arm'] = below[side]
     return v, f, t, origin, sleeves
+
+
+def slabbed(faces, piece, torso, arms, on):
+    """`arms`, per side the flags of an arm's faces (`troughs`), with the slabs its trough cut off it: each
+    piece the cuts leave (`piece`, a number per face) that is not the torso's (`torso`, its piece), holds no
+    face of an arm's, and has a vertex on a side's trough (`on`, flags per vertex) that the arm's own faces
+    use there goes to that arm, the first side it lies beside.
+
+    A sleeve wider below the armpit than its trough is cut by the trough's planes there, and both sides of
+    that cut are the sleeve's (`sleeve`). The slab cut off is joined to the trough only across the cut, so it
+    was neither the arm's nor the torso's, and `assign` placed it as if the shoulder were not cut: on the
+    chest. Facility Security's right sleeve lost 49 cm² of its inner side that way, and was left open from
+    the armpit to its hem: its end at the shoulder grows from a rim that comes round the joint, the open
+    line no longer did, and the sleeve showed a slit along its inner seam with the arm lifted (2026-11-14).
+    A piece joined to the torso is the torso's whatever it touches: what the torso wears beside the arm."""
+    faces, piece = np.asarray(faces, int), np.asarray(piece, int)
+    out = {side: np.asarray(flags, bool).copy() for side, flags in arms.items()}
+    taken = np.any(list(out.values()), axis=0) if out else np.zeros(len(faces), bool)
+    free = np.setdiff1d(np.unique(piece[~taken]), np.unique(np.concatenate([piece[taken], [torso]])))
+    for side, flags in arms.items():
+        beside = np.zeros(int(faces.max()) + 1 if len(faces) else 0, bool)
+        beside[faces[np.asarray(flags, bool)]] = True
+        beside &= np.asarray(on[side], bool)[:len(beside)]
+        mine = np.isin(piece, free) & np.isin(piece, np.unique(piece[beside[faces].any(axis=1)]))
+        out[side] |= mine
+        free = np.setdiff1d(free, np.unique(piece[mine]))
+    return out
 
 
 def compact(vertices, faces, uvs):

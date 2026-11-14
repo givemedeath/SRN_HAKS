@@ -92,6 +92,29 @@ class ArmholeTests(unittest.TestCase):
         self.assertFalse(measure.closed(corners, box[:0]))
 
 
+class SeenThroughTests(unittest.TestCase):
+    def test_a_face_turned_in_with_nothing_behind_it_and_nothing_close_under_it_is_a_hole(self):
+        from .test_bake import box, joined
+        v, f = box(side=0.1)
+        middle = np.zeros(3)
+        self.assertFalse(measure.seen_through(v, f, middle).any())  # wound outward: every face is drawn from outside
+        turned = f.copy(); turned[3] = turned[3][::-1]
+        self.assertEqual(np.flatnonzero(measure.seen_through(v, turned, middle)).tolist(), [3])  # the far wall is all that is behind it
+        self.assertEqual(np.flatnonzero(measure.seen_through(v, turned, np.tile(middle, (len(f), 1)))).tolist(), [3])  # a point per face
+        # a lining 1 cm inside the cloth, wound to face in: the cloth is behind it, and it is never seen from there
+        lining = box(side=0.08)
+        both = joined((v, f), (lining[0], lining[1][:, ::-1]))
+        self.assertFalse(measure.seen_through(*both, middle).any())
+        # the lining come out through the cloth, 5 mm outside it: the cloth under it is what the client shows
+        out = joined((v, f), (box(side=0.11)[0], f[:, ::-1]))
+        self.assertFalse(measure.seen_through(*out, middle).any())
+        far = joined((v, f), (box(side=0.2)[0], f[:, ::-1]))  # 5 cm outside it: a hole, the cloth seen deep in it
+        self.assertEqual(np.flatnonzero(measure.seen_through(*far, middle)).tolist(), list(range(len(f), 2 * len(f))))
+        self.assertFalse(measure.seen_through(*far, middle, depth=0.06).any())
+        flat = np.concatenate([turned, [[0, 1, 1]]])  # a face with no area is never one
+        self.assertEqual(np.flatnonzero(measure.seen_through(v, flat, middle)).tolist(), [3])
+
+
 class MeasuredContractTests(unittest.TestCase):
     def test_contract_planes_and_rings_match_the_locked_human_bodies(self):
         contract = seams.load_contract()

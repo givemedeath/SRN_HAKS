@@ -997,6 +997,25 @@ class SleeveTests(unittest.TestCase):
         self.assertAlmostEqual(stand(padded)[1] - stand(padded)[0], 2 * (0.05 + split.SLEEVE_WALL), places=6)
         self.assertAlmostEqual(padded['point'] @ padded['normal'] - start @ padded['normal'], whole['point'] @ whole['normal'] - start @ whole['normal'], places=9)  # the seam stands where it stood
 
+    def test_a_slab_the_trough_cut_off_a_sleeve_goes_with_its_arm(self):
+        # five pieces of two faces each: the torso (0), the left arm (1), a slab beside the left arm's trough (2), a pouch
+        # joined to nothing an arm uses on its trough (3), and the right arm (4)
+        faces = np.array([(0, 1, 2), (1, 2, 3), (4, 5, 6), (5, 6, 7), (6, 7, 8), (7, 8, 9), (10, 11, 12), (11, 12, 13), (14, 15, 16), (15, 16, 17)])
+        piece = np.repeat(np.arange(5), 2)
+        arms = {'l': piece == 1, 'r': piece == 4}
+        on = {'l': np.isin(np.arange(18), (6, 7)), 'r': np.zeros(18, bool)}  # the cut the arm and the slab share
+        out = split.slabbed(faces, piece, 0, arms, on)
+        self.assertEqual(out['l'].tolist(), np.isin(piece, (1, 2)).tolist())  # the slab is the arm's: nothing opens along the cut
+        self.assertEqual(out['r'].tolist(), arms['r'].tolist())
+        self.assertFalse(arms['l'][piece == 2].any())  # what was given is not written over
+        # a piece beside the trough that an arm's own faces do not reach there stays as it was
+        self.assertEqual(split.slabbed(faces, piece, 0, arms, {'l': np.isin(np.arange(18), (8, 9)), 'r': on['r']})['l'].tolist(), arms['l'].tolist())
+        # and the torso's piece is the torso's whatever it touches: what the torso wears beside the arm
+        self.assertEqual(split.slabbed(faces, piece, 2, arms, on)['l'].tolist(), arms['l'].tolist())
+        # a slab between two troughs goes to one arm, the first it lies beside
+        both = split.slabbed(faces, piece, 0, {'l': piece == 1, 'r': piece == 3}, {'l': on['l'], 'r': np.isin(np.arange(18), (8, 9, 10, 11))})
+        self.assertTrue(both['l'][piece == 2].all() and not both['r'][piece == 2].any())
+
     def test_a_flank_pressed_into_the_sleeve_after_the_cut_stays_the_torsos(self):
         v, f, t, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)
         came = self.own(v, f, t, sleeves=sleeves)

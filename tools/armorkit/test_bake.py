@@ -189,6 +189,62 @@ class BakeTests(unittest.TestCase):
         self.assertEqual(bake.surface(*joined((v, f), pad))['debris'], [])  # a pad standing off the rest is a piece, not debris
         self.assertEqual(bake.surface(*joined((v, f), sunk))['debris'], [])  # a crumb set into the rest touches it
 
+    def test_crumbs_of_the_generated_outfit_are_dropped_before_it_is_baked_and_much_debris_is_left_for_the_gate(self):
+        v, f = box(side=0.1)
+        crumb, pad = box((0.1, 0.0, 0.0), 0.01), box((0.085, 0.0, 0.0), 0.05)
+        flags, areas, pieces = bake.loose(*joined((v, f), pad, crumb))
+        self.assertEqual((flags.tolist(), pieces), ([False] * 24 + [True] * 12, 3))
+        self.assertTrue(np.allclose(areas, [6 * 0.01 ** 2]))
+        kept_v, kept_f, dropped = bake.swept(*joined((v, f), crumb, pad))
+        self.assertTrue(np.allclose(dropped, [6 * 0.01 ** 2]))
+        self.assertTrue(np.array_equal(kept_v, np.concatenate([v, pad[0]])) and np.array_equal(kept_f, np.concatenate([f, pad[1] + 8])))  # only the vertices left in use
+        self.assertEqual(bake.surface(kept_v, kept_f)['debris'], [])
+        # read at the body's size: half as large, the outfit's crumb is one at twice its size
+        small = joined((v, f), crumb)
+        self.assertTrue(np.allclose(bake.swept(small[0] / 2, small[1], 2.0)[2], [6 * 0.01 ** 2]))
+        whole = bake.swept(v, f)
+        self.assertTrue(np.array_equal(whole[0], v) and np.array_equal(whole[1], f) and whole[2] == [])  # nothing loose: as it was
+        # more loose than a crumb is: left in, for the gate to fail and the export to be looked at
+        many = joined((v, f), *[box((0.1 + 0.02 * k, 0.0, 0.0), 0.01) for k in range(2)])
+        with mock.patch.object(bake, 'SWEPT', 6 * 0.01 ** 2 * 1.5):
+            self.assertEqual((len(bake.swept(*many)[1]), bake.swept(*many)[2]), (len(many[1]), []))
+        self.assertEqual(len(bake.surface(*many)['debris']), 2)
+
+    def test_faces_the_client_would_show_a_hole_at_are_turned_out_and_what_is_left_fails(self):
+        bones = rig()
+        sleeve = closed(0.05, 0.3, 0.04)  # along the left arm's bone, closed flat at both ends
+        normals = np.tile([[0.0, 0.0, 1.0]], (len(sleeve['v']), 1))
+        self.assertEqual(bake.facing({'bicepl': sleeve}, bones), ({'bicepl': 0.0}, []))
+        faces, kept, turned = bake.faced_out('bicepl', sleeve['v'], sleeve['f'], normals, bones)
+        self.assertTrue(np.array_equal(faces, sleeve['f']) and np.array_equal(kept, normals) and turned == 0)
+        inward = sleeve['f'].copy(); inward[[3, 4, 40]] = inward[[3, 4, 40]][:, ::-1]  # three of its faces wound to face the arm
+        report, failures = bake.facing({'bicepl': {**sleeve, 'f': inward}}, bones)
+        self.assertGreater(report['bicepl'], bake.FACING)
+        self.assertRegex(failures[0], r'^bicepl: 3 faces of \d+\.\d cm² turned in with nothing behind them, where the client shows a hole$')
+        faces, kept, turned = bake.faced_out('bicepl', sleeve['v'], inward, normals, bones)
+        self.assertTrue(np.array_equal(faces, sleeve['f']) and turned == 3)
+        self.assertTrue(np.array_equal(kept, normals))  # every vertex of theirs is another face's too: no normal is turned
+        # a vertex only such faces use has its normal turned with them
+        own = np.concatenate([sleeve['v'], sleeve['v'][inward[3]]])
+        alone = inward.copy(); alone[3] = len(sleeve['v']) + np.arange(3)
+        _, kept, turned = bake.faced_out('bicepl', own, alone, np.tile([[0.0, 0.0, 1.0]], (len(own), 1)), bones)
+        self.assertTrue(turned == 3 and (kept[-3:] == [0.0, 0.0, -1.0]).all() and (kept[:-3] == [0.0, 0.0, 1.0]).all())
+        # only the faces asked about are read and turned
+        which = np.ones(len(inward), bool); which[40] = False
+        faces, _, turned = bake.faced_out('bicepl', sleeve['v'], inward, normals, bones, which)
+        self.assertTrue(turned == 2 and np.array_equal(faces[40], inward[40]))
+        # the body's own skin beside the outfit is neither read nor counted as what lies under a face
+        skin = arm(0.05, 0.3, 0.03)
+        worn = {'v': np.concatenate([sleeve['v'], skin['v']]), 'f': np.concatenate([inward, skin['f'][:, ::-1] + len(sleeve['v'])]),
+                'skin': np.arange(len(inward) + len(skin['f'])) >= len(inward)}
+        self.assertEqual(bake.facing({'bicepl': worn}, bones)[0], report)
+        # a part with a bone of one end, or on a rig without its bone, is read round its own middle
+        v, f = box(side=0.1)
+        f = f.copy(); f[5] = f[5][::-1]
+        for name, some in (('pelvis', bones), ('chest', {})):
+            self.assertEqual(len(bake.facing({name: {'v': v, 'f': f}}, some)[1]), 1)
+            self.assertEqual(bake.faced_out(name, v, f, np.zeros((8, 3)), some)[2], 1)
+
     def test_an_end_at_a_torso_opening_is_asked_to_run_no_deeper_than_the_torso_stands_over_the_joint(self):
         bones, terms = rig(), contract(rings={'shoulder': 0.08})
         short = {'bicepl': arm(-0.025, 0.3, 0.075)}  # 2.5 cm past the shoulder plane, where tier 2 asks 4 cm
@@ -335,6 +391,10 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(bake.gates(parts, models, resources, whole=faulty)['failures'],
                              ['the generated outfit: an opening 1.2 cm round', 'the generated outfit: a piece of 4.0 cm² standing apart from the rest'])
             json.dumps(bake.gates(parts, models, resources, whole=faulty))
+            # with what `facing` found, faces the client would show a hole at are gated too
+            report = bake.gates(parts, models, resources, faced=({'chest': 0.0004, 'pelvis': 0.0}, ['chest: 3 faces turned in']))
+            self.assertEqual((report['passed'], report['failures'], report['facing']), (False, ['chest: 3 faces turned in'], {'chest': 0.0004, 'pelvis': 0.0}))
+            self.assertNotIn('facing', bake.gates(parts, models, resources))
             # with what `ends` found, the seam contract is gated too
             report = bake.gates(parts, models, resources, joined=({'elbow': {}}, ['forel does not reach the elbow plane']))
             self.assertEqual((report['passed'], report['failures'], report['seams']), (False, ['forel does not reach the elbow plane'], {'elbow': {}}))

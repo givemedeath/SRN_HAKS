@@ -189,12 +189,32 @@ class RefitTests(unittest.TestCase):
             self.assertTrue(np.array_equal(out['v'][skin], near['v'][skin]))  # the arm itself is not moved
             pushed = np.linalg.norm(out['v'] - near['v'], axis=1)
             self.assertLessEqual(pushed.max(), 0.04 + refit.OVER_SKIN - 0.035 + 1e-6)  # by no more than it needs
+            self.assertGreater(refit.short_of_skin(near, start, end), refit.OVER_SKIN + 0.004)  # the arm stands 5 mm out through it
+            self.assertEqual(refit.short_of_skin(out, start, end), 0.0)
+            # read once more after the last pass: a sleeve the passes left inside the arm fails, and says by how much
+            with mock.patch.object(refit, 'OVER_PASSES', 0), self.assertRaisesRegex(Exception, r'Pushed out 0 times, the outfit still lies up to 0\.5 cm inside'):
+                refit.over_skin(near, start, end)
         clear = worn(0.05)
         self.assertIs(refit.over_skin(clear, start, end), clear)  # a sleeve clear of the arm is not touched
         bare = closed(0.05, 0.3, 0.035, near=None, far=None)
         self.assertIs(refit.over_skin(bare, start, end), bare)  # nor a part with no skin beside it
         with self.assertRaisesRegex(Exception, 'would move 4.8 cm, past 3 cm'):  # an arm far fuller than the sleeve fails
             refit.over_skin(worn(0.035, fuller=0.08), start, end)
+
+    def test_a_part_with_no_skin_beside_it_is_short_of_none(self):
+        bones = rig()
+        bare = closed(0.05, 0.3, 0.035, near=None, far=None)
+        self.assertEqual(refit.short_of_skin(bare, bones['lbicep_g'][:3, 3], bones['lforearm_g'][:3, 3]), 0.0)
+
+    def test_a_carried_parts_faces_turned_in_are_turned_out_and_counted(self):
+        forearm = arm(0.3, 0.55, 0.05)
+        piece = {**part(faces=len(forearm['f'])), 'v': forearm['v'], 'f': forearm['f'].copy(), 'n': np.zeros_like(forearm['v'])}
+        out, report = refit.refit({'forel': piece}, (rig(), {}), (rig(), {}))
+        self.assertTrue(np.array_equal(out['forel']['f'], forearm['f']) and 'turnedOut' not in report['forel'])
+        piece['f'][[5, 6]] = piece['f'][[5, 6]][:, ::-1]  # two faces wound to face the arm: the client would show a hole there
+        out, report = refit.refit({'forel': piece}, (rig(), {}), (rig(), {}))
+        self.assertTrue(np.array_equal(out['forel']['f'], forearm['f']))
+        self.assertEqual(report['forel']['turnedOut'], 2)
 
     def test_an_end_carried_under_the_other_bodys_own_part_is_seated_in_it(self):
         # an upper arm 4 cm round, its cap 10 cm back past the shoulder plane (x = 0.05), under a chest that stands
