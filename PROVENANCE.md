@@ -917,7 +917,10 @@ were lit 0.35 metres too high, wall and all, the sign 0.25 metres short of one e
 the sign's depth. The lit parts were measured again and bounded in depth to the sign's board, the glass and the lamps,
 each given halo sheets of its own, and seen again by night, lit, out and lit again. The walk check (`envkit check
 group --mode walk`), in both tilesets, sent five walkers from the far corner of the area to the door and to the four
-sides of the building: all arrived. Not yet opened in the Toolset.
+sides of the building: all arrived. Painted in the Toolset on 2026-11-14 from the built packs, in both tilesets:
+straight, a quarter turn (Modern Exterior) and a half turn (Suburbs). Each saved area holds the six group tiles and
+one door of appearance 58 that the Toolset made at the hook, and in the client (`envkit check doors`) each of the four
+doors took the player through its area transition.
 
 ## Iron Sight Arms props (`srn_placeable`, `srn_2da`; 2026-11-14)
 
@@ -947,7 +950,9 @@ back, and the vending machine and the booths carry an emblem the generator inven
 
 Checked in the game client on 2026-11-14: by day from front, back and side with a figure for scale, from the converted
 files; by night the same way for the six lit props; and by night from the pack's files, where the lights of the six
-were put out by script and brought back. Not yet opened in the Toolset.
+were put out by script and brought back. Four of them (vending machine, shooting booths, ammo shelf and pistol
+counter, from both palette categories) were placed from the Toolset's palette on 2026-11-14 and saved with their own
+rows and names, the shelf static and the three lit props not.
 
 ## MDRNEE placeable import (2026-09-11)
 

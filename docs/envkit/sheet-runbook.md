@@ -258,6 +258,11 @@ By computer use (access is asked for `nwtoolset.exe` by that name):
   and the tile under the cursor turns with the group: after a half turn it is the top-right.
 - The palette's object buttons ignore simulated clicks too: `-Do tab -Index 5` shows the placeables, `-Do tab
   -Index 9` the tiles again, and `-Do path -Index 1 -Path <category>/<subcategory>/<n>` selects a blueprint.
+  The numbers count down the tree as the Toolset shows it, from 0, and it lists categories by name, not in the
+  palette file's order (2026-11-14: Modern Exterior is 5 and Modern Interior 6 of 14, where the file has them
+  12 and 13, and a path read from the file selected a stock bookcase). `-Do reach -Index 1 -Root <n> -Child 0`
+  opens one category to read its subcategories; read the selected name before placing.
+- The wheel over the palette zooms the area view if the view has the focus, a long way for each notch.
 - The mouse wheel zooms the area view while the view has the focus; the zoom buttons do nothing.
 - Leave the start point's corner tile alone: the Toolset refuses to save with the start on a tile painted over.
 - Save with File > Save (ctrl+s did nothing, 2026-11-12), then judge by `saved`, not by the screen: it lists the
