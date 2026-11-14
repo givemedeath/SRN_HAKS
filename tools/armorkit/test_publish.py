@@ -207,12 +207,13 @@ class GateTests(Workspace):
         self.assertEqual([(one['gate'], one['model']) for one in found if one['gate'] != 'closure'], [('unlisted', f'pme2_pelvis{NUMBER}n.tga')])
 
     def test_a_model_that_names_another_models_texture_fails(self):
-        found = self.failures(self.pack(registry.BODIES), textures=named_human)
+        whole = self.pack(registry.BODIES)
+        found = self.failures(whole, textures=named_human)
         self.assertEqual({one['gate'] for one in found}, {'closure', 'unlisted'})  # their own textures are then no model's
         found = [one for one in found if one['gate'] == 'closure']
         self.assertEqual(len(found), 18 * len(TOKENS))  # every model but the Human Fit ones, which name their own
         self.assertIn('not its own', found[0]['reason'])
-        pack = {name: path for name, path in self.pack(registry.BODIES).items()
+        pack = {name: path for name, path in whole.items()
                 if name.endswith('.mdl') or name[:2] == 'ip' or name[2:4] == 'h0'}
         self.assertEqual({one['gate'] for one in self.failures(pack)}, {'closure'})  # and its own must be in the pack
 
