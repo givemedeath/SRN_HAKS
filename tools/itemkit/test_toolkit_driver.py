@@ -554,6 +554,33 @@ class WorkspaceAndDriverTests(unittest.TestCase):
                 d.textured('knife', 'a1', 'src', 'approved', field_range=[-.22, 1.13])
             stage.assert_not_called()
 
+    def test_textured_reruns_a_failed_donor_and_reuses_a_complete_one(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            for stage in ('geometry', 'appearance'):
+                (root/f'blade/{stage}-a1/job').mkdir(parents=True)
+                (root/f'blade/{stage}-a1/job/collection.json').write_text(json.dumps({'outputs': [{'path': 'raw.glb', 'sha256': 'g'}]}), encoding='utf-8')
+            (h/'blade.geometry-approved-v1.asset.json').write_text(json.dumps({'approval': {'generatedGeometry': {'geometryRawSha256': 'g'}}}), encoding='utf-8')
+            (h/'family.json').write_text(json.dumps({'family': 'longsword'}), encoding='utf-8')
+            (h/'blade.donor-v1.asset.json').write_text(json.dumps({'familyProfile': {'path': 'family.json'},
+                'processing': {'sourceFieldPolicy': {'minimum': -.05, 'maximum': 1.065}}}), encoding='utf-8')
+            run = root/'blade/run-donor-v1'
+            def attempt(name, state):
+                folder = run/'donor'/name; folder.mkdir(parents=True)
+                (folder/'receipt.json').write_text(json.dumps({'state': state}), encoding='utf-8')
+                if state == 'complete': (folder/'donor').mkdir(); (folder/'donor/textured-donor.glb').write_bytes(b'glb')
+                (run/'state.json').write_text(json.dumps({'stages': {'donor': {'path': str(folder/'receipt.json')}}}), encoding='utf-8')
+            attempt('attempt-failed', 'failed')
+            with mock.patch.object(Driver, 'stage', side_effect=lambda *a: attempt('attempt-ok', 'complete')) as stage, \
+                 mock.patch.object(Driver, 'views', return_value={}):
+                self.assertTrue(d.textured('blade', 'a1', 'src', 'approved')['texturedDonor'].endswith('textured-donor.glb'))
+                d.textured('blade', 'a1', 'src', 'approved')
+            self.assertEqual(stage.call_count, 1)                        # the failed attempt ran again; the complete one is reused
+            (run/'donor/attempt-ok/receipt.json').write_text(json.dumps({'state': 'failed'}), encoding='utf-8')
+            with mock.patch.object(Driver, 'stage'), self.assertRaisesRegex(SystemExit, 'did not complete'):
+                d.textured('blade', 'a1', 'src', 'approved')
+
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
         import hashlib
         from tools.itemkit.drive import Driver
