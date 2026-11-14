@@ -65,9 +65,13 @@ class PlaceableTests(unittest.TestCase):
         self.assertTrue(placeables.lights(text.replace('\n', '\r\n'), {'ek_a': None}).endswith('\r\n'))
         with self.assertRaisesRegex(ValueError, 'no row to light: ek_z'):
             placeables.lights(text, {'ek_z': light})
-        for bad in ({'colour': 3}, {'colour': '3', 'at': [0, 0, 1]}, {'colour': 300, 'at': [0, 0, 1]}, {'colour': 3, 'at': [0, 1]}):
+        for bad in ({'colour': 3}, {'colour': '3', 'at': [0, 0, 1]}, {'colour': 300, 'at': [0, 0, 1]}, {'colour': 32, 'at': [0, 0, 1]}, {'colour': 0, 'at': [0, 0, 1]}, {'colour': 3, 'at': [0, 1]}):
             with self.assertRaisesRegex(ValueError, 'A light is'):
                 placeables.light_values(bad)
+        # The rows are the stock table's only while no pack here ships its own lightcolor.2da (review, 2026-11-14).
+        repo = Path(__file__).resolve().parents[2]
+        self.assertEqual([str(path) for path in repo.glob('srn_*/**/lightcolor.2da')], [], 'A pack overrides lightcolor.2da: '
+                         'bound placeables.LIGHT_COLOURS by its rows')
 
 
 class CommandTests(unittest.TestCase):

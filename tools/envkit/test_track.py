@@ -25,6 +25,13 @@ class TrackTest(unittest.TestCase):
         self.assertTrue((normals[:, 2] > -1e-9).all())  # and none looks down
         self.assertTrue((uvs >= 0).all() and (uvs <= 1).all())
 
+    def test_every_piece_is_wound_to_be_seen_from_outside(self):
+        """A built piece does not go through `convert.turn_faces`, which a generated model does; so each is wound to need
+        none of its faces turned (review, 2026-11-14)."""
+        for build in (track.mesh, track.merge_mesh, track.crane_mesh):
+            vertices, normals, uvs, faces = build()
+            self.assertEqual(convert.turn_faces(vertices, faces)[1], 0, build.__name__)
+
     def test_a_merge_brings_the_next_rows_track_into_the_through_track(self):
         """User, 2026-11-13: "can you make the tracks merge" at both ends of the depot."""
         vertices, normals, uvs, faces = track.merge_mesh()

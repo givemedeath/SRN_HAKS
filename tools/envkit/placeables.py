@@ -11,6 +11,9 @@ COLUMNS = ('Label', 'StrRef', 'ModelName', 'LightColor', 'LightOffsetX', 'LightO
 TOKEN = re.compile(r'"[^"]*"|\S+')
 PREFIX = '[envkit]'
 RESREF = re.compile(r'[a-z0-9_]{1,16}')  # a model or blueprint name: the game reads these letters alike whatever the code page
+# Rows of the game's lightcolor.2da, which no pack here overrides: 0 Black (no light) to 31 Orange (the NWN:EE
+# stock table, kept as SR_NWN content/reference/nwn-ee/r1284/2da/effective/default/lightcolor.2da; review, 2026-11-14).
+LIGHT_COLOURS = range(1, 32)
 LIGHT = slice(4, 8)  # a row's LightColor and LightOffsetX, Y and Z, counting its number as the first value
 
 
@@ -53,9 +56,9 @@ def light_values(light):
     `RecomputeStaticLighting` put it out and back on."""
     if light is None:
         return ['****'] * 4
-    require(isinstance(light, dict) and set(light) == {'colour', 'at'} and type(light['colour']) is int and 0 <= light['colour'] <= 255
+    require(isinstance(light, dict) and set(light) == {'colour', 'at'} and type(light['colour']) is int and light['colour'] in LIGHT_COLOURS
             and isinstance(light['at'], list) and len(light['at']) == 3 and all(type(v) in (int, float) for v in light['at']),
-            'A light is {colour: a row of lightcolor.2da, at: [x, y, z] metres from the object}')
+            'A light is {colour: a row of lightcolor.2da, 1 (DimWhite) to 31 (Orange), at: [x, y, z] metres from the object}')
     return [str(light['colour']), *(f'{float(v):.4f}' for v in light['at'])]
 
 
