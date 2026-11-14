@@ -227,7 +227,13 @@ class MaterialTests(unittest.TestCase):
         # and no darker than the darkest shade a texel may get
         low = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, shadow=shadow, lit=(40, 150, 140))[0]
         self.assertTrue((low[closing & shadow] == texture.SHADES[0]).all() and (low[closing & ~shadow] == 40).all())
-        for wrong in ({'shadow': shadow[:4]}, {'padded': shadow[:, :4]}, {'lit': (201, 150)}):  # not a flag per texel, or a shade per material
+        # at one shade where told: the middle one of what the closing's texels would get, in and out of the shadow
+        flat = texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, shadow=shadow, level=closing)[0]
+        self.assertEqual(len(set(flat[closing].tolist())), 1)
+        self.assertTrue(dark[closing].min() < flat[2, 1] < dark[closing].max())
+        self.assertTrue(np.array_equal(flat[~closing], dark[~closing]))
+        self.assertTrue(np.array_equal(texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, shadow=shadow, level=~closing)[0], dark))
+        for wrong in ({'shadow': shadow[:4]}, {'padded': shadow[:, :4]}, {'level': shadow[:4]}, {'lit': (201, 150)}):  # not a flag per texel, or a shade per material
             with self.assertRaises(ValueError):
                 texture.tint_maps(colour, covered, self.found, channels, closing=closing, speck=0, **wrong)
 

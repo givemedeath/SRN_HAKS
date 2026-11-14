@@ -515,7 +515,7 @@ def lit_shades(colours, found):
     return np.array([np.percentile(shade[material == k], LIT) if (material == k).any() else float(MIDDLE) for k in range(len(found['tones']))])
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, level=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -544,6 +544,10 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     between the two: as a pale strip at the shade of the sleeve's lit shoulder, and as the shadow under the
     chest's edge at this one. The sleeve's cap shows there too; drawing it in from its rim does not close
     the gap (at half the rim's width a quarter less of it showed), and `bake.roles` says how it is drawn.
+
+    `level` flags the closing's texels that are drawn at one shade, the middle one of what they would get:
+    the chest's closings round each arm (`bake.armhole_lid`), which a lifted arm shows a hand's breadth of.
+    Evened over a part of the texture only, such a closing still showed its edge's light and dark as a fan.
 
     `cap` flags the texels of the part's cap (the faces reported as `CAP`). A cap repeats its rim's colours
     toward its pole, and shows in the gap a bent joint opens: it is what its rim is, the pad over a knee and
@@ -602,7 +606,7 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         metal = np.array([pair[0].startswith('metal') for pair in pairs])
         swap = covered & (trim >= 0) & metal[material]
         material[swap] = trim[swap]
-    for name, flags in (('shadow', shadow), ('padded', padded)):
+    for name, flags in (('shadow', shadow), ('padded', padded), ('level', level)):
         require(flags is None or np.shape(flags) == covered.shape, f'`{name}` is one flag per texel')
     require(lit is None or len(lit) == len(pairs), 'A lit shade per material is required')
     plain = covered & np.asarray(closing, bool) if closing is not None else np.zeros(covered.shape, bool)
@@ -628,6 +632,9 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         if shadow is not None:
             dark = plain & np.asarray(shadow, bool)
             shade[dark] = np.maximum(shade[dark] * ARMHOLE_SHADE, SHADES[0])
+        if level is not None and (plain & np.asarray(level, bool)).any():
+            flat = plain & np.asarray(level, bool)
+            shade[flat] = np.median(shade[flat])
     if padded is not None and (dome & np.asarray(padded, bool)).any():
         beside = dome & ~np.asarray(padded, bool)
         material[beside], shade[beside] = 0, even(0)

@@ -11,7 +11,7 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, bodyskin, export, measure, registry, seams, split
+from . import bake, bodyskin, export, measure, registry, seams, split, texture
 from .test_split import tube
 
 
@@ -173,6 +173,40 @@ class BakeTests(unittest.TestCase):
                              ['pmh0_chest332.mtr', 'pmh0_chest332.plt', 'pmh0_chest332n.tga', 'pmh0_pelvis332.mtr', 'pmh0_pelvis332.plt', 'pmh0_pelvis332n.tga'])
             shades, layers = export.read_tint((Path(folder) / 'resources' / 'pmh0_chest332.plt').read_bytes())
             self.assertTrue((shades == 170).all() and (layers == export.LAYERS['cloth1']).all())
+
+    def test_a_chests_closings_round_each_arm_are_found_and_drawn_as_the_sleeves_closings_at_one_shade(self):
+        bones = rig()  # shoulders at (0, 0, 0) and (0, 5, 0), the waist at (0, -5, 1.1)
+        corner = np.array([(0.0, 0.0, 0.0), (0.1, 0.0, 0.0), (0.0, 0.1, 0.0)])
+        at = [(0, 0, 0.1), (0, 5, 0.1), (0, -5, 1.0), (0, 0.2, 0), (0, 0.4, 0), (0, -2.0, 0.5), (0, -2.1, 0.5)]
+        v = np.concatenate([corner + place for place in at[:5]] + [corner + at[5], corner[1:] + at[5], [np.array((0.1, 0.1, 0.0)) + at[5]]])
+        f = np.concatenate([np.arange(15).reshape(5, 3), [[15, 16, 17], [18, 20, 19]]])  # the last two share an edge: one piece
+        chest = {'v': v, 'f': f, 'added': np.array([True, True, True, False, True, True, True]), 'skin': np.array([False] * 4 + [True] + [False] * 2)}
+        # a closing by each shoulder; not the lid at the waist, the outfit's own face, or the body's skin
+        self.assertEqual(bake.armhole_lid(chest, bones).tolist(), [True, True, False, False, False, True, True])
+        chest['v'] = v + np.where(np.arange(len(v))[:, None] >= 15, (0, -1.5, 0.5), 0.0)  # the piece of two, moved nearer the waist: all of it its lid
+        self.assertEqual(bake.armhole_lid(chest, bones).tolist(), [True, True, False, False, False, False, False])
+        self.assertFalse(bake.armhole_lid({**chest, 'added': np.zeros(7, bool)}, bones).any())
+        # tinted with the rig, those texels go to `tint_maps` as closings, in the armhole's shadow and at one shade
+        whole, sleeve = part(2, 8), part(1, 8)
+        whole['added'], sleeve['closing'] = np.array([False, True]), np.eye(8, dtype=bool)
+        document = {'model': 'test', 'materials': [{'name': 'shirt', 'kind': 'cloth'}]}
+        lid = texture.face_texels(whole['uv'], whole['f'], [False, True], 8)
+        self.assertTrue(lid.any())
+        for rigged, flags in ((bones, lid), (None, None)):
+            seen = {}
+
+            def drawn(colour, covered, found, channels, **given):
+                seen[len(seen)] = given
+                return np.full(covered.shape, 170), np.full(covered.shape, export.LAYERS['cloth1'])
+            with mock.patch.object(texture, 'tint_maps', drawn), mock.patch.object(bake, 'armhole_lid', lambda part, bones: part['added']), \
+                    mock.patch.object(bake.brief, 'worn', lambda document, found: document['materials']):
+                bake.tints({'chest': whole, 'bicepl': sleeve}, document, bones=rigged)
+            arm, torso = seen[0], seen[1]  # in the order of their names
+            self.assertTrue(np.array_equal(arm['closing'], sleeve['closing']) and np.array_equal(arm['shadow'], sleeve['closing']) and arm['level'] is None)
+            if flags is None:
+                self.assertTrue(not torso['closing'].any() and torso['shadow'] is None and torso['level'] is None)
+            else:
+                self.assertTrue(all(np.array_equal(torso[key], flags) for key in ('closing', 'shadow', 'level')))
 
     def test_holes_and_crumbs_of_the_generated_outfit_are_found_and_separate_pieces_are_not_faults(self):
         v, f = box(side=0.1)
@@ -493,7 +527,7 @@ class BakeTests(unittest.TestCase):
             (output / 'ascii' / 'pmh0_chest331.mdl').write_text('')  # an earlier run's, under another number
             (output / 'ascii' / 'pmh0_shol332.mdl').write_text('')  # and a part this outfit does not have
             tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
-            with mock.patch.object(bake, 'tints', lambda parts, document: (tinted, {'materials': []})), \
+            with mock.patch.object(bake, 'tints', lambda parts, document, bones=None: (tinted, {'materials': []})), \
                     mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}, {})), \
                     mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({'waist': {}}, [])), \
                     mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({'waist': {}}, [])), \
@@ -541,7 +575,7 @@ class BakeTests(unittest.TestCase):
                  ({'chest': part(), 'bicepl': skin}, None, plain),  # and with it, where the brief shows none
                  ({'chest': part()}, {**plain, 'bare': ['forearm']}, plain))  # no forearm, left to the body by the brief baked from and no longer
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
-                mock.patch.object(bake, 'tints', lambda parts, document: self.fail('tinted')):
+                mock.patch.object(bake, 'tints', lambda parts, document, bones=None: self.fail('tinted')):
             for parts, baked_from, brief in cases:
                 bake.store(parts, Path(folder) / 'kept', baked_from)
                 with self.assertRaisesRegex(ValueError, 'bake the outfit again'):
