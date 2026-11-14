@@ -1,4 +1,4 @@
-"""Command line for the armorkit foundation: registry, parts tables, measurements, outfit briefs, bakes and client fixtures."""
+"""Command line for the armorkit foundation: registry, parts tables, measurements, outfit briefs, bakes, client fixtures and publication."""
 import argparse
 import importlib
 import json
@@ -169,6 +169,13 @@ def command_fixture(args):
     print(json.dumps(record))
 
 
+def command_publish(args):
+    from . import publish
+    code = publish.command(args)
+    if code:
+        sys.exit(code)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='armorkit', description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -273,6 +280,17 @@ def main(argv=None):
     p.add_argument('--timeout', type=float, help='seconds to wait for the run (default: scaled to the number of shots)')
     p.add_argument('--settle', type=float, default=1.5, help='seconds between a shot line and its capture')
     p.set_defaults(handler=command_fixture)
+    p = commands.add_parser('publish', help='publish baked outfits into the srn_parts pack, with tables, registry, handoff and gates')
+    p.add_argument('registry', help='the whole registry as it stands after the publication')
+    p.add_argument('--bake', action='append', default=[], required=True, help="a bake's output folder, compiled at the part's registry number")
+    p.add_argument('--stock', required=True, help="folder of the game's own parts_*.2da tables")
+    p.add_argument('--record', action='append', default=[], help="MODEL=FILE: a file of the outfit's history to pin by hash (generation ledger, log, refit report)")
+    p.add_argument('--brief', action='append', default=[], help='MODEL=FILE: the brief an outfit was baked from, where two briefs are of one model')
+    p.add_argument('--body-pack', help="folder of the bodies' models (default: the repository's srn_body)")
+    p.add_argument('--trial', help='scratch folder to write the publication into whatever the gates say, instead of the repository')
+    p.add_argument('--dry-run', action='store_true', help='run the gates and print the report; write nothing')
+    p.add_argument('--build', action='store_true', help='pack srn_parts and srn_2da once written (a trial: into its own output folder)')
+    p.set_defaults(handler=command_publish)
     args = parser.parse_args(argv)
     args.handler(args)
 
