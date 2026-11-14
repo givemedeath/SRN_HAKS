@@ -31,6 +31,7 @@ from . import straightness as st
 
 STANDARD = ROOT/'docs/items/weapon-grip-standard-v1.json'
 LANDMARKS = ('pommelEnd', 'gripStart', 'gripEnd', 'bladeStart')
+PROBE_SAMPLE_FRACTION = .05      # a thickness probe's sample tolerance, as a fraction of its section (2.5 mm at least)
 # Processing settings the Vibro Sword needed before it passed (fit-v5, 2026-11-05): plain reduction moved the part joins.
 PROCESSING = {'cageExtrusion': .006, 'maxRayDistance': .012, 'uvPackingPaddings': [8, 12, 16], 'constrainedReduction': True,
               'uvCoordinateScale': 1000, 'missCorrection': {'method': 'nearest-finished-donor', 'maximumDistance': .003,
@@ -92,7 +93,24 @@ def bladed_landmarks(q, U, overrides):
     bulge = np.flatnonzero(width[:len(handle) // 2] > 1.1 * gw)                # pommel: the last clearly wider butt slice
     p1 = max(int(bulge[-1]) + 1 if len(bulge) else 0, int(round(.04 * len(handle))))
     marks = {'pommelEnd': p1 / N, 'gripStart': p1 / N, 'gripEnd': float(g0 / N), 'bladeStart': float((g1 + 1) / N)}
+    q, U = _blade_broad_face(q, U, extent, float(overrides.get('bladeStart', marks['bladeStart'])))
     return method, q, U, marks
+
+
+BROAD_FACE_RATIO = .8
+
+
+def _blade_broad_face(q, U, extent, blade_start):
+    """Turn the frame a quarter about the long axis when the blade's (or a hafted head's) broad face lies on the depth axis.
+
+    The principal frame's width axis is the shape's larger transverse spread. A handle much thicker than it is tall
+    outweighs a long flat blade (the wave-3 Vibro Knife, 2026-11-13): the blade then came out a quarter-turn round in
+    the hand and the grip standard's width went across the handle's thickness. A round or square blade or head (a bat,
+    a baton, a staff) is left alone."""
+    N = st.SLICES; blade = np.arange(int(blade_start * N), N); blade = blade[~np.isnan(extent[blade, 0])]
+    if len(blade) < 5 or np.median(extent[blade, 0]) >= BROAD_FACE_RATIO * np.median(extent[blade, 1]): return q, U
+    q = np.column_stack([q[:, 0], q[:, 2], -q[:, 1]]); U = np.column_stack([U[:, 0], U[:, 2], -U[:, 1]])
+    return _oriented(q, U, False)
 
 
 def hafted_landmarks(q, U, overrides):
@@ -108,6 +126,10 @@ def hafted_landmarks(q, U, overrides):
     bulge = np.flatnonzero(width[:N // 6] > 1.25 * shaft)                       # a butt knob or cap wider than the haft
     butt = int(bulge[-1]) + 1 if len(bulge) else 0
     marks = {'pommelEnd': butt / N, 'gripStart': butt / N, 'gripEnd': head_start / N, 'bladeStart': head_start / N}
+    # A flat head (an axe blade, a cleaver) gets the same check as a blade: a haft thicker than the head is tall can
+    # turn the principal frame a quarter round. A round head or a round tapering club is left alone; a flat one (a
+    # paddle) turns like a flat head.
+    q, U = _blade_broad_face(q, U, extent, float(overrides.get('bladeStart', marks['bladeStart'])))
     return 'hafted-head' if len(head) else 'hafted-taper', q, U, marks
 
 
@@ -213,11 +235,18 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         near = cand[(np.abs(q[cand, 0] - q[lo_i, 0]) < .003 * L) & (np.abs(q[cand, 1] - q[lo_i, 1]) < .003 * L)]
         hi_i = near[np.argmax(q[near, 2])]
         if q[hi_i, 2] - q[lo_i, 2] < .2 * np.nanmin(extent[j]):          # sparse thick shaft: nearest vertex on the far side
-            top = cand[q[cand, 2] > c[1]]; hi_i = top[np.argmin(np.hypot(q[top, 0] - q[lo_i, 0], q[top, 1] - q[lo_i, 1]))]
+            top = cand[q[cand, 2] > c[1]]
+            # A narrow band with no vertex past the section centre (a thin rapier blade, 2026-11-13) looks in the widest
+            # band for the far side (never out at the edge, where a diagonal would overstate the section); only a band
+            # with no far-side vertex at all keeps the near pair.
+            if not len(top): top = np.flatnonzero(station & (np.abs(q[:, 1] - c[0]) < .4 * half_width) & (q[:, 2] > c[1]))
+            if len(top): hi_i = top[np.argmin(np.hypot(q[top, 0] - q[lo_i, 0], q[top, 1] - q[lo_i, 1]))]
         pts = [b[lo_i].tolist(), b[hi_i].tolist()]; fit = transform(np.array(pts), F); t = float(np.linalg.norm(fit[1] - fit[0]))
         require(t > .0008, f'Section thinner than 0.8 mm at station {k}')
+        # The sample tolerance follows the section: 2.5 mm protects a thin edge, but a coarse shadow of a thick round
+        # collar (the wave-1 Spear's 11 cm, 2026-11-12) is several millimetres off its surface without thinning at all.
         probes.append({'name': f'blade-section-{k}', 'sourcePoints': pts, 'points': fit.tolist(), 'measuredThickness': t,
-                       'minimum': t / 2, 'maximumSampleError': .0025})
+                       'minimum': t / 2, 'maximumSampleError': max(.0025, PROBE_SAMPLE_FRACTION * t)})
     return {'family': name, 'method': method, 'automaticLandmarks': auto, 'overrides': overrides, 'landmarks': marks,
             'gripEndpoints': [A.tolist(), B.tolist()], 'matrix': M.tolist(), 'fitMatrix': np.asarray(F).tolist(), 'scale': float(s),
             'usableSourceLength': usable, 'joinY': joins, 'joinClearance': [c[1] for c in cleared], 'thicknessProbes': probes,

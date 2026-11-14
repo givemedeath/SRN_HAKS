@@ -131,7 +131,12 @@ accessories up to 2,000, a whole worn outfit up to 30,000 (user decision 2026-11
 trial's 20,000 with the body slots in proportion, to make the needed quality easier to reach on the next
 outfit). The split adds about seven tenths to the faces a generated mesh is exported with (closings, caps,
 the crotch strip, faces cut in two): siteguard-male was exported at 12,000 and is worn at 20,704, so an
-outfit for this budget is exported at about 17,000. Runtime textures at most 1024 px.
+outfit for this budget is exported at about 17,000. Runtime textures at most 1024 px. The faces fall unevenly:
+Facility Security, exported at 17,000, was worn at 29,396 with seven parts over 2,250 (the legs carry the
+pockets, straps and guards), so the bake brings each part over its budget under it by taking out the vertices
+whose loss changes its surface least (`tools/armorkit/reduce.py`). It keeps every vertex the split made and the
+outfit near each joint's plane, where the seam contract measures the ends, and counts the body's skin beside a
+part in a slot shared with it. Facility Security was then worn at 25,065 (2026-11-13).
 
 ## Seam rules
 

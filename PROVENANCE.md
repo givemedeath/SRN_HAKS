@@ -1340,3 +1340,30 @@ hair closure while preserving her selected fit and prior mapped texture.
 The heads reference the game's built-in organic head materials; stock material
 and palette payloads are not redistributed. Machine bindings, intermediate
 models, private logs and generated HAKs remain outside the repository.
+
+## Melee wave 1: Survival Knife, Sword, Club, Claymore (srn_weapon; 2026-11-13)
+
+Same origin and toolchain as melee wave 2 below. The geometry was generated from source-accurate SR4 catalog references
+(clay and detail pairs). For the Sword and Club these were oblique pairs drawn with the Codex app's image tool. The
+geometry was then straightened, squared or thinned as recorded with each private run. The content is contributed by the
+SRN project operator with Claude-assisted generation, fitting, texturing and validation. The exact payload bytes of each
+user-approved run are published in `srn_weapon`, with hashes and approvals in `docs/items/approved-weapons-v1.json`. No
+table change is needed. Intermediates, bindings, HAK archives, ledger entries and client captures stay outside the
+repository. Shadowrun names and designs are third-party marks; this record asserts no ownership of them and adds no new
+rights claim.
+
+## Melee wave 2: Ceramic Knife, Extendable Baton, Tomahawk, Baseball Bat, Stun Staff (srn_weapon, srn_2da; 2026-11-13)
+
+Same origin and pipeline as the Vibro sword above: SR4 catalog references, then
+geometry generated from the colour detail image and saved-shape appearance, both
+through the shared ComfyUI and the shared itemkit trial ledger. The itemkit
+toolchain then fitted the pieces to the Cougar melee grip standard (round, two-hand
+and even-section variants), reduced, UV-mapped and baked them, built quadric shadows
+and compiled NWN:EE native models. The content is contributed by the SRN project
+operator with Claude-assisted generation, fitting, texturing and validation. The
+exact payload bytes are published in `srn_weapon`. Hashes and the user's approval
+statements are in `docs/items/approved-weapons-v1.json`. `srn_2da/baseitems.2da`
+only extends the F1 and F2 appearance-picker `MaxRange` values (to 111 and 181).
+Generation intermediates, local bindings, HAK archives, ledger entries and client
+captures stay outside the repository. Shadowrun names and designs are third-party
+marks; this record asserts no ownership of them and adds no new rights claim.

@@ -97,6 +97,17 @@ def cuffed(x, z):
     return inside(x, z) and not (0.98 <= z < 1.00 and abs(x) > 0.19)
 
 
+def notched(x, z):
+    """As `bare`, with a notch cut into each shoulder just above the armpit: the top of a loose short sleeve stands
+    apart from the torso there for a section, a sliver above where the sleeve joins it."""
+    return bare(x, z) and not (ARMPIT + 0.02 <= z < ARMPIT + 0.04 and 0.17 <= abs(x) < 0.19)
+
+
+def thumbed(x, z):
+    """As `inside`, with a thumb standing out from the outer side of each palm: drawn flat, palm to the front."""
+    return inside(x, z) or (0.86 <= z < 0.92 and 0.06 <= abs(x) - ARM(z) < 0.15)
+
+
 def holstered(x, z):
     """As `inside`, with a holster on each thigh below the hand and farther out than the fingers: no glove."""
     return inside(x, z) or (0.55 <= z < 0.62 and 0.52 < abs(x) < 0.60)
@@ -203,6 +214,27 @@ class JointTests(unittest.TestCase):
         self.assertLess((gloves[-1, 0] - SHIFT[2]) / SCALE, 1.02)  # the glove, from its upper end down
         self.assertEqual(len(repose.past(self.marks, -1, repose.centreline(self.marks, -1, self.marks['armpit'] - 0.005 * self.marks['height'], 'arm'))), 0)
 
+    def test_a_sliver_of_sleeve_above_the_armpit_is_passed_over_and_the_arm_found_below_it(self):
+        v, faces = doll(inside=notched)  # the walk from the sliver ended after one section, and no arm was found
+        here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
+        for side in 'lr':  # as the bare arm's, without the notch
+            for joint, most in (('shoulder', 0.03), ('elbow', 0.04), ('wrist', 0.03), ('tip', 0.01)):
+                self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), most, (joint, side))
+
+    def test_a_sleeves_line_leaves_out_its_hem_rings_one_at_a_time(self):
+        # The ring middles of Facility Security's left sleeve, as shares of its height: two at the hem, cut aslant,
+        # then seven along the sleeve up to the armpit. All far rings left out at once kept the second hem ring
+        # and laid the sleeve 17 degrees below level.
+        rings = np.array([[-0.216, -0.194, 0.842], [-0.206, -0.182, 0.84], [-0.191, -0.164, 0.83], [-0.183, -0.164, 0.836],
+                          [-0.175, -0.164, 0.842], [-0.167, -0.164, 0.848], [-0.159, -0.165, 0.855], [-0.151, -0.165, 0.861],
+                          [-0.143, -0.165, 0.868]])
+        sleeve = seams.unit(np.linalg.svd(rings[2:] - rings[2:].mean(axis=0))[2][0])
+        middle, along = repose.through(rings, rings[0] + (0, 0, -0.1), 1.0)
+        self.assertGreater(abs(float(along @ sleeve)), 0.999)
+        self.assertAlmostEqual(float(np.degrees(np.arcsin(-along[2]))), 38.3, delta=1.0)  # pointing down the arm
+        with self.assertRaises(ValueError):
+            repose.through(rings[:1], rings[0], 1.0)
+
     def test_a_guard_standing_off_the_shoulder_does_not_move_the_armpit_above_it(self):
         v, faces = doll(inside=guarded)
         here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)
@@ -268,12 +300,41 @@ class ReposeTests(unittest.TestCase):
         self.assertAlmostEqual(self.result['scale'], 1 / SCALE, delta=0.05)
         again, marks = repose.outfit_joints(self.result['vertices'], self.result['faces'], self.there)
         self.assertAlmostEqual(marks['floor'], 0.0, delta=0.01)  # the soles are on the ground
+        # the doll's flat hand, drawn in to the body's (`gloved`), is no wider than its wrist, which is then told
+        # from the outfit as it was carried onto the body
+        before = repose.outfit_joints(self.result['posed'], self.result['faces'], self.there)[0]
         for joint in ('knee', 'ankle', 'shoulder', 'elbow', 'wrist'):
             for side in 'lr':
-                error = np.linalg.norm((again[joint + side] - self.there[joint + side])[[0, 2]])
-                self.assertLess(error, 0.05, f'{joint}{side} {again[joint + side]} {self.there[joint + side]}')
+                found = before if joint == 'wrist' else again
+                error = np.linalg.norm((found[joint + side] - self.there[joint + side])[[0, 2]])
+                self.assertLess(error, 0.05, f'{joint}{side} {found[joint + side]} {self.there[joint + side]}')
         # the arms hang beside the body now, and the legs stand under the hips
         self.assertLess(np.abs(self.result['vertices'][:, 0]).max(), 0.45)
+
+    def test_a_flat_glove_drawn_palm_forward_is_turned_till_its_thumb_lies_forward(self):
+        v, faces = doll(depth=0.03, inside=thumbed)  # a flat hand, its thumb out to the side
+        thumb = (v[:, 2] > 0.865) & (v[:, 2] < 0.915) & (np.abs(v[:, 0]) - ARM(v[:, 2]) > 0.075)
+        posed = repose.onto_body(v * SCALE + SHIFT, faces, self.bones, self.parts)['posed']
+        for sign, side in ((-1, 'l'), (1, 'r')):
+            wrist, tip = self.there['wrist' + side], self.there['tip' + side]
+            axis = seams.unit(tip - wrist)
+            mine = posed[:len(v)][thumb & (np.sign(v[:, 0]) == sign)] - wrist
+            out = seams.unit((mine - (mine @ axis)[:, None] * axis).mean(axis=0))
+            self.assertGreater(out[1], 0.9, side)  # forward, as the body's thumb is, and not out to the side
+
+    def test_a_hand_is_turned_only_where_a_thumb_stands_out(self):
+        wrist, tip = np.zeros(3), np.array([0.0, 0.0, -0.18])
+        palm = np.array([(x, y, z) for x in np.linspace(-0.045, 0.045, 10) for y in (-0.01, 0.01) for z in np.linspace(-0.02, -0.18, 17)])
+        self.assertEqual(repose.thumb_turn(palm, wrist, tip), 0.0)  # a mitten: no thumb tells which way it faces
+        thumb = np.array([(x, y, z) for x in np.linspace(0.05, 0.10, 6) for y in (-0.01, 0.01) for z in (-0.06, -0.08)])
+        gloved = np.concatenate([palm, thumb])
+        angle = repose.thumb_turn(gloved, wrist, tip)
+        self.assertAlmostEqual(abs(angle), np.pi / 2, delta=0.1)
+        turned = repose.turned(thumb, wrist, seams.unit(tip - wrist), angle)
+        self.assertGreater(turned[:, 1].mean(), 0.06)  # the thumb, out along +x, now forward
+        np.testing.assert_allclose(np.linalg.norm(turned[:, :2], axis=1), np.linalg.norm(thumb[:, :2], axis=1))
+        mirrored = gloved * (-1, 1, 1)  # the other hand
+        self.assertAlmostEqual(repose.thumb_turn(mirrored, wrist, tip), -angle, delta=1e-6)
 
     def test_a_leg_pressed_past_the_middle_comes_back_to_its_own_side(self):
         there = {'hipl': np.array([-0.1, 0.0, 1.0]), 'hipr': np.array([0.1, 0.0, 1.0]), 'hips': np.array([0.0, 0.0, 1.0])}
@@ -336,7 +397,7 @@ class ReposeTests(unittest.TestCase):
         materials = np.zeros(len(self.faces), int)
         for side in 'lr':
             materials[np.linalg.norm(centre - self.result['joints']['shoulder' + side], axis=1) < 0.07 * SCALE] = 1
-        result = repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials)
+        result = repose.onto_body(self.given, self.faces, self.bones, self.parts, materials=materials, padded='lr')
         self.assertTrue(np.array_equal(np.any([found['pad'] for found in result['sleeves'].values()], axis=0), (materials == 1)[result['origin']]))
         for side, found in result['sleeves'].items():
             self.assertTrue(found['pad'].any() and found['on'][3].any())
@@ -433,6 +494,80 @@ class FitTests(unittest.TestCase):
             fitted, report = repose.fit(glove, self.follow(len(glove), name), self.there, self.parts)
             self.assertTrue(np.allclose(fitted, glove), name)
             self.assertNotIn(name, report)
+
+    def open_hand(self, side='l', thumb=0.012):
+        """An open glove on a hand bone, as the generator draws one: a palm 10 cm across, four fingers fanned out to
+        16 cm across their tips, and a thumb out forward lying `thumb` toward the body (the palm's side) from the
+        middle: (points, palm axis toward the body, forward axis, hand axis), in body space."""
+        wrist, tip = self.there['wrist' + side], self.there['tip' + side]
+        axis = seams.unit(tip - wrist)
+        forward = seams.unit(np.array([0.0, 1.0, 0.0]) - axis[1] * axis)
+        across = np.cross(axis, forward)
+        inward = across if (self.there['hips'] - wrist) @ across > 0 else -across
+        rows = [(h, w, q) for h in np.linspace(0.0, 0.095, 20) for w in np.linspace(-0.05, 0.05, 11) for q in (-0.012, 0.012)]
+        for finger in range(4):
+            spread = -0.06 + 0.04 * finger
+            rows += [(h, spread * (h - 0.06) / 0.11, q) for h in np.linspace(0.1, 0.17, 15) for q in (-0.008, 0.008)]
+        rows += [(h, 0.05 + 0.8 * (h - 0.02), thumb + q) for h in np.linspace(0.02, 0.08, 10) for q in (-0.008, 0.008)]
+        local = np.array(rows)
+        return wrist + local[:, :1] * axis + local[:, 1:2] * forward + local[:, 2:] * inward, inward, forward, axis
+
+    def test_a_gloves_fingers_curl_toward_its_palm_and_it_is_drawn_in_to_the_hand(self):
+        glove, inward, forward, axis = self.open_hand()
+        wrist = self.there['wristl']
+        weight = self.follow(len(glove), 'handl')
+        fitted, report = repose.gloved(glove, weight, self.there, self.parts)
+        tips = (glove - wrist) @ axis > 0.165
+        self.assertGreater(float(((fitted[tips] - glove[tips]) @ inward).min()), 0.03)  # toward the palm
+        self.assertLess(float(((fitted[tips] - wrist) @ axis).max()), 0.165)  # and up toward the knuckles
+        # each ring of it drawn in across the thumb toward the hand's 6 cm tube and a glove's skin a side, evened
+        # with the rings beside it, and never to less than half of what it was
+        h, before, after = (glove - wrist) @ axis, (glove - wrist) @ forward, (fitted - wrist) @ forward
+        bent = (fitted - wrist) @ axis
+        for low in np.arange(0.01, 0.08, 0.01):  # the palm and thumb, which the curl leaves where they were along the bone
+            ring = (h >= low) & (h < low + 0.01) & (bent < 0.09)
+            wide, now = float(np.ptp(before[ring])), float(np.ptp(after[ring]))
+            self.assertLess(now, wide - 0.02, low)
+            self.assertLessEqual(now, max(0.06 + 2 * repose.GLOVE_SKIN, repose.NARROWEST * wide) + 0.015, low)
+            self.assertGreaterEqual(now, repose.NARROWEST * wide - 1e-9, low)
+        self.assertLess(abs(float(after[h < 0.09].mean())), 0.01)  # its middle drawn onto the hand's
+        self.assertLess(report['handl'][0], 0.8)
+        self.assertAlmostEqual(report['handl'][1], repose.KNUCKLES * 0.17, delta=0.005)
+        self.assertIsNone(report['handr'])  # nothing follows the right hand
+
+    def test_a_glove_moves_by_its_share_of_the_hand_and_one_with_no_thumb_aside_is_not_curled(self):
+        glove, inward, forward, axis = self.open_hand()
+        wrist = self.there['wristl']
+        weight = self.follow(len(glove), 'handl')
+        weight[:, :10] = 0.0
+        weight[self.names.index('forel'), :10] = 1.0  # a cuff's edge that follows the forearm
+        fitted, _ = repose.gloved(glove, weight, self.there, self.parts)
+        self.assertTrue(np.allclose(fitted[:10], glove[:10]))
+        flat, _, _, _ = self.open_hand(thumb=0.0)  # a mitten-like glove: its thumb tells no palm
+        fitted, report = repose.gloved(flat, self.follow(len(flat), 'handl'), self.there, self.parts)
+        tips = (flat - wrist) @ axis > 0.165
+        self.assertTrue(np.allclose((fitted[tips] - wrist) @ axis, (flat[tips] - wrist) @ axis))  # not bent along the bone
+        few = self.open_hand()[0][:repose.GLOVE - 1]
+        self.assertTrue(np.allclose(repose.gloved(few, self.follow(len(few), 'handl'), self.there, self.parts)[0], few))
+        # given the outfit's faces, a glove is what holds `GLOVE` faces, as `repose` counts the gloves it turns
+        scrap = np.array([(0, 1, 2)] * (repose.GLOVE - 1))
+        self.assertTrue(np.allclose(repose.gloved(glove, weight, self.there, self.parts, scrap)[0], glove))
+
+    def test_a_glove_stands_outside_the_forearm_where_the_forearm_runs_on_past_the_wrist(self):
+        wrist, elbow = self.there['wristl'], self.there['elbowl']
+        axis = seams.unit(wrist - elbow)
+        fore = tube(elbow, wrist + 0.03 * axis, 0.04, around=24)[:2]  # a forearm whose skin runs 3 cm into the hand
+        cuff = tube(wrist - 0.01 * axis, wrist + 0.06 * axis, 0.03, around=24, along=14)[0]  # a glove's cuff drawn in inside it
+        moved = repose.outside_forearm(cuff, wrist, axis, fore, np.random.default_rng(0))
+        relative = moved - wrist
+        h = relative @ axis
+        r = np.linalg.norm(relative - h[:, None] * axis, axis=1)
+        over = (h > 0.001) & (h < 0.029)
+        self.assertGreater(r[over].min(), 0.04 * np.cos(np.pi / 24) + repose.GLOVE_SKIN - 1e-3)  # outside the skin's flats and a glove's skin
+        self.assertLess(r[over].max(), 0.04 + repose.GLOVE_SKIN + 1e-3)
+        stays = (h < -1e-6) | (h > 0.03 + repose.HAND_RING / 2 + 1e-6)  # above the wrist, and a ring past the skin's end
+        self.assertTrue(np.allclose(moved[stays], cuff[stays]))
+        self.assertTrue(np.allclose((moved - cuff) @ axis, 0.0))  # out from the axis only
 
 
 class LoadTests(unittest.TestCase):

@@ -22,18 +22,18 @@
   "weaponBlueprintCopies": 0,
   "releasePublication": {
     "path": "docs/items/approved-weapons-v1.json",
-    "sha256": "baa604486f594dd1fe85be7c6197765357603761c1ce443e5b61273e47bfb489"
+    "sha256": "bd074524b89e7b58bcff89c82d5c3970897b4bc52a8e0f4381b6a450ba365f64"
   },
   "resources": [
     {
       "path": "test-modules/weapon-waves/module/c.ncs",
-      "sha256": "ab468e77a3fbe0fb2462642d21bdb40313668a1c7da53ba4cecd2212cdd7f46f",
-      "bytes": 9608
+      "sha256": "93849a203e084533aebc81b516554e6a745e1c78a9b89eb54840813d5f91262b",
+      "bytes": 10287
     },
     {
       "path": "test-modules/weapon-waves/module/c.nss",
-      "sha256": "368f2f1dea0ee3afb7b302276712e34b6856c099defded6d5ccaf5fa3cd8b426",
-      "bytes": 8749
+      "sha256": "91be716c9dde148d50478a7815bbac801bdad2278636600703221c50dea92dd5",
+      "bytes": 8697
     },
     {
       "path": "test-modules/weapon-waves/module/module.ifo",
@@ -92,8 +92,8 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sr_it_floor.git",
-      "sha256": "0c0019c23f62666751e657ca9dc4d1bdc1621011d9017a86ea9e15713e2227ac",
-      "bytes": 88506
+      "sha256": "99088462fd1b844667687b50fd205e27df34b51d77694309d1bd727cf47b354c",
+      "bytes": 154700
     },
     {
       "path": "test-modules/weapon-waves/module/sr_it_hb.ncs",
@@ -212,13 +212,13 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sw2_enter.ncs",
-      "sha256": "ce962be698e6c7b66fb19c95e150127f5c70936c42269ab56a84ec52d1f78482",
-      "bytes": 5619
+      "sha256": "67cfe11f7fc85c21ef6e120f1d89e9b4bf10315e53972929d9ebb3a2f3898dfd",
+      "bytes": 7267
     },
     {
       "path": "test-modules/weapon-waves/module/sw2_enter.nss",
-      "sha256": "7f1462243372f7cddc33ed44a6f24fd0395af451a4d51edf96365697c60e8484",
-      "bytes": 4998
+      "sha256": "ed30304131dfc8e08eb13d36c3dab3c8c94d36f2cd982b1dc994b57e093af83f",
+      "bytes": 6997
     },
     {
       "path": "test-modules/weapon-waves/module/sw2_f0.utc",
@@ -332,13 +332,13 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sw_review.ncs",
-      "sha256": "b547d3d7d33ef023ca3422bad2c8227ea4c3cd2efe15e360a6dc7e3c670b716e",
-      "bytes": 791
+      "sha256": "c07c304754a34181482980b55ffe8bb9752a1ff025648cf24dd00844a5186bcd",
+      "bytes": 1143
     },
     {
       "path": "test-modules/weapon-waves/module/sw_review.nss",
-      "sha256": "7757efb3ee26ddeac6a8bb4a9f84cfafc35b860f62befb92b263c793a65dfcb9",
-      "bytes": 703
+      "sha256": "da83fa9306c36b0e566ee2886c7c7ea7bf2180dc46ef9586085b1b64c5351c61",
+      "bytes": 645
     },
     {
       "path": "test-modules/weapon-waves/haks/sw_reviewenv/sr_it_set.set",
@@ -394,10 +394,145 @@
       "path": "test-modules/weapon-waves/module/sw4_m1.utc",
       "sha256": "c7b188717197a2578e0c18de5f8e7d6b6db50d07ce15071d1a5b4c3c2153e678",
       "bytes": 4139
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_f0.utc",
+      "sha256": "0d1bd2d71c34cbc6e6a3ae25ee5c0d3db1b0c78ae86642be11375cf7992f162e",
+      "bytes": 4138
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_f1.utc",
+      "sha256": "42db57e1422437665f4b5ce29e6cf5b905484f6a64e9820c9ff324dc12457cf2",
+      "bytes": 4141
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_f2.utc",
+      "sha256": "901a8af87ab0bc4e859788b5a97a2ce6715639d39bc42326a9f976f94f55777e",
+      "bytes": 4133
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_f3.utc",
+      "sha256": "d7bf01b8c372931d4604f65d00ca9ecdb3d56d8bdceea3392d25d5150e860e78",
+      "bytes": 4137
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_f4.utc",
+      "sha256": "5f1ee3858b6b7893278bfb515a6ea99629587ab949f12e0f3fe05947aec8ffd1",
+      "bytes": 4135
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_m0.utc",
+      "sha256": "f827e97a70ee2a363e03a1e247c1a6527312643b3e9352f7c5de3b23b9faa697",
+      "bytes": 4136
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_m1.utc",
+      "sha256": "07b8da9ee53b981d9be43f6c5f267c0bdd51e67f5abf0dacf992d76b88c4140f",
+      "bytes": 4139
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_m2.utc",
+      "sha256": "9d93613043601d0404ff6d47a381a899be7e589bdfcd290ed34699e699db92aa",
+      "bytes": 4131
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_m3.utc",
+      "sha256": "6917d896c37131a188031acb6423750c1476ffca1c43eef5043ccfcbe6131215",
+      "bytes": 4135
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw5_m4.utc",
+      "sha256": "d9ba9090e7ee404f3dca174a90dba82e955ac99dae116e3403ef4defc0a77ab2",
+      "bytes": 4133
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_f0.utc",
+      "sha256": "df68b1b554dea61a5bdfc203bbf94be6c61b1da5a7d2543aab4a7e0841b9bcaa",
+      "bytes": 4139
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_f1.utc",
+      "sha256": "a49ff07525e1e1913d8f2ab61ce1748e3ff70d6860b619980c12c071d2b625a6",
+      "bytes": 4130
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_f2.utc",
+      "sha256": "2a614bad8754d5472d40ebd0b265bab4482b362a4f602fa6554568e33f2ff159",
+      "bytes": 4129
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_f3.utc",
+      "sha256": "cefecf0cf9f69e64811192e759b9a0e41362e9c149b757a0d8e52d3e8bcaead1",
+      "bytes": 4133
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_m0.utc",
+      "sha256": "40ceb42dfecc6a49075ec2010640abc7f1a7891e4fe6bcd0cbc07d104282f9cd",
+      "bytes": 4137
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_m1.utc",
+      "sha256": "014db58e96df38212d5b7b65947be709f39411e5305b9b3f774a88cee6e952a2",
+      "bytes": 4128
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_m2.utc",
+      "sha256": "e95052f73702f01d6fec7835bfefdfbcccadf091d3f7268c18c282725cc7d19f",
+      "bytes": 4127
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw6_m3.utc",
+      "sha256": "9adfd5f0e79c46f39e780effca5604cc4b55d6dad0242a4fb15f8a86bff6d985",
+      "bytes": 4131
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw_pairs.nss",
+      "sha256": "67ce5b84525bff79c23ffda9be3cf991929ff931e4f445e03dde27ffe4f591ee",
+      "bytes": 588
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_f0.utc",
+      "sha256": "853157df5cc01478f08f60a36fdfffaa2c215505533961b603d44974521aeabb",
+      "bytes": 4143
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_f1.utc",
+      "sha256": "0a0b6a7bd61ff735cf668c79290edeb9a0e7d7c264bb350d806899393c6533f3",
+      "bytes": 4131
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_f2.utc",
+      "sha256": "c45cbf517ff83dc2474235cf35c08b26a3992e9f31ece758acad2f9696938e0d",
+      "bytes": 4135
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_f3.utc",
+      "sha256": "f132c16f6fc1f24bd6ff3686e51629c0e4203a50f6f82dca6b6e53b4cf863fd4",
+      "bytes": 4130
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_m0.utc",
+      "sha256": "1024b65b50efbb9ffdd59596fb3b21d9e215588671c9ed2dfc170d4920fd81a2",
+      "bytes": 4141
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_m1.utc",
+      "sha256": "1f12a16b291d071098566e20b4ae517180835a5d5254455a26c9c908472322e3",
+      "bytes": 4129
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_m2.utc",
+      "sha256": "c4e05f6208eddf2a75c0f9f1fb20a2c03300cb3e9ed276ce5a2efa391d3f19ed",
+      "bytes": 4133
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw7_m3.utc",
+      "sha256": "4f0f4721191e4fe138b6dacc0b922efd8f93afde14c49dcf6c2a5efd87b6a1ea",
+      "bytes": 4128
     }
   ],
   "originalApprovalCommit": "5b105893bf187529c84bd0a81ebca9fe0d5e4447",
-  "reviewerPairs": 17,
-  "reviewerNPCs": 34,
+  "reviewerPairs": 30,
+  "reviewerNPCs": 60,
   "initialPair": "Cougar Fineblade Knife"
 }

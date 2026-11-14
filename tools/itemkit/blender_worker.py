@@ -213,38 +213,24 @@ def grip_fit(cfg, matrix, working):
     """The measured grip correction of the fit stage: (final matrix, grip report or None). Raises GripDeparture."""
     grip_report = None
     if cfg.get('gripStandard'):
-        from tools.itemkit.grip import calibration, one_hand_round, transverse_uniform, two_hand_uniform
+        from tools.itemkit.grip import melee_fit
         standard=read(cfg['gripStandard'])
-        thickness_fit = (cfg['family']['family'] in WHOLE_NATIVE_FAMILIES
-                         and cfg['fit'].get('sizingAuthority')=='midpoint-depth')
         two_hand_fit = cfg['fit'].get('sizingAuthority')=='midpoint-depth-two-hand'
+        if two_hand_fit: require(pin(cfg['gripStandard']) in cfg['inputs'],'Bind the exact approved melee standard')
+        mv,mf=arrays(working)
+        if cfg['family']['family'] not in WHOLE_NATIVE_FAMILIES:
+            # The melee dispatch lives in grip.melee_fit, shared with opening_probes.fitted_shell.
+            return melee_fit(cfg['family'],cfg['fit'],standard,mv,mf,matrix)
         if two_hand_fit:
             route=ROUTES[cfg['family']['family']]
             require(route.hold=='two' and route.carrier is not None and cfg['family']['native']['baseItem']==route.carrier.base_item,
                     'Explicit two-handed carrier required for the length departure')
-            require(pin(cfg['gripStandard']) in cfg['inputs'],'Bind the exact approved melee standard')
-        if not thickness_fit and not two_hand_fit:
+        elif cfg['fit'].get('sizingAuthority')!='midpoint-depth':
             require(abs(cfg['family']['native']['gripLength']-standard['usableLength'])<1e-9,
                     'Native target length differs from the approved grip standard')
-        mv,mf=arrays(working)
-        if cfg['family']['family'] in WHOLE_NATIVE_FAMILIES:
-            from tools.itemkit.firearm_grip import measured_fit
-            matrix,grip_report=measured_fit(mv,mf,cfg['fit'],pin(cfg['source'])['sha256'],
-                pin(cfg.get('workingSource',cfg['source']))['sha256'],standard,cfg['family']['native']['gripOrigin'])
-        elif two_hand_fit:
-            matrix,grip_report=two_hand_uniform(mv,mf,matrix,cfg['fit']['gripEndpoints'],cfg['family']['native']['gripOrigin'],
-                                                standard,cfg['fit'].get('gripDeparture'))
-        elif cfg['fit'].get('sizingAuthority')=='usable-length-round':
-            matrix,grip_report=one_hand_round(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'))
-        elif cfg['fit'].get('sizingAuthority')=='midpoint-depth-uniform':
-            require(ROUTES[cfg['family']['family']].section=='uniform','midpoint-depth-uniform needs a section="uniform" route')
-            matrix,grip_report=transverse_uniform(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard,cfg['fit'].get('gripDeparture'),
-                                                  cfg['fit'].get('sectionBasis','depth'))
-        else:
-            # A staff manifest from before section="uniform" would rebuild the flattened staff (user, 2026-11-12).
-            require(ROUTES[cfg['family']['family']].section!='uniform',
-                    'A section="uniform" route is never sized by the per-axis hilt calibration; refit it')
-            matrix,grip_report=calibration(mv,mf,matrix,cfg['family']['native']['gripOrigin'],standard)
+        from tools.itemkit.firearm_grip import measured_fit
+        matrix,grip_report=measured_fit(mv,mf,cfg['fit'],pin(cfg['source'])['sha256'],
+            pin(cfg.get('workingSource',cfg['source']))['sha256'],standard,cfg['family']['native']['gripOrigin'])
     return matrix, grip_report
 
 

@@ -25,13 +25,16 @@ generated outfit shows instead, recorded once it is known to have drifted. `pads
 drawn before construction version 2 has a shoulder pad on (`repose.onto_body`, `padded`). `prompt` is the image prompt with `{materials}`
 where its colour paragraph goes.
 
-`"construction": 2` and `{construction}` in the prompt add the paragraph that says how an outfit is built so
+`"construction": 3` and `{construction}` in the prompt add the paragraph that says how an outfit is built so
 that it can be cut into parts (`CONSTRUCTIONS`). What the first worn outfit took longest to put right was
 drawn into its reference image: frames and piping of metal a face wide, a guard in two plates across an
 elbow, a shoulder guard over the sleeve's seam, straps along the joints. Version 1 put a shoulder guard on the
 upper arm below the shoulder; version 2 draws no shoulder pads at all, which are made apart from the outfit
-(docs/armorkit/plan.md), and a brief of it lists no `pads`. No new reference folder is sealed without the
-current paragraph (`seal`); a folder sealed before keeps the prompt it was sealed with.
+(docs/armorkit/plan.md), and a brief of it or a later version lists no `pads`. Version 3 says the same rules of
+what the outfit has and names no piece or place to forbid it: an image model draws what its prompt names, and
+version 2's list of where straps may go and of guards it forbade came back as straps and guards there. A
+brief's own words follow the same rule. No new reference folder is sealed without the current paragraph
+(`seal`); a folder sealed before keeps the prompt it was sealed with.
 
 `bare` names the slots the outfit leaves to the body, and `skin` those where it covers the body only in part
 and the body's skin shows beside it (`bake.bake`): `"bare": ["forearm"], "skin": ["bicep"]` for a shirt with
@@ -67,8 +70,19 @@ _RULES = (
 # version 2: no shoulder pads, which are made apart from the outfit (user decision 2026-11-12)
 UNPADDED = ('3. Nothing is worn on the shoulders: no shoulder pad, pauldron or guard over the shoulder or the top of the upper arm; '
             'those are made separately. The top of the shoulder and the seam where the sleeve joins the body are plain, with nothing lying over them.')
-CONSTRUCTIONS = {1: '\n'.join(_RULES), 2: '\n'.join(_RULES[:3] + (UNPADDED,) + _RULES[4:])}
-PADLESS = 2  # the first version drawn without shoulder pads: a brief of it lists no `pads`
+# version 3: the same rules said of what the outfit has. Two Facility Security images drawn to version 2 put
+# guards on the forearms and straps round the thighs, the pieces and places versions 1 and 2 name to forbid
+# them; an image model draws what a prompt names (2026-11-13)
+NAMED_ONLY = (
+    'Construction, how this outfit is built. It will be cut into separate parts at every joint:',
+    '1. Every hard plate or guard this outfit has is one solid, simple shape at least as wide as a hand, in its own colour all over. '
+    'The plate colour is used only for these solid shapes, each set on plain cloth.',
+    '2. Each guard this outfit has is a single one-piece shell.',
+    '3. The top of each shoulder and the seam where each sleeve joins the body are plain, smooth cloth.',
+    '4. Each strap this outfit has goes round the middle of a limb, halfway between two joints.',
+    '5. The garments on the torso are narrow at the sides and end well short of the armpits, clear of the sleeves.')
+CONSTRUCTIONS = {1: '\n'.join(_RULES), 2: '\n'.join(_RULES[:3] + (UNPADDED,) + _RULES[4:]), 3: '\n'.join(NAMED_ONLY)}
+PADLESS = 2  # the first version drawn without shoulder pads: a brief of it or a later one lists no `pads`
 COUNTS = ('One', 'Two', 'Three', 'Four', 'Five', 'Six')
 APART = 30.0  # the least two materials' colours may differ by in a prompt, in `texture.tone`'s space. The first outfit's
 # cloth and plates were asked for 10 apart and its cloth came out 21 from what was asked: they could be told only by guessing
