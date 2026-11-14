@@ -1002,7 +1002,12 @@ Checked in the game client on 2026-11-14, in areas laid from the pack's files: i
 sides, the corners, the front, from above and at the door; by night, where the sign, the strip lights, the window, the
 camera light and the side door's lamp were lit, put out by script and brought back; with the player free, near and
 far; and with walkers sent to the door and to each side, none of whom stopped short; and in Suburbs by day from the
-same views. Not yet painted in the Toolset, and its door not yet used in the client.
+same views. The group was painted from the Toolset's palette on 2026-11-14, straight in a Modern Exterior area and
+turned a quarter in a Suburbs area, and four of the sheet's props (the cross sign, the surgical light and the
+cyberware case, lit, and the instrument cart, static) were placed from both palette categories; the saved module holds
+the four tiles of each, a door of appearance 58 made at each hook, and the props with their own rows and names. In the
+client the door of each took the player to the other. One Toolset folder was used, not two: the group was not painted
+turned in Modern Exterior or straight in Suburbs.
 
 ## Chop Shop Clinic props (`srn_placeable`, `srn_2da`; 2026-11-14)
 
