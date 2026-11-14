@@ -61,10 +61,16 @@ class Budget:
     def check(self):
         if self.reason or not self.last or time.monotonic()-self.last>5:
             raise BudgetExceeded(self.reason or 'Memory sampling unavailable or stale')
-    def admit_prompt(self):
-        self.check()
-        if self.latest_available < self.start_floor:
-            raise BudgetExceeded(f'GPU dispatch needs {self.start_floor:g} GiB free RAM; {self.latest_available:.2f} available')
+    def admit_prompt(self,settle_seconds=0,sleep=time.sleep,clock=time.monotonic):
+        """Refuse a prompt below the start floor. A model release just requested with /free returns host RAM over
+        several seconds (RUNBOOK 376), so keep sampling for up to settle_seconds before refusing."""
+        ends=clock()+settle_seconds
+        while True:
+            self.check()
+            if self.latest_available >= self.start_floor:return
+            if clock()>=ends:
+                raise BudgetExceeded(f'GPU dispatch needs {self.start_floor:g} GiB free RAM; {self.latest_available:.2f} available')
+            sleep(1);self.sample()
     def start(self):
         self.sample();self.check()
         def watch():

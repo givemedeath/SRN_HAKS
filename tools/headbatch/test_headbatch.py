@@ -2527,6 +2527,21 @@ class ConditioningContracts(Base):
         budget.sample();budget.admit_prompt()
         budget.sample();budget.check()
 
+    def test_dispatch_waits_for_released_models_to_return_ram(self):
+        from resource_budget import Budget,BudgetExceeded
+        values=iter([(10,7.1),(10,7.2),(10,12.9)]);now=[0.0]
+        budget=Budget({'memoryLimitBytes':100,'minimumStartRAMGiB':8,'minimumFreeRAMGiB':2},self.root/'settle.json',lambda _:next(values))
+        sleep=lambda s:now.__setitem__(0,now[0]+s)
+        budget.sample();budget.admit_prompt(settle_seconds=30,sleep=sleep,clock=lambda:now[0])
+        self.assertEqual((now[0],budget.latest_available),(2.0,12.9))
+        values=iter([(10,7.1)]*40);now[0]=0.0
+        budget=Budget({'memoryLimitBytes':100,'minimumStartRAMGiB':8,'minimumFreeRAMGiB':2},self.root/'settle2.json',lambda _:next(values))
+        budget.sample()
+        # check() reads a monotonic sample age; keep the fake samples fresh while the fake clock advances.
+        with self.assertRaisesRegex(BudgetExceeded,'dispatch needs 8 GiB'):
+            budget.admit_prompt(settle_seconds=3,sleep=sleep,clock=lambda:now[0])
+        self.assertEqual(now[0],3.0)
+
     def test_ram_floor_and_sampler_staleness(self):
         from resource_budget import Budget,BudgetExceeded
         budget=Budget({'memoryLimitBytes':12_000_000_000,'minimumFreeRAMGiB':2},self.root/'budget.json',lambda _:(1,1.9))

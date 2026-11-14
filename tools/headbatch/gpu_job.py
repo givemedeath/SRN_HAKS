@@ -30,6 +30,7 @@ COUNTER = re.compile(r'_(\d+)_?\.glb$')
 POLL_SECONDS = 3
 DEADLINE_SECONDS = 2700  # the deadline of headkit's own ComfyUI routes
 OOM_RESEED = 1000
+FREE_SETTLE_SECONDS = 30  # measured: a shared Desktop returned ~7 GiB 5-12 s after /free (RUNBOOK 376)
 REUSABLE_STAGES = ('calibrate', 'geometry')
 
 
@@ -119,7 +120,9 @@ class Comfy:
         proof = proven(identify, self.local)
         if self.budget:self.budget.check()
         self.free()
-        if self.budget:self.budget.admit_prompt()
+        if self.budget:
+            self.budget.admit_prompt(settle_seconds=FREE_SETTLE_SECONDS)
+            self.ensure_idle()  # the wait left the queue open to other submitters
         before_prompt()  # after /free: a server that cannot be reached has received no submission
         token=uuid.uuid4().hex
         if self.unresolved:write(self.unresolved,{'state':'submitting; reconcile by clientId','clientId':token,'graph':graph})
