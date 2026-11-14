@@ -193,8 +193,10 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         require('bladeAtLowEnd' in overrides and all(k in overrides for k in LANDMARKS) and 'targetLength' in overrides,
                 'A side grip needs bladeAtLowEnd, every landmark (reviewed along the grip axis) and the chosen targetLength')
         q = np.column_stack([q[:, 1], q[:, 0], -q[:, 2]]); U = np.column_stack([U[:, 1], U[:, 0], -U[:, 2]])
-    L = float(np.ptp(q[:, 0]))
     method, q, U, marks = (hafted_landmarks if hafted else bladed_landmarks)(q, U, overrides)
+    # Landmarks count along the frame the landmark step leaves: aligning a side grip's axis (alignGripAxis) changes its
+    # extent, and the length from before would put the far probes past the end (the shortened wave-5 Tonfa).
+    L = float(np.ptp(q[:, 0]))
     require(type(overrides.get('turnAboutAxis', False)) is bool, 'turnAboutAxis must be true or false')
     if overrides.get('turnAboutAxis'):        # the frame's width sign is arbitrary: a reviewed half-turn about the long axis
         q = q * [1, -1, -1]; U = U * [1, -1, -1]   # swaps the edge/blade side and keeps the frame right-handed
