@@ -91,7 +91,14 @@ class AutofitTests(unittest.TestCase):
         np.testing.assert_allclose(side(out), side(p), atol=1e-9)                                        # width and depth unchanged
         self.assertAlmostEqual(np.ptp(moved), np.ptp(t) + .5 * (t1 - t0), places=9)
         self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
-        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), .9)
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), .3)
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), 1.)
+
+    def test_stretch_shortens_a_span(self):
+        p = pommelled(); mapping = s.fit_stretch(p, (.3, .9), .6); t = (p - mapping['mean']) @ mapping['axes'][:, 0]
+        (t0, t1) = mapping['span']; moved = (s.apply_stretch(p, mapping) - mapping['mean']) @ mapping['axes'][:, 0]
+        np.testing.assert_allclose(moved[t >= t1] - t[t >= t1], -.4 * (t1 - t0), atol=1e-9)
+        self.assertAlmostEqual(np.ptp(moved), np.ptp(t) - .4 * (t1 - t0), places=9)
         with self.assertRaisesRegex(ValueError, 'span'): s.fit_stretch(p, (.2, .05), 1.5)
 
     def test_glb_stretch_keeps_topology_and_uvs(self):
