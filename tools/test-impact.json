@@ -11,6 +11,7 @@
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
       "tools/armorkit/poses.py",
+      "tools/armorkit/publish.py",
       "tools/armorkit/reference.py",
       "tools/armorkit/refit.py",
       "tools/armorkit/registry.py",
@@ -96,6 +97,18 @@
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/tables.py"
+    ],
+    "tools/armorkit/publish.py": [
+      "PROVENANCE.md",
+      "hakbuilder.json",
+      "tools/armorkit/export.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/tables.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/native_reader.py",
+      "tools/shared_tools.py"
     ],
     "tools/armorkit/reduce.py": [
       "tools/armorkit/registry.py"
@@ -212,6 +225,17 @@
       "tools/armorkit/client.py",
       "tools/armorkit/poses.py",
       "tools/armorkit/registry.py",
+      "tools/armorkit/test_tables.py"
+    ],
+    "tools/armorkit/test_publish.py": [
+      "PROVENANCE.md",
+      "hakbuilder.json",
+      "tools/armorkit/examples/registry.json",
+      "tools/armorkit/export.py",
+      "tools/armorkit/publish.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/tables.py",
+      "tools/armorkit/test_registry.py",
       "tools/armorkit/test_tables.py"
     ],
     "tools/armorkit/test_reduce.py": [
@@ -5408,6 +5432,15 @@
   },
   "unresolved": [],
   "packReferences": {
+    "tools/armorkit/__main__.py": [
+      "srn_2da",
+      "srn_body"
+    ],
+    "tools/armorkit/publish.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body"
+    ],
     "tools/armorkit/test_bake.py": [
       "srn_body"
     ],
@@ -5421,6 +5454,12 @@
     ],
     "tools/armorkit/test_poses.py": [
       "srn_body"
+    ],
+    "tools/armorkit/test_publish.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_head"
     ],
     "tools/combat_release_manifest.py": [
       "srn_2da",
@@ -5591,6 +5630,7 @@
     "tools/armorkit/test_generate.py",
     "tools/armorkit/test_measure.py",
     "tools/armorkit/test_poses.py",
+    "tools/armorkit/test_publish.py",
     "tools/armorkit/test_reduce.py",
     "tools/armorkit/test_reference.py",
     "tools/armorkit/test_refit.py",
