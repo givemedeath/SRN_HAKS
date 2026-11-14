@@ -393,12 +393,25 @@ class PublishTests(Workspace):
         drift = self.publish(shared(outfit='hands'), registry=more, dry_run=True)
         self.assertEqual([(one['gate'], one['model']) for one in drift['failures']], [('published', changed_file.name)])
         changed_file.write_bytes(kept_bytes)
+        icon_file = self.repo / 'srn_parts' / f'ipm_chest{NUMBER}.plt'
+        kept_bytes = icon_file.read_bytes()
+        icon_file.write_bytes(b'edited')
+        drift = self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        self.assertEqual([(one['gate'], one['model']) for one in drift['failures']], [('published', icon_file.name)])
+        icon_file.write_bytes(kept_bytes)
+        handoff_file = self.repo / publish.HANDOFF
+        kept_bytes = handoff_file.read_bytes()
+        handoff_file.unlink()
+        with self.assertRaisesRegex(ValueError, 'is published without parts-handoff.json'):
+            self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        handoff_file.write_bytes(kept_bytes)
         report = self.publish(shared(outfit='hands'), registry=more, measure_neck=lambda *given: (measured.append(given[3]), sound(*given))[1])
         self.assertEqual(measured, [])  # the chests published earlier are not measured again
         self.assertTrue(report['passed'] and report['written'])
         self.assertEqual(report['newParts'], ['hand 6030'])
         handoff = json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))
         self.assertEqual(len(handoff['outfits']), 40)
+        self.assertEqual([one['name'] for one in handoff['iconFiles']], [f'ipf_chest{NUMBER}.plt', f'ipf_pelvis{NUMBER}.plt', f'ipm_chest{NUMBER}.plt', f'ipm_pelvis{NUMBER}.plt'])
         self.assertEqual(len(tables.parse((self.repo / 'srn_2da' / 'parts_hand.2da').read_text(encoding='cp1252'))[1]), 6031)
         self.assertEqual(len(tables.parse((self.repo / 'srn_2da' / 'parts_chest.2da').read_text(encoding='cp1252'))[1]), NUMBER + 1)
 

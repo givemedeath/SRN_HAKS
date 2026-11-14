@@ -25,8 +25,8 @@ What a publication writes, under the repository or under `--trial ROOT`:
 The gates (`gates`) each fail the command with the model and the reason: every body a part lists has its model
 and every part its table row, every texture a model names is in the pack, no name is one `srn_body` or
 `srn_armor` holds, each chest closes round the body's neck (`neck`), every icon slot has its icons, every bake
-passed its own gates, every outfit has its brief and a history record, and every file published earlier is
-still the one its handoff records. Nothing is written into the
+passed its own gates, every outfit has its brief and a history record, and every file published earlier, icons
+included, is still the one its handoff records. Nothing is written into the
 repository unless all of them pass. `--trial ROOT` writes the same tree into a new scratch folder whatever the gates
 say, seeded from the repository's own `srn_2da` and `srn_parts`, and `--build` packs it there for a client check
 (`build`); `--dry-run` writes nothing. The command exits 1 when a gate fails.
@@ -510,7 +510,8 @@ def published(root):
         return [], {'outfits': []}
     parts = registry.load(path, publish=True)
     handoff = Path(root) / HANDOFF
-    return parts, json.loads(handoff.read_text(encoding='utf-8')) if handoff.is_file() else {'outfits': []}
+    require(handoff.is_file(), f'{path} is published without {HANDOFF.name}: the handoff holds what was published and its hashes, and is not made again')
+    return parts, json.loads(handoff.read_text(encoding='utf-8'))
 
 
 def seed(root, repo=REPO):
@@ -597,7 +598,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     pack = {path.name: path for path in pack_folder.iterdir() if path.is_file()} if pack_folder.is_dir() else {}
     failures, incoming, outfits = [], {}, []
     # What is published is what its handoff recorded: a file changed or gone since fails by name.
-    for resource in (resource for outfit in handoff_before.get('outfits', []) for resource in outfit.get('resources', [])):
+    recorded = [resource for outfit in handoff_before.get('outfits', []) for resource in outfit.get('resources', [])]
+    for resource in recorded + handoff_before.get('iconFiles', []):
         if resource['name'] not in pack:
             failures.append(failure('published', resource['name'], f'{PACK} no longer holds this published file'))
         elif sha(pack[resource['name']]) != resource['sha256']:
@@ -683,6 +685,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         document = {'schemaVersion': 1, 'kind': registry.KIND, 'parts': parts}
         handoff = {**registry.handoff(parts), 'pack': PACK, 'tablePack': TABLE_PACK, 'tables': sorted(table_texts),
                    'icons': sorted(name for part in parts for name in icon_names(part)),
+                   'iconFiles': handoff_before.get('iconFiles', []) + [{'name': name, 'sha256': hashes[name], 'bytes': incoming[name].stat().st_size}
+                                                                       for name in sorted(drawn) if name in incoming],
                    'outfits': handoff_before.get('outfits', []) + outfits}
         texts = {root / TABLE_PACK / (table + '.2da'): text.encode('cp1252') for table, text in table_texts.items()}
         texts.update({root / path: (json.dumps(value, indent=1) + '\n').encode('utf-8') for path, value in ((REGISTRY, document), (HANDOFF, handoff))})
