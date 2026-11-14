@@ -231,6 +231,20 @@ class GateTests(Workspace):
                          [('clash', f'pmh0_chest{NUMBER}.mdl'), ('format', f'pfh0_chest{NUMBER}.mtr'), ('unlisted', 'pmh0_chest333.mdl')])
         self.assertEqual([one['reason'] for one in found if one['gate'] == 'clash'], ['srn_armor holds a file of that name'])
 
+    def test_a_model_or_material_file_that_cannot_be_read_fails_by_name(self):
+        import struct
+        pack = self.pack(registry.BODIES)
+
+        def cut(path):
+            raise struct.error('unpack_from requires a buffer of at least 12 bytes')
+        found = self.failures(pack, textures=cut)
+        self.assertEqual({one['gate'] for one in found}, {'closure', 'unlisted'})
+        self.assertIn('the model could not be read', found[0]['reason'])
+        pack[f'pmh0_chest{NUMBER}.mtr'] = self.root / 'other.mtr'  # its own file: the pack's are shared between the tests
+        pack[f'pmh0_chest{NUMBER}.mtr'].write_bytes(b'texture1 caf\xc3\xa9\n')
+        found = self.failures(pack)
+        self.assertIn(('closure', f'its material file pmh0_chest{NUMBER}.mtr is not ASCII text'), [(one['gate'], one['reason']) for one in found])
+
     def test_a_chest_that_fails_its_neck_and_a_part_without_icons_fail(self):
         pack = self.pack(registry.BODIES)
         del pack[f'ipf_pelvis{NUMBER}.plt']
@@ -480,6 +494,29 @@ class PublishTests(Workspace):
         with self.assertRaisesRegex(ValueError, 'indent-2 form'):
             publish.registered(json.dumps(json.loads(text)))
 
+    def test_the_command_prints_forty_failures_saves_them_all_and_reports_a_failed_build(self):
+        import argparse
+        import contextlib
+        import io
+        from unittest import mock
+        many = {'passed': False, 'written': True, 'root': str(self.root / 'nowhere'), 'failures': [publish.failure('bodies', f'm{index}', 'none') for index in range(50)]}
+        saved = self.root / 'report.json'
+        given = argparse.Namespace(registry='r', bake=['b'], stock='s', record=[], brief=[], trial=str(self.root / 'nowhere'), dry_run=False, body_pack=None,
+                                   build=True, report=str(saved))
+        printed = io.StringIO()
+        with mock.patch.object(publish, 'publish', return_value=dict(many)), mock.patch.object(publish, 'build', side_effect=ValueError('no tool')), \
+                contextlib.redirect_stdout(printed):
+            self.assertEqual(publish.command(given), 1)
+        shown = json.loads(printed.getvalue())
+        self.assertEqual((len(shown['failures']), shown['failures'][-1], shown['buildError']), (41, '... and 10 more', 'no tool'))
+        self.assertEqual(len(json.loads(saved.read_text(encoding='utf-8'))['failures']), 50)
+        passed = {**many, 'passed': True, 'failures': []}
+        with mock.patch.object(publish, 'publish', return_value=dict(passed)), mock.patch.object(publish, 'build', return_value={}), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(publish.command(given), 0)
+        with mock.patch.object(publish, 'publish', return_value=dict(passed)), mock.patch.object(publish, 'build', side_effect=ValueError('no tool')), \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(publish.command(given), 1)  # written, and the build failed
+
     def test_records_and_briefs_are_given_by_model(self):
         self.assertEqual(publish.pairs(['a=C:/x/y.json', 'a=z'], '--record'), [('a', 'C:/x/y.json'), ('a', 'z')])
         with self.assertRaisesRegex(ValueError, '--record is MODEL=FILE: ledger.json'):
@@ -501,6 +538,10 @@ class PublishTests(Workspace):
             publish.brief_of('facility-test', {}, two)
         self.assertEqual(publish.brief_of('facility-test', {'facility-test': two / 'b.json'}, two), two / 'b.json')
         self.assertIsNone(publish.brief_of('unknown', {}, two))
+        (two / 'index.json').write_text('[]', encoding='utf-8')  # a JSON file that is no brief is passed over
+        self.assertIsNone(publish.brief_of('unknown', {}, two))
+        with self.assertRaisesRegex(ValueError, "A root is a trial's scratch folder"):
+            self.publish(shared(('pmh0',)), root=self.root / 'scratch')
 
 
 if __name__ == '__main__':

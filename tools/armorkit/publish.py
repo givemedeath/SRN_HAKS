@@ -39,6 +39,7 @@ import hashlib
 import json
 import math
 import shutil
+import struct
 import subprocess
 from pathlib import Path
 
@@ -60,6 +61,7 @@ CLASH = ('srn_body', 'srn_armor')  # the packs no name of ours may be found in (
 BRIEFS = Path(__file__).with_name('briefs')
 HANDOFF_KIND = registry.KIND + '-handoff'
 TOKEN_SLOT = {token: slot for slot, row in registry.SLOTS.items() for token in row['tokens']}
+UNREADABLE = (ValueError, OSError, LookupError, struct.error)  # what reading a model or a material file that is not one raises
 TEXT = ('.mtr', '.2da')  # stored with LF in the repository (.gitattributes): a carriage return would change on commit
 
 # The neck: the body's own neck part stands in the chest's collar, and both are closed surfaces.
@@ -135,7 +137,10 @@ def survey(folder):
         names = [model + '.mdl', model + '.plt', model + '.mtr']
         material = resources / (model + '.mtr')
         if material.is_file():
-            names += [name + '.tga' for name in material_maps(material.read_text(encoding='ascii'))]
+            try:
+                names += [name + '.tga' for name in material_maps(material.read_text(encoding='ascii'))]
+            except ValueError:
+                wrong.append((model, 'its material file is not ASCII text'))
         for name in names:
             if not (resources / name).is_file():
                 wrong.append((model, f'the bake holds no {name}'))
@@ -156,7 +161,8 @@ def brief_of(model, given, folder=BRIEFS):
         require(path.is_file(), f'{path} is no brief file')
         require(json.loads(path.read_text(encoding='utf-8')).get('model') == model, f'{path} is not the brief of {model}')
         return path
-    found = [path for path in sorted(Path(folder).glob('*.json')) if json.loads(path.read_text(encoding='utf-8')).get('model') == model]
+    read = ((path, json.loads(path.read_text(encoding='utf-8'))) for path in sorted(Path(folder).glob('*.json')))
+    found = [path for path, document in read if isinstance(document, dict) and document.get('model') == model]
     require(len(found) < 2, f'{len(found)} briefs are of the model {model}: name the one the outfit was baked from (--brief {model}=FILE)')
     return found[0] if found else None
 
@@ -461,7 +467,7 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
                 listed.add(model + '.mdl')
                 try:
                     named = textures(pack[model + '.mdl']) if fresh is None or model + '.mdl' in fresh else [model]
-                except ValueError as error:
+                except UNREADABLE as error:
                     failures.append(failure('closure', model, f'the model could not be read: {error}'))
                     continue
                 if not named:
@@ -474,14 +480,19 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
                         if name not in pack:
                             failures.append(failure('closure', model, f'it names {texture}, and the pack holds no {name}'))
                     if texture + '.mtr' in pack:
-                        for image in material_maps(Path(pack[texture + '.mtr']).read_text(encoding='ascii')):
+                        try:
+                            images = material_maps(Path(pack[texture + '.mtr']).read_text(encoding='ascii'))
+                        except UNREADABLE:
+                            images = []
+                            failures.append(failure('closure', model, f'its material file {texture}.mtr is not ASCII text'))
+                        for image in images:
                             listed.add(image + '.tga')
                             if image + '.tga' not in pack:
                                 failures.append(failure('closure', model, f'its material file names {image}, and the pack holds no {image}.tga'))
                 if part['slot'] == 'chest' and (fresh is None or model + '.mdl' in fresh):
                     try:
                         measured, reasons = measure_neck(pack, body_pack, body, model)
-                    except (ValueError, OSError) as error:
+                    except UNREADABLE as error:
                         measured, reasons = None, [f'the neck could not be measured: {error}']
                     failures += [failure('neck', model, reason) for reason in reasons]
                     if necks is not None:
@@ -590,6 +601,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     the failures, a count of them by gate, the neck measures and, once written, the files."""
     repo = Path(repo).resolve()
     require(not (trial and dry_run), 'A trial writes its scratch root; a dry run writes nothing: ask for one of them')
+    require(trial or root is None, 'A root is a trial\'s scratch folder: pass trial=True with it, or no root to publish into the repository')
     parts = registry.load(registry_path, publish=True)
     surveyed = [survey(folder) for folder in bakes]
     require(surveyed, 'A publication needs at least one bake (--bake DIR)')
@@ -664,7 +676,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     try:
         try:
             drawn = draw_icons(new, pack, body_pack)
-        except (ValueError, OSError, LookupError) as error:
+        except UNREADABLE as error:
             drawn = {}
             failures.append(failure('icons', PACK, f'the icons could not be drawn: {error}'))
         if drawn:
@@ -765,18 +777,22 @@ def command(args):
     """The `publish` command of `python -m tools.armorkit`: prints the report and returns its exit code."""
     report = publish(args.registry, args.bake, args.stock, records=pairs(args.record, '--record'), briefs=pairs(args.brief, '--brief'),
                      root=args.trial, trial=bool(args.trial), dry_run=args.dry_run, body_pack=args.body_pack)
+    failed = False
     if args.build and report['written']:
-        if args.trial:
-            report['built'] = build(report['root'])
-        else:
-            shell = shutil.which('pwsh') or shutil.which('powershell')
-            require(shell, 'PowerShell is needed to run tools/Build-Haks.ps1')
-            done = subprocess.run([shell, '-NoProfile', '-Command', f"& ./tools/Build-Haks.ps1 -Pack @('{PACK}','{TABLE_PACK}') -SkipTlk"],
-                                  cwd=REPO, capture_output=True, text=True)
-            require(done.returncode == 0, 'Build-Haks failed: ' + done.stdout[-2000:] + done.stderr[-2000:])
-            report['built'] = [PACK, TABLE_PACK]
+        try:  # the publication is written by now: a build that fails is said in its report, not in place of it
+            if args.trial:
+                report['built'] = build(report['root'])
+            else:
+                shell = shutil.which('pwsh') or shutil.which('powershell')
+                require(shell, 'PowerShell is needed to run tools/Build-Haks.ps1')
+                done = subprocess.run([shell, '-NoProfile', '-Command', f"& ./tools/Build-Haks.ps1 -Pack @('{PACK}','{TABLE_PACK}') -SkipTlk"],
+                                      cwd=REPO, capture_output=True, text=True)
+                require(done.returncode == 0, 'Build-Haks failed: ' + done.stdout[-2000:] + done.stderr[-2000:])
+                report['built'] = [PACK, TABLE_PACK]
+        except (ValueError, OSError) as error:
+            failed, report['buildError'] = True, str(error)
     if getattr(args, 'report', None):
         Path(args.report).write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8', newline='\n')
     shown = {**report, 'failures': report['failures'] if len(report['failures']) <= 40 else report['failures'][:40] + [f'... and {len(report["failures"]) - 40} more']}
     print(json.dumps(shown, indent=1))
-    return 0 if report['passed'] else 1
+    return 0 if report['passed'] and not failed else 1
