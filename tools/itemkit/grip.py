@@ -172,6 +172,15 @@ def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None):
     return result,report
 
 
+def fitted_grip_length(fit, native, report):
+    """The length the fitted grip endpoints must match in the fit stage: the native hand, or for a chosen-length round
+    fit the reviewed handle itself, as its bound grip report measured it."""
+    if not fit.get('chosenLength'): return float(native['gripLength'])
+    require(isinstance(report, dict) and report.get('chosenLength') is True and report.get('sizingAuthority') == 'usable-length-round',
+            'A chosen-length fit needs its round grip report')
+    return float(report['usableLength'])
+
+
 def melee_fit(family, fit, standard, vertices, faces, matrix):
     """The melee grip correction of the fit stage, by the fit's sizing authority: (final matrix, grip report).
 

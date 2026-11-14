@@ -2367,6 +2367,7 @@
       "tools/itemkit/family_contract.py",
       "tools/itemkit/fit_manifest.py",
       "tools/itemkit/fixture.py",
+      "tools/itemkit/geometry.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/oblique.py",
       "tools/itemkit/opening_probes.py",

@@ -141,6 +141,15 @@ class ChosenRoundLengthTests(unittest.TestCase):
         with self.assertRaises(GripDeparture) as worker:                        # the fit worker measures the same handle
             melee_fit(family, fit, standard, gltf_to_blender(v), f, np.asarray(chosen['matrix']))
         self.assertEqual(worker.exception.report['measurementDigest'], chosen['gripReport']['measurementDigest'])
+        # The fit stage's endpoint check holds the chosen handle to its own reviewed length, not the hand's.
+        from tools.itemkit.geometry import transform
+        from tools.itemkit.grip import fitted_grip_length
+        report = worker.exception.report; ends = transform(np.asarray(chosen['gripEndpoints'], float), np.asarray(report['fitMatrix']))
+        fitted = float(np.linalg.norm(ends[1] - ends[0]))
+        self.assertAlmostEqual(fitted / fitted_grip_length(fit, family['native'], report), 1, delta=.02)
+        self.assertGreater(abs(fitted / family['native']['gripLength'] - 1), .3)               # the old check refused it
+        self.assertEqual(fitted_grip_length({}, family['native'], None), standard['usableLength'])
+        with self.assertRaisesRegex(ValueError, 'round grip report'): fitted_grip_length(fit, family['native'], {'usableLength': .1})
         loose = measure({}, family, {'positions': v, 'faces': f}, {**marks, 'targetLength': .55}, standard)
         self.assertAlmostEqual(loose['nativeLength'], natural['nativeLength'], delta=.005)   # without sizeToLength false: unchanged
 

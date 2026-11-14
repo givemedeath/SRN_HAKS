@@ -137,6 +137,7 @@ class AutofitTests(unittest.TestCase):
             # The saved map's tear guard is checked on the mesh it is re-applied to (the donor), not only where it was fitted.
             moved = folder/'moved.glb'; write_mesh(moved, small + [.02, 0, 0], faces, uv)
             with self.assertRaisesRegex(ValueError, 'tear'): s.narrow(moved, folder/'torn', map_path=folder/'out/narrow-map.npz')
+            self.assertFalse((folder/'torn').exists())                    # a refused run leaves no folder to block a retry
 
     def test_shell_thinning_keeps_a_closed_solid(self):
         try: import pymeshlab

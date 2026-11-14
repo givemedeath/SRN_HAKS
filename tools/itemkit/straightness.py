@@ -371,18 +371,21 @@ def _remap_glb(source, output, kind, keys, fit, apply, map_path, explicit, guard
     turn normals, then verify that triangles, UVs and other attributes are carried byte for byte."""
     from tools.headkit.common import pin
     from tools.headkit.gltf import encode, load, arrays
-    source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
+    source = Path(source); output = Path(output); _require(not output.exists(), f'{output} exists: choose a new output')
     source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
     if map_path is None:
-        mapping = fit(positions); map_path = output / f'{kind}-map.npz'
-        with map_path.open('xb') as stream: np.savez(stream, **mapping)
-        mode = 'measured'
+        mapping = fit(positions); mode = 'measured'          # the fit runs its own guard
     else:
         _require(not explicit, f'A saved {kind} map carries its own parameters')
         with np.load(map_path, allow_pickle=False) as archive: mapping = {name: archive[name] for name in archive.files}
         _require(set(mapping) == keys and mapping['span'].shape == (2,), f'Invalid {kind} map')
         mode = 'applied'
-    if guard is not None: guard(positions, mapping)        # a saved map re-applied to the donor is checked on the donor too
+        if guard is not None: guard(positions, mapping)    # a saved map re-applied to the donor is checked on the donor too
+    # Nothing is written until the map is accepted, so a refused run leaves no folder behind to block a retry.
+    output.mkdir(parents=True, exist_ok=False)
+    if mode == 'measured':
+        map_path = output / f'{kind}-map.npz'
+        with map_path.open('xb') as stream: np.savez(stream, **mapping)
     normals = attributes.get('NORMAL'); buffer = bytearray(binary)
     if normals is None: moved = apply(positions, mapping)
     else: moved, turned = apply(positions, mapping, normals)

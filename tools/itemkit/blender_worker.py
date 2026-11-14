@@ -320,7 +320,9 @@ def fit(cfg, out):
     fitted = transform(points, matrix)
     length = float(np.linalg.norm(fitted[1]-fitted[0]))
     native = cfg['family']['native']
-    require(abs(length/native['gripLength']-1) <= .02, 'Fitted grip differs from the measured native hand')
+    # A chosen-length round fit holds a handle of its own reviewed length (grip.fitted_grip_length), not the hand's.
+    from tools.itemkit.grip import fitted_grip_length
+    require(abs(length/fitted_grip_length(cfg['fit'], native, grip_report)-1) <= .02, 'Fitted grip differs from the measured native hand')
     require(np.linalg.norm(fitted.mean(0)-np.asarray(native['gripOrigin'])) <= .002, 'Grip origin differs from native hand')
     joins = cfg['processing'].get('joinY', [])
     fitted_parts = fitting_parts(cfg['family'], joins)
