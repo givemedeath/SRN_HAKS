@@ -368,7 +368,7 @@ class PublishTests(Workspace):
         self.assertEqual((outfit['model'], outfit['body'], outfit['number']), ('facility-test', 'pfh0', NUMBER))
         self.assertEqual(outfit['brief'], {'name': 'facility-test.json', 'sha256': publish.sha(self.brief)})
         self.assertEqual(outfit['bake']['sha256'], publish.sha(SHARED / 'main' / 'pfh0' / 'bake.json'))
-        self.assertEqual(outfit['records'], [{'name': 'trial-ledger.json', 'sha256': publish.sha(self.ledger), 'bytes': 15}])
+        self.assertEqual(outfit['records'], [{'name': self.root.resolve().name + '/trial-ledger.json', 'sha256': publish.sha(self.ledger), 'bytes': 15}])
         self.assertEqual(len(outfit['resources']), len(TOKENS) * 4)
         # nothing of it is in the repository
         self.assertFalse((self.repo / 'srn_parts').exists() or (self.repo / publish.REGISTRY).exists())

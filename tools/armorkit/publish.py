@@ -202,9 +202,14 @@ def kept(table, before, after):
                 f'{table}: row {number} would change from {" ".join(row)} to {" ".join(new_rows[number])}')
 
 
-def live(table, text, part):
-    """Whether the table's row for a part is the live row the registry implies."""
-    columns, rows = tables.parse(text)
+def live(table, text, part, parsed=None):
+    """Whether the table's row for a part is the live row the registry implies. `parsed`, a dictionary, keeps
+    each table's parsed rows between calls."""
+    if parsed is None or table not in parsed:
+        held = tables.parse(text)
+        if parsed is not None:
+            parsed[table] = held
+    columns, rows = held if parsed is None else parsed[table]
     return part['number'] < len(rows) and rows[part['number']] == tables.live_row(columns, part)
 
 
@@ -452,12 +457,12 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
     * `unlisted`: every file of the pack belongs to a part of the registry.
     * `format`: a name of the pack is a lowercase resource name of at most 16 characters, and a text file holds
       no carriage return, which the repository would take out."""
-    failures, listed = [], set()
+    failures, listed, parsed = [], set(), {}
     clash = [Path(folder) for folder in clash]
     for part in parts:
         label = f'{part["slot"]} {part["number"]}'
         table = registry.SLOTS[part['slot']]['table']
-        if table not in table_texts or not live(table, table_texts[table], part):
+        if table not in table_texts or not live(table, table_texts[table], part, parsed):
             failures.append(failure('tables', label, f'{table}.2da has no live row {part["number"]}'))
         for body, models in registry.model_names(part).items():
             for model in models:
@@ -710,7 +715,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         # Every source is hashed once, before the first write; the records are made from those hashes and each
         # copy is read back against its own.
         hashes = {name: sha(path) for name, path in incoming.items()}
-        pinned = lambda path: {'name': path.name, 'sha256': once(path), 'bytes': path.stat().st_size}
+        # A record is named with the folder it lies in: the stages of a generation each keep a file of one name.
+        pinned = lambda path: {'name': '/'.join(path.resolve().parts[-2:]), 'sha256': once(path), 'bytes': path.stat().st_size}
         outfits = [{'model': bake['record']['model'], 'body': bake['record']['body'], 'number': bake['record']['number'], 'tier': bake['record'].get('tier'),
                     'brief': None if brief is None else {'name': brief.name, 'sha256': once(brief)},
                     'bake': {'sha256': bake['sha256'], 'materials': bake['record'].get('materials', []),
