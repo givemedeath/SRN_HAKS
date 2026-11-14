@@ -6,8 +6,8 @@ A reference opening (`openings`, measured on the reviewed image) is kept only wh
 segment through it that crosses no surface. This places the working shell exactly as the fit stage will (similarity
 and the measured grip correction), projects it along each transverse axis onto a 0.5 mm grid, and takes the
 background regions the silhouette encloses as through-holes. Each hole's deepest point gives a probe along the view
-axis. Holes are matched to the reference openings by their position along the weapon's long axis, within 3% of the
-length, the whole set measured from one end or the other (the reference image's axis has no set direction); a hole
+axis. Holes are matched to the reference openings by their position along the weapon's long axis (native Y, or Z for a
+side grip): within 3% of the length of the hole's deepest point, or inside its own span widened by 3%, the whole set measured from one end or the other (the reference image's axis has no set direction); a hole
 needs 1.5 mm of clearance, since a narrower gap closes in reduction (the wave-3
 Vibro Knife's 2 mm lanyard hole closed in every reduced shell, 2026-11-13).
 """
