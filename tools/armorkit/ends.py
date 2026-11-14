@@ -123,12 +123,13 @@ def smooth(t):
     return t * t * (3 - 2 * t)
 
 
-def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=None, whole=None, skin=False):
+def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=None, whole=None, skin=False, inward=False):
     """The vertices of a part with its end at one joint plane brought to the envelope. `rim` is the end's
     `ring`, `envelope` and `body_ring` the contract's 16 directions, `under` whether the part lies on the
     normal's side of the plane, `length` how far from the plane it blends back into the part; what it has past
     the plane moves whole, and so do the vertices `whole` flags. `span` is the end's `spread`, and `skin` says
-    an under end lies on the body's skin (`target`)."""
+    an under end lies on the body's skin (`target`). With `inward` the end is only drawn in, where it stands
+    outside the envelope: where it stands inside it, it stays as it is."""
     vertices = np.asarray(vertices, float)
     normal = seams.unit(normal)
     u, v = seams.frame(normal)
@@ -138,6 +139,8 @@ def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=N
     r = np.linalg.norm(radial, axis=1)
     angle = np.arctan2(radial @ v, radial @ u) % (2 * np.pi)
     R, T = _around(rim, angle), target(envelope, angle, under, span=span, skin=skin)
+    if inward:
+        T = np.minimum(T, R)
     # nothing is drawn in past the body ring, given in the contract's directions as the envelope is (`seams.around`)
     body = np.minimum(seams.around(body_ring, angle), T)
     grown = r * T / R
@@ -187,9 +190,10 @@ def ends_of(name, bones, contract, body, tier, joints=TUBES, bare=()):
     return found
 
 
-def shaped(vertices, faces, measured, part_ends):
+def shaped(vertices, faces, measured, part_ends, inward=False):
     """`vertices` with the part's ends (`ends_of`) brought to the envelope, its ring read from the faces
-    `measured` flags. An end whose faces do not reach its plane is left as it is."""
+    `measured` flags. An end whose faces do not reach its plane is left as it is. With `inward` an end is only
+    drawn in where it stands outside the envelope (`end`)."""
     vertices = np.asarray(vertices, float)
     faces = np.asarray(faces, int)
     mine = faces[np.asarray(measured, bool)]
@@ -208,7 +212,8 @@ def shaped(vertices, faces, measured, part_ends):
             rim = ring(vertices, mine, point, normal, under)
             if rim is None:
                 break
-            vertices = end(vertices, point, normal, rim, envelope, body_ring, under, length, spread(vertices, mine, point, normal, under, rim), whole, skin)
+            vertices = end(vertices, point, normal, rim, envelope, body_ring, under, length, spread(vertices, mine, point, normal, under, rim), whole, skin,
+                           inward)
     return vertices
 
 

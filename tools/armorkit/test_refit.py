@@ -253,6 +253,78 @@ class EndTests(unittest.TestCase):
             self.assertEqual(bake.hidden(out, rig(), 'test', terms)[1], [])
 
 
+class HeldTests(unittest.TestCase):
+    """An under end held to the part carried over it, a hairline closed, a sleeve brought under its budget."""
+
+    def under_end(self):
+        # a forearm's end at the elbow (x = 0.3): its ring of 5 cm on the plane, a point 5 mm past the plane and
+        # 7.5 cm out (a pouch's corner), a copy of it, its pole 4 cm past the plane, and the part beyond
+        angle = np.linspace(0, 2 * np.pi, 8, endpoint=False)
+        ring = np.c_[np.full(8, 0.3), 0.05 * np.cos(angle), 0.05 * np.sin(angle)]
+        v = np.concatenate([ring, [(0.295, -0.075, 0.0), (0.295, -0.075, 0.0), (0.26, 0.0, 0.0), (0.4, 0.05, 0.0)]])
+        f = np.array([(0, 1, 8), (1, 2, 9), (2, 3, 10), (3, 4, 11), (4, 5, 10), (5, 6, 10), (6, 7, 10), (7, 0, 10)])
+        return {'v': v, 'f': f}
+
+    def test_what_would_show_past_the_over_part_in_the_bend_is_drawn_in_under_it(self):
+        piece = self.under_end()
+        point, normal = np.array((0.3, 0.0, 0.0)), np.array((1.0, 0.0, 0.0))
+        upper = closed(0.0, 0.3, 0.09)  # the upper arm carried over it: at rest the corner lies inside it
+        over = (upper['v'], upper['f'])
+        self.assertTrue(bake._inside(piece['v'][[8]], [over])[0])
+        turns = bake._turns('elbow', normal, 40.0, None)
+        out = refit.tucked(piece, piece['v'], point, normal, 0.2, turns, over, 0.01)
+        self.assertAlmostEqual(float(np.linalg.norm(out[8] - point)), 0.05 + 0.01 - refit.TUCK, places=9)  # within the ring's reach: it turns within the ring
+        self.assertAlmostEqual(float(out[8, 0]), 0.295)  # drawn in toward the axis, as far past the plane as it was
+        self.assertTrue(np.array_equal(out[8], out[9]))  # its copy with it
+        rest = [k for k in range(len(out)) if k not in (8, 9)]
+        self.assertTrue(np.array_equal(out[rest], piece['v'][rest]))  # the ring, the pole and the part stay
+        self.assertTrue(np.array_equal(refit.tucked(piece, out, point, normal, 0.2, turns, over, 0.01), out))
+        # under an over part that still covers it in the bend, it stays where it is
+        long_ = closed(0.0, 0.5, 0.12)
+        self.assertTrue(np.array_equal(refit.tucked(piece, piece['v'], point, normal, 0.2, turns, (long_['v'], long_['f']), 0.01), piece['v']))
+
+    def test_a_hairline_on_an_ends_plane_is_closed(self):
+        # a face of the part and a face of its lid along one edge on the plane (x = 0.3), 30 microns apart: farther than
+        # the gate welds, so the edge is open twice
+        v = np.array([(0.3, 0.0, 0.0), (0.3, 0.01, 0.0), (0.35, 0.0, 0.0), (0.3, 0.0, 3e-5), (0.3, 0.01, 3e-5), (0.28, 0.005, 0.0),
+                      (0.3, 0.0, 0.0), (0.35, -0.01, 0.0)])  # and a copy of the first, at a texture seam, on a face of its own
+        piece = {'v': v, 'f': np.array([(0, 1, 2), (4, 3, 5), (6, 2, 7)])}
+        planes = [(np.array((0.3, 0.0, 0.0)), np.array((1.0, 0.0, 0.0)))]
+
+        def open_on_plane(points):
+            loose = bake._open_edges(points, piece['f'])[0]
+            return int((np.abs(points[loose][:, :, 0] - 0.3) < bake.ON_PLANE).all(axis=1).sum())
+        self.assertEqual(open_on_plane(v), 2)
+        out = refit.healed(piece, v, planes)
+        self.assertEqual(open_on_plane(out), 0)
+        self.assertTrue(np.array_equal(out[0], out[3]) and np.array_equal(out[1], out[4]) and np.array_equal(out[0], out[6]))
+        self.assertTrue(np.array_equal(out[[2, 5]], v[[2, 5]]))
+        apart = v.copy()
+        apart[[3, 4], 2] = 5e-4  # half a millimetre apart is no hairline: an opening is left to the gate
+        self.assertTrue(np.array_equal(refit.healed(piece, apart, planes), apart))
+        self.assertTrue(np.array_equal(refit.healed({**piece, 'pad': np.array([False, True, False])}, v, planes), v))  # a pad's edge is left open
+
+    def test_a_sleeve_is_brought_under_its_budget_with_the_other_bodys_skin_counted(self):
+        sleeve = arm(0.05, 0.25, 0.05)
+        count = len(sleeve['f'])
+        added = np.zeros(count, bool)
+        added[:16] = True
+        piece = {**part(), 'v': sleeve['v'], 'f': sleeve['f'], 'uv': sleeve['v'][:, :2], 'n': sleeve['v'] * 0 + (0, 0, 1.0), 'src': sleeve['v'],
+                 'added': added, 'domed': np.zeros(count, bool), 'trimmed': np.arange(count)}
+        planes = [(np.array((0.0, 0.0, 0.0)), np.array((1.0, 0.0, 0.0))), (np.array((0.3, 0.0, 0.0)), np.array((1.0, 0.0, 0.0)))]
+        same, lost = refit.budgeted(piece, lambda v, f: 100, count + 100, planes)
+        self.assertTrue(same is piece and lost == 0)  # within its budget with the skin: as it was
+        out, lost = refit.budgeted(piece, lambda v, f: 100, count + 100 - 40, planes)
+        self.assertTrue(lost >= 40 and len(out['f']) == count - lost)
+        self.assertEqual({len(out[key]) for key in ('v', 'uv', 'n', 'src')}, {int(out['f'].max()) + 1})
+        self.assertEqual({len(out[key]) for key in ('added', 'domed', 'trimmed')}, {len(out['f'])})
+        self.assertEqual(int(out['added'].sum()), 16)  # nothing the split made lost a face
+        self.assertTrue(np.array_equal(out['rgb'], piece['rgb']))
+        self.assertTrue(np.allclose(np.linalg.norm(out['v'][:, 1:], axis=1), 0.05))  # every vertex left is one the sleeve had
+        with self.assertRaisesRegex(Exception, 'stay over the budget'):
+            refit.budgeted(piece, lambda v, f: 100, 120, planes)
+
+
 class RefitTests(unittest.TestCase):
     def test_parts_are_carried_with_their_normals_and_one_with_the_bodys_skin_without_it(self):
         source = (rig(), {'handl': hand()})

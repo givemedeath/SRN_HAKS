@@ -58,6 +58,19 @@ class EndTests(unittest.TestCase):
         order = np.argsort(h)
         self.assertTrue(np.all(np.diff(r[order][h[order] >= 0]) >= -1e-9))  # widening all the way back: no shelf
 
+    def test_an_end_only_drawn_in_stays_where_it_stands_inside_the_envelope(self):
+        wide, narrow = arm(0.25, 0.6, 0.08), arm(0.25, 0.6, 0.05)
+        for part, radius in ((wide, 0.065 - ends.MARGIN), (narrow, 0.05)):
+            rim = ends.ring(part['v'], part['f'], self.point, self.normal, True)
+            out = ends.end(part['v'], self.point, self.normal, rim, self.envelope, self.body, True, 0.1, inward=True)
+            r, h = radial(out)
+            self.assertTrue(np.allclose(r[h <= ends.PLATEAU], radius, atol=1e-6))
+        self.assertTrue(np.allclose(radial(self.shape(narrow, True))[0][:32].max(), 0.065 - ends.MARGIN, atol=1e-6))  # shaped, it is spread out
+        terms = contract(ring=0.04)
+        found = ends.ends_of('forel', rig(), terms, 'test', 2)
+        held = ends.shaped(narrow['v'], narrow['f'], np.ones(len(narrow['f']), bool), found, inward=True)
+        self.assertTrue(np.allclose(held, narrow['v']))
+
     def test_a_copy_of_a_point_at_a_texture_seam_moves_with_it(self):
         # a forearm's end spread 3 cm: a face from the plane reaches a ring 3 cm down the arm, past the plateau,
         # and moves whole; a copy of one of that ring's points, on a face farther down, was moved by the blend alone

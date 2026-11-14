@@ -61,7 +61,7 @@ import numpy as np
 
 from tools.robes import mesh_ops
 
-from . import bodyskin, ends, measure, registry, repose, seams, split
+from . import bodyskin, ends, measure, reduce, registry, repose, seams, split
 from .registry import require
 
 FACE_KEYS = ('f', 'added', 'domed', 'trimmed', 'pad')  # what a kept part holds per face (`bake.KEYS`, `bake.OPTIONAL`)
@@ -75,7 +75,12 @@ TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first st
 STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
 STANDOFF_LEVELS = 0.01  # metres from one level it is read at to the next
 STANDOFF_EVEN = 2  # times those radii are evened with their neighbours: no crease where the body's own surface turns or folds
-TORSO_FIRST = ('chest', 'pelvis')  # carried before the parts whose ends run into them: an end runs no deeper than the torso carried stands over it
+OVER_FIRST = ('chest', 'pelvis', 'legl', 'legr', 'shinl', 'shinr')  # carried in this order, before the rest: a part before the parts whose
+# ends run into it, which are held to it as it was carried
+DRAWN_IN = ('shoulder',)  # joints no end is shaped at (`ends.TUBES`) where an under end outside its envelope is still drawn in to it
+TUCK = 1e-4  # metres: a point drawn in under the over part in the bend comes this far within the end's own ring's reach
+HEAL = 1e-4  # metres: open edges of an end on its plane whose points lie this near each other are closed up
+VERTEX_KEYS = ('v', 'uv', 'n', 'src')  # what a kept part holds per vertex
 
 
 def joints_of(token):
@@ -393,6 +398,106 @@ def flattened(part, vertices, point, normal, here, most):
     return out
 
 
+def tucked(part, vertices, point, normal, limit, turns, over, most):
+    """`vertices` of `part` with what its under end at the plane (`point`, unit `normal` toward the part) holds
+    past the plane that would show in the bend drawn in toward the joint's axis: each point farther from the
+    joint than the end's own ring on the plane and `most` more (the contract's `bent`) that, turned about the
+    joint by one of `turns`, stands more than `most` outside the over part `over` (vertices, faces), read as
+    the bake's gate reads it (`bake.hidden`), is set `TUCK` within that reach, every copy of it with it. A
+    point within the ring's reach turns within the ring. The end's ring and the points near the plane are read
+    within `limit` of the joint."""
+    from . import bake
+    out, f = np.array(vertices, float), np.asarray(part['f'], int)
+    flag = lambda key: np.asarray(part.get(key, np.zeros(len(f), bool)), bool)
+    used = np.unique(f[~flag('skin') & ~flag('pad')])
+    x = out[used]
+    along = (x - point) @ normal
+    radial = np.linalg.norm(x - point - along[:, None] * normal, axis=1)
+    ring = (np.abs(along) < 1e-3) & (radial <= limit)
+    if not ring.any():
+        return out
+    reach = float(radial[ring].max()) + most
+    end = np.flatnonzero((along < -bake.ON_PLANE) & (radial <= limit) & (np.linalg.norm(x - point, axis=1) > reach))
+    proud = np.zeros(len(end), bool)
+    for turn in turns if len(end) else ():
+        moved = point + (x[end] - point) @ np.asarray(turn, float).T
+        outside = ~bake._inside(moved, [over])
+        if outside.any():
+            proud[np.flatnonzero(outside)[bake._off(moved[outside], [over]) > most]] = True
+    if not proud.any():
+        return out
+    weld = mesh_ops.weld_ids(out)
+    which = np.isin(weld, weld[used[end[proud]]])
+    height = (out[which] - point) @ normal
+    across = out[which] - point - height[:, None] * normal
+    room = np.sqrt(np.maximum((reach - TUCK) ** 2 - height ** 2, 0.0))
+    out[which] = point + height[:, None] * normal + across * (room / np.maximum(np.linalg.norm(across, axis=1), 1e-12))[:, None]
+    return out
+
+
+def healed(part, vertices, planes):
+    """`vertices` of `part` with the hairlines on its ends' planes closed: of the edges only one face has
+    (`bake._open_edges`; a pad's are left), those lying on one of `planes` ((point, unit normal) each), the
+    points within `HEAL` of each other are set on one of them, every copy of each with it. A bake leaves an
+    end closed but for a crack of some microns here and there, less of it than its gate asks about
+    (`bake.OPEN_LEAST`); carried to a body three times as wide, the crack is three times as long and as wide."""
+    from . import bake
+    out, f = np.array(vertices, float), np.asarray(part['f'], int)
+    loose, face = bake._open_edges(out, f)
+    loose = loose[~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)[face]]
+    if not len(loose):
+        return out
+    weld = mesh_ops.weld_ids(out, split.WELD)
+    for point, normal in planes:
+        on = np.abs((out - point) @ normal) < bake.ON_PLANE
+        ends_ = np.unique(loose[on[loose].all(axis=1)])
+        if len(ends_) < 2:
+            continue
+        apart = np.linalg.norm(out[ends_][:, None] - out[ends_][None], axis=2)
+        group = np.arange(len(ends_))
+        for a, b in np.argwhere(np.triu((apart < HEAL) & (apart > 0), 1)):
+            group[group == group[b]] = group[a]
+        for key in np.unique(group):
+            members = ends_[group == key]
+            if len(np.unique(weld[members])) > 1:
+                out[np.isin(weld, weld[members])] = out[members[0]]
+    return out
+
+
+def budgeted(part, beside, budget, planes):
+    """(part, faces taken out): a carried part in a slot shared with the body's skin, brought under `budget`
+    triangles with the `beside(vertices, faces)` faces of the other body's own part it will hold beside it
+    (`bake.skin_beside`), counted anew as it is cut down (`bake.SKIN_ROUNDS`, as a bake does it). Nothing the
+    split made loses a vertex, nor a pad, nor a point where the texture's islands meet (its copies would part),
+    nor the outfit within `bake.END_BAND` of one of its joints' `planes` ((point, unit normal) each). A body
+    with more of its own skin to show than the body the part was baked on has less room for the outfit: the
+    Dwarf Large female's upper arms keep 892 and 753 faces of hers beside sleeves baked beside the Human
+    female's 811 and 699, and both sleeves stood over the budget (2026-11-14)."""
+    from . import bake
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    held = beside(v, f)
+    if len(f) + held <= budget:
+        return part, 0
+    flag = lambda key: np.asarray(part.get(key, np.zeros(len(f), bool)), bool)
+    weld = mesh_ops.weld_ids(v)
+    locked = np.bincount(weld)[weld] > 1
+    locked[f[flag('added') | flag('pad')].ravel()] = True
+    for point, normal in planes:
+        locked |= np.abs((v - point) @ normal) < bake.END_BAND
+    kept, faces, which = np.arange(len(v)), f, np.arange(len(f))
+    for _ in range(bake.SKIN_ROUNDS):
+        if len(faces) + held <= budget:
+            break
+        again, faces, inner = reduce.reduce(v[kept], faces, budget - held, locked[kept])
+        kept, which = kept[again], which[inner]
+        held = beside(v[kept], faces)
+    require(len(faces) + held <= budget, f'A carried part and the {held} faces of the body\'s own skin beside it stay over the budget of {budget}: '
+                                         f'{len(faces)} of its own are left of {len(f)}')
+    out = {**part, **{key: np.asarray(part[key])[kept] for key in VERTEX_KEYS if key in part},
+           **{key: np.asarray(part[key])[which] for key in FACE_KEYS if key in part and key != 'f'}, 'f': faces}
+    return out, len(f) - len(faces)
+
+
 def renormal(normals, faces, before, after):
     """Per-vertex `normals` carried from the vertices `before` to `after`: turned as the faces round each turned."""
     n = np.asarray(normals, float) + ends.normals(after, faces) - ends.normals(before, faces)
@@ -526,9 +631,12 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     faces, `pad`, are no part of a ring), skin-tight at the joints `bare` names (`ends.ends_of`) with the cap
     there held inside the target body's own part across the joint (`under_skin`). A tapered part is carried by
     its slope instead of its placement (`tapered`), its standoff from the source body's own part kept as it was. Each under end's cap then runs the target's overlap at `tier` past its plane
-    (`deepened`; into a torso carried too no deeper than that stands over the joint, `split.room`, and where
-    the torso is not carried the end is left for `seated`), and each over end's dome stands no more than the
-    contract's `domeMost` past its rim (`flattened`). A part holding the source
+    (`deepened`; into a torso carried too no deeper than that stands over the joint, `split.room`, and seated
+    in it (`seated`); where the torso is not carried the end is left for `run` to seat), and each over end's
+    dome stands no more than the contract's `domeMost` past its rim (`flattened`). An under end at a shoulder
+    standing outside its envelope is drawn in to it (`DRAWN_IN`); what an under end holds past its plane that
+    would show outside the part carried over it in the design bend is drawn in under it (`tucked`); and the
+    hairlines a bake left on an end's plane are closed (`healed`). A part holding the source
     body's skin is carried without it (`bodyskin.unworn`). Nothing else about a part changes. `report` maps a
     part to its turn in degrees and its scales along and across; a shoulder pad's names the part it is carried
     with (`with`) and holds that part's scales. A part's faces the client would show a hole at are turned out
@@ -537,7 +645,8 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
     from . import bake
     out, report = {}, {}
-    for name in sorted(names, key=lambda name: name not in TORSO_FIRST):
+    middle = (target[0]['lbicep_g'][:3, 3] + target[0]['rbicep_g'][:3, 3]) / 2 if contract is not None else None
+    for name in sorted(names, key=lambda name: OVER_FIRST.index(name) if name in OVER_FIRST else len(OVER_FIRST)):
         linear, offset, scales = placement(name, source, target, contract, bodies)
         part = dict(bodyskin.unworn(parts[name]))
         v, f, n = np.asarray(part['v'], float), np.asarray(part['f'], int), np.asarray(part['n'], float)
@@ -549,9 +658,13 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
             n, v = renormal(n, f, v, tapered(before, slope)), tapered(before, slope)
         if contract is not None:
             part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, bare=bare)
-            if part_ends:
+            drawn = [end for end in ends.ends_of(name, target[0], contract, bodies[1], tier, joints=DRAWN_IN) if end[4]]
+            if part_ends or drawn:
                 measured = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
-                shaped = capped(v, ends.shaped(v, f, measured, part_ends), f, measured, part_ends)
+                shaped = ends.shaped(v, f, measured, part_ends)
+                if drawn:  # a sleeve's end at the shoulder, scaled as its two joints' rings: inside the envelope, or drawn in to it
+                    shaped = ends.shaped(shaped, f, measured, drawn, inward=True)
+                shaped = capped(v, shaped, f, measured, part_ends + drawn)
                 for joint, side in bare:  # under the body's own skin: its part across the joint on the other body
                     letter = 'l' if side == 'c' else side
                     over = split.token(seams.JOINTS[joint]['over'], letter)
@@ -581,7 +694,16 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                 deeper = deepened(moved, centres[k], normal, least, depth)
                 if (joint, side) in bare and other in target[1] and not np.array_equal(deeper, moved):
                     deeper = under_skin(deeper, centres[k], normal, target[1][other][:2])
+                if other in out:  # under a part carried too: seated in a torso, and nothing of it showing in the design bend
+                    over = bake._outfit(out[other])[:2]
+                    if joint in measure.TORSO_OPENINGS:
+                        deeper = seated({**part, 'v': deeper}, centres[k], normal, over, others=np.delete(centres, k, axis=0))
+                    widest = np.max(seams.envelope(contract, joint, bodies[1], registry.TIERS[-1], None if side == 'c' else side))
+                    bend = float(contract['joints'][joint]['bodies'][bodies[1]]['bend'][contract['designBend']])
+                    deeper = tucked(part, deeper, centres[k], normal, bake.REACH * float(widest), bake._turns(joint, normal, bend, centres[k] - middle),
+                                    (np.asarray(out[other]['v'], float), np.asarray(out[other]['f'], int)), contract.get('ends', seams.ENDS)['bent'])
                 moved = deeper
+            moved = healed(part, moved, [(centres[k], seams.unit(seams.plane(target[0], met[k][0], 'l' if met[k][1] == 'c' else met[k][1])[1])) for k in cut])
             if not np.array_equal(moved, v):
                 n, v = renormal(n, f, v, moved), moved
         part['f'], n, turned = bake.faced_out(name, v, f, n, target[0])  # before the other body's skin is laid beside it
@@ -616,6 +738,8 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     with the body's skin gets the target body's own beside it, read with its textures from `body_textures`
     (`bake.skinned`). Where the parts kept in the folder `seat_in`, baked on the target, hold the part over
     a carried part's under end, and it is not carried too, that end's cap is seated in it (`seated`).
+    A part beside the body's skin is first brought under its budget with the other body's skin counted
+    (`budgeted`; `reduced` in the report, the faces taken out).
     Returns `refit`'s report, with, for a part beside the body's skin, how far it was pushed out over it
     (`overSkin`) and how far it still stands short of `OVER_SKIN` outside it (`shortOfSkin`, 0 where it
     clears it), and for any part the area of its faces the client would show a hole at (`seenThrough`,
@@ -642,7 +766,14 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     if bake.shared_with_body(listed) & set(parts):
         require(body_textures is not None, f'{", ".join(sorted(bake.shared_with_body(listed) & set(parts)))} share their slots with the body\'s '
                                            'skin: give the body\'s textures to lay the other body\'s beside them')
-        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0])
+        own = {name: bodyskin.body_part(body_pack, body_textures, target, name, goal[0]) for name in bake.shared_with_body(listed) & set(parts)}
+        for name, skin in own.items():  # the other body's own skin counts against the part's budget, as in a bake (`bake.within_budget`)
+            met = joints_of(name)
+            planes = [(point, seams.unit(seams.plane(goal[0], joint, 'l' if side == 'c' else side)[1])) for point, (joint, side, _) in zip(anchors(name, goal[0]), met)]
+            held, lost = budgeted(parts[name], lambda v, f: bake.skin_beside(skin, goal[0], None, name, v, f), bake.BUDGET['slot'], planes)
+            if lost:
+                parts[name], report[name]['reduced'] = whole(held)[0], lost
+        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get)
         for name in bake.shared_with_body(listed) & set(parts):
             held = over_skin(parts[name], *split.bone_line(goal[0], name))
             if held is not parts[name]:
