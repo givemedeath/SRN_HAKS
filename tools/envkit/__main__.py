@@ -72,7 +72,11 @@ def command_reference(args):
         asset = data['assets'][name]
         taken = asset.get('cut') or asset.get('turn')  # a view drawn from another's chosen reference
         require(not taken or args.selected, f'{name} is drawn from the chosen reference of {(taken or {}).get("from")}: give --selected')
-    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
+    output = Path(args.output); missed = []
+    # A drawn asset is taken as it is (`reference.as_drawn`): only a run that redraws one needs the shared ComfyUI.
+    redrawn = any(not data['assets'][name].get('drawn') for name in names)
+    require(not redrawn or args.bindings, 'Redrawing a reference needs --bindings, the local JSON of the shared ComfyUI')
+    local, client = (json.loads(Path(args.bindings).read_text(encoding='utf-8')), Client(args.url)) if redrawn else (None, None)
     for name in names:
         # Each job waits for the shared ComfyUI (`reference.make`). With --keep-going an asset that fails is said and
         # passed over, so that one long busy spell or lost poll does not stop the rest, and the run fails at the end;
@@ -448,7 +452,7 @@ def main(argv=None):
         sub.add_argument('--selected', help='folder of the chosen references, which the pieces of a building (cut) are drawn from')
         sub.set_defaults(run=run)
     sub = parsers['reference']
-    sub.add_argument('--bindings', required=True, help='local JSON with absolute comfyInput and comfyOutput')
+    sub.add_argument('--bindings', help='local JSON with absolute comfyInput and comfyOutput; not needed when every asset is drawn')
     sub.add_argument('--url', default='http://127.0.0.1:8188')
     sub.add_argument('--seed', type=int, default=101)
     sub.add_argument('--deadline', type=int, default=2400)

@@ -303,6 +303,11 @@ class MakeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'stayed busy'):  # without --keep-going the first failure stops the run
                 command.command_reference(Namespace(keep_going=False, **asked))
             self.assertEqual([call.args[3] for call in make.call_args_list], ['crate', 'bin'])
+        # Drawn assets are taken as they are: no bindings and no ComfyUI client are needed (review, 2026-11-14).
+        drawn = {'sheet': 'sheet.png', 'assets': {'crate': {'kind': 'prop', 'subject': 'crate', 'drawn': True}}}
+        with mock.patch.object(reference, 'load_set', return_value=drawn), mock.patch.object(reference, 'resolve_sheet'), mock.patch.object(reference, 'source'),                 mock.patch.object(reference, 'as_drawn', return_value={'state': 'complete', 'outputs': ['crate.png'], 'elapsedSeconds': 0.0}) as taken,                 mock.patch('tools.headkit.comfy.Client') as client, mock.patch('builtins.print'):
+            command.command_reference(Namespace(keep_going=False, **{**asked, 'bindings': None}))
+        taken.assert_called_once(); client.assert_not_called()
 
 
 if __name__ == '__main__':

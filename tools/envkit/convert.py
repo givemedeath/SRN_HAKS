@@ -38,6 +38,7 @@ DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may 
 MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels', 'fill', 'built', 'move')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 FILL_NEAR, FILL_WELD, FILL_MOST = 0.1, 0.002, 64  # metres from a stated point to a hole's rim; how near two corners are one place; a hole's most corners
 STEP_RISE, RAIL_HEIGHT, POST_EVERY = 0.19, 0.95, 1.2  # metres: a built stair's most rise a step, its handrail's height over the nosings, posts at most this far apart
+STAIR_STEEPEST = 1.2  # a built stair flight's most rise over its run (about 50 degrees): steeper, it is a ladder
 TREAD, STRINGER, RAIL, POST = (0.04,), (0.05, 0.22), (0.045, 0.045), (0.045, 0.045)  # built stair members' sections, metres: tread thickness, stringer, rails, posts
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 PLACING = ('lift', 'turn', 'signTilt', 'length')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted and stretched
@@ -1057,9 +1058,10 @@ def load_models(path):
                 flight = part['stairs']
                 require(set(part) <= {'part', 'stairs', 'picture', 'rails'} and isinstance(flight, dict) and set(flight) <= {'foot', 'top', 'width', 'sides'}
                         and {'foot', 'top', 'width'} <= set(flight) and point(flight['foot']) and point(flight['top']) and number(flight['width']) and flight['width'] > 0
-                        and flight['top'][2] - flight['foot'][2] > 0.3 and float(np.hypot(flight['top'][0] - flight['foot'][0], flight['top'][1] - flight['foot'][1])) > 0.2
+                        and flight['top'][2] - flight['foot'][2] > 0.3
+                        and flight['top'][2] - flight['foot'][2] <= STAIR_STEEPEST * float(np.hypot(flight['top'][0] - flight['foot'][0], flight['top'][1] - flight['foot'][1]))
                         and set(flight.get('sides', ['left', 'right'])) <= {'left', 'right'} and point(part.get('rails', part['picture'])),
-                        'A built stair flight is {foot, top, width, sides} (its foot and top the middles of its lowest and highest nosings, the top higher and further along), coloured from a point and its rails from another: ' + name)
+                        'A built stair flight is {foot, top, width, sides} (its foot and top the middles of its lowest and highest nosings, the top higher, at most STAIR_STEEPEST rise to its run), coloured from a point and its rails from another: ' + name)
         for part in model.get('fill', []):
             require(isinstance(part, dict) and {'at'} <= set(part) <= {'part', 'at'} and isinstance(part['at'], list) and len(part['at']) == 3
                     and all(number(value) for value in part['at']), 'A filled hole is a point on its rim, in metres on the finished model: ' + name)
