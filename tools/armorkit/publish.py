@@ -412,7 +412,7 @@ def icons(parts, pack, body_pack):
                     continue
                 if body not in rigs:
                     rigs[body] = measure.rig((Path(body_pack) / (body + '.mdl')).read_bytes())
-                bone = rigs[body][seams.BONES[token]]
+                bone = rigs[body][seams.BONES[token]] if token in seams.BONES else np.eye(4)  # a robe has no bone of its own: it is in body space
                 shades, layers = export.read_tint(Path(pack[model + '.plt']).read_bytes())
                 meshes = native_reader.decode(Path(pack[model + '.mdl']).read_bytes(), model, require_tangents=False, apply_rigid_transforms=True)
                 drawn = [(mesh['position'] @ bone[:3, :3].T + bone[:3, 3], mesh['faces'].astype(int), mesh['uv'], shades, layers) for mesh in meshes]
@@ -437,8 +437,9 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
       an armor part's texture only under the model's name (user, 2026-11-14), so every body carries its own.
     * `clash`: no file of the pack is one a pack in `clash` holds.
     * `neck`: each chest closes round its body's neck (`neck`); `necks`, a dictionary, is given each chest's measure.
-      With `fresh`, the file names that are new, only the chests among them are measured: a published chest
-      passed when it was published, and its file is held to the hash recorded then (`publish`).
+      With `fresh`, the file names that are new, only the chests among them are measured and only the models
+      among them read for the textures they name: a published model passed when it was published, names its
+      own texture, and is held to the hash recorded then (`publish`).
     * `icons`: each part in an icon slot has its icons (`icon_names`).
     * `unlisted`: every file of the pack belongs to a part of the registry.
     * `format`: a name of the pack is a lowercase resource name of at most 16 characters, and a text file holds
@@ -457,7 +458,7 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
                     continue
                 listed.add(model + '.mdl')
                 try:
-                    named = textures(pack[model + '.mdl'])
+                    named = textures(pack[model + '.mdl']) if fresh is None or model + '.mdl' in fresh else [model]
                 except ValueError as error:
                     failures.append(failure('closure', model, f'the model could not be read: {error}'))
                     continue
@@ -511,7 +512,13 @@ def published(root):
     parts = registry.load(path, publish=True)
     handoff = Path(root) / HANDOFF
     require(handoff.is_file(), f'{path} is published without {HANDOFF.name}: the handoff holds what was published and its hashes, and is not made again')
-    return parts, json.loads(handoff.read_text(encoding='utf-8'))
+    held = json.loads(handoff.read_text(encoding='utf-8'))
+    files = [resource for outfit in held.get('outfits', []) if isinstance(outfit, dict) for resource in outfit.get('resources', [])] if isinstance(held, dict) else []
+    require(isinstance(held, dict) and held.get('kind') == HANDOFF_KIND and isinstance(held.get('outfits'), list) and isinstance(held.get('iconFiles', []), list)
+            and all(isinstance(outfit, dict) for outfit in held['outfits'])
+            and all(isinstance(one, dict) and isinstance(one.get('name'), str) and isinstance(one.get('sha256'), str) for one in files + held.get('iconFiles', [])),
+            f'{handoff} is no parts handoff: it names the files published and their hashes')
+    return parts, held
 
 
 def seed(root, repo=REPO):
@@ -609,6 +616,12 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(Path(path).is_file(), f'{path} is no file to record for {model}')
         given_records.setdefault(model, []).append(Path(path))
     wanted = {model: (part, body) for part in new for body, models in registry.model_names(part).items() for model in models}
+    found_briefs, hashed = {}, {}
+
+    def once(path):  # a file's hash, taken once however many bodies share the file
+        if path not in hashed:
+            hashed[path] = sha(path)
+        return hashed[path]
     for bake in surveyed:
         record = bake['record']
         label = f'{record["body"]} {record["model"]}'
@@ -622,10 +635,13 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                 failures.append(failure('bake', name, f'{PACK} already holds a file of that name' if name in pack else 'two bakes hold a file of that name'))
             else:
                 incoming[name] = path
-        brief = brief_of(record['model'], given_briefs)
+        if record['model'] not in found_briefs:
+            path = brief_of(record['model'], given_briefs)
+            found_briefs[record['model']] = (path, None if path is None else {material['name'] for material in json.loads(path.read_text(encoding='utf-8')).get('materials', [])})
+        brief, materials = found_briefs[record['model']]
         if brief is None:
             failures.append(failure('records', label, f'no brief of {record["model"]} in {BRIEFS.name}: name it (--brief {record["model"]}=FILE)'))
-        elif {material['name'] for material in json.loads(brief.read_text(encoding='utf-8')).get('materials', [])} != {material['name'] for material in record.get('materials', [])}:
+        elif materials != {material['name'] for material in record.get('materials', [])}:
             failures.append(failure('records', label, f'{brief.name} lists other materials than the bake found: it is not the brief the outfit was baked from'))
         history = given_records.get(record['model'], [])
         if not history:
@@ -674,9 +690,9 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         # Every source is hashed once, before the first write; the records are made from those hashes and each
         # copy is read back against its own.
         hashes = {name: sha(path) for name, path in incoming.items()}
-        pinned = lambda path: {'name': path.name, 'sha256': sha(path), 'bytes': path.stat().st_size}
+        pinned = lambda path: {'name': path.name, 'sha256': once(path), 'bytes': path.stat().st_size}
         outfits = [{'model': bake['record']['model'], 'body': bake['record']['body'], 'number': bake['record']['number'], 'tier': bake['record'].get('tier'),
-                    'brief': None if brief is None else {'name': brief.name, 'sha256': sha(brief)},
+                    'brief': None if brief is None else {'name': brief.name, 'sha256': once(brief)},
                     'bake': {'sha256': bake['sha256'], 'materials': bake['record'].get('materials', []),
                              'triangles': bake['record']['gates'].get('triangles', {}).get('outfit')},
                     'records': [pinned(path) for path in history],
@@ -695,6 +711,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         saved = {path: path.read_bytes() if path.is_file() else None for path in texts}
         made_pack = not pack_folder.is_dir()
         try:
+            if trial:
+                (root / TRIAL).write_text(json.dumps({**TRIAL_MARK, 'written': True}) + '\n', encoding='utf-8')
             pack_folder.mkdir(parents=True, exist_ok=True)
             for name, path in sorted(incoming.items()):
                 shutil.copyfile(path, pack_folder / name)
@@ -712,10 +730,11 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                     path.unlink(missing_ok=True)
                 else:
                     path.write_bytes(blob)
+            if trial:
+                (root / TRIAL).write_text(json.dumps(TRIAL_MARK) + '\n', encoding='utf-8')
             raise
         report['written'] = True
         if trial:
-            (root / TRIAL).write_text(json.dumps({**TRIAL_MARK, 'written': True}) + '\n', encoding='utf-8')
             (root / 'publish-report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8', newline='\n')
         return report
     finally:

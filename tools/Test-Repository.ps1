@@ -350,6 +350,7 @@ if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -L
         if (-not (Test-Path -LiteralPath $partsRegistryPath -PathType Leaf)) { throw 'srn_parts exists without docs/armorkit/parts-registry.json' }
         $partsRegistry = Get-Content -LiteralPath $partsRegistryPath -Raw | ConvertFrom-Json
         if ($partsRegistry.kind -cne 'srn-armorkit-registry' -or $partsRegistry.schemaVersion -ne 1) { throw 'not a part registry (schema 1)' }
+        if (-not (Test-Path -LiteralPath (Join-Path $repoRoot 'docs/armorkit/parts-handoff.json') -PathType Leaf)) { Add-ValidationError 'The part registry is published without docs/armorkit/parts-handoff.json, which holds the hashes of what was published.' }
         if (-not $packByName.ContainsKey('srn_parts')) { Add-ValidationError 'The part registry is published and hakbuilder.json does not register srn_parts.' }
         $partTokens = @{ neck = @('neck'); chest = @('chest'); belt = @('belt'); pelvis = @('pelvis'); robe = @('robe'); shoulder = @('shol', 'shor')
             bicep = @('bicepl', 'bicepr'); forearm = @('forel', 'forer'); hand = @('handl', 'handr'); thigh = @('legl', 'legr'); shin = @('shinl', 'shinr'); foot = @('footl', 'footr') }
@@ -360,6 +361,7 @@ if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -L
             $slot = [string]$part.slot; $number = [int]$part.number
             if (-not $partTokens.ContainsKey($slot)) { Add-ValidationError "The part registry has a part in the unknown slot '$slot'."; continue }
             if ($number -lt 1000) { Add-ValidationError "The part registry publishes $slot $number, a stock, buffer or test number." }
+            if ($number -gt 9999) { Add-ValidationError "The part registry publishes $slot $number, above the last open number 9999." }
             if (@($part.bodies | Sort-Object -Unique).Count -ne 20) { Add-ValidationError "Published part $slot $number does not list all 20 bodies." }
             $tokens = @($partTokens[$slot])
             if ($part.PSObject.Properties['sides']) { $tokens = @($tokens | Where-Object { @($part.sides) -ccontains $_.Substring($_.Length - 1) }) }

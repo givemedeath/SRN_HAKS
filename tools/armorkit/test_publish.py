@@ -404,9 +404,15 @@ class PublishTests(Workspace):
         handoff_file.unlink()
         with self.assertRaisesRegex(ValueError, 'is published without parts-handoff.json'):
             self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        handoff_file.write_text('[]', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'is no parts handoff'):
+            self.publish(shared(outfit='hands'), registry=more, dry_run=True)
         handoff_file.write_bytes(kept_bytes)
-        report = self.publish(shared(outfit='hands'), registry=more, measure_neck=lambda *given: (measured.append(given[3]), sound(*given))[1])
+        read = []
+        report = self.publish(shared(outfit='hands'), registry=more, measure_neck=lambda *given: (measured.append(given[3]), sound(*given))[1],
+                              textures=lambda path: (read.append(Path(path).stem), named(path))[1])
         self.assertEqual(measured, [])  # the chests published earlier are not measured again
+        self.assertEqual(len(read), 40)  # nor their models read: only the new gloves, a pair a body
         self.assertTrue(report['passed'] and report['written'])
         self.assertEqual(report['newParts'], ['hand 6030'])
         handoff = json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))
