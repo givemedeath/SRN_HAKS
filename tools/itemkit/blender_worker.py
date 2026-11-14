@@ -18,7 +18,7 @@ from tools.headkit.common import pin, read, require, verify, write,digest
 from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
 from tools.itemkit.geometry import corner_hash, similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
-from tools.itemkit.transfer import finished_colour,patch_distance_bound,validate_texture_patch
+from tools.itemkit.transfer import finished_colour,patch_distance_bound,transfer_distance,validate_texture_patch
 from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, grip_render_part, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 from tools.itemkit.reduction import rims
 from tools.itemkit.routes import ROUTES
@@ -574,8 +574,8 @@ def transfer_preflight(cfg, out, donor, low):
         raise ValueError('Runtime UV preflight failed; inspect preflight.json before baking')
     dp,df=arrays(donor);tree=BVHTree.FromPolygons([Vector(row) for row in dp],df.tolist(),all_triangles=True)
     policy=cfg['processing'].get('missCorrection',{})
-    maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
-    require(0<maximum<=.003 and .5<=alignment<=1, 'Bounded preflight donor policy required')
+    maximum=transfer_distance(policy);alignment=policy.get('minimumNormalAlignment',.5)
+    require(.5<=alignment<=1, 'Bounded preflight donor policy required')
     patch=policy.get('unorientedSourcePatch');allowed=set()
     if patch:
         allowed=validate_texture_patch(p[f],patch,maximum_distance=patch_distance_bound(policy))
@@ -746,8 +746,8 @@ def recover_bake(cfg,out):
 def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     policy=cfg['processing'].get('missCorrection',{})
     require(policy.get('method')=='nearest-finished-donor','Visible bake misses require an explicit bounded donor correction; padding cannot repair them')
-    maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
-    require(0<maximum<=.003 and .5<=alignment<=1,'Bounded outward donor transfer required')
+    maximum=transfer_distance(policy);alignment=policy.get('minimumNormalAlignment',.5)
+    require(.5<=alignment<=1,'Bounded outward donor transfer required')
     y,x=np.nonzero(misses);ids=owners[y,x];size=len(owners);uv=uv_corners(low)[ids]
     p,f=arrays(low);tri=p[f[ids]];ab=uv[:,1]-uv[:,0];ac=uv[:,2]-uv[:,0];q=np.c_[(x+.5)/size,(y+.5)/size]-uv[:,0]
     det=ab[:,0]*ac[:,1]-ab[:,1]*ac[:,0];u=(q[:,0]*ac[:,1]-q[:,1]*ac[:,0])/det;v=(ab[:,0]*q[:,1]-ab[:,1]*q[:,0])/det
