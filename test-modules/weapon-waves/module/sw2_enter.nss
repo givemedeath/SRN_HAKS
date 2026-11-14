@@ -55,6 +55,11 @@ CreateItemOnObject("sr42aae67c",pc);
 CreateItemOnObject("sr84ad1333",pc);
 CreateItemOnObject("sr9849b566",pc);
 CreateItemOnObject("sr2febc2a8",pc);
+CreateItemOnObject("sr6a19234a",pc);
+CreateItemOnObject("sr4c45ec83",pc);
+CreateItemOnObject("sr994ca81b",pc);
+CreateItemOnObject("sr36b5c592",pc);
+CreateItemOnObject("src3ccd3b0",pc);
 CreateItemOnObject("sr_cl36_1",pc);SetLocalInt(pc,"SW2_ITEMS",1);}
 Equip("sw1_m0","sre9a211be_3",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw1_f0","sre9a211be_3",INVENTORY_SLOT_RIGHTHAND,0);
@@ -116,5 +121,15 @@ Equip("sw7_m2","sr9849b566",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw7_f2","sr9849b566",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw7_m3","sr2febc2a8",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw7_f3","sr2febc2a8",INVENTORY_SLOT_RIGHTHAND,0);
-SendMessageToPC(pc,"Thirty weapon/finish NPC pairs and inventory controls supplied. Cougar/Colt reviewers stand in the southern row; all pairs are in the selector. Bow arrows use native consumption only. Client/gameplay acceptance remains pending.");if(!GetLocalInt(GetModule(),"SW_REVIEW_STARTED")){SetLocalInt(GetModule(),"SW_REVIEW_STARTED",1);DelayCommand(3.0,ExecuteScript("c",GetModule()));}
+Equip("sw8_m0","sr6a19234a",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_f0","sr6a19234a",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_m1","sr4c45ec83",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_f1","sr4c45ec83",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_m2","sr994ca81b",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_f2","sr994ca81b",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_m3","sr36b5c592",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_f3","sr36b5c592",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_m4","src3ccd3b0",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw8_f4","src3ccd3b0",INVENTORY_SLOT_RIGHTHAND,0);
+SendMessageToPC(pc,"Thirty-five weapon/finish NPC pairs and inventory controls supplied. Cougar/Colt reviewers stand in the southern row; all pairs are in the selector. Bow arrows use native consumption only. Client/gameplay acceptance remains pending.");if(!GetLocalInt(GetModule(),"SW_REVIEW_STARTED")){SetLocalInt(GetModule(),"SW_REVIEW_STARTED",1);DelayCommand(3.0,ExecuteScript("c",GetModule()));}
 }
