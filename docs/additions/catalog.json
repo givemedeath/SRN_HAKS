@@ -1046,6 +1046,138 @@
     "out": "ek_isa_booths_o",
     "glow": "ek_isa_booths_i"
    }
+  },
+  {
+   "row": 22811,
+   "model": "ek_csc_cross",
+   "label": "[envkit]Chop Shop Clinic, Neon Cross Sign",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_csc_cross",
+    "out": "ek_csc_cross_o",
+    "glow": "ek_csc_cross_i",
+    "halo": "ek_csc_cross_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_cross",
+   "category": 156
+  },
+  {
+   "row": 22812,
+   "model": "ek_csc_banner",
+   "label": "[envkit]Chop Shop Clinic, Hanging Banner",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_banner",
+   "category": 156
+  },
+  {
+   "row": 22813,
+   "model": "ek_csc_case",
+   "label": "[envkit]Chop Shop Clinic, Cyberware Case",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_csc_case",
+    "out": "ek_csc_case_o",
+    "glow": "ek_csc_case_i"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_case",
+   "category": 174
+  },
+  {
+   "row": 22814,
+   "model": "ek_csc_gurney",
+   "label": "[envkit]Chop Shop Clinic, Gurney",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_gurney",
+   "category": 161
+  },
+  {
+   "row": 22815,
+   "model": "ek_csc_lamp",
+   "label": "[envkit]Chop Shop Clinic, Surgical Light",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_csc_lamp",
+    "out": "ek_csc_lamp_o",
+    "glow": "ek_csc_lamp_i",
+    "halo": "ek_csc_lamp_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_lamp",
+   "category": 161
+  },
+  {
+   "row": 22816,
+   "model": "ek_csc_cart",
+   "label": "[envkit]Chop Shop Clinic, Instrument Cart",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_cart",
+   "category": 164
+  },
+  {
+   "row": 22817,
+   "model": "ek_csc_bin",
+   "label": "[envkit]Chop Shop Clinic, Biohazard Bin",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_bin",
+   "category": 158
+  },
+  {
+   "row": 22818,
+   "model": "ek_csc_vending",
+   "label": "[envkit]Chop Shop Clinic, Medicine Vending Machine",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_csc_vending",
+    "out": "ek_csc_vending_o",
+    "glow": "ek_csc_vending_i"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_vending",
+   "category": 161
+  },
+  {
+   "row": 22819,
+   "model": "ek_csc_dumpstr",
+   "label": "[envkit]Chop Shop Clinic, Dumpster",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic props",
+   "added": "2026-11-14",
+   "blueprint": "ek_csc_dumpstr",
+   "category": 158
   }
  ],
  "tileGroups": [
@@ -1474,6 +1606,38 @@
    ]
   },
   {
+   "tileset": "dgt04",
+   "group": 62,
+   "name": "Chop_Shop_Clinic",
+   "label": "Chop Shop Clinic 2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    526,
+    527,
+    528,
+    529
+   ],
+   "models": [
+    "ek_csc_shop_t00",
+    "ek_csc_shop_t01",
+    "ek_csc_shop_t10",
+    "ek_csc_shop_t11"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_csc_shop",
+    "out": "ek_csc_shop_o",
+    "glow": "ek_csc_shop_i",
+    "halo": "ek_csc_shop_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic tile group",
+   "added": "2026-11-14"
+  },
+  {
    "tileset": "udp1",
    "group": 106,
    "name": "Stuffer_Shack",
@@ -1806,6 +1970,38 @@
      "dark": "ek_off"
     }
    ]
+  },
+  {
+   "tileset": "udp1",
+   "group": 111,
+   "name": "Chop_Shop_Clinic",
+   "label": "Chop Shop Clinic 2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    768,
+    769,
+    770,
+    771
+   ],
+   "models": [
+    "ek_csc_shop_t00",
+    "ek_csc_shop_t01",
+    "ek_csc_shop_t10",
+    "ek_csc_shop_t11"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_csc_shop",
+    "out": "ek_csc_shop_o",
+    "glow": "ek_csc_shop_i",
+    "halo": "ek_csc_shop_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/chop-shop-clinic-game.json",
+   "provenance": "Chop Shop Clinic tile group",
+   "added": "2026-11-14"
   }
  ]
 }

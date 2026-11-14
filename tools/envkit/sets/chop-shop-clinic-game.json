@@ -2,7 +2,7 @@
   "models": {
     "ek_csc_shop": {"source": "meshy/models/csc-building-a1-remesh", "height": 6.0, "measuredAt": 6.0, "colour": 4096, "copy": [
       {"part": "smeared lettering panel on the east wall", "box": [[5.3, -2.0, 1.9], [5.7, 0.55, 2.7]], "from": [[5.3, -3.15, 1.9], [5.7, -2.05, 2.7]]}
-    ], "lit": [
+    ], "fill": [{"part": "wedge open at the foot of the back wall", "at": [-3.21, -5.69, 0.55]}], "lit": [
       {"part": "sign", "box": [[-3.7, 4.8, 2.95], [1.1, 5.0, 4.0]], "gain": 0.6},
       {"part": "strip light over the door", "box": [[-1.65, 4.12, 2.6], [0.5, 4.32, 2.78]], "value": 0.7},
       {"part": "lit panels over the shop window", "box": [[0.95, 4.4, 2.88], [4.6, 4.52, 3.22]], "value": 0.6},

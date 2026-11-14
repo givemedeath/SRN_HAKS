@@ -1,0 +1,10 @@
+node dummy ek_csc_cross_pwk_use01
+  parent ek_csc_cross_pwk
+  position 0 1.03674 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_csc_cross_pwk_use02
+  parent ek_csc_cross_pwk
+  position 0 -1.03674 0
+  orientation 0 1 0 0
+endnode
