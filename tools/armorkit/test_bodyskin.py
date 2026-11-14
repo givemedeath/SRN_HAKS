@@ -117,8 +117,19 @@ class BodySkinTests(unittest.TestCase):
         mine, own = part(faces=2, size=size), arm()
         mine['rgb'] = np.random.default_rng(1).random((size, size, 3))
         mine['closing'][0, 1] = True
-        mine['v'] = np.array([(0.07, 0.0, 1.5), (0.07, 0.01, 1.5), (0.07, 0.0, 1.45)])  # a sleeve's scrap, 5 cm down the arm
+        mine['v'] = np.array([(0.07, 0.0, 1.5), (0.07, 0.0, 1.45), (0.07, 0.01, 1.5)])  # a sleeve's scrap, 5 cm down the arm, facing out
         return mine, own, bodyskin.worn(mine, own, (0, 0, 1.5), (0, 0, 1.2), limit)
+
+    def test_the_outfits_faces_turned_in_over_the_skin_are_turned_out(self):
+        mine, own, both = self.worn()
+        self.assertIs(bodyskin.turned_out(both, (0, 0, 1.5), (0, 0, 1.2)), both)  # the scrap faces out: as it was
+        one = np.arange(len(both['f'])) != 1  # the scrap's one face (the part has it twice)
+        inward = {key: np.asarray(value)[one] if key in ('f', 'added', 'domed', 'trimmed', 'skin') else value for key, value in both.items()}
+        facing = inward['f'].copy()
+        inward['f'][0] = inward['f'][0][::-1]  # the scrap wound to face the arm, which the client would not draw
+        out = bodyskin.turned_out(inward, (0, 0, 1.5), (0, 0, 1.2))
+        self.assertTrue(np.array_equal(out['f'], facing))  # turned out again, the arm's own faces as they were
+        self.assertTrue(np.allclose(out['n'][:3], -both['n'][:3]) and np.allclose(out['n'][3:], both['n'][3:]))  # its own vertices' normals turned
 
     def test_the_bodys_part_is_added_with_its_textures_in_a_quarter_of_their_own(self):
         mine, own, both = self.worn()
@@ -147,6 +158,16 @@ class BodySkinTests(unittest.TestCase):
         for key in ('added', 'domed'):
             self.assertFalse(both[key][skin].any())
         self.assertTrue((both['trimmed'][skin] == -1).all() and len(both['src']) == len(both['v']))
+
+    def test_a_worn_part_unworn_is_the_outfits_part_again(self):
+        mine, own, both = self.worn()
+        back = bodyskin.unworn(both)
+        self.assertFalse(set(bodyskin.KEYS) & set(back))
+        for key in ('v', 'f', 'uv', 'n', 'src', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'trimmed'):
+            self.assertTrue(np.allclose(back[key], mine[key]), key)
+        self.assertIs(bodyskin.unworn(mine), mine)  # no skin: nothing to take off
+        mine, own, both = self.worn(size=8, limit=8)  # at the largest texture the outfit's maps come back as `worn` halved them
+        self.assertTrue(np.allclose(bodyskin.unworn(both)['rgb'], bodyskin.resized(mine['rgb'], 4)))
 
     def test_the_skin_keeps_half_the_bodys_texels_whatever_size_the_sleeve_was_laid_out_at(self):
         mine, own, both = self.worn(size=2)  # a sleeve at 2 texels a side, the body's arm at 8

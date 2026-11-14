@@ -123,12 +123,18 @@ def command_bake(args):
 
 def command_split(args):
     from . import bake
-    parts, report = bake.resplit(args.capture)
+    parts, report = bake.resplit(args.capture, body_pack=args.body_pack)
     if args.output:
         bake.keep_parts(parts, args.output)
     print(json.dumps(report))
     if report['failures']:
         sys.exit(1)
+
+
+def command_refit(args):
+    from . import refit
+    names = [name.strip() for name in args.parts.split(',')] if args.parts else None
+    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names, body_textures=args.body_textures, seat_in=args.seat_in)))
 
 
 def command_render(args):
@@ -142,6 +148,8 @@ def command_poses(args):
     from . import client, poses
     spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
                               colours=json.loads(args.colours) if args.colours else None)
+    if args.hold:
+        spec['hold'] = args.hold  # seconds the game stays on each shot: longer where the machine is busy and the capture falls behind
     record = poses.build(spec, labels, args.output, args.nwn_root)
     if args.run:
         if args.wait:
@@ -221,7 +229,16 @@ def main(argv=None):
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
     p.add_argument('capture', help='the file `bake --capture` wrote')
     p.add_argument('--output', help='.npz file to write the parts to, for `render`')
+    p.add_argument('--body-pack', help="folder of the body's models: an end under a slot left to the body is then measured against its skin")
     p.set_defaults(handler=command_split)
+    p = commands.add_parser('refit', help="carry a bake's kept parts to another body by a rotation and a scale along each axis")
+    p.add_argument('kept', help='the folder `bake --kept` kept the parts in'); p.add_argument('output', help='the folder the refit parts are kept in')
+    p.add_argument('--body-pack', required=True, help="folder holding both bodies' models")
+    p.add_argument('--from', dest='source', default='pmh0'); p.add_argument('--to', dest='target', required=True)
+    p.add_argument('--parts', help='comma-separated parts to carry (default all)')
+    p.add_argument('--body-textures', help="folder of the body's material files and maps: a part sharing its slot with the body's skin gets the other body's")
+    p.add_argument('--seat-in', help="folder of parts baked on the other body: an end carried under one of them is seated in it")
+    p.set_defaults(handler=command_refit)
     p = commands.add_parser('render', help="draw an outfit's parts offline, at rest or posed by one of the body's clips")
     p.add_argument('parts', help='the .npz `split --output` wrote, or a folder `bake --kept` kept parts in')
     p.add_argument('output', help='the image to write the views to')
@@ -247,6 +264,7 @@ def main(argv=None):
     p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
     p.add_argument('--wait', type=float, help='seconds to wait for another session\'s client to close first')
     p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')
+    p.add_argument('--hold', type=float, help='seconds the game stays on each shot (default 3): longer on a busy machine, where shots stall')
     p.set_defaults(handler=command_poses)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)
