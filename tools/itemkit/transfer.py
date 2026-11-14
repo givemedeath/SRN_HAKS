@@ -9,6 +9,18 @@ PATCH_SCOPE={'distance':.003,'textureFraction':.0001}
 # 41 x 49 mm grip had 212 missed texels (0.045%) up to 3.11 mm from an inside-out generated donor (user, 2026-11-12:
 # "Raise the patch cap"; one texel then measured 3.203 mm: "Allow 3.25 mm").
 EXTENDED_PATCH_SCOPE={'distance':.00325,'textureFraction':.0005}
+# The oriented transfer itself reads at most 3 mm. A fit stretched along its length (the wave-4 Pole Arm at 2.3x, 4.1 mm)
+# or reduced across a coarse spot (the Macauitl's paddle, 3.7 mm) sits further from its donor; the user may widen one
+# manifest's transfer up to 5 mm, quoted in `maximumDistanceApproval` (2026-11-13: "Allow 4.2 mm", "Allow 3.8 mm").
+APPROVED_TRANSFER_DISTANCE=.005
+
+
+def transfer_distance(policy):
+    """The policy's oriented transfer distance: 3 mm at most, or up to 5 mm with the user's quoted approval."""
+    maximum=policy.get('maximumDistance',PATCH_SCOPE['distance']);approval=policy.get('maximumDistanceApproval')
+    bound=APPROVED_TRANSFER_DISTANCE if isinstance(approval,str) and approval.strip() else PATCH_SCOPE['distance']
+    require(0<maximum<=bound,'Bounded outward donor transfer required (over 3 mm needs maximumDistanceApproval quoting the user)')
+    return maximum
 
 
 def patch_scope(patch):
