@@ -154,7 +154,7 @@ class CheckTests(unittest.TestCase):
         self.assertIsNone(prop_fixture.late(100, 100 + 1.5 + prop_fixture.client.POLL + 1.0, prop_fixture.HOLD))
         # A grab retried after showing a minimised window is timed when the retry starts (review, 2026-11-14).
         with mock.patch.object(prop_fixture.client, 'capture', side_effect=[OSError, 'shot.png']), mock.patch.object(prop_fixture.client, 'window', return_value=1), \
-                mock.patch('ctypes.WinDLL'), mock.patch.object(prop_fixture.time, 'sleep'), mock.patch.object(prop_fixture, 'clock', side_effect=[104.4, 105.1]):
+                mock.patch('ctypes.WinDLL', create=True), mock.patch.object(prop_fixture.time, 'sleep'), mock.patch.object(prop_fixture, 'clock', side_effect=[104.4, 105.1]):
             self.assertEqual(prop_fixture.grab(1, 'shot.png'), ('shot.png', 105.1))
         self.assertIsNone(prop_fixture.late(86399, 3.0, 6.0)); self.assertIsNone(prop_fixture.late(None, 500.0, 6.0))  # past midnight; no stamp
         with tempfile.TemporaryDirectory() as scratch:
