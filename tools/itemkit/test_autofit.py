@@ -79,6 +79,33 @@ class AutofitTests(unittest.TestCase):
             again = s.thin(source, folder/'again', folder/'out/thin-map.npz')
             self.assertEqual(again['output']['sha256'], result['output']['sha256'])
 
+    def test_stretch_lengthens_only_its_span_and_reapplies(self):
+        p = pommelled(); mapping = s.fit_stretch(p, (.05, .2), 1.5)
+        mean, axes = mapping['mean'], mapping['axes']; t = (p - mean) @ axes[:, 0]; (t0, t1) = mapping['span']
+        normals = np.tile([0., 0., 1.], (len(p), 1)); out, turned = s.apply_stretch(p, mapping, normals)
+        moved = (out - mean) @ axes[:, 0]; side = lambda q: (q - mean) @ axes[:, 1:]
+        below, inside, above = t <= t0, (t > t0) & (t < t1), t >= t1
+        np.testing.assert_allclose(out[below], p[below], atol=1e-12)                                     # one end stays put
+        np.testing.assert_allclose(moved[above] - t[above], .5 * (t1 - t0), atol=1e-9)                  # the other moves rigidly
+        np.testing.assert_allclose(moved[inside], t0 + 1.5 * (t[inside] - t0), atol=1e-9)
+        np.testing.assert_allclose(side(out), side(p), atol=1e-9)                                        # width and depth unchanged
+        self.assertAlmostEqual(np.ptp(moved), np.ptp(t) + .5 * (t1 - t0), places=9)
+        self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), .9)
+        with self.assertRaisesRegex(ValueError, 'span'): s.fit_stretch(p, (.2, .05), 1.5)
+
+    def test_glb_stretch_keeps_topology_and_uvs(self):
+        rng = np.random.default_rng(2); p = pommelled()[::4]; n = len(p) // 3 * 3; p = p[:n]
+        faces = np.arange(n).reshape(-1, 3); uv = rng.uniform(.1, .9, (len(faces), 3, 2))
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder); source = folder/'p.glb'; write_mesh(source, p, faces, uv)
+            result = s.stretch(source, folder/'out', (.05, .2), 1.5); after = mesh(folder/'out/stretched.glb'); original = mesh(source)
+            np.testing.assert_array_equal(after['faces'], original['faces']); np.testing.assert_array_equal(after['uv'], original['uv'])
+            self.assertGreater(result['lengthAfter'], result['lengthBefore'])
+            again = s.stretch(source, folder/'again', map_path=folder/'out/stretch-map.npz')
+            self.assertEqual(again['output']['sha256'], result['output']['sha256']); self.assertEqual(again['map']['mode'], 'applied')
+            with self.assertRaisesRegex(ValueError, 'own span'): s.stretch(source, folder/'x', (.05, .2), 1.5, folder/'out/stretch-map.npz')
+
     def test_shell_thinning_keeps_a_closed_solid(self):
         try: import pymeshlab
         except ImportError: self.skipTest('pymeshlab not on the path')

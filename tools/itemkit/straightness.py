@@ -341,6 +341,67 @@ def thin(source, output, map_path=None, target_ratio=None, factor=None):
     write(output / 'thin.json', result, fresh=True); return result
 
 
+def fit_stretch(positions, span, factor):
+    """A lengthening of one span of the long axis (fractions from the principal frame's low end) by `factor`.
+
+    Only the span grows; the sections below it stay put and everything above moves up rigidly, so a short handle reaches
+    the hand's length while the blade and guard keep their size (the wave-4 Sai; user, 2026-11-14: "just stretch the
+    handle part if needed")."""
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); t = (positions - mean) @ axes[:, 0]
+    lo, hi = (float(x) for x in span); factor = float(factor)
+    _require(0 <= lo < hi <= 1 and 1 < factor <= 3, 'A span inside the length and a lengthening factor in (1, 3] required')
+    t0, t1 = t.min() + lo * np.ptp(t), t.min() + hi * np.ptp(t)
+    return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
+
+
+def apply_stretch(positions, mapping, normals=None):
+    positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']
+    (t0, t1), k = mapping['span'], float(mapping['factor'])
+    def transform(points):
+        p = (points - mean) @ axes; t = p[:, 0]
+        p[:, 0] = np.where(t <= t0, t, np.where(t >= t1, t + (k - 1) * (t1 - t0), t0 + (t - t0) * k))
+        return p @ axes.T + mean
+    moved = transform(positions)
+    if normals is None: return moved
+    return moved, turn_normals(transform, positions, normals, t1 - t0)
+
+
+def stretch(source, output, span=None, factor=None, map_path=None):
+    """Write OUTPUT/stretched.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte.
+    A saved map (`map_path`) re-applies unchanged to another mesh in the same frame (the textured donor)."""
+    from tools.headkit.common import pin, write
+    from tools.headkit.gltf import encode, load, arrays
+    source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
+    source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
+    if map_path is None:
+        _require(span is not None and factor is not None, 'Give --span and --factor, or a saved --map')
+        mapping = fit_stretch(positions, span, factor); map_path = output / 'stretch-map.npz'
+        with map_path.open('xb') as stream: np.savez(stream, **mapping)
+        mode = 'measured'
+    else:
+        _require(span is None and factor is None, 'A saved map carries its own span and factor')
+        with np.load(map_path, allow_pickle=False) as archive: mapping = {name: archive[name] for name in archive.files}
+        _require(set(mapping) == {'mean', 'axes', 'span', 'factor'} and mapping['span'].shape == (2,), 'Invalid stretch map')
+        mode = 'applied'
+    normals = attributes.get('NORMAL'); buffer = bytearray(binary)
+    if normals is None: moved = apply_stretch(positions, mapping)
+    else: moved, turned = apply_stretch(positions, mapping, normals)
+    _replace(document, buffer, primitive['attributes']['POSITION'], moved)
+    if normals is not None: _replace(document, buffer, primitive['attributes']['NORMAL'], turned)
+    target = output / 'stretched.glb'
+    with target.open('xb') as stream: stream.write(encode(document, bytes(buffer)))
+    after, after_faces, after_attributes = arrays(*load(target.read_bytes()))
+    _require(np.array_equal(after_faces, faces) and all(np.array_equal(after_attributes[name], attributes[name])
+             for name in attributes if name not in ('POSITION', 'NORMAL')), 'Stretching changed topology, UVs or other attributes')
+    axis = mapping['axes'][:, 0]
+    result = {'source': source_pin, 'output': pin(target), 'map': dict(pin(map_path), mode=mode),
+              'span': mapping['span'].tolist(), 'factor': float(mapping['factor']),
+              'lengthBefore': float(np.ptp(positions @ axis)), 'lengthAfter': float(np.ptp(after @ axis)),
+              'method': 'one span of the long axis lengthened; sections rigid in width and depth, the rest moved along the axis',
+              'visualReviewRequired': True}
+    write(output / 'stretch.json', result, fresh=True); return result
+
+
 BLADE_METRICS = ('guardSkewDegrees', 'guardSectionRatio', 'bladeDepthToWidth', 'splitBladeSlices')
 
 
@@ -423,7 +484,14 @@ def main(argv=None):
     c.add_argument('--family'); c.add_argument('--whole', action='store_true', help='also straighten through wide sections (a hafted head)')
     c = commands.add_parser('thin'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--ratio', type=float, help='target blade depth-to-width ratio'); c.add_argument('--factor', type=float, help='explicit depth factor (default 0.5)')
+    c = commands.add_parser('stretch', help='lengthen one span of the long axis (a short handle)'); c.add_argument('mesh', type=Path)
+    c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="fractions of the length from the principal frame's low end")
+    c.add_argument('--factor', type=float, help='lengthening of the span, in (1, 3]')
     a = parser.parse_args(argv)
+    if a.command == 'stretch':
+        result = stretch(a.mesh, a.output, a.span, a.factor, a.map)
+        print(json.dumps({k: result[k] for k in ('output', 'map', 'span', 'factor', 'lengthBefore', 'lengthAfter')}, indent=2)); return 0
     if a.command == 'thin':
         result = thin(a.mesh, a.output, a.map, a.ratio, a.factor)
         print(json.dumps({k: result[k] for k in ('output', 'map', 'fit', 'maximumVertexMove', 'outlineExtentsUnchanged', 'assessmentAfter')}, indent=2)); return 0

@@ -379,6 +379,13 @@ stay in the generated frame, so re-apply the saved map with `--map` to the
 textured donor and working shell before fitting. See the wave-1 section of
 `four-weapon-lessons.md` for calibration and limits.
 
+A handle too short for the hand at the chosen size can be lengthened alone with
+`stretch MESH.glb OUT_DIR --span LO HI --factor K`: the span (fractions of the
+length from the principal frame's low end; the report gives the axis) grows by K,
+the end below it stays and everything above moves along the axis unchanged.
+Re-apply its `stretch-map.npz` with `--map` to the textured donor, review the
+views, then fit at the natural size (wave-4 Sai).
+
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default
 (`--factor` or `--ratio` to choose); it runs after straightening and its map carries
