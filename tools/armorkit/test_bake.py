@@ -73,6 +73,16 @@ def closed(start, end, radius, near='flat', far='flat', depth=0.03, shape=None):
     return {'v': v, 'f': f, 'added': np.arange(len(f)) >= own}
 
 
+def laid_out(part):
+    """`part` as a bake lays it out: what the split added drawn on copies of the points it shares with the outfit's own faces."""
+    v, f, added = part['v'], part['f'].copy(), part['added']
+    shared = np.intersect1d(f[added].ravel(), f[~added].ravel())
+    copy = np.arange(len(v))
+    copy[shared] = len(v) + np.arange(len(shared))
+    f[added] = copy[f[added]]
+    return {**part, 'v': np.concatenate([v, v[shared]]), 'f': f}
+
+
 def part(faces=1, size=4):
     """A baked part of `faces` triangles with flat maps of `size` texels a side."""
     v = np.array([(0.0, 0.0, 0.0), (0.1, 0.0, 0.0), (0.0, 0.1, 0.0)])
@@ -274,6 +284,11 @@ class BakeTests(unittest.TestCase):
         self.assertIsNone(gate(glove, left={'forel'})[0]['wrist']['l']['rest'])
         skin = closed(0.4, 0.6, 0.035)
         self.assertEqual(gate(glove, left={'forel'}, skin={'forel': (skin['v'], skin['f'])})[0]['wrist']['l']['rest'], 0.0)
+        # parts as a bake lays them out read as they did split: a rim is the outfit's own however its points are copied
+        self.assertEqual(gate({'bicepl': laid_out(sleeve), 'forel': laid_out(cuff)}), gate({'bicepl': sleeve, 'forel': cuff}))
+        narrow = closed(0.4, 0.6, 0.028)  # the glove's rim 2 mm out of the skin, what closes it within
+        for handl in (glove['handl'], laid_out(glove['handl'])):
+            self.assertEqual(gate({'handl': handl}, left={'forel'}, skin={'forel': (narrow['v'], narrow['f'])})[0]['wrist']['l']['rest'], 0.0)
 
     def test_the_gates_tell_budgets_names_and_missing_textures(self):
         with tempfile.TemporaryDirectory() as folder:

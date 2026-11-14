@@ -332,9 +332,7 @@ def hidden(parts, bones, body, contract=None, skin=None, left=()):
         v, f, point, normal = part['v'], part['f'], planes[key][0], planes[key][1]
         along = (v - point) @ normal
         here = part['nearest'] == part['joints'].index(key)
-        closing, own = np.zeros(len(v), bool), np.zeros(len(v), bool)
-        closing[f[part['added'] & ~part['pad']].ravel()] = True
-        own[f[~part['added'] & ~part['skin']].ravel()] = True
+        closing, own = _used(v, f, part['added'] & ~part['pad']), _used(v, f, ~part['added'] & ~part['skin'])
         dome, rim = closing & here & (along > ON_PLANE), closing & own & here & (along > -ON_PLANE)
         if not (dome.any() and rim.any()):
             continue
@@ -346,9 +344,7 @@ def hidden(parts, bones, body, contract=None, skin=None, left=()):
             failures.append(f'{over} at the {key[0]}: its dome stands {past * 100:.1f} cm past its rim, over the contract\'s {rule["domeMost"] * 100:.1f} cm')
     for name, part in data.items():  # hidden at rest
         v, f = part['v'], part['f']
-        added, own = np.zeros(len(v), bool), np.zeros(len(v), bool)
-        added[f[part['added'] & ~part['pad']].ravel()] = True
-        own[f[~part['added']].ravel()] = True
+        added, own = _used(v, f, part['added'] & ~part['pad']), _used(v, f, ~part['added'])
         for index, key in enumerate(part['joints']):
             over, under = slots[key]
             if name != under or (over not in data and over not in left):
@@ -395,6 +391,14 @@ def hidden(parts, bones, body, contract=None, skin=None, left=()):
             failures.append(f'{under} at the {key[0]}: turned {_way(worst, normal)} by {_degrees(worst):.0f} degrees of the design bend\'s '
                             f'{bend:.0f}, its end stands up to {row(key)["bent"] * 100:.1f} cm outside {over}')
     return report, failures
+
+
+def _used(vertices, faces, which):
+    """Per vertex, whether a face in `which` uses it or a copy of it at the same point: a baked part is laid out,
+    its vertices doubled where the texture's islands meet, so a rim point a cap uses may be a copy of the one
+    the outfit's own faces use."""
+    weld = mesh_ops.weld_ids(vertices)
+    return np.isin(weld, weld[faces[which].ravel()])
 
 
 def _added(part):
