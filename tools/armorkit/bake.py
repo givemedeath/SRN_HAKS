@@ -94,8 +94,8 @@ def roles(name, made):
     closings, in the armhole's shadow. Neither body looked different for it with its arms up, and it is not
     kept. The panel a lifted arm shows in the female's armpit, pale and streaked dark, is not the sleeve's
     cap but the chest's closing round the arm (`under`): shaded vertex by vertex as the cloth it lies
-    under, it is the vest's shade on one face and the shirt's on the next. That is open, and the user's to
-    decide."""
+    under, it is the vest's shade on one face and the shirt's on the next. The user accepted it as it is
+    (2026-11-14, docs/armorkit/plan.md)."""
     made = np.asarray(made, int)
     under = UNDER.get(name, ())
     flat = [kind for kind in (split.CAP, split.WALL, split.PADDED) if kind not in under and not (kind == split.CAP and name in ARMHOLE)]

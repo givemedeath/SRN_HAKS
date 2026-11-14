@@ -310,8 +310,10 @@ this plan:
 - A client check needs no comparison crops (2026-11-14): the six-pose sheet and its single shots are the
   evidence, and `poses` makes no crops.
 
-Open: the user was asked what ends the polishing of the female and has not answered. Until there is a stop
-rule, a defect gets one diagnosis and at most one fix round with a client check, and is then put to the user.
+Stop rule for the Human female (user decision 2026-11-14, passed on by the session that plans the outfit
+work): she is done when every bake gate passes and the six-pose client sheet shows no holes, no skin where
+cloth belongs and nothing see-through. A defect of shade or colour gets one diagnosis and one fix round with
+a client check, and is then recorded and accepted. Textures stay at 1024 texels a side (same decision).
 
 What changed in the kit on 2026-11-14 (`tools/armorkit/README.md`, Invariants):
 
@@ -333,11 +335,19 @@ What changed in the kit on 2026-11-14 (`tools/armorkit/README.md`, Invariants):
 - Relief shading is evened with the texels beside each texel. The vest's flecked hem and collar were the
   kit's shading, not the generation's colours, which are clean there.
 
-Left open on the Human female, for the user (2026-11-14): with an arm lifted her armpit shows a panel, pale
-and streaked dark. It is the chest's own closing round the arm, which the split makes and the bake shades
-as the cloth it lies under, vest on one face and shirt on the next. The one fix round went to the sleeve's
-cap instead, changed nothing to see and was taken out again. A second round would draw that closing in one
-shade of the shirt's cloth; a new generation would not change it.
+Accepted as they are on the Human pair (user decisions 2026-11-14):
+
+- With an arm lifted the female's armpit shows a panel, pale and streaked dark. It is the chest's own closing
+  round the arm, which the split makes and the bake shades as the cloth it lies under, vest on one face and
+  shirt on the next. The one fix round went to the sleeve's cap instead, changed nothing to see and was taken
+  out again. The user accepted the panel as it is. Drawing that closing as the sleeves' closings are, in one
+  shade of the shirt's cloth, was written and not tried in the client: it is not in the kit. A new generation
+  would not change the panel.
+- With an arm lifted the male shows two thin lighter slivers where the right sleeve meets the chest at the
+  armpit. They are the cloth's colour and nothing shows through them.
+
+By the stop rule above the Human female is done: her gates pass, and her six-pose sheet shows no holes, no
+skin where cloth belongs and nothing see-through.
 
 
 ## Open decisions
