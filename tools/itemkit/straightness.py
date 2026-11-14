@@ -347,13 +347,25 @@ def fit_stretch(positions, span, factor):
     Only the span changes; the sections below it stay put and everything above moves rigidly, so a short handle reaches
     the hand's length while the blade and guard keep their size (the wave-4 Sai; user, 2026-11-14: "just stretch the
     handle part if needed"). A factor below 1 shortens a long body and keeps its grip's hand fit (the wave-5 Tonfa's
-    shaft; user, 2026-11-14: "Shorten shaft only")."""
-    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); t = (positions - mean) @ axes[:, 0]
+    shaft; user, 2026-11-14: "Shorten shaft only").
+
+    The span moves along its own centreline, not the whole mesh's principal axis: a side part pulls that axis off the
+    body (the Tonfa's handle, by about 4 degrees), and a span changed along a slanted axis would kink at both ends."""
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); q = (positions - mean) @ axes; t = q[:, 0]
     lo, hi = (float(x) for x in span); factor = float(factor)
     _require(0 <= lo < hi <= 1 and (1 < factor <= 3 or .4 <= factor < 1),
              'A span inside the length and a factor in [0.4, 1) (shorten) or (1, 3] (lengthen) required')
     t0, t1 = t.min() + lo * np.ptp(t), t.min() + hi * np.ptp(t)
-    return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
+    xs, cs = [], []
+    for a, b in zip(np.linspace(t0, t1, 9)[:-1], np.linspace(t0, t1, 9)[1:]):
+        rows = (t >= a) & (t < b)
+        if rows.sum() >= 20:
+            low, high = np.percentile(q[rows, 1:], [1, 99], axis=0); xs.append(t[rows].mean()); cs.append((low + high) / 2)
+    if len(xs) < 4: return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
+    slope, intercept = np.polyfit(np.array(xs), np.array(cs), 1)
+    d = np.array([1., *slope]); d /= np.linalg.norm(d); r1 = np.array([0., 1., 0.]) - d[1] * d; r1 /= np.linalg.norm(r1)
+    R = np.column_stack([d, r1, np.cross(d, r1)]); line = lambda x: np.array([x, *(slope * x + intercept)])
+    return {'mean': mean, 'axes': axes @ R, 'span': np.array([line(t0) @ d, line(t1) @ d]), 'factor': np.array(factor)}
 
 
 def apply_stretch(positions, mapping, normals=None):
