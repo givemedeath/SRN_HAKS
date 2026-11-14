@@ -7,7 +7,7 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, bodyskin, refit, seams, split
+from . import bake, bodyskin, measure, refit, seams, split
 from .test_bake import arm, closed, contract, part, rig
 from .test_bodyskin import arm as body_arm
 
@@ -212,8 +212,8 @@ class RefitTests(unittest.TestCase):
             glove = part(faces=1)
             bake.store({'handl': glove}, kept, {'bare': ['forearm'], 'skin': ['bicep']})
             bodies = {'pmh0': (rig(), {'handl': hand()}), 'pfh0': (rig(), {'handl': hand(0.8)})}
-            with mock.patch('tools.armorkit.measure.body', side_effect=lambda pack, name: bodies[name]), \
-                    mock.patch('tools.armorkit.seams.load_contract', return_value=None):
+            with mock.patch.object(measure, 'body', side_effect=lambda pack, name: bodies[name]), \
+                    mock.patch.object(seams, 'load_contract', return_value=None):
                 report = refit.run(kept, out, 'pack', 'pmh0', 'pfh0')
             self.assertTrue(np.allclose(report['handl']['axes'], 0.8, atol=1e-3))
             self.assertEqual(bake.declared(out), {'bare': {'forearm'}, 'skin': {'bicep'}})
@@ -222,7 +222,9 @@ class RefitTests(unittest.TestCase):
                 refit.run(kept, kept, 'pack', 'pmh0', 'pfh0')
             # a sleeve sharing its slot with the body's skin: carried without the male's, given the female's
             bake.store({'bicepl': sleeved()}, Path(folder) / 'sleeve', {'skin': ['bicep']})
-            with mock.patch('tools.armorkit.measure.body', side_effect=lambda pack, name: bodies[name]),                     mock.patch('tools.armorkit.seams.load_contract', return_value=None),                     mock.patch('tools.armorkit.bodyskin.body_part', return_value=body_arm()) as read:
+            with mock.patch.object(measure, 'body', side_effect=lambda pack, name: bodies[name]), \
+                    mock.patch.object(seams, 'load_contract', return_value=None), \
+                    mock.patch.object(bodyskin, 'body_part', return_value=body_arm()) as read:
                 with self.assertRaisesRegex(ValueError, "give the body's textures"):
                     refit.run(Path(folder) / 'sleeve', out / 'a', 'pack', 'pmh0', 'pfh0')
                 refit.run(Path(folder) / 'sleeve', out / 'b', 'pack', 'pmh0', 'pfh0', body_textures='maps')

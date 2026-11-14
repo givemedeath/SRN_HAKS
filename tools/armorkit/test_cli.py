@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest import mock
 
 from . import __main__ as cli
-from . import client, registry
+from . import client, refit, registry
 from . import client_fixture as fixture
 
 EXAMPLE = Path(__file__).with_name('examples') / 'registry.json'
@@ -29,8 +29,17 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(got['parts'], len(handoff['parts']))
         self.assertEqual(handoff['kind'], registry.KIND + '-handoff')
 
+    def test_no_test_patches_the_kit_by_its_dotted_path(self):
+        # the suite imports the kit as tools.armorkit and as armorkit: a patch by the dotted name of one misses the
+        # other, and two refit tests passed alone and failed in the full suite (2026-11-14)
+        import re
+        found = [f'{path.name}:{number}' for path in sorted(Path(__file__).parent.glob('test_*.py'))
+                 for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1)
+                 if re.search(r"mock\.patch\(\s*['\"](tools\.)?armorkit\.", line)]
+        self.assertEqual(found, [], 'patch the imported module with mock.patch.object instead')
+
     def test_refit_carries_kept_parts_to_another_body(self):
-        with mock.patch('tools.armorkit.refit.run', return_value={'handl': {'degrees': 1.5}}) as call:
+        with mock.patch.object(refit, 'run', return_value={'handl': {'degrees': 1.5}}) as call:  # the module itself: the suite also imports it as armorkit
             self.assertEqual(run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--parts', 'handl, footl'), {'handl': {'degrees': 1.5}})
             run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--body-textures', 'maps', '--seat-in', 'beside')
         self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], body_textures=None, seat_in=None))

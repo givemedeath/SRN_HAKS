@@ -176,6 +176,7 @@
       "tools/armorkit/generate.py",
       "tools/armorkit/poses.py",
       "tools/armorkit/reference.py",
+      "tools/armorkit/refit.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/view.py"
     ],
@@ -225,6 +226,7 @@
     "tools/armorkit/test_refit.py": [
       "tools/armorkit/bake.py",
       "tools/armorkit/bodyskin.py",
+      "tools/armorkit/measure.py",
       "tools/armorkit/refit.py",
       "tools/armorkit/seams.py",
       "tools/armorkit/split.py",
