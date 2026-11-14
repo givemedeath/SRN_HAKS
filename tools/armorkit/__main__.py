@@ -134,7 +134,7 @@ def command_split(args):
 def command_refit(args):
     from . import refit
     names = [name.strip() for name in args.parts.split(',')] if args.parts else None
-    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names)))
+    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names, body_textures=args.body_textures, seat_in=args.seat_in)))
 
 
 def command_render(args):
@@ -233,7 +233,9 @@ def main(argv=None):
     p.add_argument('kept', help='the folder `bake --kept` kept the parts in'); p.add_argument('output', help='the folder the refit parts are kept in')
     p.add_argument('--body-pack', required=True, help="folder holding both bodies' models")
     p.add_argument('--from', dest='source', default='pmh0'); p.add_argument('--to', dest='target', required=True)
-    p.add_argument('--parts', help='comma-separated parts to carry (default all; a part holding the body\'s skin is refused)')
+    p.add_argument('--parts', help='comma-separated parts to carry (default all)')
+    p.add_argument('--body-textures', help="folder of the body's material files and maps: a part sharing its slot with the body's skin gets the other body's")
+    p.add_argument('--seat-in', help="folder of parts baked on the other body: an end carried under one of them is seated in it")
     p.set_defaults(handler=command_refit)
     p = commands.add_parser('render', help="draw an outfit's parts offline, at rest or posed by one of the body's clips")
     p.add_argument('parts', help='the .npz `split --output` wrote, or a folder `bake --kept` kept parts in')

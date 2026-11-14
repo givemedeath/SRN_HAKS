@@ -31,14 +31,19 @@ The user asked for rotation and uniform scaling, used again for every refit wher
   and is left as the scales leave it: shaped as one, its dome flared into a lip that stood out through the
   pelvis (2026-11-13).
 
-A part holding the body's own skin (`bodyskin.worn`) is not carried: that skin is the other body's, and the
-part is baked on it.
+A part holding the body's own skin (`bodyskin.worn`), a short sleeve's upper arm, is carried without it
+(`bodyskin.unworn`): that skin is the other body's, and `run` lays the other body's own beside the outfit's
+again (`bake.skinned`). The Human female's generated shirt had no cloth on the inside of the upper arm for
+12 cm below the armpit, and her own arm showed through there standing and with her arms raised; the male's
+sleeves, whole, are carried to her instead (Facility Security, 2026-11-13).
 """
 from pathlib import Path
 
 import numpy as np
 
-from . import bodyskin, ends, registry, repose, seams, split
+from tools.robes import mesh_ops
+
+from . import bodyskin, ends, measure, registry, repose, seams, split
 from .registry import require
 
 FACE_KEYS = ('f', 'added', 'domed', 'trimmed', 'pad')  # what a kept part holds per face (`bake.KEYS`, `bake.OPTIONAL`)
@@ -148,12 +153,13 @@ def capped(before, after, faces, measured, part_ends):
     return out
 
 
-def under_skin(vertices, point, normal, skin, gap=UNDER_SKIN):
-    """`vertices` with what lies past the plane (`point`, unit `normal` toward the part) held `gap` inside the
-    body's own surface `skin` (vertices, faces): a vertex standing less far inside it, as read along the normal
-    of the skin's nearest vertex, is moved in along that normal."""
+def under_skin(vertices, point, normal, skin, gap=UNDER_SKIN, which=None):
+    """`vertices` with what lies past the plane (`point`, unit `normal` toward the part), or the vertices
+    `which` flags, held `gap` inside the surface `skin` (vertices, faces), the body's own or an outfit's part:
+    a vertex standing less far inside it, as read along the normal of the skin's nearest vertex, is moved in
+    along that normal."""
     out = np.array(vertices, float)
-    past = np.flatnonzero((out - point) @ normal < 0)
+    past = np.flatnonzero((out - point) @ normal < 0 if which is None else np.asarray(which, bool))
     skin_v = np.asarray(skin[0], float)
     if not len(past) or not len(skin_v):
         return out
@@ -164,6 +170,36 @@ def under_skin(vertices, point, normal, skin, gap=UNDER_SKIN):
     return out
 
 
+def seated(part, point, normal, over, gap=split.SEAT_GAP, others=()):
+    """`part`'s vertices with the cap the bake grew past its under end's plane (`point`, unit `normal` toward
+    the part) brought into the other body's part over the joint, `over` (vertices, faces of its outfit's own
+    surface): drawn toward the plane until it runs no deeper than that part stands over the joint less `gap`
+    (`split.room`, as a bake seats an end), then each of its points held `gap` inside it (`under_skin`). The
+    cap is what only the split's faces (`added`) use, its points matched by position across the part's
+    texture seams, nearer this joint's point than the part's other joints' (`others`): a pelvis's domes at the
+    hips are no part of its end at the waist. The male's upper arm ran 10 cm into his chest, and on the Human
+    female's own chest stood 4 to 5 cm out of it (Facility Security, 2026-11-13)."""
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    added = np.asarray(part['added'], bool) & ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
+    if 'skin' in part:
+        added &= ~np.asarray(part['skin'], bool)
+    weld = mesh_ops.weld_ids(v)
+    cap = np.isin(weld, weld[f[added].ravel()]) & ~np.isin(weld, weld[f[~added].ravel()])
+    here = np.linalg.norm(v - point, axis=1)
+    for other in others:
+        cap &= here < np.linalg.norm(v - np.asarray(other, float), axis=1)
+    room = split.room(over[0], over[1], point, normal)
+    if not cap.any() or room is None or (np.abs(measure.winding(v[cap], np.asarray(over[0], float), np.asarray(over[1], int))) >= 0.5).all():
+        return v  # an end already inside the part over it stays as the bake made it: the pelvis's at the waist, drawn in, stood out turned
+    height = (v - point) @ normal
+    deepest, depth = -float(height[cap].min()), room - gap
+    out = v.copy()
+    if deepest > depth > 0:
+        drawn = cap & (height < 0)
+        out[drawn] -= (height[drawn] * (1 - depth / deepest))[:, None] * normal
+    return under_skin(out, point, normal, over, gap, which=cap)
+
+
 def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2, bare=()):
     """(parts, report): baked parts (`bake.stored`) carried from the body `source` to the body `target`, each a
     (rig, parts by token) pair as `measure.body` gives them. `names` limits the parts carried; the rest are
@@ -171,16 +207,15 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     the two bodies' names, its scale across follows the contract's body rings and its ends at the tube joints
     are brought to tier `tier`'s envelopes on the target (`ends.shaped`; a pad's
     faces, `pad`, are no part of a ring), skin-tight at the joints `bare` names (`ends.ends_of`) with the cap
-    there held inside the target body's own part across the joint (`under_skin`). Nothing else
-    about a part changes. `report` maps a part to its turn in degrees and its scales along and across."""
+    there held inside the target body's own part across the joint (`under_skin`). A part holding the source
+    body's skin is carried without it (`bodyskin.unworn`). Nothing else about a part changes. `report` maps a
+    part to its turn in degrees and its scales along and across."""
     names = list(parts) if names is None else list(names)
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
-    held = [name for name in names if set(bodyskin.KEYS) & set(parts[name])]
-    require(not held, f'{", ".join(held)} hold the body\'s own skin: bake them on the other body instead')
     out, report = {}, {}
     for name in names:
         linear, offset, scales = placement(name, source, target, contract, bodies)
-        part = dict(parts[name])
+        part = dict(bodyskin.unworn(parts[name]))
         v, f = np.asarray(part['v'], float) @ linear.T + offset, np.asarray(part['f'], int)
         n = np.asarray(part['n'], float) @ np.linalg.inv(linear)  # normals carried by the inverse transpose
         n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
@@ -221,16 +256,37 @@ def whole(part):
     return {**part, **{key: np.asarray(part[key])[keep] for key in FACE_KEYS if key in part}}, int((~keep).sum())
 
 
-def run(kept, output, body_pack, source, target, names=None, tier=2):
+def run(kept, output, body_pack, source, target, names=None, tier=2, body_textures=None, seat_in=None):
     """Refit the parts kept in the folder `kept` (`bake.store`) from body `source` to body `target`, both read
     from `body_pack`, their ends shaped to the target's seam contract at tier `tier`, and keep them in the
     folder `output` with the slots the brief they were baked from left to the body and shared with its skin,
-    for `bake --kept OUTPUT --body TARGET` to tint, write and gate on the other body. Returns `refit`'s report."""
+    for `bake --kept OUTPUT --body TARGET` to tint, write and gate on the other body. A part in a slot shared
+    with the body's skin gets the target body's own beside it, read with its textures from `body_textures`
+    (`bake.skinned`). Where the parts kept in the folder `seat_in`, baked on the target, hold the part over
+    a carried part's under end, and it is not carried too, that end's cap is seated in it (`seated`).
+    Returns `refit`'s report."""
     from . import bake, measure
     require(Path(output).resolve() != Path(kept).resolve(), 'Refit parts are kept in another folder than the parts they came from')
     listed = bake.listing(kept)
     left = [token for slot in listed['bare'] for token in registry.SLOTS[slot]['tokens']]
-    parts, report = refit(bake.stored(kept), measure.body(body_pack, source), measure.body(body_pack, target), names,
+    goal = measure.body(body_pack, target)
+    parts, report = refit(bake.stored(kept), measure.body(body_pack, source), goal, names,
                           seams.load_contract(), (source, target), tier, bake.bare_joints({'left': left}))
+    beside = bake.stored(seat_in) if seat_in is not None else {}
+    for name in parts:
+        met = joints_of(name)
+        points = anchors(name, goal[0])
+        for k, (joint, side, over) in enumerate(met):
+            letter = 'l' if side == 'c' else side
+            if token_of(seams.JOINTS[joint]['under'], letter) == name and over in beside and over not in parts:
+                moved = seated(parts[name], points[k], seams.unit(seams.plane(goal[0], joint, letter)[1]), bake._outfit(beside[over])[:2],
+                               others=np.delete(points, k, axis=0))
+                if not np.array_equal(moved, parts[name]['v']):
+                    parts[name] = {**parts[name], 'v': moved}
+                    report[name].setdefault('seated', []).append(f'{joint} {side}')
+    if bake.shared_with_body(listed) & set(parts):
+        require(body_textures is not None, f'{", ".join(sorted(bake.shared_with_body(listed) & set(parts)))} share their slots with the body\'s '
+                                           'skin: give the body\'s textures to lay the other body\'s beside them')
+        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0])
     bake.store(parts, output, {key: value for key, value in listed.items() if key != 'parts'})
     return report

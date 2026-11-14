@@ -7,8 +7,9 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, refit
-from .test_bake import arm, contract, part, rig
+from . import bake, bodyskin, refit, split
+from .test_bake import arm, closed, contract, part, rig
+from .test_bodyskin import arm as body_arm
 
 
 def moved(bones, rotation, scale, offset):
@@ -30,6 +31,13 @@ def two_bodies(source_ring=0.04, target_ring=0.04):
     for joint, spec in a['joints'].items():
         spec['bodies'] = {'a': spec['bodies']['test'], 'b': b['joints'][joint]['bodies']['test']}
     return a
+
+
+def sleeved():
+    """An upper arm's two faces of sleeve with the body's own arm beside them (`bodyskin.worn`)."""
+    sleeve = part(faces=2)
+    sleeve['v'] = np.array([(0.07, 0.0, 1.5), (0.07, 0.01, 1.5), (0.07, 0.0, 1.45)])
+    return bodyskin.worn(sleeve, body_arm(), (0, 0, 1.5), (0, 0, 1.2))
 
 
 def hand(scale=1.0):
@@ -73,18 +81,20 @@ class PlacementTests(unittest.TestCase):
 
 
 class RefitTests(unittest.TestCase):
-    def test_parts_are_carried_with_their_normals_and_one_with_the_bodys_skin_is_refused(self):
+    def test_parts_are_carried_with_their_normals_and_one_with_the_bodys_skin_without_it(self):
         source = (rig(), {'handl': hand()})
         target = (moved(rig(), about_z(90.0), 1.0, np.zeros(3)), {'handl': hand()})
         glove = part(faces=1)
         glove['v'] = glove['v'] + (0.6, 0.0, 0.0)
-        out, report = refit.refit({'handl': glove, 'bicepl': {**part(), 'skin': np.zeros(1, bool)}}, source, target, ['handl'])
+        sleeve = sleeved()
+        out, report = refit.refit({'handl': glove, 'bicepl': sleeve}, source, target, ['handl'])
         self.assertEqual(report['handl']['degrees'], 90.0)
         self.assertTrue(np.allclose(out['handl']['n'], [[0.0, 0.0, 1.0]] * 3))  # turned about z, a normal along z stays
         self.assertTrue(np.allclose(out['handl']['v'], glove['v'] @ about_z(90.0).T))
         self.assertTrue(np.array_equal(out['handl']['rgb'], glove['rgb']))  # nothing else changes
-        with self.assertRaisesRegex(ValueError, "body's own skin"):
-            refit.refit({'bicepl': {**part(), 'skin': np.zeros(1, bool)}}, source, target)
+        out, _ = refit.refit({'bicepl': sleeve}, source, target)  # the source body's skin left behind, the sleeve carried
+        self.assertFalse(set(bodyskin.KEYS) & set(out['bicepl']))
+        self.assertEqual((len(out['bicepl']['f']), len(out['bicepl']['v']), len(out['bicepl']['rgb'])), (2, 3, 4))
 
     def test_a_triangle_shrunk_to_a_sliver_the_compiler_drops_is_left_out(self):
         # two triangles of a glove, the second with two corners 2 microns apart: on a hand 0.4 the size, 0.8 apart
@@ -130,6 +140,23 @@ class RefitTests(unittest.TestCase):
         self.assertLess(past.max(), 0.03 - refit.UNDER_SKIN + 1e-3)
         self.assertGreater(past.min(), 0.02)  # moved in to the skin, not onto the axis
 
+    def test_an_end_carried_under_the_other_bodys_own_part_is_seated_in_it(self):
+        # an upper arm 4 cm round, its cap 10 cm back past the shoulder plane (x = 0.05), under a chest that stands
+        # 8 cm over the joint, 8 cm round: the cap is drawn in to the chest's room less the gap, and held inside it
+        sleeve, chest = closed(0.05, 0.3, 0.04, near='cap', far=None, depth=0.1), closed(-0.03, 0.05, 0.06)
+        point, normal = np.array((0.05, 0.0, 0.0)), np.array((1.0, 0.0, 0.0))
+        out = refit.seated(sleeve, point, normal, (chest['v'], chest['f']))
+        own = np.unique(sleeve['f'][~sleeve['added']])
+        self.assertTrue(np.array_equal(out[own], sleeve['v'][own]))  # the sleeve itself is not moved
+        cap = np.setdiff1d(np.unique(sleeve['f'][sleeve['added']]), own)
+        self.assertAlmostEqual(float(((out[cap] - point) @ normal).min()), -(0.08 - split.SEAT_GAP), places=6)
+        self.assertTrue(bake._inside(out[cap], [(chest['v'], chest['f'])]).all())
+        self.assertTrue(np.array_equal(refit.seated(sleeve, point, normal, (chest['v'][:0], chest['f'][:0])), sleeve['v']))  # no room: as it was
+        shallow = closed(0.05, 0.3, 0.04, near='cap', far=None, depth=0.03)  # an end already inside the chest stays as it was
+        self.assertTrue(np.array_equal(refit.seated(shallow, point, normal, (chest['v'], chest['f'])), shallow['v']))
+        pole = np.argmin(sleeve['v'][:, 0])  # what lies nearer another joint of the part is that end's, and stays
+        self.assertTrue(np.array_equal(refit.seated(sleeve, point, normal, (chest['v'], chest['f']), others=[sleeve['v'][pole]])[pole], sleeve['v'][pole]))
+
     def test_the_command_keeps_the_refit_parts_with_the_slots_the_brief_gave(self):
         with tempfile.TemporaryDirectory() as folder:
             kept, out = Path(folder) / 'kept', Path(folder) / 'out'
@@ -144,6 +171,14 @@ class RefitTests(unittest.TestCase):
             self.assertEqual(list(bake.stored(out)), ['handl'])
             with self.assertRaises(ValueError):
                 refit.run(kept, kept, 'pack', 'pmh0', 'pfh0')
+            # a sleeve sharing its slot with the body's skin: carried without the male's, given the female's
+            bake.store({'bicepl': sleeved()}, Path(folder) / 'sleeve', {'skin': ['bicep']})
+            with mock.patch('tools.armorkit.measure.body', side_effect=lambda pack, name: bodies[name]),                     mock.patch('tools.armorkit.seams.load_contract', return_value=None),                     mock.patch('tools.armorkit.bodyskin.body_part', return_value=body_arm()) as read:
+                with self.assertRaisesRegex(ValueError, "give the body's textures"):
+                    refit.run(Path(folder) / 'sleeve', out / 'a', 'pack', 'pmh0', 'pfh0')
+                refit.run(Path(folder) / 'sleeve', out / 'b', 'pack', 'pmh0', 'pfh0', body_textures='maps')
+            self.assertEqual(read.call_args.args[:4], ('pack', 'maps', 'pfh0', 'bicepl'))
+            self.assertEqual(int(bake.stored(out / 'b')['bicepl']['skin'].sum()), len(body_arm()['f']))
 
 
 if __name__ == '__main__':

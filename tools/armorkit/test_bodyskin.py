@@ -148,6 +148,16 @@ class BodySkinTests(unittest.TestCase):
             self.assertFalse(both[key][skin].any())
         self.assertTrue((both['trimmed'][skin] == -1).all() and len(both['src']) == len(both['v']))
 
+    def test_a_worn_part_unworn_is_the_outfits_part_again(self):
+        mine, own, both = self.worn()
+        back = bodyskin.unworn(both)
+        self.assertFalse(set(bodyskin.KEYS) & set(back))
+        for key in ('v', 'f', 'uv', 'n', 'src', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'trimmed'):
+            self.assertTrue(np.allclose(back[key], mine[key]), key)
+        self.assertIs(bodyskin.unworn(mine), mine)  # no skin: nothing to take off
+        mine, own, both = self.worn(size=8, limit=8)  # at the largest texture the outfit's maps come back as `worn` halved them
+        self.assertTrue(np.allclose(bodyskin.unworn(both)['rgb'], bodyskin.resized(mine['rgb'], 4)))
+
     def test_the_skin_keeps_half_the_bodys_texels_whatever_size_the_sleeve_was_laid_out_at(self):
         mine, own, both = self.worn(size=2)  # a sleeve at 2 texels a side, the body's arm at 8
         self.assertEqual(len(both['rgb']), 8)

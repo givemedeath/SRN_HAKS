@@ -32,7 +32,9 @@ class CommandLineTests(unittest.TestCase):
     def test_refit_carries_kept_parts_to_another_body(self):
         with mock.patch('tools.armorkit.refit.run', return_value={'handl': {'degrees': 1.5}}) as call:
             self.assertEqual(run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--parts', 'handl, footl'), {'handl': {'degrees': 1.5}})
-        call.assert_called_once_with('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'])
+            run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--body-textures', 'maps', '--seat-in', 'beside')
+        self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], body_textures=None, seat_in=None))
+        self.assertEqual(call.call_args_list[1], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, body_textures='maps', seat_in='beside'))
 
     def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
         from . import brief

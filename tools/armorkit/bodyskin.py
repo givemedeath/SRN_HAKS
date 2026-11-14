@@ -150,6 +150,22 @@ def tinted(part, tint):
     return tuple(np.where(part['skin_at'], part['skin_tint'][..., k], tint[k]) for k in (0, 1))
 
 
+def unworn(part):
+    """A part `worn` made, without the body's skin: the outfit's faces, vertices and maps as `worn` was given
+    them, its maps at the size `worn` laid them out at in their quarter. A part with no skin is as it was."""
+    if 'skin' not in part:
+        return part
+    skin = np.asarray(part['skin'], bool)
+    count = int(np.asarray(part['f'], int)[skin].min()) if skin.any() else len(part['v'])  # `worn` adds the body's vertices after the outfit's
+    half = len(part['rgb']) // 2
+    out = {key: value for key, value in part.items() if key not in KEYS}
+    out.update({key: np.asarray(part[key])[:count] for key in ('v', 'n', 'src')})
+    out['uv'] = np.asarray(part['uv'], float)[:count] * 2
+    out.update({key: np.asarray(part[key])[~skin] for key in ('f', 'added', 'domed', 'pad', 'trimmed') if key in part})
+    out.update({key: np.asarray(part[key])[:half, :half] for key in ('rgb', 'covered', 'relief', 'closing', 'cap', 'padded')})
+    return out
+
+
 def worn(part, skin, start, end, limit=1024):
     """A baked part (`bake.bake`) with the body's skin part beside the outfit's surface, where the outfit shows it.
 
