@@ -36,8 +36,11 @@ PROPS = ('TemplateResRef', 'Appearance', 'Static', 'Tag')  # what a placed bluep
 
 
 def documents(tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, size=SIZE):
-    """{file name: GFF document as JSON} of the module: one plain area for each tileset, the first the start area."""
+    """{file name: GFF document as JSON} of the module: one plain area `size` tiles square for each tileset, the first
+    the start area. A group as wide as the area leaves no tile for the start point, which the Toolset will not save
+    painted over (the Rail Freight Depot is 8 by 8, 2026-11-14)."""
     require(tilesets and all(tileset in AREAS for tileset in tilesets), 'A check area is laid in ' + ' or '.join(AREAS))
+    require(type(size) is int and 2 <= size <= 32, 'A check area is 2 to 32 tiles square')
     made = client_fixture.module_documents(MODULE, list(haks), tlk, START); ifo = made['module.ifo']
     ifo['Mod_HakList']['value'] = ifo['Mod_HakList']['value'][1:]  # the fixture's own pack, which this module has none of
     ifo['Mod_OnClientEntr'] = field('resref', ''); ifo['Mod_Name'] = field('cexolocstring', {'0': 'Envkit toolset check'}); ifo['Mod_Area_list']['value'] = []
@@ -66,7 +69,7 @@ def _tools():
     return run
 
 
-def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None):
+def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None, size=SIZE):
     """Make the fresh user folder `user` for the Toolset: the module, the talk table from `built` (the folder the packs
     were built into) and `hak` as a junction to it. Returns {module, user, launch}; `launch` starts the Toolset on the
     folder where the game install folder is given."""
@@ -80,7 +83,7 @@ def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None
     for folder in (user / 'modules', user / 'tlk', work / 'json', work / 'module'):
         folder.mkdir(parents=True)
     shutil.copyfile(built / f'{tlk}.tlk', user / 'tlk' / f'{tlk}.tlk')
-    for name, document in documents(tilesets, haks, tlk).items():
+    for name, document in documents(tilesets, haks, tlk, size).items():
         path = work / 'json' / (name + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', work / 'module' / name])
     module = user / 'modules' / f'{MODULE}.mod'; run('nwn_erf', ['-c', '-f', module, '-e', 'MOD', work / 'module'])
