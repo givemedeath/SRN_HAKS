@@ -36,7 +36,7 @@ BUDGET = {'chest': 8000, 'slot': 2900, 'outfit': 40000, 'texture': 1024}  # tria
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
 # their budgets come to 39,900)
 END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
-SOCKETS = False  # whether the torso's lids over the shoulder and hip openings are sockets back into it (`split.split`): on trial, 2026-11-13
+DOMES = False  # whether every end is closed by a dome on past its joint's plane (`split.split`'s `domes`): on trial, 2026-11-13
 SKIN_ROUNDS = 3  # a part sharing its slot with the body's skin is reduced again at most this often, as the skin beside it is counted anew
 WHOLE = 'no holes or detached pieces'  # the gate `surface` answers, on the generated outfit as the bake is given it
 SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the gate `ends` answers, on a body the contract measured
@@ -223,7 +223,7 @@ def _collapsed(vertices, faces):
 def _outfit(part, pads=False, own=False):
     """(vertices, faces, shared) of the outfit's faces of a part: the body's skin beside them left out, and with
     `pads` false a pad over the joint (`pad`) too; with `own`, what the split added as well (`added`): an over
-    end is its own surface, and a socket back into it from its rim (`split.split`'s `sockets`) is none of it."""
+    end is its own surface, and a dome on from its rim (`split.split`'s `domes`) is none of it."""
     keep = np.ones(len(part['f']), bool)
     for key in ('skin',) + (() if pads else ('pad',)) + (('added',) if own else ()):
         if key in part:
@@ -384,7 +384,7 @@ def cut(given, contract=None):
                          reaches=given['reaches'], whole={('neck', 'c')}, made=made, sleeves=given['sleeves'], guards=given['guards'],
                          origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
                          deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare},
-                         sockets=SOCKETS)
+                         domes=DOMES)
     return result, made, origins
 
 
@@ -430,7 +430,10 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
     rims) is reduced as a whole, what the split made too: a point on a joint's plane goes only along its line
     on the plane, its rim or where its cap meets it, so its ends stay on their planes (`reduce`'s `lines`). Its
     vertices at one place are made one first (`welded`): a lid's fan has a middle vertex per point of its line.
-    A reduced part keeps no triangle with two corners at one point."""
+    The ring of an under end on its plane loses no point in any pass, a cap's included: where the ring is
+    dented, a chord left by a point taken out stands outside the curve, and the end's section, which the seam
+    contract measures there, stood up to a millimetre outside the envelope (Facility Security with domes,
+    2026-11-13). A reduced part keeps no triangle with two corners at one point."""
     beside, out, planes = beside or {}, {}, None
     for name, (pv, pf, pc) in result.items():
         budget = BUDGET['chest'] if name == 'chest' else BUDGET['slot']
@@ -447,22 +450,28 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
         capped[pf[made[name] == split.CAP].ravel()] = True
         capped &= ~own & ~np.isin(np.arange(len(pv)), pf[(made[name] != split.CAP) & (made[name] != split.OWN)].ravel())
         planes = split.planes(joints) if planes is None else planes
-        near, lines = np.zeros(len(pv), bool), np.zeros(len(pv), np.int64)
+        near, lines, ring = np.zeros(len(pv), bool), np.zeros(len(pv), np.int64), np.zeros(len(pv), bool)
         for bit, (key, (point, normal)) in enumerate(planes.items()):
             unit = seams.unit(normal)
             along = (pv - point) @ unit
             inside = np.linalg.norm((pv - point) - along[:, None] * unit, axis=1) < 2 * radii[key]
             near |= (np.abs(along) < END_BAND) & inside
-            lines |= np.where((np.abs(along) < split.WELD) & inside, np.int64(1) << bit, np.int64(0))
+            on_plane = (np.abs(along) < split.WELD) & inside
+            # an under end's ring on its plane stays whole: where the ring is dented, a point taken out along it left a
+            # chord standing outside the curve, and the end's section up to a millimetre outside the seam contract's
+            # envelope (Facility Security with domes, 2026-11-13); an over end is measured inside its plane
+            if split.token(seams.JOINTS[key[0]]['under'], 'l' if key[1] == 'c' else key[1]) == name:
+                ring |= on_plane
+            else:
+                lines |= np.where(on_plane, np.int64(1) << bit, np.int64(0))
         before, kept, faces, which = len(pf), np.arange(len(pv)), pf, np.arange(len(pf))
-        for locked, on in ((added | near, None), ((added & ~capped) | (near & own), None), (None, lines)):
-            if locked is None:  # the split builds one vertex per point of a line where its closings meet: made one, they reduce
+        for locked, on in ((added | near, None), ((added & ~capped) | (near & own) | ring, None), (ring, lines)):
+            if on is not None:  # the split builds one vertex per point of a line where its closings meet: made one, they reduce
                 faces, which = welded(pv[kept], faces, which)
             for _ in range(SKIN_ROUNDS):
                 if len(faces) + held <= budget:
                     break
-                again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, None if locked is None else locked[kept],
-                                                    None if on is None else on[kept])
+                again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, locked[kept], None if on is None else on[kept])
                 kept, which = kept[again], which[inner]
                 held = count(pv[kept], faces)
             if len(faces) + held <= budget:

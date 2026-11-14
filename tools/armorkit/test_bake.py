@@ -203,8 +203,8 @@ class BakeTests(unittest.TestCase):
         closed = {'v': np.concatenate([fit['bicepl']['v'], plug['v']]), 'f': np.concatenate([fit['bicepl']['f'], plug['f'] + len(fit['bicepl']['v'])])}
         self.assertEqual(bake.ends({**fit, 'bicepl': closed}, bones, 'test', 2, terms)[1],
                          ['bicepl at the elbow: up to 6.0 cm inside the tier 2 envelope, in 16 of 16 directions'])
-        socket = {**closed, 'added': np.arange(len(closed['f'])) >= len(fit['bicepl']['f'])}  # what closes it is the split's: not the end
-        self.assertEqual(bake.ends({**fit, 'bicepl': socket}, bones, 'test', 2, terms)[1], [])
+        dome = {**closed, 'added': np.arange(len(closed['f'])) >= len(fit['bicepl']['f'])}  # what closes it is the split's: not the end
+        self.assertEqual(bake.ends({**fit, 'bicepl': dome}, bones, 'test', 2, terms)[1], [])
         # a part that does not reach its joint, unless the body's own part ends there
         self.assertEqual(bake.ends({**fit, 'forel': arm(0.32, 0.6, 0.06)}, bones, 'test', 2, terms)[1], ['forel does not reach the elbow plane'])
         bracer = arm(0.32, 0.5, 0.06)
@@ -404,6 +404,30 @@ class BudgetTests(unittest.TestCase):
         self.assertTrue(set(np.flatnonzero(near).tolist()) <= kept)  # the end the seam contract measures
         self.assertTrue(set(np.flatnonzero(self.v[:, 2] > self.joints['lthigh_g'][2] - 1e-9).tolist()) <= kept)  # the open rim
         self.assertTrue(np.array_equal(origin[made == split.OWN], np.sort(origin[made == split.OWN])))  # faces kept in their order
+
+    def test_an_under_ends_ring_on_its_plane_keeps_every_point_however_far_the_part_is_cut_down(self):
+        # a thigh standing on the hip plane, its end domed on past the plane into the pelvis, both dense
+        point, normal = split.planes(self.joints)[('hip', 'l')]
+        unit = seams.unit(normal)
+        a, b = seams.frame(unit)
+        around = np.linspace(0, 2 * np.pi, 48, endpoint=False)
+        round_ = np.cos(around)[:, None] * a + np.sin(around)[:, None] * b
+        heights = np.r_[-0.05 * np.sin(np.radians([75, 60, 45, 30, 15])), np.linspace(0, 0.3, 31)]  # the dome, then the tube
+        widths = np.r_[0.07 * np.cos(np.radians([75, 60, 45, 30, 15])), np.full(31, 0.07)]
+        v = np.concatenate([point + w * round_ + h * unit for h, w in zip(heights, widths)] + [[point - 0.05 * unit]])
+        rows, pole = len(heights), len(heights) * 48
+        f = [face for r in range(rows - 1) for k in range(48) for i, j in [(r * 48 + k, r * 48 + (k + 1) % 48)]
+             for face in ((i, j, j + 48), (i, j + 48, i + 48))]
+        f = np.array([(pole, k, (k + 1) % 48) for k in range(48)] + f)
+        made = np.where(np.arange(len(f)) < 48 + 2 * 48 * 5, split.CAP, split.OWN)
+        origin = np.where(made == split.OWN, np.arange(len(f)), -1)
+        made_out, origins_out = {'legl': made}, {'legl': origin}
+        with mock.patch.dict(bake.BUDGET, {'slot': 150}):
+            pv, pf, _ = bake.within_budget({'legl': (v, f, np.c_[v, np.arange(len(v))])}, made_out, origins_out, self.joints,
+                                           self.radii)['legl']
+        self.assertLess(len(pf), len(f))
+        on_plane = np.abs((pv[np.unique(pf)] - point) @ unit) < split.WELD
+        self.assertEqual(int(on_plane.sum()), 48)  # the ring on the hip plane, whole
 
     def test_a_part_within_its_budget_or_left_to_the_body_is_not_touched(self):
         for budget, left in ((len(self.f), ()), (100, ('legl',))):
