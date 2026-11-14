@@ -116,15 +116,18 @@ def focus_view(source, masks, layers):
     # The landmark iris circle runs under the lids on narrow eyes: like the iris mask, count only the parser's eye opening
     # (RUNBOOK 146). Whites stay measured outside the full circle.
     iris &= eyes; whites = eyes & ~binary_dilation(iris, iterations=4); iris &= np.isin(labels, EYES); brows = brow_seed(labels, pts, eyes, view['hit'])
+    lids = np.zeros((S, S), bool)
     if 'eyeContours' in masks:
         contours = eye_contours(render, masks['eyeContours'], {s: pts[c] for s, (c, _) in IRIS.items()}, view['hit'])
         eyes = contours['opening']
         iris = binary_erosion(contours['iris'])
         whites = eyes & ~binary_dilation(contours['iris'], iterations=4)
         brows = brow_seed(labels, pts, eyes, view['hit']) & ~(eyes | contours['excludeBrow'])
-    lids=upper_lids(labels.shape,pts,view['hit']);brows &= ~lids
-    # Plain skin also excludes the colour-grown brow edges, which ownership rightly puts on hair (RUNBOOK 147).
-    plain = plain_skin(labels, face, eyes, brows | brow_mask(render, labels, brows, eyes, view['hit']))
+        lids = contours['excludeBrow']
+    brows &= ~upper_lids(labels.shape,pts,view['hit'])
+    # Plain skin also excludes the colour-grown brow edges, which ownership rightly puts on hair (RUNBOOK 147), and the reviewed
+    # skin-lid polygons: a dark baked lid ring there is lid skin that tone can restore, not a hair lock (RUNBOOK 383).
+    plain = plain_skin(labels, face, eyes, brows | brow_mask(render, labels, brows, eyes, view['hit'])) & ~lids
     cheeks = np.zeros((S, S), bool)
     for i in (50, 280): cheeks |= np.hypot(xs-pts[i, 0], ys-pts[i, 1]) < .07*width
     features = eyes | polygon(labels.shape, pts, LIP_POLYGON) | brows
