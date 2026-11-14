@@ -9,6 +9,7 @@
   "tools/armorkit/test_ends.py": 0.21,
   "tools/armorkit/test_export.py": 0.3,
   "tools/armorkit/test_generate.py": 0.4,
+  "tools/armorkit/test_intake.py": 1.6,
   "tools/armorkit/test_measure.py": 6.611,
   "tools/armorkit/test_poses.py": 0.071,
   "tools/armorkit/test_reduce.py": 5.5,

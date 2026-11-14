@@ -1,0 +1,44 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-armorkit-intake",
+ "model": "meshy-urban-heavy",
+ "source": {
+  "provider": "Meshy",
+  "file": "Meshy_AI_urban_heavy_remesh_10_1027012411_texture.glb",
+  "sha256": "7b5ec728d88fe0f5232ba5da3ef186c72d61b7e6029024eeb41aefedd8babc1f"
+ },
+ "materials": [
+  {
+   "name": "fabric",
+   "kind": "cloth",
+   "wears": "the black fatigues under the armour, the load-bearing vest with its pouches, the belt, the webbing, the gloves and the boots.",
+   "anchors": [
+    {"colour": [38, 38, 38], "metal": 0.05},
+    {"colour": [50, 49, 46], "metal": 0.05},
+    {"colour": [57, 52, 46], "metal": 0.14},
+    {"colour": [30, 30, 31], "metal": 0.07}
+   ]
+  },
+  {
+   "name": "plates",
+   "kind": "metal",
+   "wears": "the grey armour plates on the shoulders, arms, chest, thighs, knees and shins, with their orange markings.",
+   "anchors": [
+    {"colour": [82, 81, 79], "metal": 0.6},
+    {"colour": [100, 100, 100], "metal": 0.1},
+    {"colour": [69, 54, 43], "metal": 0.5},
+    {"colour": [162, 105, 53], "metal": 0.4}
+   ]
+  }
+ ],
+ "skin": {
+  "anchors": [
+   {"colour": [235, 185, 155]},
+   {"colour": [180, 145, 120], "metal": 0.75},
+   {"colour": [192, 156, 130], "metal": 0.85}
+  ],
+  "as": "fabric",
+  "note": "The fingertips of the fingerless gloves, drawn as glove: the kit's gloves are closed."
+ },
+ "faces": 20000
+}
