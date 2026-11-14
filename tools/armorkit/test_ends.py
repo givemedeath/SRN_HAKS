@@ -58,6 +58,20 @@ class EndTests(unittest.TestCase):
         order = np.argsort(h)
         self.assertTrue(np.all(np.diff(r[order][h[order] >= 0]) >= -1e-9))  # widening all the way back: no shelf
 
+    def test_a_copy_of_a_point_at_a_texture_seam_moves_with_it(self):
+        # a forearm's end spread 3 cm: a face from the plane reaches a ring 3 cm down the arm, past the plateau,
+        # and moves whole; a copy of one of that ring's points, on a face farther down, was moved by the blend alone
+        forearm = arm(0.3, 0.55, 0.03)
+        v, f = forearm['v'], forearm['f']
+        along = np.unique(np.round(v[:, 0], 6))
+        twin = int(np.flatnonzero(np.isclose(v[:, 0], along[1]))[0])
+        beyond = np.flatnonzero(np.isclose(v[:, 0], along[2]))[:2]
+        v, f = np.concatenate([v, v[[twin]]]), np.concatenate([f, [[len(v), beyond[0], beyond[1]]]])
+        wide = contract(ring=0.06)
+        out = ends.shaped(v, f, np.ones(len(f), bool), ends.ends_of('forel', rig(), wide, 'test', 0))
+        self.assertGreater(np.linalg.norm(out[twin] - v[twin]), 0.02)
+        self.assertTrue(np.array_equal(out[twin], out[-1]))
+
     def test_a_narrow_over_end_is_spread_out_to_the_envelope(self):
         upper = arm(0.0, 0.3, 0.045)
         r, h = radial(self.shape(upper, False))

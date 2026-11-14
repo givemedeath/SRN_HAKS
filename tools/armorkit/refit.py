@@ -14,6 +14,14 @@ only; a part is scaled along each of its axes as the other body is (user, 2026-1
   the contract's body rings). The Human female's limbs are 0.95 to 1.0 the male's length and her body 0.70
   to 0.79 as wide at the joints: a thigh scaled to her leg's length kept the male's girth and stood out
   through the sides of a pelvis scaled to her hips (Facility Security, 2026-11-13).
+* The chest is carried by a slope, not one map (`taper`, `tapered`), slice by slice level with the waist
+  plane and about a middle line through the neck, the middle of the shoulders and the waist, each of them
+  set on the other body's: scaled across at its shoulder line as the two bodies' shoulders lie apart and
+  their own chests are deep there, at the waist as the contract's body ring there, and between the two
+  evenly; above the shoulder line as there, below the waist as there. The Dwarf Large female's waist is 1.72 the Human female's and her shoulders 1.12: one scale, the
+  mean of its joints' at 1.2, left the hem 0.5 short of the waist, the end shaping then spread it out over
+  its last 12 cm, and the vest's row of pouches stood out round the belly as a shelf (user, 2026-11-14: no
+  shelf; the vest is tapered over its whole length).
 * A part with one joint, a hand, a foot or the neck, turns as the part across that joint does, so a boot stays
   flat where the shin turns two degrees, and is scaled along each axis of the other body's own part there as
   that part spreads along it against the source's (`principal`, `spreads`): a Human female foot is about 0.85
@@ -29,6 +37,11 @@ only; a part is scaled along each of its axes as the other body is (user, 2026-1
   end at the hip, a dome grown on the body's seat, is no tube
   and is left as the scales leave it: shaped as one, its dome flared into a lip that stood out through the
   pelvis (2026-11-13).
+* Each under end's cap is then stretched along its joint's axis until it runs the other body's own overlap
+  past the plane (`deepened`), and each over end's dome is pressed back to the contract's `domeMost` past its
+  rim (`flattened`): both were grown for the source body and carried by the part's scale along, while the
+  overlap a body asks grows with its girth and the dome's height is one number for every body. Carried to
+  the 18 other bodies, 57 caps were short of the overlap and 39 domes stood too far (2026-11-14).
 
 A part holding the body's own skin (`bodyskin.worn`), a short sleeve's upper arm, is carried without it
 (`bodyskin.unworn`): that skin is the other body's, and `run` lays the other body's own beside the outfit's
@@ -51,6 +64,9 @@ OVER_SKIN = 0.003  # a sleeve beside the body's own skin in its slot stands at l
 OVER_ROUNDS = 6  # rings of neighbours a sleeve's push out over the arm is spread to
 OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
 OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a farther push fails the refit
+TAPERED = {'chest': ('shoulder', 'waist')}  # a part scaled across by a slope: the joints its width is read at, down its axis
+TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first station: no crease on the line where it starts
+TORSO_FIRST = ('chest', 'pelvis')  # carried before the parts whose ends run into them: an end runs no deeper than the torso carried stands over it
 
 
 def joints_of(token):
@@ -76,14 +92,16 @@ def axis_of(points):
     return np.asarray(points[1:], float).mean(axis=0) - np.asarray(points[0], float)
 
 
-def across(token, contract, source, target, ways, bones=None):
+def across(token, contract, source, target, ways, bones=None, only=None):
     """How much wider the body `target` is than the body `source` at the joints part `token` meets in each of
     the directions `ways` (unit vectors square to the part's axis): the ratio of the contract's body rings
     there, each ring's radii weighed by how near their directions lie to that way, and its mean over the
     joints. `bones`, the source body's rig, places a ring's directions (`seams.frame` of its plane); without
-    it a ring is weighed the same every way, the ratio of its mean radii."""
+    it a ring is weighed the same every way, the ratio of its mean radii. `only` names the one joint read."""
     found = []
     for joint, side, _ in joints_of(token):
+        if only is not None and joint != only:
+            continue
         ring = lambda body: np.asarray(contract['joints'][joint]['bodies'][body]['sides'][side]['bodyRing'], float)
         new, old = ring(target), ring(source)
         if bones is None:
@@ -124,11 +142,88 @@ def stretched(rotation, axes, scales):
     return rotation @ axes.T @ np.diag(np.asarray(scales, float)) @ axes
 
 
+def width(mesh, point, normal, way):
+    """How wide the surface `mesh` (vertices, faces) is along the unit `way` where the plane (`point`, `normal`)
+    cuts it: from the first of its section to the last. 0 where the plane misses it."""
+    segments = seams.section(mesh[0], mesh[1], point, normal)
+    if not len(segments):
+        return 0.0
+    u, w = seams.frame(normal)
+    reach = segments.reshape(-1, 2) @ np.array([u @ way, w @ way])
+    return float(reach.max() - reach.min())
+
+
+def taper(token, source, target, contract=None, names=None):
+    """The slope part `token` is carried by from body `source` to body `target` (`TAPERED`; None for any other
+    part, or without a contract), as `tapered` takes it.
+
+    The part is carried slice by slice, each slice level with the plane of its last station, the waist's: a
+    slice stays level, is scaled in its own plane about the part's middle line, and is set on the other body's
+    middle line as far down it as it lay on the source's. The middle line runs through three points on each
+    body: the part's other joint (the neck), the middle of its first station's pair (the shoulders) and its
+    last station (the waist), each of which is carried onto the other body's exactly, with one curve through
+    the three and no corner at the middle one. Carried by one map about a straight axis from the neck, which
+    leans 8 degrees from the upright, the Dwarf Large female's hem stood 1.8 cm above her waist plane in front
+    and as far below it behind; and the Large Human male's shoulders lie 5 cm farther forward over the same
+    waist, which no straight axis follows: scaled about one, his hem lay 5 cm off his waist.
+
+    `frames` holds for the source and the target: `origin`, the neck; `axes`, the level plane's normal, the
+    way along the line between the shoulders in that plane, and the way square to both; and `line`, per
+    station, its height and its place along the two level ways, from the origin. `top` holds the scales
+    across at the shoulders: as far as they lie apart on the two bodies, which puts the armholes where the
+    sleeves are carried to, and as deep as the two bodies' own parts are on that line (`width`). `hem` holds
+    those at the waist: the contract's body ring there (`across`)."""
+    if token not in TAPERED or contract is None:
+        return None
+    first, last = TAPERED[token]
+    found = joints_of(token)
+    met = [joint for joint, _, _ in found]
+    require(len(met) == 4 and met.count(first) == 2 and met.count(last) == 1, f'{token} is tapered from a pair of joints to one, with one more above')
+    require(token in source[1] and token in target[1], f'Both bodies have a {token} to read how deep a tapered part is by')
+    pair, hem = [k for k, joint in enumerate(met) if joint == first], met.index(last)
+    head = next(k for k in range(len(met)) if k not in pair and k != hem)
+    frames, deep = [], []
+    for bones, mesh in ((source[0], source[1][token][:2]), (target[0], target[1][token][:2])):
+        points = anchors(token, bones)
+        level = seams.unit(seams.plane(bones, last, 'l' if found[hem][1] == 'c' else found[hem][1])[1])
+        span = points[pair[0]] - points[pair[1]]
+        span = span - (span @ level) * level
+        require(np.linalg.norm(span) > 1e-9, f'The {first} joints of {token} lie one above the other')
+        axes = np.array([level, span / np.linalg.norm(span), np.cross(level, span / np.linalg.norm(span))])
+        stations = np.array([points[head], points[pair].mean(axis=0), points[hem]])
+        line = (stations - points[head]) @ axes.T
+        require((np.diff(line[:, 0]) > 1e-6).all(), f'The joints of {token} do not lie one below the other, the {last} last')
+        frames.append({'origin': points[head], 'axes': axes, 'line': line, 'span': float(np.linalg.norm(span))})
+        deep.append(width(mesh, stations[1], level, axes[2]))
+    require(min(deep) > 1e-6, f"A body's own {token} is not cut by the line of its {first} joints")
+    return {'frames': frames, 'top': [frames[1]['span'] / frames[0]['span'], deep[1] / deep[0]],
+            'hem': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=last)}
+
+
+def tapered(vertices, slope):
+    """`vertices` of a tapered part, on the source body, carried to the target by its slope (`taper`): each to
+    the height its own maps to, set as far from the target's middle line as it stood from the source's, times
+    the scales across at its height: the slope's `top` down to the shoulders, its `hem` from the waist on, and
+    between them evenly, the slope setting in over the first `TAPER_EASE` of the way."""
+    a, b = slope['frames']
+    reach = (np.asarray(vertices, float) - a['origin']) @ a['axes'].T  # height, and the two level ways
+    height = reach[:, 0]
+    through = lambda values: np.polyval(np.polyfit(a['line'][:, 0], values, 2), height)  # one curve through the three stations
+    share = np.clip((height - a['line'][1, 0]) / (a['line'][2, 0] - a['line'][1, 0]), 0.0, 1.0)
+    share = np.where(share < TAPER_EASE, share ** 2 / (2 * TAPER_EASE), share - TAPER_EASE / 2) / (1 - TAPER_EASE / 2)
+    out = b['origin'] + through(b['line'][:, 0])[:, None] * b['axes'][0]
+    for k, (top, hem) in enumerate(zip(slope['top'], slope['hem']), start=1):
+        out = out + (through(b['line'][:, k]) + (top + share * (hem - top)) * (reach[:, k] - through(a['line'][:, k])))[:, None] * b['axes'][k]
+    return out
+
+
 def placement(token, source, target, contract=None, names=None):
     """(linear map, offset, report) carrying part `token` from body `source` to body `target`, each a (rig,
     parts by token) pair as `measure.body` gives them, as `map @ p + offset`. `contract` and `names`, the two
     bodies' names, give the scale across a part with two or more joints; without them it is the scale along
-    (module notes). A shoulder pad meets no joint: it rides its upper arm's bone, and is carried as that is."""
+    (module notes). A tapered part is carried by its slope, not by one map (`taper`, `tapered`): the map
+    returned for it is its top's, upright as the slope's slices are, with the neck where the other body's is,
+    and the report holds the scales across at its shoulders (`across`) and at its waist (`hem`). A shoulder pad meets no joint: it rides its upper arm's bone, and is carried as that is."""
     if token in registry.SLOTS['shoulder']['tokens']:
         carrier = split.token('bicep', token[-1])
         linear, offset, report = placement(carrier, source, target, contract, names)
@@ -141,6 +236,13 @@ def placement(token, source, target, contract=None, names=None):
         require(np.linalg.norm(run) > 1e-9, f'The joints of {token} are one point')
         unit = run / np.linalg.norm(run)
         rotation, along = repose.turn(unit, aim / np.linalg.norm(aim)), float(np.linalg.norm(aim) / np.linalg.norm(run))
+        slope = taper(token, source, target, contract, names)
+        if slope is not None:
+            a, b = slope['frames']
+            along = float(b['line'][2, 0] / a['line'][2, 0])
+            linear = b['axes'].T @ np.diag([along, *slope['top']]) @ a['axes']
+            return linear, b['origin'] - linear @ a['origin'], {'along': round(along, 4), 'across': [round(value, 4) for value in slope['top']],
+                                                              'hem': [round(value, 4) for value in slope['hem']]}
         ways = seams.frame(unit)
         round_ = [along, along] if contract is None else across(token, contract, *names, ways, source[0])
         linear = stretched(rotation, [unit, *ways], [along, *round_])
@@ -178,6 +280,46 @@ def capped(before, after, faces, measured, part_ends):
         shaped = np.linalg.norm((out[past] - point) - ((out[past] - point) @ normal)[:, None] * normal, axis=1)
         ratio = np.minimum(ratio, shaped / np.maximum(np.linalg.norm(radial[past], axis=1), 1e-12))
         out[past] = point + height[past, None] * normal + radial[past] * ratio[:, None]
+    return out
+
+
+def deepened(vertices, point, normal, least, depth):
+    """`vertices` with what lies past an under end's plane (`point`, unit `normal` toward the part), its cap,
+    stretched along the normal until its deepest point lies `depth` past the plane, where it lies less than
+    `least` past it: the cap keeps its rim and its width, and runs on as far as the other body's overlap asks.
+    A cap as deep already, and a part with nothing past the plane, stay as they are."""
+    out = np.array(vertices, float)
+    height = (out - point) @ normal
+    past = height < 0
+    deepest = -float(height[past].min()) if past.any() else 0.0
+    if deepest <= ends.MARGIN or deepest >= least:
+        return out
+    out[past] += (height[past] * (depth / deepest - 1))[:, None] * normal
+    return out
+
+
+def flattened(part, vertices, point, normal, here, most):
+    """`vertices` of `part` with the dome that closes its over end at the plane (`point`, unit `normal` toward
+    the under part) pressed back along the normal until it stands `most` past its rim's farthest point, where
+    it stands farther by more than a bake lets it (`bake.DOME_SLACK`): read as the bake's gate reads a dome
+    (`bake.hidden`), on the points `here` flags, those nearer this joint than the part's others. What of the
+    dome lies no farther than the rim does stays where it is."""
+    from . import bake
+    out, f = np.array(vertices, float), np.asarray(part['f'], int)
+    flag = lambda key: np.asarray(part.get(key, np.zeros(len(f), bool)), bool)
+    added = bake._added(part) & ~flag('skin')
+    closing, own = bake._used(out, f, added & ~flag('pad')), bake._used(out, f, ~added & ~flag('skin'))
+    along = (out - point) @ normal
+    shut = closing & np.asarray(here, bool)
+    rim = shut & own & (along > -bake.ON_PLANE)
+    if not rim.any():
+        return out
+    edge = float(along[rim].max())
+    past = float(along[shut].max()) - edge
+    if past <= most + bake.DOME_SLACK:
+        return out
+    dome = shut & ~own & (along > edge)
+    out[dome] -= ((along[dome] - edge) * (1 - most / past))[:, None] * normal
     return out
 
 
@@ -312,20 +454,29 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     the two bodies' names, its scale across follows the contract's body rings and its ends at the tube joints
     are brought to tier `tier`'s envelopes on the target (`ends.shaped`; a pad's
     faces, `pad`, are no part of a ring), skin-tight at the joints `bare` names (`ends.ends_of`) with the cap
-    there held inside the target body's own part across the joint (`under_skin`). A part holding the source
+    there held inside the target body's own part across the joint (`under_skin`). A tapered part is carried by
+    its slope instead of its placement (`tapered`). Each under end's cap then runs the target's overlap at `tier` past its plane
+    (`deepened`; into a torso carried too no deeper than that stands over the joint, `split.room`, and where
+    the torso is not carried the end is left for `seated`), and each over end's dome stands no more than the
+    contract's `domeMost` past its rim (`flattened`). A part holding the source
     body's skin is carried without it (`bodyskin.unworn`). Nothing else about a part changes. `report` maps a
     part to its turn in degrees and its scales along and across; a shoulder pad's names the part it is carried
     with (`with`) and holds that part's scales. A part's faces the client would show a hole at are turned out
     (`bake.faced_out`), and the report holds how many (`turnedOut`)."""
     names = list(parts) if names is None else list(names)
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
+    from . import bake
     out, report = {}, {}
-    for name in names:
+    for name in sorted(names, key=lambda name: name not in TORSO_FIRST):
         linear, offset, scales = placement(name, source, target, contract, bodies)
         part = dict(bodyskin.unworn(parts[name]))
-        v, f = np.asarray(part['v'], float) @ linear.T + offset, np.asarray(part['f'], int)
-        n = np.asarray(part['n'], float) @ np.linalg.inv(linear)  # normals carried by the inverse transpose
+        v, f, n = np.asarray(part['v'], float), np.asarray(part['f'], int), np.asarray(part['n'], float)
+        slope = taper(name, source, target, contract, bodies)
+        before, v = v, v @ linear.T + offset
+        n = n @ np.linalg.inv(linear)  # normals carried by the inverse transpose
         n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
+        if slope is not None:  # by its slope instead, its normals turned on from the one map's as the faces round each turned
+            n, v = renormal(n, f, v, tapered(before, slope)), tapered(before, slope)
         if contract is not None:
             part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, bare=bare)
             if part_ends:
@@ -338,7 +489,31 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                         point, normal = seams.plane(target[0], joint, letter)
                         shaped = under_skin(shaped, np.asarray(point, float), seams.unit(normal), target[1][over][:2])
                 n, v = renormal(n, f, v, shaped), shaped
-        from . import bake
+            met, centres = joints_of(name), anchors(name, target[0])
+            cut = [k for k, (joint, side, _) in enumerate(met) if (joint, side) not in bake.UNCUT]
+            nearest = np.array(cut)[np.linalg.norm(v[:, None] - centres[cut][None], axis=2).argmin(axis=1)] if cut else np.zeros(len(v), int)
+            moved = v
+            for k in cut:
+                joint, side, other = met[k]
+                letter = 'l' if side == 'c' else side
+                normal = seams.unit(seams.plane(target[0], joint, letter)[1])
+                if split.token(seams.JOINTS[joint]['under'], letter) != name:
+                    moved = flattened(part, moved, centres[k], normal, nearest == k, contract.get('ends', seams.ENDS)['domeMost'])
+                    continue
+                least = seams.overlap(contract, joint, bodies[1], tier)
+                depth = least + ends.DEEPER
+                if joint in measure.TORSO_OPENINGS:
+                    if other not in out:
+                        continue  # the torso is the other body's own bake: `seated` brings the end into it
+                    room = split.room(*bake._outfit(out[other])[:2], centres[k], normal)
+                    if room is not None:  # as the bake's gate asks it (`bake.ends`)
+                        least, depth = min(least, room - split.SEAT_GAP - bake.ROOM_SLACK), min(depth, room - split.SEAT_GAP)
+                deeper = deepened(moved, centres[k], normal, least, depth)
+                if (joint, side) in bare and other in target[1] and not np.array_equal(deeper, moved):
+                    deeper = under_skin(deeper, centres[k], normal, target[1][other][:2])
+                moved = deeper
+            if not np.array_equal(moved, v):
+                n, v = renormal(n, f, v, moved), moved
         part['f'], n, turned = bake.faced_out(name, v, f, n, target[0])  # before the other body's skin is laid beside it
         part['v'], part['n'] = v, n
         part, dropped = whole(part)
@@ -347,7 +522,7 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
         u, _, vt = np.linalg.svd(turn)
         report[name] = {'degrees': round(float(np.degrees(np.arccos(np.clip((np.trace(u @ vt) - 1) / 2, -1.0, 1.0)))), 2), **scales,
                         **({'dropped': dropped} if dropped else {}), **({'turnedOut': turned} if turned else {})}
-    return out, report
+    return {name: out[name] for name in names}, {name: report[name] for name in names}
 
 
 def whole(part):

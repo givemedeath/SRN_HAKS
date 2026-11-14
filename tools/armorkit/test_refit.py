@@ -9,6 +9,7 @@ import numpy as np
 
 from . import bake, bodyskin, measure, refit, seams, split
 from .test_bake import arm, closed, contract, part, rig
+from .test_seams import tube as upright
 from .test_bodyskin import arm as body_arm
 
 
@@ -105,6 +106,120 @@ class PlacementTests(unittest.TestCase):
         carried = self.source[1]['handl'][0] @ linear.T + offset
         self.assertAlmostEqual(float(np.ptp(carried[:, 0])), 0.9 * 0.12, places=4)
         self.assertTrue(np.allclose(np.linalg.norm(carried[:, 1:], axis=1), 0.7 * 0.03, atol=1e-4))
+
+
+def torso(span=0.4, lean=0.0):
+    """The test rig with a torso stood up in it: the neck over the waist, `lean` in front of it, and the
+    shoulders `span` apart, each arm straight out to its side."""
+    bones = rig()
+    at = {'neck_g': (0, lean, 1.6), 'torso_g': (0, 0, 1.1), 'lbicep_g': (span / 2, 0, 1.5), 'rbicep_g': (-span / 2, 0, 1.5),
+          'lforearm_g': (span / 2 + 0.3, 0, 1.5), 'rforearm_g': (-span / 2 - 0.3, 0, 1.5)}
+    for name, point in at.items():
+        bones[name][:3, 3] = point
+    return bones
+
+
+def waisted(ring):
+    """A seam contract of the bodies `a` and `b`, alike at every joint but the waist, where b's ring is `ring` times a's."""
+    a, b = contract(ring=0.04), contract(ring=0.04, rings={'waist': 0.04 * ring})
+    for joint, spec in a['joints'].items():
+        spec['bodies'] = {'a': spec['bodies']['test'], 'b': b['joints'][joint]['bodies']['test']}
+    return a
+
+
+class TaperTests(unittest.TestCase):
+    def setUp(self):
+        # the other body's shoulders 1.5 times as far apart, its own chest 1.3 times as deep and its waist twice as wide
+        self.source = (torso(0.4), {'chest': upright(0.10, 1.0, 1.7)})
+        self.target = (torso(0.6), {'chest': upright(0.13, 1.0, 1.7)})
+        self.terms = waisted(2.0)
+
+    def test_only_the_chest_is_tapered_and_only_with_a_contract(self):
+        self.assertIsNone(refit.taper('pelvis', self.source, self.target, self.terms, ('a', 'b')))
+        self.assertIsNone(refit.taper('chest', self.source, self.target))
+        self.assertEqual(refit.across('chest', self.terms, 'a', 'b', [np.array((1.0, 0, 0))], only='waist'), [2.0])
+        self.assertLess(refit.across('chest', self.terms, 'a', 'b', [np.array((1.0, 0, 0))])[0], 1.3)  # the mean of four joints
+
+    def test_a_vest_is_scaled_from_the_shoulders_width_to_the_waists_in_one_slope(self):
+        slope = refit.taper('chest', self.source, self.target, self.terms, ('a', 'b'))
+        self.assertTrue(np.allclose(slope['top'], [1.5, 1.3], atol=1e-3) and np.allclose(slope['hem'], [2.0, 2.0]))
+        linear, offset, scales = refit.placement('chest', self.source, self.target, self.terms, ('a', 'b'))
+        self.assertEqual((scales['along'], scales['hem']), (1.0, [2.0, 2.0]))
+        vest = upright(0.15, 1.05, 1.65, sides=64)[0]
+        vest = np.concatenate([vest[:64] * (1, 1, 0) + (0, 0, z) for z in np.linspace(1.05, 1.65, 61)])  # a ring each centimetre
+        carried = refit.tapered(vest, slope)
+        self.assertTrue(np.allclose(carried[:, 2], vest[:, 2]))  # each slice level where it was
+        top = vest[:, 2] >= 1.5  # down to the shoulder line the part's one map carries it as the slope does
+        self.assertTrue(np.allclose(carried[top], vest[top] @ linear.T + offset))
+        wide = lambda low, high, axis: float(np.ptp(carried[(vest[:, 2] > low) & (vest[:, 2] < high)][:, axis])) / 0.30
+        self.assertAlmostEqual(wide(1.495, 1.66, 0), 1.5, places=3)  # from the shoulder line up, the shoulders' scales
+        self.assertAlmostEqual(wide(1.495, 1.66, 1), 1.3, places=3)
+        self.assertAlmostEqual(wide(1.045, 1.105, 0), 2.0, places=3)  # from the waist down, the waist's
+        self.assertAlmostEqual(wide(1.045, 1.105, 1), 2.0, places=3)
+        rings = [wide(z - 0.005, z + 0.005, 0) for z in np.linspace(1.1, 1.5, 41)]
+        steps = -np.diff(rings)  # up the vest it narrows at every ring, by no more than the slope's own step and half as much again: no shelf
+        self.assertTrue((steps > 0).all() and steps.max() < 1.5 * (2.0 - 1.5) / 40 / (1 - refit.TAPER_EASE / 2))
+        self.assertLess(steps[-1], 0.25 * steps.max())  # and the slope sets in gently below the shoulder line
+
+    def test_a_leaning_vest_is_set_on_the_other_bodys_neck_shoulders_and_waist(self):
+        # the source's neck 8 cm in front of its waist; the other body upright, 0.7 as long from neck to waist,
+        # its shoulders 5 cm farther forward
+        source = (torso(0.4, lean=0.08), self.source[1])
+        bones = torso(0.6)
+        for name in ('neck_g', 'lbicep_g', 'rbicep_g', 'lforearm_g', 'rforearm_g'):
+            bones[name][2, 3] = 1.1 + 0.7 * (bones[name][2, 3] - 1.1)
+            bones[name][1, 3] += 0.05 * (name != 'neck_g')
+        target = (bones, {'chest': (self.target[1]['chest'][0] + (0, 0.05, 0), self.target[1]['chest'][1])})
+        slope = refit.taper('chest', source, target, self.terms, ('a', 'b'))
+        self.assertTrue(np.allclose(slope['top'], [1.5, 1.3], atol=1e-3))
+        linear, offset, scales = refit.placement('chest', source, target, self.terms, ('a', 'b'))
+        self.assertEqual((scales['along'], scales['across']), (0.7, [1.5, 1.3]))
+        hem = upright(0.15, 1.1, 1.3)[0][:48]
+        carried = refit.tapered(hem, slope)
+        self.assertTrue(np.allclose(carried[:, 2], 1.1))  # the hem on the waist plane, about the waist
+        self.assertTrue(np.allclose(carried.mean(axis=0), (0, 0, 1.1)))
+        self.assertAlmostEqual(float(np.ptp(carried[:, 0])) / 0.30, 2.0, places=3)
+        at = lambda body: np.array([body['neck_g'][:3, 3], (body['lbicep_g'][:3, 3] + body['rbicep_g'][:3, 3]) / 2, body['torso_g'][:3, 3]])
+        self.assertTrue(np.allclose(refit.tapered(at(source[0]), slope), at(bones)))
+        self.assertTrue(np.allclose(source[0]['neck_g'][:3, 3] @ linear.T + offset, bones['neck_g'][:3, 3]))
+        # between the stations the middle line is one curve: no step in its lean from slice to slice
+        line = refit.tapered(np.c_[np.zeros(61), np.linspace(0.08, 0.0, 61), np.linspace(1.6, 1.1, 61)], slope)
+        self.assertLess(np.abs(np.diff(line[:, 1], 3)).max(), 2e-4)
+
+
+class EndTests(unittest.TestCase):
+    def test_a_cap_short_of_the_other_bodys_overlap_is_stretched_to_it(self):
+        point, normal = np.array((0.3, 0.0, 0.0)), np.array((1.0, 0.0, 0.0))
+        cap = np.array([(0.3, 0.05, 0.0), (0.29, 0.04, 0.0), (0.27, 0.0, 0.0), (0.4, 0.05, 0.0)])  # its rim, two rings to the pole, the part
+        deeper = refit.deepened(cap, point, normal, 0.05, 0.055)
+        self.assertTrue(np.allclose(deeper, [(0.3, 0.05, 0.0), (0.3 - 0.055 / 3, 0.04, 0.0), (0.245, 0.0, 0.0), (0.4, 0.05, 0.0)]))
+        self.assertTrue(np.array_equal(refit.deepened(cap, point, normal, 0.029, 0.035), cap))  # as deep as asked already
+        self.assertTrue(np.array_equal(refit.deepened(cap[[0, 3]], point, normal, 0.05, 0.055), cap[[0, 3]]))  # no cap
+
+    def test_a_dome_standing_too_far_past_its_rim_is_pressed_back(self):
+        sleeve = closed(0.3, 0.55, 0.05, near=None, far='dome', shape={'depth': 1.0, 'most': 0.04})
+        point, normal, here = np.array((0.55, 0.0, 0.0)), np.array((1.0, 0.0, 0.0)), np.ones(len(sleeve['v']), bool)
+        self.assertAlmostEqual(float(sleeve['v'][:, 0].max()), 0.59, places=6)
+        held = refit.flattened(sleeve, sleeve['v'], point, normal, here, 0.02)
+        self.assertAlmostEqual(float(held[:, 0].max()), 0.57, places=6)
+        own = np.unique(sleeve['f'][~sleeve['added']])
+        self.assertTrue(np.array_equal(held[own], sleeve['v'][own]))  # the part's own surface and the dome's rim stay
+        self.assertTrue(np.allclose(held[:, 1:], sleeve['v'][:, 1:]))  # pressed straight back
+        self.assertTrue(np.array_equal(refit.flattened(sleeve, held, point, normal, here, 0.02), held))
+        self.assertTrue(np.array_equal(refit.flattened(sleeve, sleeve['v'], point, normal, here, 0.04), sleeve['v']))
+        self.assertTrue(np.array_equal(refit.flattened(sleeve, sleeve['v'], point, normal, ~here, 0.02), sleeve['v']))  # another joint's
+
+    def test_a_refit_brings_caps_and_domes_to_the_other_bodys_contract(self):
+        # a forearm with a cap 3.2 cm past the elbow and a dome 4 cm past the wrist, carried to a body that asks 4 cm of overlap
+        forearm = closed(0.3, 0.55, 0.045, near='cap', far='dome', depth=0.032, shape={'depth': 1.0, 'most': 0.04})
+        piece = {**part(), **forearm, 'n': np.tile([[0.0, 0.0, 1.0]], (len(forearm['v']), 1))}
+        terms = contract(ring=0.04, overlaps=(0.02, 0.03, 0.04, 0.06))
+        for tier, deepest in ((1, 0.032), (2, 0.04 + refit.ends.DEEPER)):
+            out, _ = refit.refit({'forel': piece}, (rig(), {}), (rig(), {}), contract=terms, bodies=('test', 'test'), tier=tier)
+            self.assertAlmostEqual(0.3 - float(out['forel']['v'][:, 0].min()), deepest, places=6)
+            rim = float(out['forel']['v'][np.unique(forearm['f'][~forearm['added']])][:, 0].max())
+            self.assertAlmostEqual(float(out['forel']['v'][:, 0].max()) - rim, seams.ENDS['domeMost'], places=6)
+            self.assertEqual(bake.hidden(out, rig(), 'test', terms)[1], [])
 
 
 class RefitTests(unittest.TestCase):

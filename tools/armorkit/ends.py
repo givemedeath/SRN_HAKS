@@ -22,6 +22,8 @@ where that part was its own shape again. At these joints the cap runs the contra
 """
 import numpy as np
 
+from tools.robes import mesh_ops
+
 from . import registry, seams
 
 TUBES = ('elbow', 'wrist', 'waist', 'knee', 'ankle')  # joints whose two ends are tubes round the limb on the plane
@@ -196,8 +198,12 @@ def shaped(vertices, faces, measured, part_ends):
         length = min(LONGEST, 0.5 * float(reach[np.unique(faces)].max()))
         band = np.abs(np.asarray(BAND[under]))
         crossed = (reach[mine].min(axis=1) <= band.max()) & (reach[mine].max(axis=1) >= band.min())
-        whole = np.zeros(len(vertices), bool)
-        whole[mine[crossed]] = True  # every corner of a face the sections pass through: an edge to a corner moved less sagged into the section
+        # every corner of a face the sections pass through: an edge to a corner moved less sagged into the section. And
+        # every copy of such a corner the part holds at the same point, where its texture's islands meet: moved by
+        # the blend alone, a copy 2 cm from the plane parted from its corner by 2 cm where an end was spread 7 cm
+        # to the Dwarf Large female's waist, a slit along the seam (Facility Security, 2026-11-14)
+        weld = mesh_ops.weld_ids(vertices)
+        whole = np.isin(weld, weld[mine[crossed]])
         for _ in range(PASSES):
             rim = ring(vertices, mine, point, normal, under)
             if rim is None:
