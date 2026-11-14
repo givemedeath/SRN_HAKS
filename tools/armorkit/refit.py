@@ -18,10 +18,16 @@ only; a part is scaled along each of its axes as the other body is (user, 2026-1
   plane and about a middle line through the neck, the middle of the shoulders and the waist, each of them
   set on the other body's: scaled across at its shoulder line as the two bodies' shoulders lie apart and
   their own chests are deep there, at the waist as the contract's body ring there, and between the two
-  evenly; above the shoulder line as there, below the waist as there. The Dwarf Large female's waist is 1.72 the Human female's and her shoulders 1.12: one scale, the
+  evenly; above the shoulder line as there, below the waist as there. Only the body under the part is
+  scaled so: from the armpits down, what of the part stands outside the source body's own chest, read level
+  by level round the middle line (`radii`), is set as far outside it on the other body as it stood on the
+  source (`STANDOFF_*`). The Dwarf Large female's waist is 1.72 the Human female's and her shoulders 1.12: one scale, the
   mean of its joints' at 1.2, left the hem 0.5 short of the waist, the end shaping then spread it out over
   its last 12 cm, and the vest's row of pouches stood out round the belly as a shelf (user, 2026-11-14: no
-  shelf; the vest is tapered over its whole length).
+  shelf; the vest is tapered over its whole length). Tapered, with all of it scaled about the middle line,
+  the vest's 4 cm clear of the Human's waist and its pouches' 3 to 4 cm more came to 1.7 times as much on
+  her and 3.0 times on the Troll Large female, and the pouch row still stood out round the belly as a band
+  over the trousers (user, 2026-11-14: the pouches keep their depth).
 * A part with one joint, a hand, a foot or the neck, turns as the part across that joint does, so a boot stays
   flat where the shin turns two degrees, and is scaled along each axis of the other body's own part there as
   that part spreads along it against the source's (`principal`, `spreads`): a Human female foot is about 0.85
@@ -66,6 +72,9 @@ OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
 OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a farther push fails the refit
 TAPERED = {'chest': ('shoulder', 'waist')}  # a part scaled across by a slope: the joints its width is read at, down its axis
 TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first station: no crease on the line where it starts
+STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
+STANDOFF_LEVELS = 0.01  # metres from one level it is read at to the next
+STANDOFF_EVEN = 2  # times those radii are evened with their neighbours: no crease where the body's own surface turns or folds
 TORSO_FIRST = ('chest', 'pelvis')  # carried before the parts whose ends run into them: an end runs no deeper than the torso carried stands over it
 
 
@@ -153,6 +162,44 @@ def width(mesh, point, normal, way):
     return float(reach.max() - reach.min())
 
 
+def radii(mesh, frame):
+    """(heights, radii): how far the surface `mesh` (vertices, faces) stands from the middle line of `frame`
+    (one of `taper`'s) at the levels `heights`, `STANDOFF_LEVELS` apart over its whole height, in
+    `STANDOFF_WAYS` directions round the line, the first the frame's way across and on toward its way deep:
+    where the ray from the line last leaves it (`measure.beyond`), evened `STANDOFF_EVEN` times with its
+    neighbours round the line and up and down it. A ray that crosses none of it, over the top of the surface
+    or through an opening, is read as the nearest level's in its direction that does."""
+    reach = (np.asarray(mesh[0], float) - frame['origin']) @ frame['axes'].T
+    heights = np.arange(reach[:, 0].min(), reach[:, 0].max() + STANDOFF_LEVELS, STANDOFF_LEVELS)
+    angle = 2 * np.pi * np.arange(STANDOFF_WAYS) / STANDOFF_WAYS
+    far = 2 * float(np.abs(reach[:, 1:]).max()) + 1
+    rays = far * (np.cos(angle)[:, None] * frame['axes'][1] + np.sin(angle)[:, None] * frame['axes'][2])
+    table = np.empty((len(heights), STANDOFF_WAYS))
+    for row, height in enumerate(heights):  # each level about its own point of the line: the surface as it stands, not sheared straight
+        middle = frame['origin'] + np.array([height, *(np.polyval(np.polyfit(frame['line'][:, 0], frame['line'][:, k], 2), height) for k in (1, 2))]) @ frame['axes']
+        table[row] = far - measure.beyond(middle + rays, middle, frame['axes'][0], mesh[0], mesh[1])[0]
+    for way in range(STANDOFF_WAYS):
+        found = ~np.isnan(table[:, way])
+        require(found.any(), "A body's own part does not close round the middle line of a tapered part")
+        table[:, way] = np.interp(heights, heights[found], table[found, way])
+    for _ in range(STANDOFF_EVEN):
+        table = (np.roll(table, 1, axis=1) + 2 * table + np.roll(table, -1, axis=1)) / 4
+        table = (np.vstack([table[:1], table[:-1]]) + 2 * table + np.vstack([table[1:], table[-1:]])) / 4
+    return heights, table
+
+
+def _around(heights, table, height, angle):
+    """`radii` read at each `height` and `angle`: straight between its levels and directions, its first and
+    last level's beyond them."""
+    x = np.clip((np.asarray(height, float) - heights[0]) / STANDOFF_LEVELS, 0.0, len(heights) - 1.0) if len(heights) > 1 else np.zeros(len(height))
+    low = np.minimum(np.floor(x).astype(int), max(len(heights) - 2, 0))
+    high, t = np.minimum(low + 1, len(heights) - 1), x - low
+    y = (np.asarray(angle, float) % (2 * np.pi)) / (2 * np.pi / table.shape[1])
+    left = np.floor(y).astype(int) % table.shape[1]
+    right, s = (left + 1) % table.shape[1], y - np.floor(y)
+    return (1 - t) * ((1 - s) * table[low, left] + s * table[low, right]) + t * ((1 - s) * table[high, left] + s * table[high, right])
+
+
 def taper(token, source, target, contract=None, names=None):
     """The slope part `token` is carried by from body `source` to body `target` (`TAPERED`; None for any other
     part, or without a contract), as `tapered` takes it.
@@ -172,7 +219,11 @@ def taper(token, source, target, contract=None, names=None):
     station, its height and its place along the two level ways, from the origin. `top` holds the scales
     across at the shoulders: as far as they lie apart on the two bodies, which puts the armholes where the
     sleeves are carried to, and as deep as the two bodies' own parts are on that line (`width`). `hem` holds
-    those at the waist: the contract's body ring there (`across`)."""
+    those at the waist: the contract's body ring there (`across`). `radii` holds the source body's own part
+    round its middle line (`radii`), what those scales carry; and `clear`, the height the part's standoff from
+    it is carried whole from, the armpits: the shoulder line and the widest radius of the source's body ring
+    at the shoulders below it. Above that the body's own part slopes away under the part over it, a shoulder
+    or the root of the neck, and a level ray reads no standoff there."""
     if token not in TAPERED or contract is None:
         return None
     first, last = TAPERED[token]
@@ -196,24 +247,43 @@ def taper(token, source, target, contract=None, names=None):
         frames.append({'origin': points[head], 'axes': axes, 'line': line, 'span': float(np.linalg.norm(span))})
         deep.append(width(mesh, stations[1], level, axes[2]))
     require(min(deep) > 1e-6, f"A body's own {token} is not cut by the line of its {first} joints")
+    armhole = max(max(contract['joints'][first]['bodies'][names[0]]['sides'][found[k][1]]['bodyRing']) for k in pair)
     return {'frames': frames, 'top': [frames[1]['span'] / frames[0]['span'], deep[1] / deep[0]],
-            'hem': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=last)}
+            'hem': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=last),
+            'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole)}
 
 
 def tapered(vertices, slope):
     """`vertices` of a tapered part, on the source body, carried to the target by its slope (`taper`): each to
     the height its own maps to, set as far from the target's middle line as it stood from the source's, times
     the scales across at its height: the slope's `top` down to the shoulders, its `hem` from the waist on, and
-    between them evenly, the slope setting in over the first `TAPER_EASE` of the way."""
+    between them evenly, the slope setting in over the first `TAPER_EASE` of the way.
+
+    Those scales carry the body under the part, the slope's `radii`. What of a vertex stands outside them, its
+    standoff, is not scaled: it is set as far outside the scaled body, the way its own direction from the
+    middle line is carried, from the slope's `clear` height down, and from the shoulder line to there by a
+    growing share of it (no step either end). A vertex inside the radii, a lid across the hem or cloth turned
+    in, is scaled whole, as is everything above the shoulder line. A plate or a pouch on the vest so stays as
+    deep as it was made and lies on the other body's belly, wider and taller or shorter as the body is."""
     a, b = slope['frames']
     reach = (np.asarray(vertices, float) - a['origin']) @ a['axes'].T  # height, and the two level ways
     height = reach[:, 0]
     through = lambda values: np.polyval(np.polyfit(a['line'][:, 0], values, 2), height)  # one curve through the three stations
     share = np.clip((height - a['line'][1, 0]) / (a['line'][2, 0] - a['line'][1, 0]), 0.0, 1.0)
     share = np.where(share < TAPER_EASE, share ** 2 / (2 * TAPER_EASE), share - TAPER_EASE / 2) / (1 - TAPER_EASE / 2)
+    top, hem = np.asarray(slope['top'], float), np.asarray(slope['hem'], float)
+    off = np.stack([reach[:, k] - through(a['line'][:, k]) for k in (1, 2)], axis=1)  # from the middle line, level
+    scale = top + share[:, None] * (hem - top)
+    carried = scale * off
+    if slope.get('radii') is not None:
+        far = np.linalg.norm(off, axis=1)
+        stand = np.maximum(far - _around(*slope['radii'], height, np.arctan2(off[:, 1], off[:, 0])), 0.0)
+        held = np.clip((height - a['line'][1, 0]) / max(slope['clear'] - a['line'][1, 0], 1e-9), 0.0, 1.0)
+        grown = scale * off / np.maximum(far, 1e-12)[:, None]  # the vertex's unit way from the line, as the scales carry it
+        carried = carried - (stand * held * held * (3 - 2 * held) * (1 - 1 / np.maximum(np.linalg.norm(grown, axis=1), 1e-12)))[:, None] * grown
     out = b['origin'] + through(b['line'][:, 0])[:, None] * b['axes'][0]
-    for k, (top, hem) in enumerate(zip(slope['top'], slope['hem']), start=1):
-        out = out + (through(b['line'][:, k]) + (top + share * (hem - top)) * (reach[:, k] - through(a['line'][:, k])))[:, None] * b['axes'][k]
+    for k in (1, 2):
+        out = out + (through(b['line'][:, k]) + carried[:, k - 1])[:, None] * b['axes'][k]
     return out
 
 
@@ -455,7 +525,7 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     are brought to tier `tier`'s envelopes on the target (`ends.shaped`; a pad's
     faces, `pad`, are no part of a ring), skin-tight at the joints `bare` names (`ends.ends_of`) with the cap
     there held inside the target body's own part across the joint (`under_skin`). A tapered part is carried by
-    its slope instead of its placement (`tapered`). Each under end's cap then runs the target's overlap at `tier` past its plane
+    its slope instead of its placement (`tapered`), its standoff from the source body's own part kept as it was. Each under end's cap then runs the target's overlap at `tier` past its plane
     (`deepened`; into a torso carried too no deeper than that stands over the joint, `split.room`, and where
     the torso is not carried the end is left for `seated`), and each over end's dome stands no more than the
     contract's `domeMost` past its rim (`flattened`). A part holding the source

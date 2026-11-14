@@ -145,13 +145,13 @@ class TaperTests(unittest.TestCase):
         self.assertTrue(np.allclose(slope['top'], [1.5, 1.3], atol=1e-3) and np.allclose(slope['hem'], [2.0, 2.0]))
         linear, offset, scales = refit.placement('chest', self.source, self.target, self.terms, ('a', 'b'))
         self.assertEqual((scales['along'], scales['hem']), (1.0, [2.0, 2.0]))
-        vest = upright(0.15, 1.05, 1.65, sides=64)[0]
+        vest = upright(0.09, 1.05, 1.65, sides=64)[0]  # inside the body's own chest: all of it is carried by the scales
         vest = np.concatenate([vest[:64] * (1, 1, 0) + (0, 0, z) for z in np.linspace(1.05, 1.65, 61)])  # a ring each centimetre
         carried = refit.tapered(vest, slope)
         self.assertTrue(np.allclose(carried[:, 2], vest[:, 2]))  # each slice level where it was
         top = vest[:, 2] >= 1.5  # down to the shoulder line the part's one map carries it as the slope does
         self.assertTrue(np.allclose(carried[top], vest[top] @ linear.T + offset))
-        wide = lambda low, high, axis: float(np.ptp(carried[(vest[:, 2] > low) & (vest[:, 2] < high)][:, axis])) / 0.30
+        wide = lambda low, high, axis: float(np.ptp(carried[(vest[:, 2] > low) & (vest[:, 2] < high)][:, axis])) / 0.18
         self.assertAlmostEqual(wide(1.495, 1.66, 0), 1.5, places=3)  # from the shoulder line up, the shoulders' scales
         self.assertAlmostEqual(wide(1.495, 1.66, 1), 1.3, places=3)
         self.assertAlmostEqual(wide(1.045, 1.105, 0), 2.0, places=3)  # from the waist down, the waist's
@@ -160,6 +160,33 @@ class TaperTests(unittest.TestCase):
         steps = -np.diff(rings)  # up the vest it narrows at every ring, by no more than the slope's own step and half as much again: no shelf
         self.assertTrue((steps > 0).all() and steps.max() < 1.5 * (2.0 - 1.5) / 40 / (1 - refit.TAPER_EASE / 2))
         self.assertLess(steps[-1], 0.25 * steps.max())  # and the slope sets in gently below the shoulder line
+
+    def test_what_stands_outside_the_bodys_own_chest_stays_as_far_outside_it(self):
+        slope = refit.taper('chest', self.source, self.target, self.terms, ('a', 'b'))
+        self.assertAlmostEqual(slope['clear'], 0.1 + 0.04)  # the armpits: the shoulder ring's radius below the shoulder line
+        heights, table = slope['radii']
+        self.assertTrue((table > 0.095).all() and (table <= 0.1 + 1e-9).all())  # the body's own chest, a tube of 10 cm, facets and all
+        angle = np.linspace(0, 2 * np.pi, 96, endpoint=False)
+        ring = lambda radius, z: np.c_[radius * np.cos(angle), radius * np.sin(angle), np.full(len(angle), z)]
+        radius = lambda points: np.linalg.norm(points[:, :2], axis=1)
+        # at the waist the body is twice as wide: cloth 5 cm outside it stays 5 cm outside, where scaled it stood 10 cm
+        hem = radius(refit.tapered(ring(0.15, 1.1), slope))
+        self.assertTrue((hem > 2 * 0.095 + 0.05).all() and (hem < 2 * 0.1 + 0.05 + 1e-3).all())
+        # and a pouch 4 cm deep on it stays 4 cm deep, all the way up to the armpits
+        for z in (1.1, 1.3, 1.46):
+            deep = radius(refit.tapered(ring(0.19, z), slope)) - radius(refit.tapered(ring(0.15, z), slope))
+            self.assertTrue(np.allclose(deep, 0.04, atol=1e-9), z)
+        # from the shoulder line up everything is scaled, standoff too: the armholes lie where the sleeves are carried to
+        top = refit.tapered(ring(0.15, 1.5), slope)
+        self.assertAlmostEqual(float(np.ptp(top[:, 0])) / 0.30, 1.5, places=3)
+        self.assertAlmostEqual(float(np.ptp(top[:, 1])) / 0.30, 1.3, places=3)
+        # between the two the standoff's own scale falls with no step: a column of points down the vest's front stays one line
+        column = refit.tapered(np.c_[np.zeros(81), np.full(81, 0.15), np.linspace(1.55, 1.15, 81)], slope)
+        self.assertLess(np.abs(np.diff(column[:, 1], 2)).max(), 2e-3)
+        self.assertLess(np.abs(np.diff(column[:, 1])).max(), 6e-3)
+        # a lid across the hem, inside the body's own chest, is scaled whole: its middle stays on the middle line
+        lid = refit.tapered(np.array([(0.0, 0.0, 1.1), (0.05, 0.0, 1.1)]), slope)
+        self.assertTrue(np.allclose(lid, [(0.0, 0.0, 1.1), (0.10, 0.0, 1.1)]))
 
     def test_a_leaning_vest_is_set_on_the_other_bodys_neck_shoulders_and_waist(self):
         # the source's neck 8 cm in front of its waist; the other body upright, 0.7 as long from neck to waist,
@@ -172,13 +199,17 @@ class TaperTests(unittest.TestCase):
         target = (bones, {'chest': (self.target[1]['chest'][0] + (0, 0.05, 0), self.target[1]['chest'][1])})
         slope = refit.taper('chest', source, target, self.terms, ('a', 'b'))
         self.assertTrue(np.allclose(slope['top'], [1.5, 1.3], atol=1e-3))
+        # the body's own chest is read about the middle line where it stands: at the waist a tube of 10 cm all round,
+        # though the line bows 6 cm off the tube's axis between the stations
+        heights, table = slope['radii']
+        self.assertTrue(np.allclose(table[np.abs(heights - 0.5).argmin()], 0.1, atol=6e-3))
         linear, offset, scales = refit.placement('chest', source, target, self.terms, ('a', 'b'))
         self.assertEqual((scales['along'], scales['across']), (0.7, [1.5, 1.3]))
-        hem = upright(0.15, 1.1, 1.3)[0][:48]
+        hem = upright(0.09, 1.1, 1.3)[0][:48]
         carried = refit.tapered(hem, slope)
         self.assertTrue(np.allclose(carried[:, 2], 1.1))  # the hem on the waist plane, about the waist
         self.assertTrue(np.allclose(carried.mean(axis=0), (0, 0, 1.1)))
-        self.assertAlmostEqual(float(np.ptp(carried[:, 0])) / 0.30, 2.0, places=3)
+        self.assertAlmostEqual(float(np.ptp(carried[:, 0])) / 0.18, 2.0, places=3)
         at = lambda body: np.array([body['neck_g'][:3, 3], (body['lbicep_g'][:3, 3] + body['rbicep_g'][:3, 3]) / 2, body['torso_g'][:3, 3]])
         self.assertTrue(np.allclose(refit.tapered(at(source[0]), slope), at(bones)))
         self.assertTrue(np.allclose(source[0]['neck_g'][:3, 3] @ linear.T + offset, bones['neck_g'][:3, 3]))
