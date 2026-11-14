@@ -120,6 +120,31 @@ class HaftedFitTests(unittest.TestCase):
         self.assertGreater(np.asarray(data['fittedBounds'])[1][1], .3)
 
 
+class ChosenRoundLengthTests(unittest.TestCase):
+    """A round one-hand handle shorter than the hand may take a chosen length (the wave-4 Sai, 2026-11-13)."""
+    def test_a_round_dagger_takes_the_chosen_length_and_binds_a_departure(self):
+        from tools.itemkit.fit_manifest import STANDARD, measure
+        standard = json.loads(STANDARD.read_text(encoding='utf-8'))
+        family = {'family': 'dagger', 'native': {'gripOrigin': [0, 0, 0], 'gripLength': standard['usableLength'], 'stockSpan': [-.1, .5]}}
+        rows = [(y, .03) for y in np.linspace(0, .25, 60)] + [(y, .012) for y in np.linspace(.26, 1, 180)]   # round handle, thin blade
+        v, f = lathe(rows, sides=64); v, f = gltf(v), f
+        marks = {'bladeAtLowEnd': False, 'pommelEnd': .02, 'gripStart': .02, 'gripEnd': .24, 'bladeStart': .26, 'uniform': True}
+        natural = measure({}, family, {'positions': v, 'faces': f}, marks, standard)
+        self.assertAlmostEqual(natural['nativeLength'], standard['usableLength'] / .22, delta=.02)       # the hand fills the handle
+        chosen = measure({}, family, {'positions': v, 'faces': f}, {**marks, 'targetLength': .55, 'sizeToLength': False}, standard)
+        self.assertAlmostEqual(chosen['nativeLength'], .55, delta=.005)
+        self.assertEqual(chosen['sizingAuthority'], 'usable-length-round'); self.assertTrue(chosen['departurePending'])
+        self.assertTrue(chosen['chosenLength']); self.assertLess(chosen['gripReport']['midpointRelativeDifferences']['usableLength'], -.3)
+        from tools.itemkit.fit_manifest import gltf_to_blender
+        from tools.itemkit.grip import GripDeparture, melee_fit
+        fit = {'sizingAuthority': 'usable-length-round', 'gripEndpoints': chosen['gripEndpoints'], 'chosenLength': True}
+        with self.assertRaises(GripDeparture) as worker:                        # the fit worker measures the same handle
+            melee_fit(family, fit, standard, gltf_to_blender(v), f, np.asarray(chosen['matrix']))
+        self.assertEqual(worker.exception.report['measurementDigest'], chosen['gripReport']['measurementDigest'])
+        loose = measure({}, family, {'positions': v, 'faces': f}, {**marks, 'targetLength': .55}, standard)
+        self.assertAlmostEqual(loose['nativeLength'], natural['nativeLength'], delta=.005)   # without sizeToLength false: unchanged
+
+
 class StaffSectionTests(unittest.TestCase):
     """The stun staff was flattened by the per-axis hilt calibration (user, 2026-11-12): a staff keeps its own section."""
     def setUp(self):
