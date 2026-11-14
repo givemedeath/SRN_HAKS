@@ -43,6 +43,11 @@ Packs: `srn_weapon`, `srn_2da` (TLK not required). Build only these with `./tool
 | Rapier | user-approved | `sr84ad1333` | 1 longsword | 191/191/191 | no | srn_2da, srn_weapon |
 | Combat Axe | user-approved | `sr9849b566` | 13 greatsword | 101/101/101 | no | srn_2da, srn_weapon |
 | Spear | user-approved | `sr2febc2a8` | 50 quarterstaff | 71/71/71 | no | srn_weapon |
+| Sai | user-approved | `sr6a19234a` | 22 dagger | 131/131/131 | no | srn_2da, srn_weapon |
+| Mace | user-approved | `sr4c45ec83` | 1 longsword | 201/201/201 | no | srn_2da, srn_weapon |
+| Macauitl | user-approved | `sr994ca81b` | 1 longsword | 211/211/211 | no | srn_2da, srn_weapon |
+| Nodachi | user-approved | `sr36b5c592` | 13 greatsword | 111/111/111 | no | srn_2da, srn_weapon |
+| Pole Arm | user-approved | `src3ccd3b0` | 50 quarterstaff | 91/91/91 | no | srn_weapon |
 
 All blueprints carry embedded names (no TLK StrRef), Cost 0 and no item properties. Model numbers outside their base row MinRange/MaxRange: none (see Gaps).
 
@@ -82,39 +87,48 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/iwdbqs_b_061.tga` | sr4-staff-dc4c1668ea | 16428 | `efed297a5a64a38777453ba87b746c204e2bd2ce3ec816f7509f5b43e12ff474` |  | yes |
 | `srn_weapon/iwdbqs_b_071.tga` | sr4-spear-2febc2a88a | 16428 | `cc7ac4b97556187ce06d4fefaf337002200b488935551078a11ab038b75aaa6e` |  | yes |
 | `srn_weapon/iwdbqs_b_081.tga` | sr4-stun-staff-00af501c83 | 16428 | `d809c315e5b27807b329aae63960c3dffde6fa01e50f6e39ba931435879be35d` |  | yes |
+| `srn_weapon/iwdbqs_b_091.tga` | sr4-pole-arm-68ca996c08 | 16428 | `ee8ddf78bca66605f02a1fccec08e0dd3d0d0ab774f871327b0e106699ba9aef` |  | yes |
 | `srn_weapon/iwdbqs_m_061.tga` | sr4-staff-dc4c1668ea | 16428 | `b877aa6db26f90f8cff76c07ead2abf4e309109442dc00bcff08e31e0346db29` |  | yes |
 | `srn_weapon/iwdbqs_m_071.tga` | sr4-spear-2febc2a88a | 16428 | `915703c1e40092bd62d13188c803de3b4673c4b4ebf40eb4fc2613eeda8034ce` |  | yes |
 | `srn_weapon/iwdbqs_m_081.tga` | sr4-stun-staff-00af501c83 | 16428 | `1508e31a99c8c22569047da878ad3fab94cef9084d34b7fc6ccc1911e6a79344` |  | yes |
+| `srn_weapon/iwdbqs_m_091.tga` | sr4-pole-arm-68ca996c08 | 16428 | `e6104861034f8d4e3c938c6fbd305b57d91735513a0cca4492f792e9f4c35e9c` |  | yes |
 | `srn_weapon/iwdbqs_t_061.tga` | sr4-staff-dc4c1668ea | 16428 | `891b6f7168315ead516623a995d2e76f336537011a20803f96894809964608c9` |  | yes |
 | `srn_weapon/iwdbqs_t_071.tga` | sr4-spear-2febc2a88a | 16428 | `94f241bbdbf15070a271479a4c87fb031990b9840df2c239270188e8ac012974` |  | yes |
 | `srn_weapon/iwdbqs_t_081.tga` | sr4-stun-staff-00af501c83 | 16428 | `cfd54de92941646d88cfddf04fad384d0728cf84c23d57d305f6617c1e337373` |  | yes |
+| `srn_weapon/iwdbqs_t_091.tga` | sr4-pole-arm-68ca996c08 | 16428 | `66191234ded4661176551221d1a0306f88a70367e6b23b716e90cd7e2457f7c1` |  | yes |
 | `srn_weapon/iwswdg_b_071.tga` | cougar-fineblade-knife | 4140 | `8b9353e70588c333a34a9184378ab60ce5910b61b752724addfb8af5db85be7f` |  | yes |
 | `srn_weapon/iwswdg_b_081.tga` | cougar-fineblade-longblade | 4140 | `921e8c8f3d5c043b5e8c31d29d390ee7a2d664fff51a0714b5098d6ce91cc410` |  | yes |
 | `srn_weapon/iwswdg_b_091.tga` | sr4-survival-knife-1243dd1af8 | 4140 | `1bcb45d87ba3687a9bc93d5686412d2ba4a804b5633f8be9020435921d4d79ff` |  | yes |
 | `srn_weapon/iwswdg_b_111.tga` | sr4-ceramic-knife-7f77d5dd6c | 4140 | `ef571053782c81509f8d162c46b59cf09d0d1fdfedaa5e9bfc0761c5dfdf4a51` |  | yes |
 | `srn_weapon/iwswdg_b_121.tga` | sr4-vibro-blades-knife-9604aa44b5 | 4140 | `8fb435b1211d250f98827d30bd5d5a9177a88b1329476800e4b26f20f1fa8575` |  | yes |
+| `srn_weapon/iwswdg_b_131.tga` | sr4-sai-2bf38d5135 | 4140 | `4fb66de29ac89c5e9adac2f345a3bcea34d5f0cf2a11d81652c62632d782d384` |  | yes |
 | `srn_weapon/iwswdg_m_071.tga` | cougar-fineblade-knife | 4140 | `0b2ffa9b8cab293774b8d1df098db2023c098e4fc752f2e6ad1e84d6e20bc6ba` |  | yes |
 | `srn_weapon/iwswdg_m_081.tga` | cougar-fineblade-longblade | 4140 | `b8e36a1441e2f042f2a0e288f5c9c2a8cb2fc05aac8c16f1b9b674687f305fc1` |  | yes |
 | `srn_weapon/iwswdg_m_091.tga` | sr4-survival-knife-1243dd1af8 | 4140 | `d24842f915e08a34ba93e2f95121904bb9bd2515cc3b4e34dbb9f5e9d1054ce8` |  | yes |
 | `srn_weapon/iwswdg_m_111.tga` | sr4-ceramic-knife-7f77d5dd6c | 4140 | `62d11526d841dcb42a2a15ded659108c8f75ef8d38cc814d798be597bab257c0` |  | yes |
 | `srn_weapon/iwswdg_m_121.tga` | sr4-vibro-blades-knife-9604aa44b5 | 4140 | `7e62b26b0a4e25d0147558e682f7e77a49bc11fb1e4c8041a4a0e443d3ca85d8` |  | yes |
+| `srn_weapon/iwswdg_m_131.tga` | sr4-sai-2bf38d5135 | 4140 | `be0ffb63e07e1e5f225a29ac02eff23284adcb4c45863f3886095c4c5b540dd0` |  | yes |
 | `srn_weapon/iwswdg_t_071.tga` | cougar-fineblade-knife | 4140 | `67f72b0ac8441f8f015a89d3e82991489534a29e0216e432dcde853615b4876a` |  | yes |
 | `srn_weapon/iwswdg_t_081.tga` | cougar-fineblade-longblade | 4140 | `743b98b85c7cab84770e5f39fdc7e87ec5d28ef14b3266b628316e7f804d0cbf` |  | yes |
 | `srn_weapon/iwswdg_t_091.tga` | sr4-survival-knife-1243dd1af8 | 4140 | `09df5bc300b00f2c1c27d037b4e0b388a1c2b398e83c8745c9cbf66aba8ceb58` |  | yes |
 | `srn_weapon/iwswdg_t_111.tga` | sr4-ceramic-knife-7f77d5dd6c | 4140 | `7204f5c1f8c10dff1fdad368d7050fa0ca80b2a9ef0af952e59758e8d209db61` |  | yes |
 | `srn_weapon/iwswdg_t_121.tga` | sr4-vibro-blades-knife-9604aa44b5 | 4140 | `b7fbb8b591105df245f1fcf3deb613116c29b7b8d85e8c3d1c360ac67cb06723` |  | yes |
+| `srn_weapon/iwswdg_t_131.tga` | sr4-sai-2bf38d5135 | 4140 | `0c8ef1fae34099001d5fc82733c561d509ddc891091bac3953258ce16d92908c` |  | yes |
 | `srn_weapon/iwswgs_b_061.tga` | sr4-katana-f7ac8ecfb3 | 65580 | `67167e0a3250af483bd89975119e4026769fd6f773f3d19932fb4b1ec1546458` |  | yes |
 | `srn_weapon/iwswgs_b_081.tga` | sr4-claymore-f91fc563dc | 65580 | `08c12584341faab30687515a9c15789bb5147ece9226162ea24f01b36a169d00` |  | yes |
 | `srn_weapon/iwswgs_b_091.tga` | sr4-baseball-bat-202ef7e755 | 65580 | `c99c298c11c2f28bdccf9a871743670352d8c7ecdf142f3cbf8c1223fcf7e15d` |  | yes |
 | `srn_weapon/iwswgs_b_101.tga` | sr4-combat-axe-3870814348 | 65580 | `f17b5f46565d420ef782dc10358dbe1bcb92efe7bdb72874563673813e4ac20f` |  | yes |
+| `srn_weapon/iwswgs_b_111.tga` | sr4-nodachi-92b43582ff | 65580 | `b3cec2a67c2df9c0f6e2d59db5c96feb51400e1d044cfe2cd153c1f53283adf4` |  | yes |
 | `srn_weapon/iwswgs_m_061.tga` | sr4-katana-f7ac8ecfb3 | 65580 | `79e1dd8bc799a83c53f36a0d0880ab3ae1409c3d7192c1fe877c21d1afed7e52` |  | yes |
 | `srn_weapon/iwswgs_m_081.tga` | sr4-claymore-f91fc563dc | 65580 | `7e6bde5cd4c9cc6df8f3149f834997b896451a5642f1795992a477367a3b9705` |  | yes |
 | `srn_weapon/iwswgs_m_091.tga` | sr4-baseball-bat-202ef7e755 | 65580 | `e94b395f3d43a8cb857b9a53880283818b0534edaf32bdadf5703fcad7884610` |  | yes |
 | `srn_weapon/iwswgs_m_101.tga` | sr4-combat-axe-3870814348 | 65580 | `20bc1f3ca01916e622fae79a4579f514c19603d4b4a9ecc196492635b9b875e0` |  | yes |
+| `srn_weapon/iwswgs_m_111.tga` | sr4-nodachi-92b43582ff | 65580 | `5ffbf56b9e97accef5aeb2cebd1886e9cb7a5a2d2c98eaf3c1ee1457edd3e5d6` |  | yes |
 | `srn_weapon/iwswgs_t_061.tga` | sr4-katana-f7ac8ecfb3 | 65580 | `60e99faa62bffddc4f1b2140b036968bfec9f28f41a139c6515d22925a83dfbe` |  | yes |
 | `srn_weapon/iwswgs_t_081.tga` | sr4-claymore-f91fc563dc | 65580 | `8d0471d44b6ffb7cb79caaadae22b94ba1cb9c429d252fe04a9b284f1cf49154` |  | yes |
 | `srn_weapon/iwswgs_t_091.tga` | sr4-baseball-bat-202ef7e755 | 65580 | `6c7c1c44ea96fe0485f44c7a29402e254c3ec7835c809923c19d74f316bebc37` |  | yes |
 | `srn_weapon/iwswgs_t_101.tga` | sr4-combat-axe-3870814348 | 65580 | `146bf58f5d2a2bec75232d6723662e6ba78360956256d7dda1db81e67d063fb6` |  | yes |
+| `srn_weapon/iwswgs_t_111.tga` | sr4-nodachi-92b43582ff | 65580 | `44be663ed7ae3e1a1094a2af7dd3c0282de9e2ee260fb49351ffcec393c5dfd3` |  | yes |
 | `srn_weapon/iwswls_b_101.tga` | cougar-fineblade-longsword | 16428 | `0b70e8f3ee90685bc29491790991d3cd56e3e7ab438339a81878c2f5f5cf7109` |  | yes |
 | `srn_weapon/iwswls_b_111.tga` | sr4-stun-baton-7f6ac2799c | 16428 | `058264f4fea456be89c601b0169657fb5d6a82ccbeaa264694f5526b8bfc8744` |  | yes |
 | `srn_weapon/iwswls_b_121.tga` | sr4-vibro-blades-sword-421b34c61a | 16428 | `5a03b000d8b2d7d564c823e7657858744bd046cb6d3b58d74846a18920b9f0d8` |  | yes |
@@ -123,6 +137,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/iwswls_b_171.tga` | sr4-extendable-baton-aa91d3d2e3 | 16428 | `0c1610d10583f25153051c387859c641bc7e2893ca391b3543c80625b6ec7a63` |  | yes |
 | `srn_weapon/iwswls_b_181.tga` | sr4-tomahawk-707e3f392c | 16428 | `1b6d6249a99e50b0dba0922b59e5fe3c00eb0552819faf44b9b647d603233393` |  | yes |
 | `srn_weapon/iwswls_b_191.tga` | sr4-rapier-c89da3d7df | 16428 | `2df315d7e9e666cdf9883dd0be48c356fe019b61fd7b0d5b3dfefe4f8c6a83cd` |  | yes |
+| `srn_weapon/iwswls_b_201.tga` | sr4-mace-cc01910405 | 16428 | `c94f43067713d5e2b5fa42d941641dae195ac4eb1f659e88d7d45a265fa81941` |  | yes |
+| `srn_weapon/iwswls_b_211.tga` | sr4-macauitl-76b21d59a8 | 16428 | `1a07f0b65faa397be1b9380f3899b36069907c400db46612a82b9d9dc37f6dc3` |  | yes |
 | `srn_weapon/iwswls_m_101.tga` | cougar-fineblade-longsword | 16428 | `cac05082db21a1174160ee067f848cd921652da0b39a6f3044f779d8c54f34d7` |  | yes |
 | `srn_weapon/iwswls_m_111.tga` | sr4-stun-baton-7f6ac2799c | 16428 | `72a7c123d91bed126a45f49d8ebbd3983722c6773b735613b617fc05795f6f06` |  | yes |
 | `srn_weapon/iwswls_m_121.tga` | sr4-vibro-blades-sword-421b34c61a | 16428 | `9e29f8cc0690d116a18290ad6fd76953323d61327f36792b30579984fd98790a` |  | yes |
@@ -131,6 +147,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/iwswls_m_171.tga` | sr4-extendable-baton-aa91d3d2e3 | 16428 | `62631616184a3bebdc1594ace045a696669dd72d12e92a42e8bf3393ac440a2e` |  | yes |
 | `srn_weapon/iwswls_m_181.tga` | sr4-tomahawk-707e3f392c | 16428 | `db72027e7765efea7ebc4e0640cda71ef3bc157e6b2cbe289c270ff2ae250b9f` |  | yes |
 | `srn_weapon/iwswls_m_191.tga` | sr4-rapier-c89da3d7df | 16428 | `f487ee9982127d55361c668d7160889dacfdb1d4a7d863a57dc527665f53e333` |  | yes |
+| `srn_weapon/iwswls_m_201.tga` | sr4-mace-cc01910405 | 16428 | `97e043d3b3a7e878a5cc06f5f6f467f2c3198da12014cf9790c322a5507f566e` |  | yes |
+| `srn_weapon/iwswls_m_211.tga` | sr4-macauitl-76b21d59a8 | 16428 | `13f62ee2a071526bfe9e810718cd9d43bcdd3a95921e6f6689a01434ce3f04e8` |  | yes |
 | `srn_weapon/iwswls_t_101.tga` | cougar-fineblade-longsword | 16428 | `90448583d7e3911c97b88635e82c9cf50ff55808c8b5f87bf47a453c7db8b4a5` |  | yes |
 | `srn_weapon/iwswls_t_111.tga` | sr4-stun-baton-7f6ac2799c | 16428 | `48b491f70ab4b9fd0598c835b4610e080c20bad4bc3dba37954c5101946f9a1b` |  | yes |
 | `srn_weapon/iwswls_t_121.tga` | sr4-vibro-blades-sword-421b34c61a | 16428 | `0f46ca82b8f702cb2c7ec87108660985eac0b67e31274b695f3a5cfb6dd47309` |  | yes |
@@ -139,6 +157,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/iwswls_t_171.tga` | sr4-extendable-baton-aa91d3d2e3 | 16428 | `000c3df0a9476f84901d813e001e33c73635a3737eb0f8e888d2889c03bcfd27` |  | yes |
 | `srn_weapon/iwswls_t_181.tga` | sr4-tomahawk-707e3f392c | 16428 | `14a89779131563a60a4c1af1bff737552614bc50355e8bca9ea986de963d18c4` |  | yes |
 | `srn_weapon/iwswls_t_191.tga` | sr4-rapier-c89da3d7df | 16428 | `5afe5f243ed06537067241e2bf9f47c8920a3cd00bdef9e3ef170f0df1aee380` |  | yes |
+| `srn_weapon/iwswls_t_201.tga` | sr4-mace-cc01910405 | 16428 | `708fbe37eb8ed68bd6adf8be43d2412f98a50244f253011e727234c7f2bdb334` |  | yes |
+| `srn_weapon/iwswls_t_211.tga` | sr4-macauitl-76b21d59a8 | 16428 | `bd9e84166632e44fab87611e19e7e20652368c4a0570522a60210d87cb53a6cf` |  | yes |
 | `srn_weapon/iwswss_b_071.tga` | cougar-fineblade-longblade | 8236 | `72e464906037657d0fa5a6a1a94222f9600a83afc9dc933ed5f79f047458ca86` |  | yes |
 | `srn_weapon/iwswss_m_071.tga` | cougar-fineblade-longblade | 8236 | `ff1b9e342989eb822069d1b1d467b33c8599a3ecac20f31aeef1a8067aeb2ef5` |  | yes |
 | `srn_weapon/iwswss_t_071.tga` | cougar-fineblade-longblade | 8236 | `68d842bf16fc956f65e33c93677fdae7aae8c68562b2ec4b913a9f8d37c325b2` |  | yes |
@@ -160,6 +180,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sr2273b8c_06.tga` | sr4-throwing-knife-2273b8c3cf | 3145772 | `f41e6862cbb9cd75c5494454b2d74c3916157305cd26cf7bc0539ef1fec3501e` |  | yes |
 | `srn_weapon/sr2febc2a8.uti` | sr4-spear-2febc2a88a | 731 | `865bf43d61e6dc8982a26b2cb8b3a00d27dd961023809ed66d4d94d06b0a0f06` |  | yes |
 | `srn_weapon/sr2febc2a8_07.tga` | sr4-spear-2febc2a88a | 3145772 | `e9412e62544421fbdc815620642b6694490a799d9171e54799a84a5907d7da73` |  | yes |
+| `srn_weapon/sr36b5c592.uti` | sr4-nodachi-92b43582ff | 733 | `4d198379e14fa0c417446efee91424f740df124d63c50f4015e877a7c79e835e` |  | yes |
+| `srn_weapon/sr36b5c592_11.tga` | sr4-nodachi-92b43582ff | 3145772 | `c9bb35977a41478985ecec3fd1f5c3575cd61223b945157915cecfe9d31fee95` |  | yes |
 | `srn_weapon/sr3ab64906_065.tga` | sr4-ares-predator-iv-3ab64906ed | 3145772 | `cbb2bed03441cc8b4d692964303a318297fa2d79045c9feaaaa5135daf76771c` |  | yes |
 | `srn_weapon/sr3ab64906_5.uti` | sr4-ares-predator-iv-3ab64906ed | 746 | `3edc37a64750b95f017650aaef8fd8d699a4cb686e5dfca9e4aba92f058adc3f` |  | yes |
 | `srn_weapon/sr421b34c6.uti` | sr4-vibro-blades-sword-421b34c61a | 746 | `77c8b39ae3ddb79cf645c9fb622ff48cff6a4e01dd1c1224596d8e9688900c6f` |  | yes |
@@ -168,6 +190,10 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sr42aae67c_12.tga` | sr4-vibro-blades-knife-9604aa44b5 | 3145772 | `d7f8aa8eac55d8140dd6ce464ead4ca7b8b79c0fd2ffc1c2b21126542e0aebe1` |  | yes |
 | `srn_weapon/sr47885d5d.uti` | sr4-sword-47885d5d1a | 731 | `038734f3c49a5d10fbc70a3551896e59ef90ba053da97d2d08be74f720c0076d` |  | yes |
 | `srn_weapon/sr47885d5d_13.tga` | sr4-sword-47885d5d1a | 3145772 | `2f2bef26603b21387eac4ebee4d2c409180a6c7ed30059b8c59cf92e46b10c1e` |  | yes |
+| `srn_weapon/sr4c45ec83.uti` | sr4-mace-cc01910405 | 730 | `f81ef842ab24e24c60f39b52cb606b7636f154a563908d31b56c2fa4416d2db9` |  | yes |
+| `srn_weapon/sr4c45ec83_20.tga` | sr4-mace-cc01910405 | 3145772 | `f07d071e3cfd8322983d0f0411cf2a0dfe30f56440168366575b37d77de992bc` |  | yes |
+| `srn_weapon/sr6a19234a.uti` | sr4-sai-2bf38d5135 | 729 | `da84633600f38629f7c4b5b3fa019cfdb9e55d2d9da38e64d0af6e088a8a253b` |  | yes |
+| `srn_weapon/sr6a19234a_13.tga` | sr4-sai-2bf38d5135 | 3145772 | `9e388fbf225a96e900e5ef306cc1e16d117d2394b5fba8cd8827931cd80b6692` |  | yes |
 | `srn_weapon/sr6abe18c_06.tga` | sr4-crossbows-heavy-6abe18c0e6 | 3145772 | `999d10039b1c99310a0d8f43da0189411f701e14def080466061ccfdc66e1f97` |  | yes |
 | `srn_weapon/sr6abe18c_6.uti` | sr4-crossbows-heavy-6abe18c0e6 | 742 | `5bab67a839d1e104a3dcf37209b5a8915c70a0a84a7cc89f322f5d69f73602fc` |  | yes |
 | `srn_weapon/sr800e341.tga` | sr4-riot-shield-800e3413e3 | 3145772 | `dbe61a942119774ce20400842529080287460c88bd953d524d346f6b4fab85b0` |  | yes |
@@ -176,6 +202,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sr84ad1333_19.tga` | sr4-rapier-c89da3d7df | 12582956 | `373b40d7a112fb37025b2481e7a8973ba256c691cd88280530e0affcdf6a86be` |  | yes |
 | `srn_weapon/sr9849b566.uti` | sr4-combat-axe-3870814348 | 736 | `8456d676beaf3f1af0ee8e8516700de54a296c5a8ae340ae6f9afcb4f7beed8a` |  | yes |
 | `srn_weapon/sr9849b566_10.tga` | sr4-combat-axe-3870814348 | 3145772 | `e2292d2668bb445df47dfb062cb6048b6395fb7661b63afc2f0db5f667042cb7` |  | yes |
+| `srn_weapon/sr994ca81b.uti` | sr4-macauitl-76b21d59a8 | 734 | `5ed8a6018c4398f92881d7e231cf98b4e4952842dff305552ea9bf9af8eea94f` |  | yes |
+| `srn_weapon/sr994ca81b_21.tga` | sr4-macauitl-76b21d59a8 | 3145772 | `d110bb45d316fd83f493f8754bdbe978a27bb6b3f571c5a2a5bb91c1f9807f94` |  | yes |
 | `srn_weapon/sr_cfk.uti` | cougar-fineblade-knife | 699 | `63fbcdc48cc13393ec693d8b53231e1d0d8c6eaff4f2cf78140ea8e20f58d910` |  | yes |
 | `srn_weapon/sr_cfk_07.tga` | cougar-fineblade-knife | 3145772 | `6cca4cf6232b492e9f18e41799f1a169d920a712e7c9eafd2e3250b9bad7e1c6` |  | yes |
 | `srn_weapon/sr_cfl_07.tga` | cougar-fineblade-longblade | 3145772 | `9522ed973cade7df84a494a447a4265459bc2e9f8e5a3c55fedc8a491e6f3bac` |  | yes |
@@ -191,6 +219,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sra84e4660_015.tga` | sr4-ak-98-84e46602ea | 3145772 | `cac55658b3d0e0f5b944fc4b76bf32ec8a5c336431fbe3c690f83da0dc206b04` |  | yes |
 | `srn_weapon/sra84e4660_5.uti` | sr4-ak-98-84e46602ea | 735 | `ad37dc6773448c2bab8b52ac5e06fafb2651bf29cebe1dd3dfb808ca70b9fc7e` |  | yes |
 | `srn_weapon/sra84e4660gl.uti` | sr4-ak-98-84e46602ea | 899 | `58d3aa9b38efebe2753e87c24c177f20ada2e72a29364db1fd7fb2a9dc6ad26d` |  | yes |
+| `srn_weapon/src3ccd3b0.uti` | sr4-pole-arm-68ca996c08 | 734 | `18c87343a24a18a9e7d674cccf595ec6e25e9a703e42fd2cf08f07a44107fa0c` |  | yes |
+| `srn_weapon/src3ccd3b0_09.tga` | sr4-pole-arm-68ca996c08 | 3145772 | `b99c9bace9c0b9309f8868df60c5b78c771bedf5672d21062355174ac1c7aa62` |  | yes |
 | `srn_weapon/srd1aaa8cd.uti` | sr4-extendable-baton-aa91d3d2e3 | 742 | `2bf4a7a50af7e6823a32c242ad14ed051c6e00aeeb6ee1485f1b0d3b34fe16e7` |  | yes |
 | `srn_weapon/srd1aaa8cd_17.tga` | sr4-extendable-baton-aa91d3d2e3 | 3145772 | `f3a80841eb0739b90e050b1006dfc46ee31a818fda088cf3556a8ba188d7a4fc` |  | yes |
 | `srn_weapon/srd6342080.uti` | sr4-ceramic-knife-7f77d5dd6c | 739 | `f69a509235b92ae99ea6c33ad2a2b020b23576437fec6badc1baae1b21c7ae6a` |  | yes |
@@ -238,39 +268,48 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wdbqs_b_061.mdl` | sr4-staff-dc4c1668ea | 191108 | `a20fe05a26dc5d318bd6833e371b4ecfa83a726ffbc4786be1ebe1c76b3a3acd` | srdc4c1668_06 | yes |
 | `srn_weapon/wdbqs_b_071.mdl` | sr4-spear-2febc2a88a | 147736 | `2a5d3746c02346940e2323d8c5b0220e22327806225cc88aa5f2e85f370b418f` | sr2febc2a8_07 | yes |
 | `srn_weapon/wdbqs_b_081.mdl` | sr4-stun-staff-00af501c83 | 321240 | `6ba491cfce7d5c185b863245d463fa04c2a576a6e5a0a07eaa5cccd6bc83f2e5` | sr05afd23e_08 | yes |
+| `srn_weapon/wdbqs_b_091.mdl` | sr4-pole-arm-68ca996c08 | 147608 | `4cecd5e97b9244367da6586941d07ea7f75d21fc34ac9418dc6e4547f4bba2f0` | src3ccd3b0_09 | yes |
 | `srn_weapon/wdbqs_m_061.mdl` | sr4-staff-dc4c1668ea | 254076 | `48c426c70f0d7ab42502767adc57b211eed2ff53aabae19b3b497dd40261b7ad` | srdc4c1668_06 | yes |
 | `srn_weapon/wdbqs_m_071.mdl` | sr4-spear-2febc2a88a | 149240 | `348fa270233ae98dc937ed21662170e63aaa3ea448600414eccb1b388a6452ef` | sr2febc2a8_07 | yes |
 | `srn_weapon/wdbqs_m_081.mdl` | sr4-stun-staff-00af501c83 | 141492 | `18196b583ce528aa09562e0914f5840992e1d672687203ec570f5f58025cab08` | sr05afd23e_08 | yes |
+| `srn_weapon/wdbqs_m_091.mdl` | sr4-pole-arm-68ca996c08 | 160840 | `6c23c1fdfc9b6aaa651d56b29c5e51a08d29feec4e68d11de02f59f03a30185a` | src3ccd3b0_09 | yes |
 | `srn_weapon/wdbqs_t_061.mdl` | sr4-staff-dc4c1668ea | 200628 | `a5b2475bea1bf125cf8dbef8b62075cd99437c8a54872f4c68fc5c7277eae5a0` | srdc4c1668_06 | yes |
 | `srn_weapon/wdbqs_t_071.mdl` | sr4-spear-2febc2a88a | 494132 | `0cb9fed24e8bf713e052f67d6852049c11b8d18053538af079ed1cfa9be5560c` | sr2febc2a8_07 | yes |
 | `srn_weapon/wdbqs_t_081.mdl` | sr4-stun-staff-00af501c83 | 1040812 | `3975393625e0bd898f55874a4bf8f7f89b546ad25fd22bc0024fa6c57ff57c68` | sr05afd23e_08 | yes |
+| `srn_weapon/wdbqs_t_091.mdl` | sr4-pole-arm-68ca996c08 | 988076 | `1954f133b91c8b402f861e8fe86a12f2c1070eda4d82eed8164d04ecca6165c7` | src3ccd3b0_09 | yes |
 | `srn_weapon/wswdg_b_071.mdl` | cougar-fineblade-knife | 72296 | `c20d4a5256b53fbad4e7781675cc1403bcdd3045cd70f195e1076befac04e032` | sr_cfk_07 | yes |
 | `srn_weapon/wswdg_b_081.mdl` | cougar-fineblade-longblade | 100728 | `320de665165c59235c8c1b56e432c6f27fae13ec60d6340e982b24a74f6585ec` | sr_cfl_07 | yes |
 | `srn_weapon/wswdg_b_091.mdl` | sr4-survival-knife-1243dd1af8 | 67620 | `9c20964eb4beb291e8b0c789be61a8ed312d262a04ed1009ad79887607941777` | sr1243dd1a_09 | yes |
 | `srn_weapon/wswdg_b_111.mdl` | sr4-ceramic-knife-7f77d5dd6c | 72404 | `6f7535435e57125328d4c6d16c8db72d26e58d1f9c3efd3997e2cfad5f50dc64` | srd6342080_11 | yes |
 | `srn_weapon/wswdg_b_121.mdl` | sr4-vibro-blades-knife-9604aa44b5 | 87220 | `29568329b2d3737e4ff8702471fd75fa900667ba87ce71ae0d39d432f4c7dd8c` | sr42aae67c_12 | yes |
+| `srn_weapon/wswdg_b_131.mdl` | sr4-sai-2bf38d5135 | 75924 | `245267abbfe5f277b5e0cde228f10c6a93152a672bdef55d5aedef9dd10332a7` | sr6a19234a_13 | yes |
 | `srn_weapon/wswdg_m_071.mdl` | cougar-fineblade-knife | 101572 | `fec4579a4a83ca9a46d66a1cfd9ac7c92fb4cab6d252d0049e7df8b1c7105783` | sr_cfk_07 | yes |
 | `srn_weapon/wswdg_m_081.mdl` | cougar-fineblade-longblade | 111220 | `ecc1b19dccfa68d2b396bcbe5a61bcd73d271ab7394d6dfaf7b3f492ac117478` | sr_cfl_07 | yes |
 | `srn_weapon/wswdg_m_091.mdl` | sr4-survival-knife-1243dd1af8 | 169884 | `8b1b9d41e3f3f632dd329e4840f2d91d00745fae4dd9f87e6ad0e75d13a55b45` | sr1243dd1a_09 | yes |
 | `srn_weapon/wswdg_m_111.mdl` | sr4-ceramic-knife-7f77d5dd6c | 141684 | `3f16baa5eaabf6274632a9730ed8d825977fa4640782cd98a0a1bf98cac98c37` | srd6342080_11 | yes |
 | `srn_weapon/wswdg_m_121.mdl` | sr4-vibro-blades-knife-9604aa44b5 | 142580 | `8ef92d9636fdc5b1ad183d01be92ba7d1633bdafeb9cbdc4525fec0e24de5e58` | sr42aae67c_12 | yes |
+| `srn_weapon/wswdg_m_131.mdl` | sr4-sai-2bf38d5135 | 136468 | `f3dd4de1877667b25578681b366270fef5f3b14cc4da2ef1ae28a551315a13a2` | sr6a19234a_13 | yes |
 | `srn_weapon/wswdg_t_071.mdl` | cougar-fineblade-knife | 214616 | `c208060ff6a6d75f6e81580780856186ac6e08ea6a06eaab2d5720b1ec2f0096` | sr_cfk_07 | yes |
 | `srn_weapon/wswdg_t_081.mdl` | cougar-fineblade-longblade | 206120 | `4a023a89140abc62a6b69ee1b54bf2d9fc8fd17bfa52c93f30c4415a6314d577` | sr_cfl_07 | yes |
 | `srn_weapon/wswdg_t_091.mdl` | sr4-survival-knife-1243dd1af8 | 200916 | `8f4a67469098cccf1639d5d640d6f70133174712e12999ba9145d25c87586d30` | sr1243dd1a_09 | yes |
 | `srn_weapon/wswdg_t_111.mdl` | sr4-ceramic-knife-7f77d5dd6c | 433068 | `be80341a2e3ca8857548bd9ed5c2255b0befdbf9579d5b2a1edec6696a08e889` | srd6342080_11 | yes |
 | `srn_weapon/wswdg_t_121.mdl` | sr4-vibro-blades-knife-9604aa44b5 | 450764 | `28f9be6ee583ea2aca305560b8c8e96a1d8386b721bf77bf95761634765e80f9` | sr42aae67c_12 | yes |
+| `srn_weapon/wswdg_t_131.mdl` | sr4-sai-2bf38d5135 | 438796 | `4ba72933d0229ae693922ed679f12dfdbd61cfe663e24c5eee604ce2da1fa382` | sr6a19234a_13 | yes |
 | `srn_weapon/wswgs_b_061.mdl` | sr4-katana-f7ac8ecfb3 | 138708 | `9f6ae848e08443ed48e449aef6bfa3b2a6a91f01afe11ebe674cbaa8465cf2e7` | srf7ac8ec_06 | yes |
 | `srn_weapon/wswgs_b_081.mdl` | sr4-claymore-f91fc563dc | 90364 | `5132b294181c3036ca0d9dff515015bd0d4fa2ede5b844a0219ea664e3acc622` | srf91fc563_08 | yes |
 | `srn_weapon/wswgs_b_091.mdl` | sr4-baseball-bat-202ef7e755 | 146872 | `1243043a41a46474fc28f5e0e2691829878d2debc41b2f9a9ff922058580282e` | sr1d8f6e60_09 | yes |
 | `srn_weapon/wswgs_b_101.mdl` | sr4-combat-axe-3870814348 | 113916 | `25ba8e2a604dd37873b9452593e6e84102ae7c210db1acd5633bb5eda9f3aa29` | sr9849b566_10 | yes |
+| `srn_weapon/wswgs_b_111.mdl` | sr4-nodachi-92b43582ff | 141040 | `c0a48d666a53b4fb735477062c128972d2bf4d7ac5cd2b600a575bed942deba8` | sr36b5c592_11 | yes |
 | `srn_weapon/wswgs_m_061.mdl` | sr4-katana-f7ac8ecfb3 | 228868 | `e67e461219205f028bbd4bb89eae0173ba02d54a6151f63cc94ac73ec7e6324a` | srf7ac8ec_06 | yes |
 | `srn_weapon/wswgs_m_081.mdl` | sr4-claymore-f91fc563dc | 158756 | `0e3f3e0b84ec1ece546f189975c9187f6fdcd6d5304ee737e47b2eb373a84d9f` | srf91fc563_08 | yes |
 | `srn_weapon/wswgs_m_091.mdl` | sr4-baseball-bat-202ef7e755 | 264248 | `c3f533b4a28e879f17150c0fc1a57d3f061e2111961786a65df56bbf0615e729` | sr1d8f6e60_09 | yes |
 | `srn_weapon/wswgs_m_101.mdl` | sr4-combat-axe-3870814348 | 267224 | `549f43a17ac688f7f74f39670230b826e8cdb57faf725af5d85149ac2b8937e6` | sr9849b566_10 | yes |
+| `srn_weapon/wswgs_m_111.mdl` | sr4-nodachi-92b43582ff | 270840 | `38d94f85752a4bcc1f248f29c5501248b4477947a14697999412cc9abed52f04` | sr36b5c592_11 | yes |
 | `srn_weapon/wswgs_t_061.mdl` | sr4-katana-f7ac8ecfb3 | 360532 | `0b7d6c11ff4d8e06621ebca8ddb01058fdc12ee1043d9baeefb4027458c2929c` | srf7ac8ec_06 | yes |
 | `srn_weapon/wswgs_t_081.mdl` | sr4-claymore-f91fc563dc | 562500 | `dae063573c47a79fcef8ac23eea2e025dd72cbd46f0aaab6c190fce48705b729` | srf91fc563_08 | yes |
 | `srn_weapon/wswgs_t_091.mdl` | sr4-baseball-bat-202ef7e755 | 935436 | `ecfba7756e49d7582168cd4de127032504e386e313ccecf9fd4e7399cf0fd9ef` | sr1d8f6e60_09 | yes |
 | `srn_weapon/wswgs_t_101.mdl` | sr4-combat-axe-3870814348 | 968364 | `4e6273062c0fcc364f7dfb34673857bb48bd55ccaff4324b79109d8f23f25527` | sr9849b566_10 | yes |
+| `srn_weapon/wswgs_t_111.mdl` | sr4-nodachi-92b43582ff | 1017612 | `ac14a035cba5c938df72d1fc6d17201661a638c75edbf4c6ff6a51912618a985` | sr36b5c592_11 | yes |
 | `srn_weapon/wswls_b_101.mdl` | cougar-fineblade-longsword | 53932 | `5dece67aceb4cdedd89d7b7a965619d9e76deb347b171a12850304506875bff4` | sr_cfs_10 | yes |
 | `srn_weapon/wswls_b_111.mdl` | sr4-stun-baton-7f6ac2799c | 128044 | `c1d8dc63db54c85272b6680383c96cb589f0503c3518016ed608f766faac394c` | sr_stbaton_11 | yes |
 | `srn_weapon/wswls_b_121.mdl` | sr4-vibro-blades-sword-421b34c61a | 104732 | `47141bc2a7236e34e9e2c9eefc867ea8ec132e6111bb7569f3b40c599f88b585` | sr421b34c6_12 | yes |
@@ -279,6 +318,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wswls_b_171.mdl` | sr4-extendable-baton-aa91d3d2e3 | 121980 | `35692f5a5bbaba313311b35ece64ef9d07a9284869d40e339848ff6a1b3c296d` | srd1aaa8cd_17 | yes |
 | `srn_weapon/wswls_b_181.mdl` | sr4-tomahawk-707e3f392c | 115356 | `61788cf5139305f9c068301bd977e93863e10e04aa67a0494afee5d076772f7d` | sre99544ae_18 | yes |
 | `srn_weapon/wswls_b_191.mdl` | sr4-rapier-c89da3d7df | 104972 | `eeb3e30c193588f88571dc62471221680e6fbb0b64c566297028d196917e840b` | sr84ad1333_19 | yes |
+| `srn_weapon/wswls_b_201.mdl` | sr4-mace-cc01910405 | 117500 | `91ba358203c1306f933ad63c6d208ff4e936bd9ef4d90d4cc04b30a6ba144feb` | sr4c45ec83_20 | yes |
+| `srn_weapon/wswls_b_211.mdl` | sr4-macauitl-76b21d59a8 | 114300 | `c55e6c0f3ebf2b5be7bdfec2cfcb3e71e10fc440b7987fa6615907b50a377883` | sr994ca81b_21 | yes |
 | `srn_weapon/wswls_m_101.mdl` | cougar-fineblade-longsword | 114184 | `977f05306071d99293654f356e7b2e0f9ee7e9baf2ae3dcaeecf0be178aa27bb` | sr_cfs_10 | yes |
 | `srn_weapon/wswls_m_111.mdl` | sr4-stun-baton-7f6ac2799c | 164560 | `e7a0d58575d519aaf96e9a663c35984c1be1fd6f145b2bf0d263dbf82c8c4a65` | sr_stbaton_11 | yes |
 | `srn_weapon/wswls_m_121.mdl` | sr4-vibro-blades-sword-421b34c61a | 183908 | `87b2fc3aa3933191893591e9fc41405aca0280e115d0611c3edb40e971323b5d` | sr421b34c6_12 | yes |
@@ -287,6 +328,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wswls_m_171.mdl` | sr4-extendable-baton-aa91d3d2e3 | 209516 | `2f32c671a902ba2f1d983481e69dcdf3e0a89838968d60de411f968bc558c40b` | srd1aaa8cd_17 | yes |
 | `srn_weapon/wswls_m_181.mdl` | sr4-tomahawk-707e3f392c | 216748 | `114709ff7bbb1a68a1df4c7d2a5ebb5bf3599e0db57a17dd84df3e609715edf2` | sre99544ae_18 | yes |
 | `srn_weapon/wswls_m_191.mdl` | sr4-rapier-c89da3d7df | 245132 | `5dd79d11ede19e02a2e0bf81b0a5efb6f7f9093f183eae28ea2de1a4b14d35df` | sr84ad1333_19 | yes |
+| `srn_weapon/wswls_m_201.mdl` | sr4-mace-cc01910405 | 205996 | `8d2b046b33a9991d00ad7282a127f01c1b4a2c40227d9e2423f97750b35ee6c5` | sr4c45ec83_20 | yes |
+| `srn_weapon/wswls_m_211.mdl` | sr4-macauitl-76b21d59a8 | 196428 | `086bee5cc06af4e36c31161cb50dceb0d5fcc44052c3e646bf4b544b7427f75c` | sr994ca81b_21 | yes |
 | `srn_weapon/wswls_t_101.mdl` | cougar-fineblade-longsword | 571732 | `e7319f5af71d1a3e7e111fd72553f21854bf3fa82655a8dc6865cf9d5e410117` | sr_cfs_10 | yes |
 | `srn_weapon/wswls_t_111.mdl` | sr4-stun-baton-7f6ac2799c | 382108 | `da4bd11eb8161f7b901d4a5cb8c487c82b8169faca0a27823a71bb2c378ce590` | sr_stbaton_11 | yes |
 | `srn_weapon/wswls_t_121.mdl` | sr4-vibro-blades-sword-421b34c61a | 610916 | `5fb8a021a5fa9cb86ca97791efc5781c2c953886859f9d5c684cb78ddad282e5` | sr421b34c6_12 | yes |
@@ -295,6 +338,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wswls_t_171.mdl` | sr4-extendable-baton-aa91d3d2e3 | 701980 | `66f34acf7905c6c9f9215bf8fd70f9055bed01dcbcd64631c2c9ad5687f5449f` | srd1aaa8cd_17 | yes |
 | `srn_weapon/wswls_t_181.mdl` | sr4-tomahawk-707e3f392c | 746524 | `fe6737f5fc3279d5b7571e0c5220fed3c79edb9e76098691d461bd0a132e153f` | sre99544ae_18 | yes |
 | `srn_weapon/wswls_t_191.mdl` | sr4-rapier-c89da3d7df | 808316 | `3a4b8634a994bcf8d4d62aba09200b42e723b29654433cf88fed1df862fc5b8e` | sr84ad1333_19 | yes |
+| `srn_weapon/wswls_t_201.mdl` | sr4-mace-cc01910405 | 777020 | `906e332c1db389e7ba96da6d8658a164abd583881fc146b65d9603982f6b3842` | sr4c45ec83_20 | yes |
+| `srn_weapon/wswls_t_211.mdl` | sr4-macauitl-76b21d59a8 | 830012 | `11212eb73ebcd1212e80fd54430be3e04639b14f39a139bb1ba4f52630d785d2` | sr994ca81b_21 | yes |
 | `srn_weapon/wswss_b_071.mdl` | cougar-fineblade-longblade | 100728 | `9e36bc4006599d85b31d934d1e283e651794c1435abaa2b2c6d9e670e4a5cb0e` | sr_cfl_07 | yes |
 | `srn_weapon/wswss_m_071.mdl` | cougar-fineblade-longblade | 111220 | `3b8de2d7212d3d5d1d16640352ffcd536cd14bbdec45e37f5d585dde38b6655e` | sr_cfl_07 | yes |
 | `srn_weapon/wswss_t_071.mdl` | cougar-fineblade-longblade | 206120 | `baae4366988bb9fe35b90be6f2505cc3362ffebd8dcdaaa95ff9dd39f4de7c15` | sr_cfl_07 | yes |
@@ -308,15 +353,15 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 
 ## Tables
 
-`srn_2da/baseitems.2da` (srn_2da) SHA-256 `7d17ecfe9646024cdf93b99e22b9849d7fc71d4400b9cfd9c1a398da986c1bb7`; matches the reviewed override: yes.
+`srn_2da/baseitems.2da` (srn_2da) SHA-256 `bbab4ecf6aa78df0de1d0ed3b6d93ec3a9f467640ebbbda614e191b0e3eebc36`; matches the reviewed override: yes.
 
 | Row | Label | Role | ModelType | ItemClass | Range | WeaponType | Ranged | Ammo | Dice | Name StrRef | Modified |
 |---:|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | longsword | weapon family host row | 2 | WSwLs | 10-191 | 3 | **** | **** | 1d8 | 166 (base-game dialog.tlk) | MaxRange 100->191 |
+| 1 | longsword | weapon family host row | 2 | WSwLs | 10-211 | 3 | **** | **** | 1d8 | 166 (base-game dialog.tlk) | MaxRange 100->211 |
 | 6 | heavycrossbow | weapon family host row | 2 | WBwXh | 10-100 | 1 | 25 | 2 | 1d10 | 173 (base-game dialog.tlk) | no |
 | 8 | longbow | weapon family host row | 2 | WBwLn | 10-200 | 1 | 20 | 1 | 1d8 | 170 (base-game dialog.tlk) | no |
-| 13 | greatsword | weapon family host row | 2 | WSwGs | 10-101 | 3 | **** | **** | 2d6 | 167 (base-game dialog.tlk) | MaxRange 100->101 |
-| 22 | dagger | weapon family host row | 2 | WSwDg | 10-121 | 1 | **** | **** | 1d4 | 191 (base-game dialog.tlk) | MaxRange 100->121 |
+| 13 | greatsword | weapon family host row | 2 | WSwGs | 10-111 | 3 | **** | **** | 2d6 | 167 (base-game dialog.tlk) | MaxRange 100->111 |
+| 22 | dagger | weapon family host row | 2 | WSwDg | 10-131 | 1 | **** | **** | 1d4 | 191 (base-game dialog.tlk) | MaxRange 100->131 |
 | 27 | bullet | sling ammunition (bullets) | 0 | WAmBu | 0-50 | 0 | **** | **** | ****d**** | 1521 (base-game dialog.tlk) | no |
 | 50 | quarterstaff | weapon family host row | 2 | WDbQs | 10-100 | 2 | **** | **** | 1d6 | 1544 (base-game dialog.tlk) | no |
 | 56 | largeshield | weapon family host row | 0 | AShLw | 10-100 | 0 | **** | **** | ****d**** | 1550 (base-game dialog.tlk) | no |
@@ -330,7 +375,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 
 ## Pinned commit vs HEAD
 
-At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 255 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
+At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 295 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
 
 ## Collisions
 

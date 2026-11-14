@@ -3,13 +3,13 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
-  "updated": "2026-11-13",
-  "weaponDesigns": 29,
-  "blueprints": 31,
-  "weaponResources": 253,
-  "publicationPins": 254,
-  "modelsDecoded": 96,
-  "imagesChecked": 126,
+  "updated": "2026-11-14",
+  "weaponDesigns": 34,
+  "blueprints": 36,
+  "weaponResources": 293,
+  "publicationPins": 294,
+  "modelsDecoded": 111,
+  "imagesChecked": 146,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -18,14 +18,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 253,
-      "sha256": "7fc97b176d8fbfe7969c40ca92dc24320fd7da17a8a5d675150040f508e99f55",
+      "resources": 293,
+      "sha256": "434590c739af3a7153059f3f84cf81ca6f28191b81fc473f36ebf3cefabc9499",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
       "resources": 22,
-      "sha256": "cf4342665e7c4bb8796fbf359868db07708e7289579aea242e5331ce5c6f5309",
+      "sha256": "c29aa5065646dcad112884d39a48f714badc194850ebe24ffb9197f8438e7a16",
       "exactPayload": true
     },
     {
@@ -42,8 +42,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 94,
-      "sha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
+      "resources": 104,
+      "sha256": "3f31a9c9a075fbf9f5598acbeb06eb02cf1453c443c645dd47e056692217ec32",
       "exactPayload": true
     }
   ],
@@ -87,13 +87,13 @@
     "1": {
       "MaxRange": [
         "100",
-        "191"
+        "211"
       ]
     },
     "22": {
       "MaxRange": [
         "100",
-        "121"
+        "131"
       ]
     },
     "61": {
@@ -105,7 +105,7 @@
     "13": {
       "MaxRange": [
         "100",
-        "101"
+        "111"
       ]
     }
   },
@@ -279,6 +279,32 @@
         "sw7_f2",
         "sw7_m3",
         "sw7_f3"
+      ],
+      "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
+    },
+    {
+      "date": "2026-11-14",
+      "items": [
+        "sr4-sai-2bf38d5135",
+        "sr4-mace-cc01910405",
+        "sr4-macauitl-76b21d59a8",
+        "sr4-nodachi-92b43582ff",
+        "sr4-pole-arm-68ca996c08"
+      ],
+      "payloadsByteIdenticalToNativePackages": true,
+      "rebuiltArchivesPayloadExact": true,
+      "baseitemTableChanged": true,
+      "comparisonReviewers": [
+        "sw8_m0",
+        "sw8_f0",
+        "sw8_m1",
+        "sw8_f1",
+        "sw8_m2",
+        "sw8_f2",
+        "sw8_m3",
+        "sw8_f3",
+        "sw8_m4",
+        "sw8_f4"
       ],
       "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
     }
