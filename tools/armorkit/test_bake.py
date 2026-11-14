@@ -229,10 +229,16 @@ class BakeTests(unittest.TestCase):
         alone = inward.copy(); alone[3] = len(sleeve['v']) + np.arange(3)
         _, kept, turned = bake.faced_out('bicepl', own, alone, np.tile([[0.0, 0.0, 1.0]], (len(own), 1)), bones)
         self.assertTrue(turned == 3 and (kept[-3:] == [0.0, 0.0, -1.0]).all() and (kept[:-3] == [0.0, 0.0, 1.0]).all())
-        # only the faces asked about are read and turned
-        which = np.ones(len(inward), bool); which[40] = False
-        faces, _, turned = bake.faced_out('bicepl', sleeve['v'], inward, normals, bones, which)
-        self.assertTrue(turned == 2 and np.array_equal(faces[40], inward[40]))
+        # two faces that share a vertex of their own, turned out in two reads: its normal is turned once both are
+        beside = next(k for k in range(len(sleeve['f'])) if k != 3 and len(np.intersect1d(sleeve['f'][3], sleeve['f'][k])))
+        theirs = np.unique(sleeve['f'][[3, beside]])
+        copy = np.arange(len(sleeve['v'])); copy[theirs] = len(sleeve['v']) + np.arange(len(theirs))
+        apart = sleeve['f'].copy(); apart[[3, beside]] = copy[apart[[3, beside]]]
+        both = np.concatenate([sleeve['v'], sleeve['v'][theirs]])
+        reads = iter([[3], [beside], []])
+        with mock.patch.object(bake.measure, 'seen_through', side_effect=lambda v, f, within: np.isin(np.arange(len(f)), next(reads))):
+            _, kept, turned = bake.faced_out('bicepl', both, apart, np.tile([[0.0, 0.0, 1.0]], (len(both), 1)), bones)
+        self.assertTrue(turned == 2 and (kept[len(sleeve['v']):] == [0.0, 0.0, -1.0]).all() and (kept[:len(sleeve['v'])] == [0.0, 0.0, 1.0]).all())
         # a part with no bone of two ends is read round its middle, and copies of its vertices (a layout's) do not move it
         copied = np.concatenate([sleeve['v'], sleeve['v'][:7]])
         again = sleeve['f'].copy(); again[again < 7] += len(sleeve['v'])

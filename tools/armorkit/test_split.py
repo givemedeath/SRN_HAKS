@@ -1,5 +1,6 @@
 """An outfit mesh is cut on the joint planes into parts that keep its surface and overlap at the joints."""
 import unittest
+from unittest import mock
 
 import numpy as np
 
@@ -1019,6 +1020,20 @@ class SleeveTests(unittest.TestCase):
         # a piece that reaches before the armpit, by one face, is what the torso wears on the shoulder: a vest's, not the sleeve's
         high = {'l': np.arange(10) != 5, 'r': past['r']}
         self.assertEqual(split.slabbed(faces, piece, 0, arms, on, high)['l'].tolist(), arms['l'].tolist())
+
+    def test_a_trough_tells_its_slabs_by_the_armpit_and_its_three_planes(self):
+        # what `troughs` hands `slabbed`: the faces past the seam's depth down the arm, and the vertices on the seam and the walls
+        seam = split.sleeve(self.v, self.f, JOINTS, 'l', above=split.SLEEVE_ABOVE)
+        with mock.patch.object(split, 'slabbed', wraps=split.slabbed) as told:
+            v, _, _, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)
+        faces, piece, torso, arms, on, past = told.call_args[0]
+        self.assertTrue(set(arms) == set(on) == set(past) == {'l'} and len(piece) == len(faces) == len(past['l']))
+        shoulder, axis = self.arm
+        along = (v[faces].mean(axis=1) - shoulder) @ axis
+        self.assertTrue(np.array_equal(past['l'], along >= seam['depth']) and past['l'].any() and not past['l'].all())
+        self.assertTrue(np.array_equal(on['l'], sleeves['l']['on'][:3].any(axis=0)[:len(on['l'])]) and on['l'].any())
+        area = np.linalg.norm(np.cross(v[faces[:, 1]] - v[faces[:, 0]], v[faces[:, 2]] - v[faces[:, 0]]), axis=1)
+        self.assertEqual(torso, np.argmax(np.bincount(piece, weights=area)))
 
     def test_a_flank_pressed_into_the_sleeve_after_the_cut_stays_the_torsos(self):
         v, f, t, _, sleeves = split.troughs(self.v, self.f, self.t, JOINTS)

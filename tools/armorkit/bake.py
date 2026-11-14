@@ -482,7 +482,7 @@ def within(bones, name, vertices, faces):
     line = [bone and bone.format(name[-1]) for bone in split.BONE_ENDS.get(slot, (None, None))]
     if None in line or not set(line) <= set(bones) or not len(faces):
         used = vertices[np.unique(faces)] if len(faces) else np.zeros((1, 3))
-        first = np.unique(np.round(used / MIDDLE), axis=0, return_index=True)[1]  # one vertex per place, as it stands
+        first = np.unique(mesh_ops.weld_ids(used, MIDDLE), return_index=True)[1]  # one vertex per place, as it stands
         return np.tile(used[first].mean(axis=0), (len(faces), 1))
     start, end = split.bone_line(bones, name)
     axis = end - start
@@ -490,26 +490,27 @@ def within(bones, name, vertices, faces):
     return start + share[:, None] * axis
 
 
-def faced_out(name, vertices, faces, normals, bones, which=None):
+def faced_out(name, vertices, faces, normals, bones):
     """(faces, normals, turned): part `name`'s faces with each the client would show a hole at
-    (`measure.seen_through`, read among the faces `which` flags: all without it) turned out, the normal of a
-    vertex only such faces use turned with them, and how many were turned. It is read until none is found,
-    `FACING_PASSES` times at most: a face turned out may bare another, and a face once turned out is not
-    found again. A part's faces are turned as the client sees them and
-    not as their neighbours are wound: the split winds a closing to be seen from outside, against the lining
-    it closes, and made one way with its neighbours it would face into the part."""
+    (`measure.seen_through`) turned out, the normal of a vertex only such faces use turned with them, and
+    how many were turned. It is read until none is found, `FACING_PASSES` times at most: a face turned out
+    may bare another, and a face once turned out is not found again. A vertex's normal is turned once every
+    face that uses it has been, in whichever reads: turned only with the faces of one read, the corner two
+    faces shared kept its normal when one of them was bared by the other. A part's faces are turned as the
+    client sees them and not as their neighbours are wound: the split winds a closing to be seen from
+    outside, against the lining it closes, and made one way with its neighbours it would face into the part."""
     faces, normals = np.asarray(faces, int).copy(), np.asarray(normals, float).copy()
-    which = np.ones(len(faces), bool) if which is None else np.asarray(which, bool)
-    rows, turned = np.flatnonzero(which), 0
+    turned, flipped = np.zeros(len(faces), bool), np.zeros(len(normals), bool)
     for _ in range(FACING_PASSES):
-        seen = rows[measure.seen_through(vertices, faces[rows], within(bones, name, vertices, faces[rows]))]
-        if not len(seen):
+        seen = measure.seen_through(vertices, faces, within(bones, name, vertices, faces))
+        if not seen.any():
             break
-        alone = np.setdiff1d(np.unique(faces[seen]), np.unique(np.delete(faces, seen, axis=0)))
         faces[seen] = faces[seen][:, ::-1]
-        normals[alone] = -normals[alone]
-        turned += len(seen)
-    return faces, normals, turned
+        turned |= seen
+        alone = np.setdiff1d(np.unique(faces[turned]), np.unique(faces[~turned]))
+        alone = alone[~flipped[alone]]
+        normals[alone], flipped[alone] = -normals[alone], True
+    return faces, normals, int(turned.sum())
 
 
 def facing(parts, bones):
