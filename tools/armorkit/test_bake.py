@@ -432,6 +432,33 @@ class BakeTests(unittest.TestCase):
                              (2, {'chest': 'pmh0_chest332', 'pelvis': 'pmh0_pelvis332'}, True, {'waist': {}}))
             self.assertEqual(json.loads((output / 'bake.json').read_text(encoding='utf-8')), record)
 
+    def test_parts_kept_apart_are_combined_into_one_outfit(self):
+        document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
+        skin = dict(part(), skin=np.zeros(1, bool))
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bake.store({'chest': part(3), 'bicepl': part()}, root / 'own', document)  # the body's own bake: its upper arm is left out
+            bake.store({'bicepl': skin, 'pelvis': part(2), 'legl': part()}, root / 'carried', document)
+            bake.store({'pelvis': part(2)}, root / 'other', {'skin': ['bicep']})  # baked with the forearm covered
+            origin = bake.combine([(root / 'own', ['chest']), (root / 'carried', ['bicepl', 'pelvis'])], root / 'out', document)
+            self.assertEqual(origin, {'chest': str(root / 'own'), 'bicepl': str(root / 'carried'), 'pelvis': str(root / 'carried')})
+            back = bake.stored(root / 'out')
+            self.assertEqual((sorted(back), len(back['chest']['f']), 'skin' in back['bicepl']), (['bicepl', 'chest', 'pelvis'], 3, True))
+            self.assertEqual(bake.declared(root / 'out'), {'bare': {'forearm'}, 'skin': {'bicep'}})  # the brief's slots, for `bake --kept`
+            (root / 'file').write_text('')
+            refused = {'is not an empty folder': ([(root / 'own', ['chest'])], root / 'out'),
+                       'is not an empty folder ': ([(root / 'own', ['chest'])], root / 'file'),  # a file, not a folder
+                       'holds no shinl': ([(root / 'own', ['shinl'])], root / 'b'),
+                       'take each part from one folder': ([(root / 'own', ['bicepl']), (root / 'carried', ['bicepl'])], root / 'c'),
+                       'once': ([(root / 'own', ['chest', 'chest'])], root / 'c'),
+                       'Name the parts': ([(root / 'own', [])], root / 'd'),
+                       'shared with its skin than': ([(root / 'own', ['chest', 'bicepl'])], root / 'e'),  # an upper arm without the skin
+                       'bake or refit them for it': ([(root / 'own', ['chest']), (root / 'other', ['pelvis'])], root / 'f')}
+            for words, (sources, out) in refused.items():
+                with self.assertRaisesRegex(ValueError, words.strip()):
+                    bake.combine(sources, out, document)
+            self.assertFalse(any((root / name).exists() for name in 'bcdef'))  # nothing kept where it was refused
+
     def test_kept_parts_baked_for_other_slots_left_to_the_body_or_its_skin_are_refused(self):
         skin = dict(part(), skin=np.zeros(1, bool))
         document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
