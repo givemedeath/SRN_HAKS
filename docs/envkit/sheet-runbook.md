@@ -393,8 +393,14 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
 - **What stands behind a prop shows through it** (through the gaps of a slatted lid, through an opening in a wall).
   The generator drew the box from outside only, so its far walls are not drawn from inside. `"inside": true` on the
   model in the game set gives every face a back (`convert.backed`; twice the triangles), and the opening shows the
-  prop's own inside: the rail yard's dumpster (user: "the dumpster has some see through spots", 2026-11-13). Use it
-  only where an opening shows: a closed box never needs it.
+  prop's own inside: the rail yard's dumpster (user: "the dumpster has some see through spots", 2026-11-13), and
+  likewise a slit at its 20 ft container's door end and an opening under the back of its dock's roller door. Closing
+  faces (`close`) would stretch the picture across such an opening. Use it only where an opening shows: a closed box
+  never needs it.
+- **A prop is the wrong size beside the figure.** Read the doors, wheels and lamps, not the whole: the rail yard's
+  office module stood 3 metres to its ridge, sounding right, but its walls were 2 metres and its doors about 1.7; its
+  light tower's lamp heads were nearly 2 metres across at 7.5 metres tall (user: "the office? It's tiny", 2026-11-13).
+  Set `height` again (with the boxes of any lit part scaled to match and `measuredAt` with them).
 - **A placeable a character should walk on** (a platform, a deck, a dock). The game stands characters only on the
   tiles' walkmeshes; a placeable's walkmesh (`.pwk`) only keeps them out, whatever its faces' materials. Tried in the
   client on 2026-11-13: the loading platform placed static with a walkmesh of a walkable deck, walkable stairs up to

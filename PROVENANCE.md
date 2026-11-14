@@ -817,9 +817,13 @@ and scaled to a stated height, its faces seen from behind turned round (but not 
 two faces back to back) and its normals turned to its faces, and its textures were recompressed. The containers
 were drawn out along their length to 6.06 and 12.19 metres at 2.6 metres tall (they came back a third to a half
 short), and the 20 ft container's open door end was closed with two faces between its own vertices. The crane's
-short stub rails under its legs were taken off, as in the group. The dumpster's faces were given backs (`inside`),
-since through the gaps of its slatted lid the client showed what stood behind it (operator: "the
-dumpster has some see through spots"); it now shows its own inside there. The light tower's four lamp heads glow on
+short stub rails under its legs were taken off, as in the group. The faces of the dumpster, the 20 ft container and
+the loading dock were given backs (`inside`), since the client showed what stood behind them through the gaps of the
+dumpster's slatted lid (operator: "the dumpster has some see through spots"), a slit at the container's door end and
+an opening under the back of the dock's roller door; each now shows its own inside there. Two came out the wrong
+size and were set again (operator: "resize the office module and light tower"): the office module from 3.0 to 3.9
+metres tall, where its walls had stood 2 metres and its doors about 1.7, and the light tower from 7.5 to 5.0 metres,
+where its lamp heads had been nearly 2 metres across. The light tower's four lamp heads glow on
 their front faces: it has a glow map for them, a halo sheet and a lights-out material (`ek_rf_light_o`) as
 `docs/envkit/lights.md` describes, and its blueprint is not static, so that a script can reach it. Meshy drew
 lenses on the backs of the heads too; those stay unlit. Nothing was retouched. The loading platform is scenery to
@@ -828,7 +832,8 @@ walk round: its collision is a block over its footprint, and the game does not s
 ground at its edge; see `docs/envkit/sheet-runbook.md`). The depot group's platform is walked on.
 
 Checked in the game client on 2026-11-13, from the converted files, by day from front, back and side with a figure
-for scale; the light tower and the dumpster again by night; and the light tower from the pack's files by night, its
+for scale (the dock, container, office and light tower again after the changes above); the light tower, office and
+dumpster again by night; and the light tower from the pack's files by night, its
 lamps lit, put out by `ReplaceObjectTexture` and on again. A lighter or darker triangle shows on a flat side of the
 boxcar seen side-on, on either side and with the car turned either way round: the area's sky reflected in its large
 smooth panels, not the model (its maps are even there, and splitting its faces small did not change it). Not yet
