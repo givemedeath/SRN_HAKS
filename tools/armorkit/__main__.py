@@ -119,6 +119,17 @@ def layout_library(folder):
     return importlib.import_module('xatlas')
 
 
+def command_intake(args):
+    from . import intake
+    for folder in args.libs:  # after the interpreter's own: a library folder may hold copies of what the kit already loaded
+        registry.require(Path(folder).is_dir(), f'{folder} is no folder: --libs names those that hold igl and pymeshlab')
+        sys.path.append(str(Path(folder)))
+    record = intake.prepare(json.loads(Path(args.intake).read_text(encoding='utf-8')), args.source, args.output,
+                            importlib.import_module('igl'), importlib.import_module('pymeshlab'),
+                            say=lambda *words: print(*words, file=sys.stderr, flush=True))
+    print(json.dumps({key: record[key] for key in ('model', 'triangles', 'fineTriangles', 'voxels', 'materials', 'skinShare', 'seconds')}))
+
+
 def command_bake(args):
     from . import bake, brief
     sources = (args.mesh, args.colours, args.raw, args.xatlas)
@@ -243,6 +254,11 @@ def main(argv=None):
     p = commands.add_parser('admit', help='check that an image comes from a sealed brief before it is taken further')
     p.add_argument('image'); p.add_argument('--root', required=True, help='folder searched for sealed reference folders')
     p.set_defaults(handler=command_admit)
+    p = commands.add_parser('intake', help="turn a textured mesh made elsewhere into the mesh, colour field and fine surface `bake` takes")
+    p.add_argument('intake', help='the intake document of the outfit'); p.add_argument('source', help='the textured mesh file it names')
+    p.add_argument('output', help='folder for mesh.glb, raw.glb, colours.npz, brief.json and intake.json')
+    p.add_argument('--libs', action='append', default=[], required=True, help='folder holding igl or pymeshlab (from the local runtime binding)')
+    p.set_defaults(handler=command_intake)
     p = commands.add_parser('bake', help='bake a generated outfit into the parts a body wears, and check what was written')
     p.add_argument('brief'); p.add_argument('output'); p.add_argument('--number', type=int, required=True, help='the part number the models are written as')
     p.add_argument('--body-pack', required=True, help="folder holding the body's models"); p.add_argument('--body', default='pmh0')
