@@ -62,9 +62,24 @@ def watch(folder, schedule, final=()):
 
 class CaptureTests(unittest.TestCase):
     def test_events_follow_the_last_session_without_timestamps(self):
-        lines = client_capture.session_lines('\n'.join([ENTER, inspect('a0', 'three'), ENTER, inspect('a1', 'backleft'), motion('a1')]))
+        banner = 'Messages for: Fri Nov 13 10:00:00 2026'
+        lines = client_capture.session_lines('\n'.join([banner, ENTER, inspect('a0', 'three'), banner, ENTER,
+                                                        inspect('a1', 'backleft'), motion('a1')]))
         self.assertEqual([kind for _, kind, _ in client_capture.events(lines)], ['inspect', 'motion'])
         self.assertEqual(client_capture.events(lines)[0][2]['actor'], 'a1')
+
+    def test_filed_indices_are_the_coverage_verifiers_own(self):
+        # RUNBOOK 378: the client log opens with a banner and server-option entries before the fixture enters;
+        # the verifier counts every entry after the banner, so the filed index must too.
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'heads'))
+        from verify_head_trial import last_session
+        text = '\n'.join(['-----', 'Messages for: Sat Nov 14 02:03:00 2026', '-----',
+                          '[Sat Nov 14 02:03:28] ---- Server Options ----', '[Sat Nov 14 02:03:28] Max Players: 6',
+                          '[Sat Nov 14 02:03:29] Loading Module: srn_rh_hum12', ENTER, inspect('sr_h_actor0', 'three'),
+                          motion('sr_h_actor0')])
+        ours, theirs = client_capture.session_lines(text), last_session(text)[1]
+        self.assertEqual(ours, theirs)
+        self.assertEqual([index for index, _, _ in client_capture.events(ours)], [4, 5])
 
     def test_repeated_first_placement_files_only_the_second_entry(self):
         with tempfile.TemporaryDirectory() as temp:

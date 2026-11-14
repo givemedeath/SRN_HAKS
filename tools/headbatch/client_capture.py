@@ -22,7 +22,9 @@ from pathlib import Path
 
 from head_files import sha, write_json
 
-STAMP = re.compile(r'^\[[^\]]*\]\s*')
+# The coverage verifier's own log grammar (tools/heads/verify_head_trial.py SESSION, ENTRY, FIELDS).
+SESSION = re.compile(r'^Messages for: (?P<started>.+?)\s*$')
+ENTRY = re.compile(r'^\[[^\]]*\] (?P<text>.*)$')
 FIELDS = re.compile(r'(\w+)=(\S+)')
 VIEWS = ('three', 'threeleft', 'backright', 'backleft')
 # Settling after the logged event (RUNBOOK 370): the repeated initial placement, later angles, the animation.
@@ -32,10 +34,17 @@ SRCCOPY, CAPTUREBLT, PW_RENDERFULLCONTENT = 0x00CC0020, 0x40000000, 2
 
 
 def session_lines(text):
-    """Entry texts of the last client session with timestamps removed, as verify_head_trial.last_session parses them."""
-    lines = [STAMP.sub('', line).strip() for line in text.splitlines()]
-    starts = [i for i, line in enumerate(lines) if line.startswith('HEAD_FIXTURE_CLIENT_ENTER')]
-    return lines[starts[-1]:] if starts else lines
+    """Entry texts after the newest 'Messages for:' banner, exactly as tools/heads/verify_head_trial.last_session parses
+    them: filed event indices are positions in this list, server-option entries included (RUNBOOK 378)."""
+    lines = []
+    for line in text.splitlines():
+        if SESSION.match(line):
+            lines = []
+            continue
+        match = ENTRY.match(line)
+        if match:
+            lines.append(match['text'])
+    return lines
 
 
 def events(lines):
