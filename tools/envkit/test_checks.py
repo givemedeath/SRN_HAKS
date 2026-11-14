@@ -121,6 +121,17 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([(one['stage'], one['at'], one['short']) for one in found], [(6, [46.1, 56.8], 0.25), (6, [50.0, 34.0], 5.0)])
         with self.assertRaisesRegex(ValueError, 'never placed walker pocket'):
             checks.walks(lines, walkers[:3])
+        # The depot's walker from the next tile stopped against the bay yard's fence, half a metre from a target just inside
+        # it (2026-11-13): near enough by distance, but across the fence, so not arrived. A group one tile square at (30, 30).
+        blocked = np.zeros((40, 40), bool); blocked[17, 8:] = True  # a fence a quarter metre thick, 4.25 m up, from 2 m east on
+        self.assertTrue(checks.walled(blocked, (35.125, 34.125), (35.125, 34.625), (30.0, 30.0)))
+        self.assertFalse(checks.walled(blocked, (35.125, 34.125), (35.125, 34.625), (40.0, 30.0)))  # the same line, the fence a tile away
+        self.assertFalse(checks.walled(blocked, (35.125, 35.0), (35.125, 35.625), (30.0, 30.0)))  # both inside the yard
+        self.assertFalse(checks.walled(blocked, (31.0, 34.125), (31.0, 34.625), (30.0, 30.0)))  # west of the fence's end
+        self.assertFalse(checks.walled(blocked, (35.125, 34.625), (35.125, 34.625), (30.0, 30.0)))  # on its target
+        # A walker stopped on the walk faces' edge, its point a hair into the fence's closed rim, beside its target (review, 2026-11-14)
+        edge = blocked.copy(); edge[:] = False; edge[17, 20] = True
+        self.assertFalse(checks.walled(edge, (35.125, 34.499), (35.625, 34.6), (30.0, 30.0)))
 
     def test_a_groups_lights_are_put_out_for_everyone_and_on_again(self):
         shots = checks.blackout_shots(3, 3, [('ek_sk_yard', False), ('ek_sk_yardp1', True)])
@@ -130,6 +141,53 @@ class CheckTests(unittest.TestCase):
         self.assertIn('SetTextureOverride("ek_sk_yard_i","",pc);', shots[2]['run']); self.assertNotIn('run', shots[1])
         self.assertEqual((shots[0]['stand'], shots[0]['facing'], shots[1]['stand'], shots[1]['facing']), ([45.0, 37.5], 90, [45.0, 55.5], 270))
         self.assertEqual(checks.blackout_shots(3, 3, []), [])
+
+    def test_a_capture_made_after_its_shot_has_passed_is_refused_not_mislabelled(self):
+        """The rail freight depot (2026-11-13): the client stalled for twenty seconds on the sixth shot, and the last view
+        was captured five times under five names."""
+        import tempfile
+        from pathlib import Path
+        self.assertIsNone(prop_fixture.late(100, 103.0, 6.0)); self.assertEqual(prop_fixture.late(100, 123.0, 6.0), 23.0)
+        # The next view comes hold - LINE_DELAY after the line: at its own hold a capture is late (review, 2026-11-14).
+        self.assertEqual(prop_fixture.late(100, 106.0, 6.0), 6.0); self.assertAlmostEqual(prop_fixture.late(100, 104.6, 6.0), 4.6)
+        # The default hold leaves room for the settle, a poll and the stamp's whole second.
+        self.assertIsNone(prop_fixture.late(100, 100 + 1.5 + prop_fixture.client.POLL + 1.0, prop_fixture.HOLD))
+        # A grab retried after showing a minimised window is timed when the retry starts (review, 2026-11-14).
+        with mock.patch.object(prop_fixture.client, 'capture', side_effect=[OSError, 'shot.png']), mock.patch.object(prop_fixture.client, 'window', return_value=1), \
+                mock.patch('ctypes.WinDLL', create=True), mock.patch.object(prop_fixture.time, 'sleep'), mock.patch.object(prop_fixture, 'clock', side_effect=[104.4, 105.1]):
+            self.assertEqual(prop_fixture.grab(1, 'shot.png'), ('shot.png', 105.1))
+        self.assertIsNone(prop_fixture.late(86399, 3.0, 6.0)); self.assertIsNone(prop_fixture.late(None, 500.0, 6.0))  # past midnight; no stamp
+        with tempfile.TemporaryDirectory() as scratch:
+            user = Path(scratch) / 'user'; (user / 'logs').mkdir(parents=True); captures = Path(scratch) / 'captures'; captures.mkdir()
+            record = {'userDirectory': str(user), 'module': 'ekx.mod', 'start': 1.0, 'hold': 6.0, 'shots': ['a', 'b']}
+
+            def shoot(pid, path):
+                Path(path).write_bytes(b'png'); return path
+
+            def go(stamps):
+                (user / 'logs' / 'nwclientLog1.txt').write_text(''.join(f'[Fri Nov 13 {stamp}] {line}' + chr(10) for stamp, line in zip(
+                    stamps, ['ENVKIT shot=0 target=a valid=1', 'ENVKIT shot=1 target=b valid=1', 'ENVKIT done'])), encoding='cp1252')
+                process = mock.Mock(pid=7); process.poll.return_value = None
+                with mock.patch.object(prop_fixture.client, 'start', return_value=process), mock.patch.object(prop_fixture.client, 'stop'), \
+                        mock.patch.object(prop_fixture.client, 'capture', side_effect=shoot), mock.patch.object(prop_fixture.time, 'sleep'), \
+                        mock.patch.object(prop_fixture, 'clock', return_value=13 * 3600 + 58 * 60 + 25.0):
+                    return prop_fixture.run('game', record, captures)
+            self.assertEqual(len(go(['13:58:21', '13:58:23', '13:58:24'])['captures']), 2)
+            for path in captures.iterdir():
+                path.unlink()
+            with self.assertRaisesRegex(ValueError, r'show a later view: a \(25 s\)'):
+                go(['13:58:00', '13:58:22', '13:58:24'])
+            self.assertEqual(sorted(path.name for path in captures.iterdir()), ['shot-00-a-late.png', 'shot-01-b.png'])
+
+    def test_a_check_area_holds_the_group_with_ground_all_round(self):
+        """The rail freight depot, 8 by 8 (2026-11-13), did not fit the area of 9 tiles that held the 3 by 3 groups."""
+        self.assertEqual([checks.area_size(3, 3), checks.area_size(2, 3), checks.area_size(8, 8), checks.area_size(8, 5)], [9, 9, 14, 14])
+        for columns, rows in ((1, 1), (3, 3), (8, 8), (12, 7)):
+            size = checks.area_size(columns, rows)
+            self.assertLessEqual(max(columns, rows) + checks.MARGIN + 1, size)  # as the check requires
+            self.assertGreaterEqual(size - max(columns, rows) - checks.MARGIN, checks.MARGIN)  # ground beyond the far side too
+        # A walker from a far corner has as long to arrive for each metre of a larger area.
+        self.assertEqual(checks.walk_hold(9), checks.WALK_HOLD); self.assertAlmostEqual(checks.walk_hold(14) / 14, checks.WALK_HOLD / 9)
 
     def test_a_walk_check_needs_the_walk_picture_of_its_build(self):
         import json
