@@ -735,7 +735,11 @@ client from the built packs:
   the race models is not a way round it: an armor part's texture is coloured in game only when the model and
   the tint texture have the same name (user, 2026-11-14), and the `closure` gate now fails a model that names
   another's. What can shrink it is smaller maps, or leaving a body's own tint texture out so that the game's
-  fallback finds the Human male's (the probe above), which is not yet seen taking an item's colours.
+  fallback finds the Human male's (the probe above). That fallback takes the item's colours (client,
+  2026-11-14): shin 398 on a Human female and a Large male, their models naming textures of their own names
+  that no pack holds, was drawn in the Human male's texture and changed with him between two colour sets, all
+  channels 88 and all channels 132. The publish command does not use it yet: `survey` and the `closure` gate
+  still ask every body for its own tint texture.
 
 What still blocks a publication: the 18 race bodies (refit and bake each, or race versions that pass the seam
 gate); a male bake that passes on the merged code, and the female refit from it; the female's open client
