@@ -19,10 +19,16 @@ def measure(region, channel):
 
 
 
-def restore_source_hair(layers,hair,eye,lips,mapped):
-    """Restore only source-supported skin labels; preserve other material channels."""
-    require(all(a.shape==layers.shape for a in (hair,eye,lips,mapped)), 'Hair repair masks must match the ownership atlas')
-    selected=mapped & (hair>204) & (eye<=25) & (lips<=25) & (layers==0)
+# The semantic hair label is read from one front render. A surface it sees edge-on (the side jaw, the cheek in front
+# of the ear) maps a few parser pixels at the face outline onto a wide band of texels, so a repair there paints hair over
+# baked skin that the front-only gap metric cannot see (RUNBOOK 380).
+RESTORE_FACING=.3
+
+
+def restore_source_hair(layers,hair,eye,lips,mapped,facing):
+    """Restore only source-supported skin labels the front render sees face-on; preserve other material channels."""
+    require(all(a.shape==layers.shape for a in (hair,eye,lips,mapped,facing)), 'Hair repair masks must match the ownership atlas')
+    selected=mapped & (facing>=RESTORE_FACING) & (hair>204) & (eye<=25) & (lips<=25) & (layers==0)
     result=layers.copy();result[selected]=1
     return result,selected
 
@@ -48,14 +54,17 @@ def draw(head,attempt,output,candidate=None,repair_skin_hair=False):
         hair=np.asarray(Image.open(masks['files']['hair']['path']).convert('L'))
         eye=np.asarray(Image.open(masks['files']['eye']['path']).convert('L'))
         lips=np.asarray(Image.open(masks['files']['lips']['path']).convert('L'))
-        mapped=raster_audit(value['uv'],4096)[1]>=0
-        labels4k,selected=restore_source_hair(labels4k,hair,eye,lips,mapped)
+        owners=raster_audit(value['uv'],4096)[1];mapped=owners>=0
+        P=value['positions'].astype(float);F=value['faces']
+        normals=np.cross(P[F[:,1]]-P[F[:,0]],P[F[:,2]]-P[F[:,0]]);normals/=np.maximum(np.linalg.norm(normals,axis=1,keepdims=True),1e-12)
+        facing=np.where(mapped,normals[np.maximum(owners,0),2],-1.0)
+        labels4k,selected=restore_source_hair(labels4k,hair,eye,lips,mapped,facing)
         require(selected.any(),'No source-supported skin-to-hair repair')
         output.parent.mkdir(parents=True,exist_ok=True)
         atlas=output.with_name(output.stem+'-candidate-4096.png');require(not atlas.exists(),'Candidate atlas exists');Image.fromarray(labels4k).save(atlas)
         candidate=output.with_name(output.stem+'-candidate.json')
         config={k:v for k,v in runner.data['ownership'].items() if k not in ('rules','regions','mode','sourceSha256','reviewed')}
-        config.update(mode='atlas',sourceSha256=pin(source)['sha256'],notes='Operator candidate: source-semantic hair mask restores only skin-owned scalp hair; bald scalp, eyes, lips and non-skin materials are protected. Review exact candidate before selection.')
+        config.update(mode='atlas',sourceSha256=pin(source)['sha256'],notes='Operator candidate: source-semantic hair mask restores only skin-owned scalp hair the front render sees face-on; bald scalp, eyes, lips, edge-on sides and non-skin materials are protected. Review exact candidate before selection.')
         write(candidate,config,fresh=True);inputs += [pin(atlas),pin(candidate)]
     elif candidate:inputs.append(pin(candidate))
     verify(inputs,fresh=True)
@@ -80,7 +89,7 @@ def draw(head,attempt,output,candidate=None,repair_skin_hair=False):
             'requiresVisualReview':True,'approved':False,
             'limitation':'Semantic hair is evidence to inspect, not anatomical truth. Preserve intended bald scalp and skin at ears.'}
     if atlas is not None:
-        report['candidateAtlas4k']=pin(atlas);report['restoredTexels']=int(selected.sum())
+        report['candidateAtlas4k']=pin(atlas);report['restoredTexels']=int(selected.sum());report['restoreFacingMin']=RESTORE_FACING
     if candidate:
         target=output.with_name(output.stem+'-layers.png');require(not target.exists(),'Candidate atlas already exists')
         Image.fromarray(layers).save(target);report['candidateOwnership']=pin(target)
