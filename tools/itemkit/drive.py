@@ -322,7 +322,16 @@ class Driver:
         # The donor of the attempt the run's state records: attempt folders are not ordered, and an older or failed
         # attempt may hold a textured-donor.glb too.
         recorded = lambda: (read(run/'state.json')['stages'].get('donor') if (run/'state.json').exists() else None)
-        if recorded() is None: self.stage(design, 'donor-v1', 'donor')
+        # A failed attempt is recorded too (the wave-4 Nodachi's UV coverage refusal); the runner retries it on a
+        # corrected snapshot, so only a complete receipt is reused.
+        def complete():
+            entry = recorded()
+            if entry is None: return False
+            receipt = Path(entry['path'])
+            if not receipt.is_file(): raise SystemExit(f'{design}: {run/"state.json"} records a donor receipt that is missing: {receipt}')
+            return read(receipt).get('state') == 'complete'
+        if not complete(): self.stage(design, 'donor-v1', 'donor')
+        if not complete(): raise SystemExit(f'{design}: the donor stage did not complete; see {run}')
         donor = next(Path(recorded()['path']).parent.rglob('textured-donor.glb'))
         family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
         for kind, name in (('straighten', 'straightened'), ('thin', 'thinned')):

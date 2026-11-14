@@ -134,6 +134,15 @@ if __name__ == '__main__':
     unittest.main()
 
 
+class ZeroNormalTests(unittest.TestCase):
+    def test_a_zero_source_normal_stays_zero_and_the_rest_are_turned(self):
+        bent = sword(bow=.5); mapping, _ = s.fit_map(bent)
+        normals = np.tile([0., 0., 1.], (len(bent), 1)); normals[:5] = 0
+        _, turned = s.apply_map(bent, mapping, normals)
+        np.testing.assert_array_equal(turned[:5], 0)
+        np.testing.assert_allclose(np.linalg.norm(turned[5:], axis=1), 1)
+
+
 class ThickShaftTests(unittest.TestCase):
     def test_a_bent_thick_shaft_keeps_its_flat_end_caps(self):
         # A club: slices near the ends of a bent thick shaft cut the caps obliquely and must not hook the centreline.
@@ -146,6 +155,25 @@ class ThickShaftTests(unittest.TestCase):
         self.assertGreater(history[0], 4); self.assertLess(s.measure(out)['bendPctOfLength'], 1)
         frame = lambda q: np.sort(np.ptp((q - q.mean(0)) @ s.principal_frame(q)[1], axis=0))[::-1]
         np.testing.assert_allclose(frame(out), [1, .12, .12], rtol=.08)       # caps stay square (the old hook measured 17%)
+
+    def test_whole_straightening_lines_a_cocked_head_up_with_its_haft(self):
+        # A mace: thin haft, a head three times wider tilted 3 degrees at the collar. The default bridges the wide head.
+        rng = np.random.default_rng(8); n = 60000; a = rng.uniform(0, 2 * np.pi, 2 * n)
+        haft = np.column_stack([rng.uniform(-.4, .3, n), .02 * np.cos(a[:n]), .02 * np.sin(a[:n])])
+        head = np.column_stack([rng.uniform(.3, .55, n), .065 * np.cos(a[n:]), .065 * np.sin(a[n:])])
+        tilt = np.radians(3); x, z = head[:, 0] - .3, head[:, 2].copy()
+        head[:, 0] = .3 + x * np.cos(tilt) - z * np.sin(tilt); head[:, 2] = x * np.sin(tilt) + z * np.cos(tilt)
+        p = np.r_[haft, head]; far, near = slice(n, None), slice(0, n)
+        def head_tilt(q):                               # head axis against the haft axis, degrees
+            axis = lambda rows: np.linalg.eigh(np.cov((rows - rows.mean(0)).T))[1][:, -1]
+            return np.degrees(np.arccos(min(1., abs(axis(q[far]) @ axis(q[near])))))
+        self.assertGreater(head_tilt(s.apply_map(p, s.fit_map(p)[0])), 2.5)
+        mapping, _ = s.fit_map(p, whole=True); out = s.apply_map(p, mapping)
+        self.assertLess(head_tilt(out), .6)
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/'map.npz'; s.save_map(path, mapping)
+            np.testing.assert_array_equal(s.apply_map(p, s.load_map(path)), out)        # the choice travels in the map
+            with self.assertRaisesRegex(ValueError, 'whole'): s.straighten(Path(folder)/'none.glb', Path(folder)/'out', path, whole=True)
 
     def test_a_tilted_flat_cap_is_squared_and_a_point_is_left_alone(self):
         rng = np.random.default_rng(5); n = 80000; a = rng.uniform(0, 2 * np.pi, n); r = .06 * np.sqrt(rng.uniform(0, 1, n))

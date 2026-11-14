@@ -120,6 +120,40 @@ class HaftedFitTests(unittest.TestCase):
         self.assertGreater(np.asarray(data['fittedBounds'])[1][1], .3)
 
 
+class ChosenRoundLengthTests(unittest.TestCase):
+    """A round one-hand handle shorter than the hand may take a chosen length (the wave-4 Sai, 2026-11-13)."""
+    def test_a_round_dagger_takes_the_chosen_length_and_binds_a_departure(self):
+        from tools.itemkit.fit_manifest import STANDARD, measure
+        standard = json.loads(STANDARD.read_text(encoding='utf-8'))
+        family = {'family': 'dagger', 'native': {'gripOrigin': [0, 0, 0], 'gripLength': standard['usableLength'], 'stockSpan': [-.1, .5]}}
+        rows = [(y, .03) for y in np.linspace(0, .25, 60)] + [(y, .012) for y in np.linspace(.26, 1, 180)]   # round handle, thin blade
+        v, f = lathe(rows, sides=64); v, f = gltf(v), f
+        marks = {'bladeAtLowEnd': False, 'pommelEnd': .02, 'gripStart': .02, 'gripEnd': .24, 'bladeStart': .26, 'uniform': True}
+        natural = measure({}, family, {'positions': v, 'faces': f}, marks, standard)
+        self.assertAlmostEqual(natural['nativeLength'], standard['usableLength'] / .22, delta=.02)       # the hand fills the handle
+        chosen = measure({}, family, {'positions': v, 'faces': f}, {**marks, 'targetLength': .55, 'sizeToLength': False}, standard)
+        self.assertAlmostEqual(chosen['nativeLength'], .55, delta=.005)
+        self.assertEqual(chosen['sizingAuthority'], 'usable-length-round'); self.assertTrue(chosen['departurePending'])
+        self.assertTrue(chosen['chosenLength']); self.assertLess(chosen['gripReport']['midpointRelativeDifferences']['usableLength'], -.3)
+        from tools.itemkit.fit_manifest import gltf_to_blender
+        from tools.itemkit.grip import GripDeparture, melee_fit
+        fit = {'sizingAuthority': 'usable-length-round', 'gripEndpoints': chosen['gripEndpoints'], 'chosenLength': True}
+        with self.assertRaises(GripDeparture) as worker:                        # the fit worker measures the same handle
+            melee_fit(family, fit, standard, gltf_to_blender(v), f, np.asarray(chosen['matrix']))
+        self.assertEqual(worker.exception.report['measurementDigest'], chosen['gripReport']['measurementDigest'])
+        # The fit stage's endpoint check holds the chosen handle to its own reviewed length, not the hand's.
+        from tools.itemkit.geometry import transform
+        from tools.itemkit.grip import fitted_grip_length
+        report = worker.exception.report; ends = transform(np.asarray(chosen['gripEndpoints'], float), np.asarray(report['fitMatrix']))
+        fitted = float(np.linalg.norm(ends[1] - ends[0]))
+        self.assertAlmostEqual(fitted / fitted_grip_length(fit, family['native'], report), 1, delta=.02)
+        self.assertGreater(abs(fitted / family['native']['gripLength'] - 1), .3)               # the old check refused it
+        self.assertEqual(fitted_grip_length({}, family['native'], None), standard['usableLength'])
+        with self.assertRaisesRegex(ValueError, 'round grip report'): fitted_grip_length(fit, family['native'], {'usableLength': .1})
+        loose = measure({}, family, {'positions': v, 'faces': f}, {**marks, 'targetLength': .55}, standard)
+        self.assertAlmostEqual(loose['nativeLength'], natural['nativeLength'], delta=.005)   # without sizeToLength false: unchanged
+
+
 class StaffSectionTests(unittest.TestCase):
     """The stun staff was flattened by the per-axis hilt calibration (user, 2026-11-12): a staff keeps its own section."""
     def setUp(self):
@@ -195,6 +229,20 @@ class BladeFaceFrameTests(unittest.TestCase):
         self.assertEqual(method, 'hafted-head')
         top = q[q[:, 0] > np.percentile(q[:, 0], 90)]
         self.assertGreater(np.ptp(top[:, 1]), 4 * np.ptp(top[:, 2])); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
+
+    def test_reviewed_landmarks_win_over_a_head_read_as_a_cross_guard(self):
+        from tools.itemkit import fit_manifest as fm
+        haft, _ = lathe([(y, .02) for y in np.linspace(-.6, .6, 480)], sides=48)
+        head, _ = lathe([(y, .12) for y in np.linspace(.3, .5, 80)], sides=48, depth=.1)         # wide, short of the top
+        _, U0, q0 = fm._frame(np.concatenate([haft, head]))
+        top_low = bool(U0[1, 0] < 0)                                    # where Blender +Y (the head) lies in the frame
+        self.assertEqual(fm.bladed_landmarks(q0, U0, {})[0], 'cross-guard')
+        marks = {'pommelEnd': .02, 'gripStart': .1, 'gripEnd': .3, 'bladeStart': .75}
+        method, q, U, _ = fm.bladed_landmarks(q0, U0, {'bladeAtLowEnd': top_low, **marks})
+        self.assertEqual(method, 'override-ends')
+        self.assertGreater(q[np.argmax(np.hypot(q[:, 1], q[:, 2])), 0], 0)            # the head is now at the high end
+        same = fm.bladed_landmarks(q0, U0, {'bladeAtLowEnd': not top_low, **marks})[0]
+        self.assertEqual(same, 'cross-guard')                           # an agreeing override keeps the detected guard
 
     def test_a_round_blade_keeps_the_principal_frame(self):
         from tools.itemkit import fit_manifest as fm
@@ -552,6 +600,37 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             (h/'knife.donor-v1.asset.json').write_text(json.dumps({'processing': {'sourceFieldPolicy': {'minimum': -.05, 'maximum': 1.065}}}), encoding='utf-8')
             with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'binds only a new donor manifest'):
                 d.textured('knife', 'a1', 'src', 'approved', field_range=[-.22, 1.13])
+            stage.assert_not_called()
+
+    def test_textured_reruns_a_failed_donor_and_reuses_a_complete_one(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            for stage in ('geometry', 'appearance'):
+                (root/f'blade/{stage}-a1/job').mkdir(parents=True)
+                (root/f'blade/{stage}-a1/job/collection.json').write_text(json.dumps({'outputs': [{'path': 'raw.glb', 'sha256': 'g'}]}), encoding='utf-8')
+            (h/'blade.geometry-approved-v1.asset.json').write_text(json.dumps({'approval': {'generatedGeometry': {'geometryRawSha256': 'g'}}}), encoding='utf-8')
+            (h/'family.json').write_text(json.dumps({'family': 'longsword'}), encoding='utf-8')
+            (h/'blade.donor-v1.asset.json').write_text(json.dumps({'familyProfile': {'path': 'family.json'},
+                'processing': {'sourceFieldPolicy': {'minimum': -.05, 'maximum': 1.065}}}), encoding='utf-8')
+            run = root/'blade/run-donor-v1'
+            def attempt(name, state):
+                folder = run/'donor'/name; folder.mkdir(parents=True)
+                (folder/'receipt.json').write_text(json.dumps({'state': state}), encoding='utf-8')
+                if state == 'complete': (folder/'donor').mkdir(); (folder/'donor/textured-donor.glb').write_bytes(b'glb')
+                (run/'state.json').write_text(json.dumps({'stages': {'donor': {'path': str(folder/'receipt.json')}}}), encoding='utf-8')
+            attempt('attempt-failed', 'failed')
+            with mock.patch.object(Driver, 'stage', side_effect=lambda *a: attempt('attempt-ok', 'complete')) as stage, \
+                 mock.patch.object(Driver, 'views', return_value={}):
+                self.assertTrue(d.textured('blade', 'a1', 'src', 'approved')['texturedDonor'].endswith('textured-donor.glb'))
+                d.textured('blade', 'a1', 'src', 'approved')
+            self.assertEqual(stage.call_count, 1)                        # the failed attempt ran again; the complete one is reused
+            (run/'donor/attempt-ok/receipt.json').write_text(json.dumps({'state': 'failed'}), encoding='utf-8')
+            with mock.patch.object(Driver, 'stage'), self.assertRaisesRegex(SystemExit, 'did not complete'):
+                d.textured('blade', 'a1', 'src', 'approved')
+            (run/'donor/attempt-ok/receipt.json').unlink()                 # a recorded receipt that was removed by hand
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'receipt that is missing'):
+                d.textured('blade', 'a1', 'src', 'approved')
             stage.assert_not_called()
 
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
