@@ -12,6 +12,7 @@ import time
 from urllib.error import URLError
 from urllib.parse import urlparse
 
+import client_capture
 import guards
 from head_files import sha, write_json
 import launcher
@@ -107,12 +108,18 @@ def stop_owned(process):
             process.wait(timeout=10)
 
 
-def supervise(process, budget, stop, seconds=MAX_SECONDS, sleep=time.sleep, clock=time.monotonic, *, desktop_ready=None):
-    """Only terminate the child we created, never a name-based or reused PID."""
+def supervise(process, budget, stop, seconds=MAX_SECONDS, sleep=time.sleep, clock=time.monotonic, *, desktop_ready=None,
+              finished=None):
+    """Only terminate the child we created, never a name-based or reused PID. `finished` (the capture tour's end)
+    closes it early as a completed session."""
     started = clock()
     reason = None
+    completed = False
     try:
         while process.poll() is None:
+            if finished is not None and finished():
+                completed = True
+                break
             if desktop_ready is not None and not desktop_ready():
                 reason = 'Windows session locked or disconnected during client QA'
                 break
@@ -129,7 +136,7 @@ def supervise(process, budget, stop, seconds=MAX_SECONDS, sleep=time.sleep, cloc
         reason = str(error)
     finally:
         stop_owned(process)
-    return {'exitCode': process.returncode, 'stopReason': reason,
+    return {'exitCode': process.returncode, 'stopReason': reason, 'tourComplete': completed and reason is None,
             'elapsedSeconds': clock()-started}
 
 
@@ -172,6 +179,7 @@ def session(config):
     (userdir/'nwn.ini').write_text('\n'.join([*lines, '[Game Options]', 'cliententirelog=1'])+'\n', encoding='ascii')
     budget = Budget({**CLIENT_BUDGET, 'gpuIndex': data['gpuIndex']}, output/'memory.json')
     process = None
+    watcher = None
     try:
         if not desktop_is_unlocked():
             raise guards.Refused('Unlock the interactive Windows desktop before starting private client QA')
@@ -183,16 +191,29 @@ def session(config):
         write_json(output/'running.json', {'pid': process.pid, 'client': str(client),
             'privateUserdir': str(userdir), 'module': manifest['module'], 'maximumSeconds': MAX_SECONDS,
             'runtimeManifestSha256': sha(trial/'runtime-manifest.json'), 'startedUnix': time.time()})
-        result = supervise(process, budget, output/'STOP', desktop_ready=desktop_is_unlocked)
+        if manifest.get('captureCoverageRequired'):
+            # Window captures filed against the log events they follow (RUNBOOK 375); a reviewer still looks.
+            watcher = client_capture.Watcher(process.pid, userdir/'logs'/'nwclientLog1.txt', output/'captures',
+                                             final=client_capture.final_tags(manifest))
+            watcher.start()
+        result = supervise(process, budget, output/'STOP', desktop_ready=desktop_is_unlocked,
+                           finished=watcher.complete if watcher else None)
         write_json(output/'result.json', {**result, 'pid': process.pid, 'closed': process.poll() is not None})
     finally:
         # Receipt/settings failures after Popen must not release the leases around a live client.
         stop_owned(process)
+        if watcher is not None:
+            watcher.stop()
         budget.close()
         if settings.exists():
             (output/'settings-after.tml').write_bytes(settings.read_bytes())
         if process is not None and process.poll() is not None:
-            archive_client_log(userdir,output)
+            log = archive_client_log(userdir,output)
+            if watcher is not None:
+                client_capture.record(output/'captures', watcher.bursts, watcher.errors)
+                client_capture.filed(trial/'runtime-manifest.json', log, output/'captures', watcher.bursts)
+    if result['tourComplete']:
+        return  # the owned client was closed after its last capture; its exit code is the forced stop's
     if result['stopReason'] or result['exitCode'] != 0:
         raise guards.Refused(result['stopReason'] or f"Client exit {result['exitCode']}")
 
