@@ -110,8 +110,11 @@ def turn_normals(transform, points, normals, scale):
         d = np.zeros(3); d[i] = step; J[:, :, i] = (transform(points + d) - transform(points - d)) / (2 * step)
     try: turned = np.linalg.solve(np.transpose(J, (0, 2, 1)), normals[..., None])[..., 0]
     except np.linalg.LinAlgError: _require(False, 'The map collapses a direction: its normals are undefined')
-    length = np.linalg.norm(turned, axis=1); _require(np.all(length > 0) and np.isfinite(length).all(), 'Degenerate normal after the map')
-    return turned / length[:, None]
+    # A zero normal in the source (the wave-4 Mace donor had 6 of 600K) has no direction to turn: it stays zero.
+    given = np.linalg.norm(normals, axis=1) > 0; length = np.linalg.norm(turned, axis=1)
+    _require(np.all(length[given] > 0) and np.isfinite(length).all(), 'Degenerate normal after the map')
+    turned[given] /= length[given, None]; turned[~given] = 0
+    return turned
 
 
 def _fit_ends(p):

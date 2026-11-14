@@ -134,6 +134,15 @@ if __name__ == '__main__':
     unittest.main()
 
 
+class ZeroNormalTests(unittest.TestCase):
+    def test_a_zero_source_normal_stays_zero_and_the_rest_are_turned(self):
+        bent = sword(bow=.5); mapping, _ = s.fit_map(bent)
+        normals = np.tile([0., 0., 1.], (len(bent), 1)); normals[:5] = 0
+        _, turned = s.apply_map(bent, mapping, normals)
+        np.testing.assert_array_equal(turned[:5], 0)
+        np.testing.assert_allclose(np.linalg.norm(turned[5:], axis=1), 1)
+
+
 class ThickShaftTests(unittest.TestCase):
     def test_a_bent_thick_shaft_keeps_its_flat_end_caps(self):
         # A club: slices near the ends of a bent thick shaft cut the caps obliquely and must not hook the centreline.
