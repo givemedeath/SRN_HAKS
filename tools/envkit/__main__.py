@@ -91,6 +91,14 @@ def command_reference(args):
     require(not missed, f'{len(missed)} of {len(names)} assets were not made: ' + ', '.join(missed))
 
 
+def command_enlarge(args):
+    """The chosen references of a sheet at Meshy's size: references/selected is read, references/sent is written."""
+    from tools.headkit.comfy import Client
+    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); root = Path(args.root) / 'references'
+    told = reference.enlarge(Client(args.url), local, args.bindings, root / 'selected', root / 'sent', deadline=args.deadline)
+    print(json.dumps({state: sum(one == state for one in told.values()) for state in ('enlarged', 'copied', 'kept')}))
+
+
 def _retouching(model):
     """What a game set says of turning a model and retouching its colour, as `convert.shape` takes it."""
     from . import convert
@@ -205,7 +213,7 @@ def command_sheet(args):
     plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger); root = Path(args.root); work = root / 'meshy' / 'work'
     failed = []
     if args.action == 'submit':
-        print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work)}))
+        print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'sent', work)}))
     elif args.action == 'collect':
         made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))
     print(json.dumps(sheet.status(ledger, plan), indent=1))
@@ -381,8 +389,13 @@ def main(argv=None):
     sub = commands.add_parser('sheet', help="a sheet's models through Meshy, as its plan states them")
     sub.add_argument('action', choices=['status', 'submit', 'collect'])
     sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', required=True)
-    sub.add_argument('--root', required=True, help="the sheet's output root: references/selected is read, meshy/ is written")
+    sub.add_argument('--root', required=True, help="the sheet's output root: references/sent is read, meshy/ is written")
     sub.set_defaults(run=command_sheet)
+    sub = commands.add_parser('enlarge', help="a sheet's chosen references at Meshy's size (2048 pixels or more on the longer side)")
+    sub.add_argument('--root', required=True, help="the sheet's output root: references/selected is read, references/sent is written")
+    sub.add_argument('--bindings', required=True, help='local JSON with absolute comfyInput and comfyOutput')
+    sub.add_argument('--url', default='http://127.0.0.1:8188'); sub.add_argument('--deadline', type=int, default=2400)
+    sub.set_defaults(run=command_enlarge)
     sub = commands.add_parser('view', help='a model seen square on with a metre grid, to read a game set\'s boxes from')
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root")
     sub.add_argument('--source', action='append', default=[], help='instead of a game set: a generated model folder (repeatable, each with a --height)')

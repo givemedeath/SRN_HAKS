@@ -237,5 +237,36 @@ class MakeTests(unittest.TestCase):
             self.assertEqual([call.args[3] for call in make.call_args_list], ['crate', 'bin'])
 
 
+    def test_chosen_references_are_brought_to_meshys_size(self):
+        """A reference of 2048 or more is copied and a smaller one doubled, once, from the picture chosen now."""
+        import hashlib
+        from PIL import Image
+        from tools.headkit import design
+        selected, sent = self.root / 'chosen', self.root / 'sent'; selected.mkdir()
+        Image.new('RGB', (2048, 8), 'red').save(selected / 'gate-s101-b0.png'); Image.new('RGB', (1024, 8), 'blue').save(selected / 'desk-s7-b0.png')
+        (selected / 'desk-s7.json').write_text('{}', encoding='utf-8'); Image.new('RGB', (8, 8)).save(selected / 'contact.png')  # neither is a chosen reference
+
+        def doubled(client, local, bindings, graph, receipt, sources, output, base, batch, runtime, queue=None):
+            self.assertEqual([graph[key]['class_type'] for key in ('100', '7', '8', '9')], ['LoadImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'SaveImage'])
+            self.assertEqual((graph['7']['inputs']['model_name'], list(sources.values()), queue), (reference.UPSCALER, [selected / 'desk-s7-b0.png'], {'deadline': 60}))
+            Image.new('RGB', (2048, 16), 'blue').save(Path(output) / f'{base}-b0.png'); (Path(output) / f'{base}.json').write_text(json.dumps(receipt), encoding='utf-8')
+        said = []
+        with mock.patch.object(design, '_execute', side_effect=doubled) as execute:
+            told = reference.enlarge(None, {}, 'bindings.json', selected, sent, deadline=60, say=lambda text, **_: said.append(json.loads(text)))
+            self.assertEqual(told, {'desk-s7-b0.png': 'enlarged', 'gate-s101-b0.png': 'copied'}); self.assertEqual(len(said), 2)
+            self.assertEqual((sent / 'gate-s101-b0.png').read_bytes(), (selected / 'gate-s101-b0.png').read_bytes())
+            self.assertEqual(json.loads((sent / 'desk-s7.json').read_text(encoding='utf-8'))['source'], hashlib.sha256((selected / 'desk-s7-b0.png').read_bytes()).hexdigest())
+            self.assertEqual(reference.enlarge(None, {}, 'bindings.json', selected, sent, say=lambda *_, **__: None), {'desk-s7-b0.png': 'kept', 'gate-s101-b0.png': 'kept'})
+            self.assertEqual(execute.call_count, 1)
+            Image.new('RGB', (1024, 8), 'green').save(selected / 'desk-s7-b0.png')  # another picture chosen under the same name
+            with self.assertRaisesRegex(ValueError, 'was not made from the desk-s7-b0.png chosen now'):
+                reference.enlarge(None, {}, 'bindings.json', selected, sent, say=lambda *_, **__: None)
+            Image.new('RGB', (600, 900)).save(selected / 'lamp-s1-b0.png')
+            with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png is 600x900: doubled it is still under 2048'):
+                reference.enlarge(None, {}, 'bindings.json', selected, self.root / 'sent2', deadline=60, say=lambda *_, **__: None)
+        with self.assertRaisesRegex(ValueError, 'No chosen references'):
+            reference.enlarge(None, {}, 'bindings.json', self.root / 'nothing-chosen', self.root / 'sent3')
+
+
 if __name__ == '__main__':
     unittest.main()

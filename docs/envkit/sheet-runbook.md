@@ -31,6 +31,18 @@ its crop; read it for a changed shape, lost parts, and branding that should not 
 with another seed where it fails. Copy the chosen image of each asset to `<root>/references/selected/` under the
 name it has (`<asset>-s<seed>-b0.png`): exactly one for each asset the plan names.
 
+```
+envkit enlarge --root <root> --bindings <root>/references/bindings.json
+```
+
+A reference goes to Meshy at 2048 pixels or more on its longer side (user, 2026-11-14), and the local model draws
+at about one megapixel. `enlarge` writes each chosen reference to `<root>/references/sent` under the same name:
+doubled by the shared ComfyUI's `RealESRGAN_x2plus.pth` where it is smaller, copied where it is not. This sharpens
+what was drawn and adds nothing to it. The chosen references in `selected` stay as they are, since a building's
+pieces are cut from them in their own pixels. `sheet submit` reads `sent` and refuses a smaller picture. Run
+`enlarge` again after choosing another reference; one already in `sent` from another picture is refused until it
+and its record are taken away.
+
 ## 2. Meshy
 
 The ledger (`output/envkit/stuffer-shack/meshy/ledger.json`, shared by every sheet) holds the cap, which is the
@@ -44,7 +56,7 @@ envkit sheet collect --plan ... --ledger <ledger> --root <root>
 ```
 
 `status` says what the sheet's unsent calls cost (`unsentCredits`) against what the cap has left. Raise the cap only on the
-user's word, and say so in the reason. `submit` finds every reference and checks the whole of what is unsent
+user's word, and say so in the reason. `submit` finds every reference in `<root>/references/sent` and checks the whole of what is unsent
 against the cap before it sends anything; a call already in the ledger is not sent again. Meshy holds ten
 tasks at once, so `submit` sends what the queue has room for and says which calls it held back: run `collect`,
 then `submit` again, until `collect` lists nothing `unsent`. `collect` waits for each call, downloads the models to

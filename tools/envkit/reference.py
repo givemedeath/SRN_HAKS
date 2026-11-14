@@ -177,3 +177,54 @@ def make(client, local, bindings_path, name, text, reference, seed, output, *, b
                'token': token, 'outputPrefix': graph['9']['inputs']['filename_prefix']}
     return design._execute(client, local, bindings_path, graph, receipt, {staged: reference}, output, base, batch, None,
                            queue={'deadline': deadline})
+
+
+SIDE = 2048  # the least a reference's longer side is when it goes to Meshy (user, 2026-11-14: "a minimum of 2k input")
+UPSCALER = 'RealESRGAN_x2plus.pth'  # doubles a picture; in the shared ComfyUI's upscale_models
+CHOSEN = re.compile(r'([a-z0-9][a-z0-9-]{0,63})-s\d+-b0\.png')
+
+
+def enlarge_graph(staged, prefix):
+    """The chosen reference doubled by the upscale model and saved: no prompt, no seed, nothing redrawn."""
+    return {'100': {'class_type': 'LoadImage', 'inputs': {'image': staged}},
+            '7': {'class_type': 'UpscaleModelLoader', 'inputs': {'model_name': UPSCALER}},
+            '8': {'class_type': 'ImageUpscaleWithModel', 'inputs': {'upscale_model': ['7', 0], 'image': ['100', 0]}},
+            '9': {'class_type': 'SaveImage', 'inputs': {'images': ['8', 0], 'filename_prefix': prefix}}}
+
+
+def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, say=print):
+    """Every chosen reference of `selected` at Meshy's size in `output`, under the name it has: one whose longer side is
+    `SIDE` already is copied, a smaller one is doubled on the bound ComfyUI (one job at a time, as `make`). The chosen
+    references stay as they are: a building's pieces are cut from them in their own pixels. A reference that is in
+    `output` already is passed over where it was made from the picture chosen now, and refused where it was not.
+    Returns {name: 'copied' | 'enlarged' | 'kept'}."""
+    import shutil
+    from PIL import Image
+    selected, output = Path(selected), Path(output); output.mkdir(parents=True, exist_ok=True); told = {}
+    found = sorted(path for path in selected.glob('*.png') if CHOSEN.fullmatch(path.name))
+    require(found, 'No chosen references (<asset>-s<seed>-b0.png) in ' + str(selected))
+    for path in found:
+        base = path.name[:-len('-b0.png')]; target, record = output / path.name, output / f'{base}.json'
+        sha = hashlib.sha256(path.read_bytes()).hexdigest()
+        if target.exists() or record.exists():
+            was = json.loads(record.read_text(encoding='utf-8')).get('source') if record.is_file() else None
+            require(target.is_file() and was == sha, f'{target} was not made from the {path.name} chosen now: take it and its record away and enlarge again')
+            told[path.name] = 'kept'; continue
+        with Image.open(path) as picture:
+            size = picture.size
+        require(max(size) * 2 >= SIDE, f'{path.name} is {size[0]}x{size[1]}: doubled it is still under {SIDE} on its longer side; draw it again larger')
+        if max(size) >= SIDE:
+            shutil.copyfile(path, target); told[path.name] = 'copied'
+            record.write_text(json.dumps({'kind': 'envkit-reference-sent', 'source': sha, 'enlarged': False}, indent=1) + '\n', encoding='utf-8')
+        else:
+            from tools.headkit import design
+            token = uuid.uuid4().hex
+            graph = enlarge_graph(f'{design.SUBFOLDER}/{token}/reference-0.png', f'{design.SUBFOLDER}/{token}/{base}')
+            receipt = {'schemaVersion': 1, 'kind': 'envkit-reference-sent', 'source': sha, 'enlarged': True, 'upscaler': UPSCALER,
+                       'token': token, 'outputPrefix': graph['9']['inputs']['filename_prefix'], 'outputs': []}
+            design._execute(client, local, bindings_path, graph, receipt, {'reference-0.png': path}, output, base, 1, None, queue={'deadline': deadline})
+            told[path.name] = 'enlarged'
+        with Image.open(target) as picture:
+            require(max(picture.size) >= SIDE, f'{target} came out {picture.size[0]}x{picture.size[1]}, under {SIDE} on its longer side')
+        say(json.dumps({'reference': path.name, 'state': told[path.name]}), flush=True)
+    return told

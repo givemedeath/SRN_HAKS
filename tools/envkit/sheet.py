@@ -96,6 +96,18 @@ def image(selected, name):
     return found[0]
 
 
+def large_enough(paths):
+    """Refuse references under Meshy's size (`reference.SIDE` on the longer side; user, 2026-11-14: "a minimum of 2k
+    input"): `envkit enlarge` makes them of the chosen ones."""
+    from PIL import Image
+    small = []
+    for path in paths:
+        with Image.open(path) as picture:
+            if max(picture.size) < reference.SIDE:
+                small.append(f'{path.name} ({picture.size[0]}x{picture.size[1]})')
+    require(not small, f'A reference goes to Meshy at {reference.SIDE} pixels or more on its longer side; run `envkit enlarge` for ' + ', '.join(small))
+
+
 def state(ledger, key):
     """The ledger's word on a key as it stands on disk now, or None where it holds no such entry."""
     ledger.load()
@@ -114,7 +126,7 @@ def cost(ledger, plan):
 def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
     """Send every prop and the building that the ledger does not hold yet. Every reference is found before anything is
     sent, and the whole of what is unsent must fit under the cap, so a sheet is not left half submitted for want of an
-    image or of credits. A call the ledger holds already is not sent again, and is refused if it was sent with another
+    image or of credits, and what is unsent goes at Meshy's size or not at all (`large_enough`). A call the ledger holds already is not sent again, and is refused if it was sent with another
     reference than the one selected now: the model it made is not of this reference, and a new key in the plan sends
     this one. No more is sent than Meshy's queue has room for, counting every call of the ledger that has
     not finished: the Ares Depot's eleventh call was refused and its key was lost to the CLI (2026-11-11). What is
@@ -132,6 +144,7 @@ def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
         if state(ledger, key) is not None:
             was, now = meshy.sent_images(ledger.entry(key)), [path.name for path in chosen]
             require(was is None or was == now, f'{key} was sent with {", ".join(was or [])} and {", ".join(now)} is selected now: give it a new key in the plan')
+    large_enough(sorted({path for key, _, _, chosen, _ in calls if state(ledger, key) is None for path in chosen}))
     held = []
     for key, asset, operation, _, arguments in calls:
         if state(ledger, key) is not None:

@@ -5,6 +5,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from PIL import Image
+
 from . import meshy, sheet
 from .test_meshy import FakeMeshy
 
@@ -24,7 +26,7 @@ class SheetTests(unittest.TestCase):
         self.sets = self.root / 'sets'; self.sets.mkdir(); (self.sets / 'yard.json').write_text(json.dumps({'sheet': SHEET, 'assets': ASSETS}), encoding='utf-8')
         self.selected = self.root / 'selected'; self.selected.mkdir()
         for name in ('desk', 'gate', 'building-hero', 'building-rear'):
-            (self.selected / f'{name}-s101-b0.png').write_bytes(b'png')
+            Image.new('L', (2048, 4)).save(self.selected / f'{name}-s101-b0.png')  # at Meshy's size
         self.work, self.models, self.masters = (self.root / part for part in ('work', 'models', 'masters'))
         self.said = []; self.say = lambda text, **_: self.said.append(json.loads(text))
 
@@ -233,6 +235,19 @@ class SheetTests(unittest.TestCase):
         plan = sheet.load_plan(Path(__file__).with_name('sets') / 'ares-depot-meshy.json')
         self.assertEqual(len(plan['props']), 15); self.assertEqual(plan['props']['turret']['key'], 'ares-turret-a2')  # its first call was refused: the queue was full
         self.assertEqual(plan['building']['remesh'], 'ares-building-a1-remesh2')  # remeshed again when the building budget went to 200k
+
+
+    def test_a_reference_under_meshys_size_is_not_sent(self):
+        """User, 2026-11-14: "a minimum of 2k input". Nothing of the sheet goes while one unsent reference is small."""
+        ledger = meshy.Ledger.create(self.root / 'ledger.json', 500); plan = self.plan(); fake = FakeMeshy()
+        Image.new('L', (1024, 1280)).save(self.selected / 'gate-s101-b0.png')
+        with self.assertRaisesRegex(ValueError, r'2048 pixels or more on its longer side; run `envkit enlarge` for gate-s101-b0.png \(1024x1280\)'):
+            sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)
+        self.assertEqual(fake.calls, [])
+        Image.new('L', (4, 2048)).save(self.selected / 'gate-s101-b0.png')  # the longer side counts, whichever it is
+        self.assertEqual(len(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)), 3)
+        Image.new('L', (64, 64)).save(self.selected / 'gate-s101-b0.png')  # a call that has gone is not measured again
+        self.assertEqual(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say), [])
 
 
 if __name__ == '__main__':
