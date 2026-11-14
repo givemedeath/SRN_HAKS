@@ -340,6 +340,69 @@ try {
 }
 catch { Add-ValidationError "Additions catalog validation failed: $($_.Exception.Message)" }
 
+# Armor parts (tools/armorkit/publish.py): once the part registry is published, srn_parts holds every model and
+# inventory icon it implies and no other model, every part has its live row in its parts table, the table's rows
+# count from 0 without a gap, and the pack is registered. The names are derived as tools/armorkit/registry.py does.
+$partsRegistryPath = Join-Path $repoRoot 'docs/armorkit/parts-registry.json'
+$partsPackPath = Join-Path $repoRoot 'srn_parts'
+if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -LiteralPath $partsPackPath -PathType Container)) {
+    try {
+        if (-not (Test-Path -LiteralPath $partsRegistryPath -PathType Leaf)) { throw 'srn_parts exists without docs/armorkit/parts-registry.json' }
+        $partsRegistry = Get-Content -LiteralPath $partsRegistryPath -Raw | ConvertFrom-Json
+        if ($partsRegistry.kind -cne 'srn-armorkit-registry' -or $partsRegistry.schemaVersion -ne 1) { throw 'not a part registry (schema 1)' }
+        if (-not $packByName.ContainsKey('srn_parts')) { Add-ValidationError 'The part registry is published and hakbuilder.json does not register srn_parts.' }
+        $partTokens = @{ neck = @('neck'); chest = @('chest'); belt = @('belt'); pelvis = @('pelvis'); robe = @('robe'); shoulder = @('shol', 'shor')
+            bicep = @('bicepl', 'bicepr'); forearm = @('forel', 'forer'); hand = @('handl', 'handr'); thigh = @('legl', 'legr'); shin = @('shinl', 'shinr'); foot = @('footl', 'footr') }
+        $partIconSlots = @('chest', 'pelvis', 'belt', 'shoulder', 'robe')
+        $partModels = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+        $partTables = @{}
+        foreach ($part in @($partsRegistry.parts)) {
+            $slot = [string]$part.slot; $number = [int]$part.number
+            if (-not $partTokens.ContainsKey($slot)) { Add-ValidationError "The part registry has a part in the unknown slot '$slot'."; continue }
+            if ($number -lt 1000) { Add-ValidationError "The part registry publishes $slot $number, a stock, buffer or test number." }
+            if (@($part.bodies | Sort-Object -Unique).Count -ne 20) { Add-ValidationError "Published part $slot $number does not list all 20 bodies." }
+            $tokens = @($partTokens[$slot])
+            if ($part.PSObject.Properties['sides']) { $tokens = @($tokens | Where-Object { @($part.sides) -ccontains $_.Substring($_.Length - 1) }) }
+            foreach ($token in $tokens) {
+                foreach ($body in @($part.bodies)) {
+                    $model = '{0}_{1}{2:000}' -f $body, $token, $number
+                    [void]$partModels.Add($model)
+                    if (-not (Test-Path -LiteralPath (Join-Path $partsPackPath "$model.mdl") -PathType Leaf)) { Add-ValidationError "srn_parts has no $model.mdl for $slot $number of the part registry." }
+                }
+                if ($partIconSlots -ccontains $slot) {
+                    foreach ($gender in 'm', 'f') {
+                        $icon = 'ip{0}_{1}{2:000}.plt' -f $gender, $token, $number
+                        if (-not (Test-Path -LiteralPath (Join-Path $partsPackPath $icon) -PathType Leaf)) { Add-ValidationError "srn_parts has no inventory icon $icon for $slot $number of the part registry." }
+                    }
+                }
+            }
+            $table = if ($slot -eq 'thigh') { 'parts_legs' } else { "parts_$slot" }
+            if (-not $partTables.ContainsKey($table)) {
+                $rows = [System.Collections.Generic.List[string[]]]::new()
+                $tablePath = Join-Path $repoRoot "srn_2da/$table.2da"
+                if (Test-Path -LiteralPath $tablePath -PathType Leaf) {
+                    $tableLines = @([IO.File]::ReadAllLines($tablePath, [Text.Encoding]::GetEncoding(1252)) | Where-Object { $_.Trim() })
+                    for ($index = 2; $index -lt $tableLines.Count; $index++) {
+                        $cells = @($tableLines[$index].Trim() -split '\s+')
+                        if ($cells[0] -cne [string]($index - 2)) { Add-ValidationError "srn_2da/$table.2da has a gap: row $($index - 2) is labelled $($cells[0])."; break }
+                        $rows.Add($cells)
+                    }
+                }
+                else { Add-ValidationError "srn_2da has no $table.2da for the part registry." }
+                $partTables[$table] = $rows
+            }
+            $rows = $partTables[$table]
+            if ($number -ge $rows.Count -or $rows[$number][1] -ceq '****') { Add-ValidationError "srn_2da/$table.2da has no live row $number for the part registry." }
+        }
+        if (Test-Path -LiteralPath $partsPackPath -PathType Container) {
+            foreach ($file in @(Get-ChildItem -LiteralPath $partsPackPath -File -Filter '*.mdl')) {
+                if (-not $partModels.Contains($file.BaseName)) { Add-ValidationError "srn_parts/$($file.Name) is no model of the part registry." }
+            }
+        }
+    }
+    catch { Add-ValidationError "Armor parts validation failed: $($_.Exception.Message)" }
+}
+
 if ($errors.Count -gt 0) {
     foreach ($validationError in $errors) { Write-Error $validationError -ErrorAction Continue }
     throw "Repository validation failed with $($errors.Count) error(s)."
