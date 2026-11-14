@@ -14,6 +14,6 @@
     "steel-target": {"triangles": 3000},
     "shooting-booths": {"triangles": 10000}
   },
-  "pieces": {"shop": {"views": ["building-shop"], "triangles": 100000},
+  "pieces": {"shop": {"views": ["building-shop"], "triangles": 100000, "key": "isa-building-shop-a2"},
     "range": {"views": ["building-range"], "triangles": 100000}}
 }

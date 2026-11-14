@@ -116,8 +116,17 @@ class ConvertTests(unittest.TestCase):
         picture = Image.new('RGB', (64, 64), (200, 100, 50))
         toned, flat, _ = convert.retouch(picture, points, texture, faces, tone=0.5)
         self.assertEqual(toned.mode, 'RGB'); self.assertIsNone(flat); self.assertEqual(toned.getpixel((5, 5)), (100, 50, 25))
+        self.assertEqual(convert.retouch(picture, points, texture, faces, tone=[0.5, 1.0, 2.0])[0].getpixel((5, 5)), (100, 100, 100))  # a tone for each of red, green and blue
         painted, flat, _ = convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3]}])
         self.assertIsNone(flat); self.assertEqual(painted.getpixel((32, 8)), (1, 2, 3)); self.assertEqual(painted.getpixel((32, 56)), (200, 100, 50))  # the top half only
+        # A wall is copied over what the generator left blank beside it, height for height: the left half of a wall that
+        # is red below and blue above, laid over its plain right half.
+        banded = np.zeros((64, 64, 3), np.uint8); banded[:, :32] = (0, 0, 255); banded[32:, :32] = (255, 0, 0); banded[:, 32:] = (90, 90, 90)
+        whole = np.asarray(convert.retouch(Image.fromarray(banded), points, texture, faces, copy=[{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[0.0, -0.1, -0.1], [0.6, 0.1, 2.1]]}])[0])
+        self.assertFalse((whole == 90).all(-1).any())  # nothing of the plain half is left
+        self.assertTrue((whole[4:28] == (0, 0, 255)).all()); self.assertTrue((whole[36:60] == (255, 0, 0)).all())  # and each height has its own band, right across
+        with self.assertRaisesRegex(ValueError, 'holds none of the model'):
+            convert.retouch(picture, points, texture, faces, copy=[{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[5.0, 5.0, 0.0], [6.0, 6.0, 1.0]]}])
         meshed, flat, plain = convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'pitch': 0.25, 'wire': 0.05}])
         self.assertEqual(meshed.mode, 'RGBA'); pixels = np.asarray(meshed); lower, upper = pixels[36:], pixels[:28]
         self.assertTrue((upper[..., 3] == 255).all()); np.testing.assert_array_equal(upper[0, 0, :3], [200, 100, 50])  # outside the panel nothing changes

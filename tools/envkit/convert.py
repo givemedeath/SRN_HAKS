@@ -33,10 +33,10 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 PLACING = ('lift', 'turn', 'signTilt')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned and tilted
-RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+RETOUCHING = ('turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what of a game set `shape` takes to turn, clear, close and retouch a model
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -519,14 +519,64 @@ def sheets(fences, size=WIRE_PICTURE):
             'period': period}
 
 
-def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh=(), size=RETOUCH, placed=None):
+def _copied(colour, where, covered, target, source, part):
+    """`colour` with the texels of `target` showing what the texels of `source` show: a stretch of a wall laid over
+    something the generator left blank or drew wrongly beside it (the Iron Sight Arms range wing came back with a plain
+    grey slab on its rear end and its lettering mirrored on its far wall; user, 2026-11-14: "can you copy the wall
+    texture over it?"). The source is read as a picture of its wall, by metres along the way it runs and metres up, and
+    the target is given it by its own metres along and up: each height keeps its own band of the wall, and a target
+    longer than the source takes it again from the start. `target` and `source` are texels of the map of places."""
+    from PIL import Image
+    size = (colour.shape[1], colour.shape[0])
+    up = lambda values: np.asarray(Image.fromarray(np.ascontiguousarray(values, np.float32), 'F').resize(size, Image.BILINEAR), np.float32)
+    weight = np.maximum(up(covered), 1e-6); place = np.dstack([up(where[..., axis] * covered) / weight for axis in range(3)])
+    full = lambda mask: np.asarray(Image.fromarray(mask).resize(size, Image.NEAREST))
+    what = str(part.get('part', 'copied part'))
+
+    def laid(mask):  # each texel's metres along the way its part runs, and its metres up
+        spots = place[full(mask)]; run = int(np.argmax(np.ptp(where[mask][:, :2], axis=0)))
+        return spots[:, run], spots[:, 2]
+    along, height = laid(source); texels = colour[full(source)]
+    wide, tall = float(np.ptp(along)), float(np.ptp(height))
+    require(wide > 0.05 and tall > 0.05, 'A copied wall has a length and a height: ' + what)
+    # A cell is a texel of the wall as most of it is drawn (the usual step between two of its texels side by side). A
+    # generated model spends its picture unevenly: where the wall is drawn coarser, cells are left empty and filled below.
+    beside = source[:, 1:] & source[:, :-1]
+    step = float(np.median(np.linalg.norm(where[:, 1:][beside] - where[:, :-1][beside], axis=1))) * covered.shape[1] / size[0] if beside.any() else 0.0
+    cell = max(1.25 * step, float(np.sqrt(wide * tall / len(along))), max(wide, tall) / 2048)
+    columns, rows = max(int(np.ceil(wide / cell)), 1), max(int(np.ceil(tall / cell)), 1)
+    at = (np.minimum(((height - height.min()) / cell).astype(int), rows - 1), np.minimum(((along - along.min()) / cell).astype(int), columns - 1))
+    total = np.zeros((rows, columns, 3), np.float64); count = np.zeros((rows, columns)); np.add.at(total, at, texels); np.add.at(count, at, 1)
+    share = float((count > 0).mean())
+    require(share > 0.1, f'The wall copied from covers {share:.0%} of its box, under a tenth: {what}')
+    wall = total / np.maximum(count, 1)[..., None]; known = count > 0
+    while not known.all():  # a cell no texel fell in takes the mean of its neighbours that have one
+        sums = np.zeros_like(wall); near = np.zeros(known.shape)
+        for shift, axis in ((1, 0), (-1, 0), (1, 1), (-1, 1)):
+            moved, had = np.roll(wall * known[..., None], shift, axis), np.roll(known, shift, axis).astype(float)
+            edge = [slice(None)] * 2; edge[axis] = 0 if shift == 1 else -1; had[tuple(edge)] = 0  # nothing comes round the edge
+            sums += moved * had[..., None]; near += had
+        fresh = ~known & (near > 0); wall[fresh] = sums[fresh] / near[fresh][:, None]; known |= fresh
+    over = full(target); along_t, height_t = laid(target)
+    require(height_t.max() > height.min() and height_t.min() < height.max(), 'A wall is copied to its own heights, and the two boxes share none: ' + what)
+    row = np.clip(((height_t - height.min()) / cell).astype(int), 0, rows - 1)
+    column = np.clip((((along_t - along_t.min()) % max(wide, cell)) / cell).astype(int), 0, columns - 1)
+    colour[over] = wall[row, column]
+    return colour
+
+
+def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth=(), mesh=(), size=RETOUCH, placed=None):
     """(colour, flat, plain): a model's colour picture as it ships, where its relief is to be flattened, and where its
     other maps are to be smoothed as its colour was: [(texels, reach in texels)] for each smoothed part, with its marked
     texels third for a marking, at the retouching's own grain (the last two, or None). `placed` is the model's position map at that grain
     (`glow.position_map`: where, covered), for a caller that has made one already.
 
-    `tone` multiplies the whole picture (a model that came back paler than its reference). `paint` covers what a
-    generator invented: [{box, colour}], every texel within the box in one colour (0-255). `mesh` makes a panel a
+    `tone` multiplies the whole picture (a model that came back paler than its reference), by one number or by one
+    each for red, green and blue (a building's piece that came back another shade than the piece it stands against:
+    the Iron Sight Arms range wing, paler and greyer than its shop; user, 2026-11-14). `paint` covers what a
+    generator invented: [{box, colour}], every texel within the box in one colour (0-255). `copy` covers it with the
+    wall beside it instead: [{box, from}], the texels within `box` showing the wall within the box `from`, height for
+    height (`_copied`), after the painting and before the smoothing. `mesh` makes a panel a
     chain-link fence: [{box, pitch, wire, colour}], the texels within the box in the wire's colour and see-through
     between the wires (`glow.wires`), which gives the picture an alpha channel; the pattern is laid along the way the
     panel runs (`_run`), whichever way that is. Boxes are in metres on the finished
@@ -550,17 +600,20 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), smooth=(), mesh
     colour = np.asarray(image.convert('RGB'), np.float32) / 255; alpha = flat = None; grain = min(size, image.width)
     plain = [] if smooth else None
     if tone is not None:
-        colour = np.clip(colour * tone, 0, 1)
+        colour = np.clip(colour * np.asarray(tone, np.float32), 0, 1)
     if smooth or mesh:
         flat = np.zeros(colour.shape[:2], bool)
     if mesh:
         alpha = np.ones(colour.shape[:2], bool)
-    if paint or smooth or mesh:
+    if paint or copy or smooth or mesh:
         where, covered = placed if placed is not None else glow.position_map(vertices, uvs, faces, grain)
         require(covered.shape == (grain, grain), f'The position map handed to the retouching is {grain} texels across')
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
             colour[full(glow.held(where, covered, part, 'painted'))] = np.asarray(part['colour'], float) / 255
+        for part in copy:
+            colour = _copied(colour, where, covered, glow.held(where, covered, part, 'copied-over'),
+                             glow.held(where, covered, {'box': part['from'], 'part': f"{part.get('part', 'copied part')}, the wall copied from"}, 'copied'), part)
         rise = None
         for part in smooth:
             chosen = glow.held(where, covered, part, 'smoothed')
@@ -667,16 +720,20 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
         require(number(model.get('turn', 0)) and -180 <= model.get('turn', 0) <= 180, 'A model is turned by -180 to 180 degrees: ' + name)
-        require(number(model.get('tone', 1)) and 0.2 <= model.get('tone', 1) <= 2, 'A tone is 0.2 to 2 times the colour: ' + name)
+        tones = model.get('tone', 1); tones = tones if isinstance(tones, list) and len(tones) == 3 else [tones]
+        require(all(number(tone) and 0.2 <= tone <= 2 for tone in tones), 'A tone is 0.2 to 2 times the colour, one number or one each for red, green and blue: ' + name)
         shade = lambda value: isinstance(value, list) and len(value) == 3 and all(type(part) is int and 0 <= part <= 255 for part in value)
         for part in model.get('paint', []):
             require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour'} and box(part) and shade(part['colour']),
                     'A painted part needs a box and a colour of three 0-255 values: ' + name)
+        for part in model.get('copy', []):
+            require(isinstance(part, dict) and {'box', 'from'} <= set(part) <= {'part', 'box', 'from'} and box(part) and box({'box': part['from']}),
+                    'A copied-over part needs its box and the box of the wall it is copied from: ' + name)
         for part in model.get('mesh', []):
             require(isinstance(part, dict) and {'box', 'pitch', 'wire'} <= set(part) <= {'part', 'box', 'pitch', 'wire', 'colour'} and box(part)
                     and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
@@ -711,7 +768,7 @@ def load_models(path):
         # A box is on the finished model, which stands from its lift to its lift and its height. The Ares Depot's wall
         # sign, lifted 2.4 metres, had its lit boxes where it stood before the lift and shipped dark (review, 2026-11-12).
         foot, head = model.get('lift', 0), model.get('lift', 0) + model['height']
-        spans = [np.asarray(part['box'], float)[:, 2] for key in ('lit', 'paint', 'smooth', 'mesh', 'clear') for part in model.get(key, [])]
+        spans = [np.asarray(part['box'], float)[:, 2] for key in ('lit', 'paint', 'copy', 'smooth', 'mesh', 'clear') for part in model.get(key, [])]
         require(all(high > foot and low < head for low, high in spans + [part['z'] for part in model.get('fence', [])]),
                 f'A box or fence lies wholly above or below the model, which stands from {foot} to {head} metres up: {name}')
         require(set(model.get('halo', {})) <= {'reach', 'strength', 'core', 'least'} and ('halo' not in model or model.get('lit')),
@@ -868,7 +925,7 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
-          smooth=None, mesh=None, fence=None, close=None, clear=None):
+          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
@@ -896,7 +953,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     wire = None
     if fence:  # before the long work on the pictures: a fence that is refused is refused in the first seconds
         _hung(vertices, faces, fence); wire = sheets(fence)
-    shown = flat = plain = placed = None; retouched = tone is not None or paint or smooth or mesh
+    shown = flat = plain = placed = None; retouched = tone is not None or paint or copy or smooth or mesh
     if lit or retouched:
         from PIL import Image
         from . import glow
@@ -905,7 +962,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if retouched:
         with Image.open(maps['base_color']) as picture:
             same = placed is not None and size == min(RETOUCH, picture.width)  # the glow's map of places serves the retouching where their sizes agree
-            shown, flat, plain = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), smooth=smooth or (), mesh=mesh or (),
+            shown, flat, plain = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), copy=copy or (), smooth=smooth or (), mesh=mesh or (),
                                          placed=placed[:2] if same else None)
     if lit:  # by the picture as it ships: what was painted over or toned down does not shine through by night as it was
         with Image.open(maps['base_color']) as picture:
