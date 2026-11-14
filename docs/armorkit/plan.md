@@ -217,7 +217,8 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
 10. **Human female:** generate, split and fit the separate female cuts; fit the shared slots; review.
 11. **Race versions** for the other 18 bodies, gates, then a sampled client review on the hardest bodies.
 12. **Publish:** models and textures to the pack, table rows, registry entry, publication validation and a pack
-    build.
+    build: `python -m tools.armorkit publish` (`tools/armorkit/publish.py`; runbook in `tools/armorkit/README.md`,
+    revision 2026-11-14 below).
 
 ## Gates
 
@@ -703,3 +704,44 @@ male outfit the user saw clean, which stands at most 0.7 cm out and passes. The 
 within; the dome now closes the whole rim. Her right thigh's end stands 1.2 cm out of the pelvis with the
 leg swung back the hip's whole 67 degrees, and fails until her hips are fitted again. The gate measures
 geometry; the client is still the evidence for how an end looks.
+
+## Revision 2026-11-14: the publish command, and a dry run
+
+Step 12 has its command (`tools/armorkit/publish.py`). It copies bakes written at their registry number into
+`srn_parts`, merges the parts tables into `srn_2da`, draws inventory icons, writes the registry and the SR_NWN
+handoff with each outfit's hashes, and runs the publication gates, each failing with the model and the reason.
+`tools/Test-Repository.ps1` checks a published registry against the pack and the tables. Nothing is published:
+there is no `srn_parts` folder and no change to `srn_2da`.
+
+Dry run on Facility Security as number 6020, Human male and female, into a scratch root, built and worn in the
+client from the built packs:
+
+* **Gates.** 216 `bodies` failures, the 12 models of each of the 18 other bodies, and one `bake` failure: the
+  male's kept parts, tinted again on the merged code, fail the bake's skin gate that was added after they were
+  kept (9 points of the right upper arm's skin covered only by faces turned in). The female passes. Texture
+  closure, name clashes, tables, icons and both necks pass.
+* **The torso's neck measure** is built (`publish.neck`). The body's neck and an outfit's chest are closed
+  surfaces, so it reads the neck's surface against the chest in place of a section of a hole. The armholes and
+  leg holes still have no measure of their own; the bake's `hidden` gate covers what closes them.
+* **Tint fallback across gender and build is proven for the tint texture** (the item left unchecked in Phase 0):
+  a Human female and a Large male shin model, each naming a tint texture no pack holds, were drawn in the Human
+  male's of the same number. Whether the material file and normal map are found the same way was not told
+  apart in the client.
+* **Inventory icons** work for a number above 999 under `ip<m|f>_<token><number>`, tinted by the item's colours
+  (seen for the female icons; the male ones were not on screen). Drawn from the model they are paler than the
+  stock ones.
+* **Size.** One outfit on two bodies is 66 MB in the pack, because each body carries its own tint textures and
+  maps. Twenty bodies with their own textures are about 650 MB an outfit. Naming the Human Fit textures from
+  the race models is not a way round it: an armor part's texture is coloured in game only when the model and
+  the tint texture have the same name (user, 2026-11-14), and the `closure` gate now fails a model that names
+  another's. What can shrink it is smaller maps, or leaving a body's own tint texture out so that the game's
+  fallback finds the Human male's (the probe above). That fallback takes the item's colours (client,
+  2026-11-14): shin 398 on a Human female and a Large male, their models naming textures of their own names
+  that no pack holds, was drawn in the Human male's texture and changed with him between two colour sets, all
+  channels 88 and all channels 132. The publish command does not use it yet: `survey` and the `closure` gate
+  still ask every body for its own tint texture.
+
+What still blocks a publication: the 18 race bodies (refit and bake each, or race versions that pass the seam
+gate); a male bake that passes on the merged code, and the female refit from it; the female's open client
+defects; the `PROVENANCE.md` entry; the user's review of the outfits and of the pale icons; and the registry's
+set and group names for 6020, which the dry run made up (`facility-security`, `corpsec`).
