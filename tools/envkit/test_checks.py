@@ -148,6 +148,10 @@ class CheckTests(unittest.TestCase):
         import tempfile
         from pathlib import Path
         self.assertIsNone(prop_fixture.late(100, 103.0, 6.0)); self.assertEqual(prop_fixture.late(100, 123.0, 6.0), 23.0)
+        # The next view comes hold - LINE_DELAY after the line: at its own hold a capture is late (review, 2026-11-14).
+        self.assertEqual(prop_fixture.late(100, 106.0, 6.0), 6.0); self.assertAlmostEqual(prop_fixture.late(100, 104.6, 6.0), 4.6)
+        # The default hold leaves room for the settle, a poll and the stamp's whole second.
+        self.assertIsNone(prop_fixture.late(100, 100 + 1.5 + prop_fixture.client.POLL + 1.0, prop_fixture.HOLD))
         self.assertIsNone(prop_fixture.late(86399, 3.0, 6.0)); self.assertIsNone(prop_fixture.late(None, 500.0, 6.0))  # past midnight; no stamp
         with tempfile.TemporaryDirectory() as scratch:
             user = Path(scratch) / 'user'; (user / 'logs').mkdir(parents=True); captures = Path(scratch) / 'captures'; captures.mkdir()

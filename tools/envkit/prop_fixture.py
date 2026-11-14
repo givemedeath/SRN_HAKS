@@ -17,7 +17,8 @@ from tools.armorkit.client_fixture import field, gff_float
 from tools.envkit import placeables, require
 
 LOG_PREFIX = 'ENVKIT'
-START, HOLD = 8.0, 4.0
+# A shot is held long enough that a capture after the settle, a poll and a whole second of stamp rounding is in time (`late`).
+START, HOLD = 8.0, 5.0
 NL = chr(10)
 LABEL = re.compile(r'[A-Za-z0-9_-]+')
 
@@ -59,6 +60,9 @@ def person(template, tag, position, facing=270.0, height=0.0):
     return c
 
 
+LINE_DELAY = 1.0  # seconds after a shot starts that its log line is written
+
+
 def enter_script(shots, start=START, hold=HOLD):
     """Hide the player, then for each shot stand them at a spot and set the camera: {label, stand: [x, y], facing,
     distance, pitch, height, run}. Facing 90 looks north. `run` is script the shot runs first, to change the scene."""
@@ -73,7 +77,7 @@ def enter_script(shots, start=START, hold=HOLD):
                      f'height={float(shot.get("height", 1.0)):.3f}; label="{shot["label"]}"; {shot.get("run", "")} }}')
     lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetArea(pc),Vector(x,y,0.0),facing)));',
               '  SetCameraHeight(pc,height); AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));',
-              f'  DelayCommand(1.0,WriteTimestampedLogEntry("{LOG_PREFIX} shot="+IntToString(n)+" target="+label+" valid=1"));',
+              f'  DelayCommand({LINE_DELAY:.1f},WriteTimestampedLogEntry("{LOG_PREFIX} shot="+IntToString(n)+" target="+label+" valid=1"));',
               f'  DelayCommand({hold:.1f},Shot(pc,n+1));', '}',
               'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', '  SetCameraLimits(pc,1.0,89.0,0.5,60.0);',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
@@ -196,8 +200,11 @@ def late(stamp, now, hold):
     still to be on screen; None where it is in time, or the line bore no stamp."""
     if stamp is None:
         return None
+    # The line is written LINE_DELAY after its shot starts, so the next view comes hold - LINE_DELAY after it. The stamp
+    # is cut to the whole second, so the line may have come up to a second after it: lag is measured from the stamp,
+    # which only makes it longer, and a capture is late once it may have missed the view (review, 2026-11-14).
     lag = (now - stamp) % DAY
-    return lag if lag > hold - client.MARGIN + 1.0 else None
+    return lag if lag > hold - LINE_DELAY - client.MARGIN else None
 
 
 def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings=''):
