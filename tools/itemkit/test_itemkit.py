@@ -389,6 +389,15 @@ class GeometryTests(unittest.TestCase):
         self.assertEqual(patch_distance_bound({**policy,'unorientedSourcePatch':wide}),.003)       # unapproved: transfer distance
         self.assertEqual(patch_distance_bound({'maximumDistance':.002}),.002)                      # a tightened policy still binds
         self.assertEqual(patch_distance_bound({**policy,'maximumDistance':.002,'unorientedSourcePatch':approved}),.002)   # approved too
+    def test_a_wider_transfer_distance_needs_the_users_approval(self):
+        from .transfer import transfer_distance,patch_distance_bound
+        self.assertEqual(transfer_distance({}),.003)
+        for policy in ({'maximumDistance':.0042},{'maximumDistance':.0042,'maximumDistanceApproval':' '},
+                       {'maximumDistance':.0051,'maximumDistanceApproval':'User: "Allow 5.1 mm"'},{'maximumDistance':0}):
+            with self.assertRaises(ValueError):transfer_distance(policy)
+        approved={'maximumDistance':.0042,'maximumDistanceApproval':'User in chat: "Allow 4.2 mm (Recommended)"'}
+        self.assertEqual(transfer_distance(approved),.0042)
+        self.assertEqual(patch_distance_bound(approved),.0021)                    # an unpatched face keeps the 2.1 mm unoriented bound
     def test_colour_range_normalization_is_bounded_and_recorded(self):
         from .textures import normalize_source_colour
         values=np.array([[-1e-6,1.0000068,.5]],np.float32);normalized,report=normalize_source_colour(values)

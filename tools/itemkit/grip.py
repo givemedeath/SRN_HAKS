@@ -137,7 +137,7 @@ def transverse_uniform(vertices,faces,matrix,origin,standard,review=None,basis='
     return result,report
 
 
-def one_hand_round(vertices,faces,matrix,origin,standard,review=None):
+def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None):
     """Keep a round one-hand grip round instead of squashing it to the reference section.
 
     The usable length stays the sizing authority. Both transverse axes get the same scale, chosen so the grip's
@@ -157,15 +157,28 @@ def one_hand_round(vertices,faces,matrix,origin,standard,review=None):
     require(abs(measured[0]/measured[1]-1)<.1,'Grip section is not round; use the standard transverse calibration')
     k=float(target['visibleFaceWidth']/measured.mean());require(np.isfinite(k) and k>0,'Positive grip calibration required')
     correction=np.eye(4);correction[:3,:3]=np.diag([k,1.,k]);correction[:3,3]=origin-origin*[k,1.,k];result=correction@m
-    sections=reference_sections(transform(vertices,result),faces,standard,origin[1],standard['usableLength'])
+    # A chosen overall length (`ends`: the reviewed handle's endpoints) samples the handle itself, not the hand's length,
+    # which would run past a short handle into the guard or off the pommel (the wave-4 Sai, 2026-11-13).
+    usable=float(standard['usableLength']) if ends is None else float(np.linalg.norm(np.subtract(*transform(np.asarray(ends,float),m)[::-1])))
+    sections=reference_sections(transform(vertices,result),faces,standard,origin[1],usable)
     mid=next(r for r in sections if r['fractionFromPommel']==.5)
+    differences={'depth':mid['depth']/target['depth']-1,'visibleFaceWidth':mid['visibleFaceWidth']/target['visibleFaceWidth']-1}
+    if ends is not None:differences['usableLength']=usable/standard['usableLength']-1
     report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':result.tolist(),
-            'sizingAuthority':'usable-length-round','usableLength':float(standard['usableLength']),'nativeGripOrigin':origin.tolist(),
-            'sourceSection':measured.tolist(),'transverseScale':[k,1.,k],'measuredFittedSections':sections,'midpointRelativeDifferences':{
-                'depth':mid['depth']/target['depth']-1,'visibleFaceWidth':mid['visibleFaceWidth']/target['visibleFaceWidth']-1},
-            'roundSectionPreserved':True,'bothBodyVisualReviewRequired':True}
+            'sizingAuthority':'usable-length-round','usableLength':usable,'nativeGripOrigin':origin.tolist(),
+            'sourceSection':measured.tolist(),'transverseScale':[k,1.,k],'measuredFittedSections':sections,'midpointRelativeDifferences':differences,
+            'roundSectionPreserved':True,'bothBodyVisualReviewRequired':True,**({'chosenLength':True} if ends is not None else {})}
     report['measurementDigest']=digest(report);bind_departure(report,review)
     return result,report
+
+
+def fitted_grip_length(fit, native, report):
+    """The length the fitted grip endpoints must match in the fit stage: the native hand, or for a chosen-length round
+    fit the reviewed handle itself, as its bound grip report measured it."""
+    if not fit.get('chosenLength'): return float(native['gripLength'])
+    require(isinstance(report, dict) and report.get('chosenLength') is True and report.get('sizingAuthority') == 'usable-length-round',
+            'A chosen-length fit needs its round grip report')
+    return float(report['usableLength'])
 
 
 def melee_fit(family, fit, standard, vertices, faces, matrix):
@@ -181,7 +194,9 @@ def melee_fit(family, fit, standard, vertices, faces, matrix):
                 'Explicit two-handed carrier required for the length departure')
         return two_hand_uniform(vertices, faces, matrix, fit['gripEndpoints'], native['gripOrigin'], standard, review)
     require(abs(native['gripLength'] - standard['usableLength']) < 1e-9, 'Native target length differs from the approved grip standard')
-    if authority == 'usable-length-round': return one_hand_round(vertices, faces, matrix, native['gripOrigin'], standard, review)
+    if authority == 'usable-length-round':
+        ends = fit['gripEndpoints'] if fit.get('chosenLength') else None
+        return one_hand_round(vertices, faces, matrix, native['gripOrigin'], standard, review, ends)
     if authority == 'midpoint-depth-uniform':
         require(route.section == 'uniform', 'midpoint-depth-uniform needs a section="uniform" route')
         return transverse_uniform(vertices, faces, matrix, native['gripOrigin'], standard, review, fit.get('sectionBasis', 'depth'))
