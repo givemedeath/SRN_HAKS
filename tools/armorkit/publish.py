@@ -433,7 +433,8 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
     * `bodies`: every body a part lists has the part's models in the pack.
     * `tables`: every part has its live row in its table (`live`).
     * `closure`: every texture a model names is in the pack as a tint texture, with its material file, and so is
-      each map that file names. A race version names the Human Fit texture, which is then the one looked for.
+      each map that file names. A model names the tint texture of its own name and no other: the game colours
+      an armor part's texture only under the model's name (user, 2026-11-14), so every body carries its own.
     * `clash`: no file of the pack is one a pack in `clash` holds.
     * `neck`: each chest closes round its body's neck (`neck`); `necks`, a dictionary, is given each chest's measure.
       With `fresh`, the file names that are new, only the chests among them are measured: a published chest
@@ -463,6 +464,8 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
                 if not named:
                     failures.append(failure('closure', model, 'the model names no texture'))
                 for texture in named:
+                    if texture != model:
+                        failures.append(failure('closure', model, f'it names the texture {texture}, not its own: the game colours a part\'s tint texture only under the model\'s name'))
                     for name in (texture + '.plt', texture + '.mtr'):
                         listed.add(name)
                         if name not in pack:

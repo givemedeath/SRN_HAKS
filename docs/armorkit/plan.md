@@ -731,8 +731,11 @@ client from the built packs:
   (seen for the female icons; the male ones were not on screen). Drawn from the model they are paler than the
   stock ones.
 * **Size.** One outfit on two bodies is 66 MB in the pack, because each body carries its own tint textures and
-  maps. Twenty bodies with their own textures would be about 650 MB an outfit; race versions that name the
-  Human Fit textures bring that to two sets of textures and 240 models.
+  maps. Twenty bodies with their own textures are about 650 MB an outfit. Naming the Human Fit textures from
+  the race models is not a way round it: an armor part's texture is coloured in game only when the model and
+  the tint texture have the same name (user, 2026-11-14), and the `closure` gate now fails a model that names
+  another's. What can shrink it is smaller maps, or leaving a body's own tint texture out so that the game's
+  fallback finds the Human male's (the probe above), which is not yet seen taking an item's colours.
 
 What still blocks a publication: the 18 race bodies (refit and bake each, or race versions that pass the seam
 gate); a male bake that passes on the merged code, and the female refit from it; the female's open client
