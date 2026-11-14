@@ -766,7 +766,10 @@ retouched (operator: "Fix these", 2026-11-13): the tower's sign read "PREIGHT", 
 end of its middle bar were painted over in the sign's ground colour to make an F (`paint`); a slit 1.4 to 2.3 metres
 up the warehouse's long east wall was filled between its own vertices (`fill`); and the crane's leg sills, which
 showed gaps from outside, were filled where they were open and given backs where their faces were wound inward
-(`fill`, `inside` boxes). The crane prop has the same changes.
+(`fill`, `inside` boxes). The crane prop has the same changes. Seen again in the client by day on 2026-11-14
+(`envkit check group --mode day`): the tower's sign reads FREIGHT. The rebuilt walkmeshes differ from the last
+walk-checked build only in how they are cut (at most 0.4 square metres of walkable ground on any of seven tiles), so
+the walk check was not run again.
 
 Checked in the client on 2026-11-13 (`envkit check group --mode walk`, in a Modern Exterior and a Suburbs area 14
 tiles across). Walkers sent from the area's far corners arrived, in both areas, outside the warehouse's door, at its
