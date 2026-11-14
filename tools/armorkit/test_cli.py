@@ -45,6 +45,15 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], body_textures=None, seat_in=None))
         self.assertEqual(call.call_args_list[1], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, body_textures='maps', seat_in='beside'))
 
+    def test_combine_takes_each_folders_named_parts(self):
+        from . import bake, brief
+        with mock.patch.object(brief, 'load', return_value={'model': 'outfit'}), \
+                mock.patch.object(bake, 'combine', return_value={'chest': 'F:/own'}) as call:
+            self.assertEqual(run('combine', 'brief.json', 'out', '--from', 'F:/own=chest', '--from', 'F:/carried=bicepl, pelvis'), {'chest': 'F:/own'})
+        self.assertEqual(call.call_args, mock.call([('F:/own', ['chest']), ('F:/carried', ['bicepl', 'pelvis'])], 'out', {'model': 'outfit'}))
+        with self.assertRaisesRegex(ValueError, 'FOLDER=part'):
+            run('combine', 'brief.json', 'out', '--from', 'chest')
+
     def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
         from . import brief
         given = {'schemaVersion': 1, 'kind': brief.KIND, 'model': 'test-outfit', 'prompt': 'An outfit. ' + brief.MARK + ' ' + brief.BUILT, 'construction': max(brief.CONSTRUCTIONS),
