@@ -1,4 +1,4 @@
-# Seam contract and head envelopes (version 2, 2026-11-10)
+# Seam contract and head envelopes (version 3, 2026-11-13)
 
 Measured in Phase 0 of [the plan](plan.md) on the locked c7 Human Fit bodies in `srn_body` (`pmh0`, `pfh0`) and
 the published heads in `srn_head`. The numbers live in `tools/armorkit/seam-contract.json` and
@@ -39,7 +39,8 @@ the body's arm comes out of its chest, past the plane only (`split.armholed`), a
 
 **Tier envelopes.** A tier's envelope is the body ring pushed out by a fixed offset: tier 0 (skin-tight)
 0.4 cm, tier 1 (cloth) 1.2 cm, tier 2 (padded or armored) 2.5 cm, tier 3 (heavy) 5 cm. An under end must stay
-inside its tier's envelope at the plane; an over end must be open and at least as wide as its tier's envelope.
+inside its tier's envelope at the plane; an over end must be at least as wide as its tier's envelope there, and
+is closed by a dome on past the plane (see **Closed ends**).
 The "envelope radius" in the table is the largest of the 16 directions; the gate (`bake.ends`) uses all 16. The file stores
 each tier's numbers and refuses to load when they disagree with its own body rings, tier offsets and swing.
 
@@ -49,6 +50,21 @@ each tier's numbers and refuses to load when they disagree with its own body rin
 The swing used is the 95th percentile over every clip the body plays, with twist about the limb left out
 (twist turns the under end inside the over end without opening the seam). The continued end tapers in one
 slope, with no shelf. The bake shapes the elbow, wrist, waist, knee and ankle ends to their envelope (`tools/armorkit/ends.py`).
+At the neck, shoulder and hip the over part is the torso, and an under end runs into it no deeper than the
+outfit's torso first crosses the joint's axis, less 4 mm (`split.room`); the bake's seam gate asks no more there.
+The female shoulder stands less far over its joint than its minimum overlap, even bare, and an upper arm's end
+the full overlap deep came out through the top of her shoulder (Facility Security, 2026-11-13).
+
+**Closed ends** (version 3, `ends` in the file). Every end is closed and at least slightly domed, so the two
+parts at a joint overlap as they turn and the engine draws whichever surface lies nearer: no end is left open
+and none is closed flat. An over part's opening on its joint's plane is closed by a dome on past the plane into
+the under part, its pole `domeDepth` (0.3) of the opening's mean distance from its axis past the opening and
+`domeMost` (2 cm) at most, in `domeRings` (6) rings; a pad's half on the plane is left open. An under end runs
+on past the plane by the minimum overlap, rounded in to its axis. What the split adds to an under end lies no
+more than `rest` (5 mm) outside the outfit as the body stands, and with the under part turned about the joint
+by the design bend, what of its end lies farther from the joint than its own ring on the plane stands no more
+than `bent` (1 cm) outside the over part (`bake.hidden`). The bend tolerance is set from Facility Security male,
+which the user saw clean in the client with every end domed: turned, it stands at most 0.7 cm out (its left hip and shoulder).
 
 ## Numbers
 
@@ -159,3 +175,15 @@ Version 1, frozen earlier the same day, was replaced after review before anythin
   and largest radii in the table did not change.
 * **Sources.** The contract records the hash of each animation model, and the head envelope file its sampling
   step.
+
+## Version 3 (2026-11-13)
+
+The user decided that every joint is at least slightly domed, to make sure of the overlap the parts need as
+they turn, relying on the engine's depth test to hide whichever surface lies behind, and accepted the domes
+seen in the client on Facility Security male. Version 3 adds the rule for closing every end (`ends`; **Closed
+ends** above) and changes no measured number. Version 2 left an over end open: the under part stood in the
+opening, and a bend that turned it out showed the over part's inside, while a flat lid tried before showed as
+a shelf across the part's end. A dome as deep as the seat line's slant hung below the seat as bulk once the
+thigh swung forward, hence the 2 cm most. The bake gates the rule on every outfit (`bake.hidden`, gate
+`HIDDEN`), at each joint it cuts: closed but for a pad's half, domed within `domeMost` past the rim, and what
+closes an under end hidden at rest and in the design bend.

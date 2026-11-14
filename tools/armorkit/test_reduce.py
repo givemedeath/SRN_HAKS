@@ -87,6 +87,61 @@ class ReduceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             reduce.reduce(v, f, 10, np.ones(3, bool))
 
+    def test_a_rim_loses_points_where_it_runs_straight_and_stays_on_its_cut(self):
+        # an open tube cut from a dense mesh: each rim 48 points round, 6 cm across, on its own plane
+        tube_v, tube_f, _ = tube((0, 0, 0), (0, 0, 0.4), 0.06, around=48, along=40)
+        for seed in range(2):  # numbered anew (seed 1), the folds come in the order that sagged a rim 2.04 mm on Linux (2026-11-14)
+            order = np.random.default_rng(seed).permutation(len(tube_v)) if seed else np.arange(len(tube_v))
+            v, f = tube_v[order], np.argsort(order)[tube_f]
+            lines = np.where(v[:, 2] < 1e-9, 1, 0) | np.where(v[:, 2] > 0.4 - 1e-9, 2, 0)
+            kept, faces, _ = reduce.reduce(v, f, 60, None, lines)  # fewer than its two rims have points
+            self.assertLess(len(faces), 2 * 48)
+            points, loose = v[kept], open_edges(faces)
+            ends = points[loose]
+            self.assertTrue(np.all((np.abs(ends[:, :, 2]).max(axis=1) < 1e-9) | (np.abs(ends[:, :, 2] - 0.4).max(axis=1) < 1e-9)))  # on its plane
+            self.assertLess(len(loose), 2 * 48)  # fewer points round
+            self.assertGreater(len(loose), 2 * 12)
+            for height in (0.0, 0.4):  # every point the rim had lies within `RIM_SHIFT` of the rim left
+                was = v[lines == (1 if height == 0 else 2)]
+                a, b = (ends[np.abs(ends[:, 0, 2] - height) < 1e-9][:, k] for k in range(2))
+                share = np.clip(np.einsum('pej,ej->pe', was[:, None] - a, b - a) / np.einsum('ej,ej->e', b - a, b - a), 0, 1)
+                near = np.linalg.norm(a + share[..., None] * (b - a) - was[:, None], axis=2).min(axis=1)
+                self.assertLess(float(near.max()), reduce.RIM_SHIFT + 1e-9, seed)
+
+    def test_a_line_on_a_plane_inside_the_surface_is_reduced_along_itself(self):
+        # a closed part whose end meets its cap on a joint's plane (z = 0.2), 48 points round: that line loses
+        # points only along itself, and no face is left across the plane
+        v, f = sealed(around=48, along=40)
+        lines = np.where(np.abs(v[:, 2] - 0.2) < 1e-9, 1, 0)
+        kept, faces, _ = reduce.reduce(v, f, 150, None, lines)
+        self.assertLessEqual(len(faces), 150)
+        self.assertTrue(edges_twice(faces))
+        heights = v[kept][faces][:, :, 2] - 0.2
+        self.assertFalse(np.any((heights.max(axis=1) > 1e-9) & (heights.min(axis=1) < -1e-9)))  # none spans the plane
+        ring = int(lines[kept].sum())
+        self.assertTrue(12 <= ring < 48, ring)  # fewer points round, and still round
+        # without the line, the plane is crossed
+        kept, faces, _ = reduce.reduce(v, f, 150, None, np.zeros(len(v), np.int64))
+        heights = v[kept][faces][:, :, 2] - 0.2
+        self.assertTrue(np.any((heights.max(axis=1) > 1e-9) & (heights.min(axis=1) < -1e-9)))
+
+    def test_a_rim_keeps_the_point_where_it_runs_from_one_cut_onto_another(self):
+        # a flat sheet whose lower edge is straight, cut by one plane to the left of its middle and another to the right
+        xs, ys = np.linspace(0, 0.3, 31), np.linspace(0, 0.1, 11)
+        v = np.array([(x, y, 0.0) for y in ys for x in xs])
+        index = lambda i, j: j * len(xs) + i
+        f = np.array([face for j in range(len(ys) - 1) for i in range(len(xs) - 1)
+                      for face in ((index(i, j), index(i + 1, j), index(i + 1, j + 1)), (index(i, j), index(i + 1, j + 1), index(i, j + 1)))])
+        low = v[:, 1] < 1e-9
+        lines = np.where(low & (v[:, 0] < 0.15 + 1e-9), 1, 0) | np.where(low & (v[:, 0] > 0.15 - 1e-9), 2, 0)
+        turn = index(15, 0)
+        self.assertNotIn(turn, reduce.reduce(v, f, 20, None, np.zeros(len(v), np.int64))[0])  # on no cut, it may go
+        kept, faces, _ = reduce.reduce(v, f, 20, None, lines)
+        self.assertIn(turn, kept)
+        for a, b in kept[open_edges(faces)]:  # every edge on the lower rim joins points of one cut
+            if low[a] and low[b]:
+                self.assertTrue(lines[a] & lines[b])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest import mock
 
 from . import __main__ as cli
-from . import client, registry
+from . import client, refit, registry
 from . import client_fixture as fixture
 
 EXAMPLE = Path(__file__).with_name('examples') / 'registry.json'
@@ -28,6 +28,22 @@ class CommandLineTests(unittest.TestCase):
             handoff = json.loads((Path(folder) / 'handoff.json').read_text(encoding='utf-8'))
         self.assertEqual(got['parts'], len(handoff['parts']))
         self.assertEqual(handoff['kind'], registry.KIND + '-handoff')
+
+    def test_no_test_patches_the_kit_by_its_dotted_path(self):
+        # the suite imports the kit as tools.armorkit and as armorkit: a patch by the dotted name of one misses the
+        # other, and two refit tests passed alone and failed in the full suite (2026-11-14)
+        import re
+        found = [f'{path.name}:{number}' for path in sorted(Path(__file__).parent.glob('test_*.py'))
+                 for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1)
+                 if re.search(r"mock\.patch\(\s*['\"](tools\.)?armorkit\.", line)]
+        self.assertEqual(found, [], 'patch the imported module with mock.patch.object instead')
+
+    def test_refit_carries_kept_parts_to_another_body(self):
+        with mock.patch.object(refit, 'run', return_value={'handl': {'degrees': 1.5}}) as call:  # the module itself: the suite also imports it as armorkit
+            self.assertEqual(run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--parts', 'handl, footl'), {'handl': {'degrees': 1.5}})
+            run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--body-textures', 'maps', '--seat-in', 'beside')
+        self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], body_textures=None, seat_in=None))
+        self.assertEqual(call.call_args_list[1], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, body_textures='maps', seat_in='beside'))
 
     def test_brief_reports_its_materials_and_writes_the_image_prompt(self):
         from . import brief
@@ -127,10 +143,10 @@ class CommandLineTests(unittest.TestCase):
     def test_a_split_runs_again_on_what_a_bake_kept_and_fails_on_a_gate(self):
         from . import bake
         calls = {}
-        report = lambda failures: (lambda capture: calls.setdefault('capture', capture) and ({'chest': {}}, {'failures': failures}))
+        report = lambda failures: (lambda capture, body_pack: calls.update(capture=capture, pack=body_pack) or ({'chest': {}}, {'failures': failures}))
         with mock.patch.object(bake, 'resplit', report([])), mock.patch.object(bake, 'keep_parts', lambda parts, path: calls.setdefault('parts', path)):
-            self.assertEqual(run('split', 'kept.npz', '--output', 'parts.npz'), {'failures': []})
-        self.assertEqual((calls['capture'], calls['parts']), ('kept.npz', 'parts.npz'))
+            self.assertEqual(run('split', 'kept.npz', '--output', 'parts.npz', '--body-pack', 'srn_body'), {'failures': []})
+        self.assertEqual((calls['capture'], calls['parts'], calls['pack']), ('kept.npz', 'parts.npz', 'srn_body'))
         with mock.patch.object(bake, 'resplit', report(['chest: short'])), self.assertRaises(SystemExit) as stopped:
             run('split', 'kept.npz')
         self.assertEqual(stopped.exception.code, 1)
@@ -155,13 +171,14 @@ class CommandLineTests(unittest.TestCase):
                 mock.patch.object(poses, 'run', lambda *given, **options: steps.append(('run', given, options)) or {'captures': []}), \
                 mock.patch.object(client, 'wait_free', lambda seconds: steps.append(('wait', seconds))):
             got = run('poses', 'bake', 'check', '--nwn-root', 'game', '--stock', 'stock', '--hak', 'a.hak', '--hak', 'b.hak',
-                      '--preset', 'shoulders', '--without', 'shoulder', '--colours', '{"cloth1": 10}', '--run', '--wait', 600)
+                      '--preset', 'shoulders', '--without', 'shoulder', '--colours', '{"cloth1": 10}', '--run', '--wait', 600, '--hold', 5)
             run('poses', 'bake', 'check', '--nwn-root', 'game', '--stock', 'stock', '--hak', 'a.hak')
         self.assertEqual(got, {'module': 'm', 'shots': 0, 'evidence': {'captures': []}})
         self.assertEqual(steps[0], ('spec', ('bake', 'check', 'stock', ['a.hak', 'b.hak']),
                                     {'tlk': None, 'preset': 'shoulders', 'without': ['shoulder'], 'colours': {'cloth1': 10}}))
         self.assertEqual([step[0] for step in steps], ['spec', 'build', 'wait', 'run', 'spec', 'build'])  # waits only to run, runs only when asked
         self.assertEqual((steps[3][1][0], steps[3][1][1]['module'], *steps[3][1][2:], steps[3][2]), ('game', 'm', layout, 'check', {'settle': 1.2}))
+        self.assertEqual((steps[1][1][0].get('hold'), steps[5][1][0].get('hold')), (5.0, None))  # a longer hold only when asked
 
     def test_measuring_seams_needs_the_animation_models(self):
         for flags in ((), ('--only', 'seams')):
