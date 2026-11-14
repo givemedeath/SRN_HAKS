@@ -64,10 +64,12 @@ def unwrap(mesh,local,output):
     vertices,faces=physical_fans(mesh,preserve_authored_seams=False)
     xatlas=library(local,'xatlas');attempts=[]
     # Qualify at 4K rather than inheriting the final 1K atlas's larger padding.
-    # Small padding preserves source sampling area; measured gutters still gate it.
+    # Small padding preserves source sampling area; measured gutters still gate it. The pack runs at the 4K sampling
+    # resolution so the padding is 4K texels: at the packer's 2K default each texel was two 4K pixels, and the wave-4
+    # Nodachi donor (4771 charts) fell to 0.29 useful coverage; packed at 4K it measured 0.41 with clean 2-px gutters.
     for padding in (4,8,16):
         started=time.monotonic()
-        initial,atlas,count=_pack(xatlas,vertices,faces,[np.arange(len(faces))],padding=padding)
+        initial,atlas,count=_pack(xatlas,vertices,faces,[np.arange(len(faces))],padding=padding,resolution=4096)
         candidate=output/f'candidate-padding-{padding}.npz'
         np.savez_compressed(candidate,positions=vertices,faces=faces,uv=initial)
         row={'padding':padding,'charts':count,'atlasDimensions':[atlas.width,atlas.height],
