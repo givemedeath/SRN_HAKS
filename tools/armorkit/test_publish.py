@@ -393,6 +393,11 @@ class PublishTests(Workspace):
         drift = self.publish(shared(outfit='hands'), registry=more, dry_run=True)
         self.assertEqual([(one['gate'], one['model']) for one in drift['failures']], [('published', changed_file.name)])
         changed_file.write_bytes(kept_bytes)
+        staged = self.repo / 'srn_parts' / 'pmh0_handl6030.mdl'
+        staged.write_bytes(bytes(8))
+        drift = self.publish(shared(registry.BODIES[1:], outfit='hands'), registry=more, dry_run=True)
+        self.assertIn(('published', staged.name), [(one['gate'], one['model']) for one in drift['failures']])
+        staged.unlink()
         icon_file = self.repo / 'srn_parts' / f'ipm_chest{NUMBER}.plt'
         kept_bytes = icon_file.read_bytes()
         icon_file.write_bytes(b'edited')

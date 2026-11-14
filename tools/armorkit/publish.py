@@ -611,6 +611,11 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             failures.append(failure('published', resource['name'], f'{PACK} no longer holds this published file'))
         elif sha(pack[resource['name']]) != resource['sha256']:
             failures.append(failure('published', resource['name'], f'{PACK} holds another file than the one published: its hash is not the one the handoff records'))
+    # And nothing else is in the pack: a file staged there by hand would stand for a model with no bake, no
+    # neck measure and no hash.
+    held = {resource['name'] for resource in recorded + handoff_before.get('iconFiles', [])}
+    failures += [failure('published', name, f'{PACK} holds this file and its handoff records no publication of it: a new part comes from a bake')
+                 for name in sorted(pack) if name not in held]
     given_records, given_briefs = {}, dict(briefs)
     for model, path in records:
         require(Path(path).is_file(), f'{path} is no file to record for {model}')
