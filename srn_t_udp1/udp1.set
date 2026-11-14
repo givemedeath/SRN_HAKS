@@ -22527,10 +22527,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=A
-Orientation=0
-VisibilityNode=A
-VisibilityOrientation=0
+PathNode=J
+Orientation=90
+VisibilityNode=J
+VisibilityOrientation=90
 ImageMap2D=ek_rf_depot_m06
 
 [TILE705]
@@ -22737,10 +22737,10 @@ AnimLoop2=0
 AnimLoop3=0
 Doors=0
 Sounds=0
-PathNode=U
-Orientation=90
-VisibilityNode=U
-VisibilityOrientation=90
+PathNode=I
+Orientation=270
+VisibilityNode=I
+VisibilityOrientation=270
 ImageMap2D=ek_rf_depot_m15
 
 [TILE712]

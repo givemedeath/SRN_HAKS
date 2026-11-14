@@ -756,8 +756,9 @@ two main lights each; everything above 4.5 metres carries `tilefade`; and a walk
 drawn but walked flat across. The loading platform's deck, 1.24 metres up, is walked at its height where its stairs
 lead up to it: the walkmesh climbs the stairs, and the deck's edge is closed elsewhere (operator: "the stairs up onto
 platform, and the platform itself should be walkable"). Each tile's path node was chosen from its ground for the
-group as a whole (`tile.path_nodes`); one is stated in the game set (`tiles.nodes`: the tile south-east of the
-warehouse, `t04`, W with no turn), as the walk checks in the client showed walks need. The tile at the warehouse's
+group as a whole (`tile.path_nodes`); three are stated in the game set (`tiles.nodes`: the tile south-east of the
+warehouse, `t04`, W with no turn; the tile east of the service bay's yard, `t06`, J turned 90; the tile north of it,
+`t15`, I turned 270), as the walk checks in the client showed walks need. The tile at the warehouse's
 door, `t23`, has a door record of type 58, the invisible transition door. The Meshy sources, the references, the
 track sources and the client captures stay in ignored `output/envkit/`. Left as generated: a small tear in the
 warehouse's west wall, gaps in the crane's leg sills, and the tower's sign, which reads "PREIGHT".
@@ -765,11 +766,16 @@ warehouse's west wall, gaps in the crane's leg sills, and the tower's sign, whic
 Checked in the client on 2026-11-13 (`envkit check group --mode walk`, in a Modern Exterior and a Suburbs area 14
 tiles across). Walkers sent from the area's far corners arrived, in both areas, outside the warehouse's door, at its
 south side, on the ground north of the crane's north leg, at both ends of its south leg and in the service bay's
-fenced yard, at its corner furthest round from the yard's way in. The walker sent from the next tile south into that
-corner walked straight at it and stopped against the yard's fence, in every run: a short walk into the bay's yard
-from the south gives up, where walks from afar arrive. Earlier runs had counted it as arrived, half a metre from its
-target across the fence; the check now refuses a walker with something in the way between it and its target
-(`checks.walled`). After the runways were laid and the crane's stub rails taken off, the walk to the ground beside
+fenced yard, at its corner furthest round from the yard's way in, and so did the walker sent there from the next
+tile south. That one had walked straight at it and stopped against the yard's fence in every run before, and earlier
+runs had counted it as arrived, half a metre from its target across the fence; the check now refuses a walker with
+something in the way between it and its target (`checks.walled`). Walkers sent from chosen starts showed every walk
+into the yard from the south or the east, from outside the group or inside it, walked into the fence, and walks from
+the north arrived. With the tile east of the yard stated J turned 90, so that walks from the south go round and come
+in from the north, and the tile north of it stated without its south side, which opened only onto the metre of yard
+behind its fence, all of them arrived in both areas: from the next tile south, from three tiles east, from inside
+the group south-east and east of the yard, from north-east of it, and one from the south to the ground just north of
+the yard. After the runways were laid and the crane's stub rails taken off, the walk to the ground beside
 the crane's north leg gave up in every run in both areas, though nothing walkable had changed. Swapping the tiles'
 walkmeshes back showed it was the two tiles the leg crosses: their shared side's middle, where the engine puts the
 exit between them, lay on the leg's edge. A metre further north it arrived. On the platform, in the build before the

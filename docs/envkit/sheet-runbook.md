@@ -360,7 +360,15 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   the tiles they were bound for:
   edit `PathNode` and `Orientation` of those tiles in the installed set files (copy them aside first), rerun the walk
   check, and state what works under `tiles.nodes` in the game set (`{"t12": {"node": "A", "turn": 0}}`). Then
-  rebuild and install. The Saeder-Krupp yard states three this way. A short walk into ground with one far way in
+  rebuild and install. The Saeder-Krupp yard states three this way, and so does the rail freight depot. Walks into
+  its service bay's fenced yard, open only at its east end, arrived from the north and walked straight into the fence
+  from the south or the east, from outside the group or inside it. The tile east of the yard joined its south and east
+  sides to the west side that opens into the yard, past the fence's end. Stated J turned 90 (south with east, north
+  with west), walks from the south go round by the next tiles and come in from the north. The tile north of the yard
+  had its south side open onto the metre of yard behind the north fence, and a walk to the ground just north of that
+  fence was planned into the yard. Stated I turned 270, without its south side, that walk arrives (2026-11-13). To find
+  which way in fails, send walkers from chosen starts: a scratch script that wraps `checks.walk_plan` and calls
+  `checks.group`, as the walk check does. A short walk into ground with one far way in
   (`pocket-near`) can still give up where long walks arrive: say so in the provenance. A walker that stops near its
   target with something drawn in the way between (`walk.png`) has not arrived, however near: the depot's walker from
   the next tile into the service bay's fenced yard stopped against the fence, half a metre from a target just inside

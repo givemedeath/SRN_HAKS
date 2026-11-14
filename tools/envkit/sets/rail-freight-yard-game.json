@@ -1,7 +1,7 @@
 {
   "models": {
     "ek_rf_depot": {"source": "meshy/models/rfd-building-front-a1-remesh", "height": 7.2, "measuredAt": 7.2, "colour": 4096,
-      "tiles": {"ground": "pavement", "group": "RF_Depot", "label": "Rail Freight Depot 8x8", "nodes": {"t04": {"node": "W", "turn": 0}}, "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.5,
+      "tiles": {"ground": "pavement", "group": "RF_Depot", "label": "Rail Freight Depot 8x8", "nodes": {"t04": {"node": "W", "turn": 0}, "t06": {"node": "J", "turn": 90}, "t15": {"node": "I", "turn": 270}}, "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.5,
         "door": {"at": [-4.84, 9.19, 0.186], "facing": 90.0, "type": 58, "leaf": 2.2},
         "parts": [
           {"model": "ek_rd_platform", "at": [-22.31, 12.5, 0.0], "turn": 180},
