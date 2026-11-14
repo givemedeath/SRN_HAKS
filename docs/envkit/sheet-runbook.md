@@ -193,9 +193,12 @@ player is; `stages` in what it prints is each place the player came to. Run it o
 
 ## A new sheet, and a review of the sets
 
-All 56 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
-(`56_denver_rail_freight_yard.png`, 2026-11-12) was brought in later with `onboard`, as a sheet that comes later
-is. The same commands review the sets against each other when props are to be reused. `<sheets>` is the folder
+All 59 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
+(`56_denver_rail_freight_yard.png`, 2026-11-12) and three street shops (`57_pulse_tech_matrix_gear_shop.png`,
+`58_chop_shop_cyberware_clinic.png` and `59_iron_sight_arms_gun_shop.png`, 2026-11-14) were brought in later with
+`onboard`, as a sheet that comes later is. A sheet from outside the batch is copied into `<sheets>` under its
+`NN_<what>.png` name. `boxes` needs scipy, which the bundled Python lacks: put the pinned itemkit library folder
+(`.tools/itemkit-python-v1` of the shared tool root) on `PYTHONPATH` for it. The same commands review the sets against each other when props are to be reused. `<sheets>` is the folder
 holding the concept sheets, each named `NN_<what>.png`. `boxes` finds drawings on a white sheet; ask for one on
 white if a sheet comes dark (the rail yard's first version was, and half its drawings went unfound).
 

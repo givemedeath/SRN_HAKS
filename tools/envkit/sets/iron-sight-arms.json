@@ -1,0 +1,26 @@
+{
+  "sheet": {
+    "file": "59_iron_sight_arms_gun_shop.png",
+    "sha256": "7879a535925a0976b9241c511c23756cb0100c276d7cd30a3330532c52762544",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "riveted steel gun shop with a neon IRON SIGHT ARMS sign, a projecting neon pistol sign, lit display windows, yellow bollards and a long shooting range wing lettered RANGE", "box": [3, 0, 1446, 500], "notes": "The building stands alone on white: keep its signs, bollards, pavement slab and rooftop gear."},
+    "building-front": {"kind": "building", "subject": "front elevation of a riveted steel gun shop with a neon IRON SIGHT ARMS sign and lit display windows", "box": [12, 496, 450, 676]},
+    "building-side": {"kind": "building", "subject": "side elevation of the long shooting range wing of a riveted steel gun shop, lettered RANGE", "box": [466, 507, 1031, 679]},
+    "pistol-counter": {"kind": "prop", "type": "display-case", "variant": "Glass counter case of pistols on a steel base.", "subject": "glass shop counter case displaying pistols on a steel base", "box": [8, 734, 282, 925]},
+    "rifle-wall": {"kind": "prop", "type": "weapon-rack", "variant": "Pegboard wall panel hung with four long guns.", "subject": "pegboard wall panel hung with four rifles and shotguns", "box": [285, 700, 481, 904]},
+    "ammo-shelf": {"kind": "prop", "type": "shelf-unit", "variant": "Steel shelving of ammunition boxes over olive cans.", "subject": "steel shelving of ammunition boxes over olive ammunition cans", "box": [494, 705, 659, 897]},
+    "gunsmith-bench": {"kind": "prop", "type": "workbench", "variant": "Gunsmith bench with a lamp, a vise, a tool pegboard and a stool.", "subject": "gunsmith workbench with a lamp, a red vise, a tool pegboard and a stool", "box": [672, 702, 931, 909]},
+    "rifle-cabinet": {"kind": "prop", "type": "weapon-rack", "variant": "Rusted steel cabinet of rifles behind mesh doors.", "subject": "rusted steel cabinet of rifles behind mesh doors", "box": [939, 699, 1106, 911]},
+    "ammo-vending": {"kind": "prop", "type": "vending-machine", "variant": "Red and black machine lettered Ammo selling boxed rounds.", "subject": "red and black vending machine lettered AMMO selling boxed rounds", "box": [1125, 704, 1259, 910]},
+    "protection-rack": {"kind": "prop", "type": "shelf-unit", "variant": "Display rack of ear defenders and safety glasses over bins.", "subject": "display rack of yellow ear defenders and safety glasses over bins, lettered HEARING AND EYE PROTECTION", "box": [1273, 700, 1438, 909]},
+    "bench": {"kind": "prop", "type": "bench", "same": "pulse-tech/bench", "subject": "row of four perforated steel seats on a tube frame", "box": [6, 936, 338, 1079]},
+    "cleaning-cart": {"kind": "prop", "type": "tool-chest", "variant": "Three-shelf cart of cleaning bottles, rags and ammunition cans.", "subject": "three-shelf steel cart of gun-cleaning bottles, rags and ammunition cans", "box": [355, 913, 484, 1084]},
+    "paper-target": {"kind": "prop", "type": "range-target", "subject": "paper silhouette target on a steel stand", "box": [504, 903, 608, 1078]},
+    "steel-target": {"kind": "prop", "type": "range-target", "variant": "Hanging steel gong plate on a frame.", "subject": "hanging steel gong target on a steel frame", "box": [606, 903, 724, 1078]},
+    "case-stack": {"kind": "prop", "type": "hard-case", "same": "pulse-tech/case-stack", "subject": "stack of three hard equipment cases, olive, grey and yellow", "box": [737, 915, 928, 1078]},
+    "dumpster": {"kind": "prop", "type": "dumpster", "same": "rail-freight-yard/dumpster", "subject": "green wheeled dumpster with a black lid", "box": [938, 922, 1122, 1081]},
+    "shooting-booths": {"kind": "prop", "type": "shooting-booth", "subject": "row of three shooting lane booths with lit shelves and small screens", "box": [1138, 910, 1441, 1079]}
+  }
+}
