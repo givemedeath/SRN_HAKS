@@ -34,9 +34,11 @@ class BodySkinTests(unittest.TestCase):
     def test_a_skin_material_binds_a_normal_map_and_no_colour_texture(self):
         with tempfile.TemporaryDirectory() as folder:
             (Path(folder) / 'skin.mtr').write_text('renderhint NormalTangents\ntexture1 skinn\nparameter float Roughness 0\ntexture3 skinr\n')
-            self.assertEqual(bodyskin.material(folder, 'skin'), {'normal': 'skinn', 'rough': 'skinr'})
+            self.assertEqual(bodyskin.material(folder, 'skin'), {'normal': 'skinn', 'rough': 'skinr', 'roughness': 0.0})
             (Path(folder) / 'plain.mtr').write_text('texture1 skinn\n')
-            self.assertEqual(bodyskin.material(folder, 'plain'), {'normal': 'skinn', 'rough': None})
+            self.assertEqual(bodyskin.material(folder, 'plain'), {'normal': 'skinn', 'rough': None, 'roughness': None})
+            (Path(folder) / 'large.mtr').write_text('renderhint NormalTangents\ntexture1 flat\nparameter float Roughness 0.85\nparameter float Specularity 0.04\n')
+            self.assertEqual(bodyskin.material(folder, 'large'), {'normal': 'flat', 'rough': None, 'roughness': 0.85})
             (Path(folder) / 'painted.mtr').write_text('texture0 skin\ntexture1 skinn\n')
             for wrong in ('painted', 'none'):
                 with self.assertRaises(ValueError):
@@ -63,9 +65,17 @@ class BodySkinTests(unittest.TestCase):
                 self.assertTrue(np.allclose(read['n'], [0.0, 1.0, 0.0]))  # turned with the bone
                 self.assertTrue(np.array_equal(read['tint'], own['tint']))
                 self.assertTrue(np.allclose(read['relief'], own['relief'], atol=1 / 255) and np.allclose(read['rough'], own['rough'], atol=1 / 255))
+                # A Large body gives its roughness as a number, and another race's Fit body has no material file.
+                (maps / 'skin.mtr').write_text('texture1 skinn\nparameter float Roughness 0.85\n')
+                large = bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
+                self.assertTrue(np.allclose(large['relief'], own['relief'], atol=1 / 255) and np.allclose(large['rough'], 0.85))
+                self.assertEqual(large['rough'].shape, large['relief'].shape[:2])
                 (maps / 'skin.mtr').write_text('texture1 skinn\n')
-                with self.assertRaises(ValueError):  # no roughness map: the part's own roughness cannot stand beside the cloth's
-                    bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
+                self.assertTrue(np.allclose(bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})['rough'], texture.ROUGHNESS))
+                (maps / 'skin.mtr').unlink()
+                plain = bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
+                self.assertTrue(np.allclose(plain['relief'], [0.5, 0.5, 1.0]) and np.allclose(plain['rough'], texture.ROUGHNESS))
+                self.assertTrue(np.array_equal(plain['tint'], own['tint']))
 
     def test_what_a_sleeve_hides_of_the_arm_is_left_out_but_for_a_band_under_its_hem(self):
         own = arm()

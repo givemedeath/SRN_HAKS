@@ -27,6 +27,7 @@ BAND = 0.04  # the arm is kept this far up under the sleeve's hem: what a look u
 SECTORS = 16  # the hem is found in this many directions round the arm
 APART = 0.015  # the outfit's surface in one direction, parted by more than this along the bone, is two pieces
 TOP = 0.2  # a piece that begins within this share of the bone from its start comes down from the shoulder: a sleeve
+FLAT_SIDE = 4  # texels a side of the flat relief a part without a material file is given
 KEYS = ('skin', 'skin_at', 'skin_tint', 'skin_rough')  # what a part with skin holds beside a baked part's keys
 
 
@@ -40,13 +41,15 @@ def image(blob):
 
 
 def material(folder, name):
-    """{normal, rough}: the maps a material file `<name>.mtr` binds as texture1 and texture3; `rough` is None without one."""
+    """{normal, rough, roughness}: the maps a material file `<name>.mtr` binds as texture1 and texture3, `rough`
+    None without one, and the roughness it gives as a number (`parameter float Roughness`), None without."""
     path = Path(folder) / (name + '.mtr')
     require(path.is_file(), f'{path}: the body part has no material file')
     words = [line.split() for line in path.read_text(encoding='ascii').splitlines()]
     named = {row[0]: row[1] for row in words if len(row) == 2 and row[0].startswith('texture')}
     require('texture1' in named and 'texture0' not in named, f'{path}: a skin material binds a normal map and no colour texture')
-    return {'normal': named['texture1'], 'rough': named.get('texture3')}
+    given = [row[3] for row in words if len(row) == 4 and row[:3] == ['parameter', 'float', 'Roughness']]
+    return {'normal': named['texture1'], 'rough': named.get('texture3'), 'roughness': float(given[-1]) if given else None}
 
 
 def body_part(pack, textures, body, token, bones, number=1):
@@ -54,7 +57,11 @@ def body_part(pack, textures, body, token, bones, number=1):
     layer), `relief` (its normal map, 0-1) and `rough` (its roughness, 0-1), each from v = 0.
 
     `pack` is the folder of the body's models and tint textures, `textures` that of its material files and
-    maps, `bones` its rig (`measure.body`)."""
+    maps, `bones` its rig (`measure.body`). The 20 bodies bind their skin three ways: the two Human Fit
+    bodies a normal map and a roughness map, the Large bodies a flat normal map and their roughness as a
+    number in the material file, and the other races' Fit bodies no material file at all, the Human tint
+    texture drawn plain. Without a roughness map the part's roughness is that number at every texel, or the
+    kit's own (`texture.ROUGHNESS`) where the file gives none; without a material file its relief is flat."""
     pack, textures, name = Path(pack), Path(textures), registry.model_name(body, token, number)
     meshes = native_reader.decode((pack / (name + '.mdl')).read_bytes(), name, require_tangents=False, apply_rigid_transforms=True)
     require(meshes, 'Model has no rigid mesh: ' + name)
@@ -63,15 +70,19 @@ def body_part(pack, textures, body, token, bones, number=1):
     world = np.asarray(bones[seams.BONES[token]], float)
     offsets = np.cumsum([0] + [len(mesh['position']) for mesh in meshes])
     normals = np.concatenate([mesh['normal'] for mesh in meshes]) @ world[:3, :3].T
-    bound = material(textures, bitmaps.pop())
-    relief = image((textures / (bound['normal'] + '.tga')).read_bytes())
-    require(bound['rough'] is not None, f'{name}: its material binds no roughness map')
+    bitmap = bitmaps.pop()
+    bound = material(textures, bitmap) if (textures / (bitmap + '.mtr')).is_file() else {'normal': None, 'rough': None, 'roughness': None}
+    relief = np.full((FLAT_SIDE, FLAT_SIDE, 3), (0.5, 0.5, 1.0)) if bound['normal'] is None else image((textures / (bound['normal'] + '.tga')).read_bytes())
+    if bound['rough'] is None:  # one roughness over the whole part: the material file's own number, or the kit's
+        rough = np.full(relief.shape[:2], texture.ROUGHNESS if bound['roughness'] is None else bound['roughness'])
+    else:
+        rough = image((textures / (bound['rough'] + '.tga')).read_bytes())[:, :, 0]
     return {'v': np.concatenate([mesh['position'] for mesh in meshes]) @ world[:3, :3].T + world[:3, 3],
             'f': np.concatenate([mesh['faces'].astype(int) + offset for mesh, offset in zip(meshes, offsets)]),
             'uv': np.concatenate([mesh['uv'] for mesh in meshes]).astype(float),
             'n': normals / np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12),
             'tint': np.stack(export.read_tint((pack / (name + '.plt')).read_bytes()), axis=2),
-            'relief': relief, 'rough': image((textures / (bound['rough'] + '.tga')).read_bytes())[:, :, 0]}
+            'relief': relief, 'rough': rough}
 
 
 def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
