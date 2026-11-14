@@ -1,24 +1,23 @@
-"""Baked parts carried from one body to another, each by a rotation and a uniform scale where those serve, their
+"""Baked parts carried from one body to another, each by a rotation and a scale along each of its axes, their
 ends then brought to the other body's seam contract.
 
-A part keeps its shape: each is turned, scaled and moved as one (`placement`), so that the parts of a design
-made on the Human male go on the Human female without being generated again, plates round and pockets square.
-The user asked for rotation and uniform scaling, used again for every refit where they serve (2026-11-13).
+A part keeps its shape: each is turned, scaled and moved by one linear map (`placement`), which bends nothing,
+so that the parts of a design made on the Human male go on the Human female without being generated again,
+plates flat and pockets square. Rotation and a uniform scale were the user's guidance for the first refit
+only; a part is scaled along each of its axes as the other body is (user, 2026-11-13).
 
 * A part between two or more joints is placed by the planes of those joints (`seams.plane`), the points the
   seam contract measures ends from: an upper arm, a thigh or a shin by its two, the pelvis by the waist and
   both hips. Its axis runs from its first joint to the middle of the others (`axis_of`) and is turned the
-  shortest way onto the other body's; along it the part is scaled as the joints lie apart (`along`), across
-  it as the body's own outline at those joints is wide (`across`, the contract's body rings).
-* Where those two scales agree within `UNIFORM` the part is scaled by one, the two's geometric mean. Where they
-  do not, it is scaled by each along and across its axis, which still bends nothing: the Human female's limbs
-  are 0.95 to 1.0 the male's length and her body 0.70 to 0.79 as wide at the joints, and a thigh scaled to her
-  leg's length kept the male's girth and stood out through the sides of a pelvis scaled to her hips (Facility
-  Security, 2026-11-13).
+  shortest way onto the other body's; along it the part is scaled as the joints lie apart (`along`), and
+  across it in each of two directions as the body's own outline at those joints is wide that way (`across`,
+  the contract's body rings). The Human female's limbs are 0.95 to 1.0 the male's length and her body 0.70
+  to 0.79 as wide at the joints: a thigh scaled to her leg's length kept the male's girth and stood out
+  through the sides of a pelvis scaled to her hips (Facility Security, 2026-11-13).
 * A part with one joint, a hand, a foot or the neck, turns as the part across that joint does, so a boot stays
-  flat where the shin turns two degrees, and is scaled the same every way by how large the body's own part
-  there is (`size`): a Human female foot is 0.85 the size of the male's and her hand 0.86, where the middle of
-  her foot, which stands on its toes, lies farther from her ankle than his.
+  flat where the shin turns two degrees, and is scaled along each axis of the other body's own part there as
+  that part spreads along it against the source's (`principal`, `spreads`): a Human female foot is about 0.85
+  the size of the male's and her hand 0.86, but not by the same share every way.
 * The ends at the tube joints are then drawn in or spread out to the other body's envelopes as a bake shapes
   them (`ends.shaped`), a smooth slope with no shelf over the last `ends.LONGEST` at most, and the seam gate
   on the other body decides each part. The cap a bake grew past an under end's plane is scaled about the
@@ -47,7 +46,6 @@ from . import bodyskin, ends, measure, registry, repose, seams, split
 from .registry import require
 
 FACE_KEYS = ('f', 'added', 'domed', 'trimmed', 'pad')  # what a kept part holds per face (`bake.KEYS`, `bake.OPTIONAL`)
-UNIFORM = 0.05  # a part is scaled the same every way where its scales along and across its axis differ by this share or less
 UNDER_SKIN = 0.002  # a cap under the body's own skin (a glove's under a bare forearm) stands at least this far inside it
 
 
@@ -80,25 +78,52 @@ def axis_of(points):
     return np.asarray(points[1:], float).mean(axis=0) - np.asarray(points[0], float)
 
 
-def across(token, contract, source, target):
-    """How much wider the body `target` is than the body `source` at the joints part `token` meets: the mean
-    of the ratios of the contract's body rings there, each its mean radius."""
-    ring = lambda joint, side, body: np.mean(contract['joints'][joint]['bodies'][body]['sides'][side]['bodyRing'])
-    return float(np.mean([ring(joint, side, target) / ring(joint, side, source) for joint, side, _ in joints_of(token)]))
+def across(token, contract, source, target, ways, bones=None):
+    """How much wider the body `target` is than the body `source` at the joints part `token` meets in each of
+    the directions `ways` (unit vectors square to the part's axis): the ratio of the contract's body rings
+    there, each ring's radii weighed by how near their directions lie to that way, and its mean over the
+    joints. `bones`, the source body's rig, places a ring's directions (`seams.frame` of its plane); without
+    it a ring is weighed the same every way, the ratio of its mean radii."""
+    found = []
+    for joint, side, _ in joints_of(token):
+        ring = lambda body: np.asarray(contract['joints'][joint]['bodies'][body]['sides'][side]['bodyRing'], float)
+        new, old = ring(target), ring(source)
+        if bones is None:
+            weight = np.ones((len(old), len(ways)))
+        else:
+            u, w = seams.frame(seams.plane(bones, joint, 'l' if side == 'c' else side)[1])
+            angle = 2 * np.pi * np.arange(len(old)) / len(old)
+            weight = ((np.cos(angle)[:, None] * u + np.sin(angle)[:, None] * w) @ np.asarray(ways, float).T) ** 2
+        found.append(list((weight * new[:, None]).sum(axis=0) / (weight * old[:, None]).sum(axis=0)))
+    return [float(value) for value in np.mean(found, axis=0)]
 
 
-def size(vertices, faces):
-    """How large a surface is: the root mean square distance of its area from its middle."""
+def _moments(vertices, faces):
+    """(corners less the middle, area) of a surface's faces, the middle its area's."""
     corners = np.asarray(vertices, float)[np.asarray(faces, int)]
     area = 0.5 * np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1)
-    middle = (corners.mean(axis=1) * area[:, None]).sum(axis=0) / area.sum()
-    spread = (((corners - middle) ** 2).sum(axis=2).mean(axis=1) * area).sum() / area.sum()
-    return float(np.sqrt(spread))
+    return corners - (corners.mean(axis=1) * area[:, None]).sum(axis=0) / area.sum(), area
 
 
-def stretched(rotation, axis, along, round_):
-    """The linear map that turns by `rotation` after scaling by `along` along unit `axis` and `round_` across it."""
-    return rotation @ (round_ * np.eye(3) + (along - round_) * np.outer(axis, axis))
+def spreads(vertices, faces, axes):
+    """How far a surface spreads along each of the unit `axes` (rows): the root mean square distance of its
+    area from its middle along each."""
+    reach, area = _moments(vertices, faces)
+    along = reach @ np.asarray(axes, float).T  # faces, corners, axes
+    return np.sqrt(((along ** 2).mean(axis=1) * area[:, None]).sum(axis=0) / area.sum())
+
+
+def principal(vertices, faces):
+    """The axes a surface spreads along, most to least, as rows: those of its area's second moments."""
+    reach, area = _moments(vertices, faces)
+    return np.linalg.svd(reach.reshape(-1, 3) * np.repeat(np.sqrt(area / 3), 3)[:, None], full_matrices=False)[2]
+
+
+def stretched(rotation, axes, scales):
+    """The linear map that turns by `rotation` after scaling by each of `scales` along the unit `axes` (rows,
+    square to one another)."""
+    axes = np.asarray(axes, float)
+    return rotation @ axes.T @ np.diag(np.asarray(scales, float)) @ axes
 
 
 def placement(token, source, target, contract=None, names=None):
@@ -114,19 +139,20 @@ def placement(token, source, target, contract=None, names=None):
         require(np.linalg.norm(run) > 1e-9, f'The joints of {token} are one point')
         unit = run / np.linalg.norm(run)
         rotation, along = repose.turn(unit, aim / np.linalg.norm(aim)), float(np.linalg.norm(aim) / np.linalg.norm(run))
-        round_ = along if contract is None else across(token, contract, *names)
-        if abs(along / round_ - 1) <= UNIFORM:
-            along = round_ = float(np.sqrt(along * round_))
-        linear = stretched(rotation, unit, along, round_)
-        return linear, goal.mean(axis=0) - linear @ start.mean(axis=0), {'along': round(along, 4), 'across': round(round_, 4)}
+        ways = seams.frame(unit)
+        round_ = [along, along] if contract is None else across(token, contract, *names, ways, source[0])
+        linear = stretched(rotation, [unit, *ways], [along, *round_])
+        return linear, goal.mean(axis=0) - linear @ start.mean(axis=0), {'along': round(along, 4), 'across': [round(value, 4) for value in round_]}
     (_, _, other), = met
     require(len(joints_of(other)) > 1, f'{token} and {other} each meet one joint: nothing turns them')
     start, goal = anchors(other, source[0]), anchors(other, target[0])
     rotation = repose.turn(*(seams.unit(axis_of(points)) for points in (start, goal)))
     require(token in source[1] and token in target[1], f'Both bodies have a {token} to scale a part by')
-    scale = size(*target[1][token][:2]) / size(*source[1][token][:2])
+    axes = principal(*target[1][token][:2])  # the other body's own part's axes, the source's part turned onto them
+    scales = spreads(*target[1][token][:2], axes) / spreads(np.asarray(source[1][token][0], float) @ rotation.T, source[1][token][1], axes)
+    linear = axes.T @ np.diag(scales) @ axes @ rotation
     joint, aim = anchors(token, source[0])[0], anchors(token, target[0])[0]
-    return scale * rotation, aim - scale * rotation @ joint, {'along': round(scale, 4), 'across': round(scale, 4)}
+    return linear, aim - linear @ joint, {'axes': [round(float(value), 4) for value in scales]}
 
 
 def capped(before, after, faces, measured, part_ends):

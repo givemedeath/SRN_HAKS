@@ -7,7 +7,7 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, bodyskin, refit, split
+from . import bake, bodyskin, refit, seams, split
 from .test_bake import arm, closed, contract, part, rig
 from .test_bodyskin import arm as body_arm
 
@@ -40,9 +40,10 @@ def sleeved():
     return bodyskin.worn(sleeve, body_arm(), (0, 0, 1.5), (0, 0, 1.2))
 
 
-def hand(scale=1.0):
-    """The body's own left hand: a short tube past the wrist plane (x = 0.55), `scale` times the size."""
-    piece = arm(0.55, 0.55 + 0.12 * scale, 0.03 * scale)
+def hand(scale=1.0, round_=None):
+    """The body's own left hand: a short tube past the wrist plane (x = 0.55), `scale` times as long and
+    `round_` (or `scale`) times as wide."""
+    piece = arm(0.55, 0.55 + 0.12 * scale, 0.03 * (scale if round_ is None else round_))
     return piece['v'], piece['f']
 
 
@@ -56,34 +57,53 @@ class PlacementTests(unittest.TestCase):
         forearm = arm(0.3, 0.55, 0.05)
         linear, offset, scales = refit.placement('forel', self.source, target)
         self.assertTrue(np.allclose(forearm['v'] @ linear.T + offset, 0.9 * forearm['v'] @ self.rotation.T + self.offset))
-        self.assertEqual(scales, {'along': 0.9, 'across': 0.9})
+        self.assertEqual(scales, {'along': 0.9, 'across': [0.9, 0.9]})
 
     def test_a_body_narrower_than_its_length_says_scales_the_part_across_its_axis_apart(self):
         target = (moved(rig(), np.eye(3), 0.9, np.zeros(3)), {'handl': hand(0.9)})
         linear, offset, scales = refit.placement('forel', self.source, target, two_bodies(0.04, 0.028), ('a', 'b'))
-        self.assertEqual(scales, {'along': 0.9, 'across': 0.7})
+        self.assertEqual(scales, {'along': 0.9, 'across': [0.7, 0.7]})
         forearm = arm(0.3, 0.55, 0.05)
         carried = forearm['v'] @ linear.T + offset
         self.assertTrue(np.allclose(np.linalg.norm(carried[:, 1:], axis=1), 0.7 * 0.05))  # round, and as much narrower as the rings
         self.assertTrue(np.allclose(carried[:, 0], 0.9 * forearm['v'][:, 0]))  # and as long as the joints lie apart
-        # within `UNIFORM` of each other, one scale: their geometric mean
+        # however near the scales lie, each is its own: no one scale stands for them
         linear, _, scales = refit.placement('forel', self.source, target, two_bodies(0.04, 0.04 * 0.88), ('a', 'b'))
-        self.assertAlmostEqual(scales['along'], math.sqrt(0.9 * 0.88), places=4)
-        self.assertTrue(np.allclose(linear, math.sqrt(0.9 * 0.88) * np.eye(3)))
+        self.assertEqual(scales, {'along': 0.9, 'across': [0.88, 0.88]})
+        # a ring narrower one way than the other: 0.8 the source's across y (the frame's u at the elbow and the
+        # wrist, square to the arm), 0.6 across z, between as cos and sin squared weigh them
+        terms = two_bodies(0.04, 0.04)
+        angle = 2 * np.pi * np.arange(seams.DIRECTIONS) / seams.DIRECTIONS
+        for joint in terms['joints'].values():
+            for ring in joint['bodies']['b']['sides'].values():
+                ring['bodyRing'] = list(0.04 * (0.8 * np.cos(angle) ** 2 + 0.6 * np.sin(angle) ** 2))
+        linear, offset, scales = refit.placement('forel', self.source, target, terms, ('a', 'b'))
+        self.assertEqual((scales['along'], scales['across']), (0.9, [0.75, 0.65]))
+        carried = forearm['v'] @ linear.T + offset
+        self.assertAlmostEqual(float(np.ptp(carried[:, 1])), 0.75 * float(np.ptp(forearm['v'][:, 1])), places=9)
+        self.assertAlmostEqual(float(np.ptp(carried[:, 2])), 0.65 * float(np.ptp(forearm['v'][:, 2])), places=9)
 
     def test_a_part_with_one_joint_turns_as_the_part_beside_it_and_scales_by_the_bodys_own(self):
-        target = (moved(rig(), self.rotation, 0.9, self.offset), {'handl': hand(0.8)})
+        own = hand(0.8)
+        target = (moved(rig(), self.rotation, 0.9, self.offset), {'handl': (own[0] @ self.rotation.T, own[1])})
         linear, offset, scales = refit.placement('handl', self.source, target)
-        self.assertAlmostEqual(scales['along'], 0.8, places=3)
-        self.assertTrue(np.allclose(linear, scales['along'] * self.rotation))
+        self.assertTrue(np.allclose(scales['axes'], 0.8, atol=1e-3))
+        self.assertTrue(np.allclose(linear, 0.8 * self.rotation, atol=1e-3))
         wrist = np.array((0.55, 0.0, 0.0))
         self.assertTrue(np.allclose(linear @ wrist + offset, 0.9 * self.rotation @ wrist + self.offset))  # its joint where the other body's is
+        # a hand as long but narrower: scaled along its own length and across it apart
+        target = (rig(), {'handl': hand(0.9, 0.7)})
+        linear, offset, scales = refit.placement('handl', self.source, target)
+        self.assertTrue(np.allclose(sorted(scales['axes']), [0.7, 0.7, 0.9], atol=1e-3))
+        carried = self.source[1]['handl'][0] @ linear.T + offset
+        self.assertAlmostEqual(float(np.ptp(carried[:, 0])), 0.9 * 0.12, places=4)
+        self.assertTrue(np.allclose(np.linalg.norm(carried[:, 1:], axis=1), 0.7 * 0.03, atol=1e-4))
 
 
 class RefitTests(unittest.TestCase):
     def test_parts_are_carried_with_their_normals_and_one_with_the_bodys_skin_without_it(self):
         source = (rig(), {'handl': hand()})
-        target = (moved(rig(), about_z(90.0), 1.0, np.zeros(3)), {'handl': hand()})
+        target = (moved(rig(), about_z(90.0), 1.0, np.zeros(3)), {'handl': (hand()[0] @ about_z(90.0).T, hand()[1])})
         glove = part(faces=1)
         glove['v'] = glove['v'] + (0.6, 0.0, 0.0)
         sleeve = sleeved()
@@ -115,7 +135,7 @@ class RefitTests(unittest.TestCase):
         forearm = arm(0.32, 0.53, 0.05)
         piece = {**part(), 'v': forearm['v'], 'f': forearm['f'], 'n': np.c_[np.zeros(len(forearm['v'])), forearm['v'][:, 1:] / 0.05]}
         out, report = refit.refit({'forel': piece}, source, target)
-        self.assertEqual((report['forel']['along'], report['forel']['across']), (0.9, 0.9))  # no contract: one scale
+        self.assertEqual((report['forel']['along'], report['forel']['across']), (0.9, [0.9, 0.9]))  # no contract: the scale along every way
         linear, offset, _ = refit.placement('forel', source, target, two_bodies(0.04, 0.028), ('a', 'b'))
         normals = piece['n'] @ np.linalg.inv(linear)
         normals /= np.linalg.norm(normals, axis=1, keepdims=True)
@@ -166,7 +186,7 @@ class RefitTests(unittest.TestCase):
             with mock.patch('tools.armorkit.measure.body', side_effect=lambda pack, name: bodies[name]), \
                     mock.patch('tools.armorkit.seams.load_contract', return_value=None):
                 report = refit.run(kept, out, 'pack', 'pmh0', 'pfh0')
-            self.assertAlmostEqual(report['handl']['along'], 0.8, places=3)
+            self.assertTrue(np.allclose(report['handl']['axes'], 0.8, atol=1e-3))
             self.assertEqual(bake.declared(out), {'bare': {'forearm'}, 'skin': {'bicep'}})
             self.assertEqual(list(bake.stored(out)), ['handl'])
             with self.assertRaises(ValueError):
