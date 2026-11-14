@@ -141,6 +141,14 @@ class ConvertTests(unittest.TestCase):
         self.assertTrue((whole[4:28] == (0, 0, 255)).all()); self.assertTrue((whole[36:60] == (255, 0, 0)).all())  # and each height has its own band, right across
         with self.assertRaisesRegex(ValueError, 'holds none of the model'):
             convert.retouch(picture, points, texture, faces, copy=[{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[5.0, 5.0, 0.0], [6.0, 6.0, 1.0]]}])
+        # Mirrored, the half copied over takes the clean half from the middle outwards: a green edge strip and a red
+        # inner strip on the left come out red beside the middle and green at the far edge on the right.
+        halves = np.full((64, 64, 3), 90, np.uint8); halves[:, :16] = (0, 255, 0); halves[:, 16:32] = (255, 0, 0)
+        both = {'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[0.0, -0.1, -0.1], [0.6, 0.1, 2.1]]}  # the picture's left is the wall's +x
+        mirrored = np.asarray(convert.retouch(Image.fromarray(halves), points, texture, faces, copy=[{**both, 'mirror': True}])[0])
+        self.assertTrue((mirrored[:, 36:44] == (255, 0, 0)).all()); self.assertTrue((mirrored[:, 52:60] == (0, 255, 0)).all())
+        moved = np.asarray(convert.retouch(Image.fromarray(halves), points, texture, faces, copy=[both])[0])  # copied plainly it is the same way round
+        self.assertTrue((moved[:, 36:44] == (0, 255, 0)).all()); self.assertTrue((moved[:, 52:60] == (255, 0, 0)).all())
         meshed, flat, plain = convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'pitch': 0.25, 'wire': 0.05}])
         self.assertEqual(meshed.mode, 'RGBA'); pixels = np.asarray(meshed); lower, upper = pixels[36:], pixels[:28]
         self.assertTrue((upper[..., 3] == 255).all()); np.testing.assert_array_equal(upper[0, 0, :3], [200, 100, 50])  # outside the panel nothing changes
@@ -403,6 +411,19 @@ class ConvertTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'underfoot is true'):
                 convert.load_models(path)
 
+    def test_a_lit_prop_says_whether_it_casts_light(self):
+        """The Chop Shop clinic's surgical lamp (2026-11-14) was converted with glowing lenses and no light: a lit
+        prop's placeable names a light for what should be bright, or null for what only glows."""
+        lamp = {'source': 'meshy/x', 'height': 2.0, 'measuredAt': 2.0, 'lit': [{'box': [[0, 0, 1], [1, 1, 2]]}]}; placed = {'label': 'Lamp', 'sound': 28}
+        path = self.root / 'set.json'; given = lambda model: path.write_text(json.dumps({'models': {'ek_x': model}}), encoding='utf-8')
+        given({**lamp, 'placeable': placed})
+        with self.assertRaisesRegex(ValueError, 'says whether it lights what stands round it'):
+            convert.load_models(path)
+        for light in (None, {'colour': 3, 'at': [0.0, 0.5, 1.4]}):
+            given({**lamp, 'placeable': {**placed, 'light': light}}); self.assertEqual(convert.load_models(path)['ek_x']['placeable']['light'], light)
+        given({'source': 'meshy/x', 'height': 2.0, 'placeable': placed}); convert.load_models(path)  # a prop with nothing lit has nothing to say
+        given({**lamp, 'tiles': {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}}); convert.load_models(path)  # nor a building, lit by its tile
+
     def test_a_face_seen_from_behind_is_turned_round(self):
         """The rail yard (2026-11-13): faces wound inward were holes onto whatever stood behind them."""
         corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
@@ -431,6 +452,12 @@ class ConvertTests(unittest.TestCase):
         inner = np.vstack([corners, corners + [0.03, 0.0, 0.0]])
         self.assertFalse(convert.back_to_back(inner, np.vstack([cube, (cube[:2] + 8)[:, [0, 2, 1]]]), np.ones(14, bool))[12:].any())
         self.assertFalse(convert.back_to_back(corners, inside_out, np.ones(12, bool)).any())
+        # A box with its lid off is seen into from above: the patch of its floor seen from behind is told, with the way
+        # it was looked at. A whole box shows none (the Chop Shop clinic's bin, dumpster and lamp, 2026-11-14).
+        whole, open_top = [], []; convert.seen(corners, cube, holes=whole, **quick)
+        lidless = cube[[index for index, face in enumerate(cube) if not (corners[face][:, 2] == 1).all()]]; convert.seen(corners, lidless, holes=open_top, **quick)
+        self.assertEqual(max(whole)[0], 0.0); area, way = max(open_top)
+        self.assertGreater(area, 0.5); self.assertLess(area, 1.1); self.assertGreater(way[2], 0.8)  # most of its square metre, from overhead
 
     def test_a_box_drawn_from_outside_only_is_given_backs(self):
         """The rail yard's dumpster (2026-11-13): through the gaps of its slatted lid the client showed what stood

@@ -947,19 +947,24 @@ Modifications, all by `tools/envkit` (SRN project operator with Claude): each mo
 scaled to a stated height, and its textures were recompressed. Six props have a glow map for their lit parts and a
 lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the counter's two strip lights, the bench's
 lamp, the cabinet's two strip lights, the vending machine's sign, screen and products, the rack's sign and lamps, and
-the booths' lane screens and overhead lamps. The rifle cabinet's left door, which the generator drew dark and without
-its strip light, takes the picture of its right door (operator, 2026-11-14: "only half this gun cabinet is lit").
-Nothing else was retouched. Left as generated: the rifle cabinet is a plain box of 1,187 triangles with its rifles
-drawn behind the mesh doors, the rifle wall is 0.37 metres deep with a plain grey back, and the vending machine and
-the booths carry an emblem the generator invented on their backs.
+the booths' lane screens and overhead lamps. Two of them also light what stands round them, by a light in their rows
+of `placeables.2da` (lightcolor row 2, white): the bench from its lamp and the booths from their middle overhead lamp
+(operator, 2026-11-14: "recheck the iron sights props and make sure they are good as far as lights too", lights being
+"only for things that should be bright"); the counter's and cabinet's strip lights, the vending machine and the rack's
+sign only glow. The rifle cabinet's left door, which the generator drew dark and without its strip light, takes the
+picture of its right door (operator, 2026-11-14: "only half this gun cabinet is lit"). Nothing else was retouched.
+Left as generated: the rifle cabinet is a plain box of 1,187 triangles with its rifles drawn behind the mesh doors,
+the rifle wall is 0.37 metres deep with a plain grey back, and the vending machine and the booths carry an emblem the
+generator invented on their backs.
 
 Checked in the game client on 2026-11-14: by day from front, back and side with a figure for scale, from the converted
 files; by night the same way for the six lit props; and by night from the pack's files, where the lights of the six
 were put out by script and brought back. The booths' lane-screen box ran front to back and lit rust specks on their
 backs and dividers; it was bounded to the screens (2026-11-14), and the booths and the cabinet were seen again by
-night. Four of them (vending machine, shooting booths, ammo shelf and pistol counter, from both palette categories)
-were placed from the Toolset's palette on 2026-11-14 and saved with their own rows and names, the shelf static and the
-three lit props not.
+night. The bench and the booths were seen once more by night with their cast light, the ground and the figures round
+them lit (2026-11-14). Four of them (vending machine, shooting booths, ammo shelf and pistol counter, from both
+palette categories) were placed from the Toolset's palette on 2026-11-14 and saved with their own rows and names, the
+shelf static and the three lit props not.
 
 ## MDRNEE placeable import (2026-09-11)
 

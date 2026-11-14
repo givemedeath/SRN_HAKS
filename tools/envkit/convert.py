@@ -132,12 +132,15 @@ SIGHT_VIEWS = 64  # how many ways it is looked at
 BACK_TO_BACK = 0.005  # metres: a face this near another that faces the other way, over it, is half of a two-faced sheet
 
 
-def seen(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
+def seen(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS, *, holes=None, both=None):
     """(front, back, whole): how many pixels of each face are the first thing seen of the model from outside, from its
     front (the side its corners run counter-clockwise on) and from behind, and how many it would fill were nothing in front of it. It is looked at from `views` ways spread evenly over
     the sky, down to a little below the horizon (the game never looks up from under the ground), each a picture of
     `cells` pixels along its longest side. Each face is laid down as spots, four to a pixel on average and at least one,
-    so a sliver costs no more than its area; the spot nearest the eye wins its pixel."""
+    so a sliver costs no more than its area; the spot nearest the eye wins its pixel. `holes`, a list, takes for each
+    way it is looked at (square metres, the way): the pixels showing a face's back whose four neighbours show one too,
+    so a patch of the model seen from behind and not the odd pixel along an edge. A face marked in `both` (a mask) is
+    drawn from both sides and is no hole."""
     corner = np.asarray(vertices, float)[np.asarray(faces)]; size = max(float(np.ptp(corner.reshape(-1, 3), 0).max()) / cells, SIGHT_CELL)
     of_face = np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]); twice = np.linalg.norm(of_face, axis=1)
     unit = of_face / np.maximum(twice, 1e-12)[:, None]
@@ -149,10 +152,14 @@ def seen(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
     for eye in np.stack([round_ * np.cos(turn), round_ * np.sin(turn), rise], 1):
         right = np.cross(eye, [0.0, 0.0, 1.0]) if abs(eye[2]) < 0.99 else np.array([1.0, 0.0, 0.0]); right /= np.linalg.norm(right); up = np.cross(right, eye)
         across, down = np.floor(spots @ right / size).astype(np.int64), np.floor(spots @ up / size).astype(np.int64)
-        pixel = (across - across.min()) * (down.max() - down.min() + 1) + (down - down.min())
+        across -= across.min(); down -= down.min(); pixel = across * (down.max() + 1) + down
         order = np.lexsort((-(spots @ eye), pixel)); first = order[np.r_[True, pixel[order][1:] != pixel[order][:-1]]]
         winner = owner[first]; toward = unit[winner] @ eye
         np.add.at(front, winner[toward > 0.1], 1); np.add.at(back, winner[toward < -0.1], 1)
+        if holes is not None:
+            grid = np.zeros((across.max() + 3, down.max() + 3), bool); behind = (toward < -0.1) if both is None else (toward < -0.1) & ~np.asarray(both)[winner]; grid[across[first][behind] + 1, down[first][behind] + 1] = True
+            solid = grid[1:-1, 1:-1] & grid[:-2, 1:-1] & grid[2:, 1:-1] & grid[1:-1, :-2] & grid[1:-1, 2:]
+            holes.append((float(solid.sum()) * size ** 2, [round(float(value), 2) for value in eye]))
         slant = np.abs(unit @ eye); whole += np.where(slant > 0.1, twice / 2 * slant / size ** 2, 0)
     return front, back, whole
 
@@ -206,6 +213,15 @@ def turn_normals(vertices, normals, faces):
     return normals, int(against.sum())
 
 
+def _backs(vertices, faces, parts):
+    """Which faces lie in the boxes given backs ([{box}]): those whose middle a box holds. A box that holds none is refused."""
+    middle = vertices[np.asarray(faces)].mean(1); chosen = np.zeros(len(faces), bool)
+    for part in parts:
+        low, high = np.sort(np.asarray(part['box'], float), axis=0); held = np.all((middle >= low) & (middle <= high), axis=1)
+        require(bool(held.any()), f"A box given backs holds no face of the model ({part.get('part', 'backed part')})"); chosen |= held
+    return chosen
+
+
 def backed(vertices, normals, uvs, faces, parts=None):
     """The model with a back for every face: each face again, wound the other way on copies of its corners whose normals
     point the other way, at the same place on the picture. A box the generator drew from outside only, with openings in
@@ -215,10 +231,7 @@ def backed(vertices, normals, uvs, faces, parts=None):
     had faces of its leg sills wound inward, so that from outside the client showed gaps there (user, 2026-11-13)."""
     faces = np.asarray(faces)
     if parts is not None:
-        middle = vertices[faces].mean(1); chosen = np.zeros(len(faces), bool)
-        for part in parts:
-            low, high = np.sort(np.asarray(part['box'], float), axis=0); held = np.all((middle >= low) & (middle <= high), axis=1)
-            require(bool(held.any()), f"A box given backs holds no face of the model ({part.get('part', 'backed part')})"); chosen |= held
+        chosen = _backs(vertices, faces, parts)
         used, local = np.unique(faces[chosen], return_inverse=True); local = local.reshape(-1, 3) + len(vertices)
         return (np.vstack([vertices, vertices[used]]), np.vstack([normals, -np.asarray(normals)[used]]), np.vstack([uvs, uvs[used]]),
                 np.vstack([faces, local[:, [0, 2, 1]]]))
@@ -855,7 +868,10 @@ def _copied(colour, where, covered, target, source, part):
     grey slab on its rear end and its lettering mirrored on its far wall; user, 2026-11-14: "can you copy the wall
     texture over it?"). The source is read as a picture of its wall, by metres along the way it runs and metres up, and
     the target is given it by its own metres along and up: each height keeps its own band of the wall, and a target
-    longer than the source takes it again from the start. `target` and `source` are texels of the map of places."""
+    longer than the source takes it again from the start. With `mirror` in the part the target takes it from its far
+    end backwards: the clean half of something drawn the same both ways, laid over its other half (the Chop Shop
+    clinic's banner came back with the right half of its caduceus smeared, 2026-11-14). `target` and `source` are
+    texels of the map of places."""
     from PIL import Image
     size = (colour.shape[1], colour.shape[0])
     up = lambda values: np.asarray(Image.fromarray(np.ascontiguousarray(values, np.float32), 'F').resize(size, Image.BILINEAR), np.float32)
@@ -895,7 +911,8 @@ def _copied(colour, where, covered, target, source, part):
     over = full(target); along_t, height_t, _ = laid(target)
     require(height_t.max() > height.min() and height_t.min() < height.max(), 'A wall is copied to its own heights, and the two boxes share none: ' + what)
     row = np.clip(((height_t - height.min()) / cell).astype(int), 0, rows - 1)
-    column = np.clip((((along_t - along_t.min()) % max(wide, cell)) / cell).astype(int), 0, columns - 1)
+    run = along_t.max() - along_t if part.get('mirror') else along_t - along_t.min()
+    column = np.clip(((run % max(wide, cell)) / cell).astype(int), 0, columns - 1)
     colour[over] = wall[row, column]
     return colour
 
@@ -911,7 +928,7 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
     the Iron Sight Arms range wing, paler and greyer than its shop; user, 2026-11-14). `paint` covers what a
     generator invented: [{box, colour}], every texel within the box in one colour (0-255). `copy` covers it with the
     wall beside it instead: [{box, from}], the texels within `box` showing the wall within the box `from`, height for
-    height (`_copied`), after the painting and before the smoothing. `mesh` makes a panel a
+    height, or its mirror image with `mirror` (`_copied`), after the painting and before the smoothing. `mesh` makes a panel a
     chain-link fence: [{box, pitch, wire, colour}], the texels within the box in the wire's colour and see-through
     between the wires (`glow.wires`), which gives the picture an alpha channel; the pattern is laid along the way the
     panel runs (`_run`), whichever way that is. Boxes are in metres on the finished
@@ -1079,8 +1096,8 @@ def load_models(path):
             require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour'} and box(part) and shade(part['colour']),
                     'A painted part needs a box and a colour of three 0-255 values: ' + name)
         for part in model.get('copy', []):
-            require(isinstance(part, dict) and {'box', 'from'} <= set(part) <= {'part', 'box', 'from'} and box(part) and box({'box': part['from']}),
-                    'A copied-over part needs its box and the box of the wall it is copied from: ' + name)
+            require(isinstance(part, dict) and {'box', 'from'} <= set(part) <= {'part', 'box', 'from', 'mirror'} and box(part) and box({'box': part['from']})
+                    and type(part.get('mirror', False)) is bool, 'A copied-over part needs its box and the box of the wall it is copied from (mirror: true or false): ' + name)
         for part in model.get('mesh', []):
             require(isinstance(part, dict) and {'box', 'pitch', 'wire'} <= set(part) <= {'part', 'box', 'pitch', 'wire', 'colour'} and box(part)
                     and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
@@ -1156,6 +1173,12 @@ def load_models(path):
         require(placed is None or ({'label', 'sound'} <= set(placed) <= {'label', 'sound', 'category', 'static', 'light'} and isinstance(placed['label'], str) and placed['label']
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
+        # A glow map lights only the model's own faces. The Chop Shop clinic's surgical lamp was converted with glowing
+        # lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are checking for when props
+        # need lights from now on", "it should only be for things that should be bright").
+        require(not (placed and model.get('lit')) or 'light' in placed,
+                'A lit prop says whether it lights what stands round it: give its placeable a light, {colour, at} for what should be bright '
+                '(a lamp, a floodlight), null for what only glows (a screen, a sign, an indicator, trim): ' + name)
         if placed and 'light' in placed:
             placeables.light_values(placed['light'])
         tiles = model.get('tiles')
@@ -1361,6 +1384,13 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         faces = closed(vertices, normals, uvs, faces, close)
     if fill:
         faces = filled(vertices, normals, uvs, faces, fill)
+    # The largest patch of the finished model seen from behind, from any way it is looked at, of the faces given no
+    # back: the game draws nothing there, so it is a hole onto what stands past the model. The Chop Shop clinic's
+    # biohazard bin had gaps under its rear rim, its dumpster a slot between its lids and its lamp a length of pole
+    # seen through from one side, none of which the front, back and side of the client check showed (2026-11-14).
+    behind = None
+    if inside is not True:
+        patches = []; seen(vertices, faces, holes=patches, both=_backs(vertices, faces, inside) if inside else None); behind = max(patches)
     if inside:
         vertices, normals, uvs, faces = backed(vertices, normals, uvs, faces, None if inside is True else inside)
     require(not halo or lit, 'A halo spreads the lit parts: name them')
@@ -1388,7 +1418,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if built:  # after the pictures: a built member takes one place of the picture, which no retouching or glow should read as its
         vertices, normals, uvs, faces = with_built(vertices, normals, uvs, faces, built)
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
-            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire}
+            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind}
 
 
 def _hung(vertices, faces, fences):
@@ -1428,6 +1458,8 @@ def measured(name, made, files, sign_tilt=None):
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
             'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'turnedFaces': made['facesTurned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
             'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'turn': made.get('turn', 0.0), 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
+            # the largest patch seen from behind, and from which way: a hole, or glass wound inward (`inside` gives backs); None where every face has a back
+            'seenFromBehind': {'cm2': round(made['behind'][0] * 1e4), 'from': made['behind'][1]} if made.get('behind') else None,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 

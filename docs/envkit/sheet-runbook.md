@@ -477,6 +477,24 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",
   2026-11-13). `check lights` puts it out and on with the faces; the ground should go dark and come back.
+  Decide it for every lit prop when its game set is written: the set is refused until a lit prop's `placeable`
+  states `light`, a light for what should be bright (a lamp, a floodlight, a work light) and `null` for what only
+  glows (a screen, a sign, an indicator, strip lights in a case). The Chop Shop clinic's surgical lamp was
+  converted with glowing lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are
+  checking for when props need lights from now on", "it should only be for things that should be bright"). A row
+  holds one light: of several lamps on one prop, light the middle one, a little under its lens along the way it
+  faces. See it in `check props --mode night`, the ground and the figures lit round it.
+- **Half of a sign or emblem is smeared** while its other half is clean, on something drawn the same both ways
+  (the Chop Shop clinic's banner: the right half of its caduceus, on both faces of the cloth). `copy` with
+  `"mirror": true` lays the clean half over it from the middle outwards; measure the middle on a gridded
+  `--eye` view. A repeating band beside it (stripes) takes a plain `copy` from a whole number of repeats away.
+- **A hole only one side shows.** The front, back and side of the client check miss a gap under a rear rim, a
+  slot between lids, a length of pole wound inward (the Chop Shop clinic's bin, dumpster and lamp, 2026-11-14).
+  `game` reports `seenFromBehind`: the largest patch of the model seen from behind, in cm², and the way it was
+  looked at. Look from that way with `--eye` (the game draws nothing there, so the background shows): a hole into
+  a box takes `"inside": true`, a part wound inward `inside` boxes. Glass the generator wound inward reads as an
+  open front and is left (the clinic's cyberware case, about 1,800 cm² from above). Review every prop from its
+  four corners, above and below before the client check, beside its reference.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,
