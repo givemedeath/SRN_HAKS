@@ -360,6 +360,12 @@ class PublishTests(Workspace):
         self.assertFalse((self.repo / 'srn_parts').exists() or (self.repo / publish.REGISTRY).exists())
         self.assertEqual(sorted(path.name for path in (self.repo / 'srn_2da').iterdir()), ['skyboxes.2da'])
         self.assertEqual(json.loads((trial / 'publish-report.json').read_text(encoding='utf-8'))['failuresByGate'], report['failuresByGate'])
+        # a bake given twice fails by name and the trial is still written, its files recorded once
+        twice = self.publish(shared(('pmh0', 'pmh0')), root=self.root / 'twice', trial=True)
+        self.assertTrue(twice['written'])
+        self.assertEqual(twice['failuresByGate']['bake'], len(TOKENS) * 4)
+        outfits = json.loads((self.root / 'twice' / publish.HANDOFF).read_text(encoding='utf-8'))['outfits']
+        self.assertEqual([len(outfit['resources']) for outfit in outfits], [len(TOKENS) * 4, 0])
 
     def test_the_repository_is_written_only_when_every_gate_passes(self):
         report = self.publish(shared(('pmh0', 'pfh0')))

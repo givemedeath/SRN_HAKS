@@ -2,6 +2,7 @@
 
     python -m tools.armorkit publish REGISTRY --bake DIR [--bake DIR ...] --stock FOLDER --record MODEL=FILE [...]
                                      [--brief MODEL=FILE] [--body-pack DIR] [--trial ROOT | --dry-run] [--build]
+                                     [--report FILE]
 
 REGISTRY is the whole part registry as it stands after the publication (`registry.py`): the parts already
 published, unchanged, and the new ones. Each `--bake` is the output folder of a bake compiled at the part's
@@ -29,7 +30,8 @@ passed its own gates, every outfit has its brief and a history record, and every
 included, is still the one its handoff records. Nothing is written into the
 repository unless all of them pass. `--trial ROOT` writes the same tree into a new scratch folder whatever the gates
 say, seeded from the repository's own `srn_2da` and `srn_parts`, and `--build` packs it there for a client check
-(`build`); `--dry-run` writes nothing. The command exits 1 when a gate fails.
+(`build`); `--dry-run` writes nothing. The command exits 1 when a gate fails. It prints the report with the
+first 40 failures; `--report FILE` writes all of it.
 
 Publishing grants no approval: the client is the evidence, and the user's review comes before the commit.
 """
@@ -640,6 +642,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                 failures.append(failure('bake', name, f'{PACK} already holds a file of that name' if name in pack else 'two bakes hold a file of that name'))
             else:
                 incoming[name] = path
+                bake.setdefault('taken', set()).add(name)
         if record['model'] not in found_briefs:
             path = brief_of(record['model'], given_briefs)
             found_briefs[record['model']] = (path, None if path is None else {material['name'] for material in json.loads(path.read_text(encoding='utf-8')).get('materials', [])})
@@ -701,7 +704,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                     'bake': {'sha256': bake['sha256'], 'materials': bake['record'].get('materials', []),
                              'triangles': bake['record']['gates'].get('triangles', {}).get('outfit')},
                     'records': [pinned(path) for path in history],
-                    'resources': [{'name': name, 'sha256': hashes[name], 'bytes': path.stat().st_size} for name, path in sorted(bake['files'].items())]}
+                    'resources': [{'name': name, 'sha256': hashes[name], 'bytes': path.stat().st_size} for name, path in sorted(bake['files'].items())
+                                  if name in bake.get('taken', ())]}  # a file refused for its name was not copied, and is not recorded
                    for bake, brief, history in outfits]
         document = {'schemaVersion': 1, 'kind': registry.KIND, 'parts': parts}
         handoff = {**registry.handoff(parts), 'pack': PACK, 'tablePack': TABLE_PACK, 'tables': sorted(table_texts),
@@ -771,6 +775,8 @@ def command(args):
                                   cwd=REPO, capture_output=True, text=True)
             require(done.returncode == 0, 'Build-Haks failed: ' + done.stdout[-2000:] + done.stderr[-2000:])
             report['built'] = [PACK, TABLE_PACK]
+    if getattr(args, 'report', None):
+        Path(args.report).write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8', newline='\n')
     shown = {**report, 'failures': report['failures'] if len(report['failures']) <= 40 else report['failures'][:40] + [f'... and {len(report["failures"]) - 40} more']}
     print(json.dumps(shown, indent=1))
     return 0 if report['passed'] else 1

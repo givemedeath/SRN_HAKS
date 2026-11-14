@@ -341,8 +341,8 @@ try {
 catch { Add-ValidationError "Additions catalog validation failed: $($_.Exception.Message)" }
 
 # Armor parts (tools/armorkit/publish.py): once the part registry is published, srn_parts holds every model and
-# inventory icon it implies and no other model, every part has its live row in its parts table, the table's rows
-# count from 0 without a gap, and the pack is registered. The names are derived as tools/armorkit/registry.py does.
+# inventory icon it implies and no other model, holds exactly the files the handoff records, every part has its
+# live row in its parts table, the table's rows count from 0 without a gap, and the pack is registered. The names are derived as tools/armorkit/registry.py does.
 $partsRegistryPath = Join-Path $repoRoot 'docs/armorkit/parts-registry.json'
 $partsPackPath = Join-Path $repoRoot 'srn_parts'
 if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -LiteralPath $partsPackPath -PathType Container)) {
@@ -350,7 +350,23 @@ if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -L
         if (-not (Test-Path -LiteralPath $partsRegistryPath -PathType Leaf)) { throw 'srn_parts exists without docs/armorkit/parts-registry.json' }
         $partsRegistry = Get-Content -LiteralPath $partsRegistryPath -Raw | ConvertFrom-Json
         if ($partsRegistry.kind -cne 'srn-armorkit-registry' -or $partsRegistry.schemaVersion -ne 1) { throw 'not a part registry (schema 1)' }
-        if (-not (Test-Path -LiteralPath (Join-Path $repoRoot 'docs/armorkit/parts-handoff.json') -PathType Leaf)) { Add-ValidationError 'The part registry is published without docs/armorkit/parts-handoff.json, which holds the hashes of what was published.' }
+        $partsHandoffPath = Join-Path $repoRoot 'docs/armorkit/parts-handoff.json'
+        if (-not (Test-Path -LiteralPath $partsHandoffPath -PathType Leaf)) { Add-ValidationError 'The part registry is published without docs/armorkit/parts-handoff.json, which holds the hashes of what was published.' }
+        else {
+            # The pack holds exactly the files the handoff records: each outfit's resources and the inventory icons.
+            $partsHandoff = Get-Content -LiteralPath $partsHandoffPath -Raw | ConvertFrom-Json
+            $partsRecorded = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+            foreach ($outfit in @($partsHandoff.outfits)) { foreach ($resource in @($outfit.resources)) { [void]$partsRecorded.Add([string]$resource.name) } }
+            if ($partsHandoff.PSObject.Properties['iconFiles']) { foreach ($resource in @($partsHandoff.iconFiles)) { [void]$partsRecorded.Add([string]$resource.name) } }
+            foreach ($name in $partsRecorded) {
+                if (-not (Test-Path -LiteralPath (Join-Path $partsPackPath $name) -PathType Leaf)) { Add-ValidationError "srn_parts has no $name, which the parts handoff records as published." }
+            }
+            if (Test-Path -LiteralPath $partsPackPath -PathType Container) {
+                foreach ($file in @(Get-ChildItem -LiteralPath $partsPackPath -File)) {
+                    if (-not $partsRecorded.Contains($file.Name)) { Add-ValidationError "srn_parts/$($file.Name) is not a file the parts handoff records as published." }
+                }
+            }
+        }
         if (-not $packByName.ContainsKey('srn_parts')) { Add-ValidationError 'The part registry is published and hakbuilder.json does not register srn_parts.' }
         $partTokens = @{ neck = @('neck'); chest = @('chest'); belt = @('belt'); pelvis = @('pelvis'); robe = @('robe'); shoulder = @('shol', 'shor')
             bicep = @('bicepl', 'bicepr'); forearm = @('forel', 'forer'); hand = @('handl', 'handr'); thigh = @('legl', 'legr'); shin = @('shinl', 'shinr'); foot = @('footl', 'footr') }

@@ -304,6 +304,7 @@ def main(argv=None):
     p.add_argument('--trial', help='scratch folder to write the publication into whatever the gates say, instead of the repository')
     p.add_argument('--dry-run', action='store_true', help='run the gates and print the report; write nothing')
     p.add_argument('--build', action='store_true', help='pack srn_parts and srn_2da once written (a trial: into its own output folder)')
+    p.add_argument('--report', help='file to write the whole report to; the printed one stops at 40 failures')
     p.set_defaults(handler=command_publish)
     args = parser.parse_args(argv)
     args.handler(args)
