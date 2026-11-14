@@ -127,7 +127,7 @@ class Halo(NamedTuple):
     light: list
 
 
-def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.05, clear=0.3):
+def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.05, clear=0.3):
     """The cards that carry the spread of the model's glow, a `Halo` (image, cards, light), or None where nothing glows.
 
     The glow seen square on is blurred over `reach` metres and dimmed to `strength`. Over the lit parts themselves it
@@ -146,28 +146,43 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
     of a sign box, the side of a window recess); and light the model itself hides, with more of the model standing
     over `clear` metres in front of most of it (the back of a sign box, inside the wall it hangs on). Patches whose
     cards would not touch get a card each. Without `toward` everything is taken to face front and nothing is left
-    out. The cards are flat either way."""
+    out. The cards are flat either way.
+
+    `parts` (which texels each lit part holds, as `inside` gives them) keeps each part's light on cards of its own; a
+    texel in two parts goes with the first. Without it the light of one side is shared out by depth alone, and where
+    the lit surfaces between two parts leave no gap in depth they share a card at the foremost: the Iron Sight Arms
+    shop's windows spread from a card at its sign, three quarters of a metre out from the glass, and from any slant
+    their light stood beside them (operator, 2026-11-14)."""
     from PIL import Image, ImageFilter
     require(reach > 0 and 0 < strength <= 1 and 0 <= core <= 1, 'A halo needs a reach in metres, a strength up to 1 and a core of 0 to 1')
     shining = covered & (lit.max(-1) > 0)
     if not shining.any():
         return None
     pad = 2 * reach; pictures, frames, light = [], [], []
+    shares, left = [], shining
+    for part in parts if parts is not None else ():
+        shares.append(left & part); left = left & ~part
+    shares.append(left)  # what no part holds, and everything where no parts are told
     if toward is not None:  # the upright side each texel faces most nearly, or none where it faces up or down
         along = np.stack([toward[..., 0] * x + toward[..., 1] * y for x, y in SIDES], -1)
         faced = np.where(along.max(-1) > 0.5, along.argmax(-1), -1)
     for side, (ahead_x, ahead_y) in enumerate(SIDES):
         # In the card's own frame: across (the viewer's left is positive), depth towards the viewer, height.
         frame = lambda places: np.stack([places[:, 0] * ahead_y - places[:, 1] * ahead_x, places[:, 0] * ahead_x + places[:, 1] * ahead_y, places[:, 2]], 1)
-        mine = shining & (faced == side) if toward is not None else shining if side == 0 else np.zeros_like(shining)
-        if not mine.any():
+        faces = shining & (faced == side) if toward is not None else shining if side == 0 else np.zeros_like(shining)
+        if not faces.any():
             continue
-        spots = frame(where[mine]); colours = lit[mine]; order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]
         if toward is not None:  # how far out the model reaches at each spot of this view, to tell what it hides
             whole = frame(where[covered]); base = whole.min(0); span = np.ceil((whole.max(0) - base) * scale).astype(int) + 1
             pixel = lambda places: (np.clip(((places[:, 2] - base[2]) * scale).astype(int), 0, span[2] - 1), np.clip(((places[:, 0] - base[0]) * scale).astype(int), 0, span[0] - 1))
             outermost = np.full((span[2], span[0]), -np.inf); np.maximum.at(outermost, pixel(whole), whole[:, 1])
-        for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1):
+        layers = []  # (spots, colours, their indices) of each part's light at each depth
+        for share in shares:
+            mine = faces & share
+            if mine.any():
+                spots = frame(where[mine]); colours = lit[mine]; order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]
+                layers += [(spots, colours, layer) for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1)]
+        for spots, colours, layer in layers:
             layer = layer[np.argsort(spots[layer, 0])]
             for patch in np.split(layer, np.flatnonzero(np.diff(spots[layer, 0]) > 2 * pad) + 1) if toward is not None else [layer]:
                 low, high = spots[patch].min(0) - pad, spots[patch].max(0) + pad

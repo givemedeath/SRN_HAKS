@@ -330,6 +330,16 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
 - **A lit part does not light.** `envkit view ... --lit` counts for each lit part the texels its box holds and
   the texels it lights (`litParts`). A box that holds much and lights nothing is on the wrong part of the
   model, or on a part too dark to shine.
+- **A lit strip sits beside its window or sign** (above it, short of one end, or shifted as the camera moves).
+  A lit part with no colour test lights everything in its box, the wall round a recessed window too, and a box
+  read off a drawing too fine for the texture is read wrong: the Iron Sight Arms range windows were lit 0.35
+  metres too high and the shop's sign 0.25 metres short of one end (operator, 2026-11-14). Draw a building at
+  60 to 120 pixels to the metre, where its texels still touch, and bound the box in depth (y on a front wall)
+  to the lit surface itself: glass in a recess stands behind the wall's face. `litParts` gives each part's
+  `planes`, the depths its light stands at with their shares; a window that shows the wall's depth as a second
+  plane is lighting the wall. Each lit part spreads from halo cards of its own, just in front of its own
+  foremost light, so name a sign, the windows under it and the strip lights over them as separate parts.
+  Look at every lit part close and from a slant in the night check.
 - **A square-on view does not show it** (inside a hole, under an overhang, through a fence).
   `envkit view --models ... --root <root> --model <name> --eye <label>=ex,ey,ez,tx,ty,tz[,fov[,reach]] --output <scratch>`
   draws the model as it will ship, fence sheets and all, from an eye at `ex,ey,ez` looking at `tx,ty,tz`, in

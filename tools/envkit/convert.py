@@ -1384,7 +1384,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
             base = np.asarray((shown if shown is not None else picture).convert('RGB').resize((size, size)), float) / 255
         where, covered, toward = placed; shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
-        card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
+        card = glow.halo(shine, where, covered, toward=toward, parts=[glow.inside(where, covered, part['box']) for part in lit], **halo) if halo else None
     if built:  # after the pictures: a built member takes one place of the picture, which no retouching or glow should read as its
         vertices, normals, uvs, faces = with_built(vertices, normals, uvs, faces, built)
     return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,

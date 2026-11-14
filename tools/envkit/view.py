@@ -44,6 +44,19 @@ def contact(run, output, columns=3):
     return len(cells)
 
 
+def _stood(where, toward, shining):
+    """Where a lit part's light stands: {side, planes}. `side` is the side most of it faces (`glow.SIDES`) and `planes`
+    the depths out along that side, to 5 cm, at which a tenth or more of that light stands, each with its share. A
+    window's glass stands at one depth; a box that also lights the wall round the window shows the wall's depth as a
+    second plane (the Iron Sight Arms range windows, 2026-11-14: glass at 1.6, wall at 1.75 and 1.85)."""
+    if not shining.any():
+        return {'side': None, 'planes': []}
+    along = toward[shining] @ np.array([[x, y, 0.0] for x, y in glow.SIDES]).T; side = int(np.bincount(along.argmax(-1), minlength=len(glow.SIDES)).argmax())
+    depth = where[shining][along.argmax(-1) == side] @ np.array([*glow.SIDES[side], 0.0])
+    steps, counts = np.unique(np.round(depth / 0.05).astype(int), return_counts=True)
+    return {'side': side, 'planes': [[round(float(step) * 0.05, 2), round(float(count) / len(depth), 2)] for step, count in zip(steps, counts) if count >= len(depth) / 10]}
+
+
 def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, lit):
     from PIL import Image
     where, covered, toward = glow.position_map(points, uvs, faces, fine, facing=True)
@@ -53,8 +66,10 @@ def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, 
     if lit is not None:
         shine = glow.glow(base, where, covered, lit)
         report['litShare'] = round(float((shine.max(-1) > 0.02).sum() / max(covered.sum(), 1)), 3)
-        report['litParts'] = [{'part': region.get('part'), 'held': int(glow.inside(where, covered, region['box']).sum()),
-                               'lit': int((glow.glow(base, where, covered, [region]).max(-1) > 0.02).sum())} for region in lit]
+        report['litParts'] = []
+        for region in lit:
+            shining = glow.glow(base, where, covered, [region]).max(-1) > 0.02
+            report['litParts'].append({'part': region.get('part'), 'held': int(glow.inside(where, covered, region['box']).sum()), 'lit': int(shining.sum()), **_stood(where, toward, shining)})
         base = np.where(shine.max(-1, keepdims=True) > 0.02, np.maximum(shine, 0.1), base * 0.35 * [0.6, 0.7, 1.0])
     extent = float(max(points.max(0) - points.min(0))); pixels = scale or max(int(1400 / extent), 1); output = Path(output); output.mkdir(parents=True, exist_ok=True)
     for side in sides:
@@ -70,7 +85,7 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
     """Pictures `<name>-side<n>.png` of a game set's model as it will ship, with a grid. `models` is the loaded game
     set and `root` its output root. `lit` shows what its lit boxes light. Returns {bounds, pictures, litShare,
     litParts}, the last two with `lit`: the share of the model's texels that are lit, and for each lit part the texels
-    its box holds and the texels it lights."""
+    its box holds, the texels it lights, the side most of its light faces and the depths it stands at (`_stood`)."""
     from PIL import Image
     require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
     require(not lit or model.get('lit'), name + ' states no lit parts')

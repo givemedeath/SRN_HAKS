@@ -899,20 +899,25 @@ height (operator, 2026-11-14: "can you copy the wall texture over it?"): the pla
 (its face and both sides), the lettering Meshy mirrored on to the wing's east wall, and the smeared mirrored lettering
 on the shop's back wall where the wing does not cover it. The block on the wing's end still stands 0.6 metres out of
 the wall, as generated. Glow maps were made from the models' own colour for the shop's sign, its pistol sign, its
-windows and door, the wing's windows and the lamp over its door. Nothing else was retouched. The meshes were shared
-out over six tiles (none to 44,482 faces each) with a ground square, a map picture and two main lights each; nothing
-carries `tilefade`, the building being one storey with its rooftop units at 6.1 metres; and a walkmesh was generated
-from their shape (204 to 698 faces a tile, where the stock tiles of these two tilesets have at most 500). The shop's
-tile has a door record of type 58, the invisible transition door, at the double door. The Meshy sources, the
-full-detail spares, the references and the client captures stay in ignored `output/envkit/`.
+windows and door, the strip lights over its windows, the wing's windows and the lamp over its door, each with a halo
+sheet of its own just in front of it. Nothing else was retouched. The meshes were shared out over six tiles (none to
+44,482 faces each) with a ground square, a map picture and two main lights each; nothing carries `tilefade`, the
+building being one storey with its rooftop units at 6.1 metres; and a walkmesh was generated from their shape (204 to
+698 faces a tile, where the stock tiles of these two tilesets have at most 500). The shop's tile has a door record of
+type 58, the invisible transition door, at the double door. The Meshy sources, the full-detail spares, the references
+and the client captures stay in ignored `output/envkit/`.
 
 Checked in the game client on 2026-11-14, in a Modern Exterior area laid from the pack's files: by day from all four
 sides, two corners, the front and from above, and at the door; by night, where the sign, the pistol sign, the windows
 and the lamp over the wing's door were lit, and `SetTextureOverride`, as `docs/envkit/lights.md` gives it, put them
 out and brought them back; and with the player free, where nothing was hidden. The first day check showed the wing's
 end block torn and streaked and the shop's back wall smeared; both were covered as above and seen again by day and by
-night. The walk check (`envkit check group --mode walk`), in both tilesets, sent five walkers from the far corner of
-the area to the door and to the four sides of the building: all arrived. Not yet opened in the Toolset.
+night. The operator then saw the lit strips sitting beside their signs and windows (2026-11-14): the wing's windows
+were lit 0.35 metres too high, wall and all, the sign 0.25 metres short of one end, and the windows' halo stood out at
+the sign's depth. The lit parts were measured again and bounded in depth to the sign's board, the glass and the lamps,
+each given halo sheets of its own, and seen again by night, lit, out and lit again. The walk check (`envkit check
+group --mode walk`), in both tilesets, sent five walkers from the far corner of the area to the door and to the four
+sides of the building: all arrived. Not yet opened in the Toolset.
 
 ## Iron Sight Arms props (`srn_placeable`, `srn_2da`; 2026-11-14)
 

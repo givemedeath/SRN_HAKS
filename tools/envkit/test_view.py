@@ -53,9 +53,11 @@ class ViewTests(unittest.TestCase):
         lit = view.elevations(self.models, self.root, 'ek_wall', self.root / 'lit', fine=128, lit=True)
         self.assertGreater(lit['litShare'], 0.3); self.assertLess(lit['litShare'], 0.7)  # the upper half is lit
         (part,) = lit['litParts']; self.assertEqual(part['part'], None); self.assertGreater(part['held'], 0); self.assertEqual(part['lit'], part['held'])  # what its box holds, it lights
+        self.assertEqual((part['side'], part['planes']), (0, [[0.0, 1.0]]))  # all of its light faces front and stands at the wall's one depth
         dark = {**self.models['ek_wall'], 'paint': [{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 2.1]], 'colour': [0, 0, 0]}], 'lit': [{'part': 'sign', 'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]]}]}
         (part,) = view.elevations({'ek_wall': dark}, self.root, 'ek_wall', self.root / 'dark', fine=128, lit=True)['litParts']
         self.assertEqual((part['part'], part['lit']), ('sign', 0)); self.assertGreater(part['held'], 0)  # a box on a part with nothing to light is told
+        self.assertEqual((part['side'], part['planes']), (None, []))
         with self.assertRaisesRegex(ValueError, 'states no lit parts'):
             view.elevations(self.models, self.root, 'ek_plain', self.root / 'lit', lit=True)
         with self.assertRaisesRegex(ValueError, 'No such model'):
