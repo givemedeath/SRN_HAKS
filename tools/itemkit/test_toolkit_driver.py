@@ -468,6 +468,12 @@ class OpeningProbeTests(unittest.TestCase):
         narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
         with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
         with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.fitted_shell({'inputs': {}}, {'native': {}}, '.')
+        # A long window matches a reference inside its own span even when its deepest point is further off (the wave-5
+        # Katar: deepest point 0.342, span 0.289-0.393, reference 0.384).
+        self.assertAlmostEqual(hole['extent'][1][0], .06, delta=.006); self.assertAlmostEqual(hole['extent'][1][1], .08, delta=.006)
+        window = [{**hole, 'fraction': .342, 'span': [.289, .393]}]
+        self.assertEqual(op.match([('window', .384)], window)[0]['name'], 'window')
+        with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('window', .45)], window)
         from tools.itemkit.grip import melee_fit
         from tools.itemkit.routes import WHOLE_NATIVE_FAMILIES
         with self.assertRaisesRegex(ValueError, 'firearm'): op.fitted_shell({}, {'family': WHOLE_NATIVE_FAMILIES[0]}, '.')

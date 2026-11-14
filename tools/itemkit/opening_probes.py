@@ -82,7 +82,10 @@ def holes(vertices, faces, axis):
         i += box[0].start - 1; j += box[1].start - 1
         start = np.zeros(3); start[1] = lo[0] + (i + .5) * RESOLUTION; start[other] = lo[1] + (j + .5) * RESOLUTION
         end = start.copy(); start[axis] = vertices[:, axis].min() - .01; end[axis] = vertices[:, axis].max() + .01
-        found.append({'axis': 'xyz'[axis], 'area': area, 'clearance': float(depth.max() * RESOLUTION), 'y': float(start[1]),
+        # The hole's extent on the projection's two in-plane axes (native Y, and Z or X), in metres.
+        extent = {1: [lo[0] + box[0].start * RESOLUTION, lo[0] + box[0].stop * RESOLUTION],
+                  other: [lo[1] + box[1].start * RESOLUTION, lo[1] + box[1].stop * RESOLUTION]}
+        found.append({'axis': 'xyz'[axis], 'area': area, 'clearance': float(depth.max() * RESOLUTION), 'y': float(start[1]), 'extent': extent,
                       'start': start.tolist(), 'end': end.tolist(), 'hits': int(segment_hits(vertices, faces, start.tolist(), end.tolist()))})
     return found
 
@@ -111,7 +114,13 @@ def match(references, found):
     order, most clearance first, backing up when a later one would be left without a hole. A reference with no clear
     hole from either end is refused, as is a set no single end can place."""
     clear = [k for k, hole in enumerate(found) if not hole['hits'] and hole['clearance'] >= MIN_CLEARANCE]
-    near = lambda target: sorted((k for k in clear if abs(target - found[k]['fraction']) <= MATCH_TOLERANCE),
+    # A reference matches a hole whose deepest point is near it or whose own span along the weapon holds it: a long
+    # window's deepest point need not sit where the reference image's opening centre does (the wave-5 Katar's frame
+    # window, 0.342 against 0.384, with the reference inside the window).
+    def inside(target, hole):
+        low, high = hole.get('span', [hole['fraction']] * 2)
+        return low - MATCH_TOLERANCE <= target <= high + MATCH_TOLERANCE
+    near = lambda target: sorted((k for k in clear if abs(target - found[k]['fraction']) <= MATCH_TOLERANCE or inside(target, found[k])),
                                  key=lambda k: -found[k]['clearance'])
     for name, fraction in references:
         require(near(fraction) or near(1 - fraction), f'No clear through-hole matches {name} (fraction {fraction:.3f}): it closed '
@@ -137,7 +146,12 @@ def match(references, found):
 
 def measure(manifest, family, handoff):
     """Every through-hole of the fitted shell and the reference openings' positions, without writing anything."""
-    w, f = fitted_shell(manifest, family, handoff); y0, y1 = w[:, 1].min(), w[:, 1].max()
-    found = [hole for axis in (0, 2) for hole in holes(w, f, axis)]
-    for hole in found: hole['fraction'] = (hole['y'] - y0) / (y1 - y0)
+    w, f = fitted_shell(manifest, family, handoff)
+    # A side grip's long body lies across the hand, along native Z (fit_manifest sideGrip): its holes are seen along X
+    # and placed along Z, where the reference image's long axis is.
+    side = bool((manifest.get('fit') or {}).get('sideGrip')); long = 2 if side else 1; y0, y1 = w[:, long].min(), w[:, long].max()
+    found = [hole for axis in ((0,) if side else (0, 2)) for hole in holes(w, f, axis)]
+    for hole in found:
+        hole['fraction'] = (hole['start'][long] - y0) / (y1 - y0)
+        hole['span'] = [(x - y0) / (y1 - y0) for x in hole.pop('extent')[long]]
     return {'nativeLength': float(y1 - y0), 'references': reference_fractions(manifest, handoff), 'holes': found}
