@@ -128,6 +128,10 @@ def validate_spec(spec):
                     head['id']+': resources must list files')
             require(isinstance(head.get('ascii',''),str),head['id']+': ascii must be the ASCII model path')
         else:require(isinstance(head['native'],str),head['id']+': native must be the native stage folder')
+        if 'nativeReceiptSha256' in head:
+            digest=head['nativeReceiptSha256']
+            require('native' in head and isinstance(digest,str) and re.fullmatch(r'[0-9a-f]{64}',digest) is not None,
+                    head['id']+': native receipt hash requires a native stage folder')
         _rows(head.get('skinRows'),head['id']+': skinRows');_rows(head.get('hairRows'),head['id']+': hairRows')
         _rows(head.get('tattoo1Row'),head['id']+': tattoo1Row',single=True);_rows(head.get('tattoo2Row'),head['id']+': tattoo2Row',single=True)
         for key in ('tattoo1Rows','tattoo2Rows'):
@@ -192,7 +196,13 @@ def head_resources(head):
     A fromBase head has none: it shows the published bytes in a base HAK."""
     if 'fromBase' in head:return [],None,[]
     if 'native' in head:
-        stage=Path(head['native']);record=read(stage/'native.json')
+        stage=Path(head['native']);receipt=stage/'native.json'
+        pins=[]
+        if 'nativeReceiptSha256' in head:
+            receipt_pin=pin(receipt)
+            require(head['nativeReceiptSha256']==receipt_pin['sha256'],head['id']+': selected native fit receipt changed')
+            pins.append(receipt_pin)
+        record=read(receipt)
         require(record.get('model')==head['model'],head['id']+': native stage builds '+str(record.get('model')))
         require(head.get('nativeMaterial')==record.get('nativeMaterial'),head['id']+': native material policy differs from the trial spec')
         hak=stage/(head['model']+'.hak')
@@ -201,7 +211,7 @@ def head_resources(head):
         for key,kind in (('mdl',TYPES['mdl']),('plt',TYPES['plt'])):
             if key in record:require(hashes.get((head['model'],kind))==record[key]['sha256'],head['id']+': native '+key+' pin differs from its HAK')
         ascii_model=stage/'converted'/'ascii'/(head['model']+'.mdl')
-        return found,(ascii_model if ascii_model.is_file() else None),[pin(hak)]
+        return found,(ascii_model if ascii_model.is_file() else None),[*pins,pin(hak)]
     found=[];pins=[]
     for item in head['resources']:
         path=Path(item);require(path.is_file(),head['id']+': resource missing: '+item)
@@ -412,10 +422,29 @@ def row_scripts(spec,actors,sweep=SWEEP_SECONDS):
         # Reuse the same camera, spawn and animation paths as manual inspection.
         tour=['void HeadInspectView(string v){SetLocalString(GetModule(),"HEAD_VIEW",v);HeadCamera(GetFirstPC());}',
               'void HeadTourDistance(float d){SetLocalFloat(GetModule(),"HEAD_DISTANCE",d);HeadCamera(GetFirstPC());}',
+              'void HeadTourPose(string v,float d){SetLocalString(GetModule(),"HEAD_VIEW",v);HeadTourDistance(d);}',
+              'void HeadTourLook(int row,int col){SetLocalFloat(GetModule(),"HEAD_DISTANCE",INSPECT_DISTANCE);HeadPut(row,col);}',
               'void HeadTour(){']
-        delay=rows*sweep+8
+        compact = spec.get('captureCoverageRequired') is True and rows <= 5 and sweep == SWEEP_SECONDS
+        delay=rows*sweep+2 if compact else rows*sweep+8
         for row in range(rows):
-            tour.append(f'  DelayCommand({delay:.1f},HeadShow({row}));')
+            # The startup sweep has already returned to row zero by this point.
+            if not compact or row!=0:
+                tour.append(f'  DelayCommand({delay:.1f},HeadShow({row}));')
+            if compact:
+                if row!=0:delay+=2
+                for view in ('three','threeleft','backright','backleft'):
+                    tour.append(f'  DelayCommand({delay:.1f},HeadTourPose("{view}",INSPECT_DISTANCE));')
+                    # The first placement runs twice after hiding the player. Leave
+                    # room for the camera to settle and for the first capture to initialize.
+                    delay+=7.5 if row==0 and view=='three' else 2.5
+                tour.append(f'  DelayCommand({delay:.1f},HeadTourPose("front",INSPECT_DISTANCE*4.0));')
+                tour.append(f'  DelayCommand({delay+3:.1f},HeadTourDistance(INSPECT_DISTANCE*1.75));')
+                tour.append(f'  DelayCommand({delay+5:.1f},HeadAnimate({row}));')
+                alternate = any(actor['row']==row and actor['column']==1 for actor in actors)
+                tour.append(f'  DelayCommand({delay+10:.1f},HeadTourLook({row},{int(alternate)}));')
+                delay+=14
+                continue
             delay+=4
             for view in ('front','three','threeleft','backright','backleft','front'):
                 tour.append(f'  DelayCommand({delay:.1f},HeadInspectView("{view}"));')

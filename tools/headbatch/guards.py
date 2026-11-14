@@ -7,7 +7,7 @@ import re
 import time
 
 from gpu_job import geometry_limit, submissions
-from head_files import attempts, current, decision, fit_matrix, read, sha
+from head_files import attempts, current, decision, fit_matrix, read, sha, shell_review_basis, state
 from headkit.comfy import locked
 from workspace import TOOLS
 
@@ -97,6 +97,19 @@ def ownership_rules(head):
     ownership = read(head/'manifest.json')['ownership']
     if ownership.get('mode') == 'rules' and not ownership.get('rules'):
         raise Refused(f'{head.name}: ownership has no rules (RUNBOOK 98)')
+
+
+def shell_review_current(head, basis, mesh):
+    expected = shell_review_basis(state(head).get('stages', {}).get('precluster'), mesh)
+    if expected['precluster'] is None or basis != expected:
+        raise Refused(f'{head.name}: shell review is missing or stale; run review --slot shells for the current precluster and wrap settings')
+
+
+def repair_shell_review(head):
+    mesh = read(head/'manifest.json').get('mesh', {})
+    components = mesh.get('components') or {}
+    if not mesh.get('localSeal') and 'reviewBasis' in components:
+        shell_review_current(head, components['reviewBasis'], mesh)
 
 
 def reference_eye_prerequisites(head):

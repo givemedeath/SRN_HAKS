@@ -49,6 +49,14 @@ def state(head):
     return read(path) if path.exists() else {}
 
 
+def shell_review_basis(precluster, mesh):
+    """Initial shell selection runs on the precluster after the first exterior wrap."""
+    wrap = mesh.get('alphaWrap', False)
+    return {'precluster': precluster, 'wrap': wrap,
+            'alpha': mesh.get('alphaRelative', .005) if wrap else None,
+            'offset': mesh.get('offsetRelative', .00025) if wrap else None}
+
+
 def current(head, stage):
     """The attempt folder name headkit holds as this stage's result, or None. A review binds to it, whatever the newest folder is. By folder name: see consumed."""
     row = state(head).get('stages', {}).get(stage)

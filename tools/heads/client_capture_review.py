@@ -16,6 +16,8 @@ def check_captures(manifest_path,log_path,record_path,log_report):
         require(path.is_relative_to(manifest_path.parent.resolve()),'Trial file escapes its folder')
         require(pin(path)['sha256']==row['sha256'],'Trial asset changed since build')
     _,lines=last_session(log_path.read_text(encoding='utf-8',errors='replace'))
+    first_poses=[i for i,line in enumerate(lines) if line.startswith('HEAD_INSPECT actor=')][:2]
+    warmup=(first_poses[0] if len(first_poses)==2 and lines[first_poses[0]]==lines[first_poses[1]] else None)
     actors={row['tag']:row for row in manifest['actors']}
     spawned={row['tag'] for row in log_report['actors'] if row['status']=='spawned'}
     captures=record.get('captures');require(isinstance(captures,list) and captures,'Nonempty client captures required')
@@ -31,6 +33,7 @@ def check_captures(manifest_path,log_path,record_path,log_report):
         require(frame['sha256'] not in hashes,'One frame cannot stand for several captures');hashes.add(frame['sha256'])
         index=capture.get('inspectionEvent')
         require(type(index) is int and 0<=index<len(lines),'Capture needs a valid zero-based inspectionEvent in the parsed last session')
+        require(index!=warmup,'Use the repeated initial camera placement for the first view')
         fields=dict(FIELDS.findall(lines[index]))
         require(lines[index].startswith('HEAD_INSPECT ') and fields.get('actor')==actor['tag'] and fields.get('view')==capture.get('view'),
                 'Capture camera/actor differs from the logged inspection event')
@@ -41,11 +44,13 @@ def check_captures(manifest_path,log_path,record_path,log_report):
         seen.setdefault(actor['headId'],[]).append((actor,capture))
     problems=[]
     for head in manifest['heads']:
-        rows=seen.get(head['id'],[]);primary=[c for a,c in rows if a.get('column',0)==0]
+        rows=seen.get(head['id'],[])
+        stills=[(actor,capture) for actor,capture in rows if capture.get('motionEvent') is None]
+        primary=[capture for actor,capture in stills if actor.get('column',0)==0]
         missing=REQUIRED_VIEWS-{c['view'] for c in primary}
         if missing:problems.append(head['id']+': missing primary-look views '+','.join(sorted(missing)))
         if not any(c.get('motionEvent') is not None for _,c in rows):problems.append(head['id']+': missing motion frame')
-        looks={tuple(a[k] for k in ('skin','hair','tattoo1','tattoo2')) for a,_ in rows}
+        looks={tuple(actor[k] for k in ('skin','hair','tattoo1','tattoo2')) for actor,_ in stills}
         if len(looks)<2:problems.append(head['id']+': missing second palette look')
     return {'kind':'head-client-capture-coverage','manifest':pin(manifest_path),'log':pin(log_path),'captures':pin(record_path),
             'passed':not problems,'problems':problems,'visualApprovalRequired':True,'productionAccepted':False,

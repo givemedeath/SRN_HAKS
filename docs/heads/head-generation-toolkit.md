@@ -259,6 +259,10 @@ Render plans require nonempty camera and material-mode lists. Every requested si
 
 Before calling a head good enough to publish, check the four three-quarter views (`three`, `threeleft`, `backright`, `backleft`), one motion frame (`anim`) and a second look: a front view cannot show rear hair or scalp defects.
 
+Bring the isolated client to the foreground before capturing. For the compact tour, wait for the repeated first placement, then give the camera about 1.5 s to settle. Allow about 1 s after later camera placements and about 1.6 s after the motion event. Match each frame to the logged actor and camera and check the pixels for the intended angle and visible motion. Replace frames with a chase camera or another window over the game even when the capture verifier passes. A selection glow invalidates palette review. If it leaves the geometry clear, label the frame for geometry review and use neutral views of the same asset bytes to judge color.
+
+When a small mark at the neck appears only in the client, compare a published control on the same body and palette. If the mark is specific to the candidate, use the exact native mesh and a temporary atlas in a private trial to color the suspect surface by head-local position. Use that location to scope any adjustment below the jaw. Move both nearby walls of a wrapped surface together, audit the final mesh for intersections, and repeat the client check with the original PLT.
+
 ## Running a head batch
 
 Use `tools/headbatch` to run a batch: `docs/heads/head-batch-orchestration.md` covers its workspace, commands, guards and spooler.

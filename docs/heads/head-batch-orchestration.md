@@ -43,7 +43,8 @@ run_headbatch.py components HEAD --notes TEXT             record the reviewed sh
 run_headbatch.py ownership HEAD RULES.json                record a reviewed ownership rule set
 run_headbatch.py run NAME STAGES HEAD... [--approve STAGE --notes TEXT [--approve-attempt ATTEMPT]]
 run_headbatch.py spool [--once]                          auto-advance queued heads
-run_headbatch.py trial-spec RACE [--version N]           specs/trial-RACE-vN.json
+run_headbatch.py trial-spec RACE [--version N] [--gender male|female] [--native-fits FILE.json]
+                                                         specs/trial-RACE-vN.json
 run_headbatch.py trial NAME [--version N]                build trials/NAME-vN
 run_headbatch.py presets HEAD... [--uv-only] [--apply] [--review-floor NOTES]
                                                          plan or apply the repair policies; exit 1 on HOLD
@@ -66,7 +67,7 @@ To use the installed smaller text-only stack, set `"profile": "qwen21-int8-v1"` 
 | Fit | `fitcheck` compares base profile and nose placements. For an explicit chin-down correction, set `fit.chinDownDegrees` on the head and rerun fit. Positive degrees rotate the fitted head about the head_g attachment in its local frame. An optional positive `fit.scaleMultiplier` scales uniformly. With nose alignment, `fit.realignAfterPose: true` translates the transformed nose back to the reference tip. Compare the exact receipts with `review --slot fitcheck --poses HEAD OLD_ATTEMPT NEW_ATTEMPT OUT.png`. The spooler also queues `review --slot fitcheck --reference HEAD ATTEMPT OUT.png` with matched front and side views of the bound reference and the posed head. Check the mouth seam, chin and eye heights on its millimetre rulers before neck work. If the whole head needs a vertical correction, `fit.heightOffset` shifts the finished pose in head-local metres. A negative value lowers it. To enlarge or shrink the fitted head uniformly while preserving its final XYZ placement and rotation, set `fit.localScaleMultiplier`. This multiplies all three local axes after positioning. Rerun fit and inspect the new sheet. |
 | Neck cut, before a repair | `slopescan` (seconds), `cutdry`, `cutreplay` (prints unverified for a skirt or several rings, which need the rewrap), `skirtzone` |
 | Shells | `shells`, `cutshells` |
-| Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `ownsheet` (a finished attempt's saved atlas), `rowramps`; `irisrows HEAD ATTEMPT --rows N ...` previews explicit iris candidates before another palette pass |
+| Texture and rows | `bakeviews` (textured views and iso-line grid), `grid`, `own_draft` (draft ownership rules, no launch), `ownsheet` (a finished attempt's saved atlas), `rowramps`; `irisrows HEAD ATTEMPT --rows N ...` compares irises and `gamesize HEAD ATTEMPT --look 1=ROW,8=ROW` compares candidate looks before another palette pass |
 | Face marks | `design_landmarks OUT_DIR HEAD...` writes the `landmarks.json` the jaw guard reads; `OUT_DIR` must be absolute. Check both halves of the sheet. When silhouette registration misses the actual mesh eyes or mouth, supply separate `design` and `front` pixel maps in `--override` and inspect the new sheet. `front` is in the 1536-pixel mesh view. |
 
 After a rejected geometry, a selected replacement clay can use the original slot and diffuse image. Run `reference-check` on the new record and show the pair. Pass that exact check to `setup HEAD ORIGINAL_DESIGN --reference-record NEW_RECORD --revised-clay-check CHECK_JSON --approval WORDS`. This versions the clay under the head's inputs and preserves earlier submissions and conditioning. Run prepare and calibrate again before geometry. Review the new raw mesh before appearance.
@@ -82,6 +83,8 @@ For a head that already ends at the jaw, compare `review --slot fitcheck --body-
 For an uncut head, record the exact fit review before `slopescan` or `cutdry`. Both report the fitted jaw against the body neck and require a current fit approval. The dispatcher refuses a missing, pending, rejected or stale fit review before waiting for a CPU slot. Fit comparison and shell inspection remain available before that review.
 
 For a head that needs a neck cut, before the first repair, compare slopes, inspect shells, record any required component selection, then run `review --slot cutdry HEAD`. It rebuilds the uncut master in temporary storage using the current fit, smoothing and shell selection. Use `--attempt attempt-NN` to replay a saved master with current cut settings. Use `--verify-cut NEW_FOLDER` for a first dry run that needs closure proof. It runs the real cut including any required rewrap and master audit, retains the before and after meshes under `review-evidence`, and stops before reduction. A band measurement or an unverified replay cannot establish closure.
+
+After a reseed or a change to the exterior wrap distances, rerun `review --slot shells` before recording a component selection or starting repair with an existing bound selection. The report records the exact precluster receipt and wrap settings.
 
 For an unwrap stopped on coverage before face priority, `review --slot uvfinal HEAD ATTEMPT NEW_EVIDENCE_FOLDER` measures the final pack once against that attemptÃ¢â‚¬â„¢s policy and reviewed repair. Compare the two atlas sheets, achieved facial density and the final checks. This diagnostic does not change a floor or launch bake.
 
@@ -162,9 +165,13 @@ When refreshing `tools/test-impact.json` in a sparse worktree, include the compl
 
 ## Before publishing
 
+When carrying reviewed private fits into a new trial, pass `trial-spec --native-fits FILE.json`. In the workspace, map each affected head ID to an object with `sourceNativeSha256` (the completed native attempt's `receipt.json` hash) and `native` (a `path` to the selected `native.json` and its `sha256`). The selected fit must use the same slot, PLT and native material as the source attempt. The generated spec binds the selected receipt, and `trial` rechecks its hash before packaging. Record visual approval separately against the exact client evidence.
+
 Check current shipped resources and in-progress reservations before using slot-catalog blocks. The Troll collection now occupies slots 001Ã¢â‚¬â€œ020 for both sexes; see docs/heads/troll-head-reindex-v1.md. For authorized renumbering, use the bounded native renamer and whole-pack validation described there; filename-only changes leave internal model and PLT references behind.
 
-Run the built private trial with `run_headbatch.py client RACE --version N`. This reserves every workspace CPU lane and the shared GPU until the owned client exits; do not run tests, generation or other heavy work alongside it. The private profile automatically enables a 30 FPS foreground / 10 FPS background limiter and a decorated window no larger than 1920x1080. Admission requires 6 GiB free RAM and an idle Comfy queue; the client is supervised at a 4 GiB live RAM floor and the 12 GB sampled device budget. It stops only its own process on unsafe memory, a session STOP file or the 180-second deadline. Session settings, ownership and memory receipts are under trials/client-sessions; runtime/current-client.json identifies the current session. Review four three-quarter views, one motion frame and a second look, move the pointer outside the scene before neutral captures, then close normally before the deadline and verify closure. See the client trial section of `docs/heads/head-generation-toolkit.md`.
+Run the built private trial with `run_headbatch.py client RACE --version N`. This reserves every workspace CPU lane and the shared GPU until the owned client exits; do not run tests, generation or other heavy work alongside it. The private profile automatically enables a 30 FPS foreground / 10 FPS background limiter and a decorated window no larger than 1920x1080. Admission requires 6 GiB free RAM and either a stopped local ComfyUI or an empty Comfy queue. A timeout, invalid response or busy queue blocks launch. The client is supervised at a 4 GiB live RAM floor and the 12 GB sampled device budget. It stops only its own process on unsafe memory, a session STOP file or the 180-second deadline. Session settings, ownership and memory receipts are under trials/client-sessions; runtime/current-client.json identifies the current session. Review four three-quarter views, one motion frame and a second look, move the pointer outside the scene before neutral captures, then close normally before the deadline and verify closure. See the client trial section of `docs/heads/head-generation-toolkit.md`.
+
+Keep the Windows desktop unlocked during visual QA. The supervisor requires an active, unlocked Windows session and closes the owned client if the session locks or disconnects during the trial. A compact tour for up to five heads keeps the four inspection views, a gameplay-distance view, motion and the alternate look within the same 180-second deadline.
 
 Every confirmed mistake gets a guard and a row in `docs/heads/race-heads-v1-runbook.md`. Runbook rows name the original batch scripts; the table below gives their replacements.
 
@@ -331,6 +338,11 @@ and the exact sheet receipt. Changed shapes, calibration or evidence invalidate 
 A failed sheet can be retried with `review --slot gpuclay HEAD`, without spending
 another GPU submission. Never write the approval for the user.
 
+If saved-shape appearance has to wait for the GPU start floor, the reviewed raw
+shape can already go through `precluster` and `fit` in the CPU lanes. Both stages
+use mesh and fit inputs only. Bake still needs the appearance field from that
+same shape.
+
 All headbatch workspaces use the shared tools root's `locks/gpu-INDEX` lease.
 `toolsRoot` may explicitly bind that root in workspace.json; otherwise use normal
 shared-tools resolution. Other GPU consumers must participate in the same device
@@ -396,10 +408,10 @@ run_headbatch.py env tools/heads/verify_head_trial.py --manifest RUNTIME.json --
 path/SHA256 pins, and `captures`. Each capture supplies `actor`, `view`, a pinned
 `frame`, and `inspectionEvent` (zero-based index in the parsed last session's entry
 texts, after timestamp removal). A motion frame also supplies `motionEvent`.
-Required per head: primary-look `three`, `threeleft`, `backright`, `backleft`, a
-motion frame and a different palette look. The validator checks images, log events,
-colours/slots and unchanged built HAK/module files. Coverage never writes a visual
-approval or production acceptance.
+Each head needs four stills at primary-look `three`, `threeleft`, `backright` and
+`backleft`, a separate motion frame and a still of a different palette look. The
+validator checks images, log events, colours/slots and unchanged built HAK/module
+files. Coverage never writes a visual approval or production acceptance.
 
 New headbatch trial specs set `captureCoverageRequired: true`, carried into the
 runtime manifest. Their verifier fails when `--captures` is omitted even if

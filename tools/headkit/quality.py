@@ -11,7 +11,7 @@ from scipy.ndimage import label, binary_dilation, binary_erosion, binary_opening
 from scipy.spatial import cKDTree
 from .common import require, pin, write, read, positive
 from .gltf import mesh
-from .brow_edges import upper_lids
+from .brow_edges import lid_core, lid_source_hair, upper_lids
 from .face_masks import EYE_RING, EYES, HAIR, IRIS, LIPS, MOUTH, NOSE_BASE, eye_contours, polygon, face_hull, brow_seed, brow_mask, plain_skin, hair_locks, sample, nearest
 
 THRESHOLDS = Path(__file__).with_name('quality-thresholds.json')
@@ -32,9 +32,10 @@ def lip_hair_pixels(region, channel):
 
 def upper_lid_hair_pixels(region,channel,side=None):
     """Reject hair on the confident upper-lid skin, independently of brow recall."""
-    lids=upper_lids(region['labels'].shape,region['pts'],region['view']['hit'],side,
-                    source_hair=region['labels']==HAIR)
-    core=binary_erosion(lids,np.ones((3,3)))
+    labels, pts, hit = region['labels'], region['pts'], region['view']['hit']
+    source_hair = lid_source_hair(region['render'], labels, pts, hit)
+    lids=upper_lids(labels.shape,pts,hit,side,source_hair=source_hair)
+    core=lid_core(lids)
     return int(np.count_nonzero(core & (channel==1)))
 
 

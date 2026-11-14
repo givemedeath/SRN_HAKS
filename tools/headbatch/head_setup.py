@@ -232,18 +232,23 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
 def set_components(workspace, name, notes, check=validate):
     """The reviewed shell selection from `review shells`: keep the largest, bound = extra area rounded up + 10 %. The table's count includes the kept shell, and the repair expects the extras (RUNBOOK 93)."""
     head = workspace.head(name)
-    table = guards.read(head/'review-evidence'/'shells.json')
-    extra, area = len(table['extra']), table['deletedAreaFraction']
-    if table['count'] != extra+1:
-        raise guards.Refused(f"{name}: the shell table counts {table['count']} with {extra} extra: rerun review shells")
-    # Headkit requires a positive area bound. expectedDeleted=0 separately forbids any deletion.
-    bound = max(1, math.ceil(area*1.1*1e4))/1e4
-    overrides = guards.read(head/'overrides.json')
-    overrides.setdefault('mesh', {})['components'] = {'keep': 'largest', 'reviewed': True, 'maximumDeletedAreaFraction': bound, 'expectedDeleted': extra,
-                                                      'notes': f'review shells: {extra} extra shells, {area*100:.4f}% of area. {notes}'}
-    if extra and all(row.get('insideFraction') == 1.0 for row in table['extra']):
-        overrides['mesh']['components']['interiorOnly'] = True
-    write_manifest(workspace, name, check, overrides)
+    with guards.head_locks(workspace, [name]):
+        report = head/'review-evidence'/'shells.json'
+        table = guards.read(report) if report.exists() else {}
+        mesh = guards.read(head/'manifest.json')['mesh']
+        guards.shell_review_current(head, table.get('basis'), mesh)
+        extra, area = len(table['extra']), table['deletedAreaFraction']
+        if table['count'] != extra+1:
+            raise guards.Refused(f"{name}: the shell table counts {table['count']} with {extra} extra: rerun review shells")
+        # Headkit requires a positive area bound. expectedDeleted=0 separately forbids any deletion.
+        bound = max(1, math.ceil(area*1.1*1e4))/1e4
+        overrides = guards.read(head/'overrides.json')
+        selection = {'keep': 'largest', 'reviewed': True, 'maximumDeletedAreaFraction': bound, 'expectedDeleted': extra,
+                     'reviewBasis': table['basis'], 'notes': f'review shells: {extra} extra shells, {area*100:.4f}% of area. {notes}'}
+        if extra and all(row.get('insideFraction') == 1.0 for row in table['extra']):
+            selection['interiorOnly'] = True
+        overrides.setdefault('mesh', {})['components'] = selection
+        write_locked_manifest(workspace, name, check, overrides)
     return extra, bound
 
 

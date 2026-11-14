@@ -92,6 +92,36 @@ class TrialSpecTests(unittest.TestCase):
                    'HeadTourDistance(INSPECT_DISTANCE*1.75)',f'HeadAnimate({index})','HeadTourDistance(INSPECT_DISTANCE)')]
             self.assertEqual(order,sorted(order))
 
+    def test_five_capture_tour_finishes_within_private_client_budget(self):
+        import re
+        from build_head_trial import row_scripts
+        sample=validate_spec(spec(inspectionTour=True,captureCoverageRequired=True,
+                                  heads=[head(f'troll-male-{slot}',slot) for slot in range(16,21)]))
+        script=row_scripts(sample,plan_actors(sample))['sr_h_enter'].split('void HeadTour(){',1)[1].split('}',1)[0]
+        first_angles=re.findall(r'DelayCommand\(([\d.]+),HeadTourPose\("(?:three|threeleft)",INSPECT_DISTANCE\)',script)
+        self.assertEqual(float(first_angles[1])-float(first_angles[0]),7.5)
+        self.assertEqual(float(first_angles[0]),12.0)
+        self.assertNotIn('HeadShow(0));',script)
+        for index in range(5):
+            start=script.split(f'HeadShow({index}));',1)[1] if index else script
+            row=start.split(f'HeadTourLook({index},1));',1)[0]
+            self.assertEqual(re.findall(r'HeadTourPose\("(\w+)",INSPECT_DISTANCE\)',row),
+                             ['three','threeleft','backright','backleft'])
+            self.assertIn('HeadTourPose("front",INSPECT_DISTANCE*4.0)',row)
+            self.assertIn('HeadTourDistance(INSPECT_DISTANCE*1.75)',row)
+            self.assertIn(f'HeadAnimate({index})',row)
+            self.assertIn(f'HeadTourLook({index},1)',script)
+        self.assertLessEqual(max(map(float,re.findall(r'DelayCommand\(([\d.]+),',script)))+4,145)
+
+    def test_build_rejects_changed_selected_native_receipt_before_reading_hak(self):
+        from build_head_trial import head_resources
+        with tempfile.TemporaryDirectory() as tmp:
+            native=Path(tmp)
+            (native/'native.json').write_text('{}',encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'selected native fit receipt changed'):
+                head_resources({'id':'human-male-a','model':'pmh0_head088','native':str(native),
+                                'nativeReceiptSha256':'0'*64})
+
     def test_actors_cover_rows_and_helmets_per_head(self):
         actors=plan_actors(validate_spec(spec()))
         self.assertEqual(len(actors),22)

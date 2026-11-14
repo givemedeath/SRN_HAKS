@@ -11,6 +11,7 @@ from scipy.ndimage import binary_dilation, label, maximum_filter
 from scipy.spatial import cKDTree
 from .common import require, pin, verify, write, library
 from .gltf import load, encode, mesh, write_mesh
+from .intersections import scan
 from .mesh import physical, topology, audit
 from .diagnostics import views, VIEWS
 from .uv import raster_audit
@@ -153,18 +154,7 @@ def solid(plan,margin,rings=2,sides=12):
     return vertices,faces,extent
 
 
-def close_geometry(value,bindings,recipe):
-    ml=library(bindings,'pymeshlab');P,F=physical(value['positions'],value['faces'])
-    initial=genus(P,F);plan=cavity(value,bindings['embree']['path'],recipe);records=[]
-    for margin in (2.,3.,4.):
-        V,T,extent=solid(plan,margin)
-        ms=ml.MeshSet();ms.add_mesh(ml.Mesh(P,F.astype(np.int32),f_scalar_array=np.arange(len(F),dtype=float)+1))
-        ms.add_mesh(ml.Mesh(V,T,f_scalar_array=-np.ones(len(T))))
-        ms.generate_boolean_union(first_mesh=0,second_mesh=1,transfer_face_quality=True)
-        current=ms.current_mesh();current.compact();v,f,birth=current.vertex_matrix(),current.face_matrix(),current.face_scalar_array()
-        after=genus(v,f);records.append({'marginPixels':margin,'triangles':len(f),'genusBefore':initial,'genusAfter':after})
-        if after==initial-1:break
-    else:raise ValueError('Bounded local closure presets did not seal exactly one handle')
+def _simplify_closure(ml,v,f,birth,plan,extent,*,optimize):
     # Only this measured neighbourhood may donate triangles to the 20K budget.
     centre=plan['origin']+plan['middle'][0]*plan['right']+plan['middle'][1]*plan['up']
     p=v[f].mean(1)-centre
@@ -177,18 +167,63 @@ def close_geometry(value,bindings,recipe):
         reducer.compute_selection_by_condition_per_face(condselect='fq < 0')
         before=len(f);chosen=int(local.sum())
         reducer.meshing_decimation_quadric_edge_collapse(targetfacenum=20000,selected=True,preserveboundary=True,
-            preservenormal=True,preservetopology=True,optimalplacement=True)
+            preservenormal=True,preservetopology=True,optimalplacement=optimize)
         current=reducer.current_mesh();current.compact()
         if current.face_number()>20000:
             # MeshLab deployments differ in whether selected targets are absolute or selection-relative.
             reducer=ml.MeshSet();reducer.add_mesh(ml.Mesh(v,f.astype(np.int32),f_scalar_array=markers))
             reducer.compute_selection_by_condition_per_face(condselect='fq < 0')
             reducer.meshing_decimation_quadric_edge_collapse(targetfacenum=chosen-(before-20000),selected=True,
-                preserveboundary=True,preservenormal=True,preservetopology=True,optimalplacement=True)
+                preserveboundary=True,preservenormal=True,preservetopology=True,optimalplacement=optimize)
             current=reducer.current_mesh();current.compact()
         v,f,birth=current.vertex_matrix(),current.face_matrix(),current.face_scalar_array()
-    require(len(f)<=20000 and genus(v,f)==initial-1,'Local seal cannot meet the unchanged topology/triangle gates')
-    return v,f,birth,plan,records
+    return v,f,birth
+
+
+def close_geometry(value,bindings,recipe):
+    ml=library(bindings,'pymeshlab')
+    source_vertices,source_faces=physical(value['positions'],value['faces'])
+    initial=genus(source_vertices,source_faces)
+    plan=cavity(value,bindings['embree']['path'],recipe)
+    records=[]
+    for margin in (2.,3.,4.):
+        record={'marginPixels':margin,'genusBefore':initial}
+        records.append(record)
+        try:
+            vertices,faces,extent=solid(plan,margin)
+            ms=ml.MeshSet()
+            ms.add_mesh(ml.Mesh(source_vertices,source_faces.astype(np.int32),f_scalar_array=np.arange(len(source_faces),dtype=float)+1))
+            ms.add_mesh(ml.Mesh(vertices,faces,f_scalar_array=-np.ones(len(faces))))
+            ms.generate_boolean_union(first_mesh=0,second_mesh=1,transfer_face_quality=True)
+            current=ms.current_mesh()
+            current.compact()
+            v,f,birth=current.vertex_matrix(),current.face_matrix(),current.face_scalar_array()
+            after=genus(v,f)
+            record.update(triangles=len(f),genusAfter=after)
+            require(after==initial-1,'Closure must remove exactly one handle')
+        except ValueError as error:
+            record['rejected']=str(error)
+            continue
+        reduction_failures=[]
+        for optimize in ((True,False) if len(f)>20000 else (True,)):
+            try:
+                reduced,triangles,markers=_simplify_closure(ml,v,f,birth,plan,extent,optimize=optimize)
+                # Match the positions written to GLB before accepting a candidate.
+                serialized=reduced.astype(np.float32)
+                require(len(triangles)<=20000 and genus(serialized,triangles)==initial-1,
+                        'Local seal cannot meet the unchanged topology/triangle gates')
+                crossings=scan(*physical(serialized,triangles),max_pairs=4000000)
+                require(crossings['complete'] and not crossings['pairs'],
+                        f"Intersection audit reported {len(crossings['pairs'])} pairs (complete={crossings['complete']})")
+            except ValueError as error:
+                reduction_failures.append({'optimizedPlacement':optimize,'reason':str(error)})
+                continue
+            record.update(optimizedPlacement=optimize,reductionFailures=reduction_failures)
+            return reduced,triangles,markers,plan,records
+        record['reductionFailures']=reduction_failures
+        record['rejected']='; '.join(row['reason'] for row in reduction_failures)
+    details=', '.join(f"{row['marginPixels']:g}px: {row['rejected']}" for row in records)
+    raise ValueError('Bounded local closure presets did not pass: '+details)
 
 
 def allocate_uv(old_uv,new_count,size=1024):

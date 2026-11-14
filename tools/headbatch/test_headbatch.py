@@ -755,6 +755,13 @@ class GpuJob(Base):
         with self.assertRaisesRegex(guards.Refused, 'comfy'):  # past the cap check
             launcher.run_gpu(self.workspace, head.name, ['--stages', 'appearance'])
 
+    def test_geometry_options_are_refused_before_locking_without_geometry(self):
+        for stages, option in (('calibrate', ['--single-submission']), ('appearance', ['--shape-grid', '1024'])):
+            with self.subTest(stages=stages), unittest.mock.patch.object(guards, 'head_locks') as lock:
+                with self.assertRaisesRegex(guards.Refused, 'require a geometry stage'):
+                    launcher.run_gpu(self.workspace, 'elf-male-a', ['--stages', stages, *option])
+                lock.assert_not_called()
+
     def launched_gpu(self, head, stages):
         data=guards.read(self.root/'workspace.json')
         data['comfy']={'url':'http://127.0.0.1:1','root':'comfy'}
@@ -1199,20 +1206,44 @@ class Setup(Base):
         self.assertFalse(hold)
 
     def test_components_count_the_extra_shells_not_the_table(self):
+        from head_files import shell_review_basis
         design = self.prepare()
         head_setup.set_up(self.workspace, 'elf-male-a', design, approval='t', check=lambda *_: None)
         head = self.workspace.head('elf-male-a')
-        write(head/'review-evidence/shells.json', {'count': 8, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        precluster = {'path': str(head/'run/precluster/attempt-01/receipt.json'), 'sha256': 'a'*64}
+        progress = head/'run/state.json'
+        write(progress, {'stages': {'precluster': precluster}})
+        manifest = head/'manifest.json'
+        basis = shell_review_basis(precluster, guards.read(manifest)['mesh'])
+        report = head/'review-evidence/shells.json'
+        write(report, {'count': 8, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            head_setup.set_components(self.workspace, head.name, 'old unbound table', lambda *_: None)
+        write(report, {'basis': basis, 'count': 8, 'extra': [{}]*7, 'deletedAreaFraction': .001})
         self.assertEqual(head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None), (7, .0011))
-        components = guards.read(head/'manifest.json')['mesh']['components']
+        components = guards.read(manifest)['mesh']['components']
         self.assertEqual(components['expectedDeleted'], 7)
         self.assertNotIn('interiorOnly', components)
-        write(head/'review-evidence/shells.json', {'count': 2, 'extra': [{'insideFraction': 1.0}], 'deletedAreaFraction': .00008})
+        guards.repair_shell_review(head)
+        write(progress, {'stages': {'precluster': dict(precluster, sha256='b'*64)}})
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            head_setup.set_components(self.workspace, head.name, 'old source', lambda *_: None)
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            guards.repair_shell_review(head)
+        write(progress, {'stages': {'precluster': precluster}})
+        settings = guards.read(manifest)
+        settings['mesh']['alphaRelative'] = .01
+        write(manifest, settings)
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            guards.repair_shell_review(head)
+        settings['mesh'].pop('alphaRelative')
+        write(manifest, settings)
+        write(report, {'basis': basis, 'count': 2, 'extra': [{'insideFraction': 1.0}], 'deletedAreaFraction': .00008})
         head_setup.set_components(self.workspace, head.name, 'inside', lambda *_: None)
-        self.assertTrue(guards.read(head/'manifest.json')['mesh']['components']['interiorOnly'])
-        write(head/'review-evidence/shells.json', {'count': 1, 'extra': [], 'deletedAreaFraction': 0})
+        self.assertTrue(guards.read(manifest)['mesh']['components']['interiorOnly'])
+        write(report, {'basis': basis, 'count': 1, 'extra': [], 'deletedAreaFraction': 0})
         self.assertEqual(head_setup.set_components(self.workspace, head.name, 'one shell', lambda *_: None), (0, .0001))
-        write(head/'review-evidence/shells.json', {'count': 7, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        write(report, {'basis': basis, 'count': 7, 'extra': [{}]*7, 'deletedAreaFraction': .001})
         with self.assertRaisesRegex(guards.Refused, 'counts 7'):
             head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None)
 
@@ -1330,6 +1361,24 @@ class StockMaterialTrialCheck(Base):
 
 
 class Trials(Base):
+    def test_spec_can_isolate_one_gender_and_its_camera(self):
+        for file in ('head.hak', 'mod.mod'):
+            write(self.root/file, file)
+        data = json.loads((self.root/'workspace.json').read_text())
+        data.update(game={'root': 'game', 'client': 'game/client'}, trialBase={'haks': ['head.hak'], 'module': 'mod.mod', 'actorIdentity': {}},
+                    trialInspection={'elf': {'height': {'pme0': 1.7, 'pfe0': 1.6}, 'distance': 1.5}})
+        write(self.root/'workspace.json', data)
+        workspace = Workspace.load(self.root)
+        with unittest.mock.patch.object(Workspace, 'head_ids', return_value={
+            'elf-male-a': ('elf', 'male', 'pme0_head050'), 'elf-female-a': ('elf', 'female', 'pfe0_head050'),
+        }), unittest.mock.patch.object(trials, 'head_entry', side_effect=lambda _, name, slot: {'id': name, 'model': slot}):
+            out, count = trials.write_spec(workspace, 'elf', '2', gender='female')
+        spec = json.loads(out.read_text())
+        self.assertEqual(count, 1)
+        self.assertEqual(spec['prefix'], ['pfe0'])
+        self.assertEqual([head['id'] for head in spec['heads']], ['elf-female-a'])
+        self.assertEqual(spec['inspect'], {'height': {'pfe0': 1.6}, 'distance': 1.5})
+
     def test_spec_uses_each_heads_newest_native_and_chosen_rows(self):
         for file in ('head.hak', 'mod.mod'):
             write(self.root/file, file)
@@ -1496,6 +1545,14 @@ class Presets(Base):
 
 
 class Review(Base):
+    def test_candidate_look_requires_unique_stock_rows(self):
+        from argparse import ArgumentTypeError
+        from review.gamesize import candidate_look
+        self.assertEqual(candidate_look('1=19,8=23'), {'1':19,'8':23})
+        for value in ('', '1=19,1=23', '10=19', '8=-1', '8=176', '1=gray'):
+            with self.subTest(value=value), self.assertRaises(ArgumentTypeError):
+                candidate_look(value)
+
     def test_every_tool_documents_itself_and_needs_no_batch_names(self):
         tools = [path for path in (HERE/'review').glob('*.py') if not path.stem.startswith('_')]
         self.assertGreaterEqual(len(tools), 18)

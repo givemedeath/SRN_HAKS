@@ -140,6 +140,7 @@ def run_stages(workspace, name, stages, heads, approve=None, notes=None, attempt
             guards.loop_budget(head, stage_list, workspace.data.get('loopBudget'))
             guards.palette_rows(workspace, head.name, stage_list)
             if 'repair' in stage_list:
+                guards.repair_shell_review(head)
                 guards.uv_margin(head)
             if 'ownership' in stage_list:
                 guards.ownership_rules(head)
@@ -288,8 +289,10 @@ def gpu_memory_limits(comfy, profile, stages):
 
 def run_gpu(workspace, name, arguments):
     """Calibrate, geometry with its occiput check, and appearance for one head on the workspace's ComfyUI."""
-    head = workspace.head(name)
     stages = gpu_contract.stages(arguments[arguments.index('--stages')+1] if '--stages' in arguments else DEFAULT_GPU_STAGES)
+    if 'geometry' not in stages and ('--shape-grid' in arguments or '--single-submission' in arguments):
+        raise guards.Refused('--shape-grid and --single-submission require a geometry stage')
+    head = workspace.head(name)
     comfy = workspace.data.get('comfy')
     with guards.head_locks(workspace, [name]):
         ledger_file = head/'gpu'/'gpu.json'
