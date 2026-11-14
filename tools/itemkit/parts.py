@@ -75,3 +75,22 @@ def assembly_budget(profile, counts, kind):
                     'Inactive slots must be tiny hidden placeholders')
             full[part] = 4 if kind == 'visible' else 0
     return check_budgets(full, profile['budgets'], kind)
+
+
+def side_grip_budgets(profile, manifest):
+    """The family with a side grip's reviewed re-split of its part budgets (`processing.partBudgets`).
+
+    A side grip's parts are slices across the grip axis, so the long body lies in all three and most of it in the grip
+    part: the wave-5 Katar has 60% of its surface in `m`, which the dagger family gives 19% of the budget, and each
+    join's protected seam alone filled an end part's 900 triangles. The visible and shadow totals stay the family's
+    own; only their split across the active parts changes."""
+    split = (manifest.get('processing') or {}).get('partBudgets')
+    if split is None: return profile
+    require((manifest.get('fit') or {}).get('sideGrip') is True, 'Part budgets are re-split only for a side grip')
+    budgets = profile['budgets']; parts = budgets['parts']
+    require(set(split) == set(parts) and set(parts) == set(active_parts(profile)), 'Re-split every active part, and only those')
+    for kind in ('visible', 'shadow'):
+        require(all(type(row.get(kind)) is int and row[kind] >= 4 for row in split.values()), f'Each part needs a {kind} budget of 4 or more')
+        require(sum(row[kind] for row in split.values()) <= budgets[kind], f'Re-split {kind} budgets exceed the family total')
+    require(all(set(row) == {'visible', 'shadow'} for row in split.values()), 'Part budgets are visible and shadow only')
+    return {**profile, 'budgets': {**budgets, 'parts': {p: dict(split[p]) for p in parts}}}

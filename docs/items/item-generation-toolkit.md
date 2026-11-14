@@ -567,7 +567,10 @@ The fit is `side-grip-uniform` (`grip.side_grip_uniform`): one uniform scale fro
 transverse correction of the grip would also stretch the body lying across it. The grip is measured only on the
 section outline that encloses the grip axis (`grip.section_dimensions(..., around)`), and the difference from the
 standard always needs a review bound to the measurement digest. Inventory icons stand a side-grip weapon's body upright
-in the cell. Which way the body points (forward past the knuckles or back along the forearm) depends on the frame;
+in the cell. The parts are slices across the grip axis, so the body lies in all three, mostly in the grip part (the
+Katar: 60% of its surface in `m`, which the dagger family gives 19% of the budget). `processing.partBudgets`
+(`{part: {visible, shadow}}`) re-splits the family's unchanged visible and shadow totals for a side grip only
+(`parts.side_grip_budgets`, applied where the runner loads the family). Which way the body points (forward past the knuckles or back along the forearm) depends on the frame;
 check it in the client and refit with `"turnAboutAxis": true` if needed.
 
 `drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these

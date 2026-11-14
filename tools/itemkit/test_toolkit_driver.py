@@ -789,6 +789,23 @@ class SideGripTests(unittest.TestCase):
         self.assertEqual(fitted_grip_length({'sideGrip': True}, family['native'], report), .076)
         with self.assertRaisesRegex(ValueError, 'side-grip report'): fitted_grip_length({'sideGrip': True}, family['native'], {})
 
+    def test_a_side_grip_may_resplit_its_part_budgets_within_the_totals(self):
+        from tools.itemkit.parts import side_grip_budgets
+        profile = {'family': 'dagger', 'native': {}, 'budgets': {'visible': 9000, 'shadow': 500, 'parts': {
+            'b': {'visible': 900, 'shadow': 100}, 'm': {'visible': 1700, 'shadow': 100}, 't': {'visible': 6400, 'shadow': 300}}}}
+        split = {'b': {'visible': 1800, 'shadow': 125}, 'm': {'visible': 5400, 'shadow': 250}, 't': {'visible': 1800, 'shadow': 125}}
+        self.assertIs(side_grip_budgets(profile, {'fit': {'sideGrip': True}}), profile)
+        actual = side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': split}})
+        self.assertEqual(actual['budgets']['parts'], split); self.assertEqual(actual['budgets']['visible'], 9000)
+        self.assertEqual(profile['budgets']['parts']['m']['visible'], 1700)               # the family itself is untouched
+        with self.assertRaisesRegex(ValueError, 'only for a side grip'):
+            side_grip_budgets(profile, {'fit': {}, 'processing': {'partBudgets': split}})
+        over = {**split, 'm': {'visible': 5500, 'shadow': 250}}
+        with self.assertRaisesRegex(ValueError, 'exceed the family total'):
+            side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': over}})
+        with self.assertRaisesRegex(ValueError, 'every active part'):
+            side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': {'m': split['m']}}})
+
 
 if __name__ == '__main__':
     unittest.main()
