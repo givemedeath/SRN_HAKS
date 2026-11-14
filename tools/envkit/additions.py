@@ -125,6 +125,7 @@ def command_placeables(args):
     require(all(name in there for name in chosen) or not any(name in there for name in chosen), 'Some of these models have rows and some have none: register them apart')
     if all(name in there for name in chosen):
         rows = {name: there[name] for name in chosen}
+        text = placeables.lights(text, {name: placed.get('light') for name, placed in chosen.items()})  # a light follows the game set
     else:
         text, rows = placeables.register(text, [{'model': name, **placed} for name, placed in chosen.items()])
     written = game_bytes(text, table.name)  # refused here, not after the copying, if a label has a character the game lacks

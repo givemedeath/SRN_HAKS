@@ -1,5 +1,6 @@
 """Reference sets name real crops, prompts ask for an isolated unlit-spill view, and a busy server is left alone."""
 import copy
+import hashlib
 import importlib.util
 import itertools
 import json
@@ -100,11 +101,18 @@ class SetTests(unittest.TestCase):
         self.assertIn('leave off every company logo', text); self.assertNotIn('markings', text)
         self.assertIn('Hazard stripes', text); self.assertIn('do not clean or repaint', text)
         self.assertIn('markings', reference.prompt('prop', 'access kiosk'))
-        with self.assertRaisesRegex(ValueError, 'Only a prop'):
-            reference.prompt('building', 'depot', unbranded=True)
+        # A generic sheet's building keeps its slab and generic words, without company or place names.
+        building = reference.prompt('building', 'depot with a RAIL FREIGHT sign', unbranded=True)
+        self.assertIn('leave off every company name, place name and logo', building); self.assertNotIn('signage', building)
+        self.assertIn('FREIGHT', building); self.assertIn('pavement slab', building); self.assertIn('do not clean or repaint', building)
+        self.assertIn('signage', reference.prompt('building', 'depot'))
         good = json.loads(SET.read_text(encoding='utf-8'))
-        good['assets']['trash-can']['unbranded'] = True
-        self.assertTrue(reference.load_set(self.write(good))['assets']['trash-can']['unbranded'])
+        good['assets']['trash-can']['unbranded'] = True; good['assets']['building-front']['unbranded'] = True
+        drawn = reference.load_set(self.write(good))['assets']
+        self.assertTrue(drawn['trash-can']['unbranded'] and drawn['building-front']['unbranded'])
+        data = copy.deepcopy(good); data['assets']['building-front']['type'] = 'shop'
+        with self.assertRaisesRegex(ValueError, 'Only props have a type'):
+            reference.load_set(self.write(data))
         for change in ({'same': 'shop/bin'}, {'variant': 'Branding: red bin with the shop emblem.'}):  # nothing made; the mark is wanted
             data = copy.deepcopy(good); data['assets']['trash-can'].update(change)
             with self.assertRaisesRegex(ValueError, 'unbranded is for a prop that is made'):
@@ -165,6 +173,66 @@ class SetTests(unittest.TestCase):
         data = copy.deepcopy(good); data['assets']['building-left']['cut']['box'] = [0, 0, 120, 40]
         with self.assertRaisesRegex(ValueError, 'runs off'):
             reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'left.png')
+        # A mirrored cut flips the chosen reference left to right first, and its box is in the flipped picture.
+        picture = Image.new('RGB', (100, 40), 'red'); picture.paste((0, 0, 255), (0, 0, 10, 40)); picture.save(selected / f'{whole}-s101-b0.png')
+        data = copy.deepcopy(good); data['assets']['building-left']['cut'].update(box=[90, 0, 100, 40], mirror=True)
+        with Image.open(reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'mirrored.png')) as cut:
+            margin = round(40 * reference.CUT_MARGIN); self.assertEqual(cut.getpixel((margin + 5, margin + 20)), (0, 0, 255))
+        for wrong in (False, 'yes'):
+            data['assets']['building-left']['cut']['mirror'] = wrong
+            with self.assertRaisesRegex(ValueError, 'another, whole, view'):
+                reference.load_set(self.write(data))
+
+    def test_a_view_the_sheet_does_not_draw_is_turned_from_the_chosen_reference_of_one_it_does(self):
+        """User, 2026-11-13: the rail yard's corner view drew another building than its front ("fix the warehouse back
+        view"), so its back is drawn from the front's chosen reference, seen from behind."""
+        from PIL import Image
+        good = json.loads(SET.read_text(encoding='utf-8')); whole = next(name for name, asset in good['assets'].items() if asset['kind'] == 'building')
+        good['assets']['building-back'] = {'kind': 'building', 'unbranded': True, 'subject': 'shop', 'box': [0, 0, 10, 10], 'turn': {'from': whole, 'to': 'the back'}}
+        data = reference.load_set(self.write(good)); selected = self.root / 'selected'; selected.mkdir()
+        Image.new('RGB', (100, 40), 'red').save(selected / f'{whole}-s101-b0.png')
+        with Image.open(reference.source(data, 'building-back', None, selected, self.root / 'back.png')) as back:
+            margin = round(100 * reference.CUT_MARGIN)  # the whole reference, set on white
+            self.assertEqual(back.size, (100 + 2 * margin, 40 + 2 * margin)); self.assertEqual(back.getpixel((margin, margin)), (255, 0, 0))
+        text = reference.prompt('building', 'shop', unbranded=True, turn='the back')
+        self.assertIn('Show this same shop seen from the back', text); self.assertNotIn('viewing angle', text)
+        self.assertIn('leave off every company name', text.lower()); self.assertIn('pavement slab', text); self.assertIn('do not clean or repaint', text)
+        self.assertNotIn('company name', reference.prompt('building', 'shop', turn='the back'))
+        for change, message in ((lambda a: a.update(turn={'from': 'trash-can', 'to': 'the back'}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': 'building-back', 'to': 'the back'}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': whole}), 'another, whole, view'),
+                                (lambda a: a.update(cut={'from': whole, 'box': [0, 0, 6, 4]}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': whole, 'to': 'the back\nand the side'}), 'one line')):
+            data = copy.deepcopy(good); change(data['assets']['building-back'])
+            with self.assertRaisesRegex(ValueError, message):
+                reference.load_set(self.write(data))
+        # A turned view is whole, so a piece may be cut from it (the rail yard's rear piece), but not turned again.
+        data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': 'building-back', 'box': [0, 0, 6, 4]}}
+        self.assertIn('building-left', reference.load_set(self.write(data))['assets'])
+        data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'turn': {'from': 'building-back', 'to': 'the left'}}
+        with self.assertRaisesRegex(ValueError, 'another, whole, view'):
+            reference.load_set(self.write(data))
+
+    def test_a_drawn_crop_is_taken_as_its_reference(self):
+        """User, 2026-11-13: the rail freight depot came as four clean images on white, so each crop is its reference."""
+        from PIL import Image
+        good = json.loads(SET.read_text(encoding='utf-8')); good['assets']['trash-can']['drawn'] = True
+        self.assertTrue(reference.load_set(self.write(good))['assets']['trash-can']['drawn'])
+        crop = self.root / 'crop.png'; Image.new('RGB', (8, 6), 'blue').save(crop)
+        receipt = reference.as_drawn('trash-can', crop, 0, self.root / 'run')
+        self.assertEqual((self.root / 'run' / 'trash-can-s0-b0.png').read_bytes(), crop.read_bytes())
+        self.assertEqual((receipt['drawn'], receipt['state'], receipt['source']['sha256']), (True, 'complete', hashlib.sha256(crop.read_bytes()).hexdigest()))
+        self.assertEqual(json.loads((self.root / 'run' / 'trash-can-s0.json').read_text(encoding='utf-8')), receipt)
+        with self.assertRaisesRegex(ValueError, 'Receipt already exists'):
+            reference.as_drawn('trash-can', crop, 0, self.root / 'run')
+        whole = next(name for name, asset in good['assets'].items() if asset['kind'] == 'building')
+        for change in ({'drawn': False}, {'drawn': 'yes'}):
+            data = copy.deepcopy(good); data['assets']['trash-can'].update(change)
+            with self.assertRaisesRegex(ValueError, 'drawn is true'):
+                reference.load_set(self.write(data))
+        data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'drawn': True, 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': whole, 'box': [0, 0, 6, 4]}}
+        with self.assertRaisesRegex(ValueError, 'neither cut nor turned'):
+            reference.load_set(self.write(data))
 
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):
         sheet = {'file': 'sheet.png', 'sha256': 'a' * 64, 'size': [4, 4]}
@@ -235,6 +303,11 @@ class MakeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'stayed busy'):  # without --keep-going the first failure stops the run
                 command.command_reference(Namespace(keep_going=False, **asked))
             self.assertEqual([call.args[3] for call in make.call_args_list], ['crate', 'bin'])
+        # Drawn assets are taken as they are: no bindings and no ComfyUI client are needed (review, 2026-11-14).
+        drawn = {'sheet': 'sheet.png', 'assets': {'crate': {'kind': 'prop', 'subject': 'crate', 'drawn': True}}}
+        with mock.patch.object(reference, 'load_set', return_value=drawn), mock.patch.object(reference, 'resolve_sheet'), mock.patch.object(reference, 'source'),                 mock.patch.object(reference, 'as_drawn', return_value={'state': 'complete', 'outputs': ['crate.png'], 'elapsedSeconds': 0.0}) as taken,                 mock.patch('tools.headkit.comfy.Client') as client, mock.patch('builtins.print'):
+            command.command_reference(Namespace(keep_going=False, **{**asked, 'bindings': None}))
+        taken.assert_called_once(); client.assert_not_called()
 
 
 if __name__ == '__main__':

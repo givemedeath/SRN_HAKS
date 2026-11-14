@@ -31,6 +31,25 @@ its crop; read it for a changed shape, lost parts, and branding that should not 
 with another seed where it fails. Copy the chosen image of each asset to `<root>/references/selected/` under the
 name it has (`<asset>-s<seed>-b0.png`): exactly one for each asset the plan names.
 
+A generic sheet's building view takes `"unbranded": true` in the set: it is drawn without company or place names,
+keeping generic words such as FREIGHT (the rail yard, user 2026-11-12). Name a sign's text in the subject so the model
+need not guess its letters. A view the sheet does not draw, or draws of another building, is turned from the chosen
+reference of one it does: `"turn": {"from": "<view>", "to": "<what it is seen from>"}`, drawn with `--selected` like a
+cut (the rail yard's rear, whose corner view showed another building than its front, user 2026-11-13)). The model
+tends to draw a turned rear with the gable on the left whichever corner it is asked for; work out which side that puts
+the detailed wall on, and where it is the wrong one, cut with `"mirror": true` (the reference flipped left to right
+first, its box in the flipped picture). Mirror only a reference without lettering. Before generating a building's
+pieces, check that each side wall is the same material in every piece that shows it, that the dock doors match, and
+that nothing large (a trailer, a skip) stands in front of the doors: the generator fuses it into the wall.
+
+Images that are already clean references on white (made apart from the concept sheets, one object to an image) come
+in as a sheet of their own: compose them on white into `<sheets>/NNb_<what>.png`, give the set a box round each and
+`"drawn": true`, and `reference` takes each crop as it is, with a receipt naming its hash, and sends nothing to ComfyUI.
+The rail freight depot (`56b_rail_freight_depot.png`, 2026-11-13) is the first: four images the operator generated
+with ChatGPT from one shared design, a warehouse front and rear, a loading platform and a gantry crane, which replaced
+the yard sheet's warehouse. Prompt such a set piece by piece in one conversation, after an overview, with the shared
+dimensions and materials in every prompt and each view's handedness named (which wall is on which side).
+
 ## 2. Meshy
 
 The ledger (`output/envkit/stuffer-shack/meshy/ledger.json`, shared by every sheet) holds the cap, which is the
@@ -70,10 +89,18 @@ The first draws generated models square on from each side with a metre grid, bef
 at a first guess of its height (`--source` and `--height` repeat in pairs); `--page` also puts every model drawn on
 one page, to compare the props of a sheet at a glance. The second draws a model as its game set makes it. Read the boxes of lit parts, paint, smoothing, mesh panels,
 fences and the door from the grid, in metres on the finished model, and state `measuredAt`: the height they
-were read at, or `{"height": ..., "lift": ...}` with each of `lift`, `turn` and `signTilt` the model states,
-since the boxes are on the model as lifted, turned and tilted. Change any of them and the set is refused until
+were read at, or `{"height": ..., "lift": ...}` with each of `lift`, `turn`, `signTilt` and `length` the model states,
+since the boxes are on the model as lifted, turned, tilted and drawn out. Change any of them and the set is refused until
 the boxes are read again. `--lit` shows what the lit boxes light. The drawing lets deeper faces show through nearer ones:
-what a surface looks like is settled in the client, not here.
+what a surface looks like is settled in the client, not here. `--eye` draws it in perspective as the game does, a face
+only from its front: a hole there is a hole in the game.
+
+A model scaled to its height can still come out the wrong length (the rail yard's 20 ft container came out 3.5 m long
+at its 2.6 m height): `length` draws it out along the longer side of its footprint to that many metres, its height and
+width kept. Every model is looked at from all round and above as it is converted, and a face seen mostly from behind
+is turned round (`turnedFaces` in the report): from 2% to a quarter of each of the rail yard's 25 Meshy models was
+wound inside out, a hole in the game. A hole with nothing in it at all is closed with `close`, three of the model's own
+vertices a face, read from `envkit view --eye`.
 
 Size a building by its door: scale it until the door leaf is about 2.1 m, then choose the tile group's size.
 Its door hook is door type 58. Screens and signs are lit.
@@ -99,7 +126,43 @@ in it (`{"model": ..., "at": [x, y, z], "turn": 0|90|180|270}`, in metres on the
 with its own picture under the group's names (`<group>p1`, ...), cut into the same tiles and walked round. A prop
 of the sheet stays a placeable as well.
 
+A sheet's buildings can be both: each its own group, for a builder to place alone, and together one large group of
+the whole site, which paints a district in one go (user, 2026-11-13: the rail yard's depot is 8 by 8 tiles, its
+warehouse, dock warehouse, control tower, office and service bay with the platform, crane and two tracks).
+Containers, light towers and rolling stock are props, placed by the builder, not parts of the site. A site with
+rails is laid out round its tracks (user: the first layout did not lend itself to "realistic track placement and
+train movement"): each track straight through the whole group and out at both edges, on a tile row's centre so track
+tiles beside the group meet it, with 1.93 metres either side of its centre clear up to 5.2 metres; a platform's edge
+1.7 metres from its track's centre, and the platform clear of the buildings, since a deck 1.28 metres up meets
+no door of theirs (user: the depot's platform, laid across its warehouse's dock apron and half its gable, was "not
+working out with the warehouse building"; it now stands beside the warehouse, its stairs towards the warehouse's
+door, two metres off); a crane's runway along the tracks, its legs outside their corridors, and clear
+of buildings all the way across (user: "there would be nowhere for the crane to move here"). The track is built, not
+generated: `envkit track` writes a 10 metre straight piece of standard-gauge track on ballast as a model folder
+(rails 1.435 metres apart, a sleeper every 0.625 metres, every map seamless along it, 0.31 metres high), and the
+game set lays it `underfoot` as a part, one piece on each tile of the row, centred on the tile's column.
+`envkit track --piece merge` writes a 30 metre merge, three tiles: a through track with a switch 1.5 metres in, from
+which a second track curves off on 15 metre curves, crosses at 27 degrees and runs on beside it 10 metres away, on
+the next row (user: "can you make the tracks merge" at both ends of the depot). A main line's turnouts are far
+gentler; at the game's scale it reads as a yard crossover. The two tracks share long sleepers until they are 3.2
+metres apart. Laid at both ends of two tracks, turned half round at the far end, it makes a passing loop with one
+track out at each end, each on its row's centre; the crane then travels between the switches.
+`envkit track --piece crane` writes a 10 metre crane runway: two crane rails a metre apart, 0.23 metres high, clipped
+to a concrete ground beam, laid underfoot under each of a gantry crane's legs (user: "i think we need to add the crane
+tracks, we'll need those as a prop anyway and the scene looks weird without it"). A generated crane can come back
+standing on its own short rails (the depot's did, about a metre apart and 0.23 metres high): take them off with a
+`clear` box under each leg, check its wheels are kept, and lay the runway on their line, so the wheels meet the
+built rails. The runway is a placeable too, for cranes a builder places. A part laid
+underfoot is drawn but not surveyed, so the ground is walked flat across it and it may run off the group's edges,
+where a raised slab is refused; it stands no higher than the knee. A
+part is never a group itself, so a building in both has a second entry of the same source and height without
+`tiles` (`ek_rf_towerx`), and its standalone group and the site's must agree on that height. A group places at most
+nine different models. No model may be named like another's file (its maps' `_n`, `_s`, `_r`, `_i`, `_o`, `_h`,
+a group's `_t` tiles and `p` parts): the set is refused, since one would write over the other in the pack.
+`envkit view --models ... --model <site> --eye ...` draws the whole site with its parts before it is cut into tiles.
+
 ```
+envkit track --output <root>/track/<piece>-s<seed>  [--piece straight|merge|crane] [--seed <seed>]
 envkit game  --models ... --root <root> --output <root>/game<n>  [--model <name>]
 envkit tiles --models ... --root <root> --output <root>/tiles<n> --model <building>
 ```
@@ -141,10 +204,15 @@ area to the door, to each side of the building and onto the ground a walk must g
 yard), with one more onto that ground from the next tile out, and logs where they are every shot; it refuses the
 group if a walker stops more than a metre short, after writing `captures/walks.json`. The walkers' targets come
 from `walk.png`, which `tiles` writes beside the tile sources (a pixel a walk cell, north up: green ground with
-room to stand on, red the building, orange the lesser things in the way and ground too narrow to stand on, which
+room to stand on, pale green ground with room that no walk from round the group is planned onto, red the
+building, orange the lesser things in the way and ground too narrow to stand on, which
 `tiles` closes: a walk would be planned through a gap no character fits, as it was through the gaps between the
 Saeder-Krupp yard's fence sections; dark green in a picture built before 2026-11-12); a
-group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). `lights`
+group built before it existed is built again first. Run `walk` in both tilesets (`tile.py` says why). The check
+area is 9 tiles across, or as many as hold the group with 3 tiles of ground round it (`checks.area_size`: the 8 by 8
+depot's is 14), and a walk shot is held longer in a larger area (`checks.walk_hold`). A capture made after its
+shot has passed shows the next view under the wrong name: the depot's client stalled 20 seconds and its log came
+late. Such captures are kept as `-late.png` and the check is refused; run it again. `lights`
 takes the lit props from the pack, by night, and puts them out and on again by script. Look for the roof and upper
 storey from above, the door, and every lit part going out and coming back.
 
@@ -262,7 +330,15 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   either side), and read the boxes off the texture rather than by eye. A pitch under four texels is refused.
 - **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
   0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
-  `walk.png` shows which.
+  `walk.png` shows which. A floor up to 1.5 m high (`tile.PLATFORM`), a loading platform, is walked on where stairs
+  lead up to it: steps no taller than 0.35 m down to the ground, no steeper than 1.25 rise over run overall
+  (`tile.RISER`, `STAIR`). The walkmesh climbs the stairs, and the platform's edge is closed elsewhere, so no walk
+  steps off it (user: "the stairs up onto platform, and the platform itself should be walkable", the rail freight
+  depot, 2026-11-13). Without stairs it stays closed. A platform across a tile line is walked by short walks: no
+  path node can say a way onto it or along it from tile to tile, since every exit lies at a side's middle, off the
+  platform. In the depot a walker went up the stairs from the ground and nine metres along the deck over a tile
+  line; one sent twenty metres along it gave up after eight, and ones sent onto its far end from the ground stopped
+  at its edge. `walk.png` draws such ground pale, and the check sends no long walk there.
 - **Something the generator stood on the floor leaves too narrow a way** (orange on `walk.png` where a character
   must pass, or a `tiles` note of walk cells no walk is planned onto). A path needs a metre clear. Take the thing away with
   `clear`: `{"part": ..., "box": ...}` on the finished model takes every face whose middle lies in the box. Start the
@@ -275,11 +351,90 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   `tiles` states a side as an exit only where it opens within 3 m of its middle (`tile.REACH`), joins two exits only
   where a walk between them stays within 2 m of the straight way (`tile.ASIDE`), and chooses the group's nodes
   together so walks reach the most ground (`tile.path_nodes`; the report gives each tile's node, and as `offPath` the
-  ground no walk is planned onto). Where walkers still give up, try other nodes for the tiles they were bound for:
+  ground no walk is planned onto). The engine takes a target by a side for that side's own: of nodes that reach as
+  much, `tiles` takes those that leave no exit cut off from every way out, and notes any it cannot (`tile.cut_off`).
+  The rail freight depot's walkers to its warehouse door and its crane's north leg, on the line between its middle
+  columns where both tiles had left their shared side alone, walked straight at them (2026-11-13). Its south
+  walker, bound for ground by a tile's west side whose east side opened into the service bay's yard, still gave up
+  until that tile was stated without its east side (W, no turn). Where walkers still give up, try other nodes for
+  the tiles they were bound for:
   edit `PathNode` and `Orientation` of those tiles in the installed set files (copy them aside first), rerun the walk
   check, and state what works under `tiles.nodes` in the game set (`{"t12": {"node": "A", "turn": 0}}`). Then
-  rebuild and install. The Saeder-Krupp yard states three this way. A short walk into ground with one far way in
-  (`pocket-near`) can still give up where long walks arrive: say so in the provenance.
+  rebuild and install. The Saeder-Krupp yard states three this way, and so does the rail freight depot. Walks into
+  its service bay's fenced yard, open only at its east end, arrived from the north and walked straight into the fence
+  from the south or the east, from outside the group or inside it. The tile east of the yard joined its south and east
+  sides to the west side that opens into the yard, past the fence's end. Stated J turned 90 (south with east, north
+  with west), walks from the south go round by the next tiles and come in from the north. The tile north of the yard
+  had its south side open onto the metre of yard behind the north fence, and a walk to the ground just north of that
+  fence was planned into the yard. Stated I turned 270, without its south side, that walk arrives (2026-11-13). To find
+  which way in fails, send walkers from chosen starts: a scratch script that wraps `checks.walk_plan` and calls
+  `checks.group`, as the walk check does. A short walk into ground with one far way in
+  (`pocket-near`) can still give up where long walks arrive: say so in the provenance. A walker that stops near its
+  target with something drawn in the way between (`walk.png`) has not arrived, however near: the depot's walker from
+  the next tile into the service bay's fenced yard stopped against the fence, half a metre from a target just inside
+  it, and passed the check that way until it looked across the gap (`checks.walled`, 2026-11-13).
+- **A walk check that passed fails after a rebuild that changed nothing walkable** (an underfoot part, a `clear`).
+  A rebuild can draw every tile's walkmesh faces a little differently, and a walk the engine can only just plan
+  comes out either way. The depot's crane rails and the crane's own stub rails taken away left `walk.png` the same,
+  yet its walker to the ground beside the crane's north leg then walked straight at it every time, in both tilesets
+  (2026-11-13). The leg's edge lay on the line between two tiles, on the middle of their shared side, where the
+  engine puts the exit between them. Swapping the tiles' walkmeshes back one by one showed it was those two tiles
+  alone. Moved a metre north, clear of the side's middle, it arrived. So run the walk check again after every
+  rebuild, and keep the edge of anything long and heavy that crosses a tile line off the middle of that side by a
+  metre or more where the layout allows.
+- **Two faces on one plane, both facing out.** A generator makes a thin sheet of two faces back to back; the back
+  one ties with the front from outside, so `convert.turn_faces` took it for a face wound wrong and turned it onto the
+  front, where the game may draw either. It now leaves such a face as it is (`convert.back_to_back`): from a third to
+  over half of what it turned on each of the rail yard's models were such faces (2026-11-13).
+- **A flat side shows a lighter or darker triangle only from some angles** (on whichever flat panel is seen
+  side-on). That is the area's sky reflected in a large smooth face, not the model: the rail yard's boxcar showed it
+  on either side, turned either way round, with its maps flat and its faces split small (client, 2026-11-13).
+  Leave it.
+- **What stands behind a prop shows through it** (through the gaps of a slatted lid, through an opening in a wall).
+  The generator drew the box from outside only, so its far walls are not drawn from inside. `"inside": true` on the
+  model in the game set gives every face a back (`convert.backed`; twice the triangles), and the opening shows the
+  prop's own inside: the rail yard's dumpster (user: "the dumpster has some see through spots", 2026-11-13), and
+  likewise a slit at its 20 ft container's door end and an opening under the back of its dock's roller door. Closing
+  faces (`close`) would stretch the picture across such an opening. Use it only where an opening shows: a closed box
+  never needs it.
+- **A prop is the wrong size beside the figure.** Read the doors, wheels and lamps, not the whole: the rail yard's
+  office module stood 3 metres to its ridge, sounding right, but its walls were 2 metres and its doors about 1.7; its
+  light tower's lamp heads were nearly 2 metres across at 7.5 metres tall (user: "the office? It's tiny", 2026-11-13).
+  Set `height` again (with the boxes of any lit part scaled to match and `measuredAt` with them).
+- **A placeable a character should walk on** (a platform, a deck, a dock). The game stands characters only on the
+  tiles' walkmeshes; a placeable's walkmesh (`.pwk`) only keeps them out, whatever its faces' materials. Tried in the
+  client on 2026-11-13: the loading platform placed static with a walkmesh of a walkable deck, walkable stairs up to
+  it and closed sides; the walkers sent onto the deck, by the stairs and from beside it, stopped on the ground at its
+  edge. A floor to walk on is a part of a tile group (`tiles.parts`), as the rail freight depot's platform is; as a
+  placeable it is scenery to walk round.
+- **A railway car's wheels miss the rails, or sink into them.** A generator draws the trucks under the car's sides:
+  the rail yard's four cars had the backs of their wheels 0.75 to 0.9 m either side of their middle, where a
+  standard-gauge wheelset's stand 0.68, so the wheels ran 0.15 to 0.2 m outside the rails; and stood on the ground,
+  they sank the track's height into them (user: "fix the wheel spacing on the rolling stock", 2026-11-13). Read the
+  trucks' spans along the car, the top of the trucks and where the wheels' backs stand, from end views cut through
+  the wheels, and state them as `wheels` (`convert.gauged`); lift the car by `track.HEIGHT` (0.312). Check it on laid
+  track in the client, low along the rails and beside each truck.
+- **A hole of many corners in a wall, or a gap the client shows where the model looks closed.** A generator leaves
+  slits and gaps with a dozen or more corners (the rail yard's warehouse wall and crane leg sills, user, 2026-11-13).
+  Find the rim from a z-buffered elevation (open edges are the faces' edges used once) and state a point on it as
+  `fill` (`convert.filled`), not face by face as `close`. Where the faces are there but wound inward, the client shows
+  a gap all the same: give the faces in a box backs (`inside: [{box}]`, `convert.backed`). Check both from every side.
+- **A sign spelt wrong.** Paint the stray strokes over in the sign's ground colour (`paint`), measured on a texel
+  elevation of the letters (the rail yard's tower read "PREIGHT"; its P's bowl and bar were painted to make an F).
+- **Wavy handrails, missing stairs or a leg out of place.** A generator cannot hold a long thin rail straight, leaves
+  off stairs to a raised deck and may draw a leg in from its corner (the rail yard's stair tower and walkway, user,
+  2026-11-13). Take the wavy rails off with `clear` rods (`{from, to, radius}`) along the flights and boxes on the
+  landings, and build straight ones (`built`: `railing` paths on the surface walked, `stairs` from the foot's nosing
+  to the deck's edge), coloured from a point of the model's own steel. Move a stray leg whole with `move` (`{box,
+  by}`); what tied it on is taken away, so clear what is left standing. Check the treads, rails and leg in the client.
+- **Smeared glass.** A generator may draw a window's glass in several layers that share their picture with other
+  faces, so `paint` misses some of it (the rail yard's office module, 2026-11-13). Cover each pane with a thin built
+  bar (`built`, `bar`, coloured from a dark glass point) just in front of the layers, inside its frame, measured from
+  the frame's profile across the window; build a frame-grey bar over a mullion drawn light. Check both faces.
+- **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
+  own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
+  its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",
+  2026-11-13). `check lights` puts it out and on with the faces; the ground should go dark and come back.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

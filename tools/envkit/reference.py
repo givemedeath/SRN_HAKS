@@ -22,6 +22,10 @@ RETIRED = {'atm': 'pay-kiosk', 'crate-stack': 'pallet-stack', 'cyberware-cabinet
            'drink-case': 'fridge', 'floor-cache': 'floor-hatch', 'folding-table': 'table-and-chairs', 'freezer': 'fridge',
            'goods-rack': 'shelf-unit', 'junction-box': 'power-cabinet', 'ladder-hatch': 'floor-hatch', 'recycle-bin': 'trash-can',
            'secure-door': 'door', 'service-door': 'door', 'stash-cabinet': 'storage-cabinet', 'waiting-seats': 'bench'}
+# The props drawn against the walls and the pavement slab under them stay on the building (user, 2026-11-10: the props
+# make dressing areas faster; "we should keep the slab").
+SLAB = ('Keep the pavement slab the building stands on, and the fixtures and street furniture on it, such as bollards, bins '
+        'and rubbish bags, exactly where they are. Remove the road beyond the slab, the puddles, the reflections and the loose litter.')
 LEAD = {
     'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
@@ -31,13 +35,20 @@ LEAD = {
                  'Keep exactly the same design, colours, proportions and viewing angle, but leave off every company logo, '
                  'emblem and brand name. Hazard stripes, warning signs and plain labels stay.',
     'building': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
-                'Keep exactly the same architecture, colours, proportions, signage and viewing angle. '
-                # The props drawn against the walls and the pavement slab under them stay on the building (user,
-                # 2026-11-10: the props make dressing areas faster; "we should keep the slab").
-                'Keep the pavement slab the building stands on, and the fixtures and street furniture on it, such as '
-                'bollards, bins and rubbish bags, exactly where they are. Remove the road beyond the slab, the puddles, '
-                'the reflections and the loose litter.',
+                'Keep exactly the same architecture, colours, proportions, signage and viewing angle. ' + SLAB,
+    # A generic sheet's building (user, 2026-11-12: the rail yard "is meant to be generic rail freight yard"; "words like
+    # Freight and relevant symbols are ok"). The subject states what a sign says, so the model need not guess its letters.
+    'unbranded-building': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
+                          'Keep exactly the same architecture, colours, proportions and viewing angle, but leave off every '
+                          'company name, place name and logo. Generic words such as FREIGHT and plain symbols may stay. ' + SLAB,
 }
+# A view the sheet does not draw, turned from the chosen reference of one it does (user, 2026-11-13: the rail yard's
+# corner view drew another building than its front, "fix the warehouse back view"). Its lead says what it is seen from
+# instead of keeping the viewing angle.
+TURNED = ('Show this same {subject} seen from {to}, as a clean, sharp, high-resolution reference image for 3D modelling. '
+          'Keep exactly the same architecture, roofline, materials, colours and proportions. Draw the walls the picture does '
+          'not show in the same materials, adding no wings or storeys.')
+NAMELESS = 'Leave off every company name, place name and logo. Generic words such as FREIGHT and plain symbols may stay.'
 # Left to itself the edit tidies: the first Stuffer Shack pass came back with near-white walls (user, 2026-11-10: "it does
 # look too clean"). The wear is part of the design, so every prompt asks for it by name.
 WEAR = ('Keep the grime, stains, rust streaks, scratches, worn paint and graffiti exactly as dirty as in the source; '
@@ -49,13 +60,19 @@ RULES = ('Show the whole object centred with a clear margin on a plain white bac
          'surfaces. No cast shadow, no ground, no people, no captions or text outside the object.')
 
 
-def prompt(kind, subject, notes='', unbranded=False):
+def prompt(kind, subject, notes='', unbranded=False, turn=None):
+    """The edit's text. `turn` says what a turned building view (TURNED) is seen from."""
     require(kind in ('prop', 'building'), 'Asset kind must be one of: building, prop')
     require(isinstance(subject, str) and subject.strip() and '\n' not in subject, 'Subject must be one line of text')
     require(isinstance(notes, str), 'Notes must be text')
-    require(unbranded is False or unbranded is True and kind == 'prop', 'Only a prop is drawn unbranded')
-    lead = LEAD['unbranded' if unbranded else kind]
-    return ' '.join(part for part in (lead.format(subject=subject.strip()), WEAR, notes.strip(), RULES) if part)
+    require(unbranded is False or unbranded is True, 'unbranded is true or false')
+    require(turn is None or kind == 'building' and isinstance(turn, str) and turn.strip() and '\n' not in turn,
+            'A turned view is of a building, and says in one line what it is seen from')
+    if turn is None:
+        lead = LEAD[('unbranded' if kind == 'prop' else 'unbranded-building') if unbranded else kind].format(subject=subject.strip())
+    else:
+        lead = ' '.join(part for part in (TURNED.format(subject=subject.strip(), to=turn.strip()), NAMELESS if unbranded else '', SLAB) if part)
+    return ' '.join(part for part in (lead, WEAR, notes.strip(), RULES) if part)
 
 
 def load_set(path):
@@ -69,16 +86,27 @@ def load_set(path):
     require(isinstance(data['assets'], dict) and data['assets'], 'A set needs assets')
     for name, asset in data['assets'].items():
         require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
-        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', *KIN},
+        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', 'turn', 'drawn', *KIN},
                 'Asset needs kind, subject and box: ' + name)
-        require(asset['kind'] == 'prop' or not KIN & set(asset), 'Only props have a type: ' + name)
+        require(asset['kind'] == 'prop' or not (KIN - {'unbranded'}) & set(asset), 'Only props have a type: ' + name)
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
             cut = asset['cut']; whole = data['assets'].get(cut['from']) if isinstance(cut, dict) and isinstance(cut.get('from'), str) else None
-            require(asset['kind'] == 'building' and isinstance(cut, dict) and set(cut) == {'from', 'box'} and whole is not None
+            # `mirror` flips the chosen reference left to right first (user, 2026-11-13: the rail yard's rear was drawn
+            # turned the wrong way, its detailed side on the wing's side; a reference without lettering can be mirrored).
+            require(asset['kind'] == 'building' and isinstance(cut, dict) and {'from', 'box'} <= set(cut) <= {'from', 'box', 'mirror'}
+                    and cut.get('mirror', True) is True and whole is not None
                     and whole['kind'] == 'building' and 'cut' not in whole, 'A cut is a building view drawn from another, whole, view of the set: ' + name)
             require(isinstance(cut['box'], list) and len(cut['box']) == 4 and all(type(v) is int for v in cut['box'])
                     and 0 <= cut['box'][0] < cut['box'][2] and 0 <= cut['box'][1] < cut['box'][3], 'A cut states its box in pixels of that view\'s reference: ' + name)
-        prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
+        if 'turn' in asset:  # a view the sheet does not draw, turned from another view's chosen reference (TURNED)
+            turn = asset['turn']; whole = data['assets'].get(turn['from']) if isinstance(turn, dict) and isinstance(turn.get('from'), str) else None
+            require(asset['kind'] == 'building' and 'cut' not in asset and isinstance(turn, dict) and set(turn) == {'from', 'to'} and whole is not None
+                    and whole['kind'] == 'building' and not {'cut', 'turn'} & set(whole), 'A turn is a building view drawn from another, whole, view of the set: ' + name)
+        # A drawn asset's crop is already a clean reference on white (the rail freight depot's four images, user
+        # 2026-11-13), so it is taken as it is (`as_drawn`) and never redrawn.
+        require(asset.get('drawn', True) is True and not ('drawn' in asset and {'cut', 'turn'} & set(asset)),
+                'drawn is true, for a crop that is already a reference, and is neither cut nor turned: ' + name)
+        prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), turned(asset))
         if asset['kind'] == 'prop':
             require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)
             require(asset['type'] not in RETIRED, f'Type {asset["type"]} is now {RETIRED.get(asset["type"])}: {name}')
@@ -142,23 +170,50 @@ def crop(sheet_path, box, output):
     return output
 
 
+def turned(asset):
+    """What a turned view is seen from, or None for a view the sheet draws."""
+    return asset['turn']['to'] if 'turn' in asset else None
+
+
 def source(data, name, sheet, selected, output):
     """The picture an asset is redrawn from, written to `output`: its box on the sheet, or for a cut (a piece of a
     building too large for one generator texture, user 2026-11-12) its box on the chosen reference of the whole view,
-    so that the pieces keep the one drawing's proportions and colours between them."""
+    so that the pieces keep the one drawing's proportions and colours between them. A turn (TURNED) is drawn from the
+    whole of that chosen reference."""
     asset = data['assets'][name]
-    if 'cut' not in asset:
+    if not {'cut', 'turn'} & set(asset):
         return crop(sheet, asset['box'], output)
     from PIL import Image
     from .sheet import image
-    output = crop(image(selected, asset['cut']['from']), asset['cut']['box'], output)
+    drawn = asset.get('cut') or asset['turn']; picture = image(selected, drawn['from'])
+    with Image.open(picture) as opened:
+        whole = opened.convert('RGB')
+    if drawn.get('mirror'):
+        whole = whole.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    box = asset['cut']['box'] if 'cut' in asset else [0, 0, whole.width, whole.height]
+    require(box[2] <= whole.width and box[3] <= whole.height, f'The box {box} runs off {Path(picture).name} ({whole.width} x {whole.height})')
+    piece = whole.crop(tuple(box))
     # Set on white with a margin all round: a wall running off the picture was redrawn running off it, where the cut was
     # to be closed (two of the yard's six pieces on their first seed, 2026-11-12).
-    with Image.open(output) as piece:
-        margin = round(max(piece.size) * CUT_MARGIN); framed = Image.new('RGB', (piece.width + 2 * margin, piece.height + 2 * margin), 'white')
-        framed.paste(piece, (margin, margin))
-    framed.save(output)
+    margin = round(max(piece.size) * CUT_MARGIN); framed = Image.new('RGB', (piece.width + 2 * margin, piece.height + 2 * margin), 'white')
+    framed.paste(piece, (margin, margin))
+    output = Path(output); output.parent.mkdir(parents=True, exist_ok=True); framed.save(output)
     return output
+
+
+def as_drawn(name, reference, seed, output):
+    """A drawn asset's crop taken as its reference: written as `<name>-s<seed>-b0.png` beside a receipt that names the crop
+    by its hash, as `make` writes an edit's, so it is selected the same way. Nothing is sent to ComfyUI."""
+    import shutil
+    require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + str(name))
+    output = Path(output); base = f'{name}-s{seed}'
+    require(not (output / f'{base}.json').exists(), 'Receipt already exists; use another seed or output folder')
+    output.mkdir(parents=True, exist_ok=True); picture = output / f'{base}-b0.png'; shutil.copyfile(reference, picture)
+    receipt = {'schemaVersion': 1, 'kind': 'envkit-reference', 'asset': name, 'drawn': True, 'seed': seed, 'state': 'complete',
+               'source': {'name': Path(reference).name, 'sha256': hashlib.sha256(Path(reference).read_bytes()).hexdigest()},
+               'outputs': [str(picture)], 'elapsedSeconds': 0.0}
+    (output / f'{base}.json').write_text(json.dumps(receipt, indent=1) + '\n', encoding='utf-8')
+    return receipt
 
 
 def make(client, local, bindings_path, name, text, reference, seed, output, *, batch=1, deadline=2400):

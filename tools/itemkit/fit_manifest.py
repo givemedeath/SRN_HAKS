@@ -70,7 +70,12 @@ def bladed_landmarks(q, U, overrides):
     N = st.SLICES; centres, mid, extent, wide, _ = st._sections(q)
     known = ~np.isnan(extent[:, 0]); depth = np.where(known, extent.min(1), 0)
     guard = max(_runs(wide), key=len) if wide.any() else None
-    if guard is not None and 5 < guard[0] and guard[-1] < N - 6:
+    found = guard is not None and 5 < guard[0] and guard[-1] < N - 6
+    # A wide head just short of the end (the wave-4 Pole Arm's axe head on its staff) reads as a cross-guard with the
+    # blade on the wrong side. Reviewed landmarks that put the blade on the other side win over that reading.
+    if found and 'bladeAtLowEnd' in overrides and bool(overrides['bladeAtLowEnd']) != (guard[0] > N - 1 - guard[-1]):
+        found = False
+    if found:
         flip = guard[0] > N - 1 - guard[-1]; method = 'cross-guard'          # more length below the guard: blade at the low end
     elif 'bladeAtLowEnd' in overrides:
         require(all(k in overrides for k in LANDMARKS), 'override-ends needs every landmark')
@@ -179,7 +184,12 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     centre = np.median(mid[grip], axis=0)
     src = lambda f, c=centre: mean + U @ np.array([at(f), c[0], c[1]])
     A, B = src(marks['gripStart']), src(marks['gripEnd']); usable = float(np.linalg.norm(B - A))
-    s = grip_length / usable if not hafted else s
+    # A round one-hand grip may take a chosen overall length instead of the hand's usable length (the wave-4 Sai, whose
+    # handle fills the standard hand only at 0.76 m; user, 2026-11-13: "Make the Sai shorter"). The hand stays centred on
+    # the reviewed handle; a handle shorter than the hand is a departure the round fit always binds to a review.
+    chosen_round = (not hafted and not two_hand and overrides.get('uniform') and 'targetLength' in overrides
+                    and overrides.get('sizeToLength') is False)
+    s = target / L if chosen_round else grip_length / usable if not hafted else s
     Rn = np.array([np.cross(U[:, 0], U[:, 1]), U[:, 0], U[:, 1]]); require(abs(np.linalg.det(Rn) - 1) < 1e-9, 'Rotation required')
     rule_length = None
     if two_hand and not hafted:
@@ -201,7 +211,8 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         if two_hand:
             authority = 'midpoint-depth-two-hand'; F, report = two_hand_uniform(b, faces, M, [A, B], origin, standard, review())
         elif hafted or overrides.get('uniform'):
-            authority = 'usable-length-round'; F, report = one_hand_round(b, faces, M, origin, standard, review())
+            authority = 'usable-length-round'
+            F, report = one_hand_round(b, faces, M, origin, standard, review(), [A, B] if chosen_round else None)
         elif uniform_section:
             authority = 'midpoint-depth-uniform'
             F, report = transverse_uniform(b, faces, M, origin, standard, review(), overrides.get('sectionBasis', 'depth'))
@@ -250,7 +261,7 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     return {'family': name, 'method': method, 'automaticLandmarks': auto, 'overrides': overrides, 'landmarks': marks,
             'gripEndpoints': [A.tolist(), B.tolist()], 'matrix': M.tolist(), 'fitMatrix': np.asarray(F).tolist(), 'scale': float(s),
             'usableSourceLength': usable, 'joinY': joins, 'joinClearance': [c[1] for c in cleared], 'thicknessProbes': probes,
-            'sizingAuthority': authority, 'gripReport': report, 'departurePending': bool(pending),
+            'sizingAuthority': authority, 'gripReport': report, 'departurePending': bool(pending), 'chosenLength': bool(chosen_round),
             'nativeLength': float(np.ptp(fb[:, 1])), 'stockLength': stock_length(native), 'targetLength': target,
             'depthRuleLength': rule_length, 'fittedBounds': [fb.min(0).round(4).tolist(), fb.max(0).round(4).tolist()]}
 
@@ -286,6 +297,7 @@ def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *
                          f"native length {data['nativeLength']:.3f} m (stock carrier {data['stockLength'] or 0:.3f} m). "
                          f"Landmarks {marks}; overrides {over}."}
     if data['sizingAuthority']: m['fit']['sizingAuthority'] = data['sizingAuthority']
+    if data.get('chosenLength'): m['fit']['chosenLength'] = True          # the worker samples the reviewed handle (grip.melee_fit)
     if (overrides or {}).get('sectionBasis'): m['fit']['sectionBasis'] = overrides['sectionBasis']
     report = data['gripReport'] or {}
     if overrides and overrides.get('departureDigest'):

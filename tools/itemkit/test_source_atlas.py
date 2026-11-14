@@ -87,6 +87,7 @@ class SourceAtlasTests(unittest.TestCase):
                  patch('tools.itemkit.source_atlas.repair_uv',return_value=(uv,{},report)):
                 with self.assertRaisesRegex(ValueError,'two-pixel 4K gutter'):unwrap(mesh,{},out)
             self.assertEqual([c.kwargs['padding'] for c in pack.call_args_list],[4,8,16])
+            self.assertEqual({c.kwargs['resolution'] for c in pack.call_args_list},{4096})   # padding counted in 4K texels
             self.assertEqual(len(read(out/'attempts.json')['attempts']),3)
             self.assertFalse((out/'atlas.json').exists())
 

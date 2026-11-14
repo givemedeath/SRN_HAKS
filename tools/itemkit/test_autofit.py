@@ -79,6 +79,66 @@ class AutofitTests(unittest.TestCase):
             again = s.thin(source, folder/'again', folder/'out/thin-map.npz')
             self.assertEqual(again['output']['sha256'], result['output']['sha256'])
 
+    def test_stretch_lengthens_only_its_span_and_reapplies(self):
+        p = pommelled(); mapping = s.fit_stretch(p, (.05, .2), 1.5)
+        mean, axes = mapping['mean'], mapping['axes']; t = (p - mean) @ axes[:, 0]; (t0, t1) = mapping['span']
+        normals = np.tile([0., 0., 1.], (len(p), 1)); out, turned = s.apply_stretch(p, mapping, normals)
+        moved = (out - mean) @ axes[:, 0]; side = lambda q: (q - mean) @ axes[:, 1:]
+        below, inside, above = t <= t0, (t > t0) & (t < t1), t >= t1
+        np.testing.assert_allclose(out[below], p[below], atol=1e-12)                                     # one end stays put
+        np.testing.assert_allclose(moved[above] - t[above], .5 * (t1 - t0), atol=1e-9)                  # the other moves rigidly
+        np.testing.assert_allclose(moved[inside], t0 + 1.5 * (t[inside] - t0), atol=1e-9)
+        np.testing.assert_allclose(side(out), side(p), atol=1e-9)                                        # width and depth unchanged
+        self.assertAlmostEqual(np.ptp(moved), np.ptp(t) + .5 * (t1 - t0), places=9)
+        self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), .9)
+        with self.assertRaisesRegex(ValueError, 'span'): s.fit_stretch(p, (.2, .05), 1.5)
+
+    def test_glb_stretch_keeps_topology_and_uvs(self):
+        rng = np.random.default_rng(2); p = pommelled()[::4]; n = len(p) // 3 * 3; p = p[:n]
+        faces = np.arange(n).reshape(-1, 3); uv = rng.uniform(.1, .9, (len(faces), 3, 2))
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder); source = folder/'p.glb'; write_mesh(source, p, faces, uv)
+            result = s.stretch(source, folder/'out', (.05, .2), 1.5); after = mesh(folder/'out/stretched.glb'); original = mesh(source)
+            np.testing.assert_array_equal(after['faces'], original['faces']); np.testing.assert_array_equal(after['uv'], original['uv'])
+            self.assertGreater(result['lengthAfter'], result['lengthBefore'])
+            again = s.stretch(source, folder/'again', map_path=folder/'out/stretch-map.npz')
+            self.assertEqual(again['output']['sha256'], result['output']['sha256']); self.assertEqual(again['map']['mode'], 'applied')
+            with self.assertRaisesRegex(ValueError, 'own parameters'): s.stretch(source, folder/'x', (.05, .2), 1.5, folder/'out/stretch-map.npz')
+
+    def test_narrow_pulls_guard_tips_in_rigidly(self):
+        p = pommelled(); mean, axes = s.principal_frame(p); q = (p - mean) @ axes; length = np.ptp(q[:, 0])
+        f = (q[:, 0] - q[:, 0].min()) / length; at = lambda x: float(f[np.argmin(np.abs(p[:, 0] - x))])
+        span = tuple(sorted((at(-.035), at(.015))))           # the cross-guard (model X -0.02..0), on whichever end the frame puts it
+        guard = (f >= span[0]) & (f <= span[1]); band = (.04 / length, .08 / length)
+        mapping = s.fit_narrow(p, span, band, .5)
+        normals = np.tile([0., 0., 1.], (len(p), 1)); out, turned = s.apply_narrow(p, mapping, normals)
+        r = (out - mean) @ axes; a = q[:, 1] - mapping['centre']
+        np.testing.assert_allclose(out[~guard], p[~guard], atol=1e-12)                                 # outside the span: unchanged
+        np.testing.assert_allclose(r[:, [0, 2]], q[:, [0, 2]], atol=1e-9)                              # length and depth unchanged
+        far = guard & (np.abs(a) >= .08); np.testing.assert_allclose(np.abs(r[far, 1] - mapping["centre"]), np.abs(a[far]) - .02, atol=1e-9)
+        core = np.abs(a) <= .04; np.testing.assert_allclose(r[core], q[core], atol=1e-9)
+        self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
+        with self.assertRaisesRegex(ValueError, 'tear'): s.fit_narrow(p, (sum(span) / 2, span[1]), band, .5)   # cuts through the guard
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_narrow(p, span, band, 1.2)
+        with self.assertRaisesRegex(ValueError, 'outside it'): s.fit_narrow(p, (0, 1), band, .5)       # no centreline left to read
+        rng = np.random.default_rng(2); small = p[::4]; n = len(small) // 3 * 3; small = small[:n]
+        faces = np.arange(n).reshape(-1, 3); uv = rng.uniform(.1, .9, (len(faces), 3, 2))
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder); source = folder/'p.glb'; write_mesh(source, small, faces, uv)
+            result = s.narrow(source, folder/'out', span, band, .5)
+            after = mesh(folder/'out/narrowed.glb'); np.testing.assert_array_equal(after['uv'], mesh(source)['uv'])
+            self.assertLess(result['widthAfter'], result['widthBefore'])
+            again = s.narrow(source, folder/'again', map_path=folder/'out/narrow-map.npz')
+            self.assertEqual(again['output']['sha256'], result['output']['sha256'])
+            low = np.asarray(result['lowEndVertex'])                     # the pommel or the blade tip, whichever the frame chose
+            self.assertTrue(np.isclose(low[0], -.244, atol=.01) or np.isclose(low[0], .8, atol=.01), low)
+            np.testing.assert_allclose(np.abs(result['longAxis']), [1, 0, 0], atol=.01)
+            # The saved map's tear guard is checked on the mesh it is re-applied to (the donor), not only where it was fitted.
+            moved = folder/'moved.glb'; write_mesh(moved, small + [.02, 0, 0], faces, uv)
+            with self.assertRaisesRegex(ValueError, 'tear'): s.narrow(moved, folder/'torn', map_path=folder/'out/narrow-map.npz')
+            self.assertFalse((folder/'torn').exists())                    # a refused run leaves no folder to block a retry
+
     def test_shell_thinning_keeps_a_closed_solid(self):
         try: import pymeshlab
         except ImportError: self.skipTest('pymeshlab not on the path')

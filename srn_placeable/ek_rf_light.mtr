@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_rf_light
+texture1 ek_rf_light_n
+texture2 ek_rf_light_s
+texture3 ek_rf_light_r
+texture4 null
+texture5 ek_rf_light_i

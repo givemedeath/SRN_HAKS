@@ -70,8 +70,13 @@ def command_reference(args):
     names = args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]  # a same is not made
     for name in names:
         asset = data['assets'][name]
-        require('cut' not in asset or args.selected, f'{name} is cut from the chosen reference of {asset.get("cut", {}).get("from")}: give --selected')
-    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
+        taken = asset.get('cut') or asset.get('turn')  # a view drawn from another's chosen reference
+        require(not taken or args.selected, f'{name} is drawn from the chosen reference of {(taken or {}).get("from")}: give --selected')
+    output = Path(args.output); missed = []
+    # A drawn asset is taken as it is (`reference.as_drawn`): only a run that redraws one needs the shared ComfyUI.
+    redrawn = any(not data['assets'][name].get('drawn') for name in names)
+    require(not redrawn or args.bindings, 'Redrawing a reference needs --bindings, the local JSON of the shared ComfyUI')
+    local, client = (json.loads(Path(args.bindings).read_text(encoding='utf-8')), Client(args.url)) if redrawn else (None, None)
     for name in names:
         # Each job waits for the shared ComfyUI (`reference.make`). With --keep-going an asset that fails is said and
         # passed over, so that one long busy spell or lost poll does not stop the rest, and the run fails at the end;
@@ -79,8 +84,11 @@ def command_reference(args):
         asset = data['assets'][name]
         try:
             source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
-            text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
-            result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
+            if asset.get('drawn'):
+                result = reference.as_drawn(name, source, args.seed, output)
+            else:
+                text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset))
+                result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         except Exception as failure:
             if not args.keep_going:
                 raise
@@ -152,7 +160,7 @@ def command_tiles(args):
         made, maps, colour = shaped(args.model); textures = convert.part_textures(args.model, tiles.get('parts', [])); placed, crunch = [], _crunch()
         counts = {args.model: len(made['faces'])}; shapes = {}
         for name in textures:  # each model placed in the group, shaped once; the building is counted before anything is written
-            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces'])
+            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces']); shapes[name][0]['underfoot'] = models[name].get('underfoot', False)
         built = convert.building_triangles(models, args.model, counts)
         require(built <= meshy.BUILDING_TRIANGLES, f'The building of {args.model} is {built} triangles, its own and those of the models placed in it that are '
                 f'no placeables: more than the building budget of {meshy.BUILDING_TRIANGLES}; remesh its pieces lower')
@@ -171,6 +179,11 @@ def command_tiles(args):
     print(json.dumps(report), flush=True)
     for note in report['notes']:  # beside the report, which stays the only thing on standard output
         print('note: ' + note, file=sys.stderr, flush=True)
+
+
+def command_track(args):
+    from . import track
+    print(json.dumps(track.build(Path(args.output), args.seed, args.piece)))
 
 
 def command_meshy(args):
@@ -393,6 +406,11 @@ def main(argv=None):
     sub.add_argument('--grid', type=float, help='with --eye: a measuring grid this many metres apart on the upright plane through each target; the eyes level with their targets')
     sub.add_argument('--page', help='also one picture of every model drawn, side by side under their names')
     sub.set_defaults(run=command_view)
+    sub = commands.add_parser('track', help='a piece of railway track, built to gauge, as a model folder a game set reads')
+    sub.add_argument('--output', required=True, help="a fresh folder under the set's output root"); sub.add_argument('--seed', type=int, default=0, help='the seed of its maps')
+    sub.add_argument('--piece', choices=['straight', 'merge', 'crane'], default='straight',
+                     help="a straight 10 m piece, a 30 m merge of the next row's track into this one, or 10 m of a gantry crane's runway rail")
+    sub.set_defaults(run=command_track)
     sets = str(Path(__file__).with_name('sets'))
     sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')
     sub.add_argument('action', choices=['boxes', 'sets', 'crops', 'overlay', 'audit', 'types', 'same', 'revise'])
@@ -434,7 +452,7 @@ def main(argv=None):
         sub.add_argument('--selected', help='folder of the chosen references, which the pieces of a building (cut) are drawn from')
         sub.set_defaults(run=run)
     sub = parsers['reference']
-    sub.add_argument('--bindings', required=True, help='local JSON with absolute comfyInput and comfyOutput')
+    sub.add_argument('--bindings', help='local JSON with absolute comfyInput and comfyOutput; not needed when every asset is drawn')
     sub.add_argument('--url', default='http://127.0.0.1:8188')
     sub.add_argument('--seed', type=int, default=101)
     sub.add_argument('--deadline', type=int, default=2400)
