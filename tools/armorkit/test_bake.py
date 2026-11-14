@@ -265,6 +265,12 @@ class BakeTests(unittest.TestCase):
             report, failures = bake.through({'bicepl': sleeve(0.035, dome)}, bones)
             self.assertAlmostEqual(report['bicepl'], 0.005, places=3)
             self.assertEqual(failures, ["bicepl: the body's own skin beside it stands up to 0.5 cm out through the outfit over it"])
+        inward = sleeve(0.05)
+        inward['f'] = np.where(~inward['skin'][:, None], inward['f'][:, ::-1], inward['f'])  # its cloth turned in: the client draws none of it
+        report, failures = bake.through({'bicepl': inward}, bones)
+        self.assertEqual(report, {'bicepl': 0.0})
+        self.assertEqual(len(failures), 1)
+        self.assertRegex(failures[0], r"^bicepl: \d+ points of the body's own skin beside it are covered only by faces turned in")
         self.assertEqual(bake.gates({'bicepl': part()}, {}, Path('nowhere'), skin=(report, failures))['through'], report)
 
     def test_every_end_is_closed_domed_and_hidden_as_the_body_stands_and_turned(self):

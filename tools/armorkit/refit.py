@@ -204,15 +204,15 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     """`part`, holding the other body's own skin beside the outfit's (`bake.skinned`), with everything drawn
     over that skin (the sleeve's cloth, and the dome closing it at the armpit) held `gap` outside it. Each
     vertex of the skin is read along the ray square out from the part's bone (`start` to `end`) through it
-    (`measure.beyond`): where it stands less than `gap` inside, the corners of the face the ray crosses last
-    are pushed out from the bone by the difference, the push spread over `rounds` rings of their
+    (`measure.beyond`): where it stands less than `gap` inside, the corners of the last face the ray crosses
+    that faces out (the client draws no face from behind) are pushed out from the bone by the difference, the push spread over `rounds` rings of their
     neighbours, never less than a point needs, so the cloth moves as one and creases nowhere, and read again
     until it settles. The skin and a pad are not moved; a push past `OVER_MOST` fails, rather than ship a
     spike where a fold is read as the outside. The male's sleeves, scaled by the rings at the shoulder and
     the elbow, lay up to 2.7 cm inside the Human female's fuller upper arm, and the arm kept below the hem
     showed through them with her arms raised; held clear of her whole arm by the sleeve's cloth alone, her
-    arm still stood up to 9 mm through the dome carried from the male's armpit (Facility Security,
-    2026-11-13)."""
+    arm still stood up to 9 mm through the dome carried from the male's armpit, and, held clear of the cloth
+    turned in over it, 1.2 cm out of the cloth drawn (Facility Security, 2026-11-13)."""
     v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
     skin = np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)
     if not skin.any() or skin.all():
@@ -230,7 +230,7 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     degree = np.maximum(np.bincount(rows, minlength=count), 1)
     moved = v.copy()
     for _ in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
-        outside, face = measure.beyond(moved[points], start, axis, moved, cloth)
+        outside, face = measure.beyond(moved[points], start, axis, moved, cloth, facing=True)
         short = np.flatnonzero(face >= 0)
         short = short[outside[short] > -gap]
         if not len(short):

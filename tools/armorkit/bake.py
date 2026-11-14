@@ -397,12 +397,14 @@ def hidden(parts, bones, body, contract=None, skin=None, left=()):
 def through(parts, bones):
     """(report, failures): for each part that holds the body's own skin beside the outfit's (`bodyskin.worn`),
     how far that skin stands out through the rest of the part, everything the client draws over it (a
-    sleeve's cloth, and the dome closing its end), each of its vertices read along the ray square out from
-    the part's bone (`bones`, the rig) through it (`measure.beyond`): its most, in metres, 0 where none of it
-    does. More than `THROUGH` fails. The male's sleeves carried to the Human female lay up to 1.6 cm inside
-    her arm by the skin kept below their hems, which the user saw through them with her arms raised; held
-    clear of it by the sleeve's cloth alone, her arm still stood up to 9 mm through the dome carried from the
-    male's armpit, which the gate, reading the cloth alone too, passed, and the user saw it again
+    sleeve's cloth, and the dome closing its end) from outside, each of its vertices read along the ray square
+    out from the part's bone (`bones`, the rig) through it (`measure.beyond`, `facing`): its most, in metres,
+    0 where none of it does. More than `THROUGH` fails, and so does skin the part covers with faces turned in
+    alone, which the client does not draw. The male's sleeves carried to the Human female lay up to 1.6 cm
+    inside her arm by the skin kept below their hems, which the user saw through them with her arms raised;
+    held clear of it by the sleeve's cloth alone, her arm still stood up to 9 mm through the dome carried
+    from the male's armpit; held clear of every face over it, it stood 1.2 cm out of those turned out, which
+    a gate counting the faces turned in passed, and the user saw it in the same place each time
     (2026-11-13)."""
     report, failures = {}, []
     for name, part in parts.items():
@@ -414,11 +416,15 @@ def through(parts, bones):
             continue
         slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
         start, end = (np.asarray(bones[bone.format(name[-1])], float)[:3, 3] for bone in split.BONE_ENDS[slot])
-        outside = measure.beyond(v[np.unique(f[kept])], start, seams.unit(end - start), v, cloth)[0]
+        skin, axis = v[np.unique(f[kept])], seams.unit(end - start)
+        outside = measure.beyond(skin, start, axis, v, cloth, facing=True)[0]
         most = max(float(np.nanmax(outside)) if np.isfinite(outside).any() else 0.0, 0.0)
         report[name] = round(most, 4)
         if most > THROUGH:
             failures.append(f'{name}: the body\'s own skin beside it stands up to {most * 100:.1f} cm out through the outfit over it')
+        hidden = int((np.isnan(outside) & np.isfinite(measure.beyond(skin, start, axis, v, cloth)[0])).sum())
+        if hidden:
+            failures.append(f'{name}: {hidden} points of the body\'s own skin beside it are covered only by faces turned in, which the client does not draw')
     return report, failures
 
 
