@@ -917,6 +917,34 @@ def stored(folder):
     return parts
 
 
+def _fits(parts, document):
+    """Whether `parts` fill the slots `document` gives the outfit: none in a slot it leaves to the body, and a
+    part holding the body's skin exactly in the slots it shares with the skin."""
+    return not left_to_body(document) & set(parts) and \
+        {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts)
+
+
+def combine(sources, folder, document):
+    """{part: the folder it came from}: one outfit's parts, kept apart in several folders (`store`), kept
+    together in `folder` with the slots `document`, the brief the outfit is tinted by, leaves to the body and
+    shares with its skin, for `bake --kept` to tint, write and gate as one. `sources` holds (folder, [part])
+    pairs; each part comes from the folder that names it, and once. The Human female's Facility Security was
+    her own chest and the male's other parts carried to her (`refit`), two folders tinted as one outfit
+    (2026-11-14). `folder` is a fresh one: kept parts are not written over."""
+    folder, parts, origin = Path(folder), {}, {}
+    require(not folder.exists() or not any(folder.iterdir()), f'{folder} is not empty: parts are combined into a fresh folder')
+    for source, names in sources:
+        require(names, f'Name the parts to take from {source}')
+        kept = stored(source)
+        for name in names:
+            require(name in kept, f'{source} holds no {name}: it holds {", ".join(sorted(kept))}')
+            require(name not in parts, f'{name} is named from {origin.get(name)} and from {source}: take each part from one folder')
+            parts[name], origin[name] = kept[name], str(Path(source))
+    require(_fits(parts, document), "The parts named are baked for other slots left to the body or shared with its skin than the brief's")
+    store(parts, folder, document)
+    return origin
+
+
 def tints(parts, document, speck=texture.SPECK):
     """({part: (shades, layers)}, record): the tint texture of every part of a baked outfit, for `export.tint`.
 
@@ -1068,8 +1096,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
             store(parts, kept, document)
     else:
         parts, whole = stored(kept), None
-        require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')}
-                and not left_to_body(document) & set(parts) and {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts),
+        require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')} and _fits(parts, document),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
     tinted, record = tints(parts, document)
