@@ -16,6 +16,6 @@
     "case-stack": {"kind": "prop", "type": "hard-case", "same": "pulse-tech/case-stack", "subject": "stack of three hard equipment cases, grey, purple and olive", "box": [1220, 578, 1440, 831]},
     "bench": {"kind": "prop", "type": "bench", "same": "pulse-tech/bench", "subject": "row of four perforated steel seats on a tube frame", "box": [72, 876, 538, 1079]},
     "vending-machine": {"kind": "prop", "type": "vending-machine", "variant": "Red and grey machine selling medicine bottles, with a neon cross.", "subject": "red and grey vending machine selling medicine bottles with a neon cross", "box": [622, 831, 802, 1086]},
-    "dumpster": {"kind": "prop", "type": "dumpster", "variant": "Wide green wheeled dumpster with two ribbed lids.", "subject": "wide green wheeled dumpster with two ribbed lids", "box": [934, 852, 1278, 1086]}
+    "dumpster": {"kind": "prop", "type": "dumpster", "variant": "Wide green wheeled dumpster with two ribbed lids.", "subject": "wide rusty weathered green wheeled dumpster with two ribbed lids", "box": [934, 852, 1278, 1086], "notes": "Keep the heavy rust, grime and streaked, faded paint of the drawing: it is old and dirty, not clean or new."}
   }
 }
