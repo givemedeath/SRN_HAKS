@@ -202,6 +202,28 @@ class SourceRoleTests(unittest.TestCase):
                 source_regions(rgb, hit, hit, spec, output)
             self.assertFalse((output/'source-roles.png').exists())
 
+    def test_declared_absent_locks_trace_only_both_brows(self):
+        # RUNBOOK 390: hair that stays outside the face outline has no locks to trace; brows still need both sides.
+        import hashlib
+        from headkit.quality_reference import source_regions
+
+        rgb = np.zeros((32, 64, 3), dtype=np.uint8)
+        hit = np.ones(rgb.shape[:2], dtype=bool)
+        brows = np.indices(hit.shape)[0] < 8
+        empty = hashlib.sha256(np.zeros(hit.shape, np.uint8).tobytes()).hexdigest()
+        spec = {'rgbSha256': hashlib.sha256(rgb.tobytes()).hexdigest(), 'brows': {'of': 'y', 'lt': 8}, 'locks': None,
+                'maskSha256': {'brows': hashlib.sha256(brows.astype(np.uint8).tobytes()).hexdigest(), 'locks': empty}}
+        with tempfile.TemporaryDirectory() as tmp:
+            brow, locks, evidence = source_regions(rgb, hit, hit, spec, Path(tmp))
+            self.assertTrue((brow == brows).all())
+            self.assertFalse(locks.any())
+            self.assertTrue(Path(evidence['path']).is_file())
+            with self.assertRaisesRegex(ValueError, 'both brows'):
+                source_regions(rgb, hit, hit, {**spec, 'brows': {'all': [{'of': 'y', 'lt': 8}, {'of': 'x', 'lt': 32}]}}, Path(tmp))
+            missing = {key: value for key, value in spec.items() if key != 'locks'}
+            with self.assertRaisesRegex(ValueError, 'declare them absent'):
+                source_regions(rgb, hit, hit, missing, Path(tmp))
+
 
 class Conditioning(unittest.TestCase):
     def test_prepare_prefers_pair_even_with_design_for_palette(self):

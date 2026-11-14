@@ -210,8 +210,9 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
                   [('left',xs<labels.shape[1]/2),('right',xs>=labels.shape[1]/2)]}
         r['browsOnHairByEye'] = by_eye
         r['browsOnHair'] = min(by_eye.values())
-        parts,n = label(small((traced_locks & (channel==0)).astype(np.uint8)*255)>127,np.ones((3,3)))
-        r['hairLockOnSkinPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0
+        if settings['sourceHairRoles']['locks'] is not None:   # declared absent: the parser's own lock measure stands
+            parts,n = label(small((traced_locks & (channel==0)).astype(np.uint8)*255)>127,np.ones((3,3)))
+            r['hairLockOnSkinPx'] = int(np.bincount(parts.ravel())[1:].max()) if n else 0
         r['hairOnFaceSkin'] = max(r['hairOnFaceSkin'] or 0,share(upper & ~traced_locks & ~traced_brows,(1,)) or 0)
     # Specks: 1-2 px channel islands inside the face at game size. Skin/hair/iris islands are ownership speckle; tattoo2/metal
     # islands are thin design marks breaking up (a design matter, warning only). Islands touching the face outline are the hull
