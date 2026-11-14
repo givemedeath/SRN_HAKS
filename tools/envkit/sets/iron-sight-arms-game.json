@@ -3,7 +3,7 @@
     "ek_isa_shop": {"source": "meshy/models/isa-building-shop-a2-remesh", "height": 5.9, "measuredAt": 5.9, "colour": 4096,
       "tiles": {"ground": "pavement", "group": "Iron_Sight_Arms", "label": "Iron Sight Arms 2x3", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"},
         "parts": [{"model": "ek_isa_range", "at": [-3.11, -12.53, 0.0], "turn": 90}]}},
-    "ek_isa_range": {"source": "meshy/models/isa-building-range-a1-remesh", "height": 6.11, "measuredAt": 6.11, "colour": 4096, "tone": [0.74, 0.65, 0.59], "copy": [
+    "ek_isa_range": {"source": "meshy/models/isa-building-range-a1-remesh", "height": 6.11, "measuredAt": 6.11, "colour": 4096, "tone": [0.95, 0.9, 0.86], "copy": [
       {"part": "plain grey slab on the rear end", "box": [[-9.6, -1.1, 0.22], [-8.8, 1.1, 4.45]], "from": [[-8.6, -1.95, 0.22], [-6.3, -1.7, 4.45]]},
       {"part": "mirrored lettering on the far wall", "box": [[0.1, -2.0, 1.29], [5.35, -1.6, 2.7]], "from": [[-8.6, -1.95, 1.29], [-3.3, -1.7, 2.7]]}
     ], "lit": [
