@@ -57,8 +57,11 @@ def _sections(p):
     return centres, mid, extent, wide, members
 
 
-def _midline(p):
-    centres, mid, extent, wide, _ = _sections(p); mid = mid.copy(); mid[wide] = np.nan
+def _midline(p, whole=False):
+    # Wide sections (a cross-guard) are skipped by default; `whole` follows them too, for a hafted head that must line up
+    # with its haft (the wave-4 Mace head sat about 2 degrees off a straight haft).
+    centres, mid, extent, wide, _ = _sections(p); mid = mid.copy()
+    if not whole: mid[wide] = np.nan
     # A slice near either end of a bent thick shaft cuts its end cap obliquely, so its midpoint is off the axis and
     # would hook the centreline. Within about one section width of each end, continue the adjacent interior line.
     step = centres[1] - centres[0]; margin = int(np.ceil(.75 * np.nanmedian(extent.min(1)) / step))    # thin blades bow in depth: little is hidden
@@ -71,8 +74,8 @@ def _midline(p):
     return centres, line
 
 
-def _measure_pass(p):
-    centres, mid = _midline(p)
+def _measure_pass(p, whole=False):
+    centres, mid = _midline(p, whole)
     smooth = np.stack([np.convolve(np.pad(mid[:, j], 18, mode='edge'), _KERNEL, mode='valid') for j in (0, 1)], 1)
     curve = np.column_stack([centres, smooth]); slope = np.gradient(curve, centres, axis=0)
     speed = np.linalg.norm(slope, axis=1); tangent = slope / speed[:, None]
@@ -107,8 +110,11 @@ def turn_normals(transform, points, normals, scale):
         d = np.zeros(3); d[i] = step; J[:, :, i] = (transform(points + d) - transform(points - d)) / (2 * step)
     try: turned = np.linalg.solve(np.transpose(J, (0, 2, 1)), normals[..., None])[..., 0]
     except np.linalg.LinAlgError: _require(False, 'The map collapses a direction: its normals are undefined')
-    length = np.linalg.norm(turned, axis=1); _require(np.all(length > 0) and np.isfinite(length).all(), 'Degenerate normal after the map')
-    return turned / length[:, None]
+    # A zero normal in the source (the wave-4 Mace donor had 6 of 600K) has no direction to turn: it stays zero.
+    given = np.linalg.norm(normals, axis=1) > 0; length = np.linalg.norm(turned, axis=1)
+    _require(np.all(length[given] > 0) and np.isfinite(length).all(), 'Degenerate normal after the map')
+    turned[given] /= length[given, None]; turned[~given] = 0
+    return turned
 
 
 def _fit_ends(p):
@@ -143,12 +149,14 @@ def _apply_ends(p, ends):
     return p
 
 
-def fit_map(positions):
-    """Measure the unbend map of a mesh. Returns (map, per-pass midline range in % of length)."""
+def fit_map(positions, whole=False):
+    """Measure the unbend map of a mesh. Returns (map, per-pass midline range in % of length).
+
+    `whole` also follows the wide sections (a hafted head) instead of bridging over them."""
     positions = np.asarray(positions, float); mean, axes = principal_frame(positions)
     start = (positions - mean) @ axes; p = start; tables = []; history = []
     for _ in range(MAX_PASSES):
-        table, deviation = _measure_pass(p); p = _apply_pass(p, table); tables.append(table); history.append(deviation)
+        table, deviation = _measure_pass(p, whole); p = _apply_pass(p, table); tables.append(table); history.append(deviation)
         if deviation < CONVERGED_PCT: break
     ends = _fit_ends(p); p = _apply_ends(p, ends)
     shift = float((p[:, 0].max() + p[:, 0].min()) / 2 - (start[:, 0].max() + start[:, 0].min()) / 2)
@@ -333,6 +341,141 @@ def thin(source, output, map_path=None, target_ratio=None, factor=None):
     write(output / 'thin.json', result, fresh=True); return result
 
 
+def fit_stretch(positions, span, factor):
+    """A lengthening of one span of the long axis (fractions from the principal frame's low end) by `factor`.
+
+    Only the span grows; the sections below it stay put and everything above moves up rigidly, so a short handle reaches
+    the hand's length while the blade and guard keep their size (the wave-4 Sai; user, 2026-11-14: "just stretch the
+    handle part if needed")."""
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); t = (positions - mean) @ axes[:, 0]
+    lo, hi = (float(x) for x in span); factor = float(factor)
+    _require(0 <= lo < hi <= 1 and 1 < factor <= 3, 'A span inside the length and a lengthening factor in (1, 3] required')
+    t0, t1 = t.min() + lo * np.ptp(t), t.min() + hi * np.ptp(t)
+    return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
+
+
+def apply_stretch(positions, mapping, normals=None):
+    positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']
+    (t0, t1), k = mapping['span'], float(mapping['factor'])
+    def transform(points):
+        p = (points - mean) @ axes; t = p[:, 0]
+        p[:, 0] = np.where(t <= t0, t, np.where(t >= t1, t + (k - 1) * (t1 - t0), t0 + (t - t0) * k))
+        return p @ axes.T + mean
+    moved = transform(positions)
+    if normals is None: return moved
+    return moved, turn_normals(transform, positions, normals, t1 - t0)
+
+
+def _remap_glb(source, output, kind, keys, fit, apply, map_path, explicit, guard=None):
+    """Shared body of `stretch` and `narrow`: fit or load a saved map, re-check its guard on this mesh, move positions and
+    turn normals, then verify that triangles, UVs and other attributes are carried byte for byte."""
+    from tools.headkit.common import pin
+    from tools.headkit.gltf import encode, load, arrays
+    source = Path(source); output = Path(output); _require(not output.exists(), f'{output} exists: choose a new output')
+    source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
+    if map_path is None:
+        mapping = fit(positions); mode = 'measured'          # the fit runs its own guard
+    else:
+        _require(not explicit, f'A saved {kind} map carries its own parameters')
+        with np.load(map_path, allow_pickle=False) as archive: mapping = {name: archive[name] for name in archive.files}
+        _require(set(mapping) == keys and mapping['span'].shape == (2,), f'Invalid {kind} map')
+        mode = 'applied'
+        if guard is not None: guard(positions, mapping)    # a saved map re-applied to the donor is checked on the donor too
+    # Nothing is written until the map is accepted, so a refused run leaves no folder behind to block a retry.
+    output.mkdir(parents=True, exist_ok=False)
+    if mode == 'measured':
+        map_path = output / f'{kind}-map.npz'
+        with map_path.open('xb') as stream: np.savez(stream, **mapping)
+    normals = attributes.get('NORMAL'); buffer = bytearray(binary)
+    if normals is None: moved = apply(positions, mapping)
+    else: moved, turned = apply(positions, mapping, normals)
+    _replace(document, buffer, primitive['attributes']['POSITION'], moved)
+    if normals is not None: _replace(document, buffer, primitive['attributes']['NORMAL'], turned)
+    target = output / {'stretch': 'stretched.glb', 'narrow': 'narrowed.glb'}[kind]
+    with target.open('xb') as stream: stream.write(encode(document, bytes(buffer)))
+    after, after_faces, after_attributes = arrays(*load(target.read_bytes()))
+    _require(np.array_equal(after_faces, faces) and all(np.array_equal(after_attributes[name], attributes[name])
+             for name in attributes if name not in ('POSITION', 'NORMAL')), f'The {kind} changed topology, UVs or other attributes')
+    # The span fractions count from the low end of the principal axis, whose sign is arbitrary: name that end so a
+    # reviewer can see which part of the mesh the span measured from.
+    axis = mapping['axes'][:, 0]; low = positions[np.argmin((positions - mapping['mean']) @ axis)]
+    frame = {'longAxis': axis.tolist(), 'lowEndVertex': low.tolist()}
+    return {'source': source_pin, 'output': pin(target), 'map': dict(pin(map_path), mode=mode), **frame}, mapping, positions, after
+
+
+def stretch(source, output, span=None, factor=None, map_path=None):
+    """Write OUTPUT/stretched.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte.
+    A saved map (`map_path`) re-applies unchanged to another mesh in the same frame (the textured donor)."""
+    from tools.headkit.common import write
+    explicit = span is not None or factor is not None
+    _require(map_path is not None or (span is not None and factor is not None), 'Give --span and --factor, or a saved --map')
+    result, mapping, positions, after = _remap_glb(source, output, 'stretch', {'mean', 'axes', 'span', 'factor'},
+                                                   lambda p: fit_stretch(p, span, factor), apply_stretch, map_path, explicit)
+    axis = mapping['axes'][:, 0]
+    result.update({'span': mapping['span'].tolist(), 'factor': float(mapping['factor']),
+                   'lengthBefore': float(np.ptp(positions @ axis)), 'lengthAfter': float(np.ptp(after @ axis)),
+                   'method': 'one span of the long axis lengthened; sections rigid in width and depth, the rest moved along the axis',
+                   'visualReviewRequired': True})
+    write(Path(output) / 'stretch.json', result, fresh=True); return result
+
+
+def fit_narrow(positions, span, band, factor):
+    """A width band of side parts (sai prongs) shortened by `factor`, with everything beyond it moved in rigidly.
+
+    `span` is the stretch along the long axis (fractions from the principal frame's low end) and `band` the distances
+    from the centreline across the width (fractions of the length) whose extent shrinks; the upturned prong tips past
+    the band keep their shape. No vertex outside the span may reach the band, so the map is continuous (the wave-4
+    Sai; user, 2026-11-14: "the side blades fan out too wide")."""
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); q = (positions - mean) @ axes
+    lo, hi = (float(x) for x in span); inner, outer = (float(x) for x in band); factor = float(factor)
+    _require(0 <= lo < hi <= 1 and 0 < inner < outer and 0 < factor < 1, 'A span, a width band and a factor in (0, 1) required')
+    t = q[:, 0]; length = np.ptp(t); t0, t1 = t.min() + lo * length, t.min() + hi * length
+    inside = (t >= t0) & (t <= t1)
+    # The centreline is read from the mesh outside the span (handle and blade), so the span must leave some of it.
+    _require((~inside).sum() >= 100, 'The span must leave part of the mesh outside it to read the centreline from')
+    centre = float(np.median(q[~inside, 1]))
+    mapping = {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'centre': np.array(centre),
+               'band': np.array([inner, outer]) * length, 'factor': np.array(factor)}
+    narrow_guard(positions, mapping); return mapping
+
+
+def narrow_guard(positions, mapping):
+    """No vertex outside the span may reach the band, or the map would tear the surface at the span's edge."""
+    q = (np.asarray(positions, float) - mapping['mean']) @ mapping['axes']; t0, t1 = mapping['span']
+    outside = (q[:, 0] < t0) | (q[:, 0] > t1)
+    _require(np.all(np.abs(q[outside, 1] - float(mapping['centre'])) < float(mapping['band'][0])),
+             'A vertex outside the span reaches the band: the map would tear')
+
+
+def apply_narrow(positions, mapping, normals=None):
+    positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']
+    (t0, t1), (c, w0), k, centre = mapping['span'], mapping['band'], float(mapping['factor']), float(mapping['centre'])
+    def transform(points):
+        p = (points - mean) @ axes; a = p[:, 1] - centre; r = np.abs(a); inside = (p[:, 0] >= t0) & (p[:, 0] <= t1)
+        moved = np.where(r <= c, r, np.where(r >= w0, r - (1 - k) * (w0 - c), c + (r - c) * k))
+        p[:, 1] = np.where(inside, centre + np.sign(a) * moved, p[:, 1])
+        return p @ axes.T + mean
+    moved = transform(positions)
+    if normals is None: return moved
+    return moved, turn_normals(transform, positions, normals, w0 - c)
+
+
+def narrow(source, output, span=None, band=None, factor=None, map_path=None):
+    """Write OUTPUT/narrowed.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte."""
+    from tools.headkit.common import write
+    explicit = any(x is not None for x in (span, band, factor))
+    _require(map_path is not None or None not in (span, band, factor), 'Give --span, --band and --factor, or a saved --map')
+    result, mapping, positions, after = _remap_glb(source, output, 'narrow', {'mean', 'axes', 'span', 'centre', 'band', 'factor'},
+                                                   lambda p: fit_narrow(p, span, band, factor), apply_narrow, map_path, explicit,
+                                                   narrow_guard)
+    width = mapping['axes'][:, 1]
+    result.update({'span': mapping['span'].tolist(), 'band': mapping['band'].tolist(), 'factor': float(mapping['factor']),
+                   'widthBefore': float(np.ptp(positions @ width)), 'widthAfter': float(np.ptp(after @ width)),
+                   'method': 'a width band of side parts shortened; parts beyond it moved in rigidly, length and depth unchanged',
+                   'visualReviewRequired': True})
+    write(Path(output) / 'narrow.json', result, fresh=True); return result
+
+
 BLADE_METRICS = ('guardSkewDegrees', 'guardSectionRatio', 'bladeDepthToWidth', 'splitBladeSlices')
 
 
@@ -368,16 +511,18 @@ def _replace(document, buffer, index, values):
     if 'max' in accessor: accessor['max'] = target.max(0).tolist()
 
 
-def straighten(source, output, map_path=None, family=None):
+def straighten(source, output, map_path=None, family=None, whole=False):
     """Write OUTPUT/straightened.glb (+ map and report). Indices, UVs, materials and textures are carried byte for byte.
 
-    `family` selects the limits the result is assessed against, as in `check` (a hafted family has no blade metrics)."""
+    `family` selects the limits the result is assessed against, as in `check` (a hafted family has no blade metrics).
+    `whole` straightens through wide sections too (a hafted head); a saved map already carries that choice."""
+    _require(not (whole and map_path is not None), '--whole applies when measuring a map, not when re-applying a saved one')
     from tools.headkit.common import pin, write
     from tools.headkit.gltf import encode, load, arrays
     source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
     source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
     if map_path is None:
-        mapping, history = fit_map(positions); map_path = output / 'straighten-map.npz'; save_map(map_path, mapping); mode = 'measured'
+        mapping, history = fit_map(positions, whole); map_path = output / 'straighten-map.npz'; save_map(map_path, mapping); mode = 'measured'
     else:
         mapping, history, mode = load_map(map_path), None, 'applied'
     normals = attributes.get('NORMAL'); buffer = bytearray(binary)
@@ -397,7 +542,9 @@ def straighten(source, output, map_path=None, family=None):
               'maximumVertexMove': float(np.linalg.norm(moved - positions, axis=1).max()),
               'surfaceAreaRatio': float(area.sum() / before_area.sum()),
               'trianglesUnchanged': True, 'attributesOtherThanPositionAndNormalExact': True,
-              'method': 'two-axis centreline unbend, rotation-minimising frame, guard slices excluded; cross-sections rigid',
+              'method': 'two-axis centreline unbend, rotation-minimising frame, '
+                        + ('wide (head) slices followed' if whole else 'guard slices excluded' if mode == 'measured' else 'saved map')
+                        + '; cross-sections rigid',
               'visualReviewRequired': True}
     result['assessmentAfter'] = assess(result['after'], family=family)
     if family is not None: result['family'] = family
@@ -408,10 +555,25 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0]); commands = parser.add_subparsers(dest='command', required=True)
     c = commands.add_parser('check'); c.add_argument('mesh', type=Path); c.add_argument('--output', type=Path); c.add_argument('--family')
     c = commands.add_parser('straighten'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
-    c.add_argument('--family')
+    c.add_argument('--family'); c.add_argument('--whole', action='store_true', help='also straighten through wide sections (a hafted head)')
     c = commands.add_parser('thin'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--ratio', type=float, help='target blade depth-to-width ratio'); c.add_argument('--factor', type=float, help='explicit depth factor (default 0.5)')
+    c = commands.add_parser('stretch', help='lengthen one span of the long axis (a short handle)'); c.add_argument('mesh', type=Path)
+    c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="fractions of the length from the principal frame's low end")
+    c.add_argument('--factor', type=float, help='lengthening of the span, in (1, 3]')
+    c = commands.add_parser('narrow', help='pull side parts (sai prongs) in towards the centreline'); c.add_argument('mesh', type=Path)
+    c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="long-axis fractions from the principal frame's low end")
+    c.add_argument('--band', type=float, nargs=2, metavar=('INNER', 'OUTER'), help='distances from the centreline, as fractions of the length')
+    c.add_argument('--factor', type=float, help="the band's new share of its width, in (0, 1)")
     a = parser.parse_args(argv)
+    if a.command == 'narrow':
+        result = narrow(a.mesh, a.output, a.span, a.band, a.factor, a.map)
+        print(json.dumps({k: result[k] for k in ('output', 'map', 'span', 'band', 'factor', 'widthBefore', 'widthAfter')}, indent=2)); return 0
+    if a.command == 'stretch':
+        result = stretch(a.mesh, a.output, a.span, a.factor, a.map)
+        print(json.dumps({k: result[k] for k in ('output', 'map', 'span', 'factor', 'lengthBefore', 'lengthAfter')}, indent=2)); return 0
     if a.command == 'thin':
         result = thin(a.mesh, a.output, a.map, a.ratio, a.factor)
         print(json.dumps({k: result[k] for k in ('output', 'map', 'fit', 'maximumVertexMove', 'outlineExtentsUnchanged', 'assessmentAfter')}, indent=2)); return 0
@@ -422,7 +584,7 @@ def main(argv=None):
         if a.output is not None:
             with a.output.open('x', encoding='utf-8') as stream: json.dump(result, stream, indent=2)
         print(json.dumps(result, indent=2)); return 0
-    result = straighten(a.mesh, a.output, a.map, a.family)
+    result = straighten(a.mesh, a.output, a.map, a.family, a.whole)
     print(json.dumps({k: result[k] for k in ('output', 'map', 'maximumVertexMove', 'surfaceAreaRatio', 'assessmentAfter')}, indent=2)); return 0
 
 

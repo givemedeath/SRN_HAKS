@@ -11,6 +11,8 @@ a shoulder pad on it along its own outline, for a shoulder part. At each
 joint the under part also gets a rounded cap past the plane, grown from its own rim: turned about the joint,
 the cap stays inside the over part and fills the gap that opens (docs/armorkit/plan.md, "Seam rules").
 """
+from itertools import combinations
+
 import numpy as np
 
 from tools.robes import mesh_ops
@@ -20,7 +22,9 @@ from .registry import require
 
 EPSILON = 1e-7  # a vertex this near a plane counts as on it
 REACH = 1.35  # a plane cuts this many joint radii from the joint centre, measured in the plane
-CAP_STEPS = 3  # rings a cap is built from: it is seen only in the gap a bend opens, and five cost a worn outfit 8,000 faces
+CAP_STEPS = 6  # rings a cap is built from: three cost less when caps were seen only in the gap a bend opens, but a part
+# cut from the dense mesh is reduced whole afterwards, and at three rings a thigh's end showed as a fan of flat facets
+# (Facility Security, 2026-11-13). The rings of every under end were doubled then: a tucked cap's, a padded cap's and a seat end's.
 SEAM_RINGS = 1  # rings a rounded seam closing is built from, between its line and its hub
 CAP_TOP = 90.0  # degrees of its dome a cap covers: all of it. Short of the pole it has a hole there, which shows once the joint turns far
 LEAN = 0.3  # how much more than a dome a cap draws in as it leaves the plane, to clear an over part that narrows there
@@ -48,20 +52,26 @@ GUSSET_UNDER = 0.004  # and holds it this far under the thighs' own, which cover
 HIP_TUCK = 0.1  # a thigh's cap starts this share of its rim's width inside the rim: turned out as the game stands a body, a cap as wide as its rim came through the pelvis along the hip line
 SHOULDER_TUCK = 0.2  # an upper arm's cap starts this share inside its rim: beside a shoulder pad the rim is two arcs, and a cap as wide came through the chest in front of the pad and behind it
 TUCKS = {'hip': HIP_TUCK, 'shoulder': SHOULDER_TUCK}  # by joint: how far inside its rim the under part's cap starts
-TUCK_STEPS = 4  # a tucked cap is built from this many rings, the first of them the step in
+TUCK_STEPS = 7  # a tucked cap is built from this many rings, the first of them the step in
 TUCK_RISE = 0.06  # the ring a tucked cap steps in on stands this share of the cap's depth past the plane
 PAD_RINGS = 3  # rings the chest's closing under a shoulder pad is built from: it is the shoulder that shows when the pad lifts off
 PAD_SEED = 0.03  # a shoulder pad is looked for on the faces this near the line from the shoulder joint straight out, away from the torso
 PAD_REACH = 0.8  # a shoulder pad lies within this share of the upper arm's length of the shoulder joint: what reaches farther is the sleeve
 GUARD_REACH = 0.5  # a knee or elbow pad reaches up the limb no more than this share of the bone above its joint: what reaches farther is a sleeve or a trouser leg
 GUARD_LEAST = 0.003  # square metres a pad is at least
-GUARD_STEPS = 5  # rings the cap under a knee or elbow pad is built from: four across the gap a bend opens, and the pole
+GUARD_OFF = 0.2  # metres: a knee or elbow pad lies this near its limb's bones everywhere, or it is the torso's (`guard`)
+GUARD_STEPS = 8  # rings the cap under a knee or elbow pad is built from: seven across the gap a bend opens, and the pole
 GUARD_SWEEP = 110.0  # degrees about the joint's hinge the pad's rim is carried through: a seat bends a knee 90
 GUARD_TUCK = 0.05  # and how much nearer the hinge it is drawn on the way, to stay under the pad's own surface
 GUARDS = {'knee': ('thigh_g', 'shin_g', 'foot_g'), 'elbow': ('bicep_g', 'forearm_g', 'hand_g')}  # a joint that may carry a pad: the joints above it, at it and below
 PAD_ISLAND = 0.25  # a patch of another material in or beside a pad, this share of the pad's area or less and touching nothing else, is the pad's
-SEAT_STEPS = 3  # rings a thigh's end runs in from its rim on the seat line to the hip plane, the last on the plane
-SEAT_DOME = 3  # rings of its dome past the plane, the last the pole
+# The seam contract's rule for an over part's dome (`seams.ENDS`, `lid`): the rings it runs on past its opening, the
+# last its pole; how far past the opening the pole stands, as a share of the opening's mean distance from its axis;
+# and in metres at most: the pelvis's leg hole on the seat line is 14.5 cm round in baggy trousers, and a dome 4.4 cm
+# deep hung below the seat as bulk once the thigh had swung forward (Facility Security sitting, 2026-11-13)
+DOME_RINGS, DOME_DEPTH, DOME_MOST = (seams.ENDS[key] for key in ('domeRings', 'domeDepth', 'domeMost'))
+SEAT_STEPS = 6  # rings a thigh's end runs in from its rim on the seat line to the hip plane, the last on the plane
+SEAT_DOME = 6  # rings of its dome past the plane, the last the pole
 SEAT_GAP = 0.004  # the end stands this far inside the pelvis's own surface
 SEAT_SAMPLE = 0.004  # the pelvis's surface is read at points this far apart
 SEAT_BINS, SEAT_ROW = 64, 0.01  # and per 64th of a turn round the thigh and per centimetre along it
@@ -75,6 +85,13 @@ def token(slot, side):
     """The model token of a slot on a side (`l`, `r`, or `c` for the unpaired slots)."""
     tokens = registry.SLOTS[slot]['tokens']
     return tokens[0] if len(tokens) == 1 else tokens['lr'.index(side)]
+
+
+def bone_line(bones, name):
+    """(start, end), as points, of the bone part `name` lies along: its slot's `BONE_ENDS` on the part's side,
+    read from the rig `bones`."""
+    slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
+    return tuple(np.asarray(bones[bone.format(name[-1])], float)[:3, 3] for bone in BONE_ENDS[slot])
 
 
 def planes(joints):
@@ -297,8 +314,9 @@ def pieces(vertices, faces, cuts, welded=True):
     return mesh_ops.union_find(len(faces), zip(face[:-1][same].tolist(), face[1:][same].tolist()))
 
 
-def owners(vertices, faces, parts, cuts):
-    """The index into `parts` each face goes to: its piece's choice by area.
+def owners(vertices, faces, parts, cuts, apart=()):
+    """The index into `parts` each face goes to: its piece's choice by area. `apart` holds (flags, regions)
+    pairs: the faces flagged are classified among those regions alone, some of `parts` (`assign`).
 
     A piece with one clear choice goes to it whole, however much of it lies past a plane that only grazes it.
     Two limbs that touch at a few coinciding vertices trace as one piece that votes for both about equally;
@@ -306,10 +324,13 @@ def owners(vertices, faces, parts, cuts):
     piece that still votes for two parts then, and holds most of what votes for its second choice anywhere, is
     one surface no cut parts (two trouser legs pressed through each other below the cut between them): it is
     refused, since its first choice would get both parts. The few faces of a weld itself go where they vote."""
-    vote = classify(vertices[faces].mean(axis=1), parts)
+    centres, names = vertices[faces].mean(axis=1), list(parts)
+    vote = classify(centres, parts)
+    for flags, fewer in apart:
+        flags = np.asarray(flags, bool)
+        vote[flags] = np.array([names.index(name) for name in fewer], int)[classify(centres[flags], fewer)]
     a, b, c = (vertices[faces[:, i]] for i in range(3))
     weight = np.linalg.norm(np.cross(b - a, c - a), axis=1)
-    names = list(parts)
 
     def choose(piece):
         _, piece = np.unique(piece, return_inverse=True)
@@ -609,8 +630,11 @@ def guard(vertices, faces, materials, joints, joint, side, read=None):
     than `GUARD_REACH` of the bone above the joint; a sleeve or a trouser leg reaches farther. Down the limb
     it may run on as a guard along the shin or the forearm: on one outfit the left elbow pad was one patch
     with its forearm guard and the right one was not. A patch of less than `GUARD_LEAST` is a strap's end or
-    a face read wrongly, and no pad. `split` rounds the under part's cap out as a ball under such a pad
-    (`guards`).
+    a face read wrongly, and no pad. Every face of a pad lies within `GUARD_OFF` of the bones above and below
+    its joint: on the Human female the arms hang against the torso, the line straight back from each elbow met
+    the vest, and the vest went to the left upper arm as its elbow pad (Facility Security, 2026-11-13: its
+    faces up to 44 cm from the arm; the knee pads, 9 to 12 cm from the leg). `split` rounds the under part's
+    cap out as a ball under such a pad (`guards`).
 
     `read` holds the material per face as the colours were read before `texture.trimmed` gave each line of
     metal too narrow for a plate to what it lies on. Faces read as the pad's material that the trim gave away
@@ -627,7 +651,9 @@ def guard(vertices, faces, materials, joints, joint, side, read=None):
     ways = [(0.0, 1.0, 0.0)] if joint == 'knee' else [(0.0, -1.0, 0.0), at - np.asarray(joints[('r' if side == 'l' else 'l') + GUARDS[joint][1]], float)]
     centre = v[f].mean(axis=1) - at
     area = 0.5 * np.linalg.norm(np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]]), axis=1)
-    fits = lambda found: (centre[found] @ axis).min() >= -GUARD_REACH * np.linalg.norm(at - above) and area[found].sum() >= GUARD_LEAST
+    off = np.minimum(*(off_segment(centre, start - at, end - at) for start, end in ((above, at), (at, below))))
+    fits = lambda found: ((centre[found] @ axis).min() >= -GUARD_REACH * np.linalg.norm(at - above) and area[found].sum() >= GUARD_LEAST
+                          and off[found].max() <= GUARD_OFF)
     for way in ways:
         way = np.asarray(way, float)
         way = seams.unit(way - (way @ axis) * axis)
@@ -638,6 +664,13 @@ def guard(vertices, faces, materials, joints, joint, side, read=None):
             if found is not None:
                 return found if read is None else rimmed(v, f, materials, np.asarray(read), found, materials[seed], fits)
     return None
+
+
+def off_segment(points, start, end):
+    """How far each of `points` lies from the segment from `start` to `end`."""
+    run = end - start
+    share = np.clip((points - start) @ run / max(float(run @ run), 1e-12), 0.0, 1.0)
+    return np.linalg.norm(points - (start + share[:, None] * run), axis=1)
 
 
 def rimmed(v, f, materials, read, found, own, fits):
@@ -677,8 +710,10 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
     `joints` holds the shoulder and elbow joints as `lbicep_g`, `lforearm_g` and so on, in the mesh's space and in
     metres. `origin[i]` is the face that new face i was cut from. `sleeves` maps a side with a fused sleeve to
     `on`, four rows of flags for the vertices on the seam, on each wall and on the pad's outline, `inside`, per
-    face, whether it lies in the trough, from a little above the shoulder joint down to the elbow, and `pad`,
-    per face, whether it is the pad's; `assign` takes it with the bent mesh.
+    face, whether it lies in the trough, from a little above the shoulder joint down to the elbow, `pad`,
+    per face, whether it is the pad's, and `arm`, per face, whether it is the arm's: its pad and what the cuts
+    leave joined to its trough from the shoulder joint down. `assign` takes it with the bent mesh: a face
+    that is not the arm's is placed as if that shoulder were not cut.
 
     Along the trough's cuts the torso gets vertices of its own, at the same places: `torso` flags them. The
     bend can then keep the torso's edge of an armhole where the torso is, while the sleeve's edge goes with
@@ -741,6 +776,7 @@ def troughs(vertices, faces, uvs, joints, materials=None, padded=()):
                 other['on'] = np.concatenate([other['on'], other['on'][:, twice]], axis=1)
         for side, found in sleeves.items():
             found['torso'] = np.zeros(len(v), bool); found['torso'][own[side]] = True
+            found['arm'] = below[side]
     return v, f, t, origin, sleeves
 
 
@@ -826,7 +862,7 @@ def cap(vertices, uvs, faces, base, point, normal, depth, limit, steps=CAP_STEPS
     return np.concatenate(rings), np.tile(uvs[rim], (steps, 1)), added
 
 
-def lid(vertices, uvs, faces, base, point, normal, limit, on=None):
+def lid(vertices, uvs, faces, base, point, normal, limit, on=None, dome=None, rings=DOME_RINGS, depth=DOME_DEPTH, most=DOME_MOST):
     """Faces that close what a part has open on a joint plane: (vertices, uvs, faces) to add, numbered from `base`.
 
     An over part is open on its joint plane, and the under part stands in the opening and fills it. A chest
@@ -837,7 +873,21 @@ def lid(vertices, uvs, faces, base, point, normal, limit, on=None):
     faces wound against the faces they grow from: the lid then faces the way the surface round it does, out
     of the part. A line that does not come round is closed straight from its end to its start. The under part stands through the lid as it stood in the opening. Each new vertex has the
     texture coordinates of the point of the line it grew from. `on`, if given, flags the points of the lines to
-    close instead of the plane: the pelvis's leg holes on the seat line (`seated`)."""
+    close instead of the plane: the pelvis's leg holes on the seat line (`seated`).
+
+    `dome`, if given, lists the joints as (point, normal) pairs, the normal toward the under part, and each
+    line is closed by a dome on past it instead of flat: its points run on in `rings` rings along the normal
+    of the plane the line lies nearest (the normal of the joint nearest the line's middle where its points lie
+    on a line), turned toward the under part as that joint's is, and in toward the axis through the line's
+    middle on a quarter ellipse, the last ring its pole. Each starts straight on from the line, so the part's
+    surface carries on past its edge and rounds off, and the pole stands `depth` of the line's mean
+    distance from that axis past the line's middle, `most` metres at most (the seam contract's `ends`); a point of a line that bends farther than that (the seat
+    line, a saddle) runs back to it. Past the line's farthest point, the leg hole's dome still hung 5 cm below
+    the pelvis's own seat. Each ring repeats the texture coordinates of the
+    line's points. The dome runs into the under part, which stands in the opening: the engine draws whichever
+    surface is nearer, so the two ends overlap as the parts turn instead of parting. A flat lid lies on the
+    plane, and a bend that turned the under part out of the opening showed it as a shelf across the end of
+    the part; a socket back into the part (2026-11-13) left the parts no overlap there."""
     if on is None:
         relative = vertices - point
         height = relative @ normal
@@ -870,12 +920,47 @@ def lid(vertices, uvs, faces, base, point, normal, limit, on=None):
         loose = mine.reshape(-1)[first[uses == 1]].tolist()  # the two points the line has one edge at
         if len(loose) == 2:
             end, begin = loose[::-1] if loose[0] in mine[:, 0] else loose  # the faces' edges run from its start to its end
-            chords.append((end, begin, middle[line == label][0]))
+            chords.append((end, begin, middle[line == label][0], label))
     if chords:
         edges = np.concatenate([edges, [chord[:2] for chord in chords]])
         middle = np.concatenate([middle, [chord[2] for chord in chords]])
-    added = base + np.arange(len(edges))
-    return middle, uvs[edges[:, 0]], np.stack([edges[:, 1], edges[:, 0], added], axis=1)
+        line = np.concatenate([line, [chord[3] for chord in chords]])
+    if dome is None:
+        added = base + np.arange(len(edges))
+        return middle, uvs[edges[:, 0]], np.stack([edges[:, 1], edges[:, 0], added], axis=1)
+    joints = [(np.asarray(where, float), seams.unit(way)) for where, way in dome]
+    require(len(joints) > 0 and rings >= 1, 'A dome runs on past a joint, in one ring or more')
+    rim = np.unique(edges)
+    slot = np.full(len(vertices), -1, int)
+    slot[rim] = np.arange(len(rim))
+    centre, ahead, across, reach = np.zeros((len(rim), 3)), np.zeros((len(rim), 3)), np.zeros((len(rim), 3)), np.zeros(len(rim))
+    for label in np.unique(line):
+        mine = slot[np.unique(edges[line == label])]
+        middle_here = middle[line == label][0]
+        way = min(joints, key=lambda joint: float(np.linalg.norm(joint[0] - middle_here)))[1]  # on toward the under part
+        relative = vertices[rim[mine]] - middle_here
+        if len(mine) >= 3:  # past the opening's own plane, as near as its points lie on one: the pelvis's leg hole on
+            # the seat line slants 8 cm down the thigh, and domed along the hip's normal past its lowest point, it hung
+            # 7 cm below the seat once the thigh had swung forward out of it (Facility Security sitting, 2026-11-13)
+            fitted = np.linalg.svd(relative, full_matrices=False)[2]
+            if np.linalg.norm(relative @ fitted[1]) > WELD:  # the points span a plane, not a line
+                way = fitted[2] if fitted[2] @ way >= 0 else -fitted[2]
+        along = relative @ way
+        out = relative - along[:, None] * way
+        # each point runs to a pole `depth` of the line's mean distance from the axis past the line's middle
+        centre[mine], ahead[mine], across[mine] = middle_here, way, out
+        reach[mine] = along.mean() + min(depth * float(np.linalg.norm(out, axis=1).mean()), most)
+    along = np.einsum('ij,ij->i', vertices[rim] - centre, ahead)
+    angles = np.radians(90.0 * np.arange(1, rings + 1) / rings)
+    turned = [centre + across * np.cos(t) + ahead * (along + (reach - along) * np.sin(t))[:, None] for t in angles]
+    turned[-1] = centre + ahead * reach[:, None]  # the pole, once per point of the line
+    index = np.concatenate([rim[None], base + np.arange(rings * len(rim)).reshape(rings, len(rim))])  # [ring, rim point]
+    a, b = slot[edges[:, 0]], slot[edges[:, 1]]  # the part's face runs a to b, so the dome's runs b to a
+    near, far = index[:-1], index[1:]
+    # two faces per edge between rings, one at the pole, where the second would have no area
+    added = np.concatenate([np.stack([near[:, b], near[:, a], far[:, a]], axis=2).reshape(-1, 3),
+                            np.stack([near[:-1, b], far[:-1, a], far[:-1, b]], axis=2).reshape(-1, 3)])
+    return np.concatenate(turned), np.tile(uvs[rim], (rings, 1)), added
 
 
 def seated(vertices, faces, uvs, owner, origin, names, cuts, between, seat):
@@ -1002,6 +1087,26 @@ def arm_opening(vertices, cuts, side, limit=np.inf):
     return (height > -WELD) & (height < down) & (np.linalg.norm(relative - height[:, None] * normal, axis=1) <= limit)
 
 
+def room(vertices, faces, point, normal):
+    """How far past the plane (`point`, `normal` toward the under part) the joint's axis first passes through
+    the surface `faces`: as deep as an under part's end can run inside the part over it. None where the axis
+    passes through none of it past the plane, as down the middle of a sleeve."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int).reshape(-1, 3)]
+    way = -seams.unit(normal)
+    first, second = corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]
+    across = np.cross(way, second)
+    det = np.einsum('ij,ij->i', first, across)
+    met = np.abs(det) > 1e-15  # a face the axis runs along is never passed through
+    inverse = np.where(met, 1.0 / np.where(met, det, 1.0), 0.0)
+    start = np.asarray(point, float) - corners[:, 0]
+    u = np.einsum('ij,ij->i', start, across) * inverse
+    turned = np.cross(start, first)
+    w = (turned @ way) * inverse
+    far = np.einsum('ij,ij->i', second, turned) * inverse
+    through = met & (u >= 0) & (w >= 0) & (u + w <= 1) & (far > 0)
+    return float(far[through].min()) if through.any() else None
+
+
 def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, bend=0.0, out=None, steps=SEAT_STEPS, dome=SEAT_DOME,
              gap=SEAT_GAP):
     """A thigh's end, grown from its rim on the seat line (`seated`), or an upper arm's from its opening at the
@@ -1018,7 +1123,12 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     quarter and half of it: bounded at rest only, its sides came through the seat in a stride. Given `out`, the
     way from the torso to the joint, the limb is an arm: it turns forward and back as a thigh does, and out from
     the torso by half and all of `bend`, never in across it. Each point is drawn in toward the
-    axis, at its height, as far as that takes; the pole stays, as deep as the seam contract asks. The seat covers
+    pole as far as that takes, inward and deeper at once (a point before the plane toward the axis on the plane,
+    so that none crosses it): drawn in toward the axis at its height, a thigh's end lay as a flat disc under the
+    pelvis where the thigh turned out of it (Facility Security sitting and crouching, 2026-11-13). The pole stays, as deep as the seam contract asks, or `gap`
+    short of where `over` first crosses the joint's axis past the plane where that is less (`room`): the
+    Human female's shoulder stands 4.5 cm over her shoulder joint in Facility Security, and a pole the
+    contract's 6.7 cm deep came out through the top of her shoulder as a flap (2026-11-13). The seat covers
     the end as the body stands, and turned the end fills what the thigh leaves of the leg hole. Each new vertex
     keeps the columns of the rim point it grew from; the faces wind as the cap's (`cap`). Where two rim points
     beside each other are both drawn onto the axis at one height, the face between them has two corners at
@@ -1058,14 +1168,18 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     r = np.linalg.norm(relative[rim] - height[rim, None] * normal, axis=1)
     h, turn = height[rim], angle[rim]
     end = np.minimum(seams.around(ring, turn), r)
-    smooth = lambda x: x * x * (3 - 2 * x)
-    rings = [(r + (end - r) * smooth(k / steps), h * (1 - k / steps)) for k in range(1, steps + 1)]
-    rings += [(end * np.cos(phi), np.full(len(rim), -depth * np.sin(phi))) for phi in np.radians(90.0 * np.arange(1, dome) / dome)]
     # the pelvis's own surface, nearest the joint's axis per direction and height
     # only the points of its faces: `over` may hold the whole outfit's vertices, the limb's own among them
     used, local = np.unique(np.asarray(over[1], int), return_inverse=True)
     sample = seams.surface_points(np.asarray(over[0], float)[used], local.reshape(-1, 3), SEAT_SAMPLE) - point
     along = sample @ normal
+    deepest = room(over[0], over[1], point, normal)
+    if deepest is not None:
+        require(deepest > 2 * gap, f'The part over this end crosses its axis {deepest * 100:.1f} cm past the plane: no room for the end')
+        depth = min(depth, deepest - gap)
+    smooth = lambda x: x * x * (3 - 2 * x)
+    rings = [(r + (end - r) * smooth(k / steps), h * (1 - k / steps)) for k in range(1, steps + 1)]
+    rings += [(end * np.cos(phi), np.full(len(rim), -depth * np.sin(phi))) for phi in np.radians(90.0 * np.arange(1, dome) / dome)]
     rows = np.floor(along / SEAT_ROW).astype(int)
     first = rows.min() - 1
     least = np.full((SEAT_BINS, rows.max() - first + 2), np.inf)
@@ -1073,15 +1187,7 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
     np.minimum.at(least, (turns, rows - first), np.linalg.norm(sample - along[:, None] * normal, axis=1))
     near = np.minimum.reduce([np.roll(np.roll(least, i, axis=0), j, axis=1) for i in (-1, 0, 1) for j in (-1, 0, 1)])
     column = np.floor((turn % (2 * np.pi)) / (2 * np.pi / SEAT_BINS)).astype(int) % SEAT_BINS
-    forward = seams.unit(np.array((0.0, 1.0, 0.0)) - normal[1] * normal)
-    across = np.cross(normal, forward)
-    swings = [(across, (bend / 2, bend, -bend / 2, -bend))]
-    if out is None:  # a thigh, in and out
-        swings.append((forward, (bend / 4, bend / 2, -bend / 4, -bend / 2)))
-    else:  # an arm, out from the torso: turned about this axis the limb leans toward `out`
-        out = np.asarray(out, float)
-        swings.append((np.cross(normal, seams.unit(out - (out @ normal) * normal)), (bend / 2, bend)))
-    turns = [np.eye(3)] + [rotation(axis, degrees) for axis, angles in swings for degrees in angles if degrees]
+    turns = [np.eye(3)] + swung(normal, bend, out)
 
     def inside(points, turned):
         """Whether each point stands `gap` inside the over part's surface with the limb turned by `turned`."""
@@ -1101,9 +1207,14 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
         return good
 
     radial = np.cos(turn)[:, None] * a + np.sin(turn)[:, None] * b  # per rim point, its way out from the axis
+    pole = point - depth * normal
     placed = []
-    for radius, level in rings:
-        at = lambda share: point + (share * radius)[:, None] * radial + level[:, None] * normal
+    for radius, level in rings:  # each drawn in along the way to the pole, inward and deeper at once
+        meant = point + radius[:, None] * radial + level[:, None] * normal
+        # a point before the plane is drawn toward the axis on the plane instead: drawn toward the pole, it
+        # crossed the plane, and the end's section there stood 2 cm outside the envelope (2026-11-13)
+        toward = np.where((level > -WELD)[:, None], point, pole)
+        at = lambda share, toward=toward, meant=meant: toward + share[:, None] * (meant - toward)
         # Turned, a point on the axis leaves it as far as its height times the turn's sine: drawn in, a point is
         # held only in the poses its place on the axis fits in. As the body stands it always is.
         held = [np.ones(len(rim), bool)] + [inside(at(np.zeros(len(rim))), turned) for turned in turns[1:]]
@@ -1114,7 +1225,7 @@ def seat_end(vertices, uvs, faces, base, point, normal, on, ring, depth, over, b
             good = fits(at(middle), held)
             low, high = np.where(good, middle, low), np.where(good, high, middle)
         placed.append(at(np.where(whole, 1.0, low)))
-    placed.append(np.tile(point - depth * normal, (len(rim), 1)))  # the pole, held once per rim point for its columns
+    placed.append(np.tile(pole, (len(rim), 1)))  # the pole, held once per rim point for its columns
     total = len(placed)
     index = np.concatenate([rim[None], base + np.arange(total * len(rim)).reshape(total, len(rim))])
     start, finish = slot[edges[:, 0]], slot[edges[:, 1]]  # the part's face runs start to finish, so the end's runs back
@@ -1132,6 +1243,36 @@ def rotation(axis, degrees):
     axis, angle = seams.unit(axis), np.radians(degrees)
     k = np.array([[0.0, -axis[2], axis[1]], [axis[2], 0.0, -axis[0]], [-axis[1], axis[0], 0.0]])
     return np.eye(3) + np.sin(angle) * k + (1 - np.cos(angle)) * k @ k
+
+
+def rim_reach(vertices, faces, point, normal, limit):
+    """How far from `point` the edges of `faces` on the plane reach, `limit` at least and no farther than `OVERRUN`
+    past it, `WELD` added: a cut stops at whole edges, so its rim runs up to a face past where it was asked to stop,
+    and a lid that closed within `limit` left the right thigh of Facility Security female open 20 cm round the
+    front of the knee (2026-11-13)."""
+    used = np.unique(np.asarray(faces, int))
+    relative = np.asarray(vertices, float)[used] - point
+    height = relative @ normal
+    radial = np.linalg.norm(relative - height[:, None] * normal, axis=1)
+    on = (np.abs(height) < WELD) & (radial <= limit + OVERRUN)
+    return max(float(limit), float(radial[on].max()) if on.any() else 0.0) + WELD
+
+
+def swung(normal, bend, out=None):
+    """The turns of a limb about its joint at the torso that its end is held inside the torso through (`seat_end`),
+    as matrices: forward and back by half of `bend` degrees and all of it, and a thigh in and out by a quarter and
+    half of it; given `out`, the way from the torso to the joint, an arm out from the torso by half and all of
+    it, never in across it."""
+    normal = seams.unit(normal)
+    forward = seams.unit(np.array((0.0, 1.0, 0.0)) - normal[1] * normal)
+    across = np.cross(normal, forward)
+    swings = [(across, (bend / 2, bend, -bend / 2, -bend))]
+    if out is None:  # a thigh, in and out
+        swings.append((forward, (bend / 4, bend / 2, -bend / 4, -bend / 2)))
+    else:  # an arm, out from the torso: turned about this axis the limb leans toward `out`
+        out = np.asarray(out, float)
+        swings.append((np.cross(normal, seams.unit(out - (out @ normal) * normal)), (bend / 2, bend)))
+    return [rotation(axis, degrees) for axis, angles in swings for degrees in angles if degrees]
 
 
 def gusset(vertices, uvs, faces, base, seam, width=GUSSET_WIDTH, below=GUSSET_BELOW, under=GUSSET_UNDER):
@@ -1211,7 +1352,8 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
         # here; the flags ride through the cuts below beside the texture coordinates: a new vertex on an edge
         # between two vertices of a cut lies on that cut.
         require(set(carried) <= {'l', 'r'} and all(np.shape(found['on']) == (4, len(v)) and np.shape(found['inside']) == (len(f),)
-                                                    and np.shape(found.get('pad', found['inside'])) == (len(f),) for found in carried.values()),
+                                                    and all(np.shape(found.get(key, found['inside'])) == (len(f),) for key in ('pad', 'arm'))
+                                                    for found in carried.values()),
                 'Sleeves cut in another pose come with flags for this mesh: four per vertex and one per face')
         sleeves = {}
         for side, found in carried.items():
@@ -1266,8 +1408,20 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
             sleeves[side]['on'] = [flags[:, 4 * index + plane] for plane in range(4)]
             walls += sleeves[side]['on']
     parts = regions(joints, radii, reach, reaches, whole)
-    owner = owners(v, f, parts, [(point, seams.unit(normal), limit[key]) for key, (point, normal) in cuts.items() if key not in whole] + walls)
     names = list(parts)
+    # Bent onto a body whose arms hang against its sides, the upper arm lies over what the torso wears beside it:
+    # the Human female's vest, a ring round her torso, lay inside both upper arms, and its two sides went one to
+    # each. Only what the trough found to be the arm, where the arm stood clear, is the upper arm's: for the rest
+    # that shoulder is a joint left whole, and its surface stays on the chest across it.
+    other = {side: ~np.asarray(found['arm'], bool)[origin] for side, found in (carried or {}).items() if 'arm' in found}
+    apart = []
+    for count in range(1, len(other) + 1):
+        for sides in combinations(sorted(other), count):
+            flags = np.ones(len(f), bool)
+            for side, flagged in other.items():
+                flags &= flagged if side in sides else ~flagged
+            apart.append((flags, regions(joints, radii, reach, reaches, set(whole) | {('shoulder', side) for side in sides})))
+    owner = owners(v, f, parts, [(point, seams.unit(normal), limit[key]) for key, (point, normal) in cuts.items() if key not in whole] + walls, apart)
     for side, found in (carried or {}).items():
         # The trough was cut so that the sleeve goes with the arm. Where its cuts and the shoulder plane leave a strip
         # that still joins sleeve and torso, they are one piece and the chest, the larger, takes it all: the arm then
@@ -1285,7 +1439,7 @@ def assign(vertices, faces, uvs, joints, radii, reach=REACH, reaches=None, whole
 
 
 def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reaches=None, whole=(), made=None, sleeves=None, guards=None, origins=None,
-          shape=None, deep=(), seat=None, arms=None, tucks=None):
+          shape=None, deep=(), seat=None, arms=None, tucks=None, ends=None):
     """{token: (vertices, faces, uvs)} for one outfit mesh.
 
     `joints` maps bone names to positions in the mesh's space. `radii` maps (joint, side) to the radius of the
@@ -1341,8 +1495,21 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
     from the torso and from its pad. It stands instead of a closing along each of those cuts and a cap on the
     plane: rounded out toward the chest, those closings stood up to 9 cm outside the seam contract's envelope
     beside a shoulder pad. The end is held inside the chest's own surface and its closings, with the arm turned
-    forward, back and out from the torso."""
+    forward, back and out from the torso.
+
+    Every joint's ends are domed, to overlap as the parts turn (the seam contract's `ends`, version 3; user
+    decision 2026-11-13): the chest's and the pelvis's lids over the openings an under part stands in (on the
+    shoulder and hip planes, round each arm and on the seat line) are domes on past them, into the under part
+    (`lid`'s `dome`). A pad's half on the arm is closed flat: it is a plate, and a dome off its edge would stand
+    out of the arm. Every other over part's opening on its joint's plane (the chest at the waist, an upper arm at
+    the elbow, a forearm at the wrist, a thigh at the knee, a shin at the ankle) gets a dome too, grown from its
+    shaped rim; a pad's half on it is left open. Each under end is a cap or a seat end rounded in to its pole.
+    Open, an over end showed the part's inside once a bend turned the under part out of it, and a flat lid
+    showed as a shelf across the end of the part. `ends`, the contract's, gives the domes' rings, depth and
+    most depth (`seams.ENDS` without it)."""
     overlaps = overlaps or {}
+    ends = seams.ENDS if ends is None else ends
+    shaped = {'rings': ends['domeRings'], 'depth': ends['domeDepth'], 'most': ends['domeMost']}  # every dome's, as `lid` takes them
     require(all(key[0] in seams.JOINTS and key[1] in seams.sides(key[0]) for key in overlaps)
             and all((depth or 0) >= 0 for depth in overlaps.values()), 'Overlaps are depths of zero or more, by joint and side')
     seat = dict(seat or {})
@@ -1417,21 +1584,35 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 kinds.append(np.full(len(more[2]), WALL if seam is between else CLOSING))
         if name == 'chest':
             arm_over = (pv, pf)
+        held = lambda joint, sides: [cuts[(joint, side)] for side in sides] if name in ('chest', 'pelvis') else None  # a pad's half stays flat
         for joint, side in [key[1:] for key in lids if key[0] == name]:
-            more = lid(pv, pt, pf, len(pv), cuts[(joint, side)][0], seams.unit(cuts[(joint, side)][1]), limit[(joint, side)] + WELD)
+            point, normal = cuts[(joint, side)][0], seams.unit(cuts[(joint, side)][1])
+            more = lid(pv, pt, pf, len(pv), point, normal, rim_reach(pv, pf, point, normal, limit[(joint, side)]), dome=held(joint, side), **shaped)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
         if name == 'pelvis' and on_seat.any():  # open round each thigh on the seat line
-            more = lid(pv, pt, pf, len(pv), None, None, None, on=np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]))
+            more = lid(pv, pt, pf, len(pv), None, None, None, on=np.concatenate([on_seat, np.zeros(len(pv) - len(v), bool)]),
+                       dome=held('hip', [side for _, side in seat]), **shaped)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
         if name == 'chest' and opened:  # open round each arm, from the plane down the sleeve it took and its closings
             zone = np.any([arm_opening(pv, cuts, side, limit[('shoulder', side)] + WELD) for side in opened], axis=0)
-            more = lid(pv, pt, pf, len(pv), None, None, None, on=zone)
+            more = lid(pv, pt, pf, len(pv), None, None, None, on=zone, dome=held('shoulder', opened), **shaped)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), CLOSING))
         if shape is not None:
             pv, pt = shape(name, pv, pf, pt, np.asarray(origin)[owner == index])
+        for (joint, side), (point, normal) in cuts.items():  # each opening over a tube joint, from its shaped rim
+            if joint in ('shoulder', 'hip') or (joint, side) in whole or token(seams.JOINTS[joint]['over'], side) != name:
+                continue
+            here = pf
+            if (joint, side) in (guards or {}):  # a pad over the joint is a plate, and a dome off its edge would stand out: left open
+                plate = np.asarray(guards[(joint, side)], bool)[np.asarray(origin)[owner == index]]
+                here = np.concatenate([pf[:own][~plate], pf[own:]])
+            more = lid(pv, pt, here, len(pv), point, seams.unit(normal), rim_reach(pv, here, point, seams.unit(normal), limit[(joint, side)]),
+                       dome=[(point, normal)], **shaped)
+            pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
+            kinds.append(np.full(len(more[2]), CLOSING))
         for (joint, side), depth in overlaps.items():
             if depth and (joint, side) in seat:
                 if token('thigh', side) == name:

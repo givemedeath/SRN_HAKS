@@ -13,6 +13,23 @@ HEAD_PACK = REPO / 'srn_head'
 ENVELOPES = Path(__file__).with_name('head-envelopes.json')
 
 
+class BeyondTests(unittest.TestCase):
+    def test_a_point_is_read_against_the_last_surface_its_ray_crosses_and_with_facing_the_last_drawn(self):
+        # a sleeve 5 cm round along +X with a fold of its cloth turned in 2 cm round, and a point of the arm 4 cm out
+        from .test_split import tube
+        sleeve, fold = tube((0, 0, 0), (0.3, 0, 0), 0.05, around=32, along=8)[:2], tube((0, 0, 0), (0.3, 0, 0), 0.02, around=32, along=8)[:2]
+        v = np.concatenate([sleeve[0], fold[0]])
+        f = np.concatenate([sleeve[1], fold[1][:, ::-1] + len(sleeve[0])])  # the fold wound to face in
+        point, start, axis = np.array([[0.15, 0.0, 0.04]]), np.zeros(3), np.array([1.0, 0.0, 0.0])
+        outside, face = measure.beyond(point, start, axis, v, f)
+        self.assertAlmostEqual(float(outside[0]), -0.01, places=3)  # the sleeve, not the fold: read first, a fold pushed a sleeve out 14 cm
+        self.assertLess(face[0], len(sleeve[1]))
+        self.assertAlmostEqual(float(measure.beyond(point, start, axis, v, f, facing=True)[0][0]), -0.01, places=3)
+        turned = np.concatenate([sleeve[1][:, ::-1], fold[1] + len(sleeve[0])])  # the sleeve turned in, the fold out
+        self.assertAlmostEqual(float(measure.beyond(point, start, axis, v, turned, facing=True)[0][0]), 0.02, places=3)  # the client draws the fold alone
+        self.assertTrue(np.isnan(measure.beyond(point, start, axis, v, turned[:len(sleeve[1])], facing=True)[0][0]))  # nothing drawn over it
+
+
 class SeatTests(unittest.TestCase):
     def test_the_seat_is_how_far_the_pelvis_runs_past_the_hip_plane_per_direction(self):
         # a thigh 8 cm round straight down from the joint, in a pelvis 11 cm round whose lower edge dips 3 cm toward +x

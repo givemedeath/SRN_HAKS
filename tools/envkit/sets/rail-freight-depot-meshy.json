@@ -1,0 +1,12 @@
+{
+  "set": "rail-freight-depot",
+  "prefix": "rfd",
+  "props": {
+    "loading-platform": {"triangles": 15000},
+    "gantry-crane": {"triangles": 15000}
+  },
+  "pieces": {
+    "front": {"views": ["warehouse-front"], "triangles": 60000},
+    "rear": {"views": ["warehouse-rear"], "triangles": 60000}
+  }
+}

@@ -1,7 +1,7 @@
 {
  "schemaVersion": 1,
  "kind": "srn-armorkit-seam-contract",
- "version": 2,
+ "version": 3,
  "units": "metres",
  "directions": 16,
  "tierOffsets": {
@@ -11,6 +11,13 @@
   "3": 0.05
  },
  "designBend": "p95",
+ "ends": {
+  "domeDepth": 0.3,
+  "domeMost": 0.02,
+  "domeRings": 6,
+  "rest": 0.005,
+  "bent": 0.01
+ },
  "joints": {
   "neck": {
    "over": "chest",

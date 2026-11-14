@@ -371,11 +371,24 @@ Long thin weapons (`shortsword`, `longsword`, `greatsword`, `staff`) need
 `python -m tools.itemkit.straightness check MESH.glb --family F`; bend, twist and
 guard-skew flags are advisory and go to the reviewer with the views. A bowed but
 otherwise correct clay can be unbent with `straighten MESH.glb OUT_DIR [--family F]`
-(the family picks the limits its result is assessed against, as in `check`); review
+(the family picks the limits its result is assessed against, as in `check`). It
+bridges wide sections such as a cross-guard; add `--whole` to straighten through
+them when a hafted head is cocked on its haft (the saved map keeps that choice). Review
 the straightened views like a generated attempt. Appearance and the source bake
 stay in the generated frame, so re-apply the saved map with `--map` to the
 textured donor and working shell before fitting. See the wave-1 section of
 `four-weapon-lessons.md` for calibration and limits.
+
+A handle too short for the hand at the chosen size can be lengthened alone with
+`stretch MESH.glb OUT_DIR --span LO HI --factor K`: the span (fractions of the
+length from the principal frame's low end; the report names `longAxis` and the `lowEndVertex` it counts from) grows by K,
+the end below it stays and everything above moves along the axis unchanged.
+Re-apply its `stretch-map.npz` with `--map` to the textured donor, review the
+views, then fit at the natural size (wave-4 Sai). `narrow MESH.glb OUT_DIR --span
+LO HI --band INNER OUTER --factor K` pulls side parts such as sai prongs towards
+the centreline: across the width band (distances from the centreline as fractions
+of the length) the extent shrinks to K, and everything beyond moves in unchanged.
+It refuses a span that would cut through the side parts.
 
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default

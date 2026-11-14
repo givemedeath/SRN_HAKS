@@ -26,6 +26,16 @@ TIER_OFFSETS = {0: 0.004, 1: 0.012, 2: 0.025, 3: 0.05}
 DESIGN_BENDS = ('p95', 'p99', 'max')  # the swing statistic a contract may build its minimum overlap on
 AUTHORING_BODIES = ('pmh0', 'pfh0')  # every contract holds at least these
 TOLERANCE = 0.0005  # stored tier numbers may differ this much from their recomputed value (inputs are rounded)
+# How every end is closed (version 3, user decision 2026-11-13: every joint at least slightly domed, so the parts
+# overlap as they turn and the engine's depth test hides whichever surface lies behind). An over part's opening on
+# its joint's plane is closed by a dome on past it into the under part, its pole `domeDepth` of the opening's mean
+# distance from its axis past it and `domeMost` metres at most, in `domeRings` rings; an under end runs on past the
+# plane by the tier's minimum overlap, rounded in to its axis. What the split adds to an under end lies no more than
+# `rest` metres outside the outfit as the body stands, and no more than `bent` outside the over part with the under
+# part turned by the design bend (`bake.hidden`): Facility Security male, which the user saw clean in the client
+# with every end domed, stands up to 0.7 cm out turned (its left hip and shoulder, 2026-11-13). These are what `measure`
+# writes into a new contract; a frozen contract carries its own `ends`.
+ENDS = {'domeDepth': 0.3, 'domeMost': 0.02, 'domeRings': 6, 'rest': 0.005, 'bent': 0.01}
 # joint: over slot, under slot, bone at the joint centre, and the two bones whose line is the plane normal
 # (pointing from the over part into the under part). `{}` takes the side letter of a paired joint.
 JOINTS = {
@@ -228,6 +238,11 @@ def validate_contract(data):
     require(sorted(data['tierOffsets']) == [str(t) for t in registry.TIERS], 'Tier offsets for tiers 0-3 required')
     offsets = [data['tierOffsets'][str(t)] for t in registry.TIERS]
     require(offsets[0] >= 0 and all(a < b for a, b in zip(offsets, offsets[1:])), 'Tier offsets must grow with the tier')
+    ends = data.get('ends')
+    require(isinstance(ends, dict) and set(ends) == set(ENDS), f'The contract says how every end is closed: {sorted(ENDS)}')
+    require(0 < ends['domeDepth'] <= 1 and ends['domeMost'] > 0 and isinstance(ends['domeRings'], int) and ends['domeRings'] >= 1,
+            'A dome stands past its opening, no deeper than the opening is wide, in one ring or more')
+    require(ends['rest'] >= 0 and ends['bent'] >= 0, 'What the split adds is hidden within a tolerance of zero or more')
     for name, joint in data['joints'].items():
         spec = JOINTS[name]
         require((joint['over'], joint['under']) == (spec['over'], spec['under']), name + ': layering order differs from the kit')

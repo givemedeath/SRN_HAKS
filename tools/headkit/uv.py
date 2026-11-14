@@ -405,7 +405,8 @@ def unwrap(mesh,bindings,policy=None,*,inspect_layout=None):
                    'visualReview':'required'}
 
 
-def _pack(xatlas,vertices,indices,groups,padding=8):
+def _pack(xatlas,vertices,indices,groups,padding=8,resolution=2048):
+    """`padding` is in texels of `resolution`, so a caller audited at another size passes that size."""
     atlas=xatlas.Atlas()
     remaps=[]
     for face_ids in groups:
@@ -413,7 +414,7 @@ def _pack(xatlas,vertices,indices,groups,padding=8):
         atlas.add_mesh(vertices[used].astype(np.float32),inverse.reshape(-1,3).astype(np.uint32))
         remaps.append(used)
     charts=xatlas.ChartOptions(); charts.fix_winding=False; charts.max_iterations=1
-    pack=xatlas.PackOptions();pack.resolution=2048;pack.padding=padding;pack.bilinear=True
+    pack=xatlas.PackOptions();pack.resolution=resolution;pack.padding=padding;pack.bilinear=True
     atlas.generate(chart_options=charts,pack_options=pack)
     if atlas.atlas_count!=1: raise ValueError('UV output must be one atlas')
     uv=np.empty((len(indices),3,2));count=0

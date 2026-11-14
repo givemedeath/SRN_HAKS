@@ -1,0 +1,13 @@
+{
+  "sheet": {
+    "file": "56b_rail_freight_depot.png",
+    "sha256": "cb16347d044b62cc066b097596e1b258cc164000e0f0e69f0066a795f08bf388",
+    "size": [3430, 2168]
+  },
+  "assets": {
+    "warehouse-front": {"kind": "building", "drawn": true, "subject": "front of a corrugated steel rail freight warehouse: its grey front gable end with a RAIL FREIGHT sign, three dock doors and a man door, and its tan right side wall with a high band of windows", "box": [40, 40, 1712, 981]},
+    "warehouse-rear": {"kind": "building", "drawn": true, "subject": "back of the same warehouse: its grey back gable end with three dock doors, and its tan right side wall with a high band of windows", "box": [1752, 40, 3288, 1064]},
+    "loading-platform": {"kind": "prop", "type": "freight-platform", "drawn": true, "subject": "raised concrete rail loading platform with a steel canopy on five posts, yellow edge stripes and steps at one end", "box": [40, 1104, 1814, 1991]},
+    "gantry-crane": {"kind": "prop", "type": "gantry-crane", "drawn": true, "subject": "yellow rail-mounted gantry crane with a box girder, a hoist trolley and hook, and an operator cab on one leg", "box": [1854, 1104, 3390, 2128]}
+  }
+}
