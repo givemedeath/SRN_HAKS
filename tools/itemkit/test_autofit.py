@@ -104,7 +104,7 @@ class AutofitTests(unittest.TestCase):
             self.assertGreater(result['lengthAfter'], result['lengthBefore'])
             again = s.stretch(source, folder/'again', map_path=folder/'out/stretch-map.npz')
             self.assertEqual(again['output']['sha256'], result['output']['sha256']); self.assertEqual(again['map']['mode'], 'applied')
-            with self.assertRaisesRegex(ValueError, 'own span'): s.stretch(source, folder/'x', (.05, .2), 1.5, folder/'out/stretch-map.npz')
+            with self.assertRaisesRegex(ValueError, 'own parameters'): s.stretch(source, folder/'x', (.05, .2), 1.5, folder/'out/stretch-map.npz')
 
     def test_narrow_pulls_guard_tips_in_rigidly(self):
         p = pommelled(); mean, axes = s.principal_frame(p); q = (p - mean) @ axes; length = np.ptp(q[:, 0])
@@ -130,6 +130,12 @@ class AutofitTests(unittest.TestCase):
             self.assertLess(result['widthAfter'], result['widthBefore'])
             again = s.narrow(source, folder/'again', map_path=folder/'out/narrow-map.npz')
             self.assertEqual(again['output']['sha256'], result['output']['sha256'])
+            low = np.asarray(result['lowEndVertex'])                     # the pommel or the blade tip, whichever the frame chose
+            self.assertTrue(np.isclose(low[0], -.244, atol=.01) or np.isclose(low[0], .8, atol=.01), low)
+            np.testing.assert_allclose(np.abs(result['longAxis']), [1, 0, 0], atol=.01)
+            # The saved map's tear guard is checked on the mesh it is re-applied to (the donor), not only where it was fitted.
+            moved = folder/'moved.glb'; write_mesh(moved, small + [.02, 0, 0], faces, uv)
+            with self.assertRaisesRegex(ValueError, 'tear'): s.narrow(moved, folder/'torn', map_path=folder/'out/narrow-map.npz')
 
     def test_shell_thinning_keeps_a_closed_solid(self):
         try: import pymeshlab

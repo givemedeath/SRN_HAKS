@@ -619,6 +619,10 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             (run/'donor/attempt-ok/receipt.json').write_text(json.dumps({'state': 'failed'}), encoding='utf-8')
             with mock.patch.object(Driver, 'stage'), self.assertRaisesRegex(SystemExit, 'did not complete'):
                 d.textured('blade', 'a1', 'src', 'approved')
+            (run/'donor/attempt-ok/receipt.json').unlink()                 # a recorded receipt that was removed by hand
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'receipt that is missing'):
+                d.textured('blade', 'a1', 'src', 'approved')
+            stage.assert_not_called()
 
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
         import hashlib

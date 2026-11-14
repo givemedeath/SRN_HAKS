@@ -366,40 +366,54 @@ def apply_stretch(positions, mapping, normals=None):
     return moved, turn_normals(transform, positions, normals, t1 - t0)
 
 
-def stretch(source, output, span=None, factor=None, map_path=None):
-    """Write OUTPUT/stretched.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte.
-    A saved map (`map_path`) re-applies unchanged to another mesh in the same frame (the textured donor)."""
-    from tools.headkit.common import pin, write
+def _remap_glb(source, output, kind, keys, fit, apply, map_path, explicit, guard=None):
+    """Shared body of `stretch` and `narrow`: fit or load a saved map, re-check its guard on this mesh, move positions and
+    turn normals, then verify that triangles, UVs and other attributes are carried byte for byte."""
+    from tools.headkit.common import pin
     from tools.headkit.gltf import encode, load, arrays
     source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
     source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
     if map_path is None:
-        _require(span is not None and factor is not None, 'Give --span and --factor, or a saved --map')
-        mapping = fit_stretch(positions, span, factor); map_path = output / 'stretch-map.npz'
+        mapping = fit(positions); map_path = output / f'{kind}-map.npz'
         with map_path.open('xb') as stream: np.savez(stream, **mapping)
         mode = 'measured'
     else:
-        _require(span is None and factor is None, 'A saved map carries its own span and factor')
+        _require(not explicit, f'A saved {kind} map carries its own parameters')
         with np.load(map_path, allow_pickle=False) as archive: mapping = {name: archive[name] for name in archive.files}
-        _require(set(mapping) == {'mean', 'axes', 'span', 'factor'} and mapping['span'].shape == (2,), 'Invalid stretch map')
+        _require(set(mapping) == keys and mapping['span'].shape == (2,), f'Invalid {kind} map')
         mode = 'applied'
+    if guard is not None: guard(positions, mapping)        # a saved map re-applied to the donor is checked on the donor too
     normals = attributes.get('NORMAL'); buffer = bytearray(binary)
-    if normals is None: moved = apply_stretch(positions, mapping)
-    else: moved, turned = apply_stretch(positions, mapping, normals)
+    if normals is None: moved = apply(positions, mapping)
+    else: moved, turned = apply(positions, mapping, normals)
     _replace(document, buffer, primitive['attributes']['POSITION'], moved)
     if normals is not None: _replace(document, buffer, primitive['attributes']['NORMAL'], turned)
-    target = output / 'stretched.glb'
+    target = output / {'stretch': 'stretched.glb', 'narrow': 'narrowed.glb'}[kind]
     with target.open('xb') as stream: stream.write(encode(document, bytes(buffer)))
     after, after_faces, after_attributes = arrays(*load(target.read_bytes()))
     _require(np.array_equal(after_faces, faces) and all(np.array_equal(after_attributes[name], attributes[name])
-             for name in attributes if name not in ('POSITION', 'NORMAL')), 'Stretching changed topology, UVs or other attributes')
+             for name in attributes if name not in ('POSITION', 'NORMAL')), f'The {kind} changed topology, UVs or other attributes')
+    # The span fractions count from the low end of the principal axis, whose sign is arbitrary: name that end so a
+    # reviewer can see which part of the mesh the span measured from.
+    axis = mapping['axes'][:, 0]; low = positions[np.argmin((positions - mapping['mean']) @ axis)]
+    frame = {'longAxis': axis.tolist(), 'lowEndVertex': low.tolist()}
+    return {'source': source_pin, 'output': pin(target), 'map': dict(pin(map_path), mode=mode), **frame}, mapping, positions, after
+
+
+def stretch(source, output, span=None, factor=None, map_path=None):
+    """Write OUTPUT/stretched.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte.
+    A saved map (`map_path`) re-applies unchanged to another mesh in the same frame (the textured donor)."""
+    from tools.headkit.common import write
+    explicit = span is not None or factor is not None
+    _require(map_path is not None or (span is not None and factor is not None), 'Give --span and --factor, or a saved --map')
+    result, mapping, positions, after = _remap_glb(source, output, 'stretch', {'mean', 'axes', 'span', 'factor'},
+                                                   lambda p: fit_stretch(p, span, factor), apply_stretch, map_path, explicit)
     axis = mapping['axes'][:, 0]
-    result = {'source': source_pin, 'output': pin(target), 'map': dict(pin(map_path), mode=mode),
-              'span': mapping['span'].tolist(), 'factor': float(mapping['factor']),
-              'lengthBefore': float(np.ptp(positions @ axis)), 'lengthAfter': float(np.ptp(after @ axis)),
-              'method': 'one span of the long axis lengthened; sections rigid in width and depth, the rest moved along the axis',
-              'visualReviewRequired': True}
-    write(output / 'stretch.json', result, fresh=True); return result
+    result.update({'span': mapping['span'].tolist(), 'factor': float(mapping['factor']),
+                   'lengthBefore': float(np.ptp(positions @ axis)), 'lengthAfter': float(np.ptp(after @ axis)),
+                   'method': 'one span of the long axis lengthened; sections rigid in width and depth, the rest moved along the axis',
+                   'visualReviewRequired': True})
+    write(Path(output) / 'stretch.json', result, fresh=True); return result
 
 
 def fit_narrow(positions, span, band, factor):
@@ -414,9 +428,17 @@ def fit_narrow(positions, span, band, factor):
     _require(0 <= lo < hi <= 1 and 0 < inner < outer and 0 < factor < 1, 'A span, a width band and a factor in (0, 1) required')
     t = q[:, 0]; length = np.ptp(t); t0, t1 = t.min() + lo * length, t.min() + hi * length
     inside = (t >= t0) & (t <= t1); centre = float(np.median(q[~inside, 1]))
-    _require(np.all(np.abs(q[~inside, 1] - centre) < inner * length), 'A vertex outside the span reaches the band: the map would tear')
-    return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'centre': np.array(centre),
-            'band': np.array([inner, outer]) * length, 'factor': np.array(factor)}
+    mapping = {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'centre': np.array(centre),
+               'band': np.array([inner, outer]) * length, 'factor': np.array(factor)}
+    narrow_guard(positions, mapping); return mapping
+
+
+def narrow_guard(positions, mapping):
+    """No vertex outside the span may reach the band, or the map would tear the surface at the span's edge."""
+    q = (np.asarray(positions, float) - mapping['mean']) @ mapping['axes']; t0, t1 = mapping['span']
+    outside = (q[:, 0] < t0) | (q[:, 0] > t1)
+    _require(np.all(np.abs(q[outside, 1] - float(mapping['centre'])) < float(mapping['band'][0])),
+             'A vertex outside the span reaches the band: the map would tear')
 
 
 def apply_narrow(positions, mapping, normals=None):
@@ -434,38 +456,18 @@ def apply_narrow(positions, mapping, normals=None):
 
 def narrow(source, output, span=None, band=None, factor=None, map_path=None):
     """Write OUTPUT/narrowed.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte."""
-    from tools.headkit.common import pin, write
-    from tools.headkit.gltf import encode, load, arrays
-    source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
-    source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
-    keys = {'mean', 'axes', 'span', 'centre', 'band', 'factor'}
-    if map_path is None:
-        _require(None not in (span, band, factor), 'Give --span, --band and --factor, or a saved --map')
-        mapping = fit_narrow(positions, span, band, factor); map_path = output / 'narrow-map.npz'
-        with map_path.open('xb') as stream: np.savez(stream, **mapping)
-        mode = 'measured'
-    else:
-        _require(span is None and band is None and factor is None, 'A saved map carries its own span, band and factor')
-        with np.load(map_path, allow_pickle=False) as archive: mapping = {name: archive[name] for name in archive.files}
-        _require(set(mapping) == keys, 'Invalid narrow map')
-        mode = 'applied'
-    normals = attributes.get('NORMAL'); buffer = bytearray(binary)
-    if normals is None: moved = apply_narrow(positions, mapping)
-    else: moved, turned = apply_narrow(positions, mapping, normals)
-    _replace(document, buffer, primitive['attributes']['POSITION'], moved)
-    if normals is not None: _replace(document, buffer, primitive['attributes']['NORMAL'], turned)
-    target = output / 'narrowed.glb'
-    with target.open('xb') as stream: stream.write(encode(document, bytes(buffer)))
-    after, after_faces, after_attributes = arrays(*load(target.read_bytes()))
-    _require(np.array_equal(after_faces, faces) and all(np.array_equal(after_attributes[name], attributes[name])
-             for name in attributes if name not in ('POSITION', 'NORMAL')), 'Narrowing changed topology, UVs or other attributes')
+    from tools.headkit.common import write
+    explicit = any(x is not None for x in (span, band, factor))
+    _require(map_path is not None or None not in (span, band, factor), 'Give --span, --band and --factor, or a saved --map')
+    result, mapping, positions, after = _remap_glb(source, output, 'narrow', {'mean', 'axes', 'span', 'centre', 'band', 'factor'},
+                                                   lambda p: fit_narrow(p, span, band, factor), apply_narrow, map_path, explicit,
+                                                   narrow_guard)
     width = mapping['axes'][:, 1]
-    result = {'source': source_pin, 'output': pin(target), 'map': dict(pin(map_path), mode=mode),
-              'span': mapping['span'].tolist(), 'band': mapping['band'].tolist(), 'factor': float(mapping['factor']),
-              'widthBefore': float(np.ptp(positions @ width)), 'widthAfter': float(np.ptp(after @ width)),
-              'method': 'a width band of side parts shortened; parts beyond it moved in rigidly, length and depth unchanged',
-              'visualReviewRequired': True}
-    write(output / 'narrow.json', result, fresh=True); return result
+    result.update({'span': mapping['span'].tolist(), 'band': mapping['band'].tolist(), 'factor': float(mapping['factor']),
+                   'widthBefore': float(np.ptp(positions @ width)), 'widthAfter': float(np.ptp(after @ width)),
+                   'method': 'a width band of side parts shortened; parts beyond it moved in rigidly, length and depth unchanged',
+                   'visualReviewRequired': True})
+    write(Path(output) / 'narrow.json', result, fresh=True); return result
 
 
 BLADE_METRICS = ('guardSkewDegrees', 'guardSectionRatio', 'bladeDepthToWidth', 'splitBladeSlices')

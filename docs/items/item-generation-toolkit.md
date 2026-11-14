@@ -381,7 +381,7 @@ textured donor and working shell before fitting. See the wave-1 section of
 
 A handle too short for the hand at the chosen size can be lengthened alone with
 `stretch MESH.glb OUT_DIR --span LO HI --factor K`: the span (fractions of the
-length from the principal frame's low end; the report gives the axis) grows by K,
+length from the principal frame's low end; the report names `longAxis` and the `lowEndVertex` it counts from) grows by K,
 the end below it stays and everything above moves along the axis unchanged.
 Re-apply its `stretch-map.npz` with `--map` to the textured donor, review the
 views, then fit at the natural size (wave-4 Sai). `narrow MESH.glb OUT_DIR --span
