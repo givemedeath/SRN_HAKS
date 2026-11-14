@@ -863,10 +863,15 @@ def _copied(colour, where, covered, target, source, part):
     full = lambda mask: np.asarray(Image.fromarray(mask).resize(size, Image.NEAREST))
     what = str(part.get('part', 'copied part'))
 
-    def laid(mask):  # each texel's metres along the way its part runs, and its metres up
-        spots = place[full(mask)]; run = int(np.argmax(np.ptp(where[mask][:, :2], axis=0)))
-        return spots[:, run], spots[:, 2]
-    along, height = laid(source); texels = colour[full(source)]
+    def laid(mask):  # each texel's metres along the way its part runs and its metres up, and whether it lies on the part
+        # A texel at the edge of the part's patch of the picture has its place blended with the patch beside it, which
+        # may be anywhere on the model: read as part of the wall, such texels made it longer than it is and filled the
+        # added length with blotches (the Iron Sight Arms shop's back wall, 2026-11-14). The part reaches only as far
+        # as the map of places itself has it.
+        exact = where[mask]; run = int(np.argmax(np.ptp(exact[:, :2], axis=0))); spots = place[full(mask)][:, [run, 2]]
+        low, high = exact[:, [run, 2]].min(0), exact[:, [run, 2]].max(0)
+        return np.clip(spots[:, 0], low[0], high[0]), np.clip(spots[:, 1], low[1], high[1]), np.all((spots >= low) & (spots <= high), axis=1)
+    along, height, on = laid(source); along, height, texels = along[on], height[on], colour[full(source)][on]
     wide, tall = float(np.ptp(along)), float(np.ptp(height))
     require(wide > 0.05 and tall > 0.05, 'A copied wall has a length and a height: ' + what)
     # A cell is a texel of the wall as most of it is drawn (the usual step between two of its texels side by side). A
@@ -887,7 +892,7 @@ def _copied(colour, where, covered, target, source, part):
             edge = [slice(None)] * 2; edge[axis] = 0 if shift == 1 else -1; had[tuple(edge)] = 0  # nothing comes round the edge
             sums += moved * had[..., None]; near += had
         fresh = ~known & (near > 0); wall[fresh] = sums[fresh] / near[fresh][:, None]; known |= fresh
-    over = full(target); along_t, height_t = laid(target)
+    over = full(target); along_t, height_t, _ = laid(target)
     require(height_t.max() > height.min() and height_t.min() < height.max(), 'A wall is copied to its own heights, and the two boxes share none: ' + what)
     row = np.clip(((height_t - height.min()) / cell).astype(int), 0, rows - 1)
     column = np.clip((((along_t - along_t.min()) % max(wide, cell)) / cell).astype(int), 0, columns - 1)

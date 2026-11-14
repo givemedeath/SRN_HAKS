@@ -109,6 +109,20 @@ class ConvertTests(unittest.TestCase):
         np.testing.assert_allclose(made['vertices'].mean(0)[:2], [0, 0], atol=1e-9)  # still centred on its spot
         self.assertIsNone(made['colour']); self.assertIsNone(made['flat'])  # nothing retouched: the picture ships as generated
 
+    def test_a_copied_wall_reaches_no_further_than_its_own_patch_of_the_picture(self):
+        # The map of places is coarser than the picture. A texel at the edge of the wall's patch has its place blended
+        # with the patch beside it in the picture, here one 50 metres away, and shows what lies off the wall (black).
+        # Read as wall, such texels made it metres longer than it is, and a target longer than the wall took the
+        # blotches that filled the added length (the Iron Sight Arms shop's back wall, 2026-11-14).
+        where = np.zeros((32, 32, 3), np.float32); covered = np.zeros((32, 32), np.float32)
+        across, up = np.meshgrid((np.arange(16) + 0.5) / 16, 1 - (np.arange(16) + 0.5) / 16); level = np.zeros_like(across)
+        where[:16, :16] = np.dstack([across, level, up]); where[:16, 16:] = np.dstack([50 + across, level, up])  # the wall, a metre long, and its far neighbour
+        where[16:, :16] = np.dstack([10 + 12 * across, level, up]); covered[:16] = 1; covered[16:, :16] = 1  # what it is copied over, twelve metres long
+        colour = np.zeros((128, 128, 3), np.float32); colour[:64, :62] = (0.8, 0.0, 0.0); colour[64:, :64] = 0.4
+        source = np.zeros((32, 32), bool); source[:16, :16] = True; target = np.zeros((32, 32), bool); target[16:, :16] = True
+        made = convert._copied(colour.copy(), where, covered, target, source, {})
+        np.testing.assert_allclose(made[64:, :64], np.broadcast_to(np.float32([0.8, 0.0, 0.0]), (64, 64, 3)), atol=1e-5)  # the wall again and again, none of the black
+
     def test_a_colour_picture_is_toned_painted_and_given_a_wire_mesh_by_place_on_the_model(self):
         from PIL import Image
         vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
