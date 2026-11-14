@@ -31,6 +31,7 @@ class TrackTest(unittest.TestCase):
         for build in (track.mesh, track.merge_mesh, track.crane_mesh):
             vertices, normals, uvs, faces = build()
             self.assertEqual(convert.turn_faces(vertices, faces)[1], 0, build.__name__)
+            self.assertEqual(convert.turn_normals(vertices, normals, faces)[1], 0, build.__name__)  # and shaded by its winding
 
     def test_a_merge_brings_the_next_rows_track_into_the_through_track(self):
         """User, 2026-11-13: "can you make the tracks merge" at both ends of the depot."""

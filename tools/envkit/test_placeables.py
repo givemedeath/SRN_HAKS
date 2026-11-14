@@ -70,8 +70,8 @@ class PlaceableTests(unittest.TestCase):
                 placeables.light_values(bad)
         # The rows are the stock table's only while no pack here ships its own lightcolor.2da (review, 2026-11-14).
         repo = Path(__file__).resolve().parents[2]
-        self.assertEqual([str(path) for path in repo.glob('srn_*/**/lightcolor.2da')], [], 'A pack overrides lightcolor.2da: '
-                         'bound placeables.LIGHT_COLOURS by its rows')
+        found = [str(path) for path in repo.glob('srn_*/**/*') if path.name.lower() == 'lightcolor.2da']  # the game reads names alike whatever the case
+        self.assertEqual(found, [], 'A pack overrides lightcolor.2da: bound placeables.LIGHT_COLOURS by its rows')
 
 
 class CommandTests(unittest.TestCase):

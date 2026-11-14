@@ -58,7 +58,7 @@ def light_values(light):
         return ['****'] * 4
     require(isinstance(light, dict) and set(light) == {'colour', 'at'} and type(light['colour']) is int and light['colour'] in LIGHT_COLOURS
             and isinstance(light['at'], list) and len(light['at']) == 3 and all(type(v) in (int, float) for v in light['at']),
-            'A light is {colour: a row of lightcolor.2da, 1 (DimWhite) to 31 (Orange), at: [x, y, z] metres from the object}')
+            f'A light is {{colour: a row of lightcolor.2da, {LIGHT_COLOURS[0]} (DimWhite) to {LIGHT_COLOURS[-1]} (Orange), at: [x, y, z] metres from the object}}')
     return [str(light['colour']), *(f'{float(v):.4f}' for v in light['at'])]
 
 
