@@ -414,6 +414,23 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   trucks' spans along the car, the top of the trucks and where the wheels' backs stand, from end views cut through
   the wheels, and state them as `wheels` (`convert.gauged`); lift the car by `track.HEIGHT` (0.312). Check it on laid
   track in the client, low along the rails and beside each truck.
+- **A hole of many corners in a wall, or a gap the client shows where the model looks closed.** A generator leaves
+  slits and gaps with a dozen or more corners (the rail yard's warehouse wall and crane leg sills, user, 2026-11-13).
+  Find the rim from a z-buffered elevation (open edges are the faces' edges used once) and state a point on it as
+  `fill` (`convert.filled`), not face by face as `close`. Where the faces are there but wound inward, the client shows
+  a gap all the same: give the faces in a box backs (`inside: [{box}]`, `convert.backed`). Check both from every side.
+- **A sign spelt wrong.** Paint the stray strokes over in the sign's ground colour (`paint`), measured on a texel
+  elevation of the letters (the rail yard's tower read "PREIGHT"; its P's bowl and bar were painted to make an F).
+- **Wavy handrails, missing stairs or a leg out of place.** A generator cannot hold a long thin rail straight, leaves
+  off stairs to a raised deck and may draw a leg in from its corner (the rail yard's stair tower and walkway, user,
+  2026-11-13). Take the wavy rails off with `clear` rods (`{from, to, radius}`) along the flights and boxes on the
+  landings, and build straight ones (`built`: `railing` paths on the surface walked, `stairs` from the foot's nosing
+  to the deck's edge), coloured from a point of the model's own steel. Move a stray leg whole with `move` (`{box,
+  by}`); what tied it on is taken away, so clear what is left standing. Check the treads, rails and leg in the client.
+- **Smeared glass.** A generator may draw a window's glass in several layers that share their picture with other
+  faces, so `paint` misses some of it (the rail yard's office module, 2026-11-13). Cover each pane with a thin built
+  bar (`built`, `bar`, coloured from a dark glass point) just in front of the layers, inside its frame, measured from
+  the frame's profile across the window; build a frame-grey bar over a mullion drawn light. Check both faces.
 - **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",

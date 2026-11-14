@@ -750,8 +750,8 @@ faces under each leg, none higher than 0.26 metres; its wheels, 0.22 metres up, 
 rails). The crane and its runways stand a metre further north than first laid, where its north leg's edge lay on the
 middle of the line between two tiles (see the checks below). The other buildings stand clear of the tracks. The
 containers, light towers and rolling stock of the sheet are props a builder places, not parts. Each model's textures
-were recompressed (the warehouse's and the larger buildings' colour 4096 DXT1, the other maps 2048). Nothing was
-retouched. The meshes were shared out over 64 tiles (0 to 15,085 faces each) with a ground square, a map picture and
+were recompressed (the warehouse's and the larger buildings' colour 4096 DXT1, the other maps 2048). Retouching is
+described below. The meshes were shared out over 64 tiles (0 to 15,085 faces each) with a ground square, a map picture and
 two main lights each; everything above 4.5 metres carries `tilefade`; and a walkmesh was generated from their shape
 (18 to 1,914 faces a tile, where the stock tiles of these two tilesets have at most 500). The tracks and runways are
 drawn but walked flat across. The loading platform's deck, 1.24 metres up, is walked at its height where its stairs
@@ -761,8 +761,12 @@ group as a whole (`tile.path_nodes`); three are stated in the game set (`tiles.n
 warehouse, `t04`, W with no turn; the tile east of the service bay's yard, `t06`, J turned 90; the tile north of it,
 `t15`, I turned 270), as the walk checks in the client showed walks need. The tile at the warehouse's
 door, `t23`, has a door record of type 58, the invisible transition door. The Meshy sources, the references, the
-track sources and the client captures stay in ignored `output/envkit/`. Left as generated: a small tear in the
-warehouse's west wall, gaps in the crane's leg sills, and the tower's sign, which reads "PREIGHT".
+track sources and the client captures stay in ignored `output/envkit/`. Three flaws the first build left were
+retouched (operator: "Fix these", 2026-11-13): the tower's sign read "PREIGHT", and the right of its P's bowl and the
+end of its middle bar were painted over in the sign's ground colour to make an F (`paint`); a slit 1.4 to 2.3 metres
+up the warehouse's long east wall was filled between its own vertices (`fill`); and the crane's leg sills, which
+showed gaps from outside, were filled where they were open and given backs where their faces were wound inward
+(`fill`, `inside` boxes). The crane prop has the same changes.
 
 Checked in the client on 2026-11-13 (`envkit check group --mode walk`, in a Modern Exterior and a Suburbs area 14
 tiles across). Walkers sent from the area's far corners arrived, in both areas, outside the warehouse's door, at its
@@ -827,12 +831,21 @@ where its lamp heads had been nearly 2 metres across. The trucks of the switcher
 drawn in across the track (`wheels`), their wheels having stood 0.15 to 0.2 m outside the rails (operator: "fix the
 wheel spacing on the rolling stock"): below the trucks' tops, each truck by the same measure, so that the backs of its
 wheels stand 0.68 m either side of the car's middle as a standard-gauge wheelset's do, the bodies above as they were.
-The four were lifted 0.312 m, the track's height, to stand on its rails. The light tower's four lamp heads glow on
+The four were lifted 0.312 m, the track's height, to stand on its rails. Further flaws were
+retouched (operator: "Fix these", and "one of the posts on the walkway is misplaced from the corner too"): the stair
+tower's wavy handrails were taken off (`clear`, rods along the flights and boxes on the landings) and straight steel
+ones built in their place (`built` railings, coloured from the model's own steel); the walkway, which no stairs led
+up to, was given a straight flight of eleven treads, a stringer each side and handrails up to its deck's south edge,
+with its south railing built again round the head of the stairs, and its north-east leg, generated 1.7 metres in
+from its corner, was moved out to it (`move`) and the brace left standing out past the corner taken off; the office
+module's roof ridge was filled at two notches (`fill`) and its smeared window panes covered by thin built panes of
+plain dark glass inside their frames, with a frame-grey mullion over the one drawn light (`built` bars; the generated
+glass lies in up to four layers that share their picture with other faces, so painting it was not enough). The crane's leg sills were mended as in the group. The light tower's four lamp heads glow on
 their front faces: it has a glow map for them, a halo sheet and a lights-out material (`ek_rf_light_o`) as
 `docs/envkit/lights.md` describes, and its blueprint is not static, so that a script can reach it. It also lights the
 ground round it (operator: "Yes, try it", on whether its lamps cast light): its row names light colour 3 (bright
 white) 4.2 metres up and half a metre in front of its mast, at its lamp heads. Meshy drew
-lenses on the backs of the heads too; those stay unlit. Nothing was retouched. The loading platform is scenery to
+lenses on the backs of the heads too; those stay unlit. The loading platform is scenery to
 walk round: its collision is a block over its footprint, and the game does not stand characters on a placeable
 (tried in the client on 2026-11-13 with a walkmesh of walkable deck and stairs: walkers sent onto it stopped on the
 ground at its edge; see `docs/envkit/sheet-runbook.md`). The depot group's platform is walked on.
@@ -844,7 +857,9 @@ lamps lit, put out by `ReplaceObjectTexture` and on again, and once more with it
 lit, dark when put out by `SetPlaceableIllumination` and `RecomputeStaticLighting`, and lit again). The four cars
 were seen again standing on laid track, low along the rails and from the side: their wheels on the rails. A lighter or darker triangle shows on a flat side of the
 boxcar seen side-on, on either side and with the car turned either way round: the area's sky reflected in its large
-smooth panels, not the model (its maps are even there, and splitting its faces small did not change it). Not yet
+smooth panels, not the model (its maps are even there, and splitting its faces small did not change it). The
+walkway, stair tower, office module and crane were seen again by day on 2026-11-14 after the retouching above: the
+walkway's stairs and moved leg, the tower's straight rails, the office's glass and the crane's sills. Not yet
 opened in the Toolset.
 
 ## MDRNEE placeable import (2026-09-11)
