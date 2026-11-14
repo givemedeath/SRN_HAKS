@@ -7,17 +7,17 @@ Build the normal release through the existing pack builder:
 ```
 
 `srn_weapon` contains the approved models, runtime diffuse maps, inventory icons
-and thirty-one builder blueprints for twenty-nine weapon designs. `srn_2da` supplies
+and thirty-six builder blueprints for thirty-four weapon designs. `srn_2da` supplies
 the native carrier table. No custom TLK is required. The inventory and resource
 hashes are in `approved-weapons-v1.json`; the generated combat release manifest
 describes the complete resource closure.
 
 | Family | BaseItem / ItemClass | Released designs |
 |---|---|---|
-| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Survival Knife; Ceramic Knife; Vibro Blades — Knife |
-| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Sword; Club; Extendable Baton; Tomahawk; Rapier |
-| F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat; Combat Axe |
-| F5 | 50 / WDbQs | Staff; Stun Staff; Spear |
+| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Survival Knife; Ceramic Knife; Vibro Blades — Knife; Sai |
+| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Sword; Club; Extendable Baton; Tomahawk; Rapier; Mace; Macauitl |
+| F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat; Combat Axe; Nodachi |
+| F5 | 50 / WDbQs | Staff; Stun Staff; Spear; Pole Arm |
 | F6 | 111 / WWhip | Whip |
 | F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV |
 | F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow |
@@ -191,6 +191,44 @@ Table changes are appearance-picker extensions only:
 
 F5 (071) already falls inside its range. No gameplay, price or item-property field changes. The comparison module
 gained a male/female reviewer pair for each (`sw7_`), but those pairs have not been run in its client.
+
+## Melee wave 4 (2026-11-14)
+
+Wave 4 adds five SR4 catalog designs through the same pipeline: geometry comes from the colour detail image through
+the shared ComfyUI. All five went in through `drive publish`. Each package is the exact bytes of its reviewed native
+HAK, and each blueprint is the exact bytes from its private fixture module. Hashes are in `approved-weapons-v1.json`.
+The user approved them after seeing unattended in-client captures on both shipped Human bodies: "Approve all five".
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Sai | F1 / row 22 | `sr6a19234a` | `wswdg_*_131`, diffuse `sr6a19234a_13` | 0.62 m |
+| Mace | F2 / row 1 | `sr4c45ec83` | `wswls_*_201`, diffuse `sr4c45ec83_20` | 0.75 m |
+| Macauitl | F2 / row 1 | `sr994ca81b` | `wswls_*_211`, diffuse `sr994ca81b_21` | 1.11 m |
+| Nodachi | F4 / row 13 | `sr36b5c592` | `wswgs_*_111`, diffuse `sr36b5c592_11` | 1.50 m |
+| Pole Arm | F5 / row 50 | `src3ccd3b0` | `wdbqs_*_091`, diffuse `src3ccd3b0_09` | 2.00 m |
+
+- **Sai:** the user chose a shorter Sai. To keep the standard grip, only the cord handle was lengthened ("just stretch
+  the handle part if needed"). After the first capture, the prong arms were shortened so the spread is 20% narrower
+  ("the side blades fan out too wide"); the tips keep their shape.
+- **Mace:** made from the third geometry attempt, straightened through its head (`straighten --whole`). Four target
+  faces bake with a reviewed colour patch that the user approved.
+- **Macauitl:** its ring pommel stays open through a reviewed opening probe. Six faces at the paddle base bake with a
+  reviewed patch, and the colour transfer reaches 3.8 mm; the user approved both.
+- **Nodachi:** carried as a two-hand greatsword. Its round grip is a user-authorised departure from the grip standard.
+- **Pole Arm:** the staff carrier sizes the whole section from the grip, so the design is stretched 2.3x along its
+  length, axe head included, as the user chose. Its colour transfer reaches 4.2 mm, which the user approved.
+
+The fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only:
+
+- F1 `MaxRange` 121 to 131
+- F2 `MaxRange` 191 to 211
+- F4 `MaxRange` 101 to 111
+
+F5 (091) already falls inside its range. No gameplay, price or item-property field changes. The comparison module
+gained a male/female reviewer pair for each in the `sw1_` row (`sw8_`), but those pairs have not been run in its
+client.
 
 ## Publishing a client-approved design
 
