@@ -25,8 +25,9 @@ What a publication writes, under the repository or under `--trial ROOT`:
 The gates (`gates`) each fail the command with the model and the reason: every body a part lists has its model
 and every part its table row, every texture a model names is in the pack, no name is one `srn_body` or
 `srn_armor` holds, each chest closes round the body's neck (`neck`), every icon slot has its icons, every bake
-passed its own gates, and every outfit has its brief and a history record. Nothing is written into the
-repository unless all of them pass. `--trial ROOT` writes the same tree into a scratch folder whatever the gates
+passed its own gates, every outfit has its brief and a history record, and every file published earlier is
+still the one its handoff records. Nothing is written into the
+repository unless all of them pass. `--trial ROOT` writes the same tree into a new scratch folder whatever the gates
 say, seeded from the repository's own `srn_2da` and `srn_parts`, and `--build` packs it there for a client check
 (`build`); `--dry-run` writes nothing. The command exits 1 when a gate fails.
 
@@ -52,6 +53,7 @@ HANDOFF = Path('docs/armorkit/parts-handoff.json')
 HAKBUILDER = Path('hakbuilder.json')
 PROVENANCE = Path('PROVENANCE.md')
 TRIAL = 'armorkit-publish-trial.json'  # what marks a folder as a trial root: a trial is written nowhere else
+TRIAL_MARK = {'schemaVersion': 1, 'kind': 'srn-armorkit-publish-trial'}
 CLASH = ('srn_body', 'srn_armor')  # the packs no name of ours may be found in (docs/armorkit/plan.md, Gates)
 BRIEFS = Path(__file__).with_name('briefs')
 HANDOFF_KIND = registry.KIND + '-handoff'
@@ -138,8 +140,10 @@ def survey(folder):
             else:
                 files[name] = resources / name
         compiled = resources / (model + '.mdl')
-        if compiled.is_file() and compiled.read_bytes()[:4] != bytes(4):
-            wrong.append((model, 'the model is not compiled'))
+        if compiled.is_file():
+            with compiled.open('rb') as stream:
+                if stream.read(4) != bytes(4):
+                    wrong.append((model, 'the model is not compiled'))
     return {'folder': folder, 'record': record, 'sha256': sha(path), 'files': files, 'wrong': wrong}
 
 
@@ -333,7 +337,8 @@ def model_textures(path):
     from tools.headkit import native_reader
     path = Path(path)
     meshes = native_reader.decode(path.read_bytes(), path.stem, require_tangents=False)
-    return sorted({mesh['textures'][0].lower() for mesh in meshes if mesh['textures'][0] and mesh['textures'][0].lower() != 'null'})
+    first = [(mesh.get('textures') or [''])[0] or '' for mesh in meshes]
+    return sorted({name.lower() for name in first if name and name.lower() != 'null'})
 
 
 # --- the icons ----------------------------------------------------------------------------------------------------
@@ -418,7 +423,7 @@ def icons(parts, pack, body_pack):
 
 # --- the gates ----------------------------------------------------------------------------------------------------
 
-def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures, measure_neck=chest_neck, necks=None):
+def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures, measure_neck=chest_neck, necks=None, fresh=None):
     """The publication gates on a pack as it would stand: a list of failures, each with its gate, the model and
     the reason (docs/armorkit/plan.md, Gates).
 
@@ -431,6 +436,8 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
       each map that file names. A race version names the Human Fit texture, which is then the one looked for.
     * `clash`: no file of the pack is one a pack in `clash` holds.
     * `neck`: each chest closes round its body's neck (`neck`); `necks`, a dictionary, is given each chest's measure.
+      With `fresh`, the file names that are new, only the chests among them are measured: a published chest
+      passed when it was published, and its file is held to the hash recorded then (`publish`).
     * `icons`: each part in an icon slot has its icons (`icon_names`).
     * `unlisted`: every file of the pack belongs to a part of the registry.
     * `format`: a name of the pack is a lowercase resource name of at most 16 characters, and a text file holds
@@ -465,7 +472,7 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
                             listed.add(image + '.tga')
                             if image + '.tga' not in pack:
                                 failures.append(failure('closure', model, f'its material file names {image}, and the pack holds no {image}.tga'))
-                if part['slot'] == 'chest':
+                if part['slot'] == 'chest' and (fresh is None or model + '.mdl' in fresh):
                     try:
                         measured, reasons = measure_neck(pack, body_pack, body, model)
                     except (ValueError, OSError) as error:
@@ -509,9 +516,12 @@ def seed(root, repo=REPO):
     root, repo = Path(root).resolve(), Path(repo).resolve()
     require((root != repo and repo not in root.parents) or (repo / 'output') in root.parents or (repo / '.tmp') in root.parents,
             f'A trial is written to a scratch folder, outside the repository or under its ignored output or .tmp folder: {root}')
+    require(not root.is_file(), f'{root} is a file, not a folder for a trial')
     require(not root.exists() or (root / TRIAL).is_file() or not any(root.iterdir()), f'{root} is not empty and is no trial root')
+    require(not (root / TRIAL).is_file() or not json.loads((root / TRIAL).read_text(encoding='utf-8')).get('written'),
+            f'{root} holds a trial publication already, and a second would read its parts as published: write the trial to a new folder')
     root.mkdir(parents=True, exist_ok=True)
-    (root / TRIAL).write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-armorkit-publish-trial'}) + '\n', encoding='utf-8')
+    (root / TRIAL).write_text(json.dumps(TRIAL_MARK) + '\n', encoding='utf-8')
     for pack in (TABLE_PACK, PACK):
         if not (root / pack).is_dir() and (repo / pack).is_dir():
             shutil.copytree(repo / pack, root / pack)
@@ -567,9 +577,11 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     the failures, a count of them by gate, the neck measures and, once written, the files."""
     repo = Path(repo).resolve()
     require(not (trial and dry_run), 'A trial writes its scratch root; a dry run writes nothing: ask for one of them')
+    parts = registry.load(registry_path, publish=True)
+    surveyed = [survey(folder) for folder in bakes]
+    require(surveyed, 'A publication needs at least one bake (--bake DIR)')
     root = seed(root, repo) if trial else repo
     body_pack = Path(body_pack) if body_pack else repo / 'srn_body'
-    parts = registry.load(registry_path, publish=True)
     before, handoff_before = published(root)
     known = {(part['slot'], part['number']): part for part in before}
     now = {(part['slot'], part['number']): part for part in parts}
@@ -578,11 +590,15 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     new = [part for key, part in now.items() if key not in known]
     require(new, 'The registry holds no part that is not published already')
 
-    surveyed = [survey(folder) for folder in bakes]
-    require(surveyed, 'A publication needs at least one bake (--bake DIR)')
     pack_folder = root / PACK
     pack = {path.name: path for path in pack_folder.iterdir() if path.is_file()} if pack_folder.is_dir() else {}
     failures, incoming, outfits = [], {}, []
+    # What is published is what its handoff recorded: a file changed or gone since fails by name.
+    for resource in (resource for outfit in handoff_before.get('outfits', []) for resource in outfit.get('resources', [])):
+        if resource['name'] not in pack:
+            failures.append(failure('published', resource['name'], f'{PACK} no longer holds this published file'))
+        elif sha(pack[resource['name']]) != resource['sha256']:
+            failures.append(failure('published', resource['name'], f'{PACK} holds another file than the one published: its hash is not the one the handoff records'))
     given_records, given_briefs = {}, dict(briefs)
     for model, path in records:
         require(Path(path).is_file(), f'{path} is no file to record for {model}')
@@ -610,13 +626,18 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         if not history:
             failures.append(failure('records', label, f'no record of how {record["model"]} was made: pin its generation ledger or log (--record {record["model"]}=FILE)'))
         outfits.append((bake, brief, history))
-    unknown = sorted(set(given_records) - {bake['record']['model'] for bake in surveyed})
-    require(not unknown, f'--record names a model no bake is of: {", ".join(unknown)}')
+    for flag, given in (('--record', given_records), ('--brief', given_briefs)):
+        unknown = sorted(set(given) - {bake['record']['model'] for bake in surveyed})
+        require(not unknown, f'{flag} names a model no bake is of: {", ".join(unknown)}')
 
     pack.update(incoming)
     work = None
     try:
-        drawn = draw_icons(new, pack, body_pack)
+        try:
+            drawn = draw_icons(new, pack, body_pack)
+        except (ValueError, OSError, LookupError) as error:
+            drawn = {}
+            failures.append(failure('icons', PACK, f'the icons could not be drawn: {error}'))
         if drawn:
             import tempfile
             work = Path(tempfile.mkdtemp(prefix='armorkit-icons-'))
@@ -628,7 +649,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                 pack[name] = incoming[name] = work / name
         table_texts = merged(parts, stock, root / TABLE_PACK)
         measured = {}
-        failures += gates(parts, pack, table_texts, body_pack, [repo / name for name in CLASH], textures, measure_neck, measured)
+        failures += gates(parts, pack, table_texts, body_pack, [repo / name for name in CLASH], textures, measure_neck, measured, set(incoming))
         skipped = []
         provenance = (repo / PROVENANCE).read_text(encoding='utf-8') if (repo / PROVENANCE).is_file() else ''
         unnamed = [name for name in [PACK] + sorted({bake['record']['model'] for bake in surveyed}) if name not in provenance]
@@ -687,6 +708,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             raise
         report['written'] = True
         if trial:
+            (root / TRIAL).write_text(json.dumps({**TRIAL_MARK, 'written': True}) + '\n', encoding='utf-8')
             (root / 'publish-report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8', newline='\n')
         return report
     finally:

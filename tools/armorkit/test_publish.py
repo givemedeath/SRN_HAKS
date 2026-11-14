@@ -381,7 +381,15 @@ class PublishTests(Workspace):
         more = self.root / 'more.json'
         hands = part(slot='hand', number=6030, set='siteguard', group='corpsec', genderedCut=False, tiers={'wrist': 2})
         more.write_text(json.dumps(document(*PARTS, hands)), encoding='utf-8')
-        report = self.publish(shared(outfit='hands'), registry=more)
+        measured = []
+        changed_file = self.repo / 'srn_parts' / f'pmh0_chest{NUMBER}.plt'
+        kept_bytes = changed_file.read_bytes()
+        changed_file.write_bytes(b'edited')
+        drift = self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        self.assertEqual([(one['gate'], one['model']) for one in drift['failures']], [('published', changed_file.name)])
+        changed_file.write_bytes(kept_bytes)
+        report = self.publish(shared(outfit='hands'), registry=more, measure_neck=lambda *given: (measured.append(given[3]), sound(*given))[1])
+        self.assertEqual(measured, [])  # the chests published earlier are not measured again
         self.assertTrue(report['passed'] and report['written'])
         self.assertEqual(report['newParts'], ['hand 6030'])
         handoff = json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))
@@ -420,6 +428,14 @@ class PublishTests(Workspace):
         self.assertTrue(self.publish(shared(('pmh0',)), root=inside, trial=True)['written'])
         with self.assertRaisesRegex(ValueError, 'ask for one of them'):
             self.publish(shared(('pmh0',)), root=inside, trial=True, dry_run=True)
+        with self.assertRaisesRegex(ValueError, 'holds a trial publication already'):
+            self.publish(shared(('pmh0',)), root=inside, trial=True)
+        made = self.root / 'unmade'
+        with self.assertRaisesRegex(ValueError, 'registry'):  # a registry that is refused leaves no trial root
+            self.publish(shared(('pmh0',)), root=made, trial=True, registry=self.brief)
+        self.assertFalse(made.exists())
+        with self.assertRaisesRegex(ValueError, 'is a file, not a folder'):
+            self.publish(shared(('pmh0',)), root=self.ledger, trial=True)
 
     def test_the_build_entry_is_added_once_after_the_armor_pack(self):
         text = (self.repo / 'hakbuilder.json').read_text(encoding='utf-8')
@@ -435,6 +451,13 @@ class PublishTests(Workspace):
             publish.pairs(['ledger.json'], '--record')
         with self.assertRaisesRegex(ValueError, '--record names a model no bake is of: other'):
             self.publish(shared(('pmh0',)), records=[('facility-test', self.ledger), ('other', self.ledger)], dry_run=True)
+        with self.assertRaisesRegex(ValueError, '--brief names a model no bake is of: other'):
+            self.publish(shared(('pmh0',)), briefs=[('facility-test', self.brief), ('other', self.brief)], dry_run=True)
+
+        def undrawn(parts, pack, body_pack):
+            raise FileNotFoundError('no pmh0.mdl')
+        report = self.publish(shared(('pmh0',)), draw_icons=undrawn, dry_run=True)
+        self.assertIn('the icons could not be drawn: no pmh0.mdl', [one['reason'] for one in report['failures'] if one['gate'] == 'icons'])
         two = self.root / 'briefs'
         two.mkdir()
         for name in ('a.json', 'b.json'):
