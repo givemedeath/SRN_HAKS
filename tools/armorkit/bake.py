@@ -84,11 +84,18 @@ def roles(name, made):
     drawn flat, it was a pale band round the wrist (Facility Security, in the client). `closing`, `cap` and `padded` are `texture.tint_maps`' flags of the same names for the rest: a
     thigh's wall goes with its cap where it is not `under`.
 
-    An upper arm's cap is none of these here. That is how siteguard-male was baked when its armpits were
-    looked at in the client, and it was not what was meant: the cap was to be flagged as a closing and
-    darkened with the closings (`ARMHOLE`), and a later line of the bake script took it out of them again.
-    Its cap at the shoulder is drawn with the closings when the part is tinted (`shoulder_cap`, `tints`), so
-    that parts kept before are drawn so too; a cap at its elbow is drawn as it was read."""
+    An upper arm's cap is none of these and is drawn as it was read, its rim's colours carried to its pole.
+    That is how siteguard-male was baked when its armpits were looked at in the client, and it was not what
+    was meant: the cap was to be flagged as a closing and darkened with the closings (`ARMHOLE`), and a later
+    line of the bake script took it out of them again. The closings alone, darkened, turned the pale strip in
+    front of the armpit into a crease, so this is kept as it was seen until the other is tried in the client.
+
+    It was tried on Facility Security's Human pair (2026-11-14): the cap at the shoulder drawn with the
+    closings, in the armhole's shadow. Neither body looked different for it with its arms up, and it is not
+    kept. The panel a lifted arm shows in the female's armpit, pale and streaked dark, is not the sleeve's
+    cap but the chest's closing round the arm (`under`): shaded vertex by vertex as the cloth it lies
+    under, it is the vest's shade on one face and the shirt's on the next. That is open, and the user's to
+    decide."""
     made = np.asarray(made, int)
     under = UNDER.get(name, ())
     flat = [kind for kind in (split.CAP, split.WALL, split.PADDED) if kind not in under and not (kind == split.CAP and name in ARMHOLE)]
@@ -1057,30 +1064,13 @@ def combine(sources, folder, document):
     return origin
 
 
-def shoulder_cap(name, part, bones):
-    """Flags per face of an upper arm's part: the faces of its cap at the shoulder, what the split made and
-    rounded (`added`, `domed`) on the shoulder's half of the arm's bone, the body's skin beside it left out.
-
-    Drawn as it was read, its rim's colours carried to its pole, the cap of a sleeve cut where a vest lies
-    over the shirt was a pale fan streaked dark in the armpit of a lifted arm: on the Human female, whose
-    sleeves are the male's seated in her own chest's armholes, a panel a hand wide (2026-11-14, in the
-    client). It closes the sleeve at the shoulder as a closing does and is drawn as one (`tints`): the
-    outfit's cloth, in the armhole's shadow. A cap at the elbow is not the shoulder's and stays as it was."""
-    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
-    start, end = split.bone_line(bones, name)
-    axis = end - start
-    near = (v[f].mean(axis=1) - start) @ axis < 0.5 * float(axis @ axis)
-    return np.asarray(part['added'], bool) & np.asarray(part['domed'], bool) & near & ~np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)
-
-
-def tints(parts, document, speck=texture.SPECK, bones=None):
+def tints(parts, document, speck=texture.SPECK):
     """({part: (shades, layers)}, record): the tint texture of every part of a baked outfit, for `export.tint`.
 
     The materials are found over the whole outfit and told which of the brief's each is (`brief.worn`); a
     material's garments are told apart by where they are worn (`texture.worn_second`), and what the split
     made is drawn at the outfit's lit shades (`texture.lit_shades`). `record` holds the materials as found,
-    in the order of the texels' numbers, their channels and lit shades. With `bones`, the body's rig, an
-    upper arm's cap at the shoulder is drawn with its closings, in the armhole's shadow (`shoulder_cap`).
+    in the order of the texels' numbers, their channels and lit shades.
 
     The parts are taken in the order of their names, whatever order they are given in: the materials are
     found on a sample of the texels as they come, and a fresh bake and its stored parts tinted again would
@@ -1102,9 +1092,7 @@ def tints(parts, document, speck=texture.SPECK, bones=None):
     at = np.cumsum([0] + [int(own[name].sum()) for name in parts])
     listed = [material['name'] for material in document['materials']]
     here = {listed.index(material['name']): k for k, material in enumerate(worn)}  # the brief's material, as the texels number it
-    shut = {name: part['closing'] | (texture.face_texels(part['uv'], part['f'], shoulder_cap(name, part, bones), size(part)) & ~part['cap'] & ~part['padded'])
-            if bones is not None and name in ARMHOLE else part['closing'] for name, part in parts.items()}
-    lit = texture.lit_shades(np.concatenate([part['rgb'][part['covered'] & ~shut[name] & ~part['cap']] for name, part in parts.items()]), found)
+    lit = texture.lit_shades(np.concatenate([part['rgb'][part['covered'] & ~part['closing'] & ~part['cap']] for part in parts.values()]), found)
     tinted = {}
     for i, (name, part) in enumerate(parts.items()):
         rows = np.zeros((len(part['f']), count), bool)
@@ -1114,9 +1102,9 @@ def tints(parts, document, speck=texture.SPECK, bones=None):
         for material in np.unique(part['trimmed'][part['trimmed'] >= 0]):
             trim[texture.face_texels(part['uv'], part['f'], part['trimmed'] == material, size(part))] = here[int(material)]
         tinted[name] = texture.tint_maps(part['rgb'], part['covered'], found, channel, relief=part['relief'],
-                                         charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=shut[name], second=twice,
+                                         charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
                                          cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
-                                         shadow=shut[name] if name in ARMHOLE else None, speck=speck)
+                                         shadow=part['closing'] if name in ARMHOLE else None, speck=speck)
         tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1)}
@@ -1234,7 +1222,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
         require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')} and _fits(parts, document),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
-    tinted, record = tints(parts, document, bones=bones)
+    tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)
     own = measure.body(body_pack, body)[1] if own is None else own
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))

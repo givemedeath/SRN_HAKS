@@ -328,6 +328,16 @@ What changed in the kit on 2026-11-14 (`tools/armorkit/README.md`, Invariants):
   of failing on them after the bake: the debris gate still fails on more.
 - A refit reads a sleeve once more after pushing it out over the other body's arm, fails where the skin still
   stands through it, and reports what is left in `refit.json`.
+- A part's middle counts each place its vertices stand at once: the copies a texture layout makes of
+  vertices moved it between the mend and the gate.
+- Relief shading is evened with the texels beside each texel. The vest's flecked hem and collar were the
+  kit's shading, not the generation's colours, which are clean there.
+
+Left open on the Human female, for the user (2026-11-14): with an arm lifted her armpit shows a panel, pale
+and streaked dark. It is the chest's own closing round the arm, which the split makes and the bake shades
+as the cloth it lies under, vest on one face and shirt on the next. The one fix round went to the sleeve's
+cap instead, changed nothing to see and was taken out again. A second round would draw that closing in one
+shade of the shirt's cloth; a new generation would not change it.
 
 
 ## Open decisions
