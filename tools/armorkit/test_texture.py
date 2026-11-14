@@ -742,11 +742,23 @@ class ReliefShadeTests(unittest.TestCase):
         self.assertTrue((ridge[:, 15:17] > 1.15).all())  # the limit is 1.2
         self.assertTrue((crease[:, 15:17] < 0.8).all())
         self.assertTrue((ridge[:, 15:17] > crease[:, 15:17] + 0.4).all())
-        self.assertTrue(np.allclose(ridge[:, :6], 1.0) and np.allclose(ridge[:, 26:], 1.0))  # nothing far from the fold
+        self.assertTrue(np.allclose(ridge[:, :5], 1.0) and np.allclose(ridge[:, 27:], 1.0))  # nothing far from the fold: a texel past where the bend is read
         self.assertTrue(np.allclose(ridge, ridge[:1]))  # the same all the way along it
         low, high = texture.RELIEF_SHADE
         for shade in (ridge, crease):
             self.assertTrue(shade.min() >= low and shade.max() <= high)
+
+    def test_a_normal_that_flips_from_texel_to_texel_is_evened_and_a_fold_keeps_its_strength(self):
+        # the edge of a garment lying on another: along a line the normal leans one way in one texel and the other in the next
+        image = np.empty((32, 32, 3)); image[:] = texture.FLAT
+        image[16, ::2, 1], image[16, 1::2, 1] = 0.8, 0.2
+        image[16, :, 2] = 0.5 + 0.5 * np.sqrt(1 - 0.36)
+        flecks = np.abs(np.diff(texture.relief_shade(image, broad=((1, 1.0),))[15:18, 4:28], axis=1)).max()
+        low, high = texture.RELIEF_SHADE
+        # unevened, the rows beside the line turn 0.3 one way and the other: the lightest and the darkest shade side by side
+        self.assertLess(flecks, 0.25 * (high - low))
+        ridge = texture.relief_shade(self.fold(True))
+        self.assertTrue((ridge[:, 15:17] > 1.15).all())  # a fold two texels wide keeps its strength
 
     def test_a_fold_along_u_shows_as_one_along_v_does(self):
         turned = np.transpose(self.fold(True), (1, 0, 2))[:, :, [1, 0, 2]]  # the same fold, running along u
@@ -784,7 +796,7 @@ class ReliefShadeTests(unittest.TestCase):
         plain = texture.tint_maps(colour, covered, found, channels)[0]
         deep = texture.tint_maps(colour, covered, found, channels, relief=self.fold(False))[0]
         self.assertTrue((deep[:, 15:17] < plain[:, 15:17] - 20).all())  # the crease is darker in the shade
-        self.assertTrue(np.array_equal(deep[:, :6], plain[:, :6]))
+        self.assertTrue(np.array_equal(deep[:, :5], plain[:, :5]))
         colour[:, 15:17] = np.array(TAN) * 0.7  # the generated colour already shows the crease about as dark as the relief would
         twice = texture.tint_maps(colour, covered, found, channels, relief=self.fold(False))[0]
         once = texture.tint_maps(colour, covered, found, channels)[0]

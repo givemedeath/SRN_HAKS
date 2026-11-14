@@ -219,6 +219,7 @@
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
       "tools/armorkit/seams.py",
+      "tools/armorkit/test_bake.py",
       "tools/armorkit/test_split.py"
     ],
     "tools/armorkit/test_poses.py": [

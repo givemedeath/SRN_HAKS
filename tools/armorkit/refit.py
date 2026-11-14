@@ -212,7 +212,10 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     that faces out (the client draws no face from behind) are pushed out from the bone by the difference, the push spread over `rounds` rings of their
     neighbours, never less than a point needs, so the cloth moves as one and creases nowhere, and read again
     until it settles. The skin and a pad are not moved; a push past `OVER_MOST` in all, over every pass, fails, rather than ship a
-    spike where a fold is read as the outside. The male's sleeves, scaled by the rings at the shoulder and
+    spike where a fold is read as the outside. After the last pass the cloth is read once more
+    (`short_of_skin`), and a sleeve the skin still stands out through by more than a bake lets it
+    (`bake.THROUGH`) fails here: the passes used to end without a word, whatever they left
+    (review of the Human female refit, 2026-11-14). The male's sleeves, scaled by the rings at the shoulder and
     the elbow, lay up to 2.7 cm inside the Human female's fuller upper arm, and the arm kept below the hem
     showed through them with her arms raised; held clear of her whole arm by the sleeve's cloth alone, her
     arm still stood up to 9 mm through the dome carried from the male's armpit, and, held clear of the cloth
@@ -250,9 +253,26 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
                                            f'past {OVER_MOST * 100:.0f} cm: a fold read as its outside, or a body too far from this one')
         radial = moved - start - ((moved - start) @ axis)[:, None] * axis
         moved = moved + push[ids][:, None] * radial / np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-12)
-    if np.array_equal(moved, v):
-        return part
-    return {**part, 'v': moved, 'n': renormal(part['n'], f, v, moved)}
+    from . import bake
+    held = part if np.array_equal(moved, v) else {**part, 'v': moved, 'n': renormal(part['n'], f, v, moved)}
+    left = short_of_skin(held, start, start + axis, gap)
+    require(left <= gap + bake.THROUGH, f'Pushed out {OVER_PASSES} times, the outfit still lies up to {(left - gap) * 100:.1f} cm inside the '
+                                        "body's own skin beside it: more passes, or a body too far from this one")
+    return held
+
+
+def short_of_skin(part, start, end, gap=OVER_SKIN):
+    """How far, in metres, what is drawn over the body's own skin in `part` (`bake.skinned`) still stands short
+    of `gap` outside it at most, read as `over_skin` reads it: 0 where it clears the skin by `gap` everywhere,
+    `gap` where it lies on the skin, more where the skin stands out through it. A part with no skin, or none
+    of the outfit's, is short of nothing."""
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    skin = np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)
+    if not skin.any() or skin.all():
+        return 0.0
+    start = np.asarray(start, float)
+    outside, face, _ = measure.beyond(v[np.unique(f[skin])], start, seams.unit(np.asarray(end, float) - start), v, f[~skin], facing=True)
+    return max(float((outside[face >= 0] + gap).max()) if (face >= 0).any() else 0.0, 0.0)
 
 
 def seated(part, point, normal, over, gap=split.SEAT_GAP, others=()):
@@ -295,7 +315,8 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     there held inside the target body's own part across the joint (`under_skin`). A part holding the source
     body's skin is carried without it (`bodyskin.unworn`). Nothing else about a part changes. `report` maps a
     part to its turn in degrees and its scales along and across; a shoulder pad's names the part it is carried
-    with (`with`) and holds that part's scales."""
+    with (`with`) and holds that part's scales. A part's faces the client would show a hole at are turned out
+    (`bake.faced_out`), and the report holds how many (`turnedOut`)."""
     names = list(parts) if names is None else list(names)
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
     out, report = {}, {}
@@ -317,13 +338,15 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                         point, normal = seams.plane(target[0], joint, letter)
                         shaped = under_skin(shaped, np.asarray(point, float), seams.unit(normal), target[1][over][:2])
                 n, v = renormal(n, f, v, shaped), shaped
+        from . import bake
+        part['f'], n, turned = bake.faced_out(name, v, f, n, target[0])  # before the other body's skin is laid beside it
         part['v'], part['n'] = v, n
         part, dropped = whole(part)
         out[name] = part
         turn = linear / np.cbrt(np.linalg.det(linear))
         u, _, vt = np.linalg.svd(turn)
         report[name] = {'degrees': round(float(np.degrees(np.arccos(np.clip((np.trace(u @ vt) - 1) / 2, -1.0, 1.0)))), 2), **scales,
-                        **({'dropped': dropped} if dropped else {})}
+                        **({'dropped': dropped} if dropped else {}), **({'turnedOut': turned} if turned else {})}
     return out, report
 
 
@@ -348,7 +371,10 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     with the body's skin gets the target body's own beside it, read with its textures from `body_textures`
     (`bake.skinned`). Where the parts kept in the folder `seat_in`, baked on the target, hold the part over
     a carried part's under end, and it is not carried too, that end's cap is seated in it (`seated`).
-    Returns `refit`'s report."""
+    Returns `refit`'s report, with, for a part beside the body's skin, how far it was pushed out over it
+    (`overSkin`) and how far it still stands short of `OVER_SKIN` outside it (`shortOfSkin`, 0 where it
+    clears it), and for any part the area of its faces the client would show a hole at (`seenThrough`,
+    `bake.facing`): more than a bake allows fails, after the parts are kept for a look."""
     from . import bake, measure
     require(Path(output).resolve() != Path(kept).resolve(), 'Refit parts are kept in another folder than the parts they came from')
     listed = bake.listing(kept)
@@ -377,5 +403,11 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
             if held is not parts[name]:
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
                 parts[name] = held
+            report[name]['shortOfSkin'] = round(short_of_skin(parts[name], *split.bone_line(goal[0], name)), 4)
     bake.store(parts, output, {key: value for key, value in listed.items() if key != 'parts'})
+    faced, failures = bake.facing(parts, goal[0])
+    for name, area in faced.items():
+        if area:
+            report[name]['seenThrough'] = area
+    require(not failures, f'The parts kept in {output} do not pass: ' + '; '.join(failures))
     return report

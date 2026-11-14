@@ -295,6 +295,62 @@ Notes SR_NWN needs:
 * A logo swap is applied to the wearing creature and reapplied whenever the item is equipped.
 * New chest rows carry no armor value.
 
+## Revision 2026-11-14: the Human pair, what a bake mends and checks, and decisions not yet written down
+
+User decisions from the Facility Security work of 2026-11-13 and 2026-11-14 that still stand and were not in
+this plan:
+
+- Parts are meant to clip into each other (2026-11-13). An end drawn in toward its part's axis and closed is
+  enough in most cases; the domes of the revision above came out of this, and replaced the rounded sockets
+  asked for at both sides of a joint the same evening.
+- The Human female's Facility Security is her own generated chest and the male's other parts carried to her
+  (`refit`, `combine`): his sleeves, because her own shirt had no cloth inside the upper arm, and his pelvis
+  and thighs, by the user's word of 2026-11-14, instead of her own generation's hips. Her own bake is made
+  from a brief of two materials (her generation's knee and shin plates came out pale), and only its chest is
+  used.
+- A client check needs no comparison crops (2026-11-14): the six-pose sheet and its single shots are the
+  evidence, and `poses` makes no crops.
+
+Stop rule for the Human female (user decision 2026-11-14, passed on by the session that plans the outfit
+work): she is done when every bake gate passes and the six-pose client sheet shows no holes, no skin where
+cloth belongs and nothing see-through. A defect of shade or colour gets one diagnosis and one fix round with
+a client check, and is then recorded and accepted. Textures stay at 1024 texels a side (same decision).
+
+What changed in the kit on 2026-11-14 (`tools/armorkit/README.md`, Invariants):
+
+- The slit along the right sleeve's inner seam was a real gap, not faces turned in. The trough's planes cut a
+  slab off the sleeve's inner side, the slab went to the chest, and the sleeve's end at the shoulder was grown
+  from a rim that no longer came round the joint. A slab the trough cuts off a sleeve past the armpit is
+  now the arm's (`split.slabbed`); before the armpit a piece cut off is the torso's, as her vest's shoulders
+  are.
+- A new gate, `facing`, on every bake, `bake --kept`, split and refit: no part may hold faces the client
+  would show a hole at (turned in, bare behind, nothing close under them). A bake and a refit turn such faces
+  out first. Turning a part's faces one way by a flood fill over shared edges was looked at and not done: the
+  split winds a closing against the lining it closes, on purpose.
+- A bake drops crumbs of debris from the generated outfit (10 cm² together at most) and records them, instead
+  of failing on them after the bake: the debris gate still fails on more.
+- A refit reads a sleeve once more after pushing it out over the other body's arm, fails where the skin still
+  stands through it, and reports what is left in `refit.json`.
+- A part's middle counts each place its vertices stand at once: the copies a texture layout makes of
+  vertices moved it between the mend and the gate.
+- Relief shading is evened with the texels beside each texel. The vest's flecked hem and collar were the
+  kit's shading, not the generation's colours, which are clean there.
+
+Accepted as they are on the Human pair (user decisions 2026-11-14):
+
+- With an arm lifted the female's armpit shows a panel, pale and streaked dark. It is the chest's own closing
+  round the arm, which the split makes and the bake shades as the cloth it lies under, vest on one face and
+  shirt on the next. The one fix round went to the sleeve's cap instead, changed nothing to see and was taken
+  out again. The user accepted the panel as it is. Drawing that closing as the sleeves' closings are, in one
+  shade of the shirt's cloth, was written and not tried in the client: it is not in the kit. A new generation
+  would not change the panel.
+- With an arm lifted the male shows two thin lighter slivers where the right sleeve meets the chest at the
+  armpit. They are the cloth's colour and nothing shows through them.
+
+By the stop rule above the Human female is done: her gates pass, and her six-pose sheet shows no holes, no
+skin where cloth belongs and nothing see-through.
+
+
 ## Open decisions
 
 None. The eight raised with the draft were settled on 2026-11-09 and are decisions 11–18 above.
