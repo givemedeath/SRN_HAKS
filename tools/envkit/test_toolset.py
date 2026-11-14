@@ -37,6 +37,10 @@ class ToolsetTests(unittest.TestCase):
         one = toolset.documents(('udp1',)); self.assertEqual(one['module.ifo']['Mod_Entry_Area']['value'], 'ektud_a'); self.assertNotIn('ektdg_a.are', one)
         with self.assertRaisesRegex(ValueError, 'A check area is laid in'):
             toolset.documents(('ttr01',))
+        wide = toolset.documents(('dgt04',), size=12)['ektdg_a.are']  # room round an 8 by 8 group for the start point
+        self.assertEqual((wide['Width']['value'], wide['Height']['value'], len(wide['Tile_List']['value'])), (12, 12, 144))
+        with self.assertRaisesRegex(ValueError, '2 to 32 tiles'):
+            toolset.documents(size=33)
 
     def test_a_saved_module_is_read_for_the_group_tiles_laid_and_the_doors_made(self):
         tiles = [(0, 0)] * 16; tiles[5], tiles[6], tiles[9] = (201, 1), (202, 1), (7, 2)  # the Toolset repaints the tiles round a group

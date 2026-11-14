@@ -338,7 +338,7 @@ def command_check(args):
 def command_toolset(args):
     from . import toolset
     if args.action == 'prepare':
-        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or tuple(toolset.AREAS), game=args.game)
+        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or tuple(toolset.AREAS), game=args.game, size=args.size)
     elif args.action == 'saved':
         made = toolset.saved(Path(args.user) / 'modules' / f'{toolset.MODULE}.mod', args.repo)
     else:
@@ -439,7 +439,9 @@ def main(argv=None):
     sub = commands.add_parser('toolset', help='prepare a Toolset check of tile groups, read what it saved, retire it')
     sub.add_argument('action', choices=['prepare', 'saved', 'retire']); sub.add_argument('--user', required=True, help='the Toolset user folder (fresh for prepare)')
     sub.add_argument('--repo', default='.'); sub.add_argument('--game', help='prepare: the game install folder, to say how the Toolset is started')
-    sub.add_argument('--tileset', action='append', default=[], choices=['dgt04', 'udp1']); sub.set_defaults(run=command_toolset)
+    sub.add_argument('--tileset', action='append', default=[], choices=['dgt04', 'udp1'])
+    sub.add_argument('--size', type=int, default=8, help='prepare: tiles along each side of an area; wider than the group, for the start point')
+    sub.set_defaults(run=command_toolset)
     sub = commands.add_parser('props', help='the props of every onboarded sheet by type; refuses undeclared duplicates')
     sub.add_argument('--sets', default=str(Path(__file__).with_name('sets'))); sub.set_defaults(run=command_props)
     parsers = {}
