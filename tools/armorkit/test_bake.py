@@ -293,6 +293,9 @@ class BakeTests(unittest.TestCase):
         report, failures = gate({'bicepl': closed(0.05, 0.3, 0.06, near=None, far=None), 'forel': cuff})
         self.assertEqual(len(failures), 1)
         self.assertTrue(failures[0].startswith('bicepl at the elbow: open on its plane, 37.'), failures)
+        # closed by a flat lid on the plane: closed, but not domed
+        self.assertEqual(gate({'bicepl': closed(0.05, 0.3, 0.06, near=None, far='flat'), 'forel': cuff})[1],
+                         ['bicepl at the elbow: not domed, what closes it stands no farther past the plane than its rim'])
         # a dome deeper past its rim than the contract lets it stand
         deep = closed(0.05, 0.3, 0.06, near=None, far='dome', shape={'depth': 1.0, 'most': 0.05})
         self.assertEqual(gate({'bicepl': deep, 'forel': cuff})[1], ["bicepl at the elbow: its dome stands 5.0 cm past its rim, over the contract's 2.0 cm"])

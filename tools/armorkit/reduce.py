@@ -10,7 +10,8 @@ not taken; nor is one that moves the surface more than `SHIFT` from where the lo
 
 A part's rim, where its surface ends, may lose points too when `lines` is given, and so may a line of points
 on a cut inside the surface (where a cap meets the part on a joint's plane): a point is folded into one of the
-two beside it on its rim or its line, where that runs within `RIM_SHIFT` of straight past it, and only into a
+two beside it on its rim or its line, where the edge left runs within `RIM_SHIFT` of it and of every point that
+edge has lost before, and only into a
 neighbour that lies on every cut it lay on, as the point beyond does. A rim or an end on a joint's plane then
 stays on the plane, and a corner where it turns from one cut onto another stays. A part cut from a dense mesh,
 its closings and caps built on it, was otherwise left with every point of its rims and ends (Facility
@@ -85,11 +86,19 @@ def reduce(vertices, faces, target, locked=None, lines=None):
                     uses[other] = uses.get(other, 0) + 1
         return [other for other, number in uses.items() if number == 1]
 
+    run_of = {}  # a rim's or line's edge -> the points it lost there, folded into it one by one
+
+    def edge(a, b):
+        return (a, b) if a < b else (b, a)
+
     def straight(source, sink):
-        """Whether its rim or its line may lose `source` into `sink`: they are beside each other on it, what is
-        left runs within `RIM_SHIFT` of the point, and both ends of that lie on every cut the point lay on."""
+        """Where its rim or its line may lose `source` into `sink`: None if it may not, else the edge left there
+        (sink, beyond), or () where it lies on its cuts all round. They are beside each other on it, what is left
+        runs within `RIM_SHIFT` of the point and of every point the two edges lost before, and both ends of that
+        lie on every cut the point lay on. Bounding the last point alone let a run of folds sag the edge past
+        `RIM_SHIFT` (CI, 2026-11-14)."""
         if lines[source] & ~lines[sink]:
-            return False
+            return None
         if rim[source]:
             beside = along_rim(source)
         else:  # along its line: the edges where the surface leaves the cuts it lies on (a lid's rim, where a cap meets the part)
@@ -97,15 +106,17 @@ def reduce(vertices, faces, target, locked=None, lines=None):
             beside = [other for other in neighbours(source) if lines[other] & lines[source] == lines[source]
                       and any(off(index) for index in around[source] if other in corners[index])]
             if not beside:
-                return True  # all round it lies on its cuts (a lid on a joint's plane): it stays on them wherever it goes
+                return ()  # all round it lies on its cuts (a lid on a joint's plane): it stays on them wherever it goes
         if len(beside) != 2 or sink not in beside:
-            return False
+            return None
         beyond = beside[0] if beside[1] == sink else beside[1]
         if lines[source] & ~(lines[sink] & lines[beyond]):
-            return False
+            return None
+        lost = points[[source, *run_of.get(edge(sink, source), ()), *run_of.get(edge(source, beyond), ())]]
         run = points[beyond] - points[sink]
-        share = min(max(float((points[source] - points[sink]) @ run) / max(float(run @ run), 1e-24), 0.0), 1.0)
-        return float(np.linalg.norm(points[sink] + share * run - points[source])) <= RIM_SHIFT
+        share = np.clip((lost - points[sink]) @ run / max(float(run @ run), 1e-24), 0.0, 1.0)
+        far = np.linalg.norm(points[sink] + share[:, None] * run - lost, axis=1).max()
+        return (sink, beyond) if float(far) <= RIM_SHIFT else None
 
     def offer(source, sink):
         if stays[source] or gone[source] or gone[sink]:
@@ -123,7 +134,8 @@ def reduce(vertices, faces, target, locked=None, lines=None):
             continue
         shared = [index for index in around[source] if sink in corners[index]]
         on_line = rim[source] or (lines is not None and lines[source] != 0)
-        if len(shared) != (1 if rim[source] else 2) or (on_line and not straight(source, sink)):
+        left_edge = straight(source, sink) if on_line else ()
+        if len(shared) != (1 if rim[source] else 2) or left_edge is None:
             continue  # a point of a rim or a cut goes only along it
         opposite = {vertex for index in shared for vertex in corners[index]} - {source, sink}
         if neighbours(source) & neighbours(sink) != opposite:
@@ -148,6 +160,10 @@ def reduce(vertices, faces, target, locked=None, lines=None):
         for index in moved:
             corners[index] = [sink if vertex == source else vertex for vertex in corners[index]]
             around[sink].add(index)
+        if left_edge:
+            _, beyond = left_edge
+            run_of[edge(sink, beyond)] = [*run_of.pop(edge(sink, beyond), ()), source,
+                                          *run_of.pop(edge(sink, source), ()), *run_of.pop(edge(source, beyond), ())]
         around[source] = set()
         gone[source] = True
         quadric[sink] += quadric[source]

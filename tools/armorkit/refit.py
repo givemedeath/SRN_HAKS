@@ -128,7 +128,11 @@ def placement(token, source, target, contract=None, names=None):
     """(linear map, offset, report) carrying part `token` from body `source` to body `target`, each a (rig,
     parts by token) pair as `measure.body` gives them, as `map @ p + offset`. `contract` and `names`, the two
     bodies' names, give the scale across a part with two or more joints; without them it is the scale along
-    (module notes)."""
+    (module notes). A shoulder pad meets no joint: it rides its upper arm's bone, and is carried as that is."""
+    if token in registry.SLOTS['shoulder']['tokens']:
+        carrier = split.token('bicep', token[-1])
+        linear, offset, report = placement(carrier, source, target, contract, names)
+        return linear, offset, {**report, 'with': carrier}
     met = joints_of(token)
     require(met, f'{token} meets no joint')
     if len(met) > 1:
@@ -290,7 +294,8 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     faces, `pad`, are no part of a ring), skin-tight at the joints `bare` names (`ends.ends_of`) with the cap
     there held inside the target body's own part across the joint (`under_skin`). A part holding the source
     body's skin is carried without it (`bodyskin.unworn`). Nothing else about a part changes. `report` maps a
-    part to its turn in degrees and its scales along and across."""
+    part to its turn in degrees and its scales along and across; a shoulder pad's names the part it is carried
+    with (`with`) and holds that part's scales."""
     names = list(parts) if names is None else list(names)
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
     out, report = {}, {}

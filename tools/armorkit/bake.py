@@ -334,10 +334,12 @@ def hidden(parts, bones, body, contract=None, skin=None, left=()):
         along = (v - point) @ normal
         here = part['nearest'] == part['joints'].index(key)
         closing, own = _used(v, f, part['added'] & ~part['pad']), _used(v, f, ~part['added'] & ~part['skin'])
-        dome, rim = closing & here & (along > ON_PLANE), closing & own & here & (along > -ON_PLANE)
-        if not (dome.any() and rim.any()):
-            continue
-        rise, past = float(along[dome].max() - along[rim].mean()), float(along[dome].max() - along[rim].max())
+        shut = closing & here
+        rim = shut & own & (along > -ON_PLANE)
+        if not rim.any():
+            continue  # nothing the split added closes the part here: no end to dome
+        top = float(along[shut].max())  # a flat lid's lies on the plane, and fails as not domed
+        rise, past = top - float(along[rim].mean()), top - float(along[rim].max())
         row(key).update(rise=round(rise, 4), past=round(past, 4))
         if rise <= ON_PLANE:
             failures.append(f'{over} at the {key[0]}: not domed, what closes it stands no farther past the plane than its rim')

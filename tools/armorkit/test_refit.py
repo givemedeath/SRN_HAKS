@@ -59,6 +59,13 @@ class PlacementTests(unittest.TestCase):
         self.assertTrue(np.allclose(forearm['v'] @ linear.T + offset, 0.9 * forearm['v'] @ self.rotation.T + self.offset))
         self.assertEqual(scales, {'along': 0.9, 'across': [0.9, 0.9]})
 
+    def test_a_shoulder_pad_is_carried_as_its_upper_arm_is(self):
+        target = (moved(rig(), self.rotation, 0.9, self.offset), {'handl': hand(0.9)})
+        linear, offset, scales = refit.placement('shol', self.source, target)
+        arm_linear, arm_offset, arm_scales = refit.placement('bicepl', self.source, target)
+        self.assertTrue(np.allclose(linear, arm_linear) and np.allclose(offset, arm_offset))
+        self.assertEqual(scales, {**arm_scales, 'with': 'bicepl'})
+
     def test_a_body_narrower_than_its_length_says_scales_the_part_across_its_axis_apart(self):
         target = (moved(rig(), np.eye(3), 0.9, np.zeros(3)), {'handl': hand(0.9)})
         linear, offset, scales = refit.placement('forel', self.source, target, two_bodies(0.04, 0.028), ('a', 'b'))

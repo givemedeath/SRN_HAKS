@@ -89,17 +89,24 @@ class ReduceTests(unittest.TestCase):
 
     def test_a_rim_loses_points_where_it_runs_straight_and_stays_on_its_cut(self):
         # an open tube cut from a dense mesh: each rim 48 points round, 6 cm across, on its own plane
-        v, f, _ = tube((0, 0, 0), (0, 0, 0.4), 0.06, around=48, along=40)
-        lines = np.where(v[:, 2] < 1e-9, 1, 0) | np.where(v[:, 2] > 0.4 - 1e-9, 2, 0)
-        kept, faces, _ = reduce.reduce(v, f, 60, None, lines)  # fewer than its two rims have points
-        self.assertLess(len(faces), 2 * 48)
-        points, loose = v[kept], open_edges(faces)
-        ends = points[loose]
-        self.assertTrue(np.all((np.abs(ends[:, :, 2]).max(axis=1) < 1e-9) | (np.abs(ends[:, :, 2] - 0.4).max(axis=1) < 1e-9)))  # on its plane
-        self.assertLess(len(loose), 2 * 48)  # fewer points round
-        self.assertGreater(len(loose), 2 * 12)
-        middle = ends.mean(axis=1)  # each rim edge's middle lies as near the round as `RIM_SHIFT` allows
-        self.assertLess(float((0.06 - np.linalg.norm(middle[:, :2], axis=1)).max()), reduce.RIM_SHIFT + 1e-9)
+        tube_v, tube_f, _ = tube((0, 0, 0), (0, 0, 0.4), 0.06, around=48, along=40)
+        for seed in range(2):  # numbered anew (seed 1), the folds come in the order that sagged a rim 2.04 mm on Linux (2026-11-14)
+            order = np.random.default_rng(seed).permutation(len(tube_v)) if seed else np.arange(len(tube_v))
+            v, f = tube_v[order], np.argsort(order)[tube_f]
+            lines = np.where(v[:, 2] < 1e-9, 1, 0) | np.where(v[:, 2] > 0.4 - 1e-9, 2, 0)
+            kept, faces, _ = reduce.reduce(v, f, 60, None, lines)  # fewer than its two rims have points
+            self.assertLess(len(faces), 2 * 48)
+            points, loose = v[kept], open_edges(faces)
+            ends = points[loose]
+            self.assertTrue(np.all((np.abs(ends[:, :, 2]).max(axis=1) < 1e-9) | (np.abs(ends[:, :, 2] - 0.4).max(axis=1) < 1e-9)))  # on its plane
+            self.assertLess(len(loose), 2 * 48)  # fewer points round
+            self.assertGreater(len(loose), 2 * 12)
+            for height in (0.0, 0.4):  # every point the rim had lies within `RIM_SHIFT` of the rim left
+                was = v[lines == (1 if height == 0 else 2)]
+                a, b = (ends[np.abs(ends[:, 0, 2] - height) < 1e-9][:, k] for k in range(2))
+                share = np.clip(np.einsum('pej,ej->pe', was[:, None] - a, b - a) / np.einsum('ej,ej->e', b - a, b - a), 0, 1)
+                near = np.linalg.norm(a + share[..., None] * (b - a) - was[:, None], axis=2).min(axis=1)
+                self.assertLess(float(near.max()), reduce.RIM_SHIFT + 1e-9, seed)
 
     def test_a_line_on_a_plane_inside_the_surface_is_reduced_along_itself(self):
         # a closed part whose end meets its cap on a joint's plane (z = 0.2), 48 points round: that line loses
