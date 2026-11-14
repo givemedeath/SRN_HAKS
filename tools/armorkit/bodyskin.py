@@ -237,8 +237,7 @@ def turned_out(part, start, end):
     axis = seams.unit(np.asarray(end, float) - start)
     points = np.concatenate([v[np.unique(f[skin])], v[f[skin]].mean(axis=1)])
     cover = np.flatnonzero(~skin)
-    shown = measure.beyond(points, start, axis, v, f[cover], facing=True)[0]
-    face = measure.beyond(points, start, axis, v, f[cover])[1]
+    shown, _, face = measure.beyond(points, start, axis, v, f[cover], facing=True)
     turn = np.unique(cover[face[np.isnan(shown) & (face >= 0)]])
     if not len(turn):
         return part

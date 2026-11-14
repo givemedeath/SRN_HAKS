@@ -87,6 +87,13 @@ def token(slot, side):
     return tokens[0] if len(tokens) == 1 else tokens['lr'.index(side)]
 
 
+def bone_line(bones, name):
+    """(start, end), as points, of the bone part `name` lies along: its slot's `BONE_ENDS` on the part's side,
+    read from the rig `bones`."""
+    slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
+    return tuple(np.asarray(bones[bone.format(name[-1])], float)[:3, 3] for bone in BONE_ENDS[slot])
+
+
 def planes(joints):
     """{(joint, side): (point, normal)} for the joints given as {bone name: position}.
 

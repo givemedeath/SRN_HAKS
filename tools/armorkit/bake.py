@@ -414,15 +414,14 @@ def through(parts, bones):
         cloth = f[~kept]
         if not len(cloth) or not kept.any():
             continue
-        slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
-        start, end = (np.asarray(bones[bone.format(name[-1])], float)[:3, 3] for bone in split.BONE_ENDS[slot])
+        start, end = split.bone_line(bones, name)
         skin, axis = v[np.unique(f[kept])], seams.unit(end - start)
-        outside = measure.beyond(skin, start, axis, v, cloth, facing=True)[0]
+        outside, _, crossed = measure.beyond(skin, start, axis, v, cloth, facing=True)
         most = max(float(np.nanmax(outside)) if np.isfinite(outside).any() else 0.0, 0.0)
         report[name] = round(most, 4)
         if most > THROUGH:
             failures.append(f'{name}: the body\'s own skin beside it stands up to {most * 100:.1f} cm out through the outfit over it')
-        hidden = int((np.isnan(outside) & np.isfinite(measure.beyond(skin, start, axis, v, cloth)[0])).sum())
+        hidden = int((np.isnan(outside) & (crossed >= 0)).sum())
         if hidden:
             failures.append(f'{name}: {hidden} points of the body\'s own skin beside it are covered only by faces turned in, which the client does not draw')
     return report, failures
@@ -662,7 +661,7 @@ def bare_joints(given):
 def skin_beside(own, bones, slot, name, vertices, faces):
     """How many faces of the body's own part `name` (`own`, `bodyskin.body_part`) `bodyskin.worn` keeps beside
     an outfit's part (`vertices`, `faces`) in a slot the brief shares with the body's skin."""
-    start, end = (np.asarray(bones[end.format(name[-1])], float)[:3, 3] for end in split.BONE_ENDS[slot])
+    start, end = split.bone_line(bones, name)
     return int(bodyskin.shown(own['v'], own['f'], vertices, faces, start, end).sum())
 
 
@@ -861,7 +860,7 @@ def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *
         for name in registry.SLOTS[slot]['tokens']:
             if name in parts:
                 own = own_part(name) if own_part else bodyskin.body_part(body_pack, body_textures, body, name, bones)
-                start, end = (np.asarray(bones[end.format(name[-1])], float)[:3, 3] for end in split.BONE_ENDS[slot])
+                start, end = split.bone_line(bones, name)
                 parts[name] = bodyskin.worn(parts[name], own, start, end, BUDGET['texture'])
                 say(f'{name}: {int(parts[name]["skin"].sum())} of the body\'s {len(own["f"])} faces beside the outfit\'s, {len(parts[name]["rgb"])} px')
     return parts
@@ -1060,6 +1059,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     require(capture is None or mesh is not None, 'Split inputs are kept from a fresh bake: parts tinted again are split already')
     require(all(given is not None for given in fresh) or (kept is not None and all(given is None for given in fresh)),
             'Bake an outfit from its mesh, colour field, raw mesh and the layout library, or tint the parts kept in a folder again')
+    own = None
     if mesh is not None:
         parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture)
         if kept is not None:
@@ -1069,10 +1069,10 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
         require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')}
                 and not left_to_body(document) & set(parts) and {name for name, part in parts.items() if 'skin' in part} == shared_with_body(document) & set(parts),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
-        bones = measure.body(body_pack, body)[0]
+        bones, own = measure.body(body_pack, body)
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)
-    own = measure.body(body_pack, body)[1]
+    own = measure.body(body_pack, body)[1] if own is None else own
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
               'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, bones))}

@@ -193,7 +193,8 @@ def beyond(points, start, axis, vertices, faces, chunk=WINDING_CHUNK, facing=Fal
     what is seen from outside: a fold or a wall of cloth turned in under it lies inside the arm unseen, and
     read first it pushed a sleeve out 14 cm. With `facing`, only faces wound to face out along the ray count:
     the client draws no face from behind, and the Human female's arm showed through a sleeve whose cloth over
-    it was all turned in (2026-11-13)."""
+    it was all turned in (2026-11-13). The result then holds a third array, the face crossed last of all,
+    whichever way it faces (-1 where none is), read on the same rays."""
     corners = np.asarray(vertices, float)[np.asarray(faces, int)]
     points, start, axis = np.asarray(points, float), np.asarray(start, float), np.asarray(axis, float)
     foot = start + ((points - start) @ axis)[:, None] * axis
@@ -201,7 +202,7 @@ def beyond(points, start, axis, vertices, faces, chunk=WINDING_CHUNK, facing=Fal
     reach = np.linalg.norm(radial, axis=1)
     ways = radial / np.maximum(reach, 1e-12)[:, None]
     first, second = corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]
-    outside, face = np.full(len(points), np.nan), np.full(len(points), -1)
+    outside, face, any_face = np.full(len(points), np.nan), np.full(len(points), -1), np.full(len(points), -1)
     for at in range(0, len(points), chunk):
         way, origin = ways[at:at + chunk], foot[at:at + chunk]
         across = np.cross(way[:, None], second[None])
@@ -213,14 +214,19 @@ def beyond(points, start, axis, vertices, faces, chunk=WINDING_CHUNK, facing=Fal
         turned = np.cross(offset, first[None])
         w = np.einsum('pi,pfi->pf', way, turned) * inverse
         far = np.einsum('fi,pfi->pf', second, turned) * inverse
-        shown = (det < 0) if facing else True  # the face's own normal, first x second, along the ray
-        far = np.where(met & shown & (u >= 0) & (w >= 0) & (u + w <= 1) & (far > 0), far, -np.inf)
+        crossed = met & (u >= 0) & (w >= 0) & (u + w <= 1) & (far > 0)
+        if facing:
+            every = np.where(crossed, far, -np.inf)
+            last = every.argmax(axis=1)
+            any_face[at:at + len(far)] = np.where(np.isfinite(every[np.arange(len(far)), last]), last, -1)
+            crossed &= det < 0  # the face's own normal, first x second, along the ray
+        far = np.where(crossed, far, -np.inf)
         last = far.argmax(axis=1)
         hit = np.isfinite(far[np.arange(len(far)), last])
         rows = np.arange(at, at + len(far))[hit]
         outside[rows] = reach[rows] - far[hit, last[hit]]
         face[rows] = last[hit]
-    return outside, face
+    return (outside, face, any_face) if facing else (outside, face)
 
 
 def joints(bones, parts):
