@@ -52,6 +52,24 @@ class PlaceableTests(unittest.TestCase):
         self.assertNotIn('\n', text.replace('\r\n', '')); self.assertTrue(text.endswith('\r\n'))
 
 
+    def test_a_light_fills_the_rows_light_columns_and_a_row_already_there_takes_a_new_light(self):
+        light = {'colour': 3, 'at': [0, 0.5, 4.2]}
+        text, made = placeables.register(TABLE, [{'model': 'ek_a', 'label': 'Yard, Lamp', 'sound': 28, 'light': light}])
+        self.assertEqual(placeables.TOKEN.findall(text.rstrip('\n').split('\n')[-1])[4:8], ['3', '0.0000', '0.5000', '4.2000'])
+        again = placeables.lights(text, {'ek_a': None, 'old_thing': {'colour': 6, 'at': [1, 2, 3]}})
+        before, last = again.rstrip('\n').split('\n')[-2:]
+        self.assertEqual(placeables.TOKEN.findall(last)[4:8], ['****'] * 4)
+        self.assertEqual(placeables.TOKEN.findall(before)[4:8], ['6', '1.0000', '2.0000', '3.0000'])
+        self.assertEqual(again.split('\n')[:4], text.split('\n')[:4])  # rows not named are left as they were
+        self.assertEqual(placeables.lights(text, {'ek_a': light}), text)
+        self.assertTrue(placeables.lights(text.replace('\n', '\r\n'), {'ek_a': None}).endswith('\r\n'))
+        with self.assertRaisesRegex(ValueError, 'no row to light: ek_z'):
+            placeables.lights(text, {'ek_z': light})
+        for bad in ({'colour': 3}, {'colour': '3', 'at': [0, 0, 1]}, {'colour': 300, 'at': [0, 0, 1]}, {'colour': 3, 'at': [0, 1]}):
+            with self.assertRaisesRegex(ValueError, 'A light is'):
+                placeables.light_values(bad)
+
+
 class CommandTests(unittest.TestCase):
     def test_the_command_ships_a_models_files_and_enters_it_and_its_lights_in_the_catalog(self):
         with tempfile.TemporaryDirectory() as scratch:

@@ -35,6 +35,7 @@
   "tools/envkit/test_study.py": 0.15,
   "tools/envkit/test_tile.py": 0.35,
   "tools/envkit/test_toolset.py": 0.03,
+  "tools/envkit/test_track.py": 21.45,
   "tools/envkit/test_view.py": 1.78,
   "tools/headbatch/test_fitassembly.py": 0.008,
   "tools/headbatch/test_headbatch.py": 16.812,

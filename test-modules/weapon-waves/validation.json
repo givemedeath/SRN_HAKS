@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 94,
-      "sha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
+      "resources": 104,
+      "sha256": "3f31a9c9a075fbf9f5598acbeb06eb02cf1453c443c645dd47e056692217ec32",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 30,
-    "NPCs": 60,
+    "pairs": 35,
+    "NPCs": 70,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -89,6 +89,16 @@
       ],
       "moduleSha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
       "note": "Vibro Blades Knife, Rapier, Combat Axe, Spear reviewer pairs were added (sw7_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
+    },
+    "extension5": {
+      "date": "2026-11-14",
+      "addedPairs": 5,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Approve all five"
+      ],
+      "moduleSha256": "3f31a9c9a075fbf9f5598acbeb06eb02cf1453c443c645dd47e056692217ec32",
+      "note": "Sai, Mace, Macauitl, Nodachi, Pole Arm reviewer pairs were added (sw8_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
     }
   }
 }

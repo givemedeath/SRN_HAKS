@@ -7,13 +7,14 @@ as two-channel ATI2 and the one-channel maps as ATI1.
 A generated model has no real size and faces glTF's way (Y up, front along +Z). `fit` turns it to the game's axes (Z up,
 front along +Y), scales it to a stated height in metres, centres it and stands it on the ground."""
 import json
+import re
 import struct
 import subprocess
 from pathlib import Path
 
 import numpy as np
 
-from . import require
+from . import placeables, require
 
 COMPONENT = {5120: 'i1', 5121: 'u1', 5122: '<i2', 5123: '<u2', 5125: '<u4', 5126: '<f4'}
 WIDTH = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}
@@ -21,6 +22,7 @@ TO_GAME = np.array([[-1.0, 0, 0], [0, 0, 1.0], [0, 1.0, 0]])  # a rotation: glTF
 NODE_VERTICES = 60000  # a compiled mesh node indexes its vertices with 16 bits
 NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character suffix
 TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row and column
+MAP_SUFFIXES = ('_n', '_s', '_r', '_i', '_o', '_h')  # a model's other pictures: relief, shine, roughness, glow, lights out, halo
 NON_WALK = 7
 RETOUCH = 2048  # pixels: the finest map of places a colour picture is retouched by
 SLAT_GROOVE, SLAT_SHADE = 0.15, 0.3  # of a slat's pitch, each side of the joint, that darkens towards it; how much darker the joint is
@@ -33,10 +35,16 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels', 'fill', 'built', 'move')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+FILL_NEAR, FILL_WELD, FILL_MOST = 0.1, 0.002, 64  # metres from a stated point to a hole's rim; how near two corners are one place; a hole's most corners
+STEP_RISE, RAIL_HEIGHT, POST_EVERY = 0.19, 0.95, 1.2  # metres: a built stair's most rise a step, its handrail's height over the nosings, posts at most this far apart
+STAIR_STEEPEST = 1.2  # a built stair flight's most rise over its run (about 50 degrees): steeper, it is a ladder
+TREAD, STRINGER, RAIL, POST = (0.04,), (0.05, 0.22), (0.045, 0.045), (0.045, 0.045)  # built stair members' sections, metres: tread thickness, stringer, rails, posts
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
-PLACING = ('lift', 'turn', 'signTilt')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned and tilted
-RETOUCHING = ('turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+PLACING = ('lift', 'turn', 'signTilt', 'length')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted and stretched
+RETOUCHING = ('turn', 'length', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels', 'fill', 'built', 'move')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a wheelset's backs stand 1.360 m apart on standard gauge (track.GAUGE)
+WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -103,13 +111,298 @@ def repair_normals(vertices, normals, faces):
     model cannot hold; those take the area-weighted normal of their own faces, or straight up where they have no area."""
     normals = np.array(normals, float); lengths = np.linalg.norm(normals, axis=1); bad = lengths < 1e-6
     if bad.any():
-        of_face = np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])
-        summed = np.zeros_like(normals)
-        for corner in range(3):
-            np.add.at(summed, faces[:, corner], of_face)
+        summed = _of_faces(vertices, faces)
         normals[bad] = summed[bad]; lengths = np.linalg.norm(normals, axis=1)
         normals[lengths < 1e-12] = (0.0, 0.0, 1.0); lengths = np.linalg.norm(normals, axis=1)
     return normals / lengths[:, None], int(bad.sum())
+
+
+def _of_faces(vertices, faces):
+    """Each vertex's area-weighted sum of its faces' normals, by their winding."""
+    of_face = np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])
+    summed = np.zeros((len(vertices), 3))
+    for corner in range(3):
+        np.add.at(summed, faces[:, corner], of_face)
+    return summed
+
+
+SIGHT_CELLS = 256  # pixels along a model's longest side when it is looked at from all round (`seen`)
+SIGHT_CELL = 0.01  # metres: the smallest pixel
+SIGHT_VIEWS = 64  # how many ways it is looked at
+BACK_TO_BACK = 0.005  # metres: a face this near another that faces the other way, over it, is half of a two-faced sheet
+
+
+def seen(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
+    """(front, back, whole): how many pixels of each face are the first thing seen of the model from outside, from its
+    front (the side its corners run counter-clockwise on) and from behind, and how many it would fill were nothing in front of it. It is looked at from `views` ways spread evenly over
+    the sky, down to a little below the horizon (the game never looks up from under the ground), each a picture of
+    `cells` pixels along its longest side. Each face is laid down as spots, four to a pixel on average and at least one,
+    so a sliver costs no more than its area; the spot nearest the eye wins its pixel."""
+    corner = np.asarray(vertices, float)[np.asarray(faces)]; size = max(float(np.ptp(corner.reshape(-1, 3), 0).max()) / cells, SIGHT_CELL)
+    of_face = np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]); twice = np.linalg.norm(of_face, axis=1)
+    unit = of_face / np.maximum(twice, 1e-12)[:, None]
+    owner = np.repeat(np.arange(len(corner)), np.maximum(np.random.default_rng(0).poisson(twice * 2 / size ** 2), 1))
+    a, b = np.random.default_rng(1).random((2, len(owner))); fold = a + b > 1; a[fold], b[fold] = 1 - a[fold], 1 - b[fold]
+    mine = corner[owner]; spots = mine[:, 0] + a[:, None] * (mine[:, 1] - mine[:, 0]) + b[:, None] * (mine[:, 2] - mine[:, 0])
+    golden = np.pi * (3 - np.sqrt(5)); rise = np.linspace(1, -0.15, views); round_ = np.sqrt(1 - rise ** 2); turn = golden * np.arange(views)
+    front, back, whole = np.zeros(len(corner)), np.zeros(len(corner)), np.zeros(len(corner))
+    for eye in np.stack([round_ * np.cos(turn), round_ * np.sin(turn), rise], 1):
+        right = np.cross(eye, [0.0, 0.0, 1.0]) if abs(eye[2]) < 0.99 else np.array([1.0, 0.0, 0.0]); right /= np.linalg.norm(right); up = np.cross(right, eye)
+        across, down = np.floor(spots @ right / size).astype(np.int64), np.floor(spots @ up / size).astype(np.int64)
+        pixel = (across - across.min()) * (down.max() - down.min() + 1) + (down - down.min())
+        order = np.lexsort((-(spots @ eye), pixel)); first = order[np.r_[True, pixel[order][1:] != pixel[order][:-1]]]
+        winner = owner[first]; toward = unit[winner] @ eye
+        np.add.at(front, winner[toward > 0.1], 1); np.add.at(back, winner[toward < -0.1], 1)
+        slant = np.abs(unit @ eye); whole += np.where(slant > 0.1, twice / 2 * slant / size ** 2, 0)
+    return front, back, whole
+
+
+def back_to_back(vertices, faces, which):
+    """Which of the faces picked by `which` (a mask) lie on another face of the model that faces the other way, within
+    `BACK_TO_BACK` of its plane, at the face's middle or at a point two thirds of the way from it to a corner: the back
+    half of a sheet made of two faces, each drawn on one side."""
+    corner = np.asarray(vertices, float)[np.asarray(faces)]
+    of_face = np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]); twice = np.linalg.norm(of_face, axis=1)
+    unit = of_face / np.maximum(twice, 1e-12)[:, None]; found = np.zeros(len(corner), bool)
+    first, along, across = corner[:, 0], corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]
+    d00, d01, d11 = (along * along).sum(1), (along * across).sum(1), (across * across).sum(1); denominator = d00 * d11 - d01 ** 2
+    low, high = corner.min(1) - BACK_TO_BACK, corner.max(1) + BACK_TO_BACK  # each face's box: only faces whose box holds a point can hold it
+    for index in np.flatnonzero(which):
+        middle = corner[index].mean(0); points = np.vstack([middle, middle + (corner[index] - middle) * 2 / 3])
+        reach = np.all((high >= points.min(0)) & (low <= points.max(0)), axis=1)
+        other = np.flatnonzero(reach & (unit @ unit[index] < -0.99) & (denominator > 1e-18))
+        offset = points[None] - first[other][:, None]  # (others, points, 3)
+        near = np.abs((offset * unit[other][:, None]).sum(2)) <= BACK_TO_BACK
+        d20, d21 = (offset * along[other][:, None]).sum(2), (offset * across[other][:, None]).sum(2)
+        v = (d11[other][:, None] * d20 - d01[other][:, None] * d21) / denominator[other][:, None]
+        w = (d00[other][:, None] * d21 - d01[other][:, None] * d20) / denominator[other][:, None]
+        found[index] = (near & (v >= -1e-6) & (w >= -1e-6) & (v + w <= 1 + 1e-6)).any()
+    return found
+
+
+def turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
+    """(faces, turned): a face seen from outside mostly from behind (`seen`: more than twice as much, at least three
+    pixels and a fifth of all it would show were nothing in front of it) turned round. The fifth keeps a face hidden
+    behind another from being judged by the few pixels where the spots of the face in front miss. The game draws a face only from the side its corners run counter-clockwise on, so such a face
+    is a hole onto whatever is behind it. From 2% to a quarter of the surface of each of the rail yard's and depot's 25
+    generated models was wound so (2026-11-13), on surfaces otherwise wound right and in folds of them. A face judged by
+    which side of it is open air instead turned the inner skins of thin double walls outward. A sheet seen from both
+    sides (a sign, a fence) and a face never seen (the inside of a wall) are left as they are, and so is the back half
+    of a sheet of two faces back to back (`back_to_back`), which ties with its front for every pixel: turned, it lay
+    over its front, two faces on one plane for the game to draw either of (a third to over half of what was turned
+    on each of the rail yard's models, 2026-11-13). Run before `turn_normals`, which then turns only the normals that point against a face wound right."""
+    front, back, whole = seen(vertices, faces, cells, views); wrong = (back > 2 * front) & (back >= 3) & (back >= whole / 5); faces = np.array(faces)
+    wrong &= ~back_to_back(vertices, faces, wrong)
+    faces[wrong] = faces[wrong][:, [0, 2, 1]]
+    return faces, int(wrong.sum())
+
+
+def turn_normals(vertices, normals, faces):
+    """(normals, turned): a shading normal that points against its faces' winding turned round. The game draws a face
+    by its winding and lights it by its normals, so such a face shades dark in daylight: about a sixth of the rail yard's
+    boxcar did, on both of its generations (2026-11-13)."""
+    normals = np.array(normals, float); against = (normals * _of_faces(vertices, faces)).sum(1) < 0
+    normals[against] *= -1
+    return normals, int(against.sum())
+
+
+def backed(vertices, normals, uvs, faces, parts=None):
+    """The model with a back for every face: each face again, wound the other way on copies of its corners whose normals
+    point the other way, at the same place on the picture. A box the generator drew from outside only, with openings in
+    it, showed through them what stood behind it: its far walls are not drawn from inside. The rail yard's dumpster
+    (through the gaps of its slatted lid, seen in the client, 2026-11-13) shows its own inside instead. With `parts`
+    ([{box}], metres on the finished model) only the faces whose middle lies in a box get backs: the rail yard's crane
+    had faces of its leg sills wound inward, so that from outside the client showed gaps there (user, 2026-11-13)."""
+    faces = np.asarray(faces)
+    if parts is not None:
+        middle = vertices[faces].mean(1); chosen = np.zeros(len(faces), bool)
+        for part in parts:
+            low, high = np.sort(np.asarray(part['box'], float), axis=0); held = np.all((middle >= low) & (middle <= high), axis=1)
+            require(bool(held.any()), f"A box given backs holds no face of the model ({part.get('part', 'backed part')})"); chosen |= held
+        used, local = np.unique(faces[chosen], return_inverse=True); local = local.reshape(-1, 3) + len(vertices)
+        return (np.vstack([vertices, vertices[used]]), np.vstack([normals, -np.asarray(normals)[used]]), np.vstack([uvs, uvs[used]]),
+                np.vstack([faces, local[:, [0, 2, 1]]]))
+    count = len(vertices)
+    return (np.vstack([vertices, vertices]), np.vstack([normals, -np.asarray(normals)]), np.vstack([uvs, uvs]),
+            np.vstack([faces, faces[:, [0, 2, 1]] + count]))
+
+
+def gauged(vertices, normals, wheels):
+    """The model with its trucks drawn in to the track: in each of `wheels`' spans along the car (x, metres on the
+    finished model) and below its `top`, everything is drawn in across (y) about the car's middle so that the backs of
+    its wheels, measured at `back` metres either side, stand WHEEL_BACK either side as a standard-gauge wheelset's do;
+    it eases back to the car as it was over WHEEL_BLEND past the spans' ends and above the top. A generator draws the
+    wheels under the car's sides: the rail yard's cars had their wheels 0.15 to 0.2 m outside the rails (user: "fix the
+    wheel spacing on the rolling stock", 2026-11-13)."""
+    x, z = vertices[:, 0], vertices[:, 2]; along = np.zeros(len(vertices))
+    for start, end in wheels['spans']:
+        along = np.maximum(along, np.clip(np.minimum(x - start, end - x) / WHEEL_BLEND + 1.0, 0.0, 1.0))
+    weight = along * np.clip((float(wheels['top']) + WHEEL_BLEND - z) / WHEEL_BLEND, 0.0, 1.0)
+    across = 1.0 - weight * (1.0 - WHEEL_BACK / float(wheels['back']))
+    vertices = np.array(vertices, float); vertices[:, 1] *= across
+    normals = np.array(normals, float); normals[:, 1] /= across  # a normal is drawn the other way to its surface
+    return vertices, normals / np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12)
+
+
+def picture_at(vertices, uvs, faces, at):
+    """The place on the picture (u, v) of the model's surface nearest `at`, metres on the finished model."""
+    corners = np.asarray(vertices, float)[np.asarray(faces)]; at = np.asarray(at, float)
+    a, b, c = corners[:, 0], corners[:, 1], corners[:, 2]; across = np.cross(b - a, c - a); size = np.maximum((across ** 2).sum(1), 1e-18)
+    flat = at - (((at - a) * across).sum(1) / size)[:, None] * across  # the point dropped on to each face's plane
+    sign = lambda p, q: ((np.cross(q - p, flat - p) * across).sum(1) >= -1e-12)
+    held = sign(a, b) & sign(b, c) & sign(c, a) & (size > 1e-12)  # faces the dropped point lies on, the nearest of them taken; else the nearest corner's face
+    away = np.where(held, np.abs(((at - a) * across).sum(1)) / np.sqrt(size), np.linalg.norm(corners - at, axis=2).min(1) + 1.0)
+    best = int(away.argmin()); a, b, c = corners[best]
+    across = np.cross(b - a, c - a); flat = at - (at - a) @ across / max(float(across @ across), 1e-18) * across
+    whole = max(float(np.linalg.norm(across)), 1e-12)
+    share = np.clip([np.linalg.norm(np.cross(c - b, flat - b)), np.linalg.norm(np.cross(a - c, flat - c)), np.linalg.norm(np.cross(b - a, flat - a))], 0, None) / whole
+    share = share / max(float(share.sum()), 1e-12)
+    return share @ np.asarray(uvs, float)[np.asarray(faces)[best]]
+
+
+def _bar(start, end, size):
+    """The 24 corners (each face its own four, for flat shading), normals and 12 faces of a square-cut bar between two
+    points, `size` [width, depth] across it: width level, depth upright, as a rail or stringer lies."""
+    start, end = np.asarray(start, float), np.asarray(end, float); along = end - start; length = float(np.linalg.norm(along)); along = along / length
+    level = np.cross(along, [0.0, 0.0, 1.0]); level = level / np.linalg.norm(level) if np.linalg.norm(level) > 1e-6 else np.array([1.0, 0.0, 0.0])
+    upright = np.cross(level, along); half = np.asarray(size, float) / 2
+    corner = lambda s, w, d: (start if s == 0 else end) + level * w * half[0] + upright * d * half[1]
+    sides = [((0, -1, -1), (1, -1, -1), (1, -1, 1), (0, -1, 1), -level), ((0, 1, 1), (1, 1, 1), (1, 1, -1), (0, 1, -1), level),
+             ((0, -1, 1), (1, -1, 1), (1, 1, 1), (0, 1, 1), upright), ((0, 1, -1), (1, 1, -1), (1, -1, -1), (0, -1, -1), -upright),
+             ((0, 1, -1), (0, -1, -1), (0, -1, 1), (0, 1, 1), -along), ((1, -1, -1), (1, 1, -1), (1, 1, 1), (1, -1, 1), along)]
+    points, normals, faces = [], [], []
+    for *four, outward in sides:
+        base = len(points); quad = [corner(*one) for one in four]
+        if float(np.cross(quad[1] - quad[0], quad[2] - quad[0]) @ outward) < 0:
+            quad = quad[::-1]
+        points += quad; normals += [outward] * 4; faces += [[base, base + 1, base + 2], [base, base + 2, base + 3]]
+    return np.asarray(points), np.asarray(normals, float), np.asarray(faces)
+
+
+def flight(foot, top, width, sides=('left', 'right')):
+    """The members of a straight steel stair flight from the middle of its lowest nosing `foot` to that of its highest
+    `top` (the landing's edge), `width` across: [(start, end, size, kind)], kind 'tread', 'stringer', 'rail' or 'post'.
+    The flight climbs in steps of at most STEP_RISE; the landing is its last step. Stringers run under the treads' ends
+    from the ground to the landing, and each side named has a handrail RAIL_HEIGHT over the nosings, a rail midway and
+    posts at its ends and at most POST_EVERY apart. Left and right are as one climbs."""
+    foot, top = np.asarray(foot, float), np.asarray(top, float); rise = top[2] - foot[2]; run = top[:2] - foot[:2]
+    steps = max(int(np.ceil(rise / STEP_RISE)), 1); ahead = np.append(run / np.linalg.norm(run), 0.0); left = np.array([-ahead[1], ahead[0], 0.0])
+    going = np.append(run / steps, 0.0); members = []
+    for step in range(steps):  # the tread whose nosing is at height (step + 1) * rise / steps, the last the landing's own edge
+        nosing = foot + going * step + [0, 0, rise / steps * step]
+        if step:
+            middle = nosing + going / 2 - [0, 0, TREAD[0] / 2]
+            members.append((middle - left * width / 2, middle + left * width / 2, (float(np.linalg.norm(going)) + 0.03, TREAD[0]), 'tread'))
+    slope = (top - foot) / np.linalg.norm(top - foot); low = foot - slope * (foot[2] / max(slope[2], 1e-6)) if foot[2] > 0 else foot
+    for side in (-1, 1):
+        edge = left * side * (width / 2 + STRINGER[0] / 2)
+        members.append((low + edge - [0, 0, STRINGER[1] / 2], top + edge - [0, 0, STRINGER[1] / 2], STRINGER, 'stringer'))
+    for name in sides:
+        side = left * (width / 2 + STRINGER[0] / 2) * (1 if name == 'left' else -1)
+        members += railing([foot + side, top + side], below=STRINGER[1] / 2)
+    return members
+
+
+def railing(path, height=RAIL_HEIGHT, below=0.0):
+    """The members of a railing along `path` (points on the surface walked, level or sloped): a rail `height` over it
+    and one midway, and posts from `below` under it to its top rail at every point of the path and at most POST_EVERY
+    apart between them: [(start, end, size, kind)]."""
+    path = [np.asarray(point, float) for point in path]; members = []
+    for index, (start, end) in enumerate(zip(path, path[1:])):
+        for over in (height, height / 2):
+            members.append((start + [0, 0, over], end + [0, 0, over], RAIL, 'rail'))
+        posts = max(int(np.ceil(np.linalg.norm(end - start) / POST_EVERY)), 1)
+        for k in range(posts + (1 if index == len(path) - 2 else 0)):  # the last segment has a post at its end too
+            at = start + (end - start) * k / posts
+            members.append((at - [0, 0, below], at + [0, 0, height + RAIL[1] / 2], POST, 'post'))
+    return members
+
+
+def with_built(vertices, normals, uvs, faces, parts):
+    """The model with straight members of its own made on to it: [{bar: [from, to], size}], [{railing: [points],
+    height}] (`railing`) or [{stairs: {foot, top, width, sides}, rails}] (`flight`), each member a square-cut box drawn wholly in the colour of the model's picture at
+    `picture` (and a flight's rails and posts at `rails`), a point on the model. A generator draws rails and stairs it
+    cannot hold straight as wavy strands, or leaves them off: the rail yard's stair tower's handrails and the stairs up
+    to its walkway (user, 2026-11-13). Returns (vertices, normals, uvs, faces)."""
+    vertices, normals, uvs, faces = (np.asarray(one) for one in (vertices, normals, uvs, faces))
+    for part in parts:
+        place = picture_at(vertices, uvs, faces, part['picture'])
+        rails = picture_at(vertices, uvs, faces, part['rails']) if 'stairs' in part and 'rails' in part else place
+        if 'bar' in part:
+            members = [(part['bar'][0], part['bar'][1], part['size'], 'bar')]
+        elif 'railing' in part:
+            members = railing(part['railing'], part.get('height', RAIL_HEIGHT))
+        else:
+            stairs = part['stairs']; members = flight(stairs['foot'], stairs['top'], stairs['width'], stairs.get('sides', ('left', 'right')))
+        for start, end, size, kind in members:
+            points, outward, local = _bar(start, end, size); count = len(vertices)
+            vertices = np.vstack([vertices, points]); normals = np.vstack([normals, outward])
+            uvs = np.vstack([uvs, np.tile(rails if kind in ('rail', 'post') else place, (len(points), 1))]); faces = np.vstack([faces, local + count])
+    return vertices, normals, uvs, faces
+
+
+def filled(vertices, normals, uvs, faces, parts):
+    """`faces` with each hole of `parts` ([{at: a point in metres on the finished model}]) filled: the ring of open
+    edges (each the edge of one face only, corners within FILL_WELD taken as one place) that passes nearest `at`,
+    within FILL_NEAR, is closed with faces between its own corners, cut ear by ear as the ring lies on its own best
+    plane. Each new face faces the way its corners' normals do, and is drawn with the picture of the faces round the
+    hole. For a hole of more corners than `close` is worth stating face by face: the gaps in the rail yard's crane
+    leg sills, 12 and 16 corners each, and a slit in its warehouse wall (user, 2026-11-13). A point near no rim, or
+    near a rim that does not close on itself, is refused. No vertex is added."""
+    from collections import defaultdict
+    faces = np.asarray(faces); vertices = np.asarray(vertices, float)
+    _, first, place = np.unique(np.round(vertices / FILL_WELD).astype(np.int64), axis=0, return_index=True, return_inverse=True)
+    place = place.ravel(); where = vertices[first]
+    for part in parts:
+        label = str(part.get('part', 'filled hole')); at = np.asarray(part['at'], float)
+        # The open edges, each the edge of one face only, counted by place: [place a, place b] and the face's own vertices
+        pairs = faces[:, [0, 1, 1, 2, 2, 0]].reshape(-1, 2); ends = place[pairs]
+        _, back, many = np.unique(np.sort(ends, axis=1), axis=0, return_inverse=True, return_counts=True)
+        alone = many[back.ravel()] == 1; rim, owner = defaultdict(list), {}
+        for (a, b), vertex_pair in zip(ends[alone].tolist(), pairs[alone].tolist()):
+            rim[a].append(b); rim[b].append(a); owner[(a, b)] = tuple(vertex_pair)
+
+        def distance(a, b):
+            ab = where[b] - where[a]; s = np.clip((at - where[a]) @ ab / max(float(ab @ ab), 1e-12), 0, 1)
+            return float(np.linalg.norm(where[a] + s * ab - at))
+        edges = [(a, b) for a in rim for b in rim[a] if a < b]
+        require(edges, f'The model has no open edge ({label})')
+        start = min(edges, key=lambda edge: distance(*edge))
+        require(distance(*start) <= FILL_NEAR, f"No hole's rim passes within {FILL_NEAR} metres of {at.tolist()} ({label})")
+        ring = [start[0], start[1]]
+        while ring[-1] != ring[0] and len(ring) <= FILL_MOST + 1:
+            ahead = [other for other in rim[ring[-1]] if other != ring[-2]]
+            require(len(rim[ring[-1]]) == 2 and ahead, f'The rim nearest {at.tolist()} does not close on itself ({label})')
+            ring.append(ahead[0])
+        ring = ring[:-1]; require(3 <= len(ring) <= FILL_MOST, f'A filled hole has 3 to {FILL_MOST} corners ({label})')
+        drawn = {}  # each corner as the vertex the faces round the hole draw it with, so the fill takes their picture
+        for a, b in zip(ring, ring[1:] + ring[:1]):
+            pair = owner.get((a, b)) or owner.get((b, a))
+            for vertex in pair:
+                drawn.setdefault(int(place[vertex]), int(vertex))
+        points = where[ring]; middle = points.mean(0); _, _, axes = np.linalg.svd(points - middle)
+        flat = (points - middle) @ axes[:2].T
+        cross = lambda o, a, b: (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+        turn = 1.0 if sum(cross(np.zeros(2), flat[i], flat[(i + 1) % len(flat)]) for i in range(len(flat))) > 0 else -1.0
+        left = list(range(len(ring))); made = []
+        while len(left) > 3:
+            for k in range(len(left)):
+                i, j, n = left[k - 1], left[k], left[(k + 1) % len(left)]
+                if cross(flat[i], flat[j], flat[n]) * turn <= 1e-12:
+                    continue
+                inside = lambda q: all(cross(u, w, q) * turn > 0 for u, w in ((flat[i], flat[j]), (flat[j], flat[n]), (flat[n], flat[i])))
+                if any(inside(flat[m]) for m in left if m not in (i, j, n)):
+                    continue
+                made.append((i, j, n)); left.pop(k); break
+            else:
+                made.append(tuple(left[:3])); left.pop(1)  # a rim that folds over itself on its plane: cut on regardless
+        made.append(tuple(left))
+        for i, j, n in made:
+            a, b, c = drawn[ring[i]], drawn[ring[j]], drawn[ring[n]]
+            if float(np.cross(vertices[b] - vertices[a], vertices[c] - vertices[a]) @ (normals[a] + normals[b] + normals[c])) < 0:
+                b, c = c, b
+            faces = np.vstack([faces, np.asarray([[a, b, c]], faces.dtype)])
+    return faces
 
 
 def closed(vertices, normals, uvs, faces, parts):
@@ -142,17 +435,42 @@ def closed(vertices, normals, uvs, faces, parts):
     return faces
 
 
+def moved(vertices, normals, uvs, faces, parts):
+    """The model with each of `parts` ([{box, by}], metres on the finished model) moved: the faces wholly in the box are
+    carried `by` on copies of their corners, and the faces that tied them to the rest (some corners in the box, some
+    out) are taken away, as they would be drawn out across the gap. The rail yard's walkway came back with one leg
+    1.7 metres in from its corner (user, 2026-11-13: "one of the posts on the walkway is misplaced from the corner").
+    A box that holds no whole face is refused. Returns (vertices, normals, uvs, faces)."""
+    vertices, normals, uvs, faces = (np.asarray(one) for one in (vertices, normals, uvs, faces))
+    for part in parts:
+        low, high = np.sort(np.asarray(part['box'], float), axis=0); held = np.all((vertices >= low) & (vertices <= high), axis=1)[faces]
+        whole, torn = held.all(1), held.any(1) & ~held.all(1)
+        require(bool(whole.any()), f"A moved box holds no whole face of the model ({part.get('part', 'moved part')})")
+        used, local = np.unique(faces[whole], return_inverse=True); count = len(vertices)
+        vertices = np.vstack([vertices, vertices[used] + np.asarray(part['by'], float)]); normals = np.vstack([normals, normals[used]]); uvs = np.vstack([uvs, uvs[used]])
+        faces = np.vstack([faces[~whole & ~torn], local.reshape(-1, 3) + count])
+    used, local = np.unique(faces, return_inverse=True)
+    return vertices[used], normals[used], uvs[used], local.reshape(-1, 3)
+
+
 def cleared(vertices, normals, uvs, faces, parts):
     """The model without what the generator stood where a walk must pass: the faces whose middle lies in one of `parts`
     ([{box: two corners in metres on the finished model}]) taken away, and the vertices no face uses any more. The
     Saeder-Krupp yard's loading bay came back with a railed-off square on its floor, under a metre from the vehicle
     beside it: too narrow a way into the back of the bay (user, 2026-11-12: "going to need to be able to get through
-    this gap"). A box above the floor takes what stands on it and leaves the floor. A box that takes nothing is
+    this gap"). A box above the floor takes what stands on it and leaves the floor. A part may instead be a rod
+    ({from, to, radius}): the rail yard's stair tower had handrails drawn as wavy strands along its slanted flights
+    (user, 2026-11-13), which no upright box holds without the treads. A part that takes nothing is
     refused: it is a mistake in the set. Returns (vertices, normals, uvs, faces)."""
     faces = np.asarray(faces); middle = vertices[faces].mean(1); kept = np.ones(len(faces), bool)
     for part in parts:
-        low, high = np.sort(np.asarray(part['box'], float), axis=0)
-        inside = np.all((middle >= low) & (middle <= high), axis=1)
+        if 'box' in part:
+            low, high = np.sort(np.asarray(part['box'], float), axis=0)
+            inside = np.all((middle >= low) & (middle <= high), axis=1)
+        else:  # a rod {from, to, radius}: what lies within its radius of the line between its ends, as a slanted handrail does
+            start, end = (np.asarray(part[key], float) for key in ('from', 'to')); along = end - start
+            reach = np.clip((middle - start) @ along / float(along @ along), 0, 1)
+            inside = np.linalg.norm(middle - (start + reach[:, None] * along), axis=1) <= float(part['radius'])
         require(bool((inside & kept).any()), f"A cleared box takes no face of the model away ({part.get('part', 'cleared part')})")
         kept &= ~inside
     used, local = np.unique(faces[kept], return_inverse=True)
@@ -238,6 +556,18 @@ def stand(points, height):
     low, high = points.min(0), points.max(0)
     scale = height / (high[2] - low[2])
     return (points - np.array([(low[0] + high[0]) / 2, (low[1] + high[1]) / 2, low[2]])) * scale, scale
+
+
+def stretched(points, normals, length):
+    """(points, normals): the model, centred over the origin, drawn out or drawn in along the longer side of its footprint
+    to `length` metres, its height and width kept, its normals following (by the inverse of the stretch, then made
+    whole again). Generated shipping containers came out a third to a half short of their 20 and 40 feet at their
+    true height (rail freight yard, 2026-11-13), and scaling by height alone cannot mend a thing's proportions."""
+    span = np.ptp(points[:, :2], axis=0); axis = int(span.argmax())
+    require(length > 0 and span[axis] > 0, 'A length is a number of metres along a model that has one')
+    factor = np.ones(3); factor[axis] = length / span[axis]
+    normals = np.asarray(normals, float) / factor
+    return points * factor, normals / np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12)
 
 
 def two_sided(points, normals, uvs, faces, tilt, *, gap=0.02):
@@ -647,7 +977,14 @@ def load_models(path):
     turns it that many degrees counter-clockwise seen from above, where its front came back facing a side; boxes are
     on the model as turned. `tone`, `paint`, `smooth` and `mesh` retouch its colour picture (`retouch`); `fence` hangs
     chain-link sheets between its fence posts, with a picture of their own (`sheets`); `close` closes a hole in it
-    with a face between three of its own vertices (`closed`); `clear` takes away what stands in its boxes (`cleared`). `source` is the generated
+    with a face between three of its own vertices (`closed`); `fill` ([{at}]) closes the hole whose rim passes nearest
+    each point with faces between its own vertices (`filled`); `move` ([{box, by}]) carries what is wholly in a box
+    elsewhere, before anything is cleared (`moved`); `built` makes straight bars and stair flights on to it in
+    colours of its own picture (`with_built`); `clear` takes away (boxes, or rods along a slant) what stands in its boxes (`cleared`); `inside` (true)
+    gives every face a back, for a box with openings drawn from outside only, or ([{box}]) the faces in its boxes only (`backed`); `wheels` ({spans: [[start, end]
+    along x], top, back}, metres on the finished model) draws a railway car's trucks in to standard gauge, `back` being
+    where the backs of its wheels stand either side of its middle as generated (`gauged`); a car lifted by the track's
+    height (`track.HEIGHT`) stands on the rails. `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
@@ -659,19 +996,24 @@ def load_models(path):
     mean we have to generate it as one single mesh"): `parts` places other models of the set in it, each
     {model, at: [x, y, z], turn} in metres on this one and turned a quarter at a time, with a texture of its own (`part_textures`).
     `measuredAt` is how the model stood when its boxes, fences, door and fade height were measured: its height, or
-    {height, lift, turn, signTilt} with each of the three the model states. A model that states any measurement states
+    {height, lift, turn, signTilt, length} with each of the four the model states. `length` draws the model out (or in)
+    along the longer side of its footprint to that many metres, its height and width kept (`stretched`). A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
-    under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it)."""
+    under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it),
+    and a `light` {colour, at} that lights what stands round it, as a lamp post does (`placeables.light_values`).
+    `underfoot` (true) lays the model on the ground as railway track is laid (`track`): a group it is placed in is walked
+    flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
         require(number(model.get('turn', 0)) and -180 <= model.get('turn', 0) <= 180, 'A model is turned by -180 to 180 degrees: ' + name)
+        require('length' not in model or (number(model['length']) and 0 < model['length'] <= 100), 'A length is 0 to 100 metres along the model: ' + name)
         require(number(model.get('tone', 1)) and 0.2 <= model.get('tone', 1) <= 2, 'A tone is 0.2 to 2 times the colour: ' + name)
         shade = lambda value: isinstance(value, list) and len(value) == 3 and all(type(part) is int and 0 <= part <= 255 for part in value)
         for part in model.get('paint', []):
@@ -692,8 +1034,37 @@ def load_models(path):
             require(isinstance(part, dict) and {'corners'} <= set(part) <= {'part', 'corners'} and isinstance(part['corners'], list) and len(part['corners']) == 3
                     and all(isinstance(corner, list) and len(corner) == 3 and all(number(value) for value in corner) for corner in part['corners']),
                     'A closing face needs three corners, each a point in metres on the finished model: ' + name)
+        point = lambda value: isinstance(value, list) and len(value) == 3 and all(number(one) for one in value)
         for part in model.get('clear', []):
-            require(isinstance(part, dict) and {'box'} <= set(part) <= {'part', 'box'} and box(part), 'A cleared part is a box: ' + name)
+            require(isinstance(part, dict) and (({'box'} <= set(part) <= {'part', 'box'} and box(part))
+                                                or ({'from', 'to', 'radius'} <= set(part) <= {'part', 'from', 'to', 'radius'} and point(part['from']) and point(part['to'])
+                                                    and number(part['radius']) and part['radius'] > 0 and part['from'] != part['to'])),
+                    'A cleared part is a box, or a rod {from, to, radius}: ' + name)
+        for part in model.get('move', []):
+            require(isinstance(part, dict) and {'box', 'by'} <= set(part) <= {'part', 'box', 'by'} and box(part) and point(part['by']),
+                    'A moved part is a box and how far it is moved, [x, y, z] metres: ' + name)
+        for part in model.get('built', []):
+            kinds = {'bar', 'stairs', 'railing'} & set(part) if isinstance(part, dict) else set()
+            require(len(kinds) == 1 and point(part.get('picture')), 'A built part is one bar, railing or stair flight, coloured from a point of the model\'s picture: ' + name)
+            if 'railing' in part:
+                require(set(part) <= {'part', 'railing', 'height', 'picture'} and isinstance(part['railing'], list) and len(part['railing']) >= 2
+                        and all(point(one) for one in part['railing']) and (number(part.get('height', 1.0)) and 0.3 <= part.get('height', 1.0) <= 1.5),
+                        'A built railing is a path of two or more points on the surface walked and a height of 0.3 to 1.5 metres: ' + name)
+            elif 'bar' in part:
+                require(set(part) <= {'part', 'bar', 'size', 'picture'} and isinstance(part['bar'], list) and len(part['bar']) == 2 and all(point(end) for end in part['bar'])
+                        and part['bar'][0] != part['bar'][1] and isinstance(part.get('size'), list) and len(part['size']) == 2 and all(number(one) and one > 0 for one in part['size']),
+                        'A built bar is two ends and a size [width, depth] in metres: ' + name)
+            else:
+                flight = part['stairs']
+                require(set(part) <= {'part', 'stairs', 'picture', 'rails'} and isinstance(flight, dict) and set(flight) <= {'foot', 'top', 'width', 'sides'}
+                        and {'foot', 'top', 'width'} <= set(flight) and point(flight['foot']) and point(flight['top']) and number(flight['width']) and flight['width'] > 0
+                        and flight['top'][2] - flight['foot'][2] > 0.3
+                        and flight['top'][2] - flight['foot'][2] <= STAIR_STEEPEST * float(np.hypot(flight['top'][0] - flight['foot'][0], flight['top'][1] - flight['foot'][1]))
+                        and set(flight.get('sides', ['left', 'right'])) <= {'left', 'right'} and point(part.get('rails', part['picture'])),
+                        'A built stair flight is {foot, top, width, sides} (its foot and top the middles of its lowest and highest nosings, the top higher, at most STAIR_STEEPEST rise to its run), coloured from a point and its rails from another: ' + name)
+        for part in model.get('fill', []):
+            require(isinstance(part, dict) and {'at'} <= set(part) <= {'part', 'at'} and isinstance(part['at'], list) and len(part['at']) == 3
+                    and all(number(value) for value in part['at']), 'A filled hole is a point on its rim, in metres on the finished model: ' + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
@@ -711,16 +1082,31 @@ def load_models(path):
         # A box is on the finished model, which stands from its lift to its lift and its height. The Ares Depot's wall
         # sign, lifted 2.4 metres, had its lit boxes where it stood before the lift and shipped dark (review, 2026-11-12).
         foot, head = model.get('lift', 0), model.get('lift', 0) + model['height']
-        spans = [np.asarray(part['box'], float)[:, 2] for key in ('lit', 'paint', 'smooth', 'mesh', 'clear') for part in model.get(key, [])]
+        boxed = [*(part for key in ('lit', 'paint', 'smooth', 'mesh', 'clear', 'move') for part in model.get(key, [])),
+                 *(part for part in (model['inside'] if isinstance(model.get('inside'), list) else []) if isinstance(part, dict) and 'box' in part)]
+        spans = [np.asarray(part['box'] if 'box' in part else [part['from'], part['to']], float)[:, 2] for part in boxed]
+        spans = [(min(low, high), max(low, high)) for low, high in spans]
         require(all(high > foot and low < head for low, high in spans + [part['z'] for part in model.get('fence', [])]),
                 f'A box or fence lies wholly above or below the model, which stands from {foot} to {head} metres up: {name}')
         require(set(model.get('halo', {})) <= {'reach', 'strength', 'core', 'least'} and ('halo' not in model or model.get('lit')),
                 'A halo takes reach, strength, core and least, and needs lit parts: ' + name)
         placed = model.get('placeable')
-        require(placed is None or ({'label', 'sound'} <= set(placed) <= {'label', 'sound', 'category', 'static'} and isinstance(placed['label'], str) and placed['label']
+        require(placed is None or ({'label', 'sound'} <= set(placed) <= {'label', 'sound', 'category', 'static', 'light'} and isinstance(placed['label'], str) and placed['label']
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
+        if placed and 'light' in placed:
+            placeables.light_values(placed['light'])
         tiles = model.get('tiles')
+        wheels = model.get('wheels')
+        require(wheels is None or (isinstance(wheels, dict) and set(wheels) == {'spans', 'top', 'back'} and number(wheels['top']) and wheels['top'] > 0
+                                   and number(wheels['back']) and 0.5 <= wheels['back'] <= 1.5 and isinstance(wheels['spans'], list) and wheels['spans']
+                                   and all(isinstance(span, list) and len(span) == 2 and all(number(v) for v in span) and span[0] < span[1] for span in wheels['spans'])),
+                'wheels are {spans: [[start, end], ...] along x, top, back: 0.5 to 1.5 metres}: ' + name)
+        inside = model.get('inside', True)
+        require(inside is True or (isinstance(inside, list) and inside and all(isinstance(part, dict) and {'box'} <= set(part) <= {'part', 'box'} and box(part) for part in inside)),
+                'inside is true, for a box whose openings show what stands behind it, or a list of boxes whose faces get backs: ' + name)
+        require(model.get('underfoot', True) is True and not ('underfoot' in model and tiles),
+                'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
         require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
@@ -759,7 +1145,7 @@ def load_models(path):
         # part of it (found in review, 2026-11-12); so would the boxes of a sign hung at another lift or turned since
         # they were read. So a model that states any measurement says how it stood when they were made, and standing
         # otherwise they are made again.
-        measured = any(model.get(key) for key in MEASURED) or door is not None or fade is not None or bool(parts)
+        measured = any(model.get(key) for key in MEASURED) or isinstance(model.get('inside'), list) or door is not None or fade is not None or bool(parts)
         stands = {'height': model['height'], **{key: model[key] for key in PLACING if key in model}}
         told = lambda at: ', '.join(f'{key} {value}' for key, value in at.items())
         require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says how it stood when they were measured '
@@ -773,6 +1159,17 @@ def load_models(path):
             other = data['models'].get(part['model'])
             require(other is not None and part['model'] != name and not other.get('tiles'),
                     f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
+    # Every file a model ships is named from its own name: its pictures with a suffix (`MAP_SUFFIXES`), a group's tiles
+    # with _t and the tile, the models placed in it with p and a number. A model named like one of those would write
+    # over it in the pack: the rail yard's first copy of its office for the depot's group was ek_rf_admin_s, the name
+    # of the office's own shine map (2026-11-13).
+    names = set(data['models'])
+    for name, model in data['models'].items():
+        taken = {name + suffix for suffix in MAP_SUFFIXES}
+        if model.get('tiles'):
+            taken |= set(part_textures(name, model['tiles'].get('parts', [])).values())
+        clash = sorted(names & taken) + sorted(other for other in names if model.get('tiles') and re.fullmatch(re.escape(name) + r'_t\d+', other))
+        require(not clash, f'A model is named like a file of {name}, which it would write over: ' + ', '.join(clash))
     return data['models']
 
 
@@ -854,10 +1251,12 @@ def lights(name, folder):
     return {**found, 'halo': f'{name}_h', 'dark': HALO_OUT} if (folder / f'{name}_h.mtr').is_file() else found
 
 
-def lights_script(name, target, on, halo=True):
-    """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on."""
+def lights_script(name, target, on, halo=True, light=False):
+    """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on. `light`: its
+    row names a light colour (`placeables.light_values`), which lights what stands round it and is put out with it."""
     swaps = [(name, f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
-    return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps)
+    switch = f'SetPlaceableIllumination({target},{"TRUE" if on else "FALSE"});RecomputeStaticLighting(GetArea({target}));' if light else ''
+    return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps) + switch
 
 
 def blackout_script(name, player, on, halo=True):
@@ -867,12 +1266,12 @@ def blackout_script(name, player, on, halo=True):
     return ''.join(f'SetTextureOverride("{old}","{"" if on else new}",{player});' for old, new in swaps)
 
 
-def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, tone=None, paint=None,
-          smooth=None, mesh=None, fence=None, close=None, clear=None):
+def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, tone=None, paint=None,
+          smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
-    (`closed`), in that order, before its pictures are worked on; `tone`,
+    (`closed`) and `fill` closes the hole round a point (`filled`), in that order, and `inside` then gives every face a back (`backed`); before them `wheels` draws a car's trucks in to the track (`gauged`), before its pictures are worked on; `tone`,
     `paint`, `smooth` and `mesh` give `colour`, `flat` and `plain`: its colour picture retouched, where its relief is levelled and
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
@@ -885,12 +1284,23 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if turn:
         spin = _turn(float(turn), 0.0, 0.0); vertices, normals = vertices @ spin.T, normals @ spin.T
         vertices, _ = stand(vertices, height)
-    normals, repaired = repair_normals(vertices, normals, faces)
+    if length is not None:  # after the turn, so the side drawn out is the one that runs longest as the model stands
+        vertices, normals = stretched(vertices, normals, float(length))
+    faces, faces_turned = turn_faces(vertices, faces)
+    normals, repaired = repair_normals(vertices, normals, faces); normals, turned = turn_normals(vertices, normals, faces)
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
+    if wheels:
+        vertices, normals = gauged(vertices, normals, wheels)
+    if move:
+        vertices, normals, uvs, faces = moved(vertices, normals, uvs, faces, move)
     if clear:
         vertices, normals, uvs, faces = cleared(vertices, normals, uvs, faces, clear)
     if close:
         faces = closed(vertices, normals, uvs, faces, close)
+    if fill:
+        faces = filled(vertices, normals, uvs, faces, fill)
+    if inside:
+        vertices, normals, uvs, faces = backed(vertices, normals, uvs, faces, None if inside is True else inside)
     require(not halo or lit, 'A halo spreads the lit parts: name them')
     require(not lit or illumination is None, 'Give the lit parts or a glow map, not both')
     wire = None
@@ -913,7 +1323,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         where, covered, toward = placed; shine = glow.glow(base, where, covered, lit)
         illumination = Image.fromarray((shine * 255).round().astype(np.uint8))
         card = glow.halo(shine, where, covered, toward=toward, **halo) if halo else None
-    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired,
+    if built:  # after the pictures: a built member takes one place of the picture, which no retouching or glow should read as its
+        vertices, normals, uvs, faces = with_built(vertices, normals, uvs, faces, built)
+    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire}
 
 
@@ -952,7 +1364,7 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
 def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
-            'repairedNormals': made['repaired'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
+            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'turnedFaces': made['facesTurned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
             'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'turn': made.get('turn', 0.0), 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
