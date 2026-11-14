@@ -38,9 +38,10 @@ from pathlib import Path
 
 import numpy as np
 
-from . import bodyskin, ends, registry, repose, seams
+from . import bodyskin, ends, registry, repose, seams, split
 from .registry import require
 
+FACE_KEYS = ('f', 'added', 'domed', 'trimmed', 'pad')  # what a kept part holds per face (`bake.KEYS`, `bake.OPTIONAL`)
 UNIFORM = 0.05  # a part is scaled the same every way where its scales along and across its axis differ by this share or less
 UNDER_SKIN = 0.002  # a cap under the body's own skin (a glove's under a bare forearm) stands at least this far inside it
 
@@ -198,11 +199,26 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                 n /= np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
                 v = shaped
         part['v'], part['n'] = v, n
+        part, dropped = whole(part)
         out[name] = part
         turn = linear / np.cbrt(np.linalg.det(linear))
         u, _, vt = np.linalg.svd(turn)
-        report[name] = {'degrees': round(float(np.degrees(np.arccos(np.clip((np.trace(u @ vt) - 1) / 2, -1.0, 1.0)))), 2), **scales}
+        report[name] = {'degrees': round(float(np.degrees(np.arccos(np.clip((np.trace(u @ vt) - 1) / 2, -1.0, 1.0)))), 2), **scales,
+                        **({'dropped': dropped} if dropped else {})}
     return out, report
+
+
+def whole(part):
+    """(part, how many triangles it lost): `part` without the triangles that shrinking it left with two corners
+    within `split.POINT` of each other, which the model compiler drops; its flags per face (`FACE_KEYS`) cut
+    down alike. A glove's cap drawn in under the Human female's forearm closed two of its triangles at the pole
+    to a point (Facility Security, 2026-11-13)."""
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    sides = np.min([np.linalg.norm(v[f[:, i]] - v[f[:, (i + 1) % 3]], axis=1) for i in range(3)], axis=0) if len(f) else np.zeros(0)
+    keep = sides >= split.POINT
+    if keep.all():
+        return part, 0
+    return {**part, **{key: np.asarray(part[key])[keep] for key in FACE_KEYS if key in part}}, int((~keep).sum())
 
 
 def run(kept, output, body_pack, source, target, names=None, tier=2):

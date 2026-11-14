@@ -86,6 +86,19 @@ class RefitTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "body's own skin"):
             refit.refit({'bicepl': {**part(), 'skin': np.zeros(1, bool)}}, source, target)
 
+    def test_a_triangle_shrunk_to_a_sliver_the_compiler_drops_is_left_out(self):
+        # two triangles of a glove, the second with two corners 2 microns apart: on a hand 0.4 the size, 0.8 apart
+        glove = part(faces=2)
+        glove['v'] = np.array([(0.6, 0.0, 0.0), (0.7, 0.0, 0.0), (0.6, 0.1, 0.0), (0.7 + 2e-6, 0.0, 0.0)])
+        glove['f'], glove['n'] = np.array([[0, 1, 2], [1, 3, 2]]), np.tile([[0.0, 0.0, 1.0]], (4, 1))
+        glove['added'], glove['pad'] = np.array([False, True]), np.array([False, True])
+        source, target = (rig(), {'handl': hand()}), (rig(), {'handl': hand(0.4)})
+        out, report = refit.refit({'handl': glove}, source, target)
+        self.assertEqual((out['handl']['f'].tolist(), report['handl']['dropped']), ([[0, 1, 2]], 1))
+        self.assertEqual((out['handl']['added'].tolist(), out['handl']['pad'].tolist(), len(out['handl']['trimmed'])), ([False], [False], 1))
+        self.assertEqual(bake._collapsed(out['handl']['v'], out['handl']['f']), 0)
+        self.assertNotIn('dropped', refit.refit({'handl': glove}, source, source)[1]['handl'])  # nothing shrunk, nothing dropped
+
     def test_a_stretched_parts_normals_stay_square_to_its_surface(self):
         source = (rig(), {})
         target = (moved(rig(), np.eye(3), 0.9, np.zeros(3)), {})
