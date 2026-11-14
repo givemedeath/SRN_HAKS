@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from datetime import date as Date
 import hashlib
 import json
+import math
 import re
 import shutil
 import struct
@@ -53,7 +54,12 @@ SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
 EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti'}
 TYPE = {v: k for k, v in EXT.items()}
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
-ROW_Y = {'m': 5.0, 'f': 9.0}   # the southern row of the comparison area
+# Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_
+# rows, which hold five pairs each and have room for more. New groups fill them in this order (user, 2026-11-13:
+# "Fill sw1_/sw2_ rows" once the southern row was full).
+ROWS = ((5.0, 9.0), (15.0, 19.0), (27.0, 31.0))
+ROW_Y = {'m': ROWS[0][0], 'f': ROWS[0][1]}   # the southern row
+ROW_START = 5.0
 ROW_STEP = 3.5
 TILE = 10.0
 REVIEWER = re.compile(r'^sw(\d+)_([mf])([0-4])$')
@@ -222,18 +228,34 @@ def pairs_include(groups):
     return '\n'.join(lines) + '\n'
 
 
-def plan_pairs(creatures, packages, area_width):
-    """New reviewer tags and positions: groups of up to five after the last group, continuing the southern row."""
+def plan_pairs(creatures, packages, area_width, area_height=None, obstacles=()):
+    """New reviewer tags and positions: groups of up to five after the last group. Each group stands together in the
+    first row (ROWS order) with room for all of it, after that row's last reviewer. A row is skipped when it lies
+    past the area's far edge, or when any of the group's spots is within half a step of another object
+    (`obstacles`: (x, y) of the area's placeables, doors, triggers, waypoints, stores and other creatures)."""
     groups = groups_of(c['Tag']['value'] for c in creatures)
-    row = [c['XPosition']['value'] for c in creatures if REVIEWER.match(c['Tag']['value']) and c['YPosition']['value'] == ROW_Y['m']]
-    require(row, f'No male reviewer stands in the southern row (y {ROW_Y["m"]}) to continue from')
-    x = max(row) + ROW_STEP; number = len(groups) + 1; pairs = []
+    placed = [c for c in creatures if REVIEWER.match(c['Tag']['value'])]
+    require(placed, 'No reviewers are placed in the comparison area to continue from')
+    free = {}
+    for male, female in ROWS:
+        xs = [c['XPosition']['value'] for c in placed if c['YPosition']['value'] in (male, female)]   # either line
+        free[male, female] = max(xs) + ROW_STEP if xs else ROW_START
+    clear = lambda x, y: all(math.hypot(x - ox, y - oy) >= ROW_STEP / 2 for ox, oy in obstacles)
+    def fits(row, size):
+        xs = [free[row] + ROW_STEP * i for i in range(size)]
+        return (xs[-1] <= area_width - ROW_STEP and (area_height is None or max(row) <= area_height - ROW_STEP)
+                and all(clear(x, y) for x in xs for y in row))
+    number = len(groups) + 1; pairs = []
     for start in range(0, len(packages), GROUP_SIZE):
         # c.nss and sw_review.nss read a reviewer's group as GetStringLeft(tag, 4): one digit, sw1_ to sw9_.
         require(number <= 9, f'Reviewer group sw{number}_ is past what the module selector can read (sw1_ to sw9_)')
-        for index, package in enumerate(packages[start:start + GROUP_SIZE]):
-            require(x <= area_width - ROW_STEP, f'No room left in the southern row for {package.item} (x {x})')
-            pairs.append({'package': package, 'prefix': f'sw{number}_', 'index': index, 'x': x}); x += ROW_STEP
+        group = packages[start:start + GROUP_SIZE]
+        row = next((r for r in ROWS if fits(r, len(group))), None)
+        require(row is not None, f'No room left in the comparison rows for {len(group)} reviewer pairs from {group[0].item}')
+        for index, package in enumerate(group):
+            pairs.append({'package': package, 'prefix': f'sw{number}_', 'index': index, 'x': free[row],
+                          'y': {'m': row[0], 'f': row[1]}})
+            free[row] += ROW_STEP
         number += 1
     return groups, pairs
 
@@ -242,16 +264,23 @@ def reviewer_plan(repo, packages):
     """plan_pairs on the module as it stands, read with the repository's own GFF reader: no tool and no write needed."""
     module = repo/MODULE; git = module/'sr_it_floor.git'
     require(git.is_file(), f'No comparison module area at {git}')
-    creatures = [{k: {'value': c[k]} for k in ('Tag', 'XPosition', 'YPosition')} for c in crm.parse_gff(git.read_bytes())['Creature List']]
-    return plan_pairs(creatures, packages, crm.parse_gff((module/'sr_it_floor.are').read_bytes())['Width']*TILE)
+    area = crm.parse_gff(git.read_bytes()); are = crm.parse_gff((module/'sr_it_floor.are').read_bytes())
+    creatures = [{k: {'value': c[k]} for k in ('Tag', 'XPosition', 'YPosition')} for c in area['Creature List']]
+    obstacles = [(c['XPosition'], c['YPosition']) for c in area['Creature List'] if not REVIEWER.match(c['Tag'])]
+    for key in ('Placeable List', 'Door List', 'TriggerList', 'WaypointList', 'StoreList', 'SoundList', 'Encounter List'):
+        for o in area.get(key) or []:
+            x, y = o.get('XPosition', o.get('X')), o.get('YPosition', o.get('Y'))
+            if isinstance(x, (int, float)) and isinstance(y, (int, float)): obstacles.append((x, y))
+    height = are.get('Height')
+    return plan_pairs(creatures, packages, are['Width']*TILE, None if height is None else height*TILE, obstacles)
 
 
-def reviewer(template, tag, name, sex, x):
-    """A template/instance copy for one reviewer: tag, resref, name and position change, nothing else."""
+def reviewer(template, tag, name, sex, x, y):
+    """A template/instance copy for one reviewer: tag, resref, name and position (x, y: its row's male or female y)."""
     record = copy.deepcopy(template)
     record['Tag']['value'] = tag; record['TemplateResRef']['value'] = tag
     record['FirstName']['value'] = {'0': f'{name} / {"male" if sex == "m" else "female"}'}
-    record['XPosition']['value'] = x; record['YPosition']['value'] = ROW_Y[sex]
+    record['XPosition']['value'] = x; record['YPosition']['value'] = y
     return record
 
 
@@ -308,8 +337,8 @@ def add_reviewers(repo, planned, tools, work):
         for s in 'mf':
             tag = f'{p["prefix"]}{s}{p["index"]}'
             require(tag not in placed and not (module/f'{tag}.utc').exists(), f'Reviewer {tag} already exists')
-            tools.to_gff(reviewer(templates[s], tag, p['package'].name, s, p['x']), module/f'{tag}.utc', work)
-            creatures.append(reviewer(placed[f'{last}{s}0'], tag, p['package'].name, s, p['x']))
+            tools.to_gff(reviewer(templates[s], tag, p['package'].name, s, p['x'], p['y'][s]), module/f'{tag}.utc', work)
+            creatures.append(reviewer(placed[f'{last}{s}0'], tag, p['package'].name, s, p['x'], p['y'][s]))
     tools.to_gff(git, module/'sr_it_floor.git', work)
     groups = groups_of(c['Tag']['value'] for c in creatures); total = sum(n for _, n in groups)
     (module/PAIRS_INCLUDE).write_bytes(pairs_include(groups).encode('ascii'))
@@ -455,7 +484,9 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
     # Room for the reviewers is checked before anything is written (a dry run without the module skips it), and this
     # checked layout is the one add_reviewers writes.
     planned = reviewer_plan(repo, packages) if not dry_run or (repo/MODULE).is_dir() else None
-    if planned: summary['plannedReviewers'] = [f'{p["prefix"]}{s}{p["index"]}' for p in planned[1] for s in 'mf']
+    if planned:
+        summary['plannedReviewers'] = [f'{p["prefix"]}{s}{p["index"]}' for p in planned[1] for s in 'mf']
+        summary['plannedReviewerPositions'] = {f'{p["prefix"]}{s}{p["index"]}': [p['x'], p['y'][s]] for p in planned[1] for s in 'mf'}
     if dry_run: return {'dryRun': True, **summary}
     tools = Tools(repo, nwn_root)
     restore = snapshot(repo, packages)

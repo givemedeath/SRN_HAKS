@@ -166,3 +166,26 @@ def one_hand_round(vertices,faces,matrix,origin,standard,review=None):
             'roundSectionPreserved':True,'bothBodyVisualReviewRequired':True}
     report['measurementDigest']=digest(report);bind_departure(report,review)
     return result,report
+
+
+def melee_fit(family, fit, standard, vertices, faces, matrix):
+    """The melee grip correction of the fit stage, by the fit's sizing authority: (final matrix, grip report).
+
+    Shared by blender_worker.grip_fit and opening_probes.fitted_shell, so the probes measure the shell exactly where
+    the fit stage places it and refuse what it refuses. Whole-native firearms are placed by firearm_grip instead."""
+    from .routes import ROUTES, WHOLE_NATIVE_FAMILIES
+    route = ROUTES[family['family']]; native = family['native']; authority = fit.get('sizingAuthority'); review = fit.get('gripDeparture')
+    require(family['family'] not in WHOLE_NATIVE_FAMILIES, 'A whole-native firearm is placed by firearm_grip.measured_fit, not the melee grip')
+    if authority == 'midpoint-depth-two-hand':
+        require(route.hold == 'two' and route.carrier is not None and native['baseItem'] == route.carrier.base_item,
+                'Explicit two-handed carrier required for the length departure')
+        return two_hand_uniform(vertices, faces, matrix, fit['gripEndpoints'], native['gripOrigin'], standard, review)
+    require(abs(native['gripLength'] - standard['usableLength']) < 1e-9, 'Native target length differs from the approved grip standard')
+    if authority == 'usable-length-round': return one_hand_round(vertices, faces, matrix, native['gripOrigin'], standard, review)
+    if authority == 'midpoint-depth-uniform':
+        require(route.section == 'uniform', 'midpoint-depth-uniform needs a section="uniform" route')
+        return transverse_uniform(vertices, faces, matrix, native['gripOrigin'], standard, review, fit.get('sectionBasis', 'depth'))
+    # A staff manifest from before section="uniform" would rebuild the flattened staff (user, 2026-11-12).
+    # Any other authority (none, or the older usable-length-uniform) takes the per-axis hilt calibration.
+    require(route.section != 'uniform', 'A section="uniform" route is never sized by the per-axis hilt calibration; refit it')
+    return calibration(vertices, faces, matrix, native['gripOrigin'], standard)

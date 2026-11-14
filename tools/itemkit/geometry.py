@@ -284,7 +284,8 @@ def protected_checks(vertices, faces, config):
         distance = float(np.linalg.norm(picked[1]-picked[0]))
         residual = float(np.linalg.norm(picked-ends, axis=1).max())
         require(row['minimum'] > 0 and distance >= row['minimum'] and residual <= row['maximumSampleError'],
-                'Protected thickness sample failed: ' + row['name'])
+                f"Protected thickness sample failed: {row['name']} (distance {distance:.4f} m, minimum {row['minimum']:.4f}; "
+                f"sample error {residual:.4f} m, allowed {row['maximumSampleError']:.4f})")
         report['thickness'].append({'name': row['name'], 'distance': distance, 'maximumSampleError': residual})
     return report
 
