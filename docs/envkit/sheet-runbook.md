@@ -344,7 +344,19 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   `planes`, the depths its light stands at with their shares; a window that shows the wall's depth as a second
   plane is lighting the wall. Each lit part spreads from halo cards of its own, just in front of its own
   foremost light, so name a sign, the windows under it and the strip lights over them as separate parts.
-  Look at every lit part close and from a slant in the night check.
+  Look at every lit part close and from a slant in the night check. A prop's boxes are bounded in depth the same
+  way: the shooting booths' lane-screen box ran front to back and lit rust specks on the back and the hazard
+  stripes on the dividers.
+- **A window, lamp or half of a prop stays dark at night** while its twin glows. The lit boxes were drawn for
+  the side that was looked at: the Iron Sight Arms range wing has the same window strip on its far wall, its
+  rifle cabinet a second door the generator drew dark, and its roof mast two amber lamps, all found unlit by the
+  operator or after (2026-11-14). Draw every side by day before stating the lit parts
+  (`--model <name>:0123`), roof gear included, and light or note each window, screen and lamp drawn there.
+  `view --lit` lists `mirrors`: where a lit part's box, turned over the model's middle left to right or front
+  to back, lands on as much surface with far less of it lit. Look at each by day; a sign's mirror is a bare
+  back wall and is left. A half the generator drew dark takes the lit half's picture with `copy` and a lit part
+  of its own, its `value` set lower, the copy being a little duller. In the night check, look at the far side
+  too.
 - **A square-on view does not show it** (inside a hole, under an overhang, through a fence).
   `envkit view --models ... --root <root> --model <name> --eye <label>=ex,ey,ez,tx,ty,tz[,fov[,reach]] --output <scratch>`
   draws the model as it will ship, fence sheets and all, from an eye at `ex,ey,ez` looking at `tx,ty,tz`, in

@@ -948,17 +948,17 @@
    "model": "ek_isa_cabinet",
    "label": "[envkit]Iron Sight Arms, Rifle Cabinet",
    "pack": "srn_placeable",
-   "lights": {
-    "lit": "ek_isa_cabinet",
-    "out": "ek_isa_cabinet_o",
-    "glow": "ek_isa_cabinet_i"
-   },
    "madeBy": "envkit",
    "source": "tools/envkit/sets/iron-sight-arms-game.json",
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_cabinet",
-   "category": 204
+   "category": 204,
+   "lights": {
+    "lit": "ek_isa_cabinet",
+    "out": "ek_isa_cabinet_o",
+    "glow": "ek_isa_cabinet_i"
+   }
   },
   {
    "row": 22805,
@@ -1035,17 +1035,17 @@
    "model": "ek_isa_booths",
    "label": "[envkit]Iron Sight Arms, Shooting Booths",
    "pack": "srn_placeable",
-   "lights": {
-    "lit": "ek_isa_booths",
-    "out": "ek_isa_booths_o",
-    "glow": "ek_isa_booths_i"
-   },
    "madeBy": "envkit",
    "source": "tools/envkit/sets/iron-sight-arms-game.json",
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_booths",
-   "category": 161
+   "category": 161,
+   "lights": {
+    "lit": "ek_isa_booths",
+    "out": "ek_isa_booths_o",
+    "glow": "ek_isa_booths_i"
+   }
   }
  ],
  "tileGroups": [

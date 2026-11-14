@@ -899,13 +899,14 @@ height (operator, 2026-11-14: "can you copy the wall texture over it?"): the pla
 (its face and both sides), the lettering Meshy mirrored on to the wing's east wall, and the smeared mirrored lettering
 on the shop's back wall where the wing does not cover it. The block on the wing's end still stands 0.6 metres out of
 the wall, as generated. Glow maps were made from the models' own colour for the shop's sign, its pistol sign, its
-windows and door, the strip lights over its windows, the wing's windows and the lamp over its door, each with a halo
-sheet of its own just in front of it. Nothing else was retouched. The meshes were shared out over six tiles (none to
-44,482 faces each) with a ground square, a map picture and two main lights each; nothing carries `tilefade`, the
-building being one storey with its rooftop units at 6.1 metres; and a walkmesh was generated from their shape (204 to
-698 faces a tile, where the stock tiles of these two tilesets have at most 500). The shop's tile has a door record of
-type 58, the invisible transition door, at the double door. The Meshy sources, the full-detail spares, the references
-and the client captures stay in ignored `output/envkit/`.
+windows and door, the strip lights over its windows, the light on its security camera, the wing's windows on both long
+walls, the lamp over its door and the two amber lamps on its roof mast, each with a halo sheet of its own just in
+front of it. Nothing else was retouched. The meshes were shared out over six tiles (none to 44,482 faces each) with a
+ground square, a map picture and two main lights each; nothing carries `tilefade`, the building being one storey with
+its rooftop units at 6.1 metres; and a walkmesh was generated from their shape (204 to 698 faces a tile, where the
+stock tiles of these two tilesets have at most 500). The shop's tile has a door record of type 58, the invisible
+transition door, at the double door. The Meshy sources, the full-detail spares, the references and the client captures
+stay in ignored `output/envkit/`.
 
 Checked in the game client on 2026-11-14, in a Modern Exterior area laid from the pack's files: by day from all four
 sides, two corners, the front and from above, and at the door; by night, where the sign, the pistol sign, the windows
@@ -915,12 +916,14 @@ end block torn and streaked and the shop's back wall smeared; both were covered 
 night. The operator then saw the lit strips sitting beside their signs and windows (2026-11-14): the wing's windows
 were lit 0.35 metres too high, wall and all, the sign 0.25 metres short of one end, and the windows' halo stood out at
 the sign's depth. The lit parts were measured again and bounded in depth to the sign's board, the glass and the lamps,
-each given halo sheets of its own, and seen again by night, lit, out and lit again. The walk check (`envkit check
-group --mode walk`), in both tilesets, sent five walkers from the far corner of the area to the door and to the four
-sides of the building: all arrived. Painted in the Toolset on 2026-11-14 from the built packs, in both tilesets:
-straight, a quarter turn (Modern Exterior) and a half turn (Suburbs). Each saved area holds the six group tiles and
-one door of appearance 58 that the Toolset made at the hook, and in the client (`envkit check doors`) each of the four
-doors took the player through its area transition.
+each given halo sheets of its own, and seen again by night, lit, out and lit again. The operator next found the wing's
+far wall, which carries the same window strip, dark at night (2026-11-14): it was lit, with the roof mast's lamps and
+the camera's light, which a survey of the texture found unlit, and seen by night from that side. The walk check
+(`envkit check group --mode walk`), in both tilesets, sent five walkers from the far corner of the area to the door
+and to the four sides of the building: all arrived. Painted in the Toolset on 2026-11-14 from the built packs, in both
+tilesets: straight, a quarter turn (Modern Exterior) and a half turn (Suburbs). Each saved area holds the six group
+tiles and one door of appearance 58 that the Toolset made at the hook, and in the client (`envkit check doors`) each
+of the four doors took the player through its area transition.
 
 ## Iron Sight Arms props (`srn_placeable`, `srn_2da`; 2026-11-14)
 
@@ -943,16 +946,20 @@ a thick slab.
 Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
 scaled to a stated height, and its textures were recompressed. Six props have a glow map for their lit parts and a
 lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the counter's two strip lights, the bench's
-lamp, the cabinet's strip light, the vending machine's sign, screen and products, the rack's sign and lamps, and the
-booths' lane screens and overhead lamps. Nothing was retouched. Left as generated: the rifle cabinet is a plain box of
-1,187 triangles with its rifles drawn behind the mesh doors, the rifle wall is 0.37 metres deep with a plain grey
-back, and the vending machine and the booths carry an emblem the generator invented on their backs.
+lamp, the cabinet's two strip lights, the vending machine's sign, screen and products, the rack's sign and lamps, and
+the booths' lane screens and overhead lamps. The rifle cabinet's left door, which the generator drew dark and without
+its strip light, takes the picture of its right door (operator, 2026-11-14: "only half this gun cabinet is lit").
+Nothing else was retouched. Left as generated: the rifle cabinet is a plain box of 1,187 triangles with its rifles
+drawn behind the mesh doors, the rifle wall is 0.37 metres deep with a plain grey back, and the vending machine and
+the booths carry an emblem the generator invented on their backs.
 
 Checked in the game client on 2026-11-14: by day from front, back and side with a figure for scale, from the converted
 files; by night the same way for the six lit props; and by night from the pack's files, where the lights of the six
-were put out by script and brought back. Four of them (vending machine, shooting booths, ammo shelf and pistol
-counter, from both palette categories) were placed from the Toolset's palette on 2026-11-14 and saved with their own
-rows and names, the shelf static and the three lit props not.
+were put out by script and brought back. The booths' lane-screen box ran front to back and lit rust specks on their
+backs and dividers; it was bounded to the screens (2026-11-14), and the booths and the cabinet were seen again by
+night. Four of them (vending machine, shooting booths, ammo shelf and pistol counter, from both palette categories)
+were placed from the Toolset's palette on 2026-11-14 and saved with their own rows and names, the shelf static and the
+three lit props not.
 
 ## MDRNEE placeable import (2026-09-11)
 
