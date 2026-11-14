@@ -106,6 +106,31 @@ class AutofitTests(unittest.TestCase):
             self.assertEqual(again['output']['sha256'], result['output']['sha256']); self.assertEqual(again['map']['mode'], 'applied')
             with self.assertRaisesRegex(ValueError, 'own span'): s.stretch(source, folder/'x', (.05, .2), 1.5, folder/'out/stretch-map.npz')
 
+    def test_narrow_pulls_guard_tips_in_rigidly(self):
+        p = pommelled(); mean, axes = s.principal_frame(p); q = (p - mean) @ axes; length = np.ptp(q[:, 0])
+        f = (q[:, 0] - q[:, 0].min()) / length; at = lambda x: float(f[np.argmin(np.abs(p[:, 0] - x))])
+        span = tuple(sorted((at(-.035), at(.015))))           # the cross-guard (model X -0.02..0), on whichever end the frame puts it
+        guard = (f >= span[0]) & (f <= span[1]); band = (.04 / length, .08 / length)
+        mapping = s.fit_narrow(p, span, band, .5)
+        normals = np.tile([0., 0., 1.], (len(p), 1)); out, turned = s.apply_narrow(p, mapping, normals)
+        r = (out - mean) @ axes; a = q[:, 1] - mapping['centre']
+        np.testing.assert_allclose(out[~guard], p[~guard], atol=1e-12)                                 # outside the span: unchanged
+        np.testing.assert_allclose(r[:, [0, 2]], q[:, [0, 2]], atol=1e-9)                              # length and depth unchanged
+        far = guard & (np.abs(a) >= .08); np.testing.assert_allclose(np.abs(r[far, 1] - mapping["centre"]), np.abs(a[far]) - .02, atol=1e-9)
+        core = np.abs(a) <= .04; np.testing.assert_allclose(r[core], q[core], atol=1e-9)
+        self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
+        with self.assertRaisesRegex(ValueError, 'tear'): s.fit_narrow(p, (sum(span) / 2, span[1]), band, .5)   # cuts through the guard
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_narrow(p, span, band, 1.2)
+        rng = np.random.default_rng(2); small = p[::4]; n = len(small) // 3 * 3; small = small[:n]
+        faces = np.arange(n).reshape(-1, 3); uv = rng.uniform(.1, .9, (len(faces), 3, 2))
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder); source = folder/'p.glb'; write_mesh(source, small, faces, uv)
+            result = s.narrow(source, folder/'out', span, band, .5)
+            after = mesh(folder/'out/narrowed.glb'); np.testing.assert_array_equal(after['uv'], mesh(source)['uv'])
+            self.assertLess(result['widthAfter'], result['widthBefore'])
+            again = s.narrow(source, folder/'again', map_path=folder/'out/narrow-map.npz')
+            self.assertEqual(again['output']['sha256'], result['output']['sha256'])
+
     def test_shell_thinning_keeps_a_closed_solid(self):
         try: import pymeshlab
         except ImportError: self.skipTest('pymeshlab not on the path')

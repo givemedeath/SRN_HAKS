@@ -402,6 +402,72 @@ def stretch(source, output, span=None, factor=None, map_path=None):
     write(output / 'stretch.json', result, fresh=True); return result
 
 
+def fit_narrow(positions, span, band, factor):
+    """A width band of side parts (sai prongs) shortened by `factor`, with everything beyond it moved in rigidly.
+
+    `span` is the stretch along the long axis (fractions from the principal frame's low end) and `band` the distances
+    from the centreline across the width (fractions of the length) whose extent shrinks; the upturned prong tips past
+    the band keep their shape. No vertex outside the span may reach the band, so the map is continuous (the wave-4
+    Sai; user, 2026-11-14: "the side blades fan out too wide")."""
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); q = (positions - mean) @ axes
+    lo, hi = (float(x) for x in span); inner, outer = (float(x) for x in band); factor = float(factor)
+    _require(0 <= lo < hi <= 1 and 0 < inner < outer and 0 < factor < 1, 'A span, a width band and a factor in (0, 1) required')
+    t = q[:, 0]; length = np.ptp(t); t0, t1 = t.min() + lo * length, t.min() + hi * length
+    inside = (t >= t0) & (t <= t1); centre = float(np.median(q[~inside, 1]))
+    _require(np.all(np.abs(q[~inside, 1] - centre) < inner * length), 'A vertex outside the span reaches the band: the map would tear')
+    return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'centre': np.array(centre),
+            'band': np.array([inner, outer]) * length, 'factor': np.array(factor)}
+
+
+def apply_narrow(positions, mapping, normals=None):
+    positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']
+    (t0, t1), (c, w0), k, centre = mapping['span'], mapping['band'], float(mapping['factor']), float(mapping['centre'])
+    def transform(points):
+        p = (points - mean) @ axes; a = p[:, 1] - centre; r = np.abs(a); inside = (p[:, 0] >= t0) & (p[:, 0] <= t1)
+        moved = np.where(r <= c, r, np.where(r >= w0, r - (1 - k) * (w0 - c), c + (r - c) * k))
+        p[:, 1] = np.where(inside, centre + np.sign(a) * moved, p[:, 1])
+        return p @ axes.T + mean
+    moved = transform(positions)
+    if normals is None: return moved
+    return moved, turn_normals(transform, positions, normals, w0 - c)
+
+
+def narrow(source, output, span=None, band=None, factor=None, map_path=None):
+    """Write OUTPUT/narrowed.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte."""
+    from tools.headkit.common import pin, write
+    from tools.headkit.gltf import encode, load, arrays
+    source = Path(source); output = Path(output); output.mkdir(parents=True, exist_ok=False)
+    source_pin = pin(source); document, binary, primitive, positions, faces, attributes = _glb(source)
+    keys = {'mean', 'axes', 'span', 'centre', 'band', 'factor'}
+    if map_path is None:
+        _require(None not in (span, band, factor), 'Give --span, --band and --factor, or a saved --map')
+        mapping = fit_narrow(positions, span, band, factor); map_path = output / 'narrow-map.npz'
+        with map_path.open('xb') as stream: np.savez(stream, **mapping)
+        mode = 'measured'
+    else:
+        _require(span is None and band is None and factor is None, 'A saved map carries its own span, band and factor')
+        with np.load(map_path, allow_pickle=False) as archive: mapping = {name: archive[name] for name in archive.files}
+        _require(set(mapping) == keys, 'Invalid narrow map')
+        mode = 'applied'
+    normals = attributes.get('NORMAL'); buffer = bytearray(binary)
+    if normals is None: moved = apply_narrow(positions, mapping)
+    else: moved, turned = apply_narrow(positions, mapping, normals)
+    _replace(document, buffer, primitive['attributes']['POSITION'], moved)
+    if normals is not None: _replace(document, buffer, primitive['attributes']['NORMAL'], turned)
+    target = output / 'narrowed.glb'
+    with target.open('xb') as stream: stream.write(encode(document, bytes(buffer)))
+    after, after_faces, after_attributes = arrays(*load(target.read_bytes()))
+    _require(np.array_equal(after_faces, faces) and all(np.array_equal(after_attributes[name], attributes[name])
+             for name in attributes if name not in ('POSITION', 'NORMAL')), 'Narrowing changed topology, UVs or other attributes')
+    width = mapping['axes'][:, 1]
+    result = {'source': source_pin, 'output': pin(target), 'map': dict(pin(map_path), mode=mode),
+              'span': mapping['span'].tolist(), 'band': mapping['band'].tolist(), 'factor': float(mapping['factor']),
+              'widthBefore': float(np.ptp(positions @ width)), 'widthAfter': float(np.ptp(after @ width)),
+              'method': 'a width band of side parts shortened; parts beyond it moved in rigidly, length and depth unchanged',
+              'visualReviewRequired': True}
+    write(output / 'narrow.json', result, fresh=True); return result
+
+
 BLADE_METRICS = ('guardSkewDegrees', 'guardSectionRatio', 'bladeDepthToWidth', 'splitBladeSlices')
 
 
@@ -488,7 +554,15 @@ def main(argv=None):
     c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="fractions of the length from the principal frame's low end")
     c.add_argument('--factor', type=float, help='lengthening of the span, in (1, 3]')
+    c = commands.add_parser('narrow', help='pull side parts (sai prongs) in towards the centreline'); c.add_argument('mesh', type=Path)
+    c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="long-axis fractions from the principal frame's low end")
+    c.add_argument('--band', type=float, nargs=2, metavar=('INNER', 'OUTER'), help='distances from the centreline, as fractions of the length')
+    c.add_argument('--factor', type=float, help="the band's new share of its width, in (0, 1)")
     a = parser.parse_args(argv)
+    if a.command == 'narrow':
+        result = narrow(a.mesh, a.output, a.span, a.band, a.factor, a.map)
+        print(json.dumps({k: result[k] for k in ('output', 'map', 'span', 'band', 'factor', 'widthBefore', 'widthAfter')}, indent=2)); return 0
     if a.command == 'stretch':
         result = stretch(a.mesh, a.output, a.span, a.factor, a.map)
         print(json.dumps({k: result[k] for k in ('output', 'map', 'span', 'factor', 'lengthBefore', 'lengthAfter')}, indent=2)); return 0

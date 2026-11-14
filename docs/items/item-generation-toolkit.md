@@ -384,7 +384,11 @@ A handle too short for the hand at the chosen size can be lengthened alone with
 length from the principal frame's low end; the report gives the axis) grows by K,
 the end below it stays and everything above moves along the axis unchanged.
 Re-apply its `stretch-map.npz` with `--map` to the textured donor, review the
-views, then fit at the natural size (wave-4 Sai).
+views, then fit at the natural size (wave-4 Sai). `narrow MESH.glb OUT_DIR --span
+LO HI --band INNER OUTER --factor K` pulls side parts such as sai prongs towards
+the centreline: across the width band (distances from the centreline as fractions
+of the length) the extent shrinks to K, and everything beyond moves in unchanged.
+It refuses a span that would cut through the side parts.
 
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default
