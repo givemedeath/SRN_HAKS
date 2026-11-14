@@ -427,7 +427,10 @@ def fit_narrow(positions, span, band, factor):
     lo, hi = (float(x) for x in span); inner, outer = (float(x) for x in band); factor = float(factor)
     _require(0 <= lo < hi <= 1 and 0 < inner < outer and 0 < factor < 1, 'A span, a width band and a factor in (0, 1) required')
     t = q[:, 0]; length = np.ptp(t); t0, t1 = t.min() + lo * length, t.min() + hi * length
-    inside = (t >= t0) & (t <= t1); centre = float(np.median(q[~inside, 1]))
+    inside = (t >= t0) & (t <= t1)
+    # The centreline is read from the mesh outside the span (handle and blade), so the span must leave some of it.
+    _require((~inside).sum() >= 100, 'The span must leave part of the mesh outside it to read the centreline from')
+    centre = float(np.median(q[~inside, 1]))
     mapping = {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'centre': np.array(centre),
                'band': np.array([inner, outer]) * length, 'factor': np.array(factor)}
     narrow_guard(positions, mapping); return mapping

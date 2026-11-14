@@ -121,6 +121,7 @@ class AutofitTests(unittest.TestCase):
         self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
         with self.assertRaisesRegex(ValueError, 'tear'): s.fit_narrow(p, (sum(span) / 2, span[1]), band, .5)   # cuts through the guard
         with self.assertRaisesRegex(ValueError, 'factor'): s.fit_narrow(p, span, band, 1.2)
+        with self.assertRaisesRegex(ValueError, 'outside it'): s.fit_narrow(p, (0, 1), band, .5)       # no centreline left to read
         rng = np.random.default_rng(2); small = p[::4]; n = len(small) // 3 * 3; small = small[:n]
         faces = np.arange(n).reshape(-1, 3); uv = rng.uniform(.1, .9, (len(faces), 3, 2))
         with tempfile.TemporaryDirectory() as folder:

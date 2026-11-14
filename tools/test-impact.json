@@ -2043,7 +2043,8 @@
     ],
     "tools/itemkit/recovery.py": [
       "tools/headkit/common.py",
-      "tools/itemkit/contracts.py"
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/reduction.py": [
       "tools/headkit/common.py",
