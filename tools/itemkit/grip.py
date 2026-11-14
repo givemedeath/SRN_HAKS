@@ -19,7 +19,12 @@ def bind_departure(report, review):
     report['departureReview']=review
 
 
-def section_dimensions(vertices, faces, y):
+def section_dimensions(vertices, faces, y, around=None):
+    """(depth, visible-face width) of the shell's section in the plane at height `y`.
+
+    `around` (an x, z point on the grip axis) keeps only the outline that encloses the grip: a side grip's plane also
+    cuts the rest of the weapon (the katar's blade lies beside its crossbar), which is not part of the grip."""
+    if around is not None: return _enclosing_section(vertices, faces, y, around)
     tri = np.asarray(vertices, float)[faces]; hits = []
     for a,b in ((0,1),(1,2),(2,0)):
         v,w = tri[:,a],tri[:,b]
@@ -30,11 +35,44 @@ def section_dimensions(vertices, faces, y):
     return np.ptp(np.asarray(hits),axis=0)[[0,2]]
 
 
-def reference_sections(vertices, faces, standard, centre, length):
+def _enclosing_section(vertices, faces, y, around):
+    """The section outline (closed loop of the plane cut) that encloses `around`; the largest one when loops nest (a tube).
+
+    Each face the plane crosses gives one segment between its two crossed edges; segments sharing an edge form a loop.
+    A plane through a vertex is nudged off it, so every crossed face has exactly two crossed edges. No scipy: this
+    also runs in the fit worker inside Blender."""
+    v = np.asarray(vertices, float); f = np.asarray(faces); point = np.asarray(around, float)
+    require(point.shape == (2,) and np.isfinite(point).all(), 'Grip axis point (x, z) required')
+    v, weld = np.unique(v, axis=0, return_inverse=True); f = weld.reshape(-1)[f]   # a glTF shell splits its vertices at seams
+    span = float(np.ptp(v[:, 1])) or 1.
+    while np.any(np.abs(v[:, 1] - y) < 1e-9 * span): y += 1e-7 * span
+    edges = np.sort(np.stack([f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]]], 1), axis=2)          # faces x 3 x 2
+    side = v[:, 1] > y; crossed = side[edges[..., 0]] != side[edges[..., 1]]
+    pairs = edges[crossed.sum(1) == 2][crossed[crossed.sum(1) == 2]].reshape(-1, 2, 2)       # two crossed edges per face
+    require(len(pairs) >= 3, 'Usable grip section has no surface')
+    keys, index = np.unique((pairs[..., 0] * len(v) + pairs[..., 1]).ravel(), return_inverse=True)
+    parent = list(range(len(keys)))
+    def root(i):
+        while parent[i] != i: parent[i] = parent[parent[i]]; i = parent[i]
+        return i
+    for a, b in index.reshape(-1, 2): parent[root(a)] = root(b)
+    labels = np.array([root(i) for i in range(len(keys))])
+    a, b = keys // len(v), keys % len(v); t = (y - v[a, 1]) / (v[b, 1] - v[a, 1]); hits = v[a] + (v[b] - v[a]) * t[:, None]
+    best = None
+    for label in np.unique(labels):
+        loop = hits[labels == label][:, [0, 2]]; lo, hi = loop.min(0), loop.max(0)
+        if len(loop) >= 3 and np.all(lo <= point) and np.all(point <= hi):
+            area = float(np.prod(hi - lo))
+            if best is None or area > best[0]: best = (area, hi - lo)
+    require(best is not None, 'No section outline encloses the grip axis')
+    return best[1]
+
+
+def reference_sections(vertices, faces, standard, centre, length, around=None):
     rows=[]
     for row in standard['referenceSections']:
         fraction=row['fractionFromPommel']
-        depth,width=section_dimensions(vertices,faces,centre+(fraction-.5)*length)
+        depth,width=section_dimensions(vertices,faces,centre+(fraction-.5)*length,around)
         rows.append({'fractionFromPommel':fraction,'depth':float(depth),'visibleFaceWidth':float(width)})
     return rows
 
@@ -172,9 +210,39 @@ def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None):
     return result,report
 
 
+def side_grip_uniform(vertices,faces,matrix,origin,standard,review=None,ends=None):
+    """Keep one uniform scale for a grip that runs across the weapon (a katar's crossbar, a tonfa's side handle).
+
+    The long body lies across the hand, so any transverse correction of the grip would also stretch or squash the body;
+    the overall size is the reviewer's chosen length instead (user, 2026-11-14: "Fist on crossbar", "By the side
+    handle"). The grip is measured on its own section outline (the rest of the weapon shares its planes) and compared
+    with the approved standard; the difference always needs a review bound to this exact measurement, and the
+    both-body visual hand-fit review afterwards."""
+    require(standard.get('id')=='cougar-approved-grip-v1'
+            and standard.get('approval',{}).get('gripSizingApproved') is True,'Approved melee grip reference required')
+    m=np.asarray(matrix,float);origin=np.asarray(origin,float)
+    require(m.shape==(4,4) and np.isfinite(m).all() and np.allclose(m[3],[0,0,0,1]) and origin.shape==(3,),'Finite grip transform required')
+    gram=m[:3,:3].T@m[:3,:3]
+    require(np.linalg.det(m[:3,:3])>0 and np.allclose(gram,np.eye(3)*gram[0,0],atol=1e-12,rtol=1e-7),'A side grip is a uniform fit')
+    require(ends is not None,'A side grip needs its reviewed grip endpoints')
+    usable=float(np.linalg.norm(np.subtract(*transform(np.asarray(ends,float),m)[::-1])));target=standard['targetMidpointSection']
+    sections=reference_sections(transform(vertices,m),faces,standard,origin[1],usable,origin[[0,2]])
+    mid=next(r for r in sections if r['fractionFromPommel']==.5)
+    report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':m.tolist(),
+            'sizingAuthority':'side-grip-uniform','usableLength':usable,'nativeGripOrigin':origin.tolist(),'transverseScale':[1.,1.,1.],
+            'measuredFittedSections':sections,'midpointRelativeDifferences':{'depth':mid['depth']/target['depth']-1,
+                'visibleFaceWidth':mid['visibleFaceWidth']/target['visibleFaceWidth']-1,'usableLength':usable/standard['usableLength']-1},
+            'sideGrip':True,'proportionsAndAnglesPreserved':True,'bothBodyVisualReviewRequired':True}
+    report['measurementDigest']=digest(report);bind_departure(report,review)
+    return m,report
+
+
 def fitted_grip_length(fit, native, report):
     """The length the fitted grip endpoints must match in the fit stage: the native hand, or for a chosen-length round
-    fit the reviewed handle itself, as its bound grip report measured it."""
+    fit or a side grip the reviewed handle itself, as its bound grip report measured it."""
+    if fit.get('sideGrip'):
+        require(isinstance(report, dict) and report.get('sizingAuthority') == 'side-grip-uniform', 'A side grip needs its side-grip report')
+        return float(report['usableLength'])
     if not fit.get('chosenLength'): return float(native['gripLength'])
     require(isinstance(report, dict) and report.get('chosenLength') is True and report.get('sizingAuthority') == 'usable-length-round',
             'A chosen-length fit needs its round grip report')
@@ -186,9 +254,14 @@ def melee_fit(family, fit, standard, vertices, faces, matrix):
 
     Shared by blender_worker.grip_fit and opening_probes.fitted_shell, so the probes measure the shell exactly where
     the fit stage places it and refuse what it refuses. Whole-native firearms are placed by firearm_grip instead."""
-    from .routes import ROUTES, WHOLE_NATIVE_FAMILIES
+    from .routes import HAFTED_FAMILIES, ROUTES, WHOLE_NATIVE_FAMILIES
     route = ROUTES[family['family']]; native = family['native']; authority = fit.get('sizingAuthority'); review = fit.get('gripDeparture')
+    side = fit.get('sideGrip', False); require(type(side) is bool, 'sideGrip must be true or false')
     require(family['family'] not in WHOLE_NATIVE_FAMILIES, 'A whole-native firearm is placed by firearm_grip.measured_fit, not the melee grip')
+    require(side == (authority == 'side-grip-uniform'), 'A side grip is sized only by side-grip-uniform')
+    if side:
+        require(route.hold != 'two' and family['family'] not in HAFTED_FAMILIES, 'A side grip is a one-hand bladed fit')
+        return side_grip_uniform(vertices, faces, matrix, native['gripOrigin'], standard, review, fit['gripEndpoints'])
     if authority == 'midpoint-depth-two-hand':
         require(route.hold == 'two' and route.carrier is not None and native['baseItem'] == route.carrier.base_item,
                 'Explicit two-handed carrier required for the length departure')
