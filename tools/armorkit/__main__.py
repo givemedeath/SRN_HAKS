@@ -123,7 +123,7 @@ def command_bake(args):
 
 def command_split(args):
     from . import bake
-    parts, report = bake.resplit(args.capture)
+    parts, report = bake.resplit(args.capture, body_pack=args.body_pack)
     if args.output:
         bake.keep_parts(parts, args.output)
     print(json.dumps(report))
@@ -227,6 +227,7 @@ def main(argv=None):
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
     p.add_argument('capture', help='the file `bake --capture` wrote')
     p.add_argument('--output', help='.npz file to write the parts to, for `render`')
+    p.add_argument('--body-pack', help="folder of the body's models: an end under a slot left to the body is then measured against its skin")
     p.set_defaults(handler=command_split)
     p = commands.add_parser('refit', help="carry a bake's kept parts to another body by a rotation and a uniform scale each")
     p.add_argument('kept', help='the folder `bake --kept` kept the parts in'); p.add_argument('output', help='the folder the refit parts are kept in')

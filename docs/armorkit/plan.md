@@ -148,8 +148,8 @@ matching rings, each part end is built to overlap:
 * Each joint has a fixed plane and a fixed layering order measured on the locked c7 Human bodies (for example
   the thigh tucks under the pelvis, the chest hangs over the pelvis).
 * Each part end declares a **tier**: 0 skin-tight, 1 cloth, 2 padded or armored, 3 heavy.
-* The "under" end continues past the joint plane by a minimum overlap and tapers; the "over" end is open and at
-  least as wide as its tier's envelope.
+* The "under" end continues past the joint plane by a minimum overlap and tapers; the "over" end is at least as
+  wide as its tier's envelope and closed by a shallow dome on past the plane (revision 2026-11-13 below).
 * Two parts mix cleanly at a joint when the over part's tier is at least the under part's. Other pairs still
   assemble; the registry marks them so SR_NWN can avoid or allow them.
 * Tapered ends follow the repository's no-shelves rule: one continuous slope, no ledge or rolled lip.
@@ -226,7 +226,8 @@ Automatic, per part:
 * Names, 16-character limit, no clash with `srn_body` or `srn_armor`.
 * Triangle and texture budgets.
 * Texture closure: the PLT and material file exist and every referenced map resolves.
-* Seam contract: each end meets its tier's overlap and envelope against the body joint.
+* Seam contract: each end meets its tier's overlap and envelope against the body joint, and every end is
+  closed and domed, what closes it hidden at rest and in the design bend.
 * Clearance: no body surface showing through at rest; no holes or detached pieces.
 * Skin checks from cleanmodels: no unbound vertices, at most four influences, every bone in the skeleton.
 * All 20 body versions exist, and their table rows exist.
@@ -676,3 +677,29 @@ says nothing is worn on the shoulders, no new reference folder is sealed with ve
 version 2 lists no `pads`. Still to build: the pad needs its own brief and a fitting step that places and scales it on the shoulder bone, with its
 clearance over the upper arm checked with the arms up and forward (`python -m tools.armorkit render`) before
 the client. The Site Guard keeps its pads, and the pad split stays for an outfit generated with them.
+
+## Revision 2026-11-13: every joint domed, and the gate on it (user decisions)
+
+Facility Security male, cut from the 200,000-face export, showed in the client that ends left open or closed
+flat part as the joints turn. The user decided that every joint is at least slightly domed, so that the parts
+overlap as they turn and the engine's depth test hides whichever surface lies behind, and raised the whole
+outfit's budget to 40,000 triangles for the rounder ends (Budgets above). Seen in the client with every end
+domed (standing, arms up, arms forward, sitting, crouching and talking), the user accepted the domes once a
+dome as deep as the seat line's slant, which hung below the seat as bulk, was held to 2 cm.
+
+The split now has one way of closing an end (`tools/armorkit/split.py`): an over part's opening is closed by a
+dome on past its plane into the under part (the chest at the waist and round each arm, the pelvis round each
+leg hole, an upper arm at the elbow, a forearm at the wrist, a thigh at the knee, a shin at the ankle), and an
+under end by a cap or a seat end rounded in to its pole, each built from twice the rings it had. A pad's half
+on a plane is left open. The rule is the seam contract's, version 3 (`ends`, docs/armorkit/seam-contract.md),
+and the bake follows the contract's numbers.
+
+The user asked for the rule to be gated (`tools/armorkit/bake.py`, `hidden`, on every bake and split run): at
+each joint, no part open on the plane but a pad's half; the over part's dome no more than 2 cm past its rim;
+what closes the under end inside the outfit as the body stands, within 5 mm; and turned by the design bend, the
+under end's points beyond its own ring inside the over part, within 1 cm. The bend tolerance comes from the
+male outfit the user saw clean, which stands at most 0.7 cm out and passes. The gate found the female's right thigh open
+20 cm round the front of the knee, where a cut that stops at whole edges ran past the reach its dome closed
+within; the dome now closes the whole rim. Her right thigh's end stands 1.2 cm out of the pelvis with the
+leg swung back the hip's whole 67 degrees, and fails until her hips are fitted again. The gate measures
+geometry; the client is still the evidence for how an end looks.

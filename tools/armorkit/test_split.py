@@ -56,6 +56,12 @@ def normals(vertices, faces):
     return np.cross(vertices[faces[:, 1]] - vertices[faces[:, 0]], vertices[faces[:, 2]] - vertices[faces[:, 0]])
 
 
+def own(part, kinds):
+    """The points of a part's own faces (`split.OWN`), not those of what the split added to it."""
+    points, faces = part[:2]
+    return points[np.unique(faces[np.asarray(kinds) == split.OWN])]
+
+
 def figure():
     J = {name: np.array(p, float) for name, p in JOINTS.items()}
     pieces = [tube((0, 0, 0.95), (0, 0, 1.60), 0.15), tube((0, 0, 1.58), (0, 0, 1.70), 0.06, along=6)]
@@ -249,11 +255,13 @@ class SplitTests(unittest.TestCase):
         self.assertEqual(set(parts), TOKENS)
         self.assertAlmostEqual(sum(area(p, f[made[name] == split.OWN]) for name, (p, f, _) in parts.items()), area(self.v, self.f), places=6)
         added = {name for name in parts if (made[name] != split.OWN).any()}
-        self.assertEqual(added, {'pelvis'})  # open on both hip planes, where the thighs do not always stand: closed there
+        # no overlaps, so no caps: what is added closes each over part where an under part stands in it, the pelvis on
+        # both hip planes, where the thighs do not always stand, and every over end on a tube joint
+        self.assertEqual(added, {'pelvis', 'chest', 'bicepl', 'bicepr', 'forel', 'forer', 'legl', 'legr', 'shinl', 'shinr'})
         regions = split.regions(JOINTS, RADII)
         for name, (points, faces, uvs) in parts.items():
             self.assertEqual(len(points), len(uvs))
-            centres = points[faces].mean(axis=1)
+            centres = points[faces[made[name] == split.OWN]].mean(axis=1)  # a dome runs on past its plane
             for point, normal, sign, limit in regions[name]['planes']:
                 if name in ('chest', 'pelvis') and abs(point[0]) > 1e-9:
                     continue  # a limb plane only grazes the trunk: it does not cut a piece off, so the trunk keeps it
@@ -262,10 +270,9 @@ class SplitTests(unittest.TestCase):
                 near = np.linalg.norm(relative - height[:, None] * normal, axis=1) <= limit
                 self.assertTrue(np.all(sign * height[near] >= -1e-6), name)
 
-    def test_with_domes_every_over_end_on_a_tube_joint_is_closed_on_past_its_plane(self):
-        made, plain_made = {}, {}
-        plain = split.split(self.v, self.f, self.t, JOINTS, RADII, made=plain_made)
-        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, made=made, domes=True)
+    def test_every_over_end_on_a_tube_joint_is_closed_on_past_its_plane(self):
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, made=made)
         cuts = split.planes(JOINTS)
         seen = set()
         for (joint, side), (point, normal) in cuts.items():
@@ -282,27 +289,28 @@ class SplitTests(unittest.TestCase):
             self.assertTrue(rim, (joint, side))
             # its own rim on the plane is closed (a line that does not come round keeps the straight edge it is closed across)
             self.assertFalse(rim & {tuple(edge) for edge in open_edges(faces, points).tolist()}, (joint, side))
-            plain_points, plain_faces, _ = plain[over]
-            plain_height = (plain_points - point) @ unit
-            plain_on = (np.abs(plain_height) < split.WELD) & (np.linalg.norm((plain_points - point) - plain_height[:, None] * unit, axis=1)
-                                                              < split.REACH * RADII[(joint, side)])
-            self.assertTrue(plain_on[open_edges(plain_faces, plain_points)].all(axis=1).any(), (joint, side))  # open there without
             dome = np.unique(faces[made[over] == split.CLOSING])
             past = height[dome][near[dome] & (np.abs(height[dome]) < 0.1)]  # the closings round this joint, not another's
             self.assertTrue(len(past) and past.min() > -split.WELD and past.max() > 0.01, (joint, side))  # on past the plane, into the under part
             seen.add(joint)
         self.assertEqual(seen, {'elbow', 'wrist', 'waist', 'knee', 'ankle'})
-        for name, (points, faces, _) in parts.items():  # the outfit's own surface is as it was
-            self.assertTrue(np.array_equal(faces[made[name] == split.OWN], plain[name][1][plain_made[name] == split.OWN]), name)
+        # the contract's rule shapes them: given one ring, a dome is its pole alone, and given 5 mm at most, that deep
+        shallow = split.split(self.v, self.f, self.t, JOINTS, RADII, made=(flat := {}), ends={**seams.ENDS, 'domeRings': 1, 'domeMost': 0.005})
+        points, faces, _ = shallow['bicepl']
+        point, normal = cuts[('elbow', 'l')]
+        height = (points[np.unique(faces[flat['bicepl'] == split.CLOSING])] - point) @ seams.unit(normal)
+        self.assertTrue(np.all(np.isclose(height, 0.0, atol=1e-6) | np.isclose(height, 0.005, atol=1e-6)))  # its rim and its pole
+        self.assertAlmostEqual(float(height.max()), 0.005, places=6)
 
     def test_a_hand_beside_the_thigh_stays_a_hand(self):
-        parts = split.split(self.v, self.f, self.t, JOINTS, RADII)
+        made = {}
+        parts = split.split(self.v, self.f, self.t, JOINTS, RADII, made=made)
         self.assertLess(parts['handl'][0][:, 0].max(), -0.3)
         self.assertGreater(parts['legl'][0][:, 0].min(), -0.25)
         self.assertGreater(parts['pelvis'][0][:, 2].min(), 0.94)
         # the shoulder and elbow planes run on through the lower torso, which is still chest
         self.assertTrue(np.all(np.abs(parts['forel'][0][:, 0]) > 0.2))
-        chest = parts['chest'][0]
+        chest = own(parts['chest'], made['chest'])  # its dome at the waist runs on past the plane
         self.assertAlmostEqual(chest[:, 2].min(), 1.2, places=6)
         self.assertTrue(np.any((chest[:, 0] < -0.12) & (chest[:, 2] < 1.3)))
 
@@ -315,12 +323,13 @@ class SplitTests(unittest.TestCase):
         short = split.split(v, f, t, JOINTS, RADII)
         self.assertNotIn('footl', short)
         self.assertLess(short['shinl'][0][:, 2].min(), 0.05)
-        parts = split.split(v, f, t, JOINTS, RADII, reaches={('ankle', 'l'): 0.15})
+        parts = split.split(v, f, t, JOINTS, RADII, reaches={('ankle', 'l'): 0.15}, made=(made := {}))
         ankle = J['lfoot_g'][2]
         self.assertLess(parts['footl'][0][:, 2].max(), ankle + 0.01)
-        self.assertGreater(parts['shinl'][0][:, 2].min(), ankle - 0.01)
+        self.assertGreater(own(parts['shinl'], made['shinl'])[:, 2].min(), ankle - 0.01)  # and past it its dome
         # the boot's surface is kept (the shin also takes a sliver of the thigh's end at the knee)
-        self.assertAlmostEqual(area(*parts['footl'][:2]) + area(*parts['shinl'][:2]), area(*boot[:2]), places=3)
+        kept = lambda name: area(parts[name][0], parts[name][1][made[name] == split.OWN])
+        self.assertAlmostEqual(kept('footl') + kept('shinl'), area(*boot[:2]), places=3)
         self.assertEqual(split.limits(RADII, reaches={('ankle', 'l'): 0.15})[('ankle', 'r')], split.REACH * RADII[('ankle', 'r')])
         for bad in ({('ankle', 'l'): 0.0}, {('ankle', 'x'): 0.1}):
             with self.assertRaises(ValueError):
@@ -1096,30 +1105,21 @@ class CrotchTests(unittest.TestCase):
         self.assertEqual(sorted(set(kinds.tolist())), [split.OWN, split.CLOSING, split.GUSSET])
         mine = faces[kinds != split.GUSSET]
         loose = open_edges(mine, points)
-        for side in 'lr':  # nothing is left open on either plane, the triangle between the two lids included
-            self.assertFalse(self.on(points[loose], ('hip', side)).all(axis=1).any(), side)
-            self.assertTrue(((kinds == split.CLOSING) & self.on(points, ('hip', side))[faces].all(axis=1)).any(), side)
-        whole = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES)
-        self.assertEqual(len(whole['pelvis'][1]), len(faces))  # the same parts whether or not it is asked what made them
-        # closed by domes instead, nothing is left open either, and what closes it runs on past the planes into the thighs
-        made = {}
-        points, faces, _ = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES, made=made, domes=True)['pelvis']
-        kinds = made['pelvis']
-        loose = open_edges(faces[kinds != split.GUSSET], points)
         dome = np.unique(faces[kinds == split.CLOSING])
-        for side in 'lr':
+        for side in 'lr':  # nothing is left open on either plane, the triangle between the two lids included
             point, normal = self.planes[('hip', side)]
             self.assertFalse(self.on(points[loose], ('hip', side)).all(axis=1).any(), side)
-            self.assertFalse(((kinds == split.CLOSING) & self.on(points, ('hip', side))[faces].all(axis=1)).any(), side)  # none flat on the plane
+            # closed by domes, none of it flat on the plane, and they run on past the planes into the thighs
+            self.assertFalse(((kinds == split.CLOSING) & self.on(points, ('hip', side))[faces].all(axis=1)).any(), side)
             past = (points[dome] - point) @ seams.unit(normal)
-            self.assertGreater(float(past.max()), 0.01, side)  # it runs on past the plane, into the thigh
-        # each thigh's cap is built from twice the rings, as every end is with domes
-        plain, rounded = {}, {}
-        split.split(self.v, self.f, self.t, JOINTS, RADII, {('hip', 'l'): 0.05}, reaches=self.REACHES, made=plain)
-        split.split(self.v, self.f, self.t, JOINTS, RADII, {('hip', 'l'): 0.05}, reaches=self.REACHES, made=rounded, domes=True)
-        caps = lambda made, steps: int((made['legl'] == split.CAP).sum()) / (2 * steps - 1)
-        self.assertEqual(caps(plain, split.TUCK_STEPS), caps(rounded, split.ROUNDED['tuck']))  # one face per rim edge and ring
-        self.assertGreater(int((rounded['legl'] == split.CAP).sum()), int((plain['legl'] == split.CAP).sum()))
+            self.assertGreater(float(past.max()), 0.01, side)
+        whole = split.split(self.v, self.f, self.t, JOINTS, RADII, reaches=self.REACHES)
+        self.assertEqual(len(whole['pelvis'][1]), len(faces))  # the same parts whether or not it is asked what made them
+        # each thigh's cap is built from its rings, one face per rim edge and ring but the pole's
+        capped = {}
+        split.split(self.v, self.f, self.t, JOINTS, RADII, {('hip', 'l'): 0.05}, reaches=self.REACHES, made=capped)
+        count = int((capped['legl'] == split.CAP).sum())
+        self.assertTrue(count and count % (2 * split.TUCK_STEPS - 1) == 0, count)
 
     def test_the_pelvis_repeats_the_crotch_under_the_thighs(self):
         made = {}
@@ -1364,15 +1364,15 @@ class ArmTests(unittest.TestCase):
     def test_the_upper_arm_has_one_end_inside_its_ring_and_past_the_plane(self):
         points, faces, _ = self.parts['bicepl']
         kinds = self.made['bicepl']
-        self.assertNotIn(split.CLOSING, kinds)  # no closing along the sleeve's cuts: the end closes them all
+        point, normal = self.planes[('elbow', 'l')]
+        domed = points[np.unique(faces[kinds == split.CLOSING])]
+        self.assertTrue(np.all((domed - point) @ seams.unit(normal) > -1e-9))  # no closing along the sleeve's cuts, but the dome at the elbow
         end = points[np.unique(faces[kinds == split.CAP])]
         height = self.height(end)
         radius = np.linalg.norm(end - self.point - height[:, None] * self.normal, axis=1)
         self.assertTrue(np.all(radius[np.abs(height) < 1e-9] <= self.RING + 1e-9))
         self.assertAlmostEqual(height.min(), -self.DEPTH, places=9)
-        loose = open_edges(faces, points)
-        self.assertTrue(len(loose))
-        self.assertTrue(self.on(points[loose], ('elbow', 'l')).all())  # open at the elbow only
+        self.assertEqual(len(open_edges(faces, points)), 0)  # closed: the end at the shoulder, the dome at the elbow
 
     def test_an_end_runs_no_deeper_than_the_chest_stands_over_the_joint(self):
         # asked 8 cm deep, the end stops `SEAT_GAP` short of the torso's top, where the arm's axis passes through it
@@ -1386,9 +1386,7 @@ class ArmTests(unittest.TestCase):
 
     def test_the_chest_is_closed_round_the_arm(self):
         points, faces, _ = self.parts['chest']
-        loose = open_edges(faces, points)
-        self.assertTrue(len(loose))
-        self.assertTrue(self.on(points[loose], ('waist', 'c')).all())  # open at the waist only
+        self.assertEqual(len(open_edges(faces, points)), 0)  # round the arm, and domed at the waist
         plain = split.split(self.v, self.f, self.t, JOINTS, RADII, self.overlaps)['chest']
         loose = open_edges(plain[1], plain[0])
         self.assertTrue(self.on(plain[0][loose], ('shoulder', 'l')).all(axis=1).any())  # cut on the plane, it stood open there
@@ -1410,11 +1408,9 @@ class ArmTests(unittest.TestCase):
             moved = grown @ split.rotation(lean, degrees).T
             return int(((moved[:, 0] < -0.055) & (np.abs(moved[:, 1]) < 0.03) & (moved[:, 2] > 0)).sum())
 
-        self.assertEqual(through((1.0, 0.0, 0.0), 30), 0)  # turned out: every point's place on the axis stays inside the wall
-        # all of the bend: a point on the axis 8 cm deep leaves it by 6.9 cm, past the wall; drawn in toward the axis,
-        # the points are held only as deep as their place on the axis is
-        holds = (0.055 - split.SEAT_GAP) / np.sin(np.radians(60))
-        self.assertEqual(through((1.0, 0.0, 0.0), 60, holds - 1e-3), 0)
+        self.assertEqual(through((1.0, 0.0, 0.0), 30), 0)  # turned out: every point's place, the pole, stays inside the wall
+        # all of the bend: the pole 8 cm deep leaves the axis by 6.9 cm, past the wall, and a point drawn in toward it
+        # is held in no pose its pole does not fit in
         self.assertGreater(through((1.0, 0.0, 0.0), 60), 0)
         for degrees in (30, 60):
             self.assertGreater(through((-1.0, 0.0, 0.0), degrees), 0)  # turned in across the torso: not held
@@ -1429,19 +1425,10 @@ class ArmTests(unittest.TestCase):
         # is drawn onto the axis (it fits nowhere `SEAT_GAP` inside), and a face between two of them has no area
         normal, point = np.array((0.0, 0.0, -1.0)), np.zeros(3)
         v, f, t = tube((0, 0, -0.03), (0, 0, -0.2), 0.05, around=32, along=6)
+        # (each point past the plane is drawn toward the pole, inward and deeper at once, and each before it toward
+        # the axis on the plane, which it then never crosses)
         narrow = tube((0, 0, 0.15), (0, 0, -0.15), 0.003, around=16, along=8)[:2]
         grown, _, faces = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, narrow)
-        drawn = np.linalg.norm(grown[:, :2], axis=1) < 1e-9
-        self.assertTrue(drawn.all())
-        corners = np.concatenate([v, grown])[faces]
-        sides = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2)
-        self.assertGreaterEqual(sides.min(), split.POINT)
-        self.assertEqual(len(faces), 32)  # a cone from the rim to the axis, closed: one face per rim edge
-        self.assertGreater(np.ptp(grown[:, 2]), 0.05)  # drawn in at their heights: a flat run of the axis
-        # domed, each point past the plane is drawn toward the pole instead, inward and deeper at once, and each
-        # before it toward the axis on the plane, which it then never crosses
-        grown, _, faces = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, narrow,
-                                         domed=True)
         self.assertTrue(np.allclose(grown[:, :2], 0.0))
         self.assertTrue(np.all(np.isclose(grown[:, 2], 0.0) | np.isclose(grown[:, 2], 0.08)))
         self.assertTrue(np.isclose(grown[:, 2], 0.08).any())
@@ -1449,7 +1436,7 @@ class ArmTests(unittest.TestCase):
         self.assertGreaterEqual(np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2).min(), split.POINT)
         # an over part with room: the rings past the plane stay off the axis, a dome
         wide = tube((0, 0, 0.15), (0, 0, -0.15), 0.08, around=16, along=8)[:2]
-        grown, _, _ = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, wide, domed=True)
+        grown, _, _ = split.seat_end(v, t, f, len(v), point, normal, (v - point) @ normal < 0.1, np.full(16, 0.06), 0.08, wide)
         past = grown[grown[:, 2] > 1e-9]
         self.assertTrue(len(past) and np.linalg.norm(past[:, :2], axis=1).max() > 0.03)
 
@@ -1478,18 +1465,18 @@ class KneeTests(unittest.TestCase):
         self.point, normal = split.planes(JOINTS)[('knee', 'l')]
         self.normal = seams.unit(normal)
 
-    def test_with_domes_a_knee_pads_half_on_the_thigh_is_left_open(self):
+    def test_a_knee_pads_half_on_the_thigh_is_left_open(self):
         pad = split.guard(self.v, self.f, self.materials, JOINTS, 'knee', 'l')
         made, origins = {}, {}
         points, faces, _ = split.split(self.v, self.f, self.t, JOINTS, RADII, {('knee', 'l'): 0.05}, guards={('knee', 'l'): pad},
-                                       made=made, origins=origins, domes=True)['legl']
+                                       made=made, origins=origins)['legl']
         height = (points - self.point) @ self.normal
         on = np.abs(height) < split.WELD
         plate = np.zeros(len(faces), bool)
         plate[made['legl'] == split.OWN] = pad[origins['legl'][made['legl'] == split.OWN]]
         loose = open_edges(faces, points)
         loose = loose[on[loose].all(axis=1)]
-        self.assertTrue(len(loose))  # the pad's edge on the plane is open, as without domes
+        self.assertTrue(len(loose))  # the pad's edge on the plane is open
         plate_points = np.zeros(len(points), bool)
         plate_points[faces[plate].ravel()] = True
         self.assertTrue(plate_points[loose].all())
@@ -1553,14 +1540,19 @@ class KneeTests(unittest.TestCase):
         was, made = {}, {}
         cut = split.split(self.v, self.f, self.t, JOINTS, RADII, depth, made=was)
         parts = split.split(self.v, self.f, self.t, JOINTS, RADII, depth, guards={('knee', 'l'): pad}, made=made)
-        for name in parts:  # each half of the pad stays on its part: nothing but the shin's cap differs
-            if name != 'shinl':
+        for name in parts:  # each half of the pad stays on its part: nothing but the shin's cap and the thigh's dome differs
+            if name not in ('shinl', 'legl'):
                 self.assertEqual(len(parts[name][1]), len(cut[name][1]), name)
                 self.assertTrue(np.array_equal(parts[name][0], cut[name][0]) and np.array_equal(made[name], was[name]), name)
-        self.assertEqual(sorted(set(was['shinl'].tolist())), [split.OWN, split.CAP])
-        self.assertEqual(sorted(set(made['shinl'].tolist())), [split.OWN, split.CAP, split.PADDED])
-        self.assertEqual(int((made['shinl'] == split.OWN).sum()), int((was['shinl'] == split.OWN).sum()))
-        self.assertEqual(int((made['shinl'] != split.OWN).sum()) * (2 * split.CAP_STEPS - 1), int((was['shinl'] != split.OWN).sum()) * (2 * split.GUARD_STEPS - 1))
+        own = lambda result, kinds: result['legl'][1][kinds['legl'] == split.OWN]
+        self.assertTrue(np.array_equal(own(parts, made), own(cut, was)))
+        self.assertLess(int((made['legl'] == split.CLOSING).sum()), int((was['legl'] == split.CLOSING).sum()))  # the pad's half left open
+        self.assertEqual(sorted(set(was['shinl'].tolist())), [split.OWN, split.CLOSING, split.CAP])  # domed at the ankle
+        self.assertEqual(sorted(set(made['shinl'].tolist())), [split.OWN, split.CLOSING, split.CAP, split.PADDED])
+        for kind in (split.OWN, split.CLOSING):
+            self.assertEqual(int((made['shinl'] == kind).sum()), int((was['shinl'] == kind).sum()))
+        capped = lambda kinds: int(np.isin(kinds['shinl'], (split.CAP, split.PADDED)).sum())
+        self.assertEqual(capped(made) * (2 * split.CAP_STEPS - 1), capped(was) * (2 * split.GUARD_STEPS - 1))
         points, faces, _ = parts['shinl']
         self.assertAlmostEqual(-height(cut['shinl'][0]).min(), 0.04, places=6)  # a cap as deep as it was asked for
         reach = np.linalg.norm((self.v[self.f[pad]] - self.point)[np.abs(height(self.v[self.f[pad]])) < 0.01], axis=1).max()
@@ -1609,7 +1601,7 @@ class KneeTests(unittest.TestCase):
             split.guard(v, f, behind, JOINTS, 'hip', 'l')
         pad, made = behind == 1, {}
         parts = split.split(v, f, t, JOINTS, RADII, {('elbow', 'l'): 0.03}, guards={('elbow', 'l'): pad}, made=made)
-        self.assertEqual(sorted(set(made['forel'].tolist())), [split.OWN, split.CAP, split.PADDED])
+        self.assertEqual(sorted(set(made['forel'].tolist())), [split.OWN, split.CLOSING, split.CAP, split.PADDED])  # domed at the wrist
         self.assertEqual(set(made['bicepl'].tolist()) - {split.CLOSING}, {split.OWN})  # the upper arm keeps its half as it was cut
         points, faces, _ = parts['forel']
         under = points[np.unique(faces[made['forel'] == split.PADDED])] - J['lforearm_g']

@@ -36,12 +36,20 @@ BUDGET = {'chest': 8000, 'slot': 2900, 'outfit': 40000, 'texture': 1024}  # tria
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
 # their budgets come to 39,900)
 END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
-DOMES = False  # whether every end is closed by a dome on past its joint's plane (`split.split`'s `domes`): on trial, 2026-11-13
 SKIN_ROUNDS = 3  # a part sharing its slot with the body's skin is reduced again at most this often, as the skin beside it is counted anew
 WHOLE = 'no holes or detached pieces'  # the gate `surface` answers, on the generated outfit as the bake is given it
 SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the gate `ends` answers, on a body the contract measured
-NOT_BUILT = (SEAM, 'clearance: no body surface showing at rest',
-             WHOLE)  # gates of docs/armorkit/plan.md that `gates` does not check: WHOLE but on a fresh bake, SEAM but on a measured body
+HIDDEN = 'seam contract: every end closed and domed, what closes it hidden at rest and in the design bend'  # the gate `hidden` answers
+NOT_BUILT = (SEAM, HIDDEN, 'clearance: no body surface showing at rest',
+             WHOLE)  # gates of docs/armorkit/plan.md that `gates` does not check: WHOLE but on a fresh bake, SEAM and HIDDEN but on a measured body
+UNCUT = {('neck', 'c')}  # the joints the bake leaves whole (`cut`): the neck stays on the chest as its collar
+ON_PLANE = 1e-4  # metres: a point this near a joint's plane lies on it, wherever the reduction moved it along the plane
+OPEN_LEAST = 0.01  # metres: a part is open on a plane when this much edge or more lies there on one face only. Less is a
+# slit where a closing along another cut meets the plane: 6 mm of the chest of Facility Security female at the waist, under its hem
+DOME_SLACK = 0.001  # metres: a dome may stand this much farther past its rim than the contract's `domeMost`
+HIDDEN_STEP = 0.003  # a surface is sampled this densely to tell how far a point stands outside it
+HIDDEN_NEAR = 0.05  # and only within this of the points measured
+HINGES = {'elbow': 1.0, 'knee': -1.0}  # the way along body +Y a hinge's under part swings (`hidden`): a forearm forward, a shin back
 INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear of the cut that made it
 REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
 STEP = 0.003  # an under end's surface is sampled this densely to tell how far past its plane it runs
@@ -223,7 +231,7 @@ def _collapsed(vertices, faces):
 def _outfit(part, pads=False, own=False):
     """(vertices, faces, shared) of the outfit's faces of a part: the body's skin beside them left out, and with
     `pads` false a pad over the joint (`pad`) too; with `own`, what the split added as well (`added`): an over
-    end is its own surface, and a dome on from its rim (`split.split`'s `domes`) is none of it."""
+    end is its own surface, and the dome on from its rim (`split.lid`) is none of it."""
     keep = np.ones(len(part['f']), bool)
     for key in ('skin',) + (() if pads else ('pad',)) + (('added',) if own else ()):
         if key in part:
@@ -250,6 +258,222 @@ def _past(vertices, faces, point, normal, limit):
     np.maximum.at(depth, seams.sectors(flat[keep]), -height[keep])
     pole = keep & (radius <= AXIS)
     return np.maximum(depth, -height[pole].min()) if pole.any() else depth
+
+
+def hidden(parts, bones, body, contract=None, skin=None, left=()):
+    """How what the split added to an outfit meets the seam contract's `ends` (version 3) on body `body`:
+    (report, failures), or None when the contract has no rings of that body. At each joint the bake cuts (not
+    `UNCUT`):
+
+    * Closed. No part is open on the joint's plane but where a pad's half lies on it (`pad`): left open, an
+      over end showed the part's inside once a bend turned the under part out of it.
+    * Domed. Past the over part's rim, what closes it stands farther past the plane than the rim does on
+      average, and no more than the contract's `domeMost` (and `DOME_SLACK`) farther than the rim's farthest
+      point: a dome 15 cm past the hip plane, its rim 8 cm, hung below the seat as bulk (Facility Security, 2026-11-13).
+    * Hidden at rest. Each point the split added to the under end off the outfit's own surface lies inside another
+      of the outfit's parts or no more than the contract's `rest` outside one, and under a slot the brief leaves to
+      the body (`left`) inside the body's own skin (`skin`, its parts as `measure.body` reads them, the whole body
+      as one): without `skin`, that is not measured. A pad's faces are a plate's and are not measured. Nor is an
+      over end's dome here: an over end is at least as wide as the envelope and an under end inside it, so the
+      dome's first rings stand out over the under end by contract, as the open end and the flat lid did.
+    * Hidden in the bend. Turned about the joint by the contract's design bend (`_turns`), each point of the under
+      end past the plane and farther from the joint than the end's own ring on the plane lies inside the over
+      part or no more than `bent` outside it. A point within that ring turns within it: a rounded end shows as
+      a rounded joint.
+
+    A point belongs to the joint of its part whose centre is nearest it. The report holds per joint and side the
+    `over` and `under` parts and, in metres, each part's edge left open on the plane (`open`), how far the over
+    part's dome rises past its rim's mean (`rise`) and past its farthest point (`past`), and how far what was
+    added stands outside at most as the body stands (`rest`) and turned (`bent`), None where nothing was measured."""
+    contract = seams.load_contract() if contract is None else contract
+    if any(body not in contract['joints'][joint]['bodies'] for joint in seams.JOINTS):
+        return None
+    rule, left = contract.get('ends', seams.ENDS), set(left)
+    keys = [(joint, side) for joint in seams.JOINTS for side in seams.sides(joint) if (joint, side) not in UNCUT]
+    planes, slots, report, failures = {}, {}, {}, []
+    for joint, side in keys:
+        letter = 'l' if side == 'c' else side
+        point, normal = seams.plane(bones, joint, letter)
+        widest = np.max(seams.envelope(contract, joint, body, registry.TIERS[-1], None if side == 'c' else side))
+        planes[(joint, side)] = (np.asarray(point, float), seams.unit(normal), REACH * float(widest))
+        slots[(joint, side)] = tuple(split.token(seams.JOINTS[joint][key], letter) for key in ('over', 'under'))
+        report.setdefault(joint, {})[side] = {'over': slots[(joint, side)][0], 'under': slots[(joint, side)][1], 'open': {},
+                                              'rise': None, 'past': None, 'rest': None, 'bent': None}
+    row = lambda key: report[key[0]][key[1]]
+    worse = lambda key, field, value: row(key).update({field: round(max(value, row(key)[field] or 0.0), 4)})
+    data = {}
+    for name, part in parts.items():
+        v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+        flag = lambda key: np.asarray(part.get(key, np.zeros(len(f), bool)), bool)
+        mine = [key for key in keys if name in slots[key]]
+        centres = np.array([planes[key][0] for key in mine]).reshape(-1, 3)
+        nearest = np.linalg.norm(v[:, None] - centres[None], axis=2).argmin(axis=1) if mine else np.zeros(len(v), int)
+        data[name] = {'v': v, 'f': f, 'skin': flag('skin'), 'pad': flag('pad'), 'added': _added(part) & ~flag('skin'), 'joints': mine, 'nearest': nearest}
+    others = lambda name: [(data[other]['v'], data[other]['f']) for other in data if other != name]
+    body_skin = [tuple(np.asarray(x) for x in mesh) for mesh in (skin or {}).values()]
+    for name, part in data.items():  # closed
+        v, f = part['v'], part['f']
+        loose, face = _open_edges(v, f)
+        loose = loose[~(part['pad'] | part['skin'])[face]]  # a pad's half is left open; the body's skin joins by matched rings
+        for key in part['joints']:
+            point, normal, limit = planes[key]
+            along = (v - point) @ normal
+            on = (np.abs(along) < ON_PLANE) & (np.linalg.norm(v - point - along[:, None] * normal, axis=1) <= limit)
+            edges = loose[on[loose].all(axis=1)]
+            length = float(np.linalg.norm(v[edges[:, 0]] - v[edges[:, 1]], axis=1).sum())
+            row(key)['open'][name] = round(length, 4)
+            if length >= OPEN_LEAST:
+                failures.append(f'{name} at the {key[0]}: open on its plane, {length * 100:.1f} cm of edge')
+    for key in keys:  # domed
+        over = slots[key][0]
+        if over not in data:
+            continue
+        part = data[over]
+        v, f, point, normal = part['v'], part['f'], planes[key][0], planes[key][1]
+        along = (v - point) @ normal
+        here = part['nearest'] == part['joints'].index(key)
+        closing, own = np.zeros(len(v), bool), np.zeros(len(v), bool)
+        closing[f[part['added'] & ~part['pad']].ravel()] = True
+        own[f[~part['added'] & ~part['skin']].ravel()] = True
+        dome, rim = closing & here & (along > ON_PLANE), closing & own & here & (along > -ON_PLANE)
+        if not (dome.any() and rim.any()):
+            continue
+        rise, past = float(along[dome].max() - along[rim].mean()), float(along[dome].max() - along[rim].max())
+        row(key).update(rise=round(rise, 4), past=round(past, 4))
+        if rise <= ON_PLANE:
+            failures.append(f'{over} at the {key[0]}: not domed, what closes it stands no farther past the plane than its rim')
+        if past > rule['domeMost'] + DOME_SLACK:
+            failures.append(f'{over} at the {key[0]}: its dome stands {past * 100:.1f} cm past its rim, over the contract\'s {rule["domeMost"] * 100:.1f} cm')
+    for name, part in data.items():  # hidden at rest
+        v, f = part['v'], part['f']
+        added, own = np.zeros(len(v), bool), np.zeros(len(v), bool)
+        added[f[part['added'] & ~part['pad']].ravel()] = True
+        own[f[~part['added']].ravel()] = True
+        for index, key in enumerate(part['joints']):
+            over, under = slots[key]
+            if name != under or (over not in data and over not in left):
+                continue  # an over end's dome stands over the under part's narrower end by contract, and `domed` bounds it;
+                # with nothing over an under end, nothing hides it
+            meshes = body_skin if over in left else others(name)
+            points = v[added & ~own & (part['nearest'] == index)]
+            if not len(points) or not meshes:
+                continue
+            outside = ~_inside(points, meshes)
+            if outside.any():
+                far = _off(points[outside], meshes).max()
+                worse(key, 'rest', far)
+                if far > rule['rest']:
+                    failures.append(f'{name} at the {key[0]}: what the split added stands up to {far * 100:.1f} cm outside the outfit as the body stands')
+            else:
+                worse(key, 'rest', 0.0)
+    for key in keys:  # hidden in the bend
+        over, under = slots[key]
+        if over not in data or under not in data:
+            continue
+        point, normal, limit = planes[key]
+        part = data[under]
+        used = np.unique(part['f'][~part['skin'] & ~part['pad']])
+        x = part['v'][used]
+        along = (x - point) @ normal
+        radial = np.linalg.norm(x - point - along[:, None] * normal, axis=1)
+        ring = (np.abs(along) < 1e-3) & (radial <= limit)
+        if not ring.any():
+            continue
+        end = x[(along < -ON_PLANE) & (radial <= limit) & (np.linalg.norm(x - point, axis=1) > radial[ring].max() + rule['bent'])]
+        worse(key, 'bent', 0.0)
+        middle = (bones['lbicep_g'][:3, 3] + bones['rbicep_g'][:3, 3]) / 2
+        bend = float(contract['joints'][key[0]]['bodies'][body]['bend'][contract['designBend']])
+        mesh, worst = [(data[over]['v'], data[over]['f'])], None
+        for turn in (_turns(key[0], normal, bend, point - middle) if len(end) else ()):
+            moved = point + (end - point) @ turn.T
+            outside = ~_inside(moved, mesh)
+            far = float(_off(moved[outside], mesh).max()) if outside.any() else 0.0
+            if far > row(key)['bent']:
+                worse(key, 'bent', far)
+                worst = turn
+        if row(key)['bent'] > rule['bent']:
+            failures.append(f'{under} at the {key[0]}: turned {_way(worst, normal)} by {_degrees(worst):.0f} degrees of the design bend\'s '
+                            f'{bend:.0f}, its end stands up to {row(key)["bent"] * 100:.1f} cm outside {over}')
+    return report, failures
+
+
+def _added(part):
+    """Per face of a part, whether the split added it: its `added` flags, or else from what made each face (`made`)."""
+    return np.asarray(part['added'], bool) if 'added' in part else np.isin(part['made'], ADDED)
+
+
+def _open_edges(vertices, faces):
+    """(edges, face): the edges of `faces` on one face only, vertices within `split.WELD` of each other being one
+    point, as pairs of vertex numbers, and the face each is on."""
+    weld = mesh_ops.weld_ids(vertices, split.WELD)
+    edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
+    face = np.tile(np.arange(len(faces)), 3)
+    key = np.sort(weld[edges], axis=1)
+    real = key[:, 0] != key[:, 1]
+    edges, face, key = edges[real], face[real], key[real]
+    if not len(edges):
+        return edges.reshape(0, 2), face
+    _, inverse, count = np.unique(key, axis=0, return_inverse=True, return_counts=True)
+    single = count[inverse.reshape(-1)] == 1
+    return edges[single], face[single]
+
+
+def _inside(points, meshes):
+    """Per point, whether it lies inside one of the closed surfaces `meshes`, (vertices, faces) each: its winding
+    number about that surface half a turn or more (`measure.winding`). A surface is asked only about the points
+    within its bounds."""
+    points, found = np.asarray(points, float), np.zeros(len(points), bool)
+    for vertices, faces in meshes:
+        vertices = np.asarray(vertices, float)
+        low, high = vertices.min(axis=0), vertices.max(axis=0)
+        near = ~found & (points >= low).all(axis=1) & (points <= high).all(axis=1)
+        if near.any():
+            found[near] = np.abs(measure.winding(points[near], vertices, faces)) >= 0.5
+    return found
+
+
+def _off(points, meshes, step=HIDDEN_STEP, near=HIDDEN_NEAR):
+    """Per point, how far it stands from the nearest of the surfaces `meshes`, read at points `step` apart within
+    `near` of the points; `near` itself where none of them comes that near."""
+    points = np.asarray(points, float)
+    low, high = points.min(axis=0) - near, points.max(axis=0) + near
+    samples = []
+    for vertices, faces in meshes:
+        corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+        close = (corners.max(axis=1) >= low).all(axis=1) & (corners.min(axis=1) <= high).all(axis=1)
+        if close.any():
+            used, inside = np.unique(np.asarray(faces, int)[close], return_inverse=True)
+            samples.append(measure.surface_points(np.asarray(vertices, float)[used], inside.reshape(-1, 3), step))
+    if not samples:
+        return np.full(len(points), near)
+    return np.minimum(texture.nearest(points, np.concatenate(samples))[1], near)
+
+
+def _way(turn, normal):
+    """Which way of the body's (+X its left, +Y its front, +Z up) a turn swings a limb along `normal` most."""
+    normal = np.asarray(normal, float)
+    turned = turn @ normal
+    swing = turned - (turned @ normal) * normal
+    axis = int(np.argmax(np.abs(swing)))
+    return ('right', 'left', 'back', 'forward', 'down', 'up')[2 * axis + int(swing[axis] > 0)]
+
+
+def _degrees(turn):
+    """How far a turn turns, in degrees."""
+    return float(np.degrees(np.arccos(np.clip((np.trace(turn) - 1) / 2, -1.0, 1.0))))
+
+
+def _turns(joint, normal, bend, out):
+    """The turns of an under part about its joint that `hidden` holds its end to, as matrices, by `bend` degrees:
+    an upper arm's and a thigh's as the split holds them inside the torso (`split.swung`; `out`, the way from the
+    torso to the joint, for an arm); a hinge's (`HINGES`) the one way it bends, by half and all of it; any other
+    forward, back and to either side by half and all of it."""
+    if joint in ('shoulder', 'hip'):
+        return split.swung(normal, bend, out if joint == 'shoulder' else None)
+    forward = seams.unit(np.array((0.0, 1.0, 0.0)) - normal[1] * normal)
+    across = np.cross(normal, forward)  # turned about this by a positive angle, the under part swings forward
+    ways = [(across, HINGES[joint])] if joint in HINGES else [(axis, sign) for axis in (across, forward) for sign in (1.0, -1.0)]
+    return [split.rotation(axis, sign * share * bend) for axis, sign in ways for share in (0.5, 1.0)]
 
 
 def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None, capture=None):
@@ -381,10 +605,10 @@ def cut(given, contract=None):
     made, origins = {}, {}
     bare = bare_joints(given)
     result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
-                         reaches=given['reaches'], whole={('neck', 'c')}, made=made, sleeves=given['sleeves'], guards=given['guards'],
+                         reaches=given['reaches'], whole=UNCUT, made=made, sleeves=given['sleeves'], guards=given['guards'],
                          origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
                          deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare},
-                         domes=DOMES)
+                         ends=contract.get('ends'))
     return result, made, origins
 
 
@@ -510,12 +734,14 @@ def kept_split(path):
         return _unflat(json.loads(str(data['skeleton'])), data)
 
 
-def resplit(capture, contract=None):
+def resplit(capture, contract=None, body_pack=None):
     """The split run again with the code as it stands on what a bake kept (`keep_split`), in seconds where the bake
     takes minutes: (parts, report). `parts` maps each part a bake would bake (none the brief leaves to the body)
     to its `v`, `f`, `made` (what made each face: `split.OWN`, `split.CLOSING` and so on) and `pad` (`pad_flags`).
     The report holds the seconds the split took, the triangles of each part, those with two corners at one
-    point (`gates`), and the seam contract's measure of every end (`ends`, `seams`) with its `failures`. Nothing
+    point (`gates`), and the seam contract's measure of every end (`ends`, `seams`) and of what closes it
+    (`hidden`, with the seconds that took) with their `failures`; given `body_pack`, the folder of the body's
+    models, what an end next to a slot left to the body added is measured against the body's skin too. Nothing
     is laid out, coloured or written: the gates of a written outfit are `run`'s."""
     given = kept_split(capture)
     began = time.monotonic()
@@ -530,9 +756,14 @@ def resplit(capture, contract=None):
     collapsed = {name: _collapsed(part['v'], part['f']) for name, part in parts.items()}
     failures = [f'{name}: {count} triangles with two corners at one point, which the model compiler drops' for name, count in collapsed.items() if count]
     joined = ends(parts, given['bones'], given['body'], given['tier'], contract)
+    began = time.monotonic()
+    skin = None if body_pack is None else measure.body(body_pack, given['body'])[1]
+    covered = hidden(parts, given['bones'], given['body'], contract, skin, left)
     report = {'seconds': round(seconds, 2), 'triangles': {name: int(len(part['f'])) for name, part in parts.items()},
               'collapsed': {name: count for name, count in collapsed.items() if count},
-              'seams': None if joined is None else joined[0], 'failures': failures + ([] if joined is None else joined[1])}
+              'seams': None if joined is None else joined[0], 'hidden': None if covered is None else covered[0],
+              'hiddenSeconds': round(time.monotonic() - began, 2),
+              'failures': failures + ([] if joined is None else joined[1]) + ([] if covered is None else covered[1])}
     return parts, report
 
 
@@ -716,7 +947,7 @@ def write(folder, parts, tinted, bones, body, number):
     return models
 
 
-def gates(parts, models, resources, packs=(), whole=None, joined=None):
+def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=None):
     """The automatic gates of docs/armorkit/plan.md that can be checked on one written outfit: a report.
 
     Budgets: the triangles of each part, the chest's own and the whole outfit's, and the texels a side of
@@ -728,7 +959,7 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None):
     and a crumb of debris fail too, and the report holds it as `surface`; parts tinted again from a kept
     folder come without it, and that gate stays under `notBuilt`. With `joined`, what `ends` found, each end
     that misses the seam contract fails, and the report holds it as `seams`; on a body the contract has no
-    rings of, that gate stays under `notBuilt`."""
+    rings of, that gate stays under `notBuilt`. So it is with `covered`, what `hidden` found, as `hidden`."""
     resources, failures = Path(resources), []
     faces = {name: int(len(part['f'])) for name, part in parts.items()}
     for name, number in faces.items():
@@ -760,11 +991,13 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None):
         failures += [f'the generated outfit: a piece of {piece * 1e4:.1f} cm² standing apart from the rest' for piece in whole['debris']]
     if joined is not None:
         failures += joined[1]
-    checked = {WHOLE: whole is not None, SEAM: joined is not None}
+    if covered is not None:
+        failures += covered[1]
+    checked = {WHOLE: whole is not None, SEAM: joined is not None, HIDDEN: covered is not None}
     return {'passed': not failures, 'failures': failures, 'triangles': {**faces, 'outfit': sum(faces.values())},
             'texels': {name: int(len(part['rgb'])) for name, part in parts.items()},
             **({} if whole is None else {'surface': whole}), **({} if joined is None else {'seams': joined[0]}),
-            'notBuilt': [gate for gate in NOT_BUILT if not checked.get(gate)]}
+            **({} if covered is None else {'hidden': covered[0]}), 'notBuilt': [gate for gate in NOT_BUILT if not checked.get(gate)]}
 
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
@@ -796,8 +1029,9 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
         bones = measure.body(body_pack, body)[0]
     tinted, record = tints(parts, document)
     models = write(output, parts, tinted, bones, body, number)
+    covered = hidden(parts, bones, body, skin=measure.body(body_pack, body)[1], left=left_to_body(document))
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
-              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier))}
+              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered)}
     if game is not None:
         compiled = export.compile_models(sorted(Path(output) / 'ascii' / (model + '.mdl') for model in models.values()),
                                          Path(output) / 'resources', game=game, resources=list(resources))

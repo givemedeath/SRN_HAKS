@@ -314,9 +314,9 @@ def sha(path):
 def seam_contract(body_folder, supermodel_folders, bodies=seams.AUTHORING_BODIES, design_bend='p95'):
     """The seam contract document, measured from the body pack and the animation models the bodies inherit."""
     body_folder = Path(body_folder)
-    document = {'schemaVersion': 1, 'kind': seams.KIND, 'version': 2, 'units': 'metres', 'directions': seams.DIRECTIONS,
+    document = {'schemaVersion': 1, 'kind': seams.KIND, 'version': 3, 'units': 'metres', 'directions': seams.DIRECTIONS,
                 'tierOffsets': {str(tier): offset for tier, offset in seams.TIER_OFFSETS.items()},
-                'designBend': design_bend, 'joints': {}, 'source': {'bodies': {}, 'animation': {}}}
+                'designBend': design_bend, 'ends': dict(seams.ENDS), 'joints': {}, 'source': {'bodies': {}, 'animation': {}}}
     for name in bodies:
         bones, parts = body(body_folder, name)
         measured = joints(bones, parts)

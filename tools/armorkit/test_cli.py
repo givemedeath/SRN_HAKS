@@ -132,10 +132,10 @@ class CommandLineTests(unittest.TestCase):
     def test_a_split_runs_again_on_what_a_bake_kept_and_fails_on_a_gate(self):
         from . import bake
         calls = {}
-        report = lambda failures: (lambda capture: calls.setdefault('capture', capture) and ({'chest': {}}, {'failures': failures}))
+        report = lambda failures: (lambda capture, body_pack: calls.update(capture=capture, pack=body_pack) or ({'chest': {}}, {'failures': failures}))
         with mock.patch.object(bake, 'resplit', report([])), mock.patch.object(bake, 'keep_parts', lambda parts, path: calls.setdefault('parts', path)):
-            self.assertEqual(run('split', 'kept.npz', '--output', 'parts.npz'), {'failures': []})
-        self.assertEqual((calls['capture'], calls['parts']), ('kept.npz', 'parts.npz'))
+            self.assertEqual(run('split', 'kept.npz', '--output', 'parts.npz', '--body-pack', 'srn_body'), {'failures': []})
+        self.assertEqual((calls['capture'], calls['parts'], calls['pack']), ('kept.npz', 'parts.npz', 'srn_body'))
         with mock.patch.object(bake, 'resplit', report(['chest: short'])), self.assertRaises(SystemExit) as stopped:
             run('split', 'kept.npz')
         self.assertEqual(stopped.exception.code, 1)
