@@ -152,6 +152,10 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(prop_fixture.late(100, 106.0, 6.0), 6.0); self.assertAlmostEqual(prop_fixture.late(100, 104.6, 6.0), 4.6)
         # The default hold leaves room for the settle, a poll and the stamp's whole second.
         self.assertIsNone(prop_fixture.late(100, 100 + 1.5 + prop_fixture.client.POLL + 1.0, prop_fixture.HOLD))
+        # A grab retried after showing a minimised window is timed when the retry starts (review, 2026-11-14).
+        with mock.patch.object(prop_fixture.client, 'capture', side_effect=[OSError, 'shot.png']), mock.patch.object(prop_fixture.client, 'window', return_value=1), \
+                mock.patch('ctypes.WinDLL'), mock.patch.object(prop_fixture.time, 'sleep'), mock.patch.object(prop_fixture, 'clock', side_effect=[104.4, 105.1]):
+            self.assertEqual(prop_fixture.grab(1, 'shot.png'), ('shot.png', 105.1))
         self.assertIsNone(prop_fixture.late(86399, 3.0, 6.0)); self.assertIsNone(prop_fixture.late(None, 500.0, 6.0))  # past midnight; no stamp
         with tempfile.TemporaryDirectory() as scratch:
             user = Path(scratch) / 'user'; (user / 'logs').mkdir(parents=True); captures = Path(scratch) / 'captures'; captures.mkdir()
@@ -165,7 +169,7 @@ class CheckTests(unittest.TestCase):
                     stamps, ['ENVKIT shot=0 target=a valid=1', 'ENVKIT shot=1 target=b valid=1', 'ENVKIT done'])), encoding='cp1252')
                 process = mock.Mock(pid=7); process.poll.return_value = None
                 with mock.patch.object(prop_fixture.client, 'start', return_value=process), mock.patch.object(prop_fixture.client, 'stop'), \
-                        mock.patch.object(prop_fixture, 'capture', side_effect=shoot), mock.patch.object(prop_fixture.time, 'sleep'), \
+                        mock.patch.object(prop_fixture.client, 'capture', side_effect=shoot), mock.patch.object(prop_fixture.time, 'sleep'), \
                         mock.patch.object(prop_fixture, 'clock', return_value=13 * 3600 + 58 * 60 + 25.0):
                     return prop_fixture.run('game', record, captures)
             self.assertEqual(len(go(['13:58:21', '13:58:23', '13:58:24'])['captures']), 2)

@@ -158,20 +158,26 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
     return record
 
 
-def capture(pid, path):
-    """The client window's pixels. A window that opened minimised (someone is using the machine) cannot be grabbed, so
-    it is shown, without taking the focus, and grabbed again."""
+def grab(pid, path):
+    """(the client window's pixels, `clock()` as the grab that made them began). A window that opened minimised (someone
+    is using the machine) cannot be grabbed, so it is shown, without taking the focus, and grabbed again: the time is
+    the second grab's, since the wait before it can carry the grab past its shot (review, 2026-11-14)."""
     try:
-        return client.capture(pid, path)
+        began = clock(); return client.capture(pid, path), began
     except OSError:
         import ctypes
         ctypes.WinDLL('user32').ShowWindow(ctypes.c_void_p(client.window(pid)), 4)  # SW_SHOWNOACTIVATE
         time.sleep(0.7)
-        return client.capture(pid, path)
+        began = clock(); return client.capture(pid, path), began
 
 
-# The client stamps its log to the second. A capture made later after its shot's line than the shot is held, less
-# the margin a capture needs and that second, shows the next shot's view: the rail freight depot's client stalled for
+def capture(pid, path):
+    """The client window's pixels (`grab`)."""
+    return grab(pid, path)[0]
+
+
+# The client stamps its log to the second. A capture that may have come after the shot's next view (`late`) is
+# refused: the rail freight depot's client stalled for
 # twenty seconds on its sixth shot, and its check took the last view five times under five names (2026-11-13).
 STAMPED = re.compile(r'^\[\w{3} \w{3} +\d+ (\d\d):(\d\d):(\d\d)\]\s*')
 DAY = 86400.0
@@ -226,8 +232,8 @@ def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra
                 values = client.parse_line(line)
                 if 'shot' in values and 'target' in values:
                     time.sleep(settle)
-                    grabbed = clock()  # when the grab starts: how long the grab itself takes does not make it late
-                    path = Path(capture(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png'))
+                    # When the grab that made the picture starts: how long the grab itself takes does not make it late.
+                    path, grabbed = grab(process.pid, Path(captures) / f'shot-{int(values["shot"]):02d}-{values["target"]}.png'); path = Path(path)
                     lag = late(stamp, grabbed, record['hold'])
                     if lag is None:
                         shots.append(str(path))
