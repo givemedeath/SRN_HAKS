@@ -3,7 +3,7 @@
   "prefix": "isa",
   "props": {
     "pistol-counter": {"triangles": 8000},
-    "rifle-wall": {"triangles": 10000},
+    "rifle-wall": {"triangles": 10000, "key": "isa-rifle-wall-a2"},
     "ammo-shelf": {"triangles": 10000},
     "gunsmith-bench": {"triangles": 12000},
     "rifle-cabinet": {"triangles": 10000},
