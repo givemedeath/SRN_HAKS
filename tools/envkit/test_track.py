@@ -56,6 +56,10 @@ class TrackTest(unittest.TestCase):
             area += abs(d) / 2
         self.assertLessEqual((covered > 1).sum() * cell ** 2, 0.002 * area)
 
+    def test_a_merge_too_narrow_for_its_rails_to_draw_clear_is_refused(self):
+        with self.assertRaisesRegex(ValueError, 'never draws its rails clear'):
+            track.merge_mesh(offset=0.05)
+
     def test_a_crane_runway_is_a_pair_of_rails_on_a_beam_low_enough_to_walk_across(self):
         """User, 2026-11-13: "i think we need to add the crane tracks, we'll need those as a prop anyway"."""
         vertices, normals, uvs, faces = track.crane_mesh()

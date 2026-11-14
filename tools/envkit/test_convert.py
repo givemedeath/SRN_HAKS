@@ -365,6 +365,8 @@ class ConvertTests(unittest.TestCase):
                 convert.load_models(path)
         models['ek_xs'] = models.pop(clash); path.write_text(json.dumps({'models': models}), encoding='utf-8')
         self.assertIn('ek_xs', convert.load_models(path))
+        models['ek_x_tower'] = models.pop('ek_xs'); path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIn('ek_x_tower', convert.load_models(path))  # only ek_x_t<row><column> is a tile's name (review, 2026-11-14)
 
     def test_a_model_laid_underfoot_is_a_part_and_never_a_group(self):
         """The rail freight depot (2026-11-13): its tracks are parts laid underfoot, walked across and run off its edges."""
@@ -547,7 +549,8 @@ class ConvertTests(unittest.TestCase):
                 convert.load_models(path)  # each is measured on the model as it stands
         for key, value in (('move', [{'box': [[0, 0, 0], [1, 1, 1]]}]), ('fill', [{'at': [0, 0]}]),
                            ('built', [{'railing': [[0, 0, 1], [1, 0, 1]], 'height': 3.0, 'picture': [0, 0, 1]}]),
-                           ('built', [{'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2]}, 'picture': [0, 0, 1]}])):  # a flight needs its width
+                           ('built', [{'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2]}, 'picture': [0, 0, 1]}]),  # a flight needs its width
+                           ('built', [{'stairs': {'foot': [0, 0, 0], 'top': [0, 0, 2], 'width': 0.9}, 'picture': [0, 0, 1]}])):  # and a run, or it is a ladder
             path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value, 'measuredAt': 4.0}}}), encoding='utf-8')
             with self.assertRaises(ValueError):
                 convert.load_models(path)

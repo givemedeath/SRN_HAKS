@@ -10,8 +10,8 @@ COLUMNS = ('Label', 'StrRef', 'ModelName', 'LightColor', 'LightOffsetX', 'LightO
            'LowGore', 'Reflection', 'Static')
 TOKEN = re.compile(r'"[^"]*"|\S+')
 PREFIX = '[envkit]'
-RESREF = re.compile(r'[a-z0-9_]{1,16}')
-LIGHT = slice(4, 8)  # a row's LightColor and LightOffsetX, Y and Z, counting its number as the first value  # a model or blueprint name: the game reads these letters alike whatever the code page
+RESREF = re.compile(r'[a-z0-9_]{1,16}')  # a model or blueprint name: the game reads these letters alike whatever the code page
+LIGHT = slice(4, 8)  # a row's LightColor and LightOffsetX, Y and Z, counting its number as the first value
 
 
 def rows(text):

@@ -7,6 +7,7 @@ as two-channel ATI2 and the one-channel maps as ATI1.
 A generated model has no real size and faces glTF's way (Y up, front along +Z). `fit` turns it to the game's axes (Z up,
 front along +Y), scales it to a stated height in metres, centres it and stands it on the ground."""
 import json
+import re
 import struct
 import subprocess
 from pathlib import Path
@@ -304,11 +305,11 @@ def railing(path, height=RAIL_HEIGHT, below=0.0):
     and one midway, and posts from `below` under it to its top rail at every point of the path and at most POST_EVERY
     apart between them: [(start, end, size, kind)]."""
     path = [np.asarray(point, float) for point in path]; members = []
-    for start, end in zip(path, path[1:]):
+    for index, (start, end) in enumerate(zip(path, path[1:])):
         for over in (height, height / 2):
             members.append((start + [0, 0, over], end + [0, 0, over], RAIL, 'rail'))
         posts = max(int(np.ceil(np.linalg.norm(end - start) / POST_EVERY)), 1)
-        for k in range(posts + (1 if end is path[-1] else 0)):
+        for k in range(posts + (1 if index == len(path) - 2 else 0)):  # the last segment has a post at its end too
             at = start + (end - start) * k / posts
             members.append((at - [0, 0, below], at + [0, 0, height + RAIL[1] / 2], POST, 'post'))
     return members
@@ -322,7 +323,8 @@ def with_built(vertices, normals, uvs, faces, parts):
     to its walkway (user, 2026-11-13). Returns (vertices, normals, uvs, faces)."""
     vertices, normals, uvs, faces = (np.asarray(one) for one in (vertices, normals, uvs, faces))
     for part in parts:
-        place = picture_at(vertices, uvs, faces, part['picture']); rails = picture_at(vertices, uvs, faces, part.get('rails', part['picture']))
+        place = picture_at(vertices, uvs, faces, part['picture'])
+        rails = picture_at(vertices, uvs, faces, part['rails']) if 'stairs' in part and 'rails' in part else place
         if 'bar' in part:
             members = [(part['bar'][0], part['bar'][1], part['size'], 'bar')]
         elif 'railing' in part:
@@ -350,14 +352,12 @@ def filled(vertices, normals, uvs, faces, parts):
     place = place.ravel(); where = vertices[first]
     for part in parts:
         label = str(part.get('part', 'filled hole')); at = np.asarray(part['at'], float)
-        count, owner = defaultdict(int), {}
-        for face in faces:
-            for a, b in ((face[0], face[1]), (face[1], face[2]), (face[2], face[0])):
-                count[(min(place[a], place[b]), max(place[a], place[b]))] += 1; owner[(place[a], place[b])] = (a, b)
-        rim = defaultdict(list)
-        for (a, b), many in count.items():
-            if many == 1:
-                rim[a].append(b); rim[b].append(a)
+        # The open edges, each the edge of one face only, counted by place: [place a, place b] and the face's own vertices
+        pairs = faces[:, [0, 1, 1, 2, 2, 0]].reshape(-1, 2); ends = place[pairs]
+        _, back, many = np.unique(np.sort(ends, axis=1), axis=0, return_inverse=True, return_counts=True)
+        alone = many[back.ravel()] == 1; rim, owner = defaultdict(list), {}
+        for (a, b), vertex_pair in zip(ends[alone].tolist(), pairs[alone].tolist()):
+            rim[a].append(b); rim[b].append(a); owner[(a, b)] = tuple(vertex_pair)
 
         def distance(a, b):
             ab = where[b] - where[a]; s = np.clip((at - where[a]) @ ab / max(float(ab @ ab), 1e-12), 0, 1)
@@ -1055,8 +1055,9 @@ def load_models(path):
                 flight = part['stairs']
                 require(set(part) <= {'part', 'stairs', 'picture', 'rails'} and isinstance(flight, dict) and set(flight) <= {'foot', 'top', 'width', 'sides'}
                         and {'foot', 'top', 'width'} <= set(flight) and point(flight['foot']) and point(flight['top']) and number(flight['width']) and flight['width'] > 0
-                        and flight['top'][2] - flight['foot'][2] > 0.3 and set(flight.get('sides', ['left', 'right'])) <= {'left', 'right'} and point(part.get('rails', part['picture'])),
-                        'A built stair flight is {foot, top, width, sides} (its foot and top the middles of its lowest and highest nosings, the top higher), coloured from a point and its rails from another: ' + name)
+                        and flight['top'][2] - flight['foot'][2] > 0.3 and float(np.hypot(flight['top'][0] - flight['foot'][0], flight['top'][1] - flight['foot'][1])) > 0.2
+                        and set(flight.get('sides', ['left', 'right'])) <= {'left', 'right'} and point(part.get('rails', part['picture'])),
+                        'A built stair flight is {foot, top, width, sides} (its foot and top the middles of its lowest and highest nosings, the top higher and further along), coloured from a point and its rails from another: ' + name)
         for part in model.get('fill', []):
             require(isinstance(part, dict) and {'at'} <= set(part) <= {'part', 'at'} and isinstance(part['at'], list) and len(part['at']) == 3
                     and all(number(value) for value in part['at']), 'A filled hole is a point on its rim, in metres on the finished model: ' + name)
@@ -1162,7 +1163,7 @@ def load_models(path):
         taken = {name + suffix for suffix in MAP_SUFFIXES}
         if model.get('tiles'):
             taken |= set(part_textures(name, model['tiles'].get('parts', [])).values())
-        clash = sorted(names & taken) + sorted(other for other in names if model.get('tiles') and other.startswith(name + '_t'))
+        clash = sorted(names & taken) + sorted(other for other in names if model.get('tiles') and re.fullmatch(re.escape(name) + r'_t\d+', other))
         require(not clash, f'A model is named like a file of {name}, which it would write over: ' + ', '.join(clash))
     return data['models']
 

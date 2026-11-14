@@ -928,6 +928,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
         Image.new('RGB', (4, 4)).save(folder / f'{CAP}.tga')
     nodes, unplanned = path_nodes(found, rows, columns, {(int(key[1]), int(key[2])): (value['node'], value['turn']) for key, value in (nodes or {}).items()},
                                   unplanned=True)
+    cut = cut_off(nodes)  # the exits that lead nowhere, found once for the group
     for row in range(rows):
         for column in range(columns):
             model = f'{name}_t{row}{column}'; centre = np.array([corner[0] + (column + 0.5) * SIZE, corner[1] + (row + 0.5) * SIZE, 0.0])
@@ -949,7 +950,7 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                    'path': nodes[(row, column)], 'lights': len(lights), 'doors': []}
             if one['path']['offPath']:
                 notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no walk from round the group is planned onto (`path_nodes`)')
-            for sides in [sides for at_row, at_column, sides in cut_off(nodes) if (at_row, at_column) == (row, column)]:
+            for sides in [sides for at_row, at_column, sides in cut if (at_row, at_column) == (row, column)]:
                 notes.append(f'{model}: its path node leaves by {sides} to nowhere a walk from round the group comes (`cut_off`): a target by that side is not reached')
             if one['walkFaces'] > WALK_FACES:
                 notes.append(f'{model}: {one["walkFaces"]} walk faces, where no stock tile has more than {WALK_FACES}')

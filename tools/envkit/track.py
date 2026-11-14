@@ -288,7 +288,8 @@ def merge_mesh(offset=MERGE_OFFSET, length=MERGE_LENGTH, radius=MERGE_RADIUS):
     pieces, _ = merging(offset, length, radius); other = path((-length / 2 + LEAD, 0.0), 0.0, pieces)
     _ballast(made, through); _rails(made, through); _end(made, through[0], -1, BED); _end(made, through[-1], 1, BED)
     lower = BED - 0.015; _ballast(made, other, lower); _end(made, other[-1], 1, lower)
-    clear = next(index for index, sample in enumerate(other) if sample[2] >= HEAD)
+    clear = next((index for index, sample in enumerate(other) if sample[2] >= HEAD), None)
+    require(clear is not None, f"A merge of {offset} metres never draws its rails clear of the through track's: it needs more than {HEAD} metres")
     _rails(made, other, clear)
     beside = lambda x: float(np.interp(x, [sample[1] for sample in other], [sample[2] for sample in other], left=-np.inf, right=-np.inf))
     shared = []  # (x, reach) of the through track's drawn-out sleepers
