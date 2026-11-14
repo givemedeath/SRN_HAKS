@@ -769,6 +769,23 @@ class SideGripTests(unittest.TestCase):
         again = measure({}, self.family, {'positions': gltf(v), 'faces': f}, self.overrides(v), self.standard)
         self.assertEqual(again['gripReport']['measurementDigest'], report['measurementDigest'])     # what a review binds to
 
+    def test_a_reversed_side_grip_puts_the_body_at_the_little_finger_end(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        plain = measure({}, self.family, shell, self.overrides(v), self.standard)
+        turned = measure({}, self.family, shell, self.overrides(v, reverseGrip=True), self.standard)
+        o = np.array(self.family['native']['gripOrigin'], float); H = np.diag([-1., -1., 1.])
+        for a, b in zip(plain['thicknessProbes'], turned['thicknessProbes']):          # the same probes, turned about native Z
+            np.testing.assert_allclose(b['points'], (np.array(a['points']) - o) @ H + o, atol=1e-9)
+        (lo, hi), (rlo, rhi) = plain['fittedBounds'], turned['fittedBounds']
+        self.assertAlmostEqual(lo[2], rlo[2], places=6); self.assertAlmostEqual(hi[2], rhi[2], places=6)   # the body still points one way
+        self.assertGreater(hi[1] - o[1], o[1] - lo[1]); self.assertGreater(o[1] - rlo[1], rhi[1] - o[1])   # and sits below the grip
+        self.assertLess(turned['joinY'][0], turned['joinY'][1])
+        mid = lambda d: next(r for r in d['gripReport']['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        self.assertAlmostEqual(mid(turned)['depth'], mid(plain)['depth'], places=4)
+        with self.assertRaisesRegex(ValueError, 'side grip'):
+            measure({}, self.family, shell, {'reverseGrip': True, 'bladeAtLowEnd': False}, self.standard)
+
     def test_a_side_grip_needs_its_reviewed_landmarks_and_length(self):
         from tools.itemkit.fit_manifest import measure
         v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}

@@ -573,7 +573,10 @@ in the cell. The parts are slices across the grip axis, so the body lies in all 
 Katar: 60% of its surface in `m`, which the dagger family gives 19% of the budget). `processing.partBudgets`
 (`{part: {visible, shadow}}`) re-splits the family's unchanged visible and shadow totals for a side grip only
 (`parts.side_grip_budgets`, applied where the runner loads the family). Which way the body points (forward past the knuckles or back along the forearm) depends on the frame;
-check it in the client and refit with `"turnAboutAxis": true` if needed.
+check it in the client and refit with `"turnAboutAxis": true` if needed. A body that belongs at the little-finger end
+of the fist, with the reviewed pommel past the thumb (a tonfa's shaft along the back of the forearm, the knob forward),
+takes `"reverseGrip": true`: a half-turn about the body's own axis through the grip origin, keeping the landmarks,
+probes and the way the body points. The body is then the low part (`b`), so re-split `processing.partBudgets` to suit.
 
 `drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
 carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer

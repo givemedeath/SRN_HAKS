@@ -245,6 +245,13 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         if 'targetLength' in overrides: s = float(overrides['targetLength']) / L
         half = grip_length / s / 2; A, B = centre_src - U[:, 0] * half, centre_src + U[:, 0] * half
     M = np.eye(4); M[:3, :3] = s * Rn; M[:3, 3] = origin - s * Rn @ ((A + B) / 2)
+    reverse = overrides.get('reverseGrip', False); require(type(reverse) is bool, 'reverseGrip must be true or false')
+    if reverse:
+        # The body at the little-finger end of the fist, the reviewed pommel past the thumb (a tonfa; user, 2026-11-14:
+        # "Tonfa is ... not facing the right direction"): a half-turn about the body's own axis (native Z) through the
+        # grip origin. It keeps the body pointing the same way along the forearm, which turnAboutAxis would reverse.
+        require(side, 'reverseGrip applies to a side grip')
+        H = np.diag([-1., -1., 1., 1.]); H[:2, 3] = 2 * origin[:2]; M = H @ M
     authority, departure, report = None, None, None
     chosen_length = hafted or 'targetLength' in overrides
     review = lambda: ({'decision': 'approved', 'measurementDigest': overrides['departureDigest'], 'notes': departure_notes,
@@ -275,6 +282,7 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     fb = transform(b, F)
     joins = [float(transform(src(max(marks['gripStart'], marks['pommelEnd']) - .0015 / (s * L))[None], F)[0, 1]),
              float(transform(src(marks['gripEnd'] + .0015 / (s * L))[None], F)[0, 1])]
+    if reverse: joins = joins[::-1]          # the pommel end now lies above the grip: the body is the low part
     nudge = overrides.get('joinNudge', [0, 0]); require(len(nudge) == 2 and max(map(abs, nudge)) <= .0005, 'Join nudge too large')
     cleared = [clear_cut(fb[:, 1], y) for y in joins]
     joins = [cleared[0][0] + nudge[0], cleared[1][0] + nudge[1]]
