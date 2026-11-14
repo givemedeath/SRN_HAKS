@@ -1,6 +1,8 @@
 {
   "models": {
-    "ek_isa_shop": {"source": "meshy/models/isa-building-shop-a2-remesh", "height": 5.9, "measuredAt": 5.9, "colour": 4096, "lit": [
+    "ek_isa_shop": {"source": "meshy/models/isa-building-shop-a2-remesh", "height": 5.9, "measuredAt": 5.9, "colour": 4096, "copy": [
+      {"part": "smeared mirrored lettering on the back wall", "box": [[-5.0, -3.75, 0.22], [5.15, -3.45, 4.3]], "from": [[4.9, -3.4, 0.22], [5.15, -1.4, 4.3]]}
+    ], "lit": [
       {"part": "sign", "box": [[-3.6, 1.5, 2.98], [3.07, 2.3, 4.23]], "gain": 0.5},
       {"part": "pistol blade sign", "box": [[3.4, 1.95, 2.55], [4.1, 3.9, 3.9]], "gain": 0.8, "saturation": 0.3},
       {"part": "shop windows and door", "box": [[-3.45, 1.0, 0.75], [3.55, 1.72, 2.8]], "gain": 0.35}
@@ -9,7 +11,9 @@
         "door": {"at": [-0.59, 1.75, 0.2], "facing": 90.0, "type": 58, "leaf": 2.1},
         "parts": [{"model": "ek_isa_range", "at": [-3.11, -12.53, 0.0], "turn": 90}]}},
     "ek_isa_range": {"source": "meshy/models/isa-building-range-a1-remesh", "height": 6.11, "measuredAt": 6.11, "colour": 4096, "tone": [0.95, 0.9, 0.86], "copy": [
-      {"part": "plain grey slab on the rear end", "box": [[-9.6, -1.1, 0.22], [-8.8, 1.1, 4.45]], "from": [[-8.6, -1.95, 0.22], [-6.3, -1.7, 4.45]]},
+      {"part": "plain grey block on the rear end, its face", "box": [[-9.6, -1.2, 0.22], [-9.3, 1.2, 4.6]], "from": [[-8.0, -1.95, 0.22], [-5.5, -1.7, 4.6]]},
+      {"part": "plain grey block on the rear end, its side towards the door", "box": [[-9.3, 0.9, 0.22], [-8.86, 1.2, 4.6]], "from": [[-8.0, -1.95, 0.22], [-5.5, -1.7, 4.6]]},
+      {"part": "plain grey block on the rear end, its far side", "box": [[-9.3, -1.2, 0.22], [-8.86, -0.9, 4.6]], "from": [[-8.0, -1.95, 0.22], [-5.5, -1.7, 4.6]]},
       {"part": "mirrored lettering on the far wall", "box": [[0.1, -2.0, 1.29], [5.35, -1.6, 2.7]], "from": [[-8.6, -1.95, 1.29], [-3.3, -1.7, 2.7]]}
     ], "lit": [
       {"part": "range windows", "box": [[-3.2, 1.5, 2.8], [8.3, 2.75, 3.65]], "gain": 0.4},
