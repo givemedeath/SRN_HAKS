@@ -68,7 +68,10 @@
     "ek_rf_reel": {"source": "meshy/models/rf-cable-reel-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Cable Reel", "sound": 27, "category": 164}},
     "ek_rf_pipes": {"source": "meshy/models/rf-pipe-stack-a1", "height": 1.1, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pipe Stack", "sound": 28, "category": 164}},
     "ek_rf_jack": {"source": "meshy/models/rf-pallet-jack-a1", "height": 1.25, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pallet Jack", "sound": 28, "category": 161}},
-    "ek_rf_light": {"source": "meshy/models/rf-light-tower-a1", "height": 7.5, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Light Tower", "sound": 28, "category": 161}},
-    "ek_rf_dumpster": {"source": "meshy/models/rf-dumpster-a1", "height": 1.8, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Dumpster", "sound": 28, "category": 158}}
+    "ek_rf_light": {"source": "meshy/models/rf-light-tower-a1", "height": 7.5, "measuredAt": 7.5, "colour": 2048, "lit": [
+      {"part": "west lamp heads, their fronts (+y)", "box": [[-2.4, -0.65, 5.0], [-0.5, -0.15, 7.5]], "value": 0.88},
+      {"part": "east lamp heads, set back, their fronts (+y)", "box": [[0.5, 0.1, 5.0], [2.4, 0.3, 7.5]], "value": 0.88}
+    ], "halo": {"reach": 0.3, "strength": 0.5}, "placeable": {"label": "Rail Freight Yard, Light Tower", "sound": 28, "category": 161}},
+    "ek_rf_dumpster": {"source": "meshy/models/rf-dumpster-a1", "height": 1.8, "colour": 1024, "inside": true, "placeable": {"label": "Rail Freight Yard, Dumpster", "sound": 28, "category": 158}}
   }
 }

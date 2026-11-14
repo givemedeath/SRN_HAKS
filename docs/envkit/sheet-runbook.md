@@ -382,6 +382,25 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   alone. Moved a metre north, clear of the side's middle, it arrived. So run the walk check again after every
   rebuild, and keep the edge of anything long and heavy that crosses a tile line off the middle of that side by a
   metre or more where the layout allows.
+- **Two faces on one plane, both facing out.** A generator makes a thin sheet of two faces back to back; the back
+  one ties with the front from outside, so `convert.turn_faces` took it for a face wound wrong and turned it onto the
+  front, where the game may draw either. It now leaves such a face as it is (`convert.back_to_back`): from a third to
+  over half of what it turned on each of the rail yard's models were such faces (2026-11-13).
+- **A flat side shows a lighter or darker triangle only from some angles** (on whichever flat panel is seen
+  side-on). That is the area's sky reflected in a large smooth face, not the model: the rail yard's boxcar showed it
+  on either side, turned either way round, with its maps flat and its faces split small (client, 2026-11-13).
+  Leave it.
+- **What stands behind a prop shows through it** (through the gaps of a slatted lid, through an opening in a wall).
+  The generator drew the box from outside only, so its far walls are not drawn from inside. `"inside": true` on the
+  model in the game set gives every face a back (`convert.backed`; twice the triangles), and the opening shows the
+  prop's own inside: the rail yard's dumpster (user: "the dumpster has some see through spots", 2026-11-13). Use it
+  only where an opening shows: a closed box never needs it.
+- **A placeable a character should walk on** (a platform, a deck, a dock). The game stands characters only on the
+  tiles' walkmeshes; a placeable's walkmesh (`.pwk`) only keeps them out, whatever its faces' materials. Tried in the
+  client on 2026-11-13: the loading platform placed static with a walkmesh of a walkable deck, walkable stairs up to
+  it and closed sides; the walkers sent onto the deck, by the stairs and from beside it, stopped on the ground at its
+  edge. A floor to walk on is a part of a tile group (`tiles.parts`), as the rail freight depot's platform is; as a
+  placeable it is scenery to walk round.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

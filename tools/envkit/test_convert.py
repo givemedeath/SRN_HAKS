@@ -397,6 +397,38 @@ class ConvertTests(unittest.TestCase):
         sheet = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float)
         for faces in ([[0, 1, 2], [0, 2, 3]], [[0, 2, 1], [0, 3, 2]]):
             self.assertEqual(convert.turn_faces(sheet, np.array(faces), **quick)[1], 0)
+        # A side made of two faces back to back, one drawn outward and one inward on the same plane, stays so: the
+        # inward one ties with the outward one from outside and was turned onto it (the rail yard's models, 2026-11-13).
+        backed = np.vstack([cube, cube[:2][:, [0, 2, 1]]])
+        self.assertEqual(convert.turn_faces(corners, backed, **quick)[1], 0)
+        np.testing.assert_array_equal(convert.back_to_back(corners, backed, np.ones(len(backed), bool)), [True, True] + [False] * 10 + [True, True])
+        # ... but not one a few centimetres inside, nor one wound inward with no face over it.
+        inner = np.vstack([corners, corners + [0.03, 0.0, 0.0]])
+        self.assertFalse(convert.back_to_back(inner, np.vstack([cube, (cube[:2] + 8)[:, [0, 2, 1]]]), np.ones(14, bool))[12:].any())
+        self.assertFalse(convert.back_to_back(corners, inside_out, np.ones(12, bool)).any())
+
+    def test_a_box_drawn_from_outside_only_is_given_backs(self):
+        """The rail yard's dumpster (2026-11-13): through the gaps of its slatted lid the client showed what stood
+        behind it, its far walls not drawn from inside."""
+        corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
+        cube = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        normals = corners - 0.5; uvs = corners[:, :2]
+        points, turned, places, faces = convert.backed(corners, normals, uvs, cube)
+        self.assertEqual((len(points), len(faces)), (16, 24))
+        np.testing.assert_array_equal(points[8:], corners); np.testing.assert_array_equal(turned[8:], -normals); np.testing.assert_array_equal(places[8:], uvs)
+        # each back faces the other way from its face, on the same corners
+        of = lambda f: np.cross(points[f[:, 1]] - points[f[:, 0]], points[f[:, 2]] - points[f[:, 0]])
+        np.testing.assert_allclose(of(faces[12:]), -of(faces[:12]))
+        self.assertTrue((np.einsum('ij,ij->i', of(faces[12:]), turned[faces[12:, 0]]) > 0).all())  # normals agree with the backs' winding
+        # the game set says so with `inside: true`, and nothing else
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for value, ok in ((True, True), (False, False), ('yes', False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 1.0, 'inside': value}}}), encoding='utf-8')
+            if ok:
+                self.assertIs(convert.load_models(path)['ek_x']['inside'], True)
+            else:
+                with self.assertRaisesRegex(ValueError, 'inside is true'):
+                    convert.load_models(path)
 
     def test_a_model_is_drawn_out_along_its_longer_side_to_a_length(self):
         """The rail yard's shipping containers (2026-11-13) came out a third to a half short at their true height."""

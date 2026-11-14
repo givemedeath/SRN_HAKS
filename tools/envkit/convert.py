@@ -37,7 +37,7 @@ DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may 
 MEASURED = ('lit', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 PLACING = ('lift', 'turn', 'signTilt', 'length')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted and stretched
-RETOUCHING = ('turn', 'length', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+RETOUCHING = ('turn', 'length', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside')  # what of a game set `shape` takes to turn, clear, close and retouch a model
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 
 
@@ -122,6 +122,7 @@ def _of_faces(vertices, faces):
 SIGHT_CELLS = 256  # pixels along a model's longest side when it is looked at from all round (`seen`)
 SIGHT_CELL = 0.01  # metres: the smallest pixel
 SIGHT_VIEWS = 64  # how many ways it is looked at
+BACK_TO_BACK = 0.005  # metres: a face this near another that faces the other way, over it, is half of a two-faced sheet
 
 
 def seen(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
@@ -149,6 +150,27 @@ def seen(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
     return front, back, whole
 
 
+def back_to_back(vertices, faces, which):
+    """Which of the faces picked by `which` (a mask) lie on another face of the model that faces the other way, within
+    `BACK_TO_BACK` of its plane, at the face's middle or at a point two thirds of the way from it to a corner: the back
+    half of a sheet made of two faces, each drawn on one side."""
+    corner = np.asarray(vertices, float)[np.asarray(faces)]
+    of_face = np.cross(corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]); twice = np.linalg.norm(of_face, axis=1)
+    unit = of_face / np.maximum(twice, 1e-12)[:, None]; found = np.zeros(len(corner), bool)
+    first, along, across = corner[:, 0], corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]
+    d00, d01, d11 = (along * along).sum(1), (along * across).sum(1), (across * across).sum(1); denominator = d00 * d11 - d01 ** 2
+    for index in np.flatnonzero(which):
+        middle = corner[index].mean(0); points = np.vstack([middle, middle + (corner[index] - middle) * 2 / 3])
+        other = np.flatnonzero((unit @ unit[index] < -0.99) & (denominator > 1e-18))
+        offset = points[None] - first[other][:, None]  # (others, points, 3)
+        near = np.abs((offset * unit[other][:, None]).sum(2)) <= BACK_TO_BACK
+        d20, d21 = (offset * along[other][:, None]).sum(2), (offset * across[other][:, None]).sum(2)
+        v = (d11[other][:, None] * d20 - d01[other][:, None] * d21) / denominator[other][:, None]
+        w = (d00[other][:, None] * d21 - d01[other][:, None] * d20) / denominator[other][:, None]
+        found[index] = (near & (v >= -1e-6) & (w >= -1e-6) & (v + w <= 1 + 1e-6)).any()
+    return found
+
+
 def turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
     """(faces, turned): a face seen from outside mostly from behind (`seen`: more than twice as much, at least three
     pixels and a fifth of all it would show were nothing in front of it) turned round. The fifth keeps a face hidden
@@ -156,9 +178,12 @@ def turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
     is a hole onto whatever is behind it. From 2% to a quarter of the surface of each of the rail yard's and depot's 25
     generated models was wound so (2026-11-13), on surfaces otherwise wound right and in folds of them. A face judged by
     which side of it is open air instead turned the inner skins of thin double walls outward. A sheet seen from both
-    sides (a sign, a fence) and a face never seen (the inside of a wall) are left as they are. Run before `turn_normals`,
-    which then turns only the normals that point against a face wound right."""
+    sides (a sign, a fence) and a face never seen (the inside of a wall) are left as they are, and so is the back half
+    of a sheet of two faces back to back (`back_to_back`), which ties with its front for every pixel: turned, it lay
+    over its front, two faces on one plane for the game to draw either of (a third to over half of what was turned
+    on each of the rail yard's models, 2026-11-13). Run before `turn_normals`, which then turns only the normals that point against a face wound right."""
     front, back, whole = seen(vertices, faces, cells, views); wrong = (back > 2 * front) & (back >= 3) & (back >= whole / 5); faces = np.array(faces)
+    wrong &= ~back_to_back(vertices, faces, wrong)
     faces[wrong] = faces[wrong][:, [0, 2, 1]]
     return faces, int(wrong.sum())
 
@@ -170,6 +195,16 @@ def turn_normals(vertices, normals, faces):
     normals = np.array(normals, float); against = (normals * _of_faces(vertices, faces)).sum(1) < 0
     normals[against] *= -1
     return normals, int(against.sum())
+
+
+def backed(vertices, normals, uvs, faces):
+    """The model with a back for every face: each face again, wound the other way on copies of its corners whose normals
+    point the other way, at the same place on the picture. A box the generator drew from outside only, with openings in
+    it, showed through them what stood behind it: its far walls are not drawn from inside. The rail yard's dumpster
+    (through the gaps of its slatted lid, seen in the client, 2026-11-13) shows its own inside instead."""
+    count = len(vertices); faces = np.asarray(faces)
+    return (np.vstack([vertices, vertices]), np.vstack([normals, -np.asarray(normals)]), np.vstack([uvs, uvs]),
+            np.vstack([faces, faces[:, [0, 2, 1]] + count]))
 
 
 def closed(vertices, normals, uvs, faces, parts):
@@ -719,7 +754,8 @@ def load_models(path):
     turns it that many degrees counter-clockwise seen from above, where its front came back facing a side; boxes are
     on the model as turned. `tone`, `paint`, `smooth` and `mesh` retouch its colour picture (`retouch`); `fence` hangs
     chain-link sheets between its fence posts, with a picture of their own (`sheets`); `close` closes a hole in it
-    with a face between three of its own vertices (`closed`); `clear` takes away what stands in its boxes (`cleared`). `source` is the generated
+    with a face between three of its own vertices (`closed`); `clear` takes away what stands in its boxes (`cleared`); `inside` (true)
+    gives every face a back, for a box with openings drawn from outside only (`backed`). `source` is the generated
     model's folder under the set's output root (never a machine path); `lit` boxes are in metres on the finished model;
     `tiles` makes the model a tile group too: its ground texture, its group name and palette label, the terrain its
     corners stand on in each tileset ({tileset: terrain}), and optionally `fade`, the height above which the game may
@@ -742,7 +778,7 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -797,6 +833,7 @@ def load_models(path):
                                    and type(placed['sound']) is int and type(placed.get('category', 0)) is int and type(placed.get('static', True)) is bool),
                 'A placeable needs a label and a sound row: ' + name)
         tiles = model.get('tiles')
+        require(model.get('inside', True) is True, 'inside is true, for a box whose openings show what stands behind it: ' + name)
         require(model.get('underfoot', True) is True and not ('underfoot' in model and tiles),
                 'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
         require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
@@ -957,11 +994,11 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, tone=None, paint=None,
-          smooth=None, mesh=None, fence=None, close=None, clear=None):
+          smooth=None, mesh=None, fence=None, close=None, clear=None, inside=False):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
-    (`closed`), in that order, before its pictures are worked on; `tone`,
+    (`closed`), in that order, and `inside` then gives every face a back (`backed`), before its pictures are worked on; `tone`,
     `paint`, `smooth` and `mesh` give `colour`, `flat` and `plain`: its colour picture retouched, where its relief is levelled and
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
@@ -983,6 +1020,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         vertices, normals, uvs, faces = cleared(vertices, normals, uvs, faces, clear)
     if close:
         faces = closed(vertices, normals, uvs, faces, close)
+    if inside:
+        vertices, normals, uvs, faces = backed(vertices, normals, uvs, faces)
     require(not halo or lit, 'A halo spreads the lit parts: name them')
     require(not lit or illumination is None, 'Give the lit parts or a glow map, not both')
     wire = None
