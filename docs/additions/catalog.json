@@ -1180,6 +1180,211 @@
    "added": "2026-11-14",
    "blueprint": "ek_csc_dumpstr",
    "category": 158
+  },
+  {
+   "row": 22820,
+   "model": "ek_pt_sign",
+   "label": "[envkit]Pulse Tech, Neon Chip Sign",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_pt_sign",
+    "out": "ek_pt_sign_o",
+    "glow": "ek_pt_sign_i",
+    "halo": "ek_pt_sign_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_sign",
+   "category": 156
+  },
+  {
+   "row": 22821,
+   "model": "ek_pt_banner",
+   "label": "[envkit]Pulse Tech, Hanging Banner",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_banner",
+   "category": 156
+  },
+  {
+   "row": 22822,
+   "model": "ek_pt_counter",
+   "label": "[envkit]Pulse Tech, Display Counter",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_pt_counter",
+    "out": "ek_pt_counter_o",
+    "glow": "ek_pt_counter_i",
+    "halo": "ek_pt_counter_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_counter",
+   "category": 174
+  },
+  {
+   "row": 22823,
+   "model": "ek_pt_workbnch",
+   "label": "[envkit]Pulse Tech, Repair Bench",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_pt_workbnch",
+    "out": "ek_pt_workbnch_o",
+    "glow": "ek_pt_workbnch_i",
+    "halo": "ek_pt_workbnch_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_workbnch",
+   "category": 164
+  },
+  {
+   "row": 22824,
+   "model": "ek_pt_cart",
+   "label": "[envkit]Pulse Tech, Parts Cart",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_cart",
+   "category": 164
+  },
+  {
+   "row": 22825,
+   "model": "ek_pt_rack",
+   "label": "[envkit]Pulse Tech, Server Rack",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_pt_rack",
+    "out": "ek_pt_rack_o",
+    "glow": "ek_pt_rack_i",
+    "halo": "ek_pt_rack_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_rack",
+   "category": 161
+  },
+  {
+   "row": 22826,
+   "model": "ek_pt_cases",
+   "label": "[envkit]Pulse Tech, Case Stack",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_cases",
+   "category": 161
+  },
+  {
+   "row": 22827,
+   "model": "ek_pt_seats",
+   "label": "[envkit]Pulse Tech, Bench",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_seats",
+   "category": 161
+  },
+  {
+   "row": 22828,
+   "model": "ek_pt_vending",
+   "label": "[envkit]Pulse Tech, Commlink Vending Machine",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_pt_vending",
+    "out": "ek_pt_vending_o",
+    "glow": "ek_pt_vending_i",
+    "halo": "ek_pt_vending_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_vending",
+   "category": 161
+  },
+  {
+   "row": 22829,
+   "model": "ek_pt_reel",
+   "label": "[envkit]Pulse Tech, Cable Reel",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_reel",
+   "category": 161
+  },
+  {
+   "row": 22830,
+   "model": "ek_pt_power",
+   "label": "[envkit]Pulse Tech, Power Pack",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_pt_power",
+    "out": "ek_pt_power_o",
+    "glow": "ek_pt_power_i",
+    "halo": "ek_pt_power_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_power",
+   "category": 161
+  },
+  {
+   "row": 22831,
+   "model": "ek_pt_bin",
+   "label": "[envkit]Pulse Tech, Trash Can",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_bin",
+   "category": 158
+  },
+  {
+   "row": 22832,
+   "model": "ek_pt_drone",
+   "label": "[envkit]Pulse Tech, Drone Service Pad",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_pt_drone",
+    "out": "ek_pt_drone_o",
+    "glow": "ek_pt_drone_i",
+    "halo": "ek_pt_drone_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
+   "added": "2026-11-15",
+   "blueprint": "ek_pt_drone",
+   "category": 161
   }
  ],
  "tileGroups": [
@@ -1640,6 +1845,38 @@
    "added": "2026-11-14"
   },
   {
+   "tileset": "dgt04",
+   "group": 63,
+   "name": "Pulse_Tech",
+   "label": "Pulse Tech 2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    530,
+    531,
+    532,
+    533
+   ],
+   "models": [
+    "ek_pt_shop_t00",
+    "ek_pt_shop_t01",
+    "ek_pt_shop_t10",
+    "ek_pt_shop_t11"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_pt_shop",
+    "out": "ek_pt_shop_o",
+    "glow": "ek_pt_shop_i",
+    "halo": "ek_pt_shop_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-15)",
+   "added": "2026-11-15"
+  },
+  {
    "tileset": "udp1",
    "group": 106,
    "name": "Stuffer_Shack",
@@ -2004,6 +2241,38 @@
    "source": "tools/envkit/sets/chop-shop-clinic-game.json",
    "provenance": "Chop Shop Clinic tile group",
    "added": "2026-11-14"
+  },
+  {
+   "tileset": "udp1",
+   "group": 112,
+   "name": "Pulse_Tech",
+   "label": "Pulse Tech 2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    772,
+    773,
+    774,
+    775
+   ],
+   "models": [
+    "ek_pt_shop_t00",
+    "ek_pt_shop_t01",
+    "ek_pt_shop_t10",
+    "ek_pt_shop_t11"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_pt_shop",
+    "out": "ek_pt_shop_o",
+    "glow": "ek_pt_shop_i",
+    "halo": "ek_pt_shop_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/pulse-tech-game.json",
+   "provenance": "Pulse Tech tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-15)",
+   "added": "2026-11-15"
   }
  ]
 }
