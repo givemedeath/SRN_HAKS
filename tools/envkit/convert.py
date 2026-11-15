@@ -49,6 +49,7 @@ WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a whe
 WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 LEVEL_MOST = 0.3  # metres: the thickest a levelled floor marking is left
+WALK_CELLS = 4  # cells to the gap that parts are told apart by (`standing`)
 WALK_GAP = 0.6  # metres of clear ground that part two legs of a model walked under (`standing`): narrower, and no character passes between
 UNDERFOOT_MOST = 0.45 # metres: the knee (`tile.KNEE`), the highest a placeable laid underfoot stands, as a part laid underfoot in a group
 FIRE_WIDTH = (0.1, 3.0)  # metres across a fire the game draws: a candle's to a bonfire's
@@ -1022,23 +1023,28 @@ def outline(points, sides=8):
 
 def standing(vertices, faces):
     """The parts of a model that stand in a walker's way, each as its points: what of its surface lies under head
-    height (OVERHEAD), told apart where WALK_GAP of clear ground lies between. A gantry crane is two legs and a beam
+    height (OVERHEAD), told apart wherever WALK_GAP of clear ground lies between (parts nearer than a quarter of it are one). A gantry crane is two legs and a beam
     twelve metres up: one block on its whole footprint shut the track it spans (user, 2026-11-15: "the crane
     placeable should NOT block walking underneath it")."""
     vertices = np.asarray(vertices, float)  # its own corners with the places spread over its faces: a block's corners are the model's
-    points = np.vstack([vertices, scatter(vertices, np.asarray(faces), spacing=WALK_GAP / 4)]); points = points[points[:, 2] < OVERHEAD]
+    points = np.vstack([vertices, scatter(vertices, np.asarray(faces), spacing=WALK_GAP / WALK_CELLS)]); points = points[points[:, 2] < OVERHEAD]
     require(len(points), 'Nothing of the model stands under head height: it is hung overhead and needs no parts to walk between')
-    cell = np.floor(points[:, :2] / WALK_GAP).astype(int); cell -= cell.min(0); grid = np.zeros(cell.max(0) + 1, int); grid[tuple(cell.T)] = -1; parts = 0
-    for start in zip(*np.nonzero(grid)):  # cells that touch, corners too, are one part
+    # Cells a quarter of the gap across: two that hold points are one part only where no two points in them can lie
+    # the gap apart, so ground WALK_GAP clear and more is never closed, wherever the model lies on the cells. (Cells
+    # the gap across joined posts 0.8 m apart that fell in neighbouring cells: found in review, 2026-11-15.)
+    fine = WALK_GAP / WALK_CELLS; near = [(c, d) for c in range(-WALK_CELLS, WALK_CELLS + 1) for d in range(-WALK_CELLS, WALK_CELLS + 1)
+                                          if (c or d) and (abs(c) + 1) ** 2 + (abs(d) + 1) ** 2 <= WALK_CELLS ** 2]
+    cell = np.floor(points[:, :2] / fine).astype(int); cell -= cell.min(0); grid = np.zeros(cell.max(0) + 1, int); grid[tuple(cell.T)] = -1; parts = 0
+    for start in zip(*np.nonzero(grid)):
         if grid[start] != -1:
             continue
         parts += 1; grid[start] = parts; stack = [start]
         while stack:
             a, b = stack.pop()
-            for c in range(max(a - 1, 0), min(a + 2, grid.shape[0])):
-                for d in range(max(b - 1, 0), min(b + 2, grid.shape[1])):
-                    if grid[c, d] == -1:
-                        grid[c, d] = parts; stack.append((c, d))
+            for c, d in near:
+                c, d = a + c, b + d
+                if 0 <= c < grid.shape[0] and 0 <= d < grid.shape[1] and grid[c, d] == -1:
+                    grid[c, d] = parts; stack.append((c, d))
     part = grid[tuple(cell.T)]
     return [points[part == number] for number in range(1, parts + 1)]
 

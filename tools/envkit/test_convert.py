@@ -954,7 +954,13 @@ class WalkUnderTests(unittest.TestCase):
         self.assertTrue(all(abs(x) >= 3.9 for x in xs))  # nothing stands between the legs
         self.assertEqual(one, convert.walk_text('ek_x', vertices, blocks=[vertices]))
         # Legs nearer than a character is wide are one block; a thing hung clear of the ground has no parts.
-        self.assertEqual(len(convert.standing(*self.boxes(((-0.5, -1, 0), (-0.2, 1, 3)), ((0.2, -1, 0), (0.5, 1, 3))))), 1)
+        self.assertEqual(len(convert.standing(*self.boxes(((-0.5, -1, 0), (-0.1, 1, 3)), ((0.1, -1, 0), (0.5, 1, 3))))), 1)
+        # Ground the gap wide and more stays open wherever the model lies on the cells it is read by (found in review).
+        for shift in (0.0, 0.07, 0.15, 0.31, 0.44, 0.59):
+            posts = self.boxes(((-0.5 + shift, -1, 0), (-0.4 + shift, 1, 3)), ((0.4 + shift, -1 + shift, 0), (0.5 + shift, 1 + shift, 3)))  # 0.8 m apart
+            self.assertEqual(len(convert.standing(*posts)), 2, shift)
+            corner = self.boxes(((shift, shift, 0), (shift + 1, shift + 1, 3)), ((shift + 1.5, shift + 1.5, 0), (shift + 2.5, shift + 2.5, 3)))  # 0.71 m, corner to corner
+            self.assertEqual(len(convert.standing(*corner)), 2, shift)
         with self.assertRaisesRegex(ValueError, 'Nothing of the model stands under head height'):
             convert.standing(*self.boxes(((-1, -1, 3), (1, 1, 4))))
 
