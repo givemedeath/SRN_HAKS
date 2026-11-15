@@ -62,7 +62,8 @@ def family(path, *, validate_native=True):
     require(data.get('materialRoute') == 'diffuse', 'Only diffuse materials are qualified for this pilot')
     require(data.get('runtimeTextureSize') in (512, 1024, 2048), 'Unsupported runtime texture size')
     if route.runtime_size:
-        require(data['runtimeTextureSize'] == route.runtime_size, 'The firearm package route is qualified for 1K diffuse only')
+        # 1K is the size the route was qualified at; 2K is the size of every new item (user, 2026-11-15).
+        require(data['runtimeTextureSize'] in (route.runtime_size, NEW_ITEM_TEXTURE_SIZE), 'The firearm package route takes a 1K or 2K diffuse')
     require(data.get('bakeSize') == 4096, 'Source bake must be 4K')
     require(data.get('nativePackaging') in ('pending-contract', 'enabled', 'blocked'), 'Explicit native packaging state required')
     if generation_only:
@@ -399,6 +400,9 @@ def manifest(path, *, input_roles=None, validate_native=True):
             require(data.get('conditioning')=='clay-detail-v1' or data['inputs'].get('geometry') == data['inputs'].get('detail'),
                     'Item geometry and appearance must use the same normalized detailed image')
     return data
+
+
+NEW_ITEM_TEXTURE_SIZE = 2048      # user, 2026-11-15: "also up all items to 2k"; a 1K contract already written keeps its size
 
 
 def code_pins():

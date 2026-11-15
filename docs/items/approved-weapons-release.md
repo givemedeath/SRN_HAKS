@@ -266,6 +266,51 @@ Table changes are appearance-picker extensions only:
 No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
 in the `sw1_` row (`sw9_`), but those pairs have not been run in its client.
 
+## Melee wave 6 (2026-11-15)
+
+Wave 6 adds four SR4 catalog designs through the same pipeline and `drive publish`. Each package is the exact bytes of
+its reviewed native HAK, and each blueprint is the exact bytes from its private fixture module. Hashes are in
+`approved-weapons-v1.json`. The user approved them after seeing unattended in-client captures on both shipped Human
+bodies: "Approve all three" for the Kris, Jupiter Taser Club and Monofilament Sword, then "Approve the Rattan" after the
+Rattan Stick was rebuilt. The Sap is on hold and the Bottle was dropped ("drop the bottle"); neither is published.
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Kris | F1 / row 22 | `sr8070eecb` | `wswdg_*_151`, diffuse `sr8070eecb_15` | 0.60 m |
+| Monofilament Sword | F2 / row 1 | `sr79104ee8` | `wswls_*_151`, diffuse `sr79104ee8_15` | 0.96 m |
+| Jupiter Taser Club | F2 / row 1 | `srd88e01a2` | `wswls_*_161`, diffuse `srd88e01a2_16` | 0.75 m |
+| Rattan Stick | F2 / row 1 | `sr48d86616` | `wswls_*_231`, diffuse `sr48d86616_23` | 0.70 m |
+
+- **Kris:** the handle was stretched 3x to take the standard hand ("Stretch handle 3x, 0.57 m"). With the handle
+  sized to the hand the fitted Kris is 0.60 m, not the 0.57 m that option named. Its guard openings are measured
+  through that stretch.
+- **Monofilament Sword:** chosen at 1.0 m ("Sword 1.0 m"), it fits at 0.96 m: the grip is sized to the hand and the
+  pommel cannot extend further. The curled crossguard arms were levelled back into the blade plane ("and the sword
+  crossguard too"). Its eight crossguard slits are closed in the working shell ("Close the slits"). The bake could not
+  colour the closed slits or the shell's blade edge, so the donor carries matching plug faces there in the nearest donor
+  colour ("Plug the donor too", "Plug the edge too"). With the edge plugged it needs no colour patch.
+- **Jupiter Taser Club:** the clay was straightened ("Straighten Jupiter first"). The user chose a stretched grip for a
+  round 0.75 m club ("Stretch grip 1.3x, 0.75 m"); the measured stretch that fills the hand is 1.42x, and the user
+  approved that fit's preview ("Approve both fits"). The tip notch stays closed.
+- **Rattan Stick:** a round 0.70 m stick at the grip depth, about 3.0 cm. The first in-game look was "a little too
+  thick" with defects at one end ("3.0 cm", "Trim and repaint"). The tip end is cut past a stub and capped, and the
+  broken wrap there is black all the way round. The colour model's grey patches on the hidden side are repainted wood
+  ("Repaint them wood").
+
+On this release record the user said "the sizes are fine": the four lengths in the table are the approved ones.
+The fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only:
+
+- F1 `MaxRange` 141 to 151
+- F2 `MaxRange` 221 to 231
+
+The release validation now counts 29 `srn_2da` resources, up from 22. The seven others are 2DA files other packs added
+on main since wave 5; this wave changes only `baseitems.2da`.
+
+No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
+in the `sw1_` row (`sw10_`), but those pairs have not been run in its client.
+
 ## Publishing a client-approved design
 
 `tools/itemkit/publish.py` publishes designs the user has approved in the client. It replaces the ad-hoc scripts the
@@ -313,8 +358,8 @@ For each item, the command:
    `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. Before
    anything is written (and in `--dry-run`, as `plannedReviewers` and `plannedReviewerPositions`) it refuses if no
    row has room for a group (a row past the area's edge, or with any other object within half a step of a spot, is
-   skipped), or past group `sw9_`, since the selector reads a group from the first four
-   characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
+   skipped), or past group `sw99_`. The selector reads a group up to the tag's first underscore (it read only the
+   first four characters, `sw1_` to `sw9_`, until wave 6 needed `sw10_`). Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
    built archive holds exactly its source files and repeats the DDS twin check on every DDS in `srn_weapon`

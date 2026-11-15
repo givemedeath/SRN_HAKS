@@ -55,7 +55,7 @@
       {"part": "screen", "box": [[-0.32, -0.35, 1.0], [0.32, 0.66, 1.4]], "gain": 1.0, "saturation": 0.2, "value": 0.25},
       {"part": "control lamps", "box": [[-0.35, 0.2, 0.76], [0.36, 0.66, 0.98]], "gain": 1.2, "saturation": 0.45, "value": 0.4},
       {"part": "top lamp", "box": [[-0.3, -0.3, 1.48], [0.3, 0.0, 1.66]], "value": 0.75}
-    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Saeder-Krupp Yard, Loading Console", "sound": 28, "category": 165, "light": {"colour": 2, "at": [0.0, -0.15, 1.6]}}},
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Saeder-Krupp Yard, Loading Console", "sound": 28, "category": 165, "light": null}},
     "ek_sk_lockers": {"source": "meshy/models/sk-tool-lockers-a1", "height": 2.0, "colour": 1024, "placeable": {"label": "Saeder-Krupp Yard, Tool Lockers", "sound": 28, "category": 164}},
     "ek_sk_crates": {"source": "meshy/models/sk-crate-set-a1", "height": 1.2, "colour": 1024, "placeable": {"label": "Saeder-Krupp Yard, Crate Set", "sound": 27, "category": 164}},
     "ek_sk_pallets": {"source": "meshy/models/sk-pallet-stack-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Saeder-Krupp Yard, Pallet Stack", "sound": 27, "category": 164}},

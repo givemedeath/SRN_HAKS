@@ -180,7 +180,7 @@ python -m tools.itemkit.drive patch-measure ID SUFFIX DONOR_GLB <preflight.json 
 python -m tools.itemkit.drive patch-add ID SUFFIX NEW_SUFFIX --faces F,F,... --distance M --notes "review" [--user-approval "user's words"] [--replace]
 ```
 
-- **`screen`** joins the run's unwrap arrays (the final atlas, else the extract's `uv-source.npz`) in native part
+- **`screen`** joins the run's unwrap arrays (the final atlas, else the reduce stage's `uv-source.npz`) in native part
   order. A run with several unwrap or fit attempts is refused until `--arrays` or `--fit` names the one to use; the
   commands never guess between attempts. It moves the textured donor through the fit's `rawToNativeMatrix` and fails every visible face whose
   centroid has no donor triangle within the distance that faces within the alignment, as `transfer_preflight` does.

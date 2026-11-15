@@ -88,7 +88,7 @@ the generic native gate blocked and grants no fit or generation approval.
 The maintained separate firearm adapter is exposed by `firearm-inputs`,
 `firearm-prepare`, `firearm-native` and `firearm-fixture`. A preparation specification binds a source
 profile with the verified effective stack, comparison HAKs, explicit resource
-identity and each Color's final corner arrays, 1K diffuse and 32x64 RGBA icon.
+identity and each Color's final corner arrays, 1K or 2K diffuse and 32x64 RGBA icon.
 The source profile supplies namespace/table evidence only, not a pistol grip fit.
 Use `firearm-inputs --spec SPEC --bindings BINDINGS --output INPUTS` before the
 verified launcher invokes `firearm-prepare --spec SPEC --output FRESH`.
@@ -390,7 +390,16 @@ hand fit an even scale would shrink (the wave-5 Tonfa's shaft). `narrow MESH.glb
 LO HI --band INNER OUTER --factor K` pulls side parts such as sai prongs towards
 the centreline: across the width band (distances from the centreline as fractions
 of the length) the extent shrinks to K, and everything beyond moves in unchanged.
-It refuses a span that would cut through the side parts.
+It refuses a span that would cut through the side parts. `level MESH.glb OUT_DIR --span LO HI --band INNER
+OUTER` shears side parts that curl out of the blade's plane (guard arms bowed to
+one face) back into it: past the band's inner distance, each width bin of the arms
+keeps its thickness and shape but its depth midline moves onto the plane of the mesh
+outside the span, fading in up to the outer distance (wave-6 Monofilament Sword).
+It refuses a band that the blade or grip outside the span reaches, and its
+`level-map.npz` carries to the donor and shell like the others.
+When one `drive textured --straight DIR` folder holds several maps, each map's
+measuring report (`straighten.json`, `thin.json`, `level.json`) must sit beside it
+and show it was measured on the previous map's output; otherwise the step refuses.
 
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default
@@ -412,6 +421,9 @@ scaling depth and width separately. The depth departs from the standard by
 construction, so the fit always stops until `fit.gripDeparture` carries an approved
 review with the digest from the worker's retained `grip-measurement.json`. See the
 Club continuation in `four-weapon-lessons.md`.
+The fit override `roundBasis: "depth"` (recorded as `fit.roundBasis`) sizes the
+diameter to the approved grip depth instead of the face width, for a thin stick that
+the face width makes too thick (the wave-6 Rattan Stick, 3.0 cm instead of 4.8 cm).
 
 ## Chained stages
 
@@ -430,6 +442,22 @@ Measured on the wave-1 Club (2026-11-11, fit through native, same inputs): about
 minutes chained. Triangle counts were identical and the baked texture differed from a stage-by-stage run by at most
 one colour level, the same as two stage-by-stage runs differ from each other. Roughly half of the chained time is
 still verification inside the stages. End a chain at `render` when the look has not been reviewed yet.
+
+Since 2026-11-15 a chain starts fewer Blender processes and reads fewer files (each Blender launch costs most of a
+minute before any work, and one pass over a stage's inputs opened about 6,600 files):
+
+- A stage pins the byte-bound libraries it loaded (`runner.STAGE_LIBRARIES`; loading another fails the stage), not
+  every library in the bindings. The driver sets the launcher's hash cache (`SRN_LAUNCH_HASH_CACHE`, as headbatch does).
+- The automatic approval of a stage the chain just ran continues that stage's completion pass; the new receipt and
+  the stage's outputs are still read fresh. A reused stage, and every review a person files, takes a pass of its own.
+- `finish` starts no Blender without a `donorFinish` projection and hands the unwrapped scene on (`workerSkipped`).
+  `fit` and `reduce` write the part arrays the next stage reads (`uvSource`), and `render` writes the export arrays
+  (`exportArrays`), inside the launch they already have. A receipt from before this has none, and the next stage
+  then extracts them in a launch of its own, as before.
+
+Measured on the wave-4 Mace (fit through native, same manifest, a machine other sessions were also using): 10 Blender
+launches became 6, and the time outside Blender's own work fell from 1,042 s to 838 s of a 1,375 s chain. What is left
+is mostly the fresh verification passes of each stage and the launcher's own start-up, which this change keeps.
 
 ## Unattended client capture
 
@@ -724,7 +752,10 @@ its renders look acceptable. The Cougar UDF trial failed that physical gate.
 Unwrap after fitting/splitting/reduction. Bake the **fitted textured donor** onto the
 final atlas at4K, with profile-controlled cage/ray distances. Inspect unpadded masks:
 visible misses fail, geometrically identified internal cut caps use an explicit colour,
-and only empty atlas padding is extended. Derive2K/1K/512; initial runtime diffuse is1K.
+and only empty atlas padding is extended. Derive 2K/1K/512. The runtime diffuse of a new
+contract is 2K (user, 2026-11-15: "also up all items to 2k"; `contracts.NEW_ITEM_TEXTURE_SIZE`,
+written by `drive contract`); a contract written before that keeps its 1K, and the firearm
+package route takes either. The atlas gutter and coverage gates run at the contract's size.
 No original appearance-field sampling at transformed coordinates is permitted.
 
 Rendering uses four CPU threads, matched clay/textured views and measured native icon
