@@ -56,7 +56,7 @@
     ], "inside": [
       {"part": "west leg's sill, its faces wound inward", "box": [[-9.4, -4.7, 0.9], [-6.5, 4.7, 2.3]]},
       {"part": "east leg's sill, its faces wound inward", "box": [[6.5, -4.7, 0.9], [9.4, 4.7, 2.3]]}
-    ], "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 161}},
+    ], "walkUnder": true, "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 161}},
     "ek_rf_track": {"source": "track/straight-s0", "height": 0.312, "colour": 2048, "underfoot": true},
     "ek_rf_merge": {"source": "track/merge-s0", "height": 0.312, "colour": 2048, "underfoot": true},
     "ek_rf_runway": {"source": "track/crane-s1", "height": 0.23, "colour": 2048, "underfoot": true, "placeable": {"label": "Rail Freight Yard, Crane Rail", "sound": 28, "category": 161}},

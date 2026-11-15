@@ -49,7 +49,8 @@ WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a whe
 WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 LEVEL_MOST = 0.3  # metres: the thickest a levelled floor marking is left
-UNDERFOOT_MOST = 0.45  # metres: the knee (`tile.KNEE`), the highest a placeable laid underfoot stands, as a part laid underfoot in a group
+WALK_GAP = 0.6  # metres of clear ground that part two legs of a model walked under (`standing`): narrower, and no character passes between
+UNDERFOOT_MOST = 0.45 # metres: the knee (`tile.KNEE`), the highest a placeable laid underfoot stands, as a part laid underfoot in a group
 FIRE_WIDTH = (0.1, 3.0)  # metres across a fire the game draws: a candle's to a bonfire's
 # A panel the size of a door drawn in one flat colour (`blank_panels`): the cell its picture is read by, metres; the most
 # the brightness may vary within a cell, as a share of the cell's own brightness (a dark door's flecks are faint), and
@@ -1019,16 +1020,43 @@ def outline(points, sides=8):
     return [(round(float(x), 6) + 0.0, round(float(y), 6) + 0.0) for x, y in corners]
 
 
-def walk_text(name, vertices, *, overhead=False):
+def standing(vertices, faces):
+    """The parts of a model that stand in a walker's way, each as its points: what of its surface lies under head
+    height (OVERHEAD), told apart where WALK_GAP of clear ground lies between. A gantry crane is two legs and a beam
+    twelve metres up: one block on its whole footprint shut the track it spans (user, 2026-11-15: "the crane
+    placeable should NOT block walking underneath it")."""
+    vertices = np.asarray(vertices, float)  # its own corners with the places spread over its faces: a block's corners are the model's
+    points = np.vstack([vertices, scatter(vertices, np.asarray(faces), spacing=WALK_GAP / 4)]); points = points[points[:, 2] < OVERHEAD]
+    require(len(points), 'Nothing of the model stands under head height: it is hung overhead and needs no parts to walk between')
+    cell = np.floor(points[:, :2] / WALK_GAP).astype(int); cell -= cell.min(0); grid = np.zeros(cell.max(0) + 1, int); grid[tuple(cell.T)] = -1; parts = 0
+    for start in zip(*np.nonzero(grid)):  # cells that touch, corners too, are one part
+        if grid[start] != -1:
+            continue
+        parts += 1; grid[start] = parts; stack = [start]
+        while stack:
+            a, b = stack.pop()
+            for c in range(max(a - 1, 0), min(a + 2, grid.shape[0])):
+                for d in range(max(b - 1, 0), min(b + 2, grid.shape[1])):
+                    if grid[c, d] == -1:
+                        grid[c, d] = parts; stack.append((c, d))
+    part = grid[tuple(cell.T)]
+    return [points[part == number] for number in range(1, parts + 1)]
+
+
+def walk_text(name, vertices, *, overhead=False, blocks=None):
     """Collision: an upright block on the model's footprint (`outline`), as tall as the model, and where a character
     stands to use it (in front and behind). `overhead` leaves the block out: a thing hung above head height is walked
-    under."""
+    under. `blocks` are the points of each part that stands on the ground (`standing`), a block for each in place of
+    the one: a thing on legs is walked under between them."""
     vertices = np.asarray(vertices, float); (x0, y0, _), (x1, y1, z1) = vertices.min(0), vertices.max(0); lines = []
     if not overhead:
-        corners = outline(vertices); count = len(corners)
-        verts = [(x, y, 0.0) for x, y in corners] + [(x, y, z1) for x, y in corners]
-        faces = [face for index in range(count) for face in ((index, (index + 1) % count, (index + 1) % count + count), (index, (index + 1) % count + count, index + count))]
-        faces += [(count, count + index, count + index + 1) for index in range(1, count - 1)]
+        verts, faces = [], []
+        for block in [vertices] if blocks is None else blocks:
+            corners = outline(block); count = len(corners); first = len(verts)
+            verts += [(x, y, 0.0) for x, y in corners] + [(x, y, z1) for x, y in corners]
+            sides = [face for index in range(count) for face in ((index, (index + 1) % count, (index + 1) % count + count), (index, (index + 1) % count + count, index + count))]
+            sides += [(count, count + index, count + index + 1) for index in range(1, count - 1)]
+            faces += [tuple(corner + first for corner in face) for face in sides]
         lines = [f'node trimesh {name}_wg', f'  parent {name}_pwk', '  position 0 0 0', '  orientation 0 1 0 0', f'  verts {len(verts)}']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in verts]
         lines += [f'  faces {len(faces)}'] + [f'    {a} {b} {c} 1 0 0 0 {NON_WALK}' for a, b, c in faces] + ['endnode']
@@ -1391,7 +1419,9 @@ def load_models(path):
     and a `light` {colour, at} that lights what stands round it, as a lamp post does (`placeables.light_values`).
     `underfoot` (true) lays the model on the ground as railway track is laid (`track`): a group it is placed in is walked
     flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself;
-    as a placeable it has no block to walk into and stands no higher than the knee (`placeable`). `level` lays a floor
+    as a placeable it has no block to walk into and stands no higher than the knee (`placeable`). `walkUnder` (true)
+    gives a placeable on legs a block for each part of it that stands under head height in place of one on its whole
+    footprint, so it is walked under between them (`standing`; a gantry crane). `level` lays a floor
     marking that came back a wedge flat, that many metres thick (`levelled`), on a model that is neither lifted nor a
     group. `fire` is the fires the game draws on a placeable, [{part, at: [x, y, z], width}] on the finished model
     (`fire_lines`); a model with a fire is no part of a group, which draws none."""
@@ -1399,7 +1429,7 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot', 'level', 'fire'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot', 'level', 'fire', 'walkUnder'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -1524,6 +1554,8 @@ def load_models(path):
                 'inside is true, for a box whose openings show what stands behind it, or a list of boxes whose faces get backs: ' + name)
         require(model.get('underfoot', True) is True and not ('underfoot' in model and tiles),
                 'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
+        require(model.get('walkUnder', True) is True and not ('walkUnder' in model and (tiles or not placed or model.get('underfoot'))),
+                'walkUnder is true, for a placeable on legs that is walked under between them, and that is neither a group nor laid underfoot: ' + name)
         require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
@@ -1806,10 +1838,11 @@ def measured(name, made, files, sign_tilt=None):
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_tilt=None, light=None, fire=None, underfoot=False, **keywords):
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_tilt=None, light=None, fire=None, underfoot=False, walk_under=False, **keywords):
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. The keywords are
     `shape`'s. A model lifted clear of a standing character's head gets no block to walk into, and nor does one laid
-    `underfoot` (track, a floor marking), which is walked across. `light` is the light
+    `underfoot` (track, a floor marking), which is walked across. One to `walk_under` gets a block for each part of it
+    that stands on the ground (`standing`) and the report tells how many, `walkBlocks`. `light` is the light
     its row of the placeables table casts ({colour, at}), refused further than LIGHT_NEAR from the model (`light_gap`).
     `fire` is the fires the game draws on it (`fire_lines`), each refused further than LIGHT_NEAR from the model as a
     light is: a fire stated before a turn or at another height would burn in the air. The report's `blankPanels` are
@@ -1825,11 +1858,12 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_ti
                 f'of what burns ({part.get("part", part["at"])})')
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire'], made.get('glass'), fire),
                                         encoding='cp1252', newline='\n')
+    blocks = standing(vertices, made['faces']) if walk_under else None
     # What is walked across is low enough to step over, as a part laid underfoot in a group is (`tile.group`).
     require(not underfoot or float(vertices[:, 2].max()) <= UNDERFOOT_MOST + 1e-6, f'{name} is laid underfoot and stands {float(vertices[:, 2].max()):.2f} metres high: '
             f'what is walked across stands no higher than the knee, {UNDERFOOT_MOST} metres')
-    (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=underfoot or float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
+    (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=underfoot or float(vertices[:, 2].min()) >= OVERHEAD, blocks=blocks), encoding='cp1252', newline='\n')
     panels = shipped_blank_panels(made, maps, keywords.get('smooth'))
     # `lightAt` is the light this conversion measured: `envkit placeables` writes a row no other light (`additions.command_placeables`).
-    return {'blankPanels': panels, 'fires': len(fire or []), **measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt),
+    return {'blankPanels': panels, 'fires': len(fire or []), **({} if blocks is None else {'walkBlocks': len(blocks)}), **measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt),
             **({} if gap is None else {'lightFromModel': round(gap, 3), 'lightAt': [float(value) for value in light['at']]})}
