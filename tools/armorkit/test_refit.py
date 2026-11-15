@@ -302,7 +302,18 @@ class HeldTests(unittest.TestCase):
         apart = v.copy()
         apart[[3, 4], 2] = 5e-4  # half a millimetre apart is no hairline: an opening is left to the gate
         self.assertTrue(np.array_equal(refit.healed(piece, apart, planes), apart))
-        self.assertTrue(np.array_equal(refit.healed({**piece, 'pad': np.array([False, True, False])}, v, planes), v))  # a pad's edge is left open
+        self.assertTrue(np.array_equal(refit.healed({**piece, 'pad': np.array([True, True, False])}, v, planes), v))  # a pad's edges are left open
+        wide = v.copy()
+        wide[[3, 4], 2] = 2.5e-4  # carried to a body three times as wide, a crack three times as wide is still that crack
+        self.assertEqual(open_on_plane(refit.healed(piece, wide, planes, grown=3.0)), 0)
+        # a sliver along the plane, its long edge open and its other one shared: the point across it lies on no open edge
+        v = np.array([(0.3, 0.0, 0.0), (0.3, 0.006, 0.0), (0.3, 0.006, 2e-5), (0.35, 0.0, 0.0), (0.28, 0.003, 0.0)])
+        piece = {'v': v, 'f': np.array([(0, 1, 2), (0, 2, 3), (1, 0, 4), (2, 1, 4)])}
+        self.assertEqual(open_on_plane(v), 0)
+        piece = {'v': v, 'f': piece['f'][:3]}  # without the face that closed the sliver's short edge, as a bake left it
+        self.assertEqual(open_on_plane(v), 1)
+        out = refit.healed(piece, v, planes)
+        self.assertTrue(np.array_equal(out[1], out[2]))
 
     def test_a_sleeve_is_brought_under_its_budget_with_the_other_bodys_skin_counted(self):
         sleeve = arm(0.05, 0.25, 0.05)
@@ -323,6 +334,16 @@ class HeldTests(unittest.TestCase):
         self.assertTrue(np.allclose(np.linalg.norm(out['v'][:, 1:], axis=1), 0.05))  # every vertex left is one the sleeve had
         with self.assertRaisesRegex(Exception, 'stay over the budget'):
             refit.budgeted(piece, lambda v, f: 100, 120, planes)
+        # a sleeve that is mostly what the split made: its own surface locked whole (here by its joints' planes), the
+        # points inside its caps go, and nothing else
+        shut = closed(0.0, 0.3, 0.05, near='cap', far='cap', depth=0.04)
+        piece = {**part(), 'v': shut['v'], 'f': shut['f'], 'uv': shut['v'][:, :2], 'n': shut['v'] * 0 + (0, 0, 1.0), 'src': shut['v'],
+                 'added': shut['added'], 'domed': np.zeros(len(shut['f']), bool), 'trimmed': np.arange(len(shut['f']))}
+        tight = [(np.array((x, 0.0, 0.0)), np.array((1.0, 0.0, 0.0))) for x in np.linspace(0.0, 0.3, 9)]  # every ring of the tube within a plane's band
+        own = int((~shut['added']).sum())
+        out, lost = refit.budgeted(piece, lambda v, f: 0, len(shut['f']) - 8, tight)
+        self.assertGreaterEqual(lost, 8)
+        self.assertEqual(int((~out['added']).sum()), own)
 
 
 class RefitTests(unittest.TestCase):
@@ -446,6 +467,13 @@ class RefitTests(unittest.TestCase):
         self.assertAlmostEqual(float(((out[cap] - point) @ normal).min()), -(0.08 - split.SEAT_GAP), places=6)
         self.assertTrue(bake._inside(out[cap], [(chest['v'], chest['f'])]).all())
         self.assertTrue(np.array_equal(refit.seated(sleeve, point, normal, (chest['v'][:0], chest['f'][:0])), sleeve['v']))  # no room: as it was
+        # read against the chest's nearest vertex a point may pass and still lie outside it between its vertices:
+        # whatever that reading leaves outside is drawn in toward the cap's middle
+        with mock.patch.object(refit, 'under_skin', lambda vertices, *_, **__: np.array(vertices, float)):
+            held = refit.seated(sleeve, point, normal, (chest['v'], chest['f']))
+        cap = np.unique(sleeve['f'][sleeve['added']])
+        self.assertTrue((np.abs(measure.winding(sleeve['v'][cap], chest['v'], chest['f'])) < 0.5).any())
+        self.assertTrue((np.abs(measure.winding(held[cap], chest['v'], chest['f'])) >= 0.5).all())
         shallow = closed(0.05, 0.3, 0.04, near='cap', far=None, depth=0.03)  # an end already inside the chest stays as it was
         self.assertTrue(np.array_equal(refit.seated(shallow, point, normal, (chest['v'], chest['f'])), shallow['v']))
         pole = np.argmin(sleeve['v'][:, 0])  # what lies nearer another joint of the part is that end's, and stays

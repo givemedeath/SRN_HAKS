@@ -70,6 +70,12 @@ class EndTests(unittest.TestCase):
         found = ends.ends_of('forel', rig(), terms, 'test', 2)
         held = ends.shaped(narrow['v'], narrow['f'], np.ones(len(narrow['f']), bool), found, inward=True)
         self.assertTrue(np.allclose(held, narrow['v']))
+        # a point on the plane itself outside the ring read beside it (a wall's edge) comes onto the envelope's target too
+        rim = ends.ring(wide['v'], wide['f'], self.point, self.normal, True)
+        edge = np.concatenate([wide['v'], [(0.3, 0.085, 0.0), (0.32, 0.085, 0.0)]])
+        out = ends.end(edge, self.point, self.normal, rim, self.envelope, self.body, True, 0.1, inward=True)
+        self.assertAlmostEqual(float(np.linalg.norm(out[-2, 1:])), 0.065 - ends.MARGIN, places=6)
+        self.assertAlmostEqual(float(np.linalg.norm(out[-1, 1:])), 0.085 - (0.08 - 0.065 + ends.MARGIN) * float(1 - ends.smooth((0.02 - ends.PLATEAU) / (0.1 - ends.PLATEAU))), places=6)
 
     def test_a_copy_of_a_point_at_a_texture_seam_moves_with_it(self):
         # a forearm's end spread 3 cm: a face from the plane reaches a ring 3 cm down the arm, past the plateau,
