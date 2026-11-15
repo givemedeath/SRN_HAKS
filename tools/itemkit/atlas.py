@@ -73,7 +73,7 @@ def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=N
         for iteration in range(3):
             uv=uv.astype(np.float32).astype(np.float64)
             audits={};owners={};bad=set()
-            for size in (4096,2048,runtime_size,512):
+            for size in dict.fromkeys((4096,2048,runtime_size,512)):      # a 2K runtime size is audited once
                 key=str(size);audits[key],owners[size]=raster_audit(uv,size)
                 bad.update(audits[key]['overlapFaces']);bad.update(audits[key]['degenerateUvFaces'])
             current_charts=chart_ids(uv)
