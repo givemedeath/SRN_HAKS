@@ -180,6 +180,33 @@ def command_poses(args):
     print(json.dumps({key: record[key] for key in ('module', 'shots', 'evidence') if key in record}))
 
 
+def command_bodies(args):
+    from . import bodies
+    listed = lambda text: tuple(name.strip() for name in text.split(',') if name.strip())
+    report = bodies.build(args.kept, args.output, {'m': args.male_brief, 'f': args.female_brief}, args.number, args.body_pack, jobs=args.jobs,
+                          body_textures=args.body_textures, own=args.female_kept, own_parts=listed(args.female_parts),
+                          bodies=listed(args.only) if args.only else registry.BODIES, packs=args.pack, game=args.nwn_root, tint_cache=args.tint_cache,
+                          say=lambda *words: print(*words, file=sys.stderr, flush=True))
+    print(json.dumps({'passed': report['passed'], 'failed': sorted(body for body, found in report['bodies'].items() if not found['passed'])}))
+    if not report['passed']:
+        sys.exit(1)
+
+
+def command_wear(args):
+    from . import bodies
+    listed = lambda text: [name.strip() for name in text.split(',') if name.strip()]
+    heads = {}
+    for given in args.head:
+        kind, named, number = given.partition('=')
+        registry.require(named and number.isdigit(), f'--head takes KIND=NUMBER, as pmh=86: {given}')
+        heads[kind] = int(number)
+    slots, worn_on = bodies.published(registry.load(args.registry), args.number, listed(args.bodies) if args.bodies else None)
+    spec, layout = bodies.check_spec(worn_on, slots, args.number, args.hak, args.body_pack, tlk=args.tlk, heads=heads,
+                                     colours=json.loads(args.colours) if args.colours else None, hold=args.hold, icons=not args.no_icons)
+    record = bodies.check(spec, layout, args.output, args.nwn_root, run=args.run, wait=args.wait, settle=args.settle)
+    print(json.dumps({key: record[key] for key in ('module', 'shots', 'evidence') if key in record}))
+
+
 def command_fixture(args):
     from . import client
     from . import client_fixture as fixture
@@ -302,6 +329,37 @@ def main(argv=None):
     p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')
     p.add_argument('--hold', type=float, help='seconds the game stays on each shot (default 3): longer on a busy machine, where shots stall')
     p.set_defaults(handler=command_poses)
+    p = commands.add_parser('bodies', help="put an outfit on every body: refit the Human bakes' kept parts and bake each, several at a time")
+    p.add_argument('kept', help='the folder a bake of the Human male kept his parts in (`bake --kept`)')
+    p.add_argument('output', help='the folder the bodies are built under: <body>, <body>-kept, <body>.log and bodies.json')
+    p.add_argument('--male-brief', required=True); p.add_argument('--female-brief', required=True)
+    p.add_argument('--number', type=int, required=True, help="the outfit's registry number")
+    p.add_argument('--body-pack', required=True, help="folder holding the bodies' models")
+    p.add_argument('--body-textures', help="folder holding the bodies' material files and maps, for an outfit that shows skin")
+    p.add_argument('--female-kept', help='folder a bake of the Human female kept her own parts in; without it all her parts are his, refit')
+    p.add_argument('--female-parts', default='chest', help='comma-separated parts she keeps of her own bake (default chest)')
+    p.add_argument('--only', help='comma-separated bodies to build (default all 20); a race body needs the Human of its gender, here or built before')
+    p.add_argument('--pack', action='append', default=[], help='pack folder whose model names the outfit may not take')
+    p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
+    p.add_argument('--tint-cache', help="folder that keeps each part's tint texture between bakes")
+    p.add_argument('--jobs', type=int, default=3, help='race bodies built at a time (default 3)')
+    p.set_defaults(handler=command_bodies)
+    p = commands.add_parser('wear', help='build the client check of a published outfit on many bodies, from the built packs, and optionally run it')
+    p.add_argument('registry', help='the registry the outfit is in'); p.add_argument('output', help='a fresh folder for the fixture, its captures and the sheet')
+    p.add_argument('--number', type=int, required=True, help="the outfit's number")
+    p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')
+    p.add_argument('--body-pack', required=True, help="folder holding the bodies' models, for each body's height")
+    p.add_argument('--hak', action='append', default=[], required=True, help='built pack the fixture loads, highest priority first')
+    p.add_argument('--tlk', help='talk table the fixture loads')
+    p.add_argument('--bodies', help='comma-separated bodies to look at (default every body the outfit is made for)')
+    p.add_argument('--head', action='append', default=[], help='KIND=NUMBER: the head a kind of body wears, as pmh=86')
+    p.add_argument('--colours', help='JSON of colour channels to wear in another colour than the six contrasting ones')
+    p.add_argument('--no-icons', action='store_true', help='leave out the two shots of the outfit as an item')
+    p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
+    p.add_argument('--wait', type=float, help="seconds to wait for another session's client to close first")
+    p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')
+    p.add_argument('--hold', type=float, default=3.0, help='seconds the game stays on each shot (default 3): longer on a busy machine, where shots stall')
+    p.set_defaults(handler=command_wear)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)
     p.add_argument('--nwn-root', required=True, help='game install folder (from the local runtime binding)')
