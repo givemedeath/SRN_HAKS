@@ -436,6 +436,9 @@ minute before any work, and one pass over a stage's inputs opened about 6,600 fi
 
 - A stage pins the byte-bound libraries it loaded (`runner.STAGE_LIBRARIES`; loading another fails the stage), not
   every library in the bindings. The driver sets the launcher's hash cache (`SRN_LAUNCH_HASH_CACHE`, as headbatch does).
+- An item process reads its bindings without hashing the byte-bound libraries (`contracts.bindings`,
+  `verify_libraries=False`): the stage that loads a library hashes and pins it, so a process that loads none no
+  longer reads every library folder at start. Headkit's own loader still verifies them all.
 - The automatic approval of a stage the chain just ran continues that stage's completion pass; the new receipt and
   the stage's outputs are still read fresh. A reused stage, and every review a person files, takes a pass of its own.
 - `finish` starts no Blender without a `donorFinish` projection and hands the unwrapped scene on (`workerSkipped`).
@@ -744,6 +747,10 @@ and only empty atlas padding is extended. Derive 2K/1K/512. The runtime diffuse 
 contract is 2K (user, 2026-11-15: "also up all items to 2k"; `contracts.NEW_ITEM_TEXTURE_SIZE`,
 written by `drive contract`); a contract written before that keeps its 1K, and the firearm
 package route takes either. The atlas gutter and coverage gates run at the contract's size.
+The atlas is packed at twice the runtime size, so a 2K item's island padding is measured in 2K texels (a 1K
+item's layout is unchanged); the Mace went from 0.484 to 0.532 useful coverage at 2K. `processing.textureSharpen`
+(`{radius, amount}`: 0.3-2 texels, amount up to 1) is an optional unsharp mask on each derived map after the box
+filter; the 4K bake is never sharpened. It is off unless a manifest sets it, and a look approval decides a default.
 No original appearance-field sampling at transformed coordinates is permitted.
 
 Rendering uses four CPU threads, matched clay/textured views and measured native icon
