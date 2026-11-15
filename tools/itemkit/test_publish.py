@@ -36,12 +36,28 @@ TABLE = (b'2DA V2.0\n\n     label        MaxRange   ItemClass\n'
          b'1    longsword    121        WSwLs\n22   dagger       100        WSwDg\n')
 
 
-def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False, replaces=None, dds=None, lone_dds=False):
+def tga(width, height):
+    """An uncompressed RGBA TGA of the given size (header and zero pixels)."""
+    return struct.pack('<BBBHHBHHHHBB', 0, 0, 2, 0, 0, 0, 0, 0, width, height, 32, 8) + bytes(4*width*height)
+
+
+def bioware_dds(width, height, channels=4):
+    """A BioWare DDS header and zeroed DXT blocks for a whole mip chain."""
+    block = 8 if channels == 3 else 16; sizes = []; x, y = width, height
+    while True:
+        sizes.append(max(1, (x + 3)//4) * max(1, (y + 3)//4) * block)
+        if (x, y) == (1, 1): break
+        x, y = max(1, x//2), max(1, y//2)
+    return struct.pack('<4If', width, height, channels, sizes[0], 1.0) + bytes(sum(sizes))
+
+
+def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False, replaces=None, dds=None, lone_dds=False, bad_dds=False):
     run = root/'run-fit-v1'; native = run/'native/attempt-1/native'; native.mkdir(parents=True)
     models = {p: f'wswdg_{p}_{part:03}' for p in 'bmt'}
-    twin = {(f'i{models["b"]}', 2033): b'bioware dds'} if (dds if dds is not None else any(n.endswith('.dds') for n in replaces or ())) else {}
-    if lone_dds: twin[(f'i{models["m"]}', 2033)] = b'no tga beside it'
-    hak = erf(b'HAK ', {**{(m, 2002): f'model {m}'.encode() for m in models.values()}, (f'i{models["b"]}', 3): b'icon', (f'{blueprint}_11', 3): b'diffuse', **twin})
+    twin = {(f'i{models["b"]}', 2033): bioware_dds(32, 64 if bad_dds else 96)} if (
+        dds if dds is not None else bad_dds or any(n.endswith('.dds') for n in replaces or ())) else {}
+    if lone_dds: twin[(f'i{models["m"]}', 2033)] = bioware_dds(32, 96)
+    hak = erf(b'HAK ', {**{(m, 2002): f'model {m}'.encode() for m in models.values()}, (f'i{models["b"]}', 3): tga(32, 96), (f'{blueprint}_11', 3): b'diffuse', **twin})
     (native/f'{blueprint}h.hak').write_bytes(hak)
     record = {'hak': {'path': f'X:/elsewhere/{blueprint}h.hak', 'sha256': hashlib.sha256(hak).hexdigest()}, 'baseItem': base,
               'identity': {'blueprint': blueprint, 'displayName': 'Test Knife'},
@@ -117,6 +133,15 @@ class PlanTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             repo = make_repo(Path(folder), existing=['srabc_11.tga'])
             with self.assertRaisesRegex(P.PublishError, 'srabc_11.tga'): P.plan(repo, [('knife', make_run(Path(folder)))])
+
+    def test_a_broken_dds_already_in_srn_weapon_is_refused_before_any_write(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = make_run(Path(folder)); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
+            (repo/'srn_weapon/iold_10.tga').write_bytes(tga(32, 32)); (repo/'srn_weapon/iold_10.dds').write_bytes(bioware_dds(32, 32)[:-1])
+            before = {p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}
+            with self.assertRaisesRegex(P.PublishError, r"already holds DDS twins.*iold_10.dds.*whole mip chain"):
+                P.publish(repo, [('knife', run)], ['ok'], 'Seen.', None, dry_run=True)
+            self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
 
     def test_dry_run_reports_the_plan_and_writes_nothing(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -240,6 +265,21 @@ class StockReplacementTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             with self.assertRaisesRegex(P.PublishError, r"twin of the package's own TGA: \['iwswdg_m_111.dds'\]"):
                 P.survey('knife', make_run(Path(folder), lone_dds=True))
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(P.PublishError, r"not sound BioWare DDS.*'iwswdg_b_111.dds': '32x64 differs from its TGA 32x96'"):
+                P.survey('knife', make_run(Path(folder), bad_dds=True))
+
+
+class FolderDdsTests(unittest.TestCase):
+    def test_every_pack_dds_is_checked_against_its_tga_header_in_any_case(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root/'IWSWLS_B_051.TGA').write_bytes(tga(32, 96)); (root/'iwswls_b_051.dds').write_bytes(bioware_dds(32, 96))
+            (root/'sr1_10.tga').write_bytes(tga(64, 64)); (root/'sr1_10.dds').write_bytes(bioware_dds(32, 32, 3))
+            (root/'lone.dds').write_bytes(bioware_dds(32, 32)); (root/'model.mdl').write_bytes(b'model')
+            names, bad = P.folder_dds_problems(root)
+            self.assertEqual(names, ['iwswls_b_051.dds', 'lone.dds', 'sr1_10.dds'])
+            self.assertEqual(bad, {'lone.dds': 'no TGA beside it', 'sr1_10.dds': '32x32 differs from its TGA 64x64'})
 
 
 class ReviewerTests(unittest.TestCase):
