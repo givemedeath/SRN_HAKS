@@ -27,13 +27,13 @@
   "resources": [
     {
       "path": "test-modules/weapon-waves/module/c.ncs",
-      "sha256": "76fd5f86556887cdf9b7a70164ee230e5ca29795c8bca98f784ffa49f9c2a919",
-      "bytes": 10561
+      "sha256": "db15de51aae350cd73547227ff2e8fa8f5c90e2fcaa71e769b49a3378c32aa50",
+      "bytes": 10535
     },
     {
       "path": "test-modules/weapon-waves/module/c.nss",
-      "sha256": "2901498dd42be623cca6258cd015f650cf4db4f3f6d1466500cb0acd53750322",
-      "bytes": 8718
+      "sha256": "91be716c9dde148d50478a7815bbac801bdad2278636600703221c50dea92dd5",
+      "bytes": 8697
     },
     {
       "path": "test-modules/weapon-waves/module/module.ifo",
@@ -332,13 +332,13 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sw_review.ncs",
-      "sha256": "bcb90fa9fe98843f53417e1fb155b19a31376fbaa9c73a6302b7c88c6e5de093",
-      "bytes": 1293
+      "sha256": "58ea7aece27116efb064d0dfb284fef3f87367c2cc1315c9b818b58426cfe327",
+      "bytes": 1267
     },
     {
       "path": "test-modules/weapon-waves/module/sw_review.nss",
-      "sha256": "97c03b3c5aa8cf21316647f8b15ffb6b722e3101d3c4f51d99a026959fe04dab",
-      "bytes": 668
+      "sha256": "da83fa9306c36b0e566ee2886c7c7ea7bf2180dc46ef9586085b1b64c5351c61",
+      "bytes": 645
     },
     {
       "path": "test-modules/weapon-waves/haks/sw_reviewenv/sr_it_set.set",

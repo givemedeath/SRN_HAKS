@@ -298,9 +298,8 @@ def plan_pairs(creatures, packages, area_width, area_height=None, obstacles=()):
                 and all(clear(x, y) for x in xs for y in row))
     number = len(groups) + 1; pairs = []
     for start in range(0, len(packages), GROUP_SIZE):
-        # c.nss and sw_review.nss read a reviewer's group up to its first underscore (sw10_ on; they read four characters,
-        # sw1_ to sw9_, until wave 6 placed the tenth group, 2026-11-15). A tag stays within NWN's 32 characters.
-        require(number <= 99, f'Reviewer group sw{number}_ is past what the module selector reads (sw1_ to sw99_)')
+        # c.nss and sw_review.nss read a reviewer's group as GetStringLeft(tag, 4): one digit, sw1_ to sw9_.
+        require(number <= 9, f'Reviewer group sw{number}_ is past what the module selector can read (sw1_ to sw9_)')
         group = packages[start:start + GROUP_SIZE]
         row = next((r for r in ROWS if fits(r, len(group))), None)
         require(row is not None, f'No room left in the comparison rows for {len(group)} reviewer pairs from {group[0].item}')

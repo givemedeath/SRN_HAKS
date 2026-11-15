@@ -313,8 +313,8 @@ For each item, the command:
    `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. Before
    anything is written (and in `--dry-run`, as `plannedReviewers` and `plannedReviewerPositions`) it refuses if no
    row has room for a group (a row past the area's edge, or with any other object within half a step of a spot, is
-   skipped), or past group `sw99_`. The selector reads a group up to the tag's first underscore (it read only the
-   first four characters, `sw1_` to `sw9_`, until wave 6 needed `sw10_`). Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
+   skipped), or past group `sw9_`, since the selector reads a group from the first four
+   characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
    built archive holds exactly its source files and repeats the DDS twin check on every DDS in `srn_weapon`
