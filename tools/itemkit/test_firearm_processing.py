@@ -214,6 +214,7 @@ class FirearmProcessingTests(unittest.TestCase):
             intake_pistol(reference,root/'asset','synthetic-pistol')
             profile_path=root/'asset/family.json';manifest_path=root/'asset/asset.json'
             profile=read(profile_path);manifest=read(manifest_path);layer=root/'asset/stock';layer.mkdir()
+            self.assertEqual(profile['runtimeTextureSize'],contracts.NEW_ITEM_TEXTURE_SIZE)   # a new firearm is 2K like every new item
             table=layer/'baseitems.2da'
             table.write_text('2DA V2.0\n\nlabel ItemClass ModelType MinRange MaxRange InvSlotWidth InvSlotHeight\n61 Sling WBwSl 0 0 50 1 2\n')
             (layer/'wbwsl_011.mdl').write_bytes(b'synthetic donor')

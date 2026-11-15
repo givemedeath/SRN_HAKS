@@ -23,7 +23,7 @@ DEPENDENCIES = {'prepare': (), 'inspect': (), 'donor': (), 'fit': (), 'reduce': 
 # Byte-bound libraries a stage may load. A stage pins the ones it did load (headkit's rule), not every bound library:
 # the bindings also carry headkit's face libraries, 2,500 files no item stage opens, and hashing them in every pass
 # of every stage was a third of a chain's file reads.
-STAGE_LIBRARIES = {'donor': {'xatlas', 'igl'}, 'reduce': {'pymeshlab', 'igl'}, 'unwrap': {'xatlas'}}
+STAGE_LIBRARIES = {'donor': {'xatlas'}, 'reduce': {'pymeshlab', 'igl'}, 'unwrap': {'xatlas'}}
 
 
 def stage_libraries(stage):
@@ -202,16 +202,17 @@ class Runner:
         # Worker inputs are stage inputs or this stage's own outputs; execute()'s completion audit rereads them fresh.
         verify(config['inputs']); return read(folder/'worker'/'result.json')
 
-    def uv_source(self, parent, scene, folder):
-        """The parent scene's part arrays: written by the parent's own Blender launch, else extracted by one here."""
-        emitted = (getattr(self, 'parent_results', None) or {}).get(parent, {}).get('uvSource')
-        return {'arrays': emitted} if emitted else self.worker('uv-arrays', folder/'extract', scene=scene)
+    def uv_source(self, parent, folder):
+        """A parent stage's part arrays: written by that stage's own Blender launch, else extracted from its scene here."""
+        emitted = parent.get('uvSource')
+        return {'arrays': emitted} if emitted else self.worker('uv-arrays', folder/'extract', scene=parent['scene']['path'])
 
-    def constrained_candidates(self, scene, folder):
+    def constrained_candidates(self, fitted, folder):
+        """`fitted` is the fit stage's result."""
         """Reduce each fitted part outside its seam band; the worker validates these before use."""
         from .parts import active_parts
         from .reduction import policy, reduce
-        extracted = self.uv_source('fit', scene, folder)
+        extracted = self.uv_source(fitted, folder)
         meshlab = library(self.local, 'pymeshlab'); igl = library(self.local, 'igl'); joins = self.data['processing'].get('joinY', [])
         root = folder/'constrained'; root.mkdir(); candidates = {}
         with np.load(extracted['arrays']['path'], allow_pickle=False) as data:
@@ -226,7 +227,7 @@ class Runner:
         return candidates
 
     def _execute(self, stage, folder, *, parent_results):
-        parent_result = parent_results.__getitem__; self.parent_results = parent_results
+        parent_result = parent_results.__getitem__
         if stage == 'prepare':
             require(self.data.get('approval', {}).get('referenceDesignReviewed') is True, 'Reference design review required')
             source = Path(self.input('reference')); target = folder/'reference.png'
@@ -270,7 +271,7 @@ class Runner:
         if stage == 'unwrap':
             from .atlas import unwrap_parts
             parent=parent_result('reduce')
-            extracted=self.uv_source('reduce',parent['scene']['path'],folder)
+            extracted=self.uv_source(parent,folder)
             from .parts import active_parts
             atlas=unwrap_parts(extracted['arrays']['path'],self.local,folder/'atlas',self.family['runtimeTextureSize'],
                                packing_paddings=self.data.get('processing',{}).get('uvPackingPaddings'),parts=active_parts(self.family),
@@ -288,7 +289,7 @@ class Runner:
                             'workerSkipped': True}
             if stage == 'reduce': values['emitUvSource'] = True       # unwrap reads the reduced parts as arrays
             if stage == 'reduce' and self.data.get('processing',{}).get('constrainedReduction'):
-                values['visibleCandidates'] = self.constrained_candidates(parent['scene']['path'], folder)
+                values['visibleCandidates'] = self.constrained_candidates(parent, folder)
             if stage=='shadow' and self.data.get('processing',{}).get('shadowProxies'):
                 values['shadowCandidates']=parent_result('reduce')['shadowPreflight']
             result = self.worker(stage, folder, **values)
@@ -308,8 +309,8 @@ class Runner:
                     except Exception as exc: result['textureOutliers'] = {'advisory': True, 'error': f'{type(exc).__name__}: {exc}'}
             return result
         if stage == 'render':
-            # Only the rigid export reads these arrays; the shield and rigged adapters have their own.
-            rigid = ROUTES[self.family['family']].adapter not in ('shield', 'rigged', 'whole-skinned')
+            # Only the export stage reads these arrays, and it serves these adapters; a shield or rigged family has its own.
+            rigid = ROUTES[self.family['family']].adapter in ('composite', 'whole-rigid')
             return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'], emitExportArrays=rigid,
                                texture=parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'])
         if stage == 'export':

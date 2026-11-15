@@ -34,7 +34,7 @@ class VerificationTests(unittest.TestCase):
                 worker.assert_called_once_with('render',root,scene='scene',emitExportArrays=True,texture='texture')
                 # A shield or rigged family exports through its own adapter: its render writes no rigid export arrays.
                 from tools.itemkit.routes import ROUTES
-                for name in ('shield','rigged','whole-skinned'):
+                for name in ('shield','rigged','whole-skinned','none'):
                     r.family['family']=next(key for key,route in ROUTES.items() if route.adapter==name);worker.reset_mock()
                     r._execute('render',root,parent_results={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture'}}}})
                     self.assertFalse(worker.call_args.kwargs['emitExportArrays'])
@@ -55,11 +55,10 @@ class VerificationTests(unittest.TestCase):
                 r._execute('reduce',root,parent_results={'fit':{'scene':pin(scene)}})
                 self.assertTrue(worker.call_args.kwargs['emitUvSource'])
             # The arrays a parent's launch wrote are used as they are; without them (an older receipt) Blender extracts them.
-            r.parent_results={'reduce':{'uvSource':{'path':'emitted','sha256':'bound'}}}
             with patch.object(r,'worker',return_value={'arrays':{'path':'extracted'}}) as worker:
-                self.assertEqual(r.uv_source('reduce','scene',root),{'arrays':{'path':'emitted','sha256':'bound'}});worker.assert_not_called()
-                r.parent_results={'reduce':{}}
-                self.assertEqual(r.uv_source('reduce','scene',root)['arrays']['path'],'extracted')
+                emitted={'scene':{'path':'scene'},'uvSource':{'path':'emitted','sha256':'bound'}}
+                self.assertEqual(r.uv_source(emitted,root),{'arrays':{'path':'emitted','sha256':'bound'}});worker.assert_not_called()
+                self.assertEqual(r.uv_source({'scene':{'path':'scene'}},root)['arrays']['path'],'extracted')
                 worker.assert_called_once_with('uv-arrays',root/'extract',scene='scene')
             r.profile_path=root/'profile.json'
             parents={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture','sha256':'bound'}}},
@@ -85,7 +84,7 @@ class VerificationTests(unittest.TestCase):
             with patch('tools.itemkit.parts.active_parts',return_value=('whole',)), patch('tools.itemkit.runner.library') as library, \
                  patch.object(r,'worker',return_value={'arrays':pin(arrays)}):
                 library.return_value.point_mesh_squared_distance.return_value=(np.zeros(4),None,None)
-                candidate=r.constrained_candidates('scene',root)['whole']
+                candidate=r.constrained_candidates({'scene':{'path':'scene'}},root)['whole']
             self.assertEqual(candidate['policyHash'],digest({'budget':4,'joinY':[-1.,2.],'maximumSourceDistance':.003}))
             with np.load(candidate['arrays']['path']) as data:np.testing.assert_array_equal(data['faces'],f)
 
@@ -257,6 +256,7 @@ class ChainTests(unittest.TestCase):
     def test_a_stage_may_load_only_its_declared_libraries(self):
         from tools.itemkit.runner import stage_libraries, DEPENDENCIES, STAGE_LIBRARIES
         self.assertEqual(stage_libraries('reduce'), {'pymeshlab', 'igl'}); self.assertEqual(stage_libraries('unwrap'), {'xatlas'})
+        self.assertEqual(stage_libraries('donor'), {'xatlas'})
         self.assertEqual(stage_libraries('bake'), set()); self.assertLessEqual(set(STAGE_LIBRARIES), set(DEPENDENCIES))
 
     def test_a_reused_stage_keeps_the_review_a_person_filed(self):
