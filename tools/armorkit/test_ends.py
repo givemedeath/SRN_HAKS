@@ -76,6 +76,12 @@ class EndTests(unittest.TestCase):
         out = ends.end(edge, self.point, self.normal, rim, self.envelope, self.body, True, 0.1, inward=True)
         self.assertAlmostEqual(float(np.linalg.norm(out[-2, 1:])), 0.065 - ends.MARGIN, places=6)
         self.assertAlmostEqual(float(np.linalg.norm(out[-1, 1:])), 0.085 - (0.08 - 0.065 + ends.MARGIN) * float(1 - ends.smooth((0.02 - ends.PLATEAU) / (0.1 - ends.PLATEAU))), places=6)
+        # where the ring lies inside the envelope, such a point comes onto the ring: the end's target is the nearer
+        # of the two, and the 20 bodies were reviewed with their edges on the plane so (review, 2026-11-14)
+        rim = ends.ring(narrow['v'], narrow['f'], self.point, self.normal, True)
+        edge = np.concatenate([narrow['v'], [(0.3, 0.06, 0.0)]])
+        out = ends.end(edge, self.point, self.normal, rim, self.envelope, self.body, True, 0.1, inward=True)
+        self.assertAlmostEqual(float(np.linalg.norm(out[-1, 1:])), 0.05, places=9)
 
     def test_a_copy_of_a_point_at_a_texture_seam_moves_with_it(self):
         # a forearm's end spread 3 cm: a face from the plane reaches a ring 3 cm down the arm, past the plateau,

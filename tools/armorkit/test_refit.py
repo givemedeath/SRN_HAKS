@@ -283,6 +283,14 @@ class HeldTests(unittest.TestCase):
         # under an over part that still covers it in the bend, it stays where it is
         long_ = closed(0.0, 0.5, 0.12)
         self.assertTrue(np.array_equal(refit.tucked(piece, piece['v'], point, normal, 0.2, turns, (long_['v'], long_['f']), 0.01), piece['v']))
+        # a pole deeper past the plane than the reach itself comes up the axis to it: left at its depth and set on
+        # the axis, it stayed as far from the joint as it was (review, 2026-11-14)
+        deep = {**piece, 'v': piece['v'].copy()}
+        deep['v'][10] = (0.22, 0.01, 0.0)
+        away = closed(1.0, 1.3, 0.05)  # nothing over it: every point past the reach would show
+        out = refit.tucked(deep, deep['v'], point, normal, 0.2, turns, (away['v'], away['f']), 0.01)
+        self.assertAlmostEqual(float(np.linalg.norm(out[10] - point)), 0.05 + 0.01 - refit.TUCK, places=9)
+        self.assertAlmostEqual(float(np.linalg.norm(out[10, 1:])), 0.0, places=9)
 
     def test_a_hairline_on_an_ends_plane_is_closed(self):
         # a face of the part and a face of its lid along one edge on the plane (x = 0.3), 30 microns apart: farther than

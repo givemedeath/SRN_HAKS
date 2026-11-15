@@ -132,7 +132,9 @@ def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=N
     an under end lies on the body's skin (`target`). With `inward` the end is only drawn in, where it stands
     outside the envelope: where it stands inside it, it stays as it is. A point within `AT_PLANE` of the plane
     that stands outside the ring, a wall's or a dome's edge lying on the plane itself, is then set on the
-    envelope's target too: moved as the ring beside it, which the sections read just off the plane, it stayed
+    end's target too, the envelope's or, where the ring lies inside the envelope, the ring itself (so such an
+    edge does move where the rest of the end stays; the 20 bodies were reviewed so, and held to the envelope
+    alone their upper arms' and thighs' edges moved by up to 4 mm, review 2026-11-14): moved as the ring beside it, which the sections read just off the plane, it stayed
     as far outside it, and a thigh's wall stood 0.8 mm outside the Troll Large male's hip envelope where its
     ring lay on it (2026-11-14)."""
     vertices = np.asarray(vertices, float)
@@ -204,6 +206,7 @@ def shaped(vertices, faces, measured, part_ends, inward=False):
     vertices = np.asarray(vertices, float)
     faces = np.asarray(faces, int)
     mine = faces[np.asarray(measured, bool)]
+    weld = mesh_ops.weld_ids(vertices)  # once: copies at one point move as one at every end, and stay copies
     for point, normal, envelope, body_ring, under, skin in part_ends:
         reach = (vertices - point) @ normal * (1 if under else -1)
         length = min(LONGEST, 0.5 * float(reach[np.unique(faces)].max()))
@@ -213,7 +216,6 @@ def shaped(vertices, faces, measured, part_ends, inward=False):
         # every copy of such a corner the part holds at the same point, where its texture's islands meet: moved by
         # the blend alone, a copy 2 cm from the plane parted from its corner by 2 cm where an end was spread 7 cm
         # to the Dwarf Large female's waist, a slit along the seam (Facility Security, 2026-11-14)
-        weld = mesh_ops.weld_ids(vertices)
         whole = np.isin(weld, weld[mine[crossed]])
         for _ in range(PASSES):
             rim = ring(vertices, mine, point, normal, under)
