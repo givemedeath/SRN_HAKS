@@ -218,6 +218,15 @@ class TaperTests(unittest.TestCase):
         line = refit.tapered(np.c_[np.zeros(61), np.linspace(0.08, 0.0, 61), np.linspace(1.6, 1.1, 61)], slope)
         self.assertLess(np.abs(np.diff(line[:, 1], 3)).max(), 2e-4)
 
+    def test_a_body_whose_joints_are_spaced_too_unlike_for_one_slope_is_refused(self):
+        # the source's shoulders 10 cm under its neck and 40 cm over its waist; the other body's 45 cm under and 5 cm
+        # over: one curve through the three turns over above the waist, and the hem would fold up into the vest
+        bones = torso(0.6)
+        for name in ('lbicep_g', 'rbicep_g', 'lforearm_g', 'rforearm_g'):
+            bones[name][2, 3] = 1.15
+        with self.assertRaisesRegex(ValueError, 'fold over'):
+            refit.taper('chest', self.source, (bones, self.target[1]), self.terms, ('a', 'b'))
+
 
 class EndTests(unittest.TestCase):
     def test_a_cap_short_of_the_other_bodys_overlap_is_stretched_to_it(self):
@@ -252,6 +261,19 @@ class EndTests(unittest.TestCase):
             rim = float(out['forel']['v'][np.unique(forearm['f'][~forearm['added']])][:, 0].max())
             self.assertAlmostEqual(float(out['forel']['v'][:, 0].max()) - rim, seams.ENDS['domeMost'], places=6)
             self.assertEqual(bake.hidden(out, rig(), 'test', terms)[1], [])
+
+    def test_an_end_drawn_in_at_a_bare_shoulder_is_skin_tight(self):
+        # a sleeve 9 cm round on a body of 4 cm: under a chest it is drawn in to the tier's envelope, 6.5 cm; where
+        # the chest is left to the body (`bare`), to the skin-tight one, 4.4 cm, as an end at a tube joint is
+        sleeve = arm(0.0, 0.3, 0.09)
+        piece = {**part(), **sleeve, 'n': np.tile([[0.0, 0.0, 1.0]], (len(sleeve['v']), 1))}
+        terms = contract(ring=0.04)
+        widest = {}
+        for bare in ((), (('shoulder', 'l'),)):
+            out, _ = refit.refit({'bicepl': piece}, (rig(), {}), (rig(), {}), contract=terms, bodies=('test', 'test'), tier=2, bare=bare)
+            v = out['bicepl']['v']
+            widest[bare] = float(np.linalg.norm(v[np.abs(v[:, 0]) < 1e-6][:, 1:], axis=1).max())
+        self.assertTrue(0.06 < widest[()] <= 0.065 and 0.04 < widest[(('shoulder', 'l'),)] <= 0.044, widest)
 
 
 class HeldTests(unittest.TestCase):
@@ -343,6 +365,8 @@ class HeldTests(unittest.TestCase):
         self.assertTrue(np.allclose(np.linalg.norm(out['v'][:, 1:], axis=1), 0.05))  # every vertex left is one the sleeve had
         with self.assertRaisesRegex(Exception, 'stay over the budget'):
             refit.budgeted(piece, lambda v, f: 100, 120, planes)
+        with self.assertRaisesRegex(Exception, 'stay over the budget'):  # the skin alone over it: said so, not as the reducer's refusal
+            refit.budgeted(piece, lambda v, f: 500, 120, planes)
         # a sleeve that is mostly what the split made: its own surface locked whole (here by its joints' planes), the
         # points inside its caps go, and nothing else
         shut = closed(0.0, 0.3, 0.05, near='cap', far='cap', depth=0.04)

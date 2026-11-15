@@ -73,6 +73,11 @@ class BodySkinTests(unittest.TestCase):
                 (maps / 'skin.mtr').write_text('texture1 skinn\n')
                 self.assertTrue(np.allclose(bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})['rough'], texture.ROUGHNESS))
                 (maps / 'skin.mtr').unlink()
+                with self.assertRaisesRegex(ValueError, 'holds none'):  # no material file at all: not the bodies' folder
+                    bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
+                with self.assertRaisesRegex(ValueError, 'holds none'):
+                    bodyskin.body_part(pack, maps / 'missing', 'pmh0', 'bicepl', {'lbicep_g': bone})
+                (maps / 'other.mtr').write_text('texture1 skinn\n')  # another body's: this one binds none
                 plain = bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
                 self.assertTrue(np.allclose(plain['relief'], [0.5, 0.5, 1.0]) and np.allclose(plain['rough'], texture.ROUGHNESS))
                 self.assertTrue(np.array_equal(plain['tint'], own['tint']))

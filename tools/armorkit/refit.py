@@ -183,8 +183,9 @@ def radii(mesh, frame):
     far = 2 * float(np.abs(reach[:, 1:]).max()) + 1
     rays = far * (np.cos(angle)[:, None] * frame['axes'][1] + np.sin(angle)[:, None] * frame['axes'][2])
     table = np.empty((len(heights), STANDOFF_WAYS))
+    curves = [np.polyfit(frame['line'][:, 0], frame['line'][:, k], 2) for k in (1, 2)]
     for row, height in enumerate(heights):  # each level about its own point of the line: the surface as it stands, not sheared straight
-        middle = frame['origin'] + np.array([height, *(np.polyval(np.polyfit(frame['line'][:, 0], frame['line'][:, k], 2), height) for k in (1, 2))]) @ frame['axes']
+        middle = frame['origin'] + np.array([height, *(np.polyval(curve, height) for curve in curves)]) @ frame['axes']
         table[row] = far - measure.beyond(middle + rays, middle, frame['axes'][0], mesh[0], mesh[1])[0]
     for way in range(STANDOFF_WAYS):
         found = ~np.isnan(table[:, way])
@@ -255,6 +256,11 @@ def taper(token, source, target, contract=None, names=None):
         frames.append({'origin': points[head], 'axes': axes, 'line': line, 'span': float(np.linalg.norm(span))})
         deep.append(width(mesh, stations[1], level, axes[2]))
     require(min(deep) > 1e-6, f"A body's own {token} is not cut by the line of its {first} joints")
+    # `tapered` maps a height on the source to one on the target by one curve through the three stations: where
+    # the stations are spaced too unlike on the two bodies it turns over between them, and the slices below fold
+    # back up through the ones above (review, 2026-11-14; the 20 bodies rise at 0.69 to 1.46 all the way)
+    rise = np.polyval(np.polyder(np.polyfit(frames[0]['line'][:, 0], frames[1]['line'][:, 0], 2)), frames[0]['line'][[0, 2], 0])
+    require((rise > 0).all(), f'The joints of {token} are spaced too unlike on the two bodies to carry it by one slope: its slices would fold over')
     armhole = max(max(contract['joints'][first]['bodies'][names[0]]['sides'][found[k][1]]['bodyRing']) for k in pair)
     return {'frames': frames, 'top': [frames[1]['span'] / frames[0]['span'], deep[1] / deep[0]],
             'hem': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=last),
@@ -531,6 +537,27 @@ def under_skin(vertices, point, normal, skin, gap=UNDER_SKIN, which=None):
     return out
 
 
+def _rings(faces, ids, count):
+    """(rows, cols, degree): each welded point's neighbours along the edges of `faces`, both ways, and how many
+    it has, for `_spread`; `ids` are the points' weld labels, `count` how many there are."""
+    pairs = mesh_ops.edges(faces, ids)[0]
+    rows, cols = np.concatenate([pairs[:, 0], pairs[:, 1]]), np.concatenate([pairs[:, 1], pairs[:, 0]])
+    return rows, cols, np.maximum(np.bincount(rows, minlength=count), 1)
+
+
+def _spread(need, free, rings, rounds):
+    """The push each welded point gets where some need `need`: never less than its own need, and the mean of its
+    neighbours' pushes (`_rings`) carried `rounds` rings on, so the cloth moves as one and creases nowhere. A
+    point `free` does not flag is not pushed. A sleeve over an arm and a chest over a neck are moved so
+    (`over_skin`, `over_neck`)."""
+    rows, cols, degree = rings
+    need = np.where(free, need, 0.0)
+    push = need.copy()
+    for _ in range(rounds):
+        push = np.where(free, np.maximum(need, np.bincount(rows, push[cols], minlength=len(need)) / degree), 0.0)
+    return push
+
+
 def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     """`part`, holding the other body's own skin beside the outfit's (`bake.skinned`), with everything drawn
     over that skin (the sleeve's cloth, and the dome closing it at the armpit) held `gap` outside it. Each
@@ -559,9 +586,7 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     free[ids[f[skin].ravel()]] = False
     cloth, points = f[~skin], np.unique(f[skin])
     start, axis = np.asarray(start, float), seams.unit(np.asarray(end, float) - np.asarray(start, float))
-    pairs = mesh_ops.edges(f, ids)[0]
-    rows, cols = np.concatenate([pairs[:, 0], pairs[:, 1]]), np.concatenate([pairs[:, 1], pairs[:, 0]])
-    degree = np.maximum(np.bincount(rows, minlength=count), 1)
+    rings = _rings(f, ids, count)
     moved, pushed = v.copy(), np.zeros(count)
     for _ in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
         outside, face, _ = measure.beyond(moved[points], start, axis, moved, cloth, facing=True)
@@ -571,10 +596,7 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
             break
         need = np.zeros(count)
         np.maximum.at(need, ids[cloth[face[short]]].ravel(), np.repeat(outside[short] + gap, 3))
-        need = np.where(free, need, 0.0)
-        push = need.copy()
-        for _ in range(rounds):
-            push = np.where(free, np.maximum(need, np.bincount(rows, push[cols], minlength=count) / degree), 0.0)
+        push = _spread(need, free, rings, rounds)
         pushed += push
         require(pushed.max() <= OVER_MOST, f'Held outside the body\'s own skin, the outfit would move {pushed.max() * 100:.1f} cm, '
                                            f'past {OVER_MOST * 100:.0f} cm: a fold read as its outside, or a body too far from this one')
@@ -632,9 +654,7 @@ def over_neck(part, neck, point, normal, gap=OVER_NECK, rounds=OVER_ROUNDS, grai
     free[ids[f[~pad].ravel()]] = True
     free[ids[f[pad].ravel()]] = False
     cloth = f[~pad]
-    pairs = mesh_ops.edges(f, ids)[0]
-    rows, cols = np.concatenate([pairs[:, 0], pairs[:, 1]]), np.concatenate([pairs[:, 1], pairs[:, 0]])
-    degree = np.maximum(np.bincount(rows, minlength=count), 1)
+    rings = _rings(f, ids, count)
     moved, pushed = v.copy(), np.zeros(count)
     for _ in range(OVER_PASSES):
         if not through.any():
@@ -648,10 +668,7 @@ def over_neck(part, neck, point, normal, gap=OVER_NECK, rounds=OVER_ROUNDS, grai
         face = near[np.concatenate([publish.apart(points[which[at:at + step]], corners[near]).argmin(axis=1) for at in range(0, len(which), step)])]
         need = np.zeros(count)
         np.maximum.at(need, ids[cloth[face]].ravel(), np.repeat(out[which] + gap, 3))
-        need = np.where(free, need, 0.0)
-        push = need.copy()
-        for _ in range(rounds):
-            push = np.where(free, np.maximum(need, np.bincount(rows, push[cols], minlength=count) / degree), 0.0)
+        push = _spread(need, free, rings, rounds)
         pushed += push
         require(pushed.max() <= OVER_MOST, f"Lifted over the body's own neck, the chest would move {pushed.max() * 100:.1f} cm, past {OVER_MOST * 100:.0f} cm")
         way = np.zeros((count, 3))  # one normal a welded point, weighted by area: its copies at a texture seam move as one
@@ -883,7 +900,10 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
             planes = [(point, seams.unit(seams.plane(goal[0], joint, 'l' if side == 'c' else side)[1])) for point, (joint, side, _) in zip(anchors(name, goal[0]), met)]
             held, lost = budgeted(parts[name], lambda v, f: bake.skin_beside(skin, goal[0], None, name, v, f), bake.BUDGET['slot'], planes)
             if lost:
-                parts[name], report[name]['reduced'] = whole(held)[0], lost
+                parts[name], dropped = whole(held)
+                report[name]['reduced'] = lost
+                if dropped:  # slivers the cut left, with those the carrying left (`refit`)
+                    report[name]['dropped'] = report[name].get('dropped', 0) + dropped
         parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get)
         for name in bake.shared_with_body(listed) & set(parts):
             held = over_skin(parts[name], *split.bone_line(goal[0], name))
