@@ -339,6 +339,9 @@ it or none:
 
 Several actions on one line apply in order (`... | ^ | type yard-gate`).
 
+A set's subject or notes reworded by hand leaves the file out of the kit's layout, and its check refuses it for
+spacing alone: `envkit onboard layout --set <set file>` writes it again as the kit lays a set out.
+
 ## When something looks wrong
 
 - **A lit part does not light.** `envkit view ... --lit` counts for each lit part the texels its box holds and
@@ -352,7 +355,16 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   to the lit surface itself: glass in a recess stands behind the wall's face. `litParts` gives each part's
   `planes`, the depths its light stands at with their shares; a window that shows the wall's depth as a second
   plane is lighting the wall. Each lit part spreads from halo cards of its own, just in front of its own
-  foremost light, so name a sign, the windows under it and the strip lights over them as separate parts.
+  foremost light, so name a sign, the windows under it and the strip lights over them as separate parts. A small part named on
+  its own (a scanner, a lock panel, a lamp on a post) keeps its card however small it is; a stray end of a large
+  part under 0.05 m² gets none (`glow.MAIN`: a check of the four older sets on 2026-11-15 found eight small parts
+  that cards of each part's own would have left without a glow). The measure is what the part shows on the
+  upright side it lights most, not its whole light: a lamp that shines mostly downward shows little on any side,
+  and the Pulse Tech repair bench's lamp lens had no card until it was (2026-11-15).
+  For a model with a halo, `litParts` also gives each part's `standOff`: how far in front of its light the card
+  that spreads it stands. About nothing is a card of its own; 0.3 metres or more is another part's card, and the
+  glow will hang in front of the part and slide off it from a slant; `null` is no card, a part that only glows on
+  its own surface (one that faces up or down, or a stray end).
   Look at every lit part close and from a slant in the night check. A prop's boxes are bounded in depth the same
   way: the shooting booths' lane-screen box ran front to back and lit rust specks on the back and the hazard
   stripes on the dividers.
@@ -531,6 +543,25 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   a box takes `"inside": true`, a part wound inward `inside` boxes. Glass the generator wound inward reads as an
   open front and is left (the clinic's cyberware case, about 1,800 cm² from above). Review every prop from its
   four corners, above and below before the client check, beside its reference.
+- **A pale, blocky patch across a window or doorway**, cutting off what is drawn behind it. The generator laid a
+  stray face or two over the opening, a square metre each, drawn as a smear: the Pulse Tech shop's left window
+  pane (operator, 2026-11-15: "the front window has a pretty major defect. I'm surprised you didn't see that";
+  it showed in the gridded front view and was passed over). The full generation has it too, so another reduction
+  does not mend it (5 credits spent finding that out), and a `copy` over it stays blocky, the face having few
+  texels. `tiles` tells them: each large face lying just in front of fine detail that looks the same way is a
+  note and an entry of `veils` in its report, with its size, its middle and how much of it the detail covers
+  (`convert.veils`). Look at each close up; take a stray one out with a `clear` box that holds its middle alone,
+  narrow in depth, and what the generator drew behind it shows. A pane the generator meant, with the room drawn
+  behind it, is told too and is left (one in that shop's west window), so a note is a place to look, not a fault.
+  Before stating a building's lit parts, draw every window and the door close up in perspective (`--eye`, 80
+  pixels to the metre or more, square on and from a slant) and compare each with the reference: the see-through
+  square-on drawings and a view of the whole front do not show it. Never draw a building's full generation
+  (`meshy/masters`) with `view`: it took 47 GB of memory and stopped another session's client run.
+- **A model of an older sheet has to be converted again** and its sources went into an archive with the worktree
+  that made it. `envkit restore --archive <archive> --models <game set> --model <name> --output <folder of your
+  own>` copies each model's whole source folder out, checked against the archive's hashes, and prints the root
+  to give `game`, `tiles` and `view`. The archive is only read. A folder restored by hand with the model and its
+  colour map alone serves `view` and fails `game` at the first missing map (2026-11-15).
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,

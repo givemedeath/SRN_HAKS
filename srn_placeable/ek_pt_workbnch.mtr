@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_pt_workbnch
+texture1 ek_pt_workbnch_n
+texture2 ek_pt_workbnch_s
+texture3 ek_pt_workbnch_r
+texture4 null
+texture5 ek_pt_workbnch_i

@@ -90,7 +90,7 @@ EXIT = 4  # cells of a tile's side that must lie open together for the side to b
 REACH = 12
 ASIDE = 8  # cells: two metres
 WALK_FACES = 500  # the most walk faces of any stock tile of Modern Exterior and Suburbs: a tile with more is noted
-# A lit patch of fewer square metres than LIT does not say where a halo card goes: the least patch `glow.halo` gives a card to.
+# A lit patch of fewer square metres than LIT does not say where a halo card goes: the least patch `glow.halo` gives a card to, but for a small lit part's own (`glow.MAIN`).
 # A light must reach FOOT metres past the hiding height to count on that side of it too: less is its foot, or its head.
 LIT, FOOT = 0.05, 0.25
 # A door's hook lies where a character can stand: with ROOM metres of open ground before and behind it and SIDE metres

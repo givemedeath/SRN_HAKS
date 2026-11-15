@@ -536,6 +536,40 @@ def cleared(vertices, normals, uvs, faces, parts):
     return vertices[used], normals[used], uvs[used], local.reshape(-1, 3)
 
 
+VEIL_FACE, VEIL_DETAIL, VEIL_REACH, VEIL_SHARE, VEIL_LEAST = 0.15, 0.02, 0.4, 0.4, 8  # m² a veil is at least and a face of the detail under it at most; metres behind it the detail lies; how much of it the detail covers, and in how many faces
+
+
+def veils(vertices, faces):
+    """The large faces that lie just in front of fine detail looking the same way: [{m2, at, covers}], the largest
+    first, `at` the face's middle and `covers` how much of it the detail under it would fill. The generator lays a
+    stray face or two across an opening, drawn as a pale smear, and hides the window it modelled behind them: the
+    Pulse Tech shop's front window had two and its west window three (user, 2026-11-15: "the front window has a
+    pretty major defect"), which no measure of the face alone tells from a plain wall. A wall has nothing looking
+    outward a hand's breadth behind it. What is told is looked at, not taken away: a pane the generator meant, with
+    the room drawn behind it, reads the same (one is left in that shop's west window)."""
+    faces = np.asarray(faces)
+    # A face given a back (`backed`) is there twice, and the back of a wall has the backs of whatever stands proud of
+    # it lying 'behind' it and looking its way: each face is read once, as it was generated.
+    _, place = np.unique(vertices, axis=0, return_inverse=True)
+    _, first = np.unique(np.sort(place.reshape(-1)[faces], axis=1), axis=0, return_index=True); faces = faces[np.sort(first)]
+    a, b, c = (vertices[faces[:, corner]] for corner in range(3))
+    cross = np.cross(b - a, c - a); area = np.linalg.norm(cross, axis=1) / 2
+    normal = cross / np.maximum(area[:, None] * 2, 1e-12); middle = (a + b + c) / 3
+    fine = area < VEIL_DETAIL; found = []; fine_middle, fine_normal, fine_area = middle[fine], normal[fine], area[fine]
+    for face in np.flatnonzero(area >= VEIL_FACE):
+        offset = fine_middle - a[face]; depth = offset @ normal[face]; facing = fine_normal @ normal[face]
+        near = (depth < -0.02) & (depth > -VEIL_REACH) & (facing > 0.5)
+        if near.sum() < VEIL_LEAST:
+            continue
+        flat = offset[near] - np.outer(depth[near], normal[face]); u, v = b[face] - a[face], c[face] - a[face]
+        uu, uv, vv = u @ u, u @ v, v @ v; pu, pv = flat @ u, flat @ v; scale = uu * vv - uv * uv
+        s, t = (pu * vv - pv * uv) / scale, (pv * uu - pu * uv) / scale
+        under = (s >= 0) & (t >= 0) & (s + t <= 1); covers = min(float(fine_area[near][under].sum() / area[face]), 1.0)  # layers of detail one behind another fill it once
+        if under.sum() >= VEIL_LEAST and covers >= VEIL_SHARE:
+            found.append({'m2': round(float(area[face]), 3), 'at': [round(float(value), 2) for value in middle[face]], 'covers': round(covers, 2)})
+    return sorted(found, key=lambda one: -one['m2'])
+
+
 def square_up(points, limit=45.0, step=0.25):
     """Degrees to turn the model about the vertical so its footprint lies square to the axes. A model generated from a
     three-quarter view can come back still turned that way (the vending machine, 2026-11-10: about 30 degrees). The

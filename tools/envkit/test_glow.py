@@ -120,6 +120,22 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(fronts([sign]), [1.04, 1.24])  # light that no part holds keeps cards of its own
         self.assertEqual(fronts([sign | glass, glass]), [1.24])  # a texel in two parts goes with the first
 
+    def test_a_small_lit_part_keeps_a_card_and_a_stray_end_of_a_large_one_does_not(self):
+        """Cards of each part's own left a scanner, a lock panel and a lamp on a post under the least patch: eight small
+        parts of the older sets would have lost their glow on their next conversion (2026-11-15)."""
+        across, height = np.meshgrid(np.linspace(10, -10, 640), np.linspace(2, 0, 64))
+        where = np.stack([across, np.ones_like(across), height], -1); covered = np.ones(across.shape, bool)
+        toward = np.zeros_like(where); toward[..., 1] = 1.0
+        lit = np.zeros((64, 640, 3)); lit[:, :60] = 0.8; lit[30:33, 400:403] = 0.8  # a sign two metres square, and a lamp of nine texels
+        count = lambda parts: len(glow.halo(lit, where, covered, toward=toward, parts=parts, reach=0.25, strength=0.5).cards)
+        sign, lamp = glow.inside(where, covered, [[8, 0.9, 0], [10.1, 1.1, 2.1]]), glow.inside(where, covered, [[-2.8, 0.9, 0.9], [-2.3, 1.1, 1.1]])
+        self.assertEqual((int((lamp & (lit.max(-1) > 0)).sum()), count(None), count([sign])), (9, 1, 1))  # told to no part, the lamp is a patch too small to matter
+        self.assertEqual(count([sign, lamp]), 2)  # a part of its own, it is all of its light
+        self.assertEqual(count([sign | lamp]), 1)  # a stray end of the sign's part, it is not
+        # A lamp that shines mostly downward: what it shows in front is under a quarter of its whole light, and all it shows on any side.
+        lit[:] = 0; lit[:, :60] = 0.8; lit[29:35, 400:403] = 0.8; toward[29:35, 400:403] = [0, 0, -1.0]; toward[29, 400:403] = [0, 1.0, 0]
+        self.assertEqual((int((lamp & (lit.max(-1) > 0)).sum()), count([sign, lamp])), (18, 2))  # three texels of eighteen face front, and keep their card
+
     def test_the_card_is_a_node_of_the_model_that_takes_no_light(self):
         normals = np.tile([0, 1.0, 0], (4, 1))
         cards = glow.halo(np.full((16, 16, 3), 0.8), *glow.position_map(POINTS, UVS, FACES, 16))[1]

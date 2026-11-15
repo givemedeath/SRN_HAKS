@@ -37,6 +37,18 @@ def layout(sheet, assets):
             + ',\n    "size": ' + json.dumps(sheet['size']) + '\n  },\n  "assets": {\n' + ',\n'.join(lines) + '\n  }\n}\n')
 
 
+def relayout(path):
+    """Write a set file again in the kit's layout (`layout`) and say whether it changed. A set edited by hand is
+    refused by the kit's own check for a space after a comma (the Ghost Riders set, 2026-11-15), which says nothing
+    about what the edit states."""
+    path = Path(path); data = json.loads(path.read_text(encoding='utf-8'))
+    require(isinstance(data, dict) and {'sheet', 'assets'} <= set(data), f'{path.name} is no concept set: it has no sheet and assets')
+    text = layout(data['sheet'], data['assets']).encode('utf-8'); changed = text != path.read_bytes()
+    if changed:
+        path.write_bytes(text)
+    return changed
+
+
 def concept_sets(sets):
     """{name: set} of the concept sets in a folder; the game sets and plans that share it are passed over."""
     found = {}
