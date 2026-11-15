@@ -306,6 +306,27 @@ class ConvertTests(unittest.TestCase):
             convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0, close=[{'corners': shaped['vertices'][shaped['faces'][0]].tolist()}])
         closing.assert_called_once()
 
+    def test_a_large_face_over_fine_detail_is_told_and_a_plain_wall_is_not(self):
+        """The Pulse Tech shop's front window came back with two stray faces across its pane, drawn as a smear, and
+        the window modelled behind them (user, 2026-11-15)."""
+        def sheet(depth, facing=1, cells=10):  # a window's detail: a metre square of small faces at this depth, looking along -y (or +y)
+            corners = np.array([[x, depth, z] for z in np.linspace(0, 1, cells + 1) for x in np.linspace(0, 1, cells + 1)], float)
+            quads = [(row * (cells + 1) + column, row * (cells + 1) + column + 1, (row + 1) * (cells + 1) + column + 1, (row + 1) * (cells + 1) + column)
+                     for row in range(cells) for column in range(cells)]
+            wound = [face[::facing] for a, b, c, d in quads for face in ((a, b, c), (a, c, d))]
+            return corners, np.array(wound)
+        detail, small = sheet(0.0); stray = np.array([[0.0, -0.05, 0.0], [1.0, -0.05, 0.0], [1.0, -0.05, 1.0]])  # half a square metre, 5 cm in front
+        vertices = np.concatenate([detail, stray]); faces = np.concatenate([small, [[len(detail), len(detail) + 1, len(detail) + 2]]])
+        found = convert.veils(vertices, faces)
+        self.assertEqual([(one['m2'], one['at']) for one in found], [(0.5, [0.67, -0.05, 0.33])])
+        self.assertGreater(found[0]['covers'], 0.8)
+        self.assertEqual(convert.veils(detail, small), [])  # the detail alone
+        self.assertEqual(convert.veils(stray, np.array([[0, 1, 2]])), [])  # a plain wall, nothing behind it
+        back, inward = sheet(0.0, facing=-1)  # the far side of a thin wall looks the other way: no window behind the face
+        self.assertEqual(convert.veils(np.concatenate([back, stray]), np.concatenate([inward, [[len(back), len(back) + 1, len(back) + 2]]])), [])
+        far, deep = sheet(1.0)  # detail a metre behind is another wall of the building
+        self.assertEqual(convert.veils(np.concatenate([far, stray]), np.concatenate([deep, [[len(far), len(far) + 1, len(far) + 2]]])), [])
+
     def test_what_stands_in_a_cleared_box_is_taken_away_and_the_floor_stays(self):
         """The Saeder-Krupp yard's bay had a railed-off square under a metre from the vehicle beside it, too narrow a
         way into the back of the bay (user, 2026-11-12)."""

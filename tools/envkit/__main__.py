@@ -184,6 +184,10 @@ def command_tiles(args):
                             parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
         report['parts'] = textures; report['buildingTriangles'] = built
+        # A stray face across a window hides what was modelled behind it and is passed over in a view of the whole front.
+        report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
+        report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
+                            f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)

@@ -539,8 +539,11 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   pane (operator, 2026-11-15: "the front window has a pretty major defect. I'm surprised you didn't see that";
   it showed in the gridded front view and was passed over). The full generation has it too, so another reduction
   does not mend it (5 credits spent finding that out), and a `copy` over it stays blocky, the face having few
-  texels. Find the faces (the largest in the opening, by their middles, from `convert.shape`) and take them out
-  with a `clear` box that holds their middles alone, narrow in depth; what the generator drew behind them shows.
+  texels. `tiles` tells them: each large face lying just in front of fine detail that looks the same way is a
+  note and an entry of `veils` in its report, with its size, its middle and how much of it the detail covers
+  (`convert.veils`). Look at each close up; take a stray one out with a `clear` box that holds its middle alone,
+  narrow in depth, and what the generator drew behind it shows. A pane the generator meant, with the room drawn
+  behind it, is told too and is left (one in that shop's west window), so a note is a place to look, not a fault.
   Before stating a building's lit parts, draw every window and the door close up in perspective (`--eye`, 80
   pixels to the metre or more, square on and from a slant) and compare each with the reference: the see-through
   square-on drawings and a view of the whole front do not show it. Never draw a building's full generation
