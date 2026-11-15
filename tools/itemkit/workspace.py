@@ -69,12 +69,14 @@ class Workspace:
 
     @property
     def hash_cache(self):
-        """The launcher's opt-in stat-keyed digest cache (tools/phenotypes/launch_hash_cache.py), local machine state."""
-        return self.path(self.data.get('hashCache', 'launch-hash-cache/cache.sqlite'))
+        """The launcher's opt-in stat-keyed digest cache (tools/phenotypes/launch_hash_cache.py), local machine state.
+        `"hashCache": false` in the workspace turns it off: every launch then hashes every input in full."""
+        value = self.data.get('hashCache', 'launch-hash-cache/cache.sqlite')
+        return self.path(value) if value else None
 
     def environment(self):
         env = dict(os.environ); env['PYTHONPATH'] = os.pathsep.join([*(str(self.path(p)) for p in self.data['pythonPath']), str(REPO)])
         # As headbatch does: a launch freezes thousands of tool files before and after its run, and so does every
         # Blender worker launch inside a stage. A caller's own setting wins.
-        env.setdefault('SRN_LAUNCH_HASH_CACHE', str(self.hash_cache))
+        if self.hash_cache: env.setdefault('SRN_LAUNCH_HASH_CACHE', str(self.hash_cache))
         return env

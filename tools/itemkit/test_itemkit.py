@@ -84,6 +84,15 @@ class ContractTests(Fixture):
             self.assertEqual(rows,[pin(self.local),expected] if str(self.local)<str(dependency) else [expected,pin(self.local)])
             self.assertEqual([args.args[0] for args in repin.call_args_list],[self.local])
             self.assertEqual([row['path'] for row in rows],consumed_inputs(self.path,self.local,stage='donor'))
+    def test_a_stage_lists_only_the_libraries_it_may_load(self):
+        files={name:self.root/(name+'.bin') for name in ('igl','pymeshlab','xatlas','mediapipe')}
+        for name,path in files.items():path.write_bytes(name.encode())
+        local={'libraries':{name:{'files':[pin(path)]} for name,path in files.items()}}
+        with patch('tools.itemkit.__main__.bindings',return_value=local),              patch('tools.itemkit.__main__.python_package_pins',return_value=[]),              patch('tools.itemkit.__main__.all_pins',return_value=[]),              patch('tools.itemkit.__main__.code_pins',return_value=[]):
+            listed=lambda **scope:{name for name,path in files.items() if str(path.resolve()) in consumed_inputs(self.path,self.local,**scope)}
+            self.assertEqual(listed(stage='reduce'),{'igl','pymeshlab'});self.assertEqual(listed(stage='unwrap'),{'xatlas'})
+            self.assertEqual(listed(stage='donor'),{'xatlas'});self.assertEqual(listed(stage='bake'),set())
+            self.assertEqual(listed(),set(files))                    # an unscoped listing stays conservative
     def test_resume_inputs_skip_superseded_attempts_and_keep_current_ancestors(self):
         run=self.root/'run';run.mkdir();receipts={}
         for stage in ('fit','reduce'):

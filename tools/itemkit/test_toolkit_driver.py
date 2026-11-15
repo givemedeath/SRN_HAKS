@@ -556,6 +556,9 @@ class WorkspaceAndDriverTests(unittest.TestCase):
                 os.environ.pop('SRN_LAUNCH_HASH_CACHE', None)
                 self.assertEqual(ws.environment()['SRN_LAUNCH_HASH_CACHE'], str((root/'launch-hash-cache'/'cache.sqlite').resolve()))
                 os.environ['SRN_LAUNCH_HASH_CACHE'] = 'mine.sqlite'; self.assertEqual(ws.environment()['SRN_LAUNCH_HASH_CACHE'], 'mine.sqlite')
+                del os.environ['SRN_LAUNCH_HASH_CACHE']
+                for off in (False, None, ''):       # a workspace may ask for full hashing
+                    self.assertNotIn('SRN_LAUNCH_HASH_CACHE', self.workspace(root, hashCache=off).environment())
             (root/'workspace.json').write_text('{"kind": "other"}', encoding='utf-8')
             with self.assertRaises(WorkspaceError): Workspace.load(root/'workspace.json')
 
