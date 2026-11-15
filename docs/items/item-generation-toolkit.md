@@ -659,7 +659,9 @@ NWN Crunch (`native.nwn_dds`: `-fileformat nwn -DXT5|-DXT1 -mipMode Generate`). 
 own icon format: converting a stock icon TGA this way gives the stock DDS's size, levels and header. The checks
 read back each header (dimensions, three or four channels, not a standard `DDS ` file). The converter's pin is in
 `prepared.json` as `ddsConverter`. The package then holds exactly one DDS per TGA. A preparation made before this
-change, without `ddsConverter`, holds none and still compiles. The TGAs stay as the uncompressed copies. The client
+change, without `ddsConverter`, holds none and still compiles. The TGAs stay as the uncompressed copies. The tool
+lock provides NWN Crunch for `windows-x64` only, so composite packaging runs on Windows; elsewhere `native` stops with
+`Tool unsupported on this platform: crunch`. The client
 loads the DXT texture, so client review sees the compressed result that ships. No gameplay table changes or mixed assemblies are generated.
 
 Fit inputs are a reviewed positive uniform matrix bound to the textured donor hash,
