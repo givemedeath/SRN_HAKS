@@ -236,6 +236,12 @@ class FirearmProcessingTests(unittest.TestCase):
             profile['native']['packagedModelType']=0;save()
             with self.assertRaisesRegex(ValueError,'private Sling'):contracts.family(profile_path)
             profile['native']['packagedModelType']=2;save()
+            # The firearm route takes the 1K it was qualified at and the 2K of every new item, nothing else.
+            profile['runtimeTextureSize']=contracts.NEW_ITEM_TEXTURE_SIZE;save();self.assertEqual(contracts.NEW_ITEM_TEXTURE_SIZE,2048)
+            self.assertEqual(contracts.family(profile_path)['runtimeTextureSize'],2048)
+            profile['runtimeTextureSize']=512;save()
+            with self.assertRaisesRegex(ValueError,'1K or 2K'):contracts.family(profile_path)
+            profile['runtimeTextureSize']=1024;save()
             (layer/'wbwsl_011.mdl').write_bytes(b'changed donor')
             with self.assertRaises(ValueError):contracts.family(profile_path)
 

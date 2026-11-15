@@ -431,6 +431,22 @@ minutes chained. Triangle counts were identical and the baked texture differed f
 one colour level, the same as two stage-by-stage runs differ from each other. Roughly half of the chained time is
 still verification inside the stages. End a chain at `render` when the look has not been reviewed yet.
 
+Since 2026-11-15 a chain starts fewer Blender processes and reads fewer files (each Blender launch costs most of a
+minute before any work, and one pass over a stage's inputs opened about 6,600 files):
+
+- A stage pins the byte-bound libraries it loaded (`runner.STAGE_LIBRARIES`; loading another fails the stage), not
+  every library in the bindings. The driver sets the launcher's hash cache (`SRN_LAUNCH_HASH_CACHE`, as headbatch does).
+- The automatic approval of a stage the chain just ran continues that stage's completion pass; the new receipt and
+  the stage's outputs are still read fresh. A reused stage, and every review a person files, takes a pass of its own.
+- `finish` starts no Blender without a `donorFinish` projection and hands the unwrapped scene on (`workerSkipped`).
+  `fit` and `reduce` write the part arrays the next stage reads (`uvSource`), and `render` writes the export arrays
+  (`exportArrays`), inside the launch they already have. A receipt from before this has none, and the next stage
+  then extracts them in a launch of its own, as before.
+
+Measured on the wave-4 Mace (fit through native, same manifest, a machine other sessions were also using): 10 Blender
+launches became 6, and the time outside Blender's own work fell from 1,042 s to 838 s of a 1,375 s chain. What is left
+is mostly the fresh verification passes of each stage and the launcher's own start-up, which this change keeps.
+
 ## Unattended client capture
 
 A built fixture can be photographed without anyone driving the client:
@@ -724,7 +740,10 @@ its renders look acceptable. The Cougar UDF trial failed that physical gate.
 Unwrap after fitting/splitting/reduction. Bake the **fitted textured donor** onto the
 final atlas at4K, with profile-controlled cage/ray distances. Inspect unpadded masks:
 visible misses fail, geometrically identified internal cut caps use an explicit colour,
-and only empty atlas padding is extended. Derive2K/1K/512; initial runtime diffuse is1K.
+and only empty atlas padding is extended. Derive 2K/1K/512. The runtime diffuse of a new
+contract is 2K (user, 2026-11-15: "also up all items to 2k"; `contracts.NEW_ITEM_TEXTURE_SIZE`,
+written by `drive contract`); a contract written before that keeps its 1K, and the firearm
+package route takes either. The atlas gutter and coverage gates run at the contract's size.
 No original appearance-field sampling at transformed coordinates is permitted.
 
 Rendering uses four CPU threads, matched clay/textured views and measured native icon
