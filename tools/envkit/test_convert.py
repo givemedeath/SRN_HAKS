@@ -321,6 +321,13 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual([(one['m2'], one['at']) for one in found], [(0.5, [0.67, -0.05, 0.33])])
         self.assertGreater(found[0]['covers'], 0.8)
         self.assertEqual(convert.veils(detail, small), [])  # the detail alone
+        # Relief standing proud of a wall is no veil, and stays none when every face is given a back (`inside`).
+        wall = np.array([[0.0, 0.05, 0.0], [1.0, 0.05, 0.0], [1.0, 0.05, 1.0]]); proud = np.concatenate([detail, wall]); relief = np.concatenate([small, [[len(detail), len(detail) + 1, len(detail) + 2]]])
+        self.assertEqual(convert.veils(proud, relief), [])
+        both = convert.backed(proud, np.zeros_like(proud), np.zeros((len(proud), 2)), relief)
+        self.assertEqual(convert.veils(both[0], both[3]), [])
+        twice = convert.backed(vertices, np.zeros_like(vertices), np.zeros((len(vertices), 2)), faces)  # and a veil is told once, not once more for its back
+        self.assertEqual(convert.veils(twice[0], twice[3]), found)
         self.assertEqual(convert.veils(stray, np.array([[0, 1, 2]])), [])  # a plain wall, nothing behind it
         back, inward = sheet(0.0, facing=-1)  # the far side of a thin wall looks the other way: no window behind the face
         self.assertEqual(convert.veils(np.concatenate([back, stray]), np.concatenate([inward, [[len(back), len(back) + 1, len(back) + 2]]])), [])

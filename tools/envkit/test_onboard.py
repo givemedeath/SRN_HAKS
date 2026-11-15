@@ -123,6 +123,18 @@ class OnboardTests(unittest.TestCase):
         for name, data in shipped.items():
             self.assertEqual(onboard.layout(data['sheet'], data['assets']).encode('utf-8'), (Path(__file__).with_name('sets') / f'{name}.json').read_bytes(), name)
 
+    def test_a_set_edited_by_hand_is_put_back_into_the_layout(self):
+        """The Ghost Riders set, edited by hand, was refused for a space after a comma (2026-11-15)."""
+        onboard.write_sets(self.spec, self.sheets, self.sets); path = self.sets / (next(iter(onboard.concept_sets(self.sets))) + '.json'); kept = path.read_bytes()
+        self.assertFalse(onboard.relayout(path)); self.assertEqual(path.read_bytes(), kept)  # in the layout already: not written
+        data = json.loads(kept); name = next(iter(data['assets'])); data['assets'][name] = {'subject': 'reworded by hand', **{key: value for key, value in data['assets'][name].items() if key != 'subject'}}
+        path.write_text(json.dumps(data, indent=4), encoding='utf-8')
+        self.assertTrue(onboard.relayout(path)); again = json.loads(path.read_bytes())
+        self.assertEqual(again['assets'][name]['subject'], 'reworded by hand'); self.assertEqual(path.read_bytes(), onboard.layout(again['sheet'], again['assets']).encode('utf-8'))
+        self.assertEqual(path.read_bytes().count(b'\n'), kept.count(b'\n'))  # one asset to a line again
+        with self.assertRaisesRegex(ValueError, 'no concept set'):  # a game set has a layout of its own
+            onboard.relayout(self.sets / 'yard-game.json')
+
     def test_the_audit_tells_what_a_reading_would_not_catch(self):
         onboard.write_sets(self.spec, self.sheets, self.sets)
         self.assertEqual(onboard.audit(self.sets, self.sheets), {'sets': 1, 'props': 2, 'findings': {'sheets without a set': ['08_the_dock.png'], 'types of one prop': ['console-desk', 'vehicle-gate']}})

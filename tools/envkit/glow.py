@@ -17,7 +17,7 @@ from . import require
 
 
 SIDES = ((0.0, 1.0), (1.0, 0.0), (0.0, -1.0), (-1.0, 0.0))  # the ways a card can face: front (+Y), then +X, back, -X
-MAIN = 0.25  # a patch holding this share of a named lit part's light gets a halo card however small it is
+MAIN = 0.25  # a patch holding this share of what a named lit part shows on its best-lit upright side gets a halo card however small it is
 
 
 def position_map(points, uvs, faces, size, *, facing=False):
@@ -144,9 +144,9 @@ def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0
     `toward` (`position_map` with `facing`) says which way each texel's surface faces. With it a texel's light goes to
     a card on the upright side it faces most nearly (`SIDES`), so a sign on a side wall spreads from that wall. Three
     kinds of light then get no card: light that faces up or down; a patch of less than `least` square metres (the end
-    of a sign box, the side of a window recess), unless it is a quarter or more (`MAIN`) of a named part's whole
-    light, since a small part (a scanner, a lock panel, a lamp on a post) is all of its light and not a stray end of
-    it: eight such parts of the older sets would have lost their glow (2026-11-15); and light the model itself hides, with more of the model standing
+    of a sign box, the side of a window recess), unless it is a quarter or more (`MAIN`) of what a named part shows
+    on the upright side it lights most, since a small part (a scanner, a lock panel, a lamp on a post) is all of its
+    light and not a stray end of it, whether it shows on one side or all round: eight such parts of the older sets would have lost their glow (2026-11-15); and light the model itself hides, with more of the model standing
     over `clear` metres in front of most of it (the back of a sign box, inside the wall it hangs on). Patches whose
     cards would not touch get a card each. Without `toward` everything is taken to face front and nothing is left
     out. The cards are flat either way.
@@ -169,6 +169,8 @@ def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0
     if toward is not None:  # the upright side each texel faces most nearly, or none where it faces up or down
         along = np.stack([toward[..., 0] * x + toward[..., 1] * y for x, y in SIDES], -1)
         faced = np.where(along.max(-1) > 0.5, along.argmax(-1), -1)
+        # A named part's stray ends are told by its best-lit side: a lamp lit all round has no side with a quarter of its whole light.
+        mains = [MAIN * max(int((share & (faced == side)).sum()) for side in range(len(SIDES))) for share in shares[:-1]] + [np.inf]
     for side, (ahead_x, ahead_y) in enumerate(SIDES):
         # In the card's own frame: across (the viewer's left is positive), depth towards the viewer, height.
         frame = lambda places: np.stack([places[:, 0] * ahead_y - places[:, 1] * ahead_x, places[:, 0] * ahead_x + places[:, 1] * ahead_y, places[:, 2]], 1)
@@ -184,8 +186,7 @@ def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0
             mine = faces & share
             if mine.any():
                 spots = frame(where[mine]); colours = lit[mine]; order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]
-                main = MAIN * int(share.sum()) if number < len(shares) - 1 else np.inf  # of a named part alone
-                layers += [(spots, colours, layer, main) for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1)]
+                layers += [(spots, colours, layer, mains[number] if toward is not None else np.inf) for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1)]
         for spots, colours, layer, main in layers:
             layer = layer[np.argsort(spots[layer, 0])]
             for patch in np.split(layer, np.flatnonzero(np.diff(spots[layer, 0]) > 2 * pad) + 1) if toward is not None else [layer]:

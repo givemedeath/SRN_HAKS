@@ -279,10 +279,15 @@ def command_view(args):
         print(json.dumps({'page': args.page, 'models': view.page(drawn, args.page)}), flush=True)
 
 
+def command_restore(args):
+    from . import restore
+    print(json.dumps(restore.sources(args.archive, args.output, args.models, args.model)))
+
+
 def command_onboard(args):
     from . import onboard
     needs = {'boxes': ('sheet', 'output'), 'sets': ('spec', 'sheets'), 'crops': ('set', 'sheets', 'output'), 'overlay': ('sheets', 'output'), 'audit': ('sheets',),
-             'types': ('sheets', 'output', 'type'), 'same': ('sheets', 'output'), 'revise': ('decisions',)}[args.action]
+             'types': ('sheets', 'output', 'type'), 'same': ('sheets', 'output'), 'revise': ('decisions',), 'layout': ('set',)}[args.action]
     missing = [name for name in needs if not getattr(args, name)]; require(not missing, f'onboard {args.action} needs ' + ', '.join('--' + name for name in missing))
     takes = needs + {'boxes': ('split',), 'same': ('only',)}.get(args.action, ())
     extra = [name for name in ('sheets', 'sheet', 'split', 'spec', 'set', 'type', 'only', 'decisions', 'output') if getattr(args, name) not in (None, []) and name not in takes]
@@ -301,6 +306,8 @@ def command_onboard(args):
         told = {'props': onboard.type_page(args.sets, args.sheets, args.output, args.type)}
     elif args.action == 'same':
         told = onboard.same_pages(args.sets, args.sheets, args.output, only=args.only)
+    elif args.action == 'layout':
+        told = {'changed': onboard.relayout(args.set)}
     else:
         told = {'changed': onboard.revise(args.decisions, args.sets)}
     print(json.dumps(told, indent=1))
@@ -432,13 +439,17 @@ def main(argv=None):
     sub.set_defaults(run=command_track)
     sets = str(Path(__file__).with_name('sets'))
     sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')
-    sub.add_argument('action', choices=['boxes', 'sets', 'crops', 'overlay', 'audit', 'types', 'same', 'revise'])
+    sub.add_argument('action', choices=['boxes', 'sets', 'crops', 'overlay', 'audit', 'types', 'same', 'revise', 'layout'])
     sub.add_argument('--sets', default=sets, help='the folder of set files'); sub.add_argument('--sheets', help='the folder holding the concept sheets')
     sub.add_argument('--sheet', help='boxes: the sheet to find drawings on'); sub.add_argument('--split', type=int, help='boxes: the row the prop set starts at')
-    sub.add_argument('--spec', help='sets: the spec naming each box'); sub.add_argument('--set', help='crops: the set file')
+    sub.add_argument('--spec', help='sets: the spec naming each box'); sub.add_argument('--set', help='crops, layout: the set file')
     sub.add_argument('--type', action='append', default=[], help='types: a prop type (repeatable)'); sub.add_argument('--only', action='append', default=[], help='same: only rows with a prop of this set (repeatable)')
     sub.add_argument('--decisions', help='revise: the decisions of a review'); sub.add_argument('--output', help='the picture to write, or for overlay and same the start of its pages\' names')
     sub.set_defaults(run=command_onboard)
+    sub = commands.add_parser('restore', help="copy models' generated sources out of an archive of a retired worktree, hashes checked")
+    sub.add_argument('--archive', required=True, help='the archive folder, holding archive-manifest.json and objects/'); sub.add_argument('--models', required=True, help='game set file')
+    sub.add_argument('--model', action='append', required=True, help='a model of the game set (repeatable)'); sub.add_argument('--output', required=True, help='a folder of your own; never the archive')
+    sub.set_defaults(run=command_restore)
     sub = commands.add_parser('study', help='read the stock tiles of a tileset in the packs')
     sub.add_argument('action', choices=['pathnodes', 'tiles']); sub.add_argument('--packs', default=str(Path(__file__).resolve().parents[2]), help='the folder holding srn_t_<tileset> and srn_t_common')
     sub.add_argument('--tileset', action='append', required=True, help='a tileset name, as in srn_t_<name> (pathnodes: repeatable)')

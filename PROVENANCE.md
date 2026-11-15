@@ -1133,7 +1133,8 @@ stay in ignored `output/envkit/`.
 Checked in the game client on 2026-11-15, in areas laid from the converted files: in Modern Exterior by day from all
 four sides, the corners, the front, from above and at the door; by night, where the sign, the strip lights and the
 windows were lit, put out by script and brought back; and with walkers sent to the door and to each side of the
-building in both tilesets, none of whom stopped short. Painted in the Toolset on 2026-11-15 from the built packs, in
+building in both tilesets, none of whom stopped short. Its halo sheets were made again the same day with the
+lamp-lens rule the props' entry below gives, and the group seen again by night, lit, out and lit again. Painted in the Toolset on 2026-11-15 from the built packs, in
 two folders: straight in a Modern Exterior area and turned a quarter in a Suburbs area, then turned a half in Modern
 Exterior and straight in Suburbs. Each saved area holds the four group tiles at that turn and one door of appearance
 58 that the Toolset made at the hook, and in the client (`envkit check doors`) each of the four doors took the player
@@ -1164,7 +1165,9 @@ lights, the vending machine's emblem, screen and product window, the power pack'
 camera eye. The repair bench also lights what stands round it, by a light in its row of `placeables.2da` at its lamp
 (lightcolor row 1, dim white; operator, 2026-11-15: "Dimmer for bench lamp", after it was first given bright white);
 the other six only glow. Small lit parts keep a halo sheet of their own however small they are drawn (`glow.MAIN`,
-2026-11-15). Nothing else was retouched.
+2026-11-15), measured against what the part shows on the side it lights most: the repair bench's lamp lens, which
+shines mostly downward, and one of the counter's lit parts had no halo sheet until then, and were converted again
+and seen by night. Nothing else was retouched.
 
 Checked in the game client on 2026-11-15: by day from front, back and side with a figure for scale, from the converted
 files; by night the same way for the seven lit props; and the repair bench once more by night with its dimmer light,

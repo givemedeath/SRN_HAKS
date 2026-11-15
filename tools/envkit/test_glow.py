@@ -132,6 +132,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual((int((lamp & (lit.max(-1) > 0)).sum()), count(None), count([sign])), (9, 1, 1))  # told to no part, the lamp is a patch too small to matter
         self.assertEqual(count([sign, lamp]), 2)  # a part of its own, it is all of its light
         self.assertEqual(count([sign | lamp]), 1)  # a stray end of the sign's part, it is not
+        # A lamp that shines mostly downward: what it shows in front is under a quarter of its whole light, and all it shows on any side.
+        lit[:] = 0; lit[:, :60] = 0.8; lit[29:35, 400:403] = 0.8; toward[29:35, 400:403] = [0, 0, -1.0]; toward[29, 400:403] = [0, 1.0, 0]
+        self.assertEqual((int((lamp & (lit.max(-1) > 0)).sum()), count([sign, lamp])), (18, 2))  # three texels of eighteen face front, and keep their card
 
     def test_the_card_is_a_node_of_the_model_that_takes_no_light(self):
         normals = np.tile([0, 1.0, 0], (4, 1))
