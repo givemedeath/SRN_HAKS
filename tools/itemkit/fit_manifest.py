@@ -124,7 +124,8 @@ def _align_grip_axis(q, U, start, end):
 def _grip_across(q, at, marks, fraction):
     """(width, depth) centre of a side grip that shares its band with the rest of the weapon (the katar's crossbar lies
     beside its blade): the grip at `fraction` of the long body, from the low end of the fit frame's width axis, read
-    from the surface within 5% of the length of it."""
+    from the surface within 5% of the length of it. The frame is the one after turnAboutAxis, which reverses that axis
+    (the wave-5 Katar's 0.26 became 0.74 when turned)."""
     require(0 < fraction < 1, 'gripAcross is a fraction of the long body')
     band = (q[:, 0] >= at(marks['gripStart'])) & (q[:, 0] <= at(marks['gripEnd']))
     low, high = q[:, 1].min(), q[:, 1].max(); c = low + fraction * (high - low)

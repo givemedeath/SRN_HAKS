@@ -563,7 +563,8 @@ lies across the hand along native Z. Nothing along that axis is found automatica
   the grip.
 - `"gripAcross": F` places the grip at fraction F of the long body (from the low end of the frame's width axis) when
   the band also cuts the rest of the weapon (the Katar's crossbar lies beside its blade). A grip point in the wrong
-  place fails with "No section outline encloses the grip axis".
+  place fails with "No section outline encloses the grip axis". F counts in the frame after `turnAboutAxis`, which
+  reverses the width axis: turning a fit means giving 1 - F (the Katar's 0.26 became 0.74).
 
 The fit is `side-grip-uniform` (`grip.side_grip_uniform`): one uniform scale from the chosen length, since any
 transverse correction of the grip would also stretch the body lying across it. The grip is measured only on the

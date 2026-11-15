@@ -796,6 +796,25 @@ class SideGripTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'side grip'):
             measure({}, self.family, shell, {'reverseGrip': True, 'bladeAtLowEnd': False}, self.standard)
 
+    def test_grip_across_places_the_grip_along_the_body_and_turns_with_the_frame(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        plain = measure({}, self.family, shell, self.overrides(v), self.standard)
+        found = {}
+        for fraction in (.3, .7):                                 # the handle hangs at 0.3 of the shaft, from one end
+            try: found[fraction] = measure({}, self.family, shell, self.overrides(v, gripAcross=fraction), self.standard)
+            except ValueError as exc: found[fraction] = exc
+        (at, hit), = [(k, r) for k, r in found.items() if isinstance(r, dict)]
+        mid = lambda d: next(r for r in d['gripReport']['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        for key in ('depth', 'visibleFaceWidth'):                    # the handle's own section, as the plain fit reads it
+            self.assertAlmostEqual(mid(hit)[key], mid(plain)[key], delta=.001)
+        self.assertRegex(str(found[round(1 - at, 1)]), 'No grip surface at gripAcross|encloses')     # no grip at the other end
+        # turnAboutAxis reverses the width axis, so the same grip is then at 1 - F (the wave-5 Katar's 0.26 and 0.74).
+        with self.assertRaisesRegex(ValueError, 'No grip surface at gripAcross|encloses'):
+            measure({}, self.family, shell, self.overrides(v, gripAcross=at, turnAboutAxis=True), self.standard)
+        turned = measure({}, self.family, shell, self.overrides(v, gripAcross=round(1 - at, 1), turnAboutAxis=True), self.standard)
+        self.assertAlmostEqual(mid(turned)['depth'], mid(hit)['depth'], delta=.001)
+
     def test_a_side_grip_needs_its_reviewed_landmarks_and_length(self):
         from tools.itemkit.fit_manifest import measure
         v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
