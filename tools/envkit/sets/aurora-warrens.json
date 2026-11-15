@@ -5,9 +5,9 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "stacked scrap-built tenement block with balconies, a caged stair tower and rooftop shacks", "box": [0, 14, 860, 555], "notes": "Remove the title banner and all text outside the building."},
-    "building-front": {"kind": "building", "subject": "front elevation of a stacked scrap-built tenement block", "box": [851, 123, 1216, 325]},
-    "building-rear": {"kind": "building", "subject": "rear service elevation of a scrap-built tenement block", "box": [870, 344, 1222, 521]},
+    "building-hero": {"kind": "building", "subject": "stacked scrap-built tenement block with balconies, a caged stair tower and rooftop shacks, its walls plain patched concrete with no painted name or number", "box": [0, 14, 860, 555], "notes": "Remove the title banner and all text outside the building. Remove the painted Aurora Warrens lettering and the B-3 block number from the walls: leave plain patched concrete. Keep the small graffiti tags."},
+    "building-front": {"kind": "building", "subject": "front elevation of a stacked scrap-built tenement block, its walls plain patched concrete with no painted name or number", "box": [851, 123, 1216, 325], "notes": "Remove the painted Aurora Warrens lettering and the B-3 block number from the walls: leave plain patched concrete. Keep the small graffiti tags."},
+    "building-rear": {"kind": "building", "drawn": true, "subject": "rear elevation of a stacked scrap-built tenement block, the same block as its front seen from behind, its walls plain patched concrete with no painted name or number", "box": [870, 344, 1222, 521], "cut": {"from": "building-front", "box": [0, 0, 1376, 768], "mirror": true}},
     "entry-kiosk": {"kind": "prop", "type": "shack", "subject": "small corrugated-roof entry shack with a door and mailboxes", "box": [4, 634, 236, 812]},
     "stairwell-cage": {"kind": "prop", "type": "stair-module", "variant": "Caged two-flight stairwell tower section.", "subject": "caged steel stairwell tower section", "box": [240, 624, 400, 813]},
     "balcony-segment": {"kind": "prop", "type": "balcony-segment", "subject": "tenement balcony walkway segment with railings and hanging laundry", "box": [404, 647, 659, 814]},
@@ -20,6 +20,7 @@
     "laundry-rack": {"kind": "prop", "type": "laundry-line", "subject": "laundry line between two poles with baskets", "box": [474, 877, 653, 1024]},
     "trash-pile": {"kind": "prop", "type": "street-clutter", "variant": "Rubbish bags with a dented bin, boxes and a pallet.", "subject": "pile of rubbish bags with a dented bin and a pallet", "box": [655, 899, 886, 1023]},
     "graffiti-wall": {"kind": "prop", "type": "graffiti-wall", "subject": "concrete wall slab covered in gang graffiti", "box": [892, 878, 1086, 1025]},
+    "name-wall": {"kind": "prop", "type": "graffiti-wall", "variant": "Branding: concrete wall slab painted Aurora Warrens over a red slash, with the block number B-3.", "subject": "concrete wall slab painted with the name Aurora Warrens over a red slash and the block number B-3", "box": [60, 290, 262, 478]},
     "light-pole": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin floodlight on a pole", "box": [1116, 862, 1197, 1026]},
     "crate-stack": {"kind": "prop", "type": "pallet-stack", "variant": "Wooden crates, plastic crates and a tarp on pallets.", "subject": "pallets of wooden crates under a tarp", "box": [1215, 883, 1445, 1028]}
   }
