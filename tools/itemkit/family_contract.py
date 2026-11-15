@@ -184,7 +184,9 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE, replace_sto
     from .contracts import resource_stem
     stem = resource_stem(design)          # the intake's identity, from the whole ID: a shared suffix never shares names
     budget = allocation(visible or visible_budget(carrier['length']))
-    profile = {k: base_family[k] for k in ('schemaVersion', 'kind', 'materialRoute', 'bakeSize', 'runtimeTextureSize')}
+    from .contracts import NEW_ITEM_TEXTURE_SIZE
+    profile = {k: base_family[k] for k in ('schemaVersion', 'kind', 'materialRoute', 'bakeSize')}
+    profile['runtimeTextureSize'] = NEW_ITEM_TEXTURE_SIZE      # not the base contract's: older bases are 1K
     draft = json.loads((handoff/f'{design}.family.json').read_text(encoding='utf-8'))
     profile.update(sourceExport=draft['sourceExport'], family=family_name, nativePackaging='enabled', budgets=budget,
                    allowedAssemblies=[dict.fromkeys('bmt', design)],
