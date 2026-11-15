@@ -390,7 +390,13 @@ hand fit an even scale would shrink (the wave-5 Tonfa's shaft). `narrow MESH.glb
 LO HI --band INNER OUTER --factor K` pulls side parts such as sai prongs towards
 the centreline: across the width band (distances from the centreline as fractions
 of the length) the extent shrinks to K, and everything beyond moves in unchanged.
-It refuses a span that would cut through the side parts.
+It refuses a span that would cut through the side parts. `level MESH.glb OUT_DIR --span LO HI --band INNER
+OUTER` shears side parts that curl out of the blade's plane (guard arms bowed to
+one face) back into it: past the band's inner distance, each width bin of the arms
+keeps its thickness and shape but its depth midline moves onto the plane of the mesh
+outside the span, fading in up to the outer distance (wave-6 Monofilament Sword).
+It refuses a band that the blade or grip outside the span reaches, and its
+`level-map.npz` carries to the donor and shell like the others.
 
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default

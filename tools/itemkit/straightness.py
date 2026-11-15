@@ -8,6 +8,7 @@ the working shell), which keeps colour baked in the original frame aligned with 
 
     python -m tools.itemkit.straightness check MESH.glb [--output REPORT.json] [--family longsword]
     python -m tools.itemkit.straightness straighten MESH.glb OUT_DIR [--map MAP.npz]
+    python -m tools.itemkit.straightness stretch|narrow|level MESH.glb OUT_DIR (--span LO HI ... | --map MAP.npz)
 """
 import argparse, json, struct, sys
 from pathlib import Path
@@ -416,7 +417,7 @@ def _remap_glb(source, output, kind, keys, fit, apply, map_path, explicit, guard
     else: moved, turned = apply(positions, mapping, normals)
     _replace(document, buffer, primitive['attributes']['POSITION'], moved)
     if normals is not None: _replace(document, buffer, primitive['attributes']['NORMAL'], turned)
-    target = output / {'stretch': 'stretched.glb', 'narrow': 'narrowed.glb'}[kind]
+    target = output / {'stretch': 'stretched.glb', 'narrow': 'narrowed.glb', 'level': 'levelled.glb'}[kind]
     with target.open('xb') as stream: stream.write(encode(document, bytes(buffer)))
     after, after_faces, after_attributes = arrays(*load(target.read_bytes()))
     _require(np.array_equal(after_faces, faces) and all(np.array_equal(after_attributes[name], attributes[name])
@@ -499,6 +500,76 @@ def narrow(source, output, span=None, band=None, factor=None, map_path=None):
                    'method': 'a width band of side parts shortened; parts beyond it moved in rigidly, length and depth unchanged',
                    'visualReviewRequired': True})
     write(Path(output) / 'narrow.json', result, fresh=True); return result
+
+
+LEVEL_BIN = .005      # width bins of the arms' depth midline, as a fraction of the length (5 mm on a 1 m sword)
+
+
+def fit_level(positions, span, band):
+    """Side parts (cross-guard arms) that curl out of the blade's plane, sheared back into it in depth.
+
+    Across the width, every bin of the arms past `band`'s inner distance (fractions of the length from the centreline)
+    keeps its own thickness and shape but has its depth midline moved onto the plane of the mesh outside the span; the
+    correction fades in from the inner to the outer distance so the guard's core and its blend into blade and grip stay
+    put. Length and width are unchanged (the wave-6 Monofilament Sword: both guard arms curled 25-29 mm to one face,
+    while the reference's guard is flat; user, 2026-11-15: "and the sword crossguard too")."""
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); q = (positions - mean) @ axes
+    lo, hi = (float(x) for x in span); inner, outer = (float(x) for x in band)
+    _require(0 <= lo < hi <= 1 and 0 < inner < outer, 'A span and a width band (inner < outer) required')
+    t = q[:, 0]; length = np.ptp(t); t0, t1 = t.min() + lo * length, t.min() + hi * length
+    inside = (t >= t0) & (t <= t1)
+    _require((~inside).sum() >= 100, 'The span must leave part of the mesh outside it to read the plane from')
+    centre, depth = (float(np.median(q[~inside, j])) for j in (1, 2)); a = q[:, 1] - centre
+    step = LEVEL_BIN * length; xs, offsets = [], []
+    for side in (-1, 1):
+        reach = np.abs(a[inside & (np.sign(a) == side)]).max(initial=0)
+        for x in np.arange(inner * length, reach, step):
+            rows = inside & (side * a >= x) & (side * a < x + step)
+            if rows.sum() >= 20:
+                low, high = np.percentile(q[rows, 2], [1, 99]); xs.append(side * (x + step / 2)); offsets.append((low + high) / 2 - depth)
+    _require(len(xs) >= 4, 'Too few side-part sections past the band to level')
+    order = np.argsort(xs); xs = np.array(xs)[order]; offsets = np.array(offsets)[order]
+    mapping = {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'centre': np.array(centre),
+               'band': np.array([inner, outer]) * length, 'widths': xs, 'offsets': offsets}
+    level_guard(positions, mapping); return mapping
+
+
+def level_guard(positions, mapping):
+    """No vertex outside the span may reach the band, or the map would tear the surface at the span's edge."""
+    q = (np.asarray(positions, float) - mapping['mean']) @ mapping['axes']; t0, t1 = mapping['span']
+    outside = (q[:, 0] < t0) | (q[:, 0] > t1)
+    _require(np.all(np.abs(q[outside, 1] - float(mapping['centre'])) < float(mapping['band'][0])),
+             'A vertex outside the span reaches the band: the map would tear')
+
+
+def apply_level(positions, mapping, normals=None):
+    positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']
+    (t0, t1), (c, w0), centre = mapping['span'], mapping['band'], float(mapping['centre'])
+    def transform(points):
+        p = (points - mean) @ axes; a = p[:, 1] - centre; inside = (p[:, 0] >= t0) & (p[:, 0] <= t1)
+        x = np.clip((np.abs(a) - c) / (w0 - c), 0, 1); weight = x * x * (3 - 2 * x)
+        p[:, 2] = p[:, 2] - np.where(inside, weight * np.interp(a, mapping['widths'], mapping['offsets']), 0)
+        return p @ axes.T + mean
+    moved = transform(positions)
+    if normals is None: return moved
+    return moved, turn_normals(transform, positions, normals, w0 - c)
+
+
+def level(source, output, span=None, band=None, map_path=None):
+    """Write OUTPUT/levelled.glb (+ map and report); triangles, UVs, materials and textures are carried byte for byte."""
+    from tools.headkit.common import write
+    explicit = span is not None or band is not None
+    _require(map_path is not None or None not in (span, band), 'Give --span and --band, or a saved --map')
+    result, mapping, positions, after = _remap_glb(source, output, 'level', {'mean', 'axes', 'span', 'centre', 'band', 'widths', 'offsets'},
+                                                   lambda p: fit_level(p, span, band), apply_level, map_path, explicit, level_guard)
+    depth = mapping['axes'][:, 2]
+    result.update({'span': mapping['span'].tolist(), 'band': mapping['band'].tolist(),
+                   'largestOffset': float(np.abs(mapping['offsets']).max()),
+                   'depthBefore': float(np.ptp(positions @ depth)), 'depthAfter': float(np.ptp(after @ depth)),
+                   'method': "side parts past the band sheared in depth onto the plane outside the span; each width bin keeps its "
+                             "thickness, length and width unchanged",
+                   'visualReviewRequired': True})
+    write(Path(output) / 'level.json', result, fresh=True); return result
 
 
 BLADE_METRICS = ('guardSkewDegrees', 'guardSectionRatio', 'bladeDepthToWidth', 'splitBladeSlices')
@@ -592,7 +663,15 @@ def main(argv=None):
     c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="long-axis fractions from the principal frame's low end")
     c.add_argument('--band', type=float, nargs=2, metavar=('INNER', 'OUTER'), help='distances from the centreline, as fractions of the length')
     c.add_argument('--factor', type=float, help="the band's new share of its width, in (0, 1)")
+    c = commands.add_parser('level', help="shear side parts (guard arms) that curl out of the blade's plane back into it")
+    c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
+    c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="long-axis fractions from the principal frame's low end")
+    c.add_argument('--band', type=float, nargs=2, metavar=('INNER', 'OUTER'),
+                   help='distances from the centreline (fractions of the length) over which the correction fades in')
     a = parser.parse_args(argv)
+    if a.command == 'level':
+        result = level(a.mesh, a.output, a.span, a.band, a.map)
+        print(json.dumps({k: result[k] for k in ('output', 'map', 'span', 'band', 'largestOffset', 'depthBefore', 'depthAfter')}, indent=2)); return 0
     if a.command == 'narrow':
         result = narrow(a.mesh, a.output, a.span, a.band, a.factor, a.map)
         print(json.dumps({k: result[k] for k in ('output', 'map', 'span', 'band', 'factor', 'widthBefore', 'widthAfter')}, indent=2)); return 0

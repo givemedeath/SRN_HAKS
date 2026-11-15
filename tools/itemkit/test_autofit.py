@@ -157,6 +157,37 @@ class AutofitTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'tear'): s.narrow(moved, folder/'torn', map_path=folder/'out/narrow-map.npz')
             self.assertFalse((folder/'torn').exists())                    # a refused run leaves no folder to block a retry
 
+    def test_level_shears_curled_guard_arms_back_into_the_blade_plane(self):
+        flat = pommelled(); arms = (flat[:, 0] >= -.02) & (flat[:, 0] <= 0) & (np.abs(flat[:, 1]) > .035)
+        p = flat.copy(); p[arms, 2] += .2 * (np.abs(p[arms, 1]) - .035)      # both arms curl to one face, 17 mm at the tips
+        mean, axes = s.principal_frame(p); q = (p - mean) @ axes; length = np.ptp(q[:, 0])
+        f = (q[:, 0] - q[:, 0].min()) / length; at = lambda x: float(f[np.argmin(np.abs(p[:, 0] - x))])
+        span = tuple(sorted((at(-.035), at(.015)))); band = (.035 / length, .05 / length)
+        mapping = s.fit_level(p, span, band)
+        normals = np.tile([0., 0., 1.], (len(p), 1)); out, turned = s.apply_level(p, mapping, normals)
+        inside = (f >= span[0]) & (f <= span[1])
+        np.testing.assert_allclose(out[~inside], p[~inside], atol=1e-12)                              # outside the span: unchanged
+        core = np.abs(flat[:, 1]) <= .034; np.testing.assert_allclose(out[core], p[core], atol=1e-9)   # the guard's core stays
+        np.testing.assert_allclose(out[:, :2], p[:, :2], atol=2e-3)                                     # a shear in depth only
+        far = arms & (np.abs(flat[:, 1]) >= .05)
+        self.assertLess(np.abs(out[far, 2] - flat[far, 2]).max(), 1.5e-3)                             # back in the plane
+        self.assertLess(np.abs(p[far, 2] - flat[far, 2]).max(), .02); self.assertGreater(np.abs(p[far, 2] - flat[far, 2]).max(), .015)
+        self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
+        with self.assertRaisesRegex(ValueError, 'tear'): s.fit_level(p, span, (.01 / length, .05 / length))   # the blade reaches it
+        with self.assertRaisesRegex(ValueError, 'band'): s.fit_level(p, span, (.05 / length, .035 / length))
+        rng = np.random.default_rng(4); small = p[::4]; n = len(small) // 3 * 3; small = small[:n]
+        faces = np.arange(n).reshape(-1, 3); uv = rng.uniform(.1, .9, (len(faces), 3, 2))
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder); source = folder/'p.glb'; write_mesh(source, small, faces, uv)
+            result = s.level(source, folder/'out', span, band)
+            after = mesh(folder/'out/levelled.glb'); np.testing.assert_array_equal(after['uv'], mesh(source)['uv'])
+            self.assertLess(result['depthAfter'], result['depthBefore'])
+            again = s.level(source, folder/'again', map_path=folder/'out/level-map.npz')
+            self.assertEqual(again['output']['sha256'], result['output']['sha256'])
+            moved = folder/'moved.glb'; write_mesh(moved, small + [.04, 0, 0], faces, uv)
+            with self.assertRaisesRegex(ValueError, 'tear'): s.level(moved, folder/'torn', map_path=folder/'out/level-map.npz')
+            self.assertFalse((folder/'torn').exists())
+
     def test_shell_thinning_keeps_a_closed_solid(self):
         try: import pymeshlab
         except ImportError: self.skipTest('pymeshlab not on the path')
