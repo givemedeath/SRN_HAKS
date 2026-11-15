@@ -103,9 +103,11 @@ def load_set(path):
             require(asset['kind'] == 'building' and 'cut' not in asset and isinstance(turn, dict) and set(turn) == {'from', 'to'} and whole is not None
                     and whole['kind'] == 'building' and not {'cut', 'turn'} & set(whole), 'A turn is a building view drawn from another, whole, view of the set: ' + name)
         # A drawn asset's crop is already a clean reference on white (the rail freight depot's four images, user
-        # 2026-11-13), so it is taken as it is (`as_drawn`) and never redrawn.
-        require(asset.get('drawn', True) is True and not ('drawn' in asset and {'cut', 'turn'} & set(asset)),
-                'drawn is true, for a crop that is already a reference, and is neither cut nor turned: ' + name)
+        # 2026-11-13), so it is taken as it is (`as_drawn`) and never redrawn. So is a mirrored cut: another view's
+        # chosen reference flipped left to right (user, 2026-11-15: "just do the rear as a mirror of the front"; the
+        # redraw of the flipped front drew the block the front's way round again).
+        require(asset.get('drawn', True) is True and not ('drawn' in asset and ('turn' in asset or 'cut' in asset and not asset['cut'].get('mirror'))),
+                'drawn is true, for a crop that is already a reference, and is neither cut nor turned (but for a mirrored cut, another view\'s mirror image): ' + name)
         prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), turned(asset))
         if asset['kind'] == 'prop':
             require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)

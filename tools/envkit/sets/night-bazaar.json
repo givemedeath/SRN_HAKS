@@ -5,12 +5,14 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "scrap-built night market gatehouse with a watchtower", "box": [0, 96, 882, 540]},
-    "building-front": {"kind": "building", "subject": "front elevation of a scrap-built night market gatehouse, the market stalls and their lights seen through its gateway", "box": [874, 108, 1255, 290]},
-    "building-rear": {"kind": "building", "subject": "rear service elevation of a scrap-built night market gatehouse", "box": [885, 335, 1255, 492]},
+    "building-hero": {"kind": "building", "subject": "scrap-built market gatehouse with a watchtower, tarps and plain weathered walls, with no signs, neon or lettering", "box": [0, 96, 882, 540], "notes": "Remove the title banner and all text outside the building. Remove the Front Range Night Bazaar sign board with its neon lettering and the Denver FRFZ strip, the red neon panel of Chinese characters and every other sign and neon: leave plain rusted sheet metal and scaffolding where they hung."},
+    "building-front": {"kind": "building", "subject": "front elevation of a scrap-built market gatehouse with plain weathered walls, with no signs, neon or lettering, the market stalls and their lights seen through its gateway", "box": [874, 108, 1255, 290], "notes": "Remove the Front Range Night Bazaar sign board with its neon lettering and the Denver FRFZ strip, the red neon panel of Chinese characters and every other sign and neon: leave plain rusted sheet metal and scaffolding where they hung."},
+    "building-rear": {"kind": "building", "subject": "rear service elevation of a scrap-built market gatehouse", "box": [885, 335, 1255, 492]},
     "vendor-stall": {"kind": "prop", "type": "market-stall", "subject": "scrap-metal market stall with a red awning and a counter", "box": [2, 627, 283, 810]},
     "tarped-kiosk": {"kind": "prop", "type": "market-stall", "variant": "Smaller kiosk under blue tarps with no counter front.", "subject": "small scrap-metal vendor kiosk under blue tarps", "box": [283, 633, 500, 809]},
     "neon-sign": {"kind": "prop", "type": "neon-sign", "subject": "framed neon wall sign reading Cyberware", "box": [503, 657, 689, 792]},
+    "gateway-sign": {"kind": "prop", "type": "storefront-sign", "variant": "Branding: corrugated board reading Front Range in white and Night Bazaar in pink neon over a Denver FRFZ hazard strip.", "subject": "corrugated metal gateway sign board reading Front Range Night Bazaar in pink neon over a hazard-striped strip", "box": [322, 190, 655, 345]},
+    "market-neon-panel": {"kind": "prop", "type": "neon-sign", "variant": "Tall red neon panel of two Chinese characters in a rusted frame.", "subject": "tall framed red neon sign panel of two Chinese characters", "box": [128, 236, 224, 364]},
     "food-cart": {"kind": "prop", "type": "food-cart", "subject": "street food cart with a striped umbrella and a gas bottle", "box": [684, 622, 874, 810]},
     "folding-table": {"kind": "prop", "type": "table-and-chairs", "variant": "Folding table with a folding chair and a small crate.", "subject": "folding table with a folding chair and a small crate", "box": [870, 701, 1053, 808]},
     "case-stack": {"kind": "prop", "type": "hard-case", "variant": "Five coloured cases stacked.", "subject": "stack of five coloured hard equipment cases", "box": [1066, 637, 1249, 802]},

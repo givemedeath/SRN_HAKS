@@ -38,7 +38,9 @@ reference of one it does: `"turn": {"from": "<view>", "to": "<what it is seen fr
 cut (the rail yard's rear, whose corner view showed another building than its front, user 2026-11-13)). The model
 tends to draw a turned rear with the gable on the left whichever corner it is asked for; work out which side that puts
 the detailed wall on, and where it is the wrong one, cut with `"mirror": true` (the reference flipped left to right
-first, its box in the flipped picture). Mirror only a reference without lettering. Before generating a building's
+first, its box in the flipped picture). Mirror only a reference without lettering. A rear that is to be the front's
+plain mirror image takes `"drawn": true` beside its mirrored cut and is never redrawn: the redraw of a flipped front
+draws the block the front's way round again (Aurora Warrens, user 2026-11-15). Before generating a building's
 pieces, check that each side wall is the same material in every piece that shows it, that the dock doors match, and
 that nothing large (a trailer, a skip) stands in front of the doors: the generator fuses it into the wall.
 
