@@ -8,8 +8,8 @@ a time, with a log and a report per body beside its folders. It was two shell sc
 names and one machine's paths in them.
 
 `check` is the look at the result: one client fixture on the packs as built, the bodies asked for side by
-side in two poses and four views each, in the six contrasting colours (`poses.COLOURS`), and the outfit's
-inventory icon. `poses` looks at one bake in six poses; this looks at what a publication would ship, on
+side in two poses and four views each, in the six contrasting colours (`poses.COLOURS`), and the outfit
+made as an item. `poses` looks at one bake in six poses; this looks at what a publication would ship, on
 many bodies at once.
 """
 import json
@@ -39,26 +39,32 @@ SPACING = 5.0  # metres between two actors in a row
 # it was for a shot or two, and the picture under a body's label was another body's (client run, 2026-11-15).
 ROW, ROWS, APART = 12, 6, 10.0
 HOST = (140.0, 140.0)  # where the bare actor given the item stands: clear of every row
-# The outfit as an item in a bag, one more shot: its examine window and the inventory open beside it.
+# The outfit as an item in a bag, one more shot: its examine window. The window comes up black and the inventory
+# with the item's icon is not in the picture: the scratch driver this came from showed the inventory when the item
+# was made and examined in one tick, by a way that was not found, and asking for the panel did not open it (client
+# runs, 2026-11-15). The shot says the item could be made from the built tables; its icon is still looked at by hand.
 # It begins when the entry script says its shots are over (`fixture.DONE`), not at the time they should be:
 # shots are chained and fall behind the clock on a busy client, and the item's windows would open over them
 # (review of PR 162, 2026-11-15). The item is given every slot the outfit fills and nothing in the others, as an
 # actor's is, one slot a tick: every change is a copy and the copy it replaces only goes when the script ends,
 # so all of them at once filled the bag's first page and the item lay on another (client run, 2026-11-15).
+# An item that could not be made, or a slot that could not be set, makes the shot `valid=0`, which `client.run`
+# refuses: the stock cloth is never filed as the outfit.
 ICONS = '''void Line(string s) { WriteTimestampedLogEntry(s); }
 void Step(object pc,object it,int n) {
   int index=-1; int value=0;
 %(wear)s
   if(index<0) {
+    int made=GetIsObjectValid(it) && !GetLocalInt(GetModule(),"ARMORKIT_ICON_FAILED");
     SetCutsceneMode(pc,FALSE);
     SetIdentified(it,TRUE);
     AssignCommand(pc,ActionExamine(it));
-    DelayCommand(1.5,Line("ARMORKIT shot=%(shot)d target=item valid=1"));
+    DelayCommand(1.5,Line("ARMORKIT shot=%(shot)d target=item valid="+IntToString(made)));
     DelayCommand(1.5+%(hold).1f,Line("ARMORKIT icons-done"));
     return;
   }
   object next=CopyItemAndModify(it,ITEM_APPR_TYPE_ARMOR_MODEL,index,value,TRUE);
-  if(!GetIsObjectValid(next)) { Line("ARMORKIT icon-modify-failed index="+IntToString(index)); next=it; }
+  if(!GetIsObjectValid(next)) { SetLocalInt(GetModule(),"ARMORKIT_ICON_FAILED",1); Line("ARMORKIT icon-modify-failed index="+IntToString(index)); next=it; }
   else DestroyObject(it);
   DelayCommand(0.1,Step(pc,next,n+1));
 }
@@ -71,8 +77,14 @@ void main() { Wait(); }
 '''
 
 
+def kept_from(male_kept, output, female_from=None):
+    """{gender: the folder its race bodies are refit from}: the male's kept parts as given, the Human female's as
+    this run keeps them or, with `female_from`, as an earlier run did."""
+    return {'m': Path(male_kept), 'f': Path(female_from) if female_from is not None else Path(output) / (HUMANS['f'] + '-kept')}
+
+
 def plan(male_kept, output, briefs, number, body_pack, *, body_textures=None, own=None, own_parts=OWN, bodies=registry.BODIES,
-         packs=(), game=None, tint_cache=None):
+         packs=(), game=None, tint_cache=None, female_from=None):
     """{body: [step]}: the kit commands that put an outfit on each of `bodies`, in the order they run.
 
     `male_kept` is the folder a bake of the Human male kept his parts in (`bake --kept`), `briefs` the brief
@@ -82,13 +94,19 @@ def plan(male_kept, output, briefs, number, body_pack, *, body_textures=None, ow
     the folder a bake of the Human female kept her own parts in, of which she keeps `own_parts` and takes the
     rest from the male (`<pfh0>-carried`, `combine`); without it all her parts are his, refit. A race body is
     refit from the Human of its gender as this run keeps it, so that Human is built first and must be among
-    `bodies`, or lie in `output` from an earlier run. A step is {'arguments', 'stdout', 'stderr'}: a command
-    of this kit and the files its output goes to."""
+    `bodies`, or lie in `output` from an earlier run; `female_from` names the folder another run kept the
+    Human female's parts in (its `pfh0-kept`), for race bodies built again without her: a body that failed
+    cannot be built again where its folders lie. A step is {'arguments', 'stdout', 'stderr'}: a command of
+    this kit and the files its output goes to."""
     output = Path(output)
     require(set(briefs) == set(HUMANS) and set(bodies) <= set(registry.BODIES) and bodies, 'An outfit is built on bodies of the 20, by a brief for each gender (m, f)')
-    kept = {'m': Path(male_kept), 'f': output / (HUMANS['f'] + '-kept')}
+    require(female_from is None or HUMANS['f'] not in bodies, 'The Human female is built here or taken from another run, not both')
+    kept = kept_from(male_kept, output, female_from)
     theirs = [name for name in bake.listing(male_kept)['parts'] if own is None or name not in own_parts]
     require(own is None or (own_parts and theirs), 'A Human female with a bake of her own keeps some of its parts and takes the others from the male')
+    if own is not None:  # read now: a part she has not kept would stop `combine`, minutes into the run
+        missing = [name for name in own_parts if name not in bake.listing(own)['parts']]
+        require(not missing, f'{own} holds no {", ".join(missing)} for the Human female to keep')
     skin = ['--body-textures', str(body_textures)] if body_textures else []
 
     def refit(source_kept, target_kept, source, target, more=()):
@@ -145,10 +163,11 @@ def build(male_kept, output, briefs, number, body_pack, *, jobs=3, run=command, 
     steps = plan(male_kept, output, briefs, number, body_pack, **given)
     fresh = [output / (body + ending) for body in steps for ending in ('', '-kept', '-carried') if not (body == HUMANS['m'] and ending)]
     require(not [path for path in fresh if path.exists()], 'These are built already, and are not written over: ' + ', '.join(str(path) for path in fresh if path.exists()))
+    sources = kept_from(male_kept, output, given.get('female_from'))
     for body in steps:
         human = HUMANS[body[1]]
-        source = male_kept if human == HUMANS['m'] else output / (human + '-kept')
-        require(body == human or human in steps or (Path(source) / bake.KEPT).is_file(), f'{body} is carried from {human}, whose parts are not kept in {source}')
+        require(body == human or human in steps or (sources[body[1]] / bake.KEPT).is_file(),
+                f'{body} is carried from {human}, whose parts are not kept in {sources[body[1]]}')
     output.mkdir(parents=True, exist_ok=True)
     report = {}
 
@@ -177,8 +196,7 @@ def build(male_kept, output, briefs, number, body_pack, *, jobs=3, run=command, 
         report.update(zip(humans, pool.map(one, humans)))  # neither Human waits for the other: both are made from the male's kept parts
         for body in races:
             human = HUMANS[body[1]]
-            source = Path(male_kept) if human == HUMANS['m'] else output / (human + '-kept')
-            if not (source / bake.KEPT).is_file():
+            if not (sources[body[1]] / bake.KEPT).is_file():
                 report[body] = {'folder': str(output / body), 'passed': False, 'failed': 'not begun', 'log': report.get(human, {}).get('log', '')}
                 say(f'{body}: not begun, the parts of {human} were not kept')
         begun = [body for body in races if body not in report]
@@ -194,15 +212,15 @@ def place(index):
     return (12.0 + SPACING * (ROW - 1 - along if row % 2 else along), 20.0 + APART * row)
 
 
-def cast(bodies, worn, statures, colours=None, heads=None, cast=CAST, views=VIEWS):
+def cast(bodies, worn, statures, colours=None, heads=None, stances=CAST, views=VIEWS):
     """(actors, shots, labels) of a client check: every body of `bodies` wearing `worn` ({slot: number}) in each
-    pose of `cast`, with the shots of `views` round it. `statures` gives each body's height as a share of the
+    pose of `stances`, with the shots of `views` round it. `statures` gives each body's height as a share of the
     Human of its gender's: its camera stands that much further off and higher, never nearer than a Human's."""
     heads = {**HEADS, **(heads or {})}
     # A single row of 40 actors ran out of the fixture's area, 160 m a side, at the thirtieth (review of PR 162, 2026-11-15).
-    require(len(bodies) * len(cast) <= ROW * ROWS, f'The fixture has room for {ROW * ROWS} actors, {len(cast)} a body: not for {len(bodies)} bodies')
+    require(len(bodies) * len(stances) <= ROW * ROWS, f'The fixture has room for {ROW * ROWS} actors, {len(stances)} a body: not for {len(bodies)} bodies')
     actors, shots, labels = [], [], []
-    for pose, animation in cast:
+    for pose, animation in stances:
         for body in bodies:
             require(body in registry.BODIES and body[:3] in heads, f'{body} is no body with a head to wear')
             index, stature = len(actors), float(statures[body])
@@ -236,8 +254,8 @@ def published(parts, number, bodies=None):
 def check_spec(bodies, slots, number, haks, body_pack, *, tlk=None, colours=None, heads=None, hold=fixture.HOLD, icons=True):
     """(fixture spec, layout) of the client check of outfit `number`, worn on `slots`, on `bodies`, from the
     built packs `haks` (highest priority first: the parts pack and its tables before the bodies' and heads').
-    With `icons` a bare Human male beside them is given the outfit as an item, and its examine window with
-    its inventory icon is one more shot. Nothing of a bake is read: the fixture shows what the packs hold."""
+    With `icons` a bare Human male beside them is given the outfit as an item, and its examine window is
+    one more shot (the inventory icon is not in it). Nothing of a bake is read: the fixture shows what the packs hold."""
     require(bodies and len(set(bodies)) == len(bodies), 'The client check takes bodies, each once')
     require(slots and all(slot in registry.SLOTS for slot in slots), f'An outfit is worn on slots of {sorted(registry.SLOTS)}')
     actors, shots, labels = cast(bodies, {slot: number for slot in slots}, statures(bodies, body_pack), colours, heads)
@@ -260,18 +278,22 @@ def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.
     wait for another session's client to close first."""
     output = Path(output)
     require(not output.exists(), f'The client check is built into a fresh folder; this one exists: {output}')
+    hold = document.get('hold', fixture.HOLD)  # asked before the folder is made: `client.run` would refuse it after
+    require(not run or client.POLL + settle + client.MARGIN <= hold, f'settle {settle} s leaves no time to capture inside a {hold} s shot')
     output.mkdir(parents=True)
     record = poses.build(document, layout, output, nwn_root)
     if run:
         if wait:
             client.wait_free(wait)
-        count, hold = len(layout['labels']), record.get('hold', fixture.HOLD)
+        count, hold = len(layout['labels']), record.get('hold', hold)
         evidence = client.run(nwn_root, record, output / 'captures', settle=settle, until='icons-done' if layout['icons'] else 'done',
                               timeout=record['start'] + (record['shots'] + 2) * hold + 300 + record['shots'] * hold)  # room for shots that fall behind
+        keep = lambda: (output / 'evidence.json').write_text(json.dumps(evidence, indent=1) + '\n', encoding='utf-8', newline='\n')
+        keep()  # before the sheet: what the client said and showed is kept whatever becomes of the layout
         captures = evidence['captures']
-        evidence['sheet'] = str(poses.sheet(captures[:count], layout, output / 'sheet.jpg'))
         for capture in captures[count:count + 1]:
             (output / 'icon.png').write_bytes(Path(capture).read_bytes())
-        (output / 'evidence.json').write_text(json.dumps(evidence, indent=1) + '\n', encoding='utf-8', newline='\n')
+        evidence['sheet'] = str(poses.sheet(captures[:count], layout, output / 'sheet.jpg'))
+        keep()
         record['evidence'] = evidence
     return record

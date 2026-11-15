@@ -189,7 +189,7 @@ def command_bodies(args):
     from . import bodies
     report = bodies.build(args.kept, args.output, {'m': args.male_brief, 'f': args.female_brief}, args.number, args.body_pack, jobs=args.jobs,
                           body_textures=args.body_textures, own=args.female_kept, own_parts=tuple(listed(args.female_parts)),
-                          bodies=tuple(listed(args.only)) if args.only else registry.BODIES, packs=args.pack, game=args.nwn_root, tint_cache=args.tint_cache,
+                          bodies=tuple(listed(args.only)) if args.only else registry.BODIES, packs=args.pack, game=args.nwn_root, tint_cache=args.tint_cache, female_from=args.female_from,
                           say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({'passed': report['passed'], 'failed': sorted(body for body, found in report['bodies'].items() if not found['passed'])}))
     if not report['passed']:
@@ -345,7 +345,8 @@ def main(argv=None):
     p.add_argument('--pack', action='append', default=[], help='pack folder whose model names the outfit may not take')
     p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
     p.add_argument('--tint-cache', help="folder that keeps each part's tint texture between bakes")
-    p.add_argument('--jobs', type=int, default=3, help='race bodies built at a time (default 3)')
+    p.add_argument('--female-from', help="folder another run kept the Human female's parts in (its pfh0-kept), to build race bodies again without her")
+    p.add_argument('--jobs', type=int, default=3, help='bodies built at a time, the two Humans first (default 3)')
     p.set_defaults(handler=command_bodies)
     p = commands.add_parser('wear', help='build the client check of a published outfit on many bodies, from the built packs, and optionally run it')
     p.add_argument('registry', help='the registry the outfit is in'); p.add_argument('output', help='a fresh folder for the fixture, its captures and the sheet')

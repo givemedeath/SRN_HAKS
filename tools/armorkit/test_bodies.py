@@ -80,6 +80,8 @@ class PlanTests(unittest.TestCase):
                     bodies.plan(male, out, BRIEFS, 6020, 'pack', **wrong)
             with self.assertRaises(ValueError):  # a brief for each gender
                 bodies.plan(male, out, {'m': 'male.json'}, 6020, 'pack')
+            with self.assertRaisesRegex(ValueError, 'holds no pelvis'):  # a part her own bake did not keep, told before anything runs
+                bodies.plan(male, out, BRIEFS, 6020, 'pack', own=own, own_parts=('chest', 'pelvis'))
             for parts in ((), tuple(PARTS)):  # she keeps some parts and takes some: neither none nor all
                 with self.assertRaisesRegex(ValueError, 'keeps some'):
                     bodies.plan(male, out, BRIEFS, 6020, 'pack', own=own, own_parts=parts)
@@ -108,6 +110,13 @@ class BuildTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'carried from pfh0'):
                 bodies.build(male, root / 'other', BRIEFS, 6020, 'pack', bodies=('pfo2',), run=runner(calls))
             self.assertFalse((root / 'other').exists())
+            # a body that failed is built again elsewhere, carried from the Human female the first run kept
+            calls.clear()
+            retried = bodies.build(male, root / 'other', BRIEFS, 6020, 'pack', bodies=('pfo2',), female_from=out / 'pfh0-kept', run=runner(calls))
+            self.assertTrue(retried['passed'])
+            self.assertEqual(calls[0][:3], ['refit', str(out / 'pfh0-kept'), str(root / 'other' / 'pfo2-kept')])
+            with self.assertRaisesRegex(ValueError, 'not both'):
+                bodies.plan(male, root / 'third', BRIEFS, 6020, 'pack', bodies=('pfh0', 'pfo2'), female_from=out / 'pfh0-kept')
 
     def test_a_failed_step_stops_its_body_and_a_failed_human_the_bodies_carried_from_it(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -151,7 +160,7 @@ class CheckTests(unittest.TestCase):
         steps = [abs(a['position'][0] - b['position'][0]) + abs(a['position'][1] - b['position'][1]) for a, b in zip(everyone, everyone[1:])]
         self.assertLessEqual(max(steps), bodies.APART)  # the camera never goes far from one actor to the next
         with self.assertRaisesRegex(ValueError, 'room for'):
-            bodies.cast(list(registry.BODIES), {}, {body: 1.0 for body in registry.BODIES}, cast=bodies.CAST * 2)
+            bodies.cast(list(registry.BODIES), {}, {body: 1.0 for body in registry.BODIES}, stances=bodies.CAST * 2)
         human, dwarf, troll = (shots[at * len(bodies.VIEWS)] for at in range(3))
         self.assertEqual((human['distance'], dwarf['distance'], troll['distance']), (3.2, 3.2, 4.16))  # further off a taller body, never nearer
         self.assertEqual((human['height'], dwarf['height'], troll['height']), (0.95, 0.665, 1.235))
@@ -185,7 +194,7 @@ class CheckTests(unittest.TestCase):
         script = document['scripts']['ak_icons']
         # every slot the outfit fills and nothing in the others, a slot a tick; the windows stay a whole hold after their line
         for line in (f'shot={count} target=item', '{ index=7; value=6020; }', '{ index=6; value=6020; }', '{ index=8; value=0; }', 'if(n==18)',
-                     'DelayCommand(0.1,Step(pc,next,n+1))', 'DelayCommand(1.5+5.0,Line("ARMORKIT icons-done"))',
+                     'DelayCommand(0.1,Step(pc,next,n+1))', 'target=item valid="+IntToString(made)', 'SetLocalInt(GetModule(),"ARMORKIT_ICON_FAILED",1)', 'DelayCommand(1.5+5.0,Line("ARMORKIT icons-done"))',
                      f'!GetLocalInt(GetModule(),"{fixture.DONE}")) {{ DelayCommand(1.0,Wait()); return; }}'):  # after the shots, whenever they end
             self.assertIn(line, script)
         self.assertEqual((without['icons'], set(plain['scripts']), len(plain['actors'])), (False, {'ak_pose'}, 2))
@@ -214,6 +223,9 @@ class CheckTests(unittest.TestCase):
                 self.assertEqual((asked['until'], asked['timeout']), ('icons-done', 8.0 + 4 * 5.0 + 300 + 2 * 5.0))
                 self.assertEqual((root / 'check' / 'icon.png').read_bytes(), b'2')
                 self.assertTrue((root / 'check' / 'evidence.json').is_file())
+                with self.assertRaisesRegex(ValueError, 'no time to capture'):  # asked before the folder is made
+                    bodies.check({'name': 'x', 'hold': 2.0}, layout, root / 'short', 'game', run=True)
+                self.assertFalse((root / 'short').exists())
                 with self.assertRaisesRegex(ValueError, 'fresh folder'):
                     bodies.check({'name': 'x'}, layout, root / 'check', 'game')
                 self.assertNotIn('evidence', bodies.check({'name': 'x'}, layout, root / 'built', 'game'))
