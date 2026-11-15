@@ -52,6 +52,15 @@ def material(folder, name):
     return {'normal': named['texture1'], 'rough': named.get('texture3'), 'roughness': float(given[-1]) if given else None}
 
 
+def material_folder(textures):
+    """The folder `textures` of the bodies' material files and maps, refused where it holds no material file at
+    all: another folder (the model pack, a path mistyped) read as a body that binds none, every skin came out
+    flat and no one was told (review, 2026-11-14)."""
+    textures = Path(textures)
+    require(textures.is_dir() and next(textures.glob('*.mtr'), None) is not None, f'{textures}: the folder of the bodies\' material files holds none')
+    return textures
+
+
 def body_part(pack, textures, body, token, bones, number=1):
     """One skin part of a body with its textures: `v`, `f`, `uv`, `n` in body space, `tint` (rows of shade and
     layer), `relief` (its normal map, 0-1) and `rough` (its roughness, 0-1), each from v = 0.
@@ -72,10 +81,8 @@ def body_part(pack, textures, body, token, bones, number=1):
     offsets = np.cumsum([0] + [len(mesh['position']) for mesh in meshes])
     normals = np.concatenate([mesh['normal'] for mesh in meshes]) @ world[:3, :3].T
     bitmap = bitmaps.pop()
-    # another folder than the bodies' material files (the model pack, a path mistyped) read as a body that binds
-    # none: every skin came out flat and no one was told (review, 2026-11-14)
-    require(textures.is_dir() and next(textures.glob('*.mtr'), None) is not None, f'{textures}: the folder of the bodies\' material files holds none')
-    bound =material(textures, bitmap) if (textures / (bitmap + '.mtr')).is_file() else {'normal': None, 'rough': None, 'roughness': None}
+    material_folder(textures)
+    bound = material(textures, bitmap) if (textures / (bitmap + '.mtr')).is_file() else {'normal': None, 'rough': None, 'roughness': None}
     relief = np.full((FLAT_SIDE, FLAT_SIDE, 3), (0.5, 0.5, 1.0)) if bound['normal'] is None else image((textures / (bound['normal'] + '.tga')).read_bytes())
     if bound['rough'] is None:  # one roughness over the whole part: the material file's own number, or the kit's
         rough = np.full(relief.shape[:2], texture.ROUGHNESS if bound['roughness'] is None else bound['roughness'])

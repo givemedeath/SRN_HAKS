@@ -449,6 +449,19 @@ def tucked(part, vertices, point, normal, limit, turns, over, most):
     return out
 
 
+def bent_under(part, vertices, joint, side, centre, normal, over, bones, contract, body):
+    """`tucked` at one joint of body `body`, as the bake's gate turns an end there (`bake.hidden`): `vertices`
+    of `part`, whose under end lies at the joint (`joint`, `side`; its plane's point `centre` and unit
+    `normal`), drawn in under the part `over` in the contract's design bend. `bones` is the body's rig. The
+    part over it may be one carried with it or one baked on the body (`run`'s `seat_in`)."""
+    from . import bake
+    widest = np.max(seams.envelope(contract, joint, body, registry.TIERS[-1], None if side == 'c' else side))
+    bend = float(contract['joints'][joint]['bodies'][body]['bend'][contract['designBend']])
+    middle = (bones['lbicep_g'][:3, 3] + bones['rbicep_g'][:3, 3]) / 2  # as `bake.hidden` reads the torso's
+    return tucked(part, vertices, centre, normal, bake.REACH * float(widest), bake._turns(joint, normal, bend, centre - middle),
+                  (np.asarray(over['v'], float), np.asarray(over['f'], int)), contract.get('ends', seams.ENDS)['bent'])
+
+
 def healed(part, vertices, planes, grown=1.0):
     """`vertices` of `part` with the hairlines on its ends' planes closed: of the edges only one face has
     (`bake._open_edges`; a pad's are left), each end of one lying on one of `planes` ((point, unit normal)
@@ -818,11 +831,7 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                     over = bake._outfit(out[other])[:2]
                     if joint in measure.TORSO_OPENINGS:
                         deeper = seated({**part, 'v': deeper}, centres[k], normal, over, others=np.delete(centres, k, axis=0))
-                    widest = np.max(seams.envelope(contract, joint, bodies[1], registry.TIERS[-1], None if side == 'c' else side))
-                    bend = float(contract['joints'][joint]['bodies'][bodies[1]]['bend'][contract['designBend']])
-                    middle = (target[0]['lbicep_g'][:3, 3] + target[0]['rbicep_g'][:3, 3]) / 2  # as `bake.hidden` reads the torso's
-                    deeper = tucked(part, deeper, centres[k], normal, bake.REACH * float(widest), bake._turns(joint, normal, bend, centres[k] - middle),
-                                    (np.asarray(out[other]['v'], float), np.asarray(out[other]['f'], int)), contract.get('ends', seams.ENDS)['bent'])
+                    deeper = bent_under(part, deeper, joint, side, centres[k], normal, out[other], target[0], contract, bodies[1])
                 moved = deeper
             grown = max([1.0, float(np.linalg.svd(linear, compute_uv=False).max())] + (list(slope['hem']) if slope is not None else []))
             moved = healed(part, moved, [(centres[k], seams.unit(seams.plane(target[0], met[k][0], 'l' if met[k][1] == 'c' else met[k][1])[1])) for k in cut], grown)
@@ -859,7 +868,9 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     for `bake --kept OUTPUT --body TARGET` to tint, write and gate on the other body. A part in a slot shared
     with the body's skin gets the target body's own beside it, read with its textures from `body_textures`
     (`bake.skinned`). Where the parts kept in the folder `seat_in`, baked on the target, hold the part over
-    a carried part's under end, and it is not carried too, that end's cap is seated in it (`seated`).
+    a carried part's under end, and it is not carried too, that end's cap is seated in it (`seated`) and what
+    the end holds past its plane that would show outside it in the design bend is drawn in under it
+    (`bent_under`; `seated` and `tucked` in the report, the joints).
     A part beside the body's skin is first brought under its budget with the other body's skin counted
     (`budgeted`; `reduced` in the report, the faces taken out). A chest is lifted over what of the other body's
     neck came through it below its collar (`over_neck`; `overNeck` in the report, the farthest a point moved).
@@ -872,8 +883,13 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     listed = bake.listing(kept)
     left = [token for slot in listed['bare'] for token in registry.SLOTS[slot]['tokens']]
     goal = measure.body(body_pack, target)
-    parts, report = refit(bake.stored(kept), measure.body(body_pack, source), goal, names,
-                          seams.load_contract(), (source, target), tier, bake.bare_joints({'left': left}))
+    stored, contract = bake.stored(kept), seams.load_contract()
+    shared = bake.shared_with_body(listed) & set(stored if names is None else names)
+    if shared:  # asked before the parts are carried, not minutes after
+        require(body_textures is not None, f'{", ".join(sorted(shared))} share their slots with the body\'s '
+                                           'skin: give the body\'s textures to lay the other body\'s beside them')
+        bodyskin.material_folder(body_textures)
+    parts, report = refit(stored, measure.body(body_pack, source), goal, names, contract, (source, target), tier, bake.bare_joints({'left': left}))
     beside = bake.stored(seat_in) if seat_in is not None else {}
     for name in parts:
         met = joints_of(name)
@@ -881,20 +897,24 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
         for k, (joint, side, over) in enumerate(met):
             letter = 'l' if side == 'c' else side
             if split.token(seams.JOINTS[joint]['under'], letter) == name and over in beside and over not in parts:
-                moved = seated(parts[name], points[k], seams.unit(seams.plane(goal[0], joint, letter)[1]), bake._outfit(beside[over])[:2],
-                               others=np.delete(points, k, axis=0))
-                if not np.array_equal(moved, parts[name]['v']):
-                    parts[name] = {**parts[name], 'v': moved, 'n': renormal(parts[name]['n'], parts[name]['f'], parts[name]['v'], moved)}
-                    report[name].setdefault('seated', []).append(f'{joint} {side}')
+                normal = seams.unit(seams.plane(goal[0], joint, letter)[1])
+                held = {'seated': seated(parts[name], points[k], normal, bake._outfit(beside[over])[:2], others=np.delete(points, k, axis=0))}
+                if (joint, side) not in bake.UNCUT:  # and nothing of it showing in the design bend, as under a part carried with it
+                    held['tucked'] = bent_under(parts[name], held['seated'], joint, side, points[k], normal, beside[over], goal[0], contract, target)
+                before = parts[name]['v']
+                for key, moved in held.items():
+                    if not np.array_equal(moved, before):
+                        report[name].setdefault(key, []).append(f'{joint} {side}')
+                    before = moved
+                if not np.array_equal(before, parts[name]['v']):
+                    parts[name] = {**parts[name], 'v': before, 'n': renormal(parts[name]['n'], parts[name]['f'], parts[name]['v'], before)}
     if 'chest' in parts and 'neck' in goal[1]:
         held = over_neck(parts['chest'], goal[1]['neck'], *seams.plane(goal[0], 'neck', 'c'))
         if held is not parts['chest']:
             report['chest']['overNeck'] = round(float(np.linalg.norm(held['v'] - parts['chest']['v'], axis=1).max()), 4)
             parts['chest'] = held
-    if bake.shared_with_body(listed) & set(parts):
-        require(body_textures is not None, f'{", ".join(sorted(bake.shared_with_body(listed) & set(parts)))} share their slots with the body\'s '
-                                           'skin: give the body\'s textures to lay the other body\'s beside them')
-        own = {name: bodyskin.body_part(body_pack, body_textures, target, name, goal[0]) for name in bake.shared_with_body(listed) & set(parts)}
+    if shared:
+        own = {name: bodyskin.body_part(body_pack, body_textures, target, name, goal[0]) for name in shared}
         for name, skin in own.items():  # the other body's own skin counts against the part's budget, as in a bake (`bake.within_budget`)
             met = joints_of(name)
             planes = [(point, seams.unit(seams.plane(goal[0], joint, 'l' if side == 'c' else side)[1])) for point, (joint, side, _) in zip(anchors(name, goal[0]), met)]
@@ -905,7 +925,7 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
                 if dropped:  # slivers the cut left, with those the carrying left (`refit`)
                     report[name]['dropped'] = report[name].get('dropped', 0) + dropped
         parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get)
-        for name in bake.shared_with_body(listed) & set(parts):
+        for name in shared:
             held = over_skin(parts[name], *split.bone_line(goal[0], name))
             if held is not parts[name]:
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)

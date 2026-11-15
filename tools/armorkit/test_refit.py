@@ -305,6 +305,13 @@ class HeldTests(unittest.TestCase):
         # under an over part that still covers it in the bend, it stays where it is
         long_ = closed(0.0, 0.5, 0.12)
         self.assertTrue(np.array_equal(refit.tucked(piece, piece['v'], point, normal, 0.2, turns, (long_['v'], long_['f']), 0.01), piece['v']))
+        # at a joint of a body, by the contract's own bend and `bent` (`bent_under`): under a part carried with it or
+        # one baked on the body
+        terms = {**contract(ring=0.04), 'designBend': 'p95'}
+        for row in terms['joints'].values():
+            row['bodies']['test']['bend'] = {'p95': 40.0}
+        held = refit.bent_under(piece, piece['v'], 'elbow', 'l', point, normal, upper, rig(), terms, 'test')
+        self.assertTrue(np.array_equal(held, out))
         # a pole deeper past the plane than the reach itself comes up the axis to it: left at its depth and set on
         # the axis, it stayed as far from the joint as it was (review, 2026-11-14)
         deep = {**piece, 'v': piece['v'].copy()}
@@ -571,6 +578,16 @@ class RefitTests(unittest.TestCase):
                     mock.patch.object(seams, 'load_contract', return_value=None):
                 report = refit.run(kept, out, 'pack', 'pmh0', 'pfh0')
             self.assertTrue(np.allclose(report['handl']['axes'], 0.8, atol=1e-3))
+            # under a forearm baked on the other body (`seat_in`) the glove's end is seated in it and drawn in under it
+            # in the bend, as under one carried with it, and the report says which was done
+            bake.store({'forel': part(faces=1)}, Path(folder) / 'upper', {})
+            with mock.patch.object(measure, 'body', side_effect=lambda pack, name: bodies[name]), \
+                    mock.patch.object(seams, 'load_contract', return_value=None), \
+                    mock.patch.object(refit, 'seated', side_effect=lambda piece, *_, **__: piece['v']), \
+                    mock.patch.object(refit, 'bent_under', side_effect=lambda piece, vertices, *_: vertices + (0.0, 0.0, 0.001)) as bent:
+                held = refit.run(kept, Path(folder) / 'seated', 'pack', 'pmh0', 'pfh0', seat_in=Path(folder) / 'upper')
+            self.assertEqual((held['handl'].get('seated'), held['handl']['tucked'], bent.call_args.args[2:4]), (None, ['wrist l'], ('wrist', 'l')))
+            self.assertTrue(np.allclose(bake.stored(Path(folder) / 'seated')['handl']['v'] - bake.stored(out)['handl']['v'], (0.0, 0.0, 0.001)))
             self.assertEqual(bake.declared(out), {'bare': {'forearm'}, 'skin': {'bicep'}})
             self.assertEqual(list(bake.stored(out)), ['handl'])
             with self.assertRaises(ValueError):
@@ -582,8 +599,15 @@ class RefitTests(unittest.TestCase):
                     mock.patch.object(bodyskin, 'body_part', return_value=body_arm()) as read:
                 with self.assertRaisesRegex(ValueError, "give the body's textures"):
                     refit.run(Path(folder) / 'sleeve', out / 'a', 'pack', 'pmh0', 'pfh0')
-                refit.run(Path(folder) / 'sleeve', out / 'b', 'pack', 'pmh0', 'pfh0', body_textures='maps')
-            self.assertEqual(read.call_args.args[:4], ('pack', 'maps', 'pfh0', 'bicepl'))
+                maps = Path(folder) / 'maps'
+                with mock.patch.object(refit, 'refit') as carried:  # a folder that is not the bodies' is refused before a part is carried
+                    with self.assertRaisesRegex(ValueError, 'holds none'):
+                        refit.run(Path(folder) / 'sleeve', out / 'a', 'pack', 'pmh0', 'pfh0', body_textures=maps)
+                self.assertFalse(carried.called)
+                maps.mkdir()
+                (maps / 'skin.mtr').write_text('texture1 skinn\n')
+                refit.run(Path(folder) / 'sleeve', out / 'b', 'pack', 'pmh0', 'pfh0', body_textures=maps)
+            self.assertEqual(read.call_args.args[:4], ('pack', maps, 'pfh0', 'bicepl'))
             self.assertEqual(int(bake.stored(out / 'b')['bicepl']['skin'].sum()), len(body_arm()['f']))
 
 
