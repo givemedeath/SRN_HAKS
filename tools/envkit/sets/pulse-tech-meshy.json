@@ -1,0 +1,20 @@
+{
+  "set": "pulse-tech",
+  "prefix": "pt",
+  "props": {
+    "wall-sign": {"triangles": 4000},
+    "hanging-banner": {"triangles": 4000},
+    "display-counter": {"triangles": 10000},
+    "repair-bench": {"triangles": 10000},
+    "parts-cart": {"triangles": 10000},
+    "server-rack": {"triangles": 6000},
+    "case-stack": {"triangles": 5000},
+    "bench": {"triangles": 6000},
+    "vending-machine": {"triangles": 5000},
+    "cable-reel": {"triangles": 6000},
+    "power-pack": {"triangles": 3000},
+    "trash-can": {"triangles": 3000},
+    "drone-pad": {"triangles": 10000}
+  },
+  "building": {"views": ["building-hero"], "triangles": 120000, "remesh": "pt-building-a1-remesh2"}
+}

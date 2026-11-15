@@ -6,7 +6,7 @@
   },
   "assets": {
     "building-hero": {"kind": "building", "subject": "scrap-built night market gatehouse with a watchtower", "box": [0, 96, 882, 540]},
-    "building-front": {"kind": "building", "subject": "front elevation of a scrap-built night market gatehouse", "box": [874, 108, 1255, 290]},
+    "building-front": {"kind": "building", "subject": "front elevation of a scrap-built night market gatehouse, the market stalls and their lights seen through its gateway", "box": [874, 108, 1255, 290]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a scrap-built night market gatehouse", "box": [885, 335, 1255, 492]},
     "vendor-stall": {"kind": "prop", "type": "market-stall", "subject": "scrap-metal market stall with a red awning and a counter", "box": [2, 627, 283, 810]},
     "tarped-kiosk": {"kind": "prop", "type": "market-stall", "variant": "Smaller kiosk under blue tarps with no counter front.", "subject": "small scrap-metal vendor kiosk under blue tarps", "box": [283, 633, 500, 809]},
@@ -17,7 +17,7 @@
     "generator": {"kind": "prop", "type": "generator", "subject": "yellow portable generator with a coiled cable", "box": [1255, 659, 1432, 809]},
     "shutter-booth": {"kind": "prop", "type": "guard-booth", "subject": "small armoured booth with a roller shutter and a camera", "box": [5, 861, 227, 1036]},
     "bench": {"kind": "prop", "type": "bench", "unbranded": true, "subject": "worn metal public bench", "box": [225, 929, 412, 1034]},
-    "light-string": {"kind": "prop", "type": "light-string", "subject": "string of hanging bulbs between two poles", "box": [415, 885, 628, 1035]},
+    "light-string": {"kind": "prop", "type": "light-string", "subject": "string of switched-on festoon bulbs glowing bright warm orange, hanging between two poles", "box": [415, 885, 628, 1035]},
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "subject": "freestanding pylon sign reading FRFZ Night Bazaar with a neon side panel", "box": [638, 858, 803, 1035]},
     "trash-pile": {"kind": "prop", "type": "street-clutter", "same": "stuffer-shack/street-clutter", "subject": "pile of rubbish bags and cardboard", "box": [801, 913, 1003, 1035]},
     "fence-segment": {"kind": "prop", "type": "fence-section", "subject": "chain-link fence segment topped with razor wire on concrete blocks", "box": [1005, 873, 1237, 1038]},

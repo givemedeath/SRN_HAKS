@@ -17,6 +17,7 @@ from . import require
 
 
 SIDES = ((0.0, 1.0), (1.0, 0.0), (0.0, -1.0), (-1.0, 0.0))  # the ways a card can face: front (+Y), then +X, back, -X
+MAIN = 0.25  # a patch holding this share of what a named lit part shows on its best-lit upright side gets a halo card however small it is
 
 
 def position_map(points, uvs, faces, size, *, facing=False):
@@ -143,7 +144,9 @@ def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0
     `toward` (`position_map` with `facing`) says which way each texel's surface faces. With it a texel's light goes to
     a card on the upright side it faces most nearly (`SIDES`), so a sign on a side wall spreads from that wall. Three
     kinds of light then get no card: light that faces up or down; a patch of less than `least` square metres (the end
-    of a sign box, the side of a window recess); and light the model itself hides, with more of the model standing
+    of a sign box, the side of a window recess), unless it is a quarter or more (`MAIN`) of what a named part shows
+    on the upright side it lights most, since a small part (a scanner, a lock panel, a lamp on a post) is all of its
+    light and not a stray end of it, whether it shows on one side or all round: eight such parts of the older sets would have lost their glow (2026-11-15); and light the model itself hides, with more of the model standing
     over `clear` metres in front of most of it (the back of a sign box, inside the wall it hangs on). Patches whose
     cards would not touch get a card each. Without `toward` everything is taken to face front and nothing is left
     out. The cards are flat either way.
@@ -166,6 +169,8 @@ def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0
     if toward is not None:  # the upright side each texel faces most nearly, or none where it faces up or down
         along = np.stack([toward[..., 0] * x + toward[..., 1] * y for x, y in SIDES], -1)
         faced = np.where(along.max(-1) > 0.5, along.argmax(-1), -1)
+        # A named part's stray ends are told by its best-lit side: a lamp lit all round has no side with a quarter of its whole light.
+        mains = [MAIN * max(int((share & (faced == side)).sum()) for side in range(len(SIDES))) for share in shares[:-1]] + [np.inf]
     for side, (ahead_x, ahead_y) in enumerate(SIDES):
         # In the card's own frame: across (the viewer's left is positive), depth towards the viewer, height.
         frame = lambda places: np.stack([places[:, 0] * ahead_y - places[:, 1] * ahead_x, places[:, 0] * ahead_x + places[:, 1] * ahead_y, places[:, 2]], 1)
@@ -177,12 +182,12 @@ def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0
             pixel = lambda places: (np.clip(((places[:, 2] - base[2]) * scale).astype(int), 0, span[2] - 1), np.clip(((places[:, 0] - base[0]) * scale).astype(int), 0, span[0] - 1))
             outermost = np.full((span[2], span[0]), -np.inf); np.maximum.at(outermost, pixel(whole), whole[:, 1])
         layers = []  # (spots, colours, their indices) of each part's light at each depth
-        for share in shares:
+        for number, share in enumerate(shares):
             mine = faces & share
             if mine.any():
                 spots = frame(where[mine]); colours = lit[mine]; order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]
-                layers += [(spots, colours, layer) for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1)]
-        for spots, colours, layer in layers:
+                layers += [(spots, colours, layer, mains[number] if toward is not None else np.inf) for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1)]
+        for spots, colours, layer, main in layers:
             layer = layer[np.argsort(spots[layer, 0])]
             for patch in np.split(layer, np.flatnonzero(np.diff(spots[layer, 0]) > 2 * pad) + 1) if toward is not None else [layer]:
                 low, high = spots[patch].min(0) - pad, spots[patch].max(0) + pad
@@ -193,7 +198,7 @@ def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0
                 np.maximum.at(picture, (rows, columns), colours[patch])
                 if toward is not None:
                     hidden = outermost[pixel(spots[patch])] > spots[patch, 1].max() + clear
-                    if (picture.max(-1) > 0).sum() < least * scale ** 2 or hidden.mean() > 0.5:
+                    if (picture.max(-1) > 0).sum() < least * scale ** 2 and len(patch) < main or hidden.mean() > 0.5:
                         continue
                 sharp = Image.fromarray((picture * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))  # close the gaps between texels
                 source = np.asarray(sharp.filter(ImageFilter.GaussianBlur(1)), float).max(-1, keepdims=True) / 255

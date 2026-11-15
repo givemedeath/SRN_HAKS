@@ -360,6 +360,7 @@
       "tools/envkit/meshy.py",
       "tools/envkit/onboard.py",
       "tools/envkit/reference.py",
+      "tools/envkit/restore.py",
       "tools/envkit/sheet.py",
       "tools/envkit/study.py",
       "tools/envkit/tile.py",
@@ -422,6 +423,7 @@
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],
+    "tools/envkit/restore.py": [],
     "tools/envkit/sheet.py": [
       "tools/envkit/meshy.py",
       "tools/envkit/reference.py"
@@ -476,6 +478,10 @@
       "tools/envkit/sets/stuffer-shack.json",
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
+    ],
+    "tools/envkit/test_restore.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/restore.py"
     ],
     "tools/envkit/test_sheet.py": [
       "tools/envkit/__main__.py",
@@ -5691,6 +5697,7 @@
     "tools/envkit/test_onboard.py",
     "tools/envkit/test_placeables.py",
     "tools/envkit/test_reference.py",
+    "tools/envkit/test_restore.py",
     "tools/envkit/test_sheet.py",
     "tools/envkit/test_study.py",
     "tools/envkit/test_tile.py",
