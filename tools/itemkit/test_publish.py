@@ -261,6 +261,18 @@ class StockReplacementTests(unittest.TestCase):
                 P.survey('knife', make_run(Path(folder), bad_dds=True))
 
 
+class FolderDdsTests(unittest.TestCase):
+    def test_every_pack_dds_is_checked_against_its_tga_header_in_any_case(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root/'IWSWLS_B_051.TGA').write_bytes(tga(32, 96)); (root/'iwswls_b_051.dds').write_bytes(bioware_dds(32, 96))
+            (root/'sr1_10.tga').write_bytes(tga(64, 64)); (root/'sr1_10.dds').write_bytes(bioware_dds(32, 32, 3))
+            (root/'lone.dds').write_bytes(bioware_dds(32, 32)); (root/'model.mdl').write_bytes(b'model')
+            names, bad = P.folder_dds_problems(root)
+            self.assertEqual(names, ['iwswls_b_051.dds', 'lone.dds', 'sr1_10.dds'])
+            self.assertEqual(bad, {'lone.dds': 'no TGA beside it', 'sr1_10.dds': '32x32 differs from its TGA 64x64'})
+
+
 class ReviewerTests(unittest.TestCase):
     def setUp(self):
         self.creatures = [creature(f'sw1_{s}{i}', 5.0 + 3.5*i, P.ROW_Y[s]) for s in 'mf' for i in range(2)]

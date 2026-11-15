@@ -183,6 +183,17 @@ def dds_problems(files):
     return out
 
 
+def folder_dds_problems(folder):
+    """(DDS names, dds_problems) for every DDS in a pack folder: each DDS read in full (its length is checked), only
+    the 18-byte header of its TGA, both matched by name in any case."""
+    files = {p.name.lower(): p for p in Path(folder).iterdir() if p.is_file()}
+    dds = {n: p.read_bytes() for n, p in files.items() if n.endswith('.dds')}
+    def header(path):
+        with open(path, 'rb') as f: return f.read(18)
+    tgas = {n[:-4]+'.tga': header(files[n[:-4]+'.tga']) for n in dds if n[:-4]+'.tga' in files}
+    return sorted(dds), dds_problems({**dds, **tgas})
+
+
 def stock_names(nwn_root):
     """The resource names of the installed base game (its data and lang/en/data KEY indexes, as the stock namespace binds)."""
     from tools.itemkit.native_stack import key_names
@@ -449,8 +460,7 @@ def update_records(repo, packages, needs, statements, tags, total, today):
         require(exact, f'{archive.name} does not carry exactly the files of {folder}')
         built[archive.name] = {'resources': count, 'sha256': sha(archive.read_bytes())}
     pub, _ = load_exact(repo/PUBLICATION)
-    dds = {p.name.lower(): p.read_bytes() for p in weapons.glob('*.dds')}
-    bad = dds_problems({**dds, **{n[:-4]+'.tga': (weapons/(n[:-4]+'.tga')).read_bytes() for n in dds if (weapons/(n[:-4]+'.tga')).is_file()}})
+    dds, bad = folder_dds_problems(weapons)
     require(not bad, f'srn_weapon holds DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
     path = repo/RELEASE_VALIDATION; rv, ascii_only = load_exact(path)
     rv.update(weaponDesigns=len(pub['items']), blueprints=sum(len(i['blueprints']) for i in pub['items']),

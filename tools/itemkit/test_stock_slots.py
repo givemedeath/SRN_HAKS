@@ -186,6 +186,13 @@ class PublishedNamesTests(unittest.TestCase):
             git('switch', '-q', '-c', 'behind', 'HEAD'); git('rm', '-q', 'srn_weapon/wswls_t_081.mdl'); git('commit', '-q', '-m', 'lagging')
             self.assertFalse((Path(folder)/'srn_weapon/wswls_t_081.mdl').exists())
             self.assertIn('wswls_t_081.mdl', published_names(folder))
+            # An inherited GIT_DIR naming another repository does not redirect the lookup.
+            with tempfile.TemporaryDirectory() as other, mock.patch.dict('os.environ', {'GIT_DIR': str(Path(other)/'.git')}):
+                self.assertIn('wswls_t_081.mdl', published_names(folder))
+            # Without git, the checkout's own listing stands.
+            (Path(folder)/'srn_weapon').mkdir(exist_ok=True); (Path(folder)/'srn_weapon/kept.tga').write_bytes(b'x')
+            with mock.patch('subprocess.run', side_effect=FileNotFoundError('git')):
+                self.assertEqual(published_names(folder), {'kept.tga'})
 
 
 if __name__ == '__main__':
