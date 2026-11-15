@@ -49,6 +49,7 @@ WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a whe
 WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
 LEVEL_MOST = 0.3  # metres: the thickest a levelled floor marking is left
+UNDERFOOT_MOST = 0.45  # metres: the knee (`tile.KNEE`), the highest a placeable laid underfoot stands, as a part laid underfoot in a group
 FIRE_WIDTH = (0.1, 3.0)  # metres across a fire the game draws: a candle's to a bonfire's
 # A panel the size of a door drawn in one flat colour (`blank_panels`): the cell its picture is read by, metres; the most
 # the brightness may vary within a cell, as a share of the cell's own brightness (a dark door's flecks are faint), and
@@ -769,8 +770,11 @@ def blank_panels(vertices, uvs, faces, colour, *, size=1024, placed=None):
                                   'repair': {'part': 'roller door', 'box': box, 'radius': BLANK_RADIUS, 'slats': BLANK_SLATS}})
     kept = []  # told twice where one plane's shift held it whole both times, and from both faces of a thin door: the larger stays
     for one in sorted(found, key=lambda one: -one['m2']):
-        low, high = np.array(one['box'])
-        if not any(one['side'] == other['side'] and (np.minimum(high, np.array(other['box'][1])) > np.maximum(low, np.array(other['box'][0]))).all() for other in kept):
+        # The two faces of a thin door look opposite ways and lie a door's thickness apart: along the way they face,
+        # boxes within a wall plane of each other are one panel.
+        reach = np.zeros(3); reach[0 if glow.SIDES[one['side']][0] else 1] = BLANK_PLANE
+        low, high = np.array(one['box'], float) + [-reach, reach]
+        if not any(one['side'] % 2 == other['side'] % 2 and (np.minimum(high, np.array(other['box'][1])) > np.maximum(low, np.array(other['box'][0]))).all() for other in kept):
             kept.append(one)
     return kept
 
@@ -1379,14 +1383,18 @@ def load_models(path):
     mean we have to generate it as one single mesh"): `parts` places other models of the set in it, each
     {model, at: [x, y, z], turn} in metres on this one and turned a quarter at a time, with a texture of its own (`part_textures`).
     `measuredAt` is how the model stood when its boxes, fences, door and fade height were measured: its height, or
-    {height, lift, turn, signTilt, length} with each of the four the model states. `length` draws the model out (or in)
+    {height, lift, turn, signTilt, length, level} with each of the five the model states. `length` draws the model out (or in)
     along the longer side of its footprint to that many metres, its height and width kept (`stretched`). A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
     under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it),
     and a `light` {colour, at} that lights what stands round it, as a lamp post does (`placeables.light_values`).
     `underfoot` (true) lays the model on the ground as railway track is laid (`track`): a group it is placed in is walked
-    flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself."""
+    flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself;
+    as a placeable it has no block to walk into and stands no higher than the knee (`placeable`). `level` lays a floor
+    marking that came back a wedge flat, that many metres thick (`levelled`), on a model that is neither lifted nor a
+    group. `fire` is the fires the game draws on a placeable, [{part, at: [x, y, z], width}] on the finished model
+    (`fire_lines`); a model with a fire is no part of a group, which draws none."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
@@ -1569,6 +1577,8 @@ def load_models(path):
             require(other is not None and part['model'] != name and not other.get('tiles'),
                     f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
             require(not other.get('glass'), f'A part of {name} has glass, which a tile group does not draw: {part["model"]}')
+            # `shape` knows nothing of a fire: placed in a group the barrel would stand there cold, and nothing would say so.
+            require(not other.get('fire'), f'A part of {name} has a fire, which a tile group does not draw: place it in the area as a placeable: {part["model"]}')
     # Every file a model ships is named from its own name: its pictures with a suffix (`MAP_SUFFIXES`), a group's tiles
     # with _t and the tile, the models placed in it with p and a number. A model named like one of those would write
     # over it in the pack: the rail yard's first copy of its office for the depot's group was ek_rf_admin_s, the name
@@ -1815,6 +1825,9 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_ti
                 f'of what burns ({part.get("part", part["at"])})')
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire'], made.get('glass'), fire),
                                         encoding='cp1252', newline='\n')
+    # What is walked across is low enough to step over, as a part laid underfoot in a group is (`tile.group`).
+    require(not underfoot or float(vertices[:, 2].max()) <= UNDERFOOT_MOST + 1e-6, f'{name} is laid underfoot and stands {float(vertices[:, 2].max()):.2f} metres high: '
+            f'what is walked across stands no higher than the knee, {UNDERFOOT_MOST} metres')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=underfoot or float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
     panels = shipped_blank_panels(made, maps, keywords.get('smooth'))
     # `lightAt` is the light this conversion measured: `envkit placeables` writes a row no other light (`additions.command_placeables`).

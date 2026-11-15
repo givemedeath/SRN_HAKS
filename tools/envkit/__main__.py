@@ -117,7 +117,6 @@ def _retouching(model):
 
 def command_game(args):
     """Convert generated models to compiled game placeables, as the game set states them."""
-    from tools.armorkit import export
     from . import convert
     models = convert.load_models(args.models); output = Path(args.output)
     unknown = [name for name in args.model if name not in models]

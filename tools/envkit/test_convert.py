@@ -829,9 +829,44 @@ class GhostRidersTests(unittest.TestCase):
             told = convert_it(fire=[{'at': [0.5, 0, 1.0], 'width': 0.4}])
             self.assertEqual(told['fires'], 1); self.assertIn('node emitter ek_x_f0', (Path(scratch) / 'ek_x.mdl').read_text())
             self.assertIn('ek_x_wg', (Path(scratch) / 'ek_x.pwk').read_text())  # a thing stood on the ground is walked round
+            with self.assertRaisesRegex(ValueError, 'laid underfoot and stands 1.00 metres high'):  # a thing walked across is under the knee
+                convert_it(underfoot=True)
+            made['vertices'] = vertices * [1.0, 1.0, 0.3]
             convert_it(underfoot=True)
             walk = (Path(scratch) / 'ek_x.pwk').read_text()  # one laid underfoot is walked across, and still used from beside it
             self.assertNotIn('ek_x_wg', walk); self.assertIn('ek_x_pwk_use01', walk)
+        # A group draws no fire: a model with one is no part of a group, where it would stand cold.
+        yard = {'source': 'meshy/y', 'height': 5.0, 'measuredAt': 5.0, 'tiles': {**group, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}
+        path.write_text(json.dumps({'models': {'ek_x': good, 'ek_y': yard}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'A part of ek_y has a fire'):
+            convert.load_models(path)
+
+    def test_a_model_with_a_fire_is_compiled_whole_and_its_meshes_checked_without_it(self):
+        from unittest import mock
+        from tools.armorkit import export, toolchain
+        plain = 'newmodel ek_x\nbeginmodelgeom ek_x\nnode trimesh ek_x_m\n  faces 2\n    0 1 2 1 0 1 2 1\n    0 2 3 1 0 2 3 1\nendnode\n'
+        end = 'endmodelgeom ek_x\ndonemodel ek_x\n'; fire = '\n'.join(convert.fire_lines('ek_x', 0, {'at': [0, 0, 1], 'width': 0.5})) + '\n'
+        source = self.root / 'source' / 'ek_x.mdl'; source.parent.mkdir(); output = self.root / 'compiled'; twins, back = [], {}
+
+        def run(said, **_):
+            if said[1] == 'compile':
+                Path(said[-1]).write_bytes(b'\0\0\0\0binary')
+            else:
+                Path(said[-1]).write_text(back['text'], encoding='cp1252')
+            return mock.Mock(returncode=0, stdout='', stderr='')
+        with mock.patch.object(export, 'compile_models', side_effect=lambda paths, folder: twins.append(Path(paths[0]).read_text(encoding='cp1252')) or ['checked']), \
+                mock.patch.object(toolchain, 'cleanmodels', return_value={'path': 'cleanmodels'}), mock.patch.object(convert.subprocess, 'run', side_effect=run) as ran:
+            source.write_text(plain + end, encoding='cp1252', newline='\n')
+            self.assertEqual(convert.compile_placeable(source, output), ['checked']); self.assertFalse(ran.called)  # no fire: the usual compile
+            source.write_text(plain + fire + end, encoding='cp1252', newline='\n'); back['text'] = plain + fire + end
+            self.assertEqual(convert.compile_placeable(source, output), [output / 'ek_x.mdl'])
+            self.assertEqual(twins[-1], plain + end)  # the twin that is read back has its meshes and no emitter
+            back['text'] = plain + end  # a compile that lost the fire
+            with self.assertRaisesRegex(ValueError, 'without all of its 1 fires'):
+                convert.compile_placeable(source, output)
+            back['text'] = plain.replace('faces 2', 'faces 1') + fire + end  # or a face
+            with self.assertRaisesRegex(ValueError, 'or its 2 faces'):
+                convert.compile_placeable(source, output)
 
     def test_a_floor_marking_that_came_back_a_wedge_is_laid_flat(self):
         """The Ghost Riders parking pad: thick at its back, thin at its front, with wheel stops standing on it."""
@@ -888,6 +923,11 @@ class GhostRidersTests(unittest.TestCase):
         self.assertEqual(convert.shipped_blank_panels(made, {}, [one['repair']]), [])
         self.assertEqual(len(convert.shipped_blank_panels(made, {}, [{**one['repair'], 'box': [[5, 5, 0], [6, 6, 1]]}])), 1)  # a repair elsewhere mends nothing here
         self.assertEqual(convert.shipped_blank_panels({**made, 'colour': None}, {}), [])  # no picture to read
+        # A thin door drawn blank on both faces is one door, told once.
+        slab = np.vstack([vertices, vertices[::-1] + [0.0, -0.1, 0.0]]); both = np.array([[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]])
+        halves = np.array([[0, 0], [0.5, 0], [0.5, 1], [0, 1], [0.5, 1], [1, 1], [1, 0], [0.5, 0]], float)
+        found = convert.blank_panels(slab, halves, both, picture(np.concatenate([door[:, ::2], door[:, ::2]], axis=1)), size=size)
+        self.assertEqual(len(found), 1)
 
 
 if __name__ == '__main__':
