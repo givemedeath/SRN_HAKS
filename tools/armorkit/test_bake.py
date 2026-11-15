@@ -484,7 +484,7 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (2, 2, 3))  # at half size, as before
             rough = bodyskin.image((resources / 'pmh0_bicepl332r.tga').read_bytes())[..., 0]
             self.assertTrue(np.allclose(rough, arm_part['skin_rough'] / 255, atol=1 / 255))
-            self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r'})
+            self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r', 'roughness': 0.0})
             self.assertIn('Roughness 0\n', (resources / 'pmh0_bicepl332.mtr').read_text())
             self.assertFalse((resources / 'pmh0_chest332r.tga').exists())
             self.assertTrue(bake.gates(out, models, resources)['passed'])

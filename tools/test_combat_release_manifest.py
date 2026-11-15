@@ -163,6 +163,31 @@ class RepositoryManifestTests(unittest.TestCase):
         self.assertIn('sr_cfk_07.tga', knife['closureMissing'])
         self.assertIn('closure-missing-cougar-fineblade-knife', [g['id'] for g in manifest['gaps']])
 
+    def test_dds_twins_join_their_tga_in_the_item_closure(self):
+        import hashlib, tempfile
+        from pathlib import Path
+        knife = 'cougar-fineblade-knife'
+        publication = crm.load_json(crm.PUBLICATION)
+        twins = ['sr_cfk_07.dds', 'iwswdg_t_071.dds']           # the knife's diffuse and blade icon
+        with tempfile.TemporaryDirectory() as folder:
+            files = []
+            for name in twins:
+                (Path(folder)/name).write_bytes(b'bioware dds ' + name.encode()); files.append(Path(folder)/name)
+                body = (Path(folder)/name).read_bytes()
+                publication['resources'].append({'item': knife, 'path': f'{crm.WEAPON_PACK}/{name}',
+                                                 'sha256': hashlib.sha256(body).hexdigest(), 'bytes': len(body)})
+            original_files, original_load = crm.list_weapon_files, crm.load_json
+            crm.list_weapon_files = lambda: sorted(original_files() + files)
+            crm.load_json = lambda path: publication if path == crm.PUBLICATION else original_load(path)
+            try:
+                manifest = crm.build(check_git=False)
+            finally:
+                crm.list_weapon_files, crm.load_json = original_files, original_load
+        item = next(i for i in manifest['items'] if i['id'] == knife)
+        self.assertTrue(set(twins) <= set(item['resourceClosure']))
+        self.assertTrue(item['closureMatchesPublicationOwnership']); self.assertEqual(item['closureMissing'], [])
+        self.assertEqual({r['resourceType'] for r in manifest['resources'] if r['path'].endswith('.dds')}, {2033})
+
     def test_tracked_manifest_is_current_apart_from_git_comparison(self):
         tracked = json.loads((crm.ROOT / crm.JSON_OUT).read_text(encoding='utf-8'))
         self.manifest['pinnedComparison'] = tracked['pinnedComparison']

@@ -1,7 +1,8 @@
-# Seam contract and head envelopes (version 3, 2026-11-13)
+# Seam contract and head envelopes (version 4, 2026-11-14)
 
 Measured in Phase 0 of [the plan](plan.md) on the locked c7 Human Fit bodies in `srn_body` (`pmh0`, `pfh0`) and
-the published heads in `srn_head`. The numbers live in `tools/armorkit/seam-contract.json` and
+the published heads in `srn_head`; since version 4 the seam contract holds all 20 bodies of `srn_body`, each
+measured on its own models (**Version 4** below). The tables on this page are the two Human Fit bodies'. The numbers live in `tools/armorkit/seam-contract.json` and
 `tools/armorkit/head-envelopes.json`; this page says what they mean and how they were taken. They are
 measurements and starting rules for the pilot, not asset approvals. A change to either file is a new contract
 version, recorded here as a dated section.
@@ -138,9 +139,10 @@ for.
 
 ## Limits
 
-* The planes, rings and overlaps are measured on the two Human Fit bodies only. The other 18 bodies get their
-  parts from race versions of the Human parts, so they inherit the contract through that fit; they have no
-  measured rings of their own. The contract format takes more bodies; none has been added.
+* Through version 3 the planes, rings and overlaps were measured on the two Human Fit bodies only. Version 4
+  measures all 20. The other 18 bodies still get their parts from the Human parts (`refit`), now held to their
+  own rings by the same gates; nothing was generated on them, and the tier offsets, the layering order and the
+  rule for closing ends are the ones chosen on the Human pair.
 * The measurement covers under ends at every joint and over ends at the elbow, wrist, waist, knee and ankle. It
   does not cover the chest's neck hole and armholes or the pelvis's leg holes.
 * The layering order and the tier offsets are rules chosen here from the plan and the stock measurements. They
@@ -187,3 +189,53 @@ a shelf across the part's end. A dome as deep as the seat line's slant hung belo
 thigh swung forward, hence the 2 cm most. The bake gates the rule on every outfit (`bake.hidden`, gate
 `HIDDEN`), at each joint it cuts: closed but for a pad's half, domed within `domeMost` past the rim, and what
 closes an under end hidden at rest and in the design bend.
+
+## Version 4 (2026-11-14)
+
+The user decided that the contract holds all 20 bodies (2026-11-14), after Facility Security was carried from
+the Human pair to the other 18 by `refit`, baked and gated on a contract measured for them outside the kit, and
+passed a trial publication. `measure` now measures every body of `registry.BODIES`; the file grew from 30 KB to
+288 KB. The rows of the two Human Fit bodies are the ones version 3 held, number for number, and the rules
+(`tierOffsets`, `designBend`, `ends`) are unchanged.
+
+Each body is measured as the Human pair was: its own joint planes and body rings in its bind pose, and the
+swing of the 407 clips it plays, read through its own chain of animation models (`srn_body`'s model for its
+race and gender where it has one, such as `srn_an_gm`, then the stock ones). What that gives a body the Human
+contract could not:
+
+* **A bake's gates on a race body.** `ends` and `hidden` need the body's rings and bend; on a body the contract
+  did not hold they were listed under `notBuilt`.
+* **`refit` to a race body.** It scales a part by the rings at its joints on both bodies, and holds its ends,
+  caps and domes to the other body's envelope and overlap.
+* **The publication's neck gate** turns the neck by the body's own design bend.
+
+Mean body ring (cm) at five joints, and the waist's design bend (degrees), per body:
+
+| Body | | Neck | Shoulder | Waist | Hip | Knee | Waist bend |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `pmh0` | Human male Fit | 6.4 | 6.6 | 13.7 | 9.4 | 6.1 | 36.9 |
+| `pmh2` | Human male Large | 6.4 | 6.6 | 16.7 | 9.4 | 6.1 | 36.9 |
+| `pfh0` | Human female Fit | 4.9 | 4.2 | 9.5 | 9.0 | 4.7 | 37.2 |
+| `pfh2` | Human female Large | 4.9 | 4.7 | 15.8 | 10.8 | 5.3 | 37.2 |
+| `pmd0` | Dwarf male Fit | 5.3 | 6.5 | 15.2 | 8.2 | 5.0 | 38 |
+| `pmd2` | Dwarf male Large | 5.3 | 6.5 | 17.8 | 8.2 | 5.0 | 38 |
+| `pfd0` | Dwarf female Fit | 4.2 | 4.2 | 10.7 | 8.7 | 4.2 | 39 |
+| `pfd2` | Dwarf female Large | 4.2 | 4.7 | 16.4 | 10.5 | 4.7 | 39 |
+| `pme0` | Elf male Fit | 6.4 | 6.6 | 13.6 | 9.4 | 6.1 | 37.3 |
+| `pme2` | Elf male Large | 6.4 | 6.6 | 16.4 | 9.4 | 6.1 | 37.3 |
+| `pfe0` | Elf female Fit | 4.8 | 4.1 | 9.2 | 8.8 | 4.7 | 37.3 |
+| `pfe2` | Elf female Large | 4.8 | 4.5 | 15.0 | 10.5 | 5.2 | 37.3 |
+| `pmo0` | Orc male Fit | 7.9 | 8.9 | 17.0 | 11.6 | 6.7 | 38.2 |
+| `pmo2` | Orc male Large | 7.9 | 8.9 | 20.7 | 11.6 | 6.7 | 38.2 |
+| `pfo0` | Orc female Fit | 6.1 | 5.5 | 11.8 | 11.3 | 5.8 | 39.6 |
+| `pfo2` | Orc female Large | 6.0 | 6.0 | 19.6 | 13.5 | 6.5 | 39.6 |
+| `pmg0` | Troll male Fit | 10.3 | 12.8 | 22.6 | 14.9 | 8.8 | 39.1 |
+| `pmg2` | Troll male Large | 10.4 | 12.9 | 29.4 | 15.0 | 8.9 | 39.1 |
+| `pfg0` | Troll female Fit | 7.9 | 8.2 | 15.6 | 14.7 | 7.5 | 39.5 |
+| `pfg2` | Troll female Large | 7.9 | 9.0 | 26.9 | 17.6 | 8.4 | 39.5 |
+
+A Large body bends as its Fit body does, to a tenth of a degree; its joint planes and rings are its own (a
+plane lies up to 8.8 cm from the Fit body's, and the mean radius of the waist ring is 2.6 to 11.3 cm larger). The package's tests hold
+every body's planes and rings to the models in `srn_body`, and its animation models to the ones the bends were
+sampled from, as they did for the Human pair: a changed body model of any of the 20 now asks for a new
+measurement.

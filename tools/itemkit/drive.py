@@ -16,7 +16,7 @@ Processing (CPU, through the verified launcher):
 Fixtures and in-game capture:
     fixture-inputs ID SUFFIX NAME     refixture ID SUFFIX NAME [--capture]       capture FIXTURE_DIR OUTPUT
 Families:
-    contract FAMILY ID --wave NAME [--visible N] [--base FOLDER]   views GLB OUTPUT [--textured]   decimate IN OUT [--faces N]
+    contract FAMILY ID --wave NAME [--visible N] [--base FOLDER] [--replace-stock]   views GLB OUTPUT [--textured]   decimate IN OUT [--faces N]
     retire-contracts FOLDER --reason TEXT   (an abandoned or test contract folder gives its appearance slots back)
 Publication (tools/itemkit/publish.py; docs/items/approved-weapons-release.md):
     publish ID:SUFFIX... --statement "user's words"... --review TEXT [--date YYYY-MM-DD] [--dry-run]
@@ -556,9 +556,9 @@ class Driver:
         return {'result': result, 'sheets': result['sheets']}
 
     # -- families and helpers -------------------------------------------------------------------------------------
-    def contract(self, family, design, wave, visible=None, base=None):
+    def contract(self, family, design, wave, visible=None, base=None, replace_stock=False):
         from tools.itemkit.family_contract import BASE, build
-        return build(self.ws, family, design, wave, visible=visible, base=base or BASE)
+        return build(self.ws, family, design, wave, visible=visible, base=base or BASE, replace_stock=replace_stock)
 
     def retire_contracts(self, folder, reason, today=None):
         """Retire an abandoned or test contract folder (under the handoff) so its slots are free (family_contract.retire).
@@ -699,6 +699,8 @@ def parser():
     s = c.add_parser('capture'); s.add_argument('fixture'); s.add_argument('output')
     s = c.add_parser('contract'); s.add_argument('family'); s.add_argument('id'); s.add_argument('--wave', required=True); s.add_argument('--visible', type=int)
     s.add_argument('--base', help='the measured contract folder to start from, e.g. contracts/wave1-v2 (its reviewed hand contacts carry over)')
+    s.add_argument('--replace-stock', action='store_true',
+                   help='when slots 1..25 are all taken, take a base-game appearance slot (highest first) and record the stock names it overrides')
     s = c.add_parser('retire-contracts'); s.add_argument('folder', help='under the handoff, e.g. contracts/melee-wave2-v1')
     s.add_argument('--reason', required=True)
     s = c.add_parser('views'); s.add_argument('glb'); s.add_argument('output'); s.add_argument('--textured', action='store_true')
@@ -745,7 +747,7 @@ def main(argv=None):
         'review': lambda: d.review(a.id, a.suffix, a.stage, a.decision, a.notes), 'chain': lambda: d.chain(a.id, a.suffix, a.stages),
         'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
         'refixture': lambda: d.refixture(a.id, a.suffix, a.name, a.capture), 'capture': lambda: d.capture(a.fixture, a.output),
-        'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible, a.base), 'views': lambda: d.views(a.glb, a.output, a.textured),
+        'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible, a.base, a.replace_stock), 'views': lambda: d.views(a.glb, a.output, a.textured),
         'retire-contracts': lambda: d.retire_contracts(a.folder, a.reason),
         'decimate': lambda: d.decimate(a.source, a.target, a.faces),
         'publish': lambda: d.publish(a.items, a.statement, a.review, a.date, a.dry_run),

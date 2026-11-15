@@ -36,13 +36,16 @@ TABLE = (b'2DA V2.0\n\n     label        MaxRange   ItemClass\n'
          b'1    longsword    121        WSwLs\n22   dagger       100        WSwDg\n')
 
 
-def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False):
+def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False, replaces=None, dds=None, lone_dds=False):
     run = root/'run-fit-v1'; native = run/'native/attempt-1/native'; native.mkdir(parents=True)
     models = {p: f'wswdg_{p}_{part:03}' for p in 'bmt'}
-    hak = erf(b'HAK ', {**{(m, 2002): f'model {m}'.encode() for m in models.values()}, (f'i{models["b"]}', 3): b'icon', (f'{blueprint}_11', 3): b'diffuse'})
+    twin = {(f'i{models["b"]}', 2033): b'bioware dds'} if (dds if dds is not None else any(n.endswith('.dds') for n in replaces or ())) else {}
+    if lone_dds: twin[(f'i{models["m"]}', 2033)] = b'no tga beside it'
+    hak = erf(b'HAK ', {**{(m, 2002): f'model {m}'.encode() for m in models.values()}, (f'i{models["b"]}', 3): b'icon', (f'{blueprint}_11', 3): b'diffuse', **twin})
     (native/f'{blueprint}h.hak').write_bytes(hak)
     record = {'hak': {'path': f'X:/elsewhere/{blueprint}h.hak', 'sha256': hashlib.sha256(hak).hexdigest()}, 'baseItem': base,
-              'identity': {'blueprint': blueprint, 'displayName': 'Test Knife'}, 'allocation': {'models': models}}
+              'identity': {'blueprint': blueprint, 'displayName': 'Test Knife'},
+              'allocation': {'models': models, **({'replacesStock': replaces} if replaces else {})}}
     (native/'native.json').write_text(json.dumps(record), encoding='utf-8')
     if tamper: (native/f'{blueprint}h.hak').write_bytes(hak + b'x')
     parts = parts or (part, part, part)
@@ -137,6 +140,7 @@ class PlanTests(unittest.TestCase):
                 (repo/P.MODULE/'sw2_m0.utc').write_bytes(b'new'); (repo/P.MODULE/'c.nss').write_bytes(b'changed')
                 raise RuntimeError('compile failed')
             with mock.patch.object(P, 'Tools', lambda repo, nwn: None), mock.patch.object(P, 'update_publication', lambda *a: None), \
+                 mock.patch.object(P, 'stock_names', lambda root: set()), \
                  mock.patch.object(P, 'reviewer_plan', lambda repo, packages: ([], [])), mock.patch.object(P, 'add_reviewers', fail):
                 with self.assertRaisesRegex(RuntimeError, 'compile failed'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn')
             self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
@@ -150,7 +154,8 @@ class PlanTests(unittest.TestCase):
                     b'are': {'Width': 3}}                                   # a 30 m area, every row already full at x 25
             before = {p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}
             real = P.crm.parse_gff
-            with mock.patch.object(P.crm, 'parse_gff', lambda data: area.get(data) or real(data)), mock.patch.object(P, 'Tools', lambda repo, nwn: None):
+            with mock.patch.object(P.crm, 'parse_gff', lambda data: area.get(data) or real(data)), mock.patch.object(P, 'Tools', lambda repo, nwn: None), \
+                 mock.patch.object(P, 'stock_names', lambda root: set()):
                 with self.assertRaisesRegex(P.PublishError, 'No room'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn', dry_run=True)
                 with self.assertRaisesRegex(P.PublishError, 'No room'): P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn')
             self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
@@ -186,6 +191,55 @@ class PlanTests(unittest.TestCase):
             record = json.loads(native.read_text(encoding='utf-8')); record['allocation']['models'] = {'whole': 'ashlw_014'}
             native.write_text(json.dumps(record), encoding='utf-8')
             with self.assertRaisesRegex(P.PublishError, r"three-part \(b/m/t\) weapons; the package has \['whole'\]"): P.survey('shield', run)
+
+
+class StockReplacementTests(unittest.TestCase):
+    """A package that takes a base-game slot overrides stock names only when its contract recorded them."""
+    STOCK = {'wswdg_b_111.mdl', 'wswdg_m_111.mdl', 'wswdg_t_111.mdl', 'iwswdg_b_111.tga', 'iwswdg_b_111.dds'}
+    RECORDED = sorted(STOCK)
+
+    def test_stock_names_come_from_the_installs_key_indexes(self):
+        from tools.itemkit.test_native_stack import key
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            with self.assertRaisesRegex(P.PublishError, 'No KEY index'): P.stock_names(root)
+            (root/'data').mkdir(); (root/'lang/en/data').mkdir(parents=True)
+            key(root/'data/nwn_base.key', [('wswdg_b_011', 2002), ('iwswdg_b_011', 3)]); key(root/'lang/en/data/nwn_retail.key', [('dialog', 2025)])
+            self.assertEqual(P.stock_names(root), {'wswdg_b_011.mdl', 'iwswdg_b_011.tga', 'dialog.uti'})
+
+    def test_an_unrecorded_stock_override_is_refused(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = make_repo(Path(folder))
+            with self.assertRaisesRegex(P.PublishError, r"did not record as a stock replacement.*'wswdg_b_111.mdl'"):
+                P.plan(repo, [('knife', make_run(Path(folder)))], self.STOCK)
+            self.assertEqual(P.plan(repo, [('knife', make_run(Path(folder)/'x'))], set())[2], {})     # no stock hit: nothing to record
+
+    def test_a_recorded_stock_replacement_is_published_and_recorded(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = make_run(Path(folder), replaces=self.RECORDED); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
+            packages, _, overrides = P.plan(repo, [('knife', run)], self.STOCK)
+            hits = ['iwswdg_b_111.dds', 'iwswdg_b_111.tga', 'wswdg_b_111.mdl', 'wswdg_m_111.mdl', 'wswdg_t_111.mdl']   # with the crunched DDS twin
+            self.assertEqual(overrides, {'knife': hits})
+            with mock.patch.object(P, 'stock_names', lambda root: self.STOCK):
+                result = P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn', dry_run=True)
+            self.assertEqual(result['items'][0]['replacesStock'], hits); self.assertIn('checked', result['stockCheck'])
+            self.assertIn('skipped', P.publish(repo, [('knife', run)], ['ok'], 'Seen.', None, dry_run=True)['stockCheck'])
+            pub = {'items': [], 'resources': [], 'sources': {}, 'groupingPlan': {'families': [{'id': 'F1', 'baseItemId': 22}]},
+                   'approvalEvidence': {'userStatements': []}, 'clientReview': 'x', 'blueprintPublicationPolicy': 'y'}
+            P.dump(repo/P.PUBLICATION, pub, False)
+            record = P.update_publication(repo, packages, {}, ['ok'], 'Seen.', 'policy', overrides)
+            self.assertEqual(record['items'][0]['replacesStock'], self.RECORDED)
+            self.assertEqual(sorted(r['sourceResource'] for r in record['resources'] if r.get('replacesStock')), hits)
+
+    def test_a_recorded_replacement_must_name_the_packages_own_files(self):
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(P.PublishError, r"does not carry: \['iwswdg_b_091.dds', 'wswdg_b_091.mdl'\]"):
+                P.survey('knife', make_run(Path(folder), replaces=['iwswdg_b_091.dds', 'wswdg_b_091.mdl'], dds=False))
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertIn('iwswdg_b_111.dds', P.survey('knife', make_run(Path(folder), dds=True)).files)   # every package's twins
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(P.PublishError, r"twin of the package's own TGA: \['iwswdg_m_111.dds'\]"):
+                P.survey('knife', make_run(Path(folder), lone_dds=True))
 
 
 class ReviewerTests(unittest.TestCase):

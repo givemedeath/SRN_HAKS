@@ -801,3 +801,16 @@ What still blocks a publication: the 18 race bodies (refit and bake each, or rac
 gate); a male bake that passes on the merged code, and the female refit from it; the female's open client
 defects; the `PROVENANCE.md` entry; the user's review of the outfits and of the pale icons; and the registry's
 set and group names for 6020, which the dry run made up (`facility-security`, `corpsec`).
+
+## Revision 2026-11-14: the seam contract holds all 20 bodies (user decision)
+
+Facility Security was carried from the Human pair to the other 18 bodies with `refit`, baked and gated on each,
+and passed a trial publication of all 20 (`publish --trial`; nothing published). The 18 were built on a seam
+contract measured for them in a scratch file, the kit's own holding the Human pair only. The user decided that
+the 20-body contract goes into the kit (2026-11-14): `measure` now measures every body, and
+`tools/armorkit/seam-contract.json` is version 4 ([seam-contract.md](seam-contract.md)). The Human rows and the
+rules are unchanged, so a bake of the Human pair reads what it read before.
+
+Of what the dry run's revision listed as blocking a publication, the 18 race bodies are done as a trial. Still
+open: the `PROVENANCE.md` entry (drafted, not written), the user's review of the outfits on the race bodies and
+of the pale icons, and the registry's set and group names for 6020.
