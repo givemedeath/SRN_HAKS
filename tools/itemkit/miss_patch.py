@@ -24,7 +24,7 @@ SAMPLES = np.array([(i/8, j/8, 1 - i/8 - j/8) for i in range(9) for j in range(9
 
 
 def joined_target(values):
-    """The bake's joined target from unwrap arrays (final atlas, or the extract's uv-source): parts in native order."""
+    """The bake's joined target from unwrap arrays (final atlas, or the reduced parts' uv-source): parts in native order."""
     parts = [p for p in PART_ORDER if p + '_positions' in values]
     require(parts and (parts == ['whole'] or 'whole' not in parts), 'Unwrap arrays need b/m/t parts or one whole mesh')
     positions, faces, caps, uv, offset = [], [], [], [], 0
@@ -50,9 +50,10 @@ def _one(run, patterns, explicit, what, option):
 
 
 def run_target(run, arrays=None):
-    """The run's unwrap arrays: the final atlas when unwrap finished, else its extract."""
-    path = _one(run, ('unwrap/attempt-*/atlas/final-atlas.npz', 'unwrap/attempt-*/extract/worker/uv-source.npz'), arrays,
-                'unwrap arrays', '--arrays')
+    """The run's unwrap arrays: the final atlas when unwrap finished, else the reduced parts unwrap starts from
+    (written by the reduce launch; by unwrap's own extract in a run from before 2026-11-15)."""
+    path = _one(run, ('unwrap/attempt-*/atlas/final-atlas.npz', 'reduce/attempt-*/worker/uv-source/uv-source.npz',
+                      'unwrap/attempt-*/extract/worker/uv-source.npz'), arrays, 'unwrap arrays', '--arrays')
     with np.load(path, allow_pickle=False) as archive:
         target = joined_target({k: archive[k] for k in archive.files})
     return {**target, 'source': str(path)}

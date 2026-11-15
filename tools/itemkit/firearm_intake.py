@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 
 from tools.headkit.common import pin, require, write
-from .contracts import GENERATION
+from .contracts import GENERATION, NEW_ITEM_TEXTURE_SIZE
 
 
 def intake_pistol(reference, output, design_id):
@@ -13,7 +13,7 @@ def intake_pistol(reference, output, design_id):
     target = out/'intake/reference-original.png'; shutil.copyfile(reference, target)
     profile = {'schemaVersion': 1, 'kind': 'item-family', 'family': 'firearm-sling',
                'nativePackaging': 'blocked', 'materialRoute': 'diffuse', 'bakeSize': 4096,
-               'runtimeTextureSize': 1024, 'firearm': {'subtype': 'pistol'},
+               'runtimeTextureSize': NEW_ITEM_TEXTURE_SIZE, 'firearm': {'subtype': 'pistol'},
                'sourceExport': {'remeshResolution': 768, 'targetFaceCount': 200000, 'signMode': 'udf'},
                'budgets': {'visible': 15000, 'shadow': 500, 'parts': {
                    'b': {'visible': 14992, 'shadow': 500}, 'm': {'visible': 4, 'shadow': 0},

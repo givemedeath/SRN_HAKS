@@ -9,6 +9,7 @@ import traceback
 import uuid
 import numpy as np
 from PIL import Image
+from tools.headkit import common
 from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
 from .contracts import all_pins, code_pins, is_code_path, source_version, manifest, family, evidence_pins, stage_roles
 from .geometry import corner_hash
@@ -19,6 +20,14 @@ DEPENDENCIES = {'prepare': (), 'inspect': (), 'donor': (), 'fit': (), 'reduce': 
                 'finish': ('unwrap',), 'bake': ('finish',), 'shadow': ('bake','reduce'), 'render': ('shadow', 'bake'),
                 'export': ('render', 'shadow', 'bake'), 'native': ('export',),
                 'fixture': ('native',), 'client': ('fixture',)}
+# Byte-bound libraries a stage may load. A stage pins the ones it did load (headkit's rule), not every bound library:
+# the bindings also carry headkit's face libraries, 2,500 files no item stage opens, and hashing them in every pass
+# of every stage was a third of a chain's file reads.
+STAGE_LIBRARIES = {'donor': {'xatlas'}, 'reduce': {'pymeshlab', 'igl'}, 'unwrap': {'xatlas'}}
+
+
+def stage_libraries(stage):
+    return STAGE_LIBRARIES.get(stage, set())
 
 
 def blender_environment(local,environment=None):
@@ -56,6 +65,8 @@ def run_logged(command, log, timeout, **options):
 
 
 class Runner:
+    completion = None      # (stage, its completion VerificationPass) of the stage this process just ran
+
     def __init__(self, manifest_path, bindings_path, run, *, runtime=None, evidence=None, package_pins=None):
         self.manifest_path = Path(manifest_path).resolve(); self.bindings_path = Path(bindings_path).resolve()
         self.data = manifest(self.manifest_path,input_roles=set(),validate_native=False); self.local = bindings(self.bindings_path)
@@ -111,7 +122,6 @@ class Runner:
         # Launched CLI startup already proved these imports for this one-stage process.
         package_pins = self.package_pins or python_package_pins(self.local)
         inputs = all_pins(self.manifest_path,roles=stage_roles(stage),native=stage in ('fit','export'))+code_pins()+[pin(self.bindings_path)]+package_pins
-        for library in self.local.get('libraries',{}).values():inputs += library['files']
         inputs += [self.runtime[key] for key in ('toolchain', 'migrationReceipt', 'python')]
         if stage == 'fixture': inputs += list(self.local.get('fixtureHaks', {}).values())
         if stage == 'fixture': inputs += list(self.local.get('comparisonHaks', {}).values())
@@ -140,19 +150,26 @@ class Runner:
         require(len(failed) < 2, 'Two failures on this snapshot; correct inputs/code before another attempt')
         folder = root/('attempt-'+uuid.uuid4().hex); folder.mkdir()
         write(folder/'intent.json', receipt, fresh=True); started = time.monotonic()
+        common.LIBRARIES_USED = set(); self.completion = None
         try:
             result = self._execute(stage, folder, parent_results=parent_results); digest(result)
+            used = set(common.LIBRARIES_USED); undeclared = used - stage_libraries(stage)
+            require(not undeclared, 'Stage loaded undeclared libraries: '+', '.join(sorted(undeclared)))
+            # A new list: the receipt's own `inputs` stay what the attempt snapshot was taken from until the stage
+            # completes, so a failure from here on still counts against that snapshot's two-failure limit.
+            consumed = inputs+[row for name in sorted(used) for row in self.local['libraries'][name]['files']]
             # One fresh completion boundary: each consumed file and ancestor artifact is reread once.
-            completion_audit = VerificationPass(); completion_audit.verify(inputs)
+            completion_audit = VerificationPass(); completion_audit.verify(consumed)
             for parent in parents:
                 require(self.state['stages'].get(parent) == parents[parent], 'Dependency changed: '+parent)
                 self.result(parent, _audit=completion_audit)
             python_package_pins(self.local)
-            receipt.update(state='complete', result=result)
+            receipt.update(state='complete', result=result, inputs=consumed); self.completion = (stage, completion_audit)
         except Exception as exc:
             receipt.update(state='failed', error=str(exc), traceback=traceback.format_exc())
             raise
         finally:
+            common.LIBRARIES_USED = None
             receipt['elapsedSeconds'] = time.monotonic()-started
             receipt['outputs'] = [pin(p) for p in sorted(folder.rglob('*')) if p.is_file() and p.name not in ('intent.json', 'receipt.json')]
             write(folder/'receipt.json', receipt, fresh=True)
@@ -185,11 +202,17 @@ class Runner:
         # Worker inputs are stage inputs or this stage's own outputs; execute()'s completion audit rereads them fresh.
         verify(config['inputs']); return read(folder/'worker'/'result.json')
 
-    def constrained_candidates(self, scene, folder):
+    def uv_source(self, parent, folder):
+        """A parent stage's part arrays: written by that stage's own Blender launch, else extracted from its scene here."""
+        emitted = parent.get('uvSource')
+        return {'arrays': emitted} if emitted else self.worker('uv-arrays', folder/'extract', scene=parent['scene']['path'])
+
+    def constrained_candidates(self, fitted, folder):
+        """`fitted` is the fit stage's result."""
         """Reduce each fitted part outside its seam band; the worker validates these before use."""
         from .parts import active_parts
         from .reduction import policy, reduce
-        extracted = self.worker('uv-arrays', folder/'extract', scene=scene)
+        extracted = self.uv_source(fitted, folder)
         meshlab = library(self.local, 'pymeshlab'); igl = library(self.local, 'igl'); joins = self.data['processing'].get('joinY', [])
         root = folder/'constrained'; root.mkdir(); candidates = {}
         with np.load(extracted['arrays']['path'], allow_pickle=False) as data:
@@ -243,11 +266,12 @@ class Runner:
                 require(working_review.get('decision') == 'approved' and working_review.get('sha256') == pin(working)['sha256']
                         and working_review.get('notes', '').strip(), 'Review the exact repaired working mesh before fitting')
                 values['workingSource'] = working
-            return self.worker(stage, folder, **values)
+            # The constrained reducer reads the fitted parts as arrays: this launch writes them.
+            return self.worker(stage, folder, **values, emitUvSource=bool(self.data.get('processing', {}).get('constrainedReduction')))
         if stage == 'unwrap':
             from .atlas import unwrap_parts
             parent=parent_result('reduce')
-            extracted=self.worker('uv-arrays',folder/'extract',scene=parent['scene']['path'])
+            extracted=self.uv_source(parent,folder)
             from .parts import active_parts
             atlas=unwrap_parts(extracted['arrays']['path'],self.local,folder/'atlas',self.family['runtimeTextureSize'],
                                packing_paddings=self.data.get('processing',{}).get('uvPackingPaddings'),parts=active_parts(self.family),
@@ -256,9 +280,16 @@ class Runner:
             result['validation']=atlas;return result
         if stage in ('reduce', 'finish', 'bake', 'shadow'):
             parent = parent_result(DEPENDENCIES[stage][0]); values = {'scene': parent['scene']['path']}
-            if stage == 'finish': values['reference'] = self.input('reference')
+            if stage == 'finish':
+                values['reference'] = self.input('reference')
+                if not self.data.get('processing', {}).get('donorFinish'):
+                    # Without a reference projection the finish worker only opened the scene and saved it again.
+                    return {'donorGeometryUnchanged': True, 'reference': pin(values['reference']), 'projection': None,
+                            'reverseBrandingRequired': False, 'visualReviewRequired': True, 'scene': parent['scene'],
+                            'workerSkipped': True}
+            if stage == 'reduce': values['emitUvSource'] = True       # unwrap reads the reduced parts as arrays
             if stage == 'reduce' and self.data.get('processing',{}).get('constrainedReduction'):
-                values['visibleCandidates'] = self.constrained_candidates(parent['scene']['path'], folder)
+                values['visibleCandidates'] = self.constrained_candidates(parent, folder)
             if stage=='shadow' and self.data.get('processing',{}).get('shadowProxies'):
                 values['shadowCandidates']=parent_result('reduce')['shadowPreflight']
             result = self.worker(stage, folder, **values)
@@ -278,7 +309,9 @@ class Runner:
                     except Exception as exc: result['textureOutliers'] = {'advisory': True, 'error': f'{type(exc).__name__}: {exc}'}
             return result
         if stage == 'render':
-            return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'],
+            # Only the export stage reads these arrays, and it serves these adapters; a shield or rigged family has its own.
+            rigid = ROUTES[self.family['family']].adapter in ('composite', 'whole-rigid')
+            return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'], emitExportArrays=rigid,
                                texture=parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'])
         if stage == 'export':
             adapter = ROUTES[self.family['family']].adapter
@@ -288,7 +321,9 @@ class Runner:
             require(adapter not in ('rigged', 'whole-skinned'),
                     'Rigged native export requires the reviewed skinned_native adapter and inactive placeholders; '
                     'the rigid Runner exporter cannot preserve skin weights or animation')
-            arrays = self.worker('export-arrays', folder, scene=parent_result('shadow')['scene']['path'])
+            # The render launch writes the export arrays from the same shadow scene; older render receipts have none.
+            emitted = parent_result('render').get('exportArrays')
+            arrays = {'parts': emitted} if emitted else self.worker('export-arrays', folder, scene=parent_result('shadow')['scene']['path'])
             icons = parent_result('render')['icons']
             if self.family['family'] in PACKAGED_FIREARMS:
                 from .parts import active_parts
@@ -375,10 +410,10 @@ class Runner:
         write(output/'receipt.json', receipt, fresh=True)
         return result
 
-    def review(self, stage, decision, notes):
+    def review(self, stage, decision, notes, *, _audit=None):
         require(self.runtime is not None, 'Review writes require the verified launcher')
         require(decision in ('approved', 'rejected') and notes.strip(), 'Explicit decision and review notes required')
-        self.result(stage, review=False)
+        self.result(stage, review=False, _audit=_audit)
         target = self.run/'reviews'/f'{stage}-{uuid.uuid4().hex}.json'
         result = {'stageReceipt': self.state['stages'][stage], 'decision': decision, 'notes': notes, 'productionAccepted': False}
         write(target, result, fresh=True); self.state['reviews'][stage] = pin(target); write(self.state_path, self.state)
@@ -420,7 +455,12 @@ class Runner:
                     existing = self._current_review(stage) if row['reused'] else None
                     # A reused stage keeps the review a person already filed for that exact receipt; a rejection stops here.
                     require(existing is None or existing['decision'] == 'approved', f'Chain stage {stage} was rejected on review')
-                    if existing is None: self.review(stage, 'approved', notes)
+                    if existing is None:
+                        # The stage's own completion pass read every input and ancestor a moment ago, in this process:
+                        # the automatic approval continues that pass (it still reads the new receipt and outputs
+                        # fresh) instead of opening the same files again. A reused stage has no such pass.
+                        audit = self.completion[1] if not row['reused'] and self.completion and self.completion[0] == stage else None
+                        self.review(stage, 'approved', notes, _audit=audit)
                     row['reviewed'] = True
                 del row['failed']
             finally:
