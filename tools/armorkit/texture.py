@@ -88,7 +88,7 @@ def layout(xatlas, vertices, faces, size, padding=PAD):
     return mapping, new_faces, np.asarray(uvs, float)
 
 
-def spread(vertices, faces, uvs, size):
+def texel_span(vertices, faces, uvs, size):
     """Metres of surface a texel of a laid-out part spans, over the whole part: its surface against what its
     charts cover of a texture `size` texels a side."""
     vertices, faces, uvs = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
@@ -109,7 +109,7 @@ def laid_out(xatlas, vertices, faces, limit=None):
     side = min(size(vertices, faces), limit)
     while True:
         mapping, new_faces, uvs = layout(xatlas, vertices, faces, side)
-        if side * 2 > limit or spread(np.asarray(vertices, float)[mapping], new_faces, uvs, side) <= TEXEL:
+        if side * 2 > limit or texel_span(np.asarray(vertices, float)[mapping], new_faces, uvs, side) <= TEXEL:
             return mapping, new_faces, uvs, side
         side *= 2
 

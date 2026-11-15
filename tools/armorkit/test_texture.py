@@ -838,10 +838,6 @@ class LayoutTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             texture.layout(library, np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], float), FACES, 128)
 
-
-if __name__ == '__main__':
-    unittest.main()
-
     def test_a_part_whose_charts_fill_little_of_its_texture_is_laid_out_larger(self):
         class Small(FakeAtlas):  # charts a tenth of the texture across, as a hand's many small ones leave it
             def __getitem__(self, index):
@@ -860,7 +856,7 @@ if __name__ == '__main__':
         # the fake lays each of the two faces over half the square: 0.04 m2 on a whole texture, 0.78 mm a texel at 256
         mapping, faces, uvs, side = texture.laid_out(library(1.0), vertices, FACES)
         self.assertEqual((side, sizes), (256, [256]))
-        self.assertAlmostEqual(texture.spread(vertices[mapping], faces, uvs, side), 0.2 / 256)
+        self.assertAlmostEqual(texture.texel_span(vertices[mapping], faces, uvs, side), 0.2 / 256)
         self.assertTrue(np.array_equal(vertices[mapping[faces]], vertices[FACES]))
         del sizes[:]  # on a tenth of it each way a texel spans 7.8 mm: twice the size, and again, until it spans 2.2 or less
         self.assertEqual((texture.laid_out(library(0.1), vertices, FACES)[3], sizes), (1024, [256, 512, 1024]))
@@ -981,3 +977,7 @@ class WearTests(unittest.TestCase):
                       (1.0, self.kinds, self.level[:4], self.none)):
             with self.assertRaises(ValueError):
                 self.tinted(FABRIC, wrong)
+
+
+if __name__ == '__main__':
+    unittest.main()

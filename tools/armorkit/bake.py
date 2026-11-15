@@ -619,6 +619,20 @@ def _turns(joint, normal, bend, out):
     return [split.rotation(axis, sign * share * bend) for axis, sign in ways for share in (0.5, 1.0)]
 
 
+def stages(say, clock=time.perf_counter):
+    """(mark, seconds): `mark(stage)` says how long the stage just done took, counted from the mark before it
+    (or from now), and adds it to `seconds`, {stage: seconds}. A bake takes half an hour and said nothing of
+    where it went (user request 2026-11-15)."""
+    seconds, last = {}, [clock()]
+
+    def mark(stage):
+        now = clock()
+        seconds[stage] = round(seconds.get(stage, 0.0) + now - last[0], 1)
+        last[0] = now
+        say(f'time: {stage} {seconds[stage]:.1f} s')
+    return mark, seconds
+
+
 def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None, capture=None):
     """(parts, bones, whole): a generated outfit as the parts body `body` wears, each with its maps, and what
     it holds of holes and detached pieces (`surface`, at the body's size).
@@ -639,6 +653,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     path, what the split is given is kept there too (`keep_split`)."""
     count = len(document['materials'])
     require(not document.get('skin') or body_textures is not None, "An outfit that shows the body's skin on a part needs the folder of the body's textures")
+    mark, _ = stages(say)
     bones, skin = measure.body(body_pack, body)
     source, faces = repose.load(mesh)
     source, faces, crumbs = swept(source, faces, repose.outfit_joints(source, faces, repose.body_joints(bones, skin))[1]['scale'])
@@ -651,15 +666,18 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     metals = [k for k, material in enumerate(on_mesh) if material['kind'] == 'metal']
     kinds = np.asarray(texture.trimmed(source, faces, as_read, metals))  # a line of metal too narrow for a plate goes to what it lies on
     say('trims', int((kinds != as_read).sum()), 'faces')
+    mark('read the mesh and its materials')
     listed = [material['name'] for material in document['materials']]
     brief_of = np.array([listed.index(material['name']) for material in on_mesh] + [-1])
     carried = repose.onto_body(source, faces, bones, skin, materials=kinds, padded=''.join(document.get('pads', [])))
     whole = {**surface(source * carried['scale'], faces), 'dropped': crumbs}
     say('surface', whole)
+    mark('fit to the body')
     v, f, source = carried['vertices'], carried['faces'], carried['source']
     raw_v, raw_f = gltf.positions(raw)
     fine, fine_levels = texture.normal_field(np.asarray(raw_v), np.asarray(raw_f))
     read_fine = lambda points: texture.read_field(fine, fine_levels, points)
+    mark('read the fine surface')
     in_field = to_field(source)
     contract = seams.load_contract()
     joints = {name: matrix[:3, 3] for name, matrix in bones.items()}
@@ -688,11 +706,14 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     if capture is not None:
         keep_split(given, capture)
         say('split inputs kept in', capture)
+    mark('measure the split')
     result, made, origins = cut(given, contract)
+    mark('split')
     own_part = functools.lru_cache(maxsize=None)(lambda name: bodyskin.body_part(body_pack, body_textures, body, name, bones))  # read once a bake
     beside = {name: lambda pv, pf, slot=slot, name=name: skin_beside(own_part(name), bones, slot, name, pv, pf)
               for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens'] if name in result}
     result = within_budget(result, made, origins, given['joints'], given['radii'], beside, left_to_body(document), say)
+    mark('reduce')
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
     parts = {}
@@ -730,6 +751,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                        **{key: texture.face_texels(uv, pf, role[key], size) for key in ('closing', 'cap', 'padded')},
                        'added': role['added'], 'domed': role['domed'], 'src': pc[:, 3:6], 'trimmed': np.where(bare, brief_of[of_face], -1), 'pad': pad}
         say(f'{name}: {size} px, {len(pf)} faces, covered {covered.mean():.0%}, no colour {missed}, no normal {lost}')
+    mark('lay out, colour and relief')
     # what the torso wears over a sleeve is drawn as the sleeve's cloth, with the sleeve's closings
     if 'chest' in parts:
         first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
@@ -1220,26 +1242,35 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     require(capture is None or mesh is not None, 'Split inputs are kept from a fresh bake: parts tinted again are split already')
     require(all(given is not None for given in fresh) or (kept is not None and all(given is None for given in fresh)),
             'Bake an outfit from its mesh, colour field, raw mesh and the layout library, or tint the parts kept in a folder again')
+    mark, seconds = stages(say)
     own = None
     if mesh is not None:
         parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture)
+        mark('bake')
         if kept is not None:
             store(parts, kept, document)
+            mark('keep the parts')
     else:
         parts, whole = stored(kept), None
         require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')} and _fits(parts, document),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
+    mark('read the kept parts') if mesh is None else None
     tinted, record = tints(parts, document)
+    mark('tint')
     models = write(output, parts, tinted, bones, body, number)
+    mark('write')
     own = measure.body(body_pack, body)[1] if own is None else own
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
               'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, bones),
                              facing(parts, bones))}
+    mark('gates')
     if game is not None:
         compiled = export.compile_models(sorted(Path(output) / 'ascii' / (model + '.mdl') for model in models.values()),
                                          Path(output) / 'resources', game=game, resources=list(resources))
         record['compiled'] = len(compiled)
+        mark('compile')
+    record['seconds'] = seconds
     (Path(output) / 'bake.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
     return record

@@ -95,6 +95,13 @@ def part(faces=1, size=4):
 
 
 class BakeTests(unittest.TestCase):
+    def test_a_bake_says_how_long_each_stage_took(self):
+        said, ticks = [], iter([10.0, 12.5, 12.5, 20.0, 21.0])
+        mark, seconds = bake.stages(said.append, clock=lambda: next(ticks))
+        mark('split'); mark('nothing'); mark('reduce'); mark('split')  # a stage marked twice is added up
+        self.assertEqual(seconds, {'split': 3.5, 'nothing': 0.0, 'reduce': 7.5})
+        self.assertEqual(said, ['time: split 2.5 s', 'time: nothing 0.0 s', 'time: reduce 7.5 s', 'time: split 3.5 s'])
+
     def test_what_the_split_made_is_drawn_by_the_part_it_is_on(self):
         made = np.array([split.OWN, split.CLOSING, split.CAP, split.GUSSET, split.WALL, split.PADDED])
         flags = lambda name, key: bake.roles(name, made)[key].tolist()
