@@ -3,13 +3,13 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
-  "updated": "2026-11-14",
-  "weaponDesigns": 37,
-  "blueprints": 39,
-  "weaponResources": 317,
-  "publicationPins": 318,
-  "modelsDecoded": 120,
-  "imagesChecked": 158,
+  "updated": "2026-11-15",
+  "weaponDesigns": 41,
+  "blueprints": 43,
+  "weaponResources": 349,
+  "publicationPins": 350,
+  "modelsDecoded": 132,
+  "imagesChecked": 174,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -18,14 +18,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 317,
-      "sha256": "db11ac9524ffdd95d1cfdce5666678d557d94c5ffd0f77c209b373673b6d4eac",
+      "resources": 349,
+      "sha256": "64096d23e9b60ac6aefd2e6617e82aef334ad2bc6913e1f1d6bb1825872011a8",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
-      "resources": 22,
-      "sha256": "83928a14ab1479545721ffc5c9326e1955bab9e3b3cb5f73a83686d8b4ddcb76",
+      "resources": 29,
+      "sha256": "3fcbc1aee246269e9bf36fe66b01bc77b8ff22f112c9dd42865399655d157f77",
       "exactPayload": true
     },
     {
@@ -42,8 +42,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 110,
-      "sha256": "9207eba286980f0c988916b7c06553f75b18ffc8f5a89c4d78b10069d8af3581",
+      "resources": 118,
+      "sha256": "6839830bf5d632ff13b054176f02ab97f6a134ac2ec6780f622714e9699915fb",
       "exactPayload": true
     }
   ],
@@ -87,13 +87,13 @@
     "1": {
       "MaxRange": [
         "100",
-        "221"
+        "231"
       ]
     },
     "22": {
       "MaxRange": [
         "100",
-        "141"
+        "151"
       ]
     },
     "61": {
@@ -331,6 +331,29 @@
         "sw9_f1",
         "sw9_m2",
         "sw9_f2"
+      ],
+      "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
+    },
+    {
+      "date": "2026-11-15",
+      "items": [
+        "sr4-kris-8c429f7ba5",
+        "sr4-monofilament-sword-463d9cc9c1",
+        "sr4-jupiter-taser-club-e35e6a838a",
+        "sr4-rattan-stick-1f8c423340"
+      ],
+      "payloadsByteIdenticalToNativePackages": true,
+      "rebuiltArchivesPayloadExact": true,
+      "baseitemTableChanged": true,
+      "comparisonReviewers": [
+        "sw10_m0",
+        "sw10_f0",
+        "sw10_m1",
+        "sw10_f1",
+        "sw10_m2",
+        "sw10_f2",
+        "sw10_m3",
+        "sw10_f3"
       ],
       "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
     }
