@@ -42,10 +42,11 @@ function Get-SrnHakCopies {
     $name = [string]$Hak.Name
     $path = Resolve-SrnRepositoryPath -Path ([string]$Hak.Copies)
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "HAK '$name' names a copies list that does not exist: $($Hak.Copies)" }
-    $document = Get-Content -Raw -LiteralPath $path | ConvertFrom-Json -Depth 8
-    if ($document.kind -cne 'srn-hak-copies' -or $document.schemaVersion -ne 1 -or $document.pack -cne $name -or -not $document.PSObject.Properties['copies']) {
-        throw "$($Hak.Copies) is no copies list of '$name' (kind srn-hak-copies, schema 1)."
-    }
+    $refused = "$($Hak.Copies) is no copies list of '$name' (kind srn-hak-copies, schema 1, a map of copies)."
+    try { $document = Get-Content -Raw -LiteralPath $path | ConvertFrom-Json -Depth 8 } catch { throw $refused }
+    # Each field is looked for before it is read: strict mode fails on a missing one with its own words.
+    if ($document -isnot [pscustomobject] -or @('kind', 'schemaVersion', 'pack', 'copies' | Where-Object { -not $document.PSObject.Properties[$_] }).Count -gt 0) { throw $refused }
+    if ($document.kind -cne 'srn-hak-copies' -or $document.schemaVersion -ne 1 -or $document.pack -cne $name -or $document.copies -isnot [pscustomobject]) { throw $refused }
     $source = Resolve-SrnRepositoryPath -Path ([string]$Hak.Path)
     $listed = [System.Collections.Generic.SortedDictionary[string, string]]::new([System.StringComparer]::Ordinal)
     foreach ($property in $document.copies.PSObject.Properties) { $listed[$property.Name] = [string]$property.Value }

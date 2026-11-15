@@ -5453,6 +5453,11 @@
       "tools/itemkit/__init__.py",
       "tools/itemkit/publish.py"
     ],
+    "tools/test_hak_copies.py": [
+      "hakbuilder.json",
+      "tools/SrnHaks.Common.psm1",
+      "tools/SrnTools.psm1"
+    ],
     "tools/test_impact.py": [
       "tools/ci-scope.json",
       "tools/ci-test-durations.json",
@@ -5973,6 +5978,7 @@
     "tools/test_ci_scope.py",
     "tools/test_clean_checkout.py",
     "tools/test_combat_release_manifest.py",
+    "tools/test_hak_copies.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
   ]

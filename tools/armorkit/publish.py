@@ -41,6 +41,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import struct
 import subprocess
@@ -59,6 +60,7 @@ REGISTRY = Path('docs/armorkit/parts-registry.json')
 HANDOFF = Path('docs/armorkit/parts-handoff.json')
 COPIES = Path('docs/armorkit/parts-copies.json')  # the pack's copies list (tools/SrnHaks.Common.psm1, Get-SrnHakCopies)
 COPIES_KIND = 'srn-hak-copies'
+COPY_NAME = re.compile(r'[a-z0-9_]{1,16}\.[a-z0-9]{2,4}')  # a resource file name, as Get-SrnHakCopies holds both names of a copy to
 HAKBUILDER = Path('hakbuilder.json')
 PROVENANCE = Path('PROVENANCE.md')
 TRIAL = 'armorkit-publish-trial.json'  # what marks a folder as a trial root: a trial is written nowhere else
@@ -230,7 +232,9 @@ def copies(root):
     A tint texture is never shared by name (`shared_maps`), so a refit outfit's is one image under up to
     ten names. The pack's folder holds it once and the copies list names the others; `tools/Build-Haks.ps1`
     and `build` pack the held file under each (user decision 2026-11-15, after the storage study: 208 of
-    Facility Security's 244 tint textures were copies, 254 MB of its 404). The handoff records every name."""
+    Facility Security's 244 tint textures were copies, 254 MB of its 404). The handoff records every name.
+    A list is held to what `Get-SrnHakCopies` holds it to, so that none is written or packed here that the
+    repository's build refuses: both names are resource file names of one type, and no copy is a copy of a copy."""
     path = Path(root) / COPIES
     if not path.is_file():
         return {}
@@ -238,6 +242,9 @@ def copies(root):
     require(isinstance(held, dict) and held.get('kind') == COPIES_KIND and held.get('schemaVersion') == 1 and held.get('pack') == PACK
             and isinstance(held.get('copies'), dict) and all(isinstance(name, str) for name in held['copies'].values()),
             f'{path} is no copies list of {PACK}')
+    for name, kept in held['copies'].items():
+        require(COPY_NAME.fullmatch(name) and COPY_NAME.fullmatch(kept) and name.rpartition('.')[2] == kept.rpartition('.')[2] and kept not in held['copies'],
+                f'{path} lists {name} as a copy of {kept}: both are resource file names of one type, and the file kept is no copy itself')
     return dict(held['copies'])
 
 
@@ -810,10 +817,16 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     pack.update({name: pack[held] for name, held in listed.items() if name not in pack and held in pack})
     # What is published is what its handoff recorded: a file changed or gone since fails by name.
     recorded = [resource for outfit in handoff_before.get('outfits', []) for resource in outfit.get('resources', [])]
+    sums = {}  # a file kept for several names is hashed once
+
+    def summed(path):
+        if path not in sums:
+            sums[path] = sha(path)
+        return sums[path]
     for resource in recorded + handoff_before.get('iconFiles', []):
         if resource['name'] not in pack:
             failures.append(failure('published', resource['name'], f'{PACK} no longer holds this published file'))
-        elif sha(pack[resource['name']]) != resource['sha256']:
+        elif summed(pack[resource['name']]) != resource['sha256']:
             failures.append(failure('published', resource['name'], f'{PACK} holds another file than the one published: its hash is not the one the handoff records'))
     # And nothing else is in the pack: a file staged there by hand would stand for a model with no bake, no
     # neck measure and no hash.

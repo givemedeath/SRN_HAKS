@@ -615,6 +615,11 @@ class PublishTests(Workspace):
         (self.repo / publish.COPIES).write_text('{"kind": "other"}', encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'is no copies list of srn_parts'):
             self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        # a list the repository's build would refuse is refused here too: a name that is no resource file name, another type, a copy of a copy
+        for wrong in ({'../x.plt': kept.name}, {'PMD0_A.plt': kept.name}, {'pmd0_a.tga': kept.name}, {'pmd0_a.plt': 'pmd0_b.plt', 'pmd0_b.plt': kept.name}):
+            (self.repo / publish.COPIES).write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-hak-copies', 'pack': 'srn_parts', 'copies': wrong}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'both are resource file names of one type'):
+                publish.copies(self.repo)
         # icons are kept under their own names, and a pack without copies has no list
         self.assertEqual(publish.tint_copies({'pfh0_a1.plt': 'x', 'pfd0_a1.plt': 'x', 'pfd2_a1.plt': 'x', 'pfd0_b1.plt': 'y', 'pfd0_a1n.tga': 'x'}),
                          {'pfd0_a1.plt': 'pfh0_a1.plt', 'pfd2_a1.plt': 'pfh0_a1.plt'})
