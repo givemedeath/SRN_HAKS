@@ -63,6 +63,15 @@ class PosesTests(unittest.TestCase):
             self.assertTrue(crouching and all(shot['height'] == poses.PRESETS['shoulders']['heights']['crouching'] for shot in crouching))
             self.assertEqual(layout['labels'][len(views)], 'standing, without shoulder, shoulders front')
             self.assertNotIn('tlk', document)
+            # every actor wears the six channels in six colours, each a colour of the game's palettes
+            for actor in document['actors']:
+                self.assertEqual(actor['colours'], poses.COLOURS)
+            self.assertEqual((set(poses.COLOURS), len(set(poses.COLOURS.values()))), (set(poses.CHANNELS), 6))
+            self.assertTrue(all(type(value) is int and 0 <= value <= 175 for value in poses.COLOURS.values()))
+            self.assertEqual(poses.worn_colours({'cloth1': 100})['cloth1'], 100)
+            for same in ({'cloth2': poses.COLOURS['cloth1']}, {'metal1': 5, 'metal2': 5}, {'silk': 3}):
+                with self.assertRaises(ValueError):  # two channels in one colour, or a channel there is none of
+                    poses.worn_colours(same)
 
     def test_a_bake_that_cannot_be_worn_is_refused_before_anything_is_written(self):
         with tempfile.TemporaryDirectory() as folder:

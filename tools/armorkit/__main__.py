@@ -282,7 +282,7 @@ def main(argv=None):
     p.add_argument('--tlk', help='talk table the fixture loads')
     p.add_argument('--preset', default='body', choices=('body', 'shoulders'), help='where the camera looks')
     p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
-    p.add_argument('--colours', help='JSON of the six armour colour channels, e.g. {"cloth1": 22}')
+    p.add_argument('--colours', help='JSON of colour channels to wear in another colour than the six contrasting ones, e.g. {"cloth1": 22}; no two channels the same')
     p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
     p.add_argument('--wait', type=float, help='seconds to wait for another session\'s client to close first')
     p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')

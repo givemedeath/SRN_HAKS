@@ -35,11 +35,24 @@ PRESETS = {
 }
 PITCH = 84.0
 HEAD = 86
-COLOURS = {'cloth1': 22, 'cloth2': 22, 'leather1': 60, 'leather2': 60, 'metal1': 40, 'metal2': 40}
+# What an outfit is coloured in for a look in the client: six colours of the game's palettes that are not mistaken for
+# one another, one per channel (blue and red cloth, yellow and purple leather, green and orange metal), so that a part
+# on the wrong channel, or two garments sharing one, shows at a glance. The standard for every in-game preview and
+# check (user decision 2026-11-15); until then a kind's two channels wore one colour and could not be told apart.
+COLOURS = {'cloth1': 27, 'cloth2': 37, 'leather1': 33, 'leather2': 41, 'metal1': 40, 'metal2': 16}
 CHANNELS = ('cloth1', 'cloth2', 'leather1', 'leather2', 'metal1', 'metal2')
 POSE_SCRIPT = ('void main() { ClearAllActions(); int a=GetLocalInt(OBJECT_SELF,"ANIM"); '
                'if(a>0) ActionPlayAnimation(a,1.0,3600.0); }\n')
 TILE = 480  # pixels a side of each capture in the sheet
+
+
+def worn_colours(colours=None):
+    """The six channels' colours an outfit is looked at in: `COLOURS`, with those `colours` gives in their place.
+    No two channels may wear one colour: two garments on two channels would look like one."""
+    worn = {**COLOURS, **(colours or {})}
+    require(set(worn) == set(CHANNELS) and len(set(worn.values())) == len(CHANNELS),
+            'An outfit is looked at with its six colour channels in six different colours: ' + json.dumps(worn, sort_keys=True))
+    return worn
 
 
 def slot_of(token):
@@ -101,7 +114,7 @@ def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), 
         for suffix, parts in wardrobes:
             index = len(actors)
             actors.append({'label': pose + suffix, 'body': record['body'], 'head': HEAD, 'position': (20.0 + 4.0 * index, 42.0), 'parts': parts,
-                           'colours': {**COLOURS, **(colours or {})}, 'script': 'ak_pose', 'vars': {'ANIM': animation}})
+                           'colours': worn_colours(colours), 'script': 'ak_pose', 'vars': {'ANIM': animation}})
             for facing, distance, view, height in camera['views']:
                 shots.append({'actor': index, 'facing': facing, 'distance': distance, 'pitch': PITCH,
                               'height': camera['heights'][pose] if height is None else height})
