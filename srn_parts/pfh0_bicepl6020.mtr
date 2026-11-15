@@ -3,4 +3,4 @@ texture1 pfh0_bicepl6020n
 parameter float Roughness 0
 parameter float Specularity 0.04
 parameter float Metallicness 0.001
-texture3 pfh0_bicepl6020r
+texture3 bicepl6020r_7c33

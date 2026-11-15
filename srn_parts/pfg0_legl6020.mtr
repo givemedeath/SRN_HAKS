@@ -1,5 +1,5 @@
 renderhint NormalTangents
-texture1 pfh0_legl6020n
+texture1 legl6020n_4765
 parameter float Roughness 0.8
 parameter float Specularity 0.04
 parameter float Metallicness 0.001

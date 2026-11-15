@@ -1,5 +1,5 @@
 renderhint NormalTangents
-texture1 pfh0_shinr6020n
+texture1 shinr6020n_07ad
 parameter float Roughness 0.8
 parameter float Specularity 0.04
 parameter float Metallicness 0.001

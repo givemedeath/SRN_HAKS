@@ -1,5 +1,5 @@
 renderhint NormalTangents
-texture1 pmh0_chest6020n
+texture1 chest6020n_da47
 parameter float Roughness 0.8
 parameter float Specularity 0.04
 parameter float Metallicness 0.001

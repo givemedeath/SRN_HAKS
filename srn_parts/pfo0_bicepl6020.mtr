@@ -1,6 +1,6 @@
 renderhint NormalTangents
-texture1 pfd0_bicepl6020n
+texture1 bicepl6020n_4b37
 parameter float Roughness 0
 parameter float Specularity 0.04
 parameter float Metallicness 0.001
-texture3 pfd0_bicepl6020r
+texture3 bicepl6020r_dcea
