@@ -1071,7 +1071,11 @@ def tints(parts, document, speck=texture.SPECK):
     The materials are found over the whole outfit and told which of the brief's each is (`brief.worn`); a
     material's garments are told apart by where they are worn (`texture.worn_second`), and what the split
     made is drawn at the outfit's lit shades (`texture.lit_shades`). `record` holds the materials as found,
-    in the order of the texels' numbers, their channels and lit shades.
+    in the order of the texels' numbers, their channels and lit shades, the colour the brief suggests each is
+    worn in where it gives one (`suggested`), and how worn the outfit was drawn (`wear`) where it was: a brief
+    with `wear` has its own surface mottled, scuffed on its raised edges and darkened in its creases
+    (`texture.wear_fields`, `texture.tint_maps`), in patches read on the generated outfit, so they run on from
+    part to part and are the same on every body the outfit is carried to.
 
     The parts are taken in the order of their names, whatever order they are given in: the materials are
     found on a sample of the texels as they come, and a fresh bake and its stored parts tinted again would
@@ -1094,6 +1098,8 @@ def tints(parts, document, speck=texture.SPECK):
     listed = [material['name'] for material in document['materials']]
     here = {listed.index(material['name']): k for k, material in enumerate(worn)}  # the brief's material, as the texels number it
     lit = texture.lit_shades(np.concatenate([part['rgb'][part['covered'] & ~part['closing'] & ~part['cap']] for part in parts.values()]), found)
+    amount = float(document.get('wear', 0))
+    span = float(np.ptp(np.concatenate([part['src'] for part in parts.values()]), axis=0).max()) if amount else None  # the outfit's height, as generated
     tinted = {}
     for i, (name, part) in enumerate(parts.items()):
         rows = np.zeros((len(part['f']), count), bool)
@@ -1105,11 +1111,13 @@ def tints(parts, document, speck=texture.SPECK):
         tinted[name] = texture.tint_maps(part['rgb'], part['covered'], found, channel, relief=part['relief'],
                                          charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
                                          cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
-                                         shadow=part['closing'] if name in ARMHOLE else None, speck=speck)
+                                         shadow=part['closing'] if name in ARMHOLE else None, speck=speck,
+                                         wear=(amount, kinds, *texture.wear_fields(part['uv'], part['f'], part['src'], size(part), span)) if amount else None)
         tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
-                             'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1)}
-                            for k, material in enumerate(worn)]}
+                             'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),
+                             **({'suggested': material['suggested']} if 'suggested' in material else {})}
+                            for k, material in enumerate(worn)], **({'wear': amount} if amount else {})}
     return tinted, record
 
 

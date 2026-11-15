@@ -54,6 +54,14 @@ SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thi
           'leather': ('shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')}
 # the slots a garment is worn on that takes its kind's second channel. Leather takes it on every limb: with forearms, hands,
 # shins and feet only, the straps of an upper-arm guard and a knee pad were coloured with the vest and the forearm's with the gloves
+# How much wear changes a shade at a brief's `wear` of 1, by kind of material: (mottle, scuff, grime). The mottle
+# is the share a shade varies by either way over the surface, in soft patches; the scuff is how much lighter a
+# raised edge gets where it is scuffed; the grime how much darker a crease. Cloth fades unevenly and holds dirt in
+# its folds; leather and painted plates are rubbed pale on their edges (the concept sheets, 2026-11-15).
+WEAR = {'cloth': (0.22, 0.30, 0.34), 'leather': (0.24, 0.60, 0.30), 'metal': (0.14, 0.75, 0.36)}
+WEAR_CELLS = (1 / 14, 1 / 90)  # of the outfit's height: the size of a patch of mottle, and of a scuff
+WEAR_SPREAD = 2.2  # a blend of grains keeps near its middle: the mottle is spread this much about it to use the whole of 0-1
+WEAR_PATCH = (0.42, 0.3)  # a scuff sets in where its grain passes the first, and is whole the second above it: about half an edge is scuffed
 TURN_LIMIT = 0.35  # the most one turn counts for: a jump in the map (a dropped reading beside a kept one) is not an edge that sharp
 
 
@@ -515,7 +523,45 @@ def lit_shades(colours, found):
     return np.array([np.percentile(shade[material == k], LIT) if (material == k).any() else float(MIDDLE) for k in range(len(found['tones']))])
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None):
+def grain(points, cell, seed=0):
+    """A soft grain in 0-1 at each of `points`, the same wherever and whenever it is read: the values of a
+    lattice `cell` apart, each a hash of its place and `seed`, blended between the eight round a point."""
+    place = np.asarray(points, float) / cell
+    base = np.floor(place)
+    t = place - base
+    t = t * t * (3 - 2 * t)
+    base = base.astype(np.int64)
+    total = np.zeros(len(place))
+    for corner in range(8):
+        step = np.array([(corner >> k) & 1 for k in range(3)])
+        at = (base + step).astype(np.uint64)
+        mixed = at[:, 0] * np.uint64(73856093) ^ at[:, 1] * np.uint64(19349663) ^ at[:, 2] * np.uint64(83492791) ^ np.uint64(seed * 2654435761 + 1013904223)
+        mixed = (mixed ^ (mixed >> np.uint64(13))) * np.uint64(1274126177)
+        mixed = mixed ^ (mixed >> np.uint64(16))
+        total += np.prod(np.where(step, t, 1 - t), axis=1) * ((mixed & np.uint64(0xFFFF)).astype(float) / 65535.0)
+    return total
+
+
+def wear_fields(uvs, faces, positions, size, span):
+    """(mottle, scuff) per texel of one laid-out part, for `tint_maps`' `wear`: a soft grain in 0-1 in patches
+    `WEAR_CELLS` of `span` across, and where a raised edge is scuffed, 0-1, in smaller ones.
+
+    Both are read at the point of the generated outfit each texel came from (`positions`, per vertex, as
+    `colour_map` takes them; `span` is the outfit's height there), not in the texture: a patch runs on across
+    the edges of a part's charts and from one part to the next, and an outfit carried to another body
+    (`refit`) wears the same patches on every body."""
+    faces, positions = np.asarray(faces, int), np.asarray(positions, float)
+    owner, weight = raster(uvs, faces, size)
+    covered = owner >= 0
+    where = (weight[covered][:, :, None] * positions[faces[owner[covered]]]).sum(axis=1)
+    mottle, scuff = np.full((size, size), 0.5), np.zeros((size, size))
+    blend = 0.65 * grain(where, span * WEAR_CELLS[0]) + 0.35 * grain(where, span * WEAR_CELLS[0] / 2.7, 1)
+    mottle[covered] = np.clip(0.5 + WEAR_SPREAD * (blend - 0.5), 0.0, 1.0)
+    scuff[covered] = np.clip((grain(where, span * WEAR_CELLS[1], 2) - WEAR_PATCH[0]) / WEAR_PATCH[1], 0.0, 1.0)
+    return mottle, scuff
+
+
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -582,7 +628,13 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     `padded` flags the texels of a cap that grew from a pad's rim (the faces reported as `PADDED`). On a cap
     that has any, the others are the limb beside the pad, and are drawn as the outfit's cloth, the first of
     `found`: a pad's strap runs round the joint along the rim, and read as its rim the side of a knee's cap
-    was a flat triangle of webbing in the gap the bend opens."""
+    was a flat triangle of webbing in the gap the bend opens.
+
+    `wear` is (amount, kinds, mottle, scuff): how worn the outfit is drawn, 0-1 (a brief's `wear`), the kind
+    of each material, and the part's `wear_fields`. The part's own surface is then mottled, made lighter on
+    its raised edges where they are scuffed and darker in its creases, each by `amount` of what `WEAR` gives
+    the texel's material; the edges and creases are the relief's (`relief_shade`). What the split made is
+    left even: a cap or a closing has no surface of its own to wear."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
     require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
@@ -590,10 +642,11 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))
     material[covered] = labels(colour[covered], found['tones'])
     ratio = (colour[covered] @ LIGHT) / np.maximum(found['light'][material[covered]], 1e-6)
+    turned = None if relief is None else relief_shade(relief, charts, bend, slope)
     if relief is not None:
         # A generated colour is already darker in its creases. Where it is, the relief's darkening is not laid on
         # top of that: the texel takes the darker of the two, or a crease shaded twice comes out black.
-        factor = relief_shade(relief, charts, bend, slope)[covered]
+        factor = turned[covered]
         ratio = np.maximum(factor, 1.0) * np.minimum(ratio, np.minimum(factor, 1.0) * np.maximum(ratio, 1.0))
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
     if trim is not None:
@@ -617,6 +670,16 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         mine = moved & (most == k)
         shade[mine] = (smooth(np.where(worn & (material == k), shade, 0.0), speck) / np.maximum(votes[k], 1e-9))[mine]
     material[moved] = most[moved]
+    if wear is not None and wear[0] > 0:
+        amount, kinds, mottle, scuff = wear
+        require(len(kinds) == len(pairs) and all(kind in WEAR for kind in kinds) and np.shape(mottle) == covered.shape == np.shape(scuff),
+                'Wear takes a kind per material and its two fields per texel')
+        by_kind = np.array([WEAR[kind] for kind in kinds])[material]  # per texel: mottle, scuff, grime
+        ridge = np.zeros(covered.shape) if turned is None else np.clip((turned - 1) / (RELIEF_SHADE[1] - 1), 0.0, 1.0)
+        crease = np.zeros(covered.shape) if turned is None else np.clip((1 - turned) / (1 - RELIEF_SHADE[0]), 0.0, 1.0)
+        change = 1 + amount * (by_kind[:, :, 0] * (2 * np.asarray(mottle, float) - 1) + by_kind[:, :, 1] * ridge * np.asarray(scuff, float)
+                               - by_kind[:, :, 2] * crease * (0.5 + 0.5 * np.asarray(mottle, float)))
+        shade[worn] = np.clip(shade[worn] * change[worn], *SHADES)
 
     def even(k):  # the one shade what the split made gets, in material k
         mine = worn & (material == k)

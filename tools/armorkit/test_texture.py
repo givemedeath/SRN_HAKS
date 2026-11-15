@@ -841,3 +841,86 @@ class LayoutTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class WearTests(unittest.TestCase):
+    """What a brief's `wear` draws into a tint texture: mottle, scuffed ridges, grime in creases."""
+
+    def setUp(self):
+        rng = np.random.default_rng(3)
+        self.found = texture.materials(np.concatenate([shaded(FABRIC, 6000, rng), shaded(TAN, 2500, rng), shaded(PLATE, 1500, rng)]), 3)
+        self.kinds = ['cloth', 'leather', 'metal']
+        self.channels = ['cloth1', 'leather1', 'metal1']
+        self.covered = np.ones((32, 32), bool)
+        self.level, self.none = np.full((32, 32), 0.5), np.zeros((32, 32))
+
+    def tinted(self, tone, wear, **more):
+        colour = np.empty((32, 32, 3)); colour[:] = tone
+        return texture.tint_maps(colour, self.covered, self.found, self.channels, speck=0, wear=wear, **more)[0].astype(int)
+
+    def test_a_grain_is_the_same_whenever_it_is_read_and_stays_in_range(self):
+        points = np.random.default_rng(1).uniform(-2, 2, (4000, 3))
+        first = texture.grain(points, 0.1)
+        self.assertTrue(np.array_equal(first, texture.grain(points, 0.1)))
+        self.assertTrue(first.min() >= 0 and first.max() <= 1 and first.std() > 0.1)
+        self.assertFalse(np.allclose(first, texture.grain(points, 0.1, seed=1)))
+        # soft: two points a hundredth of a cell apart read nearly alike, and a lattice point reads the same from either side
+        self.assertLess(np.abs(texture.grain(points + 0.001, 0.1) - first).max(), 0.05)
+        self.assertAlmostEqual(float(texture.grain([[0.1 - 1e-9, 0.2, 0.3]], 0.1)[0]), float(texture.grain([[0.1 + 1e-9, 0.2, 0.3]], 0.1)[0]), places=5)
+
+    def test_the_fields_follow_the_generated_outfit_not_the_layout(self):
+        positions = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float)
+        mottle, scuff = texture.wear_fields(SQUARE, FACES, positions, 64, 2.0)
+        self.assertEqual((mottle.shape, scuff.shape), ((64, 64), (64, 64)))
+        for field in (mottle, scuff):
+            self.assertTrue(field.min() >= 0 and field.max() <= 1)
+        self.assertGreater(mottle.std(), 0.1)
+        self.assertTrue(0.2 < (scuff > 0.5).mean() < 0.8)  # about half an edge is scuffed
+        # the same surface laid out mirrored wears the same patches, mirrored
+        again = texture.wear_fields(SQUARE[[1, 0, 3, 2]], FACES, positions, 64, 2.0)
+        self.assertTrue(np.allclose(again[0][:, ::-1], mottle, atol=0.05) and np.allclose(again[1][:, ::-1], scuff, atol=0.15))
+        # and half a part laid out leaves the rest of its texture level and unscuffed
+        half, none = texture.wear_fields(SQUARE * 0.5, FACES, positions, 64, 2.0)
+        self.assertTrue((half[40:, 40:] == 0.5).all() and (none[40:, 40:] == 0).all())
+
+    def test_no_wear_changes_nothing(self):
+        plain = self.tinted(TAN, None, relief=ReliefShadeTests.fold(True))
+        clean = self.tinted(TAN, (0.0, self.kinds, self.level + 0.4, self.none + 1), relief=ReliefShadeTests.fold(True))
+        self.assertTrue(np.array_equal(plain, clean))
+
+    def test_a_surface_is_mottled_lighter_and_darker(self):
+        mottle = self.level.copy(); mottle[:, :8], mottle[:, 24:] = 0.0, 1.0
+        plain, worn = self.tinted(FABRIC, None), self.tinted(FABRIC, (1.0, self.kinds, mottle, self.none))
+        share = texture.WEAR['cloth'][0]
+        self.assertTrue(np.array_equal(worn[:, 8:24], plain[:, 8:24]))
+        self.assertTrue(np.allclose(worn[:, :8], plain[:, :8] * (1 - share), atol=1) and np.allclose(worn[:, 24:], plain[:, 24:] * (1 + share), atol=1))
+        half = self.tinted(FABRIC, (0.5, self.kinds, mottle, self.none))
+        self.assertTrue(np.allclose(half[:, :8], plain[:, :8] * (1 - share / 2), atol=1))
+
+    def test_a_ridge_is_scuffed_pale_where_its_scuff_lies_and_a_crease_holds_grime(self):
+        scuff = self.none.copy(); scuff[:16] = 1.0
+        ridge = ReliefShadeTests.fold(True)
+        plain, worn = self.tinted(PLATE, None, relief=ridge), self.tinted(PLATE, (1.0, self.kinds, self.level, scuff), relief=ridge)
+        self.assertTrue((worn[:14, 15:17] > plain[:14, 15:17] + 15).all())  # the top of the ridge, where it is scuffed
+        self.assertTrue(np.array_equal(worn[18:, 15:17], plain[18:, 15:17]) and np.array_equal(worn[:, :5], plain[:, :5]))  # not off the scuff, nor without a ridge
+        cloth = self.tinted(FABRIC, (1.0, self.kinds, self.level, scuff), relief=ridge) - self.tinted(FABRIC, None, relief=ridge)
+        self.assertTrue((cloth[:14, 15:17] < (worn - plain)[:14, 15:17]).all())  # a plate is rubbed paler than cloth
+        crease = ReliefShadeTests.fold(False)
+        plain, worn = self.tinted(FABRIC, None, relief=crease), self.tinted(FABRIC, (1.0, self.kinds, self.level, self.none), relief=crease)
+        self.assertTrue((worn[:, 15:17] < plain[:, 15:17] - 5).all())
+        self.assertTrue(np.array_equal(worn[:, :5], plain[:, :5]))
+        self.assertTrue(worn.min() >= texture.SHADES[0] and worn.max() <= texture.SHADES[1])
+
+    def test_closings_and_caps_are_left_even(self):
+        mottle = np.random.default_rng(2).uniform(0, 1, (32, 32))
+        closing, cap = np.zeros((32, 32), bool), np.zeros((32, 32), bool)
+        closing[4:10, 4:10], cap[20:26, 20:26] = True, True
+        worn = self.tinted(FABRIC, (1.0, self.kinds, mottle, self.none), closing=closing, cap=cap, lit=(170, 150, 140))
+        self.assertEqual((len(set(worn[closing].tolist())), len(set(worn[cap].tolist()))), (1, 1))
+        self.assertGreater(len(set(worn[~closing & ~cap].tolist())), 10)
+
+    def test_wear_names_a_kind_per_material_and_its_fields_per_texel(self):
+        for wrong in ((1.0, self.kinds[:2], self.level, self.none), (1.0, ['cloth', 'silk', 'metal'], self.level, self.none),
+                      (1.0, self.kinds, self.level[:4], self.none)):
+            with self.assertRaises(ValueError):
+                self.tinted(FABRIC, wrong)
