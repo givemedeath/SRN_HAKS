@@ -161,13 +161,19 @@ def coloured(document, records):
 
 
 def shared_maps(surveyed, incoming, hashed=None):
-    """(stands, texts): the maps of a publication that are one image under several names, and the material
-    files rewritten to name the one that is kept.
+    """(stands, texts, kept): the maps of a publication that are one image under several names, the material
+    files rewritten to name the one map published for them, and whose copy that is.
 
     `incoming` maps each file name the publication takes to its path, `surveyed` are its bakes (`survey`,
-    each with the names `taken` of it). Maps (`.tga`) of the same bytes are one map: the first by name is
-    kept, the Human Fit body's before any other, `stands` maps each other's name to it (without the ending), and `texts` holds, by file name, the
-    text of every taken material file that named one of the others, naming the kept one instead. An outfit
+    each with the names `taken` of it). Maps (`.tga`) of the same bytes are one map, published under a name
+    that is no body's (`shared_name`: the part, the number, the kind of map and four digits of the image's
+    hash, `bicepl6020n_3fa1`): `stands` maps each of the names it had to that one (without the ending), `texts`
+    holds, by file name, the text of every taken material file that named one of them, naming the shared one
+    instead, and `kept` maps the shared name to the one of the old names whose bake is recorded as holding
+    it (the Human Fit body's before any other, then the first by name). A map only one model wears keeps
+    that model's name. The first publication kept a shared map under the first body's name, so every male
+    body's legs named `pfh0_*` maps and all 20 upper arms `pfd2_bicepl6020r` (review of PR 158; user
+    decision 2026-11-15: fixed before the names are frozen). An outfit
     carried to the other bodies of a gender (`refit`) keeps its normal maps, so 10 of Facility Security's
     12 are the same image on ten bodies; a tint texture is never shared, the game colours a part only
     under its model's own name (user decision 2026-11-15)."""
@@ -176,9 +182,14 @@ def shared_maps(surveyed, incoming, hashed=None):
     for name in sorted(incoming):
         if name.endswith('.tga'):
             same.setdefault(hashed(incoming[name]), []).append(name[:-4])
-    # the Human Fit body's is the one kept where it is among them: the others were carried from it
-    same = [sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for names in same.values()]
-    stands = {other: names[0] for names in same for other in names[1:]}
+    # the first of each is the copy whose bake the shared map is recorded with: the Human Fit body's where it is among them
+    same = {digest: sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for digest, names in sorted(same.items()) if len(names) > 1}
+    named = {}
+    for digest, names in same.items():  # two maps of one part whose hashes begin alike: the later takes digits further along its hash
+        named[digest] = next((name for name in (shared_name(names, digest[at:]) for at in range(0, len(digest) - 3, 4)) if name not in named.values()), None)
+        require(named[digest] is not None, f'{names[0]} and the maps it is shared with have no name left: every part of their hash is taken')
+    kept = {named[digest]: names[0] for digest, names in same.items()}
+    stands = {name: named[digest] for digest, names in same.items() for name in names}
     texts = {}
     for bake in surveyed if stands else ():
         for name in sorted(bake.get('taken', ())):
@@ -195,7 +206,28 @@ def shared_maps(surveyed, incoming, hashed=None):
                     lines[index] = line.replace(words[1], stands[words[1]], 1)
             if ''.join(lines) != text:
                 texts[name] = ''.join(lines)
-    return stands, texts
+    return stands, texts, kept
+
+
+def shared_name(names, digest):
+    """The name of a map several models wear: what the first of their names says after its body (`bicepl6020n`
+    of `pfd0_bicepl6020n`; the first by name where the models are of several parts), and as many digits of
+    the image's hash as a resource name of 16 characters leaves room for, four at most."""
+    part = min(name[5:] if name[4:5] == '_' else name for name in names)
+    room = min(4, 16 - len(part) - 1)
+    require(room >= 2, f"{part} leaves no room in a resource name for a shared map's hash")
+    return f'{part}_{digest[:room]}'
+
+
+def tint_channels(path):
+    """The colour channels a tint texture's texels are on, by name (`export.LAYERS`; `layer N` for one that has none)."""
+    from .export import LAYERS
+    blob = Path(path).read_bytes()
+    require(blob[:8] == b'PLT V1  ' and len(blob) >= 24, f'{Path(path).name} is no tint texture')
+    count = int.from_bytes(blob[16:20], 'little') * int.from_bytes(blob[20:24], 'little')
+    require(count and len(blob) >= 24 + 2 * count, f'{Path(path).name} is a tint texture cut short')
+    names = {layer: name for name, layer in LAYERS.items()}
+    return {names.get(layer, f'layer {layer}') for layer in set(blob[25:24 + 2 * count:2])}
 
 
 def survey(folder):
@@ -688,7 +720,7 @@ def build(root, packs=(PACK, TABLE_PACK), repo=REPO):
 
 
 def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, trial=False, dry_run=False, body_pack=None,
-            repo=REPO, textures=model_textures, measure_neck=chest_neck, draw_icons=icons):
+            repo=REPO, textures=model_textures, measure_neck=chest_neck, draw_icons=icons, channels=tint_channels):
     """Publish the bakes in `bakes` under the registry at `registry_path`: the report.
 
     `root` is the tree written to, the repository unless `trial` names a scratch root (`seed`). `records` are
@@ -783,7 +815,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(not unknown, f'{flag} names a model no bake is of: {", ".join(unknown)}')
 
     # One image under several names is published once: the other bodies' material files name the one kept.
-    stands, renamed = shared_maps(surveyed, incoming, once)
+    stands, renamed, kept = shared_maps(surveyed, incoming, once)
     work = None
     if stands:
         work = Path(tempfile.mkdtemp(prefix='armorkit-publish-'))
@@ -791,10 +823,28 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             for name in sorted(bake.get('taken', ())):
                 if name.endswith('.tga') and name[:-4] in stands:
                     bake['taken'].discard(name)
-                    del incoming[name]
+                    source, shared = incoming.pop(name), stands[name[:-4]] + '.tga'
+                    if kept[stands[name[:-4]]] == name[:-4]:  # the bake recorded as holding the shared map
+                        if shared in pack or shared in incoming:
+                            failures.append(failure('bake', shared, f'{PACK} already holds a file of that name'))
+                        else:
+                            bake['files'][shared] = incoming[shared] = source
+                            bake['taken'].add(shared)
                 elif name in renamed:
                     (work / name).write_bytes(renamed[name].encode('ascii'))
                     bake['files'][name] = incoming[name] = work / name
+    # A part lists the colour channels its tint textures use, no more and no fewer: SR_NWN offers a colour for each.
+    for part in new:
+        models = [model for names in registry.model_names(part).values() for model in names if model + '.plt' in incoming]
+        try:
+            used = set().union(*(channels(incoming[model + '.plt']) for model in models))
+        except UNREADABLE as error:
+            failures.append(failure('channels', f'{part["slot"]} {part["number"]}', f'a tint texture could not be read: {error}'))
+            continue
+        for reason, names in (('lists {}, which none of its tint textures use', set(part['channels']) - used),
+                              ('has tint textures on {}, which it does not list', used - set(part['channels']))):
+            if names and models:
+                failures.append(failure('channels', f'{part["slot"]} {part["number"]}', 'the registry part ' + reason.format(', '.join(sorted(names)))))
     pack.update(incoming)
     try:
         try:

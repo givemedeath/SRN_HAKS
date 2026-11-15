@@ -139,6 +139,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_parts",
+      "Path": "./srn_parts/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_head",
       "Path": "./srn_head/",
       "CompileModels": false

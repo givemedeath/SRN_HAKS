@@ -532,7 +532,11 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   states `light`, a light for what should be bright (a lamp, a floodlight, a work light) and `null` for what only
   glows (a screen, a sign, an indicator, strip lights in a case). The Chop Shop clinic's surgical lamp was
   converted with glowing lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are
-  checking for when props need lights from now on", "it should only be for things that should be bright"). A row
+  checking for when props need lights from now on", "it should only be for things that should be bright"). A cast light
+  is for what lights the area round it as well as glowing (user, 2026-11-15, of a hand scanner terminal and a
+  console whose top lamps had been given lights: "just the glow is fine"): a terminal's or console's lamp bar,
+  a status lamp and a screen take `null`. A small lamp on a prop takes row 1 (DimWhite); rows 2 and 3 are for
+  floodlights and tower lamps, and hang a flare as wide as the prop on a small one. A row
   holds one light: of several lamps on one prop it stands at one of them, at or just inside its housing (where, and
   why not under the lens or between two lamps, is told next). See it in `check props --mode night`, the ground and
   the figures lit round it.

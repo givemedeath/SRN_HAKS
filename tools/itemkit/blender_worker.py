@@ -961,7 +961,14 @@ def main():
                'shadow': lambda c, o: reduce(c, o, shadow=True), 'render': render,
                'inspect': lambda c, o: render(c, o, source=True), 'export-arrays': export_arrays,
                'render-variants': render_finish_variants}
-    result = actions[cfg['stage']](cfg, output); verify(cfg['inputs'], fresh=True)
+    result = actions[cfg['stage']](cfg, output)
+    # A Blender launch costs most of a minute before any work, so a stage also writes the few-second extraction the
+    # next stage would otherwise start Blender for. Each is the next stage's own function on this stage's saved scene.
+    if cfg['stage'] in ('fit', 'reduce') and cfg.get('emitUvSource'):
+        (output/'uv-source').mkdir(); result['uvSource'] = uv_arrays({**cfg, 'scene': str(output/'scene.blend')}, output/'uv-source')['arrays']
+    if cfg['stage'] == 'render' and cfg.get('emitExportArrays'):
+        (output/'export-arrays').mkdir(); result['exportArrays'] = export_arrays(cfg, output/'export-arrays')['parts']
+    verify(cfg['inputs'], fresh=True)
     if (output/'scene.blend').exists(): result['scene'] = pin(output/'scene.blend')
     result['elapsedSeconds'] = time.monotonic()-started
     write(output/'result.json', result, fresh=True)
