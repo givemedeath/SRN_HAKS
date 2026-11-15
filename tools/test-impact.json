@@ -2117,6 +2117,7 @@
       "tools/itemkit/__main__.py"
     ],
     "tools/itemkit/runner.py": [
+      "tools/headkit/__init__.py",
       "tools/headkit/common.py",
       "tools/itemkit/atlas.py",
       "tools/itemkit/blender_worker.py",
@@ -2293,6 +2294,7 @@
       "tools/itemkit/test_itemkit.py"
     ],
     "tools/itemkit/test_itemkit.py": [
+      "tools/headkit/__init__.py",
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/itemkit/__init__.py",
@@ -2457,6 +2459,7 @@
       "tools/itemkit/fixture.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/resize.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/runner.py",
       "tools/itemkit/test_itemkit.py",
       "tools/itemkit/verification.py"
