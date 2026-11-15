@@ -335,7 +335,8 @@ class Driver:
         if not complete(): raise SystemExit(f'{design}: the donor stage did not complete; see {run}')
         donor = next(Path(recorded()['path']).parent.rglob('textured-donor.glb'))
         family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
-        for kind, name in (('straighten', 'straightened'), ('thin', 'thinned')):
+        # Each map applies to the previous result, so the maps in --straight must have been measured in this same order.
+        for kind, name in (('straighten', 'straightened'), ('thin', 'thinned'), ('level', 'levelled')):
             mapping = Path(straight)/f'{kind}-map.npz' if straight else None
             if mapping and mapping.exists():
                 out = self.ws.items/design/f'donor-v1-{name}'
