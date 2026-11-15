@@ -532,3 +532,10 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
 
 `python -B -m unittest discover -s tools/envkit -p "test_*.py" -t .` covers the plan, the ledger, the pictures,
 the set files `onboard` writes and the layouts of the checks. The client and the Toolset themselves are not started by the tests.
+
+Before a pull request, after main is merged in, run the catalog check CI's Scope job runs:
+`python -B tools/ci_scope.py --check-catalog --base origin/main --full-reason '' --output <scratch>/plan.json`.
+`tools/Test-Repository.ps1` does not run it. A test that reads a new file (an envkit test that came to import
+headkit's design module, 2026-11-14) leaves `tools/test-impact.json` stale, Scope fails on it and every other
+job is skipped. Where it reports the catalog stale, write it again with
+`python -B tools/test_impact.py --write-catalog tools/test-impact.json` and commit the file.
