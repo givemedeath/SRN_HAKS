@@ -346,6 +346,33 @@ class IconTests(unittest.TestCase):
 
 
 class PublishTests(Workspace):
+    def test_a_registry_part_carries_the_colours_its_bakes_suggest(self):
+        navy, grey = [38, 48, 72], [52, 56, 62]
+        record = {'number': NUMBER, 'models': {token: token for token in TOKENS}, 'materials': [
+            {'name': 'fabric', 'channels': ['cloth1', 'cloth2'], 'suggested': navy}, {'name': 'gear', 'channels': ['leather1', 'leather2']},
+            {'name': 'plates', 'channels': ['metal1', 'metal2'], 'suggested': grey}, {'name': 'trim', 'channels': ['metal1', 'metal2'], 'suggested': navy}]}
+        # both of a material's channels, none for a material that suggests nothing, none where two materials differ
+        self.assertEqual(publish.suggested(record), {'cloth1': navy, 'cloth2': navy})
+        self.assertEqual(publish.suggested(record, ['cloth2', 'metal1']), {'cloth2': navy})
+        filled, changed = publish.coloured(document(*PARTS, part(slot='hand', number=6030, genderedCut=False, tiers={})), [record])
+        self.assertEqual(changed, [('chest', NUMBER), ('pelvis', NUMBER), ('shin', NUMBER)])
+        self.assertEqual([one.get('colours') for one in filled['parts']], [{'cloth1': navy}] * 3 + [None])  # the stand-in parts have no second cloth channel
+        self.assertEqual(publish.coloured(filled, [record])[1], [])
+        bare, taken = publish.coloured(filled, [{**record, 'materials': []}])  # bakes that suggest nothing: the colours go
+        self.assertEqual((len(taken), [one.get('colours') for one in bare['parts']]), (3, [None] * 4))
+        with self.assertRaisesRegex(ValueError, 'different colours: .*pmh0.*pfh0'):
+            publish.coloured(document(*PARTS), [{**record, 'body': 'pmh0'}, {**record, 'body': 'pfh0', 'materials': [{**record['materials'][0], 'suggested': grey}]}])
+        # a publication says so where the registry leaves them out, and passes once they are written
+        bakes = [bake(self.root / 'bakes' / 'pmh0', 'pmh0')]
+        told = json.loads((bakes[0] / 'bake.json').read_text(encoding='utf-8'))
+        told['materials'] = [{'name': 'fabric', 'kind': 'cloth', 'channels': ['cloth1', 'cloth2'], 'suggested': navy}, {'name': 'plates', 'kind': 'metal'}]
+        (bakes[0] / 'bake.json').write_text(json.dumps(told), encoding='utf-8')
+        report = self.publish(bakes, dry_run=True)
+        self.assertEqual(report['failuresByGate']['colours'], len(PARTS))
+        self.assertIn('--colours-from', [one['reason'] for one in report['failures'] if one['gate'] == 'colours'][0])
+        self.registry.write_text(json.dumps(publish.coloured(json.loads(self.registry.read_text(encoding='utf-8')), [told])[0]), encoding='utf-8')
+        self.assertNotIn('colours', self.publish(bakes, dry_run=True)['failuresByGate'])
+
     def test_a_map_that_is_one_image_on_two_bodies_is_published_once(self):
         bakes = [bake(self.root / 'bakes' / body, body) for body in ('pmh0', 'pmg0')]
         for token in ('shinl', 'shinr'):  # the troll's shins carry the Human's normal maps, as a refit leaves them
