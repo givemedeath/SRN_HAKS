@@ -394,6 +394,9 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/convert.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/toolchain.py",
       "tools/envkit/glow.py",
       "tools/envkit/placeables.py"
     ],
