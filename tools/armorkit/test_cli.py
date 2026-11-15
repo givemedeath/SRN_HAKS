@@ -29,6 +29,28 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(got['parts'], len(handoff['parts']))
         self.assertEqual(handoff['kind'], registry.KIND + '-handoff')
 
+    def test_registry_takes_its_parts_colours_from_bakes(self):
+        document = json.loads(EXAMPLE.read_text(encoding='utf-8-sig'))
+        first = next(part for part in document['parts'] if 'cloth1' in part['channels'])
+        record = {'body': 'pmh0', 'number': first['number'], 'models': {token: token for token in registry.SLOTS[first['slot']]['tokens']},
+                  'materials': [{'name': 'fabric', 'channels': ['cloth1', 'cloth1'], 'suggested': [38, 48, 72]}]}
+        with tempfile.TemporaryDirectory() as folder:
+            mine, bake = Path(folder) / 'registry.json', Path(folder) / 'bake'
+            mine.write_text(json.dumps(document), encoding='utf-8')
+            bake.mkdir()
+            (bake / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
+            with contextlib.redirect_stderr(io.StringIO()) as said:
+                got = run('registry', mine, '--colours-from', bake)
+            written = {(part['slot'], part['number']): part.get('colours') for part in json.loads(mine.read_text(encoding='utf-8'))['parts']}
+            self.assertEqual((got['parts'], said.getvalue().strip()), (len(document['parts']), 'colours written for 1 parts'))
+            self.assertEqual(written[(first['slot'], first['number'])], {'cloth1': [38, 48, 72]})
+            (bake / 'bake.json').write_text(json.dumps({**record, 'materials': []}), encoding='utf-8')  # the bake suggests nothing now
+            with contextlib.redirect_stderr(io.StringIO()):
+                run('registry', mine, '--colours-from', bake)
+            self.assertEqual(json.loads(mine.read_text(encoding='utf-8')), document)
+            with self.assertRaisesRegex(ValueError, 'no bake.json'):
+                run('registry', mine, '--colours-from', folder)
+
     def test_no_test_patches_the_kit_by_its_dotted_path(self):
         # the suite imports the kit as tools.armorkit and as armorkit: a patch by the dotted name of one misses the
         # other, and two refit tests passed alone and failed in the full suite (2026-11-14)

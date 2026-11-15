@@ -358,8 +358,10 @@ class PublishTests(Workspace):
         self.assertEqual(changed, [('chest', NUMBER), ('pelvis', NUMBER), ('shin', NUMBER)])
         self.assertEqual([one.get('colours') for one in filled['parts']], [{'cloth1': navy}] * 3 + [None])  # the stand-in parts have no second cloth channel
         self.assertEqual(publish.coloured(filled, [record])[1], [])
-        with self.assertRaisesRegex(ValueError, 'different colours'):
-            publish.coloured(document(*PARTS), [record, {**record, 'materials': record['materials'][:1] + [{**record['materials'][0], 'suggested': grey}]}])
+        bare, taken = publish.coloured(filled, [{**record, 'materials': []}])  # bakes that suggest nothing: the colours go
+        self.assertEqual((len(taken), [one.get('colours') for one in bare['parts']]), (3, [None] * 4))
+        with self.assertRaisesRegex(ValueError, 'different colours: .*pmh0.*pfh0'):
+            publish.coloured(document(*PARTS), [{**record, 'body': 'pmh0'}, {**record, 'body': 'pfh0', 'materials': [{**record['materials'][0], 'suggested': grey}]}])
         # a publication says so where the registry leaves them out, and passes once they are written
         bakes = [bake(self.root / 'bakes' / 'pmh0', 'pmh0')]
         told = json.loads((bakes[0] / 'bake.json').read_text(encoding='utf-8'))

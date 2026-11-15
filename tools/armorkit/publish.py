@@ -135,19 +135,26 @@ def suggested(record, channels=None):
 
 def coloured(document, records):
     """A registry document with each part's `colours` as the bakes of its number suggest them (`suggested`),
-    and the (slot, number) of every part changed. A part no bake in `records` is of, and one its bakes suggest
-    nothing for, are left as they are; bakes that suggest different colours for one part are refused."""
+    and the (slot, number) of every part changed. A part no bake in `records` is of is left as it is; one its
+    bakes suggest nothing for loses the colours it had, as the publication's gate asks; bakes that suggest
+    different colours for one part are refused, by body."""
     wanted = {}
     for record in records:
+        require(isinstance(record.get('models'), dict) and set(record['models']) <= set(TOKEN_SLOT) and 'number' in record,
+                'A bake\'s record names its number and the model of each of its parts')
         for token in record['models']:
             wanted.setdefault((TOKEN_SLOT[token], record['number']), []).append(record)
     parts, changed = [], []
     for part in document['parts']:
         key = (part['slot'], part['number'])
-        found = [suggested(record, part['channels']) for record in wanted.get(key, [])]
-        require(all(one == found[0] for one in found), f'{key[0]} {key[1]}: its bakes suggest different colours')
-        if found and found[0] and part.get('colours') != found[0]:
-            part = {**part, 'colours': found[0]}
+        found = {}
+        for record in wanted.get(key, []):
+            found.setdefault(json.dumps(suggested(record, part['channels']), sort_keys=True), []).append(str(record.get('body')))
+        require(len(found) <= 1, f'{key[0]} {key[1]}: its bakes suggest different colours: '
+                + '; '.join(f'{", ".join(bodies)} {asked}' for asked, bodies in sorted(found.items())))
+        asked = json.loads(next(iter(found))) if found else part.get('colours', {})
+        if part.get('colours', {}) != asked:
+            part = {**{name: value for name, value in part.items() if name != 'colours'}, **({'colours': asked} if asked else {})}
             changed.append(key)
         parts.append(part)
     return {**document, 'parts': parts}, changed
@@ -725,7 +732,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(Path(path).is_file(), f'{path} is no file to record for {model}')
         given_records.setdefault(model, []).append(Path(path))
     wanted = {model: (part, body) for part in new for body, models in registry.model_names(part).items() for model in models}
-    found_briefs, hashed = {}, {}
+    found_briefs, hashed, miscoloured = {}, {}, set()
 
     def once(path):  # a file's hash, taken once however many bodies share the file
         if path not in hashed:
@@ -748,7 +755,9 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         for slot, number in sorted({(TOKEN_SLOT[token], record['number']) for token, model in record['models'].items() if model in wanted}):
             entry = now[(slot, number)]
             asked = suggested(record, entry['channels'])
-            if asked != entry.get('colours', {}):
+            said = (slot, number, json.dumps(asked, sort_keys=True))  # once for a part, however many bodies' bakes suggest the same
+            if asked != entry.get('colours', {}) and said not in miscoloured:
+                miscoloured.add(said)
                 failures.append(failure('colours', f'{slot} {number}', f'the bake of {record["body"]} suggests {json.dumps(asked, sort_keys=True)} and the registry gives '
                                         f'{json.dumps(entry.get("colours", {}), sort_keys=True)}: write the bakes\' colours into it (registry FILE --colours-from BAKE)'))
         for name, path in bake['files'].items():

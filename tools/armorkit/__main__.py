@@ -22,6 +22,9 @@ def command_registry(args):
     if args.colours_from:  # each part's colours as its bakes suggest them, written back before the registry is checked
         from . import publish
         document = json.loads(Path(args.registry).read_text(encoding='utf-8-sig'))
+        registry.validate(document, publish=args.publish)  # before its parts are read
+        for folder in args.colours_from:
+            registry.require((Path(folder) / 'bake.json').is_file(), f'{folder} is no bake\'s output folder: it has no bake.json')
         records = [json.loads((Path(folder) / 'bake.json').read_text(encoding='utf-8')) for folder in args.colours_from]
         document, changed = publish.coloured(document, records)
         registry.validate(document, publish=args.publish)
