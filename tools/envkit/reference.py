@@ -232,3 +232,86 @@ def make(client, local, bindings_path, name, text, reference, seed, output, *, b
                'token': token, 'outputPrefix': graph['9']['inputs']['filename_prefix']}
     return design._execute(client, local, bindings_path, graph, receipt, {staged: reference}, output, base, batch, None,
                            queue={'deadline': deadline})
+
+
+SIDE = 2048  # the least a reference's longer side is when it goes to Meshy (user, 2026-11-14: "a minimum of 2k input")
+UPSCALER = 'RealESRGAN_x2plus.pth'  # doubles a picture; in the shared ComfyUI's upscale_models
+CHOSEN = re.compile(r'([a-z0-9][a-z0-9-]{0,63})-s\d+-b0\.png')
+
+
+def enlarge_graph(staged, prefix):
+    """The chosen reference doubled by the upscale model and saved: no prompt, no seed, nothing redrawn."""
+    return {'100': {'class_type': 'LoadImage', 'inputs': {'image': staged}},
+            '7': {'class_type': 'UpscaleModelLoader', 'inputs': {'model_name': UPSCALER}},
+            '8': {'class_type': 'ImageUpscaleWithModel', 'inputs': {'upscale_model': ['7', 0], 'image': ['100', 0]}},
+            '9': {'class_type': 'SaveImage', 'inputs': {'images': ['8', 0], 'filename_prefix': prefix}}}
+
+
+def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, say=print):
+    """Every chosen reference of `selected` at Meshy's size in `output`, under the name it has: one whose longer side is
+    `SIDE` already is copied, a smaller one is doubled on the bound ComfyUI (one job at a time, as `make`). The chosen
+    references stay as they are: a building's pieces are cut from them in their own pixels. A reference that is in
+    `output` already is passed over where it was made from the picture chosen now, and refused where it was not.
+    Returns {name: 'copied' | 'enlarged' | 'kept'}."""
+    import shutil
+    from PIL import Image
+    selected, output = Path(selected), Path(output); output.mkdir(parents=True, exist_ok=True); told = {}
+    found = sorted(path for path in selected.glob('*.png') if CHOSEN.fullmatch(path.name))
+    require(found, 'No chosen references (<asset>-s<seed>-b0.png) in ' + str(selected))
+    for path in found:
+        base = path.name[:-len('-b0.png')]; target, record, sha, there, was = _sent(path, output)
+        if there is not None:
+            require(there != 'failed', f'{record} is of an enlarging that failed ({was.get("error")}): take it and any {target.name} beside it away and enlarge again')
+            require(there == 'made', f'{target} was not made from the {path.name} chosen now: take it and its record away and enlarge again')
+            told[path.name] = 'kept'; continue
+        with Image.open(path) as picture:
+            size = picture.size
+        require(max(size) * 2 >= SIDE, f'{path.name} is {size[0]}x{size[1]}: doubled it is still under {SIDE} on its longer side; draw it again larger')
+        if max(size) >= SIDE:
+            shutil.copyfile(path, target); told[path.name] = 'copied'
+            record.write_text(json.dumps({'kind': 'envkit-reference-sent', 'source': sha, 'enlarged': False}, indent=1) + '\n', encoding='utf-8')
+        else:
+            from tools.headkit import design
+            require(local is not None, f'{path.name} is {size[0]}x{size[1]}: enlarging it needs --bindings, the local JSON of the shared ComfyUI')
+            token = uuid.uuid4().hex
+            graph = enlarge_graph(f'{design.SUBFOLDER}/{token}/reference-0.png', f'{design.SUBFOLDER}/{token}/{base}')
+            receipt = {'schemaVersion': 1, 'kind': 'envkit-reference-sent', 'source': sha, 'enlarged': True, 'upscaler': UPSCALER,
+                       'token': token, 'outputPrefix': graph['9']['inputs']['filename_prefix'], 'outputs': []}
+            design._execute(client, local, bindings_path, graph, receipt, {'reference-0.png': path}, output, base, 1, None, queue={'deadline': deadline})
+            told[path.name] = 'enlarged'
+        with Image.open(target) as picture:
+            require(max(picture.size) >= SIDE, f'{target} came out {picture.size[0]}x{picture.size[1]}, under {SIDE} on its longer side')
+        say(json.dumps({'reference': path.name, 'state': told[path.name]}), flush=True)
+    return told
+
+
+def _sent(path, output):
+    """How a chosen reference stands in the folder of sent pictures: (its picture there, its record, the chosen
+    picture's hash, what is there, the record as read). What is there is None for nothing, 'made' for the picture
+    `enlarge` made of this chosen one, 'failed' for the receipt of a job that failed (`design._execute` leaves one,
+    with or without a picture: it is no reference made) and 'other' for anything else, a picture of another one
+    chosen under the name before, one with no record, or one whose record cannot be read."""
+    target, record = Path(output) / path.name, Path(output) / f'{path.name[:-len("-b0.png")]}.json'
+    sha = hashlib.sha256(path.read_bytes()).hexdigest()
+    if not (target.exists() or record.exists()):
+        return target, record, sha, None, {}
+    try:
+        was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
+    except ValueError:  # cut short or edited: said as any other record that is not this picture's, by name
+        was = {}
+    was = was if isinstance(was, dict) else {}
+    there = 'failed' if was.get('state') == 'failed' else 'made' if target.is_file() and was.get('source') == sha else 'other'
+    return target, record, sha, there, was
+
+
+def sent_current(selected, sent, names=None):
+    """Refuse where `sent` does not hold the chosen references of `selected` (those named in `names`, where given)
+    as `enlarge` leaves them: a picture missing, one whose enlarging failed, or one made from another picture than
+    the one chosen now. `sheet submit` sends from `sent` the picture named as each chosen reference is; one chosen
+    again under its name after it was enlarged would otherwise go to Meshy as it was before, and its credits with
+    it. A picture in `sent` of a reference no longer chosen (another seed's) is history: it is not sent and is left
+    where it is."""
+    chosen = sorted(path for path in Path(selected).glob('*.png') if CHOSEN.fullmatch(path.name) and (names is None or path.name in names))
+    stale = [path.name for path in chosen if _sent(path, sent)[3] != 'made']
+    require(not stale, f'{sent} does not hold these references as they are chosen now in {selected}: run `envkit enlarge`, first taking away any picture '
+            'of theirs, and its record, that lies there from another picture or a failed enlarging: ' + ', '.join(stale))

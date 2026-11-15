@@ -107,6 +107,19 @@ class GlowTests(unittest.TestCase):
         near = np.concatenate([where, where + [0, 0.2, 0]], 1)  # a frame standing 20 cm proud of a window hides nothing
         self.assertEqual(len(glow.halo(lit, near, all_covered, toward=facing, reach=0.25, strength=0.5)[1]), 2)
 
+    def test_each_lit_part_spreads_from_cards_of_its_own(self):
+        # A front four metres wide: lit glass up to 0.8 metres, and over it a lit sign that stands 20 cm further out.
+        across, height = np.meshgrid(np.linspace(2, -2, 128), np.linspace(2, 0, 64))
+        where = np.stack([across, np.where(height > 1.0, 1.2, 1.0), height], -1); covered = np.ones(across.shape, bool)
+        toward = np.zeros_like(where); toward[..., 1] = 1.0
+        lit = np.where(((height > 1.0) | (height < 0.8))[..., None], 0.8, 0.0) * np.ones(3)
+        fronts = lambda parts: sorted(round(card[0][0][1], 2) for card in glow.halo(lit, where, covered, toward=toward, parts=parts, reach=0.25, strength=0.5).cards)
+        self.assertEqual(fronts(None), [1.24])  # by depth alone they share one card, out at the sign
+        sign, glass = glow.inside(where, covered, [[-2, 1.1, 1.0], [2, 1.3, 2]]), glow.inside(where, covered, [[-2, 0.9, 0], [2, 1.1, 0.8]])
+        self.assertEqual(fronts([sign, glass]), [1.04, 1.24])  # the glass spreads from just in front of the glass
+        self.assertEqual(fronts([sign]), [1.04, 1.24])  # light that no part holds keeps cards of its own
+        self.assertEqual(fronts([sign | glass, glass]), [1.24])  # a texel in two parts goes with the first
+
     def test_the_card_is_a_node_of_the_model_that_takes_no_light(self):
         normals = np.tile([0, 1.0, 0], (4, 1))
         cards = glow.halo(np.full((16, 16, 3), 0.8), *glow.position_map(POINTS, UVS, FACES, 16))[1]

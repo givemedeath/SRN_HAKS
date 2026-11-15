@@ -793,8 +793,9 @@ class SideGripTests(unittest.TestCase):
         self.assertLess(turned['joinY'][0], turned['joinY'][1])
         mid = lambda d: next(r for r in d['gripReport']['measuredFittedSections'] if r['fractionFromPommel'] == .5)
         self.assertAlmostEqual(mid(turned)['depth'], mid(plain)['depth'], places=4)
-        with self.assertRaisesRegex(ValueError, 'side grip'):
-            measure({}, self.family, shell, {'reverseGrip': True, 'bladeAtLowEnd': False}, self.standard)
+        for low in (False, True):  # whichever end the frame's arbitrary sign puts the blade at
+            with self.assertRaisesRegex(ValueError, 'reverseGrip applies to a side grip'):
+                measure({}, self.family, shell, {'reverseGrip': True, 'bladeAtLowEnd': low}, self.standard)
 
     def test_grip_across_places_the_grip_along_the_body_and_turns_with_the_frame(self):
         from tools.itemkit.fit_manifest import measure

@@ -1,0 +1,16 @@
+{
+  "set": "chop-shop-clinic",
+  "prefix": "csc",
+  "props": {
+    "cross-sign": {"triangles": 4000},
+    "hanging-banner": {"triangles": 4000},
+    "cyberware-case": {"triangles": 10000},
+    "gurney": {"triangles": 10000},
+    "surgical-light": {"triangles": 8000},
+    "instrument-cart": {"triangles": 10000},
+    "biohazard-bin": {"triangles": 3000},
+    "vending-machine": {"triangles": 5000},
+    "dumpster": {"triangles": 6000}
+  },
+  "building": {"views": ["building-hero"], "triangles": 100000}
+}

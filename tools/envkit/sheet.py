@@ -96,6 +96,18 @@ def image(selected, name):
     return found[0]
 
 
+def large_enough(paths):
+    """Refuse references under Meshy's size (`reference.SIDE` on the longer side; user, 2026-11-14: "a minimum of 2k
+    input"): `envkit enlarge` makes them of the chosen ones."""
+    from PIL import Image
+    small = []
+    for path in paths:
+        with Image.open(path) as picture:
+            if max(picture.size) < reference.SIDE:
+                small.append(f'{path.name} ({picture.size[0]}x{picture.size[1]})')
+    require(not small, f'A reference goes to Meshy at {reference.SIDE} pixels or more on its longer side; run `envkit enlarge` for ' + ', '.join(small))
+
+
 def state(ledger, key):
     """The ledger's word on a key as it stands on disk now, or None where it holds no such entry."""
     ledger.load()
@@ -111,17 +123,25 @@ def cost(ledger, plan):
     return sum(meshy.PRICES[operation] for operation, key in calls if key not in held)
 
 
-def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
+def submit(ledger, plan, selected, work, *, sent=None, run=meshy.run_cli, say=print):
     """Send every prop and the building that the ledger does not hold yet. Every reference is found before anything is
     sent, and the whole of what is unsent must fit under the cap, so a sheet is not left half submitted for want of an
-    image or of credits. A call the ledger holds already is not sent again, and is refused if it was sent with another
+    image or of credits, and what is unsent goes at Meshy's size or not at all (`large_enough`). A call the ledger holds already is not sent again, and is refused if it was sent with another
     reference than the one selected now: the model it made is not of this reference, and a new key in the plan sends
     this one. No more is sent than Meshy's queue has room for, counting every call of the ledger that has
     not finished: the Ares Depot's eleventh call was refused and its key was lost to the CLI (2026-11-11). What is
-    held back is said, and goes with the next `submit` after a `collect`. Returns the keys sent."""
-    work = Path(work); work.mkdir(parents=True, exist_ok=True); sent = []
-    pictures = {name: image(selected, name) for name in plan['props']}
-    views = {row['key']: [image(selected, name) for name in row['views']] for row in buildings(plan)}
+    held back is said, and goes with the next `submit` after a `collect`. Returns the keys sent.
+
+    `sent` is the folder of the references at Meshy's size (`reference.enlarge`): each asset's reference is found in
+    `selected`, where one is chosen for it, and the picture of that name in `sent` is what goes. Found in `sent`
+    itself, an asset chosen again with another seed had two, the one enlarged before still lying there (review of
+    2026-11-14). Each picture still to go must be the one `enlarge` made of the reference chosen now
+    (`reference.sent_current`). Without `sent` the chosen picture itself goes."""
+    work = Path(work); work.mkdir(parents=True, exist_ok=True)
+    large = None if sent is None else Path(sent); going = lambda path: path if large is None else large / path.name
+    sent = []  # from here on, the keys sent
+    pictures = {name: going(image(selected, name)) for name in plan['props']}
+    views = {row['key']: [going(image(selected, name)) for name in row['views']] for row in buildings(plan)}
     need = cost(ledger, plan); ledger.load()
     require(ledger.committed() + need <= ledger.data['cap'],
             f'The plan needs {need} more credits and the ledger has {ledger.data["cap"] - ledger.committed()} left under its cap of {ledger.data["cap"]}')
@@ -132,6 +152,10 @@ def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
         if state(ledger, key) is not None:
             was, now = meshy.sent_images(ledger.entry(key)), [path.name for path in chosen]
             require(was is None or was == now, f'{key} was sent with {", ".join(was or [])} and {", ".join(now)} is selected now: give it a new key in the plan')
+    unsent = sorted({path for key, _, _, chosen, _ in calls if state(ledger, key) is None for path in chosen})
+    if large is not None:  # only what is still to go: a call the ledger holds needs no enlarged picture any more
+        reference.sent_current(selected, large, {path.name for path in unsent})
+    large_enough(unsent)
     held = []
     for key, asset, operation, _, arguments in calls:
         if state(ledger, key) is not None:

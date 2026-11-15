@@ -121,6 +121,16 @@ class CommandTests(unittest.TestCase):
             self.assertNotIn('lights', catalog.load(listed)['placeables'][0])
             # Its light files leave the pack with its lights, and its wire picture with its fence: a glow map left behind would read as a lit model.
             self.assertFalse(any((pack / name).exists() for name in lit)); self.assertTrue((pack / 'ek_a_s.dds').is_file())
+            # A light goes into the table only as the conversion measured it from the model (`convert.placeable`).
+            lamp = {'label': 'Shop, Bin', 'sound': 28, 'light': {'colour': 3, 'at': [0, 0.5, 2]}}
+            (repo / 'sets' / 'shop.json').write_text(json.dumps({'models': {'ek_a': {'source': 'models/a', 'height': 1.0, 'placeable': lamp}}}), encoding='utf-8')
+            for told in ({}, {'lightAt': [0.0, 0.5, 1.0]}):  # converted before it had a light, and with its light elsewhere
+                (built / 'report.json').write_text(json.dumps(told), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, r'Convert these again \(envkit game\).*ek_a'):
+                    run()
+            self.assertNotIn(b'0.5000', (repo / 'tables' / 'placeables.2da').read_bytes())
+            (built / 'report.json').write_text(json.dumps({'lightAt': [0.0, 0.5, 2.0]}), encoding='utf-8'); run()
+            self.assertIn(b'0.5000', (repo / 'tables' / 'placeables.2da').read_bytes())
 
 
 if __name__ == '__main__':

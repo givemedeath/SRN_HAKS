@@ -62,8 +62,12 @@ void EkLights(object oThing, string sName, int bOn, int bHalo = TRUE)
 A glow map lights only the model's own faces. A placeable whose game set gives it a `light` (`{"colour": <row of
 lightcolor.2da>, "at": [x, y, z]}`, metres from the object's origin) also lights the ground and characters round it,
 as the stock lamp post does: its `placeables.2da` row names the colour in `LightColor` and the place in
-`LightOffsetX`, `Y` and `Z`. The rail yard's light tower has one (colour 3, bright white, at its lamp heads). Its
-catalog entry's `lights` are as above; put the cast light out with the faces:
+`LightOffsetX`, `Y` and `Z`. The rail yard's light tower has one (colour 3, bright white, at its lamp heads), and so
+have the Chop Shop clinic's surgical light, the Iron Sight Arms gunsmith bench and shooting booths, the Ares Depot
+watch booth, vehicle gate, checkpoint terminal and drone dock, and the Saeder-Krupp security booth and loading
+console (2026-11-14). A row holds one light, and the game draws a star-shaped flare where it stands, so it is at one
+lamp of the prop; the prop's other lamps only glow. Each
+one's catalog entry's `lights` are as above; put the cast light out with the faces:
 
 ```c
 SetPlaceableIllumination(oThing, bOn);

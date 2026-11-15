@@ -50,6 +50,22 @@ with ChatGPT from one shared design, a warehouse front and rear, a loading platf
 the yard sheet's warehouse. Prompt such a set piece by piece in one conversation, after an overview, with the shared
 dimensions and materials in every prompt and each view's handedness named (which wall is on which side).
 
+```
+envkit enlarge --root <root> --bindings <root>/references/bindings.json
+```
+
+A reference goes to Meshy at 2048 pixels or more on its longer side (user, 2026-11-14), and the local model draws
+at about one megapixel. `enlarge` writes each chosen reference to `<root>/references/sent` under the same name:
+doubled by the shared ComfyUI's `RealESRGAN_x2plus.pth` where it is smaller, copied where it is not. This sharpens
+what was drawn and adds nothing to it. The chosen references in `selected` stay as they are, since a building's
+pieces are cut from them in their own pixels. `sheet submit` finds each asset's reference in `selected` and sends
+the picture of that name in `sent`; it refuses a smaller picture, and refuses `sent` where it does not hold the
+references chosen now (one missing, one made from another picture, one whose enlarging failed). Run `enlarge`
+again after choosing another reference. Another seed's picture lies beside the one enlarged before, which stays
+as history and is not sent; one chosen again under the same name, or the receipt of an enlarging that failed, is
+refused until the picture in `sent` and its record are taken away. `--bindings` is needed only where a reference
+is doubled.
+
 ## 2. Meshy
 
 The ledger (`output/envkit/stuffer-shack/meshy/ledger.json`, shared by every sheet) holds the cap, which is the
@@ -63,7 +79,7 @@ envkit sheet collect --plan ... --ledger <ledger> --root <root>
 ```
 
 `status` says what the sheet's unsent calls cost (`unsentCredits`) against what the cap has left. Raise the cap only on the
-user's word, and say so in the reason. `submit` finds every reference and checks the whole of what is unsent
+user's word, and say so in the reason. `submit` finds every chosen reference's picture in `<root>/references/sent` and checks the whole of what is unsent
 against the cap before it sends anything; a call already in the ledger is not sent again. Meshy holds ten
 tasks at once, so `submit` sends what the queue has room for and says which calls it held back: run `collect`,
 then `submit` again, until `collect` lists nothing `unsent`. `collect` waits for each call, downloads the models to
@@ -189,6 +205,10 @@ envkit placeables --models ... --built <root>/game<n> --provenance "<section>"
 envkit blueprints --models ... --game <game>
 ```
 
+`placeables` writes a prop's light into its row only as `envkit game` measured it from the model (the report's
+`lightAt`): a light moved in the game set since, or given to a prop converted before it had one, is refused until
+the prop is converted again, so that none goes into the table where the game would draw its flare in the air.
+
 ## 6. The group and the lights in the client
 
 ```
@@ -247,6 +267,11 @@ By computer use (access is asked for `nwtoolset.exe` by that name):
   and the tile under the cursor turns with the group: after a half turn it is the top-right.
 - The palette's object buttons ignore simulated clicks too: `-Do tab -Index 5` shows the placeables, `-Do tab
   -Index 9` the tiles again, and `-Do path -Index 1 -Path <category>/<subcategory>/<n>` selects a blueprint.
+  The numbers count down the tree as the Toolset shows it, from 0, and it lists categories by name, not in the
+  palette file's order (2026-11-14: Modern Exterior is 5 and Modern Interior 6 of 14, where the file has them
+  12 and 13, and a path read from the file selected a stock bookcase). `-Do reach -Index 1 -Root <n> -Child 0`
+  opens one category to read its subcategories; read the selected name before placing.
+- The wheel over the palette zooms the area view if the view has the focus, a long way for each notch.
 - The mouse wheel zooms the area view while the view has the focus; the zoom buttons do nothing.
 - Leave the start point's corner tile alone: the Toolset refuses to save with the start on a tile painted over.
 - Save with File > Save (ctrl+s did nothing, 2026-11-12), then judge by `saved`, not by the screen: it lists the
@@ -262,9 +287,12 @@ player is; `stages` in what it prints is each place the player came to. Run it o
 
 ## A new sheet, and a review of the sets
 
-All 56 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
-(`56_denver_rail_freight_yard.png`, 2026-11-12) was brought in later with `onboard`, as a sheet that comes later
-is. The same commands review the sets against each other when props are to be reused. `<sheets>` is the folder
+All 59 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
+(`56_denver_rail_freight_yard.png`, 2026-11-12) and three street shops (`57_pulse_tech_matrix_gear_shop.png`,
+`58_chop_shop_cyberware_clinic.png` and `59_iron_sight_arms_gun_shop.png`, 2026-11-14) were brought in later with
+`onboard`, as a sheet that comes later is. A sheet from outside the batch is copied into `<sheets>` under its
+`NN_<what>.png` name. `boxes` needs scipy, which the bundled Python lacks: put the pinned itemkit library folder
+(`.tools/itemkit-python-v1` of the shared tool root) on `PYTHONPATH` for it. The same commands review the sets against each other when props are to be reused. `<sheets>` is the folder
 holding the concept sheets, each named `NN_<what>.png`. `boxes` finds drawings on a white sheet; ask for one on
 white if a sheet comes dark (the rail yard's first version was, and half its drawings went unfound).
 
@@ -316,6 +344,28 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
 - **A lit part does not light.** `envkit view ... --lit` counts for each lit part the texels its box holds and
   the texels it lights (`litParts`). A box that holds much and lights nothing is on the wrong part of the
   model, or on a part too dark to shine.
+- **A lit strip sits beside its window or sign** (above it, short of one end, or shifted as the camera moves).
+  A lit part with no colour test lights everything in its box, the wall round a recessed window too, and a box
+  read off a drawing too fine for the texture is read wrong: the Iron Sight Arms range windows were lit 0.35
+  metres too high and the shop's sign 0.25 metres short of one end (operator, 2026-11-14). Draw a building at
+  60 to 120 pixels to the metre, where its texels still touch, and bound the box in depth (y on a front wall)
+  to the lit surface itself: glass in a recess stands behind the wall's face. `litParts` gives each part's
+  `planes`, the depths its light stands at with their shares; a window that shows the wall's depth as a second
+  plane is lighting the wall. Each lit part spreads from halo cards of its own, just in front of its own
+  foremost light, so name a sign, the windows under it and the strip lights over them as separate parts.
+  Look at every lit part close and from a slant in the night check. A prop's boxes are bounded in depth the same
+  way: the shooting booths' lane-screen box ran front to back and lit rust specks on the back and the hazard
+  stripes on the dividers.
+- **A window, lamp or half of a prop stays dark at night** while its twin glows. The lit boxes were drawn for
+  the side that was looked at: the Iron Sight Arms range wing has the same window strip on its far wall, its
+  rifle cabinet a second door the generator drew dark, and its roof mast two amber lamps, all found unlit by the
+  operator or after (2026-11-14). Draw every side by day before stating the lit parts
+  (`--model <name>:0123`), roof gear included, and light or note each window, screen and lamp drawn there.
+  `view --lit` lists `mirrors`: where a lit part's box, turned over the model's middle left to right or front
+  to back, lands on as much surface with far less of it lit. Look at each by day; a sign's mirror is a bare
+  back wall and is left. A half the generator drew dark takes the lit half's picture with `copy` and a lit part
+  of its own, its `value` set lower, the copy being a little duller. In the night check, look at the far side
+  too.
 - **A square-on view does not show it** (inside a hole, under an overhang, through a fence).
   `envkit view --models ... --root <root> --model <name> --eye <label>=ex,ey,ez,tx,ty,tz[,fov[,reach]] --output <scratch>`
   draws the model as it will ship, fence sheets and all, from an eye at `ex,ey,ez` looking at `tx,ty,tz`, in
@@ -420,6 +470,9 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   Find the rim from a z-buffered elevation (open edges are the faces' edges used once) and state a point on it as
   `fill` (`convert.filled`), not face by face as `close`. Where the faces are there but wound inward, the client shows
   a gap all the same: give the faces in a box backs (`inside: [{box}]`, `convert.backed`). Check both from every side.
+  A fill is drawn between its rim's own corners, and where the picture draws those far apart it shows a streak of
+  whatever lies between them (the wedge at the foot of the Chop Shop clinic's back wall, 2026-11-14): give the
+  fill a `picture`, a point on the wall beside it, and it is drawn wholly in the wall's colour there.
 - **A sign spelt wrong.** Paint the stray strokes over in the sign's ground colour (`paint`), measured on a texel
   elevation of the letters (the rail yard's tower read "PREIGHT"; its P's bowl and bar were painted to make an F).
 - **Wavy handrails, missing stairs or a leg out of place.** A generator cannot hold a long thin rail straight, leaves
@@ -436,6 +489,48 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",
   2026-11-13). `check lights` puts it out and on with the faces; the ground should go dark and come back.
+  Decide it for every lit prop when its game set is written: the set is refused until a lit prop's `placeable`
+  states `light`, a light for what should be bright (a lamp, a floodlight, a work light) and `null` for what only
+  glows (a screen, a sign, an indicator, strip lights in a case). The Chop Shop clinic's surgical lamp was
+  converted with glowing lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are
+  checking for when props need lights from now on", "it should only be for things that should be bright"). A row
+  holds one light: of several lamps on one prop it stands at one of them, at or just inside its housing (where, and
+  why not under the lens or between two lamps, is told next). See it in `check props --mode night`, the ground and
+  the figures lit round it.
+  The game draws a star-shaped flare where the light stands. It shows through a thin part of the model round it
+  (a beam 0.2 metres thick, a lamp's housing) and is hidden only by what stands well in front of it. One light
+  for two lamps apart (a gate's posts) or a row of them (three booths), set between or above them, hangs a star in
+  the air or on a bare beam: the Ares and Saeder-Krupp gates' and the Iron Sight Arms booths' lights did
+  (2026-11-14). So a light stands at a lamp, where the flare is the lamp's: of two lamps apart at one of them, of a
+  row at the middle one, at or just inside its housing. Warning beacons only glow. `game` refuses a light more
+  than 0.3 metres from the model (`convert.light_gap`) and reports the distance as `lightFromModel`.
+- **A glass front, window or cover came back as its frame alone**, or drawn solid (the Chop Shop clinic's
+  cyberware case: the two bars of its slanted front and nothing between them; user, 2026-11-14: "Fix the case
+  glass too"). State the panes as `glass`: `[{"corners": [3 to 8 points round a flat pane]}]`, with a
+  `colour` (`[r, g, b]`) and a `strength` (0 to 1) where the pale blue-grey sheen it has without them will not
+  do. Read the corners from the frame's own vertices in the converted model's source file; a bowed bar takes two
+  panes. Each pane is a node of its own, seen from both sides, showing `<name>_g`, a picture added to what is
+  behind it: a pane laid over what is behind it (a node's `alpha`) hid the halo of the lights inside the case.
+  A placeable only: a tile group does not draw it. See it in `check props` by day and by night, the halos of
+  the lights behind it too.
+- **Half of a sign or emblem is smeared** while its other half is clean, on something drawn the same both ways
+  (the Chop Shop clinic's banner: the right half of its caduceus, on both faces of the cloth). `copy` with
+  `"mirror": true` lays the clean half over it from the middle outwards; measure the middle on a gridded
+  `--eye` view. A repeating band beside it (stripes) takes a plain `copy` from a whole number of repeats away;
+  where the band sags along its length the copy meets it a step out, and `rise` (metres, the height of the step)
+  takes the copy from that much higher.
+- **A label or sticker the generator invented on a plain panel** (the Chop Shop clinic's vending machine: an
+  orange label with scribbled lettering on both sides and the back). A copy keeps each height's own band of the
+  wall, so it cannot come from the clean panel above or below: cover each half of the label with the panel beside
+  it at the same heights, `"mirror": true`, the two boxes the same length, so that the panel runs on unbroken at
+  the label's edges. A faint patch is left where the streaks of the panel stop at the box's top and bottom.
+- **A hole only one side shows.** The front, back and side of the client check miss a gap under a rear rim, a
+  slot between lids, a length of pole wound inward (the Chop Shop clinic's bin, dumpster and lamp, 2026-11-14).
+  `game` reports `seenFromBehind`: the largest patch of the model seen from behind, in cm², and the way it was
+  looked at. Look from that way with `--eye` (the game draws nothing there, so the background shows): a hole into
+  a box takes `"inside": true`, a part wound inward `inside` boxes. Glass the generator wound inward reads as an
+  open front and is left (the clinic's cyberware case, about 1,800 cm² from above). Review every prop from its
+  four corners, above and below before the client check, beside its reference.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,
@@ -446,3 +541,10 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
 
 `python -B -m unittest discover -s tools/envkit -p "test_*.py" -t .` covers the plan, the ledger, the pictures,
 the set files `onboard` writes and the layouts of the checks. The client and the Toolset themselves are not started by the tests.
+
+Before a pull request, after main is merged in, run the catalog check CI's Scope job runs:
+`python -B tools/ci_scope.py --check-catalog --base origin/main --full-reason '' --output <scratch>/plan.json`.
+`tools/Test-Repository.ps1` does not run it. A test that reads a new file (an envkit test that came to import
+headkit's design module, 2026-11-14) leaves `tools/test-impact.json` stale, Scope fails on it and every other
+job is skipped. Where it reports the catalog stale, write it again with
+`python -B tools/test_impact.py --write-catalog tools/test-impact.json` and commit the file.

@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_csc_vending
+texture1 ek_csc_vending_n
+texture2 ek_csc_vending_s
+texture3 ek_csc_vending_r
+texture4 null
+texture5 null

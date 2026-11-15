@@ -184,6 +184,10 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     require(type(overrides.get('alignGripAxis', False)) is bool, 'alignGripAxis must be true or false')
     # Both only act on a side grip: anywhere else they would be recorded in the fit notes and silently do nothing.
     require(side or not (overrides.get('alignGripAxis') or 'gripAcross' in overrides), 'alignGripAxis and gripAcross apply to a side grip')
+    # Refused here, before the landmarks are read: read first, a plain fit with reverseGrip was refused for its landmarks
+    # instead wherever the frame's arbitrary sign put the blade at the other end (a CI runner, 2026-11-15).
+    reverse = overrides.get('reverseGrip', False); require(type(reverse) is bool, 'reverseGrip must be true or false')
+    require(side or not reverse, 'reverseGrip applies to a side grip')
     if side:
         # A grip across the weapon (a katar's crossbar, a tonfa's side handle): the frame's width axis, the larger
         # transverse spread, becomes the grip axis and the long body lies across the hand (user, 2026-11-14: "Fist on
@@ -246,12 +250,10 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         if 'targetLength' in overrides: s = float(overrides['targetLength']) / L
         half = grip_length / s / 2; A, B = centre_src - U[:, 0] * half, centre_src + U[:, 0] * half
     M = np.eye(4); M[:3, :3] = s * Rn; M[:3, 3] = origin - s * Rn @ ((A + B) / 2)
-    reverse = overrides.get('reverseGrip', False); require(type(reverse) is bool, 'reverseGrip must be true or false')
     if reverse:
         # The body at the little-finger end of the fist, the reviewed pommel past the thumb (a tonfa; user, 2026-11-14:
         # "Tonfa is ... not facing the right direction"): a half-turn about the body's own axis (native Z) through the
         # grip origin. It keeps the body pointing the same way along the forearm, which turnAboutAxis would reverse.
-        require(side, 'reverseGrip applies to a side grip')
         H = np.diag([-1., -1., 1., 1.]); H[:2, 3] = 2 * origin[:2]; M = H @ M
     authority, departure, report = None, None, None
     chosen_length = hafted or 'targetLength' in overrides
