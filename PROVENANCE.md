@@ -585,7 +585,11 @@ with `ReplaceObjectTexture` and come back.
 Four props light what stands round them since 2026-11-14 (operator, of the lamps of the older sets: "Yes"),
 each by a light in its row of `placeables.2da`; no model or other file of theirs changed. The watch booth is
 lit from its floodlight (lightcolor row 3, bright white), and the vehicle gate from its left post's top light,
-the checkpoint terminal from its top lamp and the drone dock from under its arm (row 2, white). A row holds
+the checkpoint terminal from its top lamp and the drone dock from under its arm (row 2, white). Since 2026-11-15 the terminal only glows again and the dock's light is row 1, dim white (operator, of the night
+captures: "several of those prop lights are too bright", "cast lights should only be on things that should
+actually cast light into an area in addition to glowing"). The armory rack, terminal, drone dock and wall sign
+had their halo sheets remade the same day, each lit part measured on its best-lit upright side, from the
+converted sources restored from the archive, and were seen by night in the game client. A row holds
 one light, and the game draws a star-shaped flare where it stands: the gate's was first set between its posts,
 where the star hung on the bare beam, and was moved to a post's lamp; its other post's light and the dock's
 pillar lamps only glow. Checked in the game client the same day, by night: from the converted files of
@@ -721,7 +725,8 @@ their rows, names and tags, the fence and crates static and the four lit ones no
 Two props light what stands round them since 2026-11-14 (operator, of the lamps of the older sets: "Yes"),
 each by a light in its row of `placeables.2da`; no model or other file of theirs changed. The security booth
 is lit from its roof floodlight (lightcolor row 3, bright white) and the loading console from its top lamp
-(row 2, white). The vehicle gate's amber beacons and lamps are warning lights and only glow: a white light set
+(row 2, white). Since 2026-11-15 the console only glows again (operator: "the other terminal needs it's cast light removed
+too"); its halo sheet was remade the same day and seen by night in the game client. The vehicle gate's amber beacons and lamps are warning lights and only glow: a white light set
 between them hung a star-shaped flare in the air over the gate, and was taken out again. Checked in the game
 client the same day, by night: from the converted files of 2026-11-12, restored from the archive of the
 worktree they were made in (`phenomorpher-worktree-output-2026-11-14-v1`) and the same byte for byte as the
@@ -880,7 +885,8 @@ their front faces: it has a glow map for them, a halo sheet and a lights-out mat
 `docs/envkit/lights.md` describes, and its blueprint is not static, so that a script can reach it. It also lights the
 ground round it (operator: "Yes, try it", on whether its lamps cast light): its row names light colour 3 (bright
 white) 4.2 metres up and half a metre in front of its mast, at its lamp heads. Meshy drew
-lenses on the backs of the heads too; those stay unlit. The loading platform is scenery to
+lenses on the backs of the heads too; those stay unlit. Its halo sheet was remade on 2026-11-15, each lit part measured on its
+best-lit upright side, and seen by night in the game client; its light stays. The loading platform is scenery to
 walk round: its collision is a block over its footprint, and the game does not stand characters on a placeable
 (tried in the client on 2026-11-13 with a walkmesh of walkable deck and stairs: walkers sent onto it stopped on the
 ground at its edge; see `docs/envkit/sheet-runbook.md`). The depot group's platform is walked on.
