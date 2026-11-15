@@ -65,7 +65,7 @@ class FixtureTests(unittest.TestCase):
         text = fixture.enter_script('ak_t', [{'actor': 0}, {'actor': 2, 'facing': 270, 'distance': 1.5, 'pitch': 80, 'height': 1.4}])
         self.assertIn('if(n==0) { tag="ak_t_a0"; facing=90.000; distance=5.000; pitch=84.000; height=0.000; }', text)
         self.assertIn('if(n==1) { tag="ak_t_a2"; facing=270.000; distance=1.500; pitch=80.000; height=1.400; }', text)
-        self.assertIn('if(n>=2) { WriteTimestampedLogEntry("ARMORKIT done"); return; }', text)
+        self.assertIn('if(n>=2) { SetLocalInt(GetModule(),"ARMORKIT_DONE",1); WriteTimestampedLogEntry("ARMORKIT done"); return; }', text)
         self.assertIn('DelayCommand(3.0,Shot(pc,n+1));', text)
         self.assertEqual(text.count('DelayCommand(8.0,Shot(pc,0));'), 1)
         self.assertEqual(text.count('Shot(pc,'), 2)  # the first shot and the chain: nothing is laid out on the clock up front

@@ -34,9 +34,15 @@ CAST = (('standing', 0), ('arms up', 19))  # label and the game's animation cons
 VIEWS = ((62.0, 3.2, 'front', 0.95), (242.0, 3.2, 'rear', 0.95), (62.0, 1.2, 'chest and arms', 1.15), (62.0, 1.1, 'knees', 0.5))
 NAME = 'ak_bodies'  # the fixture's module
 SPACING = 5.0  # metres between two actors in a row
-ROW, ROWS, APART = 12, 6, 25.0  # actors in a row, the rows the fixture's area holds, and the metres between two rows
+# Actors in a row, the rows the fixture's area holds, and the metres between two rows. The rows run to and fro, so
+# that the camera never goes far from one actor to the next: sent 55 m to the start of the next row it stayed where
+# it was for a shot or two, and the picture under a body's label was another body's (client run, 2026-11-15).
+ROW, ROWS, APART = 12, 6, 10.0
 HOST = (140.0, 140.0)  # where the bare actor given the item stands: clear of every row
 # The outfit as an item in a bag: the examine window, then the inventory, each announced as a shot of its own.
+# It begins when the entry script says its shots are over (`fixture.DONE`), not at the time they should be:
+# shots are chained and fall behind the clock on a busy client, and the item's windows would open over them
+# (review of PR 162, 2026-11-15).
 ICONS = '''object Mod(object it,int index,int value) {
   object n=CopyItemAndModify(it,ITEM_APPR_TYPE_ARMOR_MODEL,index,value,TRUE);
   if(!GetIsObjectValid(n)) { WriteTimestampedLogEntry("ARMORKIT icon-modify-failed index="+IntToString(index)); return it; }
@@ -59,8 +65,8 @@ void Show(object pc) {
 }
 void Wait() {
   object pc=GetFirstPC();
-  if(!GetIsObjectValid(pc)) { DelayCommand(1.0,Wait()); return; }
-  DelayCommand(%(after).1f,Show(pc));
+  if(!GetIsObjectValid(pc) || !GetLocalInt(GetModule(),"%(done)s")) { DelayCommand(1.0,Wait()); return; }
+  DelayCommand(1.0,Show(pc));
 }
 void main() { Wait(); }
 '''
@@ -183,6 +189,12 @@ def build(male_kept, output, briefs, number, body_pack, *, jobs=3, run=command, 
     return document
 
 
+def place(index):
+    """Where actor `index` stands: in rows of `ROW` that run to and fro, each next to the one before it."""
+    row, along = divmod(index, ROW)
+    return (12.0 + SPACING * (ROW - 1 - along if row % 2 else along), 20.0 + APART * row)
+
+
 def cast(bodies, worn, statures, colours=None, heads=None, cast=CAST, views=VIEWS):
     """(actors, shots, labels) of a client check: every body of `bodies` wearing `worn` ({slot: number}) in each
     pose of `cast`, with the shots of `views` round it. `statures` gives each body's height as a share of the
@@ -195,7 +207,7 @@ def cast(bodies, worn, statures, colours=None, heads=None, cast=CAST, views=VIEW
         for body in bodies:
             require(body in registry.BODIES and body[:3] in heads, f'{body} is no body with a head to wear')
             index, stature = len(actors), float(statures[body])
-            actors.append({'label': f'{body}, {pose}', 'body': body, 'head': heads[body[:3]], 'position': (12.0 + SPACING * (index % ROW), 20.0 + APART * (index // ROW)), 'parts': dict(worn),
+            actors.append({'label': f'{body}, {pose}', 'body': body, 'head': heads[body[:3]], 'position': place(index), 'parts': dict(worn),
                            'colours': poses.worn_colours(colours), 'script': 'ak_pose', 'vars': {'ANIM': animation}})
             for facing, distance, view, height in views:
                 shots.append({'actor': index, 'facing': facing, 'distance': round(distance * max(1.0, stature), 3), 'pitch': poses.PITCH,
@@ -233,8 +245,7 @@ def check_spec(bodies, slots, number, haks, body_pack, *, tlk=None, colours=None
     scripts = {'ak_pose': poses.POSE_SCRIPT}
     if icons:
         actors.append({'label': 'icon host', 'body': HUMANS['m'], 'head': {**HEADS, **(heads or {})}['pmh'], 'position': HOST, 'bare': True, 'script': 'ak_icons'})
-        scripts['ak_icons'] = ICONS % {'number': number, 'first': len(shots), 'second': len(shots) + 1, 'hold': hold,
-                                       'after': fixture.START + len(shots) * hold + 4.0}
+        scripts['ak_icons'] = ICONS % {'number': number, 'first': len(shots), 'second': len(shots) + 1, 'hold': hold, 'done': fixture.DONE}
     document = {'name': NAME, 'haks': [str(hak) for hak in haks], 'actors': actors, 'shots': shots, 'scripts': scripts, 'hold': hold, 'size': 16}
     if tlk:
         document['tlk'] = str(tlk)
@@ -255,7 +266,7 @@ def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.
             client.wait_free(wait)
         count, hold = len(layout['labels']), record.get('hold', fixture.HOLD)
         evidence = client.run(nwn_root, record, output / 'captures', settle=settle, until='icons-done' if layout['icons'] else 'done',
-                              timeout=record['start'] + (record['shots'] + 2) * hold + 300)
+                              timeout=record['start'] + (record['shots'] + 2) * hold + 300 + record['shots'] * hold)  # room for shots that fall behind
         captures = evidence['captures']
         evidence['sheet'] = str(poses.sheet(captures[:count], layout, output / 'sheet.jpg'))
         for capture, name in zip(captures[count:], ('icon-examine.png', 'icon-inventory.png')):

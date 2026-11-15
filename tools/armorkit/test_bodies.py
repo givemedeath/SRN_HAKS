@@ -148,6 +148,8 @@ class CheckTests(unittest.TestCase):
         everyone = bodies.cast(list(registry.BODIES), {}, {body: 1.0 for body in registry.BODIES})[0]
         self.assertEqual((len(everyone), len({actor['position'] for actor in everyone})), (40, 40))
         self.assertTrue(all(5.0 < x < 155.0 and 5.0 < y < 155.0 and (x, y) != bodies.HOST for x, y in (actor['position'] for actor in everyone)))
+        steps = [abs(a['position'][0] - b['position'][0]) + abs(a['position'][1] - b['position'][1]) for a, b in zip(everyone, everyone[1:])]
+        self.assertLessEqual(max(steps), bodies.APART)  # the camera never goes far from one actor to the next
         with self.assertRaisesRegex(ValueError, 'room for'):
             bodies.cast(list(registry.BODIES), {}, {body: 1.0 for body in registry.BODIES}, cast=bodies.CAST * 2)
         human, dwarf, troll = (shots[at * len(bodies.VIEWS)] for at in range(3))
@@ -182,7 +184,7 @@ class CheckTests(unittest.TestCase):
         self.assertEqual((host['bare'], host['script'], len(document['actors'])), (True, 'ak_icons', 5))
         script = document['scripts']['ak_icons']
         for line in (f'shot={count} target=examine', f'shot={count + 1} target=inventory', 'ITEM_APPR_ARMOR_MODEL_TORSO,6020',
-                     f'DelayCommand({fixture.START + count * 5.0 + 4.0:.1f},Show(pc))'):
+                     f'!GetLocalInt(GetModule(),"{fixture.DONE}")) {{ DelayCommand(1.0,Wait()); return; }}'):  # after the shots, whenever they end
             self.assertIn(line, script)
         self.assertEqual((without['icons'], set(plain['scripts']), len(plain['actors'])), (False, {'ak_pose'}, 2))
         self.assertNotIn('tlk', plain)
@@ -207,7 +209,7 @@ class CheckTests(unittest.TestCase):
                 built.assert_called_once()
                 self.assertEqual(built.call_args.args[2:], (root / 'check', 'game'))
                 waited.assert_called_once_with(60)
-                self.assertEqual((asked['until'], asked['timeout']), ('icons-done', 8.0 + 4 * 5.0 + 300))
+                self.assertEqual((asked['until'], asked['timeout']), ('icons-done', 8.0 + 4 * 5.0 + 300 + 2 * 5.0))
                 self.assertEqual(((root / 'check' / 'icon-examine.png').read_bytes(), (root / 'check' / 'icon-inventory.png').read_bytes()), (b'2', b'3'))
                 self.assertTrue((root / 'check' / 'evidence.json').is_file())
                 with self.assertRaisesRegex(ValueError, 'fresh folder'):
