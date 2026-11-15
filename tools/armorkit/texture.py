@@ -58,6 +58,8 @@ SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thi
 # is the share a shade varies by either way over the surface, in soft patches; the scuff is how much lighter a
 # raised edge gets where it is scuffed; the grime how much darker a crease. Cloth fades unevenly and holds dirt in
 # its folds; leather and painted plates are rubbed pale on their edges (the concept sheets, 2026-11-15).
+SHARPEN = (2, 0.8)  # a shade is moved from the mean of its material this many texels round it by this share more: the generated
+# colours are soft, a voxel of 1.5 mm read between its neighbours. At (4, 1.2) a plate's printed grid came out harsh (preview, 2026-11-15)
 WEAR = {'cloth': (0.22, 0.30, 0.34), 'leather': (0.24, 0.60, 0.30), 'metal': (0.14, 0.75, 0.36)}
 WEAR_CELLS = (1 / 14, 1 / 90)  # of the outfit's height: the size of a patch of mottle, and of a scuff
 WEAR_SPREAD = 2.2  # a blend of grains keeps near its middle: the mottle is spread this much about it to use the whole of 0-1
@@ -84,6 +86,32 @@ def layout(xatlas, vertices, faces, size, padding=PAD):
     mapping, new_faces = np.asarray(mapping, int), np.asarray(new_faces, int)
     require(np.array_equal(vertices[mapping[new_faces]], vertices[faces.astype(int)]), 'The layout changed the part')
     return mapping, new_faces, np.asarray(uvs, float)
+
+
+def spread(vertices, faces, uvs, size):
+    """Metres of surface a texel of a laid-out part spans, over the whole part: its surface against what its
+    charts cover of a texture `size` texels a side."""
+    vertices, faces, uvs = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
+    a, b, c = (vertices[faces[:, i]] for i in range(3))
+    surface = float(np.linalg.norm(np.cross(b - a, c - a), axis=1).sum() / 2)
+    e, g = uvs[faces[:, 1]] - uvs[faces[:, 0]], uvs[faces[:, 2]] - uvs[faces[:, 0]]
+    laid = float(np.abs(e[:, 0] * g[:, 1] - e[:, 1] * g[:, 0]).sum() / 2)
+    return float(np.sqrt(surface / max(laid, 1e-12)) / size)
+
+
+def laid_out(xatlas, vertices, faces, limit=None):
+    """(mapping, faces, uvs, size): a part laid out (`layout`) at the size its surface asks for (`size`), and
+    again at twice that while a texel spans more than `TEXEL` and the size is under `limit` (`SIZES`' largest).
+
+    `size` reckons with charts filling `COVER` of the texture. A hand's many small charts filled a third of
+    that, so its gloves were drawn at 2.9 mm a texel beside a chest at 1.5 (Facility Security, 2026-11-15)."""
+    limit = SIZES[1] if limit is None else limit
+    side = min(size(vertices, faces), limit)
+    while True:
+        mapping, new_faces, uvs = layout(xatlas, vertices, faces, side)
+        if side * 2 > limit or spread(np.asarray(vertices, float)[mapping], new_faces, uvs, side) <= TEXEL:
+            return mapping, new_faces, uvs, side
+        side *= 2
 
 
 def size(vertices, faces):
@@ -561,7 +589,7 @@ def wear_fields(uvs, faces, positions, size, span):
     return mottle, scuff
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None, sharpen=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -630,6 +658,11 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     `found`: a pad's strap runs round the joint along the rim, and read as its rim the side of a knee's cap
     was a flat triangle of webbing in the gap the bend opens.
 
+    `sharpen` is (radius, share), as `SHARPEN`: each texel of the part's own surface is moved from the mean
+    shade of its material over `radius` texels round it by `share` more, so an edge the generated colours show
+    softly is drawn firmer. A material is compared only with itself: nothing is sharpened across the line
+    between two, which the layers already draw hard. Charts lie `PAD` texels apart, further than it reaches.
+
     `wear` is (amount, kinds, mottle, scuff): how worn the outfit is drawn, 0-1 (a brief's `wear`), the kind
     of each material, and the part's `wear_fields`. The part's own surface is then mottled, made lighter on
     its raised edges where they are scuffed and darker in its creases, each by `amount` of what `WEAR` gives
@@ -670,6 +703,12 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         mine = moved & (most == k)
         shade[mine] = (smooth(np.where(worn & (material == k), shade, 0.0), speck) / np.maximum(votes[k], 1e-9))[mine]
     material[moved] = most[moved]
+    if sharpen is not None and sharpen[1] > 0:
+        radius, share = sharpen
+        for k in np.unique(material[worn]):
+            mine = worn & (material == k)
+            mean = smooth(np.where(mine, shade, 0.0), radius) / np.maximum(smooth(mine, radius), 1e-9)
+            shade[mine] = np.clip(shade + share * (shade - mean), *SHADES)[mine]
     if wear is not None and wear[0] > 0:
         amount, kinds, mottle, scuff = wear
         require(len(kinds) == len(pairs) and all(kind in WEAR for kind in kinds) and np.shape(mottle) == covered.shape == np.shape(scuff),
@@ -884,8 +923,9 @@ def tga(image):
 
 
 def halved(image):
-    """An image at half its size each way: each texel the mean of two by two. A normal map shows little in the
-    game's even light once its relief is in the tint shade, and at half size it costs a quarter."""
+    """An image at half its size each way: each texel the mean of two by two (`bodyskin.worn`, where an
+    outfit's maps make room for the body's). An outfit's normal maps were written so until 2026-11-15, for
+    a quarter of the bytes; they are written whole now (user decision: less fuzzy)."""
     image = np.asarray(image, float)
     rows, columns = image.shape[0] // 2 * 2, image.shape[1] // 2 * 2
     return image[:rows, :columns].reshape(rows // 2, 2, columns // 2, 2, -1).mean(axis=(1, 3))

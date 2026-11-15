@@ -481,7 +481,7 @@ class BakeTests(unittest.TestCase):
             models = bake.write(folder, out, tinted, bones, 'pmh0', 332)
             resources = Path(folder) / 'resources'
             self.assertEqual(bodyskin.image((resources / 'pmh0_bicepl332n.tga').read_bytes()).shape, (8, 8, 3))
-            self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (2, 2, 3))  # at half size, as before
+            self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (4, 4, 3))  # whole too: no longer at half size
             rough = bodyskin.image((resources / 'pmh0_bicepl332r.tga').read_bytes())[..., 0]
             self.assertTrue(np.allclose(rough, arm_part['skin_rough'] / 255, atol=1 / 255))
             self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r', 'roughness': 0.0})

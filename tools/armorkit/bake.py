@@ -719,8 +719,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
             only, near = texture.under(pv, pf, made[name], v, cloth & (seen_at == main), kind=UNDER[name])
             pc = pc.copy()
             pc[only, 3:9] = columns[near, 3:9]
-        size = texture.size(pv, pf)
-        mapping, pf, uv = texture.layout(xatlas, pv, pf, size)
+        mapping, pf, uv, size = texture.laid_out(xatlas, pv, pf, BUDGET['texture'])
         pv, pc = pv[mapping], pc[mapping]
         rgb, covered, missed = texture.colour_map(uv, pf, pc[:, 3:6], read, size)
         if role['under'].any():
@@ -1111,7 +1110,7 @@ def tints(parts, document, speck=texture.SPECK):
         tinted[name] = texture.tint_maps(part['rgb'], part['covered'], found, channel, relief=part['relief'],
                                          charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
                                          cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
-                                         shadow=part['closing'] if name in ARMHOLE else None, speck=speck,
+                                         shadow=part['closing'] if name in ARMHOLE else None, speck=speck, sharpen=texture.SHARPEN,
                                          wear=(amount, kinds, *texture.wear_fields(part['uv'], part['f'], part['src'], size(part), span)) if amount else None)
         tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
@@ -1125,7 +1124,7 @@ def write(folder, parts, tinted, bones, body, number):
     """Write every part of a baked outfit as number `number` on `body`: {part: model name}.
 
     `<folder>/ascii` gets the models as ASCII and their tint textures, `<folder>/resources` the tint textures
-    again, the normal maps at half size and the material files that bind them: what a pack takes, once the
+    again, the normal maps and the material files that bind them: what a pack takes, once the
     models are compiled into it (`export.compile_models`)."""
     ascii_dir, resources = Path(folder) / 'ascii', Path(folder) / 'resources'
     for made in (ascii_dir, resources):
@@ -1138,7 +1137,7 @@ def write(folder, parts, tinted, bones, body, number):
         if 'skin_at' in part:  # the body's normal map is already at half its size or less, and its roughness is a map
             texture.write_relief(resources, models[name], part['relief'], rough=part['skin_rough'] / 255)
         else:
-            texture.write_relief(resources, models[name], texture.halved(part['relief']))
+            texture.write_relief(resources, models[name], part['relief'])
         shutil.copyfile(ascii_dir / (models[name] + '.plt'), resources / (models[name] + '.plt'))
     return models
 

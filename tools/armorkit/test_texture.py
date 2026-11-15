@@ -842,6 +842,63 @@ class LayoutTests(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
+    def test_a_part_whose_charts_fill_little_of_its_texture_is_laid_out_larger(self):
+        class Small(FakeAtlas):  # charts a tenth of the texture across, as a hand's many small ones leave it
+            def __getitem__(self, index):
+                mapping, faces, uvs = super().__getitem__(index)
+                return mapping, faces, uvs * self.share
+        sizes = []
+
+        def library(share):
+            def atlas():
+                made = Small(); made.share = share
+                generate = made.generate
+                made.generate = lambda chart_options, pack_options: sizes.append(pack_options.resolution) or generate(chart_options, pack_options)
+                return made
+            return types.SimpleNamespace(Atlas=atlas, ChartOptions=types.SimpleNamespace, PackOptions=types.SimpleNamespace)
+        vertices = np.array([[0, 0, 0], [0.2, 0, 0], [0.2, 0.2, 0], [0, 0.2, 0]], float)
+        # the fake lays each of the two faces over half the square: 0.04 m2 on a whole texture, 0.78 mm a texel at 256
+        mapping, faces, uvs, side = texture.laid_out(library(1.0), vertices, FACES)
+        self.assertEqual((side, sizes), (256, [256]))
+        self.assertAlmostEqual(texture.spread(vertices[mapping], faces, uvs, side), 0.2 / 256)
+        self.assertTrue(np.array_equal(vertices[mapping[faces]], vertices[FACES]))
+        del sizes[:]  # on a tenth of it each way a texel spans 7.8 mm: twice the size, and again, until it spans 2.2 or less
+        self.assertEqual((texture.laid_out(library(0.1), vertices, FACES)[3], sizes), (1024, [256, 512, 1024]))
+        self.assertEqual(texture.laid_out(library(0.1), vertices, FACES, 512)[3], 512)  # no larger than the limit
+        self.assertEqual(texture.laid_out(library(0.01), vertices, FACES)[3], texture.SIZES[1])
+        self.assertEqual(texture.laid_out(library(1.0), np.array([[0, 0, 0], [5, 0, 0], [5, 5, 0], [0, 5, 0]], float), FACES, 512)[3], 512)
+
+
+class SharpenTests(unittest.TestCase):
+    def setUp(self):
+        rng = np.random.default_rng(3)
+        self.found = texture.materials(np.concatenate([shaded(FABRIC, 6000, rng), shaded(TAN, 2500, rng), shaded(PLATE, 1500, rng)]), 3)
+        self.channels = ['cloth1', 'leather1', 'metal1']
+
+    def tinted(self, colour, **more):
+        return texture.tint_maps(colour, np.ones(colour.shape[:2], bool), self.found, self.channels, speck=0, **more)
+
+    def test_an_edge_within_a_material_is_drawn_firmer_and_a_level_surface_left(self):
+        colour = np.empty((32, 32, 3)); colour[:] = FABRIC
+        colour[:, 16:] = np.array(FABRIC) * 0.85  # a soft step in one cloth
+        plain, layers = self.tinted(colour)
+        sharp, same = self.tinted(colour, sharpen=texture.SHARPEN)
+        plain, sharp = plain.astype(int), sharp.astype(int)
+        self.assertTrue(np.array_equal(layers, same))
+        self.assertTrue((sharp[:, 15] > plain[:, 15] + 3).all() and (sharp[:, 16] < plain[:, 16] - 3).all())  # lighter on its light side, darker on its dark
+        self.assertTrue(np.array_equal(sharp[:, :12], plain[:, :12]) and np.array_equal(sharp[:, 20:], plain[:, 20:]))  # past its reach
+        self.assertTrue(np.array_equal(self.tinted(colour, sharpen=(2, 0.0))[0], plain))
+        self.assertTrue(sharp.min() >= texture.SHADES[0] and sharp.max() <= texture.SHADES[1])
+
+    def test_nothing_is_sharpened_across_two_materials_or_on_a_closing(self):
+        colour = np.empty((32, 32, 3)); colour[:, :16], colour[:, 16:] = FABRIC, PLATE
+        plain, sharp = self.tinted(colour)[0], self.tinted(colour, sharpen=texture.SHARPEN)[0]
+        self.assertTrue(np.array_equal(plain, sharp))  # each material level on its own side of the line
+        colour[:] = FABRIC; colour[:, 16:] = np.array(FABRIC) * 0.85
+        closing = np.zeros((32, 32), bool); closing[8:24, 13:19] = True
+        plain, sharp = self.tinted(colour, closing=closing)[0], self.tinted(colour, closing=closing, sharpen=texture.SHARPEN)[0]
+        self.assertTrue(np.array_equal(plain[closing], sharp[closing]))
+
 
 class WearTests(unittest.TestCase):
     """What a brief's `wear` draws into a tint texture: mottle, scuffed ridges, grime in creases."""
