@@ -12,6 +12,7 @@ gives the split (`keep_split`), so that the split alone runs again on it in seco
 (`resplit`), for work on the cut.
 """
 import functools
+import hashlib
 import json
 import shutil
 import time
@@ -1086,7 +1087,51 @@ def combine(sources, folder, document):
     return origin
 
 
-def tints(parts, document, speck=texture.SPECK):
+def digest(*given):
+    """One name for all of `given`, for `tints`' cache: arrays by their type, shape and bytes, dictionaries by
+    their sorted items, lists and tuples item by item, anything else as it prints."""
+    total = hashlib.sha256()
+
+    def feed(value):
+        if isinstance(value, dict):
+            total.update(b'{')
+            for key in sorted(value, key=repr):
+                feed(key), feed(value[key])
+            total.update(b'}')
+        elif isinstance(value, (list, tuple)):
+            total.update(b'[')
+            for item in value:
+                feed(item)
+            total.update(b']')
+        elif isinstance(value, np.ndarray):
+            total.update(f'<{value.dtype} {value.shape}>'.encode())
+            total.update(np.ascontiguousarray(value).tobytes())
+        else:
+            total.update(repr(value).encode() + b';')
+    feed(given)
+    return total.hexdigest()
+
+
+def drawn(cache, key, draw):
+    """(shades, layers) of one part: read from the folder `cache` under `key` where it holds them, else
+    drawn (`draw()`) and, with a cache, kept there. A file is written under another name and renamed, so
+    that bakes running side by side never read half of one."""
+    if cache is None:
+        return draw()
+    path = Path(cache) / (key + '.npz')
+    if path.is_file():
+        with np.load(path) as held:
+            return held['shades'], held['layers']
+    shades, layers = draw()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    scratch = path.with_name(f'{key}.{time.time_ns()}.part')  # np.savez adds .npz to a name without it
+    with open(scratch, 'wb') as handle:
+        np.savez_compressed(handle, shades=shades, layers=layers)
+    scratch.replace(path)
+    return shades, layers
+
+
+def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None):
     """({part: (shades, layers)}, record): the tint texture of every part of a baked outfit, for `export.tint`.
 
     The materials are found over the whole outfit and told which of the brief's each is (`brief.worn`); a
@@ -1100,7 +1145,14 @@ def tints(parts, document, speck=texture.SPECK):
 
     The parts are taken in the order of their names, whatever order they are given in: the materials are
     found on a sample of the texels as they come, and a fresh bake and its stored parts tinted again would
-    else differ by a shade here and there."""
+    else differ by a shade here and there.
+
+    `cache` names a folder that keeps each part's texture under a name made of everything it is drawn from
+    (`digest`: the part's maps and layout, the outfit's materials and lit shades, the wear, and the texture
+    module's own text, so a change to how textures are drawn finds nothing). A part met again with all of
+    that the same is read instead of drawn. An outfit carried to another body (`refit`) keeps its maps, so
+    of Facility Security's 12 parts 10 are the same textures on all the bodies of a gender, and drawing
+    them is most of what a bake of kept parts takes (155 of 221 s, 2026-11-15)."""
     count, parts = len(document['materials']), {name: parts[name] for name in sorted(parts)}
     size = lambda part: len(part['rgb'])
     found = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
@@ -1119,6 +1171,7 @@ def tints(parts, document, speck=texture.SPECK):
     listed = [material['name'] for material in document['materials']]
     here = {listed.index(material['name']): k for k, material in enumerate(worn)}  # the brief's material, as the texels number it
     lit = texture.lit_shades(np.concatenate([part['rgb'][part['covered'] & ~part['closing'] & ~part['cap']] for part in parts.values()]), found)
+    written = hashlib.sha256(Path(texture.__file__).read_bytes()).hexdigest() if cache is not None else None  # how textures are drawn
     amount = float(document.get('wear', 0))
     span = float(np.ptp(np.concatenate([part['src'] for part in parts.values()]), axis=0).max()) if amount else None  # the outfit's height, as generated
     tinted = {}
@@ -1129,11 +1182,19 @@ def tints(parts, document, speck=texture.SPECK):
         trim = np.full(part['covered'].shape, -1)
         for material in np.unique(part['trimmed'][part['trimmed'] >= 0]):
             trim[texture.face_texels(part['uv'], part['f'], part['trimmed'] == material, size(part))] = here[int(material)]
-        tinted[name] = texture.tint_maps(part['rgb'], part['covered'], found, channel, relief=part['relief'],
-                                         charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
-                                         cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
-                                         shadow=part['closing'] if name in ARMHOLE else None, speck=speck, sharpen=texture.SHARPEN,
-                                         wear=(amount, kinds, *texture.wear_fields(part['uv'], part['f'], part['src'], size(part), span)) if amount else None)
+        draw = lambda part=part, twice=twice, trim=trim, name=name: texture.tint_maps(
+            part['rgb'], part['covered'], found, channel, relief=part['relief'],
+            charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
+            cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
+            shadow=part['closing'] if name in ARMHOLE else None, speck=speck, sharpen=texture.SHARPEN,
+            wear=(amount, kinds, *texture.wear_fields(part['uv'], part['f'], part['src'], size(part), span)) if amount else None)
+        key = None if cache is None else digest(
+            written, part['rgb'], part['covered'], found, channel, part['relief'], part['uv'], part['f'], part['closing'], twice,
+            part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span)
+        held = key is not None and (Path(cache) / (key + '.npz')).is_file()
+        tinted[name] = drawn(cache, key, draw)
+        if cache is not None:
+            say(f'{name}: texture {"read from" if held else "kept in"} the cache')
         tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),
@@ -1226,7 +1287,7 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=N
 
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
-        packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None, capture=None):
+        packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None, capture=None, tint_cache=None):
     """Bake one outfit into `output` and check it: the record, also written as `<output>/bake.json`.
 
     With `mesh`, `colours`, `raw` and `xatlas` the outfit is baked (`bake`) and, where `kept` names a folder,
@@ -1237,7 +1298,9 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     compiled into `<output>/resources` (`export.compile_models`, with `resources` to look animations up in):
     the models of this run and no other. An output folder used before still holds the models written then,
     under another number or for parts the outfit no longer has, and they are neither in the record nor gated.
-    `capture`, with a fresh bake, is the file what the split is given is kept in (`keep_split`, `resplit`)."""
+    `capture`, with a fresh bake, is the file what the split is given is kept in (`keep_split`, `resplit`).
+    `tint_cache` is a folder `tints` keeps each part's texture in and reads it from when nothing it is drawn
+    from has changed."""
     fresh = [mesh, colours, raw, xatlas]
     require(capture is None or mesh is not None, 'Split inputs are kept from a fresh bake: parts tinted again are split already')
     require(all(given is not None for given in fresh) or (kept is not None and all(given is None for given in fresh)),
@@ -1256,7 +1319,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
     mark('read the kept parts') if mesh is None else None
-    tinted, record = tints(parts, document)
+    tinted, record = tints(parts, document) if tint_cache is None else tints(parts, document, cache=tint_cache, say=say)
     mark('tint')
     models = write(output, parts, tinted, bones, body, number)
     mark('write')

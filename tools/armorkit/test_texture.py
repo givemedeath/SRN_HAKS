@@ -865,6 +865,21 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(texture.laid_out(library(1.0), np.array([[0, 0, 0], [5, 0, 0], [5, 5, 0], [0, 5, 0]], float), FACES, 512)[3], 512)
 
 
+class RasterHeldTests(unittest.TestCase):
+    def test_a_layout_drawn_before_is_given_again_and_another_is_drawn(self):
+        first = texture.raster(SQUARE, FACES, 16)
+        again = texture.raster(SQUARE.copy(), FACES.copy(), 16)
+        self.assertIs(first[0], again[0])  # held, whatever arrays name it
+        with self.assertRaises(ValueError):
+            first[0][0, 0] = 5  # and not to be written to
+        for other in (texture.raster(SQUARE, FACES, 8), texture.raster(SQUARE * 0.5, FACES, 16), texture.raster(SQUARE, FACES[:1], 16)):
+            self.assertFalse(other[0].shape == first[0].shape and np.array_equal(other[0], first[0]))
+        self.assertLessEqual(len(texture._RASTERS), texture.RASTERS_HELD)
+        fresh = texture._raster(SQUARE, FACES, 16)  # a layout met again after others pushed it out is drawn the same
+        back = texture.raster(SQUARE, FACES, 16)
+        self.assertTrue(np.array_equal(fresh[0], back[0]) and np.array_equal(fresh[1], back[1]))
+
+
 class SharpenTests(unittest.TestCase):
     def setUp(self):
         rng = np.random.default_rng(3)

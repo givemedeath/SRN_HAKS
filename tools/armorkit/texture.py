@@ -12,6 +12,7 @@ outfit lost: edges, seams and folds come back as light and shade (`normal_map`).
 Texture rows run down from v = 0, as the game reads a tint texture (spike record, section 21): texel (row, column)
 has its centre at u = (column + 0.5) / size, v = (row + 0.5) / size.
 """
+import hashlib
 from itertools import product
 from pathlib import Path
 
@@ -123,9 +124,29 @@ def size(vertices, faces):
     return int(np.clip(2 ** int(np.ceil(np.log2(max(need, 1.0)))), *SIZES))
 
 
+_RASTERS = {}  # the last layouts `raster` drew, by what they were drawn from
+RASTERS_HELD = 2  # a part's layout is asked for by every map made of it, one part after another: 33 MB each at 1,024 texels
+
+
 def raster(uvs, faces, size):
     """(owner, weight): per texel the face covering its centre, -1 for none, and the weights of that face's
-    three corners there. A face too small to cover any centre still gets the texel under its middle, if free."""
+    three corners there. A face too small to cover any centre still gets the texel under its middle, if free.
+
+    The last few layouts are held and given again, not to be written to: a part's colour, relief, wear and the
+    texels of its faces each ask for the same one, and drawing it face by face was three quarters of a tint
+    read from the cache (39 of 51 s, 44 drawings of 12 layouts, 2026-11-15)."""
+    uvs, faces = np.ascontiguousarray(uvs, float), np.ascontiguousarray(faces, int)
+    key = (hashlib.sha1(uvs.tobytes()).digest(), hashlib.sha1(faces.tobytes()).digest(), uvs.shape, faces.shape, int(size))
+    if key not in _RASTERS:
+        while len(_RASTERS) >= RASTERS_HELD:
+            del _RASTERS[next(iter(_RASTERS))]
+        _RASTERS[key] = _raster(uvs, faces, size)
+        for held in _RASTERS[key]:
+            held.setflags(write=False)
+    return _RASTERS[key]
+
+
+def _raster(uvs, faces, size):
     owner, weight = np.full((size, size), -1, int), np.zeros((size, size, 3))
     corners = np.asarray(uvs, float)[np.asarray(faces, int)] * size
     for index, t in enumerate(corners):

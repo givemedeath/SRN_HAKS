@@ -113,7 +113,7 @@ def command_bake(args):
     registry.require(all(sources) or (args.kept and not any(sources)),
                      'bake needs --mesh, --colours, --raw and --xatlas together, or --kept alone to tint stored parts again')
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
-                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=args.tier,
+                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=args.tier, tint_cache=args.tint_cache,
                       packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
                       capture=args.capture, say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
@@ -242,6 +242,7 @@ def main(argv=None):
     p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
     p.add_argument('--resources', action='append', default=[], help='folder the compiler looks animations up in')
     p.add_argument('--capture', help='file to keep what the split is given in, for `split` to run it again')
+    p.add_argument('--tint-cache', help='folder that keeps each part\'s tint texture, read again while nothing it is drawn from has changed')
     p.set_defaults(handler=command_bake)
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
     p.add_argument('capture', help='the file `bake --capture` wrote')

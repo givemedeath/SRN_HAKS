@@ -95,6 +95,27 @@ def part(faces=1, size=4):
 
 
 class BakeTests(unittest.TestCase):
+    def test_a_parts_texture_is_named_by_all_it_is_drawn_from_and_read_again_under_that_name(self):
+        one = np.arange(6, dtype=float).reshape(2, 3)
+        name = bake.digest(one, {'b': 1, 'a': one}, ('cloth', None), 0.3)
+        self.assertEqual(name, bake.digest(one.copy(), {'a': one, 'b': 1}, ('cloth', None), 0.3))
+        for other in ((one + 1, {'b': 1, 'a': one}, ('cloth', None), 0.3), (one.reshape(3, 2), {'b': 1, 'a': one}, ('cloth', None), 0.3),
+                      (one.astype(np.float32), {'b': 1, 'a': one}, ('cloth', None), 0.3), (one, {'b': 2, 'a': one}, ('cloth', None), 0.3),
+                      (one, {'b': 1, 'a': one}, ('leather', None), 0.3), (one, {'b': 1, 'a': one}, ('cloth', None), 0.4)):
+            self.assertNotEqual(name, bake.digest(*other))
+        self.assertNotEqual(bake.digest([1, 2], 3), bake.digest([1], 2, 3))  # where a list ends is part of the name
+        drawn = []
+        draw = lambda: drawn.append(1) or (np.full((4, 4), 170, np.uint8), np.full((4, 4), 4, np.uint8))
+        self.assertEqual((bake.drawn(None, None, draw)[0][0, 0], len(drawn)), (170, 1))  # no cache: drawn, nothing kept
+        with tempfile.TemporaryDirectory() as folder:
+            cache = Path(folder) / 'cache'
+            first = bake.drawn(cache, name, draw)
+            again = bake.drawn(cache, name, lambda: self.fail('drawn again'))
+            self.assertTrue(np.array_equal(first[0], again[0]) and np.array_equal(first[1], again[1]))
+            self.assertEqual(([path.name for path in cache.iterdir()], len(drawn)), ([name + '.npz'], 2))
+            bake.drawn(cache, 'other', draw)
+            self.assertEqual(len(drawn), 3)
+
     def test_a_bake_says_how_long_each_stage_took(self):
         said, ticks = [], iter([10.0, 12.5, 12.5, 20.0, 21.0])
         mark, seconds = bake.stages(said.append, clock=lambda: next(ticks))
