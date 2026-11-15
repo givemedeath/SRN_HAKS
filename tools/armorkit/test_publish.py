@@ -346,6 +346,29 @@ class IconTests(unittest.TestCase):
 
 
 class PublishTests(Workspace):
+    def test_a_map_that_is_one_image_on_two_bodies_is_published_once(self):
+        bakes = [bake(self.root / 'bakes' / body, body) for body in ('pmh0', 'pmg0')]
+        for token in ('shinl', 'shinr'):  # the troll's shins carry the Human's normal maps, as a refit leaves them
+            human, troll = (registry.model_name(body, token, NUMBER) for body in ('pmh0', 'pmg0'))
+            (bakes[1] / 'resources' / (troll + 'n.tga')).write_bytes((bakes[0] / 'resources' / (human + 'n.tga')).read_bytes())
+        trial = self.root / 'trial'
+        report = self.publish(bakes, root=trial, trial=True)
+        self.assertEqual(report['sharedMaps'], {f'pmg0_shinl{NUMBER}n': f'pmh0_shinl{NUMBER}n', f'pmg0_shinr{NUMBER}n': f'pmh0_shinr{NUMBER}n'})
+        self.assertEqual(set(report['failuresByGate']), {'bodies', 'icons'})  # two male bodies of twenty; no map is missing, the gates read the rewritten files
+        pack = trial / 'srn_parts'
+        self.assertFalse((pack / f'pmg0_shinl{NUMBER}n.tga').exists())
+        self.assertTrue((pack / f'pmh0_shinl{NUMBER}n.tga').is_file() and (pack / f'pmg0_chest{NUMBER}n.tga').is_file())
+        self.assertEqual((pack / f'pmg0_shinl{NUMBER}.mtr').read_text(encoding='ascii'), MATERIAL.format(f'pmh0_shinl{NUMBER}'))
+        self.assertEqual((pack / f'pmg0_chest{NUMBER}.mtr').read_text(encoding='ascii'), MATERIAL.format(f'pmg0_chest{NUMBER}'))
+        self.assertEqual((bakes[1] / 'resources' / f'pmg0_shinl{NUMBER}.mtr').read_text(encoding='ascii'), MATERIAL.format(f'pmg0_shinl{NUMBER}'))  # the bake is as it was
+        handoff = json.loads((trial / publish.HANDOFF).read_text(encoding='utf-8'))
+        troll = {resource['name']: resource for resource in handoff['outfits'][1]['resources']}
+        self.assertEqual(len(troll), len(TOKENS) * 4 - 2)
+        self.assertNotIn(f'pmg0_shinl{NUMBER}n.tga', troll)
+        self.assertEqual(troll[f'pmg0_shinl{NUMBER}.mtr']['sha256'], publish.sha(pack / f'pmg0_shinl{NUMBER}.mtr'))
+        self.assertEqual(troll[f'pmg0_shinl{NUMBER}.mtr']['bytes'], (pack / f'pmg0_shinl{NUMBER}.mtr').stat().st_size)
+        self.assertEqual(publish.shared_maps([], {'a.tga': bakes[0] / 'bake.json', 'b.plt': bakes[0] / 'bake.json'}), ({}, {}))  # a map alone, and no tint texture
+
     def test_a_trial_writes_the_pack_tables_and_records_whatever_the_gates_say(self):
         trial = self.root / 'trial'
         report = self.publish(shared(('pmh0', 'pfh0')), root=trial, trial=True)

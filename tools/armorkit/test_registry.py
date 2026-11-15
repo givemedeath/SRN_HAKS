@@ -163,6 +163,17 @@ class RegistryTests(unittest.TestCase):
         registry.validate(document(original))
         self.assertEqual(original, snapshot)
 
+    def test_a_part_may_suggest_a_colour_for_each_of_its_own_channels(self):
+        coloured = part(colours={'cloth1': [40, 48, 70], 'metal1': [30, 32, 36]})
+        row = registry.handoff(registry.validate(document(coloured)))['parts'][0]
+        self.assertEqual(row['colours'], {'cloth1': [40, 48, 70], 'metal1': [30, 32, 36]})
+        self.assertNotIn('colours', registry.handoff(registry.validate(document(part())))['parts'][0])
+        registry.validate(document(part(colours={'cloth1': [0, 0, 255]})))  # some of its channels is enough
+        skinned = dict(channels=['cloth1', 'skin'], coverage={'skin': True, 'headgear': False})
+        for wrong in ({}, {'leather1': [1, 2, 3]}, {'cloth1': [1, 2]}, {'cloth1': [1, 2, 256]}, {'cloth1': [0.1, 0.2, 0.3]}, {'cloth1': 'navy'}, [1, 2, 3]):
+            self.rejected('colours map', part(colours=wrong))
+        self.rejected('colours map', part(colours={'skin': [1, 2, 3]}, **skinned))
+
 
 if __name__ == '__main__':
     unittest.main()

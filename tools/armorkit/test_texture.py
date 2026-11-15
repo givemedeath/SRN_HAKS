@@ -700,12 +700,6 @@ class ReliefTests(unittest.TestCase):
         self.assertTrue(np.allclose(fine, [np.sin(tilt), 0, np.cos(tilt)], atol=1e-3))
         self.assertTrue(np.allclose(texture.fine_normals(values, np.tile([0.0, 0.0, -1.0], (2, 1))), [-np.sin(tilt), 0, -np.cos(tilt)], atol=1e-3))
 
-    def test_a_map_is_halved_by_averaging_two_by_two(self):
-        image = np.zeros((4, 4, 3)); image[0, 0], image[0, 1], image[3, 3] = (1, 0, 0), (0, 1, 0), (0, 0, 1)
-        half = texture.halved(image)
-        self.assertEqual(half.shape, (2, 2, 3))
-        self.assertTrue(np.allclose(half[0, 0], [0.25, 0.25, 0]) and np.allclose(half[1, 1], [0, 0, 0.25]) and np.allclose(half[0, 1], 0))
-
     def test_a_normal_map_is_written_bottom_row_first_with_the_material_that_binds_it(self):
         image = np.zeros((2, 4, 3)); image[0, 0] = (1.0, 0.5, 0.0)
         blob = texture.tga(image)
@@ -837,6 +831,166 @@ class LayoutTests(unittest.TestCase):
         library = types.SimpleNamespace(Atlas=Wrong, ChartOptions=types.SimpleNamespace, PackOptions=types.SimpleNamespace)
         with self.assertRaises(ValueError):
             texture.layout(library, np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], float), FACES, 128)
+
+    def test_a_part_whose_charts_fill_little_of_its_texture_is_laid_out_larger(self):
+        class Small(FakeAtlas):  # charts a tenth of the texture across, as a hand's many small ones leave it
+            def __getitem__(self, index):
+                mapping, faces, uvs = super().__getitem__(index)
+                return mapping, faces, uvs * self.share
+        sizes = []
+
+        def library(share):
+            def atlas():
+                made = Small(); made.share = share
+                generate = made.generate
+                made.generate = lambda chart_options, pack_options: sizes.append(pack_options.resolution) or generate(chart_options, pack_options)
+                return made
+            return types.SimpleNamespace(Atlas=atlas, ChartOptions=types.SimpleNamespace, PackOptions=types.SimpleNamespace)
+        vertices = np.array([[0, 0, 0], [0.2, 0, 0], [0.2, 0.2, 0], [0, 0.2, 0]], float)
+        # the fake lays each of the two faces over half the square: 0.04 m2 on a whole texture, 0.78 mm a texel at 256
+        mapping, faces, uvs, side = texture.laid_out(library(1.0), vertices, FACES)
+        self.assertEqual((side, sizes), (256, [256]))
+        self.assertAlmostEqual(texture.texel_span(vertices[mapping], faces, uvs, side), 0.2 / 256)
+        self.assertTrue(np.array_equal(vertices[mapping[faces]], vertices[FACES]))
+        del sizes[:]  # on a tenth of it each way a texel spans 7.8 mm: twice the size, and again, until it spans 2.2 or less
+        self.assertEqual((texture.laid_out(library(0.1), vertices, FACES)[3], sizes), (1024, [256, 512, 1024]))
+        self.assertEqual(texture.laid_out(library(0.1), vertices, FACES, 512)[3], 512)  # no larger than the limit
+        self.assertEqual(texture.laid_out(library(0.01), vertices, FACES)[3], texture.SIZES[1])
+        self.assertEqual(texture.laid_out(library(1.0), np.array([[0, 0, 0], [5, 0, 0], [5, 5, 0], [0, 5, 0]], float), FACES, 512)[3], 512)
+
+
+class RasterHeldTests(unittest.TestCase):
+    def test_a_layout_drawn_before_is_given_again_and_another_is_drawn(self):
+        first = texture.raster(SQUARE, FACES, 16)
+        again = texture.raster(SQUARE.copy(), FACES.copy(), 16)
+        self.assertIs(first[0], again[0])  # held, whatever arrays name it
+        with self.assertRaises(ValueError):
+            first[0][0, 0] = 5  # and not to be written to
+        for other in (texture.raster(SQUARE, FACES, 8), texture.raster(SQUARE * 0.5, FACES, 16), texture.raster(SQUARE, FACES[:1], 16)):
+            self.assertFalse(other[0].shape == first[0].shape and np.array_equal(other[0], first[0]))
+        self.assertLessEqual(len(texture._RASTERS), texture.RASTERS_HELD)
+        fresh = texture._raster(SQUARE, FACES, 16)  # a layout met again after others pushed it out is drawn the same
+        back = texture.raster(SQUARE, FACES, 16)
+        self.assertTrue(np.array_equal(fresh[0], back[0]) and np.array_equal(fresh[1], back[1]))
+
+
+class SharpenTests(unittest.TestCase):
+    def setUp(self):
+        rng = np.random.default_rng(3)
+        self.found = texture.materials(np.concatenate([shaded(FABRIC, 6000, rng), shaded(TAN, 2500, rng), shaded(PLATE, 1500, rng)]), 3)
+        self.channels = ['cloth1', 'leather1', 'metal1']
+
+    def tinted(self, colour, **more):
+        return texture.tint_maps(colour, np.ones(colour.shape[:2], bool), self.found, self.channels, speck=0, **more)
+
+    def test_an_edge_within_a_material_is_drawn_firmer_and_a_level_surface_left(self):
+        colour = np.empty((32, 32, 3)); colour[:] = FABRIC
+        colour[:, 16:] = np.array(FABRIC) * 0.85  # a soft step in one cloth
+        plain, layers = self.tinted(colour)
+        sharp, same = self.tinted(colour, sharpen=texture.SHARPEN)
+        plain, sharp = plain.astype(int), sharp.astype(int)
+        self.assertTrue(np.array_equal(layers, same))
+        self.assertTrue((sharp[:, 15] > plain[:, 15] + 3).all() and (sharp[:, 16] < plain[:, 16] - 3).all())  # lighter on its light side, darker on its dark
+        self.assertTrue(np.array_equal(sharp[:, :12], plain[:, :12]) and np.array_equal(sharp[:, 20:], plain[:, 20:]))  # past its reach
+        self.assertTrue(np.array_equal(self.tinted(colour, sharpen=(2, 0.0))[0], plain))
+        self.assertTrue(sharp.min() >= texture.SHADES[0] and sharp.max() <= texture.SHADES[1])
+
+    def test_nothing_is_sharpened_across_two_materials_or_on_a_closing(self):
+        colour = np.empty((32, 32, 3)); colour[:, :16], colour[:, 16:] = FABRIC, PLATE
+        plain, sharp = self.tinted(colour)[0], self.tinted(colour, sharpen=texture.SHARPEN)[0]
+        self.assertTrue(np.array_equal(plain, sharp))  # each material level on its own side of the line
+        colour[:] = FABRIC; colour[:, 16:] = np.array(FABRIC) * 0.85
+        closing = np.zeros((32, 32), bool); closing[8:24, 13:19] = True
+        plain, sharp = self.tinted(colour, closing=closing)[0], self.tinted(colour, closing=closing, sharpen=texture.SHARPEN)[0]
+        self.assertTrue(np.array_equal(plain[closing], sharp[closing]))
+
+
+class WearTests(unittest.TestCase):
+    """What a brief's `wear` draws into a tint texture: mottle, scuffed ridges, grime in creases."""
+
+    def setUp(self):
+        rng = np.random.default_rng(3)
+        self.found = texture.materials(np.concatenate([shaded(FABRIC, 6000, rng), shaded(TAN, 2500, rng), shaded(PLATE, 1500, rng)]), 3)
+        self.kinds = ['cloth', 'leather', 'metal']
+        self.channels = ['cloth1', 'leather1', 'metal1']
+        self.covered = np.ones((32, 32), bool)
+        self.level, self.none = np.full((32, 32), 0.5), np.zeros((32, 32))
+
+    def tinted(self, tone, wear, **more):
+        colour = np.empty((32, 32, 3)); colour[:] = tone
+        return texture.tint_maps(colour, self.covered, self.found, self.channels, speck=0, wear=wear, **more)[0].astype(int)
+
+    def test_a_grain_is_the_same_whenever_it_is_read_and_stays_in_range(self):
+        points = np.random.default_rng(1).uniform(-2, 2, (4000, 3))
+        first = texture.grain(points, 0.1)
+        self.assertTrue(np.array_equal(first, texture.grain(points, 0.1)))
+        self.assertTrue(first.min() >= 0 and first.max() <= 1 and first.std() > 0.1)
+        self.assertFalse(np.allclose(first, texture.grain(points, 0.1, seed=1)))
+        # soft: two points a hundredth of a cell apart read nearly alike, and a lattice point reads the same from either side
+        self.assertLess(np.abs(texture.grain(points + 0.001, 0.1) - first).max(), 0.05)
+        self.assertAlmostEqual(float(texture.grain([[0.1 - 1e-9, 0.2, 0.3]], 0.1)[0]), float(texture.grain([[0.1 + 1e-9, 0.2, 0.3]], 0.1)[0]), places=5)
+
+    def test_the_fields_follow_the_generated_outfit_not_the_layout(self):
+        positions = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float)
+        mottle, scuff = texture.wear_fields(SQUARE, FACES, positions, 64, 2.0)
+        self.assertEqual((mottle.shape, scuff.shape), ((64, 64), (64, 64)))
+        for field in (mottle, scuff):
+            self.assertTrue(field.min() >= 0 and field.max() <= 1)
+        self.assertGreater(mottle.std(), 0.1)
+        self.assertTrue(0.2 < (scuff > 0.5).mean() < 0.8)  # about half an edge is scuffed
+        # the same surface laid out mirrored wears the same patches, mirrored
+        again = texture.wear_fields(SQUARE[[1, 0, 3, 2]], FACES, positions, 64, 2.0)
+        self.assertTrue(np.allclose(again[0][:, ::-1], mottle, atol=0.05) and np.allclose(again[1][:, ::-1], scuff, atol=0.15))
+        # and half a part laid out leaves the rest of its texture level and unscuffed
+        half, none = texture.wear_fields(SQUARE * 0.5, FACES, positions, 64, 2.0)
+        self.assertTrue((half[40:, 40:] == 0.5).all() and (none[40:, 40:] == 0).all())
+
+    def test_no_wear_changes_nothing(self):
+        plain = self.tinted(TAN, None, relief=ReliefShadeTests.fold(True))
+        clean = self.tinted(TAN, (0.0, self.kinds, self.level + 0.4, self.none + 1), relief=ReliefShadeTests.fold(True))
+        self.assertTrue(np.array_equal(plain, clean))
+
+    def test_a_surface_is_mottled_lighter_and_darker(self):
+        mottle = self.level.copy(); mottle[:, :8], mottle[:, 24:] = 0.0, 1.0
+        plain, worn = self.tinted(FABRIC, None), self.tinted(FABRIC, (1.0, self.kinds, mottle, self.none))
+        share = texture.WEAR['cloth'][0]
+        self.assertTrue(np.array_equal(worn[:, 8:24], plain[:, 8:24]))
+        self.assertTrue(np.allclose(worn[:, :8], plain[:, :8] * (1 - share), atol=1) and np.allclose(worn[:, 24:], plain[:, 24:] * (1 + share), atol=1))
+        half = self.tinted(FABRIC, (0.5, self.kinds, mottle, self.none))
+        self.assertTrue(np.allclose(half[:, :8], plain[:, :8] * (1 - share / 2), atol=1))
+
+    def test_a_ridge_is_scuffed_pale_where_its_scuff_lies_and_a_crease_holds_grime(self):
+        scuff = self.none.copy(); scuff[:16] = 1.0
+        ridge = ReliefShadeTests.fold(True)
+        plain, worn = self.tinted(PLATE, None, relief=ridge), self.tinted(PLATE, (1.0, self.kinds, self.level, scuff), relief=ridge)
+        self.assertTrue((worn[:14, 15:17] > plain[:14, 15:17] + 15).all())  # the top of the ridge, where it is scuffed
+        self.assertTrue(np.array_equal(worn[18:, 15:17], plain[18:, 15:17]) and np.array_equal(worn[:, :5], plain[:, :5]))  # not off the scuff, nor without a ridge
+        cloth = self.tinted(FABRIC, (1.0, self.kinds, self.level, scuff), relief=ridge) - self.tinted(FABRIC, None, relief=ridge)
+        self.assertTrue((cloth[:14, 15:17] < (worn - plain)[:14, 15:17]).all())  # a plate is rubbed paler than cloth
+        crease = ReliefShadeTests.fold(False)
+        plain, worn = self.tinted(FABRIC, None, relief=crease), self.tinted(FABRIC, (1.0, self.kinds, self.level, self.none), relief=crease)
+        self.assertTrue((worn[:, 15:17] < plain[:, 15:17] - 5).all())
+        self.assertTrue(np.array_equal(worn[:, :5], plain[:, :5]))
+        self.assertTrue(worn.min() >= texture.SHADES[0] and worn.max() <= texture.SHADES[1])
+        # a fine surface that only tilts away is darker by its slope, and is no crease: it holds no grime
+        tilt = np.radians(40)
+        tilted = np.empty((32, 32, 3)); tilted[:] = (np.array([np.sin(tilt), 0.0, np.cos(tilt)]) + 1) / 2
+        plain, worn = self.tinted(FABRIC, None, relief=tilted), self.tinted(FABRIC, (1.0, self.kinds, self.level, self.none), relief=tilted)
+        self.assertTrue((plain < self.tinted(FABRIC, None)).all() and np.array_equal(worn, plain))
+
+    def test_closings_and_caps_are_left_even(self):
+        mottle = np.random.default_rng(2).uniform(0, 1, (32, 32))
+        closing, cap = np.zeros((32, 32), bool), np.zeros((32, 32), bool)
+        closing[4:10, 4:10], cap[20:26, 20:26] = True, True
+        worn = self.tinted(FABRIC, (1.0, self.kinds, mottle, self.none), closing=closing, cap=cap, lit=(170, 150, 140))
+        self.assertEqual((len(set(worn[closing].tolist())), len(set(worn[cap].tolist()))), (1, 1))
+        self.assertGreater(len(set(worn[~closing & ~cap].tolist())), 10)
+
+    def test_wear_names_a_kind_per_material_and_its_fields_per_texel(self):
+        for wrong in ((1.0, self.kinds[:2], self.level, self.none), (1.0, ['cloth', 'silk', 'metal'], self.level, self.none),
+                      (1.0, self.kinds, self.level[:4], self.none)):
+            with self.assertRaises(ValueError):
+                self.tinted(FABRIC, wrong)
 
 
 if __name__ == '__main__':
