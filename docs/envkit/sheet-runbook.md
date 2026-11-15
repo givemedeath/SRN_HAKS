@@ -534,6 +534,17 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   a box takes `"inside": true`, a part wound inward `inside` boxes. Glass the generator wound inward reads as an
   open front and is left (the clinic's cyberware case, about 1,800 cm² from above). Review every prop from its
   four corners, above and below before the client check, beside its reference.
+- **A pale, blocky patch across a window or doorway**, cutting off what is drawn behind it. The generator laid a
+  stray face or two over the opening, a square metre each, drawn as a smear: the Pulse Tech shop's left window
+  pane (operator, 2026-11-15: "the front window has a pretty major defect. I'm surprised you didn't see that";
+  it showed in the gridded front view and was passed over). The full generation has it too, so another reduction
+  does not mend it (5 credits spent finding that out), and a `copy` over it stays blocky, the face having few
+  texels. Find the faces (the largest in the opening, by their middles, from `convert.shape`) and take them out
+  with a `clear` box that holds their middles alone, narrow in depth; what the generator drew behind them shows.
+  Before stating a building's lit parts, draw every window and the door close up in perspective (`--eye`, 80
+  pixels to the metre or more, square on and from a slant) and compare each with the reference: the see-through
+  square-on drawings and a view of the whole front do not show it. Never draw a building's full generation
+  (`meshy/masters`) with `view`: it took 47 GB of memory and stopped another session's client run.
 - **A question about how the engine wants a tile made.** `envkit study tiles --tileset <tileset> --tile <n>
   --output <scratch>` decompiles stock tiles and tells their fade, light, door and animation lines.
   `envkit study pathnodes --tileset <tileset>` checks the path-node table against a tileset's stock tiles,
