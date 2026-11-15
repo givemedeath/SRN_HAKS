@@ -485,6 +485,46 @@
       "sourceArchive": "sr893e13e4h.hak",
       "status": "user-approved",
       "family": "F5"
+    },
+    {
+      "id": "sr4-kris-8c429f7ba5",
+      "name": "Kris",
+      "blueprints": [
+        "sr8070eecb"
+      ],
+      "sourceArchive": "sr8070eecbh.hak",
+      "status": "user-approved",
+      "family": "F1"
+    },
+    {
+      "id": "sr4-monofilament-sword-463d9cc9c1",
+      "name": "Monofilament Sword",
+      "blueprints": [
+        "sr79104ee8"
+      ],
+      "sourceArchive": "sr79104ee8h.hak",
+      "status": "user-approved",
+      "family": "F2"
+    },
+    {
+      "id": "sr4-jupiter-taser-club-e35e6a838a",
+      "name": "Jupiter Taser Club",
+      "blueprints": [
+        "srd88e01a2"
+      ],
+      "sourceArchive": "srd88e01a2h.hak",
+      "status": "user-approved",
+      "family": "F2"
+    },
+    {
+      "id": "sr4-rattan-stick-1f8c423340",
+      "name": "Rattan Stick",
+      "blueprints": [
+        "sr48d86616"
+      ],
+      "sourceArchive": "sr48d86616h.hak",
+      "status": "user-approved",
+      "family": "F2"
     }
   ],
   "resources": [
@@ -1749,7 +1789,7 @@
     },
     {
       "path": "srn_2da/baseitems.2da",
-      "sha256": "053431c4aaf9a793abee2286aa85475f832c0ba9144f119b17fc6c89e10f57c2",
+      "sha256": "f4d9f3da319e65898d22173280039689e7565dfd13db782332807d3d70e2e475",
       "bytes": 133484,
       "resourceType": 2017,
       "item": "colt-l36-pistol",
@@ -3627,6 +3667,326 @@
       "sha256": "8550b1071b01cfc3224ca6cd8bbf9599a84bb4c878a38c283f1bf6636e28bcca",
       "bytes": 742,
       "resourceType": 2025
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbh.hak",
+      "sourceResource": "iwswdg_b_151.tga",
+      "approvedSourceSha256": "30cc969940541a97e2ddb2e07b01f79a1c14546c9d3ba28d55b3782f6afc24fc",
+      "path": "srn_weapon/iwswdg_b_151.tga",
+      "sha256": "30cc969940541a97e2ddb2e07b01f79a1c14546c9d3ba28d55b3782f6afc24fc",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbh.hak",
+      "sourceResource": "iwswdg_m_151.tga",
+      "approvedSourceSha256": "0257246a9ee346ef0102299a838bedeb27b775d4480bfddcd4c34eef01ec5e7e",
+      "path": "srn_weapon/iwswdg_m_151.tga",
+      "sha256": "0257246a9ee346ef0102299a838bedeb27b775d4480bfddcd4c34eef01ec5e7e",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbh.hak",
+      "sourceResource": "iwswdg_t_151.tga",
+      "approvedSourceSha256": "0a7f86f0f424bd8ad68c207beab91f8478e4f2ca5404b2dc4aa743ba612f3f8c",
+      "path": "srn_weapon/iwswdg_t_151.tga",
+      "sha256": "0a7f86f0f424bd8ad68c207beab91f8478e4f2ca5404b2dc4aa743ba612f3f8c",
+      "bytes": 4140,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbh.hak",
+      "sourceResource": "sr8070eecb_15.tga",
+      "approvedSourceSha256": "89b44ce161dbe3a8296d82b15c95bac8df3e06353879004cc4f3142a33980f34",
+      "path": "srn_weapon/sr8070eecb_15.tga",
+      "sha256": "89b44ce161dbe3a8296d82b15c95bac8df3e06353879004cc4f3142a33980f34",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbh.hak",
+      "sourceResource": "wswdg_b_151.mdl",
+      "approvedSourceSha256": "0110a67f2ead40e7ef98a95a923126a9b59bac8d8204c243d9921300268e2207",
+      "path": "srn_weapon/wswdg_b_151.mdl",
+      "sha256": "0110a67f2ead40e7ef98a95a923126a9b59bac8d8204c243d9921300268e2207",
+      "bytes": 76980,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbh.hak",
+      "sourceResource": "wswdg_m_151.mdl",
+      "approvedSourceSha256": "74e3a1678a967b5aba2da02d39b5c1b4b3e2ddbc34c82871b2b0856574079d0e",
+      "path": "srn_weapon/wswdg_m_151.mdl",
+      "sha256": "74e3a1678a967b5aba2da02d39b5c1b4b3e2ddbc34c82871b2b0856574079d0e",
+      "bytes": 129300,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbh.hak",
+      "sourceResource": "wswdg_t_151.mdl",
+      "approvedSourceSha256": "1f7de26e46b3e9a97f2b19479376bcc4b7bd2509e719482243c7d265ac8c8341",
+      "path": "srn_weapon/wswdg_t_151.mdl",
+      "sha256": "1f7de26e46b3e9a97f2b19479376bcc4b7bd2509e719482243c7d265ac8c8341",
+      "bytes": 473100,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-kris-8c429f7ba5",
+      "sourceArchive": "sr8070eecbm.mod",
+      "sourceResource": "sr8070eecb.uti",
+      "approvedSourceSha256": "950e840378e403d6e4021d5d31a4f2cd5bae0f87c4311a2c0bff43c3b5b21cca",
+      "path": "srn_weapon/sr8070eecb.uti",
+      "sha256": "950e840378e403d6e4021d5d31a4f2cd5bae0f87c4311a2c0bff43c3b5b21cca",
+      "bytes": 730,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8h.hak",
+      "sourceResource": "iwswls_b_151.tga",
+      "approvedSourceSha256": "2b98fc248547d82298fc1d5273c99326af4c94bb6cf79134024bca678d2253b0",
+      "path": "srn_weapon/iwswls_b_151.tga",
+      "sha256": "2b98fc248547d82298fc1d5273c99326af4c94bb6cf79134024bca678d2253b0",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8h.hak",
+      "sourceResource": "iwswls_m_151.tga",
+      "approvedSourceSha256": "92260e9f3fd00279f6dd7bd4068fbde1d36516fd0178dea77eaa0bce2529ed97",
+      "path": "srn_weapon/iwswls_m_151.tga",
+      "sha256": "92260e9f3fd00279f6dd7bd4068fbde1d36516fd0178dea77eaa0bce2529ed97",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8h.hak",
+      "sourceResource": "iwswls_t_151.tga",
+      "approvedSourceSha256": "9e3aff3de76c9ab2af977482c4d28c6b63e177b845eef4c8b239e496bf939276",
+      "path": "srn_weapon/iwswls_t_151.tga",
+      "sha256": "9e3aff3de76c9ab2af977482c4d28c6b63e177b845eef4c8b239e496bf939276",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8h.hak",
+      "sourceResource": "sr79104ee8_15.tga",
+      "approvedSourceSha256": "db66bf1614121c743e3e67626d68a0e565a14ab941f2abc9f75626e476ab9caa",
+      "path": "srn_weapon/sr79104ee8_15.tga",
+      "sha256": "db66bf1614121c743e3e67626d68a0e565a14ab941f2abc9f75626e476ab9caa",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8h.hak",
+      "sourceResource": "wswls_b_151.mdl",
+      "approvedSourceSha256": "cd74d53647ac4d337412629430130c73611923047ad7a49a5134f905795ff6dc",
+      "path": "srn_weapon/wswls_b_151.mdl",
+      "sha256": "cd74d53647ac4d337412629430130c73611923047ad7a49a5134f905795ff6dc",
+      "bytes": 113628,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8h.hak",
+      "sourceResource": "wswls_m_151.mdl",
+      "approvedSourceSha256": "30a900558bc36575f12b4094ceba6138f58cfe21d81e0d46a3c790918f0601b8",
+      "path": "srn_weapon/wswls_m_151.mdl",
+      "sha256": "30a900558bc36575f12b4094ceba6138f58cfe21d81e0d46a3c790918f0601b8",
+      "bytes": 198924,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8h.hak",
+      "sourceResource": "wswls_t_151.mdl",
+      "approvedSourceSha256": "60ef065418f91e46bf9b49826566233831f720af0c129cfe905ea2924271f212",
+      "path": "srn_weapon/wswls_t_151.mdl",
+      "sha256": "60ef065418f91e46bf9b49826566233831f720af0c129cfe905ea2924271f212",
+      "bytes": 767804,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-monofilament-sword-463d9cc9c1",
+      "sourceArchive": "sr79104ee8m.mod",
+      "sourceResource": "sr79104ee8.uti",
+      "approvedSourceSha256": "8f9be784e96ddedcb5bbfc17096047516475f2166f9156c8eb02700bb54c6733",
+      "path": "srn_weapon/sr79104ee8.uti",
+      "sha256": "8f9be784e96ddedcb5bbfc17096047516475f2166f9156c8eb02700bb54c6733",
+      "bytes": 744,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2h.hak",
+      "sourceResource": "iwswls_b_161.tga",
+      "approvedSourceSha256": "3860ae475bd97aeac79d03fe95077e1d64939c4dc088a761a68cdfe943eb97f5",
+      "path": "srn_weapon/iwswls_b_161.tga",
+      "sha256": "3860ae475bd97aeac79d03fe95077e1d64939c4dc088a761a68cdfe943eb97f5",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2h.hak",
+      "sourceResource": "iwswls_m_161.tga",
+      "approvedSourceSha256": "2c845d22d6d0915e83afab9aa2869ccbf8c182fc05515f4145aa6a3c908dedb6",
+      "path": "srn_weapon/iwswls_m_161.tga",
+      "sha256": "2c845d22d6d0915e83afab9aa2869ccbf8c182fc05515f4145aa6a3c908dedb6",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2h.hak",
+      "sourceResource": "iwswls_t_161.tga",
+      "approvedSourceSha256": "3336cfa13de2ec1c976b976fdd4b53780c640bd63a435d7e46de88d3d9f54333",
+      "path": "srn_weapon/iwswls_t_161.tga",
+      "sha256": "3336cfa13de2ec1c976b976fdd4b53780c640bd63a435d7e46de88d3d9f54333",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2h.hak",
+      "sourceResource": "srd88e01a2_16.tga",
+      "approvedSourceSha256": "fff931ba34dc35c13677b4ec59404ea5e4270fdb4e0f488d9c2bc18d50cfaea2",
+      "path": "srn_weapon/srd88e01a2_16.tga",
+      "sha256": "fff931ba34dc35c13677b4ec59404ea5e4270fdb4e0f488d9c2bc18d50cfaea2",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2h.hak",
+      "sourceResource": "wswls_b_161.mdl",
+      "approvedSourceSha256": "9529f573431568ebcb0619aa26033325c03749e991cf1b33ed0ed7789488c4f8",
+      "path": "srn_weapon/wswls_b_161.mdl",
+      "sha256": "9529f573431568ebcb0619aa26033325c03749e991cf1b33ed0ed7789488c4f8",
+      "bytes": 120956,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2h.hak",
+      "sourceResource": "wswls_m_161.mdl",
+      "approvedSourceSha256": "492650b4a940b86e15e72b0e53442bc061a0bb1975bc40094d810ed4a71b2a07",
+      "path": "srn_weapon/wswls_m_161.mdl",
+      "sha256": "492650b4a940b86e15e72b0e53442bc061a0bb1975bc40094d810ed4a71b2a07",
+      "bytes": 210796,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2h.hak",
+      "sourceResource": "wswls_t_161.mdl",
+      "approvedSourceSha256": "607c360a404ef0cacd14c8571b0f16f7d5f3bcd85d88905d3135e03f64b2c0a2",
+      "path": "srn_weapon/wswls_t_161.mdl",
+      "sha256": "607c360a404ef0cacd14c8571b0f16f7d5f3bcd85d88905d3135e03f64b2c0a2",
+      "bytes": 740860,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-jupiter-taser-club-e35e6a838a",
+      "sourceArchive": "srd88e01a2m.mod",
+      "sourceResource": "srd88e01a2.uti",
+      "approvedSourceSha256": "e6ff6a37cb4d4356dee818a9c212b93f61ffdb4c3cffac9ea6616d0d1d256a42",
+      "path": "srn_weapon/srd88e01a2.uti",
+      "sha256": "e6ff6a37cb4d4356dee818a9c212b93f61ffdb4c3cffac9ea6616d0d1d256a42",
+      "bytes": 744,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616h.hak",
+      "sourceResource": "iwswls_b_231.tga",
+      "approvedSourceSha256": "83d660013bc449dcb03fb3e416c13310f98d2c2967b616fe215dfff6fbf093b8",
+      "path": "srn_weapon/iwswls_b_231.tga",
+      "sha256": "83d660013bc449dcb03fb3e416c13310f98d2c2967b616fe215dfff6fbf093b8",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616h.hak",
+      "sourceResource": "iwswls_m_231.tga",
+      "approvedSourceSha256": "4ca92acd699f64213d66ecbe42e0442a58afb00af45869bf4f31e63348106ae7",
+      "path": "srn_weapon/iwswls_m_231.tga",
+      "sha256": "4ca92acd699f64213d66ecbe42e0442a58afb00af45869bf4f31e63348106ae7",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616h.hak",
+      "sourceResource": "iwswls_t_231.tga",
+      "approvedSourceSha256": "89757bb62f94bd88ef81bfb0b74cd67ab524b9ab2f2bcf72e6497bd8d701b70d",
+      "path": "srn_weapon/iwswls_t_231.tga",
+      "sha256": "89757bb62f94bd88ef81bfb0b74cd67ab524b9ab2f2bcf72e6497bd8d701b70d",
+      "bytes": 16428,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616h.hak",
+      "sourceResource": "sr48d86616_23.tga",
+      "approvedSourceSha256": "a610a4b92a033ebdeec34be0d0d5a1ce12d3be1d7053ad70928cfbb8495628c7",
+      "path": "srn_weapon/sr48d86616_23.tga",
+      "sha256": "a610a4b92a033ebdeec34be0d0d5a1ce12d3be1d7053ad70928cfbb8495628c7",
+      "bytes": 3145772,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616h.hak",
+      "sourceResource": "wswls_b_231.mdl",
+      "approvedSourceSha256": "1b5a097ae4e7914205048fc1bc39096f9f59ef698ebf6171eb1e3370db957e58",
+      "path": "srn_weapon/wswls_b_231.mdl",
+      "sha256": "1b5a097ae4e7914205048fc1bc39096f9f59ef698ebf6171eb1e3370db957e58",
+      "bytes": 101564,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616h.hak",
+      "sourceResource": "wswls_m_231.mdl",
+      "approvedSourceSha256": "03d04cadabdf368ec257cac35781bcfaa81ab851718a95815f9ce3cf044aeef7",
+      "path": "srn_weapon/wswls_m_231.mdl",
+      "sha256": "03d04cadabdf368ec257cac35781bcfaa81ab851718a95815f9ce3cf044aeef7",
+      "bytes": 196044,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616h.hak",
+      "sourceResource": "wswls_t_231.mdl",
+      "approvedSourceSha256": "69daf390c2fa4337e1e0df545341b409227e374ca5ac86b6c8b77ea5f5e7a392",
+      "path": "srn_weapon/wswls_t_231.mdl",
+      "sha256": "69daf390c2fa4337e1e0df545341b409227e374ca5ac86b6c8b77ea5f5e7a392",
+      "bytes": 688380,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-rattan-stick-1f8c423340",
+      "sourceArchive": "sr48d86616m.mod",
+      "sourceResource": "sr48d86616.uti",
+      "approvedSourceSha256": "91744f1ec6fd863c9db9d0ccc946180e03f5e5c36f7c97f705014ddb9c9a976d",
+      "path": "srn_weapon/sr48d86616.uti",
+      "sha256": "91744f1ec6fd863c9db9d0ccc946180e03f5e5c36f7c97f705014ddb9c9a976d",
+      "bytes": 738,
+      "resourceType": 2025
     }
   ],
   "sharedResourceItems": [
@@ -3698,7 +4058,15 @@
     "srb8bdf709h.hak": "b11ab14f14cbe7660ba135afe3daf17db2a844e16126be70918cc4c863fd2bef",
     "srb8bdf709m.mod": "b6080310a1620667e0b19c9f8570802d57b60e3e53858d05dab20e6978ea8437",
     "sr893e13e4h.hak": "e1cb7effc69d7349169fbc7e40c45f48bdf537608e1d4bebed41a42c73d1faae",
-    "sr893e13e4m.mod": "6d5141caa1e3c99e5bec95d49370cf5032390ed72c053c2d52ad6d1a7566d2cf"
+    "sr893e13e4m.mod": "6d5141caa1e3c99e5bec95d49370cf5032390ed72c053c2d52ad6d1a7566d2cf",
+    "sr8070eecbh.hak": "fa1973bd2eb11e70961a509270860b9b0117e006fccd8637ac83efea57943c31",
+    "sr8070eecbm.mod": "4e4a94392d31469f9d70a180fefc6e04b94e7d6be75383d8b68d275e3ad588fe",
+    "sr79104ee8h.hak": "d0f8bfd5ccb9d284bc5f47f88fe5b05f09c6398a932ae6d657c0c4f09bc4b643",
+    "sr79104ee8m.mod": "0abff82f81febe097a98a0d9e589824e073a8c76b14f307c0040ce9f3316a4fe",
+    "srd88e01a2h.hak": "f04755eea31697620c8254cf3e1003ffa77591971884622f9a551aebb233ba9f",
+    "srd88e01a2m.mod": "8a52fb6cd34031cb22de1edb8aad57e27ee363f467995d1741f10a15867936cf",
+    "sr48d86616h.hak": "92a4208ecedfedbbd0b42277ec20817dfd699c3466ae9f7a74a7c95210440550",
+    "sr48d86616m.mod": "04b54f49b18d9ed390cdc2d98329b89bfed2f050e0db5bc922a6da3423e8e12b"
   },
   "approvalEvidence": {
     "completedWeaponsSha256": "28da1b6dbcde332078ec2468f5a292d2c89f13735c7a1a2ff7ef1b0d803d8e38",
@@ -3726,7 +4094,8 @@
       "Approve all three",
       "With wave 3",
       "Approve all five",
-      "Looks good"
+      "Looks good",
+      "Approve the Rattan"
     ]
   },
   "displayTable": {
@@ -3743,22 +4112,22 @@
     },
     "intentionalOverride": true,
     "originalSha256": "3fbdcd012b55f0b869c6324cc7d4ece44ed63a78f00e7889e7acefac28c8fdf4",
-    "overrideSha256": "053431c4aaf9a793abee2286aa85475f832c0ba9144f119b17fc6c89e10f57c2",
+    "overrideSha256": "f4d9f3da319e65898d22173280039689e7565dfd13db782332807d3d70e2e475",
     "resource": "baseitems.2da",
     "unrelatedBytesPreserved": true,
     "ordinarySlingCompatibility": "Not newly client-qualified; changes the whole Sling family"
   },
-  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance. Melee wave 1: Survival Knife (F1/row 22, 091), Sword (F2/row 1, 131), Club (F2, 141) and Claymore (F4/row 13, 081) were viewed in the NWN:EE client from their private itemkit fixtures; the user kept each (\"Yes, keep it\"; for the Sword this was its 1.10 m size). Not production acceptance. The Claymore and Club grip-depth departures were hand-fit reviewed on both Human bodies from scripted idle captures of rebuilds of the same fits (Claymore run-fixture-v5 refixture-2 captures-2, Club run-fixture-v2 captures-1); user: \"Hand fit is fine\". Melee wave 3 (Vibro Knife, Rapier, Combat Axe) and the Spear were look-approved by the user from unattended in-client captures on both shipped Human bodies (2026-11-13); not production acceptance. The user approved melee wave 4 (Sai, Mace, Macauitl, Nodachi, Pole Arm) after unattended in-client captures on both shipped Human bodies: \"Approve all five\" (2026-11-14), after the Sai was redone on the user's words \"the side blades fan out too wide\". Not a client-stage receipt or production acceptance. The user approved melee wave 5 (Katar, Tonfa, Telescopic Staff) after unattended in-client captures on both shipped Human bodies: \"Looks good\" (2026-11-14), after the Tonfa was redone on the user's words \"Tonfa is too long and not facing the right direction\" (\"Shorten shaft only (Recommended)\"). Not a client-stage receipt or production acceptance.",
+  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance. Melee wave 1: Survival Knife (F1/row 22, 091), Sword (F2/row 1, 131), Club (F2, 141) and Claymore (F4/row 13, 081) were viewed in the NWN:EE client from their private itemkit fixtures; the user kept each (\"Yes, keep it\"; for the Sword this was its 1.10 m size). Not production acceptance. The Claymore and Club grip-depth departures were hand-fit reviewed on both Human bodies from scripted idle captures of rebuilds of the same fits (Claymore run-fixture-v5 refixture-2 captures-2, Club run-fixture-v2 captures-1); user: \"Hand fit is fine\". Melee wave 3 (Vibro Knife, Rapier, Combat Axe) and the Spear were look-approved by the user from unattended in-client captures on both shipped Human bodies (2026-11-13); not production acceptance. The user approved melee wave 4 (Sai, Mace, Macauitl, Nodachi, Pole Arm) after unattended in-client captures on both shipped Human bodies: \"Approve all five\" (2026-11-14), after the Sai was redone on the user's words \"the side blades fan out too wide\". Not a client-stage receipt or production acceptance. The user approved melee wave 5 (Katar, Tonfa, Telescopic Staff) after unattended in-client captures on both shipped Human bodies: \"Looks good\" (2026-11-14), after the Tonfa was redone on the user's words \"Tonfa is too long and not facing the right direction\" (\"Shorten shaft only (Recommended)\"). Not a client-stage receipt or production acceptance. Approved by the user in chat on 2026-11-15 after unattended in-client captures on both Human bodies: Kris, Jupiter Taser Club and Monofilament Sword (\"Approve all three\"), then the Rattan Stick after it was rebuilt (\"rattan is a little too thick and one of the ends has some mesh and texture defects\", \"3.0 cm (Recommended)\", \"Trim and repaint (Recommended)\"): \"Approve the Rattan\".",
   "smgOnHold": false,
   "productionDeploymentPerformed": false,
-  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker. The four wave-1 melee blueprints and resources are byte-identical to the native packages and fixture modules of the runs the user approved; no table change. Vibro Blades Knife, Rapier, Combat Axe, Spear: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 181->191; row 13 MaxRange 100->101; row 22 MaxRange 111->121. Sai, Mace, Macauitl, Nodachi, Pole Arm: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 191->211; row 13 MaxRange 101->111; row 22 MaxRange 121->131. Katar, Tonfa, Telescopic Staff: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 211->221; row 22 MaxRange 131->141; row 50 MaxRange 100->101.",
+  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker. The four wave-1 melee blueprints and resources are byte-identical to the native packages and fixture modules of the runs the user approved; no table change. Vibro Blades Knife, Rapier, Combat Axe, Spear: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 181->191; row 13 MaxRange 100->101; row 22 MaxRange 111->121. Sai, Mace, Macauitl, Nodachi, Pole Arm: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 191->211; row 13 MaxRange 101->111; row 22 MaxRange 121->131. Katar, Tonfa, Telescopic Staff: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 211->221; row 22 MaxRange 131->141; row 50 MaxRange 100->101. Kris, Monofilament Sword, Jupiter Taser Club, Rattan Stick: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 221->231; row 22 MaxRange 141->151.",
   "additionalDisplayRows": [
     {
       "baseItem": 1,
       "changes": {
         "MaxRange": {
           "before": "100",
-          "after": "221"
+          "after": "231"
         }
       }
     },
@@ -3767,7 +4136,7 @@
       "changes": {
         "MaxRange": {
           "before": "100",
-          "after": "141"
+          "after": "151"
         }
       }
     },
