@@ -418,6 +418,9 @@ scaling depth and width separately. The depth departs from the standard by
 construction, so the fit always stops until `fit.gripDeparture` carries an approved
 review with the digest from the worker's retained `grip-measurement.json`. See the
 Club continuation in `four-weapon-lessons.md`.
+The fit override `roundBasis: "depth"` (recorded as `fit.roundBasis`) sizes the
+diameter to the approved grip depth instead of the face width, for a thin stick that
+the face width makes too thick (the wave-6 Rattan Stick, 3.0 cm instead of 4.8 cm).
 
 ## Chained stages
 

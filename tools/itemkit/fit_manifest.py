@@ -207,6 +207,8 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     auto = dict(marks); two_hand = route.hold == 'two'
     uniform_section = route.section == 'uniform' and not two_hand and not (hafted or overrides.get('uniform'))
     require('sectionBasis' not in overrides or uniform_section, 'sectionBasis applies only to a section="uniform" fit')
+    require('roundBasis' not in overrides or (not two_hand and not overrides.get('sideGrip') and (hafted or overrides.get('uniform'))),
+            'roundBasis applies only to a round one-hand fit (uniform, or a one-hand haft)')
     target = float(overrides['targetLength']) if 'targetLength' in overrides else stock_length(native)
     require(target or (two_hand and not hafted), 'The contract has no measured stock length: give targetLength')
     if hafted:
@@ -269,7 +271,8 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
             authority = 'midpoint-depth-two-hand'; F, report = two_hand_uniform(b, faces, M, [A, B], origin, standard, review())
         elif hafted or overrides.get('uniform'):
             authority = 'usable-length-round'
-            F, report = one_hand_round(b, faces, M, origin, standard, review(), [A, B] if chosen_round else None)
+            F, report = one_hand_round(b, faces, M, origin, standard, review(), [A, B] if chosen_round else None,
+                                       overrides.get('roundBasis', 'visibleFaceWidth'))
         elif uniform_section:
             authority = 'midpoint-depth-uniform'
             F, report = transverse_uniform(b, faces, M, origin, standard, review(), overrides.get('sectionBasis', 'depth'))
@@ -359,6 +362,7 @@ def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *
     if data['sizingAuthority']: m['fit']['sizingAuthority'] = data['sizingAuthority']
     if data.get('chosenLength'): m['fit']['chosenLength'] = True          # the worker samples the reviewed handle (grip.melee_fit)
     if (overrides or {}).get('sectionBasis'): m['fit']['sectionBasis'] = overrides['sectionBasis']
+    if (overrides or {}).get('roundBasis'): m['fit']['roundBasis'] = overrides['roundBasis']
     if (overrides or {}).get('sideGrip'): m['fit']['sideGrip'] = True        # the worker measures only the grip's own outline
     report = data['gripReport'] or {}
     if overrides and overrides.get('departureDigest'):
