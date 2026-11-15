@@ -106,7 +106,7 @@ class Workspace(unittest.TestCase):
 
     def publish(self, bakes, **changes):
         options = {'records': [('facility-test', self.ledger)], 'briefs': [('facility-test', self.brief)], 'repo': self.repo,
-                   'textures': named, 'measure_neck': sound, 'draw_icons': drawn, **changes}
+                   'textures': named, 'measure_neck': sound, 'draw_icons': drawn, 'channels': lambda path: set(CHEST['channels']), **changes}
         return publish.publish(options.pop('registry', self.registry), bakes, self.stock, **options)
 
 
@@ -346,6 +346,29 @@ class IconTests(unittest.TestCase):
 
 
 class PublishTests(Workspace):
+    def test_a_part_lists_the_channels_its_tint_textures_use(self):
+        with tempfile.TemporaryDirectory() as folder:  # a tint texture is read for the layers its texels are on
+            tint = Path(folder) / 'tint.plt'
+            blob = export.tint(np.full((2, 2), 170), np.array([[export.LAYERS['cloth1'], export.LAYERS['skin']], [export.LAYERS['cloth1']] * 2]))
+            tint.write_bytes(blob[:-1] + bytes([9]))  # the last texel on a layer that is no channel of an outfit
+            self.assertEqual(publish.tint_channels(tint), {'cloth1', 'skin', 'layer 9'})
+            tint.write_bytes(blob[:-2])
+            with self.assertRaisesRegex(ValueError, 'cut short'):
+                publish.tint_channels(tint)
+            tint.write_bytes(b'tint')
+            with self.assertRaisesRegex(ValueError, 'no tint texture'):
+                publish.tint_channels(tint)
+        bakes = [bake(self.root / 'bakes' / 'pmh0', 'pmh0')]
+        on = lambda *names: (lambda path: set(names))
+        self.assertNotIn('channels', self.publish(bakes, dry_run=True)['failuresByGate'])
+        report = self.publish(bakes, dry_run=True, channels=on('cloth1', 'leather2'))  # the parts list cloth1 and metal1
+        reasons = sorted(one['reason'] for one in report['failures'] if one['gate'] == 'channels')
+        self.assertEqual(len(reasons), 2 * len(PARTS))
+        self.assertIn('has tint textures on leather2, which it does not list', reasons[0])
+        self.assertIn('lists metal1, which none of its tint textures use', reasons[-1])
+        unread = self.publish(bakes, dry_run=True, channels=publish.tint_channels)  # the stand-in payloads are no tint textures
+        self.assertEqual(unread['failuresByGate']['channels'], len(PARTS))
+
     def test_a_registry_part_carries_the_colours_its_bakes_suggest(self):
         navy, grey = [38, 48, 72], [52, 56, 62]
         record = {'number': NUMBER, 'models': {token: token for token in TOKENS}, 'materials': [
@@ -380,21 +403,32 @@ class PublishTests(Workspace):
             (bakes[1] / 'resources' / (troll + 'n.tga')).write_bytes((bakes[0] / 'resources' / (human + 'n.tga')).read_bytes())
         trial = self.root / 'trial'
         report = self.publish(bakes, root=trial, trial=True)
-        self.assertEqual(report['sharedMaps'], {f'pmg0_shinl{NUMBER}n': f'pmh0_shinl{NUMBER}n', f'pmg0_shinr{NUMBER}n': f'pmh0_shinr{NUMBER}n'})
+        # a map two models wear is named for the part and its image, not for either body
+        left, right = (f'{token}{NUMBER}n_' + publish.sha(bakes[0] / 'resources' / f'pmh0_{token}{NUMBER}n.tga')[:4] for token in ('shinl', 'shinr'))
+        self.assertEqual(report['sharedMaps'], {f'pmg0_shinl{NUMBER}n': left, f'pmh0_shinl{NUMBER}n': left, f'pmg0_shinr{NUMBER}n': right, f'pmh0_shinr{NUMBER}n': right})
         self.assertEqual(set(report['failuresByGate']), {'bodies', 'icons'})  # two male bodies of twenty; no map is missing, the gates read the rewritten files
         pack = trial / 'srn_parts'
-        self.assertFalse((pack / f'pmg0_shinl{NUMBER}n.tga').exists())
-        self.assertTrue((pack / f'pmh0_shinl{NUMBER}n.tga').is_file() and (pack / f'pmg0_chest{NUMBER}n.tga').is_file())
-        self.assertEqual((pack / f'pmg0_shinl{NUMBER}.mtr').read_text(encoding='ascii'), MATERIAL.format(f'pmh0_shinl{NUMBER}'))
+        self.assertFalse((pack / f'pmg0_shinl{NUMBER}n.tga').exists() or (pack / f'pmh0_shinl{NUMBER}n.tga').exists())
+        self.assertTrue((pack / (left + '.tga')).is_file() and (pack / f'pmg0_chest{NUMBER}n.tga').is_file())
+        for body in ('pmh0', 'pmg0'):
+            self.assertEqual((pack / f'{body}_shinl{NUMBER}.mtr').read_text(encoding='ascii'), MATERIAL.format(f'{body}_shinl{NUMBER}').replace(f'{body}_shinl{NUMBER}n', left))
         self.assertEqual((pack / f'pmg0_chest{NUMBER}.mtr').read_text(encoding='ascii'), MATERIAL.format(f'pmg0_chest{NUMBER}'))
         self.assertEqual((bakes[1] / 'resources' / f'pmg0_shinl{NUMBER}.mtr').read_text(encoding='ascii'), MATERIAL.format(f'pmg0_shinl{NUMBER}'))  # the bake is as it was
         handoff = json.loads((trial / publish.HANDOFF).read_text(encoding='utf-8'))
         troll = {resource['name']: resource for resource in handoff['outfits'][1]['resources']}
         self.assertEqual(len(troll), len(TOKENS) * 4 - 2)
+        human = {resource['name'] for resource in handoff['outfits'][0]['resources']}  # the Human Fit body's bake is recorded as holding the shared maps
+        self.assertTrue({left + '.tga', right + '.tga'} <= human and len(human) == len(TOKENS) * 4)
+        self.assertEqual(publish.shared_name(['pfd0_bicepr6020r', 'pmh0_bicepl6020r'], 'abcdef'), 'bicepl6020r_abcd')
+        self.assertEqual(publish.shared_name(['pmh0_forearml6020n', 'pfh0_forearml6020n'], 'abcdef'), 'forearml6020n_ab')
+        # two maps of one part whose hashes begin alike: the later by hash takes the next digits of its own
+        files = {name: Path(name) for name in ('pmh0_legl1n.tga', 'pmg0_legl1n.tga', 'pfh0_legl1n.tga', 'pfg0_legl1n.tga')}
+        alike = publish.shared_maps([], files, lambda path: ('abcd1111' if path.name[1] == 'm' else 'abcd2222') + '0' * 56)[0]
+        self.assertEqual((alike['pmh0_legl1n'], alike['pmg0_legl1n'], alike['pfh0_legl1n']), ('legl1n_abcd', 'legl1n_abcd', 'legl1n_2222'))
         self.assertNotIn(f'pmg0_shinl{NUMBER}n.tga', troll)
         self.assertEqual(troll[f'pmg0_shinl{NUMBER}.mtr']['sha256'], publish.sha(pack / f'pmg0_shinl{NUMBER}.mtr'))
         self.assertEqual(troll[f'pmg0_shinl{NUMBER}.mtr']['bytes'], (pack / f'pmg0_shinl{NUMBER}.mtr').stat().st_size)
-        self.assertEqual(publish.shared_maps([], {'a.tga': bakes[0] / 'bake.json', 'b.plt': bakes[0] / 'bake.json'}), ({}, {}))  # a map alone, and no tint texture
+        self.assertEqual(publish.shared_maps([], {'a.tga': bakes[0] / 'bake.json', 'b.plt': bakes[0] / 'bake.json'}), ({}, {}, {}))  # a map alone, and no tint texture
 
     def test_a_trial_writes_the_pack_tables_and_records_whatever_the_gates_say(self):
         trial = self.root / 'trial'

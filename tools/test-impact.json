@@ -101,6 +101,8 @@
     ],
     "tools/armorkit/publish.py": [
       "PROVENANCE.md",
+      "docs/armorkit/parts-handoff.json",
+      "docs/armorkit/parts-registry.json",
       "hakbuilder.json",
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
@@ -5476,12 +5478,14 @@
   "packReferences": {
     "tools/armorkit/__main__.py": [
       "srn_2da",
-      "srn_body"
+      "srn_body",
+      "srn_parts"
     ],
     "tools/armorkit/publish.py": [
       "srn_2da",
       "srn_armor",
-      "srn_body"
+      "srn_body",
+      "srn_parts"
     ],
     "tools/armorkit/test_bake.py": [
       "srn_body"
@@ -5501,7 +5505,8 @@
       "srn_2da",
       "srn_armor",
       "srn_body",
-      "srn_head"
+      "srn_head",
+      "srn_parts"
     ],
     "tools/combat_release_manifest.py": [
       "srn_2da",
