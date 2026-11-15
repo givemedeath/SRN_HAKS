@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_isa_shopp1
+texture1 ek_isa_shopp1_n
+texture2 ek_isa_shopp1_s
+texture3 ek_isa_shopp1_r
+texture4 null
+texture5 ek_isa_shopp1_i

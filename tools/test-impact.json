@@ -464,11 +464,14 @@
     "tools/envkit/test_reference.py": [
       "tools/envkit/__main__.py",
       "tools/envkit/reference.py",
-      "tools/envkit/sets/stuffer-shack.json"
+      "tools/envkit/sets/stuffer-shack.json",
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py"
     ],
     "tools/envkit/test_sheet.py": [
       "tools/envkit/__main__.py",
       "tools/envkit/meshy.py",
+      "tools/envkit/reference.py",
       "tools/envkit/sets/ares-depot-meshy.json",
       "tools/envkit/sheet.py",
       "tools/envkit/test_meshy.py"

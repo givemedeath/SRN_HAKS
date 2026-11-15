@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_isa_target
+texture1 ek_isa_target_n
+texture2 ek_isa_target_s
+texture3 ek_isa_target_r
+texture4 null
+texture5 null

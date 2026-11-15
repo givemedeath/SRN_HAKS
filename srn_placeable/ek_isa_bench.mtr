@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_isa_bench
+texture1 ek_isa_bench_n
+texture2 ek_isa_bench_s
+texture3 ek_isa_bench_r
+texture4 null
+texture5 ek_isa_bench_i
