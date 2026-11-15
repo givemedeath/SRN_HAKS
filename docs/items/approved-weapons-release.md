@@ -286,7 +286,7 @@ Rattan Stick was rebuilt. The Sap is on hold and the Bottle was dropped ("drop t
 - **Monofilament Sword:** the curled crossguard arms were levelled back into the blade plane ("and the sword
   crossguard too"). Its eight crossguard slits are closed in the working shell ("Close the slits"). The bake could not
   colour the closed slits or the shell's blade edge, so the donor carries matching plug faces there in the nearest donor
-  colour ("Plug the donor too", "Plug the edge too"). Three blade faces take a reviewed colour patch ("Patch it").
+  colour ("Plug the donor too", "Plug the edge too"). With the edge plugged it needs no colour patch.
 - **Jupiter Taser Club:** the clay was straightened ("Straighten Jupiter first") and the grip stretched 1.42x for a
   round 0.75 m club ("Stretch grip 1.3x, 0.75 m", "Approve both fits"). The tip notch stays closed.
 - **Rattan Stick:** a round 0.70 m stick at the grip depth, about 3.0 cm. The first in-game look was "a little too
