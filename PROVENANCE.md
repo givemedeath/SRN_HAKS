@@ -1715,3 +1715,44 @@ only extends the F1 and F2 appearance-picker `MaxRange` values (to 111 and 181).
 Generation intermediates, local bindings, HAK archives, ledger entries and client
 captures stay outside the repository. Shadowrun names and designs are third-party
 marks; this record asserts no ownership of them and adds no new rights claim.
+
+## Facility Security outfit (`srn_parts`, `srn_2da`; 2026-11-15)
+
+`srn_parts` is a new pack of modular outfit parts made with `tools/armorkit`. Its first
+outfit is Facility Security, part number 6020 (set `facility-security`, group `corpsec`):
+chest, pelvis, upper arms, hands, thighs, shins and feet for all 20 SRN bodies. That is
+240 part models, each with a tint texture of its own name and a material file; normal
+maps, and a roughness map for the upper-arm parts; four inventory icons (chest and
+pelvis, one per gender). A map that is the same image on several bodies is published
+once and named by each body's material file. 746 files, 423 MB.
+
+The design follows the project operator's "Corporate Security: Facility & Patrol
+Uniforms" concept sheet. The briefs are `tools/armorkit/briefs/corpsec-facility-male.json`
+and `corpsec-facility-female.json` (models `corpsec-facility-male`,
+`corpsec-facility-female`). Each reference image was generated locally from its brief's
+prompt with the Qwen image model in the shared ComfyUI (profile `qwen21-int8-v1`), and
+prepared for generation in the same ComfyUI (prepared images `7be59cf5...a64117`, male,
+and `bb63e43b...a04ddb`, female). Geometry and appearance were generated locally from
+those images with Pixal3D (`pixal3d_int8_convrot`, Trellis 2 shape VAE, DINOv3 image
+encoder) in the same ComfyUI; one geometry submission per model. No third-party
+generation service was used.
+
+Local processing cut each outfit into the parts a body wears, fitted them to the seam
+contract, reduced them, baked tint, normal and roughness textures and compiled the
+models for NWN:EE. Light wear (mottling, scuffed edges, darker creases) is drawn into
+the tint textures by the bake, not by the generator, and each part carries the colours
+its brief suggests as a starting point for an item's colours. The Human male wears his
+own outfit. The Human female wears her own generated chest and the male's other parts
+carried to her body. The 18 other bodies wear the Human outfit of their gender carried
+to them by `armorkit refit`; nothing was generated for them. The upper-arm parts share
+their slot with the body's own skin, which is copied from `srn_body` and `srn_body_tex`
+(see "PhenoMorpher reviewed body phenotypes").
+
+`srn_2da` gains live row 6020 in seven `parts_*.2da` tables (chest, bicep, pelvis, legs,
+shin, foot, hand). The tables are installed-game derivatives: the game's rows are kept
+unchanged and a licensed NWN:EE installation is required. Per-file hashes, the pinned
+generation records and the refit reports are in `docs/armorkit/parts-handoff.json`;
+the registry is `docs/armorkit/parts-registry.json`.
+
+Raw references, generation outputs, kept parts, bakes and trial packs stay in ignored
+`output/armorkit/` and are not redistributed.
