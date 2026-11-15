@@ -52,7 +52,7 @@ BUILT = Path('output')
 MODULE_BUILT = Path('output/weapon-waves-test')/MODULE_ARCHIVE
 PAIRS_INCLUDE = 'sw_pairs.nss'
 SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
-EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti', 2033: 'dds'}      # dds: a stock slot's BioWare DDS icon twins
+EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti', 2033: 'dds'}      # dds: the BioWare DDS twins of the package's TGAs
 TYPE = {v: k for k, v in EXT.items()}
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
 # Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_
@@ -165,8 +165,8 @@ def survey(item, run):
     package.files[f'{blueprint}.uti'] = (uti, module.name)
     stray = sorted(n for n in package.replaces_stock if n not in package.files)
     require(not stray, f'{item}: the recorded stock replacement names files the package does not carry: {stray}')
-    twins = sorted(n for n in package.files if n.endswith('.dds') and n not in package.replaces_stock)
-    require(not twins, f'{item}: DDS files are published only as recorded stock icon twins: {twins}')
+    alone = sorted(n for n in package.files if n.endswith('.dds') and n[:-4]+'.tga' not in package.files)
+    require(not alone, f'{item}: a DDS file is published only as the twin of the package\'s own TGA: {alone}')
     return package
 
 

@@ -36,10 +36,11 @@ TABLE = (b'2DA V2.0\n\n     label        MaxRange   ItemClass\n'
          b'1    longsword    121        WSwLs\n22   dagger       100        WSwDg\n')
 
 
-def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False, replaces=None, dds=None):
+def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False, replaces=None, dds=None, lone_dds=False):
     run = root/'run-fit-v1'; native = run/'native/attempt-1/native'; native.mkdir(parents=True)
     models = {p: f'wswdg_{p}_{part:03}' for p in 'bmt'}
     twin = {(f'i{models["b"]}', 2033): b'bioware dds'} if (dds if dds is not None else any(n.endswith('.dds') for n in replaces or ())) else {}
+    if lone_dds: twin[(f'i{models["m"]}', 2033)] = b'no tga beside it'
     hak = erf(b'HAK ', {**{(m, 2002): f'model {m}'.encode() for m in models.values()}, (f'i{models["b"]}', 3): b'icon', (f'{blueprint}_11', 3): b'diffuse', **twin})
     (native/f'{blueprint}h.hak').write_bytes(hak)
     record = {'hak': {'path': f'X:/elsewhere/{blueprint}h.hak', 'sha256': hashlib.sha256(hak).hexdigest()}, 'baseItem': base,
@@ -235,8 +236,10 @@ class StockReplacementTests(unittest.TestCase):
             with self.assertRaisesRegex(P.PublishError, r"does not carry: \['iwswdg_b_091.dds', 'wswdg_b_091.mdl'\]"):
                 P.survey('knife', make_run(Path(folder), replaces=['iwswdg_b_091.dds', 'wswdg_b_091.mdl'], dds=False))
         with tempfile.TemporaryDirectory() as folder:
-            with self.assertRaisesRegex(P.PublishError, r"only as recorded stock icon twins: \['iwswdg_b_111.dds'\]"):
-                P.survey('knife', make_run(Path(folder), dds=True))
+            self.assertIn('iwswdg_b_111.dds', P.survey('knife', make_run(Path(folder), dds=True)).files)   # every package's twins
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(P.PublishError, r"twin of the package's own TGA: \['iwswdg_m_111.dds'\]"):
+                P.survey('knife', make_run(Path(folder), lone_dds=True))
 
 
 class ReviewerTests(unittest.TestCase):

@@ -612,12 +612,10 @@ The user approved replacing base-game weapon parts on every carrier (2026-11-15)
   The capacity is the same either way, one design per shape, because no design is ever given colours 2–9. The cost:
   in the toolset and in the in-game appearance changer, shape N's colours 2–4 still show the stock part next to the
   new colour 1. Stock blueprints that use part number `N1` show the new part, part by part (the user accepted this).
-- **DDS icon twins come from NWN Crunch.** The base game ships most part icons as both TGA and BioWare DDS (DXT5 with
-  a mip chain; some shapes have no icons at all, such as wswls shape 9). For each icon whose DDS name is in
-  `replacesStock`, `native` (prepare) converts the new TGA icon with the vendored NWN Crunch (`nwn_dds`:
-  `-fileformat nwn -DXT5 -mipMode Generate`, the stock icons' own format) and the package carries both. The
-  converter's pin is in `prepared.json` as `ddsConverter`. A DDS file outside the recorded twins is refused. Still
-  look at the inventory icon in the first stock-slot fixture: the client, not the converter, proves the override.
+- **DDS twins override the stock DDS icons.** The base game ships most part icons as both TGA and BioWare DDS (DXT5
+  with a mip chain; some shapes have no icons at all, such as wswls shape 9). Every package carries DDS twins of its
+  icons (below), so a replacement overrides both names. Still look at the inventory icon in the first stock-slot
+  fixture: the client, not the converter, proves the override.
 
 Publication then copies the replacing models and icons into `srn_weapon` and records them as stock replacements
 (`approved-weapons-release.md`).
@@ -653,7 +651,16 @@ all `b/m/t` donor resource names, native rotation `frame`, `gripOrigin`, measure
 the donors. The first pilot requires composite ModelType2. Names are allocated without
 collisions in the supported model1..25 range, with `model*10+colour <=255`; UTI fields
 use that encoded byte. A contract made with `--replace-stock` may hold a stock-only slot it records in
-`resources.replacesStock` (see above). No gameplay table changes or mixed assemblies are generated.
+`resources.replacesStock` (see above).
+
+Every composite package carries BioWare DDS twins beside its TGAs (user, 2026-11-15). `native` (prepare) converts
+each part icon to DXT5 and the shared diffuse texture to DXT1, both with a generated mip chain, using the vendored
+NWN Crunch (`native.nwn_dds`: `-fileformat nwn -DXT5|-DXT1 -mipMode Generate`). DXT5 with mips is the base game's
+own icon format: converting a stock icon TGA this way gives the stock DDS's size, levels and header. The checks
+read back each header (dimensions, three or four channels, not a standard `DDS ` file). The converter's pin is in
+`prepared.json` as `ddsConverter`. The package then holds exactly one DDS per TGA. A preparation made before this
+change, without `ddsConverter`, holds none and still compiles. The TGAs stay as the uncompressed copies. The client
+loads the DXT texture, so client review sees the compressed result that ships. No gameplay table changes or mixed assemblies are generated.
 
 Fit inputs are a reviewed positive uniform matrix bound to the textured donor hash,
 plus measured grip endpoints in NWN/Blender basis (glTF conversion is `(x,-z,y)`).

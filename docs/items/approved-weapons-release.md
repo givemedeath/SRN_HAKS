@@ -290,14 +290,15 @@ For each item, the command:
    the driver, and with `--nwn-root`), it also reads the install's KEY indexes (`data` and `lang/en/data`). A package
    file the base game holds is refused unless the package's contract recorded it as a stock replacement
    (`allocation.replacesStock`, from `drive contract --replace-stock`; see `item-generation-toolkit.md`). A recorded
-   replacement is copied over the stock name like any other file, including its BioWare DDS icon twins (made with NWN
-   Crunch when the package was prepared; a package must carry every recorded name, and DDS files only as recorded
-   twins). The item's record gets `replacesStock` (the
+   replacement is copied over the stock name like any other file, including its BioWare DDS icon twins (a package
+   must carry every recorded name). The item's record gets `replacesStock` (the
    contract's list), its overriding resources get `"replacesStock": true`, and the policy text names them. The plan
    shows them per item and says whether the stock check ran (`stockCheck`); a direct `--dry-run` without
    `--nwn-root` skips it. Stock slots lie inside every carrier's `MinRange`..`MaxRange`, so they never change the
    table.
-3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. Each is recorded in
+3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. That includes the BioWare
+   DDS twins newer packages carry beside each icon and diffuse TGA (NWN Crunch, `item-generation-toolkit.md`). A DDS
+   without its TGA in the same package is refused. Each is recorded in
    `approved-weapons-v1.json` with its source archive and hash. The item's family is taken from the grouping plan.
 4. **Extends the table only when needed.** If an appearance number is above its row's `MaxRange`, only that token in
    `srn_2da/baseitems.2da` changes. A longer number takes the padding after it, and no other byte of the table moves.

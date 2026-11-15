@@ -113,19 +113,30 @@ class StockNamespaceTests(Fixture):
 
 
 class DdsTwinTests(unittest.TestCase):
-    def test_nwn_crunch_makes_a_bioware_dxt5_twin_of_the_icon(self):
+    def test_nwn_crunch_makes_bioware_twins_of_icons_and_diffuse(self):
         import struct
         from PIL import Image
         from tools.itemkit.native import nwn_dds
         with tempfile.TemporaryDirectory() as folder:
-            for size in ((32, 128), (32, 96)):                     # a stock canvas, and a bare 1x3 footprint
-                tga = Path(folder)/f'icon{size[1]}.tga'; target = tga.with_suffix('.dds')
-                image = Image.new('RGBA', size, (0, 0, 0, 0)); image.paste((200, 40, 40, 255), (8, 8, 24, size[1] - 8)); image.save(tga)
-                converter = nwn_dds(tga, target)
+            # A stock icon canvas and a bare 1x3 footprint (DXT5), and a diffuse (DXT1).
+            for size, mode, compression, channels in (((32, 128), 'RGBA', 'DXT5', 4), ((32, 96), 'RGBA', 'DXT5', 4), ((256, 256), 'RGB', 'DXT1', 3)):
+                tga = Path(folder)/f'image{size[1]}.tga'; target = tga.with_suffix('.dds')
+                image = Image.new(mode, size, (0, 0, 0, 0)[:len(mode)]); image.paste((200, 40, 40, 255)[:len(mode)], (8, 8, 24, size[1] - 8)); image.save(tga)
+                converter = nwn_dds(tga, target, compression)
                 data = target.read_bytes()
-                self.assertEqual(struct.unpack_from('<3I', data), (*size, 4)); self.assertNotEqual(data[:4], b'DDS ')
+                self.assertEqual(struct.unpack_from('<3I', data), (*size, channels)); self.assertNotEqual(data[:4], b'DDS ')
                 self.assertEqual(converter['sha256'], '6aabe212ee8a4a5c166801c3c7830239e3eb15910f2743232c33666bc91aa46c')
                 with self.assertRaisesRegex(ValueError, 'exists'): nwn_dds(tga, target)
+
+
+class PackageNamesTests(unittest.TestCase):
+    def test_a_new_package_has_one_dds_twin_per_tga_and_an_old_one_none(self):
+        from tools.itemkit.native import package_names_ok
+        old = ['wswls_b_101.mdl', 'iwswls_b_101.tga', 'sr12345678_10.tga']
+        new = old + ['iwswls_b_101.dds', 'sr12345678_10.dds']
+        self.assertTrue(package_names_ok(old, False)); self.assertTrue(package_names_ok(new, True))
+        self.assertFalse(package_names_ok(old, True)); self.assertFalse(package_names_ok(new, False))
+        self.assertFalse(package_names_ok(new + ['iwswls_m_101.dds'], True)); self.assertFalse(package_names_ok(new + ['x.mtr'], True))
 
 
 class DriverFlagTests(unittest.TestCase):
