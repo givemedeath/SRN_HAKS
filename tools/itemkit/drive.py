@@ -448,7 +448,7 @@ class Driver:
         family = read(self.ws.handoff/m['familyProfile']['path'])
         data = op.measure(m, family, self.ws.handoff)
         result = {'nativeLength': data['nativeLength'], 'references': data['references'],
-                  'holes': [{k: hole[k] for k in ('axis', 'area', 'clearance', 'fraction', 'hits')} for hole in data['holes']]}
+                  'holes': [{k: hole[k] for k in ('axis', 'area', 'clearance', 'fraction', 'span', 'hits')} for hole in data['holes']]}
         if new:
             probes = op.match(data['references'], data['holes'])
             m.setdefault('processing', {})['openingProbes'] = probes
