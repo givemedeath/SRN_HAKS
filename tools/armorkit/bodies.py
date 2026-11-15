@@ -39,34 +39,33 @@ SPACING = 5.0  # metres between two actors in a row
 # it was for a shot or two, and the picture under a body's label was another body's (client run, 2026-11-15).
 ROW, ROWS, APART = 12, 6, 10.0
 HOST = (140.0, 140.0)  # where the bare actor given the item stands: clear of every row
-# The outfit as an item in a bag: the examine window, then the inventory, each announced as a shot of its own.
+# The outfit as an item in a bag, one more shot: its examine window and the inventory open beside it.
 # It begins when the entry script says its shots are over (`fixture.DONE`), not at the time they should be:
 # shots are chained and fall behind the clock on a busy client, and the item's windows would open over them
-# (review of PR 162, 2026-11-15).
-ICONS = '''object Mod(object it,int index,int value) {
-  object n=CopyItemAndModify(it,ITEM_APPR_TYPE_ARMOR_MODEL,index,value,TRUE);
-  if(!GetIsObjectValid(n)) { WriteTimestampedLogEntry("ARMORKIT icon-modify-failed index="+IntToString(index)); return it; }
-  DestroyObject(it); return n;
-}
-void Line(string s) { WriteTimestampedLogEntry(s); }
-void Bag(object pc) {
-  PopUpGUIPanel(pc,GUI_PANEL_INVENTORY);
-  DelayCommand(1.0,Line("ARMORKIT shot=%(second)d target=inventory valid=1"));
-  DelayCommand(%(hold).1f,Line("ARMORKIT icons-done"));
-}
-void Show(object pc) {
-  SetCutsceneMode(pc,FALSE);
-  object it=CreateItemOnObject("nw_cloth001",pc);
-  it=Mod(it,ITEM_APPR_ARMOR_MODEL_TORSO,%(number)d); it=Mod(it,ITEM_APPR_ARMOR_MODEL_PELVIS,%(number)d);
-  SetIdentified(it,TRUE);
-  AssignCommand(pc,ActionExamine(it));
-  DelayCommand(1.5,Line("ARMORKIT shot=%(first)d target=examine valid=1"));
-  DelayCommand(%(hold).1f,Bag(pc));
+# (review of PR 162, 2026-11-15). The item is given every slot the outfit fills and nothing in the others, as an
+# actor's is, one slot a tick: every change is a copy and the copy it replaces only goes when the script ends,
+# so all of them at once filled the bag's first page and the item lay on another (client run, 2026-11-15).
+ICONS = '''void Line(string s) { WriteTimestampedLogEntry(s); }
+void Step(object pc,object it,int n) {
+  int index=-1; int value=0;
+%(wear)s
+  if(index<0) {
+    SetCutsceneMode(pc,FALSE);
+    SetIdentified(it,TRUE);
+    AssignCommand(pc,ActionExamine(it));
+    DelayCommand(1.5,Line("ARMORKIT shot=%(shot)d target=item valid=1"));
+    DelayCommand(1.5+%(hold).1f,Line("ARMORKIT icons-done"));
+    return;
+  }
+  object next=CopyItemAndModify(it,ITEM_APPR_TYPE_ARMOR_MODEL,index,value,TRUE);
+  if(!GetIsObjectValid(next)) { Line("ARMORKIT icon-modify-failed index="+IntToString(index)); next=it; }
+  else DestroyObject(it);
+  DelayCommand(0.1,Step(pc,next,n+1));
 }
 void Wait() {
   object pc=GetFirstPC();
   if(!GetIsObjectValid(pc) || !GetLocalInt(GetModule(),"%(done)s")) { DelayCommand(1.0,Wait()); return; }
-  DelayCommand(1.0,Show(pc));
+  DelayCommand(1.0,Step(pc,CreateItemOnObject("nw_cloth001",pc),0));
 }
 void main() { Wait(); }
 '''
@@ -237,15 +236,17 @@ def published(parts, number, bodies=None):
 def check_spec(bodies, slots, number, haks, body_pack, *, tlk=None, colours=None, heads=None, hold=fixture.HOLD, icons=True):
     """(fixture spec, layout) of the client check of outfit `number`, worn on `slots`, on `bodies`, from the
     built packs `haks` (highest priority first: the parts pack and its tables before the bodies' and heads').
-    With `icons` a bare Human male beside them is given the outfit as an item, and its examine window and
-    inventory icon are two more shots. Nothing of a bake is read: the fixture shows what the packs hold."""
+    With `icons` a bare Human male beside them is given the outfit as an item, and its examine window with
+    its inventory icon is one more shot. Nothing of a bake is read: the fixture shows what the packs hold."""
     require(bodies and len(set(bodies)) == len(bodies), 'The client check takes bodies, each once')
     require(slots and all(slot in registry.SLOTS for slot in slots), f'An outfit is worn on slots of {sorted(registry.SLOTS)}')
     actors, shots, labels = cast(bodies, {slot: number for slot in slots}, statures(bodies, body_pack), colours, heads)
     scripts = {'ak_pose': poses.POSE_SCRIPT}
     if icons:
         actors.append({'label': 'icon host', 'body': HUMANS['m'], 'head': {**HEADS, **(heads or {})}['pmh'], 'position': HOST, 'bare': True, 'script': 'ak_icons'})
-        scripts['ak_icons'] = ICONS % {'number': number, 'first': len(shots), 'second': len(shots) + 1, 'hold': hold, 'done': fixture.DONE}
+        wear = {index: value for slot, value in {**fixture.NAKED, **{slot: number for slot in slots}}.items() for index in fixture.model_indices(slot)}
+        scripts['ak_icons'] = ICONS % {'wear': '\n'.join(f'  if(n=={step}) {{ index={index}; value={value}; }}' for step, (index, value) in enumerate(sorted(wear.items()))),
+                                       'shot': len(shots), 'hold': hold, 'done': fixture.DONE}
     document = {'name': NAME, 'haks': [str(hak) for hak in haks], 'actors': actors, 'shots': shots, 'scripts': scripts, 'hold': hold, 'size': 16}
     if tlk:
         document['tlk'] = str(tlk)
@@ -255,7 +256,7 @@ def check_spec(bodies, slots, number, haks, body_pack, *, tlk=None, colours=None
 def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.2):
     """Build the client check into the fresh folder `output` and, with `run`, look: the fixture's record, with
     the `evidence` where it ran. The captures are laid out in `<output>/sheet.jpg`, a row per body and pose,
-    and the two of the icon kept as `icon-examine.png` and `icon-inventory.png`. `wait` is the seconds to
+    and the one of the item kept as `icon.png`. `wait` is the seconds to
     wait for another session's client to close first."""
     output = Path(output)
     require(not output.exists(), f'The client check is built into a fresh folder; this one exists: {output}')
@@ -269,8 +270,8 @@ def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.
                               timeout=record['start'] + (record['shots'] + 2) * hold + 300 + record['shots'] * hold)  # room for shots that fall behind
         captures = evidence['captures']
         evidence['sheet'] = str(poses.sheet(captures[:count], layout, output / 'sheet.jpg'))
-        for capture, name in zip(captures[count:], ('icon-examine.png', 'icon-inventory.png')):
-            Path(output / name).write_bytes(Path(capture).read_bytes())
+        for capture in captures[count:count + 1]:
+            (output / 'icon.png').write_bytes(Path(capture).read_bytes())
         (output / 'evidence.json').write_text(json.dumps(evidence, indent=1) + '\n', encoding='utf-8', newline='\n')
         record['evidence'] = evidence
     return record

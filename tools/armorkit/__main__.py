@@ -357,7 +357,7 @@ def main(argv=None):
     p.add_argument('--bodies', help='comma-separated bodies to look at (default every body the outfit is made for)')
     p.add_argument('--head', action='append', default=[], help='KIND=NUMBER: the head a kind of body wears, as pmh=86')
     p.add_argument('--colours', help='JSON of colour channels to wear in another colour than the six contrasting ones')
-    p.add_argument('--no-icons', action='store_true', help='leave out the two shots of the outfit as an item')
+    p.add_argument('--no-icons', action='store_true', help='leave out the shot of the outfit as an item')
     p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
     p.add_argument('--wait', type=float, help="seconds to wait for another session's client to close first")
     p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')

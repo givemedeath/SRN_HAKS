@@ -183,7 +183,9 @@ class CheckTests(unittest.TestCase):
         host = document['actors'][-1]
         self.assertEqual((host['bare'], host['script'], len(document['actors'])), (True, 'ak_icons', 5))
         script = document['scripts']['ak_icons']
-        for line in (f'shot={count} target=examine', f'shot={count + 1} target=inventory', 'ITEM_APPR_ARMOR_MODEL_TORSO,6020',
+        # every slot the outfit fills and nothing in the others, a slot a tick; the windows stay a whole hold after their line
+        for line in (f'shot={count} target=item', '{ index=7; value=6020; }', '{ index=6; value=6020; }', '{ index=8; value=0; }', 'if(n==18)',
+                     'DelayCommand(0.1,Step(pc,next,n+1))', 'DelayCommand(1.5+5.0,Line("ARMORKIT icons-done"))',
                      f'!GetLocalInt(GetModule(),"{fixture.DONE}")) {{ DelayCommand(1.0,Wait()); return; }}'):  # after the shots, whenever they end
             self.assertIn(line, script)
         self.assertEqual((without['icons'], set(plain['scripts']), len(plain['actors'])), (False, {'ak_pose'}, 2))
@@ -199,9 +201,9 @@ class CheckTests(unittest.TestCase):
             def ran(nwn_root, given, captures, **options):
                 asked.update(options)
                 Path(captures).mkdir()
-                for name in ('0', '1', '2', '3'):
+                for name in ('0', '1', '2'):
                     (Path(captures) / name).write_bytes(name.encode())
-                return {'captures': [str(Path(captures) / name) for name in ('0', '1', '2', '3')]}
+                return {'captures': [str(Path(captures) / name) for name in ('0', '1', '2')]}
             with mock.patch.object(poses, 'build', side_effect=lambda *_: dict(record)) as built, mock.patch.object(client, 'run', side_effect=ran), \
                     mock.patch.object(client, 'wait_free') as waited, mock.patch.object(poses, 'sheet', side_effect=lambda captures, layout, path: path) as sheet:
                 found = bodies.check({'name': 'x'}, layout, root / 'check', 'game', run=True, wait=60)
@@ -210,7 +212,7 @@ class CheckTests(unittest.TestCase):
                 self.assertEqual(built.call_args.args[2:], (root / 'check', 'game'))
                 waited.assert_called_once_with(60)
                 self.assertEqual((asked['until'], asked['timeout']), ('icons-done', 8.0 + 4 * 5.0 + 300 + 2 * 5.0))
-                self.assertEqual(((root / 'check' / 'icon-examine.png').read_bytes(), (root / 'check' / 'icon-inventory.png').read_bytes()), (b'2', b'3'))
+                self.assertEqual((root / 'check' / 'icon.png').read_bytes(), b'2')
                 self.assertTrue((root / 'check' / 'evidence.json').is_file())
                 with self.assertRaisesRegex(ValueError, 'fresh folder'):
                     bodies.check({'name': 'x'}, layout, root / 'check', 'game')
