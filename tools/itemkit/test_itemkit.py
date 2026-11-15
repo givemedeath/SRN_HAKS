@@ -466,7 +466,7 @@ class ReceiptTests(Fixture):
     def test_a_stage_pins_the_libraries_it_loaded_and_no_others(self):
         from tools.headkit import common
         used = self.root/'igl.bin'; used.write_bytes(b'igl'); idle = self.root/'faces.bin'; idle.write_bytes(b'faces')
-        self.runner.local = {**self.runner.local, 'libraries': {'igl': {'files': [pin(used)]}, 'mediapipe': {'files': [pin(idle)]}}}
+        self.runner.local = {**self.runner.local, 'libraries': {'igl': {'files': [pin(used)]}, 'xatlas': {'files': [pin(used)]}, 'mediapipe': {'files': [pin(idle)]}}}
         loads = {'reduce'}
         def compute(stage, folder, **kwargs):
             if stage in loads: common.LIBRARIES_USED.add('igl')
@@ -476,6 +476,14 @@ class ReceiptTests(Fixture):
         paths = {row['path'] for row in read(self.runner.state['stages']['reduce']['path'])['inputs']}
         self.assertIn(str(used.resolve()), paths); self.assertNotIn(str(idle.resolve()), paths)
         self.assertIsNone(common.LIBRARIES_USED)
+        # A failure after the libraries were added still counts against the snapshot the attempt started from.
+        self.runner.review('reduce', 'approved', 'Reviewed'); self.runner.package_pins = [pin(idle)]   # no package check at the start
+        def late(stage, folder, **kwargs):
+            common.LIBRARIES_USED.add('xatlas'); return {}
+        with patch.object(self.runner, '_execute', side_effect=late), patch('tools.itemkit.runner.python_package_pins', side_effect=ValueError('late failure')):
+            for _ in range(2):
+                with self.assertRaisesRegex(ValueError, 'late failure'): self.runner.execute('unwrap')
+            with self.assertRaisesRegex(ValueError, 'Two failures'): self.runner.execute('unwrap')
         with patch.object(self.runner, '_execute', side_effect=compute):       # fit declares no library
             self.runner.state['stages'].pop('fit'); loads.add('fit')
             with self.assertRaisesRegex(ValueError, 'undeclared libraries: igl'): self.runner.execute('fit')

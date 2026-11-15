@@ -155,14 +155,16 @@ class Runner:
             result = self._execute(stage, folder, parent_results=parent_results); digest(result)
             used = set(common.LIBRARIES_USED); undeclared = used - stage_libraries(stage)
             require(not undeclared, 'Stage loaded undeclared libraries: '+', '.join(sorted(undeclared)))
-            for name in sorted(used): inputs += self.local['libraries'][name]['files']
+            # A new list: the receipt's own `inputs` stay what the attempt snapshot was taken from until the stage
+            # completes, so a failure from here on still counts against that snapshot's two-failure limit.
+            consumed = inputs+[row for name in sorted(used) for row in self.local['libraries'][name]['files']]
             # One fresh completion boundary: each consumed file and ancestor artifact is reread once.
-            completion_audit = VerificationPass(); completion_audit.verify(inputs)
+            completion_audit = VerificationPass(); completion_audit.verify(consumed)
             for parent in parents:
                 require(self.state['stages'].get(parent) == parents[parent], 'Dependency changed: '+parent)
                 self.result(parent, _audit=completion_audit)
             python_package_pins(self.local)
-            receipt.update(state='complete', result=result); self.completion = (stage, completion_audit)
+            receipt.update(state='complete', result=result, inputs=consumed); self.completion = (stage, completion_audit)
         except Exception as exc:
             receipt.update(state='failed', error=str(exc), traceback=traceback.format_exc())
             raise
@@ -306,7 +308,9 @@ class Runner:
                     except Exception as exc: result['textureOutliers'] = {'advisory': True, 'error': f'{type(exc).__name__}: {exc}'}
             return result
         if stage == 'render':
-            return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'], emitExportArrays=True,
+            # Only the rigid export reads these arrays; the shield and rigged adapters have their own.
+            rigid = ROUTES[self.family['family']].adapter not in ('shield', 'rigged', 'whole-skinned')
+            return self.worker(stage, folder, scene=parent_result('shadow')['scene']['path'], emitExportArrays=rigid,
                                texture=parent_result('bake')['maps'][str(self.family['runtimeTextureSize'])]['path'])
         if stage == 'export':
             adapter = ROUTES[self.family['family']].adapter

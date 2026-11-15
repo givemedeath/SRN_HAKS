@@ -88,7 +88,7 @@ the generic native gate blocked and grants no fit or generation approval.
 The maintained separate firearm adapter is exposed by `firearm-inputs`,
 `firearm-prepare`, `firearm-native` and `firearm-fixture`. A preparation specification binds a source
 profile with the verified effective stack, comparison HAKs, explicit resource
-identity and each Color's final corner arrays, 1K diffuse and 32x64 RGBA icon.
+identity and each Color's final corner arrays, 1K or 2K diffuse and 32x64 RGBA icon.
 The source profile supplies namespace/table evidence only, not a pistol grip fit.
 Use `firearm-inputs --spec SPEC --bindings BINDINGS --output INPUTS` before the
 verified launcher invokes `firearm-prepare --spec SPEC --output FRESH`.

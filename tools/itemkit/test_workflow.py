@@ -22,7 +22,7 @@ class VerificationTests(unittest.TestCase):
     def test_render_dependency_lookups_share_one_pass(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);r=Runner.__new__(Runner);r.data={};r.local={};r.runtime=None
-            r.family={'runtimeTextureSize':1024};r.state={'stages':{},'reviews':{}}
+            r.family={'family':'longsword','runtimeTextureSize':1024};r.state={'stages':{},'reviews':{}}
             for stage,parents,result in [('a',[],{}),('bake',['a'],{'maps':{'1024':{'path':'texture'}}}),
                                          ('shadow',['bake'],{'scene':{'path':'scene'}})]:
                 p=root/(stage+'.json');write(p,{'state':'complete','manifestHash':digest({}),'bindingsHash':digest({}),
@@ -32,6 +32,12 @@ class VerificationTests(unittest.TestCase):
             with patch.object(r,'result',side_effect=AssertionError('Repeated dependency validation')), patch.object(r,'worker',return_value={}) as worker:
                 r._execute('render',root,parent_results={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture'}}}})
                 worker.assert_called_once_with('render',root,scene='scene',emitExportArrays=True,texture='texture')
+                # A shield or rigged family exports through its own adapter: its render writes no rigid export arrays.
+                from tools.itemkit.routes import ROUTES
+                for name in ('shield','rigged','whole-skinned'):
+                    r.family['family']=next(key for key,route in ROUTES.items() if route.adapter==name);worker.reset_mock()
+                    r._execute('render',root,parent_results={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture'}}}})
+                    self.assertFalse(worker.call_args.kwargs['emitExportArrays'])
 
     def test_small_extractions_ride_on_the_previous_stages_blender_launch(self):
         from tools.itemkit.routes import PACKAGED_FIREARMS
