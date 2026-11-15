@@ -117,7 +117,10 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
         # Fixture HAK pins that come with a fixture-inputs document replace the bindings' own, as in Runner.rebuild_fixture.
         if not any('fixtureHaks' in document for document in fixture_docs): pins += list(local.get('fixtureHaks', {}).values())
         pins += list(local.get('comparisonHaks',{}).values())
-    for row in local.get('libraries', {}).values(): pins += row['files']
+    # A stage consumes only the libraries it may load (runner.STAGE_LIBRARIES); an unscoped listing stays conservative.
+    from .runner import stage_libraries
+    for name, row in local.get('libraries', {}).items():
+        if stage is None or name in stage_libraries(stage): pins += row['files']
     if not cpu and local.get('comfyCustomNodes'):
         directory = Path(local['comfyCustomNodes'])/'srn_headkit'
         pins += [pin(p) for p in sorted(directory.glob('*.py'))]

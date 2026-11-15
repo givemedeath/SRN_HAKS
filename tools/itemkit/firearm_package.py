@@ -106,9 +106,9 @@ def prepare(spec_path, output):
                     text = ascii_model(variant['models'][allocation['slot']], variant['texture'],
                                        **{k: data[k] for k in ('positions', 'normals', 'uv')},
                                        shadow_vertices=data['shadowVertices'], shadow_faces=data['shadowFaces'])
-            for key, size, mode in (('texture', (1024, 1024), None), ('icon', icon_size, 'RGBA')):
+            for key, sizes, mode in (('texture', ((1024, 1024), (2048, 2048)), None), ('icon', (icon_size,), 'RGBA')):
                 with Image.open(source[key]['path']) as image:
-                    require(image.size == size and (mode is None or image.mode == mode),
+                    require(image.size in sizes and (mode is None or image.mode == mode),
                             'Incorrect runtime texture or multipart icon dimensions/mode')
             item = variant_blueprint(allocation, variant, counts, source['displayName'])
             checked.append((variant, source, counts, text, item))
