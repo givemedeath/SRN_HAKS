@@ -66,10 +66,11 @@ SKIN_DARK_FLOOR=.2;SKIN_DARK_POWERS=(2.,3.,4.5)
 # environment-mapped (elf-female-e on row 59 rendered a pale face over a dark olive, reflective body; RUNBOOK 407). Hair rows
 # (alpha ~215, the stock shine) and metallic tattoo rows (alpha ~112) are intended and stay eligible.
 OPAQUE_CHANNELS=('0',)
-# hairBroadContrast (palette, 0.2-1): the hair's broad surface-smoothed tone variation (SHADING_SIGMA) is scaled about its median
-# before ranking, strands kept. A pale curly bake (elf-female-b, platinum row 50) carried broad grey-tan patches that the whole-
-# hair stretch doubled (std 23 -> 45) into olive camouflage in the client (RUNBOOK 408).
-HAIR_BROAD_RANGE=(.2,1.)
+# hairBroadContrast (palette, 0.2-1): the hair's tone above strand scale (surface-smoothed at HAIR_BROAD_SIGMA head widths, about
+# 1 mm on a game head) is scaled about its median before ranking; strand detail is kept. Tone matching restores the channel's
+# spread whatever the input, so this decides which texels are dark: curl-sized bake patches (elf-female-b, platinum row 50) became
+# olive camouflage in the client; at SHADING_SIGMA they stayed, at .005 they read as strand grain (RUNBOOK 408).
+HAIR_BROAD_RANGE=(.2,1.);HAIR_BROAD_SIGMA=.005
 # Full-range shades also need an opaque next shade: in the client shade 254 picks up the transparent reserved 255 and renders as
 # dark blotches (elf-male-a brow highlights, 2026-10-29), so a shade whose upper neighbour is transparent is never used.
 # Design-referenced rows (toneMatch rowFrom 'design'): lightness weight of the Lab distance (the matched shades already
@@ -289,7 +290,7 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         selected=layers==layer;target=rgb[selected].astype(float);opaque=key in OPAQUE_CHANNELS;broad=None
         if key=='1' and hair_broad!=1 and len(target):
             # Broad hair tone scaled about its median, strand detail (luma minus the smooth field) kept; colours keep their hue.
-            points=np.asarray(positions,float);sigma=SHADING_SIGMA*float(np.ptp(points[...,0]))
+            points=np.asarray(positions,float);sigma=HAIR_BROAD_SIGMA*float(np.ptp(points[...,0]))
             luma=target@np.array([.299,.587,.114]);field=np.zeros(layers.shape);field[selected]=luma
             smooth=surface_smooth(field,selected,points,sigma)[selected];centre=float(np.median(smooth))
             scaled=np.clip(centre+(smooth-centre)*hair_broad+(luma-smooth),0,255)
