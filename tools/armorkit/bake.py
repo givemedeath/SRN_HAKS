@@ -1121,7 +1121,8 @@ def digest(*given):
 def drawn(cache, key, draw):
     """(shades, layers) of one part: read from the folder `cache` under `key` where it holds them, else
     drawn (`draw()`) and, with a cache, kept there. A file is written under another name and renamed, so
-    that bakes running side by side never read half of one; one that cannot be read is drawn and written again."""
+    that bakes running side by side never read half of one; one that cannot be read is drawn and written again, and a rename
+    refused because another bake has kept the same file and it is being read leaves that one in place."""
     if cache is None:
         return draw()
     path = Path(cache) / (key + '.npz')
@@ -1136,7 +1137,12 @@ def drawn(cache, key, draw):
     scratch = path.with_name(f'{key}.{time.time_ns()}.part')  # np.savez adds .npz to a name without it
     with open(scratch, 'wb') as handle:
         np.savez_compressed(handle, shades=shades, layers=layers)
-    scratch.replace(path)
+    try:
+        scratch.replace(path)
+    except OSError:  # Windows refuses the rename while a bake beside this one reads the file another has just kept there
+        scratch.unlink(missing_ok=True)
+        if not path.is_file():
+            raise
     return shades, layers
 
 

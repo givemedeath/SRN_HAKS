@@ -542,6 +542,22 @@ class BakeTests(unittest.TestCase):
                              (2, {'chest': 'pmh0_chest332', 'pelvis': 'pmh0_pelvis332'}, True, {'waist': {}}))
             self.assertEqual(json.loads((output / 'bake.json').read_text(encoding='utf-8')), record)
 
+    def test_a_fresh_bakes_stages_are_in_its_record(self):
+        # the bake's own stages were said in the log and left out of the record: `run` gives the bake its count
+        parts = {'chest': part()}
+        tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
+
+        def baked(*given, mark=None):
+            mark('split')
+            return parts, {'torso_g': np.eye(4)}, None
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(bake, 'bake', baked), \
+                mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
+                mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
+                mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({}, [])), \
+                mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({}, [])):
+            record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, mesh='m', colours='c', raw='r', xatlas='x')
+        self.assertEqual(list(record['seconds']), ['split', 'tint', 'write', 'gates'])
+
     def test_parts_kept_apart_are_combined_into_one_outfit(self):
         document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
         skin = dict(part(), skin=np.zeros(1, bool))

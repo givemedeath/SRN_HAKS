@@ -41,6 +41,7 @@ import math
 import shutil
 import struct
 import subprocess
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -147,7 +148,7 @@ def shared_maps(surveyed, incoming, hashed=None):
             lines = text.splitlines(keepends=True)
             for index, line in enumerate(lines):
                 words = line.split()
-                if len(words) > 1 and words[0].startswith('texture') and words[1] in stands:
+                if line.startswith('texture') and len(words) > 1 and words[1] in stands:  # the lines `material_maps` reads
                     lines[index] = line.replace(words[1], stands[words[1]], 1)
             if ''.join(lines) != text:
                 texts[name] = ''.join(lines)
@@ -731,18 +732,17 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(not unknown, f'{flag} names a model no bake is of: {", ".join(unknown)}')
 
     # One image under several names is published once: the other bodies' material files name the one kept.
-    stands, texts = shared_maps(surveyed, incoming, once)
+    stands, renamed = shared_maps(surveyed, incoming, once)
     work = None
     if stands:
-        import tempfile
         work = Path(tempfile.mkdtemp(prefix='armorkit-publish-'))
         for bake in surveyed:
             for name in sorted(bake.get('taken', ())):
                 if name.endswith('.tga') and name[:-4] in stands:
                     bake['taken'].discard(name)
                     del incoming[name]
-                elif name in texts:
-                    (work / name).write_bytes(texts[name].encode('ascii'))
+                elif name in renamed:
+                    (work / name).write_bytes(renamed[name].encode('ascii'))
                     bake['files'][name] = incoming[name] = work / name
     pack.update(incoming)
     try:
@@ -752,7 +752,6 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             drawn = {}
             failures.append(failure('icons', PACK, f'the icons could not be drawn: {error}'))
         if drawn:
-            import tempfile
             work = Path(tempfile.mkdtemp(prefix='armorkit-icons-')) if work is None else work
             for name, blob in drawn.items():
                 if name in pack:
