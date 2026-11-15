@@ -95,6 +95,16 @@ def seam_limit(limit, approved):
     return float(approved['ratioMax'])
 
 
+def brows_limit(limit, approved):
+    """The browsOnHair minimum for this head: the shared limit, or the coverage the user accepted after a client check
+    (RUNBOOK 393). An approval lowers it for that head only, and a later fall below `minimum` fails again."""
+    if approved is None: return limit
+    require(isinstance(approved, dict) and set(approved) == {'minimum', 'approval'} and type(approved.get('minimum')) in (int, float)
+            and 0 < approved['minimum'] < limit and isinstance(approved['approval'], str) and approved['approval'].strip() != '',
+            'quality.browsOnHairApproved needs a minimum between 0 and the limit and an approval note')
+    return float(approved['minimum'])
+
+
 def focus_view(source, masks, layers):
     """Prepare the exact game-size projection once for palette search and quality review."""
     files = masks['files']; value = mesh(source); uv = value['uv'].astype(float)
@@ -155,13 +165,15 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
     bound Embree DLL path (seam steps count outer faces only, RUNBOOK 164).
     settings (the manifest quality section): `cybereyeImageSide` 'left' or 'right' leaves that eye and brow out of the role
     checks (RUNBOOK 150): a cybereye housing has no iris, whites or brow for the parser to find. `seamStepApproved`
-    {ratioMax, approval} is one head's user approval of its seamStep ratio after a client view (RUNBOOK 178)."""
+    {ratioMax, approval} is one head's user approval of its seamStep ratio after a client view (RUNBOOK 178); `browsOnHairApproved`
+    {minimum, approval} is one head's user-accepted brow coverage (RUNBOOK 393)."""
     settings = settings or {}; side = settings.get('cybereyeImageSide')
-    require(set(settings) <= {'cybereyeImageSide', 'seamStepApproved', 'sourceHairRoles'} and side in (None, 'left', 'right'), 'quality.cybereyeImageSide must be left or right')
-    approved = settings.get('seamStepApproved')
+    require(set(settings) <= {'cybereyeImageSide', 'seamStepApproved', 'browsOnHairApproved', 'sourceHairRoles'} and side in (None, 'left', 'right'),
+            'quality.cybereyeImageSide must be left or right')
+    approved = settings.get('seamStepApproved'); brows_approved = settings.get('browsOnHairApproved')
     require(embree is not None, 'Quality needs the bound Embree runtime')
     limits = thresholds if thresholds is not None else read(THRESHOLDS)['limits']; require(set(limits) == CHECKS, 'Incomplete quality thresholds')
-    seam_max = seam_limit(limits['seamStepRatioMax'], approved)
+    seam_max = seam_limit(limits['seamStepRatioMax'], approved); brows_min = brows_limit(limits['browsOnHairMin'], brows_approved)
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     require(masks['source']['sha256'] == pin(source)['sha256'], 'Quality must read the masks of this UV mesh')
     with Image.open(palette['shades']['path']) as image: shades = np.asarray(image)
@@ -244,9 +256,10 @@ def quality(source, masks, palette, palettes, output, thresholds=None, settings=
         row = rows.get(str(k), 0); lo, hi = eligible(tables.get(str(k), tables['0'])[0 if row == 'auto' else int(row)])
         r['shadeSpan'][str(k)] = round(float((np.percentile(values, 99)-np.percentile(values, 1))/max(hi-lo, 1)), 3)
     if approved is not None: r['seamStepApproved'] = approved
+    if brows_approved is not None: r['browsOnHairApproved'] = brows_approved
     fails = [name for name, ok in (('featureFocus', r['featureFocus'] >= limits['featureFocusMin']), ('blotch', r['blotchPx'] <= limits['blotchPxMax']),
              ('specks', r['specks'] <= limits['specksMax']), ('hairLockOnSkin', (r['hairLockOnSkinPx'] or 0) <= limits['hairLockOnSkinPxMax']),
-             ('browsOnHair', (r['browsOnHair'] or 0) >= limits['browsOnHairMin']), ('irisOnTattoo1', (r['irisOnTattoo1'] or 0) >= limits['irisOnTattoo1Min']),
+             ('browsOnHair', (r['browsOnHair'] or 0) >= brows_min), ('irisOnTattoo1', (r['irisOnTattoo1'] or 0) >= limits['irisOnTattoo1Min']),
              ('whitesOnSkin', (r['whitesOnSkin'] or 0) >= limits['whitesOnSkinMin']), ('lipHair', r['lipHairPx'] == 0),
              ('upperLidHair', r['upperLidHairPx'] == 0),
              ('hairOnFaceSkin', r['hairOnFaceSkin'] is None or r['hairOnFaceSkin'] <= limits['hairOnFaceSkinMax']),

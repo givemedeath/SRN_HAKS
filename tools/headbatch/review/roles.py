@@ -7,7 +7,7 @@ from scipy.ndimage import label, binary_erosion
 from headkit.common import pin, read, verify, write, require
 from headkit.face_masks import nearest, hair_locks, NOSE_BASE, HAIR
 from headkit.brow_edges import upper_lids
-from headkit.quality import focus_view, THRESHOLDS, lip_hair_pixels, upper_lid_hair_pixels
+from headkit.quality import focus_view, THRESHOLDS, lip_hair_pixels, upper_lid_hair_pixels, brows_limit
 from headkit.runner import Runner
 from headbatch.review._role_code import files as role_code_files
 
@@ -96,7 +96,9 @@ def draw(head,attempt,output,rules=None):
     verify(inputs,fresh=True)
     region=focus_view(masks['source']['path'],masks,layers)
     metrics,channel,brows,hair_spill=measure(region,layers,settings);limits=read(THRESHOLDS)['limits']
-    failed=[name for name,key in [('browsOnHair','browsOnHairMin'),('irisOnTattoo1','irisOnTattoo1Min'),('whitesOnSkin','whitesOnSkinMin')] if (metrics[name] or 0)<limits[key]]
+    # A user-accepted brow coverage lowers this head's minimum only (RUNBOOK 393); the report keeps the shared limits.
+    floor={**limits,'browsOnHairMin':brows_limit(limits['browsOnHairMin'],settings.get('browsOnHairApproved'))}
+    failed=[name for name,key in [('browsOnHair','browsOnHairMin'),('irisOnTattoo1','irisOnTattoo1Min'),('whitesOnSkin','whitesOnSkinMin')] if (metrics[name] or 0)<floor[key]]
     failed += ['irisOnTattoo1-'+s for s,v in metrics['irisByEye'].items() if (v or 0)<limits['irisOnTattoo1Min']]
     if metrics['specks']>limits['specksMax']:failed.append('specks')
     if metrics['lipHairPx']:failed.append('lipHair')

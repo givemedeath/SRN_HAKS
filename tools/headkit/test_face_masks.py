@@ -459,6 +459,20 @@ class Quality(unittest.TestCase):
                 quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'seamStepApproved': bads[0]}, embree='embree.dll')
             self.assertFalse((Path(root)/'q').exists())
 
+    def test_brow_approval_lowers_one_heads_brow_minimum_to_its_accepted_coverage(self):
+        # RUNBOOK 393: a head's own accepted coverage, with its note; anything else keeps the shared limit or stops.
+        from headkit.quality import quality, brows_limit
+        self.assertEqual(brows_limit(.85, None), .85); self.assertEqual(brows_limit(.85, {'minimum': .78, 'approval': 'user 2026-11-14'}), .78)
+        bads = ({'minimum': .78}, {'minimum': .9, 'approval': 'x'}, {'minimum': .85, 'approval': 'x'}, {'minimum': 0, 'approval': 'x'},
+                {'minimum': True, 'approval': 'x'}, {'minimum': .78, 'approval': ' '}, {'minimum': .78, 'approval': 'x', 'more': 1}, .78)
+        for bad in bads:
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'browsOnHairApproved'):
+                brows_limit(.85, bad)
+        with tempfile.TemporaryDirectory() as root:   # through quality(): the allow-list takes the key, and a bad value stops before any work
+            with self.assertRaisesRegex(ValueError, 'browsOnHairApproved'):
+                quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'browsOnHairApproved': bads[0]}, embree='embree.dll')
+            self.assertFalse((Path(root)/'q').exists())
+
 
 class Wiring(unittest.TestCase):
     def test_stage_order_and_declarations(self):
