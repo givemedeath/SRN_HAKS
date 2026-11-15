@@ -463,6 +463,30 @@ class ReceiptTests(Fixture):
         with self.assertRaisesRegex(ValueError, 'Review pending'): self.runner.result('prepare')
         self.runner.review('prepare', 'approved', 'Inspected the original reference')
         self.runner.result('prepare')
+    def test_a_stage_pins_the_libraries_it_loaded_and_no_others(self):
+        from tools.headkit import common
+        used = self.root/'igl.bin'; used.write_bytes(b'igl'); idle = self.root/'faces.bin'; idle.write_bytes(b'faces')
+        self.runner.local = {**self.runner.local, 'libraries': {'igl': {'files': [pin(used)]}, 'mediapipe': {'files': [pin(idle)]}}}
+        loads = {'reduce'}
+        def compute(stage, folder, **kwargs):
+            if stage in loads: common.LIBRARIES_USED.add('igl')
+            return {}
+        with patch.object(self.runner, '_execute', side_effect=compute):
+            self.runner.execute('fit'); self.runner.review('fit', 'approved', 'Reviewed fit'); self.runner.execute('reduce')
+        paths = {row['path'] for row in read(self.runner.state['stages']['reduce']['path'])['inputs']}
+        self.assertIn(str(used.resolve()), paths); self.assertNotIn(str(idle.resolve()), paths)
+        self.assertIsNone(common.LIBRARIES_USED)
+        with patch.object(self.runner, '_execute', side_effect=compute):       # fit declares no library
+            self.runner.state['stages'].pop('fit'); loads.add('fit')
+            with self.assertRaisesRegex(ValueError, 'undeclared libraries: igl'): self.runner.execute('fit')
+    def test_an_approval_inside_the_completion_pass_still_reads_the_outputs_fresh(self):
+        def compute(stage, folder, **kwargs):
+            file = folder/'output.txt'; file.write_text(stage); return {'artifact': pin(file)}
+        with patch.object(self.runner, '_execute', side_effect=compute):
+            result = self.runner.execute('fit')['result']; stage, audit = self.runner.completion
+            self.assertEqual(stage, 'fit')
+            Path(result['artifact']['path']).write_bytes(b'altered')
+            with self.assertRaisesRegex(ValueError, 'Stale'): self.runner.review('fit', 'approved', 'notes', _audit=audit)
     def test_changed_output_invalidates_resume(self):
         result = self.runner.execute('prepare')['result']
         self.runner.review('prepare', 'approved', 'Viewed reference')

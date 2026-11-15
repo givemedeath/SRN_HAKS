@@ -31,7 +31,36 @@ class VerificationTests(unittest.TestCase):
                 write(q,{'stageReceipt':pin(p),'decision':'approved'});r.state['reviews'][stage]=pin(q)
             with patch.object(r,'result',side_effect=AssertionError('Repeated dependency validation')), patch.object(r,'worker',return_value={}) as worker:
                 r._execute('render',root,parent_results={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture'}}}})
-                worker.assert_called_once_with('render',root,scene='scene',texture='texture')
+                worker.assert_called_once_with('render',root,scene='scene',emitExportArrays=True,texture='texture')
+
+    def test_small_extractions_ride_on_the_previous_stages_blender_launch(self):
+        from tools.itemkit.routes import PACKAGED_FIREARMS
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);reference=root/'reference.png';reference.write_bytes(b'png');scene=root/'scene.blend';scene.write_bytes(b'blend')
+            r=Runner.__new__(Runner);r.data={'processing':{},'inputs':{}};r.local={};r.input=lambda role:str(reference)
+            r.family={'family':next(iter(PACKAGED_FIREARMS)),'runtimeTextureSize':1024}
+            with patch.object(r,'worker',return_value={}) as worker:
+                # No reference projection: the finish stage hands the unwrapped scene on without starting Blender.
+                result=r._execute('finish',root,parent_results={'unwrap':{'scene':pin(scene)}})
+                worker.assert_not_called();self.assertEqual(result['scene'],pin(scene));self.assertTrue(result['workerSkipped'])
+                r.data['processing']['donorFinish']={'kind':'reference-grip'}
+                r._execute('finish',root,parent_results={'unwrap':{'scene':pin(scene)}});worker.assert_called_once()
+            with patch.object(r,'worker',return_value={}) as worker:
+                r._execute('reduce',root,parent_results={'fit':{'scene':pin(scene)}})
+                self.assertTrue(worker.call_args.kwargs['emitUvSource'])
+            # The arrays a parent's launch wrote are used as they are; without them (an older receipt) Blender extracts them.
+            r.parent_results={'reduce':{'uvSource':{'path':'emitted','sha256':'bound'}}}
+            with patch.object(r,'worker',return_value={'arrays':{'path':'extracted'}}) as worker:
+                self.assertEqual(r.uv_source('reduce','scene',root),{'arrays':{'path':'emitted','sha256':'bound'}});worker.assert_not_called()
+                r.parent_results={'reduce':{}}
+                self.assertEqual(r.uv_source('reduce','scene',root)['arrays']['path'],'extracted')
+                worker.assert_called_once_with('uv-arrays',root/'extract',scene='scene')
+            r.profile_path=root/'profile.json'
+            parents={'shadow':{'scene':{'path':'scene'}},'bake':{'maps':{'1024':{'path':'texture','sha256':'bound'}}},
+                     'render':{'icons':{'b':{'path':'icon','sha256':'bound'}},'exportArrays':{'b':{'path':'arrays','sha256':'bound'}}}}
+            write(r.profile_path,{});r.family['activeParts']=['b']
+            with patch.object(r,'worker',side_effect=AssertionError('export started Blender')),                  patch('tools.itemkit.parts.active_parts',return_value=('b',)):
+                self.assertEqual(r._execute('export',root/'export',parent_results=parents)['arrays']['path'],'arrays')
 
     def test_hash_once_conflict_and_fresh_pass(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -193,9 +222,11 @@ class ChainTests(unittest.TestCase):
         def execute(stage):
             calls.append(('run', stage))
             if stage == fail: raise ValueError('gate failed')
+            runner.completion = None if stage == 'fit' else (stage, 'pass-of-'+stage)
             return {'reused': stage == 'fit', 'result': {}}
-        def review(stage, decision, notes):
-            calls.append(('review', stage, decision, notes)); runner.state['reviews'][stage] = {}
+        def review(stage, decision, notes, *, _audit=None):
+            calls.append(('review', stage, decision, notes)); audits.append(_audit); runner.state['reviews'][stage] = {}
+        audits = runner.audits = []
         runner.execute = execute; runner.review = review
         return runner, calls
 
@@ -207,6 +238,20 @@ class ChainTests(unittest.TestCase):
         self.assertEqual([(row['stage'], row['reviewed'], row['reused']) for row in result['stages']],
                          [('fit', True, True), ('reduce', True, False), ('unwrap', False, False)])
         self.assertEqual(result['unreviewed'], 'unwrap'); self.assertFalse(result['productionAccepted']); self.assertEqual(len(seen), 3)
+        # A stage this chain ran is approved inside its own completion pass; a reused one gets a fresh pass.
+        self.assertEqual(runner.audits, [None, 'pass-of-reduce'])
+
+    def test_an_approval_never_continues_another_stages_pass(self):
+        runner, calls = self.runner(); run = runner.execute
+        def stale(stage):
+            result = run(stage); runner.completion = ('bake', 'pass-of-bake'); return {**result, 'reused': False}
+        runner.execute = stale; runner.chain(['fit', 'reduce'], 'notes')
+        self.assertEqual(runner.audits, [None])
+
+    def test_a_stage_may_load_only_its_declared_libraries(self):
+        from tools.itemkit.runner import stage_libraries, DEPENDENCIES, STAGE_LIBRARIES
+        self.assertEqual(stage_libraries('reduce'), {'pymeshlab', 'igl'}); self.assertEqual(stage_libraries('unwrap'), {'xatlas'})
+        self.assertEqual(stage_libraries('bake'), set()); self.assertLessEqual(set(STAGE_LIBRARIES), set(DEPENDENCIES))
 
     def test_a_reused_stage_keeps_the_review_a_person_filed(self):
         runner, calls = self.runner(); runner._current_review = lambda stage: {'decision': 'approved', 'notes': "user's words"}

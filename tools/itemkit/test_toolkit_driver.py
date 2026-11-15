@@ -551,6 +551,11 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertEqual(ws.handoff, (root/'h').resolve()); self.assertEqual(ws.bindings('generation'), (root/'rt').resolve()/'b.json')
             ws = self.workspace(root, generationBindings='g.json'); self.assertEqual(ws.bindings('generation').name, 'g.json')
             self.assertIn(str((root/'bank').resolve()), ws.environment()['PYTHONPATH'])
+            # The launcher's hash cache is on for every driver launch (as in headbatch), unless the caller chose one.
+            with mock.patch.dict(os.environ): 
+                os.environ.pop('SRN_LAUNCH_HASH_CACHE', None)
+                self.assertEqual(ws.environment()['SRN_LAUNCH_HASH_CACHE'], str((root/'launch-hash-cache'/'cache.sqlite').resolve()))
+                os.environ['SRN_LAUNCH_HASH_CACHE'] = 'mine.sqlite'; self.assertEqual(ws.environment()['SRN_LAUNCH_HASH_CACHE'], 'mine.sqlite')
             (root/'workspace.json').write_text('{"kind": "other"}', encoding='utf-8')
             with self.assertRaises(WorkspaceError): Workspace.load(root/'workspace.json')
 
