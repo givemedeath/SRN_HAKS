@@ -22,9 +22,11 @@ def sources(archive, output, models, names):
     {source, files, roots}}, `files` those copied now."""
     archive, output = Path(archive).resolve(), Path(output).resolve()
     require((archive / 'archive-manifest.json').is_file(), f'No archive-manifest.json in {archive}')
-    require(archive != output and archive not in output.parents, 'An archive is only read: restore into a folder outside it')
     manifest = json.loads((archive / 'archive-manifest.json').read_text(encoding='utf-8')); files = manifest['files']
-    stores = [archive / 'objects'] + [(archive / base).resolve() / 'objects' for base in manifest.get('bases', [])]
+    # Its bases are archives too, and as little written into (review, 2026-11-15: restoring into a base was let through).
+    read = [archive] + [(archive / base).resolve() for base in manifest.get('bases', [])]
+    require(not any(one == output or one in output.parents for one in read), 'An archive is only read: restore into a folder outside it and its bases')
+    stores = [one / 'objects' for one in read]
     stated = json.loads(Path(models).read_text(encoding='utf-8'))['models']; told = {}
     for name in names:
         require(name in stated, 'No such model in the game set: ' + name)
