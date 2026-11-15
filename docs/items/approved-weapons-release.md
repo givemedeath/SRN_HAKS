@@ -251,7 +251,7 @@ The user approved them after seeing unattended in-client captures on both shippe
 - **Tonfa:** the shaft runs along the back of the forearm at the little-finger end of the fist, and the knob points
   forward past the thumb. The first capture was too long and held back to front ("Tonfa is too long and not facing the
   right direction"). Only the long arm of the shaft was shortened ("Shorten shaft only"), so the handle keeps its
-  0.75 m fit size. Its shadow mesh is a simplified copy bounded at 8 mm from the shaft.
+  0.75 fit scale. Its shadow mesh is a simplified copy bounded at 8 mm from the shaft.
 - **Telescopic Staff:** meshed by turning its profile about the long axis, then the tubes were stretched to 1.80 m
   ("1.8 m, tubes only").
 
