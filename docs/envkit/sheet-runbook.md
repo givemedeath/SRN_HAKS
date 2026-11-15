@@ -461,6 +461,9 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   Find the rim from a z-buffered elevation (open edges are the faces' edges used once) and state a point on it as
   `fill` (`convert.filled`), not face by face as `close`. Where the faces are there but wound inward, the client shows
   a gap all the same: give the faces in a box backs (`inside: [{box}]`, `convert.backed`). Check both from every side.
+  A fill is drawn between its rim's own corners, and where the picture draws those far apart it shows a streak of
+  whatever lies between them (the wedge at the foot of the Chop Shop clinic's back wall, 2026-11-14): give the
+  fill a `picture`, a point on the wall beside it, and it is drawn wholly in the wall's colour there.
 - **A sign spelt wrong.** Paint the stray strokes over in the sign's ground colour (`paint`), measured on a texel
   elevation of the letters (the rail yard's tower read "PREIGHT"; its P's bowl and bar were painted to make an F).
 - **Wavy handrails, missing stairs or a leg out of place.** A generator cannot hold a long thin rail straight, leaves
@@ -484,10 +487,33 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   checking for when props need lights from now on", "it should only be for things that should be bright"). A row
   holds one light: of several lamps on one prop, light the middle one, a little under its lens along the way it
   faces. See it in `check props --mode night`, the ground and the figures lit round it.
+  The game draws a star-shaped flare where the light stands. It shows through a thin part of the model round it
+  (a beam 0.2 metres thick, a lamp's housing) and is hidden only by what stands well in front of it. One light
+  for two lamps apart (a gate's posts) or a row of them (three booths), set between or above them, hangs a star in
+  the air or on a bare beam: the Ares and Saeder-Krupp gates' and the Iron Sight Arms booths' lights did
+  (2026-11-14). So a light stands at a lamp, where the flare is the lamp's: of two lamps apart at one of them, of a
+  row at the middle one, at or just inside its housing. Warning beacons only glow. `game` refuses a light more
+  than 0.3 metres from the model (`convert.light_gap`) and reports the distance as `lightFromModel`.
+- **A glass front, window or cover came back as its frame alone**, or drawn solid (the Chop Shop clinic's
+  cyberware case: the two bars of its slanted front and nothing between them; user, 2026-11-14: "Fix the case
+  glass too"). State the panes as `glass`: `[{"corners": [3 to 8 points round a flat pane]}]`, with a
+  `colour` (`[r, g, b]`) and a `strength` (0 to 1) where the pale blue-grey sheen it has without them will not
+  do. Read the corners from the frame's own vertices in the converted model's source file; a bowed bar takes two
+  panes. Each pane is a node of its own, seen from both sides, showing `<name>_g`, a picture added to what is
+  behind it: a pane laid over what is behind it (a node's `alpha`) hid the halo of the lights inside the case.
+  A placeable only: a tile group does not draw it. See it in `check props` by day and by night, the halos of
+  the lights behind it too.
 - **Half of a sign or emblem is smeared** while its other half is clean, on something drawn the same both ways
   (the Chop Shop clinic's banner: the right half of its caduceus, on both faces of the cloth). `copy` with
   `"mirror": true` lays the clean half over it from the middle outwards; measure the middle on a gridded
-  `--eye` view. A repeating band beside it (stripes) takes a plain `copy` from a whole number of repeats away.
+  `--eye` view. A repeating band beside it (stripes) takes a plain `copy` from a whole number of repeats away;
+  where the band sags along its length the copy meets it a step out, and `rise` (metres, the height of the step)
+  takes the copy from that much higher.
+- **A label or sticker the generator invented on a plain panel** (the Chop Shop clinic's vending machine: an
+  orange label with scribbled lettering on both sides and the back). A copy keeps each height's own band of the
+  wall, so it cannot come from the clean panel above or below: cover each half of the label with the panel beside
+  it at the same heights, `"mirror": true`, the two boxes the same length, so that the panel runs on unbroken at
+  the label's edges. A faint patch is left where the streaks of the panel stop at the box's top and bottom.
 - **A hole only one side shows.** The front, back and side of the client check miss a gap under a rear rim, a
   slot between lids, a length of pole wound inward (the Chop Shop clinic's bin, dumpster and lamp, 2026-11-14).
   `game` reports `seenFromBehind`: the largest patch of the model seen from behind, in cm², and the way it was

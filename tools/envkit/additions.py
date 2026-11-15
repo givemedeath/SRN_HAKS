@@ -30,16 +30,19 @@ def _home(args, path):
 def _lit(old, core, lights):
     """`core` with what a script swaps to put the model's lights out; an entry of a model no longer lit forgets its own."""
     for entry in old:
-        entry.pop('lights', None)
+        if lights and 'lights' in entry:
+            entry['lights'] = lights  # in its place: taken out and put back it went to the entry's end, and every entry converted again read as changed
+        else:
+            entry.pop('lights', None)
     return {**core, 'lights': lights} if lights else core
 
 
 def _unlit(pack, name, built, models):
     """Remove from a pack the light files of a model built again without them, and return their names: a glow map
     left behind would read as a lit model whose entry records no lights. A fence's wire picture goes the same way
-    when the model is built again without its fence. Only the three names of the lights standard and the wire
+    when the model is built again without its fence, and its glass's when it is built again without glass. Only the three names of the lights standard and the wire
     picture's are looked at, and never one that is a model of the set in its own right."""
-    gone = [path for stem in (f'{name}_i', f'{name}_o', f'{name}_h', f'{name}_w') if stem not in models for path in sorted(Path(pack).glob(stem + '.*'))
+    gone = [path for stem in (f'{name}_i', f'{name}_o', f'{name}_h', f'{name}_w', f'{name}_g') if stem not in models for path in sorted(Path(pack).glob(stem + '.*'))
             if path.suffix in ('.mtr', '.dds', '.txi') and not (Path(built) / path.name).is_file()]
     for path in gone:
         path.unlink()

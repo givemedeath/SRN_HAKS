@@ -22,7 +22,7 @@ TO_GAME = np.array([[-1.0, 0, 0], [0, 0, 1.0], [0, 1.0, 0]])  # a rotation: glTF
 NODE_VERTICES = 60000  # a compiled mesh node indexes its vertices with 16 bits
 NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character suffix
 TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row and column
-MAP_SUFFIXES = ('_n', '_s', '_r', '_i', '_o', '_h')  # a model's other pictures: relief, shine, roughness, glow, lights out, halo
+MAP_SUFFIXES = ('_n', '_s', '_r', '_i', '_o', '_h', '_g')  # a model's other pictures: relief, shine, roughness, glow, lights out, halo, glass
 NON_WALK = 7
 RETOUCH = 2048  # pixels: the finest map of places a colour picture is retouched by
 SLAT_GROOVE, SLAT_SHADE = 0.15, 0.3  # of a slat's pitch, each side of the joint, that darkens towards it; how much darker the joint is
@@ -35,14 +35,16 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels', 'fill', 'built', 'move')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels', 'fill', 'built', 'move', 'glass')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 FILL_NEAR, FILL_WELD, FILL_MOST = 0.1, 0.002, 64  # metres from a stated point to a hole's rim; how near two corners are one place; a hole's most corners
 STEP_RISE, RAIL_HEIGHT, POST_EVERY = 0.19, 0.95, 1.2  # metres: a built stair's most rise a step, its handrail's height over the nosings, posts at most this far apart
 STAIR_STEEPEST = 1.2  # a built stair flight's most rise over its run (about 50 degrees): steeper, it is a ladder
 TREAD, STRINGER, RAIL, POST = (0.04,), (0.05, 0.22), (0.045, 0.045), (0.045, 0.045)  # built stair members' sections, metres: tread thickness, stringer, rails, posts
+GLASS_COLOUR, GLASS_STRENGTH, GLASS_FLAT, GLASS_MOST, GLASS_PICTURE = (150, 170, 185), 0.25, 0.02, 8, 64  # a pane's colour and how much of it is added to what stands behind; metres its corners may stand off its plane; its most corners; its picture's width
+LIGHT_NEAR = 0.3  # metres a placeable's cast light may stand from the model: the game draws a flare where it stands
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 PLACING = ('lift', 'turn', 'signTilt', 'length')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted and stretched
-RETOUCHING = ('turn', 'length', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels', 'fill', 'built', 'move')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+RETOUCHING = ('turn', 'length', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels', 'fill', 'built', 'move', 'glass')  # what of a game set `shape` takes to turn, clear, close and retouch a model
 WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a wheelset's backs stand 1.360 m apart on standard gauge (track.GAUGE)
 WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
@@ -354,6 +356,42 @@ def with_built(vertices, normals, uvs, faces, parts):
     return vertices, normals, uvs, faces
 
 
+def glazed(parts):
+    """Panes of glass for a model: [{corners, colour, strength}] gives [{vertices, normals, uvs, faces, colour}], one for
+    each part. A generator makes the frame of a glass front and leaves the glass out, or draws it solid: the Chop Shop
+    clinic's cyberware case came back with the two bars of its slanted front and nothing between them (user,
+    2026-11-14: "Fix the case glass too"). `corners` are three to GLASS_MOST points round a flat pane with no corner
+    turned inward, in metres on the finished model. A pane is a sheet of one colour (`colour`, 0-255, GLASS_COLOUR
+    where none is given) of which `strength` (GLASS_STRENGTH) is added to what is seen through it, as a halo's cards
+    are added (`model_text`, `skin`): it takes the light of the place, so it is a pale sheen by day and next to
+    nothing by night. Laid over what is behind it instead (a node's `alpha`), a pane hid the halo of every light
+    behind it, whichever was written first (that case by night, 2026-11-14). It is seen from both sides, and is a
+    node of the model's own, so no face of the model changes. The panes share one picture, `glass_picture`, each
+    showing its own patch of it."""
+    panes = []
+    for index, part in enumerate(parts):
+        label = str(part.get('part', 'pane of glass')); corners = np.asarray(part['corners'], float); count = len(corners)
+        across = sum(np.cross(corners[k] - corners[0], corners[k + 1] - corners[0]) for k in range(1, count - 1)); size = float(np.linalg.norm(across))
+        require(size > 1e-6, f'A pane of glass has an area ({label})')
+        facing = across / size
+        require(float(np.abs((corners - corners.mean(0)) @ facing).max()) <= GLASS_FLAT, f'A pane of glass is flat: a corner stands more than {GLASS_FLAT} metres off its plane ({label})')
+        turns = [float(np.cross(corners[k] - corners[k - 1], corners[(k + 1) % count] - corners[k]) @ facing) for k in range(count)]
+        require(min(turns) > 0, f'A pane of glass is convex, its corners stated in order round it ({label})')
+        fan = np.array([[0, k, k + 1] for k in range(1, count - 1)])
+        panes.append({'vertices': np.vstack([corners, corners]), 'normals': np.vstack([np.tile(facing, (count, 1)), np.tile(-facing, (count, 1))]),
+                      'uvs': np.tile([(index + 0.5) / len(parts), 0.5], (2 * count, 1)), 'faces': np.vstack([fan, fan[:, ::-1] + count]),
+                      'colour': [round(value * float(part.get('strength', GLASS_STRENGTH))) for value in part.get('colour', GLASS_COLOUR)]})
+    return panes
+
+
+def glass_picture(panes):
+    """The picture a model's panes of glass share (`glazed`): a patch of each pane's colour, left to right."""
+    from PIL import Image
+    image = Image.new('RGB', (len(panes), 1))
+    image.putdata([tuple(int(value) for value in pane['colour']) for pane in panes])
+    return image.resize((GLASS_PICTURE, GLASS_PICTURE), Image.NEAREST)
+
+
 def filled(vertices, normals, uvs, faces, parts):
     """`faces` with each hole of `parts` ([{at: a point in metres on the finished model}]) filled: the ring of open
     edges (each the edge of one face only, corners within FILL_WELD taken as one place) that passes nearest `at`,
@@ -361,9 +399,13 @@ def filled(vertices, normals, uvs, faces, parts):
     plane. Each new face faces the way its corners' normals do, and is drawn with the picture of the faces round the
     hole. For a hole of more corners than `close` is worth stating face by face: the gaps in the rail yard's crane
     leg sills, 12 and 16 corners each, and a slit in its warehouse wall (user, 2026-11-13). A point near no rim, or
-    near a rim that does not close on itself, is refused. No vertex is added."""
+    near a rim that does not close on itself, is refused. No vertex is added, unless the part states `picture`, a
+    point on the model: its faces are then drawn wholly in the colour of the model's picture there, on corners of
+    their own. Corners that the picture draws far apart stretch whatever lies between them across the fill: the wedge
+    at the foot of the Chop Shop clinic's back wall was closed with a streak of other walls (2026-11-14). Returns
+    (vertices, normals, uvs, faces)."""
     from collections import defaultdict
-    faces = np.asarray(faces); vertices = np.asarray(vertices, float)
+    faces = np.asarray(faces); vertices = np.asarray(vertices, float); normals = np.asarray(normals, float); uvs = np.asarray(uvs, float)
     _, first, place = np.unique(np.round(vertices / FILL_WELD).astype(np.int64), axis=0, return_index=True, return_inverse=True)
     place = place.ravel(); where = vertices[first]
     for part in parts:
@@ -393,6 +435,10 @@ def filled(vertices, normals, uvs, faces, parts):
             pair = owner.get((a, b)) or owner.get((b, a))
             for vertex in pair:
                 drawn.setdefault(int(place[vertex]), int(vertex))
+        if 'picture' in part:  # corners of the fill's own, all at one place on the picture
+            spot = picture_at(vertices, uvs, faces, part['picture']); corners = [drawn[one] for one in ring]; count = len(vertices)
+            vertices = np.vstack([vertices, vertices[corners]]); normals = np.vstack([normals, normals[corners]]); uvs = np.vstack([uvs, np.tile(spot, (len(ring), 1))])
+            place = np.append(place, ring); drawn = {one: count + index for index, one in enumerate(ring)}
         points = where[ring]; middle = points.mean(0); _, _, axes = np.linalg.svd(points - middle)
         flat = (points - middle) @ axes[:2].T
         cross = lambda o, a, b: (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
@@ -415,7 +461,7 @@ def filled(vertices, normals, uvs, faces, parts):
             if float(np.cross(vertices[b] - vertices[a], vertices[c] - vertices[a]) @ (normals[a] + normals[b] + normals[c])) < 0:
                 b, c = c, b
             faces = np.vstack([faces, np.asarray([[a, b, c]], faces.dtype)])
-    return faces
+    return vertices, normals, uvs, faces
 
 
 def closed(vertices, normals, uvs, faces, parts):
@@ -638,6 +684,15 @@ def scatter(vertices, faces, spacing=0.04, seed=0, *, sources=False):
     return (points, pick, weights) if sources else points
 
 
+def light_gap(vertices, faces, at):
+    """Metres from a placeable's cast light (`at`, on the finished model) to the nearest of the model. The game draws a
+    flare where the light stands: one light set between a gate's two lamps, or over a row of three booths, hung a
+    star in the air beside lamps that had none (the Ares and Saeder-Krupp gates and the Iron Sight Arms booths,
+    2026-11-14). At a lamp's lens the flare is the lamp's; inside the model it is hidden and the light still reaches
+    all round."""
+    return float(np.linalg.norm(scatter(np.asarray(vertices, float), np.asarray(faces), spacing=0.03) - np.asarray(at, float), axis=1).min())
+
+
 def split(faces, limit=NODE_VERTICES):
     """Face runs whose vertices each fit one mesh node: [(old vertex indices, faces renumbered to them)]."""
     parts, start = [], 0
@@ -657,8 +712,10 @@ def card_normal_line(card):
     return f'    {x:g} {y:g} {z:g}'
 
 
-def model_text(name, vertices, normals, uvs, faces, cards=None, wire=None):
+def model_text(name, vertices, normals, uvs, faces, cards=None, wire=None, glass=None):
     """The ASCII model. `wire` is a fence's sheets (`sheets`), which show `name`_w, a plain picture with gaps.
+    `glass` is its panes (`glazed`), each a node that shows its patch of `name`_g, added to what is behind it as the
+    halo's cards are, and lit as the model is.
     `cards` are a halo's sheets (`glow.halo`), four corners each, all showing `name`_h. That
     texture's TXI makes the game add them to what is behind. They take no light (ambient and diffuse are black) and show
     their picture through the glow slot of their own material file, so they are as bright by night as by day. (A
@@ -688,6 +745,13 @@ def model_text(name, vertices, normals, uvs, faces, cards=None, wire=None):
                   f'  bitmap {name}_h', '  render 1', '  shadow 0', '  transparencyhint 1', '  verts 4']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for (x, y, z), _ in card] + ['  tverts 4'] + [f'    {u:.5f} {v:.5f} 0' for _, (u, v) in card]
         lines += ['  normals 4'] + [card_normal_line(card)] * 4 + ['  faces 2', '    0 1 2 1 0 1 2 1', '    0 2 3 1 0 2 3 1', 'endnode']
+    for number, pane in enumerate(glass or []):
+        lines += [f'node trimesh {name}_g{number}', f'  parent {name}', '  ambient 1 1 1', '  diffuse 1 1 1', '  specular 0 0 0', '  shininess 1',
+                  f'  bitmap {name}_g', '  render 1', '  shadow 0', '  transparencyhint 1', f'  verts {len(pane["vertices"])}']
+        lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in pane['vertices'].tolist()]
+        lines += [f'  tverts {len(pane["uvs"])}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in pane['uvs'].tolist()]
+        lines += [f'  normals {len(pane["normals"])}'] + [f'    {x + 0.0:.5f} {y + 0.0:.5f} {z + 0.0:.5f}' for x, y, z in pane['normals'].tolist()]
+        lines += [f'  faces {len(pane["faces"])}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in pane['faces'].tolist()] + ['endnode']
     return '\n'.join(lines + [f'endmodelgeom {name}', f'donemodel {name}']) + '\n'
 
 
@@ -870,8 +934,10 @@ def _copied(colour, where, covered, target, source, part):
     the target is given it by its own metres along and up: each height keeps its own band of the wall, and a target
     longer than the source takes it again from the start. With `mirror` in the part the target takes it from its far
     end backwards: the clean half of something drawn the same both ways, laid over its other half (the Chop Shop
-    clinic's banner came back with the right half of its caduceus smeared, 2026-11-14). `target` and `source` are
-    texels of the map of places."""
+    clinic's banner came back with the right half of its caduceus smeared, 2026-11-14). With `rise`, metres, each
+    height of the target takes the wall that much higher (lower, if less than nothing): a band that sags along its
+    length meets its copy a step out otherwise (that banner's stripes, 1.5 cm lower two stripes along). `target` and
+    `source` are texels of the map of places."""
     from PIL import Image
     size = (colour.shape[1], colour.shape[0])
     up = lambda values: np.asarray(Image.fromarray(np.ascontiguousarray(values, np.float32), 'F').resize(size, Image.BILINEAR), np.float32)
@@ -908,7 +974,7 @@ def _copied(colour, where, covered, target, source, part):
             edge = [slice(None)] * 2; edge[axis] = 0 if shift == 1 else -1; had[tuple(edge)] = 0  # nothing comes round the edge
             sums += moved * had[..., None]; near += had
         fresh = ~known & (near > 0); wall[fresh] = sums[fresh] / near[fresh][:, None]; known |= fresh
-    over = full(target); along_t, height_t, _ = laid(target)
+    over = full(target); along_t, height_t, _ = laid(target); height_t = height_t + float(part.get('rise', 0.0))
     require(height_t.max() > height.min() and height_t.min() < height.max(), 'A wall is copied to its own heights, and the two boxes share none: ' + what)
     row = np.clip(((height_t - height.min()) / cell).astype(int), 0, rows - 1)
     run = along_t.max() - along_t if part.get('mirror') else along_t - along_t.min()
@@ -1083,7 +1149,7 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -1096,8 +1162,9 @@ def load_models(path):
             require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour'} and box(part) and shade(part['colour']),
                     'A painted part needs a box and a colour of three 0-255 values: ' + name)
         for part in model.get('copy', []):
-            require(isinstance(part, dict) and {'box', 'from'} <= set(part) <= {'part', 'box', 'from', 'mirror'} and box(part) and box({'box': part['from']})
-                    and type(part.get('mirror', False)) is bool, 'A copied-over part needs its box and the box of the wall it is copied from (mirror: true or false): ' + name)
+            require(isinstance(part, dict) and {'box', 'from'} <= set(part) <= {'part', 'box', 'from', 'mirror', 'rise'} and box(part) and box({'box': part['from']})
+                    and type(part.get('mirror', False)) is bool and number(part.get('rise', 0.0)),
+                    'A copied-over part needs its box and the box of the wall it is copied from (mirror: true or false; rise: metres): ' + name)
         for part in model.get('mesh', []):
             require(isinstance(part, dict) and {'box', 'pitch', 'wire'} <= set(part) <= {'part', 'box', 'pitch', 'wire', 'colour'} and box(part)
                     and number(part['pitch']) and number(part['wire']) and 0 < part['wire'] < part['pitch'] <= 1 and shade(part.get('colour', [0, 0, 0])),
@@ -1142,8 +1209,15 @@ def load_models(path):
                         and set(flight.get('sides', ['left', 'right'])) <= {'left', 'right'} and point(part.get('rails', part['picture'])),
                         'A built stair flight is {foot, top, width, sides} (its foot and top the middles of its lowest and highest nosings, the top higher, at most STAIR_STEEPEST rise to its run), coloured from a point and its rails from another: ' + name)
         for part in model.get('fill', []):
-            require(isinstance(part, dict) and {'at'} <= set(part) <= {'part', 'at'} and isinstance(part['at'], list) and len(part['at']) == 3
-                    and all(number(value) for value in part['at']), 'A filled hole is a point on its rim, in metres on the finished model: ' + name)
+            require(isinstance(part, dict) and {'at'} <= set(part) <= {'part', 'at', 'picture'} and all(isinstance(part[key], list) and len(part[key]) == 3
+                    and all(number(value) for value in part[key]) for key in ('at', 'picture') if key in part),
+                    'A filled hole is a point on its rim, and it may be a point whose colour it takes, in metres on the finished model: ' + name)
+        for part in model.get('glass', []):
+            require(isinstance(part, dict) and {'corners'} <= set(part) <= {'part', 'corners', 'colour', 'strength'} and isinstance(part['corners'], list)
+                    and 3 <= len(part['corners']) <= GLASS_MOST and all(isinstance(corner, list) and len(corner) == 3 and all(number(value) for value in corner) for corner in part['corners'])
+                    and shade(part.get('colour', list(GLASS_COLOUR))) and number(part.get('strength', GLASS_STRENGTH)) and 0 < part.get('strength', GLASS_STRENGTH) <= 1,
+                    f'A pane of glass is {{corners: 3 to {GLASS_MOST} points round it in metres on the finished model, colour: [r, g, b] of 0 to 255, strength: over 0, at most 1}}: ' + name)
+        require(not model.get('glass') or (model.get('placeable') and not model.get('tiles')), 'Glass is made for a placeable only, not for a tile group: ' + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
@@ -1244,6 +1318,7 @@ def load_models(path):
             other = data['models'].get(part['model'])
             require(other is not None and part['model'] != name and not other.get('tiles'),
                     f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
+            require(not other.get('glass'), f'A part of {name} has glass, which a tile group does not draw: {part["model"]}')
     # Every file a model ships is named from its own name: its pictures with a suffix (`MAP_SUFFIXES`), a group's tiles
     # with _t and the tile, the models placed in it with p and a number. A model named like one of those would write
     # over it in the pack: the rail yard's first copy of its office for the depot's group was ek_rf_admin_s, the name
@@ -1352,7 +1427,7 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, tone=None, paint=None,
-          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None):
+          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
@@ -1360,7 +1435,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     `paint`, `smooth` and `mesh` give `colour`, `flat` and `plain`: its colour picture retouched, where its relief is levelled and
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
-    map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`)."""
+    map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`).
+    `glass` gives `glass`, its panes (`glazed`), which are no part of its own faces."""
     vertices, normals, uvs, faces = read_glb(model); card = None
     vertices, normals, uvs, scale, angles = fit(vertices, normals, uvs, height, faces=faces)
     if sign_tilt is not None:
@@ -1383,7 +1459,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if close:
         faces = closed(vertices, normals, uvs, faces, close)
     if fill:
-        faces = filled(vertices, normals, uvs, faces, fill)
+        vertices, normals, uvs, faces = filled(vertices, normals, uvs, faces, fill)
     # The largest patch of the finished model seen from behind, from any way it is looked at, of the faces given no
     # back: the game draws nothing there, so it is a hole onto what stands past the model. The Chop Shop clinic's
     # biohazard bin had gaps under its rear rim, its dumpster a slot between its lids and its lamp a length of pole
@@ -1417,7 +1493,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         card = glow.halo(shine, where, covered, toward=toward, parts=[glow.inside(where, covered, part['box']) for part in lit], **halo) if halo else None
     if built:  # after the pictures: a built member takes one place of the picture, which no retouching or glow should read as its
         vertices, normals, uvs, faces = with_built(vertices, normals, uvs, faces, built)
-    return {'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
+    panes = glazed(glass) if glass else None
+    return {'glass': panes, 'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind}
 
 
@@ -1446,6 +1523,9 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
                          'texture4 null', f'texture5 {name}_h']
         (folder / f'{name}_h.mtr').write_text('\n'.join(card_material) + '\n', encoding='cp1252', newline='\n')
         (folder / f'{name}_h.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
+    if made.get('glass'):  # a plain picture, added to what is behind it: it needs no material file either
+        files.append(_compress(glass_picture(made['glass']), folder / f'{name}_g.dds', '-DXT1', GLASS_PICTURE, crunch, data=False))
+        (folder / f'{name}_g.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
     if made.get('wire'):  # a plain picture, see-through between the wires: it needs no material file; _w is a suffix like the maps'
         files.append(_compress(made['wire']['image'], folder / f'{name}_w.dds', '-DXT5', made['wire']['image'].width, crunch, data=False))
     if illumination is not None:
@@ -1456,20 +1536,23 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
 def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
-            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'turnedFaces': made['facesTurned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0,
+            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'turnedFaces': made['facesTurned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0, 'glassPanes': len(made.get('glass') or []),
             'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'turn': made.get('turn', 0.0), 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
             # the largest patch seen from behind, and from which way: a hole, or glass wound inward (`inside` gives backs); None where every face has a back
             'seenFromBehind': {'cm2': round(made['behind'][0] * 1e4), 'from': made['behind'][1]} if made.get('behind') else None,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_tilt=None, **keywords):
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_tilt=None, light=None, **keywords):
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. The keywords are
-    `shape`'s. A model lifted clear of a standing character's head gets no block to walk into."""
+    `shape`'s. A model lifted clear of a standing character's head gets no block to walk into. `light` is the light
+    its row of the placeables table casts ({colour, at}), refused further than LIGHT_NEAR from the model (`light_gap`)."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     made = shape(model, maps, height=height, colour=colour, sign_tilt=sign_tilt, **keywords)
-    vertices, card = made['vertices'], made['card']
-    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire']),
+    vertices, card = made['vertices'], made['card']; gap = light_gap(vertices, made['faces'], light['at']) if light else None
+    require(gap is None or gap <= LIGHT_NEAR, f'The light of {name} stands {gap or 0:.2f} metres from the model, and the game draws a flare where it stands, in the '
+            f'air beside the lamps: set it at a lamp\'s lens or inside the model (a beam, a housing), within {LIGHT_NEAR} metres')
+    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire'], made.get('glass')),
                                         encoding='cp1252', newline='\n')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
-    return measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt)
+    return {**measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt), **({} if gap is None else {'lightFromModel': round(gap, 3)})}

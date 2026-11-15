@@ -1086,7 +1086,9 @@
    "lights": {
     "lit": "ek_csc_case",
     "out": "ek_csc_case_o",
-    "glow": "ek_csc_case_i"
+    "glow": "ek_csc_case_i",
+    "halo": "ek_csc_case_h",
+    "dark": "ek_off"
    },
    "madeBy": "envkit",
    "source": "tools/envkit/sets/chop-shop-clinic-game.json",

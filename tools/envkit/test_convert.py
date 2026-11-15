@@ -149,6 +149,10 @@ class ConvertTests(unittest.TestCase):
         self.assertTrue((mirrored[:, 36:44] == (255, 0, 0)).all()); self.assertTrue((mirrored[:, 52:60] == (0, 255, 0)).all())
         moved = np.asarray(convert.retouch(Image.fromarray(halves), points, texture, faces, copy=[both])[0])  # copied plainly it is the same way round
         self.assertTrue((moved[:, 36:44] == (0, 255, 0)).all()); self.assertTrue((moved[:, 52:60] == (255, 0, 0)).all())
+        # With a rise each height takes the wall that much higher: the blue upper half comes half a metre down the copy.
+        risen = np.asarray(convert.retouch(Image.fromarray(banded), points, texture, faces, copy=[{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[0.0, -0.1, -0.1], [0.6, 0.1, 2.1]], 'rise': 0.5}])[0])
+        self.assertTrue((risen[4:44, 36:60] == (0, 0, 255)).all()); self.assertTrue((risen[52:60, 36:60] == (255, 0, 0)).all())
+        self.assertTrue((risen[4:28, 4:28] == (0, 0, 255)).all()); self.assertTrue((risen[36:60, 4:28] == (255, 0, 0)).all())  # the wall copied from is as it was
         meshed, flat, plain = convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'pitch': 0.25, 'wire': 0.05}])
         self.assertEqual(meshed.mode, 'RGBA'); pixels = np.asarray(meshed); lower, upper = pixels[36:], pixels[:28]
         self.assertTrue((upper[..., 3] == 255).all()); np.testing.assert_array_equal(upper[0, 0, :3], [200, 100, 50])  # outside the panel nothing changes
@@ -514,13 +518,24 @@ class ConvertTests(unittest.TestCase):
         faces = np.array([face for k in range(8) for face in ([k, (k + 1) % 8, 8 + k], [(k + 1) % 8, 8 + (k + 1) % 8, 8 + k])])
         before = len(faces)
         filled = convert.filled(vertices, normals, uvs, faces, [{'part': 'octagon', 'at': [1.0, 0.0, 2.0]}])
-        made = filled[before:]
+        self.assertEqual(len(filled[0]), 16)  # no vertex is added
+        made = filled[3][before:]
         self.assertEqual(len(made), 6)  # an eight-cornered ring takes six faces between its own corners
         self.assertTrue(set(made.ravel()) <= set(range(8)))
         across = np.cross(vertices[made[:, 1]] - vertices[made[:, 0]], vertices[made[:, 2]] - vertices[made[:, 0]])
         self.assertTrue((across[:, 1] < 0).all())  # wound to face -y, as the wall's normals do
         with self.assertRaisesRegex(ValueError, 'No hole'):  # a point near no rim is a mistake in the set
             convert.filled(vertices, normals, uvs, faces, [{'at': [0.0, 0.0, 2.0]}])
+        # The Chop Shop clinic's back wall (2026-11-14): a fill between corners drawn far apart on the picture showed a
+        # streak of what lies between them. With `picture` it has corners of its own, all at that point's place.
+        uvs = np.array([[k / 16, 0.5] for k in range(16)])
+        points, facing, places, drawn = convert.filled(vertices, normals, uvs, faces, [{'at': [1.0, 0.0, 2.0], 'picture': [2.0, 0.0, 2.0]}])
+        made = drawn[before:]
+        self.assertEqual((len(points), len(made)), (24, 6)); self.assertTrue(set(made.ravel()) <= set(range(16, 24)))
+        np.testing.assert_allclose(places[16:], np.tile(convert.picture_at(vertices, uvs, faces, [2.0, 0.0, 2.0]), (8, 1)))
+        np.testing.assert_allclose(np.sort(points[16:], axis=0), np.sort(vertices[:8], axis=0)); np.testing.assert_allclose(facing[16:], normals[:8])
+        across = np.cross(points[made[:, 1]] - points[made[:, 0]], points[made[:, 2]] - points[made[:, 0]])
+        self.assertTrue((across[:, 1] < 0).all()); np.testing.assert_array_equal(drawn[:before], faces)
 
     def test_only_the_faces_in_a_box_are_given_backs(self):
         """The rail yard's crane sills (2026-11-13) had faces wound inward."""
@@ -585,6 +600,51 @@ class ConvertTests(unittest.TestCase):
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind in ('rail', 'post')]], 0.9)
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind == 'tread']], 0.1)
 
+    def test_a_cast_light_is_measured_from_the_model(self):
+        """The Ares and Saeder-Krupp gates and the Iron Sight Arms booths (2026-11-14): a light set between their lamps
+        hung its flare in the air."""
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); faces = np.array([[0, 1, 2], [0, 2, 3]])
+        self.assertLess(convert.light_gap(vertices, faces, [0.5, 0.0, 0.5]), 0.06)  # on the wall, to within its sampling
+        self.assertAlmostEqual(convert.light_gap(vertices, faces, [0.5, -0.2, 0.5]), 0.2, delta=0.02)  # a little before it
+        self.assertGreater(convert.light_gap(vertices, faces, [0.5, 0.0, 1.5]), convert.LIGHT_NEAR)  # over it, in the air
+
+    def test_a_pane_of_glass_is_a_node_of_its_own_seen_from_both_sides(self):
+        """The Chop Shop clinic's cyberware case (2026-11-14) came back with the bars of its glass front and no glass."""
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); uvs = np.array([[0.2, 0.2], [0.8, 0.2], [0.8, 0.8], [0.2, 0.8]])
+        faces = np.array([[0, 1, 2], [0, 2, 3]]); square = [[0, 1, 0], [1, 1, 0], [1, 1, 1], [0, 1, 1]]
+        pane, other = convert.glazed([{'corners': square}, {'corners': square[:3], 'colour': [200, 100, 40], 'strength': 0.5}])
+        self.assertEqual((len(pane['vertices']), len(pane['faces'])), (8, 4)); self.assertEqual((len(other['vertices']), len(other['faces'])), (6, 2))
+        self.assertEqual(pane['colour'], [round(value * convert.GLASS_STRENGTH) for value in convert.GLASS_COLOUR]); self.assertEqual(other['colour'], [100, 50, 20])
+        np.testing.assert_allclose(pane['uvs'], np.tile([0.25, 0.5], (8, 1))); np.testing.assert_allclose(other['uvs'], np.tile([0.75, 0.5], (6, 1)))  # each its own patch
+        picture = convert.glass_picture([pane, other]); wide = convert.GLASS_PICTURE
+        self.assertEqual((picture.size, picture.getpixel((wide // 4, 5)), picture.getpixel((3 * wide // 4, 5))), ((wide, wide), tuple(pane['colour']), (100, 50, 20)))
+        points, drawn = pane['vertices'], pane['faces']
+        across = np.cross(points[drawn[:, 1]] - points[drawn[:, 0]], points[drawn[:, 2]] - points[drawn[:, 0]])
+        np.testing.assert_allclose(np.sign(across[:, 1]), [-1, -1, 1, 1])  # two faces towards -y and the same two towards +y
+        np.testing.assert_allclose(pane['normals'][drawn[:, 0]][:, 1], np.sign(across[:, 1]))  # each with normals its own way
+        text = convert.model_text('ek_x', vertices, np.tile([0.0, -1.0, 0.0], (4, 1)), uvs, faces, glass=[pane, other])
+        self.assertIn('node trimesh ek_x_g0', text); self.assertIn('node trimesh ek_x_g1', text); self.assertEqual(text.count('  bitmap ek_x_g\n'), 2)
+        self.assertEqual(text.count('transparencyhint 1'), 2); self.assertNotIn('alpha', text)  # no controller the compiled model's reader does not know
+        self.assertNotIn('ek_x_g', convert.model_text('ek_x', vertices, np.tile([0.0, -1.0, 0.0], (4, 1)), uvs, faces))
+        with self.assertRaisesRegex(ValueError, 'flat'):
+            convert.glazed([{'corners': [[0, 1, 0], [1, 1, 0], [1, 1.2, 1], [0, 1, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'convex'):
+            convert.glazed([{'corners': [[0, 1, 0], [1, 1, 0], [0.2, 1, 0.2], [0, 1, 1]]}])
+        path = Path(tempfile.mkdtemp()) / 'set.json'; glass = [{'part': 'front', 'corners': square, 'colour': [150, 170, 185], 'strength': 0.2}]
+        placed = {'label': 'Yard, Case', 'sound': 28}
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'glass': glass, 'measuredAt': 4.0, 'placeable': placed}}}), encoding='utf-8')
+        self.assertEqual(convert.load_models(path)['ek_x']['glass'], glass)
+        for model, wrong in (({'glass': glass, 'placeable': placed}, 'measuredAt'), ({'glass': glass, 'measuredAt': 4.0}, 'placeable only'),
+                             ({'glass': [{'corners': square[:2]}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
+                             ({'glass': [{'corners': square, 'colour': [300, 0, 0]}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
+                             ({'glass': [{'corners': square, 'strength': 0}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass')):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, **model}}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, wrong):
+                convert.load_models(path)
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0}, 'ek_x_g': {'source': 'b', 'height': 1.0}}}), encoding='utf-8')
+        with self.assertRaises(ValueError):
+            convert.load_models(path)  # a model named as another's glass picture would write over it in the pack
+
     def test_a_game_set_states_fills_moves_backs_rods_and_built_parts_on_the_finished_model(self):
         path = Path(tempfile.mkdtemp()) / 'set.json'
         good = {'fill': [{'part': 'p', 'at': [0, 0, 1]}], 'move': [{'box': [[0, 0, 0], [1, 1, 1]], 'by': [1, 0, 0]}],
@@ -597,7 +657,7 @@ class ConvertTests(unittest.TestCase):
             path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'measuredAt'):
                 convert.load_models(path)  # each is measured on the model as it stands
-        for key, value in (('move', [{'box': [[0, 0, 0], [1, 1, 1]]}]), ('fill', [{'at': [0, 0]}]),
+        for key, value in (('move', [{'box': [[0, 0, 0], [1, 1, 1]]}]), ('fill', [{'at': [0, 0]}]), ('fill', [{'at': [0, 0, 1], 'picture': [0, 0]}]),
                            ('inside', [{'box': [[0, 0, 5], [1, 1, 6]]}]), ('move', [{'box': [[0, 0, 5], [1, 1, 6]], 'by': [1, 0, 0]}]),  # above the model
                            ('built', [{'railing': [[0, 0, 1], [1, 0, 1]], 'height': 3.0, 'picture': [0, 0, 1]}]),
                            ('built', [{'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2]}, 'picture': [0, 0, 1]}]),  # a flight needs its width

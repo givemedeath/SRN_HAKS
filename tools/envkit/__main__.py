@@ -126,7 +126,7 @@ def command_game(args):
         with fresh(output / name) as folder:  # a model that fails leaves nothing in the way of the next attempt
             report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
                                        colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'),
-                                       lift=model.get('lift', 0.0), **_retouching(model))
+                                       lift=model.get('lift', 0.0), light=(model.get('placeable') or {}).get('light'), **_retouching(model))
             report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
             (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(report), flush=True)

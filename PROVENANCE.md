@@ -581,6 +581,18 @@ whose box or fence lies wholly above or below its model. Checked in the game cli
 pack's files, by night beside the pylon sign: the sign's face and light bar are lit with a soft halo, go dark
 with `ReplaceObjectTexture` and come back.
 
+
+Four props light what stands round them since 2026-11-14 (operator, of the lamps of the older sets: "Yes"),
+each by a light in its row of `placeables.2da`; no model or other file of theirs changed. The watch booth is
+lit from its floodlight (lightcolor row 3, bright white), and the vehicle gate from its left post's top light,
+the checkpoint terminal from its top lamp and the drone dock from under its arm (row 2, white). A row holds
+one light, and the game draws a star-shaped flare where it stands: the gate's was first set between its posts,
+where the star hung on the bare beam, and was moved to a post's lamp; its other post's light and the dock's
+pillar lamps only glow. Checked in the game client the same day, by night: from the converted files of
+2026-11-11, restored from the archive of the worktree they were made in
+(`phenomorpher-worktree-output-2026-11-14-v1`) and the same byte for byte as the pack's, the ground and the
+figures round each lit; and from the pack's files, where the lights of the ten lit props, these four's cast
+light among them, were put out by script and brought back.
 ## Saeder-Krupp Yard tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-12)
 
 The third envkit building: a grey and yellow logistics and fabrication yard with three roller-shutter loading
@@ -705,6 +717,16 @@ palette lists the eight outdoor props under Modern Exterior and the six others u
 vehicle gate, wall sign, security booth, fence section, office desk and crate set painted from it were saved with
 their rows, names and tags, the fence and crates static and the four lit ones not.
 
+
+Two props light what stands round them since 2026-11-14 (operator, of the lamps of the older sets: "Yes"),
+each by a light in its row of `placeables.2da`; no model or other file of theirs changed. The security booth
+is lit from its roof floodlight (lightcolor row 3, bright white) and the loading console from its top lamp
+(row 2, white). The vehicle gate's amber beacons and lamps are warning lights and only glow: a white light set
+between them hung a star-shaped flare in the air over the gate, and was taken out again. Checked in the game
+client the same day, by night: from the converted files of 2026-11-12, restored from the archive of the
+worktree they were made in (`phenomorpher-worktree-output-2026-11-14-v1`) and the same byte for byte as the
+pack's, the ground and the figures round each lit; and from the pack's files, where the lights of the seven
+lit props, these two's cast light among them, were put out by script and brought back.
 ## Rail Freight Depot tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-13)
 
 A generic rail freight depot laid out round two tracks, as one 8 by 8 tile group, `RF_Depot`, offered in D20
@@ -951,11 +973,14 @@ the booths' lane screens and overhead lamps. Two of them also light what stands 
 of `placeables.2da` (lightcolor row 2, white): the bench from its lamp and the booths from their middle overhead lamp
 (operator, 2026-11-14: "recheck the iron sights props and make sure they are good as far as lights too", lights being
 "only for things that should be bright"); the counter's and cabinet's strip lights, the vending machine and the rack's
-sign only glow. The rifle cabinet's left door, which the generator drew dark and without its strip light, takes the
-picture of its right door (operator, 2026-11-14: "only half this gun cabinet is lit"). Nothing else was retouched.
-Left as generated: the rifle cabinet is a plain box of 1,187 triangles with its rifles drawn behind the mesh doors,
-the rifle wall is 0.37 metres deep with a plain grey back, and the vending machine and the booths carry an emblem the
-generator invented on their backs.
+sign only glow. The booths' light stood under the middle lamp and lit the middle booth far more than the outer two; it
+now stands in that lamp's housing, a little forward, and the three are lit alike (2026-11-14). The game draws a flare
+where a light stands: set over the booths, for evenness, it hung a star in the air, and was moved back to the lamp.
+The rifle cabinet's left door, which the generator drew dark and without its strip light, takes the picture of its
+right door (operator, 2026-11-14: "only half this gun cabinet is lit"). Nothing else was retouched. Left as generated:
+the rifle cabinet is a plain box of 1,187 triangles with its rifles drawn behind the mesh doors, the rifle wall is
+0.37 metres deep with a plain grey back, and the vending machine and the booths carry an emblem the generator invented
+on their backs.
 
 Checked in the game client on 2026-11-14: by day from front, back and side with a figure for scale, from the converted
 files; by night the same way for the six lit props; and by night from the pack's files, where the lights of the six
@@ -964,8 +989,8 @@ backs and dividers; it was bounded to the screens (2026-11-14), and the booths a
 night. The bench and the booths were seen once more by night with their cast light, the ground and the figures round
 them lit (2026-11-14). Four of them (vending machine, shooting booths, ammo shelf and pistol counter, from both
 palette categories) were placed from the Toolset's palette on 2026-11-14 and saved with their own rows and names, the
-shelf static and the three lit props not.
-
+shelf static and the three lit props not. The booths were seen again by night on 2026-11-14 with their light where it
+now stands, and the six props' lights put out and brought back once more from the pack's files.
 ## Chop Shop Clinic tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-14)
 
 A street cyberware clinic: a single-storey concrete and steel block under a neon CHOP SHOP sign, with a display
@@ -988,15 +1013,16 @@ Modifications, all by `tools/envkit` (SRN project operator with Claude): the mod
 scaled to 6.0 metres to the top of its roof units, which gives its double door a leaf of about 2.1 metres, and its
 textures were recompressed (colour 4096 DXT1, the other maps 2048). A panel of smeared lettering the generator
 invented on the east wall is covered with a stretch of the same wall, height for height, and a wedge left open at the
-foot of the back wall is closed with two faces between its own corners. Glow maps were made from the model's own
-colour for the sign, the strip light over the door, the lit panels over the shop window, the window, the doorway, the
-light on the security camera and the lamp over the side door, each with a halo sheet of its own just in front of it.
-Nothing else was retouched: the side and back walls are plain concrete as generated. The mesh was shared out over four
-tiles (2,018 to 43,114 faces each) with a ground square, a map picture and two main lights each; nothing carries
-`tilefade`, the building being one storey; and a walkmesh was generated from its shape (380 to 584 faces a tile, where
-the stock tiles of these two tilesets have at most 500). The front tile has a door record of type 58, the invisible
-transition door, at the double door. The Meshy source, the references and the client captures stay in ignored
-`output/envkit/`.
+foot of the back wall is closed with two faces between its own corners, drawn in the colour of the wall beside it:
+drawn with the picture between those corners they showed a streak of other walls, and were built again on 2026-11-14.
+Glow maps were made from the model's own colour for the sign, the strip light over the door, the lit panels over the
+shop window, the window, the doorway, the light on the security camera and the lamp over the side door, each with a
+halo sheet of its own just in front of it. Nothing else was retouched: the side and back walls are plain concrete as
+generated. The mesh was shared out over four tiles (2,018 to 43,114 faces each) with a ground square, a map picture
+and two main lights each; nothing carries `tilefade`, the building being one storey; and a walkmesh was generated from
+its shape (380 to 584 faces a tile, where the stock tiles of these two tilesets have at most 500). The front tile has
+a door record of type 58, the invisible transition door, at the double door. The Meshy source, the references and the
+client captures stay in ignored `output/envkit/`.
 
 Checked in the game client on 2026-11-14, in areas laid from the pack's files: in Modern Exterior by day from all four
 sides, the corners, the front, from above and at the door; by night, where the sign, the strip lights, the window, the
@@ -1006,10 +1032,13 @@ same views. The group was painted from the Toolset's palette on 2026-11-14, stra
 turned a quarter in a Suburbs area, and four of the sheet's props (the cross sign, the surgical light and the
 cyberware case, lit, and the instrument cart, static) were placed from both palette categories; the saved module holds
 the four tiles of each, a door of appearance 58 made at each hook, and the props with their own rows and names. In the
-client the door of each took the player to the other. One Toolset folder was used, not two: the group was not painted
-turned in Modern Exterior or straight in Suburbs.
-
-## Chop Shop Clinic props (`srn_placeable`, `srn_2da`; 2026-11-14)
+client the door of each took the player to the other. After the back wall's patch was built again the group was seen
+once more from the pack's files, by day from the same views and by night, its lights put out and brought back. A
+second Toolset folder, the same day, has the other two turns: the group painted turned a half in a Modern Exterior
+area and straight in a Suburbs area, with the cyberware case and the cross sign (lit) and the instrument cart (static)
+placed from both palette categories; the saved module holds the four tiles of each at that turn and a door of
+appearance 58 made at each hook, and in the client the door of each took the player to the other. ## Chop Shop Clinic
+props (`srn_placeable`, `srn_2da`; 2026-11-14)
 
 Nine envkit props from the same concept sheet as the Chop Shop Clinic tile group join `srn_placeable`, each with a row
 appended to `srn_2da/placeables.2da` (22811-22819, labelled `[envkit]Chop Shop Clinic, ...`): neon cross sign
@@ -1036,15 +1065,24 @@ above and below (operator, 2026-11-14: "review them thoroughly for issues") foun
 right half of the banner's caduceus and the stripes under it came back smeared on both faces of the cloth, and take
 the mirror image of the clean left half and a stretch of the clean stripes; the bin showed through gaps under its rear
 rim and the dumpster through the slot between its lids, and every face of each now has a back, so that they show their
-own insides; and a length of the lamp's pole was wound inward and seen through from one side, and has backs too. Left
-as generated: the case's front has no glass, only its frame; the vending machine carries a label the generator
-invented on its back and side; the lower arm of the banner's bracket is notched.
+own insides; and a length of the lamp's pole was wound inward and seen through from one side, and has backs too. A
+second pass the same day (operator: "Can the remaining issues be fixed easily?", "Yes", "Fix the case glass too")
+mended four more. The label the generator invented on both sides and the back of the vending machine is covered, each
+half of it with the mirror image of the panel beside it at the same heights; a faint patch is left where the panel's
+streaks stop at the label's top and bottom. The banner's copied stripes, which met the cloth's own a step out, are
+taken 1.5 centimetres higher. The case's cybereye and knee light glow 1.8 times as strongly and have halo sheets
+(`ek_csc_case_h`). And the case, which came back with the two bars of its slanted glass front and nothing between
+them, has glass: four panes, two between the bars and one at each end, nodes of the model's own, each a pale blue-grey
+sheet (`ek_csc_case_g`) added faintly to what is seen through it, as a halo is; laid over it instead, the glass hid
+the halos of the lights inside the case by night. Left as generated: the lower arm of the banner's bracket is notched.
 
 Checked in the game client on 2026-11-14: by day from front, back and side with a figure for scale, from the converted
 files, the banner, bin, dumpster and lamp again after they were mended; by night the same way for the four lit props,
 the ground and the figures round the lamp lit by it; and by night from the pack's files, where the lights of the four,
-the lamp's cast light among them, were put out by script and brought back.
-
+the lamp's cast light among them, were put out by script and brought back. After the second pass the vending machine,
+the banner and the case were seen again by day from the converted files, and the case by night, its strip lights,
+cybereye and knee light seen through the glass; and the four lit props' lights were put out and brought back once more
+from the pack's files.
 ## MDRNEE placeable import (2026-09-11)
 
 `mdrnee_placeable.hak` was imported in full under the `mdrnee_placeable` profile. Its verified
