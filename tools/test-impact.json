@@ -2396,6 +2396,7 @@
       "tools/itemkit/grip.py",
       "tools/itemkit/oblique.py",
       "tools/itemkit/opening_probes.py",
+      "tools/itemkit/parts.py",
       "tools/itemkit/routes.py",
       "tools/itemkit/straightness.py",
       "tools/itemkit/texture_check.py",
