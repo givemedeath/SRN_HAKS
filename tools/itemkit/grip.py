@@ -190,7 +190,7 @@ def transverse_uniform(vertices,faces,matrix,origin,standard,review=None,basis='
     return result,report
 
 
-def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None):
+def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None,basis='visibleFaceWidth'):
     """Keep a round one-hand grip round instead of squashing it to the reference section.
 
     The usable length stays the sizing authority. Both transverse axes get the same scale, chosen so the grip's
@@ -198,7 +198,10 @@ def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None):
     survive (the wave-1 Club became a 4 x 6.5 cm oval with a slanted pommel under the per-axis correction, and a
     7.3 cm log with no correction at all). The depth therefore departs from the standard by construction: it
     always needs a review bound to this exact measurement, and the both-body visual hand-fit review afterwards.
+    `basis='depth'` sizes the diameter to the approved grip depth instead (about 3.0 cm): a thin stick at the face
+    width came out 4.8-5.3 cm thick (the wave-6 Rattan Stick; user, 2026-11-15: "3.0 cm (Recommended)").
     """
+    require(basis in ('visibleFaceWidth','depth'),'Round basis must be visibleFaceWidth or depth')
     require(standard.get('id')=='cougar-approved-grip-v1'
             and standard.get('approval',{}).get('gripSizingApproved') is True,'Approved melee grip reference required')
     m=np.asarray(matrix,float);origin=np.asarray(origin,float)
@@ -208,7 +211,7 @@ def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None):
             'A round one-hand grip starts from a uniform fit')
     measured=section_dimensions(transform(vertices,m),faces,origin[1]);target=standard['targetMidpointSection']
     require(abs(measured[0]/measured[1]-1)<.1,'Grip section is not round; use the standard transverse calibration')
-    k=float(target['visibleFaceWidth']/measured.mean());require(np.isfinite(k) and k>0,'Positive grip calibration required')
+    k=float(target[basis]/measured.mean());require(np.isfinite(k) and k>0,'Positive grip calibration required')
     correction=np.eye(4);correction[:3,:3]=np.diag([k,1.,k]);correction[:3,3]=origin-origin*[k,1.,k];result=correction@m
     # A chosen overall length (`ends`: the reviewed handle's endpoints) samples the handle itself, not the hand's length,
     # which would run past a short handle into the guard or off the pommel (the wave-4 Sai, 2026-11-13).
@@ -220,7 +223,8 @@ def one_hand_round(vertices,faces,matrix,origin,standard,review=None,ends=None):
     report={'reference':standard['id'],'standardDigest':digest(standard),'fitMatrix':result.tolist(),
             'sizingAuthority':'usable-length-round','usableLength':usable,'nativeGripOrigin':origin.tolist(),
             'sourceSection':measured.tolist(),'transverseScale':[k,1.,k],'measuredFittedSections':sections,'midpointRelativeDifferences':differences,
-            'roundSectionPreserved':True,'bothBodyVisualReviewRequired':True,**({'chosenLength':True} if ends is not None else {})}
+            'roundSectionPreserved':True,'bothBodyVisualReviewRequired':True,**({'chosenLength':True} if ends is not None else {}),
+            **({'roundBasis':basis} if basis!='visibleFaceWidth' else {})}
     report['measurementDigest']=digest(report);bind_departure(report,review)
     return result,report
 
@@ -284,7 +288,7 @@ def melee_fit(family, fit, standard, vertices, faces, matrix):
     require(abs(native['gripLength'] - standard['usableLength']) < 1e-9, 'Native target length differs from the approved grip standard')
     if authority == 'usable-length-round':
         ends = fit['gripEndpoints'] if fit.get('chosenLength') else None
-        return one_hand_round(vertices, faces, matrix, native['gripOrigin'], standard, review, ends)
+        return one_hand_round(vertices, faces, matrix, native['gripOrigin'], standard, review, ends, fit.get('roundBasis', 'visibleFaceWidth'))
     if authority == 'midpoint-depth-uniform':
         require(route.section == 'uniform', 'midpoint-depth-uniform needs a section="uniform" route')
         return transverse_uniform(vertices, faces, matrix, native['gripOrigin'], standard, review, fit.get('sectionBasis', 'depth'))

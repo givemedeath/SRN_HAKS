@@ -17,7 +17,8 @@ Fixtures and in-game capture:
     fixture-inputs ID SUFFIX NAME     refixture ID SUFFIX NAME [--capture]       capture FIXTURE_DIR OUTPUT
 Families:
     contract FAMILY ID --wave NAME [--visible N] [--base FOLDER] [--replace-stock]   views GLB OUTPUT [--textured]   decimate IN OUT [--faces N]
-    retire-contracts FOLDER --reason TEXT   (an abandoned or test contract folder gives its appearance slots back)
+    retire-contracts FOLDER --reason TEXT [--contract FAMILY_FILE]...   (an abandoned or test contract folder, or only
+                                            its named contracts, gives its appearance slots back)
 Publication (tools/itemkit/publish.py; docs/items/approved-weapons-release.md):
     publish ID:SUFFIX... --statement "user's words"... --review TEXT [--date YYYY-MM-DD] [--dry-run]
 Bake misses and shell recovery (CPU; docs/items/early-checks-and-recovery.md):
@@ -334,7 +335,17 @@ class Driver:
         if not complete(): raise SystemExit(f'{design}: the donor stage did not complete; see {run}')
         donor = next(Path(recorded()['path']).parent.rglob('textured-donor.glb'))
         family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
-        for kind, name in (('straighten', 'straightened'), ('thin', 'thinned')):
+        # Each map applies to the previous result, so the maps in --straight must have been measured in this same order:
+        # with more than one map, each one's measuring report must show it was measured on the previous one's output.
+        kinds = (('straighten', 'straightened'), ('thin', 'thinned'), ('level', 'levelled'))
+        present = [kind for kind, _ in kinds if straight and (Path(straight)/f'{kind}-map.npz').exists()]
+        for before, after in zip(present, present[1:]):
+            reports = [Path(straight)/f'{k}.json' for k in (before, after)]
+            missing = [str(r) for r in reports if not r.is_file()]
+            if missing: raise SystemExit(f'{straight} holds several maps: their measuring reports must sit beside them ({", ".join(missing)})')
+            if read(reports[1])['source']['sha256'] != read(reports[0])['output']['sha256']:
+                raise SystemExit(f'{straight}: the {after} map was not measured on the {before} output, so it cannot follow it')
+        for kind, name in kinds:
             mapping = Path(straight)/f'{kind}-map.npz' if straight else None
             if mapping and mapping.exists():
                 out = self.ws.items/design/f'donor-v1-{name}'
@@ -560,8 +571,9 @@ class Driver:
         from tools.itemkit.family_contract import BASE, build
         return build(self.ws, family, design, wave, visible=visible, base=base or BASE, replace_stock=replace_stock)
 
-    def retire_contracts(self, folder, reason, today=None):
-        """Retire an abandoned or test contract folder (under the handoff) so its slots are free (family_contract.retire).
+    def retire_contracts(self, folder, reason, today=None, contracts=None):
+        """Retire an abandoned or test contract folder (under the handoff), or only its named `contracts`, so their slots are
+        free (family_contract.retire).
 
         Refused while a design's current work (its newest manifest) still builds past its contract manifest on one of
         the folder's contracts: freeing a slot an unpublished design still holds would let the next contract take it.
@@ -575,14 +587,16 @@ class Driver:
         for path in self.ws.handoff.glob('*.asset.json'):
             try: profile = read(path).get('familyProfile', {}).get('path')
             except (OSError, ValueError, AttributeError): continue
-            if profile: pins.setdefault(path.name.split('.')[0], []).append((path.stat().st_mtime, path.name, (self.ws.handoff/profile).resolve().parent))
+            if profile: pins.setdefault(path.name.split('.')[0], []).append((path.stat().st_mtime, path.name, (self.ws.handoff/profile).resolve()))
         def moved_on(design, rows):
-            newest = max(rows)[2]
+            newest = max(rows)[2].parent
             return newest != target and (self.ws.handoff/f'{design}.{newest.name}-contract.asset.json').exists()
+        chosen = None if contracts is None else {(target/name).resolve() for name in contracts}
         live = sorted(name for design, rows in pins.items() if not moved_on(design, rows)
-                      for _, name, parent in rows if parent == target and not name.endswith(own))
+                      for _, name, profile in rows if profile.parent == target and not name.endswith(own)
+                      and (chosen is None or profile in chosen))
         if live: raise SystemExit(f'{folder} still holds contracts that {len(live)} current manifest(s) build on, e.g. {live[0]}: not retired')
-        return retire(target, reason, today or datetime.date.today().isoformat())
+        return retire(target, reason, today or datetime.date.today().isoformat(), contracts)
 
     def views(self, glb, output, textured=False):
         """Eight orthographic Blender views and a contact sheet (clay, or the textured donor's colour)."""
@@ -703,6 +717,7 @@ def parser():
                    help='when slots 1..25 are all taken, take a base-game appearance slot (highest first) and record the stock names it overrides')
     s = c.add_parser('retire-contracts'); s.add_argument('folder', help='under the handoff, e.g. contracts/melee-wave2-v1')
     s.add_argument('--reason', required=True)
+    s.add_argument('--contract', action='append', help='retire only this family file of the folder (repeat for several)')
     s = c.add_parser('views'); s.add_argument('glb'); s.add_argument('output'); s.add_argument('--textured', action='store_true')
     s = c.add_parser('decimate'); s.add_argument('source'); s.add_argument('target'); s.add_argument('--faces', type=int, help='default: the 40,000-triangle working shell')
     s = c.add_parser('publish'); s.add_argument('items', nargs='+', help='ID:SUFFIX of each client-reviewed run')
@@ -748,7 +763,7 @@ def main(argv=None):
         'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
         'refixture': lambda: d.refixture(a.id, a.suffix, a.name, a.capture), 'capture': lambda: d.capture(a.fixture, a.output),
         'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible, a.base, a.replace_stock), 'views': lambda: d.views(a.glb, a.output, a.textured),
-        'retire-contracts': lambda: d.retire_contracts(a.folder, a.reason),
+        'retire-contracts': lambda: d.retire_contracts(a.folder, a.reason, contracts=a.contract),
         'decimate': lambda: d.decimate(a.source, a.target, a.faces),
         'publish': lambda: d.publish(a.items, a.statement, a.review, a.date, a.dry_run),
         'screen': lambda: d.screen(a.id, a.suffix, a.donor, a.distance, a.alignment, a.arrays, a.fit),
