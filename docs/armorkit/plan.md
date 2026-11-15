@@ -814,3 +814,20 @@ rules are unchanged, so a bake of the Human pair reads what it read before.
 Of what the dry run's revision listed as blocking a publication, the 18 race bodies are done as a trial. Still
 open: the `PROVENANCE.md` entry (drafted, not written), the user's review of the outfits on the race bodies and
 of the pale icons, and the registry's set and group names for 6020.
+
+## Revision 2026-11-15: wear in the tint texture and suggested colours (user decisions)
+
+The concept sheets in `SRN_Concept_Art/Metahumans/Clothing` guide the kit's art style; they are not a build list
+(user, 2026-11-15). Two things they show that the kit did not carry are now in it:
+
+* **Wear.** "Bake in a bit of wear based on the concepts." A brief's `wear` (0-1) mottles the outfit's own
+  surface, rubs its raised edges pale in patches and darkens its creases, in the tint texture's shade
+  (`texture.wear_fields`, `texture.tint_maps`). The reference image stays clean. Street, gang and work clothes
+  are drawn more worn than corporate and security ones. The normal and roughness maps are not changed.
+* **Colours.** The user accepted the recommendation of a dark base and one accent per outfit. A brief's material
+  may name the colour its concept wears it in (`suggested`), the bake records it, and a registry part may carry
+  `colours` per channel into the handoff, for SR_NWN to start an item's colours from.
+
+Also decided that day: a chest print exists only on T-shirts and has nothing to do with the shoulder and lanyard
+badge. Its mechanism is not designed. Facility Security's briefs carry `wear` 0.3 and suggested colours; its 20
+bodies are not rebaked with them.

@@ -6,6 +6,7 @@
   "tools/armorkit/test_brief.py": 0.02,
   "tools/armorkit/test_cli.py": 0.11,
   "tools/armorkit/test_client_fixture.py": 0.019,
+  "tools/armorkit/test_collected.py": 0.01,
   "tools/armorkit/test_ends.py": 0.21,
   "tools/armorkit/test_export.py": 0.3,
   "tools/armorkit/test_generate.py": 0.4,

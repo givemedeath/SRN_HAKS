@@ -41,6 +41,7 @@ import math
 import shutil
 import struct
 import subprocess
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -114,6 +115,44 @@ def icon_names(part):
 def material_maps(text):
     """The maps a material file names (`texture1 <name>` and so on)."""
     return [line.split()[1] for line in text.splitlines() if line.startswith('texture') and len(line.split()) > 1]
+
+
+def shared_maps(surveyed, incoming, hashed=None):
+    """(stands, texts): the maps of a publication that are one image under several names, and the material
+    files rewritten to name the one that is kept.
+
+    `incoming` maps each file name the publication takes to its path, `surveyed` are its bakes (`survey`,
+    each with the names `taken` of it). Maps (`.tga`) of the same bytes are one map: the first by name is
+    kept, the Human Fit body's before any other, `stands` maps each other's name to it (without the ending), and `texts` holds, by file name, the
+    text of every taken material file that named one of the others, naming the kept one instead. An outfit
+    carried to the other bodies of a gender (`refit`) keeps its normal maps, so 10 of Facility Security's
+    12 are the same image on ten bodies; a tint texture is never shared, the game colours a part only
+    under its model's own name (user decision 2026-11-15)."""
+    hashed = sha if hashed is None else hashed
+    same = {}
+    for name in sorted(incoming):
+        if name.endswith('.tga'):
+            same.setdefault(hashed(incoming[name]), []).append(name[:-4])
+    # the Human Fit body's is the one kept where it is among them: the others were carried from it
+    same = [sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for names in same.values()]
+    stands = {other: names[0] for names in same for other in names[1:]}
+    texts = {}
+    for bake in surveyed if stands else ():
+        for name in sorted(bake.get('taken', ())):
+            if not name.endswith('.mtr'):
+                continue
+            try:
+                text = Path(bake['files'][name]).read_bytes().decode('ascii')
+            except ValueError:
+                continue  # `survey` has said so already
+            lines = text.splitlines(keepends=True)
+            for index, line in enumerate(lines):
+                words = line.split()
+                if line.startswith('texture') and len(words) > 1 and words[1] in stands:  # the lines `material_maps` reads
+                    lines[index] = line.replace(words[1], stands[words[1]], 1)
+            if ''.join(lines) != text:
+                texts[name] = ''.join(lines)
+    return stands, texts
 
 
 def survey(folder):
@@ -692,8 +731,20 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         unknown = sorted(set(given) - {bake['record']['model'] for bake in surveyed})
         require(not unknown, f'{flag} names a model no bake is of: {", ".join(unknown)}')
 
-    pack.update(incoming)
+    # One image under several names is published once: the other bodies' material files name the one kept.
+    stands, renamed = shared_maps(surveyed, incoming, once)
     work = None
+    if stands:
+        work = Path(tempfile.mkdtemp(prefix='armorkit-publish-'))
+        for bake in surveyed:
+            for name in sorted(bake.get('taken', ())):
+                if name.endswith('.tga') and name[:-4] in stands:
+                    bake['taken'].discard(name)
+                    del incoming[name]
+                elif name in renamed:
+                    (work / name).write_bytes(renamed[name].encode('ascii'))
+                    bake['files'][name] = incoming[name] = work / name
+    pack.update(incoming)
     try:
         try:
             drawn = draw_icons(new, pack, body_pack)
@@ -701,8 +752,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             drawn = {}
             failures.append(failure('icons', PACK, f'the icons could not be drawn: {error}'))
         if drawn:
-            import tempfile
-            work = Path(tempfile.mkdtemp(prefix='armorkit-icons-'))
+            work = Path(tempfile.mkdtemp(prefix='armorkit-icons-')) if work is None else work
             for name, blob in drawn.items():
                 if name in pack:
                     failures.append(failure('icons', name, f'{PACK} already holds an icon of that name'))
@@ -725,7 +775,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         missing = sorted({found['model'][:4] for found in failures if found['gate'] == 'bodies'})
         report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': by_gate,
                   'bodiesWithoutModels': missing, 'skipped': skipped, 'newParts': [f'{part["slot"]} {part["number"]}' for part in new],
-                  'necks': measured, 'tables': sorted(table_texts), 'files': sorted(incoming), 'written': False}
+                  'necks': measured, 'tables': sorted(table_texts), 'files': sorted(incoming), 'sharedMaps': stands, 'written': False}
         if dry_run or (failures and not trial):
             return report
         # Every source is hashed once, before the first write; the records are made from those hashes and each

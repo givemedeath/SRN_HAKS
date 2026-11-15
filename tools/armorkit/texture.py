@@ -12,6 +12,7 @@ outfit lost: edges, seams and folds come back as light and shade (`normal_map`).
 Texture rows run down from v = 0, as the game reads a tint texture (spike record, section 21): texel (row, column)
 has its centre at u = (column + 0.5) / size, v = (row + 0.5) / size.
 """
+import hashlib
 from itertools import product
 from pathlib import Path
 
@@ -54,6 +55,17 @@ SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thi
           'leather': ('shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')}
 # the slots a garment is worn on that takes its kind's second channel. Leather takes it on every limb: with forearms, hands,
 # shins and feet only, the straps of an upper-arm guard and a knee pad were coloured with the vest and the forearm's with the gloves
+SHARPEN = (2, 0.8)  # a shade is moved from the mean of its material this many texels round it by this share more: the generated
+# colours are soft, a voxel of 1.5 mm read between its neighbours. At (4, 1.2) a plate's printed grid came out harsh (preview, 2026-11-15)
+# How much wear changes a shade at a brief's `wear` of 1, by kind of material: (mottle, scuff, grime). The mottle
+# is the share a shade varies by either way over the surface, in soft patches; the scuff is how much lighter a
+# raised edge gets where it is scuffed; the grime how much darker a crease (the bend alone: a fine surface only
+# tilting away is not one). Cloth fades unevenly and holds dirt in its folds; leather and painted plates are
+# rubbed pale on their edges (the concept sheets, 2026-11-15).
+WEAR ={'cloth': (0.22, 0.30, 0.34), 'leather': (0.24, 0.60, 0.30), 'metal': (0.14, 0.75, 0.36)}
+WEAR_CELLS = (1 / 14, 1 / 90)  # of the outfit's height: the size of a patch of mottle, and of a scuff
+WEAR_SPREAD = 2.2  # a blend of grains keeps near its middle: the mottle is spread this much about it to use the whole of 0-1
+WEAR_PATCH = (0.42, 0.3)  # a scuff sets in where its grain passes the first, and is whole the second above it: about half an edge is scuffed
 TURN_LIMIT = 0.35  # the most one turn counts for: a jump in the map (a dropped reading beside a kept one) is not an edge that sharp
 
 
@@ -78,6 +90,32 @@ def layout(xatlas, vertices, faces, size, padding=PAD):
     return mapping, new_faces, np.asarray(uvs, float)
 
 
+def texel_span(vertices, faces, uvs, size):
+    """Metres of surface a texel of a laid-out part spans, over the whole part: its surface against what its
+    charts cover of a texture `size` texels a side."""
+    vertices, faces, uvs = np.asarray(vertices, float), np.asarray(faces, int), np.asarray(uvs, float)
+    a, b, c = (vertices[faces[:, i]] for i in range(3))
+    surface = float(np.linalg.norm(np.cross(b - a, c - a), axis=1).sum() / 2)
+    e, g = uvs[faces[:, 1]] - uvs[faces[:, 0]], uvs[faces[:, 2]] - uvs[faces[:, 0]]
+    laid = float(np.abs(e[:, 0] * g[:, 1] - e[:, 1] * g[:, 0]).sum() / 2)
+    return float(np.sqrt(surface / max(laid, 1e-12)) / size)
+
+
+def laid_out(xatlas, vertices, faces, limit=None):
+    """(mapping, faces, uvs, size): a part laid out (`layout`) at the size its surface asks for (`size`), and
+    again at twice that while a texel spans more than `TEXEL` and the size is under `limit` (`SIZES`' largest).
+
+    `size` reckons with charts filling `COVER` of the texture. A hand's many small charts filled a third of
+    that, so its gloves were drawn at 2.9 mm a texel beside a chest at 1.5 (Facility Security, 2026-11-15)."""
+    limit = SIZES[1] if limit is None else limit
+    side = min(size(vertices, faces), limit)
+    while True:
+        mapping, new_faces, uvs = layout(xatlas, vertices, faces, side)
+        if side * 2 > limit or texel_span(np.asarray(vertices, float)[mapping], new_faces, uvs, side) <= TEXEL:
+            return mapping, new_faces, uvs, side
+        side *= 2
+
+
 def size(vertices, faces):
     """The texels a side a part's texture needs: the power of two at which its surface gets a texel per `TEXEL`."""
     vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
@@ -87,9 +125,29 @@ def size(vertices, faces):
     return int(np.clip(2 ** int(np.ceil(np.log2(max(need, 1.0)))), *SIZES))
 
 
+_RASTERS = {}  # the last layouts `raster` drew, by what they were drawn from
+RASTERS_HELD = 2  # a part's layout is asked for by every map made of it, one part after another: 33 MB each at 1,024 texels
+
+
 def raster(uvs, faces, size):
     """(owner, weight): per texel the face covering its centre, -1 for none, and the weights of that face's
-    three corners there. A face too small to cover any centre still gets the texel under its middle, if free."""
+    three corners there. A face too small to cover any centre still gets the texel under its middle, if free.
+
+    The last few layouts are held and given again, not to be written to: a part's colour, relief, wear and the
+    texels of its faces each ask for the same one, and drawing it face by face was three quarters of a tint
+    read from the cache (39 of 51 s, 44 drawings of 12 layouts, 2026-11-15)."""
+    uvs, faces = np.ascontiguousarray(uvs, float), np.ascontiguousarray(faces, int)
+    key = (hashlib.sha1(uvs.tobytes()).digest(), hashlib.sha1(faces.tobytes()).digest(), uvs.shape, faces.shape, int(size))
+    if key not in _RASTERS:
+        while len(_RASTERS) >= RASTERS_HELD:
+            del _RASTERS[next(iter(_RASTERS))]
+        _RASTERS[key] = _raster(uvs, faces, size)
+        for held in _RASTERS[key]:
+            held.setflags(write=False)
+    return _RASTERS[key]
+
+
+def _raster(uvs, faces, size):
     owner, weight = np.full((size, size), -1, int), np.zeros((size, size, 3))
     corners = np.asarray(uvs, float)[np.asarray(faces, int)] * size
     for index, t in enumerate(corners):
@@ -515,7 +573,46 @@ def lit_shades(colours, found):
     return np.array([np.percentile(shade[material == k], LIT) if (material == k).any() else float(MIDDLE) for k in range(len(found['tones']))])
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None):
+def grain(points, cell, seed=0):
+    """A soft grain in 0-1 at each of `points`, the same wherever and whenever it is read: the values of a
+    lattice `cell` apart, each a hash of its place and `seed`, blended between the eight round a point."""
+    place = np.asarray(points, float) / cell
+    base = np.floor(place)
+    t = place - base
+    t = t * t * (3 - 2 * t)
+    base = base.astype(np.int64)
+    total = np.zeros(len(place))
+    for corner in range(8):
+        step = np.array([(corner >> k) & 1 for k in range(3)])
+        at = (base + step).astype(np.uint64)
+        mixed = at[:, 0] * np.uint64(73856093) ^ at[:, 1] * np.uint64(19349663) ^ at[:, 2] * np.uint64(83492791) ^ np.uint64(seed * 2654435761 + 1013904223)
+        mixed = (mixed ^ (mixed >> np.uint64(13))) * np.uint64(1274126177)
+        mixed = mixed ^ (mixed >> np.uint64(16))
+        total += np.prod(np.where(step, t, 1 - t), axis=1) * ((mixed & np.uint64(0xFFFF)).astype(float) / 65535.0)
+    return total
+
+
+def wear_fields(uvs, faces, positions, size, span):
+    """(mottle, scuff) per texel of one laid-out part, for `tint_maps`' `wear`: a soft grain in 0-1 in patches
+    `WEAR_CELLS` of `span` across, and where a raised edge is scuffed, 0-1, in smaller ones.
+
+    Both are read at the point of the generated outfit each texel came from (`positions`, per vertex, as
+    `colour_map` takes them; `span` is the outfit's height there), not in the texture: a patch runs on across
+    the edges of a part's charts and from one part to the next of one generation, and an outfit carried to
+    another body (`refit`) wears the same patches on every body. Parts of another generation (`combine`: a
+    female chest on refit limbs) have their own, and the patches change at the seam between the two."""
+    faces, positions = np.asarray(faces, int), np.asarray(positions, float)
+    owner, weight = raster(uvs, faces, size)
+    covered = owner >= 0
+    where = (weight[covered][:, :, None] * positions[faces[owner[covered]]]).sum(axis=1)
+    mottle, scuff = np.full((size, size), 0.5), np.zeros((size, size))
+    blend = 0.65 * grain(where, span * WEAR_CELLS[0]) + 0.35 * grain(where, span * WEAR_CELLS[0] / 2.7, 1)
+    mottle[covered] = np.clip(0.5 + WEAR_SPREAD * (blend - 0.5), 0.0, 1.0)
+    scuff[covered] = np.clip((grain(where, span * WEAR_CELLS[1], 2) - WEAR_PATCH[0]) / WEAR_PATCH[1], 0.0, 1.0)
+    return mottle, scuff
+
+
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None, sharpen=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
@@ -582,7 +679,18 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     `padded` flags the texels of a cap that grew from a pad's rim (the faces reported as `PADDED`). On a cap
     that has any, the others are the limb beside the pad, and are drawn as the outfit's cloth, the first of
     `found`: a pad's strap runs round the joint along the rim, and read as its rim the side of a knee's cap
-    was a flat triangle of webbing in the gap the bend opens."""
+    was a flat triangle of webbing in the gap the bend opens.
+
+    `sharpen` is (radius, share), as `SHARPEN`: each texel of the part's own surface is moved from the mean
+    shade of its material over `radius` texels round it by `share` more, so an edge the generated colours show
+    softly is drawn firmer. A material is compared only with itself: nothing is sharpened across the line
+    between two, which the layers already draw hard. Charts lie `PAD` texels apart, further than it reaches.
+
+    `wear` is (amount, kinds, mottle, scuff): how worn the outfit is drawn, 0-1 (a brief's `wear`), the kind
+    of each material, and the part's `wear_fields`. The part's own surface is then mottled, made lighter on
+    its raised edges where they are scuffed and darker in its creases, each by `amount` of what `WEAR` gives
+    the texel's material; the edges and creases are the relief's (`relief_shade`). What the split made is
+    left even: a cap or a closing has no surface of its own to wear."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
     require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
@@ -590,10 +698,11 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))
     material[covered] = labels(colour[covered], found['tones'])
     ratio = (colour[covered] @ LIGHT) / np.maximum(found['light'][material[covered]], 1e-6)
+    turned = None if relief is None else relief_shade(relief, charts, bend, slope)
     if relief is not None:
         # A generated colour is already darker in its creases. Where it is, the relief's darkening is not laid on
         # top of that: the texel takes the darker of the two, or a crease shaded twice comes out black.
-        factor = relief_shade(relief, charts, bend, slope)[covered]
+        factor = turned[covered]
         ratio = np.maximum(factor, 1.0) * np.minimum(ratio, np.minimum(factor, 1.0) * np.maximum(ratio, 1.0))
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
     if trim is not None:
@@ -617,6 +726,25 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         mine = moved & (most == k)
         shade[mine] = (smooth(np.where(worn & (material == k), shade, 0.0), speck) / np.maximum(votes[k], 1e-9))[mine]
     material[moved] = most[moved]
+    if sharpen is not None and sharpen[1] > 0:
+        radius, share = sharpen
+        for k in np.unique(material[worn]):
+            mine = worn & (material == k)
+            mean = smooth(np.where(mine, shade, 0.0), radius) / np.maximum(smooth(mine, radius), 1e-9)
+            shade[mine] = np.clip(shade + share * (shade - mean), *SHADES)[mine]
+    if wear is not None and wear[0] > 0:
+        amount, kinds, mottle, scuff = wear
+        require(len(kinds) == len(pairs) and all(kind in WEAR for kind in kinds) and np.shape(mottle) == covered.shape == np.shape(scuff),
+                'Wear takes a kind per material and its two fields per texel')
+        by_kind = np.array([WEAR[kind] for kind in kinds])[material]  # per texel: mottle, scuff, grime
+        ridge = np.zeros(covered.shape) if turned is None else np.clip((turned - 1) / (RELIEF_SHADE[1] - 1), 0.0, 1.0)
+        # a crease is where the surface bends inward, read without the slope: a fine surface only tilting away is no fold
+        # and holds no grime (review 2026-11-15; outfits baked before that day have the tilt darkened too)
+        folded = None if relief is None else relief_shade(relief, charts, bend, 0.0)
+        crease = np.zeros(covered.shape) if folded is None else np.clip((1 - folded) / (1 - RELIEF_SHADE[0]), 0.0, 1.0)
+        change = 1 + amount * (by_kind[:, :, 0] * (2 * np.asarray(mottle, float) - 1) + by_kind[:, :, 1] * ridge * np.asarray(scuff, float)
+                               - by_kind[:, :, 2] * crease * (0.5 + 0.5 * np.asarray(mottle, float)))
+        shade[worn] = np.clip(shade[worn] * change[worn], *SHADES)
 
     def even(k):  # the one shade what the split made gets, in material k
         mine = worn & (material == k)
@@ -818,14 +946,6 @@ def tga(image):
     require(pixels.ndim == 3 and pixels.shape[2] == 3 and pixels.size, 'An image is rows of RGB pixels')
     height, width = pixels.shape[:2]
     return bytes([0, 0, 2]) + bytes(9) + width.to_bytes(2, 'little') + height.to_bytes(2, 'little') + bytes([24, 0]) + pixels[:, :, ::-1].tobytes()
-
-
-def halved(image):
-    """An image at half its size each way: each texel the mean of two by two. A normal map shows little in the
-    game's even light once its relief is in the tint shade, and at half size it costs a quarter."""
-    image = np.asarray(image, float)
-    rows, columns = image.shape[0] // 2 * 2, image.shape[1] // 2 * 2
-    return image[:rows, :columns].reshape(rows // 2, 2, columns // 2, 2, -1).mean(axis=(1, 3))
 
 
 def write_relief(folder, model, image, roughness=ROUGHNESS, rough=None):
