@@ -113,8 +113,11 @@ class BakeTests(unittest.TestCase):
             again = bake.drawn(cache, name, lambda: self.fail('drawn again'))
             self.assertTrue(np.array_equal(first[0], again[0]) and np.array_equal(first[1], again[1]))
             self.assertEqual(([path.name for path in cache.iterdir()], len(drawn)), ([name + '.npz'], 2))
+            (cache / (name + '.npz')).write_bytes(b'cut short')  # a file that cannot be read is drawn and written again
+            self.assertEqual((bake.drawn(cache, name, draw)[0][0, 0], len(drawn)), (170, 3))
+            bake.drawn(cache, name, lambda: self.fail('drawn again'))
             bake.drawn(cache, 'other', draw)
-            self.assertEqual(len(drawn), 3)
+            self.assertEqual(len(drawn), 4)
 
     def test_a_bake_says_how_long_each_stage_took(self):
         said, ticks = [], iter([10.0, 12.5, 12.5, 20.0, 21.0])
@@ -527,7 +530,7 @@ class BakeTests(unittest.TestCase):
             (output / 'ascii' / 'pmh0_chest331.mdl').write_text('')  # an earlier run's, under another number
             (output / 'ascii' / 'pmh0_shol332.mdl').write_text('')  # and a part this outfit does not have
             tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
-            with mock.patch.object(bake, 'tints', lambda parts, document: (tinted, {'materials': []})), \
+            with mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
                     mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}, {})), \
                     mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({'waist': {}}, [])), \
                     mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({'waist': {}}, [])), \
@@ -575,7 +578,7 @@ class BakeTests(unittest.TestCase):
                  ({'chest': part(), 'bicepl': skin}, None, plain),  # and with it, where the brief shows none
                  ({'chest': part()}, {**plain, 'bare': ['forearm']}, plain))  # no forearm, left to the body by the brief baked from and no longer
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
-                mock.patch.object(bake, 'tints', lambda parts, document: self.fail('tinted')):
+                mock.patch.object(bake, 'tints', lambda parts, document, **given: self.fail('tinted')):
             for parts, baked_from, brief in cases:
                 bake.store(parts, Path(folder) / 'kept', baked_from)
                 with self.assertRaisesRegex(ValueError, 'bake the outfit again'):

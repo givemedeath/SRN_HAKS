@@ -55,13 +55,14 @@ SECOND = {'cloth': ('pelvis', 'thigh', 'shin', 'foot'), 'metal': ('pelvis', 'thi
           'leather': ('shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')}
 # the slots a garment is worn on that takes its kind's second channel. Leather takes it on every limb: with forearms, hands,
 # shins and feet only, the straps of an upper-arm guard and a knee pad were coloured with the vest and the forearm's with the gloves
-# How much wear changes a shade at a brief's `wear` of 1, by kind of material: (mottle, scuff, grime). The mottle
-# is the share a shade varies by either way over the surface, in soft patches; the scuff is how much lighter a
-# raised edge gets where it is scuffed; the grime how much darker a crease. Cloth fades unevenly and holds dirt in
-# its folds; leather and painted plates are rubbed pale on their edges (the concept sheets, 2026-11-15).
 SHARPEN = (2, 0.8)  # a shade is moved from the mean of its material this many texels round it by this share more: the generated
 # colours are soft, a voxel of 1.5 mm read between its neighbours. At (4, 1.2) a plate's printed grid came out harsh (preview, 2026-11-15)
-WEAR = {'cloth': (0.22, 0.30, 0.34), 'leather': (0.24, 0.60, 0.30), 'metal': (0.14, 0.75, 0.36)}
+# How much wear changes a shade at a brief's `wear` of 1, by kind of material: (mottle, scuff, grime). The mottle
+# is the share a shade varies by either way over the surface, in soft patches; the scuff is how much lighter a
+# raised edge gets where it is scuffed; the grime how much darker a crease, and a fine surface tilting away, which
+# `relief_shade` darkens with it. Cloth fades unevenly and holds dirt in its folds; leather and painted plates are
+# rubbed pale on their edges (the concept sheets, 2026-11-15).
+WEAR ={'cloth': (0.22, 0.30, 0.34), 'leather': (0.24, 0.60, 0.30), 'metal': (0.14, 0.75, 0.36)}
 WEAR_CELLS = (1 / 14, 1 / 90)  # of the outfit's height: the size of a patch of mottle, and of a scuff
 WEAR_SPREAD = 2.2  # a blend of grains keeps near its middle: the mottle is spread this much about it to use the whole of 0-1
 WEAR_PATCH = (0.42, 0.3)  # a scuff sets in where its grain passes the first, and is whole the second above it: about half an edge is scuffed
@@ -597,8 +598,9 @@ def wear_fields(uvs, faces, positions, size, span):
 
     Both are read at the point of the generated outfit each texel came from (`positions`, per vertex, as
     `colour_map` takes them; `span` is the outfit's height there), not in the texture: a patch runs on across
-    the edges of a part's charts and from one part to the next, and an outfit carried to another body
-    (`refit`) wears the same patches on every body."""
+    the edges of a part's charts and from one part to the next of one generation, and an outfit carried to
+    another body (`refit`) wears the same patches on every body. Parts of another generation (`combine`: a
+    female chest on refit limbs) have their own, and the patches change at the seam between the two."""
     faces, positions = np.asarray(faces, int), np.asarray(positions, float)
     owner, weight = raster(uvs, faces, size)
     covered = owner >= 0
@@ -941,15 +943,6 @@ def tga(image):
     require(pixels.ndim == 3 and pixels.shape[2] == 3 and pixels.size, 'An image is rows of RGB pixels')
     height, width = pixels.shape[:2]
     return bytes([0, 0, 2]) + bytes(9) + width.to_bytes(2, 'little') + height.to_bytes(2, 'little') + bytes([24, 0]) + pixels[:, :, ::-1].tobytes()
-
-
-def halved(image):
-    """An image at half its size each way: each texel the mean of two by two (`bodyskin.worn`, where an
-    outfit's maps make room for the body's). An outfit's normal maps were written so until 2026-11-15, for
-    a quarter of the bytes; they are written whole now (user decision: less fuzzy)."""
-    image = np.asarray(image, float)
-    rows, columns = image.shape[0] // 2 * 2, image.shape[1] // 2 * 2
-    return image[:rows, :columns].reshape(rows // 2, 2, columns // 2, 2, -1).mean(axis=(1, 3))
 
 
 def write_relief(folder, model, image, roughness=ROUGHNESS, rough=None):

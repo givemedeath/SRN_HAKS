@@ -50,7 +50,8 @@ def worn_colours(colours=None):
     """The six channels' colours an outfit is looked at in: `COLOURS`, with those `colours` gives in their place.
     No two channels may wear one colour: two garments on two channels would look like one."""
     worn = {**COLOURS, **(colours or {})}
-    require(set(worn) == set(CHANNELS) and len(set(worn.values())) == len(CHANNELS),
+    require(set(worn) == set(CHANNELS), 'A colour is given for a channel of ' + ', '.join(CHANNELS) + ': not ' + ', '.join(sorted(set(worn) - set(CHANNELS))))
+    require(len(set(worn.values())) == len(CHANNELS),
             'An outfit is looked at with its six colour channels in six different colours: ' + json.dumps(worn, sort_keys=True))
     return worn
 

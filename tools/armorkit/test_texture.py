@@ -700,12 +700,6 @@ class ReliefTests(unittest.TestCase):
         self.assertTrue(np.allclose(fine, [np.sin(tilt), 0, np.cos(tilt)], atol=1e-3))
         self.assertTrue(np.allclose(texture.fine_normals(values, np.tile([0.0, 0.0, -1.0], (2, 1))), [-np.sin(tilt), 0, -np.cos(tilt)], atol=1e-3))
 
-    def test_a_map_is_halved_by_averaging_two_by_two(self):
-        image = np.zeros((4, 4, 3)); image[0, 0], image[0, 1], image[3, 3] = (1, 0, 0), (0, 1, 0), (0, 0, 1)
-        half = texture.halved(image)
-        self.assertEqual(half.shape, (2, 2, 3))
-        self.assertTrue(np.allclose(half[0, 0], [0.25, 0.25, 0]) and np.allclose(half[1, 1], [0, 0, 0.25]) and np.allclose(half[0, 1], 0))
-
     def test_a_normal_map_is_written_bottom_row_first_with_the_material_that_binds_it(self):
         image = np.zeros((2, 4, 3)); image[0, 0] = (1.0, 0.5, 0.0)
         blob = texture.tga(image)

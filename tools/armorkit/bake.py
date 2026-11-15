@@ -16,6 +16,7 @@ import hashlib
 import json
 import shutil
 import time
+import zipfile
 from pathlib import Path
 
 import numpy as np
@@ -634,7 +635,8 @@ def stages(say, clock=time.perf_counter):
     return mark, seconds
 
 
-def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None, capture=None):
+def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None, capture=None,
+         mark=None):
     """(parts, bones, whole): a generated outfit as the parts body `body` wears, each with its maps, and what
     it holds of holes and detached pieces (`surface`, at the body's size).
 
@@ -651,10 +653,11 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     past the wrist, is cut off on the joint's plane. In a slot the brief shares with the body's skin
     (`skin`) the part also holds the body's own part where the outfit shows it, with its textures
     (`bodyskin.worn`); `body_textures` is the folder of the body's material files and maps. With `capture`, a file
-    path, what the split is given is kept there too (`keep_split`)."""
+    path, what the split is given is kept there too (`keep_split`). `mark` is the caller's count of its stages
+    (`stages`): given, this bake's stages are added to it, and are in the record `run` writes."""
     count = len(document['materials'])
     require(not document.get('skin') or body_textures is not None, "An outfit that shows the body's skin on a part needs the folder of the body's textures")
-    mark, _ = stages(say)
+    mark = stages(say)[0] if mark is None else mark
     bones, skin = measure.body(body_pack, body)
     source, faces = repose.load(mesh)
     source, faces, crumbs = swept(source, faces, repose.outfit_joints(source, faces, repose.body_joints(bones, skin))[1]['scale'])
@@ -741,7 +744,8 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
             only, near = texture.under(pv, pf, made[name], v, cloth & (seen_at == main), kind=UNDER[name])
             pc = pc.copy()
             pc[only, 3:9] = columns[near, 3:9]
-        mapping, pf, uv, size = texture.laid_out(xatlas, pv, pf, BUDGET['texture'])
+        # a part that shares its texture with the body's skin gets a quarter of it (`bodyskin.worn`): laid out larger, its maps would be halved again
+        mapping, pf, uv, size = texture.laid_out(xatlas, pv, pf, BUDGET['texture'] // (2 if name in shared_with_body(document) else 1))
         pv, pc = pv[mapping], pc[mapping]
         rgb, covered, missed = texture.colour_map(uv, pf, pc[:, 3:6], read, size)
         if role['under'].any():
@@ -765,7 +769,9 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 shows = texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], first, size)
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
-    return skinned(parts, document, body_pack, body_textures, body, bones, say, own_part), bones, whole
+    parts = skinned(parts, document, body_pack, body_textures, body, bones, say, own_part)
+    mark("sleeve closings and the body's skin")
+    return parts, bones, whole
 
 
 def cut(given, contract=None):
@@ -1115,13 +1121,16 @@ def digest(*given):
 def drawn(cache, key, draw):
     """(shades, layers) of one part: read from the folder `cache` under `key` where it holds them, else
     drawn (`draw()`) and, with a cache, kept there. A file is written under another name and renamed, so
-    that bakes running side by side never read half of one."""
+    that bakes running side by side never read half of one; one that cannot be read is drawn and written again."""
     if cache is None:
         return draw()
     path = Path(cache) / (key + '.npz')
     if path.is_file():
-        with np.load(path) as held:
-            return held['shades'], held['layers']
+        try:
+            with np.load(path) as held:
+                return held['shades'], held['layers']
+        except (OSError, ValueError, KeyError, EOFError, zipfile.BadZipFile):
+            pass  # a file cut short or damaged is drawn again and written over, not left to stop every bake that meets it
     shades, layers = draw()
     path.parent.mkdir(parents=True, exist_ok=True)
     scratch = path.with_name(f'{key}.{time.time_ns()}.part')  # np.savez adds .npz to a name without it
@@ -1141,15 +1150,15 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     worn in where it gives one (`suggested`), and how worn the outfit was drawn (`wear`) where it was: a brief
     with `wear` has its own surface mottled, scuffed on its raised edges and darkened in its creases
     (`texture.wear_fields`, `texture.tint_maps`), in patches read on the generated outfit, so they run on from
-    part to part and are the same on every body the outfit is carried to.
+    part to part of one generation and are the same on every body the outfit is carried to.
 
     The parts are taken in the order of their names, whatever order they are given in: the materials are
     found on a sample of the texels as they come, and a fresh bake and its stored parts tinted again would
     else differ by a shade here and there.
 
     `cache` names a folder that keeps each part's texture under a name made of everything it is drawn from
-    (`digest`: the part's maps and layout, the outfit's materials and lit shades, the wear, and the texture
-    module's own text, so a change to how textures are drawn finds nothing). A part met again with all of
+    (`digest`: the part's maps and layout, the outfit's materials and lit shades, the wear, the layers' numbers
+    and the texture module's own text, so a change to how textures are drawn finds nothing). A part met again with all of
     that the same is read instead of drawn. An outfit carried to another body (`refit`) keeps its maps, so
     of Facility Security's 12 parts 10 are the same textures on all the bodies of a gender, and drawing
     them is most of what a bake of kept parts takes (155 of 221 s, 2026-11-15)."""
@@ -1189,12 +1198,16 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
             shadow=part['closing'] if name in ARMHOLE else None, speck=speck, sharpen=texture.SHARPEN,
             wear=(amount, kinds, *texture.wear_fields(part['uv'], part['f'], part['src'], size(part), span)) if amount else None)
         key = None if cache is None else digest(
-            written, part['rgb'], part['covered'], found, channel, part['relief'], part['uv'], part['f'], part['closing'], twice,
+            written, export.LAYERS, part['rgb'], part['covered'], found, channel, part['relief'], part['uv'], part['f'], part['closing'], twice,
             part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span)
-        held = key is not None and (Path(cache) / (key + '.npz')).is_file()
-        tinted[name] = drawn(cache, key, draw)
+        fresh = []  # whether it was drawn: `drawn` reads it where the cache holds it whole
+
+        def drawing(draw=draw, fresh=fresh):
+            fresh.append(True)
+            return draw()
+        tinted[name] = drawn(cache, key, drawing)
         if cache is not None:
-            say(f'{name}: texture {"read from" if held else "kept in"} the cache')
+            say(f'{name}: texture {"kept in" if fresh else "read from"} the cache')
         tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),
@@ -1308,8 +1321,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     mark, seconds = stages(say)
     own = None
     if mesh is not None:
-        parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture)
-        mark('bake')
+        parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture, mark=mark)
         if kept is not None:
             store(parts, kept, document)
             mark('keep the parts')
@@ -1318,8 +1330,8 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
         require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')} and _fits(parts, document),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
-    mark('read the kept parts') if mesh is None else None
-    tinted, record = tints(parts, document) if tint_cache is None else tints(parts, document, cache=tint_cache, say=say)
+        mark('read the kept parts')
+    tinted, record = tints(parts, document, cache=tint_cache, say=say)
     mark('tint')
     models = write(output, parts, tinted, bones, body, number)
     mark('write')

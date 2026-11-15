@@ -72,6 +72,10 @@ class PosesTests(unittest.TestCase):
             for same in ({'cloth2': poses.COLOURS['cloth1']}, {'metal1': 5, 'metal2': 5}, {'silk': 3}):
                 with self.assertRaises(ValueError):  # two channels in one colour, or a channel there is none of
                     poses.worn_colours(same)
+            with self.assertRaisesRegex(ValueError, 'not silk'):  # and each of the two is told by its own name
+                poses.worn_colours({'silk': 3})
+            with self.assertRaisesRegex(ValueError, 'six different colours'):
+                poses.worn_colours({'metal1': 5, 'metal2': 5})
 
     def test_a_bake_that_cannot_be_worn_is_refused_before_anything_is_written(self):
         with tempfile.TemporaryDirectory() as folder:
