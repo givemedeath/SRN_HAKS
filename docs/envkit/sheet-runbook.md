@@ -236,15 +236,16 @@ checked and what was left as generated), rebuild the affected packs and run repo
 Painting the group in the Toolset is the only proof that a builder can.
 
 ```
-envkit toolset prepare --user <root>/toolset<n>/user --game <game>
+envkit toolset prepare --user <root>/toolset<n>/user --game <game> [--size 12]
 envkit toolset saved   --user <root>/toolset<n>/user
 envkit check doors     --game <game> --user <root>/toolset<n>/user --output <root>/toolset<n>/doors
 envkit toolset retire  --user <root>/toolset<n>/user
 ```
 
 `prepare` needs the packs built into `output/`. It makes a user folder of its own with a module of one plain
-area for each tileset, and prints how the Toolset is started on it (working directory: the Toolset's own
-folder). The folder's `hak` is a junction to `output/`: run `retire` before deleting the folder, or the built
+area for each tileset (8 tiles square; `--size` makes them larger, and a group as wide as the area leaves no
+corner for the start point: the Rail Freight Depot's 8 by 8 was painted in 12-tile areas), and prints how the
+Toolset is started on it (working directory: the Toolset's own folder). The folder's `hak` is a junction to `output/`: run `retire` before deleting the folder, or the built
 packs go with it.
 
 By computer use (access is asked for `nwtoolset.exe` by that name):

@@ -217,7 +217,8 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
 10. **Human female:** generate, split and fit the separate female cuts; fit the shared slots; review.
 11. **Race versions** for the other 18 bodies, gates, then a sampled client review on the hardest bodies.
 12. **Publish:** models and textures to the pack, table rows, registry entry, publication validation and a pack
-    build.
+    build: `python -m tools.armorkit publish` (`tools/armorkit/publish.py`; runbook in `tools/armorkit/README.md`,
+    revision 2026-11-14 below).
 
 ## Gates
 
@@ -293,6 +294,62 @@ Notes SR_NWN needs:
 * Item blueprints must write `xArmorPart_*` fields for numbers above 255.
 * A logo swap is applied to the wearing creature and reapplied whenever the item is equipped.
 * New chest rows carry no armor value.
+
+## Revision 2026-11-14: the Human pair, what a bake mends and checks, and decisions not yet written down
+
+User decisions from the Facility Security work of 2026-11-13 and 2026-11-14 that still stand and were not in
+this plan:
+
+- Parts are meant to clip into each other (2026-11-13). An end drawn in toward its part's axis and closed is
+  enough in most cases; the domes of the revision above came out of this, and replaced the rounded sockets
+  asked for at both sides of a joint the same evening.
+- The Human female's Facility Security is her own generated chest and the male's other parts carried to her
+  (`refit`, `combine`): his sleeves, because her own shirt had no cloth inside the upper arm, and his pelvis
+  and thighs, by the user's word of 2026-11-14, instead of her own generation's hips. Her own bake is made
+  from a brief of two materials (her generation's knee and shin plates came out pale), and only its chest is
+  used.
+- A client check needs no comparison crops (2026-11-14): the six-pose sheet and its single shots are the
+  evidence, and `poses` makes no crops.
+
+Stop rule for the Human female (user decision 2026-11-14, passed on by the session that plans the outfit
+work): she is done when every bake gate passes and the six-pose client sheet shows no holes, no skin where
+cloth belongs and nothing see-through. A defect of shade or colour gets one diagnosis and one fix round with
+a client check, and is then recorded and accepted. Textures stay at 1024 texels a side (same decision).
+
+What changed in the kit on 2026-11-14 (`tools/armorkit/README.md`, Invariants):
+
+- The slit along the right sleeve's inner seam was a real gap, not faces turned in. The trough's planes cut a
+  slab off the sleeve's inner side, the slab went to the chest, and the sleeve's end at the shoulder was grown
+  from a rim that no longer came round the joint. A slab the trough cuts off a sleeve past the armpit is
+  now the arm's (`split.slabbed`); before the armpit a piece cut off is the torso's, as her vest's shoulders
+  are.
+- A new gate, `facing`, on every bake, `bake --kept`, split and refit: no part may hold faces the client
+  would show a hole at (turned in, bare behind, nothing close under them). A bake and a refit turn such faces
+  out first. Turning a part's faces one way by a flood fill over shared edges was looked at and not done: the
+  split winds a closing against the lining it closes, on purpose.
+- A bake drops crumbs of debris from the generated outfit (10 cm² together at most) and records them, instead
+  of failing on them after the bake: the debris gate still fails on more.
+- A refit reads a sleeve once more after pushing it out over the other body's arm, fails where the skin still
+  stands through it, and reports what is left in `refit.json`.
+- A part's middle counts each place its vertices stand at once: the copies a texture layout makes of
+  vertices moved it between the mend and the gate.
+- Relief shading is evened with the texels beside each texel. The vest's flecked hem and collar were the
+  kit's shading, not the generation's colours, which are clean there.
+
+Accepted as they are on the Human pair (user decisions 2026-11-14):
+
+- With an arm lifted the female's armpit shows a panel, pale and streaked dark. It is the chest's own closing
+  round the arm, which the split makes and the bake shades as the cloth it lies under, vest on one face and
+  shirt on the next. The one fix round went to the sleeve's cap instead, changed nothing to see and was taken
+  out again. The user accepted the panel as it is. Drawing that closing as the sleeves' closings are, in one
+  shade of the shirt's cloth, was written and not tried in the client: it is not in the kit. A new generation
+  would not change the panel.
+- With an arm lifted the male shows two thin lighter slivers where the right sleeve meets the chest at the
+  armpit. They are the cloth's colour and nothing shows through them.
+
+By the stop rule above the Human female is done: her gates pass, and her six-pose sheet shows no holes, no
+skin where cloth belongs and nothing see-through.
+
 
 ## Open decisions
 
@@ -703,3 +760,44 @@ male outfit the user saw clean, which stands at most 0.7 cm out and passes. The 
 within; the dome now closes the whole rim. Her right thigh's end stands 1.2 cm out of the pelvis with the
 leg swung back the hip's whole 67 degrees, and fails until her hips are fitted again. The gate measures
 geometry; the client is still the evidence for how an end looks.
+
+## Revision 2026-11-14: the publish command, and a dry run
+
+Step 12 has its command (`tools/armorkit/publish.py`). It copies bakes written at their registry number into
+`srn_parts`, merges the parts tables into `srn_2da`, draws inventory icons, writes the registry and the SR_NWN
+handoff with each outfit's hashes, and runs the publication gates, each failing with the model and the reason.
+`tools/Test-Repository.ps1` checks a published registry against the pack and the tables. Nothing is published:
+there is no `srn_parts` folder and no change to `srn_2da`.
+
+Dry run on Facility Security as number 6020, Human male and female, into a scratch root, built and worn in the
+client from the built packs:
+
+* **Gates.** 216 `bodies` failures, the 12 models of each of the 18 other bodies, and one `bake` failure: the
+  male's kept parts, tinted again on the merged code, fail the bake's skin gate that was added after they were
+  kept (9 points of the right upper arm's skin covered only by faces turned in). The female passes. Texture
+  closure, name clashes, tables, icons and both necks pass.
+* **The torso's neck measure** is built (`publish.neck`). The body's neck and an outfit's chest are closed
+  surfaces, so it reads the neck's surface against the chest in place of a section of a hole. The armholes and
+  leg holes still have no measure of their own; the bake's `hidden` gate covers what closes them.
+* **Tint fallback across gender and build is proven for the tint texture** (the item left unchecked in Phase 0):
+  a Human female and a Large male shin model, each naming a tint texture no pack holds, were drawn in the Human
+  male's of the same number. Whether the material file and normal map are found the same way was not told
+  apart in the client.
+* **Inventory icons** work for a number above 999 under `ip<m|f>_<token><number>`, tinted by the item's colours
+  (seen for the female icons; the male ones were not on screen). Drawn from the model they are paler than the
+  stock ones.
+* **Size.** One outfit on two bodies is 66 MB in the pack, because each body carries its own tint textures and
+  maps. Twenty bodies with their own textures are about 650 MB an outfit. Naming the Human Fit textures from
+  the race models is not a way round it: an armor part's texture is coloured in game only when the model and
+  the tint texture have the same name (user, 2026-11-14), and the `closure` gate now fails a model that names
+  another's. What can shrink it is smaller maps, or leaving a body's own tint texture out so that the game's
+  fallback finds the Human male's (the probe above). That fallback takes the item's colours (client,
+  2026-11-14): shin 398 on a Human female and a Large male, their models naming textures of their own names
+  that no pack holds, was drawn in the Human male's texture and changed with him between two colour sets, all
+  channels 88 and all channels 132. The publish command does not use it yet: `survey` and the `closure` gate
+  still ask every body for its own tint texture.
+
+What still blocks a publication: the 18 race bodies (refit and bake each, or race versions that pass the seam
+gate); a male bake that passes on the merged code, and the female refit from it; the female's open client
+defects; the `PROVENANCE.md` entry; the user's review of the outfits and of the pale icons; and the registry's
+set and group names for 6020, which the dry run made up (`facility-security`, `corpsec`).

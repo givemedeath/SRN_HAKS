@@ -51,6 +51,9 @@ HIDDEN_STEP = 0.003  # a surface is sampled this densely to tell how far a point
 HIDDEN_NEAR = 0.05  # and only within this of the points measured
 HINGES = {'elbow': 1.0, 'knee': -1.0}  # the way along body +Y a hinge's under part swings (`hidden`): a forearm forward, a shin back
 THROUGH = 0.001  # metres: the body's own skin kept beside the outfit may stand this far out through it, no farther (`through`)
+FACING = 1e-5  # square metres: a part may hold this much of faces the client shows a hole at, no more (`facing`): 0.1 cm²
+MIDDLE = 1e-5  # metres: vertices this close stand at one place for a part's middle (`within`)
+FACING_PASSES = 8  # times at most a part's faces are read and turned out (`faced_out`): it ends with the first read that finds none
 INSIDE = 0.005  # an over end is measured this far inside its joint plane, clear of the cut that made it
 REACH = 2.0  # a part's section at a joint counts this many of the heaviest tier's widest envelope radius from the centre, no farther
 STEP = 0.003  # an under end's surface is sampled this densely to tell how far past its plane it runs
@@ -60,6 +63,7 @@ ROOM_SLACK = 0.005  # at a torso opening an end may stop this much shorter of th
 HOLE = 0.005  # an opening of the generated outfit this long round or longer, at the body's size, is a hole
 DEBRIS = 0.001  # square metres: a separate piece of the generated outfit smaller than this that touches nothing else is debris
 TOUCH = 0.002  # a piece of the generated outfit this near the rest of it touches it
+SWEPT = 0.001  # square metres: crumbs of debris of this much together or less are dropped from the outfit before it is baked (`swept`)
 POINT = split.POINT  # metres: two corners of a triangle this near are one point, and the model compiler drops the triangle
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'src', 'trimmed')  # what `store` keeps of a part
 OPTIONAL = ('pad',)  # and what it keeps when a part has it: parts kept before it existed have none
@@ -84,7 +88,14 @@ def roles(name, made):
     That is how siteguard-male was baked when its armpits were looked at in the client, and it was not what
     was meant: the cap was to be flagged as a closing and darkened with the closings (`ARMHOLE`), and a later
     line of the bake script took it out of them again. The closings alone, darkened, turned the pale strip in
-    front of the armpit into a crease, so this is kept as it was seen until the other is tried in the client."""
+    front of the armpit into a crease, so this is kept as it was seen until the other is tried in the client.
+
+    It was tried on Facility Security's Human pair (2026-11-14): the cap at the shoulder drawn with the
+    closings, in the armhole's shadow. Neither body looked different for it with its arms up, and it is not
+    kept. The panel a lifted arm shows in the female's armpit, pale and streaked dark, is not the sleeve's
+    cap but the chest's closing round the arm (`under`): shaded vertex by vertex as the cloth it lies
+    under, it is the vest's shade on one face and the shirt's on the next. The user accepted it as it is
+    (2026-11-14, docs/armorkit/plan.md)."""
     made = np.asarray(made, int)
     under = UNDER.get(name, ())
     flat = [kind for kind in (split.CAP, split.WALL, split.PADDED) if kind not in under and not (kind == split.CAP and name in ARMHOLE)]
@@ -106,7 +117,7 @@ def surface(vertices, faces):
 
     It is measured on the outfit as it was generated, before it is cut: every opening the cut leaves is made
     on purpose, an over part open on its joint plane with the under part standing in it. A generated outfit is
-    one closed surface: the Site Guard's first exports had openings up to 9 cm round and dozens of pieces, and
+    one closed surface (a bake drops its crumbs first, `swept`): the Site Guard's first exports had openings up to 9 cm round and dozens of pieces, and
     the one worn has none. A separate piece is not a fault in itself (knee pads 0.6 cm off the trousers, the
     gloves beyond a bare forearm); a small one standing off the rest is: a crumb of 2 to 6 cm² floated in four
     exports of seven, three times in one place by a thigh."""
@@ -123,12 +134,22 @@ def surface(vertices, faces):
         loop = np.asarray(mesh_ops.union_find(int(weld.max()) + 1, rim.tolist()))[rim[:, 0]]
         length = np.linalg.norm(vertices[at[rim[:, 0]]] - vertices[at[rim[:, 1]]], axis=1)
         holes = sorted((float(length[loop == label].sum()) for label in np.unique(loop)), reverse=True)
+    _, debris, pieces = loose(vertices, faces)
+    return {'holes': [hole for hole in holes if hole >= HOLE], 'debris': debris, 'pieces': pieces}
+
+
+def loose(vertices, faces):
+    """(flags, areas, pieces): per face of a generated outfit at the body's size, whether it is of a crumb of
+    debris, a separate piece smaller than `DEBRIS` that stands farther than `TOUCH` from the rest; the area of
+    each crumb, largest first; and how many separate pieces the outfit is, vertices at one position being one
+    point (`surface`)."""
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
     piece = np.asarray(mesh_ops.union_find(len(faces), split.beside(vertices, faces).tolist()))
     corners = vertices[faces]
     area = np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1) / 2
     labels, of = np.unique(piece, return_inverse=True)
     sizes = np.bincount(of.reshape(-1), weights=area)
-    debris = []
+    flags, debris = np.zeros(len(faces), bool), []
 
     def sampled(chosen):  # points on the chosen faces no more than `TOUCH` apart
         used, inside = np.unique(faces[chosen], return_inverse=True)
@@ -141,8 +162,27 @@ def surface(vertices, faces):
         near = ~mine & (corners.max(axis=1) >= low).all(axis=1) & (corners.min(axis=1) <= high).all(axis=1)  # the rest's faces round it
         if near.any() and texture.nearest(points, sampled(near), rows=32)[1].min() <= TOUCH:
             continue
+        flags |= mine
         debris.append(float(sizes[label]))
-    return {'holes': [hole for hole in holes if hole >= HOLE], 'debris': sorted(debris, reverse=True), 'pieces': int(len(labels))}
+    return flags, sorted(debris, reverse=True), int(len(labels))
+
+
+def swept(vertices, faces, scale=1.0):
+    """(vertices, faces, dropped): a generated outfit without its crumbs of debris (`loose`, read at `scale`,
+    the outfit's to the body's size), and the area of each dropped at that size, largest first. Only the
+    vertices the faces left use are kept. Crumbs of more than `SWEPT` together are left in, for the gate to
+    fail (`gates`): that much loose is no crumb, and the export is looked at.
+
+    A crumb floats in most exports (`surface`), and a bake used to fail on one after twenty minutes with
+    nothing to be done about it but a new export, of the five a model may have: Facility Security male's
+    third held a piece of 2.5 cm² and two specks (2026-11-14). A crumb touches nothing, so nothing shows where
+    it was; what is dropped is in the bake's record (`surface`, `dropped`)."""
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces, int)
+    flags, areas, _ = loose(vertices * scale, faces)
+    if not flags.any() or sum(areas) > SWEPT:
+        return vertices, faces, []
+    used, kept = np.unique(faces[~flags], return_inverse=True)
+    return vertices[used], kept.reshape(-1, 3), areas
 
 
 def ends(parts, bones, body, tier, contract=None):
@@ -429,6 +469,69 @@ def through(parts, bones):
     return report, failures
 
 
+def within(bones, name, vertices, faces):
+    """Per face of part `name`, the point the part lies round there (`measure.seen_through`): the nearest of
+    its bone (`split.bone_line`) to the face's middle, or for a part with a bone of one end (the pelvis, a
+    hand, a foot), or on a rig without its bone, the middle of the places its faces' vertices stand at, each
+    place counted once (`MIDDLE`). Counted per vertex, the middle moved with the copies a texture layout makes
+    of the vertices along its charts' edges: the female's own pelvis had its faces turned out round one middle
+    before the layout and was read by the gate round another 0.8 cm from it, which failed it on two faces
+    lying edge on to both (2026-11-14)."""
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces, int).reshape(-1, 3)
+    slot = next(slot for slot, spec in registry.SLOTS.items() if name in spec['tokens'])
+    line = [bone and bone.format(name[-1]) for bone in split.BONE_ENDS.get(slot, (None, None))]
+    if None in line or not set(line) <= set(bones) or not len(faces):
+        used = vertices[np.unique(faces)] if len(faces) else np.zeros((1, 3))
+        first = np.unique(mesh_ops.weld_ids(used, MIDDLE), return_index=True)[1]  # one vertex per place, as it stands
+        return np.tile(used[first].mean(axis=0), (len(faces), 1))
+    start, end = split.bone_line(bones, name)
+    axis = end - start
+    share = np.clip((vertices[faces].mean(axis=1) - start) @ axis / max(float(axis @ axis), 1e-12), 0.0, 1.0)
+    return start + share[:, None] * axis
+
+
+def faced_out(name, vertices, faces, normals, bones):
+    """(faces, normals, turned): part `name`'s faces with each the client would show a hole at
+    (`measure.seen_through`) turned out, the normal of a vertex only such faces use turned with them, and
+    how many were turned. It is read until none is found, `FACING_PASSES` times at most: a face turned out
+    may bare another, and a face once turned out is not found again. A vertex's normal is turned once every
+    face that uses it has been, in whichever reads: turned only with the faces of one read, the corner two
+    faces shared kept its normal when one of them was bared by the other. A part's faces are turned as the
+    client sees them and not as their neighbours are wound: the split winds a closing to be seen from
+    outside, against the lining it closes, and made one way with its neighbours it would face into the part."""
+    faces, normals = np.asarray(faces, int).copy(), np.asarray(normals, float).copy()
+    turned, flipped = np.zeros(len(faces), bool), np.zeros(len(normals), bool)
+    for _ in range(FACING_PASSES):
+        seen = measure.seen_through(vertices, faces, within(bones, name, vertices, faces))
+        if not seen.any():
+            break
+        faces[seen] = faces[seen][:, ::-1]
+        turned |= seen
+        alone = np.setdiff1d(np.unique(faces[turned]), np.unique(faces[~turned]))
+        alone = alone[~flipped[alone]]
+        normals[alone], flipped[alone] = -normals[alone], True
+    return faces, normals, int(turned.sum())
+
+
+def facing(parts, bones):
+    """(report, failures): per part, the area in square metres of its outfit's faces the client would show a
+    hole at (`measure.seen_through`): turned in, bare behind and with nothing close under them. The body's
+    own skin beside the outfit is not read, nor counted as what is under a face: skin seen through cloth is
+    a hole too. More than `FACING` on a part fails. A bake and a refit turn such faces out (`faced_out`); this
+    is what they left, and what parts kept before they did still hold."""
+    report, failures = {}, []
+    for name, part in parts.items():
+        v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+        f = f[~np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)]
+        seen = measure.seen_through(v, f, within(bones, name, v, f))
+        corners = v[f[seen]]
+        area = float(np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1).sum() / 2)
+        report[name] = round(area, 6)
+        if area > FACING:
+            failures.append(f'{name}: {int(seen.sum())} faces of {area * 1e4:.1f} cm² turned in with nothing behind them, where the client shows a hole')
+    return report, failures
+
+
 def _used(vertices, faces, which):
     """Per vertex, whether a face in `which` uses it or a copy of it at the same point: a baked part is laid out,
     its vertices doubled where the texture's islands meet, so a rim point a cap uses may be a copy of the one
@@ -538,6 +641,9 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     require(not document.get('skin') or body_textures is not None, "An outfit that shows the body's skin on a part needs the folder of the body's textures")
     bones, skin = measure.body(body_pack, body)
     source, faces = repose.load(mesh)
+    source, faces, crumbs = swept(source, faces, repose.outfit_joints(source, faces, repose.body_joints(bones, skin))[1]['scale'])
+    if crumbs:
+        say('debris dropped, cm²:', [round(area * 1e4, 2) for area in crumbs])
     field, levels = texture.open_field(colours)
     read = lambda points: texture.read_field(field, levels, points)
     as_read, shown = texture.mesh_materials(to_field(source), faces, read, count)
@@ -548,7 +654,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     listed = [material['name'] for material in document['materials']]
     brief_of = np.array([listed.index(material['name']) for material in on_mesh] + [-1])
     carried = repose.onto_body(source, faces, bones, skin, materials=kinds, padded=''.join(document.get('pads', [])))
-    whole = surface(source * carried['scale'], faces)
+    whole = {**surface(source * carried['scale'], faces), 'dropped': crumbs}
     say('surface', whole)
     v, f, source = carried['vertices'], carried['faces'], carried['source']
     raw_v, raw_f = gltf.positions(raw)
@@ -595,6 +701,11 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         if name in left:  # the body's: what the outfit has there is cut off on the joint's plane, and no map is made of it
             say(f'{name}: left to the body, {len(pf)} faces of the outfit cut off')
             continue
+        pf, turned_n, turned = faced_out(name, pv, pf, pc[:, :3], bones)  # before the layout, the maps and the body's skin beside it
+        if turned:
+            lone = (turned_n != pc[:, :3]).any(axis=1)  # a vertex only faces turned out use: its normals turn with them
+            pc = np.concatenate([turned_n, pc[:, 3:6], np.where(lone[:, None], -pc[:, 6:9], pc[:, 6:9])], axis=1)
+            say(f'{name}: {turned} faces turned out, which the client would have shown a hole at')
         role = roles(name, made[name])
         pad = pad_flags(made[name], origins[name], guards)  # the seam gate leaves a pad over a joint out
         of_face = np.where(origins[name] >= 0, mats[np.maximum(origins[name], 0)], -1)  # per face: its material, -1 for what the split made
@@ -789,7 +900,8 @@ def resplit(capture, contract=None, body_pack=None):
     left, shared = set(given.get('left', ())), set(given.get('shared', ()))
     result = within_budget(result, made, origins, given.get('joints'), given.get('radii'), left=left)  # the body's skin beside a part is not counted here
     seconds = time.monotonic() - began
-    parts = {name: {'v': pv, 'f': pf, 'made': made[name], 'pad': pad_flags(made[name], origins[name], given['guards'])}
+    parts = {name: {'v': pv, 'f': faced_out(name, pv, pf, np.zeros((len(pv), 3)), given['bones'])[0], 'made': made[name],
+                    'pad': pad_flags(made[name], origins[name], given['guards'])}
              for name, (pv, pf, _) in result.items() if name not in left}
     for name in shared & set(parts):  # a part that shares its slot with the body's skin ends where the body's part does (`ends`)
         parts[name]['skin'] = np.zeros(len(parts[name]['f']), bool)
@@ -799,11 +911,12 @@ def resplit(capture, contract=None, body_pack=None):
     began = time.monotonic()
     skin = None if body_pack is None else measure.body(body_pack, given['body'])[1]
     covered = hidden(parts, given['bones'], given['body'], contract, skin, left)
+    faced = facing(parts, given['bones'])
     report = {'seconds': round(seconds, 2), 'triangles': {name: int(len(part['f'])) for name, part in parts.items()},
               'collapsed': {name: count for name, count in collapsed.items() if count},
               'seams': None if joined is None else joined[0], 'hidden': None if covered is None else covered[0],
-              'hiddenSeconds': round(time.monotonic() - began, 2),
-              'failures': failures + ([] if joined is None else joined[1]) + ([] if covered is None else covered[1])}
+              'hiddenSeconds': round(time.monotonic() - began, 2), 'facing': faced[0],
+              'failures': failures + ([] if joined is None else joined[1]) + ([] if covered is None else covered[1]) + faced[1]}
     return parts, report
 
 
@@ -1022,7 +1135,7 @@ def write(folder, parts, tinted, bones, body, number):
     return models
 
 
-def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=None, skin=None):
+def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=None, skin=None, faced=None):
     """The automatic gates of docs/armorkit/plan.md that can be checked on one written outfit: a report.
 
     Budgets: the triangles of each part, the chest's own and the whole outfit's, and the texels a side of
@@ -1036,7 +1149,8 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=N
     that misses the seam contract fails, and the report holds it as `seams`; on a body the contract has no
     rings of, that gate stays under `notBuilt`. So it is with `covered`, what `hidden` found, as `hidden`.
     With `skin`, what `through` found, the body's skin standing out through the outfit beside it fails too,
-    and the report holds it as `through`."""
+    and the report holds it as `through`; with `faced`, what `facing` found, a part with faces the client
+    shows a hole at, as `facing`."""
     resources, failures = Path(resources), []
     faces = {name: int(len(part['f'])) for name, part in parts.items()}
     for name, number in faces.items():
@@ -1072,11 +1186,14 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=N
         failures += covered[1]
     if skin is not None:
         failures += skin[1]
+    if faced is not None:
+        failures += faced[1]
     checked = {WHOLE: whole is not None, SEAM: joined is not None, HIDDEN: covered is not None}
     return {'passed': not failures, 'failures': failures, 'triangles': {**faces, 'outfit': sum(faces.values())},
             'texels': {name: int(len(part['rgb'])) for name, part in parts.items()},
             **({} if whole is None else {'surface': whole}), **({} if joined is None else {'seams': joined[0]}),
-            **({} if covered is None else {'hidden': covered[0]}), **({} if skin is None else {'through': skin[0]}), 'notBuilt': [gate for gate in NOT_BUILT if not checked.get(gate)]}
+            **({} if covered is None else {'hidden': covered[0]}), **({} if skin is None else {'through': skin[0]}),
+            **({} if faced is None else {'facing': faced[0]}), 'notBuilt': [gate for gate in NOT_BUILT if not checked.get(gate)]}
 
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
@@ -1111,7 +1228,8 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     own = measure.body(body_pack, body)[1] if own is None else own
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
-              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, bones))}
+              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, bones),
+                             facing(parts, bones))}
     if game is not None:
         compiled = export.compile_models(sorted(Path(output) / 'ascii' / (model + '.mdl') for model in models.values()),
                                          Path(output) / 'resources', game=game, resources=list(resources))

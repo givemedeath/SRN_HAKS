@@ -817,6 +817,16 @@ Rebuilt the same day without turning the back halves of two-faced sheets onto th
 walkmesh faces of many tiles though not the ground walked on; the walk check passed again in both areas, every walker
 arriving.
 
+Painted in the Toolset on 2026-11-14 from packs built from main after the merge (`envkit toolset prepare --size
+12`: an area 8 tiles across, the size used before, leaves the 8 by 8 group no room beside the start point). In one
+user folder the group went down unturned in a Modern Exterior and a Suburbs area, in another a quarter turn in
+Modern Exterior and a half turn in Suburbs. Each painting laid all 64 tiles (456-519 and 698-761) with the turn
+asked for, and made one door of type 58 at the warehouse's hook, its place and bearing turned with the group, as
+the saved areas record (`envkit toolset saved`). Nine of the yard's props were placed from the palette beside it,
+from both of its categories, the light tower among them; each kept its `placeables.2da` row, name and static
+setting (the light tower not static, the rest static). In the client (`envkit check doors`) clicking each
+warehouse door, in both folders, took the player to the other area's door.
+
 ## Rail Freight Yard props (`srn_placeable`, `srn_2da`; 2026-11-13)
 
 Twenty-one envkit props of the same generic rail freight yard as the Rail Freight Depot tile group join
