@@ -49,7 +49,7 @@ class RestoreTests(unittest.TestCase):
                                 ('holds no source folder', (archive, self.root / 'two', self.models, ['ek_b'])), ('No archive-manifest', (self.root, self.root / 'two', self.models, ['ek_a']))):
             with self.assertRaisesRegex(ValueError, said):
                 restore.sources(*arguments)
-        self.assertFalse((archive / 'restored').exists()); self.assertFalse((self.root / 'two').exists())
+        self.assertFalse((archive / 'restored').exists()); self.assertFalse((self.root / 'older' / 'restored').exists()); self.assertFalse((self.root / 'older' / 'output').exists()); self.assertFalse((self.root / 'two').exists())
         lone = self.archive('lone', files, held=set())  # a manifest whose objects are gone
         with self.assertRaisesRegex(ValueError, 'hold no object'):
             restore.sources(lone, self.root / 'three', self.models, ['ek_a'])

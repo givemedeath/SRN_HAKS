@@ -183,6 +183,23 @@ class BriefTests(unittest.TestCase):
         self.assertEqual(second['pads'], first['pads'])
         self.assertIn('BRIGHT LIGHT SKY BLUE hard plastic', brief.prompt(second))  # written: no two materials are drawn too alike
 
+    def test_a_brief_may_say_how_worn_it_is_drawn_and_what_colours_its_concept_wears(self):
+        given = document()
+        given['wear'] = 0.35
+        given['materials'][0]['suggested'] = [40, 48, 70]
+        self.assertIs(brief.validate(given), given)
+        self.assertNotIn('suggested', brief.prompt(given))  # neither reaches the image: it is drawn light, flat and clean
+        self.assertEqual(brief.prompt(given), brief.prompt(document()))
+        for change in (lambda d: d.update(wear=1.5), lambda d: d.update(wear=-0.1), lambda d: d.update(wear='some'), lambda d: d.update(wear=True),
+                       lambda d: d['materials'][0].update(suggested=[40, 48]), lambda d: d['materials'][0].update(suggested=[0.2, 0.2, 0.3]),
+                       lambda d: d['materials'][0].update(suggested='navy')):
+            broken = copy.deepcopy(given)
+            change(broken)
+            with self.assertRaises(ValueError):
+                brief.validate(broken)
+        for whole in (0, 1):
+            brief.validate({**given, 'wear': whole})
+
 
 if __name__ == '__main__':
     unittest.main()

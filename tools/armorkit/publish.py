@@ -41,6 +41,7 @@ import math
 import shutil
 import struct
 import subprocess
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -114,6 +115,87 @@ def icon_names(part):
 def material_maps(text):
     """The maps a material file names (`texture1 <name>` and so on)."""
     return [line.split()[1] for line in text.splitlines() if line.startswith('texture') and len(line.split()) > 1]
+
+
+def suggested(record, channels=None):
+    """{channel: colour} a bake's record suggests an outfit is worn in: each material's `suggested` colour (its
+    brief's) on both of the material's channels, kept to `channels` where given (a registry part's). A channel
+    two materials suggest different colours for gets none.
+
+    A brief's suggested colours stopped in `bake.json`: a registry was written by hand and nothing said its
+    parts left them out (review of 2026-11-15)."""
+    found = {}
+    for material in record.get('materials', []):
+        if 'suggested' in material:
+            for channel in material.get('channels', []):
+                found.setdefault(channel, []).append(list(material['suggested']))
+    return {channel: colours[0] for channel, colours in sorted(found.items())
+            if all(colour == colours[0] for colour in colours) and (channels is None or channel in channels)}
+
+
+def coloured(document, records):
+    """A registry document with each part's `colours` as the bakes of its number suggest them (`suggested`),
+    and the (slot, number) of every part changed. A part no bake in `records` is of is left as it is; one its
+    bakes suggest nothing for loses the colours it had, as the publication's gate asks; bakes that suggest
+    different colours for one part are refused, by body."""
+    wanted = {}
+    for record in records:
+        require(isinstance(record.get('models'), dict) and set(record['models']) <= set(TOKEN_SLOT) and 'number' in record,
+                'A bake\'s record names its number and the model of each of its parts')
+        for token in record['models']:
+            wanted.setdefault((TOKEN_SLOT[token], record['number']), []).append(record)
+    parts, changed = [], []
+    for part in document['parts']:
+        key = (part['slot'], part['number'])
+        found = {}
+        for record in wanted.get(key, []):
+            found.setdefault(json.dumps(suggested(record, part['channels']), sort_keys=True), []).append(str(record.get('body')))
+        require(len(found) <= 1, f'{key[0]} {key[1]}: its bakes suggest different colours: '
+                + '; '.join(f'{", ".join(bodies)} {asked}' for asked, bodies in sorted(found.items())))
+        asked = json.loads(next(iter(found))) if found else part.get('colours', {})
+        if part.get('colours', {}) != asked:
+            part = {**{name: value for name, value in part.items() if name != 'colours'}, **({'colours': asked} if asked else {})}
+            changed.append(key)
+        parts.append(part)
+    return {**document, 'parts': parts}, changed
+
+
+def shared_maps(surveyed, incoming, hashed=None):
+    """(stands, texts): the maps of a publication that are one image under several names, and the material
+    files rewritten to name the one that is kept.
+
+    `incoming` maps each file name the publication takes to its path, `surveyed` are its bakes (`survey`,
+    each with the names `taken` of it). Maps (`.tga`) of the same bytes are one map: the first by name is
+    kept, the Human Fit body's before any other, `stands` maps each other's name to it (without the ending), and `texts` holds, by file name, the
+    text of every taken material file that named one of the others, naming the kept one instead. An outfit
+    carried to the other bodies of a gender (`refit`) keeps its normal maps, so 10 of Facility Security's
+    12 are the same image on ten bodies; a tint texture is never shared, the game colours a part only
+    under its model's own name (user decision 2026-11-15)."""
+    hashed = sha if hashed is None else hashed
+    same = {}
+    for name in sorted(incoming):
+        if name.endswith('.tga'):
+            same.setdefault(hashed(incoming[name]), []).append(name[:-4])
+    # the Human Fit body's is the one kept where it is among them: the others were carried from it
+    same = [sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for names in same.values()]
+    stands = {other: names[0] for names in same for other in names[1:]}
+    texts = {}
+    for bake in surveyed if stands else ():
+        for name in sorted(bake.get('taken', ())):
+            if not name.endswith('.mtr'):
+                continue
+            try:
+                text = Path(bake['files'][name]).read_bytes().decode('ascii')
+            except ValueError:
+                continue  # `survey` has said so already
+            lines = text.splitlines(keepends=True)
+            for index, line in enumerate(lines):
+                words = line.split()
+                if line.startswith('texture') and len(words) > 1 and words[1] in stands:  # the lines `material_maps` reads
+                    lines[index] = line.replace(words[1], stands[words[1]], 1)
+            if ''.join(lines) != text:
+                texts[name] = ''.join(lines)
+    return stands, texts
 
 
 def survey(folder):
@@ -650,7 +732,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(Path(path).is_file(), f'{path} is no file to record for {model}')
         given_records.setdefault(model, []).append(Path(path))
     wanted = {model: (part, body) for part in new for body, models in registry.model_names(part).items() for model in models}
-    found_briefs, hashed = {}, {}
+    found_briefs, hashed, miscoloured = {}, {}, set()
 
     def once(path):  # a file's hash, taken once however many bodies share the file
         if path not in hashed:
@@ -670,6 +752,14 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             if other:
                 failures.append(failure('bake', model, f'it was baked at tier {record.get("tier")} and the registry gives {TOKEN_SLOT[token]} {record["number"]} '
                                                        + ', '.join(f'{joint} tier {tier}' for joint, tier in sorted(other.items()))))
+        for slot, number in sorted({(TOKEN_SLOT[token], record['number']) for token, model in record['models'].items() if model in wanted}):
+            entry = now[(slot, number)]
+            asked = suggested(record, entry['channels'])
+            said = (slot, number, json.dumps(asked, sort_keys=True))  # once for a part, however many bodies' bakes suggest the same
+            if asked != entry.get('colours', {}) and said not in miscoloured:
+                miscoloured.add(said)
+                failures.append(failure('colours', f'{slot} {number}', f'the bake of {record["body"]} suggests {json.dumps(asked, sort_keys=True)} and the registry gives '
+                                        f'{json.dumps(entry.get("colours", {}), sort_keys=True)}: write the bakes\' colours into it (registry FILE --colours-from BAKE)'))
         for name, path in bake['files'].items():
             if name in pack or name in incoming:
                 failures.append(failure('bake', name, f'{PACK} already holds a file of that name' if name in pack else 'two bakes hold a file of that name'))
@@ -692,8 +782,20 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         unknown = sorted(set(given) - {bake['record']['model'] for bake in surveyed})
         require(not unknown, f'{flag} names a model no bake is of: {", ".join(unknown)}')
 
-    pack.update(incoming)
+    # One image under several names is published once: the other bodies' material files name the one kept.
+    stands, renamed = shared_maps(surveyed, incoming, once)
     work = None
+    if stands:
+        work = Path(tempfile.mkdtemp(prefix='armorkit-publish-'))
+        for bake in surveyed:
+            for name in sorted(bake.get('taken', ())):
+                if name.endswith('.tga') and name[:-4] in stands:
+                    bake['taken'].discard(name)
+                    del incoming[name]
+                elif name in renamed:
+                    (work / name).write_bytes(renamed[name].encode('ascii'))
+                    bake['files'][name] = incoming[name] = work / name
+    pack.update(incoming)
     try:
         try:
             drawn = draw_icons(new, pack, body_pack)
@@ -701,8 +803,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             drawn = {}
             failures.append(failure('icons', PACK, f'the icons could not be drawn: {error}'))
         if drawn:
-            import tempfile
-            work = Path(tempfile.mkdtemp(prefix='armorkit-icons-'))
+            work = Path(tempfile.mkdtemp(prefix='armorkit-icons-')) if work is None else work
             for name, blob in drawn.items():
                 if name in pack:
                     failures.append(failure('icons', name, f'{PACK} already holds an icon of that name'))
@@ -725,7 +826,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         missing = sorted({found['model'][:4] for found in failures if found['gate'] == 'bodies'})
         report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': by_gate,
                   'bodiesWithoutModels': missing, 'skipped': skipped, 'newParts': [f'{part["slot"]} {part["number"]}' for part in new],
-                  'necks': measured, 'tables': sorted(table_texts), 'files': sorted(incoming), 'written': False}
+                  'necks': measured, 'tables': sorted(table_texts), 'files': sorted(incoming), 'sharedMaps': stands, 'written': False}
         if dry_run or (failures and not trial):
             return report
         # Every source is hashed once, before the first write; the records are made from those hashes and each

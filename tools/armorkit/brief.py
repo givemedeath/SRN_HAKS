@@ -21,7 +21,15 @@ A brief is a JSON document:
      "prompt": "... {materials} ..."}
 
 `colour` is the flat colour the prompt's words (`look`) ask for, 0-255. `shown`, optional, is the colour the
-generated outfit shows instead, recorded once it is known to have drifted. `pads` names the sides an outfit
+generated outfit shows instead, recorded once it is known to have drifted. `suggested`, optional, is the colour
+the concept wears the material in, 0-255: the reference image is drawn light and flat so that its materials can
+be told apart, the game tints them, and this is the colour the outfit's design means (a dark base and one
+accent to an outfit, as the concept sheets have it; user decision 2026-11-15). A bake records it with the
+material's channels, and the registry may hand it on (`registry`, a part's `colours`). `"wear": 0.5`, optional,
+0 to 1, is how worn the outfit is drawn: its tint shades are mottled, lighter on its raised edges and darker in
+its creases by that much of what `texture.WEAR` gives its materials (`bake.tints`). The reference image stays
+clean; without the key, or at 0, nothing is worn in (user decision 2026-11-15: a bit of wear, as the concept
+sheets show it). `pads` names the sides an outfit
 drawn before construction version 2 has a shoulder pad on (`repose.onto_body`, `padded`). `prompt` is the image prompt with `{materials}`
 where its colour paragraph goes.
 
@@ -87,9 +95,10 @@ COUNTS = ('One', 'Two', 'Three', 'Four', 'Five', 'Six')
 APART = 30.0  # the least two materials' colours may differ by in a prompt, in `texture.tone`'s space. The first outfit's
 # cloth and plates were asked for 10 apart and its cloth came out 21 from what was asked: they could be told only by guessing
 MARGIN = 5.0  # the best way of matching the outfit's materials to the brief's beats the next by this much, or it is refused
-KEYS = {'schemaVersion', 'kind', 'model', 'pads', 'materials', 'prompt', 'construction', 'bare', 'skin'}
+KEYS = {'schemaVersion', 'kind', 'model', 'pads', 'materials', 'prompt', 'construction', 'bare', 'skin', 'wear'}
 BARE, SKIN = ('forearm',), ('bicep',)  # the slots an outfit may leave to the body, and those it may share with the body's skin
-MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown'}
+MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown', 'suggested'}
+OPTIONAL = {'shown', 'suggested'}  # what a material may hold beside what it must
 SEAL, SEAL_KIND, PROMPT = 'brief-seal.json', 'srn-armorkit-brief-seal', 'PROMPT.txt'
 
 
@@ -111,6 +120,8 @@ def validate(document):
         listed = document.get(key, [])
         require(isinstance(listed, list) and all(isinstance(slot, str) for slot in listed) and set(listed) <= set(slots)
                 and len(set(listed)) == len(listed), f'{key} lists slots, each once, of {list(slots)}: what the bake can build')
+    wear = document.get('wear', 0)
+    require(isinstance(wear, (int, float)) and not isinstance(wear, bool) and 0 <= wear <= 1, 'wear is a number from 0, clean, to 1')
     pads = document.get('pads', [])
     require(isinstance(pads, list) and set(pads) <= {'l', 'r'} and len(set(pads)) == len(pads), 'Pads are on the l or r side')
     require(not pads or version is None or version < PADLESS,
@@ -120,11 +131,11 @@ def validate(document):
     colour = lambda value: (isinstance(value, list) and len(value) == 3
                             and all(isinstance(part, int) and not isinstance(part, bool) and 0 <= part <= 255 for part in value))
     for material in materials:
-        require(isinstance(material, dict) and set(material) <= MATERIAL_KEYS and MATERIAL_KEYS - {'shown'} <= set(material),
-                f'A material holds {sorted(MATERIAL_KEYS - {"shown"})}, and may hold shown')
+        require(isinstance(material, dict) and set(material) <= MATERIAL_KEYS and MATERIAL_KEYS - OPTIONAL <= set(material),
+                f'A material holds {sorted(MATERIAL_KEYS - OPTIONAL)}, and may hold {" and ".join(sorted(OPTIONAL))}')
         require(all(text(material[key]) for key in ('name', 'look', 'wears')), 'A material has a name, a look and what wears it')
         require(material['kind'] in texture.KINDS, f'{material["name"]}: a material is one of {texture.KINDS}')
-        require(colour(material['colour']) and ('shown' not in material or colour(material['shown'])),
+        require(colour(material['colour']) and all(key not in material or colour(material[key]) for key in OPTIONAL),
                 f'{material["name"]}: a colour is three whole numbers, 0-255')
     names, kinds = [material['name'] for material in materials], [material['kind'] for material in materials]
     require(len(set(names)) == len(names), 'Material names are unique')

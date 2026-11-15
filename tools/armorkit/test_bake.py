@@ -95,6 +95,37 @@ def part(faces=1, size=4):
 
 
 class BakeTests(unittest.TestCase):
+    def test_a_parts_texture_is_named_by_all_it_is_drawn_from_and_read_again_under_that_name(self):
+        one = np.arange(6, dtype=float).reshape(2, 3)
+        name = bake.digest(one, {'b': 1, 'a': one}, ('cloth', None), 0.3)
+        self.assertEqual(name, bake.digest(one.copy(), {'a': one, 'b': 1}, ('cloth', None), 0.3))
+        for other in ((one + 1, {'b': 1, 'a': one}, ('cloth', None), 0.3), (one.reshape(3, 2), {'b': 1, 'a': one}, ('cloth', None), 0.3),
+                      (one.astype(np.float32), {'b': 1, 'a': one}, ('cloth', None), 0.3), (one, {'b': 2, 'a': one}, ('cloth', None), 0.3),
+                      (one, {'b': 1, 'a': one}, ('leather', None), 0.3), (one, {'b': 1, 'a': one}, ('cloth', None), 0.4)):
+            self.assertNotEqual(name, bake.digest(*other))
+        self.assertNotEqual(bake.digest([1, 2], 3), bake.digest([1], 2, 3))  # where a list ends is part of the name
+        drawn = []
+        draw = lambda: drawn.append(1) or (np.full((4, 4), 170, np.uint8), np.full((4, 4), 4, np.uint8))
+        self.assertEqual((bake.drawn(None, None, draw)[0][0, 0], len(drawn)), (170, 1))  # no cache: drawn, nothing kept
+        with tempfile.TemporaryDirectory() as folder:
+            cache = Path(folder) / 'cache'
+            first = bake.drawn(cache, name, draw)
+            again = bake.drawn(cache, name, lambda: self.fail('drawn again'))
+            self.assertTrue(np.array_equal(first[0], again[0]) and np.array_equal(first[1], again[1]))
+            self.assertEqual(([path.name for path in cache.iterdir()], len(drawn)), ([name + '.npz'], 2))
+            (cache / (name + '.npz')).write_bytes(b'cut short')  # a file that cannot be read is drawn and written again
+            self.assertEqual((bake.drawn(cache, name, draw)[0][0, 0], len(drawn)), (170, 3))
+            bake.drawn(cache, name, lambda: self.fail('drawn again'))
+            bake.drawn(cache, 'other', draw)
+            self.assertEqual(len(drawn), 4)
+
+    def test_a_bake_says_how_long_each_stage_took(self):
+        said, ticks = [], iter([10.0, 12.5, 12.5, 20.0, 21.0])
+        mark, seconds = bake.stages(said.append, clock=lambda: next(ticks))
+        mark('split'); mark('nothing'); mark('reduce'); mark('split')  # a stage marked twice is added up
+        self.assertEqual(seconds, {'split': 3.5, 'nothing': 0.0, 'reduce': 7.5})
+        self.assertEqual(said, ['time: split 2.5 s', 'time: nothing 0.0 s', 'time: reduce 7.5 s', 'time: split 3.5 s'])
+
     def test_what_the_split_made_is_drawn_by_the_part_it_is_on(self):
         made = np.array([split.OWN, split.CLOSING, split.CAP, split.GUSSET, split.WALL, split.PADDED])
         flags = lambda name, key: bake.roles(name, made)[key].tolist()
@@ -481,7 +512,7 @@ class BakeTests(unittest.TestCase):
             models = bake.write(folder, out, tinted, bones, 'pmh0', 332)
             resources = Path(folder) / 'resources'
             self.assertEqual(bodyskin.image((resources / 'pmh0_bicepl332n.tga').read_bytes()).shape, (8, 8, 3))
-            self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (2, 2, 3))  # at half size, as before
+            self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (4, 4, 3))  # whole too: no longer at half size
             rough = bodyskin.image((resources / 'pmh0_bicepl332r.tga').read_bytes())[..., 0]
             self.assertTrue(np.allclose(rough, arm_part['skin_rough'] / 255, atol=1 / 255))
             self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r', 'roughness': 0.0})
@@ -499,7 +530,7 @@ class BakeTests(unittest.TestCase):
             (output / 'ascii' / 'pmh0_chest331.mdl').write_text('')  # an earlier run's, under another number
             (output / 'ascii' / 'pmh0_shol332.mdl').write_text('')  # and a part this outfit does not have
             tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
-            with mock.patch.object(bake, 'tints', lambda parts, document: (tinted, {'materials': []})), \
+            with mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
                     mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}, {})), \
                     mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({'waist': {}}, [])), \
                     mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({'waist': {}}, [])), \
@@ -510,6 +541,22 @@ class BakeTests(unittest.TestCase):
             self.assertEqual((record['compiled'], record['models'], record['gates']['passed'], record['gates']['seams']),
                              (2, {'chest': 'pmh0_chest332', 'pelvis': 'pmh0_pelvis332'}, True, {'waist': {}}))
             self.assertEqual(json.loads((output / 'bake.json').read_text(encoding='utf-8')), record)
+
+    def test_a_fresh_bakes_stages_are_in_its_record(self):
+        # the bake's own stages were said in the log and left out of the record: `run` gives the bake its count
+        parts = {'chest': part()}
+        tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
+
+        def baked(*given, mark=None):
+            mark('split')
+            return parts, {'torso_g': np.eye(4)}, None
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(bake, 'bake', baked), \
+                mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
+                mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
+                mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({}, [])), \
+                mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({}, [])):
+            record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, mesh='m', colours='c', raw='r', xatlas='x')
+        self.assertEqual(list(record['seconds']), ['split', 'tint', 'write', 'gates'])
 
     def test_parts_kept_apart_are_combined_into_one_outfit(self):
         document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
@@ -547,7 +594,7 @@ class BakeTests(unittest.TestCase):
                  ({'chest': part(), 'bicepl': skin}, None, plain),  # and with it, where the brief shows none
                  ({'chest': part()}, {**plain, 'bare': ['forearm']}, plain))  # no forearm, left to the body by the brief baked from and no longer
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
-                mock.patch.object(bake, 'tints', lambda parts, document: self.fail('tinted')):
+                mock.patch.object(bake, 'tints', lambda parts, document, **given: self.fail('tinted')):
             for parts, baked_from, brief in cases:
                 bake.store(parts, Path(folder) / 'kept', baked_from)
                 with self.assertRaisesRegex(ValueError, 'bake the outfit again'):

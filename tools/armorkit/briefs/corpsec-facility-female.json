@@ -10,6 +10,7 @@
   "bicep"
  ],
  "construction": 3,
+ "wear": 0.3,
  "materials": [
   {
    "name": "fabric",
@@ -18,6 +19,11 @@
     128,
     128,
     128
+   ],
+   "suggested": [
+    38,
+    48,
+    72
    ],
    "look": "MEDIUM NEUTRAL GREY cloth",
    "wears": "the uniform shirt with short work-shirt sleeves, and the cargo trousers with thigh pockets. A plain trouser waistband with the shirt tucked in. The trouser legs are tucked into the boots."
@@ -30,6 +36,11 @@
     160,
     110
    ],
+   "suggested": [
+    46,
+    42,
+    38
+   ],
    "look": "WARM TAN, like khaki canvas and tan leather",
    "wears": "the soft fabric plate carrier vest, the row of pouches across the stomach, the short tactical gloves, and the lace-up combat boots, which are tan suede with tan soles and tan laces and end a hand above the ankle. The gloves are plain tan fabric all over, close-fitting, ending at the wrist in a plain narrow hem. The vest is soft fabric, the same tan as the pouches, cut as a women's vest that is shaped over the bust; its two shoulder straps lie close to the collar, well inside the sleeve seams; it is narrow at the sides and ends well short of the armpits. Also tan: the two straps that hold each shin guard on, each a broad flat band of tan webbing round the shin with a plain tan buckle. Every strap and buckle in the outfit is this same tan."
   },
@@ -40,6 +51,11 @@
     120,
     170,
     230
+   ],
+   "suggested": [
+    52,
+    56,
+    62
    ],
    "look": "BRIGHT LIGHT SKY BLUE hard plastic, a saturated baby blue (hex #78AAE6), clearly coloured and as light as the tan",
    "wears": "exactly four hard shells, all below the knees: a knee pad on each knee and a shin guard on each shin, the two legs alike. Each knee pad is one rounded shell centred on the knee, sewn flat onto the trouser leg. Each shin guard is one long shell on the front of the shin, starting a hand below its knee pad, with a band of grey trouser showing between the two, and ending at the top of the boot. Every shell is plainly bright sky blue all over."
