@@ -21,11 +21,6 @@
    },
    "channels": [
     "cloth1",
-    "cloth2",
-    "leather1",
-    "leather2",
-    "metal1",
-    "metal2",
     "skin"
    ],
    "badge": null,
@@ -57,31 +52,6 @@
      38,
      48,
      72
-    ],
-    "cloth2": [
-     38,
-     48,
-     72
-    ],
-    "leather1": [
-     46,
-     42,
-     38
-    ],
-    "leather2": [
-     46,
-     42,
-     38
-    ],
-    "metal1": [
-     52,
-     56,
-     62
-    ],
-    "metal2": [
-     52,
-     56,
-     62
     ]
    },
    "table": "parts_bicep",
@@ -206,10 +176,7 @@
    "channels": [
     "cloth1",
     "cloth2",
-    "leather1",
-    "leather2",
-    "metal1",
-    "metal2"
+    "leather1"
    ],
    "badge": null,
    "bodies": [
@@ -250,21 +217,6 @@
      46,
      42,
      38
-    ],
-    "leather2": [
-     46,
-     42,
-     38
-    ],
-    "metal1": [
-     52,
-     56,
-     62
-    ],
-    "metal2": [
-     52,
-     56,
-     62
     ]
    },
    "table": "parts_chest",
@@ -361,12 +313,7 @@
     "headgear": false
    },
    "channels": [
-    "cloth1",
-    "cloth2",
-    "leather1",
-    "leather2",
-    "metal1",
-    "metal2"
+    "leather2"
    ],
    "badge": null,
    "bodies": [
@@ -393,35 +340,10 @@
    ],
    "mesh": "rigid",
    "colours": {
-    "cloth1": [
-     38,
-     48,
-     72
-    ],
-    "cloth2": [
-     38,
-     48,
-     72
-    ],
-    "leather1": [
-     46,
-     42,
-     38
-    ],
     "leather2": [
      46,
      42,
      38
-    ],
-    "metal1": [
-     52,
-     56,
-     62
-    ],
-    "metal2": [
-     52,
-     56,
-     62
     ]
    },
    "table": "parts_foot",
@@ -543,11 +465,7 @@
    },
    "channels": [
     "cloth1",
-    "cloth2",
-    "leather1",
-    "leather2",
-    "metal1",
-    "metal2"
+    "leather2"
    ],
    "badge": null,
    "bodies": [
@@ -579,30 +497,10 @@
      48,
      72
     ],
-    "cloth2": [
-     38,
-     48,
-     72
-    ],
-    "leather1": [
-     46,
-     42,
-     38
-    ],
     "leather2": [
      46,
      42,
      38
-    ],
-    "metal1": [
-     52,
-     56,
-     62
-    ],
-    "metal2": [
-     52,
-     56,
-     62
     ]
    },
    "table": "parts_hand",
@@ -724,12 +622,9 @@
     "headgear": false
    },
    "channels": [
-    "cloth1",
     "cloth2",
     "leather1",
-    "leather2",
-    "metal1",
-    "metal2"
+    "leather2"
    ],
    "badge": null,
    "bodies": [
@@ -756,11 +651,6 @@
    ],
    "mesh": "rigid",
    "colours": {
-    "cloth1": [
-     38,
-     48,
-     72
-    ],
     "cloth2": [
      38,
      48,
@@ -775,16 +665,6 @@
      46,
      42,
      38
-    ],
-    "metal1": [
-     52,
-     56,
-     62
-    ],
-    "metal2": [
-     52,
-     56,
-     62
     ]
    },
    "table": "parts_pelvis",
@@ -882,11 +762,8 @@
     "headgear": false
    },
    "channels": [
-    "cloth1",
     "cloth2",
-    "leather1",
     "leather2",
-    "metal1",
     "metal2"
    ],
    "badge": null,
@@ -914,30 +791,15 @@
    ],
    "mesh": "rigid",
    "colours": {
-    "cloth1": [
-     38,
-     48,
-     72
-    ],
     "cloth2": [
      38,
      48,
      72
     ],
-    "leather1": [
-     46,
-     42,
-     38
-    ],
     "leather2": [
      46,
      42,
      38
-    ],
-    "metal1": [
-     52,
-     56,
-     62
     ],
     "metal2": [
      52,
@@ -1064,11 +926,8 @@
     "headgear": false
    },
    "channels": [
-    "cloth1",
     "cloth2",
-    "leather1",
     "leather2",
-    "metal1",
     "metal2"
    ],
    "badge": null,
@@ -1096,30 +955,15 @@
    ],
    "mesh": "rigid",
    "colours": {
-    "cloth1": [
-     38,
-     48,
-     72
-    ],
     "cloth2": [
      38,
      48,
      72
     ],
-    "leather1": [
-     46,
-     42,
-     38
-    ],
     "leather2": [
      46,
      42,
      38
-    ],
-    "metal1": [
-     52,
-     56,
-     62
     ],
     "metal2": [
      52,
