@@ -397,6 +397,9 @@ keeps its thickness and shape but its depth midline moves onto the plane of the 
 outside the span, fading in up to the outer distance (wave-6 Monofilament Sword).
 It refuses a band that the blade or grip outside the span reaches, and its
 `level-map.npz` carries to the donor and shell like the others.
+When one `drive textured --straight DIR` folder holds several maps, each map's
+measuring report (`straighten.json`, `thin.json`, `level.json`) must sit beside it
+and show it was measured on the previous map's output; otherwise the step refuses.
 
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default

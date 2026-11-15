@@ -294,6 +294,7 @@ class ReviewerTests(unittest.TestCase):
         self.assertIn('if(prefix=="sw2_")return 2;', text)
         self.assertIn('if(pair<3)return "sw2_";', text)
         with self.assertRaisesRegex(P.PublishError, 'complete pairs'): P.groups_of(['sw1_m0'])
+        self.assertEqual(P.groups_of(['sw01_m0', 'sw01_f0']), [])     # the scripts read the literal prefix: no leading zero
 
     def test_new_pairs_fill_groups_of_five_along_the_southern_row(self):
         packages = [P.Package(f'i{n}', Path('.'), f'Item {n}', f'bp{n}', 1, 111, Path('h'), Path('m')) for n in range(7)]

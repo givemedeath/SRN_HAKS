@@ -63,7 +63,7 @@ ROW_Y = {'m': ROWS[0][0], 'f': ROWS[0][1]}   # the southern row
 ROW_START = 5.0
 ROW_STEP = 3.5
 TILE = 10.0
-REVIEWER = re.compile(r'^sw(\d+)_([mf])([0-4])$')
+REVIEWER = re.compile(r'^sw([1-9]\d*)_([mf])([0-4])$')   # no leading zero: the scripts read the literal prefix
 WORDS = ('zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen '
          'seventeen eighteen nineteen').split()
 TENS = 'twenty thirty forty fifty sixty seventy eighty ninety'.split()

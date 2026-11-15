@@ -157,6 +157,17 @@ class AutofitTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'tear'): s.narrow(moved, folder/'torn', map_path=folder/'out/narrow-map.npz')
             self.assertFalse((folder/'torn').exists())                    # a refused run leaves no folder to block a retry
 
+    def test_level_offsets_each_arm_from_its_own_bins_only(self):
+        # Between the band's inner edge and an arm's first bin centre the offset holds that arm's value; one interpolation
+        # over both arms would blend toward the opposite arm's first bin (review of #163).
+        mapping = {'mean': np.zeros(3), 'axes': np.eye(3), 'span': np.array([-1., 1.]), 'centre': 0., 'band': np.array([.03, .05]),
+                   'widths': np.array([-.06, -.04, .04, .06]), 'offsets': np.array([-.01, -.01, .01, .01])}
+        p = np.array([[0., .035, 0.], [0., -.035, 0.], [0., .02, 0.]]); out = s.apply_level(p, mapping)
+        weight = .25 * .25 * (3 - 2 * .25)
+        np.testing.assert_allclose(out[:, 2], [-weight * .01, weight * .01, 0], atol=1e-12)
+        one_sided = dict(mapping, widths=np.array([.04, .06]), offsets=np.array([.01, .01]))
+        np.testing.assert_allclose(s.apply_level(p, one_sided)[:, 2], [-weight * .01, 0, 0], atol=1e-12)   # a bare arm stays
+
     def test_level_shears_curled_guard_arms_back_into_the_blade_plane(self):
         flat = pommelled(); arms = (flat[:, 0] >= -.02) & (flat[:, 0] <= 0) & (np.abs(flat[:, 1]) > .035)
         p = flat.copy(); p[arms, 2] += .2 * (np.abs(p[arms, 1]) - .035)      # both arms curl to one face, 17 mm at the tips

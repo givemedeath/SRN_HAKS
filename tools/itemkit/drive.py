@@ -335,8 +335,17 @@ class Driver:
         if not complete(): raise SystemExit(f'{design}: the donor stage did not complete; see {run}')
         donor = next(Path(recorded()['path']).parent.rglob('textured-donor.glb'))
         family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
-        # Each map applies to the previous result, so the maps in --straight must have been measured in this same order.
-        for kind, name in (('straighten', 'straightened'), ('thin', 'thinned'), ('level', 'levelled')):
+        # Each map applies to the previous result, so the maps in --straight must have been measured in this same order:
+        # with more than one map, each one's measuring report must show it was measured on the previous one's output.
+        kinds = (('straighten', 'straightened'), ('thin', 'thinned'), ('level', 'levelled'))
+        present = [kind for kind, _ in kinds if straight and (Path(straight)/f'{kind}-map.npz').exists()]
+        for before, after in zip(present, present[1:]):
+            reports = [Path(straight)/f'{k}.json' for k in (before, after)]
+            missing = [str(r) for r in reports if not r.is_file()]
+            if missing: raise SystemExit(f'{straight} holds several maps: their measuring reports must sit beside them ({", ".join(missing)})')
+            if read(reports[1])['source']['sha256'] != read(reports[0])['output']['sha256']:
+                raise SystemExit(f'{straight}: the {after} map was not measured on the {before} output, so it cannot follow it')
+        for kind, name in kinds:
             mapping = Path(straight)/f'{kind}-map.npz' if straight else None
             if mapping and mapping.exists():
                 out = self.ws.items/design/f'donor-v1-{name}'

@@ -545,10 +545,19 @@ def level_guard(positions, mapping):
 def apply_level(positions, mapping, normals=None):
     positions = np.asarray(positions, float); mean, axes = mapping['mean'], mapping['axes']
     (t0, t1), (c, w0), centre = mapping['span'], mapping['band'], float(mapping['centre'])
+    widths, offsets = np.asarray(mapping['widths'], float), np.asarray(mapping['offsets'], float)
+    def side_offsets(a):
+        # Each arm reads only its own bins: one np.interp across both would blend the first bins of opposite arms
+        # for points between the band and an arm's first bin centre. An arm with no bins is not moved.
+        out = np.zeros_like(a)
+        for sign in (-1, 1):
+            rows, bins = np.sign(a) == sign, np.sign(widths) == sign
+            if bins.any(): out[rows] = np.interp(a[rows], widths[bins], offsets[bins])
+        return out
     def transform(points):
         p = (points - mean) @ axes; a = p[:, 1] - centre; inside = (p[:, 0] >= t0) & (p[:, 0] <= t1)
         x = np.clip((np.abs(a) - c) / (w0 - c), 0, 1); weight = x * x * (3 - 2 * x)
-        p[:, 2] = p[:, 2] - np.where(inside, weight * np.interp(a, mapping['widths'], mapping['offsets']), 0)
+        p[:, 2] = p[:, 2] - np.where(inside, weight * side_offsets(a), 0)
         return p @ axes.T + mean
     moved = transform(positions)
     if normals is None: return moved

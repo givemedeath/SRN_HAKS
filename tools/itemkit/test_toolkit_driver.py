@@ -1,4 +1,5 @@
 """The promoted wave tooling: carrier measurement, hafted fits, texture outliers, contracts budgets and the driver."""
+import io
 import json
 import os
 from pathlib import Path
@@ -452,7 +453,9 @@ class SiblingSlotTests(unittest.TestCase):
             # a new contract under the retired file name is live (Codex review on #163): the record binds the old bytes
             (root/'mixed'/'family-abandoned.json').write_text(json.dumps({'family': 'club', 'nativePackaging': 'enabled',
                 'native': {'itemClass': 'wblcl'}, 'resources': {'texturePrefix': 'srnew', 'appearanceIndex': 3}}), encoding='utf-8')
-            self.assertEqual(retired_contracts(root/'mixed'), set())
+            with mock.patch('sys.stderr', new_callable=io.StringIO) as err:
+                self.assertEqual(retired_contracts(root/'mixed'), set())
+            self.assertIn('changed since it was retired', err.getvalue())   # the lapse is reported, not silent
             self.assertIn('wblcl_b_031.mdl', sibling_models(root, mine, 'wblcl'))
 
     def test_a_base_contracts_reviewed_grip_origin_is_kept_and_disagreement_refused(self):
@@ -686,6 +689,17 @@ class WorkspaceAndDriverTests(unittest.TestCase):
                 self.assertTrue(d.textured('blade', 'a1', 'src', 'approved')['texturedDonor'].endswith('textured-donor.glb'))
                 d.textured('blade', 'a1', 'src', 'approved')
             self.assertEqual(stage.call_count, 1)                        # the failed attempt ran again; the complete one is reused
+            # several maps in --straight must chain: each measured on the previous one's output (review of #163)
+            maps = root/'maps'; maps.mkdir()
+            for kind in ('straighten', 'level'): (maps/f'{kind}-map.npz').write_bytes(b'npz')
+            with mock.patch.object(Driver, 'python') as python, mock.patch.object(Driver, 'views', return_value={}):
+                with self.assertRaisesRegex(SystemExit, 'measuring reports must sit beside them'):
+                    d.textured('blade', 'a1', 'src', 'approved', straight=str(maps))
+                (maps/'straighten.json').write_text(json.dumps({'source': {'sha256': 'clay'}, 'output': {'sha256': 'straight'}}), encoding='utf-8')
+                (maps/'level.json').write_text(json.dumps({'source': {'sha256': 'clay'}, 'output': {'sha256': 'level'}}), encoding='utf-8')
+                with self.assertRaisesRegex(SystemExit, 'level map was not measured on the straighten output'):
+                    d.textured('blade', 'a1', 'src', 'approved', straight=str(maps))
+                python.assert_not_called()
             (run/'donor/attempt-ok/receipt.json').write_text(json.dumps({'state': 'failed'}), encoding='utf-8')
             with mock.patch.object(Driver, 'stage'), self.assertRaisesRegex(SystemExit, 'did not complete'):
                 d.textured('blade', 'a1', 'src', 'approved')

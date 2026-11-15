@@ -110,7 +110,13 @@ def retired_contracts(folder):
     rows = json.loads(path.read_text(encoding='utf-8')).get('contracts', [])
     require(all(isinstance(r.get('reason'), str) and r['reason'].strip() and r.get('date') and r.get('contract') and r.get('sha256')
                 for r in rows), f'{path}: every retired contract needs a reason, a date and its hash')
-    return {r['contract'] for r in rows if (Path(folder)/r['contract']).is_file() and sha(Path(folder)/r['contract']) == r['sha256']}
+    retired = set()
+    for r in rows:
+        file = Path(folder)/r['contract']
+        if not file.is_file(): continue
+        if sha(file) == r['sha256']: retired.add(r['contract'])
+        else: print(f'{file}: changed since it was retired ({r["date"]}); its slot counts as taken again', file=sys.stderr)
+    return retired
 
 
 def sibling_models(contracts, own, item_class):
