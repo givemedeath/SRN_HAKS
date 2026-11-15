@@ -290,12 +290,16 @@ def _sent(path, output):
     picture's hash, what is there, the record as read). What is there is None for nothing, 'made' for the picture
     `enlarge` made of this chosen one, 'failed' for the receipt of a job that failed (`design._execute` leaves one,
     with or without a picture: it is no reference made) and 'other' for anything else, a picture of another one
-    chosen under the name before or one with no record."""
+    chosen under the name before, one with no record, or one whose record cannot be read."""
     target, record = Path(output) / path.name, Path(output) / f'{path.name[:-len("-b0.png")]}.json'
     sha = hashlib.sha256(path.read_bytes()).hexdigest()
     if not (target.exists() or record.exists()):
         return target, record, sha, None, {}
-    was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
+    try:
+        was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
+    except ValueError:  # cut short or edited: said as any other record that is not this picture's, by name
+        was = {}
+    was = was if isinstance(was, dict) else {}
     there = 'failed' if was.get('state') == 'failed' else 'made' if target.is_file() and was.get('source') == sha else 'other'
     return target, record, sha, there, was
 

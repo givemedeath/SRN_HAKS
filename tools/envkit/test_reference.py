@@ -369,6 +369,9 @@ class MakeTests(unittest.TestCase):
         Image.new('RGB', (2048, 16)).save(sent / 'lamp-s1-b0.png')
         with self.assertRaisesRegex(ValueError, r'enlarging that failed \(queue busy\)'):
             reference.enlarge(None, None, None, selected, sent, say=quiet)
+        (sent / 'lamp-s1.json').write_text('{"source": "' + source[:20], encoding='utf-8')  # a record cut short is told by name, not as a JSON error
+        with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png was not made from the lamp-s1-b0.png chosen now'):
+            reference.enlarge(None, None, None, selected, sent, say=quiet)
         with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png'):
             reference.sent_current(selected, sent)
 

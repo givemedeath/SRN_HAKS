@@ -494,8 +494,9 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   glows (a screen, a sign, an indicator, strip lights in a case). The Chop Shop clinic's surgical lamp was
   converted with glowing lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are
   checking for when props need lights from now on", "it should only be for things that should be bright"). A row
-  holds one light: of several lamps on one prop, light the middle one, a little under its lens along the way it
-  faces. See it in `check props --mode night`, the ground and the figures lit round it.
+  holds one light: of several lamps on one prop it stands at one of them, at or just inside its housing (where, and
+  why not under the lens or between two lamps, is told next). See it in `check props --mode night`, the ground and
+  the figures lit round it.
   The game draws a star-shaped flare where the light stands. It shows through a thin part of the model round it
   (a beam 0.2 metres thick, a lamp's housing) and is hidden only by what stands well in front of it. One light
   for two lamps apart (a gate's posts) or a row of them (three booths), set between or above them, hangs a star in
