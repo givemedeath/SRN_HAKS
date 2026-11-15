@@ -353,8 +353,6 @@
     "tools/envkit/__init__.py": [],
     "tools/envkit/__main__.py": [
       "docs/additions/catalog.json",
-      "tools/armorkit/__init__.py",
-      "tools/armorkit/export.py",
       "tools/envkit/additions.py",
       "tools/envkit/checks.py",
       "tools/envkit/convert.py",
@@ -449,6 +447,9 @@
       "tools/envkit/prop_fixture.py"
     ],
     "tools/envkit/test_convert.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/toolchain.py",
       "tools/envkit/convert.py",
       "tools/envkit/glow.py",
       "tools/envkit/prop_fixture.py"
