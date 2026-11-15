@@ -169,9 +169,11 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
     for kind in counts: check_budgets(counts[kind], profile['budgets'], kind)
     # BioWare DDS twins of the diffuse (DXT1) and every icon (DXT5), from one converter resolution.
     twins = [(output/'resources'/f'{texture_name}.tga', 'DXT1')] + [(output/'resources'/f"{allocation['icons'][p]}.tga", 'DXT5') for p in PARTS]
-    crunch = dds_converter([tga for tga, _ in twins])
+    # The converter's pin is frozen before the first conversion and verified after the last, so a binary that changes
+    # during the batch invalidates the preparation instead of recording a hash some of its DDS files did not come from.
+    crunch = dds_converter([tga for tga, _ in twins]); converter = pin(crunch)
     for tga, compression in twins: nwn_dds(tga, tga.with_suffix('.dds'), compression, crunch=crunch)
-    converter = pin(crunch)
+    verify([converter], fresh=True)
     result = {'allocation': allocation, 'baseItem': native['baseItem'], 'texture': texture_name,
               'expected': expected, 'budgets': counts, 'clientValidated': False, 'productionAccepted': False}
     if profile.get('resources'): result['identity'] = profile['resources']
@@ -248,7 +250,8 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
     resources = sorted((converted/'resources').iterdir())
     require(package_names_ok([p.name for p in resources], bool(preparation.get('ddsConverter'))), 'Unexpected package resources')
     target = output/(preparation.get('identity', {}).get('hak', 'srn_cougar_test')+'.hak'); write_verified_hak(target, resources)
-    verify(tool_inputs+preparation['inputs']+preparation['outputs'], fresh=True)
+    converter = [preparation['ddsConverter']] if preparation.get('ddsConverter') else []
+    verify(tool_inputs+converter+preparation['inputs']+preparation['outputs'], fresh=True)
     result = {'hak': pin(target), 'resources': [pin(p) for p in resources], 'audits': audits,
               'allocation': preparation['allocation'], 'baseItem': preparation['baseItem'],
               'clientValidated': False, 'productionAccepted': False}

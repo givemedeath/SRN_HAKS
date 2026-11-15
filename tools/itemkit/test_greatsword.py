@@ -45,6 +45,11 @@ class GreatswordTests(Fixture):
             result=native.prepare(self.profile_path,self.profile,arrays,texture,icons,out)
         self.assertEqual(sorted(p.name for p in (out/'resources').glob('*.dds')),
                          sorted([result['texture']+'.dds']+[n+'.dds' for n in result['allocation']['icons'].values()]))
+        # A converter that changes during the DDS batch invalidates the preparation.
+        fake=self.root/'crunch.exe';fake.write_bytes(b'v1')
+        def drifting(tga,target,compression='DXT5',*,crunch=None):twin(tga,target,compression);fake.write_bytes(b'v2')
+        with patch.object(native,'dds_converter',lambda inputs:fake),patch.object(native,'nwn_dds',drifting):
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):native.prepare(self.profile_path,self.profile,arrays,texture,icons,self.root/'drift')
         for part,name in result['allocation']['icons'].items():
             with Image.open(out/'resources'/(name+'.tga')) as padded,Image.open(icons[part]['path']) as source:
                 self.assertEqual(padded.size,(64,256));self.assertTrue(np.array_equal(np.asarray(padded)[:160],np.asarray(source)))
