@@ -1385,6 +1385,176 @@
    "added": "2026-11-15",
    "blueprint": "ek_pt_drone",
    "category": 161
+  },
+  {
+   "row": 22833,
+   "model": "ek_aw_kiosk",
+   "label": "[envkit]Aurora Warrens, Entry Shack",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_aw_kiosk",
+    "out": "ek_aw_kiosk_o",
+    "glow": "ek_aw_kiosk_i",
+    "halo": "ek_aw_kiosk_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_kiosk",
+   "category": 161
+  },
+  {
+   "row": 22834,
+   "model": "ek_aw_stairs",
+   "label": "[envkit]Aurora Warrens, Caged Stairwell",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_stairs",
+   "category": 161
+  },
+  {
+   "row": 22835,
+   "model": "ek_aw_balcony",
+   "label": "[envkit]Aurora Warrens, Balcony Segment",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_balcony",
+   "category": 161
+  },
+  {
+   "row": 22836,
+   "model": "ek_aw_gen",
+   "label": "[envkit]Aurora Warrens, Utility Generator",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_gen",
+   "category": 161
+  },
+  {
+   "row": 22837,
+   "model": "ek_aw_tank",
+   "label": "[envkit]Aurora Warrens, Water Tank",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_tank",
+   "category": 161
+  },
+  {
+   "row": 22838,
+   "model": "ek_aw_shack",
+   "label": "[envkit]Aurora Warrens, Rooftop Shack",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_shack",
+   "category": 161
+  },
+  {
+   "row": 22839,
+   "model": "ek_aw_barrier",
+   "label": "[envkit]Aurora Warrens, Scrap Barrier",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_barrier",
+   "category": 158
+  },
+  {
+   "row": 22840,
+   "model": "ek_aw_bodega",
+   "label": "[envkit]Aurora Warrens, Bodega Kiosk",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_aw_bodega",
+    "out": "ek_aw_bodega_o",
+    "glow": "ek_aw_bodega_i",
+    "halo": "ek_aw_bodega_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_bodega",
+   "category": 174
+  },
+  {
+   "row": 22841,
+   "model": "ek_aw_laundry",
+   "label": "[envkit]Aurora Warrens, Laundry Line",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_laundry",
+   "category": 161
+  },
+  {
+   "row": 22842,
+   "model": "ek_aw_trash",
+   "label": "[envkit]Aurora Warrens, Trash Pile",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_trash",
+   "category": 158
+  },
+  {
+   "row": 22843,
+   "model": "ek_aw_graffiti",
+   "label": "[envkit]Aurora Warrens, Graffiti Wall",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_graffiti",
+   "category": 158
+  },
+  {
+   "row": 22844,
+   "model": "ek_aw_namewall",
+   "label": "[envkit]Aurora Warrens, Name Wall",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_namewall",
+   "category": 156
+  },
+  {
+   "row": 22845,
+   "model": "ek_aw_crates",
+   "label": "[envkit]Aurora Warrens, Crates on Pallets",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens props",
+   "added": "2026-11-15",
+   "blueprint": "ek_aw_crates",
+   "category": 164
   }
  ],
  "tileGroups": [
@@ -1877,6 +2047,42 @@
    "added": "2026-11-15"
   },
   {
+   "tileset": "dgt04",
+   "group": 64,
+   "name": "Aurora_Warrens",
+   "label": "Aurora Warrens 3x2",
+   "rows": 2,
+   "columns": 3,
+   "tiles": [
+    534,
+    535,
+    536,
+    537,
+    538,
+    539
+   ],
+   "models": [
+    "ek_aw_block_t00",
+    "ek_aw_block_t01",
+    "ek_aw_block_t02",
+    "ek_aw_block_t10",
+    "ek_aw_block_t11",
+    "ek_aw_block_t12"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_aw_block",
+    "out": "ek_aw_block_o",
+    "glow": "ek_aw_block_i",
+    "halo": "ek_aw_block_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens tile group",
+   "added": "2026-11-15"
+  },
+  {
    "tileset": "udp1",
    "group": 106,
    "name": "Stuffer_Shack",
@@ -2272,6 +2478,42 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/pulse-tech-game.json",
    "provenance": "Pulse Tech tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-15)",
+   "added": "2026-11-15"
+  },
+  {
+   "tileset": "udp1",
+   "group": 113,
+   "name": "Aurora_Warrens",
+   "label": "Aurora Warrens 3x2",
+   "rows": 2,
+   "columns": 3,
+   "tiles": [
+    776,
+    777,
+    778,
+    779,
+    780,
+    781
+   ],
+   "models": [
+    "ek_aw_block_t00",
+    "ek_aw_block_t01",
+    "ek_aw_block_t02",
+    "ek_aw_block_t10",
+    "ek_aw_block_t11",
+    "ek_aw_block_t12"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_aw_block",
+    "out": "ek_aw_block_o",
+    "glow": "ek_aw_block_i",
+    "halo": "ek_aw_block_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/aurora-warrens-game.json",
+   "provenance": "Aurora Warrens tile group",
    "added": "2026-11-15"
   }
  ]
