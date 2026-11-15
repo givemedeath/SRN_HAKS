@@ -201,6 +201,7 @@
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/registry.py"
     ],
+    "tools/armorkit/test_collected.py": [],
     "tools/armorkit/test_ends.py": [
       "tools/armorkit/bake.py",
       "tools/armorkit/ends.py",
@@ -5638,6 +5639,7 @@
     "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
+    "tools/armorkit/test_collected.py",
     "tools/armorkit/test_ends.py",
     "tools/armorkit/test_export.py",
     "tools/armorkit/test_generate.py",
