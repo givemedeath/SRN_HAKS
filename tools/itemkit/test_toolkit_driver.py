@@ -430,6 +430,26 @@ class SiblingSlotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'already retired'): retire(root/'abandoned', 'again', '2026-11-13')
             with self.assertRaisesRegex(ValueError, 'no family contracts'): retire(root/'missing', 'why', '2026-11-13')
 
+    def test_one_contract_of_a_folder_is_retired_and_gives_its_slot_back(self):
+        from tools.itemkit.family_contract import retire, retired, retired_contracts, sibling_models
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for wave, name, index in (('mixed', 'published', 1), ('mixed', 'abandoned', 2), ('live', 'mine', None)):
+                (root/wave).mkdir(exist_ok=True)
+                (root/wave/f'family-{name}.json').write_text(json.dumps({'family': 'club', 'nativePackaging': 'enabled',
+                                                                         'native': {'itemClass': 'wblcl'}, 'resources': {
+                    'texturePrefix': 'sr' + name, **({'appearanceIndex': index} if index else {})}}), encoding='utf-8')
+            mine = root/'live/family-mine.json'
+            with self.assertRaisesRegex(ValueError, 'no contract family-missing.json'):
+                retire(root/'mixed', 'why', '2026-11-15', ['family-missing.json'])
+            record = retire(root/'mixed', 're-contracted in live', '2026-11-15', ['family-abandoned.json'])
+            self.assertEqual(record['contracts'], ['family-abandoned.json']); self.assertIsNone(retired(root/'mixed'))
+            self.assertEqual(retired_contracts(root/'mixed'), {'family-abandoned.json'})
+            taken = sibling_models(root, mine, 'wblcl')
+            self.assertIn('wblcl_b_011.mdl', taken); self.assertNotIn('wblcl_b_021.mdl', taken)
+            with self.assertRaisesRegex(ValueError, 'already retired'):
+                retire(root/'mixed', 'again', '2026-11-15', ['family-abandoned.json'])
+
     def test_a_base_contracts_reviewed_grip_origin_is_kept_and_disagreement_refused(self):
         from tools.itemkit.family_contract import base_grip_origin
         with tempfile.TemporaryDirectory() as tmp:
@@ -598,6 +618,24 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             for k, name in enumerate(('old-contract', 'calibrated-v1', 'loose-v1', 'new-contract')):
                 os.utime(h/f'axe.{name}.asset.json', (1e9 + k, 1e9 + k))
             self.assertEqual(d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')['contracts'], ['family-axe.json'])
+
+    def test_only_the_named_contracts_of_a_folder_need_to_have_moved_on(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Driver(self.workspace(Path(tmp))); h = d.ws.handoff; (h/'contracts/old').mkdir(parents=True); (h/'contracts/new').mkdir()
+            for folder, name in (('old', 'bat'), ('old', 'axe'), ('new', 'axe')):
+                (h/f'contracts/{folder}/family-{name}.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            pin = lambda folder, name: json.dumps({'familyProfile': {'path': f'contracts/{folder}/family-{name}.json'}})
+            rows = (('bat.old-contract', 'old', 'bat'), ('bat.fit-v1', 'old', 'bat'),      # published from the old folder
+                    ('axe.old-contract', 'old', 'axe'), ('axe.new-contract', 'new', 'axe'))  # moved on to the new one
+            for k, (stem, folder, name) in enumerate(rows):
+                (h/f'{stem}.asset.json').write_text(pin(folder, name), encoding='utf-8'); os.utime(h/f'{stem}.asset.json', (1e9 + k, 1e9 + k))
+            with self.assertRaisesRegex(SystemExit, r'bat\.fit-v1'): d.retire_contracts('contracts/old', 'abandoned', '2026-11-15')
+            with self.assertRaisesRegex(SystemExit, 'not retired'):
+                d.retire_contracts('contracts/old', 'abandoned', '2026-11-15', ['family-bat.json'])
+            record = d.retire_contracts('contracts/old', 'axe re-contracted', '2026-11-15', ['family-axe.json'])
+            self.assertEqual(record['contracts'], ['family-axe.json'])
+            self.assertTrue((h/'contracts/old/retired-contracts.json').exists()); self.assertFalse((h/'contracts/old/retired.json').exists())
 
     def test_textured_refuses_a_field_range_an_existing_donor_manifest_does_not_hold(self):
         from tools.itemkit.drive import Driver

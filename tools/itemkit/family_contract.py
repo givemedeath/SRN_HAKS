@@ -75,26 +75,53 @@ def retired(folder):
     return record
 
 
-def retire(folder, reason, today):
+def retire(folder, reason, today, contracts=None):
     """Mark an abandoned or test contract folder retired, so its appearance slots are free again (sibling_models).
 
-    Its files stay as they are: a manifest that pins one of its contracts still verifies, but nothing new is built on it."""
+    With `contracts` (family file names), only those contracts are retired, in RETIRED_CONTRACTS: a folder that also
+    holds published contracts (wave 2's v2 holds the Bat and Stun Staff) keeps them while its abandoned ones (the
+    Baton and Tomahawk, re-contracted in v3) give their slots back. Its files stay as they are: a manifest that pins one
+    of its contracts still verifies, but nothing new is built on it."""
     folder = Path(folder); require(folder.is_dir() and any(folder.glob('family-*.json')), f'{folder} holds no family contracts')
     require(reason.strip(), 'Retiring a contract folder needs the reason'); require(retired(folder) is None, f'{folder} is already retired')
-    record = {'reason': reason, 'date': today, 'contracts': sorted(p.name for p in folder.glob('family-*.json'))}
-    (folder/RETIRED).write_text(json.dumps(record, indent=2), encoding='utf-8')
-    return record
+    if contracts is None:
+        record = {'reason': reason, 'date': today, 'contracts': sorted(p.name for p in folder.glob('family-*.json'))}
+        (folder/RETIRED).write_text(json.dumps(record, indent=2), encoding='utf-8')
+        return record
+    names = sorted(set(contracts)); done = retired_contracts(folder)
+    for name in names:
+        require(Path(name).name == name and name.startswith('family-') and (folder/name).is_file(), f'{folder} holds no contract {name}')
+        require(name not in done, f'{name} is already retired')
+    rows = [{'contract': name, 'sha256': sha(folder/name), 'reason': reason, 'date': today} for name in names]
+    path = folder/RETIRED_CONTRACTS; book = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {'contracts': []}
+    book['contracts'] += rows; path.write_text(json.dumps(book, indent=2), encoding='utf-8')
+    return {'reason': reason, 'date': today, 'contracts': names}
+
+
+RETIRED_CONTRACTS = 'retired-contracts.json'
+
+
+def retired_contracts(folder):
+    """The family file names retired one by one in a contract folder (retire with `contracts`)."""
+    path = Path(folder)/RETIRED_CONTRACTS
+    if not path.exists(): return set()
+    rows = json.loads(path.read_text(encoding='utf-8')).get('contracts', [])
+    require(all(isinstance(r.get('reason'), str) and r['reason'].strip() and r.get('date') and r.get('contract') for r in rows),
+            f'{path}: every retired contract needs a reason and a date')
+    return {r['contract'] for r in rows}
 
 
 def sibling_models(contracts, own, item_class):
     """Model and icon names every other contract on this carrier already pinned, in any wave: not yet in any stack, still taken.
 
     Only one wave's folder was searched at first: wave 2's first contracts (2026-11-12) took the very slots the
-    unpublished wave-1 weapons hold on the same carriers. A retired folder (an abandoned wave, a test) holds none."""
+    unpublished wave-1 weapons hold on the same carriers. A retired folder (an abandoned wave, a test) holds none, nor
+    does a contract retired on its own."""
     from .contracts import model_names
-    taken = set(); live = {folder: retired(folder) is None for folder in Path(contracts).iterdir() if folder.is_dir()}
+    taken = set(); folders = [folder for folder in Path(contracts).iterdir() if folder.is_dir()]
+    live = {folder: retired(folder) is None for folder in folders}; dropped = {folder: retired_contracts(folder) for folder in folders}
     for path in Path(contracts).glob('*/family-*.json'):
-        if path == own or not live[path.parent]: continue
+        if path == own or not live[path.parent] or path.name in dropped[path.parent]: continue
         other = json.loads(path.read_text(encoding='utf-8')); index = other.get('resources', {}).get('appearanceIndex')
         if index is None or other.get('native', {}).get('itemClass') != item_class: continue
         for name in model_names(other, index).values(): taken |= {name.lower()+'.mdl', 'i'+name.lower()+'.tga'}
