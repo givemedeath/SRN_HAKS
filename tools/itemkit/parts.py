@@ -88,9 +88,11 @@ def side_grip_budgets(profile, manifest):
     if split is None: return profile
     require((manifest.get('fit') or {}).get('sideGrip') is True, 'Part budgets are re-split only for a side grip')
     budgets = profile['budgets']; parts = budgets['parts']
-    require(set(split) == set(parts) and set(parts) == set(active_parts(profile)), 'Re-split every active part, and only those')
+    require(isinstance(split, dict) and set(split) == set(parts) and set(parts) == set(active_parts(profile)),
+            'Re-split every active part, and only those')
+    require(all(isinstance(row, dict) and set(row) == {'visible', 'shadow'} for row in split.values()),
+            'Part budgets are visible and shadow only')
     for kind in ('visible', 'shadow'):
-        require(all(type(row.get(kind)) is int and row[kind] >= 4 for row in split.values()), f'Each part needs a {kind} budget of 4 or more')
+        require(all(type(row[kind]) is int and row[kind] >= 4 for row in split.values()), f'Each part needs a {kind} budget of 4 or more')
         require(sum(row[kind] for row in split.values()) <= budgets[kind], f'Re-split {kind} budgets exceed the family total')
-    require(all(set(row) == {'visible', 'shadow'} for row in split.values()), 'Part budgets are visible and shadow only')
     return {**profile, 'budgets': {**budgets, 'parts': {p: dict(split[p]) for p in parts}}}

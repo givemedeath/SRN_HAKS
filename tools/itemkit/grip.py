@@ -35,15 +35,23 @@ def section_dimensions(vertices, faces, y, around=None):
     return np.ptp(np.asarray(hits),axis=0)[[0,2]]
 
 
-def _enclosing_section(vertices, faces, y, around):
+def _welded(vertices, faces):
+    """Vertices merged where a glTF shell splits them at seams, so the plane cut's segments join into loops."""
+    v, weld = np.unique(np.asarray(vertices, float), axis=0, return_inverse=True)
+    return v, weld.reshape(-1)[np.asarray(faces)]
+
+
+def _enclosing_section(vertices, faces, y, around, welded=False):
     """The section outline (closed loop of the plane cut) that encloses `around`; the largest one when loops nest (a tube).
 
     Each face the plane crosses gives one segment between its two crossed edges; segments sharing an edge form a loop.
-    A plane through a vertex is nudged off it, so every crossed face has exactly two crossed edges. No scipy: this
-    also runs in the fit worker inside Blender."""
-    v = np.asarray(vertices, float); f = np.asarray(faces); point = np.asarray(around, float)
+    A loop encloses the point when a ray from it crosses the loop an odd number of times: a bounding box would also take
+    an outline curving round the grip without holding it (a frame bar beside a crossbar). A plane through a vertex is
+    nudged off it, so every crossed face has exactly two crossed edges. No scipy: this also runs in the fit worker
+    inside Blender. `welded` says the shell is already merged at its seams (`_welded`)."""
+    point = np.asarray(around, float)
     require(point.shape == (2,) and np.isfinite(point).all(), 'Grip axis point (x, z) required')
-    v, weld = np.unique(v, axis=0, return_inverse=True); f = weld.reshape(-1)[f]   # a glTF shell splits its vertices at seams
+    v, f = (np.asarray(vertices, float), np.asarray(faces)) if welded else _welded(vertices, faces)
     span = float(np.ptp(v[:, 1])) or 1.
     while np.any(np.abs(v[:, 1] - y) < 1e-9 * span): y += 1e-7 * span
     edges = np.sort(np.stack([f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]]], 1), axis=2)          # faces x 3 x 2
@@ -57,11 +65,16 @@ def _enclosing_section(vertices, faces, y, around):
         return i
     for a, b in index.reshape(-1, 2): parent[root(a)] = root(b)
     labels = np.array([root(i) for i in range(len(keys))])
-    a, b = keys // len(v), keys % len(v); t = (y - v[a, 1]) / (v[b, 1] - v[a, 1]); hits = v[a] + (v[b] - v[a]) * t[:, None]
+    a, b = keys // len(v), keys % len(v); t = (y - v[a, 1]) / (v[b, 1] - v[a, 1]); hits = (v[a] + (v[b] - v[a]) * t[:, None])[:, [0, 2]]
+    segments = index.reshape(-1, 2); p, r = hits[segments[:, 0]], hits[segments[:, 1]]
+    straddle = (p[:, 1] > point[1]) != (r[:, 1] > point[1])
+    with np.errstate(divide='ignore', invalid='ignore'):
+        x = p[:, 0] + (point[1] - p[:, 1]) * (r[:, 0] - p[:, 0]) / (r[:, 1] - p[:, 1])
+    crossings = straddle & (x > point[0]); owner = labels[segments[:, 0]]
     best = None
     for label in np.unique(labels):
-        loop = hits[labels == label][:, [0, 2]]; lo, hi = loop.min(0), loop.max(0)
-        if len(loop) >= 3 and np.all(lo <= point) and np.all(point <= hi):
+        loop = hits[labels == label]; lo, hi = loop.min(0), loop.max(0)
+        if len(loop) >= 3 and crossings[owner == label].sum() % 2:
             area = float(np.prod(hi - lo))
             if best is None or area > best[0]: best = (area, hi - lo)
     require(best is not None, 'No section outline encloses the grip axis')
@@ -69,10 +82,12 @@ def _enclosing_section(vertices, faces, y, around):
 
 
 def reference_sections(vertices, faces, standard, centre, length, around=None):
+    if around is not None:                     # merge the seams once for every section, not once per plane
+        vertices, faces = _welded(vertices, faces)
     rows=[]
     for row in standard['referenceSections']:
-        fraction=row['fractionFromPommel']
-        depth,width=section_dimensions(vertices,faces,centre+(fraction-.5)*length,around)
+        fraction=row['fractionFromPommel']; y=centre+(fraction-.5)*length
+        depth,width=section_dimensions(vertices,faces,y) if around is None else _enclosing_section(vertices,faces,y,around,welded=True)
         rows.append({'fractionFromPommel':fraction,'depth':float(depth),'visibleFaceWidth':float(width)})
     return rows
 

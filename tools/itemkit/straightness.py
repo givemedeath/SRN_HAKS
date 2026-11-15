@@ -356,16 +356,27 @@ def fit_stretch(positions, span, factor):
     _require(0 <= lo < hi <= 1 and (1 < factor <= 3 or .4 <= factor < 1),
              'A span inside the length and a factor in [0.4, 1) (shorten) or (1, 3] (lengthen) required')
     t0, t1 = t.min() + lo * np.ptp(t), t.min() + hi * np.ptp(t)
-    xs, cs = [], []
-    for a, b in zip(np.linspace(t0, t1, 9)[:-1], np.linspace(t0, t1, 9)[1:]):
+    fit = centreline(q, t0, t1)
+    if fit is None: return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
+    slope, intercept = fit; R = centreline_frame(slope); d = R[:, 0]; line = lambda x: np.array([x, *(slope * x + intercept)])
+    return {'mean': mean, 'axes': axes @ R, 'span': np.array([line(t0) @ d, line(t1) @ d]), 'factor': np.array(factor)}
+
+
+def centreline(q, t0, t1):
+    """(slope, intercept) of the robust section centres (1-99% midpoints of the two transverse axes) against the first
+    axis of `q` over [t0, t1], read in 8 bins of at least 20 points; None when fewer than 4 bins hold that many."""
+    t = q[:, 0]; xs, cs = [], []; edges = np.linspace(t0, t1, 9)
+    for a, b in zip(edges[:-1], edges[1:]):
         rows = (t >= a) & (t < b)
         if rows.sum() >= 20:
             low, high = np.percentile(q[rows, 1:], [1, 99], axis=0); xs.append(t[rows].mean()); cs.append((low + high) / 2)
-    if len(xs) < 4: return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
-    slope, intercept = np.polyfit(np.array(xs), np.array(cs), 1)
+    return np.polyfit(np.array(xs), np.array(cs), 1) if len(xs) >= 4 else None
+
+
+def centreline_frame(slope):
+    """Right-handed rotation whose first column follows a `centreline` slope; the second stays nearest the old second axis."""
     d = np.array([1., *slope]); d /= np.linalg.norm(d); r1 = np.array([0., 1., 0.]) - d[1] * d; r1 /= np.linalg.norm(r1)
-    R = np.column_stack([d, r1, np.cross(d, r1)]); line = lambda x: np.array([x, *(slope * x + intercept)])
-    return {'mean': mean, 'axes': axes @ R, 'span': np.array([line(t0) @ d, line(t1) @ d]), 'factor': np.array(factor)}
+    return np.column_stack([d, r1, np.cross(d, r1)])
 
 
 def apply_stretch(positions, mapping, normals=None):

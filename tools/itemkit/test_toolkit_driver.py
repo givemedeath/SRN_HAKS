@@ -474,6 +474,10 @@ class OpeningProbeTests(unittest.TestCase):
         window = [{**hole, 'fraction': .342, 'span': [.289, .393]}]
         self.assertEqual(op.match([('window', .384)], window)[0]['name'], 'window')
         with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('window', .45)], window)
+        # The end is chosen by the same distance: a window holding its reference beats a small hole that is merely near
+        # the reference counted from the other end.
+        window = {**hole, 'start': [0, 0, 0], 'fraction': .30, 'span': [.25, .45]}; small = {**hole, 'start': [0, 1, 0], 'fraction': .62}
+        self.assertEqual(op.match([('window', .40)], [window, small])[0]['start'], [0, 0, 0])
         from tools.itemkit.grip import melee_fit
         from tools.itemkit.routes import WHOLE_NATIVE_FAMILIES
         with self.assertRaisesRegex(ValueError, 'firearm'): op.fitted_shell({}, {'family': WHOLE_NATIVE_FAMILIES[0]}, '.')
@@ -757,6 +761,12 @@ class SideGripTests(unittest.TestCase):
         split = np.concatenate([v, v]); seams = np.concatenate([faces[::2], faces[1::2] + len(v)])   # a glTF seam
         np.testing.assert_allclose(section_dimensions(split, seams, 0., [0., 0.]), [.03, .03], atol=.001)
         with self.assertRaisesRegex(ValueError, 'encloses'): section_dimensions(v, faces, 0., [0., -.05])
+        # A frame curving round the grip without holding it (a C open on +x) has a bounding box over the grip axis.
+        c = np.array([(.05, -.05), (-.05, -.05), (-.05, .05), (.05, .05), (.05, .04), (-.04, .04), (-.04, -.04), (.05, -.04)])
+        ring = np.array([[x, y, z] for y in (-.1, .1) for x, z in c]); n = len(c)
+        sides = np.array([face for i in range(n) for face in ([i, (i + 1) % n, n + (i + 1) % n], [i, n + (i + 1) % n, n + i])])
+        framed = np.concatenate([bar, ring]); framed_faces = np.concatenate([f, sides + len(bar)])
+        np.testing.assert_allclose(section_dimensions(framed, framed_faces, 0., [0., 0.]), [.03, .03], atol=.001)
 
     def test_a_side_grip_keeps_one_scale_from_the_chosen_body_length(self):
         from tools.itemkit.fit_manifest import measure
@@ -794,6 +804,9 @@ class SideGripTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'side grip needs'): measure({}, self.family, shell, overrides, self.standard)
         with self.assertRaisesRegex(ValueError, 'one-hand bladed'):
             measure({}, dict(self.family, family='club'), shell, self.overrides(v), self.standard)
+        for stray in ({'alignGripAxis': True}, {'gripAcross': .5}):           # side-grip overrides that would do nothing
+            overrides = {**self.overrides(v), 'sideGrip': False, **stray}
+            with self.assertRaisesRegex(ValueError, 'apply to a side grip'): measure({}, self.family, shell, overrides, self.standard)
 
     def test_the_fit_stage_sizes_a_side_grip_only_by_its_own_route(self):
         from tools.itemkit.grip import fitted_grip_length, melee_fit

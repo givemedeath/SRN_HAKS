@@ -115,14 +115,9 @@ def _align_grip_axis(q, U, start, end):
     The principal frame is fitted to the whole weapon, so a long body pulls the axis off a side handle (the wave-5
     Tonfa's by about 3.5 degrees): the hand would close at a slant across the handle. Only the band between the
     reviewed grip landmarks is read, so it must hold nothing but the grip."""
-    t = (q[:, 0] - q[:, 0].min()) / np.ptp(q[:, 0]); edges = np.linspace(start, end, 9); xs, cs = [], []
-    for a, b in zip(edges[:-1], edges[1:]):
-        rows = (t >= a) & (t < b)
-        if rows.sum() >= 20:
-            low, high = np.percentile(q[rows, 1:], [1, 99], axis=0); xs.append(q[rows, 0].mean()); cs.append((low + high) / 2)
-    require(len(xs) >= 4, 'Too few grip sections to align the grip axis')
-    d = np.array([1., *np.polyfit(np.array(xs), np.array(cs), 1)[0]]); d /= np.linalg.norm(d)
-    r1 = np.array([0., 1., 0.]) - d[1] * d; r1 /= np.linalg.norm(r1); R = np.column_stack([d, r1, np.cross(d, r1)])
+    low, length = q[:, 0].min(), np.ptp(q[:, 0]); fit = st.centreline(q, low + start * length, low + end * length)
+    require(fit is not None, 'Too few grip sections to align the grip axis')
+    R = st.centreline_frame(fit[0])
     return q @ R, U @ R
 
 
@@ -185,6 +180,9 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     mean, U, q = _frame(b); N = st.SLICES
     hafted = name in HAFTED_FAMILIES
     side = overrides.get('sideGrip', False); require(type(side) is bool, 'sideGrip must be true or false')
+    require(type(overrides.get('alignGripAxis', False)) is bool, 'alignGripAxis must be true or false')
+    # Both only act on a side grip: anywhere else they would be recorded in the fit notes and silently do nothing.
+    require(side or not (overrides.get('alignGripAxis') or 'gripAcross' in overrides), 'alignGripAxis and gripAcross apply to a side grip')
     if side:
         # A grip across the weapon (a katar's crossbar, a tonfa's side handle): the frame's width axis, the larger
         # transverse spread, becomes the grip axis and the long body lies across the hand (user, 2026-11-14: "Fist on

@@ -117,10 +117,11 @@ def match(references, found):
     # A reference matches a hole whose deepest point is near it or whose own span along the weapon holds it: a long
     # window's deepest point need not sit where the reference image's opening centre does (the wave-5 Katar's frame
     # window, 0.342 against 0.384, with the reference inside the window).
-    def inside(target, hole):
+    def gap(target, hole):
+        """How far the reference lies from the hole: from its deepest point, or from its span when that is nearer."""
         low, high = hole.get('span', [hole['fraction']] * 2)
-        return low - MATCH_TOLERANCE <= target <= high + MATCH_TOLERANCE
-    near = lambda target: sorted((k for k in clear if abs(target - found[k]['fraction']) <= MATCH_TOLERANCE or inside(target, found[k])),
+        return min(abs(target - hole['fraction']), max(0., low - target, target - high))
+    near = lambda target: sorted((k for k in clear if gap(target, found[k]) <= MATCH_TOLERANCE),
                                  key=lambda k: -found[k]['clearance'])
     for name, fraction in references:
         require(near(fraction) or near(1 - fraction), f'No clear through-hole matches {name} (fraction {fraction:.3f}): it closed '
@@ -137,7 +138,9 @@ def match(references, found):
     for flip in (False, True):
         targets = [1 - fraction if flip else fraction for _, fraction in references]
         chosen = assign([near(t) for t in targets])
-        if chosen is not None: options.append((sum(abs(t - found[k]['fraction']) for t, k in zip(targets, chosen)), chosen))
+        # Distances count as the matching does, so a long window holding its reference does not push the set to the
+        # other end just because the window's deepest point lies away from it.
+        if chosen is not None: options.append((sum(gap(t, found[k]) for t, k in zip(targets, chosen)), chosen))
     require(options, f'No single end of the weapon places all {len(references)} reference openings on distinct clear '
             'through-holes: drop the missing ones with the user, or rebuild the shell')
     chosen = min(options, key=lambda option: option[0])[1]
