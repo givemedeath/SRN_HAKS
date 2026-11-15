@@ -112,6 +112,22 @@ class StockNamespaceTests(Fixture):
         self.assertEqual(self.stock([('installed-stock-wswss-donors', ['iwswss_b_011.tga'], None)]), set())
 
 
+class DdsTwinTests(unittest.TestCase):
+    def test_nwn_crunch_makes_a_bioware_dxt5_twin_of_the_icon(self):
+        import struct
+        from PIL import Image
+        from tools.itemkit.native import nwn_dds
+        with tempfile.TemporaryDirectory() as folder:
+            for size in ((32, 128), (32, 96)):                     # a stock canvas, and a bare 1x3 footprint
+                tga = Path(folder)/f'icon{size[1]}.tga'; target = tga.with_suffix('.dds')
+                image = Image.new('RGBA', size, (0, 0, 0, 0)); image.paste((200, 40, 40, 255), (8, 8, 24, size[1] - 8)); image.save(tga)
+                converter = nwn_dds(tga, target)
+                data = target.read_bytes()
+                self.assertEqual(struct.unpack_from('<3I', data), (*size, 4)); self.assertNotEqual(data[:4], b'DDS ')
+                self.assertEqual(converter['sha256'], '6aabe212ee8a4a5c166801c3c7830239e3eb15910f2743232c33666bc91aa46c')
+                with self.assertRaisesRegex(ValueError, 'exists'): nwn_dds(tga, target)
+
+
 class DriverFlagTests(unittest.TestCase):
     def test_replace_stock_is_an_explicit_contract_flag(self):
         from tools.itemkit.drive import parser

@@ -52,7 +52,7 @@ BUILT = Path('output')
 MODULE_BUILT = Path('output/weapon-waves-test')/MODULE_ARCHIVE
 PAIRS_INCLUDE = 'sw_pairs.nss'
 SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
-EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti'}
+EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti', 2033: 'dds'}      # dds: a stock slot's BioWare DDS icon twins
 TYPE = {v: k for k, v in EXT.items()}
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
 # Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_
@@ -163,8 +163,10 @@ def survey(item, run):
         require(kind in EXT, f'{item}: unexpected resource type {kind} in {hak.name}')
         package.files[f'{resref}.{EXT[kind]}'] = (body, hak.name)
     package.files[f'{blueprint}.uti'] = (uti, module.name)
-    stray = sorted(n for n in package.replaces_stock if n not in package.files and not n.endswith('.dds'))
+    stray = sorted(n for n in package.replaces_stock if n not in package.files)
     require(not stray, f'{item}: the recorded stock replacement names files the package does not carry: {stray}')
+    twins = sorted(n for n in package.files if n.endswith('.dds') and n not in package.replaces_stock)
+    require(not twins, f'{item}: DDS files are published only as recorded stock icon twins: {twins}')
     return package
 
 
@@ -426,7 +428,7 @@ def update_publication(repo, packages, needs, statements, review, policy, overri
 
 def update_records(repo, packages, needs, statements, tags, total, today):
     weapons = repo/WEAPONS; built = {}
-    for archive, folder, suffixes in ((repo/BUILT/'srn_weapon.hak', weapons, ('.tga', '.mdl', '.uti')),
+    for archive, folder, suffixes in ((repo/BUILT/'srn_weapon.hak', weapons, ('.tga', '.mdl', '.uti', '.dds')),
                                       (repo/BUILT/'srn_2da.hak', repo/'srn_2da', ('.2da',)),
                                       (repo/MODULE_BUILT, repo/MODULE, None)):
         if suffixes is None: suffixes = tuple({p.suffix.lower() for p in Path(folder).iterdir() if p.is_file()})

@@ -36,10 +36,11 @@ TABLE = (b'2DA V2.0\n\n     label        MaxRange   ItemClass\n'
          b'1    longsword    121        WSwLs\n22   dagger       100        WSwDg\n')
 
 
-def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False, replaces=None):
+def make_run(root, blueprint='srabc', base=22, part=111, parts=None, tamper=False, replaces=None, dds=None):
     run = root/'run-fit-v1'; native = run/'native/attempt-1/native'; native.mkdir(parents=True)
     models = {p: f'wswdg_{p}_{part:03}' for p in 'bmt'}
-    hak = erf(b'HAK ', {**{(m, 2002): f'model {m}'.encode() for m in models.values()}, (f'i{models["b"]}', 3): b'icon', (f'{blueprint}_11', 3): b'diffuse'})
+    twin = {(f'i{models["b"]}', 2033): b'bioware dds'} if (dds if dds is not None else any(n.endswith('.dds') for n in replaces or ())) else {}
+    hak = erf(b'HAK ', {**{(m, 2002): f'model {m}'.encode() for m in models.values()}, (f'i{models["b"]}', 3): b'icon', (f'{blueprint}_11', 3): b'diffuse', **twin})
     (native/f'{blueprint}h.hak').write_bytes(hak)
     record = {'hak': {'path': f'X:/elsewhere/{blueprint}h.hak', 'sha256': hashlib.sha256(hak).hexdigest()}, 'baseItem': base,
               'identity': {'blueprint': blueprint, 'displayName': 'Test Knife'},
@@ -216,7 +217,7 @@ class StockReplacementTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             run = make_run(Path(folder), replaces=self.RECORDED); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
             packages, _, overrides = P.plan(repo, [('knife', run)], self.STOCK)
-            hits = ['iwswdg_b_111.tga', 'wswdg_b_111.mdl', 'wswdg_m_111.mdl', 'wswdg_t_111.mdl']   # the DDS twin stays in the base game
+            hits = ['iwswdg_b_111.dds', 'iwswdg_b_111.tga', 'wswdg_b_111.mdl', 'wswdg_m_111.mdl', 'wswdg_t_111.mdl']   # with the crunched DDS twin
             self.assertEqual(overrides, {'knife': hits})
             with mock.patch.object(P, 'stock_names', lambda root: self.STOCK):
                 result = P.publish(repo, [('knife', run)], ['ok'], 'Seen.', 'nwn', dry_run=True)
@@ -231,8 +232,11 @@ class StockReplacementTests(unittest.TestCase):
 
     def test_a_recorded_replacement_must_name_the_packages_own_files(self):
         with tempfile.TemporaryDirectory() as folder:
-            with self.assertRaisesRegex(P.PublishError, r"does not carry: \['wswdg_b_091.mdl'\]"):
-                P.survey('knife', make_run(Path(folder), replaces=['iwswdg_b_091.dds', 'wswdg_b_091.mdl']))
+            with self.assertRaisesRegex(P.PublishError, r"does not carry: \['iwswdg_b_091.dds', 'wswdg_b_091.mdl'\]"):
+                P.survey('knife', make_run(Path(folder), replaces=['iwswdg_b_091.dds', 'wswdg_b_091.mdl'], dds=False))
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(P.PublishError, r"only as recorded stock icon twins: \['iwswdg_b_111.dds'\]"):
+                P.survey('knife', make_run(Path(folder), dds=True))
 
 
 class ReviewerTests(unittest.TestCase):

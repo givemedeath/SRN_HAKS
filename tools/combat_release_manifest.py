@@ -46,7 +46,7 @@ BASEITEM_COLUMNS = ('label', 'ModelType', 'ItemClass', 'MinRange', 'MaxRange', '
                     'BaseCost', 'ReqFeat0', 'ReqFeat1', 'ReqFeat2', 'ReqFeat3', 'ReqFeat4',
                     *BASEITEM_STRREF_COLUMNS)
 SLING_ROW = 61
-RESOURCE_TYPES = {'.mdl': 2002, '.tga': 3, '.uti': 2025}
+RESOURCE_TYPES = {'.mdl': 2002, '.tga': 3, '.uti': 2025, '.dds': 2033}   # dds: stock-slot icon twins
 
 
 def sha256(data: bytes) -> str:

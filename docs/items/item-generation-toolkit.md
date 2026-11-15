@@ -612,10 +612,12 @@ The user approved replacing base-game weapon parts on every carrier (2026-11-15)
   The capacity is the same either way, one design per shape, because no design is ever given colours 2–9. The cost:
   in the toolset and in the in-game appearance changer, shape N's colours 2–4 still show the stock part next to the
   new colour 1. Stock blueprints that use part number `N1` show the new part, part by part (the user accepted this).
-- **Check the inventory icon in the client.** The base game also ships each part icon as DDS. The package carries the
-  TGA icon only, and the DDS twin stays in the base game (it is listed in `replacesStock` because the slot shares the
-  name). Look at the inventory icon in the first stock-slot fixture. If the client shows the stock icon, that slot
-  also needs a DDS override, which the toolkit does not make yet.
+- **DDS icon twins come from NWN Crunch.** The base game ships most part icons as both TGA and BioWare DDS (DXT5 with
+  a mip chain; some shapes have no icons at all, such as wswls shape 9). For each icon whose DDS name is in
+  `replacesStock`, `native` (prepare) converts the new TGA icon with the vendored NWN Crunch (`nwn_dds`:
+  `-fileformat nwn -DXT5 -mipMode Generate`, the stock icons' own format) and the package carries both. The
+  converter's pin is in `prepared.json` as `ddsConverter`. A DDS file outside the recorded twins is refused. Still
+  look at the inventory icon in the first stock-slot fixture: the client, not the converter, proves the override.
 
 Publication then copies the replacing models and icons into `srn_weapon` and records them as stock replacements
 (`approved-weapons-release.md`).

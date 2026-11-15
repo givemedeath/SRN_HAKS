@@ -14,6 +14,27 @@ from .geometry import topology, check_budgets
 EXTRA_RESOURCE_TYPES = {'2da': 2017, 'uti': 2025}
 
 
+def nwn_dds(tga, target):
+    """A BioWare DDS (DXT5 with a generated mip chain, as the base game's own part icons) of an RGBA TGA, by NWN Crunch.
+
+    A stock-slot replacement ships this twin beside its TGA icon: the base game holds most part icons as both TGA and
+    DDS, so the replacement overrides both names. Returns the vendored converter's pin."""
+    import struct
+    sys.path.insert(0, str(ROOT/'tools/phenotypes')); from tool_runtime import tool
+    tga, target = Path(tga), Path(target)
+    crunch = tool('crunch', inputs=[pin(tga)])
+    require(not target.exists(), f'{target.name} exists')
+    done = subprocess.run([str(crunch), '-file', str(tga), '-out', str(target), '-fileformat', 'nwn', '-DXT5', '-mipMode', 'Generate',
+                           '-noprogress', '-nostats'], capture_output=True, text=True, errors='replace', timeout=120,
+                          creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    require(done.returncode == 0 and target.is_file(), 'NWN Crunch failed: '+(done.stdout+done.stderr)[-1500:])
+    with Image.open(tga) as image: size = image.size
+    data = target.read_bytes()
+    require(len(data) > 20 and struct.unpack_from('<3I', data) == (*size, 4) and data[:4] != b'DDS ',
+            f'{target.name} is not a {size[0]}x{size[1]} four-channel BioWare DDS')
+    return pin(crunch)
+
+
 def archive_helpers():
     sys.path.insert(0, str(ROOT/'tools/heads'))
     import verify_head_hak
@@ -109,7 +130,7 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
     with Image.open(texture) as image:
         require(image.size == (profile['runtimeTextureSize'],)*2, 'Runtime texture size differs from family')
         image.convert('RGB').save(output/'resources'/f'{texture_name}.tga')
-    counts = {'visible': {}, 'shadow': {}}; expected = {}
+    counts = {'visible': {}, 'shadow': {}}; expected = {}; converter = None
     for part in PARTS:
         verify([arrays[part], icons[part]])
         with np.load(arrays[part]['path'], allow_pickle=False) as values:
@@ -130,11 +151,14 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
                         and canvas[0]>=image.width and canvas[1]>=image.height,'Invalid native icon padding contract')
                 image=pad_icon(image,canvas)
             image.save(output/'resources'/f"{allocation['icons'][part]}.tga")
+        if allocation['icons'][part]+'.dds' in allocation.get('replacesStock', ()):
+            converter = nwn_dds(output/'resources'/f"{allocation['icons'][part]}.tga", output/'resources'/f"{allocation['icons'][part]}.dds")
         target = output/f'expected-{part}.npz'; shutil.copyfile(arrays[part]['path'], target); expected[part] = pin(target)
     for kind in counts: check_budgets(counts[kind], profile['budgets'], kind)
     result = {'allocation': allocation, 'baseItem': native['baseItem'], 'texture': texture_name,
               'expected': expected, 'budgets': counts, 'clientValidated': False, 'productionAccepted': False}
     if profile.get('resources'): result['identity'] = profile['resources']
+    if converter: result['ddsConverter'] = converter
     result['inputs'] = [pin(profile_path), pin(texture)]+list(arrays.values())+list(icons.values())
     result['outputs'] = [pin(p) for folder in ('ascii', 'resources') for p in sorted((output/folder).iterdir())]
     write(output/'prepared.json', result, fresh=True)
@@ -205,7 +229,8 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
         clean, audits[part] = sanitize_and_audit(binary, name, preparation['texture'], preparation['expected'][part])
         binary.write_bytes(clean)
     resources = sorted((converted/'resources').iterdir())
-    require(all(p.suffix in ('.mdl', '.tga') for p in resources), 'Unexpected package resources')
+    twins = set(preparation['allocation'].get('replacesStock', ()))      # a stock slot's DDS icon twins (nwn_dds)
+    require(all(p.suffix in ('.mdl', '.tga') or p.suffix == '.dds' and p.name in twins for p in resources), 'Unexpected package resources')
     target = output/(preparation.get('identity', {}).get('hak', 'srn_cougar_test')+'.hak'); write_verified_hak(target, resources)
     verify(tool_inputs+preparation['inputs']+preparation['outputs'], fresh=True)
     result = {'hak': pin(target), 'resources': [pin(p) for p in resources], 'audits': audits,

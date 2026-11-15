@@ -290,7 +290,9 @@ For each item, the command:
    the driver, and with `--nwn-root`), it also reads the install's KEY indexes (`data` and `lang/en/data`). A package
    file the base game holds is refused unless the package's contract recorded it as a stock replacement
    (`allocation.replacesStock`, from `drive contract --replace-stock`; see `item-generation-toolkit.md`). A recorded
-   replacement is copied over the stock name like any other file. The item's record gets `replacesStock` (the
+   replacement is copied over the stock name like any other file, including its BioWare DDS icon twins (made with NWN
+   Crunch when the package was prepared; a package must carry every recorded name, and DDS files only as recorded
+   twins). The item's record gets `replacesStock` (the
    contract's list), its overriding resources get `"replacesStock": true`, and the policy text names them. The plan
    shows them per item and says whether the stock check ran (`stockCheck`); a direct `--dry-run` without
    `--nwn-root` skips it. Stock slots lie inside every carrier's `MinRange`..`MaxRange`, so they never change the
