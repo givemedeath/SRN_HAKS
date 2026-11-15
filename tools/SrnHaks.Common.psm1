@@ -46,14 +46,17 @@ function Get-SrnHakCopies {
     try { $document = Get-Content -Raw -LiteralPath $path | ConvertFrom-Json -Depth 8 } catch { throw $refused }
     # Each field is looked for before it is read: strict mode fails on a missing one with its own words.
     if ($document -isnot [pscustomobject] -or @('kind', 'schemaVersion', 'pack', 'copies' | Where-Object { -not $document.PSObject.Properties[$_] }).Count -gt 0) { throw $refused }
-    if ($document.kind -cne 'srn-hak-copies' -or $document.schemaVersion -ne 1 -or $document.pack -cne $name -or $document.copies -isnot [pscustomobject]) { throw $refused }
+    # The version is the number 1 (the string "1" compares equal to it here) and the copies a map, as tools/armorkit/publish.py reads them.
+    $version = $document.schemaVersion
+    if ($document.kind -cne 'srn-hak-copies' -or ($version -isnot [long] -and $version -isnot [int]) -or $version -ne 1 -or $document.pack -cne $name -or $document.copies -isnot [pscustomobject]) { throw $refused }
     $source = Resolve-SrnRepositoryPath -Path ([string]$Hak.Path)
     $listed = [System.Collections.Generic.SortedDictionary[string, string]]::new([System.StringComparer]::Ordinal)
     foreach ($property in $document.copies.PSObject.Properties) { $listed[$property.Name] = [string]$property.Value }
     foreach ($copy in $listed.Keys) {
         $held = $listed[$copy]
         foreach ($file in $copy, $held) {
-            if ($file -cnotmatch '^[a-z0-9_]{1,16}\.[a-z0-9]{2,4}$') { throw "$($Hak.Copies) lists '$file', which is no resource file name." }
+            # \z, not `$`, which would pass a name that ends in a line break.
+            if ($file -cnotmatch '\A[a-z0-9_]{1,16}\.[a-z0-9]{2,4}\z') { throw "$($Hak.Copies) lists '$file', which is no resource file name." }
         }
         if ([IO.Path]::GetExtension($copy) -cne [IO.Path]::GetExtension($held)) { throw "$($Hak.Copies) lists $copy as a copy of $held, a file of another type." }
         if (Test-Path -LiteralPath (Join-Path $source $copy)) { throw "$name holds $copy, which $($Hak.Copies) lists as a copy of $held." }

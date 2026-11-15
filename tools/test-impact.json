@@ -5454,7 +5454,6 @@
       "tools/itemkit/publish.py"
     ],
     "tools/test_hak_copies.py": [
-      "hakbuilder.json",
       "tools/SrnHaks.Common.psm1",
       "tools/SrnTools.psm1"
     ],

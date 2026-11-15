@@ -8,12 +8,14 @@ from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
 PS = shutil.which('pwsh')
+# One process reads every case of a test: a line each, the map or the words the list is refused with.
 READ = ("Import-Module ./tools/SrnHaks.Common.psm1 -Force; "
-        "try { Get-SrnHakCopies -Hak (Get-SrnConfiguration).HakList[0] | ConvertTo-Json -Compress } catch { 'REFUSED ' + $_.Exception.Message }")
+        "foreach ($hak in @(Get-Content -Raw ./cases.json | ConvertFrom-Json)) { "
+        "try { Get-SrnHakCopies -Hak $hak | ConvertTo-Json -Compress } catch { 'REFUSED ' + ($_.Exception.Message -replace '\\s+', ' ') } }")
 
 
 class HakCopiesTests(unittest.TestCase):
-    """A stand-in repository with one pack that holds `kept.plt` and `other.tga`."""
+    """A stand-in repository: pack `srn_x` holds `kept.plt` and `other.tga`, pack `srn_y` also the copy `a_copy.plt`."""
 
     def setUp(self):
         if not PS:
@@ -24,54 +26,78 @@ class HakCopiesTests(unittest.TestCase):
         (self.repo / 'tools').mkdir()
         for module in ('SrnHaks.Common.psm1', 'SrnTools.psm1'):
             shutil.copyfile(TOOLS / module, self.repo / 'tools' / module)
-        (self.repo / 'srn_x').mkdir()
-        (self.repo / 'srn_x' / 'kept.plt').write_bytes(b'tint')
-        (self.repo / 'srn_x' / 'other.tga').write_bytes(b'map')
-        self.entry = {'Name': 'srn_x', 'Path': './srn_x/', 'CompileModels': False, 'Copies': './docs/copies.json'}
+        for pack, names in (('srn_x', ('kept.plt', 'other.tga')), ('srn_y', ('kept.plt', 'a_copy.plt'))):
+            (self.repo / pack).mkdir()
+            for name in names:
+                (self.repo / pack / name).write_bytes(b'image')
         (self.repo / 'docs').mkdir()
+        self.cases = []
 
-    def read(self, copies=None, entry=None, **fields):
-        """What `Get-SrnHakCopies` gives for the pack: its map, or the words it refuses the list with."""
-        (self.repo / 'hakbuilder.json').write_text(json.dumps({'HakList': [self.entry if entry is None else entry]}), encoding='utf-8')
-        if copies is not None or fields:
-            document = {'schemaVersion': 1, 'kind': 'srn-hak-copies', 'pack': 'srn_x', 'copies': copies, **fields}
-            (self.repo / 'docs' / 'copies.json').write_text(json.dumps({key: value for key, value in document.items() if value is not None}), encoding='utf-8')
+    def entry(self, text=None, pack='srn_x'):
+        """A pack's `hakbuilder.json` entry naming a list of the given text; no list file with None."""
+        path = f'./docs/list-{len(self.cases)}.json'
+        if text is not None:
+            (self.repo / path).write_text(text, encoding='utf-8')
+        self.cases.append({'Name': pack, 'Path': f'./{pack}/', 'CompileModels': False, 'Copies': path})
+        return len(self.cases) - 1
+
+    def listing(self, copies, pack='srn_x', named=None, **fields):
+        """An entry of `pack` whose list holds `copies` and names the pack (`named` where it names another); a field
+        given as None is left out of the document."""
+        document = {'schemaVersion': 1, 'kind': 'srn-hak-copies', 'pack': named or pack, 'copies': copies, **fields}
+        return self.entry(json.dumps({key: value for key, value in document.items() if value is not None}), pack)
+
+    def read(self):
+        """What `Get-SrnHakCopies` gives for each case, in order: its map, or the words it refuses the list with."""
+        (self.repo / 'cases.json').write_text(json.dumps(self.cases), encoding='utf-8')
         done = subprocess.run([PS, '-NoProfile', '-Command', READ], cwd=self.repo, capture_output=True, text=True, encoding='utf-8')
         self.assertEqual(done.returncode, 0, done.stderr)
-        out = done.stdout.strip()
-        return out if out.startswith('REFUSED') else json.loads(out)
+        lines = [line for line in done.stdout.splitlines() if line.strip()]
+        self.assertEqual(len(lines), len(self.cases), done.stdout)
+        return [line if line.startswith('REFUSED') else json.loads(line) for line in lines]
 
     def test_a_list_names_each_copy_with_the_file_kept_in_name_order(self):
-        self.assertEqual(self.read({'b_copy.plt': 'kept.plt', 'a_copy.plt': 'kept.plt'}), {'a_copy.plt': 'kept.plt', 'b_copy.plt': 'kept.plt'})
-        self.assertEqual(self.read({}), {})
-        self.assertEqual(self.read(entry={key: value for key, value in self.entry.items() if key != 'Copies'}), {})  # a pack without a list has no copies
+        self.listing({'b_copy.plt': 'kept.plt', 'a_copy.plt': 'kept.plt'})
+        self.listing({})
+        self.cases.append({'Name': 'srn_x', 'Path': './srn_x/', 'CompileModels': False})  # a pack without a list has no copies
+        both, none, without = self.read()
+        self.assertEqual(list(both.items()), [('a_copy.plt', 'kept.plt'), ('b_copy.plt', 'kept.plt')])
+        self.assertEqual((none, without), ({}, {}))
 
     def test_a_copy_must_be_left_out_of_the_folder_and_the_file_kept_must_be_in_it(self):
-        self.assertIn('holds no gone.plt', self.read({'a_copy.plt': 'gone.plt'}))
-        self.assertIn('holds no a_copy.plt', self.read({'a_copy.plt': 'kept.plt', 'b_copy.plt': 'a_copy.plt'}))  # a copy of a copy
-        (self.repo / 'srn_x' / 'a_copy.plt').write_bytes(b'tint')
-        self.assertIn('srn_x holds a_copy.plt', self.read({'a_copy.plt': 'kept.plt'}))
+        self.listing({'a_copy.plt': 'gone.plt'})
+        self.listing({'a_copy.plt': 'kept.plt', 'b_copy.plt': 'a_copy.plt'})  # a copy of a copy
+        self.listing({'a_copy.plt': 'kept.plt'}, pack='srn_y')
+        gone, chained, held = self.read()
+        self.assertIn('holds no gone.plt', gone)
+        self.assertIn('holds no a_copy.plt', chained)
+        self.assertIn('srn_y holds a_copy.plt', held)
 
     def test_names_are_resource_file_names_of_one_type(self):
-        self.assertIn('a file of another type', self.read({'a_copy.plt': 'other.tga'}))
-        for name in ('A_copy.plt', '../a_copy.plt', 'sub/a_copy.plt', 'a_name_of_17_chars.plt', 'a_copy'):
-            self.assertIn('is no resource file name', self.read({name: 'kept.plt'}), name)
-        self.assertIn('is no resource file name', self.read({'a_copy.plt': '../kept.plt'}))
+        names = ('A_copy.plt', '../a_copy.plt', 'sub/a_copy.plt', 'a_name_of_17_chars.plt', 'a_copy', 'a_copy.plt\n')
+        for name in names:
+            self.listing({name: 'kept.plt'})
+        self.listing({'a_copy.plt': '../kept.plt'})
+        self.listing({'a_copy.plt': 'kept.plt\n'})
+        self.listing({'a_copy.plt': 'other.tga'})
+        *refused, other = self.read()
+        for name, said in zip((*names, '../kept.plt', 'kept.plt\n'), refused, strict=True):
+            self.assertIn('is no resource file name', said, name)
+        self.assertIn('a file of another type', other)
 
     def test_a_document_that_is_no_copies_list_is_refused_by_name(self):
-        refused = "is no copies list of 'srn_x'"
-        self.assertIn(refused, self.read({'a_copy.plt': 'kept.plt'}, kind='other'))
-        self.assertIn(refused, self.read({'a_copy.plt': 'kept.plt'}, pack='srn_y'))
-        self.assertIn(refused, self.read({'a_copy.plt': 'kept.plt'}, schemaVersion=2))
-        self.assertIn(refused, self.read({'a_copy.plt': 'kept.plt'}, kind=None))  # a field left out
-        self.assertIn(refused, self.read(['a_copy.plt']))
-        self.assertIn(refused, self.read('a_copy.plt'))
-        (self.repo / 'docs' / 'copies.json').write_text('[1, 2]', encoding='utf-8')
-        self.assertIn(refused, self.read())
-        (self.repo / 'docs' / 'copies.json').write_text('{not json', encoding='utf-8')
-        self.assertIn(refused, self.read())
-        (self.repo / 'docs' / 'copies.json').unlink()
-        self.assertIn('names a copies list that does not exist', self.read())
+        good = {'a_copy.plt': 'kept.plt'}
+        for fields in ({'kind': 'other'}, {'named': 'srn_y'}, {'schemaVersion': 2}, {'schemaVersion': '1'}, {'kind': None}):  # None: the field is left out
+            self.listing(good, **fields)
+        self.listing(None)
+        self.listing(['a_copy.plt'])
+        self.listing('a_copy.plt')
+        self.entry('[1, 2]')
+        self.entry('{not json')
+        missing = self.entry()
+        said = self.read()
+        for index, words in enumerate(said):
+            self.assertIn('names a copies list that does not exist' if index == missing else "is no copies list of 'srn_x'", words, index)
 
 
 if __name__ == '__main__':

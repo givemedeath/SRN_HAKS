@@ -812,21 +812,21 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     for name, held in sorted(listed.items()):
         if name in pack:
             failures.append(failure('published', name, f'{PACK} holds this file, and its copies list names it as a copy of {held}'))
-        elif held not in pack or held in listed:
+        elif held not in pack:  # `copies` has refused a list whose kept file is itself a copy
             failures.append(failure('published', name, f'the copies list names it as a copy of {held}, which {PACK} does not hold'))
     pack.update({name: pack[held] for name, held in listed.items() if name not in pack and held in pack})
     # What is published is what its handoff recorded: a file changed or gone since fails by name.
     recorded = [resource for outfit in handoff_before.get('outfits', []) for resource in outfit.get('resources', [])]
-    sums = {}  # a file kept for several names is hashed once
+    hashed = {}
 
-    def summed(path):
-        if path not in sums:
-            sums[path] = sha(path)
-        return sums[path]
+    def once(path):  # a file's hash, taken once however many names or bodies share the file
+        if path not in hashed:
+            hashed[path] = sha(path)
+        return hashed[path]
     for resource in recorded + handoff_before.get('iconFiles', []):
         if resource['name'] not in pack:
             failures.append(failure('published', resource['name'], f'{PACK} no longer holds this published file'))
-        elif summed(pack[resource['name']]) != resource['sha256']:
+        elif once(pack[resource['name']]) != resource['sha256']:
             failures.append(failure('published', resource['name'], f'{PACK} holds another file than the one published: its hash is not the one the handoff records'))
     # And nothing else is in the pack: a file staged there by hand would stand for a model with no bake, no
     # neck measure and no hash.
@@ -838,12 +838,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(Path(path).is_file(), f'{path} is no file to record for {model}')
         given_records.setdefault(model, []).append(Path(path))
     wanted = {model: (part, body) for part in new for body, models in registry.model_names(part).items() for model in models}
-    found_briefs, hashed, miscoloured = {}, {}, set()
-
-    def once(path):  # a file's hash, taken once however many bodies share the file
-        if path not in hashed:
-            hashed[path] = sha(path)
-        return hashed[path]
+    found_briefs, miscoloured = {}, set()
     for bake in surveyed:
         record = bake['record']
         label = f'{record["body"]} {record["model"]}'
