@@ -1905,6 +1905,7 @@
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/rig_native.py"
     ],
+    "tools/itemkit/dds.py": [],
     "tools/itemkit/donor.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
@@ -2028,6 +2029,7 @@
       "tools/headkit/native_reader.py",
       "tools/heads/verify_head_hak.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/dds.py",
       "tools/itemkit/firearm_native.py",
       "tools/itemkit/geometry.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
@@ -2081,6 +2083,7 @@
       "docs/items/approved-weapon-waves-release-validation.json",
       "docs/items/approved-weapons-v1.json",
       "tools/combat_release_manifest.py",
+      "tools/itemkit/dds.py",
       "tools/itemkit/native_stack.py",
       "tools/phenomorpher/validation.json",
       "tools/shared_tools.py"
@@ -2398,10 +2401,12 @@
       "tools/headkit/common.py",
       "tools/itemkit/__init__.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/dds.py",
       "tools/itemkit/drive.py",
       "tools/itemkit/family_contract.py",
       "tools/itemkit/native.py",
       "tools/itemkit/test_itemkit.py",
+      "tools/itemkit/test_publish.py",
       "tools/phenotypes/tool_runtime.py",
       "tools/shared_tools.py"
     ],

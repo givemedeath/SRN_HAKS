@@ -585,7 +585,8 @@ carriers from the measured wave-1 contract: it extracts the stock `_011` parts a
 measures the stock grip origin and span (`carrier.py`, from the binary models' triangle sections), sets the icon size
 from `baseitems.2da`, allocates the visible budget from `budget-policy.json` by stock length (7,500 at 0.5 m to 22,500
 at 1.6 m and over) and reserves resources, skipping slots that other live contracts on the same carrier pinned (in
-any wave) and names the repository's `srn_weapon` folder holds now. The grip origin is measured, not reviewed in a hand: the first design on a
+any wave) and names `srn_weapon` holds in this checkout or on main (`refs/remotes/origin/main` and `refs/heads/main`
+as last fetched, since the checkout running the contract can lag main). The grip origin is measured, not reviewed in a hand: the first design on a
 new carrier carries the both-body hand-fit review that confirms it.
 
 ### Taking a base-game appearance slot (`--replace-stock`)
@@ -598,7 +599,7 @@ The user approved replacing base-game weapon parts on every carrier (2026-11-15)
   icons and the icons' DDS twins) is in the stack's installed KEY namespace (`nwn-key-namespace-v1`) and nothing else
   holds it: no other stack layer lists or inventories it (the `srn_weapon` layer, the shipped bodies, the comparison
   weapons, the fixture templates; the `installed-stock-*` extraction layers count as stock), no live sibling contract
-  in any wave pinned it, and the repository's current `srn_weapon` folder does not hold it. A slot that a project
+  in any wave pinned it, and `srn_weapon` does not hold it in this checkout or on main. A slot that a project
   resource or a sibling already holds is never taken. The slot's texture name is the design's own and must be free.
 - **Highest stock slot first** (shape 9 down to 1). The low shapes are the base game's default looks: shape 1 is the
   stock donor every contract measures and the first appearance in the toolset, so it is kept the longest.
