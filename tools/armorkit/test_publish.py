@@ -575,11 +575,59 @@ class PublishTests(Workspace):
         with self.assertRaisesRegex(ValueError, 'is a file, not a folder'):
             self.publish(shared(('pmh0',)), root=self.ledger, trial=True)
 
+    def test_a_tint_texture_that_is_one_image_on_several_bodies_is_kept_once_and_listed_as_copies(self):
+        bakes = [bake(self.root / 'bakes' / body, body) for body in registry.BODIES]
+        human = (bakes[registry.BODIES.index('pmh0')] / 'resources' / f'pmh0_shinl{NUMBER}.plt').read_bytes()
+        for body in ('pmd0', 'pmg0'):  # a refit leaves the Human's tint texture on the other bodies
+            (bakes[registry.BODIES.index(body)] / 'resources' / f'{body}_shinl{NUMBER}.plt').write_bytes(human)
+        report = self.publish(bakes)
+        self.assertTrue(report['passed'] and report['written'])
+        listed = {f'pmd0_shinl{NUMBER}.plt': f'pmh0_shinl{NUMBER}.plt', f'pmg0_shinl{NUMBER}.plt': f'pmh0_shinl{NUMBER}.plt'}  # the Human Fit body's is the one kept
+        self.assertEqual(report['copies'], sorted(listed))
+        pack = self.repo / 'srn_parts'
+        self.assertEqual(len(list(pack.iterdir())), 20 * len(TOKENS) * 4 + 4 - 2)
+        self.assertTrue((pack / f'pmh0_shinl{NUMBER}.plt').is_file() and (pack / f'pmg0_shinr{NUMBER}.plt').is_file())
+        self.assertFalse((pack / f'pmg0_shinl{NUMBER}.plt').exists() or (pack / f'pmd0_shinl{NUMBER}.plt').exists())
+        self.assertEqual(json.loads((self.repo / publish.COPIES).read_text(encoding='utf-8')), {'schemaVersion': 1, 'kind': 'srn-hak-copies', 'pack': 'srn_parts', 'copies': listed})
+        self.assertEqual(publish.copies(self.repo), listed)
+        entry = next(pack for pack in json.loads((self.repo / 'hakbuilder.json').read_text(encoding='utf-8'))['HakList'] if pack['Name'] == 'srn_parts')
+        self.assertEqual(entry['Copies'], './docs/armorkit/parts-copies.json')
+        # the handoff records the copy under its own name, with the image's hash
+        handoff = json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))
+        troll = {resource['name']: resource for outfit in handoff['outfits'] if outfit['body'] == 'pmg0' for resource in outfit['resources']}
+        self.assertEqual(troll[f'pmg0_shinl{NUMBER}.plt'], {'name': f'pmg0_shinl{NUMBER}.plt', 'sha256': publish.sha(pack / f'pmh0_shinl{NUMBER}.plt'), 'bytes': len(human)})
+        # a later publication reads a copy from the file kept, keeps the list, and holds both to the handoff
+        more = self.root / 'more.json'
+        more.write_text(json.dumps(document(*PARTS, part(slot='hand', number=6030, set='siteguard', group='corpsec', genderedCut=False, tiers={'wrist': 2}))), encoding='utf-8')
+        self.assertEqual(self.publish(shared(outfit='hands'), registry=more, dry_run=True)['failures'], [])
+        trial = self.publish(shared(outfit='hands'), registry=more, root=self.root / 'trial', trial=True)
+        self.assertTrue(trial['passed'] and publish.copies(self.root / 'trial') == listed and not (self.root / 'trial' / 'srn_parts' / f'pmg0_shinl{NUMBER}.plt').exists())
+        kept = pack / f'pmh0_shinl{NUMBER}.plt'
+        kept.write_bytes(b'edited')
+        drift = self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        self.assertEqual(sorted((one['gate'], one['model']) for one in drift['failures']), [('published', name) for name in sorted([kept.name, *listed])])
+        kept.write_bytes(human)
+        (pack / f'pmg0_shinl{NUMBER}.plt').write_bytes(human)  # a copy put back into the folder would be packed twice
+        drift = self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        self.assertEqual([(one['gate'], one['model']) for one in drift['failures']], [('published', f'pmg0_shinl{NUMBER}.plt')])
+        self.assertIn('copies list names it as a copy', drift['failures'][0]['reason'])
+        (pack / f'pmg0_shinl{NUMBER}.plt').unlink()
+        (self.repo / publish.COPIES).write_text('{"kind": "other"}', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'is no copies list of srn_parts'):
+            self.publish(shared(outfit='hands'), registry=more, dry_run=True)
+        # icons are kept under their own names, and a pack without copies has no list
+        self.assertEqual(publish.tint_copies({'pfh0_a1.plt': 'x', 'pfd0_a1.plt': 'x', 'pfd2_a1.plt': 'x', 'pfd0_b1.plt': 'y', 'pfd0_a1n.tga': 'x'}),
+                         {'pfd0_a1.plt': 'pfh0_a1.plt', 'pfd2_a1.plt': 'pfh0_a1.plt'})
+        self.assertEqual(publish.copies(self.root / 'nowhere'), {})
+
     def test_the_build_entry_is_added_once_after_the_armor_pack(self):
         text = (self.repo / 'hakbuilder.json').read_text(encoding='utf-8')
         once = publish.registered(text)
         self.assertEqual(publish.registered(once), once)
         self.assertIn({'Name': 'srn_parts', 'Path': './srn_parts/', 'CompileModels': False}, json.loads(once)['HakList'])
+        copied = publish.registered(once, True)  # the entry names the copies list once the pack has one, and keeps it
+        self.assertIn({'Name': 'srn_parts', 'Path': './srn_parts/', 'CompileModels': False, 'Copies': './docs/armorkit/parts-copies.json'}, json.loads(copied)['HakList'])
+        self.assertEqual((publish.registered(copied), publish.registered(copied, True)), (copied, copied))
         with self.assertRaisesRegex(ValueError, 'indent-2 form'):
             publish.registered(json.dumps(json.loads(text)))
 

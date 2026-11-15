@@ -71,6 +71,8 @@ foreach ($pack in @($configuration.HakList)) {
     if ($packByPath.ContainsKey($relativePath)) { Add-ValidationError "Duplicate HAK path '$relativePath'." }
     else { $packByPath[$relativePath] = $pack }
     if ($pack.CompileModels -ne $false) { Add-ValidationError "HAK '$name' must set CompileModels to false." }
+    # A copies list (Get-SrnHakCopies) names real files of the pack and no file the pack holds.
+    try { $null = Get-SrnHakCopies -Hak $pack } catch { Add-ValidationError "Invalid copies list: $($_.Exception.Message)" }
 }
 
 $registeredNames = @($packByName.Keys)
@@ -365,10 +367,22 @@ if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -L
             }
             # A published file is the one its handoff records, by hash: one changed afterwards passed here until
             # the next publication's own gate met it (review of PR 158, 2026-11-15).
+            # A published file the pack leaves out is a copy its copies list packs from a held file of the same
+            # bytes (Get-SrnHakCopies; user decision 2026-11-15: tint textures that are one image are kept once).
+            $partsCopies = if ($packByName.ContainsKey('srn_parts')) { Get-SrnHakCopies -Hak $packByName['srn_parts'] } else { [ordered]@{} }
+            $partsHeldHashes = @{}
             foreach ($name in $partsRecorded) {
-                $partsFile = Join-Path $partsPackPath $name
-                if (-not (Test-Path -LiteralPath $partsFile -PathType Leaf)) { Add-ValidationError "srn_parts has no $name, which the parts handoff records as published." }
-                elseif ((Get-FileHash -LiteralPath $partsFile -Algorithm SHA256).Hash -ine $partsHashes[$name]) { Add-ValidationError "srn_parts/$name is not the file the parts handoff records as published: its hash differs." }
+                $held = if ($partsCopies.Contains($name)) { [string]$partsCopies[$name] } else { $name }
+                $partsFile = Join-Path $partsPackPath $held
+                if (-not (Test-Path -LiteralPath $partsFile -PathType Leaf)) { Add-ValidationError "srn_parts has no $name, which the parts handoff records as published."; continue }
+                if (-not $partsHeldHashes.ContainsKey($held)) { $partsHeldHashes[$held] = (Get-FileHash -LiteralPath $partsFile -Algorithm SHA256).Hash }
+                if ($partsHeldHashes[$held] -ine $partsHashes[$name]) {
+                    if ($held -ceq $name) { Add-ValidationError "srn_parts/$name is not the file the parts handoff records as published: its hash differs." }
+                    else { Add-ValidationError "The copies list packs srn_parts/$held as $name, and it is not the file the parts handoff records as published under that name: its hash differs." }
+                }
+            }
+            foreach ($name in $partsCopies.Keys) {
+                if (-not $partsRecorded.Contains($name)) { Add-ValidationError "The copies list of srn_parts names $name, which is not a file the parts handoff records as published." }
             }
             if (Test-Path -LiteralPath $partsPackPath -PathType Container) {
                 foreach ($file in @(Get-ChildItem -LiteralPath $partsPackPath -File)) {
@@ -452,6 +466,10 @@ else {
         if ($packBuildPatterns | Where-Object { $normalized -match $_ }) { $mustBuildAll = $true }
         $firstSegment = $normalized.Split('/')[0]
         if ($packByName.ContainsKey($firstSegment)) { [void]$packsToBuild.Add($firstSegment) }
+        # A pack's copies list is packed with it, and lies outside its folder.
+        foreach ($pack in @($configuration.HakList)) {
+            if ($pack.PSObject.Properties['Copies'] -and (Normalize-RelativePath ([string]$pack.Copies)) -ceq $normalized) { [void]$packsToBuild.Add([string]$pack.Name) }
+        }
     }
     if ($mustBuildAll) { foreach ($name in $registeredNames) { [void]$packsToBuild.Add($name) } }
 }

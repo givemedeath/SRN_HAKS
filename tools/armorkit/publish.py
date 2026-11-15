@@ -21,7 +21,9 @@ What a publication writes, under the repository or under `--trial ROOT`:
 * `docs/armorkit/parts-registry.json`, the registry, and `docs/armorkit/parts-handoff.json`, the file SR_NWN
   reads: `registry.handoff` with the pack's name and, per outfit and body, the hashes of its brief, bake record,
   history records and resources;
-* the `srn_parts` entry of `hakbuilder.json`, once.
+* `docs/armorkit/parts-copies.json`, the pack's copies list: a tint texture that is one image under several
+  names is written once and its other names listed (`copies`, `tint_copies`);
+* the `srn_parts` entry of `hakbuilder.json`, once, naming the copies list when there is one.
 
 The gates (`gates`) each fail the command with the model and the reason: every body a part lists has its model
 and every part its table row, every texture a model names is in the pack, no name is one `srn_body` or
@@ -38,6 +40,7 @@ Publishing grants no approval: the client is the evidence, and the user's review
 import hashlib
 import json
 import math
+import os
 import shutil
 import struct
 import subprocess
@@ -54,6 +57,8 @@ PACK = 'srn_parts'
 TABLE_PACK = 'srn_2da'
 REGISTRY = Path('docs/armorkit/parts-registry.json')
 HANDOFF = Path('docs/armorkit/parts-handoff.json')
+COPIES = Path('docs/armorkit/parts-copies.json')  # the pack's copies list (tools/SrnHaks.Common.psm1, Get-SrnHakCopies)
+COPIES_KIND = 'srn-hak-copies'
 HAKBUILDER = Path('hakbuilder.json')
 PROVENANCE = Path('PROVENANCE.md')
 TRIAL = 'armorkit-publish-trial.json'  # what marks a folder as a trial root: a trial is written nowhere else
@@ -217,6 +222,37 @@ def shared_name(names, digest):
     room = min(4, 16 - len(part) - 1)
     require(room >= 2, f"{part} leaves no room in a resource name for a shared map's hash")
     return f'{part}_{digest[:room]}'
+
+
+def copies(root):
+    """{file name: the file of the pack it is a copy of} of the copies list under `root`; none without one.
+
+    A tint texture is never shared by name (`shared_maps`), so a refit outfit's is one image under up to
+    ten names. The pack's folder holds it once and the copies list names the others; `tools/Build-Haks.ps1`
+    and `build` pack the held file under each (user decision 2026-11-15, after the storage study: 208 of
+    Facility Security's 244 tint textures were copies, 254 MB of its 404). The handoff records every name."""
+    path = Path(root) / COPIES
+    if not path.is_file():
+        return {}
+    held = json.loads(path.read_text(encoding='utf-8'))
+    require(isinstance(held, dict) and held.get('kind') == COPIES_KIND and held.get('schemaVersion') == 1 and held.get('pack') == PACK
+            and isinstance(held.get('copies'), dict) and all(isinstance(name, str) for name in held['copies'].values()),
+            f'{path} is no copies list of {PACK}')
+    return dict(held['copies'])
+
+
+def tint_copies(hashes):
+    """{file name: the name kept} of the tint textures in {file name: hash} that are one image under several
+    names: the Human Fit body's is kept before any other, then the first by name (as `shared_maps` keeps a map)."""
+    same = {}
+    for name in sorted(hashes):
+        if name.endswith('.plt'):
+            same.setdefault(hashes[name], []).append(name)
+    doubled = {}
+    for names in same.values():
+        names = sorted(names, key=lambda name: (name[2:4] != 'h0', name))
+        doubled.update({name: names[0] for name in names[1:]})
+    return doubled
 
 
 def tint_channels(path):
@@ -678,22 +714,25 @@ def seed(root, repo=REPO):
     for pack in (TABLE_PACK, PACK):
         if not (root / pack).is_dir() and (repo / pack).is_dir():
             shutil.copytree(repo / pack, root / pack)
-    for record in (REGISTRY, HANDOFF):
+    for record in (REGISTRY, HANDOFF, COPIES):
         if not (root / record).is_file() and (repo / record).is_file():
             (root / record).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(repo / record, root / record)
     return root
 
 
-def registered(text):
-    """`hakbuilder.json`'s text with the `srn_parts` pack in its list, after `srn_armor`; unchanged if it is there."""
+def registered(text, copied=False):
+    """`hakbuilder.json`'s text with the `srn_parts` pack in its list, after `srn_armor`, and with `copied` its
+    entry naming the copies list; unchanged if it is all there."""
     document = json.loads(text)
     require(json.dumps(document, indent=2) + '\n' == text, 'hakbuilder.json is not in the indent-2 form this command rewrites')
     names = [pack['Name'] for pack in document['HakList']]
-    if PACK in names:
-        return text
-    at = names.index('srn_armor') + 1 if 'srn_armor' in names else len(names)
-    document['HakList'].insert(at, {'Name': PACK, 'Path': f'./{PACK}/', 'CompileModels': False})
+    if PACK not in names:
+        at = names.index('srn_armor') + 1 if 'srn_armor' in names else len(names)
+        document['HakList'].insert(at, {'Name': PACK, 'Path': f'./{PACK}/', 'CompileModels': False})
+    entry = next(pack for pack in document['HakList'] if pack['Name'] == PACK)
+    if copied:
+        entry.setdefault('Copies', './' + COPIES.as_posix())
     return json.dumps(document, indent=2) + '\n'
 
 
@@ -708,11 +747,25 @@ def build(root, packs=(PACK, TABLE_PACK), repo=REPO):
         source, target = root / pack, root / 'output' / (pack + '.hak')
         require(source.is_dir(), f'{root} has no {pack} folder to pack')
         target.unlink(missing_ok=True)
-        done = subprocess.run([tool, '-f', str(target), '--no-symlinks', '-c', str(source)], capture_output=True, text=True)
+        listed = copies(root) if pack == PACK else {}
+        stage = root / 'output' / f'.copies-{pack}'  # hard links to the held files, each under its copy's name
+        shutil.rmtree(stage, ignore_errors=True)
+        try:
+            if listed:
+                stage.mkdir()
+                for name, held in listed.items():
+                    require((source / held).is_file() and not (source / name).exists(), f'{name} is listed as a copy of {held}: the pack must hold {held} and no {name}')
+                    try:
+                        os.link(source / held, stage / name)
+                    except OSError:
+                        shutil.copyfile(source / held, stage / name)
+            done = subprocess.run([tool, '-f', str(target), '--no-symlinks', '-c', str(source)] + ([str(stage)] if listed else []), capture_output=True, text=True)
+        finally:
+            shutil.rmtree(stage, ignore_errors=True)
         require(done.returncode == 0 and target.is_file(), f'{pack}.hak was not built: {done.stdout[-1000:]}{done.stderr[-1000:]}')
         listing = subprocess.run([tool, '-f', str(target), '-t'], capture_output=True, text=True)
         require(listing.returncode == 0, f'{pack}.hak could not be read back')
-        expected = sorted(path.name for path in source.iterdir() if path.is_file())
+        expected = sorted([path.name for path in source.iterdir() if path.is_file()] + list(listed))
         require(sorted(line.strip() for line in listing.stdout.splitlines() if line.strip()) == expected,
                 f'{pack}.hak does not hold exactly the files of its folder')
         built[pack] = {'resources': len(expected), 'sha256': sha(target), 'path': str(target)}
@@ -747,6 +800,14 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     pack_folder = root / PACK
     pack = {path.name: path for path in pack_folder.iterdir() if path.is_file()} if pack_folder.is_dir() else {}
     failures, incoming, outfits = [], {}, []
+    # A copy the pack leaves out is read from the file it is a copy of (`copies`), and held to its own recorded hash.
+    listed = copies(root)
+    for name, held in sorted(listed.items()):
+        if name in pack:
+            failures.append(failure('published', name, f'{PACK} holds this file, and its copies list names it as a copy of {held}'))
+        elif held not in pack or held in listed:
+            failures.append(failure('published', name, f'the copies list names it as a copy of {held}, which {PACK} does not hold'))
+    pack.update({name: pack[held] for name, held in listed.items() if name not in pack and held in pack})
     # What is published is what its handoff recorded: a file changed or gone since fails by name.
     recorded = [resource for outfit in handoff_before.get('outfits', []) for resource in outfit.get('resources', [])]
     for resource in recorded + handoff_before.get('iconFiles', []):
@@ -882,6 +943,9 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         # Every source is hashed once, before the first write; the records are made from those hashes and each
         # copy is read back against its own.
         hashes = {name: sha(path) for name, path in incoming.items()}
+        # A tint texture that is one image under several names is written once; the copies list names the others.
+        doubled = tint_copies({name: digest for name, digest in hashes.items() if name not in drawn})  # an icon is 16 KB: kept under its own name
+        report['copies'] = sorted(doubled)
         # A record is named with the folder it lies in: the stages of a generation each keep a file of one name.
         pinned = lambda path: {'name': '/'.join(path.resolve().parts[-2:]), 'sha256': once(path), 'bytes': path.stat().st_size}
         outfits = [{'model': bake['record']['model'], 'body': bake['record']['body'], 'number': bake['record']['number'], 'tier': bake['record'].get('tier'),
@@ -900,8 +964,10 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                    'outfits': handoff_before.get('outfits', []) + outfits}
         texts = {root / TABLE_PACK / (table + '.2da'): text.encode('cp1252') for table, text in table_texts.items()}
         texts.update({root / path: (json.dumps(value, indent=1) + '\n').encode('utf-8') for path, value in ((REGISTRY, document), (HANDOFF, handoff))})
+        if listed or doubled:
+            texts[root / COPIES] = (json.dumps({'schemaVersion': 1, 'kind': COPIES_KIND, 'pack': PACK, 'copies': dict(sorted({**listed, **doubled}.items()))}, indent=1) + '\n').encode('utf-8')
         if not trial:
-            texts[root / HAKBUILDER] = registered((root / HAKBUILDER).read_text(encoding='utf-8')).encode('utf-8')
+            texts[root / HAKBUILDER] = registered((root / HAKBUILDER).read_text(encoding='utf-8'), bool(listed or doubled)).encode('utf-8')
         saved = {path: path.read_bytes() if path.is_file() else None for path in texts}
         made_pack = not pack_folder.is_dir()
         try:
@@ -909,6 +975,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                 (root / TRIAL).write_text(json.dumps({**TRIAL_MARK, 'written': True}) + '\n', encoding='utf-8')
             pack_folder.mkdir(parents=True, exist_ok=True)
             for name, path in sorted(incoming.items()):
+                if name in doubled:
+                    continue
                 shutil.copyfile(path, pack_folder / name)
                 require(sha(pack_folder / name) == hashes[name], f'{name} was not copied whole')
             for path, blob in texts.items():

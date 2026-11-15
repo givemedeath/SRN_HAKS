@@ -141,7 +141,8 @@
     {
       "Name": "srn_parts",
       "Path": "./srn_parts/",
-      "CompileModels": false
+      "CompileModels": false,
+      "Copies": "./docs/armorkit/parts-copies.json"
     },
     {
       "Name": "srn_head",
