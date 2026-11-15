@@ -286,8 +286,21 @@ For each item, the command:
    It reads the blueprint UTI from the run's fixture module, or from the latest refixture when there is no first
    fixture. It refuses the item if the UTI's base item or model parts disagree with the package.
 2. **Refuses collisions.** Any file name already in `srn_weapon`, any name listed twice, and any item already in
-   `approved-weapons-v1.json` stop the whole run before anything is written.
-3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. Each is recorded in
+   `approved-weapons-v1.json` stop the whole run before anything is written. With the NWN:EE install (always through
+   the driver, and with `--nwn-root`), it also reads the install's KEY indexes (`data` and `lang/en/data`). A package
+   file the base game holds is refused unless the package's contract recorded it as a stock replacement
+   (`allocation.replacesStock`, from `drive contract --replace-stock`; see `item-generation-toolkit.md`). A recorded
+   replacement is copied over the stock name like any other file, including its BioWare DDS icon twins (a package
+   must carry every recorded name). The item's record gets `replacesStock` (the
+   contract's list), its overriding resources get `"replacesStock": true`, and the policy text names them. The plan
+   shows them per item and says whether the stock check ran (`stockCheck`); a direct `--dry-run` without
+   `--nwn-root` skips it. Stock slots lie inside every carrier's `MinRange`..`MaxRange`, so they never change the
+   table.
+3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. That includes the BioWare
+   DDS twins newer packages carry beside each icon and diffuse TGA (NWN Crunch, `item-generation-toolkit.md`). A DDS
+   without its TGA in the same package is refused. So is one whose header is not a three- or four-channel BioWare
+   DDS, whose payload is not a whole mip chain, or whose size differs from its TGA (`tools/itemkit/dds.py`). Each is
+   recorded in
    `approved-weapons-v1.json` with its source archive and hash. The item's family is taken from the grouping plan.
 4. **Extends the table only when needed.** If an appearance number is above its row's `MaxRange`, only that token in
    `srn_2da/baseitems.2da` changes. A longer number takes the padding after it, and no other byte of the table moves.
@@ -304,7 +317,9 @@ For each item, the command:
    characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
-   built archive holds exactly its source files, refreshes the release validation, the module manifest and the module
+   built archive holds exactly its source files and repeats the DDS twin check on every DDS in `srn_weapon`
+   (`ddsTwinsChecked` in the release validation; `imagesChecked` still counts the TGAs). It refreshes the release
+   validation, the module manifest and the module
    validation (a new `extension` entry, not run in the client), and regenerates the combat release manifest.
 
 If any step fails, the command puts every tracked file it touched back as it was and removes the files it added, then

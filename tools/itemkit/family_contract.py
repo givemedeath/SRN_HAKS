@@ -1,17 +1,21 @@
 """A native contract for one design on any composite melee carrier, including the hafted families.
 
-    python -m tools.itemkit.drive contract FAMILY DESIGN_ID --wave NAME [--visible N]
+    python -m tools.itemkit.drive contract FAMILY DESIGN_ID --wave NAME [--visible N] [--replace-stock]
 
 Builds on the measured wave contract (stack, stock baseitems, the shipped Humans and approved weapons): extracts the
 installed carrier's three stock parts and icons into a new stack layer, measures the stock grip origin and overall span
 (carrier.py), allocates the visible budget from budget-policy.json by the stock length, reserves resources and writes
 `contracts/<wave>/family-<name>.json` and `<DESIGN>.<wave>-contract.asset.json`.
 
+--replace-stock lets a design take a base-game appearance slot once 1..25 hold no free one (reserve(); the contract records
+the stock names in resources.replacesStock). A slot held by srn_weapon or by a live sibling contract is never taken.
+
 The grip origin is measured, not reviewed in the hand: the first design fitted on a new carrier carries the both-body
 hand-fit review that confirms it, exactly as the Claymore's provisional greatsword contract did.
 """
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -97,6 +101,29 @@ def sibling_models(contracts, own, item_class):
     return taken
 
 
+MAIN_REFS = ('refs/remotes/origin/main', 'refs/heads/main')
+
+
+def published_names(repo=ROOT):
+    """The resource names srn_weapon holds in this checkout and on main.
+
+    A wave's stack carries the srn_weapon layer as of its base contract; weapons published since are held by their live
+    contracts (sibling_models), and this listing also guards a slot whose contract folder was retired. The checkout a
+    contract runs in can lag main, so the main refs it knows are read too (as last fetched: nothing is fetched here)."""
+    folder = Path(repo)/'srn_weapon'
+    names = {p.name.lower() for p in folder.iterdir() if p.is_file()} if folder.is_dir() else set()
+    # The repository is the one at `repo`: an inherited GIT_DIR or GIT_WORK_TREE would point git elsewhere.
+    env = {k: v for k, v in os.environ.items() if k not in ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_COMMON_DIR')}
+    for ref in MAIN_REFS:
+        try:
+            done = subprocess.run(['git', '-C', str(repo), 'ls-tree', '-z', '--name-only', ref, '--', 'srn_weapon/'],
+                                  capture_output=True, env=env)
+        except OSError: break                     # no git here: the checkout's own listing stands
+        if done.returncode == 0:
+            names |= {Path(n).name.lower() for n in done.stdout.decode('utf-8').split('\0') if n}
+    return names
+
+
 def base_grip_origin(source, item_class):
     """The grip origin the base contracts already hold for this carrier, or None.
 
@@ -110,7 +137,7 @@ def base_grip_origin(source, item_class):
     return known[0] if known else None
 
 
-def build(ws, family_name, design, wave, *, visible=None, base=BASE):
+def build(ws, family_name, design, wave, *, visible=None, base=BASE, replace_stock=False):
     from .carrier import assemble, decode_stock, measure
     from .contracts import family, native_contract, reserve
     from tools.headkit.common import verification_pass
@@ -182,9 +209,16 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     try:
         with verification_pass('family-contract-'+design):
             path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
-            _, resources = native_contract(path, profile)
-            slot = reserve(profile, {n.lower() for n in resources} | sibling_models(target.parent, path, cls))
-            profile['resources']['appearanceIndex'] = slot['modelIndex']; path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
+            stock = set(); _, resources = native_contract(path, profile, stock=stock)
+            held = sibling_models(target.parent, path, cls) | published_names()
+            slot = reserve(profile, {n.lower() for n in resources} | held, stock=stock - held, replace_stock=replace_stock)
+            profile['resources']['appearanceIndex'] = slot['modelIndex']
+            if slot.get('replacesStock'):
+                profile['resources']['replacesStock'] = slot['replacesStock']
+                profile['notes'] += (f' Appearance slot {slot["modelIndex"]} replaces the base-game {cls} shape {slot["modelIndex"]} colour 1 '
+                                     f'({len(slot["replacesStock"])} stock names in resources.replacesStock): slots 1..25 were all taken '
+                                     '(user approval 2026-11-15 to replace base-game weapon parts on every carrier).')
+            path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
             family(path, validate_native=True)
     except BaseException:
         path.unlink(missing_ok=True)     # nothing pins a contract that never validated: a fixed rerun starts clean
@@ -192,4 +226,5 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     manifest = json.loads((handoff/f'{design}.asset.json').read_text(encoding='utf-8'))
     manifest['familyProfile'] = {'path': path.relative_to(handoff).as_posix(), 'sha256': sha(path)}
     out.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
-    return {'family': str(path), 'manifest': str(out), 'carrier': carrier, 'budget': budget, 'slot': slot['modelIndex']}
+    return {'family': str(path), 'manifest': str(out), 'carrier': carrier, 'budget': budget, 'slot': slot['modelIndex'],
+            **({'replacesStock': slot['replacesStock']} if slot.get('replacesStock') else {})}

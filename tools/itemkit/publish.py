@@ -7,7 +7,8 @@ RUN is the item run directory the user approved: it holds the native package (na
 HAK) and the fixture module whose blueprint shipped with it (fixture/attempt-*/fixture/userdir/modules/*.mod, or one
 refixture-*/fixture/userdir/modules/*.mod). Every payload is copied byte for byte; nothing is regenerated.
 
-The command refuses a name already in srn_weapon, checks the blueprint against the package (base item and the three
+The command refuses a name already in srn_weapon and, given --nwn-root, a name the installed base game holds unless the
+package's contract recorded it as a stock replacement (allocation.replacesStock: `drive contract --replace-stock`); it checks the blueprint against the package (base item and the three
 model parts), extends a carrier row's MaxRange only when an appearance number lies above it (that token and nothing
 else), records the items, resources, sources and the user's words in docs/items/approved-weapons-v1.json, adds a male
 and a female reviewer per blueprint to test-modules/weapon-waves (templates, placed instances, equip lines and the
@@ -51,7 +52,7 @@ BUILT = Path('output')
 MODULE_BUILT = Path('output/weapon-waves-test')/MODULE_ARCHIVE
 PAIRS_INCLUDE = 'sw_pairs.nss'
 SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
-EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti'}
+EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti', 2033: 'dds'}      # dds: the BioWare DDS twins of the package's TGAs
 TYPE = {v: k for k, v in EXT.items()}
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
 # Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_
@@ -123,6 +124,7 @@ class Package:
     hak: Path
     module: Path
     files: dict = field(default_factory=dict)     # srn_weapon file name -> (bytes, source archive)
+    replaces_stock: list = field(default_factory=list)   # base-game names the contract's stock slot overrides
     archives: dict = field(default_factory=dict)  # source archive name -> sha256, hashed once by survey
 
 
@@ -155,12 +157,61 @@ def survey(item, run):
     require(len(set(parts)) == 1 and all(fields.get(f'ModelPart{i}') == parts[0] for i in (1, 2, 3)),
             f'{item}: blueprint model parts do not match the package models {models}')
     package = Package(item, run, native['identity']['displayName'], blueprint, native['baseItem'], parts[0], hak, module,
-                      archives={hak.name: sha(hak_bytes), module.name: sha(module_bytes)})
+                      archives={hak.name: sha(hak_bytes), module.name: sha(module_bytes)},
+                      replaces_stock=list(native['allocation'].get('replacesStock', [])))
     for (resref, kind), body in read_erf(hak_bytes).items():
         require(kind in EXT, f'{item}: unexpected resource type {kind} in {hak.name}')
         package.files[f'{resref}.{EXT[kind]}'] = (body, hak.name)
     package.files[f'{blueprint}.uti'] = (uti, module.name)
+    stray = sorted(n for n in package.replaces_stock if n not in package.files)
+    require(not stray, f'{item}: the recorded stock replacement names files the package does not carry: {stray}')
+    alone = sorted(n for n in package.files if n.endswith('.dds') and n[:-4]+'.tga' not in package.files)
+    require(not alone, f'{item}: a DDS file is published only as the twin of the package\'s own TGA: {alone}')
+    bad = dds_problems({n: body for n, (body, _) in package.files.items()})
+    require(not bad, f'{item}: DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
     return package
+
+
+def dds_problems(files):
+    """{name: problem} for each DDS in {file name: bytes} that is not a whole-mip BioWare DDS the size of its TGA."""
+    from tools.itemkit.dds import twin_problem
+    out = {}
+    for name, body in files.items():
+        if name.endswith('.dds'):
+            problem = twin_problem(body, files[name[:-4]+'.tga']) if name[:-4]+'.tga' in files else 'no TGA beside it'
+            if problem: out[name] = problem
+    return out
+
+
+def folder_dds_problems(folder):
+    """(DDS names, dds_problems) for every DDS in a pack folder: each DDS read in full (its length is checked), only
+    the 18-byte header of its TGA, both matched by name in any case."""
+    files = {p.name.lower(): p for p in Path(folder).iterdir() if p.is_file()}
+    dds = {n: p.read_bytes() for n, p in files.items() if n.endswith('.dds')}
+    def header(path):
+        with open(path, 'rb') as f: return f.read(18)
+    tgas = {n[:-4]+'.tga': header(files[n[:-4]+'.tga']) for n in dds if n[:-4]+'.tga' in files}
+    return sorted(dds), dds_problems({**dds, **tgas})
+
+
+def stock_names(nwn_root):
+    """The resource names of the installed base game (its data and lang/en/data KEY indexes, as the stock namespace binds)."""
+    from tools.itemkit.native_stack import key_names
+    root = Path(nwn_root); keys = sorted([*(root/'data').glob('*.key'), *(root/'lang/en/data').glob('*.key')])
+    require(keys, f'No KEY index under {root}/data: --nwn-root must be the NWN:EE install')
+    return set().union(*(key_names(k) for k in keys))
+
+
+def stock_overrides(packages, stock):
+    """{item: [names]} of package files that override the base game; refused unless the contract recorded each one."""
+    out = {}
+    for p in packages:
+        hits = sorted(n for n in p.files if n in stock)
+        undeclared = sorted(set(hits) - set(p.replaces_stock))
+        require(not undeclared, f'{p.item}: would override base-game resources its contract did not record as a stock '
+                                f'replacement (drive contract --replace-stock): {undeclared}')
+        if hits: out[p.item] = hits
+    return out
 
 
 def table_row(lines, row):
@@ -367,18 +418,20 @@ def payload_exact(archive, folder, suffixes):
     return entries == sources, len(entries)
 
 
-def update_publication(repo, packages, needs, statements, review, policy):
+def update_publication(repo, packages, needs, statements, review, policy, overrides=None):
     path = repo/PUBLICATION; pub, ascii_only = load_exact(path)
     families = {f['baseItemId']: f['id'] for f in pub['groupingPlan']['families']}
     for p in packages:
         require(p.base_item in families, f'{p.item}: base item {p.base_item} is not in the grouping plan')
         # The record's order: the item's package files by name, then its blueprint.
+        replaced = set((overrides or {}).get(p.item, ()))
         for name, (body, archive) in sorted(p.files.items(), key=lambda f: (f[0].endswith('.uti'), f[0])):
             pub['resources'].append({'item': p.item, 'sourceArchive': archive, 'sourceResource': name, 'approvedSourceSha256': sha(body),
                                      'path': f'{WEAPONS.as_posix()}/{name}', 'sha256': sha(body), 'bytes': len(body),
-                                     'resourceType': TYPE[name.rsplit('.', 1)[1]]})
+                                     'resourceType': TYPE[name.rsplit('.', 1)[1]], **({'replacesStock': True} if name in replaced else {})})
         pub['items'].append({'id': p.item, 'name': p.name, 'blueprints': [p.blueprint], 'sourceArchive': p.hak.name,
-                             'status': 'user-approved', 'family': families[p.base_item]})
+                             'status': 'user-approved', 'family': families[p.base_item],
+                             **({'replacesStock': p.replaces_stock} if p.replaces_stock else {})})
         pub['sources'].update(p.archives)
     pub['approvalEvidence']['userStatements'] += [s for s in statements if s not in pub['approvalEvidence']['userStatements']]
     pub['clientReview'] += ' ' + review
@@ -399,7 +452,7 @@ def update_publication(repo, packages, needs, statements, review, policy):
 
 def update_records(repo, packages, needs, statements, tags, total, today):
     weapons = repo/WEAPONS; built = {}
-    for archive, folder, suffixes in ((repo/BUILT/'srn_weapon.hak', weapons, ('.tga', '.mdl', '.uti')),
+    for archive, folder, suffixes in ((repo/BUILT/'srn_weapon.hak', weapons, ('.tga', '.mdl', '.uti', '.dds')),
                                       (repo/BUILT/'srn_2da.hak', repo/'srn_2da', ('.2da',)),
                                       (repo/MODULE_BUILT, repo/MODULE, None)):
         if suffixes is None: suffixes = tuple({p.suffix.lower() for p in Path(folder).iterdir() if p.is_file()})
@@ -407,10 +460,14 @@ def update_records(repo, packages, needs, statements, tags, total, today):
         require(exact, f'{archive.name} does not carry exactly the files of {folder}')
         built[archive.name] = {'resources': count, 'sha256': sha(archive.read_bytes())}
     pub, _ = load_exact(repo/PUBLICATION)
+    dds, bad = folder_dds_problems(weapons)
+    require(not bad, f'srn_weapon holds DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
     path = repo/RELEASE_VALIDATION; rv, ascii_only = load_exact(path)
     rv.update(weaponDesigns=len(pub['items']), blueprints=sum(len(i['blueprints']) for i in pub['items']),
               weaponResources=built['srn_weapon.hak']['resources'], publicationPins=len(pub['resources']),
               modelsDecoded=len(list(weapons.glob('*.mdl'))), imagesChecked=len(list(weapons.glob('*.tga'))))
+    # TGAs are counted as before; each DDS twin's header, whole mip chain and size against its TGA are checked above.
+    if dds or 'ddsTwinsChecked' in rv: rv['ddsTwinsChecked'] = len(dds)
     if 'updated' not in rv:
         items = list(rv.items()); at = [k for k, _ in items].index('date') + 1; rv = dict(items[:at] + [('updated', today)] + items[at:])
     rv['updated'] = today
@@ -449,10 +506,14 @@ def update_records(repo, packages, needs, statements, tags, total, today):
     return built
 
 
-def plan(repo, items):
+def plan(repo, items, stock=None):
+    """The surveyed packages, the MaxRange changes and the declared stock overrides ({} when `stock` is None: unchecked)."""
     packages = [survey(item, run) for item, run in items]
     require(len({p.item for p in packages}) == len(packages), 'An item is listed twice')
     published = {f.name.lower() for f in (repo/WEAPONS).iterdir()}
+    # A DDS already in srn_weapon that fails its twin check would fail the post-rebuild check: refuse before any write.
+    _, broken = folder_dds_problems(repo/WEAPONS)
+    require(not broken, f'srn_weapon already holds DDS twins that are not sound BioWare DDS copies of their TGA: {broken}')
     pub, _ = load_exact(repo/PUBLICATION)
     known = {i['id'] for i in pub['items']}
     names = [n for p in packages for n in p.files]
@@ -468,7 +529,8 @@ def plan(repo, items):
     slots = {p.item: rows[p.base_item].get('EquipableSlots', '****') for p in packages}
     left = [item for item, value in slots.items() if value != '****' and not int(value, 16) & 0x10]
     require(not left, f'Items that cannot go in the right hand are not published by this command: {left}')   # 0x10: right hand
-    return packages, maxrange_needs(repo, packages)
+    overrides = stock_overrides(packages, stock) if stock is not None else {}
+    return packages, maxrange_needs(repo, packages), overrides
 
 
 def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False):
@@ -477,10 +539,13 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
             "Publishing needs the user's words (--statement) and the review sentence (--review)")
     try: require(Date.fromisoformat(today).isoformat() == today, '')
     except ValueError: raise PublishError(f'--date {today} is not a YYYY-MM-DD date') from None
-    packages, needs = plan(repo, items)
+    stock = stock_names(nwn_root) if nwn_root else None
+    packages, needs, overrides = plan(repo, items, stock)
     summary = {'items': [{'id': p.item, 'name': p.name, 'blueprint': p.blueprint, 'baseItem': p.base_item, 'appearance': p.appearance,
-                          'files': sorted(p.files)} for p in packages],
-               'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()}}
+                          'files': sorted(p.files), **({'replacesStock': overrides[p.item]} if p.item in overrides else {})}
+                         for p in packages],
+               'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()},
+               'stockCheck': 'checked against the installed KEY indexes' if stock is not None else 'skipped: no --nwn-root'}
     # Room for the reviewers is checked before anything is written (a dry run without the module skips it), and this
     # checked layout is the one add_reviewers writes.
     planned = reviewer_plan(repo, packages) if not dry_run or (repo/MODULE).is_dir() else None
@@ -495,8 +560,9 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
             for name, (body, _) in p.files.items(): (repo/WEAPONS/name).write_bytes(body)
         if needs: (repo/BASEITEMS).write_bytes(extend_maxrange((repo/BASEITEMS).read_bytes(), needs))
         policy = (f'{", ".join(p.name for p in packages)}: blueprints and resources byte-identical to the approved itemkit packages'
-                  + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change') + '.')
-        update_publication(repo, packages, needs, statements, review, policy)
+                  + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change')
+                  + ''.join(f'; {p.name} replaces base-game {", ".join(overrides[p.item])}' for p in packages if p.item in overrides) + '.')
+        update_publication(repo, packages, needs, statements, review, policy, overrides)
         with tempfile.TemporaryDirectory() as work:
             tags, total = add_reviewers(repo, planned, tools, work)
         rebuild(repo, tools)
