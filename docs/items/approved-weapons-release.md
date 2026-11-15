@@ -298,7 +298,9 @@ For each item, the command:
    table.
 3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. That includes the BioWare
    DDS twins newer packages carry beside each icon and diffuse TGA (NWN Crunch, `item-generation-toolkit.md`). A DDS
-   without its TGA in the same package is refused. Each is recorded in
+   without its TGA in the same package is refused. So is one whose header is not a three- or four-channel BioWare
+   DDS, whose payload is not a whole mip chain, or whose size differs from its TGA (`tools/itemkit/dds.py`). Each is
+   recorded in
    `approved-weapons-v1.json` with its source archive and hash. The item's family is taken from the grouping plan.
 4. **Extends the table only when needed.** If an appearance number is above its row's `MaxRange`, only that token in
    `srn_2da/baseitems.2da` changes. A longer number takes the padding after it, and no other byte of the table moves.
@@ -315,7 +317,9 @@ For each item, the command:
    characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
-   built archive holds exactly its source files, refreshes the release validation, the module manifest and the module
+   built archive holds exactly its source files and repeats the DDS twin check on every DDS in `srn_weapon`
+   (`ddsTwinsChecked` in the release validation; `imagesChecked` still counts the TGAs). It refreshes the release
+   validation, the module manifest and the module
    validation (a new `extension` entry, not run in the client), and regenerates the combat release manifest.
 
 If any step fails, the command puts every tracked file it touched back as it was and removes the files it added, then

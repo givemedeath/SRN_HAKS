@@ -167,7 +167,31 @@ def survey(item, run):
     require(not stray, f'{item}: the recorded stock replacement names files the package does not carry: {stray}')
     alone = sorted(n for n in package.files if n.endswith('.dds') and n[:-4]+'.tga' not in package.files)
     require(not alone, f'{item}: a DDS file is published only as the twin of the package\'s own TGA: {alone}')
+    bad = dds_problems({n: body for n, (body, _) in package.files.items()})
+    require(not bad, f'{item}: DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
     return package
+
+
+def dds_problems(files):
+    """{name: problem} for each DDS in {file name: bytes} that is not a whole-mip BioWare DDS the size of its TGA."""
+    from tools.itemkit.dds import twin_problem
+    out = {}
+    for name, body in files.items():
+        if name.endswith('.dds'):
+            problem = twin_problem(body, files[name[:-4]+'.tga']) if name[:-4]+'.tga' in files else 'no TGA beside it'
+            if problem: out[name] = problem
+    return out
+
+
+def folder_dds_problems(folder):
+    """(DDS names, dds_problems) for every DDS in a pack folder: each DDS read in full (its length is checked), only
+    the 18-byte header of its TGA, both matched by name in any case."""
+    files = {p.name.lower(): p for p in Path(folder).iterdir() if p.is_file()}
+    dds = {n: p.read_bytes() for n, p in files.items() if n.endswith('.dds')}
+    def header(path):
+        with open(path, 'rb') as f: return f.read(18)
+    tgas = {n[:-4]+'.tga': header(files[n[:-4]+'.tga']) for n in dds if n[:-4]+'.tga' in files}
+    return sorted(dds), dds_problems({**dds, **tgas})
 
 
 def stock_names(nwn_root):
@@ -436,10 +460,14 @@ def update_records(repo, packages, needs, statements, tags, total, today):
         require(exact, f'{archive.name} does not carry exactly the files of {folder}')
         built[archive.name] = {'resources': count, 'sha256': sha(archive.read_bytes())}
     pub, _ = load_exact(repo/PUBLICATION)
+    dds, bad = folder_dds_problems(weapons)
+    require(not bad, f'srn_weapon holds DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
     path = repo/RELEASE_VALIDATION; rv, ascii_only = load_exact(path)
     rv.update(weaponDesigns=len(pub['items']), blueprints=sum(len(i['blueprints']) for i in pub['items']),
               weaponResources=built['srn_weapon.hak']['resources'], publicationPins=len(pub['resources']),
               modelsDecoded=len(list(weapons.glob('*.mdl'))), imagesChecked=len(list(weapons.glob('*.tga'))))
+    # TGAs are counted as before; each DDS twin's header, whole mip chain and size against its TGA are checked above.
+    if dds or 'ddsTwinsChecked' in rv: rv['ddsTwinsChecked'] = len(dds)
     if 'updated' not in rv:
         items = list(rv.items()); at = [k for k, _ in items].index('date') + 1; rv = dict(items[:at] + [('updated', today)] + items[at:])
     rv['updated'] = today
@@ -483,6 +511,9 @@ def plan(repo, items, stock=None):
     packages = [survey(item, run) for item, run in items]
     require(len({p.item for p in packages}) == len(packages), 'An item is listed twice')
     published = {f.name.lower() for f in (repo/WEAPONS).iterdir()}
+    # A DDS already in srn_weapon that fails its twin check would fail the post-rebuild check: refuse before any write.
+    _, broken = folder_dds_problems(repo/WEAPONS)
+    require(not broken, f'srn_weapon already holds DDS twins that are not sound BioWare DDS copies of their TGA: {broken}')
     pub, _ = load_exact(repo/PUBLICATION)
     known = {i['id'] for i in pub['items']}
     names = [n for p in packages for n in p.files]
