@@ -27,7 +27,7 @@ def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
     """A BioWare DDS of a TGA by the vendored NWN Crunch, with a generated mip chain: DXT5 for an RGBA icon (the base
     game's own part icons), DXT1 for an RGB diffuse. Every package ships these beside its TGAs, as the base game ships
     its part icons. `crunch` is a dds_converter() resolved for a batch; without it this one TGA resolves its own."""
-    import struct
+    from .dds import bioware_dds
     require(compression in DDS_CHANNELS, 'Unsupported DDS compression')
     tga, target = Path(tga), Path(target)
     crunch = crunch or dds_converter([tga])
@@ -37,9 +37,11 @@ def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
                           creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     require(done.returncode == 0 and target.is_file(), 'NWN Crunch failed: '+(done.stdout+done.stderr)[-1500:])
     with Image.open(tga) as image: size = image.size
-    data = target.read_bytes(); channels = DDS_CHANNELS[compression]
-    require(len(data) > 20 and struct.unpack_from('<3I', data) == (*size, channels) and data[:4] != b'DDS ',
-            f'{target.name} is not a {size[0]}x{size[1]} {channels}-channel BioWare DDS')
+    channels = DDS_CHANNELS[compression]
+    try: header = bioware_dds(target.read_bytes())
+    except ValueError as error: header = str(error)
+    require(isinstance(header, tuple) and header[:3] == (*size, channels) and header[3] > 1,
+            f'{target.name} is not a {size[0]}x{size[1]} {channels}-channel mipped BioWare DDS: {header}')
 
 
 def package_names_ok(names, twins):

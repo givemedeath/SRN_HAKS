@@ -100,13 +100,23 @@ def sibling_models(contracts, own, item_class):
     return taken
 
 
+MAIN_REFS = ('refs/remotes/origin/main', 'refs/heads/main')
+
+
 def published_names(repo=ROOT):
-    """The resource names the repository's srn_weapon folder holds now.
+    """The resource names srn_weapon holds in this checkout and on main.
 
     A wave's stack carries the srn_weapon layer as of its base contract; weapons published since are held by their live
-    contracts (sibling_models), and this current listing also guards a slot whose contract folder was retired."""
+    contracts (sibling_models), and this listing also guards a slot whose contract folder was retired. The checkout a
+    contract runs in can lag main, so the main refs it knows are read too (as last fetched: nothing is fetched here)."""
     folder = Path(repo)/'srn_weapon'
-    return {p.name.lower() for p in folder.iterdir() if p.is_file()} if folder.is_dir() else set()
+    names = {p.name.lower() for p in folder.iterdir() if p.is_file()} if folder.is_dir() else set()
+    for ref in MAIN_REFS:
+        done = subprocess.run(['git', '-C', str(repo), 'ls-tree', '-z', '--name-only', ref, '--', 'srn_weapon/'],
+                              capture_output=True)
+        if done.returncode == 0:
+            names |= {Path(n).name.lower() for n in done.stdout.decode('utf-8').split('\0') if n}
+    return names
 
 
 def base_grip_origin(source, item_class):

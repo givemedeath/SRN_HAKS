@@ -167,7 +167,20 @@ def survey(item, run):
     require(not stray, f'{item}: the recorded stock replacement names files the package does not carry: {stray}')
     alone = sorted(n for n in package.files if n.endswith('.dds') and n[:-4]+'.tga' not in package.files)
     require(not alone, f'{item}: a DDS file is published only as the twin of the package\'s own TGA: {alone}')
+    bad = dds_problems({n: body for n, (body, _) in package.files.items()})
+    require(not bad, f'{item}: DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
     return package
+
+
+def dds_problems(files):
+    """{name: problem} for each DDS in {file name: bytes} that is not a whole-mip BioWare DDS the size of its TGA."""
+    from tools.itemkit.dds import twin_problem
+    out = {}
+    for name, body in files.items():
+        if name.endswith('.dds'):
+            problem = twin_problem(body, files[name[:-4]+'.tga']) if name[:-4]+'.tga' in files else 'no TGA beside it'
+            if problem: out[name] = problem
+    return out
 
 
 def stock_names(nwn_root):
@@ -436,10 +449,15 @@ def update_records(repo, packages, needs, statements, tags, total, today):
         require(exact, f'{archive.name} does not carry exactly the files of {folder}')
         built[archive.name] = {'resources': count, 'sha256': sha(archive.read_bytes())}
     pub, _ = load_exact(repo/PUBLICATION)
+    dds = {p.name.lower(): p.read_bytes() for p in weapons.glob('*.dds')}
+    bad = dds_problems({**dds, **{n[:-4]+'.tga': (weapons/(n[:-4]+'.tga')).read_bytes() for n in dds if (weapons/(n[:-4]+'.tga')).is_file()}})
+    require(not bad, f'srn_weapon holds DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
     path = repo/RELEASE_VALIDATION; rv, ascii_only = load_exact(path)
     rv.update(weaponDesigns=len(pub['items']), blueprints=sum(len(i['blueprints']) for i in pub['items']),
               weaponResources=built['srn_weapon.hak']['resources'], publicationPins=len(pub['resources']),
               modelsDecoded=len(list(weapons.glob('*.mdl'))), imagesChecked=len(list(weapons.glob('*.tga'))))
+    # TGAs are counted as before; each DDS twin's header, whole mip chain and size against its TGA are checked above.
+    if dds or 'ddsTwinsChecked' in rv: rv['ddsTwinsChecked'] = len(dds)
     if 'updated' not in rv:
         items = list(rv.items()); at = [k for k, _ in items].index('date') + 1; rv = dict(items[:at] + [('updated', today)] + items[at:])
     rv['updated'] = today

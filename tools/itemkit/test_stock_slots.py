@@ -136,6 +136,20 @@ class DdsTwinTests(unittest.TestCase):
             self.assertEqual(Path(dds_converter([tga])), Path(resolve_tool('crunch')['path']))      # the lock-pinned converter
 
 
+class DdsHeaderTests(unittest.TestCase):
+    def test_a_whole_mip_bioware_dds_the_size_of_its_tga(self):
+        from tools.itemkit.dds import bioware_dds, twin_problem
+        from tools.itemkit.test_publish import bioware_dds as make, tga
+        self.assertEqual(bioware_dds(make(32, 128)), (32, 128, 4, 8))
+        self.assertEqual(bioware_dds(make(1024, 1024, 3)), (1024, 1024, 3, 11))
+        self.assertEqual(bioware_dds(make(32, 128)[:20 + 4096]), (32, 128, 4, 1))      # a top level alone is whole
+        self.assertIsNone(twin_problem(make(32, 96), tga(32, 96)))
+        self.assertIn('differs from its TGA', twin_problem(make(32, 64), tga(32, 96)))
+        for bad, message in ((make(32, 128)[:-1], 'whole mip chain'), (b'DDS ' + make(32, 128)[4:], 'standard DDS'),
+                             (make(32, 128) + b'x', 'whole mip chain'), (b'\x20\0\0\0' * 2 + b'\x02\0\0\0' + bytes(8), 'Unsupported')):
+            with self.assertRaisesRegex(ValueError, message): bioware_dds(bad)
+
+
 class PackageNamesTests(unittest.TestCase):
     def test_a_new_package_has_one_dds_twin_per_tga_and_an_old_one_none(self):
         from tools.itemkit.native import package_names_ok
@@ -160,6 +174,18 @@ class PublishedNamesTests(unittest.TestCase):
             self.assertEqual(published_names(folder), set())
             (Path(folder)/'srn_weapon').mkdir(); (Path(folder)/'srn_weapon/WSWLS_B_091.MDL').write_bytes(b'x')
             self.assertEqual(published_names(folder), {'wswls_b_091.mdl'})
+
+    def test_main_is_read_when_the_checkout_lags_it(self):
+        import subprocess
+        from tools.itemkit.family_contract import published_names
+        with tempfile.TemporaryDirectory() as folder:
+            git = lambda *a: subprocess.run(['git', '-C', folder, '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', *a],
+                                            check=True, capture_output=True)
+            git('init', '-q', '-b', 'main'); (Path(folder)/'srn_weapon').mkdir()
+            (Path(folder)/'srn_weapon/wswls_t_081.mdl').write_bytes(b'published on main'); git('add', '.'); git('commit', '-q', '-m', 'main')
+            git('switch', '-q', '-c', 'behind', 'HEAD'); git('rm', '-q', 'srn_weapon/wswls_t_081.mdl'); git('commit', '-q', '-m', 'lagging')
+            self.assertFalse((Path(folder)/'srn_weapon/wswls_t_081.mdl').exists())
+            self.assertIn('wswls_t_081.mdl', published_names(folder))
 
 
 if __name__ == '__main__':
