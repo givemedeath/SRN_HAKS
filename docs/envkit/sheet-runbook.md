@@ -58,11 +58,13 @@ A reference goes to Meshy at 2048 pixels or more on its longer side (user, 2026-
 at about one megapixel. `enlarge` writes each chosen reference to `<root>/references/sent` under the same name:
 doubled by the shared ComfyUI's `RealESRGAN_x2plus.pth` where it is smaller, copied where it is not. This sharpens
 what was drawn and adds nothing to it. The chosen references in `selected` stay as they are, since a building's
-pieces are cut from them in their own pixels. `sheet submit` reads `sent` and refuses a smaller picture, and
-refuses `sent` altogether where it is not the references chosen now (one missing, one made from another picture,
-one whose enlarging failed, one no longer chosen). Run `enlarge` again after choosing another reference; one
-already in `sent` from another picture, or the receipt of an enlarging that failed, is refused until it and its
-record are taken away. `--bindings` is needed only where a reference is doubled.
+pieces are cut from them in their own pixels. `sheet submit` finds each asset's reference in `selected` and sends
+the picture of that name in `sent`; it refuses a smaller picture, and refuses `sent` where it does not hold the
+references chosen now (one missing, one made from another picture, one whose enlarging failed). Run `enlarge`
+again after choosing another reference. Another seed's picture lies beside the one enlarged before, which stays
+as history and is not sent; one chosen again under the same name, or the receipt of an enlarging that failed, is
+refused until the picture in `sent` and its record are taken away. `--bindings` is needed only where a reference
+is doubled.
 
 ## 2. Meshy
 
@@ -77,7 +79,7 @@ envkit sheet collect --plan ... --ledger <ledger> --root <root>
 ```
 
 `status` says what the sheet's unsent calls cost (`unsentCredits`) against what the cap has left. Raise the cap only on the
-user's word, and say so in the reason. `submit` finds every reference in `<root>/references/sent` and checks the whole of what is unsent
+user's word, and say so in the reason. `submit` finds every chosen reference's picture in `<root>/references/sent` and checks the whole of what is unsent
 against the cap before it sends anything; a call already in the ledger is not sent again. Meshy holds ten
 tasks at once, so `submit` sends what the queue has room for and says which calls it held back: run `collect`,
 then `submit` again, until `collect` lists nothing `unsent`. `collect` waits for each call, downloads the models to

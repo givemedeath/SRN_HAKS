@@ -289,10 +289,11 @@ def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, sa
 
 
 def sent_current(selected, sent):
-    """Refuse where `sent` is not the chosen references of `selected` as `enlarge` leaves them: a picture missing, one
-    whose enlarging failed, one made from another picture than the one chosen now, or one whose chosen reference is
-    gone. `sheet submit` sends what is in `sent`; a reference chosen again after it was enlarged would otherwise go to
-    Meshy as it was before, and its credits with it."""
+    """Refuse where `sent` does not hold the chosen references of `selected` as `enlarge` leaves them: a picture
+    missing, one whose enlarging failed, or one made from another picture than the one chosen now. `sheet submit`
+    sends from `sent` the picture named as each chosen reference is; one chosen again under its name after it was
+    enlarged would otherwise go to Meshy as it was before, and its credits with it. A picture in `sent` of a
+    reference no longer chosen (another seed's) is history: it is not sent and is left where it is."""
     selected, sent = Path(selected), Path(sent)
     require(sent.is_dir(), f'No references at Meshy\'s size in {sent}: run `envkit enlarge`')
     chosen = {path.name: path for path in selected.glob('*.png') if CHOSEN.fullmatch(path.name)}; stale = []
@@ -301,5 +302,4 @@ def sent_current(selected, sent):
         was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
         if not (sent / name).is_file() or was.get('state') == 'failed' or was.get('source') != hashlib.sha256(path.read_bytes()).hexdigest():
             stale.append(name)
-    stale += sorted(path.name for path in sent.glob('*.png') if CHOSEN.fullmatch(path.name) and path.name not in chosen)
     require(not stale, f'{sent} is not the references chosen now in {selected}: take these and their records away from it and run `envkit enlarge`: ' + ', '.join(stale))

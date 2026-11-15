@@ -123,17 +123,26 @@ def cost(ledger, plan):
     return sum(meshy.PRICES[operation] for operation, key in calls if key not in held)
 
 
-def submit(ledger, plan, selected, work, *, run=meshy.run_cli, say=print):
+def submit(ledger, plan, selected, work, *, sent=None, run=meshy.run_cli, say=print):
     """Send every prop and the building that the ledger does not hold yet. Every reference is found before anything is
     sent, and the whole of what is unsent must fit under the cap, so a sheet is not left half submitted for want of an
     image or of credits, and what is unsent goes at Meshy's size or not at all (`large_enough`). A call the ledger holds already is not sent again, and is refused if it was sent with another
     reference than the one selected now: the model it made is not of this reference, and a new key in the plan sends
     this one. No more is sent than Meshy's queue has room for, counting every call of the ledger that has
     not finished: the Ares Depot's eleventh call was refused and its key was lost to the CLI (2026-11-11). What is
-    held back is said, and goes with the next `submit` after a `collect`. Returns the keys sent."""
-    work = Path(work); work.mkdir(parents=True, exist_ok=True); sent = []
-    pictures = {name: image(selected, name) for name in plan['props']}
-    views = {row['key']: [image(selected, name) for name in row['views']] for row in buildings(plan)}
+    held back is said, and goes with the next `submit` after a `collect`. Returns the keys sent.
+
+    `sent` is the folder of the references at Meshy's size (`reference.enlarge`): each asset's reference is found in
+    `selected`, where one is chosen for it, and the picture of that name in `sent` is what goes. Found in `sent`
+    itself, an asset chosen again with another seed had two, the one enlarged before still lying there (review of
+    2026-11-14). Without `sent` the chosen picture itself goes."""
+    work = Path(work); work.mkdir(parents=True, exist_ok=True)
+    large = None if sent is None else Path(sent); going = lambda path: path if large is None else large / path.name
+    sent = []  # from here on, the keys sent
+    pictures = {name: going(image(selected, name)) for name in plan['props']}
+    views = {row['key']: [going(image(selected, name)) for name in row['views']] for row in buildings(plan)}
+    absent = sorted({path.name for path in [*pictures.values(), *(path for row in views.values() for path in row)] if not path.is_file()})
+    require(not absent, 'No picture at Meshy\'s size for these chosen references; run `envkit enlarge`: ' + ', '.join(absent))
     need = cost(ledger, plan); ledger.load()
     require(ledger.committed() + need <= ledger.data['cap'],
             f'The plan needs {need} more credits and the ledger has {ledger.data["cap"] - ledger.committed()} left under its cap of {ledger.data["cap"]}')

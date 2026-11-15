@@ -229,7 +229,7 @@ def command_sheet(args):
     failed = []
     if args.action == 'submit':
         reference.sent_current(root / 'references' / 'selected', root / 'references' / 'sent')  # before a credit is spent on a picture chosen otherwise since
-        print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'sent', work)}))
+        print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work, sent=root / 'references' / 'sent')}))
     elif args.action == 'collect':
         made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))
     print(json.dumps(sheet.status(ledger, plan), indent=1))
@@ -405,7 +405,7 @@ def main(argv=None):
     sub = commands.add_parser('sheet', help="a sheet's models through Meshy, as its plan states them")
     sub.add_argument('action', choices=['status', 'submit', 'collect'])
     sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', required=True)
-    sub.add_argument('--root', required=True, help="the sheet's output root: references/sent is read, meshy/ is written")
+    sub.add_argument('--root', required=True, help="the sheet's output root: references/selected and references/sent are read, meshy/ is written")
     sub.set_defaults(run=command_sheet)
     sub = commands.add_parser('enlarge', help="a sheet's chosen references at Meshy's size (2048 pixels or more on the longer side)")
     sub.add_argument('--root', required=True, help="the sheet's output root: references/selected is read, references/sent is written")

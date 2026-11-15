@@ -355,9 +355,12 @@ class MakeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not the references chosen now.*: desk-s7-b0.png$'):
             reference.sent_current(selected, sent)
         (sent / 'desk-s7-b0.png').unlink(); (sent / 'desk-s7.json').unlink(); reference.enlarge(None, None, None, selected, sent, say=quiet); reference.sent_current(selected, sent)
-        (selected / 'gate-s101-b0.png').unlink()  # a reference no longer chosen is not sent either
-        with self.assertRaisesRegex(ValueError, ': gate-s101-b0.png$'):
+        # Chosen again with another seed: the one enlarged before stays in `sent` as history and stands in nobody's way.
+        (selected / 'gate-s101-b0.png').unlink(); Image.new('RGB', (2048, 8), 'white').save(selected / 'gate-s102-b0.png')
+        with self.assertRaisesRegex(ValueError, ': gate-s102-b0.png$'):
             reference.sent_current(selected, sent)
+        self.assertEqual(reference.enlarge(None, None, None, selected, sent, say=quiet), {'desk-s7-b0.png': 'kept', 'gate-s102-b0.png': 'copied'})
+        reference.sent_current(selected, sent); self.assertTrue((sent / 'gate-s101-b0.png').is_file())
         # A job that failed leaves its receipt: it is said as a failure, and its picture, where one landed, is no reference kept.
         Image.new('RGB', (1024, 8)).save(selected / 'lamp-s1-b0.png'); source = hashlib.sha256((selected / 'lamp-s1-b0.png').read_bytes()).hexdigest()
         with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png is 1024x8: enlarging it needs --bindings'):
