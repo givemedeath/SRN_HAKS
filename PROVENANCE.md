@@ -1214,6 +1214,13 @@ four sides, the corners, the front, from above and at the door; by night, where 
 lights were lit, put out by script and brought back; and with walkers sent to the door and to each side of the
 building in both tilesets, none of whom stopped short.
 
+Checked in the Toolset the same day, in two user folders of their own: both palettes list `Motorpool Garage 3x2`
+under Groups, and painting it laid the six tiles and made one door of type 58 at the hook, straight in both
+tilesets in the first folder and turned a quarter in Modern Exterior and a half in Suburbs in the second. In
+Modern Exterior the Toolset changed no other tile; in Suburbs it repainted the fourteen tiles round the group as
+asphalt edges and corners. In the game client each of the four doors, clicked, took the player to the next
+(`envkit check doors`, both folders).
+
 ## Ghost Riders props (`srn_placeable`, `srn_2da`; 2026-11-15)
 
 Fifteen envkit props from the same concept sheet as the Ghost Riders tile group join `srn_placeable`, each with a row
@@ -1256,7 +1263,11 @@ Checked in the game client on 2026-11-15, from the converted files: by day from 
 for scale, all fifteen; by night the same way for the repair bench, both barrels and the mural wall, where the
 strip lights and lamps glow, the fire burns and lights the ground orange, and the lit props were put out by script
 and brought back from the pack (`envkit check lights`). The machine was busy with other work and several captures
-came late; each view was taken from a run that captured it in time.
+came late; each view was taken from a run that captured it in time. In the Toolset the same day the placeable
+palette listed all fifteen, ten under Modern Exterior and five under Modern Interior, and ten were placed from
+it and read back from the saved areas with their rows and blueprints: the burn barrel, ember barrel, mural wall and
+repair bench not static, so that a script can put their lights out, and the fence section, stash cases, parking
+pad, motorpool sign, parts rack and tagged barrier static.
 
 ## MDRNEE placeable import (2026-09-11)
 
