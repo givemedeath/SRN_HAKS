@@ -303,7 +303,9 @@ class ReviewerTests(unittest.TestCase):
         self.assertEqual([p['x'] for p in pairs[:2]], [12.0, 15.5])
         with self.assertRaisesRegex(P.PublishError, 'No room'): P.plan_pairs(self.creatures, packages, 15.0)   # no row takes five
         nine = [creature(f'sw{n}_{s}0', 1.0 + n, P.ROW_Y[s]) for n in range(1, 10) for s in 'mf']
-        with self.assertRaisesRegex(P.PublishError, 'sw1_ to sw9_'): P.plan_pairs(nine, packages[:1], 80.0)
+        _, tenth = P.plan_pairs(nine, packages[:1], 80.0); self.assertEqual(tenth[0]['prefix'], 'sw10_')   # wave 6
+        many = [creature(f'sw{n}_{s}0', 1.0, P.ROW_Y[s]) for n in range(1, 100) for s in 'mf']
+        with self.assertRaisesRegex(P.PublishError, 'sw1_ to sw99_'): P.plan_pairs(many, packages[:1], 80.0)
 
     def test_a_group_goes_whole_into_the_first_row_with_room(self):
         # The module as of 2026-11-13: the southern row has sw3_..sw7_ (20 pairs to x 71.5), sw1_ and sw2_ rows five each.
