@@ -352,7 +352,10 @@ Several actions on one line apply in order (`... | ^ | type yard-gate`).
   to the lit surface itself: glass in a recess stands behind the wall's face. `litParts` gives each part's
   `planes`, the depths its light stands at with their shares; a window that shows the wall's depth as a second
   plane is lighting the wall. Each lit part spreads from halo cards of its own, just in front of its own
-  foremost light, so name a sign, the windows under it and the strip lights over them as separate parts.
+  foremost light, so name a sign, the windows under it and the strip lights over them as separate parts. A small part named on
+  its own (a scanner, a lock panel, a lamp on a post) keeps its card however small it is; a stray end of a large
+  part under 0.05 m² gets none (`glow.MAIN`: a check of the four older sets on 2026-11-15 found eight small parts
+  that cards of each part's own would have left without a glow).
   Look at every lit part close and from a slant in the night check. A prop's boxes are bounded in depth the same
   way: the shooting booths' lane-screen box ran front to back and lit rust specks on the back and the hazard
   stripes on the dividers.
