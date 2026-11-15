@@ -449,6 +449,11 @@ class SiblingSlotTests(unittest.TestCase):
             self.assertIn('wblcl_b_011.mdl', taken); self.assertNotIn('wblcl_b_021.mdl', taken)
             with self.assertRaisesRegex(ValueError, 'already retired'):
                 retire(root/'mixed', 'again', '2026-11-15', ['family-abandoned.json'])
+            # a new contract under the retired file name is live (Codex review on #163): the record binds the old bytes
+            (root/'mixed'/'family-abandoned.json').write_text(json.dumps({'family': 'club', 'nativePackaging': 'enabled',
+                'native': {'itemClass': 'wblcl'}, 'resources': {'texturePrefix': 'srnew', 'appearanceIndex': 3}}), encoding='utf-8')
+            self.assertEqual(retired_contracts(root/'mixed'), set())
+            self.assertIn('wblcl_b_031.mdl', sibling_models(root, mine, 'wblcl'))
 
     def test_a_base_contracts_reviewed_grip_origin_is_kept_and_disagreement_refused(self):
         from tools.itemkit.family_contract import base_grip_origin

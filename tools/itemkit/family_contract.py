@@ -102,13 +102,15 @@ RETIRED_CONTRACTS = 'retired-contracts.json'
 
 
 def retired_contracts(folder):
-    """The family file names retired one by one in a contract folder (retire with `contracts`)."""
+    """The family file names retired one by one in a contract folder (retire with `contracts`) whose files still hold the
+    retired bytes. A record binds the contract's hash: a later contract under the same file name (a design re-contracted
+    in a wave copied from this folder) is live and keeps its slot."""
     path = Path(folder)/RETIRED_CONTRACTS
     if not path.exists(): return set()
     rows = json.loads(path.read_text(encoding='utf-8')).get('contracts', [])
-    require(all(isinstance(r.get('reason'), str) and r['reason'].strip() and r.get('date') and r.get('contract') for r in rows),
-            f'{path}: every retired contract needs a reason and a date')
-    return {r['contract'] for r in rows}
+    require(all(isinstance(r.get('reason'), str) and r['reason'].strip() and r.get('date') and r.get('contract') and r.get('sha256')
+                for r in rows), f'{path}: every retired contract needs a reason, a date and its hash')
+    return {r['contract'] for r in rows if (Path(folder)/r['contract']).is_file() and sha(Path(folder)/r['contract']) == r['sha256']}
 
 
 def sibling_models(contracts, own, item_class):
@@ -175,6 +177,7 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE, replace_sto
     if not target.exists():
         shutil.copytree(source, target)
         for old in target.glob('family*.json'): old.unlink()
+        for ledger in (RETIRED_CONTRACTS,): (target/ledger).unlink(missing_ok=True)   # the base's retirements are not the wave's
     cls = route.carrier.item_class; folder = target/'stack-resources'/cls
     # Each carrier gets its own stack file: the wave's stack.json is never rewritten, so a family contracted earlier
     # in the wave keeps the stack bytes it pins.
