@@ -637,7 +637,8 @@ class ConvertTests(unittest.TestCase):
         for model, wrong in (({'glass': glass, 'placeable': placed}, 'measuredAt'), ({'glass': glass, 'measuredAt': 4.0}, 'placeable only'),
                              ({'glass': [{'corners': square[:2]}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
                              ({'glass': [{'corners': square, 'colour': [300, 0, 0]}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
-                             ({'glass': [{'corners': square, 'strength': 0}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass')):
+                             ({'glass': [{'corners': square, 'strength': 0}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
+                             ({'glass': [{'corners': square}] * 17, 'measuredAt': 4.0, 'placeable': placed}, 'at most 16 panes')):  # each a patch of four pixels at least
             path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, **model}}}), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, wrong):
                 convert.load_models(path)

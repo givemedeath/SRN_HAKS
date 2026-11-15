@@ -114,7 +114,7 @@ def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None,
     require(not lit or model.get('lit'), name + ' states no lit parts')
     maps = {'base_color': source / 'texture_0_base_color.png'}
     made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
-                         **{key: model[key] for key in convert.RETOUCHING if key in model and key != 'fence'})  # a fence's sheets have a picture of their own
+                         sight=False, **{key: model[key] for key in convert.RETOUCHING if key in model and key != 'fence'})  # a fence's sheets have a picture of their own
     with Image.open(maps['base_color']) as generated:
         picture = made['colour'] or generated.copy()
     return _drawn(made['vertices'], made['uvs'], made['faces'], picture, output, name, sides, scale, grid, fine, model['lit'] if lit else None)
@@ -223,7 +223,7 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800), grid=None
         if one not in shaped:
             model = models[one]; source = Path(root) / model['source']; maps = {'base_color': source / 'texture_0_base_color.png'}
             finished = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
-                                     **{key: model[key] for key in convert.RETOUCHING if key in model})
+                                     sight=False, **{key: model[key] for key in convert.RETOUCHING if key in model})
             with Image.open(maps['base_color']) as generated:
                 shaped[one] = (finished, np.asarray((finished['colour'] or generated).convert('RGBA')))
         finished, picture = shaped[one]; made = convert.place(finished, at, turn)

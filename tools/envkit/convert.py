@@ -926,7 +926,7 @@ def sheets(fences, size=WIRE_PICTURE):
             'period': period}
 
 
-def _copied(colour, where, covered, target, source, part):
+def _copied(colour, where, covered, target, source, part, kept=None):
     """`colour` with the texels of `target` showing what the texels of `source` show: a stretch of a wall laid over
     something the generator left blank or drew wrongly beside it (the Iron Sight Arms range wing came back with a plain
     grey slab on its rear end and its lettering mirrored on its far wall; user, 2026-11-14: "can you copy the wall
@@ -937,11 +937,14 @@ def _copied(colour, where, covered, target, source, part):
     clinic's banner came back with the right half of its caduceus smeared, 2026-11-14). With `rise`, metres, each
     height of the target takes the wall that much higher (lower, if less than nothing): a band that sags along its
     length meets its copy a step out otherwise (that banner's stripes, 1.5 cm lower two stripes along). `target` and
-    `source` are texels of the map of places."""
+    `source` are texels of the map of places. `kept`, a dict, holds the map of places at the picture's size from one
+    copied part of a model to the next: it is the same for each, and four resizes of the whole picture to make."""
     from PIL import Image
-    size = (colour.shape[1], colour.shape[0])
-    up = lambda values: np.asarray(Image.fromarray(np.ascontiguousarray(values, np.float32), 'F').resize(size, Image.BILINEAR), np.float32)
-    weight = np.maximum(up(covered), 1e-6); place = np.dstack([up(where[..., axis] * covered) / weight for axis in range(3)])
+    size = (colour.shape[1], colour.shape[0]); kept = {} if kept is None else kept
+    if 'place' not in kept:
+        up = lambda values: np.asarray(Image.fromarray(np.ascontiguousarray(values, np.float32), 'F').resize(size, Image.BILINEAR), np.float32)
+        weight = np.maximum(up(covered), 1e-6); kept['place'] = np.dstack([up(where[..., axis] * covered) / weight for axis in range(3)])
+    place = kept['place']
     full = lambda mask: np.asarray(Image.fromarray(mask).resize(size, Image.NEAREST))
     what = str(part.get('part', 'copied part'))
 
@@ -1029,9 +1032,10 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
             colour[full(glow.held(where, covered, part, 'painted'))] = np.asarray(part['colour'], float) / 255
+        places = {}
         for part in copy:
             colour = _copied(colour, where, covered, glow.held(where, covered, part, 'copied-over'),
-                             glow.held(where, covered, {'box': part['from'], 'part': f"{part.get('part', 'copied part')}, the wall copied from"}, 'copied'), part)
+                             glow.held(where, covered, {'box': part['from'], 'part': f"{part.get('part', 'copied part')}, the wall copied from"}, 'copied'), part, places)
         rise = None
         for part in smooth:
             chosen = glow.held(where, covered, part, 'smoothed')
@@ -1218,6 +1222,8 @@ def load_models(path):
                     and shade(part.get('colour', list(GLASS_COLOUR))) and number(part.get('strength', GLASS_STRENGTH)) and 0 < part.get('strength', GLASS_STRENGTH) <= 1,
                     f'A pane of glass is {{corners: 3 to {GLASS_MOST} points round it in metres on the finished model, colour: [r, g, b] of 0 to 255, strength: over 0, at most 1}}: ' + name)
         require(not model.get('glass') or (model.get('placeable') and not model.get('tiles')), 'Glass is made for a placeable only, not for a tile group: ' + name)
+        # The panes share a picture GLASS_PICTURE pixels wide, compressed in blocks of four: narrower patches run into each other.
+        require(len(model.get('glass', [])) <= GLASS_PICTURE // 4, f'A model has at most {GLASS_PICTURE // 4} panes of glass: ' + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
@@ -1427,7 +1433,7 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, tone=None, paint=None,
-          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None):
+          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None, sight=True):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
@@ -1464,8 +1470,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     # back: the game draws nothing there, so it is a hole onto what stands past the model. The Chop Shop clinic's
     # biohazard bin had gaps under its rear rim, its dumpster a slot between its lids and its lamp a length of pole
     # seen through from one side, none of which the front, back and side of the client check showed (2026-11-14).
+    # `sight` False leaves it out, for a caller that does not report it: it took 11 seconds on that clinic's building.
     behind = None
-    if inside is not True:
+    if sight and inside is not True:
         patches = []; seen(vertices, faces, holes=patches, both=_backs(vertices, faces, inside) if inside else None); behind = max(patches)
     if inside:
         vertices, normals, uvs, faces = backed(vertices, normals, uvs, faces, None if inside is True else inside)
@@ -1555,4 +1562,6 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_ti
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire'], made.get('glass')),
                                         encoding='cp1252', newline='\n')
     (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
-    return {**measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt), **({} if gap is None else {'lightFromModel': round(gap, 3)})}
+    # `lightAt` is the light this conversion measured: `envkit placeables` writes a row no other light (`additions.command_placeables`).
+    return {**measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt),
+            **({} if gap is None else {'lightFromModel': round(gap, 3), 'lightAt': [float(value) for value in light['at']]})}

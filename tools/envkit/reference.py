@@ -262,8 +262,10 @@ def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, sa
         base = path.name[:-len('-b0.png')]; target, record = output / path.name, output / f'{base}.json'
         sha = hashlib.sha256(path.read_bytes()).hexdigest()
         if target.exists() or record.exists():
-            was = json.loads(record.read_text(encoding='utf-8')).get('source') if record.is_file() else None
-            require(target.is_file() and was == sha, f'{target} was not made from the {path.name} chosen now: take it and its record away and enlarge again')
+            was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
+            # A job that fails leaves its receipt (`design._execute`), with or without a picture: it is no reference made.
+            require(was.get('state') != 'failed', f'{record} is of an enlarging that failed ({was.get("error")}): take it and any {target.name} beside it away and enlarge again')
+            require(target.is_file() and was.get('source') == sha, f'{target} was not made from the {path.name} chosen now: take it and its record away and enlarge again')
             told[path.name] = 'kept'; continue
         with Image.open(path) as picture:
             size = picture.size
@@ -273,6 +275,7 @@ def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, sa
             record.write_text(json.dumps({'kind': 'envkit-reference-sent', 'source': sha, 'enlarged': False}, indent=1) + '\n', encoding='utf-8')
         else:
             from tools.headkit import design
+            require(local is not None, f'{path.name} is {size[0]}x{size[1]}: enlarging it needs --bindings, the local JSON of the shared ComfyUI')
             token = uuid.uuid4().hex
             graph = enlarge_graph(f'{design.SUBFOLDER}/{token}/reference-0.png', f'{design.SUBFOLDER}/{token}/{base}')
             receipt = {'schemaVersion': 1, 'kind': 'envkit-reference-sent', 'source': sha, 'enlarged': True, 'upscaler': UPSCALER,
@@ -283,3 +286,20 @@ def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, sa
             require(max(picture.size) >= SIDE, f'{target} came out {picture.size[0]}x{picture.size[1]}, under {SIDE} on its longer side')
         say(json.dumps({'reference': path.name, 'state': told[path.name]}), flush=True)
     return told
+
+
+def sent_current(selected, sent):
+    """Refuse where `sent` is not the chosen references of `selected` as `enlarge` leaves them: a picture missing, one
+    whose enlarging failed, one made from another picture than the one chosen now, or one whose chosen reference is
+    gone. `sheet submit` sends what is in `sent`; a reference chosen again after it was enlarged would otherwise go to
+    Meshy as it was before, and its credits with it."""
+    selected, sent = Path(selected), Path(sent)
+    require(sent.is_dir(), f'No references at Meshy\'s size in {sent}: run `envkit enlarge`')
+    chosen = {path.name: path for path in selected.glob('*.png') if CHOSEN.fullmatch(path.name)}; stale = []
+    for name, path in sorted(chosen.items()):
+        record = sent / f'{name[:-len("-b0.png")]}.json'
+        was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
+        if not (sent / name).is_file() or was.get('state') == 'failed' or was.get('source') != hashlib.sha256(path.read_bytes()).hexdigest():
+            stale.append(name)
+    stale += sorted(path.name for path in sent.glob('*.png') if CHOSEN.fullmatch(path.name) and path.name not in chosen)
+    require(not stale, f'{sent} is not the references chosen now in {selected}: take these and their records away from it and run `envkit enlarge`: ' + ', '.join(stale))

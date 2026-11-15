@@ -58,9 +58,11 @@ A reference goes to Meshy at 2048 pixels or more on its longer side (user, 2026-
 at about one megapixel. `enlarge` writes each chosen reference to `<root>/references/sent` under the same name:
 doubled by the shared ComfyUI's `RealESRGAN_x2plus.pth` where it is smaller, copied where it is not. This sharpens
 what was drawn and adds nothing to it. The chosen references in `selected` stay as they are, since a building's
-pieces are cut from them in their own pixels. `sheet submit` reads `sent` and refuses a smaller picture. Run
-`enlarge` again after choosing another reference; one already in `sent` from another picture is refused until it
-and its record are taken away.
+pieces are cut from them in their own pixels. `sheet submit` reads `sent` and refuses a smaller picture, and
+refuses `sent` altogether where it is not the references chosen now (one missing, one made from another picture,
+one whose enlarging failed, one no longer chosen). Run `enlarge` again after choosing another reference; one
+already in `sent` from another picture, or the receipt of an enlarging that failed, is refused until it and its
+record are taken away. `--bindings` is needed only where a reference is doubled.
 
 ## 2. Meshy
 
@@ -200,6 +202,10 @@ envkit install    --models ... --built <root>/tiles<n> --model <building> --prov
 envkit placeables --models ... --built <root>/game<n> --provenance "<section>"
 envkit blueprints --models ... --game <game>
 ```
+
+`placeables` writes a prop's light into its row only as `envkit game` measured it from the model (the report's
+`lightAt`): a light moved in the game set since, or given to a prop converted before it had one, is refused until
+the prop is converted again, so that none goes into the table where the game would draw its flare in the air.
 
 ## 6. The group and the lights in the client
 

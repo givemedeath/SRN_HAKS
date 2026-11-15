@@ -340,6 +340,35 @@ class MakeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'No chosen references'):
             reference.enlarge(None, {}, 'bindings.json', self.root / 'nothing-chosen', self.root / 'sent3')
 
+    def test_what_is_sent_is_what_is_chosen_now(self):
+        """`sheet submit` sends the pictures of `sent`: they are those `enlarge` made of the references chosen now."""
+        import hashlib
+        from PIL import Image
+        selected, sent = self.root / 'chosen', self.root / 'sent'; selected.mkdir()
+        Image.new('RGB', (2048, 8), 'red').save(selected / 'gate-s101-b0.png'); Image.new('RGB', (2048, 8), 'blue').save(selected / 'desk-s7-b0.png')
+        with self.assertRaisesRegex(ValueError, 'run `envkit enlarge`'):
+            reference.sent_current(selected, sent)  # nothing enlarged yet
+        quiet = lambda *_, **__: None
+        self.assertEqual(reference.enlarge(None, None, None, selected, sent, say=quiet), {'desk-s7-b0.png': 'copied', 'gate-s101-b0.png': 'copied'})  # copies need no ComfyUI
+        reference.sent_current(selected, sent)
+        Image.new('RGB', (2048, 8), 'green').save(selected / 'desk-s7-b0.png')  # chosen again under the same name
+        with self.assertRaisesRegex(ValueError, 'not the references chosen now.*: desk-s7-b0.png$'):
+            reference.sent_current(selected, sent)
+        (sent / 'desk-s7-b0.png').unlink(); (sent / 'desk-s7.json').unlink(); reference.enlarge(None, None, None, selected, sent, say=quiet); reference.sent_current(selected, sent)
+        (selected / 'gate-s101-b0.png').unlink()  # a reference no longer chosen is not sent either
+        with self.assertRaisesRegex(ValueError, ': gate-s101-b0.png$'):
+            reference.sent_current(selected, sent)
+        # A job that failed leaves its receipt: it is said as a failure, and its picture, where one landed, is no reference kept.
+        Image.new('RGB', (1024, 8)).save(selected / 'lamp-s1-b0.png'); source = hashlib.sha256((selected / 'lamp-s1-b0.png').read_bytes()).hexdigest()
+        with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png is 1024x8: enlarging it needs --bindings'):
+            reference.enlarge(None, None, None, selected, sent, say=quiet)
+        (sent / 'lamp-s1.json').write_text(json.dumps({'source': source, 'state': 'failed', 'error': 'queue busy'}), encoding='utf-8')
+        Image.new('RGB', (2048, 16)).save(sent / 'lamp-s1-b0.png')
+        with self.assertRaisesRegex(ValueError, r'enlarging that failed \(queue busy\)'):
+            reference.enlarge(None, None, None, selected, sent, say=quiet)
+        with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png'):
+            reference.sent_current(selected, sent)
+
 
 if __name__ == '__main__':
     unittest.main()
