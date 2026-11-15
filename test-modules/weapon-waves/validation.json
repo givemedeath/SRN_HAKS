@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 104,
-      "sha256": "3f31a9c9a075fbf9f5598acbeb06eb02cf1453c443c645dd47e056692217ec32",
+      "resources": 110,
+      "sha256": "9207eba286980f0c988916b7c06553f75b18ffc8f5a89c4d78b10069d8af3581",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 35,
-    "NPCs": 70,
+    "pairs": 38,
+    "NPCs": 76,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -99,6 +99,16 @@
       ],
       "moduleSha256": "3f31a9c9a075fbf9f5598acbeb06eb02cf1453c443c645dd47e056692217ec32",
       "note": "Sai, Mace, Macauitl, Nodachi, Pole Arm reviewer pairs were added (sw8_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
+    },
+    "extension6": {
+      "date": "2026-11-14",
+      "addedPairs": 3,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Looks good"
+      ],
+      "moduleSha256": "9207eba286980f0c988916b7c06553f75b18ffc8f5a89c4d78b10069d8af3581",
+      "note": "Katar, Tonfa, Telescopic Staff reviewer pairs were added (sw9_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
     }
   }
 }
