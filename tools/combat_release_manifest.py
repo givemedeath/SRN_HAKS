@@ -316,6 +316,9 @@ def build(check_git: bool = True) -> dict:
                         closure.add(f'{tex}.tga')
                 else:
                     missing.append(name)
+        # Itemkit packages carry a BioWare DDS twin beside each icon and diffuse TGA: it belongs to the same closure.
+        closure |= {by_name[n[:-4].lower() + '.dds']['path'].split('/', 1)[1] for n in list(closure)
+                    if n.lower().endswith('.tga') and n[:-4].lower() + '.dds' in by_name}
         owned = {n for n, r in published_weapon.items() if r['item'] == item['id']}
         # A resource published under a shared id (the firearm casing sheet) belongs to every item that references it.
         owned |= {n for n, r in published_weapon.items() if r['item'] in shared_items} & closure

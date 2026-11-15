@@ -1,6 +1,7 @@
 """Stock appearance slots: a new design takes a base-game slot only on the explicit opt-in, once 1..25 hold no free one."""
 import json
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -112,6 +113,7 @@ class StockNamespaceTests(Fixture):
         self.assertEqual(self.stock([('installed-stock-wswss-donors', ['iwswss_b_011.tga'], None)]), set())
 
 
+@unittest.skipUnless(sys.platform == 'win32', 'NWN Crunch is vendored for Windows x64 only')
 class DdsTwinTests(unittest.TestCase):
     def test_nwn_crunch_makes_bioware_twins_of_icons_and_diffuse(self):
         import struct
