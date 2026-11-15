@@ -5,7 +5,8 @@ from pathlib import Path
 import shutil
 import sys
 from tools.headkit import comfy
-from tools.headkit.common import asset, bindings, launched, pin, read, require, verify, write, python_package_pins, verification_pass
+from .contracts import bindings
+from tools.headkit.common import asset, launched, pin, read, require, verify, write, python_package_pins, verification_pass
 from .contracts import all_pins, code_pins, family, is_code_path, manifest, source_version, evidence_pins,stage_roles
 from .generation import request_stage, shared_ledger, initialize_trial, set_trial_limit
 
@@ -272,7 +273,7 @@ def main():
     if a.command == 'request':
         require(not a.working_shell or a.stage == 'export', 'Working-shell option is export-only')
     with verification_pass('item-cli-startup'):
-        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'shield-inputs', 'status', 'preflight') else launched(a.bindings)
+        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'shield-inputs', 'status', 'preflight') else launched(a.bindings, verify_libraries=False)
         package_pins = python_package_pins(bindings(a.bindings), require_imports=True) if runtime is not None else None
     if a.command == 'intake': result = intake(a.reference, a.output, a.id, a.family)
     elif a.command == 'firearm-inputs':

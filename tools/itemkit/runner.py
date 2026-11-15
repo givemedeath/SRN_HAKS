@@ -10,8 +10,8 @@ import uuid
 import numpy as np
 from PIL import Image
 from tools.headkit import common
-from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
-from .contracts import all_pins, code_pins, is_code_path, source_version, manifest, family, evidence_pins, stage_roles
+from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, digest, library, python_package_pins
+from .contracts import bindings, all_pins, code_pins, is_code_path, source_version, manifest, family, evidence_pins, stage_roles
 from .geometry import corner_hash
 from .routes import PACKAGED_FIREARMS, ROUTES, needs_grip_standard
 from .verification import VerificationPass
@@ -302,7 +302,8 @@ class Runner:
             if stage == 'bake':
                 from .textures import finish_bake
                 result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures',
-                                               palettes=self.data['processing'].get('materialPalettes',())))
+                                               palettes=self.data['processing'].get('materialPalettes',()),
+                                               sharpen=self.data['processing'].get('textureSharpen')))
                 from .texture_check import SIZE, check_bake
                 if str(SIZE) in result['maps']:     # advisory: a person looks at the flagged blobs; never a gate
                     try: result['textureOutliers'] = check_bake(result['maps'][str(SIZE)]['path'], result['masks']['path'], folder/'texture-check')

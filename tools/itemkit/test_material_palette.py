@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from .textures import material_palette
+from .textures import material_palette, sharpen_policy
 
 
 class MaterialPaletteTests(unittest.TestCase):
@@ -12,6 +12,12 @@ class MaterialPaletteTests(unittest.TestCase):
         np.testing.assert_array_equal(pixels[mapped],before[mapped])
         np.testing.assert_allclose(pixels[12:,12:],np.broadcast_to([.2,.3,.4],(4,4,3)))
         self.assertEqual(result[0]['pixelBounds'],[12,12,16,16])
+
+    def test_sharpening_is_a_bounded_reviewed_setting(self):
+        self.assertEqual(sharpen_policy({'radius':1,'amount':.5}),{'radius':1.0,'amount':.5})
+        for bad in ({'radius':1},{'radius':0,'amount':.5},{'radius':3,'amount':.5},{'radius':1,'amount':0},
+                    {'radius':1,'amount':1.5},{'radius':'1','amount':.5},{'radius':1,'amount':.5,'threshold':2},True):
+            with self.assertRaisesRegex(ValueError,'sharpening'):sharpen_policy(bad)
 
     def test_invalid_later_cell_leaves_the_entire_image_unchanged(self):
         pixels=np.full((16,16,3),.5);mapped=np.zeros((16,16),bool);mapped[0,0]=True

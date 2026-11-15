@@ -38,7 +38,21 @@ def material_palette(pixels,mapped,palettes):
     return records
 
 
-def finish_bake(linear_path, masks_path, output, *, palettes=()):
+def sharpen_policy(settings):
+    """A reviewed unsharp mask for the derived maps: `radius` in texels of each map, `amount` 0-1."""
+    require(isinstance(settings, dict) and set(settings) == {'radius', 'amount'}
+            and all(type(settings[key]) in (int, float) for key in settings)
+            and .3 <= settings['radius'] <= 2 and 0 < settings['amount'] <= 1,
+            'Texture sharpening needs a radius of 0.3-2 texels and an amount up to 1')
+    return {'radius': float(settings['radius']), 'amount': float(settings['amount'])}
+
+
+def finish_bake(linear_path, masks_path, output, *, palettes=(), sharpen=None):
+    """`sharpen` (sharpen_policy) is applied to each derived map after it is reduced: the 4K bake is box-filtered down,
+    which softens every edge the donor drew. The padded image is sharpened, so an island's edge is compared with its
+    own extended colour and never with empty atlas; the 4K source map stays exactly the bake."""
+    from PIL import ImageFilter
+    if sharpen is not None: sharpen = sharpen_policy(sharpen)
     from tools.headkit.textures import pad
     values = np.load(linear_path, allow_pickle=False)
     with np.load(masks_path, allow_pickle=False) as masks:
@@ -54,9 +68,11 @@ def finish_bake(linear_path, masks_path, output, *, palettes=()):
     image = Image.fromarray(np.flipud(np.rint(srgb*255).astype(np.uint8)), 'RGB')
     output = Path(output); output.mkdir(parents=True, exist_ok=False); maps = {}
     for size in (4096, 2048, 1024, 512):
-        path = output/f'diffuse-{size}.png'
-        (image if size == 4096 else image.resize((size, size), Image.Resampling.BOX)).save(path)
-        maps[str(size)] = pin(path)
-    return {'maps': maps, 'visibleMisses': 0, 'mappedColoursPreserved': not any(normalization['clippedValuesByChannel']),
+        path = output/f'diffuse-{size}.png'; derived = image
+        if size != 4096:
+            derived = image.resize((size, size), Image.Resampling.BOX)
+            if sharpen: derived = derived.filter(ImageFilter.UnsharpMask(radius=sharpen['radius'], percent=round(sharpen['amount']*100), threshold=0))
+        derived.save(path); maps[str(size)] = pin(path)
+    return {'maps': maps, 'visibleMisses': 0, 'derivedMapSharpening': sharpen, 'mappedColoursPreserved': not any(normalization['clippedValuesByChannel']),
             'mappedColoursPreservedAfterFloatRangeNormalization':True,'floatRangeNormalization':normalization,
             'uniformMaterialPalette':palette}

@@ -208,7 +208,10 @@ def library(bindings, name):
     return module
 
 
-def bindings(path):
+def bindings(path, *, verify_libraries=True):
+    """`verify_libraries=False` leaves a library's files to `library()`, which reads every file of the one it loads
+    before and after importing it: a caller whose stages load few of the bound libraries need not read them all at
+    every process start."""
     data = read(path)
     require(data.get('schemaVersion') == 1 and isinstance(data.get('toolsRoot'), str), 'Local bindings version/root required')
     require(Path(data['toolsRoot']).is_absolute(), 'Local tools root must be absolute')
@@ -219,7 +222,7 @@ def bindings(path):
                 require(Path(data[key]['path']).resolve().is_relative_to(tools_root),
                         'Embree DLL must be inside the declared durable tools bank')
             verify([data[key]])
-    for row in data.get('libraries', {}).values():
+    for row in data.get('libraries', {}).values() if verify_libraries else ():
         verify(row['files'])
     return data
 
@@ -289,7 +292,7 @@ def python_package_pins(data, *, require_imports=False):
     return pins
 
 
-def launched(bindings_path=None):
+def launched(bindings_path=None, *, verify_libraries=True):
     """Identify the actual launcher and reject separately recorded runtime bindings."""
     require(os.environ.get('SRN_SHARED_TOOLCHAIN') and os.environ.get('SRN_SHARED_TOOL_MIGRATION'),
             'Run processing through tools/phenotypes/launch_shared_tool.py with a fresh migration receipt')
@@ -304,7 +307,7 @@ def launched(bindings_path=None):
     identity={'toolchain':pin(toolchain),'migrationReceipt':pin(migration),'python':pin(sys.executable),
               'toolsRoot':str(Path(active['toolsRoot']).resolve())}
     if bindings_path is not None:
-        local=bindings(bindings_path)
+        local=bindings(bindings_path,verify_libraries=verify_libraries)
         for name in ('toolchain','migrationReceipt'):
             require(name in local and pin(local[name])==identity[name], 'Local bindings differ from active launcher: '+name)
         require(local.get('python') and Path(local['python']['path']).resolve()==Path(identity['python']['path'])

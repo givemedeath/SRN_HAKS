@@ -22,6 +22,11 @@ class AtlasTests(unittest.TestCase):
             with patch('tools.itemkit.atlas.library'),patch('tools.itemkit.atlas._pack',return_value=(np.array(uv),Atlas(),4)) as pack:
                 result=unwrap_parts(source,{},root/'atlas',parts=('whole',),coordinate_scale=1000)
                 self.assertGreater(np.max(np.abs(pack.call_args.args[1])),10)
+                self.assertEqual(pack.call_args.kwargs['resolution'],2048)      # a 1K item's gutter is unchanged
+                # A 2K item packs at 4K, so the same padding setting is the same number of runtime texels, and 2K is audited once.
+                wide=unwrap_parts(source,{},root/'atlas-2k',2048,parts=('whole',),coordinate_scale=1000)
+                self.assertEqual(pack.call_args.kwargs['resolution'],4096)
+                self.assertEqual(sorted(wide['attempts'][0]['audits']),['2048','4096','512'])
             with np.load(result['atlas']['path']) as output:
                 np.testing.assert_array_equal(output['whole_positions'],p)
                 np.testing.assert_array_equal(output['whole_faces'],f)

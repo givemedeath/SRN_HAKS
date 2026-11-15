@@ -68,7 +68,9 @@ def unwrap_parts(source, local, output, runtime_size=1024, *, packing_paddings=N
         # Native-unit seam slivers can fall below xatlas's absolute precision.
         # Scale only its temporary charting coordinates; all output geometry,
         # area/closure checks and source bindings remain in original units.
-        uv,atlas,count=_pack(xatlas,vertices*coordinate_scale,faces,groups,padding=padding);uv[:,:,0]*=.94;isolated=set()
+        # The packer's padding is in texels of its resolution. Twice the runtime size keeps the gutter a 1K item
+        # always had (padding/2 runtime texels) at any runtime size: a 2K item no longer spends twice the texels on it.
+        uv,atlas,count=_pack(xatlas,vertices*coordinate_scale,faces,groups,padding=padding,resolution=2*runtime_size);uv[:,:,0]*=.94;isolated=set()
         original_uv=uv.astype(np.float32).astype(np.float64);original_regions=chart_ids(original_uv)
         for iteration in range(3):
             uv=uv.astype(np.float32).astype(np.float64)

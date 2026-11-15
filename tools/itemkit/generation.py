@@ -1,6 +1,7 @@
 """Item contracts around the same guarded Pixal engine used by headkit."""
 from pathlib import Path
-from tools.headkit.common import asset, bindings, pin, require, write, read, verify, digest
+from tools.headkit.common import asset, pin, require, write, read, verify, digest
+from .contracts import bindings
 from tools.headkit.generation import prepare_request
 from .contracts import all_pins, code_pins, family, manifest, source_version,stage_roles
 from tools.headkit.reference_background import analyze_reference

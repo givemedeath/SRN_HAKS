@@ -402,6 +402,14 @@ def manifest(path, *, input_roles=None, validate_native=True):
     return data
 
 
+def bindings(path):
+    """Item bindings. They also carry headkit's face libraries (2,500 files, 350 MB) that no item stage loads, and a
+    stage pins and verifies the libraries it does load (runner.STAGE_LIBRARIES, headkit's `library()`), so the loader
+    does not read every bound library at each process start."""
+    from tools.headkit.common import bindings as load
+    return load(path, verify_libraries=False)
+
+
 NEW_ITEM_TEXTURE_SIZE = 2048      # user, 2026-11-15: "also up all items to 2k"; a 1K contract already written keeps its size
 
 
