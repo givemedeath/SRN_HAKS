@@ -11,7 +11,7 @@ The `tools/itemkit` package provides single-image 3D generation, geometric fitti
 - `[contracts.py:manifest]` - Parse and validate portable item asset manifests (`item-asset` schema version 1) against schema and preset constraints.
 - `[contracts.py:family]` - Parse and validate item family profiles (`item-family` schema version 1) including routes, material routes, runtime texture size, and polygon budgets.
 - `[contracts.py:native_contract]` - Validate native equipment contracts, content-stack namespaces, baseitem entries, donor models, frames, and grip coordinates.
-- `[contracts.py:reserve]` - Allocate collision-free appearance and model indices (1..25) within content-stack resources.
+- `[contracts.py:reserve]` - Allocate collision-free appearance and model indices (1..25) within content-stack resources; with the explicit replace-stock opt-in and no free slot, take the highest stock-only slot and record it in `replacesStock`.
 - `[contracts.py:all_pins]` / `[contracts.py:code_pins]` / `[contracts.py:source_version]` - Enumerate pinned assets and compute cryptographic version hashes of itemkit source code and configuration.
 - `[generation.py:request_stage]` - Prepare generation requests (`calibrate`, `geometry`, `appearance`, `export`) for the Pixal engine.
 - `[generation.py:initialize_trial]` / `[generation.py:set_trial_limit]` - Manage shared item trial policies and enforce geometry attempt limits.

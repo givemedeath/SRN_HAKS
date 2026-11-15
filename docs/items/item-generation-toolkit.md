@@ -584,8 +584,41 @@ carriers from the measured wave-1 contract: it extracts the stock `_011` parts a
 (in a per-carrier `stack-<class>.json`, so the wave's `stack.json` and earlier contracts keep their pinned bytes),
 measures the stock grip origin and span (`carrier.py`, from the binary models' triangle sections), sets the icon size
 from `baseitems.2da`, allocates the visible budget from `budget-policy.json` by stock length (7,500 at 0.5 m to 22,500
-at 1.6 m and over) and reserves resources, skipping slots the wave's other contracts on the same carrier pinned. The grip origin is measured, not reviewed in a hand: the first design on a
+at 1.6 m and over) and reserves resources, skipping slots that other live contracts on the same carrier pinned (in
+any wave) and names the repository's `srn_weapon` folder holds now. The grip origin is measured, not reviewed in a hand: the first design on a
 new carrier carries the both-body hand-fit review that confirms it.
+
+### Taking a base-game appearance slot (`--replace-stock`)
+
+The user approved replacing base-game weapon parts on every carrier (2026-11-15) once a carrier's slots are used up.
+`drive contract FAMILY ID --wave NAME --replace-stock` allows it; without the flag a full carrier is refused as before.
+
+- **A free slot always comes first.** The flag only matters when no slot in 1..25 is free.
+- **Only stock-only slots are taken.** A slot qualifies when every name it holds (the three part models, their TGA
+  icons and the icons' DDS twins) is in the stack's installed KEY namespace (`nwn-key-namespace-v1`) and nothing else
+  holds it: no other stack layer lists or inventories it (the `srn_weapon` layer, the shipped bodies, the comparison
+  weapons, the fixture templates; the `installed-stock-*` extraction layers count as stock), no live sibling contract
+  in any wave pinned it, and the repository's current `srn_weapon` folder does not hold it. A slot that a project
+  resource or a sibling already holds is never taken. The slot's texture name is the design's own and must be free.
+- **Highest stock slot first** (shape 9 down to 1). The low shapes are the base game's default looks: shape 1 is the
+  stock donor every contract measures and the first appearance in the toolset, so it is kept the longest.
+- **The contract records it.** `resources.replacesStock` lists the stock names the slot overrides, sorted, and the
+  contract's notes say so. `native` (prepare) repeats the check on the pinned stack: the pinned slot must hold exactly
+  the recorded names, and they must still be stock-only. A contract without the record cannot pin an occupied slot.
+- **Colour 1 only, not the whole shape.** Stock carriers hold shapes 1–9 in colours 1–4 (`wswls_b_011` to
+  `wswls_t_094`). A replacement overrides only the `N1` variant of its shape. The allocator, the package, the fixture
+  blueprint and publication all carry one colour per design. Taking `N2`–`N4` as well would need three renamed copies
+  of every part model and icon (18 more files) that would all look the same, and would change more base-game items.
+  The capacity is the same either way, one design per shape, because no design is ever given colours 2–9. The cost:
+  in the toolset and in the in-game appearance changer, shape N's colours 2–4 still show the stock part next to the
+  new colour 1. Stock blueprints that use part number `N1` show the new part, part by part (the user accepted this).
+- **Check the inventory icon in the client.** The base game also ships each part icon as DDS. The package carries the
+  TGA icon only, and the DDS twin stays in the base game (it is listed in `replacesStock` because the slot shares the
+  name). Look at the inventory icon in the first stock-slot fixture. If the client shows the stock icon, that slot
+  also needs a DDS override, which the toolkit does not make yet.
+
+Publication then copies the replacing models and icons into `srn_weapon` and records them as stock replacements
+(`approved-weapons-release.md`).
 
 ## Native and geometry contracts
 
@@ -617,7 +650,8 @@ all `b/m/t` donor resource names, native rotation `frame`, `gripOrigin`, measure
 `gripLength`, and donor `iconDimensions` for `b/m/t`. Set `reviewed` only after inspecting
 the donors. The first pilot requires composite ModelType2. Names are allocated without
 collisions in the supported model1..25 range, with `model*10+colour <=255`; UTI fields
-use that encoded byte. No gameplay table changes or mixed assemblies are generated.
+use that encoded byte. A contract made with `--replace-stock` may hold a stock-only slot it records in
+`resources.replacesStock` (see above). No gameplay table changes or mixed assemblies are generated.
 
 Fit inputs are a reviewed positive uniform matrix bound to the textured donor hash,
 plus measured grip endpoints in NWN/Blender basis (glTF conversion is `(x,-z,y)`).

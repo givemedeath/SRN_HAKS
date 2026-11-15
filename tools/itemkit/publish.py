@@ -7,7 +7,8 @@ RUN is the item run directory the user approved: it holds the native package (na
 HAK) and the fixture module whose blueprint shipped with it (fixture/attempt-*/fixture/userdir/modules/*.mod, or one
 refixture-*/fixture/userdir/modules/*.mod). Every payload is copied byte for byte; nothing is regenerated.
 
-The command refuses a name already in srn_weapon, checks the blueprint against the package (base item and the three
+The command refuses a name already in srn_weapon and, given --nwn-root, a name the installed base game holds unless the
+package's contract recorded it as a stock replacement (allocation.replacesStock: `drive contract --replace-stock`); it checks the blueprint against the package (base item and the three
 model parts), extends a carrier row's MaxRange only when an appearance number lies above it (that token and nothing
 else), records the items, resources, sources and the user's words in docs/items/approved-weapons-v1.json, adds a male
 and a female reviewer per blueprint to test-modules/weapon-waves (templates, placed instances, equip lines and the
@@ -123,6 +124,7 @@ class Package:
     hak: Path
     module: Path
     files: dict = field(default_factory=dict)     # srn_weapon file name -> (bytes, source archive)
+    replaces_stock: list = field(default_factory=list)   # base-game names the contract's stock slot overrides
     archives: dict = field(default_factory=dict)  # source archive name -> sha256, hashed once by survey
 
 
@@ -155,12 +157,35 @@ def survey(item, run):
     require(len(set(parts)) == 1 and all(fields.get(f'ModelPart{i}') == parts[0] for i in (1, 2, 3)),
             f'{item}: blueprint model parts do not match the package models {models}')
     package = Package(item, run, native['identity']['displayName'], blueprint, native['baseItem'], parts[0], hak, module,
-                      archives={hak.name: sha(hak_bytes), module.name: sha(module_bytes)})
+                      archives={hak.name: sha(hak_bytes), module.name: sha(module_bytes)},
+                      replaces_stock=list(native['allocation'].get('replacesStock', [])))
     for (resref, kind), body in read_erf(hak_bytes).items():
         require(kind in EXT, f'{item}: unexpected resource type {kind} in {hak.name}')
         package.files[f'{resref}.{EXT[kind]}'] = (body, hak.name)
     package.files[f'{blueprint}.uti'] = (uti, module.name)
+    stray = sorted(n for n in package.replaces_stock if n not in package.files and not n.endswith('.dds'))
+    require(not stray, f'{item}: the recorded stock replacement names files the package does not carry: {stray}')
     return package
+
+
+def stock_names(nwn_root):
+    """The resource names of the installed base game (its data and lang/en/data KEY indexes, as the stock namespace binds)."""
+    from tools.itemkit.native_stack import key_names
+    root = Path(nwn_root); keys = sorted([*(root/'data').glob('*.key'), *(root/'lang/en/data').glob('*.key')])
+    require(keys, f'No KEY index under {root}/data: --nwn-root must be the NWN:EE install')
+    return set().union(*(key_names(k) for k in keys))
+
+
+def stock_overrides(packages, stock):
+    """{item: [names]} of package files that override the base game; refused unless the contract recorded each one."""
+    out = {}
+    for p in packages:
+        hits = sorted(n for n in p.files if n in stock)
+        undeclared = sorted(set(hits) - set(p.replaces_stock))
+        require(not undeclared, f'{p.item}: would override base-game resources its contract did not record as a stock '
+                                f'replacement (drive contract --replace-stock): {undeclared}')
+        if hits: out[p.item] = hits
+    return out
 
 
 def table_row(lines, row):
@@ -367,18 +392,20 @@ def payload_exact(archive, folder, suffixes):
     return entries == sources, len(entries)
 
 
-def update_publication(repo, packages, needs, statements, review, policy):
+def update_publication(repo, packages, needs, statements, review, policy, overrides=None):
     path = repo/PUBLICATION; pub, ascii_only = load_exact(path)
     families = {f['baseItemId']: f['id'] for f in pub['groupingPlan']['families']}
     for p in packages:
         require(p.base_item in families, f'{p.item}: base item {p.base_item} is not in the grouping plan')
         # The record's order: the item's package files by name, then its blueprint.
+        replaced = set((overrides or {}).get(p.item, ()))
         for name, (body, archive) in sorted(p.files.items(), key=lambda f: (f[0].endswith('.uti'), f[0])):
             pub['resources'].append({'item': p.item, 'sourceArchive': archive, 'sourceResource': name, 'approvedSourceSha256': sha(body),
                                      'path': f'{WEAPONS.as_posix()}/{name}', 'sha256': sha(body), 'bytes': len(body),
-                                     'resourceType': TYPE[name.rsplit('.', 1)[1]]})
+                                     'resourceType': TYPE[name.rsplit('.', 1)[1]], **({'replacesStock': True} if name in replaced else {})})
         pub['items'].append({'id': p.item, 'name': p.name, 'blueprints': [p.blueprint], 'sourceArchive': p.hak.name,
-                             'status': 'user-approved', 'family': families[p.base_item]})
+                             'status': 'user-approved', 'family': families[p.base_item],
+                             **({'replacesStock': p.replaces_stock} if p.replaces_stock else {})})
         pub['sources'].update(p.archives)
     pub['approvalEvidence']['userStatements'] += [s for s in statements if s not in pub['approvalEvidence']['userStatements']]
     pub['clientReview'] += ' ' + review
@@ -449,7 +476,8 @@ def update_records(repo, packages, needs, statements, tags, total, today):
     return built
 
 
-def plan(repo, items):
+def plan(repo, items, stock=None):
+    """The surveyed packages, the MaxRange changes and the declared stock overrides ({} when `stock` is None: unchecked)."""
     packages = [survey(item, run) for item, run in items]
     require(len({p.item for p in packages}) == len(packages), 'An item is listed twice')
     published = {f.name.lower() for f in (repo/WEAPONS).iterdir()}
@@ -468,7 +496,8 @@ def plan(repo, items):
     slots = {p.item: rows[p.base_item].get('EquipableSlots', '****') for p in packages}
     left = [item for item, value in slots.items() if value != '****' and not int(value, 16) & 0x10]
     require(not left, f'Items that cannot go in the right hand are not published by this command: {left}')   # 0x10: right hand
-    return packages, maxrange_needs(repo, packages)
+    overrides = stock_overrides(packages, stock) if stock is not None else {}
+    return packages, maxrange_needs(repo, packages), overrides
 
 
 def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False):
@@ -477,10 +506,13 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
             "Publishing needs the user's words (--statement) and the review sentence (--review)")
     try: require(Date.fromisoformat(today).isoformat() == today, '')
     except ValueError: raise PublishError(f'--date {today} is not a YYYY-MM-DD date') from None
-    packages, needs = plan(repo, items)
+    stock = stock_names(nwn_root) if nwn_root else None
+    packages, needs, overrides = plan(repo, items, stock)
     summary = {'items': [{'id': p.item, 'name': p.name, 'blueprint': p.blueprint, 'baseItem': p.base_item, 'appearance': p.appearance,
-                          'files': sorted(p.files)} for p in packages],
-               'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()}}
+                          'files': sorted(p.files), **({'replacesStock': overrides[p.item]} if p.item in overrides else {})}
+                         for p in packages],
+               'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()},
+               'stockCheck': 'checked against the installed KEY indexes' if stock is not None else 'skipped: no --nwn-root'}
     # Room for the reviewers is checked before anything is written (a dry run without the module skips it), and this
     # checked layout is the one add_reviewers writes.
     planned = reviewer_plan(repo, packages) if not dry_run or (repo/MODULE).is_dir() else None
@@ -495,8 +527,9 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
             for name, (body, _) in p.files.items(): (repo/WEAPONS/name).write_bytes(body)
         if needs: (repo/BASEITEMS).write_bytes(extend_maxrange((repo/BASEITEMS).read_bytes(), needs))
         policy = (f'{", ".join(p.name for p in packages)}: blueprints and resources byte-identical to the approved itemkit packages'
-                  + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change') + '.')
-        update_publication(repo, packages, needs, statements, review, policy)
+                  + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change')
+                  + ''.join(f'; {p.name} replaces base-game {", ".join(overrides[p.item])}' for p in packages if p.item in overrides) + '.')
+        update_publication(repo, packages, needs, statements, review, policy, overrides)
         with tempfile.TemporaryDirectory() as work:
             tags, total = add_reviewers(repo, planned, tools, work)
         rebuild(repo, tools)

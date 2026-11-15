@@ -101,8 +101,9 @@ def ascii_model(name, texture, positions, normals, uv, shadow_vertices, shadow_f
 
 
 def prepare(profile_path, profile, arrays, texture, icons, output):
-    native, resources = native_contract(profile_path, profile)
-    allocation = reserve(profile, resources, profile.get('resources', {}).get('appearanceIndex'))
+    stock = set(); native, resources = native_contract(profile_path, profile, stock=stock)
+    # A contract that took a base-game slot recorded the stock names it overrides; reserve checks they are still stock-only.
+    allocation = reserve(profile, resources, profile.get('resources', {}).get('appearanceIndex'), stock=stock)
     output = Path(output); (output/'ascii').mkdir(parents=True); (output/'resources').mkdir()
     texture_name = allocation['texture']
     with Image.open(texture) as image:
