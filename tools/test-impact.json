@@ -2395,7 +2395,9 @@
       "tools/itemkit/drive.py",
       "tools/itemkit/family_contract.py",
       "tools/itemkit/native.py",
-      "tools/itemkit/test_itemkit.py"
+      "tools/itemkit/test_itemkit.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/shared_tools.py"
     ],
     "tools/itemkit/test_straightness.py": [
       "tools/headkit/gltf.py",

@@ -17,15 +17,20 @@ EXTRA_RESOURCE_TYPES = {'2da': 2017, 'uti': 2025}
 DDS_CHANNELS = {'DXT1': 3, 'DXT5': 4}
 
 
-def nwn_dds(tga, target, compression='DXT5'):
+def dds_converter(inputs):
+    """The vendored NWN Crunch, hash-checked once and registered with the TGAs it will convert."""
+    sys.path.insert(0, str(ROOT/'tools/phenotypes')); from tool_runtime import tool
+    return tool('crunch', inputs=[pin(p) for p in inputs])
+
+
+def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
     """A BioWare DDS of a TGA by the vendored NWN Crunch, with a generated mip chain: DXT5 for an RGBA icon (the base
     game's own part icons), DXT1 for an RGB diffuse. Every package ships these beside its TGAs, as the base game ships
-    its part icons. Returns the converter's pin."""
+    its part icons. `crunch` is a dds_converter() resolved for a batch; without it this one TGA resolves its own."""
     import struct
     require(compression in DDS_CHANNELS, 'Unsupported DDS compression')
-    sys.path.insert(0, str(ROOT/'tools/phenotypes')); from tool_runtime import tool
     tga, target = Path(tga), Path(target)
-    crunch = tool('crunch', inputs=[pin(tga)])
+    crunch = crunch or dds_converter([tga])
     require(not target.exists(), f'{target.name} exists')
     done = subprocess.run([str(crunch), '-file', str(tga), '-out', str(target), '-fileformat', 'nwn', '-'+compression, '-mipMode', 'Generate',
                            '-noprogress', '-nostats'], capture_output=True, text=True, errors='replace', timeout=300,
@@ -35,7 +40,6 @@ def nwn_dds(tga, target, compression='DXT5'):
     data = target.read_bytes(); channels = DDS_CHANNELS[compression]
     require(len(data) > 20 and struct.unpack_from('<3I', data) == (*size, channels) and data[:4] != b'DDS ',
             f'{target.name} is not a {size[0]}x{size[1]} {channels}-channel BioWare DDS')
-    return pin(crunch)
 
 
 def package_names_ok(names, twins):
@@ -140,7 +144,6 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
     with Image.open(texture) as image:
         require(image.size == (profile['runtimeTextureSize'],)*2, 'Runtime texture size differs from family')
         image.convert('RGB').save(output/'resources'/f'{texture_name}.tga')
-    converter = nwn_dds(output/'resources'/f'{texture_name}.tga', output/'resources'/f'{texture_name}.dds', 'DXT1')
     counts = {'visible': {}, 'shadow': {}}; expected = {}
     for part in PARTS:
         verify([arrays[part], icons[part]])
@@ -162,9 +165,13 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
                         and canvas[0]>=image.width and canvas[1]>=image.height,'Invalid native icon padding contract')
                 image=pad_icon(image,canvas)
             image.save(output/'resources'/f"{allocation['icons'][part]}.tga")
-        nwn_dds(output/'resources'/f"{allocation['icons'][part]}.tga", output/'resources'/f"{allocation['icons'][part]}.dds")
         target = output/f'expected-{part}.npz'; shutil.copyfile(arrays[part]['path'], target); expected[part] = pin(target)
     for kind in counts: check_budgets(counts[kind], profile['budgets'], kind)
+    # BioWare DDS twins of the diffuse (DXT1) and every icon (DXT5), from one converter resolution.
+    twins = [(output/'resources'/f'{texture_name}.tga', 'DXT1')] + [(output/'resources'/f"{allocation['icons'][p]}.tga", 'DXT5') for p in PARTS]
+    crunch = dds_converter([tga for tga, _ in twins])
+    for tga, compression in twins: nwn_dds(tga, tga.with_suffix('.dds'), compression, crunch=crunch)
+    converter = pin(crunch)
     result = {'allocation': allocation, 'baseItem': native['baseItem'], 'texture': texture_name,
               'expected': expected, 'budgets': counts, 'clientValidated': False, 'productionAccepted': False}
     if profile.get('resources'): result['identity'] = profile['resources']

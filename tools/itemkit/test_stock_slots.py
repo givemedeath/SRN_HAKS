@@ -116,17 +116,22 @@ class DdsTwinTests(unittest.TestCase):
     def test_nwn_crunch_makes_bioware_twins_of_icons_and_diffuse(self):
         import struct
         from PIL import Image
-        from tools.itemkit.native import nwn_dds
-        with tempfile.TemporaryDirectory() as folder:
+        import sys
+        from tools.headkit.common import ROOT
+        from tools.itemkit.native import dds_converter, nwn_dds
+        sys.path.insert(0, str(ROOT/'tools/phenotypes')); import tool_runtime
+        from tools.shared_tools import resolve_tool
+        # The temporary TGAs must not be registered in the worktree's shared consumer record.
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(tool_runtime, 'register_run', lambda *a, **k: None):
             # A stock icon canvas and a bare 1x3 footprint (DXT5), and a diffuse (DXT1).
             for size, mode, compression, channels in (((32, 128), 'RGBA', 'DXT5', 4), ((32, 96), 'RGBA', 'DXT5', 4), ((256, 256), 'RGB', 'DXT1', 3)):
                 tga = Path(folder)/f'image{size[1]}.tga'; target = tga.with_suffix('.dds')
                 image = Image.new(mode, size, (0, 0, 0, 0)[:len(mode)]); image.paste((200, 40, 40, 255)[:len(mode)], (8, 8, 24, size[1] - 8)); image.save(tga)
-                converter = nwn_dds(tga, target, compression)
+                nwn_dds(tga, target, compression, crunch=dds_converter([tga]) if channels == 3 else None)
                 data = target.read_bytes()
                 self.assertEqual(struct.unpack_from('<3I', data), (*size, channels)); self.assertNotEqual(data[:4], b'DDS ')
-                self.assertEqual(converter['sha256'], '6aabe212ee8a4a5c166801c3c7830239e3eb15910f2743232c33666bc91aa46c')
                 with self.assertRaisesRegex(ValueError, 'exists'): nwn_dds(tga, target)
+            self.assertEqual(Path(dds_converter([tga])), Path(resolve_tool('crunch')['path']))      # the lock-pinned converter
 
 
 class PackageNamesTests(unittest.TestCase):
