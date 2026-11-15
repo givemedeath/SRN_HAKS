@@ -12,6 +12,11 @@ if __package__ in (None, ''):
 from . import registry, tables
 
 
+def listed(text):
+    """The names of a comma-separated list."""
+    return [name.strip() for name in text.split(',') if name.strip()]
+
+
 def write_json(path, document):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -145,7 +150,7 @@ def command_split(args):
 
 def command_refit(args):
     from . import refit
-    names = [name.strip() for name in args.parts.split(',')] if args.parts else None
+    names = listed(args.parts) if args.parts else None
     print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names, body_textures=args.body_textures, seat_in=args.seat_in)))
 
 
@@ -182,10 +187,9 @@ def command_poses(args):
 
 def command_bodies(args):
     from . import bodies
-    listed = lambda text: tuple(name.strip() for name in text.split(',') if name.strip())
     report = bodies.build(args.kept, args.output, {'m': args.male_brief, 'f': args.female_brief}, args.number, args.body_pack, jobs=args.jobs,
-                          body_textures=args.body_textures, own=args.female_kept, own_parts=listed(args.female_parts),
-                          bodies=listed(args.only) if args.only else registry.BODIES, packs=args.pack, game=args.nwn_root, tint_cache=args.tint_cache,
+                          body_textures=args.body_textures, own=args.female_kept, own_parts=tuple(listed(args.female_parts)),
+                          bodies=tuple(listed(args.only)) if args.only else registry.BODIES, packs=args.pack, game=args.nwn_root, tint_cache=args.tint_cache,
                           say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({'passed': report['passed'], 'failed': sorted(body for body, found in report['bodies'].items() if not found['passed'])}))
     if not report['passed']:
@@ -194,11 +198,10 @@ def command_bodies(args):
 
 def command_wear(args):
     from . import bodies
-    listed = lambda text: [name.strip() for name in text.split(',') if name.strip()]
     heads = {}
     for given in args.head:
         kind, named, number = given.partition('=')
-        registry.require(named and number.isdigit(), f'--head takes KIND=NUMBER, as pmh=86: {given}')
+        registry.require(named and number.isdigit() and kind in bodies.HEADS, f'--head takes KIND=NUMBER, as pmh=86, for a kind of {", ".join(bodies.HEADS)}: {given}')
         heads[kind] = int(number)
     slots, worn_on = bodies.published(registry.load(args.registry), args.number, listed(args.bodies) if args.bodies else None)
     spec, layout = bodies.check_spec(worn_on, slots, args.number, args.hak, args.body_pack, tlk=args.tlk, heads=heads,

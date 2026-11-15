@@ -20,7 +20,7 @@ def kept(folder, parts=PARTS):
     return folder
 
 
-def runner(calls, fail=(), passed=True):
+def runner(calls, fail=(), passed=True, silent=()):
     """A stand-in for `bodies.command`: notes each command and writes what the kit's own would leave behind."""
     lock = threading.Lock()
 
@@ -34,11 +34,13 @@ def runner(calls, fail=(), passed=True):
             return 1
         if arguments[0] in ('refit', 'combine'):
             kept(arguments[2])
-        else:
-            Path(arguments[2]).mkdir()
-            gates = {'passed': passed, 'failures': [] if passed else ['a gate'], 'triangles': {'outfit': 25000}}
-            (Path(arguments[2]) / 'bake.json').write_text(json.dumps({'body': target, 'gates': gates}), encoding='utf-8')
-        return 0
+            return 0
+        if (arguments[0], target) in silent:
+            return 0
+        Path(arguments[2]).mkdir()
+        gates = {'passed': passed, 'failures': [] if passed else ['a gate'], 'triangles': {'outfit': 25000}}
+        (Path(arguments[2]) / 'bake.json').write_text(json.dumps({'body': target, 'gates': gates}), encoding='utf-8')
+        return 0 if passed else 1  # as `bake` does: its record written, and 1 where a gate fails
     return run
 
 
@@ -78,6 +80,9 @@ class PlanTests(unittest.TestCase):
                     bodies.plan(male, out, BRIEFS, 6020, 'pack', **wrong)
             with self.assertRaises(ValueError):  # a brief for each gender
                 bodies.plan(male, out, {'m': 'male.json'}, 6020, 'pack')
+            for parts in ((), tuple(PARTS)):  # she keeps some parts and takes some: neither none nor all
+                with self.assertRaisesRegex(ValueError, 'keeps some'):
+                    bodies.plan(male, out, BRIEFS, 6020, 'pack', own=own, own_parts=parts)
 
 
 class BuildTests(unittest.TestCase):
@@ -91,8 +96,8 @@ class BuildTests(unittest.TestCase):
             self.assertEqual(set(report['bodies']), set(wanted))
             self.assertEqual(report['bodies']['pfe2']['triangles'], 25000)
             self.assertEqual(json.loads((out / bodies.REPORT).read_text(encoding='utf-8')), report)
-            first = [(arguments[0], arguments[2]) for arguments in calls[:3]]
-            self.assertEqual(first, [('refit', str(out / 'pfh0-kept')), ('bake', str(out / 'pfh0')), ('bake', str(out / 'pmh0'))])
+            first = {(arguments[0], arguments[2]) for arguments in calls[:3]}  # the two Humans, side by side
+            self.assertEqual(first, {('refit', str(out / 'pfh0-kept')), ('bake', str(out / 'pfh0')), ('bake', str(out / 'pmh0'))})
             self.assertEqual(len(calls), 3 + 2 * 3)
             self.assertEqual(len(said), len(wanted))
             with self.assertRaisesRegex(ValueError, 'built already'):  # nothing built is written over
@@ -116,8 +121,19 @@ class BuildTests(unittest.TestCase):
             self.assertEqual(found['pfd0']['log'], str(root / 'a' / 'pfh0-refit.log'))
             self.assertTrue(found['pmh0']['passed'])
             self.assertFalse(any('pfd0' in arguments for arguments in calls))
-            failing = bodies.build(male, root / 'b', BRIEFS, 6020, 'pack', bodies=('pmh0',), run=runner([], passed=False))  # a bake whose gates fail
-            self.assertEqual((failing['passed'], failing['bodies']['pmh0']['failures']), (False, ['a gate']))
+            # A bake whose gates fail says which, and stops no body: the parts the others are carried from are kept all the same.
+            failing = bodies.build(male, root / 'b', BRIEFS, 6020, 'pack', bodies=('pmh0', 'pfh0', 'pmd0', 'pfd0'), run=runner([], passed=False))
+            self.assertFalse(failing['passed'])
+            self.assertEqual({body: (found['failed'], found['failures']) for body, found in failing['bodies'].items()},
+                             {body: ('bake', ['a gate']) for body in ('pmh0', 'pfh0', 'pmd0', 'pfd0')})
+            # A bake that says it is done and wrote no record fails alone; the report is still written.
+            mute = bodies.build(male, root / 'c', BRIEFS, 6020, 'pack', bodies=('pmh0', 'pmd0'), run=runner([], silent={('bake', 'pmd0')}))
+            self.assertEqual((mute['bodies']['pmd0']['failed'], mute['bodies']['pmh0']['passed'], mute['passed']), ('bake', True, False))
+            self.assertTrue((root / 'c' / bodies.REPORT).is_file())
+
+            def broken(arguments, stdout, stderr):
+                raise OSError('no room')
+            self.assertEqual(bodies.build(male, root / 'd', BRIEFS, 6020, 'pack', bodies=('pmh0',), run=broken)['bodies']['pmh0']['failed'], 'report')
 
 
 class CheckTests(unittest.TestCase):
@@ -128,6 +144,12 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([actor['head'] for actor in actors[:3]], [bodies.HEADS['pmh'], bodies.HEADS['pfd'], bodies.HEADS['pmg']])
         self.assertTrue(all(actor['colours'] == poses.COLOURS and actor['parts'] == {'chest': 6020} for actor in actors))
         self.assertEqual(len({actor['position'] for actor in actors}), 6)
+        # all 20 bodies stand inside the fixture's area, 160 m a side, in rows; more than it holds are refused
+        everyone = bodies.cast(list(registry.BODIES), {}, {body: 1.0 for body in registry.BODIES})[0]
+        self.assertEqual((len(everyone), len({actor['position'] for actor in everyone})), (40, 40))
+        self.assertTrue(all(5.0 < x < 155.0 and 5.0 < y < 155.0 and (x, y) != bodies.HOST for x, y in (actor['position'] for actor in everyone)))
+        with self.assertRaisesRegex(ValueError, 'room for'):
+            bodies.cast(list(registry.BODIES), {}, {body: 1.0 for body in registry.BODIES}, cast=bodies.CAST * 2)
         human, dwarf, troll = (shots[at * len(bodies.VIEWS)] for at in range(3))
         self.assertEqual((human['distance'], dwarf['distance'], troll['distance']), (3.2, 3.2, 4.16))  # further off a taller body, never nearer
         self.assertEqual((human['height'], dwarf['height'], troll['height']), (0.95, 0.665, 1.235))
