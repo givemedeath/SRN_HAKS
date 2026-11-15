@@ -7,10 +7,11 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, bodyskin, measure, refit, seams, split
+from . import bake, bodyskin, measure, publish, refit, seams, split
 from .test_bake import arm, closed, contract, part, rig
 from .test_seams import tube as upright
 from .test_bodyskin import arm as body_arm
+from .test_publish import joined, tube as standing
 
 
 def moved(bones, rotation, scale, offset):
@@ -344,6 +345,41 @@ class HeldTests(unittest.TestCase):
         out, lost = refit.budgeted(piece, lambda v, f: 0, len(shut['f']) - 8, tight)
         self.assertGreaterEqual(lost, 8)
         self.assertEqual(int((~out['added']).sum()), own)
+
+
+class NeckTests(unittest.TestCase):
+    NECK = standing(0.1, -0.07, 0.2)
+    PLANE = (np.zeros(3), np.array((0.0, 0.0, 1.0)))
+    GRAIN = 0.008
+
+    def chest(self, dent=0.0):
+        """A torso to 2 cm above the neck plane and a collar on it to 8 cm, 4 mm off the neck, drawn `dent` inside
+        the neck at one point halfway up."""
+        v, f = joined(standing(0.3, -0.5, 0.02), standing(0.104, 0.0, 0.04), standing(0.104, 0.04, 0.08))
+        v = v.copy()
+        at = np.linalg.norm(v - (0.104, 0.0, 0.04), axis=1) < 1e-9
+        v[at, 0] = 0.1 - dent
+        return {'v': v, 'f': f, 'n': v * 0 + (0, 0, 1.0)}, int(at.sum())
+
+    def through(self, vertices, faces):
+        return publish.neck((vertices, faces), self.NECK, *self.PLANE, grain=self.GRAIN)[0]['through']['share']
+
+    def test_a_chest_the_neck_comes_through_below_its_collar_is_lifted_over_it(self):
+        sound, _ = self.chest(-0.004)
+        self.assertIs(refit.over_neck(sound, self.NECK, *self.PLANE, grain=self.GRAIN), sound)  # nothing through: as it was
+        chest, dented = self.chest(0.005)
+        self.assertEqual(dented, 2)  # the two tubes of the collar meet there: copies that must move as one
+        self.assertGreater(self.through(chest['v'], chest['f']), 0)
+        held = refit.over_neck(chest, self.NECK, *self.PLANE, grain=self.GRAIN)
+        self.assertEqual(self.through(held['v'], chest['f']), 0)
+        moved = np.linalg.norm(held['v'] - chest['v'], axis=1)
+        self.assertLess(moved.max(), 0.012)
+        self.assertTrue((moved[np.linalg.norm(chest['v'][:, :2], axis=1) > 0.2] == 0).all())  # the torso under the collar stays
+        at = np.linalg.norm(chest['v'] - (0.095, 0.0, 0.04), axis=1) < 1e-9
+        self.assertEqual(len(np.unique(held['v'][at].round(9), axis=0)), 1)
+        with self.assertRaisesRegex(Exception, 'past 3 cm'):  # a neck bare between the chest and a band is no patch to lift cloth over
+            v, f = joined(standing(0.3, -0.5, 0.0), standing(0.3, 0.06, 0.08))
+            refit.over_neck({'v': v, 'f': f, 'n': v * 0 + (0, 0, 1.0)}, self.NECK, *self.PLANE, grain=self.GRAIN)
 
 
 class RefitTests(unittest.TestCase):

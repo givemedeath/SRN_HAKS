@@ -223,8 +223,8 @@ def turn(axis, degrees):
     return np.eye(3) + math.sin(angle) * cross + (1 - math.cos(angle)) * cross @ cross
 
 
-def away(points, corners):
-    """Per point, its distance to the nearest of the triangles `corners`, (n, 3, 3)."""
+def apart(points, corners):
+    """Per point and triangle, the distance from the point to the triangle: (points, n) for `corners`, (n, 3, 3)."""
     a, b, c = corners[None, :, 0], corners[None, :, 1], corners[None, :, 2]
     p = points[:, None]
     normal = np.cross(b - a, c - a)
@@ -239,7 +239,32 @@ def away(points, corners):
         within &= np.einsum('pfi,pfi->pf', np.cross(along, foot - start), normal) >= 0
         share = np.clip(np.einsum('pfi,pfi->pf', p - start, along) / np.maximum(np.einsum('pfi,pfi->pf', along, along), 1e-30), 0.0, 1.0)
         least = np.minimum(least, np.linalg.norm(p - (start + share[..., None] * along), axis=2))
-    return np.where(within & (size > 1e-18), np.abs(off), least).min(axis=1)
+    return np.where(within & (size > 1e-18), np.abs(off), least)
+
+
+def away(points, corners):
+    """Per point, its distance to the nearest of the triangles `corners`, (n, 3, 3)."""
+    return apart(points, corners).min(axis=1)
+
+
+def unjoined(points, shown, top, grain):
+    """Which of `points` show (`shown`) and are joined to none of those in `top` through points that show: the
+    points are sorted into cells two grains a side, and a cell is joined to the 26 round it."""
+    cells = np.floor(points[shown] / (2 * grain)).astype(np.int64)
+    held = {tuple(cell) for cell in cells.tolist()}
+    reached = {tuple(cell) for cell in cells[top[shown]].tolist()}
+    edge = list(reached)
+    steps = [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1) if (i, j, k) != (0, 0, 0)]
+    while edge:
+        x, y, z = edge.pop()
+        for i, j, k in steps:
+            beside = (x + i, y + j, z + k)
+            if beside in held and beside not in reached:
+                reached.add(beside)
+                edge.append(beside)
+    out = np.zeros(len(points), bool)
+    out[np.flatnonzero(shown)] = [tuple(cell) not in reached for cell in cells.tolist()]
+    return out
 
 
 def outside(points, surface, near=NECK_NEAR):
@@ -306,22 +331,7 @@ def neck(chest, own, point, normal, bend=None, ends=seams.ENDS, grain=NECK_GRAIN
     collar = float(height[~shown].max()) if (~shown).any() else None
     if (~shown[top]).any():
         reasons.append('the chest closes over the top of the neck, where the head sits')
-    # What shows and is joined to the neck's top through points that show is the neck above the collar: the
-    # points are sorted into cells two grains a side, and a cell is joined to the 26 round it.
-    cells = np.floor(points[shown] / (2 * grain)).astype(np.int64)
-    held = {tuple(cell) for cell in cells.tolist()}
-    reached = {tuple(cell) for cell in cells[top[shown]].tolist()}
-    edge = list(reached)
-    steps = [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1) if (i, j, k) != (0, 0, 0)]
-    while edge:
-        x, y, z = edge.pop()
-        for i, j, k in steps:
-            beside = (x + i, y + j, z + k)
-            if beside in held and beside not in reached:
-                reached.add(beside)
-                edge.append(beside)
-    through = np.zeros(len(points), bool)
-    through[np.flatnonzero(shown)] = [tuple(cell) not in reached for cell in cells.tolist()]
+    through = unjoined(points, shown, top, grain)  # what shows and is joined to the neck's top is the neck above the collar
     if through.any():
         reasons.append(f'the neck shows through the chest below its collar: {through.mean() * 100:.1f}% of its surface, up to {out[through].max() * 1000:.0f} mm out, '
                        f'{height[through].min() * 100:.1f} to {height[through].max() * 100:.1f} cm from the neck plane')

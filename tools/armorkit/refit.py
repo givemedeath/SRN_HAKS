@@ -70,6 +70,7 @@ OVER_SKIN = 0.003  # a sleeve beside the body's own skin in its slot stands at l
 OVER_ROUNDS = 6  # rings of neighbours a sleeve's push out over the arm is spread to
 OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
 OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a farther push fails the refit
+OVER_NECK = 0.001  # a chest lifted over a patch of the other body's neck that came through it stands this far outside the patch
 TAPERED = {'chest': ('shoulder', 'waist')}  # a part scaled across by a slope: the joints its width is read at, down its axis
 TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first station: no crease on the line where it starts
 STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
@@ -581,6 +582,74 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     return held
 
 
+def over_neck(part, neck, point, normal, gap=OVER_NECK, rounds=OVER_ROUNDS, grain=None):
+    """The chest `part` with its cloth lifted over what of the other body's `neck` ((vertices, faces), the
+    body's own neck part) came through it below its collar, read as a publication reads it (`publish.neck`:
+    the neck's surface at points `grain` apart, a point more than `publish.NECK_THROUGH` outside the chest and
+    joined to the neck's top by no other such point). The corners of the face nearest each such point are
+    moved out along the cloth's own normals by what the point stands out and `gap`, the move spread over
+    `rounds` rings of their neighbours as a sleeve's is over an arm (`over_skin`), and the neck is read again,
+    `OVER_PASSES` times at most. A pad is not moved. `point` and `normal` are the neck joint's plane on the
+    other body. A chest nothing comes through is returned as it is; one the neck still comes through after
+    the last pass, or one that would move past `OVER_MOST`, fails here and not at the publication.
+
+    A chest is carried by its shoulders and its waist, and no neck is as wide at its root as another: the
+    Troll male's neck stood 2.1 to 2.6 mm out of the shirt's shoulders beside the collar in three strips,
+    3 cm above the neck plane, every bake gate passed, and the publication's neck gate refused the body
+    (Facility Security on 20 bodies, 2026-11-14)."""
+    from . import publish
+    grain = publish.NECK_GRAIN if grain is None else grain
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    points = seams.surface_points(np.asarray(neck[0], float), np.asarray(neck[1], int), grain)
+    height = (points - np.asarray(point, float)) @ seams.unit(normal)
+    top = height >= height.max() - publish.NECK_TOP
+
+    def read(vertices):
+        out = publish.outside(points, (vertices, f))
+        return out, publish.unjoined(points, out > publish.NECK_THROUGH, top, grain)
+
+    out, through = read(v)
+    if not through.any():
+        return part
+    pad = np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
+    ids = mesh_ops.weld_ids(v)
+    count = int(ids.max()) + 1
+    free = np.zeros(count, bool)
+    free[ids[f[~pad].ravel()]] = True
+    free[ids[f[pad].ravel()]] = False
+    cloth = f[~pad]
+    pairs = mesh_ops.edges(f, ids)[0]
+    rows, cols = np.concatenate([pairs[:, 0], pairs[:, 1]]), np.concatenate([pairs[:, 1], pairs[:, 0]])
+    degree = np.maximum(np.bincount(rows, minlength=count), 1)
+    moved, pushed = v.copy(), np.zeros(count)
+    for _ in range(OVER_PASSES):
+        if not through.any():
+            break
+        which = np.flatnonzero(through)
+        corners = moved[cloth]
+        low, high = points[which].min(axis=0) - publish.NECK_NEAR, points[which].max(axis=0) + publish.NECK_NEAR
+        near = np.flatnonzero((corners.max(axis=1) >= low).all(axis=1) & (corners.min(axis=1) <= high).all(axis=1))
+        require(len(near), 'The neck comes through the chest where it has no cloth to lift over it')
+        step = max(1, 200000 // len(near))
+        face = near[np.concatenate([publish.apart(points[which[at:at + step]], corners[near]).argmin(axis=1) for at in range(0, len(which), step)])]
+        need = np.zeros(count)
+        np.maximum.at(need, ids[cloth[face]].ravel(), np.repeat(out[which] + gap, 3))
+        need = np.where(free, need, 0.0)
+        push = need.copy()
+        for _ in range(rounds):
+            push = np.where(free, np.maximum(need, np.bincount(rows, push[cols], minlength=count) / degree), 0.0)
+        pushed += push
+        require(pushed.max() <= OVER_MOST, f"Lifted over the body's own neck, the chest would move {pushed.max() * 100:.1f} cm, past {OVER_MOST * 100:.0f} cm")
+        way = np.zeros((count, 3))  # one normal a welded point, weighted by area: its copies at a texture seam move as one
+        np.add.at(way, ids[cloth].ravel(), np.repeat(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), 3, axis=0))
+        way /= np.maximum(np.linalg.norm(way, axis=1, keepdims=True), 1e-12)
+        moved = moved + push[ids][:, None] * way[ids]
+        out, through = read(moved)
+    require(not through.any(), f"Lifted {OVER_PASSES} times, the chest still lets the body's own neck through below its collar, "
+                               f'up to {out[through].max() * 1000 if through.any() else 0:.1f} mm out')
+    return {**part, 'v': moved, 'n': renormal(part['n'], f, v, moved)}
+
+
 def short_of_skin(part, start, end, gap=OVER_SKIN):
     """How far, in metres, what is drawn over the body's own skin in `part` (`bake.skinned`) still stands short
     of `gap` outside it at most, read as `over_skin` reads it: 0 where it clears the skin by `gap` everywhere,
@@ -760,7 +829,8 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     (`bake.skinned`). Where the parts kept in the folder `seat_in`, baked on the target, hold the part over
     a carried part's under end, and it is not carried too, that end's cap is seated in it (`seated`).
     A part beside the body's skin is first brought under its budget with the other body's skin counted
-    (`budgeted`; `reduced` in the report, the faces taken out).
+    (`budgeted`; `reduced` in the report, the faces taken out). A chest is lifted over what of the other body's
+    neck came through it below its collar (`over_neck`; `overNeck` in the report, the farthest a point moved).
     Returns `refit`'s report, with, for a part beside the body's skin, how far it was pushed out over it
     (`overSkin`) and how far it still stands short of `OVER_SKIN` outside it (`shortOfSkin`, 0 where it
     clears it), and for any part the area of its faces the client would show a hole at (`seenThrough`,
@@ -784,6 +854,11 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
                 if not np.array_equal(moved, parts[name]['v']):
                     parts[name] = {**parts[name], 'v': moved, 'n': renormal(parts[name]['n'], parts[name]['f'], parts[name]['v'], moved)}
                     report[name].setdefault('seated', []).append(f'{joint} {side}')
+    if 'chest' in parts and 'neck' in goal[1]:
+        held = over_neck(parts['chest'], goal[1]['neck'], *seams.plane(goal[0], 'neck', 'c'))
+        if held is not parts['chest']:
+            report['chest']['overNeck'] = round(float(np.linalg.norm(held['v'] - parts['chest']['v'], axis=1).max()), 4)
+            parts['chest'] = held
     if bake.shared_with_body(listed) & set(parts):
         require(body_textures is not None, f'{", ".join(sorted(bake.shared_with_body(listed) & set(parts)))} share their slots with the body\'s '
                                            'skin: give the body\'s textures to lay the other body\'s beside them')
