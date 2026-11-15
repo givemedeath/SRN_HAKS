@@ -268,7 +268,8 @@ class SheetTests(unittest.TestCase):
         (enlarged / 'gate-s101-b0.png').unlink(); (enlarged / 'gate-s101.json').unlink(); reference.enlarge(None, None, None, self.selected, enlarged, say=quiet)
         self.assertEqual(len(go()), 3)
         said = ' '.join(str(word) for call in fake.calls for word in call)
-        self.assertIn(str(enlarged / 'gate-s101-b0.png'), said); self.assertNotIn(str(self.selected), said); self.assertNotIn('gate-s100', said)
+        # The call names each picture by its resolved path, which a short temporary folder name (RUNNER~1 on the CI's Windows) is not.
+        self.assertIn(str((enlarged / 'gate-s101-b0.png').resolve()), said); self.assertNotIn(str(self.selected.resolve()), said); self.assertNotIn('gate-s100', said)
         shutil.rmtree(enlarged); self.assertEqual(go(), [])  # what has gone needs no enlarged picture any more
 
 
