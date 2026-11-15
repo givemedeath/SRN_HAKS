@@ -135,14 +135,13 @@ def submit(ledger, plan, selected, work, *, sent=None, run=meshy.run_cli, say=pr
     `sent` is the folder of the references at Meshy's size (`reference.enlarge`): each asset's reference is found in
     `selected`, where one is chosen for it, and the picture of that name in `sent` is what goes. Found in `sent`
     itself, an asset chosen again with another seed had two, the one enlarged before still lying there (review of
-    2026-11-14). Without `sent` the chosen picture itself goes."""
+    2026-11-14). Each picture still to go must be the one `enlarge` made of the reference chosen now
+    (`reference.sent_current`). Without `sent` the chosen picture itself goes."""
     work = Path(work); work.mkdir(parents=True, exist_ok=True)
     large = None if sent is None else Path(sent); going = lambda path: path if large is None else large / path.name
     sent = []  # from here on, the keys sent
     pictures = {name: going(image(selected, name)) for name in plan['props']}
     views = {row['key']: [going(image(selected, name)) for name in row['views']] for row in buildings(plan)}
-    absent = sorted({path.name for path in [*pictures.values(), *(path for row in views.values() for path in row)] if not path.is_file()})
-    require(not absent, 'No picture at Meshy\'s size for these chosen references; run `envkit enlarge`: ' + ', '.join(absent))
     need = cost(ledger, plan); ledger.load()
     require(ledger.committed() + need <= ledger.data['cap'],
             f'The plan needs {need} more credits and the ledger has {ledger.data["cap"] - ledger.committed()} left under its cap of {ledger.data["cap"]}')
@@ -153,7 +152,10 @@ def submit(ledger, plan, selected, work, *, sent=None, run=meshy.run_cli, say=pr
         if state(ledger, key) is not None:
             was, now = meshy.sent_images(ledger.entry(key)), [path.name for path in chosen]
             require(was is None or was == now, f'{key} was sent with {", ".join(was or [])} and {", ".join(now)} is selected now: give it a new key in the plan')
-    large_enough(sorted({path for key, _, _, chosen, _ in calls if state(ledger, key) is None for path in chosen}))
+    unsent = sorted({path for key, _, _, chosen, _ in calls if state(ledger, key) is None for path in chosen})
+    if large is not None:  # only what is still to go: a call the ledger holds needs no enlarged picture any more
+        reference.sent_current(selected, large, {path.name for path in unsent})
+    large_enough(unsent)
     held = []
     for key, asset, operation, _, arguments in calls:
         if state(ledger, key) is not None:

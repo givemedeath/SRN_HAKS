@@ -607,6 +607,19 @@ class ConvertTests(unittest.TestCase):
         self.assertLess(convert.light_gap(vertices, faces, [0.5, 0.0, 0.5]), 0.06)  # on the wall, to within its sampling
         self.assertAlmostEqual(convert.light_gap(vertices, faces, [0.5, -0.2, 0.5]), 0.2, delta=0.02)  # a little before it
         self.assertGreater(convert.light_gap(vertices, faces, [0.5, 0.0, 1.5]), convert.LIGHT_NEAR)  # over it, in the air
+        # A prop is refused with its light in the air, and reports the light it was measured with: `envkit placeables`
+        # writes a row no other (`additions.command_placeables`).
+        from unittest import mock
+        made = {'glass': None, 'vertices': vertices, 'normals': np.tile([0.0, -1.0, 0.0], (4, 1)), 'uvs': np.zeros((4, 2)), 'faces': faces, 'scale': 1.0,
+                'angles': (0.0, 0.0, 0.0), 'repaired': 0, 'turned': 0, 'facesTurned': 0, 'illumination': None, 'card': None, 'colour': None, 'flat': None,
+                'plain': None, 'turn': 0.0, 'wire': None, 'behind': None}
+        with tempfile.TemporaryDirectory() as scratch, mock.patch.object(convert, 'shape', return_value=made), mock.patch.object(convert, 'skin', return_value=[]):
+            convert_it = lambda light: convert.placeable('ek_x', 'model.glb', {}, Path(scratch), None, height=1.0, light=light)
+            with self.assertRaisesRegex(ValueError, r'The light of ek_x stands 0\.5\d metres from the model'):
+                convert_it({'colour': 3, 'at': [0.5, 0, 1.5]})
+            told = convert_it({'colour': 3, 'at': [0.5, 0, 1]})  # at the wall's top edge
+            self.assertEqual(told['lightAt'], [0.5, 0.0, 1.0]); self.assertLess(told['lightFromModel'], 0.06)
+            self.assertFalse({'lightAt', 'lightFromModel'} & set(convert_it(None)))  # a prop that casts none says nothing of one
 
     def test_a_pane_of_glass_is_a_node_of_its_own_seen_from_both_sides(self):
         """The Chop Shop clinic's cyberware case (2026-11-14) came back with the bars of its glass front and no glass."""

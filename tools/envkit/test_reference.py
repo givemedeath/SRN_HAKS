@@ -352,7 +352,7 @@ class MakeTests(unittest.TestCase):
         self.assertEqual(reference.enlarge(None, None, None, selected, sent, say=quiet), {'desk-s7-b0.png': 'copied', 'gate-s101-b0.png': 'copied'})  # copies need no ComfyUI
         reference.sent_current(selected, sent)
         Image.new('RGB', (2048, 8), 'green').save(selected / 'desk-s7-b0.png')  # chosen again under the same name
-        with self.assertRaisesRegex(ValueError, 'not the references chosen now.*: desk-s7-b0.png$'):
+        with self.assertRaisesRegex(ValueError, 'as they are chosen now.*: desk-s7-b0.png$'):
             reference.sent_current(selected, sent)
         (sent / 'desk-s7-b0.png').unlink(); (sent / 'desk-s7.json').unlink(); reference.enlarge(None, None, None, selected, sent, say=quiet); reference.sent_current(selected, sent)
         # Chosen again with another seed: the one enlarged before stays in `sent` as history and stands in nobody's way.

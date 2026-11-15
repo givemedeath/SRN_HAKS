@@ -252,20 +252,24 @@ class SheetTests(unittest.TestCase):
     def test_the_picture_sent_is_the_enlarged_one_of_the_reference_chosen_now(self):
         """Review, 2026-11-14: an asset chosen again with another seed left the seed enlarged before in the folder of
         sent pictures, and looking there for the asset's reference found two."""
+        import shutil
+        from . import reference
         ledger = meshy.Ledger.create(self.root / 'ledger.json', 500); plan = self.plan(); fake = FakeMeshy()
-        enlarged = self.root / 'sent'; enlarged.mkdir()
-        for path in self.selected.glob('*.png'):
-            Image.new('L', (1024, 4)).save(path)  # the chosen pictures are small; the enlarged ones go
-            if not path.name.startswith('gate'):
-                Image.new('L', (4096, 8)).save(enlarged / path.name)
+        enlarged = self.root / 'sent'; quiet = lambda *_, **__: None
+        go = lambda: sheet.submit(ledger, plan, self.selected, self.work, sent=enlarged, run=fake, say=self.say)
+        with self.assertRaisesRegex(ValueError, 'run `envkit enlarge`.*: building-hero-s101-b0.png, building-rear-s101-b0.png, desk-s101-b0.png, gate-s101-b0.png$'):
+            go()  # nothing enlarged yet
+        reference.enlarge(None, None, None, self.selected, enlarged, say=quiet)  # each is large enough and is copied
         Image.new('L', (4096, 8)).save(enlarged / 'gate-s100-b0.png')  # the seed chosen before, still lying there
-        with self.assertRaisesRegex(ValueError, 'run `envkit enlarge`: gate-s101-b0.png'):
-            sheet.submit(ledger, plan, self.selected, self.work, sent=enlarged, run=fake, say=self.say)
+        Image.new('L', (2048, 6)).save(self.selected / 'gate-s101-b0.png')  # and the gate chosen again under its name
+        with self.assertRaisesRegex(ValueError, 'run `envkit enlarge`.*: gate-s101-b0.png$'):
+            go()
         self.assertEqual(fake.calls, [])
-        Image.new('L', (4096, 8)).save(enlarged / 'gate-s101-b0.png')
-        self.assertEqual(len(sheet.submit(ledger, plan, self.selected, self.work, sent=enlarged, run=fake, say=self.say)), 3)
+        (enlarged / 'gate-s101-b0.png').unlink(); (enlarged / 'gate-s101.json').unlink(); reference.enlarge(None, None, None, self.selected, enlarged, say=quiet)
+        self.assertEqual(len(go()), 3)
         said = ' '.join(str(word) for call in fake.calls for word in call)
         self.assertIn(str(enlarged / 'gate-s101-b0.png'), said); self.assertNotIn(str(self.selected), said); self.assertNotIn('gate-s100', said)
+        shutil.rmtree(enlarged); self.assertEqual(go(), [])  # what has gone needs no enlarged picture any more
 
 
 if __name__ == '__main__':

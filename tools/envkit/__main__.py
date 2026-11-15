@@ -228,7 +228,6 @@ def command_sheet(args):
     plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger); root = Path(args.root); work = root / 'meshy' / 'work'
     failed = []
     if args.action == 'submit':
-        reference.sent_current(root / 'references' / 'selected', root / 'references' / 'sent')  # before a credit is spent on a picture chosen otherwise since
         print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work, sent=root / 'references' / 'sent')}))
     elif args.action == 'collect':
         made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))

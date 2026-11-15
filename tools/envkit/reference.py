@@ -259,13 +259,10 @@ def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, sa
     found = sorted(path for path in selected.glob('*.png') if CHOSEN.fullmatch(path.name))
     require(found, 'No chosen references (<asset>-s<seed>-b0.png) in ' + str(selected))
     for path in found:
-        base = path.name[:-len('-b0.png')]; target, record = output / path.name, output / f'{base}.json'
-        sha = hashlib.sha256(path.read_bytes()).hexdigest()
-        if target.exists() or record.exists():
-            was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
-            # A job that fails leaves its receipt (`design._execute`), with or without a picture: it is no reference made.
-            require(was.get('state') != 'failed', f'{record} is of an enlarging that failed ({was.get("error")}): take it and any {target.name} beside it away and enlarge again')
-            require(target.is_file() and was.get('source') == sha, f'{target} was not made from the {path.name} chosen now: take it and its record away and enlarge again')
+        base = path.name[:-len('-b0.png')]; target, record, sha, there, was = _sent(path, output)
+        if there is not None:
+            require(there != 'failed', f'{record} is of an enlarging that failed ({was.get("error")}): take it and any {target.name} beside it away and enlarge again')
+            require(there == 'made', f'{target} was not made from the {path.name} chosen now: take it and its record away and enlarge again')
             told[path.name] = 'kept'; continue
         with Image.open(path) as picture:
             size = picture.size
@@ -288,18 +285,29 @@ def enlarge(client, local, bindings_path, selected, output, *, deadline=2400, sa
     return told
 
 
-def sent_current(selected, sent):
-    """Refuse where `sent` does not hold the chosen references of `selected` as `enlarge` leaves them: a picture
-    missing, one whose enlarging failed, or one made from another picture than the one chosen now. `sheet submit`
-    sends from `sent` the picture named as each chosen reference is; one chosen again under its name after it was
-    enlarged would otherwise go to Meshy as it was before, and its credits with it. A picture in `sent` of a
-    reference no longer chosen (another seed's) is history: it is not sent and is left where it is."""
-    selected, sent = Path(selected), Path(sent)
-    require(sent.is_dir(), f'No references at Meshy\'s size in {sent}: run `envkit enlarge`')
-    chosen = {path.name: path for path in selected.glob('*.png') if CHOSEN.fullmatch(path.name)}; stale = []
-    for name, path in sorted(chosen.items()):
-        record = sent / f'{name[:-len("-b0.png")]}.json'
-        was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
-        if not (sent / name).is_file() or was.get('state') == 'failed' or was.get('source') != hashlib.sha256(path.read_bytes()).hexdigest():
-            stale.append(name)
-    require(not stale, f'{sent} is not the references chosen now in {selected}: take these and their records away from it and run `envkit enlarge`: ' + ', '.join(stale))
+def _sent(path, output):
+    """How a chosen reference stands in the folder of sent pictures: (its picture there, its record, the chosen
+    picture's hash, what is there, the record as read). What is there is None for nothing, 'made' for the picture
+    `enlarge` made of this chosen one, 'failed' for the receipt of a job that failed (`design._execute` leaves one,
+    with or without a picture: it is no reference made) and 'other' for anything else, a picture of another one
+    chosen under the name before or one with no record."""
+    target, record = Path(output) / path.name, Path(output) / f'{path.name[:-len("-b0.png")]}.json'
+    sha = hashlib.sha256(path.read_bytes()).hexdigest()
+    if not (target.exists() or record.exists()):
+        return target, record, sha, None, {}
+    was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
+    there = 'failed' if was.get('state') == 'failed' else 'made' if target.is_file() and was.get('source') == sha else 'other'
+    return target, record, sha, there, was
+
+
+def sent_current(selected, sent, names=None):
+    """Refuse where `sent` does not hold the chosen references of `selected` (those named in `names`, where given)
+    as `enlarge` leaves them: a picture missing, one whose enlarging failed, or one made from another picture than
+    the one chosen now. `sheet submit` sends from `sent` the picture named as each chosen reference is; one chosen
+    again under its name after it was enlarged would otherwise go to Meshy as it was before, and its credits with
+    it. A picture in `sent` of a reference no longer chosen (another seed's) is history: it is not sent and is left
+    where it is."""
+    chosen = sorted(path for path in Path(selected).glob('*.png') if CHOSEN.fullmatch(path.name) and (names is None or path.name in names))
+    stale = [path.name for path in chosen if _sent(path, sent)[3] != 'made']
+    require(not stale, f'{sent} does not hold these references as they are chosen now in {selected}: run `envkit enlarge`, first taking away any picture '
+            'of theirs, and its record, that lies there from another picture or a failed enlarging: ' + ', '.join(stale))
