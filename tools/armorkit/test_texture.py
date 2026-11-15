@@ -972,6 +972,11 @@ class WearTests(unittest.TestCase):
         self.assertTrue((worn[:, 15:17] < plain[:, 15:17] - 5).all())
         self.assertTrue(np.array_equal(worn[:, :5], plain[:, :5]))
         self.assertTrue(worn.min() >= texture.SHADES[0] and worn.max() <= texture.SHADES[1])
+        # a fine surface that only tilts away is darker by its slope, and is no crease: it holds no grime
+        tilt = np.radians(40)
+        tilted = np.empty((32, 32, 3)); tilted[:] = (np.array([np.sin(tilt), 0.0, np.cos(tilt)]) + 1) / 2
+        plain, worn = self.tinted(FABRIC, None, relief=tilted), self.tinted(FABRIC, (1.0, self.kinds, self.level, self.none), relief=tilted)
+        self.assertTrue((plain < self.tinted(FABRIC, None)).all() and np.array_equal(worn, plain))
 
     def test_closings_and_caps_are_left_even(self):
         mottle = np.random.default_rng(2).uniform(0, 1, (32, 32))

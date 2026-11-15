@@ -59,8 +59,8 @@ SHARPEN = (2, 0.8)  # a shade is moved from the mean of its material this many t
 # colours are soft, a voxel of 1.5 mm read between its neighbours. At (4, 1.2) a plate's printed grid came out harsh (preview, 2026-11-15)
 # How much wear changes a shade at a brief's `wear` of 1, by kind of material: (mottle, scuff, grime). The mottle
 # is the share a shade varies by either way over the surface, in soft patches; the scuff is how much lighter a
-# raised edge gets where it is scuffed; the grime how much darker a crease, and a fine surface tilting away, which
-# `relief_shade` darkens with it. Cloth fades unevenly and holds dirt in its folds; leather and painted plates are
+# raised edge gets where it is scuffed; the grime how much darker a crease (the bend alone: a fine surface only
+# tilting away is not one). Cloth fades unevenly and holds dirt in its folds; leather and painted plates are
 # rubbed pale on their edges (the concept sheets, 2026-11-15).
 WEAR ={'cloth': (0.22, 0.30, 0.34), 'leather': (0.24, 0.60, 0.30), 'metal': (0.14, 0.75, 0.36)}
 WEAR_CELLS = (1 / 14, 1 / 90)  # of the outfit's height: the size of a patch of mottle, and of a scuff
@@ -738,7 +738,10 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
                 'Wear takes a kind per material and its two fields per texel')
         by_kind = np.array([WEAR[kind] for kind in kinds])[material]  # per texel: mottle, scuff, grime
         ridge = np.zeros(covered.shape) if turned is None else np.clip((turned - 1) / (RELIEF_SHADE[1] - 1), 0.0, 1.0)
-        crease = np.zeros(covered.shape) if turned is None else np.clip((1 - turned) / (1 - RELIEF_SHADE[0]), 0.0, 1.0)
+        # a crease is where the surface bends inward, read without the slope: a fine surface only tilting away is no fold
+        # and holds no grime (review 2026-11-15; outfits baked before that day have the tilt darkened too)
+        folded = None if relief is None else relief_shade(relief, charts, bend, 0.0)
+        crease = np.zeros(covered.shape) if folded is None else np.clip((1 - folded) / (1 - RELIEF_SHADE[0]), 0.0, 1.0)
         change = 1 + amount * (by_kind[:, :, 0] * (2 * np.asarray(mottle, float) - 1) + by_kind[:, :, 1] * ridge * np.asarray(scuff, float)
                                - by_kind[:, :, 2] * crease * (0.5 + 0.5 * np.asarray(mottle, float)))
         shade[worn] = np.clip(shade[worn] * change[worn], *SHADES)
