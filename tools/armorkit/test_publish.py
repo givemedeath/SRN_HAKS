@@ -352,6 +352,9 @@ class PublishTests(Workspace):
             blob = export.tint(np.full((2, 2), 170), np.array([[export.LAYERS['cloth1'], export.LAYERS['skin']], [export.LAYERS['cloth1']] * 2]))
             tint.write_bytes(blob[:-1] + bytes([9]))  # the last texel on a layer that is no channel of an outfit
             self.assertEqual(publish.tint_channels(tint), {'cloth1', 'skin', 'layer 9'})
+            tint.write_bytes(blob[:-2])
+            with self.assertRaisesRegex(ValueError, 'cut short'):
+                publish.tint_channels(tint)
             tint.write_bytes(b'tint')
             with self.assertRaisesRegex(ValueError, 'no tint texture'):
                 publish.tint_channels(tint)
@@ -418,6 +421,10 @@ class PublishTests(Workspace):
         self.assertTrue({left + '.tga', right + '.tga'} <= human and len(human) == len(TOKENS) * 4)
         self.assertEqual(publish.shared_name(['pfd0_bicepr6020r', 'pmh0_bicepl6020r'], 'abcdef'), 'bicepl6020r_abcd')
         self.assertEqual(publish.shared_name(['pmh0_forearml6020n', 'pfh0_forearml6020n'], 'abcdef'), 'forearml6020n_ab')
+        # two maps of one part whose hashes begin alike: the later by hash takes the next digits of its own
+        files = {name: Path(name) for name in ('pmh0_legl1n.tga', 'pmg0_legl1n.tga', 'pfh0_legl1n.tga', 'pfg0_legl1n.tga')}
+        alike = publish.shared_maps([], files, lambda path: ('abcd1111' if path.name[1] == 'm' else 'abcd2222') + '0' * 56)[0]
+        self.assertEqual((alike['pmh0_legl1n'], alike['pmg0_legl1n'], alike['pfh0_legl1n']), ('legl1n_abcd', 'legl1n_abcd', 'legl1n_2222'))
         self.assertNotIn(f'pmg0_shinl{NUMBER}n.tga', troll)
         self.assertEqual(troll[f'pmg0_shinl{NUMBER}.mtr']['sha256'], publish.sha(pack / f'pmg0_shinl{NUMBER}.mtr'))
         self.assertEqual(troll[f'pmg0_shinl{NUMBER}.mtr']['bytes'], (pack / f'pmg0_shinl{NUMBER}.mtr').stat().st_size)

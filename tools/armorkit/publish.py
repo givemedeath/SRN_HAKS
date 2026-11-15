@@ -182,10 +182,11 @@ def shared_maps(surveyed, incoming, hashed=None):
     for name in sorted(incoming):
         if name.endswith('.tga'):
             same.setdefault(hashed(incoming[name]), []).append(name[:-4])
-    # the Human Fit body's is the one kept where it is among them: the others were carried from it
-    same = {digest: sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for digest, names in same.items() if len(names) > 1}
-    named = {digest: shared_name(names, digest) for digest, names in same.items()}
-    require(len(set(named.values())) == len(named), 'Two shared maps of one part would take one name: their hashes begin alike')
+    # the first of each is the copy whose bake the shared map is recorded with: the Human Fit body's where it is among them
+    same = {digest: sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for digest, names in sorted(same.items()) if len(names) > 1}
+    named = {}
+    for digest, names in same.items():  # two maps of one part whose hashes begin alike: the later takes digits further along its hash
+        named[digest] = next(name for name in (shared_name(names, digest[at:]) for at in range(0, len(digest) - 3, 4)) if name not in named.values())
     kept = {named[digest]: names[0] for digest, names in same.items()}
     stands = {name: named[digest] for digest, names in same.items() for name in names}
     texts = {}
@@ -223,6 +224,7 @@ def tint_channels(path):
     blob = Path(path).read_bytes()
     require(blob[:8] == b'PLT V1  ' and len(blob) >= 24, f'{Path(path).name} is no tint texture')
     count = int.from_bytes(blob[16:20], 'little') * int.from_bytes(blob[20:24], 'little')
+    require(count and len(blob) >= 24 + 2 * count, f'{Path(path).name} is a tint texture cut short')
     names = {layer: name for name, layer in LAYERS.items()}
     return {names.get(layer, f'layer {layer}') for layer in set(blob[25:24 + 2 * count:2])}
 
