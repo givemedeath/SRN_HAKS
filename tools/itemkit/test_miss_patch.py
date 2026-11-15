@@ -89,6 +89,15 @@ class ScreenAndMeasureTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, '2 unwrap arrays.*--arrays'): M.run_target(run)   # never a guess between attempts
             self.assertEqual(M.run_target(run, retry/'final-atlas.npz')['source'], str(retry/'final-atlas.npz'))
 
+    def test_a_run_without_a_final_atlas_is_read_from_the_reduced_parts(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = Path(folder)/'run-fit-v1'; values = dict(whole_positions=self.v, whole_faces=self.f, whole_hiddenCaps=self.caps)
+            with self.assertRaisesRegex(ValueError, 'no unwrap arrays'): M.run_target(run)
+            old = run/'unwrap/attempt-1/extract/worker'; old.mkdir(parents=True); np.savez(old/'uv-source.npz', **values)
+            self.assertEqual(M.run_target(run)['source'], str(old/'uv-source.npz'))            # a run from before the reduce launch wrote them
+            new = run/'reduce/attempt-1/worker/uv-source'; new.mkdir(parents=True); np.savez(new/'uv-source.npz', **values)
+            target = M.run_target(run); self.assertEqual(target['source'], str(new/'uv-source.npz')); self.assertIsNone(target['uv'])
+
 
 class PatchTests(unittest.TestCase):
     def setUp(self):
