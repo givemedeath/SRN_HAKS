@@ -186,7 +186,8 @@ def shared_maps(surveyed, incoming, hashed=None):
     same = {digest: sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for digest, names in sorted(same.items()) if len(names) > 1}
     named = {}
     for digest, names in same.items():  # two maps of one part whose hashes begin alike: the later takes digits further along its hash
-        named[digest] = next(name for name in (shared_name(names, digest[at:]) for at in range(0, len(digest) - 3, 4)) if name not in named.values())
+        named[digest] = next((name for name in (shared_name(names, digest[at:]) for at in range(0, len(digest) - 3, 4)) if name not in named.values()), None)
+        require(named[digest] is not None, f'{names[0]} and the maps it is shared with have no name left: every part of their hash is taken')
     kept = {named[digest]: names[0] for digest, names in same.items()}
     stands = {name: named[digest] for digest, names in same.items() for name in names}
     texts = {}

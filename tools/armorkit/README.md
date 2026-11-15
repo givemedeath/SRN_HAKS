@@ -136,7 +136,7 @@ The `tools/armorkit` package is the foundation for modular clothing, armor, head
 
 ## Publishing (runbook)
 1. Bake every body at the outfit's registry number, compiled: `bake BRIEF OUT --number N --body BODY --body-pack srn_body --body-textures srn_body_tex --kept KEPT --pack srn_body --pack srn_armor --nwn-root GAME` (a refit body from the folder `refit` kept). A bake at a test number is refused: the models are named by their number.
-2. Write the registry as it stands after the publication: the published parts unchanged (`docs/armorkit/parts-registry.json`) and the new ones, each listing all 20 bodies.
+2. Write the registry as it stands after the publication: the published parts unchanged (`docs/armorkit/parts-registry.json`) and the new ones, each listing all 20 bodies and the colour channels its tint textures are on, no others (the `channels` gate reads the textures and names what differs). Then `registry FILE --colours-from BAKE [--colours-from BAKE]` writes the colours the bakes suggest into the new parts (the `colours` gate).
 3. Extract the game's twelve `parts_*.2da` into a folder (`nwn_resman_cat --no-ovr parts_chest.2da` and so on, from the pinned Neverwinter tools).
 4. Try it: `publish REGISTRY --bake ... --stock FOLDER --record MODEL=FILE ... --trial output/armorkit/<name> --build`. A trial root is used once: a second trial goes to a new folder. Read `publish-report.json` there (a publication into the repository prints its first 40 failures; `--report FILE` keeps them all); build a client fixture on `<trial>/output/srn_parts.hak` and `srn_2da.hak` and look at the outfits worn (`client_fixture.build`, `client.run`).
 5. Write the `PROVENANCE.md` entry naming `srn_parts` and each outfit's model.
@@ -148,6 +148,7 @@ The `tools/armorkit` package is the foundation for modular clothing, armor, head
 | A body without its model | `bodies` gate; `Test-Repository.ps1` |
 | A registry part listing channels its textures do not use (Facility Security listed all six on every part; gloves use two) | `channels` gate |
 | A shared map published under one body's name | `shared_name`: a shared map is named for the part and its image |
+| A published file changed after its publication | `Test-Repository.ps1` compares every file of `srn_parts` with the hash its handoff records; the `published` gate at the next publication |
 | A model that names another model's texture, which the game draws and does not colour (user, 2026-11-14) | `closure` gate: a model names its own |
 | A model whose texture or map is not in the pack | `closure` gate, read from the compiled model |
 | Parts kept before a gate existed, published as they are | `bake` gate: the bake's own gates must have passed on the code that wrote the models (the male Facility Security's kept parts fail the skin gate added after them, 2026-11-14) |
