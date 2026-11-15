@@ -690,7 +690,8 @@ class Runner:
             result=quantize(color,ownership,palettes,rows,folder/'palette',shade_offsets=m['palette'].get('shadeOffsets'),
                             tone_match=m['palette'].get('toneMatch'),design=design,full_range=full_range,shading_only=shading_only,
                             positions=positions,skin_median=skin_median,skin_anchor=anchor,skin_contrast=1.0 if focus_source else contrast,
-                            focus_source=focus_source, seam_surface=seam_surface, feature_surface=feature_surface)
+                            focus_source=focus_source, seam_surface=seam_surface, feature_surface=feature_surface,
+                            hair_broad=m['palette'].get('hairBroadContrast', 1.0))
             if design is not None:result['designReference']=pin(folder/'design-reference.json')
             if ranking is not None:result['rowRanking']=ranking
             return result

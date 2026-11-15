@@ -1865,6 +1865,42 @@ class AppearanceTests(Temporary):
         Image.fromarray(palette).save(self.root/'pal.png')
         result=quantize(self.root/'rgb.png',self.root/'labels.png',{'0':str(self.root/'pal.png'),'8':str(self.root/'pal.png')},{'0':0,'8':0},self.root/'quantized')
         shades=np.asarray(Image.open(result['shades']['path']));self.assertTrue(np.all(shades==1));self.assertEqual(set(result['layers']),{'0','8'})
+    def test_skin_rows_must_be_fully_opaque(self):
+        # RUNBOOK 407: stock skin rows 56-59 (alpha 35-40) render environment-mapped; hair shine and metal tattoo rows stay usable.
+        from headkit.palette import rows_for_shades
+        rgb=np.full((1024,1024,3),120,np.uint8);labels=np.zeros((1024,1024),np.uint8);labels[:5]=1
+        Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')
+        palette=np.zeros((2,256,4),np.uint8);palette[...,:3]=np.arange(256)[None,:,None];palette[0,:,3]=38;palette[1,:,3]=255;palette[1,0,3]=0  # a transparent shade is unusable, not environment-mapped
+        Image.fromarray(palette).save(self.root/'pal.png')
+        with self.assertRaisesRegex(ValueError,'Skin row 0 is not fully opaque'):
+            quantize(self.root/'rgb.png',self.root/'labels.png',{'0':str(self.root/'pal.png'),'1':str(self.root/'pal.png')},{'0':0,'1':0},self.root/'bad')
+        result=quantize(self.root/'rgb.png',self.root/'labels.png',{'0':str(self.root/'pal.png'),'1':str(self.root/'pal.png')},{'0':1,'1':0},self.root/'ok')
+        self.assertEqual(set(result['layers']),{'0','1'})
+        target=np.full((10,3),120.);shades=np.full(10,120)
+        self.assertEqual([r['row'] for r in rows_for_shades(target,shades,palette)],[0,1])
+        self.assertEqual([r['row'] for r in rows_for_shades(target,shades,palette,opaque=True)],[1])
+    def test_hair_broad_contrast_scales_broad_tone_and_keeps_strands(self):
+        # RUNBOOK 408: broad bake patches on pale hair are scaled about the median before ranking; strand detail is kept.
+        size=1024;ys,xs=np.mgrid[0:size,0:size];labels=np.zeros((size,size),np.uint8);labels[:128]=1
+        luma=60+120*xs/size+np.where((xs//2+ys//2)%2==0,8,-8);rgb=np.repeat(np.clip(luma,0,255)[...,None],3,2).astype(np.uint8)
+        Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')
+        palette=np.full((1,256,4),255,np.uint8);palette[0,:,:3]=np.arange(256)[:,None];Image.fromarray(palette).save(self.root/'pal.png')
+        positions=np.dstack([xs/size,ys/size,np.zeros((size,size))]).astype(np.float32)
+        files={'0':str(self.root/'pal.png'),'1':str(self.root/'pal.png')}
+        def decoded(factor,name):
+            result=quantize(self.root/'rgb.png',self.root/'labels.png',files,{'0':0,'1':0},self.root/name,positions=positions,hair_broad=factor)
+            shades=np.asarray(Image.open(result['shades']['path'])).astype(float)[16:112,16:1008];return result,shades
+        _,full=decoded(1.0,'full');result,half=decoded(.5,'half')
+        report=result['layers']['1']['hairBroadContrast'];self.assertEqual(report['factor'],.5)
+        self.assertAlmostEqual(report['broadStdAfter'],report['broadStdBefore']*.5,places=1)
+        broad=lambda a:np.ptp(a.reshape(a.shape[0],-1,32).mean(2).mean(0))
+        self.assertLess(broad(half),.6*broad(full));self.assertGreater(broad(half),.4*broad(full))
+        strands=lambda a:np.abs(np.diff(a,axis=1)).mean()
+        self.assertGreater(strands(half),.8*strands(full))
+        with self.assertRaisesRegex(ValueError,'hairBroadContrast'):
+            quantize(self.root/'rgb.png',self.root/'labels.png',files,{'0':0,'1':0},self.root/'nopos',hair_broad=.5)
+        with self.assertRaisesRegex(ValueError,'hairBroadContrast'):
+            quantize(self.root/'rgb.png',self.root/'labels.png',files,{'0':0,'1':0},self.root/'low',positions=positions,hair_broad=.1)
     def test_unknown_ownership_is_not_assumed_hair(self):
         Image.new('RGB',(1024,1024)).save(self.root/'rgb.png');Image.new('L',(1024,1024),255).save(self.root/'mask.png')
         with self.assertRaisesRegex(ValueError,'ownership'):quantize(self.root/'rgb.png',self.root/'mask.png',{}, {},self.root/'bad')
