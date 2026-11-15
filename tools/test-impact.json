@@ -221,6 +221,7 @@
     "tools/armorkit/test_measure.py": [
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
       "tools/armorkit/test_bake.py",
       "tools/armorkit/test_split.py"
@@ -257,6 +258,7 @@
       "tools/armorkit/measure.py",
       "tools/armorkit/publish.py",
       "tools/armorkit/refit.py",
+      "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
       "tools/armorkit/split.py",
       "tools/armorkit/test_bake.py",

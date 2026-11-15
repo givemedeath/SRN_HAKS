@@ -7,7 +7,7 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, bodyskin, measure, publish, refit, seams, split
+from . import bake, bodyskin, measure, publish, refit, registry, seams, split
 from .test_bake import arm, closed, contract, part, rig
 from .test_seams import tube as upright
 from .test_bodyskin import arm as body_arm
@@ -345,6 +345,20 @@ class HeldTests(unittest.TestCase):
         out, lost = refit.budgeted(piece, lambda v, f: 0, len(shut['f']) - 8, tight)
         self.assertGreaterEqual(lost, 8)
         self.assertEqual(int((~out['added']).sum()), own)
+
+
+class OrderTests(unittest.TestCase):
+    def test_a_part_is_carried_before_the_parts_whose_ends_run_into_it(self):
+        self.assertEqual(refit.in_order(['handl', 'forel', 'bicepl', 'chest']), ['chest', 'bicepl', 'forel', 'handl'])
+        every = [token for slot in ('foot', 'hand', 'shin', 'forearm', 'thigh', 'bicep', 'pelvis', 'chest') for token in registry.SLOTS[slot]['tokens']]
+        for names in (every, every[::-1]):
+            order = refit.in_order(names)
+            for joint, spec in seams.JOINTS.items():
+                for side in seams.sides(joint):
+                    letter = 'l' if side == 'c' else side
+                    over, under = split.token(spec['over'], letter), split.token(spec['under'], letter)
+                    if under in order:
+                        self.assertLess(order.index(over), order.index(under), joint)
 
 
 class NeckTests(unittest.TestCase):

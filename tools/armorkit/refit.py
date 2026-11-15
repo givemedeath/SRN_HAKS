@@ -76,7 +76,7 @@ TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first st
 STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
 STANDOFF_LEVELS = 0.01  # metres from one level it is read at to the next
 STANDOFF_EVEN = 2  # times those radii are evened with their neighbours: no crease where the body's own surface turns or folds
-OVER_FIRST = ('chest', 'pelvis', 'legl', 'legr', 'shinl', 'shinr')  # carried in this order, before the rest: a part before the parts whose
+OVER_FIRST = ('chest', 'pelvis', 'legl', 'legr', 'shinl', 'shinr', 'bicepl', 'bicepr', 'forel', 'forer')  # carried in this order, before the rest: a part before the parts whose
 # ends run into it, which are held to it as it was carried
 DRAWN_IN = ('shoulder', 'hip')  # joints no end is shaped at (`ends.TUBES`) where an under end outside its envelope is still drawn in to it
 SEAT_STEPS = 20  # a cap's point still outside the part over it is drawn toward the cap's middle by this share of the way at a time
@@ -582,6 +582,14 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     return held
 
 
+def in_order(names):
+    """`names` in the order their parts are carried: `OVER_FIRST`, then the rest as given. Every part that lies
+    over another at a joint (`seams.JOINTS`) comes before it, whatever order the parts were asked for in: an
+    under end is held to the part carried over it (`seated`, `tucked`), and asked for as `forel,bicepl` a
+    forearm was carried before its upper arm and its elbow end left as it was (review, 2026-11-14)."""
+    return sorted(names, key=lambda name: OVER_FIRST.index(name) if name in OVER_FIRST else len(OVER_FIRST))
+
+
 def over_neck(part, neck, point, normal, gap=OVER_NECK, rounds=OVER_ROUNDS, grain=None):
     """The chest `part` with its cloth lifted over what of the other body's `neck` ((vertices, faces), the
     body's own neck part) came through it below its collar, read as a publication reads it (`publish.neck`:
@@ -735,7 +743,7 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     from . import bake
     out, report = {}, {}
     middle = (target[0]['lbicep_g'][:3, 3] + target[0]['rbicep_g'][:3, 3]) / 2 if contract is not None else None
-    for name in sorted(names, key=lambda name: OVER_FIRST.index(name) if name in OVER_FIRST else len(OVER_FIRST)):
+    for name in in_order(names):
         linear, offset, scales = placement(name, source, target, contract, bodies)
         part = dict(bodyskin.unworn(parts[name]))
         v, f, n = np.asarray(part['v'], float), np.asarray(part['f'], int), np.asarray(part['n'], float)
