@@ -16,5 +16,5 @@
     "trash-can": {"triangles": 3000},
     "drone-pad": {"triangles": 10000}
   },
-  "building": {"views": ["building-hero"], "triangles": 100000}
+  "building": {"views": ["building-hero"], "triangles": 120000, "remesh": "pt-building-a1-remesh2"}
 }
