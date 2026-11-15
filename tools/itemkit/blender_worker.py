@@ -911,9 +911,11 @@ def render(cfg, out, source=False, *, _clay_review=None):
             require(type(width) is type(height) is int and width > 0 and height > 0 and width % 32 == height % 32 == 0,
                     'Invalid native icon cell dimensions')
             scene.render.resolution_x = width; scene.render.resolution_y = height
-            camera.data.ortho_scale = max(spans[1], spans[2]*height/width)*1.1
+            # A side grip's long body lies across the grip (native Z): stand it upright in the tall icon cell.
+            upright = 2 if cfg['fit'].get('sideGrip') else 1
+            camera.data.ortho_scale = max(spans[upright], spans[3-upright]*height/width)*1.1
             camera.location = Vector(center)+Vector((1, 0, 0))*extent*2
-            aim(center,up=(0,1,0))
+            aim(center,up=(0,0,1) if upright == 2 else (0,1,0))
             scene.render.filepath = str(out/f'icon-{part}.png'); render_still()
             icons[part] = pin(scene.render.filepath)
         for obj in objects:

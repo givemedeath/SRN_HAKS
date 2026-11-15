@@ -70,7 +70,8 @@ def bladed_landmarks(q, U, overrides):
     N = st.SLICES; centres, mid, extent, wide, _ = st._sections(q)
     known = ~np.isnan(extent[:, 0]); depth = np.where(known, extent.min(1), 0)
     guard = max(_runs(wide), key=len) if wide.any() else None
-    found = guard is not None and 5 < guard[0] and guard[-1] < N - 6
+    # A side grip (sideGrip) measures across the weapon: its reviewed landmarks are the only reading.
+    found = guard is not None and 5 < guard[0] and guard[-1] < N - 6 and not overrides.get('sideGrip')
     # A wide head just short of the end (the wave-4 Pole Arm's axe head on its staff) reads as a cross-guard with the
     # blade on the wrong side. Reviewed landmarks that put the blade on the other side win over that reading.
     if found and 'bladeAtLowEnd' in overrides and bool(overrides['bladeAtLowEnd']) != (guard[0] > N - 1 - guard[-1]):
@@ -82,7 +83,10 @@ def bladed_landmarks(q, U, overrides):
         flip = bool(overrides['bladeAtLowEnd']); method = 'override-ends'
     else:
         thin = depth < .5 * np.percentile(depth[known], 75); flip = max(_runs(thin), key=len).mean() < N / 2; method = 'thin-blade'
-    q, U = _oriented(q, U, flip); centres, mid, extent, wide, _ = st._sections(q)
+    q, U = _oriented(q, U, flip)
+    if overrides.get('sideGrip') and overrides.get('alignGripAxis'):
+        q, U = _align_grip_axis(q, U, float(overrides['gripStart']), float(overrides['gripEnd']))
+    centres, mid, extent, wide, _ = st._sections(q)
     known = ~np.isnan(extent[:, 0]); width = np.where(known, extent.max(1), 0); depth = np.where(known, extent.min(1), 0)
     if method == 'cross-guard':
         core = np.nan_to_num(extent.max(1)) > 2 * np.nanmedian(extent.max(1)); g0, g1 = np.flatnonzero(core)[[0, -1]]
@@ -98,11 +102,36 @@ def bladed_landmarks(q, U, overrides):
     bulge = np.flatnonzero(width[:len(handle) // 2] > 1.1 * gw)                # pommel: the last clearly wider butt slice
     p1 = max(int(bulge[-1]) + 1 if len(bulge) else 0, int(round(.04 * len(handle))))
     marks = {'pommelEnd': p1 / N, 'gripStart': p1 / N, 'gripEnd': float(g0 / N), 'bladeStart': float((g1 + 1) / N)}
-    q, U = _blade_broad_face(q, U, extent, float(overrides.get('bladeStart', marks['bladeStart'])))
+    if not overrides.get('sideGrip'): q, U = _blade_broad_face(q, U, extent, float(overrides.get('bladeStart', marks['bladeStart'])))
     return method, q, U, marks
 
 
 BROAD_FACE_RATIO = .8
+
+
+def _align_grip_axis(q, U, start, end):
+    """Turn a side-grip frame so its long axis follows the reviewed grip's own centreline.
+
+    The principal frame is fitted to the whole weapon, so a long body pulls the axis off a side handle (the wave-5
+    Tonfa's by about 3.5 degrees): the hand would close at a slant across the handle. Only the band between the
+    reviewed grip landmarks is read, so it must hold nothing but the grip."""
+    low, length = q[:, 0].min(), np.ptp(q[:, 0]); fit = st.centreline(q, low + start * length, low + end * length)
+    require(fit is not None, 'Too few grip sections to align the grip axis')
+    R = st.centreline_frame(fit[0])
+    return q @ R, U @ R
+
+
+def _grip_across(q, at, marks, fraction):
+    """(width, depth) centre of a side grip that shares its band with the rest of the weapon (the katar's crossbar lies
+    beside its blade): the grip at `fraction` of the long body, from the low end of the fit frame's width axis, read
+    from the surface within 5% of the length of it. The frame is the one after turnAboutAxis, which reverses that axis
+    (the wave-5 Katar's 0.26 became 0.74 when turned)."""
+    require(0 < fraction < 1, 'gripAcross is a fraction of the long body')
+    band = (q[:, 0] >= at(marks['gripStart'])) & (q[:, 0] <= at(marks['gripEnd']))
+    low, high = q[:, 1].min(), q[:, 1].max(); c = low + fraction * (high - low)
+    near = band & (np.abs(q[:, 1] - c) < .05 * (high - low)); require(near.sum() >= 20, 'No grip surface at gripAcross')
+    lo, hi = np.percentile(q[near, 1:], [1, 99], axis=0)
+    return (lo + hi) / 2
 
 
 def _blade_broad_face(q, U, extent, blade_start):
@@ -144,14 +173,29 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     `working` is the closed working shell (glTF positions and faces). Returns a dict with the landmarks, the
     similarity `matrix`, `gripEndpoints`, `joinY`, `thicknessProbes`, the grip report and the native length.
     """
-    from .grip import GripDeparture, calibration, one_hand_round, transverse_uniform, two_hand_uniform
+    from .grip import GripDeparture, calibration, one_hand_round, side_grip_uniform, transverse_uniform, two_hand_uniform
     overrides = dict(overrides or {}); standard = standard or json.loads(STANDARD.read_text(encoding='utf-8'))
     name = family['family']; route = ROUTES[name]; native = family['native']
     origin = np.array(native['gripOrigin'], float); grip_length = float(native['gripLength'])
     b = gltf_to_blender(working['positions']); faces = np.asarray(working['faces'])
-    mean, U, q = _frame(b); N = st.SLICES; L = float(np.ptp(q[:, 0]))
+    mean, U, q = _frame(b); N = st.SLICES
     hafted = name in HAFTED_FAMILIES
+    side = overrides.get('sideGrip', False); require(type(side) is bool, 'sideGrip must be true or false')
+    require(type(overrides.get('alignGripAxis', False)) is bool, 'alignGripAxis must be true or false')
+    # Both only act on a side grip: anywhere else they would be recorded in the fit notes and silently do nothing.
+    require(side or not (overrides.get('alignGripAxis') or 'gripAcross' in overrides), 'alignGripAxis and gripAcross apply to a side grip')
+    if side:
+        # A grip across the weapon (a katar's crossbar, a tonfa's side handle): the frame's width axis, the larger
+        # transverse spread, becomes the grip axis and the long body lies across the hand (user, 2026-11-14: "Fist on
+        # crossbar", "By the side handle"). Nothing along that axis can be found automatically.
+        require(not hafted and route.hold != 'two', 'A side grip is a one-hand bladed fit')
+        require('bladeAtLowEnd' in overrides and all(k in overrides for k in LANDMARKS) and 'targetLength' in overrides,
+                'A side grip needs bladeAtLowEnd, every landmark (reviewed along the grip axis) and the chosen targetLength')
+        q = np.column_stack([q[:, 1], q[:, 0], -q[:, 2]]); U = np.column_stack([U[:, 1], U[:, 0], -U[:, 2]])
     method, q, U, marks = (hafted_landmarks if hafted else bladed_landmarks)(q, U, overrides)
+    # Landmarks count along the frame the landmark step leaves: aligning a side grip's axis (alignGripAxis) changes its
+    # extent, and the length from before would put the far probes past the end (the shortened wave-5 Tonfa).
+    L = float(np.ptp(q[:, 0]))
     require(type(overrides.get('turnAboutAxis', False)) is bool, 'turnAboutAxis must be true or false')
     if overrides.get('turnAboutAxis'):        # the frame's width sign is arbitrary: a reviewed half-turn about the long axis
         q = q * [1, -1, -1]; U = U * [1, -1, -1]   # swaps the edge/blade side and keeps the frame right-handed
@@ -174,14 +218,15 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         centre_fraction = min(max(centre_fraction, marks['pommelEnd'] + half), marks['bladeStart'] - half) \
             if marks['bladeStart'] - marks['pommelEnd'] > 2 * half else (marks['pommelEnd'] + marks['bladeStart']) / 2
         marks.update(gripStart=centre_fraction - half, gripEnd=centre_fraction + half)
-    elif not two_hand and overrides.get('sizeToLength', True):
+    elif not two_hand and not side and overrides.get('sizeToLength', True):
         marks['gripStart'] = grip_start_for_length({**marks, **{k: float(v) for k, v in overrides.items() if k in marks}},
                                                    grip_length, target)
     marks.update({k: float(v) for k, v in overrides.items() if k in LANDMARKS})
     at = lambda f: t0 + f * L
     grip = (centres >= at(marks['gripStart'])) & (centres <= at(marks['gripEnd'])) & known
     require(grip.any(), 'No surface in the measured grip span')
-    centre = np.median(mid[grip], axis=0)
+    centre = np.median(mid[grip], axis=0) if not (side and 'gripAcross' in overrides) else \
+        _grip_across(q, at, marks, float(overrides['gripAcross']))
     src = lambda f, c=centre: mean + U @ np.array([at(f), c[0], c[1]])
     A, B = src(marks['gripStart']), src(marks['gripEnd']); usable = float(np.linalg.norm(B - A))
     # A round one-hand grip may take a chosen overall length instead of the hand's usable length (the wave-4 Sai, whose
@@ -190,6 +235,7 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     chosen_round = (not hafted and not two_hand and overrides.get('uniform') and 'targetLength' in overrides
                     and overrides.get('sizeToLength') is False)
     s = target / L if chosen_round else grip_length / usable if not hafted else s
+    if side: s = target / float(np.ptp(q[:, 1]))     # the chosen length is the body's, which lies across the grip
     Rn = np.array([np.cross(U[:, 0], U[:, 1]), U[:, 0], U[:, 1]]); require(abs(np.linalg.det(Rn) - 1) < 1e-9, 'Rotation required')
     rule_length = None
     if two_hand and not hafted:
@@ -200,6 +246,13 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         if 'targetLength' in overrides: s = float(overrides['targetLength']) / L
         half = grip_length / s / 2; A, B = centre_src - U[:, 0] * half, centre_src + U[:, 0] * half
     M = np.eye(4); M[:3, :3] = s * Rn; M[:3, 3] = origin - s * Rn @ ((A + B) / 2)
+    reverse = overrides.get('reverseGrip', False); require(type(reverse) is bool, 'reverseGrip must be true or false')
+    if reverse:
+        # The body at the little-finger end of the fist, the reviewed pommel past the thumb (a tonfa; user, 2026-11-14:
+        # "Tonfa is ... not facing the right direction"): a half-turn about the body's own axis (native Z) through the
+        # grip origin. It keeps the body pointing the same way along the forearm, which turnAboutAxis would reverse.
+        require(side, 'reverseGrip applies to a side grip')
+        H = np.diag([-1., -1., 1., 1.]); H[:2, 3] = 2 * origin[:2]; M = H @ M
     authority, departure, report = None, None, None
     chosen_length = hafted or 'targetLength' in overrides
     review = lambda: ({'decision': 'approved', 'measurementDigest': overrides['departureDigest'], 'notes': departure_notes,
@@ -208,7 +261,9 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     departure_notes = ''
     raised = False
     try:
-        if two_hand:
+        if side:
+            authority = 'side-grip-uniform'; F, report = side_grip_uniform(b, faces, M, origin, standard, review(), [A, B])
+        elif two_hand:
             authority = 'midpoint-depth-two-hand'; F, report = two_hand_uniform(b, faces, M, [A, B], origin, standard, review())
         elif hafted or overrides.get('uniform'):
             authority = 'usable-length-round'
@@ -228,6 +283,7 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
     fb = transform(b, F)
     joins = [float(transform(src(max(marks['gripStart'], marks['pommelEnd']) - .0015 / (s * L))[None], F)[0, 1]),
              float(transform(src(marks['gripEnd'] + .0015 / (s * L))[None], F)[0, 1])]
+    if reverse: joins = joins[::-1]          # the pommel end now lies above the grip: the body is the low part
     nudge = overrides.get('joinNudge', [0, 0]); require(len(nudge) == 2 and max(map(abs, nudge)) <= .0005, 'Join nudge too large')
     cleared = [clear_cut(fb[:, 1], y) for y in joins]
     joins = [cleared[0][0] + nudge[0], cleared[1][0] + nudge[1]]
@@ -259,10 +315,11 @@ def measure(manifest, family, working, overrides=None, standard=None, *, profile
         probes.append({'name': f'blade-section-{k}', 'sourcePoints': pts, 'points': fit.tolist(), 'measuredThickness': t,
                        'minimum': t / 2, 'maximumSampleError': max(.0025, PROBE_SAMPLE_FRACTION * t)})
     return {'family': name, 'method': method, 'automaticLandmarks': auto, 'overrides': overrides, 'landmarks': marks,
-            'gripEndpoints': [A.tolist(), B.tolist()], 'matrix': M.tolist(), 'fitMatrix': np.asarray(F).tolist(), 'scale': float(s),
+            'gripEndpoints': [A.tolist(), B.tolist()], 'gripAxisPoint': np.asarray(centre).tolist(), 'matrix': M.tolist(), 'fitMatrix': np.asarray(F).tolist(), 'scale': float(s),
             'usableSourceLength': usable, 'joinY': joins, 'joinClearance': [c[1] for c in cleared], 'thicknessProbes': probes,
             'sizingAuthority': authority, 'gripReport': report, 'departurePending': bool(pending), 'chosenLength': bool(chosen_round),
             'nativeLength': float(np.ptp(fb[:, 1])), 'stockLength': stock_length(native), 'targetLength': target,
+            **({'sideGrip': True, 'bodyLength': float(np.ptp(fb[:, 2]))} if side else {}),
             'depthRuleLength': rule_length, 'fittedBounds': [fb.min(0).round(4).tolist(), fb.max(0).round(4).tolist()]}
 
 
@@ -293,12 +350,14 @@ def write(handoff, design, src, dst, working_path, donor_path, overrides=None, *
     inputs['gripStandard'] = rel(handoff/'weapon-grip-standard-v1.json'); inputs.pop('exportSource', None); m['approval'].pop('exportGeometry', None)
     marks = json.dumps(data['landmarks']); over = json.dumps(overrides or {})
     m['fit'] = {'gripEndpoints': data['gripEndpoints'], 'matrix': data['matrix'], 'reviewed': True, 'sourceSha256': inputs['texturedDonor']['sha256'],
-                'notes': f"Automatic fit ({data['method']}, tools/itemkit/fit_manifest.py): long axis to native +Y, scale {data['scale']:.5f}, "
+                'notes': f"Automatic fit ({data['method']}, tools/itemkit/fit_manifest.py): "
+                         f"{'side grip (across the long body)' if (overrides or {}).get('sideGrip') else 'long axis'} to native +Y, scale {data['scale']:.5f}, "
                          f"native length {data['nativeLength']:.3f} m (stock carrier {data['stockLength'] or 0:.3f} m). "
                          f"Landmarks {marks}; overrides {over}."}
     if data['sizingAuthority']: m['fit']['sizingAuthority'] = data['sizingAuthority']
     if data.get('chosenLength'): m['fit']['chosenLength'] = True          # the worker samples the reviewed handle (grip.melee_fit)
     if (overrides or {}).get('sectionBasis'): m['fit']['sectionBasis'] = overrides['sectionBasis']
+    if (overrides or {}).get('sideGrip'): m['fit']['sideGrip'] = True        # the worker measures only the grip's own outline
     report = data['gripReport'] or {}
     if overrides and overrides.get('departureDigest'):
         d = report.get('midpointRelativeDifferences', {})

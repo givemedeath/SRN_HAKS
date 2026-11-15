@@ -384,7 +384,9 @@ A handle too short for the hand at the chosen size can be lengthened alone with
 length from the principal frame's low end; the report names `longAxis` and the `lowEndVertex` it counts from) grows by K,
 the end below it stays and everything above moves along the axis unchanged.
 Re-apply its `stretch-map.npz` with `--map` to the textured donor, review the
-views, then fit at the natural size (wave-4 Sai). `narrow MESH.glb OUT_DIR --span
+views, then fit at the natural size (wave-4 Sai). A factor in [0.4, 1) shortens the
+span instead: a long body comes down to the chosen length while its grip keeps the
+hand fit an even scale would shrink (the wave-5 Tonfa's shaft). `narrow MESH.glb OUT_DIR --span
 LO HI --band INNER OUTER --factor K` pulls side parts such as sai prongs towards
 the centreline: across the width band (distances from the centreline as fractions
 of the length) the extent shrinks to K, and everything beyond moves in unchanged.
@@ -548,6 +550,34 @@ standard by construction, so it needs a review bound to the measurement digest, 
 thicker shaft, `"sectionBasis": "visibleFaceWidth"` in the overrides makes the face width meet the standard instead,
 still with one scale (the user chose a 41 x 49 mm stun staff grip over 30 x 35 mm). Fitting
 refuses the per-axis calibration on any route that isn't grip-bound if it would flatten the section by more than 10%.
+
+A katar is held by the crossbar inside its frame, and a tonfa by the side handle: in both, the grip runs across the
+weapon instead of along it (user, 2026-11-14: "Fist on crossbar", "By the side handle"). `"sideGrip": true` in a
+one-hand bladed fit's overrides makes the frame's width axis (the larger cross spread) the grip axis, so the long body
+lies across the hand along native Z. Nothing along that axis is found automatically: the overrides must give
+`bladeAtLowEnd`, all four landmarks along the grip axis (counted from the grip's own end, with the body above
+`bladeStart`) and a `targetLength` for the long body. Two options help a real shell:
+
+- `"alignGripAxis": true` turns the frame onto the centreline of the grip band itself. The whole-weapon frame leans
+  towards a long body: the Tonfa's handle sat about 3.5 degrees off it. Use it only when the band holds nothing but
+  the grip.
+- `"gripAcross": F` places the grip at fraction F of the long body (from the low end of the frame's width axis) when
+  the band also cuts the rest of the weapon (the Katar's crossbar lies beside its blade). A grip point in the wrong
+  place fails with "No section outline encloses the grip axis". F counts in the frame after `turnAboutAxis`, which
+  reverses the width axis: turning a fit means giving 1 - F (the Katar's 0.26 became 0.74).
+
+The fit is `side-grip-uniform` (`grip.side_grip_uniform`): one uniform scale from the chosen length, since any
+transverse correction of the grip would also stretch the body lying across it. The grip is measured only on the
+section outline that encloses the grip axis (`grip.section_dimensions(..., around)`), and the difference from the
+standard always needs a review bound to the measurement digest. Inventory icons stand a side-grip weapon's body upright
+in the cell. The parts are slices across the grip axis, so the body lies in all three, mostly in the grip part (the
+Katar: 60% of its surface in `m`, which the dagger family gives 19% of the budget). `processing.partBudgets`
+(`{part: {visible, shadow}}`) re-splits the family's unchanged visible and shadow totals for a side grip only
+(`parts.side_grip_budgets`, applied where the runner loads the family). Which way the body points (forward past the knuckles or back along the forearm) depends on the frame;
+check it in the client and refit with `"turnAboutAxis": true` if needed. A body that belongs at the little-finger end
+of the fist, with the reviewed pommel past the thumb (a tonfa's shaft along the back of the forearm, the knob forward),
+takes `"reverseGrip": true`: a half-turn about the body's own axis through the grip origin, keeping the landmarks,
+probes and the way the body points. The body is then the low part (`b`), so re-split `processing.partBudgets` to suit.
 
 `drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
 carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer
