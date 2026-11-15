@@ -511,6 +511,9 @@ def plan(repo, items, stock=None):
     packages = [survey(item, run) for item, run in items]
     require(len({p.item for p in packages}) == len(packages), 'An item is listed twice')
     published = {f.name.lower() for f in (repo/WEAPONS).iterdir()}
+    # A DDS already in srn_weapon that fails its twin check would fail the post-rebuild check: refuse before any write.
+    _, broken = folder_dds_problems(repo/WEAPONS)
+    require(not broken, f'srn_weapon already holds DDS twins that are not sound BioWare DDS copies of their TGA: {broken}')
     pub, _ = load_exact(repo/PUBLICATION)
     known = {i['id'] for i in pub['items']}
     names = [n for p in packages for n in p.files]

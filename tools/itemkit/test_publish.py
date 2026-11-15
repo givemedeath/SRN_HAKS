@@ -134,6 +134,15 @@ class PlanTests(unittest.TestCase):
             repo = make_repo(Path(folder), existing=['srabc_11.tga'])
             with self.assertRaisesRegex(P.PublishError, 'srabc_11.tga'): P.plan(repo, [('knife', make_run(Path(folder)))])
 
+    def test_a_broken_dds_already_in_srn_weapon_is_refused_before_any_write(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = make_run(Path(folder)); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
+            (repo/'srn_weapon/iold_10.tga').write_bytes(tga(32, 32)); (repo/'srn_weapon/iold_10.dds').write_bytes(bioware_dds(32, 32)[:-1])
+            before = {p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}
+            with self.assertRaisesRegex(P.PublishError, r"already holds DDS twins.*iold_10.dds.*whole mip chain"):
+                P.publish(repo, [('knife', run)], ['ok'], 'Seen.', None, dry_run=True)
+            self.assertEqual({p: p.read_bytes() for p in repo.rglob('*') if p.is_file()}, before)
+
     def test_dry_run_reports_the_plan_and_writes_nothing(self):
         with tempfile.TemporaryDirectory() as folder:
             run = make_run(Path(folder)); (Path(folder)/'repo').mkdir(); repo = make_repo(Path(folder)/'repo')
