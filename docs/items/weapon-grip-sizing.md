@@ -34,6 +34,9 @@ A round one-hand grip (a club or baton) may keep its section round: the
 diameter equals the reference face width. Its depth then exceeds the reference
 (the wave-1 Club is +65%), which is an intentional departure: it needs a review
 bound to the exact measurement and the hand-fit inspection on both Human bodies.
+A thin stick that would come out too thick at the face width (the wave-6 Rattan
+Stick at 4.8-5.3 cm) takes `roundBasis: "depth"`: the diameter then equals the
+reference depth (about 3.0 cm) and the face width departs instead.
 
 A grip that runs across the weapon (a katar's crossbar, a tonfa's side handle) is
 sized by the weapon's chosen overall length with one uniform scale

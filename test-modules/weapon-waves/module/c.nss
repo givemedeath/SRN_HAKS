@@ -69,7 +69,7 @@ void main() {
  if(!GetIsObjectValid(area)){DelayCommand(1.0,ExecuteScript("c",m));return;}
  if(stage==0) {
   int count=0;object o=GetFirstObjectInArea(area,OBJECT_TYPE_CREATURE);
-  while(GetIsObjectValid(o)){string t=GetTag(o);if(SwGroupStart(GetStringLeft(t,4))>=0){Report(o);count++;}o=GetNextObjectInArea(area,OBJECT_TYPE_CREATURE);}
+  while(GetIsObjectValid(o)){string t=GetTag(o);if(SwGroupStart(GetStringLeft(t,FindSubString(t,"_")+1))>=0){Report(o);count++;}o=GetNextObjectInArea(area,OBJECT_TYPE_CREATURE);}
   WriteTimestampedLogEntry("SW2_FIXED_START reviewers="+IntToString(count)+" thrown="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sr2273b8c")))+" arrows="+IntToString(GetItemStackSize(GetItemPossessedBy(pc,"sw2_arrow"))));stage=11;
  }
  int pairs=SwPairCount();
