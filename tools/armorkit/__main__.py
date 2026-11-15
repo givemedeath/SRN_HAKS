@@ -19,6 +19,15 @@ def write_json(path, document):
 
 
 def command_registry(args):
+    if args.colours_from:  # each part's colours as its bakes suggest them, written back before the registry is checked
+        from . import publish
+        document = json.loads(Path(args.registry).read_text(encoding='utf-8-sig'))
+        records = [json.loads((Path(folder) / 'bake.json').read_text(encoding='utf-8')) for folder in args.colours_from]
+        document, changed = publish.coloured(document, records)
+        registry.validate(document, publish=args.publish)
+        if changed:
+            write_json(args.registry, document)
+        print(f'colours written for {len(changed)} parts', file=sys.stderr)
     parts = registry.load(args.registry, publish=args.publish)
     if args.handoff:
         write_json(args.handoff, registry.handoff(parts))
@@ -192,6 +201,8 @@ def main(argv=None):
     # The handler lives under `handler`: `run` is the fixture command's own flag.
     p = commands.add_parser('registry', help='validate a registry and optionally write the SR_NWN handoff file')
     p.add_argument('registry'); p.add_argument('--publish', action='store_true'); p.add_argument('--handoff')
+    p.add_argument('--colours-from', action='append', default=[], metavar='BAKE',
+                   help="a bake's output folder: its suggested colours are written into the registry's parts of its number (repeatable)")
     p.set_defaults(handler=command_registry)
     p = commands.add_parser('tables', help='generate the twelve parts tables from a registry and stock tables')
     p.add_argument('registry'); p.add_argument('--stock', required=True, help='folder holding the stock parts_*.2da files')
