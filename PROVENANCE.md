@@ -903,6 +903,13 @@ walkway, stair tower, office module and crane were seen again by day on 2026-11-
 walkway's stairs and moved leg, the tower's straight rails, the office's glass and the crane's sills. Not yet
 opened in the Toolset.
 
+On 2026-11-15 the gantry crane's collision file `ek_rd_crane.pwk` was written again (operator: "the crane placeable
+should NOT block walking underneath it"): a block under each of its two legs in place of one on its whole
+footprint, 13.9 metres of open ground between them (`walkUnder` in the game set, `convert.standing`). The model was
+converted again from its archived source and came out byte for byte as the pack holds it, as did its maps; only the
+collision file changed. In the game client a walker sent to the middle under the beam stood there, and one sent
+through from side to side went straight.
+
 ## Iron Sight Arms tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-14)
 
 A street gun shop with an indoor range: a single-storey riveted steel shop front under an IRON SIGHT ARMS sign, with a

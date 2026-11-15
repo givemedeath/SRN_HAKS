@@ -930,5 +930,48 @@ class GhostRidersTests(unittest.TestCase):
         self.assertEqual(len(found), 1)
 
 
+class WalkUnderTests(unittest.TestCase):
+    """A placeable on legs is walked under between them (user, 2026-11-15: the gantry crane shut the track it spans)."""
+
+    @staticmethod
+    def boxes(*spans):
+        points, faces = [], []
+        for (x0, y0, z0), (x1, y1, z1) in spans:
+            first = len(points); points += [[x, y, z] for z in (z0, z1) for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+            faces += [[first + a, first + b, first + c] for a, b, c in ((0, 2, 1), (0, 3, 2), (4, 5, 6), (4, 6, 7), (0, 1, 5), (0, 5, 4), (1, 2, 6), (1, 6, 5),
+                                                                     (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7))]
+        return np.array(points, float), np.array(faces)
+
+    def test_each_part_that_stands_under_head_height_is_a_block_of_its_own(self):
+        vertices, faces = self.boxes(((-5, -1, 0), (-4, 1, 6)), ((4, -1, 0), (5, 1, 6)), ((-5, -1, 5.5), (5, 1, 6)))  # two legs and the beam they carry
+        parts = convert.standing(vertices, faces); self.assertEqual(len(parts), 2)
+        self.assertEqual(sorted(round(float(part[:, 0].mean())) for part in parts), [-4, 4])  # a leg each: -4.5 and 4.5
+        self.assertTrue(all(part[:, 2].max() < convert.OVERHEAD for part in parts))
+        one = convert.walk_text('ek_x', vertices); two = convert.walk_text('ek_x', vertices, blocks=parts)
+        self.assertIn('  verts 8\n', one); self.assertIn('  faces 10\n', one)  # one block on the whole footprint
+        self.assertIn('  verts 16\n', two); self.assertIn('  faces 20\n', two); self.assertEqual(two.count('node trimesh'), 1)
+        xs = [float(line.split()[0]) for line in two.split('  faces')[0].splitlines() if line.startswith('    ')]
+        self.assertTrue(all(abs(x) >= 3.9 for x in xs))  # nothing stands between the legs
+        self.assertEqual(one, convert.walk_text('ek_x', vertices, blocks=[vertices]))
+        # Legs nearer than a character is wide are one block; a thing hung clear of the ground has no parts.
+        self.assertEqual(len(convert.standing(*self.boxes(((-0.5, -1, 0), (-0.1, 1, 3)), ((0.1, -1, 0), (0.5, 1, 3))))), 1)
+        # Ground the gap wide and more stays open wherever the model lies on the cells it is read by (found in review).
+        for shift in (0.0, 0.07, 0.15, 0.31, 0.44, 0.59):
+            posts = self.boxes(((-0.5 + shift, -1, 0), (-0.4 + shift, 1, 3)), ((0.4 + shift, -1 + shift, 0), (0.5 + shift, 1 + shift, 3)))  # 0.8 m apart
+            self.assertEqual(len(convert.standing(*posts)), 2, shift)
+            corner = self.boxes(((shift, shift, 0), (shift + 1, shift + 1, 3)), ((shift + 1.5, shift + 1.5, 0), (shift + 2.5, shift + 2.5, 3)))  # 0.71 m, corner to corner
+            self.assertEqual(len(convert.standing(*corner)), 2, shift)
+        with self.assertRaisesRegex(ValueError, 'Nothing of the model stands under head height'):
+            convert.standing(*self.boxes(((-1, -1, 3), (1, 1, 4))))
+
+    def test_walk_under_is_stated_on_a_placeable_that_is_no_group_and_not_underfoot(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            path = Path(scratch) / 'set.json'; crane = {'source': 'meshy/x', 'height': 12.0, 'walkUnder': True, 'placeable': {'label': 'X', 'sound': 28}}
+            path.write_text(json.dumps({'models': {'ek_x': crane}}), encoding='utf-8'); self.assertIs(convert.load_models(path)['ek_x']['walkUnder'], True)
+            for change in ({'walkUnder': False}, {'placeable': None}, {'underfoot': True}):
+                path.write_text(json.dumps({'models': {'ek_x': {key: value for key, value in {**crane, **change}.items() if value is not None}}}), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, 'walkUnder is true'):
+                    convert.load_models(path)
+
 if __name__ == '__main__':
     unittest.main()

@@ -418,6 +418,11 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   footprint is right (`view` gives the bounds), then `"level": 0.03` lays its top flat at that thickness, what
   stands proud of the top (wheel stops) left as proud (`convert.levelled`), and `"underfoot": true` gives its
   placeable no block to walk into. Boxes are measured on the model as levelled (`measuredAt` states `level`).
+- **A placeable on legs cannot be walked under** (a gantry crane, a canopy on posts: its collision is one block on
+  its whole footprint; user, 2026-11-15: "the crane placeable should NOT block walking underneath it"). State
+  `"walkUnder": true`: the placeable gets a block for each part of it that stands under head height, told apart
+  where 0.6 m of clear ground lies between (`convert.standing`), and the report's `walkBlocks` says how many. Only
+  the `.pwk` changes. Every prop that spans something is asked this when its set is written.
 - **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
   0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
   `walk.png` shows which. A floor up to 1.5 m high (`tile.PLATFORM`), a loading platform, is walked on where stairs
