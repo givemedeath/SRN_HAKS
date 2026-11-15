@@ -128,10 +128,13 @@ def command_game(args):
         with fresh(output / name) as folder:  # a model that fails leaves nothing in the way of the next attempt
             report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
                                        colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'),
-                                       lift=model.get('lift', 0.0), light=(model.get('placeable') or {}).get('light'), **_retouching(model))
-            report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
+                                       lift=model.get('lift', 0.0), light=(model.get('placeable') or {}).get('light'), fire=model.get('fire'),
+                                       underfoot=model.get('underfoot', False), **_retouching(model))
+            report['compiled'] = {path.name: path.stat().st_size for path in convert.compile_placeable(folder / 'source' / f'{name}.mdl', folder / 'compiled')}
             (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(report), flush=True)
+        for note in convert.blank_notes(name, report['blankPanels']):  # beside the report, which stays the only thing on standard output
+            print('note: ' + note, file=sys.stderr, flush=True)
 
 
 def _ground_colour(pack, texture):
@@ -188,6 +191,10 @@ def command_tiles(args):
         report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
         report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
                             f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
+        # A roller or bay door drawn as one flat panel, its slats lost, in the picture as it ships.
+        report['blankPanels'] = {name: found for name, (one, its_maps, _) in {args.model: (made, maps, colour), **shapes}.items()
+                                 if (found := convert.shipped_blank_panels(one, its_maps, models[name].get('smooth')))}
+        report['notes'] += [note for name, found in report['blankPanels'].items() for note in convert.blank_notes(name, found)]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
