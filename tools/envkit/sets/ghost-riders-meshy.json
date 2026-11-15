@@ -1,0 +1,22 @@
+{
+  "set": "ghost-riders",
+  "prefix": "gr",
+  "props": {
+    "repair-bench": {"triangles": 10000},
+    "parking-pad": {"triangles": 2000},
+    "parts-rack": {"triangles": 10000},
+    "planning-table": {"triangles": 10000},
+    "burn-barrel": {"triangles": 4000},
+    "ember-barrel": {"triangles": 4000},
+    "motorpool-sign": {"triangles": 4000},
+    "gear-banner": {"triangles": 4000},
+    "barricade-wall": {"triangles": 5000},
+    "garage-door": {"triangles": 4000},
+    "graffiti-sign-wall": {"triangles": 5000},
+    "stash-crates": {"triangles": 5000},
+    "fuel-drums": {"triangles": 5000},
+    "fence-segment": {"triangles": 8000},
+    "service-locker": {"triangles": 4000}
+  },
+  "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 120000}
+}

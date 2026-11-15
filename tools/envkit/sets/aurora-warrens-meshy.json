@@ -1,0 +1,20 @@
+{
+  "set": "aurora-warrens",
+  "prefix": "aw",
+  "props": {
+    "entry-kiosk": {"triangles": 8000},
+    "stairwell-cage": {"triangles": 12000},
+    "balcony-segment": {"triangles": 10000},
+    "utility-generator": {"triangles": 8000},
+    "water-tank": {"triangles": 8000},
+    "rooftop-shack": {"triangles": 8000},
+    "scrap-barrier": {"triangles": 8000},
+    "bodega-counter": {"triangles": 10000},
+    "laundry-rack": {"triangles": 8000},
+    "trash-pile": {"triangles": 6000},
+    "graffiti-wall": {"triangles": 5000},
+    "name-wall": {"triangles": 5000},
+    "crate-stack": {"triangles": 6000}
+  },
+  "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 120000}
+}

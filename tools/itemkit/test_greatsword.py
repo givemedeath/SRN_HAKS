@@ -97,6 +97,21 @@ class GreatswordTests(Fixture):
         oval=p*[1,1,.6]
         with self.assertRaisesRegex(ValueError,'not round'):one_hand_round(oval,f,m,[0,0,0],standard,review)
 
+    def test_a_round_grip_can_take_the_grip_depth_as_its_diameter(self):
+        # The wave-6 Rattan Stick: at the face width a thin stick came out 4.8-5.3 cm thick (user, 2026-11-15: "3.0 cm").
+        standard=read(Path(__file__).resolve().parents[2]/'docs/items/weapon-grip-standard-v1.json');a=np.arange(32)*2*np.pi/32
+        ring=np.c_[np.cos(a)*.035,np.zeros(32),np.sin(a)*.035];p=np.concatenate([ring+[0,-.2,0],ring+[0,.2,0]])
+        f=np.array([(i,(i+1)%32,(i+1)%32+32) for i in range(32)]+[(i,(i+1)%32+32,i+32) for i in range(32)]);m=np.eye(4)
+        depth=standard['targetMidpointSection']['depth']
+        with self.assertRaises(GripDeparture) as caught:one_hand_round(p,f,m,[0,0,0],standard,basis='depth')
+        r=caught.exception.report;mid=r['measuredFittedSections'][2]
+        self.assertAlmostEqual(mid['depth'],depth,delta=.0005);self.assertAlmostEqual(mid['visibleFaceWidth'],depth,delta=.0005)
+        self.assertEqual(r['roundBasis'],'depth');self.assertLess(r['midpointRelativeDifferences']['visibleFaceWidth'],-.3)
+        review={'decision':'approved','measurementDigest':r['measurementDigest'],'notes':'User chose 3.0 cm'}
+        actual,bound=one_hand_round(p,f,m,[0,0,0],standard,review,basis='depth');self.assertEqual(bound['departureReview'],review)
+        with self.assertRaises(GripDeparture):one_hand_round(p,f,m,[0,0,0],standard,review)        # the width basis is another measurement
+        with self.assertRaisesRegex(ValueError,'Round basis'):one_hand_round(p,f,m,[0,0,0],standard,review,basis='length')
+
     def test_a_shaft_is_thinned_to_the_grip_depth_without_flattening(self):
         # The stun staff: a thick 1.2:1 shaft. One transverse scale meets the approved depth and keeps the ratio.
         standard=read(Path(__file__).resolve().parents[2]/'docs/items/weapon-grip-standard-v1.json');a=np.arange(32)*2*np.pi/32

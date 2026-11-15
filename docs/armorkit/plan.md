@@ -831,3 +831,20 @@ The concept sheets in `SRN_Concept_Art/Metahumans/Clothing` guide the kit's art 
 Also decided that day: a chest print exists only on T-shirts and has nothing to do with the shoulder and lanyard
 badge. Its mechanism is not designed. Facility Security's briefs carry `wear` 0.3 and suggested colours; its 20
 bodies are not rebaked with them.
+
+## Revision 2026-11-15: a repeated tint texture is kept once (user decision, after the storage study)
+
+The Size note of the publish revision above is superseded for tint textures. Measured on the published
+Facility Security: 404 MB in `srn_parts/`, of which 254 MB were 208 tint textures that are byte for byte the
+image of another body's (a refit keeps the Human's). Git stored each image once already; the checkout and
+the hak did not. The user chose plain git, no LFS, and to make those copies at build time.
+
+* **The copies list.** `srn_parts/` holds each tint image once, the Human Fit body's where it is among them.
+  The other names are in `docs/armorkit/parts-copies.json`, which the pack's `hakbuilder.json` entry names
+  (`Copies`). `tools/Build-Haks.ps1` packs the kept file under every name, so the hak is what it was: every
+  body still has a tint texture of its own model's name, as the game needs to colour it.
+* **The folder alone is not the pack.** Build it with `tools/Build-Haks.ps1` (or a trial with `publish
+  --build`); packing `srn_parts/` directly leaves the copies out.
+* **Unchanged.** The handoff records every name and hash, and `publish` and `tools/Test-Repository.ps1` hold a
+  copy to it through the file kept. Maps were shared by name already (`shared_maps`). The hak is not smaller:
+  an outfit is still about 423 MB there, so `srn_parts` is split into several haks before about ten outfits.
