@@ -4,12 +4,12 @@
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
   "updated": "2026-11-14",
-  "weaponDesigns": 34,
-  "blueprints": 36,
-  "weaponResources": 293,
-  "publicationPins": 294,
-  "modelsDecoded": 111,
-  "imagesChecked": 146,
+  "weaponDesigns": 37,
+  "blueprints": 39,
+  "weaponResources": 317,
+  "publicationPins": 318,
+  "modelsDecoded": 120,
+  "imagesChecked": 158,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -18,14 +18,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 293,
-      "sha256": "434590c739af3a7153059f3f84cf81ca6f28191b81fc473f36ebf3cefabc9499",
+      "resources": 317,
+      "sha256": "db11ac9524ffdd95d1cfdce5666678d557d94c5ffd0f77c209b373673b6d4eac",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
       "resources": 22,
-      "sha256": "c29aa5065646dcad112884d39a48f714badc194850ebe24ffb9197f8438e7a16",
+      "sha256": "83928a14ab1479545721ffc5c9326e1955bab9e3b3cb5f73a83686d8b4ddcb76",
       "exactPayload": true
     },
     {
@@ -42,8 +42,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 104,
-      "sha256": "3f31a9c9a075fbf9f5598acbeb06eb02cf1453c443c645dd47e056692217ec32",
+      "resources": 110,
+      "sha256": "9207eba286980f0c988916b7c06553f75b18ffc8f5a89c4d78b10069d8af3581",
       "exactPayload": true
     }
   ],
@@ -87,13 +87,13 @@
     "1": {
       "MaxRange": [
         "100",
-        "211"
+        "221"
       ]
     },
     "22": {
       "MaxRange": [
         "100",
-        "131"
+        "141"
       ]
     },
     "61": {
@@ -106,6 +106,12 @@
       "MaxRange": [
         "100",
         "111"
+      ]
+    },
+    "50": {
+      "MaxRange": [
+        "100",
+        "101"
       ]
     }
   },
@@ -305,6 +311,26 @@
         "sw8_f3",
         "sw8_m4",
         "sw8_f4"
+      ],
+      "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
+    },
+    {
+      "date": "2026-11-14",
+      "items": [
+        "sr4-katar-6abae69983",
+        "sr4-tonfa-0cf54e380b",
+        "sr4-telescopic-staff-323c015a0e"
+      ],
+      "payloadsByteIdenticalToNativePackages": true,
+      "rebuiltArchivesPayloadExact": true,
+      "baseitemTableChanged": true,
+      "comparisonReviewers": [
+        "sw9_m0",
+        "sw9_f0",
+        "sw9_m1",
+        "sw9_f1",
+        "sw9_m2",
+        "sw9_f2"
       ],
       "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
     }

@@ -230,6 +230,42 @@ F5 (091) already falls inside its range. No gameplay, price or item-property fie
 gained a male/female reviewer pair for each in the `sw1_` row (`sw8_`), but those pairs have not been run in its
 client.
 
+## Melee wave 5 (2026-11-14)
+
+Wave 5 adds three SR4 catalog designs through the same pipeline: geometry comes from the colour detail image through
+the shared ComfyUI. All three went in through `drive publish`. Each package is the exact bytes of its reviewed native
+HAK, and each blueprint is the exact bytes from its private fixture module. Hashes are in `approved-weapons-v1.json`.
+The user approved them after seeing unattended in-client captures on both shipped Human bodies: "Looks good".
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Katar | F1 / row 22 | `srdaa6941e` | `wswdg_*_141`, diffuse `srdaa6941e_14` | 0.60 m |
+| Tonfa | F2 / row 1 | `srb8bdf709` | `wswls_*_221`, diffuse `srb8bdf709_22` | 0.54 m |
+| Telescopic Staff | F5 / row 50 | `sr893e13e4` | `wdbqs_*_101`, diffuse `sr893e13e4_10` | 1.80 m |
+
+- **Katar** and **Tonfa** are side grips: the fist closes on a grip that crosses the weapon (the Katar's crossbar, the
+  Tonfa's side handle), so each takes one uniform scale from its chosen length. Both handles are user-authorised
+  departures from the grip standard.
+- **Katar:** the fist is on the crossbar and the blade points forward past the knuckles ("Fist on crossbar"). The first
+  fit held it backwards and was turned half a turn about the crossbar before the user saw it.
+- **Tonfa:** the shaft runs along the back of the forearm at the little-finger end of the fist, and the knob points
+  forward past the thumb. The first capture was too long and held back to front ("Tonfa is too long and not facing the
+  right direction"). Only the long arm of the shaft was shortened ("Shorten shaft only"), so the handle keeps its
+  0.75 m fit size. Its shadow mesh is a simplified copy bounded at 8 mm from the shaft.
+- **Telescopic Staff:** meshed by turning its profile about the long axis, then the tubes were stretched to 1.80 m
+  ("1.8 m, tubes only").
+
+The fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only:
+
+- F1 `MaxRange` 131 to 141
+- F2 `MaxRange` 211 to 221
+- F5 `MaxRange` 100 to 101
+
+No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
+in the `sw1_` row (`sw9_`), but those pairs have not been run in its client.
+
 ## Publishing a client-approved design
 
 `tools/itemkit/publish.py` publishes designs the user has approved in the client. It replaces the ad-hoc scripts the
