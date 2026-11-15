@@ -2027,7 +2027,8 @@
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py",
-      "tools/phenotypes/native_compile.py"
+      "tools/phenotypes/native_compile.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/native_stack.py": [
       "tools/headkit/common.py"
@@ -2074,6 +2075,7 @@
       "docs/items/approved-weapon-waves-release-validation.json",
       "docs/items/approved-weapons-v1.json",
       "tools/combat_release_manifest.py",
+      "tools/itemkit/native_stack.py",
       "tools/phenomorpher/validation.json",
       "tools/shared_tools.py"
     ],
@@ -2323,7 +2325,8 @@
     ],
     "tools/itemkit/test_publish.py": [
       "tools/itemkit/__init__.py",
-      "tools/itemkit/publish.py"
+      "tools/itemkit/publish.py",
+      "tools/itemkit/test_native_stack.py"
     ],
     "tools/itemkit/test_recovery.py": [
       "tools/headkit/common.py",
@@ -2384,6 +2387,17 @@
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py",
       "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_stock_slots.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/drive.py",
+      "tools/itemkit/family_contract.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/test_itemkit.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/shared_tools.py"
     ],
     "tools/itemkit/test_straightness.py": [
       "tools/headkit/gltf.py",
@@ -5545,6 +5559,9 @@
       "srn_body_tex",
       "srn_weapon"
     ],
+    "tools/itemkit/family_contract.py": [
+      "srn_weapon"
+    ],
     "tools/itemkit/firearm_fx_pilot.py": [
       "srn_body",
       "srn_weapon"
@@ -5568,6 +5585,9 @@
     ],
     "tools/itemkit/test_publish.py": [
       "srn_2da",
+      "srn_weapon"
+    ],
+    "tools/itemkit/test_stock_slots.py": [
       "srn_weapon"
     ],
     "tools/phenomorpher/phenomorpher/engine/body_sweep.py": [
@@ -5748,6 +5768,7 @@
     "tools/itemkit/test_skinned_native.py",
     "tools/itemkit/test_source_atlas.py",
     "tools/itemkit/test_staff.py",
+    "tools/itemkit/test_stock_slots.py",
     "tools/itemkit/test_straightness.py",
     "tools/itemkit/test_thrown.py",
     "tools/itemkit/test_toolkit_driver.py",

@@ -70,11 +70,19 @@ def family(path, *, validate_native=True):
         require(data.get('sourceExport') == {'remeshResolution':768, 'targetFaceCount':200000, 'signMode':'udf'},
                 'Catalog generation uses the qualified 200K UDF donor route')
     settings=data.get('resources', {})
-    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName','appearanceIndex'}, 'Unsupported resource identity')
+    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName','appearanceIndex','replacesStock'},
+            'Unsupported resource identity')
     for key in ('texturePrefix','hak','module','blueprint'):
         if key in settings: resref(settings[key])
     # Designs sharing a carrier in one wave pin distinct slots; first-free would hand each the same one.
     if 'appearanceIndex' in settings: integer(settings['appearanceIndex'], 1, 25, 'appearance index')
+    if 'replacesStock' in settings:
+        replaced = settings['replacesStock']
+        require('appearanceIndex' in settings and isinstance(replaced, list) and replaced
+                and replaced == sorted(set(replaced)) and all(isinstance(n, str) for n in replaced),
+                'replacesStock is the sorted list of stock names the pinned appearance slot overrides')
+        require(set(replaced) <= slot_names(data, settings['appearanceIndex']),
+                'replacesStock names resources outside its appearance slot')
     if 'texturePrefix' in settings: require(len(settings['texturePrefix'])<=13,'Texture prefix leaves no appearance suffix')
     if data['family'] == 'shield' and not shield or route.subtypes is None and 'firearm' not in data:
         require(data['nativePackaging'] == 'blocked', 'Shield and unqualified Sling native adapters are deferred')
@@ -154,7 +162,11 @@ def rigged_motion_inputs(path, data):
     return rows,proof,review
 
 
-def native_contract(path, data):
+def native_contract(path, data, *, stock=None):
+    """The verified native contract and its effective stack's resources.
+
+    `stock`, when a set, receives the stack names only the installed base game holds: names in a verified installed KEY
+    namespace that no other layer lists or inventories. Those are the names a stock-slot replacement may override."""
     import numpy as np
     require(data.get('family') != 'catalog-object', 'Catalog objects have no qualified native attachment or resource contract')
     native = data.get('native', {})
@@ -165,11 +177,13 @@ def native_contract(path, data):
     layers = evidence.get('layers', [])
     require(layers and all(isinstance(row.get('resources'), list) and (row['resources'] or row.get('nameInventory'))
                            for row in layers), 'Empty content-stack inventory')
-    resources = {}
+    resources = {}; installed = set(); project = set()
     for layer in layers:
         from .native_stack import namespace
         occupied,selected,_=namespace(stack['path'],layer)
         resources.update(dict.fromkeys(occupied))
+        # A KEY inventory (selected is not None) is the installed base game; any other inventory is project content.
+        (installed if selected is not None else project).update(occupied)
         require(len({row['resource'].lower() for row in layer['resources']}) == len(layer['resources']),
                 'Duplicate resources within a content-stack layer')
         for row in layer['resources']:
@@ -179,6 +193,12 @@ def native_contract(path, data):
             if selected is not None:
                 require(selected.get(name)==bound['sha256'],'Selected resource differs from its stock extraction')
             resources[name] = bound
+            # Stock extraction layers (extract_stock: installed-stock-<class>-donors) list base-game files; every other
+            # layer's files (published srn_weapon, shipped bodies, comparison weapons, templates) are project content.
+            # A listed file counts as stock only when the KEY index also names it (installed, below).
+            if selected is None and not str(layer.get('name', '')).startswith('installed-stock-'): project.add(name)
+    if stock is not None:
+        stock.clear(); stock.update(installed - project)
     table = resources.get('baseitems.2da')
     require(table is not None and table['sha256'] == native.get('baseitemsSha256'), 'Effective baseitems pin mismatch')
     row = twoda(Path(table['path']).read_text(encoding='utf-8-sig')).get(str(native['baseItem']))
@@ -279,21 +299,55 @@ def model_names(data, index, colour=1):
     return {part: resref(f"{data['native']['itemClass']}_{part}_{index*10+colour:03d}") for part in PARTS}
 
 
-def reserve(data, resources, index=None):
+def slot_names(data, index):
+    """The part model and icon resource names (.mdl, .tga, .dds) of one appearance slot's colour-1 variant."""
+    names = model_names(data, index)
+    return {name+'.mdl' for name in names.values()} | {'i'+name+suffix for name in names.values() for suffix in ('.tga', '.dds')}
+
+
+def reserve(data, resources, index=None, *, stock=(), replace_stock=False):
+    """The appearance slot of a new design: its model, icon and texture names.
+
+    A free slot in 1..25 comes first. With `replace_stock` and no free slot, the highest stock slot whose held names are
+    all in `stock` (names only the installed base game holds: native_contract(stock=...), minus project and sibling
+    names) is taken, and the result lists them in `replacesStock`. A pinned `index` (the contract's appearanceIndex)
+    must be free, or hold exactly the stock names its contract recorded in resources.replacesStock."""
     occupied = {name.lower() for name in resources}
+    stock = {name.lower() for name in stock} & occupied
     settings = data.get('resources', {})
     if settings.get('blueprint'):
         require(resref(settings['blueprint'])+'.uti' not in occupied, 'Blueprint resref collision')
-    for candidate in ([index] if index is not None else range(1, 26)):
+    def slot(candidate):
         names = model_names(data, candidate)
         # Native composite icons share the model-part naming convention, prefixed by i.
         icons = {p: resref('i'+name) for p, name in names.items()}
         texture = resref(settings.get('texturePrefix', 'sr_cfl')+'_'+str(candidate).zfill(2))
-        if all(name+'.mdl' not in occupied and icons[p]+'.tga' not in occupied
-               and icons[p]+'.dds' not in occupied for p, name in names.items()) and not any(
-                   texture+suffix in occupied for suffix in ('.tga', '.dds', '.mtr', '.txi')):
-            return {'modelIndex': candidate, 'colourIndex': 1, 'models': names, 'icons': icons, 'texture': texture}
-    raise ValueError('No collision-free native appearance slot in the supported 1..25 pilot range')
+        # The texture is the design's own (its prefix is the design stem): it never replaces anything.
+        texture_free = not any(texture+suffix in occupied for suffix in ('.tga', '.dds', '.mtr', '.txi'))
+        result = {'modelIndex': candidate, 'colourIndex': 1, 'models': names, 'icons': icons, 'texture': texture}
+        return result, slot_names(data, candidate) & occupied, texture_free
+    if index is not None:
+        result, held, texture_free = slot(index); recorded = set(settings.get('replacesStock', ()))
+        if texture_free and not held and not recorded: return result
+        if texture_free and held and held == recorded:
+            require(held <= stock, 'A recorded stock replacement now overlaps project or sibling resources: '
+                    + ', '.join(sorted(held - stock)))
+            return {**result, 'replacesStock': sorted(held)}
+        raise ValueError(f'No collision-free native appearance slot at the pinned index {index}'
+                         + (f' (recorded stock replacement {sorted(recorded)}, held {sorted(held)})' if recorded else ''))
+    for candidate in range(1, 26):
+        result, held, texture_free = slot(candidate)
+        if texture_free and not held: return result
+    if replace_stock:
+        # Highest first: the low shapes are the base game's default looks (shape 1 is the stock donor and the
+        # toolset's first appearance), so they are kept the longest.
+        for candidate in range(25, 0, -1):
+            result, held, texture_free = slot(candidate)
+            if texture_free and held and held <= stock: return {**result, 'replacesStock': sorted(held)}
+        raise ValueError('No free or stock-only native appearance slot in the supported 1..25 range: '
+                         'every slot holds project or sibling resources')
+    raise ValueError('No collision-free native appearance slot in the supported 1..25 pilot range '
+                     '(replacing a base-game slot needs the explicit replace-stock opt-in)')
 
 
 def manifest(path, *, input_roles=None, validate_native=True):

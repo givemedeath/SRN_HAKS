@@ -1,4 +1,5 @@
 import numpy as np
+from unittest.mock import patch
 from .firearm_grip import GripDeparture
 from pathlib import Path
 from PIL import Image
@@ -37,7 +38,18 @@ class GreatswordTests(Fixture):
             file=self.root/(part+'.npz');np.savez(file,**g,shadowVertices=g['positions'].reshape(-1,3),shadowFaces=np.arange(12).reshape(-1,3));arrays[part]=pin(file)
             file=self.root/(part+'.png');image=Image.new('RGBA',(64,160),(17,29,93,255));image.putpixel((5,159),(2,3,4,128));image.save(file);icons[part]=pin(file)
         texture=self.root/'diffuse.png';Image.new('RGB',(1024,1024)).save(texture)
-        out=self.root/'native';result=native.prepare(self.profile_path,self.profile,arrays,texture,icons,out)
+        # NWN Crunch (Windows only) is exercised in test_stock_slots; here each DDS twin is a placeholder file.
+        twin=lambda tga,target,compression='DXT5',*,crunch=None:Path(target).write_bytes(b'dds '+compression.encode())
+        out=self.root/'native'
+        with patch.object(native,'dds_converter',lambda inputs:Path(__file__)),patch.object(native,'nwn_dds',twin):
+            result=native.prepare(self.profile_path,self.profile,arrays,texture,icons,out)
+        self.assertEqual(sorted(p.name for p in (out/'resources').glob('*.dds')),
+                         sorted([result['texture']+'.dds']+[n+'.dds' for n in result['allocation']['icons'].values()]))
+        # A converter that changes during the DDS batch invalidates the preparation.
+        fake=self.root/'crunch.exe';fake.write_bytes(b'v1')
+        def drifting(tga,target,compression='DXT5',*,crunch=None):twin(tga,target,compression);fake.write_bytes(b'v2')
+        with patch.object(native,'dds_converter',lambda inputs:fake),patch.object(native,'nwn_dds',drifting):
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):native.prepare(self.profile_path,self.profile,arrays,texture,icons,self.root/'drift')
         for part,name in result['allocation']['icons'].items():
             with Image.open(out/'resources'/(name+'.tga')) as padded,Image.open(icons[part]['path']) as source:
                 self.assertEqual(padded.size,(64,256));self.assertTrue(np.array_equal(np.asarray(padded)[:160],np.asarray(source)))
