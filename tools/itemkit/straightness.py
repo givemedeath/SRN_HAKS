@@ -342,16 +342,41 @@ def thin(source, output, map_path=None, target_ratio=None, factor=None):
 
 
 def fit_stretch(positions, span, factor):
-    """A lengthening of one span of the long axis (fractions from the principal frame's low end) by `factor`.
+    """A lengthening (or shortening) of one span of the long axis (fractions from the principal frame's low end) by `factor`.
 
-    Only the span grows; the sections below it stay put and everything above moves up rigidly, so a short handle reaches
+    Only the span changes; the sections below it stay put and everything above moves rigidly, so a short handle reaches
     the hand's length while the blade and guard keep their size (the wave-4 Sai; user, 2026-11-14: "just stretch the
-    handle part if needed")."""
-    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); t = (positions - mean) @ axes[:, 0]
+    handle part if needed"). A factor below 1 shortens a long body and keeps its grip's hand fit (the wave-5 Tonfa's
+    shaft; user, 2026-11-14: "Shorten shaft only").
+
+    The span moves along its own centreline, not the whole mesh's principal axis: a side part pulls that axis off the
+    body (the Tonfa's handle, by about 4 degrees), and a span changed along a slanted axis would kink at both ends."""
+    positions = np.asarray(positions, float); mean, axes = principal_frame(positions); q = (positions - mean) @ axes; t = q[:, 0]
     lo, hi = (float(x) for x in span); factor = float(factor)
-    _require(0 <= lo < hi <= 1 and 1 < factor <= 3, 'A span inside the length and a lengthening factor in (1, 3] required')
+    _require(0 <= lo < hi <= 1 and (1 < factor <= 3 or .4 <= factor < 1),
+             'A span inside the length and a factor in [0.4, 1) (shorten) or (1, 3] (lengthen) required')
     t0, t1 = t.min() + lo * np.ptp(t), t.min() + hi * np.ptp(t)
-    return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
+    fit = centreline(q, t0, t1)
+    if fit is None: return {'mean': mean, 'axes': axes, 'span': np.array([t0, t1]), 'factor': np.array(factor)}
+    slope, intercept = fit; R = centreline_frame(slope); d = R[:, 0]; line = lambda x: np.array([x, *(slope * x + intercept)])
+    return {'mean': mean, 'axes': axes @ R, 'span': np.array([line(t0) @ d, line(t1) @ d]), 'factor': np.array(factor)}
+
+
+def centreline(q, t0, t1):
+    """(slope, intercept) of the robust section centres (1-99% midpoints of the two transverse axes) against the first
+    axis of `q` over [t0, t1], read in 8 bins of at least 20 points; None when fewer than 4 bins hold that many."""
+    t = q[:, 0]; xs, cs = [], []; edges = np.linspace(t0, t1, 9)
+    for a, b in zip(edges[:-1], edges[1:]):
+        rows = (t >= a) & (t < b)
+        if rows.sum() >= 20:
+            low, high = np.percentile(q[rows, 1:], [1, 99], axis=0); xs.append(t[rows].mean()); cs.append((low + high) / 2)
+    return np.polyfit(np.array(xs), np.array(cs), 1) if len(xs) >= 4 else None
+
+
+def centreline_frame(slope):
+    """Right-handed rotation whose first column follows a `centreline` slope; the second stays nearest the old second axis."""
+    d = np.array([1., *slope]); d /= np.linalg.norm(d); r1 = np.array([0., 1., 0.]) - d[1] * d; r1 /= np.linalg.norm(r1)
+    return np.column_stack([d, r1, np.cross(d, r1)])
 
 
 def apply_stretch(positions, mapping, normals=None):
@@ -414,7 +439,7 @@ def stretch(source, output, span=None, factor=None, map_path=None):
     axis = mapping['axes'][:, 0]
     result.update({'span': mapping['span'].tolist(), 'factor': float(mapping['factor']),
                    'lengthBefore': float(np.ptp(positions @ axis)), 'lengthAfter': float(np.ptp(after @ axis)),
-                   'method': 'one span of the long axis lengthened; sections rigid in width and depth, the rest moved along the axis',
+                   'method': f"one span of the long axis {'lengthened' if mapping['factor'] > 1 else 'shortened'}; sections rigid in width and depth, the rest moved along the axis",
                    'visualReviewRequired': True})
     write(Path(output) / 'stretch.json', result, fresh=True); return result
 
@@ -558,10 +583,10 @@ def main(argv=None):
     c.add_argument('--family'); c.add_argument('--whole', action='store_true', help='also straighten through wide sections (a hafted head)')
     c = commands.add_parser('thin'); c.add_argument('mesh', type=Path); c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--ratio', type=float, help='target blade depth-to-width ratio'); c.add_argument('--factor', type=float, help='explicit depth factor (default 0.5)')
-    c = commands.add_parser('stretch', help='lengthen one span of the long axis (a short handle)'); c.add_argument('mesh', type=Path)
+    c = commands.add_parser('stretch', help='lengthen or shorten one span of the long axis (a short handle, a long shaft)'); c.add_argument('mesh', type=Path)
     c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="fractions of the length from the principal frame's low end")
-    c.add_argument('--factor', type=float, help='lengthening of the span, in (1, 3]')
+    c.add_argument('--factor', type=float, help='new length of the span over its old, in [0.4, 1) or (1, 3]')
     c = commands.add_parser('narrow', help='pull side parts (sai prongs) in towards the centreline'); c.add_argument('mesh', type=Path)
     c.add_argument('output', type=Path); c.add_argument('--map', type=Path)
     c.add_argument('--span', type=float, nargs=2, metavar=('LO', 'HI'), help="long-axis fractions from the principal frame's low end")

@@ -468,6 +468,16 @@ class OpeningProbeTests(unittest.TestCase):
         narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
         with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
         with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.fitted_shell({'inputs': {}}, {'native': {}}, '.')
+        # A long window matches a reference inside its own span even when its deepest point is further off (the wave-5
+        # Katar: deepest point 0.342, span 0.289-0.393, reference 0.384).
+        self.assertAlmostEqual(hole['extent'][1][0], .06, delta=.006); self.assertAlmostEqual(hole['extent'][1][1], .08, delta=.006)
+        window = [{**hole, 'fraction': .342, 'span': [.289, .393]}]
+        self.assertEqual(op.match([('window', .384)], window)[0]['name'], 'window')
+        with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('window', .45)], window)
+        # The end is chosen by the same distance: a window holding its reference beats a small hole that is merely near
+        # the reference counted from the other end.
+        window = {**hole, 'start': [0, 0, 0], 'fraction': .30, 'span': [.25, .45]}; small = {**hole, 'start': [0, 1, 0], 'fraction': .62}
+        self.assertEqual(op.match([('window', .40)], [window, small])[0]['start'], [0, 0, 0])
         from tools.itemkit.grip import melee_fit
         from tools.itemkit.routes import WHOLE_NATIVE_FAMILIES
         with self.assertRaisesRegex(ValueError, 'firearm'): op.fitted_shell({}, {'family': WHOLE_NATIVE_FAMILIES[0]}, '.')
@@ -709,6 +719,141 @@ class WorkspaceAndDriverTests(unittest.TestCase):
         self.assertEqual(stage_list('fit,reduce,unwrap'), ['fit', 'reduce', 'unwrap'])
         for bad in ('', 'fit,polish', 'sr4-club:fit-v1'):
             with self.assertRaises(argparse.ArgumentTypeError): stage_list(bad)
+
+
+class SideGripTests(unittest.TestCase):
+    """A grip across the weapon (the wave-5 Katar's crossbar and Tonfa's side handle, user 2026-11-14)."""
+    def setUp(self):
+        from tools.itemkit.fit_manifest import STANDARD
+        self.standard = json.loads(STANDARD.read_text(encoding='utf-8'))
+        self.family = {'family': 'longsword', 'native': {'gripOrigin': [0, -.03, 0], 'gripLength': self.standard['usableLength'],
+                                                         'stockSpan': [-.2, .9]}}
+
+    def tonfa(self):
+        # A 1.0-unit round shaft along +Y and a round side handle hanging from it along -Z (dense rings: the
+        # straightness frame needs a real shell's vertex count).
+        def dense(rows):
+            out = []
+            for (y0, r0), (y1, r1) in zip(rows, rows[1:]):
+                n = max(1, int(round((y1 - y0) / .004))); out += [(y0 + (y1 - y0) * k / n, r0 + (r1 - r0) * k / n) for k in range(n)]
+            return out + [rows[-1]]
+        shaft, sf = lathe(dense([(0, .03), (1.0, .03)]), sides=48)
+        handle, hf = lathe(dense([(.02, .022), (.2, .022)]), sides=48)
+        handle = np.c_[handle[:, 0], .3 + handle[:, 2], -handle[:, 1]]          # the lathe's +Y turned to -Z, at 0.3 along the shaft
+        return np.concatenate([shaft, handle]), np.concatenate([sf, hf + len(shaft)])
+
+    def overrides(self, v, **extra):
+        from tools.itemkit.fit_manifest import _frame, gltf_to_blender
+        _, _, q = _frame(gltf_to_blender(gltf(v))); grip_axis = q[:, 1]
+        low_is_handle = np.ptp(q[grip_axis < grip_axis.min() + .05, 0]) < .2      # near the low end only the handle
+        # bladeAtLowEnd says where the body lies in the raw frame; the landmarks then count from the handle's end
+        # (grip axis about 0.24: handle to about 0.74, shaft above).
+        marks = (.05, .1, .7, .75)
+        return {'sideGrip': True, 'bladeAtLowEnd': not low_is_handle, 'targetLength': .75,
+                **dict(zip(('pommelEnd', 'gripStart', 'gripEnd', 'bladeStart'), marks)), **extra}
+
+    def test_the_section_around_the_grip_leaves_the_rest_of_the_weapon_out(self):
+        from tools.itemkit.grip import section_dimensions
+        bar, f = lathe([(-.1, .015), (.1, .015)], sides=32); blade = bar * [1, 1, 3] + [0, 0, .08]
+        v = np.concatenate([bar, blade]); faces = np.concatenate([f, f + len(bar)])
+        whole = section_dimensions(v, faces, 0.); own = section_dimensions(v, faces, 0., [0., 0.])
+        self.assertGreater(whole[1], .1); np.testing.assert_allclose(own, [.03, .03], atol=.001)
+        split = np.concatenate([v, v]); seams = np.concatenate([faces[::2], faces[1::2] + len(v)])   # a glTF seam
+        np.testing.assert_allclose(section_dimensions(split, seams, 0., [0., 0.]), [.03, .03], atol=.001)
+        with self.assertRaisesRegex(ValueError, 'encloses'): section_dimensions(v, faces, 0., [0., -.05])
+        # A frame curving round the grip without holding it (a C open on +x) has a bounding box over the grip axis.
+        c = np.array([(.05, -.05), (-.05, -.05), (-.05, .05), (.05, .05), (.05, .04), (-.04, .04), (-.04, -.04), (.05, -.04)])
+        ring = np.array([[x, y, z] for y in (-.1, .1) for x, z in c]); n = len(c)
+        sides = np.array([face for i in range(n) for face in ([i, (i + 1) % n, n + (i + 1) % n], [i, n + (i + 1) % n, n + i])])
+        framed = np.concatenate([bar, ring]); framed_faces = np.concatenate([f, sides + len(bar)])
+        np.testing.assert_allclose(section_dimensions(framed, framed_faces, 0., [0., 0.]), [.03, .03], atol=.001)
+
+    def test_a_side_grip_keeps_one_scale_from_the_chosen_body_length(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); data = measure({}, self.family, {'positions': gltf(v), 'faces': f}, self.overrides(v), self.standard)
+        self.assertEqual(data['sizingAuthority'], 'side-grip-uniform'); self.assertTrue(data['departurePending'])
+        self.assertAlmostEqual(data['bodyLength'], .75, delta=.01); self.assertAlmostEqual(data['scale'], .75, delta=.01)
+        report = data['gripReport']; mid = next(r for r in report['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        self.assertAlmostEqual(mid['depth'], .044 * .75, delta=.002); self.assertAlmostEqual(mid['visibleFaceWidth'], .044 * .75, delta=.002)
+        self.assertEqual(report['transverseScale'], [1., 1., 1.]); self.assertTrue(report['sideGrip'])
+        again = measure({}, self.family, {'positions': gltf(v), 'faces': f}, self.overrides(v), self.standard)
+        self.assertEqual(again['gripReport']['measurementDigest'], report['measurementDigest'])     # what a review binds to
+
+    def test_a_reversed_side_grip_puts_the_body_at_the_little_finger_end(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        plain = measure({}, self.family, shell, self.overrides(v), self.standard)
+        turned = measure({}, self.family, shell, self.overrides(v, reverseGrip=True), self.standard)
+        o = np.array(self.family['native']['gripOrigin'], float); H = np.diag([-1., -1., 1.])
+        for a, b in zip(plain['thicknessProbes'], turned['thicknessProbes']):          # the same probes, turned about native Z
+            np.testing.assert_allclose(b['points'], (np.array(a['points']) - o) @ H + o, atol=1e-9)
+        (lo, hi), (rlo, rhi) = plain['fittedBounds'], turned['fittedBounds']
+        self.assertAlmostEqual(lo[2], rlo[2], places=6); self.assertAlmostEqual(hi[2], rhi[2], places=6)   # the body still points one way
+        self.assertGreater(hi[1] - o[1], o[1] - lo[1]); self.assertGreater(o[1] - rlo[1], rhi[1] - o[1])   # and sits below the grip
+        self.assertLess(turned['joinY'][0], turned['joinY'][1])
+        mid = lambda d: next(r for r in d['gripReport']['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        self.assertAlmostEqual(mid(turned)['depth'], mid(plain)['depth'], places=4)
+        with self.assertRaisesRegex(ValueError, 'side grip'):
+            measure({}, self.family, shell, {'reverseGrip': True, 'bladeAtLowEnd': False}, self.standard)
+
+    def test_grip_across_places_the_grip_along_the_body_and_turns_with_the_frame(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        plain = measure({}, self.family, shell, self.overrides(v), self.standard)
+        found = {}
+        for fraction in (.3, .7):                                 # the handle hangs at 0.3 of the shaft, from one end
+            try: found[fraction] = measure({}, self.family, shell, self.overrides(v, gripAcross=fraction), self.standard)
+            except ValueError as exc: found[fraction] = exc
+        (at, hit), = [(k, r) for k, r in found.items() if isinstance(r, dict)]
+        mid = lambda d: next(r for r in d['gripReport']['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        for key in ('depth', 'visibleFaceWidth'):                    # the handle's own section, as the plain fit reads it
+            self.assertAlmostEqual(mid(hit)[key], mid(plain)[key], delta=.001)
+        self.assertRegex(str(found[round(1 - at, 1)]), 'No grip surface at gripAcross|encloses')     # no grip at the other end
+        # turnAboutAxis reverses the width axis, so the same grip is then at 1 - F (the wave-5 Katar's 0.26 and 0.74).
+        with self.assertRaisesRegex(ValueError, 'No grip surface at gripAcross|encloses'):
+            measure({}, self.family, shell, self.overrides(v, gripAcross=at, turnAboutAxis=True), self.standard)
+        turned = measure({}, self.family, shell, self.overrides(v, gripAcross=round(1 - at, 1), turnAboutAxis=True), self.standard)
+        self.assertAlmostEqual(mid(turned)['depth'], mid(hit)['depth'], delta=.001)
+
+    def test_a_side_grip_needs_its_reviewed_landmarks_and_length(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        for missing in ('targetLength', 'gripEnd', 'bladeAtLowEnd'):
+            overrides = self.overrides(v); overrides.pop(missing)
+            with self.assertRaisesRegex(ValueError, 'side grip needs'): measure({}, self.family, shell, overrides, self.standard)
+        with self.assertRaisesRegex(ValueError, 'one-hand bladed'):
+            measure({}, dict(self.family, family='club'), shell, self.overrides(v), self.standard)
+        for stray in ({'alignGripAxis': True}, {'gripAcross': .5}):           # side-grip overrides that would do nothing
+            overrides = {**self.overrides(v), 'sideGrip': False, **stray}
+            with self.assertRaisesRegex(ValueError, 'apply to a side grip'): measure({}, self.family, shell, overrides, self.standard)
+
+    def test_the_fit_stage_sizes_a_side_grip_only_by_its_own_route(self):
+        from tools.itemkit.grip import fitted_grip_length, melee_fit
+        family = dict(self.family, family='longsword')
+        with self.assertRaisesRegex(ValueError, 'side-grip-uniform'):
+            melee_fit(family, {'sideGrip': True, 'sizingAuthority': 'usable-length-round'}, self.standard, np.zeros((3, 3)), [[0, 1, 2]], np.eye(4))
+        with self.assertRaisesRegex(ValueError, 'side-grip-uniform'):
+            melee_fit(family, {'sizingAuthority': 'side-grip-uniform'}, self.standard, np.zeros((3, 3)), [[0, 1, 2]], np.eye(4))
+        report = {'sizingAuthority': 'side-grip-uniform', 'usableLength': .076}
+        self.assertEqual(fitted_grip_length({'sideGrip': True}, family['native'], report), .076)
+        with self.assertRaisesRegex(ValueError, 'side-grip report'): fitted_grip_length({'sideGrip': True}, family['native'], {})
+
+    def test_a_side_grip_may_resplit_its_part_budgets_within_the_totals(self):
+        from tools.itemkit.parts import side_grip_budgets
+        profile = {'family': 'dagger', 'native': {}, 'budgets': {'visible': 9000, 'shadow': 500, 'parts': {
+            'b': {'visible': 900, 'shadow': 100}, 'm': {'visible': 1700, 'shadow': 100}, 't': {'visible': 6400, 'shadow': 300}}}}
+        split = {'b': {'visible': 1800, 'shadow': 125}, 'm': {'visible': 5400, 'shadow': 250}, 't': {'visible': 1800, 'shadow': 125}}
+        self.assertIs(side_grip_budgets(profile, {'fit': {'sideGrip': True}}), profile)
+        actual = side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': split}})
+        self.assertEqual(actual['budgets']['parts'], split); self.assertEqual(actual['budgets']['visible'], 9000)
+        self.assertEqual(profile['budgets']['parts']['m']['visible'], 1700)               # the family itself is untouched
+        with self.assertRaisesRegex(ValueError, 'only for a side grip'):
+            side_grip_budgets(profile, {'fit': {}, 'processing': {'partBudgets': split}})
+        over = {**split, 'm': {'visible': 5500, 'shadow': 250}}
+        with self.assertRaisesRegex(ValueError, 'exceed the family total'):
+            side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': over}})
+        with self.assertRaisesRegex(ValueError, 'every active part'):
+            side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': {'m': split['m']}}})
 
 
 if __name__ == '__main__':

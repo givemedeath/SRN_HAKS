@@ -91,7 +91,25 @@ class AutofitTests(unittest.TestCase):
         np.testing.assert_allclose(side(out), side(p), atol=1e-9)                                        # width and depth unchanged
         self.assertAlmostEqual(np.ptp(moved), np.ptp(t) + .5 * (t1 - t0), places=9)
         self.assertTrue(np.allclose(np.linalg.norm(turned, axis=1), 1))
-        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), .9)
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), .3)
+        with self.assertRaisesRegex(ValueError, 'factor'): s.fit_stretch(p, (.05, .2), 1.)
+
+    def test_stretch_shortens_a_span(self):
+        p = pommelled(); mapping = s.fit_stretch(p, (.3, .9), .6); t = (p - mapping['mean']) @ mapping['axes'][:, 0]
+        (t0, t1) = mapping['span']; moved = (s.apply_stretch(p, mapping) - mapping['mean']) @ mapping['axes'][:, 0]
+        np.testing.assert_allclose(moved[t >= t1] - t[t >= t1], -.4 * (t1 - t0), atol=1e-9)
+        self.assertAlmostEqual(np.ptp(moved), np.ptp(t) - .4 * (t1 - t0), places=9)
+
+    def test_stretch_follows_the_span_not_a_side_part(self):
+        # A long rod along X with a side handle near one end: the handle tilts the principal axis off the rod, and a
+        # shortening along that axis would kink the rod at both span ends (the wave-5 Tonfa).
+        rng = np.random.default_rng(3); x = rng.uniform(0, 1, 20000); a = rng.uniform(0, 2 * np.pi, 20000)
+        rod = np.c_[x, .03 * np.cos(a), .03 * np.sin(a)]
+        h = rng.uniform(0, .25, 6000); b = rng.uniform(0, 2 * np.pi, 6000)
+        handle = np.c_[.15 + .02 * np.cos(b), .03 + h, .02 * np.sin(b)]
+        p = np.r_[rod, handle]; out = s.apply_stretch(p, s.fit_stretch(p, (.3, .7), .6))[:len(rod)]     # clear of the handle from either end
+        for k in (1, 2): self.assertLess(np.abs(out[:, k] - rod[:, k]).max(), 1e-3)   # the rod stays straight and in place
+        self.assertAlmostEqual(np.ptp(out[:, 0]), 1 - .4 * .4, delta=.02)
         with self.assertRaisesRegex(ValueError, 'span'): s.fit_stretch(p, (.2, .05), 1.5)
 
     def test_glb_stretch_keeps_topology_and_uvs(self):

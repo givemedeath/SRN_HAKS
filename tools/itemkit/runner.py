@@ -60,7 +60,9 @@ class Runner:
         self.manifest_path = Path(manifest_path).resolve(); self.bindings_path = Path(bindings_path).resolve()
         self.data = manifest(self.manifest_path,input_roles=set(),validate_native=False); self.local = bindings(self.bindings_path)
         self.profile_path = Path(asset(self.manifest_path, self.data['familyProfile'])['path'])
-        self.family = family(self.profile_path,validate_native=False); self.run = Path(run).resolve(); self.runtime = runtime
+        from .parts import side_grip_budgets
+        self.family = side_grip_budgets(family(self.profile_path,validate_native=False), self.data)
+        self.run = Path(run).resolve(); self.runtime = runtime
         self.evidence = Path(evidence).resolve() if evidence else None; self.package_pins = package_pins
         self.state_path = self.run/'state.json'
         self.state = read(self.state_path) if self.state_path.exists() else {'schemaVersion': 1, 'id': self.data['id'], 'stages': {}, 'reviews': {}}

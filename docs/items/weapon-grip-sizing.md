@@ -35,6 +35,11 @@ diameter equals the reference face width. Its depth then exceeds the reference
 (the wave-1 Club is +65%), which is an intentional departure: it needs a review
 bound to the exact measurement and the hand-fit inspection on both Human bodies.
 
+A grip that runs across the weapon (a katar's crossbar, a tonfa's side handle) is
+sized by the weapon's chosen overall length with one uniform scale
+(`side-grip-uniform`); its own section is measured and reviewed against the
+reference like any other departure. See `item-generation-toolkit.md`.
+
 This is a sizing reference, not a requirement to copy the Cougar's grip shape.
 Two-handed weapons or unusual grip mechanisms still need their own contact and
 native contracts. Firearm packaging remains blocked until its multipart contract
