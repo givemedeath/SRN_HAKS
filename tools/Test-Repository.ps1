@@ -356,10 +356,19 @@ if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -L
             # The pack holds exactly the files the handoff records: each outfit's resources and the inventory icons.
             $partsHandoff = Get-Content -LiteralPath $partsHandoffPath -Raw | ConvertFrom-Json
             $partsRecorded = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-            foreach ($outfit in @($partsHandoff.outfits)) { foreach ($resource in @($outfit.resources)) { [void]$partsRecorded.Add([string]$resource.name) } }
-            if ($partsHandoff.PSObject.Properties['iconFiles']) { foreach ($resource in @($partsHandoff.iconFiles)) { [void]$partsRecorded.Add([string]$resource.name) } }
+            $partsHashes = [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::Ordinal)
+            $partsResources = @(foreach ($outfit in @($partsHandoff.outfits)) { @($outfit.resources) })
+            if ($partsHandoff.PSObject.Properties['iconFiles']) { $partsResources += @($partsHandoff.iconFiles) }
+            foreach ($resource in $partsResources) {
+                [void]$partsRecorded.Add([string]$resource.name)
+                $partsHashes[[string]$resource.name] = [string]$resource.sha256
+            }
+            # A published file is the one its handoff records, by hash: one changed afterwards passed here until
+            # the next publication's own gate met it (review of PR 158, 2026-11-15).
             foreach ($name in $partsRecorded) {
-                if (-not (Test-Path -LiteralPath (Join-Path $partsPackPath $name) -PathType Leaf)) { Add-ValidationError "srn_parts has no $name, which the parts handoff records as published." }
+                $partsFile = Join-Path $partsPackPath $name
+                if (-not (Test-Path -LiteralPath $partsFile -PathType Leaf)) { Add-ValidationError "srn_parts has no $name, which the parts handoff records as published." }
+                elseif ((Get-FileHash -LiteralPath $partsFile -Algorithm SHA256).Hash -ine $partsHashes[$name]) { Add-ValidationError "srn_parts/$name is not the file the parts handoff records as published: its hash differs." }
             }
             if (Test-Path -LiteralPath $partsPackPath -PathType Container) {
                 foreach ($file in @(Get-ChildItem -LiteralPath $partsPackPath -File)) {
