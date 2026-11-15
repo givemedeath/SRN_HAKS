@@ -58,7 +58,8 @@
     ],
     "tools/armorkit/ends.py": [
       "tools/armorkit/registry.py",
-      "tools/armorkit/seams.py"
+      "tools/armorkit/seams.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/export.py": [
       "tools/armorkit/registry.py",
@@ -125,6 +126,8 @@
       "tools/armorkit/bodyskin.py",
       "tools/armorkit/ends.py",
       "tools/armorkit/measure.py",
+      "tools/armorkit/publish.py",
+      "tools/armorkit/reduce.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/repose.py",
       "tools/armorkit/seams.py",
@@ -218,6 +221,7 @@
     "tools/armorkit/test_measure.py": [
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
       "tools/armorkit/test_bake.py",
       "tools/armorkit/test_split.py"
@@ -252,11 +256,15 @@
       "tools/armorkit/bake.py",
       "tools/armorkit/bodyskin.py",
       "tools/armorkit/measure.py",
+      "tools/armorkit/publish.py",
       "tools/armorkit/refit.py",
+      "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
       "tools/armorkit/split.py",
       "tools/armorkit/test_bake.py",
-      "tools/armorkit/test_bodyskin.py"
+      "tools/armorkit/test_bodyskin.py",
+      "tools/armorkit/test_publish.py",
+      "tools/armorkit/test_seams.py"
     ],
     "tools/armorkit/test_registry.py": [
       "tools/armorkit/examples/registry.json",

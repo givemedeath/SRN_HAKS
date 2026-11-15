@@ -90,6 +90,10 @@ class PosesTests(unittest.TestCase):
         checked = poses.entries(['chest', 'bicep'], 332, 2)
         self.assertEqual(sorted((part['slot'], part['number'], part['genderedCut']) for part in checked), [('bicep', 332, False), ('chest', 332, True)])
         self.assertTrue(all(set(part['tiers']) == set(registry.SLOT_JOINTS[part['slot']]) for part in checked))
+        # A bake at its registry number, the one a publication takes, is checked as its family's: 6020 is security's.
+        family = poses.entries(['chest', 'bicep'], 6020, 2)
+        self.assertTrue(all(part['families'] == ['security'] and part['set'] == part['group'] == 'ak-poses' for part in family))
+        self.assertTrue(all('set' not in part and part['families'] == ['accessory'] for part in poses.entries(['chest'], 1200, 2) + checked))
 
     def test_waiting_for_the_client_needs_it_closed_twice_running(self):
         seen = iter([[7], [], [8], [], []])

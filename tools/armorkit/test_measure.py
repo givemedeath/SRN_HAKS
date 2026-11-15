@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import measure, seams
+from . import measure, registry, seams
 
 REPO = Path(__file__).resolve().parents[2]
 BODY_PACK = REPO / 'srn_body'
@@ -116,9 +116,10 @@ class SeenThroughTests(unittest.TestCase):
 
 
 class MeasuredContractTests(unittest.TestCase):
-    def test_contract_planes_and_rings_match_the_locked_human_bodies(self):
+    def test_contract_planes_and_rings_match_the_bodies_in_the_pack(self):
         contract = seams.load_contract()
-        for name in seams.AUTHORING_BODIES:
+        self.assertEqual(set(contract['source']['bodies']), set(registry.BODIES))
+        for name in registry.BODIES:
             for filename, digest in contract['source']['bodies'][name].items():
                 self.assertEqual(measure.sha(BODY_PACK / filename), digest, filename + ' changed since the contract was frozen')
             bones, parts = measure.body(BODY_PACK, name)
@@ -132,7 +133,7 @@ class MeasuredContractTests(unittest.TestCase):
 
     def test_animation_models_in_the_pack_are_the_ones_the_bends_were_sampled_from(self):
         contract = seams.load_contract()
-        for name in seams.AUTHORING_BODIES:
+        for name in registry.BODIES:
             recorded = contract['source']['animation'][name]['models']
             carried = {model: BODY_PACK / (model + '.mdl') for model in recorded if (BODY_PACK / (model + '.mdl')).is_file()}
             self.assertTrue(carried, name + ': no inherited animation model is carried by the body pack')

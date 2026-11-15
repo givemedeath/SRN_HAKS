@@ -22,6 +22,8 @@ where that part was its own shape again. At these joints the cap runs the contra
 """
 import numpy as np
 
+from tools.robes import mesh_ops
+
 from . import registry, seams
 
 TUBES = ('elbow', 'wrist', 'waist', 'knee', 'ankle')  # joints whose two ends are tubes round the limb on the plane
@@ -38,6 +40,7 @@ STEP = 0.002  # the plane section is sampled this densely
 PASSES = 2  # an end is read and moved again this many times
 WIDEST = np.radians(45.0)  # an edge of the ring is taken to span this much at most when the margin is set
 NEAR = 0.8  # an edge of the sections makes the ring when it stands this near it (an under end) or no farther than this inside out (an over end)
+AT_PLANE = 0.001  # only drawn in (`end`'s `inward`), a point this near the plane comes inside the envelope whatever the ring beside it reads
 BAND = {True: (0.0002, 0.001, 0.005), False: (-0.0002, -0.001, -0.005, -0.01)}  # where an end's ring is read, from the plane toward
 # the under part: an under part's own surface ends on the plane (only its cap crosses it), and an over end is read over the plateau
 
@@ -121,12 +124,19 @@ def smooth(t):
     return t * t * (3 - 2 * t)
 
 
-def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=None, whole=None, skin=False):
+def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=None, whole=None, skin=False, inward=False):
     """The vertices of a part with its end at one joint plane brought to the envelope. `rim` is the end's
     `ring`, `envelope` and `body_ring` the contract's 16 directions, `under` whether the part lies on the
     normal's side of the plane, `length` how far from the plane it blends back into the part; what it has past
     the plane moves whole, and so do the vertices `whole` flags. `span` is the end's `spread`, and `skin` says
-    an under end lies on the body's skin (`target`)."""
+    an under end lies on the body's skin (`target`). With `inward` the end is only drawn in, where it stands
+    outside the envelope: where it stands inside it, it stays as it is. A point within `AT_PLANE` of the plane
+    that stands outside the ring, a wall's or a dome's edge lying on the plane itself, is then set on the
+    end's target too, the envelope's or, where the ring lies inside the envelope, the ring itself (so such an
+    edge does move where the rest of the end stays; the 20 bodies were reviewed so, and held to the envelope
+    alone their upper arms' and thighs' edges moved by up to 4 mm, review 2026-11-14): moved as the ring beside it, which the sections read just off the plane, it stayed
+    as far outside it, and a thigh's wall stood 0.8 mm outside the Troll Large male's hip envelope where its
+    ring lay on it (2026-11-14)."""
     vertices = np.asarray(vertices, float)
     normal = seams.unit(normal)
     u, v = seams.frame(normal)
@@ -136,11 +146,15 @@ def end(vertices, point, normal, rim, envelope, body_ring, under, length, span=N
     r = np.linalg.norm(radial, axis=1)
     angle = np.arctan2(radial @ v, radial @ u) % (2 * np.pi)
     R, T = _around(rim, angle), target(envelope, angle, under, span=span, skin=skin)
+    if inward:
+        T = np.minimum(T, R)
     # nothing is drawn in past the body ring, given in the contract's directions as the envelope is (`seams.around`)
     body = np.minimum(seams.around(body_ring, angle), T)
     grown = r * T / R
     drawn = np.where(r <= body, r, body + (r - body) * (T - body) / np.maximum(R - body, 1e-9))
     new = np.where(r >= R, r + (T - R), np.where(T >= R, grown, drawn))
+    if inward:
+        new = np.where(np.abs(height) < AT_PLANE, np.minimum(new, T), new)
     reach = height if under else -height
     along = 1.0 - smooth((reach - PLATEAU) / max(length - PLATEAU, 1e-6))
     if whole is not None:
@@ -185,24 +199,30 @@ def ends_of(name, bones, contract, body, tier, joints=TUBES, bare=()):
     return found
 
 
-def shaped(vertices, faces, measured, part_ends):
+def shaped(vertices, faces, measured, part_ends, inward=False):
     """`vertices` with the part's ends (`ends_of`) brought to the envelope, its ring read from the faces
-    `measured` flags. An end whose faces do not reach its plane is left as it is."""
+    `measured` flags. An end whose faces do not reach its plane is left as it is. With `inward` an end is only
+    drawn in where it stands outside the envelope (`end`)."""
     vertices = np.asarray(vertices, float)
     faces = np.asarray(faces, int)
     mine = faces[np.asarray(measured, bool)]
+    weld = mesh_ops.weld_ids(vertices)  # once: copies at one point move as one at every end, and stay copies
     for point, normal, envelope, body_ring, under, skin in part_ends:
         reach = (vertices - point) @ normal * (1 if under else -1)
         length = min(LONGEST, 0.5 * float(reach[np.unique(faces)].max()))
         band = np.abs(np.asarray(BAND[under]))
         crossed = (reach[mine].min(axis=1) <= band.max()) & (reach[mine].max(axis=1) >= band.min())
-        whole = np.zeros(len(vertices), bool)
-        whole[mine[crossed]] = True  # every corner of a face the sections pass through: an edge to a corner moved less sagged into the section
+        # every corner of a face the sections pass through: an edge to a corner moved less sagged into the section. And
+        # every copy of such a corner the part holds at the same point, where its texture's islands meet: moved by
+        # the blend alone, a copy 2 cm from the plane parted from its corner by 2 cm where an end was spread 7 cm
+        # to the Dwarf Large female's waist, a slit along the seam (Facility Security, 2026-11-14)
+        whole = np.isin(weld, weld[mine[crossed]])
         for _ in range(PASSES):
             rim = ring(vertices, mine, point, normal, under)
             if rim is None:
                 break
-            vertices = end(vertices, point, normal, rim, envelope, body_ring, under, length, spread(vertices, mine, point, normal, under, rim), whole, skin)
+            vertices = end(vertices, point, normal, rim, envelope, body_ring, under, length, spread(vertices, mine, point, normal, under, rim), whole, skin,
+                           inward)
     return vertices
 
 

@@ -50,8 +50,16 @@ def slot_of(token):
 
 
 def entries(slots, number, tier):
-    """Registry entries for an outfit baked under `number` at `tier`, one per slot it fills, checked."""
-    base = {'families': ['accessory'], 'genderedCut': False, 'coverage': {'skin': False, 'headgear': False}, 'channels': list(CHANNELS),
+    """Registry entries for an outfit baked under `number` at `tier`, one per slot it fills, checked.
+
+    A number in a family's thousand is that family's and names a set and a group (`registry.validate_part`):
+    the check gives it the family of its block and its own name for both, since a fixture's tables need only
+    the rows. Written as an accessory's whatever the number, the entries of a bake at its registry number,
+    which is the bake a publication takes (README, runbook), were refused (Facility Security at 6020,
+    2026-11-14)."""
+    family = registry.block(number)
+    named = {'families': [family], 'set': NAME.replace('_', '-'), 'group': NAME.replace('_', '-')} if family in registry.FAMILY_BLOCKS else {'families': ['accessory']}
+    base = {**named, 'genderedCut': False, 'coverage': {'skin': False, 'headgear': False}, 'channels': list(CHANNELS),
             'badge': None, 'bodies': list(registry.BODIES), 'mesh': 'rigid'}
     parts = [{**base, 'slot': slot, 'number': number, 'genderedCut': slot == 'chest', 'tiers': {joint: tier for joint in registry.SLOT_JOINTS[slot]}}
              for slot in slots]
