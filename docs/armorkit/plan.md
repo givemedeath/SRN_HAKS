@@ -880,9 +880,9 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
   a neck part that keeps the body's neck; one tint texture named like the model holds both. Gated to stand no
   more than 2 mm inside the head envelope and to cover the face. It came out of generation as a whole-head
   hood, and since it clears every published head of a race it is as roomy as that race's envelope: a Troll's
-  includes the horns. The user then ruled that a respirator covers the face only, not the whole head (2026-11-17):
-  `headgear` cuts the fitted piece to a rounded outline over the face and turns the cut edge in, so the head's own
-  hair, ears and skull show (`--cover head` keeps a piece whole, for a hood). The piece's hem hangs below the chin
+  includes the horns. The user then ruled that a respirator covers the front of the face only, not the horns, the
+  side or the top of the head (2026-11-17): `headgear` cuts the fitted piece to a rounded outline from the chin to
+  the brow, short of the ears, and turns the cut edge in, so the head's own hair, ears, horns and skull show (`--cover head` keeps a piece whole, for a hood). The piece's hem hangs below the chin
   by a share of the piece, so the cut removes its flare on every race.
 * **Client check.** `poses` gained `--under REGISTRY=NUMBER` (the actors also wear a published outfit),
   `--cells` (logo cells in turn), the presets `waist` and `head`, and `--body-pack` (camera set for the body's

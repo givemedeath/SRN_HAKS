@@ -176,15 +176,15 @@ class HeadgearTests(unittest.TestCase):
     def test_a_hood_is_cut_down_to_the_face_with_its_edge_turned_in(self):
         row = envelope_row()
         v, f = tube(0.4, 0.0, 1.0, around=64, rings=40)
-        placed, record = headgear.conform(v, f, row)
+        placed, record = headgear.conform(v, f, row, headgear.SPAN)
         uv = np.stack([np.arctan2(placed[:, 0], placed[:, 1]), placed[:, 2]], axis=1)
         cut, faces, cut_uv = headgear.trim(placed, f, uv, record['chin'], record['top'])
         self.assertEqual(len(cut), len(cut_uv))
         self.assertEqual(sorted(np.unique(faces).tolist()), list(range(len(cut))))
         middle = cut[faces].mean(axis=1)
-        # nothing behind the ears or over the crown is left, and nothing hangs below the chin
-        self.assertGreater(middle[:, 1].min(), -0.01)
-        self.assertLess(cut[:, 2].max(), record['chin'] + 0.9 * (record['top'] - record['chin']))
+        # the front of the face only: nothing at the side of the head or over the brow is left, nothing hangs below the chin
+        self.assertLess(np.abs(np.degrees(np.arctan2(middle[:, 0], middle[:, 1]))).max(), 61)
+        self.assertLess(cut[:, 2].max(), record['chin'] + 0.75 * (record['top'] - record['chin']))
         self.assertGreater(cut[:, 2].min(), record['chin'] - 0.01)
         # the cut edge is turned in towards the head, and a new corner's texture place is read along its edge
         radius = np.hypot(cut[:, 0], cut[:, 1])

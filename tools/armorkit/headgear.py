@@ -28,9 +28,10 @@ OUTWARD = 0.2  # a face counts as the piece's outside where its normal leans thi
 RELIEF = (3, 5)  # directions and levels each way that what stands proud of the shell (a filter, a valve) is told from it
 EVEN = 1.5  # cells the fit is evened over
 HEM = 0.07  # the share of the piece's own height that hangs below the chin: its lower edge and the flare of it
-COVER = (np.radians(80), 0.42, (0.46, 0.43), (3, 6))  # a face piece's outline: this far to each side of straight ahead, about this share of the head's height from the chin, these shares up and down (ending at the chin, above a hood's flared hem), rounded by these powers above and below
+COVER = (np.radians(60), 0.36, (0.38, 0.37), (2, 12))  # a face piece's outline: this far to each side of straight ahead (short of the ears), about this share of the head's height from the chin, these shares up (to the brow, under hair and horns) and down (to the chin, above a hood's flared hem), rounded by these powers above and below
+SPAN = 0.9  # the share of the head's height a piece cut to the face is scaled to: a hood's visor then lies over the eyes and not the forehead
 LIP = 0.02  # metres a face piece's cut edge is turned in towards the head
-FACE = (np.radians(55), 0.65)  # the face a piece must cover: this far to each side of straight ahead, this share of the head's height up from the chin
+FACE = (np.radians(45), 0.55)  # the face a piece must cover: this far to each side of straight ahead, this share of the head's height up from the chin
 
 
 def envelope(body, path=ENVELOPES):
@@ -185,11 +186,11 @@ def settle(points, faces, row, rounds=11):
     return points, moved_by
 
 
-def conform(points, faces, row):
+def conform(points, faces, row, span=1.0):
     """(points, record): a piece brought to a head envelope, in head-bone space.
 
-    The piece (front +y, up +z, as generated) is scaled as a whole to the head's height from under the chin to
-    its top and set with its foremost point ahead of the face. Then its shell is brought to the envelope: the
+    The piece (front +y, up +z, as generated) is scaled as a whole to `span` of the head's height from under the
+    chin to its top and set with its foremost point ahead of the face. Then its shell is brought to the envelope: the
     shell is the piece's outside without what stands proud of it (`RELIEF`), and every point moves in or out
     along its own direction from the axis by what brings the shell there `CLEARANCE` outside the envelope, the
     move evened over the grid. Filters and a visor ride on the shell and keep their depth."""
@@ -204,7 +205,7 @@ def conform(points, faces, row):
     # unread and the envelope short on the Orc woman and both Trolls. It hangs by a share of the piece and not by
     # a length: a hem 1 cm down on every head left its flare above the chin on the bigger ones, where a piece cut
     # to the face kept it as a bill (2026-11-17)
-    scale = (top - chin + CLEARANCE) / ((high[2] - low[2]) * (1 - HEM))
+    scale = (span * (top - chin) + CLEARANCE) / ((high[2] - low[2]) * (1 - HEM))
     front = float(np.nanmax(radius[chin_level:, ahead - 2:ahead + 3])) + CLEARANCE
     placed = (points - [(low[0] + high[0]) / 2, high[1], low[2]]) * scale + [0.0, front, chin - HEM * (high[2] - low[2]) * scale]
     shell, _ = outside(placed, faces, bottom, levels)
@@ -216,6 +217,15 @@ def conform(points, faces, row):
                     'chin': round(chin, 3), 'top': round(top, 3)}
 
 
+def _beyond(points, chin, top):
+    """How far outside `COVER`'s outline points lie: nought on it, less inside."""
+    side, middle, reach, powers = COVER
+    turn = np.abs(np.arctan2(points[:, 0], points[:, 1])) / side
+    share = (points[:, 2] - chin) / (top - chin) - middle
+    power = np.where(share > 0, powers[0], powers[1])
+    return turn ** power + (np.abs(share) / np.where(share > 0, reach[0], reach[1])) ** power - 1.0
+
+
 def trim(points, faces, uv, chin, top):
     """(points, faces, uv): a fitted piece cut down to the face, its cut edge turned in.
 
@@ -224,11 +234,7 @@ def trim(points, faces, uv, chin, top):
     face the outline crosses split along it, and the new edge is turned in `LIP` towards the axis, so the piece
     reads as a thick rim and nobody sees between it and the head."""
     points, faces, uv = np.asarray(points, float), np.asarray(faces, int), np.asarray(uv, float)
-    side, middle, reach, powers = COVER
-    turn = np.abs(np.arctan2(points[:, 0], points[:, 1])) / side
-    share = (points[:, 2] - chin) / (top - chin) - middle
-    power = np.where(share > 0, powers[0], powers[1])
-    out = turn ** power + (np.abs(share) / np.where(share > 0, reach[0], reach[1])) ** power - 1.0
+    out = _beyond(points, chin, top)
     require((out <= 0).any(), 'The piece has nothing over the face')
     new_points, new_uv, made = list(points), list(uv), {}
 
@@ -283,18 +289,23 @@ def clears(points, faces, row, worn=None):
     within `FACE` of straight ahead, from the chin up `FACE`'s share of the head's height, so no face shows.
 
     `worn` is (points, faces) of the piece as cut down (`trim`), where it is: the envelope is then cleared by the
-    whole piece, which the cut moves no point of, and the face is covered by what is worn. A cut piece is not read
-    against the envelope itself: a cell the cut leaves a sliver of reads short there, and its turned-in edge lies
-    inside by design. Cover is read from every face, the edge and what turns under the chin with it: a face piece
+    whole piece, which the cut moves no point of, in the cells whose middles lie within the cut's outline, and the
+    face is covered by what is worn. A cut piece is not read against the envelope itself: a cell the cut leaves a
+    sliver of reads short there, and its turned-in edge lies inside by design; and what the cut takes away (a
+    crown scaled to lie inside the head) is not worn. Cover is read from every face, the edge and what turns under the chin with it: a face piece
     ends at the chin, where its surface no longer leans outward (Orc woman, 2026-11-17)."""
     radius, known, bottom = field(row)
     levels = len(radius)
     shell, _ = outside(points, faces, bottom, levels)
     cover, _ = outside(*((points, faces) if worn is None else worn), bottom, levels, lean=-2.0)
     both = np.isfinite(shell) & known
-    short = float(np.max(np.where(both, radius - shell, -np.inf))) if both.any() else 0.0
     ahead = DIRECTIONS // 4
     chin_level = int(np.flatnonzero(known[:, ahead]).min())
+    if worn is not None:
+        angle, height = np.meshgrid((np.arange(DIRECTIONS) + 0.5) * 2 * np.pi / DIRECTIONS, bottom + (np.arange(levels) + 0.5) * LEVELS)
+        middles = np.stack([np.cos(angle).ravel(), np.sin(angle).ravel(), height.ravel()], axis=1)
+        both &= (_beyond(middles, bottom + chin_level * LEVELS, float(row['max'][2])) <= 0).reshape(levels, DIRECTIONS)
+    short = float(np.max(np.where(both, radius - shell, -np.inf))) if both.any() else 0.0
     upto = chin_level + int(FACE[1] * (float(row['max'][2]) - (bottom + chin_level * LEVELS)) / LEVELS)
     reach = int(FACE[0] / (2 * np.pi) * DIRECTIONS)
     face = np.isfinite(cover[chin_level:upto, ahead - reach:ahead + reach + 1])
@@ -358,9 +369,9 @@ def fit(document, kept, output, body_pack, body_textures, number, *, body='pmh0'
     piece, whole = accessory.stored(kept)
     bones, _ = measure.body(body_pack, body)
     row = envelope(body)
-    placed, record = conform(piece['v'], piece['f'], row)
-    say('fitted', record)
     require(cover in ('face', 'head'), 'Headgear covers the face or the head')
+    placed, record = conform(piece['v'], piece['f'], row, SPAN if cover == 'face' else 1.0)
+    say('fitted', record)
     tinted, colours = accessory.tints(piece, document)
     piece = {key: piece[key] for key in ('f', 'uv', 'rgb', 'relief')}  # as worn: the texture is the whole piece's
     whole_shell = (placed, piece['f'])
