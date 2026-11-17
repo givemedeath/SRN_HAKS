@@ -815,14 +815,15 @@ class GhostRidersTests(unittest.TestCase):
                 convert.fire_values(wrong)
 
     def test_a_fire_is_stated_on_a_placeable_as_it_stands_and_burns_at_the_model(self):
-        placed = {'label': 'X', 'sound': 28}
+        placed = {'label': 'X', 'sound': 28, 'light': None}
         good = {'source': 'meshy/x', 'height': 1.5, 'measuredAt': 1.5, 'fire': [{'at': [0, 0, 0.9], 'width': 0.45}], 'placeable': placed}
         path = self.root / 'set.json'; write = lambda model: path.write_text(json.dumps({'models': {'ek_x': model}}), encoding='utf-8')
         write(good); self.assertEqual(convert.load_models(path)['ek_x']['fire'][0]['width'], 0.45)
         group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
         for change, said in (({'placeable': None}, 'fire is a list'), ({'tiles': group}, 'fire is a list'), ({'fire': []}, 'fire is a list'),
                              ({'lit': [{'box': [[0, 0, 0.5], [1, 1, 1]]}], 'placeable': {**placed, 'light': None}}, 'A model with a fire has no lit parts'),
-                             ({'fire': [{'at': [0, 0, 0.9]}]}, 'A fire is'), ({'measuredAt': None}, 'says how it stood')):
+                             ({'fire': [{'at': [0, 0, 0.9]}]}, 'A fire is'), ({'measuredAt': None}, 'says how it stood'),
+                             ({'placeable': {'label': 'X', 'sound': 28}}, 'says whether it lights what stands round it')):  # a fire is asked as a lamp is
             model = {key: value for key, value in {**good, **change}.items() if value is not None}
             write(model)
             with self.assertRaisesRegex(ValueError, said):
@@ -883,7 +884,7 @@ class GhostRidersTests(unittest.TestCase):
             self.assertEqual([path.name for path in files], ['ek_x_e.dds']); self.assertEqual(packed.call_args.args[0].size, (convert.EMBER_PICTURE,) * 2)
             self.assertEqual((Path(scratch) / 'ek_x_e.mtr').read_text().splitlines()[2:], ['texture0 ek_x_e', 'texture1 null', 'texture2 null', 'texture3 null', 'texture4 null', 'texture5 ek_x_e'])
         # Stated on a placeable, on the finished model; a group draws none.
-        placed = {'label': 'X', 'sound': 28}; good = {'source': 'meshy/x', 'height': 1.0, 'measuredAt': 1.0, 'embers': [{'at': [0, 0, 0.8], 'radius': 0.3}], 'placeable': placed}
+        placed = {'label': 'X', 'sound': 28, 'light': None}; good = {'source': 'meshy/x', 'height': 1.0, 'measuredAt': 1.0, 'embers': [{'at': [0, 0, 0.8], 'radius': 0.3}], 'placeable': placed}
         path = self.root / 'set.json'; write = lambda models: path.write_text(json.dumps({'models': models}), encoding='utf-8')
         write({'ek_x': good}); self.assertEqual(convert.load_models(path)['ek_x']['embers'][0]['radius'], 0.3)
         self.assertIn('embers', convert.RETOUCHING); self.assertIn('embers', convert.MEASURED)
@@ -891,7 +892,8 @@ class GhostRidersTests(unittest.TestCase):
         self.assertEqual([convert.scripted(one) for one in (good, {**good, 'fire': [{'at': [0, 0, 0.9], 'width': 0.4}]}, {**good, 'lit': [{'box': [[0, 0, 0], [1, 1, 1]]}]})], [False, True, True])
         self.assertIsNone(convert.place({'vertices': np.zeros((3, 3)), 'normals': np.zeros((3, 3)), 'placed': object()}, [1, 2, 0])['placed'])  # a map of where it stood is not carried along
         group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
-        for change, said in (({'embers': [{'at': [0, 0, 0.8]}]}, 'A bed of embers is'), ({'embers': [{'at': [0, 0, 0.8], 'radius': 9}]}, 'A bed of embers is'),
+        for change, said in (({'embers': [{'at': [0, 0, 0.8]}]}, 'A bed of embers is'), ({'embers': [{'at': [0, 0, 0.8], 'radius': 0.7}]}, 'its lumps grow with it'),
+                             ({'placeable': {'label': 'X', 'sound': 28}}, 'says whether it lights what stands round it'),
                              ({'placeable': None}, 'for a placeable only'), ({'measuredAt': None}, 'says how it stood')):
             write({'ek_x': {key: value for key, value in {**good, **change}.items() if value is not None}})
             with self.assertRaisesRegex(ValueError, said):
@@ -997,6 +999,11 @@ class GhostRidersTests(unittest.TestCase):
                 self.assertEqual(convert.shipped_blank_panels({**made, 'placed': ready}, {}), found); self.assertEqual(mapped.call_count, 0)
                 self.assertEqual(convert.shipped_blank_panels({**made, 'placed': small}, {}), found); self.assertEqual(mapped.call_count, 1)  # a map of another size is not read by
                 self.assertEqual(convert.shipped_blank_panels({**made, 'placed': None}, {}), found); self.assertEqual(mapped.call_count, 2)
+                # A tile group's models are read one by one, those with a panel told, and each map let go when it is read by.
+                door_model, wall_model = {**made, 'placed': ready}, {**made, 'colour': picture(wall), 'placed': ready}
+                self.assertEqual(convert.blank_panels_of({'ek_a': (door_model, {}), 'ek_b': (wall_model, {}), 'ek_c': ({**made, 'placed': ready}, {})},
+                                                         {'ek_a': {}, 'ek_b': {}, 'ek_c': {'smooth': [one['repair']]}}), {'ek_a': found})
+                self.assertIsNone(door_model['placed']); self.assertIsNone(wall_model['placed']); self.assertEqual(mapped.call_count, 2)
         # A thin door drawn blank on both faces is one door, told once.
         slab = np.vstack([vertices, vertices[::-1] + [0.0, -0.1, 0.0]]); both = np.array([[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]])
         halves = np.array([[0, 0], [0.5, 0], [0.5, 1], [0, 1], [0.5, 1], [1, 1], [1, 0], [0.5, 0]], float)

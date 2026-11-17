@@ -1295,9 +1295,10 @@ bed of embers of its own: a low mound under the charred wood (`convert.ember_bed
 by `tools/envkit` itself (`convert.ember_picture`: dark lumps of charcoal under grey ash, the fire in the gaps between
 them), shown as bright by night as by day. No third-party picture was used. The burn barrel's model also has the four
 animations of the stock flame, by which a script puts its fire out and lights it again (`docs/envkit/lights.md`); its
-embers glow on when the fire is out. So neither barrel has a glow map or a lights-out material any more, and neither has `lights` in the catalog. The
-ember barrel's blueprint is static now, as scenery no script needs to reach; the burn barrel's is not, for its fire. Rows, blueprints and collision are unchanged. Checked in the game client the
-same day by night, from the converted files: both beds seen from the side and from above, the fire and its light put
+embers glow on when the fire is out. So neither barrel has a glow map or a lights-out material any more, and neither
+has `lights` in the catalog. The ember barrel's blueprint is static now, as scenery no script needs to reach; the
+burn barrel's is not, for its fire. Rows, the burn barrel's blueprint and both collision files are unchanged. Checked
+in the game client the same day by night, from the converted files: both beds seen from the side and from above, the fire and its light put
 out by script with the embers left glowing, and lit again. The same was then seen by day, and by night from the pack's
 own files beside the repair bench and the mural wall (`envkit check lights`): all three put out and on again.
 

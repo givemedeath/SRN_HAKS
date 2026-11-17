@@ -55,7 +55,10 @@ UNDERFOOT_MOST = 0.45 # metres: the knee (`tile.KNEE`), the highest a placeable 
 # A bed of embers (`ember_beds`): its picture's pixels and lumps, the sides and rings of its mound, the share of its
 # radius the mound rises, and the seed its lumps are scattered from, so a model built again is the same.
 EMBER_PICTURE, EMBER_COALS, EMBER_SIDES, EMBER_RINGS, EMBER_RISE, EMBER_SEED = 256, 45, 16, 3, 0.2, 7
-FIRE_BIRTHRATE, FIRE_ANIM =10, 0.0333333  # particles a second a fire is born with; seconds each of its on and off animations lasts, the stock flame's
+# The radius of a bed, metres: its picture is laid once over it, so its lumps grow with it (9 cm across in the Ghost
+# Riders barrel's 0.29, 18 at the most here); a wider fire's embers are not made yet.
+EMBER_RADIUS = (0.05, 0.6)
+FIRE_BIRTHRATE, FIRE_ANIM = 10, 0.0333333  # particles a second a fire is born with; seconds each of its on and off animations lasts, the stock flame's
 FIRE_WIDTH = (0.1, 3.0)  # metres across a fire the game draws: a candle's to a bonfire's
 # A panel the size of a door drawn in one flat colour (`blank_panels`): the cell its picture is read by, metres; the most
 # the brightness may vary within a cell, as a share of the cell's own brightness (a dark door's flecks are faint), and
@@ -860,6 +863,18 @@ def shipped_blank_panels(made, maps, smooth=None):
     return [one for one in found if not any((middle(one) >= box.min(0)).all() and (middle(one) <= box.max(0)).all() for box in mended)]
 
 
+def blank_panels_of(shaped, models):
+    """{name: its blank panels} of the models of a tile group that have any (`shipped_blank_panels`). shaped: {name:
+    (made, maps)}, each a finished model of the game set `models`. Each model's map of places (`placed`) is let go
+    once it is read by: it is large, and a group holds every model it places until it is built."""
+    found = {}
+    for name, (made, maps) in shaped.items():
+        if panels := shipped_blank_panels(made, maps, models[name].get('smooth')):
+            found[name] = panels
+        made['placed'] = None
+    return found
+
+
 def blank_notes(name, panels):
     """What a build says of each blank panel found (`blank_panels`): where to look, and the entry that mends a door."""
     return [f'{name}: a panel of {one["m2"]} m² is drawn in one flat colour {one["colour"]} at {one["box"]}: look at it close up with `view --eye`; '
@@ -940,9 +955,9 @@ def compile_placeable(source, output):
         back = Path(scratch) / 'back' / source.name; back.parent.mkdir()
         result = run('decompile', '--overwrite', str(target), str(back))
         require(result.returncode == 0 and back.is_file(), f'{source.name} compiled to a model that cannot be read back: {(result.stdout + result.stderr)[-600:]}')
-        geometry = back.read_text(encoding='cp1252', errors='replace').split('endmodelgeom')[0]
+        told = back.read_text(encoding='cp1252', errors='replace'); geometry = told.split('endmodelgeom')[0]
         faces = lambda told: sum(int(count) for count in re.findall(r'(?m)^\s*faces (\d+)', told))
-        require(len(re.findall(r'(?m)^\s*newanim ', back.read_text(encoding='cp1252', errors='replace'))) == len(re.findall(r'(?m)^newanim ', text)),
+        require(len(re.findall(r'(?m)^\s*newanim ', told)) == len(re.findall(r'(?m)^newanim ', text)),
                 f'{source.name} compiled to a model without all of the animations that put its fires out')
         kept, wanted = (len(re.findall(r'(?m)^\s*node emitter ', geometry)), faces(geometry)), (fires, faces(text.split('endmodelgeom')[0]))
         require(kept == wanted, f'{source.name} compiled to a model of {kept[0]} fires and {kept[1]} faces, not its {wanted[0]} fires and {wanted[1]} faces')
@@ -1599,8 +1614,9 @@ def load_models(path):
                     f'A pane of glass is {{corners: 3 to {GLASS_MOST} points round it in metres on the finished model, colour: [r, g, b] of 0 to 255, strength: over 0, at most 1}}: ' + name)
         require(not model.get('glass') or (model.get('placeable') and not model.get('tiles')), 'Glass is made for a placeable only, not for a tile group: ' + name)
         for part in model.get('embers', []):
-            require(isinstance(part, dict) and {'at', 'radius'} <= set(part) <= {'part', 'at', 'radius'} and point(part['at']) and number(part['radius']) and 0.05 <= part['radius'] <= 2,
-                    'A bed of embers is {at: the middle of its rim, radius: 0.05 to 2}, in metres on the finished model: ' + name)
+            require(isinstance(part, dict) and {'at', 'radius'} <= set(part) <= {'part', 'at', 'radius'} and point(part['at']) and number(part['radius']) and EMBER_RADIUS[0] <= part['radius'] <= EMBER_RADIUS[1],
+                    f'A bed of embers is {{at: the middle of its rim, radius: {EMBER_RADIUS[0]} to {EMBER_RADIUS[1]}}}, in metres on the finished model '
+                    '(its lumps grow with it: a wider one would show coals the size of paving stones): ' + name)
         require(not model.get('embers') or (model.get('placeable') and not model.get('tiles')), 'A bed of embers is made for a placeable only, not for a tile group: ' + name)
         # The burn barrel had both at first, and its flame burned on when one script swapped its lights-out material in
         # and played the animation that puts the fire out; each call alone did its work (client checks, 2026-11-16).
@@ -1640,9 +1656,11 @@ def load_models(path):
         # A glow map lights only the model's own faces. The Chop Shop clinic's surgical lamp was converted with glowing
         # lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are checking for when props
         # need lights from now on", "it should only be for things that should be bright").
-        require(not (placed and model.get('lit')) or 'light' in placed,
-                'A lit prop says whether it lights what stands round it: give its placeable a light, {colour, at} for what should be bright '
-                '(a lamp, a floodlight), null for what only glows (a screen, a sign, an indicator, trim): ' + name)
+        # A fire and a bed of embers are asked as lit parts are: the barrels' lit parts became a bed of embers, and with
+        # them went the question (review, 2026-11-16).
+        require(not (placed and (model.get('lit') or model.get('fire') or model.get('embers'))) or 'light' in placed,
+                'A lit prop, and one with a fire or a bed of embers, says whether it lights what stands round it: give its placeable a light, {colour, at} for what '
+                'should be bright (a lamp, a floodlight, a fire), null for what only glows (a screen, a sign, an indicator, trim, embers): ' + name)
         if placed and 'light' in placed:
             placeables.light_values(placed['light'])
         tiles = model.get('tiles')
@@ -1833,7 +1851,7 @@ def blackout_script(name, player, on, halo=True):
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, level=None, tone=None, paint=None,
           copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None, embers=None, sight=True):
-    """The finished model in game space and what lights it (`embers` gives `embers`, its beds of embers (`ember_beds`), no part of its own faces either): {vertices, normals, uvs, faces, scale, angles, repaired,
+    """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
     (`closed`) and `fill` closes the hole round a point (`filled`), in that order, and `inside` then gives every face a back (`backed`); before them `wheels` draws a car's trucks in to the track (`gauged`), before its pictures are worked on; `tone`,
@@ -1841,7 +1859,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
     map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`).
-    `glass` gives `glass`, its panes (`glazed`), which are no part of its own faces."""
+    `glass` gives `glass`, its panes (`glazed`), which are no part of its own faces, and `embers` gives `embers`, its
+    beds of embers (`ember_beds`), which are none either. `placed` is the map of its places its lit parts were found by."""
     vertices, normals, uvs, faces = read_glb(model); card = None
     vertices, normals, uvs, scale, angles = fit(vertices, normals, uvs, height, faces=faces)
     if sign_tilt is not None:
@@ -1902,7 +1921,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if built:  # after the pictures: a built member takes one place of the picture, which no retouching or glow should read as its
         vertices, normals, uvs, faces = with_built(vertices, normals, uvs, faces, built)
     panes = glazed(glass) if glass else None
-    return {'embers': ember_beds(embers) if embers else None, 'emberBeds': len(embers or []), 'glass': panes,'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
+    return {'embers': ember_beds(embers) if embers else None, 'emberBeds': len(embers or []), 'glass': panes, 'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind,
             'placed': placed}  # the map of the model's places its lit parts were found by, None where it has none: `shipped_blank_panels` reads by it
 
