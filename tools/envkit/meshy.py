@@ -17,6 +17,7 @@ import re
 import shutil
 import struct
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -36,6 +37,30 @@ KEY = re.compile(r'[a-z0-9][a-z0-9-]{0,79}')
 REFUSED = (401, 402, 403, 429)
 QUEUE = 10  # the tasks Meshy holds for this plan at once: the next is refused, and the CLI never sends a refused key again
 IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
+
+
+def shared_ledger(repo=None, root=None):
+    """Where the one ledger of every sheet, session and worktree lies: in the shared tool root, which every checkout
+    finds the same way (explicit root, then SRN_TOOLS_ROOT, then the primary checkout's .tools) and which outlives
+    every worktree. It lay in a worktree's ignored output before, and had to be moved whenever that worktree retired."""
+    from tools import shared_tools
+    try:
+        found = shared_tools.tools_root(repo or Path(__file__).resolve().parents[2], root)[0]
+    except ValueError as error:  # its own advice is for callers that take a tools root, which envkit's commands do not
+        raise ValueError(f'No shared tool root for the ledger ({error}): point SRN_TOOLS_ROOT at one, or name the ledger with --ledger') from error
+    return found / 'envkit' / 'meshy-ledger.json'
+
+
+def copies(path):
+    """The folder of a ledger's copies, one for each day it changed, beside it."""
+    path = Path(path)
+    return path.with_name(path.stem + '-copies')
+
+
+def _was_here(path):
+    """What to say where a ledger is missing or about to be started and its copies show that one lay here before."""
+    kept = copies(path)
+    return f': one lay here before, so read it back from the latest copy in {kept}' if kept.is_dir() and any(kept.glob('*.json')) else ''
 
 
 class Ledger:
@@ -65,6 +90,7 @@ class Ledger:
                 require(time.monotonic() < deadline, 'The ledger is held by another call: ' + str(self.path))
                 time.sleep(0.02)
         try:
+            require(self.path.is_file(), f'No ledger at {self.path}' + _was_here(self.path))
             self.data = json.loads(self.path.read_text(encoding='utf-8'))
             require(self.data.get('kind') == 'srn-envkit-meshy-ledger', 'Envkit Meshy ledger required')
         except BaseException:
@@ -76,14 +102,25 @@ class Ledger:
         path = Path(path)
         require(type(cap) is int and cap > 0, 'Credit cap must be a positive whole number')
         require(not path.exists(), 'Ledger already exists: ' + str(path))
+        lost = _was_here(path)  # an empty ledger in a lost one's place would forget every credit it had counted
+        require(not lost, f'No new ledger at {path}' + lost + '; a ledger meant to start afresh here needs that folder moved away first')
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-envkit-meshy-ledger', 'cap': cap, 'entries': []}, indent=1),
                         encoding='utf-8')
         return cls(path)
 
-    def save(self):
+    def save(self, *, today=None):
+        """Write the change, and the ledger as it now stands as the day's copy beside it: the shared tool root is in
+        no repository and no archive, so the copies are what a lost or spoiled ledger is read back from."""
+        text = json.dumps(self.data, indent=1)
         temporary = self.path.with_suffix('.tmp')
-        temporary.write_text(json.dumps(self.data, indent=1), encoding='utf-8'); temporary.replace(self.path)
+        temporary.write_text(text, encoding='utf-8'); temporary.replace(self.path)
+        try:  # the change is written by now: a copy that cannot be must not make it look as if it were not
+            kept = copies(self.path); kept.mkdir(exist_ok=True)
+            spare = kept / ((today or datetime.date.today().isoformat()) + '.tmp')
+            spare.write_text(text, encoding='utf-8'); spare.replace(spare.with_suffix('.json'))
+        except OSError as error:
+            print(f'The ledger is written, but not its copy for the day: {error}', file=sys.stderr)
 
     def entry(self, key):
         found = [row for row in self.data['entries'] if row['key'] == key]
@@ -236,7 +273,7 @@ def submit(ledger, key, asset, operation, arguments, folder, *, run=run_cli):
 def wait(ledger, key, folder, *, timeout=1800, run=run_cli):
     row = ledger.entry(key)
     require(row['taskId'] and row['state'] in ('submitted', 'pending', 'in_progress'), 'Nothing to wait for: ' + key)
-    saved = Path(folder) / key / 'task.json'
+    saved = (Path(folder) / key / 'task.json').absolute()  # recorded in a ledger every worktree reads: a path from this folder would say nothing there
     if saved.exists():
         saved.unlink()  # the CLI never overwrites, and an earlier wait may have timed out with the task unfinished
     code, response = run([RESOURCE[row['operation']], 'wait', row['taskId'], '--timeout', str(timeout), '--include-raw',
@@ -285,7 +322,11 @@ def download(ledger, key, folder, bank, *, master=False, run=run_cli):
         require(row['operation'] in BOUNDED, 'Only a remeshed or smart-topology model is a working model; remesh ' + key
                 + ' first, or fetch it as a master')
     require(row['state'] == 'succeeded' and row.get('task'), 'Successful task required: ' + key)
-    bank = Path(bank)
+    # One ledger serves every worktree, and the record of a task lies where its wait ran.
+    record = Path(row['task'])  # an older entry holds it as it was given, from the folder its wait ran in
+    require(record.is_file(), f'The task record of {key} is not here: {record}' + ('' if record.is_absolute() else ', a path from the folder its wait ran in')
+            + ' (download it from the worktree that waited for it, or restore that folder)')
+    bank = Path(bank).absolute()
     require(not bank.exists(), 'Fresh download folder required: ' + str(bank))
     code, _ = run(['download', '--task-json', row['task'], '--all', '--output-dir', str(bank.resolve())], Path(folder) / key / 'download')
     models = sorted(bank.rglob('*.glb')) if bank.exists() else []

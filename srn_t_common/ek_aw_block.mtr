@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_aw_block
+texture1 ek_aw_block_n
+texture2 ek_aw_block_s
+texture3 ek_aw_block_r
+texture4 null
+texture5 ek_aw_block_i

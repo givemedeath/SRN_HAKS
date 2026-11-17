@@ -176,6 +176,7 @@ def command_tiles(args):
         built = convert.building_triangles(models, args.model, counts)
         require(built <= meshy.BUILDING_TRIANGLES, f'The building of {args.model} is {built} triangles, its own and those of the models placed in it that are '
                 f'no placeables: more than the building budget of {meshy.BUILDING_TRIANGLES}; remesh its pieces lower')
+        report_blank = convert.blank_panels_of({args.model: (made, maps), **{name: one[:2] for name, one in shapes.items()}}, models)
         files = convert.skin(args.model, maps, folder / 'shared', crunch, made, colour=model.get('colour', 1024))
         for name, texture in textures.items():  # each model placed in the group, once for its pictures, then where it stands
             part, part_maps, part_colour = shapes[name]
@@ -190,9 +191,7 @@ def command_tiles(args):
         report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
         report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
                             f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
-        # A roller or bay door drawn as one flat panel, its slats lost, in the picture as it ships.
-        report['blankPanels'] = {name: found for name, (one, its_maps, _) in {args.model: (made, maps, colour), **shapes}.items()
-                                 if (found := convert.shipped_blank_panels(one, its_maps, models[name].get('smooth')))}
+        report['blankPanels'] = report_blank
         report['notes'] += [note for name, found in report['blankPanels'].items() for note in convert.blank_notes(name, found)]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
@@ -206,13 +205,24 @@ def command_track(args):
     print(json.dumps(track.build(Path(args.output), args.seed, args.piece)))
 
 
+def ledger_path(args):
+    """The ledger a command works under: the one --ledger names, or the shared one where it is left out. An empty
+    name is a script's unset variable, not a wish for the shared ledger and its cap."""
+    from . import meshy
+    if args.ledger is None:
+        return meshy.shared_ledger()
+    require(args.ledger.strip(), '--ledger names a file; leave it out for the shared ledger')
+    return Path(args.ledger)
+
+
 def command_meshy(args):
     from . import meshy
     missing = ['--' + name for name in MESHY_NEEDS.get(args.action, ()) if not getattr(args, name)]
     require(not missing, f'envkit meshy {args.action} needs ' + ', '.join(missing))  # said before the ledger is touched
+    path = ledger_path(args)
     if args.action == 'init':
-        meshy.Ledger.create(args.ledger, args.cap)
-    ledger = meshy.Ledger(args.ledger)
+        meshy.Ledger.create(path, args.cap)
+    ledger = meshy.Ledger(path)
     if args.action == 'cap':
         ledger.raise_cap(args.cap, args.reason)
     elif args.action in ('prop', 'building', 'remesh'):
@@ -225,7 +235,7 @@ def command_meshy(args):
     elif args.action in ('download', 'master'):
         print(json.dumps(meshy.download(ledger, args.key, args.work, args.bank, master=args.action == 'master')))
     rows = [{k: row.get(k) for k in ('key', 'asset', 'operation', 'state', 'estimate', 'credits', 'taskId')} for row in ledger.data['entries']]
-    print(json.dumps({'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
+    print(json.dumps({'ledger': str(ledger.path), 'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
 
 
 def command_contact(args):
@@ -235,13 +245,13 @@ def command_contact(args):
 
 def command_sheet(args):
     from . import meshy, sheet
-    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger); root = Path(args.root); work = root / 'meshy' / 'work'
+    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(ledger_path(args)); root = Path(args.root); work = root / 'meshy' / 'work'
     failed = []
     if args.action == 'submit':
         print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work, sent=root / 'references' / 'sent')}))
     elif args.action == 'collect':
         made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))
-    print(json.dumps(sheet.status(ledger, plan), indent=1))
+    print(json.dumps({'ledger': str(ledger.path), **sheet.status(ledger, plan)}, indent=1))  # which ledger: none need be named now
     require(not failed, 'Calls of the plan have no working model: ' + ', '.join(failed))  # after the status, so that a failed collect does not end as a good one
 
 
@@ -375,10 +385,11 @@ def command_toolset(args):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='envkit')
+    LEDGER = "another ledger than the shared one, <shared tool root>/envkit/meshy-ledger.json"
     commands = parser.add_subparsers(dest='command', required=True)
     sub = commands.add_parser('meshy', help='paid Meshy calls under the ledger cap')
     sub.add_argument('action', choices=['init', 'status', 'cap', 'prop', 'building', 'remesh', 'wait', 'download', 'master'])
-    sub.add_argument('--ledger', required=True)
+    sub.add_argument('--ledger', help=LEDGER)
     sub.add_argument('--cap', type=int); sub.add_argument('--reason', help='cap: the approval a raise rests on, in a few words')
     sub.add_argument('--key', help='ledger key of this call')
     sub.add_argument('--asset')
@@ -420,7 +431,7 @@ def main(argv=None):
     sub.add_argument('--columns', type=int, default=3); sub.set_defaults(run=command_contact)
     sub = commands.add_parser('sheet', help="a sheet's models through Meshy, as its plan states them")
     sub.add_argument('action', choices=['status', 'submit', 'collect'])
-    sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', required=True)
+    sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', help=LEDGER)
     sub.add_argument('--root', required=True, help="the sheet's output root: references/selected and references/sent are read, meshy/ is written")
     sub.set_defaults(run=command_sheet)
     sub = commands.add_parser('enlarge', help="a sheet's chosen references at Meshy's size (2048 pixels or more on the longer side)")

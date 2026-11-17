@@ -129,6 +129,13 @@ def save(image, path):
     return Path(path)
 
 
+def capture(pid, path):
+    """Save the client window's own pixels as `path`, whether or not it is in front: `grab` and `save` in one, for
+    the callers that time the whole of it themselves (envkit's prop fixture, itemkit's scripted shots). They and
+    their tests were left calling this when it was split in two (CI on main, 2026-11-17)."""
+    return save(grab(pid), path)
+
+
 def stop(process):
     """Close the client this module started. Takes the Popen from start(), never a bare name."""
     require(isinstance(process, subprocess.Popen), 'Only a client started here can be stopped')

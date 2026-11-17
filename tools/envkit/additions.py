@@ -40,10 +40,10 @@ def _lit(old, core, lights):
 def _unlit(pack, name, built, models):
     """Remove from a pack the light files of a model built again without them, and return their names: a glow map
     left behind would read as a lit model whose entry records no lights. A fence's wire picture goes the same way
-    when the model is built again without its fence, and its glass's when it is built again without glass. Only the
-    three names of the lights standard and the wire's and the glass's pictures are looked at, and never one that is a
-    model of the set in its own right."""
-    gone = [path for stem in (f'{name}_i', f'{name}_o', f'{name}_h', f'{name}_w', f'{name}_g') if stem not in models for path in sorted(Path(pack).glob(stem + '.*'))
+    when the model is built again without its fence, and its glass's when it is built again without glass, and its
+    embers' without them. Only the three names of the lights standard and the wire's, the glass's and the embers'
+    pictures are looked at, and never one that is a model of the set in its own right."""
+    gone = [path for stem in (f'{name}_i', f'{name}_o', f'{name}_h', f'{name}_w', f'{name}_g', f'{name}_e') if stem not in models for path in sorted(Path(pack).glob(stem + '.*'))
             if path.suffix in ('.mtr', '.dds', '.txi') and not (Path(built) / path.name).is_file()]
     for path in gone:
         path.unlink()
@@ -188,7 +188,7 @@ def command_blueprints(args):
             placed = models.get(entry['model'], {}).get('placeable')
             if placed is None or 'category' not in placed:
                 continue
-            static = placed.get('static', not models[entry['model']].get('lit'))
+            static = placed.get('static', not convert.scripted(models[entry['model']]))
             made[entry['model']] = blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
                                                         comment='envkit: ' + entry['source'])
             catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']})

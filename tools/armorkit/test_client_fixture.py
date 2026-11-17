@@ -200,6 +200,22 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(client.parse_line(lines[0]), {'actor': 'Human M', 'tag': 'ak_t_a0', 'parts': '1,2,3'})
         self.assertEqual(client.shot_numbers([SHOT.format(0, 0), 'ARMORKIT actor=A tag=t', SHOT.format(1, 2)]), [0, 1])
 
+    def test_what_the_other_kits_call_of_the_driver_is_there(self):
+        """PR 162 took `capture` out as unused in this kit; envkit and itemkit call it, and main's tests failed."""
+        import re
+        root = Path(__file__).resolve().parents[1]
+        called = set()
+        for path in root.rglob('*.py'):
+            text = path.read_text(encoding='utf-8', errors='replace')
+            if path.parent != Path(__file__).parent and 'armorkit' in text and re.search(r'\bclient\b', text):
+                called |= set(re.findall(r'\bclient\.([a-z_]+)\(', text)) | set(re.findall(r"armorkit\.client\.([a-z_]+)", text))
+        self.assertIn('capture', called)  # the scan finds the calls it is there for
+        self.assertEqual(sorted(name for name in called if not hasattr(client, name)), [])
+        with mock.patch.object(client, 'grab', return_value='image') as grabbed, mock.patch.object(client, 'save', return_value=Path('x.png')) as saved:
+            self.assertEqual(client.capture(7, 'x.png'), Path('x.png'))
+        grabbed.assert_called_once_with(7)
+        saved.assert_called_once_with('image', 'x.png')
+
     def test_only_a_client_started_here_can_be_stopped(self):
         with self.assertRaisesRegex(ValueError, 'Only a client started here'):
             client.stop(1234)
