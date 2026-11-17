@@ -56,6 +56,12 @@ probe without `parts` applies to every proxied part.
 `processing.constrainedReduction: true` reduces each part outside its seam band
 before the worker validates the candidate, and repairs the
 `Reduction changed a mating contour` failure inside the Runner.
+A one-piece part (no `joinY`: the firearm routes) is reduced the same way, with planar quadrics. Use it for
+detailed guns: Blender's plain collapse leaves faces lying across grooves and recesses that the bake's transfer
+preflight refuses (`donor-distance-or-facing`). Build the working shell flush for the same reason:
+`shell-from-donor --dilate 0 --erode 0 --sigma 0.5` neither offsets the surface nor bridges slots, where a dilated
+shell sits a voxel outside the donor and a closed one (`--dilate 2 --erode 2`) webs over gaps between parts. On the
+firearm wave 1 MP-5 TX these two changes took the refused share of the texture from 0.33% to about 0.01%.
 `processing.uvCoordinateScale` (default 1) and `processing.materialPalettes` reach
 the atlas and finish steps the same way.
 
