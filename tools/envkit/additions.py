@@ -188,7 +188,7 @@ def command_blueprints(args):
             placed = models.get(entry['model'], {}).get('placeable')
             if placed is None or 'category' not in placed:
                 continue
-            static = placed.get('static', not models[entry['model']].get('lit'))
+            static = placed.get('static', not convert.scripted(models[entry['model']]))
             made[entry['model']] = blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
                                                         comment='envkit: ' + entry['source'])
             catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']})

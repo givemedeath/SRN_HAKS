@@ -836,6 +836,8 @@ class GhostRidersTests(unittest.TestCase):
             convert_it = lambda **said: convert.placeable('ek_x', 'model.glb', {}, Path(scratch), None, height=1.0, **said)
             with self.assertRaisesRegex(ValueError, r'A fire of ek_x burns 0\.5\d metres from the model, in the air'):
                 convert_it(fire=[{'at': [0.5, 0, 1.5], 'width': 0.4}])
+            with self.assertRaisesRegex(ValueError, r'A bed of embers of ek_x lies 1\.\d+ metres from the model, in the air'):  # as a fire is held to the model
+                convert_it(embers=[{'at': [0.5, 0, 2.5], 'radius': 0.2}])
             told = convert_it(fire=[{'at': [0.5, 0, 1.0], 'width': 0.4}])
             self.assertEqual(told['fires'], 1); self.assertIn('node emitter ek_x_f0', (Path(scratch) / 'ek_x.mdl').read_text())
             self.assertIn('ek_x_wg', (Path(scratch) / 'ek_x.pwk').read_text())  # a thing stood on the ground is walked round
@@ -885,6 +887,9 @@ class GhostRidersTests(unittest.TestCase):
         path = self.root / 'set.json'; write = lambda models: path.write_text(json.dumps({'models': models}), encoding='utf-8')
         write({'ek_x': good}); self.assertEqual(convert.load_models(path)['ek_x']['embers'][0]['radius'], 0.3)
         self.assertIn('embers', convert.RETOUCHING); self.assertIn('embers', convert.MEASURED)
+        # A prop a script reaches is placed not static, and its blueprint made so: one with lit parts, and one with a fire.
+        self.assertEqual([convert.scripted(one) for one in (good, {**good, 'fire': [{'at': [0, 0, 0.9], 'width': 0.4}]}, {**good, 'lit': [{'box': [[0, 0, 0], [1, 1, 1]]}]})], [False, True, True])
+        self.assertIsNone(convert.place({'vertices': np.zeros((3, 3)), 'normals': np.zeros((3, 3)), 'placed': object()}, [1, 2, 0])['placed'])  # a map of where it stood is not carried along
         group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
         for change, said in (({'embers': [{'at': [0, 0, 0.8]}]}, 'A bed of embers is'), ({'embers': [{'at': [0, 0, 0.8], 'radius': 9}]}, 'A bed of embers is'),
                              ({'placeable': None}, 'for a placeable only'), ({'measuredAt': None}, 'says how it stood')):

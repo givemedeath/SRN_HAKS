@@ -1757,7 +1757,8 @@ def place(made, at, turn=0):
     cos, sin = (round(math.cos(math.radians(turn))), round(math.sin(math.radians(turn)))) if turn % 90 == 0 else (math.cos(math.radians(turn)), math.sin(math.radians(turn)))
     spin = np.array([[cos, -sin, 0.0], [sin, cos, 0.0], [0.0, 0.0, 1.0]]); shift = np.asarray(at, float)
     moved = lambda points: np.asarray(points, float) @ spin.T + shift
-    placed = {**made, 'vertices': moved(made['vertices']), 'normals': np.asarray(made['normals'], float) @ spin.T}
+    # its map of places (`placed`) was measured where it stood before: it is not carried along
+    placed = {**made, 'placed': None, 'vertices': moved(made['vertices']), 'normals': np.asarray(made['normals'], float) @ spin.T}
     if made.get('wire'):
         placed['wire'] = {**made['wire'], 'vertices': moved(made['wire']['vertices']), 'normals': np.asarray(made['wire']['normals'], float) @ spin.T}
     if made.get('card'):
@@ -1804,6 +1805,12 @@ def lights(name, folder):
         return None
     found = {'lit': name, 'out': f'{name}_o', 'glow': f'{name}_i'}
     return {**found, 'halo': f'{name}_h', 'dark': HALO_OUT} if (folder / f'{name}_h.mtr').is_file() else found
+
+
+def scripted(model):
+    """Whether a script reaches a model of a game set as it stands: one with lit parts, put out by a swap of its
+    pictures, or with a fire, put out by its animation. Such a prop is placed not static, and its blueprint is made so."""
+    return bool(model.get('lit') or model.get('fire'))
 
 
 def lights_script(name, target, on, halo=True, light=False, fire=False, glow=True):
@@ -1895,9 +1902,6 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if built:  # after the pictures: a built member takes one place of the picture, which no retouching or glow should read as its
         vertices, normals, uvs, faces = with_built(vertices, normals, uvs, faces, built)
     panes = glazed(glass) if glass else None
-    for part in embers or []:  # stated on the finished model: a bed measured before a turn or a lift would glow in the air
-        away = light_gap(vertices, faces, part['at'])
-        require(away <= LIGHT_NEAR + float(part['radius']), f'A bed of embers lies {away:.2f} metres from the model, in the air: state it on the finished model ({part.get("part", part["at"])})')
     return {'embers': ember_beds(embers) if embers else None, 'emberBeds': len(embers or []), 'glass': panes,'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind,
             'placed': placed}  # the map of the model's places its lit parts were found by, None where it has none: `shipped_blank_panels` reads by it
@@ -1970,6 +1974,10 @@ def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_ti
         away = light_gap(vertices, made['faces'], fire_values(part)[0])
         require(away <= LIGHT_NEAR, f'A fire of {name} burns {away:.2f} metres from the model, in the air: state it on the finished model, within {LIGHT_NEAR} metres '
                 f'of what burns ({part.get("part", part["at"])})')
+    for part in keywords.get('embers') or []:  # here and not in `shape`: `view`, which its place is read from, draws a model whose bed is stated wrong
+        away = light_gap(vertices, made['faces'], part['at'])
+        require(away <= LIGHT_NEAR + float(part['radius']), f'A bed of embers of {name} lies {away:.2f} metres from the model, in the air: state it on the finished model '
+                f'({part.get("part", part["at"])})')
     (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire'], made.get('glass'), fire, made.get('embers')),
                                         encoding='cp1252', newline='\n')
     blocks = standing(vertices, made['faces']) if walk_under else None
