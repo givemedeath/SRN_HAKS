@@ -88,13 +88,16 @@ def entries(slots, number, tier):
     return registry.validate({'schemaVersion': 1, 'kind': registry.KIND, 'parts': parts})
 
 
-def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), colours=None, under=None, cells=()):
+def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), colours=None, under=None, cells=(), body_pack=None):
     """(fixture spec, layout) for the outfit a bake wrote to `bake_output`, its resources gathered in
     `<output>/resources`, a fresh folder. `stock` is the folder of the stock parts tables, `haks` the built packs the
     fixture loads (highest priority first) and `tlk` its talk table. `layout` holds a label per shot and the
     shots per actor, for the sheet. `under` is {slot: number} of parts every actor also wears, from the packs in
     `haks` with their table rows: the published outfit an accessory is looked at on. `cells` are logo cells
-    (`logo.CELLS`) the actors are set to in turn, for a part with a badge; without them every badge is blank."""
+    (`logo.CELLS`) the actors are set to in turn, for a part with a badge; without them every badge is blank. Every actor wears a published head of its own
+    kind of body (`bodies.HEADS`); with `body_pack`, the folder of the bodies' models, the camera stands further
+    off and higher by the body's height against the Human's of its gender, as `wear` does it."""
+    from . import bodies
     under = dict(under or {})
     require(preset in PRESETS, f'A camera preset is one of {sorted(PRESETS)}')
     bake_output, output = Path(bake_output), Path(output)
@@ -122,15 +125,16 @@ def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), 
     worn = {slot: record['number'] for slot in slots}
     wardrobes = [('', worn)] + ([(', without ' + ' and '.join(without), {slot: n for slot, n in worn.items() if slot not in without})] if without else [])
     camera = PRESETS[preset]
+    stature = 1.0 if body_pack is None else bodies.statures([record['body']], body_pack)[record['body']]
     actors, shots, labels = [], [], []
     for pose, animation in CAST:
         for suffix, parts in wardrobes:
             index = len(actors)
-            actors.append({'label': pose + suffix, 'body': record['body'], 'head': HEAD, 'position': (20.0 + 4.0 * index, 42.0), 'parts': {**under, **parts},
+            actors.append({'label': pose + suffix, 'body': record['body'], 'head': bodies.HEADS.get(record['body'][:3], HEAD), 'position': (20.0 + 4.0 * index, 42.0), 'parts': {**under, **parts},
                            'colours': worn_colours(colours), 'script': 'ak_pose', 'vars': {'ANIM': animation, **({'CELL': int(cells[index % len(cells)])} if cells else {})}})
             for facing, distance, view, height in camera['views']:
-                shots.append({'actor': index, 'facing': facing, 'distance': distance, 'pitch': PITCH,
-                              'height': camera['heights'][pose] if height is None else height})
+                shots.append({'actor': index, 'facing': facing, 'distance': round(distance * max(1.0, stature), 3), 'pitch': PITCH,
+                              'height': round((camera['heights'][pose] if height is None else height) * stature, 3)})
                 labels.append(f'{pose}{suffix}, {view}')
     document = {'name': NAME, 'resources': str(resources), 'haks': [str(hak) for hak in haks], 'actors': actors, 'shots': shots,
                 'scripts': {'ak_pose': POSE_SCRIPT}}

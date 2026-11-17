@@ -34,7 +34,7 @@ INSIDE = 0.002  # metres a point of a fitted belt may still stand inside what is
 WORN_UNDER = ('pelvis', 'chest', 'legl', 'legr')  # the parts a belt lies on: the arms hang beside it and are not
 DROP = 0.03  # metres below the waist joint a belt's band is centred by default: the trousers' waistband
 SURFACE = 0.004  # metres: what is worn under a belt is sampled this densely
-SPAN = {'belt': 0.42}  # metres across, about, as a Human wears the piece: what its texture is sized for
+SPAN = {'belt': 0.42, 'neck': 0.26}  # metres across, about, as a Human wears the piece: what its texture is sized for
 BAND = 0.05  # metres tall a duty belt's band is worn: a belt drawn daintier is made taller and deeper to it, not longer round
 TALLER = 1.8  # by this much at most
 DEEPER = 1.2  # and deeper by this much at most: on a narrow body the pouches would else stand off the hips like a hoop
@@ -169,11 +169,12 @@ def prepare(document, mesh, colours, raw, xatlas, say=lambda *_: None):
     and `raw` the generator's own high-detail mesh. `piece` holds the laid-out mesh (`v`, `f`, `uv`, `n`), its
     colours and relief per texel (`rgb`, `covered`, `relief`) and where each vertex lies on the generated mesh
     (`src`); `whole` is what `bake.surface` finds of holes and loose pieces on the mesh as generated."""
-    require(document.get('accessory') == 'belt', 'Only a belt is prepared this way so far')
+    require(document.get('accessory') in SPAN, f'An accessory prepared this way is worn on one of {sorted(SPAN)}')
     source, faces = repose.load(mesh)
     require(len(faces) <= BUDGET['triangles'], f'The mesh has {len(faces)} triangles: export it at {BUDGET["triangles"]} or fewer')
     whole = baking.surface(source, faces)
-    levelled, turn = level(source, faces)
+    # a belt is stood level; headgear is drawn straight from the front and stays as generated (`headgear.conform` places it)
+    levelled = level(source, faces)[0] if document['accessory'] == 'belt' else source - (source.min(axis=0) + source.max(axis=0)) / 2
     field, levels = texture.open_field(colours)
     read = lambda points: texture.read_field(field, levels, points)
     raw_v, raw_f = gltf.positions(raw)

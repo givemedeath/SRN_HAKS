@@ -173,6 +173,15 @@ def command_brassard(args):
         raise SystemExit(1)
 
 
+def command_headgear(args):
+    from . import brief, headgear
+    record = headgear.fit(brief.load(args.brief), args.folder, args.output, args.body_pack, args.body_textures, args.number, body=args.body,
+                          packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
+    print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'fit', 'gates', 'compiled') if key in record}))
+    if not record['gates']['passed']:
+        raise SystemExit(1)
+
+
 def command_split(args):
     from . import bake
     parts, report = bake.resplit(args.capture, body_pack=args.body_pack)
@@ -218,7 +227,7 @@ def command_poses(args):
         under = {slot: int(number) for slot in filled if slot not in mine}
     spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
                               colours=json.loads(args.colours) if args.colours else None, under=under,
-                              cells=[int(cell) for cell in listed(args.cells)] if args.cells else ())
+                              cells=[int(cell) for cell in listed(args.cells)] if args.cells else (), body_pack=args.body_pack)
     if args.hold:
         spec['hold'] = args.hold  # seconds the game stays on each shot: longer where the machine is busy and the capture falls behind
     record = poses.build(spec, labels, args.output, args.nwn_root)
@@ -350,6 +359,13 @@ def main(argv=None):
     p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root'); p.add_argument('--resources', action='append', default=[])
     p.set_defaults(handler=command_brassard)
 
+    p = commands.add_parser('headgear', help="fit a prepared piece of headgear to a body's head envelope, in a neck part that keeps the neck")
+    p.add_argument('brief'); p.add_argument('folder', help='the folder `accessory prepare` kept the piece in'); p.add_argument('output')
+    p.add_argument('--number', type=int, required=True); p.add_argument('--body-pack', required=True); p.add_argument('--body-textures', required=True)
+    p.add_argument('--body', default='pmh0'); p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root')
+    p.add_argument('--resources', action='append', default=[])
+    p.set_defaults(handler=command_headgear)
+
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
     p.add_argument('capture', help='the file `bake --capture` wrote')
     p.add_argument('--output', help='.npz file to write the parts to, for `render`')
@@ -388,6 +404,7 @@ def main(argv=None):
     p.add_argument('--tlk', help='talk table the fixture loads')
     p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'head'), help='where the camera looks')
     p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
+    p.add_argument('--body-pack', help="folder of the bodies' models: the camera is then set for the body's height")
     p.add_argument('--cells', help='comma-separated logo cells the actors are set to in turn, for a part with a badge')
     p.add_argument('--under', help='REGISTRY=NUMBER: every actor also wears that published outfit, from the packs in --hak (an accessory is looked at on it)')
     p.add_argument('--colours', help='JSON of colour channels to wear in another colour than the six contrasting ones, e.g. {"cloth1": 22}; no two channels the same')
