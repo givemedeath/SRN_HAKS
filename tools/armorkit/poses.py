@@ -48,7 +48,8 @@ HEAD = 86
 # check (user decision 2026-11-15); until then a kind's two channels wore one colour and could not be told apart.
 COLOURS = {'cloth1': 27, 'cloth2': 37, 'leather1': 33, 'leather2': 41, 'metal1': 40, 'metal2': 16}
 CHANNELS = ('cloth1', 'cloth2', 'leather1', 'leather2', 'metal1', 'metal2')
-POSE_SCRIPT = ('void main() { ClearAllActions(); int a=GetLocalInt(OBJECT_SELF,"ANIM"); '
+POSE_SCRIPT = ('void main() { ClearAllActions(); int a=GetLocalInt(OBJECT_SELF,"ANIM"); int c=GetLocalInt(OBJECT_SELF,"CELL"); '
+               'if(c>0) SetMaterialShaderUniformVec4(OBJECT_SELF,"srn_logo","LogoCell",IntToFloat(c)); '
                'if(a>0) ActionPlayAnimation(a,1.0,3600.0); }\n')
 TILE = 480  # pixels a side of each capture in the sheet
 
@@ -87,12 +88,13 @@ def entries(slots, number, tier):
     return registry.validate({'schemaVersion': 1, 'kind': registry.KIND, 'parts': parts})
 
 
-def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), colours=None, under=None):
+def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), colours=None, under=None, cells=()):
     """(fixture spec, layout) for the outfit a bake wrote to `bake_output`, its resources gathered in
     `<output>/resources`, a fresh folder. `stock` is the folder of the stock parts tables, `haks` the built packs the
     fixture loads (highest priority first) and `tlk` its talk table. `layout` holds a label per shot and the
     shots per actor, for the sheet. `under` is {slot: number} of parts every actor also wears, from the packs in
-    `haks` with their table rows: the published outfit an accessory is looked at on."""
+    `haks` with their table rows: the published outfit an accessory is looked at on. `cells` are logo cells
+    (`logo.CELLS`) the actors are set to in turn, for a part with a badge; without them every badge is blank."""
     under = dict(under or {})
     require(preset in PRESETS, f'A camera preset is one of {sorted(PRESETS)}')
     bake_output, output = Path(bake_output), Path(output)
@@ -125,7 +127,7 @@ def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), 
         for suffix, parts in wardrobes:
             index = len(actors)
             actors.append({'label': pose + suffix, 'body': record['body'], 'head': HEAD, 'position': (20.0 + 4.0 * index, 42.0), 'parts': {**under, **parts},
-                           'colours': worn_colours(colours), 'script': 'ak_pose', 'vars': {'ANIM': animation}})
+                           'colours': worn_colours(colours), 'script': 'ak_pose', 'vars': {'ANIM': animation, **({'CELL': int(cells[index % len(cells)])} if cells else {})}})
             for facing, distance, view, height in camera['views']:
                 shots.append({'actor': index, 'facing': facing, 'distance': distance, 'pitch': PITCH,
                               'height': camera['heights'][pose] if height is None else height})

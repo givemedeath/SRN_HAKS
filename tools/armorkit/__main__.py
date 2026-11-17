@@ -160,6 +160,19 @@ def command_accessory(args):
         raise SystemExit(1)
 
 
+def command_brassard(args):
+    from . import brassard
+    outfit = None
+    if args.over:
+        pack, _, number = args.over.rpartition('=')
+        registry.require(pack and number.isdigit(), '--over is PACK=NUMBER')
+        outfit = (pack, int(number))
+    record = brassard.run(args.output, args.body_pack, args.number, body=args.body, outfit=outfit, packs=args.pack, game=args.nwn_root, resources=args.resources)
+    print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'gates', 'compiled') if key in record}))
+    if not record['gates']['passed']:
+        raise SystemExit(1)
+
+
 def command_split(args):
     from . import bake
     parts, report = bake.resplit(args.capture, body_pack=args.body_pack)
@@ -204,7 +217,8 @@ def command_poses(args):
         mine = {poses.slot_of(token) for token in json.loads((Path(args.bake) / 'bake.json').read_text(encoding='utf-8'))['models']}
         under = {slot: int(number) for slot in filled if slot not in mine}
     spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
-                              colours=json.loads(args.colours) if args.colours else None, under=under)
+                              colours=json.loads(args.colours) if args.colours else None, under=under,
+                              cells=[int(cell) for cell in listed(args.cells)] if args.cells else ())
     if args.hold:
         spec['hold'] = args.hold  # seconds the game stays on each shot: longer where the machine is busy and the capture falls behind
     record = poses.build(spec, labels, args.output, args.nwn_root)
@@ -330,6 +344,12 @@ def main(argv=None):
     p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root'); p.add_argument('--resources', action='append', default=[])
     p.set_defaults(handler=command_accessory)
 
+    p = commands.add_parser('brassard', help="build the brassard, a band on the upper arm with the logo badge, for one body's shoulder slot")
+    p.add_argument('output'); p.add_argument('--number', type=int, required=True); p.add_argument('--body-pack', required=True)
+    p.add_argument('--body', default='pmh0'); p.add_argument('--over', help='PACK=NUMBER: the outfit whose sleeve the band goes round')
+    p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root'); p.add_argument('--resources', action='append', default=[])
+    p.set_defaults(handler=command_brassard)
+
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
     p.add_argument('capture', help='the file `bake --capture` wrote')
     p.add_argument('--output', help='.npz file to write the parts to, for `render`')
@@ -368,6 +388,7 @@ def main(argv=None):
     p.add_argument('--tlk', help='talk table the fixture loads')
     p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'head'), help='where the camera looks')
     p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
+    p.add_argument('--cells', help='comma-separated logo cells the actors are set to in turn, for a part with a badge')
     p.add_argument('--under', help='REGISTRY=NUMBER: every actor also wears that published outfit, from the packs in --hak (an accessory is looked at on it)')
     p.add_argument('--colours', help='JSON of colour channels to wear in another colour than the six contrasting ones, e.g. {"cloth1": 22}; no two channels the same')
     p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
