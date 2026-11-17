@@ -88,8 +88,12 @@ class MeshyTests(unittest.TestCase):
                 cli.ledger_path(argparse.Namespace(ledger=''))  # an unset variable, not the shared cap
             self.assertEqual(shared.call_count, 1)
         with mock.patch('tools.shared_tools.tools_root', side_effect=ValueError('Git metadata unavailable; supply an explicit tools root')):
-            with self.assertRaisesRegex(ValueError, 'SRN_TOOLS_ROOT, or name the ledger with --ledger'):
+            with self.assertRaisesRegex(ValueError, 'SRN_TOOLS_ROOT at one, or name the ledger with --ledger'):
                 meshy.shared_ledger()
+        asked = argparse.Namespace(action='status', ledger=None)  # `meshy status` with no ledger named says which one it read
+        with mock.patch.object(meshy, 'shared_ledger', return_value=self.ledger.path), mock.patch('builtins.print') as said:
+            cli.command_meshy(asked)
+        self.assertEqual(json.loads(said.call_args_list[-1].args[0])['ledger'], str(self.ledger.path))
 
     def test_arguments_bound_the_triangles_of_everything_that_can_be_downloaded(self):
         prop = meshy.prop_arguments(self.image, 6000)
@@ -209,6 +213,7 @@ class MeshyTests(unittest.TestCase):
         run = FakeMeshy()  # one ledger serves every worktree, and the record lies in the one that waited
         meshy.submit(self.ledger, 'p', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=run)
         meshy.wait(self.ledger, 'p', self.root / 'work', run=run)
+        self.assertTrue(Path(self.ledger.entry('p')['task']).is_absolute())  # every worktree reads this ledger
         Path(self.ledger.entry('p')['task']).unlink()
         with self.assertRaisesRegex(ValueError, 'task record of p is not here.*worktree that waited'):
             meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=run)

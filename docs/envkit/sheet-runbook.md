@@ -78,10 +78,11 @@ once, and every change writes the day's copy to `envkit/meshy-ledger-copies/<dat
 is in no repository and no archive, so read a lost ledger back from the latest copy: copy that file to
 `envkit/meshy-ledger.json`. Where copies lie beside a missing ledger, every command says so and `meshy init`
 refuses to start an empty one in its place, which would forget every credit counted. `--ledger <file>` names
-another ledger (a trial's own; an empty name is refused); do not keep the shared one in a worktree's output again. The paths an entry
-records (`task`, `downloaded`, the triangle counts) are where the files lay in the worktree that made the call:
-a call is waited for and downloaded in one worktree, and a download elsewhere says where the task record lies.
-`status` and every `sheet` command print the `ledger` they worked under.
+another ledger (a trial's own; an empty name is refused); do not keep the shared one in a worktree's output
+again. The paths an entry records (`task`, `downloaded`, the triangle counts) are where the files lay in the
+worktree that made the call, in full since 2026-11-17; older entries hold them as they were given, mostly from
+their worktree's root. A call is waited for and downloaded in one worktree, and a download elsewhere says where
+the task record lies. `status` and every `sheet` command print the `ledger` they worked under.
 
 ```
 envkit sheet status  --plan tools/envkit/sets/<sheet>-meshy.json --root <root>

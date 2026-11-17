@@ -47,7 +47,7 @@ def shared_ledger(repo=None, root=None):
     try:
         found = shared_tools.tools_root(repo or Path(__file__).resolve().parents[2], root)[0]
     except ValueError as error:  # its own advice is for callers that take a tools root, which envkit's commands do not
-        raise ValueError(f'The shared ledger cannot be found ({error}): set SRN_TOOLS_ROOT, or name the ledger with --ledger') from error
+        raise ValueError(f'No shared tool root for the ledger ({error}): point SRN_TOOLS_ROOT at one, or name the ledger with --ledger') from error
     return found / 'envkit' / 'meshy-ledger.json'
 
 
@@ -273,7 +273,7 @@ def submit(ledger, key, asset, operation, arguments, folder, *, run=run_cli):
 def wait(ledger, key, folder, *, timeout=1800, run=run_cli):
     row = ledger.entry(key)
     require(row['taskId'] and row['state'] in ('submitted', 'pending', 'in_progress'), 'Nothing to wait for: ' + key)
-    saved = Path(folder) / key / 'task.json'
+    saved = (Path(folder) / key / 'task.json').absolute()  # recorded in a ledger every worktree reads: a path from this folder would say nothing there
     if saved.exists():
         saved.unlink()  # the CLI never overwrites, and an earlier wait may have timed out with the task unfinished
     code, response = run([RESOURCE[row['operation']], 'wait', row['taskId'], '--timeout', str(timeout), '--include-raw',
@@ -323,9 +323,10 @@ def download(ledger, key, folder, bank, *, master=False, run=run_cli):
                 + ' first, or fetch it as a master')
     require(row['state'] == 'succeeded' and row.get('task'), 'Successful task required: ' + key)
     # One ledger serves every worktree, and the record of a task lies where its wait ran.
-    require(Path(row['task']).is_file(), f'The task record of {key} is not here: {row["task"]} (download it from the worktree that waited for it, '
-            'or restore that folder)')
-    bank = Path(bank)
+    record = Path(row['task'])  # an older entry holds it as it was given, from the folder its wait ran in
+    require(record.is_file(), f'The task record of {key} is not here: {record}' + ('' if record.is_absolute() else ', a path from the folder its wait ran in')
+            + ' (download it from the worktree that waited for it, or restore that folder)')
+    bank = Path(bank).absolute()
     require(not bank.exists(), 'Fresh download folder required: ' + str(bank))
     code, _ = run(['download', '--task-json', row['task'], '--all', '--output-dir', str(bank.resolve())], Path(folder) / key / 'download')
     models = sorted(bank.rglob('*.glb')) if bank.exists() else []
