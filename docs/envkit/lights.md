@@ -97,7 +97,8 @@ RecomputeStaticLighting(GetArea(oThing));
 - The object must not be static, as above.
 
 Checked in the client on 2026-11-16 by night, from the converted files: the barrel burning and the ground lit
-orange, both gone with the calls above and the embers still glowing, and back again.
+orange, both gone with the calls above and the embers still glowing, and back again; then from the pack's files
+with `envkit check lights`, which stands a model with a fire among the lit props.
 
 ## Everything a player sees: `SetTextureOverride`
 

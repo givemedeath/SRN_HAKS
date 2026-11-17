@@ -914,7 +914,8 @@ On 2026-11-16 every envkit placeable in the pack was measured for the same fault
 block on its footprint shuts; 101 models). The transfer shed `ek_rf_shed`, a roof on four posts, was the only other:
 its collision file was written again with a block under each post (`walkUnder`). The model was converted again from
 its archived source and came out byte for byte as the pack holds it, as did its maps. Signs and banners hung over
-head height had no block already. Not walked in the game client.
+head height had no block already. In the game client the same day a walker sent to the middle under the roof stood
+there, and one sent through from side to side went straight.
 
 ## Iron Sight Arms tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-14)
 
@@ -1296,7 +1297,8 @@ them), shown as bright by night as by day. No third-party picture was used. The 
 animations of the stock flame, by which a script puts its fire out and lights it again (`docs/envkit/lights.md`); its
 embers glow on when the fire is out. So neither barrel has a glow map or a lights-out material any more, and neither has `lights` in the catalog. Rows, blueprints and collision are unchanged. Checked in the game client the
 same day by night, from the converted files: both beds seen from the side and from above, the fire and its light put
-out by script with the embers left glowing, and lit again.
+out by script with the embers left glowing, and lit again. The same was then seen by day, and by night from the pack's
+own files beside the repair bench and the mural wall (`envkit check lights`): all three put out and on again.
 
 ## MDRNEE placeable import (2026-09-11)
 
