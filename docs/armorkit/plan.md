@@ -848,3 +848,42 @@ the hak did not. The user chose plain git, no LFS, and to make those copies at b
 * **Unchanged.** The handoff records every name and hash, and `publish` and `tools/Test-Repository.ps1` hold a
   copy to it through the file kept. Maps were shared by name already (`shared_maps`). The hak is not smaller:
   an outfit is still about 423 MB there, so `srn_parts` is split into several haks before about ten outfits.
+
+## Revision 2026-11-17: the first three accessories (belt, shoulder brassard, respirator)
+
+Made for corporate security and looked at in the client on the Human pair, worn with Facility Security 6020.
+Nothing here is published; the other 18 bodies, the registry entries and the packs are separate steps.
+
+* **Budget (user decision).** An accessory has up to 4,000 triangles and a texture of up to 1,024 texels
+  (`accessory.BUDGET`), twice the 2,000 of the part rules. A whole worn outfit's 40,000 is unchanged.
+* **Numbers (user decision).** The duty belt takes its outfit's number, 6020, on the belt slot. The brassard is
+  shoulder 1000 and the respirator neck 1000, the first of the standalone numbers.
+* **A brief for an accessory.** `accessory` names the slot (`belt`, `shoulder`, `neck`) in place of a
+  construction; a material may name its colour `channel` (1 or 2 of its kind), and no two materials of one kind
+  share one. An object with depth to the side (a holster) is drawn in three-quarter view: a straight front view
+  generated the holster as a flat slab.
+* **One piece, every body.** A generated piece is prepared once (`accessory prepare`: stood level or centred,
+  laid out, colours and relief read) and fitted per body. A belt is wrapped over the worn outfit's waist,
+  direction by direction (`accessory fit`); headgear is brought to its race's head envelope (`headgear`). A race
+  version cannot scale either (spikes.md, section 13).
+* **The brassard is drawn, not generated.** `brassard` makes a band round the upper arm over the outfit's
+  sleeve, with a curved badge, on both shoulders. It needs no reference image and no generation.
+* **Logo resources.** `logo.write` makes the shared material `srn_logo`, the vertex shader `srn_vslogo` and the
+  strip `srn_logos` of eight cells, 128 texels each. Cells (user: the major corporations' logos are in the
+  concept sheets; cut from the corporate security sheet): 0 blank, 1 Ares, 2 Renraku, 3 Saeder-Krupp, 4 Wuxing,
+  5 Mitsuhama, 6 and 7 blank. SR_NWN sets a wearer's logo with
+  `SetMaterialShaderUniformVec4(creature, "srn_logo", "LogoCell", cell)`; an unset wearer shows cell 0.
+  A badge is gated to read the right way round (`logo.reads_right`) and was looked at with all five logos, none
+  of them symmetric, on both shoulders. These resources are not yet in a pack, and the handoff does not yet
+  carry the material, parameter or cells.
+* **The respirator (user decision: full face, opaque visor).** A skinned mesh bound whole to the head bone, in
+  a neck part that keeps the body's neck; one tint texture named like the model holds both. Gated to stand no
+  more than 2 mm inside the head envelope and to cover the face. It came out of generation as a whole-head
+  hood, and since it clears every published head of a race it is as roomy as that race's envelope: a Troll's
+  includes the horns.
+* **Client check.** `poses` gained `--under REGISTRY=NUMBER` (the actors also wear a published outfit),
+  `--cells` (logo cells in turn), the presets `waist` and `head`, and `--body-pack` (camera set for the body's
+  height). A client check and a generation on the shared ComfyUI are not run at the same time: the shots stall.
+
+Not checked: motion beyond the six poses, a logo value across a save or in multiplayer, Dwarf and Elf heads,
+Large bodies, publication gates, item icons.
