@@ -153,6 +153,14 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
     process = start(nwn_root, user, Path(record['module']).stem)
     shots, missed, seen = [], [], 0
 
+    def latest(lines):
+        """The number of the shot on screen. Where the fixture goes on after its own shots (`until` is not their
+        end), their `done` line ends the last of them as a next shot would: what follows changes the window
+        before it announces itself, and a slow capture of the last shot would be filed showing it (review of
+        PR 162, 2026-11-16)."""
+        top = max(shot_numbers(lines))
+        return top + 1 if until != 'done' and top == count - 1 and f'{LOG_PREFIX} done' in lines else top
+
     def lost(number, reason):
         require(tolerate, reason)
         missed.append(number)
@@ -171,7 +179,7 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
                         lost(number, f'Shot {number} was over before it was seen')
                         continue
                     time.sleep(settle)
-                    newest = max(shot_numbers(log_lines(user)))
+                    newest = latest(log_lines(user))
                     if newest != number:
                         lost(number, f'Shot {number} was not captured before shot {newest} began; '
                              'the client or the driver stalled, so the picture would show the wrong shot')
@@ -183,7 +191,7 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
                             raise
                         lost(number, f'Shot {number} could not be captured: {error}')
                         continue
-                    newest = max(shot_numbers(log_lines(user)))
+                    newest = latest(log_lines(user))
                     if newest != number:  # the grab outlasted the shot: what it read may be the next one
                         path.unlink(missing_ok=True)
                         lost(number, f'The capture of shot {number} ended after shot {newest} began, so the picture may show the wrong shot')

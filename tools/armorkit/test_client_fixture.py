@@ -237,6 +237,12 @@ class ClientTests(unittest.TestCase):
         self.assertEqual([Path(path).name for path in got['captures']], ['shot-02.png'])
         late = FakeClient(self, [[zero, one, two], [zero, one, two], [zero, one, two], [zero, one, two, 'ARMORKIT done']])  # two shots over before they are seen: no settle spent on them
         self.assertEqual((client.run('game', {**RECORD, 'shots': 3}, 'captures', tolerate=True)['missed'], late.captured), ([0, 1], ['shot-02.png']))
+        # A fixture that goes on after its shots: the last of them is over at `done`, though no shot line follows it yet.
+        after = [zero, one, 'ARMORKIT done']
+        more = FakeClient(self, [[zero], [zero], [zero], [zero, one], [zero, one], after, after + [two], after + [two], after + [two], after + [two, 'ARMORKIT icons-done']])
+        got = client.run('game', RECORD, 'captures', tolerate=True, until='icons-done')
+        self.assertEqual((got['missed'], more.captured), ([1], ['shot-00.png', 'shot-01.png', 'shot-02.png']))  # shot 1 was grabbed, and thrown away
+        self.assertEqual([Path(path).name for path in got['captures']], ['shot-00.png', 'shot-02.png'])
         strict = FakeClient(self, [[zero], [zero], [zero]])
         strict.refused = {'shot-00.png'}
         with self.assertRaisesRegex(OSError, 'screen grab failed'):  # without it a refused grab still stops the run
