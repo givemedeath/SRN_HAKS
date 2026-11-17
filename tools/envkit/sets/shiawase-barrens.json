@@ -6,7 +6,7 @@
   },
   "assets": {
     "building-hero": {"kind": "building", "subject": "weathered two-storey concrete power station with an overhanging meshed control room, a roller door, one steel door and a transformer bank beside it, on a fenced concrete yard with an open gateway", "box": [30, 84, 815, 562], "notes": "The fenced slab is the whole site: keep the fence, the gate posts, the transformers and the open yard."},
-    "building-front": {"kind": "building", "subject": "front elevation of a weathered two-storey concrete power station behind a chain-link fence with an open gateway", "box": [828, 109, 1326, 334]},
+    "building-front": {"kind": "building", "subject": "front elevation of a rust-streaked, stained two-storey concrete power station behind a chain-link fence with an open gateway, its wall lettered SHIAWASE and POWER STATION 7, its roller door S-1, and the words UTILITY TUNNEL ACCESS - T7 stencilled beside its steel door", "box": [828, 109, 1326, 334]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a weathered two-storey concrete power station behind a chain-link fence", "box": [828, 361, 1326, 572]},
     "transformer": {"kind": "prop", "type": "transformer", "variant": "Single weathered transformer with four ribbed insulators, cooling fins and rust.", "unbranded": true, "subject": "weathered power transformer with four ribbed insulators and cooling fins on a concrete plinth", "box": [15, 650, 245, 815]},
     "switchgear-cabinet": {"kind": "prop", "type": "power-cabinet", "variant": "Four-bay switchgear cabinet, rusted and graffiti-tagged, with indicator lights.", "unbranded": true, "subject": "rusted four-bay switchgear cabinet with indicator lights and a graffiti tag", "box": [262, 655, 455, 818]},
