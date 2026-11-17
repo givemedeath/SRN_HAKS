@@ -157,8 +157,8 @@ def command_accessory(args):
         print(json.dumps({'kept': args.folder, 'triangles': int(len(piece['f'])), 'texels': int(len(piece['rgb'])), 'surface': whole}))
         return
     registry.require(args.output and args.number and args.body_pack, 'fit takes --output, --number and --body-pack')
-    record = accessory.fit(document, args.folder, args.output, args.body_pack, args.number, body=args.body, outfit=over_outfit(args.over), drop=args.drop,
-                           turn=args.turn, packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
+    record = accessory.fit(document, args.folder, args.output, args.body_pack, args.number, body=args.body, outfit=over_outfit(args.over),
+                           drop=accessory.DROP if args.drop is None else args.drop, turn=args.turn, tier=args.tier, packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
     print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'fit', 'gates', 'compiled') if key in record}))
     if not record['gates']['passed']:
         raise SystemExit(1)
@@ -347,7 +347,8 @@ def main(argv=None):
     p.add_argument('--output', help='fit: the folder the models are written to'); p.add_argument('--number', type=int)
     p.add_argument('--body-pack'); p.add_argument('--body', default='pmh0')
     p.add_argument('--over', help='fit: PACK=NUMBER, the outfit the piece is fitted over, as compiled models in a pack folder')
-    p.add_argument('--drop', type=float, default=0.03, help="fit: metres below the waist joint a belt's band is centred")
+    p.add_argument('--drop', type=float, help="fit: metres below the waist joint a belt's band is centred (default: accessory.DROP, 3 cm)")
+    p.add_argument('--tier', type=int, default=2, choices=registry.TIERS, help="fit: the tier of the set the piece belongs to, as its registry part gives it")
     p.add_argument('--turn', type=float, default=0.0, help="fit: degrees the piece is turned about the body's axis first")
     p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root'); p.add_argument('--resources', action='append', default=[])
     p.set_defaults(handler=command_accessory)

@@ -125,7 +125,8 @@ def validate(document):
     require(document['prompt'].count(BUILT) == (0 if version is None else 1),
             f'The prompt holds {BUILT} once where the brief names a construction version, and not without one')
     piece = document.get('accessory')
-    require(piece is None or piece in ACCESSORIES, f'An accessory is worn on one of {list(ACCESSORIES)}')
+    # the key alone makes a brief an accessory's (`seal` asks no construction of one): it names a slot or is not there
+    require('accessory' not in document or piece in ACCESSORIES, f'An accessory is worn on one of {list(ACCESSORIES)}')
     require(piece is None or not ({'construction', 'pads', 'bare', 'skin'} & set(document)),
             'An accessory is worn whole on its slot: its brief has no construction, pads, bare or skin')
     for key, slots in (('bare', BARE), ('skin', SKIN)):

@@ -1890,5 +1890,7 @@ new rights claim.
 `srn_2da` gains live row 6020 in `parts_belt.2da` and live row 1000 in
 `parts_shoulder.2da`, installed-game derivatives as before. Per-file hashes, the
 pinned generation records and the logo's material, parameter and cells are in
-`docs/armorkit/parts-handoff.json`. Raw references, generation outputs, fits and
+`docs/armorkit/parts-handoff.json`. The brassard's pinned records are
+`tools/armorkit/brassard.py` and `logo.py` as they stood at commit `7743369f`, the
+publication; both files have changed since. Raw references, generation outputs, fits and
 trial packs stay in ignored `output/armorkit/` and are not redistributed.

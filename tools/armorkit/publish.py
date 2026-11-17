@@ -894,7 +894,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             if name in logo.FILES and (name in pack or name in incoming):
                 # one set of logo files serves every part with a badge: recorded with the first bake that brings it
                 if once(path) != once(pack[name] if name in pack else incoming[name]):
-                    failures.append(failure('bake', name, f'{label} holds another {name} than the one ' + ('published' if name in pack else 'the other bakes hold')))
+                    failures.append(failure('bake', name, f'{label} holds another {name} than the one '
+                                            + ('published: put the kit\'s strip in place first (`armorkit logos`), then draw the piece again' if name in pack else 'the other bakes hold')))
                 continue
             if name in pack or name in incoming:
                 failures.append(failure('bake', name, f'{PACK} already holds a file of that name' if name in pack else 'two bakes hold a file of that name'))

@@ -76,8 +76,6 @@ object Dress(object oArmor)
 }
 ```
 
-A paired slot may be worn on one side only: leave the other side's field at 0.
-
 Colours are the item's ordinary armor colours (`ITEM_APPR_TYPE_ARMOR_COLOR`), one per channel the part lists.
 The brassard's band is on cloth2 and its trim on leather1, so it takes those two colours from the item it is on,
 along with whatever else on that item uses them.
@@ -148,7 +146,9 @@ decide where else the logo call has to be made:
 3. The toolset's preview and the character sheet and inventory views of a badge.
 4. Other graphics cards and drivers, and other game builds: `srn_vslogo.shd` includes the game's stock
    `inc_standard`, so it is rechecked on a new build (game build 89.8193.37 was used).
-5. The belt and the brassard were looked at over Facility Security 6020 only. Over another outfit or a bare
+5. A brassard on one shoulder only. Both sides were worn in every check; leaving the other side's field at 0
+   should show nothing there, and that was not looked at.
+6. The belt and the brassard were looked at over Facility Security 6020 only. Over another outfit or a bare
    body they may stand off it or sink in.
 
 ## Known limits

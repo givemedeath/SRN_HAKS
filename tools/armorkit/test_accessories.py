@@ -45,6 +45,21 @@ class AccessoryBriefTests(unittest.TestCase):
             brief.validate({**made, 'accessory': 'wing'})
         with self.assertRaises(ValueError):
             brief.validate({**made, 'construction': max(brief.CONSTRUCTIONS)})
+        with self.assertRaises(ValueError):  # the key alone would pass an outfit's brief for an accessory's, sealed without its construction rules
+            brief.validate({**document(), 'accessory': None})
+
+    def test_a_logo_cell_is_one_the_strip_has_and_an_arm_along_the_shoulders_has_no_badge_side(self):
+        from . import poses
+        with tempfile.TemporaryDirectory() as folder:
+            for cells in ((len(logo.CELLS),), (-1,), (1.5,)):
+                with self.assertRaisesRegex(ValueError, 'A logo cell is one of 0 to 15'):
+                    poses.spec(folder, Path(folder) / 'out', folder, [], cells=cells)
+        at = lambda x, y, z: np.array([[1.0, 0, 0, x], [0, 1.0, 0, y], [0, 0, 1.0, z], [0, 0, 0, 1.0]])
+        bones = {'lbicep_g': at(0.2, 0, 1.4), 'rbicep_g': at(-0.2, 0, 1.4), 'lforearm_g': at(0.22, 0, 1.1), 'rforearm_g': at(-0.22, 0, 1.1)}
+        out = brassard.frame(bones, 'l')[2]
+        self.assertGreater(out[0], 0.99)  # arms hanging: the badge faces away from the body
+        with self.assertRaisesRegex(ValueError, 'no outer side to put its badge on'):
+            brassard.frame({**bones, 'lforearm_g': at(0.5, 0, 1.4)}, 'l')  # bound straight out
 
     def test_an_accessorys_materials_name_their_channels_and_share_none(self):
         made = accessory_brief('neck', ('visor', 'metal', BLUE), ('filters', 'metal', GREY))

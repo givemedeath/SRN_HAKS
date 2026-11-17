@@ -309,6 +309,7 @@ def clears(points, faces, row, worn=None):
     upto = chin_level + int(FACE[1] * (float(row['max'][2]) - (bottom + chin_level * LEVELS)) / LEVELS)
     reach = int(FACE[0] / (2 * np.pi) * DIRECTIONS)
     face = np.isfinite(cover[chin_level:upto, ahead - reach:ahead + reach + 1])
+    require(face.size, 'The head envelope has no face to cover: nothing of it stands above the chin')  # else nothing passes as covered
     failures = []
     if short > SHORT:
         failures.append(f'up to {short * 100:.1f} cm inside the head envelope')

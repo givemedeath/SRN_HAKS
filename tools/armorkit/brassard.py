@@ -42,7 +42,10 @@ def frame(bones, side):
     axis = seams.unit(end - start)
     middle = (bones[ARM['l'][0]][:3, 3] + bones[ARM['r'][0]][:3, 3]) / 2
     out = start - middle
-    out = seams.unit(out - (out @ axis) * axis)
+    across = out - (out @ axis) * axis
+    # an arm bound straight out from the shoulders has no side that faces away from the body: the badge's place would be noise
+    require(np.linalg.norm(across) > 0.3 * np.linalg.norm(out), 'The upper arm lies along the line of the shoulders: the brassard has no outer side to put its badge on')
+    out = seams.unit(across)
     return start, axis, out, np.cross(axis, out), float(np.linalg.norm(end - start))
 
 

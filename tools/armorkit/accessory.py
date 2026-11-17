@@ -142,7 +142,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     grid = np.array([(i, j, GRID - i - j) for i in range(GRID + 1) for j in range(GRID + 1 - i)], float) / GRID  # points over each face
     faces = np.asarray(faces, int)
     moved = np.zeros(DIRECTIONS)
-    for _ in range(3):  # a move changes which level a slanting face lies over what: read again until nothing is left inside
+    for again in range(3):  # a move changes which level a slanting face lies over what: read again until nothing is left inside
         over = np.einsum('gk,fkc->fgc', grid, placed[faces]).reshape(-1, 3)  # the hoop's surface, not its corners alone
         hoop_way, hoop_level, hoop_radius = _cells(over)
         least = {}
@@ -154,7 +154,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
             if (direction, band_level) in table:
                 move[direction] = max(move[direction], table[(direction, band_level)] + clearance - value)
         move = _filled(np.where(np.isfinite(move), move, np.nan))
-        move = _evened(move if _ == 0 else np.maximum(move, 0.0))  # after the first, only outward
+        move = _evened(np.maximum(move, 0.0) if again else move)  # after the first, only outward
         shift = (1 - share) * move[first % DIRECTIONS] + share * move[(first + 1) % DIRECTIONS]
         radius = np.hypot(placed[:, 0], placed[:, 1])
         grown = np.maximum(radius + shift, 1e-6) / np.maximum(radius, 1e-6)
@@ -329,15 +329,17 @@ def gates(part, under, model, resources, packs=(), whole=None):
             'inside': {'deepest': round(deepest, 4), 'part': where}, **({} if whole is None else {'surface': whole})}
 
 
-def fit(document, kept, output, body_pack, number, *, body='pmh0', outfit=None, drop=DROP, turn=0.0, packs=(), game=None, resources=(),
+def fit(document, kept, output, body_pack, number, *, body='pmh0', outfit=None, drop=DROP, turn=0.0, tier=2, packs=(), game=None, resources=(),
         say=lambda *_: None):
     """Put a prepared belt on `body` and check it: the record, also written as `<output>/bake.json`.
 
     `kept` is the folder `prepare`'s piece is stored in. `outfit` = (pack folder, number) is the outfit the
     belt is fitted over, read as compiled models; without it the belt lies on the body's skin. `drop` is how far
     below the waist joint the band's middle goes, `turn` degrees the hoop is turned about the body's axis
-    first (a generation whose front is not the camera's). With `game` the model is compiled."""
+    first (a generation whose front is not the camera's). `tier` is the tier of the set the belt belongs to, which
+    its registry part gives its waist and a publication holds the record to. With `game` the model is compiled."""
     require(document.get('accessory') == 'belt', 'Only a belt is fitted this way so far')
+    require(tier in registry.TIERS, f'A tier is one of {list(registry.TIERS)}')
     piece, whole = stored(kept)
     bones, skin = measure.body(body_pack, body)
     under = worn_under(body_pack, body, bones, skin, outfit)
@@ -355,7 +357,7 @@ def fit(document, kept, output, body_pack, number, *, body='pmh0', outfit=None, 
     model = export.write_part(ascii_dir, body, 'belt', number, (part['v'], part['f'], part['uv'], part['n']), bones, tinted)
     texture.write_relief(written, model, part['relief'])
     shutil.copyfile(ascii_dir / (model + '.plt'), written / (model + '.plt'))
-    record = {'model': document['model'], 'body': body, 'tier': 2, 'number': number, 'models': {'belt': model}, **colours, 'fit': record,
+    record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': {'belt': model}, **colours, 'fit': record,
               'over': None if outfit is None else {'pack': Path(outfit[0]).name, 'number': outfit[1]},
               'gates': gates(part, under, model, written, packs, whole)}
     if game is not None:

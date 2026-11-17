@@ -101,6 +101,9 @@ def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), 
     off and higher by the body's height against the Human's of its gender, as `wear` does it."""
     from . import bodies
     under = dict(under or {})
+    if cells:
+        from . import logo
+        require(all(type(cell) is int and 0 <= cell < len(logo.CELLS) for cell in cells), f'A logo cell is one of 0 to {len(logo.CELLS) - 1}: the strip has no other')
     require(preset in PRESETS, f'A camera preset is one of {sorted(PRESETS)}')
     bake_output, output = Path(bake_output), Path(output)
     record = json.loads((bake_output / 'bake.json').read_text(encoding='utf-8'))
