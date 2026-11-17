@@ -40,6 +40,7 @@ TALLER = 1.8  # by this much at most
 DEEPER = 1.2  # and deeper by this much at most: on a narrow body the pouches would else stand off the hips like a hoop
 GRID = 4  # a face of the hoop is read at the points of a grid this many steps along each edge
 EVEN = 2.0  # directions: the fit is evened over this many each way, so that a pouch is not bent to a fold of cloth
+CALM = {'neck': (8.0, 20.0)}  # degrees: on a hard shell, relief tilted less than the first is laid flat, and from the second on kept whole
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'src')  # what `store` keeps of a prepared piece
 
 
@@ -162,6 +163,22 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     return placed, {'scale': round(scale, 4), 'taller': round(taller, 3), 'moved': [round(float(move.min()), 4), round(float(move.max()), 4)]}
 
 
+def calm(relief, least, whole):
+    """A relief map with its slight tilts laid flat: under `least` degrees gone, from `whole` degrees on as read.
+
+    The generator's surface is terraced, and on a broad smooth shell the terraces came through the relief as
+    rings of contour lines, in the shading and in the tint's shade (respirator, 2026-11-17). A filter's rim or
+    a visor's edge tilts far more and is kept."""
+    normal = np.asarray(relief, float) * 2 - 1
+    tilt = np.hypot(normal[..., 0], normal[..., 1])
+    low, high = np.sin(np.radians(least)), np.sin(np.radians(whole))
+    share = np.clip((tilt - low) / (high - low), 0.0, 1.0)
+    share = share * share * (3 - 2 * share)
+    flat = normal[..., :2] * share[..., None]
+    up = np.sqrt(np.maximum(1 - (flat ** 2).sum(axis=-1), 0.0))
+    return (np.concatenate([flat, up[..., None]], axis=-1) + 1) / 2
+
+
 def prepare(document, mesh, colours, raw, xatlas, say=lambda *_: None):
     """(piece, whole): a generated accessory in its own frame, level, laid out, with its colours and relief.
 
@@ -187,6 +204,8 @@ def prepare(document, mesh, colours, raw, xatlas, say=lambda *_: None):
     src_normals = export.vertex_normals(src, faces)
     rgb, covered, missed = texture.colour_map(uv, faces, src, read, size)
     relief, _, lost = texture.normal_map(uv, faces, src, src_normals, v, read_fine, size, added=np.zeros(len(faces), bool))
+    if document['accessory'] in CALM:
+        relief = calm(relief, *CALM[document['accessory']])
     say(f'{size} px, {len(faces)} faces, covered {covered.mean():.0%}, no colour {missed}, no normal {lost}')
     return {'v': v, 'f': faces, 'uv': uv, 'n': export.vertex_normals(v, faces), 'rgb': rgb, 'covered': covered, 'relief': relief, 'src': src}, whole
 
