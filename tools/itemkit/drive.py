@@ -83,6 +83,13 @@ def write_new(path, data):
     path.write_text(json.dumps(data, indent=2), encoding='utf-8'); return path
 
 
+def workflow_key(request):
+    """What decides a generation job's output: its workflow with the per-job token and output namespace taken out."""
+    text = json.dumps(request['prompt'], sort_keys=True)
+    for value in (request['token'], str(request['outputNamespace'])): text = text.replace(value, '')
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
 class Driver:
     def __init__(self, workspace):
         self.ws = workspace
@@ -191,6 +198,13 @@ class Driver:
         flags = {'appearance': ['--appearance-donor'], 'export': ['--working-shell']}.get(stage, [])
         common = ['--manifest', manifest, '--stage', stage]
         self.launch(design, run, 'request', common, ['request', '--manifest', manifest, '--stage', stage, '--output', run/'request', *flags], kind='generation')
+        if stage == 'geometry':
+            # The same workflow and seeds return the same mesh byte for byte (Defiance T-250 a2, 2026-11-17: an attempt
+            # spent for nothing). Refused after the free request and before the submit that the ledger counts.
+            same = [p.parent.name for p in sorted((self.ws.items/design).glob('geometry-*/request'))
+                    if p.parent != run and (p.parent/'job/submission.json').exists() and workflow_key(read(p)) == workflow_key(read(run/'request'))]
+            if same: raise SystemExit(f'{design} {stage}-{attempt} repeats the workflow and seeds of {", ".join(same)} and would return the same mesh: '
+                                      'set geometrySeedOffset in a new manifest, or change the reference')
         # submit waits in headkit.shared_comfy.slot for the GPU lease and an idle queue, before any ledger record.
         out, _, _ = self.launch(design, run, 'submit', [*common, '--extra', run/'request'],
                                 ['submit', '--request', run/'request', '--output', run/'job'], kind='generation')

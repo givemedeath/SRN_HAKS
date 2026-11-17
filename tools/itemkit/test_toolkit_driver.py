@@ -353,6 +353,26 @@ class ComfyStopTests(unittest.TestCase):
         # Waiting for the GPU lease and an idle queue is the submitter's job (headkit.shared_comfy.slot), not the driver's.
         self.assertFalse(hasattr(d, 'wait_idle'))
 
+    def test_a_geometry_retry_with_the_same_workflow_and_seeds_is_refused_before_submit(self):
+        import json, tempfile, types
+        from tools.itemkit.drive import Driver, workflow_key
+        request = lambda token, seed: {'token': token, 'outputNamespace': 'itemkit', 'prompt': {'3': {'inputs': {'seed': seed, 'prefix': 'itemkit/' + token}}}}
+        self.assertEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 57)))
+        self.assertNotEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 58)))
+        with tempfile.TemporaryDirectory() as tmp:
+            items = Path(tmp); first = items/'gun/geometry-a1'; (first/'job').mkdir(parents=True)
+            (first/'request').write_bytes(json.dumps(request('aa', 57)).encode()); (first/'job/submission.json').write_bytes(b'{}')
+            d = Driver(types.SimpleNamespace(items=items, handoff=items, runtime=items, path=Path, data={}))
+            def launch(design, run, step, common, argv, kind=None):
+                self.assertEqual(step, 'request', 'nothing may be submitted')
+                (run/'request').parent.mkdir(parents=True, exist_ok=True); (run/'request').write_bytes(json.dumps(request('bb', launch.seed)).encode())
+                return '', '', ''
+            d.launch = launch; d.manifest = lambda design, suffix: items/'manifest.json'
+            launch.seed = 57
+            with self.assertRaisesRegex(SystemExit, 'repeats the workflow and seeds of geometry-a1'): d.gen('gun', 'geometry', 'v1', 'a2')
+            launch.seed = 58
+            with self.assertRaisesRegex(AssertionError, 'nothing may be submitted'): d.gen('gun', 'geometry', 'v1', 'a3')
+
     def test_a_failed_query_or_a_still_answering_comfy_keeps_the_pid_file(self):
         for kwargs in ({'query_fails': True}, {'answering': True}):
             result, killed, kept = self.stop('"C:\\Program Files\\Editor\\editor.exe"', **kwargs)

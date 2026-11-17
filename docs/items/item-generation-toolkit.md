@@ -268,7 +268,9 @@ CFG1, texture12 steps; other sampler values unchanged). Retain raw mesh and shap
 An optional `geometrySeedOffset` (integer 0..2147483647) adds the recorded offset
 to the three frozen geometry noise seeds only. Omission/zero preserves historical
 requests. Use a fresh manifest and distinct offset for a new noise trial; identical
-conditioning and identical seeds are not a useful retry. Appearance keeps its
+conditioning and identical seeds are not a useful retry. `drive gen` refuses a
+geometry attempt whose workflow and seeds match an earlier submitted attempt of
+the same design, after the request and before the submit. Appearance keeps its
 saved-shape binding and its original texture seed. Every submitted geometry job
 still counts against the shared model allowance.
 `run --stage inspect` renders the raw mesh in seven directions without texturing.
