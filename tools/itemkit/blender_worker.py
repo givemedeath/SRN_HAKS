@@ -196,7 +196,7 @@ def measure(objects, config, kind='visible'):
         reports[part]['shadowRecommendation'] = early['shadowRecommendation']
         require(reports[part]['closedWound'], 'Repair/classify nonclosed or inconsistently wound part: '+part+' '+json.dumps(reports[part]))
     v, f = combined(objects)
-    report = protected_checks(v, f, config['processing'])
+    report = protected_checks(v, f, config['processing'], kind)
     report['geometryCornerHash']=corner_hash(v[f])
     expected=config['processing'].get('missCorrection',{}).get('unorientedSourcePatch',{}).get('targetCornerHash')
     if kind=='visible' and expected:require(report['geometryCornerHash']==expected,'Visible assembly differs from the exact reviewed texture-patch geometry')

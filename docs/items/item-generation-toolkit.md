@@ -777,7 +777,8 @@ the colour bake's rays. `darken` (0.3-1) is the linear colour factor on full met
 bright albedo, which the game shows as pale steel because it has no metal shading (Defiance T-250, 2026-11-17:
 0.40-0.55 brought its receiver back to the reference's gunmetal). `reflection` (0-0.6) lowers the texture's alpha
 on metal, which the game reads as its environment-map mask, as the base game's metal textures do; with it the
-derived maps are RGBA, the native TGA keeps the alpha and its DDS twin is DXT5. Zero writes no alpha. Both are
+derived maps are RGBA, the native TGA keeps the alpha and its DDS twin is DXT5. A `.txi` beside it names the
+environment map (`envmaptexture chrome1`): without one the game shows the alpha as transparency. Zero writes no alpha. Both are
 off unless a manifest sets them, and the in-game look of a reflection strength still needs a client check.
 No original appearance-field sampling at transformed coordinates is permitted.
 

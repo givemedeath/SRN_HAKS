@@ -62,6 +62,9 @@ preflight refuses (`donor-distance-or-facing`). Build the working shell flush fo
 `shell-from-donor --dilate 0 --erode 0 --sigma 0.5` neither offsets the surface nor bridges slots, where a dilated
 shell sits a voxel outside the donor and a closed one (`--dilate 2 --erode 2`) webs over gaps between parts. On the
 firearm wave 1 MP-5 TX these two changes took the refused share of the texture from 0.33% to about 0.01%.
+An opening probe may carry `"visibleOnly": true` with a `visibleOnlyReview` note: the shadow stage then does not hold
+it (the visible stages still do). Use it only when the 500-triangle shadow closes a small opening and neither shadow
+proxy builds (MP-5 TX trigger guard, firearm wave 1); the shadow report lists the probe as `notHeldAgainstShadow`.
 `processing.uvCoordinateScale` (default 1) and `processing.materialPalettes` reach
 the atlas and finish steps the same way.
 

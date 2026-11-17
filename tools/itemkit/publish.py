@@ -52,7 +52,7 @@ BUILT = Path('output')
 MODULE_BUILT = Path('output/weapon-waves-test')/MODULE_ARCHIVE
 PAIRS_INCLUDE = 'sw_pairs.nss'
 SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
-EXT = {3: 'tga', 2002: 'mdl', 2025: 'uti', 2033: 'dds'}      # dds: the BioWare DDS twins of the package's TGAs
+EXT = {3: 'tga', 2002: 'mdl', 2022: 'txi', 2025: 'uti', 2033: 'dds'}      # dds: the BioWare DDS twins of the package's TGAs; txi: a reflection-masked diffuse's environment map
 TYPE = {v: k for k, v in EXT.items()}
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
 # Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_

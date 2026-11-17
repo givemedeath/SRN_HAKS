@@ -119,21 +119,25 @@ def prepare(spec_path, output):
         for name in allocation['placeholders']:
             (out/'ascii'/f'{name}.mdl').write_text(placeholder_ascii(name, placeholder), encoding='ascii')
             Image.new('RGBA', icon_size, (0, 0, 0, 0)).save(out/'resources'/f'i{name}.tga')
-        expected = {}; counts = {}; blueprints = {}
+        expected = {}; counts = {}; blueprints = {}; reflective_textures = []
         for variant, source, count, text, item in checked:
             name = variant['models'][allocation['slot']]
             (out/'ascii'/f'{name}.mdl').write_text(text, encoding='ascii')
             target = out/f'expected-{variant["colour"]}.npz'
             shutil.copyfile(source['arrays']['path'], target); expected[name] = pin(target)
             with Image.open(source['texture']['path']) as image:
-                image.convert('RGBA' if image.mode == 'RGBA' else 'RGB').save(out/'resources'/f'{variant["texture"]}.tga')
+                reflective = image.mode == 'RGBA'
+                image.convert('RGBA' if reflective else 'RGB').save(out/'resources'/f'{variant["texture"]}.tga')
+            if reflective:
+                from .native import reflection_txi
+                reflection_txi(out/'resources'/f'{variant["texture"]}.tga'); reflective_textures.append(variant['texture'])
             with Image.open(source['icon']['path']) as image:
                 image.save(out/'resources'/f'{variant["icons"][allocation["slot"]]}.tga')
             target = out/f'{variant["blueprint"]}.json'; write(target, item, fresh=True)
             blueprints[variant['blueprint']] = pin(target); counts[str(variant['colour'])] = count
         outputs = [pin(p) for directory in ('ascii', 'resources') for p in sorted((out/directory).iterdir())]
         result = {'schemaVersion': 1, 'kind': 'firearm-native-prepared', 'codeVersion': source_version(), 'allocation': allocation,
-                  'identity': identity, 'expected': expected, 'counts': counts, 'blueprints': blueprints,
+                  'identity': identity, 'reflectiveTextures': sorted(reflective_textures), 'expected': expected, 'counts': counts, 'blueprints': blueprints,
                   'placeholder': pin(out/'placeholder.npz'), 'intentionalOverride': override_report,
                   'effectiveBaseitems': original, ('inheritedCarrierFields' if longarm else 'inheritedSlingFields'): row, 'iconSize': list(icon_size),
                   'inputs': inputs, 'outputs': outputs, 'elapsedSeconds': time.perf_counter()-started,
@@ -204,6 +208,7 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
         audit = blueprint_roundtrip(gff, source['path'], target, readback)
         blueprints.append({'file': pin(target), 'colour': variant['colour'], 'utiParts': variant['utiParts'], 'audit': audit})
     expected_names = set(allocation['resources']) | ({'baseitems.2da'} if prepared['intentionalOverride']['intentionalOverride'] else set())
+    expected_names |= {name+'.txi' for name in prepared.get('reflectiveTextures', [])}
     require({p.name for p in res.iterdir()} == expected_names, 'Missing or unexpected firearm payload resource')
     files = sorted(res.iterdir()); hak = out/(prepared['identity']['hak']+'.hak')
     write_verified_hak(hak, files)

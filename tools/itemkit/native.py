@@ -23,6 +23,17 @@ def dds_converter(inputs):
     return tool('crunch', inputs=[pin(p) for p in inputs])
 
 
+# The game reads a texture's alpha as transparency unless a TXI beside it names an environment map; then alpha is the
+# map's mask (low alpha reflects). chrome1 is the base game's metal map. Its in-game look is unreviewed (2026-11-17).
+ENVIRONMENT_MAP = 'chrome1'
+
+
+def reflection_txi(tga):
+    """The TXI that makes a reflection-masked diffuse (textures.metal_policy) reflect instead of turning see-through."""
+    target = Path(tga).with_suffix('.txi'); target.write_bytes(f'envmaptexture {ENVIRONMENT_MAP}
+'.encode('ascii')); return target
+
+
 def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
     """A BioWare DDS of a TGA by the vendored NWN Crunch, with a generated mip chain: DXT5 for an RGBA icon (the base
     game's own part icons), DXT1 for an RGB diffuse. Every package ships these beside its TGAs, as the base game ships
@@ -148,6 +159,7 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
         # A bake with a metal reflection mask carries it as alpha (textures.metal_policy); any other diffuse is RGB.
         reflective = image.mode == 'RGBA'
         image.convert('RGBA' if reflective else 'RGB').save(output/'resources'/f'{texture_name}.tga')
+    if reflective: reflection_txi(output/'resources'/f'{texture_name}.tga')
     counts = {'visible': {}, 'shadow': {}}; expected = {}
     for part in PARTS:
         verify([arrays[part], icons[part]])

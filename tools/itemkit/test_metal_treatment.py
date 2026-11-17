@@ -50,3 +50,10 @@ class MetalTreatmentTests(unittest.TestCase):
             folder = Path(tmp); self.bake(folder, None)
             with self.assertRaisesRegex(ValueError, 'go together'):
                 finish_bake(folder/'linear.npy', folder/'masks.npz', folder/'again', metal={'darken': .5, 'reflection': 0})
+
+    def test_a_reflective_texture_gets_the_txi_that_names_its_environment_map(self):
+        from .native import reflection_txi
+        with tempfile.TemporaryDirectory() as tmp:
+            target = reflection_txi(Path(tmp)/'sr_gun_017.tga')
+            self.assertEqual((target.name, target.read_bytes()), ('sr_gun_017.txi', b'envmaptexture chrome1
+'))
