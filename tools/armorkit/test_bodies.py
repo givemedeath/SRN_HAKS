@@ -253,13 +253,14 @@ class CheckTests(unittest.TestCase):
             small = {'labels': ['a', 'b', 'c'], 'columns': 3, 'icons': True}
             spec = {**document, 'shots': document['shots'][:3]}
             spec['scripts'] = {**spec['scripts'], 'ak_icons': spec['scripts']['ak_icons'].replace(f'shot={count} target=item', 'shot=3 target=item')}
-            runs = []
+            runs, first = [], [0, 2]
 
             def ran(nwn_root, given, captures, **options):
                 """The whole check misses shots 1 and 3 (the item); the first look again misses the item once more."""
                 runs.append(Path(captures).parent.name)
-                taken = {1: [0, 2], 2: [0], 3: [0]}[len(runs)]
-                Path(captures).mkdir(parents=True)
+                taken = {1: first, 2: [0], 3: [0]}[len(runs)]
+                if taken:  # as the driver does: no folder where nothing was captured
+                    Path(captures).mkdir(parents=True)
                 for number in taken:
                     (Path(captures) / f'shot-{number:02d}.png').write_bytes(f'{len(runs)}:{number}'.encode())
                 wanted = given['shots'] + (1 if options['until'] == 'icons-done' else 0)
@@ -279,6 +280,10 @@ class CheckTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Shots 3 were not captured in 1 more looks'):
                     bodies.check(spec, small, root / 'once', 'game', run=True, retries=1)
                 self.assertEqual(json.loads((root / 'once' / 'evidence.json').read_text(encoding='utf-8'))['missed'], [3])
+                runs.clear(); first.clear()  # a whole check that captured nothing leaves no folder for the retries' captures: it is made
+                with self.assertRaisesRegex(ValueError, 'were not captured'):
+                    bodies.check(spec, small, root / 'none', 'game', run=True)
+                self.assertEqual(sorted(path.name for path in (root / 'none' / 'captures').iterdir()), ['shot-00.png', 'shot-01.png'])  # one shot from each look
 
 
 if __name__ == '__main__':

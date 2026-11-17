@@ -326,6 +326,7 @@ def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.
                 number = numbers[int(Path(capture).stem.rpartition('-')[2])]
                 if folder != output:  # beside the others, under its own number
                     target = output / 'captures' / f'shot-{number:02d}.png'
+                    target.parent.mkdir(exist_ok=True)  # the whole check may have captured nothing
                     target.write_bytes(Path(capture).read_bytes())
                     capture = str(target)
                 found[number] = capture
