@@ -890,6 +890,12 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
 * **Client check.** `poses` gained `--under REGISTRY=NUMBER` (the actors also wear a published outfit),
   `--cells` (logo cells in turn), the presets `waist` and `head`, and `--body-pack` (camera set for the body's
   height). A client check and a generation on the shared ComfyUI are not run at the same time: the shots stall.
+* **The other 18 bodies (2026-11-17, user go-ahead for belt and brassard only).** `accessory fit` and `brassard`
+  were run for each of the 18 remaining bodies over its published 6020; all 36 fits pass their gates. Seen in the
+  client on four of them, both pieces: Large Troll male, Elf female, Large Dwarf male, Large Orc female. No holes,
+  nothing see-through, logos upright and unmirrored. The brassard stands clear of the arm as a loose ring with the
+  arm raised or forward, most on the Large bodies; on the Large Orc female the belt's band runs at a slant across
+  the back. The other 14 bodies were gated, not seen. Not published.
 
 Not checked: motion beyond the six poses, a logo value across a save or in multiplayer, Dwarf and Elf heads,
 Large bodies, publication gates, item icons.
