@@ -890,8 +890,9 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
 * **Published (2026-11-17, user: publish the belt and brassard).** Belt 6020 (set `facility-security`) and
   shoulder 1000 (standalone, badge left and right) are in `srn_parts` on all 20 bodies, with their icons and
   table rows. `publish` takes a drawn piece (no brief, no material file) and the logo's shared files. The
-  respirator is not published: it is on hold. A new logo means a new strip, which `publish` cannot yet put in
-  place of the published one.
+  respirator is not published: it is on hold. A new logo means a new strip: `logos` puts the kit's strip in
+  place of the published one and holds every published cell to its name and number. What SR_NWN does with the
+  parts and the logo is in [sr-nwn-instructions.md](sr-nwn-instructions.md).
 * **The respirator (user decision: full face, opaque visor).** A skinned mesh bound whole to the head bone, in
   a neck part that keeps the body's neck; one tint texture named like the model holds both. Gated to stand no
   more than 2 mm inside the head envelope and to cover the face. It came out of generation as a whole-head

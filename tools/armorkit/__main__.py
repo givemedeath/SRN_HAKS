@@ -466,6 +466,12 @@ def main(argv=None):
     p.add_argument('--build', action='store_true', help='pack srn_parts and srn_2da once written (a trial: into its own output folder)')
     p.add_argument('--report', help='file to write the whole report to; the printed one stops at 40 failures')
     p.set_defaults(handler=command_publish)
+    p = commands.add_parser('logos', help="put the kit's logo strip in place of the published one: a new logo, every published cell kept")
+    p.add_argument('--trial', help='scratch folder to write into whatever the gates say, instead of the repository')
+    p.add_argument('--dry-run', action='store_true', help='run the gates and print the report; write nothing')
+    p.add_argument('--build', action='store_true', help='pack srn_parts and srn_2da once written (a trial: into its own output folder)')
+    p.add_argument('--report', help='file to write the report to')
+    p.set_defaults(handler=command_publish, logos=True)
     args = parser.parse_args(argv)
     args.handler(args)
 

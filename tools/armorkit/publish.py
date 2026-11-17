@@ -1052,6 +1052,77 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             shutil.rmtree(work, ignore_errors=True)
 
 
+def relogo(*, root=None, trial=False, dry_run=False, repo=REPO, write=logo.write):
+    """Put the kit's logo strip in place of the published one: the report.
+
+    A new logo is a new picture in `logos/` and its name in `logo.CELLS`; the strip, and with another count of
+    cells the shader, are then other files than the ones published, which nothing else may change. This writes
+    the kit's three files (`logo.FILES`, made by `write`) over the pack's and records their hashes and the
+    cells in the handoff, where the first part with a badge recorded them. No part is touched: a badge reads
+    whatever strip the pack holds.
+
+    It fails, and writes nothing into the repository, unless the pack has a published logo, its three files
+    are still the ones recorded (`published`), the material, parameter and strip keep their names, and every
+    published cell keeps its name and number (`cells`): SR_NWN stores a cell's number. `root`, `trial` and
+    `dry_run` are `publish`'s; a trial root is written whatever the gates say."""
+    repo = Path(repo).resolve()
+    require(not (trial and dry_run), 'A trial writes its scratch root; a dry run writes nothing: ask for one of them')
+    require(trial or root is None, 'A root is a trial\'s scratch folder: pass trial=True with it, or no root to publish into the repository')
+    root = seed(root, repo) if trial else repo
+    parts, handoff = published(root)
+    before, now = handoff.get('logo'), logo.record()
+    entries = {resource['name']: resource for outfit in handoff['outfits'] for resource in outfit.get('resources', []) if resource['name'] in logo.FILES}
+    require(before and set(entries) == set(logo.FILES), f'{PACK} has no published logo to replace: the first part with a badge publishes it')
+    failures = []
+    for name in logo.FILES:
+        if not (root / PACK / name).is_file() or sha(root / PACK / name) != entries[name]['sha256']:
+            failures.append(failure('published', name, f'{PACK} holds another file than the one published, or none: its hash is not the one the handoff records'))
+    failures += [failure('cells', key, f'the published logo names its {key} {before[key]}, which every badge and SR_NWN use, and the kit {now[key]}')
+                 for key in ('material', 'parameter', 'strip') if before[key] != now[key]]
+    for name, cell in sorted(before['cells'].items(), key=lambda item: item[1]):
+        if now['cells'].get(name) != cell:
+            failures.append(failure('cells', name, f'published as cell {cell} and now ' + (f'cell {now["cells"][name]}' if name in now['cells'] else 'gone')
+                                    + ': a cell once given keeps its name and number, which SR_NWN stores'))
+    work = Path(tempfile.mkdtemp(prefix='armorkit-logo-'))
+    try:
+        write(work)
+        hashes = {name: sha(work / name) for name in logo.FILES}
+        changed = sorted(name for name in logo.FILES if hashes[name] != entries[name]['sha256'])
+        require(changed or before != now, f'The kit\'s logo strip is the one {PACK} holds: there is nothing to replace')
+        by_gate = {}
+        for found in failures:
+            by_gate[found['gate']] = by_gate.get(found['gate'], 0) + 1
+        report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': by_gate, 'files': changed,
+                  'cells': {'added': sorted(set(now['cells']) - set(before['cells']), key=now['cells'].get), 'kept': len(set(now['cells']) & set(before['cells']))},
+                  'written': False}
+        if dry_run or (failures and not trial):
+            return report
+        for name in logo.FILES:
+            entries[name].update(sha256=hashes[name], bytes=(work / name).stat().st_size)
+        handoff['logo'] = now
+        targets = {root / PACK / name: (work / name).read_bytes() for name in changed}
+        targets[root / HANDOFF] = (json.dumps(handoff, indent=1) + '\n').encode('utf-8')
+        saved = {path: path.read_bytes() if path.is_file() else None for path in targets}
+        try:
+            if trial:
+                (root / TRIAL).write_text(json.dumps({**TRIAL_MARK, 'written': True}) + '\n', encoding='utf-8')
+            for path, blob in targets.items():
+                path.write_bytes(blob)
+        except BaseException:  # put back as it was: a strip without its handoff would fail every later check
+            for path, blob in saved.items():
+                if blob is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_bytes(blob)
+            raise
+        report['written'] = True
+        if trial:
+            (root / 'publish-report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8', newline='\n')
+        return report
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
 def triangles(record):
     """The triangles a bake's record counts: an outfit's whole count, an accessory's own, a paired piece's by side."""
     counted = record['gates'].get('triangles')
@@ -1070,8 +1141,11 @@ def pairs(values, what):
 
 def command(args):
     """The `publish` command of `python -m tools.armorkit`: prints the report and returns its exit code."""
-    report = publish(args.registry, args.bake, args.stock, records=pairs(args.record, '--record'), briefs=pairs(args.brief, '--brief'),
-                     root=args.trial, trial=bool(args.trial), dry_run=args.dry_run, body_pack=args.body_pack)
+    if getattr(args, 'logos', False):  # the `logos` command: the strip alone
+        report = relogo(root=args.trial, trial=bool(args.trial), dry_run=args.dry_run)
+    else:
+        report = publish(args.registry, args.bake, args.stock, records=pairs(args.record, '--record'), briefs=pairs(args.brief, '--brief'),
+                         root=args.trial, trial=bool(args.trial), dry_run=args.dry_run, body_pack=args.body_pack)
     failed = False
     if args.build and report['written']:
         try:  # the publication is written by now: a build that fails is said in its report, not in place of it

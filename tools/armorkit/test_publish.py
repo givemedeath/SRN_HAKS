@@ -770,6 +770,49 @@ class DrawnPieceTests(Workspace):
         self.assertEqual(report['failuresByGate'], {'closure': 20 * len(TOKENS) * 3})  # the strip is not its own, and it has no tint or material file
         self.assertIn('it names the texture srn_logos, not its own', report['failures'][0]['reason'])
 
+    def test_a_new_strip_replaces_the_published_one_and_keeps_every_cell(self):
+        from unittest import mock
+        with self.assertRaisesRegex(ValueError, 'has no published logo to replace'):
+            publish.relogo(repo=self.repo)
+        self.assertEqual(self.publish(self.bakes, **self.options)['failures'], [])
+        pack, handoff = self.repo / 'srn_parts', self.repo / publish.HANDOFF
+        held = handoff.read_bytes()
+
+        def strip(blob=b'a longer strip'):
+            def write(folder):
+                for name in logo.FILES:
+                    (Path(folder) / name).write_bytes(blob if name.endswith('.tga') else b'text\n')
+            return write
+        with self.assertRaisesRegex(ValueError, 'there is nothing to replace'):
+            publish.relogo(repo=self.repo, write=strip(b'strip'))
+        more = logo.CELLS[:12] + ('zeta',) + logo.CELLS[13:]
+        with mock.patch.object(logo, 'CELLS', more):
+            report = publish.relogo(repo=self.repo, write=strip(), dry_run=True)
+            self.assertEqual((report['passed'], report['files'], report['cells'], report['written']), (True, [logo.FILES[2]], {'added': ['zeta'], 'kept': 11}, False))
+            self.assertEqual(handoff.read_bytes(), held)
+            report = publish.relogo(repo=self.repo, write=strip())
+            self.assertTrue(report['written'])
+            self.assertEqual((pack / logo.FILES[2]).read_bytes(), b'a longer strip')
+            now = json.loads(handoff.read_text(encoding='utf-8'))
+            self.assertEqual(now['logo']['cells']['zeta'], 12)
+            recorded = {one['name']: one for outfit in now['outfits'] for one in outfit['resources']}
+            self.assertEqual((recorded[logo.FILES[2]]['sha256'], recorded[logo.FILES[2]]['bytes']), (publish.sha(pack / logo.FILES[2]), 14))
+            # what is published is again what its handoff records: the next publication passes
+            self.registry.write_text(json.dumps(document(BRASSARD, *PARTS)), encoding='utf-8')
+            self.assertEqual(self.publish(shared(), textures=named)['failures'], [])
+        # a cell that moved or went, and a strip changed by hand, fail and write nothing
+        held, moved = handoff.read_bytes(), (None, 'renraku', 'ares') + logo.CELLS[3:]
+        with mock.patch.object(logo, 'CELLS', moved):
+            report = publish.relogo(repo=self.repo, write=strip(b'moved'))
+        self.assertEqual([(one['gate'], one['model']) for one in report['failures']], [('cells', 'ares'), ('cells', 'renraku'), ('cells', 'zeta')])
+        self.assertIn('published as cell 1 and now cell 2: a cell once given keeps its name and number', report['failures'][0]['reason'])
+        self.assertIn('published as cell 12 and now gone', report['failures'][2]['reason'])
+        (pack / logo.FILES[0]).write_bytes(b'by hand\n')
+        with mock.patch.object(logo, 'CELLS', more[:13] + ('eta',) + more[14:]):
+            report = publish.relogo(repo=self.repo, write=strip(b'third'))
+        self.assertEqual((report['failuresByGate'], report['written']), ({'published': 1}, False))
+        self.assertEqual((handoff.read_bytes(), (pack / logo.FILES[2]).read_bytes()), (held, b'a longer strip'))
+
     def plain(self):
         path = self.root / 'plain.json'
         path.write_text(json.dumps(document(*PARTS)), encoding='utf-8')

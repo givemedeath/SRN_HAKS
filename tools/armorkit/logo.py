@@ -10,8 +10,8 @@ The cells' pictures are `logos/<name>.png`, 128 texels square. Ares, Renraku, Sa
 are cut from the corporate security concept sheet, Aztechnology and Lone Star from the battle armour and magical
 response sheets (user, 2026-11-17: the major corporations' logos are in the concept sheets). Evo, Horizon, NeoNET
 and Shiawase are on no sheet: they are cut from one image drawn in the sheets' header style (user, 2026-11-17:
-the rest of the major corporations' logos). Adding a logo replaces the strip; no part changes, and a cell once
-given keeps its number, since SR_NWN stores it.
+the rest of the major corporations' logos). Adding a logo replaces the strip (`publish.relogo`, the `logos`
+command); no part changes, and a cell once given keeps its number, since SR_NWN stores it.
 """
 from pathlib import Path
 
