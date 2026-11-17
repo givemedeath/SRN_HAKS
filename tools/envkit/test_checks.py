@@ -48,6 +48,11 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(shots[1]['run'], 'ReplaceObjectTexture(GetObjectByTag("t_p0"),"ek_desk","ek_desk_o");ReplaceObjectTexture(GetObjectByTag("t_p1"),"ek_sign","ek_sign_o");'
                                           'ReplaceObjectTexture(GetObjectByTag("t_p1"),"ek_sign_h","ek_off");')  # only a model with a halo sheet has one put out
         self.assertEqual(shots[2]['run'].count('ReplaceObjectTexture'), 3); self.assertNotIn('_o"', shots[2]['run'])
+        # A fire barrel has no lit parts of its own: its fire and its light go out, and no picture of it is swapped.
+        barrel = {'ek_fire': {'source': 'b', 'height': 1.0, 'fire': [{'at': [0, 0, 0.9], 'width': 0.4}], 'placeable': {'label': 'B', 'sound': 28, 'light': {'colour': 31, 'at': [0, 0, 0.9]}}}}
+        self.assertEqual(checks.lit_props({**MODELS, **barrel})[-1], 'ek_fire')
+        _, shots, _ = checks.rows_of_lights(barrel, {'ek_fire': [0.7, 0.7, 0.9]}, {'ek_fire': 'oFire'}, set())
+        self.assertEqual(shots[1]['run'], 'SetPlaceableIllumination(oFire,FALSE);RecomputeStaticLighting(GetArea(oFire));AssignCommand(oFire,PlayAnimation(ANIMATION_PLACEABLE_DEACTIVATE));')
         many = {f'ek_l{index}': MODELS['ek_desk'] for index in range(7)}; sizes = {name: [1.0, 1.0, 1.0] for name in many}
         props, shots, _ = checks.rows_of_lights(many, sizes, {name: 'OBJECT_SELF' for name in many}, set())
         self.assertEqual(sorted({one['position'][1] for one in props}), [46.0, 62.0]); self.assertEqual(len(shots), 6)  # five to a row

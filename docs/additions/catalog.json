@@ -1446,11 +1446,6 @@
    "model": "ek_gr_fire",
    "label": "[envkit]Ghost Riders, Burn Barrel",
    "pack": "srn_placeable",
-   "lights": {
-    "lit": "ek_gr_fire",
-    "out": "ek_gr_fire_o",
-    "glow": "ek_gr_fire_i"
-   },
    "madeBy": "envkit",
    "source": "tools/envkit/sets/ghost-riders-game.json",
    "provenance": "Ghost Riders props",
@@ -1463,11 +1458,6 @@
    "model": "ek_gr_embers",
    "label": "[envkit]Ghost Riders, Ember Barrel",
    "pack": "srn_placeable",
-   "lights": {
-    "lit": "ek_gr_embers",
-    "out": "ek_gr_embers_o",
-    "glow": "ek_gr_embers_i"
-   },
    "madeBy": "envkit",
    "source": "tools/envkit/sets/ghost-riders-game.json",
    "provenance": "Ghost Riders props",

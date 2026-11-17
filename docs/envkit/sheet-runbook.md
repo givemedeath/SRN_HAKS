@@ -408,11 +408,23 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   from just above what burns and state the fire: `"fire": [{"part": ..., "at": [x, y, z], "width": metres}]`, on
   the finished model, at the fire's foot. The game then draws the stock medium flame's own flames there
   (`convert.fire_lines`), scaled to the width, by day and by night. A placeable only; a fire further than 0.3
-  metres from the model is refused. What the clearing leaves of the flames' feet can be lit as embers (`lit`), and
-  a fire that should light the ground takes a `light` in an orange row of `lightcolor.2da` (31) at its foot. A model
+  metres from the model is refused. A fire that should light the ground takes a `light` in an orange row of
+  `lightcolor.2da` (31) at its foot, and what it burns down to is a bed of embers (the next row). A model
   with a fire is compiled by `convert.compile_placeable`: a twin without the fire passes the usual read-back check,
-  and the model itself is decompiled again and must hold its fire and every face. See the flames in `check props`
-  by day and by night.
+  and the model itself is decompiled again and must hold its fire and every face. A script puts the fire out and
+  lights it again by the model's animations (`docs/envkit/lights.md`, A fire), so the prop is placed not static and
+  `check lights` stands it among the lit props. A model with a fire takes no `lit` parts: one script for both
+  left the flame burning (client, 2026-11-16), and such a set is refused. What should glow on it is its bed of
+  embers; a lamp on it is another prop. See the flames in `check props` by day and by night.
+- **Embers are one flat glowing colour** (the Ghost Riders barrels: a block built under the charred wood in the
+  colour of one glowing texel and lit; user, 2026-11-16: "the embers in the barrel don't look like embers"). A
+  built member is one colour all over, and a lit box only brightens what the picture already draws. State the bed
+  instead: `"embers": [{"part": ..., "at": [x, y, z], "radius": metres}]`, the middle of its rim on the finished
+  model. It is a low mound of its own (`convert.ember_beds`) with a picture of its own, `<name>_e`: dark lumps of
+  charcoal under ash with the fire in the gaps between them (`convert.ember_picture`), shown as bright by night as
+  by day and left glowing when a script puts the fire out. A placeable only; a bed stated away from the model is
+  refused, and so is one over 0.6 m in radius, whose lumps would be too large to read as coals. A prop with a fire
+  or a bed of embers says whether it casts a light, as a lit one does (`light`: a row for a fire, null for embers). See it from above in `check props` by day and by night: `view` does not draw it.
 - **A floor marking or pad came back as a wedge**, thick at the back and thin at the front (the Ghost Riders parking
   pad, drawn from a slant: half a metre thick at its back at its true width). Scale it by `height` until its
   footprint is right (`view` gives the bounds), then `"level": 0.03` lays its top flat at that thickness, what
