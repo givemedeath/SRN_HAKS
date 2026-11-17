@@ -138,6 +138,28 @@ def command_bake(args):
         sys.exit(1)
 
 
+def command_accessory(args):
+    from . import accessory, brief
+    document = brief.load(args.brief)
+    if args.step == 'prepare':
+        registry.require(all(given for given in (args.mesh, args.colours, args.raw, args.xatlas)), 'prepare takes --mesh, --colours, --raw and --xatlas')
+        piece, whole = accessory.prepare(document, args.mesh, args.colours, args.raw, layout_library(args.xatlas), say=lambda *said: print(*said, flush=True))
+        accessory.store(piece, args.folder, whole)
+        print(json.dumps({'kept': args.folder, 'triangles': int(len(piece['f'])), 'texels': int(len(piece['rgb'])), 'surface': whole}))
+        return
+    registry.require(args.output and args.number and args.body_pack, 'fit takes --output, --number and --body-pack')
+    outfit = None
+    if args.over:
+        pack, _, number = args.over.rpartition('=')
+        registry.require(pack and number.isdigit(), '--over is PACK=NUMBER')
+        outfit = (pack, int(number))
+    record = accessory.fit(document, args.folder, args.output, args.body_pack, args.number, body=args.body, outfit=outfit, drop=args.drop,
+                           turn=args.turn, packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
+    print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'fit', 'gates', 'compiled') if key in record}))
+    if not record['gates']['passed']:
+        raise SystemExit(1)
+
+
 def command_split(args):
     from . import bake
     parts, report = bake.resplit(args.capture, body_pack=args.body_pack)
@@ -288,6 +310,18 @@ def main(argv=None):
     p.add_argument('--capture', help='file to keep what the split is given in, for `split` to run it again')
     p.add_argument('--tint-cache', help='folder that keeps each part\'s tint texture, read again while nothing it is drawn from has changed')
     p.set_defaults(handler=command_bake)
+    p = commands.add_parser('accessory', help='prepare a generated accessory piece once, then fit it on a body over an outfit')
+    p.add_argument('step', choices=('prepare', 'fit')); p.add_argument('brief')
+    p.add_argument('folder', help='the folder the prepared piece is kept in')
+    p.add_argument('--mesh'); p.add_argument('--colours'); p.add_argument('--raw'); p.add_argument('--xatlas')
+    p.add_argument('--output', help='fit: the folder the models are written to'); p.add_argument('--number', type=int)
+    p.add_argument('--body-pack'); p.add_argument('--body', default='pmh0')
+    p.add_argument('--over', help='fit: PACK=NUMBER, the outfit the piece is fitted over, as compiled models in a pack folder')
+    p.add_argument('--drop', type=float, default=0.03, help="fit: metres below the waist joint a belt's band is centred")
+    p.add_argument('--turn', type=float, default=0.0, help="fit: degrees the piece is turned about the body's axis first")
+    p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root'); p.add_argument('--resources', action='append', default=[])
+    p.set_defaults(handler=command_accessory)
+
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
     p.add_argument('capture', help='the file `bake --capture` wrote')
     p.add_argument('--output', help='.npz file to write the parts to, for `render`')
