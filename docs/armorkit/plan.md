@@ -885,8 +885,13 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
   given keeps its number. SR_NWN sets a wearer's logo with
   `SetMaterialShaderUniformVec4(creature, "srn_logo", "LogoCell", cell)`; an unset wearer shows cell 0.
   A badge is gated to read the right way round (`logo.reads_right`) and was looked at with all five logos, none
-  of them symmetric, on both shoulders. These resources are not yet in a pack, and the handoff does not yet
-  carry the material, parameter or cells.
+  of them symmetric, on both shoulders. They are published with the brassard, once for the pack, and the
+  handoff carries the material, parameter and cells as `logo`.
+* **Published (2026-11-17, user: publish the belt and brassard).** Belt 6020 (set `facility-security`) and
+  shoulder 1000 (standalone, badge left and right) are in `srn_parts` on all 20 bodies, with their icons and
+  table rows. `publish` takes a drawn piece (no brief, no material file) and the logo's shared files. The
+  respirator is not published: it is on hold. A new logo means a new strip, which `publish` cannot yet put in
+  place of the published one.
 * **The respirator (user decision: full face, opaque visor).** A skinned mesh bound whole to the head bone, in
   a neck part that keeps the body's neck; one tint texture named like the model holds both. Gated to stand no
   more than 2 mm inside the head envelope and to cover the face. It came out of generation as a whole-head

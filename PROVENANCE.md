@@ -1856,3 +1856,39 @@ the registry is `docs/armorkit/parts-registry.json`.
 
 Raw references, generation outputs, kept parts, bakes and trial packs stay in ignored
 `output/armorkit/` and are not redistributed.
+
+## Duty belt and logo brassard (`srn_parts`, `srn_2da`; 2026-11-17)
+
+Two accessories join `srn_parts`, each on all 20 SRN bodies: the Facility Security
+duty belt (belt 6020; brief `tools/armorkit/briefs/corpsec-duty-belt.json`, model
+`corpsec-duty-belt`) and a shoulder brassard that shows a corporation's logo (shoulder
+1000, both sides; model `brassard`). 92 files: 60 part models, the belt's material
+files and one normal map shared by every body, one tint texture kept per piece (the
+other names are listed in `docs/armorkit/parts-copies.json`), six inventory icons, and
+the three logo files `srn_logo.mtr`, `srn_vslogo.shd` and `srn_logos.tga`.
+
+The belt follows the project operator's "Corporate Security" concept sheets. Its
+reference image was generated locally from the brief's prompt with the Qwen image
+model in the shared ComfyUI (profile `qwen21-int8-v1`); geometry and appearance were
+generated locally from it with Pixal3D in the same ComfyUI, two geometry submissions.
+No third-party generation service was used for it. Local processing prepared the
+piece once and fitted it over the Facility Security outfit on each body
+(`armorkit accessory fit`); nothing was generated per body.
+
+The brassard is drawn by `tools/armorkit/brassard.py`: a band round the upper arm over
+the outfit's sleeve with a curved badge. Nothing was generated for it. The badge reads
+one cell of the logo strip through the material `srn_logo`, whose vertex shader
+`srn_vslogo` is the game's stock `vslit` with one line added; SR_NWN picks the cell
+per wearer. The strip's pictures are `tools/armorkit/logos/*.png`: Ares, Renraku,
+Saeder-Krupp, Wuxing, Mitsuhama, Aztechnology and Lone Star are cut from the project
+operator's concept sheets; Evo, Horizon, NeoNET and Shiawase are cut from one image
+drawn in the sheets' header style with the Codex app's image tool (OpenAI image
+generation) and approved by the project operator. The corporation names and marks are
+Shadowrun's, third-party marks; this record asserts no ownership of them and adds no
+new rights claim.
+
+`srn_2da` gains live row 6020 in `parts_belt.2da` and live row 1000 in
+`parts_shoulder.2da`, installed-game derivatives as before. Per-file hashes, the
+pinned generation records and the logo's material, parameter and cells are in
+`docs/armorkit/parts-handoff.json`. Raw references, generation outputs, fits and
+trial packs stay in ignored `output/armorkit/` and are not redistributed.

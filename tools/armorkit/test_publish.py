@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import export, publish, registry, tables
+from . import export, logo, publish, registry, tables
 from .test_registry import document, part
 from .test_tables import stock
 
@@ -684,6 +684,96 @@ class PublishTests(Workspace):
         self.assertIsNone(publish.brief_of('unknown', {}, two))
         with self.assertRaisesRegex(ValueError, "A root is a trial's scratch folder"):
             self.publish(shared(('pmh0',)), root=self.root / 'scratch')
+
+
+BRASSARD = part(slot='shoulder', number=1000, families=['accessory'], set=..., group=..., genderedCut=False, tiers={},
+                badge={'positions': ['left', 'right']})
+
+
+def badged(path):
+    """A stand-in for `publish.model_textures`: a model with a badge names its own texture and the logo strip."""
+    return [Path(path).stem, logo.STRIP]
+
+
+def brassard(folder, body, strip=b'strip'):
+    """A drawn brassard's output folder as `brassard.run` leaves it, with stand-in payloads: no materials, no
+    material file of its own, and the logo's three files."""
+    folder = Path(folder)
+    resources = folder / 'resources'
+    resources.mkdir(parents=True)
+    models = {token: registry.model_name(body, token, 1000) for token in ('shol', 'shor')}
+    for name in models.values():
+        (resources / (name + '.mdl')).write_bytes(bytes(4) + name.encode())
+        (resources / (name + '.plt')).write_bytes(b'band')
+    for name in logo.FILES:
+        (resources / name).write_bytes(strip if name.endswith('.tga') else b'text\n')
+    record = {'model': 'brassard-test', 'body': body, 'tier': 1, 'number': 1000, 'models': models, 'logo': logo.record(),
+              'gates': {'passed': True, 'failures': [], 'triangles': {'shol': 10, 'shor': 10}}, 'compiled': 2}
+    (folder / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
+    return folder
+
+
+class DrawnPieceTests(Workspace):
+    """A drawn piece with a badge: no brief, no material file, and the logo's files once for the pack."""
+
+    def setUp(self):
+        super().setUp()
+        self.registry.write_text(json.dumps(document(BRASSARD)), encoding='utf-8')
+        with (self.repo / 'PROVENANCE.md').open('a', encoding='utf-8') as stream:
+            stream.write('brassard-test, drawn by the kit.\n')
+        self.bakes = [brassard(self.root / 'drawn' / body, body) for body in registry.BODIES]
+        self.options = {'records': [('brassard-test', self.ledger)], 'briefs': [], 'textures': badged}
+
+    def test_a_drawn_piece_brings_no_material_file_and_the_logos_files(self):
+        found = publish.survey(self.bakes[0])
+        self.assertEqual((found['wrong'], found['drawn']), ([], True))
+        self.assertEqual(sorted(found['files']), sorted(['pmh0_shol1000.mdl', 'pmh0_shol1000.plt', 'pmh0_shor1000.mdl', 'pmh0_shor1000.plt', *logo.FILES]))
+        record = json.loads((self.bakes[0] / 'bake.json').read_text(encoding='utf-8'))
+        record['logo']['cells'] = {'ares': 2}
+        (self.bakes[0] / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
+        (self.bakes[0] / 'resources' / logo.FILES[1]).unlink()
+        self.assertEqual([reason for _, reason in publish.survey(self.bakes[0])['wrong']],
+                         ["it was drawn for another logo strip than the kit's: draw it again", f'the bake holds no {logo.FILES[1]}'])
+
+    def test_it_is_published_with_the_logo_once_and_the_handoff_names_it(self):
+        report = self.publish(self.bakes, **self.options)
+        self.assertEqual((report['failures'], report['written']), ([], True))
+        pack = {path.name for path in (self.repo / 'srn_parts').iterdir()}
+        self.assertTrue(set(logo.FILES) <= pack)
+        self.assertFalse({name for name in pack if name.endswith('.mtr')} - {logo.FILES[0]})
+        handoff = json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))
+        self.assertEqual(handoff['logo'], logo.record())
+        self.assertEqual(handoff['outfits'][0]['brief'], None)
+        self.assertEqual(handoff['outfits'][0]['bake']['triangles'], {'shol': 10, 'shor': 10})
+        holders = [outfit['body'] for outfit in handoff['outfits'] if set(logo.FILES) & {one['name'] for one in outfit['resources']}]
+        self.assertEqual(holders, ['pmh0'])  # recorded with the first bake that brings them
+        self.assertEqual(sum(len(outfit['resources']) for outfit in handoff['outfits']), 20 * 4 + 3)
+        # the next publication stands on it: the published band has no material file, and the logo's files are the pack's
+        self.registry.write_text(json.dumps(document(BRASSARD, *PARTS)), encoding='utf-8')
+        again = self.publish(shared(), textures=named)
+        self.assertEqual(again['failures'], [])
+        self.assertEqual(json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))['logo'], logo.record())
+
+    def test_another_strip_a_badge_without_it_and_a_missing_history_fail(self):
+        other = brassard(self.root / 'other' / 'pfg2', 'pfg2', strip=b'another strip')
+        report = self.publish(self.bakes[:-1] + [other], dry_run=True, **self.options)
+        self.assertEqual([(one['gate'], one['model'], one['reason']) for one in report['failures']],
+                         [('bake', logo.FILES[2], f'pfg2 brassard-test holds another {logo.FILES[2]} than the one the other bakes hold')])
+        report = self.publish(self.bakes, dry_run=True, **{**self.options, 'textures': named})
+        self.assertEqual(report['failuresByGate'], {'closure': 40})
+        self.assertIn('shoulder 1000 has a badge and the model has no mesh on the logo strip srn_logos', report['failures'][0]['reason'])
+        report = self.publish(self.bakes, dry_run=True, **{**self.options, 'records': []})
+        self.assertEqual(report['failuresByGate'], {'records': 20})
+
+    def test_a_part_without_a_badge_may_not_name_the_strip(self):
+        report = self.publish(shared(), dry_run=True, registry=self.plain(), textures=badged)
+        self.assertEqual(report['failuresByGate'], {'closure': 20 * len(TOKENS) * 3})  # the strip is not its own, and it has no tint or material file
+        self.assertIn('it names the texture srn_logos, not its own', report['failures'][0]['reason'])
+
+    def plain(self):
+        path = self.root / 'plain.json'
+        path.write_text(json.dumps(document(*PARTS)), encoding='utf-8')
+        return path
 
 
 if __name__ == '__main__':

@@ -22,6 +22,7 @@ from . import texture
 from .registry import require
 
 MATERIAL, SHADER, STRIP, PARAMETER = 'srn_logo', 'srn_vslogo', 'srn_logos', 'LogoCell'
+FILES = (MATERIAL + '.mtr', SHADER + '.shd', STRIP + '.tga')  # what `write` writes: one set serves every part with a badge
 CELL = 128  # texels a side of one logo
 CELLS = (None, 'ares', 'renraku', 'saeder-krupp', 'wuxing', 'mitsuhama', 'aztechnology', 'evo', 'horizon', 'neonet', 'shiawase',
          'lone-star', None, None, None, None)  # the strip, cell by cell; None is blank
@@ -37,6 +38,11 @@ SHADER_TEXT = ('#define SHADER_TYPE 1\n#define FOG 1\n#define KEYHOLING 1\n#defi
 def cells():
     """{logo name: cell} of the strip, for the handoff."""
     return {name: index for index, name in enumerate(CELLS) if name is not None}
+
+
+def record():
+    """What a part with a badge records of the logo, and the handoff hands on: the material, its parameter, the strip and the cells."""
+    return {'material': MATERIAL, 'parameter': PARAMETER, 'strip': STRIP, 'cells': cells()}
 
 
 def strip(pictures=PICTURES):
@@ -59,7 +65,7 @@ def write(folder, pictures=PICTURES):
     (folder / (SHADER + '.shd')).write_text(SHADER_TEXT, encoding='ascii', newline='\n')
     # `texture.tga` takes rows from v = 0, the picture's bottom: a badge's v runs up its picture
     (folder / (STRIP + '.tga')).write_bytes(texture.tga(strip(pictures)[::-1]))
-    return [MATERIAL + '.mtr', SHADER + '.shd', STRIP + '.tga']
+    return list(FILES)
 
 
 def reads_right(vertices, faces, uvs, outward, up):
