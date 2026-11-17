@@ -3,7 +3,7 @@ Selections are manifest data (bbox-relative regions, colour predicates, priority
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
-from scipy.ndimage import distance_transform_edt, binary_closing, binary_fill_holes
+from scipy.ndimage import distance_transform_edt, binary_closing, binary_dilation, binary_fill_holes
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 from .common import require, pin, write
@@ -205,7 +205,8 @@ def heal(value, rgb, op, report, texels, regions):
     count = int(target.sum())
     require(0 < count <= mapped.sum()*.03 and 4 <= donors.sum() <= mapped.sum()*.05,
             'A local heal needs small measured target and donor regions')
-    offset = np.asarray(op['offset'],float)
+    require(('offset' in op)!=('patches' in op),'A heal takes either an XYZ offset or donor patches')
+    offset = np.asarray(op.get('offset',[0,0,0]),float)
     require(offset.shape==(3,) and np.isfinite(offset).all() and np.linalg.norm(offset)<=.15,
             'Heal offset must be a local normalized XYZ displacement')
     lo = value['positions'].min(0)
@@ -230,6 +231,16 @@ def heal(value, rgb, op, report, texels, regions):
         require(bool(np.all(z<=.5) if side=='rear' else np.all(z>=.5)),
                 'Head heal target/donor leaves the declared '+side+' half (+z is front before fitting)')
         report.update(headSide=side,normalizedDepthRange=[float(z.min()),float(z.max())])
+    if 'patches' in op:
+        # Patches come from anywhere in the donor set, not from the nearest donor, so locality is every donor's reach to
+        # the target; the target's own interior depth (distance to its nearest donor) is recorded, not capped.
+        reach,_ = cKDTree(target_points).query(donor_points,k=1)
+        require(reach.max()<=.10,'Local paint donor lies too far from its target')
+        depth,_ = cKDTree(donor_points).query(target_points,k=1)
+        synthesize(rgb,target,donors,op['patches'],report)
+        report.update(paintedTexels=count,donorSamples=int(donors.sum()),maximumDistance=float(reach.max()),
+                      targetInteriorDepth=float(depth.max()))
+        return {op['name']:target}
     distance,indices = cKDTree(donor_points).query(target_points+offset,k=4)
     require(distance[:,0].max()<=.10,'Local paint donor lies too far from its target')
     weights = 1/np.maximum(distance,.0005)
@@ -238,6 +249,37 @@ def heal(value, rgb, op, report, texels, regions):
     report.update(paintedTexels=count,donorSamples=int(donors.sum()),maximumDistance=float(distance[:,0].max()))
     return {op['name']:target}
 
+
+def synthesize(rgb, target, donors, spec, report):
+    """Rebuild a target with no usable detail (a recess that baked as smooth skin) from square texture patches lying wholly
+    inside the donor texels, placed on a seeded grid and blended with a Hann window, then scaled to the mean luminance of
+    the donor texels around the target. A whole-texel copy keeps the donor's own grain, where a nearest-surface clone
+    smears it along the projection."""
+    require(isinstance(spec,dict) and set(spec)=={'size','step','seed'} and all(type(spec[k]) is int for k in spec),
+            'Heal patches need integer size, step and seed')
+    size,step=spec['size'],spec['step']
+    require(8<=size<=64 and 4<=step<=size//2,'Heal patch size 8-64 and step 4..size/2 required')
+    n=len(rgb)
+    table=np.pad(donors.astype(np.int32),((1,0),(1,0))).cumsum(0).cumsum(1)
+    whole=(table[size:,size:]-table[:-size,size:]-table[size:,:-size]+table[:-size,:-size])==size*size
+    sy,sx=np.nonzero(whole)
+    require(len(sy)>=16,'Too few whole donor patches for a patch heal')
+    ty,tx=np.nonzero(target)
+    cells=np.clip(np.unique(np.c_[ty//step,tx//step],axis=0)*step-(size-step)//2,0,n-size)
+    picks=np.random.default_rng(spec['seed']).integers(len(sy),size=len(cells))
+    window=np.outer(np.hanning(size+2)[1:-1],np.hanning(size+2)[1:-1])
+    total=np.zeros(rgb.shape);weight=np.zeros(rgb.shape[:2]);source=rgb.astype(float)
+    for (y,x),k in zip(cells,picks):
+        total[y:y+size,x:x+size]+=source[sy[k]:sy[k]+size,sx[k]:sx[k]+size]*window[...,None]
+        weight[y:y+size,x:x+size]+=window
+    require(np.all(weight[target]>0),'Heal patches must cover every target texel')
+    colors=total[target]/weight[target][:,None]
+    ring=binary_dilation(target,iterations=size)&~target&donors
+    require(ring.any(),'A patch heal needs donor texels around its target')
+    gain=float(rgb[ring].sum(-1).mean()/max(colors.sum(-1).mean(),1e-6))
+    require(.8<=gain<=1.25,'Patch heal luminance departs too far from the surrounding donors')
+    rgb[target]=np.clip(np.rint(colors*gain),0,255).astype(np.uint8)
+    report.update(patches=int(len(cells)),wholeDonorPatches=int(len(sy)),luminanceGain=round(gain,4))
 
 
 def material_hint(op, source):
