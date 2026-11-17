@@ -337,6 +337,18 @@ class IconTests(unittest.TestCase):
         self.assertTrue((clipped[:publish.ICON_WAIST + 10] == publish.ICON_CLEAR).all() and (clipped[publish.ICON_WAIST + 10:publish.ICON_WAIST + 20, 22:42] != publish.ICON_CLEAR).all())
         self.assertEqual(export.read_tint(export.tint(shade, layer))[0].shape, (128, 64))
 
+    def test_a_skinned_models_textures_are_read_back_by_the_model_tool(self):
+        with tempfile.TemporaryDirectory() as folder:
+            model = Path(folder) / 'pmh0_neck1000.mdl'
+            model.write_bytes(b'not a rigid model')  # as the rigid reader refuses headgear's skin
+            text = 'node trimesh a\n  bitmap pmh0_neck1000\nendnode\nnode skin b\n  bitmap PMH0_NECK1000\nendnode\nnode dummy c\n  bitmap NULL\nendnode\n'
+            self.assertEqual(publish.model_textures(model, read_back=lambda path: text), ['pmh0_neck1000'])
+
+            def unread(path):
+                raise ValueError('cannot be read back')
+            with self.assertRaisesRegex(ValueError, 'cannot be read back'):
+                publish.model_textures(model, read_back=unread)
+
     def test_only_the_slots_the_game_draws_have_icons(self):
         self.assertEqual(publish.icon_names(CHEST), [f'ipm_chest{NUMBER}', f'ipf_chest{NUMBER}'])
         self.assertEqual(publish.icon_names(SHIN), [])

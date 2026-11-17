@@ -538,12 +538,19 @@ def chest_neck(pack, body_pack, body, model, contract=None):
                 {**seams.ENDS, **contract.get('ends', {})})
 
 
-def model_textures(path):
-    """The textures a compiled model's meshes name."""
+def model_textures(path, read_back=None):
+    """The textures a compiled model's meshes name. A model the kit's rigid reader refuses (headgear's skin, bound
+    to the head) is read back by the model tool (`export.decompiled`, or `read_back`) for its `bitmap` lines; one
+    the tool cannot read either is refused."""
     from tools.headkit import native_reader
     path = Path(path)
-    meshes = native_reader.decode(path.read_bytes(), path.stem, require_tangents=False)
-    first = [(mesh.get('textures') or [''])[0] or '' for mesh in meshes]
+    try:
+        meshes = native_reader.decode(path.read_bytes(), path.stem, require_tangents=False)
+        first = [(mesh.get('textures') or [''])[0] or '' for mesh in meshes]
+    except ValueError:
+        if read_back is None:
+            from .export import decompiled as read_back
+        first = re.findall(r'^\s*bitmap\s+(\S+)', read_back(path), re.M)
     return sorted({name.lower() for name in first if name and name.lower() != 'null'})
 
 

@@ -165,6 +165,20 @@ def report(text):
     return []
 
 
+def decompiled(model, *, tool=None, game=None):
+    """The ASCII text the model tool reads back from a compiled model. The kit's own reader takes rigid meshes
+    only (`native_reader.decode`); a model with a skin is read this way."""
+    model = Path(model)
+    tool = tool or toolchain.cleanmodels()
+    with tempfile.TemporaryDirectory() as scratch:
+        back = Path(scratch) / model.name
+        read = subprocess.run([tool['path'], 'decompile', '--overwrite', *(['--game-dir', str(game)] if game is not None else []),
+                               str(model), str(back)], capture_output=True, text=True, timeout=600,
+                              creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        require(read.returncode == 0 and back.is_file(), f'{model.name} is a compiled model that cannot be read back: {(read.stdout + read.stderr)[-400:]}')
+        return back.read_text(encoding='cp1252')
+
+
 def compile_models(sources, output, *, tool=None, game=None, resources=()):
     """Compile ASCII models into the folder `output` with the pinned cleanmodels; returns the compiled paths.
 
@@ -210,13 +224,7 @@ def compile_models(sources, output, *, tool=None, game=None, resources=()):
         wanted = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', text, re.M))
         require(wanted > 0, f'{source.name} holds no faces')
         if re.search(r'^node skin ', text, re.M):  # the rigid reader takes no skin: the tool reads its own model back
-            with tempfile.TemporaryDirectory() as scratch:
-                back = Path(scratch) / source.name
-                read = subprocess.run([tool['path'], 'decompile', '--overwrite', *(['--game-dir', str(game)] if game is not None else []),
-                                       str(target), str(back)], capture_output=True, text=True, timeout=600,
-                                      creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-                require(read.returncode == 0 and back.is_file(), f'{source.name} compiled to a model that cannot be read back: {(read.stdout + read.stderr)[-400:]}')
-                got = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', back.read_text(encoding='cp1252'), re.M))
+            got = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', decompiled(target, tool=tool, game=game), re.M))
         else:
             try:
                 got = sum(len(mesh['faces']) for mesh in native_reader.decode(target.read_bytes(), source.stem, require_tangents=False, apply_rigid_transforms=True))
