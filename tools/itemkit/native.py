@@ -145,7 +145,9 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
     texture_name = allocation['texture']
     with Image.open(texture) as image:
         require(image.size == (profile['runtimeTextureSize'],)*2, 'Runtime texture size differs from family')
-        image.convert('RGB').save(output/'resources'/f'{texture_name}.tga')
+        # A bake with a metal reflection mask carries it as alpha (textures.metal_policy); any other diffuse is RGB.
+        reflective = image.mode == 'RGBA'
+        image.convert('RGBA' if reflective else 'RGB').save(output/'resources'/f'{texture_name}.tga')
     counts = {'visible': {}, 'shadow': {}}; expected = {}
     for part in PARTS:
         verify([arrays[part], icons[part]])
@@ -169,8 +171,8 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
             image.save(output/'resources'/f"{allocation['icons'][part]}.tga")
         target = output/f'expected-{part}.npz'; shutil.copyfile(arrays[part]['path'], target); expected[part] = pin(target)
     for kind in counts: check_budgets(counts[kind], profile['budgets'], kind)
-    # BioWare DDS twins of the diffuse (DXT1) and every icon (DXT5), from one converter resolution.
-    twins = [(output/'resources'/f'{texture_name}.tga', 'DXT1')] + [(output/'resources'/f"{allocation['icons'][p]}.tga", 'DXT5') for p in PARTS]
+    # BioWare DDS twins of the diffuse (DXT1, or DXT5 with a reflection mask) and every icon (DXT5), from one converter resolution.
+    twins = [(output/'resources'/f'{texture_name}.tga', 'DXT5' if reflective else 'DXT1')] + [(output/'resources'/f"{allocation['icons'][p]}.tga", 'DXT5') for p in PARTS]
     # The converter's pin is frozen before the first conversion and verified after the last, so a binary that changes
     # during the batch invalidates the preparation instead of recording a hash some of its DDS files did not come from.
     crunch = dds_converter([tga for tga, _ in twins]); converter = pin(crunch)

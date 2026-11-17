@@ -181,13 +181,15 @@ class Runner:
         verify([self.local['blender']])
         if stage=='bake' and self.data.get('processing',{}).get('donorFinish'):
             values.setdefault('reference',self.input('reference'))
+        if stage == 'bake' and self.data.get('processing', {}).get('metal'):
+            values['metallic'] = self.input('donorMetallic')     # the donor stage's metallic map, on the donor's own UVs
         if stage in ('fit', 'fit-measure') and 'gripStandard' in self.data['inputs']:
             values['gripStandard'] = self.input('gripStandard')
         config = {'stage': stage, 'family': self.family, 'fit': self.data.get('fit', {}),
                   'processing': self.data.get('processing', {}),'render':self.data.get('render',{}), 'output': str(folder/'worker'), **values}
         roles_stage = 'fit' if stage == 'fit-measure' else stage
         config['inputs'] = all_pins(self.manifest_path,roles=stage_roles(roles_stage),native=roles_stage=='fit')+code_pins()+[self.local['blender']]
-        config['inputs'] += [pin(values[key]) for key in ('source', 'workingSource', 'scene', 'texture', 'reference', 'atlas', 'gripStandard') if key in values]
+        config['inputs'] += [pin(values[key]) for key in ('source', 'workingSource', 'scene', 'texture', 'reference', 'atlas', 'gripStandard', 'metallic') if key in values]
         for key in ('shadowCandidates', 'visibleCandidates'):
             if key in values: config['inputs'] += [row['arrays'] for row in values[key].values()]
         target = folder/'worker.json'; write(target, config, fresh=True)
@@ -303,7 +305,9 @@ class Runner:
                 from .textures import finish_bake
                 result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures',
                                                palettes=self.data['processing'].get('materialPalettes',()),
-                                               sharpen=self.data['processing'].get('textureSharpen')))
+                                               sharpen=self.data['processing'].get('textureSharpen'),
+                                               metal=self.data['processing'].get('metal'),
+                                               metallic_path=result['metallic']['path'] if result.get('metallic') else None))
                 from .texture_check import SIZE, check_bake
                 if str(SIZE) in result['maps']:     # advisory: a person looks at the flagged blobs; never a gate
                     try: result['textureOutliers'] = check_bake(result['maps'][str(SIZE)]['path'], result['masks']['path'], folder/'texture-check')

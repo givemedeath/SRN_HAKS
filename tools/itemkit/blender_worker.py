@@ -679,13 +679,28 @@ def bake(cfg, out):
         correction=correct_projection_misses(cfg,out,donor,low,pixels,owners,misses)
         misses[:]=False
         np.savez_compressed(out/'bake-masks.npz',owners=owners,hiddenCaps=caps,visibleMisses=misses)
+    metallic = None
+    if cfg.get('metallic'):
+        # A second pass over the same rays: the donor's metallic map (donor UVs) in place of its colour. The colour
+        # pass above is untouched; a texel this pass misses is left for the CPU padding (NaN), as it only feeds a mask.
+        source = bpy.data.images.load(cfg['metallic']); source.colorspace_settings.name = 'Non-Color'
+        for slot in donor.material_slots:
+            nodes = slot.material.node_tree.nodes; emission = next(n for n in nodes if n.type == 'EMISSION')
+            link = emission.inputs['Color'].links; require(link and link[0].from_node.type == 'TEX_IMAGE', 'The metallic pass needs an image-textured donor')
+            link[0].from_node.image = source
+        second = bpy.data.images.new('item-metallic-4k', width=size, height=size, alpha=False, float_buffer=True)
+        second.generated_color = (1, 0, 1, 1); second.colorspace_settings.name = 'Non-Color'; texture.image = second
+        set_active([low, donor]); bpy.ops.object.bake(type='EMIT', use_selected_to_active=True)
+        values = image_rgba(second); missed = np.all(np.abs(values[..., :3]-[1, 0, 1]) < 1e-5, axis=2)
+        layer = values[..., 0].astype(np.float32); layer[missed | caps | (owners < 0)] = np.nan
+        np.save(out/'bake-metallic.npy', layer); metallic = pin(out/'bake-metallic.npy')
     # Use Blender's own bake margin only after the independently audited unpadded pass.
     # Padding is implemented in the bound CPU postprocessor; it never overwrites mapped texels.
     np.save(out/'bake-linear.npy', pixels[..., :3])
     donor.hide_render = True; donor.hide_set(True); bpy.data.objects.remove(low, do_unlink=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
     return {'visibleMisses': 0,'projectedMisses':projected_misses,'missCorrection':correction, 'preflight':preflight_report,'hiddenCapTexels': int(caps.sum()), 'mappedTexels': int((owners >= 0).sum()),
-            'linear': pin(out/'bake-linear.npy'), 'masks': pin(out/'bake-masks.npz')}
+            'linear': pin(out/'bake-linear.npy'), 'masks': pin(out/'bake-masks.npz'), **({'metallic': metallic} if metallic else {})}
 
 
 def save_bake_recovery(cfg,out,donor,low,owners,caps,misses):

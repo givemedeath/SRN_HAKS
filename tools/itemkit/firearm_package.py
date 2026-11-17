@@ -126,7 +126,7 @@ def prepare(spec_path, output):
             target = out/f'expected-{variant["colour"]}.npz'
             shutil.copyfile(source['arrays']['path'], target); expected[name] = pin(target)
             with Image.open(source['texture']['path']) as image:
-                image.convert('RGB').save(out/'resources'/f'{variant["texture"]}.tga')
+                image.convert('RGBA' if image.mode == 'RGBA' else 'RGB').save(out/'resources'/f'{variant["texture"]}.tga')
             with Image.open(source['icon']['path']) as image:
                 image.save(out/'resources'/f'{variant["icons"][allocation["slot"]]}.tga')
             target = out/f'{variant["blueprint"]}.json'; write(target, item, fresh=True)

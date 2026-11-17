@@ -771,6 +771,14 @@ The atlas is packed at twice the runtime size, so a 2K item's island padding is 
 item's layout is unchanged); the Mace went from 0.484 to 0.532 useful coverage at 2K. `processing.textureSharpen`
 (`{radius, amount}`: 0.3-2 texels, amount up to 1) is an optional unsharp mask on each derived map after the box
 filter; the 4K bake is never sharpened. It is off unless a manifest sets it, and a look approval decides a default.
+`processing.metal` (`{darken, reflection}`) uses the donor stage's metallic map, pinned as the `donorMetallic`
+input (`maps/metallic-4096.png` beside the textured donor) and baked onto the final parts in a second pass over
+the colour bake's rays. `darken` (0.3-1) is the linear colour factor on full metal: the generator gives metal a
+bright albedo, which the game shows as pale steel because it has no metal shading (Defiance T-250, 2026-11-17:
+0.40-0.55 brought its receiver back to the reference's gunmetal). `reflection` (0-0.6) lowers the texture's alpha
+on metal, which the game reads as its environment-map mask, as the base game's metal textures do; with it the
+derived maps are RGBA, the native TGA keeps the alpha and its DDS twin is DXT5. Zero writes no alpha. Both are
+off unless a manifest sets them, and the in-game look of a reflection strength still needs a client check.
 No original appearance-field sampling at transformed coordinates is permitted.
 
 Rendering uses four CPU threads, matched clay/textured views and measured native icon

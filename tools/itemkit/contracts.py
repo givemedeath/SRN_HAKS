@@ -445,7 +445,7 @@ def source_version():
 
 def stage_roles(stage):
     return {'prepare':{'reference'},'inspect':{'geometryRaw'},'donor':{'geometryDonor','field'},
-            'fit':{'texturedDonor','workingMesh','gripStandard'},'finish':{'reference'},'bake':{'reference'},
+            'fit':{'texturedDonor','workingMesh','gripStandard'},'finish':{'reference'},'bake':{'reference','donorMetallic'},
             'fixture':{'fixtureTemplate','maleCreature','femaleCreature','nwscript','comparisonBlueprint'},
             'calibrate':{'reference','geometry','detail','mask','calibrationReference','calibrationDetail','sourceAudit','referenceApproval'},
             'geometry':{'reference','clayReference','geometry','detail','foregroundMask','geometryForegroundMask','sourceAudit','referenceApproval'},
