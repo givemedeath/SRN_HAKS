@@ -129,11 +129,6 @@ def save(image, path):
     return Path(path)
 
 
-def capture(pid, path):
-    """Save the client window's own pixels, whether or not it is in front."""
-    return save(grab(pid), path)
-
-
 def stop(process):
     """Close the client this module started. Takes the Popen from start(), never a bare name."""
     require(isinstance(process, subprocess.Popen), 'Only a client started here can be stopped')
