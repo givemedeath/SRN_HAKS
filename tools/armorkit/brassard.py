@@ -14,7 +14,7 @@ import numpy as np
 from . import export, logo, measure, registry, seams
 from .registry import require
 
-DIRECTIONS = 32  # the band's points round the arm
+DIRECTIONS = 48  # the band's columns round the arm
 BELOW = 0.3  # of the upper arm's length from the shoulder joint: where the band's upper edge lies
 TALL = 0.085  # metres from edge to edge
 CLEARANCE = 0.003  # metres the band stands outside what is worn under it
@@ -46,11 +46,28 @@ def frame(bones, side):
     return start, axis, out, np.cross(axis, out), float(np.linalg.norm(end - start))
 
 
-def _slices(under, start, axis, out, third):
-    """(height down the arm, direction cell, radius) of points over what is worn on the arm."""
-    points = measure.surface_points(np.asarray(under[0], float), np.asarray(under[1], int), SURFACE) - start
-    angle = np.arctan2(points @ third, points @ out)
-    return points @ axis, np.floor((angle + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS, np.hypot(points @ out, points @ third)
+def _worn(under, start, axis, out, third):
+    """(height down the arm, angle round it, radius) of points 1.5 mm apart over what is worn on the arm."""
+    points = measure.surface_points(np.asarray(under[0], float), np.asarray(under[1], int), SURFACE / 2) - start
+    return points @ axis, np.arctan2(points @ third, points @ out), np.hypot(points @ out, points @ third)
+
+
+def _bins(along, angle, heights):
+    """(slice, cell, inside the band's height) of points: the slice between two rings and the cell between two of the
+    band's columns each lies in. A column is at angle -pi + k * 2 pi / DIRECTIONS."""
+    slices = np.floor((along - heights[0]) / (heights[-1] - heights[0]) * (len(heights) - 1)).astype(int)
+    cells = np.floor((angle + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS
+    return slices, cells, (slices >= 0) & (slices < len(heights) - 1)
+
+
+def band_radius(heights, radius, along, angle):
+    """The band's radius at heights and angles, read between its rings and columns."""
+    ring = np.clip((np.asarray(along, float) - heights[0]) / (heights[-1] - heights[0]) * (len(heights) - 1), 0, len(heights) - 1 - 1e-9)
+    column = (np.asarray(angle, float) + np.pi) / (2 * np.pi) * DIRECTIONS
+    j, k = np.floor(ring).astype(int), np.floor(column).astype(int)
+    fj, fk = ring - j, column - k
+    k0, k1 = k % DIRECTIONS, (k + 1) % DIRECTIONS
+    return ((1 - fj) * ((1 - fk) * radius[j, k0] + fk * radius[j, k1]) + fj * ((1 - fk) * radius[j + 1, k0] + fk * radius[j + 1, k1]))
 
 
 def centred(under, start, axis, out, third, low, high):
@@ -66,41 +83,42 @@ def centred(under, start, axis, out, third, low, high):
 
 
 def outline(under, start, axis, out, third, heights):
-    """The radius per ring and direction of what is worn on the arm at `heights` metres down it.
+    """The radius of the band's corners, ring by ring and column by column, over what is worn on the arm.
 
-    Each ring reads what lies within one ring's spacing of its own height, so the band between two rings covers
-    what is worn between them, and is evened round the arm without coming inside what it read."""
-    along, cell, radius = _slices(under, start, axis, out, third)
-    reach = float(heights[1] - heights[0])
-    rings = np.zeros((len(heights), DIRECTIONS))
-    for ring, height in enumerate(heights):
-        mine = np.abs(along - height) <= reach
-        require(mine.any(), 'Nothing is worn on the upper arm where the band goes')
-        np.maximum.at(rings[ring], cell[mine], radius[mine])
-        require((rings[ring] > 0).all(), 'The upper arm is open on a side where the band goes')
-    even = (np.roll(rings, 1, axis=1) + 2 * rings + np.roll(rings, -1, axis=1)) / 4
-    return np.maximum(rings, even)
+    What is worn is read in the patches the band's faces lie over: the slice between two rings by the cell between
+    two columns. A corner stands at the widest of the four patches round it, so every face clears the whole of what
+    is worn under it. A band whose corners stood at the middle of what they read let a sleeve's fold through between
+    two of them (client, female bodies, 2026-11-17)."""
+    along, angle, worn = _worn(under, start, axis, out, third)
+    slices, cells, mine = _bins(along, angle, heights)
+    require(mine.any(), 'Nothing is worn on the upper arm where the band goes')
+    patches = np.zeros((len(heights) - 1, DIRECTIONS))
+    np.maximum.at(patches, (slices[mine], cells[mine]), worn[mine])
+    require((patches > 0).any(axis=0).all(), 'The upper arm is open on a side where the band goes')
+    while (patches == 0).any():  # a patch nothing was read in takes the widest beside it
+        beside = np.max([np.roll(patches, 1, axis=1), np.roll(patches, -1, axis=1), np.vstack([patches[:1], patches[:-1]]),
+                         np.vstack([patches[1:], patches[-1:]])], axis=0)
+        patches = np.where(patches == 0, beside, patches)
+    tall = np.vstack([patches[:1], patches, patches[-1:]])  # the slice above and the slice below each ring
+    rings = np.maximum(tall[:-1], tall[1:])
+    return np.maximum(rings, np.roll(rings, 1, axis=1))  # column k lies between cells k - 1 and k
 
 
 def fit(under, start, axis, out, third, heights, radius):
     """(off, most, inside): how far the band stands off what is worn under it over nine tenths of itself and at
     most, and how far that comes through it.
 
-    Read slice by slice between the rings, each direction's widest worn point against the band there."""
-    along, cell, worn = _slices(under, start, axis, out, third)
-    gaps = []
-    step = float(heights[1] - heights[0])
-    for ring in range(len(heights) - 1):
-        for part in (0.25, 0.75):
-            mine = np.abs(along - (heights[ring] + part * step)) <= step / 4
-            widest = np.zeros(DIRECTIONS)
-            np.maximum.at(widest, cell[mine], worn[mine])
-            band = (1 - part) * radius[ring] + part * radius[ring + 1]
-            have = widest > 0
-            gaps.append((band - widest)[have])
-    gaps = np.concatenate(gaps)
-    require(len(gaps), 'Nothing is worn under the band')
-    return float(np.percentile(gaps, 90)), float(gaps.max()), float(max(-gaps.min(), 0.0))
+    Through: every point read under the band against the band there. Off: patch by patch, the widest point worn
+    against the band over the patch's middle."""
+    along, angle, worn = _worn(under, start, axis, out, third)
+    slices, cells, mine = _bins(along, angle, heights)
+    require(mine.any(), 'Nothing is worn under the band')
+    inside = float(max((worn[mine] - band_radius(heights, radius, along[mine], angle[mine])).max(), 0.0))
+    patches = np.zeros((len(heights) - 1, DIRECTIONS))
+    np.maximum.at(patches, (slices[mine], cells[mine]), worn[mine])
+    middles = np.meshgrid((heights[:-1] + heights[1:]) / 2, -np.pi + (np.arange(DIRECTIONS) + 0.5) * 2 * np.pi / DIRECTIONS, indexing='ij')
+    gaps = (band_radius(heights, radius, *middles) - patches)[patches > 0]
+    return float(np.percentile(gaps, 90)), float(gaps.max()), inside
 
 
 def build(bones, under, side):
@@ -111,7 +129,7 @@ def build(bones, under, side):
     start = centred(under, start, axis, out, third, low, low + TALL)
     heights = low + TALL * np.arange(RINGS) / (RINGS - 1)
     radius = outline(under, start, axis, out, third, heights) + CLEARANCE
-    angles = -np.pi + (np.arange(DIRECTIONS) + 0.5) * 2 * np.pi / DIRECTIONS
+    angles = -np.pi + np.arange(DIRECTIONS) * 2 * np.pi / DIRECTIONS  # the band's columns
     at = lambda s, r, a: start + s * axis + r * (np.cos(a) * out + np.sin(a) * third)
     lip = lambda ring: np.maximum(radius[ring] - LIP, 0.5 * radius[ring])
     rings = ([(low - 0.004, lip(0), 0.0)] + [(heights[k], radius[k], 0.12 + 0.76 * k / (RINGS - 1)) for k in range(RINGS)]
@@ -136,12 +154,7 @@ def build(bones, under, side):
     up = -axis
     right = np.cross(-out, up)
     sign = 1.0 if third @ right > 0 else -1.0
-    round_about = np.concatenate([angles - 2 * np.pi, angles, angles + 2 * np.pi])
-
-    def band_at(s, a):  # the band's radius at a height and an angle, read between its rings
-        ring = float(np.clip((s - low) / TALL * (RINGS - 1), 0, RINGS - 1 - 1e-9))
-        k, part = int(ring), ring - int(ring)
-        return float(np.interp(a, round_about, np.tile((1 - part) * radius[k] + part * radius[k + 1], 3)))
+    band_at = lambda s, a: float(band_radius(heights, radius, s, a))
     middle = low + TALL / 2
     span = BADGE / band_at(middle, 0.0)  # the angle a badge's side takes
     bv, buv, bf = [], [], []

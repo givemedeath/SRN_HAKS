@@ -148,7 +148,7 @@ class BrassardTests(unittest.TestCase):
         radius = brassard.outline(under, middle, axis, out, third, heights) + brassard.CLEARANCE
         off, most, inside = brassard.fit(under, middle, axis, out, third, heights, radius)
         self.assertLess(off, brassard.OFF)
-        self.assertLessEqual(inside, brassard.INSIDE)
+        self.assertEqual(inside, 0.0)  # every point read under the band is under it
         self.assertLess(radius[-1].max(), 0.05)  # on the arm at its lower edge, not out at the sleeve
         # one outline for the whole height, as the first brassard had, stands off the arm by the sleeve's depth
         one = np.tile(radius.max(axis=0), (brassard.RINGS, 1))
