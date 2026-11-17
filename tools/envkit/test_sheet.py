@@ -171,6 +171,7 @@ class SheetTests(unittest.TestCase):
         with mock.patch.object(sheet, 'collect', return_value={'failed': [], 'downloaded': [], 'unsent': ['yd-desk-a1']}), mock.patch('builtins.print') as said:
             command.command_sheet(asked)  # what is only unsent is no failure
         self.assertIn('unsentCredits', said.call_args_list[-1].args[0])
+        self.assertEqual(json.loads(said.call_args_list[-1].args[0])['ledger'], str(ledger.path))  # which ledger it was, as none need be named
 
     def test_a_remesh_of_an_earlier_generation_is_not_kept_for_the_new_one(self):
         """A building generated again under a new key with its remesh key left as it was: the ledger's remesh is the
