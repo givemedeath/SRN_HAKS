@@ -77,6 +77,29 @@ RecomputeStaticLighting(GetArea(oThing));
 The same object rules hold: not static. Checked in the client on 2026-11-13 by night: the ground round the light
 tower lit, dark when put out with the call above and `EkLights`, and lit again.
 
+## A fire
+
+A placeable whose game set states a `fire` (the Ghost Riders burn barrel `ek_gr_fire`) has flames the game draws,
+and the model has the four animations the stock flame has, so a script puts the fire out and lights it as it does
+a brazier:
+
+```c
+AssignCommand(oThing, PlayAnimation(bOn ? ANIMATION_PLACEABLE_ACTIVATE : ANIMATION_PLACEABLE_DEACTIVATE));
+SetPlaceableIllumination(oThing, bOn);
+RecomputeStaticLighting(GetArea(oThing));
+```
+
+- Such a model has no lit parts, no `<name>_o` and no `lights` in the catalog: there is nothing to swap. With a
+  glow map as well, a script that swapped the lights-out material in and played the animation in one go left the
+  flame burning, though each call alone did its work, so a game set with both is refused.
+- Its bed of embers (`<name>_e`) is a picture of its own that glows at every hour and is left glowing when the
+  fire is out, as embers are. The ember barrel `ek_gr_embers` is the same model with no fire and no light.
+- The object must not be static, as above.
+
+Checked in the client on 2026-11-16 by night, from the converted files: the barrel burning and the ground lit
+orange, both gone with the calls above and the embers still glowing, and back again; then from the pack's files
+with `envkit check lights`, which stands a model with a fire among the lit props.
+
 ## Everything a player sees: `SetTextureOverride`
 
 For tiles, for static scenery, or for a blackout of every copy at once:

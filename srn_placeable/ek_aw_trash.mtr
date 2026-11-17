@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_aw_trash
+texture1 ek_aw_trash_n
+texture2 ek_aw_trash_s
+texture3 ek_aw_trash_r
+texture4 null
+texture5 null
