@@ -146,7 +146,7 @@ class FixtureTests(unittest.TestCase):
 class FakeClient:
     """The driver's view of a client: a scripted log, and a record of what was captured when."""
     def __init__(self, test, reads):
-        self.reads, self.captured, self.stopped = list(reads), [], 0
+        self.reads, self.captured, self.stopped, self.refused = list(reads), [], 0, set()
         for name, stand_in in (('start', lambda *a, **k: self), ('stop', self.stop), ('capture', self.capture),
                                ('log_lines', self.log_lines)):
             patcher = mock.patch.object(client, name, stand_in)
@@ -165,6 +165,8 @@ class FakeClient:
         self.stopped += 1
 
     def capture(self, pid, path):
+        if Path(path).name in self.refused:
+            raise OSError('screen grab failed')
         self.captured.append(Path(path).name)
         return Path(path)
 
@@ -211,10 +213,32 @@ class ClientTests(unittest.TestCase):
 
     def test_each_capture_is_filed_under_the_shot_on_screen(self):
         zero, one = SHOT.format(0, 0), SHOT.format(1, 1)
-        fake = FakeClient(self, [[zero], [zero], [zero, one], [zero, one], [zero, one, 'ARMORKIT done']])
+        # the log as read each time: in the loop, after the settle, after the capture
+        fake = FakeClient(self, [[zero], [zero], [zero], [zero, one], [zero, one], [zero, one], [zero, one, 'ARMORKIT done']])
         got = client.run('game', RECORD, 'captures')
         self.assertEqual((fake.captured, fake.stopped), (['shot-00.png', 'shot-01.png'], 1))
-        self.assertEqual(len(got['captures']), 2)
+        self.assertEqual((len(got['captures']), got['missed']), (2, []))
+
+    def test_a_capture_that_outlasts_its_shot_is_refused(self):
+        """One grab of 160 took 8.7 s (2026-11-16): the next shot had begun while it read the window."""
+        zero, one = SHOT.format(0, 0), SHOT.format(1, 1)
+        FakeClient(self, [[zero], [zero], [zero, one]])
+        with self.assertRaisesRegex(ValueError, 'The capture of shot 0 ended after shot 1 began'):
+            client.run('game', RECORD, 'captures')
+
+    def test_a_tolerant_run_lists_the_shots_it_missed_and_goes_on(self):
+        zero, one, two = (SHOT.format(number, number) for number in range(3))
+        # shot 0 is seen late, shot 1's grab is refused by the system, shot 2 is captured
+        fake = FakeClient(self, [[zero], [zero, one], [zero, one], [zero, one], [zero, one, two], [zero, one, two], [zero, one, two],
+                                 [zero, one, two, 'ARMORKIT done']])
+        fake.refused = {'shot-01.png'}
+        got = client.run('game', {**RECORD, 'shots': 3}, 'captures', tolerate=True)
+        self.assertEqual((fake.captured, got['missed'], fake.stopped), (['shot-02.png'], [0, 1], 1))
+        self.assertEqual([Path(path).name for path in got['captures']], ['shot-02.png'])
+        strict = FakeClient(self, [[zero], [zero], [zero]])
+        strict.refused = {'shot-00.png'}
+        with self.assertRaisesRegex(OSError, 'screen grab failed'):  # without it a refused grab still stops the run
+            client.run('game', RECORD, 'captures')
 
     def test_a_capture_that_would_show_a_later_shot_is_refused(self):
         """The Phase 0 helmet run filed eight pictures under the wrong shot after an 11 s stall."""

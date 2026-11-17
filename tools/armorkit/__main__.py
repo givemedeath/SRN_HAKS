@@ -206,7 +206,7 @@ def command_wear(args):
     slots, worn_on = bodies.published(registry.load(args.registry), args.number, listed(args.bodies) if args.bodies else None)
     spec, layout = bodies.check_spec(worn_on, slots, args.number, args.hak, args.body_pack, tlk=args.tlk, heads=heads,
                                      colours=json.loads(args.colours) if args.colours else None, hold=args.hold, icons=not args.no_icons)
-    record = bodies.check(spec, layout, args.output, args.nwn_root, run=args.run, wait=args.wait, settle=args.settle)
+    record = bodies.check(spec, layout, args.output, args.nwn_root, run=args.run, wait=args.wait, settle=args.settle, retries=args.retries)
     print(json.dumps({key: record[key] for key in ('module', 'shots', 'evidence') if key in record}))
 
 
@@ -363,6 +363,7 @@ def main(argv=None):
     p.add_argument('--wait', type=float, help="seconds to wait for another session's client to close first")
     p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')
     p.add_argument('--hold', type=float, default=3.0, help='seconds the game stays on each shot (default 3): longer on a busy machine, where shots stall')
+    p.add_argument('--retries', type=int, default=2, help='times the shots that were not captured in their time are looked at again by themselves (default 2)')
     p.set_defaults(handler=command_wear)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')
     p.add_argument('--spec', required=True); p.add_argument('--output', required=True)

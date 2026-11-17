@@ -211,8 +211,8 @@ class CheckTests(unittest.TestCase):
                 asked.update(options)
                 Path(captures).mkdir()
                 for name in ('0', '1', '2'):
-                    (Path(captures) / name).write_bytes(name.encode())
-                return {'captures': [str(Path(captures) / name) for name in ('0', '1', '2')]}
+                    (Path(captures) / f'shot-0{name}.png').write_bytes(name.encode())
+                return {'lines': [], 'captures': [str(Path(captures) / f'shot-0{name}.png') for name in ('0', '1', '2')], 'missed': []}
             with mock.patch.object(poses, 'build', side_effect=lambda *_: dict(record)) as built, mock.patch.object(client, 'run', side_effect=ran), \
                     mock.patch.object(client, 'wait_free') as waited, mock.patch.object(poses, 'sheet', side_effect=lambda captures, layout, path: path) as sheet:
                 found = bodies.check({'name': 'x'}, layout, root / 'check', 'game', run=True, wait=60)
@@ -220,7 +220,8 @@ class CheckTests(unittest.TestCase):
                 built.assert_called_once()
                 self.assertEqual(built.call_args.args[2:], (root / 'check', 'game'))
                 waited.assert_called_once_with(60)
-                self.assertEqual((asked['until'], asked['timeout']), ('icons-done', 8.0 + 4 * 5.0 + 300 + 2 * 5.0))
+                self.assertEqual((asked['until'], asked['timeout'], asked['tolerate']), ('icons-done', 8.0 + 4 * 5.0 + 300 + 2 * 5.0, True))
+                self.assertEqual((found['evidence']['missed'], found['evidence']['retries']), ([], []))
                 self.assertEqual((root / 'check' / 'icon.png').read_bytes(), b'2')
                 self.assertTrue((root / 'check' / 'evidence.json').is_file())
                 with self.assertRaisesRegex(ValueError, 'no time to capture'):  # asked before the folder is made
@@ -229,6 +230,54 @@ class CheckTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'fresh folder'):
                     bodies.check({'name': 'x'}, layout, root / 'check', 'game')
                 self.assertNotIn('evidence', bodies.check({'name': 'x'}, layout, root / 'built', 'game'))
+
+    def test_shots_missed_are_looked_at_again_by_themselves(self):
+        heights = {body: 1.0 for body in registry.BODIES}
+        with mock.patch.object(bodies, 'statures', return_value=heights):
+            document, layout = bodies.check_spec(list(registry.BODIES), ['chest'], 6020, [], 'pack', hold=5.0)
+        count = len(layout['labels'])
+        # the shots of two actors far apart in the whole check, and the item: side by side when looked at again
+        again, part = bodies.subset(document, layout, [3, 101, 102, count])
+        self.assertEqual(part, {'labels': [layout['labels'][number] for number in (3, 101, 102)], 'columns': layout['columns'], 'icons': True})
+        self.assertEqual([actor['label'] for actor in again['actors']], ['pmh0, standing', 'pme2, arms up', 'icon host'])
+        self.assertEqual([actor['position'] for actor in again['actors'][:2]], [bodies.place(0), bodies.place(1)])
+        self.assertEqual([(shot['actor'], shot['distance']) for shot in again['shots']],
+                         [(0, document['shots'][3]['distance']), (1, document['shots'][101]['distance']), (1, document['shots'][102]['distance'])])
+        self.assertIn('shot=3 target=item', again['scripts']['ak_icons'])
+        self.assertNotIn(f'shot={count} target=item', again['scripts']['ak_icons'])
+        plain, without = bodies.subset(document, layout, [5])
+        self.assertEqual((without['icons'], set(plain['scripts']), len(plain['actors'])), (False, {'ak_pose'}, 1))
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            small = {'labels': ['a', 'b', 'c'], 'columns': 3, 'icons': True}
+            spec = {**document, 'shots': document['shots'][:3]}
+            spec['scripts'] = {**spec['scripts'], 'ak_icons': spec['scripts']['ak_icons'].replace(f'shot={count} target=item', 'shot=3 target=item')}
+            runs = []
+
+            def ran(nwn_root, given, captures, **options):
+                """The whole check misses shots 1 and 3 (the item); the first look again misses the item once more."""
+                runs.append(Path(captures).parent.name)
+                taken = {1: [0, 2], 2: [0], 3: [0]}[len(runs)]
+                Path(captures).mkdir(parents=True)
+                for number in taken:
+                    (Path(captures) / f'shot-{number:02d}.png').write_bytes(f'{len(runs)}:{number}'.encode())
+                wanted = given['shots'] + (1 if options['until'] == 'icons-done' else 0)
+                return {'lines': [f'run {len(runs)}'], 'captures': [str(Path(captures) / f'shot-{number:02d}.png') for number in taken],
+                        'missed': [number for number in range(wanted) if number not in taken]}
+            built = lambda document, layout, output, nwn_root: {'module': 'm', 'shots': len(document['shots']), 'start': 8.0, 'hold': 5.0}
+            with mock.patch.object(poses, 'build', side_effect=built), mock.patch.object(client, 'run', side_effect=ran), \
+                    mock.patch.object(poses, 'sheet', side_effect=lambda captures, layout, path: path) as sheet:
+                found = bodies.check(spec, small, root / 'check', 'game', run=True)
+                evidence = found['evidence']
+                self.assertEqual(runs, ['check', 'retry-1', 'retry-2'])
+                self.assertEqual(evidence['retries'], [{'shots': [1, 3], 'lines': ['run 2'], 'missed': [3]}, {'shots': [3], 'lines': ['run 3'], 'missed': []}])
+                self.assertEqual([Path(path).name for path in evidence['captures']], ['shot-00.png', 'shot-01.png', 'shot-02.png', 'shot-03.png'])
+                self.assertEqual([Path(path).read_bytes() for path in evidence['captures']], [b'1:0', b'2:0', b'1:2', b'3:0'])
+                self.assertEqual(((root / 'check' / 'icon.png').read_bytes(), len(sheet.call_args.args[0]), evidence['missed']), (b'3:0', 3, []))
+                runs.clear()  # looked at again as often as asked, and no more: what is still missed is an error, the evidence kept
+                with self.assertRaisesRegex(ValueError, 'Shots 3 were not captured in 1 more looks'):
+                    bodies.check(spec, small, root / 'once', 'game', run=True, retries=1)
+                self.assertEqual(json.loads((root / 'once' / 'evidence.json').read_text(encoding='utf-8'))['missed'], [3])
 
 
 if __name__ == '__main__':

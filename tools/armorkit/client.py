@@ -133,19 +133,29 @@ def stop(process):
         process.wait(timeout=30)
 
 
-def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done'):
+def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', tolerate=False):
     """Start the client on a built fixture, capture after each `shot=` line, stop it, and return the evidence.
 
     record: the dict fixture.build returned. captures: folder for the window captures. The game holds each
     shot for `record['hold']` seconds and only then moves on, so a capture belongs to its shot as long as
     it is taken inside that time. A capture that would come after the next shot began is refused, and so
-    is a shot whose actor does not exist: a wrong picture must never be filed as evidence."""
+    is a shot whose actor does not exist: a wrong picture must never be filed as evidence. So is a capture
+    that ended after the next shot began: the window's pixels are read at some time inside the grab, and one
+    grab took 8.7 s where they take 2 (2026-11-16), which stopped the shot after it and not itself.
+
+    With `tolerate` a shot that was not captured in its time, or whose grab the system refused, stops
+    nothing: it is left out and its number listed under `missed` in the evidence, for the caller to look at
+    again. The evidence's captures are named for their shots, `shot-NN.png`."""
     user = record['userDirectory']
     hold, begin, count = record.get('hold', HOLD), record.get('start', START), record.get('shots', 0)
     require(POLL + settle + MARGIN <= hold, f'settle {settle} s leaves no time to capture inside a {hold} s shot')
     timeout = begin + count * hold + 180 if timeout is None else timeout
     process = start(nwn_root, user, Path(record['module']).stem)
-    shots, seen = [], 0
+    shots, missed, seen = [], [], 0
+
+    def lost(number, reason):
+        require(tolerate, reason)
+        missed.append(number)
     try:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
@@ -159,14 +169,28 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done'):
                     require(values.get('valid') != '0', f'Shot {number} has no actor to look at: {values["target"]}')
                     time.sleep(settle)
                     newest = max(shot_numbers(log_lines(user)))
-                    require(newest == number, f'Shot {number} was not captured before shot {newest} began; '
-                            'the client or the driver stalled, so the picture would show the wrong shot')
-                    shots.append(str(capture(process.pid, Path(captures) / f'shot-{number:02d}.png')))
+                    if newest != number:
+                        lost(number, f'Shot {number} was not captured before shot {newest} began; '
+                             'the client or the driver stalled, so the picture would show the wrong shot')
+                        continue
+                    try:
+                        path = capture(process.pid, Path(captures) / f'shot-{number:02d}.png')
+                    except OSError as error:  # the system refuses a grab now and then ('screen grab failed')
+                        if not tolerate:
+                            raise
+                        lost(number, f'Shot {number} could not be captured: {error}')
+                        continue
+                    newest = max(shot_numbers(log_lines(user)))
+                    if newest != number:  # the grab outlasted the shot: what it read may be the next one
+                        path.unlink(missing_ok=True)
+                        lost(number, f'The capture of shot {number} ended after shot {newest} began, so the picture may show the wrong shot')
+                        continue
+                    shots.append(str(path))
             seen = len(lines)
             if any(line == f'{LOG_PREFIX} {until}' for line in lines):
                 break
         else:
             raise ValueError('The fixture did not finish within the timeout')
-        return {'lines': log_lines(user), 'captures': shots}
+        return {'lines': log_lines(user), 'captures': shots, 'missed': missed}
     finally:
         stop(process)

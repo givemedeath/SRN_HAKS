@@ -271,11 +271,38 @@ def check_spec(bodies, slots, number, haks, body_pack, *, tlk=None, colours=None
     return document, {'labels': labels, 'columns': len(VIEWS), 'icons': bool(icons)}
 
 
-def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.2):
+def subset(document, layout, wanted):
+    """(fixture spec, layout) of the shots numbered `wanted` alone, for another look at them: their actors
+    stood side by side from the first place on, so the camera goes no further between them than in the whole
+    check, and the item's shot (the number after the last body shot) with its actor where it is wanted."""
+    count = len(layout['labels'])
+    numbers = [number for number in wanted if number < count]
+    used = list(dict.fromkeys(document['shots'][number]['actor'] for number in numbers))
+    actors = [{**document['actors'][old], 'position': place(new)} for new, old in enumerate(used)]
+    shots = [{**document['shots'][number], 'actor': used.index(document['shots'][number]['actor'])} for number in numbers]
+    scripts = {name: text for name, text in document['scripts'].items() if name != 'ak_icons'}
+    item = layout['icons'] and count in wanted
+    if item:
+        actors.append(document['actors'][-1])
+        marker = f'shot={count} target=item'
+        require(document['scripts']['ak_icons'].count(marker) == 1, 'The item script announces its shot once')
+        scripts['ak_icons'] = document['scripts']['ak_icons'].replace(marker, f'shot={len(shots)} target=item')
+    return ({**document, 'actors': actors, 'shots': shots, 'scripts': scripts},
+            {'labels': [layout['labels'][number] for number in numbers], 'columns': layout['columns'], 'icons': bool(item)})
+
+
+def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.2, retries=2):
     """Build the client check into the fresh folder `output` and, with `run`, look: the fixture's record, with
     the `evidence` where it ran. The captures are laid out in `<output>/sheet.jpg`, a row per body and pose,
     and the one of the item kept as `icon.png`. `wait` is the seconds to
-    wait for another session's client to close first."""
+    wait for another session's client to close first.
+
+    A shot that was not captured in its time (`client.run`, `tolerate`) stops nothing: when the run is over
+    the shots missed are looked at again by themselves, in a fixture of their own under `<output>/retry-N`
+    (`subset`), up to `retries` times, and their captures filed with the others under their own numbers. One
+    slow screen grab in 160 shots ended a run of a quarter of an hour, and a hold long enough to ride it out
+    doubled every run (2026-11-16). Shots still missed after the last retry are an error, with the evidence
+    kept."""
     output = Path(output)
     require(not output.exists(), f'The client check is built into a fresh folder; this one exists: {output}')
     hold = document.get('hold', fixture.HOLD)  # asked before the folder is made: `client.run` would refuse it after
@@ -283,17 +310,44 @@ def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.
     output.mkdir(parents=True)
     record = poses.build(document, layout, output, nwn_root)
     if run:
-        if wait:
-            client.wait_free(wait)
-        count, hold = len(layout['labels']), record.get('hold', hold)
-        evidence = client.run(nwn_root, record, output / 'captures', settle=settle, until='icons-done' if layout['icons'] else 'done',
-                              timeout=record['start'] + (record['shots'] + 2) * hold + 300 + record['shots'] * hold)  # room for shots that fall behind
+        count = len(layout['labels'])
+        found = {}  # each shot's capture, by its number in the whole check
+
+        def look(built, part, folder, numbers):
+            """Run one built fixture and file its captures under the numbers its shots have in the whole check."""
+            if wait:
+                client.wait_free(wait)
+            held = built.get('hold', hold)
+            seen = client.run(nwn_root, built, folder / 'captures', settle=settle, until='icons-done' if part['icons'] else 'done', tolerate=True,
+                              timeout=built['start'] + (built['shots'] + 2) * held + 300 + built['shots'] * held)  # room for shots that fall behind
+            for capture in seen['captures']:
+                number = numbers[int(Path(capture).stem.rpartition('-')[2])]
+                if folder != output:  # beside the others, under its own number
+                    target = output / 'captures' / f'shot-{number:02d}.png'
+                    target.write_bytes(Path(capture).read_bytes())
+                    capture = str(target)
+                found[number] = capture
+            return seen
+        every = list(range(count + (1 if layout['icons'] else 0)))
+        evidence = look(record, layout, output, every)
+        evidence['retries'] = []
         keep = lambda: (output / 'evidence.json').write_text(json.dumps(evidence, indent=1) + '\n', encoding='utf-8', newline='\n')
+        for attempt in range(1, int(retries) + 1):
+            missing = [number for number in every if number not in found]
+            if not missing:
+                break
+            keep()
+            again, part = subset(document, layout, missing)
+            folder = output / f'retry-{attempt}'
+            seen = look(poses.build(again, part, folder, nwn_root), part, folder, missing)
+            evidence['retries'].append({'shots': missing, 'lines': seen['lines'], 'missed': [missing[at] for at in seen['missed']]})
+        evidence['missed'] = [number for number in every if number not in found]
+        evidence['captures'] = [found[number] for number in every if number in found]
         keep()  # before the sheet: what the client said and showed is kept whatever becomes of the layout
-        captures = evidence['captures']
-        for capture in captures[count:count + 1]:
-            (output / 'icon.png').write_bytes(Path(capture).read_bytes())
-        evidence['sheet'] = str(poses.sheet(captures[:count], layout, output / 'sheet.jpg'))
+        require(not evidence['missed'], f'Shots {", ".join(map(str, evidence["missed"]))} were not captured in {int(retries)} more looks; see {output / "evidence.json"}')
+        if count in found:
+            (output / 'icon.png').write_bytes(Path(found[count]).read_bytes())
+        evidence['sheet'] = str(poses.sheet(evidence['captures'][:count], layout, output / 'sheet.jpg'))
         keep()
         record['evidence'] = evidence
     return record
