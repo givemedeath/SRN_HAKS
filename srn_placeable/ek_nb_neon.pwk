@@ -1,0 +1,10 @@
+node dummy ek_nb_neon_pwk_use01
+  parent ek_nb_neon_pwk
+  position 0 0.61290 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_nb_neon_pwk_use02
+  parent ek_nb_neon_pwk
+  position 0 -0.61290 0
+  orientation 0 1 0 0
+endnode

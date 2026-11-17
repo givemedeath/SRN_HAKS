@@ -480,6 +480,15 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   target with something drawn in the way between (`walk.png`) has not arrived, however near: the depot's walker from
   the next tile into the service bay's fenced yard stopped against the fence, half a metre from a target just inside
   it, and passed the check that way until it looked across the gap (`checks.walled`, 2026-11-13).
+- **The `west` or `east` walker of a group two rows deep stops in the middle of the north row, whatever nodes are
+  stated.** Its target is the last open ground straight in from the middle of that side, which in a group of two
+  rows lies on the line between them, and where the building fills its tiles from side to side that ground is a
+  narrow strip at the group's edge. The walker comes from the far north corner, is planned into the north tile by its
+  north side and finds no way down the strip. Before changing nodes, send walkers of your own to the same spot from
+  the next tile out on that side and from the south corner, with the scratch wrapper above. If they arrive, the
+  ground is reached and only the one long walk gives up: say so in the provenance, with the starts that arrived.
+  Aurora Warrens' west walker stopped at the same spot under three settings of its nodes, and Night Bazaar's west and
+  east walkers both stopped so; in each the walkers from beside and from the south corner arrived (2026-11-16).
 - **A walk check that passed fails after a rebuild that changed nothing walkable** (an underfoot part, a `clear`).
   A rebuild can draw every tile's walkmesh faces a little differently, and a walk the engine can only just plan
   comes out either way. The depot's crane rails and the crane's own stub rails taken away left `walk.png` the same,
