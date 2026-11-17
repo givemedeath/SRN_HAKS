@@ -173,6 +173,38 @@ class HeadgearTests(unittest.TestCase):
         self.assertIn('cells of the face are not covered', ' '.join(failures))
         self.assertLess(cleared['faceCovered'], 1.0)
 
+    def test_a_hood_is_cut_down_to_the_face_with_its_edge_turned_in(self):
+        row = envelope_row()
+        v, f = tube(0.4, 0.0, 1.0, around=64, rings=40)
+        placed, record = headgear.conform(v, f, row)
+        uv = np.stack([np.arctan2(placed[:, 0], placed[:, 1]), placed[:, 2]], axis=1)
+        cut, faces, cut_uv = headgear.trim(placed, f, uv, record['chin'], record['top'])
+        self.assertEqual(len(cut), len(cut_uv))
+        self.assertEqual(sorted(np.unique(faces).tolist()), list(range(len(cut))))
+        middle = cut[faces].mean(axis=1)
+        # nothing behind the ears or over the crown is left, and nothing hangs below the chin
+        self.assertGreater(middle[:, 1].min(), -0.01)
+        self.assertLess(cut[:, 2].max(), record['chin'] + 0.9 * (record['top'] - record['chin']))
+        self.assertGreater(cut[:, 2].min(), record['chin'] - 0.01)
+        # the cut edge is turned in towards the head, and a new corner's texture place is read along its edge
+        radius = np.hypot(cut[:, 0], cut[:, 1])
+        self.assertLess(radius.min(), np.hypot(placed[:, 0], placed[:, 1]).min() - headgear.LIP / 2)
+        np.testing.assert_allclose(cut_uv[:, 1], cut[:, 2], atol=1e-9)
+        # the envelope is cleared by the whole piece and the face covered by what is worn
+        failures, cleared = headgear.clears(placed, f, row, worn=(cut, faces))
+        self.assertEqual(failures, [])
+        self.assertEqual(cleared['faceCovered'], 1.0)
+        # a cut that leaves the face open fails, though the whole piece covered it
+        failures, _ = headgear.clears(placed, f, row, worn=(cut, faces[middle[:, 0] > 0]))
+        self.assertIn('cells of the face are not covered', ' '.join(failures))
+
+    def test_the_hem_hangs_below_the_chin_by_a_share_of_the_piece(self):
+        row = envelope_row()
+        v, f = tube(0.4, 0.0, 1.0, around=64, rings=40)
+        placed, record = headgear.conform(v, f, row)
+        height = float(np.ptp(placed[:, 2]))
+        self.assertAlmostEqual(record['chin'] - float(placed[:, 2].min()), headgear.HEM * height, places=3)
+
     def test_a_wall_facing_inward_is_no_outside(self):
         row = envelope_row()
         v, f = tube(0.05, -0.1, 0.25, around=64, rings=40, inward=True)

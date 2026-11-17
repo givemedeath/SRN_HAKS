@@ -175,7 +175,7 @@ def command_brassard(args):
 
 def command_headgear(args):
     from . import brief, headgear
-    record = headgear.fit(brief.load(args.brief), args.folder, args.output, args.body_pack, args.body_textures, args.number, body=args.body,
+    record = headgear.fit(brief.load(args.brief), args.folder, args.output, args.body_pack, args.body_textures, args.number, body=args.body, cover=args.cover,
                           packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
     print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'fit', 'gates', 'compiled') if key in record}))
     if not record['gates']['passed']:
@@ -364,6 +364,7 @@ def main(argv=None):
     p.add_argument('--number', type=int, required=True); p.add_argument('--body-pack', required=True); p.add_argument('--body-textures', required=True)
     p.add_argument('--body', default='pmh0'); p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root')
     p.add_argument('--resources', action='append', default=[])
+    p.add_argument('--cover', choices=('face', 'head'), default='face', help='cut the piece down to the face (the default), or keep it whole')
     p.set_defaults(handler=command_headgear)
 
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")

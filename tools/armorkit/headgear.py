@@ -27,7 +27,9 @@ SHORT = 0.002  # metres a point of the piece's outside may stand short of the en
 OUTWARD = 0.2  # a face counts as the piece's outside where its normal leans this much away from the axis
 RELIEF = (3, 5)  # directions and levels each way that what stands proud of the shell (a filter, a valve) is told from it
 EVEN = 1.5  # cells the fit is evened over
-RIM = 0.01  # metres the piece's lower edge hangs below the chin
+HEM = 0.07  # the share of the piece's own height that hangs below the chin: its lower edge and the flare of it
+COVER = (np.radians(80), 0.42, (0.46, 0.43), (3, 6))  # a face piece's outline: this far to each side of straight ahead, about this share of the head's height from the chin, these shares up and down (ending at the chin, above a hood's flared hem), rounded by these powers above and below
+LIP = 0.02  # metres a face piece's cut edge is turned in towards the head
 FACE = (np.radians(55), 0.65)  # the face a piece must cover: this far to each side of straight ahead, this share of the head's height up from the chin
 
 
@@ -127,11 +129,11 @@ def _window(values, reach, pick):
     return out
 
 
-def outside(points, faces, bottom, levels):
+def outside(points, faces, bottom, levels, lean=OUTWARD):
     """(radius, samples): the piece's outside per level and direction, NaN where it has none, and the points read.
 
     Only faces that lean away from the axis count: a mask generated as a shell with a wall across its back has
-    that wall inside the head, and it is no surface the head must stay under."""
+    that wall inside the head, and it is no surface the head must stay under. `lean` below -1 reads every face."""
     points, faces = np.asarray(points, float), np.asarray(faces, int)
     corners = points[faces]
     normal = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
@@ -139,7 +141,7 @@ def outside(points, faces, bottom, levels):
     middle = corners.mean(axis=1)
     radial = middle * [1.0, 1.0, 0.0]
     radial /= np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-12)
-    out = (normal * radial).sum(axis=1) > OUTWARD
+    out = (normal * radial).sum(axis=1) > lean
     used, renumbered = np.unique(faces[out], return_inverse=True)
     # read no sparser than a third of a level: on a Troll's head the piece's faces are twice a Human's, and a grid of
     # points per face left cells of the face unread, which the cover gate then failed (2026-11-17)
@@ -149,6 +151,38 @@ def outside(points, faces, bottom, levels):
     table = np.full((levels, DIRECTIONS), -np.inf)
     np.maximum.at(table, (level[inside], way[inside]), radius[inside])
     return np.where(np.isfinite(table), table, np.nan), samples
+
+
+def _moved(points, move, bottom):
+    """Points moved in or out along their own directions from the axis by a grid of moves, read between its cells."""
+    levels = len(move)
+    way = (np.arctan2(points[:, 1], points[:, 0]) % (2 * np.pi)) / (2 * np.pi) * DIRECTIONS - 0.5
+    level = np.clip((points[:, 2] - bottom) / LEVELS - 0.5, 0, levels - 1)
+    a0, l0 = np.floor(way).astype(int), np.floor(level).astype(int)
+    l1 = np.minimum(l0 + 1, levels - 1)
+    fa, fl = way - a0, level - l0
+    shift = ((1 - fl) * ((1 - fa) * move[l0, a0 % DIRECTIONS] + fa * move[l0, (a0 + 1) % DIRECTIONS])
+             + fl * ((1 - fa) * move[l1, a0 % DIRECTIONS] + fa * move[l1, (a0 + 1) % DIRECTIONS]))
+    r = np.hypot(points[:, 0], points[:, 1])
+    grown = np.maximum(r + shift, 1e-4) / np.maximum(r, 1e-6)
+    return np.stack([points[:, 0] * grown, points[:, 1] * grown, points[:, 2]], axis=1)
+
+
+def settle(points, faces, row, rounds=11):
+    """(points, moved): a placed piece moved outward, and only outward, until the outside of `faces` is nowhere short
+    of `CLEARANCE` outside the envelope. Every point moves, also those of faces not read (a cut piece's rim)."""
+    radius, _, bottom = field(row)
+    levels = len(radius)
+    moved_by = np.zeros((levels, DIRECTIONS))
+    for _ in range(rounds):
+        shell, _ = outside(points, faces, bottom, levels)
+        short = np.where(np.isfinite(shell), np.maximum(radius + CLEARANCE - shell, 0.0), 0.0)
+        if short.max() <= SHORT / 2:
+            break
+        move = _blur(_window(short, (1, 1), 'most')) * 1.5
+        points = _moved(points, move, bottom)
+        moved_by += move
+    return points, moved_by
 
 
 def conform(points, faces, row):
@@ -166,54 +200,104 @@ def conform(points, faces, row):
     chin_level = int(np.flatnonzero(known[:, ahead]).min())  # the lowest level with a face straight ahead
     chin, top = bottom + chin_level * LEVELS, float(row['max'][2])
     low, high = points.min(axis=0), points.max(axis=0)
-    # the rim hangs a level below the chin: an edge at the chin's own level turns under there and left cells of
-    # the face unread and the envelope short on the Orc woman and both Trolls (2026-11-17)
-    scale = (top - chin + 2 * CLEARANCE + RIM) / (high[2] - low[2])
+    # the hem hangs below the chin: an edge at the chin's own level turns under there and left cells of the face
+    # unread and the envelope short on the Orc woman and both Trolls. It hangs by a share of the piece and not by
+    # a length: a hem 1 cm down on every head left its flare above the chin on the bigger ones, where a piece cut
+    # to the face kept it as a bill (2026-11-17)
+    scale = (top - chin + CLEARANCE) / ((high[2] - low[2]) * (1 - HEM))
     front = float(np.nanmax(radius[chin_level:, ahead - 2:ahead + 3])) + CLEARANCE
-    placed = (points - [(low[0] + high[0]) / 2, high[1], low[2]]) * scale + [0.0, front, chin - CLEARANCE - RIM]
-    target = radius + CLEARANCE
-    moved_by = np.zeros((levels, DIRECTIONS))
-    for attempt in range(12):
-        shell, _ = outside(placed, faces, bottom, levels)
-        if attempt == 0:  # the shell without what stands proud of it
-            shell = _window(_window(shell, RELIEF, 'least'), RELIEF, 'most')
-            move = _blur(_spread(target - shell))
-        else:  # then only what is still short, outward
-            short = np.where(np.isfinite(shell), np.maximum(target - shell, 0.0), 0.0)
-            if short.max() <= SHORT / 2:
-                break
-            move = _blur(_window(short, (1, 1), 'most')) * 1.5
-        way = (np.arctan2(placed[:, 1], placed[:, 0]) % (2 * np.pi)) / (2 * np.pi) * DIRECTIONS - 0.5
-        level = np.clip((placed[:, 2] - bottom) / LEVELS - 0.5, 0, levels - 1)
-        a0, l0 = np.floor(way).astype(int), np.floor(level).astype(int)
-        l1 = np.minimum(l0 + 1, levels - 1)
-        fa, fl = way - a0, level - l0
-        shift = ((1 - fl) * ((1 - fa) * move[l0, a0 % DIRECTIONS] + fa * move[l0, (a0 + 1) % DIRECTIONS])
-                 + fl * ((1 - fa) * move[l1, a0 % DIRECTIONS] + fa * move[l1, (a0 + 1) % DIRECTIONS]))
-        r = np.hypot(placed[:, 0], placed[:, 1])
-        grown = np.maximum(r + shift, 1e-4) / np.maximum(r, 1e-6)
-        placed = np.stack([placed[:, 0] * grown, placed[:, 1] * grown, placed[:, 2]], axis=1)
-        moved_by += move
+    placed = (points - [(low[0] + high[0]) / 2, high[1], low[2]]) * scale + [0.0, front, chin - HEM * (high[2] - low[2]) * scale]
+    shell, _ = outside(placed, faces, bottom, levels)
+    shell = _window(_window(shell, RELIEF, 'least'), RELIEF, 'most')  # the shell without what stands proud of it
+    first = _blur(_spread(radius + CLEARANCE - shell))
+    placed, moved_by = settle(_moved(placed, first, bottom), faces, row)
+    moved_by = moved_by + first
     return placed, {'scale': round(float(scale), 4), 'moved': [round(float(moved_by.min()), 4), round(float(moved_by.max()), 4)],
                     'chin': round(chin, 3), 'top': round(top, 3)}
 
 
-def clears(points, faces, row):
+def trim(points, faces, uv, chin, top):
+    """(points, faces, uv): a fitted piece cut down to the face, its cut edge turned in.
+
+    A generator asked for a face piece makes a whole hood (respirator, 2026-11-17: the user wants the face
+    covered, not the head). What lies outside `COVER`'s rounded outline about straight ahead is cut away, each
+    face the outline crosses split along it, and the new edge is turned in `LIP` towards the axis, so the piece
+    reads as a thick rim and nobody sees between it and the head."""
+    points, faces, uv = np.asarray(points, float), np.asarray(faces, int), np.asarray(uv, float)
+    side, middle, reach, powers = COVER
+    turn = np.abs(np.arctan2(points[:, 0], points[:, 1])) / side
+    share = (points[:, 2] - chin) / (top - chin) - middle
+    power = np.where(share > 0, powers[0], powers[1])
+    out = turn ** power + (np.abs(share) / np.where(share > 0, reach[0], reach[1])) ** power - 1.0
+    require((out <= 0).any(), 'The piece has nothing over the face')
+    new_points, new_uv, made = list(points), list(uv), {}
+
+    def crossing(a, b):
+        key = (min(a, b), max(a, b))
+        if key not in made:
+            part = out[a] / (out[a] - out[b])
+            made[key] = len(new_points)
+            new_points.append(points[a] + part * (points[b] - points[a]))
+            new_uv.append(uv[a] + part * (uv[b] - uv[a]))
+        return made[key]
+    kept, cut = [], []
+    for face in faces.tolist():
+        inside = [out[k] <= 0 for k in face]
+        if all(inside):
+            kept.append(face)
+        elif any(inside):
+            for start in range(3):
+                a, b, c = face[start], face[(start + 1) % 3], face[(start + 2) % 3]
+                if out[a] <= 0 and out[b] > 0 and out[c] > 0:  # one corner stays
+                    ab, ca = crossing(a, b), crossing(c, a)
+                    kept.append([a, ab, ca])
+                    cut.append((ab, ca, a))
+                elif out[a] <= 0 and out[b] <= 0 and out[c] > 0:  # two stay
+                    bc, ca = crossing(b, c), crossing(c, a)
+                    kept += [[a, b, bc], [a, bc, ca]]
+                    cut.append((bc, ca, a))
+    for p, q, within in cut:  # the turned-in edge: its own corners, so the rim is a hard one
+        first = len(new_points)
+        for k in (p, q):
+            new_points.append(new_points[k])
+            new_uv.append(new_uv[k])
+        for k in (p, q):
+            at = np.asarray(new_points[k], float)
+            r = max(float(np.hypot(at[0], at[1])), 1e-6)
+            new_points.append(at * [max(r - LIP, 1e-4) / r, max(r - LIP, 1e-4) / r, 1.0])
+            new_uv.append(new_uv[k])
+        a, b, c, d = first, first + 1, first + 2, first + 3
+        away = (np.asarray(new_points[a]) + new_points[b]) / 2 - points[within]
+        normal = np.cross(np.asarray(new_points[b]) - new_points[a], np.asarray(new_points[c]) - new_points[a])
+        kept += [[a, b, c], [b, d, c]] if normal @ away > 0 else [[a, c, b], [b, c, d]]
+    kept = np.asarray(kept, int)
+    used, renumbered = np.unique(kept, return_inverse=True)
+    return np.asarray(new_points)[used], renumbered.reshape(-1, 3), np.asarray(new_uv)[used]
+
+
+def clears(points, faces, row, worn=None):
     """(failures, record): whether a fitted piece clears its head envelope and covers the face.
 
     Clear: in every level and direction where both the piece has an outside and the envelope was measured, the
     piece stands no more than `SHORT` inside the envelope. Covered: the piece has an outside in every direction
-    within `FACE` of straight ahead, from the chin up `FACE`'s share of the head's height, so no face shows."""
+    within `FACE` of straight ahead, from the chin up `FACE`'s share of the head's height, so no face shows.
+
+    `worn` is (points, faces) of the piece as cut down (`trim`), where it is: the envelope is then cleared by the
+    whole piece, which the cut moves no point of, and the face is covered by what is worn. A cut piece is not read
+    against the envelope itself: a cell the cut leaves a sliver of reads short there, and its turned-in edge lies
+    inside by design. Cover is read from every face, the edge and what turns under the chin with it: a face piece
+    ends at the chin, where its surface no longer leans outward (Orc woman, 2026-11-17)."""
     radius, known, bottom = field(row)
     levels = len(radius)
     shell, _ = outside(points, faces, bottom, levels)
+    cover, _ = outside(*((points, faces) if worn is None else worn), bottom, levels, lean=-2.0)
     both = np.isfinite(shell) & known
     short = float(np.max(np.where(both, radius - shell, -np.inf))) if both.any() else 0.0
     ahead = DIRECTIONS // 4
     chin_level = int(np.flatnonzero(known[:, ahead]).min())
     upto = chin_level + int(FACE[1] * (float(row['max'][2]) - (bottom + chin_level * LEVELS)) / LEVELS)
     reach = int(FACE[0] / (2 * np.pi) * DIRECTIONS)
-    face = np.isfinite(shell[chin_level:upto, ahead - reach:ahead + reach + 1])
+    face = np.isfinite(cover[chin_level:upto, ahead - reach:ahead + reach + 1])
     failures = []
     if short > SHORT:
         failures.append(f'up to {short * 100:.1f} cm inside the head envelope')
@@ -265,7 +349,7 @@ def model_text(name, neck, piece, bone='head_g'):
     return '\n'.join(lines + [f'endmodelgeom {name}', f'donemodel {name}']) + '\n'
 
 
-def fit(document, kept, output, body_pack, body_textures, number, *, body='pmh0', packs=(), game=None, resources=(), say=lambda *_: None):
+def fit(document, kept, output, body_pack, body_textures, number, *, body='pmh0', cover='face', packs=(), game=None, resources=(), say=lambda *_: None):
     """Put a prepared piece of headgear on `body`'s head and check it: the record, also `<output>/bake.json`.
 
     `kept` is the folder `accessory.prepare`'s piece is stored in, `body_textures` the folder of the bodies'
@@ -276,11 +360,17 @@ def fit(document, kept, output, body_pack, body_textures, number, *, body='pmh0'
     row = envelope(body)
     placed, record = conform(piece['v'], piece['f'], row)
     say('fitted', record)
-    failures, cleared = clears(placed, piece['f'], row)
+    require(cover in ('face', 'head'), 'Headgear covers the face or the head')
+    tinted, colours = accessory.tints(piece, document)
+    piece = {key: piece[key] for key in ('f', 'uv', 'rgb', 'relief')}  # as worn: the texture is the whole piece's
+    whole_shell = (placed, piece['f'])
+    if cover == 'face':
+        placed, piece['f'], piece['uv'] = trim(placed, piece['f'], piece['uv'], record['chin'], record['top'])
+    record['cover'] = cover
+    failures, cleared = clears(*whole_shell, row, worn=(placed, piece['f']))
     head, neck_bone = np.asarray(bones['head_g'], float), np.asarray(bones['neck_g'], float)
     in_body = placed + [0.0, float(row['axis'][1]), 0.0] + head[:3, 3]  # the envelope is about its own axis, in the head bone's space
     skin = bodyskin.body_part(body_pack, body_textures, body, 'neck', bones)
-    tinted, colours = accessory.tints(piece, document)
     piece_uv, neck_uv, tint, relief, rough = beside_neck(piece, tinted, skin)
     name = registry.model_name(body, 'neck', number)
     to_part = lambda v, n: (export.to_bone(v, neck_bone), export.to_bone(n, neck_bone, direction=True))
