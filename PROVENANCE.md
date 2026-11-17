@@ -1351,8 +1351,10 @@ at the hook (`envkit toolset saved`). In Suburbs it also repainted the tiles rou
 props below were placed from the palette in the first folder and four in the second (entry shack, water tank, caged
 stairwell and bodega kiosk of this sheet; from Structures in Modern Exterior and Furniture in Modern Interior) and
 were saved with their own rows and names, the unlit ones static. In the client (`envkit check doors`, first folder)
-the four doors of the two groups were found with their transitions and the player stood free at the Warrens' door;
-nobody clicked the doors, so the walk through them is not shown.
+the four doors of the two groups were found with their transitions and the player stood free at the Warrens' door.
+The operator then clicked through: the Warrens' door in Modern Exterior took the player to the gatehouse's door, and
+that door to the Warrens' door in Suburbs, as the log shows. The client was closed there, so the two Suburbs doors
+are not logged, and the second folder's doors were not walked.
 
 ## Aurora Warrens props (`srn_placeable`, `srn_2da`; 2026-11-16)
 
@@ -1425,8 +1427,8 @@ Painted in the Toolset on 2026-11-17 from the built packs, in the two user folde
 describes: straight in Modern Exterior and in Suburbs, turned a quarter in Modern Exterior and a half in Suburbs.
 Both palettes list `Night Bazaar Gatehouse 3x2` under Groups; each painting laid the six tiles with their turn and
 the Toolset made one door of appearance 58 at the hook. The light string, bench, vendor stall, shutter booth and
-tarped kiosk were placed from the palette and saved with their own rows and names. The doors were not clicked in the
-client, as that entry says.
+tarped kiosk were placed from the palette and saved with their own rows and names. The gatehouse's door in
+Modern Exterior was walked through in the client, as that entry says; its door in Suburbs was not.
 
 ## Night Bazaar props (`srn_placeable`, `srn_2da`; 2026-11-16)
 
