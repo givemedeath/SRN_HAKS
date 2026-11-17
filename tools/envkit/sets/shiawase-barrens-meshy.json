@@ -1,0 +1,21 @@
+{
+  "set": "shiawase-barrens",
+  "prefix": "sb",
+  "props": {
+    "transformer": {"triangles": 10000},
+    "switchgear-cabinet": {"triangles": 5000},
+    "tunnel-hatch": {"triangles": 3000},
+    "cable-drum": {"triangles": 6000},
+    "power-tap": {"triangles": 6000},
+    "vent-stack": {"triangles": 5000},
+    "trench-cover": {"triangles": 3000},
+    "wall-sign": {"triangles": 4000},
+    "battery-bank": {"triangles": 8000},
+    "tool-cart": {"triangles": 10000},
+    "bulkhead-door": {"triangles": 4000},
+    "pipe-run": {"triangles": 5000},
+    "insulator-stack": {"triangles": 4000},
+    "sandbag-barrier": {"triangles": 6000}
+  },
+  "building": {"views": ["building-front", "building-rear"], "triangles": 200000, "key": "sb-2view-a1"}
+}

@@ -44,6 +44,15 @@ draws the block the front's way round again (Aurora Warrens, user 2026-11-15). B
 pieces, check that each side wall is the same material in every piece that shows it, that the dock doors match, and
 that nothing large (a trailer, a skip) stands in front of the doors: the generator fuses it into the wall.
 
+A building is drawn without its perimeter fence (user, 2026-11-17: "we need to make sure we don't do any more
+perimeter fences via meshy and add them in post processing"). Every building prompt says to leave out the fence, its
+gate, gate posts and razor wire, and any chain-link, railing or wire standing in front of a wall, and a set whose
+building subject or notes ask for one is refused (a note may say to remove it). The fence is built afterwards: the
+game set's `fence` parts, or fence sections placed in the group. The Shiawase Barrens power station was generated with
+its fence in both views: the fence came back as open frames, its chain-link printed on the rear wall, the transformers
+and the roller door, and the surface behind its razor wire smudged. Look at each chosen building reference for a fence
+before selecting it.
+
 Images that are already clean references on white (made apart from the concept sheets, one object to an image) come
 in as a sheet of their own: compose them on white into `<sheets>/NNb_<what>.png`, give the set a box round each and
 `"drawn": true`, and `reference` takes each crop as it is, with a receipt naming its hash, and sends nothing to ComfyUI.
@@ -362,6 +371,26 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
 
 ## When something looks wrong
 
+- **Part of the picture is smudged, or has a mesh printed on it, while the rest is crisp** (the power station: a
+  warning sign crisp below the height of the fence's razor wire and smudged above it; user, 2026-11-17: "most of the
+  texture is crisp and only some parts look smeared. Are those detectable and repairable in a systematic way?"). The
+  generator makes a thing drawn in front of a surface into geometry of its own and invents the surface behind it,
+  which it draws soft; what was seen through a framed mesh it prints onto the surface behind.
+  `envkit smears --source <root>/meshy/models/<key> --height <metres> --view front --view back --output <scratch>`
+  finds both from the model's geometry, seen from each side a reference was drawn from square on (`front`, `back`,
+  `east`, `west`), and lets the picture confirm each point: `smudged` (behind something nearer, and holding less fine
+  detail than the cleanly seen surface), `printed` (inside a frame of nearer things, and holding more) and `plain`
+  (the geometry points at it and the picture shows nothing wrong). It writes `smears.json`, the patches largest first
+  with their boxes in metres on the model as `view` stands it, and `marked`, a copy of the model with the patches
+  painted on (red smudged, yellow printed, blue plain): draw it with `view --source <scratch>/marked --height
+  <metres>`, or `--eye` through a game set of one line. It needs scipy, as `onboard boxes` does. On the power
+  station its red lay on the bands behind the razor wire and its yellow on the fence panels printed on the walls; a
+  bare wall between two pipe runs was marked too, partly yellow, so a patch is a place to look. On a front crowded
+  with balconies, pipes and awnings (Aurora Warrens) most of the wall is behind something and most of it is marked,
+  nearly all `plain`: its `smudged` there has not been checked by eye. Surface no reference saw is invented whole and
+  comes out as detailed as the rest, so it is counted (`shares.unseen`) and not listed. State a `smooth`, `copy` or
+  `paint` from a patch's box; a repair is no sharper than the map (the power station's has 43 texels a metre against
+  108 to 300 on a prop), so a sign or lettering that must read close up wants a piece of its own or a prop.
 - **A lit part does not light.** `envkit view ... --lit` counts for each lit part the texels its box holds and
   the texels it lights (`litParts`). A box that holds much and lights nothing is on the wrong part of the
   model, or on a part too dark to shine.

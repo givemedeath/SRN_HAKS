@@ -381,6 +381,7 @@
       "tools/envkit/reference.py",
       "tools/envkit/restore.py",
       "tools/envkit/sheet.py",
+      "tools/envkit/smears.py",
       "tools/envkit/study.py",
       "tools/envkit/tile.py",
       "tools/envkit/toolset.py",
@@ -451,6 +452,9 @@
       "tools/envkit/meshy.py",
       "tools/envkit/reference.py"
     ],
+    "tools/envkit/smears.py": [
+      "tools/envkit/convert.py"
+    ],
     "tools/envkit/study.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/toolchain.py",
@@ -517,6 +521,10 @@
       "tools/envkit/sets/ares-depot-meshy.json",
       "tools/envkit/sheet.py",
       "tools/envkit/test_meshy.py"
+    ],
+    "tools/envkit/test_smears.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/smears.py"
     ],
     "tools/envkit/test_study.py": [
       "tools/envkit/study.py"
@@ -5737,6 +5745,7 @@
     "tools/envkit/test_reference.py",
     "tools/envkit/test_restore.py",
     "tools/envkit/test_sheet.py",
+    "tools/envkit/test_smears.py",
     "tools/envkit/test_study.py",
     "tools/envkit/test_tile.py",
     "tools/envkit/test_toolset.py",

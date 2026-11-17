@@ -26,6 +26,15 @@ RETIRED = {'atm': 'pay-kiosk', 'crate-stack': 'pallet-stack', 'cyberware-cabinet
 # make dressing areas faster; "we should keep the slab").
 SLAB = ('Keep the pavement slab the building stands on, and the fixtures and street furniture on it, such as bollards, bins '
         'and rubbish bags, exactly where they are. Remove the road beyond the slab, the puddles, the reflections and the loose litter.')
+# A perimeter fence is never generated (user, 2026-11-17: "we need to make sure we don't do any more perimeter fences via
+# meshy and add them in post processing"). The Shiawase Barrens power station's came back as open frames, its chain-link
+# printed on the walls, tanks and roller door behind it and the surface behind its razor wire smudged; the Ares Depot's
+# was printed on its side walls. The fence is built afterwards (a game set's `fence`, or fence sections placed in the
+# group), so every building is drawn without it, and `load_set` refuses a building that asks for one.
+FENCE = ('Leave out every perimeter fence with its gate, gate posts and razor wire, and any chain-link, railing or wire '
+         'standing in front of a wall: draw the walls and the ground behind them bare and whole.')
+SLAB = SLAB + ' ' + FENCE
+FENCED = re.compile(r'\b(fenc\w*|razor[- ]wire|chain[- ]link|gate ?posts?)\b', re.I)
 LEAD = {
     'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
@@ -89,6 +98,10 @@ def load_set(path):
         require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', 'turn', 'drawn', *KIN},
                 'Asset needs kind, subject and box: ' + name)
         require(asset['kind'] == 'prop' or not (KIN - {'unbranded'}) & set(asset), 'Only props have a type: ' + name)
+        if asset['kind'] == 'building':  # what a note says to remove or leave out is no request for it
+            kept = ' '.join(part for part in re.split(r'(?<=[.:;])\s+', str(asset.get('notes', ''))) if not re.match(r'(remove|leave)\b', part, re.I))
+            require(not FENCED.search(f"{asset['subject']} {kept}"),
+                    f'A building is drawn without its perimeter fence, which is built afterwards: take the fence out of the subject and notes of {name}')
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
             cut = asset['cut']; whole = data['assets'].get(cut['from']) if isinstance(cut, dict) and isinstance(cut.get('from'), str) else None
             # `mirror` flips the chosen reference left to right first (user, 2026-11-13: the rail yard's rear was drawn

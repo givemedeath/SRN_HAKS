@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "fortified corporate security depot with a guard tower and a fenced yard", "box": [0, 96, 900, 535]},
+    "building-hero": {"kind": "building", "subject": "fortified corporate security depot with a guard tower and a yard", "box": [0, 96, 900, 535]},
     "building-front": {"kind": "building", "subject": "front elevation of a fortified corporate security depot", "box": [887, 126, 1252, 287], "notes": "The roof sign reads ARES with MACROTECHNOLOGY in small letters under it, and SECURITY SERVICES DEPOT on the red panel."},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a fortified corporate security depot", "box": [900, 305, 1255, 498]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: straight security desk under a lit canopy with planters, Ares livery.", "subject": "corporate security reception desk under a lit canopy", "box": [6, 624, 269, 798], "notes": "The back panel reads ARES with MACROTECHNOLOGY in small letters under it."},
