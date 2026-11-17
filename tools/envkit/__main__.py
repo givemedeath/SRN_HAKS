@@ -205,13 +205,24 @@ def command_track(args):
     print(json.dumps(track.build(Path(args.output), args.seed, args.piece)))
 
 
+def ledger_path(args):
+    """The ledger a command works under: the one --ledger names, or the shared one where it is left out. An empty
+    name is a script's unset variable, not a wish for the shared ledger and its cap."""
+    from . import meshy
+    if args.ledger is None:
+        return meshy.shared_ledger()
+    require(args.ledger.strip(), '--ledger names a file; leave it out for the shared ledger')
+    return Path(args.ledger)
+
+
 def command_meshy(args):
     from . import meshy
     missing = ['--' + name for name in MESHY_NEEDS.get(args.action, ()) if not getattr(args, name)]
     require(not missing, f'envkit meshy {args.action} needs ' + ', '.join(missing))  # said before the ledger is touched
+    path = ledger_path(args)
     if args.action == 'init':
-        meshy.Ledger.create(args.ledger or meshy.shared_ledger(), args.cap)
-    ledger = meshy.Ledger(args.ledger or meshy.shared_ledger())
+        meshy.Ledger.create(path, args.cap)
+    ledger = meshy.Ledger(path)
     if args.action == 'cap':
         ledger.raise_cap(args.cap, args.reason)
     elif args.action in ('prop', 'building', 'remesh'):
@@ -234,7 +245,7 @@ def command_contact(args):
 
 def command_sheet(args):
     from . import meshy, sheet
-    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger or meshy.shared_ledger()); root = Path(args.root); work = root / 'meshy' / 'work'
+    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(ledger_path(args)); root = Path(args.root); work = root / 'meshy' / 'work'
     failed = []
     if args.action == 'submit':
         print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work, sent=root / 'references' / 'sent')}))

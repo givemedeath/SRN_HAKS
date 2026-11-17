@@ -75,8 +75,10 @@ its remesh 5. There is one ledger for every sheet, session and worktree: `envkit
 tool root (`SRN_TOOLS_ROOT`, else the primary checkout's `.tools`), which every command finds by itself and which
 stays where it is when a worktree retires. Every change is made under a lock, so sessions may spend against it at
 once, and every change writes the day's copy to `envkit/meshy-ledger-copies/<date>.json` beside it: the tool root
-is in no repository and no archive, so read a lost ledger back from the latest copy. `--ledger <file>` names
-another ledger (a trial's own); do not keep the shared one in a worktree's output again. The paths an entry
+is in no repository and no archive, so read a lost ledger back from the latest copy: copy that file to
+`envkit/meshy-ledger.json`. Where copies lie beside a missing ledger, every command says so and `meshy init`
+refuses to start an empty one in its place, which would forget every credit counted. `--ledger <file>` names
+another ledger (a trial's own; an empty name is refused); do not keep the shared one in a worktree's output again. The paths an entry
 records (`task`, `downloaded`, the triangle counts) are where the files lay in the worktree that made the call.
 
 ```

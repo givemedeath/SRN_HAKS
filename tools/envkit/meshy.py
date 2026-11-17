@@ -17,6 +17,7 @@ import re
 import shutil
 import struct
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -46,6 +47,18 @@ def shared_ledger(repo=None, root=None):
     return shared_tools.tools_root(repo or Path(__file__).resolve().parents[2], root)[0] / 'envkit' / 'meshy-ledger.json'
 
 
+def copies(path):
+    """The folder of a ledger's copies, one for each day it changed, beside it."""
+    path = Path(path)
+    return path.with_name(path.stem + '-copies')
+
+
+def _was_here(path):
+    """What to say where a ledger is missing or about to be started and its copies show that one lay here before."""
+    kept = copies(path)
+    return f': one lay here before, so read it back from the latest copy in {kept}' if kept.is_dir() and any(kept.glob('*.json')) else ''
+
+
 class Ledger:
     """One JSON file: the cap and every paid call, counted at its estimate until Meshy reports what it consumed."""
 
@@ -73,6 +86,7 @@ class Ledger:
                 require(time.monotonic() < deadline, 'The ledger is held by another call: ' + str(self.path))
                 time.sleep(0.02)
         try:
+            require(self.path.is_file(), f'No ledger at {self.path}' + _was_here(self.path))
             self.data = json.loads(self.path.read_text(encoding='utf-8'))
             require(self.data.get('kind') == 'srn-envkit-meshy-ledger', 'Envkit Meshy ledger required')
         except BaseException:
@@ -84,6 +98,8 @@ class Ledger:
         path = Path(path)
         require(type(cap) is int and cap > 0, 'Credit cap must be a positive whole number')
         require(not path.exists(), 'Ledger already exists: ' + str(path))
+        lost = _was_here(path)  # an empty ledger in a lost one's place would forget every credit it had counted
+        require(not lost, f'No new ledger at {path}' + lost)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-envkit-meshy-ledger', 'cap': cap, 'entries': []}, indent=1),
                         encoding='utf-8')
@@ -95,8 +111,12 @@ class Ledger:
         text = json.dumps(self.data, indent=1)
         temporary = self.path.with_suffix('.tmp')
         temporary.write_text(text, encoding='utf-8'); temporary.replace(self.path)
-        copies = self.path.with_name(self.path.stem + '-copies'); copies.mkdir(exist_ok=True)
-        (copies / ((today or datetime.date.today().isoformat()) + '.json')).write_text(text, encoding='utf-8')
+        try:  # the change is written by now: a copy that cannot be must not make it look as if it were not
+            kept = copies(self.path); kept.mkdir(exist_ok=True)
+            spare = kept / ((today or datetime.date.today().isoformat()) + '.tmp')
+            spare.write_text(text, encoding='utf-8'); spare.replace(spare.with_suffix('.json'))
+        except OSError as error:
+            print(f'The ledger is written, but not its copy for the day: {error}', file=sys.stderr)
 
     def entry(self, key):
         found = [row for row in self.data['entries'] if row['key'] == key]

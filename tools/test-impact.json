@@ -484,6 +484,7 @@
       "tools/envkit/local.py"
     ],
     "tools/envkit/test_meshy.py": [
+      "tools/envkit/__main__.py",
       "tools/envkit/meshy.py",
       "tools/headkit/gpu_lock.py"
     ],
