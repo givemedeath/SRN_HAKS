@@ -20,7 +20,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     # The isolated snapshot census takes about 14 minutes on hosted Windows runners.
     # Include dependency setup and finalization without relaxing other helper jobs.
-    timeout-minutes: ${{ matrix.group == 'headkit' && 25 || 15 }}
+    # The packs leg checks out the packs its tests read (3.5 minutes) and then runs 9 to 11 minutes on hosted
+    # Windows runners: at 15 minutes it was cancelled on four of eleven runs (2026-11-15).
+    timeout-minutes: ${{ (matrix.group == 'headkit' || matrix.group == 'packs') && 25 || 15 }}
     env:
       PYTHONUTF8: '1'
       PYTHONIOENCODING: utf-8
