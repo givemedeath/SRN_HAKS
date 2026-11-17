@@ -113,6 +113,7 @@ def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), 
         require(not missing, f'The outfit fills the {slot} slot without {", ".join(missing)}: both sides are worn')
     without = tuple(dict.fromkeys(without))
     require(all(slot in slots for slot in without), f'An actor can go without only a slot the outfit fills: {", ".join(slots)}')
+    require(not set(under) & set(slots), f'The bake fills {sorted(set(under) & set(slots))} itself: nothing else is worn there')
     require(not output.exists(), f'The client check is built into a fresh folder; this one exists: {output}')
     checked = entries(slots, record['number'], record['tier'])  # everything is checked and read before the folder is made
     given = {table: (Path(stock) / (table + '.2da')).read_bytes().decode('cp1252') for table in registry.TABLES}
@@ -123,7 +124,6 @@ def spec(bake_output, output, stock, haks, tlk=None, preset='body', without=(), 
         shutil.copyfile(path, resources / path.name)
     for table, text in live.items():
         (resources / (table + '.2da')).write_bytes(text.encode('cp1252'))
-    require(not set(under) & set(slots), f'The bake fills {sorted(set(under) & set(slots))} itself: nothing else is worn there')
     worn = {slot: record['number'] for slot in slots}
     wardrobes = [('', worn)] + ([(', without ' + ' and '.join(without), {slot: n for slot, n in worn.items() if slot not in without})] if without else [])
     camera = PRESETS[preset]

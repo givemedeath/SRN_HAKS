@@ -206,7 +206,8 @@ class CommandLineTests(unittest.TestCase):
             run('poses', 'bake', 'check', '--nwn-root', 'game', '--stock', 'stock', '--hak', 'a.hak')
         self.assertEqual(got, {'module': 'm', 'shots': 0, 'evidence': {'captures': []}})
         self.assertEqual(steps[0], ('spec', ('bake', 'check', 'stock', ['a.hak', 'b.hak']),
-                                    {'tlk': None, 'preset': 'shoulders', 'without': ['shoulder'], 'colours': {'cloth1': 10}}))
+                                    {'tlk': None, 'preset': 'shoulders', 'without': ['shoulder'], 'colours': {'cloth1': 10},
+                                     'under': None, 'cells': (), 'body_pack': None}))  # an accessory's options, off unless asked
         self.assertEqual([step[0] for step in steps], ['spec', 'build', 'wait', 'run', 'spec', 'build'])  # waits only to run, runs only when asked
         self.assertEqual((steps[3][1][0], steps[3][1][1]['module'], *steps[3][1][2:], steps[3][2]), ('game', 'm', layout, 'check', {'settle': 1.2}))
         self.assertEqual((steps[1][1][0].get('hold'), steps[5][1][0].get('hold')), (5.0, None))  # a longer hold only when asked
