@@ -198,7 +198,7 @@ ChangedHeight=0
 Count=0
 
 [TILES]
-Count=788
+Count=794
 
 [TILE0]
 Model=udp1_a01_01
@@ -24692,6 +24692,193 @@ VisibilityOrientation=0
 ImageMap2D=ek_pt_shop_m11
 
 [TILE776]
+Model=ek_gr_garage_t00
+WalkMesh=msb01
+TopLeft=Asphalt
+TopLeftHeight=0
+TopRight=Asphalt
+TopRightHeight=0
+BottomLeft=Asphalt
+BottomLeftHeight=0
+BottomRight=Asphalt
+BottomRightHeight=0
+Top=
+Right=
+Bottom=
+Left=
+MainLight1=1
+MainLight2=1
+SourceLight1=0
+SourceLight2=0
+AnimLoop1=0
+AnimLoop2=0
+AnimLoop3=0
+Doors=0
+Sounds=0
+PathNode=U
+Orientation=180
+VisibilityNode=U
+VisibilityOrientation=180
+ImageMap2D=ek_gr_garage_m00
+
+[TILE777]
+Model=ek_gr_garage_t01
+WalkMesh=msb01
+TopLeft=Asphalt
+TopLeftHeight=0
+TopRight=Asphalt
+TopRightHeight=0
+BottomLeft=Asphalt
+BottomLeftHeight=0
+BottomRight=Asphalt
+BottomRightHeight=0
+Top=
+Right=
+Bottom=
+Left=
+MainLight1=1
+MainLight2=1
+SourceLight1=0
+SourceLight2=0
+AnimLoop1=0
+AnimLoop2=0
+AnimLoop3=0
+Doors=0
+Sounds=0
+PathNode=U
+Orientation=270
+VisibilityNode=U
+VisibilityOrientation=270
+ImageMap2D=ek_gr_garage_m01
+
+[TILE778]
+Model=ek_gr_garage_t02
+WalkMesh=msb01
+TopLeft=Asphalt
+TopLeftHeight=0
+TopRight=Asphalt
+TopRightHeight=0
+BottomLeft=Asphalt
+BottomLeftHeight=0
+BottomRight=Asphalt
+BottomRightHeight=0
+Top=
+Right=
+Bottom=
+Left=
+MainLight1=1
+MainLight2=1
+SourceLight1=0
+SourceLight2=0
+AnimLoop1=0
+AnimLoop2=0
+AnimLoop3=0
+Doors=0
+Sounds=0
+PathNode=U
+Orientation=0
+VisibilityNode=U
+VisibilityOrientation=0
+ImageMap2D=ek_gr_garage_m02
+
+[TILE779]
+Model=ek_gr_garage_t10
+WalkMesh=msb01
+TopLeft=Asphalt
+TopLeftHeight=0
+TopRight=Asphalt
+TopRightHeight=0
+BottomLeft=Asphalt
+BottomLeftHeight=0
+BottomRight=Asphalt
+BottomRightHeight=0
+Top=
+Right=
+Bottom=
+Left=
+MainLight1=1
+MainLight2=1
+SourceLight1=0
+SourceLight2=0
+AnimLoop1=0
+AnimLoop2=0
+AnimLoop3=0
+Doors=1
+Sounds=0
+PathNode=U
+Orientation=90
+VisibilityNode=U
+VisibilityOrientation=90
+ImageMap2D=ek_gr_garage_m10
+
+[TILE779DOOR0]
+Type=58
+X=2.7
+Y=0.22
+Z=0.42
+Orientation=180.0
+
+[TILE780]
+Model=ek_gr_garage_t11
+WalkMesh=msb01
+TopLeft=Asphalt
+TopLeftHeight=0
+TopRight=Asphalt
+TopRightHeight=0
+BottomLeft=Asphalt
+BottomLeftHeight=0
+BottomRight=Asphalt
+BottomRightHeight=0
+Top=
+Right=
+Bottom=
+Left=
+MainLight1=1
+MainLight2=1
+SourceLight1=0
+SourceLight2=0
+AnimLoop1=0
+AnimLoop2=0
+AnimLoop3=0
+Doors=0
+Sounds=0
+PathNode=L
+Orientation=0
+VisibilityNode=L
+VisibilityOrientation=0
+ImageMap2D=ek_gr_garage_m11
+
+[TILE781]
+Model=ek_gr_garage_t12
+WalkMesh=msb01
+TopLeft=Asphalt
+TopLeftHeight=0
+TopRight=Asphalt
+TopRightHeight=0
+BottomLeft=Asphalt
+BottomLeftHeight=0
+BottomRight=Asphalt
+BottomRightHeight=0
+Top=
+Right=
+Bottom=
+Left=
+MainLight1=1
+MainLight2=1
+SourceLight1=0
+SourceLight2=0
+AnimLoop1=0
+AnimLoop2=0
+AnimLoop3=0
+Doors=0
+Sounds=0
+PathNode=U
+Orientation=90
+VisibilityNode=U
+VisibilityOrientation=90
+ImageMap2D=ek_gr_garage_m12
+
+[TILE782]
 Model=ek_aw_block_t00
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24721,7 +24908,7 @@ VisibilityNode=V
 VisibilityOrientation=270
 ImageMap2D=ek_aw_block_m00
 
-[TILE777]
+[TILE783]
 Model=ek_aw_block_t01
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24751,7 +24938,7 @@ VisibilityNode=I
 VisibilityOrientation=90
 ImageMap2D=ek_aw_block_m01
 
-[TILE778]
+[TILE784]
 Model=ek_aw_block_t02
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24781,7 +24968,7 @@ VisibilityNode=U
 VisibilityOrientation=0
 ImageMap2D=ek_aw_block_m02
 
-[TILE779]
+[TILE785]
 Model=ek_aw_block_t10
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24811,7 +24998,7 @@ VisibilityNode=H
 VisibilityOrientation=270
 ImageMap2D=ek_aw_block_m10
 
-[TILE780]
+[TILE786]
 Model=ek_aw_block_t11
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24841,14 +25028,14 @@ VisibilityNode=H
 VisibilityOrientation=180
 ImageMap2D=ek_aw_block_m11
 
-[TILE780DOOR0]
+[TILE786DOOR0]
 Type=58
 X=-0.4
 Y=-0.58
 Z=0.12
 Orientation=180.0
 
-[TILE781]
+[TILE787]
 Model=ek_aw_block_t12
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24878,7 +25065,7 @@ VisibilityNode=U
 VisibilityOrientation=0
 ImageMap2D=ek_aw_block_m12
 
-[TILE782]
+[TILE788]
 Model=ek_nb_gate_t00
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24908,7 +25095,7 @@ VisibilityNode=I
 VisibilityOrientation=90
 ImageMap2D=ek_nb_gate_m00
 
-[TILE783]
+[TILE789]
 Model=ek_nb_gate_t01
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24938,14 +25125,14 @@ VisibilityNode=A
 VisibilityOrientation=0
 ImageMap2D=ek_nb_gate_m01
 
-[TILE783DOOR0]
+[TILE789DOOR0]
 Type=58
 X=4.3
 Y=-1.67
 Z=0.45
 Orientation=0.0
 
-[TILE784]
+[TILE790]
 Model=ek_nb_gate_t02
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -24975,7 +25162,7 @@ VisibilityNode=I
 VisibilityOrientation=90
 ImageMap2D=ek_nb_gate_m02
 
-[TILE785]
+[TILE791]
 Model=ek_nb_gate_t10
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -25005,7 +25192,7 @@ VisibilityNode=I
 VisibilityOrientation=270
 ImageMap2D=ek_nb_gate_m10
 
-[TILE786]
+[TILE792]
 Model=ek_nb_gate_t11
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -25035,7 +25222,7 @@ VisibilityNode=A
 VisibilityOrientation=0
 ImageMap2D=ek_nb_gate_m11
 
-[TILE787]
+[TILE793]
 Model=ek_nb_gate_t12
 WalkMesh=msb01
 TopLeft=Asphalt
@@ -25066,7 +25253,7 @@ VisibilityOrientation=270
 ImageMap2D=ek_nb_gate_m12
 
 [GROUPS]
-Count=115
+Count=116
 
 [GROUP0]
 Name=Parking, HC
@@ -26032,7 +26219,7 @@ Tile2=774
 Tile3=775
 
 [GROUP113]
-Name=Aurora_Warrens
+Name=Motorpool
 Rows=2
 Columns=3
 Tile0=776
@@ -26043,7 +26230,7 @@ Tile4=780
 Tile5=781
 
 [GROUP114]
-Name=Night_Bazaar
+Name=Aurora_Warrens
 Rows=2
 Columns=3
 Tile0=782
@@ -26052,3 +26239,14 @@ Tile2=784
 Tile3=785
 Tile4=786
 Tile5=787
+
+[GROUP115]
+Name=Night_Bazaar
+Rows=2
+Columns=3
+Tile0=788
+Tile1=789
+Tile2=790
+Tile3=791
+Tile4=792
+Tile5=793

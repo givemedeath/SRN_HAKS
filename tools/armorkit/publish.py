@@ -21,7 +21,9 @@ What a publication writes, under the repository or under `--trial ROOT`:
 * `docs/armorkit/parts-registry.json`, the registry, and `docs/armorkit/parts-handoff.json`, the file SR_NWN
   reads: `registry.handoff` with the pack's name and, per outfit and body, the hashes of its brief, bake record,
   history records and resources;
-* the `srn_parts` entry of `hakbuilder.json`, once.
+* `docs/armorkit/parts-copies.json`, the pack's copies list: a tint texture that is one image under several
+  names is written once and its other names listed (`copies`, `tint_copies`);
+* the `srn_parts` entry of `hakbuilder.json`, once, naming the copies list when there is one.
 
 The gates (`gates`) each fail the command with the model and the reason: every body a part lists has its model
 and every part its table row, every texture a model names is in the pack, no name is one `srn_body` or
@@ -38,6 +40,8 @@ Publishing grants no approval: the client is the evidence, and the user's review
 import hashlib
 import json
 import math
+import os
+import re
 import shutil
 import struct
 import subprocess
@@ -54,6 +58,9 @@ PACK = 'srn_parts'
 TABLE_PACK = 'srn_2da'
 REGISTRY = Path('docs/armorkit/parts-registry.json')
 HANDOFF = Path('docs/armorkit/parts-handoff.json')
+COPIES = Path('docs/armorkit/parts-copies.json')  # the pack's copies list (tools/SrnHaks.Common.psm1, Get-SrnHakCopies)
+COPIES_KIND = 'srn-hak-copies'
+COPY_NAME = re.compile(r'[a-z0-9_]{1,16}\.[a-z0-9]{2,4}')  # a resource file name, as Get-SrnHakCopies holds both names of a copy to
 HAKBUILDER = Path('hakbuilder.json')
 PROVENANCE = Path('PROVENANCE.md')
 TRIAL = 'armorkit-publish-trial.json'  # what marks a folder as a trial root: a trial is written nowhere else
@@ -161,13 +168,19 @@ def coloured(document, records):
 
 
 def shared_maps(surveyed, incoming, hashed=None):
-    """(stands, texts): the maps of a publication that are one image under several names, and the material
-    files rewritten to name the one that is kept.
+    """(stands, texts, kept): the maps of a publication that are one image under several names, the material
+    files rewritten to name the one map published for them, and whose copy that is.
 
     `incoming` maps each file name the publication takes to its path, `surveyed` are its bakes (`survey`,
-    each with the names `taken` of it). Maps (`.tga`) of the same bytes are one map: the first by name is
-    kept, the Human Fit body's before any other, `stands` maps each other's name to it (without the ending), and `texts` holds, by file name, the
-    text of every taken material file that named one of the others, naming the kept one instead. An outfit
+    each with the names `taken` of it). Maps (`.tga`) of the same bytes are one map, published under a name
+    that is no body's (`shared_name`: the part, the number, the kind of map and four digits of the image's
+    hash, `bicepl6020n_3fa1`): `stands` maps each of the names it had to that one (without the ending), `texts`
+    holds, by file name, the text of every taken material file that named one of them, naming the shared one
+    instead, and `kept` maps the shared name to the one of the old names whose bake is recorded as holding
+    it (the Human Fit body's before any other, then the first by name). A map only one model wears keeps
+    that model's name. The first publication kept a shared map under the first body's name, so every male
+    body's legs named `pfh0_*` maps and all 20 upper arms `pfd2_bicepl6020r` (review of PR 158; user
+    decision 2026-11-15: fixed before the names are frozen). An outfit
     carried to the other bodies of a gender (`refit`) keeps its normal maps, so 10 of Facility Security's
     12 are the same image on ten bodies; a tint texture is never shared, the game colours a part only
     under its model's own name (user decision 2026-11-15)."""
@@ -176,9 +189,14 @@ def shared_maps(surveyed, incoming, hashed=None):
     for name in sorted(incoming):
         if name.endswith('.tga'):
             same.setdefault(hashed(incoming[name]), []).append(name[:-4])
-    # the Human Fit body's is the one kept where it is among them: the others were carried from it
-    same = [sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for names in same.values()]
-    stands = {other: names[0] for names in same for other in names[1:]}
+    # the first of each is the copy whose bake the shared map is recorded with: the Human Fit body's where it is among them
+    same = {digest: sorted(names, key=lambda name: (name[2:4] != 'h0', name)) for digest, names in sorted(same.items()) if len(names) > 1}
+    named = {}
+    for digest, names in same.items():  # two maps of one part whose hashes begin alike: the later takes digits further along its hash
+        named[digest] = next((name for name in (shared_name(names, digest[at:]) for at in range(0, len(digest) - 3, 4)) if name not in named.values()), None)
+        require(named[digest] is not None, f'{names[0]} and the maps it is shared with have no name left: every part of their hash is taken')
+    kept = {named[digest]: names[0] for digest, names in same.items()}
+    stands = {name: named[digest] for digest, names in same.items() for name in names}
     texts = {}
     for bake in surveyed if stands else ():
         for name in sorted(bake.get('taken', ())):
@@ -195,7 +213,64 @@ def shared_maps(surveyed, incoming, hashed=None):
                     lines[index] = line.replace(words[1], stands[words[1]], 1)
             if ''.join(lines) != text:
                 texts[name] = ''.join(lines)
-    return stands, texts
+    return stands, texts, kept
+
+
+def shared_name(names, digest):
+    """The name of a map several models wear: what the first of their names says after its body (`bicepl6020n`
+    of `pfd0_bicepl6020n`; the first by name where the models are of several parts), and as many digits of
+    the image's hash as a resource name of 16 characters leaves room for, four at most."""
+    part = min(name[5:] if name[4:5] == '_' else name for name in names)
+    room = min(4, 16 - len(part) - 1)
+    require(room >= 2, f"{part} leaves no room in a resource name for a shared map's hash")
+    return f'{part}_{digest[:room]}'
+
+
+def copies(root):
+    """{file name: the file of the pack it is a copy of} of the copies list under `root`; none without one.
+
+    A tint texture is never shared by name (`shared_maps`), so a refit outfit's is one image under up to
+    ten names. The pack's folder holds it once and the copies list names the others; `tools/Build-Haks.ps1`
+    and `build` pack the held file under each (user decision 2026-11-15, after the storage study: 208 of
+    Facility Security's 244 tint textures were copies, 254 MB of its 404). The handoff records every name.
+    A list is held to what `Get-SrnHakCopies` holds it to, so that none is written or packed here that the
+    repository's build refuses: both names are resource file names of one type, and no copy is a copy of a copy."""
+    path = Path(root) / COPIES
+    if not path.is_file():
+        return {}
+    held = json.loads(path.read_text(encoding='utf-8'))
+    require(isinstance(held, dict) and held.get('kind') == COPIES_KIND and held.get('schemaVersion') == 1 and held.get('pack') == PACK
+            and isinstance(held.get('copies'), dict) and all(isinstance(name, str) for name in held['copies'].values()),
+            f'{path} is no copies list of {PACK}')
+    for name, kept in held['copies'].items():
+        require(COPY_NAME.fullmatch(name) and COPY_NAME.fullmatch(kept) and name.rpartition('.')[2] == kept.rpartition('.')[2] and kept not in held['copies'],
+                f'{path} lists {name} as a copy of {kept}: both are resource file names of one type, and the file kept is no copy itself')
+    return dict(held['copies'])
+
+
+def tint_copies(hashes):
+    """{file name: the name kept} of the tint textures in {file name: hash} that are one image under several
+    names: the Human Fit body's is kept before any other, then the first by name (as `shared_maps` keeps a map)."""
+    same = {}
+    for name in sorted(hashes):
+        if name.endswith('.plt'):
+            same.setdefault(hashes[name], []).append(name)
+    doubled = {}
+    for names in same.values():
+        names = sorted(names, key=lambda name: (name[2:4] != 'h0', name))
+        doubled.update({name: names[0] for name in names[1:]})
+    return doubled
+
+
+def tint_channels(path):
+    """The colour channels a tint texture's texels are on, by name (`export.LAYERS`; `layer N` for one that has none)."""
+    from .export import LAYERS
+    blob = Path(path).read_bytes()
+    require(blob[:8] == b'PLT V1  ' and len(blob) >= 24, f'{Path(path).name} is no tint texture')
+    count = int.from_bytes(blob[16:20], 'little') * int.from_bytes(blob[20:24], 'little')
+    require(count and len(blob) >= 24 + 2 * count, f'{Path(path).name} is a tint texture cut short')
+    names = {layer: name for name, layer in LAYERS.items()}
+    return {names.get(layer, f'layer {layer}') for layer in set(blob[25:24 + 2 * count:2])}
 
 
 def survey(folder):
@@ -646,22 +721,25 @@ def seed(root, repo=REPO):
     for pack in (TABLE_PACK, PACK):
         if not (root / pack).is_dir() and (repo / pack).is_dir():
             shutil.copytree(repo / pack, root / pack)
-    for record in (REGISTRY, HANDOFF):
+    for record in (REGISTRY, HANDOFF, COPIES):
         if not (root / record).is_file() and (repo / record).is_file():
             (root / record).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(repo / record, root / record)
     return root
 
 
-def registered(text):
-    """`hakbuilder.json`'s text with the `srn_parts` pack in its list, after `srn_armor`; unchanged if it is there."""
+def registered(text, copied=False):
+    """`hakbuilder.json`'s text with the `srn_parts` pack in its list, after `srn_armor`, and with `copied` its
+    entry naming the copies list; unchanged if it is all there."""
     document = json.loads(text)
     require(json.dumps(document, indent=2) + '\n' == text, 'hakbuilder.json is not in the indent-2 form this command rewrites')
     names = [pack['Name'] for pack in document['HakList']]
-    if PACK in names:
-        return text
-    at = names.index('srn_armor') + 1 if 'srn_armor' in names else len(names)
-    document['HakList'].insert(at, {'Name': PACK, 'Path': f'./{PACK}/', 'CompileModels': False})
+    if PACK not in names:
+        at = names.index('srn_armor') + 1 if 'srn_armor' in names else len(names)
+        document['HakList'].insert(at, {'Name': PACK, 'Path': f'./{PACK}/', 'CompileModels': False})
+    entry = next(pack for pack in document['HakList'] if pack['Name'] == PACK)
+    if copied:
+        entry.setdefault('Copies', './' + COPIES.as_posix())
     return json.dumps(document, indent=2) + '\n'
 
 
@@ -676,11 +754,25 @@ def build(root, packs=(PACK, TABLE_PACK), repo=REPO):
         source, target = root / pack, root / 'output' / (pack + '.hak')
         require(source.is_dir(), f'{root} has no {pack} folder to pack')
         target.unlink(missing_ok=True)
-        done = subprocess.run([tool, '-f', str(target), '--no-symlinks', '-c', str(source)], capture_output=True, text=True)
+        listed = copies(root) if pack == PACK else {}
+        stage = root / 'output' / f'.copies-{pack}'  # hard links to the held files, each under its copy's name
+        shutil.rmtree(stage, ignore_errors=True)
+        try:
+            if listed:
+                stage.mkdir()
+                for name, held in listed.items():
+                    require((source / held).is_file() and not (source / name).exists(), f'{name} is listed as a copy of {held}: the pack must hold {held} and no {name}')
+                    try:
+                        os.link(source / held, stage / name)
+                    except OSError:
+                        shutil.copyfile(source / held, stage / name)
+            done = subprocess.run([tool, '-f', str(target), '--no-symlinks', '-c', str(source)] + ([str(stage)] if listed else []), capture_output=True, text=True)
+        finally:
+            shutil.rmtree(stage, ignore_errors=True)
         require(done.returncode == 0 and target.is_file(), f'{pack}.hak was not built: {done.stdout[-1000:]}{done.stderr[-1000:]}')
         listing = subprocess.run([tool, '-f', str(target), '-t'], capture_output=True, text=True)
         require(listing.returncode == 0, f'{pack}.hak could not be read back')
-        expected = sorted(path.name for path in source.iterdir() if path.is_file())
+        expected = sorted([path.name for path in source.iterdir() if path.is_file()] + list(listed))
         require(sorted(line.strip() for line in listing.stdout.splitlines() if line.strip()) == expected,
                 f'{pack}.hak does not hold exactly the files of its folder')
         built[pack] = {'resources': len(expected), 'sha256': sha(target), 'path': str(target)}
@@ -688,7 +780,7 @@ def build(root, packs=(PACK, TABLE_PACK), repo=REPO):
 
 
 def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, trial=False, dry_run=False, body_pack=None,
-            repo=REPO, textures=model_textures, measure_neck=chest_neck, draw_icons=icons):
+            repo=REPO, textures=model_textures, measure_neck=chest_neck, draw_icons=icons, channels=tint_channels):
     """Publish the bakes in `bakes` under the registry at `registry_path`: the report.
 
     `root` is the tree written to, the repository unless `trial` names a scratch root (`seed`). `records` are
@@ -715,12 +807,26 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
     pack_folder = root / PACK
     pack = {path.name: path for path in pack_folder.iterdir() if path.is_file()} if pack_folder.is_dir() else {}
     failures, incoming, outfits = [], {}, []
+    # A copy the pack leaves out is read from the file it is a copy of (`copies`), and held to its own recorded hash.
+    listed = copies(root)
+    for name, held in sorted(listed.items()):
+        if name in pack:
+            failures.append(failure('published', name, f'{PACK} holds this file, and its copies list names it as a copy of {held}'))
+        elif held not in pack:  # `copies` has refused a list whose kept file is itself a copy
+            failures.append(failure('published', name, f'the copies list names it as a copy of {held}, which {PACK} does not hold'))
+    pack.update({name: pack[held] for name, held in listed.items() if name not in pack and held in pack})
     # What is published is what its handoff recorded: a file changed or gone since fails by name.
     recorded = [resource for outfit in handoff_before.get('outfits', []) for resource in outfit.get('resources', [])]
+    hashed = {}
+
+    def once(path):  # a file's hash, taken once however many names or bodies share the file
+        if path not in hashed:
+            hashed[path] = sha(path)
+        return hashed[path]
     for resource in recorded + handoff_before.get('iconFiles', []):
         if resource['name'] not in pack:
             failures.append(failure('published', resource['name'], f'{PACK} no longer holds this published file'))
-        elif sha(pack[resource['name']]) != resource['sha256']:
+        elif once(pack[resource['name']]) != resource['sha256']:
             failures.append(failure('published', resource['name'], f'{PACK} holds another file than the one published: its hash is not the one the handoff records'))
     # And nothing else is in the pack: a file staged there by hand would stand for a model with no bake, no
     # neck measure and no hash.
@@ -732,12 +838,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(Path(path).is_file(), f'{path} is no file to record for {model}')
         given_records.setdefault(model, []).append(Path(path))
     wanted = {model: (part, body) for part in new for body, models in registry.model_names(part).items() for model in models}
-    found_briefs, hashed, miscoloured = {}, {}, set()
-
-    def once(path):  # a file's hash, taken once however many bodies share the file
-        if path not in hashed:
-            hashed[path] = sha(path)
-        return hashed[path]
+    found_briefs, miscoloured = {}, set()
     for bake in surveyed:
         record = bake['record']
         label = f'{record["body"]} {record["model"]}'
@@ -783,7 +884,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         require(not unknown, f'{flag} names a model no bake is of: {", ".join(unknown)}')
 
     # One image under several names is published once: the other bodies' material files name the one kept.
-    stands, renamed = shared_maps(surveyed, incoming, once)
+    stands, renamed, kept = shared_maps(surveyed, incoming, once)
     work = None
     if stands:
         work = Path(tempfile.mkdtemp(prefix='armorkit-publish-'))
@@ -791,10 +892,28 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             for name in sorted(bake.get('taken', ())):
                 if name.endswith('.tga') and name[:-4] in stands:
                     bake['taken'].discard(name)
-                    del incoming[name]
+                    source, shared = incoming.pop(name), stands[name[:-4]] + '.tga'
+                    if kept[stands[name[:-4]]] == name[:-4]:  # the bake recorded as holding the shared map
+                        if shared in pack or shared in incoming:
+                            failures.append(failure('bake', shared, f'{PACK} already holds a file of that name'))
+                        else:
+                            bake['files'][shared] = incoming[shared] = source
+                            bake['taken'].add(shared)
                 elif name in renamed:
                     (work / name).write_bytes(renamed[name].encode('ascii'))
                     bake['files'][name] = incoming[name] = work / name
+    # A part lists the colour channels its tint textures use, no more and no fewer: SR_NWN offers a colour for each.
+    for part in new:
+        models = [model for names in registry.model_names(part).values() for model in names if model + '.plt' in incoming]
+        try:
+            used = set().union(*(channels(incoming[model + '.plt']) for model in models))
+        except UNREADABLE as error:
+            failures.append(failure('channels', f'{part["slot"]} {part["number"]}', f'a tint texture could not be read: {error}'))
+            continue
+        for reason, names in (('lists {}, which none of its tint textures use', set(part['channels']) - used),
+                              ('has tint textures on {}, which it does not list', used - set(part['channels']))):
+            if names and models:
+                failures.append(failure('channels', f'{part["slot"]} {part["number"]}', 'the registry part ' + reason.format(', '.join(sorted(names)))))
     pack.update(incoming)
     try:
         try:
@@ -832,6 +951,9 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         # Every source is hashed once, before the first write; the records are made from those hashes and each
         # copy is read back against its own.
         hashes = {name: sha(path) for name, path in incoming.items()}
+        # A tint texture that is one image under several names is written once; the copies list names the others.
+        doubled = tint_copies({name: digest for name, digest in hashes.items() if name not in drawn})  # an icon is 16 KB: kept under its own name
+        report['copies'] = sorted(doubled)
         # A record is named with the folder it lies in: the stages of a generation each keep a file of one name.
         pinned = lambda path: {'name': '/'.join(path.resolve().parts[-2:]), 'sha256': once(path), 'bytes': path.stat().st_size}
         outfits = [{'model': bake['record']['model'], 'body': bake['record']['body'], 'number': bake['record']['number'], 'tier': bake['record'].get('tier'),
@@ -850,8 +972,10 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                    'outfits': handoff_before.get('outfits', []) + outfits}
         texts = {root / TABLE_PACK / (table + '.2da'): text.encode('cp1252') for table, text in table_texts.items()}
         texts.update({root / path: (json.dumps(value, indent=1) + '\n').encode('utf-8') for path, value in ((REGISTRY, document), (HANDOFF, handoff))})
+        if listed or doubled:
+            texts[root / COPIES] = (json.dumps({'schemaVersion': 1, 'kind': COPIES_KIND, 'pack': PACK, 'copies': dict(sorted({**listed, **doubled}.items()))}, indent=1) + '\n').encode('utf-8')
         if not trial:
-            texts[root / HAKBUILDER] = registered((root / HAKBUILDER).read_text(encoding='utf-8')).encode('utf-8')
+            texts[root / HAKBUILDER] = registered((root / HAKBUILDER).read_text(encoding='utf-8'), bool(listed or doubled)).encode('utf-8')
         saved = {path: path.read_bytes() if path.is_file() else None for path in texts}
         made_pack = not pack_folder.is_dir()
         try:
@@ -859,6 +983,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                 (root / TRIAL).write_text(json.dumps({**TRIAL_MARK, 'written': True}) + '\n', encoding='utf-8')
             pack_folder.mkdir(parents=True, exist_ok=True)
             for name, path in sorted(incoming.items()):
+                if name in doubled:
+                    continue
                 shutil.copyfile(path, pack_folder / name)
                 require(sha(pack_folder / name) == hashes[name], f'{name} was not copied whole')
             for path, blob in texts.items():

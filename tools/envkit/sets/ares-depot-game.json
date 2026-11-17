@@ -59,14 +59,14 @@
       {"part": "screen", "box": [[-0.22, 0.0, 1.02], [0.22, 0.4, 1.34]], "gain": 1.5, "saturation": 0.3},
       {"part": "scanner", "box": [[-0.14, 0.0, 0.74], [0.14, 0.4, 0.88]], "gain": 1.5, "value": 0.5},
       {"part": "top lamp", "box": [[-0.28, -0.4, 1.47], [0.28, 0.4, 1.6]], "value": 0.75}
-    ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Ares Depot, Checkpoint Terminal", "sound": 28, "category": 165, "light": {"colour": 2, "at": [0.0, 0.0, 1.55]}}},
+    ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Ares Depot, Checkpoint Terminal", "sound": 28, "category": 165, "light": null}},
     "ek_ad_dronedk": {"source": "meshy/models/ares-drone-dock-a1", "height": 2.6, "measuredAt": 2.6, "colour": 2048, "lit": [
       {"part": "left pillar lamp", "box": [[0.95, -1.1, 1.75], [1.29, 1.1, 2.1]], "value": 0.7},
       {"part": "right pillar lamp", "box": [[-1.29, -1.1, 1.75], [-0.95, 1.1, 2.1]], "value": 0.7},
       {"part": "pillar strips", "box": [[-1.29, -1.1, 0.85], [1.29, 1.1, 1.55]], "gain": 1.5, "saturation": 0.45, "value": 0.4},
       {"part": "arm strip", "box": [[-0.6, -1.1, 1.85], [0.6, 1.1, 2.0]], "saturation": 0.3, "value": 0.5},
       {"part": "landing pad", "box": [[-0.75, -0.6, 0.25], [0.75, 0.6, 0.6]], "gain": 1.2, "saturation": 0.5, "value": 0.4}
-    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Drone Dock", "sound": 28, "category": 161, "light": {"colour": 2, "at": [0.0, 0.25, 1.8]}}},
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Ares Depot, Drone Dock", "sound": 28, "category": 161, "light": {"colour": 1, "at": [0.0, 0.25, 1.8]}}},
     "ek_ad_turret": {"source": "meshy/models/ares-turret-a2", "height": 1.8, "measuredAt": {"height": 1.8, "turn": 90}, "turn": 90, "colour": 1024, "lit": [
       {"part": "sensor eye", "box": [[-0.3, 0.5, 1.4], [0.3, 0.9, 1.7]], "gain": 2.0, "saturation": 0.6, "value": 0.5}
     ], "halo": {"reach": 0.12, "strength": 0.45}, "placeable": {"label": "Ares Depot, Turret", "sound": 28, "category": 199, "light": null}},

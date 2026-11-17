@@ -393,6 +393,36 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   Smooth the door with `slats` as well: `{"part": ..., "box": ..., "radius": 0.08, "slats": 0.12}` takes the pattern
   off and draws a joint every 0.12 m up the model. Keep lettering out of the boxes (one under it, one over it and one
   either side), and read the boxes off the texture rather than by eye. A pitch under four texels is refused.
+- **A roller or bay door is one flat colour, its slats lost** (the Ghost Riders garage: a flat dark blue with a few
+  stray flecks; user, 2026-11-15: "garage and bay doors seem to have problems on a lot of the meshy models, can we
+  add reusable checks and repairs for that?"). `game` and `tiles` look for it on every model: each upright panel the
+  size of a door that the picture draws in one flat colour, starting near the ground, is an entry of `blankPanels`
+  in the report and a note (`convert.blank_panels`) that gives the `smooth` entry which draws it again as slats.
+  Look at the panel with `view --eye`; where it is a door, copy the entry into the game set, pull its box in to the
+  door's own edges (clear of the jambs, a strip light over it, bollards in front), add a `colour` where the
+  generator's shade is wrong, and build again: a panel whose middle lies in a `smooth` box with `slats` is told no
+  more. A painted steel plate and the inner face of a wall read the same and are left: a note is a place to look.
+  Slats drawn finer than the texels (the moiré above) are not found by this check; the repair is the same.
+- **Flames, a fire or a torch came back as a solid, still mesh** (the Ghost Riders burn barrel; user, 2026-11-15:
+  "we should remove the flames from the barrel and add that as a vfx"). Take the flames off with a `clear` box
+  from just above what burns and state the fire: `"fire": [{"part": ..., "at": [x, y, z], "width": metres}]`, on
+  the finished model, at the fire's foot. The game then draws the stock medium flame's own flames there
+  (`convert.fire_lines`), scaled to the width, by day and by night. A placeable only; a fire further than 0.3
+  metres from the model is refused. What the clearing leaves of the flames' feet can be lit as embers (`lit`), and
+  a fire that should light the ground takes a `light` in an orange row of `lightcolor.2da` (31) at its foot. A model
+  with a fire is compiled by `convert.compile_placeable`: a twin without the fire passes the usual read-back check,
+  and the model itself is decompiled again and must hold its fire and every face. See the flames in `check props`
+  by day and by night.
+- **A floor marking or pad came back as a wedge**, thick at the back and thin at the front (the Ghost Riders parking
+  pad, drawn from a slant: half a metre thick at its back at its true width). Scale it by `height` until its
+  footprint is right (`view` gives the bounds), then `"level": 0.03` lays its top flat at that thickness, what
+  stands proud of the top (wheel stops) left as proud (`convert.levelled`), and `"underfoot": true` gives its
+  placeable no block to walk into. Boxes are measured on the model as levelled (`measuredAt` states `level`).
+- **A placeable on legs cannot be walked under** (a gantry crane, a canopy on posts: its collision is one block on
+  its whole footprint; user, 2026-11-15: "the crane placeable should NOT block walking underneath it"). State
+  `"walkUnder": true`: the placeable gets a block for each part of it that stands under head height, told apart
+  where 0.6 m of clear ground lies between (`convert.standing`), and the report's `walkBlocks` says how many. Only
+  the `.pwk` changes. Every prop that spans something is asked this when its set is written.
 - **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
   0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
   `walk.png` shows which. A floor up to 1.5 m high (`tile.PLATFORM`), a loading platform, is walked on where stairs
@@ -516,7 +546,11 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   states `light`, a light for what should be bright (a lamp, a floodlight, a work light) and `null` for what only
   glows (a screen, a sign, an indicator, strip lights in a case). The Chop Shop clinic's surgical lamp was
   converted with glowing lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are
-  checking for when props need lights from now on", "it should only be for things that should be bright"). A row
+  checking for when props need lights from now on", "it should only be for things that should be bright"). A cast light
+  is for what lights the area round it as well as glowing (user, 2026-11-15, of a hand scanner terminal and a
+  console whose top lamps had been given lights: "just the glow is fine"): a terminal's or console's lamp bar,
+  a status lamp and a screen take `null`. A small lamp on a prop takes row 1 (DimWhite); rows 2 and 3 are for
+  floodlights and tower lamps, and hang a flare as wide as the prop on a small one. A row
   holds one light: of several lamps on one prop it stands at one of them, at or just inside its housing (where, and
   why not under the lens or between two lamps, is told next). See it in `check props --mode night`, the ground and
   the figures lit round it.

@@ -1,0 +1,10 @@
+node dummy ek_gr_pad_pwk_use01
+  parent ek_gr_pad_pwk
+  position 0 2.02168 0
+  orientation 0 1 0 0
+endnode
+node dummy ek_gr_pad_pwk_use02
+  parent ek_gr_pad_pwk
+  position 0 -2.02168 0
+  orientation 0 1 0 0
+endnode

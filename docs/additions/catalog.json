@@ -1388,6 +1388,208 @@
   },
   {
    "row": 22833,
+   "model": "ek_gr_bench",
+   "label": "[envkit]Ghost Riders, Repair Bench",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_gr_bench",
+    "out": "ek_gr_bench_o",
+    "glow": "ek_gr_bench_i",
+    "halo": "ek_gr_bench_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_bench",
+   "category": 164
+  },
+  {
+   "row": 22834,
+   "model": "ek_gr_pad",
+   "label": "[envkit]Ghost Riders, Parking Pad",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_pad",
+   "category": 161
+  },
+  {
+   "row": 22835,
+   "model": "ek_gr_rack",
+   "label": "[envkit]Ghost Riders, Parts Rack",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_rack",
+   "category": 164
+  },
+  {
+   "row": 22836,
+   "model": "ek_gr_table",
+   "label": "[envkit]Ghost Riders, Planning Table",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_table",
+   "category": 161
+  },
+  {
+   "row": 22837,
+   "model": "ek_gr_fire",
+   "label": "[envkit]Ghost Riders, Burn Barrel",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_gr_fire",
+    "out": "ek_gr_fire_o",
+    "glow": "ek_gr_fire_i"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_fire",
+   "category": 161
+  },
+  {
+   "row": 22838,
+   "model": "ek_gr_embers",
+   "label": "[envkit]Ghost Riders, Ember Barrel",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_gr_embers",
+    "out": "ek_gr_embers_o",
+    "glow": "ek_gr_embers_i"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_embers",
+   "category": 161
+  },
+  {
+   "row": 22839,
+   "model": "ek_gr_sign",
+   "label": "[envkit]Ghost Riders, Motorpool Sign",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_sign",
+   "category": 156
+  },
+  {
+   "row": 22840,
+   "model": "ek_gr_banner",
+   "label": "[envkit]Ghost Riders, Gear Banner",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_banner",
+   "category": 156
+  },
+  {
+   "row": 22841,
+   "model": "ek_gr_barrier",
+   "label": "[envkit]Ghost Riders, Tagged Barrier",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_barrier",
+   "category": 158
+  },
+  {
+   "row": 22842,
+   "model": "ek_gr_door",
+   "label": "[envkit]Ghost Riders, Skull Garage Door",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_door",
+   "category": 159
+  },
+  {
+   "row": 22843,
+   "model": "ek_gr_mural",
+   "label": "[envkit]Ghost Riders, Mural Wall",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_gr_mural",
+    "out": "ek_gr_mural_o",
+    "glow": "ek_gr_mural_i"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_mural",
+   "category": 156
+  },
+  {
+   "row": 22844,
+   "model": "ek_gr_cases",
+   "label": "[envkit]Ghost Riders, Stash Cases",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_cases",
+   "category": 164
+  },
+  {
+   "row": 22845,
+   "model": "ek_gr_drums",
+   "label": "[envkit]Ghost Riders, Fuel Drums",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_drums",
+   "category": 164
+  },
+  {
+   "row": 22846,
+   "model": "ek_gr_fence",
+   "label": "[envkit]Ghost Riders, Fence Section",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_fence",
+   "category": 159
+  },
+  {
+   "row": 22847,
+   "model": "ek_gr_locker",
+   "label": "[envkit]Ghost Riders, Service Locker",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders props",
+   "added": "2026-11-15",
+   "blueprint": "ek_gr_locker",
+   "category": 164
+  },
+  {
+   "row": 22848,
    "model": "ek_aw_kiosk",
    "label": "[envkit]Aurora Warrens, Entry Shack",
    "pack": "srn_placeable",
@@ -1401,84 +1603,84 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_kiosk",
    "category": 161
   },
   {
-   "row": 22834,
+   "row": 22849,
    "model": "ek_aw_stairs",
    "label": "[envkit]Aurora Warrens, Caged Stairwell",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_stairs",
    "category": 161
   },
   {
-   "row": 22835,
+   "row": 22850,
    "model": "ek_aw_balcony",
    "label": "[envkit]Aurora Warrens, Balcony Segment",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_balcony",
    "category": 161
   },
   {
-   "row": 22836,
+   "row": 22851,
    "model": "ek_aw_gen",
    "label": "[envkit]Aurora Warrens, Utility Generator",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_gen",
    "category": 161
   },
   {
-   "row": 22837,
+   "row": 22852,
    "model": "ek_aw_tank",
    "label": "[envkit]Aurora Warrens, Water Tank",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_tank",
    "category": 161
   },
   {
-   "row": 22838,
+   "row": 22853,
    "model": "ek_aw_shack",
    "label": "[envkit]Aurora Warrens, Rooftop Shack",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_shack",
    "category": 161
   },
   {
-   "row": 22839,
+   "row": 22854,
    "model": "ek_aw_barrier",
    "label": "[envkit]Aurora Warrens, Scrap Barrier",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_barrier",
    "category": 158
   },
   {
-   "row": 22840,
+   "row": 22855,
    "model": "ek_aw_bodega",
    "label": "[envkit]Aurora Warrens, Bodega Kiosk",
    "pack": "srn_placeable",
@@ -1492,72 +1694,72 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_bodega",
    "category": 174
   },
   {
-   "row": 22841,
+   "row": 22856,
    "model": "ek_aw_laundry",
    "label": "[envkit]Aurora Warrens, Laundry Line",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_laundry",
    "category": 161
   },
   {
-   "row": 22842,
+   "row": 22857,
    "model": "ek_aw_trash",
    "label": "[envkit]Aurora Warrens, Trash Pile",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_trash",
    "category": 158
   },
   {
-   "row": 22843,
+   "row": 22858,
    "model": "ek_aw_graffiti",
    "label": "[envkit]Aurora Warrens, Graffiti Wall",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_graffiti",
    "category": 158
   },
   {
-   "row": 22844,
+   "row": 22859,
    "model": "ek_aw_namewall",
    "label": "[envkit]Aurora Warrens, Name Wall",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_namewall",
    "category": 156
   },
   {
-   "row": 22845,
+   "row": 22860,
    "model": "ek_aw_crates",
    "label": "[envkit]Aurora Warrens, Crates on Pallets",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens props",
-   "added": "2026-11-15",
+   "added": "2026-11-17",
    "blueprint": "ek_aw_crates",
    "category": 164
   },
   {
-   "row": 22846,
+   "row": 22861,
    "model": "ek_nb_stall",
    "label": "[envkit]Night Bazaar, Vendor Stall",
    "pack": "srn_placeable",
@@ -1571,12 +1773,12 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_stall",
    "category": 174
   },
   {
-   "row": 22847,
+   "row": 22862,
    "model": "ek_nb_kiosk",
    "label": "[envkit]Night Bazaar, Tarped Kiosk",
    "pack": "srn_placeable",
@@ -1590,12 +1792,12 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_kiosk",
    "category": 174
   },
   {
-   "row": 22848,
+   "row": 22863,
    "model": "ek_nb_neon",
    "label": "[envkit]Night Bazaar, Cyberware Neon Sign",
    "pack": "srn_placeable",
@@ -1609,12 +1811,12 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_neon",
    "category": 156
   },
   {
-   "row": 22849,
+   "row": 22864,
    "model": "ek_nb_gatesign",
    "label": "[envkit]Night Bazaar, Gateway Sign",
    "pack": "srn_placeable",
@@ -1628,12 +1830,12 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_gatesign",
    "category": 156
   },
   {
-   "row": 22850,
+   "row": 22865,
    "model": "ek_nb_panel",
    "label": "[envkit]Night Bazaar, Neon Panel",
    "pack": "srn_placeable",
@@ -1647,60 +1849,60 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_panel",
    "category": 156
   },
   {
-   "row": 22851,
+   "row": 22866,
    "model": "ek_nb_cart",
    "label": "[envkit]Night Bazaar, Food Cart",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_cart",
    "category": 174
   },
   {
-   "row": 22852,
+   "row": 22867,
    "model": "ek_nb_table",
    "label": "[envkit]Night Bazaar, Folding Table",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_table",
    "category": 174
   },
   {
-   "row": 22853,
+   "row": 22868,
    "model": "ek_nb_cases",
    "label": "[envkit]Night Bazaar, Case Stack",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_cases",
    "category": 164
   },
   {
-   "row": 22854,
+   "row": 22869,
    "model": "ek_nb_gen",
    "label": "[envkit]Night Bazaar, Portable Generator",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_gen",
    "category": 161
   },
   {
-   "row": 22855,
+   "row": 22870,
    "model": "ek_nb_booth",
    "label": "[envkit]Night Bazaar, Shutter Booth",
    "pack": "srn_placeable",
@@ -1712,24 +1914,24 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_booth",
    "category": 161
   },
   {
-   "row": 22856,
+   "row": 22871,
    "model": "ek_nb_bench",
    "label": "[envkit]Night Bazaar, Bench",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_bench",
    "category": 161
   },
   {
-   "row": 22857,
+   "row": 22872,
    "model": "ek_nb_lights",
    "label": "[envkit]Night Bazaar, Light String",
    "pack": "srn_placeable",
@@ -1743,12 +1945,12 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_lights",
    "category": 161
   },
   {
-   "row": 22858,
+   "row": 22873,
    "model": "ek_nb_pylon",
    "label": "[envkit]Night Bazaar, Pylon Sign",
    "pack": "srn_placeable",
@@ -1762,19 +1964,19 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_pylon",
    "category": 156
   },
   {
-   "row": 22859,
+   "row": 22874,
    "model": "ek_nb_fence",
    "label": "[envkit]Night Bazaar, Fence Segment",
    "pack": "srn_placeable",
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar props",
-   "added": "2026-11-16",
+   "added": "2026-11-17",
    "blueprint": "ek_nb_fence",
    "category": 159
   }
@@ -2271,8 +2473,8 @@
   {
    "tileset": "dgt04",
    "group": 64,
-   "name": "Aurora_Warrens",
-   "label": "Aurora Warrens 3x2",
+   "name": "Motorpool",
+   "label": "Motorpool Garage 3x2",
    "rows": 2,
    "columns": 3,
    "tiles": [
@@ -2282,6 +2484,42 @@
     537,
     538,
     539
+   ],
+   "models": [
+    "ek_gr_garage_t00",
+    "ek_gr_garage_t01",
+    "ek_gr_garage_t02",
+    "ek_gr_garage_t10",
+    "ek_gr_garage_t11",
+    "ek_gr_garage_t12"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_gr_garage",
+    "out": "ek_gr_garage_o",
+    "glow": "ek_gr_garage_i",
+    "halo": "ek_gr_garage_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders tile group",
+   "added": "2026-11-15"
+  },
+  {
+   "tileset": "dgt04",
+   "group": 65,
+   "name": "Aurora_Warrens",
+   "label": "Aurora Warrens 3x2",
+   "rows": 2,
+   "columns": 3,
+   "tiles": [
+    540,
+    541,
+    542,
+    543,
+    544,
+    545
    ],
    "models": [
     "ek_aw_block_t00",
@@ -2302,22 +2540,22 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens tile group",
-   "added": "2026-11-15"
+   "added": "2026-11-17"
   },
   {
    "tileset": "dgt04",
-   "group": 65,
+   "group": 66,
    "name": "Night_Bazaar",
    "label": "Night Bazaar Gatehouse 3x2",
    "rows": 2,
    "columns": 3,
    "tiles": [
-    540,
-    541,
-    542,
-    543,
-    544,
-    545
+    546,
+    547,
+    548,
+    549,
+    550,
+    551
    ],
    "models": [
     "ek_nb_gate_t00",
@@ -2331,7 +2569,7 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar tile group",
-   "added": "2026-11-16"
+   "added": "2026-11-17"
   },
   {
    "tileset": "udp1",
@@ -2734,8 +2972,8 @@
   {
    "tileset": "udp1",
    "group": 113,
-   "name": "Aurora_Warrens",
-   "label": "Aurora Warrens 3x2",
+   "name": "Motorpool",
+   "label": "Motorpool Garage 3x2",
    "rows": 2,
    "columns": 3,
    "tiles": [
@@ -2745,6 +2983,42 @@
     779,
     780,
     781
+   ],
+   "models": [
+    "ek_gr_garage_t00",
+    "ek_gr_garage_t01",
+    "ek_gr_garage_t02",
+    "ek_gr_garage_t10",
+    "ek_gr_garage_t11",
+    "ek_gr_garage_t12"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_gr_garage",
+    "out": "ek_gr_garage_o",
+    "glow": "ek_gr_garage_i",
+    "halo": "ek_gr_garage_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/ghost-riders-game.json",
+   "provenance": "Ghost Riders tile group",
+   "added": "2026-11-15"
+  },
+  {
+   "tileset": "udp1",
+   "group": 114,
+   "name": "Aurora_Warrens",
+   "label": "Aurora Warrens 3x2",
+   "rows": 2,
+   "columns": 3,
+   "tiles": [
+    782,
+    783,
+    784,
+    785,
+    786,
+    787
    ],
    "models": [
     "ek_aw_block_t00",
@@ -2765,22 +3039,22 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens tile group",
-   "added": "2026-11-15"
+   "added": "2026-11-17"
   },
   {
    "tileset": "udp1",
-   "group": 114,
+   "group": 115,
    "name": "Night_Bazaar",
    "label": "Night Bazaar Gatehouse 3x2",
    "rows": 2,
    "columns": 3,
    "tiles": [
-    782,
-    783,
-    784,
-    785,
-    786,
-    787
+    788,
+    789,
+    790,
+    791,
+    792,
+    793
    ],
    "models": [
     "ek_nb_gate_t00",
@@ -2794,7 +3068,7 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar tile group",
-   "added": "2026-11-16"
+   "added": "2026-11-17"
   }
  ]
 }

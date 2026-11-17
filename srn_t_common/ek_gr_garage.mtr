@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_gr_garage
+texture1 ek_gr_garage_n
+texture2 ek_gr_garage_s
+texture3 ek_gr_garage_r
+texture4 null
+texture5 ek_gr_garage_i

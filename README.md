@@ -188,6 +188,7 @@ For production workflows, pipelines, and manifests, see:
 ## Global Side Effects
 
 - Compilation and build commands (`Build-Haks.ps1`, `Build-Tlk.ps1`) write binary `.hak` and `.tlk` archives to `output/`.
+- `[tools/SrnHaks.Common.psm1:Get-SrnHakCopies]`: A pack's `hakbuilder.json` entry may name a copies list (`Copies`, kind `srn-hak-copies`): {file name: the file of the pack it is a byte for byte copy of}. The folder holds each image once; `Build-Haks.ps1` packs the held file under every name (hard links in `output/.copies-<pack>`, removed after the build), so a pack folder with a copies list is not the whole archive: build it with `Build-Haks.ps1`, never by packing the folder alone. `srn_parts` lists its repeated tint textures in `docs/armorkit/parts-copies.json`.
 - Pipeline tools launch external processes including the NWN model compiler (`nwnmdlcomp`), texture cruncher (`nwn_crunch`), headless Blender, and the NWN game client (`nwmain.exe`).
 - Generative workflows dispatch external API calls via Meshy CLI or local ComfyUI GPU servers on `127.0.0.1:8188`.
 

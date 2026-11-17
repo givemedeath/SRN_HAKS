@@ -19,7 +19,7 @@ if __package__ in (None, ''):
 
 from tools.headkit.common import pin, require
 
-SIZE = 1024          # checked at the runtime map's resolution
+SIZE = 1024          # the check reads the 1K map, whatever the item's runtime size: every texel count below is at 1K
 WINDOW = 31          # neighbourhood for the local median (texels at SIZE): wider than a stroke, narrower than an island
 SMOOTH = 2.0         # Gaussian sigma on the residual: stipple and grain cancel, a coherent stroke survives
 SPREAD = 5.0         # an outlier is beyond this many robust deviations of its UV island's smoothed residual ...

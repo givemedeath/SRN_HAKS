@@ -63,7 +63,7 @@ ROW_Y = {'m': ROWS[0][0], 'f': ROWS[0][1]}   # the southern row
 ROW_START = 5.0
 ROW_STEP = 3.5
 TILE = 10.0
-REVIEWER = re.compile(r'^sw(\d+)_([mf])([0-4])$')
+REVIEWER = re.compile(r'^sw([1-9]\d*)_([mf])([0-4])$')   # no leading zero: the scripts read the literal prefix
 WORDS = ('zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen '
          'seventeen eighteen nineteen').split()
 TENS = 'twenty thirty forty fifty sixty seventy eighty ninety'.split()
@@ -298,8 +298,9 @@ def plan_pairs(creatures, packages, area_width, area_height=None, obstacles=()):
                 and all(clear(x, y) for x in xs for y in row))
     number = len(groups) + 1; pairs = []
     for start in range(0, len(packages), GROUP_SIZE):
-        # c.nss and sw_review.nss read a reviewer's group as GetStringLeft(tag, 4): one digit, sw1_ to sw9_.
-        require(number <= 9, f'Reviewer group sw{number}_ is past what the module selector can read (sw1_ to sw9_)')
+        # c.nss and sw_review.nss read a reviewer's group up to its first underscore (sw10_ on; they read four characters,
+        # sw1_ to sw9_, until wave 6 placed the tenth group, 2026-11-15). A tag stays within NWN's 32 characters.
+        require(number <= 99, f'Reviewer group sw{number}_ is past what the module selector reads (sw1_ to sw99_)')
         group = packages[start:start + GROUP_SIZE]
         row = next((r for r in ROWS if fits(r, len(group))), None)
         require(row is not None, f'No room left in the comparison rows for {len(group)} reviewer pairs from {group[0].item}')
