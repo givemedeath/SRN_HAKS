@@ -11,6 +11,9 @@ GENERATION = {'preset': 'pixal-single-v1', 'shapeResolution': 1536, 'shapeCFG': 
 # Whole-item cap for the firearm and shield routes. The user raised every visible budget by 50% on 2026-11-11
 # (10000 -> 15000); shadow budgets are unchanged. Profiles under the cap, such as the shipped 10000 ones, stay valid.
 FIXED_ROUTE_BUDGET = {'visible': 15000, 'shadow': 500}
+# The firearm route's own cap is the top of budget-policy.json's firearm range (user, 2026-11-17: "raise the firearm cap
+# to 37,500"); a pistol still starts near the bottom of that range. The shield route keeps FIXED_ROUTE_BUDGET.
+FIREARM_ROUTE_BUDGET = {'visible': 37500, 'shadow': 500}
 
 
 def resref(value):
@@ -97,8 +100,9 @@ def family(path, *, validate_native=True):
                 and data['firearm']['subtype'] in SLOTS, 'Explicit supported firearm slot required')
         firearm_slot = SLOTS[data['firearm']['subtype']]
     if firearm_slot or shield:
-        require(budgets['visible'] <= FIXED_ROUTE_BUDGET['visible'] and budgets['shadow'] == FIXED_ROUTE_BUDGET['shadow'],
-                'This route has a {visible}/{shadow} budget'.format(**FIXED_ROUTE_BUDGET))
+        cap = FIREARM_ROUTE_BUDGET if firearm_slot else FIXED_ROUTE_BUDGET
+        require(budgets['visible'] <= cap['visible'] and budgets['shadow'] == cap['shadow'],
+                'This route has a {visible}/{shadow} budget'.format(**cap))
     require(set(budgets) == {'visible', 'shadow', 'parts'}, 'Explicit whole-object and per-part budgets required')
     for kind in ('visible', 'shadow'):
         integer(budgets[kind], 4, 200000, kind + ' assembly budget')

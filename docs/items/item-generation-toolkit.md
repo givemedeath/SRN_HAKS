@@ -724,9 +724,11 @@ The selected closed shadow result is 96/96/296. Its explicit `shadowPommel`
 projected-loop method retains the measured opening with a variable-thickness,
 96-triangle closed silhouette; it does not change visible geometry.
 
-The firearm and shield routes cap the whole item at 15,000 visible / 500 shadow
-(`contracts.FIXED_ROUTE_BUDGET`; 10,000 before 2026-11-11), including active hidden
-placeholders. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
+The firearm route caps the whole item at 37,500 visible / 500 shadow
+(`contracts.FIREARM_ROUTE_BUDGET`; user, 2026-11-17: "raise the firearm cap to 37,500"; 15,000 before, and
+10,000 before 2026-11-11), including active hidden placeholders. The shield route stays at 15,000 / 500
+(`contracts.FIXED_ROUTE_BUDGET`). No firearm above 15,000 has been checked in the client yet; choose a
+pistol's budget near the bottom of the firearm range and a rifle's by its size. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
 thresholds or shadow budget increases have been established. Preserve historical profiles and receipts;
 derive a fresh profile/manifest for future processing. New targets confer no geometry,
 native, client or production approval.
